@@ -283,7 +283,8 @@ void TestMalformedScalarParametersAreRejected()
 
 void TestSuccessfulSingleRoiUsesPrimaryCellBox()
 {
-    const std::filesystem::path image_path = std::filesystem::path(ICON_RECOGNITION_TEST_INPUT_DIR) / "90.png";
+    const std::filesystem::path image_path =
+        std::filesystem::path(ICON_RECOGNITION_TEST_INPUT_DIR) / "single_roi" / "1177-450-54" / "1.png";
     const cv::Mat pixels = cv::imread(image_path.string(), cv::IMREAD_COLOR);
     Require(!pixels.empty(), "fixed ROI test image must load");
     ImageBuffer image;
@@ -326,7 +327,8 @@ void TestSuccessfulSingleRoiUsesPrimaryCellBox()
 
 void TestRecognizerPreservesInternalDiagnostics()
 {
-    const std::filesystem::path image_path = std::filesystem::path(ICON_RECOGNITION_TEST_INPUT_DIR) / "90.png";
+    const std::filesystem::path image_path =
+        std::filesystem::path(ICON_RECOGNITION_TEST_INPUT_DIR) / "single_roi" / "1177-450-54" / "1.png";
     const cv::Mat pixels = cv::imread(image_path.string(), cv::IMREAD_COLOR);
     Require(!pixels.empty(), "diagnostics test image must load");
     iconrecognition::IconRecognizer recognizer(get_exe_dir() / ".." / "data" / "IconRecognition");
@@ -423,7 +425,8 @@ void TestMaaFrameworkWrapsCustomDetail()
     MaaBool debug_mode = 1;
     Require(MaaGlobalSetOption(MaaGlobalOption_DebugMode, &debug_mode, sizeof(debug_mode)), "MaaFramework debug mode must enable");
     FrameworkFixture fixture;
-    const std::filesystem::path image_path = std::filesystem::path(ICON_RECOGNITION_TEST_INPUT_DIR) / "90.png";
+    const std::filesystem::path image_path =
+        std::filesystem::path(ICON_RECOGNITION_TEST_INPUT_DIR) / "single_roi" / "1177-450-54" / "1.png";
     const cv::Mat pixels = cv::imread(image_path.string(), cv::IMREAD_COLOR);
     Require(!pixels.empty(), "MaaFramework fixture image must load");
 

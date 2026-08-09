@@ -13,6 +13,7 @@
 #include <vector>
 
 #include "GridFeatures.h"
+#include "GridAnchors.h"
 #include "GridGeometry.h"
 #include "GridProfiles.h"
 
@@ -22,8 +23,15 @@ namespace
 {
 
 constexpr double kEpsilon = 1e-8;
+constexpr int kCreditTradeColumns = 7;
+constexpr int kCreditTradeCellOffsetX = 10;
+constexpr int kCreditTradeCellOffsetY = 6;
 
-bool IsFormal(const cv::Rect& cell, const cv::Rect& roi)
+bool IsFormal(
+    const cv::Rect& cell,
+    const cv::Rect& roi,
+    double minimum_top_visibility = 0.90,
+    double minimum_bottom_visibility = 0.70)
 {
     const cv::Rect intersection = cell & roi;
     if (intersection.empty()) {
@@ -31,8 +39,8 @@ bool IsFormal(const cv::Rect& cell, const cv::Rect& roi)
     }
     const double visible_x = static_cast<double>(intersection.width) / cell.width;
     const double visible_y = static_cast<double>(intersection.height) / cell.height;
-    const bool top_ok = cell.y >= roi.y || visible_y > 0.90;
-    const bool bottom_ok = cell.y + cell.height <= roi.y + roi.height || visible_y >= 0.70;
+    const bool top_ok = cell.y >= roi.y || visible_y >= minimum_top_visibility;
+    const bool bottom_ok = cell.y + cell.height <= roi.y + roi.height || visible_y >= minimum_bottom_visibility;
     return visible_x >= 0.70 && top_ok && bottom_ok;
 }
 
@@ -209,29 +217,29 @@ void RefineCardVerticalPhase(const cv::Mat& image, const cv::Rect& roi, GridType
         y_starts.back() + layout.cell_size - y_starts.front());
 }
 
-GridLayout BuildCreditTradeLattice(const cv::Rect& roi, int x_phase, int y_phase)
+GridLayout BuildCreditTradeLattice(const cv::Rect& roi, int x_phase, int y_phase, const GridProfile& profile)
 {
-    constexpr int kCellSize = 128;
-    constexpr int kColumns = 7;
-    constexpr int kPitchX = 161;
-    constexpr int kPitchY = 205;
-    constexpr int kCellOffsetX = 10;
-    constexpr int kCellOffsetY = 6;
+    const int pitch_x = cvRound(profile.pitch_x);
+    const int pitch_y = cvRound(profile.pitch_y);
 
     GridLayout layout;
     layout.grid_index = 0;
-    layout.cell_size = kCellSize;
-    layout.pitch_x = kPitchX;
-    layout.pitch_y = kPitchY;
-    layout.columns = kColumns;
+    layout.cell_size = profile.cell_size;
+    layout.pitch_x = profile.pitch_x;
+    layout.pitch_y = profile.pitch_y;
+    layout.columns = kCreditTradeColumns;
     for (int row = 0; row < 8; ++row) {
-        const int y = y_phase + row * kPitchY + kCellOffsetY;
+        const int y = y_phase + row * pitch_y + kCreditTradeCellOffsetY;
         if (y >= roi.y + roi.height) {
             break;
         }
         bool kept_row = false;
-        for (int column = 0; column < kColumns; ++column) {
-            const cv::Rect cell(x_phase + column * kPitchX + kCellOffsetX, y, kCellSize, kCellSize);
+        for (int column = 0; column < kCreditTradeColumns; ++column) {
+            const cv::Rect cell(
+                x_phase + column * pitch_x + kCreditTradeCellOffsetX,
+                y,
+                profile.cell_size,
+                profile.cell_size);
             if (IsFormal(cell, roi)) {
                 layout.cells.push_back({ 0, layout.rows, column, cell });
                 kept_row = true;
@@ -249,7 +257,8 @@ GridLayout BuildCreditTradeLattice(const cv::Rect& roi, int x_phase, int y_phase
     int y2 = std::numeric_limits<int>::min();
     for (const auto& cell : layout.cells) {
         x1 = std::min(x1, cell.cell_box.x), y1 = std::min(y1, cell.cell_box.y),
-        x2 = std::max(x2, cell.cell_box.x + kCellSize), y2 = std::max(y2, cell.cell_box.y + kCellSize);
+        x2 = std::max(x2, cell.cell_box.x + profile.cell_size),
+        y2 = std::max(y2, cell.cell_box.y + profile.cell_size);
     }
     layout.bounds = cv::Rect(x1, y1, x2 - x1, y2 - y1);
     return layout;
@@ -257,6 +266,9 @@ GridLayout BuildCreditTradeLattice(const cv::Rect& roi, int x_phase, int y_phase
 
 GridLayout DetectCreditTrade(const cv::Mat& image, const cv::Rect& roi)
 {
+    const GridProfile profile = ProfileFor(GridType::CreditTrade);
+    const int pitch_x = cvRound(profile.pitch_x);
+    const int pitch_y = cvRound(profile.pitch_y);
     cv::Mat crop = image(roi);
     cv::Mat bgr;
     if (crop.channels() == 4) {
@@ -282,37 +294,35 @@ GridLayout DetectCreditTrade(const cv::Mat& image, const cv::Rect& roi)
             cards.emplace_back(stats.at<int>(index, cv::CC_STAT_LEFT) + roi.x, stats.at<int>(index, cv::CC_STAT_TOP) + roi.y);
         }
     }
-    constexpr int kPitchX = 161;
-    constexpr int kPitchY = 205;
     if (cards.size() < 2) {
         return DetectSingleLattice(image, GridType::CreditTrade, roi);
     }
     std::vector<double> x_phases;
     std::vector<double> y_phases;
     for (const auto& card : cards) {
-        x_phases.push_back(card.x - std::nearbyint(static_cast<double>(card.x - roi.x) / kPitchX) * kPitchX);
-        y_phases.push_back(card.y - std::nearbyint(static_cast<double>(card.y - roi.y) / kPitchY) * kPitchY);
+        x_phases.push_back(card.x - std::nearbyint(static_cast<double>(card.x - roi.x) / pitch_x) * pitch_x);
+        y_phases.push_back(card.y - std::nearbyint(static_cast<double>(card.y - roi.y) / pitch_y) * pitch_y);
     }
     const int x_phase = cvRound(Median(std::move(x_phases)));
     const int y_phase = cvRound(Median(std::move(y_phases)));
     if (cards.size() < 5) {
-        const double maximum_residual = 0.04 * std::min(kPitchX, kPitchY);
+        const double maximum_residual = 0.04 * std::min(pitch_x, pitch_y);
         const bool coherent = std::ranges::all_of(cards, [&](const auto& card) {
-            const int column = cvRound(static_cast<double>(card.x - x_phase) / kPitchX);
-            const int row = cvRound(static_cast<double>(card.y - y_phase) / kPitchY);
-            return std::abs(card.x - (x_phase + column * kPitchX)) <= maximum_residual
-                   && std::abs(card.y - (y_phase + row * kPitchY)) <= maximum_residual;
+            const int column = cvRound(static_cast<double>(card.x - x_phase) / pitch_x);
+            const int row = cvRound(static_cast<double>(card.y - y_phase) / pitch_y);
+            return std::abs(card.x - (x_phase + column * pitch_x)) <= maximum_residual
+                   && std::abs(card.y - (y_phase + row * pitch_y)) <= maximum_residual;
         });
         if (coherent) {
-            return BuildCreditTradeLattice(roi, x_phase, y_phase);
+            return BuildCreditTradeLattice(roi, x_phase, y_phase, profile);
         }
         return DetectSingleLattice(image, GridType::CreditTrade, roi);
     }
     std::vector<std::pair<int, int>> observed;
     for (const auto& card : cards) {
-        const int row = cvRound(static_cast<double>(card.y - y_phase) / kPitchY);
-        const int column = cvRound(static_cast<double>(card.x - x_phase) / kPitchX);
-        if (row >= 0 && column >= 0 && column < 7) {
+        const int row = cvRound(static_cast<double>(card.y - y_phase) / pitch_y);
+        const int column = cvRound(static_cast<double>(card.x - x_phase) / pitch_x);
+        if (row >= 0 && column >= 0 && column < kCreditTradeColumns) {
             observed.emplace_back(row, column);
         }
     }
@@ -325,7 +335,7 @@ GridLayout DetectCreditTrade(const cv::Mat& image, const cv::Rect& roi)
     const int first_row_count =
         static_cast<int>(std::ranges::count_if(observed, [&](const auto& item) { return item.first == first_row; }));
     if (first_row_count >= 5) {
-        for (int column = 0; column < 7; ++column) {
+        for (int column = 0; column < kCreditTradeColumns; ++column) {
             observed.emplace_back(first_row, column);
         }
     }
@@ -340,14 +350,18 @@ GridLayout DetectCreditTrade(const cv::Mat& image, const cv::Rect& roi)
 
     GridLayout layout;
     layout.grid_index = 0;
-    layout.cell_size = 128;
-    layout.pitch_x = kPitchX;
-    layout.pitch_y = kPitchY;
-    layout.columns = 7;
+    layout.cell_size = profile.cell_size;
+    layout.pitch_x = profile.pitch_x;
+    layout.pitch_y = profile.pitch_y;
+    layout.columns = kCreditTradeColumns;
     layout.rows = static_cast<int>(rows.size());
     for (const auto& [raw_row, column] : observed) {
         const int row = static_cast<int>(std::ranges::lower_bound(rows, raw_row) - rows.begin());
-        const cv::Rect cell(x_phase + column * kPitchX + 10, y_phase + raw_row * kPitchY + 6, 128, 128);
+        const cv::Rect cell(
+            x_phase + column * pitch_x + kCreditTradeCellOffsetX,
+            y_phase + raw_row * pitch_y + kCreditTradeCellOffsetY,
+            profile.cell_size,
+            profile.cell_size);
         if (IsFormal(cell, roi)) {
             layout.cells.push_back({ 0, row, column, cell });
         }
@@ -360,8 +374,8 @@ GridLayout DetectCreditTrade(const cv::Mat& image, const cv::Rect& roi)
     int x2 = std::numeric_limits<int>::min();
     int y2 = std::numeric_limits<int>::min();
     for (const auto& cell : layout.cells) {
-        x1 = std::min(x1, cell.cell_box.x), y1 = std::min(y1, cell.cell_box.y), x2 = std::max(x2, cell.cell_box.x + 128),
-        y2 = std::max(y2, cell.cell_box.y + 128);
+        x1 = std::min(x1, cell.cell_box.x), y1 = std::min(y1, cell.cell_box.y),
+        x2 = std::max(x2, cell.cell_box.x + profile.cell_size), y2 = std::max(y2, cell.cell_box.y + profile.cell_size);
     }
     layout.bounds = cv::Rect(x1, y1, x2 - x1, y2 - y1);
     return layout;
@@ -472,7 +486,7 @@ struct TransferAxisFit
 {
     std::vector<int> starts;
     double phase = 0.0;
-    double pitch = 69.0;
+    double pitch = 0.0;
     double score = 0.0;
     double mean_residual = 0.0;
 };
@@ -483,6 +497,7 @@ TransferAxisFit FitTransferAxis(
     int offset,
     int cell_size,
     std::pair<double, double> pitch_range,
+    int observed_pitch_tolerance,
     int maximum_count,
     bool refine_phase)
 {
@@ -499,7 +514,7 @@ TransferAxisFit FitTransferAxis(
     std::vector<double> valid_spacings;
     for (std::size_t index = 1; index < observed.size(); ++index) {
         const double spacing = observed[index] - observed[index - 1];
-        if (spacing >= 67.0 && spacing <= 71.0) {
+        if (spacing >= pitch_range.first - observed_pitch_tolerance && spacing <= pitch_range.second + observed_pitch_tolerance) {
             valid_spacings.push_back(spacing);
         }
     }
@@ -643,7 +658,15 @@ std::vector<float>
     return result;
 }
 
-std::vector<int> CompleteAxis(const std::vector<int>& starts, int maximum_count, std::optional<int> fixed_pitch, bool fit_phase)
+std::vector<int> CompleteAxis(
+    const std::vector<int>& starts,
+    int maximum_count,
+    std::optional<int> fixed_pitch,
+    int preferred_pitch,
+    int pitch_min,
+    int pitch_max,
+    int observed_pitch_tolerance,
+    bool fit_phase)
 {
     std::vector<int> ordered = starts;
     std::ranges::sort(ordered);
@@ -654,11 +677,14 @@ std::vector<int> CompleteAxis(const std::vector<int>& starts, int maximum_count,
     std::vector<double> valid;
     for (std::size_t index = 1; index < ordered.size(); ++index) {
         const int spacing = ordered[index] - ordered[index - 1];
-        if (spacing >= 67 && spacing <= 70) {
+        if (spacing >= pitch_min - observed_pitch_tolerance && spacing <= pitch_max) {
             valid.push_back(spacing);
         }
     }
-    const int pitch = std::clamp(fixed_pitch.value_or(valid.empty() ? 69 : static_cast<int>(std::floor(Median(valid) + 0.5))), 68, 70);
+    const int pitch = std::clamp(
+        fixed_pitch.value_or(valid.empty() ? preferred_pitch : static_cast<int>(std::floor(Median(valid) + 0.5))),
+        pitch_min,
+        pitch_max);
     if (fit_phase && ordered.size() > 1) {
         std::vector<int> indices;
         std::vector<double> phases;
@@ -682,14 +708,15 @@ std::vector<int> CompleteAxis(const std::vector<int>& starts, int maximum_count,
     return completed;
 }
 
-std::vector<int> RefinePortY(const std::vector<int>& starts, const std::vector<float>& boundary, int offset, int column_count)
+std::vector<int>
+    RefinePortY(const std::vector<int>& starts, const std::vector<float>& boundary, int offset, int column_count, int cell_size)
 {
     if (column_count != 4) {
-        return RefineFirstBoundary(starts, boundary, offset, 64);
+        return RefineFirstBoundary(starts, boundary, offset, cell_size);
     }
     std::vector<std::pair<int, float>> evidence;
     for (int value : starts) {
-        const int position = value - offset + 64;
+        const int position = value - offset + cell_size;
         const int center = BoundaryCenter(boundary, position);
         const int left = std::max(0, position - 4);
         const int right = std::min(static_cast<int>(boundary.size()), position + 5);
@@ -718,15 +745,16 @@ std::vector<int> RefinePortY(const std::vector<int>& starts, const std::vector<f
             return result;
         }
     }
-    return RefineFirstBoundary(starts, boundary, offset, 64);
+    return RefineFirstBoundary(starts, boundary, offset, cell_size);
 }
 
 double CellSupport(const cv::Mat& score, int x, int y)
 {
-    const int x1 = std::max(0, x - 2);
-    const int x2 = std::min(score.cols, x + 3);
-    const int y1 = std::max(0, y - 2);
-    const int y2 = std::min(score.rows, y + 3);
+    constexpr int kSupportRadius = 2;
+    const int x1 = std::max(0, x - kSupportRadius);
+    const int x2 = std::min(score.cols, x + kSupportRadius + 1);
+    const int y1 = std::max(0, y - kSupportRadius);
+    const int y2 = std::min(score.rows, y + kSupportRadius + 1);
     if (x2 <= x1 || y2 <= y1) {
         return 0.0;
     }
@@ -736,13 +764,25 @@ double CellSupport(const cv::Mat& score, int x, int y)
 }
 
 std::vector<int>
-    DropPortRows(const cv::Mat& image, const cv::Rect& roi, const std::vector<int>& x_starts, std::vector<int> y_starts, int column_count)
+    DropPortRows(
+        const cv::Mat& image,
+        const cv::Rect& roi,
+        const std::vector<int>& x_starts,
+        std::vector<int> y_starts,
+        int column_count,
+        int cell_size)
 {
+    // 端口面板的空白首/末行由格框支持与格内纹理共同判定，阈值按现有 720p 样本标定。
+    constexpr double kSecondRowMinimumSupport = 0.20;
+    constexpr double kFirstToSecondSupportRatio = 0.50;
+    constexpr double kLastRowMaximumSupport = 0.08;
+    constexpr double kTextureSplitRatio = 45.0 / 64.0;
+    constexpr double kMinimumTextureDrop = 5.0;
     if (y_starts.size() < 2 || x_starts.empty()) {
         return y_starts;
     }
     const cv::Mat crop = image(roi);
-    const cv::Mat score = BuildTransferCellScore(crop, 64);
+    const cv::Mat score = BuildTransferCellScore(crop, cell_size);
     const auto row_support = [&](int y) {
         double total = 0.0;
         for (int x : x_starts) {
@@ -750,7 +790,8 @@ std::vector<int>
         }
         return total / x_starts.size();
     };
-    if (column_count == 7 && row_support(y_starts[1]) >= 0.20 && row_support(y_starts[0]) < row_support(y_starts[1]) * 0.50) {
+    if (column_count == 7 && row_support(y_starts[1]) >= kSecondRowMinimumSupport
+        && row_support(y_starts[0]) < row_support(y_starts[1]) * kFirstToSecondSupportRatio) {
         y_starts.erase(y_starts.begin());
     }
     if (column_count != 4 || y_starts.size() < 2) {
@@ -759,7 +800,7 @@ std::vector<int>
     const int y = y_starts.back();
     const double support = row_support(y);
     const int x1 = *std::ranges::min_element(x_starts);
-    const int x2 = std::min(crop.cols, *std::ranges::max_element(x_starts) + 64);
+    const int x2 = std::min(crop.cols, *std::ranges::max_element(x_starts) + cell_size);
     cv::Mat bgr;
     if (crop.channels() == 4) {
         cv::cvtColor(crop, bgr, cv::COLOR_BGRA2BGR);
@@ -780,63 +821,73 @@ std::vector<int>
         cv::meanStdDev(gray(cv::Rect(x1, clipped_top, x2 - x1, clipped_bottom - clipped_top)), mean, deviation);
         return deviation[0];
     };
-    const double texture_drop = standard_deviation(y, y + 45) - standard_deviation(y + 45, y + 64);
-    if (support < 0.08 && texture_drop > 5.0) {
+    const int texture_split = cvRound(cell_size * kTextureSplitRatio);
+    const double texture_drop =
+        standard_deviation(y, y + texture_split) - standard_deviation(y + texture_split, y + cell_size);
+    if (support < kLastRowMaximumSupport && texture_drop > kMinimumTextureDrop) {
         y_starts.pop_back();
     }
     return y_starts;
 }
 
-GridLayout BuildTransferLayout(const cv::Mat& image, const cv::Rect& roi, const TransferGridHint& hint, int grid_index, bool transfer)
+GridLayout BuildTransferLayout(const cv::Mat& image, const cv::Rect& roi, const TransferGridHint& hint, int grid_index, GridType type)
 {
+    const bool transfer = type == GridType::Transfer;
+    const int absolute_center = roi.x + hint.rect.x + hint.rect.width / 2;
+    const bool left_side = absolute_center < image.cols / 2;
+    const TransferGridVariant variant = transfer
+        ? (left_side ? TransferGridVariant::TransferLeft : TransferGridVariant::TransferRight)
+        : (left_side ? TransferGridVariant::PortStoragerLeft : TransferGridVariant::PortStoragerRight);
+    const TransferGridProfile profile = TransferProfileFor(variant);
     const cv::Rect absolute_region(roi.x + hint.region.x, roi.y + hint.region.y, hint.region.width, hint.region.height);
-    const StructureMaps maps = BuildStructureMaps(image(absolute_region), 64);
+    const StructureMaps maps = BuildStructureMaps(image(absolute_region), profile.cell_size);
     const auto boundary_x = RobustProjection(maps.vertical, true);
     const auto boundary_y = RobustProjection(maps.horizontal, false);
     const int column_count = static_cast<int>(hint.x_starts.size());
-    const auto refined_x = RefineFirstBoundary(hint.x_starts, boundary_x, hint.region.x, 64);
+    const auto refined_x = RefineFirstBoundary(hint.x_starts, boundary_x, hint.region.x, profile.cell_size);
     const TransferAxisFit x_fit = FitTransferAxis(
         refined_x,
         boundary_x,
         hint.region.x,
-        64,
-        transfer && column_count == 5 ? std::pair { 69.0, 69.0 }
-        : transfer                    ? std::pair { 68.0, 70.0 }
-                                      : std::pair { 67.0, 70.0 },
+        profile.cell_size,
+        { static_cast<double>(profile.pitch_min), static_cast<double>(profile.pitch_max) },
+        profile.observed_pitch_tolerance,
         static_cast<int>(refined_x.size()),
         !transfer);
     std::vector<int> local_x = x_fit.starts;
-    const int grid_pitch = std::clamp(cvRound(x_fit.pitch), 67, 70);
-    auto structural_y = transfer ? RefineStructuralPhase(hint.y_starts, boundary_y, hint.region.y, 64) : hint.y_starts;
-    auto refined_y = structural_y != hint.y_starts ? structural_y : RefinePortY(hint.y_starts, boundary_y, hint.region.y, column_count);
-    if (transfer && column_count == 5) {
-        const auto projected_y = ProjectCellBorders(maps.horizontal, local_x, hint.region.x, 64, false);
-        refined_y = FitTransferAxis(hint.y_starts, projected_y, hint.region.y, 64, { 69.0, 69.0 }, 5, true).starts;
-    }
-    std::vector<int> local_y = CompleteAxis(
-        refined_y,
-        5,
-        transfer ? std::optional<int>(static_cast<int>(std::floor(x_fit.pitch + 0.5))) : std::nullopt,
-        column_count == 4 || column_count == 7);
-    if (transfer && column_count >= 7) {
-        local_y = RefineStructuralPhase(local_y, boundary_y, hint.region.y, 64, 12, 0.25, true);
-    }
-
-    const auto signed_y = ProjectCellBorders(maps.signed_y, local_x, hint.region.x, 64, false, true);
-    const auto directed_phase = FitDirectedCellPhase(signed_y, 64, grid_pitch);
-    const int coarse_phase = (local_y.front() - hint.region.y) % grid_pitch;
-    if (directed_phase && ShouldUseDirectedCellPhase(transfer, column_count, coarse_phase, *directed_phase, grid_pitch)) {
-        local_y.clear();
-        for (int index = 0; index < 5; ++index) {
-            const int start = hint.region.y + *directed_phase + index * grid_pitch;
-            if (start >= hint.region.y + hint.region.height) {
-                break;
-            }
-            local_y.push_back(start);
+    std::vector<int> local_y;
+    const auto rarity_fit = FitRarityGrid(image(roi), local_x, hint.y_starts, profile);
+    if (rarity_fit) {
+        local_x = rarity_fit->x_starts;
+        const int count = std::min(
+            profile.maximum_rows,
+            std::max(static_cast<int>(hint.y_starts.size()), rarity_fit->supporting_rows));
+        for (int row = 0; row < count; ++row) {
+            local_y.push_back(rarity_fit->origin + row * rarity_fit->pitch);
         }
     }
-    if (local_y.size() < 5) {
-        const cv::Mat score = BuildTransferCellScore(image(roi), 64);
+    else {
+        auto structural_y = transfer
+            ? RefineStructuralPhase(hint.y_starts, boundary_y, hint.region.y, profile.cell_size)
+            : hint.y_starts;
+        auto refined_y = structural_y != hint.y_starts
+            ? structural_y
+            : RefinePortY(hint.y_starts, boundary_y, hint.region.y, column_count, profile.cell_size);
+        local_y = CompleteAxis(
+            refined_y,
+            profile.maximum_rows,
+            transfer ? std::optional<int>(static_cast<int>(std::floor(x_fit.pitch + 0.5))) : std::nullopt,
+            profile.preferred_pitch,
+            profile.pitch_min,
+            profile.pitch_max,
+            profile.observed_pitch_tolerance,
+            column_count == 4 || column_count == 7);
+        if (transfer && column_count >= 7) {
+            local_y = RefineStructuralPhase(local_y, boundary_y, hint.region.y, profile.cell_size, 12, 0.25, true);
+        }
+    }
+    if (local_y.size() < static_cast<std::size_t>(profile.maximum_rows)) {
+        const cv::Mat score = BuildTransferCellScore(image(roi), profile.cell_size);
         const auto row_support = [&](int y) {
             double total = 0.0;
             for (int x : local_x) {
@@ -853,29 +904,34 @@ GridLayout BuildTransferLayout(const cv::Mat& image, const cv::Rect& roi, const 
         for (std::size_t index = 1; index < local_y.size(); ++index) {
             spacings.push_back(local_y[index] - local_y[index - 1]);
         }
-        const int pitch_y = spacings.empty() ? 69 : static_cast<int>(std::floor(Median(spacings) + 0.5));
-        while (local_y.size() < 5) {
-            const int following = local_y.back() + std::clamp(pitch_y, 68, 70);
-            if (hint.region.y + hint.region.height - following < 0.70 * 64) {
+        const int pitch_y = spacings.empty() ? profile.preferred_pitch : static_cast<int>(std::floor(Median(spacings) + 0.5));
+        while (local_y.size() < static_cast<std::size_t>(profile.maximum_rows)) {
+            const int following = local_y.back() + std::clamp(pitch_y, profile.pitch_min, profile.pitch_max);
+            if (hint.region.y + hint.region.height - following < profile.minimum_bottom_visibility * profile.cell_size) {
                 break;
             }
-            if (minimum_support <= 0.0 || row_support(following) < minimum_support) {
+            const bool stable_rarity_lattice = rarity_fit && rarity_fit->supporting_rows >= 3;
+            if (!stable_rarity_lattice && (minimum_support <= 0.0 || row_support(following) < minimum_support)) {
                 break;
             }
             local_y.push_back(following);
         }
     }
-    if (!transfer) {
-        local_y = DropPortRows(image, roi, local_x, local_y, column_count);
+    if (!transfer && !rarity_fit) {
+        local_y = DropPortRows(image, roi, local_x, local_y, column_count, profile.cell_size);
     }
 
     GridLayout layout;
     layout.grid_index = grid_index;
-    layout.cell_size = 64;
+    layout.cell_size = profile.cell_size;
     for (int row = 0; row < static_cast<int>(local_y.size()); ++row) {
         for (int column = 0; column < static_cast<int>(local_x.size()); ++column) {
-            const cv::Rect cell(roi.x + local_x[column], roi.y + local_y[row], 64, 64);
-            if (IsFormal(cell, roi)) {
+            const cv::Rect cell(
+                roi.x + local_x[column],
+                roi.y + local_y[row],
+                profile.cell_size,
+                profile.cell_size);
+            if (IsFormal(cell, roi, profile.minimum_top_visibility, profile.minimum_bottom_visibility)) {
                 layout.cells.push_back({ grid_index, row, column, cell });
             }
         }
@@ -891,8 +947,8 @@ GridLayout BuildTransferLayout(const cv::Mat& image, const cv::Rect& roi, const 
     for (std::size_t index = 1; index < local_y.size(); ++index) {
         y_spacings.push_back(local_y[index] - local_y[index - 1]);
     }
-    layout.pitch_x = x_spacings.empty() ? 69.0 : Median(x_spacings);
-    layout.pitch_y = y_spacings.empty() ? 69.0 : Median(y_spacings);
+    layout.pitch_x = x_spacings.empty() ? profile.preferred_pitch : Median(x_spacings);
+    layout.pitch_y = y_spacings.empty() ? profile.preferred_pitch : Median(y_spacings);
     layout.columns = static_cast<int>(local_x.size());
     layout.rows = static_cast<int>(local_y.size());
     int x1 = std::numeric_limits<int>::max();
@@ -900,8 +956,8 @@ GridLayout BuildTransferLayout(const cv::Mat& image, const cv::Rect& roi, const 
     int x2 = std::numeric_limits<int>::min();
     int y2 = std::numeric_limits<int>::min();
     for (const auto& cell : layout.cells) {
-        x1 = std::min(x1, cell.cell_box.x), y1 = std::min(y1, cell.cell_box.y), x2 = std::max(x2, cell.cell_box.x + 64),
-        y2 = std::max(y2, cell.cell_box.y + 64);
+        x1 = std::min(x1, cell.cell_box.x), y1 = std::min(y1, cell.cell_box.y),
+        x2 = std::max(x2, cell.cell_box.x + layout.cell_size), y2 = std::max(y2, cell.cell_box.y + layout.cell_size);
     }
     layout.bounds = cv::Rect(x1, y1, x2 - x1, y2 - y1);
     return layout;
@@ -914,58 +970,6 @@ void Append(GridDetection& result, GridLayout layout)
 }
 
 } // namespace
-
-std::optional<int> FitDirectedCellPhase(const std::vector<float>& signed_boundary, int cell_size, int pitch)
-{
-    if (cell_size <= 0 || pitch <= 0) {
-        throw std::invalid_argument("cell size and pitch must be positive");
-    }
-    if (static_cast<int>(signed_boundary.size()) <= cell_size) {
-        return std::nullopt;
-    }
-
-    double best_score = 0.0;
-    int best_phase = 0;
-    for (int phase = 0; phase < pitch; ++phase) {
-        double score = 0.0;
-        int count = 0;
-        int supported = 0;
-        for (int start = phase; start + cell_size < static_cast<int>(signed_boundary.size()); start += pitch) {
-            const double pair = std::sqrt(
-                std::max(static_cast<double>(signed_boundary[start]), 0.0)
-                * std::max(static_cast<double>(-signed_boundary[start + cell_size]), 0.0));
-            score += pair;
-            supported += pair > kEpsilon ? 1 : 0;
-            ++count;
-        }
-        score = count ? score / count : 0.0;
-        if (supported >= 2 && score > best_score) {
-            best_score = score;
-            best_phase = phase;
-        }
-    }
-    return best_score > kEpsilon ? std::optional<int>(best_phase) : std::nullopt;
-}
-
-int CellPhaseDistance(int left, int right, int pitch)
-{
-    if (pitch <= 0) {
-        throw std::invalid_argument("pitch must be positive");
-    }
-    const auto normalize = [pitch](int phase) { return (phase % pitch + pitch) % pitch; };
-    const int distance = std::abs(normalize(left) - normalize(right));
-    return std::min(distance, pitch - distance);
-}
-
-bool ShouldUseDirectedCellPhase(bool transfer, int column_count, int coarse_phase, int directed_phase, int pitch)
-{
-    constexpr int kLocalPhaseRefinementRadius = 4;
-    const int distance = CellPhaseDistance(coarse_phase, directed_phase, pitch);
-    if (transfer) {
-        return column_count == 5 || distance <= kLocalPhaseRefinementRadius;
-    }
-    return distance > kLocalPhaseRefinementRadius;
-}
 
 GridDetection DetectGrid(const cv::Mat& image, GridType type, const cv::Rect& roi)
 {
@@ -983,7 +987,7 @@ GridDetection DetectGrid(const cv::Mat& image, GridType type, const cv::Rect& ro
     else if (type == GridType::Transfer || type == GridType::PortStorager) {
         const auto hints = DiscoverTransferGridHints(image(roi), type == GridType::Transfer);
         for (int index = 0; index < static_cast<int>(hints.size()); ++index) {
-            Append(result, BuildTransferLayout(image, roi, hints[index], index, type == GridType::Transfer));
+            Append(result, BuildTransferLayout(image, roi, hints[index], index, type));
         }
     }
     else {

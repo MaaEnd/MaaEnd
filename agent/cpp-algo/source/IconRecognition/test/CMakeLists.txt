@@ -25,6 +25,27 @@ if(MSVC)
 endif()
 
 add_executable(
+    icon-recognition-manual-cli-tests
+    test_manual_cli.cpp
+    manual_runner_config.cpp
+)
+target_include_directories(
+    icon-recognition-manual-cli-tests
+    PRIVATE
+        "${CMAKE_CURRENT_LIST_DIR}/../../../MaaUtils/include"
+        "${VCPKG_ROOT}/include"
+        "${CMAKE_CURRENT_LIST_DIR}/.."
+)
+target_link_libraries(icon-recognition-manual-cli-tests PRIVATE ${OpenCV_LIBS})
+target_compile_definitions(
+    icon-recognition-manual-cli-tests
+    PRIVATE ICON_RECOGNITION_TEST_BUILD_DIR="${CMAKE_CURRENT_BINARY_DIR}"
+)
+if(MSVC)
+    target_compile_options(icon-recognition-manual-cli-tests PRIVATE /utf-8)
+endif()
+
+add_executable(
     icon-recognition-small-tests
     test_small_algorithms.cpp
     ../IconRecognizer.cpp
@@ -33,6 +54,7 @@ add_executable(
     ../detail/GridDetector.cpp
     ../detail/GridFeatures.cpp
     ../detail/GridGeometry.cpp
+    ../detail/GridAnchors.cpp
     ../detail/GridProfiles.cpp
     ../detail/IconMatcher.cpp
     ../detail/MaskPolicy.cpp
@@ -71,6 +93,7 @@ add_executable(
     ../detail/GridDetector.cpp
     ../detail/GridFeatures.cpp
     ../detail/GridGeometry.cpp
+    ../detail/GridAnchors.cpp
     ../detail/GridProfiles.cpp
     ../detail/IconMatcher.cpp
     ../detail/MaskPolicy.cpp
@@ -149,12 +172,14 @@ endif()
 add_executable(
     icon-recognition-manual-runner
     test_full_diff.cpp
+    manual_runner_config.cpp
     ../IconRecognizer.cpp
     ../detail/CompositeIcon.cpp
     ../detail/ForegroundTexture.cpp
     ../detail/GridDetector.cpp
     ../detail/GridFeatures.cpp
     ../detail/GridGeometry.cpp
+    ../detail/GridAnchors.cpp
     ../detail/GridProfiles.cpp
     ../detail/IconMatcher.cpp
     ../detail/MaskPolicy.cpp

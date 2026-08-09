@@ -1,18 +1,18 @@
-# 内部网格类型与参考 ROI
+# 网格类型与参考 ROI
 
 真实界面的网格定位是 `IconRecognition` 内部能力。调用方只需要选择与当前界面对应的 `grid_type` 并提供 Maa ROI，不应依赖内部 cell 尺寸、间距、分区或拟合过程。
 
-| `grid_type` | 界面 | 默认候选 |
-| --- | --- | --- |
-| `trade` | 据点交易 | `Normal:Product`、`Normal:Usable` |
-| `transfer` | 背包和仓库 | `Normal:*` |
-| `port_storager` | 便捷存取站 | `Normal:*` |
-| `valuables` | 贵重品库 | `ValuableDepot:*` |
-| `shipment` | 送货界面 | `Normal:*` |
-| `credit_trade` | 信用交易所 | `ValuableDepot:SpecialItem`、`Isolate:*` |
-| `single_roi` | 临时单格 | `Normal:*` |
+| `grid_type` | 界面 |
+| --- | --- |
+| `trade` | 据点交易 |
+| `transfer` | 背包和仓库 |
+| `port_storager` | 便捷存取站 |
+| `valuables` | 贵重品库 |
+| `shipment` | 送货界面 |
+| `credit_trade` | 信用交易所 |
+| `single_roi` | 临时单格 |
 
-`single_roi` 会直接使用正方形 ROI 构造一个临时 cell，不执行真实网格检测。各界面的图标尺寸属于对应内部类型的实现特性，不应把其中某个尺寸泛化到其它类型。
+默认候选过滤器和完整参数语义见[接口与数据契约](architecture.md)。`single_roi` 会直接使用正方形 ROI 构造一个临时 cell，不执行真实网格检测。各界面的图标尺寸属于对应内部类型的实现特性，不应把其中某个尺寸泛化到其它类型。
 
 ## 双侧网格 ROI
 
@@ -27,19 +27,25 @@
 | 界面 | 参考 ROI |
 | --- | --- |
 | 据点交易 | `[170,165,935,385]` |
-| 背包和仓库 | `[155,205,970,280]` |
+| 背包和仓库（完整） | `[154,202,983,291]` |
+| 背包和仓库（左） | `[154,202,585,291]` |
+| 背包和仓库（右） | `[739,202,398,291]` |
 | 便捷存取站 | `[190,250,880,350]` |
+| 便捷存取站（左） | `[190,250,318,350]` |
+| 便捷存取站（右） | `[570,250,500,350]` |
 | 贵重品库 | `[24,76,950,570]` |
 | 送货界面 | `[34,132,386,474]` |
 | 信用交易所 | `[70,95,1140,415]` |
 | single ROI 示例 | `[1177,450,54,54]` |
 
-示例保留完整 1280x720 截图，并在原图上框出 ROI：
+除 `single_roi` 外，人工测试使用提交到仓库的 [`test/rois.json`](../test/rois.json) 作为参考 ROI 单一来源。`single_roi` 的坐标由测试目录名提供，例如 `1177-450-54` 表示 `[1177,450,54,54]`。
 
-![据点交易](images/settlement-trade.png)
-![背包和仓库](images/inventory-transfer.png)
-![便捷存取站](images/port-storager.png)
-![贵重品库](images/valuables.png)
-![送货界面](images/shipment.png)
-![信用交易所](images/credit-trade.png)
-![single ROI](images/specific-roi-example.png)
+## 64px 双侧网格的参数职责
+
+以下参数只用于内部实现和回归测试，调用方不应据此推导 ROI：
+
+- 候选发现使用 `66..74px` 的宽 pitch 范围，负责在弱边缘和局部遮挡下召回左右网格。
+- 正式布局使用 `68..70px` 的稳定 pitch 范围；背包右侧五列固定为 `69px`，避免短轴被物品纹理拉偏。
+- 粗结构峰允许 `1px` 观测误差，但最终输出 pitch 仍限制在正式范围内。
+- `transfer` 的稀有度条锚点位于 `cell_top+64px`；`port_storager` 左右布局分别使用 `+47px` 和 `+60px`。
+- 至少三行稀有度条形成稳定晶格后，允许按规律补足被遮挡的末行，再以 ROI 可见覆盖率决定是否保留。

@@ -34,6 +34,35 @@ bool candidate_less(const Candidate& left, const Candidate& right)
 
 } // namespace
 
+RarityRowEvidence MeasureRarityRow(const cv::Mat& lab_row)
+{
+    if (lab_row.empty() || lab_row.type() != CV_32FC3 || lab_row.rows != 1) {
+        return {};
+    }
+    double maximum_coverage = 0.0;
+    double chromatic_coverage = 0.0;
+    for (std::size_t index = 0; index < kPrototypes.size(); ++index) {
+        const auto& prototype = kPrototypes[index];
+        int covered = 0;
+        for (int column = 0; column < lab_row.cols; ++column) {
+            if (cv::norm(lab_row.at<cv::Vec3f>(0, column) - prototype) <= kLabDistance) {
+                ++covered;
+            }
+        }
+        const double coverage = static_cast<double>(covered) / lab_row.cols;
+        maximum_coverage = std::max(maximum_coverage, coverage);
+        if (index > 0) {
+            chromatic_coverage = std::max(chromatic_coverage, coverage);
+        }
+    }
+    return { maximum_coverage, chromatic_coverage };
+}
+
+double RarityRowCoverage(const cv::Mat& lab_row)
+{
+    return MeasureRarityRow(lab_row).coverage;
+}
+
 RarityResult ClassifyRarity(const cv::Mat& image, const cv::Rect& slot)
 {
     if (image.empty() || image.channels() < 3) {

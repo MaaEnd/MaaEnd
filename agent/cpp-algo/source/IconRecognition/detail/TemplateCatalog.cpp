@@ -113,7 +113,7 @@ const std::vector<PreparedTemplate>& TemplateCatalog::load(int target_size)
     if (const auto it = cache_.find(target_size); it != cache_.end()) {
         return it->second;
     }
-    auto& result = cache_[target_size];
+    std::vector<PreparedTemplate> result;
     result.reserve(records_.size());
     for (const auto& record : records_) {
         const auto base_path = image_root_ / std::to_string(record.rarity) / (record.icon_id + ".png");
@@ -125,7 +125,7 @@ const std::vector<PreparedTemplate>& TemplateCatalog::load(int target_size)
             result.push_back(BuildCompositeIcon(record, base, DecodeBgra(ResolveIconPath(image_root_, record.fluid_icon_id)), target_size, 230));
         }
     }
-    return result;
+    return cache_.emplace(target_size, std::move(result)).first->second;
 }
 
 } // namespace iconrecognition::detail

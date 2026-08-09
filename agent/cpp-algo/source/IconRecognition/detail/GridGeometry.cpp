@@ -11,6 +11,11 @@ namespace
 {
 
 constexpr double kEpsilon = 1e-8;
+// 格框响应由离线样本标定的四类证据组合：对边与单向边是主体，亮度对比补强，斜纹理用于抑制误检。
+constexpr double kPairedBorderWeight = 0.45;
+constexpr double kDirectionalBorderWeight = 0.35;
+constexpr double kContrastWeight = 0.20;
+constexpr double kDiagonalPenaltyWeight = 0.20;
 
 double huber(double value)
 {
@@ -149,8 +154,10 @@ AxisSequence FitSubpixelAxis(
         outside = outside_count ? outside / outside_count : 0.0;
         const double contrast = outside_count ? std::abs(inside - outside) : 0.0;
         const double diagonal = 0.5 * (diagonal_penalty[start] + diagonal_penalty[end]);
-        local[start] =
-            static_cast<float>(std::max(0.45 * pair + 0.35 * std::max(forward, reverse) + 0.20 * contrast - 0.20 * diagonal, 0.0));
+        local[start] = static_cast<float>(std::max(
+            kPairedBorderWeight * pair + kDirectionalBorderWeight * std::max(forward, reverse) + kContrastWeight * contrast
+                - kDiagonalPenaltyWeight * diagonal,
+            0.0));
     }
     if (*std::ranges::max_element(local) <= kEpsilon) {
         return fallback_axis(length, cell_size, expected_pitch, minimum_count);

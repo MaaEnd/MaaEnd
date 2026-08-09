@@ -12,7 +12,7 @@ if (!recognizer.initialize()) {
 
 iconrecognition::RecognitionRequest request;
 request.grid_type = iconrecognition::GridType::Transfer;
-request.roi = cv::Rect(155, 205, 970, 280); // Maa [x,y,width,height]
+request.roi = cv::Rect(154, 202, 983, 291); // Maa [x,y,width,height]
 request.candidates.item_ids = { "item_copper_ore" };
 
 const iconrecognition::RecognitionResult result = recognizer.recognize(image, request);
@@ -43,6 +43,29 @@ Maa 注册名为 `IconRecognition`。调用节点的原生 `roi` 写在 `recogni
 | `debug` | boolean | 否 | `false` | Custom 入口保存原图、标注图和内部诊断 JSON |
 
 原生 `roi` 使用 Maa `[x,y,width,height]`，基准分辨率为 1280x720，宽高必须为正；`single_roi` 还要求 ROI 宽高相等且完全位于图片内。阈值必须满足 `0 <= subpixel_threshold < threshold <= 1`。`item_ids` 与 `item_filters` 同时提供时取交集；ID 不存在或被过滤器排除会返回明确错误。
+
+完整 Pipeline 参数示例：
+
+```jsonc
+{
+    "recognition": {
+        "type": "Custom",
+        "param": {
+            "roi": [154, 202, 983, 291],
+            "custom_recognition": "IconRecognition",
+            "custom_recognition_param": {
+                "grid_type": "transfer",
+                "item_ids": ["item_copper_ore"],
+                "item_filters": ["Normal:Ore"],
+                "threshold": 0.85,
+                "subpixel_threshold": 0.6,
+                "deduplicate": false,
+                "debug": false
+            }
+        }
+    }
+}
+```
 
 ### item ID 从哪里获取
 
@@ -135,3 +158,23 @@ Maa 注册名为 `IconRecognition`。调用节点的原生 `roi` 写在 `recogni
 结果按 `score` 降序，再按 `cell_box.y`、`cell_box.x`、`item_id` 排序。`deduplicate=true` 时按该顺序为每个 `item_id` 保留第一项，因此留下的是各物品分数最高的 cell。
 
 Custom 命中时返回 `MAA_TRUE`，`out_box` 等于 `matches[0].cell_box`；没有接受结果时返回 `MAA_FALSE`。MaaFramework 会把回调 detail 包装到外层 `all/filtered/best` 中，命中时完整结果位于 `best.detail`。
+
+### error.code
+
+| `code` | 触发条件 | 说明 |
+| --- | --- | --- |
+| `invalid_image` | Custom 入口收到空图片 | 请求未进入参数解析和识别流程 |
+| `exception` | 参数校验、资源加载、网格检测或匹配抛出异常 | `message` 保留具体失败原因，调用方不应依赖其文本做分支 |
+| `no_match` | 识别正常完成，但没有物品达到阈值 | 属于正常拒识结果，不表示组件异常 |
+
+三种错误均返回 `MAA_FALSE`。其中 `no_match` 仍会返回已解析的 `grid_type`、`roi` 和空 `matches`；`exception` 是否包含 `grid_type` 取决于异常发生前是否已成功解析该字段。
+
+## Debug 输出
+
+`debug=true` 时，Custom 入口把本次识别保存到 `exe_dir/../debug/vision/IconRecognition`：
+
+- `raw/<stem>.png`：输入原图；
+- `annotated/<stem>.png`：ROI、cell、候选框和分数标注；
+- `detail/<stem>.json`：公开结果加内部 `diagnostics`。
+
+三个文件使用相同 stem，合称一组。组件按 `raw` 文件的修改时间只保留最近 20 组，并同步删除其它两个目录中的同组文件。Custom 回调的公开 detail 不包含内部 `diagnostics`；只有 debug 文件和人工测试 detail 会附加该字段。

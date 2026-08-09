@@ -1,6 +1,7 @@
 #define NOMINMAX
 #include <windows.h>
 
+#include <chrono>
 #include <cstring>
 #include <filesystem>
 #include <fstream>
@@ -19,6 +20,7 @@
 #include "../IconRecognizer.h"
 #include "../detail/RecognitionDiagnostics.h"
 #include "../detail/TemplateCatalog.h"
+#include "manual_runner_config.h"
 
 namespace
 {
@@ -30,36 +32,6 @@ json::value ReadJson(const std::filesystem::path& path)
         throw std::runtime_error("unable to read JSON: " + path.string());
     }
     return *parsed;
-}
-
-cv::Rect ReadRoi(const json::value& value)
-{
-    if (!value.is_array() || value.as_array().size() != 4) {
-        throw std::runtime_error("roi must use Maa [x,y,width,height] format");
-    }
-    const auto& values = value.as_array();
-    const cv::Rect roi(values.at(0).as_integer(), values.at(1).as_integer(), values.at(2).as_integer(), values.at(3).as_integer());
-    if (roi.width <= 0 || roi.height <= 0) {
-        throw std::runtime_error("roi width and height must be positive");
-    }
-    return roi;
-}
-
-std::vector<std::string> ReadStrings(const json::object& object, const char* key)
-{
-    std::vector<std::string> result;
-    if (!object.contains(key)) {
-        return result;
-    }
-    for (const auto& value : object.at(key).as_array()) {
-        result.push_back(value.as_string());
-    }
-    return result;
-}
-
-std::string ImageName(const json::object& object)
-{
-    return std::filesystem::path(object.at("image").as_string()).filename().string();
 }
 
 std::string ScoreText(double score)
@@ -306,17 +278,14 @@ cv::Mat DrawResult(const cv::Mat& source, const iconrecognition::RecognitionResu
     return image;
 }
 
-iconrecognition::RecognitionResult RunCase(iconrecognition::IconRecognizer& recognizer, const cv::Mat& image, const json::object& object)
+iconrecognition::RecognitionResult RunCase(
+    iconrecognition::IconRecognizer& recognizer,
+    const cv::Mat& image,
+    const iconrecognition::test::ManualRunnerCase& test_case)
 {
-    const auto grid_type = iconrecognition::ParseGridType(object.at("grid_type").as_string());
-    if (!grid_type) {
-        throw std::runtime_error("unknown grid_type: " + object.at("grid_type").as_string());
-    }
     iconrecognition::RecognitionRequest request;
-    request.grid_type = *grid_type;
-    request.roi = ReadRoi(object.at("roi"));
-    request.candidates.item_ids = ReadStrings(object, "item_ids");
-    request.candidates.item_filters = ReadStrings(object, "item_filters");
+    request.grid_type = test_case.grid_type;
+    request.roi = test_case.roi;
     if ((request.roi & cv::Rect(0, 0, image.cols, image.rows)) != request.roi) {
         throw std::runtime_error("roi must be fully inside the input image");
     }
@@ -333,11 +302,35 @@ void WriteDetail(const std::filesystem::path& path, const iconrecognition::Recog
     stream << json::value(std::move(detail)).dumps(4) << '\n';
 }
 
-void AppendCases(json::array& output, const json::value& manifest, const char* key)
+std::string RunLabel(const iconrecognition::test::ManualRunnerOptions& options)
 {
-    for (const auto& value : manifest.as_object().at(key).as_array()) {
-        output.emplace_back(value);
+    if (options.all_images) {
+        return "all";
     }
+    if (options.grid_type) {
+        return std::string(iconrecognition::GridTypeName(*options.grid_type));
+    }
+    if (options.image_name) {
+        return std::filesystem::path(*options.image_name).stem().string();
+    }
+    return "manual";
+}
+
+std::filesystem::path CreateRunRoot(const std::filesystem::path& output_root, const std::string& label)
+{
+    const auto now = std::chrono::system_clock::now();
+    const std::time_t seconds = std::chrono::system_clock::to_time_t(now);
+    std::tm local_time {};
+    localtime_s(&local_time, &seconds);
+    const auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count() % 1000;
+    std::ostringstream name;
+    name << std::put_time(&local_time, "%Y%m%d-%H%M%S") << '-' << std::setfill('0') << std::setw(3) << milliseconds << '-' << label;
+    std::filesystem::path run_root = output_root / name.str();
+    for (int duplicate = 1; std::filesystem::exists(run_root); ++duplicate) {
+        run_root = output_root / (name.str() + "-" + std::to_string(duplicate));
+    }
+    std::filesystem::create_directories(run_root);
+    return run_root;
 }
 
 } // namespace
@@ -345,23 +338,22 @@ void AppendCases(json::array& output, const json::value& manifest, const char* k
 int main(int argc, char** argv)
 {
     try {
-        if (argc < 2) {
-            throw std::runtime_error("usage: icon-recognition-manual-runner <manifest.json> [image.png ...]");
+        std::vector<std::string> arguments;
+        arguments.reserve(static_cast<std::size_t>(argc - 1));
+        for (int index = 1; index < argc; ++index) {
+            arguments.emplace_back(argv[index]);
         }
-        const std::filesystem::path manifest_path = argv[1];
-        std::set<std::string> requested;
-        for (int index = 2; index < argc; ++index) {
-            requested.emplace(std::filesystem::path(argv[index]).filename().string());
+        const auto options = iconrecognition::test::ParseManualRunnerOptions(arguments);
+        if (options.show_help) {
+            std::cout << iconrecognition::test::ManualRunnerUsage();
+            return 0;
         }
-
-        const auto manifest = ReadJson(manifest_path);
-        json::array cases;
-        AppendCases(cases, manifest, "cases");
 
         const std::filesystem::path input_root = ICON_RECOGNITION_TEST_INPUT_DIR;
-        const std::filesystem::path output_root = ICON_RECOGNITION_TEST_OUTPUT_DIR;
-        const auto annotated_root = output_root / "annotated";
-        const auto detail_root = output_root / "detail";
+        const auto cases = iconrecognition::test::DiscoverManualRunnerCases(input_root, input_root.parent_path() / "rois.json", options);
+        const auto run_root = CreateRunRoot(ICON_RECOGNITION_TEST_OUTPUT_DIR, RunLabel(options));
+        const auto annotated_root = run_root / "annotated";
+        const auto detail_root = run_root / "detail";
         std::filesystem::create_directories(annotated_root);
         std::filesystem::create_directories(detail_root);
 
@@ -372,33 +364,16 @@ int main(int argc, char** argv)
         const AuditCatalog audit_catalog(ICON_RECOGNITION_TEST_DATA_ROOT);
 
         json::array reports;
-        std::set<std::string> completed_images;
-        std::map<std::string, int> output_name_counts;
-        std::size_t skipped = 0;
         std::size_t failed = 0;
-        for (const auto& value : cases) {
-            const auto& object = value.as_object();
-            const std::string image_name = ImageName(object);
-            if (!requested.empty() && !requested.contains(image_name)) {
-                continue;
-            }
-            const auto image_path = input_root / image_name;
-            if (!std::filesystem::is_regular_file(image_path)) {
-                if (requested.contains(image_name)) {
-                    throw std::runtime_error("requested input image is missing: " + image_path.string());
-                }
-                ++skipped;
-                continue;
-            }
-            const cv::Mat image = cv::imread(image_path.string(), cv::IMREAD_COLOR);
+        for (const auto& test_case : cases) {
+            const cv::Mat image = cv::imread(test_case.image_path.string(), cv::IMREAD_COLOR);
             if (image.empty()) {
-                throw std::runtime_error("unable to decode input image: " + image_path.string());
+                throw std::runtime_error("unable to decode input image: " + test_case.image_path.string());
             }
-            const auto result = RunCase(recognizer, image, object);
+            const auto result = RunCase(recognizer, image, test_case);
             cv::Mat annotated = DrawResult(image, result, audit_catalog);
-            const std::string output_stem = std::filesystem::path(image_name).stem().string() + "-" + object.at("grid_type").as_string();
-            const int output_index = ++output_name_counts[output_stem];
-            const std::string output_name = output_stem + (output_index == 1 ? "" : "-" + std::to_string(output_index));
+            const std::string output_name = std::string(iconrecognition::GridTypeName(test_case.grid_type)) + "-" + test_case.roi_name + "-"
+                                            + test_case.image_path.stem().string();
             const auto annotated_path = annotated_root / (output_name + ".png");
             const auto detail_path = detail_root / (output_name + ".json");
             if (!cv::imwrite(annotated_path.string(), annotated)) {
@@ -407,35 +382,35 @@ int main(int argc, char** argv)
             WriteDetail(detail_path, result);
             const bool case_failed = result.error_code == "exception";
             failed += case_failed ? 1 : 0;
-            completed_images.insert(image_name);
+            const std::string image_name = test_case.image_path.lexically_relative(input_root).generic_string();
             reports.emplace_back(json::object {
                 { "image", image_name },
-                { "grid_type", object.at("grid_type").as_string() },
+                { "grid_type", std::string(iconrecognition::GridTypeName(test_case.grid_type)) },
+                { "roi_name", test_case.roi_name },
+                { "roi", iconrecognition::RectToJson(test_case.roi) },
                 { "matched", result.matched },
                 { "match_count", static_cast<unsigned long long>(result.matches.size()) },
                 { "failed", case_failed },
                 { "annotated", annotated_path.string() },
                 { "detail", detail_path.string() },
             });
-            std::cout << image_name << " -> " << annotated_path.string() << '\n';
-        }
-        for (const auto& image_name : requested) {
-            if (!completed_images.contains(image_name)) {
-                throw std::runtime_error("unknown or unprocessed image: " + image_name);
-            }
+            std::cout << image_name << " [" << test_case.roi_name << "] -> " << annotated_path.string() << '\n';
         }
 
-        const auto report_path = output_root / "report.json";
+        const auto report_path = run_root / "report.json";
         std::ofstream report(report_path, std::ios::binary | std::ios::trunc);
         report << json::value(json::object {
                                   { "case_count", static_cast<unsigned long long>(reports.size()) },
-                                  { "skipped_count", static_cast<unsigned long long>(skipped) },
                                   { "failure_count", static_cast<unsigned long long>(failed) },
                                   { "cases", std::move(reports) },
                               })
                       .dumps(4)
                << '\n';
         return failed == 0 ? 0 : 1;
+    }
+    catch (const std::invalid_argument& error) {
+        std::cerr << error.what() << "\n\n" << iconrecognition::test::ManualRunnerUsage();
+        return 2;
     }
     catch (const std::exception& error) {
         std::cerr << error.what() << '\n';

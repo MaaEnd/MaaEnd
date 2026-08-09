@@ -18,6 +18,18 @@ namespace
 {
 
 constexpr double kEpsilon = 1e-8;
+constexpr TransferGridProfile kBaseTransferProfile {};
+// 宽范围只用于候选召回；正式晶格拟合使用 kBaseTransferProfile 的稳定 pitch 范围。
+constexpr std::pair<int, int> kTransferDiscoveryPitchRange { 66, 74 };
+constexpr int kTransferDiscoveryMinimumColumns = 3;
+constexpr int kTransferDiscoveryMinimumRows = 3;
+constexpr int kTransferMaximumColumns = 8;
+constexpr int kTransferRightPanelWidth = 398;
+// 峰值需同时达到全图最大响应比例和正响应高分位，兼顾弱格框召回与高纹理背景抑制。
+constexpr double kLocalPeakMaximumRatio = 0.22;
+constexpr double kLocalPeakPercentile = 92.0;
+constexpr int kLocalPeakNeighborhoodSize = 5;
+constexpr float kLocalPeakEqualityTolerance = 1e-7F;
 
 struct Peak
 {
@@ -56,14 +68,15 @@ std::vector<Peak> local_peaks(const cv::Mat& score, int maximum)
             }
         }
     }
-    const double threshold = std::max(0.22 * maximum_score, Percentile(std::move(positive), 92.0));
+    const double threshold =
+        std::max(kLocalPeakMaximumRatio * maximum_score, Percentile(std::move(positive), kLocalPeakPercentile));
     cv::Mat dilated;
-    cv::dilate(score, dilated, cv::Mat::ones(5, 5, CV_8U));
+    cv::dilate(score, dilated, cv::Mat::ones(kLocalPeakNeighborhoodSize, kLocalPeakNeighborhoodSize, CV_8U));
     std::vector<Peak> peaks;
     for (int y = 0; y < score.rows; ++y) {
         for (int x = 0; x < score.cols; ++x) {
             const float value = score.at<float>(y, x);
-            if (value >= threshold && value >= dilated.at<float>(y, x) - 1e-7F) {
+            if (value >= threshold && value >= dilated.at<float>(y, x) - kLocalPeakEqualityTolerance) {
                 peaks.push_back({ x, y, value });
             }
         }
@@ -130,7 +143,7 @@ int rounded_median(const std::vector<int>& values)
 std::vector<TransferHypothesis>
     phase_hypotheses(const cv::Mat& crop, std::pair<int, int> pitch_range, int minimum_columns, int minimum_rows)
 {
-    const auto peaks = suppress_close_peaks(local_peaks(BuildTransferCellScore(crop, 64), 1000));
+    const auto peaks = suppress_close_peaks(local_peaks(BuildTransferCellScore(crop, kBaseTransferProfile.cell_size), 1000));
     if (peaks.empty()) {
         return {};
     }
@@ -210,8 +223,8 @@ std::vector<TransferHypothesis>
                         .rect = cv::Rect(
                             x_starts.front(),
                             y_starts.front(),
-                            x_starts.back() + 65 - x_starts.front(),
-                            y_starts.back() + 65 - y_starts.front()),
+                            x_starts.back() + kBaseTransferProfile.cell_size + 1 - x_starts.front(),
+                            y_starts.back() + kBaseTransferProfile.cell_size + 1 - y_starts.front()),
                         .score = score,
                         .occupancy = occupancy,
                         .columns = static_cast<int>(columns.size()),
@@ -244,10 +257,15 @@ std::vector<cv::Rect> discover_transfer_regions(const cv::Mat& crop)
     if (crop.cols <= 700) {
         return { cv::Rect(0, 0, crop.cols, crop.rows) };
     }
-    const auto hypotheses = phase_hypotheses(crop, { 66, 74 }, 3, 3);
+    const auto hypotheses = phase_hypotheses(
+        crop,
+        kTransferDiscoveryPitchRange,
+        kTransferDiscoveryMinimumColumns,
+        kTransferDiscoveryMinimumRows);
     std::vector<TransferHypothesis> localized;
     for (const auto& item : hypotheses) {
-        if (item.columns <= 8 && item.rows <= 5 && item.rect.width <= crop.cols * 0.70) {
+        if (item.columns <= kTransferMaximumColumns && item.rows <= kBaseTransferProfile.maximum_rows
+            && item.rect.width <= crop.cols * 0.70) {
             localized.push_back(item);
         }
     }
@@ -299,7 +317,7 @@ std::vector<cv::Rect> discover_transfer_regions(const cv::Mat& crop)
     const auto& dominant = localized.front();
     const double center = dominant.rect.x + dominant.rect.width / 2.0;
     if (center >= crop.cols / 2.0) {
-        const int left_x2 = std::max(1, dominant.rect.x - 64);
+        const int left_x2 = std::max(1, dominant.rect.x - kBaseTransferProfile.cell_size);
         const int right_x1 = std::clamp(dominant.rect.x - 12, left_x2 + 1, crop.cols - 1);
         return { cv::Rect(0, 0, left_x2, crop.rows), cv::Rect(right_x1, 0, crop.cols - right_x1, crop.rows) };
     }
@@ -310,12 +328,19 @@ std::vector<cv::Rect> discover_transfer_regions(const cv::Mat& crop)
 
 std::optional<TransferHypothesis> select_grid_hypothesis(const cv::Mat& crop)
 {
-    const int maximum_columns = std::max(1, (crop.cols - 64) / 68 + 1);
-    const int maximum_rows = std::max(1, (crop.rows - 64) / 68 + 1);
+    const int maximum_columns =
+        std::max(1, (crop.cols - kBaseTransferProfile.cell_size) / kBaseTransferProfile.pitch_min + 1);
+    const int maximum_rows =
+        std::max(1, (crop.rows - kBaseTransferProfile.cell_size) / kBaseTransferProfile.pitch_min + 1);
     const auto candidates = [&](int minimum) {
         std::vector<TransferHypothesis> filtered;
-        for (const auto& item : phase_hypotheses(crop, { 68, 70 }, minimum, minimum)) {
-            if (item.columns <= std::min(8, maximum_columns) && item.rows <= std::min(5, maximum_rows)
+        for (const auto& item : phase_hypotheses(
+                 crop,
+                 { kBaseTransferProfile.pitch_min, kBaseTransferProfile.pitch_max },
+                 minimum,
+                 minimum)) {
+            if (item.columns <= std::min(kTransferMaximumColumns, maximum_columns)
+                && item.rows <= std::min(kBaseTransferProfile.maximum_rows, maximum_rows)
                 && item.rect.x + item.rect.width <= crop.cols && item.rect.y + item.rect.height <= crop.rows) {
                 filtered.push_back(item);
             }
@@ -380,9 +405,21 @@ GridProfile ProfileFor(GridType type)
     case GridType::Trade:
         return { 96, 310.0, 109.0, 3, 3 };
     case GridType::Transfer:
-        return { 64, 69.0, 69.0, 3, 3 };
+        return {
+            kBaseTransferProfile.cell_size,
+            kBaseTransferProfile.preferred_pitch,
+            kBaseTransferProfile.preferred_pitch,
+            3,
+            3,
+        };
     case GridType::PortStorager:
-        return { 64, 69.0, 69.0, 3, 3 };
+        return {
+            kBaseTransferProfile.cell_size,
+            kBaseTransferProfile.preferred_pitch,
+            kBaseTransferProfile.preferred_pitch,
+            3,
+            3,
+        };
     case GridType::Valuables:
         return { 96, 103.5, 103.5, 7, 4 };
     case GridType::Shipment:
@@ -393,6 +430,41 @@ GridProfile ProfileFor(GridType type)
         throw std::invalid_argument("single_roi does not use a grid profile");
     }
     throw std::invalid_argument("unknown grid type");
+}
+
+TransferGridProfile TransferProfileFor(TransferGridVariant variant)
+{
+    constexpr TransferGridProfile kTransferLeft {
+        .rarity_anchor_offset = 64,
+        .minimum_top_visibility = 0.85,
+    };
+    // 背包右侧五列的实际横纵 pitch 均为 69px；固定值避免短轴拟合被物品纹理拉偏 1px。
+    constexpr TransferGridProfile kTransferRight {
+        .pitch_min = 69,
+        .pitch_max = 69,
+        .rarity_anchor_offset = 64,
+        .minimum_top_visibility = 0.85,
+    };
+    // 便捷存取站的格框结构不同，但 64px cell 都应完整包含底部色带。
+    constexpr TransferGridProfile kPortLeft {
+        .rarity_anchor_offset = 64,
+        .minimum_top_visibility = 0.90,
+    };
+    constexpr TransferGridProfile kPortRight {
+        .rarity_anchor_offset = 64,
+        .minimum_top_visibility = 0.90,
+    };
+    switch (variant) {
+    case TransferGridVariant::TransferLeft:
+        return kTransferLeft;
+    case TransferGridVariant::TransferRight:
+        return kTransferRight;
+    case TransferGridVariant::PortStoragerLeft:
+        return kPortLeft;
+    case TransferGridVariant::PortStoragerRight:
+        return kPortRight;
+    }
+    throw std::invalid_argument("unknown transfer grid variant");
 }
 
 cv::Mat BuildTransferCellScore(const cv::Mat& image, int cell_size)
@@ -424,8 +496,40 @@ cv::Mat BuildTransferCellScore(const cv::Mat& image, int cell_size)
 
 std::vector<TransferGridHint> DiscoverTransferGridHints(const cv::Mat& crop, bool structural_rank)
 {
+    if (structural_rank && crop.cols > 700) {
+        // transfer 左右面板之间存在稳定空隙；宽 ROI 先拆成单侧，保证 full 与独立 side 使用同一套候选逻辑。
+        const int split = crop.cols - kTransferRightPanelWidth;
+        const std::array<cv::Rect, 2> partitions {
+            cv::Rect(0, 0, split, crop.rows),
+            cv::Rect(split, 0, crop.cols - split, crop.rows),
+        };
+        std::vector<TransferGridHint> combined;
+        for (const cv::Rect& partition : partitions) {
+            auto local = DiscoverTransferGridHints(crop(partition), structural_rank);
+            if (local.size() != 1) {
+                throw std::runtime_error("transfer side partition must contain exactly one grid hint");
+            }
+            TransferGridHint hint = std::move(local.front());
+            hint.region.x += partition.x;
+            hint.region.y += partition.y;
+            hint.rect.x += partition.x;
+            hint.rect.y += partition.y;
+            for (int& x : hint.x_starts) {
+                x += partition.x;
+            }
+            for (int& y : hint.y_starts) {
+                y += partition.y;
+            }
+            combined.push_back(std::move(hint));
+        }
+        return combined;
+    }
     const auto regions = discover_transfer_regions(crop);
-    const auto broad = phase_hypotheses(crop, { 66, 74 }, 3, 3);
+    const auto broad = phase_hypotheses(
+        crop,
+        kTransferDiscoveryPitchRange,
+        kTransferDiscoveryMinimumColumns,
+        kTransferDiscoveryMinimumRows);
     std::vector<TransferGridHint> hints;
     for (const auto& raw_region : regions) {
         const cv::Rect region(raw_region.x, 0, raw_region.width, crop.rows);
@@ -447,14 +551,14 @@ std::vector<TransferGridHint> DiscoverTransferGridHints(const cv::Mat& crop, boo
             for (std::size_t index = 1; index < hint.x_starts.size(); ++index) {
                 spacings.push_back(hint.x_starts[index] - hint.x_starts[index - 1]);
             }
-            const double pitch = spacings.empty() ? 69.0 : Median(spacings);
+            const double pitch = spacings.empty() ? kBaseTransferProfile.preferred_pitch : Median(spacings);
             if (structural_rank) {
                 return std::tuple<double, double, double, double, double, double, double> {
                     static_cast<double>(columns),
                     static_cast<double>(columns == 7 ? 0 : hint.y_starts.size()),
                     hint.occupancy,
                     hint.score,
-                    -std::abs(pitch - 69.0),
+                    -std::abs(pitch - kBaseTransferProfile.preferred_pitch),
                     static_cast<double>(-(hint.rect.x - hint.region.x)),
                     static_cast<double>(hint.y_starts.size()),
                 };

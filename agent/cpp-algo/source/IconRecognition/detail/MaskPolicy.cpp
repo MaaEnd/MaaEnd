@@ -12,8 +12,21 @@ namespace
 
 constexpr int kShipmentQuantityBarHeight = 20;
 constexpr int kShipmentQuantityBarMinPixels = 500;
+constexpr int kValuablesSlotSize = 96;
+const cv::Rect kValuablesPortraitDetectionRect { 60, 0, 36, 42 };
 const cv::Point kValuablesPortraitCenter { 81, 15 };
 constexpr int kValuablesPortraitRadius = 20;
+// 武器头像圆只会出现在槽位右上角；参数按 96px 贵重品槽位截图标定。
+constexpr double kPortraitHoughDp = 1.0;
+constexpr double kPortraitHoughMinDistance = 16.0;
+constexpr double kPortraitHoughCannyThreshold = 100.0;
+constexpr double kPortraitHoughAccumulatorThreshold = 16.0;
+constexpr int kPortraitHoughMinRadius = 14;
+constexpr int kPortraitHoughMaxRadius = 22;
+constexpr double kPortraitCenterMinX = 70.0;
+constexpr double kPortraitCenterMaxX = 96.0;
+constexpr double kPortraitCenterMinY = 0.0;
+constexpr double kPortraitCenterMaxY = 30.0;
 
 int RoundHalfToEven(double value)
 {
@@ -72,27 +85,35 @@ bool HasShipmentTopBar(const cv::Mat& image)
 
 void ClearValuablesWeaponPortrait(cv::Mat& mask, const cv::Mat& slot)
 {
-    if (mask.empty() || slot.empty() || mask.rows != 96 || mask.cols != 96) {
+    if (mask.empty() || slot.empty() || mask.rows != kValuablesSlotSize || mask.cols != kValuablesSlotSize) {
         return;
     }
-    const cv::Rect detection_rect(60, 0, 36, 42);
     cv::Mat gray;
     if (slot.channels() == 4) {
-        cv::cvtColor(slot(detection_rect), gray, cv::COLOR_BGRA2GRAY);
+        cv::cvtColor(slot(kValuablesPortraitDetectionRect), gray, cv::COLOR_BGRA2GRAY);
     }
     else if (slot.channels() == 3) {
-        cv::cvtColor(slot(detection_rect), gray, cv::COLOR_BGR2GRAY);
+        cv::cvtColor(slot(kValuablesPortraitDetectionRect), gray, cv::COLOR_BGR2GRAY);
     }
     else {
-        gray = slot(detection_rect);
+        gray = slot(kValuablesPortraitDetectionRect);
     }
     std::vector<cv::Vec3f> circles;
-    cv::HoughCircles(gray, circles, cv::HOUGH_GRADIENT, 1.0, 16.0, 100.0, 16.0, 14, 22);
+    cv::HoughCircles(
+        gray,
+        circles,
+        cv::HOUGH_GRADIENT,
+        kPortraitHoughDp,
+        kPortraitHoughMinDistance,
+        kPortraitHoughCannyThreshold,
+        kPortraitHoughAccumulatorThreshold,
+        kPortraitHoughMinRadius,
+        kPortraitHoughMaxRadius);
     const bool detected = std::ranges::any_of(circles, [](const cv::Vec3f& circle) {
-        const double absolute_x = circle[0] + 60.0;
+        const double absolute_x = circle[0] + kValuablesPortraitDetectionRect.x;
         const double absolute_y = circle[1];
-        return absolute_x >= 70.0 && absolute_x <= 96.0 && absolute_y >= 0.0 && absolute_y <= 30.0 && circle[2] >= 14.0
-               && circle[2] <= 22.0;
+        return absolute_x >= kPortraitCenterMinX && absolute_x <= kPortraitCenterMaxX && absolute_y >= kPortraitCenterMinY
+               && absolute_y <= kPortraitCenterMaxY && circle[2] >= kPortraitHoughMinRadius && circle[2] <= kPortraitHoughMaxRadius;
     });
     if (detected) {
         cv::circle(mask, kValuablesPortraitCenter, kValuablesPortraitRadius, cv::Scalar(0), cv::FILLED);

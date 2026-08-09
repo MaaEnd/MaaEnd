@@ -20,6 +20,6 @@
 - [识别算法](docs/algorithm.md)
 - [内部网格类型与参考 ROI](docs/grid-profiles.md)
 - [测试命令与人工审核图](docs/testing.md)
-- [资源下载与发布工具](../../../../../tools/icon_recognition/README.md)
+- [资源下载与发布工具](../../../../tools/icon_recognition/README.md)
 
 截图或识别前，建议先将鼠标移动到不会遮挡物品网格的位置（例如左上角），并使用 `pre_wait_freezes`、`post_wait_freezes` 或等效机制等待画面稳定。
