@@ -531,10 +531,14 @@
                 ],
                 "target_tier": "Wuling_L4_328"
             },
-            [
-                243.5,
-                178.04
-            ],
+            {
+                "action": "RUN",
+                "target": [
+                    243.5,
+                    178.04
+                ],
+                "target_tier": "Wuling_L4_328"
+            },
             {
                 "action": "NAVMESH",
                 "target": [
