@@ -23,9 +23,9 @@
             "GiftOperatorMoveResetBackward",
             "GiftOperatorMoveLocation3",
             //"GiftOperatorMoveLocation3Move",
-            "GiftOperatorMoveLocation4",
             "GiftOperatorMoveLocation2",
             "GiftOperatorMoveLocation1",
+            "GiftOperatorMoveLocation4",
             "GiftOperatorMoveFail"
         ]
     },
