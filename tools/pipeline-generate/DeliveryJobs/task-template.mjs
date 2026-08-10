@@ -21,12 +21,24 @@ const PACK_CARGO_EXPECTED = [
     "화물 포장",
 ];
 
-function buildCargoAnchor(depot, bidAction, ongoingDeliveryAction = "DeliveryJobsStopForOngoingDelivery") {
+const AUTO_DELIVERY_CONTROLLERS = [
+    "Win32-Front",
+    "Wlroots",
+];
+
+const AUTO_DELIVERY_ENTRY = "DeliveryJobsAutoDeliveryEntry";
+
+function buildCargoAnchor(
+    depot,
+    bidAction,
+    ongoingDeliveryAction = "DeliveryJobsStopForOngoingDelivery",
+    goToDepot = depot.DepotScene,
+) {
     return {
         DeliveryJobsSelectPriorityItems: `DeliveryJobsSelectPriorityItems${depot.RegionId}`,
         DeliveryJobsRedistributionBidAction: bidAction,
         DeliveryJobsOngoingDeliveryAction: ongoingDeliveryAction,
-        DeliveryJobsGoToDepot: depot.DepotScene,
+        DeliveryJobsGoToDepot: goToDepot,
     };
 }
 
@@ -68,6 +80,17 @@ function buildDepotOption(depot) {
                     bidAction: "DeliveryJobsRedistributionBidNextStep",
                 }),
             },
+            ...(depot.AutoDeliverySupported
+                ? [
+                      {
+                          name: "AutoDelivery",
+                          label: "$task.DeliveryJobs.DepotAction.AutoDelivery",
+                          pipeline_override: buildAutoDeliveryOverride(depot, {
+                              bidAction: "DeliveryJobsRedistributionBidNextStep",
+                          }),
+                      },
+                  ]
+                : []),
             {
                 name: "ByQuote",
                 label: "$task.DeliveryJobs.DepotAction.ByQuote",
@@ -183,6 +206,18 @@ function buildQuoteActionOption(depot, {comparison, label, description, defaultC
                     },
                 },
             },
+            ...(depot.AutoDeliverySupported
+                ? [
+                      {
+                          name: "AutoDelivery",
+                          label: "$task.DeliveryJobs.QuoteAction.AutoDelivery",
+                          pipeline_override: buildAutoDeliveryOverride(depot, {
+                              bidAction: `DeliveryJobsDecide${depot.Id}Quote`,
+                              comparison,
+                          }),
+                      },
+                  ]
+                : []),
             {
                 name: "AcceptJobOnly",
                 label: "$task.DeliveryJobs.QuoteAction.AcceptJobOnly",
@@ -209,6 +244,97 @@ function buildQuoteActionOption(depot, {comparison, label, description, defaultC
             },
         ],
         default_case: defaultCase,
+    };
+}
+
+function buildAutoDeliveryOverride(depot, {bidAction, comparison}) {
+    const deliveryNode = `DeliveryJobsEnter${depot.Id}DeliveryJob`;
+    const cargoNode = `DeliveryJobsEnter${depot.Id}Cargo`;
+    const pipelineOverride = {
+        [deliveryNode]: {
+            enabled: true,
+            anchor: {
+                DeliveryJobsExistingJobAction: AUTO_DELIVERY_ENTRY,
+            },
+        },
+        [cargoNode]: {
+            enabled: true,
+            anchor: buildCargoAnchor(depot, bidAction, AUTO_DELIVERY_ENTRY, AUTO_DELIVERY_ENTRY),
+        },
+        SeizeDeliveryJobsPostProcessingEntry: {
+            enabled: true,
+            next: [
+                "SeizeDeliveryJobsEnterDestinationMapWithDestinationResolve",
+            ],
+        },
+        SeizeDeliveryJobsPostDepartureEntry: {
+            enabled: true,
+        },
+    };
+
+    if (comparison) {
+        pipelineOverride[`DeliveryJobs${depot.Id}Quote${comparison}`] = {
+            anchor: {
+                DeliveryJobsQuoteAction: "DeliveryJobsQuoteAcceptJobOnly",
+                DeliveryJobsGoToDepot: AUTO_DELIVERY_ENTRY,
+            },
+        };
+    }
+
+    return pipelineOverride;
+}
+
+function buildAutoDeliveryRiskAcknowledgementOption() {
+    return {
+        type: "switch",
+        controller: AUTO_DELIVERY_CONTROLLERS,
+        label: "$task.SeizeDeliveryJobsPostDepartureRiskAcknowledgement.label",
+        description: "$task.SeizeDeliveryJobsPostDepartureRiskAcknowledgement.description",
+        default_case: "No",
+        cases: [
+            {
+                name: "No",
+                pipeline_override: {
+                    DeliveryJobsAutoDeliveryGuard: {
+                        enabled: true,
+                    },
+                },
+            },
+            {
+                name: "Yes",
+                pipeline_override: {
+                    DeliveryJobsAutoDeliveryGuard: {
+                        enabled: false,
+                    },
+                },
+            },
+        ],
+    };
+}
+
+function buildAutoDeliveryPreferZiplineOption() {
+    const buildCase = (name, ziplinePolicy) => ({
+        name,
+        pipeline_override: {
+            SeizeDeliveryJobsRunDeparture: {
+                custom_action_param: {
+                    map_name_regex: "^(map02_lv002|map02_lv005)$",
+                    zipline_policy: ziplinePolicy,
+                    is_retry: false,
+                },
+            },
+        },
+    });
+    return {
+        type: "switch",
+        controller: AUTO_DELIVERY_CONTROLLERS,
+        label: "$task.SeizeDeliveryJobsPostDeparturePreferZipline.label",
+        description: "$task.SeizeDeliveryJobsPostDeparturePreferZipline.description",
+        default_case: "No",
+        cases: [
+            buildCase("No", "Lazy"),
+            buildCase("Yes", "Active"),
+        ],
     };
 }
 
@@ -329,6 +455,9 @@ function buildTaskOptions() {
         }
     }
 
+    options.DeliveryJobsAutoDeliveryRiskAcknowledgement = buildAutoDeliveryRiskAcknowledgementOption();
+    options.DeliveryJobsAutoDeliveryPreferZipline = buildAutoDeliveryPreferZiplineOption();
+
     options.PackCargoSelectItem = {
         type: "switch",
         label: "$task.DeliveryJobs.PackCargoSelectItem.label",
@@ -377,6 +506,8 @@ export default function buildDeliveryJobsTask() {
                 option: [
                     ...deliveryJobRegions.map((region) => region.Id),
                     "PackCargoSelectItem",
+                    "DeliveryJobsAutoDeliveryRiskAcknowledgement",
+                    "DeliveryJobsAutoDeliveryPreferZipline",
                 ],
                 controller: [
                     "ADB",

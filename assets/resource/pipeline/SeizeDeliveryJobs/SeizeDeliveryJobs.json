@@ -3,7 +3,8 @@
         "desc": "抢委托送货任务的主入口",
         "pre_delay": 0,
         "anchor": {
-            "SeizeDeliveryJobsAfterEnterWulingJobList": "SeizeDeliveryJobsReadyToSeize"
+            "SeizeDeliveryJobsAfterEnterWulingJobList": "SeizeDeliveryJobsReadyToSeize",
+            "SeizeDeliveryJobsAfterDelivery": "SeizeDeliveryJobsMain"
         },
         "post_delay": 0,
         "next": [

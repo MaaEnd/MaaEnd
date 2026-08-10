@@ -15,6 +15,10 @@ const iconRecognitionItems = JSON.parse(
 // 装箱物品选项的默认物品（砂叶粉末），各地区均需可装箱
 const DEFAULT_FILL_ITEM_ID = "item_plant_moss_powder_3";
 export const DELIVERY_JOB_FILL_ITEM_PRIORITY_COUNT = 4;
+const AUTO_DELIVERY_SUPPORTED_DEPOT_GAME_IDS = new Set([
+    "domain_2_lv002_depot_1",
+    "domain_2_lv005_depot_1",
+]);
 
 function assertRecord(value, label) {
     if (!value || typeof value !== "object" || Array.isArray(value)) {
@@ -138,6 +142,7 @@ function buildDepot(regionGameId, regionId, depotGameId) {
         Names: depot.names,
         Expected: buildLocalizedExpected(depot.names, `仓储节点 ${depotGameId}`),
         RegionId: regionId,
+        AutoDeliverySupported: AUTO_DELIVERY_SUPPORTED_DEPOT_GAME_IDS.has(depotGameId),
         RegionScene: `SceneEnterMenuRegionalDevelopment${regionId}`,
         DepotScene: `SceneEnterMenuRegionalDevelopment${regionId}DepotNode`,
     };

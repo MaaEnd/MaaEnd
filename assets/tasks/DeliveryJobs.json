@@ -8,7 +8,9 @@
             "option": [
                 "ValleyIV",
                 "Wuling",
-                "PackCargoSelectItem"
+                "PackCargoSelectItem",
+                "DeliveryJobsAutoDeliveryRiskAcknowledgement",
+                "DeliveryJobsAutoDeliveryPreferZipline"
             ],
             "controller": [
                 "ADB",
@@ -906,6 +908,36 @@
                     }
                 },
                 {
+                    "name": "AutoDelivery",
+                    "label": "$task.DeliveryJobs.DepotAction.AutoDelivery",
+                    "pipeline_override": {
+                        "DeliveryJobsEnterWulingCityDeliveryJob": {
+                            "enabled": true,
+                            "anchor": {
+                                "DeliveryJobsExistingJobAction": "DeliveryJobsAutoDeliveryEntry"
+                            }
+                        },
+                        "DeliveryJobsEnterWulingCityCargo": {
+                            "enabled": true,
+                            "anchor": {
+                                "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsWuling",
+                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
+                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsAutoDeliveryEntry",
+                                "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryEntry"
+                            }
+                        },
+                        "SeizeDeliveryJobsPostProcessingEntry": {
+                            "enabled": true,
+                            "next": [
+                                "SeizeDeliveryJobsEnterDestinationMapWithDestinationResolve"
+                            ]
+                        },
+                        "SeizeDeliveryJobsPostDepartureEntry": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
                     "name": "ByQuote",
                     "label": "$task.DeliveryJobs.DepotAction.ByQuote",
                     "option": [
@@ -1062,6 +1094,42 @@
                     }
                 },
                 {
+                    "name": "AutoDelivery",
+                    "label": "$task.DeliveryJobs.QuoteAction.AutoDelivery",
+                    "pipeline_override": {
+                        "DeliveryJobsEnterWulingCityDeliveryJob": {
+                            "enabled": true,
+                            "anchor": {
+                                "DeliveryJobsExistingJobAction": "DeliveryJobsAutoDeliveryEntry"
+                            }
+                        },
+                        "DeliveryJobsEnterWulingCityCargo": {
+                            "enabled": true,
+                            "anchor": {
+                                "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsWuling",
+                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsDecideWulingCityQuote",
+                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsAutoDeliveryEntry",
+                                "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryEntry"
+                            }
+                        },
+                        "SeizeDeliveryJobsPostProcessingEntry": {
+                            "enabled": true,
+                            "next": [
+                                "SeizeDeliveryJobsEnterDestinationMapWithDestinationResolve"
+                            ]
+                        },
+                        "SeizeDeliveryJobsPostDepartureEntry": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsWulingCityQuoteAtLeastMinimum": {
+                            "anchor": {
+                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
+                                "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryEntry"
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "AcceptJobOnly",
                     "label": "$task.DeliveryJobs.QuoteAction.AcceptJobOnly",
                     "pipeline_override": {
@@ -1101,6 +1169,42 @@
                             "anchor": {
                                 "DeliveryJobsQuoteAction": "DeliveryJobsQuoteTransferJob",
                                 "DeliveryJobsGoToDepot": "DeliveryJobsReturnAndTransferWulingCity"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "AutoDelivery",
+                    "label": "$task.DeliveryJobs.QuoteAction.AutoDelivery",
+                    "pipeline_override": {
+                        "DeliveryJobsEnterWulingCityDeliveryJob": {
+                            "enabled": true,
+                            "anchor": {
+                                "DeliveryJobsExistingJobAction": "DeliveryJobsAutoDeliveryEntry"
+                            }
+                        },
+                        "DeliveryJobsEnterWulingCityCargo": {
+                            "enabled": true,
+                            "anchor": {
+                                "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsWuling",
+                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsDecideWulingCityQuote",
+                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsAutoDeliveryEntry",
+                                "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryEntry"
+                            }
+                        },
+                        "SeizeDeliveryJobsPostProcessingEntry": {
+                            "enabled": true,
+                            "next": [
+                                "SeizeDeliveryJobsEnterDestinationMapWithDestinationResolve"
+                            ]
+                        },
+                        "SeizeDeliveryJobsPostDepartureEntry": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsWulingCityQuoteBelowMinimum": {
+                            "anchor": {
+                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
+                                "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryEntry"
                             }
                         }
                     }
@@ -1165,6 +1269,36 @@
                                 "화물 포장",
                                 "입찰 보기"
                             ]
+                        }
+                    }
+                },
+                {
+                    "name": "AutoDelivery",
+                    "label": "$task.DeliveryJobs.DepotAction.AutoDelivery",
+                    "pipeline_override": {
+                        "DeliveryJobsEnterTestAreaDeliveryJob": {
+                            "enabled": true,
+                            "anchor": {
+                                "DeliveryJobsExistingJobAction": "DeliveryJobsAutoDeliveryEntry"
+                            }
+                        },
+                        "DeliveryJobsEnterTestAreaCargo": {
+                            "enabled": true,
+                            "anchor": {
+                                "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsWuling",
+                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
+                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsAutoDeliveryEntry",
+                                "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryEntry"
+                            }
+                        },
+                        "SeizeDeliveryJobsPostProcessingEntry": {
+                            "enabled": true,
+                            "next": [
+                                "SeizeDeliveryJobsEnterDestinationMapWithDestinationResolve"
+                            ]
+                        },
+                        "SeizeDeliveryJobsPostDepartureEntry": {
+                            "enabled": true
                         }
                     }
                 },
@@ -1325,6 +1459,42 @@
                     }
                 },
                 {
+                    "name": "AutoDelivery",
+                    "label": "$task.DeliveryJobs.QuoteAction.AutoDelivery",
+                    "pipeline_override": {
+                        "DeliveryJobsEnterTestAreaDeliveryJob": {
+                            "enabled": true,
+                            "anchor": {
+                                "DeliveryJobsExistingJobAction": "DeliveryJobsAutoDeliveryEntry"
+                            }
+                        },
+                        "DeliveryJobsEnterTestAreaCargo": {
+                            "enabled": true,
+                            "anchor": {
+                                "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsWuling",
+                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsDecideTestAreaQuote",
+                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsAutoDeliveryEntry",
+                                "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryEntry"
+                            }
+                        },
+                        "SeizeDeliveryJobsPostProcessingEntry": {
+                            "enabled": true,
+                            "next": [
+                                "SeizeDeliveryJobsEnterDestinationMapWithDestinationResolve"
+                            ]
+                        },
+                        "SeizeDeliveryJobsPostDepartureEntry": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsTestAreaQuoteAtLeastMinimum": {
+                            "anchor": {
+                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
+                                "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryEntry"
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "AcceptJobOnly",
                     "label": "$task.DeliveryJobs.QuoteAction.AcceptJobOnly",
                     "pipeline_override": {
@@ -1369,6 +1539,42 @@
                     }
                 },
                 {
+                    "name": "AutoDelivery",
+                    "label": "$task.DeliveryJobs.QuoteAction.AutoDelivery",
+                    "pipeline_override": {
+                        "DeliveryJobsEnterTestAreaDeliveryJob": {
+                            "enabled": true,
+                            "anchor": {
+                                "DeliveryJobsExistingJobAction": "DeliveryJobsAutoDeliveryEntry"
+                            }
+                        },
+                        "DeliveryJobsEnterTestAreaCargo": {
+                            "enabled": true,
+                            "anchor": {
+                                "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsWuling",
+                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsDecideTestAreaQuote",
+                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsAutoDeliveryEntry",
+                                "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryEntry"
+                            }
+                        },
+                        "SeizeDeliveryJobsPostProcessingEntry": {
+                            "enabled": true,
+                            "next": [
+                                "SeizeDeliveryJobsEnterDestinationMapWithDestinationResolve"
+                            ]
+                        },
+                        "SeizeDeliveryJobsPostDepartureEntry": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsTestAreaQuoteBelowMinimum": {
+                            "anchor": {
+                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
+                                "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryEntry"
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "AcceptJobOnly",
                     "label": "$task.DeliveryJobs.QuoteAction.AcceptJobOnly",
                     "pipeline_override": {
@@ -1394,6 +1600,70 @@
                 }
             ],
             "default_case": "AcceptJobOnly"
+        },
+        "DeliveryJobsAutoDeliveryRiskAcknowledgement": {
+            "type": "switch",
+            "controller": [
+                "Win32-Front",
+                "Wlroots"
+            ],
+            "label": "$task.SeizeDeliveryJobsPostDepartureRiskAcknowledgement.label",
+            "description": "$task.SeizeDeliveryJobsPostDepartureRiskAcknowledgement.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "DeliveryJobsAutoDeliveryGuard": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "DeliveryJobsAutoDeliveryGuard": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "DeliveryJobsAutoDeliveryPreferZipline": {
+            "type": "switch",
+            "controller": [
+                "Win32-Front",
+                "Wlroots"
+            ],
+            "label": "$task.SeizeDeliveryJobsPostDeparturePreferZipline.label",
+            "description": "$task.SeizeDeliveryJobsPostDeparturePreferZipline.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsRunDeparture": {
+                            "custom_action_param": {
+                                "map_name_regex": "^(map02_lv002|map02_lv005)$",
+                                "zipline_policy": "Lazy",
+                                "is_retry": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "SeizeDeliveryJobsRunDeparture": {
+                            "custom_action_param": {
+                                "map_name_regex": "^(map02_lv002|map02_lv005)$",
+                                "zipline_policy": "Active",
+                                "is_retry": false
+                            }
+                        }
+                    }
+                }
+            ]
         },
         "PackCargoSelectItem": {
             "type": "switch",

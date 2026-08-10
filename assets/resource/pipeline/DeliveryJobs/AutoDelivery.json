@@ -1,0 +1,81 @@
+{
+    "DeliveryJobsAutoDeliveryEntry": {
+        "desc": "转交委托接取成功后进入共享全自动送货流程",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "anchor": {
+            "SeizeDeliveryJobsAfterDelivery": "DeliveryJobsAutoDeliverySubTaskDone"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsAutoDeliveryGuard",
+            "DeliveryJobsAutoDeliveryRun"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DeliveryJobs.AutoDeliveryStart"
+        }
+    },
+    "DeliveryJobsAutoDeliveryGuard": {
+        "desc": "未确认全自动送货风险时停止任务（由任务选项控制）",
+        "enabled": true,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "StopTask",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Starting": "$task.DeliveryJobs.AutoDeliveryGuard"
+        }
+    },
+    "DeliveryJobsAutoDeliveryRun": {
+        "desc": "严格执行现有全自动送货后处理流程",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SeizeDeliveryJobsPostProcessingEntry"
+            ],
+            "continue": false,
+            "strict": true
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsAutoDeliveryDone"
+        ],
+        "on_error": [
+            "DeliveryJobsAutoDeliveryFailed"
+        ]
+    },
+    "DeliveryJobsAutoDeliverySubTaskDone": {
+        "desc": "共享全自动送货流程成功回调到转交委托",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "DeliveryJobsAutoDeliveryDone": {
+        "desc": "本次全自动送货完成，结束子流程并返回仓储节点循环",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DeliveryJobs.AutoDeliveryDone"
+        }
+    },
+    "DeliveryJobsAutoDeliveryFailed": {
+        "desc": "全自动送货失败时停止转交委托，避免继续装箱",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "StopTask",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Starting": "$task.DeliveryJobs.AutoDeliveryFailed"
+        }
+    }
+}

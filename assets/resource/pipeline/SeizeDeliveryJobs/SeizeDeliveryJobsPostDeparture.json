@@ -633,7 +633,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SeizeDeliveryJobsMain", // 有剩余次数时继续循环
+            "[Anchor]SeizeDeliveryJobsAfterDelivery", // 由调用方决定送达后的后续流程
             "SeizeDeliveryJobsTaskEnd" // 次数用尽时结束任务
         ]
     },
