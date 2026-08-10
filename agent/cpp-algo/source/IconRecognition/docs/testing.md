@@ -2,12 +2,12 @@
 
 公开测试入口位于 `agent/cpp-algo/source/IconRecognition/test/`。CMake、C++ 测试、`run-tests.ps1`、`run-tests.local.example.psd1` 和 `rois.json` 随 Git 提交；以下内容只用于本机测试并被忽略：
 
-- `input/`：按网格类型分类的测试截图；
+- `input/`：可选的本地测试截图覆盖；
 - `output/`：标注图、detail JSON 和报告；
 - `build/`：CMake 构建目录；
 - `run-tests.local.psd1`：可选的本机工具链路径配置。
 
-生产代码和测试都读取 `assets/data/IconRecognition`、`assets/resource/image/IconRecognition` 与 `assets/locales/interface`，不维护测试专用 catalog 或模板副本。`quick` 使用仓库内已跟踪的铜矿模板合成 single ROI 输入，不读取被忽略的 `input/`；`input/` 仅供人工 runner 和显式截图回归使用。
+生产代码和测试都读取 `assets/data/IconRecognition`、`assets/resource/image/IconRecognition` 与 `assets/locales/interface`，不维护测试专用 catalog 或模板副本。图片测试以子模块 `tests/MaaEndTestset/Win32/Official_CN/IconRecognition` 为基准素材；运行 `quick` 或 `manual` 时，脚本会将该目录复制到 `test/build/merged-input`，再叠加本地被忽略的 `input/`。未指定文件名时，两边素材都会保留并参与测试；指定 `-Image` 时，同相对路径冲突才使用本地文件，并打印一次覆盖提示。缺少子模块基准目录会直接失败，quick 使用的典型图片缺失也会直接失败。
 
 ## 准备图片
 
@@ -49,12 +49,22 @@ input/
 ./agent/cpp-algo/source/IconRecognition/test/run-tests.ps1 -Task quick
 ./agent/cpp-algo/source/IconRecognition/test/run-tests.ps1 -Task manual -All
 ./agent/cpp-algo/source/IconRecognition/test/run-tests.ps1 -Task manual -GridType transfer
-./agent/cpp-algo/source/IconRecognition/test/run-tests.ps1 -Task manual -GridType transfer -Image 43.png -Side all
+./agent/cpp-algo/source/IconRecognition/test/run-tests.ps1 -Task manual -GridType transfer -Image sample.png -Side all
 ./agent/cpp-algo/source/IconRecognition/test/run-tests.ps1 -Task manual -GridType transfer -Side all -Jobs 16
-./agent/cpp-algo/source/IconRecognition/test/run-tests.ps1 -Task manual -Image 43.png
+./agent/cpp-algo/source/IconRecognition/test/run-tests.ps1 -Task manual -Image sample.png
 ```
 
-`quick` 是干净 checkout 可运行的快速门禁，覆盖类型、参数契约、single ROI、MaaFramework 包装、算法小测试和 debug capture。整图识别及性能回归必须先准备 `input/`，再使用 `-Task manual` 显式运行，不会被 quick 静默跳过。
+`quick` 是干净 checkout 可运行的快速门禁，覆盖类型、参数契约、single ROI、MaaFramework 包装、算法小测试、debug capture，以及少量真实图片回归。当前真实图片样本为：
+
+- `transfer/25.png`：稀疏左侧仓库网格；
+- `transfer/57.png`：完整双侧仓库网格；
+- `port_storager/1.png`：左右来源不同的存取站；
+- `credit_trade/1.png`：七列信用交易卡片；
+- `single_roi/1177-450-54/1.png`：据点交易入口的指定 ROI。
+
+每张 quick 图片都必须生成一个 case、成功识别并至少命中一个物品。整图识别及性能回归可在合并素材准备完成后使用 `-Task manual` 显式运行，不会被 quick 静默跳过。
+
+未指定 `-Image` 时，本地冲突文件会以 `.local1.png` 等唯一名称保留，因此 `-All` 或仅指定 `-GridType` 会同时审核两套素材；指定 `-Image` 时才启用本地同名覆盖。
 
 无参数、`-Help`、`-h` 会打印完整用法；PowerShell 保留的 `-?` 会显示脚本参数帮助。人工 runner 支持三种选择范围：
 
@@ -81,7 +91,7 @@ input/
 需要分析性能时，在 PowerShell 命令中加入通用参数 `-Debug`；直接运行 C++ runner 时使用 `--debug`。debug 模式会在控制台打印启动和单 case 耗时，在 detail 的 `diagnostics.performance` 中记录网格检测、模板选择、候选排名、纹理、稀有度、结果组装，以及 matcher 内部的画布准备、相位变换、模板匹配、极值归约、Lab 转换和颜色距离；`report.json` 还会记录 `startup_performance` 与各 case 的 `runner_performance`。正常模式不采集这些计时。示例：
 
 ```powershell
-./agent/cpp-algo/source/IconRecognition/test/run-tests.ps1 -Task manual -GridType transfer -Image 37.png -Side full -Jobs 1 -Debug
+./agent/cpp-algo/source/IconRecognition/test/run-tests.ps1 -Task manual -GridType transfer -Image sample.png -Side full -Jobs 1 -Debug
 ```
 
 生产自定义识别参数中的 `debug: true` 同样会采集 `diagnostics.performance`，并随现有 debug capture 写入 detail JSON。细粒度计时会引入少量观测开销，比较绝对耗时时应固定图片、ROI、构建配置和 worker 数，并至少重复三次。
@@ -107,7 +117,7 @@ input/
 
 ## 图像回归门槛
 
-截图回归只通过 `manual` runner 执行。runner 扫描 `input/<网格类型>/` 下的图片，文件名只是输入标识，不参与生产判断，也不对应隐藏的 C++ 固定断言。需要复核某个算法场景时，应在报告或 PR 说明中记录图片相对路径、ROI、预期现象和实际结果；不要把本地图片编号写入 quick 测试。
+截图回归通过 `manual` runner 执行。runner 扫描合并后的 `<网格类型>/` 图片，文件名只是输入标识，不参与生产判断，也不对应隐藏的 C++ 固定断言。需要复核某个算法场景时，应在报告或 PR 说明中记录图片相对路径、ROI、预期现象和实际结果；quick 只保留上面列出的少量典型样本，不要把本地任意图片编号写入测试代码。
 
 回归审核至少覆盖：
 
@@ -116,6 +126,6 @@ input/
 - 浮点 pitch 的整数投影无累积误差，递增可变 pitch 序列被拒绝；
 - transfer 和 port_storager 的双侧 ROI、稀疏网格、full/split 一致性。
 
-全量审核应根据当前 `input/` 中实际存在的图片统计 case 数，并覆盖 transfer 与 port_storager 的可用 ROI。正确 match 总数不能整体下降，新增远端整片错位立即视为失败；结构和色带都不足时，明确失败优于输出低置信网格。
+全量审核应根据合并素材中实际存在的图片统计 case 数，并覆盖 transfer 与 port_storager 的可用 ROI。正确 match 总数不能整体下降，新增远端整片错位立即视为失败；结构和色带都不足时，明确失败优于输出低置信网格。
 
 人工 detail 的 `diagnostics.grids[]` 应同时检查 pitch 位于 68–70px、最大残差不超过 2.25px、可信 rarity 计数、fallback 原因，以及 full/split 的 origin、pitch、行列数是否一致。

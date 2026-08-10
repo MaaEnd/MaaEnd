@@ -433,7 +433,7 @@ int main(int argc, char** argv)
         }
 
         const std::filesystem::path input_root = ICON_RECOGNITION_TEST_INPUT_DIR;
-        const auto cases = iconrecognition::test::DiscoverManualRunnerCases(input_root, input_root.parent_path() / "rois.json", options);
+        const auto cases = iconrecognition::test::DiscoverManualRunnerCases(input_root, ICON_RECOGNITION_TEST_ROIS_PATH, options);
         const auto run_root = CreateRunRoot(ICON_RECOGNITION_TEST_OUTPUT_DIR, RunLabel(options));
         const auto annotated_root = run_root / "annotated";
         const auto detail_root = run_root / "detail";

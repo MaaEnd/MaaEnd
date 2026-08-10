@@ -105,6 +105,20 @@ bool HasShipmentTopBar(const cv::Mat& image)
     return cv::countNonZero(selected.rowRange(0, top_height)) >= kShipmentQuantityBarMinPixels;
 }
 
+void ApplyShipmentTopBarMask(cv::Mat& mask)
+{
+    if (!mask.empty()) {
+        mask.rowRange(0, std::min(kShipmentQuantityBarHeight, mask.rows)).setTo(cv::Scalar(0));
+    }
+}
+
+void ApplyValuablesWeaponPortraitMask(cv::Mat& mask)
+{
+    if (!mask.empty()) {
+        cv::circle(mask, kValuablesPortraitCenter, kValuablesPortraitRadius, cv::Scalar(0), cv::FILLED);
+    }
+}
+
 void ClearValuablesWeaponPortrait(cv::Mat& mask, const cv::Mat& slot)
 {
     if (mask.empty() || slot.empty() || mask.rows != kValuablesSlotSize || mask.cols != kValuablesSlotSize) {
@@ -138,7 +152,7 @@ void ClearValuablesWeaponPortrait(cv::Mat& mask, const cv::Mat& slot)
                && absolute_y <= kPortraitCenterMaxY && circle[2] >= kPortraitHoughMinRadius && circle[2] <= kPortraitHoughMaxRadius;
     });
     if (detected) {
-        cv::circle(mask, kValuablesPortraitCenter, kValuablesPortraitRadius, cv::Scalar(0), cv::FILLED);
+        ApplyValuablesWeaponPortraitMask(mask);
     }
 }
 
@@ -149,7 +163,7 @@ cv::Mat BuildMask(const cv::Mat& image, int target_size, GridType grid_type, Mas
         return mask;
     }
     if (kind == MaskKind::ShipmentTopBar && HasShipmentTopBar(image)) {
-        mask.rowRange(0, std::min(kShipmentQuantityBarHeight, target_size)).setTo(cv::Scalar(0));
+        ApplyShipmentTopBarMask(mask);
     }
     if (kind == MaskKind::ValuablesWeapon && grid_type == GridType::Valuables) {
         ClearValuablesWeaponPortrait(mask, image);

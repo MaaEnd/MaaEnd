@@ -170,7 +170,7 @@ std::vector<detail::PreparedTemplate>
         }
         for (auto& templ : active) {
             templ.mask = templ.mask.clone();
-            templ.mask.rowRange(0, std::min(20, templ.mask.rows)).setTo(cv::Scalar(0));
+            detail::ApplyShipmentTopBarMask(templ.mask);
         }
         return active;
     }
@@ -182,7 +182,7 @@ std::vector<detail::PreparedTemplate>
     }
     for (auto& templ : active) {
         templ.mask = templ.mask.clone();
-        cv::circle(templ.mask, cv::Point(81, 15), 20, cv::Scalar(0), cv::FILLED);
+        detail::ApplyValuablesWeaponPortraitMask(templ.mask);
     }
     return active;
 }
@@ -267,13 +267,8 @@ void ScoreBaselineCandidates(
 {
     const auto baseline_started = performance ? PerformanceClock::now() : PerformanceClock::time_point {};
     for (const std::size_t index : indices) {
-        auto diagnostics = detail::ScoreTemplateAt(
-            image,
-            slot,
-            templates[index],
-            search_radius,
-            {},
-            performance ? &performance->matcher : nullptr);
+        auto diagnostics =
+            detail::ScoreTemplateAt(image, slot, templates[index], search_radius, {}, performance ? &performance->matcher : nullptr);
         ranked.push_back({ index, diagnostics, diagnostics, {} });
     }
     if (performance) {
@@ -310,8 +305,7 @@ SlotRanking EvaluateRankedCandidates(
         if (index < kShortlistCount || ranked[index].diagnostics.score >= baseline_score - kShortlistScoreWindow) {
             const std::size_t template_index = ranked[index].template_index;
             if (!refinement_cache[template_index]) {
-                refinement_cache[template_index] =
-                    RefineCandidate(image, slot, templates, ranked[index], search_radius, performance);
+                refinement_cache[template_index] = RefineCandidate(image, slot, templates, ranked[index], search_radius, performance);
                 if (performance) {
                     ++performance->ranking.refined_candidates;
                 }
@@ -347,14 +341,7 @@ SlotRanking RankSlot(
     baseline_candidates.reserve(templates.size());
     std::vector<std::optional<RankedCandidate>> refinement_cache(templates.size());
 
-    ScoreBaselineCandidates(
-        image,
-        slot,
-        templates,
-        passes.preferred_indices,
-        search_radius,
-        baseline_candidates,
-        performance);
+    ScoreBaselineCandidates(image, slot, templates, passes.preferred_indices, search_radius, baseline_candidates, performance);
     if (performance && passes.prefiltered) {
         ++performance->ranking.rarity_prefiltered_cells;
         performance->ranking.rarity_preferred_candidates += passes.preferred_indices.size();
@@ -372,14 +359,7 @@ SlotRanking RankSlot(
         performance);
     ranking.rarity_prefiltered = passes.prefiltered;
     if (ranking.best.diagnostics.score < accept && !passes.remaining_indices.empty()) {
-        ScoreBaselineCandidates(
-            image,
-            slot,
-            templates,
-            passes.remaining_indices,
-            search_radius,
-            baseline_candidates,
-            performance);
+        ScoreBaselineCandidates(image, slot, templates, passes.remaining_indices, search_radius, baseline_candidates, performance);
         if (performance) {
             ++performance->ranking.rarity_fallback_cells;
             performance->ranking.rarity_remaining_candidates += passes.remaining_indices.size();
@@ -566,16 +546,15 @@ public:
                 if (performance) {
                     performance->rarity_classification_ms += ElapsedMilliseconds(rarity_started);
                 }
-                const SlotRanking ranking =
-                    RankSlot(
-                        image,
-                        slot,
-                        active,
-                        rarity.rarity,
-                        request.threshold,
-                        request.subpixel_threshold,
-                        single_roi ? 0 : kGridSearchRadius,
-                        performance_ptr);
+                const SlotRanking ranking = RankSlot(
+                    image,
+                    slot,
+                    active,
+                    rarity.rarity,
+                    request.threshold,
+                    request.subpixel_threshold,
+                    single_roi ? 0 : kGridSearchRadius,
+                    performance_ptr);
                 const auto& best = ranking.best;
                 const auto& templ = active[best.template_index];
                 const auto texture_started = performance ? PerformanceClock::now() : PerformanceClock::time_point {};
@@ -586,7 +565,7 @@ public:
                 }
                 const auto low_texture_started = performance ? PerformanceClock::now() : PerformanceClock::time_point {};
                 const bool texture_rejected = !single_roi && best.diagnostics.score >= request.threshold
-                                               && detail::IsLowTexture(image, cell.cell_box, request.grid_type);
+                                              && detail::IsLowTexture(image, cell.cell_box, request.grid_type);
                 if (performance) {
                     performance->foreground_texture_ms += ElapsedMilliseconds(low_texture_started);
                 }

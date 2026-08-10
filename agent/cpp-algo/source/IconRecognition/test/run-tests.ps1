@@ -21,6 +21,15 @@ $ErrorActionPreference = "Stop"
 $testRoot = $PSScriptRoot
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $testRoot "../../../../..")).Path
 $buildRoot = Join-Path $testRoot "build"
+$mergedInputRoot = Join-Path $buildRoot "merged-input"
+$trackedInputRoot = Join-Path $repoRoot "tests/MaaEndTestset/Win32/Official_CN/IconRecognition"
+$quickFixtures = @(
+    "transfer/25.png",
+    "transfer/57.png",
+    "port_storager/1.png",
+    "credit_trade/1.png",
+    "single_roi/1177-450-54/1.png"
+)
 
 function Show-Usage {
     @"
@@ -116,6 +125,88 @@ function Build-Targets {
     Invoke-CMake -Arguments $arguments
 }
 
+function Copy-InputTree {
+    param(
+        [Parameter(Mandatory)] [string]$SourceRoot,
+        [Parameter(Mandatory)] [string]$DestinationRoot,
+        [switch]$PreferLocalConflicts
+    )
+    if (-not (Test-Path -LiteralPath $SourceRoot -PathType Container)) {
+        return
+    }
+    $overwritten = [System.Collections.Generic.List[string]]::new()
+    foreach ($file in Get-ChildItem -LiteralPath $SourceRoot -Recurse -File) {
+        $relative = $file.FullName.Substring($SourceRoot.Length).TrimStart('\', '/')
+        $destination = Join-Path $DestinationRoot $relative
+        $destinationDirectory = Split-Path -Parent $destination
+        New-Item -ItemType Directory -Path $destinationDirectory -Force | Out-Null
+        if (Test-Path -LiteralPath $destination -PathType Leaf) {
+            if ($PreferLocalConflicts) {
+                $overwritten.Add($relative)
+            }
+            else {
+                $base = [System.IO.Path]::GetFileNameWithoutExtension($destination)
+                $extension = [System.IO.Path]::GetExtension($destination)
+                $directory = Split-Path -Parent $destination
+                $suffix = 1
+                do {
+                    $candidate = Join-Path $directory "$base.local$suffix$extension"
+                    $suffix++
+                } while (Test-Path -LiteralPath $candidate -PathType Leaf)
+                $destination = $candidate
+            }
+        }
+        Copy-Item -LiteralPath $file.FullName -Destination $destination -Force
+    }
+    if ($overwritten.Count -gt 0) {
+        $examples = @($overwritten | Select-Object -First 5) -join ", "
+        $suffix = if ($overwritten.Count -gt 5) { " 等" } else { "" }
+        Write-Warning "本地测试素材覆盖了 $($overwritten.Count) 个子模块同名文件: $examples$suffix"
+    }
+}
+
+function Prepare-MergedInput {
+    param(
+        [switch]$RequireQuickFixtures,
+        [switch]$PreferLocalConflicts
+    )
+    if (-not (Test-Path -LiteralPath $trackedInputRoot -PathType Container)) {
+        throw "缺少已跟踪的 IconRecognition 测试素材: $trackedInputRoot"
+    }
+    Remove-Item -LiteralPath $mergedInputRoot -Recurse -Force -ErrorAction SilentlyContinue
+    New-Item -ItemType Directory -Path $mergedInputRoot -Force | Out-Null
+    Copy-InputTree -SourceRoot $trackedInputRoot -DestinationRoot $mergedInputRoot
+    Copy-InputTree -SourceRoot (Join-Path $testRoot "input") -DestinationRoot $mergedInputRoot -PreferLocalConflicts:$PreferLocalConflicts
+    if ($RequireQuickFixtures) {
+        $missing = @($quickFixtures | Where-Object { -not (Test-Path -LiteralPath (Join-Path $trackedInputRoot $_) -PathType Leaf) })
+        if ($missing.Count -gt 0) {
+            throw "子模块中的 quick 测试素材缺失: $($missing -join ', ')"
+        }
+    }
+}
+
+function Invoke-QuickImageFixture {
+    param([Parameter(Mandatory)] [string]$Fixture)
+    $parts = $Fixture -split '/'
+    $gridType = $parts[0]
+    $image = $parts[-1]
+    & (Find-TestExecutable -Name "icon-recognition-manual-runner") --grid-type $gridType --image $image --jobs 1
+    if ($LASTEXITCODE -ne 0) {
+        throw "quick 图片回归失败: $Fixture，退出码: $LASTEXITCODE"
+    }
+    $latestReport = Get-ChildItem -LiteralPath (Join-Path $testRoot "output") -Recurse -Filter report.json -File |
+        Sort-Object LastWriteTime -Descending |
+        Select-Object -First 1
+    if ($null -eq $latestReport) {
+        throw "quick 图片回归没有生成报告: $Fixture"
+    }
+    $report = Get-Content -LiteralPath $latestReport.FullName -Raw -Encoding UTF8 | ConvertFrom-Json
+    $reportCases = @($report.cases)
+    if ($report.case_count -ne 1 -or $reportCases.Count -ne 1 -or -not $reportCases[0].matched -or $reportCases[0].match_count -lt 1) {
+        throw "quick 图片回归未识别到物品: $Fixture"
+    }
+}
+
 function Find-TestExecutable {
     param([string]$Name)
     $executable = Get-ChildItem -LiteralPath $buildRoot -Recurse -Filter "$Name.exe" |
@@ -152,12 +243,14 @@ switch ($Task) {
         )
     }
     "quick" {
+        Prepare-MergedInput -RequireQuickFixtures -PreferLocalConflicts
         Build-Targets -Targets @(
             "icon-recognition-types-tests",
             "icon-recognition-manual-cli-tests",
             "icon-recognition-small-tests",
             "icon-recognition-custom-tests",
-            "icon-recognition-debug-tests"
+            "icon-recognition-debug-tests",
+            "icon-recognition-manual-runner"
         )
         Set-TestRuntimePath
         foreach ($name in @(
@@ -172,6 +265,9 @@ switch ($Task) {
                 throw "$name 执行失败，退出码: $LASTEXITCODE"
             }
         }
+        foreach ($fixture in $quickFixtures) {
+            Invoke-QuickImageFixture -Fixture $fixture
+        }
     }
     "manual" {
         if ($All -and ($GridType -or $Image)) {
@@ -182,6 +278,7 @@ switch ($Task) {
             Show-Usage
             throw "manual 任务必须指定 -All、-GridType 或 -Image。"
         }
+        Prepare-MergedInput -PreferLocalConflicts:$($PSBoundParameters.ContainsKey("Image"))
         Build-Targets -Targets @("icon-recognition-manual-runner")
         Set-TestRuntimePath
         $arguments = @()
