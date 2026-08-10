@@ -74,8 +74,69 @@
         "rate_limit": 0,
         "next": [
             "DeliveryJobsOngoingDelivery",
-            "DeliveryJobsRedistributionBidNextStep"
+            "[Anchor]DeliveryJobsRedistributionBidAction"
         ]
+    },
+    "__DeliveryJobsSelectedBidPriceBackgroundColor": {
+        "desc": "通过白色连通域定位当前选中的报价行",
+        "recognition": "ColorMatch",
+        "roi": [
+            1160,
+            120,
+            105,
+            370
+        ],
+        "method": 6,
+        "lower": [
+            180
+        ],
+        "upper": [
+            255
+        ],
+        "connected": true,
+        "count": 5000,
+        "order_by": "Area",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "DeliveryJobsSelectedBidPriceBackground": {
+        "desc": "在调度申请界面定位当前选中的报价行",
+        "recognition": "And",
+        "all_of": [
+            "DeliveryJobsInCargoRedistributionBid",
+            "__DeliveryJobsSelectedBidPriceBackgroundColor"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "DeliveryJobsSelectedBidPriceOCR": {
+        "desc": "识别当前选中的运送委托报价",
+        "recognition": "OCR",
+        "roi": "DeliveryJobsSelectedBidPriceBackground",
+        "roi_offset": [
+            20,
+            45,
+            -25,
+            -45
+        ],
+        // 报价由游戏动态生成，无法写固定完整文本
+        "expected": [
+            // @i18n-skip
+            "\\d+(?:[.,]\\d+)?\\s*(?:万|萬|亿|億|만|억|[KkMmBb])"
+        ],
+        // 中文紧凑报价的单位可能漏识别或被识别成第二位小数；21.1 / 21.17 均按 21.1 万归一为 211K
+        "replace": [
+            [
+                "^(\\d+)[.,](\\d)\\d?$",
+                "$1$2K"
+            ]
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "DeliveryJobsSelectTypeOfGoodsToPackNextStep": {
         "desc": "选择装箱货物类型后下一步",
@@ -320,6 +381,52 @@
             "DeliveryJobsBackToDepot",
             "DeliveryJobsDeliverQuickly"
         ]
+    },
+    "DeliveryJobsQuoteTransferJob": {
+        "desc": "按报价处理：接取任务并返回当前仓储节点转交",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsRedistributionBidNextStep"
+        ]
+    },
+    "DeliveryJobsQuoteAcceptJobOnly": {
+        "desc": "按报价处理：仅接取任务，接取完成后继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsRedistributionBidNextStep"
+        ]
+    },
+    "DeliveryJobsQuoteDoNotAccept": {
+        "desc": "按报价处理：关闭报价页，暂不接取当前委托",
+        "recognition": "And",
+        "all_of": [
+            "CloseButtonType1",
+            "DeliveryJobsInCargoRedistributionBid"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "InLocalDepotNode"
+        ]
+    },
+    "DeliveryJobsBidPriceRecognitionFailed": {
+        "desc": "无法识别当前选中报价时停在报价页",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "StopTask",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DeliveryJobs.BidPriceRecognitionFailed"
+        }
     },
     "DeliveryJobsDeliverQuickly": {
         "desc": "提示尽快送达，单击一下，会直接回到大世界界面。跳出循环",

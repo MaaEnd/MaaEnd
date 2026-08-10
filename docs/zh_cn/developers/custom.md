@@ -224,10 +224,12 @@ Recognition 节点用于执行自定义识别。常见写法如下：
 
 - `expression: string`：必填。表达式最终必须计算为布尔值。
 - `box_node?: string`：可选。命中后返回哪个识别节点的结果框；若该节点是 `And`，则会先执行该节点，再按其原生 `box_index` 从本次识别返回结果中直接读取对应子识别结果的框。
+- `constants?: object<string, string>`：可选。为占位符提供不依赖识别节点的数值常量；值使用与 OCR 相同的数值解析规则，例如 `{"MinimumTransferQuote": "11.9万"}`。
 
 占位规则：
 
 - 使用 `{节点名}` 引用其他识别节点。
+- 若占位符名称存在于 `constants` 中，会直接使用常量值，不执行同名识别节点；常量优先于同名节点。
 - 被引用节点会以当前图片 `arg.Img` 执行一次识别。
 - 若被引用节点是 `And`，当前实现会先执行该 `And` 节点本身，再按该节点原生 `box_index` 从本次识别返回结果中直接读取对应子识别结果，并将其视为该节点的最终取值来源。
 - 当前实现会从被引用节点的 OCR 结果中提取数值参与计算，并支持常见缩写格式，例如 `1.38万`、`13.8K`、`22.01M`；这类值会先换算为整数再参与表达式计算。
@@ -248,8 +250,11 @@ Recognition 节点用于执行自定义识别。常见写法如下：
         "param": {
             "custom_recognition": "ExpressionRecognition",
             "custom_recognition_param": {
-                "expression": "{CreditShoppingReserveCreditOCRInternal}<{ReserveCreditThreshold}",
-                "box_node": "CreditShoppingReserveCreditOCRInternal"
+                "expression": "{DeliveryJobsSelectedBidPriceOCR}>={MinimumTransferQuote}",
+                "constants": {
+                    "MinimumTransferQuote": "11.9万"
+                },
+                "box_node": "DeliveryJobsSelectedBidPriceOCR"
             }
         }
     }
@@ -266,6 +271,7 @@ Recognition 节点用于执行自定义识别。常见写法如下：
 
 - 表达式结果必须是布尔值，否则识别失败。
 - 被引用节点当前应能返回可解析的 OCR 数值结果，否则表达式求值失败。
+- `constants` 的键和值都不能为空，值必须能按 OCR 数值格式解析；支持 `万`、`萬`、`만`、`亿`、`億`、`억` 以及 `K/M/B` 等单位。
 - 对 `And` 节点，`box_index` 指向的本次子识别结果当前需要直接包含可解析的 OCR 数值结果。
 - 表达式中的整数字面量，以及 OCR 换算后的数值，若超出当前平台 `int` 可表示范围，会自动钳制到 `int` 最大值或最小值（正溢出取最大值，负溢出取最小值），并输出警告日志；表达式会继续求值，而不是直接失败。
 - 该识别器只负责表达式求值，不负责业务语义本身，业务侧应在 Pipeline 中自行组织节点与阈值。
