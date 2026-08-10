@@ -992,5 +992,6 @@
     "resource/image/SeizeDeliveryJobs/BlueTaskMap02Lv005No1TypeC": "c2f3b1548dbad46210696049a7eabe2bc2b6f05f39dbbbb0991a39b333c79d76",
     "resource/image/IMS/item/CHARTERED_HH_PERMIT_TEMPLATE": "a5ec7e36ab955133c6cf8b36f38c6dc4bdb44942f72134ae5b306d825bf341e7",
     "resource/image/AutoEcoFarm/AutoEcoFarmFactoryFacilitiesChecked": "ca063252946bfb07c5b347bdd73730bd3dd0fda0cda35e13319da24ba95921a9",
-    "resource/image/GiftOperator/Operators/Liino": "3b51c8bba4d5f037aa9dbe11d440434529678f6d105e421e00821e2407aa53e3"
+    "resource/image/GiftOperator/Operators/Liino": "3b51c8bba4d5f037aa9dbe11d440434529678f6d105e421e00821e2407aa53e3",
+    "resource/image/DeliveryJobs/LocationIcon": "bb922d3f90f1cd9a70f43eeeefc01359902fca40fdb34394272e43e7889603fb"
 }

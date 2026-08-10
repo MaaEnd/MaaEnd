@@ -330,8 +330,31 @@
 
         <!-- 悬浮型底部状态条 -->
         <div id="footer-status-bar">
-          <div id="status-label" class="status-line">系统就绪</div>
-          <div id="locator-label" class="locator-line"></div>
+          <div class="footer-message-stack">
+            <div id="status-label" class="status-line">系统就绪</div>
+            <div id="locator-label" class="locator-line"></div>
+          </div>
+          <div id="position-readout" class="position-readout heading-unavailable" data-state="pending" aria-label="等待游戏定位">
+            <div class="position-compass" aria-hidden="true">
+              <svg width="34" height="34" viewBox="0 0 34 34">
+                <circle cx="17" cy="17" r="15.5" fill="none" stroke="currentColor" stroke-opacity="0.28" />
+                <path d="M17 3.5v3M30.5 17h-3M17 30.5v-3M3.5 17h3" fill="none" stroke="currentColor" stroke-linecap="round" />
+                <g id="position-heading-arrow" class="position-heading-arrow">
+                  <path d="M17 5.5 21 18l-4-2-4 2 4-12.5Z" fill="currentColor" />
+                  <circle cx="17" cy="17" r="2.25" fill="#111318" stroke="currentColor" stroke-width="1.25" />
+                </g>
+              </svg>
+              <span class="position-compass-n">N</span>
+            </div>
+            <div class="position-readout-copy">
+              <div class="position-readout-primary">
+                <span id="position-coordinates">位置 —</span>
+                <span class="position-readout-separator" aria-hidden="true"></span>
+                <span id="position-heading">朝向 —</span>
+              </div>
+              <div id="position-zone" class="position-readout-zone">等待游戏定位</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

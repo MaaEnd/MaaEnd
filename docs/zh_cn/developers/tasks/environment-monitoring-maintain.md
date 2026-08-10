@@ -2,11 +2,11 @@
 
 本文说明 `EnvironmentMonitoring`（环境监测）任务的 Pipeline 组织、路线数据、终端分组、自动生成机制及新观察点的接入方式。
 
-环境监测的核心特点是 **「数据驱动 + 模板批量生成」**：每个观察点对应的 Pipeline JSON 不直接手写，而是通过 [`@joebao/maa-pipeline-generate`](https://www.npmjs.com/package/@joebao/maa-pipeline-generate) 工具，将 `tools/pipeline-generate/EnvironmentMonitoring/` 下的模板/路线配置和 `tools/pipeline-generate/data/` 下的 zmdmap 缓存数据批量渲染到 `assets/resource/pipeline/EnvironmentMonitoring/` 中。维护工作的重心在 **生成配置与数据缓存**，而不是手改 JSON。
+环境监测的核心特点是 **「数据驱动 + 模板批量生成」**：每个观察点对应的 Pipeline JSON 不直接手写，而是通过 [`@joebao/maa-pipeline-generate`](https://www.npmjs.com/package/@joebao/maa-pipeline-generate) 工具，将 `tools/pipeline-generate/EnvironmentMonitoring/` 下的模板/路线配置和 `tools/pipeline-generate/data/environment_monitoring.json` 批量渲染到 `assets/resource/pipeline/EnvironmentMonitoring/` 中。维护工作的重心在 **生成配置与 zmdmap 精简游戏数据**，而不是手改 JSON。
 
 > [!WARNING]
 >
-> `assets/resource/pipeline/EnvironmentMonitoring/{Station}/*.json` 与 `assets/resource/pipeline/EnvironmentMonitoring/Terminals.json` 都是 **生成产物**。手改这些文件会在下次重新生成时被覆盖。所有维护都应该改 `tools/pipeline-generate/EnvironmentMonitoring/` 下的生成配置，或通过 `pnpm fetch:zmdmap` 更新 `tools/pipeline-generate/data/` 下的 zmdmap 缓存。
+> `assets/resource/pipeline/EnvironmentMonitoring/{Station}/*.json` 与 `assets/resource/pipeline/EnvironmentMonitoring/Terminals.json` 都是 **生成产物**。手改这些文件会在下次重新生成时被覆盖。所有维护都应该改 `tools/pipeline-generate/EnvironmentMonitoring/` 下的生成配置，或通过 `pnpm fetch:zmdmap` 更新 zmdmap 精简游戏数据。
 
 ## 概览
 
@@ -29,9 +29,9 @@
 | 失败收集参数 Schema | `tools/schema/components/failure_collector.schema.json` | 通用失败收集 Custom Action 的参数约束；动作名称注册在 `tools/schema/custom.action.schema.json` |
 | 路线同步逻辑 | `tools/pipeline-generate/EnvironmentMonitoring/generator/sync-routes.mjs` | 在生成前自动同步 `routes.json` 的 `MissionId` / `Name` / `Id`，并按 `MissionId` 排序 |
 | 路线解析逻辑 | `tools/pipeline-generate/EnvironmentMonitoring/generator/route-resolver.mjs` | 将 `routes.json` 条目解析为模板需要的寻路识别/动作参数，并统一处理未适配降级 |
-| 规范化任务模型 | `tools/pipeline-generate/EnvironmentMonitoring/generator/model.mjs` | 统一读取 zmdmap 与 `routes.json`，生成路线和终端模板共享的观察点任务模型 |
+| 规范化任务模型 | `tools/pipeline-generate/EnvironmentMonitoring/generator/model.mjs` | 统一读取 zmdmap 精简游戏数据与 `routes.json`，生成路线和终端模板共享的观察点任务模型 |
 | 终端列表数据 | `tools/pipeline-generate/EnvironmentMonitoring/generator/terminals-data.mjs` | 从 `model.mjs` 的规范化任务和自动派生的终端列表生成各终端 `next` |
-| 游戏数据快照 | `tools/pipeline-generate/data/kite_station_i18n.json` | 由 `zmdmap` 提供的官方监测终端/委托数据（多语言名称、`shotTargetName`），由 `pnpm fetch:zmdmap` 缓存 |
+| zmdmap 精简游戏数据 | `tools/pipeline-generate/data/environment_monitoring.json` | zmdmap 数据 CI 从 TableCfg 裁剪并发布的终端、观察点及五语言名称；MaaEnd 通过 `pnpm fetch:zmdmap` 更新 |
 | 生成器配置 | `tools/pipeline-generate/EnvironmentMonitoring/generator/config.json` | 单观察点输出配置：`outputPattern: "${Station}/${Id}.json"` |
 | 终端生成器配置 | `tools/pipeline-generate/EnvironmentMonitoring/generator/terminals-config.json` | 合并到单文件的终端输出配置：`outputFile: "Terminals.json"` |
 | 多语言文案 | `assets/locales/interface/*.json` | `task.EnvironmentMonitoring.*` 的 label / description（任务级；观察点名走 OCR） |
@@ -97,7 +97,7 @@ EnvironmentMonitoringTakePhoto       （进入拍照模式 → 朝向 → 拍照
        └─ EnvironmentMonitoringGoTo{Outskirts|MarkerStone}MonitoringTerminal
 ```
 
-每个 `{Id}Job` 仍负责识别观察点列表项，命中后通过通用 `FailureCollectorRunTask` 执行 `{Id}Execute` 路线。生成器根据 zmdmap 的五语言 `mission.name` 为新任务补齐 `task.EnvironmentMonitoring.route.{Id}.failed`；已有失败提示会保留，避免覆盖人工调整。若路线内部任意节点失败，包装 Action 会记录 `{Id}Failed`、运行 `recovery_task` 返回当前监测终端，并向外返回成功以继续后续路线；全部终端遍历结束后，`EnvironmentMonitoringFinish` 通过 `FailureCollectorFinish` 按失败顺序依次调用这些提示节点，再返回总任务失败。Agent 不直接输出用户提示。
+每个 `{Id}Job` 仍负责识别观察点列表项，命中后通过通用 `FailureCollectorRunTask` 执行 `{Id}Execute` 路线。生成器根据环境监测数据的五语言 `mission.names` 为新任务补齐 `task.EnvironmentMonitoring.route.{Id}.failed`；已有失败提示会保留，避免覆盖人工调整。若路线内部任意节点失败，包装 Action 会记录 `{Id}Failed`、运行 `recovery_task` 返回当前监测终端，并向外返回成功以继续后续路线；全部终端遍历结束后，`EnvironmentMonitoringFinish` 通过 `FailureCollectorFinish` 按失败顺序依次调用这些提示节点，再返回总任务失败。Agent 不直接输出用户提示。
 
 > [!NOTE]
 >
@@ -124,24 +124,24 @@ EcologyNearTheFieldLogisticsDepot → 储备站周围的生态环境
 MysteriousCryptidGraffiti         → 谜之生物的涂鸦
 ```
 
-默认情况下，`Id` 从 `kite_station_i18n.json` 中该任务的 `name["en-US"]` 转 PascalCase 得到，规则在 `common.mjs` 的 `buildDefaultId()` / `toPascalCase()`。如果英文名缺失，会回退到 `missionId` / `entrustIdx`；如果出现重复，`ensureUniqueId()` 会自动追加后缀。
+默认情况下，`Id` 从 `environment_monitoring.json` 中该任务的 `names.en_us` 转 PascalCase 得到，规则在 `common.mjs` 的 `buildDefaultId()` / `toPascalCase()`。如果英文名缺失，会回退到 `mission_id` / `entrust_index`；如果出现重复，`ensureUniqueId()` 会自动追加后缀。
 
 维护 `routes.json` 时不需要手算 `Id`。路线匹配键是 `MissionId`，`Id` 会在重新生成时自动写入 `routes.json`，等价于最终模板使用的节点名前缀，方便直接搜索生成节点和文件名。
 
 > [!IMPORTANT]
 >
-> 不要把 `Id` 当作展示文案。展示文案走 zmdmap 名称 / OCR；`Name` 是 routes.json 的人工备注，`Id` 只用于拼接节点名、文件名（`outputPattern: "${Station}/${Id}.json"`），并由生成器自动刷新。
+> 不要把 `Id` 当作展示文案。展示文案走官方名称 / OCR；`Name` 是 routes.json 的人工备注，`Id` 只用于拼接节点名、文件名（`outputPattern: "${Station}/${Id}.json"`），并由生成器自动刷新。
 
 ### 终端分组（`Station`）
 
-由 `model.mjs` 从 `mission.kiteStation`（或回退到 `__terminalId`）对应的 `kite_station_i18n.json[terminalId].level.name["en-US"]` PascalCase 而来。当前仓库内只有两组：
+由 `model.mjs` 从观察点所属终端对应的 `environment_monitoring.json.terminals[terminalId].names.en_us` PascalCase 而来。当前仓库内只有两组：
 
 | 中文名 | Station ID | 对应 terminalId | `GoToMonitoringTerminal` 锚点 |
 | ------------ | ------------------------------- | ------------------- | -------------------------------------------------------- |
 | 城郊监测终端 | `OutskirtsMonitoringTerminal` | `kitestation_002_1` | `EnvironmentMonitoringGoToOutskirtsMonitoringTerminal` |
 | 首墩监测终端 | `MarkerStoneMonitoringTerminal` | `kitestation_004_1` | `EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal` |
 
-如果出现新的 Station，**生成器侧（`routes.json` + `model.mjs`）零改动**：`MONITORING_TERMINAL_IDS` 自动从 `kite_station_i18n.json` 派生，`GoToMonitoringTerminal` 锚点名按 `EnvironmentMonitoringGoTo{Station}` 模板拼接。但生成出来的 Pipeline 引用的下列**手写联动节点**必须先补齐，否则 MaaFramework 运行时会报「引用了未定义的任务」：
+如果出现新的 Station，**生成器侧（`routes.json` + `model.mjs`）零改动**：`MONITORING_TERMINAL_IDS` 自动从 `environment_monitoring.json` 派生，`GoToMonitoringTerminal` 锚点名按 `EnvironmentMonitoringGoTo{Station}` 模板拼接。但生成出来的 Pipeline 引用的下列**手写联动节点**必须先补齐，否则 MaaFramework 运行时会报「引用了未定义的任务」：
 
 1. `assets/resource/pipeline/EnvironmentMonitoring/Locations.json`：新增 `EnvironmentMonitoringGoTo{Station}MonitoringTerminal` 与 `EnvironmentMonitoringSelect{Station}MonitoringTerminal` 节点。
 2. `assets/resource/pipeline/EnvironmentMonitoring.json` 的 `EnvironmentMonitoringLoop.next`：加入 `[JumpBack]{Station}MonitoringTerminal`。
@@ -162,13 +162,13 @@ MysteriousCryptidGraffiti         → 谜之生物的涂鸦
 }
 ```
 
-`data.mjs` 的默认导出是数组，每个元素 = 一个观察点的渲染上下文（字段名与 `template.json` 中 `${Xxx}` 占位符对应）。`pnpm generate:EnvironmentMonitoring` 会先调用 `sync-routes.mjs` 刷新上一级 `routes.json`；随后 `model.mjs` 只读 `routes.json` 与 `kite_station_i18n.json`，通过 `route-resolver.mjs` 装配规范化任务，`data.mjs` 再投影出最终行：
+`data.mjs` 的默认导出是数组，每个元素 = 一个观察点的渲染上下文（字段名与 `template.json` 中 `${Xxx}` 占位符对应）。`pnpm generate:EnvironmentMonitoring` 会先同步 zmdmap 精简游戏数据，再调用 `sync-routes.mjs` 刷新上一级 `routes.json`；随后 `model.mjs` 只读 `routes.json` 与 `environment_monitoring.json`，通过 `route-resolver.mjs` 装配规范化任务，`data.mjs` 再投影出最终行：
 
 | 字段 | 来源 |
 | ------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Station` | `kite_station_i18n.json` 的英文站名（PascalCase） |
+| `Station` | `environment_monitoring.json` 的英文站名（PascalCase） |
 | `Id` | 默认由官方英文名 PascalCase 自动生成；会同步写回 `routes.json`，等价于最终模板使用的节点 ID |
-| `Name` | 来自 `kite_station_i18n.json` 的中文名；`MissionId` 只作为 `model.mjs` 匹配 `routes.json` 的主键，不透传给模板 |
+| `Name` | 来自 `environment_monitoring.json` 的中文名；`MissionId` 只作为 `model.mjs` 匹配 `routes.json` 的主键，不透传给模板 |
 | `GoToMonitoringTerminal` | 由 `Station` 决定 |
 | `EnterMap` | `routes.json[*].EnterMap`，默认传送入口；可填写任意已定义、能作为 SubTask 正常返回的 Pipeline 节点名，不限制名称前缀；启用 `QuickTeleport` 时不会使用，可省略 |
 | `QuickTeleport` | `routes.json[*].QuickTeleport`，可选布尔值，默认 `false`；启用后从追踪任务地图依次点击“前往传送”和“传送”，不调用 `EnterMap` |
@@ -176,8 +176,8 @@ MysteriousCryptidGraffiti         → 谜之生物的涂鸦
 | `CameraSwipeDirection` | `routes.json[*]`，必须是 `EnvironmentMonitoringSwipeScreen{Up/Down/Left/Right}` 之一 |
 | `CameraMaxHit` | `routes.json[*].CameraMaxHit`，缺省为 `2`；对应 `${Id}AdjustCamera` 滑屏动作的最大命中次数 |
 | `OcrReplace` | 由 `routes.json[*].Replace` 透传到 `Check${Id}Text.replace` 与 `In${Id}Mission.replace`；用于按任务配置任务列表和任务详情页 OCR 的易混字符替换，不影响路线是否已适配的判断 |
-| `ExpectedText` | 由 `kite_station_i18n.json` 的 `mission.name` 多语言 map 自动展开（5 语言，英文转柔性正则） |
-| `InExpectedText` | 由 `kite_station_i18n.json` 的 `mission.shotTargetName` 自动展开 |
+| `ExpectedText` | 由 `environment_monitoring.json` 的 `mission.names` 自动展开（5 语言，英文转柔性正则） |
+| `InExpectedText` | 由 `environment_monitoring.json` 的 `mission.shot_target_names` 自动展开 |
 | `TrackOrGoToNext` / `AfterTrackNext` / `AfterAlreadyTrackedNext` | 由 `data.mjs` 根据路线是否完整及 `QuickTeleport` 自动决定：默认进入 `GoTo${Id}`；快捷传送时，开始追踪后等待任务地图，已追踪则先点击定位图标打开任务地图；未适配时进入 `${Id}NotAdapted` |
 | `GoToNext` / `AfterTeleportDescription` / `AfterTeleportNext` | 由 `data.mjs` 根据传送入口和路线类型自动决定：传送后直拍始终执行真实传送并进入 `${Id}TakePhoto`；`QuickTeleport` 与任一寻路方式组合时传送后直接进入 `GoTo${Id}Move`；普通传送的 `MapPath` 返回 `GoTo${Id}StartPos` 复核落点，`MapTarget` / `MapGoal` 直接进入 `GoTo${Id}Move` |
 
@@ -202,10 +202,10 @@ MysteriousCryptidGraffiti         → 谜之生物的涂鸦
 # 推荐：在仓库根目录运行
 pnpm generate:EnvironmentMonitoring
 
-# 只更新 zmdmap 缓存
+# 只同步 zmdmap 精简游戏数据
 pnpm fetch:zmdmap
 
-# 如果已经更新过 zmdmap 缓存，也可以在 tools/pipeline-generate/EnvironmentMonitoring/generator/ 目录下单独渲染：
+# 如果已经更新过环境监测数据，也可以在 tools/pipeline-generate/EnvironmentMonitoring/generator/ 目录下单独渲染：
 
 # 0) 同步 routes.json 的 MissionId/Name/Id
 node sync-routes.mjs
@@ -260,7 +260,7 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 
 ## 添加新观察点
 
-新增的观察点一般来自游戏更新，体现在 `kite_station_i18n.json` 中多出一条 `mission`。维护流程：
+新增的观察点一般来自游戏更新，体现在 `environment_monitoring.json` 中多出一条 `mission`。维护流程：
 
 > [!TIP]
 >
@@ -268,11 +268,11 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 
 ### 1. 更新游戏数据
 
-运行 `pnpm fetch:zmdmap`，会从 zmdmap API 下载并缓存最新的 `tools/pipeline-generate/data/kite_station_i18n.json`。
+运行 `pnpm fetch:zmdmap`，会按 `tools/pipeline-generate/data/version.txt` 检查 zmdmap 数据版本，并在版本变化时下载 `tools/pipeline-generate/data/environment_monitoring.json`。原始 TableCfg 的解析由 zmdmap 数据 CI 中的 `data/scripts/environment_monitoring_data.py` 完成，不属于 MaaEnd 日常生成流程。
 
 ### 2. 检查路线适配状态
 
-对比 `kite_station_i18n.json` 中的 `entrustTasks` 与 `routes.json` 的条目，确认每个观察点的状态。匹配方式是 `missionId` 对 `routes.json` 中的 `MissionId`，而不是 `Name` 或 `Id`：
+对比 `environment_monitoring.json` 中各终端的 `missions` 与 `routes.json` 条目，确认每个观察点的状态。匹配方式是 `mission_id` 对 `routes.json` 中的 `MissionId`，而不是 `Name` 或 `Id`：
 
 - **未适配**：`routes.json` 没有该观察点，或条目存在但缺失任一必填字段（含 `null` / 空字符串 / 空数组） → 生成后只会接取并追踪。
 - **准备适配**：需要让该观察点自动前往并拍照 → 走步骤 3，补齐真实路线。
@@ -283,7 +283,7 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 
 ```jsonc
 {
-    "MissionId": "m1m30",                    // 必须与 kite_station_i18n.json 中的 missionId 匹配
+    "MissionId": "m1m30",                    // 必须与 environment_monitoring.json 中的 mission_id 匹配
     "Name": "我的新观察点",                  // 中文名，仅供人工阅读
     "Id": "MyNewObservationPoint",           // 最终模板节点 ID，仅供人工搜索节点/文件名
     "EnterMap": "SceneEnterWorldWulingXxx", // 已定义且能作为 SubTask 正常返回的 Pipeline 节点
@@ -321,9 +321,9 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 >
 > `routes.json` 是严格 JSON：双引号、不允许行内注释、不允许尾随逗号。上述代码块里的 `//` 只是文档示意，写进真实文件会让 JSON 解析失败。
 >
-> `MissionId` 是 `model.mjs` 的匹配键，会与 `kite_station_i18n.json` 中的 `missionId` 精确匹配。`Name` 只供人工阅读，`Id` 只供人工搜索生成节点/文件名；如果与 zmdmap 当前数据不一致，生成器会直接刷新为当前正确值，不影响匹配。
+> `MissionId` 是 `model.mjs` 的匹配键，会与 `environment_monitoring.json` 中的 `mission_id` 精确匹配。`Name` 只供人工阅读，`Id` 只供人工搜索生成节点/文件名；如果与当前游戏数据不一致，生成器会直接刷新为当前正确值，不影响匹配。
 
-> 重新生成 EnvironmentMonitoring 时，`sync-routes.mjs` 会先按 zmdmap 数据自动刷新 `MissionId` / `Name` / `Id`，并按 `MissionId` 排序。手写条目时必须填写 `MissionId`；如果 zmdmap 中存在新任务但 `routes.json` 没有对应条目，生成器会自动追加仅含 `MissionId` / `Name` / `Id` 的未适配占位条目，方便维护者看到待补路线。
+> 重新生成 EnvironmentMonitoring 时，`sync-routes.mjs` 会先按环境监测数据自动刷新 `MissionId` / `Name` / `Id`，并按 `MissionId` 排序。手写条目时必须填写 `MissionId`；如果数据中存在新任务但 `routes.json` 没有对应条目，生成器会自动追加仅含 `MissionId` / `Name` / `Id` 的未适配占位条目，方便维护者看到待补路线。
 
 ### 4. 录制坐标和路径
 
@@ -369,7 +369,7 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 提交前至少检查：
 
 1. `tools/pipeline-generate/EnvironmentMonitoring/routes.json` 中新增/修改条目是否字段齐全。
-2. `routes.json` 中新增条目的 `MissionId` 是否能匹配 `kite_station_i18n.json` 的 `missionId`；`Id` 由生成器自动刷新。
+2. `routes.json` 中新增条目的 `MissionId` 是否能匹配 `environment_monitoring.json` 的 `mission_id`；`Id` 由生成器自动刷新。
 3. 已适配条目的传送入口已在真实 `EnterMap` 与 `QuickTeleport: true` 中至少选择一种，`CameraSwipeDirection` 已填写真实值；直拍路线没有任何地图与寻路字段，寻路路线则在 `MapPath` / `MapTarget` / `MapGoal` 中三选一，且普通传送路线补齐真实 `MapAssert`。
 4. 重生成的 `Terminals.json` 中各 `{Station}MonitoringTerminalLoop.next` 包含全部新 `[JumpBack]{Id}Job`，并以 `EnvironmentMonitoringTerminalFinish` 收尾。
 5. 若填写了 `EnterMap`，其引用的节点确实存在于 `assets/resource/pipeline/`，并能作为 SubTask 完整执行后正常返回。
@@ -379,10 +379,10 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 
 ## 常见坑
 
-- **手改生成产物**：直接编辑 `assets/resource/pipeline/EnvironmentMonitoring/{Station}/{Id}.json` 或 `Terminals.json`，下次重新生成时改动会丢。改生成配置 / 更新 zmdmap 缓存后重新生成才是正确做法。
+- **手改生成产物**：直接编辑 `assets/resource/pipeline/EnvironmentMonitoring/{Station}/{Id}.json` 或 `Terminals.json`，下次重新生成时改动会丢。改生成配置 / 更新环境监测数据后重新生成才是正确做法。
 - **`MissionId` 与游戏数据对不上**：`routes.json` 条目里的 `MissionId` 才是匹配主键；`Name` / `Id` 只用于人工阅读和搜索。`MissionId` 匹配失败时生成器会提示该条目未使用，对应观察点会按未适配处理（仅接取并追踪）。
 - **把 `Id` 当匹配键**：`Id` 只是最终模板节点 ID，方便搜索生成节点/文件名；匹配仍然只看 `MissionId`。
-- **`Id` 与 `kite_station_i18n.json` 英文名漂移**：当游戏侧改英文名后，自动算出的 `Id` 会变，可能带来生成文件重命名或旧文件残留；重新生成后 `routes.json` 里的 `Id` 会同步刷新。
+- **`Id` 与 `environment_monitoring.json` 英文名漂移**：当游戏侧改英文名后，自动算出的 `Id` 会变，可能带来生成文件重命名或旧文件残留；重新生成后 `routes.json` 里的 `Id` 会同步刷新。
 - **默认传送路线的 `EnterMap` 写了不存在或无法正常返回的节点**：生成本身不校验节点引用及运行行为，运行时会在 `GoTo{Id}NotAtStartPos` 失败；只有明确启用 `QuickTeleport: true` 时才能省略。
 - **`MapPath` / `MapTarget` / `MapGoal` 经过未解锁区域 / 战斗 / 互动物**：MapTracker 与 MapNavigateAction 都不处理战斗、剧情、过图和机关交互，路径只能选纯通行段。
 - **把缺路线数据误写成直拍**：只有游戏实测确认传送落点能完成拍照时，才能保留“传送入口 + `CameraSwipeDirection`”的精简配置；缺少真实路线数据时应继续保留 metadata-only 未适配条目。

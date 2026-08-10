@@ -74,8 +74,59 @@
         "rate_limit": 0,
         "next": [
             "DeliveryJobsOngoingDelivery",
-            "DeliveryJobsRedistributionBidNextStep"
+            "[Anchor]DeliveryJobsRedistributionBidAction"
         ]
+    },
+    "DeliveryJobsSelectedBidLocationIcon": {
+        "desc": "识别当前选中的运送委托报价的地点图标",
+        "recognition": "TemplateMatch",
+        "roi": [
+            970,
+            132,
+            223,
+            106
+        ],
+        "template": "DeliveryJobs/LocationIcon.png",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "DeliveryJobsSelectedBidPriceOCR": {
+        "desc": "识别当前选中的运送委托报价",
+        "recognition": "OCR",
+        "roi": "DeliveryJobsSelectedBidLocationIcon",
+        "roi_offset": [
+            137,
+            16,
+            28,
+            -2
+        ],
+        "expected": [
+            // @i18n-skip
+            "\\d+(?:[.,]\\d+)?"
+        ],
+        "replace": [
+            [
+                "方",
+                "万"
+            ]
+        ],
+        "only_rec": true,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "DeliveryJobsSelectedBidPrice": {
+        "desc": "获取当前选中的运送委托报价",
+        "recognition": "And",
+        "all_of": [
+            "DeliveryJobsSelectedBidLocationIcon",
+            "DeliveryJobsSelectedBidPriceOCR"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "DeliveryJobsSelectTypeOfGoodsToPackNextStep": {
         "desc": "选择装箱货物类型后下一步",
@@ -321,6 +372,52 @@
             "DeliveryJobsDeliverQuickly"
         ]
     },
+    "DeliveryJobsQuoteTransferJob": {
+        "desc": "按报价处理：接取任务并返回当前仓储节点转交",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsRedistributionBidNextStep"
+        ]
+    },
+    "DeliveryJobsQuoteAcceptJobOnly": {
+        "desc": "按报价处理：仅接取任务，接取完成后继续",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsRedistributionBidNextStep"
+        ]
+    },
+    "DeliveryJobsQuoteDoNotAccept": {
+        "desc": "按报价处理：关闭报价页，暂不接取当前委托",
+        "recognition": "And",
+        "all_of": [
+            "CloseButtonType1",
+            "DeliveryJobsInCargoRedistributionBid"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "InLocalDepotNode"
+        ]
+    },
+    "DeliveryJobsBidPriceRecognitionFailed": {
+        "desc": "无法识别当前选中报价时停在报价页",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "StopTask",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DeliveryJobs.BidPriceRecognitionFailed"
+        }
+    },
     "DeliveryJobsDeliverQuickly": {
         "desc": "提示尽快送达，单击一下，会直接回到大世界界面。跳出循环",
         "recognition": "OCR",
@@ -373,7 +470,7 @@
         ]
     },
     "DeliveryJobsOngoingDelivery": {
-        "desc": "有待运送的货物，无法继续装箱流程，退出任务",
+        "desc": "识别已有待运送的货物，并按当前仓储节点模式处理",
         "recognition": "OCR",
         "roi": [
             882,
@@ -391,12 +488,32 @@
             "운송 대기 중인 화물 있음"
         ],
         "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]DeliveryJobsOngoingDeliveryAction"
+        ]
+    },
+    "DeliveryJobsStopForOngoingDelivery": {
+        "desc": "有待运送的货物，无法继续当前处理流程，退出任务",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
         "action": "StopTask",
         "post_delay": 0,
         "rate_limit": 0,
         "focus": {
             "Node.Recognition.Succeeded": "$task.DeliveryJobs.OngoingDelivery"
         }
+    },
+    "DeliveryJobsSkipOngoingDelivery": {
+        "desc": "仅装箱模式已有待运送货物时，关闭当前页面并继续下一个仓储节点",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsBackToDepotFromBid"
+        ]
     },
     "DeliveryJobsBackToDepot": {
         "desc": "回到本地仓储界面",

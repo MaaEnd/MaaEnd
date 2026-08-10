@@ -129,6 +129,40 @@
             "if": {
                 "type": "object",
                 "required": [ "custom_recognition" ],
+                "properties": { "custom_recognition": { "const": "ExpressionRecognition" } }
+            },
+            "then": {
+                "type": "object",
+                "required": [ "custom_recognition_param" ],
+                "properties": {
+                    "custom_recognition_param": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [ "expression" ],
+                        "properties": {
+                            "expression": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "box_node": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "focus_matched_resolved_expression": {
+                                "type": "boolean"
+                            },
+                            "focus_unmatched_resolved_expression": {
+                                "type": "boolean"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "type": "object",
+                "required": [ "custom_recognition" ],
                 "properties": { "custom_recognition": { "const": "ListCompleteRecognition" } }
             },
             "then": {

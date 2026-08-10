@@ -1,0 +1,1728 @@
+{
+    "items": {
+        "item_activity_xiranite_enr_hulu": {
+            "id": "item_activity_xiranite_enr_hulu",
+            "names": {
+                "zh_cn": "息壤玉葫芦",
+                "zh_tw": "息壤玉葫蘆",
+                "en_us": "Xiranite Jade Gourd",
+                "ja_jp": "息壌玉ひょうたん",
+                "ko_kr": "식양 옥 호리병"
+            },
+            "rarity": 5
+        },
+        "item_activity_xiranite_hulu": {
+            "id": "item_activity_xiranite_hulu",
+            "names": {
+                "zh_cn": "息壤葫芦",
+                "zh_tw": "息壤葫蘆",
+                "en_us": "Xiranite Gourd",
+                "ja_jp": "息壌ひょうたん",
+                "ko_kr": "식양 호리병"
+            },
+            "rarity": 4
+        },
+        "item_bottled_food_1": {
+            "id": "item_bottled_food_1",
+            "names": {
+                "zh_cn": "柑实罐头",
+                "zh_tw": "柑實罐頭",
+                "en_us": "Canned Citrome [C]",
+                "ja_jp": "シトロームの缶詰Ⅰ",
+                "ko_kr": "시트론 통조림"
+            },
+            "rarity": 3
+        },
+        "item_bottled_food_2": {
+            "id": "item_bottled_food_2",
+            "names": {
+                "zh_cn": "优质柑实罐头",
+                "zh_tw": "優質柑實罐頭",
+                "en_us": "Canned Citrome [B]",
+                "ja_jp": "シトロームの缶詰Ⅱ",
+                "ko_kr": "시트론 통조림(중)"
+            },
+            "rarity": 3
+        },
+        "item_bottled_food_3": {
+            "id": "item_bottled_food_3",
+            "names": {
+                "zh_cn": "精选柑实罐头",
+                "zh_tw": "精選柑實罐頭",
+                "en_us": "Canned Citrome [A]",
+                "ja_jp": "シトロームの缶詰Ⅲ",
+                "ko_kr": "시트론 통조림(대)"
+            },
+            "rarity": 4
+        },
+        "item_bottled_food_4": {
+            "id": "item_bottled_food_4",
+            "names": {
+                "zh_cn": "锦草软饮",
+                "zh_tw": "錦草飲料",
+                "en_us": "Jincao Drink",
+                "ja_jp": "錦草ソーダⅠ",
+                "ko_kr": "금초 청량음료"
+            },
+            "rarity": 3
+        },
+        "item_bottled_food_5": {
+            "id": "item_bottled_food_5",
+            "names": {
+                "zh_cn": "优质锦草软饮",
+                "zh_tw": "優質錦草飲料",
+                "en_us": "Jincao Tea",
+                "ja_jp": "錦草ソーダⅡ",
+                "ko_kr": "고급 금초 청량음료"
+            },
+            "rarity": 4
+        },
+        "item_bottled_rec_hp_1": {
+            "id": "item_bottled_rec_hp_1",
+            "names": {
+                "zh_cn": "荞愈胶囊",
+                "zh_tw": "蕎癒膠囊",
+                "en_us": "Buck Capsule [C]",
+                "ja_jp": "蕎花カプセルⅠ",
+                "ko_kr": "메밀꽃 치유 캡슐"
+            },
+            "rarity": 3
+        },
+        "item_bottled_rec_hp_2": {
+            "id": "item_bottled_rec_hp_2",
+            "names": {
+                "zh_cn": "优质荞愈胶囊",
+                "zh_tw": "優質蕎癒膠囊",
+                "en_us": "Buck Capsule [B]",
+                "ja_jp": "蕎花カプセルⅡ",
+                "ko_kr": "메밀꽃 치유 캡슐(중)"
+            },
+            "rarity": 3
+        },
+        "item_bottled_rec_hp_3": {
+            "id": "item_bottled_rec_hp_3",
+            "names": {
+                "zh_cn": "精选荞愈胶囊",
+                "zh_tw": "精選蕎癒膠囊",
+                "en_us": "Buck Capsule [A]",
+                "ja_jp": "蕎花カプセルⅢ",
+                "ko_kr": "메밀꽃 치유 캡슐(대)"
+            },
+            "rarity": 4
+        },
+        "item_bottled_rec_hp_4": {
+            "id": "item_bottled_rec_hp_4",
+            "names": {
+                "zh_cn": "芽针针剂",
+                "zh_tw": "芽針針劑",
+                "en_us": "Yazhen Syringe [C]",
+                "ja_jp": "芽針注射剤Ⅰ",
+                "ko_kr": "야침 주사약"
+            },
+            "rarity": 3
+        },
+        "item_bottled_rec_hp_5": {
+            "id": "item_bottled_rec_hp_5",
+            "names": {
+                "zh_cn": "优质芽针针剂",
+                "zh_tw": "優質芽針針劑",
+                "en_us": "Yazhen Syringe [A]",
+                "ja_jp": "芽針注射剤Ⅱ",
+                "ko_kr": "고급 야침 주사약"
+            },
+            "rarity": 4
+        },
+        "item_copper_cmpt": {
+            "id": "item_copper_cmpt",
+            "names": {
+                "zh_cn": "赤铜零件",
+                "zh_tw": "赤銅零件",
+                "en_us": "Cuprium Part",
+                "ja_jp": "赤銅部品",
+                "ko_kr": "적동 부품"
+            },
+            "rarity": 3
+        },
+        "item_copper_enr2_cmpt": {
+            "id": "item_copper_enr2_cmpt",
+            "names": {
+                "zh_cn": "灼铜零件",
+                "zh_tw": "灼銅零件",
+                "en_us": "Pyrrolite Part",
+                "ja_jp": "焔銅部品",
+                "ko_kr": "작동 부품"
+            },
+            "rarity": 4
+        },
+        "item_copper_enr_cmpt": {
+            "id": "item_copper_enr_cmpt",
+            "names": {
+                "zh_cn": "赫铜零件",
+                "zh_tw": "赫銅零件",
+                "en_us": "Hetonite Part",
+                "ja_jp": "緋銅部品",
+                "ko_kr": "혁동 부품"
+            },
+            "rarity": 4
+        },
+        "item_crystal_shell": {
+            "id": "item_crystal_shell",
+            "names": {
+                "zh_cn": "晶体外壳",
+                "zh_tw": "晶體外殼",
+                "en_us": "Origocrust",
+                "ja_jp": "結晶外殻",
+                "ko_kr": "오리고 크러스트"
+            },
+            "rarity": 2
+        },
+        "item_filter_core": {
+            "id": "item_filter_core",
+            "names": {
+                "zh_cn": "分离芯",
+                "zh_tw": "分離芯",
+                "en_us": "Separator Core",
+                "ja_jp": "分離コア",
+                "ko_kr": "분리 필터"
+            },
+            "rarity": 3
+        },
+        "item_glass_bottle": {
+            "id": "item_glass_bottle",
+            "names": {
+                "zh_cn": "紫晶质瓶",
+                "zh_tw": "紫晶質瓶",
+                "en_us": "Amethyst Bottle",
+                "ja_jp": "紫晶製ボトル",
+                "ko_kr": "자수정 병"
+            },
+            "rarity": 2
+        },
+        "item_glass_cmpt": {
+            "id": "item_glass_cmpt",
+            "names": {
+                "zh_cn": "紫晶零件",
+                "zh_tw": "紫晶零件",
+                "en_us": "Amethyst Part",
+                "ja_jp": "紫晶部品",
+                "ko_kr": "자수정 부품"
+            },
+            "rarity": 2
+        },
+        "item_iron_cmpt": {
+            "id": "item_iron_cmpt",
+            "names": {
+                "zh_cn": "铁制零件",
+                "zh_tw": "鐵製零件",
+                "en_us": "Ferrium Part",
+                "ja_jp": "鉄製部品",
+                "ko_kr": "페리움 부품"
+            },
+            "rarity": 2
+        },
+        "item_iron_enr_cmpt": {
+            "id": "item_iron_enr_cmpt",
+            "names": {
+                "zh_cn": "钢制零件",
+                "zh_tw": "鋼製零件",
+                "en_us": "Steel Part",
+                "ja_jp": "鋼製部品",
+                "ko_kr": "강철 부품"
+            },
+            "rarity": 3
+        },
+        "item_proc_battery_1": {
+            "id": "item_proc_battery_1",
+            "names": {
+                "zh_cn": "低容谷地电池",
+                "zh_tw": "低容量谷地電池",
+                "en_us": "LC Valley Battery",
+                "ja_jp": "小容量谷地バッテリー",
+                "ko_kr": "저용량 협곡 배터리"
+            },
+            "rarity": 3
+        },
+        "item_proc_battery_2": {
+            "id": "item_proc_battery_2",
+            "names": {
+                "zh_cn": "中容谷地电池",
+                "zh_tw": "中容量谷地電池",
+                "en_us": "SC Valley Battery",
+                "ja_jp": "中容量谷地バッテリー",
+                "ko_kr": "중용량 협곡 배터리"
+            },
+            "rarity": 3
+        },
+        "item_proc_battery_3": {
+            "id": "item_proc_battery_3",
+            "names": {
+                "zh_cn": "高容谷地电池",
+                "zh_tw": "高容量谷地電池",
+                "en_us": "HC Valley Battery",
+                "ja_jp": "大容量谷地バッテリー",
+                "ko_kr": "대용량 협곡 배터리"
+            },
+            "rarity": 4
+        },
+        "item_proc_battery_4": {
+            "id": "item_proc_battery_4",
+            "names": {
+                "zh_cn": "低容武陵电池",
+                "zh_tw": "低容量武陵電池",
+                "en_us": "LC Wuling Battery",
+                "ja_jp": "小容量武陵バッテリー",
+                "ko_kr": "저용량 무릉 배터리"
+            },
+            "rarity": 4
+        },
+        "item_proc_battery_5": {
+            "id": "item_proc_battery_5",
+            "names": {
+                "zh_cn": "中容武陵电池",
+                "zh_tw": "中容量武陵電池",
+                "en_us": "SC Wuling Battery",
+                "ja_jp": "中容量武陵バッテリー",
+                "ko_kr": "중용량 무릉 배터리"
+            },
+            "rarity": 4
+        },
+        "item_xiranite_enr_powder": {
+            "id": "item_xiranite_enr_powder",
+            "names": {
+                "zh_cn": "重息壤",
+                "zh_tw": "重息壤",
+                "en_us": "Heavy Xiranite",
+                "ja_jp": "重息壌",
+                "ko_kr": "중식양"
+            },
+            "rarity": 3
+        },
+        "item_xiranite_powder": {
+            "id": "item_xiranite_powder",
+            "names": {
+                "zh_cn": "息壤",
+                "zh_tw": "息壤",
+                "en_us": "Xiranite",
+                "ja_jp": "息壌",
+                "ko_kr": "식양"
+            },
+            "rarity": 2
+        }
+    },
+    "operators": {
+        "chr_0002_endminm": {
+            "id": "chr_0002_endminm",
+            "names": {
+                "zh_cn": "管理员",
+                "zh_tw": "管理員",
+                "en_us": "Endministrator",
+                "ja_jp": "管理人",
+                "ko_kr": "관리자"
+            }
+        },
+        "chr_0003_endminf": {
+            "id": "chr_0003_endminf",
+            "names": {
+                "zh_cn": "管理员",
+                "zh_tw": "管理員",
+                "en_us": "Endministrator",
+                "ja_jp": "管理人",
+                "ko_kr": "관리자"
+            }
+        },
+        "chr_0004_pelica": {
+            "id": "chr_0004_pelica",
+            "names": {
+                "zh_cn": "佩丽卡",
+                "zh_tw": "佩麗卡",
+                "en_us": "Perlica",
+                "ja_jp": "ペリカ",
+                "ko_kr": "펠리카"
+            }
+        },
+        "chr_0005_chen": {
+            "id": "chr_0005_chen",
+            "names": {
+                "zh_cn": "陈千语",
+                "zh_tw": "陳千語",
+                "en_us": "Chen Qianyu",
+                "ja_jp": "チェン・センユー",
+                "ko_kr": "진천우"
+            }
+        },
+        "chr_0006_wolfgd": {
+            "id": "chr_0006_wolfgd",
+            "names": {
+                "zh_cn": "狼卫",
+                "zh_tw": "狼衛",
+                "en_us": "Wulfgard",
+                "ja_jp": "ウルフガード",
+                "ko_kr": "울프가드"
+            }
+        },
+        "chr_0007_ikut": {
+            "id": "chr_0007_ikut",
+            "names": {
+                "zh_cn": "弧光",
+                "zh_tw": "弧光",
+                "en_us": "Arclight",
+                "ja_jp": "アークライト",
+                "ko_kr": "아크라이트"
+            }
+        },
+        "chr_0009_azrila": {
+            "id": "chr_0009_azrila",
+            "names": {
+                "zh_cn": "余烬",
+                "zh_tw": "餘燼",
+                "en_us": "Ember",
+                "ja_jp": "エンバー",
+                "ko_kr": "엠버"
+            }
+        },
+        "chr_0011_seraph": {
+            "id": "chr_0011_seraph",
+            "names": {
+                "zh_cn": "赛希",
+                "zh_tw": "賽希",
+                "en_us": "Xaihi",
+                "ja_jp": "ザイヒ",
+                "ko_kr": "자이히"
+            }
+        },
+        "chr_0012_avywen": {
+            "id": "chr_0012_avywen",
+            "names": {
+                "zh_cn": "艾维文娜",
+                "zh_tw": "艾維文娜",
+                "en_us": "Avywenna",
+                "ja_jp": "アイビーエナ",
+                "ko_kr": "아비웨나"
+            }
+        },
+        "chr_0013_aglina": {
+            "id": "chr_0013_aglina",
+            "names": {
+                "zh_cn": "洁尔佩塔",
+                "zh_tw": "潔爾佩塔",
+                "en_us": "Gilberta",
+                "ja_jp": "ギルベルタ",
+                "ko_kr": "질베르타"
+            }
+        },
+        "chr_0014_aurora": {
+            "id": "chr_0014_aurora",
+            "names": {
+                "zh_cn": "昼雪",
+                "zh_tw": "晝雪",
+                "en_us": "Snowshine",
+                "ja_jp": "スノーシャイン",
+                "ko_kr": "스노우샤인"
+            }
+        },
+        "chr_0015_lifeng": {
+            "id": "chr_0015_lifeng",
+            "names": {
+                "zh_cn": "黎风",
+                "zh_tw": "黎風",
+                "en_us": "Lifeng",
+                "ja_jp": "リーフォン",
+                "ko_kr": "여풍"
+            }
+        },
+        "chr_0016_laevat": {
+            "id": "chr_0016_laevat",
+            "names": {
+                "zh_cn": "莱万汀",
+                "zh_tw": "萊萬汀",
+                "en_us": "Laevatain",
+                "ja_jp": "レーヴァテイン",
+                "ko_kr": "레바테인"
+            }
+        },
+        "chr_0017_yvonne": {
+            "id": "chr_0017_yvonne",
+            "names": {
+                "zh_cn": "伊冯",
+                "zh_tw": "伊馮",
+                "en_us": "Yvonne",
+                "ja_jp": "イヴォンヌ",
+                "ko_kr": "이본"
+            }
+        },
+        "chr_0018_dapan": {
+            "id": "chr_0018_dapan",
+            "names": {
+                "zh_cn": "大潘",
+                "zh_tw": "大潘",
+                "en_us": "Da Pan",
+                "ja_jp": "ダパン",
+                "ko_kr": "판"
+            }
+        },
+        "chr_0019_karin": {
+            "id": "chr_0019_karin",
+            "names": {
+                "zh_cn": "秋栗",
+                "zh_tw": "秋栗",
+                "en_us": "Akekuri",
+                "ja_jp": "アケクリ",
+                "ko_kr": "아케쿠리"
+            }
+        },
+        "chr_0020_meurs": {
+            "id": "chr_0020_meurs",
+            "names": {
+                "zh_cn": "卡契尔",
+                "zh_tw": "卡契爾",
+                "en_us": "Catcher",
+                "ja_jp": "キャッチャー",
+                "ko_kr": "카치르"
+            }
+        },
+        "chr_0021_whiten": {
+            "id": "chr_0021_whiten",
+            "names": {
+                "zh_cn": "埃特拉",
+                "zh_tw": "埃特拉",
+                "en_us": "Estella",
+                "ja_jp": "エステーラ",
+                "ko_kr": "에스텔라"
+            }
+        },
+        "chr_0022_bounda": {
+            "id": "chr_0022_bounda",
+            "names": {
+                "zh_cn": "萤石",
+                "zh_tw": "螢石",
+                "en_us": "Fluorite",
+                "ja_jp": "フローライト",
+                "ko_kr": "플루라이트"
+            }
+        },
+        "chr_0023_antal": {
+            "id": "chr_0023_antal",
+            "names": {
+                "zh_cn": "安塔尔",
+                "zh_tw": "安塔爾",
+                "en_us": "Antal",
+                "ja_jp": "アンタル",
+                "ko_kr": "안탈"
+            }
+        },
+        "chr_0024_deepfin": {
+            "id": "chr_0024_deepfin",
+            "names": {
+                "zh_cn": "阿列什",
+                "zh_tw": "阿列什",
+                "en_us": "Alesh",
+                "ja_jp": "アレッシュ",
+                "ko_kr": "알레쉬"
+            }
+        },
+        "chr_0025_ardelia": {
+            "id": "chr_0025_ardelia",
+            "names": {
+                "zh_cn": "艾尔黛拉",
+                "zh_tw": "艾爾黛拉",
+                "en_us": "Ardelia",
+                "ja_jp": "アルデリア",
+                "ko_kr": "아델리아"
+            }
+        },
+        "chr_0026_lastrite": {
+            "id": "chr_0026_lastrite",
+            "names": {
+                "zh_cn": "别礼",
+                "zh_tw": "別禮",
+                "en_us": "Last Rite",
+                "ja_jp": "ラストライト",
+                "ko_kr": "라스트 라이트"
+            }
+        },
+        "chr_0027_tangtang": {
+            "id": "chr_0027_tangtang",
+            "names": {
+                "zh_cn": "汤汤",
+                "zh_tw": "湯湯",
+                "en_us": "Tangtang",
+                "ja_jp": "タンタン",
+                "ko_kr": "탕탕"
+            }
+        },
+        "chr_0028_wulfa": {
+            "id": "chr_0028_wulfa",
+            "names": {
+                "zh_cn": "洛茜",
+                "zh_tw": "洛西",
+                "en_us": "Rossi",
+                "ja_jp": "ロッシ",
+                "ko_kr": "로시"
+            }
+        },
+        "chr_0029_pograni": {
+            "id": "chr_0029_pograni",
+            "names": {
+                "zh_cn": "骏卫",
+                "zh_tw": "駿衛",
+                "en_us": "Pogranichnik",
+                "ja_jp": "ポグラニチニク",
+                "ko_kr": "포그라니치니크"
+            }
+        },
+        "chr_0030_zhuangfy": {
+            "id": "chr_0030_zhuangfy",
+            "names": {
+                "zh_cn": "庄方宜",
+                "zh_tw": "莊方宜",
+                "en_us": "Zhuang Fangyi",
+                "ja_jp": "ゾアン・ファンイ",
+                "ko_kr": "장방이"
+            }
+        },
+        "chr_0031_mifu": {
+            "id": "chr_0031_mifu",
+            "names": {
+                "zh_cn": "弭弗",
+                "zh_tw": "弭弗",
+                "en_us": "Mi Fu",
+                "ja_jp": "ミ・フ",
+                "ko_kr": "미브"
+            }
+        },
+        "chr_0032_lizhiyan": {
+            "id": "chr_0032_lizhiyan",
+            "names": {
+                "zh_cn": "诀",
+                "zh_tw": "訣",
+                "en_us": "Arcane",
+                "ja_jp": "オクギ",
+                "ko_kr": "결"
+            }
+        },
+        "chr_0033_camille": {
+            "id": "chr_0033_camille",
+            "names": {
+                "zh_cn": "卡缪",
+                "zh_tw": "卡繆",
+                "en_us": "Camille",
+                "ja_jp": "カミーユ",
+                "ko_kr": "카뮤"
+            }
+        },
+        "chr_0035_liino": {
+            "id": "chr_0035_liino",
+            "names": {
+                "zh_cn": "梨诺",
+                "zh_tw": "梨諾",
+                "en_us": "Liino",
+                "ja_jp": "リーノ",
+                "ko_kr": "리노"
+            }
+        }
+    },
+    "settlements": {
+        "stm_hongs_1": {
+            "id": "stm_hongs_1",
+            "region_id": "domain_2",
+            "names": {
+                "zh_cn": "天王坪援建点",
+                "zh_tw": "天王坪援助點",
+                "en_us": "Sky King Flats Construction Site",
+                "ja_jp": "天王原建設支援拠点",
+                "ko_kr": "천왕 평지 건설 지원소"
+            },
+            "prosperity_levels": [
+                {
+                    "level": 1,
+                    "trade_items": [
+                        {
+                            "item_id": "item_activity_xiranite_enr_hulu",
+                            "unit_price": 120
+                        },
+                        {
+                            "item_id": "item_activity_xiranite_hulu",
+                            "unit_price": 40
+                        },
+                        {
+                            "item_id": "item_proc_battery_4",
+                            "unit_price": 25
+                        },
+                        {
+                            "item_id": "item_bottled_rec_hp_4",
+                            "unit_price": 16
+                        },
+                        {
+                            "item_id": "item_xiranite_powder",
+                            "unit_price": 1
+                        }
+                    ]
+                },
+                {
+                    "level": 2,
+                    "trade_items": [
+                        {
+                            "item_id": "item_activity_xiranite_enr_hulu",
+                            "unit_price": 120
+                        },
+                        {
+                            "item_id": "item_activity_xiranite_hulu",
+                            "unit_price": 40
+                        },
+                        {
+                            "item_id": "item_proc_battery_4",
+                            "unit_price": 25
+                        },
+                        {
+                            "item_id": "item_bottled_food_4",
+                            "unit_price": 16
+                        },
+                        {
+                            "item_id": "item_bottled_rec_hp_4",
+                            "unit_price": 16
+                        },
+                        {
+                            "item_id": "item_copper_cmpt",
+                            "unit_price": 1
+                        },
+                        {
+                            "item_id": "item_xiranite_powder",
+                            "unit_price": 1
+                        }
+                    ]
+                },
+                {
+                    "level": 3,
+                    "trade_items": [
+                        {
+                            "item_id": "item_activity_xiranite_enr_hulu",
+                            "unit_price": 120
+                        },
+                        {
+                            "item_id": "item_proc_battery_5",
+                            "unit_price": 54
+                        },
+                        {
+                            "item_id": "item_copper_enr_cmpt",
+                            "unit_price": 48
+                        },
+                        {
+                            "item_id": "item_activity_xiranite_hulu",
+                            "unit_price": 40
+                        },
+                        {
+                            "item_id": "item_proc_battery_4",
+                            "unit_price": 25
+                        },
+                        {
+                            "item_id": "item_bottled_rec_hp_5",
+                            "unit_price": 22
+                        },
+                        {
+                            "item_id": "item_bottled_rec_hp_4",
+                            "unit_price": 16
+                        },
+                        {
+                            "item_id": "item_bottled_food_4",
+                            "unit_price": 16
+                        },
+                        {
+                            "item_id": "item_xiranite_powder",
+                            "unit_price": 1
+                        },
+                        {
+                            "item_id": "item_copper_cmpt",
+                            "unit_price": 1
+                        }
+                    ]
+                },
+                {
+                    "level": 4,
+                    "trade_items": [
+                        {
+                            "item_id": "item_activity_xiranite_enr_hulu",
+                            "unit_price": 120
+                        },
+                        {
+                            "item_id": "item_proc_battery_5",
+                            "unit_price": 54
+                        },
+                        {
+                            "item_id": "item_copper_enr_cmpt",
+                            "unit_price": 48
+                        },
+                        {
+                            "item_id": "item_activity_xiranite_hulu",
+                            "unit_price": 40
+                        },
+                        {
+                            "item_id": "item_xiranite_enr_powder",
+                            "unit_price": 27
+                        },
+                        {
+                            "item_id": "item_proc_battery_4",
+                            "unit_price": 25
+                        },
+                        {
+                            "item_id": "item_bottled_food_5",
+                            "unit_price": 22
+                        },
+                        {
+                            "item_id": "item_bottled_rec_hp_5",
+                            "unit_price": 22
+                        },
+                        {
+                            "item_id": "item_bottled_food_4",
+                            "unit_price": 16
+                        },
+                        {
+                            "item_id": "item_bottled_rec_hp_4",
+                            "unit_price": 16
+                        },
+                        {
+                            "item_id": "item_copper_cmpt",
+                            "unit_price": 1
+                        },
+                        {
+                            "item_id": "item_xiranite_powder",
+                            "unit_price": 1
+                        }
+                    ]
+                }
+            ],
+            "features": [
+                {
+                    "bonus_types": [
+                        "expProfit"
+                    ],
+                    "operator_ids": [
+                        "chr_0012_avywen",
+                        "chr_0015_lifeng",
+                        "chr_0027_tangtang",
+                        "chr_0033_camille"
+                    ]
+                },
+                {
+                    "bonus_types": [
+                        "moneyProfit"
+                    ],
+                    "operator_ids": [
+                        "chr_0006_wolfgd",
+                        "chr_0007_ikut",
+                        "chr_0015_lifeng",
+                        "chr_0022_bounda",
+                        "chr_0025_ardelia",
+                        "chr_0027_tangtang",
+                        "chr_0028_wulfa",
+                        "chr_0032_lizhiyan"
+                    ]
+                },
+                {
+                    "bonus_types": [
+                        "moneyProduceSpeed"
+                    ],
+                    "operator_ids": [
+                        "chr_0006_wolfgd",
+                        "chr_0009_azrila",
+                        "chr_0026_lastrite",
+                        "chr_0027_tangtang",
+                        "chr_0031_mifu",
+                        "chr_0032_lizhiyan"
+                    ]
+                }
+            ]
+        },
+        "stm_tundra_2": {
+            "id": "stm_tundra_2",
+            "region_id": "domain_1",
+            "names": {
+                "zh_cn": "基建前站",
+                "zh_tw": "基建前站",
+                "en_us": "Infra-Station",
+                "ja_jp": "建設基地",
+                "ko_kr": "기초 건설 주둔지"
+            },
+            "prosperity_levels": [
+                {
+                    "level": 1,
+                    "trade_items": [
+                        {
+                            "item_id": "item_proc_battery_1",
+                            "unit_price": 16
+                        },
+                        {
+                            "item_id": "item_iron_cmpt",
+                            "unit_price": 1
+                        }
+                    ]
+                },
+                {
+                    "level": 2,
+                    "trade_items": [
+                        {
+                            "item_id": "item_proc_battery_2",
+                            "unit_price": 30
+                        },
+                        {
+                            "item_id": "item_bottled_rec_hp_2",
+                            "unit_price": 27
+                        },
+                        {
+                            "item_id": "item_proc_battery_1",
+                            "unit_price": 16
+                        },
+                        {
+                            "item_id": "item_iron_cmpt",
+                            "unit_price": 1
+                        }
+                    ]
+                },
+                {
+                    "level": 3,
+                    "trade_items": [
+                        {
+                            "item_id": "item_bottled_rec_hp_3",
+                            "unit_price": 70
+                        },
+                        {
+                            "item_id": "item_proc_battery_3",
+                            "unit_price": 70
+                        },
+                        {
+                            "item_id": "item_proc_battery_2",
+                            "unit_price": 30
+                        },
+                        {
+                            "item_id": "item_bottled_rec_hp_2",
+                            "unit_price": 27
+                        },
+                        {
+                            "item_id": "item_proc_battery_1",
+                            "unit_price": 16
+                        },
+                        {
+                            "item_id": "item_iron_cmpt",
+                            "unit_price": 1
+                        }
+                    ]
+                },
+                {
+                    "level": 4,
+                    "trade_items": [
+                        {
+                            "item_id": "item_bottled_food_3",
+                            "unit_price": 70
+                        },
+                        {
+                            "item_id": "item_bottled_rec_hp_3",
+                            "unit_price": 70
+                        },
+                        {
+                            "item_id": "item_proc_battery_3",
+                            "unit_price": 70
+                        },
+                        {
+                            "item_id": "item_proc_battery_2",
+                            "unit_price": 30
+                        },
+                        {
+                            "item_id": "item_bottled_food_2",
+                            "unit_price": 27
+                        },
+                        {
+                            "item_id": "item_bottled_rec_hp_2",
+                            "unit_price": 27
+                        },
+                        {
+                            "item_id": "item_proc_battery_1",
+                            "unit_price": 16
+                        },
+                        {
+                            "item_id": "item_bottled_food_1",
+                            "unit_price": 10
+                        },
+                        {
+                            "item_id": "item_iron_cmpt",
+                            "unit_price": 1
+                        }
+                    ]
+                }
+            ],
+            "features": [
+                {
+                    "bonus_types": [
+                        "expProfit"
+                    ],
+                    "operator_ids": [
+                        "chr_0002_endminm",
+                        "chr_0003_endminf",
+                        "chr_0004_pelica",
+                        "chr_0005_chen",
+                        "chr_0006_wolfgd",
+                        "chr_0017_yvonne",
+                        "chr_0019_karin",
+                        "chr_0020_meurs",
+                        "chr_0021_whiten",
+                        "chr_0022_bounda",
+                        "chr_0023_antal",
+                        "chr_0027_tangtang",
+                        "chr_0028_wulfa"
+                    ]
+                },
+                {
+                    "bonus_types": [
+                        "moneyProfit"
+                    ],
+                    "operator_ids": [
+                        "chr_0009_azrila",
+                        "chr_0011_seraph",
+                        "chr_0017_yvonne",
+                        "chr_0033_camille"
+                    ]
+                },
+                {
+                    "bonus_types": [
+                        "moneyProduceSpeed"
+                    ],
+                    "operator_ids": [
+                        "chr_0005_chen",
+                        "chr_0017_yvonne",
+                        "chr_0035_liino"
+                    ]
+                }
+            ]
+        },
+        "stm_hongs_2": {
+            "id": "stm_hongs_2",
+            "region_id": "domain_2",
+            "names": {
+                "zh_cn": "心脏修缮站",
+                "zh_tw": "心臟修繕站",
+                "en_us": "Cardiac Remediation Station",
+                "ja_jp": "心臓修復施設",
+                "ko_kr": "심장 수복실"
+            },
+            "prosperity_levels": [
+                {
+                    "level": 1,
+                    "trade_items": [
+                        {
+                            "item_id": "item_activity_xiranite_enr_hulu",
+                            "unit_price": 120
+                        },
+                        {
+                            "item_id": "item_activity_xiranite_hulu",
+                            "unit_price": 40
+                        },
+                        {
+                            "item_id": "item_xiranite_enr_powder",
+                            "unit_price": 27
+                        },
+                        {
+                            "item_id": "item_proc_battery_4",
+                            "unit_price": 25
+                        },
+                        {
+                            "item_id": "item_bottled_food_5",
+                            "unit_price": 22
+                        },
+                        {
+                            "item_id": "item_bottled_rec_hp_5",
+                            "unit_price": 22
+                        },
+                        {
+                            "item_id": "item_xiranite_powder",
+                            "unit_price": 1
+                        }
+                    ]
+                },
+                {
+                    "level": 2,
+                    "trade_items": [
+                        {
+                            "item_id": "item_activity_xiranite_enr_hulu",
+                            "unit_price": 120
+                        },
+                        {
+                            "item_id": "item_proc_battery_5",
+                            "unit_price": 54
+                        },
+                        {
+                            "item_id": "item_activity_xiranite_hulu",
+                            "unit_price": 40
+                        },
+                        {
+                            "item_id": "item_xiranite_enr_powder",
+                            "unit_price": 27
+                        },
+                        {
+                            "item_id": "item_proc_battery_4",
+                            "unit_price": 25
+                        },
+                        {
+                            "item_id": "item_bottled_food_5",
+                            "unit_price": 22
+                        },
+                        {
+                            "item_id": "item_bottled_rec_hp_5",
+                            "unit_price": 22
+                        },
+                        {
+                            "item_id": "item_xiranite_powder",
+                            "unit_price": 1
+                        }
+                    ]
+                },
+                {
+                    "level": 3,
+                    "trade_items": [
+                        {
+                            "item_id": "item_activity_xiranite_enr_hulu",
+                            "unit_price": 120
+                        },
+                        {
+                            "item_id": "item_proc_battery_5",
+                            "unit_price": 54
+                        },
+                        {
+                            "item_id": "item_copper_enr_cmpt",
+                            "unit_price": 48
+                        },
+                        {
+                            "item_id": "item_activity_xiranite_hulu",
+                            "unit_price": 40
+                        },
+                        {
+                            "item_id": "item_xiranite_enr_powder",
+                            "unit_price": 27
+                        },
+                        {
+                            "item_id": "item_proc_battery_4",
+                            "unit_price": 25
+                        },
+                        {
+                            "item_id": "item_bottled_food_5",
+                            "unit_price": 22
+                        },
+                        {
+                            "item_id": "item_bottled_rec_hp_5",
+                            "unit_price": 22
+                        },
+                        {
+                            "item_id": "item_xiranite_powder",
+                            "unit_price": 1
+                        }
+                    ]
+                },
+                {
+                    "level": 4,
+                    "trade_items": [
+                        {
+                            "item_id": "item_activity_xiranite_enr_hulu",
+                            "unit_price": 120
+                        },
+                        {
+                            "item_id": "item_copper_enr2_cmpt",
+                            "unit_price": 70
+                        },
+                        {
+                            "item_id": "item_proc_battery_5",
+                            "unit_price": 54
+                        },
+                        {
+                            "item_id": "item_copper_enr_cmpt",
+                            "unit_price": 48
+                        },
+                        {
+                            "item_id": "item_activity_xiranite_hulu",
+                            "unit_price": 40
+                        },
+                        {
+                            "item_id": "item_xiranite_enr_powder",
+                            "unit_price": 27
+                        },
+                        {
+                            "item_id": "item_proc_battery_4",
+                            "unit_price": 25
+                        },
+                        {
+                            "item_id": "item_bottled_food_5",
+                            "unit_price": 22
+                        },
+                        {
+                            "item_id": "item_bottled_rec_hp_5",
+                            "unit_price": 22
+                        },
+                        {
+                            "item_id": "item_xiranite_powder",
+                            "unit_price": 1
+                        }
+                    ]
+                }
+            ],
+            "features": [
+                {
+                    "bonus_types": [
+                        "expProfit"
+                    ],
+                    "operator_ids": [
+                        "chr_0015_lifeng",
+                        "chr_0018_dapan",
+                        "chr_0024_deepfin",
+                        "chr_0030_zhuangfy",
+                        "chr_0031_mifu",
+                        "chr_0032_lizhiyan"
+                    ]
+                },
+                {
+                    "bonus_types": [
+                        "moneyProfit"
+                    ],
+                    "operator_ids": [
+                        "chr_0005_chen",
+                        "chr_0014_aurora",
+                        "chr_0018_dapan",
+                        "chr_0019_karin",
+                        "chr_0026_lastrite",
+                        "chr_0030_zhuangfy",
+                        "chr_0032_lizhiyan"
+                    ]
+                },
+                {
+                    "bonus_types": [
+                        "moneyProduceSpeed"
+                    ],
+                    "operator_ids": [
+                        "chr_0004_pelica",
+                        "chr_0017_yvonne",
+                        "chr_0019_karin",
+                        "chr_0029_pograni",
+                        "chr_0030_zhuangfy"
+                    ]
+                }
+            ]
+        },
+        "stm_tundra_3": {
+            "id": "stm_tundra_3",
+            "region_id": "domain_1",
+            "names": {
+                "zh_cn": "重建指挥部",
+                "zh_tw": "重建指揮部",
+                "en_us": "Reconstruction HQ",
+                "ja_jp": "再建管理本部",
+                "ko_kr": "재건 지휘부"
+            },
+            "prosperity_levels": [
+                {
+                    "level": 1,
+                    "trade_items": [
+                        {
+                            "item_id": "item_proc_battery_2",
+                            "unit_price": 30
+                        },
+                        {
+                            "item_id": "item_bottled_rec_hp_2",
+                            "unit_price": 27
+                        },
+                        {
+                            "item_id": "item_iron_enr_cmpt",
+                            "unit_price": 3
+                        }
+                    ]
+                },
+                {
+                    "level": 2,
+                    "trade_items": [
+                        {
+                            "item_id": "item_bottled_rec_hp_3",
+                            "unit_price": 70
+                        },
+                        {
+                            "item_id": "item_proc_battery_3",
+                            "unit_price": 70
+                        },
+                        {
+                            "item_id": "item_proc_battery_2",
+                            "unit_price": 30
+                        },
+                        {
+                            "item_id": "item_bottled_rec_hp_2",
+                            "unit_price": 27
+                        },
+                        {
+                            "item_id": "item_iron_enr_cmpt",
+                            "unit_price": 3
+                        }
+                    ]
+                },
+                {
+                    "level": 3,
+                    "trade_items": [
+                        {
+                            "item_id": "item_bottled_rec_hp_3",
+                            "unit_price": 70
+                        },
+                        {
+                            "item_id": "item_bottled_food_3",
+                            "unit_price": 70
+                        },
+                        {
+                            "item_id": "item_proc_battery_3",
+                            "unit_price": 70
+                        },
+                        {
+                            "item_id": "item_proc_battery_2",
+                            "unit_price": 30
+                        },
+                        {
+                            "item_id": "item_bottled_food_2",
+                            "unit_price": 27
+                        },
+                        {
+                            "item_id": "item_bottled_rec_hp_2",
+                            "unit_price": 27
+                        },
+                        {
+                            "item_id": "item_bottled_food_1",
+                            "unit_price": 10
+                        },
+                        {
+                            "item_id": "item_iron_enr_cmpt",
+                            "unit_price": 3
+                        }
+                    ]
+                },
+                {
+                    "level": 4,
+                    "trade_items": [
+                        {
+                            "item_id": "item_bottled_rec_hp_3",
+                            "unit_price": 70
+                        },
+                        {
+                            "item_id": "item_bottled_food_3",
+                            "unit_price": 70
+                        },
+                        {
+                            "item_id": "item_proc_battery_3",
+                            "unit_price": 70
+                        },
+                        {
+                            "item_id": "item_proc_battery_2",
+                            "unit_price": 30
+                        },
+                        {
+                            "item_id": "item_bottled_food_2",
+                            "unit_price": 27
+                        },
+                        {
+                            "item_id": "item_bottled_rec_hp_2",
+                            "unit_price": 27
+                        },
+                        {
+                            "item_id": "item_bottled_food_1",
+                            "unit_price": 10
+                        },
+                        {
+                            "item_id": "item_iron_enr_cmpt",
+                            "unit_price": 3
+                        }
+                    ]
+                }
+            ],
+            "features": [
+                {
+                    "bonus_types": [
+                        "expProfit"
+                    ],
+                    "operator_ids": [
+                        "chr_0013_aglina",
+                        "chr_0014_aurora",
+                        "chr_0016_laevat",
+                        "chr_0025_ardelia",
+                        "chr_0029_pograni"
+                    ]
+                },
+                {
+                    "bonus_types": [
+                        "moneyProfit"
+                    ],
+                    "operator_ids": [
+                        "chr_0005_chen",
+                        "chr_0013_aglina",
+                        "chr_0024_deepfin",
+                        "chr_0029_pograni",
+                        "chr_0030_zhuangfy"
+                    ]
+                },
+                {
+                    "bonus_types": [
+                        "moneyProduceSpeed"
+                    ],
+                    "operator_ids": [
+                        "chr_0004_pelica",
+                        "chr_0013_aglina",
+                        "chr_0016_laevat"
+                    ]
+                }
+            ]
+        },
+        "stm_hongs_3": {
+            "id": "stm_hongs_3",
+            "region_id": "domain_2",
+            "names": {
+                "zh_cn": "盈天台建设站",
+                "zh_tw": "盈天台建設站",
+                "en_us": "Xiranflow Cloudseeder Station",
+                "ja_jp": "満天台建設基地",
+                "ko_kr": "영천대 건설 기지"
+            },
+            "prosperity_levels": [
+                {
+                    "level": 1,
+                    "trade_items": [
+                        {
+                            "item_id": "item_copper_enr2_cmpt",
+                            "unit_price": 70
+                        },
+                        {
+                            "item_id": "item_proc_battery_5",
+                            "unit_price": 54
+                        },
+                        {
+                            "item_id": "item_xiranite_enr_powder",
+                            "unit_price": 27
+                        },
+                        {
+                            "item_id": "item_bottled_food_5",
+                            "unit_price": 22
+                        },
+                        {
+                            "item_id": "item_bottled_rec_hp_5",
+                            "unit_price": 22
+                        },
+                        {
+                            "item_id": "item_filter_core",
+                            "unit_price": 1
+                        },
+                        {
+                            "item_id": "item_xiranite_powder",
+                            "unit_price": 1
+                        }
+                    ]
+                },
+                {
+                    "level": 2,
+                    "trade_items": [
+                        {
+                            "item_id": "item_copper_enr2_cmpt",
+                            "unit_price": 70
+                        },
+                        {
+                            "item_id": "item_proc_battery_5",
+                            "unit_price": 54
+                        },
+                        {
+                            "item_id": "item_xiranite_enr_powder",
+                            "unit_price": 27
+                        },
+                        {
+                            "item_id": "item_bottled_food_5",
+                            "unit_price": 22
+                        },
+                        {
+                            "item_id": "item_bottled_rec_hp_5",
+                            "unit_price": 22
+                        },
+                        {
+                            "item_id": "item_filter_core",
+                            "unit_price": 1
+                        },
+                        {
+                            "item_id": "item_xiranite_powder",
+                            "unit_price": 1
+                        }
+                    ]
+                },
+                {
+                    "level": 3,
+                    "trade_items": [
+                        {
+                            "item_id": "item_copper_enr2_cmpt",
+                            "unit_price": 70
+                        },
+                        {
+                            "item_id": "item_proc_battery_5",
+                            "unit_price": 54
+                        },
+                        {
+                            "item_id": "item_xiranite_enr_powder",
+                            "unit_price": 27
+                        },
+                        {
+                            "item_id": "item_bottled_food_5",
+                            "unit_price": 22
+                        },
+                        {
+                            "item_id": "item_bottled_rec_hp_5",
+                            "unit_price": 22
+                        },
+                        {
+                            "item_id": "item_filter_core",
+                            "unit_price": 1
+                        },
+                        {
+                            "item_id": "item_xiranite_powder",
+                            "unit_price": 1
+                        }
+                    ]
+                }
+            ],
+            "features": [
+                {
+                    "bonus_types": [
+                        "expProfit"
+                    ],
+                    "operator_ids": [
+                        "chr_0011_seraph",
+                        "chr_0015_lifeng",
+                        "chr_0018_dapan",
+                        "chr_0030_zhuangfy",
+                        "chr_0031_mifu",
+                        "chr_0032_lizhiyan"
+                    ]
+                },
+                {
+                    "bonus_types": [
+                        "moneyProfit"
+                    ],
+                    "operator_ids": [
+                        "chr_0006_wolfgd",
+                        "chr_0007_ikut",
+                        "chr_0015_lifeng",
+                        "chr_0022_bounda",
+                        "chr_0025_ardelia",
+                        "chr_0027_tangtang",
+                        "chr_0028_wulfa",
+                        "chr_0032_lizhiyan"
+                    ]
+                },
+                {
+                    "bonus_types": [
+                        "moneyProduceSpeed"
+                    ],
+                    "operator_ids": [
+                        "chr_0005_chen",
+                        "chr_0009_azrila",
+                        "chr_0017_yvonne",
+                        "chr_0026_lastrite",
+                        "chr_0031_mifu",
+                        "chr_0032_lizhiyan",
+                        "chr_0035_liino"
+                    ]
+                }
+            ]
+        },
+        "stm_tundra_1": {
+            "id": "stm_tundra_1",
+            "region_id": "domain_1",
+            "names": {
+                "zh_cn": "难民暂居处",
+                "zh_tw": "難民暫居處",
+                "en_us": "Refugee Camp",
+                "ja_jp": "仮設居住地",
+                "ko_kr": "유랑자 임시 거주지"
+            },
+            "prosperity_levels": [
+                {
+                    "level": 1,
+                    "trade_items": [
+                        {
+                            "item_id": "item_bottled_rec_hp_1",
+                            "unit_price": 10
+                        },
+                        {
+                            "item_id": "item_glass_bottle",
+                            "unit_price": 2
+                        },
+                        {
+                            "item_id": "item_crystal_shell",
+                            "unit_price": 1
+                        },
+                        {
+                            "item_id": "item_glass_cmpt",
+                            "unit_price": 1
+                        }
+                    ]
+                },
+                {
+                    "level": 2,
+                    "trade_items": [
+                        {
+                            "item_id": "item_proc_battery_2",
+                            "unit_price": 30
+                        },
+                        {
+                            "item_id": "item_bottled_rec_hp_2",
+                            "unit_price": 27
+                        },
+                        {
+                            "item_id": "item_bottled_food_1",
+                            "unit_price": 10
+                        },
+                        {
+                            "item_id": "item_bottled_rec_hp_1",
+                            "unit_price": 10
+                        },
+                        {
+                            "item_id": "item_glass_bottle",
+                            "unit_price": 2
+                        },
+                        {
+                            "item_id": "item_crystal_shell",
+                            "unit_price": 1
+                        },
+                        {
+                            "item_id": "item_glass_cmpt",
+                            "unit_price": 1
+                        }
+                    ]
+                },
+                {
+                    "level": 3,
+                    "trade_items": [
+                        {
+                            "item_id": "item_bottled_rec_hp_3",
+                            "unit_price": 70
+                        },
+                        {
+                            "item_id": "item_proc_battery_3",
+                            "unit_price": 70
+                        },
+                        {
+                            "item_id": "item_proc_battery_2",
+                            "unit_price": 30
+                        },
+                        {
+                            "item_id": "item_bottled_rec_hp_2",
+                            "unit_price": 27
+                        },
+                        {
+                            "item_id": "item_bottled_food_2",
+                            "unit_price": 27
+                        },
+                        {
+                            "item_id": "item_bottled_food_1",
+                            "unit_price": 10
+                        },
+                        {
+                            "item_id": "item_bottled_rec_hp_1",
+                            "unit_price": 10
+                        },
+                        {
+                            "item_id": "item_glass_bottle",
+                            "unit_price": 2
+                        },
+                        {
+                            "item_id": "item_crystal_shell",
+                            "unit_price": 1
+                        },
+                        {
+                            "item_id": "item_glass_cmpt",
+                            "unit_price": 1
+                        }
+                    ]
+                },
+                {
+                    "level": 4,
+                    "trade_items": [
+                        {
+                            "item_id": "item_bottled_food_3",
+                            "unit_price": 70
+                        },
+                        {
+                            "item_id": "item_bottled_rec_hp_3",
+                            "unit_price": 70
+                        },
+                        {
+                            "item_id": "item_proc_battery_3",
+                            "unit_price": 70
+                        },
+                        {
+                            "item_id": "item_proc_battery_2",
+                            "unit_price": 30
+                        },
+                        {
+                            "item_id": "item_bottled_food_2",
+                            "unit_price": 27
+                        },
+                        {
+                            "item_id": "item_bottled_rec_hp_2",
+                            "unit_price": 27
+                        },
+                        {
+                            "item_id": "item_bottled_food_1",
+                            "unit_price": 10
+                        },
+                        {
+                            "item_id": "item_bottled_rec_hp_1",
+                            "unit_price": 10
+                        },
+                        {
+                            "item_id": "item_glass_bottle",
+                            "unit_price": 2
+                        },
+                        {
+                            "item_id": "item_crystal_shell",
+                            "unit_price": 1
+                        },
+                        {
+                            "item_id": "item_glass_cmpt",
+                            "unit_price": 1
+                        }
+                    ]
+                }
+            ],
+            "features": [
+                {
+                    "bonus_types": [
+                        "expProfit"
+                    ],
+                    "operator_ids": [
+                        "chr_0013_aglina",
+                        "chr_0014_aurora",
+                        "chr_0016_laevat",
+                        "chr_0025_ardelia",
+                        "chr_0029_pograni"
+                    ]
+                },
+                {
+                    "bonus_types": [
+                        "moneyProfit"
+                    ],
+                    "operator_ids": [
+                        "chr_0004_pelica",
+                        "chr_0006_wolfgd",
+                        "chr_0016_laevat",
+                        "chr_0022_bounda",
+                        "chr_0023_antal",
+                        "chr_0027_tangtang",
+                        "chr_0033_camille",
+                        "chr_0035_liino"
+                    ]
+                },
+                {
+                    "bonus_types": [
+                        "moneyProduceSpeed"
+                    ],
+                    "operator_ids": [
+                        "chr_0016_laevat",
+                        "chr_0023_antal",
+                        "chr_0028_wulfa",
+                        "chr_0033_camille"
+                    ]
+                }
+            ]
+        }
+    }
+}

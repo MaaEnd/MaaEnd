@@ -1,6 +1,7 @@
 # 构建产物
 install/
 node_modules/
+.venv/
 agent/cpp-algo/source/IconRecognition/test/build/
 agent/cpp-algo/source/IconRecognition/test/input/
 agent/cpp-algo/source/IconRecognition/test/output/

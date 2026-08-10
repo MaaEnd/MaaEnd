@@ -9,10 +9,10 @@ function buildDirectPhotoRow(hasHeading, quickTeleport = false) {
         Id: "TestMission",
         Name: "测试观察点",
         LocalizedName: {
-            "zh-CN": "测试观察点",
+            zh_cn: "测试观察点",
         },
         ShotTargetName: {
-            "zh-CN": "测试目标",
+            zh_cn: "测试目标",
         },
         route: {
             isAdapted: true,

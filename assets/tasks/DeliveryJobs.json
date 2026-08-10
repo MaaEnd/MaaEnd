@@ -8,9 +8,7 @@
             "option": [
                 "ValleyIV",
                 "Wuling",
-                "PackCargoSelectItem",
-                "DeliveryJobsAcceptJobOnly",
-                "DeliveryJobsPackCargoOnly"
+                "PackCargoSelectItem"
             ],
             "controller": [
                 "ADB",
@@ -56,73 +54,793 @@
             ]
         },
         "OriginiumSciencePark": {
-            "type": "switch",
+            "type": "select",
             "label": "$global.region.OriginiumSciencePark",
-            "default_case": "Yes",
             "cases": [
                 {
-                    "name": "Yes",
+                    "name": "Transfer",
+                    "label": "$task.DeliveryJobs.DepotAction.Transfer",
                     "pipeline_override": {
-                        "DeliveryJobsEnterOriginiumScienceParkCargo": {
+                        "DeliveryJobsEnterOriginiumScienceParkDeliveryJob": {
                             "enabled": true
+                        },
+                        "DeliveryJobsEnterOriginiumScienceParkCargo": {
+                            "enabled": true,
+                            "anchor": {
+                                "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillValleyIV",
+                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
+                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStopForOngoingDelivery",
+                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
+                            }
+                        },
+                        "DeliveryJobsCheckOriginiumScienceParkCargo": {
+                            "expected": [
+                                "查看报价",
+                                "查看報價",
+                                "(?i)Check\\s*Bid",
+                                "希望価格確認",
+                                "货物装箱",
+                                "貨物裝箱",
+                                "(?i)Pack\\s*Goods",
+                                "パッキング",
+                                "화물 포장",
+                                "입찰 보기"
+                            ]
                         }
                     }
                 },
                 {
-                    "name": "No",
+                    "name": "ByQuote",
+                    "label": "$task.DeliveryJobs.DepotAction.ByQuote",
+                    "option": [
+                        "DeliveryJobsQuoteThresholdOriginiumSciencePark",
+                        "DeliveryJobsAtLeastMinimumQuoteActionOriginiumSciencePark",
+                        "DeliveryJobsBelowMinimumQuoteActionOriginiumSciencePark"
+                    ],
                     "pipeline_override": {
+                        "DeliveryJobsEnterOriginiumScienceParkDeliveryJob": {
+                            "enabled": false
+                        },
+                        "DeliveryJobsEnterOriginiumScienceParkCargo": {
+                            "enabled": true,
+                            "anchor": {
+                                "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillValleyIV",
+                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsDecideOriginiumScienceParkQuote",
+                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStopForOngoingDelivery",
+                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
+                            }
+                        },
+                        "DeliveryJobsCheckOriginiumScienceParkCargo": {
+                            "expected": [
+                                "查看报价",
+                                "查看報價",
+                                "(?i)Check\\s*Bid",
+                                "希望価格確認",
+                                "货物装箱",
+                                "貨物裝箱",
+                                "(?i)Pack\\s*Goods",
+                                "パッキング",
+                                "화물 포장",
+                                "입찰 보기"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "AcceptJobOnly",
+                    "label": "$task.DeliveryJobs.DepotAction.AcceptJobOnly",
+                    "pipeline_override": {
+                        "DeliveryJobsEnterOriginiumScienceParkDeliveryJob": {
+                            "enabled": false
+                        },
+                        "DeliveryJobsEnterOriginiumScienceParkCargo": {
+                            "enabled": true,
+                            "anchor": {
+                                "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillValleyIV",
+                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
+                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStopForOngoingDelivery",
+                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
+                            }
+                        },
+                        "DeliveryJobsCheckOriginiumScienceParkCargo": {
+                            "expected": [
+                                "查看报价",
+                                "查看報價",
+                                "(?i)Check\\s*Bid",
+                                "希望価格確認",
+                                "货物装箱",
+                                "貨物裝箱",
+                                "(?i)Pack\\s*Goods",
+                                "パッキング",
+                                "화물 포장",
+                                "입찰 보기"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "PackCargoOnly",
+                    "label": "$task.DeliveryJobs.DepotAction.PackCargoOnly",
+                    "pipeline_override": {
+                        "DeliveryJobsEnterOriginiumScienceParkDeliveryJob": {
+                            "enabled": false
+                        },
+                        "DeliveryJobsEnterOriginiumScienceParkCargo": {
+                            "enabled": true,
+                            "anchor": {
+                                "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillValleyIV",
+                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsBackToDepotFromBid",
+                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsSkipOngoingDelivery",
+                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
+                            }
+                        },
+                        "DeliveryJobsCheckOriginiumScienceParkCargo": {
+                            "expected": [
+                                "货物装箱",
+                                "貨物裝箱",
+                                "(?i)Pack\\s*Goods",
+                                "パッキング",
+                                "화물 포장"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Disabled",
+                    "label": "$task.DeliveryJobs.DepotAction.Disabled",
+                    "pipeline_override": {
+                        "DeliveryJobsEnterOriginiumScienceParkDeliveryJob": {
+                            "enabled": false
+                        },
                         "DeliveryJobsEnterOriginiumScienceParkCargo": {
                             "enabled": false
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Transfer"
+        },
+        "DeliveryJobsQuoteThresholdOriginiumSciencePark": {
+            "type": "input",
+            "label": "$task.DeliveryJobs.QuoteThreshold.label",
+            "description": "$task.DeliveryJobs.QuoteThreshold.description",
+            "inputs": [
+                {
+                    "name": "DeliveryJobsQuoteThresholdOriginiumScienceParkValue",
+                    "label": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.label",
+                    "description": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.description",
+                    "pipeline_type": "string",
+                    "verify": "^\\d+$",
+                    "default": "119000",
+                    "pattern_msg": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.pattern_msg"
+                }
+            ],
+            "pipeline_override": {
+                "DeliveryJobsOriginiumScienceParkQuoteAtLeastMinimum": {
+                    "custom_recognition_param": {
+                        "expression": "{DeliveryJobsSelectedBidPrice}>={DeliveryJobsQuoteThresholdOriginiumScienceParkValue}"
+                    }
+                },
+                "DeliveryJobsOriginiumScienceParkQuoteBelowMinimum": {
+                    "custom_recognition_param": {
+                        "expression": "{DeliveryJobsSelectedBidPrice}<{DeliveryJobsQuoteThresholdOriginiumScienceParkValue}"
+                    }
+                }
+            }
+        },
+        "DeliveryJobsAtLeastMinimumQuoteActionOriginiumSciencePark": {
+            "type": "select",
+            "label": "$task.DeliveryJobs.AtLeastMinimumQuoteAction.label",
+            "description": "$task.DeliveryJobs.AtLeastMinimumQuoteAction.description",
+            "cases": [
+                {
+                    "name": "Transfer",
+                    "label": "$task.DeliveryJobs.QuoteAction.Transfer",
+                    "pipeline_override": {
+                        "DeliveryJobsOriginiumScienceParkQuoteAtLeastMinimum": {
+                            "anchor": {
+                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteTransferJob",
+                                "DeliveryJobsGoToDepot": "DeliveryJobsReturnAndTransferOriginiumSciencePark"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "AcceptJobOnly",
+                    "label": "$task.DeliveryJobs.QuoteAction.AcceptJobOnly",
+                    "pipeline_override": {
+                        "DeliveryJobsOriginiumScienceParkQuoteAtLeastMinimum": {
+                            "anchor": {
+                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
+                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "DoNotAccept",
+                    "label": "$task.DeliveryJobs.QuoteAction.DoNotAccept",
+                    "pipeline_override": {
+                        "DeliveryJobsOriginiumScienceParkQuoteAtLeastMinimum": {
+                            "anchor": {
+                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteDoNotAccept",
+                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
+                            }
+                        }
+                    }
+                }
+            ],
+            "default_case": "Transfer"
+        },
+        "DeliveryJobsBelowMinimumQuoteActionOriginiumSciencePark": {
+            "type": "select",
+            "label": "$task.DeliveryJobs.BelowMinimumQuoteAction.label",
+            "description": "$task.DeliveryJobs.BelowMinimumQuoteAction.description",
+            "cases": [
+                {
+                    "name": "Transfer",
+                    "label": "$task.DeliveryJobs.QuoteAction.Transfer",
+                    "pipeline_override": {
+                        "DeliveryJobsOriginiumScienceParkQuoteBelowMinimum": {
+                            "anchor": {
+                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteTransferJob",
+                                "DeliveryJobsGoToDepot": "DeliveryJobsReturnAndTransferOriginiumSciencePark"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "AcceptJobOnly",
+                    "label": "$task.DeliveryJobs.QuoteAction.AcceptJobOnly",
+                    "pipeline_override": {
+                        "DeliveryJobsOriginiumScienceParkQuoteBelowMinimum": {
+                            "anchor": {
+                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
+                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "DoNotAccept",
+                    "label": "$task.DeliveryJobs.QuoteAction.DoNotAccept",
+                    "pipeline_override": {
+                        "DeliveryJobsOriginiumScienceParkQuoteBelowMinimum": {
+                            "anchor": {
+                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteDoNotAccept",
+                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
+                            }
+                        }
+                    }
+                }
+            ],
+            "default_case": "AcceptJobOnly"
         },
         "OriginLodespring": {
-            "type": "switch",
+            "type": "select",
             "label": "$global.region.OriginLodespring",
-            "default_case": "Yes",
             "cases": [
                 {
-                    "name": "Yes",
+                    "name": "Transfer",
+                    "label": "$task.DeliveryJobs.DepotAction.Transfer",
                     "pipeline_override": {
-                        "DeliveryJobsEnterOriginLodespringCargo": {
+                        "DeliveryJobsEnterOriginLodespringDeliveryJob": {
                             "enabled": true
+                        },
+                        "DeliveryJobsEnterOriginLodespringCargo": {
+                            "enabled": true,
+                            "anchor": {
+                                "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillValleyIV",
+                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
+                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStopForOngoingDelivery",
+                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
+                            }
+                        },
+                        "DeliveryJobsCheckOriginLodespringCargo": {
+                            "expected": [
+                                "查看报价",
+                                "查看報價",
+                                "(?i)Check\\s*Bid",
+                                "希望価格確認",
+                                "货物装箱",
+                                "貨物裝箱",
+                                "(?i)Pack\\s*Goods",
+                                "パッキング",
+                                "화물 포장",
+                                "입찰 보기"
+                            ]
                         }
                     }
                 },
                 {
-                    "name": "No",
+                    "name": "ByQuote",
+                    "label": "$task.DeliveryJobs.DepotAction.ByQuote",
+                    "option": [
+                        "DeliveryJobsQuoteThresholdOriginLodespring",
+                        "DeliveryJobsAtLeastMinimumQuoteActionOriginLodespring",
+                        "DeliveryJobsBelowMinimumQuoteActionOriginLodespring"
+                    ],
                     "pipeline_override": {
+                        "DeliveryJobsEnterOriginLodespringDeliveryJob": {
+                            "enabled": false
+                        },
+                        "DeliveryJobsEnterOriginLodespringCargo": {
+                            "enabled": true,
+                            "anchor": {
+                                "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillValleyIV",
+                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsDecideOriginLodespringQuote",
+                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStopForOngoingDelivery",
+                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
+                            }
+                        },
+                        "DeliveryJobsCheckOriginLodespringCargo": {
+                            "expected": [
+                                "查看报价",
+                                "查看報價",
+                                "(?i)Check\\s*Bid",
+                                "希望価格確認",
+                                "货物装箱",
+                                "貨物裝箱",
+                                "(?i)Pack\\s*Goods",
+                                "パッキング",
+                                "화물 포장",
+                                "입찰 보기"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "AcceptJobOnly",
+                    "label": "$task.DeliveryJobs.DepotAction.AcceptJobOnly",
+                    "pipeline_override": {
+                        "DeliveryJobsEnterOriginLodespringDeliveryJob": {
+                            "enabled": false
+                        },
+                        "DeliveryJobsEnterOriginLodespringCargo": {
+                            "enabled": true,
+                            "anchor": {
+                                "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillValleyIV",
+                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
+                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStopForOngoingDelivery",
+                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
+                            }
+                        },
+                        "DeliveryJobsCheckOriginLodespringCargo": {
+                            "expected": [
+                                "查看报价",
+                                "查看報價",
+                                "(?i)Check\\s*Bid",
+                                "希望価格確認",
+                                "货物装箱",
+                                "貨物裝箱",
+                                "(?i)Pack\\s*Goods",
+                                "パッキング",
+                                "화물 포장",
+                                "입찰 보기"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "PackCargoOnly",
+                    "label": "$task.DeliveryJobs.DepotAction.PackCargoOnly",
+                    "pipeline_override": {
+                        "DeliveryJobsEnterOriginLodespringDeliveryJob": {
+                            "enabled": false
+                        },
+                        "DeliveryJobsEnterOriginLodespringCargo": {
+                            "enabled": true,
+                            "anchor": {
+                                "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillValleyIV",
+                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsBackToDepotFromBid",
+                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsSkipOngoingDelivery",
+                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
+                            }
+                        },
+                        "DeliveryJobsCheckOriginLodespringCargo": {
+                            "expected": [
+                                "货物装箱",
+                                "貨物裝箱",
+                                "(?i)Pack\\s*Goods",
+                                "パッキング",
+                                "화물 포장"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Disabled",
+                    "label": "$task.DeliveryJobs.DepotAction.Disabled",
+                    "pipeline_override": {
+                        "DeliveryJobsEnterOriginLodespringDeliveryJob": {
+                            "enabled": false
+                        },
                         "DeliveryJobsEnterOriginLodespringCargo": {
                             "enabled": false
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Transfer"
+        },
+        "DeliveryJobsQuoteThresholdOriginLodespring": {
+            "type": "input",
+            "label": "$task.DeliveryJobs.QuoteThreshold.label",
+            "description": "$task.DeliveryJobs.QuoteThreshold.description",
+            "inputs": [
+                {
+                    "name": "DeliveryJobsQuoteThresholdOriginLodespringValue",
+                    "label": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.label",
+                    "description": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.description",
+                    "pipeline_type": "string",
+                    "verify": "^\\d+$",
+                    "default": "119000",
+                    "pattern_msg": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.pattern_msg"
+                }
+            ],
+            "pipeline_override": {
+                "DeliveryJobsOriginLodespringQuoteAtLeastMinimum": {
+                    "custom_recognition_param": {
+                        "expression": "{DeliveryJobsSelectedBidPrice}>={DeliveryJobsQuoteThresholdOriginLodespringValue}"
+                    }
+                },
+                "DeliveryJobsOriginLodespringQuoteBelowMinimum": {
+                    "custom_recognition_param": {
+                        "expression": "{DeliveryJobsSelectedBidPrice}<{DeliveryJobsQuoteThresholdOriginLodespringValue}"
+                    }
+                }
+            }
+        },
+        "DeliveryJobsAtLeastMinimumQuoteActionOriginLodespring": {
+            "type": "select",
+            "label": "$task.DeliveryJobs.AtLeastMinimumQuoteAction.label",
+            "description": "$task.DeliveryJobs.AtLeastMinimumQuoteAction.description",
+            "cases": [
+                {
+                    "name": "Transfer",
+                    "label": "$task.DeliveryJobs.QuoteAction.Transfer",
+                    "pipeline_override": {
+                        "DeliveryJobsOriginLodespringQuoteAtLeastMinimum": {
+                            "anchor": {
+                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteTransferJob",
+                                "DeliveryJobsGoToDepot": "DeliveryJobsReturnAndTransferOriginLodespring"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "AcceptJobOnly",
+                    "label": "$task.DeliveryJobs.QuoteAction.AcceptJobOnly",
+                    "pipeline_override": {
+                        "DeliveryJobsOriginLodespringQuoteAtLeastMinimum": {
+                            "anchor": {
+                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
+                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "DoNotAccept",
+                    "label": "$task.DeliveryJobs.QuoteAction.DoNotAccept",
+                    "pipeline_override": {
+                        "DeliveryJobsOriginLodespringQuoteAtLeastMinimum": {
+                            "anchor": {
+                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteDoNotAccept",
+                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
+                            }
+                        }
+                    }
+                }
+            ],
+            "default_case": "Transfer"
+        },
+        "DeliveryJobsBelowMinimumQuoteActionOriginLodespring": {
+            "type": "select",
+            "label": "$task.DeliveryJobs.BelowMinimumQuoteAction.label",
+            "description": "$task.DeliveryJobs.BelowMinimumQuoteAction.description",
+            "cases": [
+                {
+                    "name": "Transfer",
+                    "label": "$task.DeliveryJobs.QuoteAction.Transfer",
+                    "pipeline_override": {
+                        "DeliveryJobsOriginLodespringQuoteBelowMinimum": {
+                            "anchor": {
+                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteTransferJob",
+                                "DeliveryJobsGoToDepot": "DeliveryJobsReturnAndTransferOriginLodespring"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "AcceptJobOnly",
+                    "label": "$task.DeliveryJobs.QuoteAction.AcceptJobOnly",
+                    "pipeline_override": {
+                        "DeliveryJobsOriginLodespringQuoteBelowMinimum": {
+                            "anchor": {
+                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
+                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "DoNotAccept",
+                    "label": "$task.DeliveryJobs.QuoteAction.DoNotAccept",
+                    "pipeline_override": {
+                        "DeliveryJobsOriginLodespringQuoteBelowMinimum": {
+                            "anchor": {
+                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteDoNotAccept",
+                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
+                            }
+                        }
+                    }
+                }
+            ],
+            "default_case": "AcceptJobOnly"
         },
         "PowerPlateau": {
-            "type": "switch",
+            "type": "select",
             "label": "$global.region.PowerPlateau",
-            "default_case": "Yes",
             "cases": [
                 {
-                    "name": "Yes",
+                    "name": "Transfer",
+                    "label": "$task.DeliveryJobs.DepotAction.Transfer",
                     "pipeline_override": {
-                        "DeliveryJobsEnterPowerPlateauCargo": {
+                        "DeliveryJobsEnterPowerPlateauDeliveryJob": {
                             "enabled": true
+                        },
+                        "DeliveryJobsEnterPowerPlateauCargo": {
+                            "enabled": true,
+                            "anchor": {
+                                "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillValleyIV",
+                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
+                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStopForOngoingDelivery",
+                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
+                            }
+                        },
+                        "DeliveryJobsCheckPowerPlateauCargo": {
+                            "expected": [
+                                "查看报价",
+                                "查看報價",
+                                "(?i)Check\\s*Bid",
+                                "希望価格確認",
+                                "货物装箱",
+                                "貨物裝箱",
+                                "(?i)Pack\\s*Goods",
+                                "パッキング",
+                                "화물 포장",
+                                "입찰 보기"
+                            ]
                         }
                     }
                 },
                 {
-                    "name": "No",
+                    "name": "ByQuote",
+                    "label": "$task.DeliveryJobs.DepotAction.ByQuote",
+                    "option": [
+                        "DeliveryJobsQuoteThresholdPowerPlateau",
+                        "DeliveryJobsAtLeastMinimumQuoteActionPowerPlateau",
+                        "DeliveryJobsBelowMinimumQuoteActionPowerPlateau"
+                    ],
                     "pipeline_override": {
+                        "DeliveryJobsEnterPowerPlateauDeliveryJob": {
+                            "enabled": false
+                        },
+                        "DeliveryJobsEnterPowerPlateauCargo": {
+                            "enabled": true,
+                            "anchor": {
+                                "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillValleyIV",
+                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsDecidePowerPlateauQuote",
+                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStopForOngoingDelivery",
+                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
+                            }
+                        },
+                        "DeliveryJobsCheckPowerPlateauCargo": {
+                            "expected": [
+                                "查看报价",
+                                "查看報價",
+                                "(?i)Check\\s*Bid",
+                                "希望価格確認",
+                                "货物装箱",
+                                "貨物裝箱",
+                                "(?i)Pack\\s*Goods",
+                                "パッキング",
+                                "화물 포장",
+                                "입찰 보기"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "AcceptJobOnly",
+                    "label": "$task.DeliveryJobs.DepotAction.AcceptJobOnly",
+                    "pipeline_override": {
+                        "DeliveryJobsEnterPowerPlateauDeliveryJob": {
+                            "enabled": false
+                        },
+                        "DeliveryJobsEnterPowerPlateauCargo": {
+                            "enabled": true,
+                            "anchor": {
+                                "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillValleyIV",
+                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
+                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStopForOngoingDelivery",
+                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
+                            }
+                        },
+                        "DeliveryJobsCheckPowerPlateauCargo": {
+                            "expected": [
+                                "查看报价",
+                                "查看報價",
+                                "(?i)Check\\s*Bid",
+                                "希望価格確認",
+                                "货物装箱",
+                                "貨物裝箱",
+                                "(?i)Pack\\s*Goods",
+                                "パッキング",
+                                "화물 포장",
+                                "입찰 보기"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "PackCargoOnly",
+                    "label": "$task.DeliveryJobs.DepotAction.PackCargoOnly",
+                    "pipeline_override": {
+                        "DeliveryJobsEnterPowerPlateauDeliveryJob": {
+                            "enabled": false
+                        },
+                        "DeliveryJobsEnterPowerPlateauCargo": {
+                            "enabled": true,
+                            "anchor": {
+                                "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillValleyIV",
+                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsBackToDepotFromBid",
+                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsSkipOngoingDelivery",
+                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
+                            }
+                        },
+                        "DeliveryJobsCheckPowerPlateauCargo": {
+                            "expected": [
+                                "货物装箱",
+                                "貨物裝箱",
+                                "(?i)Pack\\s*Goods",
+                                "パッキング",
+                                "화물 포장"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Disabled",
+                    "label": "$task.DeliveryJobs.DepotAction.Disabled",
+                    "pipeline_override": {
+                        "DeliveryJobsEnterPowerPlateauDeliveryJob": {
+                            "enabled": false
+                        },
                         "DeliveryJobsEnterPowerPlateauCargo": {
                             "enabled": false
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Transfer"
+        },
+        "DeliveryJobsQuoteThresholdPowerPlateau": {
+            "type": "input",
+            "label": "$task.DeliveryJobs.QuoteThreshold.label",
+            "description": "$task.DeliveryJobs.QuoteThreshold.description",
+            "inputs": [
+                {
+                    "name": "DeliveryJobsQuoteThresholdPowerPlateauValue",
+                    "label": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.label",
+                    "description": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.description",
+                    "pipeline_type": "string",
+                    "verify": "^\\d+$",
+                    "default": "119000",
+                    "pattern_msg": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.pattern_msg"
+                }
+            ],
+            "pipeline_override": {
+                "DeliveryJobsPowerPlateauQuoteAtLeastMinimum": {
+                    "custom_recognition_param": {
+                        "expression": "{DeliveryJobsSelectedBidPrice}>={DeliveryJobsQuoteThresholdPowerPlateauValue}"
+                    }
+                },
+                "DeliveryJobsPowerPlateauQuoteBelowMinimum": {
+                    "custom_recognition_param": {
+                        "expression": "{DeliveryJobsSelectedBidPrice}<{DeliveryJobsQuoteThresholdPowerPlateauValue}"
+                    }
+                }
+            }
+        },
+        "DeliveryJobsAtLeastMinimumQuoteActionPowerPlateau": {
+            "type": "select",
+            "label": "$task.DeliveryJobs.AtLeastMinimumQuoteAction.label",
+            "description": "$task.DeliveryJobs.AtLeastMinimumQuoteAction.description",
+            "cases": [
+                {
+                    "name": "Transfer",
+                    "label": "$task.DeliveryJobs.QuoteAction.Transfer",
+                    "pipeline_override": {
+                        "DeliveryJobsPowerPlateauQuoteAtLeastMinimum": {
+                            "anchor": {
+                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteTransferJob",
+                                "DeliveryJobsGoToDepot": "DeliveryJobsReturnAndTransferPowerPlateau"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "AcceptJobOnly",
+                    "label": "$task.DeliveryJobs.QuoteAction.AcceptJobOnly",
+                    "pipeline_override": {
+                        "DeliveryJobsPowerPlateauQuoteAtLeastMinimum": {
+                            "anchor": {
+                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
+                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "DoNotAccept",
+                    "label": "$task.DeliveryJobs.QuoteAction.DoNotAccept",
+                    "pipeline_override": {
+                        "DeliveryJobsPowerPlateauQuoteAtLeastMinimum": {
+                            "anchor": {
+                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteDoNotAccept",
+                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
+                            }
+                        }
+                    }
+                }
+            ],
+            "default_case": "Transfer"
+        },
+        "DeliveryJobsBelowMinimumQuoteActionPowerPlateau": {
+            "type": "select",
+            "label": "$task.DeliveryJobs.BelowMinimumQuoteAction.label",
+            "description": "$task.DeliveryJobs.BelowMinimumQuoteAction.description",
+            "cases": [
+                {
+                    "name": "Transfer",
+                    "label": "$task.DeliveryJobs.QuoteAction.Transfer",
+                    "pipeline_override": {
+                        "DeliveryJobsPowerPlateauQuoteBelowMinimum": {
+                            "anchor": {
+                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteTransferJob",
+                                "DeliveryJobsGoToDepot": "DeliveryJobsReturnAndTransferPowerPlateau"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "AcceptJobOnly",
+                    "label": "$task.DeliveryJobs.QuoteAction.AcceptJobOnly",
+                    "pipeline_override": {
+                        "DeliveryJobsPowerPlateauQuoteBelowMinimum": {
+                            "anchor": {
+                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
+                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "DoNotAccept",
+                    "label": "$task.DeliveryJobs.QuoteAction.DoNotAccept",
+                    "pipeline_override": {
+                        "DeliveryJobsPowerPlateauQuoteBelowMinimum": {
+                            "anchor": {
+                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteDoNotAccept",
+                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
+                            }
+                        }
+                    }
+                }
+            ],
+            "default_case": "AcceptJobOnly"
         },
         "Wuling": {
             "type": "switch",
@@ -152,50 +870,530 @@
             ]
         },
         "WulingCity": {
-            "type": "switch",
+            "type": "select",
             "label": "$global.region.WulingCity",
-            "default_case": "Yes",
             "cases": [
                 {
-                    "name": "Yes",
+                    "name": "Transfer",
+                    "label": "$task.DeliveryJobs.DepotAction.Transfer",
                     "pipeline_override": {
-                        "DeliveryJobsEnterWulingCityCargo": {
+                        "DeliveryJobsEnterWulingCityDeliveryJob": {
                             "enabled": true
+                        },
+                        "DeliveryJobsEnterWulingCityCargo": {
+                            "enabled": true,
+                            "anchor": {
+                                "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillWuling",
+                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
+                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStopForOngoingDelivery",
+                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
+                            }
+                        },
+                        "DeliveryJobsCheckWulingCityCargo": {
+                            "expected": [
+                                "查看报价",
+                                "查看報價",
+                                "(?i)Check\\s*Bid",
+                                "希望価格確認",
+                                "货物装箱",
+                                "貨物裝箱",
+                                "(?i)Pack\\s*Goods",
+                                "パッキング",
+                                "화물 포장",
+                                "입찰 보기"
+                            ]
                         }
                     }
                 },
                 {
-                    "name": "No",
+                    "name": "ByQuote",
+                    "label": "$task.DeliveryJobs.DepotAction.ByQuote",
+                    "option": [
+                        "DeliveryJobsQuoteThresholdWulingCity",
+                        "DeliveryJobsAtLeastMinimumQuoteActionWulingCity",
+                        "DeliveryJobsBelowMinimumQuoteActionWulingCity"
+                    ],
                     "pipeline_override": {
+                        "DeliveryJobsEnterWulingCityDeliveryJob": {
+                            "enabled": false
+                        },
+                        "DeliveryJobsEnterWulingCityCargo": {
+                            "enabled": true,
+                            "anchor": {
+                                "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillWuling",
+                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsDecideWulingCityQuote",
+                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStopForOngoingDelivery",
+                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
+                            }
+                        },
+                        "DeliveryJobsCheckWulingCityCargo": {
+                            "expected": [
+                                "查看报价",
+                                "查看報價",
+                                "(?i)Check\\s*Bid",
+                                "希望価格確認",
+                                "货物装箱",
+                                "貨物裝箱",
+                                "(?i)Pack\\s*Goods",
+                                "パッキング",
+                                "화물 포장",
+                                "입찰 보기"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "AcceptJobOnly",
+                    "label": "$task.DeliveryJobs.DepotAction.AcceptJobOnly",
+                    "pipeline_override": {
+                        "DeliveryJobsEnterWulingCityDeliveryJob": {
+                            "enabled": false
+                        },
+                        "DeliveryJobsEnterWulingCityCargo": {
+                            "enabled": true,
+                            "anchor": {
+                                "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillWuling",
+                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
+                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStopForOngoingDelivery",
+                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
+                            }
+                        },
+                        "DeliveryJobsCheckWulingCityCargo": {
+                            "expected": [
+                                "查看报价",
+                                "查看報價",
+                                "(?i)Check\\s*Bid",
+                                "希望価格確認",
+                                "货物装箱",
+                                "貨物裝箱",
+                                "(?i)Pack\\s*Goods",
+                                "パッキング",
+                                "화물 포장",
+                                "입찰 보기"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "PackCargoOnly",
+                    "label": "$task.DeliveryJobs.DepotAction.PackCargoOnly",
+                    "pipeline_override": {
+                        "DeliveryJobsEnterWulingCityDeliveryJob": {
+                            "enabled": false
+                        },
+                        "DeliveryJobsEnterWulingCityCargo": {
+                            "enabled": true,
+                            "anchor": {
+                                "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillWuling",
+                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsBackToDepotFromBid",
+                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsSkipOngoingDelivery",
+                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
+                            }
+                        },
+                        "DeliveryJobsCheckWulingCityCargo": {
+                            "expected": [
+                                "货物装箱",
+                                "貨物裝箱",
+                                "(?i)Pack\\s*Goods",
+                                "パッキング",
+                                "화물 포장"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Disabled",
+                    "label": "$task.DeliveryJobs.DepotAction.Disabled",
+                    "pipeline_override": {
+                        "DeliveryJobsEnterWulingCityDeliveryJob": {
+                            "enabled": false
+                        },
                         "DeliveryJobsEnterWulingCityCargo": {
                             "enabled": false
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Transfer"
+        },
+        "DeliveryJobsQuoteThresholdWulingCity": {
+            "type": "input",
+            "label": "$task.DeliveryJobs.QuoteThreshold.label",
+            "description": "$task.DeliveryJobs.QuoteThreshold.description",
+            "inputs": [
+                {
+                    "name": "DeliveryJobsQuoteThresholdWulingCityValue",
+                    "label": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.label",
+                    "description": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.description",
+                    "pipeline_type": "string",
+                    "verify": "^\\d+$",
+                    "default": "119000",
+                    "pattern_msg": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.pattern_msg"
+                }
+            ],
+            "pipeline_override": {
+                "DeliveryJobsWulingCityQuoteAtLeastMinimum": {
+                    "custom_recognition_param": {
+                        "expression": "{DeliveryJobsSelectedBidPrice}>={DeliveryJobsQuoteThresholdWulingCityValue}"
+                    }
+                },
+                "DeliveryJobsWulingCityQuoteBelowMinimum": {
+                    "custom_recognition_param": {
+                        "expression": "{DeliveryJobsSelectedBidPrice}<{DeliveryJobsQuoteThresholdWulingCityValue}"
+                    }
+                }
+            }
+        },
+        "DeliveryJobsAtLeastMinimumQuoteActionWulingCity": {
+            "type": "select",
+            "label": "$task.DeliveryJobs.AtLeastMinimumQuoteAction.label",
+            "description": "$task.DeliveryJobs.AtLeastMinimumQuoteAction.description",
+            "cases": [
+                {
+                    "name": "Transfer",
+                    "label": "$task.DeliveryJobs.QuoteAction.Transfer",
+                    "pipeline_override": {
+                        "DeliveryJobsWulingCityQuoteAtLeastMinimum": {
+                            "anchor": {
+                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteTransferJob",
+                                "DeliveryJobsGoToDepot": "DeliveryJobsReturnAndTransferWulingCity"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "AcceptJobOnly",
+                    "label": "$task.DeliveryJobs.QuoteAction.AcceptJobOnly",
+                    "pipeline_override": {
+                        "DeliveryJobsWulingCityQuoteAtLeastMinimum": {
+                            "anchor": {
+                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
+                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "DoNotAccept",
+                    "label": "$task.DeliveryJobs.QuoteAction.DoNotAccept",
+                    "pipeline_override": {
+                        "DeliveryJobsWulingCityQuoteAtLeastMinimum": {
+                            "anchor": {
+                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteDoNotAccept",
+                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
+                            }
+                        }
+                    }
+                }
+            ],
+            "default_case": "Transfer"
+        },
+        "DeliveryJobsBelowMinimumQuoteActionWulingCity": {
+            "type": "select",
+            "label": "$task.DeliveryJobs.BelowMinimumQuoteAction.label",
+            "description": "$task.DeliveryJobs.BelowMinimumQuoteAction.description",
+            "cases": [
+                {
+                    "name": "Transfer",
+                    "label": "$task.DeliveryJobs.QuoteAction.Transfer",
+                    "pipeline_override": {
+                        "DeliveryJobsWulingCityQuoteBelowMinimum": {
+                            "anchor": {
+                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteTransferJob",
+                                "DeliveryJobsGoToDepot": "DeliveryJobsReturnAndTransferWulingCity"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "AcceptJobOnly",
+                    "label": "$task.DeliveryJobs.QuoteAction.AcceptJobOnly",
+                    "pipeline_override": {
+                        "DeliveryJobsWulingCityQuoteBelowMinimum": {
+                            "anchor": {
+                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
+                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "DoNotAccept",
+                    "label": "$task.DeliveryJobs.QuoteAction.DoNotAccept",
+                    "pipeline_override": {
+                        "DeliveryJobsWulingCityQuoteBelowMinimum": {
+                            "anchor": {
+                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteDoNotAccept",
+                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
+                            }
+                        }
+                    }
+                }
+            ],
+            "default_case": "AcceptJobOnly"
         },
         "TestArea": {
-            "type": "switch",
+            "type": "select",
             "label": "$global.region.TestArea",
-            "default_case": "Yes",
             "cases": [
                 {
-                    "name": "Yes",
+                    "name": "Transfer",
+                    "label": "$task.DeliveryJobs.DepotAction.Transfer",
                     "pipeline_override": {
-                        "DeliveryJobsEnterTestAreaCargo": {
+                        "DeliveryJobsEnterTestAreaDeliveryJob": {
                             "enabled": true
+                        },
+                        "DeliveryJobsEnterTestAreaCargo": {
+                            "enabled": true,
+                            "anchor": {
+                                "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillWuling",
+                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
+                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStopForOngoingDelivery",
+                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
+                            }
+                        },
+                        "DeliveryJobsCheckTestAreaCargo": {
+                            "expected": [
+                                "查看报价",
+                                "查看報價",
+                                "(?i)Check\\s*Bid",
+                                "希望価格確認",
+                                "货物装箱",
+                                "貨物裝箱",
+                                "(?i)Pack\\s*Goods",
+                                "パッキング",
+                                "화물 포장",
+                                "입찰 보기"
+                            ]
                         }
                     }
                 },
                 {
-                    "name": "No",
+                    "name": "ByQuote",
+                    "label": "$task.DeliveryJobs.DepotAction.ByQuote",
+                    "option": [
+                        "DeliveryJobsQuoteThresholdTestArea",
+                        "DeliveryJobsAtLeastMinimumQuoteActionTestArea",
+                        "DeliveryJobsBelowMinimumQuoteActionTestArea"
+                    ],
                     "pipeline_override": {
+                        "DeliveryJobsEnterTestAreaDeliveryJob": {
+                            "enabled": false
+                        },
+                        "DeliveryJobsEnterTestAreaCargo": {
+                            "enabled": true,
+                            "anchor": {
+                                "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillWuling",
+                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsDecideTestAreaQuote",
+                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStopForOngoingDelivery",
+                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
+                            }
+                        },
+                        "DeliveryJobsCheckTestAreaCargo": {
+                            "expected": [
+                                "查看报价",
+                                "查看報價",
+                                "(?i)Check\\s*Bid",
+                                "希望価格確認",
+                                "货物装箱",
+                                "貨物裝箱",
+                                "(?i)Pack\\s*Goods",
+                                "パッキング",
+                                "화물 포장",
+                                "입찰 보기"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "AcceptJobOnly",
+                    "label": "$task.DeliveryJobs.DepotAction.AcceptJobOnly",
+                    "pipeline_override": {
+                        "DeliveryJobsEnterTestAreaDeliveryJob": {
+                            "enabled": false
+                        },
+                        "DeliveryJobsEnterTestAreaCargo": {
+                            "enabled": true,
+                            "anchor": {
+                                "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillWuling",
+                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
+                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStopForOngoingDelivery",
+                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
+                            }
+                        },
+                        "DeliveryJobsCheckTestAreaCargo": {
+                            "expected": [
+                                "查看报价",
+                                "查看報價",
+                                "(?i)Check\\s*Bid",
+                                "希望価格確認",
+                                "货物装箱",
+                                "貨物裝箱",
+                                "(?i)Pack\\s*Goods",
+                                "パッキング",
+                                "화물 포장",
+                                "입찰 보기"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "PackCargoOnly",
+                    "label": "$task.DeliveryJobs.DepotAction.PackCargoOnly",
+                    "pipeline_override": {
+                        "DeliveryJobsEnterTestAreaDeliveryJob": {
+                            "enabled": false
+                        },
+                        "DeliveryJobsEnterTestAreaCargo": {
+                            "enabled": true,
+                            "anchor": {
+                                "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillWuling",
+                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsBackToDepotFromBid",
+                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsSkipOngoingDelivery",
+                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
+                            }
+                        },
+                        "DeliveryJobsCheckTestAreaCargo": {
+                            "expected": [
+                                "货物装箱",
+                                "貨物裝箱",
+                                "(?i)Pack\\s*Goods",
+                                "パッキング",
+                                "화물 포장"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Disabled",
+                    "label": "$task.DeliveryJobs.DepotAction.Disabled",
+                    "pipeline_override": {
+                        "DeliveryJobsEnterTestAreaDeliveryJob": {
+                            "enabled": false
+                        },
                         "DeliveryJobsEnterTestAreaCargo": {
                             "enabled": false
                         }
                     }
                 }
-            ]
+            ],
+            "default_case": "Transfer"
+        },
+        "DeliveryJobsQuoteThresholdTestArea": {
+            "type": "input",
+            "label": "$task.DeliveryJobs.QuoteThreshold.label",
+            "description": "$task.DeliveryJobs.QuoteThreshold.description",
+            "inputs": [
+                {
+                    "name": "DeliveryJobsQuoteThresholdTestAreaValue",
+                    "label": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.label",
+                    "description": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.description",
+                    "pipeline_type": "string",
+                    "verify": "^\\d+$",
+                    "default": "119000",
+                    "pattern_msg": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.pattern_msg"
+                }
+            ],
+            "pipeline_override": {
+                "DeliveryJobsTestAreaQuoteAtLeastMinimum": {
+                    "custom_recognition_param": {
+                        "expression": "{DeliveryJobsSelectedBidPrice}>={DeliveryJobsQuoteThresholdTestAreaValue}"
+                    }
+                },
+                "DeliveryJobsTestAreaQuoteBelowMinimum": {
+                    "custom_recognition_param": {
+                        "expression": "{DeliveryJobsSelectedBidPrice}<{DeliveryJobsQuoteThresholdTestAreaValue}"
+                    }
+                }
+            }
+        },
+        "DeliveryJobsAtLeastMinimumQuoteActionTestArea": {
+            "type": "select",
+            "label": "$task.DeliveryJobs.AtLeastMinimumQuoteAction.label",
+            "description": "$task.DeliveryJobs.AtLeastMinimumQuoteAction.description",
+            "cases": [
+                {
+                    "name": "Transfer",
+                    "label": "$task.DeliveryJobs.QuoteAction.Transfer",
+                    "pipeline_override": {
+                        "DeliveryJobsTestAreaQuoteAtLeastMinimum": {
+                            "anchor": {
+                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteTransferJob",
+                                "DeliveryJobsGoToDepot": "DeliveryJobsReturnAndTransferTestArea"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "AcceptJobOnly",
+                    "label": "$task.DeliveryJobs.QuoteAction.AcceptJobOnly",
+                    "pipeline_override": {
+                        "DeliveryJobsTestAreaQuoteAtLeastMinimum": {
+                            "anchor": {
+                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
+                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "DoNotAccept",
+                    "label": "$task.DeliveryJobs.QuoteAction.DoNotAccept",
+                    "pipeline_override": {
+                        "DeliveryJobsTestAreaQuoteAtLeastMinimum": {
+                            "anchor": {
+                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteDoNotAccept",
+                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
+                            }
+                        }
+                    }
+                }
+            ],
+            "default_case": "Transfer"
+        },
+        "DeliveryJobsBelowMinimumQuoteActionTestArea": {
+            "type": "select",
+            "label": "$task.DeliveryJobs.BelowMinimumQuoteAction.label",
+            "description": "$task.DeliveryJobs.BelowMinimumQuoteAction.description",
+            "cases": [
+                {
+                    "name": "Transfer",
+                    "label": "$task.DeliveryJobs.QuoteAction.Transfer",
+                    "pipeline_override": {
+                        "DeliveryJobsTestAreaQuoteBelowMinimum": {
+                            "anchor": {
+                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteTransferJob",
+                                "DeliveryJobsGoToDepot": "DeliveryJobsReturnAndTransferTestArea"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "AcceptJobOnly",
+                    "label": "$task.DeliveryJobs.QuoteAction.AcceptJobOnly",
+                    "pipeline_override": {
+                        "DeliveryJobsTestAreaQuoteBelowMinimum": {
+                            "anchor": {
+                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
+                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "DoNotAccept",
+                    "label": "$task.DeliveryJobs.QuoteAction.DoNotAccept",
+                    "pipeline_override": {
+                        "DeliveryJobsTestAreaQuoteBelowMinimum": {
+                            "anchor": {
+                                "DeliveryJobsQuoteAction": "DeliveryJobsQuoteDoNotAccept",
+                                "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
+                            }
+                        }
+                    }
+                }
+            ],
+            "default_case": "AcceptJobOnly"
         },
         "PackCargoSelectItem": {
             "type": "switch",
@@ -352,126 +1550,6 @@
                 }
             ],
             "default_case": "砂叶粉末"
-        },
-        "DeliveryJobsAcceptJobOnly": {
-            "type": "switch",
-            "label": "$task.DeliveryJobs.AcceptJobOnly.label",
-            "description": "$task.DeliveryJobs.AcceptJobOnly.description",
-            "cases": [
-                {
-                    "name": "Yes",
-                    "pipeline_override": {
-                        // 确保不会进入送货任务，从而避免点击转交按钮
-                        "DeliveryJobsEnterOriginiumScienceParkDeliveryJob": {
-                            "enabled": false
-                        },
-                        "DeliveryJobsEnterOriginLodespringDeliveryJob": {
-                            "enabled": false
-                        },
-                        "DeliveryJobsEnterPowerPlateauDeliveryJob": {
-                            "enabled": false
-                        },
-                        "DeliveryJobsEnterWulingCityDeliveryJob": {
-                            "enabled": false
-                        },
-                        "DeliveryJobsEnterTestAreaDeliveryJob": {
-                            "enabled": false
-                        },
-                        // 回到大世界后直接停止任务，不继续后续流程
-                        "DeliveryJobsBackToDepot": {
-                            "next": [
-                                "DeliveryJobsAcceptJobOnly"
-                            ]
-                        }
-                    }
-                },
-                {
-                    "name": "No"
-                }
-            ],
-            "default_case": "No"
-        },
-        "DeliveryJobsPackCargoOnly": {
-            "type": "switch",
-            "label": "$task.DeliveryJobs.PackCargoOnly.label",
-            "description": "$task.DeliveryJobs.PackCargoOnly.description",
-            "cases": [
-                {
-                    "name": "Yes",
-                    "pipeline_override": {
-                        // 确保不会进入送货任务，从而避免点击转交按钮
-                        "DeliveryJobsEnterOriginiumScienceParkDeliveryJob": {
-                            "enabled": false
-                        },
-                        "DeliveryJobsEnterOriginLodespringDeliveryJob": {
-                            "enabled": false
-                        },
-                        "DeliveryJobsEnterPowerPlateauDeliveryJob": {
-                            "enabled": false
-                        },
-                        "DeliveryJobsEnterWulingCityDeliveryJob": {
-                            "enabled": false
-                        },
-                        "DeliveryJobsEnterTestAreaDeliveryJob": {
-                            "enabled": false
-                        },
-                        "DeliveryJobsInCargoRedistributionBid": {
-                            "next": [
-                                "DeliveryJobsBackToDepotFromBid"
-                            ]
-                        },
-                        "DeliveryJobsCheckOriginiumScienceParkCargo": {
-                            "expected": [
-                                "货物装箱",
-                                "貨物裝箱",
-                                "(?i)Pack\\s*Goods",
-                                "パッキング",
-                                "화물 포장"
-                            ]
-                        },
-                        "DeliveryJobsCheckOriginLodespringCargo": {
-                            "expected": [
-                                "货物装箱",
-                                "貨物裝箱",
-                                "(?i)Pack\\s*Goods",
-                                "パッキング",
-                                "화물 포장"
-                            ]
-                        },
-                        "DeliveryJobsCheckPowerPlateauCargo": {
-                            "expected": [
-                                "货物装箱",
-                                "貨物裝箱",
-                                "(?i)Pack\\s*Goods",
-                                "パッキング",
-                                "화물 포장"
-                            ]
-                        },
-                        "DeliveryJobsCheckWulingCityCargo": {
-                            "expected": [
-                                "货物装箱",
-                                "貨物裝箱",
-                                "(?i)Pack\\s*Goods",
-                                "パッキング",
-                                "화물 포장"
-                            ]
-                        },
-                        "DeliveryJobsCheckTestAreaCargo": {
-                            "expected": [
-                                "货物装箱",
-                                "貨物裝箱",
-                                "(?i)Pack\\s*Goods",
-                                "パッキング",
-                                "화물 포장"
-                            ]
-                        }
-                    }
-                },
-                {
-                    "name": "No"
-                }
-            ],
-            "default_case": "No"
         }
     }
 }

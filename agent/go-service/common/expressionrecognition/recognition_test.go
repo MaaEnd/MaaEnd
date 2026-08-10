@@ -24,6 +24,26 @@ func TestParseOCRNumericValue(t *testing.T) {
 			want: 13800,
 		},
 		{
+			name: "traditional chinese ten thousand suffix",
+			text: "1.38萬",
+			want: 13800,
+		},
+		{
+			name: "korean ten thousand suffix",
+			text: "1.38만",
+			want: 13800,
+		},
+		{
+			name: "traditional chinese hundred million suffix",
+			text: "1.2億",
+			want: 120000000,
+		},
+		{
+			name: "korean hundred million suffix",
+			text: "1.2억",
+			want: 120000000,
+		},
+		{
 			name: "western thousand suffix",
 			text: "13.8K",
 			want: 13800,

@@ -1,0 +1,8 @@
+{
+    "task": true,
+    "template": "task-template.mjs",
+    "data": "task-data.mjs",
+    "outputDir": "../../../assets/tasks",
+    "outputFile": "DeliveryJobs.json",
+    "format": true
+}

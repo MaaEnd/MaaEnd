@@ -25,7 +25,7 @@
   GET  /api/adb/devices       -> adb devices -l 枚举 (容错)
   GET  /api/wlroots/sockets   -> $XDG_RUNTIME_DIR 下 Wayland socket 枚举 (供 datalist)
   POST /api/connection/check  -> 主动探测当前连接配置是否可达 (win32 窗口 / adb 设备 / playcover 端口 / wlroots socket)
-  POST /api/locate-once       -> 单次游戏内定位 (临时连接, 取第 3 个有效帧的 x/y/zone)
+  POST /api/locate-once       -> 单次游戏内定位 (临时连接, 取第 3 个有效帧的位置与朝向)
   POST /api/import/analyze    -> 解析上传 JSON (路线/Assert); 缺 zone 时回片段供前端指定
   POST /api/import/finalize   -> 按片段 zone 指定定稿导入 (convert_maptracker+infer+normalize)
   POST /api/export/path       -> 点位 -> path 节点 + JSON 文本 (与 tk 逐字节一致)
@@ -86,7 +86,7 @@ from connectors import (  # noqa: E402
 from model import normalize_zone_id, resolve_zone_image  # noqa: E402
 from recastnav import DECK_BAND  # noqa: E402
 from recastnav_route import RecastEngine  # noqa: E402
-from recording_service import RecordingService  # noqa: E402
+from recording_service import LivePosition, RecordingService, parse_live_position  # noqa: E402
 from runtime import (  # noqa: E402
     AGENT_DIR,
     CPP_AGENT_EXE,
@@ -1234,6 +1234,17 @@ async def ws_record(websocket: WebSocket) -> None:
         def on_locator(text: str) -> None:
             push({"type": "locator", "text": text})
 
+        def on_live_position(position: LivePosition) -> None:
+            push(
+                {
+                    "type": "position",
+                    "x": position.x,
+                    "y": position.y,
+                    "zone": position.zone,
+                    "rot": position.rot,
+                }
+            )
+
         def on_clipboard(coord: str, status: str) -> None:
             _copy_to_clipboard(coord)  # 后端直接写系统剪贴板 (游戏持有焦点)
             push({"type": "toast", "coord": coord, "status": status})
@@ -1249,6 +1260,7 @@ async def ws_record(websocket: WebSocket) -> None:
             on_locator_detail=on_locator,
             on_clipboard=on_clipboard,
             on_force_waypoint=on_force_waypoint,
+            on_live_position=on_live_position,
         )
         service.start(_build_session_config(payload))
 
@@ -1291,7 +1303,7 @@ async def ws_record(websocket: WebSocket) -> None:
 
 
 def do_locate_once(runtime: Any, session_config: Any) -> dict[str, Any]:
-    """临时连接游戏并做一次定位: 采满 3 个有效帧后取第 3 帧的 (x, y, zone)。
+    """临时连接游戏并做一次定位: 采满 3 个有效帧后取第 3 帧的位置与朝向。
 
     每次调用独立起一个 cpp Agent 子进程 + 临时 Tasker (与录制会话互不复用),
     结束时 finally 终止 Agent。取第 3 帧而非第 1 帧: 前两帧可能是切图/打开地图
@@ -1346,12 +1358,10 @@ def do_locate_once(runtime: Any, session_config: Any) -> dict[str, Any]:
                         detail = json.loads(detail)
                     except json.JSONDecodeError:
                         detail = None
-                if isinstance(detail, dict) and detail.get("status") == 0:
-                    x = detail.get("x")
-                    y = detail.get("y")
-                    zone_id = normalize_zone_id(detail.get("mapName", ""))
-                    if zone_id and isinstance(x, (int, float)) and isinstance(y, (int, float)):
-                        valid_frames.append({"x": float(x), "y": float(y), "zone": zone_id})
+                if isinstance(detail, dict):
+                    position = parse_live_position(detail)
+                    if position is not None:
+                        valid_frames.append(position)
                         if len(valid_frames) >= 3:
                             break
             time.sleep(0.04)
@@ -1359,7 +1369,14 @@ def do_locate_once(runtime: Any, session_config: Any) -> dict[str, Any]:
         if len(valid_frames) < 3:
             raise RuntimeError(f"未能获取到足够的有效定位帧 (仅获取到 {len(valid_frames)} 帧)")
 
-        return {"ok": True, "x": valid_frames[2]["x"], "y": valid_frames[2]["y"], "zone": valid_frames[2]["zone"]}
+        position = valid_frames[2]
+        return {
+            "ok": True,
+            "x": position.x,
+            "y": position.y,
+            "zone": position.zone,
+            "rot": position.rot,
+        }
     finally:
         if agent_process:
             agent_process.terminate()

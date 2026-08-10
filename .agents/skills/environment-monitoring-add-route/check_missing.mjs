@@ -1,20 +1,20 @@
 /**
- * 检测 zmdmap 缓存数据中缺失或未完整适配的环境监测观察点。
+ * 检测统一游戏数据中缺失或未完整适配的环境监测观察点。
  * 运行方式（在仓库根目录）：
  *   node .agents/skills/environment-monitoring-add-route/check_missing.mjs
  */
 import {
     buildGeneratedIdIndex,
     collectMonitoringMissions,
-    KITE_STATION_DATA_PATH,
+    ENVIRONMENT_MONITORING_DATA_PATH,
     readJson,
     ROUTES_PATH,
 } from "../../../tools/pipeline-generate/EnvironmentMonitoring/generator/common.mjs";
 import {collectMissingRouteFields} from "../../../tools/pipeline-generate/EnvironmentMonitoring/generator/route-resolver.mjs";
 
-const kiteStationData = readJson(KITE_STATION_DATA_PATH);
+const environmentMonitoringData = readJson(ENVIRONMENT_MONITORING_DATA_PATH);
 const routes = readJson(ROUTES_PATH);
-const missions = collectMonitoringMissions(kiteStationData);
+const missions = collectMonitoringMissions(environmentMonitoringData);
 const idByMissionId = buildGeneratedIdIndex(missions);
 const routeByMissionId = new Map();
 
@@ -40,7 +40,7 @@ const pending = missions
         }
 
         return {
-            Name: mission.name?.["zh-CN"] || route?.Name || mission.missionId,
+            Name: mission.name?.zh_cn || route?.Name || mission.missionId,
             Id: route?.Id || idByMissionId.get(mission.missionId),
             MissionId: mission.missionId,
             MissingFields: missingFields,

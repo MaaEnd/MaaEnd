@@ -89,23 +89,40 @@ test("SellProduct temporary activity items stay recognizable but are not selecta
 
 test("SellProduct generated location items merge prosperity levels without applying a strategy order", () => {
     const data = {
+        items: {
+            low: {
+                rarity: 2,
+                names: {
+                    zh_cn: "低级",
+                    zh_tw: "低級",
+                    en_us: "Low",
+                    ja_jp: "低级",
+                    ko_kr: "낮음",
+                },
+            },
+            high_cheap: {rarity: 3, names: {zh_cn: "高级便宜"}},
+            high_expensive: {rarity: 3, names: {zh_cn: "高级昂贵"}},
+            event: {rarity: 5, names: {zh_cn: "息壤玉葫芦"}},
+        },
         settlements: {
             test: {
-                byProsperityLevel: {
-                    1: {
-                        tradeItems: [
-                            {itemId: "low", rarity: 2, unitPrice: 100, name: {CN: "低级", EN: "Low"}},
-                            {itemId: "high_cheap", rarity: 3, unitPrice: 80, name: {CN: "高级便宜"}},
-                            {itemId: "event", rarity: 5, unitPrice: 999, name: {CN: "息壤玉葫芦"}},
+                prosperity_levels: [
+                    {
+                        level: 1,
+                        trade_items: [
+                            {item_id: "low", unit_price: 100},
+                            {item_id: "high_cheap", unit_price: 80},
+                            {item_id: "event", unit_price: 999},
                         ],
                     },
-                    2: {
-                        tradeItems: [
-                            {itemId: "high_expensive", rarity: 3, unitPrice: 120, name: {CN: "高级昂贵"}},
-                            {itemId: "low", rarity: 2, unitPrice: 110, name: {TC: "低級", KR: "낮음"}},
+                    {
+                        level: 2,
+                        trade_items: [
+                            {item_id: "high_expensive", unit_price: 120},
+                            {item_id: "low", unit_price: 110},
                         ],
                     },
-                },
+                ],
             },
         },
     };
@@ -126,23 +143,25 @@ test("SellProduct generated location items merge prosperity levels without apply
 });
 
 test("SellProduct generated target operators prioritize prosperity before trade profit", () => {
-    const both = {charId: "chr_0003_both", name: {CN: "双加成", EN: "Both"}};
-    const money = {charId: "chr_0002_money", name: {CN: "收益", EN: "Money"}};
-    const exp = {charId: "chr_0001_exp", name: {CN: "经验", EN: "Exp"}};
+    const catalog = {
+        chr_0003_both: {id: "chr_0003_both", names: {zh_cn: "双加成", en_us: "Both"}},
+        chr_0002_money: {id: "chr_0002_money", names: {zh_cn: "收益", en_us: "Money"}},
+        chr_0001_exp: {id: "chr_0001_exp", names: {zh_cn: "经验", en_us: "Exp"}},
+    };
     const settlement = {
-        settlementFeatures: [
+        features: [
             {
-                bonuses: [{type: "expProfit"}],
-                matchingOperators: [
-                    exp,
-                    both,
+                bonus_types: ["expProfit"],
+                operator_ids: [
+                    "chr_0001_exp",
+                    "chr_0003_both",
                 ],
             },
             {
-                bonuses: [{type: "moneyProfit"}],
-                matchingOperators: [
-                    money,
-                    both,
+                bonus_types: ["moneyProfit"],
+                operator_ids: [
+                    "chr_0002_money",
+                    "chr_0003_both",
                 ],
             },
         ],
@@ -156,6 +175,7 @@ test("SellProduct generated target operators prioritize prosperity before trade 
         ],
         operators,
         true,
+        catalog,
     );
     assert.deepEqual(order, [
         {
@@ -177,34 +197,36 @@ test("SellProduct generated target operators prioritize prosperity before trade 
 });
 
 test("SellProduct generated operator order follows feature matches then descending character id", () => {
-    const mostMatches = {charId: "chr_0016_most", name: {CN: "三特性", EN: "Most"}};
-    const higherID = {charId: "chr_0033_higher", name: {CN: "二特性", EN: "Higher"}};
-    const lowerID = {charId: "chr_0004_lower", name: {CN: "一特性", EN: "Lower"}};
+    const catalog = {
+        chr_0016_most: {id: "chr_0016_most", names: {zh_cn: "三特性", en_us: "Most"}},
+        chr_0033_higher: {id: "chr_0033_higher", names: {zh_cn: "二特性", en_us: "Higher"}},
+        chr_0004_lower: {id: "chr_0004_lower", names: {zh_cn: "一特性", en_us: "Lower"}},
+    };
     const settlement = {
-        settlementFeatures: [
+        features: [
             {
-                bonuses: [{type: "moneyProfit"}],
-                matchingOperators: [
-                    lowerID,
-                    mostMatches,
-                    higherID,
+                bonus_types: ["moneyProfit"],
+                operator_ids: [
+                    "chr_0004_lower",
+                    "chr_0016_most",
+                    "chr_0033_higher",
                 ],
             },
             {
-                bonuses: [{type: "moneyProduceSpeed"}],
-                matchingOperators: [
-                    mostMatches,
-                    higherID,
+                bonus_types: ["moneyProduceSpeed"],
+                operator_ids: [
+                    "chr_0016_most",
+                    "chr_0033_higher",
                 ],
             },
             {
-                bonuses: [{type: "expProfit"}],
-                matchingOperators: [mostMatches],
+                bonus_types: ["expProfit"],
+                operator_ids: ["chr_0016_most"],
             },
         ],
     };
 
-    const order = buildLocationOperatorOrder(settlement, ["moneyProfit"], {}, true);
+    const order = buildLocationOperatorOrder(settlement, ["moneyProfit"], {}, true, catalog);
     assert.deepEqual(order, [
         {
             name: "Most",
@@ -226,18 +248,21 @@ test("SellProduct generated operator order follows feature matches then descendi
 
 test("SellProduct generated operator order rejects missing or malformed character ids", () => {
     for (const operator of [
-        {name: {CN: "缺少编号", EN: "Missing"}},
-        {charId: "invalid", name: {CN: "非法编号", EN: "Invalid"}},
+        {names: {zh_cn: "缺少编号", en_us: "Missing"}},
+        {id: "invalid", names: {zh_cn: "非法编号", en_us: "Invalid"}},
     ]) {
         const settlement = {
-            settlementFeatures: [
+            features: [
                 {
-                    bonuses: [{type: "moneyProfit"}],
-                    matchingOperators: [operator],
+                    bonus_types: ["moneyProfit"],
+                    operator_ids: ["test"],
                 },
             ],
         };
-        assert.throws(() => buildLocationOperatorOrder(settlement, ["moneyProfit"], {}, true), /has invalid charId/);
+        assert.throws(
+            () => buildLocationOperatorOrder(settlement, ["moneyProfit"], {}, true, {test: operator}),
+            /has invalid charId/,
+        );
     }
 });
 

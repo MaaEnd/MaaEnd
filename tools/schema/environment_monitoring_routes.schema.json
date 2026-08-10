@@ -241,17 +241,17 @@
             "MissionId": {
                 "type": "string",
                 "minLength": 1,
-                "description": "观察点任务 ID，用于在 model.mjs 中匹配 zmdmap 缓存数据 kite_station_i18n.json 的 missionId。该字段是 routes.json 的主键。"
+                "description": "观察点任务 ID，用于在 model.mjs 中匹配 zmdmap 精简数据 environment_monitoring.json 的 mission_id。该字段是 routes.json 的主键。"
             },
             "Name": {
                 "type": "string",
                 "minLength": 1,
-                "description": "观察点中文名，仅供人工阅读。生成器以 MissionId 匹配；Name 与 zmdmap 当前中文名不一致时会自动刷新。"
+                "description": "观察点中文名，仅供人工阅读。生成器以 MissionId 匹配；Name 与当前游戏数据中的中文名不一致时会自动刷新。"
             },
             "Id": {
                 "type": "string",
                 "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
-                "description": "最终模板使用的观察点节点 ID，用于拼接节点名和输出文件名（${Station}/${Id}.json）。生成器会按 zmdmap 英文名自动刷新，方便人工搜索对应节点。"
+                "description": "最终模板使用的观察点节点 ID，用于拼接节点名和输出文件名（${Station}/${Id}.json）。生成器会按当前游戏数据中的英文名自动刷新，方便人工搜索对应节点。"
             },
             "EnterMap": {
                 "type": "string",

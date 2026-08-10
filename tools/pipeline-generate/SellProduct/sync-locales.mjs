@@ -5,23 +5,21 @@ import {fileURLToPath, pathToFileURL} from "node:url";
 import {sellProductLocaleEntries, sellProductLocations} from "./model.mjs";
 import {sellProductItemLocaleEntries} from "./selection-data.mjs";
 
-// 根据 zmdmap 的 settlement_trade.json 自动维护 SellProduct 使用的国际化键。
+// 根据统一的 sell_product.json 自动维护 SellProduct 使用的国际化键。
 //
 // 这个脚本负责按数据源顺序同步据点，并补齐 locale 尚未登记的干员和物品：
 // 1. key 由 model.mjs 统一生成，避免同步脚本和 Pipeline 生成器采用不同命名规则；
-// 2. 据点名始终以 zmdmap 当前五语言文本为准，已有 locale 值也会同步覆盖；
+// 2. 据点名始终以当前游戏数据的五语言文本为准，已有 locale 值也会同步覆盖；
 // 3. 新键插入对应的业务分组，不追加到整个 JSON 的末尾；
 // 4. 写入前检查五语言完整性，重复执行时不产生新的文件变更。
 
-// settlement_trade.json 使用 CN/TC/EN/JP/KR，项目 locale 文件使用小写地区名。
-// 显式列出映射，既限制本脚本维护的语言范围，也避免依赖对象字段的偶然命名。
-const INTERFACE_LOCALES = {
-    CN: "zh_cn",
-    TC: "zh_tw",
-    EN: "en_us",
-    JP: "ja_jp",
-    KR: "ko_kr",
-};
+const INTERFACE_LOCALES = [
+    "zh_cn",
+    "zh_tw",
+    "en_us",
+    "ja_jp",
+    "ko_kr",
+];
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const LOCALE_DIR = resolve(__dirname, "../../../assets/locales/interface");
@@ -32,9 +30,9 @@ const SETTLEMENT_KEY_PREFIXES = [
 ];
 
 // 据点 key 完全由当前数据源的 RegionPrefix + LocationId 派生。每次同步都先移除整个据点分组，
-// 再按 sellProductLocations 的游戏据点顺序重建；已有 key 覆盖为 zmdmap 官方名称，
+// 再按 sellProductLocations 的游戏据点顺序重建；已有 key 覆盖为当前官方名称，
 // 不属于当前据点集合的 key 自动清理。
-export function rebuildSettlementMessages(messages, sourceLocale, insertBeforeKey) {
+export function rebuildSettlementMessages(messages, fileLocale, insertBeforeKey) {
     const syncedMessages = {};
     let inserted = 0;
     let removed = 0;
@@ -55,7 +53,7 @@ export function rebuildSettlementMessages(messages, sourceLocale, insertBeforeKe
 
         if (key === insertBeforeKey) {
             for (const entry of sellProductLocaleEntries.settlements) {
-                const officialName = entry.names[sourceLocale] || entry.names.CN || entry.names.EN || entry.key;
+                const officialName = entry.names[fileLocale] || entry.names.zh_cn || entry.names.en_us || entry.key;
                 if (!Object.hasOwn(messages, entry.key)) {
                     inserted += 1;
                 } else if (messages[entry.key] !== officialName) {
@@ -86,7 +84,7 @@ export function rebuildSettlementMessages(messages, sourceLocale, insertBeforeKe
  * messages 保持原 JSON 的插入顺序；entries 来自 model.mjs，包含统一生成的 key 和数据源五语言名称。
  * 只重建内存对象，不在此函数中写文件，方便据点与干员两组数据串联处理。
  */
-function insertMissingMessages(messages, entries, sourceLocale, insertBeforeKey) {
+function insertMissingMessages(messages, entries, fileLocale, insertBeforeKey) {
     // Object.hasOwn 可正确处理值为空字符串的已有键；只要 key 存在，就视为人工维护内容并保留。
     const missingEntries = entries.filter(({key}) => !Object.hasOwn(messages, key));
     if (missingEntries.length === 0) {
@@ -106,7 +104,8 @@ function insertMissingMessages(messages, entries, sourceLocale, insertBeforeKey)
             for (const entry of missingEntries) {
                 // 优先使用当前 locale 的官方名称；极端情况下该语言缺值时依次回退简中、英文，
                 // 最后才显示 key，确保生成的 JSON 始终有合法字符串且缺失来源容易定位。
-                syncedMessages[entry.key] = entry.names[sourceLocale] || entry.names.CN || entry.names.EN || entry.key;
+                syncedMessages[entry.key] =
+                    entry.names[fileLocale] || entry.names.zh_cn || entry.names.en_us || entry.key;
             }
             inserted = true;
         }
@@ -193,28 +192,27 @@ export function syncSellProductLocaleCatalogs() {
     const existingItemCNNames = new Set(
         Object.entries(zhCNMessages)
             .filter(([key]) => key.startsWith("item."))
-            .map(([
-                ,
-                value,
-            ]) => value),
+            .map(
+                ([
+                    ,
+                    value,
+                ]) => value,
+            ),
     );
 
     // 每种语言独立读取和写回，避免某一语言的人工文案被错误复制到其他语言。
-    for (const [
-        sourceLocale,
-        fileLocale,
-    ] of Object.entries(INTERFACE_LOCALES)) {
+    for (const fileLocale of INTERFACE_LOCALES) {
         const localePath = resolve(LOCALE_DIR, `${fileLocale}.json`);
         const originalText = readFileSync(localePath, "utf8");
         const originalMessages = JSON.parse(originalText);
         // 据点开关位于 SellProduct 固定设置之后、下一个任务之前。
-        const stationResult = rebuildSettlementMessages(originalMessages, sourceLocale, "task.VisitFriends.label");
+        const stationResult = rebuildSettlementMessages(originalMessages, fileLocale, "task.VisitFriends.label");
 
         // Endministrator 是干员列表的固定末项；新干员插在它之前，保持选项和 locale 的固定分组顺序。
         const operatorResult = insertMissingMessages(
             stationResult.messages,
             sellProductLocaleEntries.operators,
-            sourceLocale,
+            fileLocale,
             "operator.Endministrator",
         );
         const itemResult = insertMissingItemMessages(

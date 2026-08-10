@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import math
 import subprocess
 import threading
 import time
@@ -22,14 +23,34 @@ ClipboardCallback = Callable[[str, str], None]
 ForceWaypointCallback = Callable[[float, float, str], None]
 
 
-@dataclass
+@dataclass(frozen=True)
 class LivePosition:
-    """实时位置快照。"""
+    """MapLocator 最近一次有效的位置与朝向快照。"""
 
     x: float = 0.0
     y: float = 0.0
     zone: str = ""
+    rot: float | None = None
     valid: bool = False
+
+
+LivePositionCallback = Callable[[LivePosition], None]
+
+
+def parse_live_position(detail: dict) -> LivePosition | None:
+    """把成功的 MapLocator detail 转成规范化实时快照。"""
+    if detail.get("status") != 0:
+        return None
+
+    zone_id = normalize_zone_id(detail.get("mapName", ""))
+    x = detail.get("x")
+    y = detail.get("y")
+    if not zone_id or not _is_finite_number(x) or not _is_finite_number(y):
+        return None
+
+    raw_rot = detail.get("rot")
+    rot = _normalize_heading(float(raw_rot)) if _is_finite_number(raw_rot) else None
+    return LivePosition(x=float(x), y=float(y), zone=zone_id, rot=rot, valid=True)
 
 
 class RecordingService:
@@ -41,6 +62,7 @@ class RecordingService:
 
     POLL_INTERVAL_SECONDS = 0.04
     AGENT_BOOT_WAIT_SECONDS = 2.0
+    LIVE_POSITION_EMIT_INTERVAL_SECONDS = 0.1
 
     def __init__(
         self,
@@ -51,6 +73,7 @@ class RecordingService:
         on_locator_detail: LocatorDetailCallback | None = None,
         on_clipboard: ClipboardCallback | None = None,
         on_force_waypoint: ForceWaypointCallback | None = None,
+        on_live_position: LivePositionCallback | None = None,
     ) -> None:
         self._runtime = runtime
         self._on_status = on_status
@@ -59,6 +82,7 @@ class RecordingService:
         self._on_locator_detail = on_locator_detail
         self._on_clipboard = on_clipboard
         self._on_force_waypoint = on_force_waypoint
+        self._on_live_position = on_live_position
 
         self._recorder = PathRecorder()
         self._agent_process: subprocess.Popen[str] | None = None
@@ -69,6 +93,7 @@ class RecordingService:
         self._last_record_log_at = 0.0
         self._last_skip_log_signature: tuple[object, ...] | None = None
         self._last_skip_log_at = 0.0
+        self._last_live_position_emit_at = 0.0
         # 首个有效定位到达前处于「预热」态（黄点提示），到达后才切到「正在录制」（红点）。
         self._first_fix_emitted = False
 
@@ -88,6 +113,7 @@ class RecordingService:
                 x=self._live_position.x,
                 y=self._live_position.y,
                 zone=self._live_position.zone,
+                rot=self._live_position.rot,
                 valid=self._live_position.valid,
             )
 
@@ -101,7 +127,10 @@ class RecordingService:
         self._last_record_log_at = 0.0
         self._last_skip_log_signature = None
         self._last_skip_log_at = 0.0
+        self._last_live_position_emit_at = 0.0
         self._first_fix_emitted = False
+        with self._position_lock:
+            self._live_position = LivePosition()
         self._running_event.set()
         self._worker_thread = threading.Thread(target=self._run, daemon=True)
         self._worker_thread.start()
@@ -190,14 +219,18 @@ class RecordingService:
             print(f"Opening runtime library at {MAAFW_BIN_DIR}... Error: {exc}")
             return
 
-
-    def _update_live_position(self, x: float, y: float, zone: str) -> None:
-        """由录制线程调用，更新实时位置。"""
+    def _update_live_position(self, position: LivePosition) -> None:
+        """由录制线程调用，更新快照并按固定频率推送给 UI。"""
         with self._position_lock:
-            self._live_position.x = x
-            self._live_position.y = y
-            self._live_position.zone = zone
-            self._live_position.valid = True
+            self._live_position = position
+
+        now = time.monotonic()
+        if self._on_live_position and (
+            self._last_live_position_emit_at == 0.0
+            or now - self._last_live_position_emit_at >= self.LIVE_POSITION_EMIT_INTERVAL_SECONDS
+        ):
+            self._last_live_position_emit_at = now
+            self._on_live_position(position)
 
     def _register_hotkeys(self) -> None:
         """注册 G/X 热键回调。回调在 pynput 监听线程中即时触发。"""
@@ -270,6 +303,7 @@ class RecordingService:
             f"zone={zone_id} "
             f"x={detail.get('x', '-')!r} "
             f"y={detail.get('y', '-')!r} "
+            f"rot={detail.get('rot', '-')!r} "
             f"conf={detail.get('locConf', '-')!r} "
             f"latencyMs={detail.get('latencyMs', '-')!r}"
         )
@@ -294,14 +328,12 @@ class RecordingService:
             self._emit_skip_summary(detail, reason="status")
             return
 
-        zone_id = normalize_zone_id(detail.get("mapName", ""))
-        x = detail.get("x")
-        y = detail.get("y")
-        if not zone_id or not isinstance(x, (int, float)) or not isinstance(y, (int, float)):
+        position = parse_live_position(detail)
+        if position is None:
             self._emit_skip_summary(detail, reason="invalid_zone_or_xy")
             return
 
-        self._update_live_position(float(x), float(y), zone_id)
+        self._update_live_position(position)
         if not self._first_fix_emitted:
             # 首个有效定位到达：从「预热」切到「正在录制」，红点提示已真正开始记录。
             self._first_fix_emitted = True
@@ -309,8 +341,8 @@ class RecordingService:
                 f"● 正在录制轨迹 [{self._session_config.display_name()}] (G:复制坐标 X:强制打点)",
                 "#ef4444",
             )
-        self._emit_record_summary(detail, zone_id=zone_id)
-        self._recorder.update(float(x), float(y), int(ActionType.RUN), zone_id)
+        self._emit_record_summary(detail, zone_id=position.zone)
+        self._recorder.update(position.x, position.y, int(ActionType.RUN), position.zone)
 
     def _shutdown_agent(self) -> None:
         key_listener.stop()
@@ -326,3 +358,11 @@ def _compact_number(value: float) -> int | float:
     if rounded.is_integer():
         return int(rounded)
     return rounded
+
+
+def _is_finite_number(value: object) -> bool:
+    return isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(float(value))
+
+
+def _normalize_heading(value: float) -> float:
+    return value % 360.0

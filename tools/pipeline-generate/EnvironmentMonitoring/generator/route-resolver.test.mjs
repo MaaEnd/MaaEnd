@@ -6,7 +6,7 @@ import {collectMissingRouteFields, createRouteResolver} from "./route-resolver.m
 const mission = {
     missionId: "test-mission",
     name: {
-        "zh-CN": "测试观察点",
+        zh_cn: "测试观察点",
     },
 };
 

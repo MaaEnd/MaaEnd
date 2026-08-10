@@ -131,7 +131,7 @@ SellProductSellLoop（不限次数，每轮先查调度券）
 
 ## 生成器与维护
 
-生成器位于 `tools/pipeline-generate/SellProduct/`。数据源为 zmdmap 缓存 `tools/pipeline-generate/data/settlement_trade.json`；`model.mjs` 统一定义据点/地区/多语言键，各 `*-data.mjs` 是对应模板的最小数据投影。
+生成器位于 `tools/pipeline-generate/SellProduct/`。zmdmap 数据 CI 通过 `data/scripts/sell_product_data.py` 从 TableCfg 裁剪并发布 `tools/pipeline-generate/data/sell_product.json`，这份精简游戏数据只保留据点、可售物品、据点特性与干员匹配关系；MaaEnd 通过 `fetch-data.mjs` 下载该文件。`model.mjs` 统一定义据点/地区/多语言键，各 `*-data.mjs` 是对应模板的最小数据投影。
 
 | 维护入口 | 生成产物 |
 | ------------------------------- | --------------------------------------------------------------- |
@@ -152,10 +152,13 @@ SellProductSellLoop（不限次数，每轮先查调度券）
 - `agent/go-service/sellproduct/` 全部 Go 代码：`goods/`（货品，含 `strategy/` 三个纯策略实现）、`operator/`（干员）、`internal/selectiondata/`（共享部署数据加载校验）、`internal/ocrmatch/`（共享 OCR 严格匹配）、`runtime.go`（`SellProductLocationPlan` 组合提示）、`register.go`（聚合注册）。
 
 ```shell
-# 拉取最新 zmdmap 数据并完整重新生成
+# 同步 zmdmap 精简游戏数据并完整重新生成
 pnpm generate:SellProduct
 
-# 只用本地缓存重新生成
+# 只同步 zmdmap 精简游戏数据
+pnpm fetch:zmdmap
+
+# 只用已生成的数据重新渲染
 node tools/pipeline-generate/SellProduct/sync-locales.mjs
 node tools/pipeline-generate/SellProduct/selection-data.mjs
 node tools/pipeline-generate/run-all.mjs SellProduct
@@ -163,7 +166,7 @@ node tools/pipeline-generate/run-all.mjs SellProduct
 
 维护注意：
 
-- 新增货品通常只需更新 zmdmap 缓存；`sync-locales.mjs` 自动补齐五语言 `item.*` 键（中文名相同的复用旧键）。活动物品临时排除集中在 `selection-data.mjs`，上游移除后应清理并重新生成。
+- 新增货品通常只需同步 zmdmap 精简游戏数据；`sync-locales.mjs` 自动补齐五语言 `item.*` 键（中文名相同的复用旧键）。活动物品临时排除集中在 `selection-data.mjs`，原始数据移除后应清理并重新生成。
 - 新增据点后检查生成的地区 `next`、SceneManager 入口及 Win/ADB 两套产物。
 - 新增地区时先在两套资源包的 `SellProduct/` 下手动创建地区子目录再运行生成（生成器只创建 `outputDir`）。
 - 保留规则的物品 case 通过 `attach` 提供 `item_id`，数量 input 通过 `custom_action_param.quantity` 提供整数值。

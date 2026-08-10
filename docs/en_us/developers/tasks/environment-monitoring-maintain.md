@@ -2,11 +2,11 @@
 
 This document explains the Pipeline organization, route data, terminal grouping, automatic generation mechanism, and integration method for new observation points for the `EnvironmentMonitoring` task.
 
-The core characteristic of EnvironmentMonitoring is **"Data-Driven + Template Batch Generation"**: The Pipeline JSON corresponding to each observation point is not manually written but is batch-rendered into `assets/resource/pipeline/EnvironmentMonitoring/` using the [`@joebao/maa-pipeline-generate`](https://www.npmjs.com/package/@joebao/maa-pipeline-generate) tool, combining template/route configurations from `tools/pipeline-generate/EnvironmentMonitoring/` and zmdmap cache data from `tools/pipeline-generate/data/`. The focus of maintenance work is on **generation configuration and data caching**, not manually editing JSON.
+The core characteristic of EnvironmentMonitoring is **"Data-Driven + Template Batch Generation"**: The Pipeline JSON corresponding to each observation point is not manually written but is batch-rendered into `assets/resource/pipeline/EnvironmentMonitoring/` using the [`@joebao/maa-pipeline-generate`](https://www.npmjs.com/package/@joebao/maa-pipeline-generate) tool, combining template/route configurations from `tools/pipeline-generate/EnvironmentMonitoring/` and `tools/pipeline-generate/data/environment_monitoring.json`. The focus of maintenance work is on **generation configuration and zmdmap compact game data**, not manually editing JSON.
 
 > [!WARNING]
 >
-> `assets/resource/pipeline/EnvironmentMonitoring/{Station}/*.json` and `assets/resource/pipeline/EnvironmentMonitoring/Terminals.json` are **generated artifacts**. Manually modifying these files will be overwritten during the next regeneration. All maintenance should be done in the generation configuration under `tools/pipeline-generate/EnvironmentMonitoring/`, or by updating the zmdmap cache under `tools/pipeline-generate/data/` via `pnpm fetch:zmdmap`.
+> `assets/resource/pipeline/EnvironmentMonitoring/{Station}/*.json` and `assets/resource/pipeline/EnvironmentMonitoring/Terminals.json` are **generated artifacts**. Manually modifying these files will be overwritten during the next regeneration. All maintenance should be done in the generation configuration under `tools/pipeline-generate/EnvironmentMonitoring/`, or by updating the zmdmap compact game data via `pnpm fetch:zmdmap`.
 
 ## Overview
 
@@ -29,9 +29,9 @@ The core maintenance points for EnvironmentMonitoring are as follows:
 | Failure Collector Parameter Schema | `tools/schema/components/failure_collector.schema.json` | Parameter constraints for generic Failure Collector Custom Actions; action names are registered in `tools/schema/custom.action.schema.json` |
 | Route Sync Logic | `tools/pipeline-generate/EnvironmentMonitoring/generator/sync-routes.mjs` | Automatically syncs `MissionId` / `Name` / `Id` in `routes.json` before generation and sorts by `MissionId` |
 | Route Resolution Logic | `tools/pipeline-generate/EnvironmentMonitoring/generator/route-resolver.mjs` | Parses `routes.json` entries into pathfinding recognition/action parameters required by the template and uniformly handles unadapted fallbacks |
-| Normalized Mission Model | `tools/pipeline-generate/EnvironmentMonitoring/generator/model.mjs` | Reads zmdmap and `routes.json` once and builds the observation-point mission model shared by the route and terminal templates |
+| Normalized Mission Model | `tools/pipeline-generate/EnvironmentMonitoring/generator/model.mjs` | Reads the zmdmap compact game data and `routes.json` once and builds the observation-point mission model shared by the route and terminal templates |
 | Terminal List Data | `tools/pipeline-generate/EnvironmentMonitoring/generator/terminals-data.mjs` | Generates each terminal's `next` from the normalized missions in `model.mjs` and the automatically derived terminal list |
-| Game Data Snapshot | `tools/pipeline-generate/data/kite_station_i18n.json` | Official monitoring terminal/quest data provided by `zmdmap` (multilingual names, `shotTargetName`), cached by `pnpm fetch:zmdmap` |
+| zmdmap Compact Game Data | `tools/pipeline-generate/data/environment_monitoring.json` | Terminals, observation points, and five-language names extracted from TableCfg and published by the zmdmap data CI; updated in MaaEnd by `pnpm fetch:zmdmap` |
 | Generator Config | `tools/pipeline-generate/EnvironmentMonitoring/generator/config.json` | Single observation point output configuration: `outputPattern: "${Station}/${Id}.json"` |
 | Terminal Generator Config | `tools/pipeline-generate/EnvironmentMonitoring/generator/terminals-config.json` | Terminal output configuration merged into a single file: `outputFile: "Terminals.json"` |
 | Multilingual Text | `assets/locales/interface/*.json` | `task.EnvironmentMonitoring.*` label / description (task-level; observation point names use OCR) |
@@ -86,7 +86,7 @@ EnvironmentMonitoringTakePhoto       (Enter photo mode -> orientation -> take ph
        └─ EnvironmentMonitoringGoTo{Outskirts|MarkerStone}MonitoringTerminal
 ```
 
-Each `{Id}Job` still identifies its observation point list item, then uses the generic `FailureCollectorRunTask` action to execute the `{Id}Execute` route. The generator uses zmdmap's five-language `mission.name` data to fill in `task.EnvironmentMonitoring.route.{Id}.failed` for new tasks; existing failure messages are preserved to avoid overwriting manual adjustments. If any node inside the route fails, the wrapper Action records `{Id}Failed`, runs `recovery_task` to return to the current monitoring terminal, and reports success outward so the remaining routes continue. After all terminals have been processed, `EnvironmentMonitoringFinish` uses `FailureCollectorFinish` to call those notification nodes in failure order, then returns overall failure. The Agent does not directly print user-facing messages.
+Each `{Id}Job` still identifies its observation point list item, then uses the generic `FailureCollectorRunTask` action to execute the `{Id}Execute` route. The generator uses the shared game's five-language `mission.names` data to fill in `task.EnvironmentMonitoring.route.{Id}.failed` for new tasks; existing failure messages are preserved to avoid overwriting manual adjustments. If any node inside the route fails, the wrapper Action records `{Id}Failed`, runs `recovery_task` to return to the current monitoring terminal, and reports success outward so the remaining routes continue. After all terminals have been processed, `EnvironmentMonitoringFinish` uses `FailureCollectorFinish` to call those notification nodes in failure order, then returns overall failure. The Agent does not directly print user-facing messages.
 
 > [!NOTE]
 >
@@ -113,24 +113,24 @@ EcologyNearTheFieldLogisticsDepot -> Ecology near the Field Logistics Depot
 MysteriousCryptidGraffiti         -> Mysterious Cryptid Graffiti
 ```
 
-By default, `Id` is derived by PascalCase conversion of the `name["en-US"]` for that task from `kite_station_i18n.json`, with rules in `common.mjs`'s `buildDefaultId()` / `toPascalCase()`. If the English name is missing, it falls back to `missionId` / `entrustIdx`; if duplicates occur, `ensureUniqueId()` automatically appends a suffix.
+By default, `Id` is derived by PascalCase conversion of the task's `names.en_us` from `environment_monitoring.json`, with rules in `common.mjs`'s `buildDefaultId()` / `toPascalCase()`. If the English name is missing, it falls back to `mission_id` / `entrust_index`; if duplicates occur, `ensureUniqueId()` automatically appends a suffix.
 
 When maintaining `routes.json`, you don't need to manually calculate `Id`. The route matching key is `MissionId`. `Id` will be automatically written to `routes.json` during regeneration, equivalent to the node name prefix used by the final template, convenient for directly searching generated nodes and file names.
 
 > [!IMPORTANT]
 >
-> Do not treat `Id` as display text. Display text uses zmdmap names / OCR; `Name` is a human-readable note in routes.json, `Id` is only used for concatenating node names and file names (`outputPattern: "${Station}/${Id}.json"`), and is automatically refreshed by the generator.
+> Do not treat `Id` as display text. Display text uses official names / OCR; `Name` is a human-readable note in routes.json, `Id` is only used for concatenating node names and file names (`outputPattern: "${Station}/${Id}.json"`), and is automatically refreshed by the generator.
 
 ### Terminal Grouping (`Station`)
 
-Derived by `model.mjs` from the PascalCase of the `kite_station_i18n.json[terminalId].level.name["en-US"]` corresponding to `mission.kiteStation` (or falling back to `__terminalId`). Currently, there are only two groups in the repository:
+Derived by `model.mjs` from the PascalCase of `environment_monitoring.json.terminals[terminalId].names.en_us` for the observation point's terminal. Currently, there are only two groups in the repository:
 
 | Chinese Name | Station ID | Corresponding terminalId | `GoToMonitoringTerminal` Anchor |
 | ------------ | ------------------------------- | ------------------------ | -------------------------------------------------------- |
 | 城郊监测终端 | `OutskirtsMonitoringTerminal` | `kitestation_002_1` | `EnvironmentMonitoringGoToOutskirtsMonitoringTerminal` |
 | 首墩监测终端 | `MarkerStoneMonitoringTerminal` | `kitestation_004_1` | `EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal` |
 
-If a new Station appears, **the generator side (`routes.json` + `model.mjs`) requires zero changes**: `MONITORING_TERMINAL_IDS` is automatically derived from `kite_station_i18n.json`, and the `GoToMonitoringTerminal` anchor name is concatenated according to the `EnvironmentMonitoringGoTo{Station}` template. However, the following **hand-written linked nodes** referenced by the generated Pipeline must be completed first, otherwise MaaFramework will report "undefined task referenced" at runtime:
+If a new Station appears, **the generator side (`routes.json` + `model.mjs`) requires zero changes**: `MONITORING_TERMINAL_IDS` is automatically derived from `environment_monitoring.json`, and the `GoToMonitoringTerminal` anchor name is concatenated according to the `EnvironmentMonitoringGoTo{Station}` template. However, the following **hand-written linked nodes** referenced by the generated Pipeline must be completed first, otherwise MaaFramework will report "undefined task referenced" at runtime:
 
 1. `assets/resource/pipeline/EnvironmentMonitoring/Locations.json`: Add new `EnvironmentMonitoringGoTo{Station}MonitoringTerminal` and `EnvironmentMonitoringSelect{Station}MonitoringTerminal` nodes.
 2. `assets/resource/pipeline/EnvironmentMonitoring.json`'s `EnvironmentMonitoringLoop.next`: Add `[JumpBack]{Station}MonitoringTerminal`.
@@ -151,21 +151,21 @@ If a new Station appears, **the generator side (`routes.json` + `model.mjs`) req
 }
 ```
 
-The default export of `data.mjs` is an array, where each element = the rendering context for one observation point (field names correspond to the `${Xxx}` placeholders in `template.json`). `pnpm generate:EnvironmentMonitoring` first calls `sync-routes.mjs` to refresh the parent `routes.json`; subsequently, `model.mjs` reads `routes.json` and `kite_station_i18n.json`, assembles normalized missions via `route-resolver.mjs`, and `data.mjs` projects the final rows:
+The default export of `data.mjs` is an array, where each element = the rendering context for one observation point (field names correspond to the `${Xxx}` placeholders in `template.json`). `pnpm generate:EnvironmentMonitoring` first syncs the zmdmap compact game data and calls `sync-routes.mjs` to refresh the parent `routes.json`; subsequently, `model.mjs` reads `routes.json` and `environment_monitoring.json`, assembles normalized missions via `route-resolver.mjs`, and `data.mjs` projects the final rows:
 
 | Field | Source |
 | ------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Station` | English station name from `kite_station_i18n.json` (PascalCase) |
+| `Station` | English station name from `environment_monitoring.json` (PascalCase) |
 | `Id` | Automatically generated by default from the official English name in PascalCase; will be synced back to `routes.json`, equivalent to the node ID used by the final template |
-| `Name` | Comes from the Chinese name in `kite_station_i18n.json`; `MissionId` is only used by `model.mjs` to match `routes.json` and is not passed to the template |
+| `Name` | Comes from the Chinese name in `environment_monitoring.json`; `MissionId` is only used by `model.mjs` to match `routes.json` and is not passed to the template |
 | `GoToMonitoringTerminal` | Determined by `Station` |
 | `EnterMap` | `routes.json[*].EnterMap`; any defined Pipeline node name is allowed, without a required prefix, as long as the node can complete and return normally when run as a SubTask |
 | `MapName` / `MapAssert` / `MapPath` / `MapTarget` / `MapTargetTier` / `MapTargetDeckY` / `MapGoal` | `routes.json[*]`, corresponding to the initial location check and subsequent pathfinding parameters; `MapPath` generates `MapTrackerAssertLocation` + `MapTrackerMove`, `MapTarget` generates `MapLocateAssertLocation` + `MapNavigateAction` with the `NAVMESH` target point, `MapTargetTier` optionally generates `target_tier`, `MapTargetDeckY` optionally generates `target_deck_y`, and `MapGoal` generates `MapTrackerAssertLocation` + `MapTrackerGoal`. Omit all of these fields when the teleport landing point can be photographed directly; otherwise exactly one of `MapPath` / `MapTarget` / `MapGoal` is required. All three navigation modes may omit `MapAssert` when combined with `QuickTeleport`. |
 | `CameraSwipeDirection` | `routes.json[*]`, must be one of `EnvironmentMonitoringSwipeScreen{Up/Down/Left/Right}` |
 | `CameraMaxHit` | `routes.json[*].CameraMaxHit`, defaults to `2`; corresponds to the maximum hit count for the `${Id}AdjustCamera` swipe action |
 | `OcrReplace` | Passed through from `routes.json[*].Replace` to `Check${Id}Text.replace` and `In${Id}Mission.replace`; used to configure task-specific OCR replacement pairs for the task list and mission detail page, without affecting route adaptation checks |
-| `ExpectedText` | Automatically expanded from the `mission.name` multilingual map in `kite_station_i18n.json` (5 languages, English converted to flexible regex) |
-| `InExpectedText` | Automatically expanded from the `mission.shotTargetName` in `kite_station_i18n.json` |
+| `ExpectedText` | Automatically expanded from `mission.names` in `environment_monitoring.json` (5 languages, English converted to flexible regex) |
+| `InExpectedText` | Automatically expanded from `mission.shot_target_names` in `environment_monitoring.json` |
 | `TrackOrGoToNext` / `AfterTrackedNext` | Automatically determined by `data.mjs` based on whether the route is complete: `TrackOrGoToNext` converges to `Track${Id}` / `AlreadyTracked${Id}`, `AfterTrackedNext` is `GoTo${Id}` when adapted, `${Id}NotAdapted` when not adapted |
 | `GoToNext` / `AfterTeleportDescription` / `AfterTeleportNext` | Automatically determined by `data.mjs`: direct-photo routes always perform the configured teleport and enter `${Id}TakePhoto`; `QuickTeleport` with any navigation mode proceeds directly to `GoTo${Id}Move`; regular `MapPath` routes return to `GoTo${Id}StartPos` to verify the landing point, while `MapTarget` / `MapGoal` proceed directly to `GoTo${Id}Move`. |
 
@@ -190,10 +190,10 @@ The default export of `data.mjs` is an array, where each element = the rendering
 # Recommended: Run from the repository root
 pnpm generate:EnvironmentMonitoring
 
-# Only update zmdmap cache
+# Only sync the zmdmap compact game data
 pnpm fetch:zmdmap
 
-# If you have already updated the zmdmap cache, you can also render individually in the tools/pipeline-generate/EnvironmentMonitoring/generator/ directory:
+# If the EnvironmentMonitoring data is already current, you can also render individually in the tools/pipeline-generate/EnvironmentMonitoring/generator/ directory:
 
 # 0) Sync MissionId/Name/Id in routes.json
 node sync-routes.mjs
@@ -248,7 +248,7 @@ The EnvironmentMonitoring main entry node `EnvironmentMonitoringMain` enters the
 
 ## Adding a New Observation Point
 
-New observation points generally come from game updates, appearing as an additional `mission` in `kite_station_i18n.json`. The maintenance process:
+New observation points generally come from game updates, appearing as an additional `mission` in `environment_monitoring.json`. The maintenance process:
 
 > [!TIP]
 >
@@ -256,11 +256,11 @@ New observation points generally come from game updates, appearing as an additio
 
 ### 1. Update Game Data
 
-Run `pnpm fetch:zmdmap`, which will download and cache the latest `tools/pipeline-generate/data/kite_station_i18n.json` from the zmdmap API.
+Run `pnpm fetch:zmdmap`. It checks the zmdmap data version against `tools/pipeline-generate/data/version.txt` and downloads `tools/pipeline-generate/data/environment_monitoring.json` when the version changes. Raw TableCfg parsing is performed by `data/scripts/environment_monitoring_data.py` in the zmdmap data CI and is not part of the routine MaaEnd generation flow.
 
 ### 2. Check Route Adaptation Status
 
-Compare the `entrustTasks` in `kite_station_i18n.json` with the entries in `routes.json` to confirm the status of each observation point. The matching method is `missionId` against `MissionId` in `routes.json`, not `Name` or `Id`:
+Compare the `missions` under each terminal in `environment_monitoring.json` with the entries in `routes.json` to confirm the status of each observation point. The matching method is `mission_id` against `MissionId` in `routes.json`, not `Name` or `Id`:
 
 - **Unadapted**: `routes.json` has no entry for this observation point, or the entry exists but is missing any required field (including `null` / empty string / empty array) → After generation, it will only accept and track.
 - **Ready to adapt**: Needs to make this observation point automatically go and take a photo → Proceed to step 3 to complete the real route.
@@ -275,7 +275,7 @@ Compare the `entrustTasks` in `kite_station_i18n.json` with the entries in `rout
 
 ```jsonc
 {
-    "MissionId": "m1m30",                    // Must match the missionId in kite_station_i18n.json
+    "MissionId": "m1m30",                    // Must match the mission_id in environment_monitoring.json
     "Name": "My New Observation Point",      // Chinese name, for human reading only
     "Id": "MyNewObservationPoint",           // Final template node ID, for human searching nodes/file names only
     "EnterMap": "SceneEnterWorldWulingXxx",  // Defined Pipeline node that can complete and return as a SubTask
@@ -312,9 +312,9 @@ Do not include `MapName`, `MapAssert`, `MapPath`, `MapTarget`, `MapTargetTier`, 
 >
 > `routes.json` is strict JSON: double quotes, no inline comments, no trailing commas. The `//` in the code block above is only for documentation; writing it into a real file will cause JSON parsing failure.
 >
-> `MissionId` is the matching key for `model.mjs`, which will exactly match the `missionId` in `kite_station_i18n.json`. `Name` is for human reading only, `Id` is for human searching of generated nodes/file names only; if inconsistent with the current zmdmap data, the generator will directly refresh it to the current correct value, without affecting matching.
+> `MissionId` is the matching key for `model.mjs`, which will exactly match the `mission_id` in `environment_monitoring.json`. `Name` is for human reading only, `Id` is for human searching of generated nodes/file names only; if inconsistent with the current game data, the generator will directly refresh it to the current correct value, without affecting matching.
 
-> When regenerating EnvironmentMonitoring, `sync-routes.mjs` will first automatically refresh `MissionId` / `Name` / `Id` based on zmdmap data and sort by `MissionId`. When writing entries manually, `MissionId` must be filled; if a new task exists in zmdmap but `routes.json` has no corresponding entry, the generator will automatically append an unadapted placeholder entry containing only `MissionId` / `Name` / `Id`, making it convenient for maintainers to see routes that need completion.
+> When regenerating EnvironmentMonitoring, `sync-routes.mjs` will first automatically refresh `MissionId` / `Name` / `Id` based on the EnvironmentMonitoring data and sort by `MissionId`. When writing entries manually, `MissionId` must be filled; if a new task exists in the data but `routes.json` has no corresponding entry, the generator will automatically append an unadapted placeholder entry containing only `MissionId` / `Name` / `Id`, making it convenient for maintainers to see routes that need completion.
 
 ### 4. Record Coordinates and Paths
 
@@ -360,7 +360,7 @@ If the official English name of the observation point changes, the generated `Id
 Before submission, at least check:
 
 1. Are the fields for new/modified entries in `tools/pipeline-generate/EnvironmentMonitoring/routes.json` complete?
-2. Does the `MissionId` for new entries in `routes.json` match the `missionId` in `kite_station_i18n.json`; `Id` is automatically refreshed by the generator.
+2. Does the `MissionId` for new entries in `routes.json` match the `mission_id` in `environment_monitoring.json`; `Id` is automatically refreshed by the generator.
 3. Does every adapted entry have a real teleport method and `CameraSwipeDirection`; do direct-photo routes omit all map/navigation fields, while navigation routes select exactly one of `MapPath` / `MapTarget` / `MapGoal` and regular teleport routes provide `MapAssert`?
 4. In the regenerated `Terminals.json`, does each `{Station}MonitoringTerminalLoop.next` contain all new `[JumpBack]{Id}Job`, and end with `EnvironmentMonitoringTerminalFinish`?
 5. Does the node referenced by `EnterMap` exist under `assets/resource/pipeline/`, and can it complete and return normally as a SubTask?
@@ -370,10 +370,10 @@ Before submission, at least check:
 
 ## Common Pitfalls
 
-- **Manually modifying generated artifacts**: Directly editing `assets/resource/pipeline/EnvironmentMonitoring/{Station}/{Id}.json` or `Terminals.json` will cause changes to be lost during the next regeneration. The correct approach is to modify the generation configuration / update the zmdmap cache and then regenerate.
+- **Manually modifying generated artifacts**: Directly editing `assets/resource/pipeline/EnvironmentMonitoring/{Station}/{Id}.json` or `Terminals.json` will cause changes to be lost during the next regeneration. The correct approach is to modify the generation configuration / update the EnvironmentMonitoring data and then regenerate.
 - **`MissionId` mismatch with game data**: The `MissionId` in the `routes.json` entry is the matching key; `Name` / `Id` are only for human reading and searching. If `MissionId` matching fails, the generator will prompt that the entry is unused, and the corresponding observation point will be treated as unadapted (only accept and track).
 - **Using `Id` as the matching key**: `Id` is only the final template node ID, convenient for searching generated nodes/file names; matching still only looks at `MissionId`.
-- **`Id` drifts from `kite_station_i18n.json` English name**: When the game side changes the English name, the automatically calculated `Id` will change, possibly causing generated file renaming or residual old files; after regeneration, the `Id` in `routes.json` will be synced.
+- **`Id` drifts from the `environment_monitoring.json` English name**: When the game side changes the English name, the automatically calculated `Id` will change, possibly causing generated file renaming or residual old files; after regeneration, the `Id` in `routes.json` will be synced.
 - **`EnterMap` references a missing node or one that cannot return normally**: Generation does not validate node references or runtime behavior; the route will fail at `GoTo{Id}NotAtStartPos`.
 - **`MapPath` / `MapTarget` / `MapGoal` passes through unlocked areas / battles / interactive objects**: MapTracker and MapNavigateAction do not handle battles, story sequences, map transitions, or mechanism interactions; routes can only select pure traversal segments.
 - **Treating missing route data as direct photography**: Use the compact teleport/photo form only after verifying in game that the teleport landing point can complete the photo. Otherwise keep the metadata-only entry unadapted.
