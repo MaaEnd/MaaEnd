@@ -553,18 +553,7 @@
         "Name": "念念家的桃树",
         "Id": "PeachTreeAtBabblesSHome",
         "QuickTeleport": true,
-        "NavPath": [
-            {
-                "action": "NAVMESH",
-                "target": [
-                    265.63,
-                    206.32
-                ],
-                "target_tier": "Wuling_L4_328"
-            }
-        ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
-        "Heading": 90
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp"
     },
     {
         "MissionId": "m1m67",
