@@ -216,7 +216,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "EcologyNearTheFieldLogisticsDepotInQuickTeleportMap"
+            "GoToEcologyNearTheFieldLogisticsDepot"
         ]
     },
     "AlreadyTrackedEcologyNearTheFieldLogisticsDepot": {
@@ -230,7 +230,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "EcologyNearTheFieldLogisticsDepotOpenTrackedMissionMap"
+            "GoToEcologyNearTheFieldLogisticsDepot"
         ]
     },
     "EcologyNearTheFieldLogisticsDepotOpenTrackedMissionMap": {
@@ -336,18 +336,14 @@
     "GoToEcologyNearTheFieldLogisticsDepotStartPos": {
         "desc": "在储备站周围的生态环境任务开始位置附近",
         "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition": "MapLocateAssertLocation",
         "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv002",
-                    "target": [
-                        0,
-                        0,
-                        1,
-                        1
-                    ]
-                }
+            "zone_id": "Wuling_Base",
+            "target": [
+                851.95,
+                1858.85,
+                33.14,
+                30.5
             ]
         },
         "pre_delay": 0,
@@ -364,7 +360,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneAnyEnterWorld"
+                "SceneEnterWorldWulingWulingCity6"
             ]
         },
         "post_delay": 0,
@@ -377,20 +373,21 @@
         "desc": "自动寻路前往储备站周围的生态环境",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerGoal",
+        "custom_action": "MapNavigateAction",
         "custom_action_param": {
-            "map_name": "map02_lv002",
-            "target": [
-                618.8,
-                901.6
-            ],
-            "on_finish": {
-                "action": "Custom",
-                "custom_action": "MapTrackerToward",
-                "custom_action_param": {
-                    "angle": 270
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        909.81,
+                        1921.56
+                    ]
+                },
+                {
+                    "action": "HEADING",
+                    "angle": 200
                 }
-            }
+            ]
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -426,7 +423,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "EnvironmentMonitoringSwipeScreenLeft"
+            "EnvironmentMonitoringSwipeScreenUp"
         ]
     }
 }

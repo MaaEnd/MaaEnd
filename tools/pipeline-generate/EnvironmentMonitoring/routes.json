@@ -244,14 +244,25 @@
         "MissionId": "m1m37",
         "Name": "储备站周围的生态环境",
         "Id": "EcologyNearTheFieldLogisticsDepot",
-        "QuickTeleport": true,
-        "MapName": "map02_lv002",
-        "MapGoal": [
-            618.8,
-            901.6
+        "EnterMap": "SceneEnterWorldWulingWulingCity6",
+        "NavZoneId": "Wuling_Base",
+        "NavAssert": [
+            851.95,
+            1858.85,
+            33.14,
+            30.5
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenLeft",
-        "Heading": 270
+        "NavPath": [
+            {
+                "action": "NAVMESH",
+                "target": [
+                    909.81,
+                    1921.56
+                ]
+            }
+        ],
+        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
+        "Heading": 200
     },
     {
         "MissionId": "m1m38",
