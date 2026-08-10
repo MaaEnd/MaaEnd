@@ -1,149 +1,84 @@
-# 参数与数据契约
+# 内部架构与维护边界
 
-本文档只定义 Pipeline、Go Service 和 C++ API 共用的识别参数、catalog 分类与返回数据语义。三种入口的调用示例见[开发者使用指南](/docs/zh_cn/developers/components/icon-recognition.md)；内部网格与匹配流程见[识别算法](algorithm.md)，界面网格参数和参考 ROI 见[网格类型与参考 ROI](grid-profiles.md)。
+本文档面向维护 `IconRecognition` 实现的开发者，只说明模块职责、数据流和修改边界。Pipeline、Go Service 和 C++ 调用所需的参数、参考 ROI、返回结构和错误码统一见[开发者使用指南](/docs/zh_cn/developers/components/icon-recognition.md)，内部文档不再复制外部契约。
 
-## 通用识别参数
+## 数据流
 
-三个入口使用相同的逻辑字段，但承载位置不同：
+一次 Custom Recognition 调用按以下层次处理：
 
-- Pipeline 将组件字段写入 `custom_recognition_param`，注册名为 `IconRecognition`；
-- Go Service 将组件字段写入 `CustomRecognitionParam.CustomRecognitionParam`，原生 ROI 使用 `CustomRecognitionParam.ROI`；
-- C++ 将字段写入 `RecognitionRequest`，其中 `item_ids` 和 `item_filters` 位于 `request.candidates`。
+1. `IconRecognitionRecognition.cpp` 把 MaaFramework 回调参数转换为 `RecognitionRequest`，调用核心识别器，并把 `RecognitionResult` 写回 Maa detail；
+2. `IconRecognizer.cpp` 校验请求、加载候选模板、调用网格检测、逐格匹配并汇总结果；
+3. `detail/GridDetector.cpp` 根据界面类型返回 `GridDetection`，不参与 catalog 过滤和图标分类；
+4. `detail/TemplateCatalog.cpp`、`RarityCandidates.cpp` 和 `IconMatcher.cpp` 负责候选准备、稀有度缩减与模板评分；
+5. `RecognitionDiagnostics.cpp` 和 `DebugCapture.cpp` 只记录内部诊断，不改变识别结果。
 
-| 字段 | 类型 | 必选 | 默认值 | 说明 |
-| --- | --- | --- | --- | --- |
-| `grid_type` | string / `GridType` | Custom 是；C++ 建议显式设置 | Custom 无；C++ `Transfer` | 选择当前界面的网格定位策略；合法取值、界面含义和参考 ROI 见[网格类型与参考 ROI](grid-profiles.md) |
-| `item_ids` | string[] | 否 | `[]` | 只保留指定物品候选；多个 ID 取并集，不能重复 |
-| `item_filters` | string[] | 否 | 由 `grid_type` 决定 | 使用 `storageKind:categoryType`，两部分直接对应 catalog 同名字段；多个条件取并集，`*` 匹配该 `storageKind` 下全部分类；完整取值见[分类表](#item_filters-分类) |
-| `threshold` | number | 否 | `0.85` | 最终接受阈值 |
-| `subpixel_threshold` | number | 否 | `0.60` | 基础分达到该值但低于 `threshold` 时进行亚像素精排 |
-| `deduplicate` | boolean | 否 | `false` | 同一个 `item_id` 在多个 cell 命中时只保留分数最高的一项；不同物品分别保留 |
-| `debug` | boolean | 否 | `false` | 启用性能与内部诊断；Pipeline 和 Go 使用的 Custom 入口还会保存 debug 文件 |
+直接调用 C++ API 时会跳过第一层，其余数据流与 Custom 入口相同。
 
-原生 `roi` 在 Pipeline 中写入 `recognition.param.roi`，在 Go 中使用 `CustomRecognitionParam.ROI`，在 C++ 中使用 `RecognitionRequest.roi`。三者均采用 1280x720 基准下的 Maa `[x,y,width,height]` 语义，宽高必须为正；`single_roi` 还要求 ROI 宽高相等且完全位于图片内。`item_ids` 与 `item_filters` 同时提供时取交集；ID 不存在或被过滤器排除会返回明确错误。
+## 公开类型与内部类型
 
-基础模板分使用带 mask 的 `TM_CCOEFF_NORMED`，最终 `score` 为模板分的 85% 与 Lab 颜色分的 15% 之和。阈值必须满足 `0 <= subpixel_threshold < threshold <= 1`：基础分低于 `subpixel_threshold` 时直接拒识；位于两个阈值之间时执行亚像素精排；最终分达到 `threshold` 且未被界面门控拒绝时才进入 `matches`。降低 `threshold` 会增加误识别风险，应先检查 ROI、画面稳定性和候选分类。
+`IconRecognitionTypes.h` 定义跨入口共用的请求和结果类型：
 
-### item ID 从哪里获取
+- `RecognitionRequest` 是核心识别器唯一接受的请求对象；
+- `RecognitionResult` 是 C++ 返回值，也是 Custom detail 的序列化来源；
+- `ItemMatchLess` 固定公开结果的排序规则；
+- `DeduplicateMatches` 在排序后按物品 ID 去重。
 
-物品 ID 是 [`assets/data/IconRecognition/recognition_items.json`](/assets/data/IconRecognition/recognition_items.json) 的顶层 key，例如：
+`detail/GridTypes.h` 中的 `GridCell`、`GridLayout`、`GridDetection` 和 `GridSelectionDiagnostics` 只服务内部网格定位。不得让调用方依赖这些类型中的拟合中间量，也不要把内部诊断并入公开 detail。
 
-```json
-{
-    "item_copper_ore": {
-        "category": "矿物",
-        "storageKind": "Normal",
-        "categoryType": "Ore",
-        "rarity": 1,
-        "iconId": "item_copper_ore"
-    }
-}
-```
+## 模块职责
 
-调用时使用 `item_copper_ore`，不要使用 `iconId`、多语言 key 或显示名称。`iconId` 只用于定位发布图标文件。
+### Custom 适配层
 
-### item_filters 分类
+`IconRecognitionRecognition.cpp` 只负责：
 
-过滤器用于缩小内置图标候选集合，能减少计算量和相似图标误判；它不会改变网格位置或匹配算法。格式为 `storageKind:categoryType`：冒号前后两部分分别对应 [`recognition_items.json`](/assets/data/IconRecognition/recognition_items.json) 中每条物品记录的 `storageKind` 和 `categoryType` 字段。
+- 解析 MaaFramework 传入的 JSON 和 ROI；
+- 把字段映射到 `RecognitionRequest`；
+- 调用进程内共享的 `IconRecognizer`；
+- 写入命中框、detail 和可选 debug 文件。
 
-`storageKind` 表示物品所属的存储类别：
+参数语义和默认值应定义在公开类型或解析代码附近，并同步到外部开发者指南。不要在适配层加入网格定位或业务流程。
 
-| `storageKind` | 含义 |
-| --- | --- |
-| `Normal` | 普通物品 |
-| `ValuableDepot` | 贵重品库 |
-| `Isolate` | 货币 |
+### 核心编排层
 
-每个 `storageKind` 可使用的 `categoryType` 如下。
+`IconRecognizer.cpp` 是识别流程的编排入口，负责：
 
-#### `Normal`（普通物品）
+- 校验阈值、ROI 和候选过滤条件；
+- 按界面选择默认候选集与模板尺寸；
+- 调用网格定位或构造临时单格；
+- 对每个格子执行候选缩减、匹配、门控和诊断记录；
+- 排序、去重并生成稳定的错误结果。
 
-| `categoryType` | 含义 |
-| --- | --- |
-| `Ore` | 矿物 |
-| `Plant` | 植物 |
-| `Product` | 产物 |
-| `Doodad` | 采集材料 |
-| `Nurturance` | 培养素材 |
-| `Usable` | 可用道具 |
-| `Producer` | 生产工具 |
-| `PortableDevice` | 随身装置 |
+新增步骤时应先判断它属于所有界面共用的识别编排，还是某个界面的内部策略。界面专用逻辑优先下沉到 `detail/`，避免继续扩大入口函数。
 
-#### `ValuableDepot`（贵重品库）
+### 网格定位层
 
-| `categoryType` | 含义 |
-| --- | --- |
-| `Weapon` | 武器 |
-| `CommercialItem` | 珍贵物品 |
-| `SpecialItem` | 培养素材 |
+网格定位的文件职责见[网格配置维护](grid-profiles.md)，具体决策流程见[识别算法](algorithm.md)。该层只输出格子位置和可选诊断，不加载物品图标，也不执行物品分类。
 
-#### `Isolate`（货币）
+### 模板与匹配层
 
-| `categoryType` | 含义 |
-| --- | --- |
-| `Gold` | 折金票 |
-| `Diamond` | 嵌晶玉 |
-| `WeaponGold` | 武库配额 |
+- `TemplateCatalog` 读取 catalog 并准备图标资源；
+- `TemplateTypes` 和 `CompositeIcon` 处理模板表示与复合图标；
+- `MaskPolicy` 生成界面适配的匹配遮罩；
+- `RarityClassifier` 与 `RarityCandidates` 缩小候选集合；
+- `IconMatcher` 和 `SubpixelMatcher` 计算基础分与精细相位分；
+- `ForegroundTexture` 及界面专用遮罩负责拒绝明显不应接受的格子。
 
-通配写法如 `Normal:*`、`ValuableDepot:*`、`Isolate:*`。默认候选范围如下：
+候选过滤只改变参与评分的模板集合，不得改变网格位置。模板评分也不得反向修改已经确定的格子几何。
 
-| `grid_type` | 默认过滤器 |
-| --- | --- |
-| `trade` | `Normal:Product`、`Normal:Usable` |
-| `transfer`、`port_storager`、`shipment` | `Normal:*` |
-| `valuables` | `ValuableDepot:*` |
-| `credit_trade` | `ValuableDepot:SpecialItem`、`Isolate:*` |
-| `single_roi` | `Normal:*` |
+### 诊断层
 
-## 返回值
+内部诊断分为网格级与格子级：
 
-`RecognitionResult` 与 Custom detail 使用相同数据结构：
+- 网格级记录候选比较、规则网格拟合和回退原因；
+- 格子级记录候选模板、分数、稀有度缩减，以及候选为何没有进入公开结果；
+- 性能诊断记录各阶段耗时与模板数量。
 
-| 字段 | 类型 | 说明 |
-| --- | --- | --- |
-| `detail_version` | integer | detail 契约版本，当前为 `1` |
-| `matched` | boolean | 是否至少存在一个接受结果 |
-| `grid_type` | string | 本次请求的类型，包括 `single_roi` |
-| `roi` | object | 请求 ROI，字段为 `x/y/width/height` |
-| `matches` | array | 按分数和位置排序的接受结果 |
-| `error` | object | 失败时出现，包含稳定的 `code` 和可读 `message` |
+正常执行到结果汇总阶段时会收集网格级和格子级诊断；提前返回的 `invalid_image` 或 `exception` 可能不包含诊断。这些诊断供内部实现、debug 文件和人工测试使用；性能诊断以及 Custom 入口的 debug 文件由 debug 开关控制。添加诊断字段时，需要同步人工测试输出；除非公开契约确实需要，否则不要修改 `RecognitionResult::to_json()`。
 
-`matches[]` 字段：
+## 维护约束
 
-| 字段 | 说明 |
-| --- | --- |
-| `item_id` | catalog 顶层物品 ID |
-| `name` | 多语言 key，如 `iconRecognition.name.item_copper_ore` |
-| `category` | catalog 中文分类标签 |
-| `storage_kind` / `category_type` | 可用于后续过滤和业务判断的分类字段 |
-| `rarity` | catalog 稀有度 |
-| `cell_box` | 所属网格 cell；`single_roi` 时等于请求 ROI |
-| `item_box` | 最终模板命中位置 |
-| `score` | 最终匹配分数 |
-| `row` / `column` | 真实网格结果的行列；`single_roi` 不返回 |
-
-结果按 `score` 降序，再按 `cell_box.y`、`cell_box.x`、`item_id` 排序。`deduplicate=true` 时按该顺序为每个 `item_id` 保留第一项，因此留下的是各物品分数最高的 cell。
-
-Custom 命中时返回 `MAA_TRUE`，`out_box` 等于 `matches[0].cell_box`；没有接受结果时返回 `MAA_FALSE`。MaaFramework 会把回调 detail 包装到外层 `all/filtered/best` 中，命中时完整结果位于 `best.detail`。
-
-### error.code
-
-| `code` | 触发条件 | 说明 |
-| --- | --- | --- |
-| `invalid_image` | Custom 入口收到空图片 | 请求未进入参数解析和识别流程 |
-| `exception` | 参数校验、资源加载、网格检测或匹配抛出异常 | `message` 保留具体失败原因，调用方不应依赖其文本做分支 |
-| `no_match` | 识别正常完成，但没有物品达到阈值 | 属于正常拒识结果，不表示组件异常 |
-
-三种错误均返回 `MAA_FALSE`。其中 `no_match` 仍会返回已解析的 `grid_type`、`roi` 和空 `matches`；`exception` 是否包含 `grid_type` 取决于异常发生前是否已成功解析该字段。
-
-## Debug 输出
-
-`debug=true` 时，Custom 入口把本次识别保存到 `exe_dir/../debug/vision/IconRecognition`：
-
-- `raw/<stem>.png`：输入原图；
-- `annotated/<stem>.png`：ROI、cell、候选框和分数标注；
-- `detail/<stem>.json`：公开结果加内部 `diagnostics`。
-
-三个文件使用相同 stem，合称一组。组件按 `raw` 文件的修改时间只保留最近 20 组，并同步删除其它两个目录中的同组文件。Custom 回调的公开 detail 不包含内部 `diagnostics`；只有 debug 文件和人工测试 detail 会附加该字段。
-
-双侧网格的 `diagnostics.grids[]` 额外记录最终 origin、浮点 pitch、行列数、结构/色带/一致性分数、最大残差、六色可信格计数、fallback 原因和被拒候选原因。`diagnostics.cells[]` 继续记录每个图标候选的匹配细节。
+- Pipeline 负责界面跳转和操作流程；本组件只做单次图标识别。
+- Custom、Go 和 C++ 三种入口最终必须复用同一个 `RecognitionRequest` / `RecognitionResult` 语义。
+- 调参常量的含义、影响和标定依据写在对应定义旁，并由针对性测试锁定；内部 Markdown 不复制常量名称和值。
+- 调用者可见的参数、默认值、参考 ROI 或返回字段发生变化时，更新中英文开发者使用指南。
+- 只改变内部算法而不改变外部行为时，更新本目录的算法、网格或测试文档，不向调用指南暴露中间实现。
