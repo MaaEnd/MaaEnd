@@ -38,17 +38,31 @@ bool TemplateCatalog::InitializeUnlocked()
         throw std::runtime_error("recognition_items.json must be an object");
     }
     const std::set<std::string> expected { "name", "category", "storageKind", "categoryType", "rarity", "iconId", "fluidIconId" };
+    const std::set<std::string> optional { "sortId1", "sortId2" };
+    const auto is_integer = [](const json::value& value) {
+        return value.is_number() && value.as_double() == static_cast<double>(value.as_integer());
+    };
     for (const auto& [item_id, value] : parsed->as_object()) {
         if (item_id.empty() || !value.is_object()) {
             throw std::runtime_error("invalid recognition catalog item: " + item_id);
         }
         const auto& object = value.as_object();
-        if (object.size() != expected.size()) {
+        const bool has_sort_id1 = object.contains("sortId1");
+        const bool has_sort_id2 = object.contains("sortId2");
+        if (has_sort_id1 != has_sort_id2) {
             throw std::runtime_error("catalog fields mismatch: " + item_id);
         }
         for (const auto& field : expected) {
             if (!object.contains(field)) {
                 throw std::runtime_error("catalog field missing: " + item_id + "." + field);
+            }
+        }
+        for (const auto& [field, field_value] : object) {
+            if (!expected.contains(field) && !optional.contains(field)) {
+                throw std::runtime_error("catalog field unknown: " + item_id + "." + field);
+            }
+            if (optional.contains(field) && !is_integer(field_value)) {
+                throw std::runtime_error("catalog sort field invalid: " + item_id + "." + field);
             }
         }
         const auto get_string = [&](const char* key) {
