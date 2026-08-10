@@ -119,6 +119,7 @@
     },
     "DeliveryJobsEnterWulingCityCargo": {
         "desc": "进入武陵城区货物",
+        "max_hit": 1,
         "recognition": "And",
         "all_of": [
             "DeliveryJobsCheckLocalDepotNodeWulingCityText",
@@ -130,6 +131,7 @@
         "anchor": {
             "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillWuling",
             "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
+            "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStopForOngoingDelivery",
             "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
         },
         "post_delay": 0,
@@ -155,11 +157,7 @@
         "recognition": "Custom",
         "custom_recognition": "ExpressionRecognition",
         "custom_recognition_param": {
-            "expression": "{DeliveryJobsSelectedBidPriceOCR}>={MinimumTransferQuote}",
-            "constants": {
-                "MinimumTransferQuote": "11.9万"
-            },
-            "box_node": "DeliveryJobsSelectedBidPriceOCR"
+            "expression": "{DeliveryJobsSelectedBidPrice}>=119000"
         },
         "pre_delay": 0,
         "anchor": {
@@ -173,15 +171,11 @@
         ]
     },
     "DeliveryJobsWulingCityQuoteBelowMinimum": {
-        "desc": "武陵城区当前报价低于自动转交阈值",
+        "desc": "武陵城区当前报价低于阈值",
         "recognition": "Custom",
         "custom_recognition": "ExpressionRecognition",
         "custom_recognition_param": {
-            "expression": "{DeliveryJobsSelectedBidPriceOCR}<{MinimumTransferQuote}",
-            "constants": {
-                "MinimumTransferQuote": "11.9万"
-            },
-            "box_node": "DeliveryJobsSelectedBidPriceOCR"
+            "expression": "{DeliveryJobsSelectedBidPrice}<119000"
         },
         "pre_delay": 0,
         "anchor": {

@@ -222,12 +222,10 @@ Parameters:
 
 - `expression: string`: Required. The expression must ultimately evaluate to a boolean value.
 - `box_node?: string`: Optional. Which recognition node's result box to return upon a match; if the node is `And`, it will first execute that node, then read the corresponding sub-recognition result's box directly from the current recognition results based on its native `box_index`.
-- `constants?: object<string, string>`: Optional. Supplies numerical placeholder values without running recognition nodes. Values use the same parser as OCR text, for example `{"MinimumTransferQuote": "11.9万"}`.
 
 Placeholder Rules:
 
 - Use `{NodeName}` to reference other recognition nodes.
-- If a placeholder name exists in `constants`, the constant value is used directly and a recognition node with the same name is not executed. Constants take precedence over nodes.
 - Referenced nodes are executed once with the current image `arg.Img`.
 - If a referenced node is `And`, the current implementation first executes the `And` node itself, then reads the corresponding sub-recognition result directly from the current recognition results based on that node's native `box_index`, and treats it as the final source for that node's value.
 - The current implementation extracts numerical values from the referenced node's OCR results to participate in the calculation and supports common abbreviation formats, such as `1.38万`, `13.8K`, `22.01M`; these values are converted to integers before participating in the expression calculation.
@@ -248,11 +246,8 @@ Example:
         "param": {
             "custom_recognition": "ExpressionRecognition",
             "custom_recognition_param": {
-                "expression": "{DeliveryJobsSelectedBidPriceOCR}>={MinimumTransferQuote}",
-                "constants": {
-                    "MinimumTransferQuote": "11.9万"
-                },
-                "box_node": "DeliveryJobsSelectedBidPriceOCR"
+                "expression": "{CreditShoppingReserveCreditOCRInternal}<{ReserveCreditThreshold}",
+                "box_node": "CreditShoppingReserveCreditOCRInternal"
             }
         }
     }
@@ -269,7 +264,6 @@ Important Notes:
 
 - The expression result must be a boolean value; otherwise, recognition fails.
 - Referenced nodes should currently return a parseable OCR numerical result; otherwise, expression evaluation fails.
-- Constant names and values must not be empty, and values must use a parseable OCR numerical format. Supported suffixes include `万`, `萬`, `만`, `亿`, `億`, `억`, and `K/M/B`.
 - For `And` nodes, the sub-recognition result pointed to by `box_index` currently needs to directly contain a parseable OCR numerical result.
 - Integer literals in expressions, and values converted from OCR, if they exceed the range representable by the platform's `int`, are automatically clamped to the `int` maximum or minimum (positive overflow takes the maximum, negative overflow takes the minimum), and a warning log is output; expression evaluation continues rather than failing immediately.
 - This recognizer is only responsible for expression evaluation, not for the business semantics itself; the business side should organize nodes and thresholds within the Pipeline.

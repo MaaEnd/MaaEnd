@@ -16,6 +16,10 @@ function readGeneratedPipeline(...segments) {
     return readJsonc(new URL(`../../../assets/resource/pipeline/${segments.join("/")}`, import.meta.url));
 }
 
+function readAdbPipeline(...segments) {
+    return readJsonc(new URL(`../../../assets/resource_adb/pipeline/${segments.join("/")}`, import.meta.url));
+}
+
 function readGeneratedTask() {
     return readJsonc(new URL("../../../assets/tasks/DeliveryJobs.json", import.meta.url));
 }
@@ -77,9 +81,12 @@ test("DeliveryJobs generated depot nodes enter the shared transfer and cargo flo
         assert.deepEqual(pipeline[`DeliveryJobsEnter${depot.Id}DeliveryJob`].next, [
             "DeliveryJobsClickTransferJob",
         ]);
+        assert.equal(pipeline[`DeliveryJobsEnter${depot.Id}DeliveryJob`].max_hit, 1);
+        assert.equal(pipeline[`DeliveryJobsEnter${depot.Id}Cargo`].max_hit, 1);
         assert.deepEqual(pipeline[`DeliveryJobsEnter${depot.Id}Cargo`].anchor, {
             DeliveryJobsSelectItemToFill: `DeliveryJobsSelectItemToFill${depot.RegionId}`,
             DeliveryJobsRedistributionBidAction: "DeliveryJobsRedistributionBidNextStep",
+            DeliveryJobsOngoingDeliveryAction: "DeliveryJobsStopForOngoingDelivery",
             DeliveryJobsGoToDepot: depot.DepotScene,
         });
         assert.deepEqual(pipeline[`DeliveryJobsEnter${depot.Id}Cargo`].next, [
@@ -102,9 +109,17 @@ test("DeliveryJobs generated quote nodes compare the threshold and route the sel
             `DeliveryJobs${depot.Id}QuoteBelowMinimum`,
             "DeliveryJobsBidPriceRecognitionFailed",
         ]);
-        assert.equal(
-            pipeline[`DeliveryJobs${depot.Id}QuoteAtLeastMinimum`].custom_recognition_param.expression,
-            "{DeliveryJobsSelectedBidPriceOCR}>={MinimumTransferQuote}",
+        assert.deepEqual(
+            pipeline[`DeliveryJobs${depot.Id}QuoteAtLeastMinimum`].custom_recognition_param,
+            {
+                expression: "{DeliveryJobsSelectedBidPrice}>=119000",
+            },
+        );
+        assert.deepEqual(
+            pipeline[`DeliveryJobs${depot.Id}QuoteBelowMinimum`].custom_recognition_param,
+            {
+                expression: "{DeliveryJobsSelectedBidPrice}<119000",
+            },
         );
         assert.deepEqual(pipeline[`DeliveryJobs${depot.Id}QuoteAtLeastMinimum`].anchor, {
             DeliveryJobsQuoteAction: "DeliveryJobsQuoteTransferJob",
@@ -163,6 +178,10 @@ test("DeliveryJobs ordinary depot modes override delivery and cargo behavior", (
             byName.Transfer.pipeline_override[cargoNode].anchor.DeliveryJobsRedistributionBidAction,
             "DeliveryJobsRedistributionBidNextStep",
         );
+        assert.equal(
+            byName.Transfer.pipeline_override[cargoNode].anchor.DeliveryJobsOngoingDeliveryAction,
+            "DeliveryJobsStopForOngoingDelivery",
+        );
         assert.equal(byName.Transfer.pipeline_override[cargoNode].anchor.DeliveryJobsGoToDepot, depot.DepotScene);
 
         assert.equal(byName.PackCargoOnly.pipeline_override[deliveryNode].enabled, false);
@@ -170,10 +189,18 @@ test("DeliveryJobs ordinary depot modes override delivery and cargo behavior", (
             byName.PackCargoOnly.pipeline_override[cargoNode].anchor.DeliveryJobsRedistributionBidAction,
             "DeliveryJobsBackToDepotFromBid",
         );
+        assert.equal(
+            byName.PackCargoOnly.pipeline_override[cargoNode].anchor.DeliveryJobsOngoingDeliveryAction,
+            "DeliveryJobsSkipOngoingDelivery",
+        );
         assert.equal(byName.PackCargoOnly.pipeline_override[cargoNode].anchor.DeliveryJobsGoToDepot, depot.DepotScene);
         assert.equal(byName.PackCargoOnly.pipeline_override[cargoCheckNode].expected.includes("查看报价"), false);
 
         assert.equal(byName.AcceptJobOnly.pipeline_override[deliveryNode].enabled, false);
+        assert.equal(
+            byName.AcceptJobOnly.pipeline_override[cargoNode].anchor.DeliveryJobsOngoingDeliveryAction,
+            "DeliveryJobsStopForOngoingDelivery",
+        );
         assert.equal(byName.AcceptJobOnly.pipeline_override[cargoNode].anchor.DeliveryJobsGoToDepot, depot.DepotScene);
 
         assert.deepEqual(byName.Disabled.pipeline_override, {
@@ -192,7 +219,7 @@ test("DeliveryJobs quote mode registers threshold and branch action options", ()
     for (const depot of deliveryJobDepots) {
         const {byName, deliveryNode, cargoNode} = getDepotModeContext(task, depot);
         assert.deepEqual(byName.ByQuote.option, [
-            `DeliveryJobsMinimumTransferQuote${depot.Id}`,
+            `DeliveryJobsQuoteThreshold${depot.Id}`,
             `DeliveryJobsAtLeastMinimumQuoteAction${depot.Id}`,
             `DeliveryJobsBelowMinimumQuoteAction${depot.Id}`,
         ]);
@@ -202,6 +229,10 @@ test("DeliveryJobs quote mode registers threshold and branch action options", ()
             byName.ByQuote.pipeline_override[cargoNode].anchor.DeliveryJobsRedistributionBidAction,
             `DeliveryJobsDecide${depot.Id}Quote`,
         );
+        assert.equal(
+            byName.ByQuote.pipeline_override[cargoNode].anchor.DeliveryJobsOngoingDeliveryAction,
+            "DeliveryJobsStopForOngoingDelivery",
+        );
         assert.equal(byName.ByQuote.pipeline_override[cargoNode].anchor.DeliveryJobsGoToDepot, depot.DepotScene);
     }
 });
@@ -209,20 +240,22 @@ test("DeliveryJobs quote mode registers threshold and branch action options", ()
 test("DeliveryJobs quote threshold configures both comparison nodes", () => {
     const task = readGeneratedTask();
     for (const depot of deliveryJobDepots) {
-        const thresholdOption = task.option[`DeliveryJobsMinimumTransferQuote${depot.Id}`];
+        const thresholdOption = task.option[`DeliveryJobsQuoteThreshold${depot.Id}`];
         const thresholdInput = thresholdOption.inputs[0];
         assert.equal(thresholdOption.type, "input");
-        assert.equal(thresholdInput.default, "11.9万");
+        assert.equal(thresholdInput.default, "119000");
         assert.equal(thresholdInput.pipeline_type, "string");
-        assert.equal(
-            thresholdOption.pipeline_override[`DeliveryJobs${depot.Id}QuoteAtLeastMinimum`].custom_recognition_param
-                .constants.MinimumTransferQuote,
-            `{${thresholdInput.name}}`,
+        assert.deepEqual(
+            thresholdOption.pipeline_override[`DeliveryJobs${depot.Id}QuoteAtLeastMinimum`].custom_recognition_param,
+            {
+                expression: `{DeliveryJobsSelectedBidPrice}>={${thresholdInput.name}}`,
+            },
         );
-        assert.equal(
-            thresholdOption.pipeline_override[`DeliveryJobs${depot.Id}QuoteBelowMinimum`].custom_recognition_param
-                .constants.MinimumTransferQuote,
-            `{${thresholdInput.name}}`,
+        assert.deepEqual(
+            thresholdOption.pipeline_override[`DeliveryJobs${depot.Id}QuoteBelowMinimum`].custom_recognition_param,
+            {
+                expression: `{DeliveryJobsSelectedBidPrice}<{${thresholdInput.name}}`,
+            },
         );
     }
 });
@@ -277,22 +310,32 @@ test("DeliveryJobs quote branches share actions with branch-specific defaults", 
 
 test("DeliveryJobs shared bid page locates the selected quote", () => {
     const pipeline = readGeneratedPipeline("DeliveryJobs", "PackCargo.json");
-    assert.deepEqual(
-        pipeline.__DeliveryJobsSelectedBidPriceBackgroundColor.roi,
-        [
-            1160,
-            120,
-            105,
-            370,
-        ],
-    );
-    assert.equal(pipeline.__DeliveryJobsSelectedBidPriceBackgroundColor.connected, true);
-    assert.deepEqual(pipeline.DeliveryJobsSelectedBidPriceBackground.all_of, [
-        "DeliveryJobsInCargoRedistributionBid",
-        "__DeliveryJobsSelectedBidPriceBackgroundColor",
+    const adbPipeline = readAdbPipeline("DeliveryJobs", "PackCargo.json");
+    assert.deepEqual(pipeline.DeliveryJobsSelectedBidLocationIcon.roi, [
+        970,
+        132,
+        223,
+        106,
     ]);
-    assert.equal(pipeline.DeliveryJobsSelectedBidPriceBackground.box_index, 1);
-    assert.equal(pipeline.DeliveryJobsSelectedBidPriceOCR.roi, "DeliveryJobsSelectedBidPriceBackground");
+    assert.equal(pipeline.DeliveryJobsSelectedBidLocationIcon.template, "DeliveryJobs/LocationIcon.png");
+    assert.ok(existsSync(new URL("../../../assets/resource/image/DeliveryJobs/LocationIcon.png", import.meta.url)));
+    assert.ok(existsSync(new URL("../../../assets/resource_adb/image/DeliveryJobs/LocationIcon.png", import.meta.url)));
+    assert.equal(pipeline.DeliveryJobsSelectedBidPriceOCR.roi, "DeliveryJobsSelectedBidLocationIcon");
+    assert.deepEqual(pipeline.DeliveryJobsSelectedBidPriceOCR.roi_offset, [
+        137,
+        16,
+        28,
+        -2,
+    ]);
+    assert.deepEqual(adbPipeline.DeliveryJobsSelectedBidPriceOCR.roi_offset, [
+        170,
+        20,
+        35,
+        -3,
+    ]);
+    assert.equal(pipeline.DeliveryJobsSelectedBidPriceOCR.only_rec, true);
+    assert.deepEqual(pipeline.DeliveryJobsSelectedBidPriceOCR.expected, ["\\d+(?:[.,]\\d+)?"]);
+    assert.deepEqual(pipeline.DeliveryJobsSelectedBidPriceOCR.replace, [["方", "万"]]);
 });
 
 test("DeliveryJobs shared bid page dispatches through common quote actions", () => {
@@ -312,6 +355,14 @@ test("DeliveryJobs shared bid page dispatches through common quote actions", () 
         "InLocalDepotNode",
     ]);
     assert.equal(pipeline.DeliveryJobsQuoteDoNotAcceptStopped, undefined);
+    assert.deepEqual(pipeline.DeliveryJobsOngoingDelivery.next, [
+        "[Anchor]DeliveryJobsOngoingDeliveryAction",
+    ]);
+    assert.equal(pipeline.DeliveryJobsOngoingDelivery.action, undefined);
+    assert.equal(pipeline.DeliveryJobsStopForOngoingDelivery.action, "StopTask");
+    assert.deepEqual(pipeline.DeliveryJobsSkipOngoingDelivery.next, [
+        "DeliveryJobsBackToDepotFromBid",
+    ]);
 });
 
 test("DeliveryJobs stops only for an ongoing delivery or quote recognition failure", () => {
@@ -335,7 +386,7 @@ test("DeliveryJobs stops only for an ongoing delivery or quote recognition failu
         .sort();
     assert.deepEqual(stopNodes, [
         "DeliveryJobsBidPriceRecognitionFailed",
-        "DeliveryJobsOngoingDelivery",
+        "DeliveryJobsStopForOngoingDelivery",
     ]);
 });
 

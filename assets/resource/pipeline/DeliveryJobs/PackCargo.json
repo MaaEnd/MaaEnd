@@ -77,37 +77,16 @@
             "[Anchor]DeliveryJobsRedistributionBidAction"
         ]
     },
-    "__DeliveryJobsSelectedBidPriceBackgroundColor": {
-        "desc": "通过白色连通域定位当前选中的报价行",
-        "recognition": "ColorMatch",
+    "DeliveryJobsSelectedBidLocationIcon": {
+        "desc": "识别当前选中的运送委托报价的地点图标",
+        "recognition": "TemplateMatch",
         "roi": [
-            1160,
-            120,
-            105,
-            370
+            970,
+            132,
+            223,
+            106
         ],
-        "method": 6,
-        "lower": [
-            180
-        ],
-        "upper": [
-            255
-        ],
-        "connected": true,
-        "count": 5000,
-        "order_by": "Area",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "DeliveryJobsSelectedBidPriceBackground": {
-        "desc": "在调度申请界面定位当前选中的报价行",
-        "recognition": "And",
-        "all_of": [
-            "DeliveryJobsInCargoRedistributionBid",
-            "__DeliveryJobsSelectedBidPriceBackgroundColor"
-        ],
-        "box_index": 1,
+        "template": "DeliveryJobs/LocationIcon.png",
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
@@ -115,25 +94,36 @@
     "DeliveryJobsSelectedBidPriceOCR": {
         "desc": "识别当前选中的运送委托报价",
         "recognition": "OCR",
-        "roi": "DeliveryJobsSelectedBidPriceBackground",
+        "roi": "DeliveryJobsSelectedBidLocationIcon",
         "roi_offset": [
-            20,
-            45,
-            -25,
-            -45
+            137,
+            16,
+            28,
+            -2
         ],
-        // 报价由游戏动态生成，无法写固定完整文本
         "expected": [
             // @i18n-skip
-            "\\d+(?:[.,]\\d+)?\\s*(?:万|萬|亿|億|만|억|[KkMmBb])"
+            "\\d+(?:[.,]\\d+)?"
         ],
-        // 中文紧凑报价的单位可能漏识别或被识别成第二位小数；21.1 / 21.17 均按 21.1 万归一为 211K
         "replace": [
             [
-                "^(\\d+)[.,](\\d)\\d?$",
-                "$1$2K"
+                "方",
+                "万"
             ]
         ],
+        "only_rec": true,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "DeliveryJobsSelectedBidPrice": {
+        "desc": "获取当前选中的运送委托报价",
+        "recognition": "And",
+        "all_of": [
+            "DeliveryJobsSelectedBidLocationIcon",
+            "DeliveryJobsSelectedBidPriceOCR"
+        ],
+        "box_index": 1,
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
@@ -480,7 +470,7 @@
         ]
     },
     "DeliveryJobsOngoingDelivery": {
-        "desc": "有待运送的货物，无法继续装箱流程，退出任务",
+        "desc": "识别已有待运送的货物，并按当前仓储节点模式处理",
         "recognition": "OCR",
         "roi": [
             882,
@@ -498,12 +488,32 @@
             "운송 대기 중인 화물 있음"
         ],
         "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]DeliveryJobsOngoingDeliveryAction"
+        ]
+    },
+    "DeliveryJobsStopForOngoingDelivery": {
+        "desc": "有待运送的货物，无法继续当前处理流程，退出任务",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
         "action": "StopTask",
         "post_delay": 0,
         "rate_limit": 0,
         "focus": {
             "Node.Recognition.Succeeded": "$task.DeliveryJobs.OngoingDelivery"
         }
+    },
+    "DeliveryJobsSkipOngoingDelivery": {
+        "desc": "仅装箱模式已有待运送货物时，关闭当前页面并继续下一个仓储节点",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsBackToDepotFromBid"
+        ]
     },
     "DeliveryJobsBackToDepot": {
         "desc": "回到本地仓储界面",

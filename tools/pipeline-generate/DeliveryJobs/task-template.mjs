@@ -21,15 +21,16 @@ const PACK_CARGO_EXPECTED = [
     "화물 포장",
 ];
 
-function buildCargoAnchor(depot, bidAction) {
+function buildCargoAnchor(depot, bidAction, ongoingDeliveryAction = "DeliveryJobsStopForOngoingDelivery") {
     return {
         DeliveryJobsSelectItemToFill: `DeliveryJobsSelectItemToFill${depot.RegionId}`,
         DeliveryJobsRedistributionBidAction: bidAction,
+        DeliveryJobsOngoingDeliveryAction: ongoingDeliveryAction,
         DeliveryJobsGoToDepot: depot.DepotScene,
     };
 }
 
-function buildModeOverride(depot, {deliveryEnabled, cargoEnabled, cargoExpected, bidAction}) {
+function buildModeOverride(depot, {deliveryEnabled, cargoEnabled, cargoExpected, bidAction, ongoingDeliveryAction}) {
     const deliveryNode = `DeliveryJobsEnter${depot.Id}DeliveryJob`;
     const cargoNode = `DeliveryJobsEnter${depot.Id}Cargo`;
     const cargoCheckNode = `DeliveryJobsCheck${depot.Id}Cargo`;
@@ -43,7 +44,7 @@ function buildModeOverride(depot, {deliveryEnabled, cargoEnabled, cargoExpected,
     };
 
     if (cargoEnabled) {
-        pipelineOverride[cargoNode].anchor = buildCargoAnchor(depot, bidAction);
+        pipelineOverride[cargoNode].anchor = buildCargoAnchor(depot, bidAction, ongoingDeliveryAction);
         pipelineOverride[cargoCheckNode] = {
             expected: cargoExpected,
         };
@@ -71,7 +72,7 @@ function buildDepotOption(depot) {
                 name: "ByQuote",
                 label: "$task.DeliveryJobs.DepotAction.ByQuote",
                 option: [
-                    `DeliveryJobsMinimumTransferQuote${depot.Id}`,
+                    `DeliveryJobsQuoteThreshold${depot.Id}`,
                     `DeliveryJobsAtLeastMinimumQuoteAction${depot.Id}`,
                     `DeliveryJobsBelowMinimumQuoteAction${depot.Id}`,
                 ],
@@ -100,6 +101,7 @@ function buildDepotOption(depot) {
                     cargoEnabled: true,
                     cargoExpected: PACK_CARGO_EXPECTED,
                     bidAction: "DeliveryJobsBackToDepotFromBid",
+                    ongoingDeliveryAction: "DeliveryJobsSkipOngoingDelivery",
                 }),
             },
             {
@@ -115,39 +117,49 @@ function buildDepotOption(depot) {
     };
 }
 
-function buildMinimumTransferQuoteOption(depot) {
-    const inputName = `DeliveryJobsMinimumTransferQuote${depot.Id}Value`;
-    const comparisonNodes = [
-        `DeliveryJobs${depot.Id}QuoteAtLeastMinimum`,
-        `DeliveryJobs${depot.Id}QuoteBelowMinimum`,
+function buildQuoteThresholdOption(depot) {
+    const inputName = `DeliveryJobsQuoteThreshold${depot.Id}Value`;
+    const comparisonExpressions = [
+        [
+            `DeliveryJobs${depot.Id}QuoteAtLeastMinimum`,
+            `{DeliveryJobsSelectedBidPrice}>={${inputName}}`,
+        ],
+        [
+            `DeliveryJobs${depot.Id}QuoteBelowMinimum`,
+            `{DeliveryJobsSelectedBidPrice}<{${inputName}}`,
+        ],
     ];
 
     return {
         type: "input",
-        label: "$task.DeliveryJobs.MinimumTransferQuote.label",
-        description: "$task.DeliveryJobs.MinimumTransferQuote.description",
+        label: "$task.DeliveryJobs.QuoteThreshold.label",
+        description: "$task.DeliveryJobs.QuoteThreshold.description",
         inputs: [
             {
                 name: inputName,
-                label: "$task.DeliveryJobs.MinimumTransferQuote.inputs.Value.label",
-                description: "$task.DeliveryJobs.MinimumTransferQuote.inputs.Value.description",
+                label: "$task.DeliveryJobs.QuoteThreshold.inputs.Value.label",
+                description: "$task.DeliveryJobs.QuoteThreshold.inputs.Value.description",
+                // The input is interpolated into an expression string; using "int" would parse the whole expression as an integer.
                 pipeline_type: "string",
-                verify: "^\\d+(?:[.,]\\d+)?(?:\\s*(?:万|萬|亿|億|만|억|[KkMmBb]))?$",
-                default: "11.9万",
-                pattern_msg: "$task.DeliveryJobs.MinimumTransferQuote.inputs.Value.pattern_msg",
+                verify: "^\\d+$",
+                default: "119000",
+                pattern_msg: "$task.DeliveryJobs.QuoteThreshold.inputs.Value.pattern_msg",
             },
         ],
         pipeline_override: Object.fromEntries(
-            comparisonNodes.map((node) => [
-                node,
-                {
-                    custom_recognition_param: {
-                        constants: {
-                            MinimumTransferQuote: `{${inputName}}`,
+            comparisonExpressions.map(
+                ([
+                    node,
+                    expression,
+                ]) => [
+                    node,
+                    {
+                        custom_recognition_param: {
+                            expression,
                         },
                     },
-                },
-            ]),
+                ],
+            ),
         ),
     };
 }
@@ -246,7 +258,7 @@ function buildTaskOptions() {
         for (const depotId of region.Depots) {
             const depot = deliveryJobDepots.find((item) => item.Id === depotId);
             options[depot.Id] = buildDepotOption(depot);
-            options[`DeliveryJobsMinimumTransferQuote${depot.Id}`] = buildMinimumTransferQuoteOption(depot);
+            options[`DeliveryJobsQuoteThreshold${depot.Id}`] = buildQuoteThresholdOption(depot);
             options[`DeliveryJobsAtLeastMinimumQuoteAction${depot.Id}`] = buildQuoteActionOption(depot, {
                 comparison: "AtLeastMinimum",
                 label: "$task.DeliveryJobs.AtLeastMinimumQuoteAction.label",

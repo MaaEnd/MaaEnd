@@ -11,40 +11,9 @@
         {
             "image": "四号谷地_地区建设_仓储节点_货物装箱_调度申请.png",
             "hits": [
-                {
-                    "node": "DeliveryJobsSelectedBidPriceBackground",
-                    "box": {
-                        "Win32": [
-                            1160,
-                            135,
-                            105,
-                            80
-                        ],
-                        "ADB": [
-                            1160,
-                            169,
-                            104,
-                            99
-                        ]
-                    }
-                },
-                {
-                    "node": "DeliveryJobsSelectedBidPriceOCR",
-                    "box": {
-                        "Win32": [
-                            1203,
-                            180,
-                            47,
-                            20
-                        ],
-                        "ADB": [
-                            1182,
-                            214,
-                            62,
-                            36
-                        ]
-                    }
-                }
+                "DeliveryJobsSelectedBidLocationIcon",
+                "DeliveryJobsSelectedBidPriceOCR",
+                "DeliveryJobsSelectedBidPrice"
             ]
         }
     ]

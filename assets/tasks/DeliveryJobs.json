@@ -69,6 +69,7 @@
                             "anchor": {
                                 "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillValleyIV",
                                 "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
+                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStopForOngoingDelivery",
                                 "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
                             }
                         },
@@ -92,7 +93,7 @@
                     "name": "ByQuote",
                     "label": "$task.DeliveryJobs.DepotAction.ByQuote",
                     "option": [
-                        "DeliveryJobsMinimumTransferQuoteOriginiumSciencePark",
+                        "DeliveryJobsQuoteThresholdOriginiumSciencePark",
                         "DeliveryJobsAtLeastMinimumQuoteActionOriginiumSciencePark",
                         "DeliveryJobsBelowMinimumQuoteActionOriginiumSciencePark"
                     ],
@@ -105,6 +106,7 @@
                             "anchor": {
                                 "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillValleyIV",
                                 "DeliveryJobsRedistributionBidAction": "DeliveryJobsDecideOriginiumScienceParkQuote",
+                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStopForOngoingDelivery",
                                 "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
                             }
                         },
@@ -136,6 +138,7 @@
                             "anchor": {
                                 "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillValleyIV",
                                 "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
+                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStopForOngoingDelivery",
                                 "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
                             }
                         },
@@ -167,6 +170,7 @@
                             "anchor": {
                                 "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillValleyIV",
                                 "DeliveryJobsRedistributionBidAction": "DeliveryJobsBackToDepotFromBid",
+                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsSkipOngoingDelivery",
                                 "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
                             }
                         },
@@ -196,34 +200,30 @@
             ],
             "default_case": "Transfer"
         },
-        "DeliveryJobsMinimumTransferQuoteOriginiumSciencePark": {
+        "DeliveryJobsQuoteThresholdOriginiumSciencePark": {
             "type": "input",
-            "label": "$task.DeliveryJobs.MinimumTransferQuote.label",
-            "description": "$task.DeliveryJobs.MinimumTransferQuote.description",
+            "label": "$task.DeliveryJobs.QuoteThreshold.label",
+            "description": "$task.DeliveryJobs.QuoteThreshold.description",
             "inputs": [
                 {
-                    "name": "DeliveryJobsMinimumTransferQuoteOriginiumScienceParkValue",
-                    "label": "$task.DeliveryJobs.MinimumTransferQuote.inputs.Value.label",
-                    "description": "$task.DeliveryJobs.MinimumTransferQuote.inputs.Value.description",
+                    "name": "DeliveryJobsQuoteThresholdOriginiumScienceParkValue",
+                    "label": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.label",
+                    "description": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.description",
                     "pipeline_type": "string",
-                    "verify": "^\\d+(?:[.,]\\d+)?(?:\\s*(?:万|萬|亿|億|만|억|[KkMmBb]))?$",
-                    "default": "11.9万",
-                    "pattern_msg": "$task.DeliveryJobs.MinimumTransferQuote.inputs.Value.pattern_msg"
+                    "verify": "^\\d+$",
+                    "default": "119000",
+                    "pattern_msg": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.pattern_msg"
                 }
             ],
             "pipeline_override": {
                 "DeliveryJobsOriginiumScienceParkQuoteAtLeastMinimum": {
                     "custom_recognition_param": {
-                        "constants": {
-                            "MinimumTransferQuote": "{DeliveryJobsMinimumTransferQuoteOriginiumScienceParkValue}"
-                        }
+                        "expression": "{DeliveryJobsSelectedBidPrice}>={DeliveryJobsQuoteThresholdOriginiumScienceParkValue}"
                     }
                 },
                 "DeliveryJobsOriginiumScienceParkQuoteBelowMinimum": {
                     "custom_recognition_param": {
-                        "constants": {
-                            "MinimumTransferQuote": "{DeliveryJobsMinimumTransferQuoteOriginiumScienceParkValue}"
-                        }
+                        "expression": "{DeliveryJobsSelectedBidPrice}<{DeliveryJobsQuoteThresholdOriginiumScienceParkValue}"
                     }
                 }
             }
@@ -332,6 +332,7 @@
                             "anchor": {
                                 "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillValleyIV",
                                 "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
+                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStopForOngoingDelivery",
                                 "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
                             }
                         },
@@ -355,7 +356,7 @@
                     "name": "ByQuote",
                     "label": "$task.DeliveryJobs.DepotAction.ByQuote",
                     "option": [
-                        "DeliveryJobsMinimumTransferQuoteOriginLodespring",
+                        "DeliveryJobsQuoteThresholdOriginLodespring",
                         "DeliveryJobsAtLeastMinimumQuoteActionOriginLodespring",
                         "DeliveryJobsBelowMinimumQuoteActionOriginLodespring"
                     ],
@@ -368,6 +369,7 @@
                             "anchor": {
                                 "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillValleyIV",
                                 "DeliveryJobsRedistributionBidAction": "DeliveryJobsDecideOriginLodespringQuote",
+                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStopForOngoingDelivery",
                                 "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
                             }
                         },
@@ -399,6 +401,7 @@
                             "anchor": {
                                 "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillValleyIV",
                                 "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
+                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStopForOngoingDelivery",
                                 "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
                             }
                         },
@@ -430,6 +433,7 @@
                             "anchor": {
                                 "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillValleyIV",
                                 "DeliveryJobsRedistributionBidAction": "DeliveryJobsBackToDepotFromBid",
+                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsSkipOngoingDelivery",
                                 "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
                             }
                         },
@@ -459,34 +463,30 @@
             ],
             "default_case": "Transfer"
         },
-        "DeliveryJobsMinimumTransferQuoteOriginLodespring": {
+        "DeliveryJobsQuoteThresholdOriginLodespring": {
             "type": "input",
-            "label": "$task.DeliveryJobs.MinimumTransferQuote.label",
-            "description": "$task.DeliveryJobs.MinimumTransferQuote.description",
+            "label": "$task.DeliveryJobs.QuoteThreshold.label",
+            "description": "$task.DeliveryJobs.QuoteThreshold.description",
             "inputs": [
                 {
-                    "name": "DeliveryJobsMinimumTransferQuoteOriginLodespringValue",
-                    "label": "$task.DeliveryJobs.MinimumTransferQuote.inputs.Value.label",
-                    "description": "$task.DeliveryJobs.MinimumTransferQuote.inputs.Value.description",
+                    "name": "DeliveryJobsQuoteThresholdOriginLodespringValue",
+                    "label": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.label",
+                    "description": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.description",
                     "pipeline_type": "string",
-                    "verify": "^\\d+(?:[.,]\\d+)?(?:\\s*(?:万|萬|亿|億|만|억|[KkMmBb]))?$",
-                    "default": "11.9万",
-                    "pattern_msg": "$task.DeliveryJobs.MinimumTransferQuote.inputs.Value.pattern_msg"
+                    "verify": "^\\d+$",
+                    "default": "119000",
+                    "pattern_msg": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.pattern_msg"
                 }
             ],
             "pipeline_override": {
                 "DeliveryJobsOriginLodespringQuoteAtLeastMinimum": {
                     "custom_recognition_param": {
-                        "constants": {
-                            "MinimumTransferQuote": "{DeliveryJobsMinimumTransferQuoteOriginLodespringValue}"
-                        }
+                        "expression": "{DeliveryJobsSelectedBidPrice}>={DeliveryJobsQuoteThresholdOriginLodespringValue}"
                     }
                 },
                 "DeliveryJobsOriginLodespringQuoteBelowMinimum": {
                     "custom_recognition_param": {
-                        "constants": {
-                            "MinimumTransferQuote": "{DeliveryJobsMinimumTransferQuoteOriginLodespringValue}"
-                        }
+                        "expression": "{DeliveryJobsSelectedBidPrice}<{DeliveryJobsQuoteThresholdOriginLodespringValue}"
                     }
                 }
             }
@@ -595,6 +595,7 @@
                             "anchor": {
                                 "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillValleyIV",
                                 "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
+                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStopForOngoingDelivery",
                                 "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
                             }
                         },
@@ -618,7 +619,7 @@
                     "name": "ByQuote",
                     "label": "$task.DeliveryJobs.DepotAction.ByQuote",
                     "option": [
-                        "DeliveryJobsMinimumTransferQuotePowerPlateau",
+                        "DeliveryJobsQuoteThresholdPowerPlateau",
                         "DeliveryJobsAtLeastMinimumQuoteActionPowerPlateau",
                         "DeliveryJobsBelowMinimumQuoteActionPowerPlateau"
                     ],
@@ -631,6 +632,7 @@
                             "anchor": {
                                 "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillValleyIV",
                                 "DeliveryJobsRedistributionBidAction": "DeliveryJobsDecidePowerPlateauQuote",
+                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStopForOngoingDelivery",
                                 "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
                             }
                         },
@@ -662,6 +664,7 @@
                             "anchor": {
                                 "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillValleyIV",
                                 "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
+                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStopForOngoingDelivery",
                                 "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
                             }
                         },
@@ -693,6 +696,7 @@
                             "anchor": {
                                 "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillValleyIV",
                                 "DeliveryJobsRedistributionBidAction": "DeliveryJobsBackToDepotFromBid",
+                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsSkipOngoingDelivery",
                                 "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
                             }
                         },
@@ -722,34 +726,30 @@
             ],
             "default_case": "Transfer"
         },
-        "DeliveryJobsMinimumTransferQuotePowerPlateau": {
+        "DeliveryJobsQuoteThresholdPowerPlateau": {
             "type": "input",
-            "label": "$task.DeliveryJobs.MinimumTransferQuote.label",
-            "description": "$task.DeliveryJobs.MinimumTransferQuote.description",
+            "label": "$task.DeliveryJobs.QuoteThreshold.label",
+            "description": "$task.DeliveryJobs.QuoteThreshold.description",
             "inputs": [
                 {
-                    "name": "DeliveryJobsMinimumTransferQuotePowerPlateauValue",
-                    "label": "$task.DeliveryJobs.MinimumTransferQuote.inputs.Value.label",
-                    "description": "$task.DeliveryJobs.MinimumTransferQuote.inputs.Value.description",
+                    "name": "DeliveryJobsQuoteThresholdPowerPlateauValue",
+                    "label": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.label",
+                    "description": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.description",
                     "pipeline_type": "string",
-                    "verify": "^\\d+(?:[.,]\\d+)?(?:\\s*(?:万|萬|亿|億|만|억|[KkMmBb]))?$",
-                    "default": "11.9万",
-                    "pattern_msg": "$task.DeliveryJobs.MinimumTransferQuote.inputs.Value.pattern_msg"
+                    "verify": "^\\d+$",
+                    "default": "119000",
+                    "pattern_msg": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.pattern_msg"
                 }
             ],
             "pipeline_override": {
                 "DeliveryJobsPowerPlateauQuoteAtLeastMinimum": {
                     "custom_recognition_param": {
-                        "constants": {
-                            "MinimumTransferQuote": "{DeliveryJobsMinimumTransferQuotePowerPlateauValue}"
-                        }
+                        "expression": "{DeliveryJobsSelectedBidPrice}>={DeliveryJobsQuoteThresholdPowerPlateauValue}"
                     }
                 },
                 "DeliveryJobsPowerPlateauQuoteBelowMinimum": {
                     "custom_recognition_param": {
-                        "constants": {
-                            "MinimumTransferQuote": "{DeliveryJobsMinimumTransferQuotePowerPlateauValue}"
-                        }
+                        "expression": "{DeliveryJobsSelectedBidPrice}<{DeliveryJobsQuoteThresholdPowerPlateauValue}"
                     }
                 }
             }
@@ -885,6 +885,7 @@
                             "anchor": {
                                 "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillWuling",
                                 "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
+                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStopForOngoingDelivery",
                                 "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
                             }
                         },
@@ -908,7 +909,7 @@
                     "name": "ByQuote",
                     "label": "$task.DeliveryJobs.DepotAction.ByQuote",
                     "option": [
-                        "DeliveryJobsMinimumTransferQuoteWulingCity",
+                        "DeliveryJobsQuoteThresholdWulingCity",
                         "DeliveryJobsAtLeastMinimumQuoteActionWulingCity",
                         "DeliveryJobsBelowMinimumQuoteActionWulingCity"
                     ],
@@ -921,6 +922,7 @@
                             "anchor": {
                                 "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillWuling",
                                 "DeliveryJobsRedistributionBidAction": "DeliveryJobsDecideWulingCityQuote",
+                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStopForOngoingDelivery",
                                 "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
                             }
                         },
@@ -952,6 +954,7 @@
                             "anchor": {
                                 "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillWuling",
                                 "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
+                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStopForOngoingDelivery",
                                 "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
                             }
                         },
@@ -983,6 +986,7 @@
                             "anchor": {
                                 "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillWuling",
                                 "DeliveryJobsRedistributionBidAction": "DeliveryJobsBackToDepotFromBid",
+                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsSkipOngoingDelivery",
                                 "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
                             }
                         },
@@ -1012,34 +1016,30 @@
             ],
             "default_case": "Transfer"
         },
-        "DeliveryJobsMinimumTransferQuoteWulingCity": {
+        "DeliveryJobsQuoteThresholdWulingCity": {
             "type": "input",
-            "label": "$task.DeliveryJobs.MinimumTransferQuote.label",
-            "description": "$task.DeliveryJobs.MinimumTransferQuote.description",
+            "label": "$task.DeliveryJobs.QuoteThreshold.label",
+            "description": "$task.DeliveryJobs.QuoteThreshold.description",
             "inputs": [
                 {
-                    "name": "DeliveryJobsMinimumTransferQuoteWulingCityValue",
-                    "label": "$task.DeliveryJobs.MinimumTransferQuote.inputs.Value.label",
-                    "description": "$task.DeliveryJobs.MinimumTransferQuote.inputs.Value.description",
+                    "name": "DeliveryJobsQuoteThresholdWulingCityValue",
+                    "label": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.label",
+                    "description": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.description",
                     "pipeline_type": "string",
-                    "verify": "^\\d+(?:[.,]\\d+)?(?:\\s*(?:万|萬|亿|億|만|억|[KkMmBb]))?$",
-                    "default": "11.9万",
-                    "pattern_msg": "$task.DeliveryJobs.MinimumTransferQuote.inputs.Value.pattern_msg"
+                    "verify": "^\\d+$",
+                    "default": "119000",
+                    "pattern_msg": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.pattern_msg"
                 }
             ],
             "pipeline_override": {
                 "DeliveryJobsWulingCityQuoteAtLeastMinimum": {
                     "custom_recognition_param": {
-                        "constants": {
-                            "MinimumTransferQuote": "{DeliveryJobsMinimumTransferQuoteWulingCityValue}"
-                        }
+                        "expression": "{DeliveryJobsSelectedBidPrice}>={DeliveryJobsQuoteThresholdWulingCityValue}"
                     }
                 },
                 "DeliveryJobsWulingCityQuoteBelowMinimum": {
                     "custom_recognition_param": {
-                        "constants": {
-                            "MinimumTransferQuote": "{DeliveryJobsMinimumTransferQuoteWulingCityValue}"
-                        }
+                        "expression": "{DeliveryJobsSelectedBidPrice}<{DeliveryJobsQuoteThresholdWulingCityValue}"
                     }
                 }
             }
@@ -1148,6 +1148,7 @@
                             "anchor": {
                                 "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillWuling",
                                 "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
+                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStopForOngoingDelivery",
                                 "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
                             }
                         },
@@ -1171,7 +1172,7 @@
                     "name": "ByQuote",
                     "label": "$task.DeliveryJobs.DepotAction.ByQuote",
                     "option": [
-                        "DeliveryJobsMinimumTransferQuoteTestArea",
+                        "DeliveryJobsQuoteThresholdTestArea",
                         "DeliveryJobsAtLeastMinimumQuoteActionTestArea",
                         "DeliveryJobsBelowMinimumQuoteActionTestArea"
                     ],
@@ -1184,6 +1185,7 @@
                             "anchor": {
                                 "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillWuling",
                                 "DeliveryJobsRedistributionBidAction": "DeliveryJobsDecideTestAreaQuote",
+                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStopForOngoingDelivery",
                                 "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
                             }
                         },
@@ -1215,6 +1217,7 @@
                             "anchor": {
                                 "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillWuling",
                                 "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
+                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStopForOngoingDelivery",
                                 "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
                             }
                         },
@@ -1246,6 +1249,7 @@
                             "anchor": {
                                 "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillWuling",
                                 "DeliveryJobsRedistributionBidAction": "DeliveryJobsBackToDepotFromBid",
+                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsSkipOngoingDelivery",
                                 "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"
                             }
                         },
@@ -1275,34 +1279,30 @@
             ],
             "default_case": "Transfer"
         },
-        "DeliveryJobsMinimumTransferQuoteTestArea": {
+        "DeliveryJobsQuoteThresholdTestArea": {
             "type": "input",
-            "label": "$task.DeliveryJobs.MinimumTransferQuote.label",
-            "description": "$task.DeliveryJobs.MinimumTransferQuote.description",
+            "label": "$task.DeliveryJobs.QuoteThreshold.label",
+            "description": "$task.DeliveryJobs.QuoteThreshold.description",
             "inputs": [
                 {
-                    "name": "DeliveryJobsMinimumTransferQuoteTestAreaValue",
-                    "label": "$task.DeliveryJobs.MinimumTransferQuote.inputs.Value.label",
-                    "description": "$task.DeliveryJobs.MinimumTransferQuote.inputs.Value.description",
+                    "name": "DeliveryJobsQuoteThresholdTestAreaValue",
+                    "label": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.label",
+                    "description": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.description",
                     "pipeline_type": "string",
-                    "verify": "^\\d+(?:[.,]\\d+)?(?:\\s*(?:万|萬|亿|億|만|억|[KkMmBb]))?$",
-                    "default": "11.9万",
-                    "pattern_msg": "$task.DeliveryJobs.MinimumTransferQuote.inputs.Value.pattern_msg"
+                    "verify": "^\\d+$",
+                    "default": "119000",
+                    "pattern_msg": "$task.DeliveryJobs.QuoteThreshold.inputs.Value.pattern_msg"
                 }
             ],
             "pipeline_override": {
                 "DeliveryJobsTestAreaQuoteAtLeastMinimum": {
                     "custom_recognition_param": {
-                        "constants": {
-                            "MinimumTransferQuote": "{DeliveryJobsMinimumTransferQuoteTestAreaValue}"
-                        }
+                        "expression": "{DeliveryJobsSelectedBidPrice}>={DeliveryJobsQuoteThresholdTestAreaValue}"
                     }
                 },
                 "DeliveryJobsTestAreaQuoteBelowMinimum": {
                     "custom_recognition_param": {
-                        "constants": {
-                            "MinimumTransferQuote": "{DeliveryJobsMinimumTransferQuoteTestAreaValue}"
-                        }
+                        "expression": "{DeliveryJobsSelectedBidPrice}<{DeliveryJobsQuoteThresholdTestAreaValue}"
                     }
                 }
             }

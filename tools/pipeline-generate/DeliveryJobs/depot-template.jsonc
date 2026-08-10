@@ -113,6 +113,7 @@
     },
     "DeliveryJobsEnter${DepotId}Cargo": {
         "desc": "进入${DepotName}货物",
+        "max_hit": 1,
         "recognition": "And",
         "all_of": [
             "DeliveryJobsCheckLocalDepotNode${DepotId}Text",
@@ -124,6 +125,7 @@
         "anchor": {
             "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFill${RegionId}",
             "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
+            "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStopForOngoingDelivery",
             "DeliveryJobsGoToDepot": "${DepotScene}"
         },
         "post_delay": 0,
@@ -149,11 +151,7 @@
         "recognition": "Custom",
         "custom_recognition": "ExpressionRecognition",
         "custom_recognition_param": {
-            "expression": "{DeliveryJobsSelectedBidPriceOCR}>={MinimumTransferQuote}",
-            "constants": {
-                "MinimumTransferQuote": "11.9万"
-            },
-            "box_node": "DeliveryJobsSelectedBidPriceOCR"
+            "expression": "{DeliveryJobsSelectedBidPrice}>=119000"
         },
         "pre_delay": 0,
         "anchor": {
@@ -167,15 +165,11 @@
         ]
     },
     "DeliveryJobs${DepotId}QuoteBelowMinimum": {
-        "desc": "${DepotName}当前报价低于自动转交阈值",
+        "desc": "${DepotName}当前报价低于阈值",
         "recognition": "Custom",
         "custom_recognition": "ExpressionRecognition",
         "custom_recognition_param": {
-            "expression": "{DeliveryJobsSelectedBidPriceOCR}<{MinimumTransferQuote}",
-            "constants": {
-                "MinimumTransferQuote": "11.9万"
-            },
-            "box_node": "DeliveryJobsSelectedBidPriceOCR"
+            "expression": "{DeliveryJobsSelectedBidPrice}<119000"
         },
         "pre_delay": 0,
         "anchor": {

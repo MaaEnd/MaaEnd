@@ -21,11 +21,10 @@ var _ maa.CustomRecognitionRunner = &Recognition{}
 type Recognition struct{}
 
 type Params struct {
-	Expression                       string            `json:"expression"`
-	BoxNode                          string            `json:"box_node"`
-	Constants                        map[string]string `json:"constants"`
-	FocusMatchedResolvedExpression   bool              `json:"focus_matched_resolved_expression"`
-	FocusUnmatchedResolvedExpression bool              `json:"focus_unmatched_resolved_expression"`
+	Expression                       string `json:"expression"`
+	BoxNode                          string `json:"box_node"`
+	FocusMatchedResolvedExpression   bool   `json:"focus_matched_resolved_expression"`
+	FocusUnmatchedResolvedExpression bool   `json:"focus_unmatched_resolved_expression"`
 }
 
 var (
@@ -45,8 +44,8 @@ func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa
 		return nil, false
 	}
 
-	resolvedExpression, values, err := resolveExpressionPlaceholders(
-		params,
+	resolvedExpression, values, err := boolexpr.ResolvePlaceholders(
+		params.Expression,
 		func(nodeName string) (int, error) {
 			return runNumericRecognition(ctx, arg, nodeName)
 		},
@@ -145,43 +144,7 @@ func parseParams(raw string) (*Params, error) {
 	}
 	params.BoxNode = strings.TrimSpace(params.BoxNode)
 
-	normalizedConstants := make(map[string]string, len(params.Constants))
-	for name, value := range params.Constants {
-		name = strings.TrimSpace(name)
-		if name == "" {
-			return nil, fmt.Errorf("constant name is required")
-		}
-		if _, exists := normalizedConstants[name]; exists {
-			return nil, fmt.Errorf("duplicate constant name %q", name)
-		}
-
-		value = strings.TrimSpace(value)
-		if value == "" {
-			return nil, fmt.Errorf("constant %q value is required", name)
-		}
-		if _, err := parseOCRNumericValue(value); err != nil {
-			return nil, fmt.Errorf("constant %q contains an invalid numeric value: %w", name, err)
-		}
-		normalizedConstants[name] = value
-	}
-	params.Constants = normalizedConstants
-
 	return &params, nil
-}
-
-func resolveExpressionPlaceholders(
-	params *Params,
-	resolveNode func(nodeName string) (int, error),
-) (string, map[string]int, error) {
-	return boolexpr.ResolvePlaceholders(
-		params.Expression,
-		func(name string) (int, error) {
-			if value, ok := params.Constants[name]; ok {
-				return parseOCRNumericValue(value)
-			}
-			return resolveNode(name)
-		},
-	)
 }
 
 func runNumericRecognition(ctx *maa.Context, arg *maa.CustomRecognitionArg, nodeName string) (int, error) {

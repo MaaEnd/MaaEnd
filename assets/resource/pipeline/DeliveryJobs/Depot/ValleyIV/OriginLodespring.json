@@ -119,6 +119,7 @@
     },
     "DeliveryJobsEnterOriginLodespringCargo": {
         "desc": "进入矿脉源区货物",
+        "max_hit": 1,
         "recognition": "And",
         "all_of": [
             "DeliveryJobsCheckLocalDepotNodeOriginLodespringText",
@@ -130,6 +131,7 @@
         "anchor": {
             "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillValleyIV",
             "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
+            "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStopForOngoingDelivery",
             "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
         },
         "post_delay": 0,
@@ -155,11 +157,7 @@
         "recognition": "Custom",
         "custom_recognition": "ExpressionRecognition",
         "custom_recognition_param": {
-            "expression": "{DeliveryJobsSelectedBidPriceOCR}>={MinimumTransferQuote}",
-            "constants": {
-                "MinimumTransferQuote": "11.9万"
-            },
-            "box_node": "DeliveryJobsSelectedBidPriceOCR"
+            "expression": "{DeliveryJobsSelectedBidPrice}>=119000"
         },
         "pre_delay": 0,
         "anchor": {
@@ -173,15 +171,11 @@
         ]
     },
     "DeliveryJobsOriginLodespringQuoteBelowMinimum": {
-        "desc": "矿脉源区当前报价低于自动转交阈值",
+        "desc": "矿脉源区当前报价低于阈值",
         "recognition": "Custom",
         "custom_recognition": "ExpressionRecognition",
         "custom_recognition_param": {
-            "expression": "{DeliveryJobsSelectedBidPriceOCR}<{MinimumTransferQuote}",
-            "constants": {
-                "MinimumTransferQuote": "11.9万"
-            },
-            "box_node": "DeliveryJobsSelectedBidPriceOCR"
+            "expression": "{DeliveryJobsSelectedBidPrice}<119000"
         },
         "pre_delay": 0,
         "anchor": {

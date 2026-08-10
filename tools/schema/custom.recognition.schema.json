@@ -148,16 +148,6 @@
                                 "type": "string",
                                 "minLength": 1
                             },
-                            "constants": {
-                                "type": "object",
-                                "propertyNames": {
-                                    "minLength": 1
-                                },
-                                "additionalProperties": {
-                                    "type": "string",
-                                    "minLength": 1
-                                }
-                            },
                             "focus_matched_resolved_expression": {
                                 "type": "boolean"
                             },

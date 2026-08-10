@@ -118,6 +118,7 @@
     },
     "DeliveryJobsEnterPowerPlateauCargo": {
         "desc": "进入供能高地货物",
+        "max_hit": 1,
         "recognition": "And",
         "all_of": [
             "DeliveryJobsCheckLocalDepotNodePowerPlateauText",
@@ -129,6 +130,7 @@
         "anchor": {
             "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillValleyIV",
             "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
+            "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStopForOngoingDelivery",
             "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
         },
         "post_delay": 0,
@@ -154,11 +156,7 @@
         "recognition": "Custom",
         "custom_recognition": "ExpressionRecognition",
         "custom_recognition_param": {
-            "expression": "{DeliveryJobsSelectedBidPriceOCR}>={MinimumTransferQuote}",
-            "constants": {
-                "MinimumTransferQuote": "11.9万"
-            },
-            "box_node": "DeliveryJobsSelectedBidPriceOCR"
+            "expression": "{DeliveryJobsSelectedBidPrice}>=119000"
         },
         "pre_delay": 0,
         "anchor": {
@@ -172,15 +170,11 @@
         ]
     },
     "DeliveryJobsPowerPlateauQuoteBelowMinimum": {
-        "desc": "供能高地当前报价低于自动转交阈值",
+        "desc": "供能高地当前报价低于阈值",
         "recognition": "Custom",
         "custom_recognition": "ExpressionRecognition",
         "custom_recognition_param": {
-            "expression": "{DeliveryJobsSelectedBidPriceOCR}<{MinimumTransferQuote}",
-            "constants": {
-                "MinimumTransferQuote": "11.9万"
-            },
-            "box_node": "DeliveryJobsSelectedBidPriceOCR"
+            "expression": "{DeliveryJobsSelectedBidPrice}<119000"
         },
         "pre_delay": 0,
         "anchor": {
