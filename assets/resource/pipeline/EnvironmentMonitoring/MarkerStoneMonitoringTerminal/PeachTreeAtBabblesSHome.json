@@ -304,7 +304,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "PeachTreeAtBabblesSHomeTakePhoto"
+            "GoToPeachTreeAtBabblesSHomeMove"
         ]
     },
     "PeachTreeAtBabblesSHomeNotAdapted": {
@@ -358,7 +358,7 @@
         ]
     },
     "GoToPeachTreeAtBabblesSHomeNotAtStartPos": {
-        "desc": "前往念念家的桃树传送点，传送后直接拍照",
+        "desc": "前往念念家的桃树传送点，传送后调整朝向并拍照",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
@@ -370,22 +370,16 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "PeachTreeAtBabblesSHomeTakePhoto"
+            "GoToPeachTreeAtBabblesSHomeMove"
         ]
     },
     "GoToPeachTreeAtBabblesSHomeMove": {
         "desc": "在念念家的桃树传送点调整拍照朝向",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerMove",
+        "custom_action": "MapTrackerToward",
         "custom_action_param": {
-            "map_name": "^map\\d+_lv\\d+$",
-            "path": [
-                [
-                    0,
-                    0
-                ]
-            ]
+            "angle": 66
         },
         "post_delay": 0,
         "rate_limit": 0,
