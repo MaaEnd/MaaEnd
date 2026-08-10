@@ -1119,5 +1119,45 @@
         "next": [
             "GiftOperatorSelectSpecifiedOpSuccess"
         ]
+    },
+    "GiftOperatorSelect_Liino": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "GiftOperatorSelectGiftOp",
+                "roi_offset": [
+                    -48,
+                    -36,
+                    165,
+                    128
+                ],
+                "template": [
+                    "GiftOperator/Operators/Liino.png"
+                ],
+                "green_mask": true
+            }
+        },
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorName": {
+                            "expected": [
+                                "梨诺",
+                                "梨諾",
+                                "Liino",
+                                "リーノ",
+                                "리노"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "next": [
+            "GiftOperatorSelectSpecifiedOpSuccess"
+        ]
     }
 }

@@ -19,6 +19,7 @@ type blacklistEntry struct {
 var blacklist = []blacklistEntry{
 	{"DNFAutoFire.exe", "DNFAutoFire.exe"}, // 会让alt按键事件失效
 	{"DAF连发工具.exe", "DAF连发工具.exe"},         // 会让alt按键事件失效
+	{"AltSnap.exe", "AltSnap.exe"},         // 会让alt按键事件失效
 }
 
 // ProcessChecker detects blacklisted processes before task execution

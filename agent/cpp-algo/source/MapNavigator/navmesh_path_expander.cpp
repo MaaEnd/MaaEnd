@@ -86,6 +86,9 @@ constexpr double kDetourSnapPenalty = 3.0;
 constexpr double kBlindTargetFallbackSnapRadius = 12.0;
 constexpr double kBlindTargetMaxExtension = 30.0;
 constexpr double kBlindTargetProbeStep = 2.0;
+// 探针扫描的墙钟上限。能命中的探针在头几个就返回(近处目标单次规划几十毫秒),耗满预算即目标与
+// 起点不连通,余下探针是同一个失败。远距离目标单次规划本身就要吃掉扩窗预算,这里只容一个来回。
+constexpr int64_t kBlindTargetProbeBudgetMs = 8000;
 
 // Start recovery: how far we are willing to walk unguided to get back onto the mesh. Covers the whole
 // off-mesh band measured along the base-exit corridor, where the blind walk out of the base drops us.
@@ -383,7 +386,8 @@ navmesh::BaseNavRouteRequest BuildRouteRequest(
     const navmesh::WorldPoint& goal,
     const std::vector<uint32_t>& blocked_triangles = {},
     const std::vector<navmesh::WorldPoint>& blocked_points = {},
-    float goal_floor_y = navmesh::kBaseNavFloorYNone)
+    float goal_floor_y = navmesh::kBaseNavFloorYNone,
+    std::optional<double> goal_deck_y = std::nullopt)
 {
     navmesh::BaseNavRouteRequest request;
     request.zone_name = navmesh_zone;
@@ -391,6 +395,10 @@ navmesh::BaseNavRouteRequest BuildRouteRequest(
     request.goal = goal;
     request.blocked_triangles = blocked_triangles;
     request.blocked_points = blocked_points;
+    // 终点声明决定停在哪张面; 起点站在哪张面由搜索自己按起点高度定
+    if (goal_deck_y) {
+        request.goal_deck_y = static_cast<float>(*goal_deck_y);
+    }
     // Per-endpoint floor: the start snaps onto the live locator tier's floor; the goal snaps onto its own
     // declared frame's floor when the caller supplies one (cross-tier targets), otherwise the same start
     // floor (legacy single-floor behavior). A geometry / base / unknown zone yields the sentinel ->
@@ -404,6 +412,7 @@ struct ProjectedTarget
 {
     navmesh::WorldPoint point;
     float floor_y = navmesh::kBaseNavFloorYNone;
+    std::optional<double> deck_y;
 };
 
 // Resolve a NAVMESH waypoint's target into the base-pixel routing frame. When the node declares a
@@ -416,18 +425,30 @@ ProjectedTarget ResolveProjectedTarget(const navmesh::BaseNavPack& pack, const W
 {
     const navmesh::WorldPoint raw { .x = waypoint.x, .y = waypoint.y };
     if (waypoint.target_tier.empty()) {
-        return { raw, navmesh::kBaseNavFloorYNone };
+        return { raw, navmesh::kBaseNavFloorYNone, waypoint.target_deck_y };
     }
     const auto projection = pack.projectToBase(waypoint.target_tier, waypoint.x, waypoint.y);
     if (!projection) {
         LogWarn << "NAVMESH target_tier unknown; treating target as base-frame." << VAR(waypoint.target_tier) << VAR(waypoint.x)
                 << VAR(waypoint.y);
-        return { raw, navmesh::kBaseNavFloorYNone };
+        return { raw, navmesh::kBaseNavFloorYNone, waypoint.target_deck_y };
     }
-    return { navmesh::WorldPoint { .x = projection->x, .y = projection->y }, pack.floorYForZoneName(waypoint.target_tier) };
+    return { navmesh::WorldPoint { .x = projection->x, .y = projection->y },
+             pack.floorYForZoneName(waypoint.target_tier),
+             waypoint.target_deck_y };
 }
 
-navmesh::BaseNavRouteResult PlanCorridorRoute(const CachedNavmesh& navmesh, const navmesh::BaseNavRouteRequest& request)
+// When a route asked for mid-run turns out to be unreachable, the search doubles its window pass after
+// pass and every pass fails the same way -- seconds of the navigation thread spent re-deriving one answer
+// while the agent stands still. A run cannot afford that; the expansion done before a run can, and keeps
+// the larger budget. Retries the planner asks for itself are productive and stay on the full budget.
+constexpr int64_t kInRunDeadEndBudgetMs = 1200;
+
+navmesh::BaseNavRouteResult PlanCorridorRoute(
+    const CachedNavmesh& navmesh,
+    const navmesh::BaseNavRouteRequest& request,
+    const std::function<bool()>& should_stop = {},
+    int64_t dead_end_ms = navmesh::recast::RecastPlanBudget {}.dead_end_ms)
 {
     navmesh::BaseNavRouteResult result;
     const navmesh::BaseNavZone* zone = navmesh.pack.findZoneByName(request.zone_name);
@@ -445,8 +466,10 @@ navmesh::BaseNavRouteResult PlanCorridorRoute(const CachedNavmesh& navmesh, cons
         request.goal,
         start_floor,
         goal_floor,
+        request.goal_deck_y,
         request.blocked_triangles,
-        request.blocked_points);
+        request.blocked_points,
+        navmesh::recast::RecastPlanBudget { .dead_end_ms = dead_end_ms, .should_stop = should_stop });
     if (!plan.ok || plan.points.size() < 2) {
         if (!detour_probe) {
             LogWarn << "RECAST plan failed." << VAR(request.zone_name) << VAR(plan.error);
@@ -473,7 +496,8 @@ std::optional<navmesh::BaseNavRouteResult> PlanNavmeshRouteImpl(
     const navmesh::WorldPoint& start,
     const navmesh::WorldPoint& goal,
     const std::vector<uint32_t>& blocked_triangles,
-    const std::vector<navmesh::WorldPoint>& blocked_points = {})
+    const std::vector<navmesh::WorldPoint>& blocked_points = {},
+    std::optional<double> goal_deck_y = std::nullopt)
 {
     const std::string navmesh_zone = InferBaseNavZone(locator_zone, param.map_name);
     if (navmesh_zone.empty()) {
@@ -491,9 +515,18 @@ std::optional<navmesh::BaseNavRouteResult> PlanNavmeshRouteImpl(
     }
 
     const bool detour_probe = !blocked_triangles.empty() || !blocked_points.empty();
-    const auto request = BuildRouteRequest(navmesh->pack, locator_zone, navmesh_zone, start, goal, blocked_triangles, blocked_points);
+    const auto request = BuildRouteRequest(
+        navmesh->pack,
+        locator_zone,
+        navmesh_zone,
+        start,
+        goal,
+        blocked_triangles,
+        blocked_points,
+        navmesh::kBaseNavFloorYNone,
+        goal_deck_y);
     const auto plan_started_at = std::chrono::steady_clock::now();
-    const auto route_result = PlanCorridorRoute(*navmesh, request);
+    const auto route_result = PlanCorridorRoute(*navmesh, request, {}, kInRunDeadEndBudgetMs);
     const int64_t plan_ms =
         std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - plan_started_at).count();
     if (!route_result.ok()) {
@@ -533,6 +566,7 @@ bool AppendBlindTargetFallback(
     const CachedNavmesh& navmesh,
     const navmesh::WorldPoint& base_target,
     float goal_floor_y,
+    const std::function<bool()>& should_stop,
     NavmeshExpansionState& state,
     std::vector<Waypoint>& out_path)
 {
@@ -558,7 +592,19 @@ bool AppendBlindTargetFallback(
     navmesh::BaseNavRouteResult approach;
     bool found = false;
     double blind_gap = 0.0;
+    const auto probe_started_at = std::chrono::steady_clock::now();
     for (double offset = 0.0; offset <= probe_limit + 1e-6; offset += kBlindTargetProbeStep) {
+        if (should_stop()) {
+            return false;
+        }
+        const int64_t probe_elapsed_ms =
+            std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - probe_started_at).count();
+        if (probe_elapsed_ms > kBlindTargetProbeBudgetMs) {
+            LogWarn << "NAVMESH blind-target fallback gave up: probe budget exhausted." << VAR(state.navmesh_zone)
+                    << VAR(state.current_zone) << VAR(target.x) << VAR(target.y) << VAR(offset) << VAR(probe_limit)
+                    << VAR(probe_elapsed_ms);
+            return false;
+        }
         const double t = std::min(offset / total, 1.0);
         const navmesh::WorldPoint probe {
             .x = target.x + (start.x - target.x) * t,
@@ -570,7 +616,7 @@ bool AppendBlindTargetFallback(
         }
         const navmesh::BaseNavRouteRequest request =
             BuildRouteRequest(navmesh.pack, state.current_zone, state.navmesh_zone, start, entry->point, {}, {}, goal_floor_y);
-        const auto route = PlanCorridorRoute(navmesh, request);
+        const auto route = PlanCorridorRoute(navmesh, request, should_stop);
         if (!route.ok() || route.path.points.empty()) {
             continue;
         }
@@ -638,28 +684,46 @@ bool AppendNavmeshWaypoint(
     const NaviParam& param,
     const CachedNavmesh& navmesh,
     const Waypoint& waypoint,
+    const std::function<bool()>& should_stop,
     NavmeshExpansionState& state,
     std::vector<Waypoint>& out_path)
 {
     const auto expand_started_at = std::chrono::steady_clock::now();
     const ProjectedTarget target = ResolveProjectedTarget(navmesh.pack, waypoint);
-    navmesh::BaseNavRouteRequest request =
-        BuildRouteRequest(navmesh.pack, state.current_zone, state.navmesh_zone, state.route_start, target.point, {}, {}, target.floor_y);
+    navmesh::BaseNavRouteRequest request = BuildRouteRequest(
+        navmesh.pack,
+        state.current_zone,
+        state.navmesh_zone,
+        state.route_start,
+        target.point,
+        {},
+        {},
+        target.floor_y,
+        target.deck_y);
     const auto plan_started_at = std::chrono::steady_clock::now();
-    auto route_result = PlanCorridorRoute(navmesh, request);
+    auto route_result = PlanCorridorRoute(navmesh, request, should_stop);
     bool start_recovered = false;
     if (!route_result.ok() && AppendStartRecovery(param, navmesh, request, state, out_path)) {
         request.start = state.route_start;
-        route_result = PlanCorridorRoute(navmesh, request);
+        route_result = PlanCorridorRoute(navmesh, request, should_stop);
         start_recovered = true;
     }
     const int64_t plan_ms =
         std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - plan_started_at).count();
     if (!route_result.ok()) {
+        // 盲走兜底是二维的, 走到目标正上方也算到; 有声明时让它兜就等于把错层吞回去
+        if (target.deck_y) {
+            LogError << "Failed to plan NAVMESH waypoint on the declared deck." << VAR(state.navmesh_zone) << VAR(state.current_zone)
+                     << VAR(target.point.x) << VAR(target.point.y) << VAR(*target.deck_y) << VAR(navmesh::ToString(route_result.status));
+            return false;
+        }
         LogWarn << "NAVMESH waypoint not directly reachable; attempting blind-target fallback." << VAR(state.navmesh_zone)
                 << VAR(state.current_zone) << VAR(target.point.x) << VAR(target.point.y) << VAR(navmesh::ToString(route_result.status));
-        if (AppendBlindTargetFallback(param, navmesh, target.point, target.floor_y, state, out_path)) {
+        if (AppendBlindTargetFallback(param, navmesh, target.point, target.floor_y, should_stop, state, out_path)) {
             return true;
+        }
+        if (should_stop()) {
+            return false;
         }
         LogError << "Failed to plan NAVMESH waypoint." << VAR(state.navmesh_zone) << VAR(state.current_zone) << VAR(target.point.x)
                  << VAR(target.point.y) << VAR(navmesh::ToString(route_result.status));
@@ -673,6 +737,12 @@ bool AppendNavmeshWaypoint(
         return false;
     }
 
+    // 重规划的锚点就是这里生成的点, 声明落在点上才活得过重规划
+    // 中间点是搜索生成的, 作者只对这一腿的末点声明了面
+    // 起终收敛成一个点时这一腿一个点都不追加, 此时末点属于上一腿, 不能盖
+    if (target.deck_y && out_path.size() > insert_index) {
+        out_path.back().target_deck_y = target.deck_y;
+    }
     state.route_start = route_result.path.points.back();
     const size_t path_point_count = route_result.path.points.size();
     const size_t appended_waypoints = out_path.size() - insert_index;
@@ -778,7 +848,11 @@ void PreloadNavmeshWaypoints(const NaviParam& param)
     (void)GetCachedNavmeshFuture(navmesh_path, *navmesh_zone);
 }
 
-bool ExpandNavmeshWaypoints(const NaviParam& param, const NaviPosition& initial_pos, std::vector<Waypoint>& out_path)
+bool ExpandNavmeshWaypoints(
+    const NaviParam& param,
+    const NaviPosition& initial_pos,
+    const std::function<bool()>& should_stop,
+    std::vector<Waypoint>& out_path)
 {
     if (!ContainsNavmeshWaypoint(param.path)) {
         out_path = param.path;
@@ -801,6 +875,9 @@ bool ExpandNavmeshWaypoints(const NaviParam& param, const NaviPosition& initial_
 
     out_path.clear();
     for (const Waypoint& waypoint : param.path) {
+        if (should_stop()) {
+            return false;
+        }
         if (waypoint.IsZoneDeclaration()) {
             state->current_zone = waypoint.zone_id;
             out_path.push_back(waypoint);
@@ -811,7 +888,7 @@ bool ExpandNavmeshWaypoints(const NaviParam& param, const NaviPosition& initial_
             UpdateStateFromRegularWaypoint(waypoint, *state);
             continue;
         }
-        if (!AppendNavmeshWaypoint(param, *navmesh, waypoint, *state, out_path)) {
+        if (!AppendNavmeshWaypoint(param, *navmesh, waypoint, should_stop, *state, out_path)) {
             return false;
         }
     }
@@ -828,9 +905,10 @@ std::optional<navmesh::BaseNavRouteResult> PlanNavmeshRoute(
     const NaviParam& param,
     const std::string& locator_zone,
     const navmesh::WorldPoint& start,
-    const navmesh::WorldPoint& goal)
+    const navmesh::WorldPoint& goal,
+    std::optional<double> goal_deck_y)
 {
-    return PlanNavmeshRouteImpl(param, locator_zone, start, goal, {});
+    return PlanNavmeshRouteImpl(param, locator_zone, start, goal, {}, {}, goal_deck_y);
 }
 
 float NavmeshFloorYForZone(const NaviParam& param, const std::string& locator_zone)
@@ -1137,15 +1215,48 @@ bool AppendGeneratedNavmeshWaypoints(
     }
 
     size_t prev = 0; // the driven line starts at points[0] — the route origin / character's current position
+    // Greedy string pull: from the last point committed, reach as far along the raw corridor as one straight
+    // leg stays drivable, commit the vertex it stopped at, then start again from there. A real bend stops the
+    // reach and survives; grid staircase and out-and-back spikes collapse into a single leg. What this
+    // replaced asked the same question once across the entire leg — which no route of any length passes — so
+    // every raw vertex was kept instead, down to 0.25px stair steps, and the follower had to steer them.
     const auto restore_corners_to = [&](size_t anchor) {
-        if (drivability_planner == nullptr || anchor <= prev + 1
-            || drivability_planner->isRouteSegmentDrivable(drivable_zone_id, world_path.points[prev], world_path.points[anchor])) {
+        if (drivability_planner == nullptr || anchor <= prev + 1) {
             return;
         }
-        for (size_t corner = prev + 1; corner < anchor; ++corner) {
-            out_path.emplace_back(world_path.points[corner].x, world_path.points[corner].y, ActionType::RUN);
+        // How many raw vertices one pull may swallow. Purely a cost bound — each extra vertex re-tests the
+        // whole leg from the cursor, so an unbounded scan is quadratic on a route with hundreds of points.
+        // Binding it only leaves a vertex in place, which is the direction that is safe to be wrong in.
+        constexpr size_t kMaxPullSpan = 64;
+        size_t cursor = prev;
+        while (cursor + 1 < anchor) {
+            size_t reach = cursor;
+            const size_t reach_limit = std::min(anchor, cursor + kMaxPullSpan);
+            double swallowed_clearance = std::numeric_limits<double>::infinity();
+            while (reach < reach_limit) {
+                // A shortcut may not be tighter than the narrowest corridor point it swallows: that width is
+                // what the route already judged this passage needs, and nothing out here knows better. An
+                // unknown width reads as zero, which is the bare centre-line test this has always used.
+                const double required = std::isfinite(swallowed_clearance) ? swallowed_clearance : 0.0;
+                if (!drivability_planner
+                         ->isRouteSegmentDrivable(drivable_zone_id, world_path.points[cursor], world_path.points[reach + 1], required)) {
+                    break;
+                }
+                swallowed_clearance = std::min(swallowed_clearance, clearance_at(reach + 1));
+                ++reach;
+            }
+            // Even the corridor's own next edge can fail the test. Keeping that vertex is still the best
+            // answer available, and it is what guarantees this loop advances.
+            if (reach == cursor) {
+                ++reach;
+            }
+            if (reach >= anchor) {
+                return;
+            }
+            out_path.emplace_back(world_path.points[reach].x, world_path.points[reach].y, ActionType::RUN);
             out_path.back().strict_arrival = false;
-            out_path.back().corridor_clearance = clearance_at(corner);
+            out_path.back().corridor_clearance = clearance_at(reach);
+            cursor = reach;
         }
     };
     const auto flush_leg_to = [&](size_t anchor, bool strict_arrival) {

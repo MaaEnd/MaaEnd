@@ -889,6 +889,36 @@
                             ]
                         }
                     }
+                },
+                {
+                    "name": "Liino",
+                    "label": "$operator.Liino",
+                    "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectOp1": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "enabled": true,
+                            "template": [
+                                "GiftOperator/Operators/Liino.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "梨诺",
+                                "梨諾",
+                                "Liino",
+                                "リーノ",
+                                "리노"
+                            ]
+                        }
+                    }
                 }
             ]
         },

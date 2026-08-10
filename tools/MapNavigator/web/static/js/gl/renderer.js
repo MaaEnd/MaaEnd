@@ -73,15 +73,23 @@ uniform float u_max_height;
 uniform vec4 u_color;
 uniform float u_use_height;
 uniform float u_opacity;
+uniform float u_band_on;
+uniform vec2 u_band;
 void main() {
+  // 选中一张重叠面时:带内实色高亮、带外压暗,哪一层被点中一眼可辨。
+  if (u_band_on > 0.5 && v_height >= u_band.x && v_height <= u_band.y) {
+    gl_FragColor = vec4(0.98, 0.60, 0.15, min(1.0, u_opacity * 8.0 + 0.30));
+    return;
+  }
+  float dim = u_band_on > 0.5 ? 0.35 : 1.0;
   if (u_use_height > 0.5 && u_max_height > u_min_height) {
     float h = clamp((v_height - u_min_height) / (u_max_height - u_min_height), 0.0, 1.0);
     vec3 lowColor = vec3(0.01, 0.08, 0.25);
     vec3 highColor = vec3(0.0, 0.8, 0.7);
     vec3 mixed = mix(lowColor, highColor, h);
-    gl_FragColor = vec4(mixed, u_opacity);
+    gl_FragColor = vec4(mixed, u_opacity * dim);
   } else {
-    gl_FragColor = vec4(u_color.rgb, u_color.a * u_opacity);
+    gl_FragColor = vec4(u_color.rgb, u_color.a * u_opacity * dim);
   }
 }
 `;
@@ -144,7 +152,12 @@ export class Renderer {
       u_max_height: gl.getUniformLocation(flatProgram, 'u_max_height'),
       u_use_height: gl.getUniformLocation(flatProgram, 'u_use_height'),
       u_opacity: gl.getUniformLocation(flatProgram, 'u_opacity'),
+      u_band_on: gl.getUniformLocation(flatProgram, 'u_band_on'),
+      u_band: gl.getUniformLocation(flatProgram, 'u_band'),
     };
+
+    /** @type {[number, number]|null} 预览高亮的高度带 [lo, hi] */
+    this._deckBand = null;
 
     // --- basemap ----------------------------------------------------------
     /** @type {WebGLTexture|null} */
@@ -602,6 +615,8 @@ export class Renderer {
     gl.uniform4f(p.u_color, 1.0, 0.0, 0.0, 1.0); // fallback when the height range is degenerate
     gl.uniform1f(p.u_opacity, meshOpacity);
     gl.uniform1f(p.u_pointSize, 1.0);
+    gl.uniform1f(p.u_band_on, this._deckBand ? 1.0 : 0.0);
+    if (this._deckBand) gl.uniform2f(p.u_band, this._deckBand[0], this._deckBand[1]);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, this._meshVbo);
     gl.enableVertexAttribArray(0);
@@ -617,6 +632,16 @@ export class Renderer {
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._meshWireIbo);
       gl.drawElements(gl.LINES, this._meshWireIndexCount, gl.UNSIGNED_INT, 0);
     }
+    gl.uniform1f(p.u_band_on, 0.0); // 同一个 program 还画点/线,别让高亮漏出去
+  }
+
+  /**
+   * 预览:把落在 [lo, hi] 高度带里的面点亮,其余压暗。null 恢复原样。
+   * @param {[number, number]|null} band
+   * @returns {void}
+   */
+  setDeckBand(band) {
+    this._deckBand = band;
   }
 
   /**

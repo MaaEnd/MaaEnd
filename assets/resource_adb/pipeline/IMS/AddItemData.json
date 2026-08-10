@@ -1,0 +1,9 @@
+{
+    "IMSA3MouseMoveReset": {
+        "desc": "ADB 无鼠标光标遮挡，识别前无需移动",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

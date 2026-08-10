@@ -50,6 +50,14 @@
             }
         }
     },
+    "AutoCollectClick": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 3
+            }
+        }
+    },
     "AutoPickFalls": {
         "action": {
             "type": "ClickKey",
@@ -114,7 +122,7 @@
             }
         }
     },
-    "GiftOperatorShiftToRunMapTracker": {
+    "GiftOperatorShiftToRun": {
         "action": {
             "type": "ClickKey",
             "param": {
@@ -122,7 +130,7 @@
             }
         }
     },
-    "GiftOperatorShiftToRunMapTrackerSC": {
+    "GiftOperatorShiftToRunSC": {
         "action": {
             "type": "ClickKey",
             "param": {

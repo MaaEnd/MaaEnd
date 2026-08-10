@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from typing import Any, Literal
 
 
-ConnectionKind = Literal["win32", "adb", "playcover"]
+ConnectionKind = Literal["win32", "adb", "playcover", "wlroots"]
 
 
 @dataclass(frozen=True)
@@ -60,6 +60,19 @@ class PlayCoverConnectionConfig:
 
 
 @dataclass(frozen=True)
+class WlRootsConnectionConfig:
+    """WlRoots (Linux Wayland) 录制所需的连接配置。
+
+    wlr_socket_path 是合成器的 Wayland socket 完整路径, 例如
+    ``/run/user/1000/wayland-0``。注意它不一定是 ``$WAYLAND_DISPLAY`` 指向的
+    那个 socket —— 游戏通常跑在嵌套合成器 (如 gamescope) 上, 连错成桌面会话会
+    截到桌面而不是游戏。
+    """
+
+    wlr_socket_path: str = ""
+
+
+@dataclass(frozen=True)
 class RecordingSessionConfig:
     """一次录制会话的完整连接配置。"""
 
@@ -67,6 +80,7 @@ class RecordingSessionConfig:
     win32: Win32ConnectionConfig = field(default_factory=Win32ConnectionConfig)
     adb: AdbConnectionConfig = field(default_factory=AdbConnectionConfig)
     playcover: PlayCoverConnectionConfig = field(default_factory=PlayCoverConnectionConfig)
+    wlroots: WlRootsConnectionConfig = field(default_factory=WlRootsConnectionConfig)
 
     def display_name(self) -> str:
         if self.kind == "adb":
@@ -74,4 +88,6 @@ class RecordingSessionConfig:
             return f"ADB / {target}"
         elif self.kind == "playcover":
             return f"PlayCover / {self.playcover.uuid}"
+        elif self.kind == "wlroots":
+            return f"WlRoots / {self.wlroots.wlr_socket_path or '未指定 socket'}"
         return f"Win32 / {self.win32.window_title}"

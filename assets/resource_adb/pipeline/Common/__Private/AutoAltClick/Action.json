@@ -10,5 +10,17 @@
         "pre_delay": 0,
         "action": "DoNothing",
         "post_delay": 0
+    },
+    "__AutoAltClickMouseClickAction": {
+        "desc": "鼠标点击",
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0
+    },
+    "__AutoAltSwipeMouseSwipeAction": {
+        "desc": "鼠标滑动",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "post_delay": 0
     }
 }

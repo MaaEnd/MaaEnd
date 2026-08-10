@@ -286,5 +286,17 @@
                 ]
             }
         }
+    },
+    "__CHARTERED_HH_PERMIT_COUNT_TEXT_COLOR": {
+        "recognition": {
+            "param": {
+                "roi_offset": [
+                    0,
+                    97,
+                    0,
+                    -75
+                ]
+            }
+        }
     }
 }

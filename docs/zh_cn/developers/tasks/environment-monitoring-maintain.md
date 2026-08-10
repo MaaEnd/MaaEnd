@@ -172,7 +172,7 @@ MysteriousCryptidGraffiti         → 谜之生物的涂鸦
 | `GoToMonitoringTerminal` | 由 `Station` 决定 |
 | `EnterMap` | `routes.json[*].EnterMap`，默认传送入口；可填写任意已定义、能作为 SubTask 正常返回的 Pipeline 节点名，不限制名称前缀；启用 `QuickTeleport` 时不会使用，可省略 |
 | `QuickTeleport` | `routes.json[*].QuickTeleport`，可选布尔值，默认 `false`；启用后从追踪任务地图依次点击“前往传送”和“传送”，不调用 `EnterMap` |
-| `MapName` / `MapAssert` / `MapPath` / `MapTarget` / `MapTargetTier` / `MapGoal` | `routes.json[*]`，对应初始位置判断与后续寻路参数；`MapPath` 生成 `MapTrackerAssertLocation` + `MapTrackerMove`，`MapTarget` 生成 `MapLocateAssertLocation` + `MapNavigateAction` 的 `NAVMESH` 目标点，`MapTargetTier` 可选生成 `target_tier`，`MapGoal` 生成 `MapTrackerAssertLocation` + `MapTrackerGoal`。传送后直拍时这些字段全部省略；寻路时 `MapPath` / `MapTarget` / `MapGoal` 三者必须且只能选一个；`QuickTeleport` 与三种寻路方式组合时均可省略 `MapAssert` |
+| `MapName` / `MapAssert` / `MapPath` / `MapTarget` / `MapTargetTier` / `MapTargetDeckY` / `MapGoal` | `routes.json[*]`，对应初始位置判断与后续寻路参数；`MapPath` 生成 `MapTrackerAssertLocation` + `MapTrackerMove`，`MapTarget` 生成 `MapLocateAssertLocation` + `MapNavigateAction` 的 `NAVMESH` 目标点，`MapTargetTier` 可选生成 `target_tier`，`MapTargetDeckY` 可选生成 `target_deck_y`，`MapGoal` 生成 `MapTrackerAssertLocation` + `MapTrackerGoal`。传送后直拍时这些字段全部省略；寻路时 `MapPath` / `MapTarget` / `MapGoal` 三者必须且只能选一个；`QuickTeleport` 与三种寻路方式组合时均可省略 `MapAssert` |
 | `CameraSwipeDirection` | `routes.json[*]`，必须是 `EnvironmentMonitoringSwipeScreen{Up/Down/Left/Right}` 之一 |
 | `CameraMaxHit` | `routes.json[*].CameraMaxHit`，缺省为 `2`；对应 `${Id}AdjustCamera` 滑屏动作的最大命中次数 |
 | `OcrReplace` | 由 `routes.json[*].Replace` 透传到 `Check${Id}Text.replace` 与 `In${Id}Mission.replace`；用于按任务配置任务列表和任务详情页 OCR 的易混字符替换，不影响路线是否已适配的判断 |
@@ -228,7 +228,7 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 观察点的传送与寻路流程会按路线类型组合使用 MapTracker 与 MapNavigator：
 
 - `MapTrackerAssertLocation` / `MapLocateAssertLocation`（识别）：根据当前小地图判断是否在 `MapAssert` 矩形内。普通传送路线用于判断是否需要调用 `EnterMap`，其中 `MapPath` 还会在传送后再次复核；`QuickTeleport + MapPath/MapTarget/MapGoal` 从固定传送落点直接开始寻路，不进入该节点，可省略 `MapAssert`。
-- `MapTrackerMove` / `MapTrackerGoal` / `MapNavigateAction`（动作）：沿 `MapPath` 路径走到目标点，按 `MapGoal` 调用 `MapTrackerGoal` 自动规划并前往目标，或按 `MapTarget` 生成 `NAVMESH` 目标点并前往目标；`MapTargetTier` 会透传为 `target_tier`，用于目标坐标与起点不在同一 tier 的情况。
+- `MapTrackerMove` / `MapTrackerGoal` / `MapNavigateAction`（动作）：沿 `MapPath` 路径走到目标点，按 `MapGoal` 调用 `MapTrackerGoal` 自动规划并前往目标，或按 `MapTarget` 生成 `NAVMESH` 目标点并前往目标；`MapTargetTier` 会透传为 `target_tier`，用于目标坐标与起点不在同一 tier 的情况；`MapTargetDeckY` 会透传为 `target_deck_y`，用于目标点底下压着多张可走面（走廊 / 天桥 / 屋顶）、需要指明停在哪一张的情况。
 - `${Id}TakePhoto`（包装节点）：为寻路和直拍路线统一设置 `EnvironmentMonitoringBackToTerminal` / `EnvironmentMonitoringAdjustCamera` anchor，再进入公共拍照流程。
 - 传送后直拍不执行地图断言或寻路；配置 `Heading` 时会独立调用 `MapTrackerToward` 调整角色朝向。快捷传送路线从固定传送落点直接开始 `MapPath` / `MapTarget` / `MapGoal` 寻路；普通传送的 `MapPath` 会再次复核 `MapAssert`，`MapTarget` / `MapGoal` 则直接开始 NavMesh 寻路。
 
@@ -249,7 +249,7 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 | metadata-only | 仅 `MissionId` / `Name` / `Id` | 不填 | 仅接取并追踪，不传送或拍照 |
 | 传送后直拍 | 不填 `MapName` 和寻路字段；可选 `Heading` | 不填 | 传送 → 可选 `MapTrackerToward` → 拍照 |
 | `MapPath` | `MapName` + `MapPath`；可选 `Heading` / `NoEnsureInitialMovementState` | 默认传送必填；快捷传送可省略 | `MapTrackerMove` → 拍照 |
-| `MapTarget` | `MapName` + `MapTarget`；跨层时可加 `MapTargetTier` | 默认传送必填；快捷传送可省略 | `MapNavigateAction` 的 NAVMESH 寻路 → 拍照 |
+| `MapTarget` | `MapName` + `MapTarget`；跨层时可加 `MapTargetTier`，目标点有重叠面时可加 `MapTargetDeckY` | 默认传送必填；快捷传送可省略 | `MapNavigateAction` 的 NAVMESH 寻路 → 拍照 |
 | `MapGoal` | `MapName` + `MapGoal`；可选 `Heading` / `NoEnsureInitialMovementState` | 默认传送必填；快捷传送可省略 | `MapTrackerGoal` 自动寻路 → 拍照 |
 
 `CameraMaxHit` 和 `Replace` 适用于所有已适配路线，不改变路线类型。直拍配置只能用于已经游戏实测确认的传送落点；缺少路线数据时继续保留 metadata-only 状态。
@@ -293,6 +293,7 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
     "MapPath": [[x1, y1], [x2, y2]],        // 寻路路径（小地图坐标），与 MapTarget / MapGoal 三选一
     // "MapTarget": [x, y],             // MapNavigateAction 的 NAVMESH 目标点
     // "MapTargetTier": "ValleyIV_L1_171", // 可选；MapTarget 坐标所在的 target_tier，目标与起点不在同一 tier 时填写
+    // "MapTargetDeckY": 265.37,        // 可选；MapTarget 落在哪张可走面上的世界高度，目标点存在上下重叠面时填写
     // "MapGoal": [x, y],               // MapTrackerGoal 目标点，生成时会自动使用 MapTrackerGoal
     "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp", // 朝向调整方向
     // "CameraMaxHit": 2,  // 可选；滑屏最大命中次数，默认为 2；拍摄目标较难对准时可适当调大
@@ -314,7 +315,7 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 }
 ```
 
-直拍条目不要填写 `MapName`、`MapAssert`、`MapPath`、`MapTarget`、`MapTargetTier`、`MapGoal` 或 `NoEnsureInitialMovementState`。可按实测结果配置 `Heading`；生成器会在传送后独立调用 `MapTrackerToward`，再进入拍照流程。生成器根据“传送入口与拍照方向完整，同时没有地图断言和寻路配置”识别直拍模式。仅含 `MissionId` / `Name` / `Id` 的 metadata-only 条目仍然属于未适配。
+直拍条目不要填写 `MapName`、`MapAssert`、`MapPath`、`MapTarget`、`MapTargetTier`、`MapTargetDeckY`、`MapGoal` 或 `NoEnsureInitialMovementState`。可按实测结果配置 `Heading`；生成器会在传送后独立调用 `MapTrackerToward`，再进入拍照流程。生成器根据“传送入口与拍照方向完整，同时没有地图断言和寻路配置”识别直拍模式。仅含 `MissionId` / `Name` / `Id` 的 metadata-only 条目仍然属于未适配。
 
 > [!IMPORTANT]
 >
@@ -326,9 +327,9 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 
 ### 4. 录制坐标和路径
 
-如果传送点不能直接拍照，参考 [map-navigator.md](../components/map-navigator.md) 的 GUI 工具录制所需的 `MapAssert` / `MapPath`，复制 MapNavigateAction 的 `NAVMESH` 目标点填入 `MapTarget`，需要跨层目标时把 `target_tier` 填入 `MapTargetTier`，或复制 MapTrackerGoal 目标点填入 `MapGoal`。`QuickTeleport + MapPath/MapTarget/MapGoal` 不需要录制 `MapAssert`。随后在游戏中确认：
+如果传送点不能直接拍照，参考 [map-navigator.md](../components/map-navigator.md) 的 GUI 工具录制所需的 `MapAssert` / `MapPath`，复制 MapNavigateAction 的 `NAVMESH` 目标点填入 `MapTarget`，需要跨层目标时把 `target_tier` 填入 `MapTargetTier`，目标点底下压着多张可走面时把工具列出的那一层高度填入 `MapTargetDeckY`，或复制 MapTrackerGoal 目标点填入 `MapGoal`。`QuickTeleport + MapPath/MapTarget/MapGoal` 不需要录制 `MapAssert`。随后在游戏中确认：
 
-- `MapName` 与使用的工具一致：`MapPath` 路线填写 MapTracker 的 `map_name`（如 `map02_lv001` / 正则），`MapGoal` 路线填写可加载 NavMesh 的精确 MapTracker `map_name`（如 `map02_lv001`），`MapTarget` 路线填写 MapLocate 的 `zone_id`（如 `Wuling_Base`），可选的 `MapTargetTier` 填 MapNavigator `target_tier` 的区域名。两套标识不要混用。
+- `MapName` 与使用的工具一致：`MapPath` 路线填写 MapTracker 的 `map_name`（如 `map02_lv001` / 正则），`MapGoal` 路线填写可加载 NavMesh 的精确 MapTracker `map_name`（如 `map02_lv001`），`MapTarget` 路线填写 MapLocate 的 `zone_id`（如 `Wuling_Base`），可选的 `MapTargetTier` 填 MapNavigator `target_tier` 的区域名，可选的 `MapTargetDeckY` 填工具重叠面列表读出的那一层高度。两套标识不要混用。
 
 - 拍照时摄像头需要往哪个方向滑（决定 `CameraSwipeDirection`）。
 - 站位是否能让 `EnvironmentMonitoringTakePhoto` 走 `EnvironmentMonitoringEnterCameraMode`（自动朝向目标）成功；如果不行，会自动回退到 `EnvironmentMonitoringTakePhotoDirectly` + 手动滑屏 `${Id}AdjustCamera`。

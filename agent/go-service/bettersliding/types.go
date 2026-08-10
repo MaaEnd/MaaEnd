@@ -21,6 +21,7 @@ type betterSlidingParam struct {
 	CenterPointOffset             any                        `json:"CenterPointOffset"`
 	ClampTargetToSliderMax        bool                       `json:"ClampTargetToSliderMax"`
 	FinishAfterPreciseClick       bool                       `json:"FinishAfterPreciseClick"`
+	ResetBeforeFindStart          bool                       `json:"ResetBeforeFindStart"`
 	presence                      betterSlidingParamPresence `json:"-"`
 }
 
@@ -40,6 +41,7 @@ type betterSlidingParamPresence struct {
 	CenterPointOffset             bool
 	ClampTargetToSliderMax        bool
 	FinishAfterPreciseClick       bool
+	ResetBeforeFindStart          bool
 }
 
 type quantityParam struct {
@@ -78,6 +80,8 @@ type quantityFilterParam struct {
 //   - CenterPointOffset: click offset from slider handle center, default [-10, 0]
 //   - ClampTargetToSliderMax: clamp target to sliderMaxQuantity instead of failing (default false)
 //   - FinishAfterPreciseClick: skip fine-tuning and return success after precise click (default false)
+//   - ResetBeforeFindStart: swipe toward the minimum before matching the slider start position,
+//     so the recorded start position is the minimum value (default false)
 //   - SwipeButton: custom slider template path overriding BetterSlidingSwipeButton
 //   - OutOfRangeOverrideEnable: Pipeline node name to enable when target is out of range
 //   - TargetReachableOverrideEnable: Pipeline node name to enable when the resolved target can be
@@ -100,6 +104,7 @@ type BetterSlidingAction struct {
 	CenterPointOffset             [2]int
 	ClampTargetToSliderMax        bool
 	FinishAfterPreciseClick       bool
+	ResetBeforeFindStart          bool
 	SwipeButton                   string
 	OutOfRangeOverrideEnable      string
 	TargetReachableOverrideEnable string

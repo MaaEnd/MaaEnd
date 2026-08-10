@@ -23,6 +23,11 @@
                     "name": "KeymapUseCurrentQuickTool",
                     "label": "$option.KeymapGeneral.inputs.KeymapUseCurrentQuickTool.label",
                     "default": "R"
+                },
+                {
+                    "name": "KeymapInteract",
+                    "label": "$option.KeymapGeneral.inputs.KeymapInteract.label",
+                    "default": "F"
                 }
             ],
             "pipeline_override": {
@@ -40,6 +45,15 @@
                 },
                 "_AutoEcoFarmEnterCameraModeKeyUpR": {
                     "key": "{KeymapUseCurrentQuickTool.primary}"
+                },
+                "AutoCollectClick": {
+                    "key": "{KeymapInteract.primary}"
+                },
+                "AutoPickFalls": {
+                    "key": "{KeymapInteract.primary}"
+                },
+                "AutoPickInteractive": {
+                    "key": "{KeymapInteract.primary}"
                 }
             }
         },

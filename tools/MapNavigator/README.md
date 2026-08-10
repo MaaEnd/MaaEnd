@@ -6,7 +6,7 @@ MapNavigator 是用于 C++ MapNavigator 模块使用的地图路径录制与编�
 
 当前支持：
 
-- 通过统一的录制连接层在 `Win32` 与 `ADB` 之间切换。
+- 通过统一的录制连接层在 `Win32`、`ADB` 与 `WlRoots`（Linux Wayland）之间切换。
 - 录制地图路径并按区域切换浏览。
 - 导入已有 JSON/JSONC，递归搜索可识别的 `path` 数据并显示。
 - 导入 `MapTrackerMove` / `MapTrackerAssertLocation` 时自动按兼容表转换到 `MapNavigator` / `MapLocateAssertLocation` 的 Base 坐标系。
@@ -23,6 +23,11 @@ MapNavigator 是用于 C++ MapNavigator 模块使用的地图路径录制与编�
 
 - `HEADING` 是无坐标控制节点，不属于 GUI 常规点编辑与导出模型，建议在导出 `path` 后手工补回或维护。
 - 运行时 `sprint_threshold` 的语义是“前方连续可跑段长度阈值”，不是只看当前点距离。
+
+## WlRoots 连接（Linux Wayland）
+
+- 游戏合成器需支持 `wlr-screencopy-unstable-v1` 协议；建议游戏跑在嵌套合成器（如 gamescope）上，**不要连接当前桌面会话的 socket**（连错会截到桌面而不是游戏）。
+- socket 路径是完整路径（如 `/run/user/1000/wayland-0`），不一定是 `$WAYLAND_DISPLAY` 指向的那个；下拉候选来自 `$XDG_RUNTIME_DIR` 下的实际 socket 枚举。
 
 ## 复制格式
 
