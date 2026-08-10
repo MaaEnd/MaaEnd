@@ -68,7 +68,12 @@
         "rate_limit": 0,
         "next": [
             "AutoSellEnterStockRedistributionSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": {
+                "trace": true
+            }
+        }
     },
     "AutoSellEnterStockRedistributionSuccess": {
         "desc": "成功进入物资调度页面",
