@@ -140,6 +140,24 @@ constexpr std::array<double, 11> BuildGlobalSearchScales()
 
 constexpr auto kGlobalSearchScales = BuildGlobalSearchScales();
 
+// 粗扫步长：补边之后各尺度给出的位置几乎一致，先用 1/3 的档位定位置，再在小窗里跑满档定分数
+constexpr size_t kGlobalCoarseScaleStride = 3;
+
+// 精修窗围绕粗扫最佳位置的半径，取值远大于实测的逐档位置离散度
+constexpr int kGlobalRefineRadius = 24;
+
+// 掩膜是半径 min(w,h)/2 - borderMargin 的圆，取最小的 borderMargin(tier 图为 8) 估圆的外接框，
+// 保证按它算出的补边量对所有图都不小于实际裁剪后的模板
+constexpr int kMinMaskBorderMargin = 8;
+
+// 模板中心只能落在搜索窗内缩 模板/2 的地方，搜索窗要按这个量补边，infer_margin 才是真的可达余量
+int GlobalSearchRoiPad(const cv::Size& templSize)
+{
+    const int discSide = std::min(templSize.width, templSize.height) - 2 * kMinMaskBorderMargin + 1;
+    const int side = std::clamp(discSide, 1, std::max(templSize.width, templSize.height));
+    return static_cast<int>(std::ceil(side * kGlobalSearchScales.back() / 2.0)) + 1;
+}
+
 enum class ScaleTaskPriority : int
 {
     Discarded = 0,
@@ -339,11 +357,17 @@ public:
         }
     }
 
-    void start(MapLocatorScaleExecutor& executor)
+    void start(MapLocatorScaleExecutor& executor, size_t scaleStride = 1)
     {
-        remaining.store(kGlobalSearchScales.size(), std::memory_order_relaxed);
+        const size_t stride = std::max<size_t>(1, scaleStride);
+        std::vector<size_t> indices;
+        for (size_t index = 0; index < kGlobalSearchScales.size(); index += stride) {
+            indices.push_back(index);
+        }
+
+        remaining.store(indices.size(), std::memory_order_relaxed);
         const auto self = shared_from_this();
-        for (size_t index = 0; index < kGlobalSearchScales.size(); ++index) {
+        for (size_t index : indices) {
             executor.submit(control, ScaleTaskClass::Global, [self, index]() { self->executeScale(index); });
         }
     }
@@ -364,6 +388,13 @@ public:
     void releaseTrackingCapacity(MapLocatorScaleExecutor& executor) { executor.releaseTrackingCapacity(control); }
 
     const auto& getResults() const { return results; }
+
+    const MatchFeature& getTemplateFeature() const { return templateFeature; }
+
+    bool hasAnyRawResult() const
+    {
+        return std::any_of(results.begin(), results.end(), [](const FineScaleSearchResult& r) { return r.hasRawResult; });
+    }
 
 private:
     void executeScale(size_t index)
@@ -401,17 +432,29 @@ private:
             scaledWeightMask = templateFeature.mask;
         }
 
-        if (scaledTemplate.cols > searchSize.width || scaledTemplate.rows > searchSize.height) {
+        // 掩膜是模板中心的圆，圆外恒为 0，对带掩膜的 NCC 零贡献。先缩放再裁掉全零边框，
+        // 结果逐位相同，但模板更小、搜索窗可以少补一圈。
+        const cv::Rect valid = scaledWeightMask.empty() ? cv::Rect {} : cv::boundingRect(scaledWeightMask);
+        if (valid.empty()) {
+            return;
+        }
+        const cv::Mat croppedTemplate = scaledTemplate(valid);
+        const cv::Mat croppedWeightMask = scaledWeightMask(valid);
+
+        if (croppedTemplate.cols > searchSize.width || croppedTemplate.rows > searchSize.height) {
             return;
         }
 
-        const auto match = CoreMatchPrepared(searchFeature, scaledTemplate, scaledWeightMask);
+        const auto match = CoreMatchPrepared(searchFeature, croppedTemplate, croppedWeightMask);
         if (!match) {
             return;
         }
 
         result.hasRawResult = true;
         result.fineRes = *match;
+        // loc 换算回未裁剪模板的左上角，外面的 “loc + scaledTemplSize/2” 口径保持不变
+        result.fineRes.loc.x -= valid.x;
+        result.fineRes.loc.y -= valid.y;
         result.scaledTemplSize = scaledTemplate.size();
     }
 
@@ -531,7 +574,25 @@ struct GlobalSearchComputation
     cv::Rect constrainedRect {};
     std::string targetZoneId;
     std::shared_ptr<GlobalSearchBatch> batch;
+    int blurSize = 5;
 };
+
+// 某一批里分最高的那一档给出的模板中心（未裁剪模板口径）
+std::optional<cv::Point2d> BestRawCenter(const GlobalSearchComputation& computation)
+{
+    const FineScaleSearchResult* best = nullptr;
+    for (const auto& scaleResult : computation.batch->getResults()) {
+        if (scaleResult.hasRawResult && (!best || scaleResult.fineRes.score > best->fineRes.score)) {
+            best = &scaleResult;
+        }
+    }
+    if (!best) {
+        return std::nullopt;
+    }
+    return cv::Point2d(
+        computation.constrainedRect.x + best->fineRes.loc.x + best->scaledTemplSize.width / 2.0,
+        computation.constrainedRect.y + best->fineRes.loc.y + best->scaledTemplSize.height / 2.0);
+}
 
 struct GlobalSearchCandidates
 {
@@ -772,6 +833,7 @@ private:
         const MatchConfig& matchConfig,
         ScaleTaskPriority priority,
         bool reserveTrackingCapacity);
+    GlobalSearchComputation startRefineSearch(const GlobalSearchComputation& coarse, const cv::Point2d& center);
 
     std::optional<MapPosition> evaluateAndAcceptResult(
         const MatchResultRaw& fineRes,
@@ -1284,7 +1346,21 @@ GlobalSearchAttempt MapLocator::Impl::finishGlobalSearch(const GlobalSearchCompu
     }
 
     computation.batch->wait();
-    const auto& scaleResults = computation.batch->getResults();
+
+    // 粗扫只负责挑位置，随后在它周围的小窗里跑满档定分数；精修开不起来就直接用粗扫结果
+    const GlobalSearchComputation* evaluated = &computation;
+    GlobalSearchComputation refined;
+    if (const auto center = BestRawCenter(computation)) {
+        refined = startRefineSearch(computation, *center);
+        if (refined.batch) {
+            refined.batch->wait();
+            if (refined.batch->hasAnyRawResult()) {
+                evaluated = &refined;
+            }
+        }
+    }
+
+    const auto& scaleResults = evaluated->batch->getResults();
     double bestValidScore = -1.0;
     double bestRawScore = -1.0;
     double bestScale = 1.0;
@@ -1307,10 +1383,10 @@ GlobalSearchAttempt MapLocator::Impl::finishGlobalSearch(const GlobalSearchCompu
 
         auto directResult = evaluateAndAcceptResult(
             scaleResult.fineRes,
-            computation.constrainedRect,
+            evaluated->constrainedRect,
             scaleResult.scaledTemplSize,
-            computation.strategy.get(),
-            computation.targetZoneId);
+            evaluated->strategy.get(),
+            evaluated->targetZoneId);
         if (!directResult) {
             continue;
         }
@@ -1325,9 +1401,9 @@ GlobalSearchAttempt MapLocator::Impl::finishGlobalSearch(const GlobalSearchCompu
     }
 
     if (bestRawScore >= 0.0) {
-        attempt.rawPos.zoneId = computation.targetZoneId;
-        attempt.rawPos.x = computation.constrainedRect.x + bestFineRes.loc.x + bestScaledTemplSize.width / 2.0;
-        attempt.rawPos.y = computation.constrainedRect.y + bestFineRes.loc.y + bestScaledTemplSize.height / 2.0;
+        attempt.rawPos.zoneId = evaluated->targetZoneId;
+        attempt.rawPos.x = evaluated->constrainedRect.x + bestFineRes.loc.x + bestScaledTemplSize.width / 2.0;
+        attempt.rawPos.y = evaluated->constrainedRect.y + bestFineRes.loc.y + bestScaledTemplSize.height / 2.0;
         attempt.rawPos.score = bestRawScore;
         attempt.rawPos.scale = bestScale;
     }
@@ -1377,7 +1453,14 @@ GlobalSearchComputation MapLocator::Impl::startGlobalSearch(
     const cv::Rect mapBounds(0, 0, bigMap.cols, bigMap.rows);
     MatchFeature searchFeature;
     if (constraint.mode == GlobalSearchMode::RoiFine) {
-        const cv::Rect constrainedRect = constraint.roi & mapBounds;
+        // 不补边的话 infer_margin 名义上 64、实际只剩十来格，YOLO 报到相邻格时正确位置根本不在候选集里
+        const int pad = GlobalSearchRoiPad(tmplFeat.image.size());
+        const cv::Rect paddedRoi(
+            constraint.roi.x - pad,
+            constraint.roi.y - pad,
+            constraint.roi.width + pad * 2,
+            constraint.roi.height + pad * 2);
+        const cv::Rect constrainedRect = paddedRoi & mapBounds;
         if (constrainedRect.empty()) {
             LogInfo << "Global Search Aborted: coarse ROI is outside of map bounds.";
             return computation;
@@ -1390,6 +1473,7 @@ GlobalSearchComputation MapLocator::Impl::startGlobalSearch(
         searchFeature = strategyPtr->extractSearchFeature(bigMap(mapBounds));
     }
 
+    computation.blurSize = matchConfig.blurSize;
     PreparedSearchFeature preparedSearch = PrepareSearchFeature(searchFeature.image, matchConfig.blurSize);
     computation.batch = std::make_shared<GlobalSearchBatch>(
         tmplFeat,
@@ -1397,8 +1481,44 @@ GlobalSearchComputation MapLocator::Impl::startGlobalSearch(
         searchFeature.image.size(),
         priority,
         reserveTrackingCapacity);
-    computation.batch->start(*scaleExecutor);
+    // 补边后搜索窗变大，先用少数几档定位置，剩下的档留给精修
+    computation.batch->start(*scaleExecutor, constraint.mode == GlobalSearchMode::RoiFine ? kGlobalCoarseScaleStride : 1);
     return computation;
+}
+
+// 在粗扫最佳位置周围开一个小窗，跑满 11 档；结果与在整个补边窗里跑满档一致，但便宜得多
+GlobalSearchComputation MapLocator::Impl::startRefineSearch(const GlobalSearchComputation& coarse, const cv::Point2d& center)
+{
+    const auto zoneIt = zones.find(coarse.targetZoneId);
+    if (zoneIt == zones.end()) {
+        return {};
+    }
+
+    const cv::Mat& bigMap = zoneIt->second;
+    const MatchFeature& tmplFeat = coarse.batch->getTemplateFeature();
+    const int half = kGlobalRefineRadius + GlobalSearchRoiPad(tmplFeat.image.size());
+    const cv::Rect refineRect =
+        cv::Rect(static_cast<int>(std::lround(center.x)) - half, static_cast<int>(std::lround(center.y)) - half, half * 2, half * 2)
+        & cv::Rect(0, 0, bigMap.cols, bigMap.rows);
+    if (refineRect.empty()) {
+        return {};
+    }
+
+    GlobalSearchComputation refined {
+        .strategy = coarse.strategy,
+        .constrainedRect = refineRect,
+        .targetZoneId = coarse.targetZoneId,
+        .blurSize = coarse.blurSize,
+    };
+    // 精修窗逐帧都不一样，走缓存只会把粗扫那份挤掉
+    MatchFeature searchFeature = coarse.strategy->extractSearchFeature(bigMap(refineRect));
+    refined.batch = std::make_shared<GlobalSearchBatch>(
+        tmplFeat,
+        PrepareSearchFeature(searchFeature.image, coarse.blurSize),
+        searchFeature.image.size(),
+        ScaleTaskPriority::GlobalPrimary);
+    refined.batch->start(*scaleExecutor);
+    return refined;
 }
 
 YoloCoarseResult MapLocator::Impl::predictCoarse(const cv::Mat& minimap) const
