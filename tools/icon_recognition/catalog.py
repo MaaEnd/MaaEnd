@@ -82,7 +82,7 @@ def build_catalog(source: Mapping[str, Any], image_root: str | Path) -> OrderedD
 def _record(item_id: str, item: Mapping[str, Any], path: Path, fluid_icon_id: str = "") -> dict[str, Any]:
     icon_id = path.stem
     category_type = CURRENCY_OVERRIDES.get(item_id, item.get("categoryType"))
-    return {
+    record = {
         "name": clean_text(item.get("name"), field=f"{item_id}.name"),
         "category": clean_text(item.get("category"), field=f"{item_id}.category"),
         "storageKind": clean_text(item.get("storageKind"), field=f"{item_id}.storageKind"),
@@ -91,6 +91,14 @@ def _record(item_id: str, item: Mapping[str, Any], path: Path, fluid_icon_id: st
         "iconId": icon_id,
         "fluidIconId": fluid_icon_id,
     }
+    for field in ("sortId1", "sortId2"):
+        value = item.get(field)
+        if value is None:
+            continue
+        if isinstance(value, bool) or not isinstance(value, int):
+            raise ValueError(f"{item_id}.{field} 必须是整数")
+        record[field] = value
+    return record
 
 
 def write_catalog(catalog: Mapping[str, Any], output: str | Path) -> None:

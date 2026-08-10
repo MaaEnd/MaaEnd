@@ -14,8 +14,10 @@ from download import (
     LANG_URL,
     WEAPON_TABLE_URL,
     build_download_jobs,
+    download_sources,
     validate_icon_png_bytes,
     merge_item_sources,
+    prepare_item_map,
     prepare_weapon_map,
 )
 from localization import (
@@ -29,6 +31,25 @@ from text import clean_text, validate_identifier
 
 
 class IconRecognitionToolsTest(unittest.TestCase):
+    @staticmethod
+    def _mini_item(**overrides: object) -> dict[str, object]:
+        item: dict[str, object] = {
+            "name": "测试物品",
+            "category": "产物",
+            "storageKind": "Normal",
+            "categoryType": "Product",
+            "iconId": "item_test",
+            "rarity": 3,
+            "sortId1": -100,
+            "sortId2": 12,
+            "fluidType": None,
+            "fluid": None,
+            "fullContainers": [],
+            "emptyContainers": [],
+        }
+        item.update(overrides)
+        return item
+
     def test_publish_defaults_use_tool_cache_and_public_assets(self) -> None:
         paths = default_publish_paths(Path("repo"))
         self.assertEqual(paths.item_source, Path("repo/tools/icon_recognition/.cache/downloads/item.json"))
@@ -89,6 +110,10 @@ class IconRecognitionToolsTest(unittest.TestCase):
             IMAGE_BASE_URL,
             "https://assets.fz.wiki/output_image/itemicon",
         )
+
+    def test_download_sources_timestamp_all_remote_json_urls(self) -> None:
+        sources = download_sources(Path("cache"), dry_run=True)
+        self.assertTrue(all("timestamp=" in url for url in sources.values()))
 
     def test_icon_url_has_no_rarity_segment_and_uses_raw_suffix(self) -> None:
         items = {
@@ -167,6 +192,60 @@ class IconRecognitionToolsTest(unittest.TestCase):
             icon.write_bytes(b"png")
             result = build_catalog(source, image_root)
         self.assertEqual(list(result), ["remote_new_item"])
+
+    def test_catalog_preserves_item_sort_ids(self) -> None:
+        items, removals = prepare_item_map(
+            {"item_test": self._mini_item()}
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            image_root = Path(directory)
+            icon = image_root / "3" / "item_test.png"
+            icon.parent.mkdir(parents=True, exist_ok=True)
+            icon.write_bytes(b"png")
+            result = build_catalog(items, image_root)
+
+        self.assertEqual(removals, [])
+        self.assertEqual(result["item_test"]["sortId1"], -100)
+        self.assertEqual(result["item_test"]["sortId2"], 12)
+
+    def test_prepare_item_map_filters_explicit_normal_product_blacklist(self) -> None:
+        blacklisted_ids = {
+            "item_activity_xiranite_enr_hulu",
+            "item_activity_xiranite_hulu",
+            "item_activity_xiranite_enr_tool",
+            "item_activity_xiranite_enr_cmpt",
+            "item_activity_xiranite_enr_bottle",
+            "item_fbottle_xiranenr_grass_2",
+            "item_activity_xiranite_cmpt",
+            "item_activity_xiranite_bottle",
+        }
+        source = {
+            item_id: self._mini_item(iconId=item_id)
+            for item_id in blacklisted_ids
+        }
+        source["item_kept"] = self._mini_item(iconId="item_kept")
+        source["item_liquid_grass"] = self._mini_item(
+            iconId="item_liquid_grass",
+            fullContainers=["item_fbottle_xiranenr_grass_2"],
+        )
+
+        items, removals = prepare_item_map(source)
+
+        self.assertEqual(set(items), {"item_kept"})
+        removed_by_id = {row["removedId"]: row for row in removals}
+        self.assertTrue(blacklisted_ids <= set(removed_by_id))
+        self.assertEqual(removed_by_id["item_liquid_grass"]["reason"], "blacklist-orphan")
+
+        mismatched, mismatched_removals = prepare_item_map(
+            {
+                "item_activity_xiranite_enr_hulu": self._mini_item(
+                    category="可用道具",
+                    categoryType="Usable",
+                )
+            }
+        )
+        self.assertIn("item_activity_xiranite_enr_hulu", mismatched)
+        self.assertEqual(mismatched_removals, [])
 
     def test_fixed_translation_hashes_are_not_catalog_item_ids(self) -> None:
         self.assertEqual(

@@ -27,6 +27,8 @@ python tools/icon_recognition/download.py --dry-run
 
 下载结果写入 `tools/icon_recognition/.cache/downloads/`。该目录只作为下载工具缓存，不参与生产或测试运行。远端表和语言文件每次运行都会校验；有效 PNG 按 `iconId` 增量复用。
 
+物品黑名单维护在 `tools/icon_recognition/blacklist.json`，按 `storageKind`、`categoryType` 和物品 ID 规则过滤，不直接写入下载脚本。
+
 原始图标必须是正方形，边长必须为 2 的整数次幂，例如 128x128 或 256x256。遇到非标准图片时下载失败并写入报告，不执行自动拉伸或补边。
 
 ## 生成发布资源
@@ -62,6 +64,7 @@ python tools/icon_recognition/publish.py
 | `category` | 中文分类标签 |
 | `storageKind` / `categoryType` | 候选过滤分类 |
 | `rarity` | 图标目录与物品稀有度 |
+| `sortId1` / `sortId2` | 上游物品排序字段；仅 mini table 物品包含，武器和固定货币不补默认值 |
 | `iconId` | 原始图标文件名，不等同于 `item_id` |
 | `fluidIconId` | 复合图标的内容物图标；普通图标为空 |
 
