@@ -101,6 +101,22 @@ void WriteDetail(MaaStringBuffer* buffer, const RecognitionResult& result)
     MaaStringBufferSet(buffer, text.c_str());
 }
 
+void SaveDebugCaptureBestEffort(const cv::Mat& image, const RecognitionResult& result, MaaTaskId task_id) noexcept
+{
+    try {
+        const auto root = get_exe_dir() / ".." / "debug" / "vision" / "IconRecognition";
+        if (!detail::SaveDebugCapture(root, image, result, static_cast<std::uint64_t>(task_id))) {
+            LogWarn << "IconRecognition debug capture failed" << VAR(task_id) << VAR(root);
+        }
+    }
+    catch (const std::exception& error) {
+        LogWarn << "IconRecognition debug capture failed" << VAR(task_id) << VAR(error.what());
+    }
+    catch (...) {
+        LogWarn << "IconRecognition debug capture failed with an unknown error" << VAR(task_id);
+    }
+}
+
 } // namespace
 
 MaaBool MAA_CALL IconRecognitionRun(
@@ -158,11 +174,7 @@ MaaBool MAA_CALL IconRecognitionRun(
         request.debug = debug;
         RecognitionResult result = GetRecognizer().recognize(to_mat(image), request);
         if (debug) {
-            detail::SaveDebugCapture(
-                get_exe_dir() / ".." / "debug" / "vision" / "IconRecognition",
-                to_mat(image),
-                result,
-                static_cast<std::uint64_t>(task_id));
+            SaveDebugCaptureBestEffort(to_mat(image), result, task_id);
         }
         WriteDetail(out_detail, result);
         if (!result.matched || result.matches.empty()) {
@@ -187,11 +199,7 @@ MaaBool MAA_CALL IconRecognitionRun(
         result.error_code = "exception";
         result.message = e.what();
         if (debug_requested && image != nullptr && !MaaImageBufferIsEmpty(image)) {
-            detail::SaveDebugCapture(
-                get_exe_dir() / ".." / "debug" / "vision" / "IconRecognition",
-                to_mat(image),
-                result,
-                static_cast<std::uint64_t>(task_id));
+            SaveDebugCaptureBestEffort(to_mat(image), result, task_id);
         }
         WriteDetail(out_detail, result);
         LogError << "IconRecognition failed" << VAR(e.what());

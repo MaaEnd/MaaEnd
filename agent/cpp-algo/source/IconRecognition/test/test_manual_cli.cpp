@@ -114,6 +114,12 @@ void TestDebugMode()
     CheckRejected({ "--grid-type", "transfer", "--debug", "--debug" }, "duplicate debug option");
 }
 
+void TestExpectedResultsPath()
+{
+    const auto options = iconrecognition::test::ParseManualRunnerOptions({ "--grid-type", "transfer", "--expected", "expected.csv" });
+    Check(options.expected_path == std::filesystem::path("expected.csv"), "--expected must preserve its file path");
+}
+
 void TestParallelExecutorKeepsIndexedResultsAndErrors()
 {
     constexpr std::size_t kCaseCount = 17;
@@ -242,6 +248,7 @@ int main()
         TestDualGridModes();
         TestJobSelection();
         TestDebugMode();
+        TestExpectedResultsPath();
         TestParallelExecutorKeepsIndexedResultsAndErrors();
         TestInvalidArguments();
         TestCaseDiscovery();

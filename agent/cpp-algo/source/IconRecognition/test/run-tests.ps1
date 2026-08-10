@@ -23,6 +23,8 @@ $repoRoot = (Resolve-Path -LiteralPath (Join-Path $testRoot "../../../../..")).P
 $buildRoot = Join-Path $testRoot "build"
 $mergedInputRoot = Join-Path $buildRoot "merged-input"
 $trackedInputRoot = Join-Path $repoRoot "tests/MaaEndTestset/Win32/Official_CN/IconRecognition"
+$trackedExpectedPath = Join-Path $trackedInputRoot "expected.csv"
+$localExpectedPath = Join-Path $testRoot "output/icon-recognition-expected.csv"
 $quickFixtures = @(
     "transfer/25.png",
     "transfer/57.png",
@@ -129,7 +131,8 @@ function Copy-InputTree {
     param(
         [Parameter(Mandatory)] [string]$SourceRoot,
         [Parameter(Mandatory)] [string]$DestinationRoot,
-        [switch]$PreferLocalConflicts
+        [switch]$PreferLocalConflicts,
+        [switch]$MarkAsLocal
     )
     if (-not (Test-Path -LiteralPath $SourceRoot -PathType Container)) {
         return
@@ -140,7 +143,18 @@ function Copy-InputTree {
         $destination = Join-Path $DestinationRoot $relative
         $destinationDirectory = Split-Path -Parent $destination
         New-Item -ItemType Directory -Path $destinationDirectory -Force | Out-Null
-        if (Test-Path -LiteralPath $destination -PathType Leaf) {
+        if ($MarkAsLocal) {
+            $base = [System.IO.Path]::GetFileNameWithoutExtension($destination)
+            $extension = [System.IO.Path]::GetExtension($destination)
+            $directory = Split-Path -Parent $destination
+            $suffix = 1
+            do {
+                $candidate = Join-Path $directory "$base.local$suffix$extension"
+                $suffix++
+            } while (Test-Path -LiteralPath $candidate -PathType Leaf)
+            $destination = $candidate
+        }
+        elseif (Test-Path -LiteralPath $destination -PathType Leaf) {
             if ($PreferLocalConflicts) {
                 $overwritten.Add($relative)
             }
@@ -176,7 +190,11 @@ function Prepare-MergedInput {
     Remove-Item -LiteralPath $mergedInputRoot -Recurse -Force -ErrorAction SilentlyContinue
     New-Item -ItemType Directory -Path $mergedInputRoot -Force | Out-Null
     Copy-InputTree -SourceRoot $trackedInputRoot -DestinationRoot $mergedInputRoot
-    Copy-InputTree -SourceRoot (Join-Path $testRoot "input") -DestinationRoot $mergedInputRoot -PreferLocalConflicts:$PreferLocalConflicts
+    Copy-InputTree `
+        -SourceRoot (Join-Path $testRoot "input") `
+        -DestinationRoot $mergedInputRoot `
+        -PreferLocalConflicts:$PreferLocalConflicts `
+        -MarkAsLocal:$(-not $PreferLocalConflicts)
     if ($RequireQuickFixtures) {
         $missing = @($quickFixtures | Where-Object { -not (Test-Path -LiteralPath (Join-Path $trackedInputRoot $_) -PathType Leaf) })
         if ($missing.Count -gt 0) {
@@ -185,25 +203,43 @@ function Prepare-MergedInput {
     }
 }
 
+function Resolve-ExpectedResultsPath {
+    if (Test-Path -LiteralPath $trackedExpectedPath -PathType Leaf) {
+        return $trackedExpectedPath
+    }
+    if (Test-Path -LiteralPath $localExpectedPath -PathType Leaf) {
+        Write-Warning "子模块 expected.csv 尚未提交，暂时使用本地 output 快照: $localExpectedPath"
+        return $localExpectedPath
+    }
+    throw "缺少 IconRecognition expected 结果: $trackedExpectedPath"
+}
+
+function Test-LocalImageSelection {
+    param(
+        [Parameter(Mandatory)] [string]$ImageName,
+        [string]$SelectedGridType
+    )
+    $localRoot = Join-Path $testRoot "input"
+    if ($SelectedGridType) {
+        $localRoot = Join-Path $localRoot $SelectedGridType
+    }
+    if (-not (Test-Path -LiteralPath $localRoot -PathType Container)) {
+        return $false
+    }
+    return $null -ne (Get-ChildItem -LiteralPath $localRoot -Recurse -File | Where-Object { $_.Name -eq $ImageName } | Select-Object -First 1)
+}
+
 function Invoke-QuickImageFixture {
-    param([Parameter(Mandatory)] [string]$Fixture)
+    param(
+        [Parameter(Mandatory)] [string]$Fixture,
+        [Parameter(Mandatory)] [string]$ExpectedPath
+    )
     $parts = $Fixture -split '/'
     $gridType = $parts[0]
     $image = $parts[-1]
-    & (Find-TestExecutable -Name "icon-recognition-manual-runner") --grid-type $gridType --image $image --jobs 1
+    & (Find-TestExecutable -Name "icon-recognition-manual-runner") --grid-type $gridType --image $image --jobs 1 --expected $ExpectedPath
     if ($LASTEXITCODE -ne 0) {
         throw "quick 图片回归失败: $Fixture，退出码: $LASTEXITCODE"
-    }
-    $latestReport = Get-ChildItem -LiteralPath (Join-Path $testRoot "output") -Recurse -Filter report.json -File |
-        Sort-Object LastWriteTime -Descending |
-        Select-Object -First 1
-    if ($null -eq $latestReport) {
-        throw "quick 图片回归没有生成报告: $Fixture"
-    }
-    $report = Get-Content -LiteralPath $latestReport.FullName -Raw -Encoding UTF8 | ConvertFrom-Json
-    $reportCases = @($report.cases)
-    if ($report.case_count -ne 1 -or $reportCases.Count -ne 1 -or -not $reportCases[0].matched -or $reportCases[0].match_count -lt 1) {
-        throw "quick 图片回归未识别到物品: $Fixture"
     }
 }
 
@@ -239,17 +275,20 @@ switch ($Task) {
             "icon-recognition-small-tests",
             "icon-recognition-custom-tests",
             "icon-recognition-debug-tests",
+            "icon-recognition-expected-tests",
             "icon-recognition-manual-runner"
         )
     }
     "quick" {
-        Prepare-MergedInput -RequireQuickFixtures -PreferLocalConflicts
+        Prepare-MergedInput -RequireQuickFixtures
+        $expectedPath = Resolve-ExpectedResultsPath
         Build-Targets -Targets @(
             "icon-recognition-types-tests",
             "icon-recognition-manual-cli-tests",
             "icon-recognition-small-tests",
             "icon-recognition-custom-tests",
             "icon-recognition-debug-tests",
+            "icon-recognition-expected-tests",
             "icon-recognition-manual-runner"
         )
         Set-TestRuntimePath
@@ -258,7 +297,8 @@ switch ($Task) {
             "icon-recognition-manual-cli-tests",
             "icon-recognition-small-tests",
             "icon-recognition-custom-tests",
-            "icon-recognition-debug-tests"
+            "icon-recognition-debug-tests",
+            "icon-recognition-expected-tests"
         )) {
             & (Find-TestExecutable -Name $name)
             if ($LASTEXITCODE -ne 0) {
@@ -266,7 +306,7 @@ switch ($Task) {
             }
         }
         foreach ($fixture in $quickFixtures) {
-            Invoke-QuickImageFixture -Fixture $fixture
+            Invoke-QuickImageFixture -Fixture $fixture -ExpectedPath $expectedPath
         }
     }
     "manual" {
@@ -278,7 +318,11 @@ switch ($Task) {
             Show-Usage
             throw "manual 任务必须指定 -All、-GridType 或 -Image。"
         }
-        Prepare-MergedInput -PreferLocalConflicts:$($PSBoundParameters.ContainsKey("Image"))
+        $usesLocalImage = $PSBoundParameters.ContainsKey("Image") -and (Test-LocalImageSelection -ImageName $Image -SelectedGridType $GridType)
+        Prepare-MergedInput -PreferLocalConflicts:$usesLocalImage
+        if ($usesLocalImage) {
+            Write-Warning "显式 -Image 命中本地 input 素材，本次优先使用本地同名图片并仅作人工审计: $Image"
+        }
         Build-Targets -Targets @("icon-recognition-manual-runner")
         Set-TestRuntimePath
         $arguments = @()
@@ -299,6 +343,12 @@ switch ($Task) {
         $arguments += @("--jobs", $Jobs)
         if ($PSBoundParameters.ContainsKey("Debug")) {
             $arguments += "--debug"
+        }
+        if (-not $usesLocalImage -and $Side -eq "full") {
+            $arguments += @("--expected", (Resolve-ExpectedResultsPath))
+        }
+        elseif (-not $usesLocalImage) {
+            Write-Warning "expected.csv 仅维护 full 基线，显式分侧运行仅作人工审计: $Side"
         }
         & (Find-TestExecutable -Name "icon-recognition-manual-runner") @arguments
         if ($LASTEXITCODE -ne 0) {

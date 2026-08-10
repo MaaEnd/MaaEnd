@@ -25,6 +25,8 @@ struct RegularAxisFit
     int maximum_index = 0;
     double mean_residual = 0.0;
     double maximum_residual = 0.0;
+    // 观测首尾间距与拟合轴首尾间距的差值，衡量 pitch 误差的累计幅度。
+    double endpoint_drift = 0.0;
     double residual_trend = 0.0;
     double support_ratio = 0.0;
     double confidence = 0.0;

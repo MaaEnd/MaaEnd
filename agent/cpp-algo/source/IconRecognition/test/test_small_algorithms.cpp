@@ -348,6 +348,7 @@ void TestRegularLatticeUsesOneGlobalFloatingPitch()
     const auto fit = iconrecognition::detail::FitRegularAxis(observations, 8, { 68.0, 70.0 }, 69.0);
     Check(fit.has_value(), "regular observations must produce a global axis");
     Check(fit->pitch >= 68.0 && fit->pitch <= 70.0, "fitted pitch must stay inside the formal prior");
+    Check(fit->endpoint_drift <= 1.0, "selected pitch must keep endpoint drift bounded");
     const auto starts = iconrecognition::detail::ProjectRegularAxis(*fit);
     for (std::size_t index = 0; index < starts.size(); ++index) {
         Check(

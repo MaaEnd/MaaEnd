@@ -31,14 +31,18 @@ void RemoveGroup(
     const std::filesystem::path& raw_dir,
     const std::filesystem::path& annotated_dir,
     const std::filesystem::path& detail_dir,
-    const std::string& stem)
+    const std::string& stem) noexcept
 {
-    std::error_code ec;
-    std::filesystem::remove(raw_dir / (stem + ".png"), ec);
-    ec.clear();
-    std::filesystem::remove(annotated_dir / (stem + ".png"), ec);
-    ec.clear();
-    std::filesystem::remove(detail_dir / (stem + ".json"), ec);
+    try {
+        std::error_code ec;
+        std::filesystem::remove(raw_dir / (stem + ".png"), ec);
+        ec.clear();
+        std::filesystem::remove(annotated_dir / (stem + ".png"), ec);
+        ec.clear();
+        std::filesystem::remove(detail_dir / (stem + ".json"), ec);
+    }
+    catch (...) {
+    }
 }
 
 void TrimGroups(const std::filesystem::path& raw_dir, const std::filesystem::path& annotated_dir, const std::filesystem::path& detail_dir)
@@ -93,13 +97,12 @@ void DrawDiagnostics(cv::Mat& annotated, const RecognitionResult& result)
     }
 }
 
-} // namespace
-
-void SaveDebugCapture(const std::filesystem::path& root, const cv::Mat& image, const RecognitionResult& result, std::uint64_t reco_id)
+bool SaveDebugCaptureImpl(
+    const std::filesystem::path& root,
+    const cv::Mat& image,
+    const RecognitionResult& result,
+    std::uint64_t reco_id)
 {
-    if (image.empty()) {
-        return;
-    }
     const auto raw_dir = root / "raw";
     const auto annotated_dir = root / "annotated";
     const auto detail_dir = root / "detail";
@@ -107,19 +110,56 @@ void SaveDebugCapture(const std::filesystem::path& root, const cv::Mat& image, c
     std::filesystem::create_directories(annotated_dir);
     std::filesystem::create_directories(detail_dir);
     const std::string stamp = Stamp(reco_id);
-    const cv::Mat raw = image.clone();
-    cv::Mat annotated = image.clone();
-    DrawDiagnostics(annotated, result);
-    cv::imwrite((raw_dir / (stamp + ".png")).string(), raw);
-    cv::imwrite((annotated_dir / (stamp + ".png")).string(), annotated);
-    json::object detail = json::value(result).as_object();
-    if (result.diagnostics) {
-        detail["diagnostics"] = *result.diagnostics;
+    try {
+        const cv::Mat raw = image.clone();
+        cv::Mat annotated = image.clone();
+        DrawDiagnostics(annotated, result);
+        if (!cv::imwrite((raw_dir / (stamp + ".png")).string(), raw)
+            || !cv::imwrite((annotated_dir / (stamp + ".png")).string(), annotated)) {
+            RemoveGroup(raw_dir, annotated_dir, detail_dir, stamp);
+            return false;
+        }
+        json::object detail = json::value(result).as_object();
+        if (result.diagnostics) {
+            detail["diagnostics"] = *result.diagnostics;
+        }
+        std::ofstream stream(detail_dir / (stamp + ".json"), std::ios::binary | std::ios::trunc);
+        if (!stream.is_open()) {
+            RemoveGroup(raw_dir, annotated_dir, detail_dir, stamp);
+            return false;
+        }
+        stream << json::value(std::move(detail)).dumps(4);
+        stream.close();
+        if (stream.fail()) {
+            RemoveGroup(raw_dir, annotated_dir, detail_dir, stamp);
+            return false;
+        }
+        TrimGroups(raw_dir, annotated_dir, detail_dir);
+        return true;
     }
-    std::ofstream stream(detail_dir / (stamp + ".json"), std::ios::binary);
-    stream << json::value(std::move(detail)).dumps(4);
-    stream.close();
-    TrimGroups(raw_dir, annotated_dir, detail_dir);
+    catch (...) {
+        RemoveGroup(raw_dir, annotated_dir, detail_dir, stamp);
+        throw;
+    }
+}
+
+} // namespace
+
+bool SaveDebugCapture(
+    const std::filesystem::path& root,
+    const cv::Mat& image,
+    const RecognitionResult& result,
+    std::uint64_t reco_id) noexcept
+{
+    if (image.empty()) {
+        return false;
+    }
+    try {
+        return SaveDebugCaptureImpl(root, image, result, reco_id);
+    }
+    catch (...) {
+        return false;
+    }
 }
 
 } // namespace iconrecognition::detail

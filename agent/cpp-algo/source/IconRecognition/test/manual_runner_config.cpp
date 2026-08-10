@@ -226,9 +226,9 @@ const std::string& RequireValue(const std::vector<std::string>& arguments, std::
 std::string ManualRunnerUsage()
 {
     return R"(Usage:
-  icon-recognition-manual-runner --all [--side full|left|right|split|all] [--jobs <N|auto>] [--debug]
-  icon-recognition-manual-runner --grid-type <type> [--image <basename>] [--side full|left|right|split|all] [--jobs <N|auto>] [--debug]
-  icon-recognition-manual-runner --image <basename> [--jobs <N|auto>] [--debug]
+  icon-recognition-manual-runner --all [--side full|left|right|split|all] [--jobs <N|auto>] [--debug] [--expected <path>]
+  icon-recognition-manual-runner --grid-type <type> [--image <basename>] [--side full|left|right|split|all] [--jobs <N|auto>] [--debug] [--expected <path>]
+  icon-recognition-manual-runner --image <basename> [--jobs <N|auto>] [--debug] [--expected <path>]
   icon-recognition-manual-runner -h|--help|-?
 
 Grid types:
@@ -250,6 +250,7 @@ ManualRunnerOptions ParseManualRunnerOptions(const std::vector<std::string>& arg
     bool side_specified = false;
     bool jobs_specified = false;
     bool debug_specified = false;
+    bool expected_specified = false;
     for (std::size_t index = 0; index < arguments.size(); ++index) {
         const std::string& argument = arguments[index];
         if (IsHelpOption(argument)) {
@@ -314,6 +315,14 @@ ManualRunnerOptions ParseManualRunnerOptions(const std::vector<std::string>& arg
             }
             options.debug = true;
             debug_specified = true;
+            continue;
+        }
+        if (argument == "--expected") {
+            if (expected_specified) {
+                throw std::invalid_argument("duplicate option: --expected");
+            }
+            options.expected_path = RequireValue(arguments, index);
+            expected_specified = true;
             continue;
         }
         throw std::invalid_argument("unknown option: " + argument);

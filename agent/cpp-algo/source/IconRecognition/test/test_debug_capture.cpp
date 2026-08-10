@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <cstdint>
 #include <filesystem>
+#include <fstream>
 #include <iostream>
 #include <set>
 #include <stdexcept>
@@ -99,7 +100,7 @@ void TestDebugCaptureKeepsSynchronizedGroups()
 
     const cv::Mat image(32, 32, CV_8UC3, cv::Scalar(10, 20, 30));
     for (std::uint64_t reco_id = 1; reco_id <= 21; ++reco_id) {
-        iconrecognition::detail::SaveDebugCapture(root, image, result, reco_id);
+        Require(iconrecognition::detail::SaveDebugCapture(root, image, result, reco_id), "debug capture must report successful writes");
     }
 
     const auto raw_stems = Stems(root / "raw");
@@ -144,12 +145,36 @@ void TestDebugCaptureKeepsSynchronizedGroups()
     std::filesystem::remove_all(root);
 }
 
+void TestDebugCaptureFailureIsBestEffort()
+{
+    const std::filesystem::path root = std::filesystem::current_path() / "icon-recognition-debug-blocked";
+    std::filesystem::remove_all(root);
+    {
+        std::ofstream blocker(root, std::ios::binary | std::ios::trunc);
+        Require(blocker.good(), "unable to create blocked debug fixture");
+    }
+
+    const cv::Mat image(8, 8, CV_8UC3, cv::Scalar(10, 20, 30));
+    const iconrecognition::RecognitionResult result;
+    bool saved = true;
+    try {
+        saved = iconrecognition::detail::SaveDebugCapture(root, image, result, 1);
+    }
+    catch (...) {
+        std::filesystem::remove(root);
+        throw std::runtime_error("debug capture failure must not escape the caller");
+    }
+    Require(!saved, "unwritable debug capture must report failure");
+    std::filesystem::remove(root);
+}
+
 } // namespace
 
 int main()
 {
     try {
         TestDebugCaptureKeepsSynchronizedGroups();
+        TestDebugCaptureFailureIsBestEffort();
         std::cout << "IconRecognition debug capture tests passed\n";
         return 0;
     }

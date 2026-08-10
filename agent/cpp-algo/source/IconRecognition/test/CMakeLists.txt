@@ -170,9 +170,21 @@ target_include_directories(
 target_link_libraries(icon-recognition-debug-tests PRIVATE ${OpenCV_LIBS})
 configure_icon_recognition_test(icon-recognition-debug-tests)
 
+add_executable(icon-recognition-expected-tests test_expected_results.cpp expected_results.cpp)
+target_include_directories(
+    icon-recognition-expected-tests
+    PRIVATE
+        "${CMAKE_CURRENT_LIST_DIR}/../../../MaaUtils/include"
+        "${VCPKG_ROOT}/include"
+        "${CMAKE_CURRENT_LIST_DIR}/.."
+)
+target_link_libraries(icon-recognition-expected-tests PRIVATE ${OpenCV_LIBS})
+configure_icon_recognition_test(icon-recognition-expected-tests)
+
 add_executable(
     icon-recognition-manual-runner
     test_full_diff.cpp
+    expected_results.cpp
     manual_runner_executor.cpp
     manual_runner_config.cpp
     ../IconRecognizer.cpp

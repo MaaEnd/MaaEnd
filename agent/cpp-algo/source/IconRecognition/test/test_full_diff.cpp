@@ -23,6 +23,7 @@
 #include "../IconRecognizer.h"
 #include "../detail/RecognitionDiagnostics.h"
 #include "../detail/TemplateCatalog.h"
+#include "expected_results.h"
 #include "manual_runner_config.h"
 #include "manual_runner_executor.h"
 
@@ -434,6 +435,10 @@ int main(int argc, char** argv)
 
         const std::filesystem::path input_root = ICON_RECOGNITION_TEST_INPUT_DIR;
         const auto cases = iconrecognition::test::DiscoverManualRunnerCases(input_root, ICON_RECOGNITION_TEST_ROIS_PATH, options);
+        std::optional<iconrecognition::test::ExpectedResults> expected_results;
+        if (!options.expected_path.empty()) {
+            expected_results.emplace(iconrecognition::test::LoadExpectedResults(options.expected_path));
+        }
         const auto run_root = CreateRunRoot(ICON_RECOGNITION_TEST_OUTPUT_DIR, RunLabel(options));
         const auto annotated_root = run_root / "annotated";
         const auto detail_root = run_root / "detail";
@@ -482,6 +487,17 @@ int main(int argc, char** argv)
             const auto recognition_started = RunnerClock::now();
             const auto result = RunCase(recognizer, image, test_case, options.debug);
             case_performance.recognition_ms = ElapsedMilliseconds(recognition_started);
+            const std::string image_name = test_case.image_path.lexically_relative(input_root).generic_string();
+            const bool expected_checked =
+                expected_results && expected_results->find(image_name, test_case.grid_type, test_case.roi_name) != nullptr;
+            const auto expected_error = expected_results ? iconrecognition::test::CompareExpectedCase(
+                                            *expected_results,
+                                            image_name,
+                                            test_case.grid_type,
+                                            test_case.roi_name,
+                                            result,
+                                            iconrecognition::test::IsSupplementalLocalImage(image_name))
+                                                         : std::nullopt;
             const auto annotation_started = RunnerClock::now();
             const cv::Mat annotated = DrawResult(image, result, audit_catalog);
             case_performance.annotation_ms = ElapsedMilliseconds(annotation_started);
@@ -498,8 +514,7 @@ int main(int argc, char** argv)
             WriteDetail(detail_path, result);
             case_performance.detail_write_ms = ElapsedMilliseconds(detail_write_started);
             case_performance.total_ms = ElapsedMilliseconds(case_started);
-            const bool failed = result.error_code == "exception";
-            const std::string image_name = test_case.image_path.lexically_relative(input_root).generic_string();
+            const bool failed = result.error_code == "exception" || expected_error.has_value();
             json::object case_report {
                 { "image", image_name },
                 { "grid_type", std::string(iconrecognition::GridTypeName(test_case.grid_type)) },
@@ -507,6 +522,7 @@ int main(int argc, char** argv)
                 { "roi", iconrecognition::RectToJson(test_case.roi) },
                 { "matched", result.matched },
                 { "match_count", static_cast<unsigned long long>(result.matches.size()) },
+                { "expected_checked", expected_checked },
                 { "failed", failed },
                 { "annotated", annotated_path.string() },
                 { "detail", detail_path.string() },
@@ -514,9 +530,13 @@ int main(int argc, char** argv)
             if (options.debug) {
                 case_report["runner_performance"] = case_performance;
             }
+            if (expected_error) {
+                case_report["expected_error"] = *expected_error;
+            }
             completed[index] = CompletedCase {
                 .report = std::move(case_report),
                 .console_line = image_name + " [" + test_case.roi_name + "] -> " + annotated_path.string()
+                                + (expected_error ? " EXPECTED MISMATCH: " + *expected_error : "")
                                 + (options.debug ? " performance=" + json::value(case_performance).dumps() : ""),
                 .failed = failed,
             };
@@ -569,6 +589,9 @@ int main(int argc, char** argv)
             { "cases_per_second", elapsed > 0.0 ? reports.size() / elapsed : 0.0 },
             { "cases", std::move(reports) },
         };
+        if (!options.expected_path.empty()) {
+            report_object["expected"] = options.expected_path.string();
+        }
         if (options.debug) {
             report_object["startup_performance"] = startup_performance;
         }

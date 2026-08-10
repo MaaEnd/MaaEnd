@@ -30,6 +30,7 @@ struct ManualRunnerOptions
     std::size_t jobs = 1;
     bool automatic_jobs = false;
     bool debug = false;
+    std::filesystem::path expected_path;
 };
 
 struct ManualRunnerCase

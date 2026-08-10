@@ -123,6 +123,8 @@ std::optional<RegularAxisFit> FitCandidate(
         return std::nullopt;
     }
     const double mean_residual = weighted_residual / weight_sum;
+    const double endpoint_drift =
+        std::abs((observations.back().position - observations.front().position) - (indices.back() - indices.front()) * pitch);
     const double residual_trend = trend_numerator / denominator;
     std::vector<int> direct_indices;
     for (std::size_t index = 0; index < observations.size(); ++index) {
@@ -137,8 +139,7 @@ std::optional<RegularAxisFit> FitCandidate(
     const double pitch_span = std::max(pitch_range.second - pitch_range.first, 1.0);
     const double pitch_confidence = std::clamp(1.0 - std::abs(pitch - preferred_pitch) / pitch_span, 0.0, 1.0);
     const double confidence = std::clamp(
-        kSupportConfidenceWeight * support_ratio
-            + kResidualConfidenceWeight * (1.0 - mean_residual / kMaximumRegularAxisResidual)
+        kSupportConfidenceWeight * support_ratio + kResidualConfidenceWeight * (1.0 - mean_residual / kMaximumRegularAxisResidual)
             + kPitchConfidenceWeight * pitch_confidence,
         0.0,
         1.0);
@@ -149,6 +150,7 @@ std::optional<RegularAxisFit> FitCandidate(
         .maximum_index = maximum,
         .mean_residual = mean_residual,
         .maximum_residual = maximum_residual,
+        .endpoint_drift = endpoint_drift,
         .residual_trend = residual_trend,
         .support_ratio = support_ratio,
         .confidence = confidence,
@@ -183,9 +185,11 @@ std::optional<RegularAxisFit> FitRegularAxis(
     }
 
     std::optional<RegularAxisFit> best;
-    std::tuple<double, double, double, double> best_rank {
+    std::tuple<double, double, double, double, double, double> best_rank {
         -1.0,
         -1.0,
+        -std::numeric_limits<double>::infinity(),
+        -std::numeric_limits<double>::infinity(),
         -std::numeric_limits<double>::infinity(),
         -std::numeric_limits<double>::infinity(),
     };
@@ -196,10 +200,8 @@ std::optional<RegularAxisFit> FitRegularAxis(
                 continue;
             }
             const auto rank = std::tuple {
-                candidate->support_ratio,
-                candidate->confidence,
-                -candidate->mean_residual,
-                -std::abs(candidate->pitch - preferred_pitch),
+                candidate->support_ratio,   candidate->confidence,     -candidate->maximum_residual,
+                -candidate->endpoint_drift, -candidate->mean_residual, -std::abs(candidate->pitch - preferred_pitch),
             };
             if (rank > best_rank) {
                 best_rank = rank;
