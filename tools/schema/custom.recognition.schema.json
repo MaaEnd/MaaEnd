@@ -17,6 +17,7 @@
                 "ExpendableRecognition",
                 "ExpressionRecognition",
                 "ImageCheckNotPassedRecognition",
+                "IconRecognition",
                 "ItemDataReady",
                 "ItemQuantitySatisfied",
                 "ListCompleteRecognition",
@@ -50,6 +51,88 @@
         }
     },
     "allOf": [
+        {
+            "if": {
+                "type": "object",
+                "required": [ "custom_recognition" ],
+                "properties": { "custom_recognition": { "const": "IconRecognition" } }
+            },
+            "then": {
+                "type": "object",
+                "required": [ "roi", "custom_recognition_param" ],
+                "properties": {
+                    "custom_recognition_param": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [ "grid_type" ],
+                        "properties": {
+                            "grid_type": {
+                                "type": "string",
+                                "enum": [
+                                    "trade",
+                                    "transfer",
+                                    "port_storager",
+                                    "valuables",
+                                    "shipment",
+                                    "credit_trade",
+                                    "single_roi"
+                                ],
+                                "title": "Grid Type",
+                                "description": "Icon grid layout used by IconRecognition."
+                            },
+                            "item_ids": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "minLength": 1
+                                },
+                                "uniqueItems": true,
+                                "title": "Item IDs",
+                                "description": "Optional item catalog IDs to match."
+                            },
+                            "item_filters": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "minLength": 1
+                                },
+                                "uniqueItems": true,
+                                "title": "Item Filters",
+                                "description": "Optional storageKind:categoryType filters for candidate icons."
+                            },
+                            "threshold": {
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 1,
+                                "default": 0.85,
+                                "title": "Threshold",
+                                "description": "Minimum final match score. Lower values increase recall and false-positive risk."
+                            },
+                            "subpixel_threshold": {
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 1,
+                                "default": 0.6,
+                                "title": "Subpixel Threshold",
+                                "description": "Minimum base score for subpixel refinement."
+                            },
+                            "deduplicate": {
+                                "type": "boolean",
+                                "default": false,
+                                "title": "Deduplicate",
+                                "description": "Keep only the highest-scoring match for each item ID."
+                            },
+                            "debug": {
+                                "type": "boolean",
+                                "default": false,
+                                "title": "Debug",
+                                "description": "Collect IconRecognition diagnostics and debug captures."
+                            }
+                        }
+                    }
+                }
+            }
+        },
         {
             "if": {
                 "type": "object",
