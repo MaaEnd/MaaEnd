@@ -23,6 +23,9 @@ package-lock.json
 agent/go-service/go.sum
 agent/go-service/vendor/
 
+# Markdown 使用 markdownlint 格式化
+**/*.md
+
 # 其他
 *.min.js
 *.min.css
