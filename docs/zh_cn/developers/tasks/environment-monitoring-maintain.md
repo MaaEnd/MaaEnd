@@ -2,11 +2,11 @@
 
 本文说明 `EnvironmentMonitoring`（环境监测）任务的 Pipeline 组织、路线数据、终端分组、自动生成机制及新观察点的接入方式。
 
-环境监测的核心特点是 **「数据驱动 + 模板批量生成」**：每个观察点对应的 Pipeline JSON 不直接手写，而是通过 [`@joebao/maa-pipeline-generate`](https://www.npmjs.com/package/@joebao/maa-pipeline-generate) 工具，将 `tools/pipeline-generate/EnvironmentMonitoring/` 下的模板/路线配置和 `tools/pipeline-generate/data/environment_monitoring.json` 批量渲染到 `assets/resource/pipeline/EnvironmentMonitoring/` 中。维护工作的重心在 **生成配置与精简数据模型**，而不是手改 JSON。
+环境监测的核心特点是 **「数据驱动 + 模板批量生成」**：每个观察点对应的 Pipeline JSON 不直接手写，而是通过 [`@joebao/maa-pipeline-generate`](https://www.npmjs.com/package/@joebao/maa-pipeline-generate) 工具，将 `tools/pipeline-generate/EnvironmentMonitoring/` 下的模板/路线配置和 `tools/pipeline-generate/data/environment_monitoring.json` 批量渲染到 `assets/resource/pipeline/EnvironmentMonitoring/` 中。维护工作的重心在 **生成配置与 zmdmap 精简游戏数据**，而不是手改 JSON。
 
 > [!WARNING]
 >
-> `assets/resource/pipeline/EnvironmentMonitoring/{Station}/*.json` 与 `assets/resource/pipeline/EnvironmentMonitoring/Terminals.json` 都是 **生成产物**。手改这些文件会在下次重新生成时被覆盖。所有维护都应该改 `tools/pipeline-generate/EnvironmentMonitoring/` 下的生成配置，或通过 `pnpm fetch:zmdmap` 更新精简任务数据。
+> `assets/resource/pipeline/EnvironmentMonitoring/{Station}/*.json` 与 `assets/resource/pipeline/EnvironmentMonitoring/Terminals.json` 都是 **生成产物**。手改这些文件会在下次重新生成时被覆盖。所有维护都应该改 `tools/pipeline-generate/EnvironmentMonitoring/` 下的生成配置，或通过 `pnpm fetch:zmdmap` 更新 zmdmap 精简游戏数据。
 
 ## 概览
 
@@ -29,9 +29,9 @@
 | 失败收集参数 Schema | `tools/schema/components/failure_collector.schema.json` | 通用失败收集 Custom Action 的参数约束；动作名称注册在 `tools/schema/custom.action.schema.json` |
 | 路线同步逻辑 | `tools/pipeline-generate/EnvironmentMonitoring/generator/sync-routes.mjs` | 在生成前自动同步 `routes.json` 的 `MissionId` / `Name` / `Id`，并按 `MissionId` 排序 |
 | 路线解析逻辑 | `tools/pipeline-generate/EnvironmentMonitoring/generator/route-resolver.mjs` | 将 `routes.json` 条目解析为模板需要的寻路识别/动作参数，并统一处理未适配降级 |
-| 规范化任务模型 | `tools/pipeline-generate/EnvironmentMonitoring/generator/model.mjs` | 统一读取精简游戏数据与 `routes.json`，生成路线和终端模板共享的观察点任务模型 |
+| 规范化任务模型 | `tools/pipeline-generate/EnvironmentMonitoring/generator/model.mjs` | 统一读取 zmdmap 精简游戏数据与 `routes.json`，生成路线和终端模板共享的观察点任务模型 |
 | 终端列表数据 | `tools/pipeline-generate/EnvironmentMonitoring/generator/terminals-data.mjs` | 从 `model.mjs` 的规范化任务和自动派生的终端列表生成各终端 `next` |
-| 游戏数据快照 | `tools/pipeline-generate/data/environment_monitoring.json` | zmdmap 数据 CI 由 `data/scripts/environment_monitoring_data.py` 生成的终端、观察点及五语言名称；MaaEnd 通过 `pnpm fetch:zmdmap` 更新 |
+| zmdmap 精简游戏数据 | `tools/pipeline-generate/data/environment_monitoring.json` | zmdmap 数据 CI 从 TableCfg 裁剪并发布的终端、观察点及五语言名称；MaaEnd 通过 `pnpm fetch:zmdmap` 更新 |
 | 生成器配置 | `tools/pipeline-generate/EnvironmentMonitoring/generator/config.json` | 单观察点输出配置：`outputPattern: "${Station}/${Id}.json"` |
 | 终端生成器配置 | `tools/pipeline-generate/EnvironmentMonitoring/generator/terminals-config.json` | 合并到单文件的终端输出配置：`outputFile: "Terminals.json"` |
 | 多语言文案 | `assets/locales/interface/*.json` | `task.EnvironmentMonitoring.*` 的 label / description（任务级；观察点名走 OCR） |
@@ -162,7 +162,7 @@ MysteriousCryptidGraffiti         → 谜之生物的涂鸦
 }
 ```
 
-`data.mjs` 的默认导出是数组，每个元素 = 一个观察点的渲染上下文（字段名与 `template.json` 中 `${Xxx}` 占位符对应）。`pnpm generate:EnvironmentMonitoring` 会先同步 zmdmap 精简数据，再调用 `sync-routes.mjs` 刷新上一级 `routes.json`；随后 `model.mjs` 只读 `routes.json` 与 `environment_monitoring.json`，通过 `route-resolver.mjs` 装配规范化任务，`data.mjs` 再投影出最终行：
+`data.mjs` 的默认导出是数组，每个元素 = 一个观察点的渲染上下文（字段名与 `template.json` 中 `${Xxx}` 占位符对应）。`pnpm generate:EnvironmentMonitoring` 会先同步 zmdmap 精简游戏数据，再调用 `sync-routes.mjs` 刷新上一级 `routes.json`；随后 `model.mjs` 只读 `routes.json` 与 `environment_monitoring.json`，通过 `route-resolver.mjs` 装配规范化任务，`data.mjs` 再投影出最终行：
 
 | 字段 | 来源 |
 | ------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -202,7 +202,7 @@ MysteriousCryptidGraffiti         → 谜之生物的涂鸦
 # 推荐：在仓库根目录运行
 pnpm generate:EnvironmentMonitoring
 
-# 只同步 zmdmap 精简数据
+# 只同步 zmdmap 精简游戏数据
 pnpm fetch:zmdmap
 
 # 如果已经更新过环境监测数据，也可以在 tools/pipeline-generate/EnvironmentMonitoring/generator/ 目录下单独渲染：

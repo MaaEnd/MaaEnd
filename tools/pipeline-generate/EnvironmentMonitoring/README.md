@@ -2,7 +2,7 @@
 
 使用 `MAA-pipeline-generate` 工具批量生成对应的 Pipeline 文件。
 
-`generator/model.mjs` 统一读取精简游戏数据与 `routes.json`，并规范化为观察点任务模型；`data.mjs` 与
+`generator/model.mjs` 统一读取 zmdmap 精简游戏数据与 `routes.json`，并规范化为观察点任务模型；`data.mjs` 与
 `terminals-data.mjs` 再分别投影为观察点路线模板和终端分组模板所需的最小数据。
 
 ## 运行方式
@@ -11,7 +11,7 @@
 # 在仓库根目录运行
 pnpm generate:EnvironmentMonitoring
 
-# 仅同步 zmdmap 精简数据
+# 仅同步 zmdmap 精简游戏数据
 pnpm fetch:zmdmap
 
 # 如果已经更新过环境监测数据，也可以在生成器目录单独渲染
@@ -23,12 +23,12 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 
 ## 新增/更新观察点
 
-1. **更新游戏数据**：运行 `pnpm fetch:zmdmap`，下载 zmdmap 数据 CI 生成的 `tools/pipeline-generate/data/environment_monitoring.json`。
+1. **更新游戏数据**：运行 `pnpm fetch:zmdmap`，下载 zmdmap 数据 CI 从 TableCfg 裁剪并发布的精简游戏数据 `tools/pipeline-generate/data/environment_monitoring.json`。
 2. **补充路线配置**：在 `routes.json` 中新增或修改对应观察点的条目（传送点、地图名、寻路路径、摄像头朝向等）。若暂无数据，生成器会将该观察点标记为未适配，生成的 Pipeline 只会接取并追踪，不会前往拍照。
 3. **重新生成 Pipeline**：运行上方两条命令，分别生成观察点节点文件与终端分组文件。
 4. **提交**：将 `routes.json` 与 `assets/resource/pipeline/EnvironmentMonitoring/` 下重新生成的文件一并提交。
 
-> `pnpm generate:EnvironmentMonitoring` 会先同步 zmdmap 精简数据，再运行 `generator/sync-routes.mjs`：补齐/刷新 `MissionId`、`Name`、`Id`，按 `MissionId` 排序，并同步五语言路线失败提示。单独渲染时也请先运行 `node sync-routes.mjs`。
+> `pnpm generate:EnvironmentMonitoring` 会先同步 zmdmap 精简游戏数据，再运行 `generator/sync-routes.mjs`：补齐/刷新 `MissionId`、`Name`、`Id`，按 `MissionId` 排序，并同步五语言路线失败提示。单独渲染时也请先运行 `node sync-routes.mjs`。
 
 ### `routes.json` 条目字段说明
 

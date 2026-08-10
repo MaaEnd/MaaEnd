@@ -1,12 +1,12 @@
 # 售卖产品生成器
 
-从售卖产品精简数据生成 SellProduct 任务的 Pipeline、Task 选项与部署数据。任务流程、选品/干员规则和缓存语义见[开发手册 - SellProduct](../../../docs/zh_cn/developers/tasks/sell-product-maintain.md)，本文只讲生成器本身。
+从 zmdmap 精简游戏数据生成 SellProduct 任务的 Pipeline、Task 选项与部署数据。任务流程、选品/干员规则和缓存语义见[开发手册 - SellProduct](../../../docs/zh_cn/developers/tasks/sell-product-maintain.md)，本文只讲生成器本身。
 
 ## 数据流
 
 ```text
-zmdmap 数据 CI：TableCfg → data/scripts/sell_product_data.py → 发布 sell_product.json
-MaaEnd：fetch-data.mjs → data/sell_product.json（精简模型）
+zmdmap 数据 CI：TableCfg → data/scripts/sell_product_data.py → 发布精简游戏数据 sell_product.json
+MaaEnd：fetch-data.mjs → data/sell_product.json
                       → 本目录生成器 → assets/ 下的生成产物（不要手改）
 ```
 
@@ -24,16 +24,16 @@ MaaEnd：fetch-data.mjs → data/sell_product.json（精简模型）
 | `session-data.mjs` | `OperatorSession.json` 的据点注册链 |
 | `task-data.mjs` | `assets/tasks/SellProduct.json` 的任务选项 |
 
-- `selection-data.mjs`：把精简贸易数据预计算为 `assets/data/SellProduct/selection_data.json`（Go 运行时数据）；活动物品临时排除项集中在这里，原始数据移除活动物品后应清理并重新生成。
+- `selection-data.mjs`：把售卖产品精简游戏数据预计算为 `assets/data/SellProduct/selection_data.json`（Go 运行时数据）；活动物品临时排除项集中在这里，原始数据移除活动物品后应清理并重新生成。
 - `sync-locales.mjs`：同步五语言 locale——按游戏据点顺序重排据点键、据点名始终覆盖为当前官方译文、补齐缺失的据点/干员/物品键（中文名与既有键相同的货品复用旧键）。
 
 ## 命令
 
 ```shell
-# 在仓库根目录运行（同步 zmdmap 精简数据并完整生成）
+# 在仓库根目录运行（同步 zmdmap 精简游戏数据并完整生成）
 pnpm generate:SellProduct
 
-# 仅同步 zmdmap 精简数据
+# 仅同步 zmdmap 精简游戏数据
 pnpm fetch:zmdmap
 
 # 使用已缓存的数据补齐五语言据点、干员键和缺失的物品键

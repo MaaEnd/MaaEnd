@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// 从 zmdmap API 获取最新版本，下载任务精简数据到 tools/pipeline-generate/data/ 目录。
+// 从 zmdmap API 获取最新版本，下载任务所需的精简游戏数据到 tools/pipeline-generate/data/ 目录。
 // 若本地已是最新版本则跳过下载。
 //
 // 用法：node tools/pipeline-generate/fetch-data.mjs [--force] [--cache-bust]

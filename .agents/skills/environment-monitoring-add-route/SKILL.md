@@ -1,6 +1,6 @@
 ---
 name: environment-monitoring-add-route
-description: "新增、补全或改写 MaaEnd EnvironmentMonitoring 环境监测观察点路线配置。凡是用户要求适配 environment_monitoring 新观察点、补充 routes.json、配置传送后直拍、选择 MapPath / MapTarget / MapGoal、配置 MapTargetTier / Heading / Replace，或重新生成环境监测 Pipeline 时都应使用。会先同步 zmdmap 精简数据和 metadata-only 条目，按 MissionId 原位更新，验证传送点与路线字段，并自动同步五语言失败提示。"
+description: "新增、补全或改写 MaaEnd EnvironmentMonitoring 环境监测观察点路线配置。凡是用户要求适配 environment_monitoring 新观察点、补充 routes.json、配置传送后直拍、选择 MapPath / MapTarget / MapGoal、配置 MapTargetTier / Heading / Replace，或重新生成环境监测 Pipeline 时都应使用。会先同步 zmdmap 精简游戏数据和 metadata-only 条目，按 MissionId 原位更新，验证传送点与路线字段，并自动同步五语言失败提示。"
 argument-hint: "可选：观察点名称，以及录制好的 EnterMap、MapAssert、MapPath / MapTarget / MapGoal 等路线数据"
 ---
 
@@ -90,7 +90,7 @@ node tools/pipeline-generate/EnvironmentMonitoring/generator/sync-routes.mjs
 node .agents/skills/environment-monitoring-add-route/check_missing.mjs
 ```
 
-第一条命令下载 zmdmap 数据 CI 生成的环境监测精简数据；第二条刷新元数据并创建 metadata-only 条目；第三条列出缺失或不完整的路线。
+第一条命令下载 zmdmap 数据 CI 生成的环境监测精简游戏数据；第二条刷新元数据并创建 metadata-only 条目；第三条列出缺失或不完整的路线。
 
 若用户已指定观察点，在 `mission.name`、`mission.shotTargetName` 的所有语言以及生成后的 `Id` 中匹配。匹配时忽略大小写、空格、常见中英文标点、引号和连字符：
 
