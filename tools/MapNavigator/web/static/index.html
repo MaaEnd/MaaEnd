@@ -153,6 +153,13 @@
               </label>
             </div>
 
+            <div class="sidebar-row select-row">
+              <label class="sidebar-label" for="target-tier-entry">坐标层级</label>
+              <input id="target-tier-entry" class="entry entry-target-tier" type="text" list="target-tier-list" placeholder="留空使用旧坐标" />
+              <datalist id="target-tier-list"></datalist>
+            </div>
+            <div class="sidebar-hint">只声明当前点的坐标系，不改变 ZONE</div>
+
             <div class="sidebar-row" style="margin: 12px 0 8px 0;">
               <button id="btn-apply-action" class="btn btn-primary btn-block" style="width: 100%;" type="button">应用属性</button>
             </div>

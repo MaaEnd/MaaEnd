@@ -30,6 +30,7 @@ from model import (
 ZONE_HINT_KEYS = ("map_name", "mapName", "zone", "zone_id", "zoneId")
 ACTION_KEYS = ("action", "action_type", "actionType", "type")
 STRICT_KEYS = ("strict", "strict_arrival", "strictArrival")
+TARGET_TIER_KEYS = ("target_tier", "targetTier")
 CONTROL_ACTION_NAMES = {"HEADING", "ZONE"}
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 MAP_TRACKER_MAP_DIR = PROJECT_ROOT / "assets" / "resource" / "image" / "MapTracker" / "map"
@@ -97,11 +98,26 @@ def export_path_nodes(points: list[PathPoint]) -> list[dict[str, Any] | list[int
             current_zone = zone_id
 
         strict_arrival = coerce_strict_arrival(point.get("strict"), default=False)
+        target_tier = normalize_zone_id(point.get("target_tier", ""))
         for action in get_point_actions(point):
             target = [_compact_number(point["x"]), _compact_number(point["y"])]
             if action == int(ActionType.NAVMESH):
                 # The runtime parses NAVMESH from an object target and makes its arrival strict itself.
-                exported_nodes.append({"action": "NAVMESH", "target": target})
+                navmesh_node: dict[str, Any] = {"action": "NAVMESH", "target": target}
+                if target_tier:
+                    navmesh_node["target_tier"] = target_tier
+                exported_nodes.append(navmesh_node)
+                continue
+
+            if target_tier:
+                positioned_node: dict[str, Any] = {
+                    "action": export_action_token(action),
+                    "target": target,
+                    "target_tier": target_tier,
+                }
+                if strict_arrival:
+                    positioned_node["strict"] = True
+                exported_nodes.append(positioned_node)
                 continue
 
             node: list[int | float | str | bool] = [*target]
@@ -635,7 +651,7 @@ def _parse_point_dict(node: dict[str, Any], zone_hint: str) -> PathPoint | None:
             actions = parsed_actions
             break
 
-    return {
+    point: PathPoint = {
         "x": round(x, 2),
         "y": round(y, 2),
         "action": get_display_action(actions),
@@ -643,6 +659,10 @@ def _parse_point_dict(node: dict[str, Any], zone_hint: str) -> PathPoint | None:
         "zone": zone,
         "strict": _resolve_strict_hint(node, False),
     }
+    target_tier = _resolve_target_tier(node)
+    if target_tier:
+        point["target_tier"] = target_tier
+    return point
 
 
 def _parse_point_list(node: list[Any], zone_hint: str) -> PathPoint | None:
@@ -718,6 +738,14 @@ def _resolve_strict_hint(node: dict[str, Any], fallback: bool) -> bool:
             continue
         return coerce_strict_arrival(node.get(key), default=fallback)
     return fallback
+
+
+def _resolve_target_tier(node: dict[str, Any]) -> str:
+    for key in TARGET_TIER_KEYS:
+        target_tier = normalize_zone_id(node.get(key, ""))
+        if target_tier:
+            return target_tier
+    return ""
 
 
 def _as_float(value: Any) -> float | None:

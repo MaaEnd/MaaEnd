@@ -529,6 +529,12 @@ canvas {
   min-width: 140px;
 }
 
+.entry-target-tier {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-family: var(--font-mono, monospace);
+}
+
 .chk {
   font-size: 11px;
   color: var(--text-secondary);
@@ -722,6 +728,13 @@ canvas {
   font-size: 10px;
   font-weight: 600;
   color: var(--accent-yellow);
+  flex: 0 0 auto;
+}
+
+.wp-tier {
+  font-size: 10px;
+  font-weight: 600;
+  color: #38bdf8;
   flex: 0 0 auto;
 }
 

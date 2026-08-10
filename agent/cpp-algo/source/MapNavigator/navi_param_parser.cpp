@@ -546,6 +546,7 @@ void append_expanded_waypoints(
     double ty,
     const std::vector<ActionType>& actions,
     const std::string& zone_id,
+    const std::string& target_tier,
     bool strict_arrival,
     std::vector<Waypoint>& out_waypoints)
 {
@@ -554,6 +555,7 @@ void append_expanded_waypoints(
     if (actions.empty()) {
         Waypoint waypoint(tx, ty, ActionType::RUN);
         waypoint.zone_id = zone_id;
+        waypoint.target_tier = target_tier;
         waypoint.strict_arrival = strict_arrival;
         out_waypoints.push_back(std::move(waypoint));
         return;
@@ -565,6 +567,7 @@ void append_expanded_waypoints(
         }
         Waypoint waypoint(tx, ty, action);
         waypoint.zone_id = zone_id;
+        waypoint.target_tier = target_tier;
         waypoint.strict_arrival = strict_arrival;
         out_waypoints.push_back(std::move(waypoint));
     }
@@ -593,6 +596,7 @@ bool append_parsed_waypoint(const NaviWaypointInput& input, std::vector<Waypoint
         if (input.has_target_) {
             Waypoint heading_waypoint = Waypoint::HeadingToTarget(input.target_.at(0), input.target_.at(1));
             heading_waypoint.zone_id = zone_id;
+            heading_waypoint.target_tier = input.target_tier_;
             out_waypoints.push_back(std::move(heading_waypoint));
             return true;
         }
@@ -622,8 +626,12 @@ bool append_parsed_waypoint(const NaviWaypointInput& input, std::vector<Waypoint
         return true;
     }
 
-    if (input.has_x_ && input.has_y_) {
-        append_expanded_waypoints(input.x_, input.y_, input.actions_, zone_id, input.strict_arrival_, out_waypoints);
+    const bool has_legacy_position = input.has_x_ && input.has_y_;
+    const bool has_tier_target = input.has_target_ && !input.target_tier_.empty();
+    if (has_legacy_position || has_tier_target) {
+        const double target_x = input.has_target_ ? input.target_.at(0) : input.x_;
+        const double target_y = input.has_target_ ? input.target_.at(1) : input.y_;
+        append_expanded_waypoints(target_x, target_y, input.actions_, zone_id, input.target_tier_, input.strict_arrival_, out_waypoints);
         if (!zone_id.empty()) {
             zone_context = zone_id;
         }

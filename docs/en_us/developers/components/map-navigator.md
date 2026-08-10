@@ -40,7 +40,7 @@ As long as the target point is inherently reachable without interactions, map tr
 }
 ```
 
-No pre-recording of the route, no intermediate points, and no `zone_id` are needed — at runtime the area is inferred from the current localization, and an executable path is planned on the BaseNav triangle graph. When the target point is on a layered map, just add one more [`target_tier`](#cross-tier-target-target_tier) field.
+No pre-recording of the route, no intermediate points, and no `zone_id` are needed — at runtime the area is inferred from the current localization, and an executable path is planned on the BaseNav triangle graph. When the target point is on a layered map, just add one more [`target_tier`](#tier-coordinate-frame-target_tier) field.
 
 This form is already used in production routes such as Auto Collect and Environment Monitoring.
 
@@ -125,6 +125,21 @@ Represents an ordinary movement point, meaning proceeding to the next point upon
 ```
 
 Indicates that a `SPRINT` action should be executed upon reaching this point. Current common actions include:
+
+When a coordinate was authored directly on a tier basemap, use the object form to declare that point's coordinate frame explicitly:
+
+```json
+{
+    "action": "RUN",
+    "target": [
+        243.49,
+        177.53
+    ],
+    "target_tier": "Wuling_L4_328"
+}
+```
+
+`target_tier` only describes the coordinate frame of this node. It does not switch zones, update following nodes, or replace the `ZONE` / `PORTAL` semantics required for an actual area transition. Existing arrays and object points without `target_tier` retain their previous behavior.
 
 - `RUN`: Ordinary movement point.
 - `SPRINT`: Perform a sprint once upon arrival.
@@ -212,9 +227,9 @@ In the GUI, clicking `Load BaseNav` makes the tool enter the same BaseNav previe
 
 **As long as the original path is inherently reachable without interactions, map transitions, or special mechanisms, `NAVMESH` only needs a `target` to directly lead the character to the target location**. No pre-recording of the entire route is needed, nor is there a need to add intermediate points, adjust coordinates, or manually splice the path for this target point. In the GUI, simply click out the target, and at runtime, an executable path will be planned directly based on the BaseNav triangle graph.
 
-###### Cross-tier Target: `target_tier`
+###### Tier Coordinate Frame: `target_tier`
 
-When `target_tier` is not specified, `target` defaults to **base (base map) coordinates**—this is the default behavior described above, with no change in functionality.
+For `NAVMESH`, omitting `target_tier` means that `target` is already in **base-map coordinates**. For ordinary coordinate waypoints, omitting it preserves the historical coordinate interpretation without adding a conversion.
 
 When the target point is on a specific **tier (layered map)**, each tier is a **mutually independent coordinate system**: the same numbers `[123, 456]` on the base and on a tier are completely different physical locations. In this case, simply add a `target_tier` field to the node, declaring which layer's coordinate system the `target` is filled according to:
 
@@ -233,7 +248,8 @@ When the target point is on a specific **tier (layered map)**, each tier is a **
 - `target_tier`: The **area name** of that layer, i.e., the name part after `:` in the `id:name` of the tier dropdown in the GUI.
 - At runtime, the affine transformation baked into the `.nav` for that tier is used to automatically project `target` back to the base coordinate system (using the same mirroring logic as automatic normalization of the starting point localization), and snap the landing point according to that tier's floor height.
 - This is the only thing needed to go to a tier: **a single node with `target` + `target_tier` is enough**. No additional `ZONE` node is needed, no intermediate points need to be added, and no manual coordinate adjustment is required.
-- The field also supports camelCase writing `targetTier`; filling in a non-existent layer name will be logged as a warning and treated as base coordinates.
+- Positioned ordinary actions (`RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / COLLECT / DIG`) and target-based `HEADING` accept the same `target` + `target_tier` object form. Unlike `NAVMESH`, this declaration does not imply navigation or a zone transition; it only projects that one coordinate before execution.
+- The field also supports camelCase `targetTier`. An unknown tier on `NAVMESH` keeps the compatibility behavior of logging a warning and treating the target as base coordinates. An explicitly tagged ordinary point fails instead of silently moving toward the wrong location.
 
 ###### Overlapping Deck Target: `target_deck_y`
 
@@ -355,13 +371,13 @@ It supports:
 
 1. Direct connection to the current game window to record actual movement trajectories.
 2. Automatic addition of `ZONE` / `PORTAL` semantics based on area transitions.
-3. Deleting points, dragging points, changing coordinate point actions, and modifying strict arrival in the GUI.
+3. Deleting points, dragging points, changing coordinate point actions, modifying strict arrival, and declaring an optional per-point coordinate tier in the GUI.
 4. Importing existing JSON / JSONC, recursively searching for recognizable `path` data and continuing editing.
 5. One-click copying of canonical `path` that can be directly pasted into `custom_action_param.path`.
 6. Through an independent `Assert mode` to manually select the base map and frame rectangular areas, exporting `MapLocateAssertLocation` nodes.
 7. Entering BaseNav A\* mode, loading `.nav.gz` / `.nav`, previewing paths on the red triangle face overlay, and copying `NAVMESH` nodes.
 
-An additional note is that the current GUI editor primarily round-trips path points with coordinates and `ZONE` declarations derived from area information.
+An additional note is that the current GUI editor round-trips coordinate path points, their optional `target_tier`, and `ZONE` declarations derived from area information. Untagged points keep the legacy array export, while tagged points use the `target` object form.
 Non-coordinate control nodes like `HEADING` and semantic pathfinding nodes like `NAVMESH` are not regular point editing objects in the GUI. It is recommended to manually add back or maintain `HEADING` after exporting the `path`, while `NAVMESH` can be directly generated using `Copy NAVMESH`.
 
 ### Running Method
@@ -461,6 +477,7 @@ Next, directly handle the details in the GUI.
 - `Append`: Append an action semantic after the current point.
 - `Undo One`: Remove the last action in the current point's action chain.
 - `Strict`: Mark the current point as a strict arrival point.
+- `Coordinate Tier`: Declare which tier basemap the selected point's coordinate was authored on. Leaving it empty keeps the legacy coordinate behavior; it does not modify `ZONE`.
 - `🗑`: Delete the currently selected point.
 
 The current action dropdown targets coordinate point actions, commonly edited to `RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / COLLECT / DIG`.

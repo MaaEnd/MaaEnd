@@ -88,9 +88,9 @@ uv run main.py
 
 工具预览与运行时读取同一份数据、使用同一套算法，常规场景下预览路线与运行时规划结果一致，目标是否可达可直接通过预览判断（分叉情形见 [`NAVMESH` 寻路原理](#navmesh-寻路原理)）。该写法已用于自动采集、环境监测等多条生产路线。
 
-### 分层底图目标：`target_tier`
+### 分层底图坐标：`target_tier`
 
-不写 `target_tier` 时，`target` 按 **base（基础底图）坐标**解释，即上文的默认行为。
+`NAVMESH` 不写 `target_tier` 时，`target` 按 **base（基础底图）坐标**解释，即上文的默认行为。普通坐标点不写时则完全保留历史解释，不做额外坐标转换。
 
 分层底图（tier）中每一层都是独立的坐标系：同样的 `[123, 456]`，在 base 与在某个 tier 上是两个不同的位置。此时为节点增加 `target_tier` 字段，声明 `target` 属于哪一层：
 
@@ -109,7 +109,22 @@ uv run main.py
 - `target_tier`：该层的区域名，即工具层级选择中 `id:name` 冒号后的 name。
 - 运行时使用烘焙进 `.nav` 的仿射变换将其投影回 base 坐标系，并按该层楼层高度做落点吸附。
 
-前往 tier 目标仅需一个节点（`target` + `target_tier`），无需额外的 `ZONE`、中间点或坐标换算。字段也接受驼峰写法 `targetTier`；层名不存在时记录一条告警并按 base 坐标处理。
+普通坐标动作也可以使用相同的对象格式，直接声明该点的坐标系：
+
+```json
+{
+    "action": "RUN",
+    "target": [
+        243.49,
+        177.53
+    ],
+    "target_tier": "Wuling_L4_328"
+}
+```
+
+该写法适用于 `RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / COLLECT / DIG`，以及使用 `target` 的 `HEADING`。`target_tier` **只解释当前节点的坐标**，不会切换区域、不会改变后续节点的上下文，也不能代替真正过图时需要的 `ZONE` / `PORTAL`。
+
+字段也接受驼峰写法 `targetTier`。`NAVMESH` 的未知层名保持兼容行为：记录告警并把目标当作 base 坐标；普通坐标点显式声明了不存在的层名时会直接失败，避免静默走向错误位置。
 
 ### 重叠可走面目标：`target_deck_y`
 
@@ -174,6 +189,7 @@ uv run main.py
 - 视角：滚轮缩放，`视角平移 (Alt)` 拖动画面。
 - 路径点：`加路点/选择 (1)` 用于添加、选中、拖拽点，`框选工具 (2)` 用于框选多个点。
 - 属性：选中点后设置动作与严格标记，点击 `应用属性` 生效。
+- 坐标层级：点坐标来自 tier 底图时，在 `坐标层级` 中填写对应区域名；留空即保留旧坐标语义。
 - 跨区域路线按区域分段显示，便于检查过图前后的点是否合理。
 
 通常需要修改的只有三处：
@@ -228,6 +244,21 @@ uv run main.py
     "SPRINT"
 ]
 ```
+
+**显式声明坐标层级**时改用对象格式；未声明的旧数组不受影响：
+
+```json
+{
+    "action": "RUN",
+    "target": [
+        243.49,
+        177.53
+    ],
+    "target_tier": "Wuling_L4_328"
+}
+```
+
+`target_tier` 与 `ZONE` 含义不同：前者只说明当前 `target` 是在哪张底图上点出的，后者声明路线执行与区域校验上下文。给普通点填写 `target_tier` 不会触发层级切换。
 
 `NAVMESH` 是例外：它是语义寻路节点，必须使用带 `target` 的对象，不能写成 `[x, y, "NAVMESH"]`：
 
@@ -304,7 +335,7 @@ uv run main.py
 
 > [!NOTE]
 >
-> 页面的点编辑面向带坐标的路径点（`RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / COLLECT / DIG / NAVMESH`）以及由区域信息派生的 `ZONE` 声明。`HEADING` 是无坐标控制节点，不属于该编辑模型，建议在导出 `path` 后手动补充维护；`NAVMESH` 也可以在 `A* 寻路` 模式中直接复制。
+> 页面的点编辑面向带坐标的路径点（`RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / COLLECT / DIG / NAVMESH`），可为单点编辑 `target_tier`，并由区域信息派生 `ZONE` 声明。`HEADING` 是无坐标控制节点，不属于该编辑模型，建议在导出 `path` 后手动补充维护；`NAVMESH` 也可以在 `A* 寻路` 模式中直接复制。
 
 ---
 
