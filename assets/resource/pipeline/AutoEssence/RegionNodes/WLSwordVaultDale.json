@@ -96,7 +96,7 @@
         },
         "post_delay": 1500,
         "next": [
-            "AutoEssenceDispatcher"
+            "AutoEssenceInteract"
         ],
         "focus": {
             "Node.Action.Starting": "🚶正在前往激发点",

@@ -118,7 +118,7 @@
         },
         "post_delay": 1500, // 确保彻底停下，规避移动惯性
         "next": [
-            "AutoEssenceDispatcher"
+            "AutoEssenceInteract"
         ],
         "focus": {
             "Node.Action.Starting": "🚶正在前往激发点",
