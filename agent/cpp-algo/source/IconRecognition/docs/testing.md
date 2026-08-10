@@ -105,17 +105,17 @@ input/
 
 人工审核时依次检查 ROI 是否覆盖正确区域、编号 cell 是否对应审核栏原图标与中文名、item 框是否贴合、分数是否合理，以及红色拒识格是否符合预期。
 
-## 双侧网格回归门槛
+## 图像回归门槛
 
-可信色带和规则晶格的定向测试至少覆盖：
+截图回归只通过 `manual` runner 执行。runner 扫描 `input/<网格类型>/` 下的图片，文件名只是输入标识，不参与生产判断，也不对应隐藏的 C++ 固定断言。需要复核某个算法场景时，应在报告或 PR 说明中记录图片相对路径、ROI、预期现象和实际结果；不要把本地图片编号写入 quick 测试。
+
+回归审核至少覆盖：
 
 - 六档 rarity 覆盖向量，以及灰色/黄色同色背景与真实窄条的区别；
 - 同一行混合 rarity 共同支持晶格，不要求整行同色；
 - 浮点 pitch 的整数投影无累积误差，递增可变 pitch 序列被拒绝；
-- `transfer` 1、25、100、106、108 的相位和稀疏边界；
-- `transfer` 4、41、53 的 full cell 集合等于独立 left + right；
-- `port_storager/1` 左右两侧不同 origin。
+- transfer 和 port_storager 的双侧 ROI、稀疏网格、full/split 一致性。
 
-截图编号只用于测试入口，不得进入生产判断。全量审核使用 transfer 112 张图片的 full/left/right 共 336 个 case，并覆盖 port_storager 的全部可用 ROI。正确 match 总数不能整体下降，新增远端整片错位立即视为失败；结构和色带都不足时，明确失败优于输出低置信网格。
+全量审核应根据当前 `input/` 中实际存在的图片统计 case 数，并覆盖 transfer 与 port_storager 的可用 ROI。正确 match 总数不能整体下降，新增远端整片错位立即视为失败；结构和色带都不足时，明确失败优于输出低置信网格。
 
 人工 detail 的 `diagnostics.grids[]` 应同时检查 pitch 位于 68–70px、最大残差不超过 2.25px、可信 rarity 计数、fallback 原因，以及 full/split 的 origin、pitch、行列数是否一致。

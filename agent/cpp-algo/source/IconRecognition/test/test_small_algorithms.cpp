@@ -197,250 +197,6 @@ void TestCreditTradeGridUsesDimCardStructures()
     Check(grid.grids.front().rows == kRows, "dim credit card grid must retain every row");
 }
 
-void TestTransferProfileModuleContract()
-{
-    const cv::Mat image = cv::imread("agent/cpp-algo/source/IconRecognition/test/input/transfer/62.png");
-    Check(!image.empty(), "transfer profile fixture is missing");
-    const cv::Rect roi(155, 205, 970, 280);
-    const auto hints = iconrecognition::detail::DiscoverTransferGridHints(image(roi), true);
-    Check(hints.size() == 2, "transfer profile must discover two representative grid regions");
-
-    const cv::Rect left_roi(roi.x, roi.y, roi.width / 2, roi.height);
-    const cv::Rect right_roi(roi.x + roi.width / 2, roi.y, roi.width - roi.width / 2, roi.height);
-    Check(
-        iconrecognition::detail::DiscoverTransferGridHints(image(left_roi), true).size() == 1,
-        "transfer profile must accept the left grid ROI independently");
-    Check(
-        iconrecognition::detail::DiscoverTransferGridHints(image(right_roi), true).size() == 1,
-        "transfer profile must accept the right grid ROI independently");
-
-    const cv::Mat port_image = cv::imread("agent/cpp-algo/source/IconRecognition/test/input/port_storager/1.png");
-    Check(!port_image.empty(), "port storager profile fixture is missing");
-    const cv::Rect port_roi(190, 250, 880, 350);
-    const cv::Rect port_left_roi(port_roi.x, port_roi.y, port_roi.width / 2, port_roi.height);
-    const cv::Rect port_right_roi(port_roi.x + port_roi.width / 2, port_roi.y, port_roi.width - port_roi.width / 2, port_roi.height);
-    Check(
-        iconrecognition::detail::DiscoverTransferGridHints(port_image(port_roi), false).size() == 2,
-        "port storager profile must discover two representative grid regions");
-    Check(
-        iconrecognition::detail::DiscoverTransferGridHints(port_image(port_left_roi), false).size() == 1,
-        "port storager profile must accept the left grid ROI independently");
-    Check(
-        iconrecognition::detail::DiscoverTransferGridHints(port_image(port_right_roi), false).size() == 1,
-        "port storager profile must accept the right grid ROI independently");
-}
-
-std::vector<int> GridRowStarts(const iconrecognition::detail::GridLayout& grid)
-{
-    std::vector<int> starts;
-    for (const auto& cell : grid.cells) {
-        starts.push_back(cell.cell_box.y);
-    }
-    std::ranges::sort(starts);
-    starts.erase(std::unique(starts.begin(), starts.end()), starts.end());
-    return starts;
-}
-
-std::vector<int> GridColumnStarts(const iconrecognition::detail::GridLayout& grid)
-{
-    std::vector<int> starts;
-    for (const auto& cell : grid.cells) {
-        starts.push_back(cell.cell_box.x);
-    }
-    std::ranges::sort(starts);
-    starts.erase(std::unique(starts.begin(), starts.end()), starts.end());
-    return starts;
-}
-
-std::vector<cv::Rect> GridCellBoxes(const iconrecognition::detail::GridDetection& detection)
-{
-    std::vector<cv::Rect> boxes;
-    for (const auto& cell : detection.cells) {
-        boxes.push_back(cell.cell_box);
-    }
-    std::ranges::sort(boxes, [](const auto& left, const auto& right) {
-        return std::tie(left.x, left.y, left.width, left.height) < std::tie(right.x, right.y, right.width, right.height);
-    });
-    return boxes;
-}
-
-void CheckGridRows(
-    const iconrecognition::detail::GridDetection& detection,
-    std::size_t grid_index,
-    int expected_first,
-    int tolerance,
-    int expected_rows,
-    const std::string& context)
-{
-    Check(detection.grids.size() > grid_index, context + " grid is missing");
-    const auto starts = GridRowStarts(detection.grids[grid_index]);
-    Check(!starts.empty(), context + " has no rows");
-    Check(
-        std::abs(starts.front() - expected_first) <= tolerance,
-        context + " first row mismatch: expected=" + std::to_string(expected_first) + " actual=" + std::to_string(starts.front()));
-    Check(
-        static_cast<int>(starts.size()) == expected_rows,
-        context + " row count mismatch: expected=" + std::to_string(expected_rows) + " actual=" + std::to_string(starts.size()));
-}
-
-void CheckGridOrigin(
-    const iconrecognition::detail::GridDetection& detection,
-    std::size_t grid_index,
-    cv::Point expected,
-    int tolerance,
-    cv::Size expected_shape,
-    const std::string& context)
-{
-    Check(detection.grids.size() > grid_index, context + " grid is missing");
-    const auto columns = GridColumnStarts(detection.grids[grid_index]);
-    const auto rows = GridRowStarts(detection.grids[grid_index]);
-    Check(!columns.empty() && !rows.empty(), context + " has no cells");
-    Check(
-        std::abs(columns.front() - expected.x) <= tolerance,
-        context + " first column mismatch: expected=" + std::to_string(expected.x) + " actual=" + std::to_string(columns.front()));
-    Check(
-        std::abs(rows.front() - expected.y) <= tolerance,
-        context + " first row mismatch: expected=" + std::to_string(expected.y) + " actual=" + std::to_string(rows.front())
-            + " actual_x=" + std::to_string(columns.front()) + " pitch_x=" + std::to_string(detection.grids[grid_index].pitch_x)
-            + " pitch_y=" + std::to_string(detection.grids[grid_index].pitch_y));
-    Check(
-        static_cast<int>(columns.size()) == expected_shape.width,
-        context + " column count mismatch: expected=" + std::to_string(expected_shape.width) + " actual=" + std::to_string(columns.size()));
-    Check(
-        static_cast<int>(rows.size()) == expected_shape.height,
-        context + " row count mismatch: expected=" + std::to_string(expected_shape.height) + " actual=" + std::to_string(rows.size()));
-}
-
-void CheckGridColumns(
-    const iconrecognition::detail::GridDetection& detection,
-    std::size_t grid_index,
-    int expected_first,
-    int tolerance,
-    int expected_columns,
-    const std::string& context)
-{
-    Check(detection.grids.size() > grid_index, context + " grid is missing");
-    const auto columns = GridColumnStarts(detection.grids[grid_index]);
-    Check(!columns.empty(), context + " has no columns");
-    Check(
-        std::abs(columns.front() - expected_first) <= tolerance,
-        context + " first column mismatch: expected=" + std::to_string(expected_first) + " actual=" + std::to_string(columns.front()));
-    Check(
-        static_cast<int>(columns.size()) == expected_columns,
-        context + " column count mismatch: expected=" + std::to_string(expected_columns) + " actual=" + std::to_string(columns.size()));
-}
-
-void TestTransferRarityBarsAnchorGridOrigins()
-{
-    const auto profile = iconrecognition::detail::TransferProfileFor(iconrecognition::detail::TransferGridVariant::TransferLeft);
-    Check(profile.cell_size == 64, "transfer left profile cell size mismatch");
-    Check(profile.pitch_min == 68 && profile.pitch_max == 70 && profile.preferred_pitch == 69, "transfer left profile pitch mismatch");
-    Check(profile.rarity_anchor_offset == 64, "transfer left rarity anchor offset mismatch");
-    Check(
-        std::abs(profile.minimum_rarity_coverage - 0.80) <= 1e-6,
-        "transfer left rarity coverage mismatch: actual=" + std::to_string(profile.minimum_rarity_coverage));
-
-    const cv::Rect roi(154, 202, 983, 291);
-    const auto detect = [&](const char* name) {
-        const std::filesystem::path path = std::filesystem::path("agent/cpp-algo/source/IconRecognition/test/input/transfer") / name;
-        const cv::Mat image = cv::imread(path.string(), cv::IMREAD_COLOR);
-        Check(!image.empty(), "transfer grid fixture is missing: " + path.string());
-        return iconrecognition::detail::DetectGrid(image, iconrecognition::GridType::Transfer, roi);
-    };
-
-    // 完整四行应保持标准色带 origin，不能被界面内横纹移动到相邻相位。
-    CheckGridRows(detect("12.png"), 0, 217, 1, 4, "transfer 12 left");
-    // 完整左侧网格应由规则色带晶格保留全部四行。
-    CheckGridRows(detect("28.png"), 0, 217, 1, 4, "transfer 28 left");
-    // 右侧五列的内部横条不能再通过 directed phase 覆盖正确粗晶格。
-    CheckGridRows(detect("43.png"), 1, 208, 1, 4, "transfer 43 right");
-    CheckGridRows(detect("56.png"), 1, 217, 1, 4, "transfer 56 right");
-    CheckGridRows(detect("57.png"), 1, 217, 1, 4, "transfer 57 right");
-    CheckGridRows(detect("58.png"), 1, 217, 1, 4, "transfer 58 right");
-    // 左右面板的标准色带 origin 应一致，不能被格内弱横纹移相。
-    CheckGridRows(detect("57.png"), 0, 217, 1, 4, "transfer 57 left");
-}
-
-void TestTransferRarityBandsDefineRightGridBounds()
-{
-    const cv::Rect roi(739, 202, 398, 291);
-    const auto detect = [&](const char* name) {
-        const std::filesystem::path path = std::filesystem::path("agent/cpp-algo/source/IconRecognition/test/input/transfer") / name;
-        const cv::Mat image = cv::imread(path.string(), cv::IMREAD_COLOR);
-        Check(!image.empty(), "transfer right grid fixture is missing: " + path.string());
-        return iconrecognition::detail::DetectGrid(image, iconrecognition::GridType::Transfer, roi);
-    };
-
-    // 色带连续区域的下边界属于 64px cell；不能用单条色带行作为开区间下边界。
-    CheckGridOrigin(detect("1.png"), 0, cv::Point(771, 217), 1, cv::Size(5, 4), "transfer 1 right");
-    CheckGridOrigin(detect("100.png"), 0, cv::Point(771, 217), 1, cv::Size(5, 4), "transfer 100 right");
-    CheckGridOrigin(detect("26.png"), 0, cv::Point(771, 217), 1, cv::Size(5, 4), "transfer 26 right");
-    CheckGridOrigin(detect("28.png"), 0, cv::Point(771, 217), 1, cv::Size(5, 4), "transfer 28 right");
-    // 工具栏附近的同色像素不能被解释成网格上一行。
-    CheckGridOrigin(detect("106.png"), 0, cv::Point(771, 217), 1, cv::Size(5, 4), "transfer 106 right");
-    // 重复物品形成的结构假相位不能压过完整的五列色带证据。
-    CheckGridOrigin(detect("108.png"), 0, cv::Point(771, 217), 1, cv::Size(5, 4), "transfer 108 right");
-}
-
-void TestTransferRarityBandsPreserveCompleteLeftGrid()
-{
-    const cv::Rect roi(154, 202, 585, 291);
-    const auto detect = [&](const char* name) {
-        const std::filesystem::path path = std::filesystem::path("agent/cpp-algo/source/IconRecognition/test/input/transfer") / name;
-        const cv::Mat image = cv::imread(path.string(), cv::IMREAD_COLOR);
-        Check(!image.empty(), "transfer left grid fixture is missing: " + path.string());
-        return iconrecognition::detail::DetectGrid(image, iconrecognition::GridType::Transfer, roi);
-    };
-
-    // 少量额外弱色带不能把完整的八列证据整体移动到相邻格之间。
-    CheckGridColumns(detect("1.png"), 0, 162, 1, 8, "transfer 1 left");
-    CheckGridColumns(detect("10.png"), 0, 161, 1, 8, "transfer 10 left");
-    const auto detection_15 = detect("15.png");
-    CheckGridColumns(detection_15, 0, 161, 1, 8, "transfer 15 left");
-    Check(std::abs(detection_15.grids.front().pitch_x - 69.0) <= 1e-6, "transfer 15 left pitch must preserve structural evidence");
-    CheckGridColumns(detect("100.png"), 0, 162, 1, 8, "transfer 100 left");
-    const auto detection_103 = detect("103.png");
-    CheckGridColumns(detection_103, 0, 162, 1, 8, "transfer 103 left");
-    Check(std::abs(detection_103.grids.front().pitch_x - 69.0) <= 1e-6, "transfer 103 left pitch must preserve structural evidence");
-}
-
-void TestTransferSparseLeftGridUsesVisibleCardEvidence()
-{
-    const cv::Mat image = cv::imread("agent/cpp-algo/source/IconRecognition/test/input/transfer/25.png", cv::IMREAD_COLOR);
-    Check(!image.empty(), "transfer sparse left fixture is missing");
-    const auto detection = iconrecognition::detail::DetectGrid(image, iconrecognition::GridType::Transfer, cv::Rect(154, 202, 585, 291));
-
-    CheckGridOrigin(detection, 0, cv::Point(161, 217), 1, cv::Size(1, 2), "transfer 25 sparse left");
-    const auto& layout = detection.grids.front();
-    Check(layout.selection_diagnostics.has_value(), "transfer 25 must expose grid selection diagnostics");
-    Check(!layout.selection_diagnostics->fallback_used, "transfer 25 must select the trusted rarity candidate");
-    Check(layout.pitch_x >= 68.0 && layout.pitch_x <= 70.0, "transfer 25 x pitch must use the formal range");
-    Check(layout.pitch_y >= 68.0 && layout.pitch_y <= 70.0, "transfer 25 y pitch must use the formal range");
-    Check(layout.selection_diagnostics->maximum_residual <= 2.25, "transfer 25 must not accumulate lattice residual");
-}
-
-void TestTransferFullRoiMatchesIndependentSides()
-{
-    const cv::Rect full_roi(154, 202, 983, 291);
-    const cv::Rect left_roi(154, 202, 585, 291);
-    const cv::Rect right_roi(739, 202, 398, 291);
-    for (const char* name : { "4.png", "41.png", "53.png" }) {
-        const std::filesystem::path path = std::filesystem::path("agent/cpp-algo/source/IconRecognition/test/input/transfer") / name;
-        const cv::Mat image = cv::imread(path.string(), cv::IMREAD_COLOR);
-        Check(!image.empty(), "transfer dual-grid fixture is missing: " + path.string());
-        const auto full = iconrecognition::detail::DetectGrid(image, iconrecognition::GridType::Transfer, full_roi);
-        const auto left = iconrecognition::detail::DetectGrid(image, iconrecognition::GridType::Transfer, left_roi);
-        const auto right = iconrecognition::detail::DetectGrid(image, iconrecognition::GridType::Transfer, right_roi);
-        auto split_boxes = GridCellBoxes(left);
-        const auto right_boxes = GridCellBoxes(right);
-        split_boxes.insert(split_boxes.end(), right_boxes.begin(), right_boxes.end());
-        std::ranges::sort(split_boxes, [](const auto& lhs, const auto& rhs) {
-            return std::tie(lhs.x, lhs.y, lhs.width, lhs.height) < std::tie(rhs.x, rhs.y, rhs.width, rhs.height);
-        });
-        Check(GridCellBoxes(full) == split_boxes, "transfer full ROI must equal independent sides: " + std::string(name));
-    }
-}
-
 void TestRarityBandsRecoverGridFromGlobalEvidence()
 {
     cv::Mat image = cv::Mat::zeros(291, 398, CV_8UC3);
@@ -476,18 +232,6 @@ void TestRarityBandsRecoverGridFromGlobalEvidence()
     Check(fit->pitch_x == 69 && fit->pitch == 69, "global rarity evidence must preserve the regular pitch");
     Check(fit->supporting_rows == 3, "obscured final row must be completed from the regular lattice");
     Check(fit->supporting_cells == 13, "partially empty rows must preserve their available cell evidence");
-}
-
-void TestPortStoragerRarityBarsAnchorGridOrigins()
-{
-    const std::filesystem::path path = "agent/cpp-algo/source/IconRecognition/test/input/port_storager/1.png";
-    const cv::Mat image = cv::imread(path.string(), cv::IMREAD_COLOR);
-    Check(!image.empty(), "port storager grid fixture is missing: " + path.string());
-    const auto detection =
-        iconrecognition::detail::DetectGrid(image, iconrecognition::GridType::PortStorager, cv::Rect(190, 250, 880, 350));
-
-    CheckGridRows(detection, 0, 261, 2, 5, "port storager 1 left");
-    CheckGridRows(detection, 1, 322, 2, 4, "port storager 1 right");
 }
 
 void TestRarityUsesBottomEdgeRows()
@@ -624,29 +368,6 @@ void TestRegularLatticeRejectsAccumulatingResiduals()
     const auto sparse = iconrecognition::detail::FitRegularAxis({ { 31.0, 1.0, true } }, 8, { 68.0, 70.0 }, 69.0);
     Check(sparse && sparse->low_geometry_confidence, "one observation may retain only its direct cell");
     Check(iconrecognition::detail::ProjectRegularAxis(*sparse) == std::vector<int> { 31 }, "one observation must not expand a remote grid");
-}
-
-void TestTransfer25ExposesIndependentTrustedRaritySeed()
-{
-    const cv::Mat image = cv::imread("agent/cpp-algo/source/IconRecognition/test/input/transfer/25.png", cv::IMREAD_COLOR);
-    Check(!image.empty(), "transfer sparse rarity fixture is missing");
-    const cv::Rect roi(154, 202, 585, 291);
-    const auto strips = iconrecognition::detail::DetectTrustedRarityStrips(image(roi), 64);
-    Check(
-        std::ranges::any_of(
-            strips,
-            [](const auto& strip) {
-                const int cell_top = strip.box.y + strip.box.height - 64;
-                return strip.can_seed_lattice && std::abs(strip.box.x - 7) <= 2 && std::abs(cell_top - 15) <= 2;
-            }),
-        "transfer 25 must expose the left-top chromatic strip independently of the structural winner");
-
-    const auto profile = iconrecognition::detail::TransferProfileFor(iconrecognition::detail::TransferGridVariant::TransferLeft);
-    const auto fit = iconrecognition::detail::FitTrustedRarityGrid(image(roi), cv::Rect(0, 0, roi.width, roi.height), profile);
-    Check(fit.has_value(), "transfer 25 trusted strips must produce an independent grid candidate");
-    Check(
-        std::abs(fit->x_starts.front() - 7) <= 2 && std::abs(fit->y_starts.front() - 15) <= 2,
-        "transfer 25 trusted candidate must retain the real left-top phase");
 }
 
 iconrecognition::detail::PreparedTemplate BuildMatcherFixture()
@@ -854,56 +575,6 @@ void TestArbitrarySquareRoiUsesItsFinalSize()
     Check(result.matches.front().item_box.size() == cv::Size(kRoiSize, kRoiSize), "arbitrary ROI template must use the final ROI size");
 }
 
-void TestRepresentativeMatcherBreakdown()
-{
-    iconrecognition::detail::TemplateCatalog catalog("assets/data/IconRecognition", "assets/resource/image/IconRecognition");
-    Check(catalog.initialize(), "template catalog initialization failed");
-    const auto& templates = catalog.load(64);
-    const auto found = std::ranges::find_if(templates, [](const auto& templ) { return templ.record.item_id == "item_drop_klbuds_1"; });
-    Check(found != templates.end(), "representative matcher template is missing");
-    const cv::Mat image = cv::imread("agent/cpp-algo/source/IconRecognition/test/input/transfer/11.png");
-    const cv::Rect slot(771, 319, 64, 64);
-    const auto grid = iconrecognition::detail::DetectGrid(image, iconrecognition::GridType::Transfer, cv::Rect(154, 202, 983, 291));
-    const auto actual_cell = std::ranges::find_if(grid.cells, [&](const auto& cell) {
-        return std::abs(cell.cell_box.x - slot.x) <= 1 && std::abs(cell.cell_box.y - slot.y) <= 1 && cell.cell_box.width == 64
-               && cell.cell_box.height == 64;
-    });
-    Check(actual_cell != grid.cells.end(), "representative matcher grid cell is missing");
-    Check(
-        std::abs(actual_cell->cell_box.x - slot.x) <= 1 && std::abs(actual_cell->cell_box.y - slot.y) <= 1
-            && actual_cell->cell_box.size() == slot.size(),
-        "representative matcher grid cell mismatch: " + std::to_string(actual_cell->cell_box.x) + ","
-            + std::to_string(actual_cell->cell_box.y));
-    const auto baseline = iconrecognition::detail::ScoreTemplateAt(image, slot, *found, 2, {});
-    const auto phase = iconrecognition::detail::ScoreTemplateAt(image, slot, *found, 2, { 0.5, -0.5 });
-    Check(baseline.tm_score >= 0.75, "representative tm score is unexpectedly low: " + std::to_string(baseline.tm_score));
-    Check(baseline.color_score >= 0.85, "representative color score is unexpectedly low: " + std::to_string(baseline.color_score));
-    Check(
-        cv::norm(baseline.position - slot.tl()) <= 2.0,
-        "representative position mismatch: " + std::to_string(baseline.position.x) + "," + std::to_string(baseline.position.y));
-    Check(phase.tm_score > baseline.tm_score, "subpixel phase must improve representative tm score");
-    Check(phase.color_score >= baseline.color_score, "subpixel phase must preserve representative color score");
-    Check(
-        cv::norm(phase.position - slot.tl()) <= 2.0,
-        "phase position mismatch: " + std::to_string(phase.position.x) + "," + std::to_string(phase.position.y));
-
-    std::vector<std::pair<double, std::string>> ranked;
-    for (const auto& templ : templates) {
-        if (templ.record.storage_kind != "Normal") {
-            continue;
-        }
-        const auto score = iconrecognition::detail::ScoreTemplateAt(image, slot, templ, 2, {});
-        ranked.emplace_back(score.score, templ.record.item_id);
-    }
-    std::ranges::sort(ranked, [](const auto& left, const auto& right) {
-        return left.first > right.first || (left.first == right.first && left.second < right.second);
-    });
-    Check(
-        ranked.front().second == "item_drop_klbuds_1",
-        "representative top item mismatch: " + ranked.front().second + " score=" + std::to_string(ranked.front().first));
-    Check(ranked.front().first >= 0.75, "representative top score is unexpectedly low: " + std::to_string(ranked.front().first));
-}
-
 } // namespace
 
 int main()
@@ -917,20 +588,12 @@ int main()
         TestTradeGridUsesCardBoundariesForVerticalPhase();
         TestTransferRegionPartitionKeepsUndetectedOuterColumns();
         TestCreditTradeGridUsesDimCardStructures();
-        TestTransferProfileModuleContract();
         TestRarityRowEvidenceKeepsAllSixChannels();
         TestTrustedRarityRejectsSameColorBackground();
         TestGrayRarityCannotSeedLattice();
         TestRegularLatticeUsesOneGlobalFloatingPitch();
         TestRegularLatticeRejectsAccumulatingResiduals();
-        TestTransfer25ExposesIndependentTrustedRaritySeed();
         TestRarityBandsRecoverGridFromGlobalEvidence();
-        TestTransferFullRoiMatchesIndependentSides();
-        TestTransferRarityBandsPreserveCompleteLeftGrid();
-        TestTransferSparseLeftGridUsesVisibleCardEvidence();
-        TestTransferRarityBandsDefineRightGridBounds();
-        TestTransferRarityBarsAnchorGridOrigins();
-        TestPortStoragerRarityBarsAnchorGridOrigins();
         TestRarityUsesBottomEdgeRows();
         TestRarityCandidatePassesAreDisjointAndComplete();
         TestMatcherSearchRadiusIsExplicit();
@@ -942,7 +605,6 @@ int main()
         TestCatalogFailedLoadDoesNotPoisonCache();
         TestDecodeBgraRejectsNonStandardSourceSizes();
         TestArbitrarySquareRoiUsesItsFinalSize();
-        TestRepresentativeMatcherBreakdown();
         std::cout << "IconRecognition small algorithm tests passed\n";
         return 0;
     }
