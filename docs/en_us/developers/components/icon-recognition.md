@@ -6,11 +6,11 @@ Provide a Maa ROI in 1280x720 coordinates as `[x,y,width,height]`. Before captur
 
 ## Pipeline
 
-All three recognition modes use the `IconRecognition` registration and the same parameter object.
+Use the `Custom` recognition type with the fixed registration name `IconRecognition`. Put the native `roi` in `recognition.param.roi` and component fields in `recognition.param.custom_recognition_param`; do not put `roi` inside the component object.
 
 ### Find an item by ID
 
-Use a top-level key from `assets/data/IconRecognition/recognition_items.json` as the item ID:
+Use a top-level key from [`assets/data/IconRecognition/recognition_items.json`](/assets/data/IconRecognition/recognition_items.json) as the item ID:
 
 ```json
 {
@@ -24,7 +24,12 @@ Use a top-level key from `assets/data/IconRecognition/recognition_items.json` as
                     "item_ids": ["item_copper_ore"],
                     "deduplicate": true
                 },
-                "roi": [154, 202, 983, 291]
+                "roi": [
+                    154,
+                    202,
+                    983,
+                    291
+                ]
             }
         },
         "action": "DoNothing"
@@ -36,11 +41,7 @@ All accepted cell positions are returned by default. With `deduplicate: true`, o
 
 ### Recognize every item in a grid
 
-Omit `item_ids`. The component locates the selected screen's internal grid and recognizes each cell:
-
-For `transfer` (inventory and storage) and `port_storager` (portable storage), the ROI may cover both sides or just one side. A full ROI recognizes both grids, while a one-sided ROI recognizes only that side; workflows commonly pass each side separately.
-
-**Performance note: recognition time grows with the number of candidate templates. Prefer `item_filters` to keep the item set as small as the workflow allows, and use `item_ids` when the exact targets are known; avoid unnecessary all-item candidate sets on a single screen.**
+Omit `item_ids`. The component locates the selected screen's item grid inside the ROI and recognizes each cell. Recognition time grows with the number of candidate templates, so prefer `item_filters` to keep the candidate set small.
 
 ```json
 {
@@ -53,13 +54,20 @@ For `transfer` (inventory and storage) and `port_storager` (portable storage), t
                     "grid_type": "transfer",
                     "item_filters": ["Normal:*"]
                 },
-                "roi": [154, 202, 983, 291]
+                "roi": [
+                    154,
+                    202,
+                    983,
+                    291
+                ]
             }
         },
         "action": "DoNothing"
     }
 }
 ```
+
+`transfer` (inventory and storage) and `port_storager` (portable storage) accept either a full two-sided ROI or a one-sided ROI. A full ROI recognizes both sides, while a one-sided ROI recognizes only that side. Workflows commonly pass the two sides separately according to the current operation.
 
 ### Recognize one square ROI
 
@@ -74,9 +82,17 @@ For `transfer` (inventory and storage) and `port_storager` (portable storage), t
                 "custom_recognition": "IconRecognition",
                 "custom_recognition_param": {
                     "grid_type": "single_roi",
-                    "item_filters": ["Normal:Product", "Normal:Usable"]
+                    "item_filters": [
+                        "Normal:Product",
+                        "Normal:Usable"
+                    ]
                 },
-                "roi": [1177, 450, 54, 54]
+                "roi": [
+                    1177,
+                    450,
+                    54,
+                    54
+                ]
             }
         },
         "action": "DoNothing"
@@ -84,11 +100,198 @@ For `transfer` (inventory and storage) and `port_storager` (portable storage), t
 }
 ```
 
-54x54 is only an example for this screen. The component resizes its built-in 128px or 256px icons to the requested ROI size; callers do not provide icon assets.
+54x54 is only an example for this screen. The component resizes its built-in icons to the requested ROI size; callers do not provide icon assets.
+
+## Parameter reference
+
+Pipeline, Go Service, and the C++ API use the same recognition semantics. Only the field locations differ:
+
+| Content | Pipeline | Go Service | C++ API |
+| ---------------- | -------------------------- | ----------------------------------------------- | --------------------------------------------------------------------- |
+| Native ROI | `recognition.param.roi` | `CustomRecognitionParam.ROI` | `RecognitionRequest.roi` |
+| Component fields | `custom_recognition_param` | `CustomRecognitionParam.CustomRecognitionParam` | `RecognitionRequest`; candidate fields are under `request.candidates` |
+| Registration | `IconRecognition` | `IconRecognition` | Construct `IconRecognizer` directly; no registration name is used |
+
+The native ROI uses 1280x720 `[x,y,width,height]` coordinates. Width and height must be positive, and the rectangle must be fully inside the image. `single_roi` additionally requires equal width and height.
+
+### `custom_recognition_param`
+
+| Field | Type | Required | Default | Description |
+| -------------------- | ------------------- | ---------------------------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `grid_type` | string / `GridType` | Yes for Custom; set it explicitly in C++ | None for Custom | Selects the grid locator for the current screen. See the table below. The C++ member initializer is only a construction placeholder |
+| `item_ids` | string[] | No | `[]` | Keeps only the listed items. Multiple IDs form a union; duplicates are rejected |
+| `item_filters` | string[] | No | Depends on `grid_type` | Selects candidates by `storageKind:categoryType`. Multiple filters form a union; `*` selects every category under that `storageKind` |
+| `threshold` | number | No | `0.85` | Minimum final score required to report an item as a match. Lower values increase false-positive risk |
+| `subpixel_threshold` | number | No | `0.60` | Tries finer position offsets when the base score reaches this value but remains below `threshold` |
+| `deduplicate` | boolean | No | `false` | Keeps only the highest-scoring cell for each `item_id` |
+| `debug` | boolean | No | `false` | Grid and cell diagnostics are collected when recognition reaches the result-assembly stage; early `invalid_image` or `exception` returns may lack them. `debug` controls performance timing and Custom debug-file writing |
+
+Thresholds must satisfy `0 <= subpixel_threshold < threshold <= 1`. When a base score is below `subpixel_threshold`, the component considers that candidate clearly unreliable, skips the finer position search, and does not add it to `matches`. Scores between the two thresholds are refined. A result is returned only when its final score reaches `threshold` and it is not rejected by the low-texture check. Shipment quantity bars and valuable-depot portrait regions are excluded from the template-matching mask; they do not directly produce a rejection state. Check the ROI, frame stability, and candidate filters before lowering thresholds.
+
+When both `item_ids` and `item_filters` are supplied, their intersection is used. Unknown or duplicate IDs, malformed filters, an empty filtered set, or an ID excluded by the filters returns `exception`.
+
+### `grid_type`, default candidates, and reference ROIs
+
+| `grid_type` | C++ `GridType` | Screen | Default `item_filters` | Reference ROI |
+| --------------- | ------------------------ | ------------------------ | ---------------------------------------- | ----------------------------------------------------------------------------- |
+| `trade` | `GridType::Trade` | Settlement trade | `Normal:Product`, `Normal:Usable` | `[170,165,935,385]` |
+| `transfer` | `GridType::Transfer` | Inventory and storage | `Normal:*` | Full `[154,202,983,291]`; left `[154,202,585,291]`; right `[739,202,398,291]` |
+| `port_storager` | `GridType::PortStorager` | Portable storage | `Normal:*` | Full `[190,250,880,350]`; left `[190,250,318,350]`; right `[570,250,500,350]` |
+| `valuables` | `GridType::Valuables` | Valuable depot | `ValuableDepot:*` | `[24,76,950,570]` |
+| `shipment` | `GridType::Shipment` | Shipment screen | `Normal:*` | `[34,132,386,474]` |
+| `credit_trade` | `GridType::CreditTrade` | Credit trade | `ValuableDepot:SpecialItem`, `Isolate:*` | `[70,95,1140,415]` |
+| `single_roi` | `GridType::SingleRoi` | One caller-selected cell | `Normal:*` | Any square inside the image; example `[1177,450,54,54]` |
+
+Reference ROIs are absolute 1280x720 screen coordinates, not coordinates relative to another ROI. Each value applies only to the listed screen, and the caller must keep every target cell fully covered. One-sided storage ROIs still use absolute screen coordinates.
+
+### Item IDs
+
+An item ID is a top-level key from [`recognition_items.json`](/assets/data/IconRecognition/recognition_items.json), for example:
+
+```json
+{
+    "item_copper_ore": {
+        "category": "矿物",
+        "storageKind": "Normal",
+        "categoryType": "Ore",
+        "rarity": 1,
+        "iconId": "item_copper_ore"
+    }
+}
+```
+
+Pass `item_copper_ore`, not `iconId`, a locale key, or a display name. `iconId` is used only to locate the published icon asset.
+
+### `item_filters` categories
+
+Filters only reduce the built-in icon set used for matching; they do not change grid detection. The format is `storageKind:categoryType`. Both parts are case-sensitive and map directly to the same-named catalog fields.
+
+Valid `storageKind` values:
+
+| `storageKind` | Meaning |
+| --------------- | -------------------- |
+| `Normal` | Normal items |
+| `ValuableDepot` | Valuable depot items |
+| `Isolate` | Currencies |
+
+Valid `categoryType` values by storage kind:
+
+| `storageKind` | `categoryType` | Meaning |
+| --------------- | ---------------- | -------------------- |
+| `Normal` | `Ore` | Ores |
+| `Normal` | `Plant` | Plants |
+| `Normal` | `Product` | Products |
+| `Normal` | `Doodad` | Gathered materials |
+| `Normal` | `Nurturance` | Upgrade materials |
+| `Normal` | `Usable` | Usable items |
+| `Normal` | `Producer` | Production tools |
+| `Normal` | `PortableDevice` | Portable devices |
+| `ValuableDepot` | `Weapon` | Weapons |
+| `ValuableDepot` | `CommercialItem` | Commercial valuables |
+| `ValuableDepot` | `SpecialItem` | Upgrade materials |
+| `Isolate` | `Gold` | Oroberyl vouchers |
+| `Isolate` | `Diamond` | Origeometry |
+| `Isolate` | `WeaponGold` | Arsenal quota |
+
+Wildcard forms include `Normal:*`, `ValuableDepot:*`, and `Isolate:*`. The wildcard is supported only for `categoryType`; `*:Ore` is not valid.
+
+## Results and the Pipeline hit box
+
+`RecognitionResult` and Custom detail use the same structure:
+
+| Field | Type | Description |
+| ---------------- | ------- | --------------------------------------------------------------------------------- |
+| `detail_version` | integer | Detail contract version; currently `1` |
+| `matched` | boolean | Whether at least one result was accepted |
+| `grid_type` | string | Requested grid type. It may be absent when parsing fails before the type is known |
+| `roi` | object | Request ROI with `x/y/width/height` fields |
+| `matches` | array | Accepted results ordered by score and position |
+| `error` | object | Present on failure, with a stable `code` and a readable `message` |
+
+Fields in `matches[]`:
+
+| Field | Type | Description |
+| -------------------------------- | ------- | ----------------------------------------------------------- |
+| `item_id` | string | Top-level catalog item ID |
+| `name` | string | Locale key, such as `iconRecognition.name.item_copper_ore` |
+| `category` | string | Catalog category label |
+| `storage_kind` / `category_type` | string | Classification fields for later filtering or business rules |
+| `rarity` | integer | Catalog rarity |
+| `cell_box` | object | Owning grid cell; equal to the request ROI for `single_roi` |
+| `item_box` | object | Final template match location |
+| `score` | number | Final match score |
+| `row` / `column` | integer | Row and column for real grids; absent for `single_roi` |
+
+Results are sorted by descending `score`, then by `cell_box.y`, `cell_box.x`, and `item_id`. With `deduplicate=true`, only the first sorted result for each `item_id` remains.
+
+Custom returns `MAA_TRUE` when at least one result is accepted. The Pipeline recognition box `out_box` equals `matches[0].cell_box`. With no accepted result, Custom returns `MAA_FALSE`. MaaFramework wraps callback detail in `all/filtered/best`: the complete component payload for a hit is in `best.detail`; on a miss, `best` is `null` and the component payload remains in `all[0].detail`.
+
+### `error.code`
+
+| `code` | Trigger | Caller handling |
+| --------------- | --------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| `invalid_image` | The input image is empty | Check the capture or direct-call input; normal recognition did not run |
+| `exception` | Parameter validation, resource loading, grid detection, or matching failed | Log `message` for diagnosis, but do not branch on its text |
+| `no_match` | Recognition completed normally, but no sufficiently reliable item was found | Handle it as “item not found this time,” not as a component failure |
+
+All three cases return `MAA_FALSE`, but they do not mean the same thing. `invalid_image` and `exception` mean the request did not complete normally. `no_match` means image handling, parameter parsing, grid detection, and per-cell matching completed without an exception, but every candidate in the located cells scored too low or was rejected by the low-texture check. If grid detection cannot produce a formal cell, the result is `exception`, not `no_match`. For `no_match`, `matched=false` and `matches=[]`; callers should normally continue as if the target item is currently absent instead of reporting a component failure.
+
+`no_match` preserves the parsed `grid_type` and `roi`. An `exception` raised during parsing may not contain every request field.
+
+## Reference screens
+
+<details>
+<summary>Settlement trade</summary>
+
+![settlement-trade](https://github.com/user-attachments/assets/7e8623ad-61be-4415-add8-c1c2abf95390)
+
+</details>
+
+<details>
+<summary>Inventory and storage</summary>
+
+![inventory-transfer](https://github.com/user-attachments/assets/bc1bbea5-5aa4-4421-9ccb-b3de8314688e)
+
+</details>
+
+<details>
+<summary>Portable storage</summary>
+
+![port-storager](https://github.com/user-attachments/assets/f0fab5de-186d-40df-b212-7b8ae6714103)
+
+</details>
+
+<details>
+<summary>Valuable depot</summary>
+
+![valuables](https://github.com/user-attachments/assets/4121c648-94b8-4032-8afd-3436cf31f99b)
+
+</details>
+
+<details>
+<summary>Shipment</summary>
+
+![shipment](https://github.com/user-attachments/assets/61eb016e-13f6-4e5d-80f1-c1d1eecb57d7)
+
+</details>
+
+<details>
+<summary>Credit trade</summary>
+
+![credit-trade](https://github.com/user-attachments/assets/c4415a7c-56d0-4aa2-bf2e-230bae21211d)
+
+</details>
+
+<details>
+<summary>single_roi example</summary>
+
+![specific-roi-example](https://github.com/user-attachments/assets/76e7f9d0-ed4e-4feb-b1b4-afbc40ac6003)
+
+</details>
 
 ## Go Service
 
-Go services call the `IconRecognition` registration through `ctx.RunRecognitionDirect`. Set the native ROI through `CustomRecognitionParam.ROI` and keep component-specific fields in `CustomRecognitionParam`:
+Go services call the `IconRecognition` registration through `ctx.RunRecognitionDirect`. Set the native ROI through `CustomRecognitionParam.ROI` and keep component-specific fields in `CustomRecognitionParam.CustomRecognitionParam`:
 
 ```go
 detail, err := ctx.RunRecognitionDirect(
@@ -97,8 +300,8 @@ detail, err := ctx.RunRecognitionDirect(
         ROI:                maa.NewTargetRect(maa.Rect{154, 202, 983, 291}),
         CustomRecognition: "IconRecognition",
         CustomRecognitionParam: map[string]any{
-            "grid_type":  "transfer",
-            "item_ids":   []string{"item_copper_ore"},
+            "grid_type":   "transfer",
+            "item_ids":    []string{"item_copper_ore"},
             "deduplicate": true,
         },
     },
@@ -106,7 +309,7 @@ detail, err := ctx.RunRecognitionDirect(
 )
 ```
 
-MaaFramework wraps Custom detail, so parse the component payload from `best.detail`. Go uses the same `grid_type`, candidate filters, thresholds, and deduplication semantics as Pipeline.
+Prefer `RecognitionDetail.Results` when retrieving the component payload. On a hit, use `Results.Best.AsCustom()`. On a miss, `Results.Best` is `nil`, so use `Results.All[0].AsCustom()` instead. The returned `CustomRecognitionResult.Detail` contains the component JSON in both cases. If the outer `DetailJson` is parsed directly, the corresponding paths are `best.detail` and `all[0].detail`; do not read `best.detail` unconditionally on a miss. A Go result struct may declare only the fields needed by the caller because `encoding/json` ignores unknown fields.
 
 ## C++ API
 
@@ -132,15 +335,22 @@ if (!recognizer.preload({ request })) {
 const iconrecognition::RecognitionResult result = recognizer.recognize(image, request);
 ```
 
-`request.candidates.item_ids` and `item_filters` correspond to the same-named Pipeline and Go parameters. `RecognitionResult` uses the same field semantics as Custom detail but returns C++ structures instead of a JSON wrapper.
+`request.candidates.item_ids` and `item_filters` correspond to the same-named Pipeline and Go parameters. C++ returns `RecognitionResult` directly, without MaaFramework's outer JSON wrapper.
 
-## Shared parameters and results
+## Debug output
 
-All three entry points share one recognition contract. Pipeline uses `recognition.param.roi`, Go uses `CustomRecognitionParam.ROI`, and C++ uses `RecognitionRequest.roi`. See the [parameter and data contract](/agent/cpp-algo/source/IconRecognition/docs/architecture.md) for all remaining parameters, defaults, `storageKind:categoryType` filters, threshold constraints, result fields, error codes, and debug output.
+With `debug=true`, the Custom entry point writes the recognition under `exe_dir/../debug/vision/IconRecognition`:
 
-## References
+- `raw/<stem>.png`: input image;
+- `annotated/<stem>.png`: ROI, cells, candidate boxes, and scores;
+- `detail/<stem>.json`: public result plus internal diagnostics.
+
+The three files with one stem form a group. Older groups are cleaned automatically. When recognition reaches the result-assembly stage, core C++ results retain grid and cell diagnostics; early `invalid_image` or `exception` returns may lack them. With `debug=true`, performance diagnostics are recorded too. Public Custom detail omits these internal fields; only debug files and manual test output include them.
+
+## Tests and internals
 
 - [Tests and manual review output](/agent/cpp-algo/source/IconRecognition/docs/testing.md)
+- [Internal architecture and maintenance boundaries](/agent/cpp-algo/source/IconRecognition/docs/architecture.md)
 - [Recognition algorithm](/agent/cpp-algo/source/IconRecognition/docs/algorithm.md)
-- [Internal grid types and reference ROIs](/agent/cpp-algo/source/IconRecognition/docs/grid-profiles.md)
+- [Grid configuration maintenance](/agent/cpp-algo/source/IconRecognition/docs/grid-profiles.md)
 - [Resource download and publishing](/tools/icon_recognition/README.md)
