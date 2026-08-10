@@ -87,6 +87,7 @@
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
+            // Reserve reset 会清空货品配置；先重置货品与干员会话，再应用优先售卖和选品策略。
             "sub": [
                 "SellProductInitializeReserveSession",
                 "SellProductInitializeOperatorSession",

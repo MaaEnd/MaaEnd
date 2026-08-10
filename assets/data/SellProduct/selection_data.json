@@ -505,6 +505,15 @@
                 "ja_jp": "カミーユ",
                 "ko_kr": "카뮤"
             }
+        },
+        "Liino": {
+            "names": {
+                "zh_cn": "梨诺",
+                "zh_tw": "梨諾",
+                "en_us": "Liino",
+                "ja_jp": "リーノ",
+                "ko_kr": "리노"
+            }
         }
     },
     "location_order": [
@@ -614,6 +623,11 @@
                 },
                 {
                     "name": "Antal",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "Liino",
                     "bonus_tier": 2,
                     "outpost_prosperity_max_bonus_tier": 0
                 },
@@ -774,7 +788,8 @@
             ],
             "restore_operators": [
                 "Yvonne",
-                "ChenQianyu"
+                "ChenQianyu",
+                "Liino"
             ]
         },
         "ReconstructionHQ": {
@@ -1216,6 +1231,7 @@
             "restore_operators": [
                 "Arcane",
                 "MiFu",
+                "Liino",
                 "LastRite",
                 "Yvonne",
                 "Ember",

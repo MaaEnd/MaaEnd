@@ -24,7 +24,8 @@ var (
 )
 
 // File 是生成器输出的最小运行时选品数据契约。
-// 上游 zmdmap 结构和临时过滤在构建阶段消化，具体选品顺序由 Go 策略决定。
+// 上游精简数据已消化原始 TableCfg 结构，临时过滤由 MaaEnd 构建阶段处理。
+// 具体选品顺序由 Go 策略决定。
 type File struct {
 	Items         map[string]Item     `json:"items"`
 	Operators     map[string]Operator `json:"operators"`

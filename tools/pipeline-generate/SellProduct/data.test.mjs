@@ -45,11 +45,12 @@ test("SellProduct 保留按星期执行入口与任务选项", () => {
         "saturday",
         "sunday",
     ]);
+    // Reserve reset 会清空货品配置；先重置货品与干员会话，再应用优先售卖和选品策略。
     assert.deepEqual(pipeline.SellProductPrepareSession.custom_action_param.sub, [
         "SellProductInitializeReserveSession",
+        "SellProductInitializeOperatorSession",
         "SellProductConfigurePrioritySession",
         "SellProductConfigureSelectionStrategy",
-        "SellProductInitializeOperatorSession",
     ]);
 });
 
@@ -163,7 +164,7 @@ test("SellProduct region entry rows contain every generated location", () => {
 test("SellProduct location IDs are derived from the current upstream English names", () => {
     for (const location of sellProductLocations) {
         const settlement = settlementData.settlements[location.SettlementId];
-        assert.equal(location.LocationId, toPascalCase(settlement.settlementName.EN || location.SettlementId));
+        assert.equal(location.LocationId, toPascalCase(settlement.names.en_us || location.SettlementId));
     }
 });
 
@@ -292,6 +293,25 @@ test("SellProduct 武陵优先物品顺序与游戏货架一致", () => {
     );
 });
 
+test("SellProduct 四号谷地同价优先物品保留游戏货架顺序", () => {
+    const regionRoot = sellProductTaskRows.find((row) => row.RegionPrefix === "ValleyIV");
+    const itemIDs = regionRoot.PriorityItemCases1.filter((entry) => entry.name !== "None").map(
+        (entry) => entry.pipeline_override.SellProductValleyIVRegisterPriorityItem1.custom_action_param.item_id,
+    );
+    const expectedOrder = [
+        "item_bottled_rec_hp_1",
+        "item_bottled_food_1",
+        "item_crystal_shell",
+        "item_glass_cmpt",
+        "item_iron_cmpt",
+    ];
+    const expectedItems = new Set(expectedOrder);
+    assert.deepEqual(
+        itemIDs.filter((itemID) => expectedItems.has(itemID)),
+        expectedOrder,
+    );
+});
+
 test("SellProduct 保留物品按游戏货架单价降序排列", () => {
     const priceByItemID = new Map();
     for (const location of Object.values(sellProductSelectionData.locations)) {
@@ -316,6 +336,34 @@ test("SellProduct 保留物品按游戏货架单价降序排列", () => {
             itemPrices,
             [...itemPrices].sort((left, right) => right - left),
             `reserve slot ${slot} items are not sorted by unit price descending`,
+        );
+    }
+
+    const itemIDs = root.ReserveItemCases1.filter((entry) => entry.name !== "None").map(
+        (entry) => entry.pipeline_override.SellProductRegisterReserveRule1.attach.item_id,
+    );
+    for (const expectedOrder of [
+        [
+            "item_copper_enr2_cmpt",
+            "item_bottled_rec_hp_3",
+            "item_proc_battery_3",
+            "item_bottled_food_3",
+        ],
+        [
+            "item_bottled_rec_hp_1",
+            "item_bottled_food_1",
+        ],
+        [
+            "item_filter_core",
+            "item_crystal_shell",
+            "item_glass_cmpt",
+            "item_iron_cmpt",
+        ],
+    ]) {
+        const expectedItems = new Set(expectedOrder);
+        assert.deepEqual(
+            itemIDs.filter((itemID) => expectedItems.has(itemID)),
+            expectedOrder,
         );
     }
 });
@@ -366,7 +414,7 @@ test("SellProduct registration slots form an always-enabled no-op chain", () => 
         assert.deepEqual(node.next, [chain[index + 1]]);
     }
 
-    // 保留规则链终止于 Rule6；选品策略与干员会话作为并行子任务由 SellProductPrepareSession 调度。
+    // 保留规则链终止于 Rule6；其余初始化阶段由 SellProductPrepareSession 按依赖顺序调度。
     assert.equal(pipeline.SellProductRegisterReserveRule6.next, undefined);
     assert.equal(pipeline.SellProductConfigurePrioritySession.enabled, undefined);
     assert.equal(pipeline.SellProductConfigurePrioritySession.next, undefined);
@@ -374,9 +422,9 @@ test("SellProduct registration slots form an always-enabled no-op chain", () => 
     const entry = readPipeline(new URL("../../../assets/resource/pipeline/SellProduct.json", import.meta.url));
     assert.deepEqual(entry.SellProductPrepareSession.custom_action_param.sub, [
         "SellProductInitializeReserveSession",
+        "SellProductInitializeOperatorSession",
         "SellProductConfigurePrioritySession",
         "SellProductConfigureSelectionStrategy",
-        "SellProductInitializeOperatorSession",
     ]);
 });
 

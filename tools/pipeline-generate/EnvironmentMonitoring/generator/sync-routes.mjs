@@ -4,7 +4,7 @@ import {pathToFileURL} from "node:url";
 import {
     buildGeneratedIdIndex,
     collectMonitoringMissions,
-    KITE_STATION_DATA_PATH,
+    ENVIRONMENT_MONITORING_DATA_PATH,
     readJson,
     ROUTES_PATH,
 } from "./common.mjs";
@@ -15,20 +15,20 @@ const ROUTE_METADATA_KEYS = new Set([
     "Id",
 ]);
 
-const INTERFACE_LOCALES = {
-    "zh-CN": "zh_cn",
-    "zh-TW": "zh_tw",
-    "en-US": "en_us",
-    "ja-JP": "ja_jp",
-    "ko-KR": "ko_kr",
-};
+const INTERFACE_LOCALES = [
+    "zh_cn",
+    "zh_tw",
+    "en_us",
+    "ja_jp",
+    "ko_kr",
+];
 
 const FAILURE_MESSAGE_SUFFIXES = {
-    "zh-CN": "任务失败",
-    "zh-TW": "任務失敗",
-    "en-US": " task failed",
-    "ja-JP": "：タスク失敗",
-    "ko-KR": " 작업 실패",
+    zh_cn: "任务失败",
+    zh_tw: "任務失敗",
+    en_us: " task failed",
+    ja_jp: "：タスク失敗",
+    ko_kr: " 작업 실패",
 };
 
 function buildFailureMessage(name, locale) {
@@ -57,10 +57,7 @@ function validateRouteLocaleCatalog(messages, failureMessages, missionCount, rou
 function syncRouteLocaleCatalogs(missions, idByMissionId) {
     const localeDir = resolve(dirname(ROUTES_PATH), "../../../assets/locales/interface");
     const routeKeyPrefix = "task.EnvironmentMonitoring.route.";
-    for (const [
-        sourceLocale,
-        fileLocale,
-    ] of Object.entries(INTERFACE_LOCALES)) {
+    for (const fileLocale of INTERFACE_LOCALES) {
         const localePath = resolve(localeDir, `${fileLocale}.json`);
         const originalText = readFileSync(localePath, "utf8");
         const messages = JSON.parse(originalText);
@@ -72,9 +69,9 @@ function syncRouteLocaleCatalogs(missions, idByMissionId) {
         });
         for (const mission of sortedMissions) {
             const id = idByMissionId.get(mission.missionId);
-            const value = mission.name?.[sourceLocale] || mission.name?.["zh-CN"] || mission.missionId;
+            const value = mission.name?.[fileLocale] || mission.name?.zh_cn || mission.missionId;
             const failureKey = `${routeKeyPrefix}${id}.failed`;
-            failureMessages[failureKey] = messages[failureKey] ?? buildFailureMessage(value, sourceLocale);
+            failureMessages[failureKey] = messages[failureKey] ?? buildFailureMessage(value, fileLocale);
         }
 
         const syncedMessages = {};
@@ -148,7 +145,7 @@ function findMissionForRoute(route, index) {
             return index.missionById.get(route.MissionId);
         }
         console.warn(
-            `[EnvironmentMonitoring] routes.json 条目 ${route.Name || route.MissionId} 的 MissionId 无法匹配当前 zmdmap 任务，请手动修正。`,
+            `[EnvironmentMonitoring] routes.json 条目 ${route.Name || route.MissionId} 的 MissionId 无法匹配当前游戏数据，请手动修正。`,
         );
         return null;
     }
@@ -188,7 +185,7 @@ function buildSyncedRoute(route, mission, idByMissionId) {
 
     const synced = {
         MissionId: mission.missionId,
-        Name: mission.name?.["zh-CN"] || route.Name || mission.missionId,
+        Name: mission.name?.zh_cn || route.Name || mission.missionId,
         Id: idByMissionId.get(mission.missionId) || route.Id || mission.missionId,
     };
 
@@ -231,7 +228,7 @@ function appendMissingMissionRoutes(routes, missions, idByMissionId) {
 
     if (missingRoutes.length > 0) {
         console.warn(
-            `[EnvironmentMonitoring] routes.json 缺少 ${missingRoutes.length} 个 zmdmap 任务条目，已追加仅含 MissionId/Name/Id 的未适配占位条目。`,
+            `[EnvironmentMonitoring] routes.json 缺少 ${missingRoutes.length} 个游戏数据任务条目，已追加仅含 MissionId/Name/Id 的未适配占位条目。`,
         );
     }
 
@@ -239,13 +236,13 @@ function appendMissingMissionRoutes(routes, missions, idByMissionId) {
 }
 
 export function syncRouteConfig() {
-    if (!existsSync(ROUTES_PATH) || !existsSync(KITE_STATION_DATA_PATH)) {
+    if (!existsSync(ROUTES_PATH) || !existsSync(ENVIRONMENT_MONITORING_DATA_PATH)) {
         return;
     }
 
     const originalText = readFileSync(ROUTES_PATH, "utf8");
     const routes = JSON.parse(originalText);
-    const missions = collectMonitoringMissions(readJson(KITE_STATION_DATA_PATH));
+    const missions = collectMonitoringMissions(readJson(ENVIRONMENT_MONITORING_DATA_PATH));
     const idByMissionId = buildGeneratedIdIndex(missions);
     syncRouteLocaleCatalogs(missions, idByMissionId);
     const index = buildMissionSearchIndex(missions, idByMissionId);

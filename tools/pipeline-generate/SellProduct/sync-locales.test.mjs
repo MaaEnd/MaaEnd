@@ -24,7 +24,7 @@ test("SellProduct locale settlement keys are rebuilt in game order", () => {
     const actualKeys = Object.keys(result.messages).filter((key) => expectedKeys.includes(key));
 
     assert.deepEqual(actualKeys, expectedKeys);
-    assert.equal(result.messages[expectedKeys[0]], sellProductLocaleEntries.settlements[0].names.CN);
+    assert.equal(result.messages[expectedKeys[0]], sellProductLocaleEntries.settlements[0].names.zh_cn);
     assert.equal(Object.hasOwn(result.messages, "task.SellProduct.ValleyIVRemovedOutpost"), false);
     assert.equal(result.removed, 1);
     assert.equal(result.inserted, expectedKeys.length - 3);

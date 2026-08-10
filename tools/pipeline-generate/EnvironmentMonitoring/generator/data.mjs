@@ -1,7 +1,7 @@
 import {LOCALES} from "./common.mjs";
 import {monitoringMissions} from "./model.mjs";
 
-export {kiteStationData, MONITORING_TERMINAL_IDS} from "./model.mjs";
+export {environmentMonitoringData, MONITORING_TERMINAL_IDS} from "./model.mjs";
 
 function escapeRegex(str) {
     return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -18,7 +18,7 @@ function buildExpectedFromLocaleMap(localeMap) {
         if (!value) {
             return null;
         }
-        if (locale === "en-US") {
+        if (locale === "en_us") {
             return toFlexibleEnglishRegex(value);
         }
         return value;

@@ -1,6 +1,9 @@
 # 转交委托
 
-使用 `MAA-pipeline-generate` 从统一的地区、仓储节点与可装箱物品模型生成转交委托的 Pipeline 和任务配置。
+使用 `MAA-pipeline-generate` 从地区、仓储节点与可装箱物品模型生成转交委托的 Pipeline 和任务配置。
+
+`tools/pipeline-generate/data/delivery_jobs.json` 由 zmdmap 数据 CI 中的独立 Python 脚本生成，MaaEnd 通过
+`fetch-data.mjs` 下载。文件包含全部仓储节点及其可装箱物品，不包含生产侧版本或来源元数据。
 
 ## 运行方式
 
@@ -8,6 +11,9 @@
 
 ```bash
 pnpm generate:DeliveryJobs
+
+# 仅同步 zmdmap 精简数据
+pnpm fetch:zmdmap
 ```
 
 生成内容：

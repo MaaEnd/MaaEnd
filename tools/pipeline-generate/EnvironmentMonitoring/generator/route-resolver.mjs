@@ -270,7 +270,7 @@ export function createRouteResolver(routeConfig, options = {}) {
 
     return {
         resolve(mission) {
-            const missionName = mission?.name?.["zh-CN"] || mission?.missionId || "UnknownMission";
+            const missionName = mission?.name?.zh_cn || mission?.missionId || "UnknownMission";
             const override = getRouteOverride(mission, routeOverrides);
             const QuickTeleport = override?.QuickTeleport === true;
             const hasMapPath = !isFieldMissing(override?.MapPath);
@@ -390,7 +390,7 @@ export function createRouteResolver(routeConfig, options = {}) {
                 }
                 const label = item.MissionId || item.Name || "<unknown>";
                 warn(
-                    `[EnvironmentMonitoring] routes.json 条目 ${label} 未匹配到当前 zmdmap 任务，请检查 MissionId 是否仍然有效。`,
+                    `[EnvironmentMonitoring] routes.json 条目 ${label} 未匹配到当前游戏数据，请检查 MissionId 是否仍然有效。`,
                 );
             }
         },
