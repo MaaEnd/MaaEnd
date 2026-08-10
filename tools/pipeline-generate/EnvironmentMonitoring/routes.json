@@ -459,13 +459,13 @@
                 "target_tier": "Wuling_L4_330"
             },
             {
-                "action": "ZONE",
-                "zone_id": "Wuling_L4_330"
-            },
-            [
-                123.45,
-                185.91
-            ]
+                "action": "RUN",
+                "target": [
+                    123.45,
+                    185.91
+                ],
+                "target_tier": "Wuling_L4_330"
+            }
         ],
         "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
         "CameraMaxHit": 3,
