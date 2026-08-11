@@ -291,9 +291,9 @@
         "recognition": "TemplateMatch",
         "roi": [
             0,
+            100,
             150,
-            200,
-            300
+            580
         ],
         "template": "EnvironmentMonitoring/TargetChecked.png",
         "pre_delay": 0,
