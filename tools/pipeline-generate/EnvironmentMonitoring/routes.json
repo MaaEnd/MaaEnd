@@ -465,14 +465,14 @@
             {
                 "action": "NAVMESH",
                 "target": [
-                    93.33,
-                    185
+                    69.1,
+                    129.69
                 ],
                 "target_tier": "Wuling_L4_330"
             }
         ],
         "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown",
-        "Heading": 0
+        "Heading": 173
     },
     {
         "MissionId": "m1m64",
