@@ -379,13 +379,21 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        794,
-                        2602.21
+                        788.14,
+                        2603.23
                     ]
                 },
                 {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                [
+                    795.02,
+                    2602.86
+                ],
+                {
                     "action": "HEADING",
-                    "angle": 225
+                    "angle": 198
                 }
             ]
         },
