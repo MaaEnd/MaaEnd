@@ -67,8 +67,22 @@
                         {
                             "action": "NAVMESH",
                             "target": [
-                                592.44,
-                                2333.18
+                                636.05,
+                                2332.92
+                            ]
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                590.98,
+                                2346.76
+                            ]
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                554.7,
+                                2347.1
                             ]
                         },
                         {
