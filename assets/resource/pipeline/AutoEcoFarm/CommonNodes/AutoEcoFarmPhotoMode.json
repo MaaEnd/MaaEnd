@@ -455,6 +455,10 @@
         "box_index": 1,
         "pre_delay": 0,
         "action": "Click",
+        "target": [
+            305,
+            246
+        ],
         "post_wait_freezes": {
             "time": 200,
             "target": [
