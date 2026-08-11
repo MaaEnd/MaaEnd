@@ -5,6 +5,7 @@
 #include "../utils.h"
 #include "MapNavigator/controller_info_utils.h"
 #include "controller_type_utils.h"
+#include "latency_observer.h"
 #include "navi_math.h"
 #include "position_provider.h"
 
@@ -13,6 +14,11 @@ namespace mapnavigator
 
 namespace
 {
+
+int64_t ElapsedMs(std::chrono::steady_clock::time_point from, std::chrono::steady_clock::time_point to)
+{
+    return std::chrono::duration_cast<std::chrono::milliseconds>(to - from).count();
+}
 
 bool IsBlackScreen(const cv::Mat& image)
 {
@@ -74,6 +80,7 @@ bool PositionProvider::Capture(NaviPosition* out_pos, bool force_global_search, 
     if (!MaaControllerCachedImage(controller_, buffer.Get()) || MaaImageBufferIsEmpty(buffer.Get())) {
         return false;
     }
+    const auto screencap_done_at = std::chrono::steady_clock::now();
 
     cv::Mat image = to_mat(buffer.Get());
     last_capture_was_black_screen_ = IsBlackScreen(image);
@@ -84,12 +91,14 @@ bool PositionProvider::Capture(NaviPosition* out_pos, bool force_global_search, 
     if (!maplocator::TryExtractMinimap(image, uses_adb_minimap_roi_, &minimap)) {
         return false;
     }
+    const auto image_prep_done_at = std::chrono::steady_clock::now();
 
     maplocator::LocateOptions options;
     options.force_global_search = force_global_search;
     options.expected_zone_id = expected_zone_id;
 
     const auto locate_result = locator_->locate(minimap, options);
+    const auto locate_done_at = std::chrono::steady_clock::now();
     const int status = static_cast<int>(locate_result.status);
     if (locate_result.position) {
         const auto& position = *locate_result.position;
@@ -104,6 +113,13 @@ bool PositionProvider::Capture(NaviPosition* out_pos, bool force_global_search, 
         last_capture_was_held_ = false;
         held_fix_streak_ = 0;
         return false;
+    }
+
+    // 只统计整套走通的取位；全局搜索本来就比逐帧跟踪慢，算进去会把它的耗时当成机器常态。
+    if (!force_global_search) {
+        latency::RecordStage(latency::Stage::Screencap, ElapsedMs(capture_started_at, screencap_done_at));
+        latency::RecordStage(latency::Stage::ImagePrep, ElapsedMs(screencap_done_at, image_prep_done_at));
+        latency::RecordStage(latency::Stage::Locate, ElapsedMs(image_prep_done_at, locate_done_at));
     }
 
     out_pos->x = locate_result.position->x;

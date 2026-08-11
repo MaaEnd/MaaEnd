@@ -187,6 +187,7 @@ struct TurnCommandResult
 {
     bool issued = false;
     double issued_delta_degrees = 0.0;
+    int64_t send_ms = 0;
 };
 
 enum class MotionPredictMode

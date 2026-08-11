@@ -6,6 +6,7 @@
 #include <MaaUtils/Logger.h>
 
 #include "action_wrapper.h"
+#include "latency_observer.h"
 #include "motion_controller.h"
 #include "navi_config.h"
 
@@ -130,17 +131,24 @@ TurnCommandResult MotionController::ApplySteering(double yaw_delta_deg, int64_t 
     const double want_deg = std::clamp(yaw_delta_deg, -tick_cap, tick_cap);
 
     double emit_deg = 0.0;
+    int64_t send_ms_total = 0;
     for (int64_t batch = 0; batch < batches; ++batch) {
         const double remaining = want_deg - emit_deg;
         if (std::abs(remaining) < steering_profile_.min_emit_delta_deg) {
             break;
         }
         const TurnCommandResult sent = SendViewDelta(std::clamp(remaining, -batch_cap, batch_cap));
+        send_ms_total += sent.send_ms;
         if (!sent.issued) {
             break;
         }
         result = sent;
         emit_deg += std::clamp(remaining, -batch_cap, batch_cap);
+    }
+    // 一拍分几批下发要合起来算，不然差额落到「其余」头上；被拒的那批也花了时间。
+    result.send_ms = send_ms_total;
+    if (send_ms_total > 0) {
+        latency::RecordStage(latency::Stage::Steer, send_ms_total);
     }
     if (result.issued) {
         last_steering_sent_at_ = now;
@@ -247,6 +255,7 @@ TurnCommandResult MotionController::SendViewDelta(double delta_degrees)
     const bool sent = action_wrapper_->SendViewDeltaSync(units, 0);
     const int64_t send_ms =
         std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - send_started_at).count();
+    result.send_ms = send_ms;
     if (!sent) {
         LogWarn << "Steering command rejected by the input backend." << VAR(delta_degrees) << VAR(units) << VAR(send_ms);
         return result;
