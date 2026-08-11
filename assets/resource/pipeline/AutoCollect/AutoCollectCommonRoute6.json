@@ -79,7 +79,7 @@
                             ]
                         },
                         {
-                            "action": "NAVMESH",
+                            "action": "RUN",
                             "target": [
                                 554.7,
                                 2347.1
