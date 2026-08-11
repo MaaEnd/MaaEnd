@@ -448,6 +448,15 @@ bool NavRunController::buildPlan(
         return commit_authored();
     }
 
+    // 末点是作者手写的裸坐标时仍按"直着走过去"处理: 交给 A* 会为了贴回网格绕远路。
+    // navmesh 展开出的点带 clearance 且末点 strict, 不走这条。
+    if (authored.points.size() == 1 && anchor.action == ActionType::RUN && !anchor.RequiresStrictArrival()
+        && anchor.corridor_clearance <= 0.0
+        && std::hypot(position.x - anchor.x, position.y - anchor.y) > kMeasurementDefaultPositionQuantum) {
+        LogDebug << "NavRunController trailing authored point kept literal." << VAR(anchor_index) << VAR(anchor.x) << VAR(anchor.y);
+        return commit_authored();
+    }
+
     const navmesh::WorldPoint start { .x = position.x, .y = position.y };
     const navmesh::WorldPoint goal { .x = anchor.x, .y = anchor.y };
     auto route = PlanNavmeshRoute(param, position.zone_id, start, goal, anchor.target_deck_y);
