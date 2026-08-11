@@ -379,22 +379,14 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        93.33,
-                        185
-                    ],
-                    "target_tier": "Wuling_L4_330"
-                },
-                {
-                    "action": "RUN",
-                    "target": [
-                        123.45,
-                        185.91
+                        69.1,
+                        129.69
                     ],
                     "target_tier": "Wuling_L4_330"
                 },
                 {
                     "action": "HEADING",
-                    "angle": 88.69999999999999
+                    "angle": 173
                 }
             ]
         },
@@ -427,7 +419,7 @@
     },
     "HangingVinesAdjustCamera": {
         "desc": "垂藤任务中调整朝向",
-        "max_hit": 3,
+        "max_hit": 1,
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
