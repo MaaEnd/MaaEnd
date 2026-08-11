@@ -26,6 +26,7 @@
 #include "position_provider.h"
 #include "route_tracker.h"
 #include "semantic_nodes.h"
+#include "sensitivity_observer.h"
 #include "steering_controller.h"
 
 #include "../utils.h"
@@ -417,6 +418,7 @@ bool NavigationStateMachine::Run()
 {
     if (!Bootstrap()) {
         StopMotion();
+        sensitivity::EndRun(maa_context_, true);
         return false;
     }
 
@@ -432,6 +434,7 @@ bool NavigationStateMachine::Run()
         if (!TickPhase(session_->phase())) {
             StopCollectScanner();
             StopMotion();
+            sensitivity::EndRun(maa_context_, true);
             return false;
         }
     }
@@ -442,12 +445,18 @@ bool NavigationStateMachine::Run()
 
     StopCollectScanner();
     StopMotion();
-    return !should_stop_() && session_->success();
+
+    // 用户主动停的不算走坏，别借着这个把门槛放下来。
+    const bool stopped_by_user = should_stop_();
+    const bool succeeded = !stopped_by_user && session_->success();
+    sensitivity::EndRun(maa_context_, !succeeded && !stopped_by_user);
+    return succeeded;
 }
 
 bool NavigationStateMachine::Bootstrap()
 {
     runtime_state_.BeginNavigation(std::chrono::steady_clock::now());
+    sensitivity::BeginRun();
 
     if (session_->HasSatisfiedFinalSuccess(*position_, "bootstrap_already_at_final_goal")) {
         return true;
@@ -1333,6 +1342,8 @@ bool NavigationStateMachine::TickNavigate()
         turn_elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - runtime_state_.steering_rate.cmd_at).count();
     }
 
+    const uint64_t tick_seq = runtime_state_.flow.tick_seq;
+
     double heading_rate_deg = 0.0;
     double heading_rate_raw_delta_deg = 0.0;
     int64_t heading_rate_gap_ms = 0;
@@ -1340,7 +1351,7 @@ bool NavigationStateMachine::TickNavigate()
     if (runtime_state_.steering_rate.has_prev) {
         heading_rate_raw_delta_deg = NaviMath::NormalizeAngle(current_heading - runtime_state_.steering_rate.prev_heading_deg);
         heading_rate_gap_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - runtime_state_.steering_rate.at).count();
-        heading_rate_gap_ticks = runtime_state_.flow.tick_seq - runtime_state_.steering_rate.at_tick;
+        heading_rate_gap_ticks = tick_seq - runtime_state_.steering_rate.at_tick;
         const bool heading_changed = std::abs(heading_rate_raw_delta_deg) > kSteeringHeadingChangeEpsilonDeg;
         // Staleness is counted in ticks, not milliseconds: the reference goes stale after so many missed chances
         // to observe a change, and slow frame capture stretches those chances out without making them fewer. A
@@ -1352,13 +1363,13 @@ bool NavigationStateMachine::TickNavigate()
         if (heading_changed) {
             runtime_state_.steering_rate.prev_heading_deg = current_heading;
             runtime_state_.steering_rate.at = now;
-            runtime_state_.steering_rate.at_tick = runtime_state_.flow.tick_seq;
+            runtime_state_.steering_rate.at_tick = tick_seq;
         }
     }
     else {
         runtime_state_.steering_rate.prev_heading_deg = current_heading;
         runtime_state_.steering_rate.at = now;
-        runtime_state_.steering_rate.at_tick = runtime_state_.flow.tick_seq;
+        runtime_state_.steering_rate.at_tick = tick_seq;
         runtime_state_.steering_rate.has_prev = true;
     }
 
@@ -1384,6 +1395,8 @@ bool NavigationStateMachine::TickNavigate()
         runtime_state_.steering_rate.cmd_at = now;
         runtime_state_.steering_rate.has_cmd = true;
     }
+    // 只有走到这里的拍才记账。自救、绕障、语义转向在上面就返回了，留下的拍号缺口正好标出账不连续。
+    sensitivity::RecordTick(maa_context_, tick_seq, current_heading, issued_delta_deg, degraded_fix);
 
     // Closed the loop on the forward hold: the keydown goes out once on the transition, so a swallowed one
     // strands the agent aimed correctly and walking nowhere until an obstacle recovery notices seconds later.
@@ -1432,7 +1445,8 @@ bool NavigationStateMachine::TickNavigate()
 
     const int64_t tick_compute_ms =
         std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - tick_started_at).count();
-    LogDebug << "TickNavigate steering decision." << VAR(current_heading) << VAR(route.route_heading) << VAR(effective_route_heading)
+    LogDebug << "TickNavigate steering decision." << VAR(tick_seq) << VAR(current_heading) << VAR(route.route_heading)
+             << VAR(effective_route_heading)
              << VAR(nav_run_result.has_corridor_heading) << VAR(nav_run_result.cross_track) << VAR(nav_run_result.upcoming_turn_deg)
              << VAR(heading_rate_deg) << VAR(heading_rate_raw_delta_deg) << VAR(heading_rate_gap_ms) << VAR(heading_rate_gap_ticks)
              << VAR(heading_error) << VAR(steering.yaw_delta_deg) << VAR(issued_delta_deg) << VAR(turn_achieved_deg)

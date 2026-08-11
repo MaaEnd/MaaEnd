@@ -1,0 +1,4 @@
+{
+  "navigation.latency_slow": "<span style=\"color: red; font-weight: bold;\">寻路每拍耗时中位数 %d ms（正常约 110 ms）：截图 %d ms、图像处理 %d ms、定位 %d ms、转向下发 %d ms、其余 %d ms。这么慢会来不及转弯，容易撞墙或掉水。建议降低游戏画质与分辨率、关掉占用高的后台程序，并检查 GPU 占用是否过高。此提示不会中断任务。</span>",
+  "navigation.sensitivity_mismatch": "<span style=\"color: red; font-weight: bold;\">寻路转向角度持续偏大：实测转过的角度约为指令角度的 %d%%，正常应在 100%% 附近；该结果为最近 %d 段采样的中位值。转向过量会使寻路反复修正方向，可能导致撞墙或落水。该现象通常由游戏内镜头灵敏度被调高引起，建议恢复为默认值。此提示不会中断任务。</span>"
+}
