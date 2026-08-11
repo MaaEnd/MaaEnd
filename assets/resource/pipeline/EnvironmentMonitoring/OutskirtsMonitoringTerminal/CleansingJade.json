@@ -216,7 +216,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToCleansingJade"
+            "CleansingJadeInQuickTeleportMap"
         ]
     },
     "AlreadyTrackedCleansingJade": {
@@ -230,7 +230,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToCleansingJade"
+            "CleansingJadeOpenTrackedMissionMap"
         ]
     },
     "CleansingJadeOpenTrackedMissionMap": {
@@ -340,10 +340,10 @@
         "custom_recognition_param": {
             "zone_id": "Wuling_Base",
             "target": [
-                731.08,
-                2405.14,
-                14.77,
-                14.78
+                0,
+                0,
+                1,
+                1
             ]
         },
         "pre_delay": 0,
@@ -360,7 +360,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldWulingJingyuValley4"
+                "SceneAnyEnterWorld"
             ]
         },
         "post_delay": 0,
@@ -378,11 +378,11 @@
             "path": [
                 {
                     "action": "ZONE",
-                    "zone_id": "Wuling_L1_277"
+                    "zone_id": "Wuling_Base"
                 },
                 [
-                    82.7,
-                    228.2
+                    726.02,
+                    2405
                 ],
                 {
                     "action": "HEADING",
