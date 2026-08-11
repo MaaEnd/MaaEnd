@@ -904,6 +904,10 @@ private:
     std::vector<MapPosition> coldStartBuffer;
     std::optional<MapPosition> stablePosition;
 
+    // dual 裁判连续判主策略"离预测远"时，记下主策略自己报的位置，用于识别预测被喂错的死锁
+    std::optional<MapPosition> arbiterRejectedPrimary;
+    int arbiterRejectedPrimaryStreak = 0;
+
     TrackingConfig trackingCfg;
     MatchConfig matchCfg;
     ImageProcessingConfig baseImgCfg = { .darkMapThreshold = 20.0,
@@ -1617,6 +1621,8 @@ std::optional<LocateResult> MapLocator::Impl::tryTrackingLocate(
     const bool trackingHeld = trackingResult.has_value() && trackingResult->isHeld;
 
     if (trackingResult && !trackingHeld) {
+        arbiterRejectedPrimaryStreak = 0;
+        arbiterRejectedPrimary.reset();
         return LocateResult {
             .status = LocateStatus::Success,
             .position = trackingResult,
@@ -1646,6 +1652,8 @@ std::optional<LocateResult> MapLocator::Impl::tryTrackingLocate(
             MapPosition verifiedPos = rawPrimaryPos;
             verifiedPos.score = std::max(rawPrimaryPos.score, rawFallbackPos.score);
             verifiedPos = acceptPosition(verifiedPos, now);
+            arbiterRejectedPrimaryStreak = 0;
+            arbiterRejectedPrimary.reset();
 
             return LocateResult {
                 .status = LocateStatus::Success,
@@ -1662,6 +1670,38 @@ std::optional<LocateResult> MapLocator::Impl::tryTrackingLocate(
             MapPosition arbitrated = primaryCloser ? rawPrimaryPos : rawFallbackPos;
             const double arbitratedDistToPred = primaryCloser ? distPrimaryToPred : distFallbackToPred;
             if (arbitratedDistToPred <= kTrackingOutlierDistance) {
+                // 主策略被判"离预测远"却一直指着同一处、分数也不比兜底低：预测已被喂到错的位置，
+                // 再按预测选下去永远出不来。兜底分数更高时不算证据，那种局面本就该信兜底
+                if (!primaryCloser) {
+                    const bool primaryEvidenced = rawPrimaryPos.score >= rawFallbackPos.score;
+                    const bool selfConsistent = primaryEvidenced && arbiterRejectedPrimary.has_value()
+                        && std::hypot(rawPrimaryPos.x - arbiterRejectedPrimary->x, rawPrimaryPos.y - arbiterRejectedPrimary->y)
+                            <= kArbiterReclaimDriftDistance;
+                    arbiterRejectedPrimaryStreak = selfConsistent ? arbiterRejectedPrimaryStreak + 1 : (primaryEvidenced ? 1 : 0);
+                    arbiterRejectedPrimary = primaryEvidenced ? std::optional<MapPosition>(rawPrimaryPos) : std::nullopt;
+                    if (arbiterRejectedPrimaryStreak >= kArbiterReclaimStreak) {
+                        LogWarn << "Dual-Mode arbiter reclaimed by primary" << VAR(rawPrimaryPos.x) << VAR(rawPrimaryPos.y)
+                                << VAR(rawPrimaryPos.score) << VAR(rawFallbackPos.score) << VAR(distPrimaryToPred)
+                                << VAR(distFallbackToPred);
+                        arbiterRejectedPrimaryStreak = 0;
+                        arbiterRejectedPrimary.reset();
+                        // 先 markLost 让 update 跳过速度 EMA，否则这次几十像素的修正会被当成一次高速位移
+                        motionTracker->markLost(1);
+                        MapPosition reclaimed = rawPrimaryPos;
+                        reclaimed.isHeld = false;
+                        reclaimed = acceptPosition(reclaimed, now);
+                        motionTracker->clearVelocity();
+                        return LocateResult {
+                            .status = LocateStatus::Success,
+                            .position = reclaimed,
+                            .debugMessage = "Dual-Mode Arbiter Reclaimed",
+                        };
+                    }
+                }
+                else {
+                    arbiterRejectedPrimaryStreak = 0;
+                    arbiterRejectedPrimary.reset();
+                }
                 arbitrated.isHeld = false;
                 LogInfo << "Dual-Mode arbitrated by motion continuity" << VAR(distPrimaryToPred) << VAR(distFallbackToPred)
                         << VAR(arbitrated.x) << VAR(arbitrated.y) << VAR(arbitrated.score) << VAR(dist);
@@ -2202,6 +2242,8 @@ void MapLocator::Impl::resetTrackingState()
     currentZoneId = "";
     coldStartBuffer.clear();
     stablePosition.reset();
+    arbiterRejectedPrimary.reset();
+    arbiterRejectedPrimaryStreak = 0;
 }
 
 std::optional<MapPosition> MapLocator::Impl::getLastKnownPos() const

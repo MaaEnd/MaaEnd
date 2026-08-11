@@ -182,6 +182,10 @@ constexpr double kTrackingOutlierMinScore = 0.78;
 constexpr double kDualVerifyMinScore = 0.45;
 constexpr double kDualVerifyMaxDistance = 4.0;
 constexpr double kDualGlobalVerifyMinScore = 0.50;
+// dual 裁判长期站在 fallback 一侧时的夺回条件：主策略连续 N 帧指着同一处（漂移不超过此距离），
+// 说明是运动预测被喂到了错的位置，把 tracker 搬回主策略
+constexpr int kArbiterReclaimStreak = 5;
+constexpr double kArbiterReclaimDriftDistance = 6.0;
 
 inline bool IsPathHeatmapZone(const std::string& zoneId)
 {
