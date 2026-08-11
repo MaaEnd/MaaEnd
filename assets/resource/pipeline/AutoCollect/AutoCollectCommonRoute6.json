@@ -86,14 +86,14 @@
                             ]
                         },
                         {
-                            "action": "NAVMESH",
+                            "action": "RUN",
                             "target": [
                                 541.68,
                                 2352.06
                             ]
                         },
                         {
-                            "action": "RUN",
+                            "action": "NAVMESH",
                             "target": [
                                 455.19,
                                 2388.06
