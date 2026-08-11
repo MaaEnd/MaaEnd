@@ -138,17 +138,12 @@
         ],
         "NavPath": [
             {
-                "action": "ZONE",
-                "zone_id": "Wuling_Base"
-            },
-            [
-                806.89,
-                2314.51
-            ],
-            [
-                820.68,
-                2307.61
-            ]
+                "action": "NAVMESH",
+                "target": [
+                    820.03,
+                    2310.06
+                ]
+            }
         ],
         "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
         "Heading": 60
