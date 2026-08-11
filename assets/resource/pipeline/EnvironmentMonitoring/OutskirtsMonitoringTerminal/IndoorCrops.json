@@ -216,7 +216,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToIndoorCrops"
+            "IndoorCropsInQuickTeleportMap"
         ]
     },
     "AlreadyTrackedIndoorCrops": {
@@ -230,7 +230,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToIndoorCrops"
+            "IndoorCropsOpenTrackedMissionMap"
         ]
     },
     "IndoorCropsOpenTrackedMissionMap": {
@@ -340,10 +340,10 @@
         "custom_recognition_param": {
             "zone_id": "Wuling_Base",
             "target": [
-                517.16,
-                1731.72,
-                31.13,
-                26.64
+                0,
+                0,
+                1,
+                1
             ]
         },
         "pre_delay": 0,
@@ -360,7 +360,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldWulingWulingCity4"
+                "SceneAnyEnterWorld"
             ]
         },
         "post_delay": 0,

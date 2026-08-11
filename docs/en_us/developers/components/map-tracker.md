@@ -497,20 +497,10 @@ The tool is designed to be intuitive and includes rich built-in guidance. You wi
 
 ### Try the Tool Now
 
-**How do I get started?** We recommend running the tool with the [uv](https://docs.astral.sh/uv/) package manager, which prepares the required dependencies automatically:
+**How do I get started?** Run the tool with [uv](https://docs.astral.sh/uv/). Its PEP 723 metadata creates an independent Python 3.12+ environment and dependencies, separate from the root project's Python 3.10+ baseline:
 
 ```bash
 uv run tools/map_tracker/map_tracker_master.py
 ```
 
 After the tool starts, it opens a browser page automatically. If it does not, check the URL printed in the terminal (usually <http://127.0.0.1:8060/web/> ) and open it in your browser.
-
-<details>
-<summary>If you prefer not to use uv, you can install dependencies and start manually…</summary>
-
-```bash
-pip install -r tools/map_tracker/requirements.txt
-python tools/map_tracker/map_tracker_master.py
-```
-
-</details>

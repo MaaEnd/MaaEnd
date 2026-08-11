@@ -104,6 +104,16 @@ bool ContainsNavmeshWaypoint(const std::vector<Waypoint>& path)
     return std::any_of(path.begin(), path.end(), IsNavmeshWaypoint);
 }
 
+bool HasExplicitCoordinateFrame(const Waypoint& waypoint)
+{
+    return !waypoint.target_tier.empty() && (waypoint.HasPosition() || waypoint.heading_uses_target);
+}
+
+bool ContainsExplicitCoordinateFrame(const std::vector<Waypoint>& path)
+{
+    return std::any_of(path.begin(), path.end(), HasExplicitCoordinateFrame);
+}
+
 bool StartsWith(std::string_view text, std::string_view prefix)
 {
     return text.size() >= prefix.size() && text.substr(0, prefix.size()) == prefix;
@@ -436,6 +446,25 @@ ProjectedTarget ResolveProjectedTarget(const navmesh::BaseNavPack& pack, const W
     return { navmesh::WorldPoint { .x = projection->x, .y = projection->y },
              pack.floorYForZoneName(waypoint.target_tier),
              waypoint.target_deck_y };
+}
+
+std::optional<Waypoint> ProjectRegularWaypointToBase(const navmesh::BaseNavPack& pack, const Waypoint& waypoint)
+{
+    if (!HasExplicitCoordinateFrame(waypoint)) {
+        return waypoint;
+    }
+
+    const auto projection = pack.projectToBase(waypoint.target_tier, waypoint.x, waypoint.y);
+    if (!projection) {
+        LogError << "MapNavigator waypoint target_tier is unknown." << VAR(waypoint.target_tier) << VAR(waypoint.x) << VAR(waypoint.y);
+        return std::nullopt;
+    }
+
+    Waypoint projected = waypoint;
+    projected.x = projection->x;
+    projected.y = projection->y;
+    projected.target_tier.clear();
+    return projected;
 }
 
 // When a route asked for mid-run turns out to be unreachable, the search doubles its window pass after
@@ -776,8 +805,12 @@ std::optional<std::string> InferPreloadNavmeshZone(const NaviParam& param)
             current_zone = waypoint.zone_id;
             continue;
         }
-        if (IsNavmeshWaypoint(waypoint)) {
+        const bool needs_regular_projection = param.normalize_position_via_navmesh && HasExplicitCoordinateFrame(waypoint);
+        if (IsNavmeshWaypoint(waypoint) || needs_regular_projection) {
             std::string navmesh_zone = InferBaseNavZone(current_zone, param.map_name);
+            if (navmesh_zone.empty() && !waypoint.target_tier.empty()) {
+                navmesh_zone = InferBaseNavZone(waypoint.target_tier, param.map_name);
+            }
             if (navmesh_zone.empty()) {
                 return std::nullopt;
             }
@@ -854,7 +887,8 @@ bool ExpandNavmeshWaypoints(
     const std::function<bool()>& should_stop,
     std::vector<Waypoint>& out_path)
 {
-    if (!ContainsNavmeshWaypoint(param.path)) {
+    const bool needs_regular_projection = param.normalize_position_via_navmesh && ContainsExplicitCoordinateFrame(param.path);
+    if (!ContainsNavmeshWaypoint(param.path) && !needs_regular_projection) {
         out_path = param.path;
         return true;
     }
@@ -884,8 +918,13 @@ bool ExpandNavmeshWaypoints(
             continue;
         }
         if (!IsNavmeshWaypoint(waypoint)) {
-            out_path.push_back(waypoint);
-            UpdateStateFromRegularWaypoint(waypoint, *state);
+            const auto projected_waypoint = param.normalize_position_via_navmesh ? ProjectRegularWaypointToBase(navmesh->pack, waypoint)
+                                                                                 : std::optional<Waypoint>(waypoint);
+            if (!projected_waypoint) {
+                return false;
+            }
+            out_path.push_back(*projected_waypoint);
+            UpdateStateFromRegularWaypoint(*projected_waypoint, *state);
             continue;
         }
         if (!AppendNavmeshWaypoint(param, *navmesh, waypoint, should_stop, *state, out_path)) {

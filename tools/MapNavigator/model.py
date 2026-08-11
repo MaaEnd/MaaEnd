@@ -34,6 +34,7 @@ class PathPoint(TypedDict):
     actions: list[int]
     zone: str
     strict: bool
+    target_tier: NotRequired[str]
     auto_portal: NotRequired[bool]
     suppress_auto_portal: NotRequired[bool]
 
@@ -269,6 +270,9 @@ def normalize_path_points(points: list[PathPoint]) -> list[PathPoint]:
             "zone": normalize_zone_id(point.get("zone", "")),
             "strict": coerce_strict_arrival(point.get("strict"), default=False),
         }
+        target_tier = normalize_zone_id(point.get("target_tier", ""))
+        if target_tier:
+            normalized_point["target_tier"] = target_tier
         if bool(point.get("auto_portal")):
             normalized_point["auto_portal"] = True
         if bool(point.get("suppress_auto_portal")):
@@ -313,6 +317,7 @@ def normalize_path_points(points: list[PathPoint]) -> list[PathPoint]:
             and merged[-1]["y"] == point["y"]
             and merged[-1]["zone"] == point["zone"]
             and merged[-1]["strict"] == point["strict"]
+            and merged[-1].get("target_tier", "") == point.get("target_tier", "")
         ):
             merged_auto_portal = bool(merged[-1].get("auto_portal")) or bool(point.get("auto_portal"))
             merged_suppressed = bool(merged[-1].get("suppress_auto_portal")) or bool(point.get("suppress_auto_portal"))

@@ -314,7 +314,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToMiniShellbeastStartPos"
+            "GoToMiniShellbeastMove"
         ]
     },
     "MiniShellbeastNotAdapted": {
@@ -346,18 +346,14 @@
     "GoToMiniShellbeastStartPos": {
         "desc": "在小壳兽任务开始位置附近",
         "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition": "MapLocateAssertLocation",
         "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv002",
-                    "target": [
-                        238.6,
-                        694.1,
-                        15.2,
-                        14.6
-                    ]
-                }
+            "zone_id": "Wuling_Base",
+            "target": [
+                523.06,
+                1739.74,
+                14.98,
+                14.38
             ]
         },
         "pre_delay": 0,
@@ -368,7 +364,7 @@
         ]
     },
     "GoToMiniShellbeastNotAtStartPos": {
-        "desc": "不在小壳兽任务开始位置附近，先传送再检查落点",
+        "desc": "不在小壳兽任务开始位置附近，先传送再继续寻路",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
@@ -380,37 +376,32 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToMiniShellbeastStartPos"
+            "GoToMiniShellbeastMove"
         ]
     },
     "GoToMiniShellbeastMove": {
         "desc": "自动寻路前往小壳兽",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerMove",
+        "custom_action": "MapNavigateAction",
         "custom_action_param": {
-            "map_name": "map02_lv002",
             "path": [
-                [
-                    240.8,
-                    704.8
-                ],
-                [
-                    215.7,
-                    706.1
-                ],
-                [
-                    217.1,
-                    702.7
-                ]
-            ],
-            "on_finish": {
-                "action": "Custom",
-                "custom_action": "MapTrackerToward",
-                "custom_action_param": {
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        501.88,
+                        1748.21
+                    ]
+                },
+                {
+                    "action": "HEADING",
                     "angle": 15
                 }
-            }
+            ]
         },
         "post_delay": 0,
         "rate_limit": 0,

@@ -301,7 +301,7 @@
         "desc": "价格下限配置仓库（不实际识别；expected 由 tasks 覆写为用户输入，go 读取 expected[0]）",
         "recognition": "OCR",
         "expected": [
-            "16.3"
+            "15.9"
         ]
     }
 }

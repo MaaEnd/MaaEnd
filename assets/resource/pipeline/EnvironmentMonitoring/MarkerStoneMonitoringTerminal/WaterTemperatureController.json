@@ -216,7 +216,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToWaterTemperatureController"
+            "WaterTemperatureControllerInQuickTeleportMap"
         ]
     },
     "AlreadyTrackedWaterTemperatureController": {
@@ -230,7 +230,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToWaterTemperatureController"
+            "WaterTemperatureControllerOpenTrackedMissionMap"
         ]
     },
     "WaterTemperatureControllerOpenTrackedMissionMap": {
@@ -304,7 +304,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToWaterTemperatureControllerStartPos"
+            "GoToWaterTemperatureControllerMove"
         ]
     },
     "WaterTemperatureControllerNotAdapted": {
@@ -336,18 +336,14 @@
     "GoToWaterTemperatureControllerStartPos": {
         "desc": "在净水温控装置任务开始位置附近",
         "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition": "MapLocateAssertLocation",
         "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv004",
-                    "target": [
-                        408.5,
-                        312.7,
-                        16.8,
-                        18.2
-                    ]
-                }
+            "zone_id": "Wuling_Base",
+            "target": [
+                0,
+                0,
+                1,
+                1
             ]
         },
         "pre_delay": 0,
@@ -358,42 +354,41 @@
         ]
     },
     "GoToWaterTemperatureControllerNotAtStartPos": {
-        "desc": "不在净水温控装置任务开始位置附近，先传送再检查落点",
+        "desc": "不在净水温控装置任务开始位置附近，先传送再继续寻路",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldWulingMarkerStone2"
+                "SceneAnyEnterWorld"
             ]
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToWaterTemperatureControllerStartPos"
+            "GoToWaterTemperatureControllerMove"
         ]
     },
     "GoToWaterTemperatureControllerMove": {
         "desc": "自动寻路前往净水温控装置",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerMove",
+        "custom_action": "MapNavigateAction",
         "custom_action_param": {
-            "map_name": "map02_lv004",
             "path": [
-                [
-                    343.8,
-                    238.8
-                ]
-            ],
-            "on_finish": {
-                "action": "Custom",
-                "custom_action": "MapTrackerToward",
-                "custom_action_param": {
-                    "angle": 270
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        333.71,
+                        2155.67
+                    ],
+                    "target_deck_y": 265.55
+                },
+                {
+                    "action": "HEADING",
+                    "angle": 255
                 }
-            },
-            "no_ensure_initial_movement_state": true
+            ]
         },
         "post_delay": 0,
         "rate_limit": 0,

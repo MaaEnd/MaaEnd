@@ -216,7 +216,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToWitheredBranches"
+            "WitheredBranchesInQuickTeleportMap"
         ]
     },
     "AlreadyTrackedWitheredBranches": {
@@ -230,7 +230,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToWitheredBranches"
+            "WitheredBranchesOpenTrackedMissionMap"
         ]
     },
     "WitheredBranchesOpenTrackedMissionMap": {
@@ -304,7 +304,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToWitheredBranchesStartPos"
+            "GoToWitheredBranchesMove"
         ]
     },
     "WitheredBranchesNotAdapted": {
@@ -336,18 +336,14 @@
     "GoToWitheredBranchesStartPos": {
         "desc": "在枯枝任务开始位置附近",
         "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition": "MapLocateAssertLocation",
         "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv003",
-                    "target": [
-                        496.1,
-                        360.1,
-                        19.3,
-                        14.3
-                    ]
-                }
+            "zone_id": "Wuling_Base",
+            "target": [
+                0,
+                0,
+                1,
+                1
             ]
         },
         "pre_delay": 0,
@@ -358,45 +354,40 @@
         ]
     },
     "GoToWitheredBranchesNotAtStartPos": {
-        "desc": "不在枯枝任务开始位置附近，先传送再检查落点",
+        "desc": "不在枯枝任务开始位置附近，先传送再继续寻路",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldWulingQingboStockade3"
+                "SceneAnyEnterWorld"
             ]
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToWitheredBranchesStartPos"
+            "GoToWitheredBranchesMove"
         ]
     },
     "GoToWitheredBranchesMove": {
         "desc": "自动寻路前往枯枝",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerMove",
+        "custom_action": "MapNavigateAction",
         "custom_action_param": {
-            "map_name": "map02_lv003",
             "path": [
-                [
-                    506.3,
-                    378
-                ],
-                [
-                    507.5,
-                    379.2
-                ]
-            ],
-            "on_finish": {
-                "action": "Custom",
-                "custom_action": "MapTrackerToward",
-                "custom_action_param": {
-                    "angle": 135
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1361.74,
+                        2194.86
+                    ]
+                },
+                {
+                    "action": "HEADING",
+                    "angle": 120
                 }
-            }
+            ]
         },
         "post_delay": 0,
         "rate_limit": 0,

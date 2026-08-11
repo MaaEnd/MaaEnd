@@ -216,7 +216,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToBeaconDamagedInTheBlightTide"
+            "BeaconDamagedInTheBlightTideInQuickTeleportMap"
         ]
     },
     "AlreadyTrackedBeaconDamagedInTheBlightTide": {
@@ -230,7 +230,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToBeaconDamagedInTheBlightTide"
+            "BeaconDamagedInTheBlightTideOpenTrackedMissionMap"
         ]
     },
     "BeaconDamagedInTheBlightTideOpenTrackedMissionMap": {
@@ -304,7 +304,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToBeaconDamagedInTheBlightTideStartPos"
+            "GoToBeaconDamagedInTheBlightTideMove"
         ]
     },
     "BeaconDamagedInTheBlightTideNotAdapted": {
@@ -336,18 +336,14 @@
     "GoToBeaconDamagedInTheBlightTideStartPos": {
         "desc": "在侵蚀潮中损坏的信标任务开始位置附近",
         "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition": "MapLocateAssertLocation",
         "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv002",
-                    "target": [
-                        640,
-                        255,
-                        15,
-                        15
-                    ]
-                }
+            "zone_id": "Wuling_Base",
+            "target": [
+                0,
+                0,
+                1,
+                1
             ]
         },
         "pre_delay": 0,
@@ -358,81 +354,52 @@
         ]
     },
     "GoToBeaconDamagedInTheBlightTideNotAtStartPos": {
-        "desc": "不在侵蚀潮中损坏的信标任务开始位置附近，先传送再检查落点",
+        "desc": "不在侵蚀潮中损坏的信标任务开始位置附近，先传送再继续寻路",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldWulingWulingCity0"
+                "SceneAnyEnterWorld"
             ]
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToBeaconDamagedInTheBlightTideStartPos"
+            "GoToBeaconDamagedInTheBlightTideMove"
         ]
     },
     "GoToBeaconDamagedInTheBlightTideMove": {
         "desc": "自动寻路前往侵蚀潮中损坏的信标",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerMove",
+        "custom_action": "MapNavigateAction",
         "custom_action_param": {
-            "map_name": "map02_lv002",
             "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
                 [
-                    642,
-                    272
+                    922.79,
+                    1312.01
                 ],
                 [
-                    640,
-                    299
+                    915.76,
+                    1352.1
                 ],
-                [
-                    629,
-                    301
-                ],
-                [
-                    624,
-                    302
-                ],
-                [
-                    642,
-                    317
-                ],
-                [
-                    649,
-                    317
-                ],
-                [
-                    686,
-                    318
-                ],
-                [
-                    687,
-                    329
-                ],
-                [
-                    681,
-                    333
-                ],
-                [
-                    692,
-                    344
-                ],
-                [
-                    702,
-                    345
-                ]
-            ],
-            "on_finish": {
-                "action": "Custom",
-                "custom_action": "MapTrackerToward",
-                "custom_action_param": {
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        978.32,
+                        1399.26
+                    ]
+                },
+                {
+                    "action": "HEADING",
                     "angle": 90
                 }
-            }
+            ]
         },
         "post_delay": 0,
         "rate_limit": 0,

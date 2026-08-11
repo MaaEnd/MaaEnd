@@ -62,10 +62,9 @@ struct Waypoint
     bool heading_uses_target;
     double heading_angle;
     std::string zone_id;
-    // NAVMESH only: the tier whose coordinate frame `target` (x, y) is expressed in. The expander projects
-    // the goal through this tier's baked affine onto the base-pixel routing frame at expand time (the mirror
-    // of NormalizeLivePositionToBase on the start). Empty -> the target is already base-pixel (legacy
-    // authoring), so projection is the identity and behavior is byte-for-byte unchanged.
+    // Optional authored coordinate frame for x/y. Native MapNavigator projects an explicitly tagged
+    // NAVMESH target, regular positioned waypoint, or target-based HEADING through this tier's baked affine
+    // onto the base-pixel execution frame. Empty keeps the legacy coordinates unchanged.
     std::string target_tier;
     // NAVMESH only: height of the overlapping deck this waypoint sits on. Pins the goal span for the leg
     // ending here and the start span for the leg leaving it. Unset -> full span set, unchanged.

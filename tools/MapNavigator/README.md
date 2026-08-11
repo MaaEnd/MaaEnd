@@ -15,6 +15,7 @@ MapNavigator 是用于 C++ MapNavigator 模块使用的地图路径录制与编�
 - GUI 动作编辑主要面向坐标点动作：`RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / COLLECT / DIG`。
 - `COLLECT / DIG` 是采集/挖掘语义点：精确抵达后由 `MapNavigator` 同步触发 `AutoCollectClickStart` / `AutoCollectDigStart` pipeline 子任务，期间不退出 NaviController，避免每次采集都重建定位/重新 Bootstrap/吃掉起步宽限。
 - 支持为单个点标记 `strict`，用于要求该点必须精确抵达。
+- 支持为单个坐标点声明 `target_tier`；它只指定该点的坐标来源层级，不会改变 `ZONE` 或触发区域切换。
 - 默认复制 `MapNavigator` 可直接粘贴的 canonical `path`：有 zone 时写 `ZONE` 无坐标声明节点，没有 zone 时保留纯坐标点数组。
 - 支持独立的 `Assert 模式`：手动选择底图并框选矩形区域，导出 `MapLocateAssertLocation` 节点。
 - 支持 `A* 模式`：加载 BaseNav `.nav` / `.nav.gz` 后选择起点和终点，在 GUI 上显示计算路线。
@@ -60,6 +61,14 @@ MapNavigator 是用于 C++ MapNavigator 模块使用的地图路径录制与编�
         350,
         "SPRINT"
     ],
+    {
+        "action": "RUN",
+        "target": [
+            243.49,
+            177.53
+        ],
+        "target_tier": "Wuling_L4_328"
+    },
     [
         760,
         352,
@@ -96,6 +105,8 @@ MapNavigator 是用于 C++ MapNavigator 模块使用的地图路径录制与编�
 
 - `ZONE` 是可选的无坐标声明节点，用于给后续点提供区域校验信息。
 - 普通坐标点继续使用 `[x, y]` / `[x, y, "ACTION"]`。
+- 普通点的坐标来自 tier 底图时，在路点属性中填写 `坐标层级`，导出为 `{ "action": "ACTION", "target": [x, y], "target_tier": "..." }`；留空仍使用旧数组格式。
+- `target_tier` 只解释当前点的坐标系，与负责区域校验上下文的 `ZONE` 相互独立。
 - 严格点会导出为 `[x, y, true]` 或 `[x, y, "ACTION", true]`。
 - `NAVMESH` 点会导出为 `{ "action": "NAVMESH", "target": [x, y] }`，由运行时从当前位置自动寻路到目标。
 - 当前 GUI 导出的 canonical `path` 覆盖坐标点（`NAVMESH` 按对象格式导出）与 `ZONE` 声明，不会直接生成 `HEADING` 这类无坐标控制节点。
@@ -198,21 +209,11 @@ dung01
 
 ## 运行方式
 
-### 1) uv（推荐，依赖声明在 `main.py` / `web/serve.py` 的 PEP 723 头里）
+依赖声明在 `main.py` / `web/serve.py` 的 PEP 723 头里，uv 会自动准备对应环境：
 
 ```powershell
 cd tools/MapNavigator
 uv run main.py
-```
-
-### 2) 标准 Python
-
-```powershell
-cd tools/MapNavigator
-python -m venv .venv
-.venv\Scripts\activate
-pip install -r requirements.txt
-python main.py
 ```
 
 启动后服务监听 `http://127.0.0.1:8770`（仅本机，不暴露局域网）并自动打开浏览器。**端口被占用时会自动顺延到下一个可用端口**（最多试 20 个，仍全占用则由系统分配），控制台会打印 `[Backend] 服务地址: ...`，浏览器也会打开实际地址。环境变量：`MAPNAV_PORT` 指定首选端口（被占用时同样顺延）；`MAPNAV_NO_BROWSER=1` 只起服务不开浏览器。也可以直接 `uv run web/serve.py`（完全等价）。

@@ -216,6 +216,8 @@ class MapNavigatorApp {
             actionMenu: $("action-menu"),
             btnApplyAction: $("btn-apply-action"),
             actionChainLabel: $("action-chain-label"),
+            targetTierEntry: $("target-tier-entry"),
+            targetTierList: $("target-tier-list"),
             assertZoneCombo: $("assert-zone-combo"),
             chkStrict: $("chk-strict"),
             toolPan: $("tool-pan"),
@@ -473,6 +475,7 @@ class MapNavigatorApp {
             this._availableZoneIds = [];
         }
         this._populateAssertZoneCombo();
+        this._populateTargetTierList();
         this._syncAssertControls();
     }
 
@@ -590,6 +593,17 @@ class MapNavigatorApp {
             this.els.assertSelectedTierLabel.textContent = zoneId;
         } else {
             this.els.assertSelectedTierLabel.textContent = "未选择";
+        }
+    }
+
+    /** Refill the waypoint target-tier suggestions from the backend zone-id scan. @returns {void} */
+    _populateTargetTierList() {
+        const list = this.els.targetTierList;
+        list.textContent = "";
+        for (const zoneId of this._availableZoneIds) {
+            const option = document.createElement("option");
+            option.value = zoneId;
+            list.appendChild(option);
         }
     }
 
@@ -2491,9 +2505,14 @@ class MapNavigatorApp {
         return this.els.chkStrict.checked;
     }
 
+    /** @returns {string} the explicitly declared coordinate frame for selected points. */
+    _targetTier() {
+        return normalizeZoneId(this.els.targetTierEntry.value);
+    }
+
     /** "设为该动作" button: apply the dropdown action + strict flag to the selection. @returns {void} */
     _applyAction() {
-        const result = this.state.editApplyActionToSelected(this._actionName(), this._strict());
+        const result = this.state.editApplyActionToSelected(this._actionName(), this._strict(), this._targetTier());
         if (result.selectionEmpty) {
             setStatus("请先点击选中一个点", "#f59e0b");
             return;
@@ -2957,6 +2976,7 @@ class MapNavigatorApp {
     _resetPropertyControls() {
         this.els.actionMenu.value = ACTION_NAMES[ActionType.RUN];
         this.els.chkStrict.checked = false;
+        this.els.targetTierEntry.value = "";
         this.els.actionChainLabel.textContent = "Run";
         if (this.els.propertiesEmptyState && this.els.propertiesEditor) {
             this.els.propertiesEmptyState.hidden = false;
@@ -2995,11 +3015,13 @@ class MapNavigatorApp {
             const points = selected.map((idx) => this.state.points[zoneIndices[idx]]);
             const chains = new Set(points.map((p) => JSON.stringify(getPointActions(p))));
             const stricts = new Set(points.map((p) => !!p.strict));
+            const targetTiers = new Set(points.map((p) => normalizeZoneId(p.target_tier || "")));
             if (chains.size === 1) {
                 const actions = getPointActions(points[0]);
                 this.els.actionMenu.value = ACTION_NAMES[actions[actions.length - 1]] || "Run";
             }
             if (stricts.size === 1) this.els.chkStrict.checked = [...stricts][0];
+            this.els.targetTierEntry.value = targetTiers.size === 1 ? [...targetTiers][0] : "";
             this.els.actionChainLabel.textContent = `多选 ${selected.length} 点`;
             return;
         }
@@ -3013,6 +3035,7 @@ class MapNavigatorApp {
         const actions = getPointActions(point);
         this.els.actionMenu.value = ACTION_NAMES[actions[actions.length - 1]] || "Run";
         this.els.chkStrict.checked = !!point.strict;
+        this.els.targetTierEntry.value = normalizeZoneId(point.target_tier || "");
         this.els.actionChainLabel.textContent = this._formatActionChain(point);
     }
 
@@ -3077,6 +3100,13 @@ class MapNavigatorApp {
                 strict.textContent = "严";
                 strict.title = "严格到达";
                 row.appendChild(strict);
+            }
+            if (point.target_tier) {
+                const tier = document.createElement("span");
+                tier.className = "wp-tier";
+                tier.textContent = "层";
+                tier.title = `坐标层级: ${point.target_tier}`;
+                row.appendChild(tier);
             }
             host.appendChild(row);
         }

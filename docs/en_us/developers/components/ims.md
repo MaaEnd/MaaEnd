@@ -292,8 +292,8 @@ Protocol Space reward badges often sit on the top-left of icons and break Progre
 2. Enable `"green_mask": true` on the TemplateMatch node.
 
 ```bash
-python tools/SupplyPlan/mask_ims_item_corner.py
-# preview: python tools/SupplyPlan/mask_ims_item_corner.py --dry-run
+uv run tools/SupplyPlan/mask_ims_item_corner.py
+# preview: uv run tools/SupplyPlan/mask_ims_item_corner.py --dry-run
 ```
 
 ### Cache conventions

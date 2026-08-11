@@ -216,7 +216,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToXiraniteNexus"
+            "XiraniteNexusInQuickTeleportMap"
         ]
     },
     "AlreadyTrackedXiraniteNexus": {
@@ -230,7 +230,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToXiraniteNexus"
+            "XiraniteNexusOpenTrackedMissionMap"
         ]
     },
     "XiraniteNexusOpenTrackedMissionMap": {
@@ -304,7 +304,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToXiraniteNexusStartPos"
+            "GoToXiraniteNexusMove"
         ]
     },
     "XiraniteNexusNotAdapted": {
@@ -336,18 +336,14 @@
     "GoToXiraniteNexusStartPos": {
         "desc": "在枢壤仪任务开始位置附近",
         "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition": "MapLocateAssertLocation",
         "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv002",
-                    "target": [
-                        240,
-                        695,
-                        15,
-                        15
-                    ]
-                }
+            "zone_id": "Wuling_Base",
+            "target": [
+                0,
+                0,
+                1,
+                1
             ]
         },
         "pre_delay": 0,
@@ -358,65 +354,44 @@
         ]
     },
     "GoToXiraniteNexusNotAtStartPos": {
-        "desc": "不在枢壤仪任务开始位置附近，先传送再检查落点",
+        "desc": "不在枢壤仪任务开始位置附近，先传送再继续寻路",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldWulingWulingCity4"
+                "SceneAnyEnterWorld"
             ]
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToXiraniteNexusStartPos"
+            "GoToXiraniteNexusMove"
         ]
     },
     "GoToXiraniteNexusMove": {
         "desc": "自动寻路前往枢壤仪",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerMove",
+        "custom_action": "MapNavigateAction",
         "custom_action_param": {
-            "map_name": "map02_lv002",
             "path": [
-                [
-                    242.3,
-                    703.6
-                ],
-                [
-                    216.2,
-                    703.7
-                ],
-                [
-                    214.6,
-                    693.7
-                ],
-                [
-                    196.1,
-                    680.2
-                ],
-                [
-                    184.7,
-                    680.2
-                ],
-                [
-                    178.6,
-                    675.2
-                ],
-                [
-                    171.8,
-                    674.6
-                ]
-            ],
-            "on_finish": {
-                "action": "Custom",
-                "custom_action": "MapTrackerToward",
-                "custom_action_param": {
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        457.25,
+                        1720.53
+                    ]
+                },
+                {
+                    "action": "HEADING",
                     "angle": 270
                 }
-            }
+            ]
         },
         "post_delay": 0,
         "rate_limit": 0,

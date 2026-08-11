@@ -216,7 +216,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToBambooWaterChimes"
+            "BambooWaterChimesInQuickTeleportMap"
         ]
     },
     "AlreadyTrackedBambooWaterChimes": {
@@ -230,7 +230,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToBambooWaterChimes"
+            "BambooWaterChimesOpenTrackedMissionMap"
         ]
     },
     "BambooWaterChimesOpenTrackedMissionMap": {
@@ -304,7 +304,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToBambooWaterChimesStartPos"
+            "GoToBambooWaterChimesMove"
         ]
     },
     "BambooWaterChimesNotAdapted": {
@@ -336,18 +336,14 @@
     "GoToBambooWaterChimesStartPos": {
         "desc": "在水竹铃任务开始位置附近",
         "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition": "MapLocateAssertLocation",
         "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv003",
-                    "target": [
-                        300,
-                        460,
-                        15,
-                        15
-                    ]
-                }
+            "zone_id": "Wuling_Base",
+            "target": [
+                0,
+                0,
+                1,
+                1
             ]
         },
         "pre_delay": 0,
@@ -358,53 +354,41 @@
         ]
     },
     "GoToBambooWaterChimesNotAtStartPos": {
-        "desc": "不在水竹铃任务开始位置附近，先传送再检查落点",
+        "desc": "不在水竹铃任务开始位置附近，先传送再继续寻路",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldWulingQingboStockade1"
+                "SceneAnyEnterWorld"
             ]
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToBambooWaterChimesStartPos"
+            "GoToBambooWaterChimesMove"
         ]
     },
     "GoToBambooWaterChimesMove": {
         "desc": "自动寻路前往水竹铃",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerMove",
+        "custom_action": "MapNavigateAction",
         "custom_action_param": {
-            "map_name": "map02_lv003",
             "path": [
-                [
-                    291.7,
-                    473.5
-                ],
-                [
-                    269.9,
-                    474.2
-                ],
-                [
-                    269.6,
-                    464.1
-                ],
-                [
-                    268.8,
-                    458.1
-                ]
-            ],
-            "on_finish": {
-                "action": "Custom",
-                "custom_action": "MapTrackerToward",
-                "custom_action_param": {
-                    "angle": 345
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        104.96,
+                        93.02
+                    ],
+                    "target_tier": "Wuling_L3_299"
+                },
+                {
+                    "action": "HEADING",
+                    "angle": 266
                 }
-            }
+            ]
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -440,7 +424,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "EnvironmentMonitoringSwipeScreenLeft"
+            "EnvironmentMonitoringSwipeScreenDown"
         ]
     }
 }

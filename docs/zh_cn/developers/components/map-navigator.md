@@ -55,22 +55,19 @@ MapNavigator 是 MaaEnd 的寻路组件：给定目标位置，自动规划路�
 
 工具负责产出坐标，MapNavigator 负责按坐标执行移动。工具为本地 FastAPI 后端（仅监听 `127.0.0.1`）+ 浏览器前端，启动后自动打开页面，详见 [`tools/MapNavigator/README.md`](../../../../tools/MapNavigator/README.md)。
 
-不使用 uv 时的启动方式：
+启动方式：
 
 ```powershell
 cd tools\MapNavigator
-python -m venv .venv
-.venv\Scripts\activate
-pip install -r requirements.txt
-python main.py
+uv run main.py
 ```
 
 页面顶部有三个模式，各自导出一种可直接粘贴到 Pipeline 的配置：
 
 | 模式 | 操作 | 导出内容 |
 | ---------- | ------------------------------------------ | ------------------------------------------------ |
-| `A* 寻路` | 选择底图与层级，在图上标记目标点并预览路线 | 复制 `NAVMESH` 节点，或仅复制环境监测 `MapTarget` 坐标 |
-| `断言模式` | 框选矩形区域 | 复制 `MapLocateAssertLocation` 节点，或仅复制环境监测 `MapAssert` 坐标 |
+| `A* 寻路` | 选择底图与层级，在图上标记目标点并预览路线 | 复制 `NAVMESH` 节点，可直接放入环境监测 `NavPath` |
+| `断言模式` | 框选矩形区域 | 复制 `MapLocateAssertLocation` 节点，或仅复制环境监测 `NavAssert` 坐标 |
 | `路径编辑` | 连接游戏录制路线，编辑路径点动作 | `复制路径` → 完整 `path` |
 
 `A* 寻路` 与 `路径编辑` 对应 MapNavigator 的两种用法：给定终点由运行时规划路线，或给定完整路线按序执行。两者可混排在同一个 `path` 数组中——长距离移动用 `NAVMESH`，需要精确语义的局部段用坐标点。
@@ -91,9 +88,9 @@ python main.py
 
 工具预览与运行时读取同一份数据、使用同一套算法，常规场景下预览路线与运行时规划结果一致，目标是否可达可直接通过预览判断（分叉情形见 [`NAVMESH` 寻路原理](#navmesh-寻路原理)）。该写法已用于自动采集、环境监测等多条生产路线。
 
-### 分层底图目标：`target_tier`
+### 分层底图坐标：`target_tier`
 
-不写 `target_tier` 时，`target` 按 **base（基础底图）坐标**解释，即上文的默认行为。
+`NAVMESH` 不写 `target_tier` 时，`target` 按 **base（基础底图）坐标**解释，即上文的默认行为。普通坐标点不写时则完全保留历史解释，不做额外坐标转换。
 
 分层底图（tier）中每一层都是独立的坐标系：同样的 `[123, 456]`，在 base 与在某个 tier 上是两个不同的位置。此时为节点增加 `target_tier` 字段，声明 `target` 属于哪一层：
 
@@ -112,7 +109,22 @@ python main.py
 - `target_tier`：该层的区域名，即工具层级选择中 `id:name` 冒号后的 name。
 - 运行时使用烘焙进 `.nav` 的仿射变换将其投影回 base 坐标系，并按该层楼层高度做落点吸附。
 
-前往 tier 目标仅需一个节点（`target` + `target_tier`），无需额外的 `ZONE`、中间点或坐标换算。字段也接受驼峰写法 `targetTier`；层名不存在时记录一条告警并按 base 坐标处理。
+普通坐标动作也可以使用相同的对象格式，直接声明该点的坐标系：
+
+```json
+{
+    "action": "RUN",
+    "target": [
+        243.49,
+        177.53
+    ],
+    "target_tier": "Wuling_L4_328"
+}
+```
+
+该写法适用于 `RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / COLLECT / DIG`，以及使用 `target` 的 `HEADING`。`target_tier` **只解释当前节点的坐标**，不会切换区域、不会改变后续节点的上下文，也不能代替真正过图时需要的 `ZONE` / `PORTAL`。
+
+字段也接受驼峰写法 `targetTier`。`NAVMESH` 的未知层名保持兼容行为：记录告警并把目标当作 base 坐标；普通坐标点显式声明了不存在的层名时会直接失败，避免静默走向错误位置。
 
 ### 重叠可走面目标：`target_deck_y`
 
@@ -149,9 +161,9 @@ python main.py
 ### 录制准备
 
 1. 项目开发环境已配置完成，尤其是 `install/agent/cpp-algo.exe` 与 `install/maafw` 可正常使用。
-2. Python 依赖已安装（见 `requirements.txt`，或直接使用 `uv run`）。
+2. 已安装 uv；运行 `uv run main.py` 时会根据 PEP 723 声明自动准备 Python 与依赖。
 3. **Windows** 需**以管理员身份运行**，否则游戏（管理员进程）在前台时 `G` / `X` 热键无法接收。`main.py` 启动时会自动检测并弹出 UAC。
-4. **macOS** 首次运行需在 **系统设置 → 隐私与安全性 → 输入监控** 中授权当前终端或 Python 解释器，否则全局热键不生效。
+4. **macOS** 首次运行需在 **系统设置 → 隐私与安全性 → 输入监控** 中授权当前终端或 uv 管理的 Python 解释器，否则全局热键不生效。
 5. 使用 `Win32` 连接时，游戏已启动且窗口**未最小化**；使用 `ADB` 连接时，`adb` 可用且设备已出现在列表中（`检测并刷新设备`）。
 6. 角色已位于待录路线的起点附近。
 
@@ -177,6 +189,7 @@ python main.py
 - 视角：滚轮缩放，`视角平移 (Alt)` 拖动画面。
 - 路径点：`加路点/选择 (1)` 用于添加、选中、拖拽点，`框选工具 (2)` 用于框选多个点。
 - 属性：选中点后设置动作与严格标记，点击 `应用属性` 生效。
+- 坐标层级：点坐标来自 tier 底图时，在 `坐标层级` 中填写对应区域名；留空即保留旧坐标语义。
 - 跨区域路线按区域分段显示，便于检查过图前后的点是否合理。
 
 通常需要修改的只有三处：
@@ -231,6 +244,21 @@ python main.py
     "SPRINT"
 ]
 ```
+
+**显式声明坐标层级**时改用对象格式；未声明的旧数组不受影响：
+
+```json
+{
+    "action": "RUN",
+    "target": [
+        243.49,
+        177.53
+    ],
+    "target_tier": "Wuling_L4_328"
+}
+```
+
+`target_tier` 与 `ZONE` 含义不同：前者只说明当前 `target` 是在哪张底图上点出的，后者声明路线执行与区域校验上下文。给普通点填写 `target_tier` 不会触发层级切换。
 
 `NAVMESH` 是例外：它是语义寻路节点，必须使用带 `target` 的对象，不能写成 `[x, y, "NAVMESH"]`：
 
@@ -307,7 +335,7 @@ python main.py
 
 > [!NOTE]
 >
-> 页面的点编辑面向带坐标的路径点（`RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / COLLECT / DIG / NAVMESH`）以及由区域信息派生的 `ZONE` 声明。`HEADING` 是无坐标控制节点，不属于该编辑模型，建议在导出 `path` 后手动补充维护；`NAVMESH` 也可以在 `A* 寻路` 模式中直接复制。
+> 页面的点编辑面向带坐标的路径点（`RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / COLLECT / DIG / NAVMESH`），可为单点编辑 `target_tier`，并由区域信息派生 `ZONE` 声明。`HEADING` 是无坐标控制节点，不属于该编辑模型，建议在导出 `path` 后手动补充维护；`NAVMESH` 也可以在 `A* 寻路` 模式中直接复制。
 
 ---
 

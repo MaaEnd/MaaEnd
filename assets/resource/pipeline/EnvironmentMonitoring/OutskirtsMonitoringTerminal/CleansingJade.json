@@ -304,7 +304,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToCleansingJadeStartPos"
+            "GoToCleansingJadeMove"
         ]
     },
     "CleansingJadeNotAdapted": {
@@ -336,18 +336,14 @@
     "GoToCleansingJadeStartPos": {
         "desc": "在漱玉任务开始位置附近",
         "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition": "MapLocateAssertLocation",
         "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv001",
-                    "target": [
-                        255,
-                        395,
-                        15,
-                        15
-                    ]
-                }
+            "zone_id": "Wuling_Base",
+            "target": [
+                731.08,
+                2405.14,
+                14.77,
+                14.78
             ]
         },
         "pre_delay": 0,
@@ -358,7 +354,7 @@
         ]
     },
     "GoToCleansingJadeNotAtStartPos": {
-        "desc": "不在漱玉任务开始位置附近，先传送再检查落点",
+        "desc": "不在漱玉任务开始位置附近，先传送再继续寻路",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
@@ -370,29 +366,29 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToCleansingJadeStartPos"
+            "GoToCleansingJadeMove"
         ]
     },
     "GoToCleansingJadeMove": {
         "desc": "自动寻路前往漱玉",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerMove",
+        "custom_action": "MapNavigateAction",
         "custom_action_param": {
-            "map_name": "map02_lv001",
             "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_L1_277"
+                },
                 [
-                    246,
-                    394
-                ]
-            ],
-            "on_finish": {
-                "action": "Custom",
-                "custom_action": "MapTrackerToward",
-                "custom_action_param": {
-                    "angle": 300
+                    82.7,
+                    228.2
+                ],
+                {
+                    "action": "HEADING",
+                    "angle": 330
                 }
-            }
+            ]
         },
         "post_delay": 0,
         "rate_limit": 0,

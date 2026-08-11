@@ -28,7 +28,7 @@
                 {
                     "name": "Reward",
                     "label": "$task.SeizeDeliveryJobsReward.inputs.Reward.label",
-                    "default": "16.3",
+                    "default": "15.9",
                     "pipeline_type": "string",
                     "pattern_msg": "$task.SeizeDeliveryJobsReward.inputs.Reward.pattern_msg",
                     "verify": "^\\d+(\\.\\d+)?$"
@@ -44,7 +44,7 @@
         },
         "SeizeDeliveryJobsCommissionSource": {
             "type": "select",
-            "default_case": "WulingCity",
+            "default_case": "Unlimited",
             "label": "$task.SeizeDeliveryJobsCommissionSource.label",
             "cases": [
                 {
@@ -94,6 +94,7 @@
         },
         "SeizeDeliveryJobsSpecifyDeliveryPointWulingCity": {
             "type": "switch",
+            "default_case": "No",
             "label": "$task.SeizeDeliveryJobsSpecifyDeliveryPoint.label",
             "cases": [
                 {
@@ -168,6 +169,7 @@
         },
         "SeizeDeliveryJobsSpecifyDeliveryPointTestArea": {
             "type": "switch",
+            "default_case": "No",
             "label": "$task.SeizeDeliveryJobsSpecifyDeliveryPoint.label",
             "cases": [
                 {
@@ -232,6 +234,7 @@
         },
         "SeizeDeliveryJobsSpecifyDeliveryPointUnlimited": {
             "type": "switch",
+            "default_case": "No",
             "label": "$task.SeizeDeliveryJobsSpecifyDeliveryPoint.label",
             "cases": [
                 {
@@ -358,7 +361,7 @@
         },
         "SeizeDeliveryJobsRepeatCount": {
             "type": "select",
-            "default_case": "1",
+            "default_case": "3",
             "label": "$task.SeizeDeliveryJobsRepeatCount.label",
             "description": "$task.SeizeDeliveryJobsRepeatCount.description",
             "cases": [

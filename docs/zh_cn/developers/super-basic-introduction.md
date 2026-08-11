@@ -91,16 +91,16 @@ corepack enable pnpm
 - 验证：`pnpm --version` 能看到版本号（需要 10+）就 OK
 - pnpm 是 Node 的包管理器（装依赖用的）。现在装好放着，等 Clone 完项目跑 `pnpm install` 时才会用到
 
-### 2.5 Python
+### 2.5 uv + Python
 
-- [Python 官网](https://www.python.org/) 下载 3.10 以上版本
-- **安装时一定要勾上 "Add Python to PATH"！** 不然终端里找不到 python
+- 按 [uv 官方安装指南](https://docs.astral.sh/uv/getting-started/installation/)安装 uv
+- uv 会按项目的 `pyproject.toml` 自动准备 Python 3.10+ 和脚本依赖，无需手动创建虚拟环境或执行 `pip install`
 
 ### 2.6 Go（必装）
 
 项目底层依赖 Go 编译运行，所以**必须安装**。好消息是：你不需要学 Go 语法，也不需要写 Go 代码，装好放着就行。去 [go.dev](https://go.dev/) 下载安装（1.25.6+）。项目里用 Go 写的那部分逻辑在 `agent/go-service/` 下，你现在不用碰。
 
-> 上面装的这些（Node / Python / Go / pnpm）现在**装好放着就行**——第三章只需要 Git，它们要等真正跑项目时才用得到。
+> 上面装的这些（Node / uv / Go / pnpm）现在**装好放着就行**——第三章只需要 Git，它们要等真正跑项目时才用得到。
 
 ### 🎯 检查点
 
@@ -109,7 +109,7 @@ corepack enable pnpm
 > - [ ] VS Code 装好了，推荐插件装上了
 > - [ ] `node --version` 有输出
 > - [ ] `pnpm --version` 有输出
-> - [ ] `python --version` 有输出
+> - [ ] `uv --version` 有输出
 > - [ ] `go version` 有输出
 
 ---
