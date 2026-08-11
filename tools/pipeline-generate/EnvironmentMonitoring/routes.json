@@ -157,22 +157,15 @@
         "MissionId": "m1m33",
         "Name": "“漱玉”",
         "Id": "CleansingJade",
-        "EnterMap": "SceneEnterWorldWulingJingyuValley4",
-        "NavZoneId": "Wuling_Base",
-        "NavAssert": [
-            731.08,
-            2405.14,
-            14.77,
-            14.78
-        ],
+        "QuickTeleport": true,
         "NavPath": [
             {
                 "action": "ZONE",
-                "zone_id": "Wuling_L1_277"
+                "zone_id": "Wuling_Base"
             },
             [
-                82.7,
-                228.2
+                726.02,
+                2405
             ]
         ],
         "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
@@ -453,23 +446,15 @@
             {
                 "action": "NAVMESH",
                 "target": [
-                    93.33,
-                    185
-                ],
-                "target_tier": "Wuling_L4_330"
-            },
-            {
-                "action": "RUN",
-                "target": [
-                    123.45,
-                    185.91
+                    69.1,
+                    129.69
                 ],
                 "target_tier": "Wuling_L4_330"
             }
         ],
         "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
-        "CameraMaxHit": 3,
-        "Heading": 88.7
+        "CameraMaxHit": 1,
+        "Heading": 173
     },
     {
         "MissionId": "m1m63",
@@ -480,14 +465,14 @@
             {
                 "action": "NAVMESH",
                 "target": [
-                    93.33,
-                    185
+                    69.1,
+                    129.69
                 ],
                 "target_tier": "Wuling_L4_330"
             }
         ],
         "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown",
-        "Heading": 0
+        "Heading": 173
     },
     {
         "MissionId": "m1m64",

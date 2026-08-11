@@ -379,14 +379,14 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        93.33,
-                        185
+                        69.1,
+                        129.69
                     ],
                     "target_tier": "Wuling_L4_330"
                 },
                 {
                     "action": "HEADING",
-                    "angle": 0
+                    "angle": 173
                 }
             ]
         },
