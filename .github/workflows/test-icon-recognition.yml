@@ -84,7 +84,7 @@ jobs:
           $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer\vswhere.exe'
           $vsInstall = & $vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
           if ([string]::IsNullOrWhiteSpace($vsInstall)) {
-            throw '未找到 Visual Studio C++ 工具链'
+            throw 'Visual Studio C++ toolchain was not found'
           }
           $vsDevShell = Join-Path $vsInstall 'Common7\Tools\Launch-VsDevShell.ps1'
           & $vsDevShell -Arch amd64 -HostArch amd64
@@ -93,11 +93,11 @@ jobs:
           try {
             cmake --preset 'NinjaMulti Win32' -DMAADEPS_TRIPLET=maa-x64-windows
             if ($LASTEXITCODE -ne 0) {
-              throw "MaaUtils CMake 配置失败，退出码: $LASTEXITCODE"
+              throw "MaaUtils CMake configuration failed with exit code: $LASTEXITCODE"
             }
             cmake --build build --config RelWithDebInfo --target MaaUtils --parallel 16
             if ($LASTEXITCODE -ne 0) {
-              throw "MaaUtils 构建失败，退出码: $LASTEXITCODE"
+              throw "MaaUtils build failed with exit code: $LASTEXITCODE"
             }
           }
           finally {
