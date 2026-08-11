@@ -1,0 +1,222 @@
+name: build-android-agents
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Git ref to build. Leave blank to use the selected workflow ref."
+        required: false
+        type: string
+        default: ""
+      maafw_version:
+        description: "MaaFramework release tag. Leave blank to use the latest release."
+        required: false
+        type: string
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-android-agents-${{ inputs.ref || github.ref }}
+  cancel-in-progress: true
+
+env:
+  ANDROID_ABI: arm64-v8a
+  ANDROID_PLATFORM: android-23
+  MAADEPS_TRIPLET: maa-arm64-android
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.ref || github.ref }}
+          persist-credentials: false
+
+      - name: Initialize MaaUtils submodule
+        run: git submodule update --init --depth 1 agent/cpp-algo/MaaUtils
+
+      - name: Record build version
+        run: echo "BUILD_VERSION=$(git rev-parse --short=12 HEAD)" >> "$GITHUB_ENV"
+
+      - name: Setup Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: "agent/go-service/go.mod"
+          cache-dependency-path: |
+            agent/go-service/go.mod
+            agent/go-service/go.sum
+
+      - name: Setup Android NDK
+        id: setup-ndk
+        uses: nttld/setup-ndk@v1
+        with:
+          ndk-version: r27d
+
+      - name: Export Android NDK path
+        run: echo "ANDROID_NDK_ROOT=${{ steps.setup-ndk.outputs.ndk-path }}" >> "$GITHUB_ENV"
+
+      - name: Install native build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build
+
+      - name: Cache MaaDeps
+        id: cache-maadeps
+        uses: actions/cache@v5
+        with:
+          path: agent/cpp-algo/MaaUtils/MaaDeps
+          key: maadeps-android-arm64-${{ hashFiles('tools/maadeps-download.py', 'agent/cpp-algo/MaaUtils/tools/maadeps_download.py') }}
+
+      - name: Bootstrap Android MaaDeps
+        if: steps.cache-maadeps.outputs.cache-hit != 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 tools/maadeps-download.py arm64-android
+
+      - name: Resolve MaaFramework version
+        id: maafw-latest-release
+        uses: step-security/github-action-get-latest-release@v0.8.2
+        with:
+          repository: MaaXYZ/MaaFramework
+          excludes: "draft"
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download Android MaaFramework
+        uses: robinraju/release-downloader@v1
+        with:
+          repository: MaaXYZ/MaaFramework
+          fileName: "MAA-android-aarch64*"
+          tag: ${{ inputs.maafw_version || steps.maafw-latest-release.outputs.release }}
+          out-file-path: "deps-android"
+          extract: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure cpp-algo
+        run: |
+          cmake \
+            -S agent/cpp-algo \
+            -B agent/cpp-algo/build/android/arm64-v8a \
+            -G "Ninja Multi-Config" \
+            -DCMAKE_TOOLCHAIN_FILE="$ANDROID_NDK_ROOT/build/cmake/android.toolchain.cmake" \
+            -DANDROID_PLATFORM="$ANDROID_PLATFORM" \
+            -DANDROID_ABI="$ANDROID_ABI" \
+            -DMAADEPS_TRIPLET="$MAADEPS_TRIPLET" \
+            -DDEPS_DIR="$GITHUB_WORKSPACE/deps-android" \
+            -DMAA_HASH_VERSION="$BUILD_VERSION"
+
+      - name: Build cpp-algo
+        run: |
+          cmake \
+            --build agent/cpp-algo/build/android/arm64-v8a \
+            --config RelWithDebInfo \
+            --target cpp-algo \
+            --parallel 8
+
+          cmake \
+            --install agent/cpp-algo/build/android/arm64-v8a \
+            --prefix "$GITHUB_WORKSPACE/staging" \
+            --config RelWithDebInfo
+
+      - name: Build go-service
+        working-directory: agent/go-service
+        env:
+          GOOS: android
+          GOARCH: arm64
+          CGO_ENABLED: 1
+        run: |
+          export CC="$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android23-clang"
+          export CXX="$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android23-clang++"
+
+          go build \
+            -mod=readonly \
+            -trimpath \
+            -buildvcs=false \
+            -ldflags="-X main.Version=$BUILD_VERSION" \
+            -o "$GITHUB_WORKSPACE/staging/agent/go-service" \
+            .
+
+      - name: Assemble Android runtime
+        env:
+          MAAFW_VERSION: ${{ inputs.maafw_version || steps.maafw-latest-release.outputs.release }}
+        run: |
+          mkdir -p staging/maafw
+          cp -a deps-android/bin/. staging/maafw/
+          cp -a deps-android/share/MaaAgentBinary staging/maafw/
+
+          chmod 755 staging/agent/cpp-algo staging/agent/go-service
+          find staging/maafw -maxdepth 1 -type f -name "Maa*" -exec chmod 755 {} +
+          find staging/maafw/MaaAgentBinary -type f \( -name "maatouch" -o -name "minitouch" \) -exec chmod 755 {} +
+
+          printf "%s\n" "$MAAFW_VERSION" > staging/MAAFW_VERSION
+          (
+            cd staging
+            sha256sum agent/cpp-algo agent/go-service > SHA256SUMS
+          )
+
+      - name: Validate Android ELF files
+        run: |
+          readelf="$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-readelf"
+          sysroot_lib="$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib"
+
+          for elf in staging/agent/cpp-algo staging/agent/go-service; do
+            "$readelf" -h "$elf" | grep -q "Machine:.*AArch64"
+            "$readelf" -l "$elf" | grep -q "/system/bin/linker64"
+            "$readelf" -d "$elf"
+          done
+
+          go version -m staging/agent/go-service | grep -q "CGO_ENABLED=1"
+
+          check_dependencies() {
+            local elf="$1"
+            local library
+
+            while IFS= read -r library; do
+              if find staging/maafw -type f -name "$library" -print -quit | grep -q .; then
+                continue
+              fi
+              if find "$sysroot_lib" -type f -name "$library" -print -quit | grep -q .; then
+                continue
+              fi
+
+              echo "Missing runtime dependency: $library (required by $elf)" >&2
+              return 1
+            done < <("$readelf" -d "$elf" | sed -n 's/.*Shared library: \[\([^]]*\)\].*/\1/p')
+          }
+
+          while IFS= read -r -d '' elf; do
+            check_dependencies "$elf"
+          done < <(
+            find staging/agent staging/maafw -type f \
+              \( -name "cpp-algo" -o -name "go-service" -o -name "*.so" -o -name "MaaPiCli" \) \
+              -print0
+          )
+
+          for library in \
+            libMaaFramework.so \
+            libMaaToolkit.so \
+            libMaaAgentServer.so \
+            libMaaUtils.so \
+            libfastdeploy_ppocr.so \
+            libonnxruntime.so \
+            libopencv_world4.so \
+            libc++_shared.so; do
+            test -f "staging/maafw/$library"
+          done
+
+      - name: Package Android runtime
+        run: tar -C staging -czf MaaEnd-android-aarch64.tar.gz .
+
+      - name: Upload Android runtime
+        uses: actions/upload-artifact@v6
+        with:
+          name: MaaEnd-android-aarch64-${{ github.run_number }}
+          path: MaaEnd-android-aarch64.tar.gz
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 0
