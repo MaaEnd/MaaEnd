@@ -53,8 +53,8 @@ struct FlowState
     // Consecutive steering ticks that held forward, issued no turn, and saw the fix stay put. The forward hold
     // is edge-triggered, so a dropped keydown looks exactly like this and never repairs itself.
     int32_t motionless_hold_ticks = 0;
-    // Consecutive re-sends of that hold that moved the agent nowhere. Cleared by any motion, any turn, or
-    // recovery taking over, so it only ever counts a hold that is provably not the thing holding it up.
+    // Consecutive re-sends of that hold that moved the agent nowhere. Cleared by any motion, any turn, or a
+    // recovery escape, so it only ever counts a hold that is provably not the thing holding it up.
     int32_t futile_forward_reasserts = 0;
     NaviPosition last_steer_position {};
     bool has_last_steer_position = false;

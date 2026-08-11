@@ -1497,6 +1497,8 @@ void NavigationStateMachine::SelectPhaseForCurrentWaypoint(const char* reason)
 
 bool NavigationStateMachine::ResumeAfterEscape(const char* reason)
 {
+    runtime_state_.flow.futile_forward_reasserts = 0;
+    runtime_state_.flow.motionless_hold_ticks = 0;
     runtime_state_.recovery.Reset();
     runtime_state_.recovery_escalation.Reset();
     runtime_state_.route.ResetTracking();
