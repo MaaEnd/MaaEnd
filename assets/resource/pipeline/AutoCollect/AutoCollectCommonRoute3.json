@@ -58,18 +58,18 @@
                             "zone_id": "Wuling_L4_328"
                         },
                         {
-                            "action": "NAVMESH",
+                            "action": "RUN",
                             "target": [
-                                242.51,
-                                189.8
+                                243.97,
+                                188.5
                             ],
                             "target_tier": "Wuling_L4_328"
                         },
                         {
-                            "action": "NAVMESH",
+                            "action": "RUN",
                             "target": [
-                                241.82,
-                                172.76
+                                243.97,
+                                177.14
                             ],
                             "target_tier": "Wuling_L4_328"
                         },
