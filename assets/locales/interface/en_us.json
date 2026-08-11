@@ -431,6 +431,11 @@
     "task.AutoStockpile.option.AutoStockpileElasticWuling.label": "Wuling",
     "task.AutoStockpile.option.AutoStockpileAllowDataUpload.label": "Allow Data Upload",
     "task.AutoStockpile.option.AutoStockpileAllowDataUpload.description": "Anonymously upload data to study the patterns of elastic resource price fluctuations. Related video: [BV1zgRAByECH](https://www.bilibili.com/video/BV1zgRAByECH)",
+    "task.AutoStockpile.option.AutoStockpileMinBuyCount.label": "Buy At Least One",
+    "task.AutoStockpile.option.AutoStockpileMinBuyCount.description": "When all goods are above the price threshold, force-buy the cheapest item to complete the daily quest",
+    "task.AutoStockpile.option.AutoStockpileMinBuyRegion.label": "Region",
+    "task.AutoStockpile.option.AutoStockpileMinBuyRegion.cases.ValleyIV.label": "Valley IV",
+    "task.AutoStockpile.option.AutoStockpileMinBuyRegion.cases.Wuling.label": "Wuling",
     "task.CreditShopping.label": "🛍️ Credit Shopping",
     "task.CreditShopping.description": "Purchase items from the Credit Exchange",
     "option.CreditShoppingPriority1.label": "Purchase Item Option 1",
@@ -1198,10 +1203,5 @@
     "option.ClientVersion.cases.Bilibili.label": "CN (Bilibili)",
     "option.ClientVersion.cases.Global.label": "Global (Gryphline)",
     "option.ClientVersion.cases.VN.label": "Vietnam (Gryphline)",
-    "option.TrialOfSwordmancyRecoverBeforeBattle.label": "Teleport to heal before each battle",
-    "task.AutoStockpile.option.AutoStockpileMinBuyCount.label": "Buy At Least One",
-    "task.AutoStockpile.option.AutoStockpileMinBuyCount.description": "When all goods are above the price threshold, force-buy the cheapest item to complete the daily quest",
-    "task.AutoStockpile.option.AutoStockpileMinBuyRegion.label": "Region",
-    "task.AutoStockpile.option.AutoStockpileMinBuyRegion.cases.ValleyIV.label": "Valley IV",
-    "task.AutoStockpile.option.AutoStockpileMinBuyRegion.cases.Wuling.label": "Wuling"
+    "option.TrialOfSwordmancyRecoverBeforeBattle.label": "Teleport to heal before each battle"
 }

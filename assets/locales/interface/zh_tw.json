@@ -351,6 +351,11 @@
     "task.AutoStockpile.option.AutoStockpileElasticWuling.label": "武陵",
     "task.AutoStockpile.option.AutoStockpileAllowDataUpload.label": "允許上報數據",
     "task.AutoStockpile.option.AutoStockpileAllowDataUpload.description": "匿名上傳數據，用於研究彈性物資價格變動的規律，相關影片 [BV1zgRAByECH](https://www.bilibili.com/video/BV1zgRAByECH)",
+    "task.AutoStockpile.option.AutoStockpileMinBuyCount.label": "至少購買一個",
+    "task.AutoStockpile.option.AutoStockpileMinBuyCount.description": "當所有商品價格均高於心理價位時，強制購買一個最便宜的商品，以完成每日任務",
+    "task.AutoStockpile.option.AutoStockpileMinBuyRegion.label": "地區",
+    "task.AutoStockpile.option.AutoStockpileMinBuyRegion.cases.ValleyIV.label": "四號谷地",
+    "task.AutoStockpile.option.AutoStockpileMinBuyRegion.cases.Wuling.label": "武陵",
     "task.CreditShopping.label": "🛍️信用點購物",
     "task.CreditShopping.description": "在信用交易所購買物品",
     "option.CreditShoppingPriority1.label": "購買物品選項1",
@@ -1198,10 +1203,5 @@
     "option.ClientVersion.cases.Bilibili.label": "B服",
     "option.ClientVersion.cases.Global.label": "國際服",
     "option.ClientVersion.cases.VN.label": "越南服",
-    "option.TrialOfSwordmancyRecoverBeforeBattle.label": "每次戰鬥前傳送回復血量",
-    "task.AutoStockpile.option.AutoStockpileMinBuyCount.label": "至少購買一個",
-    "task.AutoStockpile.option.AutoStockpileMinBuyCount.description": "當所有商品價格均高於心理價位時，強制購買一個最便宜的商品，以完成每日任務",
-    "task.AutoStockpile.option.AutoStockpileMinBuyRegion.label": "地區",
-    "task.AutoStockpile.option.AutoStockpileMinBuyRegion.cases.ValleyIV.label": "四號谷地",
-    "task.AutoStockpile.option.AutoStockpileMinBuyRegion.cases.Wuling.label": "武陵"
+    "option.TrialOfSwordmancyRecoverBeforeBattle.label": "每次戰鬥前傳送回復血量"
 }

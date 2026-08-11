@@ -44,6 +44,8 @@
     "autostockpile.abort.RegionResolveFailedFatal": "Cannot determine current outpost region",
     "autostockpile.abort.SelectionConfigInvalidFatal": "Purchase config read failed",
     "autostockpile.abort.ThresholdConfigInvalidFatal": "Price threshold config invalid, check config, do not enter 0 or leave blank",
+    "autostockpile.qty_min_buy_fallback": "Completed daily minimum purchase",
+    "autostockpile.fallback_purchase": "No goods below price threshold, fallback to cheapest %s (price %d) for daily quest",
     "batchaddfriends.uid_sent": "UID %s: Friend request sent (%d/%d)",
     "batchaddfriends.strangers_progress": "Add friends progress [%d/%d]",
     "autofight.character_count": "%d operators in combat",
@@ -217,7 +219,5 @@
     "trialofswordmancy.undoubled": "Not doubled",
     "trialofswordmancy.endgame": "Trial of Swordmancy\nCross-day endgame\n→ Abandon round",
     "trialofswordmancy.legacy_double": "Trial of Swordmancy\nLegacy trial runs consumed today's double uses\n→ Calculate now to restore a valid state",
-    "trialofswordmancy.recognition_failed": "Trial of Swordmancy: recognition failed",
-    "autostockpile.qty_min_buy_fallback": "Completed daily minimum purchase",
-    "autostockpile.fallback_purchase": "No goods below price threshold, fallback to cheapest %s (price %d) for daily quest"
+    "trialofswordmancy.recognition_failed": "Trial of Swordmancy: recognition failed"
 }

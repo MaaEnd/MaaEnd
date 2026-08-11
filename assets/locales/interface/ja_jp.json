@@ -347,6 +347,11 @@
     "task.AutoStockpile.option.AutoStockpileElasticWuling.label": "武陵",
     "task.AutoStockpile.option.AutoStockpileAllowDataUpload.label": "データ報告を許可",
     "task.AutoStockpile.option.AutoStockpileAllowDataUpload.description": "弾性物資の価格変動の法則を研究するため、匿名でデータをアップロードします。関連動画: [BV1zgRAByECH](https://www.bilibili.com/video/BV1zgRAByECH)",
+    "task.AutoStockpile.option.AutoStockpileMinBuyCount.label": "Buy At Least One",
+    "task.AutoStockpile.option.AutoStockpileMinBuyCount.description": "When all goods are above the price threshold, force-buy the cheapest item to complete the daily quest",
+    "task.AutoStockpile.option.AutoStockpileMinBuyRegion.label": "Region",
+    "task.AutoStockpile.option.AutoStockpileMinBuyRegion.cases.ValleyIV.label": "Valley IV",
+    "task.AutoStockpile.option.AutoStockpileMinBuyRegion.cases.Wuling.label": "Wuling",
     "task.CreditShopping.label": "🛍️ クレジットショッピング",
     "task.CreditShopping.description": "クレジット取引所でアイテムを購入します",
     "option.CreditShoppingPriority1.label": "購入アイテム設定1",
@@ -1198,10 +1203,5 @@
     "option.ClientVersion.cases.Bilibili.label": "中国サーバー（ビリビリ）",
     "option.ClientVersion.cases.Global.label": "グローバルサーバー（グリフライン）",
     "option.ClientVersion.cases.VN.label": "ベトナムサーバー（グリフライン）",
-    "option.TrialOfSwordmancyRecoverBeforeBattle.label": "各戦闘前にテレポートしてHP回復",
-    "task.AutoStockpile.option.AutoStockpileMinBuyCount.label": "Buy At Least One",
-    "task.AutoStockpile.option.AutoStockpileMinBuyCount.description": "When all goods are above the price threshold, force-buy the cheapest item to complete the daily quest",
-    "task.AutoStockpile.option.AutoStockpileMinBuyRegion.label": "Region",
-    "task.AutoStockpile.option.AutoStockpileMinBuyRegion.cases.ValleyIV.label": "Valley IV",
-    "task.AutoStockpile.option.AutoStockpileMinBuyRegion.cases.Wuling.label": "Wuling"
+    "option.TrialOfSwordmancyRecoverBeforeBattle.label": "各戦闘前にテレポートしてHP回復"
 }
