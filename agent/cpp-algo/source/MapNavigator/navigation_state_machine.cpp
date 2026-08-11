@@ -616,12 +616,14 @@ bool NavigationStateMachine::ArmRiverFallRecoveryIfBlackScreenLoss(const char* v
     if (!runtime_state_.localization_loss.saw_black_screen) {
         return false;
     }
+    // Full reset first: a re-fall must redo the settle and the about-face, not inherit the last episode's one-shots.
+    runtime_state_.river_fall.Reset();
     runtime_state_.river_fall.pending = true;
     runtime_state_.river_fall.anchor_pos = *position_;
-    // Post-fall facing points at the water (the infinite-jump invariant); recovery turns to water_heading + 180.
+    // Arm-time facing, logged so a post-mortem can tell it apart from the settled read the about-face actually uses.
     runtime_state_.river_fall.water_heading = NaviMath::NormalizeAngle(position_->angle);
     // River-fall owns the recovery: the pre-fall dynamic-recovery anchor is stale after the teleport, and a live
-    // recovery's escaped-obstacle check (runs before the river-fall block) would otherwise pre-empt the about-face.
+    // recovery's escaped-obstacle check (runs before the river-fall block) would otherwise pre-empt the escape.
     runtime_state_.recovery.Reset();
     session_->ResetHardProgress();
     LogInfo << "River-fall recovery armed (black-screen loss recovered)." << VAR(via) << VAR(position_->x) << VAR(position_->y)
@@ -1123,24 +1125,37 @@ bool NavigationStateMachine::TickNavigate()
                 stalled_ms);
         }
         const double rf_displacement = std::hypot(position_->x - rf.anchor_pos.x, position_->y - rf.anchor_pos.y);
-        const double rf_target_heading = NaviMath::NormalizeAngle(rf.water_heading + 180.0);
-        const double rf_heading_error = NaviMath::NormalizeAngle(rf_target_heading - current_heading);
         if (rf_displacement >= kRiverFallRecoveryClearDistance) {
             rf.Reset();
-            LogInfo << "River-fall recovery cleared; resuming navigation." << VAR(rf_displacement) << VAR(rf_heading_error);
+            LogInfo << "River-fall recovery cleared; resuming navigation." << VAR(rf_displacement) << VAR(current_heading);
             return ResumeAfterEscape("river_fall_recovered");
         }
         motion_controller_->SetForwardState(false);
-        utils::SleepFor(kStopWaitMs);
-        int turn_units = static_cast<int>(std::lround(rf_heading_error * action_wrapper_->DefaultTurnUnitsPerDegree()));
-        if (turn_units == 0) {
-            turn_units = rf_heading_error > 0.0 ? 1 : -1;
+        // 站定两秒再动。上岸那一瞬的箭头读数是最不可信的(尖端会翻转、追踪还在 hold), 拿它算转身
+        // 就是赌运气 —— 三次落水里有一次读成 -1°, 目标算出来正好等于当前朝向, 等于没转就往前走。
+        if (!rf.settled) {
+            rf.settled = true;
+            utils::SleepFor(kRiverFallRecoverySettleMs);
+            LogInfo << "River-fall recovery settling before the about-face." << VAR(rf_displacement) << VAR(position_->x)
+                    << VAR(position_->y);
+            return true;
         }
-        action_wrapper_->SendViewDeltaSync(turn_units, 0);
+        // 180° 只发一次, 发完就认。之前是每拍拿转到一半的箭头重算误差再补发, 转身还没兑现就先迈了步,
+        // 于是每一拍都朝着还没转完的方向往水里走 —— 两次再落水都紧跟着恢复自己的前进脉冲。
+        if (!rf.turned) {
+            rf.turned = true;
+            rf.water_heading = current_heading;
+            const int turn_units = static_cast<int>(std::lround(180.0 * action_wrapper_->DefaultTurnUnitsPerDegree()));
+            action_wrapper_->SendViewDeltaSync(turn_units, 0);
+            utils::SleepFor(kWaitAfterFirstTurnMs);
+            LogInfo << "River-fall recovery about-face issued." << VAR(rf.water_heading) << VAR(turn_units) << VAR(rf_displacement);
+        }
+        // 视角转完了, 角色朝向要迈一步才会跟上(见 navigator-turn-requires-forward-step), 而这一步是
+        // 按相机方向走的, 所以它离水而去。
         action_wrapper_->PulseForwardSync(kRiverFallRecoveryPulseMs);
         motion_controller_->SetForwardState(false);
-        LogInfo << "River-fall recovery turn+pulse." << VAR(rf_heading_error) << VAR(turn_units) << VAR(rf_displacement)
-                << VAR(position_->x) << VAR(position_->y);
+        LogInfo << "River-fall recovery inland pulse." << VAR(current_heading) << VAR(rf_displacement) << VAR(position_->x)
+                << VAR(position_->y);
         return true;
     }
 

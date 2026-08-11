@@ -141,15 +141,21 @@ struct LocalizationLossState
 struct RiverFallRecoveryState
 {
     NaviPosition anchor_pos {};
-    // Post-fall facing (minimap arrow = toward water); recovery turns to water_heading + 180 to face inland.
+    // Facing read AFTER the settle, not at arm time (minimap arrow = toward water); the about-face turns 180 off it.
     double water_heading = 0.0;
     bool pending = false;
+    // Stood still long enough for the arrow to be trustworthy again / the 180 has gone out. Both one-shot: the turn
+    // must not be recomputed from a half-turned arrow, only committed by walking.
+    bool settled = false;
+    bool turned = false;
 
     void Reset()
     {
         anchor_pos = {};
         water_heading = 0.0;
         pending = false;
+        settled = false;
+        turned = false;
     }
 };
 
