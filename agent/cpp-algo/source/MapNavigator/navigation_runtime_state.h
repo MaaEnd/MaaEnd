@@ -170,7 +170,7 @@ struct LateralBypassState
     }
 };
 
-// Previous-tick heading, used to estimate the agent's own turn rate for the steering damping term. Only the
+// Previous-tick heading, used to estimate the agent's own turn rate for the implausible-rate glitch check. Only the
 // physical heading is tracked here; the rate is gated at the call site on the elapsed gap and on plausibility,
 // so a stale entry after a recovery / relocation pause simply yields a zero rate that tick rather than a spike.
 // The cmd_* fields are diagnostic only: they hold the last turn actually sent to the controller so a later tick
@@ -187,6 +187,11 @@ struct SteeringRateState
     std::chrono::steady_clock::time_point cmd_at {};
     // Which way a near-about-face turn was committed to, held until it is well under way. Zero means free.
     int turn_latch_sign = 0;
+    // Degrees already sent that the heading has not shown yet, and the heading they are counted from. A turn
+    // takes a few ticks to finish while the controller re-decides every tick, so without this running total the
+    // same error is commanded over and over before any of it lands.
+    double pending_turn_deg = 0.0;
+    double pending_ref_heading_deg = 0.0;
 
     void Reset()
     {
@@ -199,6 +204,8 @@ struct SteeringRateState
         has_cmd = false;
         cmd_at = {};
         turn_latch_sign = 0;
+        pending_turn_deg = 0.0;
+        pending_ref_heading_deg = 0.0;
     }
 };
 

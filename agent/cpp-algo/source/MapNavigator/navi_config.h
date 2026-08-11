@@ -75,9 +75,13 @@ constexpr int32_t kForwardHoldReassertTicks = 3;
 constexpr int32_t kForwardHoldFutileReassertsBeforeRecovery = 2;
 // How many navigate ticks a heading reference stays usable for. Sized to match the wall-clock cap this
 // replaced at the loop period of a fast machine, so nothing changes there; on a slow one it stretches
-// with the loop instead of silently discarding the damping term.
+// with the loop instead of silently discarding the rate.
 constexpr uint64_t kSteeringRateMaxGapTicks = 4;
 constexpr int32_t kSteeringRateReferenceMs = 100;
+// How long a sent turn may still be owed before it is written off. Measured on device the game yaws at about
+// 100 deg/s, so a capped command needs some 300ms to land; past double that the drag was swallowed, and holding
+// the debt any longer would suppress steering against a turn that is never arriving.
+constexpr int64_t kSteeringPendingLifetimeMs = 600;
 // Turn batches one tick may spend. The backend's per-batch cap is a per-drag reliability limit, not a budget
 // for the whole tick: a slow loop gets fewer, longer ticks, so one batch each would shrink the turn achieved
 // per metre walked just as the lag makes more of it necessary. Bounded so a misread heading cannot spin far.

@@ -1344,7 +1344,7 @@ bool NavigationStateMachine::TickNavigate()
         const bool heading_changed = std::abs(heading_rate_raw_delta_deg) > kSteeringHeadingChangeEpsilonDeg;
         // Staleness is counted in ticks, not milliseconds: the reference goes stale after so many missed chances
         // to observe a change, and slow frame capture stretches those chances out without making them fewer. A
-        // wall-clock cap threw the damping term away on exactly the slow loops that need it most.
+        // wall-clock cap threw the rate away on exactly the slow loops that need it most.
         if (heading_changed && heading_rate_gap_ms > 0 && heading_rate_gap_ticks <= kSteeringRateMaxGapTicks) {
             heading_rate_deg =
                 heading_rate_raw_delta_deg * static_cast<double>(kSteeringRateReferenceMs) / static_cast<double>(heading_rate_gap_ms);
@@ -1362,12 +1362,30 @@ bool NavigationStateMachine::TickNavigate()
         runtime_state_.steering_rate.has_prev = true;
     }
 
+    // Settle the turn already sent against what the heading actually moved, so the controller discounts what is
+    // still in flight instead of commanding the same error again. Only motion toward the debt pays it down, and
+    // an unpaid debt expires, so a swallowed drag can never leave steering suppressed against a turn never coming.
+    SteeringRateState& steering_rate = runtime_state_.steering_rate;
+    if (steering_rate.pending_turn_deg != 0.0) {
+        const int64_t pending_age_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - steering_rate.cmd_at).count();
+        if (pending_age_ms >= kSteeringPendingLifetimeMs) {
+            steering_rate.pending_turn_deg = 0.0;
+        }
+        else {
+            const double landed = NaviMath::NormalizeAngle(current_heading - steering_rate.pending_ref_heading_deg);
+            const double owed = std::abs(steering_rate.pending_turn_deg);
+            steering_rate.pending_turn_deg = std::clamp(steering_rate.pending_turn_deg - landed, -owed, owed);
+        }
+    }
+    steering_rate.pending_ref_heading_deg = current_heading;
+
     const double heading_error = NaviMath::NormalizeAngle(effective_route_heading - current_heading);
     const SteeringCommand steering = SteeringController::Update(
         heading_error,
         heading_rate_deg,
         motion_controller_->IsMovingForward(),
-        runtime_state_.steering_rate.turn_latch_sign);
+        steering_rate.turn_latch_sign,
+        steering_rate.pending_turn_deg);
 
     motion_controller_->SetForwardState(true);
 
@@ -1379,10 +1397,11 @@ bool NavigationStateMachine::TickNavigate()
         }
     }
     if (issued_delta_deg != 0.0) {
-        runtime_state_.steering_rate.cmd_heading_deg = current_heading;
-        runtime_state_.steering_rate.cmd_delta_deg = issued_delta_deg;
-        runtime_state_.steering_rate.cmd_at = now;
-        runtime_state_.steering_rate.has_cmd = true;
+        steering_rate.cmd_heading_deg = current_heading;
+        steering_rate.cmd_delta_deg = issued_delta_deg;
+        steering_rate.cmd_at = now;
+        steering_rate.has_cmd = true;
+        steering_rate.pending_turn_deg += issued_delta_deg;
     }
 
     // Closed the loop on the forward hold: the keydown goes out once on the transition, so a swallowed one
