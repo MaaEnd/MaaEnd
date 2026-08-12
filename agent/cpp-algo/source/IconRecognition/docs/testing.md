@@ -2,7 +2,7 @@
 
 公开测试入口位于 `agent/cpp-algo/source/IconRecognition/test/`。CMake、C++ 测试、`run-tests.ps1`、`run-tests.local.example.psd1` 和 `rois.json` 随 Git 提交；以下内容只用于本机测试并被忽略：
 
-- `input/`：可选的本地测试截图覆盖；
+- `input/`：可选的本地测试截图、逐图配置和完整 expected 基线；
 - `output/`：标注图、detail JSON 和报告；
 - `build/`：CMake 构建目录；
 - `run-tests.local.psd1`：可选的本机工具链路径配置。
@@ -21,12 +21,24 @@ input/
 ├── valuables/*.png
 ├── shipment/*.png
 ├── credit_trade/*.png
+├── rewards/*.png
 └── single_roi/
     └── 1177-450-54/*.png
 ```
 
 1. 建议截图前先将鼠标移动到不会遮挡物品网格的位置（例如左上角），再等待目标区域画面稳定。
-2. 常规网格从 `rois.json` 自动读取 ROI，不需要逐图配置。`single_roi/<x>-<y>-<size>/` 用目录名描述正方形 ROI，例如 `1177-450-54` 会解析为 `[1177,450,54,54]`。
+2. 常规网格从 `rois.json` 自动读取 ROI。需要为单张图片扩展候选集时，在图片旁放同 stem JSON，例如 `rewards/130.png` 对应 `rewards/130.json`：
+
+```json
+{
+    "item_filters": [
+        "Isolate:*",
+        "ValuableDepot:SpecialItem"
+    ]
+}
+```
+
+1. `single_roi/<x>-<y>-<size>/` 用目录名描述正方形 ROI，例如 `1177-450-54` 会解析为 `[1177,450,54,54]`。
 
 ## 运行命令
 
@@ -52,7 +64,19 @@ input/
 ./agent/cpp-algo/source/IconRecognition/test/run-tests.ps1 -Task manual -GridType transfer -Image sample.png -Side all
 ./agent/cpp-algo/source/IconRecognition/test/run-tests.ps1 -Task manual -GridType transfer -Side all -Jobs 16
 ./agent/cpp-algo/source/IconRecognition/test/run-tests.ps1 -Task manual -Image sample.png
+./agent/cpp-algo/source/IconRecognition/test/run-tests.ps1 -Task manual -GridType rewards -UseLocalExpected
 ```
+
+默认只读取子模块中的 `expected.csv`。只有显式传入 `-UseLocalExpected` 时，才使用 `test/input/expected.csv` 作为完整替代基线；本地 CSV 不与子模块 CSV 叠加，也不会被复制进图片输入树。可从当前子模块基线和一次人工运行报告生成新的完整文件：
+
+```powershell
+python tools/icon_recognition/expected.py `
+  --base tests/MaaEndTestset/Win32/Official_CN/IconRecognition/expected.csv `
+  --report agent/cpp-algo/source/IconRecognition/test/output/<run>/report.json `
+  --output agent/cpp-algo/source/IconRecognition/test/input/expected.csv
+```
+
+合并器按图片替换旧 case，并把运行时 `.localN.png` 名称还原为原始 `.png`，因此该 CSV 可与新增图片一起复制回测试集子模块。
 
 `quick` 是干净 checkout 可运行的快速门禁，覆盖类型、参数契约、single ROI、MaaFramework 包装、算法小测试、debug capture，以及少量真实图片回归。当前真实图片样本为：
 
@@ -60,6 +84,7 @@ input/
 - `transfer/57.png`：完整双侧仓库网格；
 - `port_storager/1.png`：左右来源不同的存取站；
 - `credit_trade/1.png`：七列信用交易卡片；
+- `rewards/135.png`：同时包含独立资源、培养素材和珍贵物品的八格奖励；
 - `single_roi/1177-450-54/1.png`：据点交易入口的指定 ROI。
 
 每张 quick 图片都必须生成一个 case、成功识别并至少命中一个物品。整图识别及性能回归可在合并素材准备完成后使用 `-Task manual` 显式运行，不会被 quick 静默跳过。

@@ -140,9 +140,12 @@ When both `item_ids` and `item_filters` are supplied, their intersection is used
 | `valuables` | `GridType::Valuables` | Valuable depot | `ValuableDepot:*` | `[24,76,950,570]` |
 | `shipment` | `GridType::Shipment` | Shipment screen | `Normal:*` | `[34,132,386,474]` |
 | `credit_trade` | `GridType::CreditTrade` | Credit trade | `ValuableDepot:SpecialItem`, `Isolate:*` | `[70,95,1140,415]` |
+| `rewards` | `GridType::Rewards` | Rewards screen | `Isolate:*` | `[39,82,1205,511]` |
 | `single_roi` | `GridType::SingleRoi` | One caller-selected cell | `Normal:*` | Any square inside the image; example `[1177,450,54,54]` |
 
 Reference ROIs are absolute 1280x720 screen coordinates, not coordinates relative to another ROI. Each value applies only to the listed screen, and the caller must keep every target cell fully covered. One-sided storage ROIs still use absolute screen coordinates.
+
+`rewards` locates white reward cards and determines the horizontal origin of each row independently, so rows do not need aligned columns. Public results still treat them as one multi-row grid: `row` increases from top to bottom, while `column` restarts at zero in each row. Multiple game features reuse this screen type and may show different item categories. When `item_filters` is omitted or empty, the default candidate set is `Isolate:*`; a non-empty `item_filters` replaces that default set completely.
 
 ### Item IDs
 
@@ -172,7 +175,7 @@ Valid `storageKind` values:
 | --------------- | -------------------- |
 | `Normal` | Normal items |
 | `ValuableDepot` | Valuable depot items |
-| `Isolate` | Currencies |
+| `Isolate` | Standalone resources |
 
 Valid `categoryType` values by storage kind:
 

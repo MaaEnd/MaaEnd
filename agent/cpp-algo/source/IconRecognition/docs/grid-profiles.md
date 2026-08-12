@@ -33,6 +33,7 @@
 | `GridType::Valuables` | 常规格框结构定位，匹配阶段处理头像遮挡 | `GridProfiles.cpp`、`GridDetector.cpp`、`MaskPolicy.cpp` |
 | `GridType::Shipment` | 常规格框结构定位，匹配阶段检查并遮罩数量条 | `GridProfiles.cpp`、`GridDetector.cpp`、`MaskPolicy.cpp` |
 | `GridType::CreditTrade` | 使用信用交易卡片布局与专用区域偏移 | `GridProfiles.cpp`、`GridDetector.cpp`、`IconRecognizer.cpp` |
+| `GridType::Rewards` | 按白色卡片聚类为独立布局，下游按全局行号视为同一多行网格 | `GridProfiles.cpp`、`GridDetector.cpp`、`IconRecognizer.cpp` |
 | `GridType::SingleRoi` | 不执行网格检测，直接构造临时格子 | `IconRecognizer.cpp` |
 
 ## 双侧网格的约束

@@ -56,6 +56,9 @@ void TestSelectors()
     const auto type = iconrecognition::test::ParseManualRunnerOptions({ "--grid-type", "transfer" });
     Check(type.grid_type == iconrecognition::GridType::Transfer, "--grid-type must parse public grid type names");
 
+    const auto rewards = iconrecognition::test::ParseManualRunnerOptions({ "--grid-type", "rewards" });
+    Check(rewards.grid_type == iconrecognition::GridType::Rewards, "--grid-type must parse the rewards grid type");
+
     const auto image = iconrecognition::test::ParseManualRunnerOptions({ "--image", "43.png" });
     Check(image.image_name == "43.png", "--image must preserve the exact basename");
 
@@ -179,18 +182,28 @@ void TestCaseDiscovery()
         "full": [190, 250, 880, 350],
         "left": [190, 250, 318, 350],
         "right": [570, 250, 500, 350]
-    }
+    },
+    "rewards": { "full": [39, 82, 1205, 511] }
 })");
     WriteTextFile(input_root / "trade" / "11.png", {});
     WriteTextFile(input_root / "transfer" / "43.png", {});
     WriteTextFile(input_root / "port_storager" / "43.png", {});
+    WriteTextFile(input_root / "rewards" / "130.png", {});
+    WriteTextFile(
+        input_root / "rewards" / "130.json",
+        R"({ "item_filters": ["ValuableDepot:SpecialItem", "Isolate:*"] })");
     WriteTextFile(input_root / "single_roi" / "1177-450-54" / "90.png", {});
 
     const auto all = iconrecognition::test::DiscoverManualRunnerCases(
         input_root,
         rois_path,
         iconrecognition::test::ParseManualRunnerOptions({ "--all" }));
-    Check(all.size() == 4, "--all must use one default ROI for every classified input image");
+    Check(all.size() == 5, "--all must use one default ROI for every classified input image");
+    const auto rewards = std::ranges::find_if(all, [](const auto& item) { return item.grid_type == iconrecognition::GridType::Rewards; });
+    Check(rewards != all.end(), "--all must discover rewards images");
+    Check(
+        rewards->candidates.item_filters == std::vector<std::string>({ "ValuableDepot:SpecialItem", "Isolate:*" }),
+        "rewards image sidecar must preserve its item_filters order");
 
     const auto split = iconrecognition::test::DiscoverManualRunnerCases(
         input_root,

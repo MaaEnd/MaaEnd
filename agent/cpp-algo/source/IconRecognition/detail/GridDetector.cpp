@@ -136,6 +136,24 @@ constexpr std::size_t kCreditTradeMinimumCardCount = 2;
 constexpr std::size_t kCreditTradeSparseCardCount = 5;
 // 首行达到该卡片数时补全固定七列，兼容已售罄卡片造成的亮区缺失。
 constexpr int kCreditTradeFirstRowCompletionCount = 5;
+// 奖励卡片白色底板的 HSV 下界，按 720p 实际奖励截图标定；提高 V 会漏掉暗化卡片。
+const cv::Scalar kRewardsCardHsvLower { 0, 0, 185 };
+// 奖励卡片白色底板的 HSV 上界，按 720p 实际奖励截图标定；提高 S 上限会混入彩色背景和标题光效。
+const cv::Scalar kRewardsCardHsvUpper { 179, 65, 255 };
+// 白色底板连通域使用八邻域，允许抗锯齿产生的斜向亮色像素保持连通。
+constexpr int kRewardsConnectivity = 8;
+// 奖励卡片候选最小边长（720p 像素），按 96px cell 和边框缺损标定；调高会漏掉暗化或破碎卡片。
+constexpr int kRewardsMinimumCardSize = 78;
+// 奖励卡片候选最大边长（720p 像素），按 96px cell 和边框高光标定；调高会接纳更大的背景亮块。
+constexpr int kRewardsMaximumCardSize = 112;
+// 奖励卡片候选最小亮色面积（720p 平方像素）；调高抑制零碎高光，调低召回被文字切碎的卡片。
+constexpr int kRewardsMinimumCardArea = 2600;
+// 奖励卡片最小宽高比，按近方形白色底板标定；调低可容忍横向裁切，也会接纳更多窄背景块。
+constexpr double kRewardsMinimumCardAspectRatio = 0.82;
+// 奖励卡片最大宽高比，按近方形白色底板标定；调高可容忍纵向裁切，也会接纳更多宽背景块。
+constexpr double kRewardsMaximumCardAspectRatio = 1.22;
+// 同一行卡片中心允许的纵向差异（720p 像素）；调大可能合并相邻行，调小可能拆散轻微错位的同一行。
+constexpr int kRewardsRowCenterTolerance = 24;
 
 bool IsFormal(
     const cv::Rect& cell,
@@ -229,6 +247,116 @@ GridLayout DetectSingleLattice(const cv::Mat& image, GridType type, const cv::Re
         kept_x.back() + profile.cell_size - kept_x.front(),
         kept_y.back() + profile.cell_size - kept_y.front());
     return layout;
+}
+
+GridDetection DetectRewardsGrid(const cv::Mat& image, const cv::Rect& roi)
+{
+    const GridProfile profile = ProfileFor(GridType::Rewards);
+    const cv::Mat crop = image(roi);
+    cv::Mat bgr;
+    if (crop.channels() == 4) {
+        cv::cvtColor(crop, bgr, cv::COLOR_BGRA2BGR);
+    }
+    else {
+        bgr = crop;
+    }
+    cv::Mat hsv;
+    cv::cvtColor(bgr, hsv, cv::COLOR_BGR2HSV);
+    cv::Mat bright;
+    cv::inRange(hsv, kRewardsCardHsvLower, kRewardsCardHsvUpper, bright);
+    cv::Mat labels;
+    cv::Mat stats;
+    cv::Mat centroids;
+    const int component_count = cv::connectedComponentsWithStats(bright, labels, stats, centroids, kRewardsConnectivity);
+    struct Candidate
+    {
+        cv::Rect box;
+        double center_y = 0.0;
+    };
+    std::vector<Candidate> candidates;
+    for (int index = 1; index < component_count; ++index) {
+        const int x = stats.at<int>(index, cv::CC_STAT_LEFT);
+        const int y = stats.at<int>(index, cv::CC_STAT_TOP);
+        const int width = stats.at<int>(index, cv::CC_STAT_WIDTH);
+        const int height = stats.at<int>(index, cv::CC_STAT_HEIGHT);
+        const int area = stats.at<int>(index, cv::CC_STAT_AREA);
+        if (width < kRewardsMinimumCardSize || width > kRewardsMaximumCardSize || height < kRewardsMinimumCardSize
+            || height > kRewardsMaximumCardSize || area < kRewardsMinimumCardArea) {
+            continue;
+        }
+        const double aspect = static_cast<double>(width) / height;
+        if (aspect < kRewardsMinimumCardAspectRatio || aspect > kRewardsMaximumCardAspectRatio) {
+            continue;
+        }
+        candidates.push_back({ cv::Rect(roi.x + x, roi.y + y, width, height), roi.y + y + height * 0.5 });
+    }
+    if (candidates.empty()) {
+        throw std::runtime_error("rewards ROI contains no card candidates");
+    }
+    std::ranges::sort(candidates, [](const Candidate& left, const Candidate& right) { return left.center_y < right.center_y; });
+    std::vector<std::vector<Candidate>> rows;
+    for (const Candidate& candidate : candidates) {
+        if (rows.empty() || std::abs(candidate.center_y - rows.back().front().center_y) > kRewardsRowCenterTolerance) {
+            rows.emplace_back();
+        }
+        rows.back().push_back(candidate);
+    }
+    GridDetection result { GridType::Rewards, roi, {}, {} };
+    int grid_index = 0;
+    for (auto& row : rows) {
+        std::ranges::sort(row, [](const Candidate& left, const Candidate& right) { return left.box.x < right.box.x; });
+        GridLayout layout;
+        layout.grid_index = grid_index++;
+        layout.cell_size = profile.cell_size;
+        layout.rows = 1;
+        layout.columns = static_cast<int>(row.size());
+        std::vector<double> row_tops;
+        row_tops.reserve(row.size());
+        std::ranges::transform(row, std::back_inserter(row_tops), [](const Candidate& item) {
+            return static_cast<double>(item.box.y);
+        });
+        // 白色连通域不包含底部彩色色条，因此必须从卡片顶边定位完整 cell；按中心反推会把框上移并裁掉色条。
+        const int row_top = cvRound(Median(std::move(row_tops)));
+        layout.pitch_y = profile.cell_size;
+        if (row.size() > 1) {
+            std::vector<double> pitches;
+            for (std::size_t index = 1; index < row.size(); ++index) {
+                pitches.push_back(row[index].box.x - row[index - 1].box.x);
+            }
+            layout.pitch_x = Median(std::move(pitches));
+        }
+        else {
+            layout.pitch_x = profile.cell_size;
+        }
+        int x1 = std::numeric_limits<int>::max();
+        int x2 = std::numeric_limits<int>::min();
+        int y1 = std::numeric_limits<int>::max();
+        int y2 = std::numeric_limits<int>::min();
+        for (int column = 0; column < static_cast<int>(row.size()); ++column) {
+            const auto& candidate = row[column];
+            const int x = candidate.box.x + (candidate.box.width - profile.cell_size) / 2;
+            const int y = row_top;
+            const cv::Rect cell(x, y, profile.cell_size, profile.cell_size);
+            if ((cell & cv::Rect(roi.x, roi.y, roi.width, roi.height)) != cell) {
+                continue;
+            }
+            // 内部每行保留独立 layout 以表达不同横向起点；下游 row 按纵向顺序全局编号，column 每行重新计数。
+            layout.cells.push_back({ layout.grid_index, layout.grid_index, column, cell });
+            x1 = std::min(x1, cell.x);
+            x2 = std::max(x2, cell.x + cell.width);
+            y1 = std::min(y1, cell.y);
+            y2 = std::max(y2, cell.y + cell.height);
+        }
+        if (!layout.cells.empty()) {
+            layout.bounds = cv::Rect(x1, y1, x2 - x1, y2 - y1);
+            result.cells.insert(result.cells.end(), layout.cells.begin(), layout.cells.end());
+            result.grids.push_back(std::move(layout));
+        }
+    }
+    if (result.cells.empty()) {
+        throw std::runtime_error("rewards ROI contains no formal cells");
+    }
+    return result;
 }
 
 double CardVerticalPhaseScore(const cv::Mat& gray, int phase_y, double pitch_y, int cell_size, const std::vector<int>& x_starts)
@@ -1138,6 +1266,9 @@ GridDetection DetectGrid(const cv::Mat& image, GridType type, const cv::Rect& ro
         throw std::invalid_argument("grid ROI is outside image");
     }
     GridDetection result { type, roi, {}, {} };
+    if (type == GridType::Rewards) {
+        return DetectRewardsGrid(image, roi);
+    }
     if (type == GridType::CreditTrade) {
         Append(result, DetectCreditTrade(image, roi));
     }

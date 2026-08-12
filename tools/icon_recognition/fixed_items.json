@@ -1,0 +1,74 @@
+{
+    "item_adventureexp": {
+        "name": "行动资历",
+        "iconId": "item_adventureexp",
+        "i18nKey": "9ec5628af29c72843a11c5621ec0e32a",
+        "rarity": 5,
+        "storageKind": "Isolate",
+        "categoryType": "AdventureExp",
+        "category": "独立资源"
+    },
+    "item_cbp_exp": {
+        "name": "通行证经验",
+        "iconId": "item_cbp_exp",
+        "i18nKey": "b8cff4d169274d30f90de3fe0bf854d9",
+        "rarity": 5,
+        "storageKind": "Isolate",
+        "categoryType": "BPExp",
+        "category": "独立资源"
+    },
+    "item_diamond": {
+        "name": "嵌晶玉",
+        "iconId": "item_diamond",
+        "i18nKey": "aa5edf17dd5cbb87661ec9f3d86d353e",
+        "rarity": 6,
+        "storageKind": "Isolate",
+        "categoryType": "Diamond",
+        "category": "独立资源"
+    },
+    "item_domain_jinlong_coupon": {
+        "name": "武陵调度券",
+        "iconId": "item_domain_jinlong_coupon",
+        "i18nKey": "af0a45fb328a9cdd07d2fe0e7ddacbb2",
+        "rarity": 5,
+        "storageKind": "Isolate",
+        "categoryType": "DomainGold",
+        "category": "独立资源"
+    },
+    "item_domain_tundra_coupon": {
+        "name": "谷地调度券",
+        "iconId": "item_domain_tundra_coupon",
+        "i18nKey": "40f1e255b753623044d91b8c492ab277",
+        "rarity": 5,
+        "storageKind": "Isolate",
+        "categoryType": "DomainGold",
+        "category": "独立资源"
+    },
+    "item_gachabyproducts_weapongold": {
+        "name": "武库配额",
+        "iconId": "item_gachabyproducts_weapongold",
+        "i18nKey": "011c0bffc4a5c215eb651edaf3e5b929",
+        "rarity": 6,
+        "storageKind": "Isolate",
+        "categoryType": "WeaponGold",
+        "category": "独立资源"
+    },
+    "item_gold": {
+        "name": "折金票",
+        "iconId": "item_gold",
+        "i18nKey": "1b858553aff0ccfee876ed0367300534",
+        "rarity": 4,
+        "storageKind": "Isolate",
+        "categoryType": "Gold",
+        "category": "独立资源"
+    },
+    "item_spaceship_credit": {
+        "name": "信用",
+        "iconId": "item_spaceship_credit",
+        "i18nKey": "1bd1aaac9e3e0db9677cd16b2118ff8f",
+        "rarity": 4,
+        "storageKind": "Isolate",
+        "categoryType": "SpaceshipGold",
+        "category": "独立资源"
+    }
+}

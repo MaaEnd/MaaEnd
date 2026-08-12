@@ -17,6 +17,8 @@ from urllib.error import HTTPError
 from urllib.parse import parse_qsl, quote, urlencode, urlsplit, urlunsplit
 from urllib.request import Request, urlopen
 
+from fixed_items import FIXED_ITEMS
+
 from text import clean_text, validate_identifier
 
 
@@ -81,13 +83,8 @@ CATEGORY_MAPPING = {
         "Producer": "生产工具",
         "PortableDevice": "随身装置",
     },
-    "Isolate": {"Currency": "货币"},
+    "Isolate": {},
 }
-CURRENCY_ITEMS = (
-    ("item_gold", "折金票", 4),
-    ("item_diamond", "嵌晶玉", 5),
-    ("item_gachabyproducts_weapongold", "武库配额", 5),
-)
 
 
 @dataclass(frozen=True, slots=True)
@@ -438,16 +435,16 @@ def merge_item_sources(
         if item_id in merged:
             raise ValueError(f"普通物品与武器 ID 冲突: {item_id}")
         merged[item_id] = dict(payload)
-    for item_id, name, rarity in CURRENCY_ITEMS:
+    for item_id, fixed in FIXED_ITEMS.items():
         if item_id in merged:
-            raise ValueError(f"固定货币与远端物品 ID 冲突: {item_id}")
+            raise ValueError(f"固定物品与远端物品 ID 冲突: {item_id}")
         merged[item_id] = {
-            "name": name,
-            "category": _category_name("Isolate", "Currency"),
-            "storageKind": "Isolate",
-            "categoryType": "Currency",
-            "iconId": item_id,
-            "rarity": rarity,
+            "name": fixed["i18nKey"],
+            "category": fixed["category"],
+            "storageKind": fixed["storageKind"],
+            "categoryType": fixed["categoryType"],
+            "iconId": fixed["iconId"],
+            "rarity": fixed["rarity"],
             "fluidType": None,
             "fluid": None,
             "fullContainers": [],

@@ -154,6 +154,82 @@ void TestTradeGridUsesCardBoundariesForVerticalPhase()
         "trade grid must follow card boundaries instead of internal texture: actual_y=" + std::to_string(first_row->cell_box.y));
 }
 
+void TestRewardsGridKeepsBottomRarityBandInsideCell()
+{
+    constexpr int kCellSize = 96;
+    constexpr int kBrightBodyHeight = 92;
+    constexpr int kRarityBandHeight = kCellSize - kBrightBodyHeight;
+    constexpr int kPhaseX = 40;
+    constexpr int kPhaseY = 35;
+    constexpr int kPitchX = 117;
+    constexpr int kColumns = 3;
+    const cv::Rect roi(0, 0, 420, 180);
+    cv::Mat image(roi.size(), CV_8UC3, cv::Scalar(24, 24, 24));
+
+    for (int column = 0; column < kColumns; ++column) {
+        const int x = kPhaseX + column * kPitchX;
+        image(cv::Rect(x, kPhaseY, kCellSize, kBrightBodyHeight)).setTo(cv::Scalar(240, 240, 240));
+        // 饱和彩色色条不会进入白色底板连通域，但仍属于需要识别的完整 96px cell。
+        image(cv::Rect(x, kPhaseY + kBrightBodyHeight, kCellSize, kRarityBandHeight)).setTo(cv::Scalar(0, 220, 220));
+    }
+
+    const auto grid = iconrecognition::detail::DetectGrid(image, iconrecognition::GridType::Rewards, roi);
+    Check(grid.cells.size() == kColumns, "synthetic rewards row must retain every card");
+    for (const auto& cell : grid.cells) {
+        Check(
+            cell.cell_box.y == kPhaseY,
+            "rewards cell must start at the bright card top so its bottom rarity band stays inside: actual_y="
+                + std::to_string(cell.cell_box.y));
+        Check(cell.cell_box.height == kCellSize, "rewards cell height must keep the 96px template contract");
+    }
+}
+
+void TestRewardsGridKeepsRowsWithIndependentHorizontalOrigins()
+{
+    constexpr int kCellSize = 96;
+    constexpr int kBrightBodyHeight = 92;
+    constexpr int kRarityBandHeight = kCellSize - kBrightBodyHeight;
+    constexpr int kPitchX = 117;
+    constexpr int kFirstRowX = 35;
+    constexpr int kSecondRowX = 88;
+    constexpr int kFirstRowY = 30;
+    constexpr int kSecondRowY = 155;
+    const cv::Rect roi(0, 0, 480, 280);
+    cv::Mat image(roi.size(), CV_8UC3, cv::Scalar(24, 24, 24));
+
+    const auto paint_row = [&](int origin_x, int origin_y, int columns) {
+        for (int column = 0; column < columns; ++column) {
+            const int x = origin_x + column * kPitchX;
+            image(cv::Rect(x, origin_y, kCellSize, kBrightBodyHeight)).setTo(cv::Scalar(240, 240, 240));
+            image(cv::Rect(x, origin_y + kBrightBodyHeight, kCellSize, kRarityBandHeight)).setTo(cv::Scalar(220, 0, 220));
+        }
+    };
+    paint_row(kFirstRowX, kFirstRowY, 3);
+    paint_row(kSecondRowX, kSecondRowY, 2);
+
+    const auto grid = iconrecognition::detail::DetectGrid(image, iconrecognition::GridType::Rewards, roi);
+    Check(grid.grids.size() == 2, "vertically separated rewards rows must produce independent layouts");
+    Check(grid.grids[0].columns == 3 && grid.grids[1].columns == 2, "each rewards row must retain its own column count");
+    Check(
+        grid.grids[0].cells.front().cell_box.x == kFirstRowX,
+        "first rewards row must retain its horizontal origin");
+    Check(
+        grid.grids[1].cells.front().cell_box.x == kSecondRowX,
+        "second rewards row must not inherit the first row horizontal origin");
+    Check(
+        std::ranges::all_of(grid.grids[0].cells, [](const auto& cell) { return cell.row == 0; }),
+        "first rewards layout must expose global row zero");
+    Check(
+        std::ranges::all_of(grid.grids[1].cells, [](const auto& cell) { return cell.row == 1; }),
+        "second rewards layout must expose global row one");
+    Check(
+        grid.grids[0].cells[0].column == 0 && grid.grids[0].cells[1].column == 1 && grid.grids[0].cells[2].column == 2,
+        "first rewards row columns must start at zero and remain contiguous");
+    Check(
+        grid.grids[1].cells[0].column == 0 && grid.grids[1].cells[1].column == 1,
+        "second rewards row columns must restart at zero");
+}
+
 void TestTransferRegionPartitionKeepsUndetectedOuterColumns()
 {
     const cv::Rect detected_left(8, 20, 203, 271);
@@ -587,6 +663,8 @@ int main()
         TestStructureFeatureModuleContract();
         TestGridGeometryModuleContract();
         TestTradeGridUsesCardBoundariesForVerticalPhase();
+        TestRewardsGridKeepsBottomRarityBandInsideCell();
+        TestRewardsGridKeepsRowsWithIndependentHorizontalOrigins();
         TestTransferRegionPartitionKeepsUndetectedOuterColumns();
         TestCreditTradeGridUsesDimCardStructures();
         TestRarityRowEvidenceKeepsAllSixChannels();

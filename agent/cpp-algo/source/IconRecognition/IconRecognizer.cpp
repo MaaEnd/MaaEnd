@@ -57,8 +57,10 @@ const std::vector<std::string>& DefaultFilters(GridType type)
     static const std::vector<std::string> trade { "Normal:Product", "Normal:Usable" };
     // 贵重品库默认覆盖 ValuableDepot 下的全部分类。
     static const std::vector<std::string> valuables { "ValuableDepot:*" };
-    // 信用交易所只展示特殊商品和隔离存储的货币类物品。
+    // 信用交易所只展示特殊商品和独立存储的资源。
     static const std::vector<std::string> credit { "ValuableDepot:SpecialItem", "Isolate:*" };
+    // 多个游戏功能共用奖励界面；未指定 item_filters 时，仅识别独立资源。
+    static const std::vector<std::string> rewards { "Isolate:*" };
     switch (type) {
     case GridType::Trade:
         return trade;
@@ -66,6 +68,8 @@ const std::vector<std::string>& DefaultFilters(GridType type)
         return valuables;
     case GridType::CreditTrade:
         return credit;
+    case GridType::Rewards:
+        return rewards;
     case GridType::Transfer:
     case GridType::PortStorager:
     case GridType::Shipment:

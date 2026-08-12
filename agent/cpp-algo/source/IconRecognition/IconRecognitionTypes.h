@@ -26,6 +26,7 @@ enum class GridType
     Valuables,
     Shipment,
     CreditTrade,
+    Rewards,
     SingleRoi,
 };
 
@@ -44,6 +45,8 @@ inline std::string_view GridTypeName(GridType type)
         return "shipment";
     case GridType::CreditTrade:
         return "credit_trade";
+    case GridType::Rewards:
+        return "rewards";
     case GridType::SingleRoi:
         return "single_roi";
     }
@@ -69,6 +72,9 @@ inline std::optional<GridType> ParseGridType(std::string_view name)
     }
     if (name == "credit_trade") {
         return GridType::CreditTrade;
+    }
+    if (name == "rewards") {
+        return GridType::Rewards;
     }
     if (name == "single_roi") {
         return GridType::SingleRoi;

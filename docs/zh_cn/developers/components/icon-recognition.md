@@ -140,9 +140,12 @@ Pipeline、Go Service 和 C++ API 使用同一套识别语义，只是字段承�
 | `valuables` | `GridType::Valuables` | 贵重品库 | `ValuableDepot:*` | `[24,76,950,570]` |
 | `shipment` | `GridType::Shipment` | 送货界面 | `Normal:*` | `[34,132,386,474]` |
 | `credit_trade` | `GridType::CreditTrade` | 信用交易所 | `ValuableDepot:SpecialItem`、`Isolate:*` | `[70,95,1140,415]` |
+| `rewards` | `GridType::Rewards` | 奖励界面 | `Isolate:*` | `[39,82,1205,511]` |
 | `single_roi` | `GridType::SingleRoi` | 调用方指定的单格 | `Normal:*` | 任意位于图片内的正方形；示例 `[1177,450,54,54]` |
 
 参考 ROI 均为 1280x720 绝对坐标，不是相对于其它 ROI 的局部坐标。它们只适用于表中的对应界面；调用方应确保 ROI 完整覆盖要识别的格子。仓库类界面传入单侧 ROI 时，仍然使用画面绝对坐标。
+
+`rewards` 按白色奖励卡片定位，每一行独立确定横向起点，不要求多行列对齐。公开结果仍将这些行视为同一个多行网格：`row` 按画面从上到下递增，每行的 `column` 独立从 0 开始。多个游戏功能共用这种界面，不同功能展示的物品分类可能不同；未传入 `item_filters` 或传入空数组时使用默认候选集 `Isolate:*`，传入非空 `item_filters` 时会完整替换默认候选集。
 
 ### 物品 ID
 
@@ -172,7 +175,7 @@ Pipeline、Go Service 和 C++ API 使用同一套识别语义，只是字段承�
 | --------------- | -------- |
 | `Normal` | 普通物品 |
 | `ValuableDepot` | 贵重品库 |
-| `Isolate` | 货币 |
+| `Isolate` | 独立资源 |
 
 各存储类别下的 `categoryType`：
 

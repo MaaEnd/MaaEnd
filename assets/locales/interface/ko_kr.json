@@ -2109,5 +2109,10 @@
     "iconRecognition.name.item_port_microphone_1": "'리본의 소리' 마이크",
     "iconRecognition.name.ticketgacha_special_single_lt_1_4_2": "찬란한 샛별 헤드헌팅 허가증",
     "iconRecognition.name.ticketgacha_special_ten_lt_1_4_2": "찬란한 샛별 10회 허가증",
-    "iconRecognition.name.wpn_lance_0014": "찬란한 밤의 데뷔"
+    "iconRecognition.name.wpn_lance_0014": "찬란한 밤의 데뷔",
+    "iconRecognition.name.item_adventureexp": "작전 경력",
+    "iconRecognition.name.item_cbp_exp": "통행증 경험치",
+    "iconRecognition.name.item_domain_jinlong_coupon": "무릉 관리권",
+    "iconRecognition.name.item_domain_tundra_coupon": "협곡 관리권",
+    "iconRecognition.name.item_spaceship_credit": "크레딧"
 }

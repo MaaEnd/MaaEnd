@@ -39,6 +39,7 @@ struct ManualRunnerCase
     std::filesystem::path image_path;
     cv::Rect roi;
     std::string roi_name;
+    CandidateFilter candidates;
 };
 
 std::string ManualRunnerUsage();

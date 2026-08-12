@@ -2109,5 +2109,10 @@
     "iconRecognition.name.item_port_microphone_1": "「緞帶之聲」麥克風",
     "iconRecognition.name.ticketgacha_special_single_lt_1_4_2": "明耀晨星尋訪憑證",
     "iconRecognition.name.ticketgacha_special_ten_lt_1_4_2": "明耀晨星十連憑證",
-    "iconRecognition.name.wpn_lance_0014": "曜夜的首演"
+    "iconRecognition.name.wpn_lance_0014": "曜夜的首演",
+    "iconRecognition.name.item_adventureexp": "行動資歷",
+    "iconRecognition.name.item_cbp_exp": "通行證經驗",
+    "iconRecognition.name.item_domain_jinlong_coupon": "武陵調度券",
+    "iconRecognition.name.item_domain_tundra_coupon": "谷地調度券",
+    "iconRecognition.name.item_spaceship_credit": "信用"
 }

@@ -2109,5 +2109,10 @@
     "iconRecognition.name.item_port_microphone_1": "「リボンボイス」マイク",
     "iconRecognition.name.ticketgacha_special_single_lt_1_4_2": "「煌めく明星」スカウト券",
     "iconRecognition.name.ticketgacha_special_ten_lt_1_4_2": "「煌めく明星」10回スカウト券",
-    "iconRecognition.name.wpn_lance_0014": "プリズムナイトデビュー"
+    "iconRecognition.name.wpn_lance_0014": "プリズムナイトデビュー",
+    "iconRecognition.name.item_adventureexp": "行動遍歴",
+    "iconRecognition.name.item_cbp_exp": "通行証経験",
+    "iconRecognition.name.item_domain_jinlong_coupon": "武陵取引券",
+    "iconRecognition.name.item_domain_tundra_coupon": "谷地取引券",
+    "iconRecognition.name.item_spaceship_credit": "FP"
 }

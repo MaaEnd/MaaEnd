@@ -124,6 +124,14 @@ constexpr GridProfile kCreditTradeGridProfile {
     .min_columns = 7,
     .min_rows = 1,
 };
+// 奖励界面按 96px cell、约 117px 横向 pitch 标定；每行独立居中，不共享列起点。
+constexpr GridProfile kRewardsGridProfile {
+    .cell_size = 96,
+    .pitch_x = 117.0,
+    .pitch_y = 117.0,
+    .min_columns = 1,
+    .min_rows = 1,
+};
 
 struct Peak
 {
@@ -503,6 +511,8 @@ GridProfile ProfileFor(GridType type)
         return kShipmentGridProfile;
     case GridType::CreditTrade:
         return kCreditTradeGridProfile;
+    case GridType::Rewards:
+        return kRewardsGridProfile;
     case GridType::SingleRoi:
         throw std::invalid_argument("single_roi does not use a grid profile");
     }

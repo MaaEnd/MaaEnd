@@ -43,6 +43,15 @@
         "sortId1": -21,
         "sortId2": 504
     },
+    "item_adventureexp": {
+        "name": "9ec5628af29c72843a11c5621ec0e32a",
+        "category": "独立资源",
+        "storageKind": "Isolate",
+        "categoryType": "AdventureExp",
+        "rarity": 5,
+        "iconId": "item_adventureexp",
+        "fluidIconId": ""
+    },
     "item_agfly_1_agmelee_1_moss_2_1": {
         "name": "035103443eb9bb55541e66dcbd139be1",
         "category": "可用道具",
@@ -955,6 +964,15 @@
         "fluidIconId": "",
         "sortId1": -20,
         "sortId2": 405
+    },
+    "item_cbp_exp": {
+        "name": "b8cff4d169274d30f90de3fe0bf854d9",
+        "category": "独立资源",
+        "storageKind": "Isolate",
+        "categoryType": "BPExp",
+        "rarity": 5,
+        "iconId": "item_cbp_exp",
+        "fluidIconId": ""
     },
     "item_cbp_voucher_originium": {
         "name": "4fabf9909aca7e1fe61236824fa89e98",
@@ -1914,11 +1932,11 @@
         "sortId2": 4
     },
     "item_diamond": {
-        "name": "嵌晶玉",
-        "category": "货币",
+        "name": "aa5edf17dd5cbb87661ec9f3d86d353e",
+        "category": "独立资源",
         "storageKind": "Isolate",
         "categoryType": "Diamond",
-        "rarity": 5,
+        "rarity": 6,
         "iconId": "item_diamond",
         "fluidIconId": ""
     },
@@ -1943,6 +1961,24 @@
         "fluidIconId": "",
         "sortId1": -82,
         "sortId2": 63
+    },
+    "item_domain_jinlong_coupon": {
+        "name": "af0a45fb328a9cdd07d2fe0e7ddacbb2",
+        "category": "独立资源",
+        "storageKind": "Isolate",
+        "categoryType": "DomainGold",
+        "rarity": 5,
+        "iconId": "item_domain_jinlong_coupon",
+        "fluidIconId": ""
+    },
+    "item_domain_tundra_coupon": {
+        "name": "40f1e255b753623044d91b8c492ab277",
+        "category": "独立资源",
+        "storageKind": "Isolate",
+        "categoryType": "DomainGold",
+        "rarity": 5,
+        "iconId": "item_domain_tundra_coupon",
+        "fluidIconId": ""
     },
     "item_drop_agdisk_1": {
         "name": "3ceee7c9a69a0ee5073b0fac22eb5a26",
@@ -3375,11 +3411,11 @@
         "sortId2": 6
     },
     "item_gachabyproducts_weapongold": {
-        "name": "武库配额",
-        "category": "货币",
+        "name": "011c0bffc4a5c215eb651edaf3e5b929",
+        "category": "独立资源",
         "storageKind": "Isolate",
         "categoryType": "WeaponGold",
-        "rarity": 5,
+        "rarity": 6,
         "iconId": "item_gachabyproducts_weapongold",
         "fluidIconId": ""
     },
@@ -3736,8 +3772,8 @@
         "sortId2": 207
     },
     "item_gold": {
-        "name": "折金票",
-        "category": "货币",
+        "name": "1b858553aff0ccfee876ed0367300534",
+        "category": "独立资源",
         "storageKind": "Isolate",
         "categoryType": "Gold",
         "rarity": 4,
@@ -6163,6 +6199,15 @@
         "fluidIconId": "",
         "sortId1": -61,
         "sortId2": 2
+    },
+    "item_spaceship_credit": {
+        "name": "1bd1aaac9e3e0db9677cd16b2118ff8f",
+        "category": "独立资源",
+        "storageKind": "Isolate",
+        "categoryType": "SpaceshipGold",
+        "rarity": 4,
+        "iconId": "item_spaceship_credit",
+        "fluidIconId": ""
     },
     "item_spaceship_exhibits_jinlong_2": {
         "name": "5ce22b5ecbbb963ea0187d60e1188e37",

@@ -130,6 +130,34 @@ bool IsSelectedImage(const std::filesystem::path& image_path, const ManualRunner
     return !options.image_name || image_path.filename().string() == *options.image_name;
 }
 
+CandidateFilter ReadImageCandidates(const std::filesystem::path& image_path)
+{
+    auto config_path = image_path;
+    config_path.replace_extension(".json");
+    if (!std::filesystem::is_regular_file(config_path)) {
+        return {};
+    }
+    const auto parsed = json::open(config_path.string());
+    if (!parsed || !parsed->is_object()) {
+        throw std::runtime_error("image sidecar must be a JSON object: " + config_path.string());
+    }
+    CandidateFilter candidates;
+    const auto& object = parsed->as_object();
+    if (!object.contains("item_filters")) {
+        return candidates;
+    }
+    if (!object.at("item_filters").is_array()) {
+        throw std::runtime_error("image sidecar item_filters must be an array: " + config_path.string());
+    }
+    for (const auto& filter : object.at("item_filters").as_array()) {
+        if (!filter.is_string()) {
+            throw std::runtime_error("image sidecar item_filters must contain strings: " + config_path.string());
+        }
+        candidates.item_filters.push_back(filter.as_string());
+    }
+    return candidates;
+}
+
 void AppendGridCases(
     std::vector<ManualRunnerCase>& output,
     const std::filesystem::path& input_root,
@@ -156,6 +184,7 @@ void AppendGridCases(
                 .image_path = image_path,
                 .roi = ReadRoi(roi_set.at(std::string(roi_name)), GridTypeName(grid_type)),
                 .roi_name = std::string(roi_name),
+                .candidates = ReadImageCandidates(image_path),
             });
         }
     }
@@ -186,6 +215,7 @@ void AppendSingleRoiCases(
                     .image_path = image_path,
                     .roi = roi,
                     .roi_name = directory.filename().string(),
+                    .candidates = ReadImageCandidates(image_path),
                 });
             }
         }
@@ -232,7 +262,7 @@ std::string ManualRunnerUsage()
   icon-recognition-manual-runner -h|--help|-?
 
 Grid types:
-  trade, transfer, port_storager, valuables, shipment, credit_trade, single_roi
+  trade, transfer, port_storager, valuables, shipment, credit_trade, rewards, single_roi
 
 Side modes apply only to transfer and port_storager. The default is full.
 Worker selection defaults to 1. auto uses physical cores and is capped at 16.
@@ -376,6 +406,7 @@ std::vector<ManualRunnerCase> DiscoverManualRunnerCases(
 
     constexpr std::array kGridTypes {
         GridType::Trade, GridType::Transfer, GridType::PortStorager, GridType::Valuables, GridType::Shipment, GridType::CreditTrade,
+        GridType::Rewards,
     };
     std::vector<ManualRunnerCase> cases;
     if (options.grid_type) {

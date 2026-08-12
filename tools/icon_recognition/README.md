@@ -29,6 +29,8 @@ python tools/icon_recognition/download.py --dry-run
 
 物品黑名单维护在 `tools/icon_recognition/blacklist.json`，按 `storageKind`、`categoryType` 和物品 ID 规则过滤，不直接写入下载脚本。
 
+上游表中缺失但必须发布的固定物品集中维护在 `tools/icon_recognition/fixed_items.json`。下载、catalog 和多语言生成都从该文件读取，不要在各脚本内重复硬编码物品字段。
+
 原始图标必须是正方形，边长必须为 2 的整数次幂，例如 128x128 或 256x256。遇到非标准图片时下载失败并写入报告，不执行自动拉伸或补边。
 
 ## 生成发布资源
@@ -37,6 +39,12 @@ python tools/icon_recognition/download.py --dry-run
 
 ```powershell
 python tools/icon_recognition/publish.py
+```
+
+只同步 `fixed_items.json` 中的图标、catalog 和多语言名称，不引入本次上游全量数据变化：
+
+```powershell
+python tools/icon_recognition/publish.py --fixed-only
 ```
 
 默认输入：
@@ -64,17 +72,13 @@ python tools/icon_recognition/publish.py
 | `category` | 中文分类标签 |
 | `storageKind` / `categoryType` | 候选过滤分类 |
 | `rarity` | 图标目录与物品稀有度 |
-| `sortId1` / `sortId2` | 上游物品排序字段；仅 mini table 物品包含，武器和固定货币不补默认值 |
+| `sortId1` / `sortId2` | 上游物品排序字段；仅 mini table 物品包含，武器和固定物品不补默认值 |
 | `iconId` | 原始图标文件名，不等同于 `item_id` |
 | `fluidIconId` | 复合图标的内容物图标；普通图标为空 |
 
 运行时多语言 key 为 `iconRecognition.name.<item_id>`。发布脚本会删除 locale 中已不在 catalog 的旧 key，并要求五语言 key 数与 catalog 完全一致。
 
-固定货币分类为：
-
-- `item_gold` -> `Isolate:Gold`
-- `item_diamond` -> `Isolate:Diamond`
-- `item_gachabyproducts_weapongold` -> `Isolate:WeaponGold`
+固定物品的 `iconId`、i18n key、rarity、`storageKind` 和 `categoryType` 均以 `fixed_items.json` 为唯一事实来源。当前 8 项都使用“独立资源”分类，并发布到各自的 `Isolate:<categoryType>` 候选集。
 
 最终图标位于 `assets/resource/image/IconRecognition/<rarity>/<iconId>.png`。识别时从这里的 128 或 256 原图直接缩放到目标 cell 尺寸，不经过固定中间尺寸。
 

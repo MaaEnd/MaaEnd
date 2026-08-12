@@ -5,7 +5,8 @@
     [switch]$Help,
     [switch]$All,
     [switch]$Debug,
-    [ValidateSet("trade", "transfer", "port_storager", "valuables", "shipment", "credit_trade", "single_roi")]
+    [switch]$UseLocalExpected,
+    [ValidateSet("trade", "transfer", "port_storager", "valuables", "shipment", "credit_trade", "rewards", "single_roi")]
     [string]$GridType,
     [string]$Image,
     [ValidateSet("full", "left", "right", "split", "all")]
@@ -24,12 +25,13 @@ $buildRoot = Join-Path $testRoot "build"
 $mergedInputRoot = Join-Path $buildRoot "merged-input"
 $trackedInputRoot = Join-Path $repoRoot "tests/MaaEndTestset/Win32/Official_CN/IconRecognition"
 $trackedExpectedPath = Join-Path $trackedInputRoot "expected.csv"
-$localExpectedPath = Join-Path $testRoot "output/icon-recognition-expected.csv"
+$localExpectedPath = Join-Path $testRoot "input/expected.csv"
 $quickFixtures = @(
     "transfer/25.png",
     "transfer/57.png",
     "port_storager/1.png",
     "credit_trade/1.png",
+    "rewards/135.png",
     "single_roi/1177-450-54/1.png"
 )
 
@@ -39,13 +41,13 @@ function Show-Usage {
   ./run-tests.ps1 -Task configure
   ./run-tests.ps1 -Task build
   ./run-tests.ps1 -Task quick
-  ./run-tests.ps1 -Task manual -All [-Side full|left|right|split|all] [-Jobs <1..64>] [-Debug]
-  ./run-tests.ps1 -Task manual -GridType <type> [-Image <basename>] [-Side full|left|right|split|all] [-Jobs <1..64>] [-Debug]
-  ./run-tests.ps1 -Task manual -Image <basename> [-Jobs <1..64>] [-Debug]
+  ./run-tests.ps1 -Task manual -All [-UseLocalExpected] [-Side full|left|right|split|all] [-Jobs <1..64>] [-Debug]
+  ./run-tests.ps1 -Task manual -GridType <type> [-Image <basename>] [-UseLocalExpected] [-Side full|left|right|split|all] [-Jobs <1..64>] [-Debug]
+  ./run-tests.ps1 -Task manual -Image <basename> [-UseLocalExpected] [-Jobs <1..64>] [-Debug]
   ./run-tests.ps1 -Help|-h
 
 网格类型:
-  trade, transfer, port_storager, valuables, shipment, credit_trade, single_roi
+  trade, transfer, port_storager, valuables, shipment, credit_trade, rewards, single_roi
 
 Side 仅用于 transfer 和 port_storager；默认使用 full。
 Jobs 的命令行参数优先于本机配置；未配置时使用 1。
@@ -140,6 +142,10 @@ function Copy-InputTree {
     $overwritten = [System.Collections.Generic.List[string]]::new()
     foreach ($file in Get-ChildItem -LiteralPath $SourceRoot -Recurse -File) {
         $relative = $file.FullName.Substring($SourceRoot.Length).TrimStart('\', '/')
+        # expected.csv 是独立校验基线，只能通过显式 --expected 参数选择，不能混入图片输入树。
+        if ($relative -eq "expected.csv") {
+            continue
+        }
         $destination = Join-Path $DestinationRoot $relative
         $destinationDirectory = Split-Path -Parent $destination
         New-Item -ItemType Directory -Path $destinationDirectory -Force | Out-Null
@@ -204,12 +210,15 @@ function Prepare-MergedInput {
 }
 
 function Resolve-ExpectedResultsPath {
+    param([switch]$UseLocal)
+    if ($UseLocal) {
+        if (Test-Path -LiteralPath $localExpectedPath -PathType Leaf) {
+            return $localExpectedPath
+        }
+        throw "显式请求了本地 expected.csv，但文件不存在: $localExpectedPath"
+    }
     if (Test-Path -LiteralPath $trackedExpectedPath -PathType Leaf) {
         return $trackedExpectedPath
-    }
-    if (Test-Path -LiteralPath $localExpectedPath -PathType Leaf) {
-        Write-Warning "子模块 expected.csv 尚未提交，暂时使用本地 output 快照: $localExpectedPath"
-        return $localExpectedPath
     }
     throw "缺少 IconRecognition expected 结果: $trackedExpectedPath"
 }
@@ -281,7 +290,7 @@ switch ($Task) {
     }
     "quick" {
         Prepare-MergedInput -RequireQuickFixtures
-        $expectedPath = Resolve-ExpectedResultsPath
+        $expectedPath = Resolve-ExpectedResultsPath -UseLocal:$UseLocalExpected
         Build-Targets -Targets @(
             "icon-recognition-types-tests",
             "icon-recognition-manual-cli-tests",
@@ -319,7 +328,7 @@ switch ($Task) {
             throw "manual 任务必须指定 -All、-GridType 或 -Image。"
         }
         $usesLocalImage = $PSBoundParameters.ContainsKey("Image") -and (Test-LocalImageSelection -ImageName $Image -SelectedGridType $GridType)
-        Prepare-MergedInput -PreferLocalConflicts:$usesLocalImage
+        Prepare-MergedInput -PreferLocalConflicts:($usesLocalImage -or $UseLocalExpected)
         if ($usesLocalImage) {
             Write-Warning "显式 -Image 命中本地 input 素材，本次优先使用本地同名图片并仅作人工审计: $Image"
         }
@@ -344,8 +353,8 @@ switch ($Task) {
         if ($PSBoundParameters.ContainsKey("Debug")) {
             $arguments += "--debug"
         }
-        if (-not $usesLocalImage -and $Side -eq "full") {
-            $arguments += @("--expected", (Resolve-ExpectedResultsPath))
+        if (($UseLocalExpected -or -not $usesLocalImage) -and $Side -eq "full") {
+            $arguments += @("--expected", (Resolve-ExpectedResultsPath -UseLocal:$UseLocalExpected))
         }
         elseif (-not $usesLocalImage) {
             Write-Warning "expected.csv 仅维护 full 基线，显式分侧运行仅作人工审计: $Side"
