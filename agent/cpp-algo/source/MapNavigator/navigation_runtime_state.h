@@ -104,19 +104,23 @@ struct DynamicRecoveryState
     }
 };
 
-// Recovery ladder position (jump -> navmesh detour -> physical unstick), keyed on the corridor anchor the
-// agent is stuck against. Top-level so a dynamic replan, which renumbers the path and clears the
-// DynamicRecoveryState episode, cannot rewind it; cleared only by a genuine escape, a waypoint advance or
-// a new navigation.
+// Recovery ladder position (device removal -> jump -> navmesh detour -> physical unstick), keyed on the
+// corridor anchor the agent is stuck against. Top-level so a dynamic replan, which renumbers the path and
+// clears the DynamicRecoveryState episode, cannot rewind it; cleared only by a genuine escape, a waypoint
+// advance or a new navigation.
 struct RecoveryEscalationState
 {
     size_t anchor_index = std::numeric_limits<size_t>::max();
+    // Device removals tried here. Deliberately not read by the escalation gate below: the device step runs
+    // ahead of the jump rather than in place of it, so it can never postpone the detour.
+    int device_attempt_count = 0;
     int jump_attempt_count = 0;
     int detour_attempt_count = 0;
 
     void Reset()
     {
         anchor_index = std::numeric_limits<size_t>::max();
+        device_attempt_count = 0;
         jump_attempt_count = 0;
         detour_attempt_count = 0;
     }

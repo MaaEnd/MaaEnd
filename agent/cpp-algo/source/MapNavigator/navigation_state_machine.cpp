@@ -17,7 +17,6 @@
 
 #include "action_executor.h"
 #include "action_wrapper.h"
-#include "collectible_scanner.h"
 #include "latency_observer.h"
 #include "motion_controller.h"
 #include "navi_config.h"
@@ -25,6 +24,7 @@
 #include "navigation_state_machine.h"
 #include "navmesh_path_expander.h"
 #include "position_provider.h"
+#include "roi_template_scanner.h"
 #include "route_tracker.h"
 #include "semantic_nodes.h"
 #include "sensitivity_observer.h"
@@ -62,7 +62,7 @@ bool ReadRoiArray(const json::value& holder, cv::Rect* out)
     return out->width > 0 && out->height > 0;
 }
 
-bool ParseCollectRoiFromNode(MaaContext* context, const char* node_name, cv::Rect* out)
+bool ParseRoiFromNode(MaaContext* context, const char* node_name, cv::Rect* out)
 {
     if (context == nullptr || node_name == nullptr) {
         return false;
@@ -70,18 +70,18 @@ bool ParseCollectRoiFromNode(MaaContext* context, const char* node_name, cv::Rec
 
     ScopedStringBuffer buffer;
     if (buffer.Get() == nullptr || !MaaContextGetNodeData(context, node_name, buffer.Get())) {
-        LogWarn << "Collect ROI: MaaContextGetNodeData failed." << VAR(node_name);
+        LogWarn << "Pipeline ROI: MaaContextGetNodeData failed." << VAR(node_name);
         return false;
     }
     const char* raw = MaaStringBufferGet(buffer.Get());
     if (raw == nullptr || raw[0] == '\0') {
-        LogWarn << "Collect ROI: empty node data." << VAR(node_name);
+        LogWarn << "Pipeline ROI: empty node data." << VAR(node_name);
         return false;
     }
 
     const auto parsed = json::parse(raw);
     if (!parsed || !parsed->is_object()) {
-        LogWarn << "Collect ROI: node JSON is not an object." << VAR(node_name);
+        LogWarn << "Pipeline ROI: node JSON is not an object." << VAR(node_name);
         return false;
     }
     const auto& node = parsed->as_object();
@@ -104,7 +104,7 @@ bool ParseCollectRoiFromNode(MaaContext* context, const char* node_name, cv::Rec
         return true;
     }
 
-    LogWarn << "Collect ROI: no usable roi array in node data." << VAR(node_name);
+    LogWarn << "Pipeline ROI: no usable roi array in node data." << VAR(node_name);
     return false;
 }
 
@@ -411,6 +411,7 @@ NavigationStateMachine::NavigationStateMachine(
     , position_(position)
     , should_stop_(std::move(should_stop))
     , maa_context_(maa_context)
+    , device_recovery_(maa_context, motion_controller, position_provider, session, position)
 {
     LogInfo << "Navigation route runner selected. backend=orchestrated";
 }
@@ -429,13 +430,13 @@ bool NavigationStateMachine::Run()
     // the first forward press, so it can never land on a while-walking scan tick and freeze the thread.
     PreWarmCollectOcr();
 
-    // Spin up the background collectible detector (no-op unless the route has a COLLECT waypoint). It runs
-    // off the nav thread on pure OpenCV; the nav loop only reacts to its flag, never recognizes inline.
-    StartCollectScanner();
+    // Spin up the background detectors (the collectible one is a no-op unless the route has a COLLECT
+    // waypoint). They run off the nav thread on pure OpenCV; the nav loop only reacts to their flags.
+    StartScanners();
 
     while (!should_stop_() && session_->phase() != NaviPhase::Finished && session_->phase() != NaviPhase::Failed) {
         if (!TickPhase(session_->phase())) {
-            StopCollectScanner();
+            StopScanners();
             StopMotion();
             sensitivity::EndRun(maa_context_, true);
             return false;
@@ -446,7 +447,7 @@ bool NavigationStateMachine::Run()
         session_->HasSatisfiedFinalSuccess(*position_, "navigation_complete");
     }
 
-    StopCollectScanner();
+    StopScanners();
     StopMotion();
 
     // 用户主动停的不算走坏，别借着这个把门槛放下来。
@@ -1071,6 +1072,10 @@ bool NavigationStateMachine::TickNavigate()
         }
     }
     const int64_t stalled_ms = session_->StalledMs(now);
+    // Warm the device probe from the first stalled tick, so by the time the recovery ladder runs its answer is
+    // already latched and reading it costs nothing.
+    device_recovery_.UpdateFeeding(
+        stalled_ms, runtime_state_.recovery_escalation.device_attempt_count < kRecoveryDeviceAttempts);
 
     if (!route.valid) {
         if (degraded_fix) {
@@ -1238,8 +1243,15 @@ bool NavigationStateMachine::TickNavigate()
                 recovery.anchor_index = anchor->first;
             }
             if (escalation.anchor_index != anchor->first) {
+                // Handing a new anchor an attempt requires a fresh look: a hit latched while fighting the
+                // previous one describes a frame from before the path was renumbered. Not on the first anchor,
+                // where nothing has been fought yet and the probe has been warming since the stall began.
+                const bool fought_another_anchor = escalation.anchor_index != std::numeric_limits<size_t>::max();
                 escalation.Reset();
                 escalation.anchor_index = anchor->first;
+                if (fought_another_anchor) {
+                    device_recovery_.ForgetObservation();
+                }
             }
 
             // Measure the recovery timeout from the session hard-progress clock, not this episode's
@@ -1263,6 +1275,21 @@ bool NavigationStateMachine::TickNavigate()
                                                    < kDynamicRecoveryRetryIntervalMs;
             if (!retry_cooling_down) {
                 recovery.last_replan_at = now;
+
+                // The device removal runs ahead of the jump, not instead of it: if the agent is still pinned
+                // afterwards the jump below fires this same tick and the ladder keeps climbing. Every outcome
+                // but NotAttempted has run the subtask, so it spends the attempt either way.
+                const DeviceRemovalOutcome device_outcome = device_recovery_.TryRemove(
+                    route, waypoint, escalation.device_attempt_count < kRecoveryDeviceAttempts);
+                if (device_outcome != DeviceRemovalOutcome::NotAttempted) {
+                    ++escalation.device_attempt_count;
+                }
+                if (device_outcome == DeviceRemovalOutcome::Escaped) {
+                    return ResumeAfterEscape("recovery_device_move_escape");
+                }
+                if (device_outcome == DeviceRemovalOutcome::NeedsFreshFix) {
+                    return true;
+                }
 
                 ++escalation.jump_attempt_count;
                 const NaviPosition jump_start = *position_;
@@ -1605,9 +1632,39 @@ void NavigationStateMachine::StopMotion()
 
 NavigationStateMachine::~NavigationStateMachine()
 {
-    // Backstop: guarantee the PositionProvider's frame observer (it captures `this` and reads
-    // collect_scanner_) is torn down before this object dies, even on an early Run() return path.
-    StopCollectScanner();
+    // Backstop: guarantee the PositionProvider's frame observer (it captures `this` and reads the scanners) is
+    // torn down before this object dies, even on an early Run() return path.
+    StopScanners();
+}
+
+void NavigationStateMachine::StartScanners()
+{
+    StartCollectScanner();
+    StartDeviceProbe();
+
+    if (position_provider_ == nullptr) {
+        return;
+    }
+    // One observer for both consumers, bound once. Binding it per scanner would let whichever one stops first
+    // silently cut the other's frame supply.
+    position_provider_->SetFrameObserver([this](const cv::Mat& frame) {
+        if (collect_scanner_ != nullptr) {
+            collect_scanner_->SubmitFrame(frame);
+        }
+        device_recovery_.SubmitFrame(frame);
+    });
+}
+
+void NavigationStateMachine::StopScanners()
+{
+    if (position_provider_ != nullptr) {
+        position_provider_->SetFrameObserver(nullptr);
+    }
+    if (motion_controller_ != nullptr) {
+        motion_controller_->SetSprintSuppressed(false);
+    }
+    collect_scanner_.reset();
+    device_recovery_.Stop();
 }
 
 void NavigationStateMachine::StartCollectScanner()
@@ -1621,7 +1678,7 @@ void NavigationStateMachine::StartCollectScanner()
     }
 
     cv::Rect base_roi;
-    if (!ParseCollectRoiFromNode(maa_context_, kCollectRoiNode, &base_roi)) {
+    if (!ParseRoiFromNode(maa_context_, kCollectRoiNode, &base_roi)) {
         LogWarn << "Async collectible scanner not started: could not read collect ROI from pipeline." << VAR(kCollectRoiNode);
         return;
     }
@@ -1637,27 +1694,21 @@ void NavigationStateMachine::StartCollectScanner()
                 << VAR(icon_template.rows);
     }
 
-    collect_scanner_ = std::make_unique<CollectibleScanner>(base_roi, icon_template);
-    position_provider_->SetFrameObserver([this](const cv::Mat& frame) {
-        if (collect_scanner_ != nullptr) {
-            collect_scanner_->SubmitFrame(frame);
-        }
-    });
+    collect_scanner_ = std::make_unique<RoiTemplateScanner>("collect", base_roi, icon_template, kCollectIconMatchThreshold, true);
     LogInfo << "Async collectible scanner started." << VAR(base_roi.x) << VAR(base_roi.y) << VAR(base_roi.width) << VAR(base_roi.height);
     // NOTE: sprint is NOT suppressed for the whole route — that killed fast travel. Suppression is driven per
     // tick in TickNavigate (UpdateCollectSprintSuppression), enabled only when the avatar is within
     // kCollectSprintSuppressBandWu of a COLLECT waypoint, so travel between collect points still sprints.
 }
 
-void NavigationStateMachine::StopCollectScanner()
+void NavigationStateMachine::StartDeviceProbe()
 {
-    if (position_provider_ != nullptr) {
-        position_provider_->SetFrameObserver(nullptr);
+    cv::Rect base_roi;
+    if (!ParseRoiFromNode(maa_context_, kObstacleDeviceProbeNode, &base_roi)) {
+        LogWarn << "Blocking-device probe not started: could not read its ROI from the pipeline." << VAR(kObstacleDeviceProbeNode);
+        return;
     }
-    if (motion_controller_ != nullptr) {
-        motion_controller_->SetSprintSuppressed(false);
-    }
-    collect_scanner_.reset();
+    device_recovery_.Start(base_roi);
 }
 
 void NavigationStateMachine::UpdateCollectSprintSuppression()

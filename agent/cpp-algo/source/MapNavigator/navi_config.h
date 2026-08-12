@@ -239,8 +239,9 @@ constexpr int32_t kCollectPostSleepMs = 80;
 constexpr const char* kCollectPrewarmOverride =
     R"({"AutoCollectClick":{"action":{"type":"DoNothing"},"next":[]},"AutoCollectClickEnd":{"next":[]}})";
 constexpr const char* kCollectRoiNode = "AutoCollectClick";
-constexpr int32_t kCollectRoiBaseWidth = 1280;
-constexpr int32_t kCollectRoiBaseHeight = 720;
+// Resolution every pipeline ROI is authored against; the scanner rescales it to whatever the frame really is.
+constexpr int32_t kPipelineRoiBaseWidth = 1280;
+constexpr int32_t kPipelineRoiBaseHeight = 720;
 
 constexpr const char* kCollectIconRelativePath = "resource/image/RealTimeTask/AutoPick.png";
 constexpr double kCollectIconMatchThreshold = 0.75;
@@ -254,6 +255,18 @@ constexpr int32_t kCollectScanIntervalMs = 1500;
 constexpr double kCollectRetryMinMoveWu = 2.5;
 constexpr double kCollectSprintSuppressBandWu = 8.0;
 constexpr int32_t kSprintCancelReleaseMs = 60;
+
+// Blocking-device removal: a device parked in the way is carried off instead of jumped over. The probe reads
+// the same ROI the pipeline's interact-button check uses, so the JSON stays the single source of truth. Its
+// threshold sits below the pipeline default (0.7) on purpose: the probe only decides whether the subtask is
+// worth running, and the subtask re-checks authoritatively before touching anything.
+constexpr const char* kObstacleDeviceEntry = "MapNavigatorObstacleDevice";
+constexpr const char* kObstacleDeviceProbeNode = "__MapNavigatorObstacleDevice_InteractPre";
+constexpr const char* kObstacleDeviceTemplateRelativePath = "resource/image/MapNavigator/ObstacleDevice/InteractButton.png";
+constexpr double kObstacleDeviceMatchThreshold = 0.65;
+// One attempt per anchor: the subtask's own timeouts can spend ~15s of the kDynamicRecoveryTotalTimeoutMs
+// budget, and whatever is left has to still cover jump -> detour -> unstick.
+constexpr int32_t kRecoveryDeviceAttempts = 1;
 
 constexpr const char* kDefaultDigEntry = "AutoCollectDigStart";
 constexpr const char* kDigPipelineOverride = R"({"AutoCollectDigEnd":{"next":[]}})";

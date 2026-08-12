@@ -10,6 +10,7 @@
 #include "navi_controller.h"
 #include "navigation_runtime_state.h"
 #include "navigation_session.h"
+#include "obstacle_device_recovery.h"
 
 namespace mapnavigator
 {
@@ -18,7 +19,7 @@ class IActionExecutor;
 class ActionWrapper;
 class MotionController;
 class PositionProvider;
-class CollectibleScanner;
+class RoiTemplateScanner;
 struct RouteTrackingState;
 
 class NavigationStateMachine
@@ -69,8 +70,10 @@ private:
 
     bool TryScanApproachCollect(const RouteTrackingState& route, const Waypoint& waypoint);
     void PreWarmCollectOcr();
+    void StartScanners();
+    void StopScanners();
     void StartCollectScanner();
-    void StopCollectScanner();
+    void StartDeviceProbe();
     void UpdateCollectSprintSuppression();
 
     const NaviParam& param_;
@@ -86,11 +89,13 @@ private:
     NavRunController nav_run_controller_ {};
     std::chrono::steady_clock::time_point last_global_relocalize_at_ {};
 
-    std::unique_ptr<CollectibleScanner> collect_scanner_;
+    std::unique_ptr<RoiTemplateScanner> collect_scanner_;
     std::chrono::steady_clock::time_point collect_scan_last_at_ {};
     // Anti-stuck: position of the last detection-triggered collect attempt.
     NaviPosition collect_attempt_pos_ {};
     bool collect_attempt_pos_valid_ = false;
+
+    ObstacleDeviceRecovery device_recovery_;
 };
 
 } // namespace mapnavigator

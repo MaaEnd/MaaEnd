@@ -1,4 +1,4 @@
-#include "collectible_scanner.h"
+#include "roi_template_scanner.h"
 
 #include <cmath>
 #include <utility>
@@ -15,11 +15,11 @@ namespace mapnavigator
 namespace
 {
 
-// Scale the base-resolution collect ROI (1280x720, from the pipeline) to the real frame size, clamped.
+// Scale a base-resolution ROI (1280x720, from the pipeline) to the real frame size, clamped.
 cv::Rect ScaledRoi(const cv::Size& frame_size, const cv::Rect& base_roi)
 {
-    const double sx = static_cast<double>(frame_size.width) / static_cast<double>(kCollectRoiBaseWidth);
-    const double sy = static_cast<double>(frame_size.height) / static_cast<double>(kCollectRoiBaseHeight);
+    const double sx = static_cast<double>(frame_size.width) / static_cast<double>(kPipelineRoiBaseWidth);
+    const double sy = static_cast<double>(frame_size.height) / static_cast<double>(kPipelineRoiBaseHeight);
     const cv::Rect roi(
         static_cast<int>(std::lround(base_roi.x * sx)),
         static_cast<int>(std::lround(base_roi.y * sy)),
@@ -49,7 +49,7 @@ cv::Mat ToGray(const cv::Mat& roi)
 
 // Fallback detector: threshold bright pixels, close horizontally so a word's glyphs merge into one blob, then
 // look for a connected component shaped like a short, wide, sparse text run. Input is already grayscale.
-bool HasLabelLikeText(const cv::Mat& gray)
+bool HasLabelLikeText(const cv::Mat& gray, const std::string& tag)
 {
     if (gray.empty()) {
         return false;
@@ -85,14 +85,14 @@ bool HasLabelLikeText(const cv::Mat& gray)
     }
 
     if (best_w > 0) {
-        LogDebug << "CollectibleScanner candidate." << VAR(best_w);
+        LogDebug << "RoiTemplateScanner text candidate." << VAR(tag) << VAR(best_w);
     }
     return best_w >= kCollectLabelMinWidth;
 }
 
-// Primary detector: template-match the interact icon (white ⟳). Template and ROI share base scale, so it
-// matches at native size (no rescale); a ⟳ is far harder for terrain to fake than a bright blob. Already gray.
-bool MatchesIcon(const cv::Mat& gray, const cv::Mat& templ)
+// Primary detector. Template and ROI share base scale, so it matches at native size (no rescale); a glyph is
+// far harder for terrain to fake than a bright blob. Already gray.
+bool MatchesTemplate(const cv::Mat& gray, const cv::Mat& templ, double threshold, const std::string& tag)
 {
     if (gray.empty() || templ.empty() || gray.rows < templ.rows || gray.cols < templ.cols) {
         return false;
@@ -103,21 +103,29 @@ bool MatchesIcon(const cv::Mat& gray, const cv::Mat& templ)
     double max_val = 0.0;
     cv::minMaxLoc(result, nullptr, &max_val, nullptr, nullptr);
     if (max_val >= 0.5) { // log near matches to calibrate the threshold without flooding
-        LogDebug << "CollectibleScanner icon match." << VAR(max_val);
+        LogDebug << "RoiTemplateScanner template match." << VAR(tag) << VAR(max_val);
     }
-    return max_val >= kCollectIconMatchThreshold;
+    return max_val >= threshold;
 }
 
 } // namespace
 
-CollectibleScanner::CollectibleScanner(const cv::Rect& base_roi, const cv::Mat& icon_template)
-    : base_roi_(base_roi)
-    , icon_template_(icon_template)
+RoiTemplateScanner::RoiTemplateScanner(
+    std::string tag,
+    const cv::Rect& base_roi,
+    const cv::Mat& templ,
+    double match_threshold,
+    bool allow_text_fallback)
+    : tag_(std::move(tag))
+    , base_roi_(base_roi)
+    , template_(templ)
+    , match_threshold_(match_threshold)
+    , allow_text_fallback_(allow_text_fallback)
 {
-    worker_ = std::thread(&CollectibleScanner::WorkerLoop, this);
+    worker_ = std::thread(&RoiTemplateScanner::WorkerLoop, this);
 }
 
-CollectibleScanner::~CollectibleScanner()
+RoiTemplateScanner::~RoiTemplateScanner()
 {
     stop_.store(true);
     cv_.notify_all();
@@ -126,7 +134,7 @@ CollectibleScanner::~CollectibleScanner()
     }
 }
 
-void CollectibleScanner::SubmitFrame(const cv::Mat& frame)
+void RoiTemplateScanner::SubmitFrame(const cv::Mat& frame)
 {
     if (frame.empty()) {
         return;
@@ -144,12 +152,12 @@ void CollectibleScanner::SubmitFrame(const cv::Mat& frame)
     cv_.notify_one();
 }
 
-bool CollectibleScanner::ConsumeDetection()
+bool RoiTemplateScanner::ConsumeDetection()
 {
     return detected_.exchange(false);
 }
 
-void CollectibleScanner::WorkerLoop()
+void RoiTemplateScanner::WorkerLoop()
 {
     for (;;) {
         cv::Mat roi;
@@ -174,7 +182,13 @@ void CollectibleScanner::WorkerLoop()
         }
 
         const cv::Mat gray = ToGray(normalized);
-        const bool hit = icon_template_.empty() ? HasLabelLikeText(gray) : MatchesIcon(gray, icon_template_);
+        bool hit = false;
+        if (!template_.empty()) {
+            hit = MatchesTemplate(gray, template_, match_threshold_, tag_);
+        }
+        else if (allow_text_fallback_) {
+            hit = HasLabelLikeText(gray, tag_);
+        }
         if (hit) {
             detected_.store(true);
         }
