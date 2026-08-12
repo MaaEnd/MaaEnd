@@ -29,3 +29,6 @@ python tools/icon_recognition/item_transfer/generate.py
 conda activate cuda124
 python -m unittest discover -s tools/icon_recognition -p "test_generate.py" -v
 ```
+
+该测试会同时运行 `maa-tools check` 和 Schema validator：前者检查当前项目的
+资源关系，后者仅校验生成后的 ItemTransfer Task；仅用于本地生成验收。

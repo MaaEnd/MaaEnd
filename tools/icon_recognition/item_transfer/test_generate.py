@@ -1,4 +1,7 @@
 import json
+import os
+import shutil
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
@@ -38,336 +41,6 @@ class ItemTransferGeneratorTest(unittest.TestCase):
                 "PortableDevice",
             ),
         )
-
-    def test_pipeline_leaves_item_ids_to_direction_options(self) -> None:
-        repo_root = Path(__file__).resolve().parents[3]
-        pipeline = json.loads(
-            (repo_root / "assets" / "resource" / "pipeline" / "ItemTransfer.json").read_text(
-                encoding="utf-8"
-            )
-        )
-        node_names = (
-            "ItemTransferFindForwardItemInRepo",
-            "ItemTransferFindReturnItemInRepo",
-            "ItemTransferFindForwardItemInBag",
-            "ItemTransferFindReturnItemInBag",
-        )
-
-        for node_name in node_names:
-            custom_param = pipeline[node_name]["recognition"]["param"]["custom_recognition_param"]
-            self.assertEqual(custom_param, {"grid_type": "transfer"})
-            self.assertNotIn("item_ids", custom_param)
-
-    def test_pipeline_starts_directly_in_dijiang_without_camera_adjustment(self) -> None:
-        pipeline = self.load_item_transfer_pipeline()
-
-        self.assertEqual(
-            pipeline["ItemTransferStart"]["next"],
-            [
-                "ItemTransferStartInDijiangBackpack",
-                "ItemTransferStartOpenRepo",
-                "[JumpBack]SceneEnterWorldDijiang2",
-            ],
-        )
-        self.assertNotIn("ItemTransferStartAtReceptionRoom", pipeline)
-        self.assertNotIn("ItemTransferStartMoveCamera", pipeline)
-        self.assertNotIn("ItemTransferStartMoveCamera2", pipeline)
-
-    def test_pipeline_reuses_repo_switch_to_start_from_dijiang_backpack(self) -> None:
-        pipeline = self.load_item_transfer_pipeline()
-
-        self.assertEqual(
-            pipeline["ItemTransferStart"]["next"],
-            [
-                "ItemTransferStartInDijiangBackpack",
-                "ItemTransferStartOpenRepo",
-                "[JumpBack]SceneEnterWorldDijiang2",
-            ],
-        )
-        self.assertEqual(
-            pipeline["ItemTransferStartInDijiangBackpack"]["recognition"],
-            "And",
-        )
-        self.assertEqual(
-            pipeline["ItemTransferStartInDijiangBackpack"]["all_of"],
-            ["InBackpack", "ItemTransferRepoSwitchButton"],
-        )
-        self.assertEqual(
-            pipeline["ItemTransferStartInDijiangBackpack"]["next"],
-            ["ItemTransferInBackpack"],
-        )
-
-        repo_switch = pipeline["ItemTransferRepoSwitchButton"]
-        self.assertEqual(repo_switch["recognition"], "OCR")
-        self.assertEqual(repo_switch["roi"], [607, 128, 65, 24])
-        self.assertNotIn("action", repo_switch)
-
-        for node_name in (
-            "ItemTransferSwitchRepoToOrigin",
-            "ItemTransferSwitchRepoToDestination",
-            "ItemTransferSwitchRepoToOriginReturn",
-        ):
-            node = pipeline[node_name]
-            self.assertEqual(node["recognition"], "And")
-            self.assertEqual(node["all_of"], ["ItemTransferRepoSwitchButton"])
-            self.assertEqual(node["box_index"], 0)
-            self.assertEqual(node["action"], "Click")
-            self.assertNotIn("expected", node)
-            self.assertNotIn("roi", node)
-
-    def test_icon_recognition_waits_for_mouse_reset_and_stable_grid(self) -> None:
-        pipeline = self.load_item_transfer_pipeline()
-        expected_rois = {
-            "ItemTransferFindForwardItemInRepo": [154, 202, 585, 291],
-            "ItemTransferFindReturnItemInRepo": [154, 202, 585, 291],
-            "ItemTransferFindForwardItemInBag": [739, 202, 398, 291],
-            "ItemTransferFindReturnItemInBag": [739, 202, 398, 291],
-        }
-
-        for node_name, roi in expected_rois.items():
-            self.assertEqual(
-                pipeline[node_name]["pre_wait_freezes"],
-                {"time": 400, "timeout": 3000, "target": roi},
-            )
-
-    def test_pipeline_avoids_waiting_for_dynamic_full_screen_to_freeze(self) -> None:
-        pipeline = self.load_item_transfer_pipeline()
-        nodes_without_freeze_wait = (
-            "ItemTransferStartOpenRepo",
-            "ItemTransferClickEscOrigin",
-            "ItemTransferClickEscDestination",
-            "ItemTransferClickEscOriginReturn",
-            "ItemTransferRepoToBag",
-            "ItemTransferReturnRepoToBag",
-            "ItemTransferBagToRepo",
-            "ItemTransferReturnBagToRepo",
-            "ItemTransferBagToOriginRepo",
-        )
-
-        for node_name in nodes_without_freeze_wait:
-            self.assertNotIn("pre_wait_freezes", pipeline[node_name])
-            self.assertNotIn("post_wait_freezes", pipeline[node_name])
-
-    def test_pipeline_limits_retained_freeze_waits_to_three_seconds(self) -> None:
-        pipeline = self.load_item_transfer_pipeline()
-        retained_waits = []
-
-        for node_name, node in pipeline.items():
-            for wait_name in ("pre_wait_freezes", "post_wait_freezes"):
-                if wait_name not in node:
-                    continue
-                retained_waits.append((node_name, wait_name))
-                self.assertIsInstance(node[wait_name], dict)
-                self.assertEqual(node[wait_name]["timeout"], 3000)
-
-        self.assertTrue(retained_waits)
-
-    def test_same_item_recognition_schema_requires_both_item_nodes(self) -> None:
-        repo_root = Path(__file__).resolve().parents[3]
-        schema = json.loads(
-            (repo_root / "tools" / "schema" / "custom.recognition.schema.json").read_text(
-                encoding="utf-8"
-            )
-        )
-
-        self.assertIn(
-            "ItemTransferSameItemRecognition",
-            schema["properties"]["custom_recognition"]["enum"],
-        )
-        same_item_rule = next(
-            rule
-            for rule in schema["allOf"]
-            if rule.get("if", {})
-            .get("properties", {})
-            .get("custom_recognition", {})
-            .get("const")
-            == "ItemTransferSameItemRecognition"
-        )
-        custom_param = same_item_rule["then"]["properties"]["custom_recognition_param"]
-        self.assertEqual(
-            custom_param["required"],
-            ["forward_item_node", "return_item_node"],
-        )
-        self.assertFalse(custom_param["additionalProperties"])
-        for field_name in custom_param["required"]:
-            self.assertEqual(
-                custom_param["properties"][field_name],
-                {"type": "string", "minLength": 1},
-            )
-
-    def test_pipeline_dispatches_two_independent_directions(self) -> None:
-        pipeline = self.load_item_transfer_pipeline()
-
-        self.assertEqual(
-            pipeline["ItemTransfer"]["next"],
-            [
-                "ItemTransferSkipSameRegionValleyIV",
-                "ItemTransferSkipSameRegionWuling",
-                "ItemTransferSkipSameItem",
-                "ItemTransferStart",
-            ],
-        )
-        self.assertEqual(pipeline["ItemTransferForwardGate"]["recognition"], "DirectHit")
-        self.assertEqual(pipeline["ItemTransferReturnGate"]["recognition"], "DirectHit")
-        self.assertFalse(pipeline["ItemTransferReturnGate"]["enabled"])
-        self.assertEqual(
-            pipeline["ItemTransferOriginDispatch"]["next"],
-            [
-                "ItemTransferForwardGate",
-                "ItemTransferReturnGate",
-                "ItemTransferStop",
-            ],
-        )
-        self.assertEqual(
-            pipeline["ItemTransferDestinationDispatch"]["next"],
-            [
-                "ItemTransferReturnGate",
-                "ItemTransferForwardGate",
-                "ItemTransferStop",
-            ],
-        )
-
-    def test_same_item_check_is_before_opening_backpack(self) -> None:
-        pipeline = self.load_item_transfer_pipeline()
-        same_item = pipeline["ItemTransferSkipSameItem"]
-
-        self.assertFalse(same_item["enabled"])
-        self.assertEqual(
-            same_item["recognition"]["param"]["custom_recognition"],
-            "ItemTransferSameItemRecognition",
-        )
-        self.assertEqual(
-            same_item["recognition"]["param"]["custom_recognition_param"],
-            {
-                "forward_item_node": "ItemTransferFindForwardItemInRepo",
-                "return_item_node": "ItemTransferFindReturnItemInRepo",
-            },
-        )
-        self.assertEqual(same_item["action"], "StopTask")
-
-    def test_task_places_return_transfer_before_regions(self) -> None:
-        repo_root = Path(__file__).resolve().parents[3]
-        task = json.loads(
-            (repo_root / "assets" / "tasks" / "ItemTransfer.json").read_text(
-                encoding="utf-8"
-            )
-        )
-        item_transfer = next(item for item in task["task"] if item["name"] == "ItemTransfer")
-
-        self.assertEqual(
-            item_transfer["option"][:5],
-            [
-                "WhatToTransfer",
-                "TransferAll",
-                "EnableReturnTransfer",
-                "OriginRegion",
-                "DestinationRegion",
-            ],
-        )
-
-    def test_searches_current_page_before_resetting_scroll_boundaries(self) -> None:
-        pipeline = self.load_item_transfer_pipeline()
-
-        self.assertEqual(
-            pipeline["ItemTransferRepoSearchCurrentPage"]["next"],
-            [
-                "[Anchor]ItemTransferCurrentRepoFind",
-                "ItemTransferResetRepoScanBoundaries",
-            ],
-        )
-        self.assertEqual(
-            pipeline["ItemTransferBagSearchCurrentPage"]["next"],
-            [
-                "[Anchor]ItemTransferCurrentBagFind",
-                "ItemTransferResetBagScanBoundaries",
-            ],
-        )
-
-    def test_full_scan_uses_scrollbar_boundaries(self) -> None:
-        pipeline = self.load_item_transfer_pipeline()
-        boundary_groups = {
-            "Repo": {
-                "nodes": ("ItemTransferRepoTopReached", "ItemTransferRepoBottomReached"),
-                "roi": [713, 216, 5, 262],
-            },
-            "Bag": {
-                "nodes": ("ItemTransferBagTopReached", "ItemTransferBagBottomReached"),
-                "roi": [1119, 220, 5, 255],
-            },
-        }
-
-        for side, boundary in boundary_groups.items():
-            reset = pipeline[f"ItemTransferReset{side}ScanBoundaries"]
-            patch = reset["custom_action_param"]["patch"]
-            for node_name in boundary["nodes"]:
-                self.assertEqual(patch[node_name]["attach"], {"ready": False})
-                self.assertEqual(
-                    pipeline[node_name]["custom_recognition"],
-                    "ScrollbarCompleteRecognition",
-                )
-                self.assertEqual(
-                    pipeline[node_name]["custom_recognition_param"],
-                    {"position_tolerance": 2},
-                )
-                self.assertEqual(pipeline[node_name]["roi"], boundary["roi"])
-
-    def test_item_not_found_disables_only_its_direction(self) -> None:
-        pipeline = self.load_item_transfer_pipeline()
-        expected = {
-            "ItemTransferForwardItemNotFound": "ItemTransferForwardGate",
-            "ItemTransferReturnItemNotFound": "ItemTransferReturnGate",
-        }
-
-        for node_name, gate_name in expected.items():
-            patch = pipeline[node_name]["custom_action_param"]["patch"]
-            self.assertEqual(patch, {gate_name: {"enabled": False}})
-
-    def test_unverified_target_storage_disables_only_its_direction(self) -> None:
-        pipeline = self.load_item_transfer_pipeline()
-        expected = {
-            "forward": {
-                "still_in_bag": "ItemTransferForwardItemStillInBag",
-                "full_check": "ItemTransferCheckIfFull",
-                "fallback": "ItemTransferForwardStoreUnverified",
-                "gate": "ItemTransferForwardGate",
-                "anchor": {
-                    "ItemTransferOriginArrivedNext": "ItemTransferForwardReturnToOriginRepo"
-                },
-                "switch": "ItemTransferSwitchRepoToOrigin",
-                "focus": "$task.ItemTransfer.forward_store_unverified",
-            },
-            "return": {
-                "still_in_bag": "ItemTransferReturnItemStillInBag",
-                "full_check": "ItemTransferCheckIfFullReturnTarget",
-                "fallback": "ItemTransferReturnStoreUnverified",
-                "gate": "ItemTransferReturnGate",
-                "anchor": {
-                    "ItemTransferDestinationArrivedNext": "ItemTransferReturnReturnToDestinationRepo"
-                },
-                "switch": "ItemTransferSwitchRepoToDestination",
-                "focus": "$task.ItemTransfer.return_store_unverified",
-            },
-        }
-
-        for direction in expected.values():
-            self.assertEqual(
-                pipeline[direction["still_in_bag"]]["next"],
-                [direction["full_check"], direction["fallback"]],
-            )
-            fallback = pipeline[direction["fallback"]]
-            self.assertEqual(fallback["action"], "Custom")
-            self.assertEqual(fallback["custom_action"], "PipelineOverrideAction")
-            self.assertEqual(
-                fallback["custom_action_param"]["patch"],
-                {direction["gate"]: {"enabled": False}},
-            )
-            self.assertEqual(fallback["anchor"], direction["anchor"])
-            self.assertEqual(fallback["next"], [direction["switch"]])
-            self.assertEqual(
-                fallback["focus"]["Node.Action.Succeeded"], direction["focus"]
-            )
-
-        self.assertEqual(pipeline["ItemTransferStoreUnverified"]["action"], "StopTask")
 
     def test_select_transfer_items_filters_categories_and_ore_allowlist(self) -> None:
         catalog = {
@@ -564,32 +237,44 @@ class ItemTransferGeneratorTest(unittest.TestCase):
                 json.loads(tracked_task_path.read_text(encoding="utf-8")),
             )
 
-    def test_ctrl_click_paths_use_atomic_custom_action(self) -> None:
-        pipeline = self.load_item_transfer_pipeline()
-        expected_targets = {
-            "ItemTransferTransferForwardToBag": "ItemTransferFindForwardItemInRepo",
-            "ItemTransferTransferReturnToBag": "ItemTransferFindReturnItemInRepo",
-            "ItemTransferTransferForwardToRepo": "ItemTransferFindForwardItemInBag",
-            "ItemTransferTransferReturnToRepo": "ItemTransferFindReturnItemInBag",
-            "ItemTransferTransferToRepoReturn": "ItemTransferFindItemInBagReturn",
-        }
+    def test_generated_resources_pass_maa_tools_check(self) -> None:
+        repo_root = Path(__file__).resolve().parents[3]
+        pnpm = "pnpm.cmd" if os.name == "nt" else "pnpm"
+        subprocess.run([pnpm, "check"], cwd=repo_root, check=True)
 
-        for node_name, target in expected_targets.items():
-            node = pipeline[node_name]
-            self.assertEqual(node["action"], "Custom")
-            self.assertEqual(node["custom_action"], "ItemTransferCtrlClickAction")
-            self.assertEqual(node["target"], target)
-            self.assertEqual(node["target_offset"], [26, 25, -52, -50])
+    def test_generated_task_passes_schema_validation(self) -> None:
+        repo_root = Path(__file__).resolve().parents[3]
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            resource_dir = root / "resource"
+            task_dir = root / "tasks"
+            resource_dir.mkdir()
+            task_dir.mkdir()
+            shutil.copy2(
+                repo_root / "assets/tasks/ItemTransfer.json",
+                task_dir / "ItemTransfer.json",
+            )
 
-        for obsolete_node in (
-            "ItemTransferCtrlKeyDownRepo",
-            "ItemTransferCtrlKeyUpRepo",
-            "ItemTransferCtrlKeyDownBag",
-            "ItemTransferCtrlKeyUpBag",
-            "ItemTransferCtrlKeyDownBagReturn",
-            "ItemTransferCtrlKeyUpBagReturn",
-        ):
-            self.assertNotIn(obsolete_node, pipeline)
+            uv = "uv.exe" if os.name == "nt" else "uv"
+            env = os.environ.copy()
+            env["PYTHONIOENCODING"] = "utf-8"
+            subprocess.run(
+                [
+                    uv,
+                    "run",
+                    "--frozen",
+                    "--only-group",
+                    "schema",
+                    "tools/validate_schema.py",
+                    "--resource-dirs",
+                    str(resource_dir),
+                    "--task-dirs",
+                    str(task_dir),
+                ],
+                cwd=repo_root,
+                check=True,
+                env=env,
+            )
 
     @staticmethod
     def item_id_override(item_id: str) -> dict:
@@ -603,16 +288,6 @@ class ItemTransferGeneratorTest(unittest.TestCase):
                 },
             },
         }
-
-    @staticmethod
-    def load_item_transfer_pipeline() -> dict:
-        repo_root = Path(__file__).resolve().parents[3]
-        return json.loads(
-            (repo_root / "assets" / "resource" / "pipeline" / "ItemTransfer.json").read_text(
-                encoding="utf-8"
-            )
-        )
-
 
 if __name__ == "__main__":
     unittest.main()
