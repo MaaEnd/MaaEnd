@@ -179,6 +179,14 @@ Action 节点用于执行自定义动作。常见写法如下：
 
 默认目标位置由 Pipeline 节点的 `box` 决定。
 
+### AutoCtrlClickAction
+
+`AutoCtrlClickAction` 与 `AutoAltClickAction` 一同实现在 `agent/go-service/common/autoalt`，用于在指定位置执行 Ctrl + 点击操作。按下 Ctrl、点击和释放 Ctrl 均通过 Pipeline 子节点执行，因此各平台资源可以覆盖对应键码；即使按下或点击失败，也会尝试释放 Ctrl。
+
+- 参数：无。
+
+目标位置由 Pipeline 节点的 `box` 决定，可使用外层 `target` / `target_offset` 调整。
+
 ### AutoAltSwipeAction
 
 `AutoAltSwipeAction` 实现位于 `agent/go-service/common/autoalt`，用于执行 Alt + 滑动操作。先按下 Alt 键，再执行滑动，最后松开 Alt 键。
@@ -517,6 +525,7 @@ Pipeline 布局与 `ListCompleteRecognition` 相同：将本识别放在滚动�
 | 消费性点选（visited 排除） | `ExpendableRecognition` |
 | 按星期几门控后续节点 | `ScheduleRecognition` |
 | 在指定位置 Alt + 点击 | `AutoAltClickAction` |
+| 在指定位置 Ctrl + 点击 | `AutoCtrlClickAction` |
 | Alt + 滑动 | `AutoAltSwipeAction` |
 
 所有 Custom 的 Go 代码实现在 `agent/go-service/` 下，Pipeline 作者不需要关心，照文档参数写 JSON 就行。

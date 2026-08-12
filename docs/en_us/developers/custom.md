@@ -177,6 +177,14 @@ The `AutoAltClickAction` implementation is located in `agent/go-service/common/a
 
 The default target position is determined by the `box` of the Pipeline node.
 
+### AutoCtrlClickAction
+
+`AutoCtrlClickAction` is implemented alongside `AutoAltClickAction` in `agent/go-service/common/autoalt`. It performs Ctrl + Click at a specified position. Pressing Ctrl, clicking, and releasing Ctrl all run through Pipeline child nodes, allowing platform resources to override the corresponding key codes. It still attempts to release Ctrl when pressing or clicking fails.
+
+- Parameters: None.
+
+The target position is determined by the Pipeline node's `box` and can be adjusted with the outer `target` / `target_offset` fields.
+
 ### AutoAltSwipeAction
 
 The `AutoAltSwipeAction` implementation is located in `agent/go-service/common/autoalt`. It performs an Alt + Swipe operation. It first presses the Alt key, executes the swipe, and then releases the Alt key.
@@ -515,6 +523,7 @@ When writing a Pipeline, the built-in `TemplateMatch` / `OCR` / `Click` / `Swipe
 | Consumable pick (visited exclusion) | `ExpendableRecognition` |
 | Gate subsequent nodes by day of week | `ScheduleRecognition` |
 | Alt + Click at specified position | `AutoAltClickAction` |
+| Ctrl + Click at specified position | `AutoCtrlClickAction` |
 | Alt + Swipe | `AutoAltSwipeAction` |
 
 All Custom Go code implementations are located under `agent/go-service/`. Pipeline authors do not need to concern themselves with this; just write the JSON according to the documentation parameters.

@@ -6,6 +6,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
+import json5
+
 from item_transfer import generate
 from item_transfer.generate import (
     FORWARD_NODES,
@@ -41,6 +43,75 @@ class ItemTransferGeneratorTest(unittest.TestCase):
                 "PortableDevice",
             ),
         )
+
+    def test_ctrl_click_uses_common_cross_platform_action(self) -> None:
+        repo_root = Path(__file__).resolve().parents[3]
+        pipeline = json5.loads(
+            (repo_root / "assets/resource/pipeline/ItemTransfer.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        ctrl_click_nodes = (
+            "ItemTransferTransferForwardToBag",
+            "ItemTransferTransferReturnToBag",
+            "ItemTransferTransferForwardToRepo",
+            "ItemTransferTransferReturnToRepo",
+            "ItemTransferTransferToRepoReturn",
+        )
+
+        for node_name in ctrl_click_nodes:
+            self.assertEqual(
+                pipeline[node_name]["custom_action"],
+                "AutoCtrlClickAction",
+            )
+
+    def test_ctrl_click_pipeline_nodes_generate_macos_key_mapping(self) -> None:
+        repo_root = Path(__file__).resolve().parents[3]
+        common_actions = json5.loads(
+            (
+                repo_root
+                / "assets/resource/pipeline/Common/__Private/AutoAltClick/Action.json"
+            ).read_text(encoding="utf-8")
+        )
+        macos_keymap = json5.loads(
+            (repo_root / "assets/resource_macos/pipeline/MacOSKeyMap.json").read_text(
+                encoding="utf-8"
+            )
+        )
+
+        expected_actions = {
+            "__AutoCtrlClickCtrlKeyDownAction": ("KeyDown", 17),
+            "__AutoCtrlClickCtrlKeyUpAction": ("KeyUp", 17),
+            "__AutoCtrlClickMouseClickAction": ("Click", None),
+        }
+        for node_name, (action, key) in expected_actions.items():
+            self.assertEqual(common_actions[node_name]["action"], action)
+            if key is not None:
+                self.assertEqual(common_actions[node_name]["key"], key)
+
+        self.assertEqual(
+            macos_keymap["__AutoCtrlClickCtrlKeyDownAction"]["action"]["param"]["key"],
+            59,
+        )
+        self.assertEqual(
+            macos_keymap["__AutoCtrlClickCtrlKeyUpAction"]["action"]["param"]["key"],
+            59,
+        )
+        self.assertFalse(
+            any(node_name.startswith("ItemTransferCtrlKey") for node_name in macos_keymap)
+        )
+
+    def test_ctrl_click_custom_action_is_registered_as_common_component(self) -> None:
+        repo_root = Path(__file__).resolve().parents[3]
+        schema = json.loads(
+            (repo_root / "tools/schema/custom.action.schema.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        custom_actions = schema["properties"]["custom_action"]["enum"]
+
+        self.assertIn("AutoCtrlClickAction", custom_actions)
+        self.assertNotIn("ItemTransferCtrlClickAction", custom_actions)
 
     def test_select_transfer_items_filters_categories_and_ore_allowlist(self) -> None:
         catalog = {

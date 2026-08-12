@@ -170,54 +170,6 @@
             }
         }
     },
-    "ItemTransferCtrlKeyDownBag": {
-        "action": {
-            "type": "KeyDown",
-            "param": {
-                "key": 59
-            }
-        }
-    },
-    "ItemTransferCtrlKeyDownBagReturn": {
-        "action": {
-            "type": "KeyDown",
-            "param": {
-                "key": 59
-            }
-        }
-    },
-    "ItemTransferCtrlKeyDownRepo": {
-        "action": {
-            "type": "KeyDown",
-            "param": {
-                "key": 59
-            }
-        }
-    },
-    "ItemTransferCtrlKeyUpBag": {
-        "action": {
-            "type": "KeyUp",
-            "param": {
-                "key": 59
-            }
-        }
-    },
-    "ItemTransferCtrlKeyUpBagReturn": {
-        "action": {
-            "type": "KeyUp",
-            "param": {
-                "key": 59
-            }
-        }
-    },
-    "ItemTransferCtrlKeyUpRepo": {
-        "action": {
-            "type": "KeyUp",
-            "param": {
-                "key": 59
-            }
-        }
-    },
     "MapTrackerOpenWorld_GetOffZipline": {
         "action": {
             "type": "ClickKey",
@@ -507,6 +459,22 @@
             "type": "KeyUp",
             "param": {
                 "key": 58
+            }
+        }
+    },
+    "__AutoCtrlClickCtrlKeyDownAction": {
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 59
+            }
+        }
+    },
+    "__AutoCtrlClickCtrlKeyUpAction": {
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 59
             }
         }
     },

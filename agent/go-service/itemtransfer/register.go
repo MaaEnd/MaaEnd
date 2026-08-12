@@ -10,10 +10,6 @@ func Register() {
 		&SameItemRecognition{},
 	)
 	maa.AgentServerRegisterCustomAction(
-		"ItemTransferCtrlClickAction",
-		&CtrlClickAction{},
-	)
-	maa.AgentServerRegisterCustomAction(
 		"ItemTransferFallbackAction",
 		&ItemTransferFallbackAction{},
 	)
