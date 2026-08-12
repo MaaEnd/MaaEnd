@@ -59,6 +59,7 @@
                 "ImportBluePrintsFinishAction",
                 "ImportBluePrintsInitTextAction",
                 "ItemTransferFallbackAction",
+                "ItemTransferCtrlClickAction",
                 "ItemTransferOCRAction",
                 "MapNavigateAction",
                 "MapTrackerBigMapPick",

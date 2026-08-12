@@ -1,7 +1,9 @@
 # ItemTransfer 配置生成
 
-该工具从 IconRecognition 发布资源生成库存转移任务的物品选项，只更新
-`assets/tasks/ItemTransfer.json` 中的 `option.WhatToTransfer.cases`。
+该工具从 IconRecognition 发布资源生成库存转移任务的物品选项，同时更新
+`assets/tasks/ItemTransfer.json` 中的去程 `option.WhatToTransfer.cases` 与返程
+`option.ReturnWhatToTransfer.cases`。两套列表使用同一数据源和排序规则，仅
+Pipeline override 的方向节点不同。
 
 数据规则：
 
