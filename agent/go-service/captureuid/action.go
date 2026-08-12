@@ -8,10 +8,11 @@ import (
 )
 
 type captureUidParam struct {
-	UseCache            *bool `json:"use_cache,omitempty"`
-	StayOnCurrentScreen *bool `json:"stay_on_current_screen,omitempty"`
-	AllowUnknown        *bool `json:"allow_unknown,omitempty"`
-	ClearCache          *bool `json:"clear_cache,omitempty"`
+	UseCache            *bool  `json:"use_cache,omitempty"`
+	StayOnCurrentScreen *bool  `json:"stay_on_current_screen,omitempty"`
+	AllowUnknown        *bool  `json:"allow_unknown,omitempty"`
+	ClearCache          *bool  `json:"clear_cache,omitempty"`
+	OutputType          string `json:"output_type,omitempty"`
 }
 
 type CaptureUidAction struct{}
@@ -34,6 +35,7 @@ func (a *CaptureUidAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 	stayOnCurrentScreen := true
 	allowUnknown := true
 	clearCache := false
+	outputType := OutputTypeHashed
 
 	if arg != nil && arg.CustomActionParam != "" {
 		var params captureUidParam
@@ -54,6 +56,13 @@ func (a *CaptureUidAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		if params.ClearCache != nil {
 			clearCache = *params.ClearCache
 		}
+		normalized, err := normalizeOutputType(params.OutputType)
+		if err != nil {
+			log.Error().Err(err).Str("component", component).Str("param", arg.CustomActionParam).
+				Msg("CaptureUid: invalid output_type")
+			return false
+		}
+		outputType = normalized
 	}
 
 	if clearCache {
@@ -61,7 +70,7 @@ func (a *CaptureUidAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		return true
 	}
 
-	uid, err := Capture(ctx, ctrl, useCache, stayOnCurrentScreen, allowUnknown)
+	uid, err := Capture(ctx, ctrl, useCache, stayOnCurrentScreen, allowUnknown, outputType)
 	if err != nil {
 		log.Error().Err(err).Str("component", component).Msg("CaptureUid: capture failed")
 		return false
@@ -71,6 +80,7 @@ func (a *CaptureUidAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		Bool("use_cache", useCache).
 		Bool("stay_on_current_screen", stayOnCurrentScreen).
 		Bool("allow_unknown", allowUnknown).
+		Str("output_type", string(outputType)).
 		Msg("CaptureUid: done")
 	return true
 }

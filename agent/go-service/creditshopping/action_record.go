@@ -53,7 +53,7 @@ func (a *RecordShelfSnapshotsAction) Run(ctx *maa.Context, arg *maa.CustomAction
 		slots = ScanShelfSlotsPC(ctx, first)
 	}
 
-	uid, err := captureuid.Capture(ctx, ctrl, true, true, true)
+	uid, err := captureuid.Capture(ctx, ctrl, true, true, true, captureuid.OutputTypeHashed)
 	if err != nil {
 		log.Error().Err(err).Str("component", component).Msg("record shelf: uid capture failed")
 		return true
