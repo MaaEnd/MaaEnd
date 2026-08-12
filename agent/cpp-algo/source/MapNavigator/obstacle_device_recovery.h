@@ -13,9 +13,9 @@ namespace mapnavigator
 {
 
 class MotionController;
-class NavigationSession;
 class PositionProvider;
 class RoiTemplateScanner;
+struct NavigationSession;
 struct RouteTrackingState;
 
 // Result of one removal attempt. Everything except NotAttempted has run the subtask and spent the attempt.
