@@ -138,8 +138,7 @@ MatchDiagnostics ScoreTemplateAt(
             ++active;
         }
     }
-    const double color_score =
-        active == 0 ? 0.0 : std::clamp(1.0 - distance / active / kColorDistanceNormalization, 0.0, 1.0);
+    const double color_score = active == 0 ? 0.0 : std::clamp(1.0 - distance / active / kColorDistanceNormalization, 0.0, 1.0);
     if (performance) {
         performance->color_distance_ms += ElapsedMilliseconds(color_started);
     }

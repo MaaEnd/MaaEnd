@@ -3,8 +3,7 @@
 namespace iconrecognition::detail
 {
 
-RarityCandidatePasses
-    BuildRarityCandidatePasses(const std::vector<PreparedTemplate>& templates, std::optional<int> detected_rarity)
+RarityCandidatePasses BuildRarityCandidatePasses(const std::vector<PreparedTemplate>& templates, std::optional<int> detected_rarity)
 {
     RarityCandidatePasses passes;
     passes.preferred_indices.reserve(templates.size());

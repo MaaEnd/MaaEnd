@@ -97,11 +97,7 @@ void DrawDiagnostics(cv::Mat& annotated, const RecognitionResult& result)
     }
 }
 
-bool SaveDebugCaptureImpl(
-    const std::filesystem::path& root,
-    const cv::Mat& image,
-    const RecognitionResult& result,
-    std::uint64_t reco_id)
+bool SaveDebugCaptureImpl(const std::filesystem::path& root, const cv::Mat& image, const RecognitionResult& result, std::uint64_t reco_id)
 {
     const auto raw_dir = root / "raw";
     const auto annotated_dir = root / "annotated";

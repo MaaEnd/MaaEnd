@@ -133,9 +133,7 @@ void TestDebugCaptureKeepsSynchronizedGroups()
     Require(
         performance.at("ranking").as_object().at("rarity_remaining_candidates").as_integer() == 397,
         "debug detail must preserve non-duplicated fallback candidate count");
-    Require(
-        performance.at("matcher").as_object().at("template_match_ms").as_double() == 4.5,
-        "debug detail must preserve matcher timing");
+    Require(performance.at("matcher").as_object().at("template_match_ms").as_double() == 4.5, "debug detail must preserve matcher timing");
     const auto& cell = diagnostics.at("cells").as_array().at(0).as_object();
     Require(cell.at("baseline_score").as_double() == 0.71, "debug detail must preserve baseline score");
     Require(cell.at("fallback_used").as_boolean(), "debug detail must preserve fallback state");

@@ -37,13 +37,21 @@
             {
                 "action": "NAVMESH",
                 "target": [
-                    794,
-                    2602.21
+                    788.14,
+                    2603.23
                 ]
-            }
+            },
+            {
+                "action": "ZONE",
+                "zone_id": "Wuling_Base"
+            },
+            [
+                795.02,
+                2602.86
+            ]
         ],
         "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown",
-        "Heading": 225
+        "Heading": 198
     },
     {
         "MissionId": "m1m28",
@@ -138,17 +146,12 @@
         ],
         "NavPath": [
             {
-                "action": "ZONE",
-                "zone_id": "Wuling_Base"
-            },
-            [
-                806.89,
-                2314.51
-            ],
-            [
-                820.68,
-                2307.61
-            ]
+                "action": "NAVMESH",
+                "target": [
+                    820.03,
+                    2310.06
+                ]
+            }
         ],
         "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
         "Heading": 60
@@ -213,12 +216,8 @@
                 "zone_id": "Wuling_Base"
             },
             [
-                707.69,
-                1894.5
-            ],
-            [
-                718.82,
-                1885.93
+                718.59,
+                1883.72
             ]
         ],
         "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",

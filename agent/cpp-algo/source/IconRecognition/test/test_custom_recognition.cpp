@@ -172,8 +172,7 @@ struct SingleRoiFixture
 
 SingleRoiFixture MakeSingleRoiFixture()
 {
-    const auto template_path =
-        get_exe_dir() / ".." / "resource" / "image" / "IconRecognition" / "1" / "item_copper_ore.png";
+    const auto template_path = get_exe_dir() / ".." / "resource" / "image" / "IconRecognition" / "1" / "item_copper_ore.png";
     const iconrecognition::detail::TemplateRecord record { .item_id = "item_copper_ore" };
     const auto prepared = iconrecognition::detail::PrepareStandardTemplate(
         record,

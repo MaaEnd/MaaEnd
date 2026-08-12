@@ -165,11 +165,11 @@ std::vector<TrustedRarityStrip> DetectTrustedRarityStrips(const cv::Mat& image, 
             if (!trusted) {
                 continue;
             }
-            double confidence = kCoverageConfidenceWeight * coverage + kContinuityConfidenceWeight * continuity
-                                + kBackgroundConfidenceWeight * Clamp01(background_delta / kBackgroundDeltaScale)
-                                + kEdgeConfidenceWeight * Clamp01(edge_response / kEdgeResponseScale)
-                                + kThicknessConfidenceWeight
-                                      * Clamp01(1.0 - std::abs(box.height - kExpectedThickness) / kThicknessDeviationScale);
+            double confidence =
+                kCoverageConfidenceWeight * coverage + kContinuityConfidenceWeight * continuity
+                + kBackgroundConfidenceWeight * Clamp01(background_delta / kBackgroundDeltaScale)
+                + kEdgeConfidenceWeight * Clamp01(edge_response / kEdgeResponseScale)
+                + kThicknessConfidenceWeight * Clamp01(1.0 - std::abs(box.height - kExpectedThickness) / kThicknessDeviationScale);
             if (backgrounds.size() == 1) {
                 confidence *= kSingleBackgroundPenalty;
             }

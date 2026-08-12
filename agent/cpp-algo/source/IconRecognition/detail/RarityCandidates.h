@@ -16,7 +16,6 @@ struct RarityCandidatePasses
     bool prefiltered = false;
 };
 
-RarityCandidatePasses
-    BuildRarityCandidatePasses(const std::vector<PreparedTemplate>& templates, std::optional<int> detected_rarity);
+RarityCandidatePasses BuildRarityCandidatePasses(const std::vector<PreparedTemplate>& templates, std::optional<int> detected_rarity);
 
 } // namespace iconrecognition::detail

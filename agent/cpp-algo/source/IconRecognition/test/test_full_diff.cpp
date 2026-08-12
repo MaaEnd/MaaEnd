@@ -49,12 +49,8 @@ struct RunnerCasePerformance
     json::value to_json() const
     {
         return json::object {
-            { "total_ms", total_ms },
-            { "image_decode_ms", image_decode_ms },
-            { "recognition_ms", recognition_ms },
-            { "annotation_ms", annotation_ms },
-            { "annotated_write_ms", annotated_write_ms },
-            { "detail_write_ms", detail_write_ms },
+            { "total_ms", total_ms },           { "image_decode_ms", image_decode_ms },       { "recognition_ms", recognition_ms },
+            { "annotation_ms", annotation_ms }, { "annotated_write_ms", annotated_write_ms }, { "detail_write_ms", detail_write_ms },
         };
     }
 };
@@ -312,12 +308,11 @@ cv::Mat DrawResult(const cv::Mat& source, const iconrecognition::RecognitionResu
     return image;
 }
 
-iconrecognition::RecognitionResult
-    RunCase(
-        iconrecognition::IconRecognizer& recognizer,
-        const cv::Mat& image,
-        const iconrecognition::test::ManualRunnerCase& test_case,
-        bool debug)
+iconrecognition::RecognitionResult RunCase(
+    iconrecognition::IconRecognizer& recognizer,
+    const cv::Mat& image,
+    const iconrecognition::test::ManualRunnerCase& test_case,
+    bool debug)
 {
     iconrecognition::RecognitionRequest request;
     request.grid_type = test_case.grid_type;

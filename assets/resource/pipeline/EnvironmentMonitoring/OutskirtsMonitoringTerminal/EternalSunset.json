@@ -377,17 +377,12 @@
         "custom_action_param": {
             "path": [
                 {
-                    "action": "ZONE",
-                    "zone_id": "Wuling_Base"
+                    "action": "NAVMESH",
+                    "target": [
+                        820.03,
+                        2310.06
+                    ]
                 },
-                [
-                    806.89,
-                    2314.51
-                ],
-                [
-                    820.68,
-                    2307.61
-                ],
                 {
                     "action": "HEADING",
                     "angle": 60
