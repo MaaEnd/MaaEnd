@@ -20,6 +20,7 @@
                 "IconRecognition",
                 "ItemDataReady",
                 "ItemQuantitySatisfied",
+                "ItemTransferSameItemRecognition",
                 "ListCompleteRecognition",
                 "MapLocateAssertLocation",
                 "MapTrackerAssertLocation",
@@ -32,6 +33,8 @@
                 "ReceptionRoomWaitExchangeKeepAliveDueRecognition",
                 "ScheduleRecognition",
                 "ScreenshotStableRecognition",
+                "ScrollbarRecognition",
+                "ScrollbarCompleteRecognition",
                 "SellProductCurrentBestOperator",
                 "SellProductCurrentOperatorUncached",
                 "SellProductOperatorCacheReady",
@@ -246,6 +249,34 @@
             "if": {
                 "type": "object",
                 "required": [ "custom_recognition" ],
+                "properties": { "custom_recognition": { "const": "ItemTransferSameItemRecognition" } }
+            },
+            "then": {
+                "type": "object",
+                "required": [ "custom_recognition_param" ],
+                "properties": {
+                    "custom_recognition_param": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [ "forward_item_node", "return_item_node" ],
+                        "properties": {
+                            "forward_item_node": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "return_item_node": {
+                                "type": "string",
+                                "minLength": 1
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "type": "object",
+                "required": [ "custom_recognition" ],
                 "properties": { "custom_recognition": { "const": "ListCompleteRecognition" } }
             },
             "then": {
@@ -262,6 +293,49 @@
                                 "default": 0.9,
                                 "title": "Threshold",
                                 "description": "TemplateMatch threshold. Score >= threshold means the list is complete (return true/hit). Below threshold recaptures OverrideImage and returns false/miss so Pipeline can keep scrolling. Default 0.9. Recognition region uses the native recognition roi (V2: recognition.param.roi, sibling of custom_recognition; exposed as arg.Roi), not this param. Place this recognition before the swipe node; callers must use post_wait_freezes on the swipe so recognition runs only after the screen is still."
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "type": "object",
+                "required": [ "custom_recognition" ],
+                "properties": { "custom_recognition": { "const": "ScrollbarRecognition" } }
+            },
+            "then": {
+                "type": "object",
+                "required": [ "roi" ],
+                "properties": {
+                    "custom_recognition_param": {
+                        "type": "object",
+                        "additionalProperties": false
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "type": "object",
+                "required": [ "custom_recognition" ],
+                "properties": { "custom_recognition": { "const": "ScrollbarCompleteRecognition" } }
+            },
+            "then": {
+                "type": "object",
+                "required": [ "roi" ],
+                "properties": {
+                    "custom_recognition_param": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "position_tolerance": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "default": 2,
+                                "title": "Position Tolerance",
+                                "description": "Maximum 720p pixel difference allowed for both the top and bottom boundaries of the detected scrollbar thumb. When both boundaries remain within tolerance between consecutive frames, the list is complete. Default 2. Recognition region uses the native recognition roi."
                             }
                         }
                     }
