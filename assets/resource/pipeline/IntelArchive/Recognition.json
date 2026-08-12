@@ -1,0 +1,90 @@
+{
+    "IntelArchiveRecognitionItemIcon": {
+        "desc": "档案icon大致位置",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            0,
+            1280,
+            720
+        ],
+        "template": "IntelArchive/ItemIcon.png",
+        "green_mask": true
+    },
+    "IntelArchiveRecognitionItemLine": {
+        "desc": "档案左上角黑线，用于提高准确率",
+        "recognition": "ColorMatch",
+        "roi": "IntelArchiveRecognitionItemIcon",
+        "roi_offset": [
+            0,
+            0,
+            -80,
+            -100
+        ],
+        "lower": [
+            0,
+            0,
+            0
+        ],
+        "upper": [
+            20,
+            20,
+            20
+        ],
+        "count": 30
+    },
+    "IntelArchiveRecognitionItemTextBackground": {
+        "desc": "档案文本背景",
+        "recognition": "ColorMatch",
+        "roi": "IntelArchiveRecognitionItemLine",
+        "roi_offset": [
+            0,
+            115,
+            90,
+            30
+        ],
+        "lower": [
+            212,
+            212,
+            212
+        ],
+        "upper": [
+            232,
+            232,
+            232
+        ],
+        "count": 30
+    },
+    "IntelArchiveRecognitionItemTextColor": {
+        "desc": "档案文字颜色",
+        "recognition": "ColorMatch",
+        "roi": "IntelArchiveRecognitionItemTextBackground",
+        "lower": [
+            40,
+            40,
+            40
+        ],
+        "upper": [
+            180,
+            180,
+            180
+        ],
+        "count": 30
+    },
+    "IntelArchiveRecognitionItemText": {
+        "desc": "识别档案文本",
+        "recognition": "And",
+        "all_of": [
+            "IntelArchiveRecognitionItemIcon",
+            "IntelArchiveRecognitionItemLine",
+            "IntelArchiveRecognitionItemTextBackground",
+            "IntelArchiveRecognitionItemTextColor",
+            {
+                "recognition": "OCR",
+                "roi": "IntelArchiveRecognitionItemTextColor",
+                "expected": ".{2,}",
+                "only_rec": true
+            }
+        ]
+    }
+}

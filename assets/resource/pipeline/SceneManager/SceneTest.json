@@ -74,5 +74,35 @@
         "next": [
             "SceneEnterMenuList"
         ]
+    },
+    "SceneTestEnterMenuIntelArchive": {
+        "desc": "在任意场景下，进入档案库",
+        "next": [
+            "SceneEnterMenuIntelArchive"
+        ]
+    },
+    "SceneTestEnterMenuIntelArchiveIntelGathering": {
+        "desc": "在任意场景下，进入档案库-情报采集",
+        "next": [
+            "SceneEnterMenuIntelArchiveIntelGathering"
+        ]
+    },
+    "SceneTestEnterMenuIntelArchiveAudioRecords": {
+        "desc": "在任意场景下，进入档案库-音像存档",
+        "next": [
+            "SceneEnterMenuIntelArchiveAudioRecords"
+        ]
+    },
+    "SceneTestEnterMenuIntelArchiveFindings": {
+        "desc": "在任意场景下，进入档案库-见闻辑录",
+        "next": [
+            "SceneEnterMenuIntelArchiveFindings"
+        ]
+    },
+    "SceneTestEnterMenuIntelArchiveNexusFiles": {
+        "desc": "在任意场景下，进入档案库-中枢档案",
+        "next": [
+            "SceneEnterMenuIntelArchiveNexusFiles"
+        ]
     }
 }

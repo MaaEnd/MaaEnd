@@ -1,0 +1,74 @@
+{
+    "IntelArchiveMain": {
+        "desc": "情报档案库任务入口（骨架）",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]IntelArchiveSyncSub",
+            "[JumpBack]IntelArchiveShowInventorySub",
+            "IntelArchiveEnd"
+        ]
+    },
+    "IntelArchiveEnd": {
+        "desc": "情报档案库任务结束",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "IntelArchiveSyncSub": {
+        "desc": "同步已有档案（骨架，实现留空）",
+        "enabled": false,
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]IntelArchiveSyncIntelGathering",
+            "[JumpBack]IntelArchiveSyncAudioRecords",
+            "[JumpBack]IntelArchiveSyncFindings",
+            "[JumpBack]IntelArchiveSyncNexusFiles",
+            "IntelArchiveEnd"
+        ]
+    },
+    "IntelArchiveSyncIntelGathering": {
+        "desc": "同步情报采集（骨架，实现留空）",
+        "enabled": false,
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "IntelArchiveSyncAudioRecords": {
+        "desc": "同步音像存档（骨架，实现留空）",
+        "enabled": false,
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "IntelArchiveSyncFindings": {
+        "desc": "同步见闻辑录（骨架，实现留空）",
+        "enabled": false,
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "IntelArchiveSyncNexusFiles": {
+        "desc": "同步中枢档案（骨架，实现留空）",
+        "enabled": false,
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "IntelArchiveShowInventorySub": {
+        "desc": "显示库存列表（骨架，实现留空）",
+        "enabled": false,
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}
