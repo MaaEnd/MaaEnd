@@ -309,7 +309,6 @@ GridDetection DetectRewardsGrid(const cv::Mat& image, const cv::Rect& roi)
         layout.grid_index = grid_index++;
         layout.cell_size = profile.cell_size;
         layout.rows = 1;
-        layout.columns = static_cast<int>(row.size());
         std::vector<double> row_tops;
         row_tops.reserve(row.size());
         std::ranges::transform(row, std::back_inserter(row_tops), [](const Candidate& item) {
@@ -332,8 +331,7 @@ GridDetection DetectRewardsGrid(const cv::Mat& image, const cv::Rect& roi)
         int x2 = std::numeric_limits<int>::min();
         int y1 = std::numeric_limits<int>::max();
         int y2 = std::numeric_limits<int>::min();
-        for (int column = 0; column < static_cast<int>(row.size()); ++column) {
-            const auto& candidate = row[column];
+        for (const auto& candidate : row) {
             const int x = candidate.box.x + (candidate.box.width - profile.cell_size) / 2;
             const int y = row_top;
             const cv::Rect cell(x, y, profile.cell_size, profile.cell_size);
@@ -341,6 +339,7 @@ GridDetection DetectRewardsGrid(const cv::Mat& image, const cv::Rect& roi)
                 continue;
             }
             // 内部每行保留独立 layout 以表达不同横向起点；下游 row 按纵向顺序全局编号，column 每行重新计数。
+            const int column = static_cast<int>(layout.cells.size());
             layout.cells.push_back({ layout.grid_index, layout.grid_index, column, cell });
             x1 = std::min(x1, cell.x);
             x2 = std::max(x2, cell.x + cell.width);
@@ -348,6 +347,7 @@ GridDetection DetectRewardsGrid(const cv::Mat& image, const cv::Rect& roi)
             y2 = std::max(y2, cell.y + cell.height);
         }
         if (!layout.cells.empty()) {
+            layout.columns = static_cast<int>(layout.cells.size());
             layout.bounds = cv::Rect(x1, y1, x2 - x1, y2 - y1);
             result.cells.insert(result.cells.end(), layout.cells.begin(), layout.cells.end());
             result.grids.push_back(std::move(layout));

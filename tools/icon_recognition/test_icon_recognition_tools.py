@@ -131,7 +131,7 @@ class IconRecognitionToolsTest(unittest.TestCase):
             self.assertEqual(locale["iconRecognition.name.item_kept"], "Keep")
             self.assertEqual(locale["iconRecognition.name.item_diamond"], "en-US:item_diamond")
 
-    def test_expected_merge_replaces_reported_cases_and_normalizes_local_suffix(self) -> None:
+    def test_expected_merge_replaces_old_image_cases_and_keeps_all_reported_rois(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             tracked = root / "tracked.csv"
@@ -155,6 +155,11 @@ class IconRecognitionToolsTest(unittest.TestCase):
                 ),
                 encoding="utf-8",
             )
+            second_detail = root / "detail" / "rewards-right-130.local1.json"
+            second_detail.write_text(
+                json.dumps({"matches": [{"item_id": "item_second_roi"}]}),
+                encoding="utf-8",
+            )
             report = root / "report.json"
             report.write_text(
                 json.dumps(
@@ -164,7 +169,12 @@ class IconRecognitionToolsTest(unittest.TestCase):
                                 "image": "rewards/130.local1.png",
                                 "roi": {"x": 150, "y": 180, "width": 980, "height": 360},
                                 "detail": str(detail),
-                            }
+                            },
+                            {
+                                "image": "rewards/130.local1.png",
+                                "roi": {"x": 1130, "y": 180, "width": 100, "height": 100},
+                                "detail": str(second_detail),
+                            },
                         ]
                     }
                 ),
@@ -177,6 +187,7 @@ class IconRecognitionToolsTest(unittest.TestCase):
             self.assertEqual(
                 output.read_text(encoding="utf-8"),
                 'image,roi,item_id,count\n'
+                'rewards/130.png,"[1130,180,100,100]",item_second_roi,1\n'
                 'rewards/130.png,"[150,180,980,360]",item_new,2\n'
                 'rewards/130.png,"[150,180,980,360]",item_other,1\n'
                 'transfer/1.png,"[1,2,3,4]",item_old,1\n',

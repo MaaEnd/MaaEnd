@@ -35,10 +35,15 @@ def merge_expected_results(
             rows.setdefault(key, {})[row["item_id"]] = int(row["count"])
 
     report = json.loads(report_file.read_text(encoding="utf-8"))
-    for case in report.get("cases", []):
+    cases = report.get("cases", [])
+    reported_images = {
+        LOCAL_SUFFIX.sub("", case["image"])
+        for case in cases
+    }
+    for key in [key for key in rows if key[0] in reported_images]:
+        del rows[key]
+    for case in cases:
         image = LOCAL_SUFFIX.sub("", case["image"])
-        for key in [key for key in rows if key[0] == image]:
-            del rows[key]
         roi = _roi_text(case["roi"])
         detail_path = Path(case["detail"])
         if not detail_path.is_absolute():

@@ -230,6 +230,24 @@ void TestRewardsGridKeepsRowsWithIndependentHorizontalOrigins()
         "second rewards row columns must restart at zero");
 }
 
+void TestRewardsGridRenumbersColumnsAfterRoiFiltering()
+{
+    constexpr int kCellSize = 96;
+    constexpr int kClippedCardSize = 80;
+    constexpr int kPhaseY = 20;
+    constexpr int kKeptCardX = 117;
+    const cv::Rect roi(0, 0, 300, 150);
+    cv::Mat image(roi.size(), CV_8UC3, cv::Scalar(24, 24, 24));
+    image(cv::Rect(0, kPhaseY, kClippedCardSize, kClippedCardSize)).setTo(cv::Scalar(240, 240, 240));
+    image(cv::Rect(kKeptCardX, kPhaseY, kCellSize, kCellSize)).setTo(cv::Scalar(240, 240, 240));
+
+    const auto grid = iconrecognition::detail::DetectGrid(image, iconrecognition::GridType::Rewards, roi);
+    Check(grid.grids.size() == 1, "filtered rewards candidates must retain one row layout");
+    Check(grid.grids.front().cells.size() == 1, "out-of-ROI rewards cells must be filtered");
+    Check(grid.grids.front().columns == 1, "rewards columns must count only retained cells");
+    Check(grid.grids.front().cells.front().column == 0, "retained rewards columns must be renumbered from zero");
+}
+
 void TestTransferRegionPartitionKeepsUndetectedOuterColumns()
 {
     const cv::Rect detected_left(8, 20, 203, 271);
@@ -665,6 +683,7 @@ int main()
         TestTradeGridUsesCardBoundariesForVerticalPhase();
         TestRewardsGridKeepsBottomRarityBandInsideCell();
         TestRewardsGridKeepsRowsWithIndependentHorizontalOrigins();
+        TestRewardsGridRenumbersColumnsAfterRoiFiltering();
         TestTransferRegionPartitionKeepsUndetectedOuterColumns();
         TestCreditTradeGridUsesDimCardStructures();
         TestRarityRowEvidenceKeepsAllSixChannels();

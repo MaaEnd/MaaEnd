@@ -72,15 +72,19 @@ def publish_fixed_items(paths: PublishPaths) -> int:
         }
         for item_id, payload in FIXED_ITEMS.items()
     }
+    rarity_directories = (
+        [path for path in paths.asset_image_root.iterdir() if path.is_dir()]
+        if paths.asset_image_root.is_dir()
+        else []
+    )
     for payload in FIXED_ITEMS.values():
         source = paths.image_root / str(payload["rarity"]) / f"{payload['iconId']}.png"
         validate_icon_png_bytes(source.read_bytes())
-        if paths.asset_image_root.is_dir():
-            for rarity_directory in paths.asset_image_root.iterdir():
-                stale = rarity_directory / source.name
-                expected = paths.asset_image_root / str(payload["rarity"]) / source.name
-                if stale.is_file() and stale != expected:
-                    stale.unlink()
+        for rarity_directory in rarity_directories:
+            stale = rarity_directory / source.name
+            expected = paths.asset_image_root / str(payload["rarity"]) / source.name
+            if stale.is_file() and stale != expected:
+                stale.unlink()
         destination = paths.asset_image_root / str(payload["rarity"]) / source.name
         destination.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(source, destination)
