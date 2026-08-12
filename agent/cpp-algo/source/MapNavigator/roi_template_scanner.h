@@ -21,12 +21,7 @@ public:
     // the rescaled region and normalized back to base_roi's size, so detection runs in one resolution-
     // independent pixel space. templ: grayscale, base scale. allow_text_fallback lets a caller whose template
     // failed to load drop to the bright-text-blob heuristic instead of detecting nothing at all.
-    RoiTemplateScanner(
-        std::string tag,
-        const cv::Rect& base_roi,
-        const cv::Mat& templ,
-        double match_threshold,
-        bool allow_text_fallback);
+    RoiTemplateScanner(std::string tag, const cv::Rect& base_roi, const cv::Mat& templ, double match_threshold, bool allow_text_fallback);
     ~RoiTemplateScanner();
 
     RoiTemplateScanner(const RoiTemplateScanner&) = delete;

@@ -1074,8 +1074,7 @@ bool NavigationStateMachine::TickNavigate()
     const int64_t stalled_ms = session_->StalledMs(now);
     // Warm the device probe from the first stalled tick, so by the time the recovery ladder runs its answer is
     // already latched and reading it costs nothing.
-    device_recovery_.UpdateFeeding(
-        stalled_ms, runtime_state_.recovery_escalation.device_attempt_count < kRecoveryDeviceAttempts);
+    device_recovery_.UpdateFeeding(stalled_ms, runtime_state_.recovery_escalation.device_attempt_count < kRecoveryDeviceAttempts);
 
     if (!route.valid) {
         if (degraded_fix) {
@@ -1279,8 +1278,8 @@ bool NavigationStateMachine::TickNavigate()
                 // The device removal runs ahead of the jump, not instead of it: if the agent is still pinned
                 // afterwards the jump below fires this same tick and the ladder keeps climbing. Every outcome
                 // but NotAttempted has run the subtask, so it spends the attempt either way.
-                const DeviceRemovalOutcome device_outcome = device_recovery_.TryRemove(
-                    route, waypoint, escalation.device_attempt_count < kRecoveryDeviceAttempts);
+                const DeviceRemovalOutcome device_outcome =
+                    device_recovery_.TryRemove(route, waypoint, escalation.device_attempt_count < kRecoveryDeviceAttempts);
                 if (device_outcome != DeviceRemovalOutcome::NotAttempted) {
                     ++escalation.device_attempt_count;
                 }
