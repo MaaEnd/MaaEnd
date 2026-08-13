@@ -89,7 +89,8 @@
                                 86.12,
                                 95.53
                             ],
-                            "target_tier": "Wuling_L5_321"
+                            "target_tier": "Wuling_L5_321",
+                            "strict_arrival": true
                         }
                     ]
                 }
@@ -143,7 +144,8 @@
                                 86.12,
                                 95.53
                             ],
-                            "target_tier": "Wuling_L5_321"
+                            "target_tier": "Wuling_L5_321",
+                            "strict_arrival": true
                         }
                     ]
                 }

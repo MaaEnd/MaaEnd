@@ -54,8 +54,8 @@
                         {
                             "action": "NAVMESH",
                             "target": [
-                                260.23,
-                                274.65
+                                267.5,
+                                276.87
                             ],
                             "target_tier": "Wuling_L8_388"
                         }
