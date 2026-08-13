@@ -10,11 +10,8 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// Pipeline node names are left empty until the corresponding recognition nodes are ready.
-const (
-	uidRecognitionNode  = ""
-	itemRecognitionNode = "IntelArchiveRecognitionItemText"
-)
+// Pipeline node names for nested recognition invoked by ScanItems.
+const itemRecognitionNode = "IntelArchiveRecognitionItemText"
 
 var _ maa.CustomRecognitionRunner = &ScanItems{}
 
@@ -26,36 +23,13 @@ func (r *ScanItems) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.C
 	if arg == nil || arg.Img == nil || ctx == nil {
 		return nil, false
 	}
-	if uidRecognitionNode == "" {
-		log.Error().Str("component", component).Str("step", "scan_items").Msg("uid recognition pipeline node is not configured")
-		return nil, false
-	}
 	if itemRecognitionNode == "" {
 		log.Error().Str("component", component).Str("step", "scan_items").Msg("item recognition pipeline node is not configured")
 		return nil, false
 	}
 
-	// uidDetail, err := ctx.RunRecognition(uidRecognitionNode, arg.Img)
-	// if err != nil {
-	// 	log.Error().Err(err).Str("component", component).Str("step", "scan_items").Msg("uid recognition failed")
-	// 	return nil, false
-	// }
-	// uidTexts, err := extractFilteredTexts(uidDetail)
-	// if err != nil {
-	// 	log.Error().Err(err).Str("component", component).Str("step", "scan_items").Msg("uid recognition failed")
-	// 	return nil, false
-	// }
+	// UID placeholder; real capture is handled outside this recognition for now.
 	uid := "123456789"
-	// for _, text := range uidTexts {
-	// 	if text = strings.TrimSpace(text); text != "" {
-	// 		uid = text
-	// 		break
-	// 	}
-	// }
-	// if uid == "" {
-	// 	log.Error().Str("component", component).Str("step", "scan_items").Msg("uid recognition failed")
-	// 	return nil, false
-	// }
 
 	itemDetail, err := ctx.RunRecognition(itemRecognitionNode, arg.Img)
 	if err != nil {
@@ -74,7 +48,16 @@ func (r *ScanItems) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.C
 		return nil, false
 	}
 
+	log.Info().
+		Str("component", component).
+		Str("step", "scan_items").
+		Str("uid", uid).
+		Int("ocr_count", len(names)).
+		Strs("ocr_texts", names).
+		Msg("scan items ocr texts")
+
 	matchedIDs := make([]string, 0, len(names))
+	matchedNames := make([]string, 0, len(names))
 	unmatched := make([]string, 0)
 	for _, name := range names {
 		name = strings.TrimSpace(name)
@@ -94,12 +77,29 @@ func (r *ScanItems) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.C
 			}
 		}
 		if id == "" {
+			log.Info().
+				Str("component", component).
+				Str("step", "scan_items").
+				Str("uid", uid).
+				Str("ocr", name).
+				Bool("matched", false).
+				Msg("catalog lookup miss")
 			maafocus.Print(ctx, i18n.T("intelarchive.item_not_found", name))
 			unmatched = append(unmatched, name)
 			continue
 		}
+		log.Info().
+			Str("component", component).
+			Str("step", "scan_items").
+			Str("uid", uid).
+			Str("ocr", name).
+			Bool("matched", true).
+			Str("full_name", fullName).
+			Str("item_id", id).
+			Msg("catalog lookup hit")
 		maafocus.Print(ctx, i18n.T("intelarchive.item_unlocked", fullName))
 		matchedIDs = append(matchedIDs, id)
+		matchedNames = append(matchedNames, fullName)
 	}
 
 	added, err := unlockItems(uid, matchedIDs)
@@ -119,7 +119,11 @@ func (r *ScanItems) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.C
 		Str("uid", uid).
 		Int("ocr_count", len(names)).
 		Int("matched_count", len(matchedIDs)).
+		Int("unmatched_count", len(unmatched)).
 		Int("added_count", len(added)).
+		Strs("ocr_texts", names).
+		Strs("matched_names", matchedNames).
+		Strs("matched_ids", matchedIDs).
 		Strs("unmatched", unmatched).
 		Strs("added", added).
 		Msg("scan items finished")

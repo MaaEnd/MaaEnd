@@ -197,6 +197,7 @@
         "rate_limit": 0,
         "next": [
             "__ScenePrivateAnyEnterMenuIntelArchiveSuccess",
+            "[JumpBack]__ScenePrivateMenuIntelArchiveView2EnterMenuIntelArchive",
             "__ScenePrivateWorldEnterMenuIntelArchive",
             "[JumpBack]SceneAnyEnterWorld"
         ]

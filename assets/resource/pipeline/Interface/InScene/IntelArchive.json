@@ -1,17 +1,54 @@
 {
     "InIntelArchive": {
-        "desc": "在档案库界面内",
+        "desc": "在档案库一级界面（分类选择）；二级页由 InIntelArchiveView2 识别",
         "recognition": {
-            "type": "OCR",
+            "type": "And",
             "param": {
-                "roi": [
-                    0,
-                    0,
-                    240,
-                    100
-                ],
-                "expected": [
-                    "情报档案库"
+                "all_of": [
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    0,
+                                    0,
+                                    240,
+                                    100
+                                ],
+                                "expected": [
+                                    "情报档案库"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "inverse": true,
+                        "recognition": {
+                            "type": "And",
+                            "param": {
+                                "all_of": [
+                                    "InIntelArchiveView2"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InIntelArchiveView2": {
+        "desc": "在档案库二级界面（情报采集/音像存档/见闻辑录/中枢档案）",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "InIntelArchiveIntelGathering",
+                    "InIntelArchiveAudioRecords",
+                    "InIntelArchiveFindings",
+                    "InIntelArchiveNexusFiles"
                 ]
             }
         },

@@ -7,6 +7,7 @@
         "next": [
             "__ScenePrivateAnyEnterMenuIntelArchiveIntelGatheringSuccess",
             "__ScenePrivateMenuIntelArchiveEnterIntelGathering",
+            "[JumpBack]__ScenePrivateMenuIntelArchiveView2EnterMenuIntelArchive",
             "[JumpBack]SceneEnterMenuIntelArchive"
         ]
     },
@@ -18,6 +19,7 @@
         "next": [
             "__ScenePrivateAnyEnterMenuIntelArchiveAudioRecordsSuccess",
             "__ScenePrivateMenuIntelArchiveEnterAudioRecords",
+            "[JumpBack]__ScenePrivateMenuIntelArchiveView2EnterMenuIntelArchive",
             "[JumpBack]SceneEnterMenuIntelArchive"
         ]
     },
@@ -29,6 +31,7 @@
         "next": [
             "__ScenePrivateAnyEnterMenuIntelArchiveFindingsSuccess",
             "__ScenePrivateMenuIntelArchiveEnterFindings",
+            "[JumpBack]__ScenePrivateMenuIntelArchiveView2EnterMenuIntelArchive",
             "[JumpBack]SceneEnterMenuIntelArchive"
         ]
     },
@@ -40,6 +43,7 @@
         "next": [
             "__ScenePrivateAnyEnterMenuIntelArchiveNexusFilesSuccess",
             "__ScenePrivateMenuIntelArchiveEnterNexusFiles",
+            "[JumpBack]__ScenePrivateMenuIntelArchiveView2EnterMenuIntelArchive",
             "[JumpBack]SceneEnterMenuIntelArchive"
         ]
     }
