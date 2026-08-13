@@ -238,7 +238,7 @@ func recognizeItemQuantity(ctx *maa.Context, andNode string, img image.Image) (q
 }
 
 // recognizeItemQuantityHit runs the item And node and returns quantity plus the
-// root recognition detail (for A3 hit-region masking via CombinedResult).
+// root recognition detail so A3 can mask the matched TemplateMatch best box.
 func recognizeItemQuantityHit(
 	ctx *maa.Context,
 	andNode string,

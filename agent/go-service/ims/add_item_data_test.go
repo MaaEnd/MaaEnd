@@ -74,50 +74,68 @@ func TestAddItemDataNeedsContextWhenNotInitialized(t *testing.T) {
 	}
 }
 
-func TestUnionRects(t *testing.T) {
-	got := unionRects(maa.Rect{10, 20, 30, 40}, maa.Rect{25, 10, 20, 15})
-	want := maa.Rect{10, 10, 35, 50}
-	if got != want {
-		t.Fatalf("union=%v, want %v", got, want)
+func TestFindRecognitionDetailByAlgorithmDoesNotDependOnChildOrder(t *testing.T) {
+	templateDetail := &maa.RecognitionDetail{
+		Algorithm: "TemplateMatch",
+		Box:       maa.Rect{700, 280, 120, 100},
 	}
-	if unionRects(maa.Rect{0, 0, 0, 0}, maa.Rect{1, 1, 0, 5}) != (maa.Rect{}) {
-		t.Fatal("expected empty union for invalid rects")
+	detail := &maa.RecognitionDetail{
+		Algorithm: "And",
+		CombinedResult: []*maa.RecognitionDetail{
+			{Algorithm: "ColorMatch", Box: maa.Rect{400, 390, 100, 5}},
+			{
+				Algorithm: "And",
+				CombinedResult: []*maa.RecognitionDetail{
+					{Algorithm: "OCR", Box: maa.Rect{800, 370, 20, 15}},
+					templateDetail,
+				},
+			},
+		},
+	}
+
+	got := findRecognitionDetailByAlgorithm(detail, "TemplateMatch")
+	if got != templateDetail {
+		t.Fatalf("template detail=%p, want %p", got, templateDetail)
 	}
 }
 
-func TestItemHitMaskBox(t *testing.T) {
+func TestBestTemplateMatchBoxRequiresTypedBestResult(t *testing.T) {
 	detail := &maa.RecognitionDetail{
-		Box: maa.Rect{0, 0, 1, 1},
+		Algorithm: "And",
+		Box:       maa.Rect{806, 377, 20, 15},
 		CombinedResult: []*maa.RecognitionDetail{
-			{Box: maa.Rect{100, 200, 50, 10}},
-			{Box: maa.Rect{100, 100, 50, 80}},
+			{Algorithm: "ColorMatch", Box: maa.Rect{416, 392, 96, 3}},
+			{
+				Algorithm: "TemplateMatch",
+				Box:       maa.Rect{768, 299, 96, 79},
+			},
+			{Algorithm: "OCR", Box: maa.Rect{806, 377, 20, 15}},
 		},
 	}
-	got := itemHitMaskBox(detail)
-	want := maa.Rect{100, 100, 50, 110}
-	if got != want {
-		t.Fatalf("mask box=%v, want %v", got, want)
-	}
 
-	fallback := &maa.RecognitionDetail{Box: maa.Rect{7, 8, 9, 10}}
-	if itemHitMaskBox(fallback) != fallback.Box {
-		t.Fatal("expected detail.Box fallback when CombinedResult empty")
+	if box, ok := bestTemplateMatchBox(detail); ok || box != (maa.Rect{}) {
+		t.Fatalf("mask box=%v, ok=%v; want no fallback to detail.Box", box, ok)
 	}
 }
 
-func TestPaintItemHitRegion(t *testing.T) {
-	img := image.NewRGBA(image.Rect(0, 0, 200, 200))
+func TestPaintItemHitRegionDoesNotUseRecognitionDetailBox(t *testing.T) {
+	img := image.NewRGBA(image.Rect(0, 0, 1280, 720))
 	detail := &maa.RecognitionDetail{
+		Algorithm: "And",
 		CombinedResult: []*maa.RecognitionDetail{
-			{Box: maa.Rect{10, 20, 30, 10}},
-			{Box: maa.Rect{10, 5, 30, 20}},
+			{Algorithm: "ColorMatch", Box: maa.Rect{416, 392, 96, 3}},
+			{Algorithm: "TemplateMatch", Box: maa.Rect{768, 299, 96, 79}},
+			{Algorithm: "OCR", Box: maa.Rect{806, 377, 20, 15}},
 		},
 	}
-	if !paintItemHitRegion(img, detail) {
-		t.Fatal("expected paint success")
+
+	if paintItemHitRegion(img, detail) {
+		t.Fatal("expected masking to fail without TemplateMatch Results.Best")
 	}
-	c := img.RGBAAt(15, 10)
-	if c != (color.RGBA{R: 0, G: 255, B: 0, A: 255}) {
-		t.Fatalf("pixel=%v, want green", c)
+	if got := img.RGBAAt(800, 320); got != (color.RGBA{}) {
+		t.Fatalf("template detail.Box pixel=%v, want untouched", got)
+	}
+	if got := img.RGBAAt(450, 393); got != (color.RGBA{}) {
+		t.Fatalf("quality anchor pixel=%v, want untouched", got)
 	}
 }
