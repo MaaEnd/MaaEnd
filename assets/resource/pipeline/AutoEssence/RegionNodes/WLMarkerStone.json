@@ -3,7 +3,7 @@
         "enabled": false,
         "pre_delay": 0,
         "anchor": {
-            "AutoEssenceMoveToTriggerPoint": "GotoTriggerPointGoal_WLMarkerStone",
+            "AutoEssenceMoveToTriggerPoint": "GotoTriggerPointMove_WLMarkerStone",
             "AutoEssenceMoveToTriggerPointMaybeTeleport": "GotoTriggerPointMaybeTeleport_WLMarkerStone"
         },
         "post_delay": 0,
@@ -12,40 +12,20 @@
         }
     },
     "GotoTriggerPointMaybeTeleport_WLMarkerStone": {
+        "desc": "判断是否需要传送到最近锚点",
         "recognition": {
-            "type": "Custom",
+            "type": "Or",
             "param": {
-                "custom_recognition": "MapTrackerAssertLocation",
-                "custom_recognition_param": {
-                    "expected": [
-                        {
-                            // 距离淤积点最近的锚点附近坐标范围
-                            "map_name": "map02_lv004",
-                            "target": [
-                                402.4,
-                                313.4,
-                                20.8,
-                                17.4
-                            ]
-                        },
-                        {
-                            // 淤积点附近
-                            "map_name": "map02_lv004",
-                            "target": [
-                                288.6,
-                                367.0,
-                                72.6,
-                                73.9
-                            ]
-                        }
-                    ]
-                }
+                "any_of": [
+                    "__GotoTriggerPointNearAnchor_WLMarkerStone",
+                    "__GotoTriggerPointNearTrigger_WLMarkerStone"
+                ]
             }
         },
         "inverse": true,
         "next": [
             "[JumpBack]__GotoTriggerPointTeleportOnce_WLMarkerStone",
-            "GotoTriggerPointGoal_WLMarkerStone"
+            "GotoTriggerPointMove_WLMarkerStone"
         ],
         "focus": {
             "Node.Action.Starting": "✈️准备传送到最近锚点"
@@ -59,22 +39,168 @@
             "SceneEnterWorldWulingMarkerStone2"
         ]
     },
-    "GotoTriggerPointGoal_WLMarkerStone": {
-        "action": {
+    "__GotoTriggerPointNearAnchor_WLMarkerStone": {
+        "desc": "锚点附近",
+        "recognition": {
             "type": "Custom",
             "param": {
-                "custom_action": "MapTrackerGoal",
-                "custom_action_param": {
-                    "map_name": "map02_lv004",
+                "custom_recognition": "MapLocateAssertLocation",
+                "custom_recognition_param": {
+                    "zone_id": "Wuling_Base",
                     "target": [
-                        324.5,
-                        405.5
-                    ],
-                    "no_ensure_initial_movement_state": true // 由于该区域传送点附近是水域，禁用此设置以免掉落
+                        396.21,
+                        2228.75,
+                        20.48,
+                        17.14
+                    ]
+                }
+            }
+        }
+    },
+    "__GotoTriggerPointNearTrigger_WLMarkerStone": {
+        "desc": "淤积点附近",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapLocateAssertLocation",
+                "custom_recognition_param": {
+                    "zone_id": "Wuling_Base",
+                    "target": [
+                        284.16,
+                        2281.56,
+                        71.48,
+                        72.8
+                    ]
+                }
+            }
+        }
+    },
+    "GotoTriggerPointMove_WLMarkerStone": {
+        "desc": "导航入口：已在淤积点附近则只走末段，否则走含圈完整路径",
+        "next": [
+            "GotoTriggerPointMoveNearTrigger_WLMarkerStone",
+            "GotoTriggerPointMoveMain_WLMarkerStone"
+        ],
+        "focus": {
+            "Node.Action.Starting": "🚶正在前往激发点附近",
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "GotoTriggerPointMoveNearTrigger_WLMarkerStone": {
+        "desc": "已在淤积点/激发点区域，跳过圈路径",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapLocateAssertLocation",
+                "custom_recognition_param": {
+                    "zone_id": "Wuling_Base",
+                    "target": [
+                        282.78,
+                        2279.69,
+                        78.57,
+                        84.53
+                    ]
                 }
             }
         },
-        "post_delay": 1500, // 确保彻底停下，规避移动惯性
+        "next": [
+            "GotoTriggerPointMoveExact_WLMarkerStone"
+        ],
+        "focus": {
+            "Node.Action.Starting": "🚶正在前往激发点",
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "GotoTriggerPointMoveMain_WLMarkerStone": {
+        "desc": "从锚点侧经圈路径接近激发点",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "Wuling_Base"
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                412.36,
+                                2242.74
+                            ]
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                408.62,
+                                2242.74
+                            ]
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                408.62,
+                                2236.54
+                            ]
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                318.82,
+                                2236.54
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "next": [
+            "GotoTriggerPointMoveExact_WLMarkerStone"
+        ],
+        "focus": {
+            "Node.Action.Starting": "🚶正在前往激发点附近",
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "GotoTriggerPointMoveExact_WLMarkerStone": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "Wuling_Base"
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                319.17,
+                                2318.36
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "post_delay": 1500,
         "next": [
             "AutoEssenceDispatcher"
         ],

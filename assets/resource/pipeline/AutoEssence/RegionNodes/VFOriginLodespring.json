@@ -12,34 +12,14 @@
         }
     },
     "GotoTriggerPointMaybeTeleport_VFOriginLodespring": {
+        "desc": "判断是否需要传送到最近锚点",
         "recognition": {
-            "type": "Custom",
+            "type": "Or",
             "param": {
-                "custom_recognition": "MapTrackerAssertLocation",
-                "custom_recognition_param": {
-                    "expected": [
-                        {
-                            // 距离淤积点最近的锚点附近
-                            "map_name": "map01_lv006",
-                            "target": [
-                                402.0,
-                                483.0,
-                                21.2,
-                                21.2
-                            ]
-                        },
-                        {
-                            // 淤积点附近
-                            "map_name": "map01_lv006_tier_109",
-                            "target": [
-                                243.0,
-                                528.0,
-                                32.0,
-                                32.0
-                            ]
-                        }
-                    ]
-                }
+                "any_of": [
+                    "__GotoTriggerPointNearAnchor_VFOriginLodespring",
+                    "__GotoTriggerPointNearTrigger_VFOriginLodespring"
+                ]
             }
         },
         "inverse": true,
@@ -63,80 +43,133 @@
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "MapTrackerMove",
+                "custom_action": "MapNavigateAction",
                 "custom_action_param": {
-                    "map_name": "map01_lv006",
                     "path": [
-                        [
-                            414.0,
-                            493.2
-                        ],
-                        [
-                            399.0,
-                            485.2
-                        ],
-                        [
-                            382.7,
-                            476.9
-                        ],
-                        [
-                            373.9,
-                            452.0
-                        ],
-                        [
-                            370.2,
-                            450.8
-                        ],
-                        [
-                            364.0,
-                            453.3
-                        ],
-                        [
-                            341.5,
-                            473.8
-                        ],
-                        [
-                            332.8,
-                            480.8
-                        ],
-                        [
-                            321.5,
-                            482.1
-                        ],
-                        [
-                            316.5,
-                            485.7
-                        ],
-                        [
-                            315.2,
-                            490.8
-                        ],
-                        [
-                            304.1,
-                            508.2
-                        ],
-                        [
-                            300.4,
-                            512.1
-                        ],
-                        [
-                            295.4,
-                            519.4
-                        ],
-                        [
-                            290.2,
-                            529.3
-                        ],
-                        [
-                            282.8,
-                            534.4
-                        ],
-                        [
-                            270.1,
-                            541.5
-                        ]
-                    ],
-                    "path_trim": true
+                        {
+                            "action": "ZONE",
+                            "zone_id": "ValleyIV_Base"
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                1102.15,
+                                455.26
+                            ]
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                1088.31,
+                                447.88
+                            ]
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                1073.26,
+                                440.22
+                            ]
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                1065.14,
+                                417.23
+                            ]
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                1061.72,
+                                416.12
+                            ]
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                1056.0,
+                                418.43
+                            ]
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                1035.23,
+                                437.35
+                            ]
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                1027.2,
+                                443.82
+                            ]
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                1016.77,
+                                445.02
+                            ]
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                1012.15,
+                                448.34
+                            ]
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                1010.95,
+                                453.05
+                            ]
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                1000.71,
+                                469.11
+                            ]
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                997.29,
+                                472.71
+                            ]
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                992.68,
+                                479.45
+                            ]
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                987.88,
+                                488.58
+                            ]
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                981.05,
+                                493.29
+                            ]
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                979.39,
+                                493.08
+                            ]
+                        }
+                    ]
                 }
             }
         },
@@ -157,20 +190,35 @@
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "MapTrackerMove",
+                "custom_action": "MapNavigateAction",
                 "custom_action_param": {
-                    "map_name": "map01_lv006_tier_109",
                     "path": [
-                        [
-                            262.2,
-                            541.2
-                        ]
-                    ],
-                    "no_ensure_initial_movement_state": true
+                        {
+                            "action": "ZONE",
+                            "zone_id": "ValleyIV_Base"
+                        },
+                        {
+                            "action": "RUN",
+                            "target": [
+                                108.6,
+                                180.33
+                            ],
+                            "target_tier": "ValleyIV_L6_109"
+                        },
+                        {
+                            "action": "RUN",
+                            "target": [
+                                97.3,
+                                180.75
+                            ],
+                            "target_tier": "ValleyIV_L6_109",
+                            "strict_arrival": true
+                        }
+                    ]
                 }
             }
         },
-        "post_delay": 1500, // 确保彻底停下，规避移动惯性
+        "post_delay": 1500,
         "next": [
             "AutoEssenceDispatcher"
         ],
@@ -181,6 +229,42 @@
             },
             "Node.Action.Failed": {
                 "trace": true
+            }
+        }
+    },
+    "__GotoTriggerPointNearAnchor_VFOriginLodespring": {
+        "desc": "锚点附近",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapLocateAssertLocation",
+                "custom_recognition_param": {
+                    "zone_id": "ValleyIV_Base",
+                    "target": [
+                        1091.08,
+                        445.85,
+                        19.57,
+                        19.57
+                    ]
+                }
+            }
+        }
+    },
+    "__GotoTriggerPointNearTrigger_VFOriginLodespring": {
+        "desc": "淤积点附近",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapLocateAssertLocation",
+                "custom_recognition_param": {
+                    "zone_id": "ValleyIV_L6_109",
+                    "target": [
+                        79.51,
+                        167.49,
+                        31.67,
+                        31.65
+                    ]
+                }
             }
         }
     }

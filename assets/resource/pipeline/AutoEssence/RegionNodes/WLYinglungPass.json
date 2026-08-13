@@ -3,7 +3,7 @@
         "enabled": false,
         "pre_delay": 0,
         "anchor": {
-            "AutoEssenceMoveToTriggerPoint": "GotoTriggerPointGoal_WLYinglungPass",
+            "AutoEssenceMoveToTriggerPoint": "GotoTriggerPointMove_WLYinglungPass",
             "AutoEssenceMoveToTriggerPointMaybeTeleport": "GotoTriggerPointMaybeTeleport_WLYinglungPass"
         },
         "post_delay": 0,
@@ -12,40 +12,20 @@
         }
     },
     "GotoTriggerPointMaybeTeleport_WLYinglungPass": {
+        "desc": "判断是否需要传送到最近锚点",
         "recognition": {
-            "type": "Custom",
+            "type": "Or",
             "param": {
-                "custom_recognition": "MapTrackerAssertLocation",
-                "custom_recognition_param": {
-                    "expected": [
-                        {
-                            // 距离淤积点最近的锚点附近
-                            "map_name": "map02_lv007",
-                            "target": [
-                                557.8,
-                                220.1,
-                                16.3,
-                                13.8
-                            ]
-                        },
-                        {
-                            // 淤积点附近
-                            "map_name": "map02_lv007",
-                            "target": [
-                                480.8,
-                                293.8,
-                                38.3,
-                                38.3
-                            ]
-                        }
-                    ]
-                }
+                "any_of": [
+                    "__GotoTriggerPointNearAnchor_WLYinglungPass",
+                    "__GotoTriggerPointNearTrigger_WLYinglungPass"
+                ]
             }
         },
         "inverse": true,
         "next": [
             "[JumpBack]__GotoTriggerPointTeleportOnce_WLYinglungPass",
-            "GotoTriggerPointGoal_WLYinglungPass"
+            "GotoTriggerPointMove_WLYinglungPass"
         ],
         "focus": {
             "Node.Action.Starting": "✈️准备传送到最近锚点"
@@ -60,16 +40,78 @@
             "SceneEnterWorldWulingYinglungPass2"
         ]
     },
-    "GotoTriggerPointGoal_WLYinglungPass": {
+    "__GotoTriggerPointNearAnchor_WLYinglungPass": {
+        "desc": "锚点附近",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapLocateAssertLocation",
+                "custom_recognition_param": {
+                    "zone_id": "Wuling_Base",
+                    "target": [
+                        1125.22,
+                        792.71,
+                        16.05,
+                        13.59
+                    ]
+                }
+            }
+        }
+    },
+    "__GotoTriggerPointNearTrigger_WLYinglungPass": {
+        "desc": "淤积点附近",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapLocateAssertLocation",
+                "custom_recognition_param": {
+                    "zone_id": "Wuling_Base",
+                    "target": [
+                        1049.4,
+                        865.28,
+                        37.71,
+                        37.71
+                    ]
+                }
+            }
+        }
+    },
+    "GotoTriggerPointMove_WLYinglungPass": {
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "MapTrackerGoal",
+                "custom_action": "MapNavigateAction",
                 "custom_action_param": {
-                    "map_name": "map02_lv007",
-                    "target": [
-                        501.0,
-                        313.2
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "Wuling_Base"
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                1068.26,
+                                814.83
+                            ]
+                        },
+                        [
+                            1068.26,
+                            832.88
+                        ],
+                        [
+                            1068.26,
+                            850.93
+                        ],
+                        [
+                            1068.26,
+                            868.98,
+                            true
+                        ],
+                        [
+                            1068.56,
+                            884.84,
+                            true
+                        ]
                     ]
                 }
             }
