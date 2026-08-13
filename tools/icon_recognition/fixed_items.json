@@ -62,6 +62,15 @@
         "categoryType": "Gold",
         "category": "独立资源"
     },
+    "item_originium_recharge": {
+        "name": "衍质源石",
+        "iconId": "item_originium_recharge",
+        "i18nKey": "ff990914a2dc3f11473e5d6739e873b7",
+        "rarity": 6,
+        "storageKind": "Isolate",
+        "categoryType": "Originium",
+        "category": "独立资源"
+    },
     "item_spaceship_credit": {
         "name": "信用",
         "iconId": "item_spaceship_credit",

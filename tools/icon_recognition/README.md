@@ -78,7 +78,7 @@ python tools/icon_recognition/publish.py --fixed-only
 
 运行时多语言 key 为 `iconRecognition.name.<item_id>`。发布脚本会删除 locale 中已不在 catalog 的旧 key，并要求五语言 key 数与 catalog 完全一致。
 
-固定物品的 `iconId`、i18n key、rarity、`storageKind` 和 `categoryType` 均以 `fixed_items.json` 为唯一事实来源。当前 8 项都使用“独立资源”分类，并发布到各自的 `Isolate:<categoryType>` 候选集。
+固定物品的 `iconId`、i18n key、rarity、`storageKind` 和 `categoryType` 均以 `fixed_items.json` 为唯一事实来源。当前 9 项都使用“独立资源”分类，并发布到各自的 `Isolate:<categoryType>` 候选集。
 
 最终图标位于 `assets/resource/image/IconRecognition/<rarity>/<iconId>.png`。识别时从这里的 128 或 256 原图直接缩放到目标 cell 尺寸，不经过固定中间尺寸。
 

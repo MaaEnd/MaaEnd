@@ -119,14 +119,19 @@ The native ROI uses 1280x720 `[x,y,width,height]` coordinates. Width and height 
 | Field | Type | Required | Default | Description |
 | -------------------- | ------------------- | ---------------------------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
 | `grid_type` | string / `GridType` | Yes for Custom; set it explicitly in C++ | None for Custom | Selects the grid locator for the current screen. See the table below. The C++ member initializer is only a construction placeholder |
+| `grid_scale` | number | No | Auto-selected | UI-density scale relative to the standard 720p layout. Automatic mode only selects between the calibrated `1.0` and `1.25` profiles; pass every other scale explicitly |
 | `item_ids` | string[] | No | `[]` | Keeps only the listed items. Multiple IDs form a union; duplicates are rejected |
 | `item_filters` | string[] | No | Depends on `grid_type` | Selects candidates by `storageKind:categoryType`. Multiple filters form a union; `*` selects every category under that `storageKind` |
-| `threshold` | number | No | `0.85` | Minimum final score required to report an item as a match. Lower values increase false-positive risk |
+| `threshold` | number | No | `0.85` | General minimum final match score. See below for the default shipment ranked fallback; any other explicit value is enforced exactly |
 | `subpixel_threshold` | number | No | `0.60` | Tries finer position offsets when the base score reaches this value but remains below `threshold` |
 | `deduplicate` | boolean | No | `false` | Keeps only the highest-scoring cell for each `item_id` |
 | `debug` | boolean | No | `false` | Grid and cell diagnostics are collected when recognition reaches the result-assembly stage; early `invalid_image` or `exception` returns may lack them. `debug` controls performance timing and Custom debug-file writing |
 
-Thresholds must satisfy `0 <= subpixel_threshold < threshold <= 1`. When a base score is below `subpixel_threshold`, the component considers that candidate clearly unreliable, skips the finer position search, and does not add it to `matches`. Scores between the two thresholds are refined. A result is returned only when its final score reaches `threshold` and it is not rejected by the low-texture check. Shipment quantity bars and valuable-depot portrait regions are excluded from the template-matching mask; they do not directly produce a rejection state. Check the ROI, frame stability, and candidate filters before lowering thresholds.
+`grid_scale` describes a UI-density change within the same pixel canvas, not a change in screenshot dimensions. The component resizes the analysis image by `1 / grid_scale`, reuses the standard 720p grid priors, and maps returned coordinates back to the original image, so `cell_box` and `item_box` remain in original-image coordinates. When omitted, regular grids select between the calibrated `1.0` and `1.25` profiles from repeated structures inside the ROI; `rewards` selects from the white reward-card size. Ambiguous evidence returns an error. Callers may explicitly provide any scale in the `0.5..2.0` range.
+
+The component never guesses, moves, or expands the request ROI from `grid_scale`. The caller remains responsible for a native ROI that is fully inside the image and completely covers every target cell. Automatic scale selection only reads pixels inside that ROI. A rewards ROI may cover the whole reward group or one complete reward card.
+
+Thresholds must satisfy `0 <= subpixel_threshold < threshold <= 1`. When a base score is below `subpixel_threshold`, the component considers that candidate clearly unreliable, skips the finer position search, and does not add it to `matches`. Scores between the two thresholds are refined. Results normally require a final score at or above `threshold` and must pass the low-texture check. The only exception is shipment with the unchanged default `threshold=0.85`: quantity bars and count labels systematically depress a few dark icons, so a refined candidate may also be returned when its final score is at least `0.80` and it leads the runner-up by at least `0.10`. Supplying any other threshold disables this fallback and enforces the supplied value exactly. Shipment quantity bars and valuable-depot portrait regions are excluded from the template-matching mask. Check the ROI, frame stability, and candidate filters before lowering thresholds.
 
 When both `item_ids` and `item_filters` are supplied, their intersection is used. Unknown or duplicate IDs, malformed filters, an empty filtered set, or an ID excluded by the filters returns `exception`.
 
@@ -140,12 +145,12 @@ When both `item_ids` and `item_filters` are supplied, their intersection is used
 | `valuables` | `GridType::Valuables` | Valuable depot | `ValuableDepot:*` | `[24,76,950,570]` |
 | `shipment` | `GridType::Shipment` | Shipment screen | `Normal:*` | `[34,132,386,474]` |
 | `credit_trade` | `GridType::CreditTrade` | Credit trade | `ValuableDepot:SpecialItem`, `Isolate:*` | `[70,95,1140,415]` |
-| `rewards` | `GridType::Rewards` | Rewards screen | `Isolate:*` | `[39,82,1205,511]` |
+| `rewards` | `GridType::Rewards` | Rewards screen | `Isolate:*`, `ValuableDepot:*` | `[39,82,1205,511]` |
 | `single_roi` | `GridType::SingleRoi` | One caller-selected cell | `Normal:*` | Any square inside the image; example `[1177,450,54,54]` |
 
 Reference ROIs are absolute 1280x720 screen coordinates, not coordinates relative to another ROI. Each value applies only to the listed screen, and the caller must keep every target cell fully covered. One-sided storage ROIs still use absolute screen coordinates.
 
-`rewards` locates white reward cards and determines the horizontal origin of each row independently, so rows do not need aligned columns. Public results still treat them as one multi-row grid: `row` increases from top to bottom, while `column` restarts at zero in each row. Multiple game features reuse this screen type and may show different item categories. When `item_filters` is omitted or empty, the default candidate set is `Isolate:*`; a non-empty `item_filters` replaces that default set completely.
+`rewards` locates white reward cards and determines the horizontal origin of each row independently, so rows do not need aligned columns. Public results still treat them as one multi-row grid: `row` increases from top to bottom, while `column` restarts at zero in each row. Multiple game features reuse this screen type and may show different item categories. When `item_filters` is omitted or empty, the default candidate set is `Isolate:*`, `ValuableDepot:*`; a non-empty `item_filters` replaces that default set completely.
 
 ### Item IDs
 

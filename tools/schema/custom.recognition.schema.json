@@ -78,6 +78,7 @@
                                     "valuables",
                                     "shipment",
                                     "credit_trade",
+                                    "rewards",
                                     "single_roi"
                                 ],
                                 "title": "Grid Type",
@@ -103,13 +104,20 @@
                                 "title": "Item Filters",
                                 "description": "Optional storageKind:categoryType filters for candidate icons."
                             },
+                            "grid_scale": {
+                                "type": "number",
+                                "minimum": 0.5,
+                                "maximum": 2,
+                                "title": "Grid Scale",
+                                "description": "Optional explicit UI-density scale. Omit it to auto-select a calibrated profile."
+                            },
                             "threshold": {
                                 "type": "number",
                                 "minimum": 0,
                                 "maximum": 1,
                                 "default": 0.85,
                                 "title": "Threshold",
-                                "description": "Minimum final match score. Lower values increase recall and false-positive risk."
+                                "description": "General minimum final match score. Shipment with the unchanged default 0.85 may accept a refined candidate scoring at least 0.80 with a top-two margin of at least 0.10; any other explicit threshold is enforced exactly."
                             },
                             "subpixel_threshold": {
                                 "type": "number",

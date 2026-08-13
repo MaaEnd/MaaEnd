@@ -292,6 +292,7 @@ void TestMalformedScalarParametersAreRejected()
     image.set(pixels);
     for (const auto& [param, field] : {
              std::pair { R"({"grid_type":1})", "grid_type" },
+             std::pair { R"({"grid_type":"single_roi","grid_scale":"bad"})", "grid_scale" },
              std::pair { R"({"grid_type":"single_roi","threshold":"bad"})", "threshold" },
              std::pair { R"({"grid_type":"single_roi","subpixel_threshold":"bad"})", "subpixel_threshold" },
              std::pair { R"({"grid_type":"single_roi","debug":"bad"})", "debug" },

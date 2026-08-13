@@ -82,10 +82,10 @@ cv::Mat BuildLowerExtendedMask(int target_size)
     return mask;
 }
 
-bool HasShipmentTopBar(const cv::Mat& image)
+int ShipmentTopBarAlignmentScore(const cv::Mat& image)
 {
     if (image.empty() || image.rows < 4 || image.cols < 4) {
-        return false;
+        return 0;
     }
     cv::Mat bgr;
     if (image.channels() == 4) {
@@ -102,7 +102,21 @@ bool HasShipmentTopBar(const cv::Mat& image)
     cv::Mat selected;
     cv::inRange(hsv, cv::Scalar(20, 100, 150), cv::Scalar(40, 255, 255), selected);
     const int top_height = std::min(kShipmentQuantityBarHeight, image.rows);
-    return cv::countNonZero(selected.rowRange(0, top_height)) >= kShipmentQuantityBarMinPixels;
+    const cv::Mat top = selected.rowRange(0, top_height);
+    if (cv::countNonZero(top) < kShipmentQuantityBarMinPixels) {
+        return 0;
+    }
+    int score = 0;
+    for (int row = 0; row < top.rows; ++row) {
+        // 同样数量的黄色像素越靠近 cell 顶边，越可能是正确的可操作卡片相位。
+        score += (top_height - row) * cv::countNonZero(top.row(row));
+    }
+    return score;
+}
+
+bool HasShipmentTopBar(const cv::Mat& image)
+{
+    return ShipmentTopBarAlignmentScore(image) > 0;
 }
 
 void ApplyShipmentTopBarMask(cv::Mat& mask)

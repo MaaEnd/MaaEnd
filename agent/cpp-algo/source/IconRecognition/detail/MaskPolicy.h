@@ -18,6 +18,8 @@ enum class MaskKind
 
 cv::Mat BuildLowerExtendedMask(int target_size);
 cv::Mat BuildMask(const cv::Mat& image, int target_size, GridType grid_type, MaskKind kind = MaskKind::LowerExtended);
+// 返回顶部黄色数量条的对齐分；0 表示证据不足，正值越大表示数量条越贴近 cell 顶边。
+int ShipmentTopBarAlignmentScore(const cv::Mat& image);
 bool HasShipmentTopBar(const cv::Mat& image);
 // 在每个模板的临时 clone 上清除送货数量条区域；未来扩展识别范围应在同一 mask 上做 union。
 void ApplyShipmentTopBarMask(cv::Mat& mask);

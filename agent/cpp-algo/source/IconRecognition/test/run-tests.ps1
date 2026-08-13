@@ -6,6 +6,8 @@
     [switch]$All,
     [switch]$Debug,
     [switch]$UseLocalExpected,
+    [ValidateSet("win32", "adb")]
+    [string]$Dataset,
     [ValidateSet("trade", "transfer", "port_storager", "valuables", "shipment", "credit_trade", "rewards", "single_roi")]
     [string]$GridType,
     [string]$Image,
@@ -26,6 +28,7 @@ $mergedInputRoot = Join-Path $buildRoot "merged-input"
 $trackedInputRoot = Join-Path $repoRoot "tests/MaaEndTestset/Win32/Official_CN/IconRecognition"
 $trackedExpectedPath = Join-Path $trackedInputRoot "expected.csv"
 $localExpectedPath = Join-Path $testRoot "input/expected.csv"
+$localRoisPath = Join-Path $testRoot "input/rois.json"
 $quickFixtures = @(
     "transfer/25.png",
     "transfer/57.png",
@@ -41,9 +44,9 @@ function Show-Usage {
   ./run-tests.ps1 -Task configure
   ./run-tests.ps1 -Task build
   ./run-tests.ps1 -Task quick
-  ./run-tests.ps1 -Task manual -All [-UseLocalExpected] [-Side full|left|right|split|all] [-Jobs <1..64>] [-Debug]
-  ./run-tests.ps1 -Task manual -GridType <type> [-Image <basename>] [-UseLocalExpected] [-Side full|left|right|split|all] [-Jobs <1..64>] [-Debug]
-  ./run-tests.ps1 -Task manual -Image <basename> [-UseLocalExpected] [-Jobs <1..64>] [-Debug]
+  ./run-tests.ps1 -Task manual -All -Dataset <win32|adb> [-UseLocalExpected] [-Side full|left|right|split|all] [-Jobs <1..64>] [-Debug]
+  ./run-tests.ps1 -Task manual -GridType <type> -Dataset <win32|adb> [-Image <basename>] [-UseLocalExpected] [-Side full|left|right|split|all] [-Jobs <1..64>] [-Debug]
+  ./run-tests.ps1 -Task manual -Image <basename> -Dataset <win32|adb> [-UseLocalExpected] [-Jobs <1..64>] [-Debug]
   ./run-tests.ps1 -Help|-h
 
 网格类型:
@@ -209,6 +212,24 @@ function Prepare-MergedInput {
     }
 }
 
+function Prepare-DatasetInput {
+    param([Parameter(Mandatory)] [ValidateSet("win32", "adb")] [string]$Name)
+    Remove-Item -LiteralPath $mergedInputRoot -Recurse -Force -ErrorAction SilentlyContinue
+    New-Item -ItemType Directory -Path $mergedInputRoot -Force | Out-Null
+    if ($Name -eq "win32") {
+        if (-not (Test-Path -LiteralPath $trackedInputRoot -PathType Container)) {
+            throw "缺少 Win32 IconRecognition 测试素材: $trackedInputRoot"
+        }
+        Copy-InputTree -SourceRoot $trackedInputRoot -DestinationRoot $mergedInputRoot
+        return
+    }
+    $adbInputRoot = Join-Path $testRoot "input"
+    if (-not (Test-Path -LiteralPath $adbInputRoot -PathType Container)) {
+        throw "缺少 ADB IconRecognition 测试素材: $adbInputRoot"
+    }
+    Copy-InputTree -SourceRoot $adbInputRoot -DestinationRoot $mergedInputRoot
+}
+
 function Resolve-ExpectedResultsPath {
     param([switch]$UseLocal)
     if ($UseLocal) {
@@ -319,6 +340,9 @@ switch ($Task) {
         }
     }
     "manual" {
+        if (-not $Dataset) {
+            throw "manual 任务必须显式指定 -Dataset win32 或 -Dataset adb。"
+        }
         if ($All -and ($GridType -or $Image)) {
             Show-Usage
             throw "-All 不能与 -GridType 或 -Image 同时使用。"
@@ -327,11 +351,7 @@ switch ($Task) {
             Show-Usage
             throw "manual 任务必须指定 -All、-GridType 或 -Image。"
         }
-        $usesLocalImage = $PSBoundParameters.ContainsKey("Image") -and (Test-LocalImageSelection -ImageName $Image -SelectedGridType $GridType)
-        Prepare-MergedInput -PreferLocalConflicts:($usesLocalImage -or $UseLocalExpected)
-        if ($usesLocalImage) {
-            Write-Warning "显式 -Image 命中本地 input 素材，本次优先使用本地同名图片并仅作人工审计: $Image"
-        }
+        Prepare-DatasetInput -Name $Dataset
         Build-Targets -Targets @("icon-recognition-manual-runner")
         Set-TestRuntimePath
         $arguments = @()
@@ -350,13 +370,20 @@ switch ($Task) {
             $arguments += @("--side", $Side)
         }
         $arguments += @("--jobs", $Jobs)
+        $arguments += @("--dataset", $Dataset)
         if ($PSBoundParameters.ContainsKey("Debug")) {
             $arguments += "--debug"
         }
-        if (($UseLocalExpected -or -not $usesLocalImage) -and $Side -eq "full") {
-            $arguments += @("--expected", (Resolve-ExpectedResultsPath -UseLocal:$UseLocalExpected))
+        if ($Dataset -eq "adb") {
+            if (-not (Test-Path -LiteralPath $localRoisPath -PathType Leaf)) {
+                throw "缺少 ADB IconRecognition ROI 配置: $localRoisPath"
+            }
+            $arguments += @("--rois", $localRoisPath)
         }
-        elseif (-not $usesLocalImage) {
+        if ($Side -eq "full" -and ($Dataset -eq "win32" -or $UseLocalExpected)) {
+            $arguments += @("--expected", (Resolve-ExpectedResultsPath -UseLocal:($Dataset -eq "adb")))
+        }
+        elseif ($Side -ne "full") {
             Write-Warning "expected.csv 仅维护 full 基线，显式分侧运行仅作人工审计: $Side"
         }
         & (Find-TestExecutable -Name "icon-recognition-manual-runner") @arguments

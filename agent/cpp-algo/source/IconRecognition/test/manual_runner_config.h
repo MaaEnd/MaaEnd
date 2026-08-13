@@ -11,6 +11,13 @@
 namespace iconrecognition::test
 {
 
+enum class TestDataset
+{
+    Unspecified,
+    Win32,
+    Adb,
+};
+
 enum class DualGridMode
 {
     Full,
@@ -30,7 +37,9 @@ struct ManualRunnerOptions
     std::size_t jobs = 1;
     bool automatic_jobs = false;
     bool debug = false;
+    TestDataset dataset = TestDataset::Unspecified;
     std::filesystem::path expected_path;
+    std::filesystem::path rois_path;
 };
 
 struct ManualRunnerCase
@@ -40,6 +49,7 @@ struct ManualRunnerCase
     cv::Rect roi;
     std::string roi_name;
     CandidateFilter candidates;
+    double grid_scale = 0.0;
 };
 
 std::string ManualRunnerUsage();

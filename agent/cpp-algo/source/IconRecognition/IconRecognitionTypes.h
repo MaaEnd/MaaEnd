@@ -174,6 +174,8 @@ struct RecognitionRequest
     GridType grid_type = GridType::Transfer;
     cv::Rect roi;
     CandidateFilter candidates;
+    // 大于 0 时强制使用指定 UI 比例；否则由组件根据 ROI/图像自动估计。
+    double grid_scale = 0.0;
     // 最终接受匹配的默认分数；调高减少误识别，调低提高弱图标召回。
     double threshold = 0.85;
     // 首轮分数达到该值才进行亚像素细化；调高减少计算量，调低增加细化候选。

@@ -2131,5 +2131,6 @@
     "iconRecognition.name.item_cbp_exp": "通行証経験",
     "iconRecognition.name.item_domain_jinlong_coupon": "武陵取引券",
     "iconRecognition.name.item_domain_tundra_coupon": "谷地取引券",
-    "iconRecognition.name.item_spaceship_credit": "FP"
+    "iconRecognition.name.item_spaceship_credit": "FP",
+    "iconRecognition.name.item_originium_recharge": "展延源石"
 }

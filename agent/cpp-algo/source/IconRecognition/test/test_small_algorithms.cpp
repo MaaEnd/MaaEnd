@@ -114,6 +114,68 @@ void TestGridGeometryModuleContract()
     const auto axis =
         iconrecognition::detail::FitSubpixelAxis(empty_signal, empty_signal, empty_signal, empty_signal, 64, 69, { 67, 71 }, 3);
     Check(axis.integer_starts == std::vector<int>({ 0, 69, 138 }), "empty evidence must use the fallback axis sequence");
+
+    const std::vector<iconrecognition::detail::GridCell> visible_cells {
+        { .grid_index = 0, .row = 0, .column = 0, .cell_box = cv::Rect(10, 10, 64, 64) },
+        { .grid_index = 0, .row = 0, .column = 1, .cell_box = cv::Rect(79, 10, 64, 64) },
+        { .grid_index = 0, .row = 1, .column = 0, .cell_box = cv::Rect(10, 79, 64, 64) },
+        { .grid_index = 0, .row = 2, .column = 1, .cell_box = cv::Rect(79, 148, 64, 64) },
+    };
+    Check(
+        iconrecognition::detail::VisibleGridShape(visible_cells) == cv::Size(2, 3),
+        "visible grid shape must exclude filtered axes that produced no cell");
+}
+
+cv::Mat BuildSyntheticGrid(int pitch)
+{
+    const cv::Rect roi(0, 0, 420, 320);
+    cv::Mat image(roi.size(), CV_8UC3, cv::Scalar(18, 18, 18));
+    for (int x = 0; x < roi.width; x += pitch) {
+        image.colRange(x, std::min(x + 2, roi.width)).setTo(cv::Scalar(245, 245, 245));
+    }
+    for (int y = 0; y < roi.height; y += pitch) {
+        image.rowRange(y, std::min(y + 2, roi.height)).setTo(cv::Scalar(245, 245, 245));
+    }
+    return image;
+}
+
+void TestGridScaleEstimateSelectsCalibratedProfiles()
+{
+    const cv::Rect roi(0, 0, 420, 320);
+    cv::Mat standard = BuildSyntheticGrid(69);
+    const auto standard_scale = iconrecognition::detail::EstimateGridScale(standard, iconrecognition::GridType::Transfer, roi);
+    Check(standard_scale && std::abs(*standard_scale - 1.0) <= 1e-6, "standard grid structure must keep scale 1.0");
+
+    cv::Mat enlarged = BuildSyntheticGrid(86);
+    const auto scale = iconrecognition::detail::EstimateGridScale(enlarged, iconrecognition::GridType::Transfer, roi);
+    Check(scale && std::abs(*scale - 1.25) <= 1e-6, "enlarged grid structure must select calibrated scale 1.25");
+
+    cv::Mat empty(roi.size(), CV_8UC3, cv::Scalar(18, 18, 18));
+    const auto ambiguous = iconrecognition::detail::EstimateGridScale(empty, iconrecognition::GridType::Transfer, roi);
+    Check(!ambiguous, "automatic grid scale must reject an ROI without periodic structure");
+}
+
+void TestRewardsGridScaleSelectsCardProfileInsideCallerRoi()
+{
+    cv::Mat standard(96, 96, CV_8UC3, cv::Scalar(245, 245, 245));
+    const auto standard_scale =
+        iconrecognition::detail::EstimateGridScale(standard, iconrecognition::GridType::Rewards, cv::Rect(0, 0, 96, 96));
+    Check(standard_scale && std::abs(*standard_scale - 1.0) <= 1e-6, "96px reward card ROI must keep scale 1.0");
+
+    cv::Mat vertically_connected(120, 120, CV_8UC3, cv::Scalar(24, 24, 24));
+    vertically_connected(cv::Rect(12, 0, 96, 120)).setTo(cv::Scalar(245, 245, 245));
+    const auto connected_scale = iconrecognition::detail::EstimateGridScale(
+        vertically_connected,
+        iconrecognition::GridType::Rewards,
+        cv::Rect(0, 0, 120, 120));
+    Check(
+        connected_scale && std::abs(*connected_scale - 1.0) <= 1e-6,
+        "a 96px reward card connected to vertical highlights must remain scale 1.0");
+
+    cv::Mat enlarged(120, 120, CV_8UC3, cv::Scalar(245, 245, 245));
+    const auto scale =
+        iconrecognition::detail::EstimateGridScale(enlarged, iconrecognition::GridType::Rewards, cv::Rect(0, 0, 120, 120));
+    Check(scale && std::abs(*scale - 1.25) <= 1e-6, "larger rewards cards must estimate 1.25 UI scale");
 }
 
 void TestTradeGridUsesCardBoundariesForVerticalPhase()
@@ -154,6 +216,155 @@ void TestTradeGridUsesCardBoundariesForVerticalPhase()
         "trade grid must follow card boundaries instead of internal texture: actual_y=" + std::to_string(first_row->cell_box.y));
 }
 
+void TestValuablesCardExtentUsesScaledProfileOcclusionPolicy()
+{
+    const cv::Rect win32_roi(0, 0, 96, 66);
+    const cv::Rect win32_cell(0, 0, 96, 96);
+    Check(
+        !iconrecognition::detail::HasFormalCardExtent(win32_cell, win32_roi, iconrecognition::GridType::Valuables, 1.0),
+        "Win32 valuables must reject a 96px row with only 66px visible above the bottom toolbar");
+
+    Check(
+        iconrecognition::detail::HasFormalCardExtent(win32_cell, win32_roi, iconrecognition::GridType::Valuables, 1.25),
+        "normalized ADB valuables must retain the same 96px row when its source profile is scaled");
+    Check(
+        !iconrecognition::detail::HasFormalCardExtent(win32_cell, win32_roi, iconrecognition::GridType::Trade, 1.25),
+        "other card grids must keep the default 70% bottom visibility rule");
+}
+
+void TestPortOcclusionPolicyDropsOnlyWeakSevenColumnFirstRow()
+{
+    Check(
+        iconrecognition::detail::ShouldDropPortFirstRow(7, 0.08, 0.30, 61, 80),
+        "seven-column port grid must drop a first row that is much weaker than the complete second row");
+    Check(
+        !iconrecognition::detail::ShouldDropPortFirstRow(7, 0.20, 0.30, 61, 80),
+        "seven-column port grid must retain a first row with comparable structure");
+    Check(
+        !iconrecognition::detail::ShouldDropPortFirstRow(4, 0.08, 0.30, 61, 80),
+        "left four-column panel must not reuse the right toolbar-occlusion rule");
+    Check(
+        !iconrecognition::detail::ShouldDropPortFirstRow(7, 0.08, 0.30, 72, 64),
+        "complete Win32 first row below the toolbar must not be dropped even when its structure support is weak");
+}
+
+void TestRewardsRowCompletesInternalMissingCards()
+{
+    const std::vector<int> observed { 216, 362, 508, 944 };
+    Check(
+        iconrecognition::detail::CompleteRewardsRowStarts(observed, 146.0)
+            == std::vector<int>({ 216, 362, 508, 654, 800, 944 }),
+        "rewards row must fill internal card gaps without extending beyond observed endpoints");
+    Check(
+        iconrecognition::detail::CompleteRewardsRowStarts({ 216, 362 }, 146.0) == std::vector<int>({ 216, 362 }),
+        "rewards row must not extrapolate beyond reliable endpoints");
+}
+
+void TestRewardsDefaultFiltersIncludeAllRewardStorageKinds()
+{
+    const auto& filters = iconrecognition::detail::DefaultItemFilters(iconrecognition::GridType::Rewards);
+    Check(
+        std::ranges::find(filters, "Isolate:*") != filters.end(),
+        "rewards defaults must retain isolate resources such as gold and premium currency");
+    Check(
+        std::ranges::find(filters, "ValuableDepot:*") != filters.end(),
+        "rewards defaults must include progression items and consumables stored in ValuableDepot");
+}
+
+void TestShipmentAcceptsOnlyStrongRankedFallbackBelowDefaultThreshold()
+{
+    Check(
+        iconrecognition::detail::ShouldAcceptRankedMatch(
+            iconrecognition::GridType::Shipment,
+            0.85,
+            0.805,
+            0.109,
+            true),
+        "shipment default threshold must retain a fallback candidate with strong score and top-two margin");
+    Check(
+        !iconrecognition::detail::ShouldAcceptRankedMatch(
+            iconrecognition::GridType::Shipment,
+            0.85,
+            0.83,
+            0.02,
+            true),
+        "shipment fallback must reject an ambiguous candidate with a weak top-two margin");
+    Check(
+        !iconrecognition::detail::ShouldAcceptRankedMatch(
+            iconrecognition::GridType::Rewards,
+            0.85,
+            0.82,
+            0.12,
+            true),
+        "ranked fallback must remain shipment-specific");
+    Check(
+        !iconrecognition::detail::ShouldAcceptRankedMatch(
+            iconrecognition::GridType::Shipment,
+            0.90,
+            0.82,
+            0.12,
+            true),
+        "a caller-supplied non-default threshold must keep exact acceptance semantics");
+}
+
+void TestShipmentRowsUseIndependentCardBoundaries()
+{
+    constexpr int kCellSize = 80;
+    const std::vector<int> x_starts { 10, 102, 194, 286, 378 };
+    const cv::Rect roi(0, 15, 468, 375);
+    const std::vector<int> card_y { 20, 159, 299 };
+    // 首行贴近 ROI 顶部时应回溯到白卡渐入带，后两行则直接采用各自数量条相位。
+    const std::vector<int> expected_y { 16, 163, 303 };
+    cv::Mat image(390, 468, CV_8UC3, cv::Scalar(24, 24, 24));
+    for (int y : card_y) {
+        for (int x : x_starts) {
+            image(cv::Rect(x, y, kCellSize, kCellSize)).setTo(cv::Scalar(224, 224, 224));
+            image(cv::Rect(x + 5, y + 4, 64, 16)).setTo(cv::Scalar(0, 220, 220));
+        }
+    }
+    const std::vector<int> rigid_y { 24, 161, 299 };
+    const auto actual_y = iconrecognition::detail::RefineShipmentRowStarts(image, roi, x_starts, rigid_y, kCellSize);
+    Check(
+        actual_y == expected_y,
+        "shipment rows must refine their vertical starts independently: actual=" + std::to_string(actual_y[0]) + ","
+            + std::to_string(actual_y[1]) + "," + std::to_string(actual_y[2]));
+}
+
+void TestShipmentGridUsesSelectableQuantityBarPhase()
+{
+    constexpr int kCellSize = 64;
+    constexpr int kPitchX = 74;
+    constexpr int kPitchY = 112;
+    constexpr int kColumns = 5;
+    constexpr int kRows = 2;
+    constexpr int kPhaseX = 12;
+    constexpr int kDisplayPhaseY = 8;
+    constexpr int kSelectablePhaseY = 72;
+    // 上方展示卡相位可在 ROI 内凑足三行，而可操作卡只有两行完整 cell；模拟底部操作栏截断末行的 ADB 画面。
+    const cv::Rect roi(0, 0, 390, 310);
+    cv::Mat image(roi.size(), CV_8UC3, cv::Scalar(24, 24, 24));
+
+    for (int column = 0; column < kColumns; ++column) {
+        const int x = kPhaseX + column * kPitchX;
+        image(cv::Rect(x, kDisplayPhaseY, kCellSize, kCellSize)).setTo(cv::Scalar(224, 224, 224));
+    }
+    for (int row = 0; row < kRows; ++row) {
+        const int y = kSelectablePhaseY + row * kPitchY;
+        for (int column = 0; column < kColumns; ++column) {
+            const int x = kPhaseX + column * kPitchX;
+            image(cv::Rect(x + 8, y + 20, 48, 36)).setTo(cv::Scalar(150, 150, 150));
+            image(cv::Rect(x + 5, y, 50, 12)).setTo(cv::Scalar(0, 220, 220));
+        }
+    }
+
+    const auto grid = iconrecognition::detail::DetectGrid(image, iconrecognition::GridType::Shipment, roi);
+    const auto first = std::ranges::find_if(grid.cells, [](const auto& cell) { return cell.row == 0 && cell.column == 0; });
+    Check(first != grid.cells.end(), "synthetic shipment grid must contain its first selectable cell");
+    Check(
+        std::abs(first->cell_box.y - kSelectablePhaseY) <= 2,
+        "shipment grid must follow yellow quantity bars instead of display cards: actual_y=" + std::to_string(first->cell_box.y));
+}
+
 void TestRewardsGridKeepsBottomRarityBandInsideCell()
 {
     constexpr int kCellSize = 96;
@@ -182,6 +393,20 @@ void TestRewardsGridKeepsBottomRarityBandInsideCell()
                 + std::to_string(cell.cell_box.y));
         Check(cell.cell_box.height == kCellSize, "rewards cell height must keep the 96px template contract");
     }
+}
+
+void TestRewardsSingleCardRoiClampsSmallBodyPhaseOffset()
+{
+    constexpr int kCellSize = 96;
+    constexpr int kBodyTop = 2;
+    constexpr int kBrightBodyHeight = 91;
+    const cv::Rect roi(0, 0, kCellSize, kCellSize + 1);
+    cv::Mat image(roi.size(), CV_8UC3, cv::Scalar(24, 24, 24));
+    image(cv::Rect(0, kBodyTop, kCellSize, kBrightBodyHeight)).setTo(cv::Scalar(240, 240, 240));
+
+    const auto grid = iconrecognition::detail::DetectGrid(image, iconrecognition::GridType::Rewards, roi);
+    Check(grid.cells.size() == 1, "single reward ROI must retain a card whose bright body starts two pixels below the ROI");
+    Check(grid.cells.front().cell_box == cv::Rect(0, 1, kCellSize, kCellSize), "reward cell must stay inside the caller ROI");
 }
 
 void TestRewardsGridKeepsRowsWithIndependentHorizontalOrigins()
@@ -255,6 +480,25 @@ void TestTransferRegionPartitionKeepsUndetectedOuterColumns()
     Check(regions[0].width >= detected_left.x + 4 * 69, "left transfer search region must retain room for a weak outer column");
 }
 
+void TestPortStoragerWideRoiUsesStablePanelPartitions()
+{
+    const auto win32 = iconrecognition::detail::PartitionPortStoragerRegions(cv::Size(880, 350));
+    Check(win32.size() == 2, "Win32 port full ROI must produce two panel regions");
+    Check(win32[0].x == 0 && win32[0].width >= 318, "Win32 left panel region must retain all four columns");
+    Check(win32[1].x >= 365 && win32[1].x <= 380, "Win32 right panel region must begin before the first storage column");
+    Check((win32[1].width - 64) / 68 + 1 == 7, "Win32 right panel region must not admit an eighth column");
+
+    const auto adb = iconrecognition::detail::PartitionPortStoragerRegions(cv::Size(920, 328));
+    Check(adb.size() == 2, "ADB port full ROI must produce two panel regions");
+    Check(adb[0].x == 0 && adb[0].width >= 295, "ADB left panel region must retain all four columns");
+    Check(adb[1].x >= 380 && adb[1].x <= 388, "ADB right panel region must begin before the first storage column");
+    Check((adb[1].width - 64) / 68 + 1 == 7, "ADB right panel region must not admit an eighth column");
+
+    const auto right_profile =
+        iconrecognition::detail::TransferProfileFor(iconrecognition::detail::TransferGridVariant::PortStoragerRight);
+    Check(right_profile.minimum_bottom_visibility >= 0.80, "port right grid must reject a row with only 75% bottom visibility");
+}
+
 void TestCreditTradeGridUsesDimCardStructures()
 {
     constexpr int kCellSize = 128;
@@ -283,6 +527,38 @@ void TestCreditTradeGridUsesDimCardStructures()
     Check(grid.grids.size() == 1, "dim credit cards must form one grid");
     Check(grid.grids.front().columns == kColumns, "dim credit card grid must retain every column");
     Check(grid.grids.front().rows == kRows, "dim credit card grid must retain every row");
+}
+
+void TestCreditTradeGridUsesSixColumnsWhenRoiCannotContainSeven()
+{
+    constexpr int kCellSize = 128;
+    constexpr int kPitchX = 161;
+    constexpr int kPitchY = 205;
+    constexpr int kColumns = 6;
+    constexpr int kRows = 2;
+    constexpr int kPhaseX = 20;
+    constexpr int kPhaseY = 14;
+    const cv::Rect roi(0, 0, 1010, 410);
+    cv::Mat image(roi.size(), CV_8UC3, cv::Scalar(28, 28, 28));
+    for (int row = 0; row < kRows; ++row) {
+        for (int column = 0; column < kColumns; ++column) {
+            const int x = kPhaseX + column * kPitchX;
+            const int y = kPhaseY + row * kPitchY;
+            image(cv::Rect(x - 10, y - 6, 150, 180)).setTo(cv::Scalar(240, 240, 240));
+            image(cv::Rect(x, y, kCellSize, kCellSize)).setTo(cv::Scalar(245, 245, 245));
+        }
+    }
+
+    const auto grid = iconrecognition::detail::DetectGrid(image, iconrecognition::GridType::CreditTrade, roi);
+    Check(grid.grids.size() == 1, "six-column credit cards must form one grid");
+    Check(grid.grids.front().columns == kColumns, "credit trade must not extend beyond the columns that fit the caller ROI");
+    Check(grid.grids.front().rows == kRows, "six-column credit trade must retain both rows");
+}
+
+void TestValuablesGridKeepsSixColumnsAtAdbDensity()
+{
+    const auto profile = iconrecognition::detail::ProfileFor(iconrecognition::GridType::Valuables);
+    Check(profile.min_columns == 6, "valuables profile must allow the six-column ADB layout");
 }
 
 void TestRarityBandsRecoverGridFromGlobalEvidence()
@@ -674,12 +950,25 @@ int main()
         TestForegroundTextureUsesContentInsets();
         TestStructureFeatureModuleContract();
         TestGridGeometryModuleContract();
+        TestGridScaleEstimateSelectsCalibratedProfiles();
+        TestRewardsGridScaleSelectsCardProfileInsideCallerRoi();
         TestTradeGridUsesCardBoundariesForVerticalPhase();
+        TestValuablesCardExtentUsesScaledProfileOcclusionPolicy();
+        TestPortOcclusionPolicyDropsOnlyWeakSevenColumnFirstRow();
+        TestRewardsRowCompletesInternalMissingCards();
+        TestRewardsDefaultFiltersIncludeAllRewardStorageKinds();
+        TestShipmentAcceptsOnlyStrongRankedFallbackBelowDefaultThreshold();
+        TestShipmentRowsUseIndependentCardBoundaries();
+        TestShipmentGridUsesSelectableQuantityBarPhase();
         TestRewardsGridKeepsBottomRarityBandInsideCell();
+        TestRewardsSingleCardRoiClampsSmallBodyPhaseOffset();
         TestRewardsGridKeepsRowsWithIndependentHorizontalOrigins();
         TestRewardsGridRenumbersColumnsAfterRoiFiltering();
         TestTransferRegionPartitionKeepsUndetectedOuterColumns();
+        TestPortStoragerWideRoiUsesStablePanelPartitions();
         TestCreditTradeGridUsesDimCardStructures();
+        TestCreditTradeGridUsesSixColumnsWhenRoiCannotContainSeven();
+        TestValuablesGridKeepsSixColumnsAtAdbDensity();
         TestRarityRowEvidenceKeepsAllSixChannels();
         TestTrustedRarityRejectsSameColorBackground();
         TestGrayRarityCannotSeedLattice();

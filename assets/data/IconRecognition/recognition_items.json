@@ -4088,6 +4088,15 @@
         "sortId1": -81,
         "sortId2": 7
     },
+    "item_originium_recharge": {
+        "name": "ff990914a2dc3f11473e5d6739e873b7",
+        "category": "独立资源",
+        "storageKind": "Isolate",
+        "categoryType": "Originium",
+        "rarity": 6,
+        "iconId": "item_originium_recharge",
+        "fluidIconId": ""
+    },
     "item_plant_bbflower_1": {
         "name": "00c6b0e6e414968784905ed61b2f90c2",
         "category": "植物",

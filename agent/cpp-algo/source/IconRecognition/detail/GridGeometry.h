@@ -32,5 +32,6 @@ AxisSequence FitSubpixelAxis(
     std::pair<int, int> pitch_range,
     int minimum_count);
 GridLayout BuildLattice(int grid_index, cv::Point origin, int rows, int columns, int cell_size, double pitch_x, double pitch_y);
+cv::Size VisibleGridShape(const std::vector<GridCell>& cells);
 
 } // namespace iconrecognition::detail

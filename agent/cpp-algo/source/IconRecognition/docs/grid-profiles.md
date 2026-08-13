@@ -23,6 +23,8 @@
 
 两种 profile 都只提供定位策略所需的先验，不是公开协议。调用方不能根据这些字段自行计算 ROI 或格子坐标。
 
+当截图中的 UI 密度与标准 720p 基准不一致时，`IconRecognizer` 会在已标定的标准与放大 profile 中自动选择 `grid_scale`，把分析图像缩放回标准逻辑密度，再使用上述定位 profile；其它比例由调用方显式提供。比例判断只读取调用方 ROI，不推导或修改 ROI。公开参数与失败行为见[开发者使用指南](/docs/zh_cn/developers/components/icon-recognition.md)。
+
 ## 各类网格的维护入口
 
 | 内部类型 | 定位策略 | 主要维护位置 |

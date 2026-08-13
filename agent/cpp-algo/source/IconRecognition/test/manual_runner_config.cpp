@@ -158,6 +158,27 @@ CandidateFilter ReadImageCandidates(const std::filesystem::path& image_path)
     return candidates;
 }
 
+double ReadImageGridScale(const std::filesystem::path& image_path)
+{
+    auto config_path = image_path;
+    config_path.replace_extension(".json");
+    if (!std::filesystem::is_regular_file(config_path)) {
+        return 0.0;
+    }
+    const auto parsed = json::open(config_path.string());
+    if (!parsed || !parsed->is_object()) {
+        throw std::runtime_error("image sidecar must be a JSON object: " + config_path.string());
+    }
+    const auto& object = parsed->as_object();
+    if (!object.contains("grid_scale")) {
+        return 0.0;
+    }
+    if (!object.at("grid_scale").is_number()) {
+        throw std::runtime_error("image sidecar grid_scale must be a number: " + config_path.string());
+    }
+    return object.at("grid_scale").as_double();
+}
+
 void AppendGridCases(
     std::vector<ManualRunnerCase>& output,
     const std::filesystem::path& input_root,
@@ -185,6 +206,7 @@ void AppendGridCases(
                 .roi = ReadRoi(roi_set.at(std::string(roi_name)), GridTypeName(grid_type)),
                 .roi_name = std::string(roi_name),
                 .candidates = ReadImageCandidates(image_path),
+                .grid_scale = ReadImageGridScale(image_path),
             });
         }
     }
@@ -216,6 +238,7 @@ void AppendSingleRoiCases(
                     .roi = roi,
                     .roi_name = directory.filename().string(),
                     .candidates = ReadImageCandidates(image_path),
+                    .grid_scale = ReadImageGridScale(image_path),
                 });
             }
         }
@@ -256,9 +279,9 @@ const std::string& RequireValue(const std::vector<std::string>& arguments, std::
 std::string ManualRunnerUsage()
 {
     return R"(Usage:
-  icon-recognition-manual-runner --all [--side full|left|right|split|all] [--jobs <N|auto>] [--debug] [--expected <path>]
-  icon-recognition-manual-runner --grid-type <type> [--image <basename>] [--side full|left|right|split|all] [--jobs <N|auto>] [--debug] [--expected <path>]
-  icon-recognition-manual-runner --image <basename> [--jobs <N|auto>] [--debug] [--expected <path>]
+  icon-recognition-manual-runner --all [--dataset win32|adb] [--side full|left|right|split|all] [--jobs <N|auto>] [--debug] [--expected <path>]
+  icon-recognition-manual-runner --grid-type <type> [--image <basename>] [--dataset win32|adb] [--side full|left|right|split|all] [--jobs <N|auto>] [--debug] [--expected <path>]
+  icon-recognition-manual-runner --image <basename> [--dataset win32|adb] [--jobs <N|auto>] [--debug] [--expected <path>] [--rois <path>]
   icon-recognition-manual-runner -h|--help|-?
 
 Grid types:
@@ -280,7 +303,9 @@ ManualRunnerOptions ParseManualRunnerOptions(const std::vector<std::string>& arg
     bool side_specified = false;
     bool jobs_specified = false;
     bool debug_specified = false;
+    bool dataset_specified = false;
     bool expected_specified = false;
+    bool rois_specified = false;
     for (std::size_t index = 0; index < arguments.size(); ++index) {
         const std::string& argument = arguments[index];
         if (IsHelpOption(argument)) {
@@ -347,12 +372,37 @@ ManualRunnerOptions ParseManualRunnerOptions(const std::vector<std::string>& arg
             debug_specified = true;
             continue;
         }
+        if (argument == "--dataset") {
+            if (dataset_specified) {
+                throw std::invalid_argument("duplicate option: --dataset");
+            }
+            const std::string& value = RequireValue(arguments, index);
+            if (value == "win32") {
+                options.dataset = TestDataset::Win32;
+            }
+            else if (value == "adb") {
+                options.dataset = TestDataset::Adb;
+            }
+            else {
+                throw std::invalid_argument("unknown dataset: " + value);
+            }
+            dataset_specified = true;
+            continue;
+        }
         if (argument == "--expected") {
             if (expected_specified) {
                 throw std::invalid_argument("duplicate option: --expected");
             }
             options.expected_path = RequireValue(arguments, index);
             expected_specified = true;
+            continue;
+        }
+        if (argument == "--rois") {
+            if (rois_specified) {
+                throw std::invalid_argument("duplicate option: --rois");
+            }
+            options.rois_path = RequireValue(arguments, index);
+            rois_specified = true;
             continue;
         }
         throw std::invalid_argument("unknown option: " + argument);

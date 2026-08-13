@@ -121,7 +121,7 @@ class IconRecognitionToolsTest(unittest.TestCase):
             count = publish_fixed_items(paths)
 
             catalog = json.loads(paths.catalog_output.read_text(encoding="utf-8"))
-            self.assertEqual(count, 8)
+            self.assertEqual(count, 9)
             self.assertIn("item_kept", catalog)
             self.assertEqual(catalog["item_diamond"]["rarity"], 6)
             self.assertFalse(stale.exists())
@@ -344,6 +344,26 @@ class IconRecognitionToolsTest(unittest.TestCase):
         self.assertEqual(result["item_test"]["sortId1"], -100)
         self.assertEqual(result["item_test"]["sortId2"], 12)
 
+    def test_prepare_item_map_accepts_isolate_category_types(self) -> None:
+        items, removals = prepare_item_map(
+            {
+                "item_remote_isolate": self._mini_item(
+                    category="上游分类名称",
+                    storageKind="Isolate",
+                    categoryType="FutureResource",
+                    iconId="item_remote_isolate",
+                )
+            },
+            blacklist=(),
+        )
+
+        self.assertEqual(removals, [])
+        self.assertEqual(items["item_remote_isolate"]["category"], "独立资源")
+        self.assertEqual(
+            items["item_remote_isolate"]["categoryType"],
+            "FutureResource",
+        )
+
     def test_prepare_item_map_filters_explicit_normal_product_blacklist(self) -> None:
         blacklisted_ids = {
             "item_activity_xiranite_enr_hulu",
@@ -395,6 +415,7 @@ class IconRecognitionToolsTest(unittest.TestCase):
                 "item_domain_jinlong_coupon": "af0a45fb328a9cdd07d2fe0e7ddacbb2",
                 "item_domain_tundra_coupon": "40f1e255b753623044d91b8c492ab277",
                 "item_spaceship_credit": "1bd1aaac9e3e0db9677cd16b2118ff8f",
+                "item_originium_recharge": "ff990914a2dc3f11473e5d6739e873b7",
             },
         )
 
@@ -411,6 +432,7 @@ class IconRecognitionToolsTest(unittest.TestCase):
                 "item_domain_jinlong_coupon",
                 "item_domain_tundra_coupon",
                 "item_spaceship_credit",
+                "item_originium_recharge",
             },
         )
         self.assertTrue(set(FIXED_NAME_KEYS.values()).isdisjoint(merged))

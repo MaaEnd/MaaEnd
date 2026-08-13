@@ -96,6 +96,8 @@ class DownloadJob:
 
 
 def _category_name(storage_kind: str, category_type: str) -> str:
+    if storage_kind == "Isolate":
+        return "独立资源"
     try:
         return CATEGORY_MAPPING[storage_kind][category_type]
     except KeyError as error:

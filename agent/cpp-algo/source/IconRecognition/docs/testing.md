@@ -7,7 +7,12 @@
 - `build/`：CMake 构建目录；
 - `run-tests.local.psd1`：可选的本机工具链路径配置。
 
-生产代码和测试都读取 `assets/data/IconRecognition`、`assets/resource/image/IconRecognition` 与 `assets/locales/interface`，不维护测试专用 catalog 或模板副本。图片测试以子模块 `tests/MaaEndTestset/Win32/Official_CN/IconRecognition` 为基准素材；运行 `quick` 或 `manual` 时，脚本会将该目录复制到 `test/build/merged-input`，再叠加本地被忽略的 `input/`。未指定文件名时，两边素材都会保留并参与测试；指定 `-Image` 时，同相对路径冲突才使用本地文件，并打印一次覆盖提示。缺少子模块基准目录会直接失败，quick 使用的典型图片缺失也会直接失败。
+生产代码和测试都读取 `assets/data/IconRecognition`、`assets/resource/image/IconRecognition` 与 `assets/locales/interface`，不维护测试专用 catalog 或模板副本。人工图片回归明确区分两个数据集：
+
+- `win32`：只读取子模块 `tests/MaaEndTestset/Win32/Official_CN/IconRecognition`，并自动使用其中的 `expected.csv`；
+- `adb`：只读取本地被忽略的 `test/input/`，ROI 来自 `test/input/rois.json`，默认不使用 expected。
+
+`manual` 必须显式指定 `-Dataset win32` 或 `-Dataset adb`，两套截图、ROI 和 expected 不会混入同一次运行。`quick` 仍是干净 checkout 可运行的仓库门禁：它以 Win32 子模块 fixture 为基准，并允许叠加本地 fixture 做开发期回归。缺少子模块基准目录会直接失败，quick 使用的典型图片缺失也会直接失败。
 
 ## 准备图片
 
@@ -23,7 +28,7 @@ input/
 ├── credit_trade/*.png
 ├── rewards/*.png
 └── single_roi/
-    └── 1177-450-54/*.png
+    └── 1151-393-66/*.png
 ```
 
 1. 建议截图前先将鼠标移动到不会遮挡物品网格的位置（例如左上角），再等待目标区域画面稳定。
@@ -34,11 +39,14 @@ input/
     "item_filters": [
         "Isolate:*",
         "ValuableDepot:SpecialItem"
-    ]
+    ],
+    "grid_scale": 1.25
 }
 ```
 
-1. `single_roi/<x>-<y>-<size>/` 用目录名描述正方形 ROI，例如 `1177-450-54` 会解析为 `[1177,450,54,54]`。
+1. `single_roi/<x>-<y>-<size>/` 用目录名描述正方形 ROI。Win32 子模块当前使用 `1177-450-54`，ADB 本地素材当前使用 `1151-393-66`；后者会解析为 `[1151,393,66,66]`。
+
+`grid_scale` 是可选的本地素材覆盖项。自动估算无法从 ROI 或卡片尺寸稳定判断时，可在图片 sidecar 中显式指定；它只用于测试请求，不会改变生产 `rois.json`。
 
 ## 运行命令
 
@@ -59,15 +67,16 @@ input/
 ```powershell
 ./agent/cpp-algo/source/IconRecognition/test/run-tests.ps1 -Task configure
 ./agent/cpp-algo/source/IconRecognition/test/run-tests.ps1 -Task quick
-./agent/cpp-algo/source/IconRecognition/test/run-tests.ps1 -Task manual -All
-./agent/cpp-algo/source/IconRecognition/test/run-tests.ps1 -Task manual -GridType transfer
-./agent/cpp-algo/source/IconRecognition/test/run-tests.ps1 -Task manual -GridType transfer -Image sample.png -Side all
-./agent/cpp-algo/source/IconRecognition/test/run-tests.ps1 -Task manual -GridType transfer -Side all -Jobs 16
-./agent/cpp-algo/source/IconRecognition/test/run-tests.ps1 -Task manual -Image sample.png
-./agent/cpp-algo/source/IconRecognition/test/run-tests.ps1 -Task manual -GridType rewards -UseLocalExpected
+./agent/cpp-algo/source/IconRecognition/test/run-tests.ps1 -Task manual -Dataset win32 -All
+./agent/cpp-algo/source/IconRecognition/test/run-tests.ps1 -Task manual -Dataset adb -All
+./agent/cpp-algo/source/IconRecognition/test/run-tests.ps1 -Task manual -Dataset adb -GridType transfer
+./agent/cpp-algo/source/IconRecognition/test/run-tests.ps1 -Task manual -Dataset adb -GridType transfer -Image sample.png -Side all
+./agent/cpp-algo/source/IconRecognition/test/run-tests.ps1 -Task manual -Dataset win32 -GridType transfer -Side all -Jobs 16
+./agent/cpp-algo/source/IconRecognition/test/run-tests.ps1 -Task manual -Dataset adb -Image sample.png
+./agent/cpp-algo/source/IconRecognition/test/run-tests.ps1 -Task manual -Dataset adb -GridType rewards -UseLocalExpected
 ```
 
-默认只读取子模块中的 `expected.csv`。只有显式传入 `-UseLocalExpected` 时，才使用 `test/input/expected.csv` 作为完整替代基线；本地 CSV 不与子模块 CSV 叠加，也不会被复制进图片输入树。可从当前子模块基线和一次人工运行报告生成新的完整文件：
+Win32 manual 自动读取子模块中的 `expected.csv`。ADB manual 默认只生成供人工审核的结果；只有显式传入 `-UseLocalExpected` 时，才使用 `test/input/expected.csv`。本地 CSV 不与子模块 CSV 叠加，也不会被复制进图片输入树。当前本地 CSV 仍按旧 Win32 ROI 维护，更新为 ADB ROI 基线前不应用于 ADB 全量验收。可从当前基线和一次人工运行报告生成新的完整文件：
 
 ```powershell
 python tools/icon_recognition/expected.py `
@@ -76,7 +85,7 @@ python tools/icon_recognition/expected.py `
   --output agent/cpp-algo/source/IconRecognition/test/input/expected.csv
 ```
 
-合并器按图片替换旧 case，并把运行时 `.localN.png` 名称还原为原始 `.png`，因此该 CSV 可与新增图片一起复制回测试集子模块。
+生成器按图片替换旧 case，因此更新后的 CSV 可与新增图片一起复制回对应数据集。
 
 `quick` 是干净 checkout 可运行的快速门禁，覆盖类型、参数契约、single ROI、MaaFramework 包装、算法小测试、debug capture，以及少量真实图片回归。当前真实图片样本为：
 
@@ -87,9 +96,7 @@ python tools/icon_recognition/expected.py `
 - `rewards/135.png`：同时包含独立资源、培养素材和珍贵物品的八格奖励；
 - `single_roi/1177-450-54/1.png`：据点交易入口的指定 ROI。
 
-每张 quick 图片都必须生成一个 case、成功识别并至少命中一个物品。整图识别及性能回归可在合并素材准备完成后使用 `-Task manual` 显式运行，不会被 quick 静默跳过。
-
-未指定 `-Image` 时，本地冲突文件会以 `.local1.png` 等唯一名称保留，因此 `-All` 或仅指定 `-GridType` 会同时审核两套素材；指定 `-Image` 时才启用本地同名覆盖。
+每张 quick 图片都必须生成一个 case、成功识别并至少命中一个物品。整图识别及性能回归使用 `-Task manual -Dataset <win32|adb>` 显式运行，不会被 quick 静默跳过。
 
 无参数、`-Help`、`-h` 会打印完整用法；PowerShell 保留的 `-?` 会显示脚本参数帮助。人工 runner 支持三种选择范围：
 
@@ -116,7 +123,7 @@ python tools/icon_recognition/expected.py `
 需要分析性能时，在 PowerShell 命令中加入通用参数 `-Debug`；直接运行 C++ runner 时使用 `--debug`。debug 模式会在控制台打印启动和单 case 耗时，在 detail 的 `diagnostics.performance` 中记录网格检测、模板选择、候选排名、纹理、稀有度、结果组装，以及 matcher 内部的画布准备、相位变换、模板匹配、极值归约、Lab 转换和颜色距离；`report.json` 还会记录 `startup_performance` 与各 case 的 `runner_performance`。正常模式不采集这些计时。示例：
 
 ```powershell
-./agent/cpp-algo/source/IconRecognition/test/run-tests.ps1 -Task manual -GridType transfer -Image sample.png -Side full -Jobs 1 -Debug
+./agent/cpp-algo/source/IconRecognition/test/run-tests.ps1 -Task manual -Dataset adb -GridType transfer -Image sample.png -Side full -Jobs 1 -Debug
 ```
 
 生产自定义识别参数中的 `debug: true` 同样会采集 `diagnostics.performance`，并随现有 debug capture 写入 detail JSON。细粒度计时会引入少量观测开销，比较绝对耗时时应固定图片、ROI、构建配置和 worker 数，并至少重复三次。
@@ -132,7 +139,7 @@ python tools/icon_recognition/expected.py `
 
 ## 查看结果
 
-每次人工运行创建独立的 `output/<时间戳>-<选择范围>/`，不会覆盖之前的审核结果：
+每次人工运行创建独立的 `output/<时间戳>-<dataset>-<选择范围>/`，例如 `*-win32-all` 与 `*-adb-all`，不会覆盖另一套素材或之前的审核结果：
 
 - `annotated/<grid-type>-<roi-name>-<文件名>.png`：完整原图上的 ROI、cell 和 item 框；下方审核栏列出编号、发布原图标、中文名、item ID、分数与网格坐标。
 - `detail/<grid-type>-<roi-name>-<文件名>.json`：公开结果加内部 diagnostics。
@@ -142,7 +149,7 @@ python tools/icon_recognition/expected.py `
 
 ## 图像回归门槛
 
-截图回归通过 `manual` runner 执行。runner 扫描合并后的 `<网格类型>/` 图片，文件名只是输入标识，不参与生产判断，也不对应隐藏的 C++ 固定断言。需要复核某个算法场景时，应在报告或 PR 说明中记录图片相对路径、ROI、预期现象和实际结果；quick 只保留上面列出的少量典型样本，不要把本地任意图片编号写入测试代码。
+截图回归通过 `manual` runner 执行。runner 只扫描所选数据集中的 `<网格类型>/` 图片，文件名只是输入标识，不参与生产判断，也不对应隐藏的 C++ 固定断言。需要复核某个算法场景时，应在报告或 PR 说明中记录数据集、图片相对路径、ROI、预期现象和实际结果；quick 只保留上面列出的少量典型样本，不要把本地任意图片编号写入测试代码。
 
 回归审核至少覆盖：
 
@@ -151,6 +158,6 @@ python tools/icon_recognition/expected.py `
 - 浮点 pitch 的整数投影无累积误差，递增可变 pitch 序列被拒绝；
 - transfer 和 port_storager 的双侧 ROI、稀疏网格、full/split 一致性。
 
-全量审核应根据合并素材中实际存在的图片统计 case 数，并覆盖 transfer 与 port_storager 的可用 ROI。正确 match 总数不能整体下降，新增远端整片错位立即视为失败；结构和色带都不足时，明确失败优于输出低置信网格。
+全量审核应分别根据 Win32 与 ADB 数据集中实际存在的图片统计 case 数，并覆盖 transfer 与 port_storager 的可用 ROI。正确 match 总数不能整体下降，任一数据集新增整片错位立即视为失败；结构和色带都不足时，明确失败优于输出低置信网格。
 
 人工 detail 的 `diagnostics.grids[]` 应同时检查 pitch 位于 68–70px、最大残差不超过 2.25px、可信 rarity 计数、fallback 原因，以及 full/split 的 origin、pitch、行列数是否一致。

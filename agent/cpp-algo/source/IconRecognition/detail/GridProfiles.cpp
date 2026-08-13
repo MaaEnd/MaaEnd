@@ -8,6 +8,7 @@
 #include <set>
 #include <stdexcept>
 #include <tuple>
+#include <vector>
 
 #include "GridFeatures.h"
 #include "GridGeometry.h"
@@ -31,6 +32,10 @@ constexpr int kTransferDiscoveryMinimumRows = 3;
 constexpr int kTransferMaximumColumns = 8;
 // 右侧面板分区的 720p 参考宽度，用于缺少双候选时构造保守区域。
 constexpr int kTransferRightPanelWidth = 398;
+// 便捷存取站左面板在归一化 720p full ROI 中的搜索宽度；覆盖 Win32/ADB 左侧四列，并避开中间传送按钮。
+constexpr int kPortStoragerLeftPanelWidth = 330;
+// 便捷存取站右面板约从归一化 full ROI 的 42% 处开始；调低会混入中间 UI，调高会裁掉首列结构。
+constexpr double kPortStoragerRightPanelStartRatio = 0.42;
 // 局部峰相对全图最大响应的最低比例；调高抑制弱噪声，调低提高弱格框召回。
 constexpr double kLocalPeakMaximumRatio = 0.22;
 // 局部峰需达到的正响应百分位；调高只保留尖峰，调低会保留更多纹理峰。
@@ -100,12 +105,12 @@ constexpr GridProfile kPortStoragerGridProfile {
     .min_columns = 3,
     .min_rows = 3,
 };
-// 贵重品库按 96px cell、103.5px 双轴 pitch 和至少 7x4 的首屏布局标定。
+// 贵重品库按 96px cell、103.5px 双轴 pitch 标定；ADB 首屏为六列，Win32 宽 ROI 仍由结构证据扩展到七列。
 constexpr GridProfile kValuablesGridProfile {
     .cell_size = 96,
     .pitch_x = 103.5,
     .pitch_y = 103.5,
-    .min_columns = 7,
+    .min_columns = 6,
     .min_rows = 4,
 };
 // 送货界面按 64px cell、73.6x112px pitch 和至少 4x3 布局标定。
@@ -496,6 +501,19 @@ std::vector<cv::Rect> PartitionTransferRegions(cv::Size crop_size, const cv::Rec
     return { cv::Rect(0, 0, split, crop_size.height), cv::Rect(right_start, 0, crop_size.width - right_start, crop_size.height) };
 }
 
+std::vector<cv::Rect> PartitionPortStoragerRegions(cv::Size crop_size)
+{
+    const int right_start = cvRound(crop_size.width * kPortStoragerRightPanelStartRatio);
+    if (right_start <= 0 || right_start >= crop_size.width || crop_size.height <= 0) {
+        throw std::invalid_argument("port_storager full crop is too small for two panels");
+    }
+    const int left_width = std::min(kPortStoragerLeftPanelWidth, crop_size.width - 1);
+    return {
+        cv::Rect(0, 0, left_width, crop_size.height),
+        cv::Rect(right_start, 0, crop_size.width - right_start, crop_size.height),
+    };
+}
+
 GridProfile ProfileFor(GridType type)
 {
     switch (type) {
@@ -538,10 +556,11 @@ TransferGridProfile TransferProfileFor(TransferGridVariant variant)
         .rarity_anchor_offset = 64,
         .minimum_top_visibility = 0.90,
     };
-    // 便捷存取站右侧沿用相同 90% 顶部可见率和默认 68..70px pitch。
+    // 便捷存取站右侧要求 80% 底部可见率，拒绝 full ROI 中只露出约 75% 的滚动残行。
     constexpr TransferGridProfile kPortRight {
         .rarity_anchor_offset = 64,
         .minimum_top_visibility = 0.90,
+        .minimum_bottom_visibility = 0.80,
     };
     switch (variant) {
     case TransferGridVariant::TransferLeft:
@@ -597,6 +616,29 @@ std::vector<TransferGridHint> DiscoverTransferGridHints(const cv::Mat& crop, boo
             auto local = DiscoverTransferGridHints(crop(partition), structural_rank);
             if (local.size() != 1) {
                 throw std::runtime_error("transfer side partition must contain exactly one grid hint");
+            }
+            TransferGridHint hint = std::move(local.front());
+            hint.region.x += partition.x;
+            hint.region.y += partition.y;
+            hint.rect.x += partition.x;
+            hint.rect.y += partition.y;
+            for (int& x : hint.x_starts) {
+                x += partition.x;
+            }
+            for (int& y : hint.y_starts) {
+                y += partition.y;
+            }
+            combined.push_back(std::move(hint));
+        }
+        return combined;
+    }
+    if (!structural_rank && crop.cols > kWideTransferRoiMinimumWidth) {
+        // port_storager 的中间传送 UI 会形成强边缘；宽 full ROI 先按共同 720p 面板范围隔离，再复用单侧候选逻辑。
+        std::vector<TransferGridHint> combined;
+        for (const cv::Rect& partition : PartitionPortStoragerRegions(crop.size())) {
+            auto local = DiscoverTransferGridHints(crop(partition), structural_rank);
+            if (local.size() != 1) {
+                throw std::runtime_error("port_storager side partition must contain exactly one grid hint");
             }
             TransferGridHint hint = std::move(local.front());
             hint.region.x += partition.x;

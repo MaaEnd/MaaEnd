@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <chrono>
+#include <cmath>
 #include <filesystem>
 #include <memory>
 #include <set>
@@ -49,7 +50,7 @@ double ElapsedMilliseconds(PerformanceClock::time_point started_at)
     return std::chrono::duration<double, std::milli>(PerformanceClock::now() - started_at).count();
 }
 
-const std::vector<std::string>& DefaultFilters(GridType type)
+const std::vector<std::string>& DefaultItemFiltersImpl(GridType type)
 {
     // 背包、存取站、送货和 single ROI 默认覆盖普通仓库的全部分类。
     static const std::vector<std::string> normal { "Normal:*" };
@@ -59,8 +60,8 @@ const std::vector<std::string>& DefaultFilters(GridType type)
     static const std::vector<std::string> valuables { "ValuableDepot:*" };
     // 信用交易所只展示特殊商品和独立存储的资源。
     static const std::vector<std::string> credit { "ValuableDepot:SpecialItem", "Isolate:*" };
-    // 多个游戏功能共用奖励界面；未指定 item_filters 时，仅识别独立资源。
-    static const std::vector<std::string> rewards { "Isolate:*" };
+    // 多个游戏功能共用奖励界面；默认同时覆盖独立资源、培养素材和珍贵消耗品。
+    static const std::vector<std::string> rewards { "Isolate:*", "ValuableDepot:*" };
     switch (type) {
     case GridType::Trade:
         return trade;
@@ -418,7 +419,111 @@ ItemInfo ItemFromTemplate(const detail::PreparedTemplate& templ)
     };
 }
 
+// 显式 UI 密度比例的支持下限；缩小后仍须保留足够像素供旧 720p 网格算法定位。
+constexpr double kMinimumGridScale = 0.50;
+// 显式 UI 密度比例的支持上限；继续放大会显著损失归一化后的细线和色带信息。
+constexpr double kMaximumGridScale = 2.00;
+// 判断比例是否等于 1 的浮点容差，仅用于跳过无意义的 resize 与坐标往返。
+constexpr double kGridScaleEpsilon = 1e-6;
+
+cv::Rect ScaleRectForAnalysis(const cv::Rect& rect, double scale, const cv::Size& bounds)
+{
+    const int x1 = std::max(0, cvFloor(rect.x * scale));
+    const int y1 = std::max(0, cvFloor(rect.y * scale));
+    const int x2 = std::clamp(cvCeil((rect.x + rect.width) * scale), x1 + 1, bounds.width);
+    const int y2 = std::clamp(cvCeil((rect.y + rect.height) * scale), y1 + 1, bounds.height);
+    return cv::Rect(x1, y1, x2 - x1, y2 - y1);
+}
+
+cv::Rect ScaleRectBack(const cv::Rect& rect, double scale)
+{
+    return cv::Rect(
+        cvRound(rect.x * scale),
+        cvRound(rect.y * scale),
+        cvRound(rect.width * scale),
+        cvRound(rect.height * scale));
+}
+
+double ResolveGridScale(const cv::Mat& image, const RecognitionRequest& request)
+{
+    if (request.grid_type == GridType::SingleRoi) {
+        return 1.0;
+    }
+    double scale = request.grid_scale;
+    if (scale <= 0.0) {
+        const auto estimated = detail::EstimateGridScale(image, request.grid_type, request.roi);
+        if (!estimated) {
+            throw std::invalid_argument(
+                "unable to estimate IconRecognition grid_scale from ROI; provide a positive grid_scale");
+        }
+        scale = *estimated;
+    }
+    if (!std::isfinite(scale) || scale < kMinimumGridScale || scale > kMaximumGridScale) {
+        throw std::invalid_argument("IconRecognition grid_scale must be between 0.5 and 2.0");
+    }
+    return scale;
+}
+
+void ValidateRecognitionRoi(const cv::Mat& image, const cv::Rect& roi)
+{
+    const cv::Rect bounds(0, 0, image.cols, image.rows);
+    if (roi.width <= 0 || roi.height <= 0 || (roi & bounds) != roi) {
+        throw std::invalid_argument("IconRecognition ROI must be positive and fully inside the input image");
+    }
+}
+
+void ScaleRecognitionResult(RecognitionResult& result, double scale)
+{
+    if (std::abs(scale - 1.0) <= kGridScaleEpsilon) {
+        return;
+    }
+    for (ItemMatch& match : result.matches) {
+        match.cell_box = ScaleRectBack(match.cell_box, scale);
+        match.item_box = ScaleRectBack(match.item_box, scale);
+    }
+    if (!result.diagnostics) {
+        return;
+    }
+    for (detail::GridSelectionDiagnostics& grid : result.diagnostics->grids) {
+        grid.origin.x *= scale;
+        grid.origin.y *= scale;
+        grid.pitch.x *= scale;
+        grid.pitch.y *= scale;
+        grid.maximum_residual *= scale;
+        grid.residual_trend *= scale;
+    }
+    for (detail::CellRecognitionDiagnostics& cell : result.diagnostics->cells) {
+        cell.cell_box = ScaleRectBack(cell.cell_box, scale);
+        cell.candidate_box = ScaleRectBack(cell.candidate_box, scale);
+        if (cell.rarity_row_offset) {
+            *cell.rarity_row_offset = cvRound(*cell.rarity_row_offset * scale);
+        }
+    }
+}
+
 } // namespace
+
+const std::vector<std::string>& detail::DefaultItemFilters(GridType type)
+{
+    return DefaultItemFiltersImpl(type);
+}
+
+bool detail::ShouldAcceptRankedMatch(
+    GridType type,
+    double configured_threshold,
+    double score,
+    std::optional<double> top2_margin,
+    bool fallback_used)
+{
+    // shipment 数量条和底部数量文字会系统性压低少数深色图标分数；仅默认阈值允许强排名候选兜底。
+    constexpr double kDefaultThreshold = 0.85;
+    constexpr double kShipmentFallbackMinimumScore = 0.80;
+    constexpr double kShipmentFallbackMinimumMargin = 0.10;
+    constexpr double kThresholdEqualityTolerance = 1e-9;
+    return type == GridType::Shipment && std::abs(configured_threshold - kDefaultThreshold) <= kThresholdEqualityTolerance
+           && fallback_used && score >= kShipmentFallbackMinimumScore && top2_margin
+           && *top2_margin >= kShipmentFallbackMinimumMargin;
+}
 
 class IconRecognizer::Impl
 {
@@ -486,6 +591,43 @@ public:
     RecognitionResult recognize(const cv::Mat& image, const RecognitionRequest& request) const
     {
         try {
+            if (image.empty()) {
+                return Error(request.roi, request.grid_type, "invalid_image", "Input image is empty");
+            }
+            ValidateRecognitionRoi(image, request.roi);
+            const double scale = ResolveGridScale(image, request);
+            if (std::abs(scale - 1.0) <= kGridScaleEpsilon || request.grid_type == GridType::SingleRoi) {
+                return recognize_unscaled(image, request, scale);
+            }
+
+            const cv::Size analysis_size(std::max(1, cvRound(image.cols / scale)), std::max(1, cvRound(image.rows / scale)));
+            cv::Mat analysis_image;
+            cv::resize(image, analysis_image, analysis_size, 0.0, 0.0, cv::INTER_AREA);
+            RecognitionRequest analysis_request = request;
+            analysis_request.grid_scale = 1.0;
+            analysis_request.roi = ScaleRectForAnalysis(request.roi, 1.0 / scale, analysis_image.size());
+            if (analysis_request.roi.width <= 0 || analysis_request.roi.height <= 0
+                || (analysis_request.roi & cv::Rect(0, 0, analysis_image.cols, analysis_image.rows)) != analysis_request.roi) {
+                throw std::invalid_argument("scaled IconRecognition ROI is outside the analysis image");
+            }
+
+            RecognitionResult result = recognize_unscaled(analysis_image, analysis_request, scale);
+            ScaleRecognitionResult(result, scale);
+            result.roi = request.roi;
+            return result;
+        }
+        catch (const std::exception& error) {
+            LogError << "IconRecognizer recognition failed" << VAR(error.what());
+            return Error(request.roi, request.grid_type, "exception", error.what());
+        }
+    }
+
+    RecognitionResult recognize_unscaled(
+        const cv::Mat& image,
+        const RecognitionRequest& request,
+        double source_grid_scale) const
+    {
+        try {
             const auto recognition_started = request.debug ? PerformanceClock::now() : PerformanceClock::time_point {};
             std::optional<detail::RecognitionPerformanceDiagnostics> performance;
             if (request.debug) {
@@ -510,21 +652,23 @@ public:
                 }
                 cells.push_back(detail::GridCell { .cell_box = request.roi });
                 const auto selection_started = performance ? PerformanceClock::now() : PerformanceClock::time_point {};
-                selected = SelectTemplates(RoiTemplates(request.roi.width), request.candidates, DefaultFilters(request.grid_type));
+                selected =
+                    SelectTemplates(RoiTemplates(request.roi.width), request.candidates, detail::DefaultItemFilters(request.grid_type));
                 if (performance) {
                     performance->template_selection_ms += ElapsedMilliseconds(selection_started);
                 }
             }
             else {
                 const auto detection_started = performance ? PerformanceClock::now() : PerformanceClock::time_point {};
-                const detail::GridDetection detection = detail::DetectGrid(image, request.grid_type, request.roi);
+                const detail::GridDetection detection =
+                    detail::DetectGrid(image, request.grid_type, request.roi, source_grid_scale);
                 if (performance) {
                     performance->grid_detection_ms += ElapsedMilliseconds(detection_started);
                 }
                 cells = detection.cells;
                 detected_grids = detection.grids;
                 const auto selection_started = performance ? PerformanceClock::now() : PerformanceClock::time_point {};
-                selected = SelectTemplates(TemplatesFor(request.grid_type), request.candidates, DefaultFilters(request.grid_type));
+                selected = SelectTemplates(TemplatesFor(request.grid_type), request.candidates, detail::DefaultItemFilters(request.grid_type));
                 if (performance) {
                     performance->template_selection_ms += ElapsedMilliseconds(selection_started);
                 }
@@ -567,14 +711,24 @@ public:
                 if (performance) {
                     performance->foreground_texture_ms += ElapsedMilliseconds(texture_started);
                 }
+                const std::optional<double> top2_margin = ranking.ranked.size() > 1
+                                                              ? std::optional<double>(
+                                                                    best.diagnostics.score - ranking.ranked[1].diagnostics.score)
+                                                              : std::nullopt;
+                const bool ranked_fallback_accepted = detail::ShouldAcceptRankedMatch(
+                    request.grid_type,
+                    request.threshold,
+                    best.diagnostics.score,
+                    top2_margin,
+                    ranking.fallback_used);
                 const auto low_texture_started = performance ? PerformanceClock::now() : PerformanceClock::time_point {};
-                const bool texture_rejected = !single_roi && best.diagnostics.score >= request.threshold
-                                              && detail::IsLowTexture(image, cell.cell_box, request.grid_type);
+                const bool texture_rejected = !single_roi && (best.diagnostics.score >= request.threshold || ranked_fallback_accepted)
+                                               && detail::IsLowTexture(image, cell.cell_box, request.grid_type);
                 if (performance) {
                     performance->foreground_texture_ms += ElapsedMilliseconds(low_texture_started);
                 }
                 const auto assembly_started = performance ? PerformanceClock::now() : PerformanceClock::time_point {};
-                const bool accepted = best.diagnostics.score >= request.threshold && !texture_rejected;
+                const bool accepted = (best.diagnostics.score >= request.threshold || ranked_fallback_accepted) && !texture_rejected;
                 std::optional<std::string> rejected_reason;
                 if (!accepted) {
                     rejected_reason = texture_rejected
@@ -588,9 +742,7 @@ public:
                     .best_candidate_id = templ.record.item_id,
                     .baseline_score = ranking.baseline_score,
                     .score = best.diagnostics.score,
-                    .top2_margin = ranking.ranked.size() > 1
-                                       ? std::optional<double>(best.diagnostics.score - ranking.ranked[1].diagnostics.score)
-                                       : std::nullopt,
+                    .top2_margin = top2_margin,
                     .candidate_count = ranking.ranked.size(),
                     .fallback_used = ranking.fallback_used,
                     .best_phase = cv::Point2d(best.phase.x, best.phase.y),

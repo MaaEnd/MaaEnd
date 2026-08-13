@@ -45,7 +45,18 @@ void TestHelpModes()
     Check(usage.find("--image") != std::string::npos, "usage must document image selection");
     Check(usage.find("--jobs <N|auto>") != std::string::npos, "usage must document worker selection");
     Check(usage.find("--debug") != std::string::npos, "usage must document debug performance diagnostics");
+    Check(usage.find("--dataset win32|adb") != std::string::npos, "usage must document dataset selection");
     Check(usage.find("full|left|right|split|all") != std::string::npos, "usage must document dual-grid modes");
+}
+
+void TestDatasetSelection()
+{
+    const auto win32 = iconrecognition::test::ParseManualRunnerOptions({ "--all", "--dataset", "win32" });
+    Check(win32.dataset == iconrecognition::test::TestDataset::Win32, "win32 dataset must be preserved");
+    const auto adb = iconrecognition::test::ParseManualRunnerOptions({ "--all", "--dataset", "adb" });
+    Check(adb.dataset == iconrecognition::test::TestDataset::Adb, "adb dataset must be preserved");
+    CheckRejected({ "--all", "--dataset", "other" }, "unknown dataset");
+    CheckRejected({ "--all", "--dataset", "adb", "--dataset", "win32" }, "duplicate dataset");
 }
 
 void TestSelectors()
@@ -259,6 +270,7 @@ int main()
         TestDualGridModes();
         TestJobSelection();
         TestDebugMode();
+        TestDatasetSelection();
         TestExpectedResultsPath();
         TestParallelExecutorKeepsIndexedResultsAndErrors();
         TestInvalidArguments();
