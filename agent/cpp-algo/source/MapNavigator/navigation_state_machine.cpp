@@ -464,7 +464,16 @@ bool NavigationStateMachine::Bootstrap()
         return true;
     }
 
-    const std::optional<DynamicAnchor> anchor = ResolveBootstrapAnchor(param_, session_, *position_);
+    // 线路可以关掉起步 A*：两条取锚点的路子最后都要 PlanNavmeshRoute，跳过就等于不规划起步，
+    // 落到下面两档现成兜底。这里不做任何判断，纯看线路声明——自动判"网格不对劲"只会误伤。
+    std::optional<DynamicAnchor> anchor;
+    if (param_.enable_bootstrap_navmesh) {
+        anchor = ResolveBootstrapAnchor(param_, session_, *position_);
+    }
+    else {
+        LogInfo << "Bootstrap navmesh planning disabled by route param." << VAR(position_->x) << VAR(position_->y)
+                << VAR(position_->zone_id);
+    }
     if (anchor && TryApplyDynamicOverlayToAnchor("bootstrap_navmesh_overlay", anchor->first, anchor->second, false)) {
         SelectPhaseForCurrentWaypoint("bootstrap_navmesh_overlay");
         return true;

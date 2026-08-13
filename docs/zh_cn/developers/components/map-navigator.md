@@ -415,6 +415,7 @@ uv run main.py
 | `interact_text` | 空 | 整条路线的交互提示文字默认值，见[异步交互](#异步交互-interact) |
 | `interact_scan` | 空 | 整条路线的行进预筛节点默认值，见[换掉图标预筛](#换掉图标预筛) |
 | `interact_rec` | `false` | 整条路线的 `INTERACT` 点是否只认提示不按键，见[只认提示不按键](#只认提示不按键rec-模式) |
+| `enable_bootstrap_navmesh` | `true` | 起步时是否先用 navmesh 规划一段接进路线。填 `false` 就跳过这步，直接照 `path` 里录制的点走；叠层地形（平台/栈道/屋顶）上起步规划绕远路时用它兜底 |
 
 顶层未知字段会被静默忽略，不报错。
 
