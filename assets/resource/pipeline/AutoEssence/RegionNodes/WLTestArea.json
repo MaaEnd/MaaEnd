@@ -176,8 +176,8 @@
                         {
                             "action": "RUN",
                             "target": [
-                                80.43,
-                                95.46
+                                78.86,
+                                95.64
                             ],
                             "target_tier": "Wuling_L5_321",
                             "strict_arrival": true
