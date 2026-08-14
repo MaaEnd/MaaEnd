@@ -88,14 +88,15 @@ double RarityRowCoverage(const cv::Mat& lab_row)
     return MeasureRarityRow(lab_row).maximumCoverage();
 }
 
-RarityResult ClassifyRarity(const cv::Mat& image, const cv::Rect& slot)
+RarityResult ClassifyRarity(const cv::Mat& image, const cv::Rect& slot, double grid_scale)
 {
     if (image.empty() || image.channels() < 3) {
         return {};
     }
     const int slot_bottom = slot.y + slot.height;
-    const int y1 = std::max(0, slot_bottom - kSearchRadius);
-    const int y2 = std::min(image.rows, slot_bottom + kSearchRadius + 1);
+    const int search_radius = std::max(1, cvRound(kSearchRadius * grid_scale));
+    const int y1 = std::max(0, slot_bottom - search_radius);
+    const int y2 = std::min(image.rows, slot_bottom + search_radius + 1);
     const int x1 = std::max(0, slot.x);
     const int x2 = std::min(image.cols, slot.x + slot.width);
     if (y2 <= y1 || x2 <= x1) {

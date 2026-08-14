@@ -49,7 +49,6 @@ struct ManualRunnerCase
     cv::Rect roi;
     std::string roi_name;
     CandidateFilter candidates;
-    double grid_scale = 0.0;
 };
 
 std::string ManualRunnerUsage();

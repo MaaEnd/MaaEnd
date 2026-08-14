@@ -292,7 +292,6 @@ void TestMalformedScalarParametersAreRejected()
     image.set(pixels);
     for (const auto& [param, field] : {
              std::pair { R"({"grid_type":1})", "grid_type" },
-             std::pair { R"({"grid_type":"single_roi","grid_scale":"bad"})", "grid_scale" },
              std::pair { R"({"grid_type":"single_roi","threshold":"bad"})", "threshold" },
              std::pair { R"({"grid_type":"single_roi","subpixel_threshold":"bad"})", "subpixel_threshold" },
              std::pair { R"({"grid_type":"single_roi","debug":"bad"})", "debug" },
@@ -301,6 +300,24 @@ void TestMalformedScalarParametersAreRejected()
         MaaRect out_box { 101, 202, 303, 404 };
         const auto detail = RunFailure(image.get(), param, out_box);
         Require(ErrorMessage(detail).find(field) != std::string::npos, "scalar parameter error must identify its field");
+        RequireUntouched(out_box);
+    }
+}
+
+void TestRemovedGridScaleParameterIsRejected()
+{
+    ImageBuffer image;
+    const cv::Mat pixels(64, 64, CV_8UC3, cv::Scalar(0, 0, 0));
+    image.set(pixels);
+    MaaRect out_box { 101, 202, 303, 404 };
+    for (const char* param : {
+             R"({"grid_type":"single_roi","grid_scale":1.25})",
+             R"({"grid_type":"single_roi","grid_scale":"bad"})",
+         }) {
+        const auto detail = RunFailure(image.get(), param, out_box);
+        const std::string message = ErrorMessage(detail);
+        Require(message.find("grid_scale") != std::string::npos, "removed parameter error must identify grid_scale");
+        Require(message.find("not supported") != std::string::npos, "removed grid_scale parameter must be rejected explicitly");
         RequireUntouched(out_box);
     }
 }
@@ -538,6 +555,7 @@ int main()
         TestInvalidNativeRoiIsRejected();
         TestMalformedCandidateListsAreRejected();
         TestMalformedScalarParametersAreRejected();
+        TestRemovedGridScaleParameterIsRejected();
         TestSuccessfulSingleRoiUsesPrimaryCellBox();
         TestRecognizerPreservesInternalDiagnostics();
         TestGridDiagnosticsSerializeSelectionEvidence();

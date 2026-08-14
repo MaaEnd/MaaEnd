@@ -158,27 +158,6 @@ CandidateFilter ReadImageCandidates(const std::filesystem::path& image_path)
     return candidates;
 }
 
-double ReadImageGridScale(const std::filesystem::path& image_path)
-{
-    auto config_path = image_path;
-    config_path.replace_extension(".json");
-    if (!std::filesystem::is_regular_file(config_path)) {
-        return 0.0;
-    }
-    const auto parsed = json::open(config_path.string());
-    if (!parsed || !parsed->is_object()) {
-        throw std::runtime_error("image sidecar must be a JSON object: " + config_path.string());
-    }
-    const auto& object = parsed->as_object();
-    if (!object.contains("grid_scale")) {
-        return 0.0;
-    }
-    if (!object.at("grid_scale").is_number()) {
-        throw std::runtime_error("image sidecar grid_scale must be a number: " + config_path.string());
-    }
-    return object.at("grid_scale").as_double();
-}
-
 void AppendGridCases(
     std::vector<ManualRunnerCase>& output,
     const std::filesystem::path& input_root,
@@ -206,7 +185,6 @@ void AppendGridCases(
                 .roi = ReadRoi(roi_set.at(std::string(roi_name)), GridTypeName(grid_type)),
                 .roi_name = std::string(roi_name),
                 .candidates = ReadImageCandidates(image_path),
-                .grid_scale = ReadImageGridScale(image_path),
             });
         }
     }
@@ -238,7 +216,6 @@ void AppendSingleRoiCases(
                     .roi = roi,
                     .roi_name = directory.filename().string(),
                     .candidates = ReadImageCandidates(image_path),
-                    .grid_scale = ReadImageGridScale(image_path),
                 });
             }
         }

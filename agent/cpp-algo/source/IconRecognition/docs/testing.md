@@ -1,25 +1,25 @@
 # 测试与人工审核
 
-公开测试入口位于 `agent/cpp-algo/source/IconRecognition/test/`。CMake、C++ 测试、`run-tests.ps1`、`run-tests.local.example.psd1` 和 `rois.json` 随 Git 提交；以下内容只用于本机测试并被忽略：
+公开测试入口位于 `agent/cpp-algo/source/IconRecognition/test/`。CMake、C++ 测试、`run-tests.ps1`、`dataset-manifest.psd1` 和 `run-tests.local.example.psd1` 随 Git 提交；以下内容只用于本机测试并被忽略：
 
-- `input/`：可选的本地测试截图、逐图配置和完整 expected 基线；
+- `input/expected.csv`：显式传入 `-UseLocalExpected` 时使用的候选校验基线；
 - `output/`：标注图、detail JSON 和报告；
 - `build/`：CMake 构建目录；
 - `run-tests.local.psd1`：可选的本机工具链路径配置。
 
 生产代码和测试都读取 `assets/data/IconRecognition`、`assets/resource/image/IconRecognition` 与 `assets/locales/interface`，不维护测试专用 catalog 或模板副本。人工图片回归明确区分两个数据集：
 
-- `win32`：只读取子模块 `tests/MaaEndTestset/Win32/Official_CN/IconRecognition`，并自动使用其中的 `expected.csv`；
-- `adb`：只读取本地被忽略的 `test/input/`，ROI 来自 `test/input/rois.json`，默认不使用 expected。
+- `win32`：读取子模块 `tests/MaaEndTestset/Win32/Official_CN/IconRecognition`；
+- `adb`：读取子模块 `tests/MaaEndTestset/ADB/Official_CN/IconRecognition`。
 
-`manual` 必须显式指定 `-Dataset win32` 或 `-Dataset adb`，两套截图、ROI 和 expected 不会混入同一次运行。`quick` 仍是干净 checkout 可运行的仓库门禁：它以 Win32 子模块 fixture 为基准，并允许叠加本地 fixture 做开发期回归。缺少子模块基准目录会直接失败，quick 使用的典型图片缺失也会直接失败。
+每套目录分别维护截图、`rois.json` 和 `expected.csv`。`manual` 必须显式指定 `-Dataset win32` 或 `-Dataset adb`，两套资源不会混入同一次运行。`quick` 是干净 checkout 可运行的仓库门禁：它先校验 `dataset-manifest.psd1`，再分别运行两套数据集的典型图片，不叠加本地 fixture。数据集资源或典型图片缺失会直接失败。
 
 ## 准备图片
 
-1. 把 1280x720 测试截图放入对应网格目录：
+1. 把 1280x720 测试截图放入对应数据集的 IconRecognition 网格目录：
 
 ```text
-input/
+tests/MaaEndTestset/<Win32|ADB>/Official_CN/IconRecognition/
 ├── trade/*.png
 ├── transfer/*.png
 ├── port_storager/*.png
@@ -28,7 +28,7 @@ input/
 ├── credit_trade/*.png
 ├── rewards/*.png
 └── single_roi/
-    └── 1151-393-66/*.png
+    └── <x>-<y>-<size>/*.png
 ```
 
 1. 建议截图前先将鼠标移动到不会遮挡物品网格的位置（例如左上角），再等待目标区域画面稳定。
@@ -39,14 +39,11 @@ input/
     "item_filters": [
         "Isolate:*",
         "ValuableDepot:SpecialItem"
-    ],
-    "grid_scale": 1.25
+    ]
 }
 ```
 
-1. `single_roi/<x>-<y>-<size>/` 用目录名描述正方形 ROI。Win32 子模块当前使用 `1177-450-54`，ADB 本地素材当前使用 `1151-393-66`；后者会解析为 `[1151,393,66,66]`。
-
-`grid_scale` 是可选的本地素材覆盖项。自动估算无法从 ROI 或卡片尺寸稳定判断时，可在图片 sidecar 中显式指定；它只用于测试请求，不会改变生产 `rois.json`。
+1. `single_roi/<x>-<y>-<size>/` 用目录名描述正方形 ROI。Win32 子模块当前使用 `1177-450-54`，ADB 子模块当前使用 `1151-393-66`；后者会解析为 `[1151,393,66,66]`。
 
 ## 运行命令
 
@@ -76,25 +73,29 @@ input/
 ./agent/cpp-algo/source/IconRecognition/test/run-tests.ps1 -Task manual -Dataset adb -GridType rewards -UseLocalExpected
 ```
 
-Win32 manual 自动读取子模块中的 `expected.csv`。ADB manual 默认只生成供人工审核的结果；只有显式传入 `-UseLocalExpected` 时，才使用 `test/input/expected.csv`。本地 CSV 不与子模块 CSV 叠加，也不会被复制进图片输入树。当前本地 CSV 仍按旧 Win32 ROI 维护，更新为 ADB ROI 基线前不应用于 ADB 全量验收。可从当前基线和一次人工运行报告生成新的完整文件：
+Win32 与 ADB manual 默认读取各自子模块中的 `expected.csv`，并始终显式传入各自的 `rois.json`。只有显式传入 `-UseLocalExpected` 时，才改用 `test/input/expected.csv`；本地 CSV 不与 tracked CSV 叠加，也不会被复制进图片输入树。可从所选数据集的当前基线和一次人工运行报告生成候选文件：
 
 ```powershell
 python tools/icon_recognition/expected.py `
-  --base tests/MaaEndTestset/Win32/Official_CN/IconRecognition/expected.csv `
+  --base tests/MaaEndTestset/ADB/Official_CN/IconRecognition/expected.csv `
   --report agent/cpp-algo/source/IconRecognition/test/output/<run>/report.json `
   --output agent/cpp-algo/source/IconRecognition/test/input/expected.csv
 ```
 
 生成器按图片替换旧 case，因此更新后的 CSV 可与新增图片一起复制回对应数据集。
 
-`quick` 是干净 checkout 可运行的快速门禁，覆盖类型、参数契约、single ROI、MaaFramework 包装、算法小测试、debug capture，以及少量真实图片回归。当前真实图片样本为：
+`quick` 是干净 checkout 可运行的快速门禁，覆盖类型、参数契约、single ROI、MaaFramework 包装、算法小测试、debug capture，以及 Win32/ADB 每种界面的真实图片回归。典型图由 `dataset-manifest.psd1` 统一维护：
 
-- `transfer/25.png`：稀疏左侧仓库网格；
-- `transfer/57.png`：完整双侧仓库网格；
-- `port_storager/1.png`：左右来源不同的存取站；
-- `credit_trade/1.png`：七列信用交易卡片；
-- `rewards/135.png`：同时包含独立资源、培养素材和珍贵物品的八格奖励；
-- `single_roi/1177-450-54/1.png`：据点交易入口的指定 ROI。
+| 界面 | Win32 | ADB |
+| --- | --- | --- |
+| trade | `trade/1.png` | `trade/1.png` |
+| transfer | `transfer/25.png`、`transfer/57.png` | `transfer/5.png` |
+| port_storager | `port_storager/1.png` | `port_storager/8.png` |
+| valuables | `valuables/1.png` | `valuables/2.png` |
+| shipment | `shipment/1.png` | `shipment/4.png` |
+| credit_trade | `credit_trade/1.png` | `credit_trade/5.png` |
+| rewards | `rewards/135.png` | `rewards/3.png` |
+| single_roi | `single_roi/1177-450-54/1.png` | `single_roi/1151-393-66/1.png` |
 
 每张 quick 图片都必须生成一个 case、成功识别并至少命中一个物品。整图识别及性能回归使用 `-Task manual -Dataset <win32|adb>` 显式运行，不会被 quick 静默跳过。
 
@@ -160,4 +161,4 @@ python tools/icon_recognition/expected.py `
 
 全量审核应分别根据 Win32 与 ADB 数据集中实际存在的图片统计 case 数，并覆盖 transfer 与 port_storager 的可用 ROI。正确 match 总数不能整体下降，任一数据集新增整片错位立即视为失败；结构和色带都不足时，明确失败优于输出低置信网格。
 
-人工 detail 的 `diagnostics.grids[]` 应同时检查 pitch 位于 68–70px、最大残差不超过 2.25px、可信 rarity 计数、fallback 原因，以及 full/split 的 origin、pitch、行列数是否一致。
+人工 detail 的 `diagnostics.grids[]` 应按控制器检查几何尺度：Win32 的双侧网格 pitch 通常为 68–70px、最大残差不超过 2.25px；ADB 结果映射回原图后，pitch 通常为 85–87.5px、最大残差不超过 2.8125px。两套数据都应检查可信 rarity 计数、fallback 原因，以及 full/split 的 origin、pitch、行列数是否一致。

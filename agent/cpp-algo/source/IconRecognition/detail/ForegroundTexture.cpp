@@ -14,9 +14,6 @@ constexpr int kContentInsetTop = 6;
 constexpr int kContentInsetRight = 6;
 // 纹理检测区域排除 cell 底部色带的像素数；调大可避开 rarity 色带，但可能裁掉图标下沿。
 constexpr int kContentInsetBottom = 8;
-// 低纹理门控只适用于 64px 双侧网格 cell，其他尺寸直接跳过该规则。
-constexpr int kTextureCellSize = 64;
-
 } // namespace
 
 double LaplacianVariance(const cv::Mat& image, const cv::Rect& region)
@@ -55,9 +52,6 @@ bool IsLowTexture(const cv::Mat& image, const cv::Rect& region, GridType grid_ty
 std::optional<double> ForegroundTextureScore(const cv::Mat& image, const cv::Rect& region, GridType grid_type)
 {
     if (grid_type != GridType::Transfer && grid_type != GridType::PortStorager) {
-        return std::nullopt;
-    }
-    if (region.width != kTextureCellSize || region.height != kTextureCellSize) {
         return std::nullopt;
     }
     const cv::Rect content(

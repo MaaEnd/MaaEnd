@@ -1,6 +1,7 @@
 #ifdef ICON_RECOGNITION_TEST_MAIN
 
 #include "../IconRecognizer.h"
+#include "../detail/EdgeOcclusion.h"
 #include "../detail/ForegroundTexture.h"
 #include "../detail/GridAnchors.h"
 #include "../detail/GridDetector.h"
@@ -34,6 +35,13 @@
 
 namespace
 {
+
+template <typename Request>
+concept HasPublicGridScale = requires(Request request) { request.grid_scale; };
+
+static_assert(
+    !HasPublicGridScale<iconrecognition::RecognitionRequest>,
+    "RecognitionRequest must not expose a caller-controlled grid_scale");
 
 void Check(bool condition, const std::string& message)
 {
@@ -82,6 +90,46 @@ void TestShipmentQuantityBarThreshold()
     Check(!iconrecognition::detail::HasShipmentTopBar(slot), "400 yellow pixels must be rejected");
 }
 
+void TestShipmentQuantityBarThresholdScalesWithCellArea()
+{
+    cv::Mat slot = cv::Mat::zeros(80, 80, CV_8UC3);
+    slot(cv::Rect(0, 0, 24, 20)).setTo(cv::Scalar(0, 220, 220));
+    slot(cv::Rect(0, 20, 64, 5)).setTo(cv::Scalar(0, 220, 220));
+    Check(iconrecognition::detail::HasShipmentTopBar(slot), "80px shipment cells must inspect the full proportional top band");
+
+    slot.setTo(cv::Scalar(0, 0, 0));
+    slot(cv::Rect(0, 0, 30, 20)).setTo(cv::Scalar(0, 220, 220));
+    Check(
+        !iconrecognition::detail::HasShipmentTopBar(slot),
+        "80px shipment cells must scale the minimum yellow-pixel evidence by top-band area");
+}
+
+void TestShipmentTopBarMaskScalesWithCellHeight()
+{
+    for (const auto& [cell_size, expected_height] : std::array<std::pair<int, int>, 2> {
+             std::pair { 64, 20 },
+             std::pair { 80, 25 },
+         }) {
+        cv::Mat mask(cell_size, cell_size, CV_8UC1, cv::Scalar(255));
+        iconrecognition::detail::ApplyShipmentTopBarMask(mask);
+        Check(
+            cv::countNonZero(mask.rowRange(0, expected_height)) == 0,
+            "shipment top-bar mask must clear the calibrated proportional band at cell size " + std::to_string(cell_size));
+        Check(
+            cv::countNonZero(mask.row(expected_height)) == cell_size,
+            "shipment top-bar mask must retain icon pixels immediately below the calibrated band at cell size "
+                + std::to_string(cell_size));
+    }
+}
+
+void TestValuablesPortraitMaskScalesWithCellSize()
+{
+    cv::Mat mask(120, 120, CV_8UC1, cv::Scalar(255));
+    iconrecognition::detail::ApplyValuablesWeaponPortraitMask(mask);
+    Check(mask.at<unsigned char>(19, 101) == 0, "scaled valuables portrait center must be excluded");
+    Check(mask.at<unsigned char>(19, 118) == 0, "scaled valuables portrait radius must exclude the right edge");
+}
+
 void TestForegroundTextureUsesContentInsets()
 {
     cv::Mat image = cv::Mat::zeros(64, 64, CV_8UC3);
@@ -94,6 +142,20 @@ void TestForegroundTextureUsesContentInsets()
     Check(
         !iconrecognition::detail::IsLowTexture(image, cv::Rect(0, 0, 64, 64), iconrecognition::GridType::Transfer, 10.0),
         "texture inside the content inset must be retained");
+}
+
+void TestForegroundTextureUsesNativeLargerCell()
+{
+    cv::Mat image = cv::Mat::zeros(80, 80, CV_8UC3);
+    for (int y = 6; y < 72; ++y) {
+        for (int x = 6; x < 24; ++x) {
+            const unsigned char value = ((x + y) % 2 == 0) ? 0 : 255;
+            image.at<cv::Vec3b>(y, x) = cv::Vec3b(value, value, value);
+        }
+    }
+    const auto score = iconrecognition::detail::ForegroundTextureScore(image, cv::Rect(0, 0, 80, 80), iconrecognition::GridType::Transfer);
+    Check(score.has_value(), "native larger cells must use the existing texture calculation");
+    Check(*score > 10.0, "native larger cell texture fixture must remain above the low-texture threshold");
 }
 
 void TestStructureFeatureModuleContract()
@@ -126,15 +188,21 @@ void TestGridGeometryModuleContract()
         "visible grid shape must exclude filtered axes that produced no cell");
 }
 
-cv::Mat BuildSyntheticGrid(int pitch)
+cv::Mat BuildSyntheticGrid(int pitch, int cell_size = 0)
 {
     const cv::Rect roi(0, 0, 420, 320);
     cv::Mat image(roi.size(), CV_8UC3, cv::Scalar(18, 18, 18));
     for (int x = 0; x < roi.width; x += pitch) {
         image.colRange(x, std::min(x + 2, roi.width)).setTo(cv::Scalar(245, 245, 245));
+        if (cell_size > 0 && x + cell_size < roi.width) {
+            image.colRange(x + cell_size, std::min(x + cell_size + 2, roi.width)).setTo(cv::Scalar(245, 245, 245));
+        }
     }
     for (int y = 0; y < roi.height; y += pitch) {
         image.rowRange(y, std::min(y + 2, roi.height)).setTo(cv::Scalar(245, 245, 245));
+        if (cell_size > 0 && y + cell_size < roi.height) {
+            image.rowRange(y + cell_size, std::min(y + cell_size + 2, roi.height)).setTo(cv::Scalar(245, 245, 245));
+        }
     }
     return image;
 }
@@ -155,6 +223,35 @@ void TestGridScaleEstimateSelectsCalibratedProfiles()
     Check(!ambiguous, "automatic grid scale must reject an ROI without periodic structure");
 }
 
+void TestGridDetectorMapsNormalizedCellsBackToSourceImage()
+{
+    constexpr double kGridScale = 1.25;
+    const cv::Rect roi(0, 0, 420, 320);
+    const cv::Mat image = BuildSyntheticGrid(86, 80);
+    const auto grid = iconrecognition::detail::DetectGrid(image, iconrecognition::GridType::Transfer, roi);
+
+    Check(std::abs(grid.grid_scale - kGridScale) <= 1e-6, "grid detection must expose the resolved source scale");
+    Check(!grid.cells.empty(), "scaled synthetic grid must contain detected cells");
+    Check(
+        std::ranges::all_of(grid.cells, [](const auto& cell) { return cell.cell_box.size() == cv::Size(80, 80); }),
+        "normalized 64px cells must be mapped back to 80px source-image cells");
+
+    const auto& layout = grid.grids.front();
+    const auto first_cell = std::ranges::find_if(layout.cells, [](const auto& cell) { return cell.row == 0; });
+    Check(first_cell != layout.cells.end(), "scaled regular grid must expose a first row");
+    const int first_x = first_cell->cell_box.x - first_cell->column * 86;
+    for (const auto& cell : layout.cells) {
+        if (cell.row != 0) {
+            continue;
+        }
+        Check(
+            cell.cell_box.x == first_x + cell.column * 86,
+            "scaled regular grid must preserve the source-image pitch without cumulative rounding drift: column="
+                + std::to_string(cell.column) + " expected=" + std::to_string(first_x + cell.column * 86)
+                + " actual=" + std::to_string(cell.cell_box.x) + " pitch=" + std::to_string(layout.pitch_x));
+    }
+}
+
 void TestRewardsGridScaleSelectsCardProfileInsideCallerRoi()
 {
     cv::Mat standard(96, 96, CV_8UC3, cv::Scalar(245, 245, 245));
@@ -162,19 +259,21 @@ void TestRewardsGridScaleSelectsCardProfileInsideCallerRoi()
         iconrecognition::detail::EstimateGridScale(standard, iconrecognition::GridType::Rewards, cv::Rect(0, 0, 96, 96));
     Check(standard_scale && std::abs(*standard_scale - 1.0) <= 1e-6, "96px reward card ROI must keep scale 1.0");
 
+    cv::Mat ambiguous(108, 108, CV_8UC3, cv::Scalar(245, 245, 245));
+    const auto ambiguous_scale =
+        iconrecognition::detail::EstimateGridScale(ambiguous, iconrecognition::GridType::Rewards, cv::Rect(0, 0, 108, 108));
+    Check(!ambiguous_scale, "a reward card equidistant from both controller profiles must be rejected");
+
     cv::Mat vertically_connected(120, 120, CV_8UC3, cv::Scalar(24, 24, 24));
     vertically_connected(cv::Rect(12, 0, 96, 120)).setTo(cv::Scalar(245, 245, 245));
-    const auto connected_scale = iconrecognition::detail::EstimateGridScale(
-        vertically_connected,
-        iconrecognition::GridType::Rewards,
-        cv::Rect(0, 0, 120, 120));
+    const auto connected_scale =
+        iconrecognition::detail::EstimateGridScale(vertically_connected, iconrecognition::GridType::Rewards, cv::Rect(0, 0, 120, 120));
     Check(
         connected_scale && std::abs(*connected_scale - 1.0) <= 1e-6,
         "a 96px reward card connected to vertical highlights must remain scale 1.0");
 
     cv::Mat enlarged(120, 120, CV_8UC3, cv::Scalar(245, 245, 245));
-    const auto scale =
-        iconrecognition::detail::EstimateGridScale(enlarged, iconrecognition::GridType::Rewards, cv::Rect(0, 0, 120, 120));
+    const auto scale = iconrecognition::detail::EstimateGridScale(enlarged, iconrecognition::GridType::Rewards, cv::Rect(0, 0, 120, 120));
     Check(scale && std::abs(*scale - 1.25) <= 1e-6, "larger rewards cards must estimate 1.25 UI scale");
 }
 
@@ -252,8 +351,7 @@ void TestRewardsRowCompletesInternalMissingCards()
 {
     const std::vector<int> observed { 216, 362, 508, 944 };
     Check(
-        iconrecognition::detail::CompleteRewardsRowStarts(observed, 146.0)
-            == std::vector<int>({ 216, 362, 508, 654, 800, 944 }),
+        iconrecognition::detail::CompleteRewardsRowStarts(observed, 146.0) == std::vector<int>({ 216, 362, 508, 654, 800, 944 }),
         "rewards row must fill internal card gaps without extending beyond observed endpoints");
     Check(
         iconrecognition::detail::CompleteRewardsRowStarts({ 216, 362 }, 146.0) == std::vector<int>({ 216, 362 }),
@@ -271,98 +369,27 @@ void TestRewardsDefaultFiltersIncludeAllRewardStorageKinds()
         "rewards defaults must include progression items and consumables stored in ValuableDepot");
 }
 
-void TestShipmentAcceptsOnlyStrongRankedFallbackBelowDefaultThreshold()
+void TestShipmentProfileAcceptsTwoCompleteRows()
 {
-    Check(
-        iconrecognition::detail::ShouldAcceptRankedMatch(
-            iconrecognition::GridType::Shipment,
-            0.85,
-            0.805,
-            0.109,
-            true),
-        "shipment default threshold must retain a fallback candidate with strong score and top-two margin");
-    Check(
-        !iconrecognition::detail::ShouldAcceptRankedMatch(
-            iconrecognition::GridType::Shipment,
-            0.85,
-            0.83,
-            0.02,
-            true),
-        "shipment fallback must reject an ambiguous candidate with a weak top-two margin");
-    Check(
-        !iconrecognition::detail::ShouldAcceptRankedMatch(
-            iconrecognition::GridType::Rewards,
-            0.85,
-            0.82,
-            0.12,
-            true),
-        "ranked fallback must remain shipment-specific");
-    Check(
-        !iconrecognition::detail::ShouldAcceptRankedMatch(
-            iconrecognition::GridType::Shipment,
-            0.90,
-            0.82,
-            0.12,
-            true),
-        "a caller-supplied non-default threshold must keep exact acceptance semantics");
-}
-
-void TestShipmentRowsUseIndependentCardBoundaries()
-{
-    constexpr int kCellSize = 80;
-    const std::vector<int> x_starts { 10, 102, 194, 286, 378 };
-    const cv::Rect roi(0, 15, 468, 375);
-    const std::vector<int> card_y { 20, 159, 299 };
-    // 首行贴近 ROI 顶部时应回溯到白卡渐入带，后两行则直接采用各自数量条相位。
-    const std::vector<int> expected_y { 16, 163, 303 };
-    cv::Mat image(390, 468, CV_8UC3, cv::Scalar(24, 24, 24));
-    for (int y : card_y) {
-        for (int x : x_starts) {
-            image(cv::Rect(x, y, kCellSize, kCellSize)).setTo(cv::Scalar(224, 224, 224));
-            image(cv::Rect(x + 5, y + 4, 64, 16)).setTo(cv::Scalar(0, 220, 220));
-        }
-    }
-    const std::vector<int> rigid_y { 24, 161, 299 };
-    const auto actual_y = iconrecognition::detail::RefineShipmentRowStarts(image, roi, x_starts, rigid_y, kCellSize);
-    Check(
-        actual_y == expected_y,
-        "shipment rows must refine their vertical starts independently: actual=" + std::to_string(actual_y[0]) + ","
-            + std::to_string(actual_y[1]) + "," + std::to_string(actual_y[2]));
-}
-
-void TestShipmentGridUsesSelectableQuantityBarPhase()
-{
-    constexpr int kCellSize = 64;
-    constexpr int kPitchX = 74;
-    constexpr int kPitchY = 112;
-    constexpr int kColumns = 5;
-    constexpr int kRows = 2;
-    constexpr int kPhaseX = 12;
-    constexpr int kDisplayPhaseY = 8;
-    constexpr int kSelectablePhaseY = 72;
-    // 上方展示卡相位可在 ROI 内凑足三行，而可操作卡只有两行完整 cell；模拟底部操作栏截断末行的 ADB 画面。
+    const auto profile = iconrecognition::detail::ProfileFor(iconrecognition::GridType::Shipment);
     const cv::Rect roi(0, 0, 390, 310);
-    cv::Mat image(roi.size(), CV_8UC3, cv::Scalar(24, 24, 24));
-
-    for (int column = 0; column < kColumns; ++column) {
-        const int x = kPhaseX + column * kPitchX;
-        image(cv::Rect(x, kDisplayPhaseY, kCellSize, kCellSize)).setTo(cv::Scalar(224, 224, 224));
-    }
-    for (int row = 0; row < kRows; ++row) {
-        const int y = kSelectablePhaseY + row * kPitchY;
-        for (int column = 0; column < kColumns; ++column) {
-            const int x = kPhaseX + column * kPitchX;
-            image(cv::Rect(x + 8, y + 20, 48, 36)).setTo(cv::Scalar(150, 150, 150));
-            image(cv::Rect(x + 5, y, 50, 12)).setTo(cv::Scalar(0, 220, 220));
+    constexpr int kPhaseX = 12;
+    constexpr int kPhaseY = 72;
+    int complete_rows = 0;
+    for (int row = 0; row < 3; ++row) {
+        const int y = cvRound(kPhaseY + row * profile.pitch_y);
+        if (iconrecognition::detail::HasFormalCardExtent(
+                cv::Rect(kPhaseX, y, profile.cell_size, profile.cell_size),
+                roi,
+                iconrecognition::GridType::Shipment,
+                1.0)) {
+            ++complete_rows;
         }
     }
-
-    const auto grid = iconrecognition::detail::DetectGrid(image, iconrecognition::GridType::Shipment, roi);
-    const auto first = std::ranges::find_if(grid.cells, [](const auto& cell) { return cell.row == 0 && cell.column == 0; });
-    Check(first != grid.cells.end(), "synthetic shipment grid must contain its first selectable cell");
+    Check(complete_rows == 2, "shipment fixture must leave exactly two complete rows above the bottom toolbar");
     Check(
-        std::abs(first->cell_box.y - kSelectablePhaseY) <= 2,
-        "shipment grid must follow yellow quantity bars instead of display cards: actual_y=" + std::to_string(first->cell_box.y));
+        profile.min_rows <= complete_rows,
+        "shipment profile must allow a strong card phase with two complete rows: min_rows=" + std::to_string(profile.min_rows));
 }
 
 void TestRewardsGridKeepsBottomRarityBandInsideCell()
@@ -494,8 +521,7 @@ void TestPortStoragerWideRoiUsesStablePanelPartitions()
     Check(adb[1].x >= 380 && adb[1].x <= 388, "ADB right panel region must begin before the first storage column");
     Check((adb[1].width - 64) / 68 + 1 == 7, "ADB right panel region must not admit an eighth column");
 
-    const auto right_profile =
-        iconrecognition::detail::TransferProfileFor(iconrecognition::detail::TransferGridVariant::PortStoragerRight);
+    const auto right_profile = iconrecognition::detail::TransferProfileFor(iconrecognition::detail::TransferGridVariant::PortStoragerRight);
     Check(right_profile.minimum_bottom_visibility >= 0.80, "port right grid must reject a row with only 75% bottom visibility");
 }
 
@@ -606,12 +632,12 @@ void TestRarityUsesBottomEdgeRows()
     cv::cvtColor(lab, bgr, cv::COLOR_Lab2BGR);
     image(cv::Rect(10, 74, 64, 1)).setTo(bgr.at<cv::Vec3b>(0, 0));
 
-    const auto rarity = iconrecognition::detail::ClassifyRarity(image, cv::Rect(10, 10, 64, 64));
+    const auto rarity = iconrecognition::detail::ClassifyRarity(image, cv::Rect(10, 10, 64, 64), 1.0);
     Check(rarity.rarity == 2, "rarity must use rows around the slot bottom edge");
     Check(std::abs(rarity.coverage - 1.0) <= 1e-6, "rarity coverage must preserve the selected row evidence");
     Check(rarity.row_offset == 0, "rarity row offset must be relative to the slot bottom edge");
 
-    const auto absent = iconrecognition::detail::ClassifyRarity(cv::Mat::zeros(100, 100, CV_8UC3), cv::Rect(10, 10, 64, 64));
+    const auto absent = iconrecognition::detail::ClassifyRarity(cv::Mat::zeros(100, 100, CV_8UC3), cv::Rect(10, 10, 64, 64), 1.0);
     Check(!absent.rarity, "unreliable rarity evidence must not report a rarity");
     Check(std::abs(absent.coverage) <= 1e-6, "unreliable rarity coverage must remain available for diagnostics");
     Check(absent.row_offset == -8, "rarity ties must keep the first row like numpy.argmax");
@@ -777,6 +803,127 @@ void TestSubpixelPhasesAreStable()
         const auto& right = extensions[index];
         Check(left.x < right.x || (left.x == right.x && left.y < right.y), "boundary extension phases must be lexicographically sorted");
     }
+}
+
+iconrecognition::detail::PreparedTemplate BuildEdgeOcclusionFixture()
+{
+    iconrecognition::detail::PreparedTemplate fixture;
+    fixture.record.item_id = "edge-occlusion-fixture";
+    fixture.image = cv::Mat::zeros(80, 80, CV_8UC3);
+    for (int y = 0; y < fixture.image.rows; ++y) {
+        for (int x = 0; x < fixture.image.cols; ++x) {
+            fixture.image.at<cv::Vec3b>(y, x) = cv::Vec3b(
+                static_cast<unsigned char>((x * 17 + y * 3) % 256),
+                static_cast<unsigned char>((x * 5 + y * 19) % 256),
+                static_cast<unsigned char>((x * 11 + y * 7) % 256));
+        }
+    }
+    fixture.mask = cv::Mat(80, 80, CV_8UC1, cv::Scalar(255));
+    return fixture;
+}
+
+void TestEdgeOcclusionDetectsContinuousTopAndBottomBands()
+{
+    const auto fixture = BuildEdgeOcclusionFixture();
+    const cv::Rect slot(8, 8, 80, 80);
+    for (const auto& [side, occluded] : std::array {
+             std::pair { iconrecognition::detail::EdgeOcclusionSide::Top, cv::Rect(0, 0, 80, 20) },
+             std::pair { iconrecognition::detail::EdgeOcclusionSide::Bottom, cv::Rect(0, 48, 80, 32) },
+         }) {
+        cv::Mat image = cv::Mat::zeros(96, 96, CV_8UC3);
+        fixture.image.copyTo(image(slot));
+        image(slot)(occluded).setTo(cv::Scalar(250, 8, 245));
+
+        const auto detected = iconrecognition::detail::DetectEdgeOcclusion(image, slot, fixture, {});
+        Check(detected.has_value(), "a continuous edge obstruction must produce a dynamic mask");
+        Check(detected->side == side, "dynamic edge mask must preserve the obstructed side");
+        if (side == iconrecognition::detail::EdgeOcclusionSide::Top) {
+            Check(detected->cutoff >= 18 && detected->cutoff <= 22, "top obstruction cutoff must follow its measured boundary");
+        }
+        else {
+            Check(detected->cutoff >= 46 && detected->cutoff <= 50, "bottom obstruction cutoff must follow its measured boundary");
+        }
+
+        cv::Mat mask = fixture.mask.clone();
+        iconrecognition::detail::ApplyEdgeOcclusionMask(mask, *detected);
+        const int excluded_row = side == iconrecognition::detail::EdgeOcclusionSide::Top ? 0 : 79;
+        const int retained_row = side == iconrecognition::detail::EdgeOcclusionSide::Top ? 79 : 0;
+        Check(cv::countNonZero(mask.row(excluded_row)) == 0, "detected edge band must be excluded from template matching");
+        Check(cv::countNonZero(mask.row(retained_row)) == 80, "the opposite unoccluded edge must remain active");
+    }
+}
+
+void TestEdgeOcclusionRejectsUniformResiduals()
+{
+    const auto fixture = BuildEdgeOcclusionFixture();
+    const cv::Rect slot(8, 8, 80, 80);
+    cv::Mat image = cv::Mat::zeros(96, 96, CV_8UC3);
+    cv::add(fixture.image, cv::Scalar(12, 12, 12), image(slot));
+
+    Check(
+        !iconrecognition::detail::DetectEdgeOcclusion(image, slot, fixture, {}),
+        "a whole-icon color difference must not be misclassified as an edge obstruction");
+}
+
+void TestEdgeOcclusionSkipsRewardsAndSingleRoi()
+{
+    for (const auto type : std::array {
+             iconrecognition::GridType::Trade,
+             iconrecognition::GridType::Transfer,
+             iconrecognition::GridType::PortStorager,
+             iconrecognition::GridType::Valuables,
+             iconrecognition::GridType::Shipment,
+             iconrecognition::GridType::CreditTrade,
+         }) {
+        Check(iconrecognition::detail::SupportsEdgeOcclusion(type), "regular grids must support edge-obstruction recovery");
+    }
+    Check(
+        !iconrecognition::detail::SupportsEdgeOcclusion(iconrecognition::GridType::Rewards),
+        "reward cards must skip edge-obstruction recovery");
+    Check(
+        !iconrecognition::detail::SupportsEdgeOcclusion(iconrecognition::GridType::SingleRoi),
+        "fixed single ROI must skip edge-obstruction recovery");
+}
+
+void TestEdgeOcclusionRecoveryPolicyIsConservative()
+{
+    Check(
+        iconrecognition::detail::ShouldAttemptEdgeOcclusionRecovery(
+            iconrecognition::GridType::Trade,
+            0.82,
+            0.85,
+            0.60,
+            false),
+        "a regular-grid candidate rejected after subpixel refinement must enter edge recovery");
+    Check(
+        !iconrecognition::detail::ShouldAttemptEdgeOcclusionRecovery(
+            iconrecognition::GridType::Trade,
+            0.91,
+            0.90,
+            0.60,
+            false),
+        "an already accepted candidate must not pay for edge recovery");
+    Check(
+        !iconrecognition::detail::ShouldAttemptEdgeOcclusionRecovery(
+            iconrecognition::GridType::Transfer,
+            0.82,
+            0.85,
+            0.60,
+            true),
+        "a low-texture transfer cell must remain rejected before edge recovery");
+
+    Check(
+        iconrecognition::detail::ShouldAcceptEdgeOcclusionRecovery(3, 3, 0.88, 0.32, 0.85),
+        "recovery must accept the same candidate above the caller threshold with a strong margin");
+    Check(
+        !iconrecognition::detail::ShouldAcceptEdgeOcclusionRecovery(3, 4, 0.94, 0.40, 0.85),
+        "recovery must not replace the original top candidate after hiding an edge");
+    Check(
+        !iconrecognition::detail::ShouldAcceptEdgeOcclusionRecovery(3, 3, 0.88, 0.12, 0.85),
+        "recovery must reject an ambiguous masked ranking");
+    Check(
+        !iconrecognition::detail::ShouldAcceptEdgeOcclusionRecovery(3, 3, 0.89, 0.40, 0.90),
+        "recovery must honor a caller-supplied threshold instead of the default threshold");
 }
 
 void TestTemplatePreparationUsesExpectedMasks()
@@ -947,19 +1094,22 @@ int main()
     try {
         TestLowerExtendedMaskSnapshots();
         TestShipmentQuantityBarThreshold();
+        TestShipmentQuantityBarThresholdScalesWithCellArea();
+        TestShipmentTopBarMaskScalesWithCellHeight();
+        TestValuablesPortraitMaskScalesWithCellSize();
         TestForegroundTextureUsesContentInsets();
+        TestForegroundTextureUsesNativeLargerCell();
         TestStructureFeatureModuleContract();
         TestGridGeometryModuleContract();
         TestGridScaleEstimateSelectsCalibratedProfiles();
+        TestGridDetectorMapsNormalizedCellsBackToSourceImage();
         TestRewardsGridScaleSelectsCardProfileInsideCallerRoi();
         TestTradeGridUsesCardBoundariesForVerticalPhase();
         TestValuablesCardExtentUsesScaledProfileOcclusionPolicy();
         TestPortOcclusionPolicyDropsOnlyWeakSevenColumnFirstRow();
         TestRewardsRowCompletesInternalMissingCards();
         TestRewardsDefaultFiltersIncludeAllRewardStorageKinds();
-        TestShipmentAcceptsOnlyStrongRankedFallbackBelowDefaultThreshold();
-        TestShipmentRowsUseIndependentCardBoundaries();
-        TestShipmentGridUsesSelectableQuantityBarPhase();
+        TestShipmentProfileAcceptsTwoCompleteRows();
         TestRewardsGridKeepsBottomRarityBandInsideCell();
         TestRewardsSingleCardRoiClampsSmallBodyPhaseOffset();
         TestRewardsGridKeepsRowsWithIndependentHorizontalOrigins();
@@ -979,6 +1129,10 @@ int main()
         TestRarityCandidatePassesAreDisjointAndComplete();
         TestMatcherSearchRadiusIsExplicit();
         TestSubpixelPhasesAreStable();
+        TestEdgeOcclusionDetectsContinuousTopAndBottomBands();
+        TestEdgeOcclusionRejectsUniformResiduals();
+        TestEdgeOcclusionSkipsRewardsAndSingleRoi();
+        TestEdgeOcclusionRecoveryPolicyIsConservative();
         TestTemplatePreparationUsesExpectedMasks();
         TestCatalogBuildsFinalSizeDirectlyFromSourceAssets();
         TestIconPathResolutionDoesNotAssumeCatalogRarity();

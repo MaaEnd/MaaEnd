@@ -15,12 +15,6 @@ namespace detail
 {
 
 const std::vector<std::string>& DefaultItemFilters(GridType type);
-bool ShouldAcceptRankedMatch(
-    GridType type,
-    double configured_threshold,
-    double score,
-    std::optional<double> top2_margin,
-    bool fallback_used);
 
 } // namespace detail
 

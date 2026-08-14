@@ -8,7 +8,7 @@
 
 1. `IconRecognitionRecognition.cpp` 把 MaaFramework 回调参数转换为 `RecognitionRequest`，调用核心识别器，并把 `RecognitionResult` 写回 Maa detail；
 2. `IconRecognizer.cpp` 校验请求、加载候选模板、调用网格检测、逐格匹配并汇总结果；
-3. `detail/GridDetector.cpp` 根据界面类型返回 `GridDetection`，不参与 catalog 过滤和图标分类；
+3. `detail/GridDetector.cpp` 解析网格比例，必要时用局部临时图归一化网格检测，并返回已经映射到原图的 `GridDetection`；该层不参与 catalog 过滤和图标分类；
 4. `detail/TemplateCatalog.cpp`、`RarityCandidates.cpp` 和 `IconMatcher.cpp` 负责候选准备、稀有度缩减与模板评分；
 5. `RecognitionDiagnostics.cpp` 和 `DebugCapture.cpp` 只记录内部诊断，不改变识别结果。
 
@@ -45,14 +45,14 @@
 - 校验阈值、ROI 和候选过滤条件；
 - 按界面选择默认候选集与模板尺寸；
 - 调用网格定位或构造临时单格；
-- 对每个格子执行候选缩减、匹配、门控和诊断记录；
+- 按网格检测返回的比例直接从原始图标资源生成最终尺寸模板，并在输入原图上执行候选缩减、匹配、门控和诊断记录；
 - 排序、去重并生成稳定的错误结果。
 
 新增步骤时应先判断它属于所有界面共用的识别编排，还是某个界面的内部策略。界面专用逻辑优先下沉到 `detail/`，避免继续扩大入口函数。
 
 ### 网格定位层
 
-网格定位的文件职责见[网格配置维护](grid-profiles.md)，具体决策流程见[识别算法](algorithm.md)。该层只输出格子位置和可选诊断，不加载物品图标，也不执行物品分类。
+网格定位的文件职责见[网格配置维护](grid-profiles.md)，具体决策流程见[识别算法](algorithm.md)。该层只输出原图坐标的格子位置、解析后的比例和可选诊断，不加载物品图标，也不执行物品分类。归一化图必须是 `DetectGrid()` 的局部变量，返回结构不得持有该图或其 ROI 视图。
 
 ### 模板与匹配层
 
@@ -61,7 +61,7 @@
 - `MaskPolicy` 生成界面适配的匹配遮罩；
 - `RarityClassifier` 与 `RarityCandidates` 缩小候选集合；
 - `IconMatcher` 和 `SubpixelMatcher` 计算基础分与精细相位分；
-- `ForegroundTexture` 及界面专用遮罩负责拒绝明显不应接受的格子。
+- `ForegroundTexture` 负责拒绝明显不应接受的格子，`MaskPolicy` 提供界面固定遮罩，`EdgeOcclusion` 在常规匹配失败后按实测残差生成可叠加的动态边缘遮罩。
 
 候选过滤只改变参与评分的模板集合，不得改变网格位置。模板评分也不得反向修改已经确定的格子几何。
 

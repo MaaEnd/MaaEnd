@@ -113,13 +113,13 @@ constexpr GridProfile kValuablesGridProfile {
     .min_columns = 6,
     .min_rows = 4,
 };
-// 送货界面按 64px cell、73.6x112px pitch 和至少 4x3 布局标定。
+// 送货界面按 64px cell、73.6x112px pitch 标定；底部操作栏可能只留下两行完整卡片。
 constexpr GridProfile kShipmentGridProfile {
     .cell_size = 64,
     .pitch_x = 73.6,
     .pitch_y = 112.0,
     .min_columns = 4,
-    .min_rows = 3,
+    .min_rows = 2,
 };
 // 信用交易卡片按 128px cell、161x205px pitch 和单行七列布局标定。
 constexpr GridProfile kCreditTradeGridProfile {

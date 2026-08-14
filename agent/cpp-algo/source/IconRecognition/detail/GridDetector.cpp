@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <iterator>
 #include <limits>
 #include <map>
 #include <numeric>
@@ -16,7 +17,6 @@
 #include "GridFeatures.h"
 #include "GridGeometry.h"
 #include "GridProfiles.h"
-#include "MaskPolicy.h"
 
 namespace iconrecognition::detail
 {
@@ -39,6 +39,8 @@ constexpr double kDefaultMinimumBottomVisibility = 0.70;
 constexpr double kScaledValuablesMinimumBottomVisibility = 0.65;
 // 自动 profile 为 1.0 和 1.25，取中点区分 Win32 基准布局与 ADB 放大布局；调低会让更多显式比例采用宽松底边策略。
 constexpr double kScaledValuablesProfileMinimumScale = 1.125;
+// 映射回源图后，pitch 细化允许在半个 controller scale 像素内搜索，覆盖归一化取整误差。
+constexpr double kSourcePitchRefinementRadiusScale = 0.5;
 // 左右被 ROI 裁切时保留 cell 所需的最小可见比例；调高减少边缘残格，调低提高边缘召回。
 constexpr double kMinimumHorizontalVisibility = 0.70;
 // 单网格初始周期估计相对 profile pitch 的搜索半径；调大可适应缩放偏差，但增加误周期候选。
@@ -311,7 +313,10 @@ GridDetection DetectRewardsGrid(const cv::Mat& image, const cv::Rect& roi)
         }
         rows.back().push_back(candidate);
     }
-    GridDetection result { GridType::Rewards, roi, {}, {} };
+    GridDetection result {
+        .type = GridType::Rewards,
+        .roi = roi,
+    };
     int grid_index = 0;
     for (auto& row : rows) {
         std::ranges::sort(row, [](const Candidate& left, const Candidate& right) { return left.box.x < right.box.x; });
@@ -436,13 +441,21 @@ std::optional<double> EstimateRewardsScaleFromCards(const cv::Mat& image, const 
 
     std::vector<double> sizes(card_sizes.begin(), card_sizes.end());
     const double median_size = Median(std::move(sizes));
-    // 自动模式只在真实截图标定过的两套 UI 密度间选择；其它比例由调用方显式传入。
-    constexpr std::array kAutomaticGridScales { 1.0, 1.25 };
+    // 只在真实截图标定过的控制器 UI 密度间选择。
     constexpr double kMaximumRewardCardRelativeError = 0.15;
-    const auto selected = std::ranges::min_element(kAutomaticGridScales, [&](double left, double right) {
+    const auto selected = std::ranges::min_element(kSupportedControllerGridScales, [&](double left, double right) {
         return std::abs(median_size - profile.cell_size * left) < std::abs(median_size - profile.cell_size * right);
     });
-    const double relative_error = std::abs(median_size - profile.cell_size * *selected) / (profile.cell_size * *selected);
+    const auto distance_for = [&](double scale) {
+        return std::abs(median_size - profile.cell_size * scale);
+    };
+    const double relative_error = distance_for(*selected) / (profile.cell_size * *selected);
+    const auto alternate = selected == kSupportedControllerGridScales.begin()
+                               ? std::next(selected)
+                               : kSupportedControllerGridScales.begin();
+    if (std::abs(distance_for(*selected) - distance_for(*alternate)) <= kEpsilon) {
+        return std::nullopt;
+    }
     if (relative_error > kMaximumRewardCardRelativeError) {
         return std::nullopt;
     }
@@ -478,8 +491,7 @@ StructureProjection BuildStructureProjection(const cv::Mat& image, bool x_axis)
     const int output_size = x_axis ? magnitude.cols : magnitude.rows;
     std::vector<float> projection(output_size, 0.0F);
     for (int index = 0; index < output_size; ++index) {
-        projection[index] = static_cast<float>(
-            x_axis ? cv::mean(magnitude.col(index))[0] : cv::mean(magnitude.row(index))[0]);
+        projection[index] = static_cast<float>(x_axis ? cv::mean(magnitude.col(index))[0] : cv::mean(magnitude.row(index))[0]);
     }
 
     const double mean = std::accumulate(projection.begin(), projection.end(), 0.0) / projection.size();
@@ -527,18 +539,19 @@ std::optional<double> EstimateScaleFromStructure(const cv::Mat& image, GridType 
     const StructureProjection x_projection = BuildStructureProjection(crop, true);
     const StructureProjection y_projection = BuildStructureProjection(crop, false);
 
-    constexpr std::array kAutomaticGridScales { 1.0, 1.25 };
     constexpr double kSecondaryAxisWeight = 0.35;
     constexpr double kTransferSecondaryAxisWeight = 0.25;
     // 真实旧/新截图的最小分差分别为 0.3821/0.5173；保留充足余量后拒绝模棱两可的截图。
     constexpr double kMinimumProfileScoreMargin = 0.10;
+
     struct Candidate
     {
         double scale = 1.0;
         double score = 0.0;
     };
+
     std::vector<Candidate> candidates;
-    for (const double scale : kAutomaticGridScales) {
+    for (const double scale : kSupportedControllerGridScales) {
         const auto x_score = ScoreProjectionPeriod(x_projection, profile.pitch_x * scale);
         const auto y_score = ScoreProjectionPeriod(y_projection, profile.pitch_y * scale);
         if (type == GridType::CreditTrade) {
@@ -559,7 +572,7 @@ std::optional<double> EstimateScaleFromStructure(const cv::Mat& image, GridType 
             candidates.push_back({ scale, primary + secondary });
         }
     }
-    if (candidates.size() != kAutomaticGridScales.size()) {
+    if (candidates.size() != kSupportedControllerGridScales.size()) {
         return std::nullopt;
     }
     std::ranges::sort(candidates, [](const Candidate& left, const Candidate& right) { return left.score > right.score; });
@@ -598,62 +611,7 @@ double CardVerticalPhaseScore(const cv::Mat& gray, int phase_y, double pitch_y, 
     return Median(std::move(scores));
 }
 
-double CardTopBoundaryScore(const cv::Mat& gray, int y, int cell_size, const std::vector<int>& x_starts)
-{
-    const int inset = std::max(kCardMinimumInset, cvRound(cell_size * kCardInsetRatio));
-    const int band = std::max(kCardMinimumBand, cvRound(cell_size * kCardBandRatio));
-    if (y - band < 0 || y + band + 2 > gray.rows) {
-        return 0.0;
-    }
-    std::vector<double> scores;
-    for (int x : x_starts) {
-        const int x1 = std::max(0, x + inset);
-        const int x2 = std::min(gray.cols, x + cell_size - inset);
-        if (x2 <= x1) {
-            continue;
-        }
-        const auto mean = [&](int top, int bottom) {
-            return cv::mean(gray(cv::Rect(x1, top, x2 - x1, bottom - top)))[0];
-        };
-        const double inside_top = mean(y + 2, y + 2 + band);
-        const double outside_top = mean(y - band, y);
-        scores.push_back(std::max(inside_top - outside_top, 0.0));
-    }
-    return Median(std::move(scores));
-}
-
-std::pair<int, int> ShipmentQuantityBarPhaseScore(
-    const cv::Mat& image,
-    int phase_y,
-    double pitch_y,
-    int cell_size,
-    const std::vector<int>& x_starts)
-{
-    int detected_cells = 0;
-    int alignment_score = 0;
-    const cv::Rect bounds(0, 0, image.cols, image.rows);
-    for (int row = 0; row < 8; ++row) {
-        const int y = cvRound(phase_y + row * pitch_y);
-        for (int x : x_starts) {
-            const cv::Rect cell(x, y, cell_size, cell_size);
-            if ((cell & bounds) == cell) {
-                const int cell_score = ShipmentTopBarAlignmentScore(image(cell));
-                if (cell_score > 0) {
-                    ++detected_cells;
-                    alignment_score += cell_score;
-                }
-            }
-        }
-    }
-    return { detected_cells, alignment_score };
-}
-
-void RefineCardVerticalPhase(
-    const cv::Mat& image,
-    const cv::Rect& roi,
-    GridType type,
-    double source_grid_scale,
-    GridLayout& layout)
+void RefineCardVerticalPhase(const cv::Mat& image, const cv::Rect& roi, GridType type, double source_grid_scale, GridLayout& layout)
 {
     cv::Mat bgr;
     if (image.channels() == 4) {
@@ -673,35 +631,14 @@ void RefineCardVerticalPhase(
     const int current_y = layout.cells.front().cell_box.y;
     const double current_pitch = layout.pitch_y;
     const double current_score = CardVerticalPhaseScore(gray, current_y, current_pitch, layout.cell_size, x_starts);
-    const auto current_quantity_bars = type == GridType::Shipment
-                                           ? ShipmentQuantityBarPhaseScore(image, current_y, current_pitch, layout.cell_size, x_starts)
-                                           : std::pair { 0, 0 };
     const GridProfile profile = ProfileFor(type);
     const double pitch_min = std::max(profile.pitch_y - kCardProfilePitchRadius, current_pitch - kCardCurrentPitchRadius);
     const double pitch_max = std::min(profile.pitch_y + kCardProfilePitchRadius, current_pitch + kCardCurrentPitchRadius);
     const int phase_stop = std::min(roi.y + roi.height, roi.y + cvRound(current_pitch));
-    std::tuple<int, int, double, double, double, int, double> best {
-        -1,
-        -1,
-        -1.0,
-        0.0,
-        0.0,
-        current_y,
-        current_pitch,
-    };
+    std::tuple<double, double, double, int, double> best { -1.0, 0.0, 0.0, current_y, current_pitch };
     for (int phase_y = roi.y; phase_y < phase_stop; ++phase_y) {
         for (double pitch = pitch_min; pitch <= pitch_max + kPitchLoopEpsilon; pitch += kPitchRefinementStep) {
-            const auto [quantity_bar_cells, quantity_bar_alignment] = type == GridType::Shipment
-                                                                           ? ShipmentQuantityBarPhaseScore(
-                                                                                 image,
-                                                                                 phase_y,
-                                                                                 pitch,
-                                                                                 layout.cell_size,
-                                                                                 x_starts)
-                                                                           : std::pair { 0, 0 };
             const auto candidate = std::tuple {
-                quantity_bar_cells,
-                quantity_bar_alignment,
                 CardVerticalPhaseScore(gray, phase_y, pitch, layout.cell_size, x_starts),
                 -std::abs(pitch - current_pitch),
                 -std::abs(phase_y - current_y),
@@ -713,12 +650,8 @@ void RefineCardVerticalPhase(
             }
         }
     }
-    const auto [best_quantity_bar_cells, best_quantity_bar_alignment, best_score, ignored_pitch, ignored_phase, best_y, best_pitch] =
-        best;
-    const auto best_quantity_bars = std::pair { best_quantity_bar_cells, best_quantity_bar_alignment };
-    const bool shipment_quantity_phase_improved = type == GridType::Shipment && best_quantity_bars > current_quantity_bars;
-    if (!shipment_quantity_phase_improved
-        && (best_score < current_score + kCardMinimumAbsoluteGain || best_score < current_score * kCardMinimumRelativeGain)) {
+    const auto [best_score, ignored_pitch, ignored_phase, best_y, best_pitch] = best;
+    if (best_score < current_score + kCardMinimumAbsoluteGain || best_score < current_score * kCardMinimumRelativeGain) {
         return;
     }
     std::vector<int> y_starts;
@@ -727,20 +660,12 @@ void RefineCardVerticalPhase(
         if (y >= roi.y + roi.height) {
             break;
         }
-        if (HasFormalCardExtent(
-                cv::Rect(x_starts.front(), y, layout.cell_size, layout.cell_size),
-                roi,
-                type,
-                source_grid_scale)) {
+        if (HasFormalCardExtent(cv::Rect(x_starts.front(), y, layout.cell_size, layout.cell_size), roi, type, source_grid_scale)) {
             y_starts.push_back(y);
         }
     }
-    // 数量条是 shipment 可操作卡片的直接语义证据；ROI 被底部操作栏截断时，不应再用完整三行先验否决正确相位。
-    if (y_starts.empty() || (!shipment_quantity_phase_improved && static_cast<int>(y_starts.size()) < profile.min_rows)) {
+    if (static_cast<int>(y_starts.size()) < profile.min_rows) {
         return;
-    }
-    if (type == GridType::Shipment) {
-        y_starts = RefineShipmentRowStarts(image, roi, x_starts, y_starts, layout.cell_size);
     }
     layout.cells.clear();
     for (int row = 0; row < static_cast<int>(y_starts.size()); ++row) {
@@ -757,12 +682,7 @@ void RefineCardVerticalPhase(
         y_starts.back() + layout.cell_size - y_starts.front());
 }
 
-GridLayout BuildCreditTradeLattice(
-    const cv::Rect& roi,
-    int x_phase,
-    int y_phase,
-    int column_count,
-    const GridProfile& profile)
+GridLayout BuildCreditTradeLattice(const cv::Rect& roi, int x_phase, int y_phase, int column_count, const GridProfile& profile)
 {
     const int pitch_x = cvRound(profile.pitch_x);
     const int pitch_y = cvRound(profile.pitch_y);
@@ -858,9 +778,7 @@ GridLayout DetectCreditTrade(const cv::Mat& image, const cv::Rect& roi)
     }
     const int first_cell_x = x_phase + kCreditTradeCellOffsetX;
     const int available_width = roi.x + roi.width - first_cell_x;
-    const int roi_column_count = available_width < profile.cell_size
-                                     ? 0
-                                     : (available_width - profile.cell_size) / pitch_x + 1;
+    const int roi_column_count = available_width < profile.cell_size ? 0 : (available_width - profile.cell_size) / pitch_x + 1;
     const int column_count = std::clamp(roi_column_count, observed_column_count, kCreditTradeMaximumColumns);
     if (cards.size() < kCreditTradeSparseCardCount) {
         const double maximum_residual = kCreditTradeMaximumPhaseResidualRatio * std::min(pitch_x, pitch_y);
@@ -1058,7 +976,8 @@ TransferAxisFit FitTransferAxis(
     std::pair<double, double> pitch_range,
     int observed_pitch_tolerance,
     int maximum_count,
-    bool refine_phase)
+    bool refine_phase,
+    bool refine_pitch = false)
 {
     std::vector<int> ordered = starts;
     std::ranges::sort(ordered);
@@ -1100,43 +1019,51 @@ TransferAxisFit FitTransferAxis(
     }
     double fitted_pitch = ordered.size() >= 6 || denominator <= kEpsilon ? coarse_pitch : numerator / denominator;
     fitted_pitch = std::clamp(fitted_pitch, pitch_range.first, pitch_range.second);
-    double phase_center = 0.0;
-    for (std::size_t index = 0; index < observed.size(); ++index) {
-        phase_center += observed[index] - indices[index] * fitted_pitch;
-    }
-    phase_center /= observed.size();
     const auto normalized = NormalizeSignal(boundary);
-    std::tuple<double, double, double> best { -std::numeric_limits<double>::infinity(), 0.0, 0.0 };
-    double best_phase = phase_center;
+    std::tuple<double, double, double, double> best { -std::numeric_limits<double>::infinity(), 0.0, 0.0, 0.0 };
+    double best_phase = 0.0;
+    double best_pitch = fitted_pitch;
     double best_score = 0.0;
     double best_residual = 0.0;
-    const double phase_begin = refine_phase ? phase_center - kAxisPhaseRefinementHalfRange : phase_center;
-    const double phase_end =
-        refine_phase ? phase_center + kAxisPhaseRefinementHalfRange + kAxisPhaseLoopEpsilon : phase_center + kAxisPhaseLoopEpsilon;
-    for (double phase = phase_begin; phase <= phase_end; phase += refine_phase ? kAxisPhaseRefinementStep : kAxisPhaseCoarseStep) {
-        std::vector<double> pairs;
-        for (int index = 0; index < count; ++index) {
-            const double position = phase + index * fitted_pitch;
-            pairs.push_back(std::sqrt(
-                std::max(SampleSignal(normalized, position), 0.0) * std::max(SampleSignal(normalized, position + cell_size), 0.0)));
-        }
-        std::vector<double> residuals;
+    const double pitch_begin = refine_pitch ? pitch_range.first : fitted_pitch;
+    const double pitch_end = refine_pitch ? pitch_range.second + kAxisPhaseLoopEpsilon : fitted_pitch + kAxisPhaseLoopEpsilon;
+    for (double pitch = pitch_begin; pitch <= pitch_end; pitch += refine_pitch ? kPitchRefinementStep : kAxisPhaseCoarseStep) {
+        double phase_center = 0.0;
         for (std::size_t index = 0; index < observed.size(); ++index) {
-            if (indices[index] < count) {
-                residuals.push_back(std::abs(phase + indices[index] * fitted_pitch - observed[index]));
+            phase_center += observed[index] - indices[index] * pitch;
+        }
+        phase_center /= observed.size();
+        const double phase_begin = refine_phase ? phase_center - kAxisPhaseRefinementHalfRange : phase_center;
+        const double phase_end =
+            refine_phase ? phase_center + kAxisPhaseRefinementHalfRange + kAxisPhaseLoopEpsilon : phase_center + kAxisPhaseLoopEpsilon;
+        for (double phase = phase_begin; phase <= phase_end; phase += refine_phase ? kAxisPhaseRefinementStep : kAxisPhaseCoarseStep) {
+            std::vector<double> pairs;
+            for (int index = 0; index < count; ++index) {
+                const double position = phase + index * pitch;
+                pairs.push_back(std::sqrt(
+                    std::max(SampleSignal(normalized, position), 0.0) * std::max(SampleSignal(normalized, position + cell_size), 0.0)));
+            }
+            std::vector<double> residuals;
+            for (std::size_t index = 0; index < observed.size(); ++index) {
+                if (indices[index] < count) {
+                    residuals.push_back(std::abs(phase + indices[index] * pitch - observed[index]));
+                }
+            }
+            const double residual = residuals.empty() ? 0.0 : std::accumulate(residuals.begin(), residuals.end(), 0.0) / residuals.size();
+            const double evidence = pairs.empty() ? 0.0 : std::accumulate(pairs.begin(), pairs.end(), 0.0) / pairs.size();
+            // 源图 pitch 搜索的目标就是修正归一化坐标量化，旧坐标残差只用于同分排序，不能反向锁死旧轴。
+            const double residual_weight = refine_pitch ? 0.0 : kTransferAxisResidualPenalty;
+            const double score = evidence - residual_weight * residual;
+            const auto candidate =
+                std::tuple { score, -residual, -std::abs(pitch - fitted_pitch), -std::abs(phase - phase_center) };
+            if (candidate > best) {
+                best = candidate, best_phase = phase, best_pitch = pitch, best_score = score, best_residual = residual;
             }
         }
-        const double residual = residuals.empty() ? 0.0 : std::accumulate(residuals.begin(), residuals.end(), 0.0) / residuals.size();
-        const double evidence = pairs.empty() ? 0.0 : std::accumulate(pairs.begin(), pairs.end(), 0.0) / pairs.size();
-        const double score = evidence - kTransferAxisResidualPenalty * residual;
-        const auto candidate = std::tuple { score, -residual, -std::abs(phase - phase_center) };
-        if (candidate > best) {
-            best = candidate, best_phase = phase, best_score = score, best_residual = residual;
-        }
     }
-    TransferAxisFit fit { .phase = best_phase + offset, .pitch = fitted_pitch, .score = best_score, .mean_residual = best_residual };
+    TransferAxisFit fit { .phase = best_phase + offset, .pitch = best_pitch, .score = best_score, .mean_residual = best_residual };
     for (int index = 0; index < count; ++index) {
-        fit.starts.push_back(static_cast<int>(std::floor(best_phase + index * fitted_pitch + 0.5)) + offset);
+        fit.starts.push_back(static_cast<int>(std::floor(best_phase + index * best_pitch + 0.5)) + offset);
     }
     return fit;
 }
@@ -1319,12 +1246,7 @@ std::vector<int> DropPortRows(
         }
         return total / x_starts.size();
     };
-    if (ShouldDropPortFirstRow(
-            column_count,
-            row_support(y_starts[0]),
-            row_support(y_starts[1]),
-            y_starts[0],
-            cell_size)) {
+    if (ShouldDropPortFirstRow(column_count, row_support(y_starts[0]), row_support(y_starts[1]), y_starts[0], cell_size)) {
         y_starts.erase(y_starts.begin());
     }
     if (column_count != 4 || y_starts.size() < 2) {
@@ -1386,7 +1308,8 @@ GridLayout BuildTransferLayout(const cv::Mat& image, const cv::Rect& roi, const 
         { static_cast<double>(profile.pitch_min), static_cast<double>(profile.pitch_max) },
         profile.observed_pitch_tolerance,
         static_cast<int>(refined_x.size()),
-        !transfer);
+        !transfer,
+        false);
     std::vector<int> local_x = x_fit.starts;
     std::vector<int> local_y;
     const auto rarity_fit = FitRarityGrid(image(roi), local_x, hint.y_starts, profile);
@@ -1579,19 +1502,13 @@ void Append(GridDetection& result, GridLayout layout)
 
 bool HasFormalCardExtent(const cv::Rect& cell, const cv::Rect& roi, GridType type, double source_grid_scale)
 {
-    const bool is_scaled_valuables =
-        type == GridType::Valuables && source_grid_scale >= kScaledValuablesProfileMinimumScale;
+    const bool is_scaled_valuables = type == GridType::Valuables && source_grid_scale >= kScaledValuablesProfileMinimumScale;
     const double minimum_bottom_visibility =
         is_scaled_valuables ? kScaledValuablesMinimumBottomVisibility : kDefaultMinimumBottomVisibility;
     return IsFormal(cell, roi, kDefaultMinimumTopVisibility, minimum_bottom_visibility);
 }
 
-bool ShouldDropPortFirstRow(
-    int column_count,
-    double first_row_support,
-    double second_row_support,
-    int first_row_y,
-    int cell_size)
+bool ShouldDropPortFirstRow(int column_count, double first_row_support, double second_row_support, int first_row_y, int cell_size)
 {
     // 七列端口面板第二行需达到的最低结构支持，避免用弱第二行判断首行为空。
     constexpr double kSecondRowMinimumSupport = 0.20;
@@ -1622,77 +1539,6 @@ std::vector<int> CompleteRewardsRowStarts(const std::vector<int>& observed_start
     return completed;
 }
 
-std::vector<int> RefineShipmentRowStarts(
-    const cv::Mat& image,
-    const cv::Rect& roi,
-    const std::vector<int>& x_starts,
-    const std::vector<int>& initial_y_starts,
-    int cell_size)
-{
-    if (image.empty() || x_starts.empty() || initial_y_starts.empty() || cell_size <= 0) {
-        return initial_y_starts;
-    }
-    cv::Mat bgr;
-    if (image.channels() == 4) {
-        cv::cvtColor(image, bgr, cv::COLOR_BGRA2BGR);
-    }
-    else {
-        bgr = image;
-    }
-    cv::Mat gray;
-    cv::cvtColor(bgr, gray, cv::COLOR_BGR2GRAY);
-    // 全局晶格在 ADB 实图上可能产生每行 0..4px 的累积偏差；逐行数量条搜索留一倍余量。
-    constexpr int kShipmentRowRefinementRadius = 8;
-    std::vector<int> refined;
-    refined.reserve(initial_y_starts.size());
-    for (int initial_y : initial_y_starts) {
-        std::pair<int, int> best_score { -1, -1 };
-        int best_y = initial_y;
-        for (int y = initial_y - kShipmentRowRefinementRadius; y <= initial_y + kShipmentRowRefinementRadius; ++y) {
-            int detected_cells = 0;
-            int alignment_score = 0;
-            for (int x : x_starts) {
-                const cv::Rect cell(x, y, cell_size, cell_size);
-                if ((cell & cv::Rect(0, 0, image.cols, image.rows)) != cell) {
-                    continue;
-                }
-                const int score = ShipmentTopBarAlignmentScore(image(cell));
-                detected_cells += score > 0 ? 1 : 0;
-                alignment_score += score;
-            }
-            const std::pair score { detected_cells, alignment_score };
-            if (std::tuple { score, -std::abs(y - initial_y) } > std::tuple { best_score, -std::abs(best_y - initial_y) }) {
-                best_score = score;
-                best_y = y;
-            }
-        }
-        if (best_score.first <= 0) {
-            best_y = initial_y;
-        }
-        refined.push_back(best_y);
-    }
-    // 首行数量条贴近 ROI 顶部时，卡片上边缘已被滚动裁切；从数量条向上恢复仍可见的白卡进入边界。
-    constexpr int kShipmentTopClippedRowMaximumOffset = 10;
-    // 渐变白卡边界达到局部峰值该比例即视为进入卡片；调高会向数量条下移，调低会过早纳入背景。
-    constexpr double kShipmentTopBoundaryRelativeThreshold = 0.40;
-    if (!refined.empty() && refined.front() - roi.y <= kShipmentTopClippedRowMaximumOffset) {
-        const int search_begin = std::max(roi.y, refined.front() - kShipmentRowRefinementRadius);
-        double maximum = 0.0;
-        for (int y = search_begin; y <= refined.front(); ++y) {
-            maximum = std::max(maximum, CardTopBoundaryScore(gray, y, cell_size, x_starts));
-        }
-        if (maximum > 0.0) {
-            for (int y = search_begin; y <= refined.front(); ++y) {
-                if (CardTopBoundaryScore(gray, y, cell_size, x_starts) >= maximum * kShipmentTopBoundaryRelativeThreshold) {
-                    refined.front() = y;
-                    break;
-                }
-            }
-        }
-    }
-    return refined;
-}
-
 std::optional<double> EstimateGridScale(const cv::Mat& image, GridType type, const cv::Rect& roi)
 {
     if (image.empty()) {
@@ -1703,24 +1549,236 @@ std::optional<double> EstimateGridScale(const cv::Mat& image, GridType type, con
         return std::nullopt;
     }
     if (type == GridType::Rewards) {
-        // 奖励界面的背景结构没有网格周期语义，白卡证据不足时必须由调用方显式给出比例。
+        // 奖励界面的背景结构没有网格周期语义，只能根据白色卡片选择已标定的控制器 profile。
         return EstimateRewardsScaleFromCards(image, roi);
     }
     return EstimateScaleFromStructure(image, type, roi);
 }
 
-GridDetection DetectGrid(const cv::Mat& image, GridType type, const cv::Rect& roi, double source_grid_scale)
+namespace
 {
-    if (image.empty()) {
-        throw std::invalid_argument("cannot detect grid in empty image");
+
+cv::Rect ScaleRectForGridAnalysis(const cv::Rect& rect, double scale, const cv::Size& bounds)
+{
+    const int x1 = std::clamp(cvFloor(rect.x * scale), 0, bounds.width - 1);
+    const int y1 = std::clamp(cvFloor(rect.y * scale), 0, bounds.height - 1);
+    const int x2 = std::clamp(cvCeil((rect.x + rect.width) * scale), x1 + 1, bounds.width);
+    const int y2 = std::clamp(cvCeil((rect.y + rect.height) * scale), y1 + 1, bounds.height);
+    return cv::Rect(x1, y1, x2 - x1, y2 - y1);
+}
+
+cv::Rect ScaleRectToSource(const cv::Rect& rect, double scale, const cv::Size& bounds)
+{
+    if (rect.width <= 0 || rect.height <= 0) {
+        return {};
     }
-    const cv::Rect bounds(0, 0, image.cols, image.rows);
-    if ((roi & bounds) != roi || roi.width <= 0 || roi.height <= 0) {
-        throw std::invalid_argument("grid ROI is outside image");
+    const int x1 = std::clamp(cvRound(rect.x * scale), 0, bounds.width - 1);
+    const int y1 = std::clamp(cvRound(rect.y * scale), 0, bounds.height - 1);
+    const int x2 = std::clamp(cvRound((rect.x + rect.width) * scale), x1 + 1, bounds.width);
+    const int y2 = std::clamp(cvRound((rect.y + rect.height) * scale), y1 + 1, bounds.height);
+    return cv::Rect(x1, y1, x2 - x1, y2 - y1);
+}
+
+void ScaleCellToSource(GridCell& cell, double scale, const cv::Size& bounds)
+{
+    cell.cell_box = ScaleRectToSource(cell.cell_box, scale, bounds);
+}
+
+void ScaleDetectionToSource(GridDetection& detection, double scale, const cv::Size& bounds)
+{
+    for (GridLayout& grid : detection.grids) {
+        grid.bounds = ScaleRectToSource(grid.bounds, scale, bounds);
+        grid.cell_size = cvRound(grid.cell_size * scale);
+        grid.pitch_x *= scale;
+        grid.pitch_y *= scale;
+        for (GridCell& cell : grid.cells) {
+            ScaleCellToSource(cell, scale, bounds);
+        }
+        if (grid.selection_diagnostics) {
+            auto& diagnostics = *grid.selection_diagnostics;
+            diagnostics.origin.x *= scale;
+            diagnostics.origin.y *= scale;
+            diagnostics.pitch.x *= scale;
+            diagnostics.pitch.y *= scale;
+            diagnostics.maximum_residual *= scale;
+            diagnostics.residual_trend *= scale;
+        }
     }
-    GridDetection result { type, roi, {}, {} };
+    for (GridCell& cell : detection.cells) {
+        ScaleCellToSource(cell, scale, bounds);
+    }
+}
+
+std::vector<int> UniqueCellStarts(const GridLayout& layout, bool x_axis)
+{
+    std::vector<int> starts;
+    starts.reserve(layout.cells.size());
+    for (const GridCell& cell : layout.cells) {
+        starts.push_back(x_axis ? cell.cell_box.x : cell.cell_box.y);
+    }
+    std::ranges::sort(starts);
+    starts.erase(std::unique(starts.begin(), starts.end()), starts.end());
+    return starts;
+}
+
+double AxisBoundaryScore(const std::vector<float>& boundary, const std::vector<int>& starts, int offset, int cell_size)
+{
+    const auto normalized = NormalizeSignal(boundary);
+    std::vector<double> pairs;
+    pairs.reserve(starts.size());
+    for (int start : starts) {
+        const int local = start - offset;
+        const int end = local + cell_size;
+        if (local < 0 || end >= static_cast<int>(normalized.size())) {
+            continue;
+        }
+        pairs.push_back(std::sqrt(
+            std::max(SampleSignal(normalized, local), 0.0) * std::max(SampleSignal(normalized, end), 0.0)));
+    }
+    return pairs.empty() ? 0.0 : std::accumulate(pairs.begin(), pairs.end(), 0.0) / pairs.size();
+}
+
+struct SourceAxisRefinement
+{
+    std::vector<int> original;
+    std::vector<int> refined;
+    double pitch = 0.0;
+};
+
+std::optional<SourceAxisRefinement> RefineSourceAxis(
+    const GridLayout& layout,
+    const std::vector<float>& boundary,
+    int offset,
+    bool x_axis,
+    double scale)
+{
+    const std::vector<int> starts = UniqueCellStarts(layout, x_axis);
+    if (starts.size() < 2 || boundary.empty()) {
+        return std::nullopt;
+    }
+    const double current_pitch = x_axis ? layout.pitch_x : layout.pitch_y;
+    const double pitch_radius = std::max(1.0, kSourcePitchRefinementRadiusScale * scale);
+    const TransferAxisFit fit = FitTransferAxis(
+        starts,
+        boundary,
+        offset,
+        layout.cell_size,
+        { current_pitch - pitch_radius, current_pitch + pitch_radius },
+        std::max(1, cvRound(scale)),
+        static_cast<int>(starts.size()),
+        true,
+        true);
+    if (fit.starts.size() != starts.size()) {
+        return std::nullopt;
+    }
+    // 源图 pitch 细化最多移动 4px；该上限覆盖实测亚像素回映射误差，同时避免跳到相邻格。
+    constexpr int kMaximumSourceAxisShift = 4;
+    // 只有结构响应至少提升 0.01 才接受细化，避免量化噪声替换原网格。
+    constexpr double kMinimumSourceAxisScoreGain = 0.01;
+    for (std::size_t index = 0; index < starts.size(); ++index) {
+        if (std::abs(fit.starts[index] - starts[index]) > kMaximumSourceAxisShift) {
+            return std::nullopt;
+        }
+    }
+    const double current_score = AxisBoundaryScore(boundary, starts, offset, layout.cell_size);
+    const double refined_score = AxisBoundaryScore(boundary, fit.starts, offset, layout.cell_size);
+    if (refined_score < kMinimumStructuralPhaseResponse || refined_score < current_score + kMinimumSourceAxisScoreGain) {
+        return std::nullopt;
+    }
+    return SourceAxisRefinement { .original = starts, .refined = fit.starts, .pitch = fit.pitch };
+}
+
+void RefineScaledTransferDetection(const cv::Mat& image, const cv::Rect& roi, double scale, GridDetection& detection)
+{
+    for (GridLayout& layout : detection.grids) {
+        if (layout.cells.empty()) {
+            continue;
+        }
+        const std::vector<int> x_starts = UniqueCellStarts(layout, true);
+        const int panel_x1 = std::max(roi.x, x_starts.front());
+        const int panel_x2 = std::min(roi.x + roi.width, x_starts.back() + layout.cell_size);
+        if (panel_x2 <= panel_x1) {
+            continue;
+        }
+        const cv::Rect panel_region(panel_x1, roi.y, panel_x2 - panel_x1, roi.height);
+        const StructureMaps maps = BuildStructureMaps(image(panel_region), layout.cell_size);
+        const auto x_boundary = RobustProjection(maps.vertical, true);
+        const auto y_boundary = RobustProjection(maps.horizontal, false);
+        const auto refined_x = RefineSourceAxis(layout, x_boundary, panel_region.x, true, scale);
+        const auto refined_y = RefineSourceAxis(layout, y_boundary, panel_region.y, false, scale);
+
+        const auto apply_axis = [&](const SourceAxisRefinement& refinement, bool x_axis) {
+            for (GridCell& cell : layout.cells) {
+                const int current = x_axis ? cell.cell_box.x : cell.cell_box.y;
+                const auto found = std::ranges::lower_bound(refinement.original, current);
+                if (found == refinement.original.end() || *found != current) {
+                    continue;
+                }
+                const int value = refinement.refined[std::distance(refinement.original.begin(), found)];
+                if (x_axis) {
+                    cell.cell_box.x = value;
+                }
+                else {
+                    cell.cell_box.y = value;
+                }
+            }
+            if (x_axis) {
+                layout.pitch_x = refinement.pitch;
+            }
+            else {
+                layout.pitch_y = refinement.pitch;
+            }
+        };
+        if (refined_x) {
+            apply_axis(*refined_x, true);
+        }
+        if (refined_y) {
+            apply_axis(*refined_y, false);
+        }
+        if (!refined_x && !refined_y) {
+            continue;
+        }
+
+        int x1 = std::numeric_limits<int>::max();
+        int y1 = std::numeric_limits<int>::max();
+        int x2 = std::numeric_limits<int>::min();
+        int y2 = std::numeric_limits<int>::min();
+        for (const GridCell& cell : layout.cells) {
+            x1 = std::min(x1, cell.cell_box.x);
+            y1 = std::min(y1, cell.cell_box.y);
+            x2 = std::max(x2, cell.cell_box.x + layout.cell_size);
+            y2 = std::max(y2, cell.cell_box.y + layout.cell_size);
+        }
+        layout.bounds = cv::Rect(x1, y1, x2 - x1, y2 - y1);
+        if (layout.selection_diagnostics) {
+            auto& diagnostics = *layout.selection_diagnostics;
+            if (refined_x) {
+                diagnostics.origin.x += refined_x->refined.front() - refined_x->original.front();
+                diagnostics.pitch.x = refined_x->pitch;
+            }
+            if (refined_y) {
+                diagnostics.origin.y += refined_y->refined.front() - refined_y->original.front();
+                diagnostics.pitch.y = refined_y->pitch;
+            }
+        }
+    }
+    detection.cells.clear();
+    for (const GridLayout& layout : detection.grids) {
+        detection.cells.insert(detection.cells.end(), layout.cells.begin(), layout.cells.end());
+    }
+}
+
+GridDetection DetectGridNormalized(const cv::Mat& image, GridType type, const cv::Rect& roi, double source_grid_scale)
+{
+    GridDetection result {
+        .type = type,
+        .roi = roi,
+        .grid_scale = source_grid_scale,
+    };
     if (type == GridType::Rewards) {
-        return DetectRewardsGrid(image, roi);
+        result = DetectRewardsGrid(image, roi);
+        result.grid_scale = source_grid_scale;
+        return result;
     }
     if (type == GridType::CreditTrade) {
         Append(result, DetectCreditTrade(image, roi));
@@ -1738,6 +1796,41 @@ GridDetection DetectGrid(const cv::Mat& image, GridType type, const cv::Rect& ro
         }
         Append(result, std::move(layout));
     }
+    return result;
+}
+
+} // namespace
+
+GridDetection DetectGrid(const cv::Mat& image, GridType type, const cv::Rect& roi)
+{
+    if (image.empty()) {
+        throw std::invalid_argument("cannot detect grid in empty image");
+    }
+    const cv::Rect bounds(0, 0, image.cols, image.rows);
+    if ((roi & bounds) != roi || roi.width <= 0 || roi.height <= 0) {
+        throw std::invalid_argument("grid ROI is outside image");
+    }
+
+    const auto estimated_scale = EstimateGridScale(image, type, roi);
+    if (!estimated_scale) {
+        throw std::invalid_argument("unable to select a supported IconRecognition controller profile from ROI");
+    }
+    const double resolved_scale = *estimated_scale;
+    if (resolved_scale == kWin32ControllerGridScale) {
+        return DetectGridNormalized(image, type, roi, resolved_scale);
+    }
+
+    const cv::Size analysis_size(std::max(1, cvRound(image.cols / resolved_scale)), std::max(1, cvRound(image.rows / resolved_scale)));
+    cv::Mat analysis_image;
+    cv::resize(image, analysis_image, analysis_size, 0.0, 0.0, cv::INTER_AREA);
+    const cv::Rect analysis_roi = ScaleRectForGridAnalysis(roi, 1.0 / resolved_scale, analysis_size);
+    GridDetection result = DetectGridNormalized(analysis_image, type, analysis_roi, resolved_scale);
+    ScaleDetectionToSource(result, resolved_scale, image.size());
+    if (type == GridType::Transfer || type == GridType::PortStorager) {
+        RefineScaledTransferDetection(image, roi, resolved_scale, result);
+    }
+    result.roi = roi;
+    result.grid_scale = resolved_scale;
     return result;
 }
 

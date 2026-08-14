@@ -318,7 +318,6 @@ iconrecognition::RecognitionResult RunCase(
     request.grid_type = test_case.grid_type;
     request.roi = test_case.roi;
     request.candidates = test_case.candidates;
-    request.grid_scale = test_case.grid_scale;
     request.debug = debug;
     if ((request.roi & cv::Rect(0, 0, image.cols, image.rows)) != request.roi) {
         throw std::runtime_error("roi must be fully inside the input image");
@@ -397,7 +396,6 @@ std::vector<iconrecognition::RecognitionRequest> PreloadRequests(const std::vect
         request.grid_type = test_case.grid_type;
         request.roi = test_case.roi;
         request.candidates = test_case.candidates;
-        request.grid_scale = test_case.grid_scale;
         requests.push_back(std::move(request));
     }
     return requests;

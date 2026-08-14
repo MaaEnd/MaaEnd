@@ -25,7 +25,7 @@ struct RarityRowEvidence
 };
 
 const std::array<cv::Vec3f, 6>& RarityLabPrototypes();
-RarityResult ClassifyRarity(const cv::Mat& image, const cv::Rect& slot);
+RarityResult ClassifyRarity(const cv::Mat& image, const cv::Rect& slot, double grid_scale = 1.0);
 RarityRowEvidence MeasureRarityRow(const cv::Mat& lab_row);
 double RarityRowCoverage(const cv::Mat& lab_row);
 

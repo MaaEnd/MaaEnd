@@ -94,10 +94,12 @@ void TestDebugCaptureKeepsSynchronizedGroups()
         .rarity_coverage = 1.0,
         .rarity_row_offset = 0,
         .mask_kind = "lower_extended",
+        .edge_occlusion_side = "top",
+        .edge_occlusion_cutoff = 4,
+        .edge_occlusion_residual_ratio = 6.5,
         .row = 0,
         .column = 1,
     });
-
     const cv::Mat image(32, 32, CV_8UC3, cv::Scalar(10, 20, 30));
     for (std::uint64_t reco_id = 1; reco_id <= 21; ++reco_id) {
         Require(iconrecognition::detail::SaveDebugCapture(root, image, result, reco_id), "debug capture must report successful writes");
@@ -138,6 +140,10 @@ void TestDebugCaptureKeepsSynchronizedGroups()
     Require(cell.at("baseline_score").as_double() == 0.71, "debug detail must preserve baseline score");
     Require(cell.at("fallback_used").as_boolean(), "debug detail must preserve fallback state");
     Require(cell.at("mask_kind").as_string() == "lower_extended", "debug detail must preserve mask kind");
+    const auto& edge_occlusion = cell.at("edge_occlusion").as_object();
+    Require(edge_occlusion.at("side").as_string() == "top", "debug detail must preserve the edge-obstruction side");
+    Require(edge_occlusion.at("cutoff").as_integer() == 4, "debug detail must preserve the dynamic mask cutoff");
+    Require(edge_occlusion.at("residual_ratio").as_double() == 6.5, "debug detail must preserve edge residual evidence");
     Require(cell.at("rarity").as_object().at("row_offset").as_integer() == 0, "debug detail must preserve rarity row offset");
 
     std::filesystem::remove_all(root);
