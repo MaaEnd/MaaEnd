@@ -238,13 +238,31 @@
         }
     },
     "IntelArchiveSyncFindingsScanAndScroll": {
-        "desc": "本屏 OCR 入库后下滑；静止后移鼠标到左上角复位",
+        "desc": "本屏 OCR 入库；省略号条目交给 ResolveTruncatedItems",
         "max_hit": 100,
         "recognition": {
             "type": "Custom",
             "param": {
                 "custom_recognition": "IntelArchiveScanItems"
             }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "IntelArchiveResolveTruncatedItems"
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "IntelArchiveSyncFindingsScroll"
+        ]
+    },
+    "IntelArchiveSyncFindingsScroll": {
+        "desc": "列表下滑；静止后移鼠标到左上角复位",
+        "recognition": {
+            "type": "DirectHit"
         },
         "pre_delay": 0,
         "action": {

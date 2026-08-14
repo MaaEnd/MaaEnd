@@ -5,10 +5,21 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
+	"strconv"
+	"strings"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/resource"
 	"github.com/rs/zerolog/log"
 )
+
+var fileCategories = map[string]struct{}{
+	"paper":      {},
+	"digital":    {},
+	"media":      {},
+	"collection": {},
+}
 
 const (
 	component           = "intelarchive"
@@ -33,11 +44,12 @@ type itemsFile struct {
 }
 
 type item struct {
-	ID               string   `json:"id"`
-	SklandWikiItemID string   `json:"sklandWikiItemId"`
-	Name             string   `json:"name"`
-	TagIDs           []string `json:"tagIds"`
-	Pages            any      `json:"pages"`
+	ID               string            `json:"id"`
+	Names            map[string]string `json:"names"`
+	FileCategory     string            `json:"fileCategory"`
+	SklandWikiItemID string            `json:"sklandWikiItemId,omitempty"`
+	TagIDs           []string          `json:"tagIds,omitempty"`
+	Pages            any               `json:"pages,omitempty"`
 }
 
 type catalogIndex struct {
@@ -120,9 +132,18 @@ func buildCatalogIndex(cat *catalogFile, items *itemsFile) (*catalogIndex, error
 		tagIDs[c.ID] = c.Name
 	}
 
-	nameToID := make(map[string]string, len(items.Items))
+	ids := make([]string, 0, len(items.Items))
+	for id := range items.Items {
+		ids = append(ids, id)
+	}
+	sort.Slice(ids, func(i, j int) bool {
+		return itemIDLess(ids[i], ids[j])
+	})
+
+	nameToID := make(map[string]string, len(items.Items)*2)
 	wikiToID := make(map[string]string, len(items.Items))
-	for id, it := range items.Items {
+	for _, id := range ids {
+		it := items.Items[id]
 		if it.ID == "" {
 			it.ID = id
 			items.Items[id] = it
@@ -130,14 +151,15 @@ func buildCatalogIndex(cat *catalogFile, items *itemsFile) (*catalogIndex, error
 		if it.ID != id {
 			return nil, fmt.Errorf("item key %q mismatches id %q", id, it.ID)
 		}
-		if it.Name == "" {
-			return nil, fmt.Errorf("item %q name is empty", id)
+		if it.Names == nil {
+			return nil, fmt.Errorf("item %q names is empty", id)
 		}
-		if it.SklandWikiItemID == "" {
-			return nil, fmt.Errorf("item %q sklandWikiItemId is empty", id)
+		zhCN := strings.TrimSpace(it.Names[i18n.LangZhCN])
+		if zhCN == "" {
+			return nil, fmt.Errorf("item %q names.zh_cn is empty", id)
 		}
-		if len(it.TagIDs) == 0 {
-			return nil, fmt.Errorf("item %q tagIds is empty", id)
+		if _, ok := fileCategories[it.FileCategory]; !ok {
+			return nil, fmt.Errorf("item %q has unknown fileCategory %q", id, it.FileCategory)
 		}
 		for _, tagID := range it.TagIDs {
 			if tagID == "" {
@@ -147,10 +169,13 @@ func buildCatalogIndex(cat *catalogFile, items *itemsFile) (*catalogIndex, error
 				return nil, fmt.Errorf("item %q references unknown tagId %q", id, tagID)
 			}
 		}
-		if prev, exists := nameToID[it.Name]; exists {
-			return nil, fmt.Errorf("duplicate item name %q for %q and %q", it.Name, prev, id)
+		indexItemName(nameToID, zhCN, id)
+		if zhTW := strings.TrimSpace(it.Names[i18n.LangZhTW]); zhTW != "" {
+			indexItemName(nameToID, zhTW, id)
 		}
-		nameToID[it.Name] = id
+		if it.SklandWikiItemID == "" {
+			continue
+		}
 		if prev, exists := wikiToID[it.SklandWikiItemID]; exists {
 			return nil, fmt.Errorf("duplicate sklandWikiItemId %q for %q and %q", it.SklandWikiItemID, prev, id)
 		}
@@ -158,6 +183,30 @@ func buildCatalogIndex(cat *catalogFile, items *itemsFile) (*catalogIndex, error
 	}
 
 	return &catalogIndex{NameToID: nameToID}, nil
+}
+
+func itemIDLess(a, b string) bool {
+	ai, aErr := strconv.Atoi(a)
+	bi, bErr := strconv.Atoi(b)
+	if aErr == nil && bErr == nil {
+		return ai < bi
+	}
+	return a < b
+}
+
+func indexItemName(nameToID map[string]string, name, id string) {
+	if prev, exists := nameToID[name]; exists {
+		if prev != id {
+			log.Warn().
+				Str("component", component).
+				Str("name", name).
+				Str("keep_id", prev).
+				Str("skip_id", id).
+				Msg("duplicate item name, keep first id")
+		}
+		return
+	}
+	nameToID[name] = id
 }
 
 func loadUnlocked() (unlockedFile, error) {

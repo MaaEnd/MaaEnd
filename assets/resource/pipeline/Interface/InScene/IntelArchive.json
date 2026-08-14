@@ -22,7 +22,6 @@
                         }
                     },
                     {
-                        "inverse": true,
                         "recognition": {
                             "type": "And",
                             "param": {
@@ -30,7 +29,8 @@
                                     "InIntelArchiveView2"
                                 ]
                             }
-                        }
+                        },
+                        "inverse": true
                     }
                 ]
             }
