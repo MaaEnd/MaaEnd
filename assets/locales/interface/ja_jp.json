@@ -958,7 +958,7 @@
     "option.AutoUseSpMedicationMaxSanity.description": "現在の理智がこの値に達した場合、緊急理智強化剤の使用を停止します",
     "option.AutoUseSpMedicationMaxSanity.inputs.MaxSanity.label": "最大使用理智",
     "option.AutoUseSpMedicationMaxSanity.inputs.MaxSanity.description": "理智がこの上限に達したら使用を停止します",
-    "option.AutoUseSpMedicationMaxSanity.inputs.MaxSanity.pattern_msg": "1から9999までの整数を入力してください",
+    "option.AutoUseSpMedicationMaxSanity.inputs.MaxSanity.pattern_msg": "1から999までの整数を入力してください",
     "task.AutoUseSpMedication.focus.check_sanity_insufficient": "理智不足のため、タスクを終了します",
     "task.AutoUseSpMedication.focus.check_sanity_sufficient": "現在の理智が設定上限に達したため、タスクを終了します",
     "task.AutoUseSpMedication.focus.entry_enter_valuables_tab": "貴重品タブに入ります",

@@ -958,7 +958,7 @@
     "option.AutoUseSpMedicationMaxSanity.description": "현재 이성이 이 값에 도달하면 응급 이성 강화제 사용을 중단합니다",
     "option.AutoUseSpMedicationMaxSanity.inputs.MaxSanity.label": "최대 사용 이성",
     "option.AutoUseSpMedicationMaxSanity.inputs.MaxSanity.description": "이성이 이 상한에 도달하면 더 이상 사용하지 않습니다",
-    "option.AutoUseSpMedicationMaxSanity.inputs.MaxSanity.pattern_msg": "1에서 9999 사이의 정수를 입력하세요",
+    "option.AutoUseSpMedicationMaxSanity.inputs.MaxSanity.pattern_msg": "1에서 999 사이의 정수를 입력하세요",
     "task.AutoUseSpMedication.focus.check_sanity_insufficient": "이성 부족으로 작업을 종료합니다",
     "task.AutoUseSpMedication.focus.check_sanity_sufficient": "현재 이성이 설정한 상한에 도달하여 작업을 종료합니다",
     "task.AutoUseSpMedication.focus.entry_enter_valuables_tab": "귀중품 탭으로 이동합니다",
