@@ -198,6 +198,13 @@ uv run tools/build_and_install.py --cpp-algo
 
 资源文件夹是链接状态，修改 `assets` 等同于修改 `install` 中的内容，无需额外复制。**但 `interface.json` 是复制的**，修改需手动同步或运行 `build_and_install.py`。
 
+### 文件夹命名
+
+**资源目录下的文件夹名禁止以下划线 `_` 开头**（如 `__Private`）。Android 打包逻辑无法处理下划线开头的目录名，会导致资源无法正确打入包内。
+
+- 文件夹统一使用无下划线的普通命名，如 `Private`、`Button`；
+- 此限制仅针对**文件夹名**。任务名（pipeline JSON 中的键名）仍可使用 `__` 前缀，如 `__AutoAltClickAltKeyDownAction`，两者互不影响。
+
 <a id="ocr-与-i18n"></a>
 
 ## OCR 与 i18n

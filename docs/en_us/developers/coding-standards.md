@@ -191,6 +191,13 @@ All images and coordinates (`roi`, `target`, `box`) are based on **1280x720**. M
 
 The resource folder is in a linked state. Modifying `assets` is equivalent to modifying the content in `install`; no additional copying is needed. **However, `interface.json` is a copy**; modification requires manual sync or running `build_and_install.py`.
 
+### Folder Naming
+
+**Folder names under the resource directories must not start with an underscore `_`** (e.g. `__Private`). The Android packaging logic cannot handle directory names starting with an underscore, which would prevent the resources from being packaged correctly.
+
+- Use plain names without underscores for folders, e.g. `Private`, `Button`;
+- This restriction applies to **folder names only**. Task names (keys in the pipeline JSON) may still use a `__` prefix, e.g. `__AutoAltClickAltKeyDownAction`; the two do not affect each other.
+
 <a id="ocr-与-i18n"></a>
 
 ## OCR and i18n
