@@ -958,7 +958,7 @@
     "option.AutoUseSpMedicationMaxSanity.description": "Stop using emergency sanity boosters when current sanity reaches this value",
     "option.AutoUseSpMedicationMaxSanity.inputs.MaxSanity.label": "Max sanity to use",
     "option.AutoUseSpMedicationMaxSanity.inputs.MaxSanity.description": "Stop using boosters once sanity reaches this limit",
-    "option.AutoUseSpMedicationMaxSanity.inputs.MaxSanity.pattern_msg": "Please enter an integer between 1 and 9999",
+    "option.AutoUseSpMedicationMaxSanity.inputs.MaxSanity.pattern_msg": "Please enter an integer between 1 and 999",
     "task.AutoUseSpMedication.focus.check_sanity_insufficient": "Insufficient sanity, ending task",
     "task.AutoUseSpMedication.focus.check_sanity_sufficient": "Current sanity has reached the configured limit, ending task",
     "task.AutoUseSpMedication.focus.entry_enter_valuables_tab": "Entering valuables tab",

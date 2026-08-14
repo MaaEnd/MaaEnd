@@ -644,7 +644,7 @@
     "option.AutoUseSpMedicationMaxSanity.description": "當前理智達到該值時停止繼續使用應急理智加強劑",
     "option.AutoUseSpMedicationMaxSanity.inputs.MaxSanity.label": "最大使用理智",
     "option.AutoUseSpMedicationMaxSanity.inputs.MaxSanity.description": "理智達到該上限後不再使用應急理智加強劑",
-    "option.AutoUseSpMedicationMaxSanity.inputs.MaxSanity.pattern_msg": "請輸入1到9999之間的整數",
+    "option.AutoUseSpMedicationMaxSanity.inputs.MaxSanity.pattern_msg": "請輸入1到999之間的整數",
     "task.AutoUseSpMedication.focus.check_sanity_insufficient": "理智不足，結束任務",
     "task.AutoUseSpMedication.focus.check_sanity_sufficient": "當前理智已達到設定上限，結束任務",
     "task.AutoUseSpMedication.focus.entry_enter_valuables_tab": "即將進入珍貴物品標籤頁",

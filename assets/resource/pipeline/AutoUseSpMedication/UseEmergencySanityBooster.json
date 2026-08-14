@@ -24,7 +24,7 @@
             "param": {
                 "custom_recognition": "ExpressionRecognition",
                 "custom_recognition_param": {
-                    "expression": "{AutoUseSpMedicationCurrentSanity}<9999",
+                    "expression": "{AutoUseSpMedicationCurrentSanity}<999",
                     "box_node": "AutoUseSpMedicationCurrentSanity"
                 }
             }
@@ -44,7 +44,7 @@
             "param": {
                 "custom_recognition": "ExpressionRecognition",
                 "custom_recognition_param": {
-                    "expression": "{AutoUseSpMedicationCurrentSanity}>=9999",
+                    "expression": "{AutoUseSpMedicationCurrentSanity}>=999",
                     "box_node": "AutoUseSpMedicationCurrentSanity"
                 }
             }
