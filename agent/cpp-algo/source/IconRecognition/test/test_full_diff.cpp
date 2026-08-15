@@ -435,8 +435,10 @@ int main(int argc, char** argv)
         }
 
         const std::filesystem::path input_root = ICON_RECOGNITION_TEST_INPUT_DIR;
-        const std::filesystem::path rois_path =
-            options.rois_path.empty() ? std::filesystem::path(ICON_RECOGNITION_TEST_ROIS_PATH) : options.rois_path;
+        const std::filesystem::path rois_path = iconrecognition::test::ResolveManualRunnerRoisPath(
+            options,
+            ICON_RECOGNITION_TEST_WIN32_ROIS_PATH,
+            ICON_RECOGNITION_TEST_ADB_ROIS_PATH);
         const auto cases = iconrecognition::test::DiscoverManualRunnerCases(input_root, rois_path, options);
         std::optional<iconrecognition::test::ExpectedResults> expected_results;
         if (!options.expected_path.empty()) {

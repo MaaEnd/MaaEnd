@@ -26,6 +26,21 @@ constexpr int kMinimumActivePixels = 16;
 // 保留区接近完全一致时使用该下限避免除零，同时允许明确遮挡产生足够大的比值。
 constexpr double kMinimumRetainedResidual = 1e-6;
 
+cv::Mat BuildPhaseValidityMask(cv::Size size, Phase phase)
+{
+    cv::Mat source(size, CV_8UC1, cv::Scalar(255));
+    if (phase.x == 0.0 && phase.y == 0.0) {
+        return source;
+    }
+    cv::Mat matrix = (cv::Mat_<double>(2, 3) << 1.0, 0.0, phase.x, 0.0, 1.0, phase.y);
+    cv::Mat coverage;
+    cv::warpAffine(source, coverage, matrix, size, cv::INTER_LINEAR, cv::BORDER_CONSTANT, cv::Scalar(0));
+    cv::Mat valid;
+    // 仅保留插值核完全落在模板内的像素，避免把仿射边界填充值误判为真实画面遮挡。
+    cv::compare(coverage, cv::Scalar(255), valid, cv::CMP_EQ);
+    return valid;
+}
+
 std::optional<double> MeanResidual(const cv::Mat& residual, const cv::Mat& mask, int begin, int end)
 {
     const int y1 = std::clamp(begin, 0, residual.rows);
@@ -130,13 +145,15 @@ std::optional<EdgeOcclusion>
             residual.at<float>(y, x) = static_cast<float>(cv::norm(template_lab.at<cv::Vec3f>(y, x) - candidate_lab.at<cv::Vec3f>(y, x)));
         }
     }
+    cv::Mat residual_mask;
+    cv::bitwise_and(templ.mask, BuildPhaseValidityMask(templ.mask.size(), phase), residual_mask);
 
     const int top_minimum = std::max(1, cvRound(residual.rows * kTopMinimumCutoffRatio));
     const int top_maximum = std::max(top_minimum, cvRound(residual.rows * kTopMaximumCutoffRatio));
     const int bottom_minimum = std::max(1, cvRound(residual.rows * kBottomMinimumCutoffRatio));
     const int bottom_maximum = std::max(bottom_minimum, cvRound(residual.rows * kBottomMaximumCutoffRatio));
-    const auto top = BestOcclusionForSide(residual, templ.mask, EdgeOcclusionSide::Top, top_minimum, top_maximum);
-    const auto bottom = BestOcclusionForSide(residual, templ.mask, EdgeOcclusionSide::Bottom, bottom_minimum, bottom_maximum);
+    const auto top = BestOcclusionForSide(residual, residual_mask, EdgeOcclusionSide::Top, top_minimum, top_maximum);
+    const auto bottom = BestOcclusionForSide(residual, residual_mask, EdgeOcclusionSide::Bottom, bottom_minimum, bottom_maximum);
 
     const bool top_accepted = top && top->residual_ratio >= kTopResidualRatioThreshold;
     const bool bottom_accepted = bottom && bottom->residual_ratio >= kBottomResidualRatioThreshold;

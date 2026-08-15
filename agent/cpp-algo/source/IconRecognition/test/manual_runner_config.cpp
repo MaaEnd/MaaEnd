@@ -256,8 +256,8 @@ const std::string& RequireValue(const std::vector<std::string>& arguments, std::
 std::string ManualRunnerUsage()
 {
     return R"(Usage:
-  icon-recognition-manual-runner --all [--dataset win32|adb] [--side full|left|right|split|all] [--jobs <N|auto>] [--debug] [--expected <path>]
-  icon-recognition-manual-runner --grid-type <type> [--image <basename>] [--dataset win32|adb] [--side full|left|right|split|all] [--jobs <N|auto>] [--debug] [--expected <path>]
+  icon-recognition-manual-runner --all [--dataset win32|adb] [--side full|left|right|split|all] [--jobs <N|auto>] [--debug] [--expected <path>] [--rois <path>]
+  icon-recognition-manual-runner --grid-type <type> [--image <basename>] [--dataset win32|adb] [--side full|left|right|split|all] [--jobs <N|auto>] [--debug] [--expected <path>] [--rois <path>]
   icon-recognition-manual-runner --image <basename> [--dataset win32|adb] [--jobs <N|auto>] [--debug] [--expected <path>] [--rois <path>]
   icon-recognition-manual-runner -h|--help|-?
 
@@ -266,6 +266,7 @@ Grid types:
 
 Side modes apply only to transfer and port_storager. The default is full.
 Worker selection defaults to 1. auto uses physical cores and is capped at 16.
+Without --rois, the selected dataset uses its bundled ROI file. An unspecified dataset defaults to win32.
 )";
 }
 
@@ -401,6 +402,17 @@ ManualRunnerOptions ParseManualRunnerOptions(const std::vector<std::string>& arg
         throw std::invalid_argument("--side requires --grid-type transfer or port_storager");
     }
     return options;
+}
+
+std::filesystem::path ResolveManualRunnerRoisPath(
+    const ManualRunnerOptions& options,
+    const std::filesystem::path& win32_default,
+    const std::filesystem::path& adb_default)
+{
+    if (!options.rois_path.empty()) {
+        return options.rois_path;
+    }
+    return options.dataset == TestDataset::Adb ? adb_default : win32_default;
 }
 
 std::size_t ResolveManualRunnerJobs(const ManualRunnerOptions& options, std::size_t physical_core_count, std::size_t case_count)

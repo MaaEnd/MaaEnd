@@ -229,7 +229,8 @@ target_compile_definitions(
     PRIVATE
         ICON_RECOGNITION_TEST_INPUT_DIR="${CMAKE_CURRENT_BINARY_DIR}/merged-input"
         ICON_RECOGNITION_TEST_OUTPUT_DIR="${CMAKE_CURRENT_LIST_DIR}/output"
-        ICON_RECOGNITION_TEST_ROIS_PATH="${CMAKE_CURRENT_LIST_DIR}/../../../../../tests/MaaEndTestset/Win32/Official_CN/IconRecognition/rois.json"
+        ICON_RECOGNITION_TEST_WIN32_ROIS_PATH="${CMAKE_CURRENT_LIST_DIR}/../../../../../tests/MaaEndTestset/Win32/Official_CN/IconRecognition/rois.json"
+        ICON_RECOGNITION_TEST_ADB_ROIS_PATH="${CMAKE_CURRENT_LIST_DIR}/../../../../../tests/MaaEndTestset/ADB/Official_CN/IconRecognition/rois.json"
         ICON_RECOGNITION_TEST_DATA_ROOT="${CMAKE_CURRENT_LIST_DIR}/../../../../../assets/data/IconRecognition"
 )
 configure_icon_recognition_test(icon-recognition-manual-runner)

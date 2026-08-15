@@ -865,6 +865,26 @@ void TestEdgeOcclusionRejectsUniformResiduals()
         "a whole-icon color difference must not be misclassified as an edge obstruction");
 }
 
+void TestEdgeOcclusionRejectsSubpixelBoundaryFill()
+{
+    auto fixture = BuildEdgeOcclusionFixture();
+    fixture.image.setTo(cv::Scalar(80, 120, 160));
+    const cv::Rect slot(8, 8, 80, 80);
+    cv::Mat image = cv::Mat::zeros(96, 96, CV_8UC3);
+    fixture.image.copyTo(image(slot));
+
+    for (const auto phase : std::array {
+             iconrecognition::detail::Phase { 0.0, 0.25 },
+             iconrecognition::detail::Phase { 0.0, -0.25 },
+             iconrecognition::detail::Phase { 0.0, 1.0 },
+             iconrecognition::detail::Phase { 0.0, -1.0 },
+         }) {
+        Check(
+            !iconrecognition::detail::DetectEdgeOcclusion(image, slot, fixture, phase),
+            "subpixel transform boundary fill must not be misclassified as an edge obstruction");
+    }
+}
+
 void TestEdgeOcclusionSkipsRewardsAndSingleRoi()
 {
     for (const auto type : std::array {
@@ -1131,6 +1151,7 @@ int main()
         TestSubpixelPhasesAreStable();
         TestEdgeOcclusionDetectsContinuousTopAndBottomBands();
         TestEdgeOcclusionRejectsUniformResiduals();
+        TestEdgeOcclusionRejectsSubpixelBoundaryFill();
         TestEdgeOcclusionSkipsRewardsAndSingleRoi();
         TestEdgeOcclusionRecoveryPolicyIsConservative();
         TestTemplatePreparationUsesExpectedMasks();

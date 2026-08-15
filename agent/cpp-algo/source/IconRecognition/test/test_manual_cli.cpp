@@ -46,6 +46,7 @@ void TestHelpModes()
     Check(usage.find("--jobs <N|auto>") != std::string::npos, "usage must document worker selection");
     Check(usage.find("--debug") != std::string::npos, "usage must document debug performance diagnostics");
     Check(usage.find("--dataset win32|adb") != std::string::npos, "usage must document dataset selection");
+    Check(usage.find("--rois <path>") != std::string::npos, "usage must document ROI selection");
     Check(usage.find("full|left|right|split|all") != std::string::npos, "usage must document dual-grid modes");
 }
 
@@ -55,6 +56,22 @@ void TestDatasetSelection()
     Check(win32.dataset == iconrecognition::test::TestDataset::Win32, "win32 dataset must be preserved");
     const auto adb = iconrecognition::test::ParseManualRunnerOptions({ "--all", "--dataset", "adb" });
     Check(adb.dataset == iconrecognition::test::TestDataset::Adb, "adb dataset must be preserved");
+    const std::filesystem::path win32_rois = "win32/rois.json";
+    const std::filesystem::path adb_rois = "adb/rois.json";
+    Check(
+        iconrecognition::test::ResolveManualRunnerRoisPath(win32, win32_rois, adb_rois) == win32_rois,
+        "win32 dataset must use the bundled Win32 ROI file");
+    Check(
+        iconrecognition::test::ResolveManualRunnerRoisPath(adb, win32_rois, adb_rois) == adb_rois,
+        "adb dataset must use the bundled ADB ROI file");
+    const auto unspecified = iconrecognition::test::ParseManualRunnerOptions({ "--all" });
+    Check(
+        iconrecognition::test::ResolveManualRunnerRoisPath(unspecified, win32_rois, adb_rois) == win32_rois,
+        "unspecified dataset must preserve the Win32 default");
+    const auto custom = iconrecognition::test::ParseManualRunnerOptions({ "--all", "--dataset", "adb", "--rois", "custom.json" });
+    Check(
+        iconrecognition::test::ResolveManualRunnerRoisPath(custom, win32_rois, adb_rois) == std::filesystem::path("custom.json"),
+        "an explicit ROI path must override the dataset default");
     CheckRejected({ "--all", "--dataset", "other" }, "unknown dataset");
     CheckRejected({ "--all", "--dataset", "adb", "--dataset", "win32" }, "duplicate dataset");
 }

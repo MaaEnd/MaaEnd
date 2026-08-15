@@ -57,6 +57,10 @@ std::vector<ManualRunnerCase> DiscoverManualRunnerCases(
     const std::filesystem::path& input_root,
     const std::filesystem::path& rois_path,
     const ManualRunnerOptions& options);
+std::filesystem::path ResolveManualRunnerRoisPath(
+    const ManualRunnerOptions& options,
+    const std::filesystem::path& win32_default,
+    const std::filesystem::path& adb_default);
 std::size_t ResolveManualRunnerJobs(const ManualRunnerOptions& options, std::size_t physical_core_count, std::size_t case_count);
 
 } // namespace iconrecognition::test
