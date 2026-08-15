@@ -979,7 +979,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "({ADVANCED_COGNITIVE_CARRIER}*10000+{ELEMENTARY_COGNITIVE_CARRIER}*1000)>={SupplyPlanLimit_COGNITIVE_CARRIER_EXP}"
+                                "expression": "({item_expcard_stage2_high}*10000+{item_expcard_stage2_low}*1000)>={SupplyPlanLimit_COGNITIVE_CARRIER_EXP}"
                             }
                         }
                     }
@@ -988,7 +988,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "({ADVANCED_COMBAT_RECORD}*10000+{INTERMEDIATE_COMBAT_RECORD}*1000+{ELEMENTARY_COMBAT_RECORD}*200)>={SupplyPlanLimit_COMBAT_RECORD_EXP}"
+                                "expression": "({item_expcard_stage1_high}*10000+{item_expcard_stage1_mid}*1000+{item_expcard_stage1_low}*200)>={SupplyPlanLimit_COMBAT_RECORD_EXP}"
                             }
                         }
                     }
@@ -997,7 +997,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{PROTOSET}>={SupplyPlanLimit_PROTOSET}"
+                                "expression": "{item_char_break_stage_3_4}>={SupplyPlanLimit_PROTOSET}"
                             }
                         }
                     }
@@ -1006,7 +1006,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{PROTODISK}>={SupplyPlanLimit_PROTODISK}"
+                                "expression": "{item_char_break_stage_1_2}>={SupplyPlanLimit_PROTODISK}"
                             }
                         }
                     }
@@ -1015,7 +1015,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{TRIPHASIC_NANOFLAKE}>={SupplyPlanLimit_TRIPHASIC_NANOFLAKE}"
+                                "expression": "{item_char_skill_specialize_5}>={SupplyPlanLimit_TRIPHASIC_NANOFLAKE}"
                             }
                         }
                     }
@@ -1024,7 +1024,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{QUADRANT_FITTING_FLUID}>={SupplyPlanLimit_QUADRANT_FITTING_FLUID}"
+                                "expression": "{item_char_skill_specialize_4}>={SupplyPlanLimit_QUADRANT_FITTING_FLUID}"
                             }
                         }
                     }
@@ -1033,7 +1033,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{TACHYON_SCREENING_LATTICE}>={SupplyPlanLimit_TACHYON_SCREENING_LATTICE}"
+                                "expression": "{item_char_skill_specialize_3}>={SupplyPlanLimit_TACHYON_SCREENING_LATTICE}"
                             }
                         }
                     }
@@ -1042,7 +1042,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{D96_STEEL_SAMPLE_4}>={SupplyPlanLimit_D96_STEEL_SAMPLE_4}"
+                                "expression": "{item_char_skill_specialize_2}>={SupplyPlanLimit_D96_STEEL_SAMPLE_4}"
                             }
                         }
                     }
@@ -1051,7 +1051,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{METADIASTIMA_PHOTOEMISSION_TUBE}>={SupplyPlanLimit_METADIASTIMA_PHOTOEMISSION_TUBE}"
+                                "expression": "{item_char_skill_specialize_1}>={SupplyPlanLimit_METADIASTIMA_PHOTOEMISSION_TUBE}"
                             }
                         }
                     }
@@ -1060,7 +1060,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{PROTOHEDRON}>={SupplyPlanLimit_PROTOHEDRON}"
+                                "expression": "{item_char_skill_level_7_12}>={SupplyPlanLimit_PROTOHEDRON}"
                             }
                         }
                     }
@@ -1069,7 +1069,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{PROTOPRISM}>={SupplyPlanLimit_PROTOPRISM}"
+                                "expression": "{item_char_skill_level_1_6}>={SupplyPlanLimit_PROTOPRISM}"
                             }
                         }
                     }
@@ -1078,7 +1078,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{T_CREDS}>={SupplyPlanLimit_T_CREDS}"
+                                "expression": "{item_gold}>={SupplyPlanLimit_T_CREDS}"
                             }
                         }
                     }
@@ -1087,7 +1087,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "({ARMS_INSP_SET}*10000+{ARMS_INSP_KIT}*1000+{ARMS_INSPECTOR}*200)>={SupplyPlanLimit_WEAPON_EXP}"
+                                "expression": "({item_weapon_expcard_high}*10000+{item_weapon_expcard_mid}*1000+{item_weapon_expcard_low}*200)>={SupplyPlanLimit_WEAPON_EXP}"
                             }
                         }
                     }
@@ -1096,7 +1096,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{HEAVY_CAST_DIE}>={SupplyPlanLimit_HEAVY_CAST_DIE}"
+                                "expression": "{item_weapon_break_high}>={SupplyPlanLimit_HEAVY_CAST_DIE}"
                             }
                         }
                     }
@@ -1105,7 +1105,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{CAST_DIE}>={SupplyPlanLimit_CAST_DIE}"
+                                "expression": "{item_weapon_break_low}>={SupplyPlanLimit_CAST_DIE}"
                             }
                         }
                     }
@@ -1114,7 +1114,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "({ADVANCED_COGNITIVE_CARRIER}*10000+{ELEMENTARY_COGNITIVE_CARRIER}*1000)>={SupplyPlanLimit_COGNITIVE_CARRIER_EXP}"
+                                "expression": "({item_expcard_stage2_high}*10000+{item_expcard_stage2_low}*1000)>={SupplyPlanLimit_COGNITIVE_CARRIER_EXP}"
                             }
                         }
                     }
@@ -1123,7 +1123,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "({ADVANCED_COMBAT_RECORD}*10000+{INTERMEDIATE_COMBAT_RECORD}*1000+{ELEMENTARY_COMBAT_RECORD}*200)>={SupplyPlanLimit_COMBAT_RECORD_EXP}"
+                                "expression": "({item_expcard_stage1_high}*10000+{item_expcard_stage1_mid}*1000+{item_expcard_stage1_low}*200)>={SupplyPlanLimit_COMBAT_RECORD_EXP}"
                             }
                         }
                     }
@@ -1132,7 +1132,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{PROTOSET}>={SupplyPlanLimit_PROTOSET}"
+                                "expression": "{item_char_break_stage_3_4}>={SupplyPlanLimit_PROTOSET}"
                             }
                         }
                     }
@@ -1141,7 +1141,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{PROTODISK}>={SupplyPlanLimit_PROTODISK}"
+                                "expression": "{item_char_break_stage_1_2}>={SupplyPlanLimit_PROTODISK}"
                             }
                         }
                     }
@@ -1150,7 +1150,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{TRIPHASIC_NANOFLAKE}>={SupplyPlanLimit_TRIPHASIC_NANOFLAKE}"
+                                "expression": "{item_char_skill_specialize_5}>={SupplyPlanLimit_TRIPHASIC_NANOFLAKE}"
                             }
                         }
                     }
@@ -1159,7 +1159,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{QUADRANT_FITTING_FLUID}>={SupplyPlanLimit_QUADRANT_FITTING_FLUID}"
+                                "expression": "{item_char_skill_specialize_4}>={SupplyPlanLimit_QUADRANT_FITTING_FLUID}"
                             }
                         }
                     }
@@ -1168,7 +1168,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{TACHYON_SCREENING_LATTICE}>={SupplyPlanLimit_TACHYON_SCREENING_LATTICE}"
+                                "expression": "{item_char_skill_specialize_3}>={SupplyPlanLimit_TACHYON_SCREENING_LATTICE}"
                             }
                         }
                     }
@@ -1177,7 +1177,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{D96_STEEL_SAMPLE_4}>={SupplyPlanLimit_D96_STEEL_SAMPLE_4}"
+                                "expression": "{item_char_skill_specialize_2}>={SupplyPlanLimit_D96_STEEL_SAMPLE_4}"
                             }
                         }
                     }
@@ -1186,7 +1186,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{METADIASTIMA_PHOTOEMISSION_TUBE}>={SupplyPlanLimit_METADIASTIMA_PHOTOEMISSION_TUBE}"
+                                "expression": "{item_char_skill_specialize_1}>={SupplyPlanLimit_METADIASTIMA_PHOTOEMISSION_TUBE}"
                             }
                         }
                     }
@@ -1195,7 +1195,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{PROTOHEDRON}>={SupplyPlanLimit_PROTOHEDRON}"
+                                "expression": "{item_char_skill_level_7_12}>={SupplyPlanLimit_PROTOHEDRON}"
                             }
                         }
                     }
@@ -1204,7 +1204,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{PROTOPRISM}>={SupplyPlanLimit_PROTOPRISM}"
+                                "expression": "{item_char_skill_level_1_6}>={SupplyPlanLimit_PROTOPRISM}"
                             }
                         }
                     }
@@ -1213,7 +1213,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{T_CREDS}>={SupplyPlanLimit_T_CREDS}"
+                                "expression": "{item_gold}>={SupplyPlanLimit_T_CREDS}"
                             }
                         }
                     }
@@ -1222,7 +1222,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "({ARMS_INSP_SET}*10000+{ARMS_INSP_KIT}*1000+{ARMS_INSPECTOR}*200)>={SupplyPlanLimit_WEAPON_EXP}"
+                                "expression": "({item_weapon_expcard_high}*10000+{item_weapon_expcard_mid}*1000+{item_weapon_expcard_low}*200)>={SupplyPlanLimit_WEAPON_EXP}"
                             }
                         }
                     }
@@ -1231,7 +1231,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{HEAVY_CAST_DIE}>={SupplyPlanLimit_HEAVY_CAST_DIE}"
+                                "expression": "{item_weapon_break_high}>={SupplyPlanLimit_HEAVY_CAST_DIE}"
                             }
                         }
                     }
@@ -1240,7 +1240,7 @@
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
-                                "expression": "{CAST_DIE}>={SupplyPlanLimit_CAST_DIE}"
+                                "expression": "{item_weapon_break_low}>={SupplyPlanLimit_CAST_DIE}"
                             }
                         }
                     }

@@ -17,7 +17,7 @@
         "rate_limit": 0
     },
     "AddItemDataOnRewards": {
-        "desc": "IMS A3 最佳实践模板：奖励关闭按钮可见且奖励区静止后，累加识别到的物品数量，再关闭奖励界面。items 省略时使用 data/IMS/items.json 的 a3 全量清单；业务侧可按需覆盖 items，并替换识别节点（奖励界面 ROI 可能与培养素材页不同）",
+        "desc": "IMS A3 最佳实践：奖励关闭按钮可见且奖励区静止后，用 IconRecognition(rewards) 识别屏上全部物品并 OCR 数量后累加，再关闭奖励界面",
         "recognition": {
             "type": "And",
             "param": {

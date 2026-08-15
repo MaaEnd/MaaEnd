@@ -6,7 +6,7 @@
             "param": {
                 "custom_recognition": "ItemQuantitySatisfied",
                 "custom_recognition_param": {
-                    "expression": "{PROTODISK}>=1",
+                    "expression": "{item_char_break_stage_1_2}>=1",
                     "notify_ui": false
                 }
             }

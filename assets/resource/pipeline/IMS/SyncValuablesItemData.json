@@ -71,9 +71,10 @@
             "param": {
                 "custom_action": "SyncItemData",
                 "custom_action_param": {
-                    "items": {
-                        "CHARTERED_HH_PERMIT": "CHARTERED_HH_PERMIT"
-                    },
+                    "grid_type": "valuables",
+                    "item_filters": [
+                        "ValuableDepot:CommercialItem"
+                    ],
                     "page_dedup": false
                 }
             }
@@ -142,9 +143,10 @@
             "param": {
                 "custom_action": "SyncItemData",
                 "custom_action_param": {
-                    "items": {
-                        "CHARTERED_HH_PERMIT": "CHARTERED_HH_PERMIT"
-                    },
+                    "grid_type": "valuables",
+                    "item_filters": [
+                        "ValuableDepot:CommercialItem"
+                    ],
                     "page_dedup": true
                 }
             }
