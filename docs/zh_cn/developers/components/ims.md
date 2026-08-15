@@ -42,26 +42,30 @@ A2 负责「看一眼当前界面，把物品数量记下来」。业务侧**不
 
 不要因为「感觉缓存应该还在」而跳过入口调用；也不要在任务里另写一套扫库。统一走预留入口，才能既防数据过旧，又避免每个任务都重复进同一界面。
 
-### 参数：`items` 字典
+### 参数（IconRecognition ID）
+
+缓存键与识别 ID 统一使用 [`IconRecognition`](./icon-recognition.md) catalog 顶层 key（如 `item_char_break_stage_1_2`）。IMS **不**维护物品白名单：屏上扫到什么就缓存/播报什么。
 
 | 字段 | 说明 |
 | --- | --- |
-| **键** | 物品 ID（写入缓存与 `IMS.json` 时用这个名字） |
-| **值** | 用来识别「这件物品 + 它的数量」的 Pipeline 节点名 |
+| `grid_type` | 网格界面。培养/珍品页用 `valuables`；走 IconRecognition 扫库时必填 |
+| `roi` | 可选；省略则用 IconRecognition 参考 ROI（贵重品库 Win32 `[24,76,950,570]` / ADB `[100,85,790,540]`） |
+| `item_filters` | 缩小 IconRecognition **候选模板**（如培养页 `ValuableDepot:SpecialItem`）；不限制「只缓存哪些 ID」 |
+| `items` | **定点数量节点**（地区重建仍需保留）：缓存 ID → Pipeline 识别节点。节点可以是纯 OCR，或 And 且 `box_index` 指向 OCR 数字结果（顶栏货币、采购中心等） |
+| `deduplicate` | IconRecognition 去重；A2 默认 `true` |
+| `page_dedup` / `notify_ui` | 语义同前 |
 
-节点通常是 `And`（品质色 / 模板 / 数量 OCR 等拼在一起）。若界面上该物品只有数字、没有图标链路，也可以直接用 OCR 节点（如培养素材页右上角的 `T_CREDS_NUMBER` / `OROBERYL_NUMBER`）。
+提供 `grid_type`（IconRecognition 扫库）与 `items` 至少其一。采购中心等可只传 `items`（如 `ORIGEOMETRY` / `item_diamond`）。`items` 里的键在 `page_dedup=false` 时一律参与地区重建（未命中则从缓存删除）。
 
-**A2 必须显式传入 `items`**，不使用 `items.json` 默认清单。培养素材页、珍品页、采购中心等入口各自维护自己的子集（定点 OCR 节点因界面不同也会不一样）。
-
-**关键约束**：节点的 `box_index` 必须最终指向「数量」那一层识别结果（纯数字）。A2 沿 `box_index` 链取到的文本必须是合法数字，才会记入缓存。
-
-示例：
+示例（培养素材页）：
 
 ```json
 {
+    "grid_type": "valuables",
+    "item_filters": ["ValuableDepot:SpecialItem"],
     "items": {
-        "PROTODISK": "PROTODISK",
-        "T_CREDS": "T_CREDS_NUMBER"
+        "item_gold": "item_gold_NUMBER",
+        "item_diamond": "item_diamond_NUMBER"
     },
     "page_dedup": false
 }
@@ -69,10 +73,11 @@ A2 负责「看一眼当前界面，把物品数量记下来」。业务侧**不
 
 ### 运行时做了什么
 
-1. 按 `items` 的键名排序，依次跑对应识别节点。
-2. **命中且数量合法**：记录 `物品 ID → 数量`。
-3. **未命中**：本轮不记录该 ID（见下方「地区重建 / 覆写」）。
-4. 全部节点跑完后，把结果写入内存，并落盘到 `./debug/record/IMS.json`，同时写入时间戳 `updated_at`，表示这份数据是何时生成的。
+1. 若有 `grid_type`：用 `item_filters`（或 grid 默认候选）**一次整屏扫格**，对每个命中格子按 `cell_box` ROI 偏移 OCR 数量并写入缓存。
+2. 若有 `items`：按键名排序跑定点识别节点，沿 `box_index` 取 OCR 数量。
+3. **命中且数量合法**：记录 `物品 ID → 数量`。
+4. **未命中**：本轮不记录该 ID（见下方「地区重建 / 覆写」）。
+5. 全部跑完后写入内存与 `./debug/record/IMS.json`，并更新 `updated_at`。
 
 命中时默认会通过 UI Focus 打出本地化物品名与数量（`ims.sync_item_found`）。可用参数 `notify_ui: false` 关闭（省略默认 `true`）；商店万能跳转顺手缓存使用 `SyncShopItemDataRunNoNotify`。
 
@@ -80,7 +85,7 @@ A2 负责「看一眼当前界面，把物品数量记下来」。业务侧**不
 
 | `page_dedup` | 模式 | 行为 |
 | --- | --- | --- |
-| `false`（默认） | **地区重建** | 只重建本轮 `items` 里的 ID：命中则写入，未命中则从缓存删除这些 ID；**其他地区**已缓存的 ID 保留。 |
+| `false`（默认） | **地区重建** | 清空本地区候选后再写入命中：① `item_filters`（或 grid 默认）在 IconRecognition `recognition_items.json` 展开的 ID；② 本轮 `items` 的全部键（定点 OCR / And+`box_index`）。未命中则删除；**其他地区**已缓存的 ID 保留。 |
 | `true` | **覆写** | 在已有缓存上，按本轮命中的 ID **覆盖数量**；没扫到的 ID **保留旧值**。 |
 
 覆写适合「列表要翻页」的场景：第 1 页地区重建；后续页只覆写当页可见 ID，避免抹掉前面页。预留入口 `SyncItemData` 的默认链路为：
@@ -122,24 +127,22 @@ A2 负责「看一眼当前界面，把物品数量记下来」。业务侧**不
 
 ## A3：`AddItemData`
 
-A3 的入参与 A2 相同：一个可选的 `items` 字典（键 = 物品 ID，值 = 识别节点；`box_index` 同样要指向数量）。
-
-**默认全量**：`items` **省略或为空**（甚至整个 `custom_action_param` 为 `{}`）时，使用 [`assets/data/IMS/items.json`](../../../assets/data/IMS/items.json) 的 **`a3`** 段。领奖弹窗可识别的物品在此维护；业务侧一般不必再抄一大段 `items`。
-
-另有 **仅 A3 生效** 的可选参数：
+A3 在**奖励播报界面**用与 A2 相同的路径：一次 IconRecognition（默认 `grid_type: rewards`，`deduplicate: false` 保留同屏多堆）解析命中，再对每个 `cell_box` OCR 数量，作为**正增量**写入缓存。
 
 | 参数 | 说明 |
 | --- | --- |
-| `mask_hit_region` | 命中一件后，把该物品区域在工作截图上涂成绿色 `(0,255,0)`，并**对同一物品 ID 继续识别**直到再也扫不到。用于同屏多堆奖励（如常规 100 + 额外 15）。省略时**默认 `true`**。 |
+| `grid_type` | 默认 `rewards` |
+| `roi` | 可选；默认奖励界面参考 ROI（Win32 `[39,82,1205,511]` / ADB `[178,140,935,440]`） |
+| `item_filters` | 可选；省略则用 rewards 默认候选（`Isolate:*` + `ValuableDepot:*`） |
 
-它会在**当前画面**识别物品与数量，再和 IMS 缓存做计算：把识别到的数量当作**正增量**加进缓存（等价于多次 A1 的 `+n`）。**不会**更新同步时间戳 / 就绪状态。
+`custom_action_param` 可为 `{}`。**不会**更新同步时间戳 / 就绪状态。
 
 ### 和 A2 的本质区别
 
 | | A2 | A3 |
 | --- | --- | --- |
 | 写入方式 | **绝对值**：把扫到的数量记成当前库存 | **计算**：把扫到的数量加到已有库存上 |
-| 典型场景 | 培养素材页整表同步 | 领奖弹窗「又获得了多少」 |
+| 典型场景 | 贵重品库整表同步（`valuables`） | 奖励弹窗「又获得了多少」（`rewards`） |
 | 是否建立就绪 | 是（写 `updated_at`，置 `hasData`） | 否 |
 
 ### 不依赖缓存也能跑
@@ -150,7 +153,7 @@ A3 与其它动作 / 识别器不同：**不要求 IMS 缓存已经存在**。
 
 有缓存时同样按件播报；不叠 Pipeline Starting/Succeeded focus，也不播汇总句。
 
-> 培养素材页的 `IMS/item/*` 节点 ROI 往往不适合奖励界面，请传入适配当前画面的识别节点。奖励弹出入场动画期间，调用前应对物品区域使用 `pre_wait_freezes`（协议空间见 `ProtocolSpaceRewardAddItemData`）。
+> 奖励弹出入场动画期间，调用前应对物品区域使用 `pre_wait_freezes`（协议空间见 `ProtocolSpaceRewardAddItemData`）。
 >
 > 参考 Pipeline：`AddItemDataOnRewards` → `AddItemDataCloseRewards`。
 >
@@ -162,7 +165,7 @@ A3 与其它动作 / 识别器不同：**不要求 IMS 缓存已经存在**。
 
 判断缓存里的物品数量是否满足条件表达式。
 
-与通用识别器 [`ExpressionRecognition`](../custom.md#expressionrecognition) 语法相同，但占位符读取的是 **IMS 缓存物品 ID**，而不是画面 OCR 节点。
+与通用识别器 [`ExpressionRecognition`](../custom.md#expressionrecognition) 语法相同，但占位符读取的是 **IMS 缓存中的 IconRecognition 物品 ID**，而不是画面 OCR 节点。
 
 | 参数 | 说明 |
 | --- | --- |
@@ -182,7 +185,7 @@ A3 与其它动作 / 识别器不同：**不要求 IMS 缓存已经存在**。
 {
     "custom_recognition": "ItemQuantitySatisfied",
     "custom_recognition_param": {
-        "expression": "({PROTODISK}+{CAST_DIE})>=100",
+        "expression": "({item_char_break_stage_1_2}+{item_weapon_break_low})>=100",
         "notify_ui": false
     }
 }
@@ -190,9 +193,9 @@ A3 与其它动作 / 识别器不同：**不要求 IMS 缓存已经存在**。
 
 再例如：
 
-- `{PROTODISK}>=40`
-- `{PROTODISK}+{CAST_DIE}>=100 && {T_CREDS}<50`
-- `!({HEAVY_CAST_DIE}<10)`
+- `{item_char_break_stage_1_2}>=40`
+- `{item_char_break_stage_1_2}+{item_weapon_break_low}>=100 && {item_gold}<50`
+- `!({item_weapon_break_high}<10)`
 
 表达式结果必须是布尔值。
 
@@ -265,11 +268,12 @@ A2 落盘时会写下 `updated_at`。R2 用「现在 − 同步时间」是否�
 | 路径 | 说明 |
 | --- | --- |
 | `agent/go-service/ims/` | Custom 组件与缓存 |
-| `assets/data/IMS/items.json` | A3 领奖物品清单（省略 `items` 时的默认全量；A2 不使用） |
+| `agent/go-service/pkg/iconqty/` | A2/A3 共用：IconRecognition 扫格 + `cell_box` 数量 OCR |
+| `assets/data/IconRecognition/recognition_items.json` | IconRecognition 物品 catalog；A2 地区重建按 `item_filters` 展开 |
 | `assets/resource/pipeline/IMS/` | Pipeline（按接口分文件） |
-| `assets/resource/image/IMS/item/` | 物品模板图（`*_TEMPLATE.png`） |
-| `tools/SupplyPlan/mask_ims_item_corner.py` | 模板左上角涂绿工具 |
+| `assets/resource/pipeline/IMS/item/` | 定点 OCR 节点（如 `item_gold` / `item_diamond` / `ORIGEOMETRY`） |
 | `tools/schema/components/ims.schema.json` | 参数 JSON Schema |
+| [`IconRecognition`](./icon-recognition.md) | 图标识别与多语言名 `iconRecognition.name.*` |
 
 | Pipeline 文件 | 内容 |
 | --- | --- |
@@ -280,19 +284,7 @@ A2 落盘时会写下 `updated_at`。R2 用「现在 − 同步时间」是否�
 | `AddItemData.json` | A3 最佳实践（领奖后关闭） |
 | `ItemQuantitySatisfied.json` | R1（调用方覆盖 `expression`） |
 | `ItemDataReady.json` | R2 + `EnsureItemDataReady*` |
-| `common.json` / `item/*.json` | 品质色与各物品识别节点 |
-
-### 物品模板绿幕
-
-协议空间奖励图标左上角常有角标，会干扰培养素材页裁出的模板。入库前请：
-
-1. 用工具把模板 **左上角 31×18** 涂为 RGB `(0, 255, 0)`；
-2. 对应 TemplateMatch 开启 `"green_mask": true`。
-
-```bash
-uv run tools/SupplyPlan/mask_ims_item_corner.py
-# 预览：uv run tools/SupplyPlan/mask_ims_item_corner.py --dry-run
-```
+| `item/*.json` | 定点 OCR（`item_gold` / `item_diamond` / `ORIGEOMETRY`） |
 
 ### 缓存约定
 
@@ -315,8 +307,8 @@ uv run tools/SupplyPlan/mask_ims_item_corner.py
 {
     "updated_at": "2026-07-29T12:00:00Z",
     "items": {
-        "ADVANCED_COGNITIVE_CARRIER": 12,
-        "PROTODISK": 40
+        "item_expcard_stage2_high": 12,
+        "item_char_break_stage_1_2": 40
     }
 }
 ```

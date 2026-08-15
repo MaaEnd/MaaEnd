@@ -6,28 +6,43 @@
         "AddItemDataParam": {
             "type": "object",
             "title": "AddItemData Param",
-            "description": "Parameters for AddItemData action (A3). Sequentially runs recognition nodes and adds OCR quantities into the IMS cache as positive deltas. Does not change readiness / last_sync. Misses and non-positive quantities are skipped. When items is omitted or empty, uses the full a3 map from assets/data/IMS/items.json. Best practice: use under CloseRewardsButton recognition, then next to click-close the rewards UI; custom_action_param may be {}.",
+            "description": "Parameters for AddItemData action (A3). Same as SyncItemData recognition: one IconRecognition pass on the rewards grid (grid_type defaults to rewards, deduplicate=false), OCR quantity from each cell_box, then add positive deltas into the IMS cache. No multi-pass / green-mask rescan. Does not change readiness / last_sync. Best practice: use under CloseRewardsButton recognition, then next to click-close; custom_action_param may be {}.",
             "additionalProperties": false,
             "properties": {
-                "items": {
-                    "title": "Items",
-                    "description": "Optional map of item ID -> recognition node name. When omitted or empty, load the full a3 catalog from data/IMS/items.json. Keys are cache IDs; values are run in sorted key order. Quantity comes from each node's box_index OCR result and is added to cache.",
-                    "type": "object",
-                    "minProperties": 1,
-                    "additionalProperties": {
+                "grid_type": {
+                    "title": "Grid Type",
+                    "description": "IconRecognition grid_type. Omit to default to rewards.",
+                    "type": "string",
+                    "enum": [
+                        "rewards",
+                        "valuables",
+                        "transfer",
+                        "trade",
+                        "port_storager",
+                        "shipment",
+                        "credit_trade",
+                        "single_roi"
+                    ]
+                },
+                "roi": {
+                    "title": "ROI",
+                    "description": "Optional 1280x720 ROI [x,y,w,h]. Omit to use the IconRecognition reference ROI for grid_type.",
+                    "type": "array",
+                    "minItems": 4,
+                    "maxItems": 4,
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "item_filters": {
+                    "title": "Item Filters",
+                    "description": "IconRecognition item_filters for the candidate set. Omit/empty to use rewards defaults (Isolate:* + ValuableDepot:*).",
+                    "type": "array",
+                    "items": {
                         "type": "string",
                         "minLength": 1
                     },
-                    "propertyNames": {
-                        "type": "string",
-                        "minLength": 1
-                    }
-                },
-                "mask_hit_region": {
-                    "title": "Mask Hit Region",
-                    "description": "A3 only. After each successful item hit, paint that item's on-screen region green (RGB 0,255,0) on the working screenshot and keep recognizing the same item ID until no more hits. Fixes dual stacks on one reward popup (e.g. base 100 + bonus 15). Default true when omitted.",
-                    "type": "boolean",
-                    "default": true
+                    "uniqueItems": true
                 }
             }
         },
@@ -54,7 +69,7 @@
         "ItemQuantitySatisfiedParam": {
             "type": "object",
             "title": "ItemQuantitySatisfied Param",
-            "description": "Parameters for ItemQuantitySatisfied recognition (R1). Evaluates a boolean expression over one or more cached item IDs via {ITEM_ID} placeholders (same operators as ExpressionRecognition). Does not check readiness; combine with ItemDataReady via And when needed. Missing item counts as 0. UI Focus announce is off by default.",
+            "description": "Parameters for ItemQuantitySatisfied recognition (R1). Evaluates a boolean expression over one or more cached IconRecognition item IDs via {ITEM_ID} placeholders (same operators as ExpressionRecognition). Does not check readiness; combine with ItemDataReady via And when needed. Missing item counts as 0. UI Focus announce is off by default.",
             "additionalProperties": false,
             "required": [
                 "expression"
@@ -62,7 +77,7 @@
             "properties": {
                 "expression": {
                     "title": "Expression",
-                    "description": "Boolean expression over cached item quantities. Use {ITEM_ID} placeholders (missing item = 0). Supports + - * / % < <= > >= == != && || ! and parentheses. Result must be boolean.",
+                    "description": "Boolean expression over cached item quantities. Use {ITEM_ID} placeholders with IconRecognition IDs (missing item = 0). Supports + - * / % < <= > >= == != && || ! and parentheses. Result must be boolean.",
                     "type": "string",
                     "minLength": 1
                 },
@@ -86,7 +101,7 @@
             "properties": {
                 "item": {
                     "title": "Item",
-                    "description": "Item ID (same keys as SyncItemData items / IMS.json).",
+                    "description": "IconRecognition item ID (same keys as IMS.json cache).",
                     "type": "string",
                     "minLength": 1
                 },
@@ -100,17 +115,38 @@
         "SyncItemDataParam": {
             "type": "object",
             "title": "SyncItemData Param",
-            "description": "Scan And recognizers on the current screen. items maps item ID to recognition node name; quantity is read from that node's box_index OCR child. A2 requires an explicit items map (no items.json default). Results are written to debug/record/IMS.json with updated_at.",
+            "description": "A2 screen sync. Prefer IconRecognition via grid_type + item_filters (full-grid scan of everything on screen); quantity OCR from each cell_box. Optional items map covers OCR-only nodes (top-bar currencies). Provide grid_type and/or items. Results are written to debug/record/IMS.json with updated_at.",
             "additionalProperties": false,
-            "required": [
-                "items"
-            ],
             "properties": {
+                "grid_type": {
+                    "title": "Grid Type",
+                    "description": "Required for IconRecognition scan. Use valuables for 贵重品库.",
+                    "type": "string"
+                },
+                "roi": {
+                    "title": "ROI",
+                    "description": "Optional 1280x720 ROI [x,y,w,h] for IconRecognition. Omit to use the reference ROI for grid_type.",
+                    "type": "array",
+                    "minItems": 4,
+                    "maxItems": 4,
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "item_filters": {
+                    "title": "Item Filters",
+                    "description": "IconRecognition item_filters for the candidate set (e.g. ValuableDepot:SpecialItem). Narrows IR templates only; IMS caches every match returned.",
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "uniqueItems": true
+                },
                 "items": {
-                    "title": "Items",
-                    "description": "Required map of item ID -> And recognition node name. Keys are stored as cache IDs; values are run in sorted key order. Quantity comes from each node's box_index OCR result. Include fixed OCR nodes (e.g. T_CREDS_NUMBER) when needed for the current screen.",
+                    "title": "OCR / And+box_index Items",
+                    "description": "Map of cache item ID -> pipeline recognition node for quantities outside IconRecognition (top-bar currencies, shop digits, etc.). The node may be pure OCR, or And with box_index pointing at the OCR digit result. Keys always participate in page_dedup=false region rebuild (miss removes the ID).",
                     "type": "object",
-                    "minProperties": 1,
                     "additionalProperties": {
                         "type": "string",
                         "minLength": 1
@@ -120,9 +156,15 @@
                         "minLength": 1
                     }
                 },
+                "deduplicate": {
+                    "title": "Deduplicate",
+                    "description": "IconRecognition deduplicate flag. Default true for A2 (one stack per item_id).",
+                    "type": "boolean",
+                    "default": true
+                },
                 "page_dedup": {
                     "title": "Page Dedup",
-                    "description": "When false (default), rebuild only the item IDs listed in this scan's items map (misses are removed for those IDs); other cached IDs from other regions are preserved. When true, merge into existing cache and overwrite quantities for hit IDs (used after paging).",
+                    "description": "When false (default), region-rebuild: clear cache IDs matching item_filters in IconRecognition recognition_items.json, plus all keys in items; then write hits. When true, merge and overwrite hit IDs only (used after paging).",
                     "type": "boolean",
                     "default": false
                 },
