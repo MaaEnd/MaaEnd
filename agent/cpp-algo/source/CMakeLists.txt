@@ -15,7 +15,8 @@ if(LINUX)
 endif()
 
 if(WIN32)
-    target_link_libraries(cpp-algo PRIVATE WebView2::WebView2)
+    # dbghelp 静态链接，而不是崩溃时 LoadLibrary，以免撞上 loader lock。
+    target_link_libraries(cpp-algo PRIVATE WebView2::WebView2 dbghelp)
     target_compile_definitions(cpp-algo PRIVATE MAAEND_HAVE_WEBVIEW2)
 
     add_custom_command(TARGET cpp-algo POST_BUILD

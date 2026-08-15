@@ -1,8 +1,10 @@
+#include <filesystem>
 #include <iostream>
 
 #include <MaaAgentServer/MaaAgentServerAPI.h>
 #include <MaaToolkit/MaaToolkitAPI.h>
 
+#include "Common/CrashHandler.h"
 #include "Common/ParentProcessWatcher.h"
 #include "EssenceGridScan/EssenceGridScan.h"
 #include "IconRecognition/IconRecognitionRecognition.h"
@@ -37,7 +39,11 @@ int main(int argc, char** argv)
 
     // std::cout << "Hello, cpp-algo!" << std::endl;
 
-    MaaToolkitConfigInitOption("./debug/cpp-algo", "{}");
+    constexpr const char* kUserPath = "./debug/cpp-algo";
+    MaaToolkitConfigInitOption(kUserPath, "{}");
+
+    // 转储落到 maa.log 同一目录，报 issue 打包日志时会一并带上。
+    common::InstallCrashHandler(std::filesystem::path(kUserPath) / "debug");
 
     MaaAgentServerRegisterCustomRecognition("MyReco1", ChildCustomRecognitionCallback, nullptr);
     MaaAgentServerRegisterCustomRecognition("MapLocateRecognition", maplocator::MapLocateRecognitionRun, nullptr);
