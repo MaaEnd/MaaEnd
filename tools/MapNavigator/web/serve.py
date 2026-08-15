@@ -373,11 +373,20 @@ class ElevatedRecordingBridge:
 
         async def on_client(reader: asyncio.StreamReader, writer: asyncio.StreamWriter) -> None:
             # 只认第一个通过 token 校验的连接; 其余一律丢弃。
+            # 校验写成显式判断: assert 在 python -O 下会被整条删掉, 等于没校验。
             try:
                 line = await asyncio.wait_for(reader.readline(), timeout=WORKER_CONNECT_TIMEOUT_SECONDS)
                 hello = json.loads(line.decode("utf-8"))
-                assert hello.get("type") == "hello" and hello.get("token") == self._token
             except Exception:  # noqa: BLE001
+                writer.close()
+                return
+            token = hello.get("token") if isinstance(hello, dict) else None
+            if (
+                not isinstance(token, str)
+                or hello.get("type") != "hello"
+                or not secrets.compare_digest(token, self._token)
+            ):
+                _log("丢弃一个握手不合法的回连。")
                 writer.close()
                 return
             if self._connected is not None and not self._connected.done():
