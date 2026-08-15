@@ -1846,7 +1846,7 @@ bool NavigationStateMachine::TryScanApproachCollect(const RouteTrackingState& ro
 }
 
 // 最后一个采集点被吃掉的同一拍路线就结束、扫描器随即销毁, 行进中的检测再没机会报第二次。
-// 收尾时停下来单独给一个窗口, 冷却和位移门槛都不走, 只试一次。
+// 收尾时停下来单独给一个窗口, 不走冷却, 只试一次。
 // 放在成功判定之后: 这里超时或采集失败都不该把跑成功的线路翻成失败。
 void NavigationStateMachine::TryCollectAtRouteTail()
 {
