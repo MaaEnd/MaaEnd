@@ -113,6 +113,18 @@ bool RouteHasCollectWaypoint(const std::vector<Waypoint>& path)
     return std::any_of(path.begin(), path.end(), [](const Waypoint& wp) { return wp.action == ActionType::COLLECT; });
 }
 
+// 末尾的无坐标节点(ZONE/HEADING)不算, 看的是最后一个真正要走到的点是不是采集点
+bool RouteEndsWithCollectWaypoint(const std::vector<Waypoint>& path)
+{
+    for (auto it = path.rbegin(); it != path.rend(); ++it) {
+        if (!it->HasPosition()) {
+            continue;
+        }
+        return it->action == ActionType::COLLECT;
+    }
+    return false;
+}
+
 struct BootstrapWaypointCandidate
 {
     size_t index = std::numeric_limits<size_t>::max();
@@ -148,9 +160,7 @@ bool IsRequiredSemanticAnchor(const Waypoint& waypoint)
 
 double ArrivalBandForStartupBypass(const Waypoint& waypoint)
 {
-    double arrival_band = waypoint.RequiresStrictArrival()
-                              ? waypoint.GetLookahead() + kMeasurementDefaultPositionQuantum
-                              : waypoint.GetLookahead() + kWaypointArrivalSlack + kMeasurementDefaultPositionQuantum;
+    double arrival_band = waypoint.ArrivalBand(kMeasurementDefaultPositionQuantum);
     if (waypoint.action == ActionType::PORTAL) {
         arrival_band = std::max(arrival_band, kPortalCommitDistance);
     }
@@ -448,6 +458,8 @@ bool NavigationStateMachine::Run()
         session_->HasSatisfiedFinalSuccess(*position_, "navigation_complete");
     }
 
+    TryCollectAtRouteTail();
+
     StopScanners();
     StopMotion();
 
@@ -493,6 +505,9 @@ bool NavigationStateMachine::Bootstrap()
 
 bool NavigationStateMachine::TickPhase(NaviPhase phase)
 {
+    // Ahead of every early return, so no branch or phase can strand the game in walking mode.
+    UpdateWalkMode(phase);
+
     switch (phase) {
     case NaviPhase::Bootstrap:
         SelectPhaseForCurrentWaypoint("bootstrap_dispatch");
@@ -1090,8 +1105,19 @@ bool NavigationStateMachine::TickNavigate()
         return true;
     }
 
-    const double arrival_distance =
-        waypoint.action == ActionType::PORTAL ? std::max(route.arrival_band, kPortalCommitDistance) : route.arrival_band;
+    double arrival_distance = route.arrival_band;
+    if (waypoint.action == ActionType::PORTAL) {
+        arrival_distance = std::max(arrival_distance, kPortalCommitDistance);
+    }
+    // 采集点判定圈收窄了, 真站不上去(硬性无进展这么久)就放回常规值, 别多出一种卡死
+    else if (waypoint.action == ActionType::COLLECT && session_->HardStalledMs(now) > kCollectArrivalRelaxMs) {
+        const double relaxed = waypoint.ArrivalBand(kMeasurementDefaultPositionQuantum, /*relax_collect=*/true);
+        if (relaxed > arrival_distance && route.waypoint_distance <= relaxed) {
+            LogInfo << "Collect arrival band relaxed after no progress." << VAR(session_->current_node_idx())
+                    << VAR(route.waypoint_distance) << VAR(arrival_distance) << VAR(relaxed);
+        }
+        arrival_distance = std::max(arrival_distance, relaxed);
+    }
     if (route.waypoint_distance <= arrival_distance) {
         if (!route.startup_motion_confirmed) {
             LogDebug << "Arrival advance blocked before startup movement confirmed." << VAR(session_->current_node_idx())
@@ -1718,28 +1744,61 @@ void NavigationStateMachine::StartDeviceProbe()
     device_recovery_.Start(base_roi);
 }
 
+// Squared distance to the nearest COLLECT point; -1 when there is no collect route or no position.
+double NavigationStateMachine::NearestCollectDistanceSq() const
+{
+    if (collect_scanner_ == nullptr || session_ == nullptr || position_ == nullptr || !position_->valid) {
+        return -1.0;
+    }
+
+    double nearest_sq = -1.0;
+    for (const Waypoint& waypoint : session_->current_path()) {
+        if (waypoint.action != ActionType::COLLECT || !waypoint.HasPosition()) {
+            continue;
+        }
+        const double dx = waypoint.x - position_->x;
+        const double dy = waypoint.y - position_->y;
+        const double distance_sq = dx * dx + dy * dy;
+        if (nearest_sq < 0.0 || distance_sq < nearest_sq) {
+            nearest_sq = distance_sq;
+        }
+    }
+    return nearest_sq;
+}
+
 void NavigationStateMachine::UpdateCollectSprintSuppression()
 {
     if (collect_scanner_ == nullptr || motion_controller_ == nullptr) {
         return; // not a collect route — leave sprint behaviour entirely untouched
     }
 
-    bool near_collect = false;
-    if (position_ != nullptr && position_->valid && session_ != nullptr) {
-        const double band_sq = kCollectSprintSuppressBandWu * kCollectSprintSuppressBandWu;
-        for (const Waypoint& waypoint : session_->current_path()) {
-            if (waypoint.action != ActionType::COLLECT || !waypoint.HasPosition()) {
-                continue;
-            }
-            const double dx = waypoint.x - position_->x;
-            const double dy = waypoint.y - position_->y;
-            if (dx * dx + dy * dy <= band_sq) {
-                near_collect = true;
-                break;
-            }
-        }
-    }
+    const double nearest_sq = NearestCollectDistanceSq();
+    const bool near_collect = nearest_sq >= 0.0 && nearest_sq <= kCollectSprintSuppressBandWu * kCollectSprintSuppressBandWu;
     motion_controller_->SetSprintSuppressed(near_collect);
+}
+
+// Walk mode's only decision point: engaged on the last few units of a collect approach, released everywhere else
+// (travel legs, recovery, turn-in-place nodes, before motion is confirmed).
+void NavigationStateMachine::UpdateWalkMode(NaviPhase phase)
+{
+    const double nearest_sq = NearestCollectDistanceSq();
+    const bool recovering = runtime_state_.recovery.active || runtime_state_.cross_tier_escape.active;
+    const ActionType action = session_->HasCurrentWaypoint() ? session_->CurrentWaypoint().action : ActionType::HEADING;
+    const bool plain_approach = action == ActionType::COLLECT || action == ActionType::RUN || action == ActionType::NAVMESH;
+    if (phase != NaviPhase::Navigate || nearest_sq < 0.0 || recovering || !plain_approach
+        || !runtime_state_.route.startup_motion_confirmed) {
+        walk_mode_.Request(false);
+        return;
+    }
+
+    const bool was_engaged = walk_mode_.engaged();
+    const double band = was_engaged ? kCollectWalkExitBandWu : kCollectWalkEnterBandWu;
+    walk_mode_.Request(nearest_sq <= band * band);
+    const bool walking = walk_mode_.engaged();
+    if (walking != was_engaged) {
+        const double nearest_collect = std::sqrt(nearest_sq);
+        LogInfo << "Walk mode boundary crossed." << VAR(walking) << VAR(nearest_collect) << VAR(position_->x) << VAR(position_->y);
+    }
 }
 
 void NavigationStateMachine::PreWarmCollectOcr()
@@ -1773,21 +1832,9 @@ bool NavigationStateMachine::TryScanApproachCollect(const RouteTrackingState& ro
         return false; // background worker has not flagged a collectible — keep walking, zero cost this tick
     }
 
-    if (collect_attempt_pos_valid_ && position_ != nullptr && position_->valid) {
-        const bool zone_changed =
-            !collect_attempt_pos_.zone_id.empty() && !position_->zone_id.empty() && collect_attempt_pos_.zone_id != position_->zone_id;
-        const double moved = std::hypot(position_->x - collect_attempt_pos_.x, position_->y - collect_attempt_pos_.y);
-        if (!zone_changed && moved < kCollectRetryMinMoveWu) {
-            LogDebug << "Collect detection suppressed (anti-stuck): not past the last attempt yet." << VAR(moved);
-            return false;
-        }
-    }
-
+    // No displacement gate: multi-item spots are authored as the same coordinate repeated, and the
+    // authoritative OCR only clicks known collectible names, so a stale flag costs one stutter at most.
     collect_scan_last_at_ = now;
-    if (position_ != nullptr && position_->valid) {
-        collect_attempt_pos_ = *position_;
-        collect_attempt_pos_valid_ = true;
-    }
 
     LogInfo << "Async collectible flagged — stopping for authoritative collect." << VAR(route.waypoint_distance)
             << VAR(session_->current_node_idx());
@@ -1796,6 +1843,39 @@ bool NavigationStateMachine::TryScanApproachCollect(const RouteTrackingState& ro
     MaaContextRunTask(maa_context_, kDefaultCollectEntry, kCollectPipelineOverride);
     utils::SleepFor(kCollectPostSleepMs);
     return true;
+}
+
+// 最后一个采集点被吃掉的同一拍路线就结束、扫描器随即销毁, 行进中的检测再没机会报第二次。
+// 收尾时停下来单独给一个窗口, 冷却和位移门槛都不走, 只试一次。
+// 放在成功判定之后: 这里超时或采集失败都不该把跑成功的线路翻成失败。
+void NavigationStateMachine::TryCollectAtRouteTail()
+{
+    if (maa_context_ == nullptr || collect_scanner_ == nullptr || should_stop_() || session_->phase() != NaviPhase::Finished
+        || !RouteEndsWithCollectWaypoint(session_->original_path())) {
+        return;
+    }
+
+    StopMotion();
+    utils::SleepFor(kStopWaitMs); // 先站定, 还在滑行就点容易白点一次
+    const auto started_at = std::chrono::steady_clock::now();
+    while (!should_stop_()) {
+        if (collect_scanner_->ConsumeDetection()) {
+            LogInfo << "Route tail collectible flagged — collecting before finishing." << VAR(session_->current_node_idx());
+            MaaContextRunTask(maa_context_, kDefaultCollectEntry, kCollectPipelineOverride);
+            utils::SleepFor(kCollectPostSleepMs);
+            return;
+        }
+
+        const int64_t elapsed_ms =
+            std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - started_at).count();
+        if (elapsed_ms >= kCollectTailGraceMs) {
+            LogInfo << "Route tail collect grace expired with nothing flagged." << VAR(elapsed_ms);
+            return;
+        }
+
+        CaptureCurrentPosition(false); // 只为把新画面喂给检测器
+        utils::SleepFor(kTargetTickMs);
+    }
 }
 
 bool NavigationStateMachine::FailNavigation(

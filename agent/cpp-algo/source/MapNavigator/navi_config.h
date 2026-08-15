@@ -251,10 +251,22 @@ constexpr int32_t kCollectLabelMinWidth = 24;         // ~2-char CJK name floor 
 constexpr int32_t kCollectLabelMinHeight = 7;         // reject thin specks (label glyph row ~14px)
 constexpr int32_t kCollectLabelMaxHeight = 26;        // reject tall non-text structures
 constexpr double kCollectLabelMaxFill = 0.80;         // text is sparse (label fill ~0.4-0.66); solid blob = panel/icon
-constexpr int32_t kCollectScanIntervalMs = 1500;
-constexpr double kCollectRetryMinMoveWu = 2.5;
+// Sole pacing gate for detection-triggered collects; the clock only advances on an actual attempt.
+constexpr int32_t kCollectScanIntervalMs = 1200;
+// Collect points sit 2.1-3.7 apart, closer than the normal 3.25 band, which swallows a whole run of them.
+constexpr double kCollectArrivalBandWu = 1.5;
+// Tightening must not add a way to get stuck: this long without progress falls back to the normal band.
+constexpr int32_t kCollectArrivalRelaxMs = 6000;
+// The route ends the tick the last collect point is consumed, so the scanner never gets a second chance.
+constexpr int32_t kCollectTailGraceMs = 1500;
 constexpr double kCollectSprintSuppressBandWu = 8.0;
 constexpr int32_t kSprintCancelReleaseMs = 60;
+
+// Walk near collect points so the interact prompt stays up long enough to act on. Enter/exit differ for
+// hysteresis (each press flips game state); the enter band stays inside the sprint-suppress band.
+constexpr double kCollectWalkEnterBandWu = 3.0;
+constexpr double kCollectWalkExitBandWu = 4.5;
+static_assert(kCollectWalkEnterBandWu < kCollectSprintSuppressBandWu, "walk band must sit inside the sprint-suppress band");
 
 // Walking halves both speed and turn rate, so jogging-sized windows are doubled while engaged.
 constexpr int32_t kWalkModeSlowFactor = 2;

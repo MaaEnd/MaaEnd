@@ -82,13 +82,15 @@ struct Waypoint
     }
 
     // 到点判定圈半径, 通道比判定圈还窄时按通道收紧, 否则角色会提前弃点直奔下一点, 抄出撞墙的弦
-    double ArrivalBand(double position_quantum) const
+    // 采集点另按 kCollectArrivalBandWu 收紧(点距比常规判定圈还小), relax_collect 是够不着时的退让
+    double ArrivalBand(double position_quantum, bool relax_collect = false) const
     {
-        if (RequiresStrictArrival()) {
-            return GetLookahead() + position_quantum;
+        const bool strict = RequiresStrictArrival();
+        double band = strict ? GetLookahead() + position_quantum : GetLookahead() + kWaypointArrivalSlack + position_quantum;
+        if (action == ActionType::COLLECT && !relax_collect) {
+            band = std::min(band, kCollectArrivalBandWu);
         }
-        const double band = GetLookahead() + kWaypointArrivalSlack + position_quantum;
-        if (corridor_clearance <= 0.0) {
+        if (strict || corridor_clearance <= 0.0) {
             return band;
         }
         return std::min(band, std::max(corridor_clearance, kMinArrivalBand));
