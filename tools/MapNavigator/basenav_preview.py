@@ -10,11 +10,14 @@ from pathlib import Path
 
 import numpy as np
 
+from basenav_geo import SECTION_TAG as GEOMETRY_TAG, decode_geometry
+
 
 MAGIC = b"BNAV"
-VERSION = 4  # v4 appends a section directory to the header; zone records are unchanged from v3
+VERSION = 5  # v5 moves the four geometry blocks into the BGEO section; the header offsets go unused
 VERSION_MIN = 2  # oldest on-disk version still accepted; v2 zone records lack floor_y -> FLOOR_Y_NONE
 SECTION_DIR_SINCE = 4  # header carries section_dir_offset/section_count from this version on
+GEOMETRY_SECTION_SINCE = 5  # zone table + vertices + triangles + links live in the BGEO section
 FNV_OFFSET = 14695981039346656037
 FNV_PRIME = 1099511628211
 # Sentinel floor height for tier zones whose dominant walkable floor is unknown (the two
@@ -699,14 +702,6 @@ def _read_basenav(
     link_offset = int(header_values[10])
     build_hash = int(header_values[11])
 
-    if zone_table_offset < header_size:
-        raise ValueError("invalid BaseNav zone offset")
-    if vertex_offset < zone_table_offset:
-        raise ValueError("invalid BaseNav vertex offset")
-    if triangle_offset < vertex_offset:
-        raise ValueError("invalid BaseNav triangle offset")
-    if link_offset < triangle_offset:
-        raise ValueError("invalid BaseNav link offset")
     if link_count <= 0:
         raise ValueError("BaseNav v2 requires link table")
 
@@ -722,10 +717,27 @@ def _read_basenav(
                 raise ValueError("BaseNav section is outside file bounds")
             sections[tag] = data[offset:offset + size]
 
-    zone_table = data[zone_table_offset:vertex_offset]
-    vertex_data = data[vertex_offset:vertex_offset + VERTEX_STRUCT.size * vertex_count]
-    triangle_data = data[triangle_offset:triangle_offset + TRIANGLE_STRUCT.size * triangle_count]
-    link_data = data[link_offset:link_offset + LINK_STRUCT.size * link_count]
+    if version >= GEOMETRY_SECTION_SINCE:
+        if GEOMETRY_TAG not in sections:
+            raise ValueError("BaseNav geometry section is missing")
+        zone_table, vertex_data, triangle_data, link_data = decode_geometry(sections[GEOMETRY_TAG])
+        zone_table_offset = 0
+        vertex_offset = len(zone_table)
+        data_for_zones = zone_table
+    else:
+        if zone_table_offset < header_size:
+            raise ValueError("invalid BaseNav zone offset")
+        if vertex_offset < zone_table_offset:
+            raise ValueError("invalid BaseNav vertex offset")
+        if triangle_offset < vertex_offset:
+            raise ValueError("invalid BaseNav triangle offset")
+        if link_offset < triangle_offset:
+            raise ValueError("invalid BaseNav link offset")
+        zone_table = data[zone_table_offset:vertex_offset]
+        vertex_data = data[vertex_offset:vertex_offset + VERTEX_STRUCT.size * vertex_count]
+        triangle_data = data[triangle_offset:triangle_offset + TRIANGLE_STRUCT.size * triangle_count]
+        link_data = data[link_offset:link_offset + LINK_STRUCT.size * link_count]
+        data_for_zones = data
     # build hash 校验是逐字节串行的 FNV-1a,无法矢量化;挪到后台线程,显示后再核对(见 _DeferredVerifier)。
     verifier = _DeferredVerifier((zone_table, vertex_data, triangle_data, link_data), build_hash)
 
@@ -734,10 +746,10 @@ def _read_basenav(
     cursor = zone_table_offset
     zone_struct = ZONE_STRUCT if version >= 3 else ZONE_STRUCT_V2
     for _index in range(zone_count):
-        values = zone_struct.unpack_from(data, offset=cursor)
+        values = zone_struct.unpack_from(data_for_zones, offset=cursor)
         cursor += zone_struct.size
         name_size = int(values[2])
-        name = data[cursor:cursor + name_size].tobytes().decode("utf-8")
+        name = bytes(data_for_zones[cursor:cursor + name_size]).decode("utf-8")
         cursor += name_size
         zones.append(
             _BaseNavZone(

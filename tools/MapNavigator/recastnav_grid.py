@@ -9,7 +9,8 @@ import numpy as np
 from recastnav import CS
 
 TAG = b"BGRD"
-SECTION_VERSION = 2
+SECTION_VERSION = 3
+SECTION_VERSION_COLUMNAR = 2  # 上一版:整块一条 deflate,六列各自长度前缀
 HEADER = struct.Struct("<4sIdddII")  # tag + 版本 + 格边长 + 瓦边长 + 裙边 + 区数 + 保留
 ZONE_HEAD = struct.Struct("<ddII")  # x0 + y0 + 全区类号数 + 瓦数
 TILE = struct.Struct("<8iQII")  # gx0 gy0 nx ny px0 px1 py0 py1 + 偏移 + 长度 + 记录数
@@ -23,6 +24,13 @@ FLAG_FILL = 0x10   # 补出来的格且无高度可传播
 # steps 的位序对应的 4 个规范方向,与烘焙端写入这一列时的顺序一致。
 STEP_DX = (1, 0, 1, 1)
 STEP_DY = (0, 1, 1, -1)
+
+# v3 瓦载荷:五个字段各一条残差流,前面三条是格号、层数、类号字典。
+FIELD_COUNT = 5
+STREAM_COUNT = 3 + FIELD_COUNT
+# 残差的预测子。编码端逐字段逐层挑一个写进选择子,解码端只照做。
+PRED_UP = 0    # 面内上邻:同列上一个存在的格
+PRED_DOWN = 1  # 同格下一层
 
 
 def grid_clearance(q):
@@ -49,6 +57,31 @@ def _varints(buf):
     return np.add.reduceat(contrib, starts)
 
 
+def _unzigzag(v):
+    return (v >> np.uint64(1)).astype(np.int64) ^ -(v & np.uint64(1)).astype(np.int64)
+
+
+def _column_plan(x):
+    """列内累加的排序与分组只跟列号有关,与残差无关,所以拆出来单独建。"""
+    order = np.argsort(x, kind="stable")
+    xs = x[order]
+    head = np.flatnonzero(np.concatenate(([True], xs[1:] != xs[:-1])))
+    group = np.zeros(len(xs), np.int64)
+    group[head] = 1
+    return order, head, np.cumsum(group) - 1
+
+
+def _column_scan(plan, residual):
+    """按列累加:同一列内与上一个存在的格作差,每列首个存绝对值。"""
+    order, head, group = plan
+    running = np.cumsum(residual[order])
+    offset = np.zeros(len(head), np.int64)
+    offset[1:] = running[head[1:] - 1]
+    out = np.empty(len(order), np.int64)
+    out[order] = running - offset[group]
+    return out
+
+
 class GridTile:
     __slots__ = ("regions", "cell", "rid", "h", "clr", "flags", "steps")
 
@@ -70,8 +103,105 @@ def empty_tile():
                     np.zeros(0, np.uint16), np.zeros(0, np.uint8), np.zeros(0, np.uint8))
 
 
+def decode_tile_v3(raw, nx):
+    """解一块 v3 瓦。段里的原始字节直接进,内部逐流解压;差分要瓦宽 nx。"""
+    if not 0 < nx <= 0xFFFF:
+        raise ValueError("grid tile width is out of range")
+    view = memoryview(raw)
+    p = 0
+
+    def varint():
+        nonlocal p
+        val = shift = 0
+        while True:
+            if p >= len(view):
+                raise ValueError("grid tile header is truncated")
+            b = view[p]
+            p += 1
+            val |= (b & 0x7F) << shift
+            if not b & 0x80:
+                return val
+            shift += 7
+
+    n = varint()
+    if n == 0:
+        if p != len(view):
+            raise ValueError("grid tile has trailing bytes")
+        return empty_tile()
+    hmin = struct.unpack_from("<f", view, p)[0]
+    p += 4
+    # 类号字典的长度就是本瓦的类号数,不另存。
+    regions = varint()
+    ncell = varint()
+    kmax = varint()
+    if not (0 < ncell <= n and 0 < kmax <= n and 0 < regions <= n):
+        raise ValueError("grid tile header is out of range")
+    select = np.frombuffer(view[p:p + kmax * FIELD_COUNT], np.uint8).reshape(FIELD_COUNT, kmax)
+    p += kmax * FIELD_COUNT
+
+    stream = []
+    for _ in range(STREAM_COUNT):
+        clen = varint()
+        if p + clen > len(view):
+            raise ValueError("grid tile stream is truncated")
+        stream.append(zlib.decompress(view[p:p + clen]))
+        p += clen
+    if p != len(view):
+        raise ValueError("grid tile has trailing bytes")
+
+    cell = np.cumsum(_varints(stream[0]).astype(np.int64))
+    depth = _varints(stream[1]).astype(np.int64)
+    rid_dict = _varints(stream[2]).astype(np.uint32)
+    if len(cell) != ncell or len(depth) != ncell or int(depth.sum()) != n:
+        raise ValueError("grid tile cell column does not match the record count")
+    if len(rid_dict) != regions or (depth <= 0).any() or (depth > kmax).any():
+        raise ValueError("grid tile dictionary or depth column is invalid")
+    base = np.cumsum(depth) - depth
+    # 列号的取值只有瓦宽那么多种,窄类型排序走的是计数排序,比 int64 快一个量级。
+    column = (cell % nx).astype(np.uint16)
+    # 每层的活格表、落点、列内累加的排序建一次给五个字段共用;逐字段重算的话
+    # 光 argsort 就要白跑五遍。哪层都不按上邻预测就不必建排序。
+    layers = []
+    for layer in range(kmax):
+        live = np.flatnonzero(depth > layer)
+        plan = _column_plan(column[live]) if (select[:, layer] == PRED_UP).any() else None
+        layers.append((live, base[live] + layer, plan))
+
+    value = np.zeros((FIELD_COUNT, n), np.int64)
+    for field in range(FIELD_COUNT):
+        residual = _unzigzag(_varints(stream[3 + field]))
+        if len(residual) != n:
+            raise ValueError("grid tile field stream does not match the record count")
+        above = np.zeros(ncell, np.int64)
+        current = np.zeros(ncell, np.int64)
+        taken = 0
+        for layer, (live, at, plan) in enumerate(layers):
+            how = int(select[field, layer])
+            if how != PRED_UP and (how != PRED_DOWN or layer == 0):
+                raise ValueError("grid tile predictor selector is invalid")
+            part = residual[taken:taken + len(live)]
+            taken += len(live)
+            current[live] = _column_scan(plan, part) if how == PRED_UP else above[live] + part
+            value[field, at] = current[live]
+            above, current = current, above
+
+    hq, region_index, clr, flags, steps = value
+    if (hq < 0).any() or (region_index < 0).any() or (region_index >= regions).any():
+        raise ValueError("grid tile height or region index is out of range")
+    if (clr < 0).any() or (clr > 0xFFFF).any() or (flags < 0).any() or (flags > 0xFF).any():
+        raise ValueError("grid tile clearance or flags is out of range")
+    if (steps < 0).any() or (steps > 0xFF).any():
+        raise ValueError("grid tile steps is out of range")
+
+    flags = flags.astype(np.uint8)
+    h = (np.float64(hmin) + hq.astype(np.float64) / 64.0).astype(np.float32)
+    h[(flags & FLAG_FILL) != 0] = np.float32(0.0)
+    return GridTile(int(regions), np.repeat(cell, depth), rid_dict[region_index], h,
+                    clr.astype(np.uint16), flags, steps.astype(np.uint8))
+
+
 def decode_tile(raw):
-    """解一块瓦的载荷(已解压)。字节走完且自洽才返回。"""
+    """解一块 v2 瓦的载荷(已解压)。字节走完且自洽才返回。"""
     view = memoryview(raw)
     p = 0
 
@@ -150,8 +280,9 @@ class GridPack:
         tag, version, cell_size, tile_px, apron_px, zone_count, _reserved = HEADER.unpack_from(data, 0)
         if tag != TAG:
             raise ValueError("GRID section has a bad magic")
-        if version != SECTION_VERSION:
+        if version not in (SECTION_VERSION, SECTION_VERSION_COLUMNAR):
             raise ValueError(f"GRID section version {version} is not supported")
+        self.version = version
         # 格边长是判据常数,包和运行端对不上就整包不认:两边的格心不重合,烘出来的一切都错位。
         if abs(cell_size - CS) > 1e-12:
             raise ValueError("GRID cell size does not match the runtime grid")
@@ -189,8 +320,12 @@ class GridPack:
         if int(tile["rec"]) == 0:
             return empty_tile()
         off = int(tile["off"])
-        raw = zlib.decompressobj().decompress(bytes(self.data[off:off + int(tile["len"])]))
-        out = decode_tile(raw)
+        raw = self.data[off:off + int(tile["len"])]
+        if self.version == SECTION_VERSION:
+            # v3 的载荷逐流各压各的,整块外面没有 deflate。
+            out = decode_tile_v3(raw, int(tile["g"][2]))
+        else:
+            out = decode_tile(zlib.decompressobj().decompress(bytes(raw)))
         if len(out) != int(tile["rec"]):
             raise ValueError("grid tile record count does not match the directory")
         return out

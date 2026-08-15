@@ -30,6 +30,13 @@ inline constexpr uint8_t kGridFlagCore = 0x04;  // 补洞封缝后的核心掩�
 inline constexpr uint8_t kGridFlagGhost = 0x08; // 补出来的格,高度由邻格传播
 inline constexpr uint8_t kGridFlagFill = 0x10;  // 补出来的格且无高度可传播
 
+// v3 瓦载荷:五个字段各一条残差流,前面三条是格号、层数、类号字典。
+inline constexpr int kGridFieldCount = 5;
+inline constexpr int kGridStreamCount = 3 + kGridFieldCount;
+// 残差的预测子。编码端逐字段逐层挑一个写进选择子,解码端只照做。
+inline constexpr uint8_t kGridPredUp = 0;   // 面内上邻:同列上一个存在的格
+inline constexpr uint8_t kGridPredDown = 1; // 同格下一层
+
 // steps 的位序对应的 4 个规范方向,与 StepBreaks 扫的顺序一致。
 inline constexpr int64_t kGridStepDx[4] = { 1, 0, 1, 1 };
 inline constexpr int64_t kGridStepDy[4] = { 0, 1, 1, -1 };
@@ -46,8 +53,11 @@ struct GridTile
     std::vector<GridSpanRec> rec;
 };
 
-// 解一块瓦的载荷(已解压)。字节走完且自洽才返回 true。
+// 解一块 v2 瓦的载荷(已解压)。字节走完且自洽才返回 true。
 bool DecodeGridTile(const uint8_t* data, size_t len, GridTile& out);
+
+// 解一块 v3 瓦。段里的原始字节直接进,内部逐流 inflate;差分要瓦宽 nx。
+bool DecodeGridTileV3(const uint8_t* data, size_t len, int32_t nx, GridTile& out);
 
 // 段目录里的一块瓦。格号全是全局的(gx0 = llround(ox / kCS)),自有矩形
 // [px0,px1]×[py0,py1] 是瓦内格号闭区间,各瓦互不重叠且拼起来覆盖全区。
@@ -93,6 +103,7 @@ public:
 private:
     const uint8_t* base_ = nullptr;
     size_t len_ = 0;
+    uint32_t version_ = 0;
     double cell_size_ = 0.0;
     double tile_px_ = 0.0;
     double apron_px_ = 0.0;
