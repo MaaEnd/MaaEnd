@@ -4,77 +4,60 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/iconqty"
 )
 
-func TestResolveA3ItemsMapUsesCatalogWhenEmpty(t *testing.T) {
-	resetItemsCatalogForTest()
-	oldPath := itemsCatalogPathFunc
+func TestItemIDsMatchingFilters(t *testing.T) {
+	resetRecognitionItemsForTest()
+	oldPath := recognitionItemsPathFunc
 	t.Cleanup(func() {
-		itemsCatalogPathFunc = oldPath
-		resetItemsCatalogForTest()
+		recognitionItemsPathFunc = oldPath
+		resetRecognitionItemsForTest()
 	})
 
 	dir := t.TempDir()
-	path := filepath.Join(dir, "items.json")
+	path := filepath.Join(dir, "recognition_items.json")
 	content := `{
-		"a3": {"PROTODISK": "PROTODISK", "T_CREDS": "T_CREDS"}
+		"item_char_break_stage_1_2": {"storageKind":"ValuableDepot","categoryType":"SpecialItem"},
+		"item_ticketgacha_special_single": {"storageKind":"ValuableDepot","categoryType":"CommercialItem"},
+		"item_gold": {"storageKind":"Isolate","categoryType":"Gold"}
 	}`
 	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	itemsCatalogPathFunc = func() string { return path }
+	recognitionItemsPathFunc = func() string { return path }
 
-	a3, err := resolveA3ItemsMap(nil)
+	got, err := itemIDsMatchingFilters([]string{"ValuableDepot:SpecialItem"})
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(a3) != 2 || a3["PROTODISK"] != "PROTODISK" || a3["T_CREDS"] != "T_CREDS" {
-		t.Fatalf("a3=%v", a3)
+	if len(got) != 1 || got[0] != "item_char_break_stage_1_2" {
+		t.Fatalf("SpecialItem=%v", got)
 	}
 
-	a3, err = resolveA3ItemsMap(map[string]string{})
+	got, err = itemIDsMatchingFilters([]string{"ValuableDepot:*"})
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(a3) != 2 {
-		t.Fatalf("empty map should load catalog, got %v", a3)
+	if len(got) != 2 {
+		t.Fatalf("ValuableDepot:*=%v", got)
 	}
 
-	explicit := map[string]string{"ONLY": "ONLY_NODE"}
-	got, err := resolveA3ItemsMap(explicit)
+	got, err = resolveRegionRebuildIDs(iconqty.GridValuables, []string{"ValuableDepot:CommercialItem"})
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(got) != 1 || got["ONLY"] != "ONLY_NODE" {
-		t.Fatalf("explicit=%v", got)
+	if len(got) != 1 || got[0] != "item_ticketgacha_special_single" {
+		t.Fatalf("rebuild=%v", got)
 	}
 
-	if _, err := resolveA3ItemsMap(map[string]string{"": "NODE"}); err == nil {
-		t.Fatal("expected error for empty item id")
-	}
-	if _, err := resolveA3ItemsMap(map[string]string{"ITEM": ""}); err == nil {
-		t.Fatal("expected error for empty node name")
-	}
-}
-
-func TestParseAddItemDataParamEmptyUsesCatalogDefaults(t *testing.T) {
-	params, err := parseAddItemDataParam("")
+	got, err = resolveRegionRebuildIDs(iconqty.GridRewards, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(params.Items) != 0 {
-		t.Fatalf("items=%v", params.Items)
-	}
-	if !params.maskHitRegionEnabled() {
-		t.Fatal("mask_hit_region should default true")
-	}
-
-	params, err = parseAddItemDataParam(`{}`)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(params.Items) != 0 {
-		t.Fatalf("items=%v", params.Items)
+	if len(got) != 3 {
+		t.Fatalf("rewards defaults should cover all fixtures, got=%v", got)
 	}
 }
 
@@ -86,7 +69,33 @@ func TestParseSyncItemDataParamRequiresBody(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !params.PageDedup || len(params.Items) != 0 {
+	if !params.PageDedup || len(params.Items) != 0 || params.GridType != "" {
 		t.Fatalf("params=%+v", params)
+	}
+
+	params, err = parseSyncItemDataParam(`{
+		"grid_type":"valuables",
+		"item_filters":["ValuableDepot:SpecialItem"],
+		"items":{"item_gold":"item_gold_NUMBER"}
+	}`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if params.GridType != "valuables" ||
+		len(params.ItemFilters) != 1 ||
+		params.Items["item_gold"] != "item_gold_NUMBER" {
+		t.Fatalf("params=%+v", params)
+	}
+}
+
+func TestItemMatchesFilter(t *testing.T) {
+	if !itemMatchesFilter("ValuableDepot", "SpecialItem", "ValuableDepot:SpecialItem") {
+		t.Fatal("exact match")
+	}
+	if !itemMatchesFilter("ValuableDepot", "SpecialItem", "ValuableDepot:*") {
+		t.Fatal("wildcard match")
+	}
+	if itemMatchesFilter("Isolate", "Gold", "ValuableDepot:*") {
+		t.Fatal("kind mismatch")
 	}
 }

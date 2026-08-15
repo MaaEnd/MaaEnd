@@ -16,11 +16,11 @@ func TestParseUpdateItemQuantityParam(t *testing.T) {
 	if _, err := parseUpdateItemQuantityParam(`{"item":"","delta":1}`); err == nil {
 		t.Fatal("expected error for empty item")
 	}
-	params, err := parseUpdateItemQuantityParam(`{"item":" PROTODISK ","delta":-3}`)
+	params, err := parseUpdateItemQuantityParam(`{"item":" item_char_break_stage_1_2 ","delta":-3}`)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if params.Item != "PROTODISK" || params.Delta != -3 {
+	if params.Item != "item_char_break_stage_1_2" || params.Delta != -3 {
 		t.Fatalf("got %+v", params)
 	}
 }
@@ -38,12 +38,12 @@ func TestUpdateItemQuantityRun(t *testing.T) {
 
 	a := &UpdateItemQuantity{}
 	arg := &maa.CustomActionArg{
-		CustomActionParam: `{"item":"PROTODISK","delta":5}`,
+		CustomActionParam: `{"item":"item_char_break_stage_1_2","delta":5}`,
 	}
 	if !a.Run(nil, arg) {
 		t.Fatal("expected success from empty cache +delta")
 	}
-	if got := globalCache.quantity("PROTODISK"); got != 5 {
+	if got := globalCache.quantity("item_char_break_stage_1_2"); got != 5 {
 		t.Fatalf("quantity=%d, want 5", got)
 	}
 	hasData, _ := globalCache.snapshot()
@@ -51,11 +51,11 @@ func TestUpdateItemQuantityRun(t *testing.T) {
 		t.Fatal("A1 must not mark cache ready")
 	}
 
-	MarkSynced(time.Date(2026, 7, 1, 0, 0, 0, 0, time.UTC), map[string]int{"PROTODISK": 5})
-	if !a.Run(nil, &maa.CustomActionArg{CustomActionParam: `{"item":"PROTODISK","delta":-2}`}) {
+	MarkSynced(time.Date(2026, 7, 1, 0, 0, 0, 0, time.UTC), map[string]int{"item_char_break_stage_1_2": 5})
+	if !a.Run(nil, &maa.CustomActionArg{CustomActionParam: `{"item":"item_char_break_stage_1_2","delta":-2}`}) {
 		t.Fatal("expected success for -delta")
 	}
-	if got := globalCache.quantity("PROTODISK"); got != 3 {
+	if got := globalCache.quantity("item_char_break_stage_1_2"); got != 3 {
 		t.Fatalf("quantity=%d, want 3", got)
 	}
 	hasData, lastSync := globalCache.snapshot()
@@ -66,10 +66,10 @@ func TestUpdateItemQuantityRun(t *testing.T) {
 		t.Fatalf("lastSync changed: %v", lastSync)
 	}
 
-	if !a.Run(nil, &maa.CustomActionArg{CustomActionParam: `{"item":"PROTODISK","delta":-100}`}) {
+	if !a.Run(nil, &maa.CustomActionArg{CustomActionParam: `{"item":"item_char_break_stage_1_2","delta":-100}`}) {
 		t.Fatal("expected success when clamping")
 	}
-	if got := globalCache.quantity("PROTODISK"); got != 0 {
+	if got := globalCache.quantity("item_char_break_stage_1_2"); got != 0 {
 		t.Fatalf("quantity=%d, want 0 after clamp", got)
 	}
 

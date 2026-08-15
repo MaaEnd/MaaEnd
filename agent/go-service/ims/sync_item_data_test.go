@@ -6,20 +6,14 @@ import (
 	"testing"
 	"time"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/iconqty"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 )
-
-func TestParseOCRNumericValue(t *testing.T) {
-	got, err := parseOCRNumericValue("x12")
-	if err != nil || got != 12 {
-		t.Fatalf("got=%d err=%v", got, err)
-	}
-}
 
 func TestParseSyncItemDataParamMap(t *testing.T) {
 	params, err := parseSyncItemDataParam(`{
 		"items": {
-			"ADVANCED_COGNITIVE_CARRIER": "ADVANCED_COGNITIVE_CARRIER"
+			"item_expcard_stage2_high": "item_expcard_stage2_high"
 		},
 		"page_dedup": true
 	}`)
@@ -29,7 +23,7 @@ func TestParseSyncItemDataParamMap(t *testing.T) {
 	if !params.PageDedup {
 		t.Fatal("expected page_dedup true")
 	}
-	if params.Items["ADVANCED_COGNITIVE_CARRIER"] != "ADVANCED_COGNITIVE_CARRIER" {
+	if params.Items["item_expcard_stage2_high"] != "item_expcard_stage2_high" {
 		t.Fatalf("items=%v", params.Items)
 	}
 	if params.NotifyUI != nil {
@@ -54,12 +48,12 @@ func TestParseSyncItemDataParamMap(t *testing.T) {
 	}
 
 	params, err = parseSyncItemDataParam(`{
-		"items": {"  CAST_DIE  ": "  CAST_DIE  "}
+		"items": {"  item_weapon_break_low  ": "  item_weapon_break_low  "}
 	}`)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(params.Items) != 1 || params.Items["CAST_DIE"] != "CAST_DIE" {
+	if len(params.Items) != 1 || params.Items["item_weapon_break_low"] != "item_weapon_break_low" {
 		t.Fatalf("expected trimmed items, got %v", params.Items)
 	}
 
@@ -76,7 +70,7 @@ func TestParseSyncItemDataParamMap(t *testing.T) {
 }
 
 func TestItemDisplayNameFallback(t *testing.T) {
-	if got := itemDisplayName("UNKNOWN_ITEM_XYZ"); got != "UNKNOWN_ITEM_XYZ" {
+	if got := iconqty.ItemDisplayName("UNKNOWN_ITEM_XYZ"); got != "UNKNOWN_ITEM_XYZ" {
 		t.Fatalf("got %q", got)
 	}
 }
@@ -146,7 +140,7 @@ func TestLazyHydrateFromDisk(t *testing.T) {
 
 	// Keep within refresh_days so ItemDataReady is not stale-dependent on wall clock.
 	at := time.Now().UTC().Add(-24 * time.Hour)
-	if err := persistSynced(at, map[string]int{"PROTODISK": 7, "CAST_DIE": 3}); err != nil {
+	if err := persistSynced(at, map[string]int{"item_char_break_stage_1_2": 7, "item_weapon_break_low": 3}); err != nil {
 		t.Fatal(err)
 	}
 
@@ -164,14 +158,14 @@ func TestLazyHydrateFromDisk(t *testing.T) {
 
 	qty := &ItemQuantitySatisfied{}
 	qtyArg := &maa.CustomRecognitionArg{
-		CustomRecognitionParam: `{"expression":"{PROTODISK}>=7"}`,
+		CustomRecognitionParam: `{"expression":"{item_char_break_stage_1_2}>=7"}`,
 		Roi:                    maa.Rect{0, 0, 1, 1},
 	}
 	if _, ok := qty.Run(nil, qtyArg); !ok {
 		t.Fatal("expected quantity hit after hydrate")
 	}
-	if got := ItemsSnapshot()["CAST_DIE"]; got != 3 {
-		t.Fatalf("CAST_DIE=%d, want 3", got)
+	if got := ItemsSnapshot()["item_weapon_break_low"]; got != 3 {
+		t.Fatalf("item_weapon_break_low=%d, want 3", got)
 	}
 
 	// Second access must not depend on re-reading a deleted disk file.
@@ -195,7 +189,7 @@ func TestClearCacheDoesNotReloadDisk(t *testing.T) {
 	ClearCache()
 
 	at := time.Date(2026, 7, 29, 12, 0, 0, 0, time.UTC)
-	if err := persistSynced(at, map[string]int{"PROTODISK": 9}); err != nil {
+	if err := persistSynced(at, map[string]int{"item_char_break_stage_1_2": 9}); err != nil {
 		t.Fatal(err)
 	}
 	ClearCache()

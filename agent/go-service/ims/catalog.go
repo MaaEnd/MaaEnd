@@ -2,108 +2,137 @@ package ims
 
 import (
 	"fmt"
+	"strings"
 	"sync"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/iconqty"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/resource"
 	"github.com/rs/zerolog/log"
 )
 
-const itemsCatalogResourcePath = "data/IMS/items.json"
+const recognitionItemsResourcePath = "data/IconRecognition/recognition_items.json"
 
-// itemsCatalog is the on-disk registry of A3-supported reward items and their
-// recognition nodes. Path: assets/data/IMS/items.json.
-// A2 (SyncItemData) always requires an explicit items map and does not use this file.
-type itemsCatalog struct {
-	A3 map[string]string `json:"a3"`
+type recognitionItemMeta struct {
+	StorageKind  string `json:"storageKind"`
+	CategoryType string `json:"categoryType"`
 }
 
 var (
-	itemsCatalogPathFunc = defaultItemsCatalogPath
-	itemsCatalogOnce     sync.Once
-	itemsCatalogCache    *itemsCatalog
-	itemsCatalogErr      error
+	recognitionItemsPathFunc = defaultRecognitionItemsPath
+	recognitionItemsOnce     sync.Once
+	recognitionItemsCache    map[string]recognitionItemMeta
+	recognitionItemsErr      error
 )
 
-func defaultItemsCatalogPath() string {
-	return itemsCatalogResourcePath
+func defaultRecognitionItemsPath() string {
+	return recognitionItemsResourcePath
 }
 
-func resetItemsCatalogForTest() {
-	itemsCatalogOnce = sync.Once{}
-	itemsCatalogCache = nil
-	itemsCatalogErr = nil
+func resetRecognitionItemsForTest() {
+	recognitionItemsOnce = sync.Once{}
+	recognitionItemsCache = nil
+	recognitionItemsErr = nil
 }
 
-func loadItemsCatalog() (*itemsCatalog, error) {
-	itemsCatalogOnce.Do(func() {
-		path := itemsCatalogPathFunc()
-		var cat itemsCatalog
-		if err := resource.ReadJsonResource(path, &cat); err != nil {
-			itemsCatalogErr = fmt.Errorf("load IMS items catalog %s: %w", path, err)
+func loadRecognitionItems() (map[string]recognitionItemMeta, error) {
+	recognitionItemsOnce.Do(func() {
+		path := recognitionItemsPathFunc()
+		var raw map[string]recognitionItemMeta
+		if err := resource.ReadJsonResource(path, &raw); err != nil {
+			recognitionItemsErr = fmt.Errorf("load IconRecognition catalog %s: %w", path, err)
 			log.Error().
-				Err(itemsCatalogErr).
+				Err(recognitionItemsErr).
 				Str("path", path).
-				Msg("failed to load IMS items catalog")
+				Msg("failed to load IconRecognition recognition_items")
 			return
 		}
-		if err := validateItemsCatalog(&cat); err != nil {
-			itemsCatalogErr = fmt.Errorf("invalid IMS items catalog %s: %w", path, err)
-			log.Error().
-				Err(itemsCatalogErr).
-				Str("path", path).
-				Msg("IMS items catalog validation failed")
+		if len(raw) == 0 {
+			recognitionItemsErr = fmt.Errorf("IconRecognition catalog %s is empty", path)
 			return
 		}
-		itemsCatalogCache = &cat
+		recognitionItemsCache = raw
 		log.Info().
 			Str("path", path).
-			Int("a3_count", len(cat.A3)).
-			Msg("IMS items catalog loaded")
+			Int("item_count", len(raw)).
+			Msg("IconRecognition catalog loaded for IMS region rebuild")
 	})
-	if itemsCatalogErr != nil {
-		return nil, itemsCatalogErr
+	if recognitionItemsErr != nil {
+		return nil, recognitionItemsErr
 	}
-	if itemsCatalogCache == nil {
-		return nil, fmt.Errorf("IMS items catalog not loaded")
+	if recognitionItemsCache == nil {
+		return nil, fmt.Errorf("IconRecognition catalog not loaded")
 	}
-	return itemsCatalogCache, nil
+	return recognitionItemsCache, nil
 }
 
-func validateItemsCatalog(cat *itemsCatalog) error {
-	if cat == nil {
-		return fmt.Errorf("catalog is nil")
-	}
-	if len(cat.A3) == 0 {
-		return fmt.Errorf("a3 is empty")
-	}
-	return validateItemsMap("a3", cat.A3)
-}
-
-func validateItemsMap(label string, items map[string]string) error {
-	for id, node := range items {
-		if id == "" || node == "" {
-			return fmt.Errorf("%s contains empty item id or node name", label)
-		}
-	}
-	return nil
-}
-
-// resolveA3ItemsMap returns explicit items when non-empty; otherwise loads the
-// a3 section of assets/data/IMS/items.json.
-func resolveA3ItemsMap(explicit map[string]string) (map[string]string, error) {
-	if len(explicit) > 0 {
-		if err := validateItemsMap("explicit", explicit); err != nil {
-			return nil, err
-		}
-		return explicit, nil
-	}
-	cat, err := loadItemsCatalog()
+// itemIDsMatchingFilters returns recognition_items.json top-level keys matching
+// any of the IconRecognition item_filters (union). Used only for A2 region
+// rebuild miss-clear — recognition itself is not filtered by this list.
+func itemIDsMatchingFilters(filters []string) ([]string, error) {
+	filters, err := iconqty.NormalizeStringList(filters, "item_filters")
 	if err != nil {
 		return nil, err
 	}
-	out := make(map[string]string, len(cat.A3))
-	for id, node := range cat.A3 {
-		out[id] = node
+	if len(filters) == 0 {
+		return nil, nil
+	}
+	catalog, err := loadRecognitionItems()
+	if err != nil {
+		return nil, err
+	}
+	out := make([]string, 0)
+	seen := make(map[string]struct{})
+	for id, meta := range catalog {
+		id = strings.TrimSpace(id)
+		if id == "" {
+			continue
+		}
+		if !itemMatchesAnyFilter(meta.StorageKind, meta.CategoryType, filters) {
+			continue
+		}
+		if _, ok := seen[id]; ok {
+			continue
+		}
+		seen[id] = struct{}{}
+		out = append(out, id)
 	}
 	return out, nil
+}
+
+func itemMatchesAnyFilter(storageKind, categoryType string, filters []string) bool {
+	for _, f := range filters {
+		if itemMatchesFilter(storageKind, categoryType, f) {
+			return true
+		}
+	}
+	return false
+}
+
+// itemMatchesFilter parses storageKind:categoryType; categoryType may be "*".
+func itemMatchesFilter(storageKind, categoryType, filter string) bool {
+	filter = strings.TrimSpace(filter)
+	kind, cat, ok := strings.Cut(filter, ":")
+	if !ok || strings.TrimSpace(kind) == "" || strings.TrimSpace(cat) == "" {
+		return false
+	}
+	kind = strings.TrimSpace(kind)
+	cat = strings.TrimSpace(cat)
+	if storageKind != kind {
+		return false
+	}
+	if cat == "*" {
+		return true
+	}
+	return categoryType == cat
+}
+
+// resolveRegionRebuildIDs expands item_filters (or grid defaults) against the
+// IconRecognition catalog so page_dedup=false can clear misses without an
+// IMS-owned allowlist.
+func resolveRegionRebuildIDs(gridType string, filters []string) ([]string, error) {
+	effective := filters
+	if len(effective) == 0 {
+		effective = iconqty.DefaultItemFilters(gridType)
+	}
+	return itemIDsMatchingFilters(effective)
 }
