@@ -72,9 +72,8 @@ std::string NormalizeExpectedZoneId(const std::string& expected_zone_selector, Y
     return predictor->convertYoloNameToZoneId(expected_zone_selector);
 }
 
-struct FineScaleSearchResult
+struct FineMatchResult
 {
-    double scale = 1.0;
     bool hasRawResult = false;
     MatchResultRaw fineRes;
     cv::Size scaledTemplSize;
@@ -127,24 +126,13 @@ private:
 
 using TimePoint = std::chrono::steady_clock::time_point;
 
-constexpr std::array<double, 11> BuildGlobalSearchScales()
-{
-    std::array<double, 11> scales {};
-    double scale = 0.90;
-    for (double& value : scales) {
-        value = scale;
-        scale += 0.02;
-    }
-    return scales;
-}
-
-constexpr auto kGlobalSearchScales = BuildGlobalSearchScales();
-
-// 粗扫步长：补边之后各尺度给出的位置几乎一致，先用 1/3 的档位定位置，再在小窗里跑满档定分数
-constexpr size_t kGlobalCoarseScaleStride = 3;
-
-// 精修窗围绕粗扫最佳位置的半径，取值远大于实测的逐档位置离散度
+// 精修窗围绕粗扫峰位的半径，取值远大于实测的粗扫/精修位置差
 constexpr int kGlobalRefineRadius = 24;
+
+// 池子大小不只定并发上限，还是两处分流常数的标定口径：executor 的 globalConcurrencyLimit
+// 按 workerCount/3 给全局搜索留额（不足 5 个 worker 时退化成不限流），ensureFrameSearch 要求
+// 至少 6 个才肯起协调器。缩池子会连带改掉这两条，得单独实测，不跟着尺度搜索一起动。
+constexpr size_t kMatchWorkerLimit = 11;
 
 // 掩膜是半径 min(w,h)/2 - borderMargin 的圆，取最小的 borderMargin(tier 图为 8) 估圆的外接框，
 // 保证按它算出的补边量对所有图都不小于实际裁剪后的模板
@@ -155,7 +143,7 @@ int GlobalSearchRoiPad(const cv::Size& templSize)
 {
     const int discSide = std::min(templSize.width, templSize.height) - 2 * kMinMaskBorderMargin + 1;
     const int side = std::clamp(discSide, 1, std::max(templSize.width, templSize.height));
-    return static_cast<int>(std::ceil(side * kGlobalSearchScales.back() / 2.0)) + 1;
+    return static_cast<int>(std::ceil(side / 2.0)) + 1;
 }
 
 enum class ScaleTaskPriority : int
@@ -343,33 +331,26 @@ public:
         MatchFeature templateFeature,
         PreparedSearchFeature searchFeature,
         cv::Size searchSize,
+        double templateScale,
         ScaleTaskPriority priority,
+        PeakRefineMode refineMode = PeakRefineMode::Parabola,
         bool reserveTrackingCapacity = false)
         : templateFeature(std::move(templateFeature))
         , searchFeature(std::move(searchFeature))
         , searchSize(searchSize)
+        , templateScale(templateScale)
+        , refineMode(refineMode)
         , control(std::make_shared<ScaleTaskControl>())
     {
         control->priority.store(priority, std::memory_order_relaxed);
         control->reserveTrackingCapacity.store(reserveTrackingCapacity, std::memory_order_relaxed);
-        for (size_t index = 0; index < kGlobalSearchScales.size(); ++index) {
-            results[index].scale = kGlobalSearchScales[index];
-        }
     }
 
-    void start(MapLocatorScaleExecutor& executor, size_t scaleStride = 1)
+    void start(MapLocatorScaleExecutor& executor)
     {
-        const size_t stride = std::max<size_t>(1, scaleStride);
-        std::vector<size_t> indices;
-        for (size_t index = 0; index < kGlobalSearchScales.size(); index += stride) {
-            indices.push_back(index);
-        }
-
-        remaining.store(indices.size(), std::memory_order_relaxed);
+        remaining.store(1, std::memory_order_relaxed);
         const auto self = shared_from_this();
-        for (size_t index : indices) {
-            executor.submit(control, ScaleTaskClass::Global, [self, index]() { self->executeScale(index); });
-        }
+        executor.submit(control, ScaleTaskClass::Global, [self]() { self->executeMatch(); });
     }
 
     void wait()
@@ -387,21 +368,18 @@ public:
 
     void releaseTrackingCapacity(MapLocatorScaleExecutor& executor) { executor.releaseTrackingCapacity(control); }
 
-    const auto& getResults() const { return results; }
+    const FineMatchResult& getResult() const { return result; }
 
     const MatchFeature& getTemplateFeature() const { return templateFeature; }
 
-    bool hasAnyRawResult() const
-    {
-        return std::any_of(results.begin(), results.end(), [](const FineScaleSearchResult& r) { return r.hasRawResult; });
-    }
+    bool hasRawResult() const { return result.hasRawResult; }
 
 private:
-    void executeScale(size_t index)
+    void executeMatch()
     {
         try {
             if (!control->canceled.load(std::memory_order_relaxed)) {
-                computeScale(index);
+                computeMatch();
             }
         }
         catch (...) {
@@ -416,16 +394,13 @@ private:
         }
     }
 
-    void computeScale(size_t index)
+    void computeMatch()
     {
-        const double scale = kGlobalSearchScales[index];
-        FineScaleSearchResult& result = results[index];
-
         cv::Mat scaledTemplate;
         cv::Mat scaledWeightMask;
-        if (std::abs(scale - 1.0) > 0.001) {
-            cv::resize(templateFeature.image, scaledTemplate, cv::Size(), scale, scale, cv::INTER_LINEAR);
-            cv::resize(templateFeature.mask, scaledWeightMask, cv::Size(), scale, scale, cv::INTER_NEAREST);
+        if (std::abs(templateScale - 1.0) > 0.001) {
+            cv::resize(templateFeature.image, scaledTemplate, cv::Size(), templateScale, templateScale, cv::INTER_LINEAR);
+            cv::resize(templateFeature.mask, scaledWeightMask, cv::Size(), templateScale, templateScale, cv::INTER_NEAREST);
         }
         else {
             scaledTemplate = templateFeature.image;
@@ -445,7 +420,7 @@ private:
             return;
         }
 
-        const auto match = CoreMatchPrepared(searchFeature, croppedTemplate, croppedWeightMask);
+        const auto match = CoreMatchPrepared(searchFeature, croppedTemplate, croppedWeightMask, refineMode);
         if (!match) {
             return;
         }
@@ -461,112 +436,50 @@ private:
     MatchFeature templateFeature;
     PreparedSearchFeature searchFeature;
     cv::Size searchSize;
+    double templateScale = 1.0;
+    PeakRefineMode refineMode;
     std::shared_ptr<ScaleTaskControl> control;
-    std::array<FineScaleSearchResult, kGlobalSearchScales.size()> results;
+    FineMatchResult result;
     std::atomic<size_t> remaining = 0;
     std::mutex completionMutex;
     std::condition_variable completionCondition;
     std::exception_ptr exception;
 };
 
-struct TrackingScaleCandidate
+struct TrackingMatch
 {
-    double scale = 1.0;
     std::optional<MatchResultRaw> match;
     cv::Mat scaledTemplate;
     cv::Mat scaledWeightMask;
 };
 
-class TrackingScaleBatch : public std::enable_shared_from_this<TrackingScaleBatch>
+TrackingMatch MatchTrackingTemplate(
+    const MatchFeature& templateFeature,
+    const PreparedSearchFeature& searchFeature,
+    const cv::Size& searchSize,
+    double templateScale)
 {
-public:
-    static constexpr size_t kScaleCount = std::size(kTrackingScaleSteps);
-
-    TrackingScaleBatch(MatchFeature templateFeature, PreparedSearchFeature searchFeature, cv::Size searchSize, double baseScale)
-        : templateFeature(std::move(templateFeature))
-        , searchFeature(std::move(searchFeature))
-        , searchSize(searchSize)
-        , control(std::make_shared<ScaleTaskControl>())
-    {
-        control->priority.store(ScaleTaskPriority::Tracking, std::memory_order_relaxed);
-        for (size_t index = 0; index < kScaleCount; ++index) {
-            candidates[index].scale = baseScale + kTrackingScaleSteps[index];
-        }
+    TrackingMatch out;
+    if (templateScale <= 0.0) {
+        return out;
     }
 
-    void computeBase() { computeScale(0); }
-
-    void startNeighbors(MapLocatorScaleExecutor& executor)
-    {
-        remaining.store(kScaleCount - 1, std::memory_order_relaxed);
-        const auto self = shared_from_this();
-        for (size_t index = 1; index < kScaleCount; ++index) {
-            executor.submit(control, ScaleTaskClass::Tracking, [self, index]() { self->executeScale(index); });
-        }
+    if (std::abs(templateScale - 1.0) > 0.001) {
+        cv::resize(templateFeature.image, out.scaledTemplate, cv::Size(), templateScale, templateScale, cv::INTER_LINEAR);
+        cv::resize(templateFeature.mask, out.scaledWeightMask, cv::Size(), templateScale, templateScale, cv::INTER_NEAREST);
+    }
+    else {
+        out.scaledTemplate = templateFeature.image;
+        out.scaledWeightMask = templateFeature.mask;
     }
 
-    void wait()
-    {
-        std::unique_lock<std::mutex> lock(completionMutex);
-        completionCondition.wait(lock, [this]() { return remaining.load(std::memory_order_acquire) == 0; });
-        if (exception) {
-            std::rethrow_exception(exception);
-        }
+    if (out.scaledTemplate.cols > searchSize.width || out.scaledTemplate.rows > searchSize.height) {
+        return out;
     }
 
-    auto& getCandidates() { return candidates; }
-
-private:
-    void executeScale(size_t index)
-    {
-        try {
-            computeScale(index);
-        }
-        catch (...) {
-            std::lock_guard<std::mutex> lock(completionMutex);
-            if (!exception) {
-                exception = std::current_exception();
-            }
-        }
-
-        if (remaining.fetch_sub(1, std::memory_order_acq_rel) == 1) {
-            completionCondition.notify_all();
-        }
-    }
-
-    void computeScale(size_t index)
-    {
-        TrackingScaleCandidate& candidate = candidates[index];
-        if (candidate.scale <= 0.0) {
-            return;
-        }
-
-        if (std::abs(candidate.scale - 1.0) > 0.001) {
-            cv::resize(templateFeature.image, candidate.scaledTemplate, cv::Size(), candidate.scale, candidate.scale, cv::INTER_LINEAR);
-            cv::resize(templateFeature.mask, candidate.scaledWeightMask, cv::Size(), candidate.scale, candidate.scale, cv::INTER_NEAREST);
-        }
-        else {
-            candidate.scaledTemplate = templateFeature.image;
-            candidate.scaledWeightMask = templateFeature.mask;
-        }
-
-        if (candidate.scaledTemplate.cols > searchSize.width || candidate.scaledTemplate.rows > searchSize.height) {
-            return;
-        }
-
-        candidate.match = CoreMatchPrepared(searchFeature, candidate.scaledTemplate, candidate.scaledWeightMask);
-    }
-
-    MatchFeature templateFeature;
-    PreparedSearchFeature searchFeature;
-    cv::Size searchSize;
-    std::shared_ptr<ScaleTaskControl> control;
-    std::array<TrackingScaleCandidate, kScaleCount> candidates;
-    std::atomic<size_t> remaining = 0;
-    std::mutex completionMutex;
-    std::condition_variable completionCondition;
-    std::exception_ptr exception;
-};
+    out.match = CoreMatchPrepared(searchFeature, out.scaledTemplate, out.scaledWeightMask, PeakRefineMode::Continuous);
+    return out;
+}
 
 struct GlobalSearchComputation
 {
@@ -574,24 +487,18 @@ struct GlobalSearchComputation
     cv::Rect constrainedRect {};
     std::string targetZoneId;
     std::shared_ptr<GlobalSearchBatch> batch;
-    int blurSize = 5;
 };
 
-// 某一批里分最高的那一档给出的模板中心（未裁剪模板口径）
+// 这一批给出的模板中心（未裁剪模板口径）
 std::optional<cv::Point2d> BestRawCenter(const GlobalSearchComputation& computation)
 {
-    const FineScaleSearchResult* best = nullptr;
-    for (const auto& scaleResult : computation.batch->getResults()) {
-        if (scaleResult.hasRawResult && (!best || scaleResult.fineRes.score > best->fineRes.score)) {
-            best = &scaleResult;
-        }
-    }
-    if (!best) {
+    const FineMatchResult& best = computation.batch->getResult();
+    if (!best.hasRawResult) {
         return std::nullopt;
     }
     return cv::Point2d(
-        computation.constrainedRect.x + best->fineRes.loc.x + best->scaledTemplSize.width / 2.0,
-        computation.constrainedRect.y + best->fineRes.loc.y + best->scaledTemplSize.height / 2.0);
+        computation.constrainedRect.x + best.fineRes.loc.x + best.scaledTemplSize.width / 2.0,
+        computation.constrainedRect.y + best.fineRes.loc.y + best.scaledTemplSize.height / 2.0);
 }
 
 struct GlobalSearchCandidates
@@ -830,7 +737,6 @@ private:
         std::shared_ptr<IMatchStrategy> strategy,
         const std::string& targetZoneId,
         const SearchConstraint& constraint,
-        const MatchConfig& matchConfig,
         ScaleTaskPriority priority,
         bool reserveTrackingCapacity);
     GlobalSearchComputation startRefineSearch(const GlobalSearchComputation& coarse, const cv::Point2d& center);
@@ -939,9 +845,8 @@ bool MapLocator::Impl::initialize(const MapLocatorConfig& cfg)
     config = cfg;
 
     motionTracker = std::make_unique<MotionTracker>(trackingCfg);
-    const size_t scaleWorkerCount =
-        std::min(kGlobalSearchScales.size(), static_cast<size_t>(std::max(1U, std::thread::hardware_concurrency())));
-    scaleExecutor = std::make_unique<MapLocatorScaleExecutor>(scaleWorkerCount);
+    const size_t matchWorkerCount = std::min(kMatchWorkerLimit, static_cast<size_t>(std::max(1U, std::thread::hardware_concurrency())));
+    scaleExecutor = std::make_unique<MapLocatorScaleExecutor>(matchWorkerCount);
     loadAvailableZones(config.mapResourceDir);
 
     if (!config.yoloModelPath.empty()) {
@@ -1097,13 +1002,9 @@ std::optional<MapPosition> MapLocator::Impl::tryTracking(
 
     std::chrono::duration<double> dt = now - motionTracker->getLastTime();
 
-    double baseScale = motionTracker->getLastPos()->scale;
-    if (baseScale <= 0.0) {
-        baseScale = 1.0;
-    }
+    const double templateScale = ZoneTemplateScale(currentZoneId);
 
-    // 用最大候选 scale 来 size 搜索窗，确保所有尺度的模板都能装下；与 kTrackingScaleSteps 对齐
-    cv::Rect searchRect = motionTracker->predictNextSearchRect(baseScale + 0.04, tmplFeat.image.cols, tmplFeat.image.rows, now);
+    cv::Rect searchRect = motionTracker->predictNextSearchRect(templateScale, tmplFeat.image.cols, tmplFeat.image.rows, now);
 
     cv::Rect mapBounds(0, 0, zoneMap.cols, zoneMap.rows);
     cv::Rect validRoi = searchRect & mapBounds;
@@ -1120,15 +1021,8 @@ std::optional<MapPosition> MapLocator::Impl::tryTracking(
     }
 
     auto searchFeature = strategy->extractSearchFeature(searchRoiWithPad);
-    const PreparedSearchFeature preparedSearch = PrepareSearchFeature(searchFeature.image, matchCfg.blurSize);
+    const PreparedSearchFeature preparedSearch = PrepareSearchFeature(searchFeature.image);
 
-    // 窄带多尺度匹配：先以 baseScale 尝试，分数足够则直接接受；
-    // 否则遍历邻近尺度取最优，并通过 kScaleHysteresisDelta 抑制尺度频繁切换
-    auto trackingBatch = std::make_shared<TrackingScaleBatch>(tmplFeat, preparedSearch, searchFeature.image.size(), baseScale);
-    trackingBatch->computeBase();
-    auto& trackingCandidates = trackingBatch->getCandidates();
-    const bool baseFastPass =
-        trackingCandidates.front().match.has_value() && trackingCandidates.front().match->score >= kFastTrackingPassScore;
     bool slowPathSignaled = false;
     auto signalSlowPath = [&]() {
         if (!slowPathSignaled && slowPathSignal) {
@@ -1136,63 +1030,23 @@ std::optional<MapPosition> MapLocator::Impl::tryTracking(
             slowPathSignal();
         }
     };
-    if (!baseFastPass) {
+
+    TrackingMatch tracking = MatchTrackingTemplate(tmplFeat, preparedSearch, searchFeature.image.size(), templateScale);
+    std::optional<MatchResultRaw> trackResult = tracking.match;
+    cv::Mat scaledTempl = std::move(tracking.scaledTemplate);
+    cv::Mat scaledWeightMask = std::move(tracking.scaledWeightMask);
+
+    // 分数不到线就让上层考虑改走全局搜索，这一拍自己仍然照常返回
+    if (!trackResult || trackResult->score < kFastTrackingPassScore) {
         signalSlowPath();
-        trackingBatch->startNeighbors(*scaleExecutor);
-        trackingBatch->wait();
-    }
-
-    std::optional<MatchResultRaw> trackResult;
-    cv::Mat scaledTempl, scaledWeightMask;
-    double trackScale = baseScale;
-    double baseScore = -1.0;
-    for (size_t trackingScaleIndex = 0; trackingScaleIndex < TrackingScaleBatch::kScaleCount; ++trackingScaleIndex) {
-        const double delta = kTrackingScaleSteps[trackingScaleIndex];
-        if (delta != 0.0 && trackResult && trackResult->score >= kFastTrackingPassScore) {
-            break;
-        }
-        TrackingScaleCandidate& candidate = trackingCandidates[trackingScaleIndex];
-        const double s = candidate.scale;
-        if (s <= 0.0) {
-            continue;
-        }
-
-        auto cand = candidate.match;
-        if (!cand) {
-            continue;
-        }
-
-        if (delta == 0.0) {
-            baseScore = cand->score;
-        }
-        bool scaleChangeAllowed = baseScore < 0.0 || delta == 0.0;
-        if (!scaleChangeAllowed) {
-            scaleChangeAllowed = cand->score >= baseScore + kScaleHysteresisDelta;
-            if (scaleChangeAllowed) {
-                if (auto last = motionTracker->getLastPos()) {
-                    const double candAbsX = static_cast<double>(searchRect.x) + cand->loc.x + candidate.scaledTemplate.cols / 2.0;
-                    const double candAbsY = static_cast<double>(searchRect.y) + cand->loc.y + candidate.scaledTemplate.rows / 2.0;
-                    scaleChangeAllowed = std::hypot(candAbsX - last->x, candAbsY - last->y) < kScaleChangeMaxPositionDelta;
-                }
-            }
-        }
-
-        const bool isBetter = !trackResult || cand->score > trackResult->score;
-        if (isBetter && scaleChangeAllowed) {
-            trackResult = cand;
-            scaledTempl = std::move(candidate.scaledTemplate);
-            scaledWeightMask = std::move(candidate.scaledWeightMask);
-            trackScale = s;
-        }
     }
 
     if (!trackResult) {
-        LogInfo << "tryTracking: multi-scale CoreMatch returned nullopt for all scales.";
+        LogInfo << "tryTracking: CoreMatch returned nullopt.";
         return std::nullopt;
     }
 
-    LogInfo << "tryTracking" << VAR(trackResult->score) << VAR(trackResult->psr) << VAR(trackResult->delta) << VAR(trackResult->secondScore)
-            << VAR(trackScale);
+    LogInfo << "tryTracking" << VAR(trackResult->score) << VAR(trackResult->psr) << VAR(trackResult->delta) << VAR(trackResult->secondScore);
 
     auto validation =
         strategy->validateTracking(*trackResult, dt, motionTracker->getLastPos(), searchRect, scaledTempl.cols, scaledTempl.rows);
@@ -1202,15 +1056,14 @@ std::optional<MapPosition> MapLocator::Impl::tryTracking(
         outRawPos->x = validation.absX;
         outRawPos->y = validation.absY;
         outRawPos->score = trackResult->score;
-        outRawPos->scale = trackScale;
     }
 
     bool onlyAmbiguous = (!validation.isScreenBlocked && !validation.isEdgeSnapped && !validation.isTeleported);
 
     if (!validation.isValid && strategy->needsChamferCompensation()) {
         cv::Mat templGray, bgrTempl;
-        if (std::abs(trackScale - 1.0) > 0.001) {
-            cv::resize(tmplFeat.templRaw, bgrTempl, cv::Size(), trackScale, trackScale, cv::INTER_LINEAR);
+        if (std::abs(templateScale - 1.0) > 0.001) {
+            cv::resize(tmplFeat.templRaw, bgrTempl, cv::Size(), templateScale, templateScale, cv::INTER_LINEAR);
         }
         else {
             bgrTempl = tmplFeat.templRaw;
@@ -1276,7 +1129,6 @@ std::optional<MapPosition> MapLocator::Impl::tryTracking(
         signalSlowPath();
         auto hold = *motionTracker->getLastPos();
         hold.score = trackResult->score;
-        hold.scale = trackScale;
         hold.isHeld = true;
         motionTracker->hold(hold, now);
         LogInfo << "Tracking ambiguous -> HOLD last pos." << VAR(trackResult->score) << VAR(trackResult->psr) << VAR(trackResult->delta);
@@ -1296,11 +1148,10 @@ std::optional<MapPosition> MapLocator::Impl::tryTracking(
                 signalSlowPath();
                 auto held = *last;
                 held.score = trackResult->score;
-                held.scale = trackScale;
                 held.isHeld = true;
                 motionTracker->hold(held, now);
                 motionTracker->markLost();
-                LogInfo << "Tracking outlier rejected, holding last pos." << VAR(jumpDist) << VAR(trackResult->score) << VAR(trackScale);
+                LogInfo << "Tracking outlier rejected, holding last pos." << VAR(jumpDist) << VAR(trackResult->score);
                 return held;
             }
         }
@@ -1310,7 +1161,6 @@ std::optional<MapPosition> MapLocator::Impl::tryTracking(
         pos.x = validation.absX;
         pos.y = validation.absY;
         pos.score = trackResult->score;
-        pos.scale = trackScale;
         pos.isHeld = false;
         return acceptPosition(pos, now);
     }
@@ -1351,74 +1201,42 @@ GlobalSearchAttempt MapLocator::Impl::finishGlobalSearch(const GlobalSearchCompu
 
     computation.batch->wait();
 
-    // 粗扫只负责挑位置，随后在它周围的小窗里跑满档定分数；精修开不起来就直接用粗扫结果
+    // 粗扫只负责挑位置，随后在它周围的小窗里连续求极大定坐标；精修开不起来就直接用粗扫结果
     const GlobalSearchComputation* evaluated = &computation;
     GlobalSearchComputation refined;
     if (const auto center = BestRawCenter(computation)) {
         refined = startRefineSearch(computation, *center);
         if (refined.batch) {
             refined.batch->wait();
-            if (refined.batch->hasAnyRawResult()) {
+            if (refined.batch->hasRawResult()) {
                 evaluated = &refined;
             }
         }
     }
 
-    const auto& scaleResults = evaluated->batch->getResults();
-    double bestValidScore = -1.0;
-    double bestRawScore = -1.0;
-    double bestScale = 1.0;
-    MatchResultRaw bestFineRes;
-    cv::Size bestScaledTemplSize;
-    std::optional<MapPosition> bestValidPosition;
-
-    // Preserve the original scan order and tie-breaks while parallelizing the expensive CoreMatch calls.
-    for (const auto& scaleResult : scaleResults) {
-        if (!scaleResult.hasRawResult) {
-            continue;
-        }
-
-        if (scaleResult.fineRes.score > bestRawScore) {
-            bestRawScore = scaleResult.fineRes.score;
-            bestScale = scaleResult.scale;
-            bestFineRes = scaleResult.fineRes;
-            bestScaledTemplSize = scaleResult.scaledTemplSize;
-        }
-
-        auto directResult = evaluateAndAcceptResult(
-            scaleResult.fineRes,
-            evaluated->constrainedRect,
-            scaleResult.scaledTemplSize,
-            evaluated->strategy.get(),
-            evaluated->targetZoneId);
-        if (!directResult) {
-            continue;
-        }
-
-        if (directResult->score > bestValidScore) {
-            bestValidScore = directResult->score;
-            bestScale = scaleResult.scale;
-            bestFineRes = scaleResult.fineRes;
-            bestScaledTemplSize = scaleResult.scaledTemplSize;
-            bestValidPosition = directResult;
-        }
-    }
-
-    if (bestRawScore >= 0.0) {
-        attempt.rawPos.zoneId = evaluated->targetZoneId;
-        attempt.rawPos.x = evaluated->constrainedRect.x + bestFineRes.loc.x + bestScaledTemplSize.width / 2.0;
-        attempt.rawPos.y = evaluated->constrainedRect.y + bestFineRes.loc.y + bestScaledTemplSize.height / 2.0;
-        attempt.rawPos.score = bestRawScore;
-        attempt.rawPos.scale = bestScale;
-    }
-
-    if (bestValidScore < 0.0) {
-        LogInfo << "Global Search: constrained ROI direct fine failed, no coarse fallback will be used." << VAR(bestRawScore);
+    const FineMatchResult& fine = evaluated->batch->getResult();
+    if (!fine.hasRawResult) {
+        LogInfo << "Global Search: constrained ROI direct fine failed, no coarse fallback will be used.";
         return attempt;
     }
 
-    bestValidPosition->scale = bestScale;
-    LogInfo << "Global Search: direct fine search accepted inside constrained ROI." << VAR(bestScale) << VAR(bestValidScore);
+    attempt.rawPos.zoneId = evaluated->targetZoneId;
+    attempt.rawPos.x = evaluated->constrainedRect.x + fine.fineRes.loc.x + fine.scaledTemplSize.width / 2.0;
+    attempt.rawPos.y = evaluated->constrainedRect.y + fine.fineRes.loc.y + fine.scaledTemplSize.height / 2.0;
+    attempt.rawPos.score = fine.fineRes.score;
+
+    auto bestValidPosition = evaluateAndAcceptResult(
+        fine.fineRes,
+        evaluated->constrainedRect,
+        fine.scaledTemplSize,
+        evaluated->strategy.get(),
+        evaluated->targetZoneId);
+    if (!bestValidPosition) {
+        LogInfo << "Global Search: constrained ROI direct fine rejected." << VAR(fine.fineRes.score);
+        return attempt;
+    }
+
+    LogInfo << "Global Search: direct fine search accepted inside constrained ROI." << VAR(bestValidPosition->score);
     attempt.result = bestValidPosition;
     return attempt;
 }
@@ -1428,7 +1246,6 @@ GlobalSearchComputation MapLocator::Impl::startGlobalSearch(
     std::shared_ptr<IMatchStrategy> strategy,
     const std::string& targetZoneId,
     const SearchConstraint& constraint,
-    const MatchConfig& matchConfig,
     ScaleTaskPriority priority,
     bool reserveTrackingCapacity)
 {
@@ -1477,20 +1294,20 @@ GlobalSearchComputation MapLocator::Impl::startGlobalSearch(
         searchFeature = strategyPtr->extractSearchFeature(bigMap(mapBounds));
     }
 
-    computation.blurSize = matchConfig.blurSize;
-    PreparedSearchFeature preparedSearch = PrepareSearchFeature(searchFeature.image, matchConfig.blurSize);
+    PreparedSearchFeature preparedSearch = PrepareSearchFeature(searchFeature.image);
     computation.batch = std::make_shared<GlobalSearchBatch>(
         tmplFeat,
         std::move(preparedSearch),
         searchFeature.image.size(),
+        ZoneTemplateScale(targetZoneId),
         priority,
+        PeakRefineMode::Parabola,
         reserveTrackingCapacity);
-    // 补边后搜索窗变大，先用少数几档定位置，剩下的档留给精修
-    computation.batch->start(*scaleExecutor, constraint.mode == GlobalSearchMode::RoiFine ? kGlobalCoarseScaleStride : 1);
+    computation.batch->start(*scaleExecutor);
     return computation;
 }
 
-// 在粗扫最佳位置周围开一个小窗，跑满 11 档；结果与在整个补边窗里跑满档一致，但便宜得多
+// 在粗扫峰位周围开一个小窗做连续求极大；相关面的格点不再是精度上限，代价只是一个小窗
 GlobalSearchComputation MapLocator::Impl::startRefineSearch(const GlobalSearchComputation& coarse, const cv::Point2d& center)
 {
     const auto zoneIt = zones.find(coarse.targetZoneId);
@@ -1512,15 +1329,16 @@ GlobalSearchComputation MapLocator::Impl::startRefineSearch(const GlobalSearchCo
         .strategy = coarse.strategy,
         .constrainedRect = refineRect,
         .targetZoneId = coarse.targetZoneId,
-        .blurSize = coarse.blurSize,
     };
     // 精修窗逐帧都不一样，走缓存只会把粗扫那份挤掉
     MatchFeature searchFeature = coarse.strategy->extractSearchFeature(bigMap(refineRect));
     refined.batch = std::make_shared<GlobalSearchBatch>(
         tmplFeat,
-        PrepareSearchFeature(searchFeature.image, coarse.blurSize),
+        PrepareSearchFeature(searchFeature.image),
         searchFeature.image.size(),
-        ScaleTaskPriority::GlobalPrimary);
+        ZoneTemplateScale(coarse.targetZoneId),
+        ScaleTaskPriority::GlobalPrimary,
+        PeakRefineMode::Continuous);
     refined.batch->start(*scaleExecutor);
     return refined;
 }
@@ -1825,7 +1643,7 @@ GlobalSearchCandidates MapLocator::Impl::startGlobalSearchCandidates(
 
         std::shared_ptr<IMatchStrategy> strategy = std::move(uniqueStrategy);
         const MatchFeature& globalTmpl = featureCache.get(minimap, strategy.get());
-        return startGlobalSearch(globalTmpl, std::move(strategy), targetZoneId, constraint, matchConfig, priority, reserveTrackingCapacity);
+        return startGlobalSearch(globalTmpl, std::move(strategy), targetZoneId, constraint, priority, reserveTrackingCapacity);
     };
 
     candidates.primary = startSearch(MatchMode::Auto, ScaleTaskPriority::GlobalPrimary);
@@ -1845,14 +1663,12 @@ GlobalSearchCandidates MapLocator::Impl::startGlobalSearchCandidates(
                                            fallbackStrategy = std::move(fallbackStrategy),
                                            targetZoneId,
                                            constraint,
-                                           matchConfig,
                                            reserveTrackingCapacity]() mutable {
                 return startGlobalSearch(
                     fallbackTemplate,
                     fallbackStrategy,
                     targetZoneId,
                     constraint,
-                    matchConfig,
                     ScaleTaskPriority::GlobalFallback,
                     reserveTrackingCapacity);
             };

@@ -16,7 +16,6 @@ struct MapPosition
     double y = 0.0;
     double score = 0.0;
     int sliceIndex = 0;
-    double scale = 1.0;
     double angle = 0.0;
     long long latencyMs = 0;
     bool isHeld = false;
@@ -159,14 +158,8 @@ constexpr double kHighConfidenceOverride = 0.85;  // 压倒分：远跳但此分
 constexpr const char* kColdStartCollectingMessage = "Cold-start collecting.";
 constexpr double kSeamFallbackMinPeakScore = 0.0;
 
-// tracking 窄带多尺度搜索参数。第一项必须为 0.0（即 baseScale），
-// 循环时 baseScale 先跑，达到 kFastTrackingPassScore 则跳过后续尺度
-constexpr double kTrackingScaleSteps[] = { 0.0, -0.04, -0.02, 0.02, 0.04 };
-// baseScale 的单次匹配达到此分时直接接受，无需再尝试其他尺度
+// tracking 匹配低于此分时通知上层考虑改走全局搜索
 constexpr double kFastTrackingPassScore = 0.75;
-// 非 baseScale 的候选须比 baseScale 高出此值才会替换，抑制小幅波动引起的尺度频繁切换
-constexpr double kScaleHysteresisDelta = 0.03;
-constexpr double kScaleChangeMaxPositionDelta = 2.0;
 constexpr double kStableDeadband = 0.15;
 constexpr double kStableReleaseDist = 0.40;
 constexpr double kStableMinScore = 0.80;
@@ -186,6 +179,14 @@ constexpr double kDualGlobalVerifyMinScore = 0.50;
 // 说明是运动预测被喂到了错的位置，把 tracker 搬回主策略
 constexpr int kArbiterReclaimStreak = 5;
 constexpr double kArbiterReclaimDriftDistance = 6.0;
+
+// 小地图与底图的像素尺度比，是底图导出时定死的资产属性。tier 图按游戏原生尺度导出，
+// base 图里只有 ValleyIV 被放大过 16/15。量法：拿 tier 图去 parent base 上匹配求峰，
+// 或读 maptracker_coordinate_transforms.json 里该 zone 的 scale_x 乘 65/64。
+inline double ZoneTemplateScale(const std::string& zoneId)
+{
+    return zoneId == "ValleyIV_Base" ? 15.0 / 16.0 : 1.0;
+}
 
 inline bool IsPathHeatmapZone(const std::string& zoneId)
 {
@@ -209,7 +210,6 @@ struct TrackingConfig
 
 struct MatchConfig
 {
-    int blurSize = 7;
     int fineSearchRadius = 40;   // 精搜半径(px)
     double passThreshold = 0.55; // 全局搜索及格线, 容忍UI遮挡+光影
     double yoloConfThreshold = 0.60;
