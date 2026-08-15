@@ -53,8 +53,78 @@
             }
         },
         "next": [
-            "SceneNoticeRewardsConfirm",
+            "DijiangRewardsFastCollectAddItemData",
             "InDijiangControlNexus"
+        ]
+    },
+    "DijiangRewardsFastCollectAddItemData": {
+        "desc": "快速收取奖励界面：IMS A3 累加种子/作物蘑菇、作战记录与认知载体、武器检查单元/装置、信用（不含模具与检查套组），再关闭",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InNoticeRewards",
+                    "CloseRewardsButton"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 300,
+            "threshold": 0.97,
+            "timeout": 1500,
+            "target": [
+                528,
+                299,
+                222,
+                131
+            ]
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AddItemData",
+                "custom_action_param": {
+                    "item_filters": [
+                        "Normal:Plant",
+                        "Normal:Nurturance",
+                        "Isolate:SpaceshipGold"
+                    ],
+                    "item_ids": [
+                        "item_expcard_stage1_high",
+                        "item_expcard_stage1_low",
+                        "item_expcard_stage1_mid",
+                        "item_expcard_stage2_high",
+                        "item_expcard_stage2_low",
+                        "item_plant_crylplant_seed_1_1",
+                        "item_plant_crylplant_seed_1_2",
+                        "item_plant_crylplant_seed_1_3",
+                        "item_plant_crylplant_seed_2_1",
+                        "item_plant_crylplant_seed_2_2",
+                        "item_plant_crylplant_seed_2_3",
+                        "item_plant_mushroom_seed_1_1",
+                        "item_plant_mushroom_seed_1_2",
+                        "item_plant_mushroom_seed_1_3",
+                        "item_plant_mushroom_seed_2_1",
+                        "item_plant_mushroom_seed_2_2",
+                        "item_plant_mushroom_seed_2_3",
+                        "item_plant_spcstone_seed_1_1",
+                        "item_plant_spcstone_seed_1_2",
+                        "item_plant_spcstone_seed_1_3",
+                        "item_plant_spcstone_seed_2_1",
+                        "item_plant_spcstone_seed_2_2",
+                        "item_plant_spcstone_seed_2_3",
+                        "item_weapon_expcard_low",
+                        "item_weapon_expcard_mid"
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SceneNoticeRewardsConfirmClick"
         ]
     },
     "DijiangRewardsFastCollectClues": {
@@ -107,7 +177,7 @@
             }
         },
         "next": [
-            "SceneNoticeRewardsConfirm",
+            "DijiangRewardsFastCollectAddItemData",
             "InDijiangControlNexus"
         ]
     }

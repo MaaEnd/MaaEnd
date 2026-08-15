@@ -49,7 +49,7 @@
         ]
     },
     "CreditShoppingClaimConfirm": {
-        "desc": "获取信用点或物品后：IMS A3 累加培养道具，再关闭奖励界面",
+        "desc": "获取信用点或物品后：IMS A3 累加（嵌晶玉/折金票/武库配额/信用 + 协议圆盘棱柱/作战记录认知载体/武器模具与检查材料），再关闭奖励界面",
         "recognition": {
             "type": "And",
             "param": {
@@ -74,7 +74,30 @@
             "type": "Custom",
             "param": {
                 "custom_action": "AddItemData",
-                "custom_action_param": {}
+                "custom_action_param": {
+                    "item_filters": [
+                        "Isolate:Diamond",
+                        "Isolate:Gold",
+                        "Isolate:WeaponGold",
+                        "Isolate:SpaceshipGold"
+                    ],
+                    "item_ids": [
+                        "item_char_break_stage_1_2",
+                        "item_char_break_stage_3_4",
+                        "item_char_skill_level_1_6",
+                        "item_char_skill_level_7_12",
+                        "item_expcard_stage1_high",
+                        "item_expcard_stage1_low",
+                        "item_expcard_stage1_mid",
+                        "item_expcard_stage2_high",
+                        "item_expcard_stage2_low",
+                        "item_weapon_break_high",
+                        "item_weapon_break_low",
+                        "item_weapon_expcard_high",
+                        "item_weapon_expcard_low",
+                        "item_weapon_expcard_mid"
+                    ]
+                }
             }
         },
         "post_delay": 0,
