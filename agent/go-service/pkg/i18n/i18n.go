@@ -74,6 +74,16 @@ func Init() {
 
 	resolved := resolveLocaleDir()
 	loadedMessages := loadMessages(resolved, lang)
+	// Merge interface locales so agent code can resolve iconRecognition.name.*
+	// (and other shared UI keys) without duplicating them under go-service/.
+	if ifaceDir := siblingLocaleDir(resolved, "interface"); ifaceDir != "" {
+		for key, value := range loadMessages(ifaceDir, lang) {
+			if _, exists := loadedMessages[key]; exists {
+				continue // go-service wins on conflict
+			}
+			loadedMessages[key] = value
+		}
+	}
 	messageCount := len(loadedMessages)
 
 	mu.Lock()
@@ -294,4 +304,17 @@ func resolveLocaleDir() string {
 func localeDirExists(dir string) bool {
 	info, err := os.Stat(filepath.Join(dir, DefaultLang+".json"))
 	return err == nil && !info.IsDir()
+}
+
+// siblingLocaleDir returns parent/<name> when that locale directory exists
+// (e.g. locales/go-service → locales/interface).
+func siblingLocaleDir(localeDirPath, name string) string {
+	if localeDirPath == "" || name == "" {
+		return ""
+	}
+	candidate := filepath.Join(filepath.Dir(localeDirPath), name)
+	if localeDirExists(candidate) {
+		return candidate
+	}
+	return ""
 }
