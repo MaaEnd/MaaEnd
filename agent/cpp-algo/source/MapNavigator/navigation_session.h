@@ -94,8 +94,8 @@ private:
     bool hard_progress_initialized_ = false;
 
     // False when out of range, so callers fall back instead of indexing past the end.
-    bool RequireCurrentWaypoint(const char* reason) const;
-    bool RequireWaypointIndex(size_t index, const char* reason) const;
+    [[nodiscard]] bool RequireCurrentWaypoint(const char* reason) const;
+    [[nodiscard]] bool RequireWaypointIndex(size_t index, const char* reason) const;
     void RecordFinalArrivalEvidence(
         const NaviPosition& position,
         bool verified_at_tail_consumption,

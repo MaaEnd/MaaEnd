@@ -3,6 +3,7 @@
 #include <atomic>
 #include <csignal>
 #include <cstdint>
+#include <cstdio>
 #include <cstdlib>
 #include <exception>
 #include <iterator>
@@ -44,8 +45,7 @@ constexpr int kCrashExitCode = 3;
 // 转储目录绝对路径，以反斜杠结尾。崩溃时只往后拼文件名，不做任何分配。
 wchar_t g_dump_dir[MAX_PATH] = {};
 
-// 还得放得下 cpp-algo-YYYYMMDD-HHMMSS-PID.dmp：拼接越界会撞进非法参数钩子，
-// 而那时转储标记已置位，结果是既无转储也无日志的静默退出。余量不够就不装。
+// 还得放得下 cpp-algo-YYYYMMDD-HHMMSS-PID.dmp，余量不够就不装。
 constexpr size_t kDumpNameReserve = 48;
 
 void WriteDump(EXCEPTION_POINTERS* exception_pointers)
@@ -57,9 +57,13 @@ void WriteDump(EXCEPTION_POINTERS* exception_pointers)
     SYSTEMTIME now {};
     GetLocalTime(&now);
 
+    // 用 _TRUNCATE 而不是 swprintf_s：后者拼不下时会撞进非法参数钩子，而那时转储标记已置位，
+    // 结果是既无转储也无日志的静默退出。这样即便文件名格式改长到超出 kDumpNameReserve，也只是失败返回。
     wchar_t path[MAX_PATH] = {};
-    const int written = swprintf_s(
+    const int written = _snwprintf_s(
         path,
+        std::size(path),
+        _TRUNCATE,
         L"%scpp-algo-%04u%02u%02u-%02u%02u%02u-%lu.dmp",
         g_dump_dir,
         static_cast<unsigned>(now.wYear),
