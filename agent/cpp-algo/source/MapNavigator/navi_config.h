@@ -256,6 +256,10 @@ constexpr double kCollectRetryMinMoveWu = 2.5;
 constexpr double kCollectSprintSuppressBandWu = 8.0;
 constexpr int32_t kSprintCancelReleaseMs = 60;
 
+// Walking halves both speed and turn rate, so jogging-sized windows are doubled while engaged.
+constexpr int32_t kWalkModeSlowFactor = 2;
+constexpr int32_t kActionWalkTogglePressMs = 30;
+
 // Blocking-device removal: a device parked in the way is carried off instead of jumped over. The probe reads
 // the same ROI the pipeline's interact-button check uses, so the JSON stays the single source of truth. Its
 // threshold sits below the pipeline default (0.7) on purpose: the probe only decides whether the subtask is

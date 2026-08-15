@@ -412,6 +412,7 @@ NavigationStateMachine::NavigationStateMachine(
     , should_stop_(std::move(should_stop))
     , maa_context_(maa_context)
     , device_recovery_(maa_context, motion_controller, position_provider, session, position)
+    , walk_mode_(action_wrapper)
 {
     LogInfo << "Navigation route runner selected. backend=orchestrated";
 }
@@ -1420,10 +1421,13 @@ bool NavigationStateMachine::TickNavigate()
     // Settle the turn already sent against what the heading actually moved, so the controller discounts what is
     // still in flight instead of commanding the same error again. Only motion toward the debt pays it down, and
     // an unpaid debt expires, so a swallowed drag can never leave steering suppressed against a turn never coming.
+    // Walking turns at about half rate: a jogging-sized lifetime expires mid-turn and the loop re-commands it.
+    const int64_t pending_lifetime_ms =
+        walk_mode_.engaged() ? kSteeringPendingLifetimeMs * kWalkModeSlowFactor : kSteeringPendingLifetimeMs;
     SteeringRateState& steering_rate = runtime_state_.steering_rate;
     if (steering_rate.pending_turn_deg != 0.0) {
         const int64_t pending_age_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - steering_rate.cmd_at).count();
-        if (pending_age_ms >= kSteeringPendingLifetimeMs) {
+        if (pending_age_ms >= pending_lifetime_ms) {
             steering_rate.pending_turn_deg = 0.0;
         }
         else {
@@ -1488,7 +1492,11 @@ bool NavigationStateMachine::TickNavigate()
     }
     flow.last_steer_position = *position_;
     flow.has_last_steer_position = true;
-    if (flow.motionless_hold_ticks >= kForwardHoldReassertTicks) {
+    // At walking speed one tick's step sits under the position quantum, so a straight walk reads as motionless.
+    // Widen the window rather than lower the threshold — the threshold is what rejects quantization noise.
+    const int32_t hold_reassert_ticks =
+        walk_mode_.engaged() ? kForwardHoldReassertTicks * kWalkModeSlowFactor : kForwardHoldReassertTicks;
+    if (flow.motionless_hold_ticks >= hold_reassert_ticks) {
         ++flow.futile_forward_reasserts;
         LogWarn << "Forward hold produced no motion; re-sending it." << VAR(flow.motionless_hold_ticks) << VAR(heading_error)
                 << VAR(flow.futile_forward_reasserts) << VAR(position_->x) << VAR(position_->y);

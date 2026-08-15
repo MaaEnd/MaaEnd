@@ -11,6 +11,7 @@
 #include "navigation_runtime_state.h"
 #include "navigation_session.h"
 #include "obstacle_device_recovery.h"
+#include "walk_mode.h"
 
 namespace mapnavigator
 {
@@ -96,6 +97,8 @@ private:
     bool collect_attempt_pos_valid_ = false;
 
     ObstacleDeviceRecovery device_recovery_;
+    // Declared last so its destructor runs first — restores jogging while its collaborators are still alive.
+    walkmode::Toggle walk_mode_;
 };
 
 } // namespace mapnavigator

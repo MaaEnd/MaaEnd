@@ -9,6 +9,7 @@
 #include "latency_observer.h"
 #include "motion_controller.h"
 #include "navi_config.h"
+#include "walk_mode.h"
 
 namespace mapnavigator
 {
@@ -189,6 +190,7 @@ bool MotionController::TriggerSprint()
     ClearPendingSteering();
     ArmSteeringQuietPeriod();
     action_wrapper_->TriggerSprintSync();
+    walkmode::NoteSprintTriggered();
     sprint_active_ = true;
     LogInfo << "Sprint state armed.";
     return true;

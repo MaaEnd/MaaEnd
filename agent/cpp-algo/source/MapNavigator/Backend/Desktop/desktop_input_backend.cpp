@@ -104,6 +104,7 @@ DesktopInputBackend::DesktopInputBackend(
     const std::vector<int32_t> managed_keys {
         key_codes_.move_forward, key_codes_.move_left, key_codes_.move_backward,
         key_codes_.move_right,   key_codes_.interact,  key_codes_.jump,
+        key_codes_.walk_toggle,
     };
     background_managed_keys_enabled_ = TrySetBackgroundManagedKeys(ctrl_, managed_keys);
     LogInfo << backend_name_ << " backend background managed keys." << VAR(controller_type_) << VAR(background_managed_keys_enabled_);
@@ -191,6 +192,11 @@ void DesktopInputBackend::TriggerSprintSync()
     MouseRightDownSync(0);
     SleepIfNeeded(kActionSprintPressMs);
     MouseRightUpSync(0);
+}
+
+void DesktopInputBackend::ToggleWalkModeSync()
+{
+    ClickKeySync(key_codes_.walk_toggle, kActionWalkTogglePressMs);
 }
 
 void DesktopInputBackend::ResetForwardWalkSync(int release_millis)
@@ -325,6 +331,7 @@ DesktopKeyCodes MakeDesktopKeyCodes()
         .move_right = 'D',    // 0x44
         .interact = 'F',      // 0x46
         .jump = 0x20,         // VK_SPACE
+        .walk_toggle = 0x11,  // VK_CONTROL — 走/跑切换
     };
 }
 

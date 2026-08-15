@@ -16,6 +16,7 @@ struct DesktopKeyCodes
     int32_t move_right = 0;
     int32_t interact = 0;
     int32_t jump = 0;
+    int32_t walk_toggle = 0;
 };
 
 class DesktopInputBackend : public IInputBackend
@@ -33,12 +34,14 @@ public:
     SteeringTransportProfile steering_transport_profile() const override;
 
     bool supports_sprint() const override { return true; }
+    bool supports_walk_toggle() const override { return true; }
 
     void SetMovementStateSync(bool forward, bool left, bool backward, bool right, int delay_millis) override;
     void TriggerJumpSync(int hold_millis) override;
     void TriggerInteractSync(int hold_millis) override;
     void PulseForwardSync(int hold_millis) override;
     void TriggerSprintSync() override;
+    void ToggleWalkModeSync() override;
     void ResetForwardWalkSync(int release_millis) override;
     void ClickMouseLeftSync() override;
     void MouseRightDownSync(int delay_millis) override;
