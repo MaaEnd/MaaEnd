@@ -36,7 +36,17 @@
                 },
                 "item_filters": {
                     "title": "Item Filters",
-                    "description": "IconRecognition item_filters for the candidate set. Omit/empty to use rewards defaults (Isolate:* + ValuableDepot:*).",
+                    "description": "IconRecognition item_filters for the candidate set. Omit/empty to use rewards defaults (Isolate:* + ValuableDepot:*). When combined with item_ids, AddItemData unions expanded filters with item_ids before recognition.",
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "uniqueItems": true
+                },
+                "item_ids": {
+                    "title": "Item IDs",
+                    "description": "Extra IconRecognition catalog IDs to include. With item_filters, AddItemData uses the union (not IconRecognition intersection). Alone, IDs are recognized with covering category filters.",
                     "type": "array",
                     "items": {
                         "type": "string",

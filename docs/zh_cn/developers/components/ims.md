@@ -134,6 +134,7 @@ A3 在**奖励播报界面**用与 A2 相同的路径：一次 IconRecognition�
 | `grid_type` | 默认 `rewards` |
 | `roi` | 可选；默认奖励界面参考 ROI（Win32 `[39,82,1205,511]` / ADB `[178,140,935,440]`） |
 | `item_filters` | 可选；省略则用 rewards 默认候选（`Isolate:*` + `ValuableDepot:*`） |
+| `item_ids` | 可选；与 `item_filters` **取并集**（先展开 filter 再合并 ID）。仅有 `item_ids` 时按 catalog 推导覆盖用 filter。用于从大类中精确追加子集（如基建快速收取只要武器检查单元/装置，不要模具/套组） |
 
 `custom_action_param` 可为 `{}`。**不会**更新同步时间戳 / 就绪状态。
 
@@ -157,7 +158,7 @@ A3 与其它动作 / 识别器不同：**不要求 IMS 缓存已经存在**。
 >
 > 参考 Pipeline：`AddItemDataOnRewards` → `AddItemDataCloseRewards`。
 >
-> 已接入 A3 的关闭奖励路径：`SceneNoticeRewardsConfirm`（日常奖励 / 基建快速收取等）、`CreditShoppingClaimConfirm`、`MFGCabinClaimRewardClose`、`GrowthChamberClaimRewardClose`。
+> 已接入 A3 的关闭奖励路径：`SceneNoticeRewardsConfirm`（日常奖励等）、`DijiangRewardsFastCollectAddItemData`（基建快速收取，独立候选）、`CreditShoppingClaimConfirm`（信用商店：玉/折金票/武库配额/信用 + 指定升级经验与材料，不含种子/专精等）、`MFGCabinClaimRewardClose`、`GrowthChamberClaimRewardClose`。
 
 ---
 

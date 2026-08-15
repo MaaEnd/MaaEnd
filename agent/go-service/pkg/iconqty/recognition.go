@@ -35,6 +35,7 @@ type Request struct {
 	GridType    string
 	ROI         []int
 	ItemFilters []string
+	ItemIDs     []string
 	Deduplicate bool
 }
 
@@ -172,6 +173,10 @@ func Recognize(ctx *maa.Context, img image.Image, req Request) ([]Match, error) 
 	if err != nil {
 		return nil, err
 	}
+	itemIDs, err := NormalizeStringList(req.ItemIDs, "item_ids")
+	if err != nil {
+		return nil, err
+	}
 
 	customParam := map[string]any{
 		"grid_type":   gridType,
@@ -179,6 +184,9 @@ func Recognize(ctx *maa.Context, img image.Image, req Request) ([]Match, error) 
 	}
 	if len(filters) > 0 {
 		customParam["item_filters"] = filters
+	}
+	if len(itemIDs) > 0 {
+		customParam["item_ids"] = itemIDs
 	}
 
 	detail, err := ctx.RunRecognitionDirect(

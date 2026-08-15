@@ -118,6 +118,7 @@ A3 uses the same path as A2 on the **rewards** UI (default `grid_type: rewards`,
 | `grid_type` | Defaults to `rewards` |
 | `roi` | Optional; default rewards reference ROI (Win32 `[39,82,1205,511]` / ADB `[178,140,935,440]`) |
 | `item_filters` | Optional; omit for rewards defaults (`Isolate:*` + `ValuableDepot:*`) |
+| `item_ids` | Optional; **union** with expanded `item_filters` (IMS expands before calling IconRecognition). Use to add a SpecialItem subset without pulling in molds / check kits |
 
 `custom_action_param` may be `{}`. Does **not** update sync timestamp / readiness.
 

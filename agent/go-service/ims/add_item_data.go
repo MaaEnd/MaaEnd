@@ -2,6 +2,7 @@ package ims
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
 	"time"
 
@@ -29,6 +30,10 @@ type addItemDataParam struct {
 	GridType    string   `json:"grid_type"`
 	ROI         []int    `json:"roi"`
 	ItemFilters []string `json:"item_filters"`
+	// ItemIDs are IconRecognition catalog IDs. When set together with
+	// item_filters, A3 uses the union of expanded filters and these IDs
+	// (IconRecognition itself intersects the two; IMS expands first).
+	ItemIDs []string `json:"item_ids"`
 }
 
 // AddItemData recognizes items on the current rewards screen and adds their
@@ -106,10 +111,23 @@ func (a *AddItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		return false
 	}
 
+	scanFilters, scanIDs, err := resolveAddItemDataCandidates(params.ItemFilters, params.ItemIDs)
+	if err != nil {
+		log.Error().
+			Err(err).
+			Str("component", componentAddItemData).
+			Str("grid_type", gridType).
+			Strs("item_filters", params.ItemFilters).
+			Strs("item_ids", params.ItemIDs).
+			Msg("failed to resolve reward candidates")
+		return false
+	}
+
 	hits, err := iconqty.RecognizeQuantities(ctx, img, iconqty.Request{
 		GridType:    gridType,
 		ROI:         params.ROI,
-		ItemFilters: params.ItemFilters,
+		ItemFilters: scanFilters,
+		ItemIDs:     scanIDs,
 		Deduplicate: false,
 	})
 	if err != nil {
@@ -117,7 +135,8 @@ func (a *AddItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			Err(err).
 			Str("component", componentAddItemData).
 			Str("grid_type", gridType).
-			Strs("item_filters", params.ItemFilters).
+			Strs("item_filters", scanFilters).
+			Strs("item_ids", scanIDs).
 			Msg("failed to recognize reward icons")
 		return false
 	}
@@ -184,7 +203,8 @@ func (a *AddItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		Int("added_total", addedTotal).
 		Bool("cache_ready", cacheReady).
 		Str("grid_type", gridType).
-		Strs("item_filters", params.ItemFilters).
+		Strs("item_filters", scanFilters).
+		Strs("item_ids", scanIDs).
 		Msg("add item data finished")
 	return true
 }
@@ -203,7 +223,94 @@ func parseAddItemDataParam(raw string) (addItemDataParam, error) {
 		return addItemDataParam{}, err
 	}
 	params.ItemFilters = filters
+	ids, err := iconqty.NormalizeStringList(params.ItemIDs, "item_ids")
+	if err != nil {
+		return addItemDataParam{}, err
+	}
+	params.ItemIDs = ids
 	return params, nil
+}
+
+// resolveAddItemDataCandidates builds IconRecognition params for A3.
+//
+// - Neither filters nor IDs: leave both empty so IconRecognition uses grid defaults.
+// - Only filters: pass filters through (IR defaults replaced by the non-empty list).
+// - Only IDs: pass IDs plus covering filters derived from the catalog.
+// - Both: union of expanded filters and IDs, then pass explicit item_ids with
+//   covering filters so IR intersection keeps the full union (IR would otherwise
+//   intersect and drop IDs outside the filter set, or drop filter-only IDs).
+func resolveAddItemDataCandidates(filters, itemIDs []string) (scanFilters, scanIDs []string, err error) {
+	filters, err = iconqty.NormalizeStringList(filters, "item_filters")
+	if err != nil {
+		return nil, nil, err
+	}
+	itemIDs, err = iconqty.NormalizeStringList(itemIDs, "item_ids")
+	if err != nil {
+		return nil, nil, err
+	}
+	if len(filters) == 0 && len(itemIDs) == 0 {
+		return nil, nil, nil
+	}
+	if len(itemIDs) == 0 {
+		return filters, nil, nil
+	}
+	if len(filters) == 0 {
+		covering, coverErr := coveringFiltersForItemIDs(itemIDs)
+		if coverErr != nil {
+			return nil, nil, coverErr
+		}
+		return covering, itemIDs, nil
+	}
+
+	fromFilters, err := itemIDsMatchingFilters(filters)
+	if err != nil {
+		return nil, nil, err
+	}
+	combined := uniqueStrings(append(append([]string{}, fromFilters...), itemIDs...))
+	covering, err := coveringFiltersForItemIDs(combined)
+	if err != nil {
+		return nil, nil, err
+	}
+	return covering, combined, nil
+}
+
+func uniqueStrings(values []string) []string {
+	out := make([]string, 0, len(values))
+	seen := make(map[string]struct{}, len(values))
+	for _, v := range values {
+		v = strings.TrimSpace(v)
+		if v == "" {
+			continue
+		}
+		if _, ok := seen[v]; ok {
+			continue
+		}
+		seen[v] = struct{}{}
+		out = append(out, v)
+	}
+	return out
+}
+
+func coveringFiltersForItemIDs(itemIDs []string) ([]string, error) {
+	catalog, err := loadRecognitionItems()
+	if err != nil {
+		return nil, err
+	}
+	out := make([]string, 0)
+	seen := make(map[string]struct{})
+	for _, id := range itemIDs {
+		meta, ok := catalog[id]
+		if !ok {
+			return nil, fmt.Errorf("unknown IconRecognition item_id %q", id)
+		}
+		filter := meta.StorageKind + ":" + meta.CategoryType
+		if _, dup := seen[filter]; dup {
+			continue
+		}
+		seen[filter] = struct{}{}
+		out = append(out, filter)
+	}
+	return out, nil
 }
 
 // resetCursorBeforeRecognition runs IMSA3MouseMoveReset before A3 recognition
