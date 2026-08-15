@@ -158,7 +158,7 @@ A3 与其它动作 / 识别器不同：**不要求 IMS 缓存已经存在**。
 >
 > 参考 Pipeline：`AddItemDataOnRewards` → `AddItemDataCloseRewards`。
 >
-> 已接入 A3 的关闭奖励路径：`SceneNoticeRewardsConfirm`（日常奖励等）、`DijiangRewardsFastCollectAddItemData`（基建快速收取，独立候选）、`CreditShoppingClaimConfirm`（信用商店：玉/折金票/武库配额/信用 + 指定升级经验与材料，不含种子/专精等）、`MFGCabinClaimRewardClose`、`GrowthChamberClaimRewardClose`。
+> 已接入 A3 的关闭奖励路径：`SceneNoticeRewardsConfirm`（日常奖励等）、`DijiangRewardsFastCollectAddItemData`（基建快速收取，独立候选）、`CreditShoppingClaimConfirm`（信用商店：玉/折金票/武库配额/信用 + `ValuableDepot:SpecialItem`）、`MFGCabinClaimRewardClose`、`GrowthChamberClaimRewardClose`。
 
 ---
 
