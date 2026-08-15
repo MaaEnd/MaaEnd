@@ -46,11 +46,18 @@
     "SceneEnterMenuRegionalOverviewValleyIV": {
         "desc": "进入地区建设-四号谷地-事务总览",
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuRegionalDevelopmentValleyIV"
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "__ScenePrivateMenuRegionalDevelopmentValleyIVEnterOverview",
-            "[JumpBack]SceneEnterMenuRegionalDevelopmentValleyIV"
+            "__ScenePrivateMenuRegionalDevelopmentValleyIVEnterOverviewSuccess",
+            "__ScenePrivateMenuRegionalDevelopmentValleyIVEnterOverview"
         ]
     },
     "SceneEnterMenuRegionalDevelopmentWuling": {
@@ -111,11 +118,18 @@
     "SceneEnterMenuRegionalOverviewWuling": {
         "desc": "进入地区建设-武陵-事务总览",
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuRegionalDevelopmentWuling"
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "__ScenePrivateMenuRegionalDevelopmentWulingEnterOverview",
-            "[JumpBack]SceneEnterMenuRegionalDevelopmentWuling"
+            "__ScenePrivateMenuRegionalDevelopmentWulingEnterOverviewSuccess",
+            "__ScenePrivateMenuRegionalDevelopmentWulingEnterOverview"
         ]
     }
 }

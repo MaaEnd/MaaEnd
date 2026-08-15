@@ -53,37 +53,55 @@
     "SceneEnterMenuRegionalOverviewValleyIVRecyclingStation": {
         "desc": "进入事务总览-四号谷地-展开资源回收站",
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuRegionalOverviewValleyIV"
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "__ScenePrivateMenuRegionalOverviewValleyIVRecyclingStationExpanded",
-            "[JumpBack]__ScenePrivateMenuRegionalOverviewValleyIVExpandRecyclingStation",
-            "[JumpBack]__ScenePrivateMenuRegionalOverviewValleyIVCollapseAny",
-            "[JumpBack]SceneEnterMenuRegionalOverviewValleyIV"
+            "__ScenePrivateMenuRegionalOverviewAnyRecyclingStationExpanded",
+            "[JumpBack]__ScenePrivateMenuRegionalOverviewAnyExpandRecyclingStation",
+            "[JumpBack]__ScenePrivateMenuRegionalOverviewAnyCollapseAny"
         ]
     },
     "SceneEnterMenuRegionalOverviewWulingRecyclingStation": {
         "desc": "进入事务总览-武陵-展开资源回收站",
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuRegionalOverviewWuling"
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "__ScenePrivateMenuRegionalOverviewWulingRecyclingStationExpanded",
-            "[JumpBack]__ScenePrivateMenuRegionalOverviewWulingExpandRecyclingStation",
-            "[JumpBack]__ScenePrivateMenuRegionalOverviewWulingCollapseAny",
-            "[JumpBack]SceneEnterMenuRegionalOverviewWuling"
+            "__ScenePrivateMenuRegionalOverviewAnyRecyclingStationExpanded",
+            "[JumpBack]__ScenePrivateMenuRegionalOverviewAnyExpandRecyclingStation",
+            "[JumpBack]__ScenePrivateMenuRegionalOverviewAnyCollapseAny"
         ]
     },
     "SceneEnterMenuRegionalOverviewWulingTrialOfSwordmancy": {
         "desc": "进入事务总览-武陵-展开选剑演武",
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuRegionalOverviewWuling"
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "__ScenePrivateMenuRegionalOverviewWulingTrialOfSwordmancyExpanded",
             "[JumpBack]__ScenePrivateMenuRegionalOverviewWulingExpandTrialOfSwordmancy",
-            "[JumpBack]__ScenePrivateMenuRegionalOverviewWulingCollapseAny",
-            "[JumpBack]SceneEnterMenuRegionalOverviewWuling"
+            "[JumpBack]__ScenePrivateMenuRegionalOverviewAnyCollapseAny"
         ]
     }
 }
