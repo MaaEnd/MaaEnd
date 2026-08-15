@@ -91,3 +91,45 @@ class RecordingSessionConfig:
         elif self.kind == "wlroots":
             return f"WlRoots / {self.wlroots.wlr_socket_path or '未指定 socket'}"
         return f"Win32 / {self.win32.window_title}"
+
+
+def session_config_from_payload(payload: dict[str, Any]) -> RecordingSessionConfig:
+    """前端连接面板的 JSON -> 录制会话配置。缺字段一律回退到各自默认值。
+
+    住在这里而不是 serve.py: 提权录制子进程 (record_worker.py) 拿到的是同一份原始
+    payload, 必须和后端走完全一样的解析。
+    """
+    kind = payload.get("kind", "win32")
+    if kind == "adb":
+        adb = payload.get("adb") or {}
+        cfg = adb.get("config")
+        return RecordingSessionConfig(
+            kind="adb",
+            adb=AdbConnectionConfig(
+                adb_path=str(adb.get("adb_path", "") or ""),
+                address=str(adb.get("address", "") or ""),
+                config=cfg if isinstance(cfg, dict) else {},
+            ),
+        )
+    elif kind == "playcover":
+        playcover = payload.get("playcover") or {}
+        return RecordingSessionConfig(
+            kind="playcover",
+            playcover=PlayCoverConnectionConfig(
+                address=str(playcover.get("address", "127.0.0.1:1717") or "127.0.0.1:1717"),
+                uuid=str(playcover.get("uuid", "maa.playcover") or "maa.playcover"),
+            ),
+        )
+    elif kind == "wlroots":
+        wlroots = payload.get("wlroots") or {}
+        return RecordingSessionConfig(
+            kind="wlroots",
+            wlroots=WlRootsConnectionConfig(
+                wlr_socket_path=str(wlroots.get("wlr_socket_path", "") or ""),
+            ),
+        )
+    win = payload.get("win32") or {}
+    return RecordingSessionConfig(
+        kind="win32",
+        win32=Win32ConnectionConfig(window_title=str(win.get("window_title", "Endfield") or "Endfield")),
+    )

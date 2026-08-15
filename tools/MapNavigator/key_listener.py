@@ -4,11 +4,7 @@
 - ``start()`` / ``stop()``：启停后台监听线程。
 - ``register(key_name, callback)``：注册按键回调（按下瞬间触发，内置防抖）。
 - ``unregister_all()``：清除所有注册的回调。
-- ``ensure_privileges()``：检测并尝试获取必要的系统权限。
-
-Windows 注意事项：
-    监听全局按键需要以管理员身份运行。
-    调用 ``ensure_privileges()`` 会自动检测并弹出 UAC 提权请求。
+- ``ensure_privileges()``：检测必要的系统权限。
 
 macOS 注意事项：
     首次运行时需要在 *系统设置 → 隐私与安全性 → 输入监控* 中授权终端或 Python。
@@ -109,16 +105,12 @@ def stop() -> None:
 def ensure_privileges() -> bool:
     """检测当前进程是否具备全局按键监听所需的系统权限。
 
-    - Windows：检测是否以管理员身份运行，若否则弹出 UAC 提权并重启。
+    - Windows：是否以管理员身份运行。
     - macOS：提示用户授权输入监控权限。
     - Linux：通常不需要特殊权限（X11），直接放行。
-
-    Returns:
-        True 表示权限就绪，可以继续运行。
-        False 表示已触发提权重启，当前进程应退出。
     """
     if sys.platform == "win32":
-        return _ensure_windows_admin()
+        return _has_windows_admin()
     if sys.platform == "darwin":
         _warn_macos_permissions()
         return True
@@ -126,33 +118,14 @@ def ensure_privileges() -> bool:
     return True
 
 
-def _ensure_windows_admin() -> bool:
-    """Windows: 检测管理员权限，若不足则通过 UAC 提权重启。"""
+def _has_windows_admin() -> bool:
+    """Windows: 检测管理员权限。"""
     try:
         import ctypes
-        if ctypes.windll.shell32.IsUserAnAdmin():
-            return True
+        return bool(ctypes.windll.shell32.IsUserAnAdmin())
     except Exception:
         # 无法检测时假定有权限，让 pynput 自行报错
         return True
-
-    print("当前未以管理员身份运行，正在请求提权...")
-    try:
-        import ctypes
-        # 用 runas 动词触发 UAC 弹窗，以管理员身份重新启动当前脚本
-        params = " ".join(f'"{arg}"' for arg in sys.argv)
-        ret = ctypes.windll.shell32.ShellExecuteW(
-            None, "runas", sys.executable, params, None, 1
-        )
-        # ShellExecuteW 返回值 > 32 表示成功
-        if ret > 32:
-            return False  # 提权成功，当前进程应退出
-    except Exception as exc:
-        print(f"提权失败: {exc}")
-
-    # 提权失败或用户取消，继续以普通权限运行
-    print("Warning: 未能获取管理员权限，全局热键可能在游戏窗口前台时不生效。")
-    return True
 
 
 def _warn_macos_permissions() -> None:
