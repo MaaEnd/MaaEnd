@@ -518,7 +518,7 @@
         "recognition": {
             "type": "Custom",
             "param": {
-                "custom_recognition": "IconRecognition",
+                "custom_recognition": "ItemTransferValidatedIconRecognition",
                 "custom_recognition_param": {
                     "grid_type": "transfer"
                 },
@@ -548,7 +548,7 @@
         "recognition": {
             "type": "Custom",
             "param": {
-                "custom_recognition": "IconRecognition",
+                "custom_recognition": "ItemTransferValidatedIconRecognition",
                 "custom_recognition_param": {
                     "grid_type": "transfer"
                 },
@@ -886,7 +886,7 @@
         "recognition": {
             "type": "Custom",
             "param": {
-                "custom_recognition": "IconRecognition",
+                "custom_recognition": "ItemTransferValidatedIconRecognition",
                 "custom_recognition_param": {
                     "grid_type": "transfer"
                 },
@@ -916,7 +916,7 @@
         "recognition": {
             "type": "Custom",
             "param": {
-                "custom_recognition": "IconRecognition",
+                "custom_recognition": "ItemTransferValidatedIconRecognition",
                 "custom_recognition_param": {
                     "grid_type": "transfer"
                 },

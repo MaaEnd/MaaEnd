@@ -14,7 +14,9 @@ Pipeline override 的方向节点不同。
   `Producer`、`PortableDevice` 的分类顺序排列，再在分类内按 `sortId1`、
   `sortId2`、`id` 依次降序排列；当前未进入物品列表的分类也保留排序定义；
 - case 的 `name` 取简体中文 IconRecognition 文案，`label` 使用对应 i18n key；
-- 按 `categoryType` 选择库存界面分类模板，并为三个物品查找节点覆盖 `item_ids`。
+- 按 `categoryType` 选择库存界面分类模板，并为三个物品查找节点覆盖 `item_ids` 与 `item_filters`。
+- `item_filters` 由 catalog 的 `storageKind` 和 `categoryType` 生成（例如
+  `Normal:Product`），写入 Task 供 Go Service 执行单格分类反查。
 
 生成配置：
 

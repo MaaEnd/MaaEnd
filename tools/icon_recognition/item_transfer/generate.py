@@ -70,13 +70,14 @@ def select_transfer_items(catalog: dict) -> list[dict]:
     )
 
 
-def _item_id_override(item_id: str) -> dict:
+def _item_id_override(item_id: str, item_filter: str) -> dict:
     return {
         "recognition": {
             "param": {
                 "custom_recognition_param": {
                     "grid_type": "transfer",
                     "item_ids": [item_id],
+                    "item_filters": [item_filter],
                 },
             },
         },
@@ -99,8 +100,14 @@ def build_transfer_cases(catalog: dict, zh_cn: dict, nodes: TransferNodes) -> li
                     nodes.category_node: {
                         "template": f"ItemTransfer/{item['categoryType']}.png",
                     },
-                    nodes.repo_find_node: _item_id_override(item["id"]),
-                    nodes.bag_find_node: _item_id_override(item["id"]),
+                    nodes.repo_find_node: _item_id_override(
+                        item["id"],
+                        f"{item['storageKind']}:{item['categoryType']}",
+                    ),
+                    nodes.bag_find_node: _item_id_override(
+                        item["id"],
+                        f"{item['storageKind']}:{item['categoryType']}",
+                    ),
                 },
             }
         )

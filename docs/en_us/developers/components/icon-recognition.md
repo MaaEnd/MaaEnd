@@ -312,23 +312,36 @@ All three cases return `MAA_FALSE`, but they do not mean the same thing. `invali
 
 Go services call the `IconRecognition` registration through `ctx.RunRecognitionDirect`. Set the native ROI through `CustomRecognitionParam.ROI` and keep component-specific fields in `CustomRecognitionParam.CustomRecognitionParam`:
 
+MaaEnd Go Service callers should reuse `agent/go-service/pkg/iconrecognition` instead of declaring IconRecognition parameter or detail structs in each business package. `Params` represents `custom_recognition_param`; `Detail` and `Match` represent the component detail, and `Match.CellBox` is the cell rectangle for follow-up actions:
+
 ```go
+import "github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/iconrecognition"
+
 detail, err := ctx.RunRecognitionDirect(
     maa.RecognitionTypeCustom,
     &maa.CustomRecognitionParam{
         ROI:                maa.NewTargetRect(maa.Rect{154, 202, 983, 291}),
         CustomRecognition: "IconRecognition",
-        CustomRecognitionParam: map[string]any{
-            "grid_type":   "transfer",
-            "item_ids":    []string{"item_copper_ore"},
-            "deduplicate": true,
-        },
+        CustomRecognitionParam: iconrecognition.NewParams(
+            iconrecognition.WithGridType(iconrecognition.GridTypeTransfer),
+            iconrecognition.WithItemIDs("item_copper_ore"),
+            iconrecognition.WithItemFilters(iconrecognition.StorageFilter().Normal.Ore),
+            iconrecognition.WithDeduplicate(true),
+        ),
     },
     img,
 )
+
+parsed, _, err := iconrecognition.ParseRecognitionDetail(detail)
+if err != nil {
+    return
+}
+for _, match := range parsed.Matches {
+    _ = match.CellBox
+}
 ```
 
-Prefer `RecognitionDetail.Results` when retrieving the component payload. On a hit, use `Results.Best.AsCustom()`. On a miss, `Results.Best` is `nil`, so use `Results.All[0].AsCustom()` instead. The returned `CustomRecognitionResult.Detail` contains the component JSON in both cases. If the outer `DetailJson` is parsed directly, the corresponding paths are `best.detail` and `all[0].detail`; do not read `best.detail` unconditionally on a miss. A Go result struct may declare only the fields needed by the caller because `encoding/json` ignores unknown fields.
+`iconrecognition.ParseRecognitionDetail` selects the Custom payload from Maa results: it uses `Results.Best` on a hit and `Results.All[0]` on a miss, so callers do not need to merge or deduplicate result buckets. When a `CustomRecognitionResult.Detail` string is already available, parse it directly with `iconrecognition.ParseDetail`.
 
 ## C++ API
 

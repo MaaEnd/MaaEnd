@@ -601,7 +601,7 @@ public:
                     rarity.rarity,
                     request.threshold,
                     request.subpixel_threshold,
-                    single_roi ? 0 : std::max(1, cvRound(kGridSearchRadius * grid_scale)),
+                    std::max(1, cvRound(kGridSearchRadius * grid_scale)),
                     performance_ptr);
                 const auto texture_started = performance ? PerformanceClock::now() : PerformanceClock::time_point {};
                 const auto foreground_texture =
