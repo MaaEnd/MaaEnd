@@ -360,6 +360,40 @@
         "custom_action": "CaptureUid",
         "custom_action_param": {
             "clear_cache": true
-        }
+        },
+        "next": [
+            "__AccountSwitchResetImsFirstScan"
+        ]
+    },
+    "__AccountSwitchResetImsFirstScan": {
+        "desc": "清空 IMS 首次库存扫描标记：重新打开各地区 Begin，关闭商店 Completed，切号后会再次真正扫库",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "resource_override": true,
+                    "patch": {
+                        "SyncItemDataBegin": {
+                            "enabled": true
+                        },
+                        "SyncShopItemDataBegin": {
+                            "enabled": true
+                        },
+                        "SyncShopItemDataCompleted": {
+                            "enabled": false
+                        },
+                        "SyncValuablesItemDataBegin": {
+                            "enabled": true
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": []
     }
 }
