@@ -25,11 +25,17 @@ namespace
 {
 
 constexpr size_t kHeaderSize = 64;
+constexpr size_t kHeaderSizeV4 = 80;
 constexpr size_t kZonePrefixSize = 44;
 constexpr size_t kVertexSize = 12;
 constexpr size_t kTriangleSize = 36;
 constexpr size_t kLinkSize = 8;
-constexpr uint16_t kBaseNavRevision = 3;
+constexpr size_t kSectionEntrySize = 24;
+constexpr uint16_t kBaseNavRevision = 4;
+// 每个字段从哪一版开始存在,单独记。用 >= kBaseNavRevision 判会在下一次升版时
+// 把老包的该字段静默跳过。
+constexpr uint16_t kZoneFloorYSince = 3;
+constexpr uint16_t kSectionDirSince = 4;
 constexpr size_t kGzipReadChunkSize = 4 << 20;
 constexpr uint64_t kFnvOffset = 14'695'981'039'346'656'037ULL;
 constexpr uint64_t kFnvPrime = 1'099'511'628'211ULL;
@@ -251,7 +257,11 @@ BaseNavLoadResult LoadBaseNavPack(const std::filesystem::path& path, std::string
     if (version == 0 || version > kBaseNavRevision) {
         return Fail(BaseNavLoadStatus::UnsupportedVersion, "unsupported nav version");
     }
-    const size_t zone_prefix_size = kZonePrefixSize + (version >= kBaseNavRevision ? 4 : 0);
+    const size_t header_size = version >= kSectionDirSince ? kHeaderSizeV4 : kHeaderSize;
+    if (file_size < header_size) {
+        return Fail(BaseNavLoadStatus::InvalidSize, "nav file is smaller than header");
+    }
+    const size_t zone_prefix_size = kZonePrefixSize + (version >= kZoneFloorYSince ? 4 : 0);
     const uint32_t zone_count = ReadU32(header_cursor);
     const uint32_t vertex_count = ReadU32(header_cursor);
     const uint32_t triangle_count = ReadU32(header_cursor);
@@ -265,9 +275,21 @@ BaseNavLoadResult LoadBaseNavPack(const std::filesystem::path& path, std::string
     if (link_count == 0) {
         return Fail(BaseNavLoadStatus::InvalidSize, "nav link table is empty");
     }
-    if (zone_table_offset < kHeaderSize || vertex_offset < zone_table_offset || triangle_offset < vertex_offset
+    if (zone_table_offset < header_size || vertex_offset < zone_table_offset || triangle_offset < vertex_offset
         || link_offset < triangle_offset) {
         return Fail(BaseNavLoadStatus::InvalidOffset, "invalid nav offsets");
+    }
+    uint64_t section_dir_offset = 0;
+    uint32_t section_count = 0;
+    if (version >= kSectionDirSince) {
+        section_dir_offset = ReadU64(header_cursor);
+        section_count = ReadU32(header_cursor);
+        (void)ReadU32(header_cursor); // reserved
+        if (section_count != 0
+            && !OffsetRangeValid(
+                section_dir_offset, static_cast<uint64_t>(section_count) * kSectionEntrySize, file_size)) {
+            return Fail(BaseNavLoadStatus::InvalidOffset, "nav section directory is outside file bounds");
+        }
     }
     const uint64_t vertex_size = static_cast<uint64_t>(vertex_count) * kVertexSize;
     const uint64_t triangle_size = static_cast<uint64_t>(triangle_count) * kTriangleSize;
@@ -304,9 +326,8 @@ BaseNavLoadResult LoadBaseNavPack(const std::filesystem::path& path, std::string
         for (float& value : zone.transform) {
             value = ReadF32(zone_cursor);
         }
-        if (version >= kBaseNavRevision) {
-            // current revision carries one extra per-zone value here; earlier packs leave it
-            // at its sentinel.
+        if (version >= kZoneFloorYSince) {
+            // v3 起每区多一个值;更早的包留在哨兵值上。
             zone.floor_y = ReadF32(zone_cursor);
         }
         if (static_cast<size_t>(zone_end - zone_cursor) < name_size) {
@@ -438,8 +459,26 @@ BaseNavLoadResult LoadBaseNavPack(const std::filesystem::path& path, std::string
         links.push_back(link);
     }
 
+    std::vector<BaseNavSection> sections;
+    sections.reserve(section_count);
+    const uint8_t* dir_cursor = file_bytes.data() + section_dir_offset;
+    for (uint32_t index = 0; index < section_count; ++index) {
+        BaseNavSection sec;
+        std::memcpy(sec.tag.data(), dir_cursor, 4);
+        dir_cursor += 4;
+        sec.flags = ReadU32(dir_cursor);
+        const uint64_t offset = ReadU64(dir_cursor);
+        const uint64_t size = ReadU64(dir_cursor);
+        if (!OffsetRangeValid(offset, size, file_size)) {
+            return Fail(BaseNavLoadStatus::InvalidOffset, "nav section is outside file bounds");
+        }
+        sec.bytes.assign(file_bytes.data() + offset, file_bytes.data() + offset + size);
+        sections.push_back(std::move(sec));
+    }
+
     BaseNavLoadResult result;
-    result.pack = detail::MakeBaseNavPack(path, std::move(zones), std::move(vertices), std::move(triangles), std::move(links));
+    result.pack = detail::MakeBaseNavPack(
+        path, std::move(zones), std::move(vertices), std::move(triangles), std::move(links), std::move(sections));
     return result;
 }
 

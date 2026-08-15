@@ -120,6 +120,10 @@ SpanTable PackSpans(std::vector<int64_t> cell, std::vector<float> h, std::vector
 
 std::vector<uint8_t> Flood(int64_t seed, const SpanTable& st, int64_t nx);
 
+// Flood 的无种子版本:逐 span 给出所在的连通类号。邻接关系与 Flood 逐条相同,
+// 所以 Flood(seed) 命中的正是种子那一类,类号可以离线算好。
+std::vector<int32_t> LabelRegions(const SpanTable& st, int64_t nx);
+
 std::vector<uint8_t> SpanReach(int64_t seed, const SpanTable& st, const std::vector<uint8_t>& ok, int64_t nx, int64_t ny);
 
 Grid<float> Clearance(const Mask& mask);
@@ -138,21 +142,6 @@ std::vector<uint8_t> WallsAtLayer(
     const std::vector<WorldPoint>& p0,
     const std::vector<WorldPoint>& p1,
     const std::vector<double>& hh,
-    const Grid<float>& lh,
-    double ox,
-    double oy);
-
-struct WallSegments
-{
-    std::vector<WorldPoint> p0;
-    std::vector<WorldPoint> p1;
-};
-
-WallSegments ClipWallsAtLayerInterpolated(
-    const std::vector<WorldPoint>& p0,
-    const std::vector<WorldPoint>& p1,
-    const std::vector<double>& h0,
-    const std::vector<double>& h1,
     const Grid<float>& lh,
     double ox,
     double oy);

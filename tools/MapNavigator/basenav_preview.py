@@ -12,8 +12,9 @@ import numpy as np
 
 
 MAGIC = b"BNAV"
-VERSION = 3  # v3 appends a per-zone float `floor_y` to each zone record; v2 had none
+VERSION = 4  # v4 appends a section directory to the header; zone records are unchanged from v3
 VERSION_MIN = 2  # oldest on-disk version still accepted; v2 zone records lack floor_y -> FLOOR_Y_NONE
+SECTION_DIR_SINCE = 4  # header carries section_dir_offset/section_count from this version on
 FNV_OFFSET = 14695981039346656037
 FNV_PRIME = 1099511628211
 # Sentinel floor height for tier zones whose dominant walkable floor is unknown (the two
@@ -39,6 +40,8 @@ SNAP_FALLBACK_RADIUS = 16.0  # snap 初查(按调用方半径)无果时的兜底
 TIER_FLAG = 0x0001
 
 HEADER_STRUCT = struct.Struct("<4sHHIIIIQQQQQ")
+HEADER_TAIL_STRUCT = struct.Struct("<QII")  # v4 header tail: 段目录偏移 + 段数 + 保留字
+SECTION_STRUCT = struct.Struct("<4sIQQ")  # 段目录一项: tag + flags + offset + size
 ZONE_STRUCT = struct.Struct("<HHIIIIff4ff")  # v3: ...transform(4f) + floor_y(f)
 ZONE_STRUCT_V2 = struct.Struct("<HHIIIIff4f")  # v2: legacy zone record without floor_y
 VERTEX_STRUCT = struct.Struct("<fff")
@@ -182,7 +185,7 @@ class BaseNavField:
     def __init__(self, path: Path, bin_size: float = INDEX_BIN_SIZE, progress_callback=None) -> None:
         self.path = path
         self.bin_size = bin_size
-        self.zones, self.vertices, self.triangles, self._arrays, self._verifier = _read_basenav(
+        self.zones, self.vertices, self.triangles, self._arrays, self._verifier, self.sections = _read_basenav(
             path, progress_callback=progress_callback
         )
         self.zone_by_id = {zone.zone_id: zone for zone in self.zones}
@@ -669,7 +672,7 @@ class BaseNavField:
 
 def _read_basenav(
     path: Path, progress_callback=None
-) -> tuple[list[_BaseNavZone], np.ndarray, np.ndarray, _NavArrays, _DeferredVerifier]:
+) -> tuple[list[_BaseNavZone], np.ndarray, np.ndarray, _NavArrays, _DeferredVerifier, dict[bytes, memoryview]]:
     data = _read_basenav_bytes_mv(path)
     _report_progress(progress_callback, 0.03)
     if len(data) < HEADER_STRUCT.size:
@@ -682,6 +685,10 @@ def _read_basenav(
     if not (VERSION_MIN <= version <= VERSION):
         raise ValueError("unsupported BaseNav version")
 
+    header_size = HEADER_STRUCT.size + (HEADER_TAIL_STRUCT.size if version >= SECTION_DIR_SINCE else 0)
+    if len(data) < header_size:
+        raise ValueError("file is smaller than BaseNav header")
+
     zone_count = int(header_values[3])
     vertex_count = int(header_values[4])
     triangle_count = int(header_values[5])
@@ -692,7 +699,7 @@ def _read_basenav(
     link_offset = int(header_values[10])
     build_hash = int(header_values[11])
 
-    if zone_table_offset < HEADER_STRUCT.size:
+    if zone_table_offset < header_size:
         raise ValueError("invalid BaseNav zone offset")
     if vertex_offset < zone_table_offset:
         raise ValueError("invalid BaseNav vertex offset")
@@ -702,6 +709,18 @@ def _read_basenav(
         raise ValueError("invalid BaseNav link offset")
     if link_count <= 0:
         raise ValueError("BaseNav v2 requires link table")
+
+    # 段目录挂在四块原始段之外,build hash 不含它;段字节是 data 上的零拷贝切片。
+    sections: dict[bytes, memoryview] = {}
+    if version >= SECTION_DIR_SINCE:
+        section_dir_offset, section_count, _reserved = HEADER_TAIL_STRUCT.unpack_from(data, HEADER_STRUCT.size)
+        if section_count and section_dir_offset + section_count * SECTION_STRUCT.size > len(data):
+            raise ValueError("BaseNav section directory is outside file bounds")
+        for index in range(section_count):
+            tag, _flags, offset, size = SECTION_STRUCT.unpack_from(data, section_dir_offset + index * SECTION_STRUCT.size)
+            if offset + size > len(data):
+                raise ValueError("BaseNav section is outside file bounds")
+            sections[tag] = data[offset:offset + size]
 
     zone_table = data[zone_table_offset:vertex_offset]
     vertex_data = data[vertex_offset:vertex_offset + VERTEX_STRUCT.size * vertex_count]
@@ -765,7 +784,7 @@ def _read_basenav(
     _report_progress(progress_callback, 0.36)
 
     arrays = _NavArrays(tri_v, tri_n, vu, vv, vh, link_src, link_tgt)
-    return zones, vertices, triangles, arrays, verifier
+    return zones, vertices, triangles, arrays, verifier, sections
 
 
 def _read_basenav_bytes_mv(path: Path) -> memoryview:

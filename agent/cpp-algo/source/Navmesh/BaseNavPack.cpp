@@ -4,6 +4,8 @@
 
 #include "BaseNavPack.h"
 
+#include <cstring>
+
 namespace navmesh
 {
 
@@ -15,7 +17,8 @@ BaseNavPack MakeBaseNavPack(
     std::vector<BaseNavZone> zones,
     std::vector<BaseNavVertex> vertices,
     std::vector<BaseNavTriangle> triangles,
-    std::vector<BaseNavLink> links)
+    std::vector<BaseNavLink> links,
+    std::vector<BaseNavSection> sections)
 {
     BaseNavPack pack;
     pack.path_ = std::move(path);
@@ -23,6 +26,7 @@ BaseNavPack MakeBaseNavPack(
     pack.vertices_ = std::move(vertices);
     pack.triangles_ = std::move(triangles);
     pack.links_ = std::move(links);
+    pack.sections_ = std::move(sections);
     return pack;
 }
 
@@ -118,6 +122,16 @@ const char* ToString(BaseNavLoadStatus status)
         return "zone_not_found";
     }
     return "unknown";
+}
+
+const BaseNavSection* BaseNavPack::section(const char (&tag)[5]) const
+{
+    for (const BaseNavSection& s : sections_) {
+        if (std::memcmp(s.tag.data(), tag, 4) == 0) {
+            return &s;
+        }
+    }
+    return nullptr;
 }
 
 }

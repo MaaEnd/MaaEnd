@@ -178,6 +178,8 @@ assets/resource/model/map/navmesh/base.nav.gz
 assets/resource/model/map/navmesh/base.nav      # optional local fallback
 ```
 
+寻路要求包内带预烘格图段（`BGRD`，见 BaseNav 版本 4）；没有这一段的包仍可显示网格与底图，但点不出线路。
+
 可选 zone：
 
 ```text
