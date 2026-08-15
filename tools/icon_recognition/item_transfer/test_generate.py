@@ -70,7 +70,7 @@ class ItemTransferGeneratorTest(unittest.TestCase):
         common_actions = json5.loads(
             (
                 repo_root
-                / "assets/resource/pipeline/Common/__Private/AutoAltClick/Action.json"
+                / "assets/resource/pipeline/Common/Private/AutoAltClick/Action.json"
             ).read_text(encoding="utf-8")
         )
         macos_keymap = json5.loads(
