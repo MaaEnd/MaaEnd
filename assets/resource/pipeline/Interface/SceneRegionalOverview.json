@@ -64,7 +64,7 @@
         "rate_limit": 0,
         "next": [
             "__ScenePrivateMenuRegionalOverviewAnyRecyclingStationExpanded",
-            "[JumpBack]__ScenePrivateMenuRegionalOverviewAnyExpandRecyclingStation",
+            "__ScenePrivateMenuRegionalOverviewAnyExpandRecyclingStation",
             "[JumpBack]__ScenePrivateMenuRegionalOverviewAnyCollapseAny"
         ]
     },
@@ -82,7 +82,7 @@
         "rate_limit": 0,
         "next": [
             "__ScenePrivateMenuRegionalOverviewAnyRecyclingStationExpanded",
-            "[JumpBack]__ScenePrivateMenuRegionalOverviewAnyExpandRecyclingStation",
+            "__ScenePrivateMenuRegionalOverviewAnyExpandRecyclingStation",
             "[JumpBack]__ScenePrivateMenuRegionalOverviewAnyCollapseAny"
         ]
     },
@@ -100,7 +100,7 @@
         "rate_limit": 0,
         "next": [
             "__ScenePrivateMenuRegionalOverviewWulingTrialOfSwordmancyExpanded",
-            "[JumpBack]__ScenePrivateMenuRegionalOverviewWulingExpandTrialOfSwordmancy",
+            "__ScenePrivateMenuRegionalOverviewWulingExpandTrialOfSwordmancy",
             "[JumpBack]__ScenePrivateMenuRegionalOverviewAnyCollapseAny"
         ]
     }
