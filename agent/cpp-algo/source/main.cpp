@@ -3,6 +3,7 @@
 #include <MaaAgentServer/MaaAgentServerAPI.h>
 #include <MaaToolkit/MaaToolkitAPI.h>
 
+#include "Common/CrashDump.h"
 #include "Common/ParentProcessWatcher.h"
 #include "EssenceGridScan/EssenceGridScan.h"
 #include "IconRecognition/IconRecognitionRecognition.h"
@@ -23,6 +24,9 @@ int main(int argc, char** argv)
         std::cerr << "Warning: Failed to set DLL directory to maafw" << std::endl;
     }
 #endif
+
+    // 尽早安装，捕获后续初始化与运行期间的崩溃。
+    common::InstallCrashDumpHandler();
 
     if (argc < 2) {
         std::cerr << "Usage: cpp-algo <socket_id>" << std::endl;

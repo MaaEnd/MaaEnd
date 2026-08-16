@@ -39,7 +39,8 @@
 
 若程序直接消失或弹出错误框，请尝试提供 Crash Dump 文件：
 
-- **路径**：`C:\Users\<用户名>\AppData\Local\CrashDumps\` 和 `C:\CrashDumps`
+- **优先路径**：项目 `debug` 文件夹（`cpp-algo.exe.<pid>.dmp`）。导出日志时会一并打包。
+- **系统兜底**：`C:\Users\<用户名>\AppData\Local\CrashDumps\` 和 `C:\CrashDumps`（Windows Error Reporting 生成的 dump）
 - **文件**：最近生成的 `.dmp` 文件。
 
 ## 4. 交流反馈
