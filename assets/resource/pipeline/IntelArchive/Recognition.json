@@ -86,5 +86,64 @@
                 "only_rec": true
             }
         ]
+    },
+    "IntelArchiveRecognitionDetailFlag": {
+        "desc": "识别档案详细中间上方白条",
+        "recognition": "ColorMatch",
+        "roi": [
+            342,
+            0,
+            180,
+            60
+        ],
+        "lower": [
+            230,
+            230,
+            230
+        ],
+        "upper": [
+            255,
+            255,
+            255
+        ],
+        "connected": true,
+        "count": 200
+    },
+    "IntelArchiveRecognitionDetailTitleColor": {
+        "desc": "识别档案标题颜色",
+        "recognition": "ColorMatch",
+        "roi": "IntelArchiveRecognitionDetailFlag",
+        "roi_offset": [
+            -40,
+            5,
+            500,
+            40
+        ],
+        "lower": [
+            230,
+            230,
+            230
+        ],
+        "upper": [
+            255,
+            255,
+            255
+        ]
+    },
+    "IntelArchiveRecognitionDetailTitleText": {
+        "desc": "识别档案标题文本",
+        "recognition": "And",
+        "all_of": [
+            "IntelArchiveRecognitionDetailFlag",
+            "IntelArchiveRecognitionDetailTitleColor",
+            {
+                "recognition": "OCR",
+                "roi": "IntelArchiveRecognitionDetailTitleColor",
+                "expected": [
+                    ".{2,}"
+                ],
+                "only_rec": true
+            }
+        ]
     }
 }

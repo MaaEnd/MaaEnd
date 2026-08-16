@@ -94,19 +94,19 @@
         }
     },
     "IntelArchiveSyncAudioRecordsScanAndScroll": {
-        "desc": "本屏 OCR 入库；省略号条目交给 ResolveTruncatedItems",
+        "desc": "本屏 OCR 入库；省略号条目交给 ResolveTruncAction",
         "max_hit": 100,
         "recognition": {
             "type": "Custom",
             "param": {
-                "custom_recognition": "IntelArchiveScanItems"
+                "custom_recognition": "IntelArchiveScanItemsRecognition"
             }
         },
         "pre_delay": 0,
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "IntelArchiveResolveTruncatedItems"
+                "custom_action": "IntelArchiveResolveTruncAction"
             }
         },
         "post_delay": 0,

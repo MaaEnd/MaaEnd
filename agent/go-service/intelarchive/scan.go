@@ -10,50 +10,106 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// Pipeline node names for nested recognition invoked by ScanItems.
-const itemRecognitionNode = "IntelArchiveRecognitionItemText"
+const (
+	itemRecognitionNode   = "IntelArchiveRecognitionItemText"
+	detailRecognitionNode = "IntelArchiveRecognitionDetailTitleText"
+	truncatedItemNode     = "IntelArchiveResolveTrunc"
+	placeholderUID        = "123456789"
+)
 
-// Leave empty until the detail-resolve pipeline is ready.
-const truncatedItemNode = ""
-
-var _ maa.CustomRecognitionRunner = &ScanItems{}
-var _ maa.CustomActionRunner = &ResolveTruncatedItems{}
+var _ maa.CustomRecognitionRunner = &ScanItemsRecognition{}
+var _ maa.CustomRecognitionRunner = &ScanDetailRecognition{}
+var _ maa.CustomActionRunner = &ResolveTruncAction{}
 
 type truncatedItem struct {
 	Text string `json:"text"`
 	Box  []int  `json:"box"` // [x, y, w, h]
 }
 
-type ocrItem struct {
-	Text string
-	Box  []int
-}
+// ScanItemsRecognition scans the current list screen and persists newly unlocked item IDs.
+type ScanItemsRecognition struct{}
 
-// ScanItems scans the current screen, resolves the account UID, matches OCR item
-// names against the Intel Archive catalog, and persists newly unlocked item IDs.
-type ScanItems struct{}
+// ScanDetailRecognition OCRs the detail-page title and matches it against the catalog.
+type ScanDetailRecognition struct{}
 
-type ResolveTruncatedItems struct{}
+// ResolveTruncAction opens truncated list items and runs the detail-resolve pipeline.
+type ResolveTruncAction struct{}
 
-func (a *ResolveTruncatedItems) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+func (a *ResolveTruncAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	if ctx == nil || arg == nil {
 		return false
 	}
 	items := parseTruncated(arg.RecognitionDetail)
-	if truncatedItemNode == "" || len(items) == 0 {
-		return true
-	}
 	for _, item := range items {
-		if _, err := ctx.RunTask(truncatedItemNode); err != nil {
-			log.Error().
-				Err(err).
-				Str("component", component).
-				Str("ocr", item.Text).
-				Ints("box", item.Box).
-				Msg("truncated item pipeline failed")
+		if len(item.Box) != 4 || item.Box[2] <= 0 || item.Box[3] <= 0 {
+			log.Error().Str("component", component).Str("ocr", item.Text).Ints("box", item.Box).Msg("truncated item box is invalid")
+			continue
+		}
+		if err := ctx.OverridePipeline(map[string]any{
+			truncatedItemNode: map[string]any{"target": item.Box},
+		}); err != nil {
+			log.Error().Err(err).Str("component", component).Str("ocr", item.Text).Ints("box", item.Box).Msg("failed to override truncated item click target")
+			continue
+		}
+		detail, err := ctx.RunTask(truncatedItemNode)
+		if err != nil || detail == nil || !detail.Status.Success() {
+			log.Error().Err(err).Str("component", component).Str("ocr", item.Text).Ints("box", item.Box).Msg("truncated item pipeline failed")
 		}
 	}
 	return true
+}
+
+func (r *ScanItemsRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
+	if arg == nil || arg.Img == nil || ctx == nil {
+		return nil, false
+	}
+
+	rec, err := ctx.RunRecognition(itemRecognitionNode, arg.Img)
+	if err != nil {
+		log.Error().Err(err).Str("component", component).Msg("item recognition failed")
+		return nil, false
+	}
+	// IntelArchiveRecognitionItemText.all_of：OCR 在第 5 段。
+	items := ocrFiltered(rec, 4)
+
+	truncated := make([]truncatedItem, 0)
+	names := make([]string, 0, len(items))
+	for _, item := range items {
+		if strings.Contains(item.Text, "...") || strings.Contains(item.Text, "…") {
+			truncated = append(truncated, item)
+			continue
+		}
+		names = append(names, item.Text)
+	}
+	if err := unlockByNames(ctx, names); err != nil {
+		log.Error().Err(err).Str("component", component).Msg("catalog match or persist failed")
+		return nil, false
+	}
+
+	detailBytes, _ := json.Marshal(map[string][]truncatedItem{"truncated": truncated})
+	return &maa.CustomRecognitionResult{Box: arg.Roi, Detail: string(detailBytes)}, true
+}
+
+func (r *ScanDetailRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
+	if arg == nil || arg.Img == nil || ctx == nil {
+		return nil, false
+	}
+
+	rec, err := ctx.RunRecognition(detailRecognitionNode, arg.Img)
+	if err != nil {
+		log.Error().Err(err).Str("component", component).Msg("detail recognition failed")
+		return &maa.CustomRecognitionResult{Box: arg.Roi}, true
+	}
+	// IntelArchiveRecognitionDetailTitleText.all_of：OCR 在第 3 段。
+	items := ocrFiltered(rec, 2)
+	names := make([]string, 0, len(items))
+	for _, item := range items {
+		names = append(names, item.Text)
+	}
+	if err := unlockByNames(ctx, names); err != nil {
+		log.Error().Err(err).Str("component", component).Msg("catalog match or persist failed")
+	}
+	return &maa.CustomRecognitionResult{Box: arg.Roi}, true
 }
 
 func parseTruncated(detail *maa.RecognitionDetail) []truncatedItem {
@@ -82,161 +138,55 @@ func parseTruncated(detail *maa.RecognitionDetail) []truncatedItem {
 	return payload.Truncated
 }
 
-func (r *ScanItems) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
-	if arg == nil || arg.Img == nil || ctx == nil {
-		return nil, false
+func ocrFiltered(detail *maa.RecognitionDetail, index int) []truncatedItem {
+	if detail == nil || !detail.Hit || index < 0 || index >= len(detail.CombinedResult) || detail.CombinedResult[index] == nil {
+		return nil
 	}
-	if itemRecognitionNode == "" {
-		log.Error().Str("component", component).Str("step", "scan_items").Msg("item recognition pipeline node is not configured")
-		return nil, false
+	var payload struct {
+		Filtered []struct {
+			Box  []int  `json:"box"`
+			Text string `json:"text"`
+		} `json:"filtered"`
 	}
+	if err := json.Unmarshal([]byte(detail.CombinedResult[index].DetailJson), &payload); err != nil {
+		log.Error().Err(err).Str("component", component).Msg("ocr detail json parse failed")
+		return nil
+	}
+	items := make([]truncatedItem, 0, len(payload.Filtered))
+	for _, item := range payload.Filtered {
+		if text := strings.TrimSpace(item.Text); text != "" {
+			items = append(items, truncatedItem{Text: text, Box: item.Box})
+		}
+	}
+	return items
+}
 
-	// UID placeholder; real capture is handled outside this recognition for now.
-	uid := "123456789"
-
-	itemDetail, err := ctx.RunRecognition(itemRecognitionNode, arg.Img)
-	if err != nil {
-		log.Error().Err(err).Str("component", component).Str("step", "scan_items").Msg("item recognition failed")
-		return nil, false
-	}
-	items, err := extractOCRItems(itemDetail)
-	if err != nil {
-		log.Error().Err(err).Str("component", component).Str("step", "scan_items").Msg("item recognition failed")
-		return nil, false
-	}
-
+func unlockByNames(ctx *maa.Context, names []string) error {
 	idx, err := loadCatalogIndex()
 	if err != nil {
-		log.Error().Err(err).Str("component", component).Str("step", "scan_items").Msg("catalog lookup failed")
-		return nil, false
+		return err
 	}
-
-	names := make([]string, 0, len(items))
-	for _, item := range items {
-		names = append(names, item.Text)
-	}
-	log.Info().
-		Str("component", component).
-		Str("step", "scan_items").
-		Str("uid", uid).
-		Int("ocr_count", len(names)).
-		Strs("ocr_texts", names).
-		Msg("scan items ocr texts")
-
-	matchedIDs := make([]string, 0, len(items))
-	matchedNames := make([]string, 0, len(items))
-	unmatched := make([]string, 0)
-	truncated := make([]truncatedItem, 0)
-	for _, item := range items {
-		name := item.Text
+	ids := make([]string, 0, len(names))
+	for _, name := range names {
 		if name == "" {
 			continue
 		}
-		if strings.Contains(name, "...") || strings.Contains(name, "…") {
-			truncated = append(truncated, truncatedItem{Text: name, Box: item.Box})
-			continue
-		}
-		id := ""
-		fullName := ""
+		id, full := "", ""
 		for std, itemID := range idx.NameToID {
 			if strings.HasPrefix(std, name) {
-				id = itemID
-				fullName = std
+				id, full = itemID, std
 				break
 			}
 		}
 		if id == "" {
-			log.Info().
-				Str("component", component).
-				Str("step", "scan_items").
-				Str("uid", uid).
-				Str("ocr", name).
-				Bool("matched", false).
-				Msg("catalog lookup miss")
+			log.Info().Str("component", component).Str("ocr", name).Msg("catalog lookup miss")
 			maafocus.Print(ctx, i18n.T("intelarchive.item_not_found", name))
-			unmatched = append(unmatched, name)
 			continue
 		}
-		log.Info().
-			Str("component", component).
-			Str("step", "scan_items").
-			Str("uid", uid).
-			Str("ocr", name).
-			Bool("matched", true).
-			Str("full_name", fullName).
-			Str("item_id", id).
-			Msg("catalog lookup hit")
-		maafocus.Print(ctx, i18n.T("intelarchive.item_unlocked", fullName))
-		matchedIDs = append(matchedIDs, id)
-		matchedNames = append(matchedNames, fullName)
+		log.Info().Str("component", component).Str("ocr", name).Str("full_name", full).Str("item_id", id).Msg("catalog lookup hit")
+		maafocus.Print(ctx, i18n.T("intelarchive.item_unlocked", full))
+		ids = append(ids, id)
 	}
-
-	added, err := unlockItems(uid, matchedIDs)
-	if err != nil {
-		log.Error().
-			Err(err).
-			Str("component", component).
-			Str("step", "scan_items").
-			Str("uid", uid).
-			Msg("persist unlocked failed")
-		return nil, false
-	}
-
-	log.Info().
-		Str("component", component).
-		Str("step", "scan_items").
-		Str("uid", uid).
-		Int("ocr_count", len(names)).
-		Int("matched_count", len(matchedIDs)).
-		Int("unmatched_count", len(unmatched)).
-		Int("truncated_count", len(truncated)).
-		Int("added_count", len(added)).
-		Strs("ocr_texts", names).
-		Strs("matched_names", matchedNames).
-		Strs("matched_ids", matchedIDs).
-		Strs("unmatched", unmatched).
-		Interface("truncated", truncated).
-		Strs("added", added).
-		Msg("scan items finished")
-
-	detailBytes, _ := json.Marshal(map[string][]truncatedItem{"truncated": truncated})
-	return &maa.CustomRecognitionResult{
-		Box:    arg.Roi,
-		Detail: string(detailBytes),
-	}, true
-}
-
-// extractOCRItems reads OCR filtered text+box from CombinedResult[4].DetailJson.
-// IntelArchiveRecognitionItemText.all_of has 5 entries; the inline OCR is index 4.
-func extractOCRItems(detail *maa.RecognitionDetail) ([]ocrItem, error) {
-	if detail == nil {
-		return nil, nil
-	}
-	if !detail.Hit {
-		log.Warn().Str("component", component).Str("step", "scan_items").Msg("recognition not hit")
-		return nil, nil
-	}
-	if len(detail.CombinedResult) < 5 || detail.CombinedResult[4] == nil {
-		log.Warn().Str("component", component).Str("step", "scan_items").Msg("recognition miss combined result")
-		return nil, nil
-	}
-
-	var detailJSON struct {
-		Filtered []struct {
-			Box   []int   `json:"box"`
-			Score float64 `json:"score"`
-			Text  string  `json:"text"`
-		} `json:"filtered"`
-	}
-	if err := json.Unmarshal([]byte(detail.CombinedResult[4].DetailJson), &detailJSON); err != nil {
-		return nil, err
-	}
-
-	items := make([]ocrItem, 0, len(detailJSON.Filtered))
-	for _, item := range detailJSON.Filtered {
-		if text := strings.TrimSpace(item.Text); text != "" {
-			items = append(items, ocrItem{Text: text, Box: item.Box})
-		}
-	}
-	return items, nil
+	_, err = unlockItems(placeholderUID, ids)
+	return err
 }
