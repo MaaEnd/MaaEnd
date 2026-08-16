@@ -48,6 +48,32 @@
             "WikiExitButton"
         ]
     },
+    "WikiClickBackToHome": {
+        "desc": "仅当选中行暗带存在才点返回。",
+        "recognition": "And",
+        "all_of": [
+            "WikiRecognitionSelectedRow",
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    1164,
+                    0,
+                    116,
+                    99
+                ],
+                "template": "ReadWiki/WikiBackButton.png"
+            }
+        ],
+        "box_index": 1,
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "WikiClickHomePageUnreadBadge",
+            "WikiClickChapterUnreadBadge",
+            "WikiExitButton"
+        ]
+    },
     "WikiExitButton": {
         "recognition": {
             "type": "TemplateMatch",
@@ -66,7 +92,7 @@
     },
     "WikiClickHomePageUnreadBadge": {
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "ColorMatch",
             "param": {
                 "roi": [
                     184,
@@ -74,10 +100,19 @@
                     1008,
                     116
                 ],
-                "template": [
-                    "ReadWiki/WikiUnreadBadge.png",
-                    "ReadWiki/WikiUnreadBadgeWithDarkBG.png" // 因为鼠标焦点，可能会再次选中部分项目导致其红点背景变成黑色
-                ]
+                "method": 40,
+                "lower": [
+                    14,
+                    245,
+                    245
+                ],
+                "upper": [
+                    14,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 30 // 鼠标选中卡片时红点会缩小（约 38px），取40会漏
             }
         },
         "action": {
@@ -93,15 +128,17 @@
             ]
         },
         "next": [
-            "WikiClickChapterUnreadBadge",
-            "WikiScrollListForNextUnread",
             "WikiClickRealUnreadPage",
-            "WikiBackButton"
+            "WikiClickTopUnreadDot",
+            "WikiScrollListForNextUnread",
+            "WikiClickChapterUnreadBadge",
+            "WikiClickBackToHome"
         ]
     },
     "WikiClickChapterUnreadBadge": {
+        "desc": "章节栏/顶栏橙点。",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "ColorMatch",
             "param": {
                 "roi": [
                     21,
@@ -109,7 +146,19 @@
                     350,
                     58
                 ],
-                "template": "ReadWiki/WikiUnreadBadge.png"
+                "method": 40,
+                "lower": [
+                    14,
+                    245,
+                    245
+                ],
+                "upper": [
+                    14,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 30
             }
         },
         "action": {
@@ -125,32 +174,23 @@
         },
         "next": [
             "WikiClickRealUnreadPage",
+            "WikiClickTopUnreadDot",
             "WikiScrollListForNextUnread",
             "WikiClickChapterUnreadBadge",
-            "WikiBackButton"
+            "WikiClickBackToHome"
         ]
     },
     "WikiClickRealUnreadPage": {
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    206,
-                    130,
-                    160,
-                    585
-                ],
-                "template": [
-                    "ReadWiki/WikiUnreadBadge.png",
-                    "ReadWiki/WikiNextPage.png" // 新版本出现了一种 'new' 的红点样式
-                ]
-            }
-        },
+        "recognition": "Or",
+        "any_of": [
+            "WikiRecognitionUnreadBelowSelected",
+            "WikiRecognitionRealUnreadNew"
+        ],
         "action": {
             "type": "Click",
             "param": {
                 "target_offset": [
-                    -100,
+                    -60,
                     0,
                     0,
                     0
@@ -171,26 +211,142 @@
             "WikiClickRealUnreadPage",
             "WikiScrollListForNextUnread",
             "WikiClickChapterUnreadBadge",
-            "WikiBackButton"
+            "WikiClickBackToHome"
         ]
     },
-    "WikiScrollListForNextUnread": {
+    "WikiClickTopUnreadDot": {
+        "desc": "入口点击：竖条内最顶红点（刚进入章节的默认选中条目）",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    206,
+                    130,
+                    160,
+                    585
+                ],
+                "method": 40,
+                "lower": [
+                    14,
+                    245,
+                    245
+                ],
+                "upper": [
+                    14,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 30
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    -60,
+                    0,
+                    0,
+                    0
+                ]
+            }
+        },
+        "post_wait_freezes": {
+            "time": 50,
+            "target": [
+                756,
+                675,
+                30,
+                11
+            ]
+        },
+        "next": [
+            "[JumpBack]WikiNextPage",
+            "WikiClickRealUnreadPage",
+            "WikiScrollListForNextUnread",
+            "WikiClickChapterUnreadBadge",
+            "WikiClickBackToHome"
+        ]
+    },
+    "WikiRecognitionSelectedRow": {
+        "desc": "选中行左侧暗色竖带暗带黑度随鼠标状态变化：悬停比只选中更黑",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    206,
+                    130,
+                    50,
+                    585
+                ],
+                "method": 40,
+                "lower": [
+                    0,
+                    0,
+                    50
+                ],
+                "upper": [
+                    180,
+                    60,
+                    170
+                ],
+                "connected": true,
+                "count": 800
+            }
+        }
+    },
+    "WikiRecognitionUnreadBelowSelected": {
+        "desc": "选中行暗带正下方的第一个红点。以暗带作为已读游标，已选中行自己的点被排除，只点其下方的点，防重复点击。",
+        "recognition": "And",
+        "all_of": [
+            "WikiRecognitionSelectedRow",
+            {
+                "recognition": "ColorMatch",
+                "roi": "WikiRecognitionSelectedRow",
+                "roi_offset": [
+                    0,
+                    54,
+                    110,
+                    477
+                ],
+                "method": 40,
+                "lower": [
+                    14,
+                    245,
+                    245
+                ],
+                "upper": [
+                    14,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 30
+            }
+        ],
+        "box_index": 1 // 点击目标取子1（红点）的框，不是子0（暗带）
+    },
+    "WikiRecognitionRealUnreadNew": {
+        "desc": "识别词条旁的 NEW 徽章",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    136,
-                    640,
-                    65,
-                    58
+                    206,
+                    130,
+                    160,
+                    585
                 ],
-                "template": [
-                    "ReadWiki/WikiUnreadBadge.png",
-                    "ReadWiki/WikiUnreadBadgeWithBlackBG.png",
-                    "ReadWiki/WikiNextPage.png" // 新版本出现了一种 'new' 的红点样式
-                ]
+                "template": "ReadWiki/WikiNewBadge.png"
             }
-        },
+        }
+    },
+    "WikiScrollListForNextUnread": {
+        "recognition": "Or",
+        "any_of": [
+            "WikiRecognitionScrollListRedDot",
+            "WikiRecognitionScrollListNew"
+        ],
         "action": {
             "type": "Swipe",
             "param": {
@@ -207,13 +363,56 @@
         },
         "next": [
             "WikiClickRealUnreadPage",
+            "WikiClickTopUnreadDot",
             "WikiScrollListForNextUnread",
             "WikiClickChapterUnreadBadge",
-            "WikiBackButton"
+            "WikiClickBackToHome"
         ]
     },
+    "WikiRecognitionScrollListRedDot": {
+        "desc": "识别词条列表底部的红点",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    136,
+                    640,
+                    65,
+                    58
+                ],
+                "method": 40,
+                "lower": [
+                    14,
+                    245,
+                    245
+                ],
+                "upper": [
+                    14,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 30
+            }
+        }
+    },
+    "WikiRecognitionScrollListNew": {
+        "desc": "识别词条列表底部的 NEW 提示",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    136,
+                    640,
+                    65,
+                    58
+                ],
+                "template": "ReadWiki/WikiNewListHint.png"
+            }
+        }
+    },
     "WikiNextPage": {
-        "desc": "在物品图鉴页面，才有多页，识别下一页按钮，点击滑动翻页",
+        "desc": "识别底部『还有下页』提示，上滑翻页。",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -240,9 +439,14 @@
                 "end_hold": 200
             }
         },
-        "timeout": 1000,
-        "next": [
-            "WikiNextPage"
-        ]
+        "post_wait_freezes": {
+            "time": 50,
+            "target": [
+                756,
+                675,
+                30,
+                11
+            ]
+        }
     }
 }
