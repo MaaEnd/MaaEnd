@@ -46,6 +46,17 @@ func (r *ValidatedIconRecognition) Run(
 		log.Error().Err(err).Str("item_id", targetID).Str("component", validatedIconRecognitionName).Msg("initial icon recognition failed")
 		return nil, false
 	}
+	if initial.Error != nil {
+		if initial.Error.Code != iconrecognition.ErrorCodeNoMatch && initial.Error.Code != iconrecognition.ErrorCodeGridDetectionFailed {
+			log.Error().
+				Str("error_code", string(initial.Error.Code)).
+				Str("error_message", initial.Error.Message).
+				Str("item_id", targetID).
+				Str("component", validatedIconRecognitionName).
+				Msg("initial icon recognition returned an error")
+		}
+		return nil, false
+	}
 	if len(initial.Matches) == 0 {
 		return nil, false
 	}
@@ -64,6 +75,16 @@ func (r *ValidatedIconRecognition) Run(
 		validated, _, err := runIconRecognition(ctx, arg.Img, candidate.CellBox, validationParams)
 		if err != nil {
 			log.Debug().Err(err).Str("item_id", targetID).Interface("cell_box", candidate.CellBox).Str("component", validatedIconRecognitionName).Msg("single cell validation failed")
+			continue
+		}
+		if validated.Error != nil {
+			log.Debug().
+				Str("error_code", string(validated.Error.Code)).
+				Str("error_message", validated.Error.Message).
+				Str("item_id", targetID).
+				Interface("cell_box", candidate.CellBox).
+				Str("component", validatedIconRecognitionName).
+				Msg("single cell validation returned an error")
 			continue
 		}
 		if !containsItemID(validated.Matches, targetID) {

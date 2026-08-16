@@ -59,6 +59,8 @@ struct GridDetection
     double grid_scale = 1.0;
     std::vector<GridLayout> grids;
     std::vector<GridCell> cells;
+    // 当前截图未形成合法网格时的诊断信息；空字符串表示检测成功或尚未判定。
+    std::string failure_message;
 };
 
 } // namespace iconrecognition::detail

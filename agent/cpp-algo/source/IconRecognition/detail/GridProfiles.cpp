@@ -376,7 +376,7 @@ std::vector<cv::Rect> discover_transfer_regions(const cv::Mat& crop)
         }
     }
     if (localized.empty()) {
-        throw std::runtime_error("transfer ROI contains no local grid candidate");
+        return {};
     }
     std::vector<TransferHypothesis> independent;
     const double threshold = localized.front().score * kIndependentCandidateMinimumScoreRatio;
@@ -419,7 +419,7 @@ std::vector<cv::Rect> discover_transfer_regions(const cv::Mat& crop)
         return PartitionTransferRegions(crop.size(), left.rect, right.rect);
     }
     if (independent.size() > 2) {
-        throw std::runtime_error("transfer ROI contains more than two strong grids");
+        return {};
     }
     const auto& dominant = localized.front();
     const double center = dominant.rect.x + dominant.rect.width / 2.0;
@@ -615,7 +615,7 @@ std::vector<TransferGridHint> DiscoverTransferGridHints(const cv::Mat& crop, boo
         for (const cv::Rect& partition : partitions) {
             auto local = DiscoverTransferGridHints(crop(partition), structural_rank);
             if (local.size() != 1) {
-                throw std::runtime_error("transfer side partition must contain exactly one grid hint");
+                return {};
             }
             TransferGridHint hint = std::move(local.front());
             hint.region.x += partition.x;
@@ -638,7 +638,7 @@ std::vector<TransferGridHint> DiscoverTransferGridHints(const cv::Mat& crop, boo
         for (const cv::Rect& partition : PartitionPortStoragerRegions(crop.size())) {
             auto local = DiscoverTransferGridHints(crop(partition), structural_rank);
             if (local.size() != 1) {
-                throw std::runtime_error("port_storager side partition must contain exactly one grid hint");
+                return {};
             }
             TransferGridHint hint = std::move(local.front());
             hint.region.x += partition.x;
@@ -671,7 +671,7 @@ std::vector<TransferGridHint> DiscoverTransferGridHints(const cv::Mat& crop, boo
             }
         }
         if (candidates.empty()) {
-            throw std::runtime_error("transfer subregion contains no coarse lattice");
+            return {};
         }
         const auto rank = [&](const TransferGridHint& hint) {
             const int columns = static_cast<int>(hint.x_starts.size());

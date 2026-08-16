@@ -322,6 +322,19 @@ void TestRemovedGridScaleParameterIsRejected()
     }
 }
 
+void TestGridDetectionFailureIsStructured()
+{
+    ImageBuffer image;
+    const cv::Mat pixels(720, 1280, CV_8UC3, cv::Scalar(0, 0, 0));
+    image.set(pixels);
+    const MaaRect roi { 154, 202, 585, 291 };
+    MaaRect out_box { 101, 202, 303, 404 };
+
+    const auto detail = RunFailure(image.get(), R"({"grid_type":"transfer"})", out_box, &roi);
+    Require(ErrorCode(detail) == "grid_detection_failed", "grid detection miss must use the structured error code");
+    RequireUntouched(out_box);
+}
+
 void TestSuccessfulSingleRoiUsesPrimaryCellBox()
 {
     const auto fixture = MakeSingleRoiFixture();
@@ -556,6 +569,7 @@ int main()
         TestMalformedCandidateListsAreRejected();
         TestMalformedScalarParametersAreRejected();
         TestRemovedGridScaleParameterIsRejected();
+        TestGridDetectionFailureIsStructured();
         TestSuccessfulSingleRoiUsesPrimaryCellBox();
         TestRecognizerPreservesInternalDiagnostics();
         TestGridDiagnosticsSerializeSelectionEvidence();

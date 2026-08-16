@@ -244,7 +244,7 @@ GridLayout DetectSingleLattice(const cv::Mat& image, GridType type, const cv::Re
         }
     }
     if (layout.cells.empty()) {
-        throw std::runtime_error("grid ROI contains no formal cells");
+        return layout;
     }
     layout.rows = static_cast<int>(kept_y.size());
     layout.columns = static_cast<int>(kept_x.size());
@@ -260,7 +260,7 @@ GridDetection DetectRewardsGrid(const cv::Mat& image, const cv::Rect& roi)
 {
     const GridProfile profile = ProfileFor(GridType::Rewards);
     if (roi.width < profile.cell_size || roi.height < profile.cell_size) {
-        throw std::runtime_error("rewards ROI is smaller than one formal cell");
+        throw std::invalid_argument("rewards ROI is smaller than one formal cell");
     }
     const cv::Mat crop = image(roi);
     cv::Mat bgr;
@@ -303,7 +303,11 @@ GridDetection DetectRewardsGrid(const cv::Mat& image, const cv::Rect& roi)
         candidates.push_back({ cv::Rect(roi.x + x, roi.y + y, width, height), roi.y + y + height * 0.5 });
     }
     if (candidates.empty()) {
-        throw std::runtime_error("rewards ROI contains no card candidates");
+        return GridDetection {
+            .type = GridType::Rewards,
+            .roi = roi,
+            .failure_message = "rewards ROI contains no card candidates",
+        };
     }
     std::ranges::sort(candidates, [](const Candidate& left, const Candidate& right) { return left.center_y < right.center_y; });
     std::vector<std::vector<Candidate>> rows;
@@ -380,7 +384,7 @@ GridDetection DetectRewardsGrid(const cv::Mat& image, const cv::Rect& roi)
         }
     }
     if (result.cells.empty()) {
-        throw std::runtime_error("rewards ROI contains no formal cells");
+        result.failure_message = "rewards ROI contains no formal cells";
     }
     return result;
 }
@@ -708,7 +712,7 @@ GridLayout BuildCreditTradeLattice(const cv::Rect& roi, int x_phase, int y_phase
         layout.rows += kept_row ? 1 : 0;
     }
     if (layout.cells.empty()) {
-        throw std::runtime_error("credit_trade ROI contains no formal cells");
+        return layout;
     }
 
     int x1 = std::numeric_limits<int>::max();
@@ -803,7 +807,7 @@ GridLayout DetectCreditTrade(const cv::Mat& image, const cv::Rect& roi)
     std::ranges::sort(observed);
     observed.erase(std::unique(observed.begin(), observed.end()), observed.end());
     if (observed.empty()) {
-        throw std::runtime_error("credit_trade cards do not form a lattice");
+        return {};
     }
     const int first_row = observed.front().first;
     const int first_row_count =
@@ -841,7 +845,7 @@ GridLayout DetectCreditTrade(const cv::Mat& image, const cv::Rect& roi)
         }
     }
     if (layout.cells.empty()) {
-        throw std::runtime_error("credit_trade ROI contains no formal cells");
+        return layout;
     }
     int x1 = std::numeric_limits<int>::max();
     int y1 = std::numeric_limits<int>::max();
@@ -893,7 +897,7 @@ int BoundaryCenter(const std::vector<float>& boundary, int position)
 std::vector<int> RefineFirstBoundary(const std::vector<int>& starts, const std::vector<float>& boundary, int offset, int cell_size)
 {
     if (starts.empty()) {
-        throw std::runtime_error("transfer coarse lattice has no axis start");
+        return {};
     }
     const int first = starts.front() - offset;
     std::vector<double> deltas {
@@ -919,7 +923,7 @@ std::vector<int> RefineStructuralPhase(
     bool allow_small_shift = false)
 {
     if (starts.empty()) {
-        throw std::runtime_error("transfer coarse lattice has no vertical start");
+        return {};
     }
     const auto normalized = NormalizeSignal(boundary);
     if (*std::ranges::max_element(normalized) <= kEpsilon) {
@@ -967,7 +971,7 @@ struct TransferAxisFit
     double mean_residual = 0.0;
 };
 
-TransferAxisFit FitTransferAxis(
+std::optional<TransferAxisFit> FitTransferAxis(
     const std::vector<int>& starts,
     const std::vector<float>& boundary,
     int offset,
@@ -982,7 +986,7 @@ TransferAxisFit FitTransferAxis(
     std::ranges::sort(ordered);
     ordered.erase(std::unique(ordered.begin(), ordered.end()), ordered.end());
     if (ordered.empty() || boundary.empty()) {
-        throw std::runtime_error("transfer axis fit has no evidence");
+        return std::nullopt;
     }
     std::vector<double> observed;
     for (int value : ordered) {
@@ -1080,7 +1084,7 @@ std::vector<int> CompleteAxis(
     std::ranges::sort(ordered);
     ordered.erase(std::unique(ordered.begin(), ordered.end()), ordered.end());
     if (ordered.empty()) {
-        throw std::runtime_error("transfer coarse lattice has no axis start");
+        return {};
     }
     std::vector<double> valid;
     for (std::size_t index = 1; index < ordered.size(); ++index) {
@@ -1298,7 +1302,7 @@ GridLayout BuildTransferLayout(const cv::Mat& image, const cv::Rect& roi, const 
     const int column_count = static_cast<int>(hint.x_starts.size());
     const auto trusted_fit = FitTrustedRarityGrid(image(roi), hint.region, profile);
     const auto refined_x = RefineFirstBoundary(hint.x_starts, boundary_x, hint.region.x, profile.cell_size);
-    const TransferAxisFit x_fit = FitTransferAxis(
+    const auto x_fit = FitTransferAxis(
         refined_x,
         boundary_x,
         hint.region.x,
@@ -1308,7 +1312,10 @@ GridLayout BuildTransferLayout(const cv::Mat& image, const cv::Rect& roi, const 
         static_cast<int>(refined_x.size()),
         !transfer,
         false);
-    std::vector<int> local_x = x_fit.starts;
+    if (!x_fit) {
+        return {};
+    }
+    std::vector<int> local_x = x_fit->starts;
     std::vector<int> local_y;
     const auto rarity_fit = FitRarityGrid(image(roi), local_x, hint.y_starts, profile);
     if (rarity_fit) {
@@ -1326,7 +1333,7 @@ GridLayout BuildTransferLayout(const cv::Mat& image, const cv::Rect& roi, const 
         local_y = CompleteAxis(
             refined_y,
             profile.maximum_rows,
-            transfer ? std::optional<int>(static_cast<int>(std::floor(x_fit.pitch + 0.5))) : std::nullopt,
+            transfer ? std::optional<int>(static_cast<int>(std::floor(x_fit->pitch + 0.5))) : std::nullopt,
             profile.preferred_pitch,
             profile.pitch_min,
             profile.pitch_max,
@@ -1342,6 +1349,9 @@ GridLayout BuildTransferLayout(const cv::Mat& image, const cv::Rect& roi, const 
                 kWideTransferPhaseMinimumGain,
                 true);
         }
+    }
+    if (local_x.empty() || local_y.empty()) {
+        return {};
     }
     const cv::Mat cell_score = BuildTransferCellScore(image(roi), profile.cell_size);
     bool trusted_selected = false;
@@ -1428,7 +1438,7 @@ GridLayout BuildTransferLayout(const cv::Mat& image, const cv::Rect& roi, const 
     const auto final_x_axis = fit_final_axis(local_x, std::max(1, static_cast<int>(local_x.size())));
     const auto final_y_axis = fit_final_axis(local_y, profile.maximum_rows);
     if (!final_x_axis || !final_y_axis) {
-        throw std::runtime_error("transfer final lattice does not fit one global origin and pitch");
+        return {};
     }
     local_x = ProjectRegularAxis(*final_x_axis);
     local_y = ProjectRegularAxis(*final_y_axis);
@@ -1445,7 +1455,7 @@ GridLayout BuildTransferLayout(const cv::Mat& image, const cv::Rect& roi, const 
         }
     }
     if (layout.cells.empty()) {
-        throw std::runtime_error("transfer hint contains no formal cells");
+        return {};
     }
     layout.pitch_x = final_x_axis->pitch;
     layout.pitch_y = final_y_axis->pitch;
@@ -1492,6 +1502,9 @@ GridLayout BuildTransferLayout(const cv::Mat& image, const cv::Rect& roi, const 
 
 void Append(GridDetection& result, GridLayout layout)
 {
+    if (layout.cells.empty()) {
+        return;
+    }
     result.cells.insert(result.cells.end(), layout.cells.begin(), layout.cells.end());
     result.grids.push_back(std::move(layout));
 }
@@ -1651,7 +1664,7 @@ std::optional<SourceAxisRefinement>
     }
     const double current_pitch = x_axis ? layout.pitch_x : layout.pitch_y;
     const double pitch_radius = std::max(1.0, kSourcePitchRefinementRadiusScale * scale);
-    const TransferAxisFit fit = FitTransferAxis(
+    const auto fit = FitTransferAxis(
         starts,
         boundary,
         offset,
@@ -1661,7 +1674,7 @@ std::optional<SourceAxisRefinement>
         static_cast<int>(starts.size()),
         true,
         true);
-    if (fit.starts.size() != starts.size()) {
+    if (!fit || fit->starts.size() != starts.size()) {
         return std::nullopt;
     }
     // 源图 pitch 细化最多移动 4px；该上限覆盖实测亚像素回映射误差，同时避免跳到相邻格。
@@ -1669,16 +1682,16 @@ std::optional<SourceAxisRefinement>
     // 只有结构响应至少提升 0.01 才接受细化，避免量化噪声替换原网格。
     constexpr double kMinimumSourceAxisScoreGain = 0.01;
     for (std::size_t index = 0; index < starts.size(); ++index) {
-        if (std::abs(fit.starts[index] - starts[index]) > kMaximumSourceAxisShift) {
+        if (std::abs(fit->starts[index] - starts[index]) > kMaximumSourceAxisShift) {
             return std::nullopt;
         }
     }
     const double current_score = AxisBoundaryScore(boundary, starts, offset, layout.cell_size);
-    const double refined_score = AxisBoundaryScore(boundary, fit.starts, offset, layout.cell_size);
+    const double refined_score = AxisBoundaryScore(boundary, fit->starts, offset, layout.cell_size);
     if (refined_score < kMinimumStructuralPhaseResponse || refined_score < current_score + kMinimumSourceAxisScoreGain) {
         return std::nullopt;
     }
-    return SourceAxisRefinement { .original = starts, .refined = fit.starts, .pitch = fit.pitch };
+    return SourceAxisRefinement { .original = starts, .refined = fit->starts, .pitch = fit->pitch };
 }
 
 void RefineScaledTransferDetection(const cv::Mat& image, const cv::Rect& roi, double scale, GridDetection& detection)
@@ -1789,6 +1802,9 @@ GridDetection DetectGridNormalized(const cv::Mat& image, GridType type, const cv
         }
         Append(result, std::move(layout));
     }
+    if (result.cells.empty() && result.failure_message.empty()) {
+        result.failure_message = "grid ROI contains no formal cells";
+    }
     return result;
 }
 
@@ -1806,7 +1822,11 @@ GridDetection DetectGrid(const cv::Mat& image, GridType type, const cv::Rect& ro
 
     const auto estimated_scale = EstimateGridScale(image, type, roi);
     if (!estimated_scale) {
-        throw std::invalid_argument("unable to select a supported IconRecognition controller profile from ROI");
+        return GridDetection {
+            .type = type,
+            .roi = roi,
+            .failure_message = "unable to select a supported IconRecognition controller profile from ROI",
+        };
     }
     const double resolved_scale = *estimated_scale;
     if (resolved_scale == kWin32ControllerGridScale) {
