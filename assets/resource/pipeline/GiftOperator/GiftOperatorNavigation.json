@@ -331,8 +331,8 @@
                             ]
                         },
                         [
-                            183.14,
-                            175.0,
+                            182.52,
+                            173.70,
                             true
                         ]
                     ]
@@ -340,8 +340,8 @@
             }
         },
         "next": [
-            "GiftOperatorClickContact",
-            "[JumpBack]GiftOperatorGoAheadContact"
+            "GiftOperatorClickContact"
+            //"[JumpBack]GiftOperatorGoAheadContact"
         ],
         "focus": {
             "Node.Action.Succeeded": {
