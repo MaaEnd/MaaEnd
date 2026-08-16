@@ -84,15 +84,10 @@ constexpr double kDetourSnapPenalty = 3.0;
 // Blind-target fallback: navmesh omits water, so a target a human can reach is reported unreachable.
 // Route as close as the mesh allows, then walk the residual gap blind toward the exact target.
 constexpr double kBlindTargetFallbackSnapRadius = 12.0;
-constexpr double kBlindTargetMaxExtension = 30.0;
 constexpr double kBlindTargetProbeStep = 2.0;
 // 探针扫描的墙钟上限。能命中的探针在头几个就返回(近处目标单次规划几十毫秒),耗满预算即目标与
 // 起点不连通,余下探针是同一个失败。远距离目标单次规划本身就要吃掉扩窗预算,这里只容一个来回。
 constexpr int64_t kBlindTargetProbeBudgetMs = 8000;
-
-// Start recovery: how far we are willing to walk unguided to get back onto the mesh. Covers the whole
-// off-mesh band measured along the base-exit corridor, where the blind walk out of the base drops us.
-constexpr double kStartRecoveryMaxBlindWalk = 32.0;
 
 bool IsNavmeshWaypoint(const Waypoint& waypoint)
 {
@@ -977,10 +972,7 @@ bool NavmeshZonesShareGeometry(const NaviParam& param, const std::string& zone_a
     }
     const auto geometry_id = [&navmesh](const std::string& name) -> int {
         const navmesh::BaseNavZone* zone = navmesh->pack.findZoneByName(name);
-        if (zone == nullptr) {
-            return -1;
-        }
-        return navmesh::IsTierZone(*zone) ? static_cast<int>(zone->component_count) : static_cast<int>(zone->zone_id);
+        return zone == nullptr ? -1 : static_cast<int>(navmesh->pack.geometryZoneId(zone->zone_id));
     };
     const int geom_a = geometry_id(zone_a);
     return geom_a >= 0 && geom_a == geometry_id(zone_b);

@@ -64,6 +64,12 @@ const BaseNavZone* BaseNavPack::findZoneByName(const std::string& name) const
     return iter == zones_.end() ? nullptr : &*iter;
 }
 
+uint16_t BaseNavPack::geometryZoneId(uint16_t zone_id) const
+{
+    const BaseNavZone* zone = findZone(zone_id);
+    return zone != nullptr && IsTierZone(*zone) ? static_cast<uint16_t>(zone->component_count) : zone_id;
+}
+
 std::optional<BaseNavBaseProjection> BaseNavPack::projectToBase(const std::string& zone_name, double x, double y) const
 {
     const BaseNavZone* zone = findZoneByName(zone_name);
@@ -78,7 +84,7 @@ std::optional<BaseNavBaseProjection> BaseNavPack::projectToBase(const std::strin
     if (parent == nullptr) {
         return std::nullopt;
     }
-    // base = s * tier + t, with transform = {sx, tx, sy, ty} — byte-identical to basenav_preview.py.
+    // base = s * tier + t, with transform = {sx, tx, sy, ty}.
     const std::array<float, 4>& t = zone->transform;
     return BaseNavBaseProjection {
         parent,

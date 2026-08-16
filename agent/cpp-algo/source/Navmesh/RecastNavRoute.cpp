@@ -993,6 +993,12 @@ RecastPlanResult RecastNavEngine::plan(
     return planLocked(zone_name, start, goal, start_floor_y, goal_floor_y, goal_deck_y, blocked, blocked_points, should_stop);
 }
 
+void RecastNavEngine::warm(const std::string& zone_name)
+{
+    const std::lock_guard<std::mutex> lock(mutex_);
+    zoneEntry(zone_name);
+}
+
 RecastPlanResult RecastNavEngine::planLocked(
     const std::string& zone_name,
     const WorldPoint& start,

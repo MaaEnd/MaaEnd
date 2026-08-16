@@ -341,8 +341,7 @@ std::optional<BaseNavSnapResult> BaseNavPlanner::snap(uint16_t zone_id, const Wo
         // kBaseNavFloorBand) always beats an off-band one, then by snap distance, then by height
         // proximity to floor_y. The band is a PREFERENCE — if nothing lands in-band we still return the
         // nearest surface (never nullopt), so floor_y only re-ranks onto the right floor, never gates it
-        // out. Mirrors basenav_preview.py BaseNavField.snap (floor-aware branch). The zone + bbox culls
-        // match the legacy path below so the effective candidate set equals the python tool's.
+        // out. The zone + bbox culls match the floor-blind path below, so both see the same candidates.
         std::optional<std::tuple<int, int, double, double>> best_key;
         std::optional<BaseNavSnapResult> best_floor;
         for (const uint32_t triangle_index : candidates) {
@@ -457,6 +456,11 @@ std::array<WorldPoint, 3> BaseNavPlanner::trianglePoints(uint32_t triangle_index
         WorldPoint { .x = vertices[triangle.vertices[1]].u, .y = vertices[triangle.vertices[1]].v },
         WorldPoint { .x = vertices[triangle.vertices[2]].u, .y = vertices[triangle.vertices[2]].v },
     };
+}
+
+double BaseNavPlanner::triangleHeight(uint32_t triangle_index) const
+{
+    return triangle_heights_[triangle_index];
 }
 
 std::optional<std::array<WorldPoint, 2>> BaseNavPlanner::closestEdgeBridgePoints(uint32_t lhs, uint32_t rhs) const

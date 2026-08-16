@@ -9,6 +9,7 @@
 #include "MapLocator/MapLocateAction.h"
 #include "MapNavigator/MapNavigator.h"
 #include "MapNavigator/MapNavigatorCompatible.h"
+#include "MapNavmesh/MapNavmeshQuery.h"
 #include "RealTimeTask/RealTimeTaskAction.h"
 #include "RecoGrid/RecoGridRecognition.h"
 #include "Test/test.h"
@@ -46,6 +47,7 @@ int main(int argc, char** argv)
         "MapNavigatorAssertLocationCompatible",
         mapnavigator::MapNavigatorAssertLocationCompatibleRun,
         nullptr);
+    MaaAgentServerRegisterCustomRecognition("MapNavmeshQuery", mapnavmesh::MapNavmeshQueryRun, nullptr);
     MaaAgentServerRegisterCustomRecognition("RecoGridRecognition", recogrid::RecoGridRecognitionRun, nullptr);
     MaaAgentServerRegisterCustomRecognition("EssenceGridAdvanceRecognition", essencegridscan::EssenceGridAdvanceRecognitionRun, nullptr);
     MaaAgentServerRegisterCustomRecognition("EssenceGridPendingRecognition", essencegridscan::EssenceGridPendingRecognitionRun, nullptr);

@@ -248,7 +248,7 @@ uv run main.py
 - `recording_service.py`: Maa Agent 录制线程与数据采集，不直接耦合具体 controller 类型。
 - `record_worker.py`: 提权录制子进程。Windows 非管理员时录制跑在这里，与后端用回连 socket 通信（服务自身不重启、不提权）。
 - `clipboard.py`: 系统剪贴板写入（G 热键复制坐标）。
-- `basenav_preview.py`: BaseNav `.nav` 加载与 A\* 路线预览计算。
+- `navmesh_backend.py`: navmesh 查询后端，把 cpp-algo agent 当作常驻查询进程；几何解码、吸附、路线都在 agent 里算。
 - `json_import.py`: JSON/JSONC 导入解析与动作语义校验。
 - `maptracker_compat.py`: `MapTracker*` 节点到 Base 坐标系的兼容转换表。
 - `key_listener.py`: 录制期间的全局按键监听与系统权限检查。

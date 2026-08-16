@@ -50,6 +50,9 @@ public:
         const std::vector<WorldPoint>& blocked_points = {},
         const std::function<bool()>& should_stop = {});
 
+    // 把该区的清洗网格与墙 oracle 提前建好,让首条路线不必冷吃这份开销。
+    void warm(const std::string& zone_name);
+
 private:
     struct ZoneEntry
     {
