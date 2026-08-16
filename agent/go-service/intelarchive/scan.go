@@ -72,10 +72,25 @@ func (r *ScanItemsRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionA
 	// IntelArchiveRecognitionItemText.all_of：OCR 在第 5 段。
 	items := ocrFiltered(rec, 4)
 
+	idx, err := loadCatalogIndex()
+	if err != nil {
+		log.Error().Err(err).Str("component", component).Msg("failed to load catalog")
+		return nil, false
+	}
+
 	truncated := make([]truncatedItem, 0)
 	names := make([]string, 0, len(items))
 	for _, item := range items {
-		if strings.Contains(item.Text, "...") || strings.Contains(item.Text, "…") {
+		query, trunc := stripTrailingEllipsis(item.Text)
+		if trunc && query != "" {
+			if matched, _ := idx.matchOCR(query); len(matched) > 0 {
+				names = append(names, query)
+				continue
+			}
+			truncated = append(truncated, item)
+			continue
+		}
+		if trunc {
 			truncated = append(truncated, item)
 			continue
 		}
@@ -138,6 +153,35 @@ func parseTruncated(detail *maa.RecognitionDetail) []truncatedItem {
 	return payload.Truncated
 }
 
+// stripTrailingEllipsis 去掉标题后缀省略号（含 OCR 成 `..` 的情况）。中间的点不剥。
+func stripTrailingEllipsis(s string) (string, bool) {
+	s = strings.TrimSpace(s)
+	if s == "" {
+		return "", false
+	}
+	runes := []rune(s)
+	end := len(runes)
+	dots := 0
+	ellipsis := 0
+	for end > 0 {
+		switch runes[end-1] {
+		case '.', '．', '。':
+			end--
+			dots++
+			continue
+		case '…':
+			end--
+			ellipsis++
+			continue
+		}
+		break
+	}
+	if ellipsis == 0 && dots < 2 {
+		return s, false
+	}
+	return strings.TrimSpace(string(runes[:end])), true
+}
+
 func ocrFiltered(detail *maa.RecognitionDetail, index int) []truncatedItem {
 	if detail == nil || !detail.Hit || index < 0 || index >= len(detail.CombinedResult) || detail.CombinedResult[index] == nil {
 		return nil
@@ -171,21 +215,15 @@ func unlockByNames(ctx *maa.Context, names []string) error {
 		if name == "" {
 			continue
 		}
-		id, full := "", ""
-		for std, itemID := range idx.NameToID {
-			if strings.HasPrefix(std, name) {
-				id, full = itemID, std
-				break
-			}
-		}
-		if id == "" {
+		matched, full := idx.matchOCR(name)
+		if len(matched) == 0 {
 			log.Info().Str("component", component).Str("ocr", name).Msg("catalog lookup miss")
 			maafocus.Print(ctx, i18n.T("intelarchive.item_not_found", name))
 			continue
 		}
-		log.Info().Str("component", component).Str("ocr", name).Str("full_name", full).Str("item_id", id).Msg("catalog lookup hit")
+		log.Info().Str("component", component).Str("ocr", name).Str("full_name", full).Strs("item_id", matched).Msg("catalog lookup hit")
 		maafocus.Print(ctx, i18n.T("intelarchive.item_unlocked", full))
-		ids = append(ids, id)
+		ids = append(ids, matched...)
 	}
 	_, err = unlockItems(placeholderUID, ids)
 	return err

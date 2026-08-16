@@ -1,20 +1,16 @@
 {
-    "version": 2,
+    "version": 4,
     "categories": [
         {
-            "id": "1",
-            "name": "情报采集"
-        },
-        {
-            "id": "2",
+            "id": "text",
             "name": "见闻辑录"
         },
         {
-            "id": "3",
+            "id": "multi_media",
             "name": "音像存档"
         },
         {
-            "id": "4",
+            "id": "document",
             "name": "中枢档案"
         }
     ]

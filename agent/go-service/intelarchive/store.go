@@ -19,6 +19,8 @@ var fileCategories = map[string]struct{}{
 	"digital":    {},
 	"media":      {},
 	"collection": {},
+	"document":   {},
+	"report":     {},
 }
 
 const (
@@ -43,17 +45,24 @@ type itemsFile struct {
 	Items   map[string]item `json:"items"`
 }
 
+type itemPage struct {
+	ID    string            `json:"id"`
+	Order int               `json:"order,omitempty"`
+	Names map[string]string `json:"names"`
+}
+
 type item struct {
-	ID               string            `json:"id"`
-	Names            map[string]string `json:"names"`
-	FileCategory     string            `json:"fileCategory"`
-	SklandWikiItemID string            `json:"sklandWikiItemId,omitempty"`
-	TagIDs           []string          `json:"tagIds,omitempty"`
-	Pages            any               `json:"pages,omitempty"`
+	ID           string            `json:"id"`
+	Names        map[string]string `json:"names"`
+	Page         string            `json:"page"`
+	FileCategory string            `json:"fileCategory"`
+	TagIDs       []string          `json:"tagIds,omitempty"`
+	Pages        []itemPage        `json:"pages,omitempty"`
 }
 
 type catalogIndex struct {
-	NameToID map[string]string
+	NameToIDs  map[string][]string
+	NormToOrig map[string]string
 }
 
 type unlockedFile struct {
@@ -140,8 +149,10 @@ func buildCatalogIndex(cat *catalogFile, items *itemsFile) (*catalogIndex, error
 		return itemIDLess(ids[i], ids[j])
 	})
 
-	nameToID := make(map[string]string, len(items.Items)*2)
-	wikiToID := make(map[string]string, len(items.Items))
+	idx := &catalogIndex{
+		NameToIDs:  make(map[string][]string, len(items.Items)*2),
+		NormToOrig: make(map[string]string, len(items.Items)*2),
+	}
 	for _, id := range ids {
 		it := items.Items[id]
 		if it.ID == "" {
@@ -161,6 +172,13 @@ func buildCatalogIndex(cat *catalogFile, items *itemsFile) (*catalogIndex, error
 		if _, ok := fileCategories[it.FileCategory]; !ok {
 			return nil, fmt.Errorf("item %q has unknown fileCategory %q", id, it.FileCategory)
 		}
+		if it.Page == "" {
+			return nil, fmt.Errorf("item %q page is empty", id)
+		}
+		if _, ok := tagIDs[it.Page]; !ok {
+			return nil, fmt.Errorf("item %q references unknown page %q", id, it.Page)
+		}
+		pageInTags := false
 		for _, tagID := range it.TagIDs {
 			if tagID == "" {
 				return nil, fmt.Errorf("item %q has empty tag id", id)
@@ -168,21 +186,36 @@ func buildCatalogIndex(cat *catalogFile, items *itemsFile) (*catalogIndex, error
 			if _, ok := tagIDs[tagID]; !ok {
 				return nil, fmt.Errorf("item %q references unknown tagId %q", id, tagID)
 			}
+			if tagID == it.Page {
+				pageInTags = true
+			}
 		}
-		indexItemName(nameToID, zhCN, id)
+		if !pageInTags {
+			return nil, fmt.Errorf("item %q tagIds does not include page %q", id, it.Page)
+		}
+		indexItemName(idx, zhCN, id)
 		if zhTW := strings.TrimSpace(it.Names[i18n.LangZhTW]); zhTW != "" {
-			indexItemName(nameToID, zhTW, id)
+			indexItemName(idx, zhTW, id)
 		}
-		if it.SklandWikiItemID == "" {
-			continue
+		for i, page := range it.Pages {
+			if page.ID == "" {
+				return nil, fmt.Errorf("item %q pages[%d] id is empty", id, i)
+			}
+			if page.Names == nil {
+				return nil, fmt.Errorf("item %q pages[%d] names is empty", id, i)
+			}
+			pageCN := strings.TrimSpace(page.Names[i18n.LangZhCN])
+			if pageCN == "" {
+				return nil, fmt.Errorf("item %q pages[%d] names.zh_cn is empty", id, i)
+			}
+			indexItemName(idx, pageCN, id)
+			if pageTW := strings.TrimSpace(page.Names[i18n.LangZhTW]); pageTW != "" {
+				indexItemName(idx, pageTW, id)
+			}
 		}
-		if prev, exists := wikiToID[it.SklandWikiItemID]; exists {
-			return nil, fmt.Errorf("duplicate sklandWikiItemId %q for %q and %q", it.SklandWikiItemID, prev, id)
-		}
-		wikiToID[it.SklandWikiItemID] = id
 	}
 
-	return &catalogIndex{NameToID: nameToID}, nil
+	return idx, nil
 }
 
 func itemIDLess(a, b string) bool {
@@ -194,19 +227,81 @@ func itemIDLess(a, b string) bool {
 	return a < b
 }
 
-func indexItemName(nameToID map[string]string, name, id string) {
-	if prev, exists := nameToID[name]; exists {
-		if prev != id {
-			log.Warn().
-				Str("component", component).
-				Str("name", name).
-				Str("keep_id", prev).
-				Str("skip_id", id).
-				Msg("duplicate item name, keep first id")
-		}
+func indexItemName(idx *catalogIndex, name, id string) {
+	name = strings.TrimSpace(name)
+	key := normalizeTitle(name)
+	if idx == nil || key == "" || id == "" {
 		return
 	}
-	nameToID[name] = id
+	for _, existing := range idx.NameToIDs[key] {
+		if existing == id {
+			return
+		}
+	}
+	idx.NameToIDs[key] = append(idx.NameToIDs[key], id)
+	if idx.NormToOrig[key] == "" {
+		idx.NormToOrig[key] = name
+	}
+}
+
+// normalizeTitle folds OCR punctuation so half-width parens and dash lookalikes match the catalog.
+func normalizeTitle(s string) string {
+	s = strings.TrimSpace(s)
+	if s == "" {
+		return ""
+	}
+	s = strings.ReplaceAll(s, "　", "")
+	s = strings.ReplaceAll(s, "一一", "-")
+	s = strings.NewReplacer(
+		"（", "(",
+		"）", ")",
+		"—", "-",
+		"–", "-",
+		"―", "-",
+		"－", "-",
+	).Replace(s)
+	for strings.Contains(s, "--") {
+		s = strings.ReplaceAll(s, "--", "-")
+	}
+	return s
+}
+
+func (idx *catalogIndex) displayName(norm string) string {
+	if idx == nil {
+		return norm
+	}
+	if orig := idx.NormToOrig[norm]; orig != "" {
+		return orig
+	}
+	return norm
+}
+
+func (idx *catalogIndex) matchOCR(ocr string) (ids []string, full string) {
+	ocr = normalizeTitle(ocr)
+	if idx == nil || ocr == "" {
+		return nil, ""
+	}
+	if exact := idx.NameToIDs[ocr]; len(exact) > 0 {
+		return append([]string(nil), exact...), idx.displayName(ocr)
+	}
+
+	matchedName := ""
+	for name := range idx.NameToIDs {
+		if !strings.HasPrefix(name, ocr) {
+			continue
+		}
+		if matchedName == "" {
+			matchedName = name
+			continue
+		}
+		if name != matchedName {
+			return nil, ""
+		}
+	}
+	if matchedName == "" {
+		return nil, ""
+	}
+	return append([]string(nil), idx.NameToIDs[matchedName]...), idx.displayName(matchedName)
 }
 
 func loadUnlocked() (unlockedFile, error) {

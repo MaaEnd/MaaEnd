@@ -5,6 +5,24 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "IntelArchiveGetUid"
+        ]
+    },
+    "IntelArchiveGetUid": {
+        "desc": "跳转作战手册后截屏 OCR 并缓存 UID",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CaptureUid",
+                "custom_action_param": {
+                    "stay_on_current_screen": false
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
             "[JumpBack]IntelArchiveSyncSub",
             "[JumpBack]IntelArchiveShowInventorySub",
             "EmptyNode"

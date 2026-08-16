@@ -145,5 +145,75 @@
                 "only_rec": true
             }
         ]
+    },
+    "IntelArchiveIncidentInvestigationIcon": {
+        "desc": "识别事件调查icon",
+        "recognition": "TemplateMatch",
+        "roi": [
+            -1000,
+            0,
+            1000,
+            720
+        ],
+        "template": [
+            "IntelArchive/IncidentInvestigation1Collecting.png",
+            "IntelArchive/IncidentInvestigation1Completed.png",
+            "IntelArchive/IncidentInvestigation2Collecting.png",
+            "IntelArchive/IncidentInvestigation2Completed.png"
+        ]
+    },
+    "IntelArchiveIncidentInvestigationTextBackground": {
+        "desc": "识别事件调查icon下方文字背景",
+        "recognition": "ColorMatch",
+        "roi": "IntelArchiveIncidentInvestigationIcon",
+        "roi_offset": [
+            -10,
+            140,
+            20,
+            -105
+        ],
+        "lower": [
+            40,
+            40,
+            40
+        ],
+        "upper": [
+            80,
+            80,
+            80
+        ]
+    },
+    "IntelArchiveIncidentInvestigationTextColor": {
+        "desc": "识别事件调查icon下方文字颜色",
+        "recognition": "ColorMatch",
+        "roi": "IntelArchiveIncidentInvestigationTextBackground",
+        "lower": [
+            150,
+            150,
+            150
+        ],
+        "upper": [
+            230,
+            230,
+            230
+        ],
+        "count": 30
+    },
+    "IntelArchiveIncidentInvestigationText": {
+        "desc": "识别事件调查icon下方文字",
+        "recognition": "And",
+        "all_of": [
+            "IntelArchiveIncidentInvestigationIcon",
+            "IntelArchiveIncidentInvestigationTextBackground",
+            "IntelArchiveIncidentInvestigationTextColor",
+            {
+                "recognition": "OCR",
+                "roi": "IntelArchiveIncidentInvestigationTextColor",
+                "expected": [
+                    ".{2,}"
+                ],
+                "only_rec": true
+            }
+        ]
     }
 }
