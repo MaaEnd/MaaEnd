@@ -105,9 +105,9 @@
             "Node.Recognition.Succeeded": "已位于运送委托列表"
         }
     },
-    // ===== 从任意位置进入当前送货任务的地图界面的公共节点 =====
-    "SeizeDeliveryJobsEnterDestinationMap": {
-        "desc": "从任意位置进入当前送货任务的地图界面",
+    // ===== 从任意位置进入当前送货任务详情或地图界面的公共节点 =====
+    "SeizeDeliveryJobsEnterCurrentJobDetail": {
+        "desc": "从任意位置进入当前送货任务的详情界面",
         "pre_delay": 0,
         "anchor": {
             "SeizeDeliveryJobsAfterEnterWulingJobList": "__SeizeDeliveryJobsReadyToViewCurrentJob"
@@ -115,6 +115,43 @@
         "post_delay": 0,
         "next": [
             "SeizeDeliveryJobsEnterWulingJobList"
+        ]
+    },
+    "SeizeDeliveryJobsEnterDestinationMap": {
+        "desc": "从任意位置进入当前送货任务的地图界面",
+        "pre_delay": 0,
+        "anchor": {
+            "SeizeDeliveryJobsAfterEnterWulingJobList": "__SeizeDeliveryJobsReadyToViewCurrentJob",
+            "SeizeDeliveryJobsAfterEnterCurrentJobDetail": ""
+        },
+        "post_delay": 0,
+        "next": [
+            "SeizeDeliveryJobsEnterWulingJobList"
+        ]
+    },
+    "SeizeDeliveryJobsEnterDestinationMapWithDestinationResolve": {
+        "desc": "进入当前送货任务详情，解析送货终点后再打开目的地地图",
+        "pre_delay": 0,
+        "anchor": {
+            "SeizeDeliveryJobsAfterEnterWulingJobList": "__SeizeDeliveryJobsReadyToViewCurrentJob",
+            "SeizeDeliveryJobsAfterEnterCurrentJobDetail": "SeizeDeliveryJobsResolveDestinationBeforeTeleportEntry",
+            "SeizeDeliveryJobsDepartureOnError": "SeizeDeliveryJobsFatalDeliveryNavigationFailed"
+        },
+        "post_delay": 0,
+        "next": [
+            "SeizeDeliveryJobsEnterWulingJobList"
+        ]
+    },
+    "SeizeDeliveryJobsViewDestinationMapAfterResolve": {
+        "desc": "任务详情检查完成后，点击定位或开始追踪以打开目的地地图",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__SeizeDeliveryJobsViewDestinationMap",
+            "__SeizeDeliveryJobsStartTrackingTask"
         ]
     },
     "__SeizeDeliveryJobsReadyToViewCurrentJob": {
@@ -163,6 +200,7 @@
         "post_wait_freezes": 500, // 等待任务详情界面弹出
         "rate_limit": 500, // 加速等待任务详情界面弹出
         "next": [
+            "[Anchor]SeizeDeliveryJobsAfterEnterCurrentJobDetail",
             "__SeizeDeliveryJobsViewDestinationMap",
             "__SeizeDeliveryJobsStartTrackingTask"
         ],

@@ -4,7 +4,8 @@
         "enabled": false,
         "pre_delay": 0,
         "anchor": {
-            "SeizeDeliveryJobsAfterEnterDestinationMap": "SeizeDeliveryJobsQuickTeleportSelect"
+            "SeizeDeliveryJobsAfterEnterDestinationMap": "SeizeDeliveryJobsQuickTeleportSelect",
+            "SeizeDeliveryJobsAfterQuickTeleport": ""
         },
         "post_delay": 0,
         "next": [
@@ -15,7 +16,7 @@
         }
     },
     "SeizeDeliveryJobsQuickTeleportSelect": {
-        "desc": "在目的地地图界面，使用游戏自带的前往传送功能选中仓储节点附近的传送点",
+        "desc": "在目的地地图界面，使用游戏自带的前往传送功能选中任务目标附近的传送点",
         "recognition": "TemplateMatch",
         "roi": [
             950,
@@ -61,7 +62,7 @@
         }
     },
     "SeizeDeliveryJobsQuickTeleportDone": {
-        "desc": "已在大世界中，表明传送结束，准备根据当前位置以选择前往何处的仓储节点",
+        "desc": "已在大世界中；已解析送货终点时先取消追踪再短程导航，否则根据当前位置判断仓储区域",
         "recognition": "And",
         "all_of": [
             "InWorld"
@@ -71,6 +72,7 @@
         "timeout": 5000, // 断言在短时间内可以命中任一 next
         "next": [
             "SeizeDeliveryJobsSuccessTeleportDone",
+            "[Anchor]SeizeDeliveryJobsAfterQuickTeleport",
             "SeizeDeliveryJobsTargetDepotNodeIsWulingCity",
             "SeizeDeliveryJobsTargetDepotNodeIsTestArea"
         ],
@@ -78,21 +80,54 @@
             "SeizeDeliveryJobsFatalCannotDetermineDestination"
         ]
     },
+    "SeizeDeliveryJobsCheckCarryingAfterUnresolvedTeleport": {
+        "desc": "终点 OCR 未命中时，在快速传送落地后先确认是否已经携带货物",
+        "recognition": "DirectHit",
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                130,
+                30,
+                170,
+                90
+            ]
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "timeout": 5000,
+        "rate_limit": 0,
+        "next": [
+            "SeizeDeliveryJobsIsCarryingGoodsAfterUnresolvedTeleport",
+            "SeizeDeliveryJobsPrepareDepotNavigation"
+        ]
+    },
+    "SeizeDeliveryJobsIsCarryingGoodsAfterUnresolvedTeleport": {
+        "desc": "终点 OCR 未命中但已携带货物，重新进入任务详情识别终点",
+        "recognition": "And",
+        "all_of": [
+            "SeizeDeliveryJobsIsCarryingGoods"
+        ],
+        "box_index": 0,
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SeizeDeliveryJobsRetryResolveDestinationEntry"
+        ]
+    },
     "SeizeDeliveryJobsTargetDepotNodeIsWulingCity": {
         "desc": "判断当前是武陵城的送货任务",
         "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition": "MapLocateAssertLocation",
         "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv002",
-                    "target": [
-                        642.0,
-                        715.0,
-                        54.0,
-                        91.0
-                    ]
-                }
+            "zone_id": "Wuling_Base",
+            "target": [
+                920.48,
+                1760.33,
+                53.2,
+                89.64
             ]
         },
         "pre_delay": 0,
@@ -110,18 +145,14 @@
     "SeizeDeliveryJobsTargetDepotNodeIsTestArea": {
         "desc": "判断当前是试验园区的送货任务",
         "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition": "MapLocateAssertLocation",
         "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv005",
-                    "target": [
-                        280.0,
-                        387.0,
-                        65.0,
-                        45.0
-                    ]
-                }
+            "zone_id": "Wuling_Base",
+            "target": [
+                1235.89,
+                1725.05,
+                64.05,
+                44.31
             ]
         },
         "pre_delay": 0,
@@ -142,10 +173,27 @@
         "post_delay": 0,
         "next": [
             "SeizeDeliveryJobsIsCarryingGoods",
-            "SeizeDeliveryJobsPrepareFetchGoods", // 全自动送货模式下，先取消任务追踪再前往仓储节点
-            "[Anchor]SeizeDeliveryJobsWalkToDepotNode", // 其他模式下，直接前往仓储节点
+            "[Anchor]SeizeDeliveryJobsWalkToDepotNode",
             "SeizeDeliveryJobsFatalCannotDetermineDestination" // 兜底报错回显，以防 Anchor 未被赋值
         ]
+    },
+    "SeizeDeliveryJobsPrepareDepotNavigation": {
+        "desc": "前往仓储点前打开任务详情并取消任务追踪",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "anchor": {
+            "SeizeDeliveryJobsAfterEnterCurrentJobDetail": "SeizeDeliveryJobsPrepareTrackingBeforeDepot",
+            "SeizeDeliveryJobsDepartureOnError": "SeizeDeliveryJobsFatalDeliveryNavigationFailed"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SeizeDeliveryJobsEnterCurrentJobDetail"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "前往仓储点前准备取消任务追踪"
+        }
     },
     "SeizeDeliveryJobsIsCarryingGoods": {
         "desc": "发现已携带了货物，不再传送，直接尝试走送货流程",
@@ -172,12 +220,40 @@
         "desc": "走到武陵城仓储节点",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerGoal",
+        "custom_action": "MapNavigateAction",
+        // 仓储节点在河南岸，和落点分属两块互不连通的网格，直接给终点会闭眼直冲踩进河里。
+        // 改走旁边那座桥：网格只铺到南北两个桥头，桥面被游戏挖空，所以桥上两点写死照走。
         "custom_action_param": {
-            "map_name": "map02_lv002",
-            "target": [
-                674.9,
-                789.2
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        954.6,
+                        1777.18
+                    ]
+                },
+                {
+                    "action": "NAVMESH", // 桥北头，网格到此为止
+                    "target": [
+                        965.81,
+                        1800.4
+                    ]
+                },
+                [
+                    963.66,
+                    1824.46
+                ], // 沿桥直走至南岸路面
+                {
+                    "action": "NAVMESH", // 南岸寻路到仓储节点
+                    "target": [
+                        952.2,
+                        1832.68
+                    ]
+                }
             ]
         },
         "post_delay": 500, // 等待弹出接取货物按钮
@@ -202,20 +278,26 @@
         "max_hit": 5, // 最大重试次数
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerMove",
+        "custom_action": "MapNavigateAction",
         "custom_action_param": {
-            "map_name": "map02_lv002",
             "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        964.99,
+                        1829.41
+                    ]
+                },
                 [
-                    687.5,
-                    786.4
-                ],
-                [
-                    674.9,
-                    789.2
+                    952.2,
+                    1832.68,
+                    true
                 ]
-            ],
-            "path_trim": false
+            ]
         },
         "post_delay": 500, // 等待弹出接取货物按钮
         "focus": {
@@ -233,12 +315,27 @@
         "desc": "走到试验园区仓储节点",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerGoal",
+        "custom_action": "MapNavigateAction",
         "custom_action_param": {
-            "map_name": "map02_lv005",
-            "target": [
-                297.5,
-                413.3
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1264.02,
+                        1734.67
+                    ]
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1252.63,
+                        1751.03
+                    ]
+                }
             ]
         },
         "post_delay": 2000, // 等待玩家止步
@@ -263,20 +360,26 @@
         "max_hit": 5, // 最大重试次数
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerMove",
+        "custom_action": "MapNavigateAction",
         "custom_action_param": {
-            "map_name": "map02_lv005",
             "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1252.58,
+                        1739.8
+                    ]
+                },
                 [
-                    297.9,
-                    402.4
-                ],
-                [
-                    297.5,
-                    413.3
+                    1252.63,
+                    1751.03,
+                    true
                 ]
-            ],
-            "path_trim": false
+            ]
         },
         "post_delay": 2000, // 等待玩家止步
         "focus": {
@@ -290,43 +393,6 @@
         }
     },
     // ===== 接取货物流程 =====
-    "SeizeDeliveryJobsPrepareFetchGoods": {
-        "desc": "自动接取货物前的准备入口，先进入当前任务地图取消任务追踪（此节点默认关闭）",
-        "enabled": false,
-        "pre_delay": 0,
-        "anchor": {
-            "SeizeDeliveryJobsAfterEnterDestinationMap": "SeizeDeliveryJobsCancelTrackingBeforeFetch"
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SeizeDeliveryJobsEnterDestinationMap"
-        ],
-        "focus": {
-            "Node.Action.Starting": "准备取消任务追踪后接取货物"
-        }
-    },
-    "SeizeDeliveryJobsCancelTrackingBeforeFetch": {
-        "desc": "在当前任务地图取消任务追踪，返回大世界后再前往仓储节点接取货物",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "SeizeDeliveryJobsCancelTracking",
-                "SceneAnyEnterWorld"
-            ]
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "[Anchor]SeizeDeliveryJobsWalkToDepotNode",
-            "SeizeDeliveryJobsFatalCannotDetermineDestination"
-        ],
-        "focus": {
-            "Node.Action.Starting": "取消任务追踪后返回大世界"
-        }
-    },
     "SeizeDeliveryJobsFetchGoods": {
         "desc": "在任意仓储节点面前，接取货物",
         "recognition": "TemplateMatch",
@@ -382,6 +448,24 @@
         ],
         "focus": {
             "Node.Recognition.Succeeded": "<p style=\"color: #f44\">无法判断当前任务所在区域，或当前任务不在已支持的地区内，故任务停止</p>"
+        }
+    },
+    "SeizeDeliveryJobsFatalDeliveryNavigationFailed": {
+        "desc": "致命错误，自动前往送货终点失败",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [],
+        "focus": {
+            "Node.Recognition.Succeeded": "<p style=\"color: #f44\">自动前往送货终点失败，任务停止</p>"
+        }
+    },
+    "SeizeDeliveryJobsFatalCannotResolveCarryingDestination": {
+        "desc": "致命错误，已携带货物但仍无法识别送货终点",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [],
+        "focus": {
+            "Node.Recognition.Succeeded": "<p style=\"color: #f44\">已携带货物，但无法识别送货终点，任务停止</p>"
         }
     },
     "SeizeDeliveryJobsFatalAlreadyCarryingGoods": {

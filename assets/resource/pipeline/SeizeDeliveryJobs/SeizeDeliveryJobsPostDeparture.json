@@ -2,19 +2,15 @@
     "SeizeDeliveryJobsPostDepartureEntry": {
         "desc": "自动送委托的入口点（此节点默认关闭）",
         "enabled": false,
+        "recognition": "DirectHit",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "ClearHitCount",
-        "custom_action_param": {
-            "nodes": [
-                "SeizeDeliveryJobsPostDepartureRun"
-            ]
-        },
+        "action": "DoNothing",
         "anchor": {
-            "SeizeDeliveryJobsAfterEnterDestinationMap": "SeizeDeliveryJobsPostPurifyDestinationMap",
-            "SeizeDeliveryJobsDepartureOnError": ""
+            "SeizeDeliveryJobsAfterEnterCurrentJobDetail": "SeizeDeliveryJobsRunDeparture",
+            "SeizeDeliveryJobsDepartureOnError": "SeizeDeliveryJobsFatalDeliveryNavigationFailed"
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "SeizeDeliveryJobsPostDepartureRun"
         ],
@@ -23,161 +19,253 @@
         }
     },
     "SeizeDeliveryJobsPostDepartureRun": {
-        "desc": "执行进入目的地地图及自动送货流程，允许清理误创建标记后完整重走一次",
-        "max_hit": 2,
+        "desc": "进入当前送货任务详情并执行自动送货流程",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "DoNothing",
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SeizeDeliveryJobsEnterDestinationMap"
-        ]
-    },
-    "SeizeDeliveryJobsPostPurifyDestinationMap": {
-        "desc": "在目的地地图界面，清理地图图标遮挡",
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "MapTrackerBigMap_FilterNone"
-            ]
-        },
-        "anchor": {
-            "SeizeDeliveryJobsAfterEnterWulingJobList": "" // 任务结束，置空锚点以防止误用
-        },
-        "post_wait_freezes": {
-            "time": 500,
-            "target": [
-                400,
-                180,
-                160,
-                120
-            ]
-        },
-        "next": [
-            "SeizeDeliveryJobsRunDeparture"
+            "SeizeDeliveryJobsEnterCurrentJobDetail"
         ]
     },
     "SeizeDeliveryJobsRunDeparture": {
-        "desc": "在目的地地图界面，调用 custom 进行自动送货流程",
+        "desc": "分别识别任务详情中的区域和送货目标，并注入对应终点",
+        "recognition": "And",
+        "all_of": [
+            "SeizeDeliveryJobsAreaOCR",
+            "SeizeDeliveryJobsDestinationField"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                455,
+                180,
+                790,
+                43
+            ]
+        },
         "action": "Custom",
-        "custom_action": "SeizeDeliveryJobsDepartureAction",
+        "custom_action": "SeizeDeliveryJobsResolveDestinationAction",
         "custom_action_param": {
-            "map_name_regex": "^(map02_lv002|map02_lv005)$", // 所有可用的送货地图名称（后续增加新地区需要更新此值）
-            // 更新此值需要同时更新 assets\tasks\SeizeDeliveryJobs.json 中对应的值
-            "zipline_policy": "Lazy", // 默认不优先使用滑索（可以覆写为 "Active"）
-            "is_retry": false
+            // 仅透传给 MapNavigator；具体滑索寻路由 MapNavigator 实现
+            "zipline_policy": "Lazy"
         },
         "next": [
-            // 此 CustomAction 内部会自行规划后续节点，故无需在此处指定 next
+            "SeizeDeliveryJobsCancelTrackingForDelivery",
+            "SeizeDeliveryJobsTrackingAlreadyOff"
         ],
         "on_error": [
             "[Anchor]SeizeDeliveryJobsDepartureOnError"
         ]
     },
-    // ===== 分割线：下面的节点由 Go 调用 =====
-    "SeizeDeliveryJobsClickTracking": {
-        "desc": "在目的地地图界面，点击任务的定位标（此节点由 Go 覆写 target 并调用）",
-        "pre_delay": 0,
-        "action": "Click",
-        "target": [
-            -1,
-            -1
-        ], // 需要由 Go 覆写点击位置
-        "post_wait_freezes": {
-            "target": [
-                900,
-                520,
-                380,
-                200
-            ],
-            "time": 200,
-            "timeout": 3000
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "__MapTrackerBigMapClickCustomMarkerCancel",
-            "SeizeDeliveryJobsCancelTracking"
-        ]
-    },
-    "__MapTrackerBigMapClickCustomMarkerCancel": {
-        "desc": "取消送货定位标误创建的自定义标记面板",
-        "recognition": "TemplateMatch",
-        "roi": [
-            1040,
-            620,
-            100,
-            80
-        ],
-        "template": [
-            "Common/Button/CancelButtonType1Line.png",
-            "Common/Button/CancelButtonType1LineHover.png"
-        ],
-        "threshold": 0.9,
-        "pre_delay": 0,
-        "action": "Click",
-        "post_wait_freezes": {
-            "target": [
-                900,
-                520,
-                380,
-                200
-            ],
-            "time": 200,
-            "timeout": 3000
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "__MapTrackerBigMapClickCustomMarkerGone"
-        ]
-    },
-    "__MapTrackerBigMapClickCustomMarkerGone": {
-        "desc": "确认送货定位标误创建的自定义标记面板已消失",
-        "recognition": "And",
-        "all_of": [
-            "__MapTrackerBigMapClickCustomMarkerCancel"
-        ],
-        "inverse": true,
+    "SeizeDeliveryJobsResolveDestinationBeforeTeleportEntry": {
+        "desc": "快速传送前尝试解析送货终点；OCR 未命中时记录落地后的携带状态检查分支",
+        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "DoNothing",
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "__MapTrackerBigMapClickCustomMarkerRecovered"
+            "SeizeDeliveryJobsResolveDestinationBeforeTeleport",
+            "SeizeDeliveryJobsDestinationNotResolvedBeforeTeleport"
         ]
     },
-    "__MapTrackerBigMapClickCustomMarkerRecovered": {
-        "desc": "确认自定义标记面板消失且已恢复大地图，标记本次送货流程需要重新进入地图",
+    "SeizeDeliveryJobsResolveDestinationBeforeTeleport": {
+        "desc": "快速传送前尝试识别送货终点；命中表示已取货并注入短程导航终点",
         "recognition": "And",
         "all_of": [
-            "InMapAny"
+            "SeizeDeliveryJobsAreaOCR",
+            "SeizeDeliveryJobsDestinationField"
         ],
+        "box_index": 1,
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                455,
+                180,
+                790,
+                43
+            ]
+        },
+        "action": "Custom",
+        "custom_action": "SeizeDeliveryJobsResolveDestinationAction",
+        "custom_action_param": {
+            // 快速传送后先取消任务追踪，再使用 RetryNavigate，不使用滑索
+            "zipline_policy": "Never"
+        },
+        "anchor": {
+            "SeizeDeliveryJobsAfterQuickTeleport": "SeizeDeliveryJobsQuickTeleportCancelTrackingEntry"
+        },
+        "next": [
+            "SeizeDeliveryJobsViewDestinationMapAfterResolve"
+        ],
+        "on_error": [
+            "SeizeDeliveryJobsDestinationNotResolvedBeforeTeleport"
+        ]
+    },
+    "SeizeDeliveryJobsQuickTeleportCancelTrackingEntry": {
+        "desc": "快速传送落地后重新进入任务详情，准备取消任务追踪",
+        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "DoNothing",
         "anchor": {
-            "SeizeDeliveryJobsDepartureOnError": "SeizeDeliveryJobsPostDepartureRun"
+            "SeizeDeliveryJobsAfterEnterCurrentJobDetail": "SeizeDeliveryJobsCancelTrackingAfterQuickTeleport",
+            "SeizeDeliveryJobsDepartureOnError": "SeizeDeliveryJobsFatalDeliveryNavigationFailed"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "__MapTrackerBigMapClickRecoveryRequest"
+            "SeizeDeliveryJobsEnterCurrentJobDetail"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "传送完成，重新打开任务详情取消追踪"
+        }
+    },
+    "SeizeDeliveryJobsDestinationNotResolvedBeforeTeleport": {
+        "desc": "未匹配到送货终点，快速传送落地后根据携带状态决定重试 OCR 或前往仓储中心",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "anchor": {
+            "SeizeDeliveryJobsAfterQuickTeleport": "SeizeDeliveryJobsCheckCarryingAfterUnresolvedTeleport"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SeizeDeliveryJobsViewDestinationMapAfterResolve"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "未识别到送货终点，传送后将检查是否已经携带货物"
+        }
+    },
+    "SeizeDeliveryJobsRetryResolveDestinationEntry": {
+        "desc": "快速传送后确认已携带货物，重新进入任务详情识别送货终点",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "anchor": {
+            "SeizeDeliveryJobsAfterEnterCurrentJobDetail": "SeizeDeliveryJobsResolveDestinationAfterTeleport",
+            "SeizeDeliveryJobsDepartureOnError": "SeizeDeliveryJobsFatalCannotResolveCarryingDestination"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SeizeDeliveryJobsEnterCurrentJobDetail"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "已携带货物，重新识别送货终点"
+        }
+    },
+    "SeizeDeliveryJobsResolveDestinationAfterTeleport": {
+        "desc": "快速传送后再次识别送货终点，并注入短程导航终点",
+        "recognition": "And",
+        "all_of": [
+            "SeizeDeliveryJobsAreaOCR",
+            "SeizeDeliveryJobsDestinationField"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                455,
+                180,
+                790,
+                43
+            ]
+        },
+        "action": "Custom",
+        "custom_action": "SeizeDeliveryJobsResolveDestinationAction",
+        "custom_action_param": {
+            "zipline_policy": "Never"
+        },
+        "next": [
+            "SeizeDeliveryJobsCancelTrackingAfterQuickTeleport",
+            "SeizeDeliveryJobsTrackingAlreadyOffAfterQuickTeleport"
+        ],
+        "on_error": [
+            "SeizeDeliveryJobsFatalCannotResolveCarryingDestination"
         ]
     },
-    "__MapTrackerBigMapClickRecoveryRequest": {
-        "desc": "将已清理的自定义标记结果返回给送货流程并请求重新进入地图",
+    "SeizeDeliveryJobsReturnWorldAfterDestinationResolveRetry": {
+        "desc": "二次识别送货终点成功后返回大世界，使用短程路径前往送货点",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "FalseAction",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "SeizeDeliveryJobsRetryNavigate"
+        ],
+        "on_error": [
+            "SeizeDeliveryJobsFatalCannotResolveCarryingDestination"
+        ]
     },
-    "SeizeDeliveryJobsCancelTracking": {
-        "desc": "在当前任务地图界面，取消任务追踪以防止追踪标志干扰后续识别",
-        "enabled": true,
+    "SeizeDeliveryJobsAreaOCR": {
+        "desc": "识别任务详情标题下方的当前区域；文本匹配和歧义判断交给 Go",
+        "recognition": "OCR",
+        "roi": [
+            455,
+            88,
+            250,
+            28
+        ],
+        "only_rec": false,
+        "order_by": "Horizontal"
+    },
+    "SeizeDeliveryJobsDestinationField": {
+        "desc": "确认任务条件区域包含黄色文本，并保留送货目标 OCR 结果",
+        "recognition": "And",
+        "all_of": [
+            "SeizeDeliveryJobsDestinationYellow",
+            "SeizeDeliveryJobsDestinationOCR"
+        ],
+        "box_index": 1
+    },
+    "SeizeDeliveryJobsDestinationYellow": {
+        "desc": "确认任务条件区域存在黄色文本，避免把白色任务说明当作终点",
+        "recognition": "ColorMatch",
+        "roi": [
+            455,
+            180,
+            790,
+            43
+        ],
+        "method": 40,
+        "lower": [
+            20,
+            120,
+            120
+        ],
+        "upper": [
+            30,
+            255,
+            255
+        ],
+        "count": 20
+    },
+    "SeizeDeliveryJobsDestinationOCR": {
+        "desc": "识别第一条送货条件；多语言排版可能带入相邻条件，Go 会做子串容错匹配",
+        "recognition": "OCR",
+        "roi": [
+            455,
+            180,
+            790,
+            43
+        ],
+        // 目标文案是动态的五语言文本，因此不设置 expected
+        "only_rec": false,
+        "order_by": "Horizontal"
+    },
+    "__SeizeDeliveryJobsRecoCancelTracking": {
+        "desc": "识别任务详情界面的取消追踪按钮",
         "recognition": "TemplateMatch",
         "roi": [
             1100,
@@ -185,19 +273,275 @@
             170,
             150
         ],
-        "template": "Common/Button/CancelButtonType1.png",
+        "template": [
+            "Common/Button/CancelButtonType2.png",
+            "Common/Button/CancelButtonType2Hover.png"
+        ],
+        "order_by": "Score"
+    },
+    "SeizeDeliveryJobsCancelTrackingForDelivery": {
+        "desc": "识别并取消当前任务追踪，随后继续自动送货流程",
+        "recognition": "And",
+        "all_of": [
+            "__SeizeDeliveryJobsRecoCancelTracking"
+        ],
+        "box_index": 0,
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
-            // 后续由 Go 内部逻辑来进行后续流程控制
+            "SeizeDeliveryJobsCancelTrackingGone"
+        ]
+    },
+    "SeizeDeliveryJobsCancelTrackingAfterQuickTeleport": {
+        "desc": "快速传送后识别并取消当前任务追踪",
+        "recognition": "And",
+        "all_of": [
+            "__SeizeDeliveryJobsRecoCancelTracking"
         ],
-        "focus": {
-            "Node.Action.Starting": "取消任务追踪"
-        }
+        "box_index": 0,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SeizeDeliveryJobsCancelTrackingGoneAfterQuickTeleport"
+        ]
+    },
+    "SeizeDeliveryJobsCancelTrackingBeforeDepot": {
+        "desc": "前往仓储点前识别并取消当前任务追踪",
+        "recognition": "And",
+        "all_of": [
+            "__SeizeDeliveryJobsRecoCancelTracking"
+        ],
+        "box_index": 0,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SeizeDeliveryJobsCancelTrackingGoneBeforeDepot"
+        ]
+    },
+    "SeizeDeliveryJobsPrepareTrackingBeforeDepot": {
+        "desc": "前往仓储点前判断是否需要取消任务追踪",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SeizeDeliveryJobsCancelTrackingBeforeDepot",
+            "SeizeDeliveryJobsTrackingAlreadyOffBeforeDepot"
+        ]
+    },
+    "SeizeDeliveryJobsTrackingAlreadyOffBeforeDepot": {
+        "desc": "前往仓储点前确认当前任务已经未追踪",
+        "recognition": "TemplateMatch",
+        "roi": [
+            1070,
+            570,
+            200,
+            140
+        ],
+        "template": [
+            "Common/Button/WhiteConfirmButtonType1.png",
+            "Common/Button/WhiteConfirmButtonType1Hover.png"
+        ],
+        "order_by": "Score",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SeizeDeliveryJobsReturnWorldBeforeDepot"
+        ]
+    },
+    "SeizeDeliveryJobsCancelTrackingGoneBeforeDepot": {
+        "desc": "前往仓储点前确认取消追踪按钮已消失",
+        "recognition": "TemplateMatch",
+        "roi": [
+            1100,
+            560,
+            170,
+            150
+        ],
+        "template": [
+            "Common/Button/CancelButtonType2.png",
+            "Common/Button/CancelButtonType2Hover.png"
+        ],
+        "order_by": "Score",
+        "inverse": true,
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SeizeDeliveryJobsReturnWorldBeforeDepot"
+        ]
+    },
+    "SeizeDeliveryJobsReturnWorldBeforeDepot": {
+        "desc": "取消仓储出发前的任务追踪后返回大世界",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SeizeDeliveryJobsTargetDepotNodeIsWulingCity",
+            "SeizeDeliveryJobsTargetDepotNodeIsTestArea"
+        ],
+        "on_error": [
+            "SeizeDeliveryJobsFatalDeliveryNavigationFailed"
+        ]
+    },
+    "SeizeDeliveryJobsTrackingAlreadyOffAfterQuickTeleport": {
+        "desc": "快速传送后确认当前任务已经未追踪",
+        "recognition": "TemplateMatch",
+        "roi": [
+            1070,
+            570,
+            200,
+            140
+        ],
+        "template": [
+            "Common/Button/WhiteConfirmButtonType1.png",
+            "Common/Button/WhiteConfirmButtonType1Hover.png"
+        ],
+        "order_by": "Score",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SeizeDeliveryJobsReturnWorldAfterDestinationResolveRetry"
+        ]
+    },
+    "SeizeDeliveryJobsCancelTrackingGoneAfterQuickTeleport": {
+        "desc": "快速传送后确认取消追踪按钮已消失",
+        "recognition": "TemplateMatch",
+        "roi": [
+            1100,
+            560,
+            170,
+            150
+        ],
+        "template": [
+            "Common/Button/CancelButtonType2.png",
+            "Common/Button/CancelButtonType2Hover.png"
+        ],
+        "order_by": "Score",
+        "inverse": true,
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SeizeDeliveryJobsReturnWorldAfterDestinationResolveRetry"
+        ]
+    },
+    "SeizeDeliveryJobsTrackingAlreadyOff": {
+        "desc": "右下角显示开始追踪按钮，确认当前任务已经未追踪",
+        "recognition": "TemplateMatch",
+        "roi": [
+            1070,
+            570,
+            200,
+            140
+        ],
+        "template": [
+            "Common/Button/WhiteConfirmButtonType1.png",
+            "Common/Button/WhiteConfirmButtonType1Hover.png"
+        ],
+        "order_by": "Score",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SeizeDeliveryJobsReturnWorld"
+        ]
+    },
+    "SeizeDeliveryJobsCancelTrackingGone": {
+        "desc": "确认取消追踪按钮已消失",
+        "recognition": "TemplateMatch",
+        "roi": [
+            1100,
+            560,
+            170,
+            150
+        ],
+        "template": [
+            "Common/Button/CancelButtonType2.png",
+            "Common/Button/CancelButtonType2Hover.png"
+        ],
+        "order_by": "Score",
+        "inverse": true,
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SeizeDeliveryJobsReturnWorld"
+        ]
+    },
+    "SeizeDeliveryJobsReturnWorld": {
+        "desc": "取消任务追踪后返回大世界",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SeizeDeliveryJobsNavigate"
+        ]
+    },
+    "SeizeDeliveryJobsNavigate": {
+        "desc": "按 Go 解析动作注入的终点调用 MapNavigateAction 导航",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            // 终点由 SeizeDeliveryJobsResolveDestinationAction 在运行时完整覆写
+            "map_name": "Wuling_Base",
+            // 兼容预留字段，当前 MapNavigator 尚未实现滑索策略
+            "zipline_policy": "Lazy",
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        461.92,
+                        1712.802
+                    ],
+                    "target_deck_y": 315.37
+                }
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SeizeDeliveryJobsSubmitEntry"
+        ],
+        "on_error": [
+            "[Anchor]SeizeDeliveryJobsDepartureOnError"
+        ]
     },
     "SeizeDeliveryJobsSubmitEntry": {
-        "desc": "自动送委托的提交入口点（此节点由 Go 调用）",
+        "desc": "到达送货终点后识别提交货物按钮",
         "enabled": true,
         "pre_delay": 0,
         "post_delay": 2000, // 等待玩家止步
@@ -294,20 +638,55 @@
         ]
     },
     "SeizeDeliveryJobsSubmitFallback": {
-        "desc": "未能找到提交货物按钮时触发，使用缓存坐标重新返回大世界并送货（有最大尝试次数限制）",
+        "desc": "未能找到提交货物按钮时触发，先恢复到大世界，再按运行时注入的终点重新送货（有最大尝试次数限制）",
         "max_hit": 5,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "SeizeDeliveryJobsDepartureAction",
+        "custom_action": "SubTask",
         "custom_action_param": {
-            "map_name_regex": "", // 重试使用的是缓存数据，此处不填即可
-            "zipline_policy": "Never", // 重试时玩家离终点很近，不要使用滑索
-            "is_retry": true
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
         },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
-            // 后续由 Go 内部逻辑来重新调用提交货物分支
+            "SeizeDeliveryJobsRetryNavigate"
         ],
         "focus": {
             "Node.Action.Starting": "准备重新前往终点"
         }
+    },
+    "SeizeDeliveryJobsRetryNavigate": {
+        "desc": "提交失败后按 Go 解析动作注入的终点重新调用 MapNavigateAction",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            // 终点由 SeizeDeliveryJobsResolveDestinationAction 在运行时完整覆写
+            "map_name": "Wuling_Base",
+            // 重试时玩家已经接近终点，不使用滑索
+            "zipline_policy": "Never",
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        461.92,
+                        1712.802
+                    ],
+                    "target_deck_y": 315.37
+                }
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SeizeDeliveryJobsSubmitEntry"
+        ],
+        "on_error": [
+            "[Anchor]SeizeDeliveryJobsDepartureOnError"
+        ]
     }
 }

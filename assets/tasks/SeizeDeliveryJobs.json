@@ -306,10 +306,10 @@
                     ],
                     "pipeline_override": {
                         "SeizeDeliveryJobsPostProcessingEntry": {
-                            "enabled": true
-                        },
-                        "SeizeDeliveryJobsPrepareFetchGoods": {
-                            "enabled": true
+                            "enabled": true,
+                            "next": [
+                                "SeizeDeliveryJobsEnterDestinationMapWithDestinationResolve"
+                            ]
                         },
                         "SeizeDeliveryJobsPostDepartureEntry": {
                             "enabled": true
@@ -351,10 +351,7 @@
                     "pipeline_override": {
                         "SeizeDeliveryJobsRunDeparture": {
                             "custom_action_param": {
-                                "map_name_regex": "^(map02_lv002|map02_lv005)$", // 所有可用的送货地图名称（后续增加新地区需要更新此值）
-                                // 更新此值需要同时更新 assets\resource\pipeline\SeizeDeliveryJobs\SeizeDeliveryJobsPostDeparture.json 中对应的值
-                                "zipline_policy": "Active",
-                                "is_retry": false
+                                "zipline_policy": "Active"
                             }
                         }
                     }
