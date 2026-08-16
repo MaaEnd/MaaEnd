@@ -137,12 +137,15 @@ class NavmeshBackend:
     # --- 查询 -------------------------------------------------------------------------
     def query(self, op: str, **params: Any) -> dict[str, Any]:
         """发一次查询并返回 agent 的原始结果。仅在工作线程 (threadpool) 中调用。"""
+        self._await_ready()
+        return self._post(op, **params)
+
+    def _await_ready(self) -> None:
         self.ensure_loading()
         if not self._ready.wait(180.0):
             raise RuntimeError("navmesh agent 启动超时")
         if self._error is not None:
             raise RuntimeError(self._error)
-        return self._post(op, **params)
 
     def _post(self, op: str, **params: Any) -> dict[str, Any]:
         payload = {"op": op, "navmesh_file": str(self._path), **params}
@@ -174,6 +177,8 @@ class NavmeshBackend:
 
     def mesh_bytes(self, zone_id: int) -> bytes | None:
         """某区所属几何区的 NMSH 缓冲 (tier 解析到父几何区); 无三角面时返回 None。"""
+        # 缓存键要等 _geom_of 建起来才算得准, 否则同一份 mesh 会按各个 tier 再各存一份。
+        self._await_ready()
         geom_id = self._geom_of.get(int(zone_id), int(zone_id))
         cached = self._mesh_cache.get(geom_id)
         if cached is not None:
