@@ -277,8 +277,8 @@ json::object BuildDeckProbe(const QueryContext& context, const QueryParam& param
         const auto vertices = planner.trianglePoints(triangle);
         double distance = 0.0;
         if (!navmesh::detail::PointInTriangle(point, vertices)) {
-            const navmesh::WorldPoint near = navmesh::detail::ClosestPointOnTriangle(point, vertices);
-            distance = navmesh::detail::Distance(near, point);
+            const navmesh::WorldPoint closest = navmesh::detail::ClosestPointOnTriangle(point, vertices);
+            distance = navmesh::detail::Distance(closest, point);
             if (distance > navmesh::recast::kCS) {
                 continue;
             }
