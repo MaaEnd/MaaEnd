@@ -1,5 +1,7 @@
 {
     "AutoCollectClickStart": {
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
             "AutoCollectClick",
             "AutoCollectClickEnd"
@@ -109,18 +111,10 @@
                 ]
             }
         },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "AutoAltClickAction"
-            }
-        },
-        // "action": { //调试用，按q
-        //     "type": "ClickKey",
-        //     "param": {
-        //         "key": 81
-        //     }
-        // },
+        "pre_delay": 0,
+        "action": "ClickKey",
+        "key": 70, // F 交互；可通过全局设置 KeymapInteract 改绑
+        "post_delay": 0,
         "next": [
             "AutoCollectClickEnd"
         ],
@@ -134,11 +128,9 @@
             }
         }
     },
+    //子任务出口：由 MapNavigator 以 MaaContextRunTask 调起，跑到这里就结束、返回引擎
     "AutoCollectClickEnd": {
         "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "[Anchor]AutoCollectClickAfter"
-        ]
+        "post_delay": 0
     }
 }

@@ -98,7 +98,8 @@
                 ],
                 "expected": [
                     "^[1-9]"
-                ]
+                ],
+                "only_rec": true
             }
         },
         "pre_delay": 0,

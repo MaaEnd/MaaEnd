@@ -216,7 +216,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToPoolLotus"
+            "PoolLotusInQuickTeleportMap"
         ]
     },
     "AlreadyTrackedPoolLotus": {
@@ -230,7 +230,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToPoolLotus"
+            "PoolLotusOpenTrackedMissionMap"
         ]
     },
     "PoolLotusOpenTrackedMissionMap": {
@@ -336,18 +336,14 @@
     "GoToPoolLotusStartPos": {
         "desc": "在小池荷任务开始位置附近",
         "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition": "MapLocateAssertLocation",
         "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv004",
-                    "target": [
-                        602.8,
-                        325,
-                        9.7,
-                        8.1
-                    ]
-                }
+            "zone_id": "Wuling_Base",
+            "target": [
+                0,
+                0,
+                1,
+                1
             ]
         },
         "pre_delay": 0,
@@ -364,7 +360,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldWulingMarkerStone3"
+                "SceneAnyEnterWorld"
             ]
         },
         "post_delay": 0,
@@ -377,20 +373,21 @@
         "desc": "自动寻路前往小池荷",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerGoal",
+        "custom_action": "MapNavigateAction",
         "custom_action_param": {
-            "map_name": "map02_lv004",
-            "target": [
-                581.4,
-                305.1
-            ],
-            "on_finish": {
-                "action": "Custom",
-                "custom_action": "MapTrackerToward",
-                "custom_action_param": {
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        573.36,
+                        2219.06
+                    ]
+                },
+                {
+                    "action": "HEADING",
                     "angle": 180
                 }
-            }
+            ]
         },
         "post_delay": 0,
         "rate_limit": 0,

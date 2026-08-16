@@ -1,0 +1,190 @@
+{
+    "DeliveryJobsCheckPowerPlateauDeliveryJob": {
+        "desc": "检查供能高地的送货任务按钮",
+        "recognition": "OCR",
+        "roi": "DeliveryJobsCheckLocalDepotNodePowerPlateauText",
+        "roi_offset": [
+            -39,
+            286,
+            220,
+            62
+        ],
+        "expected": [
+            "查看任务",
+            "查看任務",
+            "(?i)Check\\s*Mission",
+            "任務確認",
+            "임무 확인"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "DeliveryJobsEnterPowerPlateauDeliveryJob": {
+        "desc": "供能高地：进入送货任务",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "DeliveryJobsCheckLocalDepotNodePowerPlateauText",
+            "DeliveryJobsCheckPowerPlateauDeliveryJob"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsClickTransferJob"
+        ]
+    },
+    "DeliveryJobsReturnAndTransferPowerPlateau": {
+        "desc": "返回供能高地并转交达到报价阈值的任务",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsEnterPowerPlateauPriceDeliveryJob"
+        ]
+    },
+    "DeliveryJobsEnterPowerPlateauPriceDeliveryJob": {
+        "desc": "供能高地：进入达到报价阈值的送货任务",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "DeliveryJobsCheckLocalDepotNodePowerPlateauText",
+            "DeliveryJobsCheckPowerPlateauDeliveryJob"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsClickTransferJob"
+        ]
+    },
+    "DeliveryJobsCheckLocalDepotNodePowerPlateauText": {
+        "desc": "检查本地仓储节点中是否有供能高地",
+        "recognition": "OCR",
+        "roi": [
+            67,
+            224,
+            1006,
+            95
+        ],
+        "expected": [
+            "供能高地",
+            "(?i)Power\\s*Plateau",
+            "エネルギー高地",
+            "에너지 공급 고지"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "DeliveryJobsCheckPowerPlateauCargo": {
+        "desc": "检查供能高地的货物是否准备好",
+        "recognition": "OCR",
+        "roi": "DeliveryJobsCheckLocalDepotNodePowerPlateauText",
+        "roi_offset": [
+            -39,
+            286,
+            220,
+            62
+        ],
+        "expected": [
+            "查看报价",
+            "查看報價",
+            "(?i)Check\\s*Bid",
+            "希望価格確認",
+            "货物装箱",
+            "貨物裝箱",
+            "(?i)Pack\\s*Goods",
+            "パッキング",
+            "화물 포장",
+            "입찰 보기"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "DeliveryJobsEnterPowerPlateauCargo": {
+        "desc": "进入供能高地货物",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "DeliveryJobsCheckLocalDepotNodePowerPlateauText",
+            "DeliveryJobsCheckPowerPlateauCargo"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillValleyIV",
+            "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
+            "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStopForOngoingDelivery",
+            "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsPackCargo"
+        ]
+    },
+    "DeliveryJobsDecidePowerPlateauQuote": {
+        "desc": "按报价决定如何处理供能高地的货物",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsPowerPlateauQuoteAtLeastMinimum",
+            "DeliveryJobsPowerPlateauQuoteBelowMinimum",
+            "DeliveryJobsBidPriceRecognitionFailed"
+        ]
+    },
+    "DeliveryJobsPowerPlateauQuoteAtLeastMinimum": {
+        "desc": "供能高地当前报价达到或高于阈值",
+        "recognition": "Custom",
+        "custom_recognition": "ExpressionRecognition",
+        "custom_recognition_param": {
+            "expression": "{DeliveryJobsSelectedBidPrice}>=119000"
+        },
+        "pre_delay": 0,
+        "anchor": {
+            "DeliveryJobsQuoteAction": "DeliveryJobsQuoteTransferJob",
+            "DeliveryJobsGoToDepot": "DeliveryJobsReturnAndTransferPowerPlateau"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]DeliveryJobsQuoteAction"
+        ]
+    },
+    "DeliveryJobsPowerPlateauQuoteBelowMinimum": {
+        "desc": "供能高地当前报价低于阈值",
+        "recognition": "Custom",
+        "custom_recognition": "ExpressionRecognition",
+        "custom_recognition_param": {
+            "expression": "{DeliveryJobsSelectedBidPrice}<119000"
+        },
+        "pre_delay": 0,
+        "anchor": {
+            "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
+            "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]DeliveryJobsQuoteAction"
+        ]
+    }
+}

@@ -80,6 +80,16 @@
             "group": "build"
         },
         {
+            "label": "Generate: DeliveryJobs",
+            "type": "shell",
+            "command": "pnpm generate:DeliveryJobs",
+            "runOptions": {
+                "instanceLimit": 1
+            },
+            "problemMatcher": [],
+            "group": "build"
+        },
+        {
             "label": "Format: All",
             "type": "shell",
             "command": "pnpm format:all",

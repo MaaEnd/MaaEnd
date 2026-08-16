@@ -35,6 +35,11 @@ MaaBool ChildCustomRecognitionCallback(
 
     // sample for OpenCV APIs
     cv::Mat img = to_mat(image);
+    if (img.empty()) {
+        LogError << "Empty image";
+        return false;
+    }
+
     cv::Mat hsv;
     cv::cvtColor(img, hsv, cv::COLOR_BGR2HSV);
 

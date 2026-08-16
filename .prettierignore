@@ -1,6 +1,10 @@
 # 构建产物
 install/
 node_modules/
+.venv/
+agent/cpp-algo/source/IconRecognition/test/build/
+agent/cpp-algo/source/IconRecognition/test/input/
+agent/cpp-algo/source/IconRecognition/test/output/
 
 # 子模块
 assets/resource/model/
@@ -21,6 +25,9 @@ package-lock.json
 # Go
 agent/go-service/go.sum
 agent/go-service/vendor/
+
+# Markdown 使用 markdownlint 格式化
+**/*.md
 
 # 其他
 *.min.js

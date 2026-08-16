@@ -97,6 +97,15 @@ struct BaseNavLink
     uint32_t target = 0;
 };
 
+// v4 起包尾可以挂若干独立数据段,靠头里的段目录定位。四段原有数据一个字节不动,
+// 认不出某个 tag 的读取器跳过它即可。
+struct BaseNavSection
+{
+    std::array<char, 4> tag { ' ', ' ', ' ', ' ' };
+    uint32_t flags = 0;
+    std::vector<uint8_t> bytes;
+};
+
 class BaseNavPack;
 
 namespace detail
@@ -107,7 +116,8 @@ BaseNavPack MakeBaseNavPack(
     std::vector<BaseNavZone> zones,
     std::vector<BaseNavVertex> vertices,
     std::vector<BaseNavTriangle> triangles,
-    std::vector<BaseNavLink> links);
+    std::vector<BaseNavLink> links,
+    std::vector<BaseNavSection> sections);
 
 }
 
@@ -133,19 +143,24 @@ public:
     // multi-floor base resolves onto the right floor. Mirrors basenav_preview.py BaseNavField.floor_y_for.
     float floorYForZoneName(const std::string& zone_name) const;
 
+    // v4 附加段的原始字节;认不出的 tag 直接留着不解析。没有该段返回 nullptr。
+    const BaseNavSection* section(const char (&tag)[5]) const;
+
 private:
     friend BaseNavPack detail::MakeBaseNavPack(
         std::filesystem::path path,
         std::vector<BaseNavZone> zones,
         std::vector<BaseNavVertex> vertices,
         std::vector<BaseNavTriangle> triangles,
-        std::vector<BaseNavLink> links);
+        std::vector<BaseNavLink> links,
+        std::vector<BaseNavSection> sections);
 
     std::filesystem::path path_;
     std::vector<BaseNavZone> zones_;
     std::vector<BaseNavVertex> vertices_;
     std::vector<BaseNavTriangle> triangles_;
     std::vector<BaseNavLink> links_;
+    std::vector<BaseNavSection> sections_;
 };
 
 struct BaseNavLoadResult

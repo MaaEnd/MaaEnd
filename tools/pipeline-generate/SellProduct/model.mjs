@@ -4,7 +4,7 @@ import {dataDir} from "../utils/paths.mjs";
 
 let loadedSettlementData;
 try {
-    loadedSettlementData = JSON.parse(readFileSync(resolve(dataDir, "settlement_trade.json"), "utf8"));
+    loadedSettlementData = JSON.parse(readFileSync(resolve(dataDir, "sell_product.json"), "utf8"));
 } catch {
     console.error("[SellProduct] 数据文件缺失，请先运行 pnpm fetch:zmdmap 或 pnpm generate:SellProduct");
     process.exit(1);
@@ -32,11 +32,11 @@ export function uniqueArray(items) {
 }
 
 export function isAdminOperator(operator) {
-    return operator.name?.EN === "Endministrator" || operator.name?.CN === "管理员";
+    return operator.names?.en_us === "Endministrator" || operator.names?.zh_cn === "管理员";
 }
 
 export function getOperatorCaseName(operator) {
-    return toPascalCase(operator.name?.EN || operator.charId);
+    return toPascalCase(operator.names?.en_us || operator.id);
 }
 
 // 英文地名匹配允许空格和连字符有轻微 OCR 差异。
@@ -45,7 +45,7 @@ function toFlexibleEnglishRegex(text) {
     return `(?i)^${escaped.replace(/\s+/g, "\\s*").replace(/-/g, "\\s*-\\s*")}$`;
 }
 
-// 官方多语言全文统一从 settlementName 提取，LocationId 统一由英文名称派生。
+// 官方多语言全文统一从 names 提取，LocationId 统一由英文名称派生。
 // 以下别名只补充无法从数据源直接生成的 OCR 候选；新增片段或误识文本必须有实际识别证据。
 const SETTLEMENT_OCR_ALIASES = {
     // Reconstruction HQ 末尾误识为 Hc 时的 OCR 候选。
@@ -60,8 +60,8 @@ const SETTLEMENT_OCR_ALIASES = {
     ],
 };
 
-// domainId → 区域信息。新 domain 接入时若沿用「英文区域名」命名约定，只需在此补充展示名；
-// 不在表中的 domain 会回退到 toPascalCase(domainId)。
+// region_id → 区域信息。新地区接入时若沿用「英文区域名」命名约定，只需在此补充展示名；
+// 不在表中的地区会回退到 toPascalCase(region_id)。
 const DOMAIN_REGION = {
     domain_1: {
         RegionPrefix: "ValleyIV",
@@ -76,16 +76,16 @@ const DOMAIN_REGION = {
 // 生成据点入口 OCR 候选：先加入数据源多语言全文，再追加额外 OCR 候选。
 function buildSettlementTextExpected(settlementId, settlement) {
     return uniqueArray([
-        settlement.settlementName.CN,
-        settlement.settlementName.TC,
-        settlement.settlementName.JP,
-        settlement.settlementName.KR,
-        settlement.settlementName.EN ? toFlexibleEnglishRegex(settlement.settlementName.EN) : null,
+        settlement.names.zh_cn,
+        settlement.names.zh_tw,
+        settlement.names.ja_jp,
+        settlement.names.ko_kr,
+        settlement.names.en_us ? toFlexibleEnglishRegex(settlement.names.en_us) : null,
         ...(SETTLEMENT_OCR_ALIASES[settlementId] || []),
     ]);
 }
 
-// 所有模板共享的据点模型。排序先按 domainId，同 domain 内再按 settlementId。
+// 所有模板共享的据点模型。排序先按 region_id，同地区内再按 settlementId。
 export const sellProductLocations = Object.entries(settlementData.settlements)
     .sort(
         (
@@ -98,8 +98,8 @@ export const sellProductLocations = Object.entries(settlementData.settlements)
                 bData,
             ],
         ) => {
-            const aDomain = aData.domainId || "";
-            const bDomain = bData.domainId || "";
+            const aDomain = aData.region_id || "";
+            const bDomain = bData.region_id || "";
             if (aDomain !== bDomain) return aDomain.localeCompare(bDomain);
             return aId.localeCompare(bId);
         },
@@ -109,14 +109,15 @@ export const sellProductLocations = Object.entries(settlementData.settlements)
             SettlementId,
             settlement,
         ]) => {
-            const RegionPrefix = DOMAIN_REGION[settlement.domainId]?.RegionPrefix || toPascalCase(settlement.domainId);
-            const LocationId = toPascalCase(settlement.settlementName.EN || SettlementId);
+            const RegionPrefix =
+                DOMAIN_REGION[settlement.region_id]?.RegionPrefix || toPascalCase(settlement.region_id);
+            const LocationId = toPascalCase(settlement.names.en_us || SettlementId);
 
             return {
                 SettlementId,
                 RegionPrefix,
                 LocationId,
-                LocationDesc: settlement.settlementName.CN,
+                LocationDesc: settlement.names.zh_cn,
                 TextExpected: buildSettlementTextExpected(SettlementId, settlement),
             };
         },
@@ -126,7 +127,7 @@ export const sellProductLocations = Object.entries(settlementData.settlements)
 export const sellProductRegions = Object.values(
     sellProductLocations.reduce((regions, location) => {
         if (!regions[location.RegionPrefix]) {
-            const region = DOMAIN_REGION[settlementData.settlements[location.SettlementId].domainId];
+            const region = DOMAIN_REGION[settlementData.settlements[location.SettlementId].region_id];
             regions[location.RegionPrefix] = {
                 RegionPrefix: location.RegionPrefix,
                 RegionDesc: region?.RegionDesc || location.RegionPrefix,
@@ -140,7 +141,12 @@ export const sellProductRegions = Object.values(
 
 // 实际售卖与恢复规划优先处理较新的地区，地区内仍保持游戏据点顺序。
 export const sellProductRegionsNewestFirst = [...sellProductRegions].reverse();
-const sellProductLocationById = new Map(sellProductLocations.map((location) => [location.LocationId, location]));
+const sellProductLocationById = new Map(
+    sellProductLocations.map((location) => [
+        location.LocationId,
+        location,
+    ]),
+);
 export const sellProductLocationsNewestFirst = sellProductRegionsNewestFirst.flatMap((region) =>
     region.LocationIds.map((locationId) => sellProductLocationById.get(locationId)),
 );
@@ -151,10 +157,10 @@ export const sellProductLocaleEntries = {
         .filter((operator) => !isAdminOperator(operator))
         .map((operator) => ({
             key: `operator.${getOperatorCaseName(operator)}`,
-            names: operator.name || {},
+            names: operator.names || {},
         })),
     settlements: sellProductLocations.map((location) => ({
         key: `task.SellProduct.${location.RegionPrefix}${location.LocationId}`,
-        names: settlementData.settlements[location.SettlementId].settlementName || {},
+        names: settlementData.settlements[location.SettlementId].names || {},
     })),
 };

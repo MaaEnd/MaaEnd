@@ -38,7 +38,14 @@
             "key": "EnvironmentMonitoring"
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        // 这个节点是收集错误的节点，如果之前有节点报错，这个节点一定报错
+        // 所以完全没有必要重复上报
+        "focus": {
+            "Node.PipelineNode.Failed": {
+                "trace": false
+            }
+        }
     },
     "EnvironmentMonitoringTerminalFinish": {
         "desc": "当前环境监测终端完成",

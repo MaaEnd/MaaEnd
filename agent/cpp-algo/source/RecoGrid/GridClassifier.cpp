@@ -8,6 +8,7 @@
 #include <cstdint>
 #include <map>
 #include <stdexcept>
+#include <string>
 #include <utility>
 
 namespace recogrid
@@ -36,7 +37,8 @@ struct DirectMaskKey
 
 struct DirectTemplateKey
 {
-    std::uintptr_t data = 0;
+    // 用模板 id 而不是像素指针：模板释放后新 Mat 可能落到同一地址，指针会命中错项。
+    std::string id;
     int rows = 0;
     int cols = 0;
     int type = 0;
@@ -131,13 +133,7 @@ DirectTemplateEntry GetDirectTemplateEntry(const GridClassifyTemplate& entry, cv
     static std::map<DirectTemplateKey, DirectTemplateEntry> cache;
 
     const DirectTemplateKey key {
-        reinterpret_cast<std::uintptr_t>(entry.image.data),
-        entry.image.rows,
-        entry.image.cols,
-        entry.image.type(),
-        size.width,
-        size.height,
-        MakeDirectMaskKey(maskRatios),
+        entry.id, entry.image.rows, entry.image.cols, entry.image.type(), size.width, size.height, MakeDirectMaskKey(maskRatios),
     };
 
     const auto iter = cache.find(key);

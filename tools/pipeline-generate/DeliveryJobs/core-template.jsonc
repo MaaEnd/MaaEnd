@@ -1,0 +1,56 @@
+{
+    // 自动转交运送委托
+    "DeliveryJobsMain": {
+        "desc": "开始自动转交运送委托",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsLoop",
+            "[JumpBack]SceneEnterMenuRegionalDevelopment"
+        ]
+    },
+    "DeliveryJobsLoop": {
+        "desc": "主循环，仅支持从地区建设界面开始",
+        "recognition": "And",
+        "all_of": [
+            "InRegionalDevelopment"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": "${LoopNext}"
+    },
+    "DeliveryJobsAuto": {
+        "desc": "自动选择起始地区运送委托",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": "${AutoNext}"
+    },
+    "DeliveryJobsDepotLocked": {
+        "desc": "仓储节点未解锁",
+        "recognition": "TemplateMatch",
+        "roi": [
+            1179,
+            347,
+            36,
+            47
+        ],
+        "template": "DeliveryJobs/DepotLocked.png",
+        "threshold": 0.8,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsLoop"
+        ]
+    },
+    "DeliveryJobsFinished": {
+        "desc": "自动转交运送委托完成。这个节点主要是为了调试界面看起来舒服",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

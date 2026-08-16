@@ -166,6 +166,8 @@ func moveToTarget(ctx *maa.Context, arg *maa.CustomActionArg, alignThreshold int
 	}
 
 	box := arg.Box
+	rememberLastTarget(box, farTargetWidth)
+
 	if farTargetWidth != nil && box.Width() < *farTargetWidth {
 		moveAxis(ctx, 200)
 		log.Debug().
@@ -177,7 +179,7 @@ func moveToTarget(ctx *maa.Context, arg *maa.CustomActionArg, alignThreshold int
 
 	targetCenterX := box.X() + box.Width()/2
 	targetCenterY := box.Y() + box.Height()/2
-	screenCenterX := 1280 / 2
+	screenCenterX := screenW / 2
 
 	offsetX := targetCenterX - screenCenterX
 
@@ -210,9 +212,54 @@ func moveToTarget(ctx *maa.Context, arg *maa.CustomActionArg, alignThreshold int
 	return true
 }
 
+type lastTargetBox struct {
+	x, y, w, h int
+}
+
 var (
 	targetNotFoundCounter = 0
+	lastTarget            *lastTargetBox
+	lastFarTargetWidth    *int
 )
+
+func rememberLastTarget(box maa.Rect, farTargetWidth *int) {
+	lastTarget = &lastTargetBox{
+		x: box.X(),
+		y: box.Y(),
+		w: box.Width(),
+		h: box.Height(),
+	}
+	if farTargetWidth == nil {
+		lastFarTargetWidth = nil
+		return
+	}
+	w := *farTargetWidth
+	lastFarTargetWidth = &w
+}
+
+func clearLastTarget() {
+	lastTarget = nil
+	lastFarTargetWidth = nil
+}
+
+// signedDeltaFromLastBox picks NotFound yaw sign from the last MoveToTarget hit.
+// Returns +absDelta (turn right) when there is no usable last box.
+// A box is usable when farW is nil, or when box width >= *farW (not too far).
+// Left-of-center usable boxes return -absDelta; right-of-center return +absDelta.
+func signedDeltaFromLastBox(box *lastTargetBox, farW *int, absDelta int) (signedDelta int, side string, usedLast bool) {
+	absDelta = absInt(absDelta)
+	if box == nil {
+		return absDelta, "right", false
+	}
+	if farW != nil && box.w < *farW {
+		return absDelta, "right", false
+	}
+	centerX := box.x + box.w/2
+	if centerX < screenW/2 {
+		return -absDelta, "left", true
+	}
+	return absDelta, "right", true
+}
 
 type CharacterMoveToTargetAction struct{}
 
@@ -258,14 +305,9 @@ func (a *CharacterMoveToTargetNotFoundAction) Run(ctx *maa.Context, arg *maa.Cus
 			Str("action", "CharacterMoveToTargetNotFound").
 			Msg("target not found for too many times, stopping task")
 		targetNotFoundCounter = 0
+		clearLastTarget()
 		return false
 	}
-
-	log.Debug().
-		Int("counter", targetNotFoundCounter).
-		Str("component", "CharacterController").
-		Str("action", "CharacterMoveToTargetNotFound").
-		Msg("target not found, attempting to adjust view to find target")
 
 	var params struct {
 		Delta int `json:"delta"`
@@ -278,8 +320,26 @@ func (a *CharacterMoveToTargetNotFoundAction) Run(ctx *maa.Context, arg *maa.Cus
 			Msg("failed to parse CustomActionParam")
 		return false
 	}
-	delta := params.Delta % 360
-	dx := delta * 2 // mapTracker RotationSpeed默认2
+
+	absDelta := absInt(params.Delta % 360)
+	signedDelta, side, usedLast := signedDeltaFromLastBox(lastTarget, lastFarTargetWidth, absDelta)
+	clearLastTarget()
+
+	evt := log.Debug().
+		Int("counter", targetNotFoundCounter).
+		Str("component", "CharacterController").
+		Str("action", "CharacterMoveToTargetNotFound").
+		Str("side", side).
+		Int("signed_delta", signedDelta).
+		Bool("used_last", usedLast)
+	if usedLast {
+		evt.Msg("target not found, turning toward last recognition side")
+	} else {
+		evt.Str("fallback", "right").
+			Msg("target not found, attempting to adjust view to find target")
+	}
+
+	dx := signedDelta * 2 // mapTracker RotationSpeed默认2
 	rotateView(ctx, dx, 0)
 
 	return true

@@ -1,9 +1,12 @@
 # ItemTransfer 物品搬运
 
-本模块包含两个 Custom Action：
+本模块包含两个 Custom Action 和一个 Custom Recognition：
 
 - **ItemTransferFallbackAction** — NND 兜底，用于有 NND class ID 的物品在 NND 识别失败时的 fallback
 - **ItemTransferOCRAction** — OCR 直查，用于没有 NND class ID 的物品，直接通过 OCR 定位
+- **ItemTransferSameItemRecognition** — 比较去程与返程物品 ID，供 Pipeline 在双向物品相同时成功跳过任务
+
+物品搬运使用通用的 **AutoCtrlClickAction** 执行 Ctrl+Click。该组件位于 `common/autoalt`，通过 Pipeline 子节点适配各平台键码，并保证失败路径也尝试释放 Ctrl。
 
 两者共享相同的 OCR 二分法搜索逻辑和 `item_order.json` 数据。
 

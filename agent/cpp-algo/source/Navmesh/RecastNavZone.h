@@ -91,6 +91,8 @@ public:
 
     std::vector<WorldPoint> P0;
     std::vector<WorldPoint> P1;
+    std::vector<double> H0;
+    std::vector<double> H1;
     std::vector<double> HH;
 
 private:

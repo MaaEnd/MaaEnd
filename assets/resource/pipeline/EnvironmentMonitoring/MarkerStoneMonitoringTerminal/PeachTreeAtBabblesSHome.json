@@ -340,7 +340,7 @@
         "custom_recognition_param": {
             "expected": [
                 {
-                    "map_name": "map02_lv004_tier_328",
+                    "map_name": "^map\\d+_lv\\d+$",
                     "target": [
                         0,
                         0,
@@ -358,7 +358,7 @@
         ]
     },
     "GoToPeachTreeAtBabblesSHomeNotAtStartPos": {
-        "desc": "不在念念家的桃树任务开始位置附近，先传送再继续寻路",
+        "desc": "前往念念家的桃树传送点，传送后调整朝向并拍照",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
@@ -374,29 +374,12 @@
         ]
     },
     "GoToPeachTreeAtBabblesSHomeMove": {
-        "desc": "自动寻路前往念念家的桃树",
+        "desc": "在念念家的桃树传送点调整拍照朝向",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerMove",
+        "custom_action": "MapTrackerToward",
         "custom_action_param": {
-            "map_name": "map02_lv004_tier_328",
-            "path": [
-                [
-                    520.3,
-                    672.8
-                ],
-                [
-                    524.7,
-                    665.8
-                ]
-            ],
-            "on_finish": {
-                "action": "Custom",
-                "custom_action": "MapTrackerToward",
-                "custom_action_param": {
-                    "angle": 90
-                }
-            }
+            "angle": 66
         },
         "post_delay": 0,
         "rate_limit": 0,

@@ -159,6 +159,34 @@
         "all_of": [
             "WhiteConfirmButtonType1"
         ],
+        "pre_wait_freezes": {
+            "target": [
+                590,
+                297,
+                100,
+                100
+            ],
+            "time": 80
+        },
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "AddItemData",
+        "custom_action_param": {
+            "items": {
+                "WULING_STOCK_BILL": "WULING_STOCK_BILL"
+            }
+        },
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyFightSuccessContinue"
+        ]
+    },
+    "TrialOfSwordmancyFightSuccessContinue": {
+        "desc": "点击再次演算",
+        "recognition": "And",
+        "all_of": [
+            "WhiteConfirmButtonType1"
+        ],
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "RepeatUntilFoundAction",

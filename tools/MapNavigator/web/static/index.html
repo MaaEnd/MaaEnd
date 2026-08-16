@@ -40,6 +40,7 @@
             <select id="connection-kind-combo" class="combo">
               <option value="win32">Windows 窗口句柄</option>
               <option value="adb">Android ADB 桥接</option>
+              <option value="wlroots">WlRoots (Linux Wayland)</option>
               <option value="playcover">PlayCover (macOS)</option>
             </select>
           </div>
@@ -74,6 +75,17 @@
             </div>
             <div class="sidebar-row" style="margin-top: 4px">
               <button id="btn-refresh-adb" class="btn btn-secondary btn-sm" type="button" style="width: 100%">检测并刷新设备</button>
+            </div>
+          </div>
+
+          <div id="wlroots-group" class="conn-group" hidden>
+            <div class="sidebar-row select-row">
+              <label class="sidebar-label" for="wlroots-socket-entry">Wayland socket</label>
+              <input id="wlroots-socket-entry" class="entry entry-wlroots" type="text" list="wlroots-socket-list" placeholder="例如 /run/user/1000/wayland-0" />
+              <datalist id="wlroots-socket-list"></datalist>
+            </div>
+            <div class="sidebar-row" style="margin-top: 4px">
+              <button id="btn-refresh-wlroots" class="btn btn-secondary btn-sm" type="button" style="width: 100%">检测并刷新 socket</button>
             </div>
           </div>
           </div>
@@ -140,6 +152,13 @@
                 <input id="chk-strict" type="checkbox" /> 严格模式
               </label>
             </div>
+
+            <div class="sidebar-row select-row">
+              <label class="sidebar-label" for="target-tier-entry">坐标层级</label>
+              <input id="target-tier-entry" class="entry entry-target-tier" type="text" list="target-tier-list" placeholder="留空使用旧坐标" />
+              <datalist id="target-tier-list"></datalist>
+            </div>
+            <div class="sidebar-hint">只声明当前点的坐标系，不改变 ZONE</div>
 
             <div class="sidebar-row" style="margin: 12px 0 8px 0;">
               <button id="btn-apply-action" class="btn btn-primary btn-block" style="width: 100%;" type="button">应用属性</button>
@@ -222,6 +241,12 @@
             <button id="btn-astar-mark-coord" class="btn btn-secondary btn-sm" type="button" title="在该坐标标出一个预览点">标点</button>
           </div>
           <div class="sidebar-hint">按坐标标预览点</div>
+
+          <div id="astar-deck-box" class="sidebar-row deck-box border-top" hidden>
+            <span class="sidebar-label" id="astar-deck-title">重叠面</span>
+            <div id="astar-deck-list" class="deck-list"></div>
+            <div class="sidebar-hint">点一层预览，「选择」把该层高度写进 target_deck_y</div>
+          </div>
 
           <div class="sidebar-row copy-format-row">
             <label class="sidebar-label" for="navmesh-copy-format">复制内容</label>
@@ -312,8 +337,31 @@
 
         <!-- 悬浮型底部状态条 -->
         <div id="footer-status-bar">
-          <div id="status-label" class="status-line">系统就绪</div>
-          <div id="locator-label" class="locator-line"></div>
+          <div class="footer-message-stack">
+            <div id="status-label" class="status-line">系统就绪</div>
+            <div id="locator-label" class="locator-line"></div>
+          </div>
+          <div id="position-readout" class="position-readout heading-unavailable" data-state="pending" aria-label="等待游戏定位">
+            <div class="position-compass" aria-hidden="true">
+              <svg width="34" height="34" viewBox="0 0 34 34">
+                <circle cx="17" cy="17" r="15.5" fill="none" stroke="currentColor" stroke-opacity="0.28" />
+                <path d="M17 3.5v3M30.5 17h-3M17 30.5v-3M3.5 17h3" fill="none" stroke="currentColor" stroke-linecap="round" />
+                <g id="position-heading-arrow" class="position-heading-arrow">
+                  <path d="M17 5.5 21 18l-4-2-4 2 4-12.5Z" fill="currentColor" />
+                  <circle cx="17" cy="17" r="2.25" fill="#111318" stroke="currentColor" stroke-width="1.25" />
+                </g>
+              </svg>
+              <span class="position-compass-n">N</span>
+            </div>
+            <div class="position-readout-copy">
+              <div class="position-readout-primary">
+                <span id="position-coordinates">位置 —</span>
+                <span class="position-readout-separator" aria-hidden="true"></span>
+                <span id="position-heading">朝向 —</span>
+              </div>
+              <div id="position-zone" class="position-readout-zone">等待游戏定位</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

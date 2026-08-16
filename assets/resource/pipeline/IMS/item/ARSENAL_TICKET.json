@@ -1,0 +1,109 @@
+{
+    "ARSENAL_TICKET": {
+        "desc": "武库配额",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "IMSItemColorRed",
+                    "__ARSENAL_TICKET_TEMPLATE",
+                    "ARSENAL_TICKET_COUNT"
+                ],
+                "box_index": 2
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__ARSENAL_TICKET_TEMPLATE": {
+        "desc": "IMS:武库配额模版匹配(roi 基于品质色)",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "IMSItemColorRed",
+                "roi_offset": [
+                    -30,
+                    -100,
+                    60,
+                    100
+                ],
+                "template": [
+                    "IMS/item/ARSENAL_TICKET_TEMPLATE.png"
+                ],
+                "green_mask": true,
+                "order_by": "Score"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "ARSENAL_TICKET_COUNT": {
+        "desc": "IMS:武库配额数量(灰色文字 And OCR；box_index 指向 OCR)",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__ARSENAL_TICKET_COUNT_TEXT_COLOR",
+                    "ARSENAL_TICKET_COUNT_OCR"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__ARSENAL_TICKET_COUNT_TEXT_COLOR": {
+        "desc": "IMS:武库配额数量灰色文字(roi 基于模板)",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "__ARSENAL_TICKET_TEMPLATE",
+                "roi_offset": [
+                    0,
+                    78,
+                    0,
+                    -64
+                ],
+                "lower": [
+                    74,
+                    74,
+                    74
+                ],
+                "upper": [
+                    119,
+                    145,
+                    157
+                ],
+                "count": 10
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "ARSENAL_TICKET_COUNT_OCR": {
+        "desc": "IMS:武库配额数量 OCR（纯数字）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "__ARSENAL_TICKET_COUNT_TEXT_COLOR",
+                "roi_offset": [
+                    -6,
+                    -2,
+                    12,
+                    4
+                ],
+                "expected": [
+                    "^\\d+$"
+                ],
+                "only_rec": true
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

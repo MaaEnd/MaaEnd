@@ -16,7 +16,7 @@ Suitable for scenarios where you want to slide to the maximum/minimum. Parameter
 ### Parameter Description
 
 | Field | Type | Required | Description |
-| ------------- | -------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ---------------------- | -------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `Direction` | `string` | Yes | Swipe direction. Supports `left` / `right` / `up` / `down`. |
 | `SwipeButton` | `string` | No | Custom slider template path. Overrides the default template of the `BetterSlidingSwipeButton` node when provided. Default `""` (uses the shared default template `BetterSliding/SwipeButton.png`). |
 | `ResetBeforeFindStart` | `bool` | No | When `true`, first swipes toward the minimum before matching the slider start position, then performs the swipe. Default `false`. |
@@ -45,6 +45,9 @@ Suitable for scenarios where you want to slide to the maximum/minimum. Parameter
 
 > [!important]
 > Before the CustomAction executes, ensure the slider is at its initial value, and that the initial value is 1. Otherwise, the position deviation of the slider between its minimum and maximum cannot be calculated, causing the quantity adjustment to fail. If the caller cannot guarantee that the slider starts at its initial value, set `ResetBeforeFindStart: true` so BetterSliding first swipes toward the minimum before matching the start position.
+
+> [!note]
+> When the resolved target quantity is strictly greater than 80% of the slider's max quantity, BetterSliding swipes toward the minimum once after recording the end position, before performing the proportional precise click, so values near the maximum end are set reliably from the minimum. When the target equals the max quantity, BetterSliding finishes directly without resetting. This behavior is enabled by default and requires no extra parameter.
 
 ### Parameter Description
 

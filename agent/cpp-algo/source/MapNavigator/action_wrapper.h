@@ -26,12 +26,14 @@ public:
     double DefaultTurnUnitsPerDegree() const;
     SteeringTransportProfile SteeringProfile() const;
     bool SupportsSprint() const;
+    bool SupportsWalkToggle() const;
 
     void SetMovementStateSync(bool forward, bool left, bool backward, bool right, int delay_millis);
     void TriggerJumpSync(int hold_millis);
     void TriggerInteractSync(int hold_millis);
     void PulseForwardSync(int hold_millis);
     void TriggerSprintSync();
+    void ToggleWalkModeSync();
     void ResetForwardWalkSync(int release_millis);
     void ClickMouseLeftSync();
 

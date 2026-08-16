@@ -336,18 +336,14 @@
     "GoToCloudrestEcoSiteStartPos": {
         "desc": "在栖云生态点任务开始位置附近",
         "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition": "MapLocateAssertLocation",
         "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv004",
-                    "target": [
-                        389.3,
-                        445.8,
-                        69.1,
-                        49.9
-                    ]
-                }
+            "zone_id": "Wuling_Base",
+            "target": [
+                378.56,
+                2345.75,
+                120.17,
+                97.03
             ]
         },
         "pre_delay": 0,
@@ -377,20 +373,21 @@
         "desc": "自动寻路前往栖云生态点",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerGoal",
+        "custom_action": "MapNavigateAction",
         "custom_action_param": {
-            "map_name": "map02_lv004",
-            "target": [
-                439,
-                486.4
-            ],
-            "on_finish": {
-                "action": "Custom",
-                "custom_action": "MapTrackerToward",
-                "custom_action_param": {
-                    "angle": 170
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        431.11,
+                        2407.17
+                    ]
+                },
+                {
+                    "action": "HEADING",
+                    "angle": 177
                 }
-            }
+            ]
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -421,7 +418,7 @@
     },
     "CloudrestEcoSiteAdjustCamera": {
         "desc": "栖云生态点任务中调整朝向",
-        "max_hit": 3,
+        "max_hit": 2,
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,

@@ -6,6 +6,7 @@
  * Message protocol (backend → us), see serve.py `ws_record`:
  *   - `{type:'status', text, color}`       → status line
  *   - `{type:'locator', text}`             → locator line
+ *   - `{type:'position', x, y, zone, rot}` → structured live position + heading
  *   - `{type:'toast', coord, status}` (G)  → status line (backend already wrote the OS clipboard)
  *   - `{type:'force_waypoint', x, y, zone}` (X) → status line ONLY — the forced point is
  *      already in the backend's `recorded_path` (recording_service.py:219) and arrives via `finished`.
@@ -28,6 +29,9 @@ export class RecordingController {
    *   @param {HTMLElement} opts.appEl root element toggled with `.recording` for the pulse
    *   @param {import('./connection.js').ConnectionPanel} opts.connection
    *   @param {(rawPoints:Array<Object>)=>void} opts.onFinished called with the raw recorded path
+   *   @param {(fix:{x:number,y:number,zone:string,rot:?number})=>void} opts.onPosition
+   *   @param {()=>void} opts.onPositionPending
+   *   @param {(message:string)=>void} opts.onPositionUnavailable
    */
   constructor(opts) {
     this.btnStart = opts.btnStart;
@@ -35,6 +39,9 @@ export class RecordingController {
     this.appEl = opts.appEl;
     this.connection = opts.connection;
     this.onFinished = opts.onFinished || (() => {});
+    this.onPosition = opts.onPosition || (() => {});
+    this.onPositionPending = opts.onPositionPending || (() => {});
+    this.onPositionUnavailable = opts.onPositionUnavailable || (() => {});
     /** @type {?RecordingSocket} */
     this.socket = null;
     this.recording = false;
@@ -75,6 +82,7 @@ export class RecordingController {
     if (this.appEl) this.appEl.classList.add('recording');
     setStatus(`● 正在启动识别引擎... [${this._sessionDisplayName(session)}]`, '#3b82f6');
     setLocator('Locator: waiting for first result...');
+    this.onPositionPending();
 
     const socket = new RecordingSocket();
     this.socket = socket;
@@ -86,6 +94,7 @@ export class RecordingController {
     socket.onClose = () => {
       if (this.recording) {
         this.recording = false;
+        this.onPositionUnavailable('录制连接已断开');
         this._resetUi();
       }
       this.socket = null;
@@ -115,6 +124,9 @@ export class RecordingController {
       case 'locator':
         setLocator(msg.text || '');
         break;
+      case 'position':
+        this.onPosition({ x: msg.x, y: msg.y, zone: msg.zone, rot: msg.rot });
+        break;
       case 'toast':
         // G hotkey: backend already wrote the OS clipboard; mirror onto the status line.
         setStatus(msg.status || '', '#10b981');
@@ -133,6 +145,7 @@ export class RecordingController {
       case 'error':
         this.recording = false;
         setStatus(msg.message || '录制错误', '#ef4444');
+        this.onPositionUnavailable('未获取到实时位置与朝向');
         this._resetUi();
         break;
       default:

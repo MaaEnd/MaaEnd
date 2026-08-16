@@ -11,6 +11,10 @@
             "Node.Recognition.Succeeded": "$option.AutoCollectCommonRoute3.label"
         }
     },
+    "AutoCollectCommonRoute3End": {
+        "pre_delay": 0,
+        "post_delay": 0
+    },
     "AutoCollectCommonRoute3": {
         "action": "Custom",
         "custom_action": "SubTask",
@@ -23,70 +27,194 @@
             "AutoCollectCommonRoute3AssertLocation1"
         ]
     },
-    "AutoCollectCommonRoute3End": {
-        "pre_delay": 0,
-        "post_delay": 0
-    },
     "AutoCollectCommonRoute3AssertLocation1": {
-        "desc": "传送点定位",
+        "desc": "传送到采集点",
         "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition": "MapLocateAssertLocation",
         "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv004_tier_328",
-                    "target": [
-                        514.3,
-                        668.2,
-                        14.2,
-                        12.1
+            "zone_id": "Wuling_L4_328",
+            "target": [
+                249,
+                205,
+                20,
+                20
+            ]
+        },
+        "action": "DoNothing",
+        "next": [
+            "AutoCollectCommonRoute3Goto"
+        ]
+    },
+    "AutoCollectCommonRoute3Goto": {
+        "desc": "前往采集点",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "Wuling_L4_328"
+                        },
+                        {
+                            "action": "RUN",
+                            "target": [
+                                243.97,
+                                188.5
+                            ],
+                            "target_tier": "Wuling_L4_328"
+                        },
+                        {
+                            "action": "RUN",
+                            "target": [
+                                243.97,
+                                177.14
+                            ],
+                            "target_tier": "Wuling_L4_328"
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                244.38,
+                                122.12
+                            ],
+                            "target_tier": "Wuling_L4_328"
+                        },
+                        {
+                            "action": "COLLECT",
+                            "target": [
+                                244.38,
+                                122.12
+                            ],
+                            "target_tier": "Wuling_L4_328"
+                        },
+                        {
+                            "action": "COLLECT",
+                            "target": [
+                                244.38,
+                                122.12
+                            ],
+                            "target_tier": "Wuling_L4_328"
+                        },
+                        {
+                            "action": "COLLECT",
+                            "target": [
+                                255.9,
+                                124.19
+                            ],
+                            "target_tier": "Wuling_L4_328"
+                        },
+                        {
+                            "action": "COLLECT",
+                            "target": [
+                                255.9,
+                                124.19
+                            ],
+                            "target_tier": "Wuling_L4_328"
+                        },
+                        {
+                            "action": "RUN",
+                            "target": [
+                                252.26,
+                                123.21
+                            ],
+                            "target_tier": "Wuling_L4_328"
+                        },
+                        {
+                            "action": "COLLECT",
+                            "target": [
+                                249.9,
+                                118.28
+                            ],
+                            "target_tier": "Wuling_L4_328"
+                        },
+                        {
+                            "action": "COLLECT",
+                            "target": [
+                                249.9,
+                                118.28
+                            ],
+                            "target_tier": "Wuling_L4_328"
+                        },
+                        {
+                            "action": "COLLECT",
+                            "target": [
+                                250.78,
+                                116.51
+                            ],
+                            "target_tier": "Wuling_L4_328"
+                        },
+                        {
+                            "action": "COLLECT",
+                            "target": [
+                                250.78,
+                                116.51
+                            ],
+                            "target_tier": "Wuling_L4_328"
+                        },
+                        {
+                            "action": "RUN",
+                            "target": [
+                                240.05,
+                                103.21
+                            ],
+                            "target_tier": "Wuling_L4_328"
+                        },
+                        {
+                            "action": "COLLECT",
+                            "target": [
+                                246.35,
+                                106.95
+                            ],
+                            "target_tier": "Wuling_L4_328"
+                        },
+                        {
+                            "action": "COLLECT",
+                            "target": [
+                                246.35,
+                                106.95
+                            ],
+                            "target_tier": "Wuling_L4_328"
+                        },
+                        {
+                            "action": "COLLECT",
+                            "target": [
+                                247.53,
+                                105.47
+                            ],
+                            "target_tier": "Wuling_L4_328"
+                        },
+                        {
+                            "action": "COLLECT",
+                            "target": [
+                                247.53,
+                                105.47
+                            ],
+                            "target_tier": "Wuling_L4_328"
+                        },
+                        {
+                            "action": "COLLECT",
+                            "target": [
+                                248.62,
+                                104.98
+                            ],
+                            "target_tier": "Wuling_L4_328"
+                        },
+                        {
+                            "action": "COLLECT",
+                            "target": [
+                                248.62,
+                                104.98
+                            ],
+                            "target_tier": "Wuling_L4_328"
+                        }
                     ]
                 }
-            ]
+            }
         },
         "next": [
-            "AutoCollectCommonRoute3GotoFindLine1"
-        ]
-    },
-    "AutoCollectCommonRoute3GotoFindLine1": {
-        "desc": "前往灼壳虫采集点",
-        "action": "Custom",
-        "custom_action": "MapTrackerMove",
-        "custom_action_param": {
-            "map_name": "map02_lv004",
-            "path": [
-                [
-                    520.0,
-                    674.5
-                ],
-                [
-                    521.9,
-                    661.5
-                ],
-                [
-                    506.3,
-                    647.4
-                ],
-                [
-                    505.6,
-                    630.1
-                ],
-                [
-                    508.9,
-                    613.1
-                ],
-                [
-                    522.9,
-                    598.3
-                ],
-                [
-                    516.3,
-                    584.0
-                ]
-            ]
-        },
-        "next": [
-            "AutoCollectCommonRoute3GotoFind1"
+            "AutoCollectCommonRoute3End"
         ],
         "focus": {
             "Node.Action.Succeeded": {
@@ -96,293 +224,5 @@
                 "trace": true
             }
         }
-    },
-    "AutoCollectCommonRoute3GotoFind1": {
-        "desc": "采集点1",
-        "action": "Custom",
-        "custom_action": "MapTrackerMove",
-        "custom_action_param": {
-            "map_name": "map02_lv004",
-            "path": [
-                [
-                    508.2,
-                    578.7
-                ]
-            ]
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute3GotoFindCollect1"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
-        }
-    },
-    "AutoCollectCommonRoute3GotoFindCollect1": {
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute3GotoFind2"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ]
-    },
-    "AutoCollectCommonRoute3GotoFind2": {
-        "desc": "采集点2",
-        "action": "Custom",
-        "custom_action": "MapTrackerMove",
-        "custom_action_param": {
-            "map_name": "map02_lv004",
-            "path": [
-                [
-                    519.9,
-                    580.8
-                ]
-            ]
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute3GotoFindCollect2"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
-        }
-    },
-    "AutoCollectCommonRoute3GotoFindCollect2": {
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute3GotoFind3"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ]
-    },
-    "AutoCollectCommonRoute3GotoFind3": {
-        "desc": "采集点3",
-        "action": "Custom",
-        "custom_action": "MapTrackerMove",
-        "custom_action_param": {
-            "map_name": "map02_lv004",
-            "path": [
-                [
-                    516.2,
-                    579.8
-                ],
-                [
-                    513.8,
-                    574.8
-                ]
-            ]
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute3GotoFindCollect3"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
-        }
-    },
-    "AutoCollectCommonRoute3GotoFindCollect3": {
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute3GotoFind4"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ]
-    },
-    "AutoCollectCommonRoute3GotoFind4": {
-        "desc": "采集点4",
-        "action": "Custom",
-        "custom_action": "MapTrackerMove",
-        "custom_action_param": {
-            "map_name": "map02_lv004",
-            "path": [
-                [
-                    514.7,
-                    573.0
-                ]
-            ]
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute3GotoFindCollect4"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
-        }
-    },
-    "AutoCollectCommonRoute3GotoFindCollect4": {
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute3GotoFindLine2"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ]
-    },
-    "AutoCollectCommonRoute3GotoFindLine2": {
-        "action": "Custom",
-        "custom_action": "MapTrackerMove",
-        "custom_action_param": {
-            "map_name": "map02_lv004",
-            "path": [
-                [
-                    513.7,
-                    579.6
-                ],
-                [
-                    506.7,
-                    573.0
-                ],
-                [
-                    503.8,
-                    559.5
-                ]
-            ]
-        },
-        "next": [
-            "AutoCollectCommonRoute3GotoFind5"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
-        }
-    },
-    "AutoCollectCommonRoute3GotoFind5": {
-        "desc": "采集点5",
-        "action": "Custom",
-        "custom_action": "MapTrackerMove",
-        "custom_action_param": {
-            "map_name": "map02_lv004",
-            "path": [
-                [
-                    510.2,
-                    563.3
-                ]
-            ]
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute3GotoFindCollect5"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
-        }
-    },
-    "AutoCollectCommonRoute3GotoFindCollect5": {
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute3GotoFind6"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ]
-    },
-    "AutoCollectCommonRoute3GotoFind6": {
-        "desc": "采集点5",
-        "action": "Custom",
-        "custom_action": "MapTrackerMove",
-        "custom_action_param": {
-            "map_name": "map02_lv004",
-            "path": [
-                [
-                    511.4,
-                    561.8
-                ]
-            ]
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute3GotoFindCollect6"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
-        }
-    },
-    "AutoCollectCommonRoute3GotoFindCollect6": {
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute3GotoFind7"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ]
-    },
-    "AutoCollectCommonRoute3GotoFind7": {
-        "desc": "采集点6",
-        "action": "Custom",
-        "custom_action": "MapTrackerMove",
-        "custom_action_param": {
-            "map_name": "map02_lv004",
-            "path": [
-                [
-                    512.5,
-                    561.3
-                ]
-            ]
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute3GotoFindCollect7"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
-        }
-    },
-    "AutoCollectCommonRoute3GotoFindCollect7": {
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute3End"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ]
     }
 }

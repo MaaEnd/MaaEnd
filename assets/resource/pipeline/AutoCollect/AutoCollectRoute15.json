@@ -111,6 +111,14 @@
         },
         "next": [
             "AutoCollectRoute15End"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     }
 }

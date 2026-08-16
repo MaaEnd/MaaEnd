@@ -11,6 +11,10 @@
             "Node.Recognition.Succeeded": "$option.AutoCollectCommonRoute5.label"
         }
     },
+    "AutoCollectCommonRoute5End": {
+        "pre_delay": 0,
+        "post_delay": 0
+    },
     "AutoCollectCommonRoute5": {
         "action": "Custom",
         "custom_action": "SubTask",
@@ -23,54 +27,89 @@
             "AutoCollectCommonRoute5AssertLocation1"
         ]
     },
-    "AutoCollectCommonRoute5End": {
-        "pre_delay": 0,
-        "post_delay": 0
-    },
     "AutoCollectCommonRoute5AssertLocation1": {
-        "desc": "传送点和目的点定位",
+        "desc": "传送到采集点",
         "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition": "MapLocateAssertLocation",
         "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv004",
-                    "target": [
-                        494.6,
-                        196.9,
-                        10.0,
-                        10.9
+            "zone_id": "Wuling_Base",
+            "target": [
+                482,
+                2109,
+                20,
+                20
+            ]
+        },
+        "action": "DoNothing",
+        "next": [
+            "AutoCollectCommonRoute5Goto"
+        ]
+    },
+    "AutoCollectCommonRoute5Goto": {
+        "desc": "前往采集点",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "Wuling_Base"
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                411.37,
+                                2132.9
+                            ]
+                        },
+                        [
+                            411.37,
+                            2132.9,
+                            "COLLECT"
+                        ],
+                        [
+                            411.37,
+                            2132.9,
+                            "COLLECT"
+                        ],
+                        [
+                            408.02,
+                            2130.24,
+                            "COLLECT"
+                        ],
+                        [
+                            408.02,
+                            2130.24,
+                            "COLLECT"
+                        ],
+                        [
+                            407.93,
+                            2129.35,
+                            "COLLECT"
+                        ],
+                        [
+                            407.93,
+                            2129.35,
+                            "COLLECT"
+                        ],
+                        [
+                            406.74,
+                            2127.18,
+                            "COLLECT"
+                        ],
+                        [
+                            406.74,
+                            2127.18,
+                            "COLLECT"
+                        ]
                     ]
                 }
-            ]
+            }
         },
         "next": [
-            "AutoCollectCommonRoute5GotoFindLine1"
-        ]
-    },
-    "AutoCollectCommonRoute5GotoFindLine1": {
-        "desc": "前往蓬茸锦草采集点",
-        "action": "Custom",
-        "custom_action": "MapTrackerMove",
-        "custom_action_param": {
-            "map_name": "map02_lv004",
-            "path": [
-                [
-                    497.6,
-                    210.3
-                ],
-                [
-                    425.1,
-                    210.8
-                ],
-                [
-                    416.3,
-                    212.0
-                ]
-            ]
-        },
-        "next": [
-            "AutoCollectCommonRoute5GotoFind1"
+            "AutoCollectCommonRoute5End"
         ],
         "focus": {
             "Node.Action.Succeeded": {
@@ -80,165 +119,5 @@
                 "trace": true
             }
         }
-    },
-    "AutoCollectCommonRoute5GotoFind1": {
-        "desc": "采集点1",
-        "action": "Custom",
-        "custom_action": "MapTrackerMove",
-        "custom_action_param": {
-            "map_name": "map02_lv004",
-            "path": [
-                [
-                    418.7,
-                    210.8
-                ],
-                [
-                    417.8,
-                    216.1
-                ]
-            ]
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute5GotoFindCollect1"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
-        }
-    },
-    "AutoCollectCommonRoute5GotoFindCollect1": {
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute5GotoFind2"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ]
-    },
-    "AutoCollectCommonRoute5GotoFind2": {
-        "desc": "采集点2",
-        "action": "Custom",
-        "custom_action": "MapTrackerMove",
-        "custom_action_param": {
-            "map_name": "map02_lv004",
-            "path": [
-                [
-                    418.7,
-                    210.8
-                ],
-                [
-                    414.4,
-                    213.4
-                ]
-            ]
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute5GotoFindCollect2"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
-        }
-    },
-    "AutoCollectCommonRoute5GotoFindCollect2": {
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute5GotoFind3"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ]
-    },
-    "AutoCollectCommonRoute5GotoFind3": {
-        "desc": "采集点3",
-        "action": "Custom",
-        "custom_action": "MapTrackerMove",
-        "custom_action_param": {
-            "map_name": "map02_lv004",
-            "path": [
-                [
-                    418.7,
-                    210.8
-                ],
-                [
-                    414.3,
-                    212.5
-                ]
-            ]
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute5GotoFindCollect3"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
-        }
-    },
-    "AutoCollectCommonRoute5GotoFindCollect3": {
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute5GotoFind4"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ]
-    },
-    "AutoCollectCommonRoute5GotoFind4": {
-        "desc": "采集点4",
-        "action": "Custom",
-        "custom_action": "MapTrackerMove",
-        "custom_action_param": {
-            "map_name": "map02_lv004",
-            "path": [
-                [
-                    418.7,
-                    210.8
-                ],
-                [
-                    413.1,
-                    210.3
-                ]
-            ]
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute5GotoFindCollect4"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
-        }
-    },
-    "AutoCollectCommonRoute5GotoFindCollect4": {
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute5End"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ]
     }
 }

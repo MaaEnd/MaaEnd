@@ -177,6 +177,14 @@ The `AutoAltClickAction` implementation is located in `agent/go-service/common/a
 
 The default target position is determined by the `box` of the Pipeline node.
 
+### AutoCtrlClickAction
+
+`AutoCtrlClickAction` is implemented alongside `AutoAltClickAction` in `agent/go-service/common/autoalt`. It performs Ctrl + Click at a specified position. Pressing Ctrl, clicking, and releasing Ctrl all run through Pipeline child nodes, allowing platform resources to override the corresponding key codes. It still attempts to release Ctrl when pressing or clicking fails.
+
+- Parameters: None.
+
+The target position is determined by the Pipeline node's `box` and can be adjusted with the outer `target` / `target_offset` fields.
+
 ### AutoAltSwipeAction
 
 The `AutoAltSwipeAction` implementation is located in `agent/go-service/common/autoalt`. It performs an Alt + Swipe operation. It first presses the Alt key, executes the swipe, and then releases the Alt key.
@@ -334,6 +342,103 @@ Notes:
 - To restart a list scan, set that Custom node's `attach.ready` to `false` (for example via `PipelineOverride`).
 - This recognizer only answers "is the list complete"; scrolling/clicking still belong in Pipeline.
 
+### ScrollbarRecognition
+
+`ScrollbarRecognition` lives in `agent/go-service/common/listcomplete`. It detects the scrollbar's white thumb and returns its position and length. This recognizer is stateless and does not read or write `attach`; use it when a Pipeline or Custom component needs the thumb region, current position, or length.
+
+**Hit semantics: `true` = a valid thumb was found; `false` = no valid thumb was found.**
+
+Parameters:
+
+- Native `roi: [x, y, w, h]`: Required. A narrow 720p region covering only the scrollbar track. In V2, put it inside `recognition.param` alongside `custom_recognition`.
+- No `custom_recognition_param` parameters.
+
+Output:
+
+- `Box`: The absolute 720p thumb region `[roi.x, roi.y + top, roi.width, length]`, suitable as a target for subsequent actions or recognitions.
+- `Detail`: A JSON object where `top` and `bottom` are relative to the ROI top and `length = bottom - top + 1`.
+
+```json
+{
+    "top": 9,
+    "bottom": 31,
+    "length": 23
+}
+```
+
+Both scrollbar recognizers share the same detector: search each ROI row for a pixel where `min(R, G, B) >= 200`, fill internal gaps up to 2 rows, and select the longest continuous segment whose length is at least 5px.
+
+```json
+{
+    "ExampleScrollbar": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ScrollbarRecognition",
+                "roi": [
+                    1119,
+                    220,
+                    5,
+                    255
+                ]
+            }
+        }
+    }
+}
+```
+
+### ScrollbarCompleteRecognition
+
+`ScrollbarCompleteRecognition` lives in the same package as `ScrollbarRecognition` and reuses the same internal thumb detector. It stores and compares consecutive positions on top of that basic result, making it suitable for top/bottom detection when list content or backgrounds change and a full-region template comparison is not stable.
+
+**Hit semantics: `true` = the scrollbar did not move, so the list is at the top or bottom; `false` = completion cannot be determined yet (keep scrolling).**
+
+Parameters:
+
+- Native `roi: [x, y, w, h]`: Required. A narrow 720p region covering only the scrollbar track. In V2, put it inside `recognition.param` alongside `custom_recognition`, not inside `custom_recognition_param`.
+- `custom_recognition_param.position_tolerance: integer`: Optional, default `2`, minimum `0`. The recognition hits when both the top and bottom thumb boundaries differ from the previous recorded position by no more than this many 720p pixels. `0` requires exact agreement for both boundaries.
+
+Behavior:
+
+1. Use the same internal detector as `ScrollbarRecognition` to obtain `[top, bottom]`.
+2. On the first recognition or after the thumb moves, write the boundaries to `attach.scrollbar_top` / `attach.scrollbar_bottom` on the current node, set `attach.ready` to `true`, and return **no match**.
+3. On later recognitions, return a **match** only when both boundaries are within `position_tolerance`; otherwise update the stored position and return **no match**.
+4. If no valid continuous white segment is found, return **no match** and preserve the previous valid position so a temporary missing highlight does not corrupt state.
+
+The Pipeline layout is the same as for `ListCompleteRecognition`: put this recognition before the scroll node; a hit takes the "boundary reached" branch, while a miss falls through to scrolling. The scroll node must set `post_wait_freezes` so the next recognition runs only after the frame is still.
+
+```json
+{
+    "ExampleScrollbarComplete": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ScrollbarCompleteRecognition",
+                "custom_recognition_param": {
+                    "position_tolerance": 2
+                },
+                "roi": [
+                    1119,
+                    220,
+                    5,
+                    255
+                ]
+            }
+        },
+        "attach": {
+            "ready": false
+        }
+    }
+}
+```
+
+Notes:
+
+- The ROI should cover only the scrollbar track. White text or icons in the list may otherwise form a longer continuous segment.
+- The first call only records a position and cannot determine completion. Before a fresh list scan, reset `attach.ready` on the current node to `false` through `PipelineOverride`.
+- The component does not distinguish "top" from "bottom"; that meaning comes from the Pipeline's current scroll direction.
+- The component only detects the list boundary. Scrolling and subsequent business flow still belong in Pipeline.
+
 ### ExpendableRecognition
 
 The `ExpendableRecognition` implementation is located in `agent/go-service/common/expendable`. It implements one-shot consumption of list items (visit once, then exclude via `attach.visited`), such as unread event-center entries or friends in a visit list.
@@ -412,10 +517,13 @@ When writing a Pipeline, the built-in `TemplateMatch` / `OCR` / `Click` / `Swipe
 | Change node parameters at runtime | `PipelineOverride` |
 | Write keywords as regex back to OCR node | `AttachToExpectedRegexAction` |
 | Evaluate OCR numerical expressions | `ExpressionRecognition` |
-| Detect whether a list has reached the end | `ListCompleteRecognition` |
+| Detect list completion by region template | `ListCompleteRecognition` |
+| Get the scrollbar thumb position and length | `ScrollbarRecognition` |
+| Detect a list top or bottom by scrollbar position | `ScrollbarCompleteRecognition` |
 | Consumable pick (visited exclusion) | `ExpendableRecognition` |
 | Gate subsequent nodes by day of week | `ScheduleRecognition` |
 | Alt + Click at specified position | `AutoAltClickAction` |
+| Ctrl + Click at specified position | `AutoCtrlClickAction` |
 | Alt + Swipe | `AutoAltSwipeAction` |
 
 All Custom Go code implementations are located under `agent/go-service/`. Pipeline authors do not need to concern themselves with this; just write the JSON according to the documentation parameters.

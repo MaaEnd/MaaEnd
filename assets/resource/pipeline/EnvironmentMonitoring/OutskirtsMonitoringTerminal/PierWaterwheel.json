@@ -216,7 +216,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToPierWaterwheel"
+            "PierWaterwheelInQuickTeleportMap"
         ]
     },
     "AlreadyTrackedPierWaterwheel": {
@@ -230,7 +230,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToPierWaterwheel"
+            "PierWaterwheelOpenTrackedMissionMap"
         ]
     },
     "PierWaterwheelOpenTrackedMissionMap": {
@@ -304,7 +304,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToPierWaterwheelStartPos"
+            "GoToPierWaterwheelMove"
         ]
     },
     "PierWaterwheelNotAdapted": {
@@ -336,18 +336,14 @@
     "GoToPierWaterwheelStartPos": {
         "desc": "在码头水车任务开始位置附近",
         "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition": "MapLocateAssertLocation",
         "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv001",
-                    "target": [
-                        492.5,
-                        178,
-                        13.2,
-                        13
-                    ]
-                }
+            "zone_id": "Wuling_Base",
+            "target": [
+                0,
+                0,
+                1,
+                1
             ]
         },
         "pre_delay": 0,
@@ -358,45 +354,44 @@
         ]
     },
     "GoToPierWaterwheelNotAtStartPos": {
-        "desc": "不在码头水车任务开始位置附近，先传送再检查落点",
+        "desc": "不在码头水车任务开始位置附近，先传送再继续寻路",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldWulingJingyuValley1"
+                "SceneAnyEnterWorld"
             ]
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToPierWaterwheelStartPos"
+            "GoToPierWaterwheelMove"
         ]
     },
     "GoToPierWaterwheelMove": {
         "desc": "自动寻路前往码头水车",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerMove",
+        "custom_action": "MapNavigateAction",
         "custom_action_param": {
-            "map_name": "map02_lv001",
             "path": [
-                [
-                    504.6,
-                    189
-                ],
-                [
-                    512,
-                    192
-                ]
-            ],
-            "on_finish": {
-                "action": "Custom",
-                "custom_action": "MapTrackerToward",
-                "custom_action_param": {
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        984.12,
+                        2205.15
+                    ]
+                },
+                {
+                    "action": "HEADING",
                     "angle": 105
                 }
-            }
+            ]
         },
         "post_delay": 0,
         "rate_limit": 0,

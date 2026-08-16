@@ -20,147 +20,42 @@
         "post_delay": 0
     },
     "AutoCollectRoute1AssertLocation": {
-        "desc": "传送到收集地",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "MapTrackerAssertLocation",
-                "custom_recognition_param": {
-                    "expected": [
-                        {
-                            "map_name": "map02_lv002",
-                            "target": [
-                                663,
-                                733,
-                                20,
-                                20
-                            ]
-                        }
-                    ]
-                }
-            }
+        "desc": "传送到采集点",
+        "recognition": "Custom",
+        "custom_recognition": "MapLocateAssertLocation",
+        "custom_recognition_param": {
+            "zone_id": "Wuling_Base",
+            "target": [
+                941,
+                1778,
+                20,
+                20
+            ]
         },
+        "action": "DoNothing",
         "next": [
             "AutoCollectRoute1Goto"
         ]
     },
     "AutoCollectRoute1Goto": {
-        "desc": "前往收集地",
+        "desc": "前往采集点",
         "action": {
             "type": "Custom",
             "param": {
                 "custom_action": "MapNavigateAction",
                 "custom_action_param": {
-                    "map_name": "map02_lv002",
                     "path": [
                         {
                             "action": "ZONE",
                             "zone_id": "Wuling_Base"
                         },
-                        [
-                            942,
-                            1779
-                        ],
-                        [
-                            944,
-                            1779
-                        ],
-                        [
-                            946,
-                            1778
-                        ],
-                        [
-                            950,
-                            1778
-                        ],
-                        [
-                            951,
-                            1776
-                        ],
-                        [
-                            951,
-                            1767
-                        ],
-                        [
-                            952,
-                            1765
-                        ],
-                        [
-                            952,
-                            1758
-                        ],
-                        [
-                            951,
-                            1757
-                        ],
-                        [
-                            951,
-                            1755
-                        ],
-                        [
-                            949,
-                            1752
-                        ],
-                        [
-                            949,
-                            1750
-                        ],
-                        [
-                            948,
-                            1748
-                        ],
-                        [
-                            948,
-                            1745
-                        ],
-                        [
-                            947,
-                            1743
-                        ],
-                        [
-                            947,
-                            1738
-                        ],
-                        [
-                            946,
-                            1736
-                        ],
-                        [
-                            946,
-                            1733
-                        ],
-                        [
-                            945,
-                            1731
-                        ],
-                        [
-                            945,
-                            1725
-                        ],
-                        [
-                            944,
-                            1724
-                        ],
-                        [
-                            944,
-                            1722
-                        ],
-                        [
-                            933,
-                            1712
-                        ],
-                        [
-                            933,
-                            1710
-                        ],
-                        [
-                            932,
-                            1709
-                        ],
-                        [
-                            931,
-                            1709
-                        ],
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                933,
+                                1706
+                            ]
+                        },
                         [
                             933,
                             1706,

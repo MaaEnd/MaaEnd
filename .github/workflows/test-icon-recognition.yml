@@ -1,0 +1,108 @@
+name: IconRecognition test
+
+on:
+  push:
+    branches:
+      - "v2"
+    paths:
+      - ".github/workflows/test-icon-recognition.yml"
+      - "agent/cpp-algo/CMakeLists.txt"
+      - "agent/cpp-algo/CMakePresets.json"
+      - "agent/cpp-algo/MaaUtils"
+      - "agent/cpp-algo/source/CMakeLists.txt"
+      - "agent/cpp-algo/source/IconRecognition/**"
+      - "assets/data/IconRecognition/**"
+      - "assets/resource/image/IconRecognition/**"
+      - "tests/MaaEndTestset"
+      - "tools/dep_3rdparty.py"
+      - "tools/maadeps-download.py"
+
+  pull_request:
+    branches:
+      - "v2"
+    paths:
+      - ".github/workflows/test-icon-recognition.yml"
+      - "agent/cpp-algo/CMakeLists.txt"
+      - "agent/cpp-algo/CMakePresets.json"
+      - "agent/cpp-algo/MaaUtils"
+      - "agent/cpp-algo/source/CMakeLists.txt"
+      - "agent/cpp-algo/source/IconRecognition/**"
+      - "assets/data/IconRecognition/**"
+      - "assets/resource/image/IconRecognition/**"
+      - "tests/MaaEndTestset"
+      - "tools/dep_3rdparty.py"
+      - "tools/maadeps-download.py"
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  quick-test:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Checkout test submodules
+        run: git submodule update --init --depth 1 -- agent/cpp-algo/MaaUtils tests/MaaEndTestset
+
+      - name: Cache MaaDeps
+        id: cache-maadeps
+        uses: actions/cache@v5
+        with:
+          path: agent/cpp-algo/MaaUtils/MaaDeps
+          key: maadeps-win-x86_64-${{ hashFiles('./tools/maadeps-download.py') }}
+
+      - name: Bootstrap MaaDeps
+        if: steps.cache-maadeps.outputs.cache-hit != 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python tools/maadeps-download.py x64-windows
+
+      - name: Setup WebView2 SDK
+        run: python tools/dep_3rdparty.py --webview2
+
+      - name: Download MaaFramework
+        uses: robinraju/release-downloader@v1
+        with:
+          repository: MaaXYZ/MaaFramework
+          fileName: "MAA-win-x86_64*"
+          latest: true
+          out-file-path: "deps"
+          extract: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build MaaUtils and run quick tests on Windows PowerShell 5.1
+        shell: powershell
+        run: |
+          $repoRoot = (Get-Location).Path
+          $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer\vswhere.exe'
+          $vsInstall = & $vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+          if ([string]::IsNullOrWhiteSpace($vsInstall)) {
+            throw 'Visual Studio C++ toolchain was not found'
+          }
+          $vsDevShell = Join-Path $vsInstall 'Common7\Tools\Launch-VsDevShell.ps1'
+          & $vsDevShell -Arch amd64 -HostArch amd64
+
+          Push-Location (Join-Path $repoRoot 'agent\cpp-algo')
+          try {
+            cmake --preset 'NinjaMulti Win32' -DMAADEPS_TRIPLET=maa-x64-windows
+            if ($LASTEXITCODE -ne 0) {
+              throw "MaaUtils CMake configuration failed with exit code: $LASTEXITCODE"
+            }
+            cmake --build build --config RelWithDebInfo --target MaaUtils --parallel 16
+            if ($LASTEXITCODE -ne 0) {
+              throw "MaaUtils build failed with exit code: $LASTEXITCODE"
+            }
+          }
+          finally {
+            Pop-Location
+          }
+
+          $testScript = Join-Path $repoRoot 'agent\cpp-algo\source\IconRecognition\test\run-tests.ps1'
+          & $testScript -Task quick

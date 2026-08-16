@@ -11,6 +11,10 @@
             "Node.Recognition.Succeeded": "$option.AutoCollectCommonRoute2.label"
         }
     },
+    "AutoCollectCommonRoute2End": {
+        "pre_delay": 0,
+        "post_delay": 0
+    },
     "AutoCollectCommonRoute2": {
         "desc": "8个黯银柑实",
         "action": "Custom",
@@ -24,33 +28,26 @@
             "AutoCollectCommonRoute2AssertLocation1"
         ]
     },
-    "AutoCollectCommonRoute2End": {
-        "pre_delay": 0,
-        "post_delay": 0
-    },
     "AutoCollectCommonRoute2AssertLocation1": {
-        "desc": "传送点定位",
+        "desc": "传送到采集点",
         "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition": "MapLocateAssertLocation",
         "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map01_lv001",
-                    "target": [
-                        379.4,
-                        494.0,
-                        12.5,
-                        11.2
-                    ]
-                }
+            "zone_id": "ValleyIV_Base",
+            "target": [
+                436,
+                901,
+                20,
+                20
             ]
         },
+        "action": "DoNothing",
         "next": [
-            "AutoCollectCommonRoute2GotoFindLine1"
+            "AutoCollectCommonRoute2Goto1"
         ]
     },
-    "AutoCollectCommonRoute2GotoFindLine1": {
-        "desc": "前往黯银柑实采集点",
+    "AutoCollectCommonRoute2Goto1": {
+        "desc": "前往采集点",
         "action": {
             "type": "Custom",
             "param": {
@@ -58,19 +55,80 @@
                 "custom_action_param": {
                     "path": [
                         {
+                            "action": "ZONE",
+                            "zone_id": "ValleyIV_Base"
+                        },
+                        {
                             "action": "NAVMESH",
                             "target": [
                                 357.84,
                                 949.37
                             ],
                             "zone_id": "ValleyIV_Base"
-                        }
+                        },
+                        [
+                            365.68,
+                            949.88,
+                            "COLLECT"
+                        ],
+                        [
+                            367.82,
+                            947.32,
+                            "COLLECT"
+                        ],
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                367.75,
+                                905.72
+                            ]
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                354.46,
+                                890.58
+                            ]
+                        },
+                        [
+                            351.78,
+                            897.23,
+                            "COLLECT"
+                        ],
+                        [
+                            351.78,
+                            897.23,
+                            "COLLECT"
+                        ],
+                        [
+                            351.78,
+                            897.23,
+                            "COLLECT"
+                        ],
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                267.87,
+                                935.85
+                            ],
+                            "zone_id": "ValleyIV_Base"
+                        },
+                        [
+                            267.87,
+                            935.85,
+                            "DIG"
+                        ],
+                        [
+                            267.87,
+                            935.85,
+                            "DIG"
+                        ]
                     ]
                 }
             }
         },
         "next": [
-            "AutoCollectCommonRoute2GotoFind1"
+            "AutoCollectCommonRoute2GoFight3"
         ],
         "focus": {
             "Node.Action.Succeeded": {
@@ -80,191 +138,13 @@
                 "trace": true
             }
         }
-    },
-    "AutoCollectCommonRoute2GotoFind1": {
-        "desc": "黯银柑实采集点1",
-        "action": "Custom",
-        "custom_action": "MapNavigateAction",
-        "custom_action_param": {
-            "path": [
-                {
-                    "action": "ZONE",
-                    "zone_id": "ValleyIV_Base"
-                },
-                [
-                    365.68,
-                    949.88,
-                    "COLLECT"
-                ],
-                [
-                    367.82,
-                    947.32,
-                    "COLLECT"
-                ]
-            ]
-        },
-        "next": [
-            "AutoCollectCommonRoute2GotoFindLine2"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
-        }
-    },
-    "AutoCollectCommonRoute2GotoFindLine2": {
-        "desc": "前往黯银柑实采集点",
-        "action": "Custom",
-        "custom_action": "MapTrackerMove",
-        "custom_action_param": {
-            "path_trim": true,
-            "map_name": "map01_lv001",
-            "path": [
-                [
-                    296.6,
-                    535.2
-                ],
-                [
-                    270.6,
-                    537.4
-                ],
-                [
-                    277.0,
-                    522.0
-                ],
-                [
-                    298.8,
-                    523.6
-                ],
-                [
-                    299.3,
-                    509.2
-                ],
-                [
-                    300.9,
-                    493.7
-                ],
-                [
-                    301.7,
-                    477.8
-                ],
-                [
-                    286.5,
-                    477.3
-                ]
-            ]
-        },
-        "next": [
-            "AutoCollectCommonRoute2GotoFind2"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
-        }
-    },
-    "AutoCollectCommonRoute2GotoFind2": {
-        "desc": "黯银柑实x1",
-        "action": "Custom",
-        "custom_action": "MapNavigateAction",
-        "custom_action_param": {
-            "path": [
-                {
-                    "action": "ZONE",
-                    "zone_id": "ValleyIV_Base"
-                },
-                [
-                    351.78,
-                    897.23,
-                    "COLLECT"
-                ]
-            ]
-        },
-        "next": [
-            "AutoCollectCommonRoute2GotoFindCollect1"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
-        }
-    },
-    "AutoCollectCommonRoute2GotoFindCollect1": {
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute2GotoFindCollect2"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ]
-    },
-    "AutoCollectCommonRoute2GotoFindCollect2": {
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute2GotoFindLine3"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ]
-    },
-    "AutoCollectCommonRoute2GotoFindLine3": {
-        "desc": "前往黯银柑实采集点",
-        "action": "Custom",
-        "custom_action": "MapNavigateAction",
-        "custom_action_param": {
-            "path": [
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        270.63,
-                        933.4
-                    ],
-                    "zone_id": "ValleyIV_Base"
-                }
-            ]
-        },
-        "next": [
-            "AutoCollectCommonRoute2GoFight1"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
-        }
-    },
-    "AutoCollectCommonRoute2GoFight1": {
-        "desc": "凭空索敌，该范围内只有一个怪，4下攻击不出意外可以锁定并进战",
-        "anchor": {
-            "AutoCollectDigAfter": "AutoCollectCommonRoute2GoFight2"
-        },
-        "next": [
-            "AutoCollectDigStart"
-        ]
-    },
-    "AutoCollectCommonRoute2GoFight2": {
-        "anchor": {
-            "AutoCollectDigAfter": "AutoCollectCommonRoute2GoFight3"
-        },
-        "next": [
-            "AutoCollectDigStart"
-        ]
     },
     "AutoCollectCommonRoute2GoFight3": {
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
             "AutoCollectCommonRoute2fightSub",
-            "AutoCollectCommonRoute2GotoFindLine4"
+            "AutoCollectCommonRoute2Goto2"
         ]
     },
     "AutoCollectCommonRoute2fightSub": {
@@ -278,24 +158,47 @@
             "continue": true
         },
         "next": [
-            "AutoCollectCommonRoute2GotoFindLine4"
+            "AutoCollectCommonRoute2Goto2"
         ]
     },
-    "AutoCollectCommonRoute2GotoFindLine4": {
-        "desc": "战斗完成后重新定位",
-        "action": "Custom",
-        "custom_action": "MapTrackerMove",
-        "custom_action_param": {
-            "map_name": "map01_lv001",
-            "path": [
-                [
-                    198.5,
-                    526.0
-                ]
-            ]
+    "AutoCollectCommonRoute2Goto2": {
+        "desc": "前往采集点",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "ValleyIV_Base"
+                        },
+                        [
+                            262.8,
+                            937.85,
+                            "COLLECT"
+                        ],
+                        [
+                            296.4,
+                            918.09,
+                            "COLLECT"
+                        ],
+                        [
+                            296.4,
+                            918.09,
+                            "COLLECT"
+                        ],
+                        [
+                            296.4,
+                            918.09,
+                            "COLLECT"
+                        ]
+                    ]
+                }
+            }
         },
         "next": [
-            "AutoCollectCommonRoute2GotoFind3"
+            "AutoCollectCommonRoute2End"
         ],
         "focus": {
             "Node.Action.Succeeded": {
@@ -305,97 +208,5 @@
                 "trace": true
             }
         }
-    },
-    "AutoCollectCommonRoute2GotoFind3": {
-        "desc": "黯银柑实采集点3",
-        "action": "Custom",
-        "custom_action": "MapTrackerMove",
-        "custom_action_param": {
-            "map_name": "map01_lv001",
-            "path": [
-                [
-                    187.2,
-                    528.5
-                ]
-            ]
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute2GotoFind4"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
-        }
-    },
-    "AutoCollectCommonRoute2GotoFindCollect3": {
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute2GotoFindCollect4"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ]
-    },
-    "AutoCollectCommonRoute2GotoFindCollect4": {
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute2GotoFind4"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ]
-    },
-    "AutoCollectCommonRoute2GotoFind4": {
-        "desc": "黯银柑实采集点4",
-        "action": "Custom",
-        "custom_action": "MapTrackerMove",
-        "custom_action_param": {
-            "map_name": "map01_lv001",
-            "path": [
-                [
-                    218.4,
-                    513.5
-                ],
-                [
-                    223.6,
-                    507.1
-                ]
-            ]
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute2GotoFindCollect5"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
-        }
-    },
-    "AutoCollectCommonRoute2GotoFindCollect5": {
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute2GotoFindCollect6"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ]
-    },
-    "AutoCollectCommonRoute2GotoFindCollect6": {
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute2End"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ]
     }
 }

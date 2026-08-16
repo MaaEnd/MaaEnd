@@ -20,18 +20,19 @@ import (
 // autoFightAttach 是 AutoFight 节点 attach 字段的反序列化目标，
 // 字段含义参考 assets/resource/pipeline/Interface/AutoFight.json。
 type autoFightAttach struct {
-	EnableAttack                 bool   `json:"enable_attack"`
-	EnableCombo                  bool   `json:"enable_combo"`
-	EnableDodge                  bool   `json:"enable_dodge"`
-	EnableDodgeCompat            bool   `json:"enable_dodge_compat"`
-	EnableHealthDangerousSwitch  bool   `json:"enable_health_dangerous_switch"`
-	EnableBreakAccumulatingPower bool   `json:"enable_break_accumulating_power"`
-	EnableSkill                  bool   `json:"enable_skill"`
-	EnableEndSkill               bool   `json:"enable_end_skill"`
-	EnableLockTarget             bool   `json:"enable_lock_target"`
-	ReserveSkillLevel            int    `json:"reserve_skill_level"`
-	EndAxisTimelineCode          string `json:"end_axis_timeline_code"`
-	SkipComboCooldown            bool   `json:"skip_combo_cooldown"`
+	EnableAttack                 bool     `json:"enable_attack"`
+	EnableCombo                  bool     `json:"enable_combo"`
+	EnableDodge                  bool     `json:"enable_dodge"`
+	EnableDodgeCompat            bool     `json:"enable_dodge_compat"`
+	EnableHealthDangerousSwitch  bool     `json:"enable_health_dangerous_switch"`
+	EnableBreakAccumulatingPower bool     `json:"enable_break_accumulating_power"`
+	EnableSkill                  bool     `json:"enable_skill"`
+	EnableEndSkill               bool     `json:"enable_end_skill"`
+	EnableLockTarget             bool     `json:"enable_lock_target"`
+	ReserveSkillLevel            int      `json:"reserve_skill_level"`
+	EndAxisTimelineCode          string   `json:"end_axis_timeline_code"`
+	SkipComboCooldown            bool     `json:"skip_combo_cooldown"`
+	PauseExitNodes               []string `json:"pause_exit_nodes"`
 }
 
 var screenAnalyzer = NewScreenAnalyzer()
@@ -48,6 +49,25 @@ func getCharactorLevelShow(ctx *maa.Context, img image.Image) bool {
 		return false
 	}
 	return detail.Hit
+}
+
+// hitExitNode 在 img 上依次运行 nodes 中各节点的识别，返回首个命中的节点名，未命中返回空字符串。
+func hitExitNode(ctx *maa.Context, img image.Image, nodes []string) string {
+	if len(nodes) == 0 {
+		return ""
+	}
+	for _, node := range nodes {
+		detail, err := ctx.RunRecognition(node, img)
+		if err != nil {
+			log.Error().Err(err).Str("component", "AutoFight").Str("recognition", node).Msg("failed to run exit node recognition")
+			continue
+		}
+		if detail == nil || !detail.Hit {
+			continue
+		}
+		return node
+	}
+	return ""
 }
 
 func screencapImage(ctx *maa.Context) (image.Image, bool) {
@@ -390,6 +410,13 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 			}
 			if time.Since(pauseStart) >= 10*time.Second {
 				log.Info().Str("component", "AutoFight").Dur("elapsed", time.Since(pauseStart)).Msg("pause timeout, exiting fight")
+				maafocus.Print(ctx, i18n.T("autofight.exit_fight"))
+				result = true
+				break
+			}
+			// 退出判定：暂停态下 attach 配置的 pause_exit_nodes 任一命中（如选剑演武战斗胜利界面）立即退出
+			if exitNode := hitExitNode(ctx, img, params.PauseExitNodes); exitNode != "" {
+				log.Info().Str("component", "AutoFight").Str("exitNode", exitNode).Msg("exit node recognized, exiting fight")
 				maafocus.Print(ctx, i18n.T("autofight.exit_fight"))
 				result = true
 				break

@@ -27,12 +27,26 @@
             "hits": [
                 "EnvironmentMonitoringPhotoSettingsTab",
                 "EnvironmentMonitoringOpenPhotoSettings",
-                "EnvironmentMonitoringShutterButtonHighlighted",
                 "EnvironmentMonitoringShutterButtonPhotographyTarget"
             ]
         },
         {
             "image": "武陵_拍照模式_拍摄目标未达成.png",
+            "hits": [
+                "EnvironmentMonitoringPhotoSettingsTab",
+                "EnvironmentMonitoringOpenPhotoSettings"
+            ]
+        },
+        {
+            "image": "武陵_拍照模式_拍摄室内培育的作物_目标达成.png",
+            "hits": [
+                "EnvironmentMonitoringPhotoSettingsTab",
+                "EnvironmentMonitoringOpenPhotoSettings",
+                "EnvironmentMonitoringShutterButtonPhotographyTarget"
+            ]
+        },
+        {
+            "image": "武陵_拍照模式_拍摄室内培育的作物_目标未达成.png",
             "hits": [
                 "EnvironmentMonitoringPhotoSettingsTab",
                 "EnvironmentMonitoringOpenPhotoSettings"

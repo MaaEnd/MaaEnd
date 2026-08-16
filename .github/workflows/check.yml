@@ -11,6 +11,8 @@ on:
       - "tools/schema/**"
       - "package.json"
       - "maatools.config.mts"
+      - "pyproject.toml"
+      - "uv.lock"
 
   pull_request:
     branches:
@@ -22,6 +24,8 @@ on:
       - "tools/schema/**"
       - "package.json"
       - "maatools.config.mts"
+      - "pyproject.toml"
+      - "uv.lock"
 
   workflow_dispatch:
 
@@ -43,7 +47,10 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
-          cache: "pip"
+
+      - uses: astral-sh/setup-uv@v9.0.0
+        with:
+          enable-cache: true
 
       - name: Run maa-checker
         run: |
@@ -51,6 +58,4 @@ jobs:
           pnpm run check
 
       - name: Validate JSON Schema
-        run: |
-          python -m pip install jsonschema==4.26.0 referencing==0.37.0
-          python tools/validate_schema.py --resource-dirs assets/resource --exclude-dirs assets/resource/gamedata assets/resource/image assets/resource/model --task-dirs assets/tasks
+        run: uv run --frozen --only-group schema tools/validate_schema.py --resource-dirs assets/resource --exclude-dirs assets/resource/gamedata assets/resource/image assets/resource/model --task-dirs assets/tasks

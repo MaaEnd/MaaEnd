@@ -28,7 +28,7 @@ type Params struct {
 }
 
 var (
-	ocrNumericPattern  = regexp.MustCompile(`(?i)[+-]?(?:\d+(?:[.,]\d+)?|[.,]\d+)\s*(?:[a-z]+|万|亿)?`)
+	ocrNumericPattern  = regexp.MustCompile(`(?i)[+-]?(?:\d+(?:[.,]\d+)?|[.,]\d+)\s*(?:[a-z]+|万|萬|亿|億|만|억)?`)
 	asciiLetterPattern = regexp.MustCompile(`[A-Za-z]+$`)
 )
 
@@ -258,7 +258,11 @@ func normalizeOCRNumericToken(token string) (string, float64, error) {
 		unit       string
 		multiplier float64
 	}{
+		{unit: "億", multiplier: 100000000},
+		{unit: "억", multiplier: 100000000},
 		{unit: "亿", multiplier: 100000000},
+		{unit: "萬", multiplier: 10000},
+		{unit: "만", multiplier: 10000},
 		{unit: "万", multiplier: 10000},
 		{unit: "K", multiplier: 1000},
 		{unit: "k", multiplier: 1000},

@@ -21,280 +21,87 @@
     },
     "AutoCollectRoute4AssertLocation": {
         "desc": "传送到采集点",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "MapTrackerAssertLocation",
-                "custom_recognition_param": {
-                    "expected": [
-                        {
-                            "map_name": "map01_lv007",
-                            "target": [
-                                404,
-                                398,
-                                20,
-                                20
-                            ]
-                        }
-                    ]
-                }
-            }
-        },
-        "next": [
-            "AutoCollectRoute4GotoFind1"
-        ]
-    },
-    "AutoCollectRoute4GotoFind1": {
-        "desc": "前往采集点",
-        "action": "Custom",
-        "custom_action": "MapNavigateAction",
-        "custom_action_param": {
-            "path": [
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        728.68,
-                        366.75
-                    ]
-                }
+        "recognition": "Custom",
+        "custom_recognition": "MapLocateAssertLocation",
+        "custom_recognition_param": {
+            "zone_id": "ValleyIV_Base",
+            "target": [
+                642,
+                367,
+                20,
+                20
             ]
         },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute4GotoFind2"
-        },
+        "action": "DoNothing",
         "next": [
-            "AutoCollectClickStart"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
-        }
+            "AutoCollectRoute4Goto"
+        ]
     },
-    "AutoCollectRoute4GotoFind2": {
+    "AutoCollectRoute4Goto": {
         "desc": "前往采集点",
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "MapTrackerMove",
+                "custom_action": "MapNavigateAction",
                 "custom_action_param": {
-                    "map_name": "map01_lv007",
-                    "no_ensure_initial_movement_state": true,
                     "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "ValleyIV_Base"
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                728.68,
+                                366.75
+                            ]
+                        },
                         [
-                            482.7,
-                            409.3
+                            728.68,
+                            366.75,
+                            "COLLECT"
+                        ],
+                        [
+                            715.57,
+                            377.82,
+                            "COLLECT"
+                        ],
+                        [
+                            714.46,
+                            380.12,
+                            "COLLECT"
+                        ],
+                        [
+                            710.95,
+                            382.43,
+                            "COLLECT"
+                        ],
+                        [
+                            709.85,
+                            380.12,
+                            "COLLECT"
+                        ],
+                        [
+                            707.54,
+                            378.83,
+                            "COLLECT"
+                        ],
+                        [
+                            709.85,
+                            375.51,
+                            "COLLECT"
+                        ],
+                        [
+                            712.15,
+                            373.2,
+                            "COLLECT"
                         ]
                     ]
                 }
             }
         },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute4GotoFind3"
-        },
         "next": [
-            "AutoCollectClickStart"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
-        }
-    },
-    "AutoCollectRoute4GotoFind3": {
-        "desc": "前往采集点",
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "MapTrackerMove",
-                "custom_action_param": {
-                    "map_name": "map01_lv007",
-                    "no_ensure_initial_movement_state": true,
-                    "path": [
-                        [
-                            481.5,
-                            411.8
-                        ]
-                    ]
-                }
-            }
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute4GotoFind4"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
-        }
-    },
-    "AutoCollectRoute4GotoFind4": {
-        "desc": "前往采集点",
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "MapTrackerMove",
-                "custom_action_param": {
-                    "map_name": "map01_lv007",
-                    "no_ensure_initial_movement_state": true,
-                    "path": [
-                        [
-                            477.7,
-                            414.3
-                        ]
-                    ]
-                }
-            }
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute4GotoFind5"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
-        }
-    },
-    "AutoCollectRoute4GotoFind5": {
-        "desc": "前往采集点",
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "MapTrackerMove",
-                "custom_action_param": {
-                    "map_name": "map01_lv007",
-                    "no_ensure_initial_movement_state": true,
-                    "path": [
-                        [
-                            476.5,
-                            411.8
-                        ]
-                    ]
-                }
-            }
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute4GotoFind6"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
-        }
-    },
-    "AutoCollectRoute4GotoFind6": {
-        "desc": "前往采集点",
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "MapTrackerMove",
-                "custom_action_param": {
-                    "map_name": "map01_lv007",
-                    "no_ensure_initial_movement_state": true,
-                    "path": [
-                        [
-                            474.0,
-                            410.4
-                        ]
-                    ]
-                }
-            }
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute4GotoFind7"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
-        }
-    },
-    "AutoCollectRoute4GotoFind7": {
-        "desc": "前往采集点",
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "MapTrackerMove",
-                "custom_action_param": {
-                    "map_name": "map01_lv007",
-                    "no_ensure_initial_movement_state": true,
-                    "path": [
-                        [
-                            476.5,
-                            406.8
-                        ]
-                    ]
-                }
-            }
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute4GotoFind8"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
-        }
-    },
-    "AutoCollectRoute4GotoFind8": {
-        "desc": "前往采集点",
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "MapTrackerMove",
-                "custom_action_param": {
-                    "map_name": "map01_lv007",
-                    "no_ensure_initial_movement_state": true,
-                    "path": [
-                        [
-                            479.0,
-                            404.3
-                        ]
-                    ]
-                }
-            }
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute4End"
-        },
-        "next": [
-            "AutoCollectClickStart"
+            "AutoCollectRoute4End"
         ],
         "focus": {
             "Node.Action.Succeeded": {

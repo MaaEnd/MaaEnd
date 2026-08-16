@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// 从 zmdmap API 获取最新版本，下载数据文件到 tools/pipeline-generate/data/ 目录。
+// 从 zmdmap API 获取最新版本，下载任务所需的精简游戏数据到 tools/pipeline-generate/data/ 目录。
 // 若本地已是最新版本则跳过下载。
 //
 // 用法：node tools/pipeline-generate/fetch-data.mjs [--force] [--cache-bust]
@@ -14,8 +14,9 @@ const VERSION_API = "https://api.zmdmap.com/api/v1/endfield/version";
 const DATA_BASE_URL = "https://assets.fz.wiki/output_maaend";
 
 const DATA_FILES = [
-    "settlement_trade.json",
-    "kite_station_i18n.json",
+    "delivery_jobs.json",
+    "environment_monitoring.json",
+    "sell_product.json",
 ];
 
 const VERSION_FILE = "version.txt";
@@ -75,7 +76,7 @@ async function fetchAndCache(version) {
         const data = JSON.parse(text, (_key, value, context) =>
             typeof value === "number" ? JSON.rawJSON(context.source) : value,
         );
-        const formattedData = `${JSON.stringify(data, null, 2)}\n`;
+        const formattedData = `${JSON.stringify(data, null, 4)}\n`;
         writeFileSync(resolve(dataDir, file), formattedData, "utf8");
         console.log(`[fetch-data] 已缓存 ${file} (${(Buffer.byteLength(formattedData) / 1024).toFixed(0)} KB)`);
     }
@@ -96,8 +97,8 @@ async function main() {
                 return;
             }
             console.log(`[fetch-data] 发现新版本: v${cachedVersion} → v${latestVersion}`);
-        } catch (e) {
-            console.warn(`[fetch-data] 版本检查失败 (${e.message})，使用本地缓存 v${cachedVersion}`);
+        } catch (error) {
+            console.warn(`[fetch-data] 版本检查失败 (${error.message})，使用本地缓存 v${cachedVersion}`);
             return;
         }
     } else if (!dataCached) {
@@ -113,8 +114,8 @@ async function main() {
     console.log(`[fetch-data] 完成，当前版本: v${version}`);
 }
 
-main().catch((e) => {
-    console.error(`[fetch-data] ${e.message}`);
+main().catch((error) => {
+    console.error(`[fetch-data] ${error.message}`);
     if (!isDataCached()) {
         console.error("[fetch-data] 无可用本地缓存，请检查网络连接后重试。");
         process.exit(1);

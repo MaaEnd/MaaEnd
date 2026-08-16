@@ -1,0 +1,20 @@
+{
+    "configs": {
+        "name": "转交委托，测试选中报价识别",
+        "resource": "官服",
+        "controller": [
+            "Win32",
+            "ADB"
+        ]
+    },
+    "cases": [
+        {
+            "image": "四号谷地_地区建设_仓储节点_货物装箱_调度申请.png",
+            "hits": [
+                "DeliveryJobsSelectedBidLocationIcon",
+                "DeliveryJobsSelectedBidPriceOCR",
+                "DeliveryJobsSelectedBidPrice"
+            ]
+        }
+    ]
+}

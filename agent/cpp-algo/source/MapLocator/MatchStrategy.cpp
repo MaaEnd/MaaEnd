@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <cmath>
 #include <filesystem>
+#include <optional>
 
 #include <MaaUtils/Logger.h>
 
@@ -93,23 +94,139 @@ cv::Point2d RefinePeakSubpixel(const cv::Mat& result, const cv::Point& maxLoc)
     return refined;
 }
 
-} // namespace
+constexpr double kRefineMaxOffset = 1.0; // 相对整点峰的最大位移(px)
+constexpr int kRefineMaxEvals = 40;
+constexpr int kRefinePatchMargin = 3;    // 双三次插值取样需要的余量
 
-std::optional<MatchResultRaw> CoreMatch(const cv::Mat& searchImgRaw, const cv::Mat& templRaw, const cv::Mat& weightMask, int blurSize)
+struct RefinedPeak
 {
-    if (searchImgRaw.rows < templRaw.rows || searchImgRaw.cols < templRaw.cols) {
+    cv::Point2d loc;
+    double score = -1.0;
+};
+
+// 在整点峰周围连续求极大。目标函数与 TM_CCOEFF_NORMED 同式（整点处两者逐位相同），
+// 区别是底图按亚像素位置重采样，因此不受相关面格点的限制
+std::optional<RefinedPeak> RefinePeakContinuous(
+    const cv::Mat& searchImage,
+    const cv::Mat& templ,
+    const cv::Mat& weightMask,
+    const cv::Point& peak,
+    const cv::Point2d& seed)
+{
+    cv::Rect patchRect(
+        peak.x - kRefinePatchMargin,
+        peak.y - kRefinePatchMargin,
+        templ.cols + kRefinePatchMargin * 2,
+        templ.rows + kRefinePatchMargin * 2);
+    patchRect &= cv::Rect(0, 0, searchImage.cols, searchImage.rows);
+    if (patchRect.width < templ.cols || patchRect.height < templ.rows) {
         return std::nullopt;
     }
 
-    cv::Mat searchImg;
+    cv::Mat weight;
+    weightMask.convertTo(weight, CV_32F, 1.0 / 255.0);
+    const double weightSum = cv::sum(weight)[0];
+    if (weightSum <= 0.0) {
+        return std::nullopt;
+    }
+
+    cv::Mat patch;
+    searchImage(patchRect).convertTo(patch, CV_32F);
+    cv::Mat templF;
+    templ.convertTo(templF, CV_32F);
+    const cv::Mat templDev = (templF - cv::Scalar(cv::sum(templF.mul(weight))[0] / weightSum)).mul(weight);
+    const double templNorm = std::sqrt(templDev.dot(templDev));
+    if (templNorm <= 0.0) {
+        return std::nullopt;
+    }
+
+    cv::Mat mapX(templ.size(), CV_32F);
+    cv::Mat mapY(templ.size(), CV_32F);
+    for (int y = 0; y < templ.rows; ++y) {
+        float* rowX = mapX.ptr<float>(y);
+        float* rowY = mapY.ptr<float>(y);
+        for (int x = 0; x < templ.cols; ++x) {
+            rowX[x] = static_cast<float>(peak.x - patchRect.x + x);
+            rowY[x] = static_cast<float>(peak.y - patchRect.y + y);
+        }
+    }
+
+    cv::Mat shiftedX;
+    cv::Mat shiftedY;
+    cv::Mat sampled;
+    auto evaluate = [&](double tx, double ty) {
+        cv::add(mapX, cv::Scalar(tx), shiftedX);
+        cv::add(mapY, cv::Scalar(ty), shiftedY);
+        cv::remap(patch, sampled, shiftedX, shiftedY, cv::INTER_CUBIC, cv::BORDER_REPLICATE);
+        const cv::Mat dev = (sampled - cv::Scalar(cv::sum(sampled.mul(weight))[0] / weightSum)).mul(weight);
+        return templDev.dot(dev) / (templNorm * std::sqrt(dev.dot(dev)) + 1e-12);
+    };
+
+    // 模式搜索：沿坐标轴试探，一轮都没走动就把步长减半
+    double tx = std::clamp(seed.x - peak.x, -kRefineMaxOffset, kRefineMaxOffset);
+    double ty = std::clamp(seed.y - peak.y, -kRefineMaxOffset, kRefineMaxOffset);
+    double best = evaluate(tx, ty);
+    double step = 0.25;
+    int evals = 1;
+
+    while (step > 0.01 && evals < kRefineMaxEvals) {
+        bool moved = false;
+        for (int axis = 0; axis < 2 && !moved; ++axis) {
+            for (const double sign : { 1.0, -1.0 }) {
+                double nextX = tx;
+                double nextY = ty;
+                (axis == 0 ? nextX : nextY) += sign * step;
+                if (std::abs(nextX) > kRefineMaxOffset || std::abs(nextY) > kRefineMaxOffset) {
+                    continue;
+                }
+
+                ++evals;
+                const double value = evaluate(nextX, nextY);
+                if (value > best) {
+                    best = value;
+                    tx = nextX;
+                    ty = nextY;
+                    moved = true;
+                    break;
+                }
+            }
+        }
+
+        if (!moved) {
+            step *= 0.5;
+        }
+    }
+
+    return RefinedPeak { .loc = cv::Point2d(peak.x + tx, peak.y + ty), .score = best };
+}
+
+} // namespace
+
+PreparedSearchFeature PrepareSearchFeature(const cv::Mat& searchImgRaw)
+{
+    // 搜索图与模板必须经过同样的处理：任何只作用在一侧的低通都会让匹配分偏向被低通的那一侧
+    PreparedSearchFeature prepared;
     if (searchImgRaw.channels() == 4) {
-        cv::cvtColor(searchImgRaw, searchImg, cv::COLOR_BGRA2GRAY);
+        cv::cvtColor(searchImgRaw, prepared.image, cv::COLOR_BGRA2GRAY);
     }
     else if (searchImgRaw.channels() == 3) {
-        cv::cvtColor(searchImgRaw, searchImg, cv::COLOR_BGR2GRAY);
+        cv::cvtColor(searchImgRaw, prepared.image, cv::COLOR_BGR2GRAY);
     }
     else {
-        searchImg = searchImgRaw.clone();
+        prepared.image = searchImgRaw.clone();
+    }
+
+    return prepared;
+}
+
+std::optional<MatchResultRaw> CoreMatchPrepared(
+    const PreparedSearchFeature& searchFeature,
+    const cv::Mat& templRaw,
+    const cv::Mat& weightMask,
+    PeakRefineMode refineMode)
+{
+    if (searchFeature.image.rows < templRaw.rows || searchFeature.image.cols < templRaw.cols) {
+        return std::nullopt;
     }
 
     cv::Mat templ;
@@ -123,17 +240,13 @@ std::optional<MatchResultRaw> CoreMatch(const cv::Mat& searchImgRaw, const cv::M
         templ = templRaw.clone();
     }
 
-    if (blurSize > 0) {
-        cv::GaussianBlur(searchImg, searchImg, cv::Size(blurSize, blurSize), 0);
-    }
-
     cv::Mat result;
     try {
         if (cv::countNonZero(weightMask) < 5) {
             return std::nullopt;
         }
 
-        cv::matchTemplate(searchImg, templ, result, cv::TM_CCOEFF_NORMED, weightMask);
+        cv::matchTemplate(searchFeature.image, templ, result, cv::TM_CCOEFF_NORMED, weightMask);
 
         cv::patchNaNs(result, -1.0);
         for (int y = 0; y < result.rows; ++y) {
@@ -153,6 +266,16 @@ std::optional<MatchResultRaw> CoreMatch(const cv::Mat& searchImgRaw, const cv::M
     double minVal, maxVal;
     cv::Point minLoc, maxLoc;
     cv::minMaxLoc(result, &minVal, &maxVal, &minLoc, &maxLoc);
+
+    cv::Point2d refinedLoc = RefinePeakSubpixel(result, maxLoc);
+    double peakScore = maxVal;
+
+    if (refineMode == PeakRefineMode::Continuous) {
+        if (const auto refined = RefinePeakContinuous(searchFeature.image, templ, weightMask, maxLoc, refinedLoc)) {
+            refinedLoc = refined->loc;
+            peakScore = refined->score;
+        }
+    }
 
     int ex = std::max(3, std::min(templ.cols, templ.rows) / 10);
     cv::Rect peakRect(maxLoc.x - ex, maxLoc.y - ex, ex * 2 + 1, ex * 2 + 1);
@@ -185,13 +308,22 @@ std::optional<MatchResultRaw> CoreMatch(const cv::Mat& searchImgRaw, const cv::M
     double psr = (maxVal - mean[0]) / (stddev[0] + 1e-6);
 
     MatchResultRaw out;
-    out.score = maxVal;
-    out.loc = RefinePeakSubpixel(result, maxLoc);
+    out.score = peakScore;
+    out.loc = refinedLoc;
     out.secondScore = secondVal;
-    out.delta = maxVal - secondVal;
+    out.delta = peakScore - secondVal;
     out.psr = psr;
 
     return out;
+}
+
+std::optional<MatchResultRaw> CoreMatch(const cv::Mat& searchImgRaw, const cv::Mat& templRaw, const cv::Mat& weightMask)
+{
+    if (searchImgRaw.rows < templRaw.rows || searchImgRaw.cols < templRaw.cols) {
+        return std::nullopt;
+    }
+
+    return CoreMatchPrepared(PrepareSearchFeature(searchImgRaw), templRaw, weightMask);
 }
 
 class StandardMatchStrategy : public IMatchStrategy
@@ -265,6 +397,11 @@ public:
             feat.image = mapRoi;
         }
         return feat;
+    }
+
+    TemplateFeatureKind templateFeatureKind() const override
+    {
+        return _isBase ? TemplateFeatureKind::StandardBase : TemplateFeatureKind::StandardTier;
     }
 
     TrackingValidation validateTracking(
@@ -371,6 +508,11 @@ public:
         MatchFeature feat;
         feat.image = ExtractPathHeatmapFeature(mapRoi);
         return feat;
+    }
+
+    TemplateFeatureKind templateFeatureKind() const override
+    {
+        return _isBase ? TemplateFeatureKind::PathHeatmapBase : TemplateFeatureKind::PathHeatmapTier;
     }
 
     TrackingValidation validateTracking(

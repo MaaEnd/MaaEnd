@@ -290,8 +290,8 @@ A2 落盘时会写下 `updated_at`。R2 用「现在 − 同步时间」是否�
 2. 对应 TemplateMatch 开启 `"green_mask": true`。
 
 ```bash
-python tools/SupplyPlan/mask_ims_item_corner.py
-# 预览：python tools/SupplyPlan/mask_ims_item_corner.py --dry-run
+uv run tools/SupplyPlan/mask_ims_item_corner.py
+# 预览：uv run tools/SupplyPlan/mask_ims_item_corner.py --dry-run
 ```
 
 ### 缓存约定

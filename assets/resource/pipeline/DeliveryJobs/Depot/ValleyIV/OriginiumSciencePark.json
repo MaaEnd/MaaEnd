@@ -1,0 +1,191 @@
+{
+    "DeliveryJobsCheckOriginiumScienceParkDeliveryJob": {
+        "desc": "检查源石研究园的送货任务按钮",
+        "recognition": "OCR",
+        "roi": "DeliveryJobsCheckLocalDepotNodeOriginiumScienceParkText",
+        "roi_offset": [
+            -39,
+            286,
+            220,
+            62
+        ],
+        "expected": [
+            "查看任务",
+            "查看任務",
+            "(?i)Check\\s*Mission",
+            "任務確認",
+            "임무 확인"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "DeliveryJobsEnterOriginiumScienceParkDeliveryJob": {
+        "desc": "源石研究园：进入送货任务",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "DeliveryJobsCheckLocalDepotNodeOriginiumScienceParkText",
+            "DeliveryJobsCheckOriginiumScienceParkDeliveryJob"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsClickTransferJob"
+        ]
+    },
+    "DeliveryJobsReturnAndTransferOriginiumSciencePark": {
+        "desc": "返回源石研究园并转交达到报价阈值的任务",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsEnterOriginiumScienceParkPriceDeliveryJob"
+        ]
+    },
+    "DeliveryJobsEnterOriginiumScienceParkPriceDeliveryJob": {
+        "desc": "源石研究园：进入达到报价阈值的送货任务",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "DeliveryJobsCheckLocalDepotNodeOriginiumScienceParkText",
+            "DeliveryJobsCheckOriginiumScienceParkDeliveryJob"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsClickTransferJob"
+        ]
+    },
+    "DeliveryJobsCheckLocalDepotNodeOriginiumScienceParkText": {
+        "desc": "检查本地仓储节点中是否有源石研究园",
+        "recognition": "OCR",
+        "roi": [
+            67,
+            224,
+            1006,
+            95
+        ],
+        "expected": [
+            "源石研究园",
+            "源石研究園",
+            "(?i)Originium\\s*Science\\s*Park",
+            "源石研究パーク",
+            "오리지늄 연구 구역"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "DeliveryJobsCheckOriginiumScienceParkCargo": {
+        "desc": "检查源石研究园的货物是否准备好",
+        "recognition": "OCR",
+        "roi": "DeliveryJobsCheckLocalDepotNodeOriginiumScienceParkText",
+        "roi_offset": [
+            -39,
+            286,
+            220,
+            62
+        ],
+        "expected": [
+            "查看报价",
+            "查看報價",
+            "(?i)Check\\s*Bid",
+            "希望価格確認",
+            "货物装箱",
+            "貨物裝箱",
+            "(?i)Pack\\s*Goods",
+            "パッキング",
+            "화물 포장",
+            "입찰 보기"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "DeliveryJobsEnterOriginiumScienceParkCargo": {
+        "desc": "进入源石研究园货物",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "DeliveryJobsCheckLocalDepotNodeOriginiumScienceParkText",
+            "DeliveryJobsCheckOriginiumScienceParkCargo"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillValleyIV",
+            "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
+            "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStopForOngoingDelivery",
+            "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsPackCargo"
+        ]
+    },
+    "DeliveryJobsDecideOriginiumScienceParkQuote": {
+        "desc": "按报价决定如何处理源石研究园的货物",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsOriginiumScienceParkQuoteAtLeastMinimum",
+            "DeliveryJobsOriginiumScienceParkQuoteBelowMinimum",
+            "DeliveryJobsBidPriceRecognitionFailed"
+        ]
+    },
+    "DeliveryJobsOriginiumScienceParkQuoteAtLeastMinimum": {
+        "desc": "源石研究园当前报价达到或高于阈值",
+        "recognition": "Custom",
+        "custom_recognition": "ExpressionRecognition",
+        "custom_recognition_param": {
+            "expression": "{DeliveryJobsSelectedBidPrice}>=119000"
+        },
+        "pre_delay": 0,
+        "anchor": {
+            "DeliveryJobsQuoteAction": "DeliveryJobsQuoteTransferJob",
+            "DeliveryJobsGoToDepot": "DeliveryJobsReturnAndTransferOriginiumSciencePark"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]DeliveryJobsQuoteAction"
+        ]
+    },
+    "DeliveryJobsOriginiumScienceParkQuoteBelowMinimum": {
+        "desc": "源石研究园当前报价低于阈值",
+        "recognition": "Custom",
+        "custom_recognition": "ExpressionRecognition",
+        "custom_recognition_param": {
+            "expression": "{DeliveryJobsSelectedBidPrice}<119000"
+        },
+        "pre_delay": 0,
+        "anchor": {
+            "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
+            "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]DeliveryJobsQuoteAction"
+        ]
+    }
+}

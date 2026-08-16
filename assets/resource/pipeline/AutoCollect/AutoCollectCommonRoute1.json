@@ -11,6 +11,10 @@
             "Node.Recognition.Succeeded": "$option.AutoCollectCommonRoute1.label"
         }
     },
+    "AutoCollectCommonRoute1End": {
+        "pre_delay": 0,
+        "post_delay": 0
+    },
     "AutoCollectCommonRoute1": {
         "desc": "10个映火荞花",
         "action": "Custom",
@@ -24,278 +28,26 @@
             "AutoCollectCommonRoute1AssertLocation1"
         ]
     },
-    "AutoCollectCommonRoute1End": {
-        "pre_delay": 0,
-        "post_delay": 0
-    },
     "AutoCollectCommonRoute1AssertLocation1": {
-        "desc": "传送点定位",
+        "desc": "传送到采集点",
         "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition": "MapLocateAssertLocation",
         "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map01_lv001",
-                    "target": [
-                        379.4,
-                        494.0,
-                        12.5,
-                        11.2
-                    ]
-                }
+            "zone_id": "ValleyIV_Base",
+            "target": [
+                436,
+                901,
+                20,
+                20
             ]
         },
+        "action": "DoNothing",
         "next": [
-            "AutoCollectCommonRoute1GotoFindLine1"
+            "AutoCollectCommonRoute1Goto"
         ]
     },
-    "AutoCollectCommonRoute1GotoFindLine1": {
-        "desc": "前往映火荞花采集点",
-        "action": "Custom",
-        "custom_action": "MapTrackerMove",
-        "custom_action_param": {
-            "map_name": "map01_lv001",
-            "path": [
-                [
-                    389.1,
-                    497.9
-                ],
-                [
-                    376.3,
-                    499.6
-                ],
-                [
-                    364.6,
-                    502.1
-                ],
-                [
-                    349.4,
-                    506.5
-                ],
-                [
-                    326.9,
-                    514.5
-                ],
-                [
-                    311.9,
-                    520.6
-                ],
-                [
-                    311.6,
-                    567.3
-                ],
-                [
-                    283.1,
-                    585.3
-                ],
-                [
-                    271.0,
-                    578.0
-                ]
-            ]
-        },
-        "next": [
-            "AutoCollectCommonRoute1GotoFind1"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
-        }
-    },
-    "AutoCollectCommonRoute1GotoFind1": {
-        "desc": "映火荞花",
-        "action": "Custom",
-        "custom_action": "MapTrackerMove",
-        "custom_action_param": {
-            "map_name": "map01_lv001",
-            "path": [
-                [
-                    272.2,
-                    581.0
-                ],
-                [
-                    274.1,
-                    586.5
-                ]
-            ]
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute1GotoFindCollect1"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
-        }
-    },
-    "AutoCollectCommonRoute1GotoFindCollect1": {
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute1GotoFindCollect2"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ]
-    },
-    "AutoCollectCommonRoute1GotoFindCollect2": {
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute1GotoFind2"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ]
-    },
-    "AutoCollectCommonRoute1GotoFind2": {
-        "desc": "前往收集地2",
-        "action": "Custom",
-        "custom_action": "MapTrackerMove",
-        "custom_action_param": {
-            "map_name": "map01_lv001",
-            "path": [
-                [
-                    272.2,
-                    581.0
-                ],
-                [
-                    271.0,
-                    586.3
-                ]
-            ]
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute1GotoFindCollect3"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
-        }
-    },
-    "AutoCollectCommonRoute1GotoFindCollect3": {
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute1GotoFindCollect4"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ]
-    },
-    "AutoCollectCommonRoute1GotoFindCollect4": {
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute1GotoFind3"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ]
-    },
-    "AutoCollectCommonRoute1GotoFind3": {
-        "desc": "前往收集地3",
-        "action": "Custom",
-        "custom_action": "MapTrackerMove",
-        "custom_action_param": {
-            "map_name": "map01_lv001",
-            "path": [
-                [
-                    272.2,
-                    581.0
-                ],
-                [
-                    271.3,
-                    587.6
-                ]
-            ]
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute1GotoFindCollect5"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
-        }
-    },
-    "AutoCollectCommonRoute1GotoFindCollect5": {
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute1GotoFindCollect6"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ]
-    },
-    "AutoCollectCommonRoute1GotoFindCollect6": {
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute1GotoFind4"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ]
-    },
-    "AutoCollectCommonRoute1GotoFind4": {
-        "desc": "前往收集地4",
-        "action": "Custom",
-        "custom_action": "MapTrackerMove",
-        "custom_action_param": {
-            "map_name": "map01_lv001",
-            "path": [
-                [
-                    281.9,
-                    591.6
-                ]
-            ]
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute1GotoFindCollect7"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
-        }
-    },
-    "AutoCollectCommonRoute1GotoFindCollect7": {
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute1GotoFindCollect8"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ]
-    },
-    "AutoCollectCommonRoute1GotoFindCollect8": {
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute1GotoFindLine2"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ]
-    },
-    "AutoCollectCommonRoute1GotoFindLine2": {
-        "desc": "前往映火荞花第五个采集点",
+    "AutoCollectCommonRoute1Goto": {
+        "desc": "前往采集点",
         "action": {
             "type": "Custom",
             "param": {
@@ -303,19 +55,105 @@
                 "custom_action_param": {
                     "path": [
                         {
+                            "action": "ZONE",
+                            "zone_id": "ValleyIV_Base"
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                340.15,
+                                983.54
+                            ]
+                        },
+                        [
+                            343.02,
+                            991.38,
+                            "COLLECT"
+                        ],
+                        [
+                            343.02,
+                            991.38,
+                            "COLLECT"
+                        ],
+                        [
+                            343.02,
+                            991.38,
+                            "COLLECT"
+                        ],
+                        [
+                            340.15,
+                            991.2,
+                            "COLLECT"
+                        ],
+                        [
+                            340.15,
+                            991.2,
+                            "COLLECT"
+                        ],
+                        [
+                            340.15,
+                            991.2,
+                            "COLLECT"
+                        ],
+                        [
+                            340.43,
+                            992.4,
+                            "COLLECT"
+                        ],
+                        [
+                            340.43,
+                            992.4,
+                            "COLLECT"
+                        ],
+                        [
+                            340.43,
+                            992.4,
+                            "COLLECT"
+                        ],
+                        [
+                            350.22,
+                            996.09,
+                            "COLLECT"
+                        ],
+                        [
+                            350.22,
+                            996.09,
+                            "COLLECT"
+                        ],
+                        [
+                            350.22,
+                            996.09,
+                            "COLLECT"
+                        ],
+                        {
                             "action": "NAVMESH",
                             "target": [
                                 361.11,
                                 894.47
                             ],
                             "zone_id": "ValleyIV_Base"
-                        }
+                        },
+                        [
+                            361.02,
+                            897.42,
+                            "COLLECT"
+                        ],
+                        [
+                            361.02,
+                            897.42,
+                            "COLLECT"
+                        ],
+                        [
+                            361.02,
+                            897.42,
+                            "COLLECT"
+                        ]
                     ]
                 }
             }
         },
         "next": [
-            "AutoCollectCommonRoute1GotoFind5"
+            "AutoCollectCommonRoute1End"
         ],
         "focus": {
             "Node.Action.Succeeded": {
@@ -325,49 +163,5 @@
                 "trace": true
             }
         }
-    },
-    "AutoCollectCommonRoute1GotoFind5": {
-        "desc": "前往收集地5",
-        "action": "Custom",
-        "custom_action": "MapTrackerMove",
-        "custom_action_param": {
-            "map_name": "map01_lv001",
-            "path": [
-                [
-                    293.6,
-                    484.7
-                ]
-            ]
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute1GotoFindCollect9"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
-        }
-    },
-    "AutoCollectCommonRoute1GotoFindCollect9": {
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute1GotoFindCollect10"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ]
-    },
-    "AutoCollectCommonRoute1GotoFindCollect10": {
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute1End"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ]
     }
 }

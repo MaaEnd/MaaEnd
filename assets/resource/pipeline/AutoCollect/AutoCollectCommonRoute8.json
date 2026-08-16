@@ -11,8 +11,11 @@
             "Node.Recognition.Succeeded": "$option.AutoCollectCommonRoute8.label"
         }
     },
+    "AutoCollectCommonRoute8End": {
+        "pre_delay": 0,
+        "post_delay": 0
+    },
     "AutoCollectCommonRoute8": {
-        "desc": "8个金石稻",
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
@@ -24,49 +27,110 @@
             "AutoCollectCommonRoute8AssertLocation1"
         ]
     },
-    "AutoCollectCommonRoute8End": {
-        "pre_delay": 0,
-        "post_delay": 0
-    },
     "AutoCollectCommonRoute8AssertLocation1": {
-        "desc": "传送点定位",
+        "desc": "传送到采集点",
         "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition": "MapLocateAssertLocation",
         "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv005",
-                    "target": [
-                        333.1,
-                        411.2,
-                        10.3,
-                        8.9
+            "zone_id": "Wuling_Base",
+            "target": [
+                1283,
+                1743,
+                20,
+                20
+            ]
+        },
+        "action": "DoNothing",
+        "next": [
+            "AutoCollectCommonRoute8Goto"
+        ]
+    },
+    "AutoCollectCommonRoute8Goto": {
+        "desc": "前往金石稻采集点",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "Wuling_Base"
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                1336.21,
+                                1763.47
+                            ],
+                            "zone_id": "Wuling_Base"
+                        },
+                        [
+                            1339.35,
+                            1764.14,
+                            "COLLECT"
+                        ],
+                        [
+                            1339.35,
+                            1764.14,
+                            "COLLECT"
+                        ],
+                        [
+                            1339.35,
+                            1764.14,
+                            "COLLECT"
+                        ],
+                        [
+                            1339.35,
+                            1764.14,
+                            "COLLECT"
+                        ],
+                        [
+                            1339.35,
+                            1761.67,
+                            "COLLECT"
+                        ],
+                        [
+                            1339.35,
+                            1761.67,
+                            "COLLECT"
+                        ],
+                        [
+                            1337.68,
+                            1761.38,
+                            "COLLECT"
+                        ],
+                        [
+                            1337.68,
+                            1761.38,
+                            "COLLECT"
+                        ],
+                        [
+                            1333.74,
+                            1764.73,
+                            "COLLECT"
+                        ],
+                        [
+                            1333.74,
+                            1764.73,
+                            "COLLECT"
+                        ],
+                        [
+                            1336.89,
+                            1762.95,
+                            "COLLECT"
+                        ],
+                        [
+                            1336.89,
+                            1762.95,
+                            "COLLECT"
+                        ]
                     ]
                 }
-            ]
+            }
         },
         "next": [
-            "AutoCollectCommonRoute8GotoFindLine1"
-        ]
-    },
-    "AutoCollectCommonRoute8GotoFindLine1": {
-        "desc": "前往金石稻采集点",
-        "action": "Custom",
-        "custom_action": "MapNavigateAction",
-        "custom_action_param": {
-            "path": [
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        1336.21,
-                        1763.47
-                    ],
-                    "zone_id": "Wuling_Base"
-                }
-            ]
-        },
-        "next": [
-            "AutoCollectCommonRoute8GotoFind1"
+            "AutoCollectCommonRoute8End"
         ],
         "focus": {
             "Node.Action.Succeeded": {
@@ -76,236 +140,5 @@
                 "trace": true
             }
         }
-    },
-    "AutoCollectCommonRoute8GotoFind1": {
-        "desc": "收集点1和2坐标相同，因为两个叠在一起",
-        "action": "Custom",
-        "custom_action": "MapTrackerMove",
-        "custom_action_param": {
-            "map_name": "map02_lv005",
-            "path": [
-                [
-                    385.0,
-                    421.8
-                ],
-                [
-                    385.0,
-                    426.7
-                ]
-            ]
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute8GotoFindCollect1"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
-        }
-    },
-    "AutoCollectCommonRoute8GotoFindCollect1": {
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute8GotoFind2"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ]
-    },
-    "AutoCollectCommonRoute8GotoFind2": {
-        "action": "Custom",
-        "custom_action": "MapTrackerMove",
-        "custom_action_param": {
-            "map_name": "map02_lv005",
-            "path": [
-                [
-                    385.0,
-                    421.8
-                ],
-                [
-                    385.0,
-                    426.7
-                ]
-            ]
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute8GotoFindCollect2"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
-        }
-    },
-    "AutoCollectCommonRoute8GotoFindCollect2": {
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute8GotoFind3"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ]
-    },
-    "AutoCollectCommonRoute8GotoFind3": {
-        "desc": "前往收集地3",
-        "action": "Custom",
-        "custom_action": "MapTrackerMove",
-        "custom_action_param": {
-            "map_name": "map02_lv005",
-            "path": [
-                [
-                    385.0,
-                    418.1
-                ],
-                [
-                    385.0,
-                    424.2
-                ]
-            ]
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute8GotoFindCollect3"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
-        }
-    },
-    "AutoCollectCommonRoute8GotoFindCollect3": {
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute8GotoFind4"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ]
-    },
-    "AutoCollectCommonRoute8GotoFind4": {
-        "desc": "前往收集地4",
-        "action": "Custom",
-        "custom_action": "MapTrackerMove",
-        "custom_action_param": {
-            "map_name": "map02_lv005",
-            "path": [
-                [
-                    383.3,
-                    423.9
-                ]
-            ]
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute8GotoFindCollect4"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
-        }
-    },
-    "AutoCollectCommonRoute8GotoFindCollect4": {
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute8GotoFind5"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ]
-    },
-    "AutoCollectCommonRoute8GotoFind5": {
-        "desc": "前往收集地5",
-        "action": "Custom",
-        "custom_action": "MapTrackerMove",
-        "custom_action_param": {
-            "map_name": "map02_lv005",
-            "path": [
-                [
-                    379.3,
-                    427.3
-                ]
-            ]
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute8GotoFindCollect5"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
-        }
-    },
-    "AutoCollectCommonRoute8GotoFindCollect5": {
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute8GotoFind6"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ]
-    },
-    "AutoCollectCommonRoute8GotoFind6": {
-        "desc": "前往收集地6",
-        "action": "Custom",
-        "custom_action": "MapTrackerMove",
-        "custom_action_param": {
-            "map_name": "map02_lv005",
-            "path": [
-                [
-                    383.8,
-                    420.5
-                ],
-                [
-                    382.5,
-                    425.5
-                ]
-            ]
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute8GotoFindCollect6"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
-        }
-    },
-    "AutoCollectCommonRoute8GotoFindCollect6": {
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectCommonRoute8End"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ]
     }
 }

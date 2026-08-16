@@ -191,7 +191,11 @@ export function getZoneIds() {
  * `off_mesh` rides along on the `ok:false` case so a failure can say *why* — an endpoint
  * outside the mesh reads very differently from two endpoints on disconnected pieces.
  *
- * @param {{zone_id:number, start:number[], goal:number[], snap_radius?:number, floor_y?:?number}} req
+ * `goal_deck_y` 是终点所在那张可走面的高度:`floor_y` 管吸附,它管在重叠面里选哪一张。
+ * 不给时寻路取整格全部面、先够到哪张停哪张(也就是加这个字段之前的行为)。
+ *
+ * @param {{zone_id:number, start:number[], goal:number[], snap_radius?:number, floor_y?:?number,
+ *   goal_deck_y?:?number}} req
  * @returns {Promise<{ok:boolean, points?:number[][], segment_breaks?:number[], cost?:number,
  *   blind_start?:?{entry:number[], distance:number, reason:string},
  *   blind_target?:?{reached:number[], gap:number, reason:string},
@@ -204,6 +208,7 @@ export function postRoute(req) {
     goal: req.goal,
     snap_radius: req.snap_radius === undefined ? 5.0 : req.snap_radius,
     floor_y: req.floor_y === undefined ? null : req.floor_y,
+    goal_deck_y: req.goal_deck_y === undefined ? null : req.goal_deck_y,
   });
 }
 
@@ -236,10 +241,26 @@ export function postOffMeshProbe(req) {
 }
 
 /**
+ * @typedef {{height:number, band:number[], on_surface:boolean, thin:boolean}} Deck 一张压在该
+ *   坐标底下的可走面。`height` 就是 target_deck_y 要填的数,`band` 是寻路认这张面的高度带。
+ */
+
+/**
+ * 问这个坐标底下压着几张可走面。小地图是二维的,走廊 / 天桥 / 屋顶会重叠在同一个点上。
+ * 返回按高度从高到低排,只有一项时说明这个点不存在重叠、不用标 deck。
+ *
+ * @param {{zone_id:number, point:number[]}} req
+ * @returns {Promise<{ok:boolean, decks?:Deck[], error?:string}>}
+ */
+export function postDeckProbe(req) {
+  return sendJson('/api/deck-probe', { zone_id: req.zone_id, point: req.point });
+}
+
+/**
  * Trigger a single location capture. Connects to the game, captures the third valid location frame,
- * terminates connection and returns {ok: true, x, y, zone}.
+ * terminates connection and returns {ok: true, x, y, zone, rot}.
  * @param {Object} [connection] optional connection override, defaults to settings store config.
- * @returns {Promise<{ok: boolean, x: number, y: number, zone: string}>}
+ * @returns {Promise<{ok: boolean, x: number, y: number, zone: string, rot: ?number}>}
  */
 export function locateOnce(connection) {
   return sendJson('/api/locate-once', { connection });
@@ -335,6 +356,15 @@ export function checkConnection(payload) {
 export function getAdbDevices(adbPath = '') {
   const q = adbPath ? `?adb_path=${encodeURIComponent(adbPath)}` : '';
   return getJson(`/api/adb/devices${q}`);
+}
+
+/**
+ * Enumerate Wayland sockets under `$XDG_RUNTIME_DIR` (name contains "wayland"),
+ * plus the computed default socket path.
+ * @returns {Promise<{sockets:string[], default:string}>}
+ */
+export function getWlrootsSockets() {
+  return getJson('/api/wlroots/sockets');
 }
 
 // --- recording (WebSocket) -----------------------------------------------------------

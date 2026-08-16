@@ -555,5 +555,73 @@
                 71
             ]
         }
+    },
+    "__ScenePrivateMenuRegionalDevelopmentValleyIVEnterOverview": {
+        "desc": "在四号谷地地区建设界面，进入事务总览界面",
+        "recognition": "And",
+        "all_of": [
+            "RegionalOverviewButton",
+            "InRegionalDevelopmentValleyIV"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMenuRegionalDevelopmentValleyIVEnterOverviewSuccess"
+        ]
+    },
+    "__ScenePrivateMenuRegionalDevelopmentValleyIVEnterOverviewSuccess": {
+        "desc": "在四号谷地地区建设界面，进入事务总览界面成功",
+        "recognition": "And",
+        "all_of": [
+            "InRegionalOverviewValleyIV"
+        ],
+        "pre_wait_freezes": {
+            "time": 80,
+            "target": [
+                160,
+                69,
+                953,
+                651
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__ScenePrivateMenuRegionalDevelopmentWulingEnterOverview": {
+        "desc": "在武陵地区建设界面，进入事务总览界面",
+        "recognition": "And",
+        "all_of": [
+            "RegionalOverviewButton",
+            "InRegionalDevelopmentWuling"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMenuRegionalDevelopmentWulingEnterOverviewSuccess"
+        ]
+    },
+    "__ScenePrivateMenuRegionalDevelopmentWulingEnterOverviewSuccess": {
+        "desc": "在武陵地区建设界面，进入事务总览界面成功",
+        "recognition": "And",
+        "all_of": [
+            "InRegionalOverviewWuling"
+        ],
+        "pre_wait_freezes": {
+            "time": 80,
+            "target": [
+                160,
+                69,
+                953,
+                651
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     }
 }

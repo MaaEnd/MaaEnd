@@ -105,6 +105,8 @@ struct NaviWaypointObjectInput
     std::string mapName_;
     std::string target_tier_;
     std::string targetTier_;
+    double target_deck_y_ = 0.0;
+    double targetDeckY_ = 0.0;
     bool strict_ = false;
     bool strict_arrival_ = false;
     bool strictArrival_ = false;
@@ -121,6 +123,8 @@ struct NaviWaypointObjectInput
     bool has_zone_ = false;
     bool has_map_name_ = false;
     bool has_mapName_ = false;
+    bool has_target_deck_y_ = false;
+    bool has_targetDeckY_ = false;
     bool has_strict_ = false;
     bool has_strict_arrival_ = false;
     bool has_strictArrival_ = false;
@@ -141,6 +145,8 @@ struct NaviWaypointObjectInput
         MEO_OPT MEO_KEY("mapName") mapName_,
         MEO_OPT MEO_KEY("target_tier") target_tier_,
         MEO_OPT MEO_KEY("targetTier") targetTier_,
+        MEO_OPT MEO_KEY("target_deck_y") target_deck_y_,
+        MEO_OPT MEO_KEY("targetDeckY") targetDeckY_,
         MEO_OPT MEO_KEY("strict") strict_,
         MEO_OPT MEO_KEY("strict_arrival") strict_arrival_,
         MEO_OPT MEO_KEY("strictArrival") strictArrival_,
@@ -166,6 +172,8 @@ struct NaviWaypointObjectPresenceInput
     std::optional<json::value> zone_;
     std::optional<json::value> map_name_;
     std::optional<json::value> mapName_;
+    std::optional<json::value> target_deck_y_;
+    std::optional<json::value> targetDeckY_;
     std::optional<json::value> strict_;
     std::optional<json::value> strict_arrival_;
     std::optional<json::value> strictArrival_;
@@ -184,6 +192,8 @@ struct NaviWaypointObjectPresenceInput
         MEO_OPT MEO_KEY("zone") zone_,
         MEO_OPT MEO_KEY("map_name") map_name_,
         MEO_OPT MEO_KEY("mapName") mapName_,
+        MEO_OPT MEO_KEY("target_deck_y") target_deck_y_,
+        MEO_OPT MEO_KEY("targetDeckY") targetDeckY_,
         MEO_OPT MEO_KEY("strict") strict_,
         MEO_OPT MEO_KEY("strict_arrival") strict_arrival_,
         MEO_OPT MEO_KEY("strictArrival") strictArrival_,
@@ -202,6 +212,7 @@ struct NaviWaypointInput
     std::vector<ActionType> actions_;
     std::string zone_id_;
     std::string target_tier_;
+    std::optional<double> target_deck_y_;
     bool strict_arrival_ = false;
     double angle_ = 0.0;
     std::array<double, 2> target_ {};
@@ -290,6 +301,7 @@ private:
 
         zone_id_ = resolveZoneId(object_input);
         target_tier_ = resolveTargetTier(object_input);
+        target_deck_y_ = resolveTargetDeckY(object_input);
         strict_arrival_ = resolveStrictArrival(object_input);
         x_ = object_input.x_;
         y_ = object_input.y_;
@@ -310,6 +322,8 @@ private:
         object_input.has_zone_ = presence.zone_.has_value();
         object_input.has_map_name_ = presence.map_name_.has_value();
         object_input.has_mapName_ = presence.mapName_.has_value();
+        object_input.has_target_deck_y_ = presence.target_deck_y_.has_value();
+        object_input.has_targetDeckY_ = presence.targetDeckY_.has_value();
         object_input.has_strict_ = presence.strict_.has_value();
         object_input.has_strict_arrival_ = presence.strict_arrival_.has_value();
         object_input.has_strictArrival_ = presence.strictArrival_.has_value();
@@ -354,6 +368,17 @@ private:
             }
         }
         return {};
+    }
+
+    static std::optional<double> resolveTargetDeckY(const NaviWaypointObjectInput& input)
+    {
+        if (input.has_target_deck_y_) {
+            return input.target_deck_y_;
+        }
+        if (input.has_targetDeckY_) {
+            return input.targetDeckY_;
+        }
+        return std::nullopt;
     }
 
     static bool resolveStrictArrival(const NaviWaypointObjectInput& input)
@@ -521,6 +546,7 @@ void append_expanded_waypoints(
     double ty,
     const std::vector<ActionType>& actions,
     const std::string& zone_id,
+    const std::string& target_tier,
     bool strict_arrival,
     std::vector<Waypoint>& out_waypoints)
 {
@@ -529,6 +555,7 @@ void append_expanded_waypoints(
     if (actions.empty()) {
         Waypoint waypoint(tx, ty, ActionType::RUN);
         waypoint.zone_id = zone_id;
+        waypoint.target_tier = target_tier;
         waypoint.strict_arrival = strict_arrival;
         out_waypoints.push_back(std::move(waypoint));
         return;
@@ -540,6 +567,7 @@ void append_expanded_waypoints(
         }
         Waypoint waypoint(tx, ty, action);
         waypoint.zone_id = zone_id;
+        waypoint.target_tier = target_tier;
         waypoint.strict_arrival = strict_arrival;
         out_waypoints.push_back(std::move(waypoint));
     }
@@ -568,6 +596,7 @@ bool append_parsed_waypoint(const NaviWaypointInput& input, std::vector<Waypoint
         if (input.has_target_) {
             Waypoint heading_waypoint = Waypoint::HeadingToTarget(input.target_.at(0), input.target_.at(1));
             heading_waypoint.zone_id = zone_id;
+            heading_waypoint.target_tier = input.target_tier_;
             out_waypoints.push_back(std::move(heading_waypoint));
             return true;
         }
@@ -591,12 +620,18 @@ bool append_parsed_waypoint(const NaviWaypointInput& input, std::vector<Waypoint
         // start/floor context and is inheritable from a preceding ZONE declaration — reusing it would
         // double-convert legacy base-pixel targets. Empty -> target stays base-pixel (legacy), see expander.
         navmesh_waypoint.target_tier = input.target_tier_;
+        // 该坐标压着好几张可走面时, 声明落在哪一张的高度; 不填保持原样
+        navmesh_waypoint.target_deck_y = input.target_deck_y_;
         out_waypoints.push_back(std::move(navmesh_waypoint));
         return true;
     }
 
-    if (input.has_x_ && input.has_y_) {
-        append_expanded_waypoints(input.x_, input.y_, input.actions_, zone_id, input.strict_arrival_, out_waypoints);
+    const bool has_legacy_position = input.has_x_ && input.has_y_;
+    const bool has_tier_target = input.has_target_ && !input.target_tier_.empty();
+    if (has_legacy_position || has_tier_target) {
+        const double target_x = input.has_target_ ? input.target_.at(0) : input.x_;
+        const double target_y = input.has_target_ ? input.target_.at(1) : input.y_;
+        append_expanded_waypoints(target_x, target_y, input.actions_, zone_id, input.target_tier_, input.strict_arrival_, out_waypoints);
         if (!zone_id.empty()) {
             zone_context = zone_id;
         }

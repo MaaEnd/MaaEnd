@@ -20,279 +20,134 @@
         "post_delay": 0
     },
     "AutoCollectRoute8AssertLocation1": {
-        "desc": "传送点定位",
+        "desc": "传送到采集点",
         "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition": "MapLocateAssertLocation",
         "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv002",
-                    "target": [
-                        421.2,
-                        845.8,
-                        9.2,
-                        10.0
-                    ]
-                }
+            "zone_id": "Wuling_Base",
+            "target": [
+                697,
+                1884,
+                20,
+                20
             ]
         },
+        "action": "DoNothing",
         "next": [
-            "AutoCollectRoute8GotoFindLine1Sub"
+            "AutoCollectRoute8Goto1"
         ]
     },
-    "AutoCollectRoute8GotoFindLine1Sub": {
-        "desc": "寻路星门菌",
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "AutoCollectRoute8GotoFindLine1"
-            ],
-            "continue": true
+    "AutoCollectRoute8Goto1": {
+        "desc": "前往采集点",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "Wuling_Base"
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                665.72,
+                                1858.93
+                            ]
+                        }
+                    ]
+                }
+            }
         },
         "next": [
             "AutoCollectRoute8AssertLocation2"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "AutoCollectRoute8AssertLocation2": {
-        "desc": "星门菌定位",
+        "desc": "传送到采集点",
         "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition": "MapLocateAssertLocation",
         "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv002",
-                    "target": [
-                        377.6,
-                        812.3,
-                        9.6,
-                        9.3
-                    ]
-                }
+            "zone_id": "Wuling_Base",
+            "target": [
+                655,
+                1851,
+                20,
+                20
             ]
         },
+        "action": "DoNothing",
         "next": [
-            "AutoCollectRoute8GotoFind1"
+            "AutoCollectRoute8Goto2"
         ]
     },
-    "AutoCollectRoute8GotoFindLine1": {
-        "desc": "前往星门菌采集点",
-        "action": "Custom",
-        "custom_action": "MapTrackerGoal",
-        "custom_action_param": {
-            "map_name": "map02_lv002",
-            "target": [
-                383.4,
-                815.1
-            ]
-        },
-        "focus": {
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
+    "AutoCollectRoute8Goto2": {
+        "desc": "前往采集点",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "Wuling_Base"
+                        },
+                        [
+                            669.46,
+                            1849.08,
+                            "COLLECT"
+                        ],
+                        [
+                            671.92,
+                            1847.9,
+                            "COLLECT"
+                        ],
+                        [
+                            673.11,
+                            1841.7,
+                            "COLLECT"
+                        ],
+                        [
+                            674.39,
+                            1844.06,
+                            "COLLECT"
+                        ],
+                        [
+                            670.64,
+                            1841.6,
+                            "COLLECT"
+                        ],
+                        [
+                            670.84,
+                            1839.13,
+                            "COLLECT"
+                        ],
+                        [
+                            665.82,
+                            1844.16,
+                            "COLLECT"
+                        ],
+                        [
+                            667,
+                            1847.8,
+                            "COLLECT"
+                        ]
+                    ]
+                }
             }
-        }
-    },
-    "AutoCollectRoute8GotoFind1": {
-        "desc": "前往收集地1",
-        "action": "Custom",
-        "custom_action": "MapTrackerGoal",
-        "custom_action_param": {
-            "map_name": "map02_lv002",
-            "target": [
-                387.2,
-                805.1
-            ]
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute8GotoFind2"
         },
         "next": [
-            "AutoCollectClickStart"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
-        }
-    },
-    "AutoCollectRoute8GotoFind2": {
-        "desc": "前往收集地2",
-        "action": "Custom",
-        "custom_action": "MapTrackerGoal",
-        "custom_action_param": {
-            "map_name": "map02_lv002",
-            "target": [
-                389.7,
-                803.9
-            ]
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute8GotoFind3"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
-        }
-    },
-    "AutoCollectRoute8GotoFind3": {
-        "desc": "前往收集地3",
-        "action": "Custom",
-        "custom_action": "MapTrackerGoal",
-        "custom_action_param": {
-            "map_name": "map02_lv002",
-            "target": [
-                390.9,
-                797.6
-            ]
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute8GotoFind4"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
-        }
-    },
-    "AutoCollectRoute8GotoFind4": {
-        "desc": "前往收集地4",
-        "action": "Custom",
-        "custom_action": "MapTrackerGoal",
-        "custom_action_param": {
-            "map_name": "map02_lv002",
-            "target": [
-                392.2,
-                800.0
-            ]
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute8GotoFind5"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
-        }
-    },
-    "AutoCollectRoute8GotoFind5": {
-        "desc": "前往收集地5",
-        "action": "Custom",
-        "custom_action": "MapTrackerGoal",
-        "custom_action_param": {
-            "map_name": "map02_lv002",
-            "target": [
-                388.4,
-                797.5
-            ]
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute8GotoFind6"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
-        }
-    },
-    "AutoCollectRoute8GotoFind6": {
-        "desc": "前往收集地6",
-        "action": "Custom",
-        "custom_action": "MapTrackerGoal",
-        "custom_action_param": {
-            "map_name": "map02_lv002",
-            "target": [
-                388.6,
-                795.0
-            ]
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute8GotoFind7"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
-        }
-    },
-    "AutoCollectRoute8GotoFind7": {
-        "desc": "前往收集地7",
-        "action": "Custom",
-        "custom_action": "MapTrackerGoal",
-        "custom_action_param": {
-            "map_name": "map02_lv002",
-            "target": [
-                383.5,
-                800.1
-            ]
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute8GotoFind8"
-        },
-        "next": [
-            "AutoCollectClickStart"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
-        }
-    },
-    "AutoCollectRoute8GotoFind8": {
-        "desc": "前往收集地8",
-        "action": "Custom",
-        "custom_action": "MapTrackerGoal",
-        "custom_action_param": {
-            "map_name": "map02_lv002",
-            "target": [
-                384.7,
-                803.8
-            ]
-        },
-        "anchor": {
-            "AutoCollectClickAfter": "AutoCollectRoute8End"
-        },
-        "next": [
-            "AutoCollectClickStart"
+            "AutoCollectRoute8End"
         ],
         "focus": {
             "Node.Action.Succeeded": {

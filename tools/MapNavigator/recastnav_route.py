@@ -8,101 +8,190 @@ from collections import OrderedDict
 import numpy as np
 
 import recastnav as rc
-from recastnav import (CAP, CS, LAM, LAM_R, MARGIN, MAX_CELLS, MAXERR, MC_HBAND,
-                       PLAN_BUDGET_MS, R, SLIMEPS, SNAP_RADIUS, TAU)
+import recastnav_grid as rg
+from recastnav import (CAP, CS, DECK_BAND, LAM, LAM_R, MARGIN, MAX_CELLS,
+                       MAXERR, MC_HBAND, R, SLIMEPS, SNAP_RADIUS, TAU)
 from recastnav_zone import CleanNav, WallOracle
 
 
-def build(zc, wo, s, s_snap, h0, x0, y0, x1, y1):
+def _llround(v):
+    return int(math.floor(v + 0.5)) if v >= 0 else -int(math.floor(-v + 0.5))
+
+
+def _last_per_cell(cells, vals, order):
+    """按给定次序取每格最后一条,用于同格多记录时后写的赢。"""
+    if not len(order):
+        return cells[:0], vals[:0]
+    c = cells[order]
+    keep = np.append(c[1:] != c[:-1], True)
+    return c[keep], vals[order][keep]
+
+
+def _pick_start_rec(gw, cell, h0):
+    """起点格里高度离 h0 最近的那条真 span 定类。类选错整条线就落在另一层上。"""
+    idx = np.flatnonzero((gw.cell == cell)
+                         & ((gw.flags & (rg.FLAG_GHOST | rg.FLAG_FILL)) == 0))
+    if not len(idx):
+        return -1
+    return int(idx[int(np.argmin(np.abs(gw.h[idx].astype(np.float64) - h0)))])
+
+
+def _pick_deck_rec(gw, nx, ny, gcx, gcy, deck):
+    """终点声明了面时改由终点定类:终点格附近带内、能走的那条,先按格距再按高度差挑。
+    起点那侧只在这个类里选面,所以起点二维吸附落在屋顶上也不会把线拉到别层去。"""
+    rad = int(math.ceil(SNAP_RADIUS / CS))
+    x = gw.cell % nx
+    y = gw.cell // nx
+    hd = np.abs(gw.h.astype(np.float64) - deck)
+    ok = (((gw.flags & rg.FLAG_WALK) != 0) & ((gw.flags & rg.FLAG_FILL) == 0)
+          & (hd <= DECK_BAND) & (np.abs(x - gcx) <= rad) & (np.abs(y - gcy) <= rad))
+    idx = np.flatnonzero(ok)
+    if not len(idx):
+        return -1
+    cd = (x[idx] - gcx) ** 2 + (y[idx] - gcy) ** 2
+    return int(idx[int(np.lexsort((idx, x[idx], y[idx], hd[idx], cd))[0])])
+
+
+def _core_anchor_px(gp, gz, p):
+    """点到最近核心格的格距 × CS,与窗口里的 near() 同口径,只是在全区图上量。
+    搜索半径取判据的两倍,够不着的点只报这个下界,反正它已经在闸外了。"""
+    cs = gp.cell_size
+    reach = SNAP_RADIUS * 2.0
+    cx = int(math.floor(p[0] / cs))
+    cy = int(math.floor(p[1] / cs))
+    rad = int(math.ceil(reach / cs))
+    best = -1
+    for tile in rg.tiles_in_rect(gz, cx - rad, cy - rad, cx + rad, cy + rad):
+        if int(tile["rec"]) == 0:
+            continue
+        t = gp.decode(tile)
+        g = tile["g"]
+        m = (t.flags & rg.FLAG_CORE) != 0
+        ix = t.cell[m] % int(g[2])
+        iy = t.cell[m] // int(g[2])
+        own = ((ix >= int(g[4])) & (ix <= int(g[5]))
+               & (iy >= int(g[6])) & (iy <= int(g[7])))
+        if not own.any():
+            continue
+        d = ((int(g[0]) + ix[own] - cx) ** 2 + (int(g[1]) + iy[own] - cy) ** 2).min()
+        if best < 0 or d < best:
+            best = int(d)
+    return reach if best < 0 else math.sqrt(best) * cs
+
+
+def build(zc, wo, gp, gz, s, s_snap, g, h0, goal_deck, x0, y0, x1, y1):
     nx = int(np.ceil((x1 - x0) / CS))
     ny = int(np.ceil((y1 - y0) / CS))
-    m = zc.mesh
+    # 窗口原点是对齐过的,所以它落在全局格线上,窗口格与烘焙格一一对上
+    t0 = time.time()
+    try:
+        gw = rg.GridWindow(gp, gz, _llround(x0 / CS), _llround(y0 / CS), nx, ny)
+    except ValueError:
+        return None, "预烘格图解不开"
+    t_grid = time.time() - t0
 
     t0 = time.time()
-    cell, hz, ins = rc.rasterize(m.V, m.H, m.T, x0, y0, nx, ny)
-    bc, bh = rc.seam_bridge(cell, hz, nx, ny)
-    if len(bc):
-        cell = np.concatenate([cell, bc])
-        hz = np.concatenate([hz, bh])
-        ins = np.concatenate([ins, np.zeros(len(bc), bool)])
-    sp_cell, sp_h, occ, cstart, ccnt = rc.spans(cell, hz)
-    HK, IK, sp_ci = rc.dense_k(sp_h, occ, cstart, ccnt)
-    t_vox = time.time() - t0
-
-    widx = wo.walls_in_bbox(x0 - 4, y0 - 4, x0 + nx * CS + 4,
-                            y0 + ny * CS + 4)
-    dead = rc.stamp_walls(wo.P0[widx], wo.P1[widx], wo.HH[widx], x0, y0,
-                          nx, ny, (occ, HK, IK, len(sp_h)))
-
     gx = int((s[0] - x0) / CS); gy = int((s[1] - y0) / CS)
-    j = int(np.searchsorted(occ, gy * nx + gx))
-    if j >= len(occ) or occ[j] != gy * nx + gx:
+    inw = 0 <= gx < nx and 0 <= gy < ny
+    start_rec = _pick_start_rec(gw, gy * nx + gx, h0) if inw else -1
+    if start_rec < 0:
         # 起点离网时其所在格无体素,退用按楼层吸附过的起点定种子
         gx = int((s_snap[0] - x0) / CS); gy = int((s_snap[1] - y0) / CS)
-        j = int(np.searchsorted(occ, gy * nx + gx))
-    if j >= len(occ) or occ[j] != gy * nx + gx:
+        inw = 0 <= gx < nx and 0 <= gy < ny
+        start_rec = _pick_start_rec(gw, gy * nx + gx, h0) if inw else -1
+    if start_rec < 0:
         return None, f"起点格无体素 (gx={gx},gy={gy})"
-    cand = IK[j][IK[j] >= 0]
-    seed = int(cand[int(np.argmin(np.abs(sp_h[cand] - h0)))])
+    cell0 = gy * nx + gx
+    region = int(gw.rid[start_rec])
+    if goal_deck is not None:
+        deck_rec = _pick_deck_rec(gw, nx, ny, int((g[0] - x0) / CS),
+                                  int((g[1] - y0) / CS), goal_deck)
+        if deck_rec < 0:
+            return None, f"终点附近没有声明的面 (deck={goal_deck:g})"
+        region = int(gw.rid[deck_rec])
 
-    t0 = time.time()
-    vis = rc.flood(seed, sp_h, occ, HK, IK, sp_ci, nx)
-    t_fl = time.time() - t0
-
+    ghost = (gw.flags & rg.FLAG_GHOST) != 0
+    fill = (gw.flags & rg.FLAG_FILL) != 0
+    same = gw.rid == region
     lay = np.zeros(ny * nx, bool)
+    core = np.zeros(ny * nx, bool)
+    dist = np.zeros(ny * nx, np.float32)
     lh = np.full(ny * nx, np.nan, np.float32)
-    c_ = sp_cell[vis]
-    lay[c_] = True
-    lh[c_] = sp_h[vis]
-    lay = lay.reshape(ny, nx); lh = lh.reshape(ny, nx)
-    wallcell = np.zeros(ny * nx, bool)
-    wallcell[sp_cell[dead]] = True
-    lay = rc.fill_holes(lay, rc.HOLE_MAX, protect=wallcell.reshape(ny, nx))
-    sol = np.zeros(ny * nx, bool)
-    ci, hi_ = cell[ins], hz[ins]
-    lf = lh.ravel()
-    okc = ~np.isnan(lf[ci]) & (np.abs(hi_ - lf[ci]) <= rc.QH)
-    sol[ci[okc]] = True
-    core = rc.fill_holes(lay & sol.reshape(ny, nx), rc.HOLE_MAX,
-                         protect=wallcell.reshape(ny, nx))
-    core = rc.close_cracks(core, lay, protect=wallcell.reshape(ny, nx))
+    stepbits = np.zeros(ny * nx, np.uint8)
+    is_core = (gw.flags & rg.FLAG_CORE) != 0
+    lay[gw.cell[same & (((gw.flags & rg.FLAG_WALK) != 0) | ~is_core)]] = True
+    core[gw.cell[same & is_core]] = True
+    sc, ss_ = gw.cell[same], gw.steps[same]
+    c, v = _last_per_cell(sc, rg.grid_clearance(gw.clr[same]),
+                          np.argsort(sc, kind="stable"))
+    dist[c] = v
+    for bit in range(8):
+        hit = sc[((ss_ >> bit) & 1) != 0]
+        if len(hit):
+            stepbits[hit] = stepbits[hit] | np.uint8(1 << bit)
+    real = same & ~ghost & ~fill
+    c, v = _last_per_cell(gw.cell[real], gw.h[real],
+                          np.lexsort((gw.h[real], gw.cell[real])))
+    lh[c] = v
+    lay = lay.reshape(ny, nx); core = core.reshape(ny, nx)
+    lh = lh.reshape(ny, nx); dist = dist.reshape(ny, nx)
 
-    sev, sseg = rc.step_breaks(occ, HK, IK, vis, lay, nx, ny, x0, y0)
-
-    spC, spH, spV = sp_cell, sp_h, vis
-    spOcc, spHK, spIK, spCi = occ, HK, IK, sp_ci
-    have = np.zeros(ny * nx, bool)
-    have[sp_cell[vis]] = True
-    gh = np.nonzero(lay.ravel() & ~have)[0]
-    if len(gh):
-        T0 = rc._step_heights(occ, HK, IK, vis, lay, nx, ny)[:, 0]
-        gh = gh[np.isfinite(T0[gh])]
-    if len(gh):
-        spC = np.concatenate([sp_cell, gh])
-        spH = np.concatenate([sp_h, T0[gh].astype(np.float32)])
-        spV = np.concatenate([vis, np.ones(len(gh), bool)])
-        o = np.lexsort((spH, spC))
-        spC, spH, spV = spC[o], spH[o], spV[o]
-        spOcc, cst, cct = np.unique(spC, return_index=True, return_counts=True)
-        spHK, spIK, spCi = rc.dense_k(spH, spOcc, cst, cct)
-    cidx = np.full(ny * nx, -1, np.int32)
-    cidx[spOcc] = np.arange(len(spOcc), dtype=np.int32)
-    sj = int(cidx[gy * nx + gx])
-    cd = spIK[sj][spIK[sj] >= 0]
-    seedN = int(cd[int(np.argmin(np.abs(spH[cd] - h0)))])
-    reachN = rc.span_reach(seedN, spH, spOcc, spHK, spIK, spCi, spV, nx, ny)
-
+    widx = wo.walls_in_bbox(x0 - 4, y0 - 4, x0 + nx * CS + 4, y0 + ny * CS + 4)
     keep = rc.walls_at_layer(wo.P0[widx], wo.P1[widx], wo.HH[widx], lh,
                              x0, y0, nx, ny, hband=MC_HBAND)
     wP0, wP1 = wo.P0[widx][keep], wo.P1[widx][keep]
     wid, wstart = rc.wall_index(wP0, wP1, x0, y0, nx, ny)
 
+    # 禁步面按烘出来的位还原。位序与方向表是写入方定的,方向倒序的那一位对应反向键;
+    # 只有正交两向出线段,对角步不挡视线。
+    sev = set()
+    ea, eb = [], []
+    flat = lay.ravel()
+    for i in range(4):
+        dx, dy = rg.STEP_DX[i], rg.STEP_DY[i]
+        bits = (stepbits >> (2 * i)) & 0x03
+        cid = np.flatnonzero((bits != 0) & flat)
+        ax, ay = cid % nx + dx, cid // nx + dy
+        m = (ax >= 0) & (ax < nx) & (ay >= 0) & (ay < ny)
+        cid, ax, ay = cid[m], ax[m], ay[m]
+        if not len(cid):
+            continue
+        nb = ay * nx + ax
+        b = bits[cid]
+        fwd = (b & 0x01) != 0
+        rev = (b & 0x02) != 0
+        sev.update((cid[fwd] * (ny * nx) + nb[fwd]).tolist())
+        sev.update((nb[rev] * (ny * nx) + cid[rev]).tolist())
+        if dx and dy:
+            continue
+        px = x0 + (cid % nx + dx) * CS
+        py = y0 + (cid // nx + dy) * CS
+        ea.append(np.column_stack([px, py]))
+        eb.append(np.column_stack([px + dy * CS, py + dx * CS]))
+    sseg = ((np.vstack(ea), np.vstack(eb)) if ea
+            else (np.zeros((0, 2)), np.zeros((0, 2))))
+
+    # 表里留着别的类的 span:层判据要看整列,少一层就会从楼板底下穿过去
+    inspan = ~(fill | (ghost & ~same))
+    o = np.lexsort((gw.h[inspan], gw.cell[inspan]))
+    spC, spH, spV = gw.cell[inspan][o], gw.h[inspan][o], same[inspan][o]
+    spOcc, cst, cct = np.unique(spC, return_index=True, return_counts=True)
+    spHK, spIK, spCi = rc.dense_k(spH, spOcc, cst, cct)
+    cidx = np.full(ny * nx, -1, np.int32)
+    cidx[spOcc] = np.arange(len(spOcc), dtype=np.int32)
+    cd = spIK[int(cidx[cell0])]
+    cd = cd[(cd >= 0) & spV[np.maximum(cd, 0)]]
+    if not len(cd):
+        return None, "起点格没有与终点同类的面"
+    seedN = int(cd[int(np.argmin(np.abs(spH[cd] - np.float32(h0))))])
+    t_win = time.time() - t0
+
     t0 = time.time()
-    dist = rc.clearance(core)
-    t_edt = time.time() - t0
+    reachN = rc.span_reach(seedN, spH, spOcc, spHK, spIK, spCi, spV, nx, ny)
+    t_reach = time.time() - t0
 
     info = dict(x0=x0, y0=y0, nx=nx, ny=ny, lay=lay, lh=lh, dist=dist,
-                core=core, t_vox=t_vox, t_fl=t_fl, t_edt=t_edt,
+                core=core, t_grid=t_grid, t_win=t_win, t_reach=t_reach,
                 wP0=wP0, wP1=wP1, wid=wid, wstart=wstart,
                 sev=sev, sseg=sseg, h0=h0,
                 spC=spC, spH=spH, spOcc=spOcc, spHK=spHK, spIK=spIK,
@@ -160,7 +249,8 @@ def metrics(wo, P, h0, info, step=0.25):
             hug / tot * 100 if tot else 0.0)
 
 
-def route(info, s, g, climb_faces=False):
+def route(info, s, g, *, goal_deck=None):
+    # goal_deck: 终点所在面的高度。不声明时终点集是该格全部 span,先够到哪张停哪张。
     lay, dist, core = info["lay"], info["dist"], info["core"]
     x0, y0, nx, ny = info["x0"], info["y0"], info["nx"], info["ny"]
     walk = core & lay
@@ -204,6 +294,25 @@ def route(info, s, g, climb_faces=False):
         j = int(cidx[c[1] * nx + c[0]])
         return [int(v) for v in spIK[j] if v >= 0 and use[v]] if j >= 0 else []
 
+    def at_seed_layer(vs):
+        return int(min(vs, key=lambda v: abs(spH[v] - info["h0"])))
+
+    # 高度最近的一张; 超出 DECK_BAND 视为该面不在此格
+    def at_deck(vs, deck):
+        best, bd = -1, 0.0
+        for v in vs:
+            d = abs(float(spH[v]) - deck)
+            if best < 0 or d < bd:
+                best, bd = int(v), d
+        return best if best >= 0 and bd <= DECK_BAND else -1
+
+    # 终点声明是硬的: 收敛到单张 span, 匹配不上交空集让本级失败
+    def goals_of(vs):
+        if goal_deck is None:
+            return vs
+        v = at_deck(vs, goal_deck)
+        return [v] if v >= 0 else []
+
     sc = (int((s[0] - x0) / CS), int((s[1] - y0) / CS))
     gc = (int((g[0] - x0) / CS), int((g[1] - y0) / CS))
 
@@ -220,27 +329,48 @@ def route(info, s, g, climb_faces=False):
     ag_, dga = near(cw3.reshape(ny, nx), gc)
     if as_ is None:
         return None, {"err": "walk 掩膜为空"}
+    # 禁步面是硬的,墙边只罚分:窄处绕不开时宁可贴着走也不判不连通
     BIGP = nx * ny * CS * (1.0 + LAM)
-    faces = None if climb_faces else info["sev"]
-    soft = blocked if climb_faces else bn
+    faces = info["sev"]
+    soft = bn
     t0 = time.time()
     on3 = cw3
-    ss = pick(as_, useW)
-    s0 = int(min(ss, key=lambda v: abs(spH[v] - info["h0"])))
-    qs = (rc.span_astar(useW, spH, spOcc, spHK, spIK, spCi, cidx, cw3,
-                        s0, set(pick(ag_, useW)), mult, nx, ny,
-                        soft, BIGP, faces)
-          if as_ != ag_ else [s0])
+    qs = None
+
+    # 可走集已经限死在终点那张面所属的类里, 起点这侧只剩层内挑高度
+    def search(use, c3, svs, gs):
+        if not svs:
+            return None
+        return rc.span_astar(use, spH, spOcc, spHK, spIK, spCi, cidx, c3,
+                             at_seed_layer(svs), set(gs), mult, nx, ny,
+                             soft, BIGP, faces)
+
+    if as_ == ag_:
+        vs = pick(as_, useW)
+        gs = goals_of(vs)
+        if goal_deck is None:
+            qs = [at_seed_layer(vs)]
+        elif gs:
+            qs = [gs[0]]
+    else:
+        gs = goals_of(pick(ag_, useW))
+        if goal_deck is None or gs:
+            qs = search(useW, cw3, pick(as_, useW), gs)
     if qs is None:
         ac_, dc_ = near(cc3.reshape(ny, nx), sc)
         ag2, dg2 = near(cc3.reshape(ny, nx), gc)
         if ac_ is not None and ag2 is not None:
-            s0 = int(min(pick(ac_, useC),
-                         key=lambda v: abs(spH[v] - info["h0"])))
-            qs = (rc.span_astar(useC, spH, spOcc, spHK, spIK, spCi, cidx, cc3,
-                                s0, set(pick(ag2, useC)), mult, nx, ny,
-                                soft, BIGP, faces)
-                  if ac_ != ag2 else [s0])
+            if ac_ == ag2:
+                vs = pick(ac_, useC)
+                gs = goals_of(vs)
+                if goal_deck is None:
+                    qs = [at_seed_layer(vs)]
+                elif gs:
+                    qs = [gs[0]]
+            else:
+                gs = goals_of(pick(ag2, useC))
+                if goal_deck is None or gs:
+                    qs = search(useC, cc3, pick(ac_, useC), gs)
         if qs is not None:
             on3 = cc3
             as_, dsa, ag_, dga = ac_, dc_, ag2, dg2
@@ -248,6 +378,18 @@ def route(info, s, g, climb_faces=False):
     if qs is not None:
         q = [(int(c % nx), int(c // nx)) for c in spC[qs]]
     else:
+        # 格级搜索连 span 都不看, 退到这一级等于把选层交回给楼层盲的那一级
+        if goal_deck is not None:
+            gv = pick(ag_, useW)
+            hs = sorted({round(float(spH[v]), 2) for v in gv})
+            # 声明的面在表里就是这一跳连不上, 不在表里是这个坐标底下没有那张面
+            tail = "这一跳连不上, 拆成多段" if at_deck(gv, goal_deck) >= 0 \
+                else "该坐标下没有这张面"
+            return None, {
+                "err": f"目标面不可达 (声明 {goal_deck:g}, 终点格里的面 "
+                       f"{hs if hs else '无'}) — {tail}",
+                "warn": warn,
+            }
         as_, dsa = near(walk, sc)
         ag_, dga = near(walk, gc)
         on3 = walk.ravel()
@@ -429,7 +571,8 @@ def route(info, s, g, climb_faces=False):
         b = min(max(int(math.floor((py - y0) / CS)), 0), ny - 1)
         clr.append(float(dist[b, a]))
     return line, {"warn": warn, "snapd": (dsa, dga), "clr": clr,
-                  "t_as": t_as, "t_sp": t_sp, "xwall": xw}
+                  "t_as": t_as, "t_sp": t_sp, "xwall": xw,
+                  "crossed_barrier": bool(bad)}
 
 
 def offmesh(line, info):
@@ -456,6 +599,10 @@ class RecastEngine:
 
     def __init__(self, field):
         self.nav = CleanNav(field)
+        section = field.sections.get(rg.TAG)
+        if section is None:
+            raise ValueError("包里没有预烘格图段,请换用带 GRID 段的包")
+        self.grid = rg.GridPack(section)
         self._oracles: OrderedDict[str, WallOracle] = OrderedDict()
         self.lock = threading.Lock()
 
@@ -490,12 +637,16 @@ class RecastEngine:
             self._oracles.move_to_end(zone_name)
             self._evict_locked()
 
-    def plan(self, zone_name, start, goal, floor_y=None):
+    # goal_deck_y = 终点所在重叠面的高度,选层用,与吸附用的 floor_y 是两件事
+    def plan(self, zone_name, start, goal, floor_y=None, *, goal_deck_y=None):
         with self.lock:
-            return self._plan(zone_name, start, goal, floor_y)
+            return self._plan(zone_name, start, goal, floor_y, goal_deck_y)
 
-    def _plan(self, zone_name, start, goal, floor_y):
+    def _plan(self, zone_name, start, goal, floor_y, goal_deck_y=None):
         t_all = time.time()
+        gz = self.grid.zone(zone_name)
+        if gz is None:
+            raise ValueError(f"区没有预烘格图 ({zone_name})")
         zc, wo = self._zone(zone_name)
         s = (float(start[0]), float(start[1]))
         g = (float(goal[0]), float(goal[1]))
@@ -506,46 +657,45 @@ class RecastEngine:
             raise ValueError("终点不在网格附近")
         h0 = float(np.mean(zc.mesh.H[zc.mesh.T[ss[0]]]))
 
-        margins = [MARGIN, MARGIN * 2, MARGIN * 4, MARGIN * 8]
+        # 端点接不上可走层的腿在全区图上就能判掉。全区核心是任何窗口内核心的超集,
+        # 量出来的锚距是窗口里那把尺子的下界,过不了这道闸的腿换多大的窗口也接不上。
+        zsa = _core_anchor_px(self.grid, gz, s)
+        zga = _core_anchor_px(self.grid, gz, g)
+        if zsa > SNAP_RADIUS or zga > SNAP_RADIUS:
+            raise ValueError(f"端点接不上可走层 (起 {zsa:.1f}px / 终 {zga:.1f}px,"
+                             " 疑似不连通)")
+
+        # 扩窗只留两档。59 条生产腿里 ×100 与 ×200 零成功,只在必败腿上把时间烧掉。
+        margins = [MARGIN, MARGIN * 2]
         info = line = dg = None
         last_err = None
-        # 预算只计扩窗本身,不含首次进区的建区开销(与 RecastNavRoute.cpp 的
-        # plan_started_at 同位置);否则冷区第一条线会被建区时间挤爆预算。
-        t_budget = time.time()
-        prev_cells = prev_ms = 0
-        for p in range(len(margins) * 2):
-            i, margin = p % len(margins), margins[p % len(margins)]
-            x0 = min(s[0], g[0]) - margin; y0 = min(s[1], g[1]) - margin
-            x1 = max(s[0], g[0]) + margin; y1 = max(s[1], g[1]) + margin
+        for p, margin in enumerate(margins):
+            last_margin = p + 1 == len(margins)
+            # 窗口边界对齐到全局网格。原点直接取 min-margin 时, 起点差 0.06px 就换一套体素相位,
+            # 同一段路两次规划得到的格子划分不同; 对齐后相位只由世界坐标决定, 与起终点无关。
+            x0 = math.floor((min(s[0], g[0]) - margin) / CS) * CS
+            y0 = math.floor((min(s[1], g[1]) - margin) / CS) * CS
+            x1 = math.ceil((max(s[0], g[0]) + margin) / CS) * CS
+            y1 = math.ceil((max(s[1], g[1]) + margin) / CS) * CS
             nx = int(np.ceil((x1 - x0) / CS))
             ny = int(np.ceil((y1 - y0) / CS))
             if nx * ny > MAX_CELLS:
                 raise ValueError(f"窗口过大 ({nx}×{ny} 格)")
-            # 与 RecastNavRoute.cpp 同步:本档窗口按上一档实测速度外推,预算装不下就停。
-            # 不跟着改的话,预览会算出运行时早已放弃的线。
-            if p > 0:
-                used_ms = int((time.time() - t_budget) * 1000)
-                projected_ms = prev_ms * nx * ny // prev_cells if prev_cells else 0
-                if used_ms + projected_ms > PLAN_BUDGET_MS:
-                    raise ValueError(
-                        f"{last_err or '路线失败'} (扩窗预算耗尽: 已用 {used_ms}ms,"
-                        f" 下档 {nx}×{ny} 格约需 {projected_ms}ms)")
-            t_pass = time.time()
-            info, err = build(zc, wo, s, ss[1], h0, x0, y0, x1, y1)
+            info, err = build(zc, wo, self.grid, gz, s, ss[1], g, h0,
+                              goal_deck_y, x0, y0, x1, y1)
             if err is None:
-                line, dg = route(info, s, g, p >= len(margins))
+                line, dg = route(info, s, g, goal_deck=goal_deck_y)
                 if line is not None:
                     P = np.asarray(line, float)
                     pad = 2.0
                     # 锚点远 = 走廊出窗,同触界扩窗,否则末段盲跳穿墙
-                    far = max(dg["snapd"]) > SNAP_RADIUS
-                    if far:
-                        if i == len(margins) - 1:
+                    if max(dg["snapd"]) > SNAP_RADIUS:
+                        if last_margin:
                             raise ValueError(
                                 f"端点接不上可走层 (起 {dg['snapd'][0]:.1f}px"
                                 f" / 终 {dg['snapd'][1]:.1f}px, 疑似不连通)")
                         err = "端点锚点过远,扩窗重跑"
-                    elif i == len(margins) - 1 or (
+                    elif last_margin or (
                             P[:, 0].min() > x0 + pad
                             and P[:, 0].max() < x1 - pad
                             and P[:, 1].min() > y0 + pad
@@ -555,8 +705,6 @@ class RecastEngine:
                         err = "终线触界,扩窗重跑"
                 else:
                     err = dg.get("err", "路线失败")
-            prev_ms = max(int((time.time() - t_pass) * 1000), 1)
-            prev_cells = nx * ny
             last_err = err
             info = line = dg = None
         else:
@@ -577,8 +725,8 @@ class RecastEngine:
             "snap": {"start": dg["snapd"][0], "goal": dg["snapd"][1]},
             "window": {"x0": info["x0"], "y0": info["y0"],
                        "nx": info["nx"], "ny": info["ny"], "cs": CS},
-            "timing": {"vox": info["t_vox"], "flood": info["t_fl"],
-                       "edt": info["t_edt"], "astar": dg["t_as"],
+            "timing": {"grid": info["t_grid"], "window": info["t_win"],
+                       "reach": info["t_reach"], "astar": dg["t_as"],
                        "pull": dg["t_sp"],
                        "total": time.time() - t_all},
         }

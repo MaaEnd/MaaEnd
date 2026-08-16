@@ -336,6 +336,52 @@ std::vector<uint8_t> Flood(int64_t seed, const SpanTable& st, int64_t nx)
     return vis;
 }
 
+std::vector<int32_t> LabelRegions(const SpanTable& st, int64_t nx)
+{
+    const int64_t n = static_cast<int64_t>(st.sp_h.size());
+    std::vector<int32_t> parent(static_cast<size_t>(n));
+    std::iota(parent.begin(), parent.end(), 0);
+    const auto find = [&](int32_t a) {
+        while (parent[static_cast<size_t>(a)] != a) {
+            parent[static_cast<size_t>(a)] = parent[static_cast<size_t>(parent[static_cast<size_t>(a)])];
+            a = parent[static_cast<size_t>(a)];
+        }
+        return a;
+    };
+    // Flood 的邻接是对称的,所以只朝 +x/+y 合并一遍就够
+    const int64_t dirs[2][2] = { { 1, 0 }, { 0, 1 } };
+    for (int64_t ci = 0; ci < static_cast<int64_t>(st.occ.size()); ++ci) {
+        const int64_t cid = st.occ[static_cast<size_t>(ci)];
+        const int64_t gx = cid % nx;
+        for (const auto& d : dirs) {
+            if (d[0] != 0 && gx + d[0] >= nx) {
+                continue;
+            }
+            const int64_t j = occFind(st.occ, cid + d[1] * nx + d[0]);
+            if (j < 0) {
+                continue;
+            }
+            for (int64_t r = 0; r < st.ccnt[static_cast<size_t>(ci)]; ++r) {
+                const int64_t u = st.cstart[static_cast<size_t>(ci)] + r;
+                for (int64_t slot = 0; slot < st.K; ++slot) {
+                    if (!(std::fabs(st.HK[j * st.K + slot] - st.sp_h[static_cast<size_t>(u)]) <= 3.0f)) {
+                        continue;
+                    }
+                    const int32_t a = find(static_cast<int32_t>(u));
+                    const int32_t b = find(static_cast<int32_t>(st.IK[j * st.K + slot]));
+                    if (a != b) {
+                        parent[static_cast<size_t>(a)] = b;
+                    }
+                }
+            }
+        }
+    }
+    for (int64_t i = 0; i < n; ++i) {
+        parent[static_cast<size_t>(i)] = find(static_cast<int32_t>(i));
+    }
+    return parent;
+}
+
 std::vector<uint8_t> SpanReach(int64_t seed, const SpanTable& st, const std::vector<uint8_t>& ok, int64_t nx, int64_t ny)
 {
     std::vector<uint8_t> vis(st.sp_h.size(), 0);

@@ -124,12 +124,12 @@ Integration tests mainly verify whether MapTracker's recognition results meet ex
 You can run the following script to perform batch testing:
 
 ```bash
-python tools/map_tracker/map_tracker_tester.py batch_test -i tests/MaaEndTestset/Win32/Official_CN/map_tracker
+uv run tools/map_tracker/map_tracker_tester.py batch_test -i tests/MaaEndTestset/Win32/Official_CN/map_tracker
 ```
 
 > [!NOTE]
 >
-> Before running this test script, you need to install Python and the `opencv-python` and `maafw` libraries, and you must have already configured the development environment for this project.
+> Before running this test script, install uv and configure the project development environment. uv prepares Python, `opencv-python`, and `maafw` automatically from the PEP 723 metadata.
 
 > [!TIP]
 >
@@ -155,44 +155,44 @@ Currently, the source of map data and map images is zmdmap. You can easily compl
 
 > [!NOTE]
 >
-> Before running the following scripts, you need to install Python and the `opencv-python` and `PyMaxflow` dependency libraries.
+> Before running the following scripts, install uv. It prepares Python, `opencv-python`, and `PyMaxflow` automatically from the PEP 723 metadata.
 
 The complete operation steps for this tool script are as follows:
 
 1. Pull the latest map data from zmdmap into the production data directory:
 
     ```bash
-    python tools/map_tracker/map_fetcher.py json -o assets/data/ZmdMap
+    uv run tools/map_tracker/map_fetcher.py json -o assets/data/ZmdMap
     ```
 
 2. Pull the latest original images of the Region maps from zmdmap (and cut them into several Level map images), while also pulling the latest original images of the Tier maps. These source images are not runtime resources and are temporarily stored in `.cache/map_tracker/images`:
 
     ```bash
-    python tools/map_tracker/map_fetcher.py image -i assets/data/ZmdMap -o .cache/map_tracker/images
+    uv run tools/map_tracker/map_fetcher.py image -i assets/data/ZmdMap -o .cache/map_tracker/images
     ```
 
 3. Redistribute the overlapping areas of all Level map images:
 
     ```bash
-    python tools/map_tracker/map_generator.py distinguish_levels -i .cache/map_tracker/images -o .cache/map_tracker/images_staged --data-dir assets/data/ZmdMap
+    uv run tools/map_tracker/map_generator.py distinguish_levels -i .cache/map_tracker/images -o .cache/map_tracker/images_staged --data-dir assets/data/ZmdMap
     ```
 
 4. Attach fixed icons to all non-Tier map images and deploy them to the production directory:
 
     ```bash
-    python tools/map_tracker/map_generator.py attach_icons -i .cache/map_tracker/images_staged -o assets/resource/image/MapTracker/map/ --data-dir assets/data/ZmdMap
+    uv run tools/map_tracker/map_generator.py attach_icons -i .cache/map_tracker/images_staged -o assets/resource/image/MapTracker/map/ --data-dir assets/data/ZmdMap
     ```
 
 5. Perform canvas expansion and background overlay for all Tier map images and deploy them to the production directory:
 
     ```bash
-    python tools/map_tracker/map_generator.py tidy_tiers -i .cache/map_tracker/images -o assets/resource/image/MapTracker/map/
+    uv run tools/map_tracker/map_generator.py tidy_tiers -i .cache/map_tracker/images -o assets/resource/image/MapTracker/map/
     ```
 
 6. Generate BBox data from the final map images in the production resource directory:
 
     ```bash
-    python tools/map_tracker/map_generator.py bbox -i assets/resource/image/MapTracker/map -o assets/data/MapTracker
+    uv run tools/map_tracker/map_generator.py bbox -i assets/resource/image/MapTracker/map -o assets/data/MapTracker
     ```
 
 The production resources used by MapTracker are the map images in `assets/resource/image/MapTracker/map` and `assets/data/MapTracker/map_bbox_data.json`. `assets/data/ZmdMap` stores the zmdmap data used by the map generation tools; `.cache/map_tracker` only contains temporary download and generation artifacts and should not be committed as production resources.

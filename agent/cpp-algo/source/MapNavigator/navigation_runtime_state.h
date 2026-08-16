@@ -53,8 +53,8 @@ struct FlowState
     // Consecutive steering ticks that held forward, issued no turn, and saw the fix stay put. The forward hold
     // is edge-triggered, so a dropped keydown looks exactly like this and never repairs itself.
     int32_t motionless_hold_ticks = 0;
-    // Consecutive re-sends of that hold that moved the agent nowhere. Cleared by any motion, any turn, or
-    // recovery taking over, so it only ever counts a hold that is provably not the thing holding it up.
+    // Consecutive re-sends of that hold that moved the agent nowhere. Cleared by any motion, any turn, or a
+    // recovery escape, so it only ever counts a hold that is provably not the thing holding it up.
     int32_t futile_forward_reasserts = 0;
     NaviPosition last_steer_position {};
     bool has_last_steer_position = false;
@@ -104,19 +104,23 @@ struct DynamicRecoveryState
     }
 };
 
-// Recovery ladder position (jump -> navmesh detour -> physical unstick), keyed on the corridor anchor the
-// agent is stuck against. Top-level so a dynamic replan, which renumbers the path and clears the
-// DynamicRecoveryState episode, cannot rewind it; cleared only by a genuine escape, a waypoint advance or
-// a new navigation.
+// Recovery ladder position (device removal -> jump -> navmesh detour -> physical unstick), keyed on the
+// corridor anchor the agent is stuck against. Top-level so a dynamic replan, which renumbers the path and
+// clears the DynamicRecoveryState episode, cannot rewind it; cleared only by a genuine escape, a waypoint
+// advance or a new navigation.
 struct RecoveryEscalationState
 {
     size_t anchor_index = std::numeric_limits<size_t>::max();
+    // Device removals tried here. Deliberately not read by the escalation gate below: the device step runs
+    // ahead of the jump rather than in place of it, so it can never postpone the detour.
+    int device_attempt_count = 0;
     int jump_attempt_count = 0;
     int detour_attempt_count = 0;
 
     void Reset()
     {
         anchor_index = std::numeric_limits<size_t>::max();
+        device_attempt_count = 0;
         jump_attempt_count = 0;
         detour_attempt_count = 0;
     }
@@ -141,15 +145,21 @@ struct LocalizationLossState
 struct RiverFallRecoveryState
 {
     NaviPosition anchor_pos {};
-    // Post-fall facing (minimap arrow = toward water); recovery turns to water_heading + 180 to face inland.
+    // Facing read AFTER the settle, not at arm time (minimap arrow = toward water); the about-face turns 180 off it.
     double water_heading = 0.0;
     bool pending = false;
+    // Stood still long enough for the arrow to be trustworthy again / the 180 has gone out. Both one-shot: the turn
+    // must not be recomputed from a half-turned arrow, only committed by walking.
+    bool settled = false;
+    bool turned = false;
 
     void Reset()
     {
         anchor_pos = {};
         water_heading = 0.0;
         pending = false;
+        settled = false;
+        turned = false;
     }
 };
 
@@ -170,7 +180,7 @@ struct LateralBypassState
     }
 };
 
-// Previous-tick heading, used to estimate the agent's own turn rate for the steering damping term. Only the
+// Previous-tick heading, used to estimate the agent's own turn rate for the implausible-rate glitch check. Only the
 // physical heading is tracked here; the rate is gated at the call site on the elapsed gap and on plausibility,
 // so a stale entry after a recovery / relocation pause simply yields a zero rate that tick rather than a spike.
 // The cmd_* fields are diagnostic only: they hold the last turn actually sent to the controller so a later tick
@@ -187,6 +197,11 @@ struct SteeringRateState
     std::chrono::steady_clock::time_point cmd_at {};
     // Which way a near-about-face turn was committed to, held until it is well under way. Zero means free.
     int turn_latch_sign = 0;
+    // Degrees already sent that the heading has not shown yet, and the heading they are counted from. A turn
+    // takes a few ticks to finish while the controller re-decides every tick, so without this running total the
+    // same error is commanded over and over before any of it lands.
+    double pending_turn_deg = 0.0;
+    double pending_ref_heading_deg = 0.0;
 
     void Reset()
     {
@@ -199,6 +214,8 @@ struct SteeringRateState
         has_cmd = false;
         cmd_at = {};
         turn_latch_sign = 0;
+        pending_turn_deg = 0.0;
+        pending_ref_heading_deg = 0.0;
     }
 };
 

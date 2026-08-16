@@ -7,7 +7,7 @@
 ### 用法
 
 ```bash
-python tools/essence_filter/extract_skill_pools.py
+uv run tools/essence_filter/extract_skill_pools.py
 ```
 
 ### 参数
@@ -32,7 +32,7 @@ python tools/essence_filter/extract_skill_pools.py
 ### 用法
 
 ```bash
-python tools/essence_filter/build_locations.py
+uv run tools/essence_filter/build_locations.py
 ```
 
 ### 参数

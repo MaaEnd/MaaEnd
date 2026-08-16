@@ -75,9 +75,13 @@ constexpr int32_t kForwardHoldReassertTicks = 3;
 constexpr int32_t kForwardHoldFutileReassertsBeforeRecovery = 2;
 // How many navigate ticks a heading reference stays usable for. Sized to match the wall-clock cap this
 // replaced at the loop period of a fast machine, so nothing changes there; on a slow one it stretches
-// with the loop instead of silently discarding the damping term.
+// with the loop instead of silently discarding the rate.
 constexpr uint64_t kSteeringRateMaxGapTicks = 4;
 constexpr int32_t kSteeringRateReferenceMs = 100;
+// How long a sent turn may still be owed before it is written off. Measured on device the game yaws at about
+// 100 deg/s, so a capped command needs some 300ms to land; past double that the drag was swallowed, and holding
+// the debt any longer would suppress steering against a turn that is never arriving.
+constexpr int64_t kSteeringPendingLifetimeMs = 600;
 // Turn batches one tick may spend. The backend's per-batch cap is a per-drag reliability limit, not a budget
 // for the whole tick: a slow loop gets fewer, longer ticks, so one batch each would shrink the turn achieved
 // per metre walked just as the lag makes more of it necessary. Bounded so a misread heading cannot spin far.
@@ -131,10 +135,12 @@ constexpr int32_t kLocalizationLossUnstickIntervalMs = kObstacleRecoveryMinTrigg
 constexpr int32_t kLocalizationLossTimeoutMs = kDynamicRecoveryTotalTimeoutMs;
 
 // River-fall recovery (see navigator-river-fall-teleport-gap): black-screen loss = fell in water, teleported to
-// shore facing it. Turn 180° away then pulse inland until clear; hard clock bounds thin-shore re-fall loops.
+// shore facing it. Stand still until the arrow is readable again, turn 180° once, then pulse inland until clear;
+// hard clock bounds thin-shore re-fall loops.
 constexpr int32_t kRiverFallRecoveryTimeoutMs = kDynamicRecoveryTotalTimeoutMs;   // 30s clean fail-fast
 constexpr double kRiverFallRecoveryClearDistance = kDynamicRecoveryResetDistance; // walked 2m clear of shore
 constexpr int32_t kRiverFallRecoveryPulseMs = kPostHeadingForwardPulseMs;         // proven heading-commit pulse
+constexpr int32_t kRiverFallRecoverySettleMs = 2000;                              // 上岸后的读数要等它稳下来
 
 // Off-route wedge watchdog. Corridor progress (what the stall clocks see) keeps advancing while the authored
 // cursor is pinned far off-route, so a bad latch wanders with zero route progress until the action hard-fails.
@@ -233,8 +239,9 @@ constexpr int32_t kCollectPostSleepMs = 80;
 constexpr const char* kCollectPrewarmOverride =
     R"({"AutoCollectClick":{"action":{"type":"DoNothing"},"next":[]},"AutoCollectClickEnd":{"next":[]}})";
 constexpr const char* kCollectRoiNode = "AutoCollectClick";
-constexpr int32_t kCollectRoiBaseWidth = 1280;
-constexpr int32_t kCollectRoiBaseHeight = 720;
+// Resolution every pipeline ROI is authored against; the scanner rescales it to whatever the frame really is.
+constexpr int32_t kPipelineRoiBaseWidth = 1280;
+constexpr int32_t kPipelineRoiBaseHeight = 720;
 
 constexpr const char* kCollectIconRelativePath = "resource/image/RealTimeTask/AutoPick.png";
 constexpr double kCollectIconMatchThreshold = 0.75;
@@ -244,10 +251,38 @@ constexpr int32_t kCollectLabelMinWidth = 24;         // ~2-char CJK name floor 
 constexpr int32_t kCollectLabelMinHeight = 7;         // reject thin specks (label glyph row ~14px)
 constexpr int32_t kCollectLabelMaxHeight = 26;        // reject tall non-text structures
 constexpr double kCollectLabelMaxFill = 0.80;         // text is sparse (label fill ~0.4-0.66); solid blob = panel/icon
-constexpr int32_t kCollectScanIntervalMs = 1500;
-constexpr double kCollectRetryMinMoveWu = 2.5;
+// Sole pacing gate for detection-triggered collects; the clock only advances on an actual attempt.
+constexpr int32_t kCollectScanIntervalMs = 1200;
+// Collect points sit 2.1-3.7 apart, closer than the normal 3.25 band, which swallows a whole run of them.
+constexpr double kCollectArrivalBandWu = 1.5;
+// Tightening must not add a way to get stuck: this long without progress falls back to the normal band.
+constexpr int32_t kCollectArrivalRelaxMs = 6000;
+// The route ends the tick the last collect point is consumed, so the scanner never gets a second chance.
+constexpr int32_t kCollectTailGraceMs = 1500;
 constexpr double kCollectSprintSuppressBandWu = 8.0;
 constexpr int32_t kSprintCancelReleaseMs = 60;
+
+// Walk near collect points so the interact prompt stays up long enough to act on. Enter/exit differ for
+// hysteresis (each press flips game state); the enter band stays inside the sprint-suppress band.
+constexpr double kCollectWalkEnterBandWu = 3.0;
+constexpr double kCollectWalkExitBandWu = 4.5;
+static_assert(kCollectWalkEnterBandWu < kCollectSprintSuppressBandWu, "walk band must sit inside the sprint-suppress band");
+
+// Walking halves both speed and turn rate, so jogging-sized windows are doubled while engaged.
+constexpr int32_t kWalkModeSlowFactor = 2;
+constexpr int32_t kActionWalkTogglePressMs = 30;
+
+// Blocking-device removal: a device parked in the way is carried off instead of jumped over. The probe reads
+// the same ROI the pipeline's interact-button check uses, so the JSON stays the single source of truth. Its
+// threshold sits below the pipeline default (0.7) on purpose: the probe only decides whether the subtask is
+// worth running, and the subtask re-checks authoritatively before touching anything.
+constexpr const char* kObstacleDeviceEntry = "MapNavigatorObstacleDevice";
+constexpr const char* kObstacleDeviceProbeNode = "__MapNavigatorObstacleDevice_InteractPre";
+constexpr const char* kObstacleDeviceTemplateRelativePath = "resource/image/MapNavigator/ObstacleDevice/InteractButton.png";
+constexpr double kObstacleDeviceMatchThreshold = 0.65;
+// One attempt per anchor: the subtask's own timeouts can spend ~15s of the kDynamicRecoveryTotalTimeoutMs
+// budget, and whatever is left has to still cover jump -> detour -> unstick.
+constexpr int32_t kRecoveryDeviceAttempts = 1;
 
 constexpr const char* kDefaultDigEntry = "AutoCollectDigStart";
 constexpr const char* kDigPipelineOverride = R"({"AutoCollectDigEnd":{"next":[]}})";

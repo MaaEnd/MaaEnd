@@ -526,6 +526,7 @@ class WallOracle:
         d = P1 - P0
         ln = np.maximum(np.hypot(d[:, 0], d[:, 1]), 1e-12)
         self.NOBS = np.stack([d[:, 1] / ln, -d[:, 0] / ln], 1)
+        self.H0, self.H1 = H[a], H[b]
         self.HH = (H[a] + H[b]) / 2.0
         self.cls = np.full(len(a), -1, np.int8)
         self._lo = np.minimum(P0, P1)

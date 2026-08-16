@@ -21,231 +21,72 @@
     },
     "AutoCollectRoute5AssertLocation": {
         "desc": "传送到采集点",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "MapTrackerAssertLocation",
-                "custom_recognition_param": {
-                    "expected": [
-                        {
-                            "map_name": "map01_lv001",
-                            "target": [
-                                467,
-                                259,
-                                20,
-                                20
-                            ]
-                        }
-                    ]
-                }
-            }
+        "recognition": "Custom",
+        "custom_recognition": "MapLocateAssertLocation",
+        "custom_recognition_param": {
+            "zone_id": "ValleyIV_Base",
+            "target": [
+                520,
+                688,
+                20,
+                20
+            ]
         },
+        "action": "DoNothing",
         "next": [
-            "AutoCollectRoute5GotoFind1"
+            "AutoCollectRoute5Goto"
         ]
     },
-    "AutoCollectRoute5GotoFind1": {
-        "desc": "前往采集点1",
+    "AutoCollectRoute5Goto": {
+        "desc": "前往采集点",
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "MapTrackerMove",
+                "custom_action": "MapNavigateAction",
                 "custom_action_param": {
-                    "map_name": "map01_lv001",
                     "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "ValleyIV_Base"
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                532.43,
+                                754.71
+                            ]
+                        },
                         [
-                            476.8,
-                            267.6
+                            532.43,
+                            754.71,
+                            "DIG"
                         ],
                         [
-                            475.4,
-                            278.8
+                            539.26,
+                            754.71,
+                            "DIG"
                         ],
                         [
-                            474.1,
-                            283.9
+                            538.15,
+                            758.12,
+                            "DIG"
                         ],
                         [
-                            471.9,
-                            290.0
+                            539.26,
+                            761.54,
+                            "DIG"
                         ],
                         [
-                            470.7,
-                            292.6
-                        ],
-                        [
-                            470.7,
-                            296.5
-                        ],
-                        [
-                            472.0,
-                            303.7
-                        ],
-                        [
-                            472.9,
-                            306.4
-                        ],
-                        [
-                            473.2,
-                            311.5
-                        ],
-                        [
-                            474.1,
-                            313.7
-                        ],
-                        [
-                            474.4,
-                            322.8
-                        ],
-                        [
-                            475.7,
-                            327.5
-                        ],
-                        [
-                            479.3,
-                            330.1
+                            532.52,
+                            756,
+                            "DIG"
                         ]
                     ]
                 }
             }
         },
-        "anchor": {
-            "AutoCollectDigAfter": "AutoCollectRoute5GotoFind2"
-        },
         "next": [
-            "AutoCollectDigStart"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
-        }
-    },
-    "AutoCollectRoute5GotoFind2": {
-        "desc": "前往采集点2",
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "MapTrackerMove",
-                "custom_action_param": {
-                    "map_name": "map01_lv001",
-                    "no_ensure_initial_movement_state": true,
-                    "path": [
-                        [
-                            486.7,
-                            330.1
-                        ]
-                    ]
-                }
-            }
-        },
-        "anchor": {
-            "AutoCollectDigAfter": "AutoCollectRoute5GotoFind3"
-        },
-        "next": [
-            "AutoCollectDigStart"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
-        }
-    },
-    "AutoCollectRoute5GotoFind3": {
-        "desc": "前往采集点3",
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "MapTrackerMove",
-                "custom_action_param": {
-                    "map_name": "map01_lv001",
-                    "no_ensure_initial_movement_state": true,
-                    "path": [
-                        [
-                            485.5,
-                            333.8
-                        ]
-                    ]
-                }
-            }
-        },
-        "anchor": {
-            "AutoCollectDigAfter": "AutoCollectRoute5GotoFind4"
-        },
-        "next": [
-            "AutoCollectDigStart"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
-        }
-    },
-    "AutoCollectRoute5GotoFind4": {
-        "desc": "前往采集点4",
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "MapTrackerMove",
-                "custom_action_param": {
-                    "map_name": "map01_lv001",
-                    "no_ensure_initial_movement_state": true,
-                    "path": [
-                        [
-                            486.7,
-                            337.5
-                        ]
-                    ]
-                }
-            }
-        },
-        "anchor": {
-            "AutoCollectDigAfter": "AutoCollectRoute5GotoFind6"
-        },
-        "next": [
-            "AutoCollectDigStart"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
-        }
-    },
-    "AutoCollectRoute5GotoFind6": {
-        "desc": "前往采集点6",
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "MapTrackerMove",
-                "custom_action_param": {
-                    "map_name": "map01_lv001",
-                    "no_ensure_initial_movement_state": true,
-                    "path": [
-                        [
-                            479.4,
-                            331.5
-                        ]
-                    ]
-                }
-            }
-        },
-        "anchor": {
-            "AutoCollectDigAfter": "AutoCollectRoute5End"
-        },
-        "next": [
-            "AutoCollectDigStart"
+            "AutoCollectRoute5End"
         ],
         "focus": {
             "Node.Action.Succeeded": {

@@ -9,7 +9,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/control"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/minicv"
@@ -19,6 +18,8 @@ import (
 
 const (
 	componentAddItemData = "AddItemData"
+	// Pipeline node that moves the cursor off reward icons; ADB overlays DoNothing.
+	nodeIMSA3MouseMoveReset = "IMSA3MouseMoveReset"
 	// Safety cap when mask_hit_region keeps re-scanning the same item ID.
 	addItemDataMaxHitsPerItem = 32
 )
@@ -123,7 +124,7 @@ func (a *AddItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		return false
 	}
 	ctrl := tasker.GetController()
-	moveCursorTopLeftIfWin32(ctrl)
+	resetCursorBeforeRecognition(ctx, ctrl)
 	img, err := ctrl.CacheImage()
 	if err != nil || img == nil {
 		log.Error().
@@ -194,14 +195,21 @@ func (a *AddItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 					break
 				}
 				// Still mask so a bad OCR box does not block other stacks.
-				if masked := paintItemHitRegion(workImg, detail); masked {
-					log.Info().
+				if !paintItemHitRegion(workImg, detail) {
+					log.Warn().
 						Str("component", componentAddItemData).
 						Str("item_id", itemID).
 						Str("node", nodeName).
 						Int("hit_index", hitIndex).
-						Msg("masked non-positive hit region")
+						Msg("failed to mask non-positive hit region, stop rescanning this item")
+					break
 				}
+				log.Info().
+					Str("component", componentAddItemData).
+					Str("item_id", itemID).
+					Str("node", nodeName).
+					Int("hit_index", hitIndex).
+					Msg("masked non-positive hit region")
 				continue
 			}
 			hits = append(hits, recognizedItemAdd{itemID: itemID, node: nodeName, qty: qty})
@@ -299,32 +307,27 @@ func parseAddItemDataParam(raw string) (addItemDataParam, error) {
 	return params, nil
 }
 
-// moveCursorTopLeftIfWin32 moves the cursor to the top-left corner before A3
-// recognition so it does not occlude reward icons. Win32 only; pressure 0 means
-// move-only (no click). Non-Win32 controllers are skipped.
-func moveCursorTopLeftIfWin32(ctrl *maa.Controller) {
-	if ctrl == nil {
+// resetCursorBeforeRecognition runs IMSA3MouseMoveReset before A3 recognition
+// so the cursor does not occlude reward icons. Controller-specific behavior is
+// owned by Pipeline overlays (e.g. ADB DoNothing). Screencap is refreshed
+// afterwards so CacheImage reflects any cursor change.
+func resetCursorBeforeRecognition(ctx *maa.Context, ctrl *maa.Controller) {
+	if ctx == nil || ctrl == nil {
 		return
 	}
-	controlType, err := control.GetControlType(ctrl)
-	if err != nil {
+	if _, err := ctx.RunAction(nodeIMSA3MouseMoveReset, maa.Rect{0, 0, 0, 0}, "", nil); err != nil {
 		log.Warn().
 			Err(err).
 			Str("component", componentAddItemData).
-			Msg("failed to resolve controller type, skip cursor move")
+			Str("node", nodeIMSA3MouseMoveReset).
+			Msg("failed to run IMSA3MouseMoveReset before recognition")
 		return
 	}
-	if controlType != control.CONTROL_TYPE_WIN32 {
-		return
-	}
-	ctrl.PostTouchMove(0, 0, 0, 0).Wait()
 	ctrl.PostScreencap().Wait()
 	log.Info().
 		Str("component", componentAddItemData).
-		Str("controller_type", controlType).
-		Int("x", 0).
-		Int("y", 0).
-		Msg("moved cursor to top-left before recognition")
+		Str("node", nodeIMSA3MouseMoveReset).
+		Msg("ran IMSA3MouseMoveReset before recognition")
 }
 
 func workingRGBA(img image.Image) *image.RGBA {
@@ -337,65 +340,45 @@ func workingRGBA(img image.Image) *image.RGBA {
 	return minicv.ImageConvertRGBA(img)
 }
 
-// paintItemHitRegion fills the recognized item card area with green so later
-// TemplateMatch/ColorMatch (green_mask / quality color) skip it. Uses the union
-// of CombinedResult[0] (quality color) and CombinedResult[1] (template) when
-// present; falls back to detail.Box.
+// paintItemHitRegion fills only the best matched item template with green so a
+// later recognition skips that hit without hiding other item cards.
 func paintItemHitRegion(img *image.RGBA, detail *maa.RecognitionDetail) bool {
 	if img == nil || detail == nil {
 		return false
 	}
-	box := itemHitMaskBox(detail)
-	if box[2] <= 0 || box[3] <= 0 {
+	box, ok := bestTemplateMatchBox(detail)
+	if !ok {
 		return false
 	}
 	return fillRectColor(img, box, imsGreenMaskColor)
 }
 
-func itemHitMaskBox(detail *maa.RecognitionDetail) maa.Rect {
-	if detail == nil {
-		return maa.Rect{}
+func bestTemplateMatchBox(detail *maa.RecognitionDetail) (maa.Rect, bool) {
+	templateDetail := findRecognitionDetailByAlgorithm(detail, string(maa.RecognitionTypeTemplateMatch))
+	if templateDetail == nil || templateDetail.Results == nil || templateDetail.Results.Best == nil {
+		return maa.Rect{}, false
 	}
-	rects := make([]maa.Rect, 0, 2)
-	if len(detail.CombinedResult) > 0 && detail.CombinedResult[0] != nil {
-		rects = append(rects, detail.CombinedResult[0].Box)
+
+	result, ok := templateDetail.Results.Best.AsTemplateMatch()
+	if !ok || result == nil || result.Box[2] <= 0 || result.Box[3] <= 0 {
+		return maa.Rect{}, false
 	}
-	if len(detail.CombinedResult) > 1 && detail.CombinedResult[1] != nil {
-		rects = append(rects, detail.CombinedResult[1].Box)
-	}
-	if len(rects) == 0 {
-		return detail.Box
-	}
-	return unionRects(rects...)
+	return result.Box, true
 }
 
-func unionRects(rects ...maa.Rect) maa.Rect {
-	valid := make([]maa.Rect, 0, len(rects))
-	for _, r := range rects {
-		if r[2] > 0 && r[3] > 0 {
-			valid = append(valid, r)
+func findRecognitionDetailByAlgorithm(detail *maa.RecognitionDetail, algorithm string) *maa.RecognitionDetail {
+	if detail == nil {
+		return nil
+	}
+	if detail.Algorithm == algorithm {
+		return detail
+	}
+	for _, child := range detail.CombinedResult {
+		if result := findRecognitionDetailByAlgorithm(child, algorithm); result != nil {
+			return result
 		}
 	}
-	if len(valid) == 0 {
-		return maa.Rect{}
-	}
-	minX, minY := valid[0][0], valid[0][1]
-	maxX, maxY := valid[0][0]+valid[0][2], valid[0][1]+valid[0][3]
-	for _, r := range valid[1:] {
-		if r[0] < minX {
-			minX = r[0]
-		}
-		if r[1] < minY {
-			minY = r[1]
-		}
-		if r[0]+r[2] > maxX {
-			maxX = r[0] + r[2]
-		}
-		if r[1]+r[3] > maxY {
-			maxY = r[1] + r[3]
-		}
-	}
-	return maa.Rect{minX, minY, maxX - minX, maxY - minY}
+	return nil
 }
 
 func fillRectColor(img *image.RGBA, box maa.Rect, c color.RGBA) bool {
