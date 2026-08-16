@@ -11,6 +11,13 @@
 namespace iconrecognition
 {
 
+namespace detail
+{
+
+const std::vector<std::string>& DefaultItemFilters(GridType type);
+
+} // namespace detail
+
 class IconRecognizer
 {
 public:

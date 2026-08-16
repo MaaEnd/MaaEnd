@@ -4,6 +4,7 @@
 #include <cmath>
 #include <limits>
 #include <numeric>
+#include <set>
 
 namespace iconrecognition::detail
 {
@@ -311,6 +312,17 @@ GridLayout BuildLattice(int grid_index, cv::Point origin, int rows, int columns,
         }
     }
     return layout;
+}
+
+cv::Size VisibleGridShape(const std::vector<GridCell>& cells)
+{
+    std::set<int> columns;
+    std::set<int> rows;
+    for (const GridCell& cell : cells) {
+        columns.insert(cell.column);
+        rows.insert(cell.row);
+    }
+    return cv::Size(static_cast<int>(columns.size()), static_cast<int>(rows.size()));
 }
 
 } // namespace iconrecognition::detail

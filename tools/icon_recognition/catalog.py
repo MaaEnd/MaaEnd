@@ -11,13 +11,6 @@ from typing import Any, Mapping
 from text import clean_text, validate_identifier
 
 
-CURRENCY_OVERRIDES = {
-    "item_gold": "Gold",
-    "item_diamond": "Diamond",
-    "item_gachabyproducts_weapongold": "WeaponGold",
-}
-
-
 def _icon_path(item_id: str, item: Mapping[str, Any], image_root: Path) -> Path | None:
     raw_icon_id = item.get("iconId")
     if not isinstance(raw_icon_id, str):
@@ -81,12 +74,11 @@ def build_catalog(source: Mapping[str, Any], image_root: str | Path) -> OrderedD
 
 def _record(item_id: str, item: Mapping[str, Any], path: Path, fluid_icon_id: str = "") -> dict[str, Any]:
     icon_id = path.stem
-    category_type = CURRENCY_OVERRIDES.get(item_id, item.get("categoryType"))
     record = {
         "name": clean_text(item.get("name"), field=f"{item_id}.name"),
         "category": clean_text(item.get("category"), field=f"{item_id}.category"),
         "storageKind": clean_text(item.get("storageKind"), field=f"{item_id}.storageKind"),
-        "categoryType": clean_text(category_type, field=f"{item_id}.categoryType"),
+        "categoryType": clean_text(item.get("categoryType"), field=f"{item_id}.categoryType"),
         "rarity": int(item["rarity"]),
         "iconId": icon_id,
         "fluidIconId": fluid_icon_id,

@@ -162,6 +162,9 @@ MaaBool MAA_CALL IconRecognitionRun(
         if (roi->width <= 0 || roi->height <= 0) {
             throw std::invalid_argument("IconRecognition roi width and height must be positive");
         }
+        if (object.contains("grid_scale")) {
+            throw std::invalid_argument("IconRecognition grid_scale is not supported; controller profile is selected automatically");
+        }
         const bool debug = ReadBool(object, "debug", false);
         debug_requested = debug;
         RecognitionRequest request;

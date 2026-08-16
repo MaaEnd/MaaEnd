@@ -467,17 +467,10 @@ std::optional<Waypoint> ProjectRegularWaypointToBase(const navmesh::BaseNavPack&
     return projected;
 }
 
-// When a route asked for mid-run turns out to be unreachable, the search doubles its window pass after
-// pass and every pass fails the same way -- seconds of the navigation thread spent re-deriving one answer
-// while the agent stands still. A run cannot afford that; the expansion done before a run can, and keeps
-// the larger budget. Retries the planner asks for itself are productive and stay on the full budget.
-constexpr int64_t kInRunDeadEndBudgetMs = 1200;
-
 navmesh::BaseNavRouteResult PlanCorridorRoute(
     const CachedNavmesh& navmesh,
     const navmesh::BaseNavRouteRequest& request,
-    const std::function<bool()>& should_stop = {},
-    int64_t dead_end_ms = navmesh::recast::RecastPlanBudget {}.dead_end_ms)
+    const std::function<bool()>& should_stop = {})
 {
     navmesh::BaseNavRouteResult result;
     const navmesh::BaseNavZone* zone = navmesh.pack.findZoneByName(request.zone_name);
@@ -498,7 +491,7 @@ navmesh::BaseNavRouteResult PlanCorridorRoute(
         request.goal_deck_y,
         request.blocked_triangles,
         request.blocked_points,
-        navmesh::recast::RecastPlanBudget { .dead_end_ms = dead_end_ms, .should_stop = should_stop });
+        should_stop);
     if (!plan.ok || plan.points.size() < 2) {
         if (!detour_probe) {
             LogWarn << "RECAST plan failed." << VAR(request.zone_name) << VAR(plan.error);
@@ -555,7 +548,7 @@ std::optional<navmesh::BaseNavRouteResult> PlanNavmeshRouteImpl(
         navmesh::kBaseNavFloorYNone,
         goal_deck_y);
     const auto plan_started_at = std::chrono::steady_clock::now();
-    const auto route_result = PlanCorridorRoute(*navmesh, request, {}, kInRunDeadEndBudgetMs);
+    const auto route_result = PlanCorridorRoute(*navmesh, request);
     const int64_t plan_ms =
         std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - plan_started_at).count();
     if (!route_result.ok()) {

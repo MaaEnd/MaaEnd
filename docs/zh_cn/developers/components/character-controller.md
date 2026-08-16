@@ -9,7 +9,7 @@
 > [!IMPORTANT]
 >
 > 视角类节点（Yaw / Pitch / MoveToTarget 等）依赖键盘/鼠标输入，**必须在前台模式（Seize）下运行**，否则输入事件无法正确传递至游戏。  
-> 轴向移动节点（`CharacterControllerForwardAxisAction`、`CharacterSearchAction` 所用的 `__CharacterControllerAxisLongPress*Action`）在 **ADB** 下由 [`resource_adb/.../CharacterController/Action.json`](../../../assets/resource_adb/pipeline/Common/__Private/CharacterController/Action.json) 映射为虚拟摇杆 `LongPress`，无需 Seize。
+> 轴向移动节点（`CharacterControllerForwardAxisAction`、`CharacterSearchAction` 所用的 `__CharacterControllerAxisLongPress*Action`）在 **ADB** 下由 [`resource_adb/.../CharacterController/Action.json`](../../../assets/resource_adb/pipeline/Common/Private/CharacterController/Action.json) 映射为虚拟摇杆 `LongPress`，无需 Seize。
 
 ## 节点说明
 

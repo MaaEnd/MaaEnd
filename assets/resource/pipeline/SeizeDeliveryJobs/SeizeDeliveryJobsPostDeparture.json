@@ -227,7 +227,7 @@
         "action": "Custom",
         "custom_action": "AutoAltClickAction",
         "next": [
-            "[JumpBack]__MapTrackerStuckMitigator_MoveOrDeleteDevice_SkipChat", // 这里调了别人的私有节点来跳过对话，需考虑后续使用公共节点替换
+            "[JumpBack]__MapNavigatorObstacleDevice_SkipChat", // 这里调了别人的私有节点来跳过对话，需考虑后续使用公共节点替换
             "SeizeDeliveryJobsCloseRewardDialog"
         ],
         "focus": {

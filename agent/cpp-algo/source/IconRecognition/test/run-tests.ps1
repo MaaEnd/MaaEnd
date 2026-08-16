@@ -5,7 +5,10 @@
     [switch]$Help,
     [switch]$All,
     [switch]$Debug,
-    [ValidateSet("trade", "transfer", "port_storager", "valuables", "shipment", "credit_trade", "single_roi")]
+    [switch]$UseLocalExpected,
+    [ValidateSet("win32", "adb")]
+    [string]$Dataset,
+    [ValidateSet("trade", "transfer", "port_storager", "valuables", "shipment", "credit_trade", "rewards", "single_roi")]
     [string]$GridType,
     [string]$Image,
     [ValidateSet("full", "left", "right", "split", "all")]
@@ -22,16 +25,23 @@ $testRoot = $PSScriptRoot
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $testRoot "../../../../..")).Path
 $buildRoot = Join-Path $testRoot "build"
 $mergedInputRoot = Join-Path $buildRoot "merged-input"
-$trackedInputRoot = Join-Path $repoRoot "tests/MaaEndTestset/Win32/Official_CN/IconRecognition"
-$trackedExpectedPath = Join-Path $trackedInputRoot "expected.csv"
-$localExpectedPath = Join-Path $testRoot "output/icon-recognition-expected.csv"
-$quickFixtures = @(
-    "transfer/25.png",
-    "transfer/57.png",
-    "port_storager/1.png",
-    "credit_trade/1.png",
-    "single_roi/1177-450-54/1.png"
+$datasetManifestPath = Join-Path $testRoot "dataset-manifest.psd1"
+$localExpectedPath = Join-Path $testRoot "input/expected.csv"
+$gridTypes = @(
+    "trade",
+    "transfer",
+    "port_storager",
+    "valuables",
+    "shipment",
+    "credit_trade",
+    "rewards",
+    "single_roi"
 )
+
+if (-not (Test-Path -LiteralPath $datasetManifestPath -PathType Leaf)) {
+    throw "缺少 IconRecognition 数据集清单: $datasetManifestPath"
+}
+$datasetManifest = Import-PowerShellDataFile -LiteralPath $datasetManifestPath
 
 function Show-Usage {
     @"
@@ -39,13 +49,13 @@ function Show-Usage {
   ./run-tests.ps1 -Task configure
   ./run-tests.ps1 -Task build
   ./run-tests.ps1 -Task quick
-  ./run-tests.ps1 -Task manual -All [-Side full|left|right|split|all] [-Jobs <1..64>] [-Debug]
-  ./run-tests.ps1 -Task manual -GridType <type> [-Image <basename>] [-Side full|left|right|split|all] [-Jobs <1..64>] [-Debug]
-  ./run-tests.ps1 -Task manual -Image <basename> [-Jobs <1..64>] [-Debug]
+  ./run-tests.ps1 -Task manual -All -Dataset <win32|adb> [-UseLocalExpected] [-Side full|left|right|split|all] [-Jobs <1..64>] [-Debug]
+  ./run-tests.ps1 -Task manual -GridType <type> -Dataset <win32|adb> [-Image <basename>] [-UseLocalExpected] [-Side full|left|right|split|all] [-Jobs <1..64>] [-Debug]
+  ./run-tests.ps1 -Task manual -Image <basename> -Dataset <win32|adb> [-UseLocalExpected] [-Jobs <1..64>] [-Debug]
   ./run-tests.ps1 -Help|-h
 
 网格类型:
-  trade, transfer, port_storager, valuables, shipment, credit_trade, single_roi
+  trade, transfer, port_storager, valuables, shipment, credit_trade, rewards, single_roi
 
 Side 仅用于 transfer 和 port_storager；默认使用 full。
 Jobs 的命令行参数优先于本机配置；未配置时使用 1。
@@ -130,116 +140,88 @@ function Build-Targets {
 function Copy-InputTree {
     param(
         [Parameter(Mandatory)] [string]$SourceRoot,
-        [Parameter(Mandatory)] [string]$DestinationRoot,
-        [switch]$PreferLocalConflicts,
-        [switch]$MarkAsLocal
+        [Parameter(Mandatory)] [string]$DestinationRoot
     )
     if (-not (Test-Path -LiteralPath $SourceRoot -PathType Container)) {
         return
     }
-    $overwritten = [System.Collections.Generic.List[string]]::new()
     foreach ($file in Get-ChildItem -LiteralPath $SourceRoot -Recurse -File) {
         $relative = $file.FullName.Substring($SourceRoot.Length).TrimStart('\', '/')
+        # expected.csv 是独立校验基线，只能通过显式 --expected 参数选择，不能混入图片输入树。
+        if ($relative -eq "expected.csv") {
+            continue
+        }
         $destination = Join-Path $DestinationRoot $relative
         $destinationDirectory = Split-Path -Parent $destination
         New-Item -ItemType Directory -Path $destinationDirectory -Force | Out-Null
-        if ($MarkAsLocal) {
-            $base = [System.IO.Path]::GetFileNameWithoutExtension($destination)
-            $extension = [System.IO.Path]::GetExtension($destination)
-            $directory = Split-Path -Parent $destination
-            $suffix = 1
-            do {
-                $candidate = Join-Path $directory "$base.local$suffix$extension"
-                $suffix++
-            } while (Test-Path -LiteralPath $candidate -PathType Leaf)
-            $destination = $candidate
-        }
-        elseif (Test-Path -LiteralPath $destination -PathType Leaf) {
-            if ($PreferLocalConflicts) {
-                $overwritten.Add($relative)
-            }
-            else {
-                $base = [System.IO.Path]::GetFileNameWithoutExtension($destination)
-                $extension = [System.IO.Path]::GetExtension($destination)
-                $directory = Split-Path -Parent $destination
-                $suffix = 1
-                do {
-                    $candidate = Join-Path $directory "$base.local$suffix$extension"
-                    $suffix++
-                } while (Test-Path -LiteralPath $candidate -PathType Leaf)
-                $destination = $candidate
-            }
-        }
         Copy-Item -LiteralPath $file.FullName -Destination $destination -Force
-    }
-    if ($overwritten.Count -gt 0) {
-        $examples = @($overwritten | Select-Object -First 5) -join ", "
-        $suffix = if ($overwritten.Count -gt 5) { " 等" } else { "" }
-        Write-Warning "本地测试素材覆盖了 $($overwritten.Count) 个子模块同名文件: $examples$suffix"
     }
 }
 
-function Prepare-MergedInput {
-    param(
-        [switch]$RequireQuickFixtures,
-        [switch]$PreferLocalConflicts
-    )
-    if (-not (Test-Path -LiteralPath $trackedInputRoot -PathType Container)) {
-        throw "缺少已跟踪的 IconRecognition 测试素材: $trackedInputRoot"
+function Resolve-DatasetPaths {
+    param([Parameter(Mandatory)] [ValidateSet("win32", "adb")] [string]$Name)
+    if (-not $datasetManifest.ContainsKey($Name)) {
+        throw "数据集清单中缺少 IconRecognition 数据集: $Name"
+    }
+    $config = $datasetManifest[$Name]
+    $root = Join-Path $repoRoot $config.Root
+    return @{
+        Name          = $Name
+        Root          = $root
+        ExpectedPath  = Join-Path $root "expected.csv"
+        RoisPath      = Join-Path $root "rois.json"
+        QuickFixtures = $config.QuickFixtures
+    }
+}
+
+function Prepare-DatasetInput {
+    param([Parameter(Mandatory)] [ValidateSet("win32", "adb")] [string]$Name)
+    $paths = Resolve-DatasetPaths -Name $Name
+    foreach ($path in @($paths.Root, $paths.ExpectedPath, $paths.RoisPath)) {
+        if (-not (Test-Path -LiteralPath $path)) {
+            throw "缺少 ${Name} IconRecognition 数据集资源: $path"
+        }
     }
     Remove-Item -LiteralPath $mergedInputRoot -Recurse -Force -ErrorAction SilentlyContinue
     New-Item -ItemType Directory -Path $mergedInputRoot -Force | Out-Null
-    Copy-InputTree -SourceRoot $trackedInputRoot -DestinationRoot $mergedInputRoot
-    Copy-InputTree `
-        -SourceRoot (Join-Path $testRoot "input") `
-        -DestinationRoot $mergedInputRoot `
-        -PreferLocalConflicts:$PreferLocalConflicts `
-        -MarkAsLocal:$(-not $PreferLocalConflicts)
-    if ($RequireQuickFixtures) {
-        $missing = @($quickFixtures | Where-Object { -not (Test-Path -LiteralPath (Join-Path $trackedInputRoot $_) -PathType Leaf) })
-        if ($missing.Count -gt 0) {
-            throw "子模块中的 quick 测试素材缺失: $($missing -join ', ')"
-        }
-    }
+    Copy-InputTree -SourceRoot $paths.Root -DestinationRoot $mergedInputRoot
+    return $paths
 }
 
 function Resolve-ExpectedResultsPath {
-    if (Test-Path -LiteralPath $trackedExpectedPath -PathType Leaf) {
-        return $trackedExpectedPath
-    }
-    if (Test-Path -LiteralPath $localExpectedPath -PathType Leaf) {
-        Write-Warning "子模块 expected.csv 尚未提交，暂时使用本地 output 快照: $localExpectedPath"
-        return $localExpectedPath
-    }
-    throw "缺少 IconRecognition expected 结果: $trackedExpectedPath"
-}
-
-function Test-LocalImageSelection {
     param(
-        [Parameter(Mandatory)] [string]$ImageName,
-        [string]$SelectedGridType
+        [Parameter(Mandatory)] [hashtable]$DatasetPaths,
+        [switch]$UseLocal
     )
-    $localRoot = Join-Path $testRoot "input"
-    if ($SelectedGridType) {
-        $localRoot = Join-Path $localRoot $SelectedGridType
+    if ($UseLocal) {
+        if (Test-Path -LiteralPath $localExpectedPath -PathType Leaf) {
+            return $localExpectedPath
+        }
+        throw "显式请求了本地 expected.csv，但文件不存在: $localExpectedPath"
     }
-    if (-not (Test-Path -LiteralPath $localRoot -PathType Container)) {
-        return $false
+    if (Test-Path -LiteralPath $DatasetPaths.ExpectedPath -PathType Leaf) {
+        return $DatasetPaths.ExpectedPath
     }
-    return $null -ne (Get-ChildItem -LiteralPath $localRoot -Recurse -File | Where-Object { $_.Name -eq $ImageName } | Select-Object -First 1)
+    throw "缺少 IconRecognition expected 结果: $($DatasetPaths.ExpectedPath)"
 }
 
 function Invoke-QuickImageFixture {
     param(
         [Parameter(Mandatory)] [string]$Fixture,
-        [Parameter(Mandatory)] [string]$ExpectedPath
+        [Parameter(Mandatory)] [hashtable]$DatasetPaths
     )
     $parts = $Fixture -split '/'
     $gridType = $parts[0]
     $image = $parts[-1]
-    & (Find-TestExecutable -Name "icon-recognition-manual-runner") --grid-type $gridType --image $image --jobs 1 --expected $ExpectedPath
+    & (Find-TestExecutable -Name "icon-recognition-manual-runner") `
+        --grid-type $gridType `
+        --image $image `
+        --jobs 1 `
+        --dataset $DatasetPaths.Name `
+        --expected $DatasetPaths.ExpectedPath `
+        --rois $DatasetPaths.RoisPath
     if ($LASTEXITCODE -ne 0) {
-        throw "quick 图片回归失败: $Fixture，退出码: $LASTEXITCODE"
+        throw "quick 图片回归失败: $($DatasetPaths.Name)/$Fixture，退出码: $LASTEXITCODE"
     }
 }
 
@@ -280,8 +262,10 @@ switch ($Task) {
         )
     }
     "quick" {
-        Prepare-MergedInput -RequireQuickFixtures
-        $expectedPath = Resolve-ExpectedResultsPath
+        if ($UseLocalExpected) {
+            throw "quick 固定校验 Win32/ADB 子模块基线，不支持 -UseLocalExpected。"
+        }
+        & (Join-Path $testRoot "test_dataset_manifest.ps1")
         Build-Targets -Targets @(
             "icon-recognition-types-tests",
             "icon-recognition-manual-cli-tests",
@@ -305,11 +289,19 @@ switch ($Task) {
                 throw "$name 执行失败，退出码: $LASTEXITCODE"
             }
         }
-        foreach ($fixture in $quickFixtures) {
-            Invoke-QuickImageFixture -Fixture $fixture -ExpectedPath $expectedPath
+        foreach ($datasetName in @("win32", "adb")) {
+            $datasetPaths = Prepare-DatasetInput -Name $datasetName
+            foreach ($gridType in $gridTypes) {
+                foreach ($fixture in @($datasetPaths.QuickFixtures[$gridType])) {
+                    Invoke-QuickImageFixture -Fixture $fixture -DatasetPaths $datasetPaths
+                }
+            }
         }
     }
     "manual" {
+        if (-not $Dataset) {
+            throw "manual 任务必须显式指定 -Dataset win32 或 -Dataset adb。"
+        }
         if ($All -and ($GridType -or $Image)) {
             Show-Usage
             throw "-All 不能与 -GridType 或 -Image 同时使用。"
@@ -318,11 +310,7 @@ switch ($Task) {
             Show-Usage
             throw "manual 任务必须指定 -All、-GridType 或 -Image。"
         }
-        $usesLocalImage = $PSBoundParameters.ContainsKey("Image") -and (Test-LocalImageSelection -ImageName $Image -SelectedGridType $GridType)
-        Prepare-MergedInput -PreferLocalConflicts:$usesLocalImage
-        if ($usesLocalImage) {
-            Write-Warning "显式 -Image 命中本地 input 素材，本次优先使用本地同名图片并仅作人工审计: $Image"
-        }
+        $datasetPaths = Prepare-DatasetInput -Name $Dataset
         Build-Targets -Targets @("icon-recognition-manual-runner")
         Set-TestRuntimePath
         $arguments = @()
@@ -341,13 +329,18 @@ switch ($Task) {
             $arguments += @("--side", $Side)
         }
         $arguments += @("--jobs", $Jobs)
+        $arguments += @("--dataset", $Dataset)
         if ($PSBoundParameters.ContainsKey("Debug")) {
             $arguments += "--debug"
         }
-        if (-not $usesLocalImage -and $Side -eq "full") {
-            $arguments += @("--expected", (Resolve-ExpectedResultsPath))
+        $arguments += @("--rois", $datasetPaths.RoisPath)
+        if ($Side -eq "full") {
+            $arguments += @(
+                "--expected",
+                (Resolve-ExpectedResultsPath -DatasetPaths $datasetPaths -UseLocal:$UseLocalExpected)
+            )
         }
-        elseif (-not $usesLocalImage) {
+        elseif ($Side -ne "full") {
             Write-Warning "expected.csv 仅维护 full 基线，显式分侧运行仅作人工审计: $Side"
         }
         & (Find-TestExecutable -Name "icon-recognition-manual-runner") @arguments

@@ -178,6 +178,8 @@ assets/resource/model/map/navmesh/base.nav.gz
 assets/resource/model/map/navmesh/base.nav      # optional local fallback
 ```
 
+寻路要求包内带预烘格图段（`BGRD`，见 BaseNav 版本 4）；没有这一段的包仍可显示网格与底图，但点不出线路。
+
 可选 zone：
 
 ```text
@@ -244,6 +246,8 @@ uv run main.py
 - `connectors.py`: 录制连接器抽象，以及各 controller 建连实现。
 - `settings_store.py`: 本地用户连接偏好持久化。
 - `recording_service.py`: Maa Agent 录制线程与数据采集，不直接耦合具体 controller 类型。
+- `record_worker.py`: 提权录制子进程。Windows 非管理员时录制跑在这里，与后端用回连 socket 通信（服务自身不重启、不提权）。
+- `clipboard.py`: 系统剪贴板写入（G 热键复制坐标）。
 - `basenav_preview.py`: BaseNav `.nav` 加载与 A\* 路线预览计算。
 - `json_import.py`: JSON/JSONC 导入解析与动作语义校验。
 - `maptracker_compat.py`: `MapTracker*` 节点到 Base 坐标系的兼容转换表。

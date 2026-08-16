@@ -30,6 +30,9 @@ struct CellRecognitionDiagnostics
     double rarity_coverage = 0.0;
     std::optional<int> rarity_row_offset;
     std::string mask_kind;
+    std::optional<std::string> edge_occlusion_side;
+    std::optional<int> edge_occlusion_cutoff;
+    std::optional<double> edge_occlusion_residual_ratio;
     std::optional<int> row;
     std::optional<int> column;
 

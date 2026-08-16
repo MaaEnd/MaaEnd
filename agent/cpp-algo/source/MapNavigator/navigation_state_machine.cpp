@@ -17,15 +17,17 @@
 
 #include "action_executor.h"
 #include "action_wrapper.h"
-#include "collectible_scanner.h"
+#include "latency_observer.h"
 #include "motion_controller.h"
 #include "navi_config.h"
 #include "navi_math.h"
 #include "navigation_state_machine.h"
 #include "navmesh_path_expander.h"
 #include "position_provider.h"
+#include "roi_template_scanner.h"
 #include "route_tracker.h"
 #include "semantic_nodes.h"
+#include "sensitivity_observer.h"
 #include "steering_controller.h"
 
 #include "../utils.h"
@@ -60,7 +62,7 @@ bool ReadRoiArray(const json::value& holder, cv::Rect* out)
     return out->width > 0 && out->height > 0;
 }
 
-bool ParseCollectRoiFromNode(MaaContext* context, const char* node_name, cv::Rect* out)
+bool ParseRoiFromNode(MaaContext* context, const char* node_name, cv::Rect* out)
 {
     if (context == nullptr || node_name == nullptr) {
         return false;
@@ -68,18 +70,18 @@ bool ParseCollectRoiFromNode(MaaContext* context, const char* node_name, cv::Rec
 
     ScopedStringBuffer buffer;
     if (buffer.Get() == nullptr || !MaaContextGetNodeData(context, node_name, buffer.Get())) {
-        LogWarn << "Collect ROI: MaaContextGetNodeData failed." << VAR(node_name);
+        LogWarn << "Pipeline ROI: MaaContextGetNodeData failed." << VAR(node_name);
         return false;
     }
     const char* raw = MaaStringBufferGet(buffer.Get());
     if (raw == nullptr || raw[0] == '\0') {
-        LogWarn << "Collect ROI: empty node data." << VAR(node_name);
+        LogWarn << "Pipeline ROI: empty node data." << VAR(node_name);
         return false;
     }
 
     const auto parsed = json::parse(raw);
     if (!parsed || !parsed->is_object()) {
-        LogWarn << "Collect ROI: node JSON is not an object." << VAR(node_name);
+        LogWarn << "Pipeline ROI: node JSON is not an object." << VAR(node_name);
         return false;
     }
     const auto& node = parsed->as_object();
@@ -102,7 +104,7 @@ bool ParseCollectRoiFromNode(MaaContext* context, const char* node_name, cv::Rec
         return true;
     }
 
-    LogWarn << "Collect ROI: no usable roi array in node data." << VAR(node_name);
+    LogWarn << "Pipeline ROI: no usable roi array in node data." << VAR(node_name);
     return false;
 }
 
@@ -409,14 +411,19 @@ NavigationStateMachine::NavigationStateMachine(
     , position_(position)
     , should_stop_(std::move(should_stop))
     , maa_context_(maa_context)
+    , device_recovery_(maa_context, motion_controller, position_provider, session, position)
+    , walk_mode_(action_wrapper)
 {
     LogInfo << "Navigation route runner selected. backend=orchestrated";
 }
 
 bool NavigationStateMachine::Run()
 {
+    latency::BeginRun();
+
     if (!Bootstrap()) {
         StopMotion();
+        sensitivity::EndRun(maa_context_, true);
         return false;
     }
 
@@ -424,14 +431,15 @@ bool NavigationStateMachine::Run()
     // the first forward press, so it can never land on a while-walking scan tick and freeze the thread.
     PreWarmCollectOcr();
 
-    // Spin up the background collectible detector (no-op unless the route has a COLLECT waypoint). It runs
-    // off the nav thread on pure OpenCV; the nav loop only reacts to its flag, never recognizes inline.
-    StartCollectScanner();
+    // Spin up the background detectors (the collectible one is a no-op unless the route has a COLLECT
+    // waypoint). They run off the nav thread on pure OpenCV; the nav loop only reacts to their flags.
+    StartScanners();
 
     while (!should_stop_() && session_->phase() != NaviPhase::Finished && session_->phase() != NaviPhase::Failed) {
         if (!TickPhase(session_->phase())) {
-            StopCollectScanner();
+            StopScanners();
             StopMotion();
+            sensitivity::EndRun(maa_context_, true);
             return false;
         }
     }
@@ -440,14 +448,20 @@ bool NavigationStateMachine::Run()
         session_->HasSatisfiedFinalSuccess(*position_, "navigation_complete");
     }
 
-    StopCollectScanner();
+    StopScanners();
     StopMotion();
-    return !should_stop_() && session_->success();
+
+    // 用户主动停的不算走坏，别借着这个把门槛放下来。
+    const bool stopped_by_user = should_stop_();
+    const bool succeeded = !stopped_by_user && session_->success();
+    sensitivity::EndRun(maa_context_, !succeeded && !stopped_by_user);
+    return succeeded;
 }
 
 bool NavigationStateMachine::Bootstrap()
 {
     runtime_state_.BeginNavigation(std::chrono::steady_clock::now());
+    sensitivity::BeginRun();
 
     if (session_->HasSatisfiedFinalSuccess(*position_, "bootstrap_already_at_final_goal")) {
         return true;
@@ -616,12 +630,14 @@ bool NavigationStateMachine::ArmRiverFallRecoveryIfBlackScreenLoss(const char* v
     if (!runtime_state_.localization_loss.saw_black_screen) {
         return false;
     }
+    // Full reset first: a re-fall must redo the settle and the about-face, not inherit the last episode's one-shots.
+    runtime_state_.river_fall.Reset();
     runtime_state_.river_fall.pending = true;
     runtime_state_.river_fall.anchor_pos = *position_;
-    // Post-fall facing points at the water (the infinite-jump invariant); recovery turns to water_heading + 180.
+    // Arm-time facing, logged so a post-mortem can tell it apart from the settled read the about-face actually uses.
     runtime_state_.river_fall.water_heading = NaviMath::NormalizeAngle(position_->angle);
     // River-fall owns the recovery: the pre-fall dynamic-recovery anchor is stale after the teleport, and a live
-    // recovery's escaped-obstacle check (runs before the river-fall block) would otherwise pre-empt the about-face.
+    // recovery's escaped-obstacle check (runs before the river-fall block) would otherwise pre-empt the escape.
     runtime_state_.recovery.Reset();
     session_->ResetHardProgress();
     LogInfo << "River-fall recovery armed (black-screen loss recovered)." << VAR(via) << VAR(position_->x) << VAR(position_->y)
@@ -1057,6 +1073,9 @@ bool NavigationStateMachine::TickNavigate()
         }
     }
     const int64_t stalled_ms = session_->StalledMs(now);
+    // Warm the device probe from the first stalled tick, so by the time the recovery ladder runs its answer is
+    // already latched and reading it costs nothing.
+    device_recovery_.UpdateFeeding(stalled_ms, runtime_state_.recovery_escalation.device_attempt_count < kRecoveryDeviceAttempts);
 
     if (!route.valid) {
         if (degraded_fix) {
@@ -1123,24 +1142,37 @@ bool NavigationStateMachine::TickNavigate()
                 stalled_ms);
         }
         const double rf_displacement = std::hypot(position_->x - rf.anchor_pos.x, position_->y - rf.anchor_pos.y);
-        const double rf_target_heading = NaviMath::NormalizeAngle(rf.water_heading + 180.0);
-        const double rf_heading_error = NaviMath::NormalizeAngle(rf_target_heading - current_heading);
         if (rf_displacement >= kRiverFallRecoveryClearDistance) {
             rf.Reset();
-            LogInfo << "River-fall recovery cleared; resuming navigation." << VAR(rf_displacement) << VAR(rf_heading_error);
+            LogInfo << "River-fall recovery cleared; resuming navigation." << VAR(rf_displacement) << VAR(current_heading);
             return ResumeAfterEscape("river_fall_recovered");
         }
         motion_controller_->SetForwardState(false);
-        utils::SleepFor(kStopWaitMs);
-        int turn_units = static_cast<int>(std::lround(rf_heading_error * action_wrapper_->DefaultTurnUnitsPerDegree()));
-        if (turn_units == 0) {
-            turn_units = rf_heading_error > 0.0 ? 1 : -1;
+        // 站定两秒再动。上岸那一瞬的箭头读数是最不可信的(尖端会翻转、追踪还在 hold), 拿它算转身
+        // 就是赌运气 —— 三次落水里有一次读成 -1°, 目标算出来正好等于当前朝向, 等于没转就往前走。
+        if (!rf.settled) {
+            rf.settled = true;
+            utils::SleepFor(kRiverFallRecoverySettleMs);
+            LogInfo << "River-fall recovery settling before the about-face." << VAR(rf_displacement) << VAR(position_->x)
+                    << VAR(position_->y);
+            return true;
         }
-        action_wrapper_->SendViewDeltaSync(turn_units, 0);
+        // 180° 只发一次, 发完就认。之前是每拍拿转到一半的箭头重算误差再补发, 转身还没兑现就先迈了步,
+        // 于是每一拍都朝着还没转完的方向往水里走 —— 两次再落水都紧跟着恢复自己的前进脉冲。
+        if (!rf.turned) {
+            rf.turned = true;
+            rf.water_heading = current_heading;
+            const int turn_units = static_cast<int>(std::lround(180.0 * action_wrapper_->DefaultTurnUnitsPerDegree()));
+            action_wrapper_->SendViewDeltaSync(turn_units, 0);
+            utils::SleepFor(kWaitAfterFirstTurnMs);
+            LogInfo << "River-fall recovery about-face issued." << VAR(rf.water_heading) << VAR(turn_units) << VAR(rf_displacement);
+        }
+        // 视角转完了, 角色朝向要迈一步才会跟上(见 navigator-turn-requires-forward-step), 而这一步是
+        // 按相机方向走的, 所以它离水而去。
         action_wrapper_->PulseForwardSync(kRiverFallRecoveryPulseMs);
         motion_controller_->SetForwardState(false);
-        LogInfo << "River-fall recovery turn+pulse." << VAR(rf_heading_error) << VAR(turn_units) << VAR(rf_displacement)
-                << VAR(position_->x) << VAR(position_->y);
+        LogInfo << "River-fall recovery inland pulse." << VAR(current_heading) << VAR(rf_displacement) << VAR(position_->x)
+                << VAR(position_->y);
         return true;
     }
 
@@ -1211,8 +1243,15 @@ bool NavigationStateMachine::TickNavigate()
                 recovery.anchor_index = anchor->first;
             }
             if (escalation.anchor_index != anchor->first) {
+                // Handing a new anchor an attempt requires a fresh look: a hit latched while fighting the
+                // previous one describes a frame from before the path was renumbered. Not on the first anchor,
+                // where nothing has been fought yet and the probe has been warming since the stall began.
+                const bool fought_another_anchor = escalation.anchor_index != std::numeric_limits<size_t>::max();
                 escalation.Reset();
                 escalation.anchor_index = anchor->first;
+                if (fought_another_anchor) {
+                    device_recovery_.ForgetObservation();
+                }
             }
 
             // Measure the recovery timeout from the session hard-progress clock, not this episode's
@@ -1236,6 +1275,21 @@ bool NavigationStateMachine::TickNavigate()
                                                    < kDynamicRecoveryRetryIntervalMs;
             if (!retry_cooling_down) {
                 recovery.last_replan_at = now;
+
+                // The device removal runs ahead of the jump, not instead of it: if the agent is still pinned
+                // afterwards the jump below fires this same tick and the ladder keeps climbing. Every outcome
+                // but NotAttempted has run the subtask, so it spends the attempt either way.
+                const DeviceRemovalOutcome device_outcome =
+                    device_recovery_.TryRemove(route, waypoint, escalation.device_attempt_count < kRecoveryDeviceAttempts);
+                if (device_outcome != DeviceRemovalOutcome::NotAttempted) {
+                    ++escalation.device_attempt_count;
+                }
+                if (device_outcome == DeviceRemovalOutcome::Escaped) {
+                    return ResumeAfterEscape("recovery_device_move_escape");
+                }
+                if (device_outcome == DeviceRemovalOutcome::NeedsFreshFix) {
+                    return true;
+                }
 
                 ++escalation.jump_attempt_count;
                 const NaviPosition jump_start = *position_;
@@ -1333,6 +1387,8 @@ bool NavigationStateMachine::TickNavigate()
         turn_elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - runtime_state_.steering_rate.cmd_at).count();
     }
 
+    const uint64_t tick_seq = runtime_state_.flow.tick_seq;
+
     double heading_rate_deg = 0.0;
     double heading_rate_raw_delta_deg = 0.0;
     int64_t heading_rate_gap_ms = 0;
@@ -1340,7 +1396,7 @@ bool NavigationStateMachine::TickNavigate()
     if (runtime_state_.steering_rate.has_prev) {
         heading_rate_raw_delta_deg = NaviMath::NormalizeAngle(current_heading - runtime_state_.steering_rate.prev_heading_deg);
         heading_rate_gap_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - runtime_state_.steering_rate.at).count();
-        heading_rate_gap_ticks = runtime_state_.flow.tick_seq - runtime_state_.steering_rate.at_tick;
+        heading_rate_gap_ticks = tick_seq - runtime_state_.steering_rate.at_tick;
         const bool heading_changed = std::abs(heading_rate_raw_delta_deg) > kSteeringHeadingChangeEpsilonDeg;
         // Staleness is counted in ticks, not milliseconds: the reference goes stale after so many missed chances
         // to observe a change, and slow frame capture stretches those chances out without making them fewer. A
@@ -1352,23 +1408,26 @@ bool NavigationStateMachine::TickNavigate()
         if (heading_changed) {
             runtime_state_.steering_rate.prev_heading_deg = current_heading;
             runtime_state_.steering_rate.at = now;
-            runtime_state_.steering_rate.at_tick = runtime_state_.flow.tick_seq;
+            runtime_state_.steering_rate.at_tick = tick_seq;
         }
     }
     else {
         runtime_state_.steering_rate.prev_heading_deg = current_heading;
         runtime_state_.steering_rate.at = now;
-        runtime_state_.steering_rate.at_tick = runtime_state_.flow.tick_seq;
+        runtime_state_.steering_rate.at_tick = tick_seq;
         runtime_state_.steering_rate.has_prev = true;
     }
 
     // Settle the turn already sent against what the heading actually moved, so the controller discounts what is
     // still in flight instead of commanding the same error again. Only motion toward the debt pays it down, and
     // an unpaid debt expires, so a swallowed drag can never leave steering suppressed against a turn never coming.
+    // Walking turns at about half rate: a jogging-sized lifetime expires mid-turn and the loop re-commands it.
+    const int64_t pending_lifetime_ms =
+        walk_mode_.engaged() ? kSteeringPendingLifetimeMs * kWalkModeSlowFactor : kSteeringPendingLifetimeMs;
     SteeringRateState& steering_rate = runtime_state_.steering_rate;
     if (steering_rate.pending_turn_deg != 0.0) {
         const int64_t pending_age_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - steering_rate.cmd_at).count();
-        if (pending_age_ms >= kSteeringPendingLifetimeMs) {
+        if (pending_age_ms >= pending_lifetime_ms) {
             steering_rate.pending_turn_deg = 0.0;
         }
         else {
@@ -1390,8 +1449,10 @@ bool NavigationStateMachine::TickNavigate()
     motion_controller_->SetForwardState(true);
 
     double issued_delta_deg = 0.0;
+    int64_t steer_send_ms = 0;
     if (steering.issued) {
         const TurnCommandResult steering_result = motion_controller_->ApplySteering(steering.yaw_delta_deg, tick_gap_ms);
+        steer_send_ms = steering_result.send_ms;
         if (steering_result.issued) {
             issued_delta_deg = steering_result.issued_delta_degrees;
         }
@@ -1403,6 +1464,8 @@ bool NavigationStateMachine::TickNavigate()
         steering_rate.has_cmd = true;
         steering_rate.pending_turn_deg += issued_delta_deg;
     }
+    // 只有走到这里的拍才记账。自救、绕障、语义转向在上面就返回了，留下的拍号缺口正好标出账不连续。
+    sensitivity::RecordTick(maa_context_, tick_seq, current_heading, issued_delta_deg, degraded_fix);
 
     // Closed the loop on the forward hold: the keydown goes out once on the transition, so a swallowed one
     // strands the agent aimed correctly and walking nowhere until an obstacle recovery notices seconds later.
@@ -1429,7 +1492,10 @@ bool NavigationStateMachine::TickNavigate()
     }
     flow.last_steer_position = *position_;
     flow.has_last_steer_position = true;
-    if (flow.motionless_hold_ticks >= kForwardHoldReassertTicks) {
+    // At walking speed one tick's step sits under the position quantum, so a straight walk reads as motionless.
+    // Widen the window rather than lower the threshold — the threshold is what rejects quantization noise.
+    const int32_t hold_reassert_ticks = walk_mode_.engaged() ? kForwardHoldReassertTicks * kWalkModeSlowFactor : kForwardHoldReassertTicks;
+    if (flow.motionless_hold_ticks >= hold_reassert_ticks) {
         ++flow.futile_forward_reasserts;
         LogWarn << "Forward hold produced no motion; re-sending it." << VAR(flow.motionless_hold_ticks) << VAR(heading_error)
                 << VAR(flow.futile_forward_reasserts) << VAR(position_->x) << VAR(position_->y);
@@ -1451,12 +1517,17 @@ bool NavigationStateMachine::TickNavigate()
 
     const int64_t tick_compute_ms =
         std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - tick_started_at).count();
-    LogDebug << "TickNavigate steering decision." << VAR(current_heading) << VAR(route.route_heading) << VAR(effective_route_heading)
-             << VAR(nav_run_result.has_corridor_heading) << VAR(nav_run_result.cross_track) << VAR(nav_run_result.upcoming_turn_deg)
-             << VAR(heading_rate_deg) << VAR(heading_rate_raw_delta_deg) << VAR(heading_rate_gap_ms) << VAR(heading_rate_gap_ticks)
-             << VAR(heading_error) << VAR(steering.yaw_delta_deg) << VAR(issued_delta_deg) << VAR(turn_achieved_deg)
-             << VAR(turn_residual_deg) << VAR(turn_elapsed_ms) << VAR(route.waypoint_distance) << VAR(route.on_route) << VAR(degraded_fix)
-             << VAR(held_fix_streak) << VAR(capture_ms) << VAR(fix_age_ms) << VAR(tick_gap_ms) << VAR(tick_compute_ms);
+    LogDebug << "TickNavigate steering decision." << VAR(tick_seq) << VAR(current_heading) << VAR(route.route_heading)
+             << VAR(effective_route_heading) << VAR(nav_run_result.has_corridor_heading) << VAR(nav_run_result.cross_track)
+             << VAR(nav_run_result.upcoming_turn_deg) << VAR(heading_rate_deg) << VAR(heading_rate_raw_delta_deg)
+             << VAR(heading_rate_gap_ms) << VAR(heading_rate_gap_ticks) << VAR(heading_error) << VAR(steering.yaw_delta_deg)
+             << VAR(issued_delta_deg) << VAR(turn_achieved_deg) << VAR(turn_residual_deg) << VAR(turn_elapsed_ms)
+             << VAR(route.waypoint_distance) << VAR(route.on_route) << VAR(degraded_fix) << VAR(held_fix_streak) << VAR(capture_ms)
+             << VAR(fix_age_ms) << VAR(tick_gap_ms) << VAR(tick_compute_ms);
+
+    // 只有走到这里的拍才是完整的常规导航拍，语义节点、恢复、丢定位在上面就提前 return 了。
+    latency::RecordStage(latency::Stage::Other, std::max<int64_t>(0, tick_compute_ms - capture_ms - steer_send_ms));
+    latency::RecordTick(maa_context_, runtime_state_.flow.tick_seq, tick_gap_ms);
 
     // Collect routes: keep sprint for travel but drop to walking speed once near a COLLECT point (cancels any
     // active sprint), so the detection-stop can land before we overrun the collectible. No-op off collect
@@ -1516,6 +1587,8 @@ void NavigationStateMachine::SelectPhaseForCurrentWaypoint(const char* reason)
 
 bool NavigationStateMachine::ResumeAfterEscape(const char* reason)
 {
+    runtime_state_.flow.futile_forward_reasserts = 0;
+    runtime_state_.flow.motionless_hold_ticks = 0;
     runtime_state_.recovery.Reset();
     runtime_state_.recovery_escalation.Reset();
     runtime_state_.route.ResetTracking();
@@ -1565,9 +1638,39 @@ void NavigationStateMachine::StopMotion()
 
 NavigationStateMachine::~NavigationStateMachine()
 {
-    // Backstop: guarantee the PositionProvider's frame observer (it captures `this` and reads
-    // collect_scanner_) is torn down before this object dies, even on an early Run() return path.
-    StopCollectScanner();
+    // Backstop: guarantee the PositionProvider's frame observer (it captures `this` and reads the scanners) is
+    // torn down before this object dies, even on an early Run() return path.
+    StopScanners();
+}
+
+void NavigationStateMachine::StartScanners()
+{
+    StartCollectScanner();
+    StartDeviceProbe();
+
+    if (position_provider_ == nullptr) {
+        return;
+    }
+    // One observer for both consumers, bound once. Binding it per scanner would let whichever one stops first
+    // silently cut the other's frame supply.
+    position_provider_->SetFrameObserver([this](const cv::Mat& frame) {
+        if (collect_scanner_ != nullptr) {
+            collect_scanner_->SubmitFrame(frame);
+        }
+        device_recovery_.SubmitFrame(frame);
+    });
+}
+
+void NavigationStateMachine::StopScanners()
+{
+    if (position_provider_ != nullptr) {
+        position_provider_->SetFrameObserver(nullptr);
+    }
+    if (motion_controller_ != nullptr) {
+        motion_controller_->SetSprintSuppressed(false);
+    }
+    collect_scanner_.reset();
+    device_recovery_.Stop();
 }
 
 void NavigationStateMachine::StartCollectScanner()
@@ -1581,7 +1684,7 @@ void NavigationStateMachine::StartCollectScanner()
     }
 
     cv::Rect base_roi;
-    if (!ParseCollectRoiFromNode(maa_context_, kCollectRoiNode, &base_roi)) {
+    if (!ParseRoiFromNode(maa_context_, kCollectRoiNode, &base_roi)) {
         LogWarn << "Async collectible scanner not started: could not read collect ROI from pipeline." << VAR(kCollectRoiNode);
         return;
     }
@@ -1597,27 +1700,21 @@ void NavigationStateMachine::StartCollectScanner()
                 << VAR(icon_template.rows);
     }
 
-    collect_scanner_ = std::make_unique<CollectibleScanner>(base_roi, icon_template);
-    position_provider_->SetFrameObserver([this](const cv::Mat& frame) {
-        if (collect_scanner_ != nullptr) {
-            collect_scanner_->SubmitFrame(frame);
-        }
-    });
+    collect_scanner_ = std::make_unique<RoiTemplateScanner>("collect", base_roi, icon_template, kCollectIconMatchThreshold, true);
     LogInfo << "Async collectible scanner started." << VAR(base_roi.x) << VAR(base_roi.y) << VAR(base_roi.width) << VAR(base_roi.height);
     // NOTE: sprint is NOT suppressed for the whole route — that killed fast travel. Suppression is driven per
     // tick in TickNavigate (UpdateCollectSprintSuppression), enabled only when the avatar is within
     // kCollectSprintSuppressBandWu of a COLLECT waypoint, so travel between collect points still sprints.
 }
 
-void NavigationStateMachine::StopCollectScanner()
+void NavigationStateMachine::StartDeviceProbe()
 {
-    if (position_provider_ != nullptr) {
-        position_provider_->SetFrameObserver(nullptr);
+    cv::Rect base_roi;
+    if (!ParseRoiFromNode(maa_context_, kObstacleDeviceProbeNode, &base_roi)) {
+        LogWarn << "Blocking-device probe not started: could not read its ROI from the pipeline." << VAR(kObstacleDeviceProbeNode);
+        return;
     }
-    if (motion_controller_ != nullptr) {
-        motion_controller_->SetSprintSuppressed(false);
-    }
-    collect_scanner_.reset();
+    device_recovery_.Start(base_roi);
 }
 
 void NavigationStateMachine::UpdateCollectSprintSuppression()

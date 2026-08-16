@@ -5,6 +5,10 @@ import (
 )
 
 func Register() {
+	maa.AgentServerRegisterCustomRecognition(
+		"ItemTransferSameItemRecognition",
+		&SameItemRecognition{},
+	)
 	maa.AgentServerRegisterCustomAction(
 		"ItemTransferFallbackAction",
 		&ItemTransferFallbackAction{},

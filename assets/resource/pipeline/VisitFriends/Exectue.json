@@ -609,7 +609,7 @@
                     200
                 ],
                 "template": "VisitFriends/TerminalGrowthChamber.png",
-                "threshold": 0.9
+                "threshold": 0.8
             },
             {
                 "recognition": "TemplateMatch",

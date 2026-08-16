@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <iterator>
 #include <limits>
 #include <map>
 #include <numeric>
@@ -24,8 +25,8 @@ namespace
 
 // 响应、分母和归一化的近零阈值，仅用于数值稳定性。
 constexpr double kEpsilon = 1e-8;
-// 信用交易界面固定七列卡片，用于限制晶格横向扩展。
-constexpr int kCreditTradeColumns = 7;
+// 信用交易界面允许的最大列数；Win32 为七列，ADB 为六列，实际列数由卡片证据决定。
+constexpr int kCreditTradeMaximumColumns = 7;
 // 从信用交易卡片左边缘到 128px 图标 cell 的横向偏移；数值增大时 cell 向右移动。
 constexpr int kCreditTradeCellOffsetX = 10;
 // 从信用交易卡片顶边到 128px 图标 cell 的纵向偏移；数值增大时 cell 向下移动。
@@ -34,6 +35,12 @@ constexpr int kCreditTradeCellOffsetY = 6;
 constexpr double kDefaultMinimumTopVisibility = 0.90;
 // 底部被 ROI 裁切时保留 cell 所需的默认可见比例；调高更严格，调低可保留更多残缺末行。
 constexpr double kDefaultMinimumBottomVisibility = 0.70;
+// ADB 放大贵重品库的底部工具栏会裁掉末行约三分之一；强卡片边界成立时允许保留至少 65% 可见的末行。
+constexpr double kScaledValuablesMinimumBottomVisibility = 0.65;
+// 自动 profile 为 1.0 和 1.25，取中点区分 Win32 基准布局与 ADB 放大布局；调低会让更多显式比例采用宽松底边策略。
+constexpr double kScaledValuablesProfileMinimumScale = 1.125;
+// 映射回源图后，pitch 细化允许在半个 controller scale 像素内搜索，覆盖归一化取整误差。
+constexpr double kSourcePitchRefinementRadiusScale = 0.5;
 // 左右被 ROI 裁切时保留 cell 所需的最小可见比例；调高减少边缘残格，调低提高边缘召回。
 constexpr double kMinimumHorizontalVisibility = 0.70;
 // 单网格初始周期估计相对 profile pitch 的搜索半径；调大可适应缩放偏差，但增加误周期候选。
@@ -134,8 +141,26 @@ constexpr int kCreditTradeCardMinimumArea = 5000;
 constexpr std::size_t kCreditTradeMinimumCardCount = 2;
 // 少于该数量时使用相位一致性校验，避免少量卡片直接生成错误晶格。
 constexpr std::size_t kCreditTradeSparseCardCount = 5;
-// 首行达到该卡片数时补全固定七列，兼容已售罄卡片造成的亮区缺失。
+// 首行达到该卡片数时补全该截图已观测到的列跨度，兼容已售罄卡片造成的亮区缺失。
 constexpr int kCreditTradeFirstRowCompletionCount = 5;
+// 奖励卡片白色底板的 HSV 下界，按 720p 实际奖励截图标定；提高 V 会漏掉暗化卡片。
+const cv::Scalar kRewardsCardHsvLower { 0, 0, 185 };
+// 奖励卡片白色底板的 HSV 上界，按 720p 实际奖励截图标定；提高 S 上限会混入彩色背景和标题光效。
+const cv::Scalar kRewardsCardHsvUpper { 179, 65, 255 };
+// 白色底板连通域使用八邻域，允许抗锯齿产生的斜向亮色像素保持连通。
+constexpr int kRewardsConnectivity = 8;
+// 奖励卡片候选最小边长（720p 像素），按 96px cell 和边框缺损标定；调高会漏掉暗化或破碎卡片。
+constexpr int kRewardsMinimumCardSize = 78;
+// 奖励卡片候选最大边长（720p 像素），按 96px cell 和边框高光标定；调高会接纳更大的背景亮块。
+constexpr int kRewardsMaximumCardSize = 112;
+// 奖励卡片候选最小亮色面积（720p 平方像素）；调高抑制零碎高光，调低召回被文字切碎的卡片。
+constexpr int kRewardsMinimumCardArea = 2600;
+// 奖励卡片最小宽高比，按近方形白色底板标定；调低可容忍横向裁切，也会接纳更多窄背景块。
+constexpr double kRewardsMinimumCardAspectRatio = 0.82;
+// 奖励卡片最大宽高比，按近方形白色底板标定；调高可容忍纵向裁切，也会接纳更多宽背景块。
+constexpr double kRewardsMaximumCardAspectRatio = 1.22;
+// 同一行卡片中心允许的纵向差异（720p 像素）；调大可能合并相邻行，调小可能拆散轻微错位的同一行。
+constexpr int kRewardsRowCenterTolerance = 24;
 
 bool IsFormal(
     const cv::Rect& cell,
@@ -231,6 +256,331 @@ GridLayout DetectSingleLattice(const cv::Mat& image, GridType type, const cv::Re
     return layout;
 }
 
+GridDetection DetectRewardsGrid(const cv::Mat& image, const cv::Rect& roi)
+{
+    const GridProfile profile = ProfileFor(GridType::Rewards);
+    if (roi.width < profile.cell_size || roi.height < profile.cell_size) {
+        throw std::runtime_error("rewards ROI is smaller than one formal cell");
+    }
+    const cv::Mat crop = image(roi);
+    cv::Mat bgr;
+    if (crop.channels() == 4) {
+        cv::cvtColor(crop, bgr, cv::COLOR_BGRA2BGR);
+    }
+    else {
+        bgr = crop;
+    }
+    cv::Mat hsv;
+    cv::cvtColor(bgr, hsv, cv::COLOR_BGR2HSV);
+    cv::Mat bright;
+    cv::inRange(hsv, kRewardsCardHsvLower, kRewardsCardHsvUpper, bright);
+    cv::Mat labels;
+    cv::Mat stats;
+    cv::Mat centroids;
+    const int component_count = cv::connectedComponentsWithStats(bright, labels, stats, centroids, kRewardsConnectivity);
+
+    struct Candidate
+    {
+        cv::Rect box;
+        double center_y = 0.0;
+    };
+
+    std::vector<Candidate> candidates;
+    for (int index = 1; index < component_count; ++index) {
+        const int x = stats.at<int>(index, cv::CC_STAT_LEFT);
+        const int y = stats.at<int>(index, cv::CC_STAT_TOP);
+        const int width = stats.at<int>(index, cv::CC_STAT_WIDTH);
+        const int height = stats.at<int>(index, cv::CC_STAT_HEIGHT);
+        const int area = stats.at<int>(index, cv::CC_STAT_AREA);
+        if (width < kRewardsMinimumCardSize || width > kRewardsMaximumCardSize || height < kRewardsMinimumCardSize
+            || height > kRewardsMaximumCardSize || area < kRewardsMinimumCardArea) {
+            continue;
+        }
+        const double aspect = static_cast<double>(width) / height;
+        if (aspect < kRewardsMinimumCardAspectRatio || aspect > kRewardsMaximumCardAspectRatio) {
+            continue;
+        }
+        candidates.push_back({ cv::Rect(roi.x + x, roi.y + y, width, height), roi.y + y + height * 0.5 });
+    }
+    if (candidates.empty()) {
+        throw std::runtime_error("rewards ROI contains no card candidates");
+    }
+    std::ranges::sort(candidates, [](const Candidate& left, const Candidate& right) { return left.center_y < right.center_y; });
+    std::vector<std::vector<Candidate>> rows;
+    for (const Candidate& candidate : candidates) {
+        if (rows.empty() || std::abs(candidate.center_y - rows.back().front().center_y) > kRewardsRowCenterTolerance) {
+            rows.emplace_back();
+        }
+        rows.back().push_back(candidate);
+    }
+    GridDetection result {
+        .type = GridType::Rewards,
+        .roi = roi,
+    };
+    int grid_index = 0;
+    for (auto& row : rows) {
+        std::ranges::sort(row, [](const Candidate& left, const Candidate& right) { return left.box.x < right.box.x; });
+        GridLayout layout;
+        layout.grid_index = grid_index++;
+        layout.cell_size = profile.cell_size;
+        layout.rows = 1;
+        std::vector<double> row_tops;
+        row_tops.reserve(row.size());
+        std::ranges::transform(row, std::back_inserter(row_tops), [](const Candidate& item) { return static_cast<double>(item.box.y); });
+        // 白色连通域不包含底部彩色色条，因此必须从卡片顶边定位完整 cell；按中心反推会把框上移并裁掉色条。
+        const int row_top = cvRound(Median(std::move(row_tops)));
+        layout.pitch_y = profile.cell_size;
+        if (row.size() > 1) {
+            std::vector<double> pitches;
+            for (std::size_t index = 1; index < row.size(); ++index) {
+                pitches.push_back(row[index].box.x - row[index - 1].box.x);
+            }
+            layout.pitch_x = Median(std::move(pitches));
+        }
+        else {
+            layout.pitch_x = profile.cell_size;
+        }
+        int x1 = std::numeric_limits<int>::max();
+        int x2 = std::numeric_limits<int>::min();
+        int y1 = std::numeric_limits<int>::max();
+        int y2 = std::numeric_limits<int>::min();
+        std::vector<int> inferred_starts;
+        inferred_starts.reserve(row.size());
+        std::ranges::transform(row, std::back_inserter(inferred_starts), [&](const Candidate& candidate) {
+            return candidate.box.x + (candidate.box.width - profile.cell_size) / 2;
+        });
+        const std::vector<int> completed_starts = CompleteRewardsRowStarts(inferred_starts, layout.pitch_x);
+        for (int inferred_x : completed_starts) {
+            const int inferred_y = row_top;
+            // 单卡 ROI 可能只比 cell 大 1px；白色主体又不含底部色条，需要把相位夹回调用方边界内。
+            constexpr int kMaximumRewardCellBoundaryAdjustment = 2;
+            const int x = std::clamp(inferred_x, roi.x, roi.x + roi.width - profile.cell_size);
+            const int y = std::clamp(inferred_y, roi.y, roi.y + roi.height - profile.cell_size);
+            if (std::abs(x - inferred_x) > kMaximumRewardCellBoundaryAdjustment
+                || std::abs(y - inferred_y) > kMaximumRewardCellBoundaryAdjustment) {
+                continue;
+            }
+            const cv::Rect cell(x, y, profile.cell_size, profile.cell_size);
+            if ((cell & cv::Rect(roi.x, roi.y, roi.width, roi.height)) != cell) {
+                continue;
+            }
+            // 内部每行保留独立 layout 以表达不同横向起点；下游 row 按纵向顺序全局编号，column 每行重新计数。
+            const int column = static_cast<int>(layout.cells.size());
+            layout.cells.push_back({ layout.grid_index, layout.grid_index, column, cell });
+            x1 = std::min(x1, cell.x);
+            x2 = std::max(x2, cell.x + cell.width);
+            y1 = std::min(y1, cell.y);
+            y2 = std::max(y2, cell.y + cell.height);
+        }
+        if (!layout.cells.empty()) {
+            layout.columns = static_cast<int>(layout.cells.size());
+            layout.bounds = cv::Rect(x1, y1, x2 - x1, y2 - y1);
+            result.cells.insert(result.cells.end(), layout.cells.begin(), layout.cells.end());
+            result.grids.push_back(std::move(layout));
+        }
+    }
+    if (result.cells.empty()) {
+        throw std::runtime_error("rewards ROI contains no formal cells");
+    }
+    return result;
+}
+
+std::optional<double> EstimateRewardsScaleFromCards(const cv::Mat& image, const cv::Rect& roi)
+{
+    const GridProfile profile = ProfileFor(GridType::Rewards);
+    // 白卡候选相对标准 cell 的最小边长比例；调低会混入文字和图标内白块。
+    constexpr double kMinimumRewardScaleCardSizeRatio = 0.65;
+    // 白卡候选相对标准 cell 的最大边长比例；调高会混入整块面板背景。
+    constexpr double kMaximumRewardScaleCardSizeRatio = 1.65;
+    // 连通域相对标准 cell 面积的最低比例；调低会接受稀疏图标高光。
+    constexpr double kMinimumRewardScaleCardAreaRatio = 0.08;
+    // 自动比例阶段放宽的白卡宽高比下限，用于容忍底部色带不属于白色连通域。
+    constexpr double kMinimumRewardScaleCardAspectRatio = 0.70;
+    // 自动比例阶段放宽的白卡宽高比上限，用于容忍单卡 ROI 的边界量化。
+    constexpr double kMaximumRewardScaleCardAspectRatio = 1.35;
+    cv::Mat crop = image(roi);
+    cv::Mat bgr;
+    if (crop.channels() == 4) {
+        cv::cvtColor(crop, bgr, cv::COLOR_BGRA2BGR);
+    }
+    else {
+        bgr = crop;
+    }
+    cv::Mat hsv;
+    cv::cvtColor(bgr, hsv, cv::COLOR_BGR2HSV);
+    cv::Mat bright;
+    cv::inRange(hsv, kRewardsCardHsvLower, kRewardsCardHsvUpper, bright);
+
+    cv::Mat labels;
+    cv::Mat stats;
+    cv::Mat centroids;
+    const int component_count = cv::connectedComponentsWithStats(bright, labels, stats, centroids, kRewardsConnectivity);
+    std::vector<int> card_sizes;
+    for (int index = 1; index < component_count; ++index) {
+        const int width = stats.at<int>(index, cv::CC_STAT_WIDTH);
+        const int height = stats.at<int>(index, cv::CC_STAT_HEIGHT);
+        const int area = stats.at<int>(index, cv::CC_STAT_AREA);
+        const double minimum_size = kMinimumRewardScaleCardSizeRatio * profile.cell_size;
+        const double maximum_size = kMaximumRewardScaleCardSizeRatio * profile.cell_size;
+        if (width < minimum_size || width > maximum_size || height < minimum_size || height > maximum_size) {
+            continue;
+        }
+        const double aspect = static_cast<double>(width) / height;
+        if (aspect < kMinimumRewardScaleCardAspectRatio || aspect > kMaximumRewardScaleCardAspectRatio) {
+            continue;
+        }
+        if (area < kMinimumRewardScaleCardAreaRatio * profile.cell_size * profile.cell_size) {
+            continue;
+        }
+        // 白色主体可能与数量文字或内部高光纵向相连；较短边更接近方形卡片的真实边长。
+        card_sizes.push_back(std::min(width, height));
+    }
+    if (card_sizes.empty()) {
+        return std::nullopt;
+    }
+
+    std::vector<double> sizes(card_sizes.begin(), card_sizes.end());
+    const double median_size = Median(std::move(sizes));
+    // 只在真实截图标定过的控制器 UI 密度间选择。
+    constexpr double kMaximumRewardCardRelativeError = 0.15;
+    const auto selected = std::ranges::min_element(kSupportedControllerGridScales, [&](double left, double right) {
+        return std::abs(median_size - profile.cell_size * left) < std::abs(median_size - profile.cell_size * right);
+    });
+    const auto distance_for = [&](double scale) {
+        return std::abs(median_size - profile.cell_size * scale);
+    };
+    const double relative_error = distance_for(*selected) / (profile.cell_size * *selected);
+    const auto alternate =
+        selected == kSupportedControllerGridScales.begin() ? std::next(selected) : kSupportedControllerGridScales.begin();
+    if (std::abs(distance_for(*selected) - distance_for(*alternate)) <= kEpsilon) {
+        return std::nullopt;
+    }
+    if (relative_error > kMaximumRewardCardRelativeError) {
+        return std::nullopt;
+    }
+    return *selected;
+}
+
+struct StructureProjection
+{
+    std::vector<double> centered;
+    double energy = 0.0;
+};
+
+StructureProjection BuildStructureProjection(const cv::Mat& image, bool x_axis)
+{
+    cv::Mat gray;
+    if (image.channels() == 4) {
+        cv::cvtColor(image, gray, cv::COLOR_BGRA2GRAY);
+    }
+    else if (image.channels() == 3) {
+        cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
+    }
+    else {
+        gray = image;
+    }
+    gray.convertTo(gray, CV_32F, 1.0 / 255.0);
+
+    cv::Mat dx;
+    cv::Mat dy;
+    cv::Sobel(gray, dx, CV_32F, 1, 0, 3);
+    cv::Sobel(gray, dy, CV_32F, 0, 1, 3);
+    cv::Mat magnitude = cv::abs(dx) + cv::abs(dy);
+
+    const int output_size = x_axis ? magnitude.cols : magnitude.rows;
+    std::vector<float> projection(output_size, 0.0F);
+    for (int index = 0; index < output_size; ++index) {
+        projection[index] = static_cast<float>(x_axis ? cv::mean(magnitude.col(index))[0] : cv::mean(magnitude.row(index))[0]);
+    }
+
+    const double mean = std::accumulate(projection.begin(), projection.end(), 0.0) / projection.size();
+    StructureProjection result;
+    result.centered.resize(projection.size());
+    std::ranges::transform(projection, result.centered.begin(), [&](float value) { return value - mean; });
+    result.energy = std::inner_product(result.centered.begin(), result.centered.end(), result.centered.begin(), 0.0);
+    return result;
+}
+
+std::optional<double> ScoreProjectionPeriod(const StructureProjection& projection, double expected_pitch)
+{
+    constexpr double kMinimumProjectionEnergy = 1e-8;
+    if (projection.energy <= kMinimumProjectionEnergy || projection.centered.size() < 3) {
+        return std::nullopt;
+    }
+
+    // 只在 profile 期望周期附近消化 1~2px 的渲染量化误差，避免卡内纹理及整数倍谐波抢占主峰。
+    constexpr double kPeriodSearchRadiusRatio = 0.025;
+    const int center = cvRound(expected_pitch);
+    const int radius = std::max(2, cvRound(expected_pitch * kPeriodSearchRadiusRatio));
+    const int minimum_period = std::max(2, center - radius);
+    const int maximum_period = std::min(static_cast<int>(projection.centered.size()) - 1, center + radius);
+    if (maximum_period < minimum_period) {
+        return std::nullopt;
+    }
+
+    double best_score = -std::numeric_limits<double>::infinity();
+    for (int period = minimum_period; period <= maximum_period; ++period) {
+        double correlation = 0.0;
+        for (int index = 0; index + period < static_cast<int>(projection.centered.size()); ++index) {
+            correlation += projection.centered[index] * projection.centered[index + period];
+        }
+        const int overlap = std::max(static_cast<int>(projection.centered.size()) - period, 1);
+        const double score = correlation / projection.energy * projection.centered.size() / overlap;
+        best_score = std::max(best_score, score);
+    }
+    return best_score;
+}
+
+std::optional<double> EstimateScaleFromStructure(const cv::Mat& image, GridType type, const cv::Rect& roi)
+{
+    const GridProfile profile = ProfileFor(type);
+    const cv::Mat crop = image(roi);
+    const StructureProjection x_projection = BuildStructureProjection(crop, true);
+    const StructureProjection y_projection = BuildStructureProjection(crop, false);
+
+    constexpr double kSecondaryAxisWeight = 0.35;
+    constexpr double kTransferSecondaryAxisWeight = 0.25;
+    // 真实旧/新截图的最小分差分别为 0.3821/0.5173；保留充足余量后拒绝模棱两可的截图。
+    constexpr double kMinimumProfileScoreMargin = 0.10;
+
+    struct Candidate
+    {
+        double scale = 1.0;
+        double score = 0.0;
+    };
+
+    std::vector<Candidate> candidates;
+    for (const double scale : kSupportedControllerGridScales) {
+        const auto x_score = ScoreProjectionPeriod(x_projection, profile.pitch_x * scale);
+        const auto y_score = ScoreProjectionPeriod(y_projection, profile.pitch_y * scale);
+        if (type == GridType::CreditTrade) {
+            if (x_score) {
+                candidates.push_back({ scale, *x_score });
+            }
+            continue;
+        }
+        if (type == GridType::Transfer || type == GridType::PortStorager) {
+            if (x_score) {
+                candidates.push_back({ scale, *x_score + (y_score ? kTransferSecondaryAxisWeight * *y_score : 0.0) });
+            }
+            continue;
+        }
+        if (x_score || y_score) {
+            const double primary = x_score ? *x_score : *y_score;
+            const double secondary = x_score && y_score ? kSecondaryAxisWeight * *y_score : 0.0;
+            candidates.push_back({ scale, primary + secondary });
+        }
+    }
+    if (candidates.size() != kSupportedControllerGridScales.size()) {
+        return std::nullopt;
+    }
+    std::ranges::sort(candidates, [](const Candidate& left, const Candidate& right) { return left.score > right.score; });
+    if (candidates.front().score <= 0.0 || candidates.front().score - candidates.back().score < kMinimumProfileScoreMargin) {
+        return std::nullopt;
+    }
+    return candidates.front().scale;
+}
+
 double CardVerticalPhaseScore(const cv::Mat& gray, int phase_y, double pitch_y, int cell_size, const std::vector<int>& x_starts)
 {
     const int inset = std::max(kCardMinimumInset, cvRound(cell_size * kCardInsetRatio));
@@ -260,7 +610,7 @@ double CardVerticalPhaseScore(const cv::Mat& gray, int phase_y, double pitch_y, 
     return Median(std::move(scores));
 }
 
-void RefineCardVerticalPhase(const cv::Mat& image, const cv::Rect& roi, GridType type, GridLayout& layout)
+void RefineCardVerticalPhase(const cv::Mat& image, const cv::Rect& roi, GridType type, double source_grid_scale, GridLayout& layout)
 {
     cv::Mat bgr;
     if (image.channels() == 4) {
@@ -309,7 +659,7 @@ void RefineCardVerticalPhase(const cv::Mat& image, const cv::Rect& roi, GridType
         if (y >= roi.y + roi.height) {
             break;
         }
-        if (IsFormal(cv::Rect(x_starts.front(), y, layout.cell_size, layout.cell_size), roi)) {
+        if (HasFormalCardExtent(cv::Rect(x_starts.front(), y, layout.cell_size, layout.cell_size), roi, type, source_grid_scale)) {
             y_starts.push_back(y);
         }
     }
@@ -331,7 +681,7 @@ void RefineCardVerticalPhase(const cv::Mat& image, const cv::Rect& roi, GridType
         y_starts.back() + layout.cell_size - y_starts.front());
 }
 
-GridLayout BuildCreditTradeLattice(const cv::Rect& roi, int x_phase, int y_phase, const GridProfile& profile)
+GridLayout BuildCreditTradeLattice(const cv::Rect& roi, int x_phase, int y_phase, int column_count, const GridProfile& profile)
 {
     const int pitch_x = cvRound(profile.pitch_x);
     const int pitch_y = cvRound(profile.pitch_y);
@@ -341,14 +691,14 @@ GridLayout BuildCreditTradeLattice(const cv::Rect& roi, int x_phase, int y_phase
     layout.cell_size = profile.cell_size;
     layout.pitch_x = profile.pitch_x;
     layout.pitch_y = profile.pitch_y;
-    layout.columns = kCreditTradeColumns;
+    layout.columns = column_count;
     for (int row = 0; row < 8; ++row) {
         const int y = y_phase + row * pitch_y + kCreditTradeCellOffsetY;
         if (y >= roi.y + roi.height) {
             break;
         }
         bool kept_row = false;
-        for (int column = 0; column < kCreditTradeColumns; ++column) {
+        for (int column = 0; column < column_count; ++column) {
             const cv::Rect cell(x_phase + column * pitch_x + kCreditTradeCellOffsetX, y, profile.cell_size, profile.cell_size);
             if (IsFormal(cell, roi)) {
                 layout.cells.push_back({ 0, layout.rows, column, cell });
@@ -415,6 +765,20 @@ GridLayout DetectCreditTrade(const cv::Mat& image, const cv::Rect& roi)
     }
     const int x_phase = cvRound(Median(std::move(x_phases)));
     const int y_phase = cvRound(Median(std::move(y_phases)));
+    int observed_column_count = 0;
+    for (const auto& card : cards) {
+        const int column = cvRound(static_cast<double>(card.x - x_phase) / pitch_x);
+        if (column >= 0 && column < kCreditTradeMaximumColumns) {
+            observed_column_count = std::max(observed_column_count, column + 1);
+        }
+    }
+    if (observed_column_count == 0) {
+        return DetectSingleLattice(image, GridType::CreditTrade, roi);
+    }
+    const int first_cell_x = x_phase + kCreditTradeCellOffsetX;
+    const int available_width = roi.x + roi.width - first_cell_x;
+    const int roi_column_count = available_width < profile.cell_size ? 0 : (available_width - profile.cell_size) / pitch_x + 1;
+    const int column_count = std::clamp(roi_column_count, observed_column_count, kCreditTradeMaximumColumns);
     if (cards.size() < kCreditTradeSparseCardCount) {
         const double maximum_residual = kCreditTradeMaximumPhaseResidualRatio * std::min(pitch_x, pitch_y);
         const bool coherent = std::ranges::all_of(cards, [&](const auto& card) {
@@ -424,7 +788,7 @@ GridLayout DetectCreditTrade(const cv::Mat& image, const cv::Rect& roi)
                    && std::abs(card.y - (y_phase + row * pitch_y)) <= maximum_residual;
         });
         if (coherent) {
-            return BuildCreditTradeLattice(roi, x_phase, y_phase, profile);
+            return BuildCreditTradeLattice(roi, x_phase, y_phase, column_count, profile);
         }
         return DetectSingleLattice(image, GridType::CreditTrade, roi);
     }
@@ -432,7 +796,7 @@ GridLayout DetectCreditTrade(const cv::Mat& image, const cv::Rect& roi)
     for (const auto& card : cards) {
         const int row = cvRound(static_cast<double>(card.y - y_phase) / pitch_y);
         const int column = cvRound(static_cast<double>(card.x - x_phase) / pitch_x);
-        if (row >= 0 && column >= 0 && column < kCreditTradeColumns) {
+        if (row >= 0 && column >= 0 && column < column_count) {
             observed.emplace_back(row, column);
         }
     }
@@ -445,7 +809,7 @@ GridLayout DetectCreditTrade(const cv::Mat& image, const cv::Rect& roi)
     const int first_row_count =
         static_cast<int>(std::ranges::count_if(observed, [&](const auto& item) { return item.first == first_row; }));
     if (first_row_count >= kCreditTradeFirstRowCompletionCount) {
-        for (int column = 0; column < kCreditTradeColumns; ++column) {
+        for (int column = 0; column < column_count; ++column) {
             observed.emplace_back(first_row, column);
         }
     }
@@ -463,7 +827,7 @@ GridLayout DetectCreditTrade(const cv::Mat& image, const cv::Rect& roi)
     layout.cell_size = profile.cell_size;
     layout.pitch_x = profile.pitch_x;
     layout.pitch_y = profile.pitch_y;
-    layout.columns = kCreditTradeColumns;
+    layout.columns = column_count;
     layout.rows = static_cast<int>(rows.size());
     for (const auto& [raw_row, column] : observed) {
         const int row = static_cast<int>(std::ranges::lower_bound(rows, raw_row) - rows.begin());
@@ -611,7 +975,8 @@ TransferAxisFit FitTransferAxis(
     std::pair<double, double> pitch_range,
     int observed_pitch_tolerance,
     int maximum_count,
-    bool refine_phase)
+    bool refine_phase,
+    bool refine_pitch = false)
 {
     std::vector<int> ordered = starts;
     std::ranges::sort(ordered);
@@ -653,43 +1018,50 @@ TransferAxisFit FitTransferAxis(
     }
     double fitted_pitch = ordered.size() >= 6 || denominator <= kEpsilon ? coarse_pitch : numerator / denominator;
     fitted_pitch = std::clamp(fitted_pitch, pitch_range.first, pitch_range.second);
-    double phase_center = 0.0;
-    for (std::size_t index = 0; index < observed.size(); ++index) {
-        phase_center += observed[index] - indices[index] * fitted_pitch;
-    }
-    phase_center /= observed.size();
     const auto normalized = NormalizeSignal(boundary);
-    std::tuple<double, double, double> best { -std::numeric_limits<double>::infinity(), 0.0, 0.0 };
-    double best_phase = phase_center;
+    std::tuple<double, double, double, double> best { -std::numeric_limits<double>::infinity(), 0.0, 0.0, 0.0 };
+    double best_phase = 0.0;
+    double best_pitch = fitted_pitch;
     double best_score = 0.0;
     double best_residual = 0.0;
-    const double phase_begin = refine_phase ? phase_center - kAxisPhaseRefinementHalfRange : phase_center;
-    const double phase_end =
-        refine_phase ? phase_center + kAxisPhaseRefinementHalfRange + kAxisPhaseLoopEpsilon : phase_center + kAxisPhaseLoopEpsilon;
-    for (double phase = phase_begin; phase <= phase_end; phase += refine_phase ? kAxisPhaseRefinementStep : kAxisPhaseCoarseStep) {
-        std::vector<double> pairs;
-        for (int index = 0; index < count; ++index) {
-            const double position = phase + index * fitted_pitch;
-            pairs.push_back(std::sqrt(
-                std::max(SampleSignal(normalized, position), 0.0) * std::max(SampleSignal(normalized, position + cell_size), 0.0)));
-        }
-        std::vector<double> residuals;
+    const double pitch_begin = refine_pitch ? pitch_range.first : fitted_pitch;
+    const double pitch_end = refine_pitch ? pitch_range.second + kAxisPhaseLoopEpsilon : fitted_pitch + kAxisPhaseLoopEpsilon;
+    for (double pitch = pitch_begin; pitch <= pitch_end; pitch += refine_pitch ? kPitchRefinementStep : kAxisPhaseCoarseStep) {
+        double phase_center = 0.0;
         for (std::size_t index = 0; index < observed.size(); ++index) {
-            if (indices[index] < count) {
-                residuals.push_back(std::abs(phase + indices[index] * fitted_pitch - observed[index]));
+            phase_center += observed[index] - indices[index] * pitch;
+        }
+        phase_center /= observed.size();
+        const double phase_begin = refine_phase ? phase_center - kAxisPhaseRefinementHalfRange : phase_center;
+        const double phase_end =
+            refine_phase ? phase_center + kAxisPhaseRefinementHalfRange + kAxisPhaseLoopEpsilon : phase_center + kAxisPhaseLoopEpsilon;
+        for (double phase = phase_begin; phase <= phase_end; phase += refine_phase ? kAxisPhaseRefinementStep : kAxisPhaseCoarseStep) {
+            std::vector<double> pairs;
+            for (int index = 0; index < count; ++index) {
+                const double position = phase + index * pitch;
+                pairs.push_back(std::sqrt(
+                    std::max(SampleSignal(normalized, position), 0.0) * std::max(SampleSignal(normalized, position + cell_size), 0.0)));
+            }
+            std::vector<double> residuals;
+            for (std::size_t index = 0; index < observed.size(); ++index) {
+                if (indices[index] < count) {
+                    residuals.push_back(std::abs(phase + indices[index] * pitch - observed[index]));
+                }
+            }
+            const double residual = residuals.empty() ? 0.0 : std::accumulate(residuals.begin(), residuals.end(), 0.0) / residuals.size();
+            const double evidence = pairs.empty() ? 0.0 : std::accumulate(pairs.begin(), pairs.end(), 0.0) / pairs.size();
+            // 源图 pitch 搜索的目标就是修正归一化坐标量化，旧坐标残差只用于同分排序，不能反向锁死旧轴。
+            const double residual_weight = refine_pitch ? 0.0 : kTransferAxisResidualPenalty;
+            const double score = evidence - residual_weight * residual;
+            const auto candidate = std::tuple { score, -residual, -std::abs(pitch - fitted_pitch), -std::abs(phase - phase_center) };
+            if (candidate > best) {
+                best = candidate, best_phase = phase, best_pitch = pitch, best_score = score, best_residual = residual;
             }
         }
-        const double residual = residuals.empty() ? 0.0 : std::accumulate(residuals.begin(), residuals.end(), 0.0) / residuals.size();
-        const double evidence = pairs.empty() ? 0.0 : std::accumulate(pairs.begin(), pairs.end(), 0.0) / pairs.size();
-        const double score = evidence - kTransferAxisResidualPenalty * residual;
-        const auto candidate = std::tuple { score, -residual, -std::abs(phase - phase_center) };
-        if (candidate > best) {
-            best = candidate, best_phase = phase, best_score = score, best_residual = residual;
-        }
     }
-    TransferAxisFit fit { .phase = best_phase + offset, .pitch = fitted_pitch, .score = best_score, .mean_residual = best_residual };
+    TransferAxisFit fit { .phase = best_phase + offset, .pitch = best_pitch, .score = best_score, .mean_residual = best_residual };
     for (int index = 0; index < count; ++index) {
-        fit.starts.push_back(static_cast<int>(std::floor(best_phase + index * fitted_pitch + 0.5)) + offset);
+        fit.starts.push_back(static_cast<int>(std::floor(best_phase + index * best_pitch + 0.5)) + offset);
     }
     return fit;
 }
@@ -854,10 +1226,6 @@ std::vector<int> DropPortRows(
     int column_count,
     int cell_size)
 {
-    // 七列端口面板第二行需达到的最低结构支持，避免用弱第二行判断首行为空。
-    constexpr double kSecondRowMinimumSupport = 0.20;
-    // 首行结构支持低于第二行该比例时移除首行；调高更容易删除弱首行。
-    constexpr double kFirstToSecondSupportRatio = 0.50;
     // 四列端口面板末行被视为空行的最大结构支持；调高更容易删除末行。
     constexpr double kLastRowMaximumSupport = 0.08;
     // cell 内用于比较上下纹理的分割高度比例，45/64 对应 64px cell 的 45px 分界。
@@ -876,8 +1244,7 @@ std::vector<int> DropPortRows(
         }
         return total / x_starts.size();
     };
-    if (column_count == 7 && row_support(y_starts[1]) >= kSecondRowMinimumSupport
-        && row_support(y_starts[0]) < row_support(y_starts[1]) * kFirstToSecondSupportRatio) {
+    if (ShouldDropPortFirstRow(column_count, row_support(y_starts[0]), row_support(y_starts[1]), y_starts[0], cell_size)) {
         y_starts.erase(y_starts.begin());
     }
     if (column_count != 4 || y_starts.size() < 2) {
@@ -939,7 +1306,8 @@ GridLayout BuildTransferLayout(const cv::Mat& image, const cv::Rect& roi, const 
         { static_cast<double>(profile.pitch_min), static_cast<double>(profile.pitch_max) },
         profile.observed_pitch_tolerance,
         static_cast<int>(refined_x.size()),
-        !transfer);
+        !transfer,
+        false);
     std::vector<int> local_x = x_fit.starts;
     std::vector<int> local_y;
     const auto rarity_fit = FitRarityGrid(image(roi), local_x, hint.y_starts, profile);
@@ -1040,7 +1408,8 @@ GridLayout BuildTransferLayout(const cv::Mat& image, const cv::Rect& roi, const 
             local_y.push_back(following);
         }
     }
-    if (!transfer && !rarity_fit && !trusted_selected) {
+    // 右侧七列始终检查分类工具栏遮挡；左侧四列的末行空行启发式只用于缺少 rarity 证据的旧结构路径。
+    if (!transfer && (column_count == 7 || (!rarity_fit && !trusted_selected))) {
         local_y = DropPortRows(image, roi, local_x, local_y, column_count, profile.cell_size);
     }
 
@@ -1080,8 +1449,9 @@ GridLayout BuildTransferLayout(const cv::Mat& image, const cv::Rect& roi, const 
     }
     layout.pitch_x = final_x_axis->pitch;
     layout.pitch_y = final_y_axis->pitch;
-    layout.columns = static_cast<int>(local_x.size());
-    layout.rows = static_cast<int>(local_y.size());
+    const cv::Size visible_shape = VisibleGridShape(layout.cells);
+    layout.columns = visible_shape.width;
+    layout.rows = visible_shape.height;
     int x1 = std::numeric_limits<int>::max();
     int y1 = std::numeric_limits<int>::max();
     int x2 = std::numeric_limits<int>::min();
@@ -1128,16 +1498,281 @@ void Append(GridDetection& result, GridLayout layout)
 
 } // namespace
 
-GridDetection DetectGrid(const cv::Mat& image, GridType type, const cv::Rect& roi)
+bool HasFormalCardExtent(const cv::Rect& cell, const cv::Rect& roi, GridType type, double source_grid_scale)
+{
+    const bool is_scaled_valuables = type == GridType::Valuables && source_grid_scale >= kScaledValuablesProfileMinimumScale;
+    const double minimum_bottom_visibility =
+        is_scaled_valuables ? kScaledValuablesMinimumBottomVisibility : kDefaultMinimumBottomVisibility;
+    return IsFormal(cell, roi, kDefaultMinimumTopVisibility, minimum_bottom_visibility);
+}
+
+bool ShouldDropPortFirstRow(int column_count, double first_row_support, double second_row_support, int first_row_y, int cell_size)
+{
+    // 七列端口面板第二行需达到的最低结构支持，避免用弱第二行判断首行为空。
+    constexpr double kSecondRowMinimumSupport = 0.20;
+    // 首行结构支持低于第二行该比例时移除首行；调高更容易删除弱首行。
+    constexpr double kFirstToSecondSupportRatio = 0.50;
+    // 分类工具栏约占右面板顶部一个 cell；首行已完全越过该带时，即使结构较弱也应视为正常物品行。
+    const bool overlaps_toolbar = cell_size > 0 && first_row_y < cell_size;
+    return column_count == 7 && overlaps_toolbar && second_row_support >= kSecondRowMinimumSupport
+           && first_row_support < second_row_support * kFirstToSecondSupportRatio;
+}
+
+std::vector<int> CompleteRewardsRowStarts(const std::vector<int>& observed_starts, double pitch)
+{
+    if (observed_starts.size() < 3 || pitch <= 0.0) {
+        return observed_starts;
+    }
+    std::vector<int> completed;
+    completed.push_back(observed_starts.front());
+    for (std::size_t index = 1; index < observed_starts.size(); ++index) {
+        const int left = observed_starts[index - 1];
+        const int right = observed_starts[index];
+        const int steps = std::max(1, cvRound((right - left) / pitch));
+        for (int step = 1; step < steps; ++step) {
+            completed.push_back(cvRound(left + step * pitch));
+        }
+        completed.push_back(right);
+    }
+    return completed;
+}
+
+std::optional<double> EstimateGridScale(const cv::Mat& image, GridType type, const cv::Rect& roi)
 {
     if (image.empty()) {
-        throw std::invalid_argument("cannot detect grid in empty image");
+        return std::nullopt;
     }
     const cv::Rect bounds(0, 0, image.cols, image.rows);
     if ((roi & bounds) != roi || roi.width <= 0 || roi.height <= 0) {
-        throw std::invalid_argument("grid ROI is outside image");
+        return std::nullopt;
     }
-    GridDetection result { type, roi, {}, {} };
+    if (type == GridType::Rewards) {
+        // 奖励界面的背景结构没有网格周期语义，只能根据白色卡片选择已标定的控制器 profile。
+        return EstimateRewardsScaleFromCards(image, roi);
+    }
+    return EstimateScaleFromStructure(image, type, roi);
+}
+
+namespace
+{
+
+cv::Rect ScaleRectForGridAnalysis(const cv::Rect& rect, double scale, const cv::Size& bounds)
+{
+    const int x1 = std::clamp(cvFloor(rect.x * scale), 0, bounds.width - 1);
+    const int y1 = std::clamp(cvFloor(rect.y * scale), 0, bounds.height - 1);
+    const int x2 = std::clamp(cvCeil((rect.x + rect.width) * scale), x1 + 1, bounds.width);
+    const int y2 = std::clamp(cvCeil((rect.y + rect.height) * scale), y1 + 1, bounds.height);
+    return cv::Rect(x1, y1, x2 - x1, y2 - y1);
+}
+
+cv::Rect ScaleRectToSource(const cv::Rect& rect, double scale, const cv::Size& bounds)
+{
+    if (rect.width <= 0 || rect.height <= 0) {
+        return {};
+    }
+    const int x1 = std::clamp(cvRound(rect.x * scale), 0, bounds.width - 1);
+    const int y1 = std::clamp(cvRound(rect.y * scale), 0, bounds.height - 1);
+    const int x2 = std::clamp(cvRound((rect.x + rect.width) * scale), x1 + 1, bounds.width);
+    const int y2 = std::clamp(cvRound((rect.y + rect.height) * scale), y1 + 1, bounds.height);
+    return cv::Rect(x1, y1, x2 - x1, y2 - y1);
+}
+
+void ScaleCellToSource(GridCell& cell, double scale, const cv::Size& bounds)
+{
+    cell.cell_box = ScaleRectToSource(cell.cell_box, scale, bounds);
+}
+
+void ScaleDetectionToSource(GridDetection& detection, double scale, const cv::Size& bounds)
+{
+    for (GridLayout& grid : detection.grids) {
+        grid.bounds = ScaleRectToSource(grid.bounds, scale, bounds);
+        grid.cell_size = cvRound(grid.cell_size * scale);
+        grid.pitch_x *= scale;
+        grid.pitch_y *= scale;
+        for (GridCell& cell : grid.cells) {
+            ScaleCellToSource(cell, scale, bounds);
+        }
+        if (grid.selection_diagnostics) {
+            auto& diagnostics = *grid.selection_diagnostics;
+            diagnostics.origin.x *= scale;
+            diagnostics.origin.y *= scale;
+            diagnostics.pitch.x *= scale;
+            diagnostics.pitch.y *= scale;
+            diagnostics.maximum_residual *= scale;
+            diagnostics.residual_trend *= scale;
+        }
+    }
+    for (GridCell& cell : detection.cells) {
+        ScaleCellToSource(cell, scale, bounds);
+    }
+}
+
+std::vector<int> UniqueCellStarts(const GridLayout& layout, bool x_axis)
+{
+    std::vector<int> starts;
+    starts.reserve(layout.cells.size());
+    for (const GridCell& cell : layout.cells) {
+        starts.push_back(x_axis ? cell.cell_box.x : cell.cell_box.y);
+    }
+    std::ranges::sort(starts);
+    starts.erase(std::unique(starts.begin(), starts.end()), starts.end());
+    return starts;
+}
+
+double AxisBoundaryScore(const std::vector<float>& boundary, const std::vector<int>& starts, int offset, int cell_size)
+{
+    const auto normalized = NormalizeSignal(boundary);
+    std::vector<double> pairs;
+    pairs.reserve(starts.size());
+    for (int start : starts) {
+        const int local = start - offset;
+        const int end = local + cell_size;
+        if (local < 0 || end >= static_cast<int>(normalized.size())) {
+            continue;
+        }
+        pairs.push_back(std::sqrt(std::max(SampleSignal(normalized, local), 0.0) * std::max(SampleSignal(normalized, end), 0.0)));
+    }
+    return pairs.empty() ? 0.0 : std::accumulate(pairs.begin(), pairs.end(), 0.0) / pairs.size();
+}
+
+struct SourceAxisRefinement
+{
+    std::vector<int> original;
+    std::vector<int> refined;
+    double pitch = 0.0;
+};
+
+std::optional<SourceAxisRefinement>
+    RefineSourceAxis(const GridLayout& layout, const std::vector<float>& boundary, int offset, bool x_axis, double scale)
+{
+    const std::vector<int> starts = UniqueCellStarts(layout, x_axis);
+    if (starts.size() < 2 || boundary.empty()) {
+        return std::nullopt;
+    }
+    const double current_pitch = x_axis ? layout.pitch_x : layout.pitch_y;
+    const double pitch_radius = std::max(1.0, kSourcePitchRefinementRadiusScale * scale);
+    const TransferAxisFit fit = FitTransferAxis(
+        starts,
+        boundary,
+        offset,
+        layout.cell_size,
+        { current_pitch - pitch_radius, current_pitch + pitch_radius },
+        std::max(1, cvRound(scale)),
+        static_cast<int>(starts.size()),
+        true,
+        true);
+    if (fit.starts.size() != starts.size()) {
+        return std::nullopt;
+    }
+    // 源图 pitch 细化最多移动 4px；该上限覆盖实测亚像素回映射误差，同时避免跳到相邻格。
+    constexpr int kMaximumSourceAxisShift = 4;
+    // 只有结构响应至少提升 0.01 才接受细化，避免量化噪声替换原网格。
+    constexpr double kMinimumSourceAxisScoreGain = 0.01;
+    for (std::size_t index = 0; index < starts.size(); ++index) {
+        if (std::abs(fit.starts[index] - starts[index]) > kMaximumSourceAxisShift) {
+            return std::nullopt;
+        }
+    }
+    const double current_score = AxisBoundaryScore(boundary, starts, offset, layout.cell_size);
+    const double refined_score = AxisBoundaryScore(boundary, fit.starts, offset, layout.cell_size);
+    if (refined_score < kMinimumStructuralPhaseResponse || refined_score < current_score + kMinimumSourceAxisScoreGain) {
+        return std::nullopt;
+    }
+    return SourceAxisRefinement { .original = starts, .refined = fit.starts, .pitch = fit.pitch };
+}
+
+void RefineScaledTransferDetection(const cv::Mat& image, const cv::Rect& roi, double scale, GridDetection& detection)
+{
+    for (GridLayout& layout : detection.grids) {
+        if (layout.cells.empty()) {
+            continue;
+        }
+        const std::vector<int> x_starts = UniqueCellStarts(layout, true);
+        const int panel_x1 = std::max(roi.x, x_starts.front());
+        const int panel_x2 = std::min(roi.x + roi.width, x_starts.back() + layout.cell_size);
+        if (panel_x2 <= panel_x1) {
+            continue;
+        }
+        const cv::Rect panel_region(panel_x1, roi.y, panel_x2 - panel_x1, roi.height);
+        const StructureMaps maps = BuildStructureMaps(image(panel_region), layout.cell_size);
+        const auto x_boundary = RobustProjection(maps.vertical, true);
+        const auto y_boundary = RobustProjection(maps.horizontal, false);
+        const auto refined_x = RefineSourceAxis(layout, x_boundary, panel_region.x, true, scale);
+        const auto refined_y = RefineSourceAxis(layout, y_boundary, panel_region.y, false, scale);
+
+        const auto apply_axis = [&](const SourceAxisRefinement& refinement, bool x_axis) {
+            for (GridCell& cell : layout.cells) {
+                const int current = x_axis ? cell.cell_box.x : cell.cell_box.y;
+                const auto found = std::ranges::lower_bound(refinement.original, current);
+                if (found == refinement.original.end() || *found != current) {
+                    continue;
+                }
+                const int value = refinement.refined[std::distance(refinement.original.begin(), found)];
+                if (x_axis) {
+                    cell.cell_box.x = value;
+                }
+                else {
+                    cell.cell_box.y = value;
+                }
+            }
+            if (x_axis) {
+                layout.pitch_x = refinement.pitch;
+            }
+            else {
+                layout.pitch_y = refinement.pitch;
+            }
+        };
+        if (refined_x) {
+            apply_axis(*refined_x, true);
+        }
+        if (refined_y) {
+            apply_axis(*refined_y, false);
+        }
+        if (!refined_x && !refined_y) {
+            continue;
+        }
+
+        int x1 = std::numeric_limits<int>::max();
+        int y1 = std::numeric_limits<int>::max();
+        int x2 = std::numeric_limits<int>::min();
+        int y2 = std::numeric_limits<int>::min();
+        for (const GridCell& cell : layout.cells) {
+            x1 = std::min(x1, cell.cell_box.x);
+            y1 = std::min(y1, cell.cell_box.y);
+            x2 = std::max(x2, cell.cell_box.x + layout.cell_size);
+            y2 = std::max(y2, cell.cell_box.y + layout.cell_size);
+        }
+        layout.bounds = cv::Rect(x1, y1, x2 - x1, y2 - y1);
+        if (layout.selection_diagnostics) {
+            auto& diagnostics = *layout.selection_diagnostics;
+            if (refined_x) {
+                diagnostics.origin.x += refined_x->refined.front() - refined_x->original.front();
+                diagnostics.pitch.x = refined_x->pitch;
+            }
+            if (refined_y) {
+                diagnostics.origin.y += refined_y->refined.front() - refined_y->original.front();
+                diagnostics.pitch.y = refined_y->pitch;
+            }
+        }
+    }
+    detection.cells.clear();
+    for (const GridLayout& layout : detection.grids) {
+        detection.cells.insert(detection.cells.end(), layout.cells.begin(), layout.cells.end());
+    }
+}
+
+GridDetection DetectGridNormalized(const cv::Mat& image, GridType type, const cv::Rect& roi, double source_grid_scale)
+{
+    GridDetection result {
+        .type = type,
+        .roi = roi,
+        .grid_scale = source_grid_scale,
+    };
+    if (type == GridType::Rewards) {
+        result = DetectRewardsGrid(image, roi);
+        result.grid_scale = source_grid_scale;
+        return result;
+    }
     if (type == GridType::CreditTrade) {
         Append(result, DetectCreditTrade(image, roi));
     }
@@ -1150,10 +1785,45 @@ GridDetection DetectGrid(const cv::Mat& image, GridType type, const cv::Rect& ro
     else {
         GridLayout layout = DetectSingleLattice(image, type, roi);
         if (type == GridType::Trade || type == GridType::Valuables || type == GridType::Shipment) {
-            RefineCardVerticalPhase(image, roi, type, layout);
+            RefineCardVerticalPhase(image, roi, type, source_grid_scale, layout);
         }
         Append(result, std::move(layout));
     }
+    return result;
+}
+
+} // namespace
+
+GridDetection DetectGrid(const cv::Mat& image, GridType type, const cv::Rect& roi)
+{
+    if (image.empty()) {
+        throw std::invalid_argument("cannot detect grid in empty image");
+    }
+    const cv::Rect bounds(0, 0, image.cols, image.rows);
+    if ((roi & bounds) != roi || roi.width <= 0 || roi.height <= 0) {
+        throw std::invalid_argument("grid ROI is outside image");
+    }
+
+    const auto estimated_scale = EstimateGridScale(image, type, roi);
+    if (!estimated_scale) {
+        throw std::invalid_argument("unable to select a supported IconRecognition controller profile from ROI");
+    }
+    const double resolved_scale = *estimated_scale;
+    if (resolved_scale == kWin32ControllerGridScale) {
+        return DetectGridNormalized(image, type, roi, resolved_scale);
+    }
+
+    const cv::Size analysis_size(std::max(1, cvRound(image.cols / resolved_scale)), std::max(1, cvRound(image.rows / resolved_scale)));
+    cv::Mat analysis_image;
+    cv::resize(image, analysis_image, analysis_size, 0.0, 0.0, cv::INTER_AREA);
+    const cv::Rect analysis_roi = ScaleRectForGridAnalysis(roi, 1.0 / resolved_scale, analysis_size);
+    GridDetection result = DetectGridNormalized(analysis_image, type, analysis_roi, resolved_scale);
+    ScaleDetectionToSource(result, resolved_scale, image.size());
+    if (type == GridType::Transfer || type == GridType::PortStorager) {
+        RefineScaledTransferDetection(image, roi, resolved_scale, result);
+    }
+    result.roi = roi;
+    result.grid_scale = resolved_scale;
     return result;
 }
 

@@ -336,6 +336,52 @@ std::vector<uint8_t> Flood(int64_t seed, const SpanTable& st, int64_t nx)
     return vis;
 }
 
+std::vector<int32_t> LabelRegions(const SpanTable& st, int64_t nx)
+{
+    const int64_t n = static_cast<int64_t>(st.sp_h.size());
+    std::vector<int32_t> parent(static_cast<size_t>(n));
+    std::iota(parent.begin(), parent.end(), 0);
+    const auto find = [&](int32_t a) {
+        while (parent[static_cast<size_t>(a)] != a) {
+            parent[static_cast<size_t>(a)] = parent[static_cast<size_t>(parent[static_cast<size_t>(a)])];
+            a = parent[static_cast<size_t>(a)];
+        }
+        return a;
+    };
+    // Flood 的邻接是对称的,所以只朝 +x/+y 合并一遍就够
+    const int64_t dirs[2][2] = { { 1, 0 }, { 0, 1 } };
+    for (int64_t ci = 0; ci < static_cast<int64_t>(st.occ.size()); ++ci) {
+        const int64_t cid = st.occ[static_cast<size_t>(ci)];
+        const int64_t gx = cid % nx;
+        for (const auto& d : dirs) {
+            if (d[0] != 0 && gx + d[0] >= nx) {
+                continue;
+            }
+            const int64_t j = occFind(st.occ, cid + d[1] * nx + d[0]);
+            if (j < 0) {
+                continue;
+            }
+            for (int64_t r = 0; r < st.ccnt[static_cast<size_t>(ci)]; ++r) {
+                const int64_t u = st.cstart[static_cast<size_t>(ci)] + r;
+                for (int64_t slot = 0; slot < st.K; ++slot) {
+                    if (!(std::fabs(st.HK[j * st.K + slot] - st.sp_h[static_cast<size_t>(u)]) <= 3.0f)) {
+                        continue;
+                    }
+                    const int32_t a = find(static_cast<int32_t>(u));
+                    const int32_t b = find(static_cast<int32_t>(st.IK[j * st.K + slot]));
+                    if (a != b) {
+                        parent[static_cast<size_t>(a)] = b;
+                    }
+                }
+            }
+        }
+    }
+    for (int64_t i = 0; i < n; ++i) {
+        parent[static_cast<size_t>(i)] = find(static_cast<int32_t>(i));
+    }
+    return parent;
+}
+
 std::vector<uint8_t> SpanReach(int64_t seed, const SpanTable& st, const std::vector<uint8_t>& ok, int64_t nx, int64_t ny)
 {
     std::vector<uint8_t> vis(st.sp_h.size(), 0);
@@ -494,58 +540,6 @@ std::vector<uint8_t> WallsAtLayer(
         }
     }
     return keep;
-}
-
-WallSegments ClipWallsAtLayerInterpolated(
-    const std::vector<WorldPoint>& p0,
-    const std::vector<WorldPoint>& p1,
-    const std::vector<double>& h0,
-    const std::vector<double>& h1,
-    const Grid<float>& lh,
-    double ox,
-    double oy)
-{
-    WallSegments out;
-    const auto lerp = [](const WorldPoint& a, const WorldPoint& b, double t) {
-        return WorldPoint { a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t };
-    };
-    for (size_t i = 0; i < p0.size(); ++i) {
-        const double length = std::hypot(p1[i].x - p0[i].x, p1[i].y - p0[i].y);
-        const int64_t steps = sampleSteps(length, 0.4);
-        bool open = false;
-        double open_t = 0.0;
-        // 同一条三角边可能沿途穿过上下叠层。按局部层高切段，不能因其中一点
-        // 命中上层就把整条边投影到下层。
-        for (int64_t k = 0; k < steps - 1; ++k) {
-            const double t0 = static_cast<double>(k) / static_cast<double>(steps - 1);
-            const double t1 = static_cast<double>(k + 1) / static_cast<double>(steps - 1);
-            const double t = (t0 + t1) / 2.0;
-            const double sx = p0[i].x + (p1[i].x - p0[i].x) * t;
-            const double sy = p0[i].y + (p1[i].y - p0[i].y) * t;
-            const int64_t gx = static_cast<int64_t>(std::floor((sx - ox) / kCS));
-            const int64_t gy = static_cast<int64_t>(std::floor((sy - oy) / kCS));
-            bool keep = false;
-            if (gx >= 0 && gx < lh.nx && gy >= 0 && gy < lh.ny) {
-                const float layer_height = lh.at(gy, gx);
-                const double edge_height = h0[i] + (h1[i] - h0[i]) * t;
-                keep = !std::isnan(layer_height) && std::abs(static_cast<double>(layer_height) - edge_height) <= kQH;
-            }
-            if (keep && !open) {
-                open = true;
-                open_t = t0;
-            }
-            if (!keep && open) {
-                out.p0.push_back(lerp(p0[i], p1[i], open_t));
-                out.p1.push_back(lerp(p0[i], p1[i], t0));
-                open = false;
-            }
-        }
-        if (open) {
-            out.p0.push_back(lerp(p0[i], p1[i], open_t));
-            out.p1.push_back(p1[i]);
-        }
-    }
-    return out;
 }
 
 WallCsr BuildWallIndex(const std::vector<WorldPoint>& p0, const std::vector<WorldPoint>& p1, double ox, double oy, int64_t nx, int64_t ny)

@@ -114,35 +114,51 @@ Pipeline, Go Service, and the C++ API use the same recognition semantics. Only t
 
 The native ROI uses 1280x720 `[x,y,width,height]` coordinates. Width and height must be positive, and the rectangle must be fully inside the image. `single_roi` additionally requires equal width and height.
 
-### `custom_recognition_param`
+### Supported controllers
+
+`IconRecognition` supports these two 1280x720 controller captures:
+
+| Controller | Capture requirement | Grid profile |
+| --- | --- | --- |
+| Win32 | 1280x720 | Standard 720p UI |
+| ADB | 1280x720 at 240 dpi | Enlarged ADB UI |
+
+Regular grids select the matching profile automatically from repeated structures inside the request ROI. `rewards` selects from the white reward-card size. Insufficient evidence or similar profile scores returns `exception`; callers cannot specify a scale. The detector temporarily normalizes the image in memory for grid localization and maps cell coordinates back before returning. Item templates are still generated at the final source-cell size and matched on the original image, so `cell_box` and `item_box` always use source-image coordinates. `single_roi` does not run grid detection and never resizes the input image.
+
+The component does not infer, move, or expand the request ROI from the selected controller profile. The caller remains responsible for a native ROI that is fully inside the image and completely covers every target cell. Profile selection reads only pixels inside that ROI. A rewards ROI may cover the whole reward group or one complete reward card.
+
+### custom_recognition_param
 
 | Field | Type | Required | Default | Description |
 | -------------------- | ------------------- | ---------------------------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
 | `grid_type` | string / `GridType` | Yes for Custom; set it explicitly in C++ | None for Custom | Selects the grid locator for the current screen. See the table below. The C++ member initializer is only a construction placeholder |
 | `item_ids` | string[] | No | `[]` | Keeps only the listed items. Multiple IDs form a union; duplicates are rejected |
 | `item_filters` | string[] | No | Depends on `grid_type` | Selects candidates by `storageKind:categoryType`. Multiple filters form a union; `*` selects every category under that `storageKind` |
-| `threshold` | number | No | `0.85` | Minimum final score required to report an item as a match. Lower values increase false-positive risk |
+| `threshold` | number | No | `0.85` | Minimum final match score, enforced uniformly for every grid type |
 | `subpixel_threshold` | number | No | `0.60` | Tries finer position offsets when the base score reaches this value but remains below `threshold` |
 | `deduplicate` | boolean | No | `false` | Keeps only the highest-scoring cell for each `item_id` |
 | `debug` | boolean | No | `false` | Grid and cell diagnostics are collected when recognition reaches the result-assembly stage; early `invalid_image` or `exception` returns may lack them. `debug` controls performance timing and Custom debug-file writing |
 
-Thresholds must satisfy `0 <= subpixel_threshold < threshold <= 1`. When a base score is below `subpixel_threshold`, the component considers that candidate clearly unreliable, skips the finer position search, and does not add it to `matches`. Scores between the two thresholds are refined. A result is returned only when its final score reaches `threshold` and it is not rejected by the low-texture check. Shipment quantity bars and valuable-depot portrait regions are excluded from the template-matching mask; they do not directly produce a rejection state. Check the ROI, frame stability, and candidate filters before lowering thresholds.
+Thresholds must satisfy `0 <= subpixel_threshold < threshold <= 1`. When a base score is below `subpixel_threshold`, the component considers that candidate clearly unreliable, skips the finer position search, and does not add it to `matches`. Scores between the two thresholds are refined. A result is returned only when its final score reaches `threshold` and it passes the low-texture check. Shipment quantity bars and valuable-depot portrait regions are excluded from the template-matching mask, but they do not bypass the uniform threshold. Check the ROI, frame stability, and candidate filters before lowering thresholds.
 
 When both `item_ids` and `item_filters` are supplied, their intersection is used. Unknown or duplicate IDs, malformed filters, an empty filtered set, or an ID excluded by the filters returns `exception`.
 
-### `grid_type`, default candidates, and reference ROIs
+### grid_type, default candidates, and reference ROIs
 
-| `grid_type` | C++ `GridType` | Screen | Default `item_filters` | Reference ROI |
-| --------------- | ------------------------ | ------------------------ | ---------------------------------------- | ----------------------------------------------------------------------------- |
-| `trade` | `GridType::Trade` | Settlement trade | `Normal:Product`, `Normal:Usable` | `[170,165,935,385]` |
-| `transfer` | `GridType::Transfer` | Inventory and storage | `Normal:*` | Full `[154,202,983,291]`; left `[154,202,585,291]`; right `[739,202,398,291]` |
-| `port_storager` | `GridType::PortStorager` | Portable storage | `Normal:*` | Full `[190,250,880,350]`; left `[190,250,318,350]`; right `[570,250,500,350]` |
-| `valuables` | `GridType::Valuables` | Valuable depot | `ValuableDepot:*` | `[24,76,950,570]` |
-| `shipment` | `GridType::Shipment` | Shipment screen | `Normal:*` | `[34,132,386,474]` |
-| `credit_trade` | `GridType::CreditTrade` | Credit trade | `ValuableDepot:SpecialItem`, `Isolate:*` | `[70,95,1140,415]` |
-| `single_roi` | `GridType::SingleRoi` | One caller-selected cell | `Normal:*` | Any square inside the image; example `[1177,450,54,54]` |
+| `grid_type` | C++ `GridType` | Screen | Default `item_filters` | Win32 reference ROI | ADB reference ROI |
+| --------------- | ------------------------ | ------------------------ | ---------------------------------------- | ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| `trade` | `GridType::Trade` | Settlement trade | `Normal:Product`, `Normal:Usable` | `[170,165,935,385]` | `[32,46,1216,549]` |
+| `transfer` | `GridType::Transfer` | Inventory and storage | `Normal:*` | Full `[154,202,983,291]`; left `[154,202,585,291]`; right `[739,202,398,291]` | Full `[30,160,1220,370]`; left `[30,160,710,370]`; right `[780,160,470,370]` |
+| `port_storager` | `GridType::PortStorager` | Portable storage | `Normal:*` | Full `[190,250,880,350]`; left `[190,250,318,350]`; right `[570,250,500,350]` | Full `[78,228,1150,410]`; left `[78,228,368,410]`; right `[562,326,620,293]` |
+| `valuables` | `GridType::Valuables` | Valuable depot | `ValuableDepot:*` | `[24,76,950,570]` | `[100,85,790,540]` |
+| `shipment` | `GridType::Shipment` | Shipment screen | `Normal:*` | `[34,132,386,474]` | `[43,169,480,408]` |
+| `credit_trade` | `GridType::CreditTrade` | Credit trade | `ValuableDepot:SpecialItem`, `Isolate:*` | `[70,95,1140,415]` | `[10,120,1250,510]` |
+| `rewards` | `GridType::Rewards` | Rewards screen | `Isolate:*`, `ValuableDepot:*` | `[39,82,1205,511]` | `[178,140,935,440]` |
+| `single_roi` | `GridType::SingleRoi` | One caller-selected cell | `Normal:*` | Any square inside the image; example `[1177,450,54,54]` | Any square inside the image; example `[1151,393,66,66]` |
 
 Reference ROIs are absolute 1280x720 screen coordinates, not coordinates relative to another ROI. Each value applies only to the listed screen, and the caller must keep every target cell fully covered. One-sided storage ROIs still use absolute screen coordinates.
+
+`rewards` locates white reward cards and determines the horizontal origin of each row independently, so rows do not need aligned columns. Public results still treat them as one multi-row grid: `row` increases from top to bottom, while `column` restarts at zero in each row. Multiple game features reuse this screen type and may show different item categories. When `item_filters` is omitted or empty, the default candidate set is `Isolate:*`, `ValuableDepot:*`; a non-empty `item_filters` replaces that default set completely.
 
 ### Item IDs
 
@@ -172,7 +188,7 @@ Valid `storageKind` values:
 | --------------- | -------------------- |
 | `Normal` | Normal items |
 | `ValuableDepot` | Valuable depot items |
-| `Isolate` | Currencies |
+| `Isolate` | Standalone resources |
 
 Valid `categoryType` values by storage kind:
 
@@ -239,6 +255,9 @@ All three cases return `MAA_FALSE`, but they do not mean the same thing. `invali
 `no_match` preserves the parsed `grid_type` and `roi`. An `exception` raised during parsing may not contain every request field.
 
 ## Reference screens
+
+> [!NOTE]
+> The screenshots and highlighted ROIs below come from the Win32 controller and do not apply to ADB. Use the ADB reference ROIs from the table above.
 
 <details>
 <summary>Settlement trade</summary>

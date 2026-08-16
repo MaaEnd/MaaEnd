@@ -8,6 +8,7 @@ from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
 
+from fixed_items import FIXED_NAME_KEYS
 from text import clean_text
 
 
@@ -18,13 +19,6 @@ LOCALE_MAP = {
     "ja_jp": ("JP", "ja-JP"),
     "ko_kr": ("KR", "ko-KR"),
 }
-
-FIXED_NAME_KEYS = {
-    "item_gold": "1b858553aff0ccfee876ed0367300534",
-    "item_diamond": "aa5edf17dd5cbb87661ec9f3d86d353e",
-    "item_gachabyproducts_weapongold": "011c0bffc4a5c215eb651edaf3e5b929",
-}
-
 
 def _name(
     payload: Mapping[str, Any],

@@ -45,7 +45,35 @@ void TestHelpModes()
     Check(usage.find("--image") != std::string::npos, "usage must document image selection");
     Check(usage.find("--jobs <N|auto>") != std::string::npos, "usage must document worker selection");
     Check(usage.find("--debug") != std::string::npos, "usage must document debug performance diagnostics");
+    Check(usage.find("--dataset win32|adb") != std::string::npos, "usage must document dataset selection");
+    Check(usage.find("--rois <path>") != std::string::npos, "usage must document ROI selection");
     Check(usage.find("full|left|right|split|all") != std::string::npos, "usage must document dual-grid modes");
+}
+
+void TestDatasetSelection()
+{
+    const auto win32 = iconrecognition::test::ParseManualRunnerOptions({ "--all", "--dataset", "win32" });
+    Check(win32.dataset == iconrecognition::test::TestDataset::Win32, "win32 dataset must be preserved");
+    const auto adb = iconrecognition::test::ParseManualRunnerOptions({ "--all", "--dataset", "adb" });
+    Check(adb.dataset == iconrecognition::test::TestDataset::Adb, "adb dataset must be preserved");
+    const std::filesystem::path win32_rois = "win32/rois.json";
+    const std::filesystem::path adb_rois = "adb/rois.json";
+    Check(
+        iconrecognition::test::ResolveManualRunnerRoisPath(win32, win32_rois, adb_rois) == win32_rois,
+        "win32 dataset must use the bundled Win32 ROI file");
+    Check(
+        iconrecognition::test::ResolveManualRunnerRoisPath(adb, win32_rois, adb_rois) == adb_rois,
+        "adb dataset must use the bundled ADB ROI file");
+    const auto unspecified = iconrecognition::test::ParseManualRunnerOptions({ "--all" });
+    Check(
+        iconrecognition::test::ResolveManualRunnerRoisPath(unspecified, win32_rois, adb_rois) == win32_rois,
+        "unspecified dataset must preserve the Win32 default");
+    const auto custom = iconrecognition::test::ParseManualRunnerOptions({ "--all", "--dataset", "adb", "--rois", "custom.json" });
+    Check(
+        iconrecognition::test::ResolveManualRunnerRoisPath(custom, win32_rois, adb_rois) == std::filesystem::path("custom.json"),
+        "an explicit ROI path must override the dataset default");
+    CheckRejected({ "--all", "--dataset", "other" }, "unknown dataset");
+    CheckRejected({ "--all", "--dataset", "adb", "--dataset", "win32" }, "duplicate dataset");
 }
 
 void TestSelectors()
@@ -55,6 +83,9 @@ void TestSelectors()
 
     const auto type = iconrecognition::test::ParseManualRunnerOptions({ "--grid-type", "transfer" });
     Check(type.grid_type == iconrecognition::GridType::Transfer, "--grid-type must parse public grid type names");
+
+    const auto rewards = iconrecognition::test::ParseManualRunnerOptions({ "--grid-type", "rewards" });
+    Check(rewards.grid_type == iconrecognition::GridType::Rewards, "--grid-type must parse the rewards grid type");
 
     const auto image = iconrecognition::test::ParseManualRunnerOptions({ "--image", "43.png" });
     Check(image.image_name == "43.png", "--image must preserve the exact basename");
@@ -179,18 +210,26 @@ void TestCaseDiscovery()
         "full": [190, 250, 880, 350],
         "left": [190, 250, 318, 350],
         "right": [570, 250, 500, 350]
-    }
+    },
+    "rewards": { "full": [39, 82, 1205, 511] }
 })");
     WriteTextFile(input_root / "trade" / "11.png", {});
     WriteTextFile(input_root / "transfer" / "43.png", {});
     WriteTextFile(input_root / "port_storager" / "43.png", {});
+    WriteTextFile(input_root / "rewards" / "130.png", {});
+    WriteTextFile(input_root / "rewards" / "130.json", R"({ "item_filters": ["ValuableDepot:SpecialItem", "Isolate:*"] })");
     WriteTextFile(input_root / "single_roi" / "1177-450-54" / "90.png", {});
 
     const auto all = iconrecognition::test::DiscoverManualRunnerCases(
         input_root,
         rois_path,
         iconrecognition::test::ParseManualRunnerOptions({ "--all" }));
-    Check(all.size() == 4, "--all must use one default ROI for every classified input image");
+    Check(all.size() == 5, "--all must use one default ROI for every classified input image");
+    const auto rewards = std::ranges::find_if(all, [](const auto& item) { return item.grid_type == iconrecognition::GridType::Rewards; });
+    Check(rewards != all.end(), "--all must discover rewards images");
+    Check(
+        rewards->candidates.item_filters == std::vector<std::string>({ "ValuableDepot:SpecialItem", "Isolate:*" }),
+        "rewards image sidecar must preserve its item_filters order");
 
     const auto split = iconrecognition::test::DiscoverManualRunnerCases(
         input_root,
@@ -248,6 +287,7 @@ int main()
         TestDualGridModes();
         TestJobSelection();
         TestDebugMode();
+        TestDatasetSelection();
         TestExpectedResultsPath();
         TestParallelExecutorKeepsIndexedResultsAndErrors();
         TestInvalidArguments();

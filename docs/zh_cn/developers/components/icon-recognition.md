@@ -114,35 +114,51 @@ Pipeline、Go Service 和 C++ API 使用同一套识别语义，只是字段承�
 
 原生 ROI 采用 1280x720 基准下的 `[x,y,width,height]` 语义，宽高必须为正且区域必须完全位于图片内。`single_roi` 还要求宽高相等。
 
-### `custom_recognition_param`
+### 支持的控制器
+
+`IconRecognition` 支持以下两种 1280x720 控制器画面：
+
+| 控制器 | 画面要求 | 网格 profile |
+| --- | --- | --- |
+| Win32 | 1280x720 | 标准 720p UI |
+| ADB | 1280x720、240 dpi | ADB 放大 UI |
+
+普通网格会根据请求 ROI 内的重复结构自动选择对应 profile，`rewards` 则根据 ROI 内白色奖励卡片的尺寸选择。证据不足或两个 profile 分数接近时返回 `exception`，调用方不能指定比例。检测器只在内存中临时归一化画面以定位网格，返回前会把格子坐标映射回原图；物品模板仍按原图格子尺寸生成并在原图上匹配，因此 `cell_box`、`item_box` 始终是原图坐标。`single_roi` 不执行网格检测，也不会缩放输入图。
+
+组件不会根据 controller profile 猜测、移动或扩大请求 ROI。调用方始终负责传入完全位于图片内、且完整覆盖目标格子的原生 ROI；profile 判断只读取该 ROI 内的像素。奖励界面可以传整组奖励区域，也可以只传一个完整奖励卡片的 ROI。
+
+### custom_recognition_param
 
 | 字段 | 类型 | 必选 | 默认值 | 说明 |
 | -------------------- | ------------------- | ------------------------- | ------------------- | ------------------------------------------------------------------------------------------- |
 | `grid_type` | string / `GridType` | Custom 是；C++ 应显式设置 | Custom 无 | 选择当前界面的网格定位策略，合法值见下表；C++ 结构体中的初始值只用于构造占位 |
 | `item_ids` | string[] | 否 | `[]` | 只保留指定物品；多个 ID 取并集，不允许重复 |
 | `item_filters` | string[] | 否 | 由 `grid_type` 决定 | 按 `storageKind:categoryType` 选择候选；多个条件取并集，`*` 匹配该 `storageKind` 下全部分类 |
-| `threshold` | number | 否 | `0.85` | 物品被判定为命中并返回所需的最低最终分数；降低会增加误识别风险 |
+| `threshold` | number | 否 | `0.85` | 物品命中的最低最终分数，所有网格类型统一按该值判断 |
 | `subpixel_threshold` | number | 否 | `0.60` | 基础分达到该值但低于 `threshold` 时，在图标附近尝试更细的位置偏移 |
 | `deduplicate` | boolean | 否 | `false` | 同一个 `item_id` 命中多个格子时，只保留分数最高的一项 |
 | `debug` | boolean | 否 | `false` | 正常执行到结果汇总阶段时会收集网格和格子诊断；提前返回的 `invalid_image` 或 `exception` 可能不包含诊断。debug 控制性能计时和 Custom debug 文件写入 |
 
-阈值必须满足 `0 <= subpixel_threshold < threshold <= 1`。基础分低于 `subpixel_threshold` 时，组件认为当前候选明显不可靠，不再尝试更细的位置偏移，也不会把它放入 `matches`。基础分位于两个阈值之间时，组件会继续细化位置；只有最终分达到 `threshold`，并且没有被低纹理检查拒绝，结果才会返回。送货界面的数量条和贵重品库的头像区域会从模板匹配遮罩中排除，它们不会直接产生拒绝状态。调整阈值前应先检查 ROI、画面稳定性和候选分类。
+阈值必须满足 `0 <= subpixel_threshold < threshold <= 1`。基础分低于 `subpixel_threshold` 时，组件认为当前候选明显不可靠，不再尝试更细的位置偏移，也不会把它放入 `matches`。基础分位于两个阈值之间时，组件会继续细化位置；只有最终分达到 `threshold`，并且没有被低纹理检查拒绝，结果才会返回。送货界面的数量条和贵重品库的头像区域会从模板匹配遮罩中排除，但不会绕过统一阈值。调整阈值前应先检查 ROI、画面稳定性和候选分类。
 
 `item_ids` 与 `item_filters` 同时提供时取交集。ID 不存在、ID 重复、过滤器格式错误、过滤结果为空，或指定 ID 被过滤器排除，都会返回 `exception`。
 
-### `grid_type`、默认候选和参考 ROI
+### grid_type、默认候选和参考 ROI
 
-| `grid_type` | C++ `GridType` | 界面 | 默认 `item_filters` | 参考 ROI |
-| --------------- | ------------------------ | ---------------- | ---------------------------------------- | ---------------------------------------------------------------------------- |
-| `trade` | `GridType::Trade` | 据点交易 | `Normal:Product`、`Normal:Usable` | `[170,165,935,385]` |
-| `transfer` | `GridType::Transfer` | 背包和仓库 | `Normal:*` | 完整 `[154,202,983,291]`；左侧 `[154,202,585,291]`；右侧 `[739,202,398,291]` |
-| `port_storager` | `GridType::PortStorager` | 便捷存取站 | `Normal:*` | 完整 `[190,250,880,350]`；左侧 `[190,250,318,350]`；右侧 `[570,250,500,350]` |
-| `valuables` | `GridType::Valuables` | 贵重品库 | `ValuableDepot:*` | `[24,76,950,570]` |
-| `shipment` | `GridType::Shipment` | 送货界面 | `Normal:*` | `[34,132,386,474]` |
-| `credit_trade` | `GridType::CreditTrade` | 信用交易所 | `ValuableDepot:SpecialItem`、`Isolate:*` | `[70,95,1140,415]` |
-| `single_roi` | `GridType::SingleRoi` | 调用方指定的单格 | `Normal:*` | 任意位于图片内的正方形；示例 `[1177,450,54,54]` |
+| `grid_type` | C++ `GridType` | 界面 | 默认 `item_filters` | Win32 参考 ROI | ADB 参考 ROI |
+| --------------- | ------------------------ | ---------------- | ---------------------------------------- | ---------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| `trade` | `GridType::Trade` | 据点交易 | `Normal:Product`、`Normal:Usable` | `[170,165,935,385]` | `[32,46,1216,549]` |
+| `transfer` | `GridType::Transfer` | 背包和仓库 | `Normal:*` | 完整 `[154,202,983,291]`；左侧 `[154,202,585,291]`；右侧 `[739,202,398,291]` | 完整 `[30,160,1220,370]`；左侧 `[30,160,710,370]`；右侧 `[780,160,470,370]` |
+| `port_storager` | `GridType::PortStorager` | 便捷存取站 | `Normal:*` | 完整 `[190,250,880,350]`；左侧 `[190,250,318,350]`；右侧 `[570,250,500,350]` | 完整 `[78,228,1150,410]`；左侧 `[78,228,368,410]`；右侧 `[562,326,620,293]` |
+| `valuables` | `GridType::Valuables` | 贵重品库 | `ValuableDepot:*` | `[24,76,950,570]` | `[100,85,790,540]` |
+| `shipment` | `GridType::Shipment` | 送货界面 | `Normal:*` | `[34,132,386,474]` | `[43,169,480,408]` |
+| `credit_trade` | `GridType::CreditTrade` | 信用交易所 | `ValuableDepot:SpecialItem`、`Isolate:*` | `[70,95,1140,415]` | `[10,120,1250,510]` |
+| `rewards` | `GridType::Rewards` | 奖励界面 | `Isolate:*`、`ValuableDepot:*` | `[39,82,1205,511]` | `[178,140,935,440]` |
+| `single_roi` | `GridType::SingleRoi` | 调用方指定的单格 | `Normal:*` | 任意位于图片内的正方形；示例 `[1177,450,54,54]` | 任意位于图片内的正方形；示例 `[1151,393,66,66]` |
 
 参考 ROI 均为 1280x720 绝对坐标，不是相对于其它 ROI 的局部坐标。它们只适用于表中的对应界面；调用方应确保 ROI 完整覆盖要识别的格子。仓库类界面传入单侧 ROI 时，仍然使用画面绝对坐标。
+
+`rewards` 按白色奖励卡片定位，每一行独立确定横向起点，不要求多行列对齐。公开结果仍将这些行视为同一个多行网格：`row` 按画面从上到下递增，每行的 `column` 独立从 0 开始。多个游戏功能共用这种界面，不同功能展示的物品分类可能不同；未传入 `item_filters` 或传入空数组时使用默认候选集 `Isolate:*`、`ValuableDepot:*`，传入非空 `item_filters` 时会完整替换默认候选集。
 
 ### 物品 ID
 
@@ -172,7 +188,7 @@ Pipeline、Go Service 和 C++ API 使用同一套识别语义，只是字段承�
 | --------------- | -------- |
 | `Normal` | 普通物品 |
 | `ValuableDepot` | 贵重品库 |
-| `Isolate` | 货币 |
+| `Isolate` | 独立资源 |
 
 各存储类别下的 `categoryType`：
 
@@ -239,6 +255,9 @@ Pipeline、Go Service 和 C++ API 使用同一套识别语义，只是字段承�
 `no_match` 会保留已解析的 `grid_type` 和 `roi`。解析期间发生的 `exception` 可能没有完整请求字段。
 
 ## 参考界面
+
+> [!NOTE]
+> 以下截图和图中 ROI 均来自 Win32 控制器，不适用于 ADB 控制器；ADB 请使用上表中的参考 ROI。
 
 <details>
 <summary>据点交易</summary>

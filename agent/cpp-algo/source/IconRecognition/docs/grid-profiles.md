@@ -23,6 +23,8 @@
 
 两种 profile 都只提供定位策略所需的先验，不是公开协议。调用方不能根据这些字段自行计算 ROI 或格子坐标。
 
+`GridDetector` 只在已标定的 Win32 标准 profile 与 ADB 240 dpi 放大 profile 中自动选择，调用方不能指定比例。ADB 画面会临时归一化到标准逻辑密度，再使用上述定位 profile。检测结果在返回前统一映射为原图坐标，临时归一化图不会进入图标匹配阶段。profile 判断只读取调用方 ROI，不推导或修改 ROI；证据不足时直接失败。公开参数与失败行为见[开发者使用指南](/docs/zh_cn/developers/components/icon-recognition.md)。
+
 ## 各类网格的维护入口
 
 | 内部类型 | 定位策略 | 主要维护位置 |
@@ -33,6 +35,7 @@
 | `GridType::Valuables` | 常规格框结构定位，匹配阶段处理头像遮挡 | `GridProfiles.cpp`、`GridDetector.cpp`、`MaskPolicy.cpp` |
 | `GridType::Shipment` | 常规格框结构定位，匹配阶段检查并遮罩数量条 | `GridProfiles.cpp`、`GridDetector.cpp`、`MaskPolicy.cpp` |
 | `GridType::CreditTrade` | 使用信用交易卡片布局与专用区域偏移 | `GridProfiles.cpp`、`GridDetector.cpp`、`IconRecognizer.cpp` |
+| `GridType::Rewards` | 按白色卡片聚类为独立布局，下游按全局行号视为同一多行网格 | `GridProfiles.cpp`、`GridDetector.cpp`、`IconRecognizer.cpp` |
 | `GridType::SingleRoi` | 不执行网格检测，直接构造临时格子 | `IconRecognizer.cpp` |
 
 ## 双侧网格的约束

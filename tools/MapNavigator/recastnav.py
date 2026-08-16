@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 import heapq
 import math
-from collections import deque
 
 import numpy as np
 
@@ -10,7 +9,6 @@ CS = 0.25          # 体素边长 px
 CLIMB = 3.0        # 相邻格可连通最大高差 px
 SLOPE = 1.0        # 可攀爬坡度上限 tanθ, 抬升超过水平位移的这个倍数即立面, 只能绕行
 UP = SLOPE * CS    # 正交相邻格允许的抬升 px, 斜向按实际水平位移等比放大
-MERGE_H = UP       # 同列 span 合并容差 px, 取 UP 使同层内处处可一步跨到
 QH = 1.0           # 体素取样高差容差 px, 需装下斜面单格起伏与格心取样偏差
 EDT_CAP = 12.0     # 距离场截断 px
 R = 1.75           # 期望余量上限 px
@@ -38,124 +36,11 @@ EPS_PROBE = 0.75   # 真墙探针距离 px
 SNAP_RADIUS = 8.0  # 起终点吸附半径 px
 DECK_BAND = 2.0    # 声明面高度匹配容差 px, 需远小于相邻面间距
 MARGIN = 25.0      # 窗口外扩 px
-HOLE_MAX = max(1, int(round(2.0 / (CS * CS))))  # 封闭小洞填充上限(格 = 2px²)
 MAX_CELLS = 30_000_000
-PLAN_BUDGET_MS = 6000  # 逐档扩窗的墙钟上限,与 RecastNavRoute.h 的 RecastPlanBudget 同步
 
 _NB8 = [(1, 0, 1.0), (-1, 0, 1.0), (0, 1, 1.0), (0, -1, 1.0),
         (1, 1, math.sqrt(2)), (1, -1, math.sqrt(2)),
         (-1, 1, math.sqrt(2)), (-1, -1, math.sqrt(2))]
-
-
-def rasterize(V, H, T, ox, oy, nx, ny, cs=CS, chunk=2_000_000):
-    A, B, C = V[T[:, 0]], V[T[:, 1]], V[T[:, 2]]
-    HA, HB, HC = H[T[:, 0]], H[T[:, 1]], H[T[:, 2]]
-
-    fx = np.stack([A[:, 0], B[:, 0], C[:, 0]], 1)
-    fy = np.stack([A[:, 1], B[:, 1], C[:, 1]], 1)
-    ix0 = np.floor((fx.min(1) - ox) / cs).astype(np.int64)
-    ix1 = np.floor((fx.max(1) - ox) / cs).astype(np.int64)
-    iy0 = np.floor((fy.min(1) - oy) / cs).astype(np.int64)
-    iy1 = np.floor((fy.max(1) - oy) / cs).astype(np.int64)
-    keep = (ix1 >= 0) & (ix0 < nx) & (iy1 >= 0) & (iy0 < ny)
-    if not keep.any():
-        return (np.zeros(0, np.int64), np.zeros(0, np.float32),
-                np.zeros(0, bool))
-    ix0 = np.clip(ix0[keep], 0, nx - 1); ix1 = np.clip(ix1[keep], 0, nx - 1)
-    iy0 = np.clip(iy0[keep], 0, ny - 1); iy1 = np.clip(iy1[keep], 0, ny - 1)
-    A, B, C = A[keep], B[keep], C[keep]
-    HA, HB, HC = HA[keep], HB[keep], HC[keep]
-
-    w = (ix1 - ix0 + 1); h = (iy1 - iy0 + 1); cnt = w * h
-    cum = np.cumsum(cnt)
-    cells, hts, ins = [], [], []
-
-    lo = 0
-    while lo < len(cnt):
-        hi = int(np.searchsorted(cum, (cum[lo - 1] if lo else 0) + chunk)) + 1
-        hi = min(max(hi, lo + 1), len(cnt))
-        sl = slice(lo, hi)
-        c_ = cnt[sl]; tot = int(c_.sum())
-        tid = np.repeat(np.arange(lo, hi), c_)
-        base = np.repeat(np.concatenate(([0], np.cumsum(c_)[:-1])), c_)
-        k = np.arange(tot) - base
-        wr = np.repeat(w[sl], c_)
-        gx = np.repeat(ix0[sl], c_) + k % wr
-        gy = np.repeat(iy0[sl], c_) + k // wr
-        px = ox + (gx + 0.5) * cs
-        py = oy + (gy + 0.5) * cs
-
-        a = A[tid]; b = B[tid]; c = C[tid]
-        ctr = np.stack([px, py], 1)
-        hcs = cs * 0.5
-        v = [a - ctr, b - ctr, c - ctr]
-        ok = np.ones(tot, bool)
-        for ax in (0, 1):
-            lo_ = np.minimum(np.minimum(v[0][:, ax], v[1][:, ax]), v[2][:, ax])
-            hi_ = np.maximum(np.maximum(v[0][:, ax], v[1][:, ax]), v[2][:, ax])
-            ok &= (lo_ <= hcs) & (hi_ >= -hcs)
-        for i in range(3):
-            e = v[(i + 1) % 3] - v[i]
-            n0, n1 = -e[:, 1], e[:, 0]
-            p = np.stack([v[j][:, 0] * n0 + v[j][:, 1] * n1
-                          for j in range(3)], 1)
-            rad = hcs * (np.abs(n0) + np.abs(n1))
-            ok &= (p.min(1) <= rad) & (p.max(1) >= -rad)
-        if ok.any():
-            k2 = np.nonzero(ok)[0]
-            e1 = b[k2] - a[k2]; e2 = c[k2] - a[k2]; q = ctr[k2] - a[k2]
-            den = e1[:, 0] * e2[:, 1] - e1[:, 1] * e2[:, 0]
-            den = np.where(np.abs(den) < 1e-12, 1e-12, den)
-            t_ = (q[:, 0] * e2[:, 1] - q[:, 1] * e2[:, 0]) / den
-            s_ = (e1[:, 0] * q[:, 1] - e1[:, 1] * q[:, 0]) / den
-            inside = (t_ >= -1e-12) & (s_ >= -1e-12) & (t_ + s_ <= 1 + 1e-12)
-            t_ = np.clip(t_, 0.0, 1.0); s_ = np.clip(s_, 0.0, 1.0 - t_)
-            i2 = tid[k2]
-            hz = HA[i2] + t_ * (HB[i2] - HA[i2]) + s_ * (HC[i2] - HA[i2])
-            cells.append(gy[k2] * nx + gx[k2])
-            hts.append(hz.astype(np.float32))
-            ins.append(inside)
-        lo = hi
-
-    cx = (A[:, 0] + B[:, 0] + C[:, 0]) / 3.0
-    cy = (A[:, 1] + B[:, 1] + C[:, 1]) / 3.0
-    gx = np.clip(((cx - ox) / cs).astype(np.int64), 0, nx - 1)
-    gy = np.clip(((cy - oy) / cs).astype(np.int64), 0, ny - 1)
-    inb = (cx >= ox) & (cx < ox + nx * cs) & (cy >= oy) & (cy < oy + ny * cs)
-    cells.append(gy[inb] * nx + gx[inb])
-    hts.append(((HA + HB + HC) / 3.0)[inb].astype(np.float32))
-    ins.append(np.zeros(int(inb.sum()), bool))
-
-    return np.concatenate(cells), np.concatenate(hts), np.concatenate(ins)
-
-
-def spans(cell, hz, merge_h=MERGE_H):
-    o = np.lexsort((hz, cell))
-    cell = cell[o]; hz = hz[o]
-    new = np.empty(len(cell), bool); new[0] = True
-    new[1:] = cell[1:] != cell[:-1]
-    head = np.flatnonzero(new)
-    cnt = np.diff(np.append(head, len(cell)))
-    anc = hz[head].astype(np.float64)
-    for r in range(1, int(cnt.max()) if len(cnt) else 1):
-        sel = np.flatnonzero(cnt > r)
-        if not len(sel):
-            break
-        idx = head[sel] + r
-        over = hz[idx] - anc[sel] > merge_h
-        if not over.any():
-            continue
-        new[idx[over]] = True
-        anc[sel[over]] = hz[idx[over]]
-    sid = np.cumsum(new) - 1
-    n = int(sid[-1]) + 1
-    cntv = np.bincount(sid, minlength=n)
-    sp_h = (np.bincount(sid, weights=hz.astype(np.float64), minlength=n)
-            / cntv).astype(np.float32)
-    sp_cell = cell[new]
-    occ, cstart, ccnt = np.unique(sp_cell, return_index=True,
-                                  return_counts=True)
-    return sp_cell, sp_h, occ, cstart, ccnt
 
 
 def dense_k(sp_h, occ, cstart, ccnt):
@@ -168,85 +53,6 @@ def dense_k(sp_h, occ, cstart, ccnt):
     HK[ci, rank] = sp_h
     IK[ci, rank] = np.arange(len(sp_h))
     return HK, IK, ci
-
-
-def seam_bridge(cell, hz, nx, ny, cs=CS, climb=CLIMB):
-    kb = int(round(0.5 / cs)) - 1
-    if kb <= 0 or not len(cell):
-        return np.zeros(0, np.int64), np.zeros(0, np.float32)
-    sp_cell, sp_h, occ, cstart, ccnt = spans(cell, hz)
-    HK, IK, _ = dense_k(sp_h, occ, cstart, ccnt)
-    K = HK.shape[1]
-    O2 = np.zeros(nx * ny, bool); O2[occ] = True
-    O2 = O2.reshape(ny, nx)
-    E = ~O2
-    idx2 = np.arange(nx * ny).reshape(ny, nx)
-    add_c, add_h = [], []
-    for dy, dx in ((0, 1), (1, 0)):
-        for dl in range(1, kb + 1):
-            for dr in range(1, kb + 2 - dl):
-                m = E.copy()
-                for i in range(1, dl):
-                    m &= _sh(E, i * dy, i * dx)
-                for i in range(1, dr):
-                    m &= _sh(E, -i * dy, -i * dx)
-                m &= _sh(O2, dl * dy, dl * dx)
-                m &= _sh(O2, -dr * dy, -dr * dx)
-                if not m.any():
-                    continue
-                cid = idx2[m]
-                a = cid + dl * (dy * nx + dx)
-                b = cid - dr * (dy * nx + dx)
-                ja = np.searchsorted(occ, a)
-                jb = np.searchsorted(occ, b)
-                # 空槽 inf-inf=nan 会毒化 argmin,两侧用相反哨兵
-                ha = np.where(np.isfinite(HK[ja]), HK[ja], np.float32(1e9))
-                hb = np.where(np.isfinite(HK[jb]), HK[jb], np.float32(-1e9))
-                dh = np.abs(ha[:, :, None] - hb[:, None, :])
-                fl = dh.reshape(len(cid), -1)
-                best = fl.argmin(1)
-                ok = fl[np.arange(len(cid)), best] <= climb
-                if not ok.any():
-                    continue
-                p, q = best // K, best % K
-                hm = (ha[np.arange(len(cid)), p]
-                      + hb[np.arange(len(cid)), q]) * np.float32(0.5)
-                add_c.append(cid[ok]); add_h.append(hm[ok])
-    if not add_c:
-        return np.zeros(0, np.int64), np.zeros(0, np.float32)
-    return np.concatenate(add_c), np.concatenate(add_h).astype(np.float32)
-
-
-def flood(seed, sp_h, occ, HK, IK, sp_ci, nx, climb=CLIMB):
-    vis = np.zeros(len(sp_h), bool)
-    vis[seed] = True
-    F = np.array([seed], np.int64)
-    while len(F):
-        nxt = []
-        cid = occ[sp_ci[F]]
-        gx = cid % nx
-        for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
-            tgt = cid + dy * nx + dx
-            good = np.ones(len(F), bool)
-            if dx:
-                good &= (gx + dx >= 0) & (gx + dx < nx)
-            j = np.searchsorted(occ, tgt)
-            good &= (j < len(occ))
-            jj = np.where(good, np.minimum(j, len(occ) - 1), 0)
-            good &= occ[jj] == tgt
-            if not good.any():
-                continue
-            src = F[good]; jj = jj[good]
-            m = np.abs(HK[jj] - sp_h[src][:, None]) <= climb
-            cand = IK[jj][m]
-            cand = cand[cand >= 0]
-            cand = cand[~vis[cand]]
-            if len(cand):
-                cand = np.unique(cand)
-                vis[cand] = True
-                nxt.append(cand)
-        F = np.concatenate(nxt) if nxt else np.zeros(0, np.int64)
-    return vis
 
 
 def span_reach(seed, sp_h, occ, HK, IK, sp_ci, ok, nx, ny,
@@ -422,74 +228,6 @@ class LayerOracle:
         return hq is None or bool((np.abs(cur - hq) <= 1e-3).any())
 
 
-def _step_heights(occ, HK, IK, vis, lay, nx, ny):
-    HV = np.where((IK >= 0) & vis[np.maximum(IK, 0)], HK, np.inf)
-    T = np.full((nx * ny, HV.shape[1]), np.inf, np.float32)
-    T[occ] = np.sort(HV, axis=1)
-    ghost = lay.ravel() & ~np.isfinite(T[:, 0])
-    if ghost.any():
-        gm = ghost.reshape(ny, nx)
-        g = T[:, 0].reshape(ny, nx).copy()
-        for _ in range(int(np.ceil(np.sqrt(HOLE_MAX))) + 1):
-            p = g
-            n = g
-            for dy, dx in ((0, 1), (0, -1), (1, 0), (-1, 0)):
-                s = np.full_like(g, np.inf)
-                s[max(dy, 0):ny + min(dy, 0), max(dx, 0):nx + min(dx, 0)] = \
-                    g[-min(dy, 0):ny - max(dy, 0) or None,
-                      -min(dx, 0):nx - max(dx, 0) or None]
-                n = np.minimum(n, s)
-            g = np.where(gm, n, p)
-            if np.array_equal(g, p):
-                break
-        T[ghost, 0] = g.ravel()[ghost]
-    return T
-
-
-def step_breaks(occ, HK, IK, vis, lay, nx, ny, ox, oy, cs=CS, slope=SLOPE):
-    out = set()
-    NC = nx * ny
-    src = np.nonzero(lay.ravel())[0]
-    if not len(src) or not np.isfinite(slope):
-        return out, (np.zeros((0, 2)), np.zeros((0, 2)))
-    T = _step_heights(occ, HK, IK, vis, lay, nx, ny)
-    K = T.shape[1]
-    src = src[np.isfinite(T[src, 0])]
-    ea, eb = [], []
-    gx, gy = src % nx, src // nx
-    for dx, dy in ((1, 0), (0, 1), (1, 1), (1, -1)):
-        ax, ay = gx + dx, gy + dy
-        m = (ax >= 0) & (ax < nx) & (ay >= 0) & (ay < ny)
-        nb = np.where(m, ay * nx + ax, 0)
-        m &= np.isfinite(T[nb, 0])
-        if not m.any():
-            continue
-        a, b = src[m], nb[m]
-        A, B = T[a], T[b]
-        with np.errstate(invalid="ignore"):
-            d = np.abs(A[:, :, None] - B[:, None, :])
-        d = np.where(np.isfinite(d), d, np.inf).reshape(len(a), -1)
-        k = d.argmin(1)
-        r = np.arange(len(a))
-        bad = d[r, k] > slope * math.hypot(dx, dy) * cs
-        if not bad.any():
-            continue
-        a, b = a[bad], b[bad]
-        up = B[r[bad], k[bad] % K] > A[r[bad], k[bad] // K]
-        frm = np.where(up, a, b)
-        to = np.where(up, b, a)
-        out.update((frm * NC + to).tolist())
-        if dx and dy:
-            continue
-        px = ox + (a % nx + dx) * cs
-        py = oy + (a // nx + dy) * cs
-        ea.append(np.column_stack([px, py]))
-        eb.append(np.column_stack([px + dy * cs, py + dx * cs]))
-    if not ea:
-        return out, (np.zeros((0, 2)), np.zeros((0, 2)))
-    return out, (np.vstack(ea), np.vstack(eb))
-
-
 def clearance(mask, cs=CS, cap=EDT_CAP):
     ny, nx = mask.shape
     Rw = int(np.ceil(cap / cs)) + 1
@@ -516,37 +254,6 @@ def clearance(mask, cs=CS, cap=EDT_CAP):
         np.minimum(best, sh + kk, out=best)
     d = np.sqrt(best) * cs
     return np.minimum(d, cap).astype(np.float32) * mask
-
-
-def stamp_walls(P0, P1, HH, ox, oy, nx, ny, hgrid, cs=CS, hband=MC_HBAND):
-    P0 = np.asarray(P0, float); P1 = np.asarray(P1, float)
-    occ, HK, IK, n_span = hgrid
-    blocked = np.zeros(n_span, bool)
-    if not len(P0):
-        return blocked
-    L = np.hypot(*(P1 - P0).T)
-    steps = np.maximum(np.ceil(L / (cs * 0.4)).astype(np.int64), 1) + 1
-    tid = np.repeat(np.arange(len(P0)), steps)
-    base = np.repeat(np.concatenate(([0], np.cumsum(steps)[:-1])), steps)
-    k = np.arange(int(steps.sum())) - base
-    t = k / np.maximum(np.repeat(steps, steps) - 1, 1)
-    S = P0[tid] + (P1[tid] - P0[tid]) * t[:, None]
-    gx = np.floor((S[:, 0] - ox) / cs).astype(np.int64)
-    gy = np.floor((S[:, 1] - oy) / cs).astype(np.int64)
-    ok = (gx >= 0) & (gx < nx) & (gy >= 0) & (gy < ny)
-    cid = gy[ok] * nx + gx[ok]
-    hh = np.asarray(HH, float)[tid[ok]]
-    j = np.searchsorted(occ, cid)
-    good = (j < len(occ))
-    jj = np.where(good, np.minimum(j, len(occ) - 1), 0)
-    good &= occ[jj] == cid
-    jj = jj[good]; hh = hh[good]
-    if not len(jj):
-        return blocked
-    hit = np.abs(HK[jj] - hh[:, None]) <= hband
-    sid = IK[jj][hit]
-    blocked[sid[sid >= 0]] = True
-    return blocked
 
 
 def walls_at_layer(P0, P1, HH, lh, ox, oy, nx, ny, cs=CS, hband=MC_HBAND):
@@ -641,119 +348,11 @@ def _csr_gather(wid, start, cells):
     return wid[base + off]
 
 
-def comps4(mask):
-    ny, nx = mask.shape
-    lab = np.where(mask, np.arange(ny * nx).reshape(ny, nx), -1)
-    for _ in range(8000):
-        prev = lab.copy()
-        for sh, ax in ((1, 0), (-1, 0), (1, 1), (-1, 1)):
-            n = np.roll(lab, sh, axis=ax)
-            if ax == 0:
-                n[0 if sh > 0 else -1, :] = -1
-            else:
-                n[:, 0 if sh > 0 else -1] = -1
-            m = mask & (n >= 0) & ((lab > n) | (lab < 0))
-            lab[m] = n[m]
-        lab[~mask] = -1
-        if np.array_equal(lab, prev):
-            break
-    return lab
-
-
-def fill_holes(mask, max_cells, protect=None):
-    out = mask.copy()
-    if max_cells <= 0 or not mask.any():
-        return out
-    ny, nx = mask.shape
-    empty = ~mask
-    empty_flat = empty.ravel()
-    visited = np.zeros(ny * nx, bool)
-
-    border = np.zeros_like(mask)
-    border[0, :] = border[-1, :] = border[:, 0] = border[:, -1] = True
-    seeds = empty & border
-    if protect is not None:
-        seeds |= empty & protect
-
-    def mark_neighbors(cid, queue):
-        x = cid % nx
-        if x > 0:
-            n = cid - 1
-            if empty_flat[n] and not visited[n]:
-                visited[n] = True
-                queue.append(n)
-        if x + 1 < nx:
-            n = cid + 1
-            if empty_flat[n] and not visited[n]:
-                visited[n] = True
-                queue.append(n)
-        n = cid - nx
-        if n >= 0 and empty_flat[n] and not visited[n]:
-            visited[n] = True
-            queue.append(n)
-        n = cid + nx
-        if n < ny * nx and empty_flat[n] and not visited[n]:
-            visited[n] = True
-            queue.append(n)
-
-    # 从边界/受保护空格向外漫灌，剩下的空格才可能是需要填掉的小洞。
-    for start in np.flatnonzero(seeds).tolist():
-        if visited[start]:
-            continue
-        visited[start] = True
-        queue = deque([start])
-        while queue:
-            mark_neighbors(queue.popleft(), queue)
-
-    # 对每个未达小洞做有上限的 BFS；超过上限的洞保持原样并整组标记已访问。
-    for start in np.flatnonzero(empty_flat & ~visited).tolist():
-        if visited[start]:
-            continue
-        comp = []
-        visited[start] = True
-        queue = deque([start])
-        too_big = False
-        while queue:
-            cid = queue.popleft()
-            comp.append(cid)
-            if len(comp) > max_cells:
-                too_big = True
-                break
-            mark_neighbors(cid, queue)
-        if too_big:
-            mark_neighbors(cid, queue)
-            while queue:
-                mark_neighbors(queue.popleft(), queue)
-            continue
-        out.ravel()[comp] = True
-    return out
-
-
 def _sh(m, dy, dx):
     ny, nx = m.shape
     out = np.zeros_like(m)
     out[max(0, -dy):ny + min(0, -dy), max(0, -dx):nx + min(0, -dx)] = \
         m[max(0, dy):ny + min(0, dy), max(0, dx):nx + min(0, dx)]
-    return out
-
-
-def close_cracks(core, lay, protect=None):
-    k = max(1, int(round(0.5 / CS)))
-    out = core
-    for _ in range(4):
-        thin = np.zeros_like(out)
-        for dy, dx in ((1, 0), (0, 1)):
-            a = np.zeros_like(out); b = np.zeros_like(out)
-            for i in range(1, k + 1):
-                a |= _sh(out, i * dy, i * dx)
-                b |= _sh(out, -i * dy, -i * dx)
-            thin |= a & b
-        add = ~out & thin & lay
-        if protect is not None:
-            add &= ~protect
-        if not add.any():
-            break
-        out = out | add
     return out
 
 

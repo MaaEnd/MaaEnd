@@ -195,14 +195,21 @@ func (a *AddItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 					break
 				}
 				// Still mask so a bad OCR box does not block other stacks.
-				if masked := paintItemHitRegion(workImg, detail); masked {
-					log.Info().
+				if !paintItemHitRegion(workImg, detail) {
+					log.Warn().
 						Str("component", componentAddItemData).
 						Str("item_id", itemID).
 						Str("node", nodeName).
 						Int("hit_index", hitIndex).
-						Msg("masked non-positive hit region")
+						Msg("failed to mask non-positive hit region, stop rescanning this item")
+					break
 				}
+				log.Info().
+					Str("component", componentAddItemData).
+					Str("item_id", itemID).
+					Str("node", nodeName).
+					Int("hit_index", hitIndex).
+					Msg("masked non-positive hit region")
 				continue
 			}
 			hits = append(hits, recognizedItemAdd{itemID: itemID, node: nodeName, qty: qty})
@@ -333,65 +340,45 @@ func workingRGBA(img image.Image) *image.RGBA {
 	return minicv.ImageConvertRGBA(img)
 }
 
-// paintItemHitRegion fills the recognized item card area with green so later
-// TemplateMatch/ColorMatch (green_mask / quality color) skip it. Uses the union
-// of CombinedResult[0] (quality color) and CombinedResult[1] (template) when
-// present; falls back to detail.Box.
+// paintItemHitRegion fills only the best matched item template with green so a
+// later recognition skips that hit without hiding other item cards.
 func paintItemHitRegion(img *image.RGBA, detail *maa.RecognitionDetail) bool {
 	if img == nil || detail == nil {
 		return false
 	}
-	box := itemHitMaskBox(detail)
-	if box[2] <= 0 || box[3] <= 0 {
+	box, ok := bestTemplateMatchBox(detail)
+	if !ok {
 		return false
 	}
 	return fillRectColor(img, box, imsGreenMaskColor)
 }
 
-func itemHitMaskBox(detail *maa.RecognitionDetail) maa.Rect {
-	if detail == nil {
-		return maa.Rect{}
+func bestTemplateMatchBox(detail *maa.RecognitionDetail) (maa.Rect, bool) {
+	templateDetail := findRecognitionDetailByAlgorithm(detail, string(maa.RecognitionTypeTemplateMatch))
+	if templateDetail == nil || templateDetail.Results == nil || templateDetail.Results.Best == nil {
+		return maa.Rect{}, false
 	}
-	rects := make([]maa.Rect, 0, 2)
-	if len(detail.CombinedResult) > 0 && detail.CombinedResult[0] != nil {
-		rects = append(rects, detail.CombinedResult[0].Box)
+
+	result, ok := templateDetail.Results.Best.AsTemplateMatch()
+	if !ok || result == nil || result.Box[2] <= 0 || result.Box[3] <= 0 {
+		return maa.Rect{}, false
 	}
-	if len(detail.CombinedResult) > 1 && detail.CombinedResult[1] != nil {
-		rects = append(rects, detail.CombinedResult[1].Box)
-	}
-	if len(rects) == 0 {
-		return detail.Box
-	}
-	return unionRects(rects...)
+	return result.Box, true
 }
 
-func unionRects(rects ...maa.Rect) maa.Rect {
-	valid := make([]maa.Rect, 0, len(rects))
-	for _, r := range rects {
-		if r[2] > 0 && r[3] > 0 {
-			valid = append(valid, r)
+func findRecognitionDetailByAlgorithm(detail *maa.RecognitionDetail, algorithm string) *maa.RecognitionDetail {
+	if detail == nil {
+		return nil
+	}
+	if detail.Algorithm == algorithm {
+		return detail
+	}
+	for _, child := range detail.CombinedResult {
+		if result := findRecognitionDetailByAlgorithm(child, algorithm); result != nil {
+			return result
 		}
 	}
-	if len(valid) == 0 {
-		return maa.Rect{}
-	}
-	minX, minY := valid[0][0], valid[0][1]
-	maxX, maxY := valid[0][0]+valid[0][2], valid[0][1]+valid[0][3]
-	for _, r := range valid[1:] {
-		if r[0] < minX {
-			minX = r[0]
-		}
-		if r[1] < minY {
-			minY = r[1]
-		}
-		if r[0]+r[2] > maxX {
-			maxX = r[0] + r[2]
-		}
-		if r[1]+r[3] > maxY {
-			maxY = r[1] + r[3]
-		}
-	}
-	return maa.Rect{minX, minY, maxX - minX, maxY - minY}
+	return nil
 }
 
 func fillRectColor(img *image.RGBA, box maa.Rect, c color.RGBA) bool {

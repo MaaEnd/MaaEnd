@@ -25,6 +25,10 @@
             "author": "maintainer"
         },
         {
+            "content": "【资源目录命名规范】assets 资源目录下的文件夹名禁止以下划线 _ 开头（如 __Private）。Android 打包逻辑无法处理下划线开头的目录名，会导致资源无法打入包内；该限制仅针对文件夹名，pipeline JSON 中的任务名（键名）仍可使用 __ 前缀。详见 docs/zh_cn/developers/coding-standards.md。",
+            "author": "maintainer"
+        },
+        {
             "content": "核心功能模块包括：实时开荒辅助（自动剧情、辅助战斗、自动拾取等）、拼图求解（AI 图像识别解谜）、基质筛选与刷取、协议空间自动刷取、环境监测、生态农场、自动采集、送货任务、委托抢单、倒卖系统、信用点购物、蓝图导入、基建任务、好友拜访等。参见 README.md 获取完整功能列表。",
             "author": "maintainer"
         }
@@ -55,7 +59,7 @@
         },
         {
             "title": "通用节点与按钮处理",
-            "purpose": "说明 assets/resource/pipeline/Common/ 目录下的通用可复用节点，包括通用按钮点击（Common/Button/）、私有工具节点（__Private/）、角色控制器衔接等。引用 docs/zh_cn/developers/common-buttons.md。",
+            "purpose": "说明 assets/resource/pipeline/Common/ 目录下的通用可复用节点，包括通用按钮点击（Common/Button/）、私有工具节点（Private/）、角色控制器衔接等。引用 docs/zh_cn/developers/common-buttons.md。",
             "parent": "Pipeline 低代码系统"
         },
         {

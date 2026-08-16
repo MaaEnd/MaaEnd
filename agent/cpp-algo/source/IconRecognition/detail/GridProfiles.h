@@ -5,6 +5,14 @@
 namespace iconrecognition::detail
 {
 
+// 已通过真实 720p 截图标定的控制器 UI 密度：Win32 基准与 ADB（240 dpi）。
+inline constexpr double kWin32ControllerGridScale = 1.0;
+inline constexpr double kAdbControllerGridScale = 1.25;
+inline constexpr std::array<double, 2> kSupportedControllerGridScales {
+    kWin32ControllerGridScale,
+    kAdbControllerGridScale,
+};
+
 struct GridProfile
 {
     // 单个物品 cell 的模板边长，单位为 720p 像素。
@@ -69,6 +77,7 @@ GridProfile ProfileFor(GridType type);
 TransferGridProfile TransferProfileFor(TransferGridVariant variant);
 cv::Mat BuildTransferCellScore(const cv::Mat& image, int cell_size);
 std::vector<cv::Rect> PartitionTransferRegions(cv::Size crop_size, const cv::Rect& left, const cv::Rect& right);
+std::vector<cv::Rect> PartitionPortStoragerRegions(cv::Size crop_size);
 std::vector<TransferGridHint> DiscoverTransferGridHints(const cv::Mat& crop, bool structural_rank);
 
 } // namespace iconrecognition::detail

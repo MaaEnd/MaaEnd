@@ -130,6 +130,34 @@ bool IsSelectedImage(const std::filesystem::path& image_path, const ManualRunner
     return !options.image_name || image_path.filename().string() == *options.image_name;
 }
 
+CandidateFilter ReadImageCandidates(const std::filesystem::path& image_path)
+{
+    auto config_path = image_path;
+    config_path.replace_extension(".json");
+    if (!std::filesystem::is_regular_file(config_path)) {
+        return {};
+    }
+    const auto parsed = json::open(config_path.string());
+    if (!parsed || !parsed->is_object()) {
+        throw std::runtime_error("image sidecar must be a JSON object: " + config_path.string());
+    }
+    CandidateFilter candidates;
+    const auto& object = parsed->as_object();
+    if (!object.contains("item_filters")) {
+        return candidates;
+    }
+    if (!object.at("item_filters").is_array()) {
+        throw std::runtime_error("image sidecar item_filters must be an array: " + config_path.string());
+    }
+    for (const auto& filter : object.at("item_filters").as_array()) {
+        if (!filter.is_string()) {
+            throw std::runtime_error("image sidecar item_filters must contain strings: " + config_path.string());
+        }
+        candidates.item_filters.push_back(filter.as_string());
+    }
+    return candidates;
+}
+
 void AppendGridCases(
     std::vector<ManualRunnerCase>& output,
     const std::filesystem::path& input_root,
@@ -156,6 +184,7 @@ void AppendGridCases(
                 .image_path = image_path,
                 .roi = ReadRoi(roi_set.at(std::string(roi_name)), GridTypeName(grid_type)),
                 .roi_name = std::string(roi_name),
+                .candidates = ReadImageCandidates(image_path),
             });
         }
     }
@@ -186,6 +215,7 @@ void AppendSingleRoiCases(
                     .image_path = image_path,
                     .roi = roi,
                     .roi_name = directory.filename().string(),
+                    .candidates = ReadImageCandidates(image_path),
                 });
             }
         }
@@ -226,16 +256,17 @@ const std::string& RequireValue(const std::vector<std::string>& arguments, std::
 std::string ManualRunnerUsage()
 {
     return R"(Usage:
-  icon-recognition-manual-runner --all [--side full|left|right|split|all] [--jobs <N|auto>] [--debug] [--expected <path>]
-  icon-recognition-manual-runner --grid-type <type> [--image <basename>] [--side full|left|right|split|all] [--jobs <N|auto>] [--debug] [--expected <path>]
-  icon-recognition-manual-runner --image <basename> [--jobs <N|auto>] [--debug] [--expected <path>]
+  icon-recognition-manual-runner --all [--dataset win32|adb] [--side full|left|right|split|all] [--jobs <N|auto>] [--debug] [--expected <path>] [--rois <path>]
+  icon-recognition-manual-runner --grid-type <type> [--image <basename>] [--dataset win32|adb] [--side full|left|right|split|all] [--jobs <N|auto>] [--debug] [--expected <path>] [--rois <path>]
+  icon-recognition-manual-runner --image <basename> [--dataset win32|adb] [--jobs <N|auto>] [--debug] [--expected <path>] [--rois <path>]
   icon-recognition-manual-runner -h|--help|-?
 
 Grid types:
-  trade, transfer, port_storager, valuables, shipment, credit_trade, single_roi
+  trade, transfer, port_storager, valuables, shipment, credit_trade, rewards, single_roi
 
 Side modes apply only to transfer and port_storager. The default is full.
 Worker selection defaults to 1. auto uses physical cores and is capped at 16.
+Without --rois, the selected dataset uses its bundled ROI file. An unspecified dataset defaults to win32.
 )";
 }
 
@@ -250,7 +281,9 @@ ManualRunnerOptions ParseManualRunnerOptions(const std::vector<std::string>& arg
     bool side_specified = false;
     bool jobs_specified = false;
     bool debug_specified = false;
+    bool dataset_specified = false;
     bool expected_specified = false;
+    bool rois_specified = false;
     for (std::size_t index = 0; index < arguments.size(); ++index) {
         const std::string& argument = arguments[index];
         if (IsHelpOption(argument)) {
@@ -317,12 +350,37 @@ ManualRunnerOptions ParseManualRunnerOptions(const std::vector<std::string>& arg
             debug_specified = true;
             continue;
         }
+        if (argument == "--dataset") {
+            if (dataset_specified) {
+                throw std::invalid_argument("duplicate option: --dataset");
+            }
+            const std::string& value = RequireValue(arguments, index);
+            if (value == "win32") {
+                options.dataset = TestDataset::Win32;
+            }
+            else if (value == "adb") {
+                options.dataset = TestDataset::Adb;
+            }
+            else {
+                throw std::invalid_argument("unknown dataset: " + value);
+            }
+            dataset_specified = true;
+            continue;
+        }
         if (argument == "--expected") {
             if (expected_specified) {
                 throw std::invalid_argument("duplicate option: --expected");
             }
             options.expected_path = RequireValue(arguments, index);
             expected_specified = true;
+            continue;
+        }
+        if (argument == "--rois") {
+            if (rois_specified) {
+                throw std::invalid_argument("duplicate option: --rois");
+            }
+            options.rois_path = RequireValue(arguments, index);
+            rois_specified = true;
             continue;
         }
         throw std::invalid_argument("unknown option: " + argument);
@@ -344,6 +402,17 @@ ManualRunnerOptions ParseManualRunnerOptions(const std::vector<std::string>& arg
         throw std::invalid_argument("--side requires --grid-type transfer or port_storager");
     }
     return options;
+}
+
+std::filesystem::path ResolveManualRunnerRoisPath(
+    const ManualRunnerOptions& options,
+    const std::filesystem::path& win32_default,
+    const std::filesystem::path& adb_default)
+{
+    if (!options.rois_path.empty()) {
+        return options.rois_path;
+    }
+    return options.dataset == TestDataset::Adb ? adb_default : win32_default;
 }
 
 std::size_t ResolveManualRunnerJobs(const ManualRunnerOptions& options, std::size_t physical_core_count, std::size_t case_count)
@@ -375,7 +444,8 @@ std::vector<ManualRunnerCase> DiscoverManualRunnerCases(
     const auto& rois = parsed_rois->as_object();
 
     constexpr std::array kGridTypes {
-        GridType::Trade, GridType::Transfer, GridType::PortStorager, GridType::Valuables, GridType::Shipment, GridType::CreditTrade,
+        GridType::Trade,    GridType::Transfer,    GridType::PortStorager, GridType::Valuables,
+        GridType::Shipment, GridType::CreditTrade, GridType::Rewards,
     };
     std::vector<ManualRunnerCase> cases;
     if (options.grid_type) {

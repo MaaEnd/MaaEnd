@@ -40,6 +40,7 @@ import asyncio
 import json
 import math
 import os
+import secrets
 import socket
 import struct
 import subprocess
@@ -69,13 +70,8 @@ from basenav_preview import (  # noqa: E402
     _point_in_triangle,
     load_basenav_field,
 )
-from connection_models import (  # noqa: E402
-    AdbConnectionConfig,
-    PlayCoverConnectionConfig,
-    RecordingSessionConfig,
-    Win32ConnectionConfig,
-    WlRootsConnectionConfig,
-)
+from clipboard import copy_to_clipboard  # noqa: E402
+from connection_models import session_config_from_payload  # noqa: E402
 from connectors import (  # noqa: E402
     build_recording_connector,
     find_game_window,
@@ -337,73 +333,163 @@ def get_runtime() -> Any:
         return _runtime_cache
 
 
-# --- 剪贴板 (G 热键: 录制中游戏持有焦点, 必须由后端直接写系统剪贴板) ---------------------
-def _copy_to_clipboard(text: str) -> bool:
-    try:
-        import pyperclip
-
-        pyperclip.copy(text)
-        return True
-    except Exception:  # noqa: BLE001
-        pass
-    try:
-        if sys.platform == "darwin":
-            subprocess.run(["pbcopy"], input=text.encode("utf-8"), check=True)
-            return True
-        if sys.platform == "win32":
-            # Windows 'clip' 读 UTF-16LE
-            subprocess.run(["clip"], input=text.encode("utf-16-le"), check=True)
-            return True
-        subprocess.run(["xclip", "-selection", "clipboard"], input=text.encode("utf-8"), check=True)
-        return True
-    except Exception as exc:  # noqa: BLE001
-        _log(f"剪贴板写入失败: {exc}")
-        return False
-
-
 # --- 设置存储 -------------------------------------------------------------------------
 settings_store = MapNavigatorSettingsStore()
 
 
-# --- 录制会话构造 + 单例守卫 ----------------------------------------------------------
+# --- 录制单例守卫 ---------------------------------------------------------------------
 _recording_lock = threading.Lock()
 
 
-def _build_session_config(payload: dict[str, Any]) -> RecordingSessionConfig:
-    kind = payload.get("kind", "win32")
-    if kind == "adb":
-        adb = payload.get("adb") or {}
-        cfg = adb.get("config")
-        return RecordingSessionConfig(
-            kind="adb",
-            adb=AdbConnectionConfig(
-                adb_path=str(adb.get("adb_path", "") or ""),
-                address=str(adb.get("address", "") or ""),
-                config=cfg if isinstance(cfg, dict) else {},
-            ),
-        )
-    elif kind == "playcover":
-        playcover = payload.get("playcover") or {}
-        return RecordingSessionConfig(
-            kind="playcover",
-            playcover=PlayCoverConnectionConfig(
-                address=str(playcover.get("address", "127.0.0.1:1717") or "127.0.0.1:1717"),
-                uuid=str(playcover.get("uuid", "maa.playcover") or "maa.playcover"),
-            ),
-        )
-    elif kind == "wlroots":
-        wlroots = payload.get("wlroots") or {}
-        return RecordingSessionConfig(
-            kind="wlroots",
-            wlroots=WlRootsConnectionConfig(
-                wlr_socket_path=str(wlroots.get("wlr_socket_path", "") or ""),
-            ),
-        )
-    win = payload.get("win32") or {}
-    return RecordingSessionConfig(
-        kind="win32",
-        win32=Win32ConnectionConfig(window_title=str(win.get("window_title", "Endfield") or "Endfield")),
-    )
+# --- 提权录制子进程 (Windows 非管理员时) -----------------------------------------------
+# 热键要管理员权限, 但本服务是长驻进程不能自己 runas 重启 (会另起一整套服务并丢掉页面
+# 状态), 所以只提权录制这一段。协议见 record_worker.py。
+_WORKER_PY = _PARENT_DIR / "record_worker.py"
+WORKER_CONNECT_TIMEOUT_SECONDS = 30.0  # 计时从 UAC 答复后开始; 子进程冷启 maafw 要好几秒
+SE_ERR_ACCESSDENIED = 5  # ShellExecuteW: 用户拒绝了 UAC
+
+
+class ElevatedRecordingBridge:
+    """拉起提权录制子进程, 并在它与调用方之间转发 NDJSON 消息。
+
+    子进程发来的就是前端协议本身, 故转发是直通, 前端不用改。
+    """
+
+    def __init__(self, elevate: bool = True) -> None:
+        self._elevate = elevate
+        self._server: asyncio.Server | None = None
+        self._reader: asyncio.StreamReader | None = None
+        self._writer: asyncio.StreamWriter | None = None
+        self._connected: asyncio.Future[tuple[asyncio.StreamReader, asyncio.StreamWriter]] | None = None
+        self._token = secrets.token_hex(16)
+
+    async def spawn(self) -> str | None:
+        """监听回连端口 -> 提权拉起子进程 -> 等它握手。
+
+        返回 None 表示就绪; 否则返回失败原因 (调用方据此回退到进程内录制)。
+        """
+        loop = asyncio.get_running_loop()
+        self._connected = loop.create_future()
+
+        async def on_client(reader: asyncio.StreamReader, writer: asyncio.StreamWriter) -> None:
+            # 只认第一个通过 token 校验的连接; 其余一律丢弃。
+            # 校验写成显式判断: assert 在 python -O 下会被整条删掉, 等于没校验。
+            try:
+                line = await asyncio.wait_for(reader.readline(), timeout=WORKER_CONNECT_TIMEOUT_SECONDS)
+                hello = json.loads(line.decode("utf-8"))
+            except Exception:  # noqa: BLE001
+                writer.close()
+                return
+            token = hello.get("token") if isinstance(hello, dict) else None
+            if (
+                not isinstance(token, str)
+                or hello.get("type") != "hello"
+                or not secrets.compare_digest(token, self._token)
+            ):
+                _log("丢弃一个握手不合法的回连。")
+                writer.close()
+                return
+            if self._connected is not None and not self._connected.done():
+                self._connected.set_result((reader, writer))
+            else:
+                writer.close()
+
+        self._server = await asyncio.start_server(on_client, "127.0.0.1", 0)
+        port = self._server.sockets[0].getsockname()[1]
+
+        launched = await run_in_threadpool(self._launch_worker, port)
+        if launched is not None:
+            return launched
+
+        try:
+            self._reader, self._writer = await asyncio.wait_for(
+                self._connected, timeout=WORKER_CONNECT_TIMEOUT_SECONDS
+            )
+        except asyncio.TimeoutError:
+            return (
+                f"提权录制子进程 {WORKER_CONNECT_TIMEOUT_SECONDS:.0f}s 内没有回连 "
+                "(可能被安全软件拦截, 或 maafw 依赖加载失败)。"
+            )
+        return None
+
+    def _launch_worker(self, port: int) -> str | None:
+        """拉起子进程。提权分支会阻塞到用户答复 UAC, 故整个方法只在线程池里调。
+
+        用 sys.executable 而非 uv run: 提权子进程拿到的是全新环境块, uv 在那里可能重解析。
+        """
+        if not _WORKER_PY.exists():
+            return f"找不到录制子进程脚本: {_WORKER_PY}"
+        argv = [str(_WORKER_PY), "--port", str(port), "--token", self._token]
+        if not self._elevate:
+            try:
+                subprocess.Popen([sys.executable, *argv], cwd=str(_PARENT_DIR))
+            except Exception as exc:  # noqa: BLE001
+                return f"拉起录制子进程失败: {exc}"
+            return None
+        try:
+            import ctypes
+
+            # SW_HIDE: 不给用户弹一个黑控制台; 子进程日志走 socket 回传。
+            ret = int(
+                ctypes.windll.shell32.ShellExecuteW(
+                    None,
+                    "runas",
+                    sys.executable,
+                    " ".join(f'"{arg}"' for arg in argv),
+                    str(_PARENT_DIR),
+                    0,
+                )
+            )
+        except Exception as exc:  # noqa: BLE001
+            return f"拉起提权录制子进程失败: {exc}"
+        if ret == SE_ERR_ACCESSDENIED:
+            return "已取消提权。"
+        if ret <= 32:
+            return f"拉起提权录制子进程失败 (ShellExecuteW={ret})。"
+        return None
+
+    async def send(self, payload: dict[str, Any]) -> None:
+        if self._writer is None:
+            return
+        self._writer.write((json.dumps(payload, ensure_ascii=False) + "\n").encode("utf-8"))
+        try:
+            await self._writer.drain()
+        except Exception:  # noqa: BLE001
+            pass
+
+    async def messages(self):
+        """逐条产出子进程消息; socket EOF 时结束。"""
+        if self._reader is None:
+            return
+        while True:
+            try:
+                line = await self._reader.readline()
+            except Exception as exc:  # noqa: BLE001
+                # 连接被重置等: 必须留痕, 否则和正常 EOF 长得一样, 没法查。
+                _log(f"读取录制子进程失败: {exc!r}")
+                return
+            if not line:
+                return
+            try:
+                msg = json.loads(line.decode("utf-8"))
+            except (ValueError, UnicodeDecodeError):
+                continue
+            if isinstance(msg, dict):
+                yield msg
+
+    async def close(self) -> None:
+        # 关 socket 即让子进程自杀 —— 本进程完整性级别更低, kill 不掉它。
+        if self._writer is not None:
+            try:
+                self._writer.close()
+            except Exception:  # noqa: BLE001
+                pass
+        if self._server is not None:
+            self._server.close()
+            try:
+                await self._server.wait_closed()
+            except Exception:  # noqa: BLE001
+                pass
 
 
 # --- FastAPI app ----------------------------------------------------------------------
@@ -1172,6 +1258,76 @@ async def favicon() -> Response:
     return Response(status_code=204)
 
 
+def _recording_worker_mode() -> str:
+    """本次录制走哪条路: 'elevate' 提权子进程 / 'plain' 不提权子进程 / 'inline' 进程内。
+
+    默认只在 Windows 非管理员时提权 —— 已是管理员或非 Windows 时进程内录制本来就好用,
+    没必要多一跳。MAPNAV_RECORD_WORKER 可强制: plain (不提权起子进程, 用于单独验证
+    IPC 链路) / off (强制进程内)。
+    """
+    forced = (os.environ.get("MAPNAV_RECORD_WORKER") or "").strip().lower()
+    if forced == "plain":
+        return "plain"
+    if forced in ("off", "inline"):
+        return "inline"
+    try:
+        # macOS 的输入监控提示也靠这一调用, 别按平台短路掉。
+        privileged = key_listener.ensure_privileges()
+    except Exception as exc:  # noqa: BLE001
+        _log(f"ensure_privileges 异常(按已有权限处理): {exc}")
+        return "inline"
+    if sys.platform != "win32":
+        return "inline"
+    return "inline" if privileged else "elevate"
+
+
+async def _relay_elevated_recording(websocket: WebSocket, bridge: ElevatedRecordingBridge) -> None:
+    """录制子进程 <-> 浏览器 双向转发, 直到录制出结果或任一端断开。
+
+    子进程发的就是前端协议本身, 除 log (只进终端) 外原样转发。
+    """
+
+    async def pump_worker() -> str:
+        async for msg in bridge.messages():
+            kind = msg.get("type")
+            if kind == "log":
+                _log(f"[录制子进程] {msg.get('message', '')}")
+                continue
+            await websocket.send_json(msg)
+            if kind in ("finished", "error"):
+                return str(kind)
+        return "eof"
+
+    async def pump_client() -> str:
+        try:
+            while True:
+                msg = await websocket.receive_json()
+                if isinstance(msg, dict) and msg.get("type") == "stop":
+                    await bridge.send({"type": "stop"})
+        except Exception:  # noqa: BLE001
+            return "disconnected"
+
+    worker_task = asyncio.create_task(pump_worker())
+    client_task = asyncio.create_task(pump_client())
+    try:
+        done, pending = await asyncio.wait(
+            {worker_task, client_task}, return_when=asyncio.FIRST_COMPLETED
+        )
+        for task in pending:
+            task.cancel()
+        for task in done:
+            task.exception()  # 取一下, 免得变成 "exception never retrieved"
+        if worker_task in done and worker_task.exception() is None:
+            if worker_task.result() == "eof":
+                # 子进程没给结果就断了 (崩溃/被安全软件杀), 前端得复位。
+                await websocket.send_json(
+                    {"type": "error", "message": "提权录制子进程意外退出 (未返回录制结果)。"}
+                )
+    finally:
+        worker_task.cancel()
+        client_task.cancel()
+
+
 @app.websocket("/ws/record")
 async def ws_record(websocket: WebSocket) -> None:
     await websocket.accept()
@@ -1185,6 +1341,7 @@ async def ws_record(websocket: WebSocket) -> None:
             pass
 
     service: RecordingService | None = None
+    bridge: ElevatedRecordingBridge | None = None
     acquired = False
     try:
         first = await websocket.receive_json()
@@ -1194,29 +1351,40 @@ async def ws_record(websocket: WebSocket) -> None:
         if not isinstance(payload, dict):
             payload = {}
 
+        if not _recording_lock.acquire(blocking=False):
+            await websocket.send_json({"type": "error", "message": "已有录制会话进行中, 请先停止。"})
+            return
+        acquired = True
+
+        # 权限判定仅在录制开始时做 (绝不在服务启动时, 以免顶掉纯编辑用户)。
+        mode = _recording_worker_mode()
+        if mode != "inline":
+            await websocket.send_json(
+                {"type": "status", "text": "● 正在启动录制进程 (需要授权提权)…", "color": "#f59e0b"}
+            )
+            bridge = ElevatedRecordingBridge(elevate=(mode == "elevate"))
+            failure = await bridge.spawn()
+            if failure is None:
+                # maafw 由子进程自己加载, 本进程不碰 (避免两个进程各开一套原生运行时)。
+                await bridge.send({"type": "start", "config": payload})
+                await _relay_elevated_recording(websocket, bridge)
+                return
+            await bridge.close()
+            bridge = None
+            # 提权失败/被拒不能让录制彻底不可用 —— 退回进程内录制, 只是热键可能收不到。
+            warning = (
+                f"{failure} 已退回本进程录制: 游戏窗口在前台时 G/X 热键可能收不到按键。"
+            )
+            _log(warning)
+            await websocket.send_json({"type": "status", "text": warning, "color": "#f59e0b"})
+            await websocket.send_json({"type": "locator", "text": warning})
+
         runtime = get_runtime()
         if runtime is None:
             await websocket.send_json(
                 {"type": "error", "message": "maafw 运行时不可用, 无法录制 (缺少 maafw 依赖或初始化失败)。"}
             )
             return
-
-        # 权限检查仅在录制开始时进行 (绝不在服务启动时, 以免顶掉纯编辑用户)。
-        try:
-            privileges_ok = key_listener.ensure_privileges()
-        except Exception as exc:  # noqa: BLE001
-            _log(f"ensure_privileges 异常(放行): {exc}")
-            privileges_ok = True
-        if not privileges_ok:
-            await websocket.send_json(
-                {"type": "error", "message": "缺少全局按键监听所需权限 (需管理员/输入监控授权)。"}
-            )
-            return
-
-        if not _recording_lock.acquire(blocking=False):
-            await websocket.send_json({"type": "error", "message": "已有录制会话进行中, 请先停止。"})
-            return
-        acquired = True
 
         stop_event = asyncio.Event()
 
@@ -1246,7 +1414,7 @@ async def ws_record(websocket: WebSocket) -> None:
             )
 
         def on_clipboard(coord: str, status: str) -> None:
-            _copy_to_clipboard(coord)  # 后端直接写系统剪贴板 (游戏持有焦点)
+            copy_to_clipboard(coord, log=_log)  # 后端直接写系统剪贴板 (游戏持有焦点)
             push({"type": "toast", "coord": coord, "status": status})
 
         def on_force_waypoint(x: float, y: float, zone: str) -> None:
@@ -1262,7 +1430,7 @@ async def ws_record(websocket: WebSocket) -> None:
             on_force_waypoint=on_force_waypoint,
             on_live_position=on_live_position,
         )
-        service.start(_build_session_config(payload))
+        service.start(session_config_from_payload(payload))
 
         async def read_client():
             try:
@@ -1292,6 +1460,11 @@ async def ws_record(websocket: WebSocket) -> None:
         if service is not None:
             try:
                 service.stop()
+            except Exception:  # noqa: BLE001
+                pass
+        if bridge is not None:
+            try:
+                await bridge.close()  # 关 socket = 子进程自杀 (提权后 kill 不掉它)
             except Exception:  # noqa: BLE001
                 pass
         if acquired:
@@ -1400,7 +1573,7 @@ async def api_locate_once(payload: dict[str, Any] = Body(default_factory=dict)) 
             "playcover": {"address": current.playcover_address, "uuid": current.playcover_uuid},
             "wlroots": {"wlr_socket_path": current.wlroots_socket_path},
         }
-    session_config = _build_session_config(cfg_payload)
+    session_config = session_config_from_payload(cfg_payload)
 
     try:
         res = await run_in_threadpool(do_locate_once, runtime, session_config)

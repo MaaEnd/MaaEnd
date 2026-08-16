@@ -70,7 +70,8 @@
                     "pipeline_override": {
                         "__SeizeDeliveryJobsRecoOrigin": {
                             "expected": [
-                                "试验园区"
+                                "试验园区",
+                                "實驗園區"
                             ]
                         }
                     }
@@ -85,7 +86,8 @@
                         "__SeizeDeliveryJobsRecoOrigin": {
                             "expected": [
                                 "武陵城",
-                                "试验园区"
+                                "试验园区",
+                                "實驗園區"
                             ]
                         }
                     }

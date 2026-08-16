@@ -10,10 +10,12 @@ namespace iconrecognition::detail
 namespace
 {
 
-// 送货数量条检测和遮罩的顶部高度（像素）；调大覆盖更多数量条，也会裁掉更多图标。
-constexpr int kShipmentQuantityBarHeight = 20;
-// 顶部区域判为黄色数量条所需的最少像素数；调高减少误触发，调低可识别残缺数量条。
-constexpr int kShipmentQuantityBarMinPixels = 500;
+// 送货数量条检测窗口占 cell 高度的比例；20/64 覆盖完整黄底、黑字、勾选区和下沿。
+constexpr double kShipmentQuantityBarHeightRatio = 0.3125;
+// 64px 基准 cell 的完整黄条叠加区高 20px，包含黄底、黑字、勾选区和下沿；调大减少叠加干扰，也会裁掉更多图标主体。
+constexpr double kShipmentQuantityBarMaskHeightRatio = 0.3125;
+// 64x20 基准检测带中至少 500 个黄色像素，对其他 cell 尺寸按检测带面积等比换算。
+constexpr double kShipmentQuantityBarMinimumCoverage = 0.390625;
 // 武器头像清理规则只适用于 96px 贵重品槽位，其他尺寸不执行圆检测。
 constexpr int kValuablesSlotSize = 96;
 // 96px 槽位右上角用于寻找武器头像圆的局部区域。
@@ -101,38 +103,53 @@ bool HasShipmentTopBar(const cv::Mat& image)
     cv::cvtColor(bgr, hsv, cv::COLOR_BGR2HSV);
     cv::Mat selected;
     cv::inRange(hsv, cv::Scalar(20, 100, 150), cv::Scalar(40, 255, 255), selected);
-    const int top_height = std::min(kShipmentQuantityBarHeight, image.rows);
-    return cv::countNonZero(selected.rowRange(0, top_height)) >= kShipmentQuantityBarMinPixels;
+    const int top_height = std::clamp(cvRound(image.rows * kShipmentQuantityBarHeightRatio), 1, image.rows);
+    const cv::Mat top = selected.rowRange(0, top_height);
+    const int minimum_yellow_pixels = cvRound(top.total() * kShipmentQuantityBarMinimumCoverage);
+    if (cv::countNonZero(top) < minimum_yellow_pixels) {
+        return false;
+    }
+    return true;
 }
 
 void ApplyShipmentTopBarMask(cv::Mat& mask)
 {
     if (!mask.empty()) {
-        mask.rowRange(0, std::min(kShipmentQuantityBarHeight, mask.rows)).setTo(cv::Scalar(0));
+        const int mask_height = std::clamp(cvRound(mask.rows * kShipmentQuantityBarMaskHeightRatio), 1, mask.rows);
+        mask.rowRange(0, mask_height).setTo(cv::Scalar(0));
     }
 }
 
 void ApplyValuablesWeaponPortraitMask(cv::Mat& mask)
 {
     if (!mask.empty()) {
-        cv::circle(mask, kValuablesPortraitCenter, kValuablesPortraitRadius, cv::Scalar(0), cv::FILLED);
+        const double scale = static_cast<double>(std::min(mask.rows, mask.cols)) / kValuablesSlotSize;
+        const cv::Point center(cvRound(kValuablesPortraitCenter.x * scale), cvRound(kValuablesPortraitCenter.y * scale));
+        const int radius = std::max(1, cvRound(kValuablesPortraitRadius * scale));
+        cv::circle(mask, center, radius, cv::Scalar(0), cv::FILLED);
     }
 }
 
 void ClearValuablesWeaponPortrait(cv::Mat& mask, const cv::Mat& slot)
 {
-    if (mask.empty() || slot.empty() || mask.rows != kValuablesSlotSize || mask.cols != kValuablesSlotSize) {
+    if (mask.empty() || slot.empty() || mask.size() != slot.size() || slot.rows != slot.cols) {
         return;
     }
+    const double scale = static_cast<double>(slot.rows) / kValuablesSlotSize;
+    const int detection_x1 = cvRound(kValuablesPortraitDetectionRect.x * scale);
+    const int detection_y1 = cvRound(kValuablesPortraitDetectionRect.y * scale);
+    const int detection_x2 = cvRound((kValuablesPortraitDetectionRect.x + kValuablesPortraitDetectionRect.width) * scale);
+    const int detection_y2 = cvRound((kValuablesPortraitDetectionRect.y + kValuablesPortraitDetectionRect.height) * scale);
+    const cv::Rect detection_rect(detection_x1, detection_y1, detection_x2 - detection_x1, detection_y2 - detection_y1);
     cv::Mat gray;
     if (slot.channels() == 4) {
-        cv::cvtColor(slot(kValuablesPortraitDetectionRect), gray, cv::COLOR_BGRA2GRAY);
+        cv::cvtColor(slot(detection_rect), gray, cv::COLOR_BGRA2GRAY);
     }
     else if (slot.channels() == 3) {
-        cv::cvtColor(slot(kValuablesPortraitDetectionRect), gray, cv::COLOR_BGR2GRAY);
+        cv::cvtColor(slot(detection_rect), gray, cv::COLOR_BGR2GRAY);
     }
     else {
-        gray = slot(kValuablesPortraitDetectionRect);
+        gray = slot(detection_rect);
     }
     std::vector<cv::Vec3f> circles;
     cv::HoughCircles(
@@ -140,16 +157,17 @@ void ClearValuablesWeaponPortrait(cv::Mat& mask, const cv::Mat& slot)
         circles,
         cv::HOUGH_GRADIENT,
         kPortraitHoughDp,
-        kPortraitHoughMinDistance,
+        kPortraitHoughMinDistance * scale,
         kPortraitHoughCannyThreshold,
         kPortraitHoughAccumulatorThreshold,
-        kPortraitHoughMinRadius,
-        kPortraitHoughMaxRadius);
-    const bool detected = std::ranges::any_of(circles, [](const cv::Vec3f& circle) {
-        const double absolute_x = circle[0] + kValuablesPortraitDetectionRect.x;
+        std::max(1, cvRound(kPortraitHoughMinRadius * scale)),
+        std::max(1, cvRound(kPortraitHoughMaxRadius * scale)));
+    const bool detected = std::ranges::any_of(circles, [&](const cv::Vec3f& circle) {
+        const double absolute_x = circle[0] + detection_rect.x;
         const double absolute_y = circle[1];
-        return absolute_x >= kPortraitCenterMinX && absolute_x <= kPortraitCenterMaxX && absolute_y >= kPortraitCenterMinY
-               && absolute_y <= kPortraitCenterMaxY && circle[2] >= kPortraitHoughMinRadius && circle[2] <= kPortraitHoughMaxRadius;
+        return absolute_x >= kPortraitCenterMinX * scale && absolute_x <= kPortraitCenterMaxX * scale
+               && absolute_y >= kPortraitCenterMinY * scale && absolute_y <= kPortraitCenterMaxY * scale
+               && circle[2] >= kPortraitHoughMinRadius * scale && circle[2] <= kPortraitHoughMaxRadius * scale;
     });
     if (detected) {
         ApplyValuablesWeaponPortraitMask(mask);

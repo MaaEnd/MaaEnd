@@ -48,6 +48,101 @@
         "pre_delay": 0,
         "post_delay": 0
     },
+    "TrialOfSwordmancyQuickTeleportStart": {
+        "desc": "通过快速传送前往悬谷台",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuRegionalOverviewWulingTrialOfSwordmancy"
+            ]
+        },
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyOverviewViewPosition"
+        ]
+    },
+    "TrialOfSwordmancyOverviewViewPosition": {
+        "desc": "在武陵事务总览界面，点击查看位置",
+        "recognition": "And",
+        "all_of": [
+            "SceneMenuRegionalOverviewWulingTrialOfSwordmancy",
+            {
+                "recognition": "TemplateMatch",
+                "roi": "SceneMenuRegionalOverviewWulingTrialOfSwordmancy",
+                "roi_offset": [
+                    767,
+                    85,
+                    -14,
+                    -12
+                ],
+                "template": [
+                    "SceneManager/RegionalOverview/ViewPositionButton.png",
+                    "SceneManager/RegionalOverview/ViewPositionButtonHover.png"
+                ],
+                "threshold": 0.85
+            }
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "wait_node": "InRegionalOverview"
+        },
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyQuickTeleportSelect"
+        ]
+    },
+    "TrialOfSwordmancyQuickTeleportSelect": {
+        "desc": "点击前往传送",
+        "recognition": "And",
+        "all_of": [
+            "EnvironmentMonitoringQuickTeleportSelectButton"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "wait_node": "EnvironmentMonitoringQuickTeleportSelectButton"
+        },
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyQuickTeleport"
+        ]
+    },
+    "TrialOfSwordmancyQuickTeleport": {
+        "desc": "点击传送",
+        "recognition": "And",
+        "all_of": [
+            "WhiteConfirmButtonType1"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "wait_node": "WhiteConfirmButtonType1"
+        },
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyQuickTeleportDone",
+            "[JumpBack]SceneWaitLoadingExit"
+        ]
+    },
+    "TrialOfSwordmancyQuickTeleportDone": {
+        "desc": "传送完成",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0
+    },
     "TrialOfSwordmancyGotoTrialArenaStart": {
         "desc": "前往演武入口（子任务入口）",
         "pre_delay": 0,
@@ -55,7 +150,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldWulingSwordVaultDale2"
+                "TrialOfSwordmancyQuickTeleportStart"
             ]
         },
         "post_delay": 0,

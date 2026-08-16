@@ -99,9 +99,20 @@ public:
         MatchMode mode = MatchMode::Auto);
 };
 
-std::optional<MatchResultRaw> CoreMatch(const cv::Mat& searchImgRaw, const cv::Mat& templRaw, const cv::Mat& weightMask, int blurSize = 5);
-PreparedSearchFeature PrepareSearchFeature(const cv::Mat& searchImgRaw, int blurSize = 5);
-std::optional<MatchResultRaw>
-    CoreMatchPrepared(const PreparedSearchFeature& searchFeature, const cv::Mat& templRaw, const cv::Mat& weightMask);
+enum class PeakRefineMode
+{
+    // 三点抛物线。相关面的离散格点就是精度上限，够粗扫把精修窗放到正确位置
+    Parabola,
+    // 在全分辨率上连续求极大，不受相关面格点限制。最终输出的坐标走这条
+    Continuous,
+};
+
+std::optional<MatchResultRaw> CoreMatch(const cv::Mat& searchImgRaw, const cv::Mat& templRaw, const cv::Mat& weightMask);
+PreparedSearchFeature PrepareSearchFeature(const cv::Mat& searchImgRaw);
+std::optional<MatchResultRaw> CoreMatchPrepared(
+    const PreparedSearchFeature& searchFeature,
+    const cv::Mat& templRaw,
+    const cv::Mat& weightMask,
+    PeakRefineMode refineMode = PeakRefineMode::Parabola);
 
 } // namespace maplocator

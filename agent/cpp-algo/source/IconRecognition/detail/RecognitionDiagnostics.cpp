@@ -81,6 +81,13 @@ json::value CellRecognitionDiagnostics::to_json() const
     if (rarity_row_offset) {
         object["rarity"]["row_offset"] = *rarity_row_offset;
     }
+    if (edge_occlusion_side && edge_occlusion_cutoff && edge_occlusion_residual_ratio) {
+        object["edge_occlusion"] = json::object {
+            { "side", *edge_occlusion_side },
+            { "cutoff", *edge_occlusion_cutoff },
+            { "residual_ratio", *edge_occlusion_residual_ratio },
+        };
+    }
     if (row) {
         object["row"] = *row;
     }

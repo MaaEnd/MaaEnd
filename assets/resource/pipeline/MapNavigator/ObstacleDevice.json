@@ -1,20 +1,20 @@
 {
-    "MapTrackerStuckMitigator_MoveOrDeleteDevice": {
+    "MapNavigatorObstacleDevice": {
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "__MapTrackerStuckMitigator_MoveOrDeleteDevice_InteractPre",
-            "__MapTrackerStuckMitigator_MoveOrDeleteDevice_NoHit"
+            "__MapNavigatorObstacleDevice_InteractPre",
+            "__MapNavigatorObstacleDevice_NoHit"
         ]
     },
-    "__MapTrackerStuckMitigator_MoveOrDeleteDevice_NoHit": {
+    "__MapNavigatorObstacleDevice_NoHit": {
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
             // Finish pipeline execution
         ]
     },
-    "__MapTrackerStuckMitigator_MoveOrDeleteDevice_InteractPre": {
+    "__MapNavigatorObstacleDevice_InteractPre": {
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -25,7 +25,7 @@
                     310
                 ],
                 "template": [
-                    "MapTracker/StuckMitigator/InteractButton.png"
+                    "MapNavigator/ObstacleDevice/InteractButton.png"
                 ],
                 "order_by": "Score"
             }
@@ -37,39 +37,42 @@
             }
         },
         "next": [
-            "__MapTrackerStuckMitigator_MoveOrDeleteDevice_Interact"
+            "__MapNavigatorObstacleDevice_Interact"
         ]
     },
-    "__MapTrackerStuckMitigator_MoveOrDeleteDevice_Interact": {
+    "__MapNavigatorObstacleDevice_Interact": {
         "action": {
             "type": "Click",
             "param": {
-                "target": "__MapTrackerStuckMitigator_MoveOrDeleteDevice_InteractPre"
+                "target": "__MapNavigatorObstacleDevice_InteractPre"
             }
         },
         "next": [
-            "__MapTrackerStuckMitigator_MoveOrDeleteDevice_InteractPost"
+            "__MapNavigatorObstacleDevice_InteractPost"
         ]
     },
-    "__MapTrackerStuckMitigator_MoveOrDeleteDevice_InteractPost": {
+    "__MapNavigatorObstacleDevice_InteractPost": {
         "action": {
             "type": "KeyUp",
             "param": {
                 "key": 18 // Alt
             }
         },
+        // 设备框内容淡入慢：实测点击后 0.79s 时按钮只有 0.53~0.65 认不出，1.28s 已到 0.97。
+        // 等淡入结束再看，否则会落到兜底的关闭按钮上，框刚开就被关掉。
+        "post_delay": 1000,
         "timeout": 5000,
         "rate_limit": 500,
         "next": [
-            "__MapTrackerStuckMitigator_MoveOrDeleteDevice_DeleteDevice",
-            "__MapTrackerStuckMitigator_MoveOrDeleteDevice_MoveDevice",
-            "__MapTrackerStuckMitigator_MoveOrDeleteDevice_MoveAICCore",
-            "__MapTrackerStuckMitigator_MoveOrDeleteDevice_SkipChat",
-            "__MapTrackerStuckMitigator_MoveOrDeleteDevice_CloseBagDialog",
-            "__MapTrackerStuckMitigator_MoveOrDeleteDevice_CloseUnknownDeviceDialog"
+            "__MapNavigatorObstacleDevice_DeleteDevice",
+            "__MapNavigatorObstacleDevice_MoveDevice",
+            "__MapNavigatorObstacleDevice_MoveAICCore",
+            "__MapNavigatorObstacleDevice_SkipChat",
+            "__MapNavigatorObstacleDevice_CloseBagDialog",
+            "__MapNavigatorObstacleDevice_CloseUnknownDeviceDialog"
         ]
     },
-    "__MapTrackerInternal_IsInFactoryDeviceDialog": {
+    "__MapNavigatorObstacleDevice_IsInFactoryDeviceDialog": {
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -80,13 +83,13 @@
                     230
                 ],
                 "template": [
-                    "MapTracker/StuckMitigator/FactoryDeviceDialog.png"
+                    "MapNavigator/ObstacleDevice/FactoryDeviceDialog.png"
                 ],
                 "order_by": "Score"
             }
         }
     },
-    "__MapTrackerInternal_IsDeleteSharedDeviceButton": {
+    "__MapNavigatorObstacleDevice_IsDeleteSharedDeviceButton": {
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -97,13 +100,13 @@
                     180
                 ],
                 "template": [
-                    "MapTracker/StuckMitigator/DeleteSharedDeviceButton.png"
+                    "MapNavigator/ObstacleDevice/DeleteSharedDeviceButton.png"
                 ],
                 "order_by": "Score"
             }
         }
     },
-    "__MapTrackerInternal_IsMoveDeviceButton": {
+    "__MapNavigatorObstacleDevice_IsMoveDeviceButton": {
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -114,13 +117,13 @@
                     180
                 ],
                 "template": [
-                    "MapTracker/StuckMitigator/MoveDeviceButton.png"
+                    "MapNavigator/ObstacleDevice/MoveDeviceButton.png"
                 ],
                 "order_by": "Score"
             }
         }
     },
-    "__MapTrackerInternal_IsInAICCoreDialog": {
+    "__MapNavigatorObstacleDevice_IsInAICCoreDialog": {
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -131,13 +134,13 @@
                     150
                 ],
                 "template": [
-                    "MapTracker/StuckMitigator/AICCoreDialog.png"
+                    "MapNavigator/ObstacleDevice/AICCoreDialog.png"
                 ],
                 "order_by": "Score"
             }
         }
     },
-    "__MapTrackerInternal_IsMoveAICCoreButton": {
+    "__MapNavigatorObstacleDevice_IsMoveAICCoreButton": {
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -148,13 +151,13 @@
                     120
                 ],
                 "template": [
-                    "MapTracker/StuckMitigator/MoveAICCoreButton.png"
+                    "MapNavigator/ObstacleDevice/MoveAICCoreButton.png"
                 ],
                 "order_by": "Score"
             }
         }
     },
-    "__MapTrackerInternal_IsInChatDialog": {
+    "__MapNavigatorObstacleDevice_IsInChatDialog": {
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -165,7 +168,7 @@
                     90
                 ],
                 "template": [
-                    "MapTracker/StuckMitigator/ChatDialog.png"
+                    "MapNavigator/ObstacleDevice/ChatDialog.png"
                 ],
                 "green_mask": true,
                 "threshold": 0.6,
@@ -173,7 +176,7 @@
             }
         }
     },
-    "__MapTrackerInternal_IsSkipChatButton": {
+    "__MapNavigatorObstacleDevice_IsSkipChatButton": {
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -184,7 +187,7 @@
                     90
                 ],
                 "template": [
-                    "MapTracker/StuckMitigator/SkipChatButton.png"
+                    "MapNavigator/ObstacleDevice/SkipChatButton.png"
                 ],
                 "green_mask": true,
                 "threshold": 0.6,
@@ -192,7 +195,7 @@
             }
         }
     },
-    "__MapTrackerInternal_IsInBagDialog": {
+    "__MapNavigatorObstacleDevice_IsInBagDialog": {
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -203,13 +206,13 @@
                     130
                 ],
                 "template": [
-                    "MapTracker/StuckMitigator/BagDialog.png"
+                    "MapNavigator/ObstacleDevice/BagDialog.png"
                 ],
                 "order_by": "Score"
             }
         }
     },
-    "__MapTrackerInternal_IsCloseBagDialogButton": {
+    "__MapNavigatorObstacleDevice_IsCloseBagDialogButton": {
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -220,19 +223,19 @@
                     130
                 ],
                 "template": [
-                    "MapTracker/StuckMitigator/CloseBagDialogButton.png"
+                    "MapNavigator/ObstacleDevice/CloseBagDialogButton.png"
                 ],
                 "order_by": "Score"
             }
         }
     },
-    "__MapTrackerStuckMitigator_MoveOrDeleteDevice_DeleteDevice": {
+    "__MapNavigatorObstacleDevice_DeleteDevice": {
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
-                    "__MapTrackerInternal_IsInFactoryDeviceDialog",
-                    "__MapTrackerInternal_IsDeleteSharedDeviceButton"
+                    "__MapNavigatorObstacleDevice_IsInFactoryDeviceDialog",
+                    "__MapNavigatorObstacleDevice_IsDeleteSharedDeviceButton"
                 ],
                 "box_index": 1
             }
@@ -251,10 +254,10 @@
             "timeout": 10000
         },
         "next": [
-            "__MapTrackerStuckMitigator_MoveOrDeleteDevice_DeleteDeviceConfirm"
+            "__MapNavigatorObstacleDevice_DeleteDeviceConfirm"
         ]
     },
-    "__MapTrackerStuckMitigator_MoveOrDeleteDevice_DeleteDeviceConfirm": {
+    "__MapNavigatorObstacleDevice_DeleteDeviceConfirm": {
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -276,13 +279,13 @@
         },
         "post_delay": 500
     },
-    "__MapTrackerStuckMitigator_MoveOrDeleteDevice_MoveDevice": {
+    "__MapNavigatorObstacleDevice_MoveDevice": {
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
-                    "__MapTrackerInternal_IsInFactoryDeviceDialog",
-                    "__MapTrackerInternal_IsMoveDeviceButton"
+                    "__MapNavigatorObstacleDevice_IsInFactoryDeviceDialog",
+                    "__MapNavigatorObstacleDevice_IsMoveDeviceButton"
                 ],
                 "box_index": 1
             }
@@ -292,16 +295,16 @@
         },
         "post_delay": 300,
         "next": [
-            "__MapTrackerStuckMitigator_MoveOrDeleteDevice_CancelMove"
+            "__MapNavigatorObstacleDevice_CancelMove"
         ]
     },
-    "__MapTrackerStuckMitigator_MoveOrDeleteDevice_MoveAICCore": {
+    "__MapNavigatorObstacleDevice_MoveAICCore": {
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
-                    "__MapTrackerInternal_IsInAICCoreDialog",
-                    "__MapTrackerInternal_IsMoveAICCoreButton"
+                    "__MapNavigatorObstacleDevice_IsInAICCoreDialog",
+                    "__MapNavigatorObstacleDevice_IsMoveAICCoreButton"
                 ],
                 "box_index": 1
             }
@@ -311,10 +314,10 @@
         },
         "post_delay": 1500,
         "next": [
-            "__MapTrackerStuckMitigator_MoveOrDeleteDevice_CancelMove"
+            "__MapNavigatorObstacleDevice_CancelMove"
         ]
     },
-    "__MapTrackerStuckMitigator_MoveOrDeleteDevice_CancelMove": {
+    "__MapNavigatorObstacleDevice_CancelMove": {
         "action": {
             "type": "ClickKey",
             "param": {
@@ -322,13 +325,13 @@
             }
         }
     },
-    "__MapTrackerStuckMitigator_MoveOrDeleteDevice_SkipChat": {
+    "__MapNavigatorObstacleDevice_SkipChat": {
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
-                    "__MapTrackerInternal_IsInChatDialog",
-                    "__MapTrackerInternal_IsSkipChatButton"
+                    "__MapNavigatorObstacleDevice_IsInChatDialog",
+                    "__MapNavigatorObstacleDevice_IsSkipChatButton"
                 ],
                 "box_index": 1
             }
@@ -347,10 +350,10 @@
             "timeout": 10000
         },
         "next": [
-            "__MapTrackerStuckMitigator_MoveOrDeleteDevice_SkipChatConfirm"
+            "__MapNavigatorObstacleDevice_SkipChatConfirm"
         ]
     },
-    "__MapTrackerStuckMitigator_MoveOrDeleteDevice_SkipChatConfirm": {
+    "__MapNavigatorObstacleDevice_SkipChatConfirm": {
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -372,13 +375,13 @@
         },
         "post_delay": 500
     },
-    "__MapTrackerStuckMitigator_MoveOrDeleteDevice_CloseBagDialog": {
+    "__MapNavigatorObstacleDevice_CloseBagDialog": {
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
-                    "__MapTrackerInternal_IsInBagDialog",
-                    "__MapTrackerInternal_IsCloseBagDialogButton"
+                    "__MapNavigatorObstacleDevice_IsInBagDialog",
+                    "__MapNavigatorObstacleDevice_IsCloseBagDialogButton"
                 ],
                 "box_index": 1
             }
@@ -387,7 +390,7 @@
             "type": "Click"
         }
     },
-    "__MapTrackerStuckMitigator_MoveOrDeleteDevice_CloseUnknownDeviceDialog": {
+    "__MapNavigatorObstacleDevice_CloseUnknownDeviceDialog": {
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -398,7 +401,7 @@
                     130
                 ],
                 "template": [
-                    "MapTracker/StuckMitigator/CloseUnknownDeviceButton.png"
+                    "MapNavigator/ObstacleDevice/CloseUnknownDeviceButton.png"
                 ],
                 "order_by": "Score"
             }

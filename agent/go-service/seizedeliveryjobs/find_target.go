@@ -65,13 +65,42 @@ func readMinReward(ctx *maa.Context) (float64, error) {
 }
 
 // parseRewardFloat 解析价格文本为 float（单位统一为「万」）。
-// 仅接受「万」单位（如 "16.3万"）；无单位时假定已是万单位。
+// 支持「万」/「萬」单位（如 "16.3万"），也支持英文缩写 K/M（如 "119K"、"1.2M"，
+// 繁体等部分地区客户端用此格式显示报酬）；无单位时假定已是万单位。
 func parseRewardFloat(s string) (float64, error) {
 	s = strings.TrimSpace(s)
 	if num, ok := strings.CutSuffix(s, "万"); ok {
 		return strconv.ParseFloat(num, 64)
 	}
+	if num, ok := strings.CutSuffix(s, "萬"); ok {
+		return strconv.ParseFloat(num, 64)
+	}
+	if num, ok := cutSuffixFold(s, "K"); ok {
+		v, err := strconv.ParseFloat(num, 64)
+		if err != nil {
+			return 0, err
+		}
+		return v / 10, nil // 1K = 1000 = 0.1万
+	}
+	if num, ok := cutSuffixFold(s, "M"); ok {
+		v, err := strconv.ParseFloat(num, 64)
+		if err != nil {
+			return 0, err
+		}
+		return v * 100, nil // 1M = 1000000 = 100万
+	}
 	return strconv.ParseFloat(s, 64)
+}
+
+// cutSuffixFold 忽略大小写地裁剪后缀（如 "119k"/"119K" 均可匹配 "K"）。
+func cutSuffixFold(s, suffix string) (string, bool) {
+	if len(s) < len(suffix) {
+		return "", false
+	}
+	if strings.EqualFold(s[len(s)-len(suffix):], suffix) {
+		return s[:len(s)-len(suffix)], true
+	}
+	return "", false
 }
 
 // offsetBox 把 box 加上偏移得到新 box。

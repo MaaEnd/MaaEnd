@@ -26,7 +26,8 @@ from localization import (
     build_locale_values,
     update_interface_locale,
 )
-from publish import default_publish_paths
+from publish import default_publish_paths, publish_fixed_items
+from expected import merge_expected_results
 from text import clean_text, validate_identifier
 
 
@@ -55,7 +56,142 @@ class IconRecognitionToolsTest(unittest.TestCase):
         self.assertEqual(paths.item_source, Path("repo/tools/icon_recognition/.cache/downloads/item.json"))
         self.assertEqual(paths.image_root, Path("repo/tools/icon_recognition/.cache/downloads/images"))
         self.assertEqual(paths.catalog_output, Path("repo/assets/data/IconRecognition/recognition_items.json"))
+        self.assertEqual(paths.asset_image_root, Path("repo/assets/resource/image/IconRecognition"))
         self.assertEqual(paths.locale_root, Path("repo/assets/locales/interface"))
+
+    def test_fixed_publish_updates_only_fixed_catalog_and_locale_entries(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            paths = default_publish_paths(root)
+            paths.catalog_output.parent.mkdir(parents=True)
+            paths.catalog_output.write_text(
+                json.dumps(
+                    {
+                        "item_kept": {
+                            "name": "保留",
+                            "category": "产物",
+                            "storageKind": "Normal",
+                            "categoryType": "Product",
+                            "rarity": 3,
+                            "iconId": "item_kept",
+                            "fluidIconId": "",
+                        },
+                        "item_diamond": {
+                            "name": "旧嵌晶玉",
+                            "category": "独立资源",
+                            "storageKind": "Isolate",
+                            "categoryType": "Diamond",
+                            "rarity": 5,
+                            "iconId": "item_diamond",
+                            "fluidIconId": "",
+                        },
+                    },
+                    ensure_ascii=False,
+                ),
+                encoding="utf-8",
+            )
+            for locale, (_, language) in LOCALE_MAP.items():
+                locale_path = paths.locale_root / f"{locale}.json"
+                locale_path.parent.mkdir(parents=True, exist_ok=True)
+                locale_path.write_text(
+                    json.dumps(
+                        {
+                            "unrelated": "keep",
+                            "iconRecognition.name.item_kept": "Keep",
+                            "iconRecognition.name.item_diamond": "Old",
+                        }
+                    ),
+                    encoding="utf-8",
+                )
+                translations = {
+                    key: f"{language}:{item_id}"
+                    for item_id, key in FIXED_NAME_KEYS.items()
+                }
+                language_path = paths.language_root / f"lang_{language}.json"
+                language_path.parent.mkdir(parents=True, exist_ok=True)
+                language_path.write_text(json.dumps(translations), encoding="utf-8")
+            for item_id, item in merge_item_sources({}, {}).items():
+                source = paths.image_root / str(item["rarity"]) / f"{item_id}.png"
+                source.parent.mkdir(parents=True, exist_ok=True)
+                source.write_bytes(self._png_header(128, 128))
+            stale = paths.asset_image_root / "5" / "item_diamond.png"
+            stale.parent.mkdir(parents=True, exist_ok=True)
+            stale.write_bytes(b"old")
+
+            count = publish_fixed_items(paths)
+
+            catalog = json.loads(paths.catalog_output.read_text(encoding="utf-8"))
+            self.assertEqual(count, 9)
+            self.assertIn("item_kept", catalog)
+            self.assertEqual(catalog["item_diamond"]["rarity"], 6)
+            self.assertFalse(stale.exists())
+            self.assertTrue((paths.asset_image_root / "6" / "item_diamond.png").is_file())
+            locale = json.loads((paths.locale_root / "en_us.json").read_text(encoding="utf-8"))
+            self.assertEqual(locale["unrelated"], "keep")
+            self.assertEqual(locale["iconRecognition.name.item_kept"], "Keep")
+            self.assertEqual(locale["iconRecognition.name.item_diamond"], "en-US:item_diamond")
+
+    def test_expected_merge_replaces_old_image_cases_and_keeps_all_reported_rois(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            tracked = root / "tracked.csv"
+            tracked.write_text(
+                'image,roi,item_id,count\n'
+                'transfer/1.png,"[1,2,3,4]",item_old,1\n'
+                'rewards/130.png,"[9,9,9,9]",item_stale,1\n',
+                encoding="utf-8",
+            )
+            detail = root / "detail" / "rewards-full-130.local1.json"
+            detail.parent.mkdir()
+            detail.write_text(
+                json.dumps(
+                    {
+                        "matches": [
+                            {"item_id": "item_new"},
+                            {"item_id": "item_new"},
+                            {"item_id": "item_other"},
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+            second_detail = root / "detail" / "rewards-right-130.local1.json"
+            second_detail.write_text(
+                json.dumps({"matches": [{"item_id": "item_second_roi"}]}),
+                encoding="utf-8",
+            )
+            report = root / "report.json"
+            report.write_text(
+                json.dumps(
+                    {
+                        "cases": [
+                            {
+                                "image": "rewards/130.local1.png",
+                                "roi": {"x": 150, "y": 180, "width": 980, "height": 360},
+                                "detail": str(detail),
+                            },
+                            {
+                                "image": "rewards/130.local1.png",
+                                "roi": {"x": 1130, "y": 180, "width": 100, "height": 100},
+                                "detail": str(second_detail),
+                            },
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+            output = root / "expected.csv"
+
+            merge_expected_results(tracked, report, output)
+
+            self.assertEqual(
+                output.read_text(encoding="utf-8"),
+                'image,roi,item_id,count\n'
+                'rewards/130.png,"[1130,180,100,100]",item_second_roi,1\n'
+                'rewards/130.png,"[150,180,980,360]",item_new,2\n'
+                'rewards/130.png,"[150,180,980,360]",item_other,1\n'
+                'transfer/1.png,"[1,2,3,4]",item_old,1\n',
+            )
 
     @staticmethod
     def _png_header(width: int, height: int) -> bytes:
@@ -138,16 +274,16 @@ class IconRecognitionToolsTest(unittest.TestCase):
             image_root = Path(directory) / "images"
             for rarity, icon_id in (
                 (4, "item_gold"),
-                (5, "item_diamond"),
-                (5, "item_gachabyproducts_weapongold"),
+                (6, "item_diamond"),
+                (6, "item_gachabyproducts_weapongold"),
             ):
                 path = image_root / str(rarity) / f"{icon_id}.png"
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_bytes(b"png")
             source = {
-                "item_gold": {"name": "1b858553aff0ccfee876ed0367300534", "category": "货币", "storageKind": "Isolate", "categoryType": "Currency", "rarity": 4, "iconId": "item_gold", "fullContainers": []},
-                "item_diamond": {"name": "aa5edf17dd5cbb87661ec9f3d86d353e", "category": "货币", "storageKind": "Isolate", "categoryType": "Currency", "rarity": 5, "iconId": "item_diamond", "fullContainers": []},
-                "item_gachabyproducts_weapongold": {"name": "011c0bffc4a5c215eb651edaf3e5b929", "category": "货币", "storageKind": "Isolate", "categoryType": "Currency", "rarity": 5, "iconId": "item_gachabyproducts_weapongold", "fullContainers": []},
+                "item_gold": {"name": "1b858553aff0ccfee876ed0367300534", "category": "独立资源", "storageKind": "Isolate", "categoryType": "Gold", "rarity": 4, "iconId": "item_gold", "fullContainers": []},
+                "item_diamond": {"name": "aa5edf17dd5cbb87661ec9f3d86d353e", "category": "独立资源", "storageKind": "Isolate", "categoryType": "Diamond", "rarity": 6, "iconId": "item_diamond", "fullContainers": []},
+                "item_gachabyproducts_weapongold": {"name": "011c0bffc4a5c215eb651edaf3e5b929", "category": "独立资源", "storageKind": "Isolate", "categoryType": "WeaponGold", "rarity": 6, "iconId": "item_gachabyproducts_weapongold", "fullContainers": []},
             }
             result = build_catalog(source, image_root)
             self.assertEqual(result["item_gold"]["categoryType"], "Gold")
@@ -208,6 +344,26 @@ class IconRecognitionToolsTest(unittest.TestCase):
         self.assertEqual(result["item_test"]["sortId1"], -100)
         self.assertEqual(result["item_test"]["sortId2"], 12)
 
+    def test_prepare_item_map_accepts_isolate_category_types(self) -> None:
+        items, removals = prepare_item_map(
+            {
+                "item_remote_isolate": self._mini_item(
+                    category="上游分类名称",
+                    storageKind="Isolate",
+                    categoryType="FutureResource",
+                    iconId="item_remote_isolate",
+                )
+            },
+            blacklist=(),
+        )
+
+        self.assertEqual(removals, [])
+        self.assertEqual(items["item_remote_isolate"]["category"], "独立资源")
+        self.assertEqual(
+            items["item_remote_isolate"]["categoryType"],
+            "FutureResource",
+        )
+
     def test_prepare_item_map_filters_explicit_normal_product_blacklist(self) -> None:
         blacklisted_ids = {
             "item_activity_xiranite_enr_hulu",
@@ -251,9 +407,15 @@ class IconRecognitionToolsTest(unittest.TestCase):
         self.assertEqual(
             FIXED_NAME_KEYS,
             {
+                "item_cbp_exp": "b8cff4d169274d30f90de3fe0bf854d9",
+                "item_adventureexp": "9ec5628af29c72843a11c5621ec0e32a",
                 "item_gold": "1b858553aff0ccfee876ed0367300534",
                 "item_diamond": "aa5edf17dd5cbb87661ec9f3d86d353e",
                 "item_gachabyproducts_weapongold": "011c0bffc4a5c215eb651edaf3e5b929",
+                "item_domain_jinlong_coupon": "af0a45fb328a9cdd07d2fe0e7ddacbb2",
+                "item_domain_tundra_coupon": "40f1e255b753623044d91b8c492ab277",
+                "item_spaceship_credit": "1bd1aaac9e3e0db9677cd16b2118ff8f",
+                "item_originium_recharge": "ff990914a2dc3f11473e5d6739e873b7",
             },
         )
 
@@ -261,9 +423,24 @@ class IconRecognitionToolsTest(unittest.TestCase):
 
         self.assertEqual(
             set(merged),
-            {"item_gold", "item_diamond", "item_gachabyproducts_weapongold"},
+            {
+                "item_cbp_exp",
+                "item_adventureexp",
+                "item_gold",
+                "item_diamond",
+                "item_gachabyproducts_weapongold",
+                "item_domain_jinlong_coupon",
+                "item_domain_tundra_coupon",
+                "item_spaceship_credit",
+                "item_originium_recharge",
+            },
         )
         self.assertTrue(set(FIXED_NAME_KEYS.values()).isdisjoint(merged))
+        self.assertEqual(merged["item_gold"]["rarity"], 4)
+        self.assertEqual(merged["item_diamond"]["rarity"], 6)
+        self.assertEqual(merged["item_gachabyproducts_weapongold"]["rarity"], 6)
+        self.assertTrue(all(item["category"] == "独立资源" for item in merged.values()))
+        self.assertTrue(all(item["storageKind"] == "Isolate" for item in merged.values()))
 
         with tempfile.TemporaryDirectory() as directory:
             item_id = FIXED_NAME_KEYS["item_gold"]
