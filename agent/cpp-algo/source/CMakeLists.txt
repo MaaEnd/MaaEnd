@@ -19,6 +19,10 @@ if(WIN32)
     target_link_libraries(cpp-algo PRIVATE WebView2::WebView2 dbghelp)
     target_compile_definitions(cpp-algo PRIVATE MAAEND_HAVE_WEBVIEW2)
 
+    # 固定产出完整 PDB（/DEBUG:FULL）：CI 符号包依赖行号信息，
+    # 避免 MSVC 默认（历史上有 FASTLINK 默认期）时 dump_syms 拿不到行号。
+    target_link_options(cpp-algo PRIVATE "$<$<CONFIG:RelWithDebInfo>:/DEBUG:FULL>")
+
     add_custom_command(TARGET cpp-algo POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
             "$<TARGET_FILE:WebView2::WebView2>"
