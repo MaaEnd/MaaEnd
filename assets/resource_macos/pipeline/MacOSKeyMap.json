@@ -170,6 +170,14 @@
             }
         }
     },
+    "MapNavigatorInteract": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 3
+            }
+        }
+    },
     "MapTrackerOpenWorld_GetOffZipline": {
         "action": {
             "type": "ClickKey",

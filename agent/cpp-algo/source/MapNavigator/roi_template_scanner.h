@@ -19,9 +19,9 @@ class RoiTemplateScanner
 public:
     // base_roi: scan region in the pipeline's authored base resolution (not live-frame). Frames are cropped to
     // the rescaled region and normalized back to base_roi's size, so detection runs in one resolution-
-    // independent pixel space. templ: grayscale, base scale. allow_text_fallback lets a caller whose template
-    // failed to load drop to the bright-text-blob heuristic instead of detecting nothing at all.
-    RoiTemplateScanner(std::string tag, const cv::Rect& base_roi, const cv::Mat& templ, double match_threshold, bool allow_text_fallback);
+    // independent pixel space. templ: grayscale, base scale, never empty. mask: CV_8UC1 the size of templ,
+    // empty to match the whole template.
+    RoiTemplateScanner(std::string tag, const cv::Rect& base_roi, const cv::Mat& templ, const cv::Mat& mask, double match_threshold);
     ~RoiTemplateScanner();
 
     RoiTemplateScanner(const RoiTemplateScanner&) = delete;
@@ -40,9 +40,9 @@ private:
 
     std::string tag_;
     cv::Rect base_roi_;
-    cv::Mat template_; // grayscale; empty → the text heuristic if allowed, otherwise nothing is ever flagged
+    cv::Mat template_; // grayscale, base scale
+    cv::Mat mask_;     // empty = whole template
     double match_threshold_;
-    bool allow_text_fallback_;
     std::thread worker_;
     std::mutex mutex_;
     std::condition_variable cv_;

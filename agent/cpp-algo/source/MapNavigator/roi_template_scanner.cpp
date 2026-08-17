@@ -1,6 +1,7 @@
 #include "roi_template_scanner.h"
 
 #include <cmath>
+#include <limits>
 #include <utility>
 
 #include <opencv2/imgproc.hpp>
@@ -28,8 +29,8 @@ cv::Rect ScaledRoi(const cv::Size& frame_size, const cv::Rect& base_roi)
     return roi & cv::Rect(0, 0, frame_size.width, frame_size.height);
 }
 
-// Collapse a BGRA/BGR/gray ROI to one channel, shared by both detectors. Lives here (not utils.h) so this
-// framework-free worker TU doesn't pull in the framework headers utils.h includes.
+// Collapse a BGRA/BGR/gray ROI to one channel. Lives here (not utils.h) so this framework-free worker TU
+// doesn't pull in the framework headers utils.h includes.
 cv::Mat ToGray(const cv::Mat& roi)
 {
     cv::Mat gray;
@@ -47,61 +48,25 @@ cv::Mat ToGray(const cv::Mat& roi)
     return gray;
 }
 
-// Fallback detector: threshold bright pixels, close horizontally so a word's glyphs merge into one blob, then
-// look for a connected component shaped like a short, wide, sparse text run. Input is already grayscale.
-bool HasLabelLikeText(const cv::Mat& gray, const std::string& tag)
-{
-    if (gray.empty()) {
-        return false;
-    }
-
-    cv::Mat bright;
-    cv::threshold(gray, bright, kCollectLabelBrightThreshold, 255, cv::THRESH_BINARY);
-
-    cv::Mat joined;
-    const cv::Mat kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(kCollectLabelMorphWidth, 1));
-    cv::morphologyEx(bright, joined, cv::MORPH_CLOSE, kernel);
-
-    cv::Mat labels;
-    cv::Mat stats;
-    cv::Mat centroids;
-    const int n = cv::connectedComponentsWithStats(joined, labels, stats, centroids, 8, CV_32S);
-
-    int best_w = 0;
-    for (int i = 1; i < n; ++i) { // 0 is the background component
-        const int w = stats.at<int>(i, cv::CC_STAT_WIDTH);
-        const int h = stats.at<int>(i, cv::CC_STAT_HEIGHT);
-        const int area = stats.at<int>(i, cv::CC_STAT_AREA);
-        if (h < kCollectLabelMinHeight || h > kCollectLabelMaxHeight) {
-            continue; // too thin to be a glyph row, or too tall to be one
-        }
-        const double fill = static_cast<double>(area) / (static_cast<double>(w) * static_cast<double>(h));
-        if (fill > kCollectLabelMaxFill) {
-            continue; // a near-solid block is a panel/icon, not sparse text
-        }
-        if (w > best_w) {
-            best_w = w;
-        }
-    }
-
-    if (best_w > 0) {
-        LogDebug << "RoiTemplateScanner text candidate." << VAR(tag) << VAR(best_w);
-    }
-    return best_w >= kCollectLabelMinWidth;
-}
-
-// Primary detector. Template and ROI share base scale, so it matches at native size (no rescale); a glyph is
-// far harder for terrain to fake than a bright blob. Already gray.
-bool MatchesTemplate(const cv::Mat& gray, const cv::Mat& templ, double threshold, const std::string& tag)
+// Template and ROI share base scale, so it matches at native size (no rescale). Already gray.
+bool MatchesTemplate(const cv::Mat& gray, const cv::Mat& templ, const cv::Mat& mask, double threshold, const std::string& tag)
 {
     if (gray.empty() || templ.empty() || gray.rows < templ.rows || gray.cols < templ.cols) {
         return false;
     }
 
     cv::Mat result;
-    cv::matchTemplate(gray, templ, result, cv::TM_CCOEFF_NORMED);
+    cv::matchTemplate(gray, templ, result, cv::TM_CCOEFF_NORMED, mask);
+
+    // Masked normalized correlation has no divide-by-zero guard: a flat window yields inf/nan, and inf would top the
+    // score. With every cell rejected minMaxLoc hands back 0, which is below any threshold.
+    cv::Mat finite;
+    if (!mask.empty()) {
+        constexpr double kFloatLimit = static_cast<double>(std::numeric_limits<float>::max());
+        cv::inRange(result, -kFloatLimit, kFloatLimit, finite);
+    }
     double max_val = 0.0;
-    cv::minMaxLoc(result, nullptr, &max_val, nullptr, nullptr);
+    cv::minMaxLoc(result, nullptr, &max_val, nullptr, nullptr, finite);
     if (max_val >= 0.5) { // log near matches to calibrate the threshold without flooding
         LogDebug << "RoiTemplateScanner template match." << VAR(tag) << VAR(max_val);
     }
@@ -114,13 +79,13 @@ RoiTemplateScanner::RoiTemplateScanner(
     std::string tag,
     const cv::Rect& base_roi,
     const cv::Mat& templ,
-    double match_threshold,
-    bool allow_text_fallback)
+    const cv::Mat& mask,
+    double match_threshold)
     : tag_(std::move(tag))
     , base_roi_(base_roi)
     , template_(templ)
+    , mask_(mask)
     , match_threshold_(match_threshold)
-    , allow_text_fallback_(allow_text_fallback)
 {
     worker_ = std::thread(&RoiTemplateScanner::WorkerLoop, this);
 }
@@ -181,15 +146,7 @@ void RoiTemplateScanner::WorkerLoop()
             cv::resize(roi, normalized, base_roi_.size(), 0, 0, cv::INTER_AREA);
         }
 
-        const cv::Mat gray = ToGray(normalized);
-        bool hit = false;
-        if (!template_.empty()) {
-            hit = MatchesTemplate(gray, template_, match_threshold_, tag_);
-        }
-        else if (allow_text_fallback_) {
-            hit = HasLabelLikeText(gray, tag_);
-        }
-        if (hit) {
+        if (MatchesTemplate(ToGray(normalized), template_, mask_, match_threshold_, tag_)) {
             detected_.store(true);
         }
     }

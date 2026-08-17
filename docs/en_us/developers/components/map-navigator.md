@@ -97,6 +97,8 @@ Controls the character to move automatically along a given path and execute addi
 - `map_name`: String, empty by default. Used as the initial area context. If the `path` already contains a `ZONE` declaration node, this usually does not need to be filled additionally.
 - `arrival_timeout`: Positive integer, `60000` by default. Maximum allowed time in milliseconds for a single target point to remain unreached before being considered failed.
 - `sprint_threshold`: Positive real number, `25.0` by default. The "length of continuously runnable segment ahead" threshold used for automatic sprint judgment, rather than just looking at the straight-line distance to the current point.
+- `interact_text`: String or array of strings, empty by default. Route-wide default for the interact prompt text, see [Async Interaction](#async-interaction-interact). The field also supports camelCase `interactText`; text written on a waypoint wins, and the route-wide value only fills in the `INTERACT` points that carry none of their own. An empty string or an empty array is rejected outright (the whole parameter parse fails) rather than treated as absent, because empty text matches anything on the recognition side.
+- `interact_scan`: String, empty by default. Route-wide default for the walking pre-filter node, see [Replacing the Icon Pre-filter](#replacing-the-icon-pre-filter). The field also supports camelCase `interactScan`; a node named on a waypoint wins, and an empty string counts as absent (falling back to the shipped one).
 - Other unknown top-level fields: Currently ignored silently without causing errors.
 
 #### `path` Data Structure
@@ -141,11 +143,26 @@ When a coordinate was authored directly on a tier basemap, use the object form t
 
 `target_tier` only describes the coordinate frame of this node. It does not switch zones, update following nodes, or replace the `ZONE` / `PORTAL` semantics required for an actual area transition. Existing arrays and object points without `target_tier` retain their previous behavior.
 
+The object form is also how an `INTERACT` point declares the prompt text it came for (and, when needed, `interact_scan`). The array form `[x, y, "INTERACT"]` has no slot for these fields, so async interaction requires the object form:
+
+```json
+{
+    "action": "INTERACT",
+    "target": [
+        331,
+        1578
+    ],
+    "interact_text": "登记"
+}
+```
+
+Only `INTERACT` points can take these fields — on any other action they are ignored, with one `carries interact fields without an INTERACT action` line in the log.
+
 - `RUN`: Ordinary movement point.
 - `SPRINT`: Perform a sprint once upon arrival.
 - `JUMP`: Jump upon arrival.
 - `FIGHT`: Attack once upon arrival.
-- `INTERACT`: Interact upon arrival.
+- `INTERACT`: Interact upon arrival. With `interact_text` it becomes an async interaction instead, see [Async Interaction](#async-interaction-interact).
 - `TRANSFER`: Stop upon arrival, wait for external force to move the character to the next path segment, then continue navigation from subsequent points.
 - `PORTAL`: Cross-area transition point, upon triggering, enter blind walk to wait for area switch.
 - `HEADING`: Adjust the camera to a specified orientation, then press `W` once.
@@ -491,7 +508,7 @@ Non-coordinate control nodes like `HEADING` are not part of this GUI action chai
 
 Usually, the only fine-tuning you really need to do is:
 
-1. Change key interaction points to `INTERACT` and check `Strict` (points recorded with the X key are already strict arrival by default).
+1. Change key interaction points to `INTERACT` and check `Strict` (points recorded with the X key are already strict arrival by default). When the prompt text has to be confirmed before pressing, add `interact_text` to that point after exporting — see [Async Interaction](#async-interaction-interact).
 2. Change points that require jumping, sprinting, external teleportation, or map transitions to the corresponding action (e.g., `JUMP` / `SPRINT` / `TRANSFER` / `PORTAL`).
 3. Check whether the two points before and after an area transition fall in reasonable locations.
 
@@ -621,3 +638,151 @@ For all `COLLECT`, `DIG`, and strict arrival points, the sprint on the entire pr
 2. Use the MapNavigator tool to record the path. In the GUI, change the action of the collection target points to `Collect` or `Dig`, copy the `path`, and paste it into the `custom_action_param.path` of the `Goto` node.
 3. Register the new route entry in `interface.json` / the task entry JSON.
 4. No changes are needed to `AutoCollectClick.json`, `AutoCollectDig.json`, or any cpp-algo source files.
+
+---
+
+## Async Interaction INTERACT
+
+### Concept
+
+`INTERACT` carries two meanings, decided by whether the waypoint has `interact_text`:
+
+- **Without it**: press the interact key once upon arrival. This is the historical behavior; existing routes are unaffected.
+- **With it**: the point becomes an **async interaction**. On the last stretch toward that point, a background pre-filter watches for the interact prompt; when the prompt shows up the navigator stops and hands over to a Pipeline subtask, which OCRs the prompt and presses the interact key only when the text matches `interact_text`. The prompt showing up is the game's own confirmation that the character is in range, so that press completes the point — the little distance left is not walked.
+
+The reason the route has to supply the text: there are far too many kinds of interactable, and the prompt wording differs per business, so no single shared table can enumerate them. Collectible names *are* a shared table, which is why `COLLECT` keeps its text in the Pipeline node; interact text has to be injected by whichever route uses it.
+
+What a route may customize is those two recognitions — when to stop, and whether this is the one:
+
+| Field | Replaces | Left out |
+| --------------- | ----------------------------------------------------------- | ----------------------------------------------- |
+| `interact_scan` | The icon pre-filter that decides **when to stop** while walking | The shipped one, looking for the default icon |
+| `interact_text` | The OCR text that decides **whether this is it** once stopped | The point is not async; it interacts on arrival |
+
+**The action is not customizable — it is always the interact key** (F on Windows, a key code on macOS, a tap on the recognized prompt on touch controllers). Everything past the UI the interaction opens belongs to the outer Pipeline; navigation returns once the point is done. See [Replacing the Icon Pre-filter](#replacing-the-icon-pre-filter).
+
+### Writing Method
+
+Write the interaction point in the object form and add `interact_text`:
+
+```json
+"path": [
+    { "action": "ZONE", "zone_id": "Wuling_Base" },
+    [405, 1592],
+    { "action": "INTERACT", "target": [331, 1578], "interact_text": "登记" }
+]
+```
+
+- `interact_text` accepts a string or an array of strings; any one of them matching is enough to press.
+- The text is matched against the OCR result as a **regular expression**, the same semantics as Pipeline's `expected`. Copy the in-game wording as-is; escape regex metacharacters yourself if the wording contains any.
+- When a whole route belongs to one business, put `interact_text` at the top level of `custom_action_param` as the default, see [Node Parameters](#node-parameters).
+- A single route may mix interaction points from several businesses, and mix them with `COLLECT` / `DIG`, in any number.
+- **No trailing `true` is needed**: `INTERACT` is already handled with strict arrival semantics.
+
+In the GUI: walk up to the interactable normally while recording, change that point's action to `INTERACT` after stopping, then add `interact_text` to it by hand after exporting the `path` (the editor does not emit this field yet).
+
+### Writing Text That Survives OCR
+
+OCR is not always reliable, which is why this field is **a set of** regular expressions rather than one literal line. List every variant:
+
+```json
+{
+    "action": "INTERACT",
+    "target": [331, 1578],
+    "interact_text": [
+        "^登记$", // anchored short verb, so other words in the ROI cannot latch on
+        "^登記$", // traditional
+        "(?i)^Register$", // (?i) ignores case
+        "(?i)^Sign\\s*In$" // \\s* absorbs spaces OCR splits in
+    ]
+}
+```
+
+Rules of thumb:
+
+- **Anchor first.** Matching is "contains", not whole-string equality, so for a short verb prompt like 登记 write `^登记$`; an unanchored `登记` matches any text in the same ROI that contains those characters.
+- **Prefer too narrow over too wide.** A miss only wastes one visit to the point (navigation does not fail, see below), whereas a false match presses the key at the wrong thing.
+- **List variants one per line instead of expecting one pattern to cover every language.** Write simplified, traditional, English and Japanese separately; the syntax is Perl-flavoured, so inline flags such as `(?i)` are available. Remember that a backslash is doubled in JSON.
+- **Leading and trailing spaces need no handling** — the recognized text is trimmed before matching; `\\s*` is only for spaces split into the middle of the text.
+- **JSONC comments work.** Note which language or which UI each line covers, and keep the reason when a line is disabled.
+- **A malformed regex does not fail silently.** The injected text is validity-checked first, and an invalid pattern makes the whole subtask refuse to dispatch, logging `regex invalid`, `failed to override_pipeline` and `Prompt subtask failed to dispatch` in sequence; the point simply does not press, and navigation still does not fail.
+- A ready-made model is `AutoPickInteractive` in `assets/resource/pipeline/RealTimeTask/AutoPick.json`: it mixes item names with verbs like `^采集$` and `^打开$` in one table, and records why a few lines are left out.
+
+Reuse boundary: within one route a shared table goes at the top level of `custom_action_param` (see [Node Parameters](#node-parameters)); reuse across routes currently means writing the table once per route JSON.
+
+### Replacing the Icon Pre-filter
+
+On the last stretch toward an interaction point, a background pass looks for the prompt icon at a fixed cadence and stops only on a hit. This step only decides whether stopping is worth it — after the stop, `interact_text` has to confirm before anything is pressed — so it can afford to be loose.
+
+The shipped one is an ordinary Pipeline node, `MapNavigatorInteractScan`, with its `roi` / `template` / `threshold` written right there. When the prompt icon looks different, or does not appear in the default region, copy it, adjust it, and name it with `interact_scan`:
+
+```json
+"MyBusinessInteractScan": {
+    "recognition": {
+        "type": "TemplateMatch",
+        "param": {
+            "roi": [755, 330, 297, 312],
+            "template": "MyBusiness/InteractHint.png",
+            "threshold": 0.75
+        }
+    }
+}
+```
+
+```json
+{
+    "action": "INTERACT",
+    "target": [331, 1578],
+    "interact_text": "登记",
+    "interact_scan": "MyBusinessInteractScan"
+}
+```
+
+- This node is **never dispatched**; MapNavigator only reads those three parameters out of it. It therefore needs no `action`, no `next`, and does not have to hang off any chain.
+- `recognition.type` must be `TemplateMatch`, `template` must be exactly one image, and `threshold` exactly one number (defaulting to `0.75`). `roi` must be absolute coordinates in the 1280×720 base frame — the offset-from-previous-node form is not supported, since the pre-filter runs independently per frame and has no "previous node".
+- `template` resolves as a path under `image/`, the same as anywhere else in the Pipeline, and a platform overlay's same-named image wins as usual — so swapping the image for touch backends only means adding one under `resource_adb`.
+- If any of the above does not hold, the log carries one `Prompt scan node ...` line and **the points naming it fall back to "recognize once upon precise arrival"**. It does not take the route down with it and it does not silently press the wrong thing.
+- At most 4 pre-filters are armed per route (one background thread each). One node named by several points counts once. Anything beyond that reports `Prompt scan node dropped at the cap`, and those points fall back to arrival recognition too.
+- **A pre-filter needs `interact_text` alongside it.** A point naming only `interact_scan` falls back to the plain meaning (press the interact key on arrival) with the pre-filter inert, and logs one `names a prompt scan node without any interact text` line. The text may live on the point or be inherited from the route root.
+- A loose threshold cannot stall navigation: one pre-filter hit completes the point, so a pre-filter that fires on anything only spends its own points one by one and the route still drains forward. Those points do not actually interact, though, so set the threshold from the icon itself.
+
+### Arrival Determination and Movement
+
+Async interaction points use the same set of values as collection points, all runtime-managed, with nothing for the path author to control:
+
+- The arrival radius is tightened to a smaller value, relaxing back to the ordinary radius only when the point stays out of reach for a long time.
+- Automatic sprint is disabled for the whole segment approaching such a point, preventing overshoot.
+- The last stretch automatically switches from running to walking, so the character is less likely to run past the prompt's trigger range.
+
+The pre-filter only runs **while that point is the one being walked to and the last stretch has been entered**, at a fixed cadence, and a tick where the background reported nothing costs nothing; a route with no async interaction points is therefore unaffected. Passing other interactables further away cannot be mistaken for this point's prompt.
+
+### Fallback and Failure Semantics
+
+- If the prompt never shows up on the way, **the authoritative recognition still runs once upon precise arrival** — a missed pre-filter does not skip the point. Every async interaction point therefore gets exactly one authoritative recognition: a hit on the way completes it, and otherwise arrival makes it up.
+- **Async interaction never fails navigation.** The key press only happens when OCR matches the injected text; navigation itself does not verify that the interaction actually took place, and does not error out because no prompt was recognized. Whether the interaction succeeded has to be validated by the outer Pipeline (for example, the UI that should appear afterwards).
+
+When the interaction opens a UI (a registration desk, a commission board), **make that point the last one of the route**: once the UI is up the character stops moving and the minimap is covered, so later points cannot be walked. This is the same author-side discipline as plain `INTERACT` without `interact_text` — async or not makes no difference here.
+
+The `MapNavigatorInteract` node ships with a placeholder text that can never match, so a route that injects no `interact_text` recognizes nothing there and cannot press by mistake.
+
+### Files Path Authors Need to Care About
+
+| File | Responsibility | When Changes Are Needed |
+| ----------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| The business's own route JSON | The `MapNavigateAction` node, interaction coordinates and `interact_text` | Add interaction points, change wording |
+| `assets/resource/pipeline/MapNavigator/Interact.json` | Async interaction subtask, entry point `MapNavigatorInteractStart`, holds the prompt ROI and the key action; the shipped pre-filter `MapNavigatorInteractScan` lives here too | When the prompt region, the default interact key or the shipped pre-filter changes |
+| `assets/tasks/setting/Keymap.json` | Interact key rebinding; `KeymapInteract` applies to this node as well | Add or remove nodes affected by rebinding |
+| `assets/resource_macos/pipeline/MacOSKeyMap.json` | macOS key-code overrides, listed alongside the other interact-key nodes | Add or remove nodes that press the interact key |
+| `assets/resource_adb/pipeline/MapNavigator/Interact.json` | On ADB / cloud / PlayCover, taps the recognized prompt box instead (a touchscreen has no F key) | When the touchscreen action changes |
+
+**In most cases, path authors only need to modify their own route JSON.**
+
+### Parts Path Authors Do Not Need to Touch
+
+The following files are maintained by cpp-algo developers; path authors do not need to modify them:
+
+- `agent/cpp-algo/source/MapNavigator/async_prompt_action.h` / `.cpp`: the shared implementation of prompt-driven actions, used by both `COLLECT` and async `INTERACT`.
+- `agent/cpp-algo/source/MapNavigator/prompt_scan_profile.h` / `.cpp`: reading the pre-filter parameters out of a Pipeline node, and the validation chain around it.
+- `agent/cpp-algo/source/MapNavigator/navi_config.h`: subtask node names, pre-filter cadence and last-resort constants, arrival values and others.
+- `agent/cpp-algo/source/MapNavigator/navi_param_parser.cpp`: parsing of `interact_text` / `interact_scan` and propagation of the route-wide defaults.
+- `agent/cpp-algo/source/MapNavigator/semantic_nodes.cpp`: the fallback execution logic upon arrival.

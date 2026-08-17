@@ -1,11 +1,13 @@
 #pragma once
 
+#include <array>
 #include <chrono>
 #include <functional>
 #include <memory>
 #include <optional>
 #include <string>
 
+#include "async_prompt_action.h"
 #include "nav_run_controller.h"
 #include "navi_controller.h"
 #include "navigation_runtime_state.h"
@@ -20,7 +22,6 @@ class IActionExecutor;
 class ActionWrapper;
 class MotionController;
 class PositionProvider;
-class RoiTemplateScanner;
 struct RouteTrackingState;
 
 class NavigationStateMachine
@@ -69,15 +70,18 @@ private:
     void StopMotion();
     bool FailNavigation(const char* reason, const char* log_message, double current_distance, double yaw_error, int64_t stalled_ms);
 
-    bool TryScanApproachCollect(const RouteTrackingState& route, const Waypoint& waypoint);
-    void TryCollectAtRouteTail();
-    void PreWarmCollectOcr();
+    std::array<AsyncPromptAction*, 2> PromptActions();
+    bool TryRunPromptSubtaskWhileWalking(const RouteTrackingState& route);
+    void CompleteWaypointAfterPromptTrigger();
+    void TryRunPromptSubtaskAtRouteTail();
+    void PreWarmPromptRecognition();
     void StartScanners();
     void StopScanners();
-    void StartCollectScanner();
+    void StartPromptScanners();
     void StartDeviceProbe();
-    void UpdateCollectSprintSuppression();
-    double NearestCollectDistanceSq() const;
+    void UpdatePromptSprintSuppression();
+    // Squared distance to the nearest prompt-driven point; -1 when the route has none or the agent is unlocalized.
+    double NearestPromptDistanceSq() const;
     void UpdateWalkMode(NaviPhase phase);
 
     const NaviParam& param_;
@@ -93,8 +97,9 @@ private:
     NavRunController nav_run_controller_ {};
     std::chrono::steady_clock::time_point last_global_relocalize_at_ {};
 
-    std::unique_ptr<RoiTemplateScanner> collect_scanner_;
-    std::chrono::steady_clock::time_point collect_scan_last_at_ {};
+    // Two instances of one flow; they differ only in the pipeline node names and who supplies the text.
+    AsyncPromptAction collect_prompt_;
+    AsyncPromptAction interact_prompt_;
 
     ObstacleDeviceRecovery device_recovery_;
     // Declared last so its destructor runs first — restores jogging while its collaborators are still alive.

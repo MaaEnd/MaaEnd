@@ -1,0 +1,11 @@
+{
+    // 触屏没有 F 键，改点识别到的提示本身；roi 与 expected 沿用主资源
+    "MapNavigatorInteract": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoAltClickAction"
+            }
+        }
+    }
+}

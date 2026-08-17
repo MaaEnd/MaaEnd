@@ -236,41 +236,49 @@ constexpr double kPostTurnForwardCommitMinDegrees = 15.0;
 constexpr const char* kDefaultNavmeshRelativePath = "assets/resource/model/map/navmesh/base.nav";
 constexpr const char* kDefaultCompressedNavmeshRelativePath = "assets/resource/model/map/navmesh/base.nav.gz";
 
-constexpr const char* kDefaultCollectEntry = "AutoCollectClickStart";
-constexpr const char* kCollectPipelineOverride = R"({"AutoCollectClickEnd":{"next":[]}})";
-constexpr int32_t kCollectPostSleepMs = 80;
+// Prompt-driven actions (collect / async interact), three nodes per kind: entry, authoritative recognition, exit.
+// The recognition node is also the ROI source, the pre-warm target and where the route's text is injected.
+constexpr const char* kCollectEntryNode = "AutoCollectClickStart";
+constexpr const char* kCollectRecognitionNode = "AutoCollectClick";
+constexpr const char* kCollectExitNode = "AutoCollectClickEnd";
+constexpr const char* kInteractEntryNode = "MapNavigatorInteractStart";
+constexpr const char* kInteractRecognitionNode = "MapNavigatorInteract";
+constexpr const char* kInteractExitNode = "MapNavigatorInteractEnd";
+constexpr int32_t kPromptPostSleepMs = 80;
 
-constexpr const char* kCollectPrewarmOverride =
-    R"({"AutoCollectClick":{"action":{"type":"DoNothing"},"next":[]},"AutoCollectClickEnd":{"next":[]}})";
-constexpr const char* kCollectRoiNode = "AutoCollectClick";
 // Resolution every pipeline ROI is authored against; the scanner rescales it to whatever the frame really is.
 constexpr int32_t kPipelineRoiBaseWidth = 1280;
 constexpr int32_t kPipelineRoiBaseHeight = 720;
 
-constexpr const char* kCollectIconRelativePath = "resource/image/RealTimeTask/AutoPick.png";
-constexpr double kCollectIconMatchThreshold = 0.75;
-constexpr int32_t kCollectLabelBrightThreshold = 210; // 0-255 luma; near-white glyphs survive, grass (~200) drops
-constexpr int32_t kCollectLabelMorphWidth = 8;        // horizontal close width that merges glyphs into a word
-constexpr int32_t kCollectLabelMinWidth = 24;         // ~2-char CJK name floor (the 5-char label measured 78px)
-constexpr int32_t kCollectLabelMinHeight = 7;         // reject thin specks (label glyph row ~14px)
-constexpr int32_t kCollectLabelMaxHeight = 26;        // reject tall non-text structures
-constexpr double kCollectLabelMaxFill = 0.80;         // text is sparse (label fill ~0.4-0.66); solid blob = panel/icon
-// Sole pacing gate for detection-triggered collects; the clock only advances on an actual attempt.
-constexpr int32_t kCollectScanIntervalMs = 1200;
+// Every interactable raises the same prompt icon, so both kinds share this pre-filter. The threshold is loose on
+// purpose: it only decides whether the subtask is worth running, and the subtask recognizes again before acting.
+// These are the last resort: the shipped scan node below carries the same values, and a route may name its own.
+constexpr const char* kPromptIconRelativePath = "resource/image/RealTimeTask/AutoPick.png";
+constexpr double kPromptIconMatchThreshold = 0.75;
+// TemplateMatch node holding the interact pre-filter's roi/template/threshold, so a business whose prompt looks
+// different or sits elsewhere retargets it in JSON. Missing (old resources, new agent) -> the constants above.
+constexpr const char* kInteractScanNode = "MapNavigatorInteractScan";
+// The bands and pacing below are shared by both kinds: both need the prompt to stay on screen long enough to act on.
+// Sole pacing gate for detection-triggered attempts; the clock only advances on an actual attempt.
+constexpr int32_t kPromptScanIntervalMs = 1200;
 // Collect points sit 2.1-3.7 apart, closer than the normal 3.25 band, which swallows a whole run of them.
 constexpr double kCollectArrivalBandWu = 1.5;
 // Tightening must not add a way to get stuck: this long without progress falls back to the normal band.
 constexpr int32_t kCollectArrivalRelaxMs = 6000;
-// The route ends the tick the last collect point is consumed, so the scanner never gets a second chance.
+// The route ends the tick the last such point is consumed, so the scanner never gets a second chance.
 constexpr int32_t kCollectTailGraceMs = 1500;
 constexpr double kCollectSprintSuppressBandWu = 8.0;
 constexpr int32_t kSprintCancelReleaseMs = 60;
 
-// Walk near collect points so the interact prompt stays up long enough to act on. Enter/exit differ for
+// Walk near these points so the interact prompt stays up long enough to act on. Enter/exit differ for
 // hysteresis (each press flips game state); the enter band stays inside the sprint-suppress band.
 constexpr double kCollectWalkEnterBandWu = 3.0;
 constexpr double kCollectWalkExitBandWu = 4.5;
 static_assert(kCollectWalkEnterBandWu < kCollectSprintSuppressBandWu, "walk band must sit inside the sprint-suppress band");
+
+// Acting on a prompt is gated on the same band that engages walking: the prompt icon fires for every interactable
+// on screen, so without this a route carrying one such point would stop at strangers all the way along.
+constexpr double kPromptTriggerBandWu = kCollectWalkEnterBandWu;
 
 // Walking halves both speed and turn rate, so jogging-sized windows are doubled while engaged.
 constexpr int32_t kWalkModeSlowFactor = 2;

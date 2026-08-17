@@ -12,6 +12,7 @@ MapNavigator 是 MaaEnd 的寻路组件：给定目标位置，自动规划路�
 - [节点参数](#节点参数)
 - [`NAVMESH` 寻路原理](#navmesh-寻路原理)
 - [采集与挖掘 `COLLECT` / `DIG`](#采集与挖掘-collect--dig)
+- [异步交互 `INTERACT`](#异步交互-interact)
 - [实践建议](#实践建议)
 
 ## 快速上手
@@ -194,7 +195,7 @@ uv run main.py
 
 通常需要修改的只有三处：
 
-1. 将关键交互点改为 `INTERACT` 并标记严格（`X` 录入的点默认已是严格）。
+1. 将关键交互点改为 `INTERACT` 并标记严格（`X` 录入的点默认已是严格）。需要先确认提示文字再按键时，导出后为该点补写 `interact_text`，见[异步交互](#异步交互-interact)。
 2. 将需要跳跃、冲刺、等待传送、过图的点改为对应动作。
 3. 检查跨区域前后两个点的位置是否合理。
 
@@ -260,6 +261,23 @@ uv run main.py
 
 `target_tier` 与 `ZONE` 含义不同：前者只说明当前 `target` 是在哪张底图上点出的，后者声明路线执行与区域校验上下文。给普通点填写 `target_tier` 不会触发层级切换。
 
+**`INTERACT` 点声明交互提示文字**时同样改用对象格式，`interact_text` 即该点要识别的提示文字：
+
+```json
+{
+    "action": "INTERACT",
+    "target": [
+        331,
+        1578
+    ],
+    "interact_text": "登记"
+}
+```
+
+数组写法 `[x, y, "INTERACT"]` 没有放这些字段的位置，需要异步交互就必须写成对象形式；不写 `interact_text` 的 `INTERACT` 保留原语义（到点后直接按一次交互键）。详见[异步交互](#异步交互-interact)。
+
+这两个字段只有 `INTERACT` 点接得住，写在别的动作上会被忽略并在日志里留一行 `carries interact fields without an INTERACT action`。
+
 `NAVMESH` 是例外：它是语义寻路节点，必须使用带 `target` 的对象，不能写成 `[x, y, "NAVMESH"]`：
 
 ```json
@@ -280,7 +298,7 @@ uv run main.py
 | `SPRINT` | 冲刺一次 |
 | `JUMP` | 跳跃一次 |
 | `FIGHT` | 攻击一次 |
-| `INTERACT` | 交互一次 |
+| `INTERACT` | 交互一次；写了 `interact_text` 时升级为异步交互，见[异步交互](#异步交互-interact) |
 | `COLLECT` | 采集：停止移动，触发 OCR 识别并点击采集，见[采集与挖掘](#采集与挖掘-collect--dig) |
 | `DIG` | 挖掘：停止移动，触发挖掘子任务，见[采集与挖掘](#采集与挖掘-collect--dig) |
 | `NAVMESH` | 从当前定位自动规划路线并移动到 `target`；必须使用上方对象格式 |
@@ -350,8 +368,23 @@ uv run main.py
 | `map_name` | 空 | 初始区域上下文。`path` 中已有 `ZONE` 声明时通常无需填写 |
 | `arrival_timeout` | `60000` | 单个点允许的最长到达时间，超时判定失败，单位毫秒 |
 | `sprint_threshold` | `25.0` | 自动冲刺的判定阈值，依据**前方连续可跑段的长度**而非当前点的直线距离 |
+| `interact_text` | 空 | 整条路线的交互提示文字默认值，见[异步交互](#异步交互-interact) |
+| `interact_scan` | 空 | 整条路线的行进预筛节点默认值，见[换掉图标预筛](#换掉图标预筛) |
 
 顶层未知字段会被静默忽略，不报错。
+
+`interact_text` 接受一个字符串或字符串数组，也接受驼峰写法 `interactText`；`interact_scan` 接受一个字符串，驼峰写法 `interactScan`。两者都是写在点上的优先，路线级只补给那些自己没写的 `INTERACT` 点。一条路线的交互点通常属于同一业务，此时写在这里比逐点重复更省事：
+
+```json
+"custom_action_param": {
+    "interact_text": ["登记", "接取委托"],
+    "path": [
+        ...
+    ]
+}
+```
+
+`interact_text` 的空字符串与空数组会被直接拒绝（整个节点参数解析失败），不会当作没写：空文本在识别侧等同于「什么都匹配」，见提示就按键。`interact_scan` 写空字符串等同于没写，回落到出厂的那一份。
 
 ### 执行结果
 
@@ -490,6 +523,154 @@ uv run main.py
 2. 使用工具录制路径，将采集目标点动作改为 `COLLECT` 或 `DIG`，复制 `path` 并粘贴到 `Goto` 节点的 `custom_action_param.path`。
 3. 在 `interface.json` / 任务入口 JSON 中注册新路线入口。
 4. 无需修改 `AutoCollectClick.json`、`AutoCollectDig.json` 及任何 cpp-algo 源文件。
+
+---
+
+## 异步交互 `INTERACT`
+
+### 概念
+
+`INTERACT` 有两种语义，由路径点上有没有 `interact_text` 决定：
+
+- **不写**：到点后直接按一次交互键。这是历史行为，已有路线不受影响。
+- **写了**：升级为**异步交互**。走向该点的最后一段时后台持续预筛交互提示图标，出现提示就停车，交给 Pipeline 子任务 OCR 确认提示文字，只有命中 `interact_text` 才按交互键；提示既然弹了就说明游戏认为已在范围内，因此这一下按完该点即算走完，不再往前挪剩下那点距离。
+
+之所以要路线自己给文本：可交互物的种类太多，交互提示文字逐业务不同，一张通用名字表穷举不完。采集的名字表是通用的，所以 `COLLECT` 的文本留在 Pipeline 节点里；交互的文本必须由用它的那条路线注入。
+
+路线能定制的就是这一停一认两次识别，各管一段：
+
+| 字段 | 换掉的是 | 不写时 |
+| --------------- | --------------------------------- | ------------------------------ |
+| `interact_scan` | 行进中决定**何时停车**的图标预筛 | 用出厂那份，找默认提示图标 |
+| `interact_text` | 停车后决定**是不是它**的 OCR 文字 | 这个点不算异步交互，到点直接交互 |
+
+**动作不可定制，恒为交互键**（Windows 按 F、macOS 走按键号、触屏端点击识别到的提示框）。交互打开界面之后的一切归外层 Pipeline，导航跑完这个点就返回。详见[换掉图标预筛](#换掉图标预筛)。
+
+### 写法
+
+在 `path` 中把交互点写成对象形式，加 `interact_text`：
+
+```json
+"path": [
+    { "action": "ZONE", "zone_id": "Wuling_Base" },
+    [405, 1592],
+    { "action": "INTERACT", "target": [331, 1578], "interact_text": "登记" }
+]
+```
+
+- `interact_text` 收字符串或字符串数组；数组内任一条命中即按键。
+- 文本按 OCR 结果做**正则匹配**，与 Pipeline 的 `expected` 语义一致。中文提示直接照抄游戏里的字即可，含正则元字符时需自行转义。
+- 一整条路线共用同一业务时，把 `interact_text` 写在 `custom_action_param` 顶层作为默认值，见[节点参数](#节点参数)。
+- 同一条路线可以混排多个业务的交互点、混排 `COLLECT` 与 `DIG`，数量不限。
+- **不需要**再补末尾的 `true`：`INTERACT` 本身即按严格到达语义处理。
+
+工具中的操作方式：录制时正常走到交互物旁，停止录制后将该点动作改为 `INTERACT`，导出 `path` 后手动为该点补写 `interact_text`（编辑器目前不产出这个字段）。
+
+### 文本怎么填才抗得住 OCR
+
+OCR 不总是可靠，所以这个字段本来就是**一组**正则，而不是一句原文。按习惯写法列全变体：
+
+```json
+{
+    "action": "INTERACT",
+    "target": [331, 1578],
+    "interact_text": [
+        "^登记$", // 锚定短动词，避免提示区里别的字蹭上
+        "^登記$", // 繁体
+        "(?i)^Register$", // (?i) 忽略大小写
+        "(?i)^Sign\\s*In$" // \\s* 吃掉 OCR 多切出来的空格
+    ]
+}
+```
+
+几条经验：
+
+- **锚定优先。** 匹配用的是「包含即命中」而非整串相等，所以提示是「登记」这类短动词时写 `^登记$`；不锚定的 `登记` 会被同 ROI 里任何含这两个字的文本命中。
+- **宁窄勿宽。** 漏识别只是这个点白跑一次（导航不失败，见下节），误识别却会对着别的东西按键。
+- **变体逐条列，别指望一条模式吃下所有语言。** 简繁、英文、日文各写一条；语法是 Perl 风格，`(?i)` 这类内联标志可用。JSON 里反斜杠要写两个。
+- **首尾空格不用管**，识别结果在匹配前已经去过首尾空白；`\\s*` 只用于吃掉文本中间被切开的空格。
+- **JSONC 注释可用**，建议给每条写清它对应哪种语言或哪个界面，禁用某条时把原因也留下。
+- **正则写坏了不会静默失效。** 注入前会做一次合法性校验，不合法则整个子任务不予派发，日志里连着出现 `regex invalid`、`failed to override_pipeline` 与 `Prompt subtask failed to dispatch`；这一点表现为不按键，但不会让导航失败。
+- 现成范本见 `assets/resource/pipeline/RealTimeTask/AutoPick.json` 的 `AutoPickInteractive`：它把物名与 `^采集$`、`^打开$` 一类动词混在一张表里，并注明了哪几条为什么不启用。
+
+复用的边界：同一条路线内共用一张表，写在 `custom_action_param` 顶层即可（见[节点参数](#节点参数)）；跨路线复用目前需要在各自的路线 JSON 里各写一份。
+
+### 换掉图标预筛
+
+走向交互点的最后一段里，后台每隔固定节拍在屏幕上找一次提示图标，找到才停车。这一步只决定「值不值得停车」，停下后还要由 `interact_text` 再确认一次才按键，所以它可以很松。
+
+出厂的那一份就是一个普通 Pipeline 节点 `MapNavigatorInteractScan`，`roi` / `template` / `threshold` 都写在里面。提示图标长得不一样、或者不出现在默认区域时，照抄一份改成自己的，再用 `interact_scan` 点名：
+
+```json
+"MyBusinessInteractScan": {
+    "recognition": {
+        "type": "TemplateMatch",
+        "param": {
+            "roi": [755, 330, 297, 312],
+            "template": "MyBusiness/InteractHint.png",
+            "threshold": 0.75
+        }
+    }
+}
+```
+
+```json
+{
+    "action": "INTERACT",
+    "target": [331, 1578],
+    "interact_text": "登记",
+    "interact_scan": "MyBusinessInteractScan"
+}
+```
+
+- 这个节点**不会被派发执行**，MapNavigator 只读它这三个参数。所以它不需要 `action`、不需要 `next`，也不必接在任何链上。
+- `recognition.type` 必须是 `TemplateMatch`，`template` 只能给一张图，`threshold` 只能给一个数（不填按 `0.75`）。`roi` 必须是 1280×720 基准帧里的绝对坐标，不支持相对上一节点的偏移写法——预筛每帧独立跑，没有「上一个节点」。
+- `template` 按 `image/` 下的相对路径解析，与 Pipeline 里的写法一致；平台 overlay 里同名图会照常胜出，所以触屏端要换图时在 `resource_adb` 下补一份即可。
+- 以上任一条不满足，日志里会出现一行 `Prompt scan node ...`，**点名它的那些点退化为「精确到点后再识别」**，不会连累整条路线，也不会静默按错。
+- 一条路线最多同时武装 4 份预筛（每份一个后台线程）。同一个节点名被多个点点名只算一份。超出的会报 `Prompt scan node dropped at the cap`，那些点同样退化为到点识别。
+- **预筛得配着 `interact_text` 用。** 只写 `interact_scan` 的点会退回原语义（到点直接按一次交互键），预筛不生效，日志里留一行 `names a prompt scan node without any interact text`。文本可以写在点上，也可以写在路线根上由这些点继承。
+- 阈值调松不会把导航拖死：预筛命中一次就把该点算走完，所以一份见啥都报的预筛只会把自己的点一个个花掉，路线仍然往前排空。但那些点也就没真交互上，阈值该按图标本身定。
+
+### 到点判定与移动
+
+异步交互点与采集点使用同一组判定值，全部由运行时控制，路线作者无法也无需干预：
+
+- 到点判定圈按更小的半径收紧，长时间够不着时才退让到常规半径。
+- 临近该点的整段路禁用自动疾跑，避免冲过头。
+- 更近的一段自动从跑动切换为走路，减少冲过提示触发范围。
+
+预筛只在**正走向该点、且已进入最后一段**时按固定节拍尝试，后台没报提示时这一拍零成本；因此一条不含异步交互点的路线不受任何影响。远处路过别的可交互物不会被误认成这个点的提示。
+
+### 兜底与失败语义
+
+- 途中没等到提示时，**精确到点后仍会执行一次权威识别**，不会因为预筛漏了就整点跳过。因此每个异步交互点必定恰好跑一次权威识别：途中命中即走完，没命中则到点补跑。
+- **异步交互不会让导航失败。** 按键只发生在 OCR 命中注入文本时；导航本身不校验交互是否真的发生，也不因为没识别到提示而报错。交互到底成不成，需要外层 Pipeline 自己验收（例如交互后应出现的界面）。
+
+交互会打开界面（登记台、委托板一类）时，**建议把该点作为路线的最后一个点**：界面一开角色就不再移动、小地图也被盖住，后面的点走不了。这与不写 `interact_text` 的 `INTERACT` 是同一条作者纪律，异步与否都一样。
+
+`MapNavigatorInteract` 节点里预置了一条永远匹配不上的占位文本，路线没注入 `interact_text` 时该节点识别不到任何东西，因此不会误按。
+
+### 相关文件
+
+| 文件 | 职责 | 何时需要修改 |
+| ------------------------------------------------ | ------------------------------------------------------------------------ | ---------------------------------- |
+| 业务自己的路线 JSON | `MapNavigateAction` 节点、交互坐标与 `interact_text` | 新增交互点、改文案 |
+| `assets/resource/pipeline/MapNavigator/Interact.json` | 异步交互子任务，入口 `MapNavigatorInteractStart`，含提示 ROI 与按键动作；出厂预筛 `MapNavigatorInteractScan` 也在这里 | 提示区域、交互按键或出厂预筛的默认值变化 |
+| `assets/tasks/setting/Keymap.json` | 交互键改绑，`KeymapInteract` 会同时作用于该节点 | 增删受改绑影响的节点 |
+| `assets/resource_macos/pipeline/MacOSKeyMap.json` | macOS 下的按键号覆盖，与其他交互键节点同列 | 增删会按交互键的节点 |
+| `assets/resource_adb/pipeline/MapNavigator/Interact.json` | ADB / 云游戏 / PlayCover 下改为点击识别到的提示框（触屏没有 F 键） | 触屏端的动作方式变化 |
+
+**绝大多数情况下只需修改业务自己的路线 JSON。**
+
+### 无需修改的部分
+
+以下文件由 cpp-algo 维护者负责，路线作者无需修改：
+
+- `agent/cpp-algo/source/MapNavigator/async_prompt_action.h` / `.cpp`：提示驱动动作的公共实现，`COLLECT` 与异步 `INTERACT` 共用一套。
+- `agent/cpp-algo/source/MapNavigator/prompt_scan_profile.h` / `.cpp`：从 Pipeline 节点读预筛参数，以及那一串校验。
+- `agent/cpp-algo/source/MapNavigator/navi_config.h`：子任务节点名、预筛节拍与兜底常量、判定值等。
+- `agent/cpp-algo/source/MapNavigator/navi_param_parser.cpp`：`interact_text` / `interact_scan` 的解析与路线级默认值下发。
+- `agent/cpp-algo/source/MapNavigator/semantic_nodes.cpp`：到点后的兜底执行逻辑。
 
 ---
 

@@ -49,6 +49,9 @@
                 "AutoCollectClick": {
                     "key": "{KeymapInteract.primary}"
                 },
+                "MapNavigatorInteract": {
+                    "key": "{KeymapInteract.primary}"
+                },
                 "AutoPickFalls": {
                     "key": "{KeymapInteract.primary}"
                 },

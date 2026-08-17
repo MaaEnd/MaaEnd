@@ -9,6 +9,7 @@
 #include <MaaUtils/Logger.h>
 
 #include "action_wrapper.h"
+#include "async_prompt_action.h"
 #include "motion_controller.h"
 #include "navi_config.h"
 #include "navi_math.h"
@@ -569,6 +570,32 @@ Result HandleArrivalSemantic(const Context& ctx, const Waypoint& waypoint, doubl
         }
         else {
             SelectPhaseForCurrentWaypoint(ctx, "dig_completed");
+        }
+
+        result.consumed = true;
+        result.stay_in_current_tick = true;
+        return result;
+    }
+
+    // Fallback once the point is reached: run the same authoritative subtask the walking detector would. No prompt
+    // means there is nothing to interact with here, so the route advances anyway rather than failing.
+    if (waypoint.IsAsyncInteract() && ctx.maa_context != nullptr) {
+        StopMotionAndCommitment(ctx);
+
+        LogInfo << "Action: INTERACT reached, running the authoritative recognition." << VAR(actual_distance)
+                << VAR(waypoint.interact_text.size()) << VAR(waypoint.interact_scan);
+        RunPromptSubtask(ctx.maa_context, kInteractPromptSpec, &waypoint.interact_text);
+
+        ctx.session->NoteCanonicalFinalGoalConsumed(arrived_absolute_node_idx, *ctx.position, "async_interact_completed");
+        ctx.session->AdvanceToNextWaypoint(waypoint.action, "async_interact_completed");
+        ctx.runtime_state->OnWaypointAdvance();
+        ctx.runtime_state->route.Reset();
+
+        if (!ctx.session->HasCurrentWaypoint()) {
+            ctx.session->NoteRouteTailConsumed(*ctx.position, "route_tail_consumed");
+        }
+        else {
+            SelectPhaseForCurrentWaypoint(ctx, "async_interact_completed");
         }
 
         result.consumed = true;
