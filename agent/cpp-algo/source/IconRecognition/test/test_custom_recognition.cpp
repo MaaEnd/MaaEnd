@@ -274,6 +274,7 @@ void TestMalformedCandidateListsAreRejected()
     for (const auto& [param, field] : {
              std::pair { R"({"grid_type":"single_roi","item_ids":"bad"})", "item_ids" },
              std::pair { R"({"grid_type":"single_roi","item_filters":[1]})", "item_filters" },
+             std::pair { R"({"grid_type":"single_roi","item_recheck_filters":[1]})", "item_recheck_filters" },
          }) {
         MaaRect out_box { 101, 202, 303, 404 };
         const auto detail = RunFailure(image.get(), param, out_box);
@@ -365,14 +366,46 @@ void TestSuccessfulSingleRoiUsesPrimaryCellBox()
         detail.contains("matches") && detail.at("matches").is_array() && detail.at("matches").as_array().size() == 1,
         "single_roi success must contain one match");
     const auto& match = detail.at("matches").as_array().at(0).as_object();
-    Require(match.contains("cell_box") && match.at("cell_box").is_object(), "successful match must contain cell_box");
-    Require(match.contains("item_box") && match.at("item_box").is_object(), "successful match must contain item_box");
+    Require(match.contains("cell_box") && match.at("cell_box").is_array(), "successful match must contain array cell_box");
+    Require(match.contains("item_box") && match.at("item_box").is_array(), "successful match must contain array item_box");
     Require(match.contains("score") && match.at("score").is_number(), "successful match must contain score");
-    const auto& cell_box = match.at("cell_box").as_object();
-    Require(out_box.x == cell_box.at("x").as_integer(), "out_box.x must equal primary cell_box.x");
-    Require(out_box.y == cell_box.at("y").as_integer(), "out_box.y must equal primary cell_box.y");
-    Require(out_box.width == cell_box.at("width").as_integer(), "out_box.width must equal primary cell_box.width");
-    Require(out_box.height == cell_box.at("height").as_integer(), "out_box.height must equal primary cell_box.height");
+    const auto& cell_box = match.at("cell_box").as_array();
+    Require(cell_box.size() == 4, "cell_box must contain four components");
+    Require(out_box.x == cell_box.at(0).as_integer(), "out_box.x must equal primary cell_box.x");
+    Require(out_box.y == cell_box.at(1).as_integer(), "out_box.y must equal primary cell_box.y");
+    Require(out_box.width == cell_box.at(2).as_integer(), "out_box.width must equal primary cell_box.width");
+    Require(out_box.height == cell_box.at(3).as_integer(), "out_box.height must equal primary cell_box.height");
+}
+
+void TestItemRecheckFiltersValidateCandidates()
+{
+    const auto fixture = MakeSingleRoiFixture();
+    ImageBuffer image;
+    image.set(fixture.pixels);
+    const char* success_param =
+        R"({"grid_type":"single_roi","item_ids":["item_copper_ore"],"item_filters":["Normal:Ore"],"item_recheck_filters":["Normal:Ore"]})";
+    MaaRect out_box { 101, 202, 303, 404 };
+    StringBuffer success_detail;
+    Require(
+        iconrecognition::IconRecognitionRun(
+            nullptr, 0, "IconRecognitionTest", "IconRecognition", success_param, image.get(), &fixture.roi, nullptr, &out_box, success_detail.get()),
+        "matching item_recheck_filters must preserve the candidate");
+    Require(success_detail.detail().at("matches").as_array().size() == 1, "successful reverse check must keep one match");
+
+    const char* failure_param =
+        R"({"grid_type":"single_roi","item_ids":["item_copper_ore"],"item_filters":["Normal:Ore"],"item_recheck_filters":["Normal:Product"]})";
+    out_box = MaaRect { 101, 202, 303, 404 };
+    const auto failure = RunFailure(image.get(), failure_param, out_box, &fixture.roi);
+    Require(ErrorCode(failure) == "no_match", "mismatching reverse check must reject the candidate");
+    RequireUntouched(out_box);
+
+    const char* invalid_param =
+        R"({"grid_type":"single_roi","item_ids":["item_copper_ore"],"item_filters":["Normal:Ore"],"item_recheck_filters":["invalid"]})";
+    out_box = MaaRect { 101, 202, 303, 404 };
+    const auto invalid = RunFailure(image.get(), invalid_param, out_box, &fixture.roi);
+    Require(ErrorCode(invalid) == "invalid_argument", "malformed reverse-check filter must be rejected as invalid input");
+    Require(ErrorMessage(invalid).find("item_recheck_filters") != std::string::npos, "invalid filter error must identify its field");
+    RequireUntouched(out_box);
 }
 
 void TestRecognizerPreservesInternalDiagnostics()
@@ -571,6 +604,7 @@ int main()
         TestRemovedGridScaleParameterIsRejected();
         TestGridDetectionFailureIsStructured();
         TestSuccessfulSingleRoiUsesPrimaryCellBox();
+        TestItemRecheckFiltersValidateCandidates();
         TestRecognizerPreservesInternalDiagnostics();
         TestGridDiagnosticsSerializeSelectionEvidence();
         TestRecognizerPreloadsEveryRequestedTemplateSize();

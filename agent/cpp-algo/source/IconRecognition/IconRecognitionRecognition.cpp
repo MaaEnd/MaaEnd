@@ -45,6 +45,7 @@ CandidateFilter ReadCandidates(const json::object& object)
     };
     candidates.item_ids = read("item_ids");
     candidates.item_filters = read("item_filters");
+    candidates.item_recheck_filters = read("item_recheck_filters");
     return candidates;
 }
 

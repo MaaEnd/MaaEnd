@@ -25,15 +25,16 @@ const (
 const CustomRecognitionName = "IconRecognition"
 
 // Params 是 IconRecognition custom_recognition_param 的公共表示。
-// ItemIDs 和 ItemFilters 是否必填由具体调用场景决定。
+// 候选 ID、首轮过滤器和反查过滤器是否必填由具体调用场景决定。
 type Params struct {
-	GridType          GridType     `json:"grid_type"`
-	ItemIDs           []string     `json:"item_ids,omitempty"`
-	ItemFilters       []ItemFilter `json:"item_filters,omitempty"`
-	Threshold         *float64     `json:"threshold,omitempty"`
-	SubpixelThreshold *float64     `json:"subpixel_threshold,omitempty"`
-	Deduplicate       *bool        `json:"deduplicate,omitempty"`
-	Debug             *bool        `json:"debug,omitempty"`
+	GridType           GridType     `json:"grid_type"`
+	ItemIDs            []string     `json:"item_ids,omitempty"`
+	ItemFilters        []ItemFilter `json:"item_filters,omitempty"`
+	ItemRecheckFilters []ItemFilter `json:"item_recheck_filters,omitempty"`
+	Threshold          *float64     `json:"threshold,omitempty"`
+	SubpixelThreshold  *float64     `json:"subpixel_threshold,omitempty"`
+	Deduplicate        *bool        `json:"deduplicate,omitempty"`
+	Debug              *bool        `json:"debug,omitempty"`
 }
 
 // Option 配置 NewParams 创建的 IconRecognition 参数。
@@ -70,6 +71,14 @@ func WithItemFilters(itemFilters ...ItemFilter) Option {
 	values := normalizeItemFilters(itemFilters)
 	return func(params *Params) {
 		params.ItemFilters = slices.Clone(values)
+	}
+}
+
+// WithItemRecheckFilters 配置 item_ids 候选的单格反查过滤器。
+func WithItemRecheckFilters(itemFilters ...ItemFilter) Option {
+	values := normalizeItemFilters(itemFilters)
+	return func(params *Params) {
+		params.ItemRecheckFilters = slices.Clone(values)
 	}
 }
 
@@ -123,6 +132,7 @@ func ParseParams(raw string) (Params, error) {
 	params.GridType = GridType(strings.TrimSpace(string(params.GridType)))
 	params.ItemIDs = normalizeStrings(params.ItemIDs)
 	params.ItemFilters = normalizeItemFilters(params.ItemFilters)
+	params.ItemRecheckFilters = normalizeItemFilters(params.ItemRecheckFilters)
 	if params.GridType == "" {
 		return params, fmt.Errorf("IconRecognition grid_type is required")
 	}

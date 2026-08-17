@@ -81,18 +81,31 @@ const std::vector<std::string>& DefaultItemFiltersImpl(GridType type)
     return normal;
 }
 
-bool MatchesFilter(const detail::TemplateRecord& record, std::string_view filter)
+std::pair<std::string_view, std::string_view> ParseFilter(std::string_view filter, std::string_view field)
 {
     const auto separator = filter.find(':');
     if (separator == std::string_view::npos || filter.find(':', separator + 1) != std::string_view::npos) {
-        throw std::invalid_argument("item_filters must use storageKind:categoryType");
+        throw std::invalid_argument(std::string(field) + " must use storageKind:categoryType");
     }
     const std::string_view storage = filter.substr(0, separator);
     const std::string_view category = filter.substr(separator + 1);
     if (storage.empty() || category.empty()) {
-        throw std::invalid_argument("item_filters must use non-empty storageKind:categoryType");
+        throw std::invalid_argument(std::string(field) + " must use non-empty storageKind:categoryType");
     }
+    return { storage, category };
+}
+
+bool MatchesFilter(const detail::TemplateRecord& record, std::string_view filter)
+{
+    const auto [storage, category] = ParseFilter(filter, "item_filters");
     return storage == record.storage_kind && (category == "*" || category == record.category_type);
+}
+
+void ValidateFilters(const std::vector<std::string>& filters, std::string_view field)
+{
+    for (const auto& filter : filters) {
+        static_cast<void>(ParseFilter(filter, field));
+    }
 }
 
 std::vector<detail::PreparedTemplate> SelectTemplates(
@@ -513,7 +526,7 @@ public:
                 return Error(request.roi, request.grid_type, "invalid_image", "Input image is empty");
             }
             ValidateRecognitionRoi(image, request.roi);
-            return recognize_original(image, request);
+            return recognize_original(image, request, true);
         }
         catch (const std::invalid_argument& error) {
             LogError << "IconRecognizer recognition rejected invalid input" << VAR(error.what());
@@ -525,7 +538,7 @@ public:
         }
     }
 
-    RecognitionResult recognize_original(const cv::Mat& image, const RecognitionRequest& request) const
+    RecognitionResult recognize_original(const cv::Mat& image, const RecognitionRequest& request, bool allow_recheck) const
     {
         try {
             const auto recognition_started = request.debug ? PerformanceClock::now() : PerformanceClock::time_point {};
@@ -538,6 +551,11 @@ public:
                 return Error(request.roi, request.grid_type, "invalid_image", "Input image is empty");
             }
             ValidateThresholds(request.threshold, request.subpixel_threshold);
+            const bool recheck_enabled =
+                allow_recheck && !request.candidates.item_ids.empty() && !request.candidates.item_recheck_filters.empty();
+            if (recheck_enabled) {
+                ValidateFilters(request.candidates.item_recheck_filters, "item_recheck_filters");
+            }
             const bool single_roi = request.grid_type == GridType::SingleRoi;
             std::vector<detail::GridCell> cells;
             std::vector<detail::GridLayout> detected_grids;
@@ -733,6 +751,34 @@ public:
             }
             const auto sort_started = performance ? PerformanceClock::now() : PerformanceClock::time_point {};
             std::ranges::stable_sort(result.matches, ItemMatchLess {});
+            if (recheck_enabled) {
+                const auto candidates = std::move(result.matches);
+                result.matches.clear();
+                std::unordered_set<std::string> rechecked_item_ids;
+                for (const auto& candidate : candidates) {
+                    if (request.deduplicate && rechecked_item_ids.contains(candidate.item.item_id)) {
+                        continue;
+                    }
+                    RecognitionRequest validation_request = request;
+                    validation_request.grid_type = GridType::SingleRoi;
+                    validation_request.roi = candidate.cell_box;
+                    validation_request.candidates.item_ids.clear();
+                    validation_request.candidates.item_filters = request.candidates.item_recheck_filters;
+                    validation_request.candidates.item_recheck_filters.clear();
+                    validation_request.deduplicate = false;
+                    validation_request.debug = false;
+                    const auto validation = recognize_original(image, validation_request, false);
+                    const bool valid = std::ranges::any_of(validation.matches, [&](const auto& match) {
+                        return match.item.item_id == candidate.item.item_id;
+                    });
+                    if (valid) {
+                        result.matches.push_back(candidate);
+                        if (request.deduplicate) {
+                            rechecked_item_ids.insert(candidate.item.item_id);
+                        }
+                    }
+                }
+            }
             if (request.deduplicate) {
                 DeduplicateMatches(result.matches);
             }

@@ -22,6 +22,8 @@ Use a top-level key from [`assets/data/IconRecognition/recognition_items.json`](
                 "custom_recognition_param": {
                     "grid_type": "transfer",
                     "item_ids": ["item_copper_ore"],
+                    "item_filters": ["Normal:Ore"],
+                    "item_recheck_filters": ["Normal:Ore"],
                     "deduplicate": true
                 },
                 "roi": [
@@ -134,14 +136,15 @@ The component does not infer, move, or expand the request ROI from the selected 
 | `grid_type` | string / `GridType` | Yes for Custom; set it explicitly in C++ | None for Custom | Selects the grid locator for the current screen. See the table below. The C++ member initializer is only a construction placeholder |
 | `item_ids` | string[] | No | `[]` | Keeps only the listed items. Multiple IDs form a union; duplicates are rejected |
 | `item_filters` | string[] | No | Depends on `grid_type` | Selects candidates by `storageKind:categoryType`. Multiple filters form a union; `*` selects every category under that `storageKind` |
+| `item_recheck_filters` | string[] | No | `[]` | Active when both this field and `item_ids` are non-empty; uses the same format as `item_filters`; performs a single-cell recheck on matched candidate cells |
 | `threshold` | number | No | `0.85` | Minimum final match score, enforced uniformly for every grid type |
 | `subpixel_threshold` | number | No | `0.60` | Tries finer position offsets when the base score reaches this value but remains below `threshold` |
 | `deduplicate` | boolean | No | `false` | Keeps only the highest-scoring cell for each `item_id` |
 | `debug` | boolean | No | `false` | Grid and cell diagnostics are collected when recognition reaches the result-assembly stage; early `invalid_image` or `exception` returns may lack them. `debug` controls performance timing and Custom debug-file writing |
 
-Thresholds must satisfy `0 <= subpixel_threshold < threshold <= 1`. When a base score is below `subpixel_threshold`, the component considers that candidate clearly unreliable, skips the finer position search, and does not add it to `matches`. Scores between the two thresholds are refined. A result is returned only when its final score reaches `threshold` and it passes the low-texture check. Shipment quantity bars and valuable-depot portrait regions are excluded from the template-matching mask, but they do not bypass the uniform threshold. Check the ROI, frame stability, and candidate filters before lowering thresholds.
-
-When both `item_ids` and `item_filters` are supplied, their intersection is used. Unknown or duplicate IDs, malformed filters, an empty filtered set, or an ID excluded by the filters returns `exception`.
+- **`threshold` and `subpixel_threshold`**: Thresholds must satisfy `0 <= subpixel_threshold < threshold <= 1`. When a base score is below `subpixel_threshold`, the component considers that candidate clearly unreliable, skips the finer position search, and does not add it to `matches`. Scores between the two thresholds are refined. A result is returned only when its final score reaches `threshold` and it passes the low-texture check. Shipment quantity bars and valuable-depot portrait regions are excluded from the template-matching mask, but they do not bypass the uniform threshold. Check the ROI, frame stability, and candidate filters before lowering thresholds.
+- **`item_ids` and `item_filters`**: `item_ids` specifies the items to find, while `item_filters` limits the candidate templates by category. When both are supplied, their intersection is used. Unknown or duplicate IDs, malformed filters, an empty filtered set, or an ID excluded by the filters returns `exception`.
+- **`item_recheck_filters`**: When `item_ids` is used to find specific items, visually similar items outside that set may be mistaken for a target item. `item_recheck_filters` performs a single-cell recheck on matched candidate cells, keeping only candidates confirmed as the target `item_id`. Compared with omitting `item_ids` and using only `item_filters` to recognize the entire grid, this approach rechecks only matched cells and is usually faster. Set `deduplicate: true` as well to avoid repeated rechecks of the same item.
 
 ### grid_type, default candidates, and reference ROIs
 
@@ -217,10 +220,10 @@ Wildcard forms include `Normal:*`, `ValuableDepot:*`, and `Isolate:*`. The wildc
 
 | Field | Type | Description |
 | ---------------- | ------- | --------------------------------------------------------------------------------- |
-| `detail_version` | integer | Detail contract version; currently `1` |
+| `detail_version` | integer | Detail contract version; currently `2` |
 | `matched` | boolean | Whether at least one result was accepted |
 | `grid_type` | string | Requested grid type. It may be absent when parsing fails before the type is known |
-| `roi` | object | Request ROI with `x/y/width/height` fields |
+| `roi` | integer[4] | Request ROI as `[x,y,width,height]` |
 | `matches` | array | Accepted results ordered by score and position |
 | `error` | object | Present on failure, with a stable `code` and a readable `message` |
 
@@ -233,8 +236,8 @@ Fields in `matches[]`:
 | `category` | string | Catalog category label |
 | `storage_kind` / `category_type` | string | Classification fields for later filtering or business rules |
 | `rarity` | integer | Catalog rarity |
-| `cell_box` | object | Owning grid cell; equal to the request ROI for `single_roi` |
-| `item_box` | object | Final template match location |
+| `cell_box` | integer[4] | Owning grid cell as `[x,y,width,height]`; equal to the request ROI for `single_roi` |
+| `item_box` | integer[4] | Final template match location as `[x,y,width,height]` |
 | `score` | number | Final match score |
 | `row` / `column` | integer | Row and column for real grids; absent for `single_roi` |
 
@@ -321,7 +324,7 @@ detail, err := ctx.RunRecognitionDirect(
     maa.RecognitionTypeCustom,
     &maa.CustomRecognitionParam{
         ROI:                maa.NewTargetRect(maa.Rect{154, 202, 983, 291}),
-        CustomRecognition: "IconRecognition",
+        CustomRecognition: iconrecognition.CustomRecognitionName,
         CustomRecognitionParam: iconrecognition.NewParams(
             iconrecognition.WithGridType(iconrecognition.GridTypeTransfer),
             iconrecognition.WithItemIDs("item_copper_ore"),
