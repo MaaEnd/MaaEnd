@@ -450,7 +450,7 @@ jobs:
           } | ConvertTo-Json
           Set-Content -Path "$symbols/symbols-manifest.json" -Value $manifest -Encoding utf8NoBOM
 
-          Compress-Archive -Path "symbols" -DestinationPath "MaaEnd-pdb-win-${{ matrix.arch }}.zip" -Force
+          Compress-Archive -Path "symbols/*" -DestinationPath "MaaEnd-pdb-win-${{ matrix.arch }}.zip" -Force
 
       - name: Package ZIP
         shell: pwsh
