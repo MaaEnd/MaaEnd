@@ -40,6 +40,48 @@ type Match struct {
 	Column       *int     `json:"column,omitempty"`
 }
 
+// UnmarshalJSON 兼容 C++ 当前 {x,y,width,height} 与后续 [x,y,w,h] 矩形格式。
+func (m *Match) UnmarshalJSON(data []byte) error {
+	var raw struct {
+		ItemID       string          `json:"item_id"`
+		Name         string          `json:"name"`
+		Category     string          `json:"category"`
+		StorageKind  string          `json:"storage_kind"`
+		CategoryType string          `json:"category_type"`
+		Rarity       int             `json:"rarity"`
+		CellBox      json.RawMessage `json:"cell_box"`
+		ItemBox      json.RawMessage `json:"item_box"`
+		Score        float64         `json:"score"`
+		Row          *int            `json:"row"`
+		Column       *int            `json:"column"`
+	}
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return err
+	}
+	cellBox, err := unmarshalRect(raw.CellBox)
+	if err != nil {
+		return fmt.Errorf("cell_box: %w", err)
+	}
+	itemBox, err := unmarshalRect(raw.ItemBox)
+	if err != nil {
+		return fmt.Errorf("item_box: %w", err)
+	}
+	*m = Match{
+		ItemID:       raw.ItemID,
+		Name:         raw.Name,
+		Category:     raw.Category,
+		StorageKind:  raw.StorageKind,
+		CategoryType: raw.CategoryType,
+		Rarity:       raw.Rarity,
+		CellBox:      cellBox,
+		ItemBox:      itemBox,
+		Score:        raw.Score,
+		Row:          raw.Row,
+		Column:       raw.Column,
+	}
+	return nil
+}
+
 // Detail 是 IconRecognition custom recognition 返回的 detail JSON。
 type Detail struct {
 	DetailVersion int          `json:"detail_version"`
@@ -48,6 +90,59 @@ type Detail struct {
 	ROI           maa.Rect     `json:"roi"`
 	Matches       []Match      `json:"matches"`
 	Error         *DetailError `json:"error,omitempty"`
+}
+
+// UnmarshalJSON 兼容 C++ 当前 {x,y,width,height} 与后续 [x,y,w,h] 矩形格式。
+func (d *Detail) UnmarshalJSON(data []byte) error {
+	var raw struct {
+		DetailVersion int             `json:"detail_version"`
+		Matched       bool            `json:"matched"`
+		GridType      GridType        `json:"grid_type"`
+		ROI           json.RawMessage `json:"roi"`
+		Matches       []Match         `json:"matches"`
+		Error         *DetailError    `json:"error"`
+	}
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return err
+	}
+	roi, err := unmarshalRect(raw.ROI)
+	if err != nil {
+		return fmt.Errorf("roi: %w", err)
+	}
+	*d = Detail{
+		DetailVersion: raw.DetailVersion,
+		Matched:       raw.Matched,
+		GridType:      raw.GridType,
+		ROI:           roi,
+		Matches:       raw.Matches,
+		Error:         raw.Error,
+	}
+	return nil
+}
+
+// unmarshalRect accepts either {"x","y","width","height"} or [x,y,w,h].
+func unmarshalRect(data json.RawMessage) (maa.Rect, error) {
+	if len(data) == 0 || string(data) == "null" {
+		return maa.Rect{}, nil
+	}
+	trimmed := strings.TrimSpace(string(data))
+	if strings.HasPrefix(trimmed, "[") {
+		var arr [4]int
+		if err := json.Unmarshal(data, &arr); err != nil {
+			return maa.Rect{}, err
+		}
+		return maa.Rect{arr[0], arr[1], arr[2], arr[3]}, nil
+	}
+	var box struct {
+		X      int `json:"x"`
+		Y      int `json:"y"`
+		Width  int `json:"width"`
+		Height int `json:"height"`
+	}
+	if err := json.Unmarshal(data, &box); err != nil {
+		return maa.Rect{}, err
+	}
+	return maa.Rect{box.X, box.Y, box.Width, box.Height}, nil
 }
 
 // ParseDetail 解析 IconRecognition 返回的 detail JSON。
