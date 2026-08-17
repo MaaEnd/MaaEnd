@@ -6,13 +6,6 @@ import (
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 )
 
-func TestParseOCRNumericValue(t *testing.T) {
-	got, err := ParseOCRNumericValue("x12")
-	if err != nil || got != 12 {
-		t.Fatalf("got=%d err=%v", got, err)
-	}
-}
-
 func TestQuantityROIFromCellBox(t *testing.T) {
 	cell := maa.Rect{100, 200, 96, 96}
 	roi, ok := ApplyROIOffset(cell, QuantityROIOffsetWin32)

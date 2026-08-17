@@ -2,7 +2,7 @@
 // 兼容扁平 / v2 节点写法，并按 And 原生 box_index 从 CombinedResult 选取子结果。
 //
 // ExpressionRecognition 等需要「OCR 或 And→OCR」语义的组件应复用本包，
-// 业务侧只负责从选中结果中提取数字、文本等。
+// 数字解析使用 pkg/ocrnum，业务侧只负责从选中结果中提取文本等。
 package recogtarget
 
 import (

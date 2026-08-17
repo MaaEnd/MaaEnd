@@ -11,6 +11,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/iconqty"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/ocrnum"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/recogtarget"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
@@ -353,7 +354,7 @@ func recognizeItemQuantityHit(
 	if err != nil {
 		return 0, false, detail, fmt.Errorf("select box_index detail: %w", err)
 	}
-	qty, err = iconqty.ExtractOCRQuantity(selected)
+	qty, err = ocrnum.Extract(selected)
 	if err != nil {
 		return 0, false, detail, fmt.Errorf("parse quantity from %s: %w", andNode, err)
 	}

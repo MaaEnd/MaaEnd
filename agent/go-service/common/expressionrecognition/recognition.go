@@ -3,14 +3,12 @@ package expressionrecognition
 import (
 	"encoding/json"
 	"fmt"
-	"math"
-	"regexp"
-	"strconv"
 	"strings"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/boolexpr"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/ocrnum"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/recogtarget"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
@@ -26,11 +24,6 @@ type Params struct {
 	FocusMatchedResolvedExpression   bool   `json:"focus_matched_resolved_expression"`
 	FocusUnmatchedResolvedExpression bool   `json:"focus_unmatched_resolved_expression"`
 }
-
-var (
-	ocrNumericPattern  = regexp.MustCompile(`(?i)[+-]?(?:\d+(?:[.,]\d+)?|[.,]\d+)\s*(?:[a-z]+|万|萬|亿|億|만|억)?`)
-	asciiLetterPattern = regexp.MustCompile(`[A-Za-z]+$`)
-)
 
 // Run evaluates a boolean expression composed of numeric recognition nodes.
 func (r *Recognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
@@ -179,7 +172,7 @@ func extractRecognitionNumberFromNode(ctx *maa.Context, nodeName string, detail 
 	if err != nil {
 		return 0, fmt.Errorf("resolve %s numeric source: %w", nodeName, err)
 	}
-	return extractRecognitionNumber(selectedDetail)
+	return ocrnum.Extract(selectedDetail)
 }
 
 func extractRecognitionBoxFromNode(ctx *maa.Context, nodeName string, detail *maa.RecognitionDetail) (maa.Rect, error) {
@@ -188,117 +181,4 @@ func extractRecognitionBoxFromNode(ctx *maa.Context, nodeName string, detail *ma
 		return maa.Rect{}, fmt.Errorf("resolve %s box source: %w", nodeName, err)
 	}
 	return selectedDetail.Box, nil
-}
-
-func extractRecognitionNumber(detail *maa.RecognitionDetail) (int, error) {
-	if detail == nil || detail.Results == nil {
-		return 0, fmt.Errorf("recognition detail is empty")
-	}
-
-	if best := detail.Results.Best; best != nil {
-		if ocrResult, ok := best.AsOCR(); ok {
-			return parseOCRNumericValue(ocrResult.Text)
-		}
-	}
-
-	for _, result := range detail.Results.All {
-		if ocrResult, ok := result.AsOCR(); ok {
-			return parseOCRNumericValue(ocrResult.Text)
-		}
-	}
-
-	return 0, fmt.Errorf("no ocr result found")
-}
-
-func parseOCRNumericValue(text string) (int, error) {
-	cleaned := strings.TrimSpace(text)
-	if cleaned == "" {
-		return 0, fmt.Errorf("ocr text is empty")
-	}
-
-	matchIndex := ocrNumericPattern.FindStringIndex(cleaned)
-	if matchIndex == nil {
-		return 0, fmt.Errorf("ocr text %q contains no numeric value", cleaned)
-	}
-	match := cleaned[matchIndex[0]:matchIndex[1]]
-
-	numberText, multiplier, err := normalizeOCRNumericToken(match)
-	if err != nil {
-		return 0, err
-	}
-
-	value, err := strconv.ParseFloat(numberText, 64)
-	if err != nil {
-		return 0, err
-	}
-
-	scaled := math.Round(value * multiplier)
-	if scaled > float64(boolexpr.IntMax) || scaled < float64(boolexpr.IntMin) {
-		clamped := boolexpr.ClampInt(scaled)
-		log.Warn().
-			Str("component", "ExpressionRecognition").
-			Str("ocr_text", cleaned).
-			Float64("raw_value", scaled).
-			Int("clamped_value", clamped).
-			Msg("ocr numeric value out of int range, clamped")
-		return clamped, nil
-	}
-
-	return int(scaled), nil
-}
-
-func normalizeOCRNumericToken(token string) (string, float64, error) {
-	normalized := strings.TrimSpace(token)
-	if normalized == "" {
-		return "", 0, fmt.Errorf("ocr numeric token is empty")
-	}
-
-	multiplier := 1.0
-	for _, suffix := range []struct {
-		unit       string
-		multiplier float64
-	}{
-		{unit: "億", multiplier: 100000000},
-		{unit: "억", multiplier: 100000000},
-		{unit: "亿", multiplier: 100000000},
-		{unit: "萬", multiplier: 10000},
-		{unit: "만", multiplier: 10000},
-		{unit: "万", multiplier: 10000},
-		{unit: "K", multiplier: 1000},
-		{unit: "k", multiplier: 1000},
-		{unit: "M", multiplier: 1000000},
-		{unit: "m", multiplier: 1000000},
-		{unit: "B", multiplier: 1000000000},
-		{unit: "b", multiplier: 1000000000},
-	} {
-		if strings.HasSuffix(normalized, suffix.unit) {
-			normalized = strings.TrimSpace(strings.TrimSuffix(normalized, suffix.unit))
-			multiplier = suffix.multiplier
-			break
-		}
-	}
-
-	if unsupportedSuffix := asciiLetterPattern.FindString(normalized); unsupportedSuffix != "" {
-		return "", 0, fmt.Errorf("unsupported ocr numeric suffix %q in %q", unsupportedSuffix, token)
-	}
-
-	if normalized == "" {
-		return "", 0, fmt.Errorf("ocr numeric token %q has no numeric part", token)
-	}
-
-	normalized = strings.ReplaceAll(normalized, " ", "")
-	if strings.Contains(normalized, ".") {
-		normalized = strings.ReplaceAll(normalized, ",", "")
-	} else if strings.Count(normalized, ",") == 1 {
-		parts := strings.Split(normalized, ",")
-		if len(parts) == 2 && len(parts[1]) != 3 {
-			normalized = parts[0] + "." + parts[1]
-		} else {
-			normalized = strings.ReplaceAll(normalized, ",", "")
-		}
-	} else {
-		normalized = strings.ReplaceAll(normalized, ",", "")
-	}
-
-	return normalized, multiplier, nil
 }
