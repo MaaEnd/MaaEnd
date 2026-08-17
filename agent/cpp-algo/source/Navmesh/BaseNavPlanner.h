@@ -80,7 +80,14 @@ public:
     // decide whether a collapsed straight leg stays on walkable mesh. `half_width` gives the leg a body:
     // both flanks must hold up too, so a line a dimensionless point could thread is rejected on behalf of
     // a character that has width. Zero keeps the bare centre-line test.
-    bool isRouteSegmentDrivable(uint16_t zone_id, const WorldPoint& a, const WorldPoint& b, double half_width = 0.0) const;
+    // `seed_height` 是 a 点所在面的高度。缺省时首个采样点无参照,叠层处取最低面,判据会顺着楼下那层
+    // 一路走通;给出后整段采样都锚在起点这层上。
+    bool isRouteSegmentDrivable(
+        uint16_t zone_id,
+        const WorldPoint& a,
+        const WorldPoint& b,
+        double half_width = 0.0,
+        std::optional<double> seed_height = std::nullopt) const;
 
     // RecastNav 复用
     const std::vector<uint32_t>& adjacencyOffsets() const { return adjacency_offsets_; }
@@ -120,7 +127,8 @@ private:
         groundHeightNearIndexed(uint16_t zone_id, const WorldPoint& point, std::optional<double> reference, uint32_t& out_triangle) const;
     // 直线路段可行性判据:沿 a→b 采样,要求每点在网格内、且相邻采样的地面高度跳变不超过
     // kBridgeMaxHeightDelta。共面重叠缝全程平坦判可走,绕墙捷径因踩墙跳变判不可走。
-    bool segmentHeightWalkable(uint16_t zone_id, const WorldPoint& a, const WorldPoint& b) const;
+    bool segmentHeightWalkable(uint16_t zone_id, const WorldPoint& a, const WorldPoint& b, std::optional<double> seed_height = std::nullopt)
+        const;
 };
 
 const char* ToString(BaseNavRouteStatus status);

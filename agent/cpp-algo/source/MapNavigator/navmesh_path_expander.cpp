@@ -503,6 +503,7 @@ navmesh::BaseNavRouteResult PlanCorridorRoute(
     result.path.zone_name = request.zone_name;
     result.path.points = std::move(plan.points);
     result.path.clearance = std::move(plan.clearance);
+    result.path.waypoints = std::move(plan.waypoints);
     result.cost = plan.length;
     return result;
 }
@@ -1244,7 +1245,20 @@ bool AppendGeneratedNavmeshWaypoints(
     // reach and survives; grid staircase and out-and-back spikes collapse into a single leg. What this
     // replaced asked the same question once across the entire leg — which no route of any length passes — so
     // every raw vertex was kept instead, down to 0.25px stair steps, and the follower had to steer them.
+    const auto emit_corner = [&](size_t index) {
+        out_path.emplace_back(world_path.points[index].x, world_path.points[index].y, ActionType::RUN);
+        out_path.back().strict_arrival = false;
+        out_path.back().corridor_clearance = clearance_at(index);
+    };
     const auto restore_corners_to = [&](size_t anchor) {
+        // 规划器自己拉直过的路线直接照抄下标。它那边看得到窗口挡线格图和起点所在面的高度,
+        // 这里只有网格面一张判据,叠层处会顺着楼下那层把捷径判成可走。跨度对不上时仍走下面这条。
+        if (!world_path.waypoints.empty() && prev == 0 && anchor + 1 == total) {
+            for (size_t index = 0; index + 1 < world_path.waypoints.size(); ++index) {
+                emit_corner(world_path.waypoints[index]);
+            }
+            return;
+        }
         if (drivability_planner == nullptr || anchor <= prev + 1) {
             return;
         }
@@ -1277,9 +1291,7 @@ bool AppendGeneratedNavmeshWaypoints(
             if (reach >= anchor) {
                 return;
             }
-            out_path.emplace_back(world_path.points[reach].x, world_path.points[reach].y, ActionType::RUN);
-            out_path.back().strict_arrival = false;
-            out_path.back().corridor_clearance = clearance_at(reach);
+            emit_corner(reach);
             cursor = reach;
         }
     };

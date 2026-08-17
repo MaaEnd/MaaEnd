@@ -355,7 +355,8 @@ class ItemTransferGeneratorTest(unittest.TestCase):
                     "custom_recognition_param": {
                         "grid_type": "transfer",
                         "item_ids": [item_id],
-                        "item_filters": [item_filter],
+                        "item_recheck_filters": [item_filter],
+                        "deduplicate": True,
                     },
                 },
             },

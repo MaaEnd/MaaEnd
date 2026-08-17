@@ -6,10 +6,6 @@ import (
 
 func Register() {
 	maa.AgentServerRegisterCustomRecognition(
-		validatedIconRecognitionName,
-		&ValidatedIconRecognition{},
-	)
-	maa.AgentServerRegisterCustomRecognition(
 		"ItemTransferSameItemRecognition",
 		&SameItemRecognition{},
 	)

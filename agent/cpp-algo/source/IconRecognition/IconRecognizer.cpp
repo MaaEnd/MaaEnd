@@ -9,6 +9,7 @@
 #include <stdexcept>
 #include <string_view>
 #include <tuple>
+#include <unordered_map>
 #include <unordered_set>
 
 #include <MaaUtils/Logger.h>
@@ -81,18 +82,31 @@ const std::vector<std::string>& DefaultItemFiltersImpl(GridType type)
     return normal;
 }
 
-bool MatchesFilter(const detail::TemplateRecord& record, std::string_view filter)
+std::pair<std::string_view, std::string_view> ParseFilter(std::string_view filter, std::string_view field)
 {
     const auto separator = filter.find(':');
     if (separator == std::string_view::npos || filter.find(':', separator + 1) != std::string_view::npos) {
-        throw std::invalid_argument("item_filters must use storageKind:categoryType");
+        throw std::invalid_argument(std::string(field) + " must use storageKind:categoryType");
     }
     const std::string_view storage = filter.substr(0, separator);
     const std::string_view category = filter.substr(separator + 1);
     if (storage.empty() || category.empty()) {
-        throw std::invalid_argument("item_filters must use non-empty storageKind:categoryType");
+        throw std::invalid_argument(std::string(field) + " must use non-empty storageKind:categoryType");
     }
+    return { storage, category };
+}
+
+bool MatchesFilter(const detail::TemplateRecord& record, std::string_view filter)
+{
+    const auto [storage, category] = ParseFilter(filter, "item_filters");
     return storage == record.storage_kind && (category == "*" || category == record.category_type);
+}
+
+void ValidateFilters(const std::vector<std::string>& filters, std::string_view field)
+{
+    for (const auto& filter : filters) {
+        static_cast<void>(ParseFilter(filter, field));
+    }
 }
 
 std::vector<detail::PreparedTemplate> SelectTemplates(
@@ -402,6 +416,27 @@ SlotRanking RankSlot(
     return ranking;
 }
 
+bool ValidateCandidateCell(
+    const cv::Mat& image,
+    const cv::Rect& cell_box,
+    std::string_view expected_item_id,
+    const std::vector<detail::PreparedTemplate>& templates,
+    double threshold,
+    double subpixel_threshold)
+{
+    const SlotRanking ranking = RankSlot(
+        image,
+        cell_box,
+        templates,
+        std::nullopt,
+        threshold,
+        subpixel_threshold,
+        kGridSearchRadius,
+        nullptr);
+    return ranking.best.diagnostics.score >= threshold
+        && templates[ranking.best.template_index].record.item_id == expected_item_id;
+}
+
 std::string ActiveMaskKind(
     GridType type,
     const std::vector<detail::PreparedTemplate>& selected,
@@ -538,6 +573,11 @@ public:
                 return Error(request.roi, request.grid_type, "invalid_image", "Input image is empty");
             }
             ValidateThresholds(request.threshold, request.subpixel_threshold);
+            const bool recheck_enabled =
+                !request.candidates.item_ids.empty() && !request.candidates.item_recheck_filters.empty();
+            if (recheck_enabled) {
+                ValidateFilters(request.candidates.item_recheck_filters, "item_recheck_filters");
+            }
             const bool single_roi = request.grid_type == GridType::SingleRoi;
             std::vector<detail::GridCell> cells;
             std::vector<detail::GridLayout> detected_grids;
@@ -733,7 +773,40 @@ public:
             }
             const auto sort_started = performance ? PerformanceClock::now() : PerformanceClock::time_point {};
             std::ranges::stable_sort(result.matches, ItemMatchLess {});
-            if (request.deduplicate) {
+            if (recheck_enabled) {
+                const auto candidates = std::move(result.matches);
+                result.matches.clear();
+                CandidateFilter recheck_candidates;
+                recheck_candidates.item_filters = request.candidates.item_recheck_filters;
+                std::unordered_map<int, std::vector<detail::PreparedTemplate>> recheck_templates_by_size;
+                std::unordered_set<std::string> rechecked_item_ids;
+                for (const auto& candidate : candidates) {
+                    if (request.deduplicate && rechecked_item_ids.contains(candidate.item.item_id)) {
+                        continue;
+                    }
+                    auto [templates, inserted] = recheck_templates_by_size.try_emplace(candidate.cell_box.width);
+                    if (inserted) {
+                        templates->second = SelectTemplates(
+                            RoiTemplates(candidate.cell_box.width),
+                            recheck_candidates,
+                            detail::DefaultItemFilters(GridType::SingleRoi));
+                    }
+                    const bool valid = ValidateCandidateCell(
+                        image,
+                        candidate.cell_box,
+                        candidate.item.item_id,
+                        templates->second,
+                        request.threshold,
+                        request.subpixel_threshold);
+                    if (valid) {
+                        result.matches.push_back(candidate);
+                        if (request.deduplicate) {
+                            rechecked_item_ids.insert(candidate.item.item_id);
+                        }
+                    }
+                }
+            }
+            if (request.deduplicate && !recheck_enabled) {
                 DeduplicateMatches(result.matches);
             }
             if (performance) {

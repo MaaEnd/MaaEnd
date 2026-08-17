@@ -18,7 +18,6 @@
                 "ExpressionRecognition",
                 "ImageCheckNotPassedRecognition",
                 "IconRecognition",
-                "ItemTransferValidatedIconRecognition",
                 "ItemDataReady",
                 "ItemQuantitySatisfied",
                 "ItemTransferSameItemRecognition",
@@ -61,10 +60,7 @@
                 "required": [ "custom_recognition" ],
                 "properties": {
                     "custom_recognition": {
-                        "enum": [
-                            "IconRecognition",
-                            "ItemTransferValidatedIconRecognition"
-                        ]
+                        "const": "IconRecognition"
                     }
                 }
             },
@@ -111,6 +107,16 @@
                                 "uniqueItems": true,
                                 "title": "Item Filters",
                                 "description": "Optional storageKind:categoryType filters for candidate icons."
+                            },
+                            "item_recheck_filters": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "minLength": 1
+                                },
+                                "uniqueItems": true,
+                                "title": "Item Recheck Filters",
+                                "description": "Optional storageKind:categoryType filters for reverse-checking item_ids; deduplicate is recommended to avoid repeated checks."
                             },
                             "threshold": {
                                 "type": "number",

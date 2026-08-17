@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <filesystem>
 #include <iostream>
 #include <stdexcept>
@@ -163,6 +164,10 @@ constexpr int kSyntheticRoiX = 7;
 constexpr int kSyntheticRoiY = 5;
 constexpr int kSyntheticRoiSize = 54;
 constexpr int kSyntheticAlphaThreshold = 230;
+constexpr int kTransferSyntheticWidth = 420;
+constexpr int kTransferSyntheticHeight = 320;
+constexpr int kTransferSyntheticPitch = 69;
+constexpr int kTransferSyntheticCellSize = 64;
 
 struct SingleRoiFixture
 {
@@ -182,6 +187,39 @@ SingleRoiFixture MakeSingleRoiFixture()
     const cv::Size canvas_size { kSyntheticRoiX + kSyntheticRoiSize + 5, kSyntheticRoiY + kSyntheticRoiSize + 5 };
     cv::Mat pixels = cv::Mat::zeros(canvas_size, CV_8UC3);
     prepared.image.copyTo(pixels(cv::Rect(kSyntheticRoiX, kSyntheticRoiY, kSyntheticRoiSize, kSyntheticRoiSize)));
+    return { std::move(pixels) };
+}
+
+struct RecheckDeduplicateFixture
+{
+    cv::Mat pixels;
+    cv::Rect roi { 0, 0, kTransferSyntheticWidth, kTransferSyntheticHeight };
+};
+
+RecheckDeduplicateFixture MakeRecheckDeduplicateFixture()
+{
+    cv::Mat pixels(
+        kTransferSyntheticHeight,
+        kTransferSyntheticWidth,
+        CV_8UC3,
+        cv::Scalar(18, 18, 18));
+    for (int x = 0; x < kTransferSyntheticWidth; x += kTransferSyntheticPitch) {
+        pixels.colRange(x, std::min(x + 2, kTransferSyntheticWidth)).setTo(cv::Scalar(245, 245, 245));
+    }
+    for (int y = 0; y < kTransferSyntheticHeight; y += kTransferSyntheticPitch) {
+        pixels.rowRange(y, std::min(y + 2, kTransferSyntheticHeight)).setTo(cv::Scalar(245, 245, 245));
+    }
+
+    const auto template_path = get_exe_dir() / ".." / "resource" / "image" / "IconRecognition" / "1" / "item_copper_ore.png";
+    const iconrecognition::detail::TemplateRecord record { .item_id = "item_copper_ore" };
+    const auto prepared = iconrecognition::detail::PrepareStandardTemplate(
+        record,
+        iconrecognition::detail::DecodeBgra(template_path),
+        kTransferSyntheticCellSize,
+        kSyntheticAlphaThreshold);
+    for (const cv::Point origin : { cv::Point { 2, 2 }, cv::Point { 71, 2 } }) {
+        prepared.image.copyTo(pixels(cv::Rect(origin.x, origin.y, kTransferSyntheticCellSize, kTransferSyntheticCellSize)));
+    }
     return { std::move(pixels) };
 }
 
@@ -274,6 +312,7 @@ void TestMalformedCandidateListsAreRejected()
     for (const auto& [param, field] : {
              std::pair { R"({"grid_type":"single_roi","item_ids":"bad"})", "item_ids" },
              std::pair { R"({"grid_type":"single_roi","item_filters":[1]})", "item_filters" },
+             std::pair { R"({"grid_type":"single_roi","item_recheck_filters":[1]})", "item_recheck_filters" },
          }) {
         MaaRect out_box { 101, 202, 303, 404 };
         const auto detail = RunFailure(image.get(), param, out_box);
@@ -365,14 +404,78 @@ void TestSuccessfulSingleRoiUsesPrimaryCellBox()
         detail.contains("matches") && detail.at("matches").is_array() && detail.at("matches").as_array().size() == 1,
         "single_roi success must contain one match");
     const auto& match = detail.at("matches").as_array().at(0).as_object();
-    Require(match.contains("cell_box") && match.at("cell_box").is_object(), "successful match must contain cell_box");
-    Require(match.contains("item_box") && match.at("item_box").is_object(), "successful match must contain item_box");
+    Require(match.contains("cell_box") && match.at("cell_box").is_array(), "successful match must contain array cell_box");
+    Require(match.contains("item_box") && match.at("item_box").is_array(), "successful match must contain array item_box");
     Require(match.contains("score") && match.at("score").is_number(), "successful match must contain score");
-    const auto& cell_box = match.at("cell_box").as_object();
-    Require(out_box.x == cell_box.at("x").as_integer(), "out_box.x must equal primary cell_box.x");
-    Require(out_box.y == cell_box.at("y").as_integer(), "out_box.y must equal primary cell_box.y");
-    Require(out_box.width == cell_box.at("width").as_integer(), "out_box.width must equal primary cell_box.width");
-    Require(out_box.height == cell_box.at("height").as_integer(), "out_box.height must equal primary cell_box.height");
+    const auto& cell_box = match.at("cell_box").as_array();
+    Require(cell_box.size() == 4, "cell_box must contain four components");
+    Require(out_box.x == cell_box.at(0).as_integer(), "out_box.x must equal primary cell_box.x");
+    Require(out_box.y == cell_box.at(1).as_integer(), "out_box.y must equal primary cell_box.y");
+    Require(out_box.width == cell_box.at(2).as_integer(), "out_box.width must equal primary cell_box.width");
+    Require(out_box.height == cell_box.at(3).as_integer(), "out_box.height must equal primary cell_box.height");
+}
+
+void TestItemRecheckFiltersValidateCandidates()
+{
+    const auto fixture = MakeSingleRoiFixture();
+    ImageBuffer image;
+    image.set(fixture.pixels);
+    const char* success_param =
+        R"({"grid_type":"single_roi","item_ids":["item_copper_ore"],"item_filters":["Normal:Ore"],"item_recheck_filters":["Normal:Ore"]})";
+    MaaRect out_box { 101, 202, 303, 404 };
+    StringBuffer success_detail;
+    Require(
+        iconrecognition::IconRecognitionRun(
+            nullptr, 0, "IconRecognitionTest", "IconRecognition", success_param, image.get(), &fixture.roi, nullptr, &out_box, success_detail.get()),
+        "matching item_recheck_filters must preserve the candidate");
+    Require(success_detail.detail().at("matches").as_array().size() == 1, "successful reverse check must keep one match");
+
+    const char* failure_param =
+        R"({"grid_type":"single_roi","item_ids":["item_copper_ore"],"item_filters":["Normal:Ore"],"item_recheck_filters":["Normal:Product"]})";
+    out_box = MaaRect { 101, 202, 303, 404 };
+    const auto failure = RunFailure(image.get(), failure_param, out_box, &fixture.roi);
+    Require(ErrorCode(failure) == "no_match", "mismatching reverse check must reject the candidate");
+    RequireUntouched(out_box);
+
+    const char* invalid_param =
+        R"({"grid_type":"single_roi","item_ids":["item_copper_ore"],"item_filters":["Normal:Ore"],"item_recheck_filters":["invalid"]})";
+    out_box = MaaRect { 101, 202, 303, 404 };
+    const auto invalid = RunFailure(image.get(), invalid_param, out_box, &fixture.roi);
+    Require(ErrorCode(invalid) == "invalid_argument", "malformed reverse-check filter must be rejected as invalid input");
+    Require(ErrorMessage(invalid).find("item_recheck_filters") != std::string::npos, "invalid filter error must identify its field");
+    RequireUntouched(out_box);
+}
+
+void TestItemRecheckFiltersRespectDeduplication()
+{
+    const auto fixture = MakeRecheckDeduplicateFixture();
+    iconrecognition::IconRecognizer recognizer(get_exe_dir() / ".." / "data" / "IconRecognition");
+    Require(recognizer.initialize(), "deduplication recognizer must initialize");
+
+    iconrecognition::RecognitionRequest request;
+    request.grid_type = iconrecognition::GridType::Transfer;
+    request.roi = fixture.roi;
+    request.candidates.item_ids = { "item_copper_ore" };
+    request.candidates.item_filters = { "Normal:Ore" };
+    request.candidates.item_recheck_filters = { "Normal:Ore" };
+
+    const auto without_deduplicate = recognizer.recognize(fixture.pixels, request);
+    Require(without_deduplicate.matched, "both rechecked duplicate candidates must match without deduplication");
+    Require(
+        without_deduplicate.matches.size() == 2,
+        "deduplicate=false must keep both candidates with the same item_id");
+    Require(
+        std::ranges::all_of(
+            without_deduplicate.matches,
+            [](const auto& match) { return match.item.item_id == "item_copper_ore"; }),
+        "deduplicate=false candidates must share the requested item_id");
+
+    request.deduplicate = true;
+    const auto with_deduplicate = recognizer.recognize(fixture.pixels, request);
+    Require(with_deduplicate.matched, "one rechecked duplicate candidate must match with deduplication");
+    Require(
+        with_deduplicate.matches.size() == 1,
+        "deduplicate=true must keep only one candidate with the same item_id");
 }
 
 void TestRecognizerPreservesInternalDiagnostics()
@@ -571,6 +674,8 @@ int main()
         TestRemovedGridScaleParameterIsRejected();
         TestGridDetectionFailureIsStructured();
         TestSuccessfulSingleRoiUsesPrimaryCellBox();
+        TestItemRecheckFiltersValidateCandidates();
+        TestItemRecheckFiltersRespectDeduplication();
         TestRecognizerPreservesInternalDiagnostics();
         TestGridDiagnosticsSerializeSelectionEvidence();
         TestRecognizerPreloadsEveryRequestedTemplateSize();

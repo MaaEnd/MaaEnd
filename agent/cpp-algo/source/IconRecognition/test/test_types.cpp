@@ -16,8 +16,26 @@ void Check(bool condition, const std::string& message)
     }
 }
 
+void TestRectJsonRoundTripAndInvalidValues()
+{
+    const cv::Rect expected { 10, 20, 100, 80 };
+    cv::Rect decoded;
+    Check(RectFromJson(RectToJson(expected), decoded), "RectFromJson must accept RectToJson output");
+    Check(decoded == expected, "RectFromJson round-trip must preserve the rectangle");
+
+    const auto check_invalid = [](const json::value& value) {
+        cv::Rect output { 1, 2, 3, 4 };
+        Check(!RectFromJson(value, output), "RectFromJson must reject invalid input");
+    };
+    check_invalid(json::value(json::array { 1, 2, 3 }));
+    check_invalid(json::value(json::array { 1, 2, 3, 4, 5 }));
+    check_invalid(json::value(json::array { 1, std::string("invalid"), 3, 4 }));
+    check_invalid(json::value(json::object { { "x", 1 } }));
+}
+
 int RunIconRecognitionTypesTest()
 {
+    TestRectJsonRoundTripAndInvalidValues();
     RecognitionRequest request;
     Check(request.grid_type == GridType::Transfer, "request default grid type mismatch");
     Check(!request.deduplicate, "request deduplicate must default to false");
@@ -49,9 +67,11 @@ int RunIconRecognitionTypesTest()
 
     const json::object object = json::value(result).as_object();
     Check(object.contains("detail_version"), "serialized result must contain detail_version");
+    Check(object.at("detail_version").as_integer() == 2, "serialized result must use detail contract version 2");
     Check(object.contains("matched"), "serialized result must contain matched");
     Check(object.contains("roi"), "serialized result must contain roi");
     Check(object.contains("matches"), "serialized result must contain matches");
+    Check(object.at("roi").is_array() && object.at("roi").as_array().size() == 4, "serialized roi must use Maa array format");
     Check(!object.contains("confidence"), "serialized result must not expose confidence");
     Check(!object.contains("baseline_score"), "serialized result must not expose baseline_score");
     Check(!object.contains("best_phase"), "serialized result must not expose best_phase");
@@ -63,6 +83,8 @@ int RunIconRecognitionTypesTest()
     Check(match.contains("item_id"), "serialized match must contain item_id");
     Check(match.contains("cell_box"), "serialized match must contain cell_box");
     Check(match.contains("item_box"), "serialized match must contain item_box");
+    Check(match.at("cell_box").is_array() && match.at("cell_box").as_array().size() == 4, "serialized cell_box must use Maa array format");
+    Check(match.at("item_box").is_array() && match.at("item_box").as_array().size() == 4, "serialized item_box must use Maa array format");
     Check(match.contains("score"), "serialized match must contain score");
     Check(match.contains("row"), "serialized match must contain row");
     Check(match.contains("column"), "serialized match must contain column");
