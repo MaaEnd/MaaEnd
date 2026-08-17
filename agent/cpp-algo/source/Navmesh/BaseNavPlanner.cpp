@@ -249,14 +249,15 @@ std::optional<double> BaseNavPlanner::groundHeightNearIndexed(
     return best;
 }
 
-bool BaseNavPlanner::segmentHeightWalkable(uint16_t zone_id, const WorldPoint& a, const WorldPoint& b) const
+bool BaseNavPlanner::segmentHeightWalkable(uint16_t zone_id, const WorldPoint& a, const WorldPoint& b, std::optional<double> seed_height)
+    const
 {
     if (pack_.findZone(zone_id) == nullptr) {
         return false;
     }
     const double length = std::hypot(b.x - a.x, b.y - a.y);
     const int samples = std::max(1, static_cast<int>(length / kRoutePullSampleStep));
-    std::optional<double> previous;
+    std::optional<double> previous = seed_height;
     // 缓存上一采样点命中的三角形:相邻采样多落在同一三角形内,命中则复用其高度,省去 candidateTriangles
     // 扫描,且结果与完整扫描等价。
     uint32_t cached = kInvalidTriangle;
@@ -413,9 +414,14 @@ std::optional<BaseNavSnapResult> BaseNavPlanner::snap(uint16_t zone_id, const Wo
     return best;
 }
 
-bool BaseNavPlanner::isRouteSegmentDrivable(uint16_t zone_id, const WorldPoint& a, const WorldPoint& b, double half_width) const
+bool BaseNavPlanner::isRouteSegmentDrivable(
+    uint16_t zone_id,
+    const WorldPoint& a,
+    const WorldPoint& b,
+    double half_width,
+    std::optional<double> seed_height) const
 {
-    if (!segmentHeightWalkable(zone_id, a, b)) {
+    if (!segmentHeightWalkable(zone_id, a, b, seed_height)) {
         return false;
     }
     const double dx = b.x - a.x;
@@ -435,7 +441,7 @@ bool BaseNavPlanner::isRouteSegmentDrivable(uint16_t zone_id, const WorldPoint& 
     for (const double side : { 1.0, -1.0 }) {
         const double ox = -uy * half_width * side;
         const double oy = ux * half_width * side;
-        if (!segmentHeightWalkable(zone_id, { .x = head.x + ox, .y = head.y + oy }, { .x = tail.x + ox, .y = tail.y + oy })) {
+        if (!segmentHeightWalkable(zone_id, { .x = head.x + ox, .y = head.y + oy }, { .x = tail.x + ox, .y = tail.y + oy }, seed_height)) {
             return false;
         }
     }

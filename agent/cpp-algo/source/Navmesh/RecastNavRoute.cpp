@@ -49,6 +49,8 @@ struct RouteDiag
     std::vector<std::string> warn;
     std::vector<WorldPoint> xwall;
     std::vector<double> clearance;
+    std::vector<double> height; // 逐点所在面的高度; 层预言机走不通时清空
+    std::vector<size_t> waypoints;
     bool crossed_barrier = false;
     double snap_start = 0.0;
     double snap_goal = 0.0;
@@ -402,9 +404,63 @@ std::optional<WindowInfo> buildWindow(
     return info;
 }
 
+// 贪心拉直:从上一个提交点出发,沿折线尽量往前够,一条直线走不通就把它停下的那个顶点收进航点。
+// 判据两条都要过 —— 网格面高度连续(带起点高度), 以及窗口挡线格图不允许这条弦跨墙。
+// 前者单独用会顺着叠层的下一层走通, 后者补的正是那一刀。
+void PullWaypoints(
+    const std::vector<WorldPoint>& pts,
+    RouteDiag& dg,
+    const BaseNavPlanner& pl,
+    uint16_t zid,
+    const Blockers& blk,
+    bool has_layer)
+{
+    if (!has_layer || pts.size() < 2) {
+        return;
+    }
+    // 一次拉直最多吞掉多少个顶点。纯成本上界:每多够一个都要把整条弦重测一遍,不封顶就是平方级。
+    // 撞到上界只是把顶点留在原地,是安全的那一侧。
+    constexpr size_t kMaxPullSpan = 64;
+    const size_t anchor = pts.size() - 1;
+    size_t cursor = 0;
+    while (cursor + 1 < anchor) {
+        // 捷径不得比它吞掉的最窄处更窄:那个宽度是路线自己判定这段通道需要的,拉直这一层不比它更懂。
+        double swallowed = std::numeric_limits<double>::infinity();
+        const std::optional<double> seed = cursor < dg.height.size() ? std::optional<double>(dg.height[cursor]) : std::nullopt;
+        size_t reach = cursor;
+        const size_t reach_limit = std::min(anchor, cursor + kMaxPullSpan);
+        while (reach < reach_limit) {
+            const WorldPoint& a = pts[cursor];
+            const WorldPoint& c = pts[reach + 1];
+            const double required = std::isfinite(swallowed) ? swallowed : 0.0;
+            if (!pl.isRouteSegmentDrivable(zid, a, c, required, seed) || blk.blocked(a, c)) {
+                break;
+            }
+            swallowed = std::min(swallowed, reach + 1 < dg.clearance.size() ? dg.clearance[reach + 1] : 0.0);
+            ++reach;
+        }
+        // 连折线自己的下一条边都过不了判据时,把那个顶点原样留下仍是手上最好的答案,也保证循环往前走。
+        if (reach == cursor) {
+            ++reach;
+        }
+        if (reach >= anchor) {
+            break;
+        }
+        dg.waypoints.push_back(reach);
+        cursor = reach;
+    }
+    dg.waypoints.push_back(anchor);
+}
+
 // goal_deck: 终点所在面的高度。不声明时终点集是该格全部 span,先够到哪张停哪张
-std::optional<std::vector<WorldPoint>>
-    routeWindow(const WindowInfo& info, const WorldPoint& s, const WorldPoint& g, RouteDiag& dg, std::optional<double> goal_deck)
+std::optional<std::vector<WorldPoint>> routeWindow(
+    const WindowInfo& info,
+    const WorldPoint& s,
+    const WorldPoint& g,
+    RouteDiag& dg,
+    std::optional<double> goal_deck,
+    const BaseNavPlanner& pl,
+    uint16_t zid)
 {
     const int64_t nx = info.nx;
     const int64_t ny = info.ny;
@@ -945,6 +1001,29 @@ std::optional<std::vector<WorldPoint>>
         const int64_t cy = std::min(std::max(static_cast<int64_t>(std::floor((p.y - info.y0) / kCS)), int64_t { 0 }), ny - 1);
         dg.clearance.push_back(static_cast<double>(dist.at(cy, cx)));
     }
+    // 逐点所在面的高度:从起点那张 span 出发,沿线段链式游走,每步在游走到的候选里取与上一点最近的一张。
+    // 起点高度是唯一的外部输入,后面全由它推出来,叠层处不会串到楼下那层。
+    if (lyo_p != nullptr && !out.empty()) {
+        std::vector<float> cur { lyo_h };
+        dg.height.push_back(static_cast<double>(lyo_h));
+        for (size_t i = 1; i < out.size(); ++i) {
+            const auto nxt = lyo_p->walk({ out[i - 1], out[i] }, cur);
+            if (!nxt.has_value() || nxt->empty()) {
+                dg.height.clear();
+                break;
+            }
+            cur = *nxt;
+            const double ref = dg.height.back();
+            double nearest_h = static_cast<double>(cur.front());
+            for (const float v : cur) {
+                if (std::fabs(static_cast<double>(v) - ref) < std::fabs(nearest_h - ref)) {
+                    nearest_h = static_cast<double>(v);
+                }
+            }
+            dg.height.push_back(nearest_h);
+        }
+    }
+    PullWaypoints(out, dg, pl, zid, blk_gray, lyo_p != nullptr);
     return out;
 }
 
@@ -1089,7 +1168,7 @@ RecastPlanResult RecastNavEngine::planLocked(
         auto info = buildWindow(wo, grid_, *gz, zc, start, ss->point, goal, h0, gdk, x0, y0, x1, y1, blocked_local, blocked_points, err);
         if (info.has_value()) {
             RouteDiag dg;
-            auto line = routeWindow(*info, start, goal, dg, gdk);
+            auto line = routeWindow(*info, start, goal, dg, gdk, planner_, zc.zone_id);
             if (line.has_value()) {
                 // 锚点远 = 走廊出窗,同触界扩窗,否则末段盲跳穿墙
                 if (std::max(dg.snap_start, dg.snap_goal) > kSnapRadius) {
@@ -1129,6 +1208,7 @@ RecastPlanResult RecastNavEngine::planLocked(
                         res.wall_cross = dg.xwall;
                         res.snap_start = dg.snap_start;
                         res.snap_goal = dg.snap_goal;
+                        res.waypoints = std::move(dg.waypoints);
                         return res;
                     }
                     err = "终线触界,扩窗重跑";
