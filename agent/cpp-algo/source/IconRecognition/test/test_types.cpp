@@ -16,8 +16,26 @@ void Check(bool condition, const std::string& message)
     }
 }
 
+void TestRectJsonRoundTripAndInvalidValues()
+{
+    const cv::Rect expected { 10, 20, 100, 80 };
+    cv::Rect decoded;
+    Check(RectFromJson(RectToJson(expected), decoded), "RectFromJson must accept RectToJson output");
+    Check(decoded == expected, "RectFromJson round-trip must preserve the rectangle");
+
+    const auto check_invalid = [](const json::value& value) {
+        cv::Rect output { 1, 2, 3, 4 };
+        Check(!RectFromJson(value, output), "RectFromJson must reject invalid input");
+    };
+    check_invalid(json::value(json::array { 1, 2, 3 }));
+    check_invalid(json::value(json::array { 1, 2, 3, 4, 5 }));
+    check_invalid(json::value(json::array { 1, std::string("invalid"), 3, 4 }));
+    check_invalid(json::value(json::object { { "x", 1 } }));
+}
+
 int RunIconRecognitionTypesTest()
 {
+    TestRectJsonRoundTripAndInvalidValues();
     RecognitionRequest request;
     Check(request.grid_type == GridType::Transfer, "request default grid type mismatch");
     Check(!request.deduplicate, "request deduplicate must default to false");
