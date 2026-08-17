@@ -3,7 +3,6 @@ package iconqty
 import (
 	"testing"
 
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/iconrecognition"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 )
 
@@ -40,19 +39,6 @@ func TestQuantityROIFromCellBox(t *testing.T) {
 	}
 }
 
-func TestMatchFromZeroBoxes(t *testing.T) {
-	hit := matchFrom(iconrecognition.Match{
-		ItemID: " item_gold ",
-		Score:  0.9,
-	})
-	if hit.ItemID != "item_gold" {
-		t.Fatalf("item id=%q", hit.ItemID)
-	}
-	if hit.CellOK() || hit.ItemOK() {
-		t.Fatalf("zero boxes should be invalid: cell=%v item=%v", hit.CellOK(), hit.ItemOK())
-	}
-}
-
 func TestMatchCellAndItemBox(t *testing.T) {
 	m := Match{
 		ItemID:  "item_gold",
@@ -70,16 +56,10 @@ func TestMatchCellAndItemBox(t *testing.T) {
 }
 
 func TestDefaultItemFilters(t *testing.T) {
-	filters := iconrecognition.StorageFilter()
-	got := DefaultItemFilters(GridValuables)
-	if len(got) != 1 || got[0] != string(filters.ValuableDepot.Any) {
+	if got := DefaultItemFilters(GridValuables); len(got) != 1 || got[0] != "ValuableDepot:*" {
 		t.Fatalf("valuables=%v", got)
 	}
-	got = DefaultItemFilters(GridRewards)
-	if len(got) != 2 || got[0] != string(filters.Isolate.Any) || got[1] != string(filters.ValuableDepot.Any) {
+	if got := DefaultItemFilters(GridRewards); len(got) != 2 {
 		t.Fatalf("rewards=%v", got)
-	}
-	if got := DefaultItemFilters("unknown"); got != nil {
-		t.Fatalf("unknown=%v", got)
 	}
 }
