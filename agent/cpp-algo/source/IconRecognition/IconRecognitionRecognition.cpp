@@ -191,6 +191,23 @@ MaaBool MAA_CALL IconRecognitionRun(
         }
         return MAA_TRUE;
     }
+    catch (const std::invalid_argument& e) {
+        RecognitionResult result;
+        if (parsed_grid_type) {
+            result.grid_type = *parsed_grid_type;
+        }
+        else {
+            result.has_grid_type = false;
+        }
+        result.error_code = "invalid_argument";
+        result.message = e.what();
+        if (debug_requested && image != nullptr && !MaaImageBufferIsEmpty(image)) {
+            SaveDebugCaptureBestEffort(to_mat(image), result, task_id);
+        }
+        WriteDetail(out_detail, result);
+        LogError << "IconRecognition rejected invalid input" << VAR(e.what());
+        return MAA_FALSE;
+    }
     catch (const std::exception& e) {
         RecognitionResult result;
         if (parsed_grid_type) {

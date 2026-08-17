@@ -90,7 +90,7 @@ description: MaaEnd 自动寻路、地图定位、角色移动与路径导航开
 
 - `web/serve.py`：FastAPI 后端，托管静态站点并提供寻路 / 导入导出 / 录制 WebSocket 接口；
 - `web/static/`：浏览器前端（原生 JS + JSDoc + WebGL，ESM 模块，零构建）；
-- `basenav_preview.py`：BaseNav `.nav` 加载与 A\* 路线预览计算；
+- `navmesh_backend.py`：navmesh 查询后端，把 cpp-algo agent 当作常驻查询进程，几何解码 / 吸附 / 路线都在 agent 里算；
 - `connectors.py` / `connection_models.py`：Win32 / ADB / PlayCover 录制连接层；
 - `recording_service.py`：Maa Agent 录制线程与轨迹采集；
 - `json_import.py`：JSON/JSONC 导入解析与动作语义校验；

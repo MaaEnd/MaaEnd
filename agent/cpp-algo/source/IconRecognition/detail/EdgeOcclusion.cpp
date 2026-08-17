@@ -65,19 +65,15 @@ std::optional<double> MeanResidual(const cv::Mat& residual, const cv::Mat& mask,
     return sum / active;
 }
 
-std::optional<EdgeOcclusion> BestOcclusionForSide(
-    const cv::Mat& residual,
-    const cv::Mat& mask,
-    EdgeOcclusionSide side,
-    int minimum_cutoff,
-    int maximum_cutoff)
+std::optional<EdgeOcclusion>
+    BestOcclusionForSide(const cv::Mat& residual, const cv::Mat& mask, EdgeOcclusionSide side, int minimum_cutoff, int maximum_cutoff)
 {
     std::optional<EdgeOcclusion> best;
     for (int cutoff = minimum_cutoff; cutoff <= maximum_cutoff; ++cutoff) {
-        const auto excluded = side == EdgeOcclusionSide::Top ? MeanResidual(residual, mask, 0, cutoff)
-                                                              : MeanResidual(residual, mask, cutoff, residual.rows);
-        const auto retained = side == EdgeOcclusionSide::Top ? MeanResidual(residual, mask, cutoff, residual.rows)
-                                                              : MeanResidual(residual, mask, 0, cutoff);
+        const auto excluded =
+            side == EdgeOcclusionSide::Top ? MeanResidual(residual, mask, 0, cutoff) : MeanResidual(residual, mask, cutoff, residual.rows);
+        const auto retained =
+            side == EdgeOcclusionSide::Top ? MeanResidual(residual, mask, cutoff, residual.rows) : MeanResidual(residual, mask, 0, cutoff);
         if (!excluded || !retained) {
             continue;
         }
@@ -115,8 +111,8 @@ bool ShouldAcceptEdgeOcclusionRecovery(
 std::optional<EdgeOcclusion>
     DetectEdgeOcclusion(const cv::Mat& image, const cv::Rect& candidate_box, const PreparedTemplate& templ, Phase phase)
 {
-    if (image.empty() || image.channels() < 3 || templ.image.empty() || templ.mask.empty()
-        || templ.image.size() != templ.mask.size() || candidate_box.size() != templ.image.size()) {
+    if (image.empty() || image.channels() < 3 || templ.image.empty() || templ.mask.empty() || templ.image.size() != templ.mask.size()
+        || candidate_box.size() != templ.image.size()) {
         return std::nullopt;
     }
     const cv::Rect bounds(0, 0, image.cols, image.rows);

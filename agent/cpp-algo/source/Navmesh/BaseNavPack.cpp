@@ -4,6 +4,8 @@
 
 #include "BaseNavPack.h"
 
+#include <cstring>
+
 namespace navmesh
 {
 
@@ -15,7 +17,8 @@ BaseNavPack MakeBaseNavPack(
     std::vector<BaseNavZone> zones,
     std::vector<BaseNavVertex> vertices,
     std::vector<BaseNavTriangle> triangles,
-    std::vector<BaseNavLink> links)
+    std::vector<BaseNavLink> links,
+    std::vector<BaseNavSection> sections)
 {
     BaseNavPack pack;
     pack.path_ = std::move(path);
@@ -23,6 +26,7 @@ BaseNavPack MakeBaseNavPack(
     pack.vertices_ = std::move(vertices);
     pack.triangles_ = std::move(triangles);
     pack.links_ = std::move(links);
+    pack.sections_ = std::move(sections);
     return pack;
 }
 
@@ -60,6 +64,12 @@ const BaseNavZone* BaseNavPack::findZoneByName(const std::string& name) const
     return iter == zones_.end() ? nullptr : &*iter;
 }
 
+uint16_t BaseNavPack::geometryZoneId(uint16_t zone_id) const
+{
+    const BaseNavZone* zone = findZone(zone_id);
+    return zone != nullptr && IsTierZone(*zone) ? static_cast<uint16_t>(zone->component_count) : zone_id;
+}
+
 std::optional<BaseNavBaseProjection> BaseNavPack::projectToBase(const std::string& zone_name, double x, double y) const
 {
     const BaseNavZone* zone = findZoneByName(zone_name);
@@ -74,7 +84,7 @@ std::optional<BaseNavBaseProjection> BaseNavPack::projectToBase(const std::strin
     if (parent == nullptr) {
         return std::nullopt;
     }
-    // base = s * tier + t, with transform = {sx, tx, sy, ty} — byte-identical to basenav_preview.py.
+    // base = s * tier + t, with transform = {sx, tx, sy, ty}.
     const std::array<float, 4>& t = zone->transform;
     return BaseNavBaseProjection {
         parent,
@@ -118,6 +128,16 @@ const char* ToString(BaseNavLoadStatus status)
         return "zone_not_found";
     }
     return "unknown";
+}
+
+const BaseNavSection* BaseNavPack::section(const char (&tag)[5]) const
+{
+    for (const BaseNavSection& s : sections_) {
+        if (std::memcmp(s.tag.data(), tag, 4) == 0) {
+            return &s;
+        }
+    }
+    return nullptr;
 }
 
 }

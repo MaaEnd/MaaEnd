@@ -84,15 +84,10 @@ constexpr double kDetourSnapPenalty = 3.0;
 // Blind-target fallback: navmesh omits water, so a target a human can reach is reported unreachable.
 // Route as close as the mesh allows, then walk the residual gap blind toward the exact target.
 constexpr double kBlindTargetFallbackSnapRadius = 12.0;
-constexpr double kBlindTargetMaxExtension = 30.0;
 constexpr double kBlindTargetProbeStep = 2.0;
 // 探针扫描的墙钟上限。能命中的探针在头几个就返回(近处目标单次规划几十毫秒),耗满预算即目标与
 // 起点不连通,余下探针是同一个失败。远距离目标单次规划本身就要吃掉扩窗预算,这里只容一个来回。
 constexpr int64_t kBlindTargetProbeBudgetMs = 8000;
-
-// Start recovery: how far we are willing to walk unguided to get back onto the mesh. Covers the whole
-// off-mesh band measured along the base-exit corridor, where the blind walk out of the base drops us.
-constexpr double kStartRecoveryMaxBlindWalk = 32.0;
 
 bool IsNavmeshWaypoint(const Waypoint& waypoint)
 {
@@ -467,17 +462,10 @@ std::optional<Waypoint> ProjectRegularWaypointToBase(const navmesh::BaseNavPack&
     return projected;
 }
 
-// When a route asked for mid-run turns out to be unreachable, the search doubles its window pass after
-// pass and every pass fails the same way -- seconds of the navigation thread spent re-deriving one answer
-// while the agent stands still. A run cannot afford that; the expansion done before a run can, and keeps
-// the larger budget. Retries the planner asks for itself are productive and stay on the full budget.
-constexpr int64_t kInRunDeadEndBudgetMs = 1200;
-
 navmesh::BaseNavRouteResult PlanCorridorRoute(
     const CachedNavmesh& navmesh,
     const navmesh::BaseNavRouteRequest& request,
-    const std::function<bool()>& should_stop = {},
-    int64_t dead_end_ms = navmesh::recast::RecastPlanBudget {}.dead_end_ms)
+    const std::function<bool()>& should_stop = {})
 {
     navmesh::BaseNavRouteResult result;
     const navmesh::BaseNavZone* zone = navmesh.pack.findZoneByName(request.zone_name);
@@ -498,7 +486,7 @@ navmesh::BaseNavRouteResult PlanCorridorRoute(
         request.goal_deck_y,
         request.blocked_triangles,
         request.blocked_points,
-        navmesh::recast::RecastPlanBudget { .dead_end_ms = dead_end_ms, .should_stop = should_stop });
+        should_stop);
     if (!plan.ok || plan.points.size() < 2) {
         if (!detour_probe) {
             LogWarn << "RECAST plan failed." << VAR(request.zone_name) << VAR(plan.error);
@@ -555,7 +543,7 @@ std::optional<navmesh::BaseNavRouteResult> PlanNavmeshRouteImpl(
         navmesh::kBaseNavFloorYNone,
         goal_deck_y);
     const auto plan_started_at = std::chrono::steady_clock::now();
-    const auto route_result = PlanCorridorRoute(*navmesh, request, {}, kInRunDeadEndBudgetMs);
+    const auto route_result = PlanCorridorRoute(*navmesh, request);
     const int64_t plan_ms =
         std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - plan_started_at).count();
     if (!route_result.ok()) {
@@ -984,10 +972,7 @@ bool NavmeshZonesShareGeometry(const NaviParam& param, const std::string& zone_a
     }
     const auto geometry_id = [&navmesh](const std::string& name) -> int {
         const navmesh::BaseNavZone* zone = navmesh->pack.findZoneByName(name);
-        if (zone == nullptr) {
-            return -1;
-        }
-        return navmesh::IsTierZone(*zone) ? static_cast<int>(zone->component_count) : static_cast<int>(zone->zone_id);
+        return zone == nullptr ? -1 : static_cast<int>(navmesh->pack.geometryZoneId(zone->zone_id));
     };
     const int geom_a = geometry_id(zone_a);
     return geom_a >= 0 && geom_a == geometry_id(zone_b);

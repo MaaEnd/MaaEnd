@@ -18,6 +18,7 @@
                 "ExpressionRecognition",
                 "ImageCheckNotPassedRecognition",
                 "IconRecognition",
+                "ItemTransferValidatedIconRecognition",
                 "ItemDataReady",
                 "ItemQuantitySatisfied",
                 "ItemTransferSameItemRecognition",
@@ -58,7 +59,14 @@
             "if": {
                 "type": "object",
                 "required": [ "custom_recognition" ],
-                "properties": { "custom_recognition": { "const": "IconRecognition" } }
+                "properties": {
+                    "custom_recognition": {
+                        "enum": [
+                            "IconRecognition",
+                            "ItemTransferValidatedIconRecognition"
+                        ]
+                    }
+                }
             },
             "then": {
                 "type": "object",

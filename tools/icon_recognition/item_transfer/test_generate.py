@@ -164,35 +164,35 @@ class ItemTransferGeneratorTest(unittest.TestCase):
 
     def test_build_transfer_cases_uses_direction_specific_nodes(self) -> None:
         catalog = {
-            "item_nurturance": make_item("Nurturance", -60, 1),
+            "item_product": make_item("Product", -60, 1),
         }
         zh_cn = {
-            "iconRecognition.name.item_nurturance": "培养素材",
+            "iconRecognition.name.item_product": "测试产物",
         }
 
         forward = build_transfer_cases(catalog, zh_cn, FORWARD_NODES)[0]
         backward = build_transfer_cases(catalog, zh_cn, RETURN_NODES)[0]
 
-        self.assertEqual(forward["name"], "培养素材")
-        self.assertEqual(forward["label"], "$iconRecognition.name.item_nurturance")
+        self.assertEqual(forward["name"], "测试产物")
+        self.assertEqual(forward["label"], "$iconRecognition.name.item_product")
         self.assertEqual(
             forward["pipeline_override"],
             {
                 "ItemTransferClickForwardItemCategory": {
-                    "template": "ItemTransfer/Nurturance.png",
+                    "template": "ItemTransfer/Product.png",
                 },
-                "ItemTransferFindForwardItemInRepo": self.item_id_override("item_nurturance"),
-                "ItemTransferFindForwardItemInBag": self.item_id_override("item_nurturance"),
+                "ItemTransferFindForwardItemInRepo": self.item_id_override("item_product", "Normal:Product"),
+                "ItemTransferFindForwardItemInBag": self.item_id_override("item_product", "Normal:Product"),
             },
         )
         self.assertEqual(
             backward["pipeline_override"],
             {
                 "ItemTransferClickReturnItemCategory": {
-                    "template": "ItemTransfer/Nurturance.png",
+                    "template": "ItemTransfer/Product.png",
                 },
-                "ItemTransferFindReturnItemInRepo": self.item_id_override("item_nurturance"),
-                "ItemTransferFindReturnItemInBag": self.item_id_override("item_nurturance"),
+                "ItemTransferFindReturnItemInRepo": self.item_id_override("item_product", "Normal:Product"),
+                "ItemTransferFindReturnItemInBag": self.item_id_override("item_product", "Normal:Product"),
             },
         )
 
@@ -348,13 +348,14 @@ class ItemTransferGeneratorTest(unittest.TestCase):
             )
 
     @staticmethod
-    def item_id_override(item_id: str) -> dict:
+    def item_id_override(item_id: str, item_filter: str) -> dict:
         return {
             "recognition": {
                 "param": {
                     "custom_recognition_param": {
                         "grid_type": "transfer",
                         "item_ids": [item_id],
+                        "item_filters": [item_filter],
                     },
                 },
             },

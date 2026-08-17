@@ -908,28 +908,13 @@ void TestEdgeOcclusionSkipsRewardsAndSingleRoi()
 void TestEdgeOcclusionRecoveryPolicyIsConservative()
 {
     Check(
-        iconrecognition::detail::ShouldAttemptEdgeOcclusionRecovery(
-            iconrecognition::GridType::Trade,
-            0.82,
-            0.85,
-            0.60,
-            false),
+        iconrecognition::detail::ShouldAttemptEdgeOcclusionRecovery(iconrecognition::GridType::Trade, 0.82, 0.85, 0.60, false),
         "a regular-grid candidate rejected after subpixel refinement must enter edge recovery");
     Check(
-        !iconrecognition::detail::ShouldAttemptEdgeOcclusionRecovery(
-            iconrecognition::GridType::Trade,
-            0.91,
-            0.90,
-            0.60,
-            false),
+        !iconrecognition::detail::ShouldAttemptEdgeOcclusionRecovery(iconrecognition::GridType::Trade, 0.91, 0.90, 0.60, false),
         "an already accepted candidate must not pay for edge recovery");
     Check(
-        !iconrecognition::detail::ShouldAttemptEdgeOcclusionRecovery(
-            iconrecognition::GridType::Transfer,
-            0.82,
-            0.85,
-            0.60,
-            true),
+        !iconrecognition::detail::ShouldAttemptEdgeOcclusionRecovery(iconrecognition::GridType::Transfer, 0.82, 0.85, 0.60, true),
         "a low-texture transfer cell must remain rejected before edge recovery");
 
     Check(

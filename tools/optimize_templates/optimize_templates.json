@@ -41,8 +41,6 @@
     "resource/image/PuzzleSolver/TipUnavailable": "c08633be995ee850be1d0f0a7a105d0800b3917e8fcb8f16f12da6f83288d1ce",
     "resource/image/ReadWiki/WikiBackButton": "2bedcb1e845a967eaa459932f0231fa0e7ac8dbe6a58e4068d1a785f86efdc3f",
     "resource/image/ReadWiki/WikiExitButton": "cc5c37dad62b19012b5fe990232d9a32aabf7ecc986eb880f2e3dc2f164ee65c",
-    "resource/image/ReadWiki/WikiUnreadBadge": "c2bf28b34944895e0771ba53b1c32f2b9715ba096c05fc48114f08804dd99d97",
-    "resource/image/ReadWiki/WikiUnreadBadgeWithBlackBG": "063c0e0c4ba421a7d636612e6bb88fca55b1cfcb9d5e32b4bf5f126992cd9fa8",
     "resource/image/RealTimeTask/AnimPlanInteract": "be89a034460c985bbf9afe10af7aa29b5314721db5eec9d3f03af3ff4e40f3e7",
     "resource/image/RealTimeTask/AutoFightBar": "15c6908ff16a90291c36c0777c59fbdfbbf7f92424319337d4cdc8e88dee9038",
     "resource/image/RealTimeTask/AutoFightCombo": "2f60e557a3d7cf7295ae6124c37cb1278a3d954504ff3868acf80ceb930b0c4b",
@@ -570,7 +568,6 @@
     "resource/image/ItemTransfer/Usable": "8a6f577db396dc41ce3cdb3afbcac68b92a71af5de68a1b3c5797c1237c16922",
     "resource/image/ItemTransfer/Plant": "bc56efd556e241cc559a82bd6856957e3606e0776d5d0be8b0b1f7cdab83911c",
     "resource/image/ItemTransfer/Ore": "80fa6aacc4a47936e6d2f54eca4f7155f88b3fff678560f48125a639e47e799e",
-    "resource/image/ReadWiki/WikiUnreadBadgeWithDarkBG": "5c44b6a8be86d1bbc6115e7a4b25d733795d46ad44ebac1d812ea175d8cc96de",
     "resource/image/EssenceFilter/EssenceTabChoose": "2060b99be30d57683f3dbf8e714a38c226f18956713847cd096b2015d8f66547",
     "resource/image/AutoStockpile/StockRedistributionKettle": "605e91bf825a5bbd7d31d0df350938fdf9c02c61d33d22a3b91c13d5894b1360",
     "resource/image/AutoStockpile/RegionalDevelopmentFunctionLocked": "b4f8403516785dcb171419ce0271ca23a27698e0d93639d20645ce21a41a4d13",
@@ -1705,5 +1702,9 @@
     "resource/image/SceneManager/RegionalOverview/CollapseButton": "dabd7cc5f28029f501f67f6a0df2eb266689fdea7710c317682e69d5852f7305",
     "resource/image/SceneManager/RegionalOverview/ExpandButton": "f10b3e9c6f18a635a4f4a2130a03e9185af3dbc73486b0da1fe1473ab6eb7488",
     "resource/image/SceneManager/RegionalOverview/TrialOfSwordmancyWuling": "5b26b9157cb3592cf11a96f6e4c1365a243c14ce6c358af1f9b4832251243419",
-    "resource/image/SceneManager/RegionalOverview/TrialOfSwordmancyInactive": "dfca462a6495ef6ff3fe4d2704ae2eb3c7ff36ecf1ee30383ddcf71a50022d6b"
+    "resource/image/SceneManager/RegionalOverview/TrialOfSwordmancyInactive": "dfca462a6495ef6ff3fe4d2704ae2eb3c7ff36ecf1ee30383ddcf71a50022d6b",
+    "resource/image/SceneManager/RegionalOverview/ViewPositionButtonHover": "9844c4031cd4c4134e8d2e0b84d2564890ea887e19aedd0724d9d46d00fdeb56",
+    "resource/image/SceneManager/RegionalOverview/ViewPositionButton": "6d3c6b4f00c3d3102a0b0ecc4a4e0e57f62068daccf51ff400712714673e939c",
+    "resource/image/ReadWiki/WikiNewListHint": "61140e6564b326a46457cca2af11eb64b3a8f6babf3eb53753b1bc1d0ce89e6d",
+    "resource/image/ReadWiki/WikiNewBadge": "af2ca4d44fd8b7cb6465df8b61ef04156af9da8a1b4769442bc843ecc0dbe75c"
 }

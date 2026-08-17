@@ -13,8 +13,8 @@
 
 #include <MaaUtils/Logger.h>
 
-#include "detail/ForegroundTexture.h"
 #include "detail/EdgeOcclusion.h"
+#include "detail/ForegroundTexture.h"
 #include "detail/GridDetector.h"
 #include "detail/GridProfiles.h"
 #include "detail/IconMatcher.h"
@@ -515,6 +515,10 @@ public:
             ValidateRecognitionRoi(image, request.roi);
             return recognize_original(image, request);
         }
+        catch (const std::invalid_argument& error) {
+            LogError << "IconRecognizer recognition rejected invalid input" << VAR(error.what());
+            return Error(request.roi, request.grid_type, "invalid_argument", error.what());
+        }
         catch (const std::exception& error) {
             LogError << "IconRecognizer recognition failed" << VAR(error.what());
             return Error(request.roi, request.grid_type, "exception", error.what());
@@ -561,6 +565,11 @@ public:
                 if (performance) {
                     performance->grid_detection_ms += ElapsedMilliseconds(detection_started);
                 }
+                if (detection.cells.empty()) {
+                    const std::string message =
+                        detection.failure_message.empty() ? "Grid detection found no formal cells" : detection.failure_message;
+                    return Error(request.roi, request.grid_type, "grid_detection_failed", message);
+                }
                 cells = detection.cells;
                 detected_grids = detection.grids;
                 grid_scale = detection.grid_scale;
@@ -601,7 +610,7 @@ public:
                     rarity.rarity,
                     request.threshold,
                     request.subpixel_threshold,
-                    single_roi ? 0 : std::max(1, cvRound(kGridSearchRadius * grid_scale)),
+                    std::max(1, cvRound(kGridSearchRadius * grid_scale)),
                     performance_ptr);
                 const auto texture_started = performance ? PerformanceClock::now() : PerformanceClock::time_point {};
                 const auto foreground_texture =
@@ -642,8 +651,7 @@ public:
                             performance_ptr);
                         const std::optional<double> recovered_margin =
                             recovered.ranked.size() > 1
-                                ? std::optional<double>(
-                                      recovered.best.diagnostics.score - recovered.ranked[1].diagnostics.score)
+                                ? std::optional<double>(recovered.best.diagnostics.score - recovered.ranked[1].diagnostics.score)
                                 : std::nullopt;
                         if (detail::ShouldAcceptEdgeOcclusionRecovery(
                                 ranking.best.template_index,
@@ -694,15 +702,12 @@ public:
                                      ? (templ.composite ? "composite_union" : "lower_extended")
                                      : ActiveMaskKind(request.grid_type, selected, active)
                                            + (edge_recovery_used
-                                                  ? (edge_occlusion->side == detail::EdgeOcclusionSide::Top ? "+edge_top"
-                                                                                                           : "+edge_bottom")
+                                                  ? (edge_occlusion->side == detail::EdgeOcclusionSide::Top ? "+edge_top" : "+edge_bottom")
                                                   : ""),
-                    .edge_occlusion_side = edge_recovery_used
-                                                ? std::optional<std::string>(
-                                                      edge_occlusion->side == detail::EdgeOcclusionSide::Top ? "top" : "bottom")
-                                                : std::nullopt,
-                    .edge_occlusion_cutoff =
-                        edge_recovery_used ? std::optional<int>(edge_occlusion->cutoff) : std::nullopt,
+                    .edge_occlusion_side = edge_recovery_used ? std::optional<std::string>(
+                                               edge_occlusion->side == detail::EdgeOcclusionSide::Top ? "top" : "bottom")
+                                                              : std::nullopt,
+                    .edge_occlusion_cutoff = edge_recovery_used ? std::optional<int>(edge_occlusion->cutoff) : std::nullopt,
                     .edge_occlusion_residual_ratio =
                         edge_recovery_used ? std::optional<double>(edge_occlusion->residual_ratio) : std::nullopt,
                     .row = single_roi ? std::optional<int> {} : std::optional<int>(cell.row),
@@ -745,6 +750,10 @@ public:
                 LogInfo << "IconRecognition debug performance" << VAR(*result.diagnostics->performance);
             }
             return result;
+        }
+        catch (const std::invalid_argument& error) {
+            LogError << "IconRecognizer recognition rejected invalid input" << VAR(error.what());
+            return Error(request.roi, request.grid_type, "invalid_argument", error.what());
         }
         catch (const std::exception& error) {
             LogError << "IconRecognizer recognition failed" << VAR(error.what());

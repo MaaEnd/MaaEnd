@@ -11,6 +11,7 @@
 #include "navigation_runtime_state.h"
 #include "navigation_session.h"
 #include "obstacle_device_recovery.h"
+#include "walk_mode.h"
 
 namespace mapnavigator
 {
@@ -69,12 +70,15 @@ private:
     bool FailNavigation(const char* reason, const char* log_message, double current_distance, double yaw_error, int64_t stalled_ms);
 
     bool TryScanApproachCollect(const RouteTrackingState& route, const Waypoint& waypoint);
+    void TryCollectAtRouteTail();
     void PreWarmCollectOcr();
     void StartScanners();
     void StopScanners();
     void StartCollectScanner();
     void StartDeviceProbe();
     void UpdateCollectSprintSuppression();
+    double NearestCollectDistanceSq() const;
+    void UpdateWalkMode(NaviPhase phase);
 
     const NaviParam& param_;
     ActionWrapper* action_wrapper_;
@@ -91,11 +95,10 @@ private:
 
     std::unique_ptr<RoiTemplateScanner> collect_scanner_;
     std::chrono::steady_clock::time_point collect_scan_last_at_ {};
-    // Anti-stuck: position of the last detection-triggered collect attempt.
-    NaviPosition collect_attempt_pos_ {};
-    bool collect_attempt_pos_valid_ = false;
 
     ObstacleDeviceRecovery device_recovery_;
+    // Declared last so its destructor runs first — restores jogging while its collaborators are still alive.
+    walkmode::Toggle walk_mode_;
 };
 
 } // namespace mapnavigator

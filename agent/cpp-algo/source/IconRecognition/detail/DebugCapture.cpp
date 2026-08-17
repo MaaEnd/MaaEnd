@@ -135,7 +135,7 @@ bool SaveDebugCaptureImpl(const std::filesystem::path& root, const cv::Mat& imag
     }
     catch (...) {
         RemoveGroup(raw_dir, annotated_dir, detail_dir, stamp);
-        throw;
+        return false;
     }
 }
 

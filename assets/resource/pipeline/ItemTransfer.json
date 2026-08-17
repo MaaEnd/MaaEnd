@@ -243,7 +243,10 @@
         ],
         "expected": "ORIGIN_REGION",
         "action": "Click",
-        "post_delay": 400,
+        "post_wait_freezes": {
+            "time": 400,
+            "timeout": 3000
+        },
         "next": [
             "ItemTransferClickOriginClicked"
         ]
@@ -518,7 +521,7 @@
         "recognition": {
             "type": "Custom",
             "param": {
-                "custom_recognition": "IconRecognition",
+                "custom_recognition": "ItemTransferValidatedIconRecognition",
                 "custom_recognition_param": {
                     "grid_type": "transfer"
                 },
@@ -548,7 +551,7 @@
         "recognition": {
             "type": "Custom",
             "param": {
-                "custom_recognition": "IconRecognition",
+                "custom_recognition": "ItemTransferValidatedIconRecognition",
                 "custom_recognition_param": {
                     "grid_type": "transfer"
                 },
@@ -746,6 +749,16 @@
             -52,
             -50
         ],
+        "post_wait_freezes": {
+            "time": 400,
+            "timeout": 3000,
+            "target": [
+                154,
+                202,
+                585,
+                291
+            ]
+        },
         "next": [
             "[Anchor]ItemTransferAfterRepoTransfer"
         ]
@@ -760,6 +773,16 @@
             -52,
             -50
         ],
+        "post_wait_freezes": {
+            "time": 400,
+            "timeout": 3000,
+            "target": [
+                154,
+                202,
+                585,
+                291
+            ]
+        },
         "next": [
             "[Anchor]ItemTransferAfterRepoTransfer"
         ]
@@ -790,7 +813,10 @@
         ],
         "expected": "DESTINATION_REGION",
         "action": "Click",
-        "post_delay": 400,
+        "post_wait_freezes": {
+            "time": 400,
+            "timeout": 3000
+        },
         "next": [
             "ItemTransferClickDestinationClicked"
         ]
@@ -886,7 +912,7 @@
         "recognition": {
             "type": "Custom",
             "param": {
-                "custom_recognition": "IconRecognition",
+                "custom_recognition": "ItemTransferValidatedIconRecognition",
                 "custom_recognition_param": {
                     "grid_type": "transfer"
                 },
@@ -916,7 +942,7 @@
         "recognition": {
             "type": "Custom",
             "param": {
-                "custom_recognition": "IconRecognition",
+                "custom_recognition": "ItemTransferValidatedIconRecognition",
                 "custom_recognition_param": {
                     "grid_type": "transfer"
                 },
@@ -1078,6 +1104,16 @@
             -52,
             -50
         ],
+        "post_wait_freezes": {
+            "time": 400,
+            "timeout": 3000,
+            "target": [
+                739,
+                202,
+                398,
+                291
+            ]
+        },
         "next": [
             "[Anchor]ItemTransferAfterBagTransfer"
         ]
@@ -1092,6 +1128,16 @@
             -52,
             -50
         ],
+        "post_wait_freezes": {
+            "time": 400,
+            "timeout": 3000,
+            "target": [
+                739,
+                202,
+                398,
+                291
+            ]
+        },
         "next": [
             "[Anchor]ItemTransferAfterBagTransfer"
         ]
@@ -1336,7 +1382,10 @@
         ],
         "expected": "ORIGIN_REGION",
         "action": "Click",
-        "post_delay": 400,
+        "post_wait_freezes": {
+            "time": 400,
+            "timeout": 3000
+        },
         "next": [
             "ItemTransferClickOriginReturnClicked"
         ]
@@ -1492,6 +1541,16 @@
             -52,
             -50
         ],
+        "post_wait_freezes": {
+            "time": 400,
+            "timeout": 3000,
+            "target": [
+                739,
+                202,
+                398,
+                291
+            ]
+        },
         "next": [
             "ItemTransferCheckIfFullReturn",
             "ItemTransferBagReturnCompleted"

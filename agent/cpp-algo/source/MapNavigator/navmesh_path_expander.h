@@ -18,6 +18,12 @@ namespace mapnavigator
 
 struct NaviParam;
 
+// How far the runtime will walk with no guidance. Start recovery covers the whole off-mesh band the
+// blind walk out of the base drops us in; the goal extension exists because navmesh omits water, so a
+// target a human can reach would otherwise be reported unreachable.
+inline constexpr double kStartRecoveryMaxBlindWalk = 32.0;
+inline constexpr double kBlindTargetMaxExtension = 30.0;
+
 std::filesystem::path ResolveNavmeshFilePath(const std::string& configured_path = {});
 std::string InitialExpectedZone(const NaviParam& param);
 // Maps a live locator fix onto the navmesh base-pixel frame using the navmesh's OWN baked tier affine

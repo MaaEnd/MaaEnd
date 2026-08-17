@@ -337,10 +337,9 @@ void WriteDetail(const std::filesystem::path& path, const iconrecognition::Recog
 
 std::string RunLabel(const iconrecognition::test::ManualRunnerOptions& options)
 {
-    const std::string dataset = options.dataset == iconrecognition::test::TestDataset::Win32
-                                    ? "win32-"
+    const std::string dataset = options.dataset == iconrecognition::test::TestDataset::Win32 ? "win32-"
                                 : options.dataset == iconrecognition::test::TestDataset::Adb ? "adb-"
-                                                                                           : "";
+                                                                                             : "";
     if (options.all_images) {
         return dataset + "all";
     }
@@ -594,10 +593,9 @@ int main(int argc, char** argv)
             { "cases_per_second", elapsed > 0.0 ? reports.size() / elapsed : 0.0 },
             { "cases", std::move(reports) },
         };
-        report_object["dataset"] = options.dataset == iconrecognition::test::TestDataset::Win32
-                                       ? "win32"
+        report_object["dataset"] = options.dataset == iconrecognition::test::TestDataset::Win32 ? "win32"
                                    : options.dataset == iconrecognition::test::TestDataset::Adb ? "adb"
-                                                                                              : "unspecified";
+                                                                                                : "unspecified";
         if (!options.expected_path.empty()) {
             report_object["expected"] = options.expected_path.string();
         }

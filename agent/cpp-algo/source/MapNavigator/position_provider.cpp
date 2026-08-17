@@ -103,8 +103,8 @@ bool PositionProvider::Capture(NaviPosition* out_pos, bool force_global_search, 
     if (locate_result.position) {
         const auto& position = *locate_result.position;
         LogInfo << "MapLocator" << VAR(status) << VAR(locate_result.debugMessage) << VAR(position.zoneId) << VAR(position.x)
-                << VAR(position.y) << VAR(position.score) << VAR(position.sliceIndex) << VAR(position.angle)
-                << VAR(position.latencyMs) << VAR(position.isHeld);
+                << VAR(position.y) << VAR(position.score) << VAR(position.sliceIndex) << VAR(position.angle) << VAR(position.latencyMs)
+                << VAR(position.isHeld);
     }
     else {
         LogInfo << "MapLocator" << VAR(status) << VAR(locate_result.debugMessage) << "position=null";

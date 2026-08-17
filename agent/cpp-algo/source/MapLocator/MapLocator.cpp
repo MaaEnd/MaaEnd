@@ -1046,7 +1046,8 @@ std::optional<MapPosition> MapLocator::Impl::tryTracking(
         return std::nullopt;
     }
 
-    LogInfo << "tryTracking" << VAR(trackResult->score) << VAR(trackResult->psr) << VAR(trackResult->delta) << VAR(trackResult->secondScore);
+    LogInfo << "tryTracking" << VAR(trackResult->score) << VAR(trackResult->psr) << VAR(trackResult->delta)
+            << VAR(trackResult->secondScore);
 
     auto validation =
         strategy->validateTracking(*trackResult, dt, motionTracker->getLastPos(), searchRect, scaledTempl.cols, scaledTempl.rows);

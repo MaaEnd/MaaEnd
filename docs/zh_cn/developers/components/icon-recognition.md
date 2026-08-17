@@ -312,23 +312,36 @@ Pipeline、Go Service 和 C++ API 使用同一套识别语义，只是字段承�
 
 Go Service 通过 `ctx.RunRecognitionDirect` 调用注册名 `IconRecognition`。原生 ROI 设置在 `CustomRecognitionParam.ROI`，其余字段放入 `CustomRecognitionParam.CustomRecognitionParam`：
 
+MaaEnd Go Service 调用方应直接复用 `agent/go-service/pkg/iconrecognition`，不要在业务包中重复声明 IconRecognition 的参数或 detail JSON 结构。`Params` 对应 `custom_recognition_param`，`Detail`/`Match` 对应组件 detail，`Match.CellBox` 是可用于后续操作的格子坐标：
+
 ```go
+import "github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/iconrecognition"
+
 detail, err := ctx.RunRecognitionDirect(
     maa.RecognitionTypeCustom,
     &maa.CustomRecognitionParam{
         ROI:                maa.NewTargetRect(maa.Rect{154, 202, 983, 291}),
         CustomRecognition: "IconRecognition",
-        CustomRecognitionParam: map[string]any{
-            "grid_type":   "transfer",
-            "item_ids":    []string{"item_copper_ore"},
-            "deduplicate": true,
-        },
+        CustomRecognitionParam: iconrecognition.NewParams(
+            iconrecognition.WithGridType(iconrecognition.GridTypeTransfer),
+            iconrecognition.WithItemIDs("item_copper_ore"),
+            iconrecognition.WithItemFilters(iconrecognition.StorageFilter().Normal.Ore),
+            iconrecognition.WithDeduplicate(true),
+        ),
     },
     img,
 )
+
+parsed, _, err := iconrecognition.ParseRecognitionDetail(detail)
+if err != nil {
+    return
+}
+for _, match := range parsed.Matches {
+    _ = match.CellBox
+}
 ```
 
-优先使用 `RecognitionDetail.Results` 取得组件结果：命中时读取 `Results.Best.AsCustom()`；未命中时 `Results.Best` 为 `nil`，应读取 `Results.All[0].AsCustom()`。两者返回的 `CustomRecognitionResult.Detail` 都是组件 JSON。若直接解析外层 `DetailJson`，对应路径分别是 `best.detail` 和 `all[0].detail`，不能在未命中时无条件读取 `best.detail`。Go 端解析组件 JSON 时可只声明业务需要的字段；未知字段会被 `encoding/json` 忽略。
+`iconrecognition.ParseRecognitionDetail` 负责从 Maa 结果中选择 Custom detail：命中时读取 `Results.Best`，未命中时读取 `Results.All[0]`，调用方无需自行合并或去重结果桶。若已经取得 `CustomRecognitionResult.Detail` 字符串，也可以直接使用 `iconrecognition.ParseDetail`。
 
 ## C++ API 调用
 
