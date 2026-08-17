@@ -288,10 +288,14 @@ std::vector<BootstrapWaypointCandidate> CollectReachableWaypoints(const std::vec
 size_t RewindToEarliestNearby(const std::vector<Waypoint>& path, const NaviPosition& position, size_t index)
 {
     const Waypoint& anchor = path[index];
+    if (!anchor.HasPosition()) {
+        return index;
+    }
+
     size_t rewound = index;
     while (rewound > 0) {
         const Waypoint& previous = path[rewound - 1];
-        if (!IsZoneCompatible(previous, position.zone_id)) {
+        if (!previous.HasPosition() || !IsZoneCompatible(previous, position.zone_id)) {
             break;
         }
         if (std::hypot(previous.x - anchor.x, previous.y - anchor.y) > kBootstrapOwnershipMaxDistance) {
@@ -340,16 +344,16 @@ std::optional<BootstrapContinueCandidate> ResolveBootstrapContinueCandidate(cons
         }
     }
 
-    double nearest_before = std::numeric_limits<double>::infinity();
+    std::optional<double> nearest_before;
     for (const BootstrapWaypointCandidate& candidate : reachable) {
         if (candidate.index >= nearest->index) {
             break;
         }
-        nearest_before = std::min(nearest_before, candidate.distance);
+        nearest_before = nearest_before ? std::min(*nearest_before, candidate.distance) : candidate.distance;
     }
 
-    // Clear of everything earlier by a wide margin: the route really is behind us.
-    if (nearest->distance + kBootstrapOwnershipDecisiveMargin < nearest_before) {
+    // Nothing earlier to lose, or clear of all of it by a wide margin: the route really is behind us.
+    if (!nearest_before.has_value() || nearest->distance + kBootstrapOwnershipDecisiveMargin < *nearest_before) {
         return BootstrapContinueCandidate {
             .continue_index = nearest->index,
             .route_distance = nearest->distance,
@@ -370,8 +374,7 @@ std::optional<DynamicAnchor>
     const size_t path_size = session->current_path().size();
     std::optional<DynamicAnchor> anchor;
     double anchor_cost = std::numeric_limits<double>::infinity();
-    int planned_count = 0;
-    int unreachable_count = 0;
+    int plan_attempts = 0;
 
     for (size_t index = std::min(start_index, path_size); index < path_size; ++index) {
         const Waypoint& waypoint = session->CurrentPathAt(index);
@@ -399,22 +402,22 @@ std::optional<DynamicAnchor>
         const navmesh::WorldPoint goal { .x = waypoint.x, .y = waypoint.y };
         // 只钉终点: 够不到那张面的候选就不该被选中。第一个规划得通的点就是入口 ——
         // 再往后比价挑更近的, 等于在归属判定之后又做一次"就近吞点"。
-        ++planned_count;
+        ++plan_attempts;
         const auto route = PlanNavmeshRoute(param, position.zone_id, start, goal, waypoint.target_deck_y);
         if (route) {
             anchor_cost = route->cost;
             anchor = { *canonical_index, waypoint };
             break;
         }
-        ++unreachable_count;
         if (IsRequiredSemanticAnchor(waypoint)) {
             break;
         }
     }
 
+    // plan_attempts - 1 waypoints ahead of the anchor turned out unreachable.
     if (anchor) {
-        LogInfo << "Bootstrap navmesh anchor selected." << VAR(anchor->first) << VAR(anchor_cost) << VAR(planned_count)
-                << VAR(unreachable_count) << VAR(start_index);
+        LogInfo << "Bootstrap navmesh anchor selected." << VAR(anchor->first) << VAR(anchor_cost) << VAR(plan_attempts)
+                << VAR(start_index);
     }
     return anchor;
 }
