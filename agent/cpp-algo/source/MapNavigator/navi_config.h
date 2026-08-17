@@ -100,6 +100,10 @@ constexpr double kBootstrapOwnershipProjectionFrontThreshold = 0.35;
 constexpr double kBootstrapOwnershipProjectionMiddleThreshold = 0.60;
 constexpr double kBootstrapOwnershipContinueBiasDistance = 0.5;
 constexpr double kBootstrapOwnershipMaxDistance = 18.0;
+// Off-line bootstrap: skipping waypoints needs evidence, not just "this one happens to be nearest".
+// Standing on a point, or being clear of every earlier point by this margin, counts as evidence.
+constexpr double kBootstrapOwnershipStandingDistance = 1.5;
+constexpr double kBootstrapOwnershipDecisiveMargin = 5.0;
 constexpr double kSerialRouteHeadingEpsilon = 2.0;
 constexpr double kSerialRouteDeviationThreshold = 1.5;
 constexpr double kSerialRouteDeviationFailThreshold = 3.0;
