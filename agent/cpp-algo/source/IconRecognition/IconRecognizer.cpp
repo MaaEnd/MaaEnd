@@ -806,7 +806,7 @@ public:
                     }
                 }
             }
-            if (request.deduplicate) {
+            if (request.deduplicate && !recheck_enabled) {
                 DeduplicateMatches(result.matches);
             }
             if (performance) {
