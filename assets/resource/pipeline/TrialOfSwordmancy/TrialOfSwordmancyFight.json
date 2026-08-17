@@ -154,29 +154,32 @@
         ]
     },
     "TrialOfSwordmancyFightSuccess": {
-        "desc": "战斗胜利",
+        "desc": "战斗胜利：IMS A3 只累加武陵调度券后再点继续",
         "recognition": "And",
         "all_of": [
             "WhiteConfirmButtonType1"
         ],
         "pre_wait_freezes": {
             "target": [
-                590,
-                297,
-                100,
-                100
+                528,
+                299,
+                222,
+                131
             ],
-            "time": 80
+            "time": 300,
+            "threshold": 0.97,
+            "timeout": 1500
         },
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "AddItemData",
         "custom_action_param": {
-            "items": {
-                "WULING_STOCK_BILL": "WULING_STOCK_BILL"
-            }
+            "item_ids": [
+                "item_domain_jinlong_coupon"
+            ]
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "TrialOfSwordmancyFightSuccessContinue"
         ]
