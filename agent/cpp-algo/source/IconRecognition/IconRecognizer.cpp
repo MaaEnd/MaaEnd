@@ -9,6 +9,7 @@
 #include <stdexcept>
 #include <string_view>
 #include <tuple>
+#include <unordered_map>
 #include <unordered_set>
 
 #include <MaaUtils/Logger.h>
@@ -415,6 +416,27 @@ SlotRanking RankSlot(
     return ranking;
 }
 
+bool ValidateCandidateCell(
+    const cv::Mat& image,
+    const cv::Rect& cell_box,
+    std::string_view expected_item_id,
+    const std::vector<detail::PreparedTemplate>& templates,
+    double threshold,
+    double subpixel_threshold)
+{
+    const SlotRanking ranking = RankSlot(
+        image,
+        cell_box,
+        templates,
+        std::nullopt,
+        threshold,
+        subpixel_threshold,
+        kGridSearchRadius,
+        nullptr);
+    return ranking.best.diagnostics.score >= threshold
+        && templates[ranking.best.template_index].record.item_id == expected_item_id;
+}
+
 std::string ActiveMaskKind(
     GridType type,
     const std::vector<detail::PreparedTemplate>& selected,
@@ -526,7 +548,7 @@ public:
                 return Error(request.roi, request.grid_type, "invalid_image", "Input image is empty");
             }
             ValidateRecognitionRoi(image, request.roi);
-            return recognize_original(image, request, true);
+            return recognize_original(image, request);
         }
         catch (const std::invalid_argument& error) {
             LogError << "IconRecognizer recognition rejected invalid input" << VAR(error.what());
@@ -538,7 +560,7 @@ public:
         }
     }
 
-    RecognitionResult recognize_original(const cv::Mat& image, const RecognitionRequest& request, bool allow_recheck) const
+    RecognitionResult recognize_original(const cv::Mat& image, const RecognitionRequest& request) const
     {
         try {
             const auto recognition_started = request.debug ? PerformanceClock::now() : PerformanceClock::time_point {};
@@ -552,7 +574,7 @@ public:
             }
             ValidateThresholds(request.threshold, request.subpixel_threshold);
             const bool recheck_enabled =
-                allow_recheck && !request.candidates.item_ids.empty() && !request.candidates.item_recheck_filters.empty();
+                !request.candidates.item_ids.empty() && !request.candidates.item_recheck_filters.empty();
             if (recheck_enabled) {
                 ValidateFilters(request.candidates.item_recheck_filters, "item_recheck_filters");
             }
@@ -754,23 +776,28 @@ public:
             if (recheck_enabled) {
                 const auto candidates = std::move(result.matches);
                 result.matches.clear();
+                CandidateFilter recheck_candidates;
+                recheck_candidates.item_filters = request.candidates.item_recheck_filters;
+                std::unordered_map<int, std::vector<detail::PreparedTemplate>> recheck_templates_by_size;
                 std::unordered_set<std::string> rechecked_item_ids;
                 for (const auto& candidate : candidates) {
                     if (request.deduplicate && rechecked_item_ids.contains(candidate.item.item_id)) {
                         continue;
                     }
-                    RecognitionRequest validation_request = request;
-                    validation_request.grid_type = GridType::SingleRoi;
-                    validation_request.roi = candidate.cell_box;
-                    validation_request.candidates.item_ids.clear();
-                    validation_request.candidates.item_filters = request.candidates.item_recheck_filters;
-                    validation_request.candidates.item_recheck_filters.clear();
-                    validation_request.deduplicate = false;
-                    validation_request.debug = false;
-                    const auto validation = recognize_original(image, validation_request, false);
-                    const bool valid = std::ranges::any_of(validation.matches, [&](const auto& match) {
-                        return match.item.item_id == candidate.item.item_id;
-                    });
+                    auto [templates, inserted] = recheck_templates_by_size.try_emplace(candidate.cell_box.width);
+                    if (inserted) {
+                        templates->second = SelectTemplates(
+                            RoiTemplates(candidate.cell_box.width),
+                            recheck_candidates,
+                            detail::DefaultItemFilters(GridType::SingleRoi));
+                    }
+                    const bool valid = ValidateCandidateCell(
+                        image,
+                        candidate.cell_box,
+                        candidate.item.item_id,
+                        templates->second,
+                        request.threshold,
+                        request.subpixel_threshold);
                     if (valid) {
                         result.matches.push_back(candidate);
                         if (request.deduplicate) {

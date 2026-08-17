@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <filesystem>
 #include <iostream>
 #include <stdexcept>
@@ -163,6 +164,10 @@ constexpr int kSyntheticRoiX = 7;
 constexpr int kSyntheticRoiY = 5;
 constexpr int kSyntheticRoiSize = 54;
 constexpr int kSyntheticAlphaThreshold = 230;
+constexpr int kTransferSyntheticWidth = 420;
+constexpr int kTransferSyntheticHeight = 320;
+constexpr int kTransferSyntheticPitch = 69;
+constexpr int kTransferSyntheticCellSize = 64;
 
 struct SingleRoiFixture
 {
@@ -182,6 +187,39 @@ SingleRoiFixture MakeSingleRoiFixture()
     const cv::Size canvas_size { kSyntheticRoiX + kSyntheticRoiSize + 5, kSyntheticRoiY + kSyntheticRoiSize + 5 };
     cv::Mat pixels = cv::Mat::zeros(canvas_size, CV_8UC3);
     prepared.image.copyTo(pixels(cv::Rect(kSyntheticRoiX, kSyntheticRoiY, kSyntheticRoiSize, kSyntheticRoiSize)));
+    return { std::move(pixels) };
+}
+
+struct RecheckDeduplicateFixture
+{
+    cv::Mat pixels;
+    cv::Rect roi { 0, 0, kTransferSyntheticWidth, kTransferSyntheticHeight };
+};
+
+RecheckDeduplicateFixture MakeRecheckDeduplicateFixture()
+{
+    cv::Mat pixels(
+        kTransferSyntheticHeight,
+        kTransferSyntheticWidth,
+        CV_8UC3,
+        cv::Scalar(18, 18, 18));
+    for (int x = 0; x < kTransferSyntheticWidth; x += kTransferSyntheticPitch) {
+        pixels.colRange(x, std::min(x + 2, kTransferSyntheticWidth)).setTo(cv::Scalar(245, 245, 245));
+    }
+    for (int y = 0; y < kTransferSyntheticHeight; y += kTransferSyntheticPitch) {
+        pixels.rowRange(y, std::min(y + 2, kTransferSyntheticHeight)).setTo(cv::Scalar(245, 245, 245));
+    }
+
+    const auto template_path = get_exe_dir() / ".." / "resource" / "image" / "IconRecognition" / "1" / "item_copper_ore.png";
+    const iconrecognition::detail::TemplateRecord record { .item_id = "item_copper_ore" };
+    const auto prepared = iconrecognition::detail::PrepareStandardTemplate(
+        record,
+        iconrecognition::detail::DecodeBgra(template_path),
+        kTransferSyntheticCellSize,
+        kSyntheticAlphaThreshold);
+    for (const cv::Point origin : { cv::Point { 2, 2 }, cv::Point { 71, 2 } }) {
+        prepared.image.copyTo(pixels(cv::Rect(origin.x, origin.y, kTransferSyntheticCellSize, kTransferSyntheticCellSize)));
+    }
     return { std::move(pixels) };
 }
 
@@ -408,6 +446,38 @@ void TestItemRecheckFiltersValidateCandidates()
     RequireUntouched(out_box);
 }
 
+void TestItemRecheckFiltersRespectDeduplication()
+{
+    const auto fixture = MakeRecheckDeduplicateFixture();
+    iconrecognition::IconRecognizer recognizer(get_exe_dir() / ".." / "data" / "IconRecognition");
+    Require(recognizer.initialize(), "deduplication recognizer must initialize");
+
+    iconrecognition::RecognitionRequest request;
+    request.grid_type = iconrecognition::GridType::Transfer;
+    request.roi = fixture.roi;
+    request.candidates.item_ids = { "item_copper_ore" };
+    request.candidates.item_filters = { "Normal:Ore" };
+    request.candidates.item_recheck_filters = { "Normal:Ore" };
+
+    const auto without_deduplicate = recognizer.recognize(fixture.pixels, request);
+    Require(without_deduplicate.matched, "both rechecked duplicate candidates must match without deduplication");
+    Require(
+        without_deduplicate.matches.size() == 2,
+        "deduplicate=false must keep both candidates with the same item_id");
+    Require(
+        std::ranges::all_of(
+            without_deduplicate.matches,
+            [](const auto& match) { return match.item.item_id == "item_copper_ore"; }),
+        "deduplicate=false candidates must share the requested item_id");
+
+    request.deduplicate = true;
+    const auto with_deduplicate = recognizer.recognize(fixture.pixels, request);
+    Require(with_deduplicate.matched, "one rechecked duplicate candidate must match with deduplication");
+    Require(
+        with_deduplicate.matches.size() == 1,
+        "deduplicate=true must keep only one candidate with the same item_id");
+}
+
 void TestRecognizerPreservesInternalDiagnostics()
 {
     const auto fixture = MakeSingleRoiFixture();
@@ -605,6 +675,7 @@ int main()
         TestGridDetectionFailureIsStructured();
         TestSuccessfulSingleRoiUsesPrimaryCellBox();
         TestItemRecheckFiltersValidateCandidates();
+        TestItemRecheckFiltersRespectDeduplication();
         TestRecognizerPreservesInternalDiagnostics();
         TestGridDiagnosticsSerializeSelectionEvidence();
         TestRecognizerPreloadsEveryRequestedTemplateSize();
