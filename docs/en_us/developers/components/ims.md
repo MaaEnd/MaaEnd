@@ -138,6 +138,14 @@ If IMS was never initialized (`hasData=false`), A3 still recognizes and Focus-an
 
 Placeholders read **IMS cache IconRecognition IDs**, not on-screen OCR nodes.
 
+| Field | Notes |
+| --- | --- |
+| `expression` | Boolean expression with `{ITEM_ID}` placeholders (missing = `0`). With `report_only`, must contain exactly one `{ITEM_ID}` |
+| `notify_ui` | Announce resolved expression to UI Focus; default `false`. Ignored when `report_only` is true |
+| `report_only` | Announce-only mode: reject multi-item expressions, print current quantity, always hit; default `false` |
+
+Default mode:
+
 ```json
 {
     "custom_recognition": "ItemQuantitySatisfied",
@@ -148,7 +156,21 @@ Placeholders read **IMS cache IconRecognition IDs**, not on-screen OCR nodes.
 }
 ```
 
-Examples: `{item_char_break_stage_1_2}>=40`, `{item_gold}<50`. Missing IDs count as `0`. Result must be boolean. R1 does **not** check readiness—combine with R2 via `And` when needed.
+Examples: `{item_char_break_stage_1_2}>=40`, `{item_gold}<50`. Result must be boolean. R1 does **not** check readiness—combine with R2 via `And` when needed.
+
+Report-only mode:
+
+```json
+{
+    "custom_recognition": "ItemQuantitySatisfied",
+    "custom_recognition_param": {
+        "expression": "{item_gold}",
+        "report_only": true
+    }
+}
+```
+
+Prints `Current T-Creds: 40` (`ims.item_current`), always returns a recognition hit, and rejects expressions with more than one item placeholder.
 
 ---
 

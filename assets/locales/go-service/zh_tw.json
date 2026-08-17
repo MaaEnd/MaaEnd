@@ -263,5 +263,6 @@
     "ims.quantity_short": "%s：庫存 %d / 目標 %d（未達標）",
     "ims.expression_ok": "表達式成立：%s",
     "ims.expression_short": "表達式不成立：%s",
+    "ims.item_current": "目前 %s：%d",
     "ims.add_item_skip_persist": "IMS 未初始化，已識別獎勵但不寫入快取"
 }

@@ -263,5 +263,6 @@
     "ims.quantity_short": "%s：在庫 %d / 目標 %d（不足）",
     "ims.expression_ok": "式が成立：%s",
     "ims.expression_short": "式が不成立：%s",
+    "ims.item_current": "現在 %s：%d",
     "ims.add_item_skip_persist": "IMS 未初期化：報酬は認識しましたがキャッシュは更新しません"
 }

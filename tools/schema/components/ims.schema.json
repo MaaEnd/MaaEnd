@@ -79,7 +79,7 @@
         "ItemQuantitySatisfiedParam": {
             "type": "object",
             "title": "ItemQuantitySatisfied Param",
-            "description": "Parameters for ItemQuantitySatisfied recognition (R1). Evaluates a boolean expression over one or more cached IconRecognition item IDs via {ITEM_ID} placeholders (same operators as ExpressionRecognition). Does not check readiness; combine with ItemDataReady via And when needed. Missing item counts as 0. UI Focus announce is off by default.",
+            "description": "Parameters for ItemQuantitySatisfied recognition (R1). Default mode evaluates a boolean expression over cached IconRecognition item IDs via {ITEM_ID} placeholders (same operators as ExpressionRecognition). report_only mode accepts exactly one {ITEM_ID}, announces current quantity, and always hits. Does not check readiness; combine with ItemDataReady via And when needed. Missing item counts as 0. UI Focus announce is off by default unless report_only is true.",
             "additionalProperties": false,
             "required": [
                 "expression"
@@ -87,13 +87,19 @@
             "properties": {
                 "expression": {
                     "title": "Expression",
-                    "description": "Boolean expression over cached item quantities. Use {ITEM_ID} placeholders with IconRecognition IDs (missing item = 0). Supports + - * / % < <= > >= == != && || ! and parentheses. Result must be boolean.",
+                    "description": "Boolean expression over cached item quantities. Use {ITEM_ID} placeholders with IconRecognition IDs (missing item = 0). Supports + - * / % < <= > >= == != && || ! and parentheses. Result must be boolean. When report_only is true, expression must contain exactly one {ITEM_ID}.",
                     "type": "string",
                     "minLength": 1
                 },
                 "notify_ui": {
                     "title": "Notify UI",
-                    "description": "When true, print the resolved expression to UI Focus (throttled). Default false.",
+                    "description": "When true, print the resolved expression to UI Focus (throttled). Default false. Ignored when report_only is true (report mode always announces).",
+                    "type": "boolean",
+                    "default": false
+                },
+                "report_only": {
+                    "title": "Report Only",
+                    "description": "When true, require exactly one {ITEM_ID}, announce \"current ITEM : quantity\", and always return recognition hit. Multi-item expressions are rejected.",
                     "type": "boolean",
                     "default": false
                 }

@@ -164,14 +164,17 @@ A3 与其它动作 / 识别器不同：**不要求 IMS 缓存已经存在**。
 
 ## R1：`ItemQuantitySatisfied`
 
-判断缓存里的物品数量是否满足条件表达式。
+判断缓存里的物品数量是否满足条件表达式；也可进入只播报模式。
 
 与通用识别器 [`ExpressionRecognition`](../custom.md#expressionrecognition) 语法相同，但占位符读取的是 **IMS 缓存中的 IconRecognition 物品 ID**，而不是画面 OCR 节点。
 
 | 参数 | 说明 |
 | --- | --- |
-| `expression` | 布尔表达式；用 `{物品ID}` 引用缓存数量（缺失按 `0`） |
-| `notify_ui` | 是否向 UI 播报展开后的表达式；默认 `false`（关闭） |
+| `expression` | 布尔表达式；用 `{物品ID}` 引用缓存数量（缺失按 `0`）。`report_only` 时必须恰好包含一个 `{物品ID}` |
+| `notify_ui` | 是否向 UI 播报展开后的表达式；默认 `false`（关闭）。`report_only` 时忽略（始终播报） |
+| `report_only` | 只播报模式：拒绝多物品表达式，输出「当前 XXX：数量」，并**始终命中**；默认 `false` |
+
+### 条件判断（默认）
 
 支持的运算：
 
@@ -200,9 +203,30 @@ A3 与其它动作 / 识别器不同：**不要求 IMS 缓存已经存在**。
 
 表达式结果必须是布尔值。
 
-R1 **不检查**缓存是否就绪。若需要「数据可用且数量够」，用 `And` 同时挂上 R2（`ItemDataReady`）与 R1，避免把「还没同步」误判成「数量不够去刷」。
-
 仅当 `notify_ui` 为 `true` 时，才会向 UI Focus 输出展开后的表达式（约 10 秒内相同文案会节流）。调度类 `next` 扫描建议保持默认关闭，避免刷屏。
+
+### 只播报（`report_only`）
+
+用于「读缓存并告诉用户当前数量」，不参与够不够判断：
+
+```json
+{
+    "custom_recognition": "ItemQuantitySatisfied",
+    "custom_recognition_param": {
+        "expression": "{item_gold}",
+        "report_only": true
+    }
+}
+```
+
+约束与行为：
+
+- `expression` 必须恰好包含一个 `{物品ID}`；`{a}+{b}` 等会被拒绝
+- UI 播报：`当前 折金票：40`（文案键 `ims.item_current`）
+- 识别结果**始终返回 true**（缓存缺失按 `0`）
+- 约 10 秒内相同文案会节流
+
+R1 **不检查**缓存是否就绪。若需要「数据可用且数量够」，用 `And` 同时挂上 R2（`ItemDataReady`）与 R1，避免把「还没同步」误判成「数量不够去刷」。
 
 ---
 
