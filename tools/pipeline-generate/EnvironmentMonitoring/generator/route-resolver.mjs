@@ -6,11 +6,9 @@ export const ROUTE_CONFIG_FIELDS = [
     "EnterMap",
     "MapName",
     "MapAssert",
-    "MapPath",
     "MapTarget",
     "MapTargetTier",
     "MapTargetDeckY",
-    "MapGoal",
     "NavZoneId",
     "NavAssert",
     "NavPath",
@@ -18,7 +16,6 @@ export const ROUTE_CONFIG_FIELDS = [
     "CameraMaxHit",
     "Replace",
     "Heading",
-    "NoEnsureInitialMovementState",
     "QuickTeleport",
 ];
 
@@ -61,18 +58,11 @@ export function collectMissingRouteFields(route) {
 
     const quickTeleport = route.QuickTeleport === true;
     const hasMapAssert = !isFieldMissing(route.MapAssert);
-    const hasMapPath = !isFieldMissing(route.MapPath);
     const hasMapTarget = !isFieldMissing(route.MapTarget);
-    const hasMapGoal = !isFieldMissing(route.MapGoal);
     const navFieldsPresent = collectNavRouteFields(route);
     const hasNavRoute = hasCompleteNavRoute(route);
-    const navigationConfigCount = [
-        hasMapPath,
-        hasMapTarget,
-        hasMapGoal,
-    ].filter(Boolean).length;
-    const isDirectPhoto = !hasMapAssert && navFieldsPresent.length === 0 && navigationConfigCount === 0;
-    const canSkipMapAssert = quickTeleport && navigationConfigCount === 1;
+    const isDirectPhoto = !hasMapAssert && navFieldsPresent.length === 0 && !hasMapTarget;
+    const canSkipMapAssert = quickTeleport && hasMapTarget;
     const missingFields = [];
 
     if (!quickTeleport && isFieldMissing(route.EnterMap)) {
@@ -86,7 +76,6 @@ export function collectMissingRouteFields(route) {
             "MapName",
             "MapTargetTier",
             "MapTargetDeckY",
-            "NoEnsureInitialMovementState",
         ].filter((field) => !isFieldMissing(route[field]));
         if (unusedDirectPhotoFields.length > 0) {
             missingFields.push(`传送后直拍不应配置 ${unusedDirectPhotoFields.join("/")}`);
@@ -101,11 +90,8 @@ export function collectMissingRouteFields(route) {
             const unusedNavRouteFields = [
                 "MapName",
                 "MapAssert",
-                "MapPath",
                 "MapTarget",
                 "MapTargetTier",
-                "MapGoal",
-                "NoEnsureInitialMovementState",
             ].filter((field) => !isFieldMissing(route[field]));
             if (unusedNavRouteFields.length > 0) {
                 missingFields.push(`NavPath 路线不应配置 ${unusedNavRouteFields.join("/")}`);
@@ -118,10 +104,8 @@ export function collectMissingRouteFields(route) {
         if (!canSkipMapAssert && !hasMapAssert) {
             missingFields.push("MapAssert");
         }
-        if (navigationConfigCount === 0) {
-            missingFields.push("MapPath/MapTarget/MapGoal");
-        } else if (navigationConfigCount > 1) {
-            missingFields.push("MapPath/MapTarget/MapGoal 三选一");
+        if (!hasMapTarget) {
+            missingFields.push("MapTarget");
         }
     }
 
@@ -137,25 +121,19 @@ export function collectMissingRouteFields(route) {
 }
 
 // 未适配任务不会进入寻路/拍照分支；这些值只用于渲染模板中不可达的路线节点。
+// 断言矩形取 1×1 像素，角色永远落不进去，识别必然失败并转去传送分支。
 const UNREACHABLE_ROUTE_PLACEHOLDER = {
     EnterMap: "SceneAnyEnterWorld",
-    MapName: "^map\\d+_lv\\d+$",
+    MapName: null,
     MapAssert: [
         0,
         0,
         1,
         1,
     ],
-    MapPath: [
-        [
-            0,
-            0,
-        ],
-    ],
     MapTarget: null,
     MapTargetTier: null,
     MapTargetDeckY: null,
-    MapGoal: null,
     NavZoneId: "Wuling_Base",
     CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",
 };
@@ -215,104 +193,63 @@ function normalizeHeading(headingRaw, mission, missionName, warn) {
 function buildNavigationParams({
     MapName,
     MapAssert,
-    MapPath,
     MapTarget,
     MapTargetTier,
     MapTargetDeckY,
-    MapGoal,
     NavZoneId,
     NavAssert,
     NavPath,
-    NoEnsureInitialMovementState,
     hasMapTarget,
-    hasMapGoal,
     hasNavRoute,
-    isDirectPhoto,
     heading,
 }) {
     // 1. 构建位置断言识别节点
-    const MapAssertRecognition = hasMapTarget || hasNavRoute ? "MapLocateAssertLocation" : "MapTrackerAssertLocation";
-    const MapAssertParam =
-        MapAssertRecognition === "MapLocateAssertLocation"
-            ? {
-                  // 使用 MapLocateAssertLocation
-                  zone_id: hasNavRoute ? NavZoneId : MapName,
-                  target: hasNavRoute ? NavAssert : MapAssert,
-              }
-            : {
-                  // 使用 MapTrackerAssertLocation
-                  expected: [
-                      {
-                          map_name: MapName,
-                          target: MapAssert,
-                      },
-                  ],
-              };
+    // NavPath 优先于 MapTarget 简写；两者都没有时用占位值，渲染出的节点本来就走不到。
+    const useMapShorthand = !hasNavRoute && hasMapTarget;
+    const MapAssertRecognition = "MapLocateAssertLocation";
+    const MapAssertParam = {
+        zone_id: useMapShorthand ? MapName : NavZoneId,
+        target: useMapShorthand ? MapAssert : NavAssert,
+    };
 
     // 2. 构建导航动作节点
-    const shouldAdjustDirectPhotoHeading = isDirectPhoto && heading.HasHeading;
-    const RouteAction = shouldAdjustDirectPhotoHeading
-        ? "MapTrackerToward"
-        : hasMapTarget || hasNavRoute
-          ? "MapNavigateAction"
-          : hasMapGoal
-            ? "MapTrackerGoal"
-            : "MapTrackerMove";
-    const mapTrackerExtraParams = {
-        ...(heading.HasHeading
-            ? {
-                  on_finish: {
-                      action: "Custom",
-                      custom_action: "MapTrackerToward",
-                      custom_action_param: {
-                          angle: heading.Heading,
+    const RouteAction = "MapNavigateAction";
+    const routeNodes = hasNavRoute
+        ? NavPath
+        : hasMapTarget
+          ? [
+                {
+                    action: "NAVMESH",
+                    target: MapTarget,
+                    ...(!isFieldMissing(MapTargetTier) ? {target_tier: MapTargetTier} : {}),
+                    ...(!isFieldMissing(MapTargetDeckY) ? {target_deck_y: MapTargetDeckY} : {}),
+                },
+            ]
+          : [];
+    const headingNodes = heading.HasHeading
+        ? [
+              {
+                  action: "HEADING",
+                  angle: heading.Heading,
+              },
+          ]
+        : [];
+    // 传送后直拍只有朝向节点；一个节点都没有时补零度朝向，让不可达节点的参数保持合法。
+    const path = [
+        ...routeNodes,
+        ...headingNodes,
+    ];
+    const RouteActionParam = {
+        path:
+            path.length > 0
+                ? path
+                : [
+                      {
+                          action: "HEADING",
+                          angle: 0,
                       },
-                  },
-              }
-            : {}),
-        ...(NoEnsureInitialMovementState ? {no_ensure_initial_movement_state: true} : {}),
+                  ],
     };
-    const RouteActionParam = shouldAdjustDirectPhotoHeading
-        ? {
-              angle: heading.Heading,
-          }
-        : RouteAction === "MapNavigateAction"
-          ? {
-                // 使用 MapNavigateAction
-                path: [
-                    ...(hasNavRoute
-                        ? NavPath
-                        : [
-                              {
-                                  action: "NAVMESH",
-                                  target: MapTarget,
-                                  ...(!isFieldMissing(MapTargetTier) ? {target_tier: MapTargetTier} : {}),
-                                  ...(!isFieldMissing(MapTargetDeckY) ? {target_deck_y: MapTargetDeckY} : {}),
-                              },
-                          ]),
-                    ...(heading.HasHeading
-                        ? [
-                              {
-                                  action: "HEADING",
-                                  angle: heading.Heading,
-                              },
-                          ]
-                        : []),
-                ],
-            }
-          : RouteAction === "MapTrackerGoal"
-            ? {
-                  // 使用 MapTrackerGoal
-                  map_name: MapName,
-                  target: MapGoal,
-                  ...mapTrackerExtraParams,
-              }
-            : {
-                  // 使用 MapTrackerMove
-                  map_name: MapName,
-                  path: MapPath,
-                  ...mapTrackerExtraParams,
-              };
 
     return {
         MapAssertRecognition,
@@ -331,19 +268,11 @@ export function createRouteResolver(routeConfig, options = {}) {
             const missionName = mission?.name?.zh_cn || mission?.missionId || "UnknownMission";
             const override = getRouteOverride(mission, routeOverrides);
             const QuickTeleport = override?.QuickTeleport === true;
-            const hasMapPath = !isFieldMissing(override?.MapPath);
             const hasMapTarget = !isFieldMissing(override?.MapTarget);
-            const hasMapGoal = !isFieldMissing(override?.MapGoal);
             const navFieldsPresent = collectNavRouteFields(override);
             const hasNavRoute = hasCompleteNavRoute(override);
-            const navigationConfigCount = [
-                hasMapPath,
-                hasMapTarget,
-                hasMapGoal,
-            ].filter(Boolean).length;
-            const isDirectPhoto =
-                isFieldMissing(override?.MapAssert) && navFieldsPresent.length === 0 && navigationConfigCount === 0;
-            const canSkipMapAssert = QuickTeleport && navigationConfigCount === 1;
+            const isDirectPhoto = isFieldMissing(override?.MapAssert) && navFieldsPresent.length === 0 && !hasMapTarget;
+            const canSkipMapAssert = QuickTeleport && hasMapTarget;
 
             const resolved = {};
             const missingFields = collectMissingRouteFields(override);
@@ -369,25 +298,17 @@ export function createRouteResolver(routeConfig, options = {}) {
             }
 
             const {EnterMap, MapName, MapAssert, CameraSwipeDirection} = resolved;
-            const MapPath =
-                navigationConfigCount === 1 && hasMapPath ? override.MapPath : UNREACHABLE_ROUTE_PLACEHOLDER.MapPath;
-            const MapTarget =
-                navigationConfigCount === 1 && hasMapTarget
-                    ? override.MapTarget
-                    : UNREACHABLE_ROUTE_PLACEHOLDER.MapTarget;
+            const MapTarget = hasMapTarget ? override.MapTarget : UNREACHABLE_ROUTE_PLACEHOLDER.MapTarget;
             const MapTargetTier =
-                navigationConfigCount === 1 && hasMapTarget && !isFieldMissing(override?.MapTargetTier)
+                hasMapTarget && !isFieldMissing(override?.MapTargetTier)
                     ? override.MapTargetTier
                     : UNREACHABLE_ROUTE_PLACEHOLDER.MapTargetTier;
             const MapTargetDeckY =
-                navigationConfigCount === 1 && hasMapTarget && !isFieldMissing(override?.MapTargetDeckY)
+                hasMapTarget && !isFieldMissing(override?.MapTargetDeckY)
                     ? override.MapTargetDeckY
                     : UNREACHABLE_ROUTE_PLACEHOLDER.MapTargetDeckY;
-            const MapGoal =
-                navigationConfigCount === 1 && hasMapGoal ? override.MapGoal : UNREACHABLE_ROUTE_PLACEHOLDER.MapGoal;
             const CameraMaxHit = override?.CameraMaxHit ?? CAMERA_MAX_HIT_DEFAULT;
             const Replace = override?.Replace ?? [];
-            const NoEnsureInitialMovementState = override?.NoEnsureInitialMovementState ?? false;
             const heading = normalizeHeading(override?.Heading, mission, missionName, warn);
             const isAdapted = override != null && missingFields.length === 0;
 
@@ -410,29 +331,23 @@ export function createRouteResolver(routeConfig, options = {}) {
                 EnterMap,
                 MapName,
                 MapAssert,
-                MapPath,
                 MapTarget,
                 MapTargetTier,
                 MapTargetDeckY,
-                MapGoal,
                 CameraSwipeDirection,
                 CameraMaxHit,
                 Replace,
-                NoEnsureInitialMovementState,
                 QuickTeleport,
                 IsDirectPhoto: isAdapted && isDirectPhoto,
                 // NavPath 路线传送后交给 MapNavigateAction 自行接管落点，不再复核起点
-                ShouldAssertAfterTeleport:
-                    !isDirectPhoto && !hasNavRoute && (navigationConfigCount !== 1 || (hasMapPath && !QuickTeleport)),
+                ShouldAssertAfterTeleport: !isDirectPhoto && !hasNavRoute && !hasMapTarget,
                 ...heading,
                 ...buildNavigationParams({
                     MapName,
                     MapAssert,
-                    MapPath,
                     MapTarget,
                     MapTargetTier,
                     MapTargetDeckY,
-                    MapGoal,
                     NavZoneId: isFieldMissing(override?.NavZoneId)
                         ? UNREACHABLE_ROUTE_PLACEHOLDER.NavZoneId
                         : override.NavZoneId,
@@ -440,11 +355,8 @@ export function createRouteResolver(routeConfig, options = {}) {
                         ? UNREACHABLE_ROUTE_PLACEHOLDER.MapAssert
                         : override.NavAssert,
                     NavPath: override?.NavPath,
-                    NoEnsureInitialMovementState,
-                    hasMapTarget: navigationConfigCount === 1 && hasMapTarget,
-                    hasMapGoal: navigationConfigCount === 1 && hasMapGoal,
+                    hasMapTarget,
                     hasNavRoute,
-                    isDirectPhoto,
                     heading,
                 }),
             };
