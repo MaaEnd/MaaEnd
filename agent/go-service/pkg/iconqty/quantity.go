@@ -124,6 +124,11 @@ func RecognizeQuantityInROI(ctx *maa.Context, img image.Image, roi maa.Rect) (in
 	}
 	qty, err := ocrnum.Extract(detail)
 	if err != nil {
+		log.Info().
+			Err(err).
+			Str("component", "iconqty").
+			Interface("roi", roi).
+			Msg("quantity ocr hit but numeric parse failed, treat as miss")
 		return 0, false, nil
 	}
 	return qty, true, nil
