@@ -199,21 +199,26 @@
         ],
         "count": 30
     },
+    "IntelArchiveIncidentInvestigationOCR": {
+        "desc": "事件调查卡片标题 OCR；命名节点供 ExpendableRecognition 注入 visited 黑名单",
+        "recognition": "OCR",
+        "roi": "IntelArchiveIncidentInvestigationTextColor",
+        "expected": [
+            // @i18n-skip
+            ".{2,}"
+        ],
+        "only_rec": true,
+        "order_by": "Vertical"
+    },
     "IntelArchiveIncidentInvestigationText": {
-        "desc": "识别事件调查icon下方文字",
+        "desc": "识别事件调查icon下方文字；box_index=3 返回标题框，供消费性选卡点击",
         "recognition": "And",
         "all_of": [
             "IntelArchiveIncidentInvestigationIcon",
             "IntelArchiveIncidentInvestigationTextBackground",
             "IntelArchiveIncidentInvestigationTextColor",
-            {
-                "recognition": "OCR",
-                "roi": "IntelArchiveIncidentInvestigationTextColor",
-                "expected": [
-                    ".{2,}"
-                ],
-                "only_rec": true
-            }
-        ]
+            "IntelArchiveIncidentInvestigationOCR"
+        ],
+        "box_index": 3
     }
 }

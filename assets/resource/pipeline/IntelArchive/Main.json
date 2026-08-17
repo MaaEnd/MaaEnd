@@ -43,14 +43,6 @@
             "EmptyNode"
         ]
     },
-    "IntelArchiveSyncIntelGathering": {
-        "desc": "同步情报采集（骨架，实现留空）",
-        "enabled": false,
-        "max_hit": 1,
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
-    },
     "IntelArchiveShowInventorySub": {
         "desc": "显示库存列表（骨架，实现留空）",
         "enabled": false,
