@@ -59,7 +59,7 @@ func QuantityROIFromCellBox(cell maa.Rect) (maa.Rect, bool) {
 // each match cell_box. Returns one hit per match (no ID aggregation) so
 // callers can add multiple stacks (A3) or overwrite by ID (A2).
 func RecognizeQuantities(ctx *maa.Context, img image.Image, req Request) ([]QuantityHit, error) {
-	matches, err := Recognize(ctx, img, req)
+	matches, err := recognizeIcons(ctx, img, req)
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +73,7 @@ func RecognizeQuantities(ctx *maa.Context, img image.Image, req Request) ([]Quan
 		if itemID == "" {
 			continue
 		}
-		if !m.CellOK() {
+		if m.CellBox[2] <= 0 || m.CellBox[3] <= 0 {
 			return nil, fmt.Errorf("IconRecognition match missing cell_box for %s", itemID)
 		}
 		qtyROI, ok := QuantityROIFromCellBox(m.CellBox)

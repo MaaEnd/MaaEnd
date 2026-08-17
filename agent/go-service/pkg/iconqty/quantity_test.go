@@ -39,22 +39,6 @@ func TestQuantityROIFromCellBox(t *testing.T) {
 	}
 }
 
-func TestMatchCellAndItemBox(t *testing.T) {
-	m := Match{
-		ItemID:  "item_gold",
-		CellBox: maa.Rect{1, 2, 3, 4},
-		ItemBox: maa.Rect{5, 6, 7, 8},
-		hasCell: true,
-		hasItem: true,
-	}
-	if !m.CellOK() || m.CellBox != (maa.Rect{1, 2, 3, 4}) {
-		t.Fatalf("cell=%v ok=%v", m.CellBox, m.CellOK())
-	}
-	if !m.ItemOK() || m.ItemBox != (maa.Rect{5, 6, 7, 8}) {
-		t.Fatalf("item=%v ok=%v", m.ItemBox, m.ItemOK())
-	}
-}
-
 func TestDefaultItemFilters(t *testing.T) {
 	if got := DefaultItemFilters(GridValuables); len(got) != 1 || got[0] != "ValuableDepot:*" {
 		t.Fatalf("valuables=%v", got)
