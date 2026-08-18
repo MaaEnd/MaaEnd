@@ -54,6 +54,7 @@ func (a *ResolveTruncAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) boo
 		detail, err := ctx.RunTask(truncatedItemNode)
 		if err != nil || detail == nil || !detail.Status.Success() {
 			log.Error().Err(err).Str("component", component).Str("ocr", item.Text).Ints("box", item.Box).Msg("truncated item pipeline failed")
+			return false
 		}
 	}
 	return true
@@ -211,6 +212,7 @@ func unlockByNames(ctx *maa.Context, names []string) error {
 		return err
 	}
 	ids := make([]string, 0, len(names))
+	idToName := make(map[string]string)
 	for _, name := range names {
 		if name == "" {
 			continue
@@ -222,9 +224,19 @@ func unlockByNames(ctx *maa.Context, names []string) error {
 			continue
 		}
 		log.Info().Str("component", component).Str("ocr", name).Str("full_name", full).Strs("item_id", matched).Msg("catalog lookup hit")
-		maafocus.Print(ctx, i18n.T("intelarchive.item_unlocked", full))
-		ids = append(ids, matched...)
+		for _, id := range matched {
+			ids = append(ids, id)
+			if idToName[id] == "" {
+				idToName[id] = full
+			}
+		}
 	}
-	_, err = unlockItems(placeholderUID, ids)
-	return err
+	added, err := unlockItems(placeholderUID, ids)
+	if err != nil {
+		return err
+	}
+	for _, id := range added {
+		maafocus.Print(ctx, i18n.T("intelarchive.item_unlocked", idToName[id]))
+	}
+	return nil
 }

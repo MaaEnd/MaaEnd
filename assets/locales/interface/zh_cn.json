@@ -723,7 +723,7 @@
     "task.IntelArchive.option.SyncFindings.label": "见闻辑录",
     "task.IntelArchive.option.SyncNexusFiles.label": "中枢档案",
     "task.IntelArchive.option.ShowInventory.label": "显示库存列表",
-    "task.IntelArchive.option.ShowInventory.description": "任务完成后可在右侧运行日志里查看库存档案",
+    "task.IntelArchive.option.ShowInventory.description": "任务完成后显示已扫描库存列表",
     "task.BakerEntry.label": "💬会话消息嘴替",
     "task.BakerEntry.description": "清掉所有会话消息，聊个五毛钱的.jpg",
     "task.SimpleProductionBatch.label": "🔨批量简易制作",

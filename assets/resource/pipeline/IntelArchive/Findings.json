@@ -4,16 +4,12 @@
         "enabled": false,
         "max_hit": 1,
         "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "SubTask",
-                "custom_action_param": {
-                    "sub": [
-                        "SceneEnterMenuIntelArchiveFindings"
-                    ]
-                }
-            }
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuIntelArchiveFindings"
+            ]
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -27,20 +23,16 @@
     "IntelArchiveSyncFindingsClickPaperTab": {
         "desc": "点击左侧「纸质记录」页签",
         "max_hit": 1,
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    16,
-                    80,
-                    230,
-                    400
-                ],
-                "expected": [
-                    "纸质记录"
-                ]
-            }
-        },
+        "recognition": "OCR",
+        "roi": [
+            16,
+            80,
+            230,
+            400
+        ],
+        "expected": [
+            "纸质记录"
+        ],
         "pre_delay": 0,
         "action": "Click",
         "post_wait_freezes": {
@@ -70,21 +62,17 @@
     },
     "IntelArchiveSyncFindingsScrollFinishPaper": {
         "desc": "「纸质记录」列表已到底，结束本页签 JumpBack",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ListCompleteRecognition",
-                "custom_recognition_param": {
-                    "threshold": 0.98
-                },
-                "roi": [
-                    280,
-                    100,
-                    960,
-                    560
-                ]
-            }
+        "recognition": "Custom",
+        "custom_recognition": "ListCompleteRecognition",
+        "custom_recognition_param": {
+            "threshold": 0.98
         },
+        "roi": [
+            280,
+            100,
+            960,
+            560
+        ],
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
@@ -98,20 +86,16 @@
     "IntelArchiveSyncFindingsClickElectronicTab": {
         "desc": "点击左侧「电子档案」页签",
         "max_hit": 1,
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    16,
-                    80,
-                    230,
-                    400
-                ],
-                "expected": [
-                    "电子档案"
-                ]
-            }
-        },
+        "recognition": "OCR",
+        "roi": [
+            16,
+            80,
+            230,
+            400
+        ],
+        "expected": [
+            "电子档案"
+        ],
         "pre_delay": 0,
         "action": "Click",
         "post_wait_freezes": {
@@ -141,21 +125,17 @@
     },
     "IntelArchiveSyncFindingsScrollFinishElectronic": {
         "desc": "「电子档案」列表已到底，结束本页签 JumpBack",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ListCompleteRecognition",
-                "custom_recognition_param": {
-                    "threshold": 0.98
-                },
-                "roi": [
-                    280,
-                    100,
-                    960,
-                    560
-                ]
-            }
+        "recognition": "Custom",
+        "custom_recognition": "ListCompleteRecognition",
+        "custom_recognition_param": {
+            "threshold": 0.98
         },
+        "roi": [
+            280,
+            100,
+            960,
+            560
+        ],
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
@@ -169,20 +149,16 @@
     "IntelArchiveSyncFindingsClickCollectionTab": {
         "desc": "点击左侧「藏品」页签",
         "max_hit": 1,
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    16,
-                    80,
-                    230,
-                    400
-                ],
-                "expected": [
-                    "藏品"
-                ]
-            }
-        },
+        "recognition": "OCR",
+        "roi": [
+            16,
+            80,
+            230,
+            400
+        ],
+        "expected": [
+            "藏品"
+        ],
         "pre_delay": 0,
         "action": "Click",
         "post_wait_freezes": {
@@ -212,21 +188,17 @@
     },
     "IntelArchiveSyncFindingsScrollFinishCollection": {
         "desc": "「藏品」列表已到底，结束本页签 JumpBack",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ListCompleteRecognition",
-                "custom_recognition_param": {
-                    "threshold": 0.98
-                },
-                "roi": [
-                    280,
-                    100,
-                    960,
-                    560
-                ]
-            }
+        "recognition": "Custom",
+        "custom_recognition": "ListCompleteRecognition",
+        "custom_recognition_param": {
+            "threshold": 0.98
         },
+        "roi": [
+            280,
+            100,
+            960,
+            560
+        ],
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
@@ -240,19 +212,11 @@
     "IntelArchiveSyncFindingsScanAndScroll": {
         "desc": "本屏 OCR 入库；省略号条目交给 ResolveTruncAction",
         "max_hit": 100,
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "IntelArchiveScanItemsRecognition"
-            }
-        },
+        "recognition": "Custom",
+        "custom_recognition": "IntelArchiveScanItemsRecognition",
         "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "IntelArchiveResolveTruncAction"
-            }
-        },
+        "action": "Custom",
+        "custom_action": "IntelArchiveResolveTruncAction",
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -261,24 +225,18 @@
     },
     "IntelArchiveSyncFindingsScroll": {
         "desc": "列表下滑；静止后移鼠标到左上角复位",
-        "recognition": {
-            "type": "DirectHit"
-        },
+        "recognition": "DirectHit",
         "pre_delay": 0,
-        "action": {
-            "type": "Swipe",
-            "param": {
-                "begin": [
-                    760,
-                    520
-                ],
-                "end": [
-                    760,
-                    200
-                ],
-                "end_hold": 600
-            }
-        },
+        "action": "Swipe",
+        "begin": [
+            760,
+            520
+        ],
+        "end": [
+            760,
+            200
+        ],
+        "end_hold": 600,
         "post_wait_freezes": {
             "time": 200,
             "target": [

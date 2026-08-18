@@ -15,19 +15,21 @@ import (
 )
 
 var fileCategories = map[string]struct{}{
-	"paper":      {},
-	"digital":    {},
-	"media":      {},
-	"collection": {},
-	"document":   {},
-	"report":     {},
+	"investigate": {},
+	"paper":       {},
+	"digital":     {},
+	"media":       {},
+	"collection":  {},
+	"document":    {},
+	"report":      {},
 }
 
 const (
-	component           = "intelarchive"
-	catalogResourcePath = "data/IntelArchive/catalog.json"
-	itemsResourcePath   = "data/IntelArchive/items.json"
-	unlockedFileName    = "intel_archive_unlocked.json"
+	component              = "intelarchive"
+	catalogResourcePath    = "data/IntelArchive/catalog.json"
+	itemsResourcePath      = "data/IntelArchive/items.json"
+	unlockedFileName       = "IntelArchiveUnlocked.json"
+	legacyUnlockedFileName = "intel_archive_unlocked.json"
 )
 
 type catalogFile struct {
@@ -51,13 +53,27 @@ type itemPage struct {
 	Names map[string]string `json:"names"`
 }
 
+type itemGroupEntry struct {
+	ItemID string `json:"itemId"`
+	PageID string `json:"pageId,omitempty"`
+}
+
+type itemGroup struct {
+	ID      string            `json:"id"`
+	Names   map[string]string `json:"names,omitempty"`
+	Entries []itemGroupEntry  `json:"entries,omitempty"`
+}
+
 type item struct {
-	ID           string            `json:"id"`
-	Names        map[string]string `json:"names"`
-	Page         string            `json:"page"`
-	FileCategory string            `json:"fileCategory"`
-	TagIDs       []string          `json:"tagIds,omitempty"`
-	Pages        []itemPage        `json:"pages,omitempty"`
+	ID             string            `json:"id"`
+	Names          map[string]string `json:"names"`
+	Page           string            `json:"page"`
+	FileCategory   string            `json:"fileCategory"`
+	TagIDs         []string          `json:"tagIds,omitempty"`
+	Pages          []itemPage        `json:"pages,omitempty"`
+	RelatedItemIDs []string          `json:"relatedItemIds,omitempty"`
+	Groups         []itemGroup       `json:"groups,omitempty"`
+	Order          int               `json:"order,omitempty"`
 }
 
 type catalogIndex struct {
@@ -307,6 +323,11 @@ func (idx *catalogIndex) matchOCR(ocr string) (ids []string, full string) {
 func loadUnlocked() (unlockedFile, error) {
 	path := unlockedPathFunc()
 	raw, err := os.ReadFile(path)
+	if err != nil && os.IsNotExist(err) {
+		if legacy := legacyUnlockedPath(path); legacy != path {
+			raw, err = os.ReadFile(legacy)
+		}
+	}
 	if err != nil {
 		if os.IsNotExist(err) {
 			return unlockedFile{
@@ -377,7 +398,14 @@ func saveUnlocked(doc unlockedFile) error {
 		return fmt.Errorf("rename unlocked file: %w", err)
 	}
 	cleanup = false
+	if legacy := legacyUnlockedPath(path); legacy != path {
+		_ = os.Remove(legacy)
+	}
 	return nil
+}
+
+func legacyUnlockedPath(path string) string {
+	return filepath.Join(filepath.Dir(path), legacyUnlockedFileName)
 }
 
 // unlockItems appends item IDs under the given UID. Missing file/dir is created.

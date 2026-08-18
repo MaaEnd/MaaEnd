@@ -2,36 +2,16 @@
     "InIntelArchive": {
         "desc": "在档案库一级界面（分类选择）；二级页由 InIntelArchiveView2 识别",
         "recognition": {
-            "type": "And",
+            "type": "OCR",
             "param": {
-                "all_of": [
-                    {
-                        "recognition": {
-                            "type": "OCR",
-                            "param": {
-                                "roi": [
-                                    0,
-                                    0,
-                                    240,
-                                    100
-                                ],
-                                "expected": [
-                                    "情报档案库"
-                                ]
-                            }
-                        }
-                    },
-                    {
-                        "recognition": {
-                            "type": "And",
-                            "param": {
-                                "all_of": [
-                                    "InIntelArchiveView2"
-                                ]
-                            }
-                        },
-                        "inverse": true
-                    }
+                "roi": [
+                    0,
+                    0,
+                    240,
+                    100
+                ],
+                "expected": [
+                    "情报档案库"
                 ]
             }
         },
@@ -57,7 +37,7 @@
         "rate_limit": 0
     },
     "InIntelArchiveIntelGathering": {
-        "desc": "在档案库-情报采集界面内；OCR roi 占位，待补充",
+        "desc": "在档案库-情报采集界面内",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -77,7 +57,7 @@
         "rate_limit": 0
     },
     "InIntelArchiveAudioRecords": {
-        "desc": "在档案库-音像存档界面内；OCR roi 占位，待补充",
+        "desc": "在档案库-音像存档界面内",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -97,7 +77,7 @@
         "rate_limit": 0
     },
     "InIntelArchiveFindings": {
-        "desc": "在档案库-见闻辑录界面内；OCR roi 占位，待补充",
+        "desc": "在档案库-见闻辑录界面内",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -117,7 +97,7 @@
         "rate_limit": 0
     },
     "InIntelArchiveNexusFiles": {
-        "desc": "在档案库-中枢档案界面内；OCR roi 占位，待补充",
+        "desc": "在档案库-中枢档案界面内",
         "recognition": {
             "type": "OCR",
             "param": {

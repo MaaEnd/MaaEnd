@@ -570,7 +570,7 @@
     "task.IntelArchive.option.SyncFindings.label": "견문 기록",
     "task.IntelArchive.option.SyncNexusFiles.label": "중추 아카이브",
     "task.IntelArchive.option.ShowInventory.label": "보유 목록 표시",
-    "task.IntelArchive.option.ShowInventory.description": "작업 완료 후 우측 실행 로그에서 보유 아카이브를 확인할 수 있습니다.",
+    "task.IntelArchive.option.ShowInventory.description": "작업 완료 후 스캔한 보유 목록을 표시합니다.",
     "task.BakerEntry.label": "💬 대화 메시지 정리",
     "task.BakerEntry.description": "모든 대화 메시지를 정리합니다.",
     "task.SimpleProductionBatch.label": "🔨 간편 제작 일괄 실행",

@@ -888,7 +888,7 @@
     "task.IntelArchive.option.SyncFindings.label": "Findings",
     "task.IntelArchive.option.SyncNexusFiles.label": "Nexus Files",
     "task.IntelArchive.option.ShowInventory.label": "Show inventory list",
-    "task.IntelArchive.option.ShowInventory.description": "After the task finishes, view owned archives in the right-side run log.",
+    "task.IntelArchive.option.ShowInventory.description": "After the task finishes, display the scanned inventory list.",
     "task.BakerEntry.label": "💬 Clear Chat Messages",
     "task.BakerEntry.description": "Clear all chat messages.",
     "task.SimpleProductionBatch.label": "🔨 Batch Simple Crafting",

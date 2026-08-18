@@ -574,7 +574,7 @@
     "task.IntelArchive.option.SyncFindings.label": "見聞輯錄",
     "task.IntelArchive.option.SyncNexusFiles.label": "中樞檔案",
     "task.IntelArchive.option.ShowInventory.label": "顯示庫存列表",
-    "task.IntelArchive.option.ShowInventory.description": "任務完成後可在右側運行日誌裡查看庫存檔案",
+    "task.IntelArchive.option.ShowInventory.description": "任務完成後顯示已掃描庫存列表",
     "task.BakerEntry.label": "💬會話訊息嘴替",
     "task.BakerEntry.description": "清掉所有會話訊息，聊個五毛錢的.jpg",
     "task.SimpleProductionBatch.label": "🔨 批量簡易製作",
