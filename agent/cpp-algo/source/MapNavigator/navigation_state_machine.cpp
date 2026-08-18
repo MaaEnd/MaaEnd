@@ -17,15 +17,17 @@
 
 #include "action_executor.h"
 #include "action_wrapper.h"
-#include "collectible_scanner.h"
+#include "latency_observer.h"
 #include "motion_controller.h"
 #include "navi_config.h"
 #include "navi_math.h"
 #include "navigation_state_machine.h"
 #include "navmesh_path_expander.h"
 #include "position_provider.h"
+#include "roi_template_scanner.h"
 #include "route_tracker.h"
 #include "semantic_nodes.h"
+#include "sensitivity_observer.h"
 #include "steering_controller.h"
 
 #include "../utils.h"
@@ -60,7 +62,7 @@ bool ReadRoiArray(const json::value& holder, cv::Rect* out)
     return out->width > 0 && out->height > 0;
 }
 
-bool ParseCollectRoiFromNode(MaaContext* context, const char* node_name, cv::Rect* out)
+bool ParseRoiFromNode(MaaContext* context, const char* node_name, cv::Rect* out)
 {
     if (context == nullptr || node_name == nullptr) {
         return false;
@@ -68,18 +70,18 @@ bool ParseCollectRoiFromNode(MaaContext* context, const char* node_name, cv::Rec
 
     ScopedStringBuffer buffer;
     if (buffer.Get() == nullptr || !MaaContextGetNodeData(context, node_name, buffer.Get())) {
-        LogWarn << "Collect ROI: MaaContextGetNodeData failed." << VAR(node_name);
+        LogWarn << "Pipeline ROI: MaaContextGetNodeData failed." << VAR(node_name);
         return false;
     }
     const char* raw = MaaStringBufferGet(buffer.Get());
     if (raw == nullptr || raw[0] == '\0') {
-        LogWarn << "Collect ROI: empty node data." << VAR(node_name);
+        LogWarn << "Pipeline ROI: empty node data." << VAR(node_name);
         return false;
     }
 
     const auto parsed = json::parse(raw);
     if (!parsed || !parsed->is_object()) {
-        LogWarn << "Collect ROI: node JSON is not an object." << VAR(node_name);
+        LogWarn << "Pipeline ROI: node JSON is not an object." << VAR(node_name);
         return false;
     }
     const auto& node = parsed->as_object();
@@ -102,13 +104,25 @@ bool ParseCollectRoiFromNode(MaaContext* context, const char* node_name, cv::Rec
         return true;
     }
 
-    LogWarn << "Collect ROI: no usable roi array in node data." << VAR(node_name);
+    LogWarn << "Pipeline ROI: no usable roi array in node data." << VAR(node_name);
     return false;
 }
 
 bool RouteHasCollectWaypoint(const std::vector<Waypoint>& path)
 {
     return std::any_of(path.begin(), path.end(), [](const Waypoint& wp) { return wp.action == ActionType::COLLECT; });
+}
+
+// 末尾的无坐标节点(ZONE/HEADING)不算, 看的是最后一个真正要走到的点是不是采集点
+bool RouteEndsWithCollectWaypoint(const std::vector<Waypoint>& path)
+{
+    for (auto it = path.rbegin(); it != path.rend(); ++it) {
+        if (!it->HasPosition()) {
+            continue;
+        }
+        return it->action == ActionType::COLLECT;
+    }
+    return false;
 }
 
 struct BootstrapWaypointCandidate
@@ -146,9 +160,7 @@ bool IsRequiredSemanticAnchor(const Waypoint& waypoint)
 
 double ArrivalBandForStartupBypass(const Waypoint& waypoint)
 {
-    double arrival_band = waypoint.RequiresStrictArrival()
-                              ? waypoint.GetLookahead() + kMeasurementDefaultPositionQuantum
-                              : waypoint.GetLookahead() + kWaypointArrivalSlack + kMeasurementDefaultPositionQuantum;
+    double arrival_band = waypoint.ArrivalBand(kMeasurementDefaultPositionQuantum);
     if (waypoint.action == ActionType::PORTAL) {
         arrival_band = std::max(arrival_band, kPortalCommitDistance);
     }
@@ -251,9 +263,9 @@ std::optional<BootstrapContinueCandidate> FindProjectedContinueCandidate(const s
     return best_candidate;
 }
 
-std::optional<BootstrapWaypointCandidate> FindNearestReachableWaypoint(const std::vector<Waypoint>& path, const NaviPosition& position)
+std::vector<BootstrapWaypointCandidate> CollectReachableWaypoints(const std::vector<Waypoint>& path, const NaviPosition& position)
 {
-    std::optional<BootstrapWaypointCandidate> best_candidate;
+    std::vector<BootstrapWaypointCandidate> candidates;
     for (size_t index = 0; index < path.size(); ++index) {
         const Waypoint& waypoint = path[index];
         if (!IsZoneCompatible(waypoint, position.zone_id)) {
@@ -265,11 +277,38 @@ std::optional<BootstrapWaypointCandidate> FindNearestReachableWaypoint(const std
             continue;
         }
 
-        if (!best_candidate.has_value() || distance < best_candidate->distance) {
-            best_candidate = BootstrapWaypointCandidate { .index = index, .distance = distance };
-        }
+        candidates.push_back(BootstrapWaypointCandidate { .index = index, .distance = distance });
     }
-    return best_candidate;
+    return candidates;
+}
+
+// Walk back along the route while each predecessor is still within the ownership radius of the anchor.
+// Distances are anchor-relative, not chained, so the walk-back stays bounded; positionless waypoints
+// (ZONE / HEADING markers) end it, and leading markers alone mean the route head.
+size_t RewindToEarliestNearby(const std::vector<Waypoint>& path, const NaviPosition& position, size_t index)
+{
+    const Waypoint& anchor = path[index];
+    if (!anchor.HasPosition()) {
+        return index;
+    }
+
+    size_t rewound = index;
+    while (rewound > 0) {
+        const Waypoint& previous = path[rewound - 1];
+        if (!previous.HasPosition() || !IsZoneCompatible(previous, position.zone_id)) {
+            break;
+        }
+        if (std::hypot(previous.x - anchor.x, previous.y - anchor.y) > kBootstrapOwnershipMaxDistance) {
+            break;
+        }
+        --rewound;
+    }
+
+    const auto rewound_begin = path.begin() + static_cast<std::ptrdiff_t>(rewound);
+    if (std::none_of(path.begin(), rewound_begin, [](const Waypoint& waypoint) { return waypoint.HasPosition(); })) {
+        return 0;
+    }
+    return rewound;
 }
 
 std::optional<BootstrapContinueCandidate> ResolveBootstrapContinueCandidate(const std::vector<Waypoint>& path, const NaviPosition& position)
@@ -279,15 +318,53 @@ std::optional<BootstrapContinueCandidate> ResolveBootstrapContinueCandidate(cons
         return projected;
     }
 
-    const std::optional<BootstrapWaypointCandidate> nearest_waypoint = FindNearestReachableWaypoint(path, position);
-    if (!nearest_waypoint.has_value()) {
+    // Off the line, "nearest" alone decided ownership and lost whole clusters of waypoints to
+    // sub-metre gaps. Skipping now needs evidence; without it the route is resumed further back.
+    const std::vector<BootstrapWaypointCandidate> reachable = CollectReachableWaypoints(path, position);
+    if (reachable.empty()) {
         return std::nullopt;
     }
 
+    // Standing on a waypoint. Earliest one wins so a loop route's coincident head is not read as its tail.
+    const auto standing = std::find_if(reachable.begin(), reachable.end(), [](const BootstrapWaypointCandidate& candidate) {
+        return candidate.distance <= kBootstrapOwnershipStandingDistance;
+    });
+    if (standing != reachable.end()) {
+        return BootstrapContinueCandidate {
+            .continue_index = standing->index,
+            .route_distance = standing->distance,
+            .reason = "standing_on_waypoint",
+        };
+    }
+
+    const BootstrapWaypointCandidate* nearest = &reachable.front();
+    for (const BootstrapWaypointCandidate& candidate : reachable) {
+        if (candidate.distance < nearest->distance) {
+            nearest = &candidate;
+        }
+    }
+
+    std::optional<double> nearest_before;
+    for (const BootstrapWaypointCandidate& candidate : reachable) {
+        if (candidate.index >= nearest->index) {
+            break;
+        }
+        nearest_before = nearest_before ? std::min(*nearest_before, candidate.distance) : candidate.distance;
+    }
+
+    // Nothing earlier to lose, or clear of all of it by a wide margin: the route really is behind us.
+    if (!nearest_before.has_value() || nearest->distance + kBootstrapOwnershipDecisiveMargin < *nearest_before) {
+        return BootstrapContinueCandidate {
+            .continue_index = nearest->index,
+            .route_distance = nearest->distance,
+            .reason = "decisive_nearest",
+        };
+    }
+
     return BootstrapContinueCandidate {
-        .continue_index = nearest_waypoint->index,
-        .route_distance = nearest_waypoint->distance,
-        .reason = "nearest_waypoint",
+        .continue_index = RewindToEarliestNearby(path, position, nearest->index),
+        .route_distance = nearest->distance,
+        .reason = "rewound_to_earliest",
     };
 }
 
@@ -295,10 +372,9 @@ std::optional<DynamicAnchor>
     ResolveBootstrapNavmeshAnchor(const NaviParam& param, NavigationSession* session, const NaviPosition& position, size_t start_index)
 {
     const size_t path_size = session->current_path().size();
-    std::optional<DynamicAnchor> best_anchor;
-    double best_cost = std::numeric_limits<double>::infinity();
-    int planned_count = 0;
-    int skipped_count = 0;
+    std::optional<DynamicAnchor> anchor;
+    double anchor_cost = std::numeric_limits<double>::infinity();
+    int plan_attempts = 0;
 
     for (size_t index = std::min(start_index, path_size); index < path_size; ++index) {
         const Waypoint& waypoint = session->CurrentPathAt(index);
@@ -324,29 +400,25 @@ std::optional<DynamicAnchor>
 
         const navmesh::WorldPoint start { .x = position.x, .y = position.y };
         const navmesh::WorldPoint goal { .x = waypoint.x, .y = waypoint.y };
-        if (std::hypot(goal.x - start.x, goal.y - start.y) < best_cost) {
-            const auto route = PlanNavmeshRoute(param, position.zone_id, start, goal);
-            if (route) {
-                ++planned_count;
-                if (route->cost < best_cost) {
-                    best_cost = route->cost;
-                    best_anchor = { *canonical_index, waypoint };
-                }
-            }
-        }
-        else {
-            ++skipped_count;
+        // 只钉终点: 够不到那张面的候选就不该被选中。第一个规划得通的点就是入口 ——
+        // 再往后比价挑更近的, 等于在归属判定之后又做一次"就近吞点"。
+        ++plan_attempts;
+        const auto route = PlanNavmeshRoute(param, position.zone_id, start, goal, waypoint.target_deck_y);
+        if (route) {
+            anchor_cost = route->cost;
+            anchor = { *canonical_index, waypoint };
+            break;
         }
         if (IsRequiredSemanticAnchor(waypoint)) {
             break;
         }
     }
 
-    if (best_anchor) {
-        LogInfo << "Bootstrap navmesh anchor selected." << VAR(best_anchor->first) << VAR(best_cost) << VAR(planned_count)
-                << VAR(skipped_count) << VAR(start_index);
+    // plan_attempts - 1 waypoints ahead of the anchor turned out unreachable.
+    if (anchor) {
+        LogInfo << "Bootstrap navmesh anchor selected." << VAR(anchor->first) << VAR(anchor_cost) << VAR(plan_attempts) << VAR(start_index);
     }
-    return best_anchor;
+    return anchor;
 }
 
 std::optional<DynamicAnchor> ResolveBootstrapAnchor(const NaviParam& param, NavigationSession* session, const NaviPosition& position)
@@ -408,14 +480,19 @@ NavigationStateMachine::NavigationStateMachine(
     , position_(position)
     , should_stop_(std::move(should_stop))
     , maa_context_(maa_context)
+    , device_recovery_(maa_context, motion_controller, position_provider, session, position)
+    , walk_mode_(action_wrapper)
 {
     LogInfo << "Navigation route runner selected. backend=orchestrated";
 }
 
 bool NavigationStateMachine::Run()
 {
+    latency::BeginRun();
+
     if (!Bootstrap()) {
         StopMotion();
+        sensitivity::EndRun(maa_context_, true);
         return false;
     }
 
@@ -423,14 +500,15 @@ bool NavigationStateMachine::Run()
     // the first forward press, so it can never land on a while-walking scan tick and freeze the thread.
     PreWarmCollectOcr();
 
-    // Spin up the background collectible detector (no-op unless the route has a COLLECT waypoint). It runs
-    // off the nav thread on pure OpenCV; the nav loop only reacts to its flag, never recognizes inline.
-    StartCollectScanner();
+    // Spin up the background detectors (the collectible one is a no-op unless the route has a COLLECT
+    // waypoint). They run off the nav thread on pure OpenCV; the nav loop only reacts to their flags.
+    StartScanners();
 
     while (!should_stop_() && session_->phase() != NaviPhase::Finished && session_->phase() != NaviPhase::Failed) {
         if (!TickPhase(session_->phase())) {
-            StopCollectScanner();
+            StopScanners();
             StopMotion();
+            sensitivity::EndRun(maa_context_, true);
             return false;
         }
     }
@@ -439,14 +517,22 @@ bool NavigationStateMachine::Run()
         session_->HasSatisfiedFinalSuccess(*position_, "navigation_complete");
     }
 
-    StopCollectScanner();
+    TryCollectAtRouteTail();
+
+    StopScanners();
     StopMotion();
-    return !should_stop_() && session_->success();
+
+    // 用户主动停的不算走坏，别借着这个把门槛放下来。
+    const bool stopped_by_user = should_stop_();
+    const bool succeeded = !stopped_by_user && session_->success();
+    sensitivity::EndRun(maa_context_, !succeeded && !stopped_by_user);
+    return succeeded;
 }
 
 bool NavigationStateMachine::Bootstrap()
 {
     runtime_state_.BeginNavigation(std::chrono::steady_clock::now());
+    sensitivity::BeginRun();
 
     if (session_->HasSatisfiedFinalSuccess(*position_, "bootstrap_already_at_final_goal")) {
         return true;
@@ -478,6 +564,9 @@ bool NavigationStateMachine::Bootstrap()
 
 bool NavigationStateMachine::TickPhase(NaviPhase phase)
 {
+    // Ahead of every early return, so no branch or phase can strand the game in walking mode.
+    UpdateWalkMode(phase);
+
     switch (phase) {
     case NaviPhase::Bootstrap:
         SelectPhaseForCurrentWaypoint("bootstrap_dispatch");
@@ -615,12 +704,14 @@ bool NavigationStateMachine::ArmRiverFallRecoveryIfBlackScreenLoss(const char* v
     if (!runtime_state_.localization_loss.saw_black_screen) {
         return false;
     }
+    // Full reset first: a re-fall must redo the settle and the about-face, not inherit the last episode's one-shots.
+    runtime_state_.river_fall.Reset();
     runtime_state_.river_fall.pending = true;
     runtime_state_.river_fall.anchor_pos = *position_;
-    // Post-fall facing points at the water (the infinite-jump invariant); recovery turns to water_heading + 180.
+    // Arm-time facing, logged so a post-mortem can tell it apart from the settled read the about-face actually uses.
     runtime_state_.river_fall.water_heading = NaviMath::NormalizeAngle(position_->angle);
     // River-fall owns the recovery: the pre-fall dynamic-recovery anchor is stale after the teleport, and a live
-    // recovery's escaped-obstacle check (runs before the river-fall block) would otherwise pre-empt the about-face.
+    // recovery's escaped-obstacle check (runs before the river-fall block) would otherwise pre-empt the escape.
     runtime_state_.recovery.Reset();
     session_->ResetHardProgress();
     LogInfo << "River-fall recovery armed (black-screen loss recovered)." << VAR(via) << VAR(position_->x) << VAR(position_->y)
@@ -645,7 +736,7 @@ bool NavigationStateMachine::TryApplyDynamicOverlayToAnchor(
     const navmesh::WorldPoint goal { .x = anchor.x, .y = anchor.y };
     navmesh::WorldPoint detour_vertex {};
     const auto route = use_detour ? PlanNavmeshDetourRoute(param_, *position_, anchor, route_heading, &detour_vertex)
-                                  : PlanNavmeshRoute(param_, position_->zone_id, start, goal);
+                                  : PlanNavmeshRoute(param_, position_->zone_id, start, goal, anchor.target_deck_y);
     if (!route) {
         return false;
     }
@@ -712,9 +803,10 @@ bool NavigationStateMachine::HandleDynamicReplanRequest(const char* reason)
         return true;
     }
 
-    // 单次重规划失败不终止导航:退回当前路线继续走,持续无进展由卡死恢复的各级超时收口
+    // 单次重规划失败不终止导航:退回当前路线继续走,持续无进展由卡死恢复的各级超时收口。
+    // 路线没有被替换,只清跟随进度,起步门不能跟着一起清掉
     runtime_state_.dynamic_replan_requested = false;
-    runtime_state_.route.Reset();
+    runtime_state_.route.ResetTracking();
     session_->ResetProgress();
     LogWarn << "Dynamic navmesh replan unavailable; falling back to current route." << VAR(reason) << VAR(position_->x) << VAR(position_->y)
             << VAR(position_->zone_id);
@@ -853,6 +945,7 @@ bool NavigationStateMachine::TickNavigate()
             ? std::chrono::duration_cast<std::chrono::milliseconds>(tick_started_at - runtime_state_.flow.last_tick_started_at).count()
             : 0;
     runtime_state_.flow.last_tick_started_at = tick_started_at;
+    ++runtime_state_.flow.tick_seq;
 
     if (!session_->HasCurrentWaypoint()) {
         session_->NoteRouteTailConsumed(*position_, "route_tail_consumed");
@@ -1019,29 +1112,7 @@ bool NavigationStateMachine::TickNavigate()
         }
     }
 
-    // When NavRun is steering, corridor remaining is the true progress signal — chasing
-    // route.progress_distance would fire spurious stalls while the agent legitimately
-    // detours around obstacles.
-    if (route.valid) {
-        const double effective_progress =
-            nav_run_result.has_corridor_heading ? nav_run_result.remaining_to_anchor : route.progress_distance;
-        if (runtime_state_.progress_from_corridor != nav_run_result.has_corridor_heading) {
-            runtime_state_.progress_from_corridor = nav_run_result.has_corridor_heading;
-            if (runtime_state_.progress_source_reset_idx != session_->current_node_idx()) {
-                runtime_state_.progress_source_reset_idx = session_->current_node_idx();
-                session_->ResetProgress();
-                session_->ResetHardProgress();
-            }
-        }
-        session_->ObserveProgress(session_->current_node_idx(), effective_progress, now);
-        // Feed the same signal to the hard watchdog, which recovery escapes can never reset (they only clear
-        // the ordinary ObserveProgress clock). This is what lets the recovery timeout below actually fire.
-        constexpr size_t kSerialProgressKeyBias = std::numeric_limits<size_t>::max() / 2;
-        const size_t hard_progress_key = nav_run_result.has_corridor_heading && nav_run_anchor_index
-                                             ? *nav_run_anchor_index
-                                             : kSerialProgressKeyBias + session_->current_node_idx();
-        session_->ObserveHardProgress(hard_progress_key, effective_progress, now);
-    }
+    const double effective_progress = ObserveNavigationProgress(route, nav_run_result.straight_to_anchor, nav_run_anchor_index, now);
     // Cross-tier escape: follow the ONE planned corridor (arrival above is the success exit). Fast-fail when the
     // corridor makes no genuine progress for too long. Keys on the hard-progress clock, which the escape's own
     // overlay re-applies can't reset, so it trips only on a continuously stuck (walled/unfollowable) escape, never
@@ -1071,17 +1142,14 @@ bool NavigationStateMachine::TickNavigate()
         const double recovery_displacement =
             std::hypot(position_->x - runtime_state_.recovery.anchor_pos.x, position_->y - runtime_state_.recovery.anchor_pos.y);
         if (recovery_zone_changed || recovery_displacement >= kDynamicRecoveryResetDistance) {
-            runtime_state_.recovery.Reset();
-            runtime_state_.route.ResetTracking();
-            runtime_state_.dynamic_replan_requested = false;
-            runtime_state_.nav_run_dirty = true;
-            session_->ResetProgress();
             LogInfo << "Dynamic recovery escaped obstacle." << VAR(recovery_zone_changed) << VAR(recovery_displacement);
-            SelectPhaseForCurrentWaypoint("recovery_escape");
-            return true;
+            return ResumeAfterEscape("recovery_escape");
         }
     }
     const int64_t stalled_ms = session_->StalledMs(now);
+    // Warm the device probe from the first stalled tick, so by the time the recovery ladder runs its answer is
+    // already latched and reading it costs nothing.
+    device_recovery_.UpdateFeeding(stalled_ms, runtime_state_.recovery_escalation.device_attempt_count < kRecoveryDeviceAttempts);
 
     if (!route.valid) {
         if (degraded_fix) {
@@ -1096,8 +1164,19 @@ bool NavigationStateMachine::TickNavigate()
         return true;
     }
 
-    const double arrival_distance =
-        waypoint.action == ActionType::PORTAL ? std::max(route.arrival_band, kPortalCommitDistance) : route.arrival_band;
+    double arrival_distance = route.arrival_band;
+    if (waypoint.action == ActionType::PORTAL) {
+        arrival_distance = std::max(arrival_distance, kPortalCommitDistance);
+    }
+    // 采集点判定圈收窄了, 真站不上去(硬性无进展这么久)就放回常规值, 别多出一种卡死
+    else if (waypoint.action == ActionType::COLLECT && session_->HardStalledMs(now) > kCollectArrivalRelaxMs) {
+        const double relaxed = waypoint.ArrivalBand(kMeasurementDefaultPositionQuantum, /*relax_collect=*/true);
+        if (relaxed > arrival_distance && route.waypoint_distance <= relaxed) {
+            LogInfo << "Collect arrival band relaxed after no progress." << VAR(session_->current_node_idx())
+                    << VAR(route.waypoint_distance) << VAR(arrival_distance) << VAR(relaxed);
+        }
+        arrival_distance = std::max(arrival_distance, relaxed);
+    }
     if (route.waypoint_distance <= arrival_distance) {
         if (!route.startup_motion_confirmed) {
             LogDebug << "Arrival advance blocked before startup movement confirmed." << VAR(session_->current_node_idx())
@@ -1148,38 +1227,47 @@ bool NavigationStateMachine::TickNavigate()
                 stalled_ms);
         }
         const double rf_displacement = std::hypot(position_->x - rf.anchor_pos.x, position_->y - rf.anchor_pos.y);
-        const double rf_target_heading = NaviMath::NormalizeAngle(rf.water_heading + 180.0);
-        const double rf_heading_error = NaviMath::NormalizeAngle(rf_target_heading - current_heading);
         if (rf_displacement >= kRiverFallRecoveryClearDistance) {
             rf.Reset();
-            runtime_state_.recovery.Reset();
-            runtime_state_.route.ResetTracking();
-            runtime_state_.dynamic_replan_requested = false;
-            runtime_state_.nav_run_dirty = true;
-            session_->ResetProgress();
-            LogInfo << "River-fall recovery cleared; resuming navigation." << VAR(rf_displacement) << VAR(rf_heading_error);
-            SelectPhaseForCurrentWaypoint("river_fall_recovered");
+            LogInfo << "River-fall recovery cleared; resuming navigation." << VAR(rf_displacement) << VAR(current_heading);
+            return ResumeAfterEscape("river_fall_recovered");
+        }
+        motion_controller_->SetForwardState(false);
+        // 站定两秒再动。上岸那一瞬的箭头读数是最不可信的(尖端会翻转、追踪还在 hold), 拿它算转身
+        // 就是赌运气 —— 三次落水里有一次读成 -1°, 目标算出来正好等于当前朝向, 等于没转就往前走。
+        if (!rf.settled) {
+            rf.settled = true;
+            utils::SleepFor(kRiverFallRecoverySettleMs);
+            LogInfo << "River-fall recovery settling before the about-face." << VAR(rf_displacement) << VAR(position_->x)
+                    << VAR(position_->y);
             return true;
         }
-        motion_controller_->SetForwardState(false);
-        utils::SleepFor(kStopWaitMs);
-        int turn_units = static_cast<int>(std::lround(rf_heading_error * action_wrapper_->DefaultTurnUnitsPerDegree()));
-        if (turn_units == 0) {
-            turn_units = rf_heading_error > 0.0 ? 1 : -1;
+        // 180° 只发一次, 发完就认。之前是每拍拿转到一半的箭头重算误差再补发, 转身还没兑现就先迈了步,
+        // 于是每一拍都朝着还没转完的方向往水里走 —— 两次再落水都紧跟着恢复自己的前进脉冲。
+        if (!rf.turned) {
+            rf.turned = true;
+            rf.water_heading = current_heading;
+            const int turn_units = static_cast<int>(std::lround(180.0 * action_wrapper_->DefaultTurnUnitsPerDegree()));
+            action_wrapper_->SendViewDeltaSync(turn_units, 0);
+            utils::SleepFor(kWaitAfterFirstTurnMs);
+            LogInfo << "River-fall recovery about-face issued." << VAR(rf.water_heading) << VAR(turn_units) << VAR(rf_displacement);
         }
-        action_wrapper_->SendViewDeltaSync(turn_units, 0);
+        // 视角转完了, 角色朝向要迈一步才会跟上(见 navigator-turn-requires-forward-step), 而这一步是
+        // 按相机方向走的, 所以它离水而去。
         action_wrapper_->PulseForwardSync(kRiverFallRecoveryPulseMs);
         motion_controller_->SetForwardState(false);
-        LogInfo << "River-fall recovery turn+pulse." << VAR(rf_heading_error) << VAR(turn_units) << VAR(rf_displacement)
-                << VAR(position_->x) << VAR(position_->y);
+        LogInfo << "River-fall recovery inland pulse." << VAR(current_heading) << VAR(rf_displacement) << VAR(position_->x)
+                << VAR(position_->y);
         return true;
     }
 
     // Off-route wedge watchdog (see kOffRouteWedge* in navi_config.h). Only corridor (non-strict RUN) waypoints,
     // where on_route is meaningful; the stall clocks above are fed corridor progress and miss a pinned-off-route
     // cursor. Fed straight-line distance, so the timer only grows while genuinely off-route with no inward gain.
+    // A non-finite cross_track means the projection could not be computed at all, not that the agent left the
+    // route, so it must not arm the watchdog; the no-progress clocks still cover that case.
     if (session_->phase() == NaviPhase::Navigate && waypoint.action == ActionType::RUN && !waypoint.RequiresStrictArrival()
-        && !route.on_route && !runtime_state_.cross_tier_escape.active) {
+        && !route.on_route && std::isfinite(route.cross_track) && !runtime_state_.cross_tier_escape.active) {
         OffRouteWedgeState& wedge = runtime_state_.offroute;
         const double progress_epsilon = std::max(kNoProgressDistanceEpsilon, kMeasurementDefaultPositionQuantum);
         if (!wedge.active || route.progress_distance + progress_epsilon < wedge.best_distance) {
@@ -1216,13 +1304,22 @@ bool NavigationStateMachine::TickNavigate()
     // applied to the detour step alone, below.
     const bool near_strict_goal =
         waypoint.RequiresStrictArrival() && route.waypoint_distance <= arrival_distance + kCloseGoalDetourSuppressSlack;
-    const bool should_try_recovery = session_->phase() == NaviPhase::Navigate && stalled_ms >= kObstacleRecoveryMinTriggerMs
-                                     && (route.progress_distance > kNoProgressMinDistance || waypoint.RequiresStrictArrival())
-                                     && !runtime_state_.cross_tier_escape.active;
+    // "Too close to bother recovering" is measured on the same signal the stall clock runs on: while NavRun
+    // steers, corridor remaining is the true distance left, and the serial waypoint is a breadcrumb that can sit
+    // a pixel away with the whole leg still ahead. Reading the breadcrumb here closed the gate on an agent pinned
+    // beside it — arrival needs startup motion it cannot make, recovery saw "already there", nothing ran.
+    // A held forward that has been re-sent twice with the fix never leaving its quantum is the same evidence the
+    // stall clock is still gathering, only earlier and stronger: aimed, commanding no turn, and going nowhere.
+    // Waiting out the remaining wall clock just spends it walking into the obstacle, so it opens recovery too.
+    const bool forward_hold_futile = runtime_state_.flow.futile_forward_reasserts >= kForwardHoldFutileReassertsBeforeRecovery;
+    const bool should_try_recovery =
+        session_->phase() == NaviPhase::Navigate && (stalled_ms >= kObstacleRecoveryMinTriggerMs || forward_hold_futile)
+        && (effective_progress > kNoProgressMinDistance || waypoint.RequiresStrictArrival()) && !runtime_state_.cross_tier_escape.active;
     if (should_try_recovery) {
         const std::optional<DynamicAnchor> anchor = ResolveCurrentAnchor(session_, *position_);
         if (anchor) {
             DynamicRecoveryState& recovery = runtime_state_.recovery;
+            RecoveryEscalationState& escalation = runtime_state_.recovery_escalation;
             if (!recovery.active || recovery.anchor_index != anchor->first) {
                 recovery.Reset();
                 recovery.active = true;
@@ -1230,9 +1327,20 @@ bool NavigationStateMachine::TickNavigate()
                 recovery.started_at = now;
                 recovery.anchor_index = anchor->first;
             }
+            if (escalation.anchor_index != anchor->first) {
+                // Handing a new anchor an attempt requires a fresh look: a hit latched while fighting the
+                // previous one describes a frame from before the path was renumbered. Not on the first anchor,
+                // where nothing has been fought yet and the probe has been warming since the stall began.
+                const bool fought_another_anchor = escalation.anchor_index != std::numeric_limits<size_t>::max();
+                escalation.Reset();
+                escalation.anchor_index = anchor->first;
+                if (fought_another_anchor) {
+                    device_recovery_.ForgetObservation();
+                }
+            }
 
             // Measure the recovery timeout from the session hard-progress clock, not this episode's
-            // recovery.started_at. Every small jump "escape" calls recovery.Reset() + ResetProgress(), which
+            // recovery.started_at. Every small jump "escape" goes through ResumeAfterEscape, which
             // re-stamps started_at and the ordinary stall clock — so a started_at-based elapsed never grows and
             // the agent can thrash in place indefinitely (observed: ~6 min, 1094 jumps, 0 timeouts). The hard
             // clock only advances on genuine net progress toward the waypoint, so a livelock now trips the
@@ -1253,22 +1361,32 @@ bool NavigationStateMachine::TickNavigate()
             if (!retry_cooling_down) {
                 recovery.last_replan_at = now;
 
-                if (!near_strict_goal && recovery.detour_attempt_count >= kRecoveryDetourAttemptsBeforeUnstick) {
-                    if (ExecutePhysicalUnstick(route.route_heading)) {
-                        return true;
-                    }
+                // The device removal runs ahead of the jump, not instead of it: if the agent is still pinned
+                // afterwards the jump below fires this same tick and the ladder keeps climbing. Every outcome
+                // but NotAttempted has run the subtask, so it spends the attempt either way.
+                const DeviceRemovalOutcome device_outcome =
+                    device_recovery_.TryRemove(route, waypoint, escalation.device_attempt_count < kRecoveryDeviceAttempts);
+                if (device_outcome != DeviceRemovalOutcome::NotAttempted) {
+                    ++escalation.device_attempt_count;
+                }
+                if (device_outcome == DeviceRemovalOutcome::Escaped) {
+                    return ResumeAfterEscape("recovery_device_move_escape");
+                }
+                if (device_outcome == DeviceRemovalOutcome::NeedsFreshFix) {
+                    return true;
                 }
 
-                ++recovery.jump_attempt_count;
+                ++escalation.jump_attempt_count;
                 const NaviPosition jump_start = *position_;
-                LogInfo << "Dynamic recovery jump pulse issued." << VAR(recovery.jump_attempt_count) << VAR(recovery.detour_attempt_count);
+                LogInfo << "Dynamic recovery jump pulse issued." << VAR(escalation.jump_attempt_count)
+                        << VAR(escalation.detour_attempt_count);
                 motion_controller_->SetAction(LocalDriverAction::JumpForward, true);
                 utils::SleepFor(kActionJumpSettleMs);
                 motion_controller_->SetForwardState(false);
                 if (!CaptureCurrentPosition(false) || position_provider_->LastCaptureWasHeld()
                     || position_provider_->LastCaptureWasBlackScreen() || !position_->valid) {
                     LogWarn << "Dynamic recovery waiting for post-jump local tracking fix." << VAR(stalled_ms)
-                            << VAR(recovery.jump_attempt_count);
+                            << VAR(escalation.jump_attempt_count);
                     utils::SleepFor(kTargetTickMs);
                     return true;
                 }
@@ -1280,15 +1398,9 @@ bool NavigationStateMachine::TickNavigate()
                 const bool jump_made_progress = jump_waypoint_distance + kNoProgressDistanceEpsilon < route.waypoint_distance;
                 const bool jump_moved_forward = jump_displacement >= kDynamicRecoveryResetDistance * 0.5 && jump_made_progress;
                 if (jump_zone_changed || jump_displacement >= kDynamicRecoveryResetDistance || jump_moved_forward) {
-                    recovery.Reset();
-                    runtime_state_.route.ResetTracking();
-                    runtime_state_.dynamic_replan_requested = false;
-                    runtime_state_.nav_run_dirty = true;
-                    session_->ResetProgress();
                     LogInfo << "Dynamic recovery jump escaped obstacle." << VAR(jump_zone_changed) << VAR(jump_displacement)
                             << VAR(jump_moved_forward);
-                    SelectPhaseForCurrentWaypoint("recovery_jump_escape");
-                    return true;
+                    return ResumeAfterEscape("recovery_jump_escape");
                 }
 
                 const std::optional<DynamicAnchor> post_jump_anchor = ResolveCurrentAnchor(session_, *position_);
@@ -1305,17 +1417,24 @@ bool NavigationStateMachine::TickNavigate()
                     recovery.started_at = now;
                     recovery.anchor_index = post_jump_anchor->first;
                     recovery.last_replan_at = now;
-                    recovery.jump_attempt_count = 1;
+                }
+                if (post_jump_anchor->first != escalation.anchor_index) {
+                    escalation.Reset();
+                    escalation.anchor_index = post_jump_anchor->first;
+                    escalation.jump_attempt_count = 1;
                 }
 
-                // The jump pulse above runs every recovery tick — so even once we are detouring, a
-                // fresh stall keeps trying to hop free first ("jump during detour"). The detour is the
-                // fallback: it only kicks in after the jump has failed kRecoveryJumpAttemptsBeforeDetour
-                // times for this anchor, and is suppressed next to a strict goal where it would route
-                // away from the exact point (there we keep jumping instead).
-                const bool detour_allowed = !near_strict_goal && recovery.jump_attempt_count >= kRecoveryJumpAttemptsBeforeDetour;
-                if (detour_allowed) {
-                    ++recovery.detour_attempt_count;
+                // The jump pulse above runs every recovery tick, so a fresh stall always tries to hop free
+                // first; the rest of the ladder only opens after the jump has failed
+                // kRecoveryJumpAttemptsBeforeDetour times for this anchor. Of the two escalations only the
+                // detour is unsafe next to a strict goal — it re-routes to a bypass vertex and gives up the
+                // exact point. The physical unstick just dislodges sideways and re-approaches the same anchor,
+                // so it stays available there; otherwise a stall inside the strict band has nothing left but
+                // the jump until the hard-progress timeout.
+                const bool escalated = escalation.jump_attempt_count >= kRecoveryJumpAttemptsBeforeDetour;
+                const bool detour_allowed = escalated && !near_strict_goal;
+                if (detour_allowed && escalation.detour_attempt_count < kRecoveryDetourAttemptsBeforeUnstick) {
+                    ++escalation.detour_attempt_count;
                     if (TryApplyDynamicOverlayToAnchor(
                             "recovery_navmesh_detour",
                             post_jump_anchor->first,
@@ -1326,8 +1445,11 @@ bool NavigationStateMachine::TickNavigate()
                         return true;
                     }
                     LogWarn << "Dynamic recovery detour attempt failed; switching to physical unstick."
-                            << VAR(recovery.detour_attempt_count) << VAR(recovery.jump_attempt_count) << VAR(post_jump_anchor->first)
+                            << VAR(escalation.detour_attempt_count) << VAR(escalation.jump_attempt_count) << VAR(post_jump_anchor->first)
                             << VAR(route.progress_distance) << VAR(stalled_ms);
+                }
+                if (escalated && ExecutePhysicalUnstick(route.route_heading)) {
+                    return true;
                 }
                 utils::SleepFor(kTargetTickMs);
                 return true;
@@ -1350,64 +1472,147 @@ bool NavigationStateMachine::TickNavigate()
         turn_elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - runtime_state_.steering_rate.cmd_at).count();
     }
 
+    const uint64_t tick_seq = runtime_state_.flow.tick_seq;
+
     double heading_rate_deg = 0.0;
     double heading_rate_raw_delta_deg = 0.0;
     int64_t heading_rate_gap_ms = 0;
+    uint64_t heading_rate_gap_ticks = 0;
     if (runtime_state_.steering_rate.has_prev) {
         heading_rate_raw_delta_deg = NaviMath::NormalizeAngle(current_heading - runtime_state_.steering_rate.prev_heading_deg);
         heading_rate_gap_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - runtime_state_.steering_rate.at).count();
+        heading_rate_gap_ticks = tick_seq - runtime_state_.steering_rate.at_tick;
         const bool heading_changed = std::abs(heading_rate_raw_delta_deg) > kSteeringHeadingChangeEpsilonDeg;
-        if (heading_changed && heading_rate_gap_ms > 0 && heading_rate_gap_ms <= kSteeringRateMaxGapMs) {
+        // Staleness is counted in ticks, not milliseconds: the reference goes stale after so many missed chances
+        // to observe a change, and slow frame capture stretches those chances out without making them fewer. A
+        // wall-clock cap threw the rate away on exactly the slow loops that need it most.
+        if (heading_changed && heading_rate_gap_ms > 0 && heading_rate_gap_ticks <= kSteeringRateMaxGapTicks) {
             heading_rate_deg =
                 heading_rate_raw_delta_deg * static_cast<double>(kSteeringRateReferenceMs) / static_cast<double>(heading_rate_gap_ms);
         }
         if (heading_changed) {
             runtime_state_.steering_rate.prev_heading_deg = current_heading;
             runtime_state_.steering_rate.at = now;
+            runtime_state_.steering_rate.at_tick = tick_seq;
         }
     }
     else {
         runtime_state_.steering_rate.prev_heading_deg = current_heading;
         runtime_state_.steering_rate.at = now;
+        runtime_state_.steering_rate.at_tick = tick_seq;
         runtime_state_.steering_rate.has_prev = true;
     }
 
+    // Settle the turn already sent against what the heading actually moved, so the controller discounts what is
+    // still in flight instead of commanding the same error again. Only motion toward the debt pays it down, and
+    // an unpaid debt expires, so a swallowed drag can never leave steering suppressed against a turn never coming.
+    // Walking turns at about half rate: a jogging-sized lifetime expires mid-turn and the loop re-commands it.
+    const int64_t pending_lifetime_ms =
+        walk_mode_.engaged() ? kSteeringPendingLifetimeMs * kWalkModeSlowFactor : kSteeringPendingLifetimeMs;
+    SteeringRateState& steering_rate = runtime_state_.steering_rate;
+    if (steering_rate.pending_turn_deg != 0.0) {
+        const int64_t pending_age_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - steering_rate.cmd_at).count();
+        if (pending_age_ms >= pending_lifetime_ms) {
+            steering_rate.pending_turn_deg = 0.0;
+        }
+        else {
+            const double landed = NaviMath::NormalizeAngle(current_heading - steering_rate.pending_ref_heading_deg);
+            const double owed = std::abs(steering_rate.pending_turn_deg);
+            steering_rate.pending_turn_deg = std::clamp(steering_rate.pending_turn_deg - landed, -owed, owed);
+        }
+    }
+    steering_rate.pending_ref_heading_deg = current_heading;
+
     const double heading_error = NaviMath::NormalizeAngle(effective_route_heading - current_heading);
-    const SteeringCommand steering = SteeringController::Update(heading_error, heading_rate_deg, motion_controller_->IsMovingForward());
+    const SteeringCommand steering = SteeringController::Update(
+        heading_error,
+        heading_rate_deg,
+        motion_controller_->IsMovingForward(),
+        steering_rate.turn_latch_sign,
+        steering_rate.pending_turn_deg);
 
     motion_controller_->SetForwardState(true);
 
     double issued_delta_deg = 0.0;
+    int64_t steer_send_ms = 0;
     if (steering.issued) {
-        const TurnCommandResult steering_result = motion_controller_->ApplySteering(steering.yaw_delta_deg);
+        const TurnCommandResult steering_result = motion_controller_->ApplySteering(steering.yaw_delta_deg, tick_gap_ms);
+        steer_send_ms = steering_result.send_ms;
         if (steering_result.issued) {
             issued_delta_deg = steering_result.issued_delta_degrees;
         }
     }
     if (issued_delta_deg != 0.0) {
-        runtime_state_.steering_rate.cmd_heading_deg = current_heading;
-        runtime_state_.steering_rate.cmd_delta_deg = issued_delta_deg;
-        runtime_state_.steering_rate.cmd_at = now;
-        runtime_state_.steering_rate.has_cmd = true;
+        steering_rate.cmd_heading_deg = current_heading;
+        steering_rate.cmd_delta_deg = issued_delta_deg;
+        steering_rate.cmd_at = now;
+        steering_rate.has_cmd = true;
+        steering_rate.pending_turn_deg += issued_delta_deg;
+    }
+    // 只有走到这里的拍才记账。自救、绕障、语义转向在上面就返回了，留下的拍号缺口正好标出账不连续。
+    sensitivity::RecordTick(maa_context_, tick_seq, current_heading, issued_delta_deg, degraded_fix);
+
+    // Closed the loop on the forward hold: the keydown goes out once on the transition, so a swallowed one
+    // strands the agent aimed correctly and walking nowhere until an obstacle recovery notices seconds later.
+    // Only counts ticks that steered nowhere, so turning in place and braked arrivals never trigger it. Stands
+    // down once recovery is active: it owns the movement keys from then on, its cooldown ticks fall through to
+    // here, and a release/re-press dropped between two of its jump pulses would fight it. That leaves this the
+    // early window only — kObstacleRecoveryMinTriggerMs away, which is the whole point of it.
+    FlowState& flow = runtime_state_.flow;
+    const bool moved = flow.has_last_steer_position
+                       && std::hypot(position_->x - flow.last_steer_position.x, position_->y - flow.last_steer_position.y)
+                              > kMeasurementDefaultPositionQuantum;
+    // The re-send counter deliberately outlives recovery going active. Recovery clears the tick counter because it
+    // owns the keys from then on, but clearing the evidence that opened the gate would close it again a tick later,
+    // before the ladder got past its first jump. Motion or a turn is what makes the hold no longer the suspect.
+    const bool hold_progressing = moved || issued_delta_deg != 0.0 || !motion_controller_->IsMovingForward();
+    if (hold_progressing) {
+        flow.futile_forward_reasserts = 0;
+    }
+    if (hold_progressing || runtime_state_.recovery.active) {
+        flow.motionless_hold_ticks = 0;
+    }
+    else if (flow.has_last_steer_position) {
+        ++flow.motionless_hold_ticks;
+    }
+    flow.last_steer_position = *position_;
+    flow.has_last_steer_position = true;
+    // At walking speed one tick's step sits under the position quantum, so a straight walk reads as motionless.
+    // Widen the window rather than lower the threshold — the threshold is what rejects quantization noise.
+    const int32_t hold_reassert_ticks = walk_mode_.engaged() ? kForwardHoldReassertTicks * kWalkModeSlowFactor : kForwardHoldReassertTicks;
+    if (flow.motionless_hold_ticks >= hold_reassert_ticks) {
+        ++flow.futile_forward_reasserts;
+        LogWarn << "Forward hold produced no motion; re-sending it." << VAR(flow.motionless_hold_ticks) << VAR(heading_error)
+                << VAR(flow.futile_forward_reasserts) << VAR(position_->x) << VAR(position_->y);
+        motion_controller_->ReassertForward();
+        flow.motionless_hold_ticks = 0;
     }
 
     const double lookahead_x = nav_run_result.lookahead_point.x;
     const double lookahead_y = nav_run_result.lookahead_point.y;
+    const double projection_x = nav_run_result.projection_point.x;
+    const double projection_y = nav_run_result.projection_point.y;
     const int nav_run_replan_reason = static_cast<int>(nav_run_result.replanned_with);
     LogDebug << "TickNavigate corridor target." << VAR(session_->current_node_idx()) << VAR(waypoint.x) << VAR(waypoint.y)
-             << VAR(waypoint.RequiresStrictArrival()) << VAR(lookahead_x) << VAR(lookahead_y) << VAR(nav_run_result.remaining_to_anchor)
+             << VAR(waypoint.RequiresStrictArrival()) << VAR(lookahead_x) << VAR(lookahead_y) << VAR(projection_x) << VAR(projection_y)
+             << VAR(nav_run_result.remaining_to_anchor) << VAR(nav_run_result.straight_to_anchor)
              << VAR(nav_run_result.passed_run_waypoints) << VAR(nav_run_replan_reason) << VAR(route.along_track_remaining)
              << VAR(route.cross_track) << VAR(route.projection_anchor) << VAR(arrival_distance) << VAR(position_->zone_id)
              << VAR(stalled_ms);
 
     const int64_t tick_compute_ms =
         std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - tick_started_at).count();
-    LogDebug << "TickNavigate steering decision." << VAR(current_heading) << VAR(route.route_heading) << VAR(effective_route_heading)
-             << VAR(nav_run_result.has_corridor_heading) << VAR(nav_run_result.cross_track) << VAR(nav_run_result.upcoming_turn_deg)
-             << VAR(heading_rate_deg) << VAR(heading_rate_raw_delta_deg) << VAR(heading_rate_gap_ms) << VAR(heading_error)
-             << VAR(steering.yaw_delta_deg) << VAR(issued_delta_deg) << VAR(turn_achieved_deg) << VAR(turn_residual_deg)
-             << VAR(turn_elapsed_ms) << VAR(route.waypoint_distance) << VAR(route.on_route) << VAR(degraded_fix) << VAR(held_fix_streak)
-             << VAR(capture_ms) << VAR(fix_age_ms) << VAR(tick_gap_ms) << VAR(tick_compute_ms);
+    LogDebug << "TickNavigate steering decision." << VAR(tick_seq) << VAR(current_heading) << VAR(route.route_heading)
+             << VAR(effective_route_heading) << VAR(nav_run_result.has_corridor_heading) << VAR(nav_run_result.cross_track)
+             << VAR(nav_run_result.upcoming_turn_deg) << VAR(heading_rate_deg) << VAR(heading_rate_raw_delta_deg)
+             << VAR(heading_rate_gap_ms) << VAR(heading_rate_gap_ticks) << VAR(heading_error) << VAR(steering.yaw_delta_deg)
+             << VAR(issued_delta_deg) << VAR(turn_achieved_deg) << VAR(turn_residual_deg) << VAR(turn_elapsed_ms)
+             << VAR(route.waypoint_distance) << VAR(route.on_route) << VAR(degraded_fix) << VAR(held_fix_streak) << VAR(capture_ms)
+             << VAR(fix_age_ms) << VAR(tick_gap_ms) << VAR(tick_compute_ms);
+
+    // 只有走到这里的拍才是完整的常规导航拍，语义节点、恢复、丢定位在上面就提前 return 了。
+    latency::RecordStage(latency::Stage::Other, std::max<int64_t>(0, tick_compute_ms - capture_ms - steer_send_ms));
+    latency::RecordTick(maa_context_, runtime_state_.flow.tick_seq, tick_gap_ms);
 
     // Collect routes: keep sprint for travel but drop to walking speed once near a COLLECT point (cancels any
     // active sprint), so the detection-stop can land before we overrun the collectible. No-op off collect
@@ -1465,6 +1670,52 @@ void NavigationStateMachine::SelectPhaseForCurrentWaypoint(const char* reason)
     session_->UpdatePhase(NaviPhase::Navigate, reason);
 }
 
+bool NavigationStateMachine::ResumeAfterEscape(const char* reason)
+{
+    runtime_state_.flow.futile_forward_reasserts = 0;
+    runtime_state_.flow.motionless_hold_ticks = 0;
+    runtime_state_.recovery.Reset();
+    runtime_state_.recovery_escalation.Reset();
+    runtime_state_.route.ResetTracking();
+    runtime_state_.dynamic_replan_requested = false;
+    runtime_state_.nav_run_dirty = true;
+    session_->ResetProgress();
+    SelectPhaseForCurrentWaypoint(reason);
+    return true;
+}
+
+double NavigationStateMachine::ObserveNavigationProgress(
+    const RouteTrackingState& route,
+    double straight_to_anchor,
+    const std::optional<size_t>& anchor_index,
+    const std::chrono::steady_clock::time_point& now)
+{
+    // On a RUN anchor the remaining distance to that anchor is the true progress signal — chasing
+    // route.progress_distance would fire spurious stalls while the agent legitimately detours around
+    // obstacles, and would read a breadcrumb waypoint underfoot as arrival while the anchor is far off.
+    const bool from_anchor = std::isfinite(straight_to_anchor);
+    const double effective_progress = from_anchor ? straight_to_anchor : route.progress_distance;
+    if (!route.valid) {
+        return effective_progress;
+    }
+    ProgressIdentityState& identity = runtime_state_.progress_identity;
+    if (identity.from_anchor != from_anchor) {
+        identity.from_anchor = from_anchor;
+        if (identity.source_reset_idx != session_->current_node_idx()) {
+            identity.source_reset_idx = session_->current_node_idx();
+            session_->ResetProgress();
+            session_->ResetHardProgress();
+        }
+    }
+    session_->ObserveProgress(session_->current_node_idx(), effective_progress, now);
+    // Feed the same signal to the hard watchdog, which recovery escapes can never reset (they only clear
+    // the ordinary ObserveProgress clock). This is what lets the recovery timeout actually fire.
+    const size_t hard_progress_key =
+        from_anchor && anchor_index ? *anchor_index : ProgressIdentityState::kSerialKeyBias + session_->current_node_idx();
+    session_->ObserveHardProgress(hard_progress_key, effective_progress, now);
+    return effective_progress;
+}
+
 void NavigationStateMachine::StopMotion()
 {
     motion_controller_->SetForwardState(false);
@@ -1472,9 +1723,39 @@ void NavigationStateMachine::StopMotion()
 
 NavigationStateMachine::~NavigationStateMachine()
 {
-    // Backstop: guarantee the PositionProvider's frame observer (it captures `this` and reads
-    // collect_scanner_) is torn down before this object dies, even on an early Run() return path.
-    StopCollectScanner();
+    // Backstop: guarantee the PositionProvider's frame observer (it captures `this` and reads the scanners) is
+    // torn down before this object dies, even on an early Run() return path.
+    StopScanners();
+}
+
+void NavigationStateMachine::StartScanners()
+{
+    StartCollectScanner();
+    StartDeviceProbe();
+
+    if (position_provider_ == nullptr) {
+        return;
+    }
+    // One observer for both consumers, bound once. Binding it per scanner would let whichever one stops first
+    // silently cut the other's frame supply.
+    position_provider_->SetFrameObserver([this](const cv::Mat& frame) {
+        if (collect_scanner_ != nullptr) {
+            collect_scanner_->SubmitFrame(frame);
+        }
+        device_recovery_.SubmitFrame(frame);
+    });
+}
+
+void NavigationStateMachine::StopScanners()
+{
+    if (position_provider_ != nullptr) {
+        position_provider_->SetFrameObserver(nullptr);
+    }
+    if (motion_controller_ != nullptr) {
+        motion_controller_->SetSprintSuppressed(false);
+    }
+    collect_scanner_.reset();
+    device_recovery_.Stop();
 }
 
 void NavigationStateMachine::StartCollectScanner()
@@ -1488,7 +1769,7 @@ void NavigationStateMachine::StartCollectScanner()
     }
 
     cv::Rect base_roi;
-    if (!ParseCollectRoiFromNode(maa_context_, kCollectRoiNode, &base_roi)) {
+    if (!ParseRoiFromNode(maa_context_, kCollectRoiNode, &base_roi)) {
         LogWarn << "Async collectible scanner not started: could not read collect ROI from pipeline." << VAR(kCollectRoiNode);
         return;
     }
@@ -1504,27 +1785,43 @@ void NavigationStateMachine::StartCollectScanner()
                 << VAR(icon_template.rows);
     }
 
-    collect_scanner_ = std::make_unique<CollectibleScanner>(base_roi, icon_template);
-    position_provider_->SetFrameObserver([this](const cv::Mat& frame) {
-        if (collect_scanner_ != nullptr) {
-            collect_scanner_->SubmitFrame(frame);
-        }
-    });
+    collect_scanner_ = std::make_unique<RoiTemplateScanner>("collect", base_roi, icon_template, kCollectIconMatchThreshold, true);
     LogInfo << "Async collectible scanner started." << VAR(base_roi.x) << VAR(base_roi.y) << VAR(base_roi.width) << VAR(base_roi.height);
     // NOTE: sprint is NOT suppressed for the whole route — that killed fast travel. Suppression is driven per
     // tick in TickNavigate (UpdateCollectSprintSuppression), enabled only when the avatar is within
     // kCollectSprintSuppressBandWu of a COLLECT waypoint, so travel between collect points still sprints.
 }
 
-void NavigationStateMachine::StopCollectScanner()
+void NavigationStateMachine::StartDeviceProbe()
 {
-    if (position_provider_ != nullptr) {
-        position_provider_->SetFrameObserver(nullptr);
+    cv::Rect base_roi;
+    if (!ParseRoiFromNode(maa_context_, kObstacleDeviceProbeNode, &base_roi)) {
+        LogWarn << "Blocking-device probe not started: could not read its ROI from the pipeline." << VAR(kObstacleDeviceProbeNode);
+        return;
     }
-    if (motion_controller_ != nullptr) {
-        motion_controller_->SetSprintSuppressed(false);
+    device_recovery_.Start(base_roi);
+}
+
+// Squared distance to the nearest COLLECT point; -1 when there is no collect route or no position.
+double NavigationStateMachine::NearestCollectDistanceSq() const
+{
+    if (collect_scanner_ == nullptr || session_ == nullptr || position_ == nullptr || !position_->valid) {
+        return -1.0;
     }
-    collect_scanner_.reset();
+
+    double nearest_sq = -1.0;
+    for (const Waypoint& waypoint : session_->current_path()) {
+        if (waypoint.action != ActionType::COLLECT || !waypoint.HasPosition()) {
+            continue;
+        }
+        const double dx = waypoint.x - position_->x;
+        const double dy = waypoint.y - position_->y;
+        const double distance_sq = dx * dx + dy * dy;
+        if (nearest_sq < 0.0 || distance_sq < nearest_sq) {
+            nearest_sq = distance_sq;
+        }
+    }
+    return nearest_sq;
 }
 
 void NavigationStateMachine::UpdateCollectSprintSuppression()
@@ -1533,22 +1830,33 @@ void NavigationStateMachine::UpdateCollectSprintSuppression()
         return; // not a collect route — leave sprint behaviour entirely untouched
     }
 
-    bool near_collect = false;
-    if (position_ != nullptr && position_->valid && session_ != nullptr) {
-        const double band_sq = kCollectSprintSuppressBandWu * kCollectSprintSuppressBandWu;
-        for (const Waypoint& waypoint : session_->current_path()) {
-            if (waypoint.action != ActionType::COLLECT || !waypoint.HasPosition()) {
-                continue;
-            }
-            const double dx = waypoint.x - position_->x;
-            const double dy = waypoint.y - position_->y;
-            if (dx * dx + dy * dy <= band_sq) {
-                near_collect = true;
-                break;
-            }
-        }
-    }
+    const double nearest_sq = NearestCollectDistanceSq();
+    const bool near_collect = nearest_sq >= 0.0 && nearest_sq <= kCollectSprintSuppressBandWu * kCollectSprintSuppressBandWu;
     motion_controller_->SetSprintSuppressed(near_collect);
+}
+
+// Walk mode's only decision point: engaged on the last few units of a collect approach, released everywhere else
+// (travel legs, recovery, turn-in-place nodes, before motion is confirmed).
+void NavigationStateMachine::UpdateWalkMode(NaviPhase phase)
+{
+    const double nearest_sq = NearestCollectDistanceSq();
+    const bool recovering = runtime_state_.recovery.active || runtime_state_.cross_tier_escape.active;
+    const ActionType action = session_->HasCurrentWaypoint() ? session_->CurrentWaypoint().action : ActionType::HEADING;
+    const bool plain_approach = action == ActionType::COLLECT || action == ActionType::RUN || action == ActionType::NAVMESH;
+    if (phase != NaviPhase::Navigate || nearest_sq < 0.0 || recovering || !plain_approach
+        || !runtime_state_.route.startup_motion_confirmed) {
+        walk_mode_.Request(false);
+        return;
+    }
+
+    const bool was_engaged = walk_mode_.engaged();
+    const double band = was_engaged ? kCollectWalkExitBandWu : kCollectWalkEnterBandWu;
+    walk_mode_.Request(nearest_sq <= band * band);
+    const bool walking = walk_mode_.engaged();
+    if (walking != was_engaged) {
+        const double nearest_collect = std::sqrt(nearest_sq);
+        LogInfo << "Walk mode boundary crossed." << VAR(walking) << VAR(nearest_collect) << VAR(position_->x) << VAR(position_->y);
+    }
 }
 
 void NavigationStateMachine::PreWarmCollectOcr()
@@ -1582,21 +1890,9 @@ bool NavigationStateMachine::TryScanApproachCollect(const RouteTrackingState& ro
         return false; // background worker has not flagged a collectible — keep walking, zero cost this tick
     }
 
-    if (collect_attempt_pos_valid_ && position_ != nullptr && position_->valid) {
-        const bool zone_changed =
-            !collect_attempt_pos_.zone_id.empty() && !position_->zone_id.empty() && collect_attempt_pos_.zone_id != position_->zone_id;
-        const double moved = std::hypot(position_->x - collect_attempt_pos_.x, position_->y - collect_attempt_pos_.y);
-        if (!zone_changed && moved < kCollectRetryMinMoveWu) {
-            LogDebug << "Collect detection suppressed (anti-stuck): not past the last attempt yet." << VAR(moved);
-            return false;
-        }
-    }
-
+    // No displacement gate: multi-item spots are authored as the same coordinate repeated, and the
+    // authoritative OCR only clicks known collectible names, so a stale flag costs one stutter at most.
     collect_scan_last_at_ = now;
-    if (position_ != nullptr && position_->valid) {
-        collect_attempt_pos_ = *position_;
-        collect_attempt_pos_valid_ = true;
-    }
 
     LogInfo << "Async collectible flagged — stopping for authoritative collect." << VAR(route.waypoint_distance)
             << VAR(session_->current_node_idx());
@@ -1605,6 +1901,39 @@ bool NavigationStateMachine::TryScanApproachCollect(const RouteTrackingState& ro
     MaaContextRunTask(maa_context_, kDefaultCollectEntry, kCollectPipelineOverride);
     utils::SleepFor(kCollectPostSleepMs);
     return true;
+}
+
+// 最后一个采集点被吃掉的同一拍路线就结束、扫描器随即销毁, 行进中的检测再没机会报第二次。
+// 收尾时停下来单独给一个窗口, 不走冷却, 只试一次。
+// 放在成功判定之后: 这里超时或采集失败都不该把跑成功的线路翻成失败。
+void NavigationStateMachine::TryCollectAtRouteTail()
+{
+    if (maa_context_ == nullptr || collect_scanner_ == nullptr || should_stop_() || session_->phase() != NaviPhase::Finished
+        || !RouteEndsWithCollectWaypoint(session_->original_path())) {
+        return;
+    }
+
+    StopMotion();
+    utils::SleepFor(kStopWaitMs); // 先站定, 还在滑行就点容易白点一次
+    const auto started_at = std::chrono::steady_clock::now();
+    while (!should_stop_()) {
+        if (collect_scanner_->ConsumeDetection()) {
+            LogInfo << "Route tail collectible flagged — collecting before finishing." << VAR(session_->current_node_idx());
+            MaaContextRunTask(maa_context_, kDefaultCollectEntry, kCollectPipelineOverride);
+            utils::SleepFor(kCollectPostSleepMs);
+            return;
+        }
+
+        const int64_t elapsed_ms =
+            std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - started_at).count();
+        if (elapsed_ms >= kCollectTailGraceMs) {
+            LogInfo << "Route tail collect grace expired with nothing flagged." << VAR(elapsed_ms);
+            return;
+        }
+
+        CaptureCurrentPosition(false); // 只为把新画面喂给检测器
+        utils::SleepFor(kTargetTickMs);
+    }
 }
 
 bool NavigationStateMachine::FailNavigation(

@@ -1,0 +1,8 @@
+{
+    "template": "region-template.jsonc",
+    "data": "region-data.mjs",
+    "outputDir": "../../../assets/resource/pipeline/DeliveryJobs/Region",
+    "outputPattern": "${RegionId}.json",
+    "format": true,
+    "merged": false
+}

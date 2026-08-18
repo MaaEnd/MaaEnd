@@ -571,7 +571,7 @@
         "action": "Custom",
         "custom_action": "AutoAltClickAction",
         "next": [
-            "[JumpBack]__MapTrackerStuckMitigator_MoveOrDeleteDevice_SkipChat", // 这里调了别人的私有节点来跳过对话，需考虑后续使用公共节点替换
+            "[JumpBack]__MapNavigatorObstacleDevice_SkipChat", // 这里调了别人的私有节点来跳过对话，需考虑后续使用公共节点替换
             "SeizeDeliveryJobsCloseRewardDialog"
         ],
         "focus": {
@@ -579,20 +579,63 @@
         }
     },
     "SeizeDeliveryJobsCloseRewardDialog": {
-        "desc": "在提交货物后，关闭奖励对话框；随后按剩余循环次数决定回到抢单入口或结束任务",
-        "recognition": "And",
-        "all_of": [
-            "CloseRewardsButton"
-        ],
-        "pre_wait_freezes": 500, // 等待奖励动画播放完毕
-        "action": "Click",
+        "desc": "提交货物后：IMS A3 累加培养道具，再关闭奖励界面；随后按剩余循环次数决定回到抢单入口或结束任务",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CloseRewardsButton"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "target": [
+                528,
+                299,
+                222,
+                131
+            ],
+            "time": 300,
+            "threshold": 0.97,
+            "timeout": 1500
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AddItemData",
+                "custom_action_param": {}
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
-            "SeizeDeliveryJobsMain", // 有剩余次数时继续循环
-            "SeizeDeliveryJobsTaskEnd" // 次数用尽时结束任务
+            "SeizeDeliveryJobsCloseRewardDialogClick"
         ],
         "focus": {
             "Node.Action.Starting": "**成功提交货物**"
         }
+    },
+    "SeizeDeliveryJobsCloseRewardDialogClick": {
+        "desc": "关闭奖励界面后，按剩余循环次数决定回到抢单入口或结束任务",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CloseRewardsButton"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SeizeDeliveryJobsMain", // 有剩余次数时继续循环
+            "SeizeDeliveryJobsTaskEnd" // 次数用尽时结束任务
+        ]
     },
     "SeizeDeliveryJobsSubmitFallback": {
         "desc": "未能找到提交货物按钮时触发，先恢复到大世界，再按运行时注入的终点重新送货（有最大尝试次数限制）",

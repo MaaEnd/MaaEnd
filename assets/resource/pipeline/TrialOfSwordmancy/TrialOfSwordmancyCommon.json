@@ -229,6 +229,17 @@
         ],
         "template": "TrialOfSwordmancy/DoubleReward.png"
     },
+    "TrialOfSwordmancyIsDoubled": {
+        "desc": "已翻倍指示",
+        "recognition": "TemplateMatch",
+        "roi": [
+            857,
+            602,
+            64,
+            71
+        ],
+        "template": "TrialOfSwordmancy/DoubleRewardSelected.png"
+    },
     "TrialOfSwordmancyGiveUp": {
         "desc": "放弃按钮",
         "recognition": "Or",
@@ -392,18 +403,6 @@
             80
         ],
         "count": 400
-    },
-    // —— 已翻倍指示（DoubleReward 按钮选中态，模板匹配）——
-    "TrialOfSwordmancyIsDoubled": {
-        "desc": "[go] 已翻倍指示",
-        "recognition": "TemplateMatch",
-        "roi": [
-            857,
-            602,
-            64,
-            71
-        ],
-        "template": "TrialOfSwordmancy/DoubleRewardSelected.png"
     },
     // —— 手牌点数识别（模板匹配）——
     "TrialOfSwordmancyHandPoint1": {

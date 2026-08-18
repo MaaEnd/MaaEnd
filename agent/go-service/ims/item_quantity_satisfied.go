@@ -8,6 +8,7 @@ import (
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/boolexpr"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/iconqty"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
@@ -26,14 +27,20 @@ var _ maa.CustomRecognitionRunner = &ItemQuantitySatisfied{}
 type itemQuantitySatisfiedParam struct {
 	// Expression is a boolean expression over cached item quantities.
 	// Placeholders use {ITEM_ID}, same arithmetic/compare/logic as ExpressionRecognition.
+	// When ReportOnly is true, expression must contain exactly one {ITEM_ID}.
 	Expression string `json:"expression"`
 	// NotifyUI when true prints the resolved expression to UI Focus.
 	// Default false (omit or false) to avoid flooding dispatch-style next scans.
+	// Ignored when ReportOnly is true (report mode always announces).
 	NotifyUI bool `json:"notify_ui"`
+	// ReportOnly announces one cached item quantity and always hits.
+	// Expression must reference exactly one item; multi-item expressions are rejected.
+	ReportOnly bool `json:"report_only"`
 }
 
 // ItemQuantitySatisfied reports whether cached item quantities meet an expression (R1).
 // Read-only; does not check readiness — combine with ItemDataReady via And when needed.
+// With report_only=true it only announces one item's quantity and always returns true.
 type ItemQuantitySatisfied struct{}
 
 // Run implements maa.CustomRecognitionRunner.
@@ -61,6 +68,10 @@ func (r *ItemQuantitySatisfied) Run(ctx *maa.Context, arg *maa.CustomRecognition
 			Str("component", componentItemQuantitySatisfied).
 			Msg("failed to hydrate ims cache")
 		return nil, false
+	}
+
+	if params.ReportOnly {
+		return r.runReportOnly(ctx, arg, params)
 	}
 
 	resolvedExpression, values, err := boolexpr.ResolvePlaceholders(
@@ -143,6 +154,58 @@ func (r *ItemQuantitySatisfied) Run(ctx *maa.Context, arg *maa.CustomRecognition
 	}, true
 }
 
+func (r *ItemQuantitySatisfied) runReportOnly(
+	ctx *maa.Context,
+	arg *maa.CustomRecognitionArg,
+	params itemQuantitySatisfiedParam,
+) (*maa.CustomRecognitionResult, bool) {
+	itemID, err := singleItemIDFromExpression(params.Expression)
+	if err != nil {
+		log.Error().
+			Err(err).
+			Str("component", componentItemQuantitySatisfied).
+			Str("expression", params.Expression).
+			Msg("report_only requires exactly one item placeholder")
+		return nil, false
+	}
+
+	qty := globalCache.quantity(itemID)
+	displayName := iconqty.ItemDisplayName(itemID)
+	maafocus.PrintThrottle(
+		ctx,
+		itemQuantityFocusThrottle,
+		i18n.T("ims.item_current", displayName, qty),
+	)
+
+	log.Info().
+		Str("component", componentItemQuantitySatisfied).
+		Str("expression", params.Expression).
+		Str("item_id", itemID).
+		Str("item_name", displayName).
+		Int("quantity", qty).
+		Bool("report_only", true).
+		Msg("item quantity reported")
+
+	detailJSON, err := json.Marshal(map[string]any{
+		"satisfied":   true,
+		"report_only": true,
+		"expression":  params.Expression,
+		"item_id":     itemID,
+		"quantity":    qty,
+	})
+	if err != nil {
+		log.Error().
+			Err(err).
+			Str("component", componentItemQuantitySatisfied).
+			Msg("failed to marshal detail")
+		return nil, false
+	}
+	return &maa.CustomRecognitionResult{
+		Box:    arg.Roi,
+		Detail: string(detailJSON),
+	}, true
+}
+
 func parseItemQuantitySatisfiedParam(raw string) (itemQuantitySatisfiedParam, error) {
 	var params itemQuantitySatisfiedParam
 	if strings.TrimSpace(raw) == "" {
@@ -156,5 +219,26 @@ func parseItemQuantitySatisfiedParam(raw string) (itemQuantitySatisfiedParam, er
 	if params.Expression == "" {
 		return itemQuantitySatisfiedParam{}, fmt.Errorf("expression is required")
 	}
+	if params.ReportOnly {
+		if _, err := singleItemIDFromExpression(params.Expression); err != nil {
+			return itemQuantitySatisfiedParam{}, err
+		}
+	}
 	return params, nil
+}
+
+// singleItemIDFromExpression requires expression to contain exactly one {ITEM_ID}.
+func singleItemIDFromExpression(expression string) (string, error) {
+	matches := boolexpr.PlaceholderPattern.FindAllStringSubmatch(expression, -1)
+	if len(matches) == 0 {
+		return "", fmt.Errorf("report_only expression must contain one {ITEM_ID}")
+	}
+	if len(matches) > 1 {
+		return "", fmt.Errorf("report_only expression must contain exactly one {ITEM_ID}, got %d", len(matches))
+	}
+	itemID := strings.TrimSpace(matches[0][1])
+	if itemID == "" {
+		return "", fmt.Errorf("report_only item id must not be empty")
+	}
+	return itemID, nil
 }

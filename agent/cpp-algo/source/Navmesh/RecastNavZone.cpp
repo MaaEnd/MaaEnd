@@ -587,6 +587,8 @@ WallOracle::WallOracle(const ZoneClean& zc)
             const WorldPoint p1 = mesh.V[b];
             P0.push_back(p0);
             P1.push_back(p1);
+            H0.push_back(mesh.H[a]);
+            H1.push_back(mesh.H[b]);
             M_.push_back({ (p0.x + p1.x) / 2.0, (p0.y + p1.y) / 2.0 });
             const double dx = p1.x - p0.x;
             const double dy = p1.y - p0.y;

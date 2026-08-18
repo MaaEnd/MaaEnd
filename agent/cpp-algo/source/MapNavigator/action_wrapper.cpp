@@ -53,6 +53,11 @@ bool ActionWrapper::SupportsSprint() const
     return backend_->supports_sprint();
 }
 
+bool ActionWrapper::SupportsWalkToggle() const
+{
+    return backend_->supports_walk_toggle();
+}
+
 void ActionWrapper::SetMovementStateSync(bool forward, bool left, bool backward, bool right, int delay_millis)
 {
     backend_->SetMovementStateSync(forward, left, backward, right, delay_millis);
@@ -76,6 +81,11 @@ void ActionWrapper::PulseForwardSync(int hold_millis)
 void ActionWrapper::TriggerSprintSync()
 {
     backend_->TriggerSprintSync();
+}
+
+void ActionWrapper::ToggleWalkModeSync()
+{
+    backend_->ToggleWalkModeSync();
 }
 
 void ActionWrapper::ResetForwardWalkSync(int release_millis)

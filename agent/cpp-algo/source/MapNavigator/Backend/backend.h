@@ -32,11 +32,17 @@ public:
 
     virtual bool supports_sprint() const { return true; }
 
+    // Backends with no walk binding report false; walk requests are then no-ops and the run stays at jogging speed.
+    virtual bool supports_walk_toggle() const { return false; }
+
     virtual void SetMovementStateSync(bool forward, bool left, bool backward, bool right, int delay_millis) = 0;
     virtual void TriggerJumpSync(int hold_millis) = 0;
     virtual void TriggerInteractSync(int hold_millis) = 0;
     virtual void PulseForwardSync(int hold_millis) = 0;
     virtual void TriggerSprintSync() = 0;
+
+    virtual void ToggleWalkModeSync() {}
+
     virtual void ResetForwardWalkSync(int release_millis) = 0;
     virtual void ClickMouseLeftSync() = 0;
     virtual void MouseRightDownSync(int delay_millis) = 0;

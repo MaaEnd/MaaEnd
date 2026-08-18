@@ -96,13 +96,22 @@ fs::path getExeDir()
     return get_exe_dir();
 }
 
+// 参数由 pipeline 提供，字段类型不由本模块保证。解析失败退回默认值，与不传参数同路。
 template <typename T>
 T ParseCustomRecognitionParam(const char* custom_recognition_param)
 {
-    if (custom_recognition_param && std::strlen(custom_recognition_param) > 0) {
-        return json::parse(custom_recognition_param).value_or(json::object {}).as<T>();
+    if (custom_recognition_param == nullptr || std::strlen(custom_recognition_param) == 0) {
+        return T {};
     }
-    return T {};
+
+    const auto parsed = json::parse(custom_recognition_param);
+    T value {};
+    if (!parsed || !value.from_json(*parsed)) {
+        // from_json 中途失败会留下写了一半的字段，整个丢掉重来。
+        LogWarn << "Invalid param, using defaults" << VAR(custom_recognition_param);
+        return T {};
+    }
+    return value;
 }
 
 template <typename T>

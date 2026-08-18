@@ -13,62 +13,41 @@ import {
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const OUTPUT_PATH = resolve(__dirname, "../../../assets/data/SellProduct/selection_data.json");
-const SUPPORTED_LANGUAGES = [
-    "CN",
-    "TC",
-    "EN",
-    "JP",
-    "KR",
+const SUPPORTED_LOCALES = [
+    "zh_cn",
+    "zh_tw",
+    "en_us",
+    "ja_jp",
+    "ko_kr",
 ];
-const LOCALE_BY_LANGUAGE = {
-    CN: "zh_cn",
-    TC: "zh_tw",
-    EN: "en_us",
-    JP: "ja_jp",
-    KR: "ko_kr",
-};
 const OPERATOR_CHAR_ID_PATTERN = /^chr_(\d+)(?:_|$)/;
 
-// 活动结束且 zmdmap 移除这些物品后，删除此临时过滤。
+// 活动结束且游戏数据移除这些物品后，删除此临时过滤。
 const TEMP_EXCLUDED_ITEM_CN_NAMES = new Set([
     "息壤玉葫芦",
     "息壤葫芦",
 ]);
 
-function localizedNamesFromSource(names = {}) {
-    return Object.fromEntries(
-        SUPPORTED_LANGUAGES.map((language) => [
-            LOCALE_BY_LANGUAGE[language],
-            names[language]?.trim(),
-        ]).filter(
-            ([
-                ,
-                name,
-            ]) => name,
-        ),
-    );
-}
-
 function completeLocalizedNames(names = {}) {
     const fallback = names.zh_cn || Object.values(names).find(Boolean);
     if (!fallback) return {};
     return Object.fromEntries(
-        Object.values(LOCALE_BY_LANGUAGE).map((locale) => [
+        SUPPORTED_LOCALES.map((locale) => [
             locale,
-            names[locale] || fallback,
+            names[locale]?.trim() || fallback,
         ]),
     );
 }
 
 export function buildLocalizedNames(names = {}) {
-    return completeLocalizedNames(localizedNamesFromSource(names));
+    return completeLocalizedNames(names);
 }
 
 function parseOperatorCharId(operator) {
-    const charId = operator?.charId?.trim() || "";
+    const charId = operator?.id?.trim() || "";
     const match = OPERATOR_CHAR_ID_PATTERN.exec(charId);
     if (!match) {
-        const label = operator?.name?.EN || operator?.name?.CN || "<unknown>";
+        const label = operator?.names?.en_us || operator?.names?.zh_cn || "<unknown>";
         throw new Error(`operator ${JSON.stringify(label)} has invalid charId ${JSON.stringify(charId)}`);
     }
     return {
@@ -77,11 +56,13 @@ function parseOperatorCharId(operator) {
     };
 }
 
-function buildOperatorFeatureCounts(settlement) {
+function buildOperatorFeatureCounts(settlement, operatorCatalog) {
     const counts = new Map();
-    for (const feature of settlement.settlementFeatures || []) {
+    for (const feature of settlement.features || []) {
         const matchedInFeature = new Set();
-        for (const operator of feature.matchingOperators || []) {
+        for (const operatorID of feature.operator_ids || []) {
+            const operator = operatorCatalog[operatorID];
+            if (!operator) throw new Error(`feature references unknown operator ${JSON.stringify(operatorID)}`);
             const {id} = parseOperatorCharId(operator);
             if (matchedInFeature.has(id)) continue;
             matchedInFeature.add(id);
@@ -103,7 +84,7 @@ function registerOperator(operators, operator) {
     const {id: charId, number: characterNumber} = parseOperatorCharId(operator);
     if (isAdminOperator(operator)) return null;
     const name = getOperatorCaseName(operator);
-    const names = buildLocalizedNames(operator.name);
+    const names = buildLocalizedNames(operator.names);
     if (!name || Object.keys(names).length === 0) return null;
 
     const previous = operators[name];
@@ -133,15 +114,23 @@ function outpostProsperityMaxBonusTier(entry) {
     return entry.bonusTypes.has("moneyProfit") ? 0 : 1;
 }
 
-export function buildLocationOperatorOrder(settlement, acceptedBonusTypes, operators, targetUsage) {
+export function buildLocationOperatorOrder(
+    settlement,
+    acceptedBonusTypes,
+    operators,
+    targetUsage,
+    operatorCatalog = settlementData.operators,
+) {
     const accepted = new Set(acceptedBonusTypes);
-    const featureCounts = buildOperatorFeatureCounts(settlement);
+    const featureCounts = buildOperatorFeatureCounts(settlement, operatorCatalog);
     const entries = new Map();
-    for (const feature of settlement.settlementFeatures || []) {
-        const matchedTypes = (feature.bonuses || []).map((bonus) => bonus.type).filter((type) => accepted.has(type));
+    for (const feature of settlement.features || []) {
+        const matchedTypes = (feature.bonus_types || []).filter((type) => accepted.has(type));
         if (matchedTypes.length === 0) continue;
 
-        for (const operator of feature.matchingOperators || []) {
+        for (const operatorID of feature.operator_ids || []) {
+            const operator = operatorCatalog[operatorID];
+            if (!operator) throw new Error(`feature references unknown operator ${JSON.stringify(operatorID)}`);
             const registered = registerOperator(operators, operator);
             if (!registered) continue;
             const {name, charId, characterNumber} = registered;
@@ -179,11 +168,12 @@ export function buildSelectionItems(data = settlementData, sourceLocations = sel
     for (const location of sourceLocations) {
         const settlement = data.settlements[location.SettlementId];
         const locationItems = new Map();
-        const levels = Object.keys(settlement.byProsperityLevel || {}).sort();
+        const levels = [...(settlement.prosperity_levels || [])].sort((left, right) => left.level - right.level);
         for (const level of levels) {
-            for (const item of settlement.byProsperityLevel[level].tradeItems || []) {
-                const itemID = item.itemId?.trim();
-                const names = localizedNamesFromSource(item.name);
+            for (const tradeItem of level.trade_items || []) {
+                const itemID = tradeItem.item_id?.trim();
+                const item = data.items[itemID];
+                const names = buildLocalizedNames(item?.names);
                 if (!itemID || Object.keys(names).length === 0) continue;
 
                 if (!items[itemID]) {
@@ -196,19 +186,19 @@ export function buildSelectionItems(data = settlementData, sourceLocations = sel
                     ...names,
                 };
 
-                const excluded = TEMP_EXCLUDED_ITEM_CN_NAMES.has(item.name?.CN);
+                const excluded = TEMP_EXCLUDED_ITEM_CN_NAMES.has(item.names?.zh_cn);
 
                 const previous = locationItems.get(itemID);
                 if (!previous) {
                     locationItems.set(itemID, {
                         itemID,
                         rarity: item.rarity,
-                        unitPrice: item.unitPrice,
+                        unitPrice: tradeItem.unit_price,
                         excluded,
                     });
-                } else if (item.unitPrice > previous.unitPrice) {
+                } else if (tradeItem.unit_price > previous.unitPrice) {
                     previous.rarity = item.rarity;
-                    previous.unitPrice = item.unitPrice;
+                    previous.unitPrice = tradeItem.unit_price;
                 }
             }
         }
@@ -220,10 +210,6 @@ export function buildSelectionItems(data = settlementData, sourceLocations = sel
                 rarity: item.rarity,
                 unit_price: item.unitPrice,
             }));
-    }
-
-    for (const item of Object.values(items)) {
-        item.names = completeLocalizedNames(item.names);
     }
 
     return {
@@ -246,7 +232,7 @@ export function buildSellProductSelectionData() {
     for (const location of sellProductLocations) {
         const settlement = settlementData.settlements[location.SettlementId];
         locations[location.LocationId] = {
-            names: buildLocalizedNames(settlement.settlementName),
+            names: buildLocalizedNames(settlement.names),
             items: itemData.locationItems[location.LocationId],
             target_operators: buildLocationOperatorOrder(
                 settlement,
@@ -271,19 +257,21 @@ export function buildSellProductSelectionData() {
 
 export const sellProductSelectionData = buildSellProductSelectionData();
 
-// Task 选项使用上游展示顺序；运行时据点物品保留稳定来源顺序和排序所需属性。
-// 两者共享同一物品字典和临时过滤规则，具体选品顺序由 Go 策略决定。
+// Task 选项按新地区优先、地区内据点稳定顺序收集物品，确保同价物品不受数据源对象键顺序影响。
+// 运行时据点物品仍保留各自的稳定来源顺序和排序所需属性，具体选品顺序由 Go 策略决定。
 function buildSelectableItems() {
     const items = [];
     const seen = new Set();
-    for (const settlement of Object.values(settlementData.settlements || {})) {
-        for (const level of Object.values(settlement.byProsperityLevel || {})) {
-            for (const item of level.tradeItems || []) {
-                const itemID = item.itemId?.trim();
+    for (const location of sellProductLocationsNewestFirst) {
+        const settlement = settlementData.settlements[location.SettlementId];
+        for (const level of settlement.prosperity_levels || []) {
+            for (const tradeItem of level.trade_items || []) {
+                const itemID = tradeItem.item_id?.trim();
+                const item = settlementData.items[itemID];
                 if (
                     !itemID ||
                     seen.has(itemID) ||
-                    TEMP_EXCLUDED_ITEM_CN_NAMES.has(item.name?.CN) ||
+                    TEMP_EXCLUDED_ITEM_CN_NAMES.has(item?.names?.zh_cn) ||
                     !sellProductSelectionData.items[itemID]
                 ) {
                     continue;
@@ -291,7 +279,7 @@ function buildSelectableItems() {
                 seen.add(itemID);
                 items.push({
                     id: itemID,
-                    name: item.name.CN,
+                    name: item.names.zh_cn,
                 });
             }
         }

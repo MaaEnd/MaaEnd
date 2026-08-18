@@ -229,6 +229,7 @@
         "tasks/TrialOfSwordmancy.json",
         "tasks/CreditShopping.json",
         "tasks/AccountSwitch.json",
+        // "tasks/DevTest.json", // mxu测试用
         // "tasks/WebEvent202605.json", // 该活动已关闭
         "tasks/AndroidOpenGame.json",
         "tasks/CloseGame.json",

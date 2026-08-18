@@ -92,6 +92,23 @@ const tryAddTaskFields = (
   }
 }
 
+const tryAddTaskMapValues = (
+  param: ParserNode,
+  utils: ParserUtils,
+  result: PropSelectorResult[],
+  fields: readonly string[],
+  policy: MissingPolicy = 'error',
+) => {
+  for (const [key, obj] of utils.parseObject(param)) {
+    if (!fields.includes(key)) {
+      continue
+    }
+    for (const [, value] of utils.parseObject(obj)) {
+      tryAddTask(utils, result, value, policy)
+    }
+  }
+}
+
 const customRecoParser: PropSelector = (name, param, utils) => {
   const result: PropSelectorResult[] = []
 
@@ -160,6 +177,8 @@ const customActParser: PropSelector = (name, param, utils) => {
     tryAddTaskFields(param, utils, result, [], ['nodes'], 'ignore')
   } else if (name === 'SellProductReserveSession') {
     tryAddTaskFields(param, utils, result, ['sliding_node'])
+  } else if (name === 'AddItemData' || name === 'SyncItemData') {
+    tryAddTaskMapValues(param, utils, result, ['items'])
   }
   return result
 }

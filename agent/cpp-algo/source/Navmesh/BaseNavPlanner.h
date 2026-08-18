@@ -40,6 +40,9 @@ struct BaseNavRouteRequest
     // floor and the goal onto the declared target frame's floor. Unset -> falls back to `floor_y`.
     float start_floor_y = kBaseNavFloorYNone;
     float goal_floor_y = kBaseNavFloorYNone;
+    // Height of the overlapping deck the goal sits on. floor_y steers the snap; this steers which span the
+    // search must stop on. Unset -> the search keeps its full span set.
+    float goal_deck_y = kBaseNavFloorYNone;
 };
 
 enum class BaseNavRouteStatus
@@ -66,7 +69,6 @@ public:
     // `floor_y` re-ranks the snap onto the correct floor of a multi-floor base: surfaces within
     // kBaseNavFloorBand of it are preferred, off-band ones are a graceful fallback (never gated to
     // nullopt). kBaseNavFloorYNone (the default) keeps the legacy floor-blind behavior byte-for-byte.
-    // Mirrors basenav_preview.py BaseNavField.snap.
     std::optional<BaseNavSnapResult>
         snap(uint16_t zone_id, const WorldPoint& point, double radius, float floor_y = kBaseNavFloorYNone) const;
 
@@ -75,8 +77,17 @@ public:
     bool pointOnMesh(uint16_t zone_id, const WorldPoint& point) const;
 
     // Height-continuity drivability of a straight route leg: the oracle the waypoint emitter uses to
-    // decide whether a collapsed straight leg stays on walkable mesh.
-    bool isRouteSegmentDrivable(uint16_t zone_id, const WorldPoint& a, const WorldPoint& b) const;
+    // decide whether a collapsed straight leg stays on walkable mesh. `half_width` gives the leg a body:
+    // both flanks must hold up too, so a line a dimensionless point could thread is rejected on behalf of
+    // a character that has width. Zero keeps the bare centre-line test.
+    // `seed_height` 是 a 点所在面的高度。缺省时首个采样点无参照,叠层处取最低面,判据会顺着楼下那层
+    // 一路走通;给出后整段采样都锚在起点这层上。
+    bool isRouteSegmentDrivable(
+        uint16_t zone_id,
+        const WorldPoint& a,
+        const WorldPoint& b,
+        double half_width = 0.0,
+        std::optional<double> seed_height = std::nullopt) const;
 
     // RecastNav 复用
     const std::vector<uint32_t>& adjacencyOffsets() const { return adjacency_offsets_; }
@@ -85,6 +96,11 @@ public:
 
     bool isSmallIslandTriangle(uint32_t triangle_index) const;
     std::optional<std::array<WorldPoint, 2>> closestEdgeBridgePoints(uint32_t lhs, uint32_t rhs) const;
+
+    // 返回 point±radius 覆盖的格内全部三角形(可能跨格重复,不影响结果)。
+    std::vector<uint32_t> candidateTriangles(uint16_t zone_id, const WorldPoint& point, double radius) const;
+    std::array<WorldPoint, 3> trianglePoints(uint32_t triangle_index) const;
+    double triangleHeight(uint32_t triangle_index) const;
 
 private:
     const BaseNavPack& pack_;
@@ -101,8 +117,6 @@ private:
     void buildIndex();
     void buildNaturalComponents();
     void buildSpatialIndex();
-    // 返回 point±radius 覆盖的格内全部三角形(可能跨格重复,不影响结果)。
-    std::vector<uint32_t> candidateTriangles(uint16_t zone_id, const WorldPoint& point, double radius) const;
     void computeTriangleHeights();
     bool isNaturalNeighbor(uint32_t lhs, uint32_t rhs) const;
     bool isTraversableLink(uint32_t lhs, uint32_t rhs) const;
@@ -113,8 +127,8 @@ private:
         groundHeightNearIndexed(uint16_t zone_id, const WorldPoint& point, std::optional<double> reference, uint32_t& out_triangle) const;
     // 直线路段可行性判据:沿 a→b 采样,要求每点在网格内、且相邻采样的地面高度跳变不超过
     // kBridgeMaxHeightDelta。共面重叠缝全程平坦判可走,绕墙捷径因踩墙跳变判不可走。
-    bool segmentHeightWalkable(uint16_t zone_id, const WorldPoint& a, const WorldPoint& b) const;
-    std::array<WorldPoint, 3> trianglePoints(uint32_t triangle_index) const;
+    bool segmentHeightWalkable(uint16_t zone_id, const WorldPoint& a, const WorldPoint& b, std::optional<double> seed_height = std::nullopt)
+        const;
 };
 
 const char* ToString(BaseNavRouteStatus status);

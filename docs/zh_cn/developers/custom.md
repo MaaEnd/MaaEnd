@@ -179,6 +179,14 @@ Action 节点用于执行自定义动作。常见写法如下：
 
 默认目标位置由 Pipeline 节点的 `box` 决定。
 
+### AutoCtrlClickAction
+
+`AutoCtrlClickAction` 与 `AutoAltClickAction` 一同实现在 `agent/go-service/common/autoalt`，用于在指定位置执行 Ctrl + 点击操作。按下 Ctrl、点击和释放 Ctrl 均通过 Pipeline 子节点执行，因此各平台资源可以覆盖对应键码；即使按下或点击失败，也会尝试释放 Ctrl。
+
+- 参数：无。
+
+目标位置由 Pipeline 节点的 `box` 决定，可使用外层 `target` / `target_offset` 调整。
+
 ### AutoAltSwipeAction
 
 `AutoAltSwipeAction` 实现位于 `agent/go-service/common/autoalt`，用于执行 Alt + 滑动操作。先按下 Alt 键，再执行滑动，最后松开 Alt 键。
@@ -336,6 +344,103 @@ Pipeline 组织：把本识别放在滑动节点**之前**；命中走「到底�
 - 需要重新开始一轮列表扫描时，应将 `attach.ready` 置 `false`（例如通过 `PipelineOverride`）。
 - 该识别器只负责“是否已到底”，滑动、点击等流程仍由 Pipeline 组织。
 
+### ScrollbarRecognition
+
+`ScrollbarRecognition` 位于 `agent/go-service/common/listcomplete`，用于识别滚动条的白色滑块并输出位置与长度。它是无状态识别器，不读写 `attach`，适合需要获取滑块区域、当前位置或长度的 Pipeline 和 Custom 组件。
+
+**命中语义：`true` = 找到有效滑块；`false` = 未找到有效滑块。**
+
+参数：
+
+- 原生 `roi: [x, y, w, h]`：必需。720p 基准下只覆盖滚动条轨道的窄区域；V2 中与 `custom_recognition` 同级放在 `recognition.param` 内。
+- 无 `custom_recognition_param` 参数。
+
+输出：
+
+- `Box`：滑块的绝对 720p 区域 `[roi.x, roi.y + top, roi.width, length]`，可直接作为后续动作或识别的目标。
+- `Detail`：JSON 对象，其中 `top`、`bottom` 是相对 ROI 顶部的边界，`length = bottom - top + 1`。
+
+```json
+{
+    "top": 9,
+    "bottom": 31,
+    "length": 23
+}
+```
+
+检测算法由两个滚动条 Recognition 共享：在 ROI 的每一行查找 `min(R, G, B) >= 200` 的白色像素，填补最长 2 行的内部断点，再从长度至少 5px 的连续段中选择最长段。
+
+```json
+{
+    "ExampleScrollbar": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ScrollbarRecognition",
+                "roi": [
+                    1119,
+                    220,
+                    5,
+                    255
+                ]
+            }
+        }
+    }
+}
+```
+
+### ScrollbarCompleteRecognition
+
+`ScrollbarCompleteRecognition` 与 `ScrollbarRecognition` 位于同一个包，并复用相同的内部滑块检测函数。它在基础检测结果之上保存和比较连续两次位置，适合列表内容或背景会变化、无法稳定做整块模板比较的到顶/到底判断。
+
+**命中语义：`true` = 滚动条未移动，列表已到顶或到底；`false` = 尚不能判定完成（应继续滚动）。**
+
+参数：
+
+- 原生 `roi: [x, y, w, h]`：必需。720p 基准下只覆盖滚动条轨道的窄区域；V2 中与 `custom_recognition` 同级放在 `recognition.param` 内，不放入 `custom_recognition_param`。
+- `custom_recognition_param.position_tolerance: integer`：可选，默认 `2`，最小值 `0`。当前帧与上一次记录的滑块上、下边界都不超过该 720p 像素容差时判定未移动。`0` 表示要求两条边界完全一致。
+
+处理流程：
+
+1. 使用与 `ScrollbarRecognition` 相同的内部算法获取 `[top, bottom]`。
+2. 首次识别或滑块位置变化时，将边界写入当前节点的 `attach.scrollbar_top` / `attach.scrollbar_bottom`，把 `attach.ready` 置 `true`，返回**未命中**。
+3. 后续识别中，上、下边界都在 `position_tolerance` 内时返回**命中**；任一边界超出容差则更新位置并返回**未命中**。
+4. 未找到有效连续白条时返回**未命中**，并保留上一次有效位置，避免高亮短暂消失污染状态。
+
+Pipeline 布局与 `ListCompleteRecognition` 相同：将本识别放在滚动节点之前；命中走“已到边界”分支，未命中落到滚动节点。滚动节点必须配置 `post_wait_freezes`，保证下一次识别发生在画面静止后。
+
+```json
+{
+    "ExampleScrollbarComplete": {
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ScrollbarCompleteRecognition",
+                "custom_recognition_param": {
+                    "position_tolerance": 2
+                },
+                "roi": [
+                    1119,
+                    220,
+                    5,
+                    255
+                ]
+            }
+        },
+        "attach": {
+            "ready": false
+        }
+    }
+}
+```
+
+注意事项：
+
+- ROI 应只覆盖滚动条轨道，避免列表中的白色文字或图标形成更长的连续段。
+- 首次调用只记录位置，不能判定完成。每次开始新的列表扫描前，应通过 `PipelineOverride` 将当前节点的 `attach.ready` 重置为 `false`。
+- 组件不区分“到顶”和“到底”；方向语义由 Pipeline 当前采用的滚动方向决定。
+- 组件只负责判断列表边界，滚动和后续业务流程仍由 Pipeline 组织。
+
 ### ExpendableRecognition
 
 `ExpendableRecognition` 实现位于 `agent/go-service/common/expendable`，用于「点过一次就不再点同一目标」的列表消费（如活动中心未读入口、好友列表逐个拜访）。
@@ -414,10 +519,13 @@ Pipeline 组织：把本识别放在滑动节点**之前**；命中走「到底�
 | 运行时改节点参数 | `PipelineOverride` |
 | 把关键词拼成正则写回 OCR 节点 | `AttachToExpectedRegexAction` |
 | 计算 OCR 数值表达式 | `ExpressionRecognition` |
-| 判断列表是否已到底 | `ListCompleteRecognition` |
+| 通过区域模板判断列表是否已到底 | `ListCompleteRecognition` |
+| 获取滚动条滑块的位置和长度 | `ScrollbarRecognition` |
+| 通过滚动条位置判断列表是否已到顶或到底 | `ScrollbarCompleteRecognition` |
 | 消费性点选（visited 排除） | `ExpendableRecognition` |
 | 按星期几门控后续节点 | `ScheduleRecognition` |
 | 在指定位置 Alt + 点击 | `AutoAltClickAction` |
+| 在指定位置 Ctrl + 点击 | `AutoCtrlClickAction` |
 | Alt + 滑动 | `AutoAltSwipeAction` |
 
 所有 Custom 的 Go 代码实现在 `agent/go-service/` 下，Pipeline 作者不需要关心，照文档参数写 JSON 就行。

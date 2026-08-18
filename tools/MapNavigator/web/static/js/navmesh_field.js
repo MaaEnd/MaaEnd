@@ -1,6 +1,5 @@
 /**
- * Client-side zone table + coordinate transforms — the JS mirror of the field
- * methods `app_tk.py` calls on `BaseNavField` (tier↔base affine, geometry-zone
+ * Client-side zone table + coordinate transforms (tier↔base affine, geometry-zone
  * resolution, tier grouping, display bounds). Built once from the `/api/zones`
  * payload; holds no GL/DOM state, so it is pure logic and node-checkable.
  *

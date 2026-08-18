@@ -1,6 +1,7 @@
 {
     "__ScenePrivateLogin": {
         "desc": "处理登录界面",
+        "max_hit": 500,
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -16,6 +17,7 @@
             }
         },
         "next": [
+            "[JumpBack]__ScenePrivateCloseErrorDialog",
             "[JumpBack]__ScenePrivateCloseLoginAnnouncement",
             "__ScenePrivateLoginContinue",
             "__ScenePrivateLogin"

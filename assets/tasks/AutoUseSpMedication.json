@@ -276,10 +276,10 @@
                     "name": "MaxSanity",
                     "label": "$option.AutoUseSpMedicationMaxSanity.inputs.MaxSanity.label",
                     "description": "$option.AutoUseSpMedicationMaxSanity.inputs.MaxSanity.description",
-                    "default": "9999",
+                    "default": "999",
                     "pipeline_type": "int",
                     "pattern_msg": "$option.AutoUseSpMedicationMaxSanity.inputs.MaxSanity.pattern_msg",
-                    "verify": "^([1-9]\\d{0,3})$"
+                    "verify": "^([1-9]\\d{0,2})$"
                 }
             ],
             "pipeline_override": {

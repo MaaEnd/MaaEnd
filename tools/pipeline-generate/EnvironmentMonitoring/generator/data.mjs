@@ -1,7 +1,7 @@
 import {LOCALES} from "./common.mjs";
 import {monitoringMissions} from "./model.mjs";
 
-export {kiteStationData, MONITORING_TERMINAL_IDS} from "./model.mjs";
+export {environmentMonitoringData, MONITORING_TERMINAL_IDS} from "./model.mjs";
 
 function escapeRegex(str) {
     return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -18,7 +18,7 @@ function buildExpectedFromLocaleMap(localeMap) {
         if (!value) {
             return null;
         }
-        if (locale === "en-US") {
+        if (locale === "en_us") {
             return toFlexibleEnglishRegex(value);
         }
         return value;
@@ -59,7 +59,7 @@ export function buildRow(mission) {
                   `GoTo${Id}StartPos`,
                   `GoTo${Id}NotAtStartPos`,
               ];
-    // NavMesh 可自行处理传送点附近的落点；手录路径仍需确认固定起点。
+    // NavMesh 可处理传送点附近落点，快捷传送的手录路径也可从固定落点开始；普通 MapPath 仍需复核起点。
     const AfterTeleportDescription = route.IsDirectPhoto
         ? route.HasHeading
             ? "传送后调整朝向并拍照"

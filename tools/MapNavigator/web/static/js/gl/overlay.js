@@ -72,8 +72,8 @@ export class Overlay {
    *   @param {?number} [vm.selectedIdx] primary selection (local index into vm.points)
    *   @param {Set<number>} [vm.selectedIndices] multi-selection (local indices)
    *   @param {?number[]} [vm.assertTarget] `[x,y,w,h]` display-frame, or null
-   *   @param {?number[]} [vm.assertLocateHint] `[x,y]` 游戏当前位置 marker (assert mode)
-   *   @param {?Array<{x:number,y:number,label:string}>} [vm.astarLocateHints] preview markers (astar mode)
+   *   @param {?{x:number,y:number,label:string,rot:?number}} [vm.assertLocateHint] game locate marker
+   *   @param {?Array<{x:number,y:number,label:string,rot:?number}>} [vm.astarLocateHints] preview markers
    *   @param {Object} [vm.astar] see {@link Overlay#_drawAstarPreview}
    *   @param {Array<Object>} [vm.offMeshMarks] points off the walkable mesh — see
    *     {@link Overlay#_drawOffMeshMarks} (drawn in every mode)
@@ -95,11 +95,11 @@ export class Overlay {
     if (mode === 'assert') {
       this._drawAssertRect(camera, vm.assertTarget || null);
       const hint = vm.assertLocateHint;
-      if (hint && hint.length >= 2) this._drawHintMarker(camera, hint[0], hint[1], '游戏当前位置');
+      if (hint) this._drawHintMarker(camera, hint.x, hint.y, hint.label, hint.rot);
     }
     if (mode === 'astar') {
       for (const hint of vm.astarLocateHints || []) {
-        this._drawHintMarker(camera, hint.x, hint.y, hint.label);
+        this._drawHintMarker(camera, hint.x, hint.y, hint.label, hint.rot);
       }
       if (vm.astar) {
         this._drawAstarPreview(camera, vm.astar);
@@ -411,9 +411,10 @@ export class Overlay {
    * @param {Camera} camera
    * @param {number} wx @param {number} wy display-frame world coords
    * @param {string} [label='游戏当前位置'] caption under the marker
+   * @param {?number} [rot=null] north-up clockwise heading in the display frame
    * @returns {void}
    */
-  _drawHintMarker(camera, wx, wy, label = '游戏当前位置') {
+  _drawHintMarker(camera, wx, wy, label = '游戏当前位置', rot = null) {
     if (!Number.isFinite(wx) || !Number.isFinite(wy)) return;
     const ctx = this.ctx;
     const [cx, cy] = camera.worldToCanvas(wx, wy);
@@ -432,6 +433,29 @@ export class Overlay {
     ctx.lineWidth = 3;
     ctx.setLineDash([]);
     ctx.stroke();
+
+    if (Number.isFinite(rot)) {
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate((rot * Math.PI) / 180);
+      ctx.shadowColor = 'rgba(103, 232, 249, 0.75)';
+      ctx.shadowBlur = 8;
+      ctx.strokeStyle = '#67e8f9';
+      ctx.fillStyle = '#67e8f9';
+      ctx.lineWidth = 2.5;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(0, -7);
+      ctx.lineTo(0, -26);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(0, -32);
+      ctx.lineTo(-5, -23);
+      ctx.lineTo(5, -23);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
 
     ctx.beginPath();
     ctx.arc(cx, cy, 6, 0, Math.PI * 2);

@@ -97,7 +97,13 @@
             "GotoTriggerPointMoveExact_WLNorthWulingExclusionZone"
         ],
         "focus": {
-            "Node.Action.Starting": "🚶正在前往预备位置"
+            "Node.Action.Starting": "🚶正在前往预备位置",
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
         }
     },
     "GotoTriggerPointMoveExact_WLNorthWulingExclusionZone": {
@@ -122,7 +128,13 @@
             "AutoEssenceDispatcher"
         ],
         "focus": {
-            "Node.Action.Starting": "🚶正在前往激发点"
+            "Node.Action.Starting": "🚶正在前往激发点",
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
         }
     }
 }

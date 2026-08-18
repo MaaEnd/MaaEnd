@@ -50,6 +50,14 @@
             }
         }
     },
+    "AutoCollectClick": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 3
+            }
+        }
+    },
     "AutoPickFalls": {
         "action": {
             "type": "ClickKey",
@@ -114,7 +122,7 @@
             }
         }
     },
-    "GiftOperatorShiftToRunMapTracker": {
+    "GiftOperatorShiftToRun": {
         "action": {
             "type": "ClickKey",
             "param": {
@@ -122,7 +130,7 @@
             }
         }
     },
-    "GiftOperatorShiftToRunMapTrackerSC": {
+    "GiftOperatorShiftToRunSC": {
         "action": {
             "type": "ClickKey",
             "param": {
@@ -159,54 +167,6 @@
             "type": "ClickKey",
             "param": {
                 "key": 53
-            }
-        }
-    },
-    "ItemTransferCtrlKeyDownBag": {
-        "action": {
-            "type": "KeyDown",
-            "param": {
-                "key": 59
-            }
-        }
-    },
-    "ItemTransferCtrlKeyDownBagReturn": {
-        "action": {
-            "type": "KeyDown",
-            "param": {
-                "key": 59
-            }
-        }
-    },
-    "ItemTransferCtrlKeyDownRepo": {
-        "action": {
-            "type": "KeyDown",
-            "param": {
-                "key": 59
-            }
-        }
-    },
-    "ItemTransferCtrlKeyUpBag": {
-        "action": {
-            "type": "KeyUp",
-            "param": {
-                "key": 59
-            }
-        }
-    },
-    "ItemTransferCtrlKeyUpBagReturn": {
-        "action": {
-            "type": "KeyUp",
-            "param": {
-                "key": 59
-            }
-        }
-    },
-    "ItemTransferCtrlKeyUpRepo": {
-        "action": {
-            "type": "KeyUp",
-            "param": {
-                "key": 59
             }
         }
     },
@@ -445,23 +405,6 @@
             }
         }
     },
-    "_AutoEcoFarmPressTab": {
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": 48
-            }
-        }
-    },
-    "_AutoEcoFarmPressW": {
-        "action": {
-            "type": "LongPressKey",
-            "param": {
-                "duration": 20000,
-                "key": 13
-            }
-        }
-    },
     "_AutoEcoFarmSwipeToGround2": {
         "action": {
             "type": "KeyDown",
@@ -516,6 +459,22 @@
             "type": "KeyUp",
             "param": {
                 "key": 58
+            }
+        }
+    },
+    "__AutoCtrlClickCtrlKeyDownAction": {
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 59
+            }
+        }
+    },
+    "__AutoCtrlClickCtrlKeyUpAction": {
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 59
             }
         }
     },
@@ -775,6 +734,30 @@
             }
         }
     },
+    "__MapNavigatorObstacleDevice_CancelMove": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 53
+            }
+        }
+    },
+    "__MapNavigatorObstacleDevice_InteractPost": {
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 58
+            }
+        }
+    },
+    "__MapNavigatorObstacleDevice_InteractPre": {
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 58
+            }
+        }
+    },
     "__MapTrackerOpenWorld_GetOnZipline_InteractPost": {
         "action": {
             "type": "KeyUp",
@@ -784,30 +767,6 @@
         }
     },
     "__MapTrackerOpenWorld_GetOnZipline_InteractPre": {
-        "action": {
-            "type": "KeyDown",
-            "param": {
-                "key": 58
-            }
-        }
-    },
-    "__MapTrackerStuckMitigator_MoveOrDeleteDevice_CancelMove": {
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": 53
-            }
-        }
-    },
-    "__MapTrackerStuckMitigator_MoveOrDeleteDevice_InteractPost": {
-        "action": {
-            "type": "KeyUp",
-            "param": {
-                "key": 58
-            }
-        }
-    },
-    "__MapTrackerStuckMitigator_MoveOrDeleteDevice_InteractPre": {
         "action": {
             "type": "KeyDown",
             "param": {

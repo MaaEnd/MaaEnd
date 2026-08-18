@@ -339,12 +339,12 @@ export const PointEditing = {
   },
 
   /**
-   * Set the selected point's action + strict. Uses `setPointActions` when the chain is
+   * Set the selected point's action, strict flag, and optional coordinate frame. Uses `setPointActions` when the chain is
    * unchanged (preserve auto/suppress flags), else `setManualPointActions`. Mirrors
    * `apply_attributes`. Mutates `points`.
    * @returns {boolean} whether it applied
    */
-  applyAttributes(points, zoneIndices, selectedIdx, actionName, strictArrival) {
+  applyAttributes(points, zoneIndices, selectedIdx, actionName, strictArrival, targetTier = '') {
     if (selectedIdx === null || selectedIdx >= zoneIndices.length) return false;
     const globalIdx = zoneIndices[selectedIdx];
     const currentActions = getPointActions(points[globalIdx]);
@@ -355,6 +355,9 @@ export const PointEditing = {
       setManualPointActions(points[globalIdx], newActions);
     }
     points[globalIdx].strict = strictArrival;
+    const normalizedTargetTier = normalizeZoneId(targetTier);
+    if (normalizedTargetTier) points[globalIdx].target_tier = normalizedTargetTier;
+    else delete points[globalIdx].target_tier;
     return true;
   },
 
@@ -591,7 +594,7 @@ export class AppState {
    * Apply action + strict to the primary selection.
    * @returns {boolean}
    */
-  editApplyAttributes(actionName, strictArrival) {
+  editApplyAttributes(actionName, strictArrival, targetTier = '') {
     this.snapshot();
     const applied = PointEditing.applyAttributes(
       this.points,
@@ -599,24 +602,25 @@ export class AppState {
       this.selectedIdx,
       actionName,
       strictArrival,
+      targetTier,
     );
     if (applied) this.reindex();
     return applied;
   }
 
   /**
-   * Apply the action + strict to EVERY selected point (tk `apply_action_to_selected`).
-   * @param {string} actionName @param {boolean} strictArrival
+   * Apply the action, strict flag, and optional coordinate frame to EVERY selected point.
+   * @param {string} actionName @param {boolean} strictArrival @param {string} targetTier
    * @returns {{selectionEmpty:boolean, changed:boolean}}
    */
-  editApplyActionToSelected(actionName, strictArrival) {
+  editApplyActionToSelected(actionName, strictArrival, targetTier = '') {
     if (!this.selectedIndices.size) return { selectionEmpty: true, changed: false };
     this.snapshot();
     const zoneIndices = this.zonePointGlobalIndices();
     let changed = false;
     for (const localIdx of [...this.selectedIndices].sort((a, b) => a - b)) {
       changed =
-        PointEditing.applyAttributes(this.points, zoneIndices, localIdx, actionName, strictArrival) ||
+        PointEditing.applyAttributes(this.points, zoneIndices, localIdx, actionName, strictArrival, targetTier) ||
         changed;
     }
     if (changed) this.reindex();

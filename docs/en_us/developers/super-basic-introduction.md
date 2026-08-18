@@ -92,10 +92,10 @@ corepack enable pnpm
 
 - Verify: `pnpm --version` shows a version number (requires 10+) and you're good
 
-### 2.5 Python
+### 2.5 uv + Python
 
-- [Python Official Website](https://www.python.org/) Download version 3.10 or higher
-- **You must check "Add Python to PATH" during installation!** Otherwise, the terminal won't find python
+- Install uv by following the [official installation guide](https://docs.astral.sh/uv/getting-started/installation/)
+- uv prepares Python 3.10+ and script dependencies from the project's `pyproject.toml`; you do not need to create a virtual environment or run `pip install` manually
 
 ### 2.6 Go (Required)
 
@@ -108,7 +108,7 @@ The project's underlying logic depends on Go for compilation and execution, so *
 > - [ ] VS Code is installed, recommended plugins installed
 > - [ ] `node --version` has output
 > - [ ] `pnpm --version` has output
-> - [ ] `python --version` has output
+> - [ ] `uv --version` has output
 > - [ ] `go version` has output
 
 ---

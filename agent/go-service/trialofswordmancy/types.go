@@ -14,5 +14,5 @@ type GameState struct {
 	Config solver.Config `json:"config"`
 
 	// 以下为识别原始字段，供日志/调试观测（写进 detail JSON），action 不读、不参与 MDP 求解。
-	HandRaw [5]int `json:"handRaw"` // 各槽位识别到的点数（下标=槽位，0=空槽）
+	HandRaw [5]int `json:"handRaw"` // 槽位点数（完整识别路径=真实槽位；推导路径=点数升序合成值，仅展示）
 }

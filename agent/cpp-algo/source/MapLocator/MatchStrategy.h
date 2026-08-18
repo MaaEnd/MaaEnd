@@ -1,10 +1,12 @@
 #pragma once
 
-#include "MapTypes.h"
 #include <chrono>
 #include <memory>
-#include <opencv2/opencv.hpp>
 #include <string>
+
+#include <MaaUtils/NoWarningCV.hpp>
+
+#include "MapTypes.h"
 
 namespace maplocator
 {
@@ -27,6 +29,19 @@ struct MatchResultRaw
     double psr = 0.0;
 };
 
+struct PreparedSearchFeature
+{
+    cv::Mat image;
+};
+
+enum class TemplateFeatureKind
+{
+    StandardBase,
+    StandardTier,
+    PathHeatmapBase,
+    PathHeatmapTier,
+};
+
 struct TrackingValidation
 {
     bool isValid;
@@ -46,6 +61,8 @@ public:
 
     // 预处理大地图的搜索区域（Search ROI）
     virtual MatchFeature extractSearchFeature(const cv::Mat& mapRoi) = 0;
+
+    virtual TemplateFeatureKind templateFeatureKind() const = 0;
 
     // 追踪态的结果验证逻辑
     virtual TrackingValidation validateTracking(
@@ -82,6 +99,20 @@ public:
         MatchMode mode = MatchMode::Auto);
 };
 
-std::optional<MatchResultRaw> CoreMatch(const cv::Mat& searchImgRaw, const cv::Mat& templRaw, const cv::Mat& weightMask, int blurSize = 5);
+enum class PeakRefineMode
+{
+    // 三点抛物线。相关面的离散格点就是精度上限，够粗扫把精修窗放到正确位置
+    Parabola,
+    // 在全分辨率上连续求极大，不受相关面格点限制。最终输出的坐标走这条
+    Continuous,
+};
+
+std::optional<MatchResultRaw> CoreMatch(const cv::Mat& searchImgRaw, const cv::Mat& templRaw, const cv::Mat& weightMask);
+PreparedSearchFeature PrepareSearchFeature(const cv::Mat& searchImgRaw);
+std::optional<MatchResultRaw> CoreMatchPrepared(
+    const PreparedSearchFeature& searchFeature,
+    const cv::Mat& templRaw,
+    const cv::Mat& weightMask,
+    PeakRefineMode refineMode = PeakRefineMode::Parabola);
 
 } // namespace maplocator

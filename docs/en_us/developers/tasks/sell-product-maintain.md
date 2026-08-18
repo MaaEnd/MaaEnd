@@ -132,7 +132,7 @@ Selling operator not found / scan failure → stop the task (never trade with th
 
 ## Generator and Maintenance
 
-The generator lives in `tools/pipeline-generate/SellProduct/`. Its data source is the zmdmap cache `tools/pipeline-generate/data/settlement_trade.json`; `model.mjs` centrally defines outposts, regions, and i18n keys, and each `*-data.mjs` is the minimal data projection for its template.
+The generator lives in `tools/pipeline-generate/SellProduct/`. The zmdmap data CI uses `data/scripts/sell_product_data.py` to extract and publish `tools/pipeline-generate/data/sell_product.json` from TableCfg. This compact game data keeps only outposts, sellable items, outpost features, and operator matches; MaaEnd downloads it through `fetch-data.mjs`. `model.mjs` centrally defines outposts, regions, and i18n keys, and each `*-data.mjs` is the minimal data projection for its template.
 
 | Maintenance entry | Generated artifact |
 | ------------------------------- | ----------------------------------------------------------------- |
@@ -153,10 +153,13 @@ Hand-maintained (untouched by the generator):
 - all Go code under `agent/go-service/sellproduct/`: `goods/` (items, with the three pure strategies in `strategy/`), `operator/` (operators), `internal/selectiondata/` (shared deployment-data loading/validation), `internal/ocrmatch/` (shared strict OCR matching), `runtime.go` (the combined `SellProductLocationPlan` output), and `register.go` (component registration).
 
 ```shell
-# fetch the latest zmdmap data and regenerate everything
+# sync the zmdmap compact game data and regenerate everything
 pnpm generate:SellProduct
 
-# regenerate from the local cache only
+# only sync the zmdmap compact game data
+pnpm fetch:zmdmap
+
+# render from the generated data only
 node tools/pipeline-generate/SellProduct/sync-locales.mjs
 node tools/pipeline-generate/SellProduct/selection-data.mjs
 node tools/pipeline-generate/run-all.mjs SellProduct
@@ -164,7 +167,7 @@ node tools/pipeline-generate/run-all.mjs SellProduct
 
 Maintenance notes:
 
-- New items usually only need an updated zmdmap cache; `sync-locales.mjs` fills missing five-language `item.*` keys (reusing existing keys with the same Chinese name). Event-item exclusions live in `selection-data.mjs`; clean them up once upstream removes the event data and regenerate.
+- New items usually only require syncing the zmdmap compact game data; `sync-locales.mjs` fills missing five-language `item.*` keys (reusing existing keys with the same Chinese name). Event-item exclusions live in `selection-data.mjs`; clean them up once the source data removes the event items and regenerate.
 - After adding an outpost, check the generated region `next` lists, SceneManager entries, and both Win32/ADB artifacts.
 - When adding a region, manually create its subfolder under `SellProduct/` in both resource packs before generating (the generator only creates `outputDir`).
 - Reserve rules: item cases pass `item_id` via `attach`; quantity inputs pass integers via `custom_action_param.quantity`.

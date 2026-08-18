@@ -12,6 +12,7 @@
                 "AttachToExpectedRegexAction",
                 "AutoAltClickAction",
                 "AutoAltSwipeAction",
+                "AutoCtrlClickAction",
                 "AutoFightMainAction",
                 "AutoSellItemExecuteItemTaskAction",
                 "AutoStockStapleQuantityControlAction",

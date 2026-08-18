@@ -5,42 +5,46 @@ import {dataDir} from "../../utils/paths.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-export const KITE_STATION_DATA_PATH = resolve(dataDir, "kite_station_i18n.json");
+export const ENVIRONMENT_MONITORING_DATA_PATH = resolve(dataDir, "environment_monitoring.json");
 export const ROUTES_PATH = resolve(__dirname, "..", "routes.json");
 
-// 与 zmdmap 数据中 name/shotTargetName 提供的 locale 列表保持一致；上游若新增语言需同步在这里补上。
+// 与环境监测数据中的 names/shot_target_names locale 列表保持一致。
 export const LOCALES = [
-    "zh-CN",
-    "zh-TW",
-    "en-US",
-    "ja-JP",
-    "ko-KR",
+    "zh_cn",
+    "zh_tw",
+    "en_us",
+    "ja_jp",
+    "ko_kr",
 ];
 
 export function readJson(path) {
     return JSON.parse(readFileSync(path, "utf8"));
 }
 
-export function readKiteStationData() {
-    return readJson(KITE_STATION_DATA_PATH);
+export function readEnvironmentMonitoringData() {
+    return readJson(ENVIRONMENT_MONITORING_DATA_PATH);
 }
 
-export function buildMonitoringTerminalIds(kiteStationData) {
-    return Object.keys(kiteStationData)
-        .filter((terminalId) => Object.keys(kiteStationData[terminalId]?.entrustTasks?.list || {}).length > 0)
+export function buildMonitoringTerminalIds(environmentMonitoringData) {
+    return Object.keys(environmentMonitoringData?.terminals || {})
+        .filter((terminalId) => environmentMonitoringData.terminals[terminalId]?.missions?.length > 0)
         .sort();
 }
 
-export function collectMonitoringMissions(kiteStationData) {
+export function collectMonitoringMissions(environmentMonitoringData) {
     const missions = [];
-    const terminalIds = buildMonitoringTerminalIds(kiteStationData);
+    const terminalIds = buildMonitoringTerminalIds(environmentMonitoringData);
 
     for (const terminalId of terminalIds) {
-        const terminal = kiteStationData[terminalId];
-        for (const mission of Object.values(terminal?.entrustTasks?.list || {})) {
-            if (mission?.missionId && mission?.name?.["zh-CN"]) {
+        const terminal = environmentMonitoringData.terminals[terminalId];
+        for (const mission of terminal.missions || []) {
+            if (mission?.mission_id && mission?.names?.zh_cn) {
                 missions.push({
-                    ...mission,
+                    missionId: mission.mission_id,
+                    entrustIdx: mission.entrust_index,
+                    kiteStation: terminalId,
+                    name: mission.names,
+                    shotTargetName: mission.shot_target_names,
                     __terminalId: terminalId,
                 });
             }
@@ -75,7 +79,7 @@ export function sanitizeDisplayName(name) {
 }
 
 export function buildDefaultId(mission) {
-    const fromEnglish = toPascalCase(mission?.name?.["en-US"]);
+    const fromEnglish = toPascalCase(mission?.name?.en_us);
     if (fromEnglish) {
         return fromEnglish;
     }
@@ -121,13 +125,13 @@ export function buildGeneratedIdIndex(missions) {
     return idByMissionId;
 }
 
-export function buildStationId(kiteStationData, terminalId) {
-    const enName = kiteStationData?.[terminalId]?.level?.name?.["en-US"];
+export function buildStationId(environmentMonitoringData, terminalId) {
+    const enName = environmentMonitoringData?.terminals?.[terminalId]?.names?.en_us;
     return toPascalCase(enName || terminalId) || terminalId;
 }
 
-export function buildStationDisplayName(kiteStationData, terminalId) {
-    return kiteStationData?.[terminalId]?.level?.name?.["zh-CN"] || terminalId;
+export function buildStationDisplayName(environmentMonitoringData, terminalId) {
+    return environmentMonitoringData?.terminals?.[terminalId]?.names?.zh_cn || terminalId;
 }
 
 export function isFieldMissing(value) {

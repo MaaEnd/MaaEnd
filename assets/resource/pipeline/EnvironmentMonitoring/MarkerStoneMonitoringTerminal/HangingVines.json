@@ -216,7 +216,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToHangingVines"
+            "HangingVinesInQuickTeleportMap"
         ]
     },
     "AlreadyTrackedHangingVines": {
@@ -230,7 +230,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToHangingVines"
+            "HangingVinesOpenTrackedMissionMap"
         ]
     },
     "HangingVinesOpenTrackedMissionMap": {
@@ -336,18 +336,14 @@
     "GoToHangingVinesStartPos": {
         "desc": "在垂藤任务开始位置附近",
         "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition": "MapLocateAssertLocation",
         "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "map02_lv004",
-                    "target": [
-                        602.8,
-                        325,
-                        9.7,
-                        8.1
-                    ]
-                }
+            "zone_id": "Wuling_Base",
+            "target": [
+                0,
+                0,
+                1,
+                1
             ]
         },
         "pre_delay": 0,
@@ -364,7 +360,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldWulingMarkerStone3"
+                "SceneAnyEnterWorld"
             ]
         },
         "post_delay": 0,
@@ -377,26 +373,36 @@
         "desc": "自动寻路前往垂藤",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerGoal",
+        "custom_action": "MapNavigateAction",
         "custom_action_param": {
-            "map_name": "map02_lv004",
-            "target": [
-                520,
-                288
-            ],
-            "on_finish": {
-                "action": "Custom",
-                "custom_action": "MapTrackerToward",
-                "custom_action_param": {
-                    "angle": 0
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        69.1,
+                        129.69
+                    ],
+                    "target_tier": "Wuling_L4_330"
+                },
+                {
+                    "action": "HEADING",
+                    "angle": 173
                 }
-            }
+            ]
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "HangingVinesTakePhoto"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "HangingVinesTakePhoto": {
         "desc": "在垂藤任务拍照点开始拍照",
@@ -413,7 +419,7 @@
     },
     "HangingVinesAdjustCamera": {
         "desc": "垂藤任务中调整朝向",
-        "max_hit": 3,
+        "max_hit": 1,
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,

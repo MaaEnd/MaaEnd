@@ -8,7 +8,7 @@
             "param": {
                 "custom_action": "UpdateItemQuantity",
                 "custom_action_param": {
-                    "item": "PROTODISK",
+                    "item": "item_char_break_stage_1_2",
                     "delta": 1
                 }
             }

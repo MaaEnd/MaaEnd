@@ -979,6 +979,28 @@
                     }
                 },
                 {
+                    "name": "65",
+                    "label": "$task.AutoStockStaple.option.AutoStockUseDiscountsValleyIV.cases.65.label",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemDiscountsValleyIV": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "-99",
+                                        "-95",
+                                        "-90",
+                                        "-85",
+                                        "-80",
+                                        "-75",
+                                        "-70",
+                                        "-65"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "50",
                     "label": "$task.AutoStockStaple.option.AutoStockUseDiscountsValleyIV.cases.50.label",
                     "pipeline_override": {
@@ -2065,6 +2087,28 @@
                                         "-80",
                                         "-75",
                                         "-70"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "65",
+                    "label": "$task.AutoStockStaple.option.AutoStockUseDiscountsWuling.cases.65.label",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemDiscountsWuling": {
+                            "recognition": {
+                                "param": {
+                                    "expected": [
+                                        "-99",
+                                        "-95",
+                                        "-90",
+                                        "-85",
+                                        "-80",
+                                        "-75",
+                                        "-70",
+                                        "-65"
                                     ]
                                 }
                             }

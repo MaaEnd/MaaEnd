@@ -56,6 +56,14 @@ description: MaaEnd 自动寻路、地图定位、角色移动与路径导航开
 
 只有当路线本身包含导航器无法自行推断的语义（交互、过图、跳台、外力传送）时，才需要退回到录制完整 `path` 的写法。
 
+**普通坐标点来自 tier 底图时，用 `target_tier` 给当前点消歧。** 使用对象格式 `{ "action": "RUN", "target": [x, y], "target_tier": "Wuling_L4_328" }`；同样适用于其他带位置的普通动作和使用 `target` 的 `HEADING`。`target_tier` 只声明当前坐标的来源层级，绝不代表区域切换，也不改变后续点的上下文；真正的区域校验 / 过图仍由 `ZONE` / `PORTAL` 表达。不要把所有坐标统一强制换算成 base，也不要用 `ZONE` 猜测坐标系：未声明的旧点必须保持原语义。
+
+**终点落在重叠可走面上时必须标 `target_deck_y`。** 游戏是三维的、底图是二维的，走廊 / 天桥 / 屋顶可能压在同一个 `target` 上；不声明时寻路把该格全部可走面当终点，先够到哪张停哪张，而且上下两张常属同一连通块、二维到达判定也通过，所以走错面完全无声。数值是那张面的世界高度，用 MapNavigator 点中目标后从重叠面列表读出（可预览确认是哪一层），不要手估。
+
+作者点不得压成单个 NAVMESH 目标：跨越多张面的长距离要逐段给航点，一段一个 `target`，否则声明了面也可能整段规划不出来。
+
+声明只钉这一段停在哪张面，起点站在哪张面由寻路按起点自己的高度判断，所以跨面的一段不需要给起点补声明。
+
 ## 组件概览
 
 ### 核心代码
@@ -82,11 +90,13 @@ description: MaaEnd 自动寻路、地图定位、角色移动与路径导航开
 
 - `web/serve.py`：FastAPI 后端，托管静态站点并提供寻路 / 导入导出 / 录制 WebSocket 接口；
 - `web/static/`：浏览器前端（原生 JS + JSDoc + WebGL，ESM 模块，零构建）；
-- `basenav_preview.py`：BaseNav `.nav` 加载与 A\* 路线预览计算；
+- `navmesh_backend.py`：navmesh 查询后端，把 cpp-algo agent 当作常驻查询进程，几何解码 / 吸附 / 路线都在 agent 里算；
 - `connectors.py` / `connection_models.py`：Win32 / ADB / PlayCover 录制连接层；
 - `recording_service.py`：Maa Agent 录制线程与轨迹采集；
 - `json_import.py`：JSON/JSONC 导入解析与动作语义校验；
 - `model.py`：路径数据结构、动作类型与规范化工具。
+
+Web 路径编辑器必须完整保留单点 `target_tier`：导入、规范化、撤销重做和导出均不能丢字段；未声明点继续导出旧数组格式，声明点导出带 `target` + `target_tier` 的对象格式。
 
 工具的 A\* 预览与运行时寻路读取同一份 `base.nav.gz`、走同一套规划逻辑，因此 GUI 上看到的路线与实际执行的路线保持一致。
 

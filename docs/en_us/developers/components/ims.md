@@ -16,42 +16,54 @@ Codes `A1` / `A2` / `A3` and `R1` / `R2` only reflect implementation order, not 
 
 On-disk path: `./debug/record/IMS.json` (relative to the run directory).
 
+Cache keys and recognition IDs use [IconRecognition](./icon-recognition.md) catalog top-level keys (for example `item_char_break_stage_1_2`). Display names prefer `iconRecognition.name.*` / `ims.item.*`.
+
 ---
 
 ## A2: `SyncItemData` (core)
 
-A2 means “look at the current screen and record item quantities”. Callers must **not** invent their own stash-scan flow—always use the reserved Pipeline entry `SyncItemData` (any screen → Valuables → Progression tab → Custom Action).
+A2 means “look at the current screen and record item quantities”. Callers must **not** invent their own stash-scan flow—use the reserved entry for the region you need:
+
+| Entry | Screen |
+| --- | --- |
+| `SyncItemData` | Valuables **Progression** tab (`grid_type: valuables`) |
+| `SyncShopItemData` | **Procurement Center** (Origeometry / Oroberyl header OCR) |
+| `SyncValuablesItemData` | Valuables **Valuables** tab (e.g. Chartered HH Permit) |
 
 ### Calling convention (required)
 
-Every task that needs the IMS cache must **actively refresh once before its business logic**: run the reserved node `SyncItemData` once.
+Every task that needs a region’s IMS cache must **actively refresh that region once before its business logic**: run the matching reserved entry once.
 
 Effects:
 
 1. **Every IMS task declares “I want a fresh cache”**, instead of silently trusting possibly stale on-disk data.
-2. **Within one Resource lifetime, only the first call actually scans**; a successful A2 closes further scan entry.
-3. **Later IMS tasks still call the same node, but skip immediately** and reuse the cache written by the first task.
+2. **Within one Resource lifetime, each regional entry only scans once**; a successful A2 closes further scan entry for that region.
+3. **Later tasks still call the same node, but skip immediately** and reuse the cache written by the first task.
 
-Do not skip the entry because “the cache should still be fine”, and do not reimplement scanning inside the task. Always go through `SyncItemData` so data stays fresh without every task re-entering the Progression tab.
+### Parameters (IconRecognition IDs)
 
-### Parameter: `items` map
+IMS does **not** keep an item allowlist: whatever IconRecognition finds on screen is OCR’d and cached/announced.
 
-| | Meaning |
+| Field | Meaning |
 | --- | --- |
-| **Key** | Item ID (stored in the cache / `IMS.json`) |
-| **Value** | Pipeline node name that recognizes the item and its quantity |
+| `grid_type` | Grid screen. Progression/valuables tabs use `valuables`; required for IconRecognition scan |
+| `roi` | Optional; omit to use the IconRecognition reference ROI (valuables Win32 `[24,76,950,570]` / ADB `[100,85,790,540]`) |
+| `item_filters` | Narrows IconRecognition **candidate templates** only (e.g. `ValuableDepot:SpecialItem`); does not filter which IDs IMS keeps |
+| `items` | **Anchored quantity nodes** (still required for region rebuild): cache ID → Pipeline recognition node. The node may be pure OCR, or And with `box_index` selecting the OCR digit result (top-bar currencies, shop digits, etc.) |
+| `deduplicate` | IconRecognition dedupe; A2 defaults to `true` |
+| `page_dedup` / `notify_ui` | Same semantics as before |
 
-Nodes are usually `And` (rarity color / template / quantity OCR, etc.). If the UI only shows a number for that item, a plain OCR node is fine.
+Provide `grid_type` and/or `items`. Shop-only OCR entries may pass only `items` (e.g. `ORIGEOMETRY` / `item_diamond`). Keys in `items` always join `page_dedup=false` region rebuild (miss removes the ID).
 
-**Requirement:** the node’s `box_index` chain must end at the **quantity** recognition (digits only). A2 only records an entry when the node hits and the quantity text is a valid number.
-
-Example:
+Example (Progression tab):
 
 ```json
 {
+    "grid_type": "valuables",
+    "item_filters": ["ValuableDepot:SpecialItem"],
     "items": {
-        "PROTODISK": "PROTODISK",
-        "T_CREDS": "T_CREDS_NUMBER"
+        "item_gold": "item_gold_NUMBER",
+        "item_diamond": "item_diamond_NUMBER"
     },
     "page_dedup": false
 }
@@ -59,245 +71,134 @@ Example:
 
 ### What runs
 
-1. Sort `items` keys and run each recognition node in order.
-2. **Hit + valid quantity:** record `item ID → quantity`.
-3. **Miss:** do not record that ID this round (see regenerate / overwrite below).
-4. After all nodes finish, update memory, write `./debug/record/IMS.json`, and set `updated_at` to when this snapshot was produced.
+1. IconRecognition path: one full-grid scan via `item_filters` (or grid defaults), OCR quantity from each `cell_box`, cache every hit.
+2. If `items` is set: run OCR-only nodes in sorted key order via `box_index`.
+3. **Hit + valid quantity:** record `item ID → quantity`.
+4. **Miss:** do not record that ID this round (see region rebuild / overwrite below).
+5. Persist memory and `./debug/record/IMS.json`, update `updated_at`.
 
-Hits also emit localized item name + quantity via UI Focus.
+Hits also emit localized item name + quantity via UI Focus by default (`ims.sync_item_found`). Pass `notify_ui: false` to silence (omit defaults to `true`).
 
-### Regenerate vs overwrite (`page_dedup`)
+### Region rebuild vs overwrite (`page_dedup`)
 
 | `page_dedup` | Mode | Behavior |
 | --- | --- | --- |
-| `false` (default) | **Regenerate** | Rebuild the cache from this round’s hits only. IDs not seen this round disappear from the new map. |
-| `true` | **Overwrite** | Start from the existing cache; **overwrite** quantities for IDs hit this round; keep old values for IDs not seen. |
-
-Overwrite is for paged lists: page 1 regenerates; later pages overwrite only the IDs visible on that page so earlier pages are not wiped.
+| `false` (default) | **Region rebuild** | Clear this region’s candidates, then write hits: (1) IDs expanded from `item_filters` (or grid defaults) via IconRecognition `recognition_items.json`; (2) every key in `items` (anchored OCR / And+`box_index`). Misses are removed. Cached IDs from **other regions** are kept. |
+| `true` | **Overwrite** | Start from existing cache; overwrite quantities for IDs hit this round; keep old values for IDs not seen. |
 
 The reserved entry `SyncItemData` defaults to:
 
 ```text
-First pass: SyncItemDataRunFull (page_dedup = false, full rebuild)
-  next[0]: [JumpBack]SyncItemDataScrollPage → swipe, then SyncItemDataRunInc (page_dedup = true)
+First: SyncItemDataRunFull (page_dedup = false, region rebuild)
+  next[0]: [JumpBack]SyncItemDataScrollPage → then SyncItemDataRunInc (page_dedup = true)
   next[1]: SyncItemDataLock (scan finished)
 ```
 
-Extra page rounds are controlled only by `SyncItemDataScrollPage.max_hit` (currently 1). When `max_hit` is exhausted, JumpBack no longer matches and Lock runs. The node is `enabled=false` on Win32-Front by default; ADB enables it and overrides the action with a swipe-up.
-
-### Once per Resource (implementation)
-
-The entry node handles this automatically; callers only need to keep invoking `SyncItemData`:
-
-1. **First call:** actually open the Progression tab, scan, write the cache, then close the “scan again” path with a Resource-level override for the rest of this run.
-2. **Later calls:** the entry is still reachable, but it immediately decides “already synced this run”, skips the scan, and continues.
-3. **Next cold start:** reloading the Resource / restarting the client restores the path; the next IMS task will scan again.
-
-> Reserved entry and scan parameters: `assets/resource/pipeline/IMS/SyncItemData.json`.
->
-> Use `EnsureItemDataReadyMain` only for special “enter A2 only if R2 says stale” cases. Normal IMS tasks should call `SyncItemData` directly, not rely on the expiry gate alone.
+Extra pages are controlled by `SyncItemDataScrollPage.max_hit` (currently 1). Win32-Front defaults `enabled=false`; ADB enables swipe-up.
 
 ---
 
 ## A1: `UpdateItemQuantity`
 
-When you already know a gain or spend, adjust one cached item without a full rescan.
-
 | Param | Meaning |
 | --- | --- |
-| `item` | Item ID |
+| `item` | IconRecognition item ID |
 | `delta` | Signed change (positive gain, negative spend) |
 
-Result is clamped to `>= 0`. Persists `items` in `IMS.json` but **does not** change readiness / sync timestamp (`hasData` / `updated_at` are established only by A2).
+Result is clamped to `>= 0`. Persists `IMS.json` items but does **not** change readiness / `updated_at` (only A2 does).
 
 ---
 
 ## A3: `AddItemData`
 
-A3 takes the same `items` map as A2 (key = item ID, value = recognition node; `box_index` must point at quantity).
+A3 uses the same path as A2 on the **rewards** UI (default `grid_type: rewards`, `deduplicate: false` so every on-screen stack is kept): one IconRecognition pass, OCR quantity from each `cell_box`, then apply **positive deltas**.
 
-It recognizes items on the **current screen**, then **computes** against the IMS cache: each hit quantity is added as a **positive delta** (same as repeated A1 `+n`). It does **not** refresh the sync timestamp / readiness.
+| Param | Meaning |
+| --- | --- |
+| `grid_type` | Defaults to `rewards` |
+| `roi` | Optional; default rewards reference ROI (Win32 `[39,82,1205,511]` / ADB `[178,140,935,440]`) |
+| `item_filters` | Optional; omit for rewards defaults (`Isolate:*` + `ValuableDepot:*`) |
+| `item_ids` | Optional; **union** with expanded `item_filters` (IMS expands before calling IconRecognition). Use to add a SpecialItem subset without pulling in molds / check kits |
 
-### Difference from A2
+`custom_action_param` may be `{}`. Does **not** update sync timestamp / readiness.
 
 | | A2 | A3 |
 | --- | --- | --- |
-| Write model | **Absolute:** scanned count becomes current stock | **Computed:** scanned count is added to existing stock |
-| Typical use | Full Progression-tab sync | Reward popup “how much more did we get?” |
-| Establishes readiness | Yes (`updated_at`, `hasData`) | No |
+| Write mode | **Absolute** stock | **Additive** delta |
+| Typical screen | Valuables (`valuables`) | Rewards popup (`rewards`) |
+| Establishes ready | Yes | No |
 
-### Works without a cache
+If IMS was never initialized (`hasData=false`), A3 still recognizes and Focus-announces, skips cache write, and returns success so Pipeline can close the rewards UI.
 
-Unlike the other IMS pieces, A3 **does not require** an existing IMS cache.
-
-If A2 has never succeeded (`hasData=false`), A3 still recognizes rewards but **does not write the cache**, and still returns success so closing rewards is not blocked. Each hit prints one Focus line (e.g. “Gained xxx ×n”); it does not mention IMS init / skip-persist, and does not print a summary.
-
-When the cache is ready it also prints one Focus per hit — no Pipeline Starting/Succeeded Focus and no summary line.
-
-> Progression-tab `IMS/item/*` ROIs often do not fit the rewards UI—pass nodes for the current screen. Reward popups animate in; use `pre_wait_freezes` on the item ROI before A3 (see `ProtocolSpaceRewardAddItemData`).
->
-> Reference Pipeline: `AddItemDataOnRewards` → `AddItemDataCloseRewards`.
->
-> Close-reward paths already wired to A3: `SceneNoticeRewardsConfirm` (DailyRewards / Dijiang fast collect, etc.), `CreditShoppingClaimConfirm`, `MFGCabinClaimRewardClose`, `GrowthChamberClaimRewardClose`.
+> Use `pre_wait_freezes` on the reward area before A3. Reference: `AddItemDataOnRewards` → `AddItemDataCloseRewards`.
 
 ---
 
 ## R1: `ItemQuantitySatisfied`
 
-Checks whether cached item quantities meet a boolean expression.
+Placeholders read **IMS cache IconRecognition IDs**, not on-screen OCR nodes.
 
-Same operators as [`ExpressionRecognition`](../custom.md#expressionrecognition), but placeholders read **IMS cache item IDs**, not on-screen OCR nodes.
-
-| Param | Meaning |
+| Field | Notes |
 | --- | --- |
-| `expression` | Boolean expression; use `{ITEM_ID}` for cached quantities (missing = `0`) |
-| `notify_ui` | Whether to announce the resolved expression on UI Focus; default `false` (off) |
+| `expression` | Boolean expression with `{ITEM_ID}` placeholders (missing = `0`). With `report_only`, must contain exactly one `{ITEM_ID}` |
+| `notify_ui` | Announce resolved expression to UI Focus; default `false`. Ignored when `report_only` is true |
+| `report_only` | Announce-only mode: reject multi-item expressions, print current quantity, always hit; default `false` |
 
-Supported operators:
-
-- Arithmetic: `+` `-` `*` `/` `%`
-- Comparison: `<` `<=` `>` `>=` `==` `!=`
-- Logic: `&&` `||` `!`
-- Grouping: `(...)`
-
-Example:
+Default mode:
 
 ```json
 {
     "custom_recognition": "ItemQuantitySatisfied",
     "custom_recognition_param": {
-        "expression": "({PROTODISK}+{CAST_DIE})>=100",
+        "expression": "({item_char_break_stage_1_2}+{item_weapon_break_low})>=100",
         "notify_ui": false
     }
 }
 ```
 
-More examples:
+Examples: `{item_char_break_stage_1_2}>=40`, `{item_gold}<50`. Result must be boolean. R1 does **not** check readiness—combine with R2 via `And` when needed.
 
-- `{PROTODISK}>=40`
-- `{PROTODISK}+{CAST_DIE}>=100 && {T_CREDS}<50`
-- `!({HEAVY_CAST_DIE}<10)`
+Report-only mode:
 
-The expression result must be boolean.
+```json
+{
+    "custom_recognition": "ItemQuantitySatisfied",
+    "custom_recognition_param": {
+        "expression": "{item_gold}",
+        "report_only": true
+    }
+}
+```
 
-R1 does **not** check readiness. For “ready **and** enough”, `And` R2 (`ItemDataReady`) with R1 so “not synced yet” is not treated as “need to farm”.
-
-UI Focus announce runs only when `notify_ui` is `true` (resolved expression; identical lines throttled ~10s). Keep the default off for dispatch-style `next` scans to avoid spam.
+Prints `Current T-Creds: 40` (`ims.item_current`), always returns a recognition hit, and rejects expressions with more than one item placeholder.
 
 ---
 
 ## R2: `ItemDataReady`
 
-Checks whether the **whole** IMS cache is usable for business decisions.
-
-### Conditions
-
-1. **Cache exists**  
-   At least one successful A2 (`hasData=true`). Otherwise miss (`reason=no_data`).
-
-2. **Not expired**  
-   Compare sync time (`updated_at` / in-memory last sync) against `refresh_days`. Expired → miss (`reason=stale`).
-
-Both must pass for a hit.
-
-### What “expired” means
-
-A2 writes `updated_at`. R2 treats the cache as stale when “now − sync time” exceeds `refresh_days`:
-
-| `refresh_days` | Meaning |
-| --- | --- |
-| `7` (default) | Fresh for 7 days after sync |
-| `1` / `30` | Fresh for 1 / 30 days |
-| `0` | **Never expire by age** once a successful sync exists |
-
-Notes:
-
-- `refresh_days = 0` only disables age expiry; **missing data still misses**.
-- “Never expire by age” ≠ “never scan”: with no data, `EnsureItemDataReadyMain` still goes to A2.
-
-After a cold start, the first IMS access may lazy-hydrate `IMS.json` into memory once; later hot paths stay in memory.
-
----
-
-## Recommended wiring
-
-```text
-Task entry
-  └─ run SyncItemData once          ← real scan only once per Resource
-       └─ business logic
-            ├─ R2 ItemDataReady          (optional: cache OK?)
-            ├─ R1 ItemQuantitySatisfied  (enough?)
-            ├─ A1 UpdateItemQuantity     (known gain/spend)
-            └─ A3 AddItemData            (reward add / announce)
-```
-
-When you need ready **and** enough:
-
-```json
-"all_of": [
-    "ItemDataReady",
-    "ItemQuantitySatisfied"
-]
-```
+Ready when (1) at least one successful A2 exists (`hasData=true`) and (2) `updated_at` is within `refresh_days` (default `7`; `0` means never expire by age).
 
 ---
 
 ## Appendix
 
-### Locations
-
-| Path | Role |
+| Path | Notes |
 | --- | --- |
 | `agent/go-service/ims/` | Custom components and cache |
-| `assets/resource/pipeline/IMS/` | Pipeline (one file per API) |
-| `assets/resource/image/IMS/item/` | Item templates (`*_TEMPLATE.png`) |
-| `tools/SupplyPlan/mask_ims_item_corner.py` | Top-left green mask tool |
-| `tools/schema/components/ims.schema.json` | Parameter JSON Schema |
+| `agent/go-service/pkg/iconqty/` | Shared A2/A3: IconRecognition scan + `cell_box` quantity OCR |
+| `assets/data/IconRecognition/recognition_items.json` | IconRecognition catalog; A2 region rebuild expands `item_filters` |
+| `assets/resource/pipeline/IMS/` | Pipeline entries |
+| `assets/resource/pipeline/IMS/item/` | OCR-only nodes (`item_gold` / `item_diamond` / `ORIGEOMETRY`) |
+| [IconRecognition](./icon-recognition.md) | Icon matching and `iconRecognition.name.*` |
 
-| Pipeline file | Contents |
-| --- | --- |
-| `SyncItemData.json` | A2 entry + once-per-Resource lock |
-| `UpdateItemQuantity.json` | A1 |
-| `AddItemData.json` | A3 best practice (close rewards) |
-| `ItemQuantitySatisfied.json` | R1 (override `expression`) |
-| `ItemDataReady.json` | R2 + `EnsureItemDataReady*` |
-| `common.json` / `item/*.json` | Rarity colors and per-item nodes |
-
-### Item template green mask
-
-Protocol Space reward badges often sit on the top-left of icons and break Progression-tab templates. Before commit:
-
-1. Paint a **31×18** RGB `(0, 255, 0)` block on the template top-left;
-2. Enable `"green_mask": true` on the TemplateMatch node.
-
-```bash
-python tools/SupplyPlan/mask_ims_item_corner.py
-# preview: python tools/SupplyPlan/mask_ims_item_corner.py --dry-run
-```
-
-### Cache conventions
-
-- In-session, process memory is authoritative; hot paths do not reread disk.
-- Successful A2 / A1 / A3 (when `hasData`) also persist for the next cold start.
-- `ClearCache` (tests / account switch) clears memory and does **not** reload from disk.
-- Small drift is OK; periodic A2 corrects it.
-
-### Go helpers (tests)
-
-| Function | Description |
-| --- | --- |
-| `ims.MarkSynced(at, items)` | Record a successful sync |
-| `ims.ClearCache()` | Clear cache (no disk reload) |
-| `ims.ItemsSnapshot()` | Copy of cached quantities |
-
-### On-disk format
+On-disk example:
 
 ```json
 {
     "updated_at": "2026-07-29T12:00:00Z",
     "items": {
-        "ADVANCED_COGNITIVE_CARRIER": 12,
-        "PROTODISK": 40
+        "item_expcard_stage2_high": 12,
+        "item_char_break_stage_1_2": 40
     }
 }
 ```

@@ -7,6 +7,12 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+const (
+	autoAltClickKeyDownNode = "__AutoAltClickAltKeyDownAction"
+	autoAltClickMouseNode   = "__AutoAltClickMouseClickAction"
+	autoAltClickKeyUpNode   = "__AutoAltClickAltKeyUpAction"
+)
+
 type autoAltClickParam struct {
 	// TargetOffset is an optional [dx, dy, dw, dh] offset applied to the
 	// recognition box before clicking, matching the semantics of the
@@ -20,6 +26,11 @@ type AutoAltClickAction struct{}
 var _ maa.CustomActionRunner = &AutoAltClickAction{}
 
 func (a *AutoAltClickAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+	if ctx == nil || arg == nil {
+		log.Error().Str("component", "AutoAltClickAction").Msg("modifier click action received nil context or arg")
+		return false
+	}
+
 	box := arg.Box
 	// custom_action_param is optional; only parse it when present.
 	if param := arg.CustomActionParam; param != "" {
@@ -40,11 +51,12 @@ func (a *AutoAltClickAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) boo
 		}
 	}
 
-	ctx.RunAction("__AutoAltClickAltKeyDownAction",
-		maa.Rect{0, 0, 0, 0}, "", nil)
-	ctx.RunAction("__AutoAltClickMouseClickAction",
-		box, "", nil)
-	ctx.RunAction("__AutoAltClickAltKeyUpAction",
-		maa.Rect{0, 0, 0, 0}, "", nil)
-	return true
+	return runModifierClickActions(
+		ctx,
+		"AutoAltClickAction",
+		autoAltClickKeyDownNode,
+		autoAltClickMouseNode,
+		autoAltClickKeyUpNode,
+		box,
+	)
 }

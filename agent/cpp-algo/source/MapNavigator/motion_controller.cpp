@@ -6,8 +6,10 @@
 #include <MaaUtils/Logger.h>
 
 #include "action_wrapper.h"
+#include "latency_observer.h"
 #include "motion_controller.h"
 #include "navi_config.h"
+#include "walk_mode.h"
 
 namespace mapnavigator
 {
@@ -75,7 +77,21 @@ void MotionController::SetForwardState(bool forward)
     is_moving_forward_ = true;
 }
 
-TurnCommandResult MotionController::ApplySteering(double yaw_delta_deg)
+void MotionController::ReassertForward()
+{
+    if (!is_moving_forward_) {
+        SetForwardState(true);
+        return;
+    }
+    // Re-send a hold the tracked state already believes is applied, because a keydown the game drops leaves
+    // the agent standing still while the controller keeps steering as if it were walking. It has to go out as
+    // a release and a fresh press: the backends skip any key whose cached state already matches the request,
+    // so plain SetMovementStateSync would be a no-op in exactly this case. Bypasses SetAction on purpose --
+    // this fires mid-stall, and clearing pending steering there would throw away good aim.
+    action_wrapper_->ResetForwardWalkSync(kWalkResetReleaseMs);
+}
+
+TurnCommandResult MotionController::ApplySteering(double yaw_delta_deg, int64_t tick_gap_ms)
 {
     TurnCommandResult result;
     if (std::abs(yaw_delta_deg) <= std::numeric_limits<double>::epsilon()) {
@@ -105,9 +121,36 @@ TurnCommandResult MotionController::ApplySteering(double yaw_delta_deg)
         action_wrapper_->SetMovementStateSync(false, false, false, false, 0);
     }
 
-    const double emit_deg = std::clamp(yaw_delta_deg, -steering_profile_.max_batch_delta_deg, steering_profile_.max_batch_delta_deg);
+    // Spend a long tick on several batches rather than one, so the turn achieved per metre walked holds up as
+    // the loop slows down. The transport's own minimum spacing still bounds how many actually fit.
+    const double batch_cap = steering_profile_.max_batch_delta_deg;
+    int64_t batches = std::clamp<int64_t>(tick_gap_ms / kSteeringRateReferenceMs, 1, kSteeringMaxBatchesPerTick);
+    if (steering_profile_.min_send_interval_ms > 0) {
+        batches = std::max<int64_t>(1, std::min(batches, tick_gap_ms / steering_profile_.min_send_interval_ms));
+    }
+    const double tick_cap = batch_cap * static_cast<double>(batches);
+    const double want_deg = std::clamp(yaw_delta_deg, -tick_cap, tick_cap);
 
-    result = SendViewDelta(emit_deg);
+    double emit_deg = 0.0;
+    int64_t send_ms_total = 0;
+    for (int64_t batch = 0; batch < batches; ++batch) {
+        const double remaining = want_deg - emit_deg;
+        if (std::abs(remaining) < steering_profile_.min_emit_delta_deg) {
+            break;
+        }
+        const TurnCommandResult sent = SendViewDelta(std::clamp(remaining, -batch_cap, batch_cap));
+        send_ms_total += sent.send_ms;
+        if (!sent.issued) {
+            break;
+        }
+        result = sent;
+        emit_deg += std::clamp(remaining, -batch_cap, batch_cap);
+    }
+    // 一拍分几批下发要合起来算，不然差额落到「其余」头上；被拒的那批也花了时间。
+    result.send_ms = send_ms_total;
+    if (send_ms_total > 0) {
+        latency::RecordStage(latency::Stage::Steer, send_ms_total);
+    }
     if (result.issued) {
         last_steering_sent_at_ = now;
         if (should_pause_motion) {
@@ -147,6 +190,7 @@ bool MotionController::TriggerSprint()
     ClearPendingSteering();
     ArmSteeringQuietPeriod();
     action_wrapper_->TriggerSprintSync();
+    walkmode::NoteSprintTriggered();
     sprint_active_ = true;
     LogInfo << "Sprint state armed.";
     return true;
@@ -213,6 +257,7 @@ TurnCommandResult MotionController::SendViewDelta(double delta_degrees)
     const bool sent = action_wrapper_->SendViewDeltaSync(units, 0);
     const int64_t send_ms =
         std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - send_started_at).count();
+    result.send_ms = send_ms;
     if (!sent) {
         LogWarn << "Steering command rejected by the input backend." << VAR(delta_degrees) << VAR(units) << VAR(send_ms);
         return result;

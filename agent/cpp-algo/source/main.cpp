@@ -1,13 +1,17 @@
+#include <filesystem>
 #include <iostream>
 
 #include <MaaAgentServer/MaaAgentServerAPI.h>
 #include <MaaToolkit/MaaToolkitAPI.h>
 
+#include "Common/CrashHandler.h"
 #include "Common/ParentProcessWatcher.h"
 #include "EssenceGridScan/EssenceGridScan.h"
+#include "IconRecognition/IconRecognitionRecognition.h"
 #include "MapLocator/MapLocateAction.h"
 #include "MapNavigator/MapNavigator.h"
 #include "MapNavigator/MapNavigatorCompatible.h"
+#include "MapNavmesh/MapNavmeshQuery.h"
 #include "RealTimeTask/RealTimeTaskAction.h"
 #include "RecoGrid/RecoGridRecognition.h"
 #include "Test/test.h"
@@ -36,7 +40,11 @@ int main(int argc, char** argv)
 
     // std::cout << "Hello, cpp-algo!" << std::endl;
 
-    MaaToolkitConfigInitOption("./debug/cpp-algo", "{}");
+    constexpr const char* kUserPath = "./debug/cpp-algo";
+    MaaToolkitConfigInitOption(kUserPath, "{}");
+
+    // 转储落到 maa.log 同一目录，报 issue 打包日志时会一并带上。
+    common::InstallCrashHandler(std::filesystem::path(kUserPath) / "debug");
 
     MaaAgentServerRegisterCustomRecognition("MyReco1", ChildCustomRecognitionCallback, nullptr);
     MaaAgentServerRegisterCustomRecognition("MapLocateRecognition", maplocator::MapLocateRecognitionRun, nullptr);
@@ -45,6 +53,7 @@ int main(int argc, char** argv)
         "MapNavigatorAssertLocationCompatible",
         mapnavigator::MapNavigatorAssertLocationCompatibleRun,
         nullptr);
+    MaaAgentServerRegisterCustomRecognition("MapNavmeshQuery", mapnavmesh::MapNavmeshQueryRun, nullptr);
     MaaAgentServerRegisterCustomRecognition("RecoGridRecognition", recogrid::RecoGridRecognitionRun, nullptr);
     MaaAgentServerRegisterCustomRecognition("EssenceGridAdvanceRecognition", essencegridscan::EssenceGridAdvanceRecognitionRun, nullptr);
     MaaAgentServerRegisterCustomRecognition("EssenceGridPendingRecognition", essencegridscan::EssenceGridPendingRecognitionRun, nullptr);
@@ -52,6 +61,7 @@ int main(int argc, char** argv)
         "WeaponInventoryScanRecognition",
         weaponinventoryscan::WeaponInventoryScanRecognitionRun,
         nullptr);
+    MaaAgentServerRegisterCustomRecognition("IconRecognition", iconrecognition::IconRecognitionRun, nullptr);
     MaaAgentServerRegisterCustomAction("MapNavigateAction", mapnavigator::MapNavigateActionRun, nullptr);
     MaaAgentServerRegisterCustomAction("MapNavigatorCompatible", mapnavigator::MapNavigatorCompatibleRun, nullptr);
     MaaAgentServerRegisterCustomAction("RealTimeTaskAction", realtimetask::RealTimeTaskActionRun, nullptr);

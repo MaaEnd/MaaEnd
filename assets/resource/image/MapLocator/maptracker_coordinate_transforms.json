@@ -642,6 +642,142 @@
                 627.0,
                 273.0
             ]
+        },
+        {
+            "map_name": "map02_lv005",
+            "zone_id": "Wuling_Base",
+            "offset_x": 960.0,
+            "offset_y": 1344.0,
+            "scale_x": 0.985337243402,
+            "scale_y": 0.984615384615
+        },
+        {
+            "map_name": "map02_lv005_tier_314",
+            "zone_id": "Wuling_L5_314",
+            "offset_x": -163.0,
+            "offset_y": -68.010309278351,
+            "scale_x": 0.994871794872,
+            "scale_y": 1.010309278351,
+            "parent_map_name": "map02_lv005",
+            "source_bbox": [
+                195.0,
+                98.0,
+                390.0,
+                195.0
+            ]
+        },
+        {
+            "map_name": "map02_lv005_tier_316",
+            "zone_id": "Wuling_L5_316",
+            "offset_x": -66.0,
+            "offset_y": 31.0,
+            "scale_x": 1.0,
+            "scale_y": 0.994871794872,
+            "parent_map_name": "map02_lv005",
+            "source_bbox": [
+                97.0,
+                0.0,
+                195.0,
+                195.0
+            ]
+        },
+        {
+            "map_name": "map02_lv005_tier_318",
+            "zone_id": "Wuling_L5_318",
+            "offset_x": -259.502564102564,
+            "offset_y": -67.0,
+            "scale_x": 0.994871794872,
+            "scale_y": 1.0,
+            "parent_map_name": "map02_lv005",
+            "source_bbox": [
+                292.0,
+                98.0,
+                487.0,
+                292.0
+            ]
+        },
+        {
+            "map_name": "map02_lv005_tier_319",
+            "zone_id": "Wuling_L5_319",
+            "offset_x": -259.502564102564,
+            "offset_y": -67.0,
+            "scale_x": 0.994871794872,
+            "scale_y": 1.0,
+            "parent_map_name": "map02_lv005",
+            "source_bbox": [
+                292.0,
+                98.0,
+                487.0,
+                292.0
+            ]
+        },
+        {
+            "map_name": "map02_lv005_tier_321",
+            "zone_id": "Wuling_L5_321",
+            "offset_x": -259.502564102564,
+            "offset_y": -261.0,
+            "scale_x": 0.994871794872,
+            "scale_y": 1.0,
+            "parent_map_name": "map02_lv005",
+            "source_bbox": [
+                292.0,
+                292.0,
+                487.0,
+                390.0
+            ]
+        },
+        {
+            "map_name": "map02_lv005_tier_322",
+            "zone_id": "Wuling_L5_322",
+            "offset_x": -162.664383561644,
+            "offset_y": -261.0,
+            "scale_x": 0.993150684932,
+            "scale_y": 1.0,
+            "parent_map_name": "map02_lv005",
+            "source_bbox": [
+                195.0,
+                292.0,
+                487.0,
+                390.0
+            ]
+        },
+        {
+            "map_name": "map02_lv005_tier_324",
+            "zone_id": "Wuling_L5_324",
+            "offset_x": -166.010309278351,
+            "offset_y": -258.020408163265,
+            "scale_x": 1.010309278351,
+            "scale_y": 0.989795918367,
+            "parent_map_name": "map02_lv005",
+            "source_bbox": [
+                195.0,
+                292.0,
+                292.0,
+                488.0
+            ]
+        },
+        {
+            "map_name": "map02_lv005_tier_326",
+            "zone_id": "Wuling_L5_326",
+            "offset_x": -166.010309278351,
+            "offset_y": -261.0,
+            "scale_x": 1.010309278351,
+            "scale_y": 1.0,
+            "parent_map_name": "map02_lv005",
+            "source_bbox": [
+                195.0,
+                292.0,
+                292.0,
+                390.0
+            ]
+        },
+        {
+            "map_name": "map02_lv006",
+            "zone_id": "Wuling_Base",
+            "offset_x": 1248.0,
+            "offset_y": 2400.0,
+            "scale_x": 0.984615384615,
+            "scale_y": 0.984615384615
         }
     ]
 }

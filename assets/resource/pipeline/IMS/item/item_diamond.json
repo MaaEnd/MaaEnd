@@ -1,0 +1,132 @@
+{
+    "item_diamond_NUMBER": {
+        "desc": "嵌晶玉（贵重品库右上角纯数字）",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__item_diamond_NUMBER_TEXT_COLOR",
+                    "item_diamond_NUMBER_OCR"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__item_diamond_NUMBER_TEXT_COLOR": {
+        "desc": "IMS A2:嵌晶玉右上角白色文字 ColorMatch",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    1087,
+                    0,
+                    92,
+                    56
+                ],
+                "lower": [
+                    200,
+                    200,
+                    200
+                ],
+                "upper": [
+                    255,
+                    255,
+                    255
+                ],
+                "count": 10
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "item_diamond_NUMBER_OCR": {
+        "desc": "IMS A2:嵌晶玉右上角数量 OCR（纯数字）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "__item_diamond_NUMBER_TEXT_COLOR",
+                "roi_offset": [
+                    -6,
+                    -2,
+                    12,
+                    4
+                ],
+                "expected": [
+                    "^\\d+$"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "item_diamond_NUMBER_SHOP": {
+        "desc": "嵌晶玉（采购中心纯数字）",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__item_diamond_NUMBER_SHOP_TEXT_COLOR",
+                    "item_diamond_NUMBER_SHOP_OCR"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__item_diamond_NUMBER_SHOP_TEXT_COLOR": {
+        "desc": "IMS A2:采购中心嵌晶玉白色文字 ColorMatch",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    1083,
+                    0,
+                    91,
+                    68
+                ],
+                "lower": [
+                    200,
+                    200,
+                    200
+                ],
+                "upper": [
+                    255,
+                    255,
+                    255
+                ],
+                "count": 10
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "item_diamond_NUMBER_SHOP_OCR": {
+        "desc": "IMS A2:采购中心嵌晶玉数量 OCR（纯数字）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "__item_diamond_NUMBER_SHOP_TEXT_COLOR",
+                "roi_offset": [
+                    -6,
+                    -2,
+                    12,
+                    4
+                ],
+                "expected": [
+                    "^\\d+$"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

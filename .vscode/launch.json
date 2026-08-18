@@ -26,7 +26,8 @@
             "cwd": "${workspaceFolder}/install",
             "windows": {
                 "env": {
-                    "Path": "${workspaceFolder}/install/maafw;${env:Path}"
+                    "Path": "${workspaceFolder}/install/maafw;${env:Path}",
+                    "_NO_DEBUG_HEAP": "1"
                 }
             }
         }

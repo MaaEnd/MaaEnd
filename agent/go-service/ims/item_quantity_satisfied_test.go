@@ -19,23 +19,40 @@ func TestParseItemQuantitySatisfiedParam(t *testing.T) {
 		t.Fatal("expected error for blank expression")
 	}
 
-	params, err := parseItemQuantitySatisfiedParam(`{"expression":" ({PROTODISK}+{CAST_DIE}) >= 100 "}`)
+	params, err := parseItemQuantitySatisfiedParam(`{"expression":" ({item_char_break_stage_1_2}+{item_weapon_break_low}) >= 100 "}`)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if params.Expression != "({PROTODISK}+{CAST_DIE}) >= 100" {
+	if params.Expression != "({item_char_break_stage_1_2}+{item_weapon_break_low}) >= 100" {
 		t.Fatalf("expression = %q", params.Expression)
 	}
 	if params.NotifyUI {
 		t.Fatal("expected notify_ui default false when omitted")
 	}
+	if params.ReportOnly {
+		t.Fatal("expected report_only default false when omitted")
+	}
 
-	params, err = parseItemQuantitySatisfiedParam(`{"expression":"{PROTODISK}>=1","notify_ui":true}`)
+	params, err = parseItemQuantitySatisfiedParam(`{"expression":"{item_char_break_stage_1_2}>=1","notify_ui":true}`)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 	if !params.NotifyUI {
 		t.Fatal("expected notify_ui true")
+	}
+
+	params, err = parseItemQuantitySatisfiedParam(`{"expression":"{item_gold}","report_only":true}`)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if !params.ReportOnly || params.Expression != "{item_gold}" {
+		t.Fatalf("params=%+v", params)
+	}
+	if _, err := parseItemQuantitySatisfiedParam(`{"expression":"{a}+{b}","report_only":true}`); err == nil {
+		t.Fatal("expected error for multi-item report_only expression")
+	}
+	if _, err := parseItemQuantitySatisfiedParam(`{"expression":"1>=0","report_only":true}`); err == nil {
+		t.Fatal("expected error for report_only without item placeholder")
 	}
 }
 
@@ -45,7 +62,7 @@ func TestItemQuantitySatisfiedRun(t *testing.T) {
 
 	r := &ItemQuantitySatisfied{}
 	arg := &maa.CustomRecognitionArg{
-		CustomRecognitionParam: `{"expression":"{PROTODISK}>=5"}`,
+		CustomRecognitionParam: `{"expression":"{item_char_break_stage_1_2}>=5"}`,
 		Roi:                    maa.Rect{0, 0, 1, 1},
 	}
 
@@ -53,12 +70,12 @@ func TestItemQuantitySatisfiedRun(t *testing.T) {
 		t.Fatal("expected miss when item missing from empty cache")
 	}
 
-	MarkSynced(time.Now(), map[string]int{"PROTODISK": 4})
+	MarkSynced(time.Now(), map[string]int{"item_char_break_stage_1_2": 4})
 	if _, ok := r.Run(nil, arg); ok {
 		t.Fatal("expected miss when current < required")
 	}
 
-	MarkSynced(time.Now(), map[string]int{"PROTODISK": 5})
+	MarkSynced(time.Now(), map[string]int{"item_char_break_stage_1_2": 5})
 	result, ok := r.Run(nil, arg)
 	if !ok {
 		t.Fatal("expected hit when current == required")
@@ -67,7 +84,7 @@ func TestItemQuantitySatisfiedRun(t *testing.T) {
 		t.Fatal("expected detail json")
 	}
 
-	MarkSynced(time.Now(), map[string]int{"PROTODISK": 9})
+	MarkSynced(time.Now(), map[string]int{"item_char_break_stage_1_2": 9})
 	if _, ok := r.Run(nil, arg); !ok {
 		t.Fatal("expected hit when current > required")
 	}
@@ -87,7 +104,7 @@ func TestItemQuantitySatisfiedExpressionRun(t *testing.T) {
 
 	r := &ItemQuantitySatisfied{}
 	arg := &maa.CustomRecognitionArg{
-		CustomRecognitionParam: `{"expression":"({PROTODISK}+{CAST_DIE})>=100"}`,
+		CustomRecognitionParam: `{"expression":"({item_char_break_stage_1_2}+{item_weapon_break_low})>=100"}`,
 		Roi:                    maa.Rect{0, 0, 1, 1},
 	}
 
@@ -96,16 +113,16 @@ func TestItemQuantitySatisfiedExpressionRun(t *testing.T) {
 	}
 
 	MarkSynced(time.Now(), map[string]int{
-		"PROTODISK": 40,
-		"CAST_DIE":  50,
+		"item_char_break_stage_1_2": 40,
+		"item_weapon_break_low":     50,
 	})
 	if _, ok := r.Run(nil, arg); ok {
 		t.Fatal("expected miss when sum < 100")
 	}
 
 	MarkSynced(time.Now(), map[string]int{
-		"PROTODISK": 40,
-		"CAST_DIE":  60,
+		"item_char_break_stage_1_2": 40,
+		"item_weapon_break_low":     60,
 	})
 	result, ok := r.Run(nil, arg)
 	if !ok {
@@ -124,7 +141,7 @@ func TestItemQuantitySatisfiedExpressionRun(t *testing.T) {
 	}
 
 	andArg := &maa.CustomRecognitionArg{
-		CustomRecognitionParam: `{"expression":"{PROTODISK}>=40 && {CAST_DIE}<70"}`,
+		CustomRecognitionParam: `{"expression":"{item_char_break_stage_1_2}>=40 && {item_weapon_break_low}<70"}`,
 		Roi:                    maa.Rect{0, 0, 1, 1},
 	}
 	if _, ok := r.Run(nil, andArg); !ok {
@@ -132,10 +149,59 @@ func TestItemQuantitySatisfiedExpressionRun(t *testing.T) {
 	}
 
 	badArg := &maa.CustomRecognitionArg{
-		CustomRecognitionParam: `{"expression":"{PROTODISK}+{CAST_DIE}"}`,
+		CustomRecognitionParam: `{"expression":"{item_char_break_stage_1_2}+{item_weapon_break_low}"}`,
 		Roi:                    maa.Rect{0, 0, 1, 1},
 	}
 	if _, ok := r.Run(nil, badArg); ok {
 		t.Fatal("expected miss when expression is not boolean")
+	}
+}
+
+func TestItemQuantitySatisfiedReportOnly(t *testing.T) {
+	ClearCache()
+	t.Cleanup(ClearCache)
+
+	r := &ItemQuantitySatisfied{}
+	arg := &maa.CustomRecognitionArg{
+		CustomRecognitionParam: `{"expression":"{item_char_break_stage_1_2}","report_only":true}`,
+		Roi:                    maa.Rect{0, 0, 1, 1},
+	}
+
+	result, ok := r.Run(nil, arg)
+	if !ok {
+		t.Fatal("report_only should hit even when cache empty")
+	}
+	var detail map[string]any
+	if err := json.Unmarshal([]byte(result.Detail), &detail); err != nil {
+		t.Fatalf("detail json: %v", err)
+	}
+	if detail["report_only"] != true {
+		t.Fatalf("detail=%#v", detail)
+	}
+	if detail["item_id"] != "item_char_break_stage_1_2" {
+		t.Fatalf("item_id=%#v", detail["item_id"])
+	}
+	if detail["quantity"] != float64(0) {
+		t.Fatalf("quantity=%#v", detail["quantity"])
+	}
+
+	MarkSynced(time.Now(), map[string]int{"item_char_break_stage_1_2": 40})
+	result, ok = r.Run(nil, arg)
+	if !ok {
+		t.Fatal("report_only should always hit")
+	}
+	if err := json.Unmarshal([]byte(result.Detail), &detail); err != nil {
+		t.Fatalf("detail json: %v", err)
+	}
+	if detail["quantity"] != float64(40) {
+		t.Fatalf("quantity=%#v", detail["quantity"])
+	}
+
+	multiArg := &maa.CustomRecognitionArg{
+		CustomRecognitionParam: `{"expression":"{item_char_break_stage_1_2}+{item_weapon_break_low}","report_only":true}`,
+		Roi:                    maa.Rect{0, 0, 1, 1},
+	}
+	if _, ok := r.Run(nil, multiArg); ok {
+		t.Fatal("report_only must reject multi-item expression")
 	}
 }

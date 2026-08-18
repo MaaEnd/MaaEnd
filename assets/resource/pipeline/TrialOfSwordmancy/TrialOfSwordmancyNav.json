@@ -26,7 +26,13 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "AutoAltClickAction",
+        "custom_action": "RepeatUntilFoundAction",
+        "custom_action_param": {
+            "custom_action": "AutoAltClickAction",
+            "wait_nodes": [
+                "TrialOfSwordmancyEnterTrialMenuSuccess"
+            ]
+        },
         "post_delay": 0,
         "next": [
             "TrialOfSwordmancyEnterTrialMenuSuccess"
@@ -39,16 +45,101 @@
             "TrialOfSwordmancyDrawCard",
             "TrialOfSwordmancyEnemyCard5"
         ],
-        "pre_wait_freezes": {
-            "time": 100,
-            "target": [
-                // 等待抽牌按钮的骰子转动完毕
-                1081,
-                510,
-                68,
-                60
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "TrialOfSwordmancyQuickTeleportStart": {
+        "desc": "通过快速传送前往悬谷台",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuRegionalOverviewWulingTrialOfSwordmancy"
             ]
         },
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyOverviewViewPosition"
+        ]
+    },
+    "TrialOfSwordmancyOverviewViewPosition": {
+        "desc": "在武陵事务总览界面，点击查看位置",
+        "recognition": "And",
+        "all_of": [
+            "SceneMenuRegionalOverviewWulingTrialOfSwordmancy",
+            {
+                "recognition": "TemplateMatch",
+                "roi": "SceneMenuRegionalOverviewWulingTrialOfSwordmancy",
+                "roi_offset": [
+                    767,
+                    85,
+                    -14,
+                    -12
+                ],
+                "template": [
+                    "SceneManager/RegionalOverview/ViewPositionButton.png",
+                    "SceneManager/RegionalOverview/ViewPositionButtonHover.png"
+                ],
+                "threshold": 0.85
+            }
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "wait_node": "InRegionalOverview"
+        },
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyQuickTeleportSelect"
+        ]
+    },
+    "TrialOfSwordmancyQuickTeleportSelect": {
+        "desc": "点击前往传送",
+        "recognition": "And",
+        "all_of": [
+            "EnvironmentMonitoringQuickTeleportSelectButton"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "wait_node": "EnvironmentMonitoringQuickTeleportSelectButton"
+        },
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyQuickTeleport"
+        ]
+    },
+    "TrialOfSwordmancyQuickTeleport": {
+        "desc": "点击传送",
+        "recognition": "And",
+        "all_of": [
+            "WhiteConfirmButtonType1"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "wait_node": "WhiteConfirmButtonType1"
+        },
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyQuickTeleportDone",
+            "[JumpBack]SceneWaitLoadingExit"
+        ]
+    },
+    "TrialOfSwordmancyQuickTeleportDone": {
+        "desc": "传送完成",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
         "pre_delay": 0,
         "post_delay": 0
     },
@@ -59,7 +150,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldWulingSwordVaultDale2"
+                "TrialOfSwordmancyQuickTeleportStart"
             ]
         },
         "post_delay": 0,
@@ -214,6 +305,14 @@
         "post_delay": 0,
         "next": [
             "TrialOfSwordmancyGotoTrialArenaExit"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     }
 }

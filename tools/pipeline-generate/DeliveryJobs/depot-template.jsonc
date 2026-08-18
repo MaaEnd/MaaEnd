@@ -1,0 +1,185 @@
+{
+    "DeliveryJobsCheck${DepotId}DeliveryJob": {
+        "desc": "检查${DepotName}的送货任务按钮",
+        "recognition": "OCR",
+        "roi": "DeliveryJobsCheckLocalDepotNode${DepotId}Text",
+        "roi_offset": [
+            -39,
+            286,
+            220,
+            62
+        ],
+        "expected": [
+            "查看任务",
+            "查看任務",
+            "(?i)Check\\s*Mission",
+            "任務確認",
+            "임무 확인"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "DeliveryJobsEnter${DepotId}DeliveryJob": {
+        "desc": "${DepotName}：进入送货任务",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "DeliveryJobsCheckLocalDepotNode${DepotId}Text",
+            "DeliveryJobsCheck${DepotId}DeliveryJob"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsClickTransferJob"
+        ]
+    },
+    "DeliveryJobsReturnAndTransfer${DepotId}": {
+        "desc": "返回${DepotName}并转交达到报价阈值的任务",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "${DepotScene}"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsEnter${DepotId}PriceDeliveryJob"
+        ]
+    },
+    "DeliveryJobsEnter${DepotId}PriceDeliveryJob": {
+        "desc": "${DepotName}：进入达到报价阈值的送货任务",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "DeliveryJobsCheckLocalDepotNode${DepotId}Text",
+            "DeliveryJobsCheck${DepotId}DeliveryJob"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsClickTransferJob"
+        ]
+    },
+    "DeliveryJobsCheckLocalDepotNode${DepotId}Text": {
+        "desc": "检查本地仓储节点中是否有${DepotName}",
+        "recognition": "OCR",
+        "roi": [
+            67,
+            224,
+            1006,
+            95
+        ],
+        "expected": "${DepotExpected}",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "DeliveryJobsCheck${DepotId}Cargo": {
+        "desc": "检查${DepotName}的货物是否准备好",
+        "recognition": "OCR",
+        "roi": "DeliveryJobsCheckLocalDepotNode${DepotId}Text",
+        "roi_offset": [
+            -39,
+            286,
+            220,
+            62
+        ],
+        "expected": [
+            "查看报价",
+            "查看報價",
+            "(?i)Check\\s*Bid",
+            "希望価格確認",
+            "货物装箱",
+            "貨物裝箱",
+            "(?i)Pack\\s*Goods",
+            "パッキング",
+            "화물 포장",
+            "입찰 보기"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "DeliveryJobsEnter${DepotId}Cargo": {
+        "desc": "进入${DepotName}货物",
+        "max_hit": 1,
+        "recognition": "And",
+        "all_of": [
+            "DeliveryJobsCheckLocalDepotNode${DepotId}Text",
+            "DeliveryJobsCheck${DepotId}Cargo"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "anchor": {
+            "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFill${RegionId}",
+            "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
+            "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStopForOngoingDelivery",
+            "DeliveryJobsGoToDepot": "${DepotScene}"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsPackCargo"
+        ]
+    },
+    "DeliveryJobsDecide${DepotId}Quote": {
+        "desc": "按报价决定如何处理${DepotName}的货物",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobs${DepotId}QuoteAtLeastMinimum",
+            "DeliveryJobs${DepotId}QuoteBelowMinimum",
+            "DeliveryJobsBidPriceRecognitionFailed"
+        ]
+    },
+    "DeliveryJobs${DepotId}QuoteAtLeastMinimum": {
+        "desc": "${DepotName}当前报价达到或高于阈值",
+        "recognition": "Custom",
+        "custom_recognition": "ExpressionRecognition",
+        "custom_recognition_param": {
+            "expression": "{DeliveryJobsSelectedBidPrice}>=119000"
+        },
+        "pre_delay": 0,
+        "anchor": {
+            "DeliveryJobsQuoteAction": "DeliveryJobsQuoteTransferJob",
+            "DeliveryJobsGoToDepot": "DeliveryJobsReturnAndTransfer${DepotId}"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]DeliveryJobsQuoteAction"
+        ]
+    },
+    "DeliveryJobs${DepotId}QuoteBelowMinimum": {
+        "desc": "${DepotName}当前报价低于阈值",
+        "recognition": "Custom",
+        "custom_recognition": "ExpressionRecognition",
+        "custom_recognition_param": {
+            "expression": "{DeliveryJobsSelectedBidPrice}<119000"
+        },
+        "pre_delay": 0,
+        "anchor": {
+            "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
+            "DeliveryJobsGoToDepot": "${DepotScene}"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]DeliveryJobsQuoteAction"
+        ]
+    }
+}

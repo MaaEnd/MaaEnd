@@ -121,7 +121,7 @@ pnpm check         # Resource and schema check
 pnpm test          # Node testing
 ```
 
-CI is also built around these validations: `pnpm check`, `python tools/validate_schema.py`, `pnpm test`, `pnpm format:all`.
+CI is also built around these validations: `pnpm check`, `uv run tools/validate_schema.py`, `pnpm test`, `pnpm format:all`.
 
 ## Supporting Files
 
@@ -139,7 +139,7 @@ A functional change in MaaEnd often involves more than one place.
 
 - Register in the corresponding sub-package `register.go`
 - Integrate in `agent/go-service/register.go`'s `registerAll()`
-- Re-run `python tools/build_and_install.py`
+- Re-run `uv run tools/build_and_install.py`
 
 > MXU is a GUI for end-users and is not recommended for daily development and debugging. The above development tools can greatly improve development efficiency.
 
@@ -154,7 +154,7 @@ After modifying `assets/resource/pipeline/**/*.json`, just reload the resource i
 After modifying `agent/go-service/`, you must recompile:
 
 ```bash
-python tools/build_and_install.py
+uv run tools/build_and_install.py
 ```
 
 You can use the `build` task in VS Code's terminal run tasks for quick execution, or set breakpoints or attach debugging to go-service.
@@ -164,7 +164,7 @@ You can use the `build` task in VS Code's terminal run tasks for quick execution
 `assets/interface.json` is the main source file. After modification, run:
 
 ```bash
-python tools/build_and_install.py
+uv run tools/build_and_install.py
 ```
 
 If `install/interface.json` is modified through a tool, it needs to be manually synced back to `assets/interface.json`.
@@ -174,7 +174,7 @@ If `install/interface.json` is modified through a tool, it needs to be manually 
 Requires a VC generator and cmake; generally, developers do not need to change it:
 
 ```bash
-python tools/build_and_install.py --cpp-algo
+uv run tools/build_and_install.py --cpp-algo
 ```
 
 ## Resource Standards
@@ -190,6 +190,13 @@ All images and coordinates (`roi`, `target`, `box`) are based on **1280x720**. M
 ### Resource Folder Link
 
 The resource folder is in a linked state. Modifying `assets` is equivalent to modifying the content in `install`; no additional copying is needed. **However, `interface.json` is a copy**; modification requires manual sync or running `build_and_install.py`.
+
+### Folder Naming
+
+**Folder names under the resource directories must not start with an underscore `_`** (e.g. `__Private`). The Android packaging logic cannot handle directory names starting with an underscore, which would prevent the resources from being packaged correctly.
+
+- Use plain names without underscores for folders, e.g. `Private`, `Button`;
+- This restriction applies to **folder names only**. Task names (keys in the pipeline JSON) may still use a `__` prefix, e.g. `__AutoAltClickAltKeyDownAction`; the two do not affect each other.
 
 <a id="ocr-与-i18n"></a>
 
@@ -236,8 +243,8 @@ MaaEnd uses maa-tools for node testing. See [Node Testing Documentation](./node-
 | Pitfall | Handling |
 | ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------- |
 | `pnpm check` / `pnpm test` fails to run | `pnpm install` |
-| Model or C++ dependency directory missing | `git submodule update --init --recursive` or `python tools/setup_workspace.py --update` |
-| Go changes not taking effect | Forgot `python tools/build_and_install.py` |
+| Model or C++ dependency directory missing | `git submodule update --init --recursive` or `uv run tools/setup_workspace.py --update` |
+| Go changes not taking effect | Forgot `uv run tools/build_and_install.py` |
 | Directly referenced `__ScenePrivate*` nodes | Should reference scene interface nodes exposed in the `Interface` directory |
 | Only focusing on the main flow, not handling pop-ups/loading | Treat pop-ups, loading, and intermediate states as normal scenarios |
 | Changed tasks but didn't add text | Text goes in `assets/locales/` |
