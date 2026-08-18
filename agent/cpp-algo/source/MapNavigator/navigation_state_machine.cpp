@@ -23,6 +23,7 @@
 #include "navmesh_path_expander.h"
 #include "position_provider.h"
 #include "prompt_scan_profile.h"
+#include "roi_template_scanner.h"
 #include "route_tracker.h"
 #include "semantic_nodes.h"
 #include "sensitivity_observer.h"
@@ -1116,6 +1117,23 @@ bool NavigationStateMachine::TickNavigate()
         return true;
     }
 
+    if (TryZiplineMountPrompt(waypoint, route)) {
+        runtime_state_.semantic.zipline_prompt_probe = true;
+        const semantic_nodes::Result prompt_result = semantic_nodes::HandleArrivalSemantic(semantic_ctx, waypoint, route.waypoint_distance);
+        runtime_state_.semantic.zipline_prompt_probe = false;
+        if (prompt_result.request_failure) {
+            return FailNavigation(
+                prompt_result.failure_reason,
+                prompt_result.failure_log_message,
+                route.waypoint_distance,
+                0.0,
+                stalled_ms);
+        }
+        if (prompt_result.consumed) {
+            return true;
+        }
+    }
+
     double arrival_distance = route.arrival_band;
     if (waypoint.action == ActionType::PORTAL) {
         arrival_distance = std::max(arrival_distance, kPortalCommitDistance);
@@ -1302,8 +1320,8 @@ bool NavigationStateMachine::TickNavigate()
                 // 卡在索边收不拢, 先退索走路, 别直接判导航失败。丢链会把硬时钟归零, 再超时时手上
                 // 已经是走路点了, 那一次才是真失败, 所以这里不会绕回来。
                 if (waypoint.action == ActionType::ZIPLINE) {
-                    LogWarn << "Recovery timed out at a zipline tower; dropping the chain and walking."
-                            << VAR(recovery_elapsed_ms) << VAR(waypoint.x) << VAR(waypoint.y) << VAR(position_->x) << VAR(position_->y);
+                    LogWarn << "Recovery timed out at a zipline tower; dropping the chain and walking." << VAR(recovery_elapsed_ms)
+                            << VAR(waypoint.x) << VAR(waypoint.y) << VAR(position_->x) << VAR(position_->y);
                     semantic_nodes::AbandonZipline(
                         BuildSemanticContext(
                             action_wrapper_,
@@ -1717,6 +1735,9 @@ void NavigationStateMachine::StartScanners()
         collect_prompt_.SubmitFrame(frame);
         interact_prompt_.SubmitFrame(frame);
         device_recovery_.SubmitFrame(frame);
+        if (zipline_mount_scanner_ != nullptr) {
+            zipline_mount_scanner_->SubmitFrame(frame);
+        }
     });
 }
 
@@ -1731,6 +1752,7 @@ void NavigationStateMachine::StopScanners()
     collect_prompt_.Stop();
     interact_prompt_.Stop();
     device_recovery_.Stop();
+    zipline_mount_scanner_.reset();
 }
 
 void NavigationStateMachine::StartPromptScanners()
@@ -1758,6 +1780,37 @@ void NavigationStateMachine::StartDeviceProbe()
         return;
     }
     device_recovery_.Start(base_roi);
+}
+
+// 导入的架子坐标跟脚下的面对不齐时, 严格到达要么迟迟收不拢要么把这条索直接放弃。提示是游戏
+// 自己说的「够得着」, 所以命中就放行到达判定; 判定圈之外的观测照样读掉, 免得跨进带内那一拍
+// 拿着旧观测开火。
+bool NavigationStateMachine::TryZiplineMountPrompt(const Waypoint& waypoint, const RouteTrackingState& route)
+{
+    if (waypoint.action != ActionType::ZIPLINE) {
+        zipline_mount_scanner_.reset(); // 链走完了, 别让它继续逐帧匹配
+        return false;
+    }
+    // 已经站在架子上时下一跳靠瞄准接上, 不再上索; 预筛这时既没用也该省下来
+    if (runtime_state_.semantic.zipline_mounted) {
+        return false;
+    }
+    if (zipline_mount_scanner_ == nullptr && maa_context_ != nullptr) {
+        PromptScanProfile profile;
+        if (!TryLoadPromptScanProfile(maa_context_, kZiplineMountScanNode, action_wrapper_->controller_type(), &profile)) {
+            LogWarn << "Zipline mount pre-filter not started; the chain stops on arrival instead." << VAR(kZiplineMountScanNode);
+            return false;
+        }
+        zipline_mount_scanner_ =
+            std::make_unique<RoiTemplateScanner>("zipline", profile.base_roi, profile.templ, profile.mask, profile.threshold);
+        LogInfo << "Zipline mount pre-filter started." << VAR(kZiplineMountScanNode) << VAR(profile.base_roi.x) << VAR(profile.base_roi.y)
+                << VAR(profile.threshold);
+    }
+    if (zipline_mount_scanner_ == nullptr) {
+        return false;
+    }
+    const bool flagged = zipline_mount_scanner_->ConsumeDetection();
+    return flagged && route.startup_motion_confirmed && route.waypoint_distance <= kPromptTriggerBandWu;
 }
 
 double NavigationStateMachine::NearestPromptDistanceSq() const

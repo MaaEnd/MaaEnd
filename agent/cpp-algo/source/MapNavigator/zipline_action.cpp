@@ -256,6 +256,11 @@ Result StartZiplineHop(
             return AbandonZipline(ctx, "zipline_no_context", "no pipeline context to recognize the mount prompt");
         }
         if (!PressMountPrompt(ctx.maa_context)) {
+            // 预筛叫停的这一次人还没走到, 认不出就是那个图标不属于滑索架: 当没发生, 接着走
+            if (ctx.runtime_state->semantic.zipline_prompt_probe) {
+                LogInfo << "Zipline mount pre-filter did not hold up; keeping the approach." << VAR(actual_distance);
+                return result;
+            }
             return AbandonZipline(ctx, "zipline_prompt_missing", "no mount prompt at the tower");
         }
         // 交互键已经发出去了, 从这里起就得当人可能已经站在架子上: 认错方向的代价是走不动路,
