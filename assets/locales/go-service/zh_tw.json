@@ -226,14 +226,7 @@
     "trialofswordmancy.recognition_failed": "選劍演武：識別失敗",
     "ims.sync_item_found": "識別到 %s：%d",
     "ims.add_item_found": "獲得 %s ×%d",
-    "ims.add_item_entry": "%s×%d",
-    "ims.add_item_summary": "已累加：%s",
-    "ims.add_item_reward_summary": "獲得：%s",
-    "ims.add_item_none": "IMS 未識別到可累加的物品",
-    "ims.quantity_ok": "%s：庫存 %d / 目標 %d（已達標）",
-    "ims.quantity_short": "%s：庫存 %d / 目標 %d（未達標）",
     "ims.expression_ok": "表達式成立：%s",
     "ims.expression_short": "表達式不成立：%s",
-    "ims.item_current": "目前 %s：%d",
-    "ims.add_item_skip_persist": "IMS 未初始化，已識別獎勵但不寫入快取"
+    "ims.item_current": "目前 %s：%d"
 }

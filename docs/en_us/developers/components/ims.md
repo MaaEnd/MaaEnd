@@ -16,7 +16,7 @@ Codes `A1` / `A2` / `A3` and `R1` / `R2` only reflect implementation order, not 
 
 On-disk path: `./debug/record/IMS.json` (relative to the run directory).
 
-Cache keys and recognition IDs use [IconRecognition](./icon-recognition.md) catalog top-level keys (for example `item_char_break_stage_1_2`). Display names prefer `iconRecognition.name.*` / `ims.item.*`.
+Cache keys and recognition IDs use [IconRecognition](./icon-recognition.md) catalog top-level keys (for example `item_char_break_stage_1_2`). Display names use `iconRecognition.name.*` only (interface locales, merged at go-service startup). Shop OCR writes `item_originium_recharge` (the pipeline node remains `ORIGEOMETRY_NUMBER`).
 
 ---
 
@@ -128,7 +128,7 @@ A3 uses the same path as A2 on the **rewards** UI (default `grid_type: rewards`,
 | Typical screen | Valuables (`valuables`) | Rewards popup (`rewards`) |
 | Establishes ready | Yes | No |
 
-If IMS was never initialized (`hasData=false`), A3 still recognizes and Focus-announces, skips cache write, and returns success so Pipeline can close the rewards UI.
+If IMS was never initialized (`hasData=false`), A3 still recognizes and Focus-announces, skips cache write, and returns success so Pipeline can close the rewards UI. An empty rewards grid (`no_match` / `grid_detection_failed`) and a failed disk hydrate are also success: A3 must not block the close-rewards next node. Per-item Focus only; no IMS init / summary lines.
 
 > Use `pre_wait_freezes` on the reward area before A3. Reference: `AddItemDataOnRewards` → `AddItemDataCloseRewards`.
 

@@ -226,14 +226,7 @@
     "trialofswordmancy.recognition_failed": "검술 연무: 인식 실패",
     "ims.sync_item_found": "%s 인식: %d",
     "ims.add_item_found": "%s 획득 ×%d",
-    "ims.add_item_entry": "%s×%d",
-    "ims.add_item_summary": "가산: %s",
-    "ims.add_item_reward_summary": "획득: %s",
-    "ims.add_item_none": "IMS: 가산할 아이템을 인식하지 못함",
-    "ims.quantity_ok": "%s: 재고 %d / 목표 %d (충족)",
-    "ims.quantity_short": "%s: 재고 %d / 목표 %d (부족)",
     "ims.expression_ok": "식 성립: %s",
     "ims.expression_short": "식 불성립: %s",
-    "ims.item_current": "현재 %s: %d",
-    "ims.add_item_skip_persist": "IMS 미초기화: 보상은 인식했지만 캐시는 갱신하지 않음"
+    "ims.item_current": "현재 %s: %d"
 }

@@ -226,14 +226,7 @@
     "trialofswordmancy.recognition_failed": "剣術演武：認識失敗",
     "ims.sync_item_found": "%s を認識：%d",
     "ims.add_item_found": "%s を獲得 ×%d",
-    "ims.add_item_entry": "%s×%d",
-    "ims.add_item_summary": "加算：%s",
-    "ims.add_item_reward_summary": "獲得：%s",
-    "ims.add_item_none": "IMS：加算できるアイテムを認識できませんでした",
-    "ims.quantity_ok": "%s：在庫 %d / 目標 %d（達成）",
-    "ims.quantity_short": "%s：在庫 %d / 目標 %d（不足）",
     "ims.expression_ok": "式が成立：%s",
     "ims.expression_short": "式が不成立：%s",
-    "ims.item_current": "現在 %s：%d",
-    "ims.add_item_skip_persist": "IMS 未初期化：報酬は認識しましたがキャッシュは更新しません"
+    "ims.item_current": "現在 %s：%d"
 }

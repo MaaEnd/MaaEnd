@@ -45,7 +45,9 @@ type addItemDataParam struct {
 // init / summary Focus is printed in either case.
 //
 // Finding no reward cards (IconRecognition no_match / grid_detection_failed)
-// is also success: A3 must not block the close-rewards next node.
+// is also success. A failed disk hydrate is treated like an uninitialized
+// cache: recognize and Focus, skip write, still return true. A3 must not
+// block the close-rewards next node.
 //
 // Best practice: run as the action of a node that recognizes CloseRewardsButton,
 // then next to a Click node that closes the rewards UI.
@@ -74,19 +76,21 @@ func (a *AddItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		gridType = iconqty.GridRewards
 	}
 
+	cacheReady := false
 	if err := ensureHydrated(); err != nil {
-		log.Error().
+		// A3 does not require a usable cache; a corrupt IMS.json must not
+		// block closing the rewards UI.
+		log.Warn().
 			Err(err).
 			Str("component", componentAddItemData).
-			Msg("failed to hydrate ims cache")
-		return false
-	}
-
-	cacheReady, _ := globalCache.snapshot()
-	if !cacheReady {
-		log.Info().
-			Str("component", componentAddItemData).
-			Msg("ims data not initialized, recognize and focus only, skip cache write")
+			Msg("failed to hydrate ims cache, recognize and focus only, skip cache write")
+	} else {
+		cacheReady, _ = globalCache.snapshot()
+		if !cacheReady {
+			log.Info().
+				Str("component", componentAddItemData).
+				Msg("ims data not initialized, recognize and focus only, skip cache write")
+		}
 	}
 
 	if ctx == nil {

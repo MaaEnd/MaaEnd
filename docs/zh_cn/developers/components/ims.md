@@ -150,7 +150,7 @@ A3 在**奖励播报界面**用与 A2 相同的路径：一次 IconRecognition�
 
 A3 与其它动作 / 识别器不同：**不要求 IMS 缓存已经存在**。
 
-若从未成功做过 A2（`hasData=false`），A3 仍会识别奖励，但**不写入缓存**，且动作仍返回成功，避免卡住关奖励等后续流程。命中物品时按件播报（如「获得 xxx ×n」），不提示「未初始化 / 不写入缓存」等 IMS 头尾信息，也不再播汇总。
+若从未成功做过 A2（`hasData=false`），A3 仍会识别奖励，但**不写入缓存**，且动作仍返回成功，避免卡住关奖励等后续流程。空奖励（IconRecognition `no_match` / `grid_detection_failed`）以及磁盘 hydrate 失败同样视为成功。命中物品时按件播报（如「获得 xxx ×n」），不提示「未初始化 / 不写入缓存」等 IMS 头尾信息，也不再播汇总。
 
 有缓存时同样按件播报；不叠 Pipeline Starting/Succeeded focus，也不播汇总句。
 
