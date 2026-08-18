@@ -53,7 +53,7 @@ IMS does **not** keep an item allowlist: whatever IconRecognition finds on scree
 | `deduplicate` | IconRecognition dedupe; A2 defaults to `true` |
 | `page_dedup` / `notify_ui` | Same semantics as before |
 
-Provide `grid_type` and/or `items`. Shop-only OCR entries may pass only `items` (e.g. `ORIGEOMETRY` / `item_diamond`). Keys in `items` always join `page_dedup=false` region rebuild (miss removes the ID).
+Provide `grid_type` and/or `items`. Shop-only OCR entries may pass only `items` (e.g. `item_originium_recharge` / `item_diamond`). Keys in `items` always join `page_dedup=false` region rebuild (miss removes the ID).
 
 Example (Progression tab):
 
@@ -188,7 +188,7 @@ Ready when (1) at least one successful A2 exists (`hasData=true`) and (2) `updat
 | `agent/go-service/pkg/iconqty/` | Shared A2/A3: IconRecognition scan + `cell_box` quantity OCR |
 | `assets/data/IconRecognition/recognition_items.json` | IconRecognition catalog; A2 region rebuild expands `item_filters` |
 | `assets/resource/pipeline/IMS/` | Pipeline entries |
-| `assets/resource/pipeline/IMS/item/` | OCR-only nodes (`item_gold` / `item_diamond` / `ORIGEOMETRY`) |
+| `assets/resource/pipeline/IMS/item/` | OCR-only nodes (`item_gold` / `item_diamond` / `ORIGEOMETRY.json`) |
 | [IconRecognition](./icon-recognition.md) | Icon matching and `iconRecognition.name.*` |
 
 On-disk example:

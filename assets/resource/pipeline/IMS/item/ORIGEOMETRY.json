@@ -1,6 +1,6 @@
 {
     "ORIGEOMETRY_NUMBER": {
-        "desc": "衍质源石（纯数字）",
+        "desc": "衍质源石数量（采购中心顶部；缓存键 item_originium_recharge）",
         "recognition": {
             "type": "And",
             "param": {

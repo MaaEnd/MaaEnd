@@ -12,6 +12,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/iconrecognition"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/pienv"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
+	"github.com/rs/zerolog/log"
 )
 
 const (
@@ -36,6 +37,11 @@ type Request struct {
 	ItemFilters []string
 	ItemIDs     []string
 	Deduplicate bool
+	// TolerateEmptyGrid treats grid_detection_failed as "no items" instead of
+	// a hard error. A3 (rewards add) sets this so an empty popup cannot block
+	// closing the rewards UI. A2 (depot sync) leaves it false: a missing grid
+	// usually means the wrong screen.
+	TolerateEmptyGrid bool
 }
 
 func isADBController() bool {
@@ -161,13 +167,47 @@ func recognizeIcons(ctx *maa.Context, img image.Image, req Request) ([]iconrecog
 	}
 	parsed, _, err := iconrecognition.ParseRecognitionDetail(detail)
 	if err != nil {
+		if req.TolerateEmptyGrid && (detail == nil || !detail.Hit) {
+			log.Info().
+				Err(err).
+				Str("component", "iconqty").
+				Str("grid_type", gridType).
+				Msg("unmatched IconRecognition without parseable detail, treat as empty")
+			return nil, nil
+		}
 		return nil, err
 	}
-	if parsed.Error != nil && parsed.Error.Code != "" && parsed.Error.Code != iconrecognition.ErrorCodeNoMatch {
-		return nil, fmt.Errorf("IconRecognition %s: %s", parsed.Error.Code, parsed.Error.Message)
-	}
-	if !parsed.Matched || len(parsed.Matches) == 0 {
+	if empty, hardErr := emptyMatches(parsed, req.TolerateEmptyGrid); hardErr != nil {
+		return nil, hardErr
+	} else if empty {
 		return nil, nil
 	}
 	return parsed.Matches, nil
+}
+
+// emptyMatches reports whether IconRecognition returned no usable items.
+// no_match is always empty. grid_detection_failed is empty only when
+// tolerateEmptyGrid is set (A3). Other structured errors stay hard failures.
+func emptyMatches(parsed iconrecognition.Detail, tolerateEmptyGrid bool) (empty bool, err error) {
+	code := iconrecognition.ErrorCode("")
+	message := ""
+	if parsed.Error != nil {
+		code = parsed.Error.Code
+		message = parsed.Error.Message
+	}
+	if code != "" && code != iconrecognition.ErrorCodeNoMatch {
+		if tolerateEmptyGrid && code == iconrecognition.ErrorCodeGridDetectionFailed {
+			log.Info().
+				Str("component", "iconqty").
+				Str("error_code", string(code)).
+				Str("message", message).
+				Msg("grid detection found no cells, treat as empty")
+			return true, nil
+		}
+		return false, fmt.Errorf("IconRecognition %s: %s", code, message)
+	}
+	if !parsed.Matched || len(parsed.Matches) == 0 {
+		return true, nil
+	}
+	return false, nil
 }

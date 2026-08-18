@@ -44,6 +44,9 @@ type addItemDataParam struct {
 // success so Pipeline can continue (e.g. closing the rewards UI). No IMS
 // init / summary Focus is printed in either case.
 //
+// Finding no reward cards (IconRecognition no_match / grid_detection_failed)
+// is also success: A3 must not block the close-rewards next node.
+//
 // Best practice: run as the action of a node that recognizes CloseRewardsButton,
 // then next to a Click node that closes the rewards UI.
 type AddItemData struct{}
@@ -124,11 +127,12 @@ func (a *AddItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	}
 
 	hits, err := iconqty.RecognizeQuantities(ctx, img, iconqty.Request{
-		GridType:    gridType,
-		ROI:         params.ROI,
-		ItemFilters: scanFilters,
-		ItemIDs:     scanIDs,
-		Deduplicate: false,
+		GridType:          gridType,
+		ROI:               params.ROI,
+		ItemFilters:       scanFilters,
+		ItemIDs:           scanIDs,
+		Deduplicate:       false,
+		TolerateEmptyGrid: true,
 	})
 	if err != nil {
 		log.Error().

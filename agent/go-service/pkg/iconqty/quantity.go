@@ -134,16 +134,18 @@ func RecognizeQuantityInROI(ctx *maa.Context, img image.Image, roi maa.Rect) (in
 	return qty, true, nil
 }
 
-// ItemDisplayName resolves a localized display name for an IconRecognition item ID.
+// ItemDisplayName resolves a localized display name from IconRecognition i18n
+// (iconRecognition.name.<id> in interface locales). Missing names fall back to the
+// original item ID.
 func ItemDisplayName(itemID string) string {
-	for _, key := range []string{
-		"iconRecognition.name." + itemID,
-		"ims.item." + itemID,
-	} {
-		name := i18n.T(key)
-		if name != key && strings.TrimSpace(name) != "" {
-			return name
-		}
+	original := strings.TrimSpace(itemID)
+	if original == "" {
+		return itemID
 	}
-	return itemID
+	key := "iconRecognition.name." + original
+	name := i18n.T(key)
+	if name != key && strings.TrimSpace(name) != "" {
+		return name
+	}
+	return original
 }

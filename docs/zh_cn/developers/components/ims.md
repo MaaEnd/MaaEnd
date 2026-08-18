@@ -55,7 +55,7 @@ A2 负责「看一眼当前界面，把物品数量记下来」。业务侧**不
 | `deduplicate` | IconRecognition 去重；A2 默认 `true` |
 | `page_dedup` / `notify_ui` | 语义同前 |
 
-提供 `grid_type`（IconRecognition 扫库）与 `items` 至少其一。采购中心等可只传 `items`（如 `ORIGEOMETRY` / `item_diamond`）。`items` 里的键在 `page_dedup=false` 时一律参与地区重建（未命中则从缓存删除）。
+提供 `grid_type`（IconRecognition 扫库）与 `items` 至少其一。采购中心等可只传 `items`（如 `item_originium_recharge` / `item_diamond`）。`items` 里的键在 `page_dedup=false` 时一律参与地区重建（未命中则从缓存删除）。
 
 示例（培养素材页）：
 
@@ -296,7 +296,7 @@ A2 落盘时会写下 `updated_at`。R2 用「现在 − 同步时间」是否�
 | `agent/go-service/pkg/iconqty/` | A2/A3 共用：IconRecognition 扫格 + `cell_box` 数量 OCR |
 | `assets/data/IconRecognition/recognition_items.json` | IconRecognition 物品 catalog；A2 地区重建按 `item_filters` 展开 |
 | `assets/resource/pipeline/IMS/` | Pipeline（按接口分文件） |
-| `assets/resource/pipeline/IMS/item/` | 定点 OCR 节点（如 `item_gold` / `item_diamond` / `ORIGEOMETRY`） |
+| `assets/resource/pipeline/IMS/item/` | 定点 OCR 节点（如 `item_gold` / `item_diamond` / `ORIGEOMETRY.json`） |
 | `tools/schema/components/ims.schema.json` | 参数 JSON Schema |
 | [`IconRecognition`](./icon-recognition.md) | 图标识别与多语言名 `iconRecognition.name.*` |
 
@@ -309,7 +309,7 @@ A2 落盘时会写下 `updated_at`。R2 用「现在 − 同步时间」是否�
 | `AddItemData.json` | A3 最佳实践（领奖后关闭） |
 | `ItemQuantitySatisfied.json` | R1（调用方覆盖 `expression`） |
 | `ItemDataReady.json` | R2 + `EnsureItemDataReady*` |
-| `item/*.json` | 定点 OCR（`item_gold` / `item_diamond` / `ORIGEOMETRY`） |
+| `item/*.json` | 定点 OCR（`item_gold` / `item_diamond` / `item_originium_recharge`） |
 
 ### 缓存约定
 
