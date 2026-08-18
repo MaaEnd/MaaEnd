@@ -74,7 +74,7 @@
                 "PostStop",
                 "PullCountCalculatorAction",
                 "PuzzleAction",
-                "SeizeDeliveryJobsDepartureAction",
+                "SeizeDeliveryJobsResolveDestinationAction",
                 "SeizeDeliveryJobsResetScanStateAction",
                 "SeizeDeliveryJobsScanTargetAction",
                 "SellProductLocationPlan",
