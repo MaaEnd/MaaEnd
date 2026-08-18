@@ -30,7 +30,7 @@ test("metadata-only entries remain unadapted", () => {
     ]);
 });
 
-test("an EnterMap route without map or navigation fields takes photos directly", () => {
+test("an EnterMap route without navigation fields takes photos directly", () => {
     const route = {
         MissionId: mission.missionId,
         Name: "测试观察点",
@@ -60,25 +60,7 @@ test("a QuickTeleport route can take photos directly without EnterMap", () => {
     assert.deepEqual(result.missingFields, []);
 });
 
-test("MapAssert without a navigation field is incomplete rather than direct-photo", () => {
-    const missingFields = collectMissingRouteFields({
-        EnterMap: "SceneEnterWorldTest",
-        MapAssert: [
-            0,
-            0,
-            10,
-            10,
-        ],
-        CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",
-    });
-
-    assert.deepEqual(missingFields, [
-        "MapName",
-        "MapPath/MapTarget/MapGoal",
-    ]);
-});
-
-test("direct-photo routes support Heading without map configuration", () => {
+test("direct-photo routes support Heading without navigation configuration", () => {
     const result = resolve({
         MissionId: mission.missionId,
         Name: "测试观察点",
@@ -90,18 +72,43 @@ test("direct-photo routes support Heading without map configuration", () => {
 
     assert.equal(result.isAdapted, true);
     assert.equal(result.IsDirectPhoto, true);
-    assert.equal(result.RouteAction, "MapTrackerToward");
-    assert.deepEqual(result.RouteActionParam, {angle: 90});
+    assert.equal(result.RouteAction, "MapNavigateAction");
+    assert.deepEqual(result.RouteActionParam, {
+        path: [
+            {
+                action: "HEADING",
+                angle: 90,
+            },
+        ],
+    });
 });
 
-test("direct-photo routes reject unused map fields", () => {
-    const missingFields = collectMissingRouteFields({
+test("removed map shorthand fields no longer count as a route", () => {
+    // MapTarget 简写已移除：只带旧字段的条目按直拍处理，旧字段被忽略。
+    const result = resolve({
+        MissionId: mission.missionId,
+        Name: "测试观察点",
+        Id: "TestMission",
         EnterMap: "SceneEnterWorldTest",
         MapName: "map02_lv001",
+        MapTarget: [
+            5,
+            5,
+        ],
         CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",
     });
 
-    assert.deepEqual(missingFields, ["传送后直拍不应配置 MapName"]);
+    assert.equal(result.isAdapted, true);
+    assert.equal(result.IsDirectPhoto, true);
+    assert.deepEqual(result.missingFields, []);
+    assert.deepEqual(result.RouteActionParam, {
+        path: [
+            {
+                action: "HEADING",
+                angle: 0,
+            },
+        ],
+    });
 });
 
 test("Nav route fields render MapLocateAssertLocation + MapNavigateAction", () => {
@@ -210,36 +217,6 @@ test("QuickTeleport Nav routes only require NavPath", () => {
     assert.deepEqual(result.missingFields, []);
 });
 
-test("Nav route fields cannot be mixed with the map route fields", () => {
-    const missingFields = collectMissingRouteFields({
-        MissionId: mission.missionId,
-        Name: "测试观察点",
-        Id: "TestMission",
-        EnterMap: "SceneEnterWorldTest",
-        MapName: "map02_lv001",
-        MapGoal: [
-            5,
-            5,
-        ],
-        NavZoneId: "Wuling_Base",
-        NavAssert: [
-            0,
-            0,
-            10,
-            10,
-        ],
-        NavPath: [
-            [
-                5,
-                5,
-            ],
-        ],
-        CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",
-    });
-
-    assert.deepEqual(missingFields, ["NavPath 路线不应配置 MapName/MapGoal"]);
-});
-
 test("incomplete Nav route fields are reported", () => {
     const missingFields = collectMissingRouteFields({
         MissionId: mission.missionId,
@@ -259,61 +236,11 @@ test("incomplete Nav route fields are reported", () => {
     assert.deepEqual(missingFields, ["NavZoneId/NavAssert/NavPath 必须同时配置"]);
 });
 
-test("existing navigation forms remain adapted", () => {
-    const result = resolve({
-        MissionId: mission.missionId,
-        Name: "测试观察点",
-        Id: "TestMission",
-        EnterMap: "SceneEnterWorldTest",
-        MapName: "map02_lv001",
-        MapAssert: [
-            0,
-            0,
-            10,
-            10,
-        ],
-        MapPath: [
-            [
-                5,
-                5,
-            ],
-        ],
-        CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",
-    });
-
-    assert.equal(result.isAdapted, true);
-    assert.equal(result.IsDirectPhoto, false);
-    assert.deepEqual(result.missingFields, []);
-});
-
-test("QuickTeleport MapPath routes can skip MapAssert", () => {
-    const result = resolve({
-        MissionId: mission.missionId,
-        Name: "测试观察点",
-        Id: "TestMission",
-        QuickTeleport: true,
-        MapName: "map02_lv001",
-        MapPath: [
-            [
-                5,
-                5,
-            ],
-        ],
-        CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",
-    });
-
-    assert.equal(result.isAdapted, true);
-    assert.equal(result.IsDirectPhoto, false);
-    assert.equal(result.ShouldAssertAfterTeleport, false);
-    assert.equal(result.RouteAction, "MapTrackerMove");
-    assert.deepEqual(result.missingFields, []);
-});
-
-test("non-QuickTeleport MapPath routes still require MapAssert", () => {
+test("QuickTeleport Nav routes with a partial assert still require the full set", () => {
     const missingFields = collectMissingRouteFields({
-        EnterMap: "SceneEnterWorldTest",
-        MapName: "map02_lv001",
-        MapPath: [
+        QuickTeleport: true,
+        NavZoneId: "Wuling_Base",
+        NavPath: [
             [
                 5,
                 5,
@@ -322,31 +249,5 @@ test("non-QuickTeleport MapPath routes still require MapAssert", () => {
         CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",
     });
 
-    assert.deepEqual(missingFields, ["MapAssert"]);
-});
-
-test("non-QuickTeleport MapGoal routes still skip the post-teleport assertion", () => {
-    const result = resolve({
-        MissionId: mission.missionId,
-        Name: "测试观察点",
-        Id: "TestMission",
-        EnterMap: "SceneEnterWorldTest",
-        MapName: "map02_lv001",
-        MapAssert: [
-            0,
-            0,
-            10,
-            10,
-        ],
-        MapGoal: [
-            5,
-            5,
-        ],
-        CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",
-    });
-
-    assert.equal(result.isAdapted, true);
-    assert.equal(result.ShouldAssertAfterTeleport, false);
-    assert.equal(result.RouteAction, "MapTrackerGoal");
-    assert.deepEqual(result.missingFields, []);
+    assert.deepEqual(missingFields, ["NavZoneId/NavAssert/NavPath 必须同时配置"]);
 });

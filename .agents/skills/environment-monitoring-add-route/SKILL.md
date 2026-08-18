@@ -61,7 +61,7 @@ argument-hint: "可选：观察点名称，以及录制好的 EnterMap、NavZone
 | `NavPath`  | MapNavigator `path` 数组 | `MapNavigateAction` | 普通可通行路线；普通传送配置 `NavZoneId` / `NavAssert`，快捷传送可从固定落点直接开始 |
 | 传送后直拍 | 不配置地图字段           | 可选转向后拍照      | 传送落点已经满足拍照条件；可配置 `Heading`，但不配置地图断言或寻路字段               |
 
-`MapName` / `MapAssert` / `MapTarget` / `MapTargetTier` / `MapTargetDeckY` 是单目标点的简写，只为存量路线保留，新增或改写路线一律用 `NavPath`。寻路只适合普通可通行路线，不负责战斗、剧情、过图、机关或交互。传送后直拍必须经过游戏实测确认；不能因为缺少路线数据就把未适配条目写成直拍。遇到这些情况不要用更多重试或硬延迟掩盖，应保留未适配状态或重新设计真实可通行路线。
+寻路只适合普通可通行路线，不负责战斗、剧情、过图、机关或交互。传送后直拍必须经过游戏实测确认；不能因为缺少路线数据就把未适配条目写成直拍。遇到这些情况不要用更多重试或硬延迟掩盖，应保留未适配状态或重新设计真实可通行路线。
 
 仅含 `NAVMESH` 的 `NavPath` 不需要前置 `ZONE`：运行时会从 MapLocator 当前定位自动确定起点区域。`ZONE` 只为后续手录坐标点声明和校验分区；多分区或过图路径应保留录制工具导出的 `ZONE`，不要擅自删改。
 
@@ -134,8 +134,7 @@ node .agents/skills/environment-monitoring-add-route/check_missing.mjs
 - 严格 JSON：双引号、无注释、无尾随逗号、4 空格缩进；
 - `NavPath` 的每个坐标对和动作对象按项目 Prettier 规则展开；
 - 寻路路线配置 `NavPath`；普通传送同时配置 `NavZoneId` / `NavAssert`，快捷传送可省略二者；
-- 切换到 `NavPath` 时删除简写形式的 `MapName`、`MapAssert`、`MapTarget`、`MapTargetTier` 和 `MapTargetDeckY`；
-- 传送后直拍不增加开关字段，删除全部新旧地图断言与寻路字段；按实测结果可保留 `Heading`；
+- 传送后直拍不增加开关字段，不配置任何地图断言与寻路字段；按实测结果可保留 `Heading`；
 - 终点落在重叠可走面上时必须在对应 `NAVMESH` 动作标 `target_deck_y`，数值从工具读、不要手估；作者点不得压成单个 NAVMESH 目标，需要逐段；
 - 默认值不写：`CameraMaxHit: 2`、`QuickTeleport: false`；
 - 不确定的可选值直接省略，不写占位值或 TODO 注释；

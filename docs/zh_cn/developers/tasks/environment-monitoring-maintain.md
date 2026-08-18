@@ -172,8 +172,7 @@ MysteriousCryptidGraffiti         → 谜之生物的涂鸦
 | `GoToMonitoringTerminal` | 由 `Station` 决定 |
 | `EnterMap` | `routes.json[*].EnterMap`，默认传送入口；可填写任意已定义、能作为 SubTask 正常返回的 Pipeline 节点名，不限制名称前缀；启用 `QuickTeleport` 时不会使用，可省略 |
 | `QuickTeleport` | `routes.json[*].QuickTeleport`，可选布尔值，默认 `false`；启用后从追踪任务地图依次点击“前往传送”和“传送”，不调用 `EnterMap` |
-| `NavZoneId` / `NavAssert` / `NavPath` | `routes.json[*]`，寻路路线的默认写法；`NavPath` 必填，普通传送还需 `NavZoneId` / `NavAssert`，生成 `MapLocateAssertLocation` + `MapNavigateAction`（`Heading` 会追加 `HEADING` 动作）；配置后不再填写下面那组简写字段，路线自己接管传送落点，传送后不再复核起点 |
-| `MapName` / `MapAssert` / `MapTarget` / `MapTargetTier` / `MapTargetDeckY` | `routes.json[*]`，单目标点的简写，同样生成 `MapLocateAssertLocation` + `MapNavigateAction` 的 `NAVMESH` 目标点，`MapTargetTier` 可选生成 `target_tier`，`MapTargetDeckY` 可选生成 `target_deck_y`；新增路线直接用上面的 `NavPath` 写法 |
+| `NavZoneId` / `NavAssert` / `NavPath` | `routes.json[*]`，寻路路线的写法；`NavPath` 必填，普通传送还需 `NavZoneId` / `NavAssert`，生成 `MapLocateAssertLocation` + `MapNavigateAction`（`Heading` 会追加 `HEADING` 动作）；路线自己接管传送落点，传送后不再复核起点 |
 | `CameraSwipeDirection` | `routes.json[*]`，必须是 `EnvironmentMonitoringSwipeScreen{Up/Down/Left/Right}` 之一 |
 | `CameraMaxHit` | `routes.json[*].CameraMaxHit`，缺省为 `2`；对应 `${Id}AdjustCamera` 滑屏动作的最大命中次数 |
 | `OcrReplace` | 由 `routes.json[*].Replace` 透传到 `Check${Id}Text.replace` 与 `In${Id}Mission.replace`；用于按任务配置任务列表和任务详情页 OCR 的易混字符替换，不影响路线是否已适配的判断 |
@@ -228,8 +227,8 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 
 观察点的寻路统一交给 MapNavigator：
 
-- `MapLocateAssertLocation`（识别）：根据当前小地图判断是否在 `NavAssert` / `MapAssert` 矩形内，普通传送路线用它决定要不要调用 `EnterMap`；`QuickTeleport` 从固定传送落点直接开始寻路，不进入该节点，可省略 `NavZoneId` / `NavAssert`。
-- `MapNavigateAction`（动作）：`NavPath` 原样作为它的 path，其中 `NAVMESH` 航点可按需携带 `target_tier` / `target_deck_y`；断言坐标取 `NavZoneId` 分区。`MapTarget` 简写会生成一个 `NAVMESH` 动作，`MapTargetTier` / `MapTargetDeckY` 分别透传为 `target_tier` / `target_deck_y`。两种写法传送后都直接进入寻路动作，不再复核起点。
+- `MapLocateAssertLocation`（识别）：根据当前小地图判断是否在 `NavAssert` 矩形内，普通传送路线用它决定要不要调用 `EnterMap`；`QuickTeleport` 从固定传送落点直接开始寻路，不进入该节点，可省略 `NavZoneId` / `NavAssert`。
+- `MapNavigateAction`（动作）：`NavPath` 原样作为它的 path，其中 `NAVMESH` 航点可按需携带 `target_tier` / `target_deck_y`；断言坐标取 `NavZoneId` 分区。传送后直接进入寻路动作，不再复核起点。
 - `${Id}TakePhoto`（包装节点）：为寻路和直拍路线统一设置 `EnvironmentMonitoringBackToTerminal` / `EnvironmentMonitoringAdjustCamera` anchor，再进入公共拍照流程。
 - 传送后直拍不执行寻路，配置 `Heading` 时生成一条只含 `HEADING` 动作的 `MapNavigateAction`，原地调整角色朝向再拍照。
 
@@ -246,13 +245,12 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 所有完整适配条目都需要元数据、`CameraSwipeDirection`，以及 `EnterMap` / `QuickTeleport: true` 中的一种传送入口。不同路线类型的字段组合如下：
 
 | 类型 | 地图与路线字段 | 断言矩形 | 运行行为 |
-| ----------------------------- | ------------------------------------------------------------------------------------------ | --------------------------- | ------------------------------------------ |
+| ----------------------------- | --------------------------------------------------------------- | --------------------------- | ------------------------------------------ |
 | metadata-only | 仅 `MissionId` / `Name` / `Id` | 不填 | 仅接取并追踪，不传送或拍照 |
 | 传送后直拍 | 不填任何地图和寻路字段；可选 `Heading` | 不填 | 传送 →（可选原地调整朝向）→ 拍照 |
-| 寻路（推荐写法） | `NavPath`；普通传送再加 `NavZoneId`，可选 `Heading` | `NavAssert`，快捷传送可省略 | `MapNavigateAction` 寻路 → 拍照 |
-| `MapTarget`（简写） | `MapName` + `MapTarget`；跨层时可加 `MapTargetTier`，目标点有重叠面时可加 `MapTargetDeckY` | `MapAssert`，快捷传送可省略 | `MapNavigateAction` 的 NAVMESH 寻路 → 拍照 |
+| 寻路 | `NavPath`；普通传送再加 `NavZoneId`，可选 `Heading` | `NavAssert`，快捷传送可省略 | `MapNavigateAction` 寻路 → 拍照 |
 
-`CameraMaxHit` 和 `Replace` 适用于所有已适配路线，不改变路线类型。直拍配置只能用于已经游戏实测确认的传送落点；缺少路线数据时继续保留 metadata-only 状态。新增寻路路线一律用 `NavPath`，普通传送再补 `NavZoneId` / `NavAssert`。
+`CameraMaxHit` 和 `Replace` 适用于所有已适配路线，不改变路线类型。直拍配置只能用于已经游戏实测确认的传送落点；缺少路线数据时继续保留 metadata-only 状态。寻路路线一律用 `NavPath`，普通传送再补 `NavZoneId` / `NavAssert`。
 
 ### 主菜单入口
 
@@ -317,7 +315,7 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 }
 ```
 
-直拍条目不要填写任何地图断言和寻路字段（`NavZoneId` / `NavAssert` / `NavPath`，以及简写形式的 `MapName` / `MapAssert` / `MapTarget` / `MapTargetTier` / `MapTargetDeckY`）。可按实测结果配置 `Heading`，生成器会在传送后先原地调整朝向，再进入拍照流程。生成器根据“传送入口与拍照方向完整，同时没有地图断言和寻路配置”识别直拍模式。仅含 `MissionId` / `Name` / `Id` 的 metadata-only 条目仍然属于未适配。
+直拍条目不要填写任何地图断言和寻路字段（`NavZoneId` / `NavAssert` / `NavPath`）。可按实测结果配置 `Heading`，生成器会在传送后先原地调整朝向，再进入拍照流程。生成器根据“传送入口与拍照方向完整，同时没有地图断言和寻路配置”识别直拍模式。仅含 `MissionId` / `Name` / `Id` 的 metadata-only 条目仍然属于未适配。
 
 > [!IMPORTANT]
 >

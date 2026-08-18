@@ -247,7 +247,6 @@ class MapNavigatorApp {
             astarZoneCombo: $("astar-zone-combo"),
             btnClearAstar: $("btn-clear-astar"),
             btnCopyNavmesh: $("btn-copy-navmesh"),
-            navmeshCopyFormat: $("navmesh-copy-format"),
             loadProgress: $("load-progress"),
             loadProgressBar: $("load-progress-bar"),
             loadProgressLabel: $("load-progress-label"),
@@ -662,7 +661,6 @@ class MapNavigatorApp {
         e.astarZoneCombo.addEventListener("change", () => this._onAstarZoneChanged());
         e.btnClearAstar.addEventListener("click", () => this._onClearAstar());
         e.btnCopyNavmesh.addEventListener("click", () => this._copyNavmesh());
-        e.navmeshCopyFormat.addEventListener("change", () => this._syncCopyButtonLabels());
         e.btnAssertLocate.addEventListener("click", () => this._onLocateCurrentPosition("assert"));
         e.btnAstarLocate.addEventListener("click", () => this._onLocateCurrentPosition("astar"));
         e.btnAstarMarkCoord.addEventListener("click", () => this._onAstarMarkCoord());
@@ -2561,8 +2559,7 @@ class MapNavigatorApp {
 
     /** Keep each copy button's label aligned with its selected output format. @returns {void} */
     _syncCopyButtonLabels() {
-        this.els.btnCopyNavmesh.textContent =
-            this.els.navmeshCopyFormat.value === COPY_FORMAT_COORDINATES ? "复制坐标" : "复制 JSON 配置";
+        this.els.btnCopyNavmesh.textContent = "复制 JSON 配置";
         this.els.btnCopyAssert.textContent =
             this.els.assertCopyFormat.value === COPY_FORMAT_COORDINATES ? "复制坐标" : "复制断言 JSON";
     }
@@ -2583,7 +2580,7 @@ class MapNavigatorApp {
         }
     }
 
-    /** Export the assert rect as a full node or a routes.json MapAssert coordinate array. @returns {Promise<void>} */
+    /** Export the assert rect as a full node or a routes.json NavAssert coordinate array. @returns {Promise<void>} */
     async _copyAssert() {
         const zoneId = this._displayZoneId();
         if (!zoneId) {
@@ -2598,7 +2595,7 @@ class MapNavigatorApp {
         try {
             if (this.els.assertCopyFormat.value === COPY_FORMAT_COORDINATES) {
                 await this._copyText(JSON.stringify(target, null, 4));
-                setStatus(`环境监测 MapAssert 坐标已复制: [${target.join(", ")}]`, "#10b981");
+                setStatus(`环境监测 NavAssert 坐标已复制: [${target.join(", ")}]`, "#10b981");
                 return;
             }
             const result = await exportAssert(zoneId, target);
@@ -2613,9 +2610,7 @@ class MapNavigatorApp {
     /**
      * Copy the A* waypoints (all clicked points after the start, in base px) as
      * NAVMESH action payloads — a single object for one target, an array for a
-     * multi-leg route. Coordinate-only output copies the final target for an
-     * EnvironmentMonitoring routes.json `MapTarget`. With no route planned, falls
-     * back to the locate hint.
+     * multi-leg route. With no route planned, falls back to the locate hint.
      * @returns {Promise<void>}
      */
     async _copyNavmesh() {
@@ -2655,17 +2650,10 @@ class MapNavigatorApp {
                 if (this.hintDeck !== null) {
                     payload.target_deck_y = this.hintDeck;
                 }
-                const coordinatesOnly = this.els.navmeshCopyFormat.value === COPY_FORMAT_COORDINATES;
-                await this._copyText(JSON.stringify(coordinatesOnly ? payload.target : payload, null, 4));
-                const tierField = coordinatesOnly ? "MapTargetTier" : "target_tier";
-                const tierNote = tierName ? ` ${tierField}=${tierName}` : "";
-                // 只复制坐标时 deck 落不进剪贴板(它是 routes.json 的另一个键), 所以念给开发者抄。
-                const deckNote =
-                    this.hintDeck === null
-                        ? ""
-                        : ` ${coordinatesOnly ? "MapTargetDeckY" : "target_deck_y"}=${this.hintDeck.toFixed(2)}`;
+                await this._copyText(JSON.stringify(payload, null, 4));
+                const tierNote = tierName ? ` target_tier=${tierName}` : "";
                 setStatus(
-                    `${coordinatesOnly ? "环境监测 MapTarget 坐标" : "NAVMESH 目标"}已复制: zone=${zoneId} target=[${payload.target[0]}, ${payload.target[1]}]${tierNote}${deckNote}`,
+                    `NAVMESH 目标已复制: zone=${zoneId} target=[${payload.target[0]}, ${payload.target[1]}]${tierNote}`,
                     "#10b981",
                 );
                 return;
@@ -2703,18 +2691,7 @@ class MapNavigatorApp {
             targets.push(payload);
         }
 
-        if (this.els.navmeshCopyFormat.value === COPY_FORMAT_COORDINATES) {
-            const target = targets[targets.length - 1];
-            await this._copyText(JSON.stringify(target.target, null, 4));
-            const tierNote = tierName ? ` MapTargetTier=${tierName}` : "";
-            // 只复制坐标时 deck 落不进剪贴板(它是 routes.json 的另一个键), 所以念给开发者抄。
-            const deckNote =
-                target.target_deck_y === undefined ? "" : ` MapTargetDeckY=${target.target_deck_y.toFixed(2)}`;
-            setStatus(
-                `环境监测 MapTarget 坐标已复制: [${target.target[0]}, ${target.target[1]}]${tierNote}${deckNote}`,
-                "#10b981",
-            );
-        } else if (targets.length === 1) {
+        if (targets.length === 1) {
             await this._copyText(JSON.stringify(targets[0], null, 4));
             const tierNote = tierName ? ` target_tier=${tierName}` : "";
             setStatus(
