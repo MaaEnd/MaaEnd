@@ -35,7 +35,7 @@ The core maintenance points for EnvironmentMonitoring are as follows:
 | Generator Config | `tools/pipeline-generate/EnvironmentMonitoring/generator/config.json` | Single observation point output configuration: `outputPattern: "${Station}/${Id}.json"` |
 | Terminal Generator Config | `tools/pipeline-generate/EnvironmentMonitoring/generator/terminals-config.json` | Terminal output configuration merged into a single file: `outputFile: "Terminals.json"` |
 | Multilingual Text | `assets/locales/interface/*.json` | `task.EnvironmentMonitoring.*` label / description (task-level; observation point names use OCR) |
-| Common Component Dependencies | `agent/go-service/maptracker/` / `3rdparty/maa-copilot` | Navigation uses `MapLocateAssertLocation` + `MapNavigateAction`; a small number of legacy routes still use the previous implementation (see [map-locator.md](../components/map-locator.md), [map-navigator.md](../components/map-navigator.md), and [map-tracker.md](../components/map-tracker.md)) |
+| Common Component Dependencies | `agent/cpp-algo/source/MapLocator/`, `agent/cpp-algo/source/MapNavigator/` | Localization and navigation use `MapLocateAssertLocation` + `MapNavigateAction` (see [map-locator.md](../components/map-locator.md) and [map-navigator.md](../components/map-navigator.md)) |
 | Scene Transition Dependencies | `assets/resource/pipeline/SceneManager/`、`Interface/` | `SceneEnterWorldWuling*`, `SceneEnterMenuRegionalDevelopmentWulingEnvironmentMonitoring` (see details in [scene-manager.md](../scene-manager.md)) |
 
 ## Main Flow
@@ -75,8 +75,8 @@ The internal chain for each observation point `{Id}Job` (rendered by `template.j
                        └─ Photo at teleport point
                             └─ GoTo{Id}NotAtStartPos → SubTask: ${EnterMap}
                                  ├─ No Heading → {Id}TakePhoto
-                                 └─ Heading set → GoTo{Id}Move (MapTrackerToward)
-GoTo{Id}Move                         (Navigation, or MapTrackerToward for direct-photo Heading)
+                                 └─ Heading set → GoTo{Id}Move (heading-only turn)
+GoTo{Id}Move                         (MapNavigateAction; heading-only action for direct-photo Heading)
   └─ {Id}TakePhoto
        ├─ anchor: EnvironmentMonitoringBackToTerminal → ${GoToMonitoringTerminal}
        ├─ anchor: EnvironmentMonitoringAdjustCamera   → ${Id}AdjustCamera
@@ -160,16 +160,14 @@ The default export of `data.mjs` is an array, where each element = the rendering
 | `Name` | Comes from the Chinese name in `environment_monitoring.json`; `MissionId` is only used by `model.mjs` to match `routes.json` and is not passed to the template |
 | `GoToMonitoringTerminal` | Determined by `Station` |
 | `EnterMap` | `routes.json[*].EnterMap`; any defined Pipeline node name is allowed, without a required prefix, as long as the node can complete and return normally when run as a SubTask |
-| `NavZoneId` / `NavAssert` / `NavPath` | The preferred route form in `routes.json[*]`. `NavPath` is required; regular teleports also require `NavZoneId` / `NavAssert`, while `QuickTeleport` may omit both. Generates `MapLocateAssertLocation` + `MapNavigateAction`; `Heading` appends a `HEADING` action. Do not combine these fields with the legacy map fields below. |
-| `MapName` / `MapAssert` / `MapTarget` / `MapTargetTier` / `MapTargetDeckY` | Legacy single-target shorthand. Generates `MapLocateAssertLocation` + a `MapNavigateAction` `NAVMESH` target; `MapTargetTier` and `MapTargetDeckY` optionally become `target_tier` and `target_deck_y`. Use the preferred form above for new routes. |
-| `MapPath` / `MapGoal` | Legacy route fields retained only for routes that have not yet been migrated. Do not use them for new routes. |
+| `NavZoneId` / `NavAssert` / `NavPath` | The route form in `routes.json[*]`. `NavPath` is required; regular teleports also require `NavZoneId` / `NavAssert`, while `QuickTeleport` may omit both. Generates `MapLocateAssertLocation` + `MapNavigateAction`; `Heading` appends a `HEADING` action. |
 | `CameraSwipeDirection` | `routes.json[*]`, must be one of `EnvironmentMonitoringSwipeScreen{Up/Down/Left/Right}` |
 | `CameraMaxHit` | `routes.json[*].CameraMaxHit`, defaults to `2`; corresponds to the maximum hit count for the `${Id}AdjustCamera` swipe action |
 | `OcrReplace` | Passed through from `routes.json[*].Replace` to `Check${Id}Text.replace` and `In${Id}Mission.replace`; used to configure task-specific OCR replacement pairs for the task list and mission detail page, without affecting route adaptation checks |
 | `ExpectedText` | Automatically expanded from `mission.names` in `environment_monitoring.json` (5 languages, English converted to flexible regex) |
 | `InExpectedText` | Automatically expanded from `mission.shot_target_names` in `environment_monitoring.json` |
 | `TrackOrGoToNext` / `AfterTrackedNext` | Automatically determined by `data.mjs` based on whether the route is complete: `TrackOrGoToNext` converges to `Track${Id}` / `AlreadyTracked${Id}`, `AfterTrackedNext` is `GoTo${Id}` when adapted, `${Id}NotAdapted` when not adapted |
-| `GoToNext` / `AfterTeleportDescription` / `AfterTeleportNext` | Automatically determined by `data.mjs`: direct-photo routes always perform the configured teleport and enter `${Id}TakePhoto`; `QuickTeleport` with any navigation mode proceeds directly to `GoTo${Id}Move`; regular `NavPath` / `MapTarget` / `MapGoal` routes also proceed directly to `GoTo${Id}Move`, while only legacy `MapPath` routes return to `GoTo${Id}StartPos` to verify the landing point. |
+| `GoToNext` / `AfterTeleportDescription` / `AfterTeleportNext` | Automatically determined by `data.mjs`: direct-photo routes always perform the configured teleport, then enter `GoTo${Id}Move` to turn in place when `Heading` is set, or `${Id}TakePhoto` otherwise; navigation routes proceed directly to `GoTo${Id}Move` after teleporting, without re-verifying the landing point. |
 
 ### Terminal Grouping: `terminals-config.json`
 
@@ -215,15 +213,14 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 
 ### Pathfinding Components
 
-The teleport and pathfinding flow for observation points combines MapTracker and MapNavigator according to the route type:
+Teleporting and pathfinding for observation points is handled entirely by MapLocator and MapNavigator:
 
-- `MapTrackerAssertLocation` / `MapLocateAssertLocation` (Recognition): Judges whether the current position is within the `NavAssert` / `MapAssert` rectangle based on the minimap. Regular teleport routes use it to decide whether `EnterMap` is needed; quick-teleport routes start from a fixed landing point and may omit the assertion.
+- `MapLocateAssertLocation` (Recognition): Judges whether the current position is within the `NavAssert` rectangle based on the minimap. Regular teleport routes use it to decide whether `EnterMap` is needed; quick-teleport routes start from a fixed landing point and may omit the assertion.
 - `MapNavigateAction` (Action): Uses `NavPath` directly as its path. `NavZoneId` selects the coordinate zone for `NavAssert`; a `NAVMESH` action in `NavPath` may carry `target_tier` for a cross-tier target and `target_deck_y` for one of several overlapping walkable decks.
-- Legacy `MapTrackerMove` / `MapTrackerGoal` / `MapNavigateAction` routes continue to consume `MapPath`, `MapGoal`, or the `MapTarget` shorthand respectively; `MapTargetTier` / `MapTargetDeckY` map to `target_tier` / `target_deck_y`.
 - `${Id}TakePhoto` (wrapper): Sets the task-specific `EnvironmentMonitoringBackToTerminal` and `EnvironmentMonitoringAdjustCamera` anchors before entering the shared photo flow.
-- Direct-photo routes perform neither a location assertion nor pathfinding; optional `Heading` invokes standalone `MapTrackerToward`. Quick-teleport routes start navigation directly from the fixed landing point. After a regular teleport, `NavPath` starts immediately, while only legacy `MapPath` verifies `MapAssert` again.
+- Direct-photo routes perform no pathfinding; when `Heading` is set, the generator emits a `MapNavigateAction` whose path contains only a `HEADING` action, turning the character in place before the photo. Both route forms start their action right after teleporting and never re-verify the landing point.
 
-For detailed parameters and coordinate recording methods, see [map-tracker.md](../components/map-tracker.md), [map-locator.md](../components/map-locator.md), and [map-navigator.md](../components/map-navigator.md).
+For detailed parameters and coordinate recording methods, see [map-locator.md](../components/map-locator.md) and [map-navigator.md](../components/map-navigator.md).
 
 ### Teleport Entry
 
@@ -238,12 +235,10 @@ Every fully adapted entry needs metadata, `CameraSwipeDirection`, and one telepo
 | Type | Map and route fields | Location assertion | Runtime behavior |
 | ---------------------------- | ------------------------------------------------------------------------------------------------------------------- | ----------------------------------------- | ---------------------------------------------- |
 | Metadata only | `MissionId` / `Name` / `Id` only | Omit | Accept and track only; no teleport or photo |
-| Photo at teleport | No `MapName` or navigation field; optional `Heading` | Omit | Teleport → optional `MapTrackerToward` → photo |
-| Navigation (preferred) | `NavPath`; regular teleports also add `NavZoneId`; optional `Heading` | `NavAssert`; optional with quick teleport | `MapNavigateAction` follows `NavPath` → photo |
-| `MapTarget` shorthand | `MapName` + `MapTarget`; optional `MapTargetTier` for cross-tier targets and `MapTargetDeckY` for overlapping decks | `MapAssert`; optional with quick teleport | `MapNavigateAction` NAVMESH → photo |
-| Legacy `MapPath` / `MapGoal` | `MapName` + the corresponding field; optional `Heading` / `NoEnsureInitialMovementState` | `MapAssert`; optional with quick teleport | Legacy action → photo |
+| Photo at teleport | No navigation field; optional `Heading` | Omit | Teleport → optional turn in place → photo |
+| Navigation | `NavPath`; regular teleports also add `NavZoneId`; optional `Heading` | `NavAssert`; optional with quick teleport | `MapNavigateAction` follows `NavPath` → photo |
 
-`CameraMaxHit` and `Replace` are available to every adapted route and do not define a separate route type. Use photo-at-teleport only after in-game verification; missing route data must remain metadata-only. New routes must use `NavPath`, adding `NavZoneId` / `NavAssert` for regular teleports.
+`CameraMaxHit` and `Replace` are available to every adapted route and do not define a separate route type. Use photo-at-teleport only after in-game verification; missing route data must remain metadata-only. Navigation routes must use `NavPath`, adding `NavZoneId` / `NavAssert` for regular teleports.
 
 ### Main Menu Entry
 
@@ -308,7 +303,7 @@ When the teleport landing point can be photographed directly, use the compact fo
 }
 ```
 
-Do not include `NavZoneId`, `NavAssert`, `NavPath`, or any legacy map/navigation field in this form. `Heading` remains optional; when present, the generator invokes standalone `MapTrackerToward` after teleporting and then enters the photo flow. The generator recognizes direct photography from a complete teleport/photo configuration with no assertion or navigation fields. A metadata-only entry remains unadapted.
+Do not include `NavZoneId`, `NavAssert`, or `NavPath` in this form. `Heading` remains optional; when present, the generator emits a heading-only `MapNavigateAction` after teleporting and then enters the photo flow. The generator recognizes direct photography from a complete teleport/photo configuration with no assertion or navigation fields. A metadata-only entry remains unadapted.
 
 > [!IMPORTANT]
 >
@@ -378,7 +373,7 @@ Before submission, at least check:
 - **Using `Id` as the matching key**: `Id` is only the final template node ID, convenient for searching generated nodes/file names; matching still only looks at `MissionId`.
 - **`Id` drifts from the `environment_monitoring.json` English name**: When the game side changes the English name, the automatically calculated `Id` will change, possibly causing generated file renaming or residual old files; after regeneration, the `Id` in `routes.json` will be synced.
 - **`EnterMap` references a missing node or one that cannot return normally**: Generation does not validate node references or runtime behavior; the route will fail at `GoTo{Id}NotAtStartPos`.
-- **`MapPath` / `MapTarget` / `MapGoal` passes through unlocked areas / battles / interactive objects**: MapTracker and MapNavigateAction do not handle battles, story sequences, map transitions, or mechanism interactions; routes can only select pure traversal segments.
+- **A route passes through locked areas / battles / interactive objects**: The navigation components do not handle battles, story sequences, map transitions, or mechanism interactions; routes can only select pure traversal segments.
 - **Treating missing route data as direct photography**: Use the compact teleport/photo form only after verifying in game that the teleport landing point can complete the photo. Otherwise keep the metadata-only entry unadapted.
 - **New `Station` but `Locations.json` / `EnvironmentMonitoringLoop.next` not synced**: The new terminal cannot be recognized and entered, so all observation points cannot run.
 - **`anchor` placeholder name consistency**: The key name `EnvironmentMonitoringBackToTerminal` for the `anchor` in `template.json` must exactly match the `[Anchor]EnvironmentMonitoringBackToTerminal` in `TakePhoto.json`; otherwise, the anchor mechanism fails.

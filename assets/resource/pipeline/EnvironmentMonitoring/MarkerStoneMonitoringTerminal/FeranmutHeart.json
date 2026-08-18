@@ -336,18 +336,14 @@
     "GoToFeranmutHeartStartPos": {
         "desc": "在巨兽心脏任务开始位置附近",
         "recognition": "Custom",
-        "custom_recognition": "MapTrackerAssertLocation",
+        "custom_recognition": "MapLocateAssertLocation",
         "custom_recognition_param": {
-            "expected": [
-                {
-                    "map_name": "^map\\d+_lv\\d+$",
-                    "target": [
-                        0,
-                        0,
-                        1,
-                        1
-                    ]
-                }
+            "zone_id": "Wuling_Base",
+            "target": [
+                0,
+                0,
+                1,
+                1
             ]
         },
         "pre_delay": 0,
@@ -377,9 +373,14 @@
         "desc": "在巨兽心脏传送点调整拍照朝向",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerToward",
+        "custom_action": "MapNavigateAction",
         "custom_action_param": {
-            "angle": 270
+            "path": [
+                {
+                    "action": "HEADING",
+                    "angle": 270
+                }
+            ]
         },
         "post_delay": 0,
         "rate_limit": 0,

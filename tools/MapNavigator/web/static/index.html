@@ -198,7 +198,7 @@
             <label class="sidebar-label" for="assert-copy-format">复制内容</label>
             <select id="assert-copy-format" class="combo copy-format-combo">
               <option value="json">断言节点 JSON</option>
-              <option value="coordinates">仅坐标（MapAssert）</option>
+              <option value="coordinates">仅坐标（NavAssert）</option>
             </select>
           </div>
           <div class="sidebar-row grid-btns-2">
@@ -248,13 +248,6 @@
             <div class="sidebar-hint">点一层预览，「选择」把该层高度写进 target_deck_y</div>
           </div>
 
-          <div class="sidebar-row copy-format-row">
-            <label class="sidebar-label" for="navmesh-copy-format">复制内容</label>
-            <select id="navmesh-copy-format" class="combo copy-format-combo">
-              <option value="json">NAVMESH JSON 配置</option>
-              <option value="coordinates">仅坐标（MapTarget）</option>
-            </select>
-          </div>
           <div class="sidebar-row grid-btns-2">
             <button id="btn-astar-import" class="btn btn-secondary" type="button" title="把 JSON 里的点标成预览点（不写入路线）">导入 JSON</button>
             <button id="btn-copy-navmesh" class="btn btn-secondary" type="button" title="复制最后一个预览点为 NAVMESH 目标（有预览路线时复制整条）">复制 JSON 配置</button>

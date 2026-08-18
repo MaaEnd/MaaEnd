@@ -61,7 +61,7 @@ argument-hint: "可选：观察点名称，以及录制好的 EnterMap、NavZone
 | `NavPath`  | MapNavigator `path` 数组 | `MapNavigateAction` | 普通可通行路线；普通传送配置 `NavZoneId` / `NavAssert`，快捷传送可从固定落点直接开始 |
 | 传送后直拍 | 不配置地图字段           | 可选转向后拍照      | 传送落点已经满足拍照条件；可配置 `Heading`，但不配置地图断言或寻路字段               |
 
-`MapName` / `MapAssert` / `MapPath` / `MapTarget` / `MapTargetTier` / `MapTargetDeckY` / `MapGoal` 只为未迁移的存量路线保留，新增或改写路线不要再使用。寻路只适合普通可通行路线，不负责战斗、剧情、过图、机关或交互。传送后直拍必须经过游戏实测确认；不能因为缺少路线数据就把未适配条目写成直拍。遇到这些情况不要用更多重试或硬延迟掩盖，应保留未适配状态或重新设计真实可通行路线。
+寻路只适合普通可通行路线，不负责战斗、剧情、过图、机关或交互。传送后直拍必须经过游戏实测确认；不能因为缺少路线数据就把未适配条目写成直拍。遇到这些情况不要用更多重试或硬延迟掩盖，应保留未适配状态或重新设计真实可通行路线。
 
 仅含 `NAVMESH` 的 `NavPath` 不需要前置 `ZONE`：运行时会从 MapLocator 当前定位自动确定起点区域。`ZONE` 只为后续手录坐标点声明和校验分区；多分区或过图路径应保留录制工具导出的 `ZONE`，不要擅自删改。
 
@@ -72,8 +72,7 @@ argument-hint: "可选：观察点名称，以及录制好的 EnterMap、NavZone
 | `target_deck_y`                | 仅写在 `NavPath` 的 `NAVMESH` 动作中。目标点底下压着多张可走面（走廊 / 天桥 / 屋顶）时，填 MapNavigator 重叠面列表读出的那一层高度；不要手估 |
 | `CameraMaxHit`                 | 摄像头最大滑屏次数，默认 2；只有实测需要其他值时才写                                                                                         |
 | `Replace`                      | OCR 易混字符替换表 `[["误识别", "正确字符"], ...]`；仅有实际误识别证据时填写                                                                 |
-| `Heading`                      | 可选。进入拍照模式前的角色朝向，范围 `[0, 360)`；直拍路线会在传送后独立调用 `MapTrackerToward`                                               |
-| `NoEnsureInitialMovementState` | 仅对 `MapPath` / `MapGoal` 的 MapTracker 动作有意义。起点紧贴桥边、悬崖等危险地形时设为 `true`；默认 `false` 时省略                          |
+| `Heading`                      | 可选。进入拍照模式前的角色朝向，范围 `[0, 360)`；直拍路线会在传送后生成只含 `HEADING` 动作的 `MapNavigateAction`                            |
 | `QuickTeleport`                | 可选布尔值，默认 `false`。启用后依次点击任务地图的“前往传送”和“传送”，不调用 `EnterMap`；此时 `EnterMap` 可省略                              |
 
 所有坐标均使用 720p（1280×720）基准，并与录制工具所用地图体系保持一致。
@@ -135,10 +134,9 @@ node .agents/skills/environment-monitoring-add-route/check_missing.mjs
 - 严格 JSON：双引号、无注释、无尾随逗号、4 空格缩进；
 - `NavPath` 的每个坐标对和动作对象按项目 Prettier 规则展开；
 - 寻路路线配置 `NavPath`；普通传送同时配置 `NavZoneId` / `NavAssert`，快捷传送可省略二者；
-- 切换到 `NavPath` 时删除遗留的 `MapName`、`MapAssert`、`MapPath`、`MapTarget`、`MapTargetTier`、`MapTargetDeckY`、`MapGoal` 和 `NoEnsureInitialMovementState`；
-- 传送后直拍不增加开关字段，删除全部新旧地图断言与寻路字段；按实测结果可保留 `Heading`；
+- 传送后直拍不增加开关字段，不配置任何地图断言与寻路字段；按实测结果可保留 `Heading`；
 - 终点落在重叠可走面上时必须在对应 `NAVMESH` 动作标 `target_deck_y`，数值从工具读、不要手估；作者点不得压成单个 NAVMESH 目标，需要逐段；
-- 默认值不写：`CameraMaxHit: 2`、`NoEnsureInitialMovementState: false`、`QuickTeleport: false`；
+- 默认值不写：`CameraMaxHit: 2`、`QuickTeleport: false`；
 - 不确定的可选值直接省略，不写占位值或 TODO 注释；
 - 不手改 `Name` / `Id` 排序或 locale 失败提示，这些内容由同步器维护。
 

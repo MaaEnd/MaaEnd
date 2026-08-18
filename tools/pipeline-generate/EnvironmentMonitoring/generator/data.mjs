@@ -59,7 +59,7 @@ export function buildRow(mission) {
                   `GoTo${Id}StartPos`,
                   `GoTo${Id}NotAtStartPos`,
               ];
-    // NavMesh 可处理传送点附近落点，快捷传送的手录路径也可从固定落点开始；普通 MapPath 仍需复核起点。
+    // NavMesh 可处理传送点附近落点，快捷传送的手录路径也可从固定落点开始；未适配条目才需复核起点。
     const AfterTeleportDescription = route.IsDirectPhoto
         ? route.HasHeading
             ? "传送后调整朝向并拍照"
