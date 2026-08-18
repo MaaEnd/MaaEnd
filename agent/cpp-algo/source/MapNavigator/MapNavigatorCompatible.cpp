@@ -847,6 +847,8 @@ MaaBool MAA_CALL MapNavigatorCompatibleRun(
         return kMaaFalse;
     }
 
+    ResolveInteractTextNodes(context, param);
+
     const MapTrackerMoveOptions move_options = read_maptracker_move_options(*options_opt);
     if (!convert_maptracker_coordinates(param)) {
         return kMaaFalse;

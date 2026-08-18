@@ -17,6 +17,7 @@
 #include <MaaUtils/Logger.h>
 
 #include "navi_config.h"
+#include "prompt_scan_profile.h"
 
 namespace mapnavigator
 {
@@ -94,11 +95,15 @@ struct NaviActionListInput
     }
 };
 
-// A string or an array of strings. Empty is rejected rather than ignored: empty text matches anything on the
-// recognition side, which is exactly the press-on-any-prompt behaviour these fields exist to avoid.
+// A string or an array of strings, or { "node": "SomeOcrNode" } to read the list off that node instead. Empty is
+// rejected rather than ignored: empty text matches anything on the recognition side, which is exactly the
+// press-on-any-prompt behaviour these fields exist to avoid.
 struct NaviTextListInput
 {
     std::vector<std::string> texts_;
+    std::string node_;
+
+    bool empty() const { return texts_.empty() && node_.empty(); }
 
     bool check_json(const json::value& input) const
     {
@@ -109,6 +114,17 @@ struct NaviTextListInput
     bool from_json(const json::value& input)
     {
         texts_.clear();
+        node_.clear();
+
+        // 字符串和数组都被字面文字占着, 所以引用一个节点只剩对象这一种不含糊的写法。
+        if (input.is_object()) {
+            const json::object& object = input.as_object();
+            if (!object.contains("node") || !object.at("node").is_string()) {
+                return false;
+            }
+            node_ = object.at("node").as_string();
+            return !node_.empty();
+        }
 
         if (input.is_string()) {
             if (input.as_string().empty()) {
@@ -255,7 +271,11 @@ struct NaviInteractInput
         MEO_OPT MEO_KEY("interact_scan") interact_scan_,
         MEO_OPT MEO_KEY("interactScan") interactScan_)
 
-    const std::vector<std::string>& texts() const { return interact_text_.texts_.empty() ? interactText_.texts_ : interact_text_.texts_; }
+    const NaviTextListInput& text() const { return interact_text_.empty() ? interactText_ : interact_text_; }
+
+    const std::vector<std::string>& texts() const { return text().texts_; }
+
+    const std::string& textNode() const { return text().node_; }
 
     const std::string& scan() const { return interact_scan_.empty() ? interactScan_ : interact_scan_; }
 };
@@ -263,6 +283,7 @@ struct NaviInteractInput
 struct NaviInteractSpec
 {
     std::vector<std::string> texts;
+    std::string text_node;
     std::string scan;
 };
 
@@ -274,6 +295,7 @@ bool read_interact_spec(const json::value& input, NaviInteractSpec& out_spec)
     }
 
     out_spec.texts = flat.texts();
+    out_spec.text_node = flat.textNode();
     out_spec.scan = flat.scan();
     return true;
 }
@@ -286,6 +308,7 @@ struct NaviWaypointInput
     std::string zone_id_;
     std::string target_tier_;
     std::vector<std::string> interact_text_;
+    std::string interact_text_node_;
     std::string interact_scan_;
     std::optional<double> target_deck_y_;
     bool strict_arrival_ = false;
@@ -382,6 +405,7 @@ private:
         zone_id_ = resolveZoneId(object_input);
         target_tier_ = resolveTargetTier(object_input);
         interact_text_ = interact_spec.texts;
+        interact_text_node_ = interact_spec.text_node;
         interact_scan_ = interact_spec.scan;
         target_deck_y_ = resolveTargetDeckY(object_input);
         strict_arrival_ = resolveStrictArrival(object_input);
@@ -655,16 +679,24 @@ void append_expanded_waypoints(
     }
 }
 
-// Fill in the interact text on the INTERACT points of [from_index, end); empty leaves them plain INTERACT.
-void apply_interact_text(const std::vector<std::string>& interact_text, std::vector<Waypoint>& waypoints, size_t from_index)
+// Fill in the interact text on the INTERACT points of [from_index, end); empty leaves them plain INTERACT. Written
+// out or named by node are the same field, so a point that carries either one is already spoken for.
+void apply_interact_text(
+    const std::vector<std::string>& interact_text,
+    const std::string& interact_text_node,
+    std::vector<Waypoint>& waypoints,
+    size_t from_index)
 {
-    if (interact_text.empty()) {
+    if (interact_text.empty() && interact_text_node.empty()) {
         return;
     }
     for (size_t index = from_index; index < waypoints.size(); ++index) {
-        if (waypoints[index].action == ActionType::INTERACT && waypoints[index].interact_text.empty()) {
-            waypoints[index].interact_text = interact_text;
+        Waypoint& waypoint = waypoints[index];
+        if (waypoint.action != ActionType::INTERACT || !waypoint.interact_text.empty() || !waypoint.interact_text_node.empty()) {
+            continue;
         }
+        waypoint.interact_text = interact_text;
+        waypoint.interact_text_node = interact_text_node;
     }
 }
 
@@ -687,7 +719,7 @@ void warn_scan_without_text(const std::vector<Waypoint>& waypoints)
 {
     for (size_t index = 0; index < waypoints.size(); ++index) {
         const Waypoint& waypoint = waypoints[index];
-        if (!waypoint.interact_scan.empty() && waypoint.interact_text.empty()) {
+        if (!waypoint.interact_scan.empty() && waypoint.interact_text.empty() && waypoint.interact_text_node.empty()) {
             LogWarn << "Waypoint names a prompt scan node without any interact text; it stays a plain INTERACT." << VAR(index)
                     << VAR(waypoint.interact_scan);
         }
@@ -703,14 +735,14 @@ std::string resolve_waypoint_zone_id(const NaviWaypointInput& input, const std::
 // missing piece is the action rather than anything the author can see in the interact fields themselves.
 void warn_unusable_interact_fields(const NaviWaypointInput& input)
 {
-    if (input.interact_text_.empty() && input.interact_scan_.empty()) {
+    if (input.interact_text_.empty() && input.interact_text_node_.empty() && input.interact_scan_.empty()) {
         return;
     }
     if (std::find(input.actions_.begin(), input.actions_.end(), ActionType::INTERACT) != input.actions_.end()) {
         return;
     }
     LogWarn << "Waypoint carries interact fields without an INTERACT action; they do nothing here." << VAR(input.interact_text_.size())
-            << VAR(input.interact_scan_);
+            << VAR(input.interact_text_node_) << VAR(input.interact_scan_);
 }
 
 bool append_parsed_waypoint(const NaviWaypointInput& input, std::vector<Waypoint>& out_waypoints, std::string& zone_context)
@@ -770,7 +802,7 @@ bool append_parsed_waypoint(const NaviWaypointInput& input, std::vector<Waypoint
         const size_t first_expanded = out_waypoints.size();
         append_expanded_waypoints(target_x, target_y, input.actions_, zone_id, input.target_tier_, input.strict_arrival_, out_waypoints);
         // One coordinate may carry several actions and expand into several waypoints; only the INTERACT ones take these.
-        apply_interact_text(input.interact_text_, out_waypoints, first_expanded);
+        apply_interact_text(input.interact_text_, input.interact_text_node_, out_waypoints, first_expanded);
         apply_interact_scan(input.interact_scan_, out_waypoints, first_expanded);
         if (!zone_id.empty()) {
             zone_context = zone_id;
@@ -843,7 +875,7 @@ bool TryParseNaviParam(const json::value& custom_action_param, NaviParam& out_pa
         }
     }
 
-    apply_interact_text(route_interact.texts, param.path, 0);
+    apply_interact_text(route_interact.texts, route_interact.text_node, param.path, 0);
     apply_interact_scan(route_interact.scan, param.path, 0);
     warn_scan_without_text(param.path);
 
@@ -865,6 +897,22 @@ bool TryParseNaviParam(const char* custom_action_param, NaviParam& out_param, st
     }
 
     return TryParseNaviParam(*options_opt, out_param, caller_name);
+}
+
+void ResolveInteractTextNodes(MaaContext* context, NaviParam& param)
+{
+    for (Waypoint& waypoint : param.path) {
+        if (waypoint.interact_text_node.empty() || !waypoint.interact_text.empty()) {
+            continue;
+        }
+        std::vector<std::string> texts;
+        // 读不到就留空: 错误行由被调用方写, 该点退回原语义, 而不是拖垮整条路线。
+        if (!TryReadNodeInteractTexts(context, waypoint.interact_text_node, &texts)) {
+            continue;
+        }
+        waypoint.interact_text = std::move(texts);
+        LogInfo << "Interact text resolved from node." << VAR(waypoint.interact_text_node) << VAR(waypoint.interact_text.size());
+    }
 }
 
 } // namespace mapnavigator

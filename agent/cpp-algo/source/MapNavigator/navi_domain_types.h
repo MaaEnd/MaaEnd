@@ -18,8 +18,9 @@ namespace mapnavigator
 // JUMP     - 到达该点时按下空格
 // FIGHT    - 到达该点时刹车，左键攻击一次
 // INTERACT - 到达该点时刹车交互一次。路线给了 interact_text 则升级为异步交互：行进中检测到交互提示就停车
-//            跑一次子任务，到点时再兜底一次；没给文本就保持原语义——到点狂按F键。interact_scan 只换预筛看
-//            什么，得配着 interact_text 用。动作恒为交互键，不可换。
+//            跑一次子任务，到点时再兜底一次；没给文本就保持原语义——到点狂按F键。文字可以直接写，也可以写
+//            { "node": ... } 指一个 OCR 节点，多条路线共用一张表。interact_scan 只换预筛看什么，得配着
+//            interact_text 用。动作恒为交互键，不可换。
 // TRANSFER - 精确抵达该点后停住，等待机关/跳板/回传等把角色转移到下一段可达路径
 // PORTAL   - 跨区过渡节点，触发后进入盲走等待区域切换
 // HEADING  - 无坐标朝向节点，执行时只调整镜头到指定角度，再按下W继续前进
@@ -74,6 +75,9 @@ struct Waypoint
     std::optional<double> target_deck_y;
     // INTERACT 专用: 该点的提示文字, 停车后当 OCR expected 用。留空则不做这次确认, 该点也就不算异步交互
     std::vector<std::string> interact_text;
+    // INTERACT 专用: 作者写的是 { "node": ... } 时先落在这里, 开跑前从那个 OCR 节点读出 expected 填进
+    // interact_text; 读不出来该点退回原语义
+    std::string interact_text_node;
     // INTERACT 专用: 行进预筛读 roi/template/threshold 的 TemplateMatch 节点, 留给提示长得不一样的业务;
     // 留空用出厂那份
     std::string interact_scan;

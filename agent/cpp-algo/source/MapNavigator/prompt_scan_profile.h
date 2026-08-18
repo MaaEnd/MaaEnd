@@ -2,6 +2,7 @@
 
 #include <string>
 #include <string_view>
+#include <vector>
 
 #include <opencv2/core.hpp>
 
@@ -31,5 +32,9 @@ bool TryReadNodeRoi(MaaContext* context, const std::string& node_name, cv::Rect*
 // costs one error line and no pre-filter instead of misbehaving at walking speed.
 // controller_type picks which resource overlay the template path resolves against; the caller already holds it.
 bool TryLoadPromptScanProfile(MaaContext* context, const std::string& scan_node, std::string_view controller_type, PromptScanProfile* out);
+
+// Reads the expected list out of one OCR node, so several routes can share one authored text table instead of each
+// copying it. Only expected is read; the node is never dispatched and its roi belongs to whoever runs it.
+bool TryReadNodeInteractTexts(MaaContext* context, const std::string& node_name, std::vector<std::string>* out);
 
 } // namespace mapnavigator

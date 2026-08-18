@@ -1,5 +1,6 @@
 #include "prompt_scan_profile.h"
 
+#include <algorithm>
 #include <cmath>
 #include <filesystem>
 #include <optional>
@@ -188,6 +189,36 @@ bool TryReadNodeRoi(MaaContext* context, const std::string& node_name, cv::Rect*
         LogWarn << "Pipeline ROI: no usable roi array in node data." << VAR(node_name);
         return false;
     }
+    return true;
+}
+
+bool TryReadNodeInteractTexts(MaaContext* context, const std::string& node_name, std::vector<std::string>* out)
+{
+    const auto node = ReadNodeObject(context, node_name, "Interact text node");
+    if (!node) {
+        return false;
+    }
+
+    // 停车后那次确认走的是 OCR; 指到别的识别器上是作者指错了节点, 而不是这里该去猜。
+    const std::string type = ReadRecognitionType(*node);
+    if (!EqualsIgnoreCase(type, "OCR")) {
+        LogError << "Interact text node must recognize by OCR." << VAR(node_name) << VAR(type);
+        return false;
+    }
+
+    const json::value* expected = FindRecognitionParam(*node, "expected");
+    if (expected == nullptr || !expected->is<std::vector<std::string>>()) {
+        LogError << "Interact text node has no usable expected list." << VAR(node_name);
+        return false;
+    }
+
+    std::vector<std::string> texts = expected->as<std::vector<std::string>>();
+    if (texts.empty() || std::any_of(texts.begin(), texts.end(), [](const std::string& text) { return text.empty(); })) {
+        LogError << "Interact text node expected list is empty or holds an empty entry." << VAR(node_name);
+        return false;
+    }
+
+    *out = std::move(texts);
     return true;
 }
 

@@ -373,7 +373,7 @@ uv run main.py
 
 顶层未知字段会被静默忽略，不报错。
 
-`interact_text` 接受一个字符串或字符串数组，也接受驼峰写法 `interactText`；`interact_scan` 接受一个字符串，驼峰写法 `interactScan`。两者都是写在点上的优先，路线级只补给那些自己没写的 `INTERACT` 点。一条路线的交互点通常属于同一业务，此时写在这里比逐点重复更省事：
+`interact_text` 接受一个字符串或字符串数组，也可以写成 `{ "node": "某个 OCR 节点" }` 从那个节点取文字表（见[跨路线共用一张文字表](#跨路线共用一张文字表)），驼峰写法 `interactText` 一样接受；`interact_scan` 接受一个字符串，驼峰写法 `interactScan`。两者都是写在点上的优先，路线级只补给那些自己没写的 `INTERACT` 点。一条路线的交互点通常属于同一业务，此时写在这里比逐点重复更省事：
 
 ```json
 "custom_action_param": {
@@ -559,6 +559,7 @@ uv run main.py
 ```
 
 - `interact_text` 收字符串或字符串数组；数组内任一条命中即按键。
+- 多条路线认同一批文字时，`interact_text` 改写成 `{ "node": "..." }` 点名一个 OCR 节点，见[跨路线共用一张文字表](#跨路线共用一张文字表)。
 - 文本按 OCR 结果做**正则匹配**，与 Pipeline 的 `expected` 语义一致。中文提示直接照抄游戏里的字即可，含正则元字符时需自行转义。
 - 一整条路线共用同一业务时，把 `interact_text` 写在 `custom_action_param` 顶层作为默认值，见[节点参数](#节点参数)。
 - 同一条路线可以混排多个业务的交互点、混排 `COLLECT` 与 `DIG`，数量不限。
@@ -593,7 +594,50 @@ OCR 不总是可靠，所以这个字段本来就是**一组**正则，而不是
 - **正则写坏了不会静默失效。** 注入前会做一次合法性校验，不合法则整个子任务不予派发，日志里连着出现 `regex invalid`、`failed to override_pipeline` 与 `Prompt subtask failed to dispatch`；这一点表现为不按键，但不会让导航失败。
 - 现成范本见 `assets/resource/pipeline/RealTimeTask/AutoPick.json` 的 `AutoPickInteractive`：它把物名与 `^采集$`、`^打开$` 一类动词混在一张表里，并注明了哪几条为什么不启用。
 
-复用的边界：同一条路线内共用一张表，写在 `custom_action_param` 顶层即可（见[节点参数](#节点参数)）；跨路线复用目前需要在各自的路线 JSON 里各写一份。
+复用的边界：同一条路线内共用一张表，写在 `custom_action_param` 顶层即可（见[节点参数](#节点参数)）；跨路线共用则把表放进一个 OCR 节点，见下节。
+
+### 跨路线共用一张文字表
+
+多条路线认同一批提示文字时（同一业务铺到多个区域最常见），把 `interact_text` 写成对象、点名一个 OCR 节点，表就只留那一份：
+
+```json
+"path": [
+    { "action": "INTERACT", "target": [331, 1578], "interact_text": { "node": "MyBusinessInteractText" } }
+]
+```
+
+整条路线共用时同样可以写在顶层：
+
+```json
+"custom_action_param": {
+    "interact_text": { "node": "MyBusinessInteractText" },
+    "path": [
+        ...
+    ]
+}
+```
+
+被点名的就是一个普通 OCR 节点，文字写在它的 `expected` 里；这个节点常常本来就存在（停车后要点的那个按钮自己的识别节点），此时连新节点都不用加：
+
+```json
+"MyBusinessInteractText": {
+    "recognition": {
+        "type": "OCR",
+        "param": {
+            "roi": "MyBusinessInteractButton",
+            "expected": ["^登记$", "^登記$", "(?i)^Register$"]
+        }
+    }
+}
+```
+
+几条边界：
+
+- **只读 `expected`，那个节点本身从不被派发。** 它的 `roi` 等字段属于真正跑它的人，导航不看也不改。
+- **必须是 OCR 节点，`expected` 必须是非空、不含空串的数组。** 不满足时日志里留一行 `Interact text node must recognize by OCR` 或 `has no usable expected list`，该点退回原语义（到点直接按一次交互键），**整条路线照跑**。
+- **对象形状写错是硬错误。** 键名拼错、`node` 不是字符串或是空串，都会让整个节点参数解析失败，与 `interact_text` 写空串是同一种失败。
+- **点上写的盖过顶层的**，与直接写文字同一条规则；文字与节点在同一个点上不会并存，因为它们本来就是同一个字段。
+- **读取发生在开跑前**，成功时日志里留一行 `Interact text resolved from node`。
 
 ### 换掉图标预筛
 
@@ -667,9 +711,9 @@ OCR 不总是可靠，所以这个字段本来就是**一组**正则，而不是
 以下文件由 cpp-algo 维护者负责，路线作者无需修改：
 
 - `agent/cpp-algo/source/MapNavigator/async_prompt_action.h` / `.cpp`：提示驱动动作的公共实现，`COLLECT` 与异步 `INTERACT` 共用一套。
-- `agent/cpp-algo/source/MapNavigator/prompt_scan_profile.h` / `.cpp`：从 Pipeline 节点读预筛参数，以及那一串校验。
+- `agent/cpp-algo/source/MapNavigator/prompt_scan_profile.h` / `.cpp`：从 Pipeline 节点读预筛参数与交互文字表，以及那一串校验。
 - `agent/cpp-algo/source/MapNavigator/navi_config.h`：子任务节点名、预筛节拍与兜底常量、判定值等。
-- `agent/cpp-algo/source/MapNavigator/navi_param_parser.cpp`：`interact_text` / `interact_scan` 的解析与路线级默认值下发。
+- `agent/cpp-algo/source/MapNavigator/navi_param_parser.cpp`：`interact_text` / `interact_scan` 的解析与路线级默认值下发，以及开跑前把点名的 OCR 节点读成文字表。
 - `agent/cpp-algo/source/MapNavigator/semantic_nodes.cpp`：到点后的兜底执行逻辑。
 
 ---

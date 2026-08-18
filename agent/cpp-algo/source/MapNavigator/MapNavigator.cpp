@@ -43,6 +43,9 @@ MaaBool MAA_CALL MapNavigateActionRun(
         return kMaaTrue;
     }
 
+    // 文字表指了节点的交互点在这里解析: pipeline 已经问得到, 而且还没开始走。
+    ResolveInteractTextNodes(context, param);
+
     // Native entry plans on the navmesh base mesh, so normalize live fixes onto the navmesh base-pixel
     // frame using the navmesh's own baked tier affine. The Compatible entry leaves this off (its frame
     // is the MapTracker base-px), keeping that path byte-identical.
