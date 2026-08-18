@@ -223,7 +223,7 @@ func resolveDeliveryDestinationText(ocrText string, destinations []deliveryDesti
 		match.DestinationText = match.ObjectiveText
 		scores = append(scores, scoredDeliveryDestination{destination: destination, match: match})
 	}
-	return selectDeliveryDestination(scores)
+	return selectDeliveryDestination("delivery destination", scores)
 }
 
 func resolveDeliveryDestination(ocrText string) (deliveryDestination, deliveryDestinationMatch, error) {
@@ -241,7 +241,7 @@ func resolveDeliveryDestination(ocrText string) (deliveryDestination, deliveryDe
 		best := bestDeliveryTextMatch(normalizedOCR, destination.ObjectiveTexts)
 		scores = append(scores, scoredDeliveryDestination{destination: destination, match: best})
 	}
-	destination, match, err := selectDeliveryDestination(scores)
+	destination, match, err := selectDeliveryDestination("delivery objective", scores)
 	if err != nil {
 		return deliveryDestination{}, match, err
 	}
@@ -280,7 +280,7 @@ func bestDeliveryTextMatch(normalizedOCR string, expectedTexts []string) deliver
 	return best
 }
 
-func selectDeliveryDestination(scores []scoredDeliveryDestination) (deliveryDestination, deliveryDestinationMatch, error) {
+func selectDeliveryDestination(label string, scores []scoredDeliveryDestination) (deliveryDestination, deliveryDestinationMatch, error) {
 	if len(scores) == 0 {
 		return deliveryDestination{}, deliveryDestinationMatch{}, fmt.Errorf("delivery destination candidate list is empty")
 	}
@@ -300,7 +300,8 @@ func selectDeliveryDestination(scores []scoredDeliveryDestination) (deliveryDest
 
 	if best.match.Similarity < deliveryDestinationMinSimilarity {
 		return deliveryDestination{}, best.match, fmt.Errorf(
-			"delivery objective did not reach similarity threshold: best=%s similarity=%.3f threshold=%.3f",
+			"%s did not reach similarity threshold: best=%s similarity=%.3f threshold=%.3f",
+			label,
 			best.destination.ID,
 			best.match.Similarity,
 			deliveryDestinationMinSimilarity,
@@ -308,7 +309,8 @@ func selectDeliveryDestination(scores []scoredDeliveryDestination) (deliveryDest
 	}
 	if best.match.Similarity-runnerUpSimilarity < deliveryDestinationMinMargin {
 		return deliveryDestination{}, best.match, fmt.Errorf(
-			"delivery objective match is ambiguous: best=%s similarity=%.3f runner_up=%.3f margin=%.3f",
+			"%s match is ambiguous: best=%s similarity=%.3f runner_up=%.3f margin=%.3f",
+			label,
 			best.destination.ID,
 			best.match.Similarity,
 			runnerUpSimilarity,
