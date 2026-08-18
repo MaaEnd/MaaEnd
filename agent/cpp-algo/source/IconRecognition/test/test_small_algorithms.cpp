@@ -314,15 +314,17 @@ void TestControllerTypeSelectsKnownGridScale()
     const auto adb = iconrecognition::detail::GridScaleForControllerType("aDb");
     Check(adb && std::abs(*adb - 1.25) <= 1e-6, "Adb controller matching must be case-insensitive");
 
-    Check(
-        !iconrecognition::detail::GridScaleForControllerType("PlayCover"),
-        "PlayCover without calibrated screenshots must keep image-based fallback");
-    Check(
-        !iconrecognition::detail::GridScaleForControllerType("WlRoots"),
-        "WlRoots without calibrated screenshots must keep image-based fallback");
-    Check(
-        !iconrecognition::detail::GridScaleForControllerType("MacOS"),
-        "MacOS without calibrated screenshots must keep image-based fallback");
+    const auto playcover = iconrecognition::detail::GridScaleForControllerType("PlayCover");
+    Check(playcover && std::abs(*playcover - 1.25) <= 1e-6, "PlayCover controller must use the ADB grid scale");
+
+    const auto linux_scale = iconrecognition::detail::GridScaleForControllerType("linux");
+    Check(linux_scale && std::abs(*linux_scale - 1.0) <= 1e-6, "Linux controller must use the standard grid scale");
+
+    const auto wlroots = iconrecognition::detail::GridScaleForControllerType("WlRoots");
+    Check(wlroots && std::abs(*wlroots - 1.0) <= 1e-6, "WlRoots controller must use the standard grid scale");
+
+    const auto macos = iconrecognition::detail::GridScaleForControllerType("MacOS");
+    Check(macos && std::abs(*macos - 1.0) <= 1e-6, "MacOS controller must use the standard grid scale");
     Check(!iconrecognition::detail::GridScaleForControllerType("Unknown"), "unknown controllers must keep image-based fallback");
 }
 

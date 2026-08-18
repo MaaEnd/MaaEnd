@@ -118,14 +118,14 @@ The native ROI uses 1280x720 `[x,y,width,height]` coordinates. Width and height 
 
 ### Supported controllers
 
-`IconRecognition` supports these two 1280x720 controller captures:
+`IconRecognition` currently reuses these two 1280x720 controller profiles:
 
-| Controller | Capture requirement | Grid profile |
+| Runtime `type` | Capture requirement | Grid profile |
 | --- | --- | --- |
-| Win32 | 1280x720 | Standard 720p UI |
-| ADB | 1280x720 at 240 dpi | Enlarged ADB UI |
+| Win32, Linux/WlRoots, MacOS | 1280x720 | Standard 720p UI |
+| Adb, PlayCover | 1280x720 at 240 dpi | Enlarged ADB UI |
 
-The Custom entry point reads a Win32 or ADB controller type from `MaaContext` and selects the corresponding profile. Other controllers, direct C++ calls, or unavailable context fall back to image evidence inside the request ROI. Insufficient evidence returns `exception`; callers cannot specify a scale. The detector temporarily normalizes the image in memory for grid localization and maps cell coordinates back before returning. Item templates are still generated at the final source-cell size and matched on the original image, so `cell_box` and `item_box` always use source-image coordinates. `single_roi` does not run grid detection and never resizes the input image.
+The Custom entry point reads the runtime `type` from `MaaContext` and selects a profile. CloudADB reports `Adb` as its runtime type. The compatibility mappings outside Win32/Adb do not yet have dedicated screenshot data validation and may be adjusted as real samples become available. Other controllers, direct C++ calls, or unavailable context fall back to image evidence inside the request ROI. Insufficient evidence returns `exception`; callers cannot specify a scale. The detector temporarily normalizes the image in memory for grid localization and maps cell coordinates back before returning. Item templates are still generated at the final source-cell size and matched on the original image, so `cell_box` and `item_box` always use source-image coordinates. `single_roi` does not run grid detection and never resizes the input image.
 
 The component does not infer, move, or expand the request ROI from the selected controller profile. The caller remains responsible for a native ROI that is fully inside the image and completely covers every target cell. Image-based fallback reads only pixels inside that ROI. Rewards callers should keep passing one large ROI that covers the whole reward group; neither controller type nor item count should be used by callers to rewrite that ROI.
 
