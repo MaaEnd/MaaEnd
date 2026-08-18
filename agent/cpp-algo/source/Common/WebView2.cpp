@@ -15,6 +15,24 @@
 namespace
 {
 
+// UI 线程上取出待办并执行。COM 调用只允许发生在创建控件的 STA 线程上，
+// 业务线程的 ExecuteScript / CDP 调用都要先绕这条消息回到 UI 线程。
+constexpr UINT kMsgDrainPendingCalls = WM_APP + 1;
+
+std::string wideToUtf8(const std::wstring& src)
+{
+    if (src.empty()) {
+        return {};
+    }
+    int needed = WideCharToMultiByte(CP_UTF8, 0, src.data(), static_cast<int>(src.size()), nullptr, 0, nullptr, nullptr);
+    if (needed <= 0) {
+        return {};
+    }
+    std::string out(static_cast<size_t>(needed), '\0');
+    WideCharToMultiByte(CP_UTF8, 0, src.data(), static_cast<int>(src.size()), out.data(), needed, nullptr, nullptr);
+    return out;
+}
+
 std::wstring utf8ToWide(const std::string& src)
 {
     if (src.empty()) {
@@ -158,6 +176,14 @@ void WebView2::onUiThreadInit()
 
 void WebView2::onUiThreadShutdown()
 {
+    // 待办里捕获的回调可能持有业务侧对象，必须在 UI 线程上、控件还活着时丢弃，
+    // 不能留到析构后再释放。事件接收器同理，它们的生命周期绑着 webview_。
+    {
+        std::lock_guard<std::mutex> lock(pending_mutex_);
+        pending_calls_.clear();
+    }
+    devtools_receivers_.clear();
+
     // 先 Close controller 让 WebView2 自身释放进程资源；再清空 ComPtr 触发 Release。
     if (controller_) {
         controller_->Close();
@@ -182,6 +208,9 @@ std::optional<LRESULT> WebView2::onMessage(UINT msg, WPARAM, LPARAM)
 {
     if (msg == WM_SIZE && controller_) {
         resizeToClientRect();
+    }
+    if (msg == kMsgDrainPendingCalls) {
+        drainPendingCalls();
     }
     // 始终返回 nullopt 让基类继续处理。
     return std::nullopt;
@@ -363,6 +392,178 @@ void WebView2::resizeToClientRect()
     controller_->put_Bounds(rc);
 }
 
+bool WebView2::postToUiThread(std::function<void()> fn)
+{
+    HWND hwnd = GetHwnd();
+    if (!isOpened() || !hwnd) {
+        return false;
+    }
+
+    {
+        std::lock_guard<std::mutex> lock(pending_mutex_);
+        pending_calls_.push_back(std::move(fn));
+    }
+
+    if (!PostMessageW(hwnd, kMsgDrainPendingCalls, 0, 0)) {
+        // 消息没投出去（窗口正在销毁），把刚排进去的待办撤回来，避免它悬在队列里永不执行。
+        std::lock_guard<std::mutex> lock(pending_mutex_);
+        if (!pending_calls_.empty()) {
+            pending_calls_.pop_back();
+        }
+        return false;
+    }
+    return true;
+}
+
+void WebView2::drainPendingCalls()
+{
+    // 先整体换出再执行：待办里可能继续调 postToUiThread，持锁执行会自死锁。
+    std::vector<std::function<void()>> batch;
+    {
+        std::lock_guard<std::mutex> lock(pending_mutex_);
+        batch.swap(pending_calls_);
+    }
+
+    for (auto& fn : batch) {
+        fn();
+    }
+}
+
+void WebView2::ExecuteScript(std::string script, std::function<void(bool ok, std::string result_json)> on_done)
+{
+    auto task = [this, script = std::move(script), on_done]() {
+        if (!webview_) {
+            LogWarn << "WebView2: ExecuteScript before webview ready";
+            if (on_done) {
+                on_done(false, {});
+            }
+            return;
+        }
+
+        using Microsoft::WRL::Callback;
+        using ScriptHandler = ICoreWebView2ExecuteScriptCompletedHandler;
+
+        std::wstring wscript = utf8ToWide(script);
+        HRESULT hr = webview_->ExecuteScript(
+            wscript.c_str(),
+            Callback<ScriptHandler>([on_done](HRESULT err, LPCWSTR result) -> HRESULT {
+                if (FAILED(err)) {
+                    LogError << "WebView2: ExecuteScript failed" << VAR(err);
+                }
+                if (on_done) {
+                    on_done(SUCCEEDED(err), result ? wideToUtf8(result) : std::string {});
+                }
+                return S_OK;
+            }).Get());
+
+        if (FAILED(hr)) {
+            LogError << "WebView2: ExecuteScript dispatch failed" << VAR(hr);
+            if (on_done) {
+                on_done(false, {});
+            }
+        }
+    };
+
+    if (!postToUiThread(std::move(task)) && on_done) {
+        on_done(false, {});
+    }
+}
+
+void WebView2::CallDevToolsMethod(std::string method, std::string params_json, std::function<void(bool ok, std::string result_json)> on_done)
+{
+    auto task = [this, method = std::move(method), params_json = std::move(params_json), on_done]() {
+        if (!webview_) {
+            LogWarn << "WebView2: CallDevToolsMethod before webview ready" << VAR(method);
+            if (on_done) {
+                on_done(false, {});
+            }
+            return;
+        }
+
+        using Microsoft::WRL::Callback;
+        using DevToolsHandler = ICoreWebView2CallDevToolsProtocolMethodCompletedHandler;
+
+        std::wstring wmethod = utf8ToWide(method);
+        std::wstring wparams = utf8ToWide(params_json.empty() ? std::string { "{}" } : params_json);
+        HRESULT hr = webview_->CallDevToolsProtocolMethod(
+            wmethod.c_str(),
+            wparams.c_str(),
+            Callback<DevToolsHandler>([on_done, method](HRESULT err, LPCWSTR result) -> HRESULT {
+                if (FAILED(err)) {
+                    LogError << "WebView2: CallDevToolsProtocolMethod failed" << VAR(err) << VAR(method);
+                }
+                if (on_done) {
+                    on_done(SUCCEEDED(err), result ? wideToUtf8(result) : std::string {});
+                }
+                return S_OK;
+            }).Get());
+
+        if (FAILED(hr)) {
+            LogError << "WebView2: CallDevToolsProtocolMethod dispatch failed" << VAR(hr) << VAR(method);
+            if (on_done) {
+                on_done(false, {});
+            }
+        }
+    };
+
+    if (!postToUiThread(std::move(task)) && on_done) {
+        on_done(false, {});
+    }
+}
+
+void WebView2::SubscribeDevToolsEvent(std::string method, std::function<void(std::string params_json)> on_event)
+{
+    auto task = [this, method = std::move(method), on_event = std::move(on_event)]() {
+        if (!webview_ || !on_event) {
+            LogWarn << "WebView2: SubscribeDevToolsEvent before webview ready" << VAR(method);
+            return;
+        }
+
+        using Microsoft::WRL::Callback;
+        using EventHandler = ICoreWebView2DevToolsProtocolEventReceivedEventHandler;
+
+        std::wstring wmethod = utf8ToWide(method);
+        Microsoft::WRL::ComPtr<ICoreWebView2DevToolsProtocolEventReceiver> receiver;
+        HRESULT hr = webview_->GetDevToolsProtocolEventReceiver(wmethod.c_str(), &receiver);
+        if (FAILED(hr) || !receiver) {
+            LogError << "WebView2: GetDevToolsProtocolEventReceiver failed" << VAR(hr) << VAR(method);
+            return;
+        }
+
+        EventRegistrationToken token {};
+        hr = receiver->add_DevToolsProtocolEventReceived(
+            Callback<EventHandler>(
+                [on_event, method](ICoreWebView2*, ICoreWebView2DevToolsProtocolEventReceivedEventArgs* args) -> HRESULT {
+                    if (!args) {
+                        return S_OK;
+                    }
+                    // 参数串由 WebView2 用 CoTaskMemAlloc 分配，所有权转交给我们。
+                    LPWSTR params = nullptr;
+                    if (FAILED(args->get_ParameterObjectAsJson(&params)) || !params) {
+                        LogWarn << "WebView2: devtools event without parameters" << VAR(method);
+                        return S_OK;
+                    }
+                    std::string params_json = wideToUtf8(params);
+                    CoTaskMemFree(params);
+                    on_event(std::move(params_json));
+                    return S_OK;
+                })
+                .Get(),
+            &token);
+
+        if (FAILED(hr)) {
+            LogError << "WebView2: add_DevToolsProtocolEventReceived failed" << VAR(hr) << VAR(method);
+            return;
+        }
+
+        // 保活到 onUiThreadShutdown；接收器一旦释放，上面注册的 token 随之失效。
+        devtools_receivers_.push_back(std::move(receiver));
+        LogInfo << "WebView2: subscribed devtools event" << VAR(method);
+    };
+
+    postToUiThread(std::move(task));
+}
+
 #else // !_WIN32
 
 #include <MaaUtils/Logger.h>
@@ -409,6 +610,30 @@ void WebView2::SetUserAgent(std::string user_agent)
         LogWarn << "WebView2::SetUserAgent: ignored, must be called before Open()" << VAR(user_agent);
         return;
     }
+}
+
+void WebView2::ExecuteScript(std::string script, std::function<void(bool ok, std::string result_json)> on_done)
+{
+    LogWarn << "WebView2::ExecuteScript: no webview on this platform" << VAR(script.size());
+    if (on_done) {
+        on_done(false, {});
+    }
+}
+
+void WebView2::CallDevToolsMethod(
+    std::string method,
+    [[maybe_unused]] std::string params_json,
+    std::function<void(bool ok, std::string result_json)> on_done)
+{
+    LogWarn << "WebView2::CallDevToolsMethod: no webview on this platform" << VAR(method);
+    if (on_done) {
+        on_done(false, {});
+    }
+}
+
+void WebView2::SubscribeDevToolsEvent(std::string method, [[maybe_unused]] std::function<void(std::string params_json)> on_event)
+{
+    LogWarn << "WebView2::SubscribeDevToolsEvent: no webview on this platform" << VAR(method);
 }
 
 #endif // _WIN32

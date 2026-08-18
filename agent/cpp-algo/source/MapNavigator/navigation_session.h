@@ -17,6 +17,9 @@ enum class NaviPhase
     Bootstrap,
     Navigate,
     WaitTransfer,
+    // 滑行中。所有卡死检测、绕障、重规划、采集扫描都只在 Navigate 下开火, 所以这个阶段
+    // 天然把它们全挡在外面 —— 人挂在索上, 那些判据没有一条是成立的
+    WaitZipline,
     Finished,
     Failed,
 };

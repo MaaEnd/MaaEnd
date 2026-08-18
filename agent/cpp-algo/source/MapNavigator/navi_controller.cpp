@@ -66,7 +66,7 @@ NaviController::NaviController(MaaContext* ctx)
 {
 }
 
-bool NaviController::Navigate(const NaviParam& param)
+bool NaviController::Navigate(const NaviParam& requested_param)
 {
     // 先取闸再做任何事: 作者的图若无限重试这个被拒的节点, 每次都必须是零成本的。
     const NavigationEntryGuard entry_guard(MaaContextGetTasker(ctx_));
@@ -74,6 +74,8 @@ bool NaviController::Navigate(const NaviParam& param)
         LogError << "Refusing to nest navigation: this tasker is already navigating.";
         return false;
     }
+
+    NaviParam param = requested_param;
 
     ActionWrapper action_wrapper(ctx_);
     PositionProvider position_provider(action_wrapper.GetCtrl(), maplocator::getOrInitLocator());
@@ -88,6 +90,13 @@ bool NaviController::Navigate(const NaviParam& param)
         const char* unsupported_reason = action_wrapper.unsupported_reason();
         LogError << "MapNavigator controller backend is unsupported." << VAR(controller_type) << VAR(unsupported_reason);
         return false;
+    }
+
+    // 触屏后端没有独立的鼠标左右键: 起滑那一下会打出攻击, 下索那一下会变成冲刺。
+    // 站在架子上做不成这两件事, 所以这类后端一律纯走路。
+    if (uses_touch_backend && param.zipline_enabled) {
+        LogWarn << "Zipline disabled: this backend has no mouse buttons to aim and launch with." << VAR(controller_type);
+        param.zipline_enabled = false;
     }
 
     const auto is_stopping = [&]() {

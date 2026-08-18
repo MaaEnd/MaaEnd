@@ -17,6 +17,7 @@
 #include "RecoGrid/RecoGridRecognition.h"
 #include "Test/test.h"
 #include "WeaponInventoryScan/WeaponInventoryScan.h"
+#include "Zipline/ZiplineImportAction.h"
 #include "my_reco_1/my_reco_1.h"
 #include "utils.h"
 
@@ -68,6 +69,7 @@ int main(int argc, char** argv)
     MaaAgentServerRegisterCustomAction("MapNavigateAction", mapnavigator::MapNavigateActionRun, nullptr);
     MaaAgentServerRegisterCustomAction("MapNavigatorCompatible", mapnavigator::MapNavigatorCompatibleRun, nullptr);
     MaaAgentServerRegisterCustomAction("RealTimeTaskAction", realtimetask::RealTimeTaskActionRun, nullptr);
+    MaaAgentServerRegisterCustomAction("ZiplineImport", zipline::ZiplineImportActionRun, nullptr);
 
     const char* identifier = argv[argc - 1];
 

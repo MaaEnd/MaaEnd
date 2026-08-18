@@ -40,13 +40,32 @@ bool ExpandNavmeshWaypoints(
     const std::function<bool()>& should_stop,
     std::vector<Waypoint>& out_path);
 // The goal deck pins which overlapping walkable surface the route must stop on; unset keeps the full span
-// set. The start has no deck argument — where it stands is read off its own height, not off the goal.
+// set. `start_floor_y` overrides which floor the start snaps onto, for the rare caller that actually knows
+// the height it is standing at (a zipline dismount); unset keeps the zone's dominant floor, unchanged.
 std::optional<navmesh::BaseNavRouteResult> PlanNavmeshRoute(
     const NaviParam& param,
     const std::string& locator_zone,
     const navmesh::WorldPoint& start,
     const navmesh::WorldPoint& goal,
-    std::optional<double> goal_deck_y = std::nullopt);
+    std::optional<double> goal_deck_y = std::nullopt,
+    std::optional<double> start_floor_y = std::nullopt);
+// Which walkable surface `point` lands on: the planar distance to it, and its height on the same scale
+// as BaseNavRouteRequest::floor_y. Height matters as much as distance — a point directly above or below
+// a floor is a plane away from it and no distance test will say so.
+struct NavmeshSnap
+{
+    double distance = 0.0;
+    double height = 0.0;
+};
+// Nullopt when the zone can't resolve. The returned distance is the answer, not whether it returned:
+// snap falls back to a wider search on a small radius, so a hit can still be far outside `radius`, and
+// `floor_y` only ranks the candidates. Resolves the zone like PlanNavmeshRoute.
+std::optional<NavmeshSnap> NavmeshSnapAt(
+    const NaviParam& param,
+    const std::string& locator_zone,
+    const navmesh::WorldPoint& point,
+    double radius,
+    std::optional<double> floor_y = std::nullopt);
 float NavmeshFloorYForZone(const NaviParam& param, const std::string& locator_zone);
 bool NavmeshZonesShareGeometry(const NaviParam& param, const std::string& zone_a, const std::string& zone_b);
 

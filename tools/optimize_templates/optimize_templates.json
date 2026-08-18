@@ -811,7 +811,7 @@
     "resource/image/GiftOperator/Operators/MiFu": "757d28abf2045a26a4336fd50b3d04bbcae150e92f95975b5774f2f7ebd15cf1",
     "resource/image/MapTracker/BigMapIcons/Zipline": "aa4789a971d89ad182e3d7a1da7267773a6bb653d62b055834e2b1acf3110da8",
     "resource/image/MapTracker/BigMapIcons/Pointer": "050ca2d93062bb44fc6bf73c69e846b9a6568997be8a3aacb2647ed3521d3dcb",
-    "resource/image/MapTracker/OpenWorld/ZiplineInteract": "1606db5d65159f118a651d16dac6062c5438802f56ed5db908e1947ab9b7c863",
+    "resource/image/MapNavigator/Zipline/InteractButton": "1606db5d65159f118a651d16dac6062c5438802f56ed5db908e1947ab9b7c863",
     "resource/image/MapTracker/BigMap/RegionOverview": "df452720ed241c77229faa0add8c5c36c1a6bbbdd6fb57d5e1628a748227667f",
     "resource/image/MapTracker/BigMap/FiltersDialog": "5e619d43834df94a7ea4d7234219173e6a0bf35b051ef9ab0d4fe617376d9a7e",
     "resource/image/MapTracker/BigMap/FiltersOff": "0e7e978f76021e83bcfe36a6de4ef840616453e5b3fdaffa19828c939d7564d6",

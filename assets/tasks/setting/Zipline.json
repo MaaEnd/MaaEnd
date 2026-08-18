@@ -1,0 +1,58 @@
+{
+    "setting": [
+        {
+            "name": "Zipline",
+            "label": "$option.Zipline.label",
+            "description": "$option.Zipline.description",
+            "option": [
+                "ZiplineRouting"
+            ]
+        }
+    ],
+    "global_option": [
+        "ZiplineRouting"
+    ],
+    "option": {
+        "ZiplineRouting": {
+            "type": "select",
+            "label": "$option.ZiplineRouting.label",
+            "description": "$option.ZiplineRouting.description",
+            "default_case": "Auto",
+            "cases": [
+                {
+                    "name": "Auto",
+                    "label": "$option.ZiplineRouting.cases.Auto.label",
+                    "pipeline_override": {
+                        "MapNavigatorZiplinePreference": {
+                            "attach": {
+                                "zipline": "auto"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Always",
+                    "label": "$option.ZiplineRouting.cases.Always.label",
+                    "pipeline_override": {
+                        "MapNavigatorZiplinePreference": {
+                            "attach": {
+                                "zipline": "always"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Never",
+                    "label": "$option.ZiplineRouting.cases.Never.label",
+                    "pipeline_override": {
+                        "MapNavigatorZiplinePreference": {
+                            "attach": {
+                                "zipline": "never"
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

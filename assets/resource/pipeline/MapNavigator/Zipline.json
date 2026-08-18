@@ -1,0 +1,76 @@
+{
+    "MapNavigatorZiplineMountStart": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "MapNavigatorZiplineMount",
+            "MapNavigatorZiplineMountEnd"
+        ]
+    },
+    "MapNavigatorZiplineMount": {
+        "desc": "上索：认出架子的交互提示才按交互键",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    755,
+                    330,
+                    297,
+                    312
+                ],
+                "expected": [
+                    "登上滑索架"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": "ClickKey",
+        "key": 70, // F 交互；可通过全局设置 KeymapInteract 改绑
+        "post_delay": 0,
+        "next": [
+            "MapNavigatorZiplineMountEnd"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "识别到滑索架交互提示",
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    //子任务出口：由 MapNavigator 以 MaaContextRunTask 调起，跑到这里就结束、返回引擎
+    "MapNavigatorZiplineMountEnd": {
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    // 上索确认：人站上架子后这条提示就没了，所以「还认得出」等于那一下没按上。
+    // 认不出才是想要的结果，所以照样挂上面那个直通的出口兜底，认不出立刻返回而不是耗满超时。
+    "MapNavigatorZiplineMountScanStart": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "MapNavigatorZiplineMountScan",
+            "MapNavigatorZiplineMountEnd"
+        ]
+    },
+    // 只认图标不认字，为的是不必为一次确认付 OCR 的钱。roi 写 1280x720 基准帧的绝对坐标。
+    "MapNavigatorZiplineMountScan": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    755,
+                    330,
+                    297,
+                    312
+                ],
+                "template": "MapNavigator/Zipline/InteractButton.png",
+                "threshold": 0.75
+            }
+        }
+    }
+}

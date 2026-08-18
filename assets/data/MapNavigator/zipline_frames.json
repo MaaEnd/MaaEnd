@@ -1,0 +1,105 @@
+{
+  "_readme": [
+    "森空岛世界坐标 → navmesh base 像素的标定。没有标定的区不参与滑索规划。",
+    "frames 里每条对应一个 navmesh base 区（zone_name 用 base 区名，例如 map01base）。",
+    "plane 是 6 项仿射，缺项、非数字、长度不为 6 的整条丢弃：",
+    "    nav_x = plane[0] * sx + plane[1] * sz + plane[2]",
+    "    nav_y = plane[3] * sx + plane[4] * sz + plane[5]",
+    "要标一个新的区，plane 取 navmesh 包里该区的变换（resource/model/map/navmesh/base.nav.gz 的区表）。",
+    "两边必须同源：包里的变换换了而这里没跟着换，滑索就会落在错的像素上，且不会有任何报错。",
+    "高度是一条直线：nav_height = height_scale * sy + height_offset。包里的顶点高度与森空岛给的 y",
+    "是同一把尺子，所以恒等即可。",
+    "map_id 是森空岛的地图编号，留空表示不限地图，代价是多出拿别的图的标记去试算的那部分开销。",
+    "template_ids 是参与规划的标记类型，用来把供电桩、中继器之类的非滑索标记挡在外面。",
+    "base01、dung01 没有滑索，不需要标定。"
+  ],
+  "types": [
+    {
+      "name": "滑索架",
+      "template_id": "5d53bdb714ba42c1e1a1b748b55b686f",
+      "max_span": 80.0
+    },
+    {
+      "name": "长距滑索架",
+      "template_id": "0f45150a59b97bd0de9a4eed7a0fbf23",
+      "max_span": 110.0
+    }
+  ],
+  "_types_readme": [
+    "同一种架子、同一个 levelId、世界三维距离不超过 max_span，视为两者之间有一条索。",
+    "max_span 是游戏内标称的连接长度，单位是世界距离而不是像素——索长是物理量，",
+    "而两张图的像素比例并不一样。1 世界单位就是游戏内 1 米。",
+    "两端等高的索是存在的，所以落差既不是判据，也不区分上下行，两个方向都能走。",
+    "名单外的 templateId 一律配不成对；name 只给人看，代码不读。"
+  ],
+  "power": {
+    "_readme": [
+      "不通电的滑索架在游戏里走不了，所以离每一个供电结构都超出其供电半径的架子不参与规划。",
+      "radius 是游戏内标称的供电半径，与 max_span 同为世界距离，只量水平距离，高低差不进判据。",
+      "中继器标称 3 米，这里写 4.5：记下来的坐标是整数，两端各差半格，量出来的距离最多虚 √2。",
+      "sources 留空则不做这一筛，全部架子照单参与规划。"
+    ],
+    "sources": [
+      {
+        "name": "供电桩",
+        "template_id": "5cc89ec3a2a9b4f00870c16936334bdf",
+        "radius": 30.0
+      },
+      {
+        "name": "息壤供电桩",
+        "template_id": "74488f6a7b44241fcb3b43518ab6110b",
+        "radius": 30.0
+      },
+      {
+        "name": "供电终端",
+        "template_id": "b8cc74a906a6ad65df8a0a755ab35e8d",
+        "radius": 30.0
+      },
+      {
+        "name": "中继器",
+        "template_id": "5ddc9e4bd0bcf52642b227f41780d1bf",
+        "radius": 4.5
+      },
+      {
+        "name": "息壤中继器",
+        "template_id": "dd03618e49fd09ad081c2f0dfbd70328",
+        "radius": 4.5
+      }
+    ]
+  },
+  "cost": {
+    "_readme": [
+      "判据两边同乘走路速度后全是像素量纲，与 navmesh 路径长度同单位，因此不需要走路的绝对速度。",
+      "speed_ratio：走同样距离，滑索花的时间相当于走路的几分之几。",
+      "mount_penalty：上索一次的固定开销（转向 + 交互 + 起步），折算成这段时间能走多远，单位 base 像素。",
+      "transfer_penalty：一条链里换乘一次的开销，同单位。落点就是下一根架子，不必走过去也不必重新起步。",
+      "前三个都是待实测收紧的保守估计——保守的方向是少用滑索，不是多用。",
+      "链越长这三个值越放大，所以要么实测，要么宁可往贵了写。",
+      "min_gain：至少要比走路省下这么多才上索。省得比上面几个估计值的误差还少时，图的那点便宜是假的。",
+      "reach_radius：架子的标记点离可走面超过这么远就当摸不到，不再当上索点和下索点。中途落点不受此限。"
+    ],
+    "speed_ratio": 0.35,
+    "mount_penalty": 25.0,
+    "transfer_penalty": 10.0,
+    "min_gain": 25.0,
+    "reach_radius": 6.0
+  },
+  "frames": [
+    {
+      "zone_name": "map01base",
+      "map_id": "map01",
+      "plane": [0.703125, 0.0, 720.0, 0.0, -0.703125, 630.0],
+      "height_scale": 1.0,
+      "height_offset": 0.0,
+      "template_ids": ["0f45150a59b97bd0de9a4eed7a0fbf23", "5d53bdb714ba42c1e1a1b748b55b686f"]
+    },
+    {
+      "zone_name": "map02base",
+      "map_id": "map02",
+      "plane": [0.75, 0.0, 1536.0, 0.0, -0.75, 1344.0],
+      "height_scale": 1.0,
+      "height_offset": 0.0,
+      "template_ids": ["0f45150a59b97bd0de9a4eed7a0fbf23", "5d53bdb714ba42c1e1a1b748b55b686f"]
+    }
+  ]
+}

@@ -5,8 +5,10 @@
 #include "FramelessWindow.h"
 
 #include <condition_variable>
+#include <functional>
 #include <mutex>
 #include <string>
+#include <vector>
 
 #include <wrl/client.h>
 
@@ -71,6 +73,20 @@ public:
     // 仅在 Open() 之前调用有效；之后调用会被忽略。
     void SetContextMenuEnabled(bool enabled);
 
+    // 以下三个接口可在 Open() 成功之后由任意线程调用：调用被投递到 UI 线程执行，
+    // 回调也在 UI 线程上触发，因此回调里不要做阻塞等待。控件未就绪时以失败立即回调。
+
+    // 在页面上下文执行 JS。result_json 是 ICoreWebView2::ExecuteScript 的结果，
+    // 已经过 JSON 序列化（字符串结果自带引号，undefined 为 "null"）。
+    void ExecuteScript(std::string script, std::function<void(bool ok, std::string result_json)> on_done);
+
+    // 调用一次 CDP 方法。params_json 传空串等价于 "{}"。
+    void CallDevToolsMethod(std::string method, std::string params_json, std::function<void(bool ok, std::string result_json)> on_done = {});
+
+    // 订阅 CDP 事件（method 形如 "Network.responseReceived"），回调收到事件的 parameter JSON。
+    // 同一 method 可重复订阅，各自独立触发；订阅随控件在 Close() 时一并释放。
+    void SubscribeDevToolsEvent(std::string method, std::function<void(std::string params_json)> on_event);
+
 protected:
     void onUiThreadInit() override;
     void onUiThreadShutdown() override;
@@ -85,10 +101,19 @@ private:
     // 通知等在 Open() 上的业务线程：WebView2 初始化已完成（成功或失败）。幂等。
     void signalInitDone(bool ok);
 
+    // 把 fn 排进待办并唤醒 UI 线程。窗口未开时返回 false，调用方负责走失败回调。
+    bool postToUiThread(std::function<void()> fn);
+    void drainPendingCalls();
+
 private:
     Microsoft::WRL::ComPtr<ICoreWebView2Environment> environment_;
     Microsoft::WRL::ComPtr<ICoreWebView2Controller> controller_;
     Microsoft::WRL::ComPtr<ICoreWebView2> webview_;
+
+    std::mutex pending_mutex_;
+    std::vector<std::function<void()>> pending_calls_;
+    // 事件接收器必须保活到不再需要事件为止，否则注册的 token 随对象一起失效。
+    std::vector<Microsoft::WRL::ComPtr<ICoreWebView2DevToolsProtocolEventReceiver>> devtools_receivers_;
 
     // 配置字段：仅在 Open() 之前由业务线程写入，UI 线程在 onControllerCreated 中读取一次。
     std::string initial_url_;
@@ -111,6 +136,7 @@ private:
 
 #include "FramelessWindow.h"
 
+#include <functional>
 #include <string>
 
 // 非 Windows 空实现：无 WebView2 运行时与内嵌浏览器；Open() 与基类一致（恒真），
@@ -130,6 +156,11 @@ public:
     void SetTouchEmulation(bool enabled);
     void SetContextMenuEnabled(bool enabled);
     void SetUserAgent(std::string user_agent);
+
+    // 没有内嵌浏览器可执行，一律以失败回调，调用方按「取不到数据」处理。
+    void ExecuteScript(std::string script, std::function<void(bool ok, std::string result_json)> on_done);
+    void CallDevToolsMethod(std::string method, std::string params_json, std::function<void(bool ok, std::string result_json)> on_done = {});
+    void SubscribeDevToolsEvent(std::string method, std::function<void(std::string params_json)> on_event);
 };
 
 #endif // _WIN32

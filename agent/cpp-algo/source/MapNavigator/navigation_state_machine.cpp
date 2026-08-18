@@ -27,6 +27,7 @@
 #include "semantic_nodes.h"
 #include "sensitivity_observer.h"
 #include "steering_controller.h"
+#include "zipline_action.h"
 
 #include "../utils.h"
 
@@ -484,7 +485,8 @@ bool NavigationStateMachine::TickPhase(NaviPhase phase)
         return true;
     case NaviPhase::Navigate:
         return TickNavigate();
-    case NaviPhase::WaitTransfer: {
+    case NaviPhase::WaitTransfer:
+    case NaviPhase::WaitZipline: {
         const semantic_nodes::Result semantic_result = semantic_nodes::TickSemanticFlow(
             BuildSemanticContext(
                 action_wrapper_,
@@ -708,8 +710,47 @@ bool NavigationStateMachine::TryApplyDynamicOverlayToNextAnchor(const char* reas
         /*emit_interior_corners=*/false);
 }
 
+// 上索点是必到的语义点, 重规划总是把人瞄回它, 所以那根架子要是根本走不到(导入的坐标跟实际
+// 对不上, 或者脚下那片面接不上), 就会一路重规划到楔死超时把整趟导航掐掉。同一个上索点试够了
+// 就当它够不着, 丢掉这条链改走路 —— 索是捷径不是必经之路。
+bool NavigationStateMachine::GiveUpUnreachableZipline(const char* reason)
+{
+    const std::optional<DynamicAnchor> anchor = ResolveCurrentAnchor(session_, *position_);
+    if (!anchor || anchor->second.action != ActionType::ZIPLINE) {
+        return false;
+    }
+    ZiplineApproachState& approach = runtime_state_.zipline_approach;
+    if (approach.anchor_index != anchor->first) {
+        approach.anchor_index = anchor->first;
+        approach.replans = 0;
+    }
+    if (++approach.replans <= kZiplineApproachReplanBudget) {
+        return false;
+    }
+
+    LogWarn << "Zipline mount tower unreachable after repeated replans; walking instead." << VAR(reason) << VAR(approach.replans)
+            << VAR(anchor->second.x) << VAR(anchor->second.y) << VAR(position_->x) << VAR(position_->y);
+    runtime_state_.dynamic_replan_requested = false;
+    semantic_nodes::AbandonZipline(
+        BuildSemanticContext(
+            action_wrapper_,
+            position_provider_,
+            session_,
+            motion_controller_,
+            action_executor_,
+            position_,
+            &runtime_state_,
+            maa_context_),
+        "zipline_unreachable",
+        reason);
+    return true;
+}
+
 bool NavigationStateMachine::HandleDynamicReplanRequest(const char* reason)
 {
+    if (GiveUpUnreachableZipline(reason)) {
+        return true;
+    }
     if (TryApplyDynamicOverlayToNextAnchor(reason, false)) {
         return true;
     }
@@ -1258,6 +1299,25 @@ bool NavigationStateMachine::TickNavigate()
             // emergency stop after kDynamicRecoveryTotalTimeoutMs of real no-progress.
             const int64_t recovery_elapsed_ms = session_->HardStalledMs(now);
             if (recovery_elapsed_ms > kDynamicRecoveryTotalTimeoutMs) {
+                // 卡在索边收不拢, 先退索走路, 别直接判导航失败。丢链会把硬时钟归零, 再超时时手上
+                // 已经是走路点了, 那一次才是真失败, 所以这里不会绕回来。
+                if (waypoint.action == ActionType::ZIPLINE) {
+                    LogWarn << "Recovery timed out at a zipline tower; dropping the chain and walking."
+                            << VAR(recovery_elapsed_ms) << VAR(waypoint.x) << VAR(waypoint.y) << VAR(position_->x) << VAR(position_->y);
+                    semantic_nodes::AbandonZipline(
+                        BuildSemanticContext(
+                            action_wrapper_,
+                            position_provider_,
+                            session_,
+                            motion_controller_,
+                            action_executor_,
+                            position_,
+                            &runtime_state_,
+                            maa_context_),
+                        "zipline_recovery_timeout",
+                        "stuck at the tower after recovery ran out");
+                    return true;
+                }
                 return FailNavigation(
                     "dynamic_recovery_timeout",
                     "Dynamic recovery timeout reached and navigation was terminated.",

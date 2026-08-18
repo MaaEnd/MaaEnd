@@ -56,6 +56,8 @@ private:
         double route_heading = 0.0,
         bool emit_interior_corners = false);
     bool TryApplyDynamicOverlayToNextAnchor(const char* reason, bool use_detour, double route_heading = 0.0);
+    // 走不到的上索点在这里让路: 判成够不着就丢掉这条链改走路, 返回 true 表示这一拍已经处理完。
+    bool GiveUpUnreachableZipline(const char* reason);
     bool HandleDynamicReplanRequest(const char* reason);
     bool TryEnterCrossTierEscape();
     bool PlanCrossTierEscapeCorridorFromHere(const char* reason);
