@@ -13,6 +13,7 @@
 #include "MapNavigator/MapNavigator.h"
 #include "MapNavigator/MapNavigatorCompatible.h"
 #include "MapNavmesh/MapNavmeshQuery.h"
+#include "MapTeleport/MapTeleportAction.h"
 #include "RealTimeTask/RealTimeTaskAction.h"
 #include "RecoGrid/RecoGridRecognition.h"
 #include "Test/test.h"
@@ -74,6 +75,7 @@ int main(int argc, char** argv)
     // 其余平台把这个动作名留给各自的实现
     MaaAgentServerRegisterCustomAction("ZiplineImport", zipline::ZiplineImportActionRun, nullptr);
 #endif
+    MaaAgentServerRegisterCustomAction("MapTeleportSelect", mapteleport::MapTeleportSelectRun, nullptr);
 
     const char* identifier = argv[argc - 1];
 

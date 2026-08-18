@@ -50,6 +50,7 @@ MaaEnd 基于 [MaaFramework](https://github.com/MaaXYZ/MaaFramework)，主体流
 | BetterSliding | 离散数量滑条调节 | [components/better-sliding.md](./components/better-sliding.md) |
 | MapLocator | AI + CV 小地图定位 | [components/map-locator.md](./components/map-locator.md) |
 | MapNavigator | 自动寻路：给定目标坐标免录制直达，含交互/过图的路线支持录制 | [components/map-navigator.md](./components/map-navigator.md) |
+| MapTeleport | 大地图传送：给定区域与底图坐标，确认图标后点击传送点 | [components/map-teleport.md](./components/map-teleport.md) |
 | MapTracker | 小地图追踪与路径移动 | [components/map-tracker.md](./components/map-tracker.md) |
 | RecoGrid Engine | C++ 网格识别与滚动累计扫描引擎 | [components/recogrid-engine.md](./components/recogrid-engine.md) |
 | IconRecognition | C++ 物品图标识别、固定 ROI 和 Maa Custom Recognition | [components/icon-recognition.md](./components/icon-recognition.md) |

@@ -254,23 +254,23 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerBigMapPick",
+        "custom_action": "MapTeleportSelect",
         "custom_action_param": {
-            "map_name": "map02_lv001",
+            "zone": "Wuling",
             "target": [
-                339.8,
-                124.8
-            ],
-            "on_find": "Click"
+                814.5,
+                2138.2
+            ]
         },
         "anchor": {
-            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+            "__ScenePrivateMapTeleportPickAnchor": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
-            "__ScenePrivateMapTeleportConfirm"
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
         ]
     },
     "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValley1": {
@@ -281,23 +281,23 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerBigMapPick",
+        "custom_action": "MapTeleportSelect",
         "custom_action_param": {
-            "map_name": "map02_lv001",
+            "zone": "Wuling",
             "target": [
-                500.0,
-                184.3
-            ],
-            "on_find": "Click"
+                972.5,
+                2196.8
+            ]
         },
         "anchor": {
-            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+            "__ScenePrivateMapTeleportPickAnchor": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
-            "__ScenePrivateMapTeleportConfirm"
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
         ]
     },
     "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValley2": {
@@ -308,23 +308,23 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerBigMapPick",
+        "custom_action": "MapTeleportSelect",
         "custom_action_param": {
-            "map_name": "map02_lv001",
+            "zone": "Wuling",
             "target": [
-                316.7,
-                313.3
-            ],
-            "on_find": "Click"
+                791.7,
+                2324.0
+            ]
         },
         "anchor": {
-            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+            "__ScenePrivateMapTeleportPickAnchor": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
-            "__ScenePrivateMapTeleportConfirm"
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
         ]
     },
     "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValley3": {
@@ -335,23 +335,23 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerBigMapPick",
+        "custom_action": "MapTeleportSelect",
         "custom_action_param": {
-            "map_name": "map02_lv001",
+            "zone": "Wuling",
             "target": [
-                512.4,
-                344.9
-            ],
-            "on_find": "Click"
+                984.7,
+                2355.2
+            ]
         },
         "anchor": {
-            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+            "__ScenePrivateMapTeleportPickAnchor": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
-            "__ScenePrivateMapTeleportConfirm"
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley4Try1": {
@@ -464,23 +464,23 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerBigMapPick",
+        "custom_action": "MapTeleportSelect",
         "custom_action_param": {
-            "map_name": "map02_lv001",
+            "zone": "Wuling",
             "target": [
-                265.9,
-                401.9
-            ],
-            "on_find": "Click"
+                741.6,
+                2411.4
+            ]
         },
         "anchor": {
-            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+            "__ScenePrivateMapTeleportPickAnchor": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
-            "__ScenePrivateMapTeleportConfirm"
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
         ]
     },
     "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValley5": {
@@ -491,23 +491,23 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerBigMapPick",
+        "custom_action": "MapTeleportSelect",
         "custom_action_param": {
-            "map_name": "map02_lv001",
+            "zone": "Wuling",
             "target": [
-                491.4,
-                415.3
-            ],
-            "on_find": "Click"
+                964.0,
+                2424.6
+            ]
         },
         "anchor": {
-            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+            "__ScenePrivateMapTeleportPickAnchor": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
-            "__ScenePrivateMapTeleportConfirm"
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
         ]
     },
     "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValley6": {
@@ -518,23 +518,23 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerBigMapPick",
+        "custom_action": "MapTeleportSelect",
         "custom_action_param": {
-            "map_name": "map02_lv001",
+            "zone": "Wuling",
             "target": [
-                504.6,
-                493.5
-            ],
-            "on_find": "Click"
+                977.0,
+                2501.7
+            ]
         },
         "anchor": {
-            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+            "__ScenePrivateMapTeleportPickAnchor": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
-            "__ScenePrivateMapTeleportConfirm"
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
         ]
     },
     "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValley7": {
@@ -545,23 +545,23 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerBigMapPick",
+        "custom_action": "MapTeleportSelect",
         "custom_action_param": {
-            "map_name": "map02_lv001",
+            "zone": "Wuling",
             "target": [
-                278.1,
-                588.4
-            ],
-            "on_find": "Click"
+                753.7,
+                2595.3
+            ]
         },
         "anchor": {
-            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+            "__ScenePrivateMapTeleportPickAnchor": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
-            "__ScenePrivateMapTeleportConfirm"
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
         ]
     },
     "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValley8": {
@@ -572,23 +572,23 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerBigMapPick",
+        "custom_action": "MapTeleportSelect",
         "custom_action_param": {
-            "map_name": "map02_lv001",
+            "zone": "Wuling",
             "target": [
-                213.4,
-                647.9
-            ],
-            "on_find": "Click"
+                689.9,
+                2654.0
+            ]
         },
         "anchor": {
-            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+            "__ScenePrivateMapTeleportPickAnchor": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
-            "__ScenePrivateMapTeleportConfirm"
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
         ]
     },
     "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValley9": {
@@ -599,23 +599,23 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerBigMapPick",
+        "custom_action": "MapTeleportSelect",
         "custom_action_param": {
-            "map_name": "map02_lv001",
+            "zone": "Wuling",
             "target": [
-                339.5,
-                768.8
-            ],
-            "on_find": "Click"
+                814.2,
+                2773.2
+            ]
         },
         "anchor": {
-            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+            "__ScenePrivateMapTeleportPickAnchor": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
-            "__ScenePrivateMapTeleportConfirm"
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
         ]
     },
     "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValley10": {
@@ -626,22 +626,22 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerBigMapPick",
+        "custom_action": "MapTeleportSelect",
         "custom_action_param": {
-            "map_name": "map02_lv001",
+            "zone": "Wuling",
             "target": [
-                125.2,
-                824.7
-            ],
-            "on_find": "Click"
+                602.9,
+                2828.3
+            ]
         },
         "anchor": {
-            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+            "__ScenePrivateMapTeleportPickAnchor": ""
         },
         "post_delay": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
-            "__ScenePrivateMapTeleportConfirm"
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
         ]
     },
     "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCity0": {
@@ -652,23 +652,23 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerBigMapPick",
+        "custom_action": "MapTeleportSelect",
         "custom_action_param": {
-            "map_name": "map02_lv002",
+            "zone": "Wuling",
             "target": [
-                643.6,
-                257.6
-            ],
-            "on_find": "Click"
+                921.6,
+                1309.9
+            ]
         },
         "anchor": {
-            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+            "__ScenePrivateMapTeleportPickAnchor": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
-            "__ScenePrivateMapTeleportConfirm"
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
         ]
     },
     "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCity1": {
@@ -679,23 +679,23 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerBigMapPick",
+        "custom_action": "MapTeleportSelect",
         "custom_action_param": {
-            "map_name": "map02_lv002",
+            "zone": "Wuling",
             "target": [
-                212.7,
-                515.6
-            ],
-            "on_find": "Click"
+                497.6,
+                1563.8
+            ]
         },
         "anchor": {
-            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+            "__ScenePrivateMapTeleportPickAnchor": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
-            "__ScenePrivateMapTeleportConfirm"
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
         ]
     },
     "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCity2": {
@@ -706,23 +706,23 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerBigMapPick",
+        "custom_action": "MapTeleportSelect",
         "custom_action_param": {
-            "map_name": "map02_lv002",
+            "zone": "Wuling",
             "target": [
-                636.1,
-                538.8
-            ],
-            "on_find": "Click"
+                914.2,
+                1586.6
+            ]
         },
         "anchor": {
-            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+            "__ScenePrivateMapTeleportPickAnchor": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
-            "__ScenePrivateMapTeleportConfirm"
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
         ]
     },
     "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCity3": {
@@ -733,23 +733,23 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerBigMapPick",
+        "custom_action": "MapTeleportSelect",
         "custom_action_param": {
-            "map_name": "map02_lv002",
+            "zone": "Wuling",
             "target": [
-                423.6,
-                575.8
-            ],
-            "on_find": "Click"
+                705.1,
+                1623.0
+            ]
         },
         "anchor": {
-            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+            "__ScenePrivateMapTeleportPickAnchor": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
-            "__ScenePrivateMapTeleportConfirm"
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
         ]
     },
     "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCity4": {
@@ -760,23 +760,23 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerBigMapPick",
+        "custom_action": "MapTeleportSelect",
         "custom_action_param": {
-            "map_name": "map02_lv002",
+            "zone": "Wuling",
             "target": [
-                245.0,
-                697.9
-            ],
-            "on_find": "Click"
+                529.4,
+                1743.2
+            ]
         },
         "anchor": {
-            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+            "__ScenePrivateMapTeleportPickAnchor": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
-            "__ScenePrivateMapTeleportConfirm"
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
         ]
     },
     "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCity5": {
@@ -787,23 +787,23 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerBigMapPick",
+        "custom_action": "MapTeleportSelect",
         "custom_action_param": {
-            "map_name": "map02_lv002",
+            "zone": "Wuling",
             "target": [
-                664.9,
-                736.5
-            ],
-            "on_find": "Click"
+                942.6,
+                1781.2
+            ]
         },
         "anchor": {
-            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+            "__ScenePrivateMapTeleportPickAnchor": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
-            "__ScenePrivateMapTeleportConfirm"
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
         ]
     },
     "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCity6": {
@@ -814,23 +814,23 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerBigMapPick",
+        "custom_action": "MapTeleportSelect",
         "custom_action_param": {
-            "map_name": "map02_lv002",
+            "zone": "Wuling",
             "target": [
-                587.1,
-                825.5
-            ],
-            "on_find": "Click"
+                866.0,
+                1868.7
+            ]
         },
         "anchor": {
-            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+            "__ScenePrivateMapTeleportPickAnchor": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
-            "__ScenePrivateMapTeleportConfirm"
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
         ]
     },
     "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCity7": {
@@ -841,23 +841,23 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerBigMapPick",
+        "custom_action": "MapTeleportSelect",
         "custom_action_param": {
-            "map_name": "map02_lv002",
+            "zone": "Wuling",
             "target": [
-                422.5,
-                849.0
-            ],
-            "on_find": "Click"
+                704.1,
+                1891.9
+            ]
         },
         "anchor": {
-            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+            "__ScenePrivateMapTeleportPickAnchor": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
-            "__ScenePrivateMapTeleportConfirm"
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
         ]
     },
     "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCity8": {
@@ -868,23 +868,23 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerBigMapPick",
+        "custom_action": "MapTeleportSelect",
         "custom_action_param": {
-            "map_name": "map02_lv002",
+            "zone": "Wuling",
             "target": [
-                695.9,
-                917.5
-            ],
-            "on_find": "Click"
+                973.1,
+                1959.3
+            ]
         },
         "anchor": {
-            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+            "__ScenePrivateMapTeleportPickAnchor": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
-            "__ScenePrivateMapTeleportConfirm"
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
         ]
     },
     "__ScenePrivateMapWulingQingboStockadeEnterWorldWulingQingboStockade0": {
@@ -895,23 +895,23 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerBigMapPick",
+        "custom_action": "MapTeleportSelect",
         "custom_action_param": {
-            "map_name": "map02_lv003",
+            "zone": "Wuling",
             "target": [
-                275,
-                318
-            ],
-            "on_find": "Click"
+                1134.8,
+                2136.5
+            ]
         },
         "anchor": {
-            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+            "__ScenePrivateMapTeleportPickAnchor": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
-            "__ScenePrivateMapTeleportConfirm"
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
         ]
     },
     "__ScenePrivateMapWulingQingboStockadeEnterWorldWulingQingboStockade1": {
@@ -922,23 +922,23 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerBigMapPick",
+        "custom_action": "MapTeleportSelect",
         "custom_action_param": {
-            "map_name": "map02_lv003",
+            "zone": "Wuling",
             "target": [
-                313,
-                466
-            ],
-            "on_find": "Click"
+                1172.3,
+                2282.5
+            ]
         },
         "anchor": {
-            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+            "__ScenePrivateMapTeleportPickAnchor": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
-            "__ScenePrivateMapTeleportConfirm"
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
         ]
     },
     "__ScenePrivateMapWulingQingboStockadeEnterWorldWulingQingboStockade2": {
@@ -949,23 +949,23 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerBigMapPick",
+        "custom_action": "MapTeleportSelect",
         "custom_action_param": {
-            "map_name": "map02_lv003",
+            "zone": "Wuling",
             "target": [
-                400,
-                543
-            ],
-            "on_find": "Click"
+                1258.1,
+                2358.4
+            ]
         },
         "anchor": {
-            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+            "__ScenePrivateMapTeleportPickAnchor": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
-            "__ScenePrivateMapTeleportConfirm"
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
         ]
     },
     "__ScenePrivateMapWulingQingboStockadeEnterWorldWulingQingboStockade3": {
@@ -976,23 +976,23 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerBigMapPick",
+        "custom_action": "MapTeleportSelect",
         "custom_action_param": {
-            "map_name": "map02_lv003",
+            "zone": "Wuling",
             "target": [
-                507,
-                368
-            ],
-            "on_find": "Click"
+                1363.6,
+                2185.8
+            ]
         },
         "anchor": {
-            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+            "__ScenePrivateMapTeleportPickAnchor": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
-            "__ScenePrivateMapTeleportConfirm"
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
         ]
     },
     "__ScenePrivateMapWulingQingboStockadeEnterWorldWulingQingboStockade4": {
@@ -1003,23 +1003,23 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerBigMapPick",
+        "custom_action": "MapTeleportSelect",
         "custom_action_param": {
-            "map_name": "map02_lv003",
+            "zone": "Wuling",
             "target": [
-                543,
-                626
-            ],
-            "on_find": "Click"
+                1399.1,
+                2440.2
+            ]
         },
         "anchor": {
-            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+            "__ScenePrivateMapTeleportPickAnchor": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
-            "__ScenePrivateMapTeleportConfirm"
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
         ]
     },
     "__ScenePrivateMapWulingMarkerStoneEnterWorldWulingMarkerStone1": {
@@ -1030,23 +1030,23 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerBigMapPick",
+        "custom_action": "MapTeleportSelect",
         "custom_action_param": {
-            "map_name": "map02_lv004",
+            "zone": "Wuling",
             "target": [
-                498.9,
-                199.9
-            ],
-            "on_find": "Click"
+                491.1,
+                2117.0
+            ]
         },
         "anchor": {
-            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+            "__ScenePrivateMapTeleportPickAnchor": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
-            "__ScenePrivateMapTeleportConfirm"
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
         ]
     },
     "__ScenePrivateMapWulingMarkerStoneEnterWorldWulingMarkerStone2": {
@@ -1057,23 +1057,23 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerBigMapPick",
+        "custom_action": "MapTeleportSelect",
         "custom_action_param": {
-            "map_name": "map02_lv004",
+            "zone": "Wuling",
             "target": [
-                419.0,
-                317.0
-            ],
-            "on_find": "Click"
+                412.5,
+                2232.3
+            ]
         },
         "anchor": {
-            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+            "__ScenePrivateMapTeleportPickAnchor": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
-            "__ScenePrivateMapTeleportConfirm"
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
         ]
     },
     "__ScenePrivateMapWulingMarkerStoneEnterWorldWulingMarkerStone3": {
@@ -1084,23 +1084,23 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerBigMapPick",
+        "custom_action": "MapTeleportSelect",
         "custom_action_param": {
-            "map_name": "map02_lv004",
+            "zone": "Wuling",
             "target": [
-                600.6,
-                328.7
-            ],
-            "on_find": "Click"
+                591.2,
+                2243.8
+            ]
         },
         "anchor": {
-            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+            "__ScenePrivateMapTeleportPickAnchor": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
-            "__ScenePrivateMapTeleportConfirm"
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
         ]
     },
     "__ScenePrivateMapWulingMarkerStoneEnterWorldWulingMarkerStone4": {
@@ -1111,23 +1111,23 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerBigMapPick",
+        "custom_action": "MapTeleportSelect",
         "custom_action_param": {
-            "map_name": "map02_lv004",
+            "zone": "Wuling",
             "target": [
-                512.1,
-                672.8
-            ],
-            "on_find": "Click"
+                504.1,
+                2582.4
+            ]
         },
         "anchor": {
-            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+            "__ScenePrivateMapTeleportPickAnchor": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
-            "__ScenePrivateMapTeleportConfirm"
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
         ]
     },
     "__ScenePrivateMapWulingTestAreaEnterWorldWulingTestArea1": {
@@ -1138,23 +1138,23 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerBigMapPick",
+        "custom_action": "MapTeleportSelect",
         "custom_action_param": {
-            "map_name": "map02_lv005",
+            "zone": "Wuling",
             "target": [
-                336.3,
-                420.1
-            ],
-            "on_find": "Click"
+                1291.4,
+                1757.8
+            ]
         },
         "anchor": {
-            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+            "__ScenePrivateMapTeleportPickAnchor": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
-            "__ScenePrivateMapTeleportConfirm"
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
         ]
     },
     "__ScenePrivateMapWulingTestAreaEnterWorldWulingTestArea2": {
@@ -1165,23 +1165,23 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerBigMapPick",
+        "custom_action": "MapTeleportSelect",
         "custom_action_param": {
-            "map_name": "map02_lv005",
+            "zone": "Wuling",
             "target": [
-                391.6,
-                362.5
-            ],
-            "on_find": "Click"
+                1346.0,
+                1701.0
+            ]
         },
         "anchor": {
-            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+            "__ScenePrivateMapTeleportPickAnchor": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
-            "__ScenePrivateMapTeleportConfirm"
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
         ]
     },
     "__ScenePrivateMapWulingSwordVaultDaleEnterWorldWulingSwordVaultDale1": {
@@ -1192,23 +1192,23 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerBigMapPick",
+        "custom_action": "MapTeleportSelect",
         "custom_action_param": {
-            "map_name": "map02_lv006",
+            "zone": "Wuling",
             "target": [
-                578.5,
-                383.2
-            ],
-            "on_find": "Click"
+                1817.3,
+                2777.1
+            ]
         },
         "anchor": {
-            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+            "__ScenePrivateMapTeleportPickAnchor": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
-            "__ScenePrivateMapTeleportConfirm"
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
         ]
     },
     "__ScenePrivateMapWulingSwordVaultDaleEnterWorldWulingSwordVaultDale2": {
@@ -1219,23 +1219,23 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerBigMapPick",
+        "custom_action": "MapTeleportSelect",
         "custom_action_param": {
-            "map_name": "map02_lv006",
+            "zone": "Wuling",
             "target": [
-                601.6,
-                479.3
-            ],
-            "on_find": "Click"
+                1840.1,
+                2871.7
+            ]
         },
         "anchor": {
-            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+            "__ScenePrivateMapTeleportPickAnchor": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
-            "__ScenePrivateMapTeleportConfirm"
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
         ]
     },
     "__ScenePrivateMapWulingSwordVaultDaleEnterWorldWulingSwordVaultDale3": {
@@ -1246,23 +1246,23 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerBigMapPick",
+        "custom_action": "MapTeleportSelect",
         "custom_action_param": {
-            "map_name": "map02_lv006",
+            "zone": "Wuling",
             "target": [
-                356.5,
-                297.2
-            ],
-            "on_find": "Click"
+                1598.9,
+                2692.5
+            ]
         },
         "anchor": {
-            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+            "__ScenePrivateMapTeleportPickAnchor": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
-            "__ScenePrivateMapTeleportConfirm"
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
         ]
     },
     "__ScenePrivateMapUnknownEnterWorldWulingMarkerStone4Try1": {
@@ -1620,23 +1620,23 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerBigMapPick",
+        "custom_action": "MapTeleportSelect",
         "custom_action_param": {
-            "map_name": "map02_lv007",
+            "zone": "Wuling",
             "target": [
-                310.61,
-                303.17
-            ],
-            "on_find": "Click"
+                881.4,
+                874.9
+            ]
         },
         "anchor": {
-            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+            "__ScenePrivateMapTeleportPickAnchor": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
-            "__ScenePrivateMapTeleportConfirm"
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
         ]
     },
     "__ScenePrivateMapWulingYinglungPassEnterWorldWulingYinglungPass1": {
@@ -1647,23 +1647,23 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerBigMapPick",
+        "custom_action": "MapTeleportSelect",
         "custom_action_param": {
-            "map_name": "map02_lv007",
+            "zone": "Wuling",
             "target": [
-                544.93,
-                410.38
-            ],
-            "on_find": "Click"
+                1112.0,
+                980.4
+            ]
         },
         "anchor": {
-            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+            "__ScenePrivateMapTeleportPickAnchor": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
-            "__ScenePrivateMapTeleportConfirm"
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
         ]
     },
     "__ScenePrivateMapWulingYinglungPassEnterWorldWulingYinglungPass2": {
@@ -1674,23 +1674,23 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerBigMapPick",
+        "custom_action": "MapTeleportSelect",
         "custom_action_param": {
-            "map_name": "map02_lv007",
+            "zone": "Wuling",
             "target": [
-                566.01,
-                226.31
-            ],
-            "on_find": "Click"
+                1132.7,
+                799.3
+            ]
         },
         "anchor": {
-            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+            "__ScenePrivateMapTeleportPickAnchor": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
-            "__ScenePrivateMapTeleportConfirm"
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
         ]
     },
     "__ScenePrivateMapWulingYinglungPassEnterWorldWulingYinglungPass3": {
@@ -1701,23 +1701,23 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerBigMapPick",
+        "custom_action": "MapTeleportSelect",
         "custom_action_param": {
-            "map_name": "map02_lv007",
+            "zone": "Wuling",
             "target": [
-                601.31,
-                468.04
-            ],
-            "on_find": "Click"
+                1167.5,
+                1037.1
+            ]
         },
         "anchor": {
-            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+            "__ScenePrivateMapTeleportPickAnchor": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
-            "__ScenePrivateMapTeleportConfirm"
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
         ]
     },
     "__ScenePrivateMapWulingYinglungPassEnterWorldWulingYinglungPass4": {
@@ -1728,23 +1728,23 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerBigMapPick",
+        "custom_action": "MapTeleportSelect",
         "custom_action_param": {
-            "map_name": "map02_lv007",
+            "zone": "Wuling",
             "target": [
-                644.34,
-                200.91
-            ],
-            "on_find": "Click"
+                1209.8,
+                774.3
+            ]
         },
         "anchor": {
-            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+            "__ScenePrivateMapTeleportPickAnchor": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
-            "__ScenePrivateMapTeleportConfirm"
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
         ]
     },
     "__ScenePrivateMapWulingYinglungPassEnterWorldWulingYinglungPass5": {
@@ -1755,23 +1755,23 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerBigMapPick",
+        "custom_action": "MapTeleportSelect",
         "custom_action_param": {
-            "map_name": "map02_lv007",
+            "zone": "Wuling",
             "target": [
-                646.08,
-                339.36
-            ],
-            "on_find": "Click"
+                1211.5,
+                910.5
+            ]
         },
         "anchor": {
-            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+            "__ScenePrivateMapTeleportPickAnchor": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
-            "__ScenePrivateMapTeleportConfirm"
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
         ]
     },
     "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZone0": {
@@ -1782,23 +1782,23 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerBigMapPick",
+        "custom_action": "MapTeleportSelect",
         "custom_action_param": {
-            "map_name": "map02_lv008",
+            "zone": "Wuling",
             "target": [
-                261.09,
-                607.3
-            ],
-            "on_find": "Click"
+                1122.0,
+                597.7
+            ]
         },
         "anchor": {
-            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+            "__ScenePrivateMapTeleportPickAnchor": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
-            "__ScenePrivateMapTeleportConfirm"
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
         ]
     },
     "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZone1": {
@@ -1809,23 +1809,23 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerBigMapPick",
+        "custom_action": "MapTeleportSelect",
         "custom_action_param": {
-            "map_name": "map02_lv008",
+            "zone": "Wuling",
             "target": [
-                307.92,
-                321.18
-            ],
-            "on_find": "Click"
+                1168.1,
+                316.2
+            ]
         },
         "anchor": {
-            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+            "__ScenePrivateMapTeleportPickAnchor": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
-            "__ScenePrivateMapTeleportConfirm"
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
         ]
     },
     "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZone2": {
@@ -1836,23 +1836,23 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerBigMapPick",
+        "custom_action": "MapTeleportSelect",
         "custom_action_param": {
-            "map_name": "map02_lv008",
+            "zone": "Wuling",
             "target": [
-                343.33,
-                439.41
-            ],
-            "on_find": "Click"
+                1203.0,
+                432.5
+            ]
         },
         "anchor": {
-            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+            "__ScenePrivateMapTeleportPickAnchor": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
-            "__ScenePrivateMapTeleportConfirm"
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
         ]
     },
     "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZone3": {
@@ -1863,23 +1863,23 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerBigMapPick",
+        "custom_action": "MapTeleportSelect",
         "custom_action_param": {
-            "map_name": "map02_lv008",
+            "zone": "Wuling",
             "target": [
-                422.72,
-                330.69
-            ],
-            "on_find": "Click"
+                1281.1,
+                325.6
+            ]
         },
         "anchor": {
-            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+            "__ScenePrivateMapTeleportPickAnchor": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
-            "__ScenePrivateMapTeleportConfirm"
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
         ]
     },
     "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZone4": {
@@ -1890,23 +1890,23 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerBigMapPick",
+        "custom_action": "MapTeleportSelect",
         "custom_action_param": {
-            "map_name": "map02_lv008",
+            "zone": "Wuling",
             "target": [
-                435.31,
-                620.83
-            ],
-            "on_find": "Click"
+                1293.5,
+                611.0
+            ]
         },
         "anchor": {
-            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+            "__ScenePrivateMapTeleportPickAnchor": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
-            "__ScenePrivateMapTeleportConfirm"
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
         ]
     },
     "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZone5": {
@@ -1917,23 +1917,23 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerBigMapPick",
+        "custom_action": "MapTeleportSelect",
         "custom_action_param": {
-            "map_name": "map02_lv008",
+            "zone": "Wuling",
             "target": [
-                537.27,
-                510.37
-            ],
-            "on_find": "Click"
+                1393.8,
+                502.4
+            ]
         },
         "anchor": {
-            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+            "__ScenePrivateMapTeleportPickAnchor": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
-            "__ScenePrivateMapTeleportConfirm"
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
         ]
     },
     "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZone6": {
@@ -1944,23 +1944,23 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerBigMapPick",
+        "custom_action": "MapTeleportSelect",
         "custom_action_param": {
-            "map_name": "map02_lv008",
+            "zone": "Wuling",
             "target": [
-                539.3,
-                325.89
-            ],
-            "on_find": "Click"
+                1395.8,
+                320.8
+            ]
         },
         "anchor": {
-            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+            "__ScenePrivateMapTeleportPickAnchor": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
-            "__ScenePrivateMapTeleportConfirm"
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
         ]
     },
     "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZone7": {
@@ -1971,23 +1971,23 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerBigMapPick",
+        "custom_action": "MapTeleportSelect",
         "custom_action_param": {
-            "map_name": "map02_lv008",
+            "zone": "Wuling",
             "target": [
-                599.63,
-                538.04
-            ],
-            "on_find": "Click"
+                1455.2,
+                529.6
+            ]
         },
         "anchor": {
-            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+            "__ScenePrivateMapTeleportPickAnchor": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
-            "__ScenePrivateMapTeleportConfirm"
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
         ]
     },
     "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZone8": {
@@ -1998,23 +1998,23 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerBigMapPick",
+        "custom_action": "MapTeleportSelect",
         "custom_action_param": {
-            "map_name": "map02_lv008",
+            "zone": "Wuling",
             "target": [
-                691.81,
-                328.34
-            ],
-            "on_find": "Click"
+                1545.9,
+                323.2
+            ]
         },
         "anchor": {
-            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+            "__ScenePrivateMapTeleportPickAnchor": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
-            "__ScenePrivateMapTeleportConfirm"
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
         ]
     },
     "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZone9": {
@@ -2025,23 +2025,23 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerBigMapPick",
+        "custom_action": "MapTeleportSelect",
         "custom_action_param": {
-            "map_name": "map02_lv008",
+            "zone": "Wuling",
             "target": [
-                730.12,
-                449.93
-            ],
-            "on_find": "Click"
+                1583.6,
+                442.9
+            ]
         },
         "anchor": {
-            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+            "__ScenePrivateMapTeleportPickAnchor": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
-            "__ScenePrivateMapTeleportConfirm"
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
         ]
     },
     "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZone10": {
@@ -2052,23 +2052,23 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerBigMapPick",
+        "custom_action": "MapTeleportSelect",
         "custom_action_param": {
-            "map_name": "map02_lv008",
+            "zone": "Wuling",
             "target": [
-                734.21,
-                386.53
-            ],
-            "on_find": "Click"
+                1587.6,
+                380.5
+            ]
         },
         "anchor": {
-            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+            "__ScenePrivateMapTeleportPickAnchor": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
-            "__ScenePrivateMapTeleportConfirm"
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
         ]
     },
     "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZone11": {
@@ -2079,23 +2079,23 @@
         ],
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapTrackerBigMapPick",
+        "custom_action": "MapTeleportSelect",
         "custom_action_param": {
-            "map_name": "map02_lv008",
+            "zone": "Wuling",
             "target": [
-                737.62,
-                472.57
-            ],
-            "on_find": "Click"
+                1590.9,
+                465.2
+            ]
         },
         "anchor": {
-            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+            "__ScenePrivateMapTeleportPickAnchor": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
-            "__ScenePrivateMapTeleportConfirm"
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
         ]
     }
 }

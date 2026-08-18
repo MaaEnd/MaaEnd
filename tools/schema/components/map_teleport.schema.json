@@ -1,0 +1,57 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "MapTeleport Component Schema",
+    "description": "All MapTeleport custom action parameter definitions. Referenced by custom.action.schema.json.",
+    "$defs": {
+        "Coordinate2D": {
+            "type": "array",
+            "description": "A 2D coordinate [x, y].",
+            "prefixItems": [
+                { "type": "number" },
+                { "type": "number" }
+            ],
+            "minItems": 2,
+            "maxItems": 2,
+            "items": false
+        },
+        "MapTeleportSelectParam": {
+            "type": "object",
+            "description": "Parameters for MapTeleportSelect: find the given teleport point on the open world map and click it.",
+            "additionalProperties": false,
+            "required": [ "zone", "target" ],
+            "properties": {
+                "zone": {
+                    "title": "Zone",
+                    "description": "Zone name, i.e. the directory name under assets/resource/image/MapLocator/.",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "target": {
+                    "title": "Target",
+                    "description": "Teleport point [x, y] in that zone's base map pixel frame.",
+                    "$ref": "#/$defs/Coordinate2D"
+                },
+                "core": {
+                    "title": "Core",
+                    "description": "The point is the zone's base teleport point, whose icon floats with the player's own placement. Optional, defaults to false.",
+                    "type": "boolean",
+                    "default": false
+                },
+                "max_attempts": {
+                    "title": "Max Attempts",
+                    "description": "Recognition attempts. Panning the map is not charged against it. Optional, defaults to 4.",
+                    "type": "integer",
+                    "minimum": 1,
+                    "default": 4
+                },
+                "gate_base": {
+                    "title": "Gate Base",
+                    "description": "Maximum offset between the match and the expected position, in base map pixels. Ordinary anchors only. Optional, defaults to 10.0.",
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "default": 10.0
+                }
+            }
+        }
+    }
+}
