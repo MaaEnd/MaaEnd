@@ -627,8 +627,8 @@ bool append_parsed_waypoint(const NaviWaypointInput& input, std::vector<Waypoint
     }
 
     const bool has_legacy_position = input.has_x_ && input.has_y_;
-    const bool has_tier_target = input.has_target_ && !input.target_tier_.empty();
-    if (has_legacy_position || has_tier_target) {
+    // No target_tier -> the target stays base-pixel (legacy), same as the bare-array form; see expander.
+    if (has_legacy_position || input.has_target_) {
         const double target_x = input.has_target_ ? input.target_.at(0) : input.x_;
         const double target_y = input.has_target_ ? input.target_.at(1) : input.y_;
         append_expanded_waypoints(target_x, target_y, input.actions_, zone_id, input.target_tier_, input.strict_arrival_, out_waypoints);
