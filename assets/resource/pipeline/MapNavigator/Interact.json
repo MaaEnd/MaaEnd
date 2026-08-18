@@ -1,0 +1,67 @@
+{
+    "MapNavigatorInteractStart": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "MapNavigatorInteract",
+            "MapNavigatorInteractEnd"
+        ]
+    },
+    "MapNavigatorInteract": {
+        "desc": "异步交互：只对路线点明的交互提示动手",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    755,
+                    330,
+                    297,
+                    312
+                ],
+                // 由路线点上的 interact_text 注入替换。留着这个占位是为了没注入时谁都对不上，不会误按。
+                "expected": [
+                    "__MapNavigatorInteractTextNotInjected__"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": "ClickKey",
+        "key": 70, // F 交互；可通过全局设置 KeymapInteract 改绑
+        "post_delay": 0,
+        "next": [
+            "MapNavigatorInteractEnd"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "识别到交互提示",
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    //子任务出口：由 MapNavigator 以 MaaContextRunTask 调起，跑到这里就结束、返回引擎
+    "MapNavigatorInteractEnd": {
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    // 行进中的预筛：只决定要不要停车，停下后由上面的节点按路线给的文字再认一次才动手，所以 threshold 可以松。
+    // MapNavigator 直接读这里的 roi/template/threshold，不派发这个节点。提示长得不一样的业务照这个抄一份，
+    // 在路线点上写 interact_scan 点名自己那份即可。roi 写 1280x720 基准帧的绝对坐标。
+    "MapNavigatorInteractScan": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    755,
+                    330,
+                    297,
+                    312
+                ],
+                "template": "RealTimeTask/AutoPick.png",
+                "threshold": 0.75
+            }
+        }
+    }
+}

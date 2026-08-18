@@ -1,0 +1,304 @@
+#include "prompt_scan_profile.h"
+
+#include <cmath>
+#include <filesystem>
+#include <optional>
+#include <string_view>
+#include <vector>
+
+#include <MaaFramework/MaaAPI.h>
+#include <MaaUtils/ImageIo.h>
+#include <MaaUtils/Logger.h>
+#include <meojson/json.hpp>
+#include <opencv2/imgproc.hpp>
+
+#include "controller_type_utils.h"
+#include "navi_config.h"
+
+#include "../utils.h"
+
+namespace mapnavigator
+{
+
+namespace
+{
+
+// purpose == nullptr 时一声不出: 存在性探测本来就允许没有这个节点。
+std::optional<json::object> ReadNodeObject(MaaContext* context, const std::string& node_name, const char* purpose)
+{
+    if (context == nullptr || node_name.empty()) {
+        return std::nullopt;
+    }
+
+    ScopedStringBuffer buffer;
+    if (buffer.Get() == nullptr || !MaaContextGetNodeData(context, node_name.c_str(), buffer.Get())) {
+        if (purpose != nullptr) {
+            LogWarn << purpose << ": MaaContextGetNodeData failed." << VAR(node_name);
+        }
+        return std::nullopt;
+    }
+    const char* raw = MaaStringBufferGet(buffer.Get());
+    if (raw == nullptr || raw[0] == '\0') {
+        if (purpose != nullptr) {
+            LogWarn << purpose << ": empty node data." << VAR(node_name);
+        }
+        return std::nullopt;
+    }
+
+    const auto parsed = json::parse(raw);
+    if (!parsed || !parsed->is_object()) {
+        if (purpose != nullptr) {
+            LogWarn << purpose << ": node JSON is not an object." << VAR(node_name);
+        }
+        return std::nullopt;
+    }
+    return parsed->as_object();
+}
+
+// 框架回吐的节点恒为 { "recognition": { "type": ..., "param": { ... } } }, 不接受别的形状。
+const json::object* RecognitionParam(const json::object& node)
+{
+    if (!node.contains("recognition") || !node.at("recognition").is_object()) {
+        return nullptr;
+    }
+    const auto& reco = node.at("recognition").as_object();
+    if (!reco.contains("param") || !reco.at("param").is_object()) {
+        return nullptr;
+    }
+    return &reco.at("param").as_object();
+}
+
+const json::value* FindRecognitionParam(const json::object& node, const char* key)
+{
+    const json::object* param = RecognitionParam(node);
+    return param != nullptr && param->contains(key) ? &param->at(key) : nullptr;
+}
+
+std::string ReadRecognitionType(const json::object& node)
+{
+    if (!node.contains("recognition") || !node.at("recognition").is_object()) {
+        return {};
+    }
+    const auto& reco = node.at("recognition").as_object();
+    return reco.contains("type") && reco.at("type").is_string() ? reco.at("type").as_string() : std::string {};
+}
+
+bool ReadRoiArray(const json::value& holder, cv::Rect* out)
+{
+    if (!holder.is_array()) {
+        return false;
+    }
+    const auto& arr = holder.as_array();
+    if (arr.size() < 4) {
+        return false;
+    }
+    for (size_t i = 0; i < 4; ++i) {
+        if (!arr.at(i).is_number()) {
+            return false;
+        }
+    }
+    out->x = static_cast<int>(std::lround(arr.at(0).as_double()));
+    out->y = static_cast<int>(std::lround(arr.at(1).as_double()));
+    out->width = static_cast<int>(std::lround(arr.at(2).as_double()));
+    out->height = static_cast<int>(std::lround(arr.at(3).as_double()));
+    return out->width > 0 && out->height > 0;
+}
+
+// 作者可以写单值, 但框架回吐时 template 与 threshold 恒为数组。预筛只跑一张图, 多给的当写错处理。
+bool ReadSingleString(const json::value& holder, std::string* out)
+{
+    if (!holder.is_array() || holder.as_array().size() != 1 || !holder.as_array().at(0).is_string()) {
+        return false;
+    }
+    *out = holder.as_array().at(0).as_string();
+    return true;
+}
+
+bool ReadBool(const json::value& holder, bool* out)
+{
+    if (!holder.is_boolean()) {
+        return false;
+    }
+    *out = holder.as_boolean();
+    return true;
+}
+
+bool ReadSingleNumber(const json::value& holder, double* out)
+{
+    if (!holder.is_array() || holder.as_array().size() != 1 || !holder.as_array().at(0).is_number()) {
+        return false;
+    }
+    *out = holder.as_array().at(0).as_double();
+    return true;
+}
+
+// 框架先加载 ./resource, 再把控制器自己的 overlay 叠上去, 所以 overlay 里的同名图会胜出; 这里照同一个
+// 顺序找, 基础资源永远排最后。云游戏与本地 ADB 在控制器类型上无法区分, 所以 resource_cloud_adb 不参与。
+std::vector<std::filesystem::path> ResourceImageRoots(std::string_view controller_type)
+{
+    const std::filesystem::path install_dir = std::filesystem::absolute(get_exe_dir() / "..");
+
+    std::vector<std::string> dirs;
+    if (IsPlayCoverControllerType(controller_type)) {
+        dirs.emplace_back("resource_playcover");
+        dirs.emplace_back("resource_adb");
+    }
+    else if (IsAdbLikeControllerType(controller_type)) {
+        dirs.emplace_back("resource_adb");
+    }
+    else if (IsWlrootsLikeControllerType(controller_type)) {
+        dirs.emplace_back("resource_wlroots");
+    }
+    else if (EqualsIgnoreCase(controller_type, "macos")) {
+        dirs.emplace_back("resource_macos");
+    }
+    dirs.emplace_back("resource");
+
+    std::vector<std::filesystem::path> roots;
+    roots.reserve(dirs.size());
+    for (const std::string& dir : dirs) {
+        roots.push_back(install_dir / dir / "image");
+    }
+    return roots;
+}
+
+std::string DescribeRoots(const std::vector<std::filesystem::path>& roots)
+{
+    std::string text;
+    for (const std::filesystem::path& root : roots) {
+        if (!text.empty()) {
+            text += " | ";
+        }
+        text += MAA_NS::path_to_utf8_string(root);
+    }
+    return text;
+}
+
+} // namespace
+
+bool TryReadNodeRoi(MaaContext* context, const std::string& node_name, cv::Rect* out)
+{
+    const auto node = ReadNodeObject(context, node_name, "Pipeline ROI");
+    if (!node) {
+        return false;
+    }
+
+    const json::value* roi = FindRecognitionParam(*node, "roi");
+    if (roi == nullptr || !ReadRoiArray(*roi, out)) {
+        LogWarn << "Pipeline ROI: no usable roi array in node data." << VAR(node_name);
+        return false;
+    }
+    return true;
+}
+
+bool TryLoadPromptScanProfile(
+    MaaContext* context,
+    const std::string& scan_node,
+    std::string_view controller_type,
+    PromptScanProfile* out)
+{
+    const auto node = ReadNodeObject(context, scan_node, "Prompt scan node");
+    if (!node) {
+        return false;
+    }
+
+    const std::string type = ReadRecognitionType(*node);
+    if (!EqualsIgnoreCase(type, "TemplateMatch")) {
+        LogError << "Prompt scan node must recognize by TemplateMatch." << VAR(scan_node) << VAR(type);
+        return false;
+    }
+
+    cv::Rect base_roi;
+    const json::value* roi_value = FindRecognitionParam(*node, "roi");
+    if (roi_value == nullptr || !ReadRoiArray(*roi_value, &base_roi)) {
+        LogError << "Prompt scan node has no usable roi array." << VAR(scan_node);
+        return false;
+    }
+    // 相对上一个节点的偏移 ROI 在这里没有参照物: 预筛每帧独立跑, 只收基础帧里的绝对坐标。
+    if (base_roi.x < 0 || base_roi.y < 0 || base_roi.x + base_roi.width > kPipelineRoiBaseWidth
+        || base_roi.y + base_roi.height > kPipelineRoiBaseHeight) {
+        LogError << "Prompt scan roi must be absolute and inside the authored base frame." << VAR(scan_node) << VAR(base_roi.x)
+                 << VAR(base_roi.y) << VAR(base_roi.width) << VAR(base_roi.height);
+        return false;
+    }
+
+    std::string relative_path;
+    const json::value* template_value = FindRecognitionParam(*node, "template");
+    if (template_value == nullptr || !ReadSingleString(*template_value, &relative_path) || relative_path.empty()) {
+        LogError << "Prompt scan node needs exactly one template path." << VAR(scan_node);
+        return false;
+    }
+
+    double threshold = kPromptIconMatchThreshold;
+    const json::value* threshold_value = FindRecognitionParam(*node, "threshold");
+    if (threshold_value != nullptr && !ReadSingleNumber(*threshold_value, &threshold)) {
+        LogError << "Prompt scan node needs exactly one threshold." << VAR(scan_node);
+        return false;
+    }
+    if (threshold <= 0.0 || threshold > 1.0) {
+        LogError << "Prompt scan threshold must sit in (0, 1]." << VAR(scan_node) << VAR(threshold);
+        return false;
+    }
+
+    const std::vector<std::filesystem::path> roots = ResourceImageRoots(controller_type);
+    std::filesystem::path resolved;
+    for (const std::filesystem::path& root : roots) {
+        const std::filesystem::path candidate = root / relative_path;
+        if (std::filesystem::exists(candidate)) {
+            resolved = candidate;
+            break;
+        }
+    }
+    if (resolved.empty()) {
+        LogError << "Prompt scan template not found under any loaded resource tree." << VAR(scan_node) << VAR(relative_path)
+                 << VAR(DescribeRoots(roots));
+        return false;
+    }
+
+    bool green_mask = false;
+    const json::value* green_mask_value = FindRecognitionParam(*node, "green_mask");
+    if (green_mask_value != nullptr && !ReadBool(*green_mask_value, &green_mask)) {
+        LogError << "Prompt scan green_mask must be a boolean." << VAR(scan_node);
+        return false;
+    }
+
+    // 纯绿被排除在匹配之外, 与 pipeline 的 TemplateMatch 同判据; 全不透明时按没有掩码处理。
+    cv::Mat mask;
+    cv::Mat templ;
+    if (green_mask) {
+        const cv::Mat color = MAA_NS::imread(resolved, cv::IMREAD_COLOR);
+        if (!color.empty()) {
+            cv::inRange(color, cv::Scalar(0, 255, 0), cv::Scalar(0, 255, 0), mask);
+            mask = ~mask;
+            if (cv::countNonZero(mask) == mask.rows * mask.cols) {
+                mask.release();
+            }
+            cv::cvtColor(color, templ, cv::COLOR_BGR2GRAY);
+        }
+    }
+    else {
+        templ = MAA_NS::imread(resolved, cv::IMREAD_GRAYSCALE);
+    }
+    if (templ.empty()) {
+        LogError << "Prompt scan template failed to decode." << VAR(scan_node) << VAR(MAA_NS::path_to_utf8_string(resolved));
+        return false;
+    }
+    // cv::matchTemplate 的硬前提。这里不放过, 后台线程每帧都会踩上去; 而 cpp-algo 不留 try/catch。
+    if (templ.cols > base_roi.width || templ.rows > base_roi.height) {
+        LogError << "Prompt scan template is larger than its roi." << VAR(scan_node) << VAR(templ.cols) << VAR(templ.rows)
+                 << VAR(base_roi.width) << VAR(base_roi.height);
+        return false;
+    }
+
+    out->scan_node = scan_node;
+    out->base_roi = base_roi;
+    out->templ = templ;
+    out->mask = mask;
+    out->threshold = threshold;
+    LogInfo << "Prompt scan profile loaded from the pipeline." << VAR(scan_node) << VAR(MAA_NS::path_to_utf8_string(resolved))
+            << VAR(threshold) << VAR(green_mask) << VAR(base_roi.x) << VAR(base_roi.y) << VAR(base_roi.width)
+            << VAR(base_roi.height);
+    return true;
+}
+
+} // namespace mapnavigator

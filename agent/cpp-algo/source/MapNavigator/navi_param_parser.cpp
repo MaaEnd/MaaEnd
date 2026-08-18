@@ -16,6 +16,8 @@
 
 #include <MaaUtils/Logger.h>
 
+#include "navi_config.h"
+
 namespace mapnavigator
 {
 
@@ -89,6 +91,39 @@ struct NaviActionListInput
 
         actions_ = input.as<std::vector<ActionType>>();
         return std::all_of(actions_.begin(), actions_.end(), is_valid_action_type);
+    }
+};
+
+// A string or an array of strings. Empty is rejected rather than ignored: empty text matches anything on the
+// recognition side, which is exactly the press-on-any-prompt behaviour these fields exist to avoid.
+struct NaviTextListInput
+{
+    std::vector<std::string> texts_;
+
+    bool check_json(const json::value& input) const
+    {
+        NaviTextListInput parsed;
+        return parsed.from_json(input);
+    }
+
+    bool from_json(const json::value& input)
+    {
+        texts_.clear();
+
+        if (input.is_string()) {
+            if (input.as_string().empty()) {
+                return false;
+            }
+            texts_.push_back(input.as_string());
+            return true;
+        }
+
+        if (!input.is<std::vector<std::string>>()) {
+            return false;
+        }
+
+        texts_ = input.as<std::vector<std::string>>();
+        return !texts_.empty() && std::all_of(texts_.begin(), texts_.end(), [](const std::string& text) { return !text.empty(); });
     }
 };
 
@@ -205,6 +240,47 @@ struct NaviWaypointObjectPresenceInput
         MEO_OPT MEO_KEY("target") target_)
 };
 
+// Read from a point and from the route root alike, as its own pass over the same object: MEO_OPT MEO_KEY spends three
+// macro arguments per key and the macro tops out at 64, so a single block holds at most 21 keys.
+struct NaviInteractInput
+{
+    NaviTextListInput interact_text_;
+    NaviTextListInput interactText_;
+    std::string interact_scan_;
+    std::string interactScan_;
+
+    MEO_FROMJSON(
+        MEO_OPT MEO_KEY("interact_text") interact_text_,
+        MEO_OPT MEO_KEY("interactText") interactText_,
+        MEO_OPT MEO_KEY("interact_scan") interact_scan_,
+        MEO_OPT MEO_KEY("interactScan") interactScan_)
+
+    const std::vector<std::string>& texts() const
+    {
+        return interact_text_.texts_.empty() ? interactText_.texts_ : interact_text_.texts_;
+    }
+
+    const std::string& scan() const { return interact_scan_.empty() ? interactScan_ : interact_scan_; }
+};
+
+struct NaviInteractSpec
+{
+    std::vector<std::string> texts;
+    std::string scan;
+};
+
+bool read_interact_spec(const json::value& input, NaviInteractSpec& out_spec)
+{
+    NaviInteractInput flat;
+    if (!flat.from_json(input)) {
+        return false;
+    }
+
+    out_spec.texts = flat.texts();
+    out_spec.scan = flat.scan();
+    return true;
+}
+
 struct NaviWaypointInput
 {
     double x_ = 0.0;
@@ -212,6 +288,8 @@ struct NaviWaypointInput
     std::vector<ActionType> actions_;
     std::string zone_id_;
     std::string target_tier_;
+    std::vector<std::string> interact_text_;
+    std::string interact_scan_;
     std::optional<double> target_deck_y_;
     bool strict_arrival_ = false;
     double angle_ = 0.0;
@@ -253,7 +331,12 @@ struct NaviWaypointInput
         }
         applyPresence(presence, object_input);
 
-        fromObject(object_input);
+        NaviInteractSpec interact_spec;
+        if (!read_interact_spec(input, interact_spec)) {
+            return false;
+        }
+
+        fromObject(object_input, interact_spec);
         return true;
     }
 
@@ -294,13 +377,15 @@ private:
         return true;
     }
 
-    void fromObject(const NaviWaypointObjectInput& object_input)
+    void fromObject(const NaviWaypointObjectInput& object_input, const NaviInteractSpec& interact_spec)
     {
         appendActions(object_input.action_);
         appendActions(object_input.actions_);
 
         zone_id_ = resolveZoneId(object_input);
         target_tier_ = resolveTargetTier(object_input);
+        interact_text_ = interact_spec.texts;
+        interact_scan_ = interact_spec.scan;
         target_deck_y_ = resolveTargetDeckY(object_input);
         strict_arrival_ = resolveStrictArrival(object_input);
         x_ = object_input.x_;
@@ -573,13 +658,67 @@ void append_expanded_waypoints(
     }
 }
 
+// Fill in the interact text on the INTERACT points of [from_index, end); empty leaves them plain INTERACT.
+void apply_interact_text(const std::vector<std::string>& interact_text, std::vector<Waypoint>& waypoints, size_t from_index)
+{
+    if (interact_text.empty()) {
+        return;
+    }
+    for (size_t index = from_index; index < waypoints.size(); ++index) {
+        if (waypoints[index].action == ActionType::INTERACT && waypoints[index].interact_text.empty()) {
+            waypoints[index].interact_text = interact_text;
+        }
+    }
+}
+
+// Same, for the node the walking pre-filter reads its roi/template/threshold from.
+void apply_interact_scan(const std::string& interact_scan, std::vector<Waypoint>& waypoints, size_t from_index)
+{
+    if (interact_scan.empty()) {
+        return;
+    }
+    for (size_t index = from_index; index < waypoints.size(); ++index) {
+        if (waypoints[index].action == ActionType::INTERACT && waypoints[index].interact_scan.empty()) {
+            waypoints[index].interact_scan = interact_scan;
+        }
+    }
+}
+
+// Runs after the route-wide defaults land, so a point holding only the scan node is not flagged. The pre-filter
+// only decides when to stop; with no text there is nothing to confirm, so the point falls back to plain INTERACT.
+void warn_scan_without_text(const std::vector<Waypoint>& waypoints)
+{
+    for (size_t index = 0; index < waypoints.size(); ++index) {
+        const Waypoint& waypoint = waypoints[index];
+        if (!waypoint.interact_scan.empty() && waypoint.interact_text.empty()) {
+            LogWarn << "Waypoint names a prompt scan node without any interact text; it stays a plain INTERACT."
+                    << VAR(index) << VAR(waypoint.interact_scan);
+        }
+    }
+}
+
 std::string resolve_waypoint_zone_id(const NaviWaypointInput& input, const std::string& zone_context)
 {
     return input.zone_id_.empty() ? zone_context : input.zone_id_;
 }
 
+// Only INTERACT points read these fields; elsewhere they are dropped. Not worth rejecting the route over, but the
+// missing piece is the action rather than anything the author can see in the interact fields themselves.
+void warn_unusable_interact_fields(const NaviWaypointInput& input)
+{
+    if (input.interact_text_.empty() && input.interact_scan_.empty()) {
+        return;
+    }
+    if (std::find(input.actions_.begin(), input.actions_.end(), ActionType::INTERACT) != input.actions_.end()) {
+        return;
+    }
+    LogWarn << "Waypoint carries interact fields without an INTERACT action; they do nothing here."
+            << VAR(input.interact_text_.size()) << VAR(input.interact_scan_);
+}
+
 bool append_parsed_waypoint(const NaviWaypointInput& input, std::vector<Waypoint>& out_waypoints, std::string& zone_context)
 {
+    warn_unusable_interact_fields(input);
     const std::string zone_id = resolve_waypoint_zone_id(input, zone_context);
     const ActionType primary_action = input.actions_.empty() ? ActionType::RUN : input.actions_.front();
 
@@ -631,7 +770,11 @@ bool append_parsed_waypoint(const NaviWaypointInput& input, std::vector<Waypoint
     if (has_legacy_position || has_tier_target) {
         const double target_x = input.has_target_ ? input.target_.at(0) : input.x_;
         const double target_y = input.has_target_ ? input.target_.at(1) : input.y_;
+        const size_t first_expanded = out_waypoints.size();
         append_expanded_waypoints(target_x, target_y, input.actions_, zone_id, input.target_tier_, input.strict_arrival_, out_waypoints);
+        // One coordinate may carry several actions and expand into several waypoints; only the INTERACT ones take these.
+        apply_interact_text(input.interact_text_, out_waypoints, first_expanded);
+        apply_interact_scan(input.interact_scan_, out_waypoints, first_expanded);
         if (!zone_id.empty()) {
             zone_context = zone_id;
         }
@@ -680,6 +823,13 @@ bool TryParseNaviParam(const json::value& custom_action_param, NaviParam& out_pa
         return false;
     }
 
+    // Route-wide default, written once at the top level; a point's own value wins.
+    NaviInteractSpec route_interact;
+    if (!read_interact_spec(custom_action_param, route_interact)) {
+        LogError << "Failed to deserialize " << caller_name_text << " interact defaults." << VAR(custom_action_param);
+        return false;
+    }
+
     NaviParam param = build_navi_param(input);
     std::string zone_context = param.map_name;
 
@@ -695,6 +845,10 @@ bool TryParseNaviParam(const json::value& custom_action_param, NaviParam& out_pa
             return false;
         }
     }
+
+    apply_interact_text(route_interact.texts, param.path, 0);
+    apply_interact_scan(route_interact.scan, param.path, 0);
+    warn_scan_without_text(param.path);
 
     out_param = std::move(param);
     return true;

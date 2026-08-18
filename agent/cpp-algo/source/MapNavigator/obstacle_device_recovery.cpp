@@ -45,14 +45,12 @@ void ObstacleDeviceRecovery::Start(const cv::Rect& base_roi)
     const std::filesystem::path template_path = std::filesystem::absolute(get_exe_dir() / ".." / kObstacleDeviceTemplateRelativePath);
     const cv::Mat button_template = MAA_NS::imread(template_path, cv::IMREAD_GRAYSCALE);
     if (button_template.empty()) {
-        // No text fallback here: a bright blob says nothing about whether an interact button is on screen, and
-        // a false positive costs a subtask run in the middle of a stall.
         LogWarn << "Blocking-device probe not started: interact button template not loaded."
                 << VAR(MAA_NS::path_to_utf8_string(template_path));
         return;
     }
 
-    scanner_ = std::make_unique<RoiTemplateScanner>("device", base_roi, button_template, kObstacleDeviceMatchThreshold, false);
+    scanner_ = std::make_unique<RoiTemplateScanner>("device", base_roi, button_template, cv::Mat(), kObstacleDeviceMatchThreshold);
     LogInfo << "Blocking-device probe started." << VAR(base_roi.x) << VAR(base_roi.y) << VAR(base_roi.width) << VAR(base_roi.height);
 }
 

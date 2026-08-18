@@ -6,7 +6,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/iconqty"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 )
 
@@ -69,12 +68,6 @@ func TestParseSyncItemDataParamMap(t *testing.T) {
 	}
 }
 
-func TestItemDisplayNameFallback(t *testing.T) {
-	if got := iconqty.ItemDisplayName("UNKNOWN_ITEM_XYZ"); got != "UNKNOWN_ITEM_XYZ" {
-		t.Fatalf("got %q", got)
-	}
-}
-
 func TestPersistSyncedAndPageDedupBase(t *testing.T) {
 	dir := t.TempDir()
 	path := filepath.Join(dir, "IMS.json")
@@ -112,7 +105,7 @@ func TestPersistSyncedAndPageDedupBase(t *testing.T) {
 		t.Fatalf("create base for scanned keys should drop A, got=%v", createBase)
 	}
 
-	if err := persistSynced(at, map[string]int{"A": 1, "ORIGEOMETRY": 9}); err != nil {
+	if err := persistSynced(at, map[string]int{"A": 1, "OTHER": 9}); err != nil {
 		t.Fatal(err)
 	}
 	regionBase, err := baseItemsForSync(false, []string{"A"})
@@ -122,7 +115,7 @@ func TestPersistSyncedAndPageDedupBase(t *testing.T) {
 	if _, ok := regionBase["A"]; ok {
 		t.Fatalf("region rebuild should drop scanned miss keys, got=%v", regionBase)
 	}
-	if regionBase["ORIGEOMETRY"] != 9 {
+	if regionBase["OTHER"] != 9 {
 		t.Fatalf("region rebuild should keep other IDs, got=%v", regionBase)
 	}
 }

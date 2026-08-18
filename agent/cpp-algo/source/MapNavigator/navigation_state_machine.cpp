@@ -1,9 +1,8 @@
 #include <algorithm>
+#include <array>
 #include <chrono>
 #include <cmath>
-#include <filesystem>
 #include <limits>
-#include <memory>
 #include <optional>
 #include <string>
 #include <thread>
@@ -11,12 +10,11 @@
 #include <vector>
 
 #include <MaaFramework/MaaAPI.h>
-#include <MaaUtils/ImageIo.h>
 #include <MaaUtils/Logger.h>
-#include <meojson/json.hpp>
 
 #include "action_executor.h"
 #include "action_wrapper.h"
+#include "async_prompt_action.h"
 #include "latency_observer.h"
 #include "motion_controller.h"
 #include "navi_config.h"
@@ -24,7 +22,7 @@
 #include "navigation_state_machine.h"
 #include "navmesh_path_expander.h"
 #include "position_provider.h"
-#include "roi_template_scanner.h"
+#include "prompt_scan_profile.h"
 #include "route_tracker.h"
 #include "semantic_nodes.h"
 #include "sensitivity_observer.h"
@@ -37,93 +35,6 @@ namespace mapnavigator
 
 namespace
 {
-
-// Pull the collect-label ROI from the pipeline node (single source of truth) rather than hardcoding it:
-// MaaContextGetNodeData returns the node's resolved JSON, so editing AutoCollectClick.json's roi
-// automatically retargets the async scanner. The roi is authored in the 1280x720 base frame.
-bool ReadRoiArray(const json::value& holder, cv::Rect* out)
-{
-    if (!holder.is_array()) {
-        return false;
-    }
-    const auto& arr = holder.as_array();
-    if (arr.size() < 4) {
-        return false;
-    }
-    for (size_t i = 0; i < 4; ++i) {
-        if (!arr.at(i).is_number()) {
-            return false;
-        }
-    }
-    out->x = static_cast<int>(std::lround(arr.at(0).as_double()));
-    out->y = static_cast<int>(std::lround(arr.at(1).as_double()));
-    out->width = static_cast<int>(std::lround(arr.at(2).as_double()));
-    out->height = static_cast<int>(std::lround(arr.at(3).as_double()));
-    return out->width > 0 && out->height > 0;
-}
-
-bool ParseRoiFromNode(MaaContext* context, const char* node_name, cv::Rect* out)
-{
-    if (context == nullptr || node_name == nullptr) {
-        return false;
-    }
-
-    ScopedStringBuffer buffer;
-    if (buffer.Get() == nullptr || !MaaContextGetNodeData(context, node_name, buffer.Get())) {
-        LogWarn << "Pipeline ROI: MaaContextGetNodeData failed." << VAR(node_name);
-        return false;
-    }
-    const char* raw = MaaStringBufferGet(buffer.Get());
-    if (raw == nullptr || raw[0] == '\0') {
-        LogWarn << "Pipeline ROI: empty node data." << VAR(node_name);
-        return false;
-    }
-
-    const auto parsed = json::parse(raw);
-    if (!parsed || !parsed->is_object()) {
-        LogWarn << "Pipeline ROI: node JSON is not an object." << VAR(node_name);
-        return false;
-    }
-    const auto& node = parsed->as_object();
-
-    // Canonical shape: { "recognition": { "param": { "roi": [x,y,w,h] } } }. Fall back to flatter shapes in
-    // case the framework serializes the loaded node differently.
-    if (node.contains("recognition") && node.at("recognition").is_object()) {
-        const auto& reco = node.at("recognition").as_object();
-        if (reco.contains("param") && reco.at("param").is_object()) {
-            const auto& param = reco.at("param").as_object();
-            if (param.contains("roi") && ReadRoiArray(param.at("roi"), out)) {
-                return true;
-            }
-        }
-        if (reco.contains("roi") && ReadRoiArray(reco.at("roi"), out)) {
-            return true;
-        }
-    }
-    if (node.contains("roi") && ReadRoiArray(node.at("roi"), out)) {
-        return true;
-    }
-
-    LogWarn << "Pipeline ROI: no usable roi array in node data." << VAR(node_name);
-    return false;
-}
-
-bool RouteHasCollectWaypoint(const std::vector<Waypoint>& path)
-{
-    return std::any_of(path.begin(), path.end(), [](const Waypoint& wp) { return wp.action == ActionType::COLLECT; });
-}
-
-// 末尾的无坐标节点(ZONE/HEADING)不算, 看的是最后一个真正要走到的点是不是采集点
-bool RouteEndsWithCollectWaypoint(const std::vector<Waypoint>& path)
-{
-    for (auto it = path.rbegin(); it != path.rend(); ++it) {
-        if (!it->HasPosition()) {
-            continue;
-        }
-        return it->action == ActionType::COLLECT;
-    }
-    return false;
-}
 
 struct BootstrapWaypointCandidate
 {
@@ -480,6 +391,8 @@ NavigationStateMachine::NavigationStateMachine(
     , position_(position)
     , should_stop_(std::move(should_stop))
     , maa_context_(maa_context)
+    , collect_prompt_(kCollectPromptSpec, maa_context, session, position)
+    , interact_prompt_(kInteractPromptSpec, maa_context, session, position)
     , device_recovery_(maa_context, motion_controller, position_provider, session, position)
     , walk_mode_(action_wrapper)
 {
@@ -496,12 +409,10 @@ bool NavigationStateMachine::Run()
         return false;
     }
 
-    // Absorb the collect-OCR cold start here, while the avatar is still stopped after Bootstrap and before
-    // the first forward press, so it can never land on a while-walking scan tick and freeze the thread.
-    PreWarmCollectOcr();
+    // Pay the recognition cold start while still stopped, so it can never land on a walking tick.
+    PreWarmPromptRecognition();
 
-    // Spin up the background detectors (the collectible one is a no-op unless the route has a COLLECT
-    // waypoint). They run off the nav thread on pure OpenCV; the nav loop only reacts to their flags.
+    // Background detectors, off the nav thread on pure OpenCV; the nav loop only reacts to their flags.
     StartScanners();
 
     while (!should_stop_() && session_->phase() != NaviPhase::Finished && session_->phase() != NaviPhase::Failed) {
@@ -517,7 +428,7 @@ bool NavigationStateMachine::Run()
         session_->HasSatisfiedFinalSuccess(*position_, "navigation_complete");
     }
 
-    TryCollectAtRouteTail();
+    TryRunPromptSubtaskAtRouteTail();
 
     StopScanners();
     StopMotion();
@@ -1160,7 +1071,7 @@ bool NavigationStateMachine::TickNavigate()
     }
 
     const Waypoint waypoint = session_->CurrentWaypoint();
-    if (TryScanApproachCollect(route, waypoint)) {
+    if (TryRunPromptSubtaskWhileWalking(route)) {
         return true;
     }
 
@@ -1168,11 +1079,11 @@ bool NavigationStateMachine::TickNavigate()
     if (waypoint.action == ActionType::PORTAL) {
         arrival_distance = std::max(arrival_distance, kPortalCommitDistance);
     }
-    // 采集点判定圈收窄了, 真站不上去(硬性无进展这么久)就放回常规值, 别多出一种卡死
-    else if (waypoint.action == ActionType::COLLECT && session_->HardStalledMs(now) > kCollectArrivalRelaxMs) {
-        const double relaxed = waypoint.ArrivalBand(kMeasurementDefaultPositionQuantum, /*relax_collect=*/true);
+    // 提示驱动的点判定圈收窄了, 真站不上去(硬性无进展这么久)就放回常规值, 别多出一种卡死
+    else if (waypoint.StopsOnPromptDetection() && session_->HardStalledMs(now) > kCollectArrivalRelaxMs) {
+        const double relaxed = waypoint.ArrivalBand(kMeasurementDefaultPositionQuantum, /*relax_tight_band=*/true);
         if (relaxed > arrival_distance && route.waypoint_distance <= relaxed) {
-            LogInfo << "Collect arrival band relaxed after no progress." << VAR(session_->current_node_idx())
+            LogInfo << "Prompt-point arrival band relaxed after no progress." << VAR(session_->current_node_idx())
                     << VAR(route.waypoint_distance) << VAR(arrival_distance) << VAR(relaxed);
         }
         arrival_distance = std::max(arrival_distance, relaxed);
@@ -1614,10 +1525,9 @@ bool NavigationStateMachine::TickNavigate()
     latency::RecordStage(latency::Stage::Other, std::max<int64_t>(0, tick_compute_ms - capture_ms - steer_send_ms));
     latency::RecordTick(maa_context_, runtime_state_.flow.tick_seq, tick_gap_ms);
 
-    // Collect routes: keep sprint for travel but drop to walking speed once near a COLLECT point (cancels any
-    // active sprint), so the detection-stop can land before we overrun the collectible. No-op off collect
-    // routes. Must run before the sprint gate below so a freshly-entered zone suppresses this tick's sprint.
-    UpdateCollectSprintSuppression();
+    // Keep sprint for travel but drop to walking near a prompt-driven point (cancelling an active sprint), so the
+    // detection-stop lands before we overrun it. Must precede the sprint gate below.
+    UpdatePromptSprintSuppression();
 
     // Balanced sprint gate: burst only when the agent already points down the corridor (heading aligned)
     // and no sharp turn is imminent within the scan window. No clearance term — it reads near zero on
@@ -1728,20 +1638,24 @@ NavigationStateMachine::~NavigationStateMachine()
     StopScanners();
 }
 
+std::array<AsyncPromptAction*, 2> NavigationStateMachine::PromptActions()
+{
+    return { &collect_prompt_, &interact_prompt_ };
+}
+
 void NavigationStateMachine::StartScanners()
 {
-    StartCollectScanner();
+    StartPromptScanners();
     StartDeviceProbe();
 
     if (position_provider_ == nullptr) {
         return;
     }
-    // One observer for both consumers, bound once. Binding it per scanner would let whichever one stops first
-    // silently cut the other's frame supply.
+    // One observer for every consumer, bound once. Binding it per scanner would let whichever one stops first
+    // silently cut the others' frame supply.
     position_provider_->SetFrameObserver([this](const cv::Mat& frame) {
-        if (collect_scanner_ != nullptr) {
-            collect_scanner_->SubmitFrame(frame);
-        }
+        collect_prompt_.SubmitFrame(frame);
+        interact_prompt_.SubmitFrame(frame);
         device_recovery_.SubmitFrame(frame);
     });
 }
@@ -1754,95 +1668,71 @@ void NavigationStateMachine::StopScanners()
     if (motion_controller_ != nullptr) {
         motion_controller_->SetSprintSuppressed(false);
     }
-    collect_scanner_.reset();
+    collect_prompt_.Stop();
+    interact_prompt_.Stop();
     device_recovery_.Stop();
 }
 
-void NavigationStateMachine::StartCollectScanner()
+void NavigationStateMachine::StartPromptScanners()
 {
-    if (collect_scanner_ != nullptr) {
-        return;
-    }
+    for (AsyncPromptAction* prompt : PromptActions()) {
+        if (prompt->armed() || !prompt->RouteHasPoint()) {
+            continue;
+        }
 
-    if (!RouteHasCollectWaypoint(session_->original_path())) {
-        return;
+        cv::Rect base_roi;
+        if (!TryReadNodeRoi(maa_context_, prompt->spec().recognition_node, &base_roi)) {
+            LogWarn << "Async prompt scanner not started: could not read its ROI from the pipeline." << VAR(prompt->spec().tag)
+                    << VAR(prompt->spec().recognition_node);
+            continue;
+        }
+        prompt->Start(base_roi, action_wrapper_->controller_type());
     }
-
-    cv::Rect base_roi;
-    if (!ParseRoiFromNode(maa_context_, kCollectRoiNode, &base_roi)) {
-        LogWarn << "Async collectible scanner not started: could not read collect ROI from pipeline." << VAR(kCollectRoiNode);
-        return;
-    }
-
-    const std::filesystem::path icon_path = std::filesystem::absolute(get_exe_dir() / ".." / kCollectIconRelativePath);
-    const cv::Mat icon_template = MAA_NS::imread(icon_path, cv::IMREAD_GRAYSCALE);
-    if (icon_template.empty()) {
-        LogWarn << "Collect icon template not loaded; falling back to bright-text heuristic."
-                << VAR(MAA_NS::path_to_utf8_string(icon_path));
-    }
-    else {
-        LogInfo << "Collect icon template loaded." << VAR(MAA_NS::path_to_utf8_string(icon_path)) << VAR(icon_template.cols)
-                << VAR(icon_template.rows);
-    }
-
-    collect_scanner_ = std::make_unique<RoiTemplateScanner>("collect", base_roi, icon_template, kCollectIconMatchThreshold, true);
-    LogInfo << "Async collectible scanner started." << VAR(base_roi.x) << VAR(base_roi.y) << VAR(base_roi.width) << VAR(base_roi.height);
-    // NOTE: sprint is NOT suppressed for the whole route — that killed fast travel. Suppression is driven per
-    // tick in TickNavigate (UpdateCollectSprintSuppression), enabled only when the avatar is within
-    // kCollectSprintSuppressBandWu of a COLLECT waypoint, so travel between collect points still sprints.
 }
 
 void NavigationStateMachine::StartDeviceProbe()
 {
     cv::Rect base_roi;
-    if (!ParseRoiFromNode(maa_context_, kObstacleDeviceProbeNode, &base_roi)) {
+    if (!TryReadNodeRoi(maa_context_, kObstacleDeviceProbeNode, &base_roi)) {
         LogWarn << "Blocking-device probe not started: could not read its ROI from the pipeline." << VAR(kObstacleDeviceProbeNode);
         return;
     }
     device_recovery_.Start(base_roi);
 }
 
-// Squared distance to the nearest COLLECT point; -1 when there is no collect route or no position.
-double NavigationStateMachine::NearestCollectDistanceSq() const
+double NavigationStateMachine::NearestPromptDistanceSq() const
 {
-    if (collect_scanner_ == nullptr || session_ == nullptr || position_ == nullptr || !position_->valid) {
-        return -1.0;
-    }
-
     double nearest_sq = -1.0;
-    for (const Waypoint& waypoint : session_->current_path()) {
-        if (waypoint.action != ActionType::COLLECT || !waypoint.HasPosition()) {
-            continue;
-        }
-        const double dx = waypoint.x - position_->x;
-        const double dy = waypoint.y - position_->y;
-        const double distance_sq = dx * dx + dy * dy;
-        if (nearest_sq < 0.0 || distance_sq < nearest_sq) {
+    for (const AsyncPromptAction* prompt : { &collect_prompt_, &interact_prompt_ }) {
+        const double distance_sq = prompt->NearestDistanceSq();
+        if (distance_sq >= 0.0 && (nearest_sq < 0.0 || distance_sq < nearest_sq)) {
             nearest_sq = distance_sq;
         }
     }
     return nearest_sq;
 }
 
-void NavigationStateMachine::UpdateCollectSprintSuppression()
+void NavigationStateMachine::UpdatePromptSprintSuppression()
 {
-    if (collect_scanner_ == nullptr || motion_controller_ == nullptr) {
-        return; // not a collect route — leave sprint behaviour entirely untouched
+    if (motion_controller_ == nullptr) {
+        return;
     }
 
-    const double nearest_sq = NearestCollectDistanceSq();
-    const bool near_collect = nearest_sq >= 0.0 && nearest_sq <= kCollectSprintSuppressBandWu * kCollectSprintSuppressBandWu;
-    motion_controller_->SetSprintSuppressed(near_collect);
+    const double nearest_sq = NearestPromptDistanceSq();
+    // 这条线上没有提示驱动的点时 nearest_sq < 0, 疾跑行为一点不碰
+    const bool approaching_prompt = nearest_sq >= 0.0 && nearest_sq <= kCollectSprintSuppressBandWu * kCollectSprintSuppressBandWu;
+    motion_controller_->SetSprintSuppressed(approaching_prompt);
 }
 
-// Walk mode's only decision point: engaged on the last few units of a collect approach, released everywhere else
-// (travel legs, recovery, turn-in-place nodes, before motion is confirmed).
+// Walk mode's only decision point: engaged on the last few units of an approach to a prompt-driven point,
+// released everywhere else (travel legs, recovery, turn-in-place nodes, before motion is confirmed).
 void NavigationStateMachine::UpdateWalkMode(NaviPhase phase)
 {
-    const double nearest_sq = NearestCollectDistanceSq();
+    const double nearest_sq = NearestPromptDistanceSq();
     const bool recovering = runtime_state_.recovery.active || runtime_state_.cross_tier_escape.active;
     const ActionType action = session_->HasCurrentWaypoint() ? session_->CurrentWaypoint().action : ActionType::HEADING;
-    const bool plain_approach = action == ActionType::COLLECT || action == ActionType::RUN || action == ActionType::NAVMESH;
+    const bool plain_approach = action == ActionType::COLLECT || action == ActionType::INTERACT || action == ActionType::RUN
+                               || action == ActionType::NAVMESH;
     if (phase != NaviPhase::Navigate || nearest_sq < 0.0 || recovering || !plain_approach
         || !runtime_state_.route.startup_motion_confirmed) {
         walk_mode_.Request(false);
@@ -1854,80 +1744,94 @@ void NavigationStateMachine::UpdateWalkMode(NaviPhase phase)
     walk_mode_.Request(nearest_sq <= band * band);
     const bool walking = walk_mode_.engaged();
     if (walking != was_engaged) {
-        const double nearest_collect = std::sqrt(nearest_sq);
-        LogInfo << "Walk mode boundary crossed." << VAR(walking) << VAR(nearest_collect) << VAR(position_->x) << VAR(position_->y);
+        const double nearest_prompt_point = std::sqrt(nearest_sq);
+        LogInfo << "Walk mode boundary crossed." << VAR(walking) << VAR(nearest_prompt_point) << VAR(position_->x) << VAR(position_->y);
     }
 }
 
-void NavigationStateMachine::PreWarmCollectOcr()
+void NavigationStateMachine::PreWarmPromptRecognition()
 {
-    if (maa_context_ == nullptr) {
-        return;
+    for (AsyncPromptAction* prompt : PromptActions()) {
+        prompt->PreWarmRecognition();
     }
-
-    if (!RouteHasCollectWaypoint(session_->original_path())) {
-        return;
-    }
-
-    LogInfo << "Pre-warming collect OCR model before navigation (absorbs one-time cold start while stopped).";
-    MaaContextRunTask(maa_context_, kDefaultCollectEntry, kCollectPrewarmOverride);
 }
 
-bool NavigationStateMachine::TryScanApproachCollect(const RouteTrackingState& route, const Waypoint& waypoint)
+bool NavigationStateMachine::TryRunPromptSubtaskWhileWalking(const RouteTrackingState& route)
 {
-    (void)waypoint;
-    if (maa_context_ == nullptr || collect_scanner_ == nullptr || !route.startup_motion_confirmed) {
+    if (!route.startup_motion_confirmed) {
         return false;
     }
 
-    const auto now = std::chrono::steady_clock::now();
-    if (collect_scan_last_at_.time_since_epoch().count() != 0
-        && now - collect_scan_last_at_ < std::chrono::milliseconds(kCollectScanIntervalMs)) {
-        return false;
+    const std::array<AsyncPromptAction*, 2> prompts = PromptActions();
+    for (size_t index = 0; index < prompts.size(); ++index) {
+        if (!prompts[index]->TryTriggerWhileWalking(motion_controller_, route.waypoint_distance, session_->current_node_idx())) {
+            continue;
+        }
+        // 屏幕上一次只弹一个提示, 一次观测只值一次停车: 清掉另一类的闩, 免得同一个提示被停两次
+        for (size_t other = 0; other < prompts.size(); ++other) {
+            if (other != index) {
+                prompts[other]->ForgetDetection();
+            }
+        }
+        if (prompts[index]->spec().CompletesWaypointOnTrigger()) {
+            CompleteWaypointAfterPromptTrigger();
+        }
+        return true;
     }
-
-    if (!collect_scanner_->ConsumeDetection()) {
-        return false; // background worker has not flagged a collectible — keep walking, zero cost this tick
-    }
-
-    // No displacement gate: multi-item spots are authored as the same coordinate repeated, and the
-    // authoritative OCR only clicks known collectible names, so a stale flag costs one stutter at most.
-    collect_scan_last_at_ = now;
-
-    LogInfo << "Async collectible flagged — stopping for authoritative collect." << VAR(route.waypoint_distance)
-            << VAR(session_->current_node_idx());
-    motion_controller_->SetForwardState(false);
-    utils::SleepFor(kStopWaitMs);
-    MaaContextRunTask(maa_context_, kDefaultCollectEntry, kCollectPipelineOverride);
-    utils::SleepFor(kCollectPostSleepMs);
-    return true;
+    return false;
 }
 
-// 最后一个采集点被吃掉的同一拍路线就结束、扫描器随即销毁, 行进中的检测再没机会报第二次。
-// 收尾时停下来单独给一个窗口, 不走冷却, 只试一次。
-// 放在成功判定之后: 这里超时或采集失败都不该把跑成功的线路翻成失败。
-void NavigationStateMachine::TryCollectAtRouteTail()
+// 提示就是游戏说的「够近了」, 所以命中即算走完, 不再往前挪那几个单位: 交互一开界面角色就不动了、
+// 小地图也没了, 剩下那段永远走不完, 一次成功的交互会被拖成到达超时判败。
+void NavigationStateMachine::CompleteWaypointAfterPromptTrigger()
 {
-    if (maa_context_ == nullptr || collect_scanner_ == nullptr || should_stop_() || session_->phase() != NaviPhase::Finished
-        || !RouteEndsWithCollectWaypoint(session_->original_path())) {
+    if (!session_->HasCurrentWaypoint()) {
+        return;
+    }
+
+    const ActionType action = session_->CurrentWaypoint().action;
+    const std::optional<size_t> consumed_absolute_node_idx = session_->CurrentAbsoluteNodeIndex();
+    session_->NoteCanonicalFinalGoalConsumed(consumed_absolute_node_idx, *position_, "async_prompt_completed");
+    session_->AdvanceToNextWaypoint(action, "async_prompt_completed");
+    runtime_state_.OnWaypointAdvance();
+    if (!session_->HasCurrentWaypoint()) {
+        session_->NoteRouteTailConsumed(*position_, "route_tail_consumed");
+        return;
+    }
+    SelectPhaseForCurrentWaypoint("async_prompt_completed");
+}
+
+// 最后一个点被吃掉的同一拍路线就结束、扫描器随即销毁, 行进中的检测没机会报第二次, 所以收尾单独给一个窗口。
+// 放在成功判定之后, 这里失败不该翻掉跑成功的线路。只服务共用表那类: 点名目标的那类每个点必定恰好跑一次。
+void NavigationStateMachine::TryRunPromptSubtaskAtRouteTail()
+{
+    if (maa_context_ == nullptr || should_stop_() || session_->phase() != NaviPhase::Finished) {
+        return;
+    }
+
+    AsyncPromptAction* tail_prompt = nullptr;
+    for (AsyncPromptAction* prompt : PromptActions()) {
+        if (prompt->armed() && !prompt->spec().CompletesWaypointOnTrigger() && prompt->RouteEndsWithPoint()) {
+            tail_prompt = prompt;
+            break;
+        }
+    }
+    if (tail_prompt == nullptr) {
         return;
     }
 
     StopMotion();
-    utils::SleepFor(kStopWaitMs); // 先站定, 还在滑行就点容易白点一次
+    utils::SleepFor(kStopWaitMs); // 先站定, 还在滑行就动手容易白按一次
     const auto started_at = std::chrono::steady_clock::now();
     while (!should_stop_()) {
-        if (collect_scanner_->ConsumeDetection()) {
-            LogInfo << "Route tail collectible flagged — collecting before finishing." << VAR(session_->current_node_idx());
-            MaaContextRunTask(maa_context_, kDefaultCollectEntry, kCollectPipelineOverride);
-            utils::SleepFor(kCollectPostSleepMs);
+        if (tail_prompt->TryTriggerAtRouteTail()) {
             return;
         }
 
         const int64_t elapsed_ms =
             std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - started_at).count();
         if (elapsed_ms >= kCollectTailGraceMs) {
-            LogInfo << "Route tail collect grace expired with nothing flagged." << VAR(elapsed_ms);
+            LogInfo << "Route tail prompt grace expired with nothing flagged." << VAR(tail_prompt->spec().tag) << VAR(elapsed_ms);
             return;
         }
 
