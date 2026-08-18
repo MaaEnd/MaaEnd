@@ -125,9 +125,9 @@ The native ROI uses 1280x720 `[x,y,width,height]` coordinates. Width and height 
 | Win32 | 1280x720 | Standard 720p UI |
 | ADB | 1280x720 at 240 dpi | Enlarged ADB UI |
 
-Regular grids select the matching profile automatically from repeated structures inside the request ROI. `rewards` selects from the white reward-card size. Insufficient evidence or similar profile scores returns `exception`; callers cannot specify a scale. The detector temporarily normalizes the image in memory for grid localization and maps cell coordinates back before returning. Item templates are still generated at the final source-cell size and matched on the original image, so `cell_box` and `item_box` always use source-image coordinates. `single_roi` does not run grid detection and never resizes the input image.
+The Custom entry point reads a Win32 or ADB controller type from `MaaContext` and selects the corresponding profile. Other controllers, direct C++ calls, or unavailable context fall back to image evidence inside the request ROI. Insufficient evidence returns `exception`; callers cannot specify a scale. The detector temporarily normalizes the image in memory for grid localization and maps cell coordinates back before returning. Item templates are still generated at the final source-cell size and matched on the original image, so `cell_box` and `item_box` always use source-image coordinates. `single_roi` does not run grid detection and never resizes the input image.
 
-The component does not infer, move, or expand the request ROI from the selected controller profile. The caller remains responsible for a native ROI that is fully inside the image and completely covers every target cell. Profile selection reads only pixels inside that ROI. A rewards ROI may cover the whole reward group or one complete reward card.
+The component does not infer, move, or expand the request ROI from the selected controller profile. The caller remains responsible for a native ROI that is fully inside the image and completely covers every target cell. Image-based fallback reads only pixels inside that ROI. Rewards callers should keep passing one large ROI that covers the whole reward group; neither controller type nor item count should be used by callers to rewrite that ROI.
 
 ### custom_recognition_param
 
@@ -161,7 +161,7 @@ The component does not infer, move, or expand the request ROI from the selected 
 
 Reference ROIs are absolute 1280x720 screen coordinates, not coordinates relative to another ROI. Each value applies only to the listed screen, and the caller must keep every target cell fully covered. One-sided storage ROIs still use absolute screen coordinates.
 
-`rewards` locates white reward cards and determines the horizontal origin of each row independently, so rows do not need aligned columns. Public results still treat them as one multi-row grid: `row` increases from top to bottom, while `column` restarts at zero in each row. Multiple game features reuse this screen type and may show different item categories. When `item_filters` is omitted or empty, the default candidate set is `Isolate:*`, `ValuableDepot:*`; a non-empty `item_filters` replaces that default set completely.
+`rewards` locates white reward cards and requires the whole group to be approximately centered. A single row uses its actual item count. Wrapped layouts infer the column count from the first observed row, reuse its left boundary for later rows, and allow only the last row to be partial. Multiple game features reuse this screen type and may show different item categories. When `item_filters` is omitted or empty, the default candidate set is `Isolate:*`, `ValuableDepot:*`; a non-empty `item_filters` replaces that default set completely.
 
 ### Item IDs
 

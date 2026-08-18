@@ -17,6 +17,7 @@
 #include "GridFeatures.h"
 #include "GridGeometry.h"
 #include "GridProfiles.h"
+#include "RarityClassifier.h"
 
 namespace iconrecognition::detail
 {
@@ -161,6 +162,11 @@ constexpr double kRewardsMinimumCardAspectRatio = 0.82;
 constexpr double kRewardsMaximumCardAspectRatio = 1.22;
 // 同一行卡片中心允许的纵向差异（720p 像素）；调大可能合并相邻行，调小可能拆散轻微错位的同一行。
 constexpr int kRewardsRowCenterTolerance = 24;
+
+bool CoversImageCenter(const cv::Rect& bounds, const cv::Size& image_size)
+{
+    return bounds.contains(cv::Point(image_size.width / 2, image_size.height / 2));
+}
 
 bool IsFormal(
     const cv::Rect& cell,
@@ -317,75 +323,220 @@ GridDetection DetectRewardsGrid(const cv::Mat& image, const cv::Rect& roi)
         }
         rows.back().push_back(candidate);
     }
-    GridDetection result {
-        .type = GridType::Rewards,
-        .roi = roi,
+    struct DetectedRow
+    {
+        int top = 0;
+        double pitch_x = 0.0;
+        std::vector<int> starts;
     };
-    int grid_index = 0;
+    std::vector<DetectedRow> detected_rows;
+    detected_rows.reserve(rows.size());
     for (auto& row : rows) {
         std::ranges::sort(row, [](const Candidate& left, const Candidate& right) { return left.box.x < right.box.x; });
-        GridLayout layout;
-        layout.grid_index = grid_index++;
-        layout.cell_size = profile.cell_size;
-        layout.rows = 1;
         std::vector<double> row_tops;
         row_tops.reserve(row.size());
         std::ranges::transform(row, std::back_inserter(row_tops), [](const Candidate& item) { return static_cast<double>(item.box.y); });
         // 白色连通域不包含底部彩色色条，因此必须从卡片顶边定位完整 cell；按中心反推会把框上移并裁掉色条。
         const int row_top = cvRound(Median(std::move(row_tops)));
-        layout.pitch_y = profile.cell_size;
+        double pitch_x = profile.pitch_x;
         if (row.size() > 1) {
             std::vector<double> pitches;
             for (std::size_t index = 1; index < row.size(); ++index) {
                 pitches.push_back(row[index].box.x - row[index - 1].box.x);
             }
-            layout.pitch_x = Median(std::move(pitches));
+            pitch_x = Median(std::move(pitches));
         }
-        else {
-            layout.pitch_x = profile.cell_size;
-        }
-        int x1 = std::numeric_limits<int>::max();
-        int x2 = std::numeric_limits<int>::min();
-        int y1 = std::numeric_limits<int>::max();
-        int y2 = std::numeric_limits<int>::min();
         std::vector<int> inferred_starts;
         inferred_starts.reserve(row.size());
         std::ranges::transform(row, std::back_inserter(inferred_starts), [&](const Candidate& candidate) {
             return candidate.box.x + (candidate.box.width - profile.cell_size) / 2;
         });
-        const std::vector<int> completed_starts = CompleteRewardsRowStarts(inferred_starts, layout.pitch_x);
+        const std::vector<int> completed_starts = CompleteRewardsRowStarts(inferred_starts, pitch_x);
+        DetectedRow detected { .top = row_top, .pitch_x = pitch_x };
         for (int inferred_x : completed_starts) {
-            const int inferred_y = row_top;
             // 单卡 ROI 可能只比 cell 大 1px；白色主体又不含底部色条，需要把相位夹回调用方边界内。
             constexpr int kMaximumRewardCellBoundaryAdjustment = 2;
             const int x = std::clamp(inferred_x, roi.x, roi.x + roi.width - profile.cell_size);
-            const int y = std::clamp(inferred_y, roi.y, roi.y + roi.height - profile.cell_size);
+            const int y = std::clamp(row_top, roi.y, roi.y + roi.height - profile.cell_size);
             if (std::abs(x - inferred_x) > kMaximumRewardCellBoundaryAdjustment
-                || std::abs(y - inferred_y) > kMaximumRewardCellBoundaryAdjustment) {
+                || std::abs(y - row_top) > kMaximumRewardCellBoundaryAdjustment) {
                 continue;
             }
             const cv::Rect cell(x, y, profile.cell_size, profile.cell_size);
             if ((cell & cv::Rect(roi.x, roi.y, roi.width, roi.height)) != cell) {
                 continue;
             }
-            // 内部每行保留独立 layout 以表达不同横向起点；下游 row 按纵向顺序全局编号，column 每行重新计数。
-            const int column = static_cast<int>(layout.cells.size());
-            layout.cells.push_back({ layout.grid_index, layout.grid_index, column, cell });
-            x1 = std::min(x1, cell.x);
-            x2 = std::max(x2, cell.x + cell.width);
-            y1 = std::min(y1, cell.y);
-            y2 = std::max(y2, cell.y + cell.height);
+            detected.top = y;
+            detected.starts.push_back(x);
         }
-        if (!layout.cells.empty()) {
-            layout.columns = static_cast<int>(layout.cells.size());
-            layout.bounds = cv::Rect(x1, y1, x2 - x1, y2 - y1);
-            result.cells.insert(result.cells.end(), layout.cells.begin(), layout.cells.end());
-            result.grids.push_back(std::move(layout));
+        if (!detected.starts.empty()) {
+            detected_rows.push_back(std::move(detected));
         }
     }
-    if (result.cells.empty()) {
-        result.failure_message = "rewards ROI contains no formal cells";
+
+    struct LayoutCandidate
+    {
+        std::size_t first_row = 0;
+        std::size_t row_count = 0;
+        std::size_t cell_count = 0;
+        int columns = 0;
+        double center_error = std::numeric_limits<double>::infinity();
+    };
+    std::optional<LayoutCandidate> selected_layout;
+    const double center_x = image.cols / 2.0;
+    const double center_y = image.rows / 2.0;
+    const auto consider = [&](LayoutCandidate candidate) {
+        if (!selected_layout || candidate.cell_count > selected_layout->cell_count
+            || (candidate.cell_count == selected_layout->cell_count && candidate.row_count > selected_layout->row_count)
+            || (candidate.cell_count == selected_layout->cell_count && candidate.row_count == selected_layout->row_count
+                && candidate.center_error < selected_layout->center_error)) {
+            selected_layout = candidate;
+        }
+    };
+    const auto centered = [&](int x1, int y1, int x2, int y2) -> std::optional<double> {
+        const cv::Rect bounds(x1, y1, x2 - x1, y2 - y1);
+        if (!CoversImageCenter(bounds, image.size())) {
+            return std::nullopt;
+        }
+        const double x_error = std::abs((x1 + x2) / 2.0 - center_x);
+        const double y_error = std::abs((y1 + y2) / 2.0 - center_y);
+        return x_error + y_error;
+    };
+
+    for (std::size_t row_index = 0; row_index < detected_rows.size(); ++row_index) {
+        const auto& row = detected_rows[row_index];
+        if (const auto error = centered(
+                row.starts.front(),
+                row.top,
+                row.starts.back() + profile.cell_size,
+                row.top + profile.cell_size)) {
+            consider({
+                .first_row = row_index,
+                .row_count = 1,
+                .cell_count = row.starts.size(),
+                .columns = static_cast<int>(row.starts.size()),
+                .center_error = *error,
+            });
+        }
     }
+
+    for (std::size_t first = 0; first < detected_rows.size(); ++first) {
+        const auto& first_row = detected_rows[first];
+        if (first_row.starts.size() < 2 || first_row.pitch_x <= 0.0) {
+            continue;
+        }
+        const int full_columns = static_cast<int>(first_row.starts.size());
+        const int origin_x = first_row.starts.front();
+        double maximum_lattice_residual = 0.0;
+        for (int column = 0; column < full_columns; ++column) {
+            maximum_lattice_residual = std::max(
+                maximum_lattice_residual,
+                std::abs(first_row.starts[static_cast<std::size_t>(column)] - (origin_x + column * first_row.pitch_x)));
+        }
+        const auto column_for = [&](int start) -> std::optional<int> {
+            const int column = cvRound((start - origin_x) / first_row.pitch_x);
+            if (column < 0 || column >= full_columns
+                || std::abs(start - (origin_x + column * first_row.pitch_x)) > maximum_lattice_residual) {
+                return std::nullopt;
+            }
+            return column;
+        };
+        bool first_row_regular = true;
+        for (int column = 0; column < full_columns; ++column) {
+            const auto actual = column_for(first_row.starts[static_cast<std::size_t>(column)]);
+            if (!actual || *actual != column) {
+                first_row_regular = false;
+                break;
+            }
+        }
+        if (!first_row_regular) {
+            continue;
+        }
+
+        std::size_t cells = first_row.starts.size();
+        for (std::size_t last = first + 1; last < detected_rows.size(); ++last) {
+            const auto& previous = detected_rows[last - 1];
+            const auto& current = detected_rows[last];
+            if (current.top < previous.top + profile.cell_size || current.starts.empty()
+                || std::abs(current.starts.front() - origin_x) > maximum_lattice_residual) {
+                break;
+            }
+            bool regular = current.starts.size() <= static_cast<std::size_t>(full_columns);
+            int previous_column = -1;
+            for (int start : current.starts) {
+                const auto column = column_for(start);
+                if (!column || *column <= previous_column) {
+                    regular = false;
+                    break;
+                }
+                previous_column = *column;
+            }
+            if (!regular) {
+                break;
+            }
+            cells += current.starts.size();
+            const int x2 = first_row.starts.back() + profile.cell_size;
+            const int y2 = current.top + profile.cell_size;
+            if (const auto error = centered(origin_x, first_row.top, x2, y2)) {
+                consider({
+                    .first_row = first,
+                    .row_count = last - first + 1,
+                    .cell_count = cells,
+                    .columns = full_columns,
+                    .center_error = *error,
+                });
+            }
+            // 不足满列的行只能是末行；即使下方还有伪候选，也不让布局继续跨过该行扩展。
+            if (current.starts.size() != static_cast<std::size_t>(full_columns)) {
+                break;
+            }
+        }
+    }
+
+    GridDetection result {
+        .type = GridType::Rewards,
+        .roi = roi,
+    };
+    if (!selected_layout) {
+        result.failure_message = "rewards ROI contains no centered grid";
+        return result;
+    }
+
+    GridLayout layout;
+    layout.grid_index = 0;
+    layout.cell_size = profile.cell_size;
+    layout.rows = static_cast<int>(selected_layout->row_count);
+    const auto& first_row = detected_rows[selected_layout->first_row];
+    layout.pitch_x = first_row.pitch_x;
+    std::vector<double> row_pitches;
+    for (std::size_t offset = 1; offset < selected_layout->row_count; ++offset) {
+        row_pitches.push_back(
+            detected_rows[selected_layout->first_row + offset].top - detected_rows[selected_layout->first_row + offset - 1].top);
+    }
+    layout.pitch_y = row_pitches.empty() ? profile.pitch_y : Median(std::move(row_pitches));
+    const int origin_x = first_row.starts.front();
+    for (std::size_t row_offset = 0; row_offset < selected_layout->row_count; ++row_offset) {
+        const auto& row = detected_rows[selected_layout->first_row + row_offset];
+        for (std::size_t index = 0; index < row.starts.size(); ++index) {
+            const int column = selected_layout->row_count == 1 ? static_cast<int>(index)
+                                                                : cvRound((row.starts[index] - origin_x) / first_row.pitch_x);
+            layout.cells.push_back({ 0, static_cast<int>(row_offset), column, cv::Rect(row.starts[index], row.top, profile.cell_size, profile.cell_size) });
+        }
+    }
+    layout.columns = selected_layout->columns;
+    int x1 = std::numeric_limits<int>::max();
+    int y1 = std::numeric_limits<int>::max();
+    int x2 = std::numeric_limits<int>::min();
+    int y2 = std::numeric_limits<int>::min();
+    for (const auto& cell : layout.cells) {
+        x1 = std::min(x1, cell.cell_box.x);
+        y1 = std::min(y1, cell.cell_box.y);
+        x2 = std::max(x2, cell.cell_box.x + cell.cell_box.width);
+        y2 = std::max(y2, cell.cell_box.y + cell.cell_box.height);
+    }
+    layout.bounds = cv::Rect(x1, y1, x2 - x1, y2 - y1);
+    result.cells = layout.cells;
+    result.grids.push_back(std::move(layout));
     return result;
 }
 
@@ -415,12 +566,29 @@ std::optional<double> EstimateRewardsScaleFromCards(const cv::Mat& image, const 
     cv::Mat bright;
     cv::inRange(hsv, kRewardsCardHsvLower, kRewardsCardHsvUpper, bright);
 
+    // 卡片短边相对 profile 的最大误差；保持原有 15% 上限，只改进候选真实性判断。
+    constexpr double kMaximumRewardCardRelativeError = 0.15;
+
     cv::Mat labels;
     cv::Mat stats;
     cv::Mat centroids;
     const int component_count = cv::connectedComponentsWithStats(bright, labels, stats, centroids, kRewardsConnectivity);
-    std::vector<int> card_sizes;
+
+    struct ScaleEvidence
+    {
+        double scale = 1.0;
+        std::vector<double> relative_errors;
+        std::vector<cv::Rect> cards;
+    };
+    std::vector<ScaleEvidence> evidence;
+    evidence.reserve(kSupportedControllerGridScales.size());
+    for (double scale : kSupportedControllerGridScales) {
+        evidence.push_back({ .scale = scale });
+    }
+
     for (int index = 1; index < component_count; ++index) {
+        const int x = stats.at<int>(index, cv::CC_STAT_LEFT);
+        const int y = stats.at<int>(index, cv::CC_STAT_TOP);
         const int width = stats.at<int>(index, cv::CC_STAT_WIDTH);
         const int height = stats.at<int>(index, cv::CC_STAT_HEIGHT);
         const int area = stats.at<int>(index, cv::CC_STAT_AREA);
@@ -436,33 +604,84 @@ std::optional<double> EstimateRewardsScaleFromCards(const cv::Mat& image, const 
         if (area < kMinimumRewardScaleCardAreaRatio * profile.cell_size * profile.cell_size) {
             continue;
         }
+
         // 白色主体可能与数量文字或内部高光纵向相连；较短边更接近方形卡片的真实边长。
-        card_sizes.push_back(std::min(width, height));
-    }
-    if (card_sizes.empty()) {
-        return std::nullopt;
+        const int card_size = std::min(width, height);
+        const auto selected = std::ranges::min_element(evidence, [&](const ScaleEvidence& left, const ScaleEvidence& right) {
+            return std::abs(card_size - profile.cell_size * left.scale) < std::abs(card_size - profile.cell_size * right.scale);
+        });
+        const auto alternate = selected == evidence.begin() ? std::next(selected) : evidence.begin();
+        const auto distance_for = [&](double scale) {
+            return std::abs(card_size - profile.cell_size * scale);
+        };
+        if (std::abs(distance_for(selected->scale) - distance_for(alternate->scale)) <= kEpsilon) {
+            continue;
+        }
+        const int expected_size = cvRound(profile.cell_size * selected->scale);
+        const double relative_error = distance_for(selected->scale) / expected_size;
+        if (relative_error > kMaximumRewardCardRelativeError) {
+            continue;
+        }
+
+        const int center_x = roi.x + x + width / 2;
+        const cv::Rect card(
+            center_x - expected_size / 2,
+            roi.y + y,
+            expected_size,
+            expected_size);
+        if ((card & roi) != card || !ClassifyRarity(image, card, selected->scale).rarity) {
+            continue;
+        }
+        selected->relative_errors.push_back(relative_error);
+        selected->cards.push_back(card);
     }
 
-    std::vector<double> sizes(card_sizes.begin(), card_sizes.end());
-    const double median_size = Median(std::move(sizes));
-    // 只在真实截图标定过的控制器 UI 密度间选择。
-    constexpr double kMaximumRewardCardRelativeError = 0.15;
-    const auto selected = std::ranges::min_element(kSupportedControllerGridScales, [&](double left, double right) {
-        return std::abs(median_size - profile.cell_size * left) < std::abs(median_size - profile.cell_size * right);
-    });
-    const auto distance_for = [&](double scale) {
-        return std::abs(median_size - profile.cell_size * scale);
+    const auto bounds_for = [](const ScaleEvidence& candidate) -> std::optional<cv::Rect> {
+        if (candidate.cards.empty()) {
+            return std::nullopt;
+        }
+        int x1 = std::numeric_limits<int>::max();
+        int y1 = std::numeric_limits<int>::max();
+        int x2 = std::numeric_limits<int>::min();
+        int y2 = std::numeric_limits<int>::min();
+        for (const cv::Rect& card : candidate.cards) {
+            x1 = std::min(x1, card.x);
+            y1 = std::min(y1, card.y);
+            x2 = std::max(x2, card.x + card.width);
+            y2 = std::max(y2, card.y + card.height);
+        }
+        return cv::Rect(x1, y1, x2 - x1, y2 - y1);
     };
-    const double relative_error = distance_for(*selected) / (profile.cell_size * *selected);
-    const auto alternate =
-        selected == kSupportedControllerGridScales.begin() ? std::next(selected) : kSupportedControllerGridScales.begin();
-    if (std::abs(distance_for(*selected) - distance_for(*alternate)) <= kEpsilon) {
-        return std::nullopt;
-    }
-    if (relative_error > kMaximumRewardCardRelativeError) {
-        return std::nullopt;
-    }
-    return *selected;
+    const auto center_error = [&](const ScaleEvidence& candidate) {
+        const auto bounds = bounds_for(candidate);
+        return bounds ? std::max(
+                            std::abs(bounds->x + bounds->width / 2.0 - image.cols / 2.0),
+                            std::abs(bounds->y + bounds->height / 2.0 - image.rows / 2.0))
+                      : std::numeric_limits<double>::infinity();
+    };
+    const auto centered = [&](const ScaleEvidence& candidate) {
+        const auto bounds = bounds_for(candidate);
+        return bounds && CoversImageCenter(*bounds, image.size());
+    };
+    const auto selected = std::ranges::max_element(evidence, [&](const ScaleEvidence& left, const ScaleEvidence& right) {
+        if (centered(left) != centered(right)) {
+            return !centered(left);
+        }
+        if (left.relative_errors.size() != right.relative_errors.size()) {
+            return left.relative_errors.size() < right.relative_errors.size();
+        }
+        if (std::abs(center_error(left) - center_error(right)) > kEpsilon) {
+            return center_error(left) > center_error(right);
+        }
+        const double left_error = left.relative_errors.empty() ? std::numeric_limits<double>::infinity()
+                                                                : Median(left.relative_errors);
+        const double right_error = right.relative_errors.empty() ? std::numeric_limits<double>::infinity()
+                                                                  : Median(right.relative_errors);
+        return left_error > right_error;
+    });
+    return selected != evidence.end() && !selected->relative_errors.empty() && centered(*selected)
+               ? std::optional<double>(selected->scale)
+               : std::nullopt;
 }
 
 struct StructureProjection
@@ -1810,7 +2029,7 @@ GridDetection DetectGridNormalized(const cv::Mat& image, GridType type, const cv
 
 } // namespace
 
-GridDetection DetectGrid(const cv::Mat& image, GridType type, const cv::Rect& roi)
+GridDetection DetectGrid(const cv::Mat& image, GridType type, const cv::Rect& roi, std::optional<double> grid_scale_hint)
 {
     if (image.empty()) {
         throw std::invalid_argument("cannot detect grid in empty image");
@@ -1820,7 +2039,11 @@ GridDetection DetectGrid(const cv::Mat& image, GridType type, const cv::Rect& ro
         throw std::invalid_argument("grid ROI is outside image");
     }
 
-    const auto estimated_scale = EstimateGridScale(image, type, roi);
+    if (grid_scale_hint
+        && std::ranges::find(kSupportedControllerGridScales, *grid_scale_hint) == kSupportedControllerGridScales.end()) {
+        throw std::invalid_argument("unsupported IconRecognition controller profile hint");
+    }
+    const auto estimated_scale = grid_scale_hint ? grid_scale_hint : EstimateGridScale(image, type, roi);
     if (!estimated_scale) {
         return GridDetection {
             .type = type,

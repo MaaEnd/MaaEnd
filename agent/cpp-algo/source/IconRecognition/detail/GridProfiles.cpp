@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cctype>
 #include <cmath>
 #include <map>
 #include <optional>
@@ -129,7 +130,7 @@ constexpr GridProfile kCreditTradeGridProfile {
     .min_columns = 7,
     .min_rows = 1,
 };
-// 奖励界面按 96px cell、约 117px 横向 pitch 标定；每行独立居中，不共享列起点。
+// 奖励界面按 96px cell、约 117px 横向 pitch 标定；布局整体居中，换行后共享首行左边界。
 constexpr GridProfile kRewardsGridProfile {
     .cell_size = 96,
     .pitch_x = 117.0,
@@ -512,6 +513,22 @@ std::vector<cv::Rect> PartitionPortStoragerRegions(cv::Size crop_size)
         cv::Rect(0, 0, left_width, crop_size.height),
         cv::Rect(right_start, 0, crop_size.width - right_start, crop_size.height),
     };
+}
+
+std::optional<double> GridScaleForControllerType(std::string_view controller_type)
+{
+    const auto equals_ignore_case = [controller_type](std::string_view candidate) {
+        return controller_type.size() == candidate.size() && std::ranges::equal(controller_type, candidate, [](char left, char right) {
+                   return std::tolower(static_cast<unsigned char>(left)) == std::tolower(static_cast<unsigned char>(right));
+               });
+    };
+    if (equals_ignore_case("Adb")) {
+        return kAdbControllerGridScale;
+    }
+    if (equals_ignore_case("Win32")) {
+        return kWin32ControllerGridScale;
+    }
+    return std::nullopt;
 }
 
 GridProfile ProfileFor(GridType type)

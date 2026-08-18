@@ -592,7 +592,8 @@ public:
             }
             else {
                 const auto detection_started = performance ? PerformanceClock::now() : PerformanceClock::time_point {};
-                const detail::GridDetection detection = detail::DetectGrid(image, request.grid_type, request.roi);
+                const detail::GridDetection detection =
+                    detail::DetectGrid(image, request.grid_type, request.roi, request.grid_scale_hint);
                 if (performance) {
                     performance->grid_detection_ms += ElapsedMilliseconds(detection_started);
                 }

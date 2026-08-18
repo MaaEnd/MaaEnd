@@ -1,5 +1,8 @@
 #pragma once
 
+#include <optional>
+#include <string_view>
+
 #include "GridTypes.h"
 
 namespace iconrecognition::detail
@@ -12,6 +15,9 @@ inline constexpr std::array<double, 2> kSupportedControllerGridScales {
     kWin32ControllerGridScale,
     kAdbControllerGridScale,
 };
+
+// 将 MaaFramework 控制器类型映射到已经过真实截图标定的网格比例；未知类型保留图像推断回退。
+std::optional<double> GridScaleForControllerType(std::string_view controller_type);
 
 struct GridProfile
 {

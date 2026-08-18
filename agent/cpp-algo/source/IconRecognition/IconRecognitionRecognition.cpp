@@ -13,6 +13,7 @@
 #include "../utils.h"
 #include "IconRecognizer.h"
 #include "detail/DebugCapture.h"
+#include "detail/GridProfiles.h"
 
 #ifndef MAA_TRUE
 #define MAA_TRUE 1
@@ -93,6 +94,30 @@ IconRecognizer& GetRecognizer()
     return *recognizer;
 }
 
+std::string ControllerTypeFromContext(MaaContext* context)
+{
+    if (context == nullptr) {
+        return {};
+    }
+    MaaTasker* tasker = MaaContextGetTasker(context);
+    MaaController* controller = tasker == nullptr ? nullptr : MaaTaskerGetController(tasker);
+    if (controller == nullptr) {
+        return {};
+    }
+
+    ScopedStringBuffer buffer;
+    if (buffer.Get() == nullptr || !MaaControllerGetInfo(controller, buffer.Get()) || MaaStringBufferIsEmpty(buffer.Get())) {
+        return {};
+    }
+    const char* raw = MaaStringBufferGet(buffer.Get());
+    const auto parsed = raw == nullptr ? std::optional<json::value> {} : json::parse(raw);
+    if (!parsed || !parsed->is_object() || !parsed->as_object().contains("type")) {
+        return {};
+    }
+    const auto& type = parsed->as_object().at("type");
+    return type.is_string() ? type.as_string() : std::string {};
+}
+
 void WriteDetail(MaaStringBuffer* buffer, const RecognitionResult& result)
 {
     if (buffer == nullptr) {
@@ -121,7 +146,7 @@ void SaveDebugCaptureBestEffort(const cv::Mat& image, const RecognitionResult& r
 } // namespace
 
 MaaBool MAA_CALL IconRecognitionRun(
-    [[maybe_unused]] MaaContext* context,
+    MaaContext* context,
     [[maybe_unused]] MaaTaskId task_id,
     [[maybe_unused]] const char* node_name,
     [[maybe_unused]] const char* custom_recognition_name,
@@ -172,6 +197,7 @@ MaaBool MAA_CALL IconRecognitionRun(
         request.grid_type = *parsed_grid_type;
         request.roi = cv::Rect(roi->x, roi->y, roi->width, roi->height);
         request.candidates = ReadCandidates(object);
+        request.grid_scale_hint = detail::GridScaleForControllerType(ControllerTypeFromContext(context));
         request.threshold = ReadDouble(object, "threshold", request.threshold);
         request.subpixel_threshold = ReadDouble(object, "subpixel_threshold", request.subpixel_threshold);
         request.deduplicate = ReadBool(object, "deduplicate", request.deduplicate);

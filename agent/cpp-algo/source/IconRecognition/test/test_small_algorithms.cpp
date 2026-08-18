@@ -50,6 +50,8 @@ void Check(bool condition, const std::string& message)
     }
 }
 
+cv::Scalar RarityBgr(int rarity);
+
 void TestLowerExtendedMaskSnapshots()
 {
     const std::array<std::pair<int, int>, 3> snapshots {
@@ -254,7 +256,9 @@ void TestGridDetectorMapsNormalizedCellsBackToSourceImage()
 
 void TestRewardsGridScaleSelectsCardProfileInsideCallerRoi()
 {
+    const cv::Scalar kRarityBand = RarityBgr(4);
     cv::Mat standard(96, 96, CV_8UC3, cv::Scalar(245, 245, 245));
+    standard.rowRange(91, 96).setTo(kRarityBand);
     const auto standard_scale =
         iconrecognition::detail::EstimateGridScale(standard, iconrecognition::GridType::Rewards, cv::Rect(0, 0, 96, 96));
     Check(standard_scale && std::abs(*standard_scale - 1.0) <= 1e-6, "96px reward card ROI must keep scale 1.0");
@@ -266,6 +270,8 @@ void TestRewardsGridScaleSelectsCardProfileInsideCallerRoi()
 
     cv::Mat vertically_connected(120, 120, CV_8UC3, cv::Scalar(24, 24, 24));
     vertically_connected(cv::Rect(12, 0, 96, 120)).setTo(cv::Scalar(245, 245, 245));
+    vertically_connected(cv::Rect(12, 91, 96, 5)).setTo(kRarityBand);
+    vertically_connected(cv::Rect(12, 0, 1, 120)).setTo(cv::Scalar(245, 245, 245));
     const auto connected_scale =
         iconrecognition::detail::EstimateGridScale(vertically_connected, iconrecognition::GridType::Rewards, cv::Rect(0, 0, 120, 120));
     Check(
@@ -273,8 +279,64 @@ void TestRewardsGridScaleSelectsCardProfileInsideCallerRoi()
         "a 96px reward card connected to vertical highlights must remain scale 1.0");
 
     cv::Mat enlarged(120, 120, CV_8UC3, cv::Scalar(245, 245, 245));
+    enlarged.rowRange(115, 120).setTo(kRarityBand);
     const auto scale = iconrecognition::detail::EstimateGridScale(enlarged, iconrecognition::GridType::Rewards, cv::Rect(0, 0, 120, 120));
     Check(scale && std::abs(*scale - 1.25) <= 1e-6, "larger rewards cards must estimate 1.25 UI scale");
+}
+
+void TestRewardsGridScaleIgnoresBrightBackgroundWithoutRarityBand()
+{
+    constexpr int kCellSize = 96;
+    const cv::Rect roi(0, 0, 520, 300);
+    cv::Mat image(roi.size(), CV_8UC3, cv::Scalar(24, 24, 24));
+
+    // 该背景块尺寸复现 Issue #5066 中把真实 91px 卡片中位数拉到 81.5px 的干扰分量。
+    image(cv::Rect(30, 30, 90, 72)).setTo(cv::Scalar(235, 235, 235));
+    const int card_x = (image.cols - kCellSize) / 2;
+    const int card_y = (image.rows - kCellSize) / 2;
+    image(cv::Rect(card_x, card_y, kCellSize, 91)).setTo(cv::Scalar(245, 245, 245));
+    image(cv::Rect(card_x, card_y + 91, kCellSize, 5)).setTo(RarityBgr(4));
+
+    const auto scale = iconrecognition::detail::EstimateGridScale(image, iconrecognition::GridType::Rewards, roi);
+    Check(scale && std::abs(*scale - 1.0) <= 1e-6, "rarity-backed 91px reward card must win over a 72px bright background");
+
+    image(cv::Rect(card_x, card_y, kCellSize, kCellSize)).setTo(cv::Scalar(24, 24, 24));
+    Check(
+        !iconrecognition::detail::EstimateGridScale(image, iconrecognition::GridType::Rewards, roi),
+        "a bright background without a reward rarity band must not select a controller profile");
+}
+
+void TestControllerTypeSelectsKnownGridScale()
+{
+    const auto win32 = iconrecognition::detail::GridScaleForControllerType("Win32");
+    Check(win32 && std::abs(*win32 - 1.0) <= 1e-6, "Win32 controller must use the standard grid scale");
+
+    const auto adb = iconrecognition::detail::GridScaleForControllerType("aDb");
+    Check(adb && std::abs(*adb - 1.25) <= 1e-6, "Adb controller matching must be case-insensitive");
+
+    Check(
+        !iconrecognition::detail::GridScaleForControllerType("PlayCover"),
+        "PlayCover without calibrated screenshots must keep image-based fallback");
+    Check(
+        !iconrecognition::detail::GridScaleForControllerType("WlRoots"),
+        "WlRoots without calibrated screenshots must keep image-based fallback");
+    Check(
+        !iconrecognition::detail::GridScaleForControllerType("MacOS"),
+        "MacOS without calibrated screenshots must keep image-based fallback");
+    Check(!iconrecognition::detail::GridScaleForControllerType("Unknown"), "unknown controllers must keep image-based fallback");
+}
+
+void TestExplicitGridScaleHintBypassesImageEstimate()
+{
+    cv::Mat ambiguous(108, 108, CV_8UC3, cv::Scalar(245, 245, 245));
+    const cv::Rect roi(0, 0, ambiguous.cols, ambiguous.rows);
+    Check(
+        !iconrecognition::detail::EstimateGridScale(ambiguous, iconrecognition::GridType::Rewards, roi),
+        "fixture must remain ambiguous without controller context");
+
+    const auto grid = iconrecognition::detail::DetectGrid(ambiguous, iconrecognition::GridType::Rewards, roi, 1.0);
+    Check(grid.grid_scale == 1.0, "explicit Win32 profile hint must be preserved");
+    Check(grid.cells.size() == 1, "explicit Win32 profile hint must bypass ambiguous image scale estimation");
 }
 
 void TestTradeGridUsesCardBoundariesForVerticalPhase()
@@ -411,7 +473,7 @@ void TestRewardsGridKeepsBottomRarityBandInsideCell()
         image(cv::Rect(x, kPhaseY + kBrightBodyHeight, kCellSize, kRarityBandHeight)).setTo(cv::Scalar(0, 220, 220));
     }
 
-    const auto grid = iconrecognition::detail::DetectGrid(image, iconrecognition::GridType::Rewards, roi);
+    const auto grid = iconrecognition::detail::DetectGrid(image, iconrecognition::GridType::Rewards, roi, 1.0);
     Check(grid.cells.size() == kColumns, "synthetic rewards row must retain every card");
     for (const auto& cell : grid.cells) {
         Check(
@@ -431,49 +493,106 @@ void TestRewardsSingleCardRoiClampsSmallBodyPhaseOffset()
     cv::Mat image(roi.size(), CV_8UC3, cv::Scalar(24, 24, 24));
     image(cv::Rect(0, kBodyTop, kCellSize, kBrightBodyHeight)).setTo(cv::Scalar(240, 240, 240));
 
-    const auto grid = iconrecognition::detail::DetectGrid(image, iconrecognition::GridType::Rewards, roi);
+    const auto grid = iconrecognition::detail::DetectGrid(image, iconrecognition::GridType::Rewards, roi, 1.0);
     Check(grid.cells.size() == 1, "single reward ROI must retain a card whose bright body starts two pixels below the ROI");
     Check(grid.cells.front().cell_box == cv::Rect(0, 1, kCellSize, kCellSize), "reward cell must stay inside the caller ROI");
 }
 
-void TestRewardsGridKeepsRowsWithIndependentHorizontalOrigins()
+void TestRewardsGridUsesCenteredSharedOriginWithoutFixedColumnCount()
 {
     constexpr int kCellSize = 96;
     constexpr int kBrightBodyHeight = 92;
     constexpr int kRarityBandHeight = kCellSize - kBrightBodyHeight;
     constexpr int kPitchX = 117;
-    constexpr int kFirstRowX = 35;
-    constexpr int kSecondRowX = 88;
-    constexpr int kFirstRowY = 30;
-    constexpr int kSecondRowY = 155;
-    const cv::Rect roi(0, 0, 480, 280);
-    cv::Mat image(roi.size(), CV_8UC3, cv::Scalar(24, 24, 24));
+    constexpr int kPitchY = 117;
+    constexpr int kFullColumns = 7;
+    constexpr int kFirstRowX = (1280 - ((kFullColumns - 1) * kPitchX + kCellSize)) / 2;
+    constexpr int kFirstRowY = (720 - (kPitchY + kCellSize)) / 2;
+    constexpr int kSecondRowY = kFirstRowY + kPitchY;
+    const cv::Rect roi(39, 82, 1205, 511);
+    cv::Mat image(720, 1280, CV_8UC3, cv::Scalar(24, 24, 24));
 
     const auto paint_row = [&](int origin_x, int origin_y, int columns) {
         for (int column = 0; column < columns; ++column) {
             const int x = origin_x + column * kPitchX;
             image(cv::Rect(x, origin_y, kCellSize, kBrightBodyHeight)).setTo(cv::Scalar(240, 240, 240));
-            image(cv::Rect(x, origin_y + kBrightBodyHeight, kCellSize, kRarityBandHeight)).setTo(cv::Scalar(220, 0, 220));
+            image(cv::Rect(x, origin_y + kBrightBodyHeight, kCellSize, kRarityBandHeight)).setTo(RarityBgr(4));
         }
     };
-    paint_row(kFirstRowX, kFirstRowY, 3);
-    paint_row(kSecondRowX, kSecondRowY, 2);
+    paint_row(kFirstRowX, kFirstRowY, kFullColumns);
+    paint_row(kFirstRowX, kSecondRowY, 2);
+    paint_row(70, 480, 1);
 
-    const auto grid = iconrecognition::detail::DetectGrid(image, iconrecognition::GridType::Rewards, roi);
-    Check(grid.grids.size() == 2, "vertically separated rewards rows must produce independent layouts");
-    Check(grid.grids[0].columns == 3 && grid.grids[1].columns == 2, "each rewards row must retain its own column count");
-    Check(grid.grids[0].cells.front().cell_box.x == kFirstRowX, "first rewards row must retain its horizontal origin");
-    Check(grid.grids[1].cells.front().cell_box.x == kSecondRowX, "second rewards row must not inherit the first row horizontal origin");
+    const auto grid = iconrecognition::detail::DetectGrid(image, iconrecognition::GridType::Rewards, roi, 1.0);
+    Check(grid.grids.size() == 1, "wrapped rewards rows must form one shared grid");
     Check(
-        std::ranges::all_of(grid.grids[0].cells, [](const auto& cell) { return cell.row == 0; }),
-        "first rewards layout must expose global row zero");
+        grid.grids.front().columns == kFullColumns && grid.grids.front().rows == 2,
+        "wrapped rewards grid shape must follow the observed first-row width");
     Check(
-        std::ranges::all_of(grid.grids[1].cells, [](const auto& cell) { return cell.row == 1; }),
-        "second rewards layout must expose global row one");
+        grid.grids.front().cells.size() == kFullColumns + 2,
+        "wrapped rewards grid must keep the observed first row and two second-row cells");
+    const auto& cells = grid.grids.front().cells;
     Check(
-        grid.grids[0].cells[0].column == 0 && grid.grids[0].cells[1].column == 1 && grid.grids[0].cells[2].column == 2,
-        "first rewards row columns must start at zero and remain contiguous");
-    Check(grid.grids[1].cells[0].column == 0 && grid.grids[1].cells[1].column == 1, "second rewards row columns must restart at zero");
+        std::ranges::count_if(cells, [](const auto& cell) { return cell.row == 0; }) == kFullColumns,
+        "first rewards row must contain the observed full width");
+    Check(
+        std::ranges::count_if(cells, [](const auto& cell) { return cell.row == 1; }) == 2,
+        "wrapped rewards row must contain only its two observed cells");
+    const auto second_row = std::ranges::find_if(cells, [](const auto& cell) { return cell.row == 1 && cell.column == 0; });
+    Check(second_row != cells.end() && second_row->cell_box.x == kFirstRowX, "wrapped row must reuse the full row left boundary");
+}
+
+void TestRewardsGridRejectsOffCenterFalseCard()
+{
+    constexpr int kCellSize = 96;
+    constexpr int kBodyHeight = 92;
+    const cv::Rect roi(39, 82, 1205, 511);
+    cv::Mat image(720, 1280, CV_8UC3, cv::Scalar(24, 24, 24));
+    const auto paint_card = [&](int x, int y) {
+        image(cv::Rect(x, y, kCellSize, kBodyHeight)).setTo(cv::Scalar(240, 240, 240));
+        image(cv::Rect(x, y + kBodyHeight, kCellSize, kCellSize - kBodyHeight)).setTo(RarityBgr(4));
+    };
+    paint_card(70, 105);
+    paint_card((image.cols - kCellSize) / 2, (image.rows - kCellSize) / 2);
+
+    const auto grid = iconrecognition::detail::DetectGrid(image, iconrecognition::GridType::Rewards, roi, 1.0);
+    Check(grid.cells.size() == 1, "off-center upper-left bright card must not become a rewards grid");
+    Check(
+        grid.cells.front().cell_box == cv::Rect((image.cols - kCellSize) / 2, (image.rows - kCellSize) / 2, kCellSize, kCellSize),
+        "centered reward card must survive off-center false-card filtering");
+}
+
+void TestRewardsAdbGridUsesSixColumnSharedOrigin()
+{
+    constexpr int kCellSize = 120;
+    constexpr int kBodyHeight = 115;
+    constexpr int kFullColumns = 6;
+    constexpr int kPitchX = 146;
+    constexpr int kOriginX = 216;
+    constexpr int kFirstRowY = 209;
+    constexpr int kSecondRowY = 375;
+    const cv::Rect roi(178, 140, 935, 440);
+    cv::Mat image(720, 1280, CV_8UC3, cv::Scalar(24, 24, 24));
+
+    const auto paint_row = [&](int y, int columns) {
+        for (int column = 0; column < columns; ++column) {
+            const int x = kOriginX + column * kPitchX;
+            image(cv::Rect(x, y, kCellSize, kBodyHeight)).setTo(cv::Scalar(240, 240, 240));
+            image(cv::Rect(x, y + kBodyHeight, kCellSize, kCellSize - kBodyHeight)).setTo(RarityBgr(4));
+        }
+    };
+    paint_row(kFirstRowY, kFullColumns);
+    paint_row(kSecondRowY, 2);
+
+    const auto grid = iconrecognition::detail::DetectGrid(image, iconrecognition::GridType::Rewards, roi, 1.25);
+    Check(grid.grids.size() == 1, "ADB wrapped rewards rows must form one shared grid");
+    Check(grid.grids.front().columns == kFullColumns && grid.grids.front().rows == 2, "ADB wrapped grid shape must be 6x2");
+    Check(grid.grids.front().cells.size() == 8, "ADB wrapped grid must keep six first-row and two second-row cells");
+    const auto second_row = std::ranges::find_if(
+        grid.grids.front().cells,
+        [](const auto& cell) { return cell.row == 1 && cell.column == 0; });
+    Check(second_row != grid.grids.front().cells.end(), "ADB wrapped row must expose its first cell");
+    Check(std::abs(second_row->cell_box.x - kOriginX) <= 1, "ADB wrapped row must reuse the six-column left boundary");
 }
 
 void TestRewardsGridRenumbersColumnsAfterRoiFiltering()
@@ -487,7 +606,7 @@ void TestRewardsGridRenumbersColumnsAfterRoiFiltering()
     image(cv::Rect(0, kPhaseY, kClippedCardSize, kClippedCardSize)).setTo(cv::Scalar(240, 240, 240));
     image(cv::Rect(kKeptCardX, kPhaseY, kCellSize, kCellSize)).setTo(cv::Scalar(240, 240, 240));
 
-    const auto grid = iconrecognition::detail::DetectGrid(image, iconrecognition::GridType::Rewards, roi);
+    const auto grid = iconrecognition::detail::DetectGrid(image, iconrecognition::GridType::Rewards, roi, 1.0);
     Check(grid.grids.size() == 1, "filtered rewards candidates must retain one row layout");
     Check(grid.grids.front().cells.size() == 1, "out-of-ROI rewards cells must be filtered");
     Check(grid.grids.front().columns == 1, "rewards columns must count only retained cells");
@@ -1109,6 +1228,9 @@ int main()
         TestGridScaleEstimateSelectsCalibratedProfiles();
         TestGridDetectorMapsNormalizedCellsBackToSourceImage();
         TestRewardsGridScaleSelectsCardProfileInsideCallerRoi();
+        TestRewardsGridScaleIgnoresBrightBackgroundWithoutRarityBand();
+        TestControllerTypeSelectsKnownGridScale();
+        TestExplicitGridScaleHintBypassesImageEstimate();
         TestTradeGridUsesCardBoundariesForVerticalPhase();
         TestValuablesCardExtentUsesScaledProfileOcclusionPolicy();
         TestPortOcclusionPolicyDropsOnlyWeakSevenColumnFirstRow();
@@ -1117,7 +1239,9 @@ int main()
         TestShipmentProfileAcceptsTwoCompleteRows();
         TestRewardsGridKeepsBottomRarityBandInsideCell();
         TestRewardsSingleCardRoiClampsSmallBodyPhaseOffset();
-        TestRewardsGridKeepsRowsWithIndependentHorizontalOrigins();
+        TestRewardsGridUsesCenteredSharedOriginWithoutFixedColumnCount();
+        TestRewardsGridRejectsOffCenterFalseCard();
+        TestRewardsAdbGridUsesSixColumnSharedOrigin();
         TestRewardsGridRenumbersColumnsAfterRoiFiltering();
         TestTransferRegionPartitionKeepsUndetectedOuterColumns();
         TestPortStoragerWideRoiUsesStablePanelPartitions();

@@ -170,6 +170,8 @@ struct RecognitionRequest
     GridType grid_type = GridType::Transfer;
     cv::Rect roi;
     CandidateFilter candidates;
+    // Custom 入口根据 MaaContext 填入的内部控制器比例；空值表示离线调用需从图像推断。
+    std::optional<double> grid_scale_hint;
     // 最终接受匹配的默认分数；调高减少误识别，调低提高弱图标召回。
     double threshold = 0.85;
     // 首轮分数达到该值才进行亚像素细化；调高减少计算量，调低增加细化候选。
