@@ -22,7 +22,7 @@
 | `ResetBeforeFindStart` | `bool` | 否 | 为 `true` 时，先向最小方向滑动复位，再匹配滑块起始位置并执行滑动。默认 `false`。 |
 
 > [!note]
-> Custom内部在对`SwipeButton`进行匹配时，`GreenMask`设置为`true`，涂绿方式可参考默认模板
+> Custom 内部匹配 `SwipeButton` 时固定开启绿色掩码（`green_mask: true`），涂绿方式可参考默认模板。该行为为默认行为，无需也不能通过参数关闭。
 
 ### 示例
 
@@ -88,12 +88,14 @@
 | `AvailableQuantity.Filter` | `object` | 否 | 可用总量 OCR 的颜色过滤参数。仅在显式提供 `AvailableQuantity` 时使用。 |
 | `SliderQuantity.OnlyRec` | `bool` | 否 | 是否为滑条数量 OCR 节点启用 `only_rec`。默认 `false`。 |
 | `AvailableQuantity.OnlyRec` | `bool` | 否 | 是否为 `BetterSlidingGetAvailableQuantity` 启用 `only_rec`。 |
-| `GreenMask` | `bool` | 否 | 使用模板路径定位按钮时，是否对模板匹配启用绿色掩膜过滤。默认 `false`。对`IncreaseButton`与`DecreaseButton`生效 |
 | `CenterPointOffset` | `int[2]` | 否 | 相对滑块识别框中心点的点击偏移 `[x, y]`，负数向左/上，正数向右/下。默认 `[-10, 0]`。 |
 | `ClampTargetToSliderMax` | `bool` | 否 | 为 `true` 时，若目标超过 `sliderMaxQuantity`，则钳制为滑条最大可选数量继续执行。默认 `false`。 |
 | `SwipeButton` | `string` | 否 | 自定义滑块模板路径，覆盖 `BetterSlidingSwipeButton` 节点的默认模板。默认 `""`（使用共享默认模板）。 |
 | `OutOfRangeOverrideEnable` | `string` | 否 | 当解析后的目标超出可滑动范围时，将指定 Pipeline 节点的 `enabled` 设为 `true`，然后返回成功。默认 `""`。 |
 | `TargetReachableOverrideEnable` | `string` | 否 | 当解析后的目标无需钳制且位于 `[1, sliderMaxQuantity]` 时，将指定 Pipeline 节点的 `enabled` 设为 `true`。默认 `""`。 |
+
+> [!note]
+> `SwipeButton`、`IncreaseButton`、`DecreaseButton` 使用模板路径匹配时，Custom 内部固定开启绿色掩码（`green_mask: true`），无需也无法通过参数关闭。请按默认模板的涂绿方式处理模板图片（不参与匹配的部分涂绿 RGB: (0, 255, 0)）。
 
 ### 结果节点契约
 

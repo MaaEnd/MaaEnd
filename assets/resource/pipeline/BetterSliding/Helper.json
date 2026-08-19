@@ -23,7 +23,7 @@
                 "template": [
                     "BetterSliding/SwipeButton.png"
                 ],
-                "green_mask": false,
+                "green_mask": true,
                 "threshold": [
                     0.8
                 ],
@@ -42,7 +42,7 @@
                 "template": [
                     "BetterSliding/SwipeButton.png"
                 ],
-                "green_mask": false,
+                "green_mask": true,
                 "threshold": [
                     0.8
                 ],

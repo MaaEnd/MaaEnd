@@ -9,7 +9,6 @@ type betterSlidingParam struct {
 	TargetQuantity                int                        `json:"TargetQuantity"`
 	SliderQuantity                quantityParam              `json:"SliderQuantity"`
 	AvailableQuantity             quantityParam              `json:"AvailableQuantity"`
-	GreenMask                     bool                       `json:"GreenMask"`
 	Direction                     string                     `json:"Direction"`
 	IncreaseButton                any                        `json:"IncreaseButton"`
 	DecreaseButton                any                        `json:"DecreaseButton"`
@@ -29,7 +28,6 @@ type betterSlidingParamPresence struct {
 	TargetQuantity                bool
 	SliderQuantity                bool
 	AvailableQuantity             bool
-	GreenMask                     bool
 	Direction                     bool
 	IncreaseButton                bool
 	DecreaseButton                bool
@@ -73,7 +71,6 @@ type quantityFilterParam struct {
 //   - SliderQuantity.OnlyRec: enable only_rec for the slider quantity OCR node
 //   - AvailableQuantity.Filter: optional color filter for available quantity OCR
 //   - AvailableQuantity.OnlyRec: enable only_rec for available quantity OCR
-//   - GreenMask: map to green_mask in TemplateMatch for slider/button templates
 //   - Direction: swipe direction (left/right/up/down)
 //   - IncreaseButton: increase button template path or coordinates
 //   - DecreaseButton: decrease button template path or coordinates
@@ -97,7 +94,6 @@ type BetterSlidingAction struct {
 	AvailableQuantityFilter       *quantityFilterParam
 	SliderQuantityOnlyRec         bool
 	AvailableQuantityOnlyRec      bool
-	GreenMask                     bool
 	Direction                     string
 	IncreaseButton                buttonTarget
 	DecreaseButton                buttonTarget
@@ -146,5 +142,9 @@ const (
 )
 
 var defaultCenterPointOffset = [2]int{-10, 0}
+
+// defaultGreenMask 是 BetterSliding 按钮模板匹配默认启用的绿色掩码开关。
+// BetterSliding 对 SwipeButton / IncreaseButton / DecreaseButton 的模板匹配固定开启绿色掩码。
+const defaultGreenMask = true
 
 var _ maa.CustomActionRunner = &BetterSlidingAction{}

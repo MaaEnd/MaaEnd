@@ -81,7 +81,6 @@
                     "DecreaseButton": "AutoStockpile/DecreaseButton.png",
                     "Direction": "right",
                     "IncreaseButton": "AutoStockpile/IncreaseButton.png",
-                    "GreenMask": true,
                     "TargetQuantity": 1,
                     "SliderQuantity": {
                         "Box": [

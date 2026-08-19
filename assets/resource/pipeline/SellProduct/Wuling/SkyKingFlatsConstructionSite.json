@@ -1224,7 +1224,6 @@
         "action": "Custom",
         "custom_action": "BetterSliding",
         "custom_action_param": {
-            "GreenMask": true,
             "TargetQuantity": 999999,
             "ClampTargetToSliderMax": true,
             "AvailableQuantity": {

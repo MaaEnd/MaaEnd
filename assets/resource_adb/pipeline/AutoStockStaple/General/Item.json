@@ -33,7 +33,6 @@
                     "DecreaseButton": "AutoStockpile/DecreaseButton.png",
                     "Direction": "right",
                     "IncreaseButton": "AutoStockpile/IncreaseButton.png",
-                    "GreenMask": true,
                     "SliderQuantity": {
                         "Box": [
                             304,

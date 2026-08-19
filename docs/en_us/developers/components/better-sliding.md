@@ -22,7 +22,7 @@ Suitable for scenarios where you want to slide to the maximum/minimum. Parameter
 | `ResetBeforeFindStart` | `bool` | No | When `true`, first swipes toward the minimum before matching the slider start position, then performs the swipe. Default `false`. |
 
 > [!note]
-> When matching the `SwipeButton` internally, the CustomAction sets `GreenMask` to `true`. For the green masking method, please refer to the default template.
+> When matching the `SwipeButton` internally, the CustomAction always enables the green mask (`green_mask: true`). For the green masking method, please refer to the default template. This is the default behavior and cannot be turned off via any parameter.
 
 ### Example
 
@@ -88,12 +88,14 @@ In addition to the 5 fields above, all other parameters can only be read from `c
 | `AvailableQuantity.Filter` | `object` | No | Color filter parameters for available-quantity OCR. Used only when `AvailableQuantity` is explicitly provided. |
 | `SliderQuantity.OnlyRec` | `bool` | No | Whether to enable `only_rec` for slider-quantity OCR. Default `false`. |
 | `AvailableQuantity.OnlyRec` | `bool` | No | Whether to enable `only_rec` for `BetterSlidingGetAvailableQuantity`. |
-| `GreenMask` | `bool` | No | When locating buttons using a template path, whether to enable green mask filtering for template matching. Default `false`. Applies to `IncreaseButton` and `DecreaseButton`. |
 | `CenterPointOffset` | `int[2]` | No | Click offset relative to the center point of the slider's recognition box `[x, y]`, negative values left/up, positive right/down. Default `[-10, 0]`. |
 | `ClampTargetToSliderMax` | `bool` | No | When `true`, a target above `sliderMaxQuantity` is clamped to the maximum selectable slider quantity. Default `false`. |
 | `SwipeButton` | `string` | No | Custom slider template path, overrides the default template of the `BetterSlidingSwipeButton` node. Default `""` (uses the shared default template). |
 | `OutOfRangeOverrideEnable` | `string` | No | When the resolved target is outside the slidable range, enables the specified Pipeline node and returns success. Default `""`. |
 | `TargetReachableOverrideEnable` | `string` | No | When the resolved target needs no clamping and falls within `[1, sliderMaxQuantity]`, enables the specified Pipeline node. Default `""`. |
+
+> [!note]
+> When matching `SwipeButton`, `IncreaseButton`, or `DecreaseButton` via a template path, the CustomAction always enables the green mask (`green_mask: true`); this cannot be turned off via any parameter. Please prepare your template images following the default template's green masking method (paint non-matching regions green, RGB: (0, 255, 0)).
 
 ### Outcome Node Contract
 
