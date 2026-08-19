@@ -41,6 +41,12 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # MaaFW 5.13+ Linux 包链接 PipeWire；ubuntu-latest 默认未安装
+      - name: Install MaaFW Linux runtime libraries
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y libpipewire-0.3-dev libdbus-1-dev
+
       - name: Run maa-tools test
         run: pnpm test
 
@@ -67,6 +73,12 @@ jobs:
           cache-dependency-path: |
             agent/go-service/go.mod
             agent/go-service/go.sum
+
+      # MaaFW 5.13+ Linux 包链接 PipeWire；ubuntu-latest 默认未安装
+      - name: Install MaaFW Linux runtime libraries
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y libpipewire-0.3-dev libdbus-1-dev
 
       - name: Build and install
         run: python -u tools/build_and_install.py --ci --os linux --arch x86_64 # without cpp-algo

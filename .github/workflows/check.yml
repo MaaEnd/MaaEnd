@@ -52,6 +52,12 @@ jobs:
         with:
           enable-cache: true
 
+      # MaaFW 5.13+ Linux 包链接 PipeWire；ubuntu-latest 默认未安装
+      - name: Install MaaFW Linux runtime libraries
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y libpipewire-0.3-0 libdbus-1-3
+
       - name: Run maa-checker
         run: |
           pnpm i
