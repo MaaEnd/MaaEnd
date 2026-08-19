@@ -74,15 +74,12 @@
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
-        "focus": {
-            "Node.Recognition.Succeeded": "多媒体列表已滚动到底部"
-        },
         "attach": {
             "ready": false
         }
     },
     "IntelArchiveSyncAudioRecordsScanAndScroll": {
-        "desc": "本屏 OCR 入库；省略号条目交给 ResolveTruncAction",
+        "desc": "本屏 OCR 入库；多页、省略号对不上、无名卡片交给 ResolveTruncAction",
         "max_hit": 100,
         "recognition": "Custom",
         "custom_recognition": "IntelArchiveScanItemsRecognition",

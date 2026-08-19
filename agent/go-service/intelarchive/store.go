@@ -77,8 +77,11 @@ type item struct {
 }
 
 type catalogIndex struct {
-	NameToIDs  map[string][]string
-	NormToOrig map[string]string
+	NameToIDs     map[string][]string
+	NameToItems   map[string][]string
+	PageToItem    map[string]string
+	ItemPageCount map[string]int
+	NormToOrig    map[string]string
 }
 
 type unlockedFile struct {
@@ -166,8 +169,11 @@ func buildCatalogIndex(cat *catalogFile, items *itemsFile) (*catalogIndex, error
 	})
 
 	idx := &catalogIndex{
-		NameToIDs:  make(map[string][]string, len(items.Items)*2),
-		NormToOrig: make(map[string]string, len(items.Items)*2),
+		NameToIDs:     make(map[string][]string, len(items.Items)*2),
+		NameToItems:   make(map[string][]string, len(items.Items)*2),
+		PageToItem:    make(map[string]string, len(items.Items)*2),
+		ItemPageCount: make(map[string]int, len(items.Items)),
+		NormToOrig:    make(map[string]string, len(items.Items)*2),
 	}
 	for _, id := range ids {
 		it := items.Items[id]
@@ -209,9 +215,10 @@ func buildCatalogIndex(cat *catalogFile, items *itemsFile) (*catalogIndex, error
 		if !pageInTags {
 			return nil, fmt.Errorf("item %q tagIds does not include page %q", id, it.Page)
 		}
-		indexItemName(idx, zhCN, id)
+		idx.ItemPageCount[id] = len(it.Pages)
+		indexNamed(idx, idx.NameToItems, zhCN, id)
 		if zhTW := strings.TrimSpace(it.Names[i18n.LangZhTW]); zhTW != "" {
-			indexItemName(idx, zhTW, id)
+			indexNamed(idx, idx.NameToItems, zhTW, id)
 		}
 		for i, page := range it.Pages {
 			if page.ID == "" {
@@ -224,11 +231,13 @@ func buildCatalogIndex(cat *catalogFile, items *itemsFile) (*catalogIndex, error
 			if pageCN == "" {
 				return nil, fmt.Errorf("item %q pages[%d] names.zh_cn is empty", id, i)
 			}
-			indexItemName(idx, pageCN, id)
+			idx.PageToItem[page.ID] = id
+			indexItemName(idx, pageCN, page.ID)
 			if pageTW := strings.TrimSpace(page.Names[i18n.LangZhTW]); pageTW != "" {
-				indexItemName(idx, pageTW, id)
+				indexItemName(idx, pageTW, page.ID)
 			}
 		}
+		indexItemTitles(idx, it, zhCN)
 	}
 
 	return idx, nil
@@ -243,18 +252,38 @@ func itemIDLess(a, b string) bool {
 	return a < b
 }
 
+func indexItemTitles(idx *catalogIndex, it item, zhCN string) {
+	switch len(it.Pages) {
+	case 0:
+		indexItemName(idx, zhCN, it.ID)
+		if zhTW := strings.TrimSpace(it.Names[i18n.LangZhTW]); zhTW != "" {
+			indexItemName(idx, zhTW, it.ID)
+		}
+	case 1:
+		pageID := it.Pages[0].ID
+		indexItemName(idx, zhCN, pageID)
+		if zhTW := strings.TrimSpace(it.Names[i18n.LangZhTW]); zhTW != "" {
+			indexItemName(idx, zhTW, pageID)
+		}
+	}
+}
+
 func indexItemName(idx *catalogIndex, name, id string) {
+	indexNamed(idx, idx.NameToIDs, name, id)
+}
+
+func indexNamed(idx *catalogIndex, dst map[string][]string, name, id string) {
 	name = strings.TrimSpace(name)
 	key := normalizeTitle(name)
-	if idx == nil || key == "" || id == "" {
+	if idx == nil || dst == nil || key == "" || id == "" {
 		return
 	}
-	for _, existing := range idx.NameToIDs[key] {
+	for _, existing := range dst[key] {
 		if existing == id {
 			return
 		}
 	}
-	idx.NameToIDs[key] = append(idx.NameToIDs[key], id)
+	dst[key] = append(dst[key], id)
 	if idx.NormToOrig[key] == "" {
 		idx.NormToOrig[key] = name
 	}
@@ -297,12 +326,51 @@ func (idx *catalogIndex) matchOCR(ocr string) (ids []string, full string) {
 	if idx == nil || ocr == "" {
 		return nil, ""
 	}
-	if exact := idx.NameToIDs[ocr]; len(exact) > 0 {
-		return append([]string(nil), exact...), idx.displayName(ocr)
+	ids, matchedName := uniquePrefixIDs(idx.NameToIDs, ocr)
+	if len(ids) == 0 {
+		return nil, ""
 	}
+	if matchedName == "" {
+		matchedName = ocr
+	}
+	return ids, idx.displayName(matchedName)
+}
 
-	matchedName := ""
-	for name := range idx.NameToIDs {
+func (idx *catalogIndex) shouldOpenFromList(ocr string) bool {
+	if idx == nil {
+		return false
+	}
+	ocr = normalizeTitle(ocr)
+	if ocr == "" {
+		return false
+	}
+	itemIDs, _ := uniquePrefixIDs(idx.NameToItems, ocr)
+	for _, itemID := range itemIDs {
+		if idx.ItemPageCount[itemID] > 1 {
+			return true
+		}
+	}
+	unlockIDs, _ := idx.matchOCR(ocr)
+	for _, id := range unlockIDs {
+		itemID := idx.PageToItem[id]
+		if itemID == "" {
+			itemID = id
+		}
+		if idx.ItemPageCount[itemID] > 1 {
+			return true
+		}
+	}
+	return false
+}
+
+func uniquePrefixIDs(table map[string][]string, ocr string) (ids []string, matchedName string) {
+	if table == nil || ocr == "" {
+		return nil, ""
+	}
+	if exact := table[ocr]; len(exact) > 0 {
+		return append([]string(nil), exact...), ocr
+	}
+	for name := range table {
 		if !strings.HasPrefix(name, ocr) {
 			continue
 		}
@@ -317,7 +385,7 @@ func (idx *catalogIndex) matchOCR(ocr string) (ids []string, full string) {
 	if matchedName == "" {
 		return nil, ""
 	}
-	return append([]string(nil), idx.NameToIDs[matchedName]...), idx.displayName(matchedName)
+	return append([]string(nil), table[matchedName]...), matchedName
 }
 
 func loadUnlocked() (unlockedFile, error) {
@@ -408,8 +476,8 @@ func legacyUnlockedPath(path string) string {
 	return filepath.Join(filepath.Dir(path), legacyUnlockedFileName)
 }
 
-// unlockItems appends item IDs under the given UID. Missing file/dir is created.
-// Returns newly added IDs.
+// unlockItems appends unlock IDs (page IDs, or item IDs when the catalog has no pages) under the given UID.
+// Missing file/dir is created. Returns newly added IDs.
 func unlockItems(uid string, itemIDs []string) ([]string, error) {
 	if uid == "" {
 		return nil, fmt.Errorf("uid is empty")

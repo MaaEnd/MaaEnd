@@ -133,9 +133,20 @@ function render() {
   var archiveList = itemList.filter(function(it) {
     return !isInvestigateItem(it);
   });
-  var totalCount = archiveList.length;
+  var archiveRows = [];
+  archiveList.forEach(function(it) {
+    var pages = it.pages || [];
+    if (pages.length > 1) {
+      pages.forEach(function(page) {
+        archiveRows.push(makeLeaf(it, page.id));
+      });
+      return;
+    }
+    archiveRows.push(it);
+  });
+  var totalCount = archiveRows.length;
   var unlockedCount = 0;
-  archiveList.forEach(function(it) { if (isUnlocked(it, unlockedSet)) unlockedCount++; });
+  archiveRows.forEach(function(row) { if (isUnlocked(row, unlockedSet)) unlockedCount++; });
 
   statsEl.innerHTML =
     '<div class="stat-card"><div class="label">总档案</div><div class="value total">' + totalCount + '</div></div>' +
@@ -357,7 +368,7 @@ function finalizeGroup(group, unlockedSet) {
   });
   group.totalCount = (group.items || []).length;
   group.unlockedCount = (group.items || []).filter(function(item) {
-    return isUnlocked(unwrapLeaf(item), unlockedSet);
+    return isUnlocked(item, unlockedSet);
   }).length;
   group.visibleCount = group.visibleItems.length;
 }
@@ -464,14 +475,15 @@ function appendLeaves(parent, leaves, unlockedSet) {
   var itemList = document.createElement('div');
   itemList.className = 'item-list';
   leaves.forEach(function(leaf) {
-    itemList.appendChild(createItem(unwrapLeaf(leaf), unlockedSet, leaf.displayName));
+    itemList.appendChild(createItem(leaf, unlockedSet));
   });
   parent.appendChild(itemList);
 }
 
-function createItem(item, unlockedSet, displayName) {
-  var name = displayName || getItemName(item);
-  var unlocked = isUnlocked(item, unlockedSet);
+function createItem(value, unlockedSet) {
+  var item = unwrapLeaf(value);
+  var name = (value && value.displayName) || getItemName(item);
+  var unlocked = isUnlocked(value, unlockedSet);
   var node = document.createElement('div');
   node.className = 'item ' + (unlocked ? 'unlocked' : 'locked');
   node.title = name;
@@ -489,8 +501,19 @@ function isInvestigateItem(item) {
   return !!item && (item.page === 'investigate' || item.fileCategory === 'investigate');
 }
 
-function isUnlocked(item, unlockedSet) {
+function isUnlocked(value, unlockedSet) {
+  if (!value || !unlockedSet) return false;
+  var pageId = value.pageId || '';
+  var item = unwrapLeaf(value);
   if (!item) return false;
+  if (pageId) return !!unlockedSet[pageId];
+  var pages = item.pages || [];
+  if (pages.length === 1 && pages[0].id) {
+    return !!unlockedSet[pages[0].id];
+  }
+  if (pages.length > 1) {
+    return false;
+  }
   if (unlockedSet[item.id]) return true;
   var related = item.relatedItemIds || [];
   if (!related.length) return false;
@@ -502,7 +525,7 @@ function isUnlocked(item, unlockedSet) {
 function matchesLeaf(group, value, unlockedSet) {
   var item = unwrapLeaf(value);
   var displayName = (value && value.displayName) || getItemName(item);
-  if (!matchesFilter(item, unlockedSet)) return false;
+  if (!matchesFilter(value, unlockedSet)) return false;
   if (group && group.queryItem && matchesQuery(group.queryItem)) return true;
   if (group && group.queryName && matchesText(group.queryName)) return true;
   return matchesQuery(item) || matchesText(displayName);
@@ -524,8 +547,8 @@ function matchesQuery(item) {
   });
 }
 
-function matchesFilter(item, unlockedSet) {
-  var unlocked = isUnlocked(item, unlockedSet);
+function matchesFilter(value, unlockedSet) {
+  var unlocked = isUnlocked(value, unlockedSet);
   if (currentFilter === 'unlocked') return unlocked;
   if (currentFilter === 'locked') return !unlocked;
   return true;

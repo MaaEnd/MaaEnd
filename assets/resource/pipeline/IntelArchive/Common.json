@@ -17,13 +17,30 @@
         "desc": "等待档案消失",
         "recognition": "And",
         "all_of": [
-            "IntelArchiveRecognitionItemText"
+            "IntelArchiveRecognitionItemIcon",
+            "IntelArchiveRecognitionItemLine",
+            "IntelArchiveRecognitionItemTextBackground"
         ],
         "inverse": true,
         "pre_wait_freezes": 100,
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
+        "next": [
+            "IntelArchiveResolveTruncOCR"
+        ]
+    },
+    "IntelArchiveResolveTruncNext": {
+        "desc": "点击下一篇",
+        "recognition": "OCR",
+        "roi": [
+            730,
+            630,
+            200,
+            80
+        ],
+        "expected": [
+            "下"
+        ],
+        "action": "Click",
+        "post_delay": 600, // 等待切换完成
         "next": [
             "IntelArchiveResolveTruncOCR"
         ]
@@ -32,10 +49,8 @@
         "desc": "详情页标题 OCR，与目录比对并入库",
         "recognition": "Custom",
         "custom_recognition": "IntelArchiveScanDetailRecognition",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
         "next": [
+            "IntelArchiveResolveTruncNext",
             "IntelArchiveResolveTruncClose"
         ]
     },

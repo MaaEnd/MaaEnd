@@ -87,6 +87,78 @@
             }
         ]
     },
+    "IntelArchiveRecognitionItemNoPageCount": {
+        "desc": "档案缩略图与标题之间无页数黑底，认浅色菜单底",
+        "recognition": "ColorMatch",
+        "roi": "IntelArchiveRecognitionItemLine",
+        "roi_offset": [
+            45,
+            95,
+            5,
+            10
+        ],
+        "lower": [
+            200,
+            200,
+            200
+        ],
+        "upper": [
+            255,
+            255,
+            255
+        ],
+        "connected": true,
+        "count": 150
+    },
+    "IntelArchiveRecognitionItemSecretWithoutPageCount": {
+        "desc": "识别不带页数黑底的档案无名文本",
+        "recognition": "And",
+        "all_of": [
+            "IntelArchiveRecognitionItemIcon",
+            "IntelArchiveRecognitionItemLine",
+            "IntelArchiveRecognitionItemNoPageCount",
+            {
+                "sub_name": "text_bg",
+                "recognition": "ColorMatch",
+                "roi": "IntelArchiveRecognitionItemNoPageCount",
+                "roi_offset": [
+                    -50,
+                    18,
+                    95,
+                    25
+                ],
+                "lower": [
+                    212,
+                    212,
+                    212
+                ],
+                "upper": [
+                    232,
+                    232,
+                    232
+                ],
+                "count": 30
+            },
+            {
+                "sub_name": "text_color",
+                "recognition": "ColorMatch",
+                "roi": "text_bg",
+                "lower": [
+                    40,
+                    40,
+                    40
+                ],
+                "upper": [
+                    180,
+                    180,
+                    180
+                ],
+                "connected": true,
+                "count": 1500
+            }
+        ],
+        "box_index": 4
+    },
     "IntelArchiveRecognitionDetailFlag": {
         "desc": "识别档案详细中间上方白条",
         "recognition": "ColorMatch",

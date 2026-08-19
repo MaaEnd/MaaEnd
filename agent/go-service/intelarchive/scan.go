@@ -11,7 +11,10 @@ import (
 )
 
 const (
-	itemRecognitionNode   = "IntelArchiveRecognitionItemText"
+	itemTextNode          = "IntelArchiveRecognitionItemText"
+	itemSecretNode        = "IntelArchiveRecognitionItemSecretWithoutPageCount"
+	itemOCRIndex          = 4
+	itemSecretBoxIndex    = 4
 	detailRecognitionNode = "IntelArchiveRecognitionDetailTitleText"
 	truncatedItemNode     = "IntelArchiveResolveTrunc"
 	placeholderUID        = "123456789"
@@ -26,7 +29,8 @@ type truncatedItem struct {
 	Box  []int  `json:"box"` // [x, y, w, h]
 }
 
-// ScanItemsRecognition scans the current list screen and persists newly unlocked item IDs.
+// ScanItemsRecognition scans the current list screen: named cards are matched against the catalog,
+// multi-page / truncated / unnamed cards are returned for ResolveTruncAction to open.
 type ScanItemsRecognition struct{}
 
 // ScanDetailRecognition OCRs the detail-page title and matches it against the catalog.
@@ -65,13 +69,8 @@ func (r *ScanItemsRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionA
 		return nil, false
 	}
 
-	rec, err := ctx.RunRecognition(itemRecognitionNode, arg.Img)
-	if err != nil {
-		log.Error().Err(err).Str("component", component).Msg("item recognition failed")
-		return nil, false
-	}
-	// IntelArchiveRecognitionItemText.all_of：OCR 在第 5 段。
-	items := ocrFiltered(rec, 4)
+	titles := recognizeFiltered(ctx, arg, itemTextNode, itemOCRIndex)
+	secret := recognizeFiltered(ctx, arg, itemSecretNode, itemSecretBoxIndex)
 
 	idx, err := loadCatalogIndex()
 	if err != nil {
@@ -79,10 +78,19 @@ func (r *ScanItemsRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionA
 		return nil, false
 	}
 
-	truncated := make([]truncatedItem, 0)
-	names := make([]string, 0, len(items))
-	for _, item := range items {
+	truncated := make([]truncatedItem, 0, len(secret)+len(titles))
+	truncated = append(truncated, secret...)
+	names := make([]string, 0, len(titles))
+	for _, item := range titles {
 		query, trunc := stripTrailingEllipsis(item.Text)
+		lookup := query
+		if lookup == "" {
+			lookup = item.Text
+		}
+		if idx.shouldOpenFromList(lookup) {
+			truncated = append(truncated, item)
+			continue
+		}
 		if trunc && query != "" {
 			if matched, _ := idx.matchOCR(query); len(matched) > 0 {
 				names = append(names, query)
@@ -106,6 +114,15 @@ func (r *ScanItemsRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionA
 	return &maa.CustomRecognitionResult{Box: arg.Roi, Detail: string(detailBytes)}, true
 }
 
+func recognizeFiltered(ctx *maa.Context, arg *maa.CustomRecognitionArg, node string, index int) []truncatedItem {
+	rec, err := ctx.RunRecognition(node, arg.Img)
+	if err != nil {
+		log.Error().Err(err).Str("component", component).Str("node", node).Msg("item recognition failed")
+		return nil
+	}
+	return filteredItems(rec, index)
+}
+
 func (r *ScanDetailRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
 	if arg == nil || arg.Img == nil || ctx == nil {
 		return nil, false
@@ -117,7 +134,7 @@ func (r *ScanDetailRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognition
 		return &maa.CustomRecognitionResult{Box: arg.Roi}, true
 	}
 	// IntelArchiveRecognitionDetailTitleText.all_of：OCR 在第 3 段。
-	items := ocrFiltered(rec, 2)
+	items := filteredItems(rec, 2)
 	names := make([]string, 0, len(items))
 	for _, item := range items {
 		names = append(names, item.Text)
@@ -154,7 +171,7 @@ func parseTruncated(detail *maa.RecognitionDetail) []truncatedItem {
 	return payload.Truncated
 }
 
-// stripTrailingEllipsis 去掉标题后缀省略号（含 OCR 成 `..` 的情况）。中间的点不剥。
+// stripTrailingEllipsis 去掉标题后缀省略号（含 OCR 成 `.` / `..` / `…` 的情况）。中间的点不剥。
 func stripTrailingEllipsis(s string) (string, bool) {
 	s = strings.TrimSpace(s)
 	if s == "" {
@@ -177,13 +194,13 @@ func stripTrailingEllipsis(s string) (string, bool) {
 		}
 		break
 	}
-	if ellipsis == 0 && dots < 2 {
+	if ellipsis == 0 && dots == 0 {
 		return s, false
 	}
 	return strings.TrimSpace(string(runes[:end])), true
 }
 
-func ocrFiltered(detail *maa.RecognitionDetail, index int) []truncatedItem {
+func filteredItems(detail *maa.RecognitionDetail, index int) []truncatedItem {
 	if detail == nil || !detail.Hit || index < 0 || index >= len(detail.CombinedResult) || detail.CombinedResult[index] == nil {
 		return nil
 	}
@@ -194,14 +211,16 @@ func ocrFiltered(detail *maa.RecognitionDetail, index int) []truncatedItem {
 		} `json:"filtered"`
 	}
 	if err := json.Unmarshal([]byte(detail.CombinedResult[index].DetailJson), &payload); err != nil {
-		log.Error().Err(err).Str("component", component).Msg("ocr detail json parse failed")
+		log.Error().Err(err).Str("component", component).Msg("filtered detail json parse failed")
 		return nil
 	}
 	items := make([]truncatedItem, 0, len(payload.Filtered))
 	for _, item := range payload.Filtered {
-		if text := strings.TrimSpace(item.Text); text != "" {
-			items = append(items, truncatedItem{Text: text, Box: item.Box})
+		text := strings.TrimSpace(item.Text)
+		if text == "" && (len(item.Box) != 4 || item.Box[2] <= 0 || item.Box[3] <= 0) {
+			continue
 		}
+		items = append(items, truncatedItem{Text: text, Box: item.Box})
 	}
 	return items
 }

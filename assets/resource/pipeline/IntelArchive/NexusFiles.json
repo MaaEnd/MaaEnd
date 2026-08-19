@@ -72,9 +72,6 @@
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
-        "focus": {
-            "Node.Recognition.Succeeded": "中枢档案列表已滚动到底部"
-        },
         "attach": {
             "ready": false
         }
@@ -124,15 +121,12 @@
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
-        "focus": {
-            "Node.Recognition.Succeeded": "调查报告列表已滚动到底部"
-        },
         "attach": {
             "ready": false
         }
     },
     "IntelArchiveSyncNexusFilesScanAndScroll": {
-        "desc": "本屏 OCR 入库；省略号条目交给 ResolveTruncAction",
+        "desc": "本屏 OCR 入库；多页、省略号对不上、无名卡片交给 ResolveTruncAction",
         "max_hit": 100,
         "recognition": "Custom",
         "custom_recognition": "IntelArchiveScanItemsRecognition",
