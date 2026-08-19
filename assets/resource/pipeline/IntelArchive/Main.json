@@ -1,0 +1,54 @@
+{
+    "IntelArchiveMain": {
+        "desc": "情报档案库任务入口（骨架）",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]IntelArchiveSyncSub",
+            "[JumpBack]IntelArchiveShowInventorySub",
+            "EmptyNode"
+        ]
+    },
+    "IntelArchiveGetUid": {
+        "desc": "跳转作战手册后截屏 OCR 并缓存 UID",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "CaptureUid",
+        "custom_action_param": {
+            "stay_on_current_screen": false
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "IntelArchiveSyncSub": {
+        "desc": "同步已有档案",
+        "enabled": false,
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]IntelArchiveGetUid",
+            "[JumpBack]IntelArchiveSyncAudioRecords",
+            "[JumpBack]IntelArchiveSyncFindings",
+            "[JumpBack]IntelArchiveSyncNexusFiles",
+            "EmptyNode"
+        ]
+    },
+    "IntelArchiveShowInventorySub": {
+        "desc": "生成并打开已解锁档案 HTML 报告",
+        "enabled": false,
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "IntelArchiveShowInventoryAction"
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

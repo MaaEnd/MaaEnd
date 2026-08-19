@@ -6,6 +6,7 @@
 
 #include "Common/CrashHandler.h"
 #include "Common/ParentProcessWatcher.h"
+#include "Common/SystemMonitor.h"
 #include "EssenceGridScan/EssenceGridScan.h"
 #include "IconRecognition/IconRecognitionRecognition.h"
 #include "MapLocator/MapLocateAction.h"
@@ -45,6 +46,8 @@ int main(int argc, char** argv)
 
     // 转储落到 maa.log 同一目录，报 issue 打包日志时会一并带上。
     common::InstallCrashHandler(std::filesystem::path(kUserPath) / "debug");
+
+    common::StartSystemMonitor();
 
     MaaAgentServerRegisterCustomRecognition("MyReco1", ChildCustomRecognitionCallback, nullptr);
     MaaAgentServerRegisterCustomRecognition("MapLocateRecognition", maplocator::MapLocateRecognitionRun, nullptr);

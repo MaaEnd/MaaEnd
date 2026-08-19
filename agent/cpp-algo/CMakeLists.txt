@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.28)
 
 project(maaend-cpp-agent)
 
+option(MAAEND_BUILD_ICON_RECOGNITION_TESTS "Build IconRecognition tests" OFF)
+
 include(MaaUtils/MaaUtils.cmake)
 add_library(HeaderOnlyLibraries INTERFACE)
 

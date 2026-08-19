@@ -23,8 +23,10 @@
 $ErrorActionPreference = "Stop"
 $testRoot = $PSScriptRoot
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $testRoot "../../../../..")).Path
-$buildRoot = Join-Path $testRoot "build"
-$mergedInputRoot = Join-Path $buildRoot "merged-input"
+$cppAlgoRoot = Join-Path $repoRoot "agent/cpp-algo"
+$buildRoot = Join-Path $cppAlgoRoot "build"
+$testBuildRoot = Join-Path $buildRoot "source/IconRecognition/test"
+$mergedInputRoot = Join-Path $testBuildRoot "merged-input"
 $datasetManifestPath = Join-Path $testRoot "dataset-manifest.psd1"
 $localExpectedPath = Join-Path $testRoot "input/expected.csv"
 $gridTypes = @(
@@ -125,15 +127,19 @@ function Invoke-CMake {
 }
 
 function Ensure-Configured {
-    if (-not (Test-Path -LiteralPath (Join-Path $buildRoot "CMakeCache.txt"))) {
-        Invoke-CMake -Arguments @("-S", $testRoot, "-B", $buildRoot)
-    }
+    Invoke-CMake -Arguments @(
+        "-S",
+        $cppAlgoRoot,
+        "-B",
+        $buildRoot,
+        "-DMAAEND_BUILD_ICON_RECOGNITION_TESTS=ON"
+    )
 }
 
 function Build-Targets {
     param([string[]]$Targets)
     Ensure-Configured
-    $arguments = @("--build", $buildRoot, "--config", $Configuration, "--target") + $Targets
+    $arguments = @("--build", $buildRoot, "--config", $Configuration, "--parallel", $Jobs, "--target") + $Targets
     Invoke-CMake -Arguments $arguments
 }
 
@@ -188,6 +194,37 @@ function Prepare-DatasetInput {
     return $paths
 }
 
+function Prepare-QuickDatasetInput {
+    param([Parameter(Mandatory)] [ValidateSet("win32", "adb")] [string]$Name)
+    $paths = Resolve-DatasetPaths -Name $Name
+    foreach ($path in @($paths.Root, $paths.ExpectedPath, $paths.RoisPath)) {
+        if (-not (Test-Path -LiteralPath $path)) {
+            throw "缺少 ${Name} IconRecognition 数据集资源: $path"
+        }
+    }
+
+    Remove-Item -LiteralPath $mergedInputRoot -Recurse -Force -ErrorAction SilentlyContinue
+    New-Item -ItemType Directory -Path $mergedInputRoot -Force | Out-Null
+    foreach ($gridType in $gridTypes) {
+        foreach ($fixture in @($paths.QuickFixtures[$gridType])) {
+            $source = Join-Path $paths.Root $fixture
+            if (-not (Test-Path -LiteralPath $source -PathType Leaf)) {
+                throw "quick 图片不存在: ${Name}/$fixture"
+            }
+            $destination = Join-Path $mergedInputRoot $fixture
+            New-Item -ItemType Directory -Path (Split-Path -Parent $destination) -Force | Out-Null
+            Copy-Item -LiteralPath $source -Destination $destination -Force
+
+            # 部分截图使用同名 JSON 覆盖默认 ROI 或参数，quick 子集必须一并保留。
+            $sidecarSource = [System.IO.Path]::ChangeExtension($source, ".json")
+            if (Test-Path -LiteralPath $sidecarSource -PathType Leaf) {
+                Copy-Item -LiteralPath $sidecarSource -Destination ([System.IO.Path]::ChangeExtension($destination, ".json")) -Force
+            }
+        }
+    }
+    return $paths
+}
+
 function Resolve-ExpectedResultsPath {
     param(
         [Parameter(Mandatory)] [hashtable]$DatasetPaths,
@@ -205,23 +242,16 @@ function Resolve-ExpectedResultsPath {
     throw "缺少 IconRecognition expected 结果: $($DatasetPaths.ExpectedPath)"
 }
 
-function Invoke-QuickImageFixture {
-    param(
-        [Parameter(Mandatory)] [string]$Fixture,
-        [Parameter(Mandatory)] [hashtable]$DatasetPaths
-    )
-    $parts = $Fixture -split '/'
-    $gridType = $parts[0]
-    $image = $parts[-1]
+function Invoke-QuickDataset {
+    param([Parameter(Mandatory)] [hashtable]$DatasetPaths)
     & (Find-TestExecutable -Name "icon-recognition-manual-runner") `
-        --grid-type $gridType `
-        --image $image `
-        --jobs 1 `
+        --all `
+        --jobs $Jobs `
         --dataset $DatasetPaths.Name `
         --expected $DatasetPaths.ExpectedPath `
         --rois $DatasetPaths.RoisPath
     if ($LASTEXITCODE -ne 0) {
-        throw "quick 图片回归失败: $($DatasetPaths.Name)/$Fixture，退出码: $LASTEXITCODE"
+        throw "quick 数据集回归失败: $($DatasetPaths.Name)，退出码: $LASTEXITCODE"
     }
 }
 
@@ -248,33 +278,17 @@ function Set-TestRuntimePath {
 Set-Location -LiteralPath $repoRoot
 switch ($Task) {
     "configure" {
-        Invoke-CMake -Arguments @("-S", $testRoot, "-B", $buildRoot)
+        Ensure-Configured
     }
     "build" {
-        Build-Targets -Targets @(
-            "icon-recognition-types-tests",
-            "icon-recognition-manual-cli-tests",
-            "icon-recognition-small-tests",
-            "icon-recognition-custom-tests",
-            "icon-recognition-debug-tests",
-            "icon-recognition-expected-tests",
-            "icon-recognition-manual-runner"
-        )
+        Build-Targets -Targets @("icon-recognition-tests")
     }
     "quick" {
         if ($UseLocalExpected) {
             throw "quick 固定校验 Win32/ADB 子模块基线，不支持 -UseLocalExpected。"
         }
         & (Join-Path $testRoot "test_dataset_manifest.ps1")
-        Build-Targets -Targets @(
-            "icon-recognition-types-tests",
-            "icon-recognition-manual-cli-tests",
-            "icon-recognition-small-tests",
-            "icon-recognition-custom-tests",
-            "icon-recognition-debug-tests",
-            "icon-recognition-expected-tests",
-            "icon-recognition-manual-runner"
-        )
+        Build-Targets -Targets @("icon-recognition-tests")
         Set-TestRuntimePath
         foreach ($name in @(
             "icon-recognition-types-tests",
@@ -290,12 +304,8 @@ switch ($Task) {
             }
         }
         foreach ($datasetName in @("win32", "adb")) {
-            $datasetPaths = Prepare-DatasetInput -Name $datasetName
-            foreach ($gridType in $gridTypes) {
-                foreach ($fixture in @($datasetPaths.QuickFixtures[$gridType])) {
-                    Invoke-QuickImageFixture -Fixture $fixture -DatasetPaths $datasetPaths
-                }
-            }
+            $datasetPaths = Prepare-QuickDatasetInput -Name $datasetName
+            Invoke-QuickDataset -DatasetPaths $datasetPaths
         }
     }
     "manual" {

@@ -282,15 +282,7 @@
             }
         }
     },
-    "_AutoEcoFarmEnterCameraModeFailKeyUp": {
-        "action": {
-            "type": "KeyUp",
-            "param": {
-                "key": 15
-            }
-        }
-    },
-    "_AutoEcoFarmEnterCameraModeKeyDownR": {
+    "_AutoEcoFarmEnterCameraModeFallback": {
         "action": {
             "type": "KeyDown",
             "param": {
@@ -298,7 +290,15 @@
             }
         }
     },
-    "_AutoEcoFarmEnterCameraModeKeyUpR": {
+    "_AutoEcoFarmEnterCameraModeFallbackRelease": {
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 15
+            }
+        }
+    },
+    "_AutoEcoFarmEnterCameraModeFallbackReleaseOnError": {
         "action": {
             "type": "KeyUp",
             "param": {

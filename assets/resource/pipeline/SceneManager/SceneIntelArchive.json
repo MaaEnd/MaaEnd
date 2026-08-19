@@ -1,0 +1,239 @@
+{
+    "__ScenePrivateMenuIntelArchiveView2EnterMenuIntelArchive": {
+        "desc": "从档案库二级菜单退出到档案库一级界面",
+        "recognition": "And",
+        "all_of": [
+            "InIntelArchiveView2",
+            "CloseButtonType1"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                0,
+                0,
+                200,
+                100
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateAnyEnterMenuIntelArchiveSuccess"
+        ]
+    },
+    "__ScenePrivateMenuIntelArchiveEnterIntelGathering": {
+        "desc": "在档案库界面进入情报采集",
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": {
+                    "type": "OCR",
+                    "param": {
+                        "roi": [
+                            0,
+                            100,
+                            1280,
+                            520
+                        ],
+                        "expected": [
+                            "情报采集"
+                        ]
+                    }
+                }
+            },
+            "InIntelArchive"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateAnyEnterMenuIntelArchiveIntelGatheringSuccess"
+        ]
+    },
+    "__ScenePrivateAnyEnterMenuIntelArchiveIntelGatheringSuccess": {
+        "desc": "成功进入档案库-情报采集",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InIntelArchiveIntelGathering"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                0,
+                0,
+                200,
+                100
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__ScenePrivateMenuIntelArchiveEnterAudioRecords": {
+        "desc": "在档案库界面进入音像存档",
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": {
+                    "type": "OCR",
+                    "param": {
+                        "roi": [
+                            0,
+                            100,
+                            1280,
+                            520
+                        ],
+                        "expected": [
+                            "音像存档"
+                        ]
+                    }
+                }
+            },
+            "InIntelArchive"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateAnyEnterMenuIntelArchiveAudioRecordsSuccess"
+        ]
+    },
+    "__ScenePrivateAnyEnterMenuIntelArchiveAudioRecordsSuccess": {
+        "desc": "成功进入档案库-音像存档",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InIntelArchiveAudioRecords"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                0,
+                0,
+                200,
+                100
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__ScenePrivateMenuIntelArchiveEnterFindings": {
+        "desc": "在档案库界面进入见闻辑录",
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": {
+                    "type": "OCR",
+                    "param": {
+                        "roi": [
+                            0,
+                            100,
+                            1280,
+                            520
+                        ],
+                        "expected": [
+                            "见闻辑录"
+                        ]
+                    }
+                }
+            },
+            "InIntelArchive"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateAnyEnterMenuIntelArchiveFindingsSuccess"
+        ]
+    },
+    "__ScenePrivateAnyEnterMenuIntelArchiveFindingsSuccess": {
+        "desc": "成功进入档案库-见闻辑录",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InIntelArchiveFindings"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                0,
+                0,
+                200,
+                100
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__ScenePrivateMenuIntelArchiveEnterNexusFiles": {
+        "desc": "在档案库界面进入中枢档案",
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": {
+                    "type": "OCR",
+                    "param": {
+                        "roi": [
+                            0,
+                            100,
+                            1280,
+                            520
+                        ],
+                        "expected": [
+                            "中枢档案"
+                        ]
+                    }
+                }
+            },
+            "InIntelArchive"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateAnyEnterMenuIntelArchiveNexusFilesSuccess"
+        ]
+    },
+    "__ScenePrivateAnyEnterMenuIntelArchiveNexusFilesSuccess": {
+        "desc": "成功进入档案库-中枢档案",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InIntelArchiveNexusFiles"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                0,
+                0,
+                200,
+                100
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

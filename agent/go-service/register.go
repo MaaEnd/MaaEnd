@@ -21,6 +21,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/expressionrecognition"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/failurecollector"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/falseaction"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/focusocr"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/listcomplete"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/pipelineoverride"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/poststop"
@@ -31,6 +32,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/dijiangrewards"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/essencefilter"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/ims"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/intelarchive"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/itemtransfer"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/maptracker"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/resource"
@@ -66,6 +68,7 @@ func registerAll() {
 	clearhitcount.Register()
 	pipelineoverride.Register()
 	expressionrecognition.Register()
+	focusocr.Register()
 	listcomplete.Register()
 	expendable.Register()
 	attachregex.Register()
@@ -96,6 +99,7 @@ func registerAll() {
 	autostockstaple.Register()
 	autostockpile.Register()
 	ims.Register()
+	intelarchive.Register()
 	itemtransfer.Register()
 	sellproduct.Register()
 	creditshopping.Register()

@@ -92,7 +92,6 @@ func (a *BetterSlidingAction) handleMain(ctx *maa.Context, _ *maa.CustomActionAr
 		a.SliderQuantityOnlyRec,
 		a.AvailableQuantityOnlyRec,
 		a.SwipeButton,
-		a.GreenMask,
 	)
 
 	resetOverride, err := buildResetSwipeOverride(a.Direction, a.ResetBeforeFindStart)
@@ -126,7 +125,6 @@ func (a *BetterSlidingAction) handleMain(ctx *maa.Context, _ *maa.CustomActionAr
 		Ints("slider_quantity_roi", a.SliderQuantityBox).
 		Ints("available_quantity_roi", a.AvailableQuantityBox).
 		Bool("available_quantity_explicit", a.AvailableQuantityExplicit).
-		Bool("green_mask", a.GreenMask).
 		Bool("slider_quantity_filter_enabled", a.SliderQuantityFilter != nil).
 		Bool("available_quantity_filter_enabled", a.AvailableQuantityFilter != nil).
 		Bool("slider_quantity_only_rec", a.SliderQuantityOnlyRec).
@@ -251,7 +249,6 @@ func (a *BetterSlidingAction) handleGetSliderMaxQuantity(ctx *maa.Context, arg *
 			nodeBetterSlidingDone,
 			buttonTarget{},
 			0,
-			a.GreenMask,
 		); err != nil {
 			logEvent := a.logger.Error().
 				Err(err).
@@ -295,7 +292,7 @@ func (a *BetterSlidingAction) handleGetSliderMaxQuantity(ctx *maa.Context, arg *
 		return false
 	}
 	if nextNode != "" {
-		if err := overrideCheckQuantityBranch(ctx, arg.CurrentTaskName, nextNode, buttonTarget{}, 0, a.GreenMask); err != nil {
+		if err := overrideCheckQuantityBranch(ctx, arg.CurrentTaskName, nextNode, buttonTarget{}, 0); err != nil {
 			logEvent := a.logger.Error().
 				Err(err).
 				Int("slider_max_quantity", a.sliderMaxQuantity).
@@ -519,7 +516,7 @@ func (a *BetterSlidingAction) handleCheckQuantity(ctx *maa.Context, arg *maa.Cus
 
 	switch {
 	case currentQuantity == a.TargetQuantity:
-		if err := overrideCheckQuantityBranch(ctx, arg.CurrentTaskName, nodeBetterSlidingDone, buttonTarget{}, 0, a.GreenMask); err != nil {
+		if err := overrideCheckQuantityBranch(ctx, arg.CurrentTaskName, nodeBetterSlidingDone, buttonTarget{}, 0); err != nil {
 			logEvent := a.logger.Error().
 				Err(err).
 				Int("current_quantity", currentQuantity).
@@ -541,7 +538,7 @@ func (a *BetterSlidingAction) handleCheckQuantity(ctx *maa.Context, arg *maa.Cus
 	case currentQuantity < a.TargetQuantity:
 		diff := a.TargetQuantity - currentQuantity
 		repeat := clampClickRepeat(diff)
-		if err := overrideCheckQuantityBranch(ctx, arg.CurrentTaskName, nodeBetterSlidingIncreaseQuantity, a.IncreaseButton, repeat, a.GreenMask); err != nil {
+		if err := overrideCheckQuantityBranch(ctx, arg.CurrentTaskName, nodeBetterSlidingIncreaseQuantity, a.IncreaseButton, repeat); err != nil {
 			logEvent := a.logger.Error().
 				Err(err).
 				Int("current_quantity", currentQuantity).
@@ -569,7 +566,7 @@ func (a *BetterSlidingAction) handleCheckQuantity(ctx *maa.Context, arg *maa.Cus
 	default:
 		diff := currentQuantity - a.TargetQuantity
 		repeat := clampClickRepeat(diff)
-		if err := overrideCheckQuantityBranch(ctx, arg.CurrentTaskName, nodeBetterSlidingDecreaseQuantity, a.DecreaseButton, repeat, a.GreenMask); err != nil {
+		if err := overrideCheckQuantityBranch(ctx, arg.CurrentTaskName, nodeBetterSlidingDecreaseQuantity, a.DecreaseButton, repeat); err != nil {
 			logEvent := a.logger.Error().
 				Err(err).
 				Int("current_quantity", currentQuantity).

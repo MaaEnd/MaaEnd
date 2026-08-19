@@ -1,4 +1,41 @@
 {
+    "ProtocolSpaceEnterSpacePrepare": {
+        "desc": "识别进入协议空间按钮，播报当前理智",
+        "recognition": "Or",
+        "any_of": [
+            "WhiteConfirmButtonType1",
+            {
+                "recognition": "OCR",
+                "roi": [
+                    -250,
+                    -150,
+                    250,
+                    150
+                ],
+                "expected": [
+                    "进入",
+                    "進入",
+                    "Enter"
+                ]
+            }
+        ],
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "FocusOCRAction",
+                "custom_action_param": {
+                    "node": "CommonSanityText",
+                    "focus": "当前理智 %s"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ProtocolSpaceEnterSpace"
+        ]
+    },
     "ProtocolSpaceEnterSpace": {
         "desc": "进入协议空间",
         "recognition": "Or",

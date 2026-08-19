@@ -18,6 +18,8 @@
                 "ExpressionRecognition",
                 "ImageCheckNotPassedRecognition",
                 "IconRecognition",
+                "IntelArchiveScanDetailRecognition",
+                "IntelArchiveScanItemsRecognition",
                 "ItemDataReady",
                 "ItemQuantitySatisfied",
                 "ItemTransferSameItemRecognition",
@@ -254,6 +256,36 @@
                             },
                             "focus_unmatched_resolved_expression": {
                                 "type": "boolean"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "type": "object",
+                "required": [ "custom_recognition" ],
+                "properties": { "custom_recognition": { "const": "IntelArchiveScanItemsRecognition" } }
+            },
+            "then": {
+                "type": "object",
+                "properties": {
+                    "custom_recognition_param": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "file_category": {
+                                "type": "string",
+                                "enum": [
+                                    "investigate",
+                                    "paper",
+                                    "digital",
+                                    "collection",
+                                    "media",
+                                    "document",
+                                    "report"
+                                ]
                             }
                         }
                     }

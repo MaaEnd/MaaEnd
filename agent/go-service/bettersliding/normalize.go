@@ -229,7 +229,6 @@ func isSwipeOnlyMode(params betterSlidingParam) bool {
 	return !params.presence.TargetQuantity &&
 		!params.presence.SliderQuantity &&
 		!params.presence.AvailableQuantity &&
-		!params.presence.GreenMask &&
 		!params.presence.IncreaseButton &&
 		!params.presence.DecreaseButton &&
 		!params.presence.OutOfRangeOverrideEnable &&

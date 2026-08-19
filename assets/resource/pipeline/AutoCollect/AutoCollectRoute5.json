@@ -86,7 +86,7 @@
             }
         },
         "next": [
-            "AutoCollectRoute5End"
+            "AutoCollectRoute5Wait10sec"
         ],
         "focus": {
             "Node.Action.Succeeded": {
@@ -95,6 +95,17 @@
             "Node.Action.Failed": {
                 "trace": true
             }
+        }
+    },
+    "AutoCollectRoute5Wait10sec": {
+        "desc": "等待10s完成收集",
+        "pre_delay": 0,
+        "post_delay": 10000,
+        "next": [
+            "AutoCollectRoute5End"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "等待10s完成收集"
         }
     }
 }

@@ -17,7 +17,6 @@ type parsedBetterSlidingParams struct {
 	availableQuantityFilter       *quantityFilterParam
 	sliderQuantityOnlyRec         bool
 	availableQuantityOnlyRec      bool
-	greenMask                     bool
 	direction                     string
 	increaseButton                buttonTarget
 	decreaseButton                buttonTarget
@@ -45,7 +44,6 @@ func detectBetterSlidingParamPresence(rawParam string) (betterSlidingParamPresen
 		TargetQuantity:                hasNonNullRawKey(rawKeys, "TargetQuantity"),
 		SliderQuantity:                sliderQuantityPresent,
 		AvailableQuantity:             hasNonNullRawKey(rawKeys, "AvailableQuantity"),
-		GreenMask:                     hasNonNullRawKey(rawKeys, "GreenMask"),
 		Direction:                     hasNonNullRawKey(rawKeys, "Direction"),
 		IncreaseButton:                hasNonNullRawKey(rawKeys, "IncreaseButton"),
 		DecreaseButton:                hasNonNullRawKey(rawKeys, "DecreaseButton"),
@@ -158,7 +156,6 @@ func (a *BetterSlidingAction) normalizeActionParams(params betterSlidingParam) (
 			availableQuantityFilter:       nil,
 			sliderQuantityOnlyRec:         false,
 			availableQuantityOnlyRec:      false,
-			greenMask:                     params.GreenMask,
 			direction:                     direction,
 			increaseButton:                buttonTarget{},
 			decreaseButton:                buttonTarget{},
@@ -242,7 +239,6 @@ func (a *BetterSlidingAction) normalizeActionParams(params betterSlidingParam) (
 		availableQuantityFilter:       availableQuantityFilter,
 		sliderQuantityOnlyRec:         sliderQuantityOnlyRec,
 		availableQuantityOnlyRec:      availableQuantityOnlyRec,
-		greenMask:                     params.GreenMask,
 		direction:                     strings.ToLower(strings.TrimSpace(params.Direction)),
 		increaseButton:                increaseButton,
 		decreaseButton:                decreaseButton,
@@ -271,7 +267,6 @@ func (a *BetterSlidingAction) applyActionParams(params parsedBetterSlidingParams
 	a.AvailableQuantityFilter = params.availableQuantityFilter
 	a.SliderQuantityOnlyRec = params.sliderQuantityOnlyRec
 	a.AvailableQuantityOnlyRec = params.availableQuantityOnlyRec
-	a.GreenMask = params.greenMask
 	a.Direction = params.direction
 	a.IncreaseButton = params.increaseButton
 	a.DecreaseButton = params.decreaseButton
@@ -296,7 +291,6 @@ func (a *BetterSlidingAction) logParsedActionParams() {
 		Str("direction", a.Direction).
 		Interface("increase_button", a.IncreaseButton.logValue()).
 		Interface("decrease_button", a.DecreaseButton.logValue()).
-		Bool("green_mask", a.GreenMask).
 		Bool("slider_quantity_filter_enabled", a.SliderQuantityFilter != nil).
 		Bool("available_quantity_filter_enabled", a.AvailableQuantityFilter != nil).
 		Bool("slider_quantity_only_rec", a.SliderQuantityOnlyRec).

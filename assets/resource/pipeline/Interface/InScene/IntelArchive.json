@@ -1,0 +1,119 @@
+{
+    "InIntelArchive": {
+        "desc": "在档案库一级界面（分类选择）；二级页由 InIntelArchiveView2 识别",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    240,
+                    100
+                ],
+                "expected": [
+                    "情报档案库"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InIntelArchiveView2": {
+        "desc": "在档案库二级界面（情报采集/音像存档/见闻辑录/中枢档案）",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "InIntelArchiveIntelGathering",
+                    "InIntelArchiveAudioRecords",
+                    "InIntelArchiveFindings",
+                    "InIntelArchiveNexusFiles"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InIntelArchiveIntelGathering": {
+        "desc": "在档案库-情报采集界面内",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    400,
+                    100
+                ],
+                "expected": [
+                    "情报采集"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InIntelArchiveAudioRecords": {
+        "desc": "在档案库-音像存档界面内",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    400,
+                    100
+                ],
+                "expected": [
+                    "音像存档"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InIntelArchiveFindings": {
+        "desc": "在档案库-见闻辑录界面内",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    400,
+                    100
+                ],
+                "expected": [
+                    "见闻辑录"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InIntelArchiveNexusFiles": {
+        "desc": "在档案库-中枢档案界面内",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    400,
+                    100
+                ],
+                "expected": [
+                    "中枢档案"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

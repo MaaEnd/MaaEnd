@@ -74,7 +74,6 @@ func buildMainInitializationOverride(
 	sliderQuantityOnlyRec bool,
 	availableQuantityOnlyRec bool,
 	swipeButton string,
-	greenMask bool,
 ) map[string]any {
 	override := map[string]any{
 		nodeBetterSlidingSwipeToMax: map[string]any{
@@ -94,7 +93,7 @@ func buildMainInitializationOverride(
 			"recognition": map[string]any{
 				"param": map[string]any{
 					"template":   []string{swipeButton},
-					"green_mask": greenMask,
+					"green_mask": defaultGreenMask,
 				},
 			},
 		}
@@ -159,7 +158,7 @@ func buildMainInitializationOverride(
 	return override
 }
 
-func buildCheckQuantityBranchOverride(nextNode string, target buttonTarget, repeat int, greenMask bool) map[string]any {
+func buildCheckQuantityBranchOverride(nextNode string, target buttonTarget, repeat int) map[string]any {
 	if nextNode != nodeBetterSlidingIncreaseQuantity && nextNode != nodeBetterSlidingDecreaseQuantity {
 		return map[string]any{}
 	}
@@ -170,7 +169,7 @@ func buildCheckQuantityBranchOverride(nextNode string, target buttonTarget, repe
 
 	if target.template != "" {
 		helperNode := resolveButtonHelperNode(nextNode)
-		override[helperNode] = buildTemplateMatchButtonHelperOverride(target.template, greenMask)
+		override[helperNode] = buildTemplateMatchButtonHelperOverride(target.template)
 		override[nextNode] = buildTemplateMatchButtonOverride(helperNode, repeat)
 		return override
 	}
@@ -187,8 +186,8 @@ func buildCheckQuantityBranchOverride(nextNode string, target buttonTarget, repe
 	return override
 }
 
-func overrideCheckQuantityBranch(ctx *maa.Context, currentNode string, nextNode string, target buttonTarget, repeat int, greenMask bool) error {
-	if override := buildCheckQuantityBranchOverride(nextNode, target, repeat, greenMask); len(override) > 0 {
+func overrideCheckQuantityBranch(ctx *maa.Context, currentNode string, nextNode string, target buttonTarget, repeat int) error {
+	if override := buildCheckQuantityBranchOverride(nextNode, target, repeat); len(override) > 0 {
 		if err := ctx.OverridePipeline(override); err != nil {
 			return fmt.Errorf("%w: %w", errCheckQuantityBranchPipelineOverride, err)
 		}
@@ -228,12 +227,12 @@ func buildNodeEnableOverride(nodeName string, enabled bool) map[string]any {
 	}
 }
 
-func buildTemplateMatchButtonHelperOverride(template string, greenMask bool) map[string]any {
+func buildTemplateMatchButtonHelperOverride(template string) map[string]any {
 	return map[string]any{
 		"recognition": map[string]any{
 			"param": map[string]any{
 				"template":   []string{template},
-				"green_mask": greenMask,
+				"green_mask": defaultGreenMask,
 			},
 		},
 	}

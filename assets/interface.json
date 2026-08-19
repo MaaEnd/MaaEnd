@@ -224,6 +224,7 @@
         "tasks/PullCountCalculator.json",
         "tasks/BakerEntry.json",
         "tasks/ReadAllWiki.json",
+        "tasks/IntelArchive.json",
         "tasks/DailyRewards.json",
         "tasks/ClaimSimulationRewards.json",
         "tasks/TrialOfSwordmancy.json",
