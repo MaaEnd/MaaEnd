@@ -10,6 +10,7 @@ const (
 
 func Register() {
 	maa.AgentServerRegisterCustomAction(windowActionName, &WindowAction{})
+	maa.AgentServerRegisterCustomAction(emailPatternActionName, &EmailPatternAction{})
 }
 
 var _ maa.CustomActionRunner = (*WindowAction)(nil)

@@ -6,6 +6,7 @@
         "custom_action": {
             "enum": [
                 "325",
+                "AccountSwitchEmailPatternAction",
                 "AccountSwitchWindowAction",
                 "AddItemData",
                 "AeroSalvageConfigureSwipeAction",
