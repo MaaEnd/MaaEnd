@@ -1,0 +1,46 @@
+{
+    "CameraScanTestMain": {
+        "desc": "CameraScanAction 测试入口：需已在拍照模式",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "CameraScanTestRun",
+            "CameraScanTestNotInPhoto"
+        ]
+    },
+    "CameraScanTestRun": {
+        "desc": "在拍照模式中扫描镜头，命中环境监测拍照目标后结束，不按快门",
+        "recognition": "And",
+        "all_of": [
+            "ShutterButton"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "CameraScanAction",
+        "custom_action_param": {
+            "wait_nodes": [
+                "EnvironmentMonitoringShutterButtonPhotographyTarget"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [],
+        "focus": {
+            "Node.Action.Succeeded": "$task.CameraScanTest.hit",
+            "Node.Action.Failed": "$task.CameraScanTest.miss"
+        }
+    },
+    "CameraScanTestNotInPhoto": {
+        "desc": "当前不在拍照模式，提示后失败",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FalseAction",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.CameraScanTest.not_in_photo"
+        }
+    }
+}

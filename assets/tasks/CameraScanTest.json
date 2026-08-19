@@ -1,0 +1,48 @@
+{
+    "task": [
+        {
+            "name": "CameraScanTest",
+            "label": "$task.CameraScanTest.label",
+            "entry": "CameraScanTestMain",
+            "description": "$task.CameraScanTest.description",
+            "option": [
+                "CameraScanTestAimTarget"
+            ],
+            "controller": [
+                "Win32-Front",
+                "Wlroots",
+                "ADB",
+                "PlayCover"
+            ],
+            "group": [
+                "other_menu"
+            ]
+        }
+    ],
+    "option": {
+        "CameraScanTestAimTarget": {
+            "type": "switch",
+            "label": "$option.CameraScanTestAimTarget.label",
+            "description": "$option.CameraScanTestAimTarget.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "CameraScanTestRun": {
+                            "custom_action_param": {
+                                "wait_nodes": [
+                                    "EnvironmentMonitoringShutterButtonPhotographyTarget"
+                                ],
+                                "aim_target": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ]
+        }
+    }
+}
