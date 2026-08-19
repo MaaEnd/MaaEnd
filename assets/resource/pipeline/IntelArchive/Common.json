@@ -49,7 +49,14 @@
         "desc": "详情页标题 OCR，与目录比对并入库",
         "recognition": "Custom",
         "custom_recognition": "IntelArchiveScanDetailRecognition",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "anchor": {
+            "MouseMoveResetAnchor": "MouseMoveReset"
+        },
         "next": [
+            "[JumpBack][Anchor]MouseMoveResetAnchor",
             "IntelArchiveResolveTruncNext",
             "IntelArchiveResolveTruncClose"
         ]
