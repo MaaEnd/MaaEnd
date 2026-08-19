@@ -110,6 +110,18 @@ Example file: [`RepeatUntilFoundAction.json`](../../../assets/resource/pipeline/
 
 Example file: [`CharacterController.json`](../../../assets/resource/pipeline/Interface/Example/CharacterController.json)
 
+### CameraScanAction
+
+`CameraScanAction` lives in `agent/go-service/common/camerascan`. It moves the camera in discrete steps while recognizing targets in photo mode. The action recognizes the initial view, scans the forward area in a center-out nine-grid spiral, then resets the camera and performs discrete yaw rings at upper, middle, and lower pitch levels. It recognizes after every movement, succeeds when any target hits, and fails after the complete scan misses.
+
+- `wait_nodes: string[]`: Pipeline recognition nodes checked at every position. Required; any hit succeeds.
+- `aim_target?: bool`: Whether to move the hit recognition result's `Box` center to the screen center before returning. Defaults to `false`.
+- `yaw_step_px?: int`: Horizontal swipe distance per step. Defaults to `240`; range `[1, 520]`.
+- `pitch_step_px?: int`: Vertical swipe distance per step. Defaults to `120`; range `[1, 359]`.
+- `fallback_yaw_steps?: int`: Discrete yaw movements in each fallback ring. Defaults to `12`; range `[4, 72]`.
+
+Camera movement runs through the private Pipeline node `__EnvironmentMonitoringCameraScanSwipe`, whose `post_wait_freezes` waits for a stable image. The Go action does not use a fixed delay. This action is currently specific to the EnvironmentMonitoring photo flow.
+
 ### PipelineOverride
 
 The `PipelineOverride` implementation is located in `agent/go-service/common/pipelineoverride` and is used at runtime to merge **node-organized partial JSON** into the Pipeline. By default it uses `ctx.OverridePipeline` (current task only); resource-level override is optional. It is suitable for dynamically toggling node switches or adjusting recognition/action parameters **without changing the static flow topology**.

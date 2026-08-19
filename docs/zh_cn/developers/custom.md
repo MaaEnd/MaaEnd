@@ -112,6 +112,18 @@ Action 节点用于执行自定义动作。常见写法如下：
 
 示例文件：[`CharacterController.json`](../../../assets/resource/pipeline/Interface/Example/CharacterController.json)
 
+### CameraScanAction
+
+`CameraScanAction` 实现位于 `agent/go-service/common/camerascan`，用于在拍照模式中分步移动镜头并识别目标。动作先识别当前画面，再从中心按九宫格螺旋扫描前方区域；仍未命中时，复位镜头并按上、中、下三档俯仰分别离散旋转一圈。每次镜头移动后都会截图识别，任一目标命中即成功，完整扫描后仍未命中则失败。
+
+- `wait_nodes: string[]`：每次检查的 Pipeline 识别节点，必填；任一节点命中即成功。
+- `aim_target?: bool`：命中后是否把该识别结果的 `Box` 中心移动到屏幕中心，默认 `false`。
+- `yaw_step_px?: int`：单步水平滑屏距离，默认 `240`，范围 `[1, 520]`。
+- `pitch_step_px?: int`：单步垂直滑屏距离，默认 `120`，范围 `[1, 359]`。
+- `fallback_yaw_steps?: int`：fallback 每档俯仰绕圈的离散步数，默认 `12`，范围 `[4, 72]`。
+
+镜头移动通过私有 Pipeline 节点 `__EnvironmentMonitoringCameraScanSwipe` 执行，由节点的 `post_wait_freezes` 等待画面稳定；Go 侧不使用固定延迟。当前动作专用于环境监测拍照流程。
+
 ### PipelineOverride
 
 `PipelineOverride` 实现位于 `agent/go-service/common/pipelineoverride`，用于在运行时把**按节点组织的局部 JSON** 合并到 Pipeline 中。默认走 `ctx.OverridePipeline`（仅当前任务）；可选 Resource 级覆盖。适合在**不改静态流转拓扑**的前提下，动态切换节点开关或调整识别/动作参数。

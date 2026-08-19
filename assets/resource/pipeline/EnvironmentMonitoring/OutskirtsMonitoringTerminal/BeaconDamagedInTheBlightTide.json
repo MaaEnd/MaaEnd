@@ -419,23 +419,12 @@
         "desc": "在侵蚀潮中损坏的信标任务拍照点开始拍照",
         "pre_delay": 0,
         "anchor": {
-            "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
-            "EnvironmentMonitoringAdjustCamera": "BeaconDamagedInTheBlightTideAdjustCamera"
+            "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "EnvironmentMonitoringTakePhoto"
-        ]
-    },
-    "BeaconDamagedInTheBlightTideAdjustCamera": {
-        "desc": "侵蚀潮中损坏的信标任务中调整朝向",
-        "max_hit": 2,
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "EnvironmentMonitoringSwipeScreenDown"
         ]
     }
 }
