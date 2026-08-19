@@ -21,8 +21,7 @@
         "custom_action_param": {
             "wait_nodes": [
                 "EnvironmentMonitoringShutterButtonPhotographyTarget"
-            ],
-            "fallback_yaw_steps": 4
+            ]
         },
         "post_delay": 0,
         "rate_limit": 0,

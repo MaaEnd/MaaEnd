@@ -120,7 +120,7 @@ Example file: [`CharacterController.json`](../../../assets/resource/pipeline/Int
 - `move_down?: string`: Node for one downward camera step. Defaults to `__CameraScanMoveDown`.
 - `move_left?: string`: Node for one leftward camera step. Defaults to `__CameraScanMoveLeft`.
 - `move_right?: string`: Node for one rightward camera step. Defaults to `__CameraScanMoveRight`.
-- `fallback_yaw_steps?: int`: Discrete yaw movements in each fallback ring. Defaults to `12`; range `[4, 72]`.
+- `fallback_yaw_steps?: int`: Discrete yaw movements in each fallback ring. Defaults to `8`; range `[4, 72]`.
 
 Camera movement runs through `ctx.RunTask` on the corresponding direction nodes (defaults in `Common/Private/CameraScan/Action.json`). Configure `post_wait_freezes` on caller-provided direction nodes when the screen must settle after each move. Aiming still uses the private node `__CameraScanAimSwipe`.
 

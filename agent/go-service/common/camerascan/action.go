@@ -16,7 +16,7 @@ const (
 	defaultMoveRightNode    = "__CameraScanMoveRight"
 	screenCenterX           = 640
 	screenCenterY           = 360
-	defaultFallbackYawSteps = 12
+	defaultFallbackYawSteps = 8
 )
 
 type cameraScanParam struct {

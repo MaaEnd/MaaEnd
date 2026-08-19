@@ -52,7 +52,7 @@
                 },
                 "fallback_yaw_steps": {
                     "title": "Fallback Yaw Steps",
-                    "description": "Discrete horizontal movements in each fallback ring. Defaults to 12.",
+                    "description": "Discrete horizontal movements in each fallback ring. Defaults to 8.",
                     "type": "integer",
                     "minimum": 4,
                     "maximum": 72

@@ -12,6 +12,7 @@
             520,
             120
         ],
+        "end_hold": 200,
         "post_delay": 0,
         "rate_limit": 0
     },
@@ -28,6 +29,7 @@
             520,
             600
         ],
+        "end_hold": 200,
         "post_delay": 0,
         "rate_limit": 0
     },
@@ -41,9 +43,10 @@
             360
         ],
         "end": [
-            280,
+            360,
             360
         ],
+        "end_hold": 200,
         "post_delay": 0,
         "rate_limit": 0
     },
@@ -57,9 +60,10 @@
             360
         ],
         "end": [
-            760,
+            680,
             360
         ],
+        "end_hold": 200,
         "post_delay": 0,
         "rate_limit": 0
     },

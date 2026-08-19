@@ -122,7 +122,7 @@ Action 节点用于执行自定义动作。常见写法如下：
 - `move_down?: string`：下移镜头节点，默认 `__CameraScanMoveDown`。
 - `move_left?: string`：左移镜头节点，默认 `__CameraScanMoveLeft`。
 - `move_right?: string`：右移镜头节点，默认 `__CameraScanMoveRight`。
-- `fallback_yaw_steps?: int`：fallback 每档俯仰绕圈的离散步数，默认 `12`，范围 `[4, 72]`。
+- `fallback_yaw_steps?: int`：fallback 每档俯仰绕圈的离散步数，默认 `8`，范围 `[4, 72]`。
 
 镜头移动通过 `ctx.RunTask` 执行对应方向节点（默认节点见 `Common/Private/CameraScan/Action.json`）。需要等待画面静止时，在调用方自定义的方向节点上配置 `post_wait_freezes`。对准目标时仍使用私有节点 `__CameraScanAimSwipe`。
 
