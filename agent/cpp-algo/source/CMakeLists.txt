@@ -16,7 +16,8 @@ endif()
 
 if(WIN32)
     # dbghelp 静态链接，而不是崩溃时 LoadLibrary，以免撞上 loader lock。
-    target_link_libraries(cpp-algo PRIVATE WebView2::WebView2 dbghelp)
+    # psapi/pdh 供 SystemMonitor 采内存与 GPU Engine 计数器。
+    target_link_libraries(cpp-algo PRIVATE psapi pdh WebView2::WebView2 dbghelp)
     target_compile_definitions(cpp-algo PRIVATE MAAEND_HAVE_WEBVIEW2)
 
     # 固定产出完整 PDB（/DEBUG:FULL）：CI 符号包依赖行号信息，
