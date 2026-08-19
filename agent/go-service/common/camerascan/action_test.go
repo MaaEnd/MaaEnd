@@ -24,8 +24,8 @@ func TestAimDeltaCentersRecognitionBox(t *testing.T) {
 		{
 			name:  "target at lower right",
 			box:   maa.Rect{900, 500, 100, 100},
-			wantX: -310,
-			wantY: -190,
+			wantX: 310,
+			wantY: 190,
 			ok:    true,
 		},
 		{

@@ -211,10 +211,9 @@ func aimDelta(box maa.Rect) (int, int, bool) {
 	targetCenterX := box.X() + box.Width()/2
 	targetCenterY := box.Y() + box.Height()/2
 
-	// Photo mode uses drag gestures: drag opposite to the target's screen
-	// offset so the camera turns toward the target.
-	dx := clamp(screenCenterX-targetCenterX, -screenCenterX, screenCenterX-1)
-	dy := clamp(screenCenterY-targetCenterY, -screenCenterY, screenCenterY-1)
+	// Aim swipe starts at screen center and ends at the target box center.
+	dx := clamp(targetCenterX-screenCenterX, -screenCenterX, screenCenterX-1)
+	dy := clamp(targetCenterY-screenCenterY, -screenCenterY, screenCenterY-1)
 	return dx, dy, true
 }
 

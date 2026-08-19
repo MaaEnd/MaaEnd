@@ -115,7 +115,7 @@ Example file: [`CharacterController.json`](../../../assets/resource/pipeline/Int
 `CameraScanAction` lives in `agent/go-service/common/camerascan`. It moves the camera in discrete steps while recognizing targets in photo mode. The action recognizes the initial view, scans the forward area in a center-out nine-grid spiral, then resets the camera and performs discrete yaw rings at upper, middle, and lower pitch levels. It recognizes after every movement, succeeds when any target hits, and fails after the complete scan misses.
 
 - `wait_nodes: string[]`: Pipeline recognition nodes checked at every position. Required; any hit succeeds.
-- `aim_target?: bool`: Whether to move the hit recognition result's `Box` center to the screen center before returning. Defaults to `false`.
+- `aim_target?: bool`: Whether to swipe from the screen center to the hit recognition result's `Box` center before returning. Defaults to `false`.
 - `move_up?: string`: Node for one upward camera step. Defaults to `__CameraScanMoveUp`.
 - `move_down?: string`: Node for one downward camera step. Defaults to `__CameraScanMoveDown`.
 - `move_left?: string`: Node for one leftward camera step. Defaults to `__CameraScanMoveLeft`.

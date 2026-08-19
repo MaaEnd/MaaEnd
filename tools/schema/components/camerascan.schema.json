@@ -22,7 +22,7 @@
                 },
                 "aim_target": {
                     "title": "Aim Target",
-                    "description": "After a recognition hits, move its result box center to the screen center before returning success. Defaults to false.",
+                    "description": "After a recognition hits, swipe from the screen center to the hit box center before returning success. Defaults to false.",
                     "type": "boolean",
                     "default": false
                 },
