@@ -1,7 +1,6 @@
 {
     "IntelArchiveSyncFindings": {
         "desc": "同步见闻辑录",
-        "enabled": false,
         "max_hit": 1,
         "pre_delay": 0,
         "action": "Custom",
@@ -57,7 +56,7 @@
         "rate_limit": 0,
         "next": [
             "IntelArchiveSyncFindingsScrollFinishPaper",
-            "[JumpBack]IntelArchiveSyncFindingsScanAndScroll"
+            "[JumpBack]IntelArchiveSyncFindingsScanAndScrollPaper"
         ]
     },
     "IntelArchiveSyncFindingsScrollFinishPaper": {
@@ -117,7 +116,7 @@
         "rate_limit": 0,
         "next": [
             "IntelArchiveSyncFindingsScrollFinishElectronic",
-            "[JumpBack]IntelArchiveSyncFindingsScanAndScroll"
+            "[JumpBack]IntelArchiveSyncFindingsScanAndScrollElectronic"
         ]
     },
     "IntelArchiveSyncFindingsScrollFinishElectronic": {
@@ -177,7 +176,7 @@
         "rate_limit": 0,
         "next": [
             "IntelArchiveSyncFindingsScrollFinishCollection",
-            "[JumpBack]IntelArchiveSyncFindingsScanAndScroll"
+            "[JumpBack]IntelArchiveSyncFindingsScanAndScrollCollection"
         ]
     },
     "IntelArchiveSyncFindingsScrollFinishCollection": {
@@ -200,11 +199,48 @@
             "ready": false
         }
     },
-    "IntelArchiveSyncFindingsScanAndScroll": {
-        "desc": "本屏 OCR 入库；多页、省略号对不上、无名卡片交给 ResolveTruncAction",
+    "IntelArchiveSyncFindingsScanAndScrollPaper": {
+        "desc": "纸质记录本屏 OCR 入库",
         "max_hit": 100,
         "recognition": "Custom",
         "custom_recognition": "IntelArchiveScanItemsRecognition",
+        "custom_recognition_param": {
+            "file_category": "paper"
+        },
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "IntelArchiveResolveTruncAction",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "IntelArchiveSyncFindingsScroll"
+        ]
+    },
+    "IntelArchiveSyncFindingsScanAndScrollElectronic": {
+        "desc": "电子档案本屏 OCR 入库",
+        "max_hit": 100,
+        "recognition": "Custom",
+        "custom_recognition": "IntelArchiveScanItemsRecognition",
+        "custom_recognition_param": {
+            "file_category": "digital"
+        },
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "IntelArchiveResolveTruncAction",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "IntelArchiveSyncFindingsScroll"
+        ]
+    },
+    "IntelArchiveSyncFindingsScanAndScrollCollection": {
+        "desc": "藏品本屏 OCR 入库",
+        "max_hit": 100,
+        "recognition": "Custom",
+        "custom_recognition": "IntelArchiveScanItemsRecognition",
+        "custom_recognition_param": {
+            "file_category": "collection"
+        },
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "IntelArchiveResolveTruncAction",

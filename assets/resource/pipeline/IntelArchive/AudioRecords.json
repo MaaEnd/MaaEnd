@@ -1,7 +1,6 @@
 {
     "IntelArchiveSyncAudioRecords": {
         "desc": "同步音像存档",
-        "enabled": false,
         "max_hit": 1,
         "pre_delay": 0,
         "action": "Custom",
@@ -83,6 +82,9 @@
         "max_hit": 100,
         "recognition": "Custom",
         "custom_recognition": "IntelArchiveScanItemsRecognition",
+        "custom_recognition_param": {
+            "file_category": "media"
+        },
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "IntelArchiveResolveTruncAction",

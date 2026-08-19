@@ -35,110 +35,12 @@
                         "IntelArchiveSyncSub": {
                             "enabled": true
                         }
-                    },
-                    "option": [
-                        "IntelArchiveSyncIntelGathering",
-                        "IntelArchiveSyncAudioRecords",
-                        "IntelArchiveSyncFindings",
-                        "IntelArchiveSyncNexusFiles"
-                    ]
+                    }
                 },
                 {
                     "name": "No",
                     "pipeline_override": {
                         "IntelArchiveSyncSub": {
-                            "enabled": false
-                        }
-                    }
-                }
-            ]
-        },
-        "IntelArchiveSyncIntelGathering": {
-            "type": "switch",
-            "label": "$task.IntelArchive.option.SyncIntelGathering.label",
-            "default_case": "Yes",
-            "cases": [
-                {
-                    "name": "Yes",
-                    "pipeline_override": {
-                        "IntelArchiveSyncIntelGathering": {
-                            "enabled": true
-                        }
-                    }
-                },
-                {
-                    "name": "No",
-                    "pipeline_override": {
-                        "IntelArchiveSyncIntelGathering": {
-                            "enabled": false
-                        }
-                    }
-                }
-            ]
-        },
-        "IntelArchiveSyncAudioRecords": {
-            "type": "switch",
-            "label": "$task.IntelArchive.option.SyncAudioRecords.label",
-            "default_case": "Yes",
-            "cases": [
-                {
-                    "name": "Yes",
-                    "pipeline_override": {
-                        "IntelArchiveSyncAudioRecords": {
-                            "enabled": true
-                        }
-                    }
-                },
-                {
-                    "name": "No",
-                    "pipeline_override": {
-                        "IntelArchiveSyncAudioRecords": {
-                            "enabled": false
-                        }
-                    }
-                }
-            ]
-        },
-        "IntelArchiveSyncFindings": {
-            "type": "switch",
-            "label": "$task.IntelArchive.option.SyncFindings.label",
-            "default_case": "Yes",
-            "cases": [
-                {
-                    "name": "Yes",
-                    "pipeline_override": {
-                        "IntelArchiveSyncFindings": {
-                            "enabled": true
-                        }
-                    }
-                },
-                {
-                    "name": "No",
-                    "pipeline_override": {
-                        "IntelArchiveSyncFindings": {
-                            "enabled": false
-                        }
-                    }
-                }
-            ]
-        },
-        "IntelArchiveSyncNexusFiles": {
-            "type": "switch",
-            "label": "$task.IntelArchive.option.SyncNexusFiles.label",
-            "default_case": "Yes",
-            "cases": [
-                {
-                    "name": "Yes",
-                    "pipeline_override": {
-                        "IntelArchiveSyncNexusFiles": {
-                            "enabled": true
-                        }
-                    }
-                },
-                {
-                    "name": "No",
-                    "pipeline_override": {
-                        "IntelArchiveSyncNexusFiles": {
                             "enabled": false
                         }
                     }

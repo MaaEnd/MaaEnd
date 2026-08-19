@@ -25,12 +25,15 @@ var fileCategories = map[string]struct{}{
 }
 
 const (
-	component              = "intelarchive"
-	catalogResourcePath    = "data/IntelArchive/catalog.json"
-	itemsResourcePath      = "data/IntelArchive/items.json"
-	unlockedFileName       = "IntelArchiveUnlocked.json"
-	legacyUnlockedFileName = "intel_archive_unlocked.json"
+	component           = "intelarchive"
+	catalogResourcePath = "data/IntelArchive/catalog.json"
+	itemsResourcePath   = "data/IntelArchive/items.json"
+	unlockedFileName    = "IntelArchiveUnlocked.json"
 )
+
+func recordOutputDir() string {
+	return filepath.Join("debug", "record", "IntelArchive")
+}
 
 type catalogFile struct {
 	Version    int        `json:"version"`
@@ -77,11 +80,12 @@ type item struct {
 }
 
 type catalogIndex struct {
-	NameToIDs     map[string][]string
-	NameToItems   map[string][]string
-	PageToItem    map[string]string
-	ItemPageCount map[string]int
-	NormToOrig    map[string]string
+	NameToIDs      map[string][]string
+	NameToItems    map[string][]string
+	PageToItem     map[string]string
+	ItemPageCount  map[string]int
+	NormToOrig     map[string]string
+	UnlockCategory map[string]string
 }
 
 type unlockedFile struct {
@@ -96,7 +100,7 @@ type accountUnlocked struct {
 var (
 	catalogPathFunc  = func() string { return catalogResourcePath }
 	itemsPathFunc    = func() string { return itemsResourcePath }
-	unlockedPathFunc = func() string { return filepath.Join("debug", "record", unlockedFileName) }
+	unlockedPathFunc = func() string { return filepath.Join(recordOutputDir(), unlockedFileName) }
 
 	catalogCache *catalogIndex
 	catalogErr   error
@@ -169,11 +173,12 @@ func buildCatalogIndex(cat *catalogFile, items *itemsFile) (*catalogIndex, error
 	})
 
 	idx := &catalogIndex{
-		NameToIDs:     make(map[string][]string, len(items.Items)*2),
-		NameToItems:   make(map[string][]string, len(items.Items)*2),
-		PageToItem:    make(map[string]string, len(items.Items)*2),
-		ItemPageCount: make(map[string]int, len(items.Items)),
-		NormToOrig:    make(map[string]string, len(items.Items)*2),
+		NameToIDs:      make(map[string][]string, len(items.Items)*2),
+		NameToItems:    make(map[string][]string, len(items.Items)*2),
+		PageToItem:     make(map[string]string, len(items.Items)*2),
+		ItemPageCount:  make(map[string]int, len(items.Items)),
+		NormToOrig:     make(map[string]string, len(items.Items)*2),
+		UnlockCategory: make(map[string]string, len(items.Items)*2),
 	}
 	for _, id := range ids {
 		it := items.Items[id]
@@ -216,6 +221,7 @@ func buildCatalogIndex(cat *catalogFile, items *itemsFile) (*catalogIndex, error
 			return nil, fmt.Errorf("item %q tagIds does not include page %q", id, it.Page)
 		}
 		idx.ItemPageCount[id] = len(it.Pages)
+		idx.UnlockCategory[id] = it.FileCategory
 		indexNamed(idx, idx.NameToItems, zhCN, id)
 		if zhTW := strings.TrimSpace(it.Names[i18n.LangZhTW]); zhTW != "" {
 			indexNamed(idx, idx.NameToItems, zhTW, id)
@@ -232,6 +238,7 @@ func buildCatalogIndex(cat *catalogFile, items *itemsFile) (*catalogIndex, error
 				return nil, fmt.Errorf("item %q pages[%d] names.zh_cn is empty", id, i)
 			}
 			idx.PageToItem[page.ID] = id
+			idx.UnlockCategory[page.ID] = it.FileCategory
 			indexItemName(idx, pageCN, page.ID)
 			if pageTW := strings.TrimSpace(page.Names[i18n.LangZhTW]); pageTW != "" {
 				indexItemName(idx, pageTW, page.ID)
@@ -321,12 +328,13 @@ func (idx *catalogIndex) displayName(norm string) string {
 	return norm
 }
 
-func (idx *catalogIndex) matchOCR(ocr string) (ids []string, full string) {
+func (idx *catalogIndex) matchOCR(ocr, fileCategory string) (ids []string, full string) {
 	ocr = normalizeTitle(ocr)
 	if idx == nil || ocr == "" {
 		return nil, ""
 	}
 	ids, matchedName := uniquePrefixIDs(idx.NameToIDs, ocr)
+	ids = idx.filterUnlockIDs(ids, fileCategory)
 	if len(ids) == 0 {
 		return nil, ""
 	}
@@ -336,7 +344,7 @@ func (idx *catalogIndex) matchOCR(ocr string) (ids []string, full string) {
 	return ids, idx.displayName(matchedName)
 }
 
-func (idx *catalogIndex) shouldOpenFromList(ocr string) bool {
+func (idx *catalogIndex) shouldOpenFromList(ocr, fileCategory string) bool {
 	if idx == nil {
 		return false
 	}
@@ -345,12 +353,12 @@ func (idx *catalogIndex) shouldOpenFromList(ocr string) bool {
 		return false
 	}
 	itemIDs, _ := uniquePrefixIDs(idx.NameToItems, ocr)
-	for _, itemID := range itemIDs {
+	for _, itemID := range idx.filterUnlockIDs(itemIDs, fileCategory) {
 		if idx.ItemPageCount[itemID] > 1 {
 			return true
 		}
 	}
-	unlockIDs, _ := idx.matchOCR(ocr)
+	unlockIDs, _ := idx.matchOCR(ocr, fileCategory)
 	for _, id := range unlockIDs {
 		itemID := idx.PageToItem[id]
 		if itemID == "" {
@@ -361,6 +369,19 @@ func (idx *catalogIndex) shouldOpenFromList(ocr string) bool {
 		}
 	}
 	return false
+}
+
+func (idx *catalogIndex) filterUnlockIDs(ids []string, fileCategory string) []string {
+	if fileCategory == "" || idx == nil {
+		return ids
+	}
+	out := make([]string, 0, len(ids))
+	for _, id := range ids {
+		if idx.UnlockCategory[id] == fileCategory {
+			out = append(out, id)
+		}
+	}
+	return out
 }
 
 func uniquePrefixIDs(table map[string][]string, ocr string) (ids []string, matchedName string) {
@@ -391,11 +412,6 @@ func uniquePrefixIDs(table map[string][]string, ocr string) (ids []string, match
 func loadUnlocked() (unlockedFile, error) {
 	path := unlockedPathFunc()
 	raw, err := os.ReadFile(path)
-	if err != nil && os.IsNotExist(err) {
-		if legacy := legacyUnlockedPath(path); legacy != path {
-			raw, err = os.ReadFile(legacy)
-		}
-	}
 	if err != nil {
 		if os.IsNotExist(err) {
 			return unlockedFile{
@@ -466,14 +482,7 @@ func saveUnlocked(doc unlockedFile) error {
 		return fmt.Errorf("rename unlocked file: %w", err)
 	}
 	cleanup = false
-	if legacy := legacyUnlockedPath(path); legacy != path {
-		_ = os.Remove(legacy)
-	}
 	return nil
-}
-
-func legacyUnlockedPath(path string) string {
-	return filepath.Join(filepath.Dir(path), legacyUnlockedFileName)
 }
 
 // unlockItems appends unlock IDs (page IDs, or item IDs when the catalog has no pages) under the given UID.

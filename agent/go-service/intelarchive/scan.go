@@ -2,8 +2,10 @@ package intelarchive
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/captureuid"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
@@ -17,8 +19,28 @@ const (
 	itemSecretBoxIndex    = 4
 	detailRecognitionNode = "IntelArchiveRecognitionDetailTitleText"
 	truncatedItemNode     = "IntelArchiveResolveTrunc"
-	placeholderUID        = "123456789"
+	secretUnlockID        = "nar_digital_map02_13003_1"
+	secretUnlockName      = "文明保护协定"
 )
+
+type scanItemsParam struct {
+	FileCategory string `json:"file_category"`
+}
+
+var listFileCategory string
+
+func parseScanFileCategory(raw string) string {
+	raw = strings.TrimSpace(raw)
+	if raw == "" {
+		return ""
+	}
+	var params scanItemsParam
+	if err := json.Unmarshal([]byte(raw), &params); err != nil {
+		log.Error().Err(err).Str("component", component).Str("custom_recognition_param", raw).Msg("failed to parse file_category")
+		return ""
+	}
+	return strings.TrimSpace(params.FileCategory)
+}
 
 var _ maa.CustomRecognitionRunner = &ScanItemsRecognition{}
 var _ maa.CustomRecognitionRunner = &ScanDetailRecognition{}
@@ -30,7 +52,8 @@ type truncatedItem struct {
 }
 
 // ScanItemsRecognition scans the current list screen: named cards are matched against the catalog,
-// multi-page / truncated / unnamed cards are returned for ResolveTruncAction to open.
+// multi-page / truncated cards are returned for ResolveTruncAction to open.
+// Secret unnamed cards force-unlock a hardcoded redacted page ID.
 type ScanItemsRecognition struct{}
 
 // ScanDetailRecognition OCRs the detail-page title and matches it against the catalog.
@@ -71,6 +94,8 @@ func (r *ScanItemsRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionA
 
 	titles := recognizeFiltered(ctx, arg, itemTextNode, itemOCRIndex)
 	secret := recognizeFiltered(ctx, arg, itemSecretNode, itemSecretBoxIndex)
+	fileCategory := parseScanFileCategory(arg.CustomRecognitionParam)
+	listFileCategory = fileCategory
 
 	idx, err := loadCatalogIndex()
 	if err != nil {
@@ -79,7 +104,16 @@ func (r *ScanItemsRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionA
 	}
 
 	truncated := make([]truncatedItem, 0, len(secret)+len(titles))
-	truncated = append(truncated, secret...)
+	if len(secret) > 0 {
+		if fileCategory == "" || fileCategory == "digital" {
+			if err := unlockKnown(ctx, []string{secretUnlockID}, map[string]string{secretUnlockID: secretUnlockName}); err != nil {
+				log.Error().Err(err).Str("component", component).Msg("secret force unlock failed")
+				return nil, false
+			}
+		} else {
+			truncated = append(truncated, secret...)
+		}
+	}
 	names := make([]string, 0, len(titles))
 	for _, item := range titles {
 		query, trunc := stripTrailingEllipsis(item.Text)
@@ -87,12 +121,12 @@ func (r *ScanItemsRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionA
 		if lookup == "" {
 			lookup = item.Text
 		}
-		if idx.shouldOpenFromList(lookup) {
+		if idx.shouldOpenFromList(lookup, fileCategory) {
 			truncated = append(truncated, item)
 			continue
 		}
 		if trunc && query != "" {
-			if matched, _ := idx.matchOCR(query); len(matched) > 0 {
+			if matched, _ := idx.matchOCR(query, fileCategory); len(matched) > 0 {
 				names = append(names, query)
 				continue
 			}
@@ -105,7 +139,7 @@ func (r *ScanItemsRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionA
 		}
 		names = append(names, item.Text)
 	}
-	if err := unlockByNames(ctx, names); err != nil {
+	if err := unlockByNames(ctx, names, fileCategory); err != nil {
 		log.Error().Err(err).Str("component", component).Msg("catalog match or persist failed")
 		return nil, false
 	}
@@ -139,7 +173,7 @@ func (r *ScanDetailRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognition
 	for _, item := range items {
 		names = append(names, item.Text)
 	}
-	if err := unlockByNames(ctx, names); err != nil {
+	if err := unlockByNames(ctx, names, listFileCategory); err != nil {
 		log.Error().Err(err).Str("component", component).Msg("catalog match or persist failed")
 	}
 	return &maa.CustomRecognitionResult{Box: arg.Roi}, true
@@ -225,7 +259,7 @@ func filteredItems(detail *maa.RecognitionDetail, index int) []truncatedItem {
 	return items
 }
 
-func unlockByNames(ctx *maa.Context, names []string) error {
+func unlockByNames(ctx *maa.Context, names []string, fileCategory string) error {
 	idx, err := loadCatalogIndex()
 	if err != nil {
 		return err
@@ -236,13 +270,13 @@ func unlockByNames(ctx *maa.Context, names []string) error {
 		if name == "" {
 			continue
 		}
-		matched, full := idx.matchOCR(name)
+		matched, full := idx.matchOCR(name, fileCategory)
 		if len(matched) == 0 {
-			log.Info().Str("component", component).Str("ocr", name).Msg("catalog lookup miss")
+			log.Info().Str("component", component).Str("ocr", name).Str("file_category", fileCategory).Msg("catalog lookup miss")
 			maafocus.Print(ctx, i18n.T("intelarchive.item_not_found", name))
 			continue
 		}
-		log.Info().Str("component", component).Str("ocr", name).Str("full_name", full).Strs("item_id", matched).Msg("catalog lookup hit")
+		log.Info().Str("component", component).Str("ocr", name).Str("full_name", full).Str("file_category", fileCategory).Strs("item_id", matched).Msg("catalog lookup hit")
 		for _, id := range matched {
 			ids = append(ids, id)
 			if idToName[id] == "" {
@@ -250,12 +284,42 @@ func unlockByNames(ctx *maa.Context, names []string) error {
 			}
 		}
 	}
-	added, err := unlockItems(placeholderUID, ids)
+	return unlockKnown(ctx, ids, idToName)
+}
+
+func unlockKnown(ctx *maa.Context, ids []string, idToName map[string]string) error {
+	uid, err := accountUID(ctx)
+	if err != nil {
+		return err
+	}
+	added, err := unlockItems(uid, ids)
 	if err != nil {
 		return err
 	}
 	for _, id := range added {
-		maafocus.Print(ctx, i18n.T("intelarchive.item_unlocked", idToName[id]))
+		name := idToName[id]
+		if name == "" {
+			name = id
+		}
+		maafocus.Print(ctx, i18n.T("intelarchive.item_unlocked", name))
 	}
 	return nil
+}
+
+func accountUID(ctx *maa.Context) (string, error) {
+	if ctx == nil || ctx.GetTasker() == nil {
+		return "", fmt.Errorf("nil context or tasker")
+	}
+	ctrl := ctx.GetTasker().GetController()
+	if ctrl == nil {
+		return "", fmt.Errorf("nil controller")
+	}
+	uid, err := captureuid.Capture(ctx, ctrl, true, true, true, captureuid.OutputTypeMasked)
+	if err != nil {
+		return "", fmt.Errorf("capture uid: %w", err)
+	}
+	if uid == "" {
+		return "", fmt.Errorf("captured uid is empty")
+	}
+	return uid, nil
 }

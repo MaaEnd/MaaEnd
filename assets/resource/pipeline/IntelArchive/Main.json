@@ -23,7 +23,7 @@
         "rate_limit": 0
     },
     "IntelArchiveSyncSub": {
-        "desc": "同步已有档案（骨架，实现留空）",
+        "desc": "同步已有档案",
         "enabled": false,
         "max_hit": 1,
         "pre_delay": 0,
@@ -31,7 +31,6 @@
         "rate_limit": 0,
         "next": [
             "[JumpBack]IntelArchiveGetUid",
-            "[JumpBack]IntelArchiveSyncIntelGathering",
             "[JumpBack]IntelArchiveSyncAudioRecords",
             "[JumpBack]IntelArchiveSyncFindings",
             "[JumpBack]IntelArchiveSyncNexusFiles",

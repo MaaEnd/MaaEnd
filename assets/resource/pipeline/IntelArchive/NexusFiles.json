@@ -1,7 +1,6 @@
 {
     "IntelArchiveSyncNexusFiles": {
         "desc": "同步中枢档案",
-        "enabled": false,
         "max_hit": 1,
         "pre_delay": 0,
         "action": "Custom",
@@ -53,7 +52,7 @@
         "rate_limit": 0,
         "next": [
             "IntelArchiveSyncNexusFilesScrollFinishCentral",
-            "[JumpBack]IntelArchiveSyncNexusFilesScanAndScroll"
+            "[JumpBack]IntelArchiveSyncNexusFilesScanAndScrollCentral"
         ]
     },
     "IntelArchiveSyncNexusFilesScrollFinishCentral": {
@@ -102,7 +101,7 @@
         "rate_limit": 0,
         "next": [
             "IntelArchiveSyncNexusFilesScrollFinishReport",
-            "[JumpBack]IntelArchiveSyncNexusFilesScanAndScroll"
+            "[JumpBack]IntelArchiveSyncNexusFilesScanAndScrollReport"
         ]
     },
     "IntelArchiveSyncNexusFilesScrollFinishReport": {
@@ -125,11 +124,31 @@
             "ready": false
         }
     },
-    "IntelArchiveSyncNexusFilesScanAndScroll": {
-        "desc": "本屏 OCR 入库；多页、省略号对不上、无名卡片交给 ResolveTruncAction",
+    "IntelArchiveSyncNexusFilesScanAndScrollCentral": {
+        "desc": "中枢档案本屏 OCR 入库",
         "max_hit": 100,
         "recognition": "Custom",
         "custom_recognition": "IntelArchiveScanItemsRecognition",
+        "custom_recognition_param": {
+            "file_category": "document"
+        },
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "IntelArchiveResolveTruncAction",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "IntelArchiveSyncNexusFilesScroll"
+        ]
+    },
+    "IntelArchiveSyncNexusFilesScanAndScrollReport": {
+        "desc": "调查报告本屏 OCR 入库",
+        "max_hit": 100,
+        "recognition": "Custom",
+        "custom_recognition": "IntelArchiveScanItemsRecognition",
+        "custom_recognition_param": {
+            "file_category": "report"
+        },
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "IntelArchiveResolveTruncAction",
