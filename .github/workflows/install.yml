@@ -10,6 +10,7 @@ on:
       - ".github/workflows/install.yml"
       - "assets/**"
       - "agent/**"
+      - "tests/MaaEndTestset"
       - "tools/**"
 
   pull_request:
@@ -19,6 +20,7 @@ on:
       - ".github/workflows/install.yml"
       - "assets/**"
       - "agent/**"
+      - "tests/MaaEndTestset"
       - "tools/**"
 
   workflow_dispatch:
