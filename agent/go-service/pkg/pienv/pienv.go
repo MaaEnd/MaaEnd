@@ -70,7 +70,9 @@ type Controller struct {
 	MacOS              *MacOSConfig     `json:"macos,omitempty"`
 	PlayCover          *PlayCoverConfig `json:"playcover,omitempty"`
 	Gamepad            *GamepadConfig   `json:"gamepad,omitempty"`
-	WlRoots            json.RawMessage  `json:"wlroots,omitempty"`
+	Linux              json.RawMessage  `json:"linux,omitempty"`
+	// WlRoots 保留用于兼容旧版 Project Interface；新 MaaFramework 使用 linux 字段。
+	WlRoots json.RawMessage `json:"wlroots,omitempty"`
 }
 
 // Resource is the parsed PI_RESOURCE single-line JSON.

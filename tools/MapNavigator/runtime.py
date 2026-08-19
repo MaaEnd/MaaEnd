@@ -63,6 +63,7 @@ class MaaRuntime:
     Win32Controller: Any
     AdbController: Any
     PlayCoverController: Any
+    LinuxController: Any
     WlRootsController: Any
     Tasker: Any
     AgentClient: Any
@@ -96,6 +97,11 @@ def load_maa_runtime() -> MaaRuntime | None:
         PlayCoverController = None
 
     try:
+        from maa.controller import LinuxController
+    except ImportError:
+        LinuxController = None
+
+    try:
         from maa.controller import WlRootsController
     except ImportError:
         WlRootsController = None
@@ -111,6 +117,7 @@ def load_maa_runtime() -> MaaRuntime | None:
         Win32Controller=Win32Controller,
         AdbController=AdbController,
         PlayCoverController=PlayCoverController,
+        LinuxController=LinuxController,
         WlRootsController=WlRootsController,
         Tasker=Tasker,
         AgentClient=AgentClient,
