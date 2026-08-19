@@ -202,14 +202,22 @@
     "IntelArchiveSyncFindingsScanAndScrollPaper": {
         "desc": "纸质记录本屏 OCR 入库",
         "max_hit": 100,
-        "recognition": "Custom",
-        "custom_recognition": "IntelArchiveScanItemsRecognition",
-        "custom_recognition_param": {
-            "file_category": "paper"
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "IntelArchiveScanItemsRecognition",
+                "custom_recognition_param": {
+                    "file_category": "paper"
+                }
+            }
         },
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "IntelArchiveResolveTruncAction",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "IntelArchiveResolveTruncAction"
+            }
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -219,14 +227,22 @@
     "IntelArchiveSyncFindingsScanAndScrollElectronic": {
         "desc": "电子档案本屏 OCR 入库",
         "max_hit": 100,
-        "recognition": "Custom",
-        "custom_recognition": "IntelArchiveScanItemsRecognition",
-        "custom_recognition_param": {
-            "file_category": "digital"
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "IntelArchiveScanItemsRecognition",
+                "custom_recognition_param": {
+                    "file_category": "digital"
+                }
+            }
         },
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "IntelArchiveResolveTruncAction",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "IntelArchiveResolveTruncAction"
+            }
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -236,14 +252,22 @@
     "IntelArchiveSyncFindingsScanAndScrollCollection": {
         "desc": "藏品本屏 OCR 入库",
         "max_hit": 100,
-        "recognition": "Custom",
-        "custom_recognition": "IntelArchiveScanItemsRecognition",
-        "custom_recognition_param": {
-            "file_category": "collection"
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "IntelArchiveScanItemsRecognition",
+                "custom_recognition_param": {
+                    "file_category": "collection"
+                }
+            }
         },
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "IntelArchiveResolveTruncAction",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "IntelArchiveResolveTruncAction"
+            }
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [

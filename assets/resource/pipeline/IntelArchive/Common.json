@@ -47,8 +47,12 @@
     },
     "IntelArchiveResolveTruncOCR": {
         "desc": "详情页标题 OCR，与目录比对并入库",
-        "recognition": "Custom",
-        "custom_recognition": "IntelArchiveScanDetailRecognition",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "IntelArchiveScanDetailRecognition"
+            }
+        },
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,

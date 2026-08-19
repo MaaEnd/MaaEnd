@@ -42,8 +42,12 @@
         "enabled": false,
         "max_hit": 1,
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "IntelArchiveShowInventoryAction",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "IntelArchiveShowInventoryAction"
+            }
+        },
         "post_delay": 0,
         "rate_limit": 0
     }

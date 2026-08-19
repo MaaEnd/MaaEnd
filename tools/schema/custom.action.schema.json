@@ -59,6 +59,8 @@
                 "ImportBluePrintsEnterCodeAction",
                 "ImportBluePrintsFinishAction",
                 "ImportBluePrintsInitTextAction",
+                "IntelArchiveResolveTruncAction",
+                "IntelArchiveShowInventoryAction",
                 "ItemTransferFallbackAction",
                 "ItemTransferOCRAction",
                 "MapNavigateAction",
