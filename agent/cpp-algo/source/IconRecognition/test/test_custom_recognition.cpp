@@ -7,6 +7,7 @@
 #include <vector>
 
 #include <MaaFramework/Utility/MaaBuffer.h>
+#include <MaaUtils/Logger.h>
 #include <MaaUtils/NoWarningCV.hpp>
 #include <meojson/json.hpp>
 
@@ -221,6 +222,9 @@ RecheckDeduplicateFixture MakeRecheckDeduplicateFixture()
 
 json::object RunFailure(const MaaImageBuffer* image, const char* param, MaaRect& out_box, const MaaRect* roi = &kValidRoi)
 {
+    // 这些调用专门验证失败契约，ERROR 属于预期结果，不应污染 CI 控制台。
+    MAA_LOG_NS::Logger::get_instance().set_stdout_level(MAA_LOG_NS::level::off);
+    OnScopeLeave([]() { MAA_LOG_NS::Logger::get_instance().set_stdout_level(MAA_LOG_NS::level::error); });
     StringBuffer detail;
     const MaaBool matched = iconrecognition::IconRecognitionRun(
         nullptr,

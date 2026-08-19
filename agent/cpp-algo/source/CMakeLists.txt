@@ -1,5 +1,38 @@
-file(GLOB_RECURSE cpp_algo_src *.h *.hpp *.cpp)
+set(icon_recognition_core_src
+    IconRecognition/IconRecognizer.cpp
+    IconRecognition/detail/CompositeIcon.cpp
+    IconRecognition/detail/DebugCapture.cpp
+    IconRecognition/detail/EdgeOcclusion.cpp
+    IconRecognition/detail/ForegroundTexture.cpp
+    IconRecognition/detail/GridAnchors.cpp
+    IconRecognition/detail/GridDetector.cpp
+    IconRecognition/detail/GridFeatures.cpp
+    IconRecognition/detail/GridGeometry.cpp
+    IconRecognition/detail/GridProfiles.cpp
+    IconRecognition/detail/IconMatcher.cpp
+    IconRecognition/detail/MaskPolicy.cpp
+    IconRecognition/detail/RarityCandidates.cpp
+    IconRecognition/detail/RarityClassifier.cpp
+    IconRecognition/detail/RecognitionDiagnostics.cpp
+    IconRecognition/detail/RegularLattice.cpp
+    IconRecognition/detail/SubpixelMatcher.cpp
+    IconRecognition/detail/TemplateCatalog.cpp
+    IconRecognition/detail/TemplateTypes.cpp
+    IconRecognition/detail/TrustedRarity.cpp
+)
+list(TRANSFORM icon_recognition_core_src PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/")
+
+# 核心识别实现在生产程序和测试间共享编译产物；该目标没有安装规则，不会进入发布包。
+add_library(icon-recognition-core STATIC ${icon_recognition_core_src})
+target_include_directories(icon-recognition-core
+    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${MAA_PRIVATE_INC} ${MAA_PUBLIC_INC})
+target_link_libraries(icon-recognition-core
+    PUBLIC MaaUtils ${OpenCV_LIBS})
+add_dependencies(icon-recognition-core MaaUtils)
+
+file(GLOB_RECURSE cpp_algo_src CONFIGURE_DEPENDS *.h *.hpp *.cpp)
 list(FILTER cpp_algo_src EXCLUDE REGEX "/IconRecognition/test/")
+list(REMOVE_ITEM cpp_algo_src ${icon_recognition_core_src})
 
 add_executable(cpp-algo ${cpp_algo_src} ${cpp_algo_header})
 
@@ -7,7 +40,7 @@ target_include_directories(cpp-algo
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${MAA_PRIVATE_INC} ${MAA_PUBLIC_INC})
 
 target_link_libraries(cpp-algo
-    PRIVATE MaaUtils MaaFramework::MaaToolkit MaaAgentServer::MaaAgentServer
+    PRIVATE icon-recognition-core MaaUtils MaaFramework::MaaToolkit MaaAgentServer::MaaAgentServer
     PRIVATE Boost::system ${OpenCV_LIBS} ONNXRuntime::ONNXRuntime ZLIB::ZLIB)
 
 if(LINUX)
@@ -34,6 +67,10 @@ if(WIN32)
 endif()
 
 add_dependencies(cpp-algo MaaUtils)
+
+if(MAAEND_BUILD_ICON_RECOGNITION_TESTS)
+    add_subdirectory(IconRecognition/test)
+endif()
 
 # Set RPATH to find shared libraries in ../maafw relative to the executable
 if(APPLE)

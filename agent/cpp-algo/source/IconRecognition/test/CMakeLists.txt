@@ -1,11 +1,5 @@
-cmake_minimum_required(VERSION 3.28)
-
-project(icon-recognition-tests LANGUAGES CXX)
-
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
 function(configure_icon_recognition_test target)
+    target_include_directories(${target} PRIVATE "${CMAKE_CURRENT_LIST_DIR}/..")
     if(MSVC)
         target_compile_options(${target} PRIVATE /utf-8 /W4 /WX /wd4251)
     else()
@@ -13,19 +7,7 @@ function(configure_icon_recognition_test target)
     endif()
 endfunction()
 
-set(VCPKG_ROOT "${CMAKE_CURRENT_LIST_DIR}/../../../MaaUtils/MaaDeps/vcpkg/installed/maa-x64-windows")
-list(PREPEND CMAKE_PREFIX_PATH "${VCPKG_ROOT}")
-set(OpenCV_DIR "${VCPKG_ROOT}/share/opencv4")
-find_package(OpenCV REQUIRED COMPONENTS core imgproc imgcodecs)
-
 add_executable(icon-recognition-types-tests test_types.cpp)
-target_include_directories(
-    icon-recognition-types-tests
-    PRIVATE
-        "${CMAKE_CURRENT_LIST_DIR}/../../../MaaUtils/include"
-        "${VCPKG_ROOT}/include"
-        "${CMAKE_CURRENT_LIST_DIR}/.."
-)
 target_link_libraries(icon-recognition-types-tests PRIVATE ${OpenCV_LIBS})
 target_compile_definitions(icon-recognition-types-tests PRIVATE ICON_RECOGNITION_TEST_MAIN)
 configure_icon_recognition_test(icon-recognition-types-tests)
@@ -36,13 +18,6 @@ add_executable(
     manual_runner_executor.cpp
     manual_runner_config.cpp
 )
-target_include_directories(
-    icon-recognition-manual-cli-tests
-    PRIVATE
-        "${CMAKE_CURRENT_LIST_DIR}/../../../MaaUtils/include"
-        "${VCPKG_ROOT}/include"
-        "${CMAKE_CURRENT_LIST_DIR}/.."
-)
 target_link_libraries(icon-recognition-manual-cli-tests PRIVATE ${OpenCV_LIBS})
 target_compile_definitions(
     icon-recognition-manual-cli-tests
@@ -50,42 +25,8 @@ target_compile_definitions(
 )
 configure_icon_recognition_test(icon-recognition-manual-cli-tests)
 
-add_executable(
-    icon-recognition-small-tests
-    test_small_algorithms.cpp
-    ../IconRecognizer.cpp
-    ../detail/CompositeIcon.cpp
-    ../detail/EdgeOcclusion.cpp
-    ../detail/ForegroundTexture.cpp
-    ../detail/GridDetector.cpp
-    ../detail/GridFeatures.cpp
-    ../detail/GridGeometry.cpp
-    ../detail/RegularLattice.cpp
-    ../detail/GridAnchors.cpp
-    ../detail/GridProfiles.cpp
-    ../detail/IconMatcher.cpp
-    ../detail/MaskPolicy.cpp
-    ../detail/RarityCandidates.cpp
-    ../detail/RarityClassifier.cpp
-    ../detail/TrustedRarity.cpp
-    ../detail/RecognitionDiagnostics.cpp
-    ../detail/SubpixelMatcher.cpp
-    ../detail/TemplateCatalog.cpp
-    ../detail/TemplateTypes.cpp
-)
-target_include_directories(
-    icon-recognition-small-tests
-    PRIVATE
-        "${CMAKE_CURRENT_LIST_DIR}/../../../MaaUtils/include"
-        "${VCPKG_ROOT}/include"
-        "${CMAKE_CURRENT_LIST_DIR}/.."
-)
-target_link_libraries(
-    icon-recognition-small-tests
-    PRIVATE
-        ${OpenCV_LIBS}
-        "${CMAKE_CURRENT_LIST_DIR}/../../../build/lib/RelWithDebInfo/MaaUtils.lib"
-)
+add_executable(icon-recognition-small-tests test_small_algorithms.cpp)
+target_link_libraries(icon-recognition-small-tests PRIVATE icon-recognition-core)
 target_compile_definitions(icon-recognition-small-tests PRIVATE ICON_RECOGNITION_TEST_MAIN)
 configure_icon_recognition_test(icon-recognition-small-tests)
 
@@ -93,41 +34,12 @@ add_executable(
     icon-recognition-custom-tests
     test_custom_recognition.cpp
     ../IconRecognitionRecognition.cpp
-    ../IconRecognizer.cpp
-    ../detail/CompositeIcon.cpp
-    ../detail/DebugCapture.cpp
-    ../detail/EdgeOcclusion.cpp
-    ../detail/ForegroundTexture.cpp
-    ../detail/GridDetector.cpp
-    ../detail/GridFeatures.cpp
-    ../detail/GridGeometry.cpp
-    ../detail/RegularLattice.cpp
-    ../detail/GridAnchors.cpp
-    ../detail/GridProfiles.cpp
-    ../detail/IconMatcher.cpp
-    ../detail/MaskPolicy.cpp
-    ../detail/RarityCandidates.cpp
-    ../detail/RarityClassifier.cpp
-    ../detail/TrustedRarity.cpp
-    ../detail/RecognitionDiagnostics.cpp
-    ../detail/SubpixelMatcher.cpp
-    ../detail/TemplateCatalog.cpp
-    ../detail/TemplateTypes.cpp
-)
-target_include_directories(
-    icon-recognition-custom-tests
-    PRIVATE
-        "${CMAKE_CURRENT_LIST_DIR}/../../../../../deps/include"
-        "${CMAKE_CURRENT_LIST_DIR}/../../../MaaUtils/include"
-        "${VCPKG_ROOT}/include"
-        "${CMAKE_CURRENT_LIST_DIR}/.."
 )
 target_link_libraries(
     icon-recognition-custom-tests
     PRIVATE
-        ${OpenCV_LIBS}
-        "${CMAKE_CURRENT_LIST_DIR}/../../../../../deps/lib/MaaFramework.lib"
-        "${CMAKE_CURRENT_LIST_DIR}/../../../build/lib/RelWithDebInfo/MaaUtils.lib"
+        icon-recognition-core
+        MaaFramework::MaaFramework
 )
 set(ICON_RECOGNITION_TEST_RUNTIME "${CMAKE_CURRENT_BINARY_DIR}/runtime")
 set_target_properties(
@@ -156,30 +68,11 @@ add_custom_command(
 )
 configure_icon_recognition_test(icon-recognition-custom-tests)
 
-add_executable(
-    icon-recognition-debug-tests
-    test_debug_capture.cpp
-    ../detail/DebugCapture.cpp
-    ../detail/RecognitionDiagnostics.cpp
-)
-target_include_directories(
-    icon-recognition-debug-tests
-    PRIVATE
-        "${CMAKE_CURRENT_LIST_DIR}/../../../MaaUtils/include"
-        "${VCPKG_ROOT}/include"
-        "${CMAKE_CURRENT_LIST_DIR}/.."
-)
-target_link_libraries(icon-recognition-debug-tests PRIVATE ${OpenCV_LIBS})
+add_executable(icon-recognition-debug-tests test_debug_capture.cpp)
+target_link_libraries(icon-recognition-debug-tests PRIVATE icon-recognition-core)
 configure_icon_recognition_test(icon-recognition-debug-tests)
 
 add_executable(icon-recognition-expected-tests test_expected_results.cpp expected_results.cpp)
-target_include_directories(
-    icon-recognition-expected-tests
-    PRIVATE
-        "${CMAKE_CURRENT_LIST_DIR}/../../../MaaUtils/include"
-        "${VCPKG_ROOT}/include"
-        "${CMAKE_CURRENT_LIST_DIR}/.."
-)
 target_link_libraries(icon-recognition-expected-tests PRIVATE ${OpenCV_LIBS})
 configure_icon_recognition_test(icon-recognition-expected-tests)
 
@@ -189,41 +82,11 @@ add_executable(
     expected_results.cpp
     manual_runner_executor.cpp
     manual_runner_config.cpp
-    ../IconRecognizer.cpp
-    ../detail/CompositeIcon.cpp
-    ../detail/EdgeOcclusion.cpp
-    ../detail/ForegroundTexture.cpp
-    ../detail/GridDetector.cpp
-    ../detail/GridFeatures.cpp
-    ../detail/GridGeometry.cpp
-    ../detail/RegularLattice.cpp
-    ../detail/GridAnchors.cpp
-    ../detail/GridProfiles.cpp
-    ../detail/IconMatcher.cpp
-    ../detail/MaskPolicy.cpp
-    ../detail/RarityCandidates.cpp
-    ../detail/RarityClassifier.cpp
-    ../detail/TrustedRarity.cpp
-    ../detail/RecognitionDiagnostics.cpp
-    ../detail/SubpixelMatcher.cpp
-    ../detail/TemplateCatalog.cpp
-    ../detail/TemplateTypes.cpp
 )
-target_include_directories(
-    icon-recognition-manual-runner
-    PRIVATE
-        "${CMAKE_CURRENT_LIST_DIR}/../../../MaaUtils/include"
-        "${VCPKG_ROOT}/include"
-        "${CMAKE_CURRENT_LIST_DIR}/.."
-)
-target_link_libraries(
-    icon-recognition-manual-runner
-    PRIVATE
-        ${OpenCV_LIBS}
-        gdi32
-        user32
-        "${CMAKE_CURRENT_LIST_DIR}/../../../build/lib/RelWithDebInfo/MaaUtils.lib"
-)
+target_link_libraries(icon-recognition-manual-runner PRIVATE icon-recognition-core)
+if(WIN32)
+    target_link_libraries(icon-recognition-manual-runner PRIVATE gdi32 user32)
+endif()
 target_compile_definitions(
     icon-recognition-manual-runner
     PRIVATE
@@ -234,3 +97,15 @@ target_compile_definitions(
         ICON_RECOGNITION_TEST_DATA_ROOT="${CMAKE_CURRENT_LIST_DIR}/../../../../../assets/data/IconRecognition"
 )
 configure_icon_recognition_test(icon-recognition-manual-runner)
+
+add_custom_target(
+    icon-recognition-tests
+    DEPENDS
+        icon-recognition-types-tests
+        icon-recognition-manual-cli-tests
+        icon-recognition-small-tests
+        icon-recognition-custom-tests
+        icon-recognition-debug-tests
+        icon-recognition-expected-tests
+        icon-recognition-manual-runner
+)
