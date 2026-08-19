@@ -1,0 +1,53 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Camera Scan Action Schema",
+    "description": "CameraScanAction parameter definitions. Referenced by custom.action.schema.json.",
+    "$defs": {
+        "CameraScanParam": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "wait_nodes"
+            ],
+            "properties": {
+                "wait_nodes": {
+                    "title": "Wait Nodes",
+                    "description": "Recognition nodes checked before scanning and after every camera movement; success if any hits.",
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "string",
+                        "minLength": 1
+                    }
+                },
+                "aim_target": {
+                    "title": "Aim Target",
+                    "description": "After a recognition hits, move its result box center to the screen center before returning success. Defaults to false.",
+                    "type": "boolean",
+                    "default": false
+                },
+                "yaw_step_px": {
+                    "title": "Yaw Step Pixels",
+                    "description": "Horizontal swipe distance for one camera step. Defaults to 240.",
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 520
+                },
+                "pitch_step_px": {
+                    "title": "Pitch Step Pixels",
+                    "description": "Vertical swipe distance for one camera step. Defaults to 120.",
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 359
+                },
+                "fallback_yaw_steps": {
+                    "title": "Fallback Yaw Steps",
+                    "description": "Discrete horizontal movements in each fallback ring. Defaults to 12.",
+                    "type": "integer",
+                    "minimum": 4,
+                    "maximum": 72
+                }
+            }
+        }
+    }
+}
