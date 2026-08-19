@@ -13,12 +13,7 @@
                 "type": {
                     "title": "控制器类型",
                     "type": "string",
-                    "enum": [
-                        "Adb",
-                        "Win32",
-                        "PlayCover",
-                        "WlRoots"
-                    ]
+                    "enum": ["Adb", "Win32", "PlayCover", "WlRoots"]
                 }
             }
         },
