@@ -128,6 +128,20 @@
             "optional": false
         },
         "next": [
+            "__AccountSwitchConfigureEmailPattern",
+            "__AccountSwitchClickDropdown"
+        ]
+    },
+    "__AccountSwitchConfigureEmailPattern": {
+        "desc": "配置国际服邮箱匹配规则",
+        "enabled": false,
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "AccountSwitchEmailPatternAction",
+        "custom_action_param": {
+            "email": ""
+        },
+        "next": [
             "__AccountSwitchClickDropdown"
         ]
     },
@@ -196,7 +210,7 @@
         ]
     },
     "__AccountSwitchOCRSelectAccount": {
-        "desc": "OCR识别账号后四位并点击",
+        "desc": "OCR识别目标账号并点击",
         "recognition": {
             "type": "OCR",
             "param": {

@@ -9,7 +9,7 @@
                 "Win32-Front"
             ],
             "option": [
-                "AccountSwitchLastFourDigits"
+                "AccountSwitchMatchMode"
             ],
             "group": [
                 "other_menu"
@@ -17,6 +17,38 @@
         }
     ],
     "option": {
+        "AccountSwitchMatchMode": {
+            "type": "select",
+            "label": "$option.AccountSwitchMatchMode.label",
+            "description": "$option.AccountSwitchMatchMode.description",
+            "default_case": "LastFourDigits",
+            "cases": [
+                {
+                    "name": "LastFourDigits",
+                    "label": "$option.AccountSwitchMatchMode.cases.LastFourDigits.label",
+                    "option": [
+                        "AccountSwitchLastFourDigits"
+                    ],
+                    "pipeline_override": {
+                        "__AccountSwitchConfigureEmailPattern": {
+                            "enabled": false
+                        }
+                    }
+                },
+                {
+                    "name": "Email",
+                    "label": "$option.AccountSwitchMatchMode.cases.Email.label",
+                    "option": [
+                        "AccountSwitchEmail"
+                    ],
+                    "pipeline_override": {
+                        "__AccountSwitchConfigureEmailPattern": {
+                            "enabled": true
+                        }
+                    }
+                }
+            ]
+        },
         "AccountSwitchLastFourDigits": {
             "type": "input",
             "label": "$option.AccountSwitchLastFourDigits.label",
@@ -48,6 +80,52 @@
                                 ".*[*\\d]\\s*{LastFourDigits}\\s*(?:最近)?.*",
                                 ".*{LastFourDigits}\\s*(?:最近)?.*",
                                 "{LastFourDigits}"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "AccountSwitchEmail": {
+            "type": "input",
+            "label": "$option.AccountSwitchEmail.label",
+            "description": "$option.AccountSwitchEmail.description",
+            "inputs": [
+                {
+                    "name": "Email",
+                    "label": "$option.AccountSwitchEmail.Email.label",
+                    "pipeline_type": "string",
+                    "verify": "^[\\x21-\\x3F\\x41-\\x7E]+@[\\x21-\\x3F\\x41-\\x7E]+$",
+                    "pattern_msg": "$option.AccountSwitchEmail.Email.pattern_msg",
+                    "default": ""
+                }
+            ],
+            "pipeline_override": {
+                "__AccountSwitchConfigureEmailPattern": {
+                    "custom_action_param": {
+                        "email": "{Email}"
+                    }
+                },
+                "__AccountSwitchCheckAccount": {
+                    "recognition": {
+                        "param": {
+                            "roi": [
+                                503,
+                                294,
+                                278,
+                                38
+                            ]
+                        }
+                    }
+                },
+                "__AccountSwitchVerifySelected": {
+                    "recognition": {
+                        "param": {
+                            "roi": [
+                                503,
+                                294,
+                                278,
+                                38
                             ]
                         }
                     }
