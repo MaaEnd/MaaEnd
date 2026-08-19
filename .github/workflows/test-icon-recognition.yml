@@ -39,7 +39,20 @@ permissions:
   contents: read
 
 jobs:
+  meta:
+    runs-on: ubuntu-latest
+    outputs:
+      maafw_version: ${{ steps.maafw-latest-release.outputs.release }}
+    steps:
+      - id: maafw-latest-release
+        uses: step-security/github-action-get-latest-release@v0.8.2
+        with:
+          repository: MaaXYZ/MaaFramework
+          excludes: draft
+          token: ${{ secrets.GITHUB_TOKEN }}
+
   quick-test:
+    needs: meta
     runs-on: windows-latest
     timeout-minutes: 30
     steps:
@@ -72,7 +85,7 @@ jobs:
         with:
           repository: MaaXYZ/MaaFramework
           fileName: "MAA-win-x86_64*"
-          latest: true
+          tag: ${{ needs.meta.outputs.maafw_version }}
           out-file-path: "deps"
           extract: true
           token: ${{ secrets.GITHUB_TOKEN }}
