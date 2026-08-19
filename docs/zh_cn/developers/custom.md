@@ -122,7 +122,7 @@ Action 节点用于执行自定义动作。常见写法如下：
 - `pitch_step_px?: int`：单步垂直滑屏距离，默认 `120`，范围 `[1, 359]`。
 - `fallback_yaw_steps?: int`：fallback 每档俯仰绕圈的离散步数，默认 `12`，范围 `[4, 72]`。
 
-镜头移动通过私有 Pipeline 节点 `__EnvironmentMonitoringCameraScanSwipe` 执行，由节点的 `post_wait_freezes` 等待画面稳定；Go 侧不使用固定延迟。当前动作专用于环境监测拍照流程。
+镜头移动通过私有 Pipeline 节点 `__CameraScanActionSwipe` 执行（`Common/Private/CameraScan/Action.json`）。
 
 ### PipelineOverride
 

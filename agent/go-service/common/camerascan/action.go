@@ -9,7 +9,7 @@ import (
 
 const (
 	componentName           = "CameraScanAction"
-	cameraSwipeNode         = "__EnvironmentMonitoringCameraScanSwipe"
+	cameraSwipeNode         = "__CameraScanActionSwipe"
 	cameraSwipeStartX       = 520
 	cameraSwipeStartY       = 360
 	screenCenterX           = 640
@@ -49,6 +49,9 @@ func (a *CameraScanAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			return false
 		}
 		if !runCameraSwipe(ctx, step, param) {
+			return false
+		}
+		if ctx.GetTasker().Stopping() {
 			return false
 		}
 		if detail := recognizeWaitNodes(ctx, ctrl, param.WaitNodes, step.phase, index+1); detail != nil {
@@ -111,6 +114,9 @@ func runCameraSwipe(ctx *maa.Context, step cameraScanStep, param cameraScanParam
 }
 
 func runCameraSwipePixels(ctx *maa.Context, beginX, beginY, dx, dy int, phase string) bool {
+	if ctx.GetTasker().Stopping() {
+		return false
+	}
 	override := map[string]any{
 		cameraSwipeNode: map[string]any{
 			"begin": maa.Rect{beginX, beginY, 1, 1},
@@ -172,7 +178,13 @@ func recognizeWaitNodes(
 	phase string,
 	step int,
 ) *maa.RecognitionDetail {
+	if ctx.GetTasker().Stopping() {
+		return nil
+	}
 	ctrl.PostScreencap().Wait()
+	if ctx.GetTasker().Stopping() {
+		return nil
+	}
 	img, err := ctrl.CacheImage()
 	if err != nil || img == nil {
 		log.Warn().

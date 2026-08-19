@@ -120,7 +120,7 @@ Example file: [`CharacterController.json`](../../../assets/resource/pipeline/Int
 - `pitch_step_px?: int`: Vertical swipe distance per step. Defaults to `120`; range `[1, 359]`.
 - `fallback_yaw_steps?: int`: Discrete yaw movements in each fallback ring. Defaults to `12`; range `[4, 72]`.
 
-Camera movement runs through the private Pipeline node `__EnvironmentMonitoringCameraScanSwipe`, whose `post_wait_freezes` waits for a stable image. The Go action does not use a fixed delay. This action is currently specific to the EnvironmentMonitoring photo flow.
+Camera movement runs through the private Pipeline node `__CameraScanActionSwipe` (`Common/Private/CameraScan/Action.json`).
 
 ### PipelineOverride
 

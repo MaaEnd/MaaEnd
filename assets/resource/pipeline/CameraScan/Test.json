@@ -21,11 +21,14 @@
         "custom_action_param": {
             "wait_nodes": [
                 "EnvironmentMonitoringShutterButtonPhotographyTarget"
-            ]
+            ],
+            "fallback_yaw_steps": 4
         },
         "post_delay": 0,
         "rate_limit": 0,
-        "next": [],
+        "next": [
+            "StopNode"
+        ],
         "focus": {
             "Node.Action.Succeeded": "$task.CameraScanTest.hit",
             "Node.Action.Failed": "$task.CameraScanTest.miss"
@@ -39,6 +42,9 @@
         "custom_action": "FalseAction",
         "post_delay": 0,
         "rate_limit": 0,
+        "next": [
+            "StopNode"
+        ],
         "focus": {
             "Node.Recognition.Succeeded": "$task.CameraScanTest.not_in_photo"
         }
