@@ -118,11 +118,13 @@ Action 节点用于执行自定义动作。常见写法如下：
 
 - `wait_nodes: string[]`：每次检查的 Pipeline 识别节点，必填；任一节点命中即成功。
 - `aim_target?: bool`：命中后是否把该识别结果的 `Box` 中心移动到屏幕中心，默认 `false`。
-- `yaw_step_px?: int`：单步水平滑屏距离，默认 `240`，范围 `[1, 520]`。
-- `pitch_step_px?: int`：单步垂直滑屏距离，默认 `120`，范围 `[1, 359]`。
+- `move_up?: string`：上移镜头节点，默认 `__CameraScanMoveUp`。
+- `move_down?: string`：下移镜头节点，默认 `__CameraScanMoveDown`。
+- `move_left?: string`：左移镜头节点，默认 `__CameraScanMoveLeft`。
+- `move_right?: string`：右移镜头节点，默认 `__CameraScanMoveRight`。
 - `fallback_yaw_steps?: int`：fallback 每档俯仰绕圈的离散步数，默认 `12`，范围 `[4, 72]`。
 
-镜头移动通过私有 Pipeline 节点 `__CameraScanActionSwipe` 执行（`Common/Private/CameraScan/Action.json`）。
+镜头移动通过 `ctx.RunTask` 执行对应方向节点（默认节点见 `Common/Private/CameraScan/Action.json`）。需要等待画面静止时，在调用方自定义的方向节点上配置 `post_wait_freezes`。对准目标时仍使用私有节点 `__CameraScanAimSwipe`。
 
 ### PipelineOverride
 

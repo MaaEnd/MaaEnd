@@ -294,28 +294,17 @@
         "custom_action_param": {
             "wait_nodes": [
                 "EnvironmentMonitoringShutterButtonPhotographyTarget"
-            ]
+            ],
+            "move_up": "EnvironmentMonitoringSwipeScreenUp",
+            "move_down": "EnvironmentMonitoringSwipeScreenDown",
+            "move_left": "EnvironmentMonitoringSwipeScreenLeft",
+            "move_right": "EnvironmentMonitoringSwipeScreenRight"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "EnvironmentMonitoringShutterButtonPhotographyTarget"
         ]
-    },
-    "__EnvironmentMonitoringCameraScanSwipe": {
-        "desc": "环境监测镜头扫描的单步滑屏",
-        "pre_delay": 0,
-        "action": "Swipe",
-        "begin": [
-            520,
-            360
-        ],
-        "end": [
-            520,
-            360
-        ],
-        "post_delay": 0,
-        "rate_limit": 0
     },
     "EnvironmentMonitoringCheckPhotographyTarget": {
         "desc": "检查是否达成拍照目标",
@@ -348,6 +337,7 @@
     },
     "EnvironmentMonitoringSwipeScreenUp": {
         "desc": "环境监测拍照，向上滑动屏幕调整朝向",
+        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Swipe",
         "begin": [
@@ -359,11 +349,21 @@
             240
         ],
         "end_hold": 300,
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                23,
+                478,
+                39,
+                31
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0
     },
     "EnvironmentMonitoringSwipeScreenDown": {
         "desc": "环境监测拍照，向下滑动屏幕调整朝向",
+        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Swipe",
         "begin": [
@@ -375,11 +375,21 @@
             480
         ],
         "end_hold": 300,
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                23,
+                478,
+                39,
+                31
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0
     },
     "EnvironmentMonitoringSwipeScreenLeft": {
         "desc": "环境监测拍照，向左滑动屏幕调整朝向",
+        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Swipe",
         "begin": [
@@ -391,11 +401,21 @@
             360
         ],
         "end_hold": 300,
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                23,
+                478,
+                39,
+                31
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0
     },
     "EnvironmentMonitoringSwipeScreenRight": {
         "desc": "环境监测拍照，向右滑动屏幕调整朝向",
+        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Swipe",
         "begin": [
@@ -407,6 +427,15 @@
             360
         ],
         "end_hold": 300,
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                23,
+                478,
+                39,
+                31
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0
     },

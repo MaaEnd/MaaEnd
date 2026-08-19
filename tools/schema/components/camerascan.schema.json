@@ -26,19 +26,29 @@
                     "type": "boolean",
                     "default": false
                 },
-                "yaw_step_px": {
-                    "title": "Yaw Step Pixels",
-                    "description": "Horizontal swipe distance for one camera step. Defaults to 240.",
-                    "type": "integer",
-                    "minimum": 1,
-                    "maximum": 520
+                "move_up": {
+                    "title": "Move Up Node",
+                    "description": "Pipeline node for one upward camera step. Defaults to __CameraScanMoveUp.",
+                    "type": "string",
+                    "minLength": 1
                 },
-                "pitch_step_px": {
-                    "title": "Pitch Step Pixels",
-                    "description": "Vertical swipe distance for one camera step. Defaults to 120.",
-                    "type": "integer",
-                    "minimum": 1,
-                    "maximum": 359
+                "move_down": {
+                    "title": "Move Down Node",
+                    "description": "Pipeline node for one downward camera step. Defaults to __CameraScanMoveDown.",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "move_left": {
+                    "title": "Move Left Node",
+                    "description": "Pipeline node for one leftward camera step. Defaults to __CameraScanMoveLeft.",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "move_right": {
+                    "title": "Move Right Node",
+                    "description": "Pipeline node for one rightward camera step. Defaults to __CameraScanMoveRight.",
+                    "type": "string",
+                    "minLength": 1
                 },
                 "fallback_yaw_steps": {
                     "title": "Fallback Yaw Steps",

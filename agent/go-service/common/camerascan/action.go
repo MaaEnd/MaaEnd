@@ -9,22 +9,23 @@ import (
 
 const (
 	componentName           = "CameraScanAction"
-	cameraSwipeNode         = "__CameraScanActionSwipe"
-	cameraSwipeStartX       = 520
-	cameraSwipeStartY       = 360
+	cameraAimSwipeNode      = "__CameraScanAimSwipe"
+	defaultMoveUpNode       = "__CameraScanMoveUp"
+	defaultMoveDownNode     = "__CameraScanMoveDown"
+	defaultMoveLeftNode     = "__CameraScanMoveLeft"
+	defaultMoveRightNode    = "__CameraScanMoveRight"
 	screenCenterX           = 640
 	screenCenterY           = 360
-	maxPitchStepPixels      = 359
-	defaultYawStepPixels    = 240
-	defaultPitchStepPixels  = 120
 	defaultFallbackYawSteps = 12
 )
 
 type cameraScanParam struct {
 	WaitNodes        []string `json:"wait_nodes"`
 	AimTarget        bool     `json:"aim_target,omitempty"`
-	YawStepPixels    int      `json:"yaw_step_px,omitempty"`
-	PitchStepPixels  int      `json:"pitch_step_px,omitempty"`
+	MoveUp           string   `json:"move_up,omitempty"`
+	MoveDown         string   `json:"move_down,omitempty"`
+	MoveLeft         string   `json:"move_left,omitempty"`
+	MoveRight        string   `json:"move_right,omitempty"`
 	FallbackYawSteps int      `json:"fallback_yaw_steps,omitempty"`
 }
 
@@ -81,25 +82,24 @@ func parseParam(raw string) (cameraScanParam, bool) {
 		return cameraScanParam{}, false
 	}
 
-	if param.YawStepPixels == 0 {
-		param.YawStepPixels = defaultYawStepPixels
+	if param.MoveUp == "" {
+		param.MoveUp = defaultMoveUpNode
 	}
-	if param.PitchStepPixels == 0 {
-		param.PitchStepPixels = defaultPitchStepPixels
+	if param.MoveDown == "" {
+		param.MoveDown = defaultMoveDownNode
+	}
+	if param.MoveLeft == "" {
+		param.MoveLeft = defaultMoveLeftNode
+	}
+	if param.MoveRight == "" {
+		param.MoveRight = defaultMoveRightNode
 	}
 	if param.FallbackYawSteps == 0 {
 		param.FallbackYawSteps = defaultFallbackYawSteps
 	}
-	if param.YawStepPixels < 1 ||
-		param.YawStepPixels > cameraSwipeStartX ||
-		param.PitchStepPixels < 1 ||
-		param.PitchStepPixels > maxPitchStepPixels ||
-		param.FallbackYawSteps < 4 ||
-		param.FallbackYawSteps > 72 {
+	if param.FallbackYawSteps < 4 || param.FallbackYawSteps > 72 {
 		log.Error().
 			Str("component", componentName).
-			Int("yaw_step_px", param.YawStepPixels).
-			Int("pitch_step_px", param.PitchStepPixels).
 			Int("fallback_yaw_steps", param.FallbackYawSteps).
 			Msg("camera scan step values are out of range")
 		return cameraScanParam{}, false
@@ -108,9 +108,50 @@ func parseParam(raw string) (cameraScanParam, bool) {
 }
 
 func runCameraSwipe(ctx *maa.Context, step cameraScanStep, param cameraScanParam) bool {
-	dx := step.yawDelta * param.YawStepPixels
-	dy := step.pitchDelta * param.PitchStepPixels
-	return runCameraSwipePixels(ctx, cameraSwipeStartX, cameraSwipeStartY, dx, dy, step.phase)
+	for range absInt(step.pitchDelta) {
+		node := param.MoveDown
+		if step.pitchDelta < 0 {
+			node = param.MoveUp
+		}
+		if !runMoveNode(ctx, node, step.phase) {
+			return false
+		}
+	}
+	for range absInt(step.yawDelta) {
+		node := param.MoveRight
+		if step.yawDelta < 0 {
+			node = param.MoveLeft
+		}
+		if !runMoveNode(ctx, node, step.phase) {
+			return false
+		}
+	}
+	return true
+}
+
+func runMoveNode(ctx *maa.Context, node, phase string) bool {
+	if ctx.GetTasker().Stopping() {
+		return false
+	}
+	detail, err := ctx.RunTask(node)
+	if err != nil {
+		log.Error().
+			Err(err).
+			Str("component", componentName).
+			Str("phase", phase).
+			Str("node", node).
+			Msg("camera move node failed")
+		return false
+	}
+	if detail == nil || !detail.Status.Success() {
+		log.Error().
+			Str("component", componentName).
+			Str("phase", phase).
+			Str("node", node).
+			Msg("camera move node did not succeed")
+		return false
+	}
+	return true
 }
 
 func runCameraSwipePixels(ctx *maa.Context, beginX, beginY, dx, dy int, phase string) bool {
@@ -118,19 +159,29 @@ func runCameraSwipePixels(ctx *maa.Context, beginX, beginY, dx, dy int, phase st
 		return false
 	}
 	override := map[string]any{
-		cameraSwipeNode: map[string]any{
+		cameraAimSwipeNode: map[string]any{
 			"begin": maa.Rect{beginX, beginY, 1, 1},
 			"end":   maa.Rect{beginX + dx, beginY + dy, 1, 1},
 		},
 	}
-	if _, err := ctx.RunAction(cameraSwipeNode, maa.Rect{}, "", override); err != nil {
+	detail, err := ctx.RunTask(cameraAimSwipeNode, override)
+	if err != nil {
 		log.Error().
 			Err(err).
 			Str("component", componentName).
 			Str("phase", phase).
 			Int("dx", dx).
 			Int("dy", dy).
-			Msg("camera swipe failed")
+			Msg("camera aim swipe failed")
+		return false
+	}
+	if detail == nil || !detail.Status.Success() {
+		log.Error().
+			Str("component", componentName).
+			Str("phase", phase).
+			Int("dx", dx).
+			Int("dy", dy).
+			Msg("camera aim swipe did not succeed")
 		return false
 	}
 	return true
@@ -169,6 +220,13 @@ func aimDelta(box maa.Rect) (int, int, bool) {
 
 func clamp(value, minimum, maximum int) int {
 	return min(max(value, minimum), maximum)
+}
+
+func absInt(value int) int {
+	if value < 0 {
+		return -value
+	}
+	return value
 }
 
 func recognizeWaitNodes(

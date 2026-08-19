@@ -71,3 +71,33 @@ func TestAimTargetDefaultsToFalse(t *testing.T) {
 		t.Fatal("aim_target=true was not preserved")
 	}
 }
+
+func TestMoveNodesDefaultAndOverride(t *testing.T) {
+	param, ok := parseParam(`{"wait_nodes":["Target"]}`)
+	if !ok {
+		t.Fatal("parseParam returned false")
+	}
+	if param.MoveUp != defaultMoveUpNode ||
+		param.MoveDown != defaultMoveDownNode ||
+		param.MoveLeft != defaultMoveLeftNode ||
+		param.MoveRight != defaultMoveRightNode {
+		t.Fatalf("unexpected default move nodes: %+v", param)
+	}
+
+	param, ok = parseParam(`{
+		"wait_nodes":["Target"],
+		"move_up":"UpNode",
+		"move_down":"DownNode",
+		"move_left":"LeftNode",
+		"move_right":"RightNode"
+	}`)
+	if !ok {
+		t.Fatal("parseParam returned false for custom move nodes")
+	}
+	if param.MoveUp != "UpNode" ||
+		param.MoveDown != "DownNode" ||
+		param.MoveLeft != "LeftNode" ||
+		param.MoveRight != "RightNode" {
+		t.Fatalf("custom move nodes were not preserved: %+v", param)
+	}
+}

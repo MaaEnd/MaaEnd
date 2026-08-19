@@ -116,11 +116,13 @@ Example file: [`CharacterController.json`](../../../assets/resource/pipeline/Int
 
 - `wait_nodes: string[]`: Pipeline recognition nodes checked at every position. Required; any hit succeeds.
 - `aim_target?: bool`: Whether to move the hit recognition result's `Box` center to the screen center before returning. Defaults to `false`.
-- `yaw_step_px?: int`: Horizontal swipe distance per step. Defaults to `240`; range `[1, 520]`.
-- `pitch_step_px?: int`: Vertical swipe distance per step. Defaults to `120`; range `[1, 359]`.
+- `move_up?: string`: Node for one upward camera step. Defaults to `__CameraScanMoveUp`.
+- `move_down?: string`: Node for one downward camera step. Defaults to `__CameraScanMoveDown`.
+- `move_left?: string`: Node for one leftward camera step. Defaults to `__CameraScanMoveLeft`.
+- `move_right?: string`: Node for one rightward camera step. Defaults to `__CameraScanMoveRight`.
 - `fallback_yaw_steps?: int`: Discrete yaw movements in each fallback ring. Defaults to `12`; range `[4, 72]`.
 
-Camera movement runs through the private Pipeline node `__CameraScanActionSwipe` (`Common/Private/CameraScan/Action.json`).
+Camera movement runs through `ctx.RunTask` on the corresponding direction nodes (defaults in `Common/Private/CameraScan/Action.json`). Configure `post_wait_freezes` on caller-provided direction nodes when the screen must settle after each move. Aiming still uses the private node `__CameraScanAimSwipe`.
 
 ### PipelineOverride
 
