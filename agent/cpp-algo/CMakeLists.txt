@@ -5,9 +5,10 @@ project(maaend-cpp-agent)
 include(MaaUtils/MaaUtils.cmake)
 add_library(HeaderOnlyLibraries INTERFACE)
 
-set(DEPS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../deps)
+set(DEPS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../deps" CACHE PATH
+    "MaaFramework dependency directory")
 
-if(NOT EXISTS ${DEPS_DIR})
+if(NOT EXISTS "${DEPS_DIR}")
     message(FATAL_ERROR "Dependencies directory not found: ${DEPS_DIR}")
 endif()
 
@@ -17,10 +18,10 @@ set(CMAKE_MAP_IMPORTED_CONFIG_MINSIZEREL RelWithDebInfo)
 set(CMAKE_MAP_IMPORTED_CONFIG_RELEASE RelWithDebInfo)
 set(CMAKE_MAP_IMPORTED_CONFIG_DEBUG RelWithDebInfo)
 
-set(MaaFramework_DIR ${DEPS_DIR}/share/cmake/MaaFramework)
+set(MaaFramework_DIR "${DEPS_DIR}/share/cmake/MaaFramework")
 find_package(MaaFramework REQUIRED)
 
-set(MaaAgentServer_DIR ${DEPS_DIR}/share/cmake/MaaAgentServer)
+set(MaaAgentServer_DIR "${DEPS_DIR}/share/cmake/MaaAgentServer")
 find_package(MaaAgentServer REQUIRED)
 
 # WebView2 SDK configuration (Windows-only; on Windows this include may fail

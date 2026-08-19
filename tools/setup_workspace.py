@@ -12,7 +12,7 @@ import traceback
 import urllib.error
 import urllib.request
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import quote, urlparse
 
 from cli_support import Console, init_localization
 import dep_3rdparty
@@ -22,6 +22,8 @@ PROJECT_BASE: Path = Path(__file__).parent.parent.resolve()
 MFW_REPO: str = "MaaXYZ/MaaFramework"
 MXU_REPO: str = "MistEO/MXU"
 MAAEND_REPO: str = "MaaEnd/MaaEnd"
+ANDROID_MAADEPS_TARGET: str = "arm64-android"
+ANDROID_MAAFW_DIR: Path = PROJECT_BASE / "deps-android"
 
 
 def create_directory_link(src: Path, dst: Path) -> bool:
@@ -166,18 +168,26 @@ def update_submodules(skip_if_exist: bool = True) -> bool:
     return True
 
 
-def bootstrap_maadeps(skip_if_exist: bool = True) -> bool:
+def bootstrap_maadeps(
+    skip_if_exist: bool = True,
+    target_triplet: str | None = None,
+) -> bool:
     """下载 MaaDeps 预编译依赖"""
     maadeps_dir = (
         PROJECT_BASE / "agent" / "cpp-algo" / "MaaUtils" / "MaaDeps" / "vcpkg" / "installed"
     )
+    if target_triplet:
+        maadeps_dir /= f"maa-{target_triplet}"
     if skip_if_exist and maadeps_dir.exists() and any(maadeps_dir.iterdir()):
         print(Console.ok(t("inf_maadeps_exist")))
         return True
 
     print(Console.info(t("inf_bootstrap_maadeps")))
     script_path = PROJECT_BASE / "tools" / "maadeps-download.py"
-    return run_command([sys.executable, str(script_path)])
+    command = [sys.executable, str(script_path)]
+    if target_triplet:
+        command.append(target_triplet)
+    return run_command(command)
 
 
 _dep_3rdparty_inited = False
@@ -219,7 +229,10 @@ def run_build_script() -> bool:
 
 
 def get_latest_release_url(
-    repo: str, keywords: list[str], prerelease: bool = True
+    repo: str,
+    keywords: list[str],
+    prerelease: bool = True,
+    release_tag: str | None = None,
 ) -> tuple[str | None, str | None, str | None]:
     """
     获取指定 GitHub 仓库 Release 中首个符合是否预发布要求，且匹配所有关键字的资源下载链接和文件名。
@@ -227,6 +240,8 @@ def get_latest_release_url(
     https://docs.github.com/en/rest/releases/releases?apiVersion=2022-11-28#list-releases
     """
     api_url = f"https://api.github.com/repos/{repo}/releases"
+    if release_tag:
+        api_url = f"{api_url}/tags/{quote(release_tag, safe='')}"
     token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
 
     try:
@@ -240,7 +255,8 @@ def get_latest_release_url(
         req.add_header("X-GitHub-Api-Version", "2022-11-28")
 
         with urllib.request.urlopen(req, timeout=TIMEOUT) as res:
-            tags = json.loads(res.read().decode())
+            payload = json.loads(res.read().decode())
+            tags = [payload] if release_tag else payload
             assert isinstance(tags, list)
             if not tags:
                 raise ValueError("No releases found (GitHub API)")
@@ -264,7 +280,7 @@ def get_latest_release_url(
                     tag_name = tag.get("tag_name") or tag.get("name")
                     return asset["browser_download_url"], asset["name"], tag_name
 
-        raise ValueError("No matching asset found in the latest release (GitHub API)")
+        raise ValueError("No matching release asset found (GitHub API)")
     except Exception as e:
         print(Console.err(t("err_get_release_failed", error_type=type(e).__name__, error=e)))
 
@@ -625,6 +641,102 @@ def download_file(
     return False
 
 
+def find_maafw_sdk_root(
+    extract_root: Path,
+    required_dirs: tuple[str, ...] = ("bin",),
+) -> Path | None:
+    """查找包含指定目录的 MaaFramework SDK 根目录。"""
+    for root, dirs, _ in os.walk(extract_root):
+        if all(required_dir in dirs for required_dir in required_dirs):
+            return Path(root)
+    return None
+
+
+def install_android_maafw(
+    skip_if_exist: bool = True,
+    update_mode: bool = False,
+    release_tag: str | None = None,
+) -> bool:
+    """将 Android aarch64 MaaFramework SDK 安装到 deps-android。"""
+    version_file = ANDROID_MAAFW_DIR / ".version"
+    local_version = None
+    if version_file.exists():
+        try:
+            local_version = version_file.read_text(encoding="utf-8").strip() or None
+        except OSError as e:
+            print(Console.warn(t("wrn_read_version_failed", error=e)))
+
+    installed = (
+        (ANDROID_MAAFW_DIR / "bin").is_dir()
+        and (ANDROID_MAAFW_DIR / "share").is_dir()
+    )
+    if skip_if_exist and installed:
+        print(Console.ok(t("inf_android_maafw_installed_skip")))
+        return True
+
+    url, filename, remote_version = get_latest_release_url(
+        MFW_REPO,
+        ["maa", "android", "aarch64"],
+        release_tag=release_tag,
+    )
+    if not url or not filename:
+        print(Console.err(t("err_android_maafw_url_not_found")))
+        return False
+
+    already_current = False
+    if update_mode and installed and local_version and remote_version:
+        if release_tag:
+            already_current = local_version == remote_version
+        else:
+            already_current = compare_semver(local_version, remote_version) >= 0
+    if already_current:
+        print(
+            Console.ok(
+                t("inf_android_maafw_latest_version", version=local_version)
+            )
+        )
+        return True
+
+    cache_dir = ensure_cache_dir()
+    download_path = cache_dir / filename
+    if not download_file(url, download_path, resume=True):
+        return False
+
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        extract_root = Path(tmp_dir) / "extracted"
+        extract_root.mkdir(parents=True, exist_ok=True)
+        try:
+            print(Console.info(t("inf_extract_android_maafw")))
+            shutil.unpack_archive(str(download_path), extract_root)
+            sdk_root = find_maafw_sdk_root(extract_root, ("bin", "share"))
+            if not sdk_root:
+                print(Console.err(t("err_android_sdk_not_found")))
+                return False
+
+            print(Console.info(t("inf_copying_sdk", dest=ANDROID_MAAFW_DIR)))
+
+            def copy_sdk() -> None:
+                if ANDROID_MAAFW_DIR.exists():
+                    shutil.rmtree(ANDROID_MAAFW_DIR)
+                shutil.copytree(sdk_root, ANDROID_MAAFW_DIR)
+
+            if not _retry_on_permission(
+                copy_sdk,
+                error_key="err_cannot_access_deps",
+                path=ANDROID_MAAFW_DIR,
+            ):
+                return False
+
+            if remote_version:
+                version_file.write_text(remote_version, encoding="utf-8")
+            print(Console.ok(t("inf_sdk_copied", dest=ANDROID_MAAFW_DIR)))
+            cleanup_cache_file(download_path)
+            return True
+        except Exception as e:
+            print(Console.err(t("err_android_maafw_install_failed", error=e)))
+            return False
+
+
 def install_maafw(
     install_root: Path,
     skip_if_exist: bool = True,
@@ -694,12 +806,7 @@ def install_maafw(
             # 使用 shutil.unpack_archive 自动识别格式进行解压
             shutil.unpack_archive(str(download_path), extract_root)
 
-            # 找到包含 bin 目录的 SDK 根目录
-            sdk_root = None
-            for root, dirs, _ in os.walk(extract_root):
-                if "bin" in dirs:
-                    sdk_root = Path(root)
-                    break
+            sdk_root = find_maafw_sdk_root(extract_root)
 
             if not sdk_root:
                 print(Console.err(t("err_bin_not_found")))
@@ -1438,6 +1545,36 @@ def _is_cn_locale() -> bool:
     return lang in ("zh_cn", "chinese (simplified)_china")
 
 
+def setup_android_agents(update: bool, maafw_version: str | None) -> None:
+    """准备 Android arm64 Agent 的交叉编译依赖。"""
+    print(Console.hdr(t("header_android_agents_init")))
+    configure_token()
+
+    if not update_submodules(skip_if_exist=not update):
+        print(Console.err(t("fatal_submodule_failed")))
+        sys.exit(1)
+
+    print(Console.hdr(t("header_bootstrap_android_maadeps")))
+    if not bootstrap_maadeps(
+        skip_if_exist=not update,
+        target_triplet=ANDROID_MAADEPS_TARGET,
+    ):
+        print(Console.err(t("fatal_maadeps_failed")))
+        sys.exit(1)
+
+    print(Console.hdr(t("header_download_android_maafw")))
+    if not install_android_maafw(
+        skip_if_exist=not update,
+        update_mode=update,
+        release_tag=maafw_version,
+    ):
+        print(Console.err(t("fatal_android_maafw_failed")))
+        sys.exit(1)
+
+    print(Console.ok(t("header_setup_complete")))
+    print(Console.info(t("inf_android_agents_ready", path=ANDROID_MAAFW_DIR)))
+
+
 def main() -> None:
     init_local()
 
@@ -1452,6 +1589,16 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=t("description"))
     parser.add_argument("--update", action="store_true", help=t("arg_update"))
     parser.add_argument("--clean-cache", action="store_true", help=t("arg_clean_cache"))
+    parser.add_argument(
+        "--android-agents",
+        action="store_true",
+        help=t("arg_android_agents"),
+    )
+    parser.add_argument(
+        "--maafw-version",
+        metavar="TAG",
+        help=t("arg_maafw_version"),
+    )
     group = parser.add_mutually_exclusive_group()
     group.add_argument(
         "--cpp-algo-pr", type=int, default=None, metavar="N",
@@ -1465,6 +1612,13 @@ def main() -> None:
 
     if args.clean_cache:
         clean_cache()
+        return
+
+    if args.maafw_version and not args.android_agents:
+        parser.error(t("err_maafw_version_requires_android_agents"))
+
+    if args.android_agents:
+        setup_android_agents(args.update, args.maafw_version)
         return
 
     install_dir = PROJECT_BASE / "install"
