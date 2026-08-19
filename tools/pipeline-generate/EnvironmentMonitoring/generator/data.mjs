@@ -86,8 +86,6 @@ export function buildRow(mission) {
         EnterMap: route.EnterMap,
         MapAssertRecognition: route.MapAssertRecognition,
         MapAssertParam: rawJson(route.MapAssertParam),
-        CameraSwipeDirection: route.CameraSwipeDirection,
-        CameraMaxHit: route.CameraMaxHit,
         ExpectedText: buildExpectedFromLocaleMap(LocalizedName),
         InExpectedText: buildExpectedFromLocaleMap(ShotTargetName),
         OcrReplace: rawJson(route.Replace),

@@ -283,8 +283,41 @@
         "rate_limit": 0,
         "next": [
             "EnvironmentMonitoringShutterButtonPhotographyTarget",
-            "[JumpBack][Anchor]EnvironmentMonitoringAdjustCamera"
+            "[JumpBack]EnvironmentMonitoringCameraScan"
         ]
+    },
+    "EnvironmentMonitoringCameraScan": {
+        "desc": "扫描拍照视角并检查是否达成拍照目标",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "CameraScanAction",
+        "custom_action_param": {
+            "wait_nodes": [
+                "EnvironmentMonitoringShutterButtonPhotographyTarget"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "EnvironmentMonitoringShutterButtonPhotographyTarget"
+        ]
+    },
+    "__EnvironmentMonitoringCameraScanSwipe": {
+        "desc": "环境监测镜头扫描的单步滑屏",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            520,
+            360
+        ],
+        "end": [
+            520,
+            360
+        ],
+        "end_hold": 300,
+        "post_wait_freezes": 200,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "EnvironmentMonitoringCheckPhotographyTarget": {
         "desc": "检查是否达成拍照目标",

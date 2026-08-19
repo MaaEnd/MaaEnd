@@ -23,8 +23,6 @@ function buildDirectPhotoRow(hasHeading, quickTeleport = false) {
             EnterMap: "SceneEnterWorldTest",
             MapAssertRecognition: "MapTrackerAssertLocation",
             MapAssertParam: {},
-            CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",
-            CameraMaxHit: 2,
             Replace: [],
             RouteAction: "MapTrackerToward",
             RouteActionParam: hasHeading ? {angle: 90} : {},
