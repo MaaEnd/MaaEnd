@@ -141,25 +141,17 @@ class WlRootsRecordingConnector(RecordingConnector):
         self._config = config
 
     def connect(self) -> Any:
+        if self._runtime.WlRootsController is None:
+            raise RuntimeError("当前 maafw Python 运行时不支持 WlRootsController (仅 Linux 支持)。")
+
         socket_path = self._config.wlr_socket_path.strip()
         if not socket_path:
             raise RuntimeError("未指定 Wayland socket 路径。")
 
-        # MaaFramework 5.13 起推荐统一 LinuxController；旧版仍通过 WlRootsController 兼容。
-        # Wlr 方法值与 MaaLinuxScreencapMethod_Wlr / MaaLinuxInputMethod_Wlr 一致，均为 1。
-        if self._runtime.LinuxController is not None:
-            controller = self._runtime.LinuxController(
-                config={
-                    "screencap_method": 1,
-                    "input_method": 1,
-                    "wlr_socket_path": socket_path,
-                    "use_win32_vk_code": True,
-                }
-            )
-        elif self._runtime.WlRootsController is not None:
-            controller = self._runtime.WlRootsController(wlr_socket_path=socket_path, use_win32_vk_code=True)
-        else:
-            raise RuntimeError("当前 maafw Python 运行时不支持 Linux/WlRoots 控制器 (仅 Linux 支持)。")
+        # use_win32_vk_code 与 assets/interface.json 的 Wlroots 控制器条目保持一致:
+        # MaaEnd pipeline 的按键动作按 Win32 VK 码表书写。MapNavigator 录制只截图不投递
+        # 按键, 该参数对录制无实际影响, 但连接器不应自创与项目约定不同的取值。
+        controller = self._runtime.WlRootsController(wlr_socket_path=socket_path, use_win32_vk_code=True)
         controller.post_connection().wait()
         return controller
 

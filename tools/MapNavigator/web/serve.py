@@ -677,11 +677,8 @@ async def api_connection_check(payload: dict[str, Any] = Body(default_factory=di
             except OSError as exc:  # noqa: BLE001
                 return {"connected": False, "message": f"Wayland socket 检测异常: {exc}"}
             runtime = get_runtime()
-            if runtime is None or (
-                getattr(runtime, "LinuxController", None) is None
-                and getattr(runtime, "WlRootsController", None) is None
-            ):
-                return {"connected": False, "message": "当前运行环境未提供 Linux/WlRoots 库支持"}
+            if runtime is None or getattr(runtime, "WlRootsController", None) is None:
+                return {"connected": False, "message": "当前运行环境未提供 WlRoots 库支持"}
             return {"connected": True, "message": f"WlRoots 在线: {socket_path}"}
 
         return {"connected": False, "message": f"未知连接类型: {kind}"}

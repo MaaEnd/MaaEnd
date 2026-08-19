@@ -89,13 +89,11 @@
             "name": "Wlroots",
             "label": "$controller.Wlroots.label",
             "description": "$controller.Wlroots.description",
-            "type": "Linux",
+            "type": "WlRoots",
             "attach_resource_path": [
                 "./resource_wlroots"
             ],
-            "linux": {
-                "input": "Wlr",
-                "screencap": "Wlr",
+            "wlroots": {
                 "use_win32_vk_code": true
             }
         },
