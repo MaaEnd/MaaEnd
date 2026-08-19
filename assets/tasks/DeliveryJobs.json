@@ -1459,6 +1459,15 @@
                             "template": "DeliveryJobs/AketinePowder.png"
                         }
                     }
+                },
+                {
+                    "name": "蓝铁粉末",
+                    "label": "$item.FerriumPowder",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "template": "DeliveryJobs/FerriumPowder.png"
+                        }
+                    }
                 }
             ],
             "default_case": "砂叶粉末"
@@ -1545,6 +1554,15 @@
                     "pipeline_override": {
                         "DeliveryJobsSelectItemToFillWuling": {
                             "template": "DeliveryJobs/Xiranite.png"
+                        }
+                    }
+                },
+                {
+                    "name": "蓝铁粉末",
+                    "label": "$item.FerriumPowder",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "template": "DeliveryJobs/FerriumPowder.png"
                         }
                     }
                 }
