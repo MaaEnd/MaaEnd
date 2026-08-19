@@ -378,7 +378,7 @@
             0,
             200,
             160,
-            120
+            200
         ],
         "template": "ProtocolSpace/SpaceResart.png",
         "green_mask": true
