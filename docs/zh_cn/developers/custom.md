@@ -84,6 +84,34 @@ Action 节点用于执行自定义动作。常见写法如下：
 
 - 参数：无。
 
+### FocusOCRAction
+
+`FocusOCRAction` 实现位于 `agent/go-service/common/focusocr`。截图后执行指定 Pipeline 识别节点，取出第一条 OCR 文本，再通过 `maafocus` 输出。
+
+参数：
+
+- `node: string`：必填。Pipeline 识别节点名（OCR，或 `And` 且 `box_index` 指向 OCR）。
+- `focus: string`：可选。`maafocus` 文案，`%s` 为 OCR 文本，例如 `当前理智 %s`。省略则输出原文。
+
+示例文件：[`FocusOCRAction.json`](../../../assets/resource/pipeline/Interface/Example/FocusOCRAction.json)
+
+```json
+{
+    "action": {
+        "type": "Custom",
+        "param": {
+            "custom_action": "FocusOCRAction",
+            "custom_action_param": {
+                "node": "CommonSanityText",
+                "focus": "当前理智 %s"
+            }
+        }
+    }
+}
+```
+
+节点自身的 recognition 仍由 Pipeline 负责分流；本 Action 只在命中后截图、识别并播报。
+
 ### RepeatUntilFoundAction / RepeatUntilNotFoundAction
 
 二者实现均位于 `agent/go-service/common/repeataction`，用于反复执行一次内置或自定义动作，每次执行后在等待窗口内轮询识别；条件满足即成功，耗尽次数仍不满足则失败。
@@ -513,6 +541,7 @@ Pipeline 布局与 `ListCompleteRecognition` 相同：将本识别放在滚动�
 | 按顺序跑一组子任务 | `SubTask` |
 | 清零某节点的命中计数 | `ClearHitCount` |
 | 强制让 Action 失败 | `FalseAction` |
+| 截图后播报 Pipeline OCR | `FocusOCRAction` |
 | 重复动作直到节点出现 | `RepeatUntilFoundAction` |
 | 重复动作直到节点消失 | `RepeatUntilNotFoundAction` |
 | 主动停止当前任务 | `PostStop` |

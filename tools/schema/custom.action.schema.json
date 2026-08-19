@@ -55,6 +55,7 @@
 				"FailureCollectorRunTask",
 				"FailureCollectorReset",
                 "FalseAction",
+                "FocusOCRAction",
                 "ImageCheckSetResultAction",
                 "ImportBluePrintsEnterCodeAction",
                 "ImportBluePrintsFinishAction",
@@ -180,6 +181,34 @@
 					"custom_action_param": { "$ref": "./components/failure_collector.schema.json#/$defs/FinishParam" }
 				},
 				"required": [ "custom_action_param" ]
+			}
+		},
+		{
+			"if": {
+				"properties": {
+					"custom_action": { "const": "FocusOCRAction" }
+				},
+				"required": [ "custom_action" ]
+			},
+			"then": {
+				"type": "object",
+				"required": [ "custom_action_param" ],
+				"properties": {
+					"custom_action_param": {
+						"type": "object",
+						"additionalProperties": false,
+						"required": [ "node" ],
+						"properties": {
+							"node": {
+								"type": "string",
+								"minLength": 1
+							},
+							"focus": {
+								"type": "string"
+							}
+						}
+					}
+				}
 			}
 		},
 		{

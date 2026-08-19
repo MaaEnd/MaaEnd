@@ -1,0 +1,39 @@
+{
+    "FocusOCRActionExample": {
+        "desc": "FocusOCRAction 示例：截图后执行 OCR 节点并播报",
+        "recognition": "DirectHit",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "FocusOCRAction",
+                "custom_action_param": {
+                    "node": "FocusOCRActionSampleText",
+                    "focus": "当前理智 %s"
+                }
+            }
+        },
+        "next": [
+            "FocusOCRActionPass"
+        ]
+    },
+    "FocusOCRActionSampleText": {
+        "desc": "示例 OCR 节点，业务侧换成图标旁侧 OCR 或 And(图标, OCR)",
+        "recognition": "OCR",
+        "roi": [
+            1040,
+            8,
+            200,
+            40
+        ],
+        "expected": [
+            ".+"
+        ],
+        "next": []
+    },
+    "FocusOCRActionPass": {
+        "desc": "播报后的后续流程",
+        "recognition": "DirectHit",
+        "action": "DoNothing",
+        "next": []
+    }
+}

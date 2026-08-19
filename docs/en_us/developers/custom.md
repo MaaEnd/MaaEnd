@@ -82,6 +82,34 @@ The `FalseAction` implementation is located in `agent/go-service/common/falseact
 
 - Parameters: None.
 
+### FocusOCRAction
+
+The `FocusOCRAction` implementation is located in `agent/go-service/common/focusocr`. It takes a screenshot, runs a Pipeline recognition node, picks the first OCR text, and prints it via `maafocus`.
+
+Parameters:
+
+- `node: string`: Required. Pipeline recognition node name (OCR, or an `And` whose `box_index` points at OCR).
+- `focus: string`: Optional. `maafocus` message. `%s` is the OCR text, e.g. `Current sanity: %s`. If omitted, the raw text is printed.
+
+Example file: [`FocusOCRAction.json`](../../../assets/resource/pipeline/Interface/Example/FocusOCRAction.json)
+
+```json
+{
+    "action": {
+        "type": "Custom",
+        "param": {
+            "custom_action": "FocusOCRAction",
+            "custom_action_param": {
+                "node": "CommonSanityText",
+                "focus": "Current sanity: %s"
+            }
+        }
+    }
+}
+```
+
+The node's own recognition still belongs in Pipeline for routing. This Action only screenshots, recognizes, and reports after the node hits.
+
 ### RepeatUntilFoundAction / RepeatUntilNotFoundAction
 
 Both are implemented in `agent/go-service/common/repeataction`. They repeatedly run a built-in or custom action, then poll recognition inside a wait window. They succeed when the wait condition is met, and fail after `repeat_count` attempts without success.
@@ -511,6 +539,7 @@ When writing a Pipeline, the built-in `TemplateMatch` / `OCR` / `Click` / `Swipe
 | Run a series of subtasks in order | `SubTask` |
 | Clear hit count of a node | `ClearHitCount` |
 | Force an Action to fail | `FalseAction` |
+| Screenshot then report Pipeline OCR | `FocusOCRAction` |
 | Repeat an action until a node appears | `RepeatUntilFoundAction` |
 | Repeat an action until a node disappears | `RepeatUntilNotFoundAction` |
 | Actively stop the current task | `PostStop` |
