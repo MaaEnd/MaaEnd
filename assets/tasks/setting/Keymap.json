@@ -37,13 +37,13 @@
                 "EnterCameraModeKeyUp": {
                     "key": "{KeymapUseCurrentQuickTool.primary}"
                 },
-                "_AutoEcoFarmEnterCameraModeKeyDownR": {
+                "_AutoEcoFarmEnterCameraModeFallback": {
                     "key": "{KeymapUseCurrentQuickTool.primary}"
                 },
-                "_AutoEcoFarmEnterCameraModeFailKeyUp": {
+                "_AutoEcoFarmEnterCameraModeFallbackRelease": {
                     "key": "{KeymapUseCurrentQuickTool.primary}"
                 },
-                "_AutoEcoFarmEnterCameraModeKeyUpR": {
+                "_AutoEcoFarmEnterCameraModeFallbackReleaseOnError": {
                     "key": "{KeymapUseCurrentQuickTool.primary}"
                 },
                 "AutoCollectClick": {
