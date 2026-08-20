@@ -133,13 +133,16 @@
         ]
     },
     "__AccountSwitchConfigureEmailPattern": {
-        "desc": "配置国际服邮箱匹配规则",
+        "desc": "配置国际服脱敏邮箱匹配规则",
         "enabled": false,
         "recognition": "DirectHit",
         "action": "Custom",
-        "custom_action": "AccountSwitchEmailPatternAction",
+        "custom_action": "AttachToExpectedRegexAction",
         "custom_action_param": {
-            "email": ""
+            "targets": [
+                "__AccountSwitchOCRSelectAccount",
+                "__AccountSwitchVerifySelected"
+            ]
         },
         "next": [
             "__AccountSwitchClickDropdown"

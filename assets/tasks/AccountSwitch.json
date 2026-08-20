@@ -95,14 +95,23 @@
                     "name": "Email",
                     "label": "$option.AccountSwitchEmail.Email.label",
                     "pipeline_type": "string",
-                    "verify": "^[\\x21-\\x3F\\x41-\\x7E]+@[\\x21-\\x3F\\x41-\\x7E]+$",
+                    "verify": "^[\\x21-\\x29\\x2B-\\x3F\\x41-\\x7E]+\\*{5}[\\x21-\\x29\\x2B-\\x3F\\x41-\\x7E]*@[\\x21-\\x29\\x2B-\\x3F\\x41-\\x7E]+$",
                     "pattern_msg": "$option.AccountSwitchEmail.Email.pattern_msg",
                     "default": ""
                 }
             ],
             "pipeline_override": {
-                "__AccountSwitchConfigureEmailPattern": {
-                    "custom_action_param": {
+                "__AccountSwitchClickDropdown": {
+                    "recognition": {
+                        "param": {
+                            "expected": [
+                                "(?i).*\\*{5}\\S*@\\S+.*"
+                            ]
+                        }
+                    }
+                },
+                "__AccountSwitchOCRSelectAccount": {
+                    "attach": {
                         "email": "{Email}"
                     }
                 },
@@ -114,6 +123,9 @@
                                 294,
                                 278,
                                 38
+                            ],
+                            "expected": [
+                                "(?i).*\\*{5}\\S*@\\S+.*"
                             ]
                         }
                     }
@@ -128,6 +140,9 @@
                                 38
                             ]
                         }
+                    },
+                    "attach": {
+                        "email": "{Email}"
                     }
                 }
             }
