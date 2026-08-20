@@ -28,7 +28,8 @@ namespace
 constexpr const char* kDefaultMapUrl = "https://game.skland.com/map/endfield";
 // 标记列表接口的路径片段。只匹配路径，避免被 query 里的参数顺序影响。
 constexpr const char* kMarkListPathFragment = "/map/mark/list";
-constexpr int64_t kDefaultTimeoutMs = 300000;
+// 窗口的存活上限，实际是留给登录的：登录后抓齐只要几秒，正常路径根本用不到这个数。
+constexpr int64_t kDefaultTimeoutMs = 600000;
 constexpr int kPollIntervalMs = 200;
 // 标定过的地图全抓到之后再静默这么久就收工，留一点余量给同批次的最后几条。
 constexpr int kSettleMs = 1200;
@@ -378,6 +379,8 @@ MaaBool MAA_CALL ZiplineImportActionRun(
 
     std::vector<CapturedResponse> captured;
     std::unordered_set<std::string> covered;
+    // 没登录时页面照样发标记请求、响应体照样有，只是 saveMarks 是空数组。这行提示只打一次。
+    bool signin_hint_logged = false;
     while (true) {
         std::vector<CapturedResponse> fresh;
         bool inflight = false;
@@ -405,7 +408,8 @@ MaaBool MAA_CALL ZiplineImportActionRun(
         }
 
         const auto now = std::chrono::steady_clock::now();
-        if (!captured.empty() && !inflight) {
+        // 关窗只认「真抓到标记」：未登录时也有响应，拿收到响应当进展会在用户还在登录时把窗口关掉。
+        if (!covered.empty() && !inflight) {
             const auto quiet = now - last_event;
             const bool all_covered =
                 std::all_of(expected.begin(), expected.end(), [&covered](const std::string& id) { return covered.count(id) != 0; });
@@ -425,6 +429,10 @@ MaaBool MAA_CALL ZiplineImportActionRun(
                 break;
             }
         }
+        else if (!captured.empty() && !inflight && !signin_hint_logged && now - last_event >= std::chrono::milliseconds(kIdleCloseMs)) {
+            signin_hint_logged = true;
+            LogInfo << "ZiplineImport: mark lists carry no saved marks, waiting for the user to sign in" << VAR(captured.size());
+        }
         if (now >= deadline) {
             LogWarn << "ZiplineImport: timed out waiting for the mark list";
             break;
@@ -442,8 +450,9 @@ MaaBool MAA_CALL ZiplineImportActionRun(
     // Close() 会等 UI 线程退出，只能在业务线程上调，CDP 回调里调就是自己等自己。
     webview->Close();
 
-    if (captured.empty()) {
-        LogWarn << "ZiplineImport: no mark list response captured";
+    if (covered.empty()) {
+        // 一条标记都没抓到。最常见的原因就是自始至终没登录：接口回的是公开图标，saveMarks 是空的。
+        LogWarn << "ZiplineImport: no saved marks captured, was the page signed in?" << VAR(captured.size());
         return false;
     }
 
