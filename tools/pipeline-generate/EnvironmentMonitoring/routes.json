@@ -193,25 +193,17 @@
         "MissionId": "m1m35",
         "Name": "肚子鼓气后发光的吐虫长股兽",
         "Id": "InflatedAndGlowingBugspittingLankybeast",
-        "EnterMap": "SceneEnterWorldWulingWulingCity7",
-        "NavZoneId": "Wuling_Base",
-        "NavAssert": [
-            698.52,
-            1887.7,
-            11.23,
-            10.44
-        ],
+        "QuickTeleport": true,
         "NavPath": [
             {
-                "action": "ZONE",
-                "zone_id": "Wuling_Base"
-            },
-            [
-                718.59,
-                1883.72
-            ]
+                "action": "NAVMESH",
+                "target": [
+                    774.59,
+                    2581.41
+                ]
+            }
         ],
-        "Heading": 45
+        "Heading": 307
     },
     {
         "MissionId": "m1m36",
