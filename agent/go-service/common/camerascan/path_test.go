@@ -68,10 +68,11 @@ func TestFallbackRingsReturnToSameYaw(t *testing.T) {
 	fallback := path[len(nineGridSteps)+1:]
 
 	wantPhases := []string{
-		phaseFallbackUp,
 		phaseFallbackMid,
+		phaseFallbackUp,
 		phaseFallbackDown,
 	}
+	wantPitches := []int{0, -1, 1}
 	yaw, pitch := 0, 0
 	for ringIndex, wantPhase := range wantPhases {
 		ring := fallback[ringIndex*(yawSteps+1) : (ringIndex+1)*(yawSteps+1)]
@@ -85,8 +86,8 @@ func TestFallbackRingsReturnToSameYaw(t *testing.T) {
 		if yaw != 0 {
 			t.Fatalf("ring %d ended at yaw %d, want 0", ringIndex, yaw)
 		}
-		if wantPitch := ringIndex - 1; pitch != wantPitch {
-			t.Fatalf("ring %d ended at pitch %d, want %d", ringIndex, pitch, wantPitch)
+		if pitch != wantPitches[ringIndex] {
+			t.Fatalf("ring %d ended at pitch %d, want %d", ringIndex, pitch, wantPitches[ringIndex])
 		}
 	}
 }

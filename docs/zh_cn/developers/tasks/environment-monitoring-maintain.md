@@ -19,7 +19,7 @@
 | 终端分组（生成） | `assets/resource/pipeline/EnvironmentMonitoring/Terminals.json` | 城郊监测终端 / 首墩监测终端的入口节点与各自的观察点 `next` 列表（**生成**） |
 | 终端跳转 | `assets/resource/pipeline/EnvironmentMonitoring/Locations.json` | `EnvironmentMonitoringGoTo*` 与 `Select*` 节点，从主菜单进入对应终端 |
 | 拍照流程 | `assets/resource/pipeline/EnvironmentMonitoring/TakePhoto.json` | 进入拍照模式、调整朝向、识别拍照按钮、达成目标后回到终端 |
-| 镜头扫描 | `assets/resource/pipeline/EnvironmentMonitoring/TakePhoto.json`、`agent/go-service/common/camerascan/` | 前方九宫格扫描，未命中时按上、中、下三档俯仰离散绕圈 |
+| 镜头扫描 | `assets/resource/pipeline/EnvironmentMonitoring/TakePhoto.json`、`agent/go-service/common/camerascan/` | 前方九宫格扫描，未命中时按中、上、下三档俯仰离散绕圈 |
 | 公共按钮 | `assets/resource/pipeline/EnvironmentMonitoring/Button.json` | `TrackMissionButton` 等环境监测专用通用按钮 |
 | 观察点节点（生成） | `assets/resource/pipeline/EnvironmentMonitoring/{Station}/{Id}.json` | **每个观察点一份 JSON**，由模板渲染（**生成**）；`Id` 由 `model.mjs` 自动生成，通常不用手写 |
 | 观察点模板 | `tools/pipeline-generate/EnvironmentMonitoring/generator/template.json` | 单观察点 Pipeline 模板（识别文本、接取/前往、传送、寻路、拍照） |

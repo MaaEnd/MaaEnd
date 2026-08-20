@@ -43,9 +43,11 @@ func buildCameraScanPath(fallbackYawSteps int) []cameraScanStep {
 		phase:      phaseReset,
 	})
 
+	// After reset the camera is already at middle pitch. Scan middle, then look
+	// up, then jump two steps down to the lower pitch.
+	steps = appendFallbackRing(steps, 0, phaseFallbackMid, fallbackYawSteps)
 	steps = appendFallbackRing(steps, -1, phaseFallbackUp, fallbackYawSteps)
-	steps = appendFallbackRing(steps, 1, phaseFallbackMid, fallbackYawSteps)
-	steps = appendFallbackRing(steps, 1, phaseFallbackDown, fallbackYawSteps)
+	steps = appendFallbackRing(steps, 2, phaseFallbackDown, fallbackYawSteps)
 	return steps
 }
 
