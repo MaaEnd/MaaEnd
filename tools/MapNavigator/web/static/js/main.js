@@ -1681,6 +1681,7 @@ class MapNavigatorApp {
                     "#10b981",
                 );
             }
+            if (this.navtest) this.navtest.routeChanged();
             this._paint();
             return;
         }
@@ -2403,6 +2404,7 @@ class MapNavigatorApp {
         } else {
             this.els.assertSelectedTierLabel.textContent = zoneId;
         }
+        if (this.navtest) this.navtest.routeChanged();
         this._fitView();
     }
 
@@ -2558,6 +2560,7 @@ class MapNavigatorApp {
             this.assertRectWorld = null;
             this.isAssertSelecting = false;
             setStatus("已清除 Assert 区域。", "#10b981");
+            if (this.navtest) this.navtest.routeChanged();
             this._paint();
             return;
         }
@@ -2671,17 +2674,27 @@ class MapNavigatorApp {
     }
 
     /**
-     * 试跑要跑的那条线, 取自当前页签: 路径编辑交编辑器原始路点 (导出在服务侧, 只此一处口径),
+     * 试跑要跑的那一份, 取自当前页签: 路径编辑交编辑器原始路点 (导出在服务侧, 只此一处口径),
      * A* 交已导出的 NAVMESH 节点 —— tier 变换与显示底图只有前端有, 后端换算不出来。
-     * @returns {{path: Array, exported: boolean}}
+     * 断言模式没有线, 交那个框, 由后端导成 MapLocateAssertLocation 节点认一次。
+     * @returns {{path: Array, exported: boolean, assert_target: ?Object}}
      */
     _navtestRoute() {
         if (this.state.mode === Mode.ASTAR) {
             const ready = this.field && this._displayZoneId() && this.astarPoints.length >= 2;
             return { path: ready ? this._navmeshTargets() : [], exported: true };
         }
-        // 断言模式画的是一个矩形, 没有线可跑。
-        if (this.state.mode === Mode.ASSERT) return { path: [], exported: false };
+        if (this.state.mode === Mode.ASSERT) {
+            const zoneId = this._displayZoneId();
+            const target = this._currentAssertTarget();
+            // 零面积的框 (点一下没拖) 后端会拒, 这里就当作没画: 免得白连一次游戏。
+            const drawn = !!target && target[2] > 0 && target[3] > 0;
+            return {
+                path: [],
+                exported: false,
+                assert_target: zoneId && drawn ? { zone_id: zoneId, target } : null,
+            };
+        }
         return { path: this.state.points, exported: false };
     }
 
@@ -3447,6 +3460,7 @@ class MapNavigatorApp {
         this._syncAstarControls();
         this._refreshZoneLabel();
         this._syncModeTabUI();
+        if (this.navtest) this.navtest.routeChanged();
         this._fitView();
     }
 

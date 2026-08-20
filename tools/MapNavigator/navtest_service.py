@@ -1,7 +1,8 @@
-"""实机试跑: 把编辑器当前的路线直接交给 MapNavigateAction 在游戏里走一遍。
+"""实机试跑: 把编辑器当前页签里的东西直接放到游戏里跑一遍。
 
-Agent / 控制器 / Tasker 的起法与录制完全相同, 区别只在于跑的是 action 而不是
-recognition。连上游戏即跑首轮, 会话随后常驻, 改完线按 F3 就能重跑, 不必重连。
+路线交给 MapNavigateAction 走, 断言框交给 MapLocateAssertLocation 认一次 —— 两者都是
+把复制出去的那一份节点原样跑, 不加额外判定。Agent / 控制器 / Tasker 的起法与录制完全
+相同。连上游戏即跑首轮, 会话随后常驻, 改完按 F3 就能重跑, 不必重连。
 """
 
 from __future__ import annotations
@@ -12,21 +13,23 @@ from typing import Any, Callable
 from agent_session import AgentSession
 from connection_models import RecordingSessionConfig
 from connectors import build_recording_connector
-from json_import import export_path_nodes
+from json_import import export_assert_location_node, export_path_nodes
 import key_listener
 from runtime import MaaRuntime
 
 
 StatusCallback = Callable[[str, str], None]
 ReadyCallback = Callable[[], None]
-ArmedCallback = Callable[[int], None]
+ArmedCallback = Callable[[int, str], None]
 RunStateCallback = Callable[[bool], None]
-FinishedCallback = Callable[[bool, str], None]
+FinishedCallback = Callable[[bool, str, str], None]
 ErrorCallback = Callable[[str], None]
 ClosedCallback = Callable[[], None]
 
 # 试跑节点。DirectHit 让识别恒成立, 三项延迟归零 —— 按下 F3 到真正起步之间不额外等。
 NODE_NAME = "MapNavigatorDebugRunNode"
+# 断言另起一个节点名: 两种形状的 override 落在同一个键上时, 合并与替换的语义不该去赌。
+ASSERT_NODE_NAME = "MapNavigatorDebugAssertNode"
 
 HOTKEY_RUN = "f3"
 HOTKEY_ABORT = "f4"
@@ -70,6 +73,7 @@ class NavTestService:
 
         self._state_lock = threading.Lock()
         self._armed_path: list[Any] = []
+        self._armed_kind = "route"
         self._tasker: Any = None
         self._resource: Any = None
 
@@ -87,23 +91,48 @@ class NavTestService:
         self._worker_thread = threading.Thread(target=self._run, daemon=True)
         self._worker_thread.start()
 
-    def arm(self, points: list[Any], *, exported: bool = False) -> None:
-        """装载待跑路线。F3 跑的就是这一份, 所以前端每次改线都要重新装载。
+    def arm(
+        self,
+        points: list[Any],
+        *,
+        exported: bool = False,
+        assert_target: dict | None = None,
+    ) -> None:
+        """装载待跑的东西: 有断言框就装框, 否则装线。F3 跑的就是这一份。
 
+        每次调用整份替换 (含 kind), 切页签重新装载时不会留下上一种形状的残留。
         编辑器路点在这里就地导出, 只有这一处口径, 进程内会话与提权子进程都经过它。
         A* 路线依赖 tier 变换与显示底图, 这些只有前端有, 故送来的已是 pipeline 节点。
         """
-        if exported:
-            nodes = list(points)
+        if assert_target is not None:
+            nodes = self._export_assert(assert_target)
+            if nodes is None:
+                return
+            kind = "assert"
+        elif exported:
+            nodes, kind = list(points), "route"
         else:
             try:
                 nodes = export_path_nodes(points)
             except Exception as exc:  # noqa: BLE001
                 self._on_status(f"路线导出失败, 未装载: {exc}", "#ef4444")
                 return
+            kind = "route"
         with self._state_lock:
             self._armed_path = nodes
-        self._on_armed(len(nodes))
+            self._armed_kind = kind
+        self._on_armed(len(nodes), kind)
+
+    def _export_assert(self, assert_target: dict) -> list[Any] | None:
+        """断言框就地导出成 MapLocateAssertLocation 节点 —— 与「复制配置」同一个口径。"""
+        try:
+            target = tuple(float(v) for v in (assert_target.get("target") or ()))
+            node = export_assert_location_node(str(assert_target.get("zone_id") or ""), target)
+        except Exception as exc:  # noqa: BLE001
+            self._on_status(f"断言导出失败, 未装载: {exc}", "#ef4444")
+            return None
+        # 导出的是 {节点名: 节点体}, 跑的时候只要节点体。
+        return [next(iter(node.values()))]
 
     def apply_client_message(self, msg: dict) -> bool:
         """处理一条前端消息, 返回 False 表示对方要求结束会话。
@@ -113,7 +142,10 @@ class NavTestService:
         kind = msg.get("type")
         if kind in ("arm", "run"):
             points = msg.get("path")
-            if isinstance(points, list):
+            assert_target = msg.get("assert_target")
+            if isinstance(assert_target, dict):
+                self.arm([], assert_target=assert_target)
+            elif isinstance(points, list):
                 self.arm(points, exported=bool(msg.get("exported")))
             if kind == "run":
                 self.trigger_run()
@@ -133,7 +165,7 @@ class NavTestService:
         with self._state_lock:
             armed = bool(self._armed_path)
         if not armed:
-            self._on_status("尚未装载路线: 请先在编辑器里画出或导入一条路线。", "#ef4444")
+            self._on_status("尚未装载: 请先在编辑器里画出路线或断言框。", "#ef4444")
             return
         self._run_request.set()
 
@@ -235,6 +267,7 @@ class NavTestService:
     def _run_once(self, tasker: Any, resource: Any) -> None:
         with self._state_lock:
             path = list(self._armed_path)
+            kind = self._armed_kind
         if not path:
             return
         if tasker.stopping or tasker.running:
@@ -245,11 +278,16 @@ class NavTestService:
         self._abort_requested = False
         self._running.set()
         self._on_run_state(True)
-        self._on_status("● 试跑中 —— 按 F4 立即终止", "#ef4444")
-
-        resource.override_pipeline(
-            {
-                NODE_NAME: {
+        if kind == "assert":
+            # 跑的就是导出的那个节点原样: 识别命中即通过, 不另加判定。
+            self._on_status("● 断言中 —— 按 F4 立即终止", "#ef4444")
+            node_name = ASSERT_NODE_NAME
+            override = {node_name: path[0]}
+        else:
+            self._on_status("● 试跑中 —— 按 F4 立即终止", "#ef4444")
+            node_name = NODE_NAME
+            override = {
+                node_name: {
                     "recognition": "DirectHit",
                     "action": "Custom",
                     "custom_action": "MapNavigateAction",
@@ -259,17 +297,18 @@ class NavTestService:
                     "post_delay": 0,
                 }
             }
-        )
 
-        job = tasker.post_task(NODE_NAME).wait()
+        resource.override_pipeline(override)
+
+        job = tasker.post_task(node_name).wait()
         succeeded = bool(job.succeeded)
         self._running.clear()
         self._on_run_state(False)
 
         if self._abort_requested:
-            self._on_finished(False, "aborted")
+            self._on_finished(False, "aborted", kind)
             return
-        self._on_finished(succeeded, "ok" if succeeded else "failed")
+        self._on_finished(succeeded, "ok" if succeeded else "failed", kind)
 
     def _register_hotkeys(self) -> None:
         key_listener.register(HOTKEY_RUN, self.trigger_run)

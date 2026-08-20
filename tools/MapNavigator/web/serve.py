@@ -1141,12 +1141,14 @@ async def _ws_session(websocket: WebSocket, mode: SessionMode) -> None:
         # 录制前端直接发裸连接配置, 没有 start 外层; 这是已上线的形状, 得继续认。
         payload = inner if isinstance(inner, dict) else first
         path = first.get("path")
+        assert_target = first.get("assert_target")
         start_msg = {
             "type": "start",
             "config": payload,
             "path": path if isinstance(path, list) else [],
             # 白名单构造: 不显式搬过来的键在这里就没了, 提权子进程也拿不到。
             "exported": bool(first.get("exported")),
+            "assert_target": assert_target if isinstance(assert_target, dict) else None,
         }
 
         if not _game_session_lock.acquire(blocking=False):
@@ -1222,8 +1224,10 @@ async def ws_record(websocket: WebSocket) -> None:
 async def ws_navtest(websocket: WebSocket) -> None:
     """实机试跑会话: 连上游戏即跑首轮, 之后常驻, F3 重跑 / F4 终止本轮或收掉会话。
 
-    首帧 payload 形如 {"start": {连接配置}, "path": [路线], "exported": bool}。
+    首帧 payload 形如 {"start": {连接配置}, "path": [路线], "exported": bool,
+    "assert_target": {"zone_id":…, "target":[x,y,w,h]} | null}。
     exported 为假时 path 是编辑器路点, 导出在服务侧做; 为真时已是 pipeline 节点。
+    assert_target 非空时跑的是断言框而不是路线 —— 断言模式没有线可跑。
     """
     await _ws_session(websocket, MODES["navtest"])
 

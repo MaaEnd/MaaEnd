@@ -460,8 +460,9 @@ export class RecordingSocket extends SessionSocket {
 }
 
 /**
- * Live test-run session. Stays open across runs: `arm` loads the route the F3 hotkey
- * will walk, `run` starts one, `abort` stops it. See serve.py `ws_navtest`.
+ * Live test-run session. Stays open across runs: `arm` loads what the F3 hotkey runs
+ * (a route to walk, or an assert rect to check), `run` starts one, `abort` stops it.
+ * See serve.py `ws_navtest`.
  */
 export class NavTestSocket extends SessionSocket {
   constructor() {
@@ -471,7 +472,7 @@ export class NavTestSocket extends SessionSocket {
   /**
    * Open the session and walk `route` as soon as the game is connected.
    * @param {Object} sessionConfig `{kind:'win32'|'adb'|..., win32?, adb?}`
-   * @param {{path: Array, exported: boolean}} route see {@link NavTestSocket#arm}
+   * @param {{path: Array, exported: boolean, assert_target: ?Object}} route see {@link NavTestSocket#arm}
    * @returns {void}
    */
   start(sessionConfig, route) {
@@ -479,23 +480,28 @@ export class NavTestSocket extends SessionSocket {
   }
 
   /**
-   * Load the route that F3 (and the next `run`) will walk. `exported` false means
-   * editor waypoints the backend still has to export, true means ready pipeline nodes.
-   * @param {{path: Array, exported: boolean}} route
+   * Load what F3 (and the next `run`) will run. `exported` false means editor waypoints
+   * the backend still has to export, true means ready pipeline nodes. `assert_target`
+   * `{zone_id, target:[x,y,w,h]}` runs the assert rect instead and wins over `path`.
+   * @param {{path: Array, exported: boolean, assert_target: ?Object}} route
    * @returns {void}
    */
   arm(route) {
     this._send({ type: 'arm', ...this._route(route) });
   }
 
-  /** Re-arm with `route` and walk it once. @returns {void} */
+  /** Re-arm with `route` and run it once. @returns {void} */
   run(route) {
     this._send({ type: 'run', ...this._route(route) });
   }
 
-  /** @returns {{path: Array, exported: boolean}} */
+  /** @returns {{path: Array, exported: boolean, assert_target: ?Object}} */
   _route(route) {
-    return { path: (route && route.path) || [], exported: !!(route && route.exported) };
+    return {
+      path: (route && route.path) || [],
+      exported: !!(route && route.exported),
+      assert_target: (route && route.assert_target) || null,
+    };
   }
 
   /** Stop the run in flight (same effect as F4). @returns {void} */

@@ -61,14 +61,20 @@ def _build_navtest(runtime: Any, emit: Emit, log: Log, start: dict) -> Any:
         runtime=runtime,
         on_status=lambda text, color: emit({"type": "status", "text": text, "color": color}),
         on_ready=lambda: emit({"type": "ready"}),
-        on_armed=lambda count: emit({"type": "armed", "count": count}),
+        on_armed=lambda count, kind: emit({"type": "armed", "count": count, "kind": kind}),
         on_run_state=lambda running: emit({"type": "run_state", "running": running}),
-        on_finished=lambda ok, reason: emit({"type": "finished", "ok": ok, "reason": reason}),
+        on_finished=lambda ok, reason, kind: emit(
+            {"type": "finished", "ok": ok, "reason": reason, "kind": kind}
+        ),
         on_error=lambda message: emit({"type": "error", "message": message}),
         on_closed=lambda: emit({"type": "session_over"}),
     )
     # 先装载后启动: 连上游戏即开跑, 「开始试跑」这一下就走完连接 + 起步。
-    service.arm(start.get("path") or [], exported=bool(start.get("exported")))
+    service.arm(
+        start.get("path") or [],
+        exported=bool(start.get("exported")),
+        assert_target=start.get("assert_target"),
+    )
     service.start(session_config_from_payload(start.get("config") or {}))
     return service
 
