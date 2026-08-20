@@ -283,97 +283,8 @@
         "pre_delay": 0,
         "post_delay": 0
     },
-    "__ScenePrivateMapZoomOut": {
-        "desc": "在地图界面，缩小地图",
-        "recognition": "ColorMatch",
-        "roi": [
-            1225,
-            423,
-            26,
-            26
-        ],
-        "lower": [
-            200,
-            200,
-            200
-        ],
-        "upper": [
-            255,
-            255,
-            255
-        ],
-        "connected": true,
-        "count": 150,
-        "action": "LongPress",
-        "duration": 2000,
-        "post_wait_freezes": {
-            "target": [
-                -100,
-                0,
-                100,
-                100
-            ],
-            "time": 400
-        }
-    },
-    "__ScenePrivateMapZoomNonExtreme": {
-        "desc": "在地图界面，将缩放条调到非顶点区域，供bigmapick使用，防止内部处理出错",
-        "recognition": "And",
-        "all_of": [
-            {
-                "recognition": "ColorMatch",
-                "roi": [
-                    1225,
-                    423,
-                    26,
-                    26
-                ],
-                "lower": [
-                    200,
-                    200,
-                    200
-                ],
-                "upper": [
-                    255,
-                    255,
-                    255
-                ],
-                "connected": true,
-                "count": 150
-            },
-            {
-                "recognition": "ColorMatch",
-                "roi": [
-                    1225,
-                    240,
-                    26,
-                    26
-                ],
-                "lower": [
-                    200,
-                    200,
-                    200
-                ],
-                "upper": [
-                    255,
-                    255,
-                    255
-                ],
-                "connected": true,
-                "count": 150
-            }
-        ],
-        "inverse": true,
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "__ScenePrivateMapZoomNonExtremeFromZoomIn",
-            "__ScenePrivateMapZoomNonExtremeFromZoomOut"
-        ]
-    },
-    "__ScenePrivateMapZoomNonExtremeFromZoomIn": {
-        "desc": "上面 + 号识别到白色，点击 + 与 - 中间",
+    "__ScenePrivateMapZoomInWhite": {
+        "desc": "地图加号按钮为白色（未到最大缩放，可继续放大）",
         "recognition": "ColorMatch",
         "roi": [
             1225,
@@ -392,7 +303,70 @@
             255
         ],
         "connected": true,
-        "count": 150,
+        "count": 150
+    },
+    "__ScenePrivateMapZoomOutWhite": {
+        "desc": "地图减号按钮为白色（未到最小缩放，可继续缩小）",
+        "recognition": "ColorMatch",
+        "roi": [
+            1225,
+            423,
+            26,
+            26
+        ],
+        "lower": [
+            200,
+            200,
+            200
+        ],
+        "upper": [
+            255,
+            255,
+            255
+        ],
+        "connected": true,
+        "count": 150
+    },
+    "__ScenePrivateMapZoomOut": {
+        "desc": "在地图界面，缩小地图",
+        "recognition": "And",
+        "all_of": [
+            "__ScenePrivateMapZoomOutWhite"
+        ],
+        "action": "LongPress",
+        "duration": 2000,
+        "post_wait_freezes": {
+            "target": [
+                -100,
+                0,
+                100,
+                100
+            ],
+            "time": 400
+        }
+    },
+    "__ScenePrivateMapZoomNonExtreme": {
+        "desc": "在地图界面，将缩放条调到非顶点区域，供bigmapick使用，防止内部处理出错",
+        "recognition": "And",
+        "all_of": [
+            "__ScenePrivateMapZoomOutWhite",
+            "__ScenePrivateMapZoomInWhite"
+        ],
+        "inverse": true,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMapZoomNonExtremeFromZoomIn",
+            "__ScenePrivateMapZoomNonExtremeFromZoomOut"
+        ]
+    },
+    "__ScenePrivateMapZoomNonExtremeFromZoomIn": {
+        "desc": "上面 + 号识别到白色，点击 + 与 - 中间",
+        "recognition": "And",
+        "all_of": [
+            "__ScenePrivateMapZoomInWhite"
+        ],
         "action": "Click",
         "target": [
             1238,
@@ -413,25 +387,10 @@
     },
     "__ScenePrivateMapZoomNonExtremeFromZoomOut": {
         "desc": "下面 - 号识别到白色，点击 + 与 - 中间",
-        "recognition": "ColorMatch",
-        "roi": [
-            1225,
-            423,
-            26,
-            26
+        "recognition": "And",
+        "all_of": [
+            "__ScenePrivateMapZoomOutWhite"
         ],
-        "lower": [
-            200,
-            200,
-            200
-        ],
-        "upper": [
-            255,
-            255,
-            255
-        ],
-        "connected": true,
-        "count": 150,
         "action": "Click",
         "target": [
             1238,
@@ -454,48 +413,8 @@
         "desc": "确认 ZoomIn/ZoomOut 均识别到白色，已在非顶点",
         "recognition": "And",
         "all_of": [
-            {
-                "recognition": "ColorMatch",
-                "roi": [
-                    1225,
-                    423,
-                    26,
-                    26
-                ],
-                "lower": [
-                    200,
-                    200,
-                    200
-                ],
-                "upper": [
-                    255,
-                    255,
-                    255
-                ],
-                "connected": true,
-                "count": 150
-            },
-            {
-                "recognition": "ColorMatch",
-                "roi": [
-                    1225,
-                    240,
-                    26,
-                    26
-                ],
-                "lower": [
-                    200,
-                    200,
-                    200
-                ],
-                "upper": [
-                    255,
-                    255,
-                    255
-                ],
-                "connected": true,
-                "count": 150
-            }
+            "__ScenePrivateMapZoomOutWhite",
+            "__ScenePrivateMapZoomInWhite"
         ],
         "pre_delay": 0,
         "post_delay": 0,
