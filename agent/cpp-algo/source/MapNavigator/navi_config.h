@@ -270,6 +270,11 @@ constexpr double kZiplineMountMinMoveWu = 3.0;
 // 远不值一次导航失败, 判错方向只损失一段捷径
 constexpr int32_t kZiplineApproachReplanBudget = 1;
 
+// 按了一次没认出来之后的判定圈。交互给的是离身位最近的那台设备, 认不出就得挪身位再认 ——
+// 判定圈收到这里, 让人真把那点距离走完(有备用站位就是走过去, 没有就是再走近点)。
+// 再往下收就到定位噪声底下了, 收不拢只会白等看门狗
+constexpr double kZiplineRestandBandWu = 1.0;
+
 constexpr double kNoProgressDistanceEpsilon = 0.5;
 constexpr double kRouteProgressEpsilon = 0.5;
 constexpr double kNoProgressMinDistance = 3.0;

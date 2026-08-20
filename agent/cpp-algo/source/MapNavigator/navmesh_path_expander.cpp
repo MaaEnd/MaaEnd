@@ -744,6 +744,10 @@ bool TryAppendZiplineLeg(
         out_path.emplace_back(hop == 0 ? mount.x : from.x, hop == 0 ? mount.y : from.y, ActionType::ZIPLINE);
         out_path.back().strict_arrival = true;
         out_path.back().target_deck_y = from.height;
+        // 备用站位只挂在链首: 后面那些跳是从索上落下来的, 不再按上索提示
+        if (hop == 0 && route->mount_restand) {
+            out_path.back().mount_restand = ZiplineRestand { .x = route->mount_restand->x, .y = route->mount_restand->y };
+        }
         // 仰角只能用世界坐标算: 平面 x/y 是按地图比例缩放过的, 跟高度不同尺, 混着算出来的角
         // 没有意义
         const double span_x = to.world_x - from.world_x;

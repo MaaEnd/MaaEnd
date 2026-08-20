@@ -68,6 +68,14 @@ struct ZiplineTarget
     double elevation_deg = 0.0;
 };
 
+// 上索认不出提示时的备用站位。面板给的是离身位最近的那台设备, 架子边上贴着供电桩时会被它抢走,
+// 这个点从供电桩那侧让开一点点, 让架子重新成为最近的那个。
+struct ZiplineRestand
+{
+    double x = 0.0;
+    double y = 0.0;
+};
+
 struct Waypoint
 {
     double x;
@@ -97,6 +105,8 @@ struct Waypoint
     std::string interact_scan;
     // ZIPLINE only: 滑索落点。只由滑索规划写入; 缺这个字段的 ZIPLINE 点是配置写错了, 执行侧拒绝
     std::optional<ZiplineTarget> zipline_target;
+    // ZIPLINE only: 备用站位, 只在上索按空一次之后才改瞄它。架子旁边没有供电结构就不写
+    std::optional<ZiplineRestand> mount_restand;
 
     double GetLookahead() const
     {
@@ -139,6 +149,7 @@ struct Waypoint
     bool IsAsyncInteract() const { return action == ActionType::INTERACT && !interact_text.empty(); }
 
     // 走到跟前才算数的点: 交互提示得在屏幕上待得住, 所以判定圈、疾跑抑制、切走路都按同一套来
+    // 上索点也认提示, 但只有链首那一次要认 —— 收不收得看运行时上没上索, 所以那道收紧在状态机里
     bool StopsOnPromptDetection() const { return action == ActionType::COLLECT || IsAsyncInteract(); }
 
     bool HasPosition() const { return has_position; }

@@ -724,6 +724,7 @@ bool NavigationStateMachine::GiveUpUnreachableZipline(const char* reason)
     if (approach.anchor_index != anchor->first) {
         approach.anchor_index = anchor->first;
         approach.replans = 0;
+        approach.press_missed = false;
     }
     if (++approach.replans <= kZiplineApproachReplanBudget) {
         return false;
@@ -1146,6 +1147,18 @@ bool NavigationStateMachine::TickNavigate()
                     << VAR(route.waypoint_distance) << VAR(arrival_distance) << VAR(relaxed);
         }
         arrival_distance = std::max(arrival_distance, relaxed);
+    }
+    // 上索认的是跟采集一样的交互提示 —— 面板给的是离身位最近的那台设备, 按常规判定圈停下时人还
+    // 差着够不着架子, 所以判定圈按同一套收紧。只收链首那一次: 链中间的点人是从索上落到台面上的,
+    // 不用再认提示, 而台面上迈不动步, 收紧了就是站在原地等超时。真收不拢也放回去, 别多出一种卡死
+    if (waypoint.action == ActionType::ZIPLINE && !runtime_state_.semantic.zipline_mounted
+        && session_->HardStalledMs(now) <= kCollectArrivalRelaxMs) {
+        arrival_distance = std::min(arrival_distance, kCollectArrivalBandWu);
+        // 按空一次就当人站得还不够近: 收紧了接着走(有备用站位的已经改瞄它了), 原地重按只会得到
+        // 同一个答案。收不拢由上索点自己的重规划预算收口, 用完就退索走路
+        if (runtime_state_.zipline_approach.press_missed) {
+            arrival_distance = std::min(arrival_distance, kZiplineRestandBandWu);
+        }
     }
     if (route.waypoint_distance <= arrival_distance) {
         if (!route.startup_motion_confirmed) {
@@ -1822,6 +1835,23 @@ double NavigationStateMachine::NearestPromptDistanceSq() const
             nearest_sq = distance_sq;
         }
     }
+    // 上索点也算提示点: 同一个图标、同一件事 —— 够不够得着只看身位离架子多远。已经站上去了就不算,
+    // 剩下的跳靠瞄准接上; 走过的那些也不算, 链尾旁边的旧架子会把走路模式一直摁着
+    if (!runtime_state_.semantic.zipline_mounted) {
+        const std::vector<Waypoint>& path = session_->current_path();
+        for (size_t index = session_->current_node_idx(); index < path.size(); ++index) {
+            const Waypoint& waypoint = path[index];
+            if (waypoint.action != ActionType::ZIPLINE || !waypoint.HasPosition()) {
+                continue;
+            }
+            const double dx = waypoint.x - position_->x;
+            const double dy = waypoint.y - position_->y;
+            const double distance_sq = dx * dx + dy * dy;
+            if (nearest_sq < 0.0 || distance_sq < nearest_sq) {
+                nearest_sq = distance_sq;
+            }
+        }
+    }
     return nearest_sq;
 }
 
@@ -1844,8 +1874,8 @@ void NavigationStateMachine::UpdateWalkMode(NaviPhase phase)
     const double nearest_sq = NearestPromptDistanceSq();
     const bool recovering = runtime_state_.recovery.active || runtime_state_.cross_tier_escape.active;
     const ActionType action = session_->HasCurrentWaypoint() ? session_->CurrentWaypoint().action : ActionType::HEADING;
-    const bool plain_approach =
-        action == ActionType::COLLECT || action == ActionType::INTERACT || action == ActionType::RUN || action == ActionType::NAVMESH;
+    const bool plain_approach = action == ActionType::COLLECT || action == ActionType::INTERACT || action == ActionType::RUN
+                                || action == ActionType::NAVMESH || action == ActionType::ZIPLINE;
     if (phase != NaviPhase::Navigate || nearest_sq < 0.0 || recovering || !plain_approach
         || !runtime_state_.route.startup_motion_confirmed) {
         walk_mode_.Request(false);

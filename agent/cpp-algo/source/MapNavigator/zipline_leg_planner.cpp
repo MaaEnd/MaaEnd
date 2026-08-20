@@ -26,6 +26,15 @@ namespace
 // 会把规划耗时抬高一个量级；触顶后只拿已经算出来的候选做决策，并在日志里说明截断。
 constexpr size_t kMaxExtraPlans = 12;
 
+// 供电结构离架子这么近才谈得上抢走交互面板, 更远的没必要给它让位。
+constexpr double kMountPoleClearPx = 5.0;
+// 让开量。面板要架子是离身位最近的那台设备, 也要人还够得着架子 —— 让开量加上判定圈得留在
+// 够得着的那一圈里, 所以只让开判定圈的零头; 让多了就是把人推出去, 面板一样不出来。
+constexpr double kMountStandOffsetPx = 0.75;
+// 让开后的落脚点自己也得贴着同一层的可走面才算数: 规划只验过架子周围那一圈有面。
+constexpr double kMountStandSnapRadiusPx = 2.0;
+constexpr double kMountStandSnapTolPx = 1.0;
+
 struct ZiplineData
 {
     zipline::ZiplineFrames frames;
@@ -95,6 +104,41 @@ bool IsPowered(const zipline::ZiplineMark& tower, const std::vector<SupplyPoint>
 navmesh::WorldPoint ToWorld(const zipline::ZiplineNode& node)
 {
     return navmesh::WorldPoint { .x = node.x, .y = node.y };
+}
+
+// 上索认不出提示时改站哪。沿「供电结构 → 架子」把落脚点往外挪一点点, 让架子重新成为离身位
+// 最近的那台设备; 挪出去的点贴不住同一层的面, 或者旁边压根没有供电结构, 就不给这个备选。
+std::optional<navmesh::WorldPoint> MountStandPoint(
+    const NaviParam& param,
+    const std::string& locator_zone,
+    const zipline::ZiplineNode& tower,
+    const std::vector<navmesh::WorldPoint>& supplies)
+{
+    const navmesh::WorldPoint here = ToWorld(tower);
+    const navmesh::WorldPoint* nearest = nullptr;
+    double nearest_distance = kMountPoleClearPx;
+    for (const navmesh::WorldPoint& supply : supplies) {
+        const double distance = Distance(here, supply);
+        if (distance < nearest_distance) {
+            nearest_distance = distance;
+            nearest = &supply;
+        }
+    }
+    // 正好重合时没有方向可推
+    if (nearest == nullptr || nearest_distance < 1e-3) {
+        return std::nullopt;
+    }
+    const navmesh::WorldPoint stand {
+        .x = here.x + (here.x - nearest->x) / nearest_distance * kMountStandOffsetPx,
+        .y = here.y + (here.y - nearest->y) / nearest_distance * kMountStandOffsetPx,
+    };
+    const auto snap = NavmeshSnapAt(param, locator_zone, stand, kMountStandSnapRadiusPx, tower.height);
+    if (!snap || snap->distance > kMountStandSnapTolPx || std::abs(snap->height - tower.height) > navmesh::kBaseNavFloorBand) {
+        return std::nullopt;
+    }
+    LogDebug << "ZiplineRoute: keeping a spot clear of the power structure next to the mount tower" << VAR(tower.x) << VAR(tower.y)
+             << VAR(stand.x) << VAR(stand.y) << VAR(nearest_distance);
+    return stand;
 }
 
 // 两根架子在游戏世界里的直线距离，用来判它们之间挂没挂索。
@@ -259,6 +303,8 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
     // map_id 留空表示这个区还没绑定到具体哪张森空岛地图，此时已导入的标记全部纳入候选：
     // 坐标对不上的那些接不上网格，在规划预算之内就被淘汰掉。
     std::vector<zipline::ZiplineNode> nodes;
+    // 供电结构的落点也投一份到像素平面: 通电判定用的是世界坐标, 而让位算的是人站在哪
+    std::vector<navmesh::WorldPoint> supply_points;
     size_t unpowered = 0;
     for (const auto& record : data->store.maps()) {
         if (!frame->map_id.empty() && record.map_id != frame->map_id) {
@@ -271,6 +317,7 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
             const double radius = data->frames.supplyRadius(mark.template_id);
             if (radius > 0.0) {
                 supplies.push_back(SupplyPoint { .x = mark.x, .z = mark.z, .radius = radius });
+                supply_points.push_back(ToWorld(frame->project(mark)));
             }
         }
         if (require_power && supplies.empty()) {
@@ -477,6 +524,8 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
         best->towers.push_back(nodes[at]);
     }
     std::reverse(best->towers.begin(), best->towers.end());
+    // 只有链首那一根要按提示上索, 中途都是从索上落到下一根架子上的
+    best->mount_restand = MountStandPoint(param, locator_zone, best->towers.front(), supply_points);
 
     LogInfo << "ZiplineRoute: picked" << VAR(baseline_length) << VAR(best->cost) << VAR(best->towers.size())
             << VAR(best->towers.front().x) << VAR(best->towers.front().y) << VAR(best->towers.back().x) << VAR(best->towers.back().y);

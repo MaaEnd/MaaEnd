@@ -88,9 +88,29 @@ bool PressMountPrompt(MaaContext* context)
 }
 
 // 上索提示还在不在。站上架子后这条提示就没了, 所以它同时是「上没上去」和「还站不站着」的凭据。
+// 只认图标, 认不出这个面板属于架子还是属于旁边那台设备 —— 有疑问时拿 MountTextVisible 复核。
 bool MountPromptVisible(MaaContext* context)
 {
     return RunNodeAndReportHit(context, kZiplineMountScanEntryNode, kZiplineMountScanNode, "{}");
+}
+
+// 同一个识别, 但把交互键摘掉: 复核问的是「这条提示还在不在」, 不该再按一次。
+std::string BuildMountProbeOverride()
+{
+    json::object exit_node;
+    exit_node["next"] = json::array {};
+    json::object probe_node;
+    probe_node["action"] = "DoNothing";
+    json::object root;
+    root[kZiplineMountExitNode] = std::move(exit_node);
+    root[kZiplineMountRecognitionNode] = std::move(probe_node);
+    return json::value(std::move(root)).dumps();
+}
+
+// 「登上滑索架」这几个字还在不在。比图标贵, 只在图标说「还在」时问一次。
+bool MountTextVisible(MaaContext* context)
+{
+    return RunNodeAndReportHit(context, kZiplineMountEntryNode, kZiplineMountRecognitionNode, BuildMountProbeOverride());
 }
 
 // 右键下索。链尾和每一条异常出口都得先走这一步, 否则后面的移动指令全被架子吃掉。
@@ -261,6 +281,23 @@ Result StartZiplineHop(
                 LogInfo << "Zipline mount pre-filter did not hold up; keeping the approach." << VAR(actual_distance);
                 return result;
             }
+            // 面板给的是离身位最近的那台设备, 原地重按拿到的还是同一个答案 —— 认不出只有两种走法:
+            // 人还差一点点没走到跟前, 或者架子边上那根供电桩把面板占着。两种都得靠挪身位解决, 所以
+            // 记一笔交回导航: 有备用站位就改瞄它(从供电桩那侧让开一点, 顺带也更近了), 没有就只把
+            // 判定圈收紧, 让人把差的那点走完。预筛一路开着, 提示先冒出来就先按下去
+            if (!ctx.runtime_state->zipline_approach.press_missed) {
+                ctx.runtime_state->zipline_approach.press_missed = true;
+                const bool restood = waypoint.mount_restand
+                    && ctx.session->RetargetCurrentWaypoint(
+                        waypoint.mount_restand->x,
+                        waypoint.mount_restand->y,
+                        "zipline_mount_restand");
+                LogInfo << "No mount prompt at the tower; walking a bit around it for another look." << VAR(actual_distance)
+                        << VAR(restood) << VAR(kZiplineRestandBandWu);
+                result.consumed = true;
+                result.stay_in_current_tick = true;
+                return result;
+            }
             return AbandonZipline(ctx, "zipline_prompt_missing", "no mount prompt at the tower");
         }
         // 交互键已经发出去了, 从这里起就得当人可能已经站在架子上: 认错方向的代价是走不动路,
@@ -271,9 +308,16 @@ Result StartZiplineHop(
             utils::SleepFor(kZiplineMountConfirmIntervalMs);
             mounted = !MountPromptVisible(ctx.maa_context);
         }
+        // 图标还在不代表没上去: 人一站上架子, 面板就让给近旁的供电桩, 那个图标长得一模一样。
+        // 判死之前按文字复核一次 ——「登上滑索架」没了就是上去了, 还在才是真没按上
+        if (!mounted && !MountTextVisible(ctx.maa_context)) {
+            LogInfo << "Mount icon is still up but the zipline text is gone; the panel went to a device next to the tower.";
+            mounted = true;
+        }
         if (!mounted) {
             return AbandonZipline(ctx, "zipline_mount_failed", "the mount prompt is still up after the press");
         }
+        ctx.runtime_state->zipline_approach.press_missed = false;
     }
 
     const ZiplineTarget& landing = *waypoint.zipline_target;

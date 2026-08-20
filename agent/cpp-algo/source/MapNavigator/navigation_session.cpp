@@ -278,6 +278,23 @@ void NavigationSession::SkipPastWaypoint(size_t waypoint_idx, const char* reason
     ResetHardProgress();
 }
 
+bool NavigationSession::RetargetCurrentWaypoint(double x, double y, const char* reason)
+{
+    if (!RequireCurrentWaypoint("RetargetCurrentWaypoint")) {
+        return false;
+    }
+    Waypoint& waypoint = current_path_[current_node_idx_];
+    if (!waypoint.HasPosition()) {
+        return false;
+    }
+    LogInfo << "Waypoint retargeted." << VAR(reason) << VAR(current_node_idx_) << VAR(waypoint.x) << VAR(waypoint.y) << VAR(x) << VAR(y);
+    waypoint.x = x;
+    waypoint.y = y;
+    // 到点判据是按新落脚点重算的, 旧点上攒的最好成绩会让无进展判据以为人在倒退
+    ResetProgress();
+    return true;
+}
+
 void NavigationSession::ResetProgress()
 {
     progress_waypoint_idx_ = std::numeric_limits<size_t>::max();

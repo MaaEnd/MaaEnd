@@ -313,11 +313,14 @@ struct ZiplineApproachState
 {
     size_t anchor_index = std::numeric_limits<size_t>::max();
     int32_t replans = 0;
+    // 到点按过一次没认出来。原地再按还是同一个答案, 所以改瞄备用站位并收紧判定圈, 让人挪一下再认
+    bool press_missed = false;
 
     void Reset()
     {
         anchor_index = std::numeric_limits<size_t>::max();
         replans = 0;
+        press_missed = false;
     }
 };
 

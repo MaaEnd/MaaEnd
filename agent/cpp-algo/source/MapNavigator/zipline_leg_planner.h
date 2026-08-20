@@ -23,6 +23,9 @@ struct ZiplineRoute
     std::vector<zipline::ZiplineNode> towers;
     // 折算成等效走路距离的总代价，与 baseline_length 可直接比大小。
     double cost = 0.0;
+    // 上索点旁边贴着供电结构时给的备用站位，执行侧认不出上索提示才改瞄它。
+    // 接近段仍然走到架子本身：让开量再小也是往外推，把它当常规落脚点会把人推出够得着的那圈。
+    std::optional<navmesh::WorldPoint> mount_restand;
 };
 
 // 在本区找一条比纯走路更省的滑索路线；没有更省的、该区没标定过、或请求没开滑索时返回 nullopt。
