@@ -2,10 +2,10 @@
 
 #include <algorithm>
 #include <chrono>
+#include <condition_variable>
 #include <memory>
 #include <mutex>
 #include <string>
-#include <thread>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
@@ -28,6 +28,8 @@ constexpr const char* kDefaultMapUrl = "https://game.skland.com/map/endfield";
 constexpr const char* kMarkListPathFragment = "/map/mark/list";
 constexpr int64_t kDefaultTimeoutMs = 300000;
 constexpr int kPollIntervalMs = 200;
+// 抓到标记之后再静默这么久就收工：一次登录会连着回好几条，静默窗口让后面几条也落进来。
+constexpr int kSettleMs = 3000;
 constexpr int kDefaultWindowWidth = 960;
 constexpr int kDefaultWindowHeight = 640;
 // 日志里回显响应体的上限，够看清结构又不至于把整份标记列表刷进日志。
@@ -53,6 +55,10 @@ struct CapturedResponse
 struct SniffState
 {
     std::mutex mutex;
+    // 有新进展就叫醒业务线程，省得它盲睡到超时。
+    std::condition_variable cv;
+    // 最近一次「命中的请求有动静」的时刻，业务线程据此判断页面是不是已经取完了。
+    std::chrono::steady_clock::time_point last_event {};
     // 响应头已到、路径命中的请求；等 loadingFinished 才能安全取响应体。
     std::unordered_set<std::string> watching;
     std::unordered_map<std::string, std::string> request_urls;
@@ -237,9 +243,13 @@ void SubscribeSniffers(const std::shared_ptr<WebView2>& webview, const std::shar
             return;
         }
 
-        std::lock_guard<std::mutex> lock(state->mutex);
-        state->watching.insert(request_id);
-        state->request_urls[request_id] = url;
+        {
+            std::lock_guard<std::mutex> lock(state->mutex);
+            state->watching.insert(request_id);
+            state->request_urls[request_id] = url;
+            state->last_event = std::chrono::steady_clock::now();
+        }
+        state->cv.notify_all();
     });
 
     // 响应体收完：此时 getResponseBody 才拿得到完整内容。
@@ -288,8 +298,12 @@ void SubscribeSniffers(const std::shared_ptr<WebView2>& webview, const std::shar
                 }
                 LogDebug << "ZiplineImport: body preview" << VAR(url) << VAR(body.substr(0, kBodyLogPreviewBytes));
 
-                std::lock_guard<std::mutex> lock(state->mutex);
-                state->captured.push_back(CapturedResponse { .url = url, .body = body });
+                {
+                    std::lock_guard<std::mutex> lock(state->mutex);
+                    state->captured.push_back(CapturedResponse { .url = url, .body = body });
+                    state->last_event = std::chrono::steady_clock::now();
+                }
+                state->cv.notify_all();
             });
     });
 }
@@ -341,23 +355,34 @@ MaaBool MAA_CALL ZiplineImportActionRun(
     const auto deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(param.timeout);
 
     std::vector<CapturedResponse> captured;
-    while (std::chrono::steady_clock::now() < deadline) {
-        if (tasker && MaaTaskerStopping(tasker)) {
-            LogInfo << "ZiplineImport: stop requested";
-            break;
-        }
-        // 用户关掉窗口就是「导完了」的信号，不必等满超时。
-        if (!webview->IsOpened()) {
-            LogInfo << "ZiplineImport: window closed by user";
-            break;
-        }
-        std::this_thread::sleep_for(std::chrono::milliseconds(kPollIntervalMs));
-    }
-
     {
-        std::lock_guard<std::mutex> lock(state->mutex);
+        std::unique_lock<std::mutex> lock(state->mutex);
+        while (true) {
+            const auto now = std::chrono::steady_clock::now();
+            if (now >= deadline) {
+                LogWarn << "ZiplineImport: timed out waiting for the mark list";
+                break;
+            }
+            // 抓到了、也没有还在路上的请求、并且静默够久 —— 页面该取的都取完了，自己收工。
+            if (!state->captured.empty() && state->watching.empty() && now - state->last_event >= std::chrono::milliseconds(kSettleMs)) {
+                LogInfo << "ZiplineImport: marks captured, closing" << VAR(state->captured.size());
+                break;
+            }
+            if (tasker && MaaTaskerStopping(tasker)) {
+                LogInfo << "ZiplineImport: stop requested";
+                break;
+            }
+            // 用户自己关了窗口也算结束，不必等满超时。
+            if (!webview->IsOpened()) {
+                LogInfo << "ZiplineImport: window closed by user";
+                break;
+            }
+            // 有新响应会被立刻叫醒；这个节拍只用来复查停止请求和窗口状态。
+            state->cv.wait_for(lock, std::chrono::milliseconds(kPollIntervalMs));
+        }
         captured.swap(state->captured);
     }
+    // Close() 会等 UI 线程退出，只能在业务线程上调，CDP 回调里调就是自己等自己。
     webview->Close();
 
     if (captured.empty()) {

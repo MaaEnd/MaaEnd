@@ -2,6 +2,7 @@
 
 #ifdef _WIN32
 
+#include <algorithm>
 #include <filesystem>
 #include <system_error>
 
@@ -399,17 +400,24 @@ bool WebView2::postToUiThread(std::function<void()> fn)
         return false;
     }
 
+    uint64_t id = 0;
     {
         std::lock_guard<std::mutex> lock(pending_mutex_);
-        pending_calls_.push_back(std::move(fn));
+        id = ++next_pending_id_;
+        pending_calls_.push_back(PendingCall { .id = id, .fn = std::move(fn) });
     }
 
     if (!PostMessageW(hwnd, kMsgDrainPendingCalls, 0, 0)) {
-        // 消息没投出去（窗口正在销毁），把刚排进去的待办撤回来，避免它悬在队列里永不执行。
+        // 消息没投出去（窗口正在销毁），把刚排进去的那条撤回来，避免它悬在队列里永不执行。
+        // 必须按 id 撤：这期间别的线程可能也排了新的，按尾部撤会撤掉别人的待办。
         std::lock_guard<std::mutex> lock(pending_mutex_);
-        if (!pending_calls_.empty()) {
-            pending_calls_.pop_back();
+        auto it = std::find_if(pending_calls_.begin(), pending_calls_.end(), [id](const PendingCall& call) { return call.id == id; });
+        if (it == pending_calls_.end()) {
+            // 已经被别的消息整批换出去执行了（或关窗时清掉了），这条不归我们撤；
+            // 此时再返回 false 会让调用方补一次失败回调，和已经执行的那次凑成两次。
+            return true;
         }
+        pending_calls_.erase(it);
         return false;
     }
     return true;
@@ -418,14 +426,14 @@ bool WebView2::postToUiThread(std::function<void()> fn)
 void WebView2::drainPendingCalls()
 {
     // 先整体换出再执行：待办里可能继续调 postToUiThread，持锁执行会自死锁。
-    std::vector<std::function<void()>> batch;
+    std::vector<PendingCall> batch;
     {
         std::lock_guard<std::mutex> lock(pending_mutex_);
         batch.swap(pending_calls_);
     }
 
-    for (auto& fn : batch) {
-        fn();
+    for (auto& call : batch) {
+        call.fn();
     }
 }
 

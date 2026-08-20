@@ -5,6 +5,7 @@
 #include "FramelessWindow.h"
 
 #include <condition_variable>
+#include <cstdint>
 #include <functional>
 #include <mutex>
 #include <string>
@@ -110,8 +111,16 @@ private:
     Microsoft::WRL::ComPtr<ICoreWebView2Controller> controller_;
     Microsoft::WRL::ComPtr<ICoreWebView2> webview_;
 
+    // 一条待办。id 用来在投递失败时精确撤回自己排的那条：同一时刻别的线程也可能在排队。
+    struct PendingCall
+    {
+        uint64_t id = 0;
+        std::function<void()> fn;
+    };
+
     std::mutex pending_mutex_;
-    std::vector<std::function<void()>> pending_calls_;
+    std::vector<PendingCall> pending_calls_;
+    uint64_t next_pending_id_ = 0;
     // 事件接收器必须保活到不再需要事件为止，否则注册的 token 随对象一起失效。
     std::vector<Microsoft::WRL::ComPtr<ICoreWebView2DevToolsProtocolEventReceiver>> devtools_receivers_;
 
