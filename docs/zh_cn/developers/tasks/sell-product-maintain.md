@@ -40,6 +40,7 @@ SellProductSchedule ──命中星期──> SellProductMain
 
 SellProductSellLoop（不限次数，每轮先查调度券）
   ├─ [Anchor]ZeroMoneyHandler     调度券不足 → SellProductSellLoopEnd（进售后）
+  ├─ [Anchor]CurrentGoodsReady    当前选中货品仍可售卖 → adopt 沿用 → SellProductAtSell
   └─ SellProductChangeGoods       点「更换货品」→ ResetGoodsSelection → ChangeGoodsRelay
        ├─ [Anchor]SelectPriorityItem → SelectNewGoodConfirm → [Anchor]CommitPriorityItem
        │    → SellProductAtSell：再查调度券 → 缺货则 [Anchor]MarkOutOfStock 记缺货
@@ -71,6 +72,13 @@ SellProductSellLoop（不限次数，每轮先查调度券）
 - 先排除：零库存、已尝试、已缺货、永不售卖、已达保留量。
 - 选中只记为「待提交」，确认返回售卖界面后 `commit` 才标记已尝试——点击失败或单帧 OCR 波动不会跳过高优先级货品。
 - 候选全部不可用时，连续两次稳定识别到相同集合 → `PriorityItemsExhausted`，关闭列表结束本据点售卖。空 OCR 结果不算「无剩余货品」。
+
+### 当前货品沿用（`SellProductCurrentGoods` 自定义识别器）
+
+- 据点主界面的货品槽位用 IconRecognition `single_roi` 识别当前选中的货品，候选只含本据点可售物品；Win32、ADB 两套 Pipeline 分别通过 `roi` 传入 `[1177,450,54,54]` 与 `[1151,393,66,66]`，Go 不硬编码平台坐标。
+- 沿用前校验：未尝试、未缺货、未被保留规则排除；严格优先模式下还要求物品在用户优先列表内。不满足则落回「更换货品」原流程。
+- 命中后由 `adopt` 操作把识别 detail 中的 `itemId` 登记为据点当前物品，状态效果与换货 `commit` 一致（记录已尝试、更新保留规则选中项），后续售卖、保留规则与缺货标记流程不区分货品来源。
+- 沿用语义是「当前可售即先卖」：主界面没有货品网格的库存观测，不跑完整策略排序；缺货后回到 SellLoop 会自然切换到下一件。
 
 ### 优先售卖（默认关闭的总开关，与地区售卖开关解耦）
 

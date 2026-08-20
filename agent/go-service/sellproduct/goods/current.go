@@ -1,0 +1,206 @@
+package goods
+
+import (
+	"encoding/json"
+	"fmt"
+	"slices"
+	"strings"
+
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/iconrecognition"
+	maa "github.com/MaaXYZ/maa-framework-go/v4"
+	"github.com/rs/zerolog/log"
+)
+
+const currentGoodsRecognitionName = "SellProductCurrentGoods"
+
+type currentGoodsRecognitionParam struct {
+	Location string `json:"location"`
+	ROI      []int  `json:"roi"`
+}
+
+// currentGoodsDetail 是当前货品识别结果与 adopt 动作之间传递的结构化 detail。
+type currentGoodsDetail struct {
+	Location string  `json:"location"`
+	ItemID   string  `json:"item_id"`
+	Score    float64 `json:"score"`
+}
+
+// CurrentGoodsRecognition 在据点售卖主界面识别当前选中的货品图标。
+// 识别命中且该货品仍值得直接售卖（未尝试、未缺货、未被保留规则排除，
+// 严格优先模式下属于用户优先列表）时才命中，由 Pipeline 决定沿用或换货。
+type CurrentGoodsRecognition struct{}
+
+var _ maa.CustomRecognitionRunner = (*CurrentGoodsRecognition)(nil)
+
+func (r *CurrentGoodsRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
+	if ctx == nil || arg == nil || arg.Img == nil {
+		return nil, false
+	}
+	param, err := parseCurrentGoodsRecognitionParam(arg.CustomRecognitionParam)
+	if err != nil {
+		log.Error().Err(err).Str("component", currentGoodsRecognitionName).Msg("invalid params")
+		return nil, false
+	}
+
+	// 候选只保留当前据点的可售物品，缩小 IconRecognition 的模板匹配范围。
+	groupsByLocation, err := loadItemPriorityGroupsFunc()
+	if err != nil {
+		log.Error().Err(err).Str("component", currentGoodsRecognitionName).Msg("failed to load item priorities")
+		return nil, false
+	}
+	groups := groupsByLocation[param.Location]
+	if len(groups) == 0 {
+		log.Error().Str("component", currentGoodsRecognitionName).Str("location", param.Location).
+			Msg("location has no sellable items")
+		return nil, false
+	}
+	itemIDs := make([]string, 0, len(groups))
+	for _, group := range groups {
+		itemIDs = append(itemIDs, group.ItemID)
+	}
+
+	detail, err := ctx.RunRecognitionDirect(
+		maa.RecognitionTypeCustom,
+		&maa.CustomRecognitionParam{
+			ROI:               maa.NewTargetRect(maa.Rect{param.ROI[0], param.ROI[1], param.ROI[2], param.ROI[3]}),
+			CustomRecognition: iconrecognition.CustomRecognitionName,
+			CustomRecognitionParam: iconrecognition.NewParams(
+				iconrecognition.WithGridType(iconrecognition.GridTypeSingleROI),
+				iconrecognition.WithItemIDs(itemIDs...),
+			),
+		},
+		arg.Img,
+	)
+	if err != nil {
+		log.Warn().Err(err).
+			Str("component", currentGoodsRecognitionName).
+			Str("location", param.Location).
+			Msg("current goods icon recognition failed")
+		return nil, false
+	}
+	parsed, _, err := iconrecognition.ParseRecognitionDetail(detail)
+	if err != nil {
+		// 未选中货品时槽位为空，IconRecognition 不命中属于正常情况。
+		log.Debug().Err(err).
+			Str("component", currentGoodsRecognitionName).
+			Str("location", param.Location).
+			Msg("current goods slot is empty or unrecognized")
+		return nil, false
+	}
+	if parsed.Error != nil {
+		log.Warn().
+			Str("component", currentGoodsRecognitionName).
+			Str("location", param.Location).
+			Str("error_code", string(parsed.Error.Code)).
+			Str("error_message", parsed.Error.Message).
+			Msg("current goods icon recognition returned error")
+		return nil, false
+	}
+	if !parsed.Matched || len(parsed.Matches) == 0 {
+		return nil, false
+	}
+
+	match := parsed.Matches[0]
+	policy := priorityPolicySnapshot()
+	if !currentGoodsSellable(param.Location, match.ItemID, policy) {
+		log.Debug().
+			Str("component", currentGoodsRecognitionName).
+			Str("location", param.Location).
+			Str("item_id", match.ItemID).
+			Msg("current goods recognized but not sellable")
+		return nil, false
+	}
+
+	log.Info().
+		Str("component", currentGoodsRecognitionName).
+		Str("location", param.Location).
+		Str("item_id", match.ItemID).
+		Float64("score", match.Score).
+		Msg("current goods recognized")
+	detailJSON, _ := json.Marshal(currentGoodsDetail{
+		Location: param.Location,
+		ItemID:   match.ItemID,
+		Score:    match.Score,
+	})
+	return &maa.CustomRecognitionResult{Box: match.CellBox, Detail: string(detailJSON)}, true
+}
+
+func parseCurrentGoodsRecognitionParam(raw string) (*currentGoodsRecognitionParam, error) {
+	var param currentGoodsRecognitionParam
+	if err := json.Unmarshal([]byte(raw), &param); err != nil {
+		return nil, fmt.Errorf("unmarshal custom_recognition_param: %w", err)
+	}
+	param.Location = strings.TrimSpace(param.Location)
+	if param.Location == "" {
+		return nil, fmt.Errorf("location is empty")
+	}
+	if len(param.ROI) != 4 {
+		return nil, fmt.Errorf("roi length is %d, expected 4", len(param.ROI))
+	}
+	// IconRecognition 的 single_roi 要求正方形 ROI。
+	if param.ROI[2] <= 0 || param.ROI[2] != param.ROI[3] {
+		return nil, fmt.Errorf("roi must be a positive square, got %v", param.ROI)
+	}
+	return &param, nil
+}
+
+// currentGoodsSellable 判断识别到的当前货品是否仍值得直接售卖：
+// 未尝试过、未缺货、未被保留规则排除，且严格优先模式下必须在用户优先列表中。
+func currentGoodsSellable(location, itemID string, policy prioritySelectionPolicy) bool {
+	attempted, outOfStock, _ := prioritySelectionSnapshot(location)
+	if _, done := attempted[itemID]; done {
+		return false
+	}
+	if _, unavailable := outOfStock[itemID]; unavailable {
+		return false
+	}
+	if _, blacklisted := reserveBlacklistedItemsSnapshot()[itemID]; blacklisted {
+		return false
+	}
+	if _, satisfied := reserveSatisfiedItemsSnapshot()[itemID]; satisfied {
+		return false
+	}
+	if policy.OnlyPreferred && !slices.Contains(policy.Preferred, itemID) {
+		return false
+	}
+	return true
+}
+
+// currentGoodsItemIDFromRecognition 从识别节点的 detail 中解析当前货品 ID，
+// 供 adopt 动作读取；识别节点不命中时不会进入 adopt，此处失败视为契约破坏。
+func currentGoodsItemIDFromRecognition(detail *maa.RecognitionDetail) (string, error) {
+	if detail == nil || detail.Results == nil {
+		return "", fmt.Errorf("recognition detail is empty")
+	}
+	result := detail.Results.Best
+	if result == nil && len(detail.Results.All) > 0 {
+		result = detail.Results.All[0]
+	}
+	if result == nil {
+		return "", fmt.Errorf("custom result is empty")
+	}
+	custom, ok := result.AsCustom()
+	if !ok || custom == nil {
+		return "", fmt.Errorf("result is not custom recognition")
+	}
+	return currentGoodsItemIDFromCustomResult(custom)
+}
+
+func currentGoodsItemIDFromCustomResult(result *maa.CustomRecognitionResult) (string, error) {
+	if result == nil {
+		return "", fmt.Errorf("custom result is empty")
+	}
+	return parseCurrentGoodsDetail(result.Detail)
+}
+
+func parseCurrentGoodsDetail(raw string) (string, error) {
+	var parsed currentGoodsDetail
+	if err := json.Unmarshal([]byte(raw), &parsed); err != nil {
+		return "", fmt.Errorf("parse current goods detail: %w", err)
+	}
+	parsed.ItemID = strings.TrimSpace(parsed.ItemID)
+	if parsed.ItemID == "" {
+		return "", fmt.Errorf("item_id is empty")
+	}
+	return parsed.ItemID, nil
+}

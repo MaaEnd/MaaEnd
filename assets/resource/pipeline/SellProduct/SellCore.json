@@ -44,6 +44,7 @@
         "rate_limit": 0,
         "next": [
             "[Anchor]SellProductZeroMoneyHandler",
+            "[Anchor]SellProductCurrentGoodsReady",
             "SellProductChangeGoods"
         ]
     },

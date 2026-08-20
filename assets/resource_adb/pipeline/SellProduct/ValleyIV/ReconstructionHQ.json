@@ -1,4 +1,15 @@
 {
+    "SellProductReconstructionHQCurrentGoodsReady": {
+        "custom_recognition_param": {
+            "location": "ReconstructionHQ",
+            "roi": [
+                1151,
+                393,
+                66,
+                66
+            ]
+        }
+    },
     "SellProductReconstructionHQSelectPriorityItem": {
         "custom_recognition_param": {
             "location": "ReconstructionHQ",

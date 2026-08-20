@@ -109,6 +109,7 @@
     "sellproduct.runtime.operator_cache_rescan": "🔄 현재 배치된 오퍼레이터 %s이(가) 오퍼레이터 캐시에 없습니다. 캐시가 오래되었을 수 있으므로 오퍼레이터 목록을 다시 스캔합니다",
     "sellproduct.runtime.restore_skipped": "⚠️ %s에 사용 가능한 판매 후 생산 오퍼레이터가 없어 배치를 건너뜁니다",
     "sellproduct.runtime.item_switched": "📦 상품 전환: %s (%s)",
+    "sellproduct.runtime.item_adopted": "📦 현재 상품 유지: %s (%s)",
     "sellproduct.runtime.item_out_of_stock": "🚫 품절을 확인하여 제외: %s (%s)",
     "sellproduct.runtime.usage.target": "판매 오퍼레이터",
     "sellproduct.runtime.usage.restore": "판매 후 생산 오퍼레이터",

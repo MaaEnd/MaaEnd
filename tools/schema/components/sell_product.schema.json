@@ -76,6 +76,29 @@
                 }
             ]
         },
+        "CurrentGoodsRecognitionParam": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "location",
+                "roi"
+            ],
+            "properties": {
+                "location": {
+                    "type": "string",
+                    "pattern": "\\S"
+                },
+                "roi": {
+                    "description": "Current-goods slot ROI [x, y, width, height] supplied by the controller-specific Pipeline. Must be a positive square (width == height) because IconRecognition single_roi requires a square.",
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    },
+                    "minItems": 4,
+                    "maxItems": 4
+                }
+            }
+        },
         "PrioritySessionParam": {
             "oneOf": [
                 {
@@ -187,6 +210,7 @@
                     "properties": {
                         "operation": {
                             "enum": [
+                                "adopt",
                                 "commit",
                                 "out_of_stock"
                             ]

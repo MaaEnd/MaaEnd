@@ -109,6 +109,7 @@
     "sellproduct.runtime.operator_cache_rescan": "🔄 The currently assigned operator %s is missing from the operator cache. The cache may be outdated; rescanning the operator list",
     "sellproduct.runtime.restore_skipped": "⚠️ %s has no available post-sale production operator; skipping assignment",
     "sellproduct.runtime.item_switched": "📦 Switched goods: %s (%s)",
+    "sellproduct.runtime.item_adopted": "📦 Keeping current goods: %s (%s)",
     "sellproduct.runtime.item_out_of_stock": "🚫 Confirmed out of stock and excluded: %s (%s)",
     "sellproduct.runtime.usage.target": "selling operator",
     "sellproduct.runtime.usage.restore": "post-sale production operator",

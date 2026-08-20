@@ -1,4 +1,15 @@
 {
+    "SellProductSkyKingFlatsConstructionSiteCurrentGoodsReady": {
+        "custom_recognition_param": {
+            "location": "SkyKingFlatsConstructionSite",
+            "roi": [
+                1151,
+                393,
+                66,
+                66
+            ]
+        }
+    },
     "SellProductSkyKingFlatsConstructionSiteSelectPriorityItem": {
         "custom_recognition_param": {
             "location": "SkyKingFlatsConstructionSite",

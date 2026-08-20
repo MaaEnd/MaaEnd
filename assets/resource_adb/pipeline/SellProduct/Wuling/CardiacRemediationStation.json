@@ -1,4 +1,15 @@
 {
+    "SellProductCardiacRemediationStationCurrentGoodsReady": {
+        "custom_recognition_param": {
+            "location": "CardiacRemediationStation",
+            "roi": [
+                1151,
+                393,
+                66,
+                66
+            ]
+        }
+    },
     "SellProductCardiacRemediationStationSelectPriorityItem": {
         "custom_recognition_param": {
             "location": "CardiacRemediationStation",

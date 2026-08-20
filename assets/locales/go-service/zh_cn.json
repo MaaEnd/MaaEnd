@@ -109,6 +109,7 @@
     "sellproduct.runtime.operator_cache_rescan": "🔄 当前派驻干员 %s 不在干员缓存中，缓存可能已过期，将重新扫描干员列表",
     "sellproduct.runtime.restore_skipped": "⚠️ %s没有可用的售后生产干员，跳过派驻",
     "sellproduct.runtime.item_switched": "📦 已切换货品：%s（%s）",
+    "sellproduct.runtime.item_adopted": "📦 沿用当前货品：%s（%s）",
     "sellproduct.runtime.item_out_of_stock": "🚫 已确认缺货并排除：%s（%s）",
     "sellproduct.runtime.usage.target": "售卖干员",
     "sellproduct.runtime.usage.restore": "售后生产干员",
