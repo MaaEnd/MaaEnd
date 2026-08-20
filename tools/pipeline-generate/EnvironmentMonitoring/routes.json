@@ -283,21 +283,7 @@
         "MissionId": "m1m40",
         "Name": "码头水车",
         "Id": "PierWaterwheel",
-        "QuickTeleport": true,
-        "NavPath": [
-            {
-                "action": "ZONE",
-                "zone_id": "Wuling_Base"
-            },
-            {
-                "action": "NAVMESH",
-                "target": [
-                    984.12,
-                    2205.15
-                ]
-            }
-        ],
-        "Heading": 105
+        "QuickTeleport": true
     },
     {
         "MissionId": "m1m56",
