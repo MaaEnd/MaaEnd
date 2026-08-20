@@ -91,7 +91,7 @@
             "description": "$controller.Linux-Wlroots.description",
             "type": "Linux",
             "attach_resource_path": [
-                "./resource_wlroots"
+                "./resource_linux"
             ],
             "linux": {
                 "input": "Wlr",

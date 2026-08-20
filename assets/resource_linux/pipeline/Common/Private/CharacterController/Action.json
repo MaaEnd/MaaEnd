@@ -1,6 +1,6 @@
 {
     "__CharacterControllerDeltaSwipeAction": {
-        "desc": "相对鼠标移动（wlroots 下用 relative move 实现视角旋转）",
+        "desc": "相对鼠标移动（用 relative move 实现视角旋转）",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "CharacterControllerRelativeMoveAction",
