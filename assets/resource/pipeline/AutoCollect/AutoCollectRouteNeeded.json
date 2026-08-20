@@ -1,0 +1,554 @@
+{
+    "AutoCollectRoute1Needed": {
+        "desc": "达标判断：受蚀玉化叶库存未达标才执行线路1。默认表达式恒假（inverse 恒命中）= 恒执行；目标库存由 AutoCollectTargetInventory 选项注入",
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{item_plant_crylplant_2_1}<0"
+                }
+            }
+        },
+        "inverse": true,
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 600000,
+        "next": [
+            "[JumpBack]AutoCollectRoute1Sub"
+        ],
+        "focus": {
+            "Node.Recognition.Failed": "$task.AutoCollect.focus.route_skipped.Route1"
+        }
+    },
+    "AutoCollectRoute2Needed": {
+        "desc": "达标判断：岩天使叶库存未达标才执行线路2。默认恒执行；目标库存由 AutoCollectTargetInventory 选项注入",
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{item_plant_crylplant_2_2}<0"
+                }
+            }
+        },
+        "inverse": true,
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 600000,
+        "next": [
+            "[JumpBack]AutoCollectRoute2Sub"
+        ],
+        "focus": {
+            "Node.Recognition.Failed": "$task.AutoCollect.focus.route_skipped.Route2"
+        }
+    },
+    "AutoCollectRoute3Needed": {
+        "desc": "达标判断：至晶多齿叶库存未达标才执行线路3。默认恒执行；目标库存由 AutoCollectTargetInventory 选项注入",
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{item_plant_crylplant_1_3}<0"
+                }
+            }
+        },
+        "inverse": true,
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 600000,
+        "next": [
+            "[JumpBack]AutoCollectRoute3Sub"
+        ],
+        "focus": {
+            "Node.Recognition.Failed": "$task.AutoCollect.focus.route_skipped.Route3"
+        }
+    },
+    "AutoCollectRoute4Needed": {
+        "desc": "达标判断：纯晶多齿叶库存未达标才执行线路4。默认恒执行；目标库存由 AutoCollectTargetInventory 选项注入",
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{item_plant_crylplant_1_2}<0"
+                }
+            }
+        },
+        "inverse": true,
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 600000,
+        "next": [
+            "[JumpBack]AutoCollectRoute4Sub"
+        ],
+        "focus": {
+            "Node.Recognition.Failed": "$task.AutoCollect.focus.route_skipped.Route4"
+        }
+    },
+    "AutoCollectRoute5Needed": {
+        "desc": "达标判断：轻黯石库存未达标才执行线路5。默认恒执行；目标库存由 AutoCollectTargetInventory 选项注入",
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{item_plant_spcstone_1_1}<0"
+                }
+            }
+        },
+        "inverse": true,
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 600000,
+        "next": [
+            "[JumpBack]AutoCollectRoute5Sub"
+        ],
+        "focus": {
+            "Node.Recognition.Failed": "$task.AutoCollect.focus.route_skipped.Route5"
+        }
+    },
+    "AutoCollectRoute6Needed": {
+        "desc": "达标判断：轻红柱状菌库存未达标才执行线路6。默认恒执行；目标库存由 AutoCollectTargetInventory 选项注入",
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{item_plant_mushroom_1_1}<0"
+                }
+            }
+        },
+        "inverse": true,
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 600000,
+        "next": [
+            "[JumpBack]AutoCollectRoute6Sub"
+        ],
+        "focus": {
+            "Node.Recognition.Failed": "$task.AutoCollect.focus.route_skipped.Route6"
+        }
+    },
+    "AutoCollectRoute7Needed": {
+        "desc": "达标判断：血菌与武陵石（双产出，各自不限或达标）库存未达标才执行线路7。默认恒执行；目标库存由 AutoCollectTargetInventory 选项注入",
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{item_plant_mushroom_2_1}<0 && {item_plant_spcstone_2_2}<0"
+                }
+            }
+        },
+        "inverse": true,
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 600000,
+        "next": [
+            "[JumpBack]AutoCollectRoute7Sub"
+        ],
+        "focus": {
+            "Node.Recognition.Failed": "$task.AutoCollect.focus.route_skipped.Route7"
+        }
+    },
+    "AutoCollectRoute8Needed": {
+        "desc": "达标判断：星门菌库存未达标才执行线路8。默认恒执行；目标库存由 AutoCollectTargetInventory 选项注入",
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{item_plant_mushroom_2_2}<0"
+                }
+            }
+        },
+        "inverse": true,
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 600000,
+        "next": [
+            "[JumpBack]AutoCollectRoute8Sub"
+        ],
+        "focus": {
+            "Node.Recognition.Failed": "$task.AutoCollect.focus.route_skipped.Route8"
+        }
+    },
+    "AutoCollectRoute9Needed": {
+        "desc": "达标判断：燎石库存未达标才执行线路9。默认恒执行；目标库存由 AutoCollectTargetInventory 选项注入",
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{item_plant_spcstone_2_1}<0"
+                }
+            }
+        },
+        "inverse": true,
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 600000,
+        "next": [
+            "[JumpBack]AutoCollectRoute9Sub"
+        ],
+        "focus": {
+            "Node.Recognition.Failed": "$task.AutoCollect.focus.route_skipped.Route9"
+        }
+    },
+    "AutoCollectRoute10Needed": {
+        "desc": "达标判断：重红柱状菌库存未达标才执行线路10。默认恒执行；目标库存由 AutoCollectTargetInventory 选项注入",
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{item_plant_mushroom_1_3}<0"
+                }
+            }
+        },
+        "inverse": true,
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 600000,
+        "next": [
+            "[JumpBack]AutoCollectRoute10Sub"
+        ],
+        "focus": {
+            "Node.Recognition.Failed": "$task.AutoCollect.focus.route_skipped.Route10"
+        }
+    },
+    "AutoCollectRoute11Needed": {
+        "desc": "达标判断：重黯石库存未达标才执行线路11。默认恒执行；目标库存由 AutoCollectTargetInventory 选项注入",
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{item_plant_spcstone_1_3}<0"
+                }
+            }
+        },
+        "inverse": true,
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 600000,
+        "next": [
+            "[JumpBack]AutoCollectRoute11Sub"
+        ],
+        "focus": {
+            "Node.Recognition.Failed": "$task.AutoCollect.focus.route_skipped.Route11"
+        }
+    },
+    "AutoCollectRoute12Needed": {
+        "desc": "达标判断：中红柱状菌库存未达标才执行线路12。默认恒执行；目标库存由 AutoCollectTargetInventory 选项注入",
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{item_plant_mushroom_1_2}<0"
+                }
+            }
+        },
+        "inverse": true,
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 600000,
+        "next": [
+            "[JumpBack]AutoCollectRoute12Sub"
+        ],
+        "focus": {
+            "Node.Recognition.Failed": "$task.AutoCollect.focus.route_skipped.Route12"
+        }
+    },
+    "AutoCollectRoute13Needed": {
+        "desc": "达标判断：中黯石库存未达标才执行线路13。默认恒执行；目标库存由 AutoCollectTargetInventory 选项注入",
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{item_plant_spcstone_1_2}<0"
+                }
+            }
+        },
+        "inverse": true,
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 600000,
+        "next": [
+            "[JumpBack]AutoCollectRoute13Sub"
+        ],
+        "focus": {
+            "Node.Recognition.Failed": "$task.AutoCollect.focus.route_skipped.Route13"
+        }
+    },
+    "AutoCollectRoute14Needed": {
+        "desc": "达标判断：晶化多齿叶库存未达标才执行线路14。默认恒执行；目标库存由 AutoCollectTargetInventory 选项注入",
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{item_plant_crylplant_1_1}<0"
+                }
+            }
+        },
+        "inverse": true,
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 600000,
+        "next": [
+            "[JumpBack]AutoCollectRoute14Sub"
+        ],
+        "focus": {
+            "Node.Recognition.Failed": "$task.AutoCollect.focus.route_skipped.Route14"
+        }
+    },
+    "AutoCollectRoute15Needed": {
+        "desc": "达标判断：红矛叶库存未达标才执行线路15。默认恒执行；目标库存由 AutoCollectTargetInventory 选项注入",
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{item_plant_crylplant_2_3}<0"
+                }
+            }
+        },
+        "inverse": true,
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 600000,
+        "next": [
+            "[JumpBack]AutoCollectRoute15Sub"
+        ],
+        "focus": {
+            "Node.Recognition.Failed": "$task.AutoCollect.focus.route_skipped.Route15"
+        }
+    },
+    "AutoCollectCommonRoute1Needed": {
+        "desc": "达标判断：映火荞花库存未达标才执行公共线路1。默认恒执行；目标库存由 AutoCollectTargetInventory 选项注入",
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{item_plant_moss_spc_1}<0"
+                }
+            }
+        },
+        "inverse": true,
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 600000,
+        "next": [
+            "[JumpBack]AutoCollectCommonRoute1Sub"
+        ],
+        "focus": {
+            "Node.Recognition.Failed": "$task.AutoCollect.focus.route_skipped.CommonRoute1"
+        }
+    },
+    "AutoCollectCommonRoute2Needed": {
+        "desc": "达标判断：黯银柑实库存未达标才执行公共线路2。默认恒执行；目标库存由 AutoCollectTargetInventory 选项注入",
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{item_plant_moss_spc_2}<0"
+                }
+            }
+        },
+        "inverse": true,
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 600000,
+        "next": [
+            "[JumpBack]AutoCollectCommonRoute2Sub"
+        ],
+        "focus": {
+            "Node.Recognition.Failed": "$task.AutoCollect.focus.route_skipped.CommonRoute2"
+        }
+    },
+    "AutoCollectCommonRoute3Needed": {
+        "desc": "达标判断：灼壳虫库存未达标才执行公共线路3。默认恒执行；目标库存由 AutoCollectTargetInventory 选项注入",
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{item_plant_tundra_insect_2}<0"
+                }
+            }
+        },
+        "inverse": true,
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 600000,
+        "next": [
+            "[JumpBack]AutoCollectCommonRoute3Sub"
+        ],
+        "focus": {
+            "Node.Recognition.Failed": "$task.AutoCollect.focus.route_skipped.CommonRoute3"
+        }
+    },
+    "AutoCollectCommonRoute4Needed": {
+        "desc": "达标判断：萤壳虫库存未达标才执行公共线路4。默认恒执行；目标库存由 AutoCollectTargetInventory 选项注入",
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{item_plant_tundra_insect_1}<0"
+                }
+            }
+        },
+        "inverse": true,
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 600000,
+        "next": [
+            "[JumpBack]AutoCollectCommonRoute4Sub"
+        ],
+        "focus": {
+            "Node.Recognition.Failed": "$task.AutoCollect.focus.route_skipped.CommonRoute4"
+        }
+    },
+    "AutoCollectCommonRoute5Needed": {
+        "desc": "达标判断：蓬茸锦草库存未达标才执行公共线路5。默认恒执行；目标库存由 AutoCollectTargetInventory 选项注入",
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{item_plant_grass_spc_1}<0"
+                }
+            }
+        },
+        "inverse": true,
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 600000,
+        "next": [
+            "[JumpBack]AutoCollectCommonRoute5Sub"
+        ],
+        "focus": {
+            "Node.Recognition.Failed": "$task.AutoCollect.focus.route_skipped.CommonRoute5"
+        }
+    },
+    "AutoCollectCommonRoute6Needed": {
+        "desc": "达标判断：琼叶参库存未达标才执行公共线路6。默认恒执行；目标库存由 AutoCollectTargetInventory 选项注入",
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{item_plant_sp_3}<0"
+                }
+            }
+        },
+        "inverse": true,
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 600000,
+        "next": [
+            "[JumpBack]AutoCollectCommonRoute6Sub"
+        ],
+        "focus": {
+            "Node.Recognition.Failed": "$task.AutoCollect.focus.route_skipped.CommonRoute6"
+        }
+    },
+    "AutoCollectCommonRoute7Needed": {
+        "desc": "达标判断：荆刺芽针库存未达标才执行公共线路7。默认恒执行；目标库存由 AutoCollectTargetInventory 选项注入",
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{item_plant_grass_spc_2}<0"
+                }
+            }
+        },
+        "inverse": true,
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 600000,
+        "next": [
+            "[JumpBack]AutoCollectCommonRoute7Sub"
+        ],
+        "focus": {
+            "Node.Recognition.Failed": "$task.AutoCollect.focus.route_skipped.CommonRoute7"
+        }
+    },
+    "AutoCollectCommonRoute8Needed": {
+        "desc": "达标判断：金石稻库存未达标才执行公共线路8。默认恒执行；目标库存由 AutoCollectTargetInventory 选项注入",
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{item_plant_sp_4}<0"
+                }
+            }
+        },
+        "inverse": true,
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 600000,
+        "next": [
+            "[JumpBack]AutoCollectCommonRoute8Sub"
+        ],
+        "focus": {
+            "Node.Recognition.Failed": "$task.AutoCollect.focus.route_skipped.CommonRoute8"
+        }
+    }
+}

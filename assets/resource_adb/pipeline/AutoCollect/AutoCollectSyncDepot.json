@@ -1,0 +1,9 @@
+{
+    "AutoCollectSyncDepotMain": {
+        "desc": "ADB 暂不支持仓库同步扫描，直接跳过（无缓存数据时达标判断恒执行，行为与现状一致）",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": []
+    }
+}

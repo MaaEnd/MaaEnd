@@ -15,7 +15,8 @@
                 "AutoCollectSchedule",
                 "AutoCollectRoutes",
                 "AutoCollectCommonRoutes",
-                "AutoCollectStashBackpackSubTask"
+                "AutoCollectStashBackpackSubTask",
+                "AutoCollectTargetInventory"
             ],
             "group": [
                 "open_world"
@@ -140,6 +141,418 @@
                     }
                 }
             ]
+        },
+        // 采集物目标库存：任务开始时先同步仓库（AutoCollectSyncDepot），达标路线自动跳过。
+        // 表达式里 {AutoCollectLimit_*} 由界面输入替换，{item_plant_*} 留给 R1 boolexpr 读 IMS 缓存；
+        // 输入 0（默认）时表达式恒假 → inverse 恒命中 → 恒执行，与未配置时行为一致。
+        "AutoCollectTargetInventory": {
+            "type": "input",
+            "label": "$option.AutoCollectTargetInventory.label",
+            "description": "$option.AutoCollectTargetInventory.description",
+            "inputs": [
+                {
+                    "name": "AutoCollectLimit_Route1",
+                    "label": "$option.AutoCollectTargetInventory.inputs.Route1.label",
+                    "pipeline_type": "int",
+                    "default": "0",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
+                },
+                {
+                    "name": "AutoCollectLimit_Route2",
+                    "label": "$option.AutoCollectTargetInventory.inputs.Route2.label",
+                    "pipeline_type": "int",
+                    "default": "0",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
+                },
+                {
+                    "name": "AutoCollectLimit_Route3",
+                    "label": "$option.AutoCollectTargetInventory.inputs.Route3.label",
+                    "pipeline_type": "int",
+                    "default": "0",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
+                },
+                {
+                    "name": "AutoCollectLimit_Route4",
+                    "label": "$option.AutoCollectTargetInventory.inputs.Route4.label",
+                    "pipeline_type": "int",
+                    "default": "0",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
+                },
+                {
+                    "name": "AutoCollectLimit_Route5",
+                    "label": "$option.AutoCollectTargetInventory.inputs.Route5.label",
+                    "pipeline_type": "int",
+                    "default": "0",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
+                },
+                {
+                    "name": "AutoCollectLimit_Route6",
+                    "label": "$option.AutoCollectTargetInventory.inputs.Route6.label",
+                    "pipeline_type": "int",
+                    "default": "0",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
+                },
+                {
+                    "name": "AutoCollectLimit_Route7Bloodcap",
+                    "label": "$option.AutoCollectTargetInventory.inputs.Route7Bloodcap.label",
+                    "pipeline_type": "int",
+                    "default": "0",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
+                },
+                {
+                    "name": "AutoCollectLimit_Route7Wulingstone",
+                    "label": "$option.AutoCollectTargetInventory.inputs.Route7Wulingstone.label",
+                    "pipeline_type": "int",
+                    "default": "0",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
+                },
+                {
+                    "name": "AutoCollectLimit_Route8",
+                    "label": "$option.AutoCollectTargetInventory.inputs.Route8.label",
+                    "pipeline_type": "int",
+                    "default": "0",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
+                },
+                {
+                    "name": "AutoCollectLimit_Route9",
+                    "label": "$option.AutoCollectTargetInventory.inputs.Route9.label",
+                    "pipeline_type": "int",
+                    "default": "0",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
+                },
+                {
+                    "name": "AutoCollectLimit_Route10",
+                    "label": "$option.AutoCollectTargetInventory.inputs.Route10.label",
+                    "pipeline_type": "int",
+                    "default": "0",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
+                },
+                {
+                    "name": "AutoCollectLimit_Route11",
+                    "label": "$option.AutoCollectTargetInventory.inputs.Route11.label",
+                    "pipeline_type": "int",
+                    "default": "0",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
+                },
+                {
+                    "name": "AutoCollectLimit_Route12",
+                    "label": "$option.AutoCollectTargetInventory.inputs.Route12.label",
+                    "pipeline_type": "int",
+                    "default": "0",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
+                },
+                {
+                    "name": "AutoCollectLimit_Route13",
+                    "label": "$option.AutoCollectTargetInventory.inputs.Route13.label",
+                    "pipeline_type": "int",
+                    "default": "0",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
+                },
+                {
+                    "name": "AutoCollectLimit_Route14",
+                    "label": "$option.AutoCollectTargetInventory.inputs.Route14.label",
+                    "pipeline_type": "int",
+                    "default": "0",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
+                },
+                {
+                    "name": "AutoCollectLimit_Route15",
+                    "label": "$option.AutoCollectTargetInventory.inputs.Route15.label",
+                    "pipeline_type": "int",
+                    "default": "0",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
+                },
+                {
+                    "name": "AutoCollectLimit_CommonRoute1",
+                    "label": "$option.AutoCollectTargetInventory.inputs.CommonRoute1.label",
+                    "pipeline_type": "int",
+                    "default": "0",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
+                },
+                {
+                    "name": "AutoCollectLimit_CommonRoute2",
+                    "label": "$option.AutoCollectTargetInventory.inputs.CommonRoute2.label",
+                    "pipeline_type": "int",
+                    "default": "0",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
+                },
+                {
+                    "name": "AutoCollectLimit_CommonRoute3",
+                    "label": "$option.AutoCollectTargetInventory.inputs.CommonRoute3.label",
+                    "pipeline_type": "int",
+                    "default": "0",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
+                },
+                {
+                    "name": "AutoCollectLimit_CommonRoute4",
+                    "label": "$option.AutoCollectTargetInventory.inputs.CommonRoute4.label",
+                    "pipeline_type": "int",
+                    "default": "0",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
+                },
+                {
+                    "name": "AutoCollectLimit_CommonRoute5",
+                    "label": "$option.AutoCollectTargetInventory.inputs.CommonRoute5.label",
+                    "pipeline_type": "int",
+                    "default": "0",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
+                },
+                {
+                    "name": "AutoCollectLimit_CommonRoute6",
+                    "label": "$option.AutoCollectTargetInventory.inputs.CommonRoute6.label",
+                    "pipeline_type": "int",
+                    "default": "0",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
+                },
+                {
+                    "name": "AutoCollectLimit_CommonRoute7",
+                    "label": "$option.AutoCollectTargetInventory.inputs.CommonRoute7.label",
+                    "pipeline_type": "int",
+                    "default": "0",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
+                },
+                {
+                    "name": "AutoCollectLimit_CommonRoute8",
+                    "label": "$option.AutoCollectTargetInventory.inputs.CommonRoute8.label",
+                    "pipeline_type": "int",
+                    "default": "0",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.SupplyPlanLimits.pattern_msg"
+                }
+            ],
+            "pipeline_override": {
+                "AutoCollectRoute1Needed": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{item_plant_crylplant_2_1}>={AutoCollectLimit_Route1} && {AutoCollectLimit_Route1}>0"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectRoute2Needed": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{item_plant_crylplant_2_2}>={AutoCollectLimit_Route2} && {AutoCollectLimit_Route2}>0"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectRoute3Needed": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{item_plant_crylplant_1_3}>={AutoCollectLimit_Route3} && {AutoCollectLimit_Route3}>0"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectRoute4Needed": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{item_plant_crylplant_1_2}>={AutoCollectLimit_Route4} && {AutoCollectLimit_Route4}>0"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectRoute5Needed": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{item_plant_spcstone_1_1}>={AutoCollectLimit_Route5} && {AutoCollectLimit_Route5}>0"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectRoute6Needed": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{item_plant_mushroom_1_1}>={AutoCollectLimit_Route6} && {AutoCollectLimit_Route6}>0"
+                            }
+                        }
+                    }
+                },
+                // 路线7 双产出（血菌+武陵石）：任一侧填 0 表示不限该侧，两侧都为 0 时恒执行
+                "AutoCollectRoute7Needed": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "(({AutoCollectLimit_Route7Bloodcap}>0 && {item_plant_mushroom_2_1}>={AutoCollectLimit_Route7Bloodcap}) || {AutoCollectLimit_Route7Bloodcap}==0) && (({AutoCollectLimit_Route7Wulingstone}>0 && {item_plant_spcstone_2_2}>={AutoCollectLimit_Route7Wulingstone}) || {AutoCollectLimit_Route7Wulingstone}==0) && ({AutoCollectLimit_Route7Bloodcap}>0 || {AutoCollectLimit_Route7Wulingstone}>0)"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectRoute8Needed": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{item_plant_mushroom_2_2}>={AutoCollectLimit_Route8} && {AutoCollectLimit_Route8}>0"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectRoute9Needed": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{item_plant_spcstone_2_1}>={AutoCollectLimit_Route9} && {AutoCollectLimit_Route9}>0"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectRoute10Needed": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{item_plant_mushroom_1_3}>={AutoCollectLimit_Route10} && {AutoCollectLimit_Route10}>0"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectRoute11Needed": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{item_plant_spcstone_1_3}>={AutoCollectLimit_Route11} && {AutoCollectLimit_Route11}>0"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectRoute12Needed": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{item_plant_mushroom_1_2}>={AutoCollectLimit_Route12} && {AutoCollectLimit_Route12}>0"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectRoute13Needed": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{item_plant_spcstone_1_2}>={AutoCollectLimit_Route13} && {AutoCollectLimit_Route13}>0"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectRoute14Needed": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{item_plant_crylplant_1_1}>={AutoCollectLimit_Route14} && {AutoCollectLimit_Route14}>0"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectRoute15Needed": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{item_plant_crylplant_2_3}>={AutoCollectLimit_Route15} && {AutoCollectLimit_Route15}>0"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectCommonRoute1Needed": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{item_plant_moss_spc_1}>={AutoCollectLimit_CommonRoute1} && {AutoCollectLimit_CommonRoute1}>0"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectCommonRoute2Needed": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{item_plant_moss_spc_2}>={AutoCollectLimit_CommonRoute2} && {AutoCollectLimit_CommonRoute2}>0"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectCommonRoute3Needed": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{item_plant_tundra_insect_2}>={AutoCollectLimit_CommonRoute3} && {AutoCollectLimit_CommonRoute3}>0"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectCommonRoute4Needed": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{item_plant_tundra_insect_1}>={AutoCollectLimit_CommonRoute4} && {AutoCollectLimit_CommonRoute4}>0"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectCommonRoute5Needed": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{item_plant_grass_spc_1}>={AutoCollectLimit_CommonRoute5} && {AutoCollectLimit_CommonRoute5}>0"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectCommonRoute6Needed": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{item_plant_sp_3}>={AutoCollectLimit_CommonRoute6} && {AutoCollectLimit_CommonRoute6}>0"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectCommonRoute7Needed": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{item_plant_grass_spc_2}>={AutoCollectLimit_CommonRoute7} && {AutoCollectLimit_CommonRoute7}>0"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectCommonRoute8Needed": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{item_plant_sp_4}>={AutoCollectLimit_CommonRoute8} && {AutoCollectLimit_CommonRoute8}>0"
+                            }
+                        }
+                    }
+                }
+            }
         },
         "AutoCollectRoutes": {
             "type": "checkbox",

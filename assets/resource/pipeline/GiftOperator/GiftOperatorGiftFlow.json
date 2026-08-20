@@ -359,7 +359,6 @@
                     "(?i)Default",
                     "デフォルト"
                 ],
-                "only_rec": true,
                 "replace": [
                     [
                         "数",
@@ -369,7 +368,8 @@
                         "以",
                         "认"
                     ]
-                ]
+                ],
+                "only_rec": true
             }
         }
     },

@@ -1,0 +1,203 @@
+{
+    "AutoCollectSyncDepotSub": {
+        "desc": "采集前 IMS 仓库同步包装：strict=false，进背包或扫描失败不阻断采集主流程（缓存缺数据时达标判断恒执行，等同现状）",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoCollectSyncDepotMain"
+            ],
+            "strict": false
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectLoop"
+        ]
+    },
+    "AutoCollectSyncDepotMain": {
+        "desc": "仓库同步入口：已在背包界面直接开始；否则经 SceneEnterMenuBackpackWithDepot 进入后重试",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectSyncDepotReady",
+            "[JumpBack]SceneEnterMenuBackpackWithDepot"
+        ]
+    },
+    "AutoCollectSyncDepotReady": {
+        "desc": "确认在背包界面并将鼠标移到左上角避免遮挡物品，开始多页同步（完整识别 → 按 max_hit 滚动增量）",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InBackpack"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "TouchMove",
+            "param": {
+                "target": [
+                    0,
+                    0,
+                    1,
+                    1
+                ]
+            }
+        },
+        "post_delay": 200,
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectSyncDepotRunFull"
+        ]
+    },
+    "AutoCollectSyncDepotRunFull": {
+        "desc": "A2 初次完整识别（page_dedup=false，地区重建 Normal:Plant/Nurturance/Doodad 分类）。仓库列表静止后识别；未到底则 JumpBack 滚动增量，次数由 AutoCollectSyncDepotScrollPage.max_hit 控制，到底或用尽走 End",
+        "recognition": "DirectHit",
+        "pre_wait_freezes": {
+            "target": [
+                154,
+                202,
+                585,
+                291
+            ],
+            "time": 300,
+            "threshold": 0.97,
+            "timeout": 1500
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SyncItemData",
+                "custom_action_param": {
+                    "grid_type": "transfer",
+                    "roi": [
+                        154,
+                        202,
+                        585,
+                        291
+                    ],
+                    "item_filters": [
+                        "Normal:Plant",
+                        "Normal:Nurturance",
+                        "Normal:Doodad"
+                    ],
+                    "notify_ui": false,
+                    "page_dedup": false
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoCollectSyncDepotScrollPage",
+            "AutoCollectSyncDepotEnd"
+        ]
+    },
+    "AutoCollectSyncDepotScrollPage": {
+        "desc": "仓库列表未到底（滚动条仍在移动）则向下滚动一页并进入增量识别；滚动后鼠标移开避免遮挡。无滚动条或识别异常时靠 max_hit 上限兜底",
+        "max_hit": 5,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ScrollbarCompleteRecognition",
+                "custom_recognition_param": {
+                    "position_tolerance": 2
+                },
+                "roi": [
+                    713,
+                    216,
+                    5,
+                    262
+                ]
+            }
+        },
+        "inverse": true,
+        "pre_delay": 0,
+        "action": {
+            "type": "Scroll",
+            "param": {
+                "target": [
+                    640,
+                    350
+                ],
+                "dy": -180
+            }
+        },
+        "anchor": {
+            "MouseMoveResetAnchor": "MouseMoveReset"
+        },
+        "post_wait_freezes": {
+            "target": [
+                154,
+                202,
+                585,
+                291
+            ],
+            "time": 400,
+            "timeout": 3000
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectSyncDepotRunInc"
+        ]
+    },
+    "AutoCollectSyncDepotRunInc": {
+        "desc": "A2 增量识别（page_dedup=true，覆写当页可见）。仓库列表静止后识别；完成后空 next，经 JumpBack 回 AutoCollectSyncDepotRunFull.next 再决定是否继续滚动",
+        "recognition": "DirectHit",
+        "pre_wait_freezes": {
+            "target": [
+                154,
+                202,
+                585,
+                291
+            ],
+            "time": 300,
+            "threshold": 0.97,
+            "timeout": 1500
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SyncItemData",
+                "custom_action_param": {
+                    "grid_type": "transfer",
+                    "roi": [
+                        154,
+                        202,
+                        585,
+                        291
+                    ],
+                    "item_filters": [
+                        "Normal:Plant",
+                        "Normal:Nurturance",
+                        "Normal:Doodad"
+                    ],
+                    "notify_ui": false,
+                    "page_dedup": true
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": []
+    },
+    "AutoCollectSyncDepotEnd": {
+        "desc": "仓库同步完成，IMS 缓存已更新；达标判断（AutoCollectRouteXNeeded）基于本快照，采集收获自下轮生效",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.focus.depot_synced"
+        }
+    }
+}
