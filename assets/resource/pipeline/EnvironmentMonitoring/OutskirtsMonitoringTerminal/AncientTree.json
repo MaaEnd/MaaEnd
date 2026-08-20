@@ -407,23 +407,12 @@
         "desc": "在古树任务拍照点开始拍照",
         "pre_delay": 0,
         "anchor": {
-            "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
-            "EnvironmentMonitoringAdjustCamera": "AncientTreeAdjustCamera"
+            "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "EnvironmentMonitoringTakePhoto"
-        ]
-    },
-    "AncientTreeAdjustCamera": {
-        "desc": "古树任务中调整朝向",
-        "max_hit": 2,
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "EnvironmentMonitoringSwipeScreenUp"
         ]
     }
 }

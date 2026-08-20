@@ -21,11 +21,12 @@
         "rate_limit": 0,
         "next": [
             //"GiftOperatorMoveResetBackward",
-            "GiftOperatorMoveLocation3",
+            "GiftOperatorTurnEast",
             //"GiftOperatorMoveLocation3Move",
-            "GiftOperatorMoveLocation2",
-            "GiftOperatorMoveLocation1",
-            "GiftOperatorMoveLocation4",
+            "GiftOperatorTurnNorthwest",
+            "GiftOperatorTurnNorthByWest",
+            "GiftOperatorTurnWest",
+            "GiftOperatorTurnSoutheast",
             "GiftOperatorMoveFail"
         ]
     },
@@ -68,8 +69,8 @@
             "Node.Recognition.Succeeded": "$task.GiftOperator.focus.move_fail"
         }
     },
-    "GiftOperatorMoveLocation1": {
-        "desc": "转向270度(正西)尝试接触到干员(预设位置1)",
+    "GiftOperatorTurnWest": {
+        "desc": "转向270度(正西)尝试接触到干员",
         "max_hit": 2,
         "pre_delay": 0,
         "action": {
@@ -139,9 +140,39 @@
             }
         }
     },
-    "GiftOperatorMoveLocation2": {
-        "desc": "转向345度(北偏西15度)尝试接触到干员(预设位置2)",
-        "max_hit": 2,
+    "GiftOperatorTurnNorthwest": {
+        "desc": "转向315度(西北)尝试接触到干员",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "HEADING",
+                            "angle": 315,
+                            "zone_id": "OMVBase01"
+                        }
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "GiftOperatorTurnNorthByWest": {
+        "desc": "转向345度(北偏西15度)尝试接触到干员",
+        "max_hit": 1,
         "pre_delay": 0,
         "action": {
             "type": "Custom",
@@ -210,8 +241,8 @@
             }
         }
     },
-    "GiftOperatorMoveLocation3": {
-        "desc": "转向90度(正东)尝试接触到干员(预设位置3)",
+    "GiftOperatorTurnEast": {
+        "desc": "转向90度(正东)尝试接触到干员",
         "max_hit": 2,
         "pre_delay": 0,
         "action": {
@@ -240,8 +271,8 @@
             }
         }
     },
-    "GiftOperatorMoveLocation4": {
-        "desc": "转向135度(东南)尝试接触到干员(预设位置4)",
+    "GiftOperatorTurnSoutheast": {
+        "desc": "转向135度(东南)尝试接触到干员",
         "max_hit": 2,
         "pre_delay": 0,
         "action": {
@@ -326,13 +357,13 @@
                         {
                             "action": "NAVMESH",
                             "target": [
-                                183.14,
-                                180.38
+                                182.52,
+                                180.50
                             ]
                         },
                         [
                             182.52,
-                            173.7,
+                            173.4,
                             true
                         ]
                     ]

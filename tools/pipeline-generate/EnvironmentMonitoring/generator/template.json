@@ -359,23 +359,12 @@
         "desc": "在${Name}任务拍照点开始拍照",
         "pre_delay": 0,
         "anchor": {
-            "EnvironmentMonitoringBackToTerminal": "${GoToMonitoringTerminal}",
-            "EnvironmentMonitoringAdjustCamera": "${Id}AdjustCamera"
+            "EnvironmentMonitoringBackToTerminal": "${GoToMonitoringTerminal}"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "EnvironmentMonitoringTakePhoto"
-        ]
-    },
-    "${Id}AdjustCamera": {
-        "rate_limit": 0,
-        "pre_delay": 0,
-        "post_delay": 0,
-        "desc": "${Name}任务中调整朝向",
-        "max_hit": "${CameraMaxHit}",
-        "next": [
-            "${CameraSwipeDirection}"
         ]
     }
 }

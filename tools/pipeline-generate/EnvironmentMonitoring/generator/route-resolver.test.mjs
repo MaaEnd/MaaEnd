@@ -24,10 +24,7 @@ test("metadata-only entries remain unadapted", () => {
 
     assert.equal(result.isAdapted, false);
     assert.equal(result.IsDirectPhoto, false);
-    assert.deepEqual(result.missingFields, [
-        "EnterMap",
-        "CameraSwipeDirection",
-    ]);
+    assert.deepEqual(result.missingFields, ["EnterMap"]);
 });
 
 test("an EnterMap route without navigation fields takes photos directly", () => {
@@ -36,7 +33,6 @@ test("an EnterMap route without navigation fields takes photos directly", () => 
         Name: "测试观察点",
         Id: "TestMission",
         EnterMap: "SceneEnterWorldTest",
-        CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",
     };
     const result = resolve(route);
 
@@ -51,7 +47,6 @@ test("a QuickTeleport route can take photos directly without EnterMap", () => {
         Name: "测试观察点",
         Id: "TestMission",
         QuickTeleport: true,
-        CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenLeft",
     };
     const result = resolve(route);
 
@@ -66,7 +61,6 @@ test("direct-photo routes support Heading without navigation configuration", () 
         Name: "测试观察点",
         Id: "TestMission",
         EnterMap: "SceneEnterWorldTest",
-        CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",
         Heading: 90,
     });
 
@@ -95,7 +89,6 @@ test("removed map shorthand fields no longer count as a route", () => {
             5,
             5,
         ],
-        CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",
     });
 
     assert.equal(result.isAdapted, true);
@@ -134,7 +127,6 @@ test("Nav route fields render MapLocateAssertLocation + MapNavigateAction", () =
                 5,
             ],
         ],
-        CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",
         Heading: 90,
     });
 
@@ -186,7 +178,6 @@ test("QuickTeleport Nav routes only require NavPath", () => {
                 ],
             },
         ],
-        CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",
     });
 
     assert.equal(result.isAdapted, true);
@@ -230,7 +221,6 @@ test("incomplete Nav route fields are reported", () => {
                 5,
             ],
         ],
-        CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",
     });
 
     assert.deepEqual(missingFields, ["NavZoneId/NavAssert/NavPath 必须同时配置"]);
@@ -246,7 +236,6 @@ test("QuickTeleport Nav routes with a partial assert still require the full set"
                 5,
             ],
         ],
-        CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",
     });
 
     assert.deepEqual(missingFields, ["NavZoneId/NavAssert/NavPath 必须同时配置"]);

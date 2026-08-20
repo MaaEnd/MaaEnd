@@ -52,7 +52,6 @@ argument-hint: "可选：观察点名称，以及录制好的 EnterMap、NavZone
 | `NavZoneId`            | 普通传送寻路路线必填，MapLocate 的 `zone_id`，用于解释 `NavAssert` 坐标；`QuickTeleport` 可省略                         |
 | `NavAssert`            | 直拍路线不填；普通传送的寻路路线必填；`QuickTeleport` 不执行起点断言，可与 `NavZoneId` 一并省略                         |
 | `NavPath`              | MapNavigateAction 的完整 `path` 数组，不含 `HEADING`；终点可写 `NAVMESH` 动作并按需携带 `target_tier` / `target_deck_y` |
-| `CameraSwipeDirection` | `EnvironmentMonitoringSwipeScreenUp/Down/Left/Right`，用于进入拍照后的摄像头调整                                        |
 
 ### 路线模式
 
@@ -70,7 +69,6 @@ argument-hint: "可选：观察点名称，以及录制好的 EnterMap、NavZone
 | 字段                           | 使用条件与写法                                                                                                                               |
 | ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------- |
 | `target_deck_y`                | 仅写在 `NavPath` 的 `NAVMESH` 动作中。目标点底下压着多张可走面（走廊 / 天桥 / 屋顶）时，填 MapNavigator 重叠面列表读出的那一层高度；不要手估 |
-| `CameraMaxHit`                 | 摄像头最大滑屏次数，默认 2；只有实测需要其他值时才写                                                                                         |
 | `Replace`                      | OCR 易混字符替换表 `[["误识别", "正确字符"], ...]`；仅有实际误识别证据时填写                                                                 |
 | `Heading`                      | 可选。进入拍照模式前的角色朝向，范围 `[0, 360)`；直拍路线会在传送后生成只含 `HEADING` 动作的 `MapNavigateAction`                            |
 | `QuickTeleport`                | 可选布尔值，默认 `false`。启用后依次点击任务地图的“前往传送”和“传送”，不调用 `EnterMap`；此时 `EnterMap` 可省略                              |
@@ -105,10 +103,8 @@ node .agents/skills/environment-monitoring-add-route/check_missing.mjs
 2. 路线方式：已实测可传送后直拍，或 `NavPath`
 3. 普通传送寻路时收集 `NavZoneId` / `NavAssert`；`QuickTeleport + NavPath` 跳过二者
 4. `NavPath`（完整保留录制动作；跨 tier 的 `NAVMESH` 动作按实测数据携带 `target_tier`，目标点存在重叠面时携带工具选出的 `target_deck_y`）
-5. `CameraSwipeDirection`
-6. `CameraMaxHit`（可选）
-7. `Heading`（可选）
-8. `Replace`（可选，有 OCR 误识别证据时）
+5. `Heading`（可选）
+6. `Replace`（可选，有 OCR 误识别证据时）
 
 接受字段后检查数组长度、数值类型和取值范围，不要等写入后才发现格式错误。
 
@@ -136,7 +132,7 @@ node .agents/skills/environment-monitoring-add-route/check_missing.mjs
 - 寻路路线配置 `NavPath`；普通传送同时配置 `NavZoneId` / `NavAssert`，快捷传送可省略二者；
 - 传送后直拍不增加开关字段，不配置任何地图断言与寻路字段；按实测结果可保留 `Heading`；
 - 终点落在重叠可走面上时必须在对应 `NAVMESH` 动作标 `target_deck_y`，数值从工具读、不要手估；作者点不得压成单个 NAVMESH 目标，需要逐段；
-- 默认值不写：`CameraMaxHit: 2`、`QuickTeleport: false`；
+- 默认值不写：`QuickTeleport: false`；
 - 不确定的可选值直接省略，不写占位值或 TODO 注释；
 - 不手改 `Name` / `Id` 排序或 locale 失败提示，这些内容由同步器维护。
 

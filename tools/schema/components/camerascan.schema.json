@@ -1,0 +1,63 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Camera Scan Action Schema",
+    "description": "CameraScanAction parameter definitions. Referenced by custom.action.schema.json.",
+    "$defs": {
+        "CameraScanParam": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "wait_nodes"
+            ],
+            "properties": {
+                "wait_nodes": {
+                    "title": "Wait Nodes",
+                    "description": "Recognition nodes checked before and after every camera movement except reset; success if any hits.",
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "string",
+                        "minLength": 1
+                    }
+                },
+                "aim_target": {
+                    "title": "Aim Target",
+                    "description": "After a recognition hits, swipe from the screen center to the hit box center before returning success. Defaults to false.",
+                    "type": "boolean",
+                    "default": false
+                },
+                "move_up": {
+                    "title": "Move Up Node",
+                    "description": "Pipeline node for one upward camera step. Defaults to __CameraScanMoveUp.",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "move_down": {
+                    "title": "Move Down Node",
+                    "description": "Pipeline node for one downward camera step. Defaults to __CameraScanMoveDown.",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "move_left": {
+                    "title": "Move Left Node",
+                    "description": "Pipeline node for one leftward camera step. Defaults to __CameraScanMoveLeft.",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "move_right": {
+                    "title": "Move Right Node",
+                    "description": "Pipeline node for one rightward camera step. Defaults to __CameraScanMoveRight.",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "fallback_yaw_steps": {
+                    "title": "Fallback Yaw Steps",
+                    "description": "Discrete horizontal movements in each fallback ring. Defaults to 8.",
+                    "type": "integer",
+                    "minimum": 4,
+                    "maximum": 72
+                }
+            }
+        }
+    }
+}

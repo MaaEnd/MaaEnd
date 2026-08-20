@@ -29,6 +29,7 @@
                 "BatchAddFriendsUIDOnAddAction",
                 "BatchAddFriendsUIDOnEmptyAction",
                 "BetterSliding",
+                "CameraScanAction",
                 "CharacterControllerForwardAxisAction",
                 "CharacterControllerPitchDeltaAction",
                 "CharacterControllerRelativeMoveAction",
@@ -237,6 +238,20 @@
 			"then": {
 				"properties": {
 					"custom_action_param": { "$ref": "./components/sell_product.schema.json#/$defs/PrioritySessionParam" }
+				},
+				"required": [ "custom_action_param" ]
+			}
+		},
+		{
+			"if": {
+				"properties": {
+					"custom_action": { "const": "CameraScanAction" }
+				},
+				"required": [ "custom_action" ]
+			},
+			"then": {
+				"properties": {
+					"custom_action_param": { "$ref": "./components/camerascan.schema.json#/$defs/CameraScanParam" }
 				},
 				"required": [ "custom_action_param" ]
 			}

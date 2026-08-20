@@ -295,10 +295,10 @@
             "GiftOperatorConfirmGift"
         ]
     },
-    "GiftOperatorGiftUI": {
-        "desc": "进入送礼界面，确认已加载",
+    "GiftOperatorGiftUILabelColor": {
+        "desc": "送礼界面「默认」标签颜色",
         "recognition": {
-            "type": "OCR",
+            "type": "ColorMatch",
             "param": {
                 "roi": [
                     20,
@@ -306,12 +306,60 @@
                     108,
                     83
                 ],
+                "lower": [
+                    230,
+                    230,
+                    230
+                ],
+                "upper": [
+                    255,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 10
+            }
+        }
+    },
+    "GiftOperatorGiftUITextColor": {
+        "desc": "送礼界面「默认」文字颜色",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": "GiftOperatorGiftUILabelColor",
+                "lower": [
+                    0,
+                    0,
+                    0
+                ],
+                "upper": [
+                    200,
+                    200,
+                    200
+                ],
+                "count": 10
+            }
+        }
+    },
+    "GiftOperatorGiftUIText": {
+        "desc": "送礼界面「默认」文字",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "GiftOperatorGiftUITextColor",
+                "roi_offset": [
+                    -2,
+                    -2,
+                    4,
+                    4
+                ],
                 "expected": [
                     "默认",
                     "預設",
                     "(?i)Default",
                     "デフォルト"
                 ],
+                "only_rec": true,
                 "replace": [
                     [
                         "数",
@@ -321,6 +369,19 @@
                         "以",
                         "认"
                     ]
+                ]
+            }
+        }
+    },
+    "GiftOperatorGiftUI": {
+        "desc": "进入送礼界面，确认已加载",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorGiftUILabelColor",
+                    "GiftOperatorGiftUITextColor",
+                    "GiftOperatorGiftUIText"
                 ]
             }
         },

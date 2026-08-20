@@ -14,6 +14,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/captureuid"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/attachregex"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/autoalt"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/camerascan"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/charactercontroller"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/clearhitcount"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/expendable"
@@ -72,6 +73,7 @@ func registerAll() {
 	expendable.Register()
 	attachregex.Register()
 	autoalt.Register()
+	camerascan.Register()
 	charactercontroller.Register()
 	falseaction.Register()
 	repeataction.Register()

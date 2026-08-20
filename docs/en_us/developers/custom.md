@@ -138,6 +138,20 @@ Example file: [`RepeatUntilFoundAction.json`](../../../assets/resource/pipeline/
 
 Example file: [`CharacterController.json`](../../../assets/resource/pipeline/Interface/Example/CharacterController.json)
 
+### CameraScanAction
+
+`CameraScanAction` lives in `agent/go-service/common/camerascan`. It moves the camera in discrete steps while recognizing targets in photo mode. The action scans the forward area in a center-out nine-grid spiral, then resets the camera and performs discrete yaw rings at middle, upper, and lower pitch levels. It recognizes before and after every camera movement except reset, succeeds when any target hits, and fails after the complete scan misses.
+
+- `wait_nodes: string[]`: Pipeline recognition nodes checked before and after every camera movement. Required; any hit succeeds. Reset movements are not checked.
+- `aim_target?: bool`: Whether to swipe from the screen center to the hit recognition result's `Box` center before returning. Defaults to `false`.
+- `move_up?: string`: Node for one upward camera step. Defaults to `__CameraScanMoveUp`.
+- `move_down?: string`: Node for one downward camera step. Defaults to `__CameraScanMoveDown`.
+- `move_left?: string`: Node for one leftward camera step. Defaults to `__CameraScanMoveLeft`.
+- `move_right?: string`: Node for one rightward camera step. Defaults to `__CameraScanMoveRight`.
+- `fallback_yaw_steps?: int`: Discrete yaw movements in each fallback ring. Defaults to `8`; range `[4, 72]`.
+
+Camera movement runs through `ctx.RunTask` on the corresponding direction nodes (defaults in `Common/Private/CameraScan/Action.json`). Configure `post_wait_freezes` on caller-provided direction nodes when the screen must settle after each move. Aiming still uses the private node `__CameraScanAimSwipe`.
+
 ### PipelineOverride
 
 The `PipelineOverride` implementation is located in `agent/go-service/common/pipelineoverride` and is used at runtime to merge **node-organized partial JSON** into the Pipeline. By default it uses `ctx.OverridePipeline` (current task only); resource-level override is optional. It is suitable for dynamically toggling node switches or adjusting recognition/action parameters **without changing the static flow topology**.

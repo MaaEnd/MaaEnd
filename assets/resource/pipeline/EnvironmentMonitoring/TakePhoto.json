@@ -283,7 +283,23 @@
         "rate_limit": 0,
         "next": [
             "EnvironmentMonitoringShutterButtonPhotographyTarget",
-            "[JumpBack][Anchor]EnvironmentMonitoringAdjustCamera"
+            "[JumpBack]EnvironmentMonitoringCameraScan"
+        ]
+    },
+    "EnvironmentMonitoringCameraScan": {
+        "desc": "扫描拍照视角并检查是否达成拍照目标",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "CameraScanAction",
+        "custom_action_param": {
+            "wait_nodes": [
+                "EnvironmentMonitoringShutterButtonPhotographyTarget"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "EnvironmentMonitoringShutterButtonPhotographyTarget"
         ]
     },
     "EnvironmentMonitoringCheckPhotographyTarget": {
@@ -314,70 +330,6 @@
         "next": [
             "[Anchor]EnvironmentMonitoringBackToTerminal"
         ]
-    },
-    "EnvironmentMonitoringSwipeScreenUp": {
-        "desc": "环境监测拍照，向上滑动屏幕调整朝向",
-        "pre_delay": 0,
-        "action": "Swipe",
-        "begin": [
-            520,
-            360
-        ],
-        "end": [
-            520,
-            240
-        ],
-        "end_hold": 300,
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "EnvironmentMonitoringSwipeScreenDown": {
-        "desc": "环境监测拍照，向下滑动屏幕调整朝向",
-        "pre_delay": 0,
-        "action": "Swipe",
-        "begin": [
-            520,
-            360
-        ],
-        "end": [
-            520,
-            480
-        ],
-        "end_hold": 300,
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "EnvironmentMonitoringSwipeScreenLeft": {
-        "desc": "环境监测拍照，向左滑动屏幕调整朝向",
-        "pre_delay": 0,
-        "action": "Swipe",
-        "begin": [
-            520,
-            360
-        ],
-        "end": [
-            280,
-            360
-        ],
-        "end_hold": 300,
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "EnvironmentMonitoringSwipeScreenRight": {
-        "desc": "环境监测拍照，向右滑动屏幕调整朝向",
-        "pre_delay": 0,
-        "action": "Swipe",
-        "begin": [
-            520,
-            360
-        ],
-        "end": [
-            760,
-            360
-        ],
-        "end_hold": 300,
-        "post_delay": 0,
-        "rate_limit": 0
     },
     "InSelectTool": {
         "desc": "在选择工具界面中",

@@ -304,7 +304,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToPierWaterwheelMove"
+            "PierWaterwheelTakePhoto"
         ]
     },
     "PierWaterwheelNotAdapted": {
@@ -354,7 +354,7 @@
         ]
     },
     "GoToPierWaterwheelNotAtStartPos": {
-        "desc": "不在码头水车任务开始位置附近，先传送再继续寻路",
+        "desc": "前往码头水车传送点，传送后直接拍照",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
@@ -366,30 +366,19 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToPierWaterwheelMove"
+            "PierWaterwheelTakePhoto"
         ]
     },
     "GoToPierWaterwheelMove": {
-        "desc": "自动寻路前往码头水车",
+        "desc": "在码头水车传送点调整拍照朝向",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
             "path": [
                 {
-                    "action": "ZONE",
-                    "zone_id": "Wuling_Base"
-                },
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        984.12,
-                        2205.15
-                    ]
-                },
-                {
                     "action": "HEADING",
-                    "angle": 105
+                    "angle": 0
                 }
             ]
         },
@@ -411,23 +400,12 @@
         "desc": "在码头水车任务拍照点开始拍照",
         "pre_delay": 0,
         "anchor": {
-            "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
-            "EnvironmentMonitoringAdjustCamera": "PierWaterwheelAdjustCamera"
+            "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "EnvironmentMonitoringTakePhoto"
-        ]
-    },
-    "PierWaterwheelAdjustCamera": {
-        "desc": "码头水车任务中调整朝向",
-        "max_hit": 2,
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "EnvironmentMonitoringSwipeScreenUp"
         ]
     }
 }
