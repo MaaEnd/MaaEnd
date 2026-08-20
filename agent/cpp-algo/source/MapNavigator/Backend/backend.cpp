@@ -7,7 +7,7 @@
 #include "Adb/adb_input_backend.h"
 #include "Desktop/desktop_input_backend.h"
 #include "MapNavigator/controller_info_utils.h"
-#include "WlRoots/wlroots_input_backend.h"
+#include "Linux/linux_input_backend.h"
 #include "backend.h"
 
 namespace mapnavigator
@@ -24,11 +24,8 @@ std::unique_ptr<IInputBackend> CreateInputBackend(MaaController* ctrl)
         return backend::adb::CreateAdbInputBackend(ctrl, std::move(controller_type), maplocator::getOrInitLocator());
     }
 
-    // WlRoots 与 Win32 共享同一套 Win32 VK 键码语义（前者在 interface.json 中开启
-    // use_win32_vk_code，由 MaaFramework 翻译为 Linux evdev 码），但 WlRoots 仍需
-    // 自己的 SendViewDeltaSync 实现来处理 Xwayland 鼠标捕获下的视角旋转。
-    if (IsWlrootsLikeControllerType(controller_type)) {
-        return backend::wlroots::CreateWlrootsInputBackend(ctrl, std::move(controller_type));
+    if (IsLinuxControllerType(controller_type)) {
+        return backend::Linux::CreateLinuxInputBackend(ctrl, std::move(controller_type));
     }
 
     return backend::desktop::CreateDesktopInputBackend(ctrl, std::move(controller_type), "win32");

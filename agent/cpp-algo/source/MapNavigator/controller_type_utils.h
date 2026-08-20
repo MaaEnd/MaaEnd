@@ -29,9 +29,9 @@ inline bool IsPlayCoverControllerType(std::string_view controller_type)
     return EqualsIgnoreCase(controller_type, "playcover") || EqualsIgnoreCase(controller_type, "play_cover");
 }
 
-inline bool IsWlrootsLikeControllerType(std::string_view controller_type)
+inline bool IsLinuxControllerType(std::string_view controller_type)
 {
-    return EqualsIgnoreCase(controller_type, "linux") || EqualsIgnoreCase(controller_type, "wlroots");
+    return EqualsIgnoreCase(controller_type, "linux");
 }
 
 } // namespace mapnavigator
