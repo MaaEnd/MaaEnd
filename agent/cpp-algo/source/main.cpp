@@ -17,7 +17,7 @@
 #include "RecoGrid/RecoGridRecognition.h"
 #include "Test/test.h"
 #include "WeaponInventoryScan/WeaponInventoryScan.h"
-#include "Zipline/ZiplineImportAction.h"
+#include "MapNavigator/zipline_import_action.h"
 #include "my_reco_1/my_reco_1.h"
 #include "utils.h"
 
@@ -72,7 +72,7 @@ int main(int argc, char** argv)
 #ifdef MAAEND_HAVE_WEBVIEW2
     // 导入要开一个内嵌浏览器让用户自己登录, 而这个控件只有 Windows 有实现,
     // 其余平台把这个动作名留给各自的实现
-    MaaAgentServerRegisterCustomAction("ZiplineImport", zipline::ZiplineImportActionRun, nullptr);
+    MaaAgentServerRegisterCustomAction("ZiplineImport", mapnavigator::zipline::ZiplineImportActionRun, nullptr);
 #endif
 
     const char* identifier = argv[argc - 1];

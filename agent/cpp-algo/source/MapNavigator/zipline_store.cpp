@@ -1,4 +1,4 @@
-#include "ZiplineStore.h"
+#include "zipline_store.h"
 
 #include <algorithm>
 #include <ctime>
@@ -11,7 +11,7 @@
 
 #include "../utils.h"
 
-namespace zipline
+namespace mapnavigator::zipline
 {
 
 namespace
@@ -179,4 +179,4 @@ void ZiplineStore::replaceMap(ZiplineMapRecord record)
     *it = std::move(record);
 }
 
-} // namespace zipline
+} // namespace mapnavigator::zipline

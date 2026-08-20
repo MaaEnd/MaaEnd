@@ -12,7 +12,7 @@
 
 #include <MaaUtils/Logger.h>
 
-#include "../Zipline/ZiplineStore.h"
+#include "zipline_store.h"
 #include "navi_controller.h"
 #include "navmesh_path_expander.h"
 

@@ -1,4 +1,4 @@
-#include "ZiplineFrames.h"
+#include "zipline_frames.h"
 
 #include <algorithm>
 #include <fstream>
@@ -10,7 +10,7 @@
 
 #include "../utils.h"
 
-namespace zipline
+namespace mapnavigator::zipline
 {
 
 namespace
@@ -218,4 +218,4 @@ std::vector<std::string> ZiplineFrames::mapIds() const
     return ids;
 }
 
-} // namespace zipline
+} // namespace mapnavigator::zipline

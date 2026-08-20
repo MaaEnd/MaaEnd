@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-namespace zipline
+namespace mapnavigator::zipline
 {
 
 // 一条滑索的落点，字段沿用森空岛接口的原义：x/z 张成水平面，y 是高度。
@@ -52,4 +52,4 @@ private:
 // 当前 UTC 时刻的 ISO8601 串，落盘时间戳用。
 std::string CurrentTimestamp();
 
-} // namespace zipline
+} // namespace mapnavigator::zipline
