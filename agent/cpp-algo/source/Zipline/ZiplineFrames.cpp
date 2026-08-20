@@ -206,4 +206,16 @@ double ZiplineFrames::supplyRadius(const std::string& template_id) const
     return it == power_sources_.end() ? 0.0 : it->radius;
 }
 
+std::vector<std::string> ZiplineFrames::mapIds() const
+{
+    std::vector<std::string> ids;
+    for (const auto& frame : frames_) {
+        if (frame.map_id.empty() || std::find(ids.begin(), ids.end(), frame.map_id) != ids.end()) {
+            continue;
+        }
+        ids.push_back(frame.map_id);
+    }
+    return ids;
+}
+
 } // namespace zipline

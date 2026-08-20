@@ -119,6 +119,9 @@ public:
 
     bool empty() const { return frames_.empty(); }
 
+    // 标定过的地图编号，去重。留空的「不限地图」条目不算在内。
+    std::vector<std::string> mapIds() const;
+
 private:
     std::vector<ZiplineFrame> frames_;
     std::vector<ZiplineType> types_;
