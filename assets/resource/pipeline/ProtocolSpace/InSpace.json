@@ -591,12 +591,22 @@
         }
     },
     "ProtocolSpaceReward": {
-        "desc": "协议空间奖励界面",
+        "desc": "协议空间奖励界面，播报当前理智",
         "recognition": "And",
         "all_of": [
             "InNoticeRewards"
         ],
         "pre_wait_freezes": 200,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "FocusOCRAction",
+                "custom_action_param": {
+                    "node": "CommonSanityText",
+                    "focus": "当前理智 %s"
+                }
+            }
+        },
         "next": [
             "ProtocolSpaceRewardSelectClaim",
             "ProtocolSpaceRewardSelectNoClaim"
