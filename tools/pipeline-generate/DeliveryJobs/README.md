@@ -41,9 +41,15 @@ pnpm fetch:zmdmap
 
 ## 新增地区或仓储节点
 
-1. 在 `model.mjs` 中补充地区或仓储节点，并确认五个 `assets/locales/interface/*.json` 中存在对应的
-   `global.region.*` 文案。
-2. 如果新地区支持指定装箱物品，在地区的 `FillItems` 中登记已有的 `item.*` key，并准备对应模板图。
-3. 运行 `pnpm generate:DeliveryJobs`，然后依次运行 `pnpm check` 和 `pnpm test`。
+1. 不需要修改 `model.mjs`：地区、仓储节点完全由 `delivery_jobs.json` 驱动，MaaEnd 标识通过
+   `global.region.*` 文案与游戏数据中文名匹配得到，场景节点名按
+   `SceneEnterMenuRegionalDevelopment{Id}[DepotNode]` 约定生成。
+2. 新地区上线时，只需确认五个 `assets/locales/interface/*.json` 中存在对应的 `global.region.*` 文案，
+   并在 `assets/resource/pipeline/Interface/SceneRegionalDevelopment.json` 中补充对应的场景节点；
+   缺任何一项生成器都会直接报错并指出缺失内容。
+3. 装箱物品选项无需手工登记：生成器自动取地区各仓储节点 `fillable_items` 的交集，过滤出
+   `assets/data/IconRecognition/recognition_items.json` 已收录的物品，由 IconRecognition（`grid_type=shipment`）识别；
+   物品名称直接复用 `iconRecognition.name.*` 多语言 key。
+4. 运行 `pnpm generate:DeliveryJobs`，然后依次运行 `pnpm check` 和 `pnpm test`。
 
 生成的 Pipeline 和 Task 文件不应手工修改；流程级公共节点仍在 `PackCargo.json` 和 `TransferJob.json` 中维护。

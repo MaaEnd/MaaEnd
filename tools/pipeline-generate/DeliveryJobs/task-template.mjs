@@ -245,7 +245,16 @@ function buildFillItemCases(region) {
         label: item.Label,
         pipeline_override: {
             [`DeliveryJobsSelectItemToFill${region.Id}`]: {
-                template: item.Template,
+                custom_recognition_param: {
+                    grid_type: "shipment",
+                    item_ids: [
+                        item.ItemId,
+                    ],
+                    item_recheck_filters: [
+                        item.RecheckFilter,
+                    ],
+                    deduplicate: true,
+                },
             },
         },
     }));

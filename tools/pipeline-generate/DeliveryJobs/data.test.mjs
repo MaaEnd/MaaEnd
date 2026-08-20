@@ -47,14 +47,18 @@ test("DeliveryJobs model has unique regions and depots", () => {
         deliveryJobRegions.flatMap((region) => region.Depots),
         deliveryJobDepots.map((depot) => depot.Id),
     );
+    const iconRecognitionItems = readJsonc(
+        new URL("../../../assets/data/IconRecognition/recognition_items.json", import.meta.url),
+    );
     for (const region of deliveryJobRegions) {
         assert.ok(region.Depots.length > 0, `${region.Id} must contain at least one depot`);
         assert.ok(region.FillItems.some((item) => item.Id === region.DefaultFillItem));
+        assert.ok(region.FillItems.length > 0, `${region.Id} must contain at least one fill item`);
         for (const item of region.FillItems) {
-            assert.ok(
-                existsSync(new URL(`../../../assets/resource/image/${item.Template}`, import.meta.url)),
-                `${region.Id} missing template ${item.Template}`,
-            );
+            const catalogEntry = iconRecognitionItems[item.ItemId];
+            assert.ok(catalogEntry, `${region.Id} item ${item.ItemId} missing from IconRecognition catalog`);
+            assert.equal(item.RecheckFilter, `${catalogEntry.storageKind}:${catalogEntry.categoryType}`);
+            assert.equal(item.Label, `$iconRecognition.name.${item.ItemId}`);
         }
     }
 });
@@ -109,18 +113,12 @@ test("DeliveryJobs generated quote nodes compare the threshold and route the sel
             `DeliveryJobs${depot.Id}QuoteBelowMinimum`,
             "DeliveryJobsBidPriceRecognitionFailed",
         ]);
-        assert.deepEqual(
-            pipeline[`DeliveryJobs${depot.Id}QuoteAtLeastMinimum`].custom_recognition_param,
-            {
-                expression: "{DeliveryJobsSelectedBidPrice}>=119000",
-            },
-        );
-        assert.deepEqual(
-            pipeline[`DeliveryJobs${depot.Id}QuoteBelowMinimum`].custom_recognition_param,
-            {
-                expression: "{DeliveryJobsSelectedBidPrice}<119000",
-            },
-        );
+        assert.deepEqual(pipeline[`DeliveryJobs${depot.Id}QuoteAtLeastMinimum`].custom_recognition_param, {
+            expression: "{DeliveryJobsSelectedBidPrice}>=119000",
+        });
+        assert.deepEqual(pipeline[`DeliveryJobs${depot.Id}QuoteBelowMinimum`].custom_recognition_param, {
+            expression: "{DeliveryJobsSelectedBidPrice}<119000",
+        });
         assert.deepEqual(pipeline[`DeliveryJobs${depot.Id}QuoteAtLeastMinimum`].anchor, {
             DeliveryJobsQuoteAction: "DeliveryJobsQuoteTransferJob",
             DeliveryJobsGoToDepot: `DeliveryJobsReturnAndTransfer${depot.Id}`,
@@ -148,6 +146,37 @@ test("DeliveryJobs task registers region switches and the shared packing option"
     ]);
     assert.equal(task.option.DeliveryJobsAcceptJobOnly, undefined);
     assert.equal(task.option.DeliveryJobsPackCargoOnly, undefined);
+});
+
+test("DeliveryJobs packing item options inject IconRecognition item ids", () => {
+    const task = readGeneratedTask();
+    for (const region of deliveryJobRegions) {
+        const option = task.option[`WhatToFill${region.Id}`];
+        assert.equal(option.type, "select");
+        assert.equal(option.cases.length, region.FillItems.length);
+        assert.equal(option.default_case, region.FillItems.find((item) => item.Id === region.DefaultFillItem).Name);
+        for (const [
+            index,
+            item,
+        ] of region.FillItems.entries()) {
+            const optionCase = option.cases[index];
+            assert.equal(optionCase.name, item.Name);
+            assert.equal(optionCase.label, item.Label);
+            assert.deepEqual(
+                optionCase.pipeline_override[`DeliveryJobsSelectItemToFill${region.Id}`].custom_recognition_param,
+                {
+                    grid_type: "shipment",
+                    item_ids: [
+                        item.ItemId,
+                    ],
+                    item_recheck_filters: [
+                        item.RecheckFilter,
+                    ],
+                    deduplicate: true,
+                },
+            );
+        }
+    }
 });
 
 test("DeliveryJobs task orders five independent modes for every depot", () => {
@@ -311,31 +340,69 @@ test("DeliveryJobs quote branches share actions with branch-specific defaults", 
 test("DeliveryJobs shared bid page locates the selected quote", () => {
     const pipeline = readGeneratedPipeline("DeliveryJobs", "PackCargo.json");
     const adbPipeline = readAdbPipeline("DeliveryJobs", "PackCargo.json");
-    assert.deepEqual(pipeline.DeliveryJobsSelectedBidLocationIcon.roi, [
-        970,
-        132,
-        223,
-        106,
-    ]);
+    assert.deepEqual(
+        pipeline.DeliveryJobsSelectedBidLocationIcon.roi,
+        [
+            970,
+            132,
+            223,
+            106,
+        ],
+    );
     assert.equal(pipeline.DeliveryJobsSelectedBidLocationIcon.template, "DeliveryJobs/LocationIcon.png");
     assert.ok(existsSync(new URL("../../../assets/resource/image/DeliveryJobs/LocationIcon.png", import.meta.url)));
     assert.ok(existsSync(new URL("../../../assets/resource_adb/image/DeliveryJobs/LocationIcon.png", import.meta.url)));
     assert.equal(pipeline.DeliveryJobsSelectedBidPriceOCR.roi, "DeliveryJobsSelectedBidLocationIcon");
-    assert.deepEqual(pipeline.DeliveryJobsSelectedBidPriceOCR.roi_offset, [
-        137,
-        16,
-        28,
-        -2,
-    ]);
-    assert.deepEqual(adbPipeline.DeliveryJobsSelectedBidPriceOCR.roi_offset, [
-        170,
-        20,
-        35,
-        -3,
-    ]);
+    assert.deepEqual(
+        pipeline.DeliveryJobsSelectedBidPriceOCR.roi_offset,
+        [
+            137,
+            16,
+            28,
+            -2,
+        ],
+    );
+    assert.deepEqual(
+        adbPipeline.DeliveryJobsSelectedBidPriceOCR.roi_offset,
+        [
+            170,
+            20,
+            35,
+            -3,
+        ],
+    );
     assert.equal(pipeline.DeliveryJobsSelectedBidPriceOCR.only_rec, true);
     assert.deepEqual(pipeline.DeliveryJobsSelectedBidPriceOCR.expected, ["\\d+(?:[.,]\\d+)?"]);
-    assert.deepEqual(pipeline.DeliveryJobsSelectedBidPriceOCR.replace, [["方", "万"]]);
+    assert.deepEqual(pipeline.DeliveryJobsSelectedBidPriceOCR.replace, [
+        [
+            "方",
+            "万",
+        ],
+    ]);
+});
+
+test("DeliveryJobs packing item selection uses the IconRecognition shipment grid", () => {
+    const pipeline = readGeneratedPipeline("DeliveryJobs", "PackCargo.json");
+    const adbPipeline = readAdbPipeline("DeliveryJobs", "PackCargo.json");
+    for (const region of deliveryJobRegions) {
+        const node = pipeline[`DeliveryJobsSelectItemToFill${region.Id}`];
+        assert.equal(node.recognition, "Custom");
+        assert.equal(node.custom_recognition, "IconRecognition");
+        assert.equal(node.custom_recognition_param.grid_type, "shipment");
+        assert.deepEqual(node.custom_recognition_param.item_ids, [
+            region.DefaultFillItem,
+        ]);
+        assert.equal(node.action, "Click");
+        assert.deepEqual(
+            adbPipeline[`DeliveryJobsSelectItemToFill${region.Id}`].roi,
+            [
+                43,
+                169,
+                480,
+                408,
+            ],
+        );
+    }
 });
 
 test("DeliveryJobs shared bid page dispatches through common quote actions", () => {

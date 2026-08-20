@@ -1425,47 +1425,1154 @@
             "label": "$task.DeliveryJobs.WhatToFillValleyIV",
             "cases": [
                 {
+                    "name": "源矿",
+                    "label": "$iconRecognition.name.item_originium_ore",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_originium_ore"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Ore"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "紫晶矿",
+                    "label": "$iconRecognition.name.item_quartz_sand",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_quartz_sand"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Ore"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "蓝铁矿",
+                    "label": "$iconRecognition.name.item_iron_ore",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_iron_ore"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Ore"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "柑实",
+                    "label": "$iconRecognition.name.item_plant_moss_2",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_plant_moss_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "柑实种子",
+                    "label": "$iconRecognition.name.item_plant_moss_seed_2",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_plant_moss_seed_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "砂叶",
+                    "label": "$iconRecognition.name.item_plant_moss_3",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_plant_moss_3"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "砂叶种子",
+                    "label": "$iconRecognition.name.item_plant_moss_seed_3",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_plant_moss_seed_3"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "芽针",
+                    "label": "$iconRecognition.name.item_plant_grass_2",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_plant_grass_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "芽针种子",
+                    "label": "$iconRecognition.name.item_plant_grass_seed_2",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_plant_grass_seed_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "荞花",
+                    "label": "$iconRecognition.name.item_plant_moss_1",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_plant_moss_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "荞花种子",
+                    "label": "$iconRecognition.name.item_plant_moss_seed_1",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_plant_moss_seed_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "酮化树种",
+                    "label": "$iconRecognition.name.item_plant_bbflower_seed_1",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_plant_bbflower_seed_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "酮化灌木",
+                    "label": "$iconRecognition.name.item_plant_bbflower_1",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_plant_bbflower_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "锦草",
+                    "label": "$iconRecognition.name.item_plant_grass_1",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_plant_grass_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "锦草种子",
+                    "label": "$iconRecognition.name.item_plant_grass_seed_1",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_plant_grass_seed_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "中容谷地电池",
+                    "label": "$iconRecognition.name.item_proc_battery_2",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_proc_battery_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "低容谷地电池",
+                    "label": "$iconRecognition.name.item_proc_battery_1",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_proc_battery_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "密制晶体",
+                    "label": "$iconRecognition.name.item_crystal_enr",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_crystal_enr"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "晶体外壳",
+                    "label": "$iconRecognition.name.item_crystal_shell",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_crystal_shell"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "晶体外壳粉末",
+                    "label": "$iconRecognition.name.item_crystal_powder",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_crystal_powder"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "源石粉末",
+                    "label": "$iconRecognition.name.item_originium_powder",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_originium_powder"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "灼壳虫粉末",
+                    "label": "$iconRecognition.name.item_plant_tundra_insect_powder_2",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_plant_tundra_insect_powder_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "砂叶粉末",
-                    "label": "$item.SandleafPowder",
+                    "label": "$iconRecognition.name.item_plant_moss_powder_3",
                     "pipeline_override": {
                         "DeliveryJobsSelectItemToFillValleyIV": {
-                            "template": "DeliveryJobs/SandleafPowder.png"
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_plant_moss_powder_3"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
                         }
                     }
                 },
                 {
-                    "name": "荞花粉末",
-                    "label": "$item.BuckflowerPowder",
+                    "name": "碳块",
+                    "label": "$iconRecognition.name.item_carbon_mtl",
                     "pipeline_override": {
                         "DeliveryJobsSelectItemToFillValleyIV": {
-                            "template": "DeliveryJobs/BuckflowerPowder.png"
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_carbon_mtl"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
                         }
                     }
                 },
                 {
-                    "name": "柑实粉末",
-                    "label": "$item.CitromePowder",
+                    "name": "碳粉末",
+                    "label": "$iconRecognition.name.item_carbon_powder",
                     "pipeline_override": {
                         "DeliveryJobsSelectItemToFillValleyIV": {
-                            "template": "DeliveryJobs/CitromePowder.png"
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_carbon_powder"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
                         }
                     }
                 },
                 {
-                    "name": "酮化灌木粉末",
-                    "label": "$item.AketinePowder",
+                    "name": "稳定碳块",
+                    "label": "$iconRecognition.name.item_carbon_enr",
                     "pipeline_override": {
                         "DeliveryJobsSelectItemToFillValleyIV": {
-                            "template": "DeliveryJobs/AketinePowder.png"
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_carbon_enr"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "紫晶粉末",
+                    "label": "$iconRecognition.name.item_quartz_powder",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_quartz_powder"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "紫晶纤维",
+                    "label": "$iconRecognition.name.item_quartz_glass",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_quartz_glass"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "紫晶装备原件",
+                    "label": "$iconRecognition.name.item_equip_script_1",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_equip_script_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "紫晶质瓶",
+                    "label": "$iconRecognition.name.item_glass_bottle",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_glass_bottle"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "紫晶零件",
+                    "label": "$iconRecognition.name.item_glass_cmpt",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_glass_cmpt"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "细磨柑实粉末",
+                    "label": "$iconRecognition.name.item_plant_moss_enr_powder_2",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_plant_moss_enr_powder_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "细磨荞花粉末",
+                    "label": "$iconRecognition.name.item_plant_moss_enr_powder_1",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_plant_moss_enr_powder_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "致密晶体粉末",
+                    "label": "$iconRecognition.name.item_crystal_enr_powder",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_crystal_enr_powder"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "致密源石粉末",
+                    "label": "$iconRecognition.name.item_originium_enr_powder",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_originium_enr_powder"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "致密碳粉末",
+                    "label": "$iconRecognition.name.item_carbon_enr_powder",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_carbon_enr_powder"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "致密蓝铁粉末",
+                    "label": "$iconRecognition.name.item_iron_enr_powder",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_iron_enr_powder"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "萤壳虫粉末",
+                    "label": "$iconRecognition.name.item_plant_tundra_insect_powder_1",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_plant_tundra_insect_powder_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "蓝铁块",
+                    "label": "$iconRecognition.name.item_iron_nugget",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_iron_nugget"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "蓝铁瓶",
+                    "label": "$iconRecognition.name.item_iron_bottle",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_iron_bottle"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
                         }
                     }
                 },
                 {
                     "name": "蓝铁粉末",
-                    "label": "$item.FerriumPowder",
+                    "label": "$iconRecognition.name.item_iron_powder",
                     "pipeline_override": {
                         "DeliveryJobsSelectItemToFillValleyIV": {
-                            "template": "DeliveryJobs/FerriumPowder.png"
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_iron_powder"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "蓝铁装备原件",
+                    "label": "$iconRecognition.name.item_equip_script_2",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_equip_script_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "酮化灌木粉末",
+                    "label": "$iconRecognition.name.item_plant_bbflower_powder_1",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_plant_bbflower_powder_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "钢制零件",
+                    "label": "$iconRecognition.name.item_iron_enr_cmpt",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_iron_enr_cmpt"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "钢块",
+                    "label": "$iconRecognition.name.item_iron_enr",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_iron_enr"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "钢质瓶",
+                    "label": "$iconRecognition.name.item_iron_enr_bottle",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_iron_enr_bottle"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "铁制零件",
+                    "label": "$iconRecognition.name.item_iron_cmpt",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_iron_cmpt"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "高容谷地电池",
+                    "label": "$iconRecognition.name.item_proc_battery_3",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_proc_battery_3"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "高晶粉末",
+                    "label": "$iconRecognition.name.item_quartz_enr_powder",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_quartz_enr_powder"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "高晶纤维",
+                    "label": "$iconRecognition.name.item_quartz_enr",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_quartz_enr"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "高晶装备原件",
+                    "label": "$iconRecognition.name.item_equip_script_3",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_equip_script_3"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "高晶质瓶",
+                    "label": "$iconRecognition.name.item_glass_enr_bottle",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_glass_enr_bottle"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "高晶零件",
+                    "label": "$iconRecognition.name.item_glass_enr_cmpt",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_glass_enr_cmpt"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "优质柑实罐头",
+                    "label": "$iconRecognition.name.item_bottled_food_2",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_bottled_food_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "优质荞愈胶囊",
+                    "label": "$iconRecognition.name.item_bottled_rec_hp_2",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_bottled_rec_hp_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "工业爆炸物",
+                    "label": "$iconRecognition.name.item_proc_bomb_1",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_proc_bomb_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "柑实粉末",
+                    "label": "$iconRecognition.name.item_plant_moss_powder_2",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_plant_moss_powder_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "柑实罐头",
+                    "label": "$iconRecognition.name.item_bottled_food_1",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_bottled_food_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "精选柑实罐头",
+                    "label": "$iconRecognition.name.item_bottled_food_3",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_bottled_food_3"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "精选荞愈胶囊",
+                    "label": "$iconRecognition.name.item_bottled_rec_hp_3",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_bottled_rec_hp_3"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "芽针粉末",
+                    "label": "$iconRecognition.name.item_plant_grass_powder_2",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_plant_grass_powder_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "荞愈胶囊",
+                    "label": "$iconRecognition.name.item_bottled_rec_hp_1",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_bottled_rec_hp_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "荞花粉末",
+                    "label": "$iconRecognition.name.item_plant_moss_powder_1",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_plant_moss_powder_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "锦草粉末",
+                    "label": "$iconRecognition.name.item_plant_grass_powder_1",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillValleyIV": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_plant_grass_powder_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
                         }
                     }
                 }
@@ -1477,92 +2584,2990 @@
             "label": "$task.DeliveryJobs.WhatToFillWuling",
             "cases": [
                 {
-                    "name": "砂叶粉末",
-                    "label": "$item.SandleafPowder",
+                    "name": "驮兽粪便",
+                    "label": "$iconRecognition.name.item_muck_feces_1",
                     "pipeline_override": {
                         "DeliveryJobsSelectItemToFillWuling": {
-                            "template": "DeliveryJobs/SandleafPowder.png"
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_muck_feces_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Doodad"
+                                ],
+                                "deduplicate": true
+                            }
                         }
                     }
                 },
                 {
-                    "name": "荞花粉末",
-                    "label": "$item.BuckflowerPowder",
+                    "name": "源矿",
+                    "label": "$iconRecognition.name.item_originium_ore",
                     "pipeline_override": {
                         "DeliveryJobsSelectItemToFillWuling": {
-                            "template": "DeliveryJobs/BuckflowerPowder.png"
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_originium_ore"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Ore"
+                                ],
+                                "deduplicate": true
+                            }
                         }
                     }
                 },
                 {
-                    "name": "柑实粉末",
-                    "label": "$item.CitromePowder",
+                    "name": "紫晶矿",
+                    "label": "$iconRecognition.name.item_quartz_sand",
                     "pipeline_override": {
                         "DeliveryJobsSelectItemToFillWuling": {
-                            "template": "DeliveryJobs/CitromePowder.png"
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_quartz_sand"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Ore"
+                                ],
+                                "deduplicate": true
+                            }
                         }
                     }
                 },
                 {
-                    "name": "酮化灌木粉末",
-                    "label": "$item.AketinePowder",
+                    "name": "蓝铁矿",
+                    "label": "$iconRecognition.name.item_iron_ore",
                     "pipeline_override": {
                         "DeliveryJobsSelectItemToFillWuling": {
-                            "template": "DeliveryJobs/AketinePowder.png"
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_iron_ore"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Ore"
+                                ],
+                                "deduplicate": true
+                            }
                         }
                     }
                 },
                 {
-                    "name": "芽针粉末",
-                    "label": "$item.YazhenPowder",
+                    "name": "赤铜矿",
+                    "label": "$iconRecognition.name.item_copper_ore",
                     "pipeline_override": {
                         "DeliveryJobsSelectItemToFillWuling": {
-                            "template": "DeliveryJobs/YazhenPowder.png"
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_copper_ore"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Ore"
+                                ],
+                                "deduplicate": true
+                            }
                         }
                     }
                 },
                 {
-                    "name": "锦草粉末",
-                    "label": "$item.JincaoPowder",
+                    "name": "柑实",
+                    "label": "$iconRecognition.name.item_plant_moss_2",
                     "pipeline_override": {
                         "DeliveryJobsSelectItemToFillWuling": {
-                            "template": "DeliveryJobs/JincaoPowder.png"
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_plant_moss_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "柑实种子",
+                    "label": "$iconRecognition.name.item_plant_moss_seed_2",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_plant_moss_seed_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "砂叶",
+                    "label": "$iconRecognition.name.item_plant_moss_3",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_plant_moss_3"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "砂叶种子",
+                    "label": "$iconRecognition.name.item_plant_moss_seed_3",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_plant_moss_seed_3"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
                         }
                     }
                 },
                 {
                     "name": "芽针",
-                    "label": "$item.Yazhen",
+                    "label": "$iconRecognition.name.item_plant_grass_2",
                     "pipeline_override": {
                         "DeliveryJobsSelectItemToFillWuling": {
-                            "template": "DeliveryJobs/Yazhen.png"
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_plant_grass_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "芽针种子",
+                    "label": "$iconRecognition.name.item_plant_grass_seed_2",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_plant_grass_seed_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "荞花",
+                    "label": "$iconRecognition.name.item_plant_moss_1",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_plant_moss_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "荞花种子",
+                    "label": "$iconRecognition.name.item_plant_moss_seed_1",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_plant_moss_seed_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "酮化树种",
+                    "label": "$iconRecognition.name.item_plant_bbflower_seed_1",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_plant_bbflower_seed_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "酮化灌木",
+                    "label": "$iconRecognition.name.item_plant_bbflower_1",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_plant_bbflower_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
                         }
                     }
                 },
                 {
                     "name": "锦草",
-                    "label": "$item.Jincao",
+                    "label": "$iconRecognition.name.item_plant_grass_1",
                     "pipeline_override": {
                         "DeliveryJobsSelectItemToFillWuling": {
-                            "template": "DeliveryJobs/Jincao.png"
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_plant_grass_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "锦草种子",
+                    "label": "$iconRecognition.name.item_plant_grass_seed_1",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_plant_grass_seed_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Plant"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "中容武陵电池",
+                    "label": "$iconRecognition.name.item_proc_battery_5",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_proc_battery_5"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "中容谷地电池",
+                    "label": "$iconRecognition.name.item_proc_battery_2",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_proc_battery_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "低容武陵电池",
+                    "label": "$iconRecognition.name.item_proc_battery_4",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_proc_battery_4"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "低容谷地电池",
+                    "label": "$iconRecognition.name.item_proc_battery_1",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_proc_battery_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "分离芯",
+                    "label": "$iconRecognition.name.item_filter_core",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_filter_core"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "壤晶",
+                    "label": "$iconRecognition.name.item_xiranite_poly",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_xiranite_poly"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "密制晶体",
+                    "label": "$iconRecognition.name.item_crystal_enr",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_crystal_enr"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
                         }
                     }
                 },
                 {
                     "name": "息壤",
-                    "label": "$item.Xiranite",
+                    "label": "$iconRecognition.name.item_xiranite_powder",
                     "pipeline_override": {
                         "DeliveryJobsSelectItemToFillWuling": {
-                            "template": "DeliveryJobs/Xiranite.png"
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_xiranite_powder"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "息壤装备原件",
+                    "label": "$iconRecognition.name.item_equip_script_4",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_equip_script_4"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "晶体外壳",
+                    "label": "$iconRecognition.name.item_crystal_shell",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_crystal_shell"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "晶体外壳粉末",
+                    "label": "$iconRecognition.name.item_crystal_powder",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_crystal_powder"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "源石粉末",
+                    "label": "$iconRecognition.name.item_originium_powder",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_originium_powder"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "灼壳虫粉末",
+                    "label": "$iconRecognition.name.item_plant_tundra_insect_powder_2",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_plant_tundra_insect_powder_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "灼铜块",
+                    "label": "$iconRecognition.name.item_copper_enr2",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_copper_enr2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "灼铜装备原件",
+                    "label": "$iconRecognition.name.item_equip_script_4_3",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_equip_script_4_3"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "灼铜零件",
+                    "label": "$iconRecognition.name.item_copper_enr2_cmpt",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_copper_enr2_cmpt"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "砂叶粉末",
+                    "label": "$iconRecognition.name.item_plant_moss_powder_3",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_plant_moss_powder_3"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "碳块",
+                    "label": "$iconRecognition.name.item_carbon_mtl",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_carbon_mtl"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "碳粉末",
+                    "label": "$iconRecognition.name.item_carbon_powder",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_carbon_powder"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "稳定碳块",
+                    "label": "$iconRecognition.name.item_carbon_enr",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_carbon_enr"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "紫晶粉末",
+                    "label": "$iconRecognition.name.item_quartz_powder",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_quartz_powder"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "紫晶纤维",
+                    "label": "$iconRecognition.name.item_quartz_glass",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_quartz_glass"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "紫晶装备原件",
+                    "label": "$iconRecognition.name.item_equip_script_1",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_equip_script_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "紫晶质瓶",
+                    "label": "$iconRecognition.name.item_glass_bottle",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_glass_bottle"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "紫晶质瓶(壤晶废液)",
+                    "label": "$iconRecognition.name.item_fbottle_glass_xiranite_poly",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_glass_xiranite_poly"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "紫晶质瓶(惰性壤晶废液)",
+                    "label": "$iconRecognition.name.item_fbottle_glass_xiranite_lowpoly",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_glass_xiranite_lowpoly"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "紫晶质瓶(污水)",
+                    "label": "$iconRecognition.name.item_fbottle_glass_sewage",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_glass_sewage"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "紫晶质瓶(沉积酸)",
+                    "label": "$iconRecognition.name.item_fbottle_glass_acid",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_glass_acid"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "紫晶质瓶(液化息壤)",
+                    "label": "$iconRecognition.name.item_fbottle_glass_xiranite",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_glass_xiranite"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "紫晶质瓶(液化重息壤)",
+                    "label": "$iconRecognition.name.item_fbottle_glass_xiranite_enr",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_glass_xiranite_enr"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "紫晶质瓶(清水)",
+                    "label": "$iconRecognition.name.item_fbottle_glass_water",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_glass_water"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "紫晶质瓶(芽针溶液)",
+                    "label": "$iconRecognition.name.item_fbottle_glass_grass_2",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_glass_grass_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "紫晶质瓶(赤铜溶液)",
+                    "label": "$iconRecognition.name.item_fbottle_glass_copper",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_glass_copper"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "紫晶质瓶(赫铜溶液)",
+                    "label": "$iconRecognition.name.item_fbottle_glass_copper_enr",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_glass_copper_enr"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "紫晶质瓶(锦草溶液)",
+                    "label": "$iconRecognition.name.item_fbottle_glass_grass_1",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_glass_grass_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "紫晶零件",
+                    "label": "$iconRecognition.name.item_glass_cmpt",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_glass_cmpt"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "细磨柑实粉末",
+                    "label": "$iconRecognition.name.item_plant_moss_enr_powder_2",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_plant_moss_enr_powder_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "细磨荞花粉末",
+                    "label": "$iconRecognition.name.item_plant_moss_enr_powder_1",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_plant_moss_enr_powder_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "膨地啪",
+                    "label": "$iconRecognition.name.item_muck_xiranite_1",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_muck_xiranite_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "致密晶体粉末",
+                    "label": "$iconRecognition.name.item_crystal_enr_powder",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_crystal_enr_powder"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "致密源石粉末",
+                    "label": "$iconRecognition.name.item_originium_enr_powder",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_originium_enr_powder"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "致密碳粉末",
+                    "label": "$iconRecognition.name.item_carbon_enr_powder",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_carbon_enr_powder"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "致密蓝铁粉末",
+                    "label": "$iconRecognition.name.item_iron_enr_powder",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_iron_enr_powder"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "萤壳虫粉末",
+                    "label": "$iconRecognition.name.item_plant_tundra_insect_powder_1",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_plant_tundra_insect_powder_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "蓝铁块",
+                    "label": "$iconRecognition.name.item_iron_nugget",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_iron_nugget"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "蓝铁瓶",
+                    "label": "$iconRecognition.name.item_iron_bottle",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_iron_bottle"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "蓝铁瓶(壤晶废液)",
+                    "label": "$iconRecognition.name.item_fbottle_iron_xiranite_poly",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_iron_xiranite_poly"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "蓝铁瓶(惰性壤晶废液)",
+                    "label": "$iconRecognition.name.item_fbottle_iron_xiranite_lowpoly",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_iron_xiranite_lowpoly"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "蓝铁瓶(污水)",
+                    "label": "$iconRecognition.name.item_fbottle_iron_sewage",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_iron_sewage"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "蓝铁瓶(沉积酸)",
+                    "label": "$iconRecognition.name.item_fbottle_iron_acid",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_iron_acid"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "蓝铁瓶(液化息壤)",
+                    "label": "$iconRecognition.name.item_fbottle_iron_xiranite",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_iron_xiranite"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "蓝铁瓶(液化重息壤)",
+                    "label": "$iconRecognition.name.item_fbottle_iron_xiranite_enr",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_iron_xiranite_enr"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "蓝铁瓶(清水)",
+                    "label": "$iconRecognition.name.item_fbottle_iron_water",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_iron_water"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "蓝铁瓶(芽针溶液)",
+                    "label": "$iconRecognition.name.item_fbottle_iron_grass_2",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_iron_grass_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "蓝铁瓶(赤铜溶液)",
+                    "label": "$iconRecognition.name.item_fbottle_iron_copper",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_iron_copper"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "蓝铁瓶(赫铜溶液)",
+                    "label": "$iconRecognition.name.item_fbottle_iron_copper_enr",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_iron_copper_enr"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "蓝铁瓶(锦草溶液)",
+                    "label": "$iconRecognition.name.item_fbottle_iron_grass_1",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_iron_grass_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
                         }
                     }
                 },
                 {
                     "name": "蓝铁粉末",
-                    "label": "$item.FerriumPowder",
+                    "label": "$iconRecognition.name.item_iron_powder",
                     "pipeline_override": {
                         "DeliveryJobsSelectItemToFillWuling": {
-                            "template": "DeliveryJobs/FerriumPowder.png"
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_iron_powder"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "蓝铁装备原件",
+                    "label": "$iconRecognition.name.item_equip_script_2",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_equip_script_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜块",
+                    "label": "$iconRecognition.name.item_copper_nugget",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_copper_nugget"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜瓶",
+                    "label": "$iconRecognition.name.item_copper_bottle",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_copper_bottle"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜瓶(壤晶废液)",
+                    "label": "$iconRecognition.name.item_fbottle_copper_xiranite_poly",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_copper_xiranite_poly"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜瓶(惰性壤晶废液)",
+                    "label": "$iconRecognition.name.item_fbottle_copper_xiranite_lowpoly",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_copper_xiranite_lowpoly"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜瓶(污水)",
+                    "label": "$iconRecognition.name.item_fbottle_copper_sewage",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_copper_sewage"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜瓶(沉积酸)",
+                    "label": "$iconRecognition.name.item_fbottle_copper_acid",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_copper_acid"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜瓶(液化息壤)",
+                    "label": "$iconRecognition.name.item_fbottle_copper_xiranite",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_copper_xiranite"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜瓶(液化重息壤)",
+                    "label": "$iconRecognition.name.item_fbottle_copper_xiranite_enr",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_copper_xiranite_enr"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜瓶(清水)",
+                    "label": "$iconRecognition.name.item_fbottle_copper_water",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_copper_water"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜瓶(芽针溶液)",
+                    "label": "$iconRecognition.name.item_fbottle_copper_grass_2",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_copper_grass_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜瓶(赤铜溶液)",
+                    "label": "$iconRecognition.name.item_fbottle_copper_copper",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_copper_copper"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜瓶(赫铜溶液)",
+                    "label": "$iconRecognition.name.item_fbottle_copper_copper_enr",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_copper_copper_enr"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜瓶(锦草溶液)",
+                    "label": "$iconRecognition.name.item_fbottle_copper_grass_1",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_copper_grass_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜粉末",
+                    "label": "$iconRecognition.name.item_copper_powder",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_copper_powder"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜耐压罐",
+                    "label": "$iconRecognition.name.item_copper_jar",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_copper_jar"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜耐压罐(息壤气)",
+                    "label": "$iconRecognition.name.item_gasjar_copper_gas_xiranite",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_gasjar_copper_gas_xiranite"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜耐压罐(惰气)",
+                    "label": "$iconRecognition.name.item_gasjar_copper_gas_inert",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_gasjar_copper_gas_inert"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜耐压罐(气态灼铜)",
+                    "label": "$iconRecognition.name.item_gasjar_copper_gas_copper_enr2",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_gasjar_copper_gas_copper_enr2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜耐压罐(气态赤铜)",
+                    "label": "$iconRecognition.name.item_gasjar_copper_gas_copper",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_gasjar_copper_gas_copper"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜耐压罐(气态赫铜)",
+                    "label": "$iconRecognition.name.item_gasjar_copper_gas_copper_enr",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_gasjar_copper_gas_copper_enr"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜耐压罐(水蒸气)",
+                    "label": "$iconRecognition.name.item_gasjar_copper_gas_water",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_gasjar_copper_gas_water"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜耐压罐(酸气)",
+                    "label": "$iconRecognition.name.item_gasjar_copper_gas_acid",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_gasjar_copper_gas_acid"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜耐压罐(重息壤气)",
+                    "label": "$iconRecognition.name.item_gasjar_copper_gas_xiranite_enr",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_gasjar_copper_gas_xiranite_enr"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜装备原件",
+                    "label": "$iconRecognition.name.item_equip_script_4_1",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_equip_script_4_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜零件",
+                    "label": "$iconRecognition.name.item_copper_cmpt",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_copper_cmpt"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赫铜块",
+                    "label": "$iconRecognition.name.item_copper_enr",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_copper_enr"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赫铜瓶",
+                    "label": "$iconRecognition.name.item_copper_enr_bottle",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_copper_enr_bottle"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赫铜瓶(壤晶废液)",
+                    "label": "$iconRecognition.name.item_fbottle_copperenr_xiranite_poly",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_copperenr_xiranite_poly"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赫铜瓶(惰性壤晶废液)",
+                    "label": "$iconRecognition.name.item_fbottle_copperenr_xiranite_lowpoly",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_copperenr_xiranite_lowpoly"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赫铜瓶(污水)",
+                    "label": "$iconRecognition.name.item_fbottle_copperenr_sewage",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_copperenr_sewage"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赫铜瓶(沉积酸)",
+                    "label": "$iconRecognition.name.item_fbottle_copperenr_acid",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_copperenr_acid"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赫铜瓶(液化息壤)",
+                    "label": "$iconRecognition.name.item_fbottle_copperenr_xiranite",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_copperenr_xiranite"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赫铜瓶(液化重息壤)",
+                    "label": "$iconRecognition.name.item_fbottle_copperenr_xiranite_enr",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_copperenr_xiranite_enr"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赫铜瓶(清水)",
+                    "label": "$iconRecognition.name.item_fbottle_copperenr_water",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_copperenr_water"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赫铜瓶(芽针溶液)",
+                    "label": "$iconRecognition.name.item_fbottle_copperenr_grass_2",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_copperenr_grass_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赫铜瓶(赤铜溶液)",
+                    "label": "$iconRecognition.name.item_fbottle_copperenr_copper",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_copperenr_copper"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赫铜瓶(赫铜溶液)",
+                    "label": "$iconRecognition.name.item_fbottle_copperenr_copper_enr",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_copperenr_copper_enr"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赫铜瓶(锦草溶液)",
+                    "label": "$iconRecognition.name.item_fbottle_copperenr_grass_1",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_copperenr_grass_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赫铜装备原件",
+                    "label": "$iconRecognition.name.item_equip_script_4_2",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_equip_script_4_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赫铜零件",
+                    "label": "$iconRecognition.name.item_copper_enr_cmpt",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_copper_enr_cmpt"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "轻壤晶",
+                    "label": "$iconRecognition.name.item_xiranite_lowpoly",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_xiranite_lowpoly"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "酮化灌木粉末",
+                    "label": "$iconRecognition.name.item_plant_bbflower_powder_1",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_plant_bbflower_powder_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "重息壤",
+                    "label": "$iconRecognition.name.item_xiranite_enr_powder",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_xiranite_enr_powder"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "钢制零件",
+                    "label": "$iconRecognition.name.item_iron_enr_cmpt",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_iron_enr_cmpt"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "钢块",
+                    "label": "$iconRecognition.name.item_iron_enr",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_iron_enr"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "钢质瓶",
+                    "label": "$iconRecognition.name.item_iron_enr_bottle",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_iron_enr_bottle"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "钢质瓶(壤晶废液)",
+                    "label": "$iconRecognition.name.item_fbottle_ironenr_xiranite_poly",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_ironenr_xiranite_poly"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "钢质瓶(惰性壤晶废液)",
+                    "label": "$iconRecognition.name.item_fbottle_ironenr_xiranite_lowpoly",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_ironenr_xiranite_lowpoly"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "钢质瓶(污水)",
+                    "label": "$iconRecognition.name.item_fbottle_ironenr_sewage",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_ironenr_sewage"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "钢质瓶(沉积酸)",
+                    "label": "$iconRecognition.name.item_fbottle_ironenr_acid",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_ironenr_acid"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "钢质瓶(液化息壤)",
+                    "label": "$iconRecognition.name.item_fbottle_ironenr_xiranite",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_ironenr_xiranite"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "钢质瓶(液化重息壤)",
+                    "label": "$iconRecognition.name.item_fbottle_ironenr_xiranite_enr",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_ironenr_xiranite_enr"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "钢质瓶(清水)",
+                    "label": "$iconRecognition.name.item_fbottle_ironenr_water",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_ironenr_water"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "钢质瓶(芽针溶液)",
+                    "label": "$iconRecognition.name.item_fbottle_ironenr_grass_2",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_ironenr_grass_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "钢质瓶(赤铜溶液)",
+                    "label": "$iconRecognition.name.item_fbottle_ironenr_copper",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_ironenr_copper"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "钢质瓶(赫铜溶液)",
+                    "label": "$iconRecognition.name.item_fbottle_ironenr_copper_enr",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_ironenr_copper_enr"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "钢质瓶(锦草溶液)",
+                    "label": "$iconRecognition.name.item_fbottle_ironenr_grass_1",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_ironenr_grass_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "铁制零件",
+                    "label": "$iconRecognition.name.item_iron_cmpt",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_iron_cmpt"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "高容谷地电池",
+                    "label": "$iconRecognition.name.item_proc_battery_3",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_proc_battery_3"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "高晶粉末",
+                    "label": "$iconRecognition.name.item_quartz_enr_powder",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_quartz_enr_powder"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "高晶纤维",
+                    "label": "$iconRecognition.name.item_quartz_enr",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_quartz_enr"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "高晶装备原件",
+                    "label": "$iconRecognition.name.item_equip_script_3",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_equip_script_3"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "高晶质瓶",
+                    "label": "$iconRecognition.name.item_glass_enr_bottle",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_glass_enr_bottle"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "高晶质瓶(壤晶废液)",
+                    "label": "$iconRecognition.name.item_fbottle_glassenr_xiranite_poly",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_glassenr_xiranite_poly"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "高晶质瓶(惰性壤晶废液)",
+                    "label": "$iconRecognition.name.item_fbottle_glassenr_xiranite_lowpoly",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_glassenr_xiranite_lowpoly"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "高晶质瓶(污水)",
+                    "label": "$iconRecognition.name.item_fbottle_glassenr_sewage",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_glassenr_sewage"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "高晶质瓶(沉积酸)",
+                    "label": "$iconRecognition.name.item_fbottle_glassenr_acid",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_glassenr_acid"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "高晶质瓶(液化息壤)",
+                    "label": "$iconRecognition.name.item_fbottle_glassenr_xiranite",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_glassenr_xiranite"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "高晶质瓶(液化重息壤)",
+                    "label": "$iconRecognition.name.item_fbottle_glassenr_xiranite_enr",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_glassenr_xiranite_enr"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "高晶质瓶(清水)",
+                    "label": "$iconRecognition.name.item_fbottle_glassenr_water",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_glassenr_water"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "高晶质瓶(芽针溶液)",
+                    "label": "$iconRecognition.name.item_fbottle_glassenr_grass_2",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_glassenr_grass_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "高晶质瓶(赤铜溶液)",
+                    "label": "$iconRecognition.name.item_fbottle_glassenr_copper",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_glassenr_copper"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "高晶质瓶(赫铜溶液)",
+                    "label": "$iconRecognition.name.item_fbottle_glassenr_copper_enr",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_glassenr_copper_enr"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "高晶质瓶(锦草溶液)",
+                    "label": "$iconRecognition.name.item_fbottle_glassenr_grass_1",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_fbottle_glassenr_grass_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "高晶零件",
+                    "label": "$iconRecognition.name.item_glass_enr_cmpt",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_glass_enr_cmpt"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Product"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "优质柑实罐头",
+                    "label": "$iconRecognition.name.item_bottled_food_2",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_bottled_food_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "优质芽针针剂",
+                    "label": "$iconRecognition.name.item_bottled_rec_hp_5",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_bottled_rec_hp_5"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "优质荞愈胶囊",
+                    "label": "$iconRecognition.name.item_bottled_rec_hp_2",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_bottled_rec_hp_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "优质锦草软饮",
+                    "label": "$iconRecognition.name.item_bottled_food_5",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_bottled_food_5"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "工业爆炸物",
+                    "label": "$iconRecognition.name.item_proc_bomb_1",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_proc_bomb_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "柑实粉末",
+                    "label": "$iconRecognition.name.item_plant_moss_powder_2",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_plant_moss_powder_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "柑实罐头",
+                    "label": "$iconRecognition.name.item_bottled_food_1",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_bottled_food_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "精选柑实罐头",
+                    "label": "$iconRecognition.name.item_bottled_food_3",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_bottled_food_3"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "精选荞愈胶囊",
+                    "label": "$iconRecognition.name.item_bottled_rec_hp_3",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_bottled_rec_hp_3"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "芽针粉末",
+                    "label": "$iconRecognition.name.item_plant_grass_powder_2",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_plant_grass_powder_2"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "芽针针剂",
+                    "label": "$iconRecognition.name.item_bottled_rec_hp_4",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_bottled_rec_hp_4"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "荞愈胶囊",
+                    "label": "$iconRecognition.name.item_bottled_rec_hp_1",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_bottled_rec_hp_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "荞花粉末",
+                    "label": "$iconRecognition.name.item_plant_moss_powder_1",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_plant_moss_powder_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "锦草粉末",
+                    "label": "$iconRecognition.name.item_plant_grass_powder_1",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_plant_grass_powder_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "锦草软饮",
+                    "label": "$iconRecognition.name.item_bottled_food_4",
+                    "pipeline_override": {
+                        "DeliveryJobsSelectItemToFillWuling": {
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_bottled_food_4"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
                         }
                     }
                 }

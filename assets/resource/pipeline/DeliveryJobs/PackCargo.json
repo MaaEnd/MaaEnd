@@ -176,18 +176,28 @@
             "[JumpBack]DeliveryJobsSelectItemScrollUp"
         ]
     },
+    // 装箱物品通过 IconRecognition（grid_type=shipment）识别，支持全部可装箱物品，
+    // 具体物品由任务选项 WhatToFillValleyIV / WhatToFillWuling 注入 item_ids，此处默认值仅用于测试与调试
     "DeliveryJobsSelectItemToFillValleyIV": {
         "desc": "选择要填充的物品（四号谷地）",
-        "recognition": "TemplateMatch",
+        "recognition": "Custom",
+        "custom_recognition": "IconRecognition",
+        "custom_recognition_param": {
+            "grid_type": "shipment",
+            "item_ids": [
+                "item_plant_moss_powder_3"
+            ],
+            "item_recheck_filters": [
+                "Normal:Product"
+            ],
+            "deduplicate": true
+        },
         "roi": [
-            37,
-            121,
-            503,
-            519
+            34,
+            132,
+            386,
+            474
         ],
-        "template": "DeliveryJobs/SandleafPowder.png",
-        "threshold": 0.95,
-        "order_by": "Score",
         "pre_wait_freezes": 80,
         "pre_delay": 0,
         "action": "Click",
@@ -199,16 +209,24 @@
     },
     "DeliveryJobsSelectItemToFillWuling": {
         "desc": "选择要填充的物品（武陵）",
-        "recognition": "TemplateMatch",
+        "recognition": "Custom",
+        "custom_recognition": "IconRecognition",
+        "custom_recognition_param": {
+            "grid_type": "shipment",
+            "item_ids": [
+                "item_plant_moss_powder_3"
+            ],
+            "item_recheck_filters": [
+                "Normal:Product"
+            ],
+            "deduplicate": true
+        },
         "roi": [
-            37,
-            121,
-            503,
-            519
+            34,
+            132,
+            386,
+            474
         ],
-        "template": "DeliveryJobs/Yazhen.png",
-        "threshold": 0.95,
-        "order_by": "Score",
         "pre_wait_freezes": 80,
         "pre_delay": 0,
         "action": "Click",
