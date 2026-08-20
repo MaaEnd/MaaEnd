@@ -443,11 +443,16 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 		if time.Since(lastLevelShowCheck) >= 5*time.Second {
 			lastLevelShowCheck = time.Now()
 			if getCharactorLevelShow(ctx, img) {
-				log.Info().Str("component", "AutoFight").Msg("character level show detected, exiting fight")
-				maafocus.Print(ctx, i18n.T("autofight.exit_fight"))
-				// saveExitImage(img, "character_level_show")
-				result = true
-				break
+				confirmImg, ok := captureAndUpdateScreenDetail(ctx)
+				// 双重检测，避免ocr误识别
+				if ok && getCharactorLevelShow(ctx, confirmImg) {
+					log.Info().Str("component", "AutoFight").Msg("character level show detected, exiting fight")
+					maafocus.Print(ctx, i18n.T("autofight.exit_fight"))
+					// saveExitImage(confirmImg, "character_level_show")
+					result = true
+					break
+				}
+				log.Info().Str("component", "AutoFight").Msg("character level show confirm failed, continue fight")
 			}
 		}
 		// CharacterLevel小概率识别不到，comboEmpty大概率不显示了依然命中，双重保险
