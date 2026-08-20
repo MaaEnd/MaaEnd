@@ -96,6 +96,21 @@
           </div>
         </div>
 
+        <!-- 实机试跑：三种模式共用，跑的永远是当前页签里那条线 -->
+        <div class="sidebar-section" id="panel-navtest">
+          <div class="section-header">
+            <span class="section-title">实机试跑</span>
+          </div>
+          <div id="navtest-hotkey-note" class="hotkey-banner">
+            <kbd>F3</kbd> 重跑 &nbsp;·&nbsp; <kbd>F4</kbd> 终止 &nbsp;·&nbsp; 游戏在前台也能按
+          </div>
+          <div class="sidebar-row grid-btns-2">
+            <button id="btn-navtest-run" class="btn btn-primary" type="button">开始试跑 (F3)</button>
+            <button id="btn-navtest-stop" class="btn btn-danger" type="button" disabled>终止试跑 (F4)</button>
+          </div>
+          <div id="navtest-armed" class="navtest-armed">未装载路线</div>
+        </div>
+
         <!-- 主模式切换页签 -->
         <div class="mode-segmented-control">
           <button id="tab-astar" class="mode-tab-btn active" type="button">A* 寻路</button>
@@ -267,21 +282,6 @@
           <div class="sidebar-row">
             <button id="btn-clear-astar" class="btn btn-danger-outline" style="width: 100%" type="button">清除预览</button>
           </div>
-        </div>
-
-        <!-- 实机试跑：三种模式共用，跑的永远是当前页签里那条线 -->
-        <div class="sidebar-section" id="panel-navtest">
-          <div class="section-header">
-            <span class="section-title">实机试跑</span>
-          </div>
-          <div id="navtest-hotkey-note" class="hotkey-banner">
-            <kbd>F3</kbd> 重跑 &nbsp;·&nbsp; <kbd>F4</kbd> 立即终止 &nbsp;—&nbsp; 试跑启动后全局生效，游戏在前台时同样可按
-          </div>
-          <div class="sidebar-row grid-btns-2">
-            <button id="btn-navtest-run" class="btn btn-primary" type="button">开始试跑 (F3)</button>
-            <button id="btn-navtest-stop" class="btn btn-danger" type="button" disabled>终止试跑 (F4)</button>
-          </div>
-          <div id="navtest-armed" class="navtest-armed">未装载路线</div>
         </div>
 
         <!-- 加载进度 -->
