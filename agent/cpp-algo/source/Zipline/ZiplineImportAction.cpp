@@ -1,4 +1,4 @@
-#include "zipline_import_action.h"
+#include "ZiplineImportAction.h"
 
 #include <algorithm>
 #include <chrono>
@@ -16,10 +16,10 @@
 #include <MaaUtils/Logger.h>
 
 #include "../Common/WebView2.h"
-#include "zipline_frames.h"
-#include "zipline_store.h"
+#include "ZiplineFrames.h"
+#include "ZiplineStore.h"
 
-namespace mapnavigator::zipline
+namespace zipline
 {
 
 namespace
@@ -461,4 +461,4 @@ MaaBool MAA_CALL ZiplineImportActionRun(
     return total > 0;
 }
 
-} // namespace mapnavigator::zipline
+} // namespace zipline

@@ -5,9 +5,9 @@
 #include <string>
 #include <vector>
 
-#include "zipline_store.h"
+#include "ZiplineStore.h"
 
-namespace mapnavigator::zipline
+namespace zipline
 {
 
 // 一根滑索架落在 navmesh 坐标系里的样子：x/y 是 base 像素，height 是世界高度，
@@ -129,4 +129,4 @@ private:
     ZiplineCostModel cost_;
 };
 
-} // namespace mapnavigator::zipline
+} // namespace zipline

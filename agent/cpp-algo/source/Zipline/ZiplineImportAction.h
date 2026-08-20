@@ -2,7 +2,7 @@
 
 #include <MaaFramework/MaaAPI.h>
 
-namespace mapnavigator::zipline
+namespace zipline
 {
 
 // 打开森空岛地图页，把页面自己拉到的滑索标记记一份进 debug/record/Ziplines.json。
@@ -22,4 +22,4 @@ MaaBool MAA_CALL ZiplineImportActionRun(
     const MaaRect* box,
     void* trans_arg);
 
-} // namespace mapnavigator::zipline
+} // namespace zipline

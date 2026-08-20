@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "../Navmesh/BaseNavPlanner.h"
-#include "zipline_frames.h"
+#include "../Zipline/ZiplineFrames.h"
 
 namespace mapnavigator
 {
