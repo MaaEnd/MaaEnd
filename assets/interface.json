@@ -86,6 +86,36 @@
             ]
         },
         {
+            "name": "Linux-Gamescope",
+            "label": "$controller.Linux-Gamescope.label",
+            "description": "$controller.Linux-Gamescope.description",
+            "type": "Linux",
+            "attach_resource_path": [
+                "./resource_linux"
+            ],
+            "linux": {
+                "input": "Libei",
+                "screencap": "PipeWire",
+                "pipewire_source": "Gamescope",
+                "use_win32_vk_code": true
+            }
+        },
+        {
+            "name": "Linux-ScreenCast",
+            "label": "$controller.Linux-ScreenCast.label",
+            "description": "$controller.Linux-ScreenCast.description",
+            "type": "Linux",
+            "attach_resource_path": [
+                "./resource_linux"
+            ],
+            "linux": {
+                "input": "UInput",
+                "screencap": "PipeWire",
+                "pipewire_source": "Portal",
+                "use_win32_vk_code": true
+            }
+        },
+        {
             "name": "Linux-Wlroots",
             "label": "$controller.Linux-Wlroots.label",
             "description": "$controller.Linux-Wlroots.description",

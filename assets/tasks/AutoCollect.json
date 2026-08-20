@@ -7,6 +7,8 @@
             "description": "$task.AutoCollect.description",
             "controller": [
                 "ADB",
+                "Linux-Gamescope",
+                "Linux-ScreenCast",
                 "Linux-Wlroots",
                 "PlayCover",
                 "Win32-Front"

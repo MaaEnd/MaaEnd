@@ -6,6 +6,8 @@
             "entry": "AutoSellMain",
             "controller": [
                 "ADB",
+                "Linux-Gamescope",
+                "Linux-ScreenCast",
                 "Linux-Wlroots",
                 "Win32-Front"
             ],

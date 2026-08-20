@@ -323,6 +323,8 @@ export default function buildDeliveryJobsTask() {
                 controller: [
                     "ADB",
                     "CloudADB",
+                    "Linux-Gamescope",
+                    "Linux-ScreenCast",
                     "Linux-Wlroots",
                     "MacOS-Background",
                     "MacOS-Front",

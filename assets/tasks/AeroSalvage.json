@@ -6,6 +6,8 @@
             "entry": "AeroSalvageMain",
             "description": "$task.AeroSalvage.description",
             "controller": [
+                "Linux-Gamescope",
+                "Linux-ScreenCast",
                 "Linux-Wlroots",
                 "MacOS-Background",
                 "MacOS-Front",

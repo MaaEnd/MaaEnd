@@ -9,6 +9,8 @@
             ],
             "controller": [
                 "ADB",
+                "Linux-Gamescope",
+                "Linux-ScreenCast",
                 "Linux-Wlroots",
                 "MacOS-Background",
                 "MacOS-Front",
