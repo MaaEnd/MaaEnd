@@ -29,7 +29,8 @@ type cameraScanParam struct {
 	FallbackYawSteps int      `json:"fallback_yaw_steps,omitempty"`
 }
 
-// CameraScanAction scans the camera view and recognizes target Pipeline nodes after every movement.
+// CameraScanAction scans the camera view and recognizes target Pipeline nodes
+// before and after every movement except reset.
 type CameraScanAction struct{}
 
 var _ maa.CustomActionRunner = &CameraScanAction{}
@@ -41,21 +42,15 @@ func (a *CameraScanAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 	}
 
 	ctrl := ctx.GetTasker().GetController()
-	if detail := recognizeWaitNodes(ctx, ctrl, param.WaitNodes, "initial", 0); detail != nil {
-		return finishHit(ctx, detail, param.AimTarget)
-	}
-
 	for index, step := range buildCameraScanPath(param.FallbackYawSteps) {
 		if ctx.GetTasker().Stopping() {
 			return false
 		}
-		if !runCameraSwipe(ctx, step, param) {
+		detail, ok := runScanStep(ctx, ctrl, step, param, index+1)
+		if !ok {
 			return false
 		}
-		if ctx.GetTasker().Stopping() {
-			return false
-		}
-		if detail := recognizeWaitNodes(ctx, ctrl, param.WaitNodes, step.phase, index+1); detail != nil {
+		if detail != nil {
 			return finishHit(ctx, detail, param.AimTarget)
 		}
 	}
@@ -64,6 +59,29 @@ func (a *CameraScanAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		Str("component", componentName).
 		Msg("target not found after camera scan")
 	return false
+}
+
+func runScanStep(
+	ctx *maa.Context,
+	ctrl *maa.Controller,
+	step cameraScanStep,
+	param cameraScanParam,
+	stepIndex int,
+) (*maa.RecognitionDetail, bool) {
+	if step.needsRecognition() {
+		if detail := recognizeWaitNodes(ctx, ctrl, param.WaitNodes, step.phase, "before", stepIndex); detail != nil {
+			return detail, true
+		}
+	}
+	if !runCameraSwipe(ctx, step, param) {
+		return nil, false
+	}
+	if step.needsRecognition() {
+		if detail := recognizeWaitNodes(ctx, ctrl, param.WaitNodes, step.phase, "after", stepIndex); detail != nil {
+			return detail, true
+		}
+	}
+	return nil, true
 }
 
 func parseParam(raw string) (cameraScanParam, bool) {
@@ -233,6 +251,7 @@ func recognizeWaitNodes(
 	ctrl *maa.Controller,
 	waitNodes []string,
 	phase string,
+	timing string,
 	step int,
 ) *maa.RecognitionDetail {
 	if ctx.GetTasker().Stopping() {
@@ -248,6 +267,7 @@ func recognizeWaitNodes(
 			Err(err).
 			Str("component", componentName).
 			Str("phase", phase).
+			Str("timing", timing).
 			Int("step", step).
 			Msg("cache image failed")
 		return nil
@@ -260,6 +280,7 @@ func recognizeWaitNodes(
 				Err(recognitionErr).
 				Str("component", componentName).
 				Str("phase", phase).
+				Str("timing", timing).
 				Int("step", step).
 				Str("node", node).
 				Msg("target recognition failed")
@@ -269,6 +290,7 @@ func recognizeWaitNodes(
 			log.Info().
 				Str("component", componentName).
 				Str("phase", phase).
+				Str("timing", timing).
 				Int("step", step).
 				Str("node", node).
 				Msg("target found")

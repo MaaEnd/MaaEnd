@@ -142,9 +142,9 @@ Action 节点用于执行自定义动作。常见写法如下：
 
 ### CameraScanAction
 
-`CameraScanAction` 实现位于 `agent/go-service/common/camerascan`，用于在拍照模式中分步移动镜头并识别目标。动作先识别当前画面，再从中心按九宫格螺旋扫描前方区域；仍未命中时，复位镜头并按上、中、下三档俯仰分别离散旋转一圈。每次镜头移动后都会截图识别，任一目标命中即成功，完整扫描后仍未命中则失败。
+`CameraScanAction` 实现位于 `agent/go-service/common/camerascan`，用于在拍照模式中分步移动镜头并识别目标。动作从中心按九宫格螺旋扫描前方区域；仍未命中时，复位镜头并按上、中、下三档俯仰分别离散旋转一圈。每次镜头移动前和移动后都会截图识别，复位动作不识别；任一目标命中即成功，完整扫描后仍未命中则失败。
 
-- `wait_nodes: string[]`：每次检查的 Pipeline 识别节点，必填；任一节点命中即成功。
+- `wait_nodes: string[]`：每次镜头移动前、后检查的 Pipeline 识别节点，必填；任一节点命中即成功。复位动作不检查。
 - `aim_target?: bool`：命中后是否从屏幕中心滑向该识别结果的 `Box` 中心，默认 `false`。
 - `move_up?: string`：上移镜头节点，默认 `__CameraScanMoveUp`。
 - `move_down?: string`：下移镜头节点，默认 `__CameraScanMoveDown`。

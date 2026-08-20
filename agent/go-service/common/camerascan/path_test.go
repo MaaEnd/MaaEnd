@@ -24,6 +24,26 @@ func TestNineGridStepsFollowCenterOutSpiral(t *testing.T) {
 	}
 }
 
+func TestResetStepsSkipRecognition(t *testing.T) {
+	path := buildCameraScanPath(8)
+	var resetCount int
+	for index, step := range path {
+		if step.phase == phaseReset {
+			resetCount++
+			if step.needsRecognition() {
+				t.Fatalf("reset step %d should skip recognition", index)
+			}
+			continue
+		}
+		if !step.needsRecognition() {
+			t.Fatalf("step %d phase %q should recognize", index, step.phase)
+		}
+	}
+	if resetCount != 1 {
+		t.Fatalf("got %d reset steps, want 1", resetCount)
+	}
+}
+
 func TestCameraScanPathResetsBeforeFallback(t *testing.T) {
 	const yawSteps = 12
 	path := buildCameraScanPath(yawSteps)

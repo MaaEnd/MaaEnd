@@ -14,6 +14,10 @@ type cameraScanStep struct {
 	phase      string
 }
 
+func (s cameraScanStep) needsRecognition() bool {
+	return s.phase != phaseReset
+}
+
 var nineGridSteps = []cameraScanStep{
 	{pitchDelta: -1, phase: phaseNineGrid},
 	{yawDelta: 1, phase: phaseNineGrid},
