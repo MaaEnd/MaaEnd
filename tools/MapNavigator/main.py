@@ -4,7 +4,7 @@
 #   "fastapi",
 #   "uvicorn",
 #   "websockets",
-#   "maafw",
+#   "maafw==5.13.0b4",
 #   "pynput",
 #   "pyperclip",
 #   "numpy",

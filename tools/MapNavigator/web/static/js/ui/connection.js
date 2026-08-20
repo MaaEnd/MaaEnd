@@ -7,10 +7,14 @@
  * round-trip (GET/PUT via {@link module:rpc}). Exposes {@link ConnectionPanel#buildSession}
  * so the recording controller can start a session with the current target.
  *
+ * Linux (Gamescope) connection: the user picks one of the discovered gamescope
+ * instances from a dropdown; the chosen instance's PipeWire node id + EIS socket
+ * path feed the LinuxController config.
+ *
  * @module ui/connection
  */
 
-import { getPlatform, getSettings, putSettings, getAdbDevices, getWlrootsSockets, checkConnection } from '../rpc.js';
+import { getPlatform, getSettings, putSettings, getAdbDevices, getGamescopeInstances, checkConnection } from '../rpc.js';
 import { setStatus } from './toast.js';
 
 export class ConnectionPanel {
@@ -18,12 +22,12 @@ export class ConnectionPanel {
    * @param {Object} els bound DOM elements:
    *   {kindCombo, win32Group, win32Entry, playcoverGroup, playcoverAddrEntry, playcoverUuidEntry,
    *    adbGroup, adbPathEntry, adbTargetInput, adbTargetList, btnRefreshAdb,
-   *    wlrootsGroup, wlrootsSocketEntry, wlrootsSocketList, btnRefreshWlroots, summary}
+   *    linuxGroup, linuxInstanceCombo, btnRefreshLinux, summary}
    */
   constructor(els) {
     this.els = els;
     this.statusDot = document.getElementById('status-dot');
-    /** @type {{connection_kind:string, adb_path:string, adb_address:string, win32_window_title:string, playcover_address:string, playcover_uuid:string, wlroots_socket_path:string, recent_adb_targets:string[]}} */
+    /** @type {{connection_kind:string, adb_path:string, adb_address:string, win32_window_title:string, playcover_address:string, playcover_uuid:string, linux_pw_node_id:number, linux_eis_socket_path:string, recent_adb_targets:string[]}} */
     this.settings = {
       connection_kind: '',
       adb_path: '',
@@ -31,17 +35,20 @@ export class ConnectionPanel {
       win32_window_title: 'Endfield',
       playcover_address: '127.0.0.1:1717',
       playcover_uuid: 'maa.playcover',
-      wlroots_socket_path: '',
+      linux_pw_node_id: 0,
+      linux_eis_socket_path: '',
       recent_adb_targets: [],
     };
+    /** @type {Array<{display_no:number, pw_node_id:number, eis_socket_path:string}>} the last discovered gamescope instances */
+    this._instances = [];
     this._devicesLoadedOnce = false;
-    this._socketsLoadedOnce = false;
+    this._instancesLoadedOnce = false;
     this._persistTimer = 0;
     this._checkTimer = 0;
     /** @type {boolean} last observed connected state; drives auto-collapse on the rising edge. */
     this._wasConnected = false;
     /** @type {{platform:string, supported_kinds:string[], default_kind:string}} */
-    this.platform = { platform: '', supported_kinds: ['win32', 'adb', 'playcover', 'wlroots'], default_kind: 'win32' };
+    this.platform = { platform: '', supported_kinds: ['win32', 'adb', 'playcover', 'linux'], default_kind: 'win32' };
   }
 
   /**
@@ -73,7 +80,6 @@ export class ConnectionPanel {
     this.els.playcoverUuidEntry.value = this.settings.playcover_uuid || 'maa.playcover';
     this.els.adbPathEntry.value = this.settings.adb_path || '';
     this.els.adbTargetInput.value = this.settings.adb_address || '';
-    this.els.wlrootsSocketEntry.value = this.settings.wlroots_socket_path || '';
 
     this._wire();
     this.syncControls();
@@ -82,8 +88,8 @@ export class ConnectionPanel {
     if (this.kind() === 'adb' && !this._devicesLoadedOnce) {
       await this.refreshDevices();
     }
-    if (this.kind() === 'wlroots' && !this._socketsLoadedOnce) {
-      await this.refreshWlrootsSockets();
+    if (this.kind() === 'linux' && !this._instancesLoadedOnce) {
+      await this.refreshLinuxInstances();
     }
   }
 
@@ -102,7 +108,7 @@ export class ConnectionPanel {
       this.refreshSummary();
       this.persist();
       if (this.kind() === 'adb' && !this._devicesLoadedOnce) this.refreshDevices();
-      if (this.kind() === 'wlroots' && !this._socketsLoadedOnce) this.refreshWlrootsSockets();
+      if (this.kind() === 'linux' && !this._instancesLoadedOnce) this.refreshLinuxInstances();
     });
     this.els.win32Entry.addEventListener('input', () => {
       this.refreshSummary();
@@ -129,15 +135,12 @@ export class ConnectionPanel {
       this.persist();
     });
     this.els.btnRefreshAdb.addEventListener('click', () => this.refreshDevices());
-    this.els.wlrootsSocketEntry.addEventListener('input', () => {
-      this.refreshSummary();
-      this._persistDebounced();
-    });
-    this.els.wlrootsSocketEntry.addEventListener('change', () => {
+    this.els.linuxInstanceCombo.addEventListener('change', () => {
+      this._applySelectedInstance();
       this.refreshSummary();
       this.persist();
     });
-    this.els.btnRefreshWlroots.addEventListener('click', () => this.refreshWlrootsSockets());
+    this.els.btnRefreshLinux.addEventListener('click', () => this.refreshLinuxInstances());
   }
 
   /**
@@ -160,7 +163,7 @@ export class ConnectionPanel {
     this.persist();
   }
 
-  /** @returns {'win32'|'adb'|'playcover'|'wlroots'} the active connection kind */
+  /** @returns {'win32'|'adb'|'playcover'|'linux'} the active connection kind */
   kind() {
     return this.els.kindCombo.value || this.platform.default_kind;
   }
@@ -170,7 +173,7 @@ export class ConnectionPanel {
     const k = this.kind();
     if (k === 'adb') return 'ADB';
     if (k === 'playcover') return 'PlayCover';
-    if (k === 'wlroots') return 'WlRoots';
+    if (k === 'linux') return 'Linux-Gamescope';
     return 'Win32';
   }
 
@@ -180,7 +183,7 @@ export class ConnectionPanel {
     this.els.win32Group.hidden = (k !== 'win32');
     this.els.playcoverGroup.hidden = (k !== 'playcover');
     this.els.adbGroup.hidden = (k !== 'adb');
-    this.els.wlrootsGroup.hidden = (k !== 'wlroots');
+    this.els.linuxGroup.hidden = (k !== 'linux');
   }
 
   /** Update the summary line. @returns {void} */
@@ -192,9 +195,11 @@ export class ConnectionPanel {
     } else if (k === 'playcover') {
       const addr = this.els.playcoverAddrEntry.value.trim() || '127.0.0.1:1717';
       this.els.summary.textContent = `PlayCover: ${addr}`;
-    } else if (k === 'wlroots') {
-      const socketPath = this.els.wlrootsSocketEntry.value.trim();
-      this.els.summary.textContent = socketPath ? `WlRoots: ${socketPath}` : 'WlRoots: 未指定 socket';
+    } else if (k === 'linux') {
+      const inst = this._selectedInstance();
+      this.els.summary.textContent = inst
+        ? `Linux-Gamescope: 节点 ${inst.pw_node_id}`
+        : 'Linux-Gamescope: 未选择实例';
     } else {
       const title = this.els.win32Entry.value.trim();
       this.els.summary.textContent = `Win32: ${title || 'Endfield'}`;
@@ -234,6 +239,7 @@ export class ConnectionPanel {
     this.statusDot.classList.add('connecting');
 
     const k = this.kind();
+    const inst = this._selectedInstance();
     const payload = {
       connection_kind: k,
       win32_window_title: this.els.win32Entry.value.trim(),
@@ -241,7 +247,8 @@ export class ConnectionPanel {
       playcover_address: this.els.playcoverAddrEntry.value.trim(),
       adb_path: this.els.adbPathEntry.value.trim(),
       adb_address: this.els.adbTargetInput.value.trim(),
-      wlroots_socket_path: this.els.wlrootsSocketEntry.value.trim(),
+      linux_pw_node_id: inst ? inst.pw_node_id : 0,
+      linux_eis_socket_path: inst ? inst.eis_socket_path : '',
     };
 
     try {
@@ -359,39 +366,78 @@ export class ConnectionPanel {
   }
 
   /**
-   * Enumerate Wayland sockets from the backend, refill the datalist, auto-select
-   * the default when the target is empty, and persist. Never throws to the caller.
+   * Enumerate gamescope instances from the backend and refill the dropdown,
+   * preserving the currently selected node when it is still present. Never throws.
    * @returns {Promise<void>}
    */
-  async refreshWlrootsSockets() {
+  async refreshLinuxInstances() {
     let result;
     try {
-      result = await getWlrootsSockets();
+      result = await getGamescopeInstances();
     } catch (err) {
-      setStatus(`刷新 Wayland socket 失败: ${err && err.message ? err.message : err}`, '#ef4444');
+      setStatus(`刷新 gamescope 实例失败: ${err && err.message ? err.message : err}`, '#ef4444');
       return;
     }
-    this._socketsLoadedOnce = true;
-    const sockets = Array.isArray(result.sockets) ? result.sockets : [];
+    this._instancesLoadedOnce = true;
+    this._instances = (Array.isArray(result.instances) ? result.instances : []).filter(
+      (inst) => inst && inst.pw_node_id
+    );
 
-    const list = this.els.wlrootsSocketList;
-    if (list) {
-      list.textContent = '';
-      for (const socketPath of sockets) {
-        const opt = document.createElement('option');
-        opt.value = socketPath;
-        list.appendChild(opt);
+    if (result.instances && Array.isArray(result.instances)) {
+      const errItem = result.instances.find((i) => i && i.error);
+      if (errItem && errItem.error) {
+        setStatus(`gamescope 实例发现失败: ${errItem.error}`, '#ef4444');
       }
     }
 
-    const current = this.els.wlrootsSocketEntry.value.trim();
-    if (!current) {
-      this.els.wlrootsSocketEntry.value = result.default || '';
-      this.refreshSummary();
+    const combo = this.els.linuxInstanceCombo;
+    const prevNode = this._selectedInstance()?.pw_node_id ?? this.settings.linux_pw_node_id;
+    combo.textContent = '';
+    if (!this._instances.length) {
+      const opt = document.createElement('option');
+      opt.value = '';
+      opt.textContent = '未检测到 gamescope 实例';
+      combo.appendChild(opt);
+    } else {
+      for (const inst of this._instances) {
+        const opt = document.createElement('option');
+        opt.value = String(inst.display_no);
+        opt.textContent = `gamescope-${inst.display_no}（节点 ${inst.pw_node_id}）`;
+        combo.appendChild(opt);
+      }
+      const match = this._instances.find((inst) => inst.pw_node_id === prevNode);
+      if (match) {
+        combo.value = String(match.display_no);
+      } else {
+        combo.value = String(this._instances[0].display_no);
+        this._applySelectedInstance();
+      }
     }
 
     await this.persist();
-    setStatus(`已刷新 Wayland socket，共 ${sockets.length} 个。`, '#10b981');
+
+    const count = this._instances.length;
+    setStatus(
+      count ? `已刷新 gamescope 实例，共 ${count} 个。` : '未检测到 gamescope 实例（gamescope 可能未运行）。',
+      count ? '#10b981' : '#f59e0b'
+    );
+  }
+
+  /**
+   * The gamescope instance currently shown in the dropdown, or null.
+   * @returns {{display_no:number, pw_node_id:number, eis_socket_path:string}|null}
+   */
+  _selectedInstance() {
+    const combo = this.els.linuxInstanceCombo;
+    if (!combo || combo.value === '') return null;
+    return this._instances.find((inst) => String(inst.display_no) === String(combo.value)) || null;
+  }
+
+  /** Persist the currently selected gamescope instance into `this.settings`. @returns {void} */
+  _applySelectedInstance() {
+    const inst = this._selectedInstance();
+    this.settings.linux_pw_node_id = inst ? inst.pw_node_id : 0;
+    this.settings.linux_eis_socket_path = inst ? inst.eis_socket_path : '';
   }
 
   /** Debounced settings persist for high-frequency text input. @returns {void} */
@@ -410,6 +456,7 @@ export class ConnectionPanel {
    */
   async persist() {
     const target = this.els.adbTargetInput.value.trim();
+    const inst = this._selectedInstance();
     const payload = {
       connection_kind: this.kind(),
       adb_path: this.els.adbPathEntry.value.trim(),
@@ -417,7 +464,8 @@ export class ConnectionPanel {
       win32_window_title: this.els.win32Entry.value.trim() || 'Endfield',
       playcover_address: this.els.playcoverAddrEntry.value.trim() || '127.0.0.1:1717',
       playcover_uuid: this.els.playcoverUuidEntry.value.trim() || 'maa.playcover',
-      wlroots_socket_path: this.els.wlrootsSocketEntry.value.trim(),
+      linux_pw_node_id: inst ? inst.pw_node_id : 0,
+      linux_eis_socket_path: inst ? inst.eis_socket_path : '',
       recent_adb_targets: this._mergeRecent([target]),
     };
     try {
@@ -430,9 +478,10 @@ export class ConnectionPanel {
 
   /**
    * The recording session config for the current target (tk `_build_recording_session`).
-   * @returns {{kind:'win32'|'adb'|'playcover'|'wlroots', win32:{window_title:string}, adb:{adb_path:string, address:string}, playcover:{uuid:string}, wlroots:{wlr_socket_path:string}}}
+   * @returns {{kind:'win32'|'adb'|'playcover'|'linux', win32:{window_title:string}, adb:{adb_path:string, address:string}, playcover:{uuid:string}, linux:{pw_node_id:number, eis_socket_path:string}}}
    */
   buildSession() {
+    const inst = this._selectedInstance();
     return {
       kind: this.kind(),
       win32: { window_title: this.els.win32Entry.value.trim() || 'Endfield' },
@@ -444,8 +493,9 @@ export class ConnectionPanel {
         address: this.els.playcoverAddrEntry.value.trim(),
         uuid: this.els.playcoverUuidEntry.value.trim() || 'maa.playcover',
       },
-      wlroots: {
-        wlr_socket_path: this.els.wlrootsSocketEntry.value.trim(),
+      linux: {
+        pw_node_id: inst ? inst.pw_node_id : 0,
+        eis_socket_path: inst ? inst.eis_socket_path : '',
       },
     };
   }
