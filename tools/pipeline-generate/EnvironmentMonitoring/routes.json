@@ -348,16 +348,7 @@
         "Name": "枯枝",
         "Id": "WitheredBranches",
         "QuickTeleport": true,
-        "NavPath": [
-            {
-                "action": "NAVMESH",
-                "target": [
-                    1361.74,
-                    2194.86
-                ]
-            }
-        ],
-        "Heading": 120
+        "Heading": 133
     },
     {
         "MissionId": "m1m60",
