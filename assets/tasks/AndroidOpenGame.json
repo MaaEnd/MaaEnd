@@ -81,7 +81,7 @@
                             "action": {
                                 "type": "StartApp",
                                 "param": {
-                                    "package": "com.gryphline.endfield.gp"
+                                    "package": "com.gryphline.endfield.gp/com.u8.sdk.U8UnityContext"
                                 }
                             }
                         },
