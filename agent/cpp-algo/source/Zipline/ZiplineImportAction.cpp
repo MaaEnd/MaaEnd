@@ -28,8 +28,8 @@ namespace
 constexpr const char* kDefaultMapUrl = "https://game.skland.com/map/endfield";
 // 标记列表接口的路径片段。只匹配路径，避免被 query 里的参数顺序影响。
 constexpr const char* kMarkListPathFragment = "/map/mark/list";
-// 窗口的存活上限，实际是留给登录的：登录后抓齐只要几秒，正常路径根本用不到这个数。
-constexpr int64_t kDefaultTimeoutMs = 600000;
+// 窗口的存活上限，留给用户登录：登录后抓齐只要几秒，正常路径根本用不到这个数。
+constexpr int64_t kDefaultTimeoutMs = 300000;
 constexpr int kPollIntervalMs = 200;
 // 标定过的地图全抓到之后再静默这么久就收工，留一点余量给同批次的最后几条。
 constexpr int kSettleMs = 1200;

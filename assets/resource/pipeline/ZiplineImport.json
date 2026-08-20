@@ -1,13 +1,13 @@
 {
     "ZiplineImportMain": {
-        "desc": "打开森空岛地图页，登录后把页面取回来的全部地图标记记录到本地，抓齐就自动关窗",
+        "desc": "打开森空岛地图页，登录后把页面取回来的全部地图标记记录到本地；抓齐自动关窗，等登录最多 5 分钟",
         "action": {
             "type": "Custom",
             "param": {
                 "custom_action": "ZiplineImport",
                 "custom_action_param": {
                     "url": "https://game.skland.com/map/endfield",
-                    "timeout": 600000,
+                    "timeout": 300000,
                     "width": 960,
                     "height": 640
                 }

@@ -645,7 +645,7 @@
     "option.CreditShoppingRefreshCheckPrice.label": "Check price before direct buy",
     "option.CreditShoppingRefreshCheckPrice.description": "When enabled, refresh-exhausted or prudent direct buys check \"held credits − item price\" against the reserve threshold and cancel/stop if buying would breach it. When disabled, buy first, then stop using the reserved-credits check after purchase.",
     "task.ZiplineImport.label": "🛝 Import / Update Zipline Coordinates",
-    "task.ZiplineImport.description": "Imports zipline coordinates from the Skland map page for navigation.\nOn first use, sign in to Skland in the window that opens; it closes itself once the data is captured.\nRun this task again to refresh the data; you normally stay signed in.\nThe session is kept by the embedded browser, which stores only zipline coordinates and never reads your password.",
+    "task.ZiplineImport.description": "Imports zipline coordinates from the Skland map page for navigation.\nOn first use, sign in to Skland in the window that opens; it closes itself once the data is captured.\nIt waits up to 5 minutes for the sign-in, then closes and reports failure; data imported earlier is left untouched.\nRun this task again to refresh the data; you normally stay signed in.\nThe session is kept by the embedded browser, which stores only zipline coordinates and never reads your password.",
     "task.ImportBluePrints.label": "📐 Import Blueprints",
     "task.ImportBluePrints.description": "Batch import blueprints with smart parsing.",
     "option.ImportBluePrints.label": "Import Blueprints",
