@@ -10,8 +10,8 @@
                 "PuzzleSolverMode"
             ],
             "controller": [
-                "Win32-Front",
-                "Wlroots"
+                "Linux-Wlroots",
+                "Win32-Front"
             ],
             "group": [
                 "open_world"

@@ -14,7 +14,7 @@ The core maintenance points for EnvironmentMonitoring are as follows:
 
 | Module | Path | Function |
 | ----------------------------------- | --------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Task Entry | `assets/tasks/EnvironmentMonitoring.json` | Interface task definition (no configurable options, controller = Win32-Front / Wlroots / ADB) |
+| Task Entry | `assets/tasks/EnvironmentMonitoring.json` | Interface task definition (no configurable options, controller = Win32-Front / Linux / ADB) |
 | Main Flow Pipeline | `assets/resource/pipeline/EnvironmentMonitoring.json` | Main entry node `EnvironmentMonitoringMain`, loops to identify the two monitoring terminals |
 | Terminal Grouping (Generated) | `assets/resource/pipeline/EnvironmentMonitoring/Terminals.json` | Entry nodes for Outskirts Monitoring Terminal / Marker Stone Monitoring Terminal and their respective observation point `next` lists (**generated**) |
 | Terminal Jump | `assets/resource/pipeline/EnvironmentMonitoring/Locations.json` | `EnvironmentMonitoringGoTo*` and `Select*` nodes, enter the corresponding terminal from the main menu |

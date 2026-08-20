@@ -525,8 +525,8 @@ std::optional<double> GridScaleForControllerType(std::string_view controller_typ
     const auto matches_any = [&](const auto& candidates) {
         return std::ranges::any_of(candidates, equals_ignore_case);
     };
-    // Linux/WlRoots 与 MacOS 暂按标准桌面 profile 处理；这些别名尚无独立截图数据验证。
-    constexpr std::array<std::string_view, 4> kStandardControllerTypes { "Win32", "Linux", "WlRoots", "MacOS" };
+    // Linux 与 MacOS 暂按标准桌面 profile 处理；这些别名尚无独立截图数据验证。
+    constexpr std::array<std::string_view, 4> kStandardControllerTypes { "Win32", "Linux", "MacOS" };
     // CloudADB 的 MaaController type 是 Adb，因此放大 profile 会自然覆盖 CloudADB；PlayCover 暂沿用该 profile。
     constexpr std::array<std::string_view, 2> kAdbControllerTypes { "Adb", "PlayCover" };
     if (matches_any(kAdbControllerTypes)) {

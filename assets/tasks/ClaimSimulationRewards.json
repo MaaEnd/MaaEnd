@@ -6,10 +6,10 @@
             "description": "$task.ClaimSimulationRewards.description",
             "entry": "SimSpaceEntry",
             "controller": [
+                "Linux-Wlroots",
                 "MacOS-Background",
                 "MacOS-Front",
-                "Win32-Front",
-                "Wlroots"
+                "Win32-Front"
             ],
             "option": [
                 "ClaimSimulationArea"

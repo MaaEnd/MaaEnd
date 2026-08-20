@@ -13,10 +13,10 @@
                 "dijiang_ship"
             ],
             "controller": [
-                "Win32-Front",
-                "Wlroots",
                 "ADB",
-                "PlayCover"
+                "Linux-Wlroots",
+                "PlayCover",
+                "Win32-Front"
             ]
         }
     ],

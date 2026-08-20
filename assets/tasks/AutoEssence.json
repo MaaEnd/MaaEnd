@@ -7,9 +7,9 @@
             "description": "$task.AutoEssence.description",
             "controller": [
                 "ADB",
+                "Linux-Wlroots",
                 "PlayCover",
-                "Win32-Front",
-                "Wlroots"
+                "Win32-Front"
             ],
             "option": [
                 "AutoEssenceChooseLocation",

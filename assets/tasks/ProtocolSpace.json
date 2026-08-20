@@ -12,8 +12,8 @@
                 "ProtocolSpaceMode"
             ],
             "controller": [
-                "Win32-Front",
-                "Wlroots"
+                "Linux-Wlroots",
+                "Win32-Front"
             ],
             "group": [
                 "sanity_sink"

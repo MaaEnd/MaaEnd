@@ -11,8 +11,8 @@
                 "SeizeDeliveryJobsPostProcessing"
             ],
             "controller": [
-                "Win32-Front",
-                "Wlroots"
+                "Linux-Wlroots",
+                "Win32-Front"
             ],
             "group": [
                 "regional_development"

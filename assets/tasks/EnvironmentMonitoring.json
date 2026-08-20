@@ -6,10 +6,10 @@
             "entry": "EnvironmentMonitoringMain",
             "description": "$task.EnvironmentMonitoring.description",
             "controller": [
-                "Win32-Front",
-                "Wlroots",
                 "ADB",
-                "PlayCover"
+                "Linux-Wlroots",
+                "PlayCover",
+                "Win32-Front"
             ],
             "group": [
                 "regional_development"

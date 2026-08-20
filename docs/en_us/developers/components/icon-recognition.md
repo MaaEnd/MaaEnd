@@ -122,7 +122,7 @@ The native ROI uses 1280x720 `[x,y,width,height]` coordinates. Width and height 
 
 | Runtime `type` | Capture requirement | Grid profile |
 | --- | --- | --- |
-| Win32, Linux/WlRoots, MacOS | 1280x720 | Standard 720p UI |
+| Win32, Linux, MacOS | 1280x720 | Standard 720p UI |
 | Adb, PlayCover | 1280x720 at 240 dpi | Enlarged ADB UI |
 
 The Custom entry point reads the runtime `type` from `MaaContext` and selects a profile. CloudADB reports `Adb` as its runtime type. The compatibility mappings outside Win32/Adb do not yet have dedicated screenshot data validation and may be adjusted as real samples become available. Other controllers, direct C++ calls, or unavailable context fall back to image evidence inside the request ROI. Insufficient evidence returns `exception`; callers cannot specify a scale. The detector temporarily normalizes the image in memory for grid localization and maps cell coordinates back before returning. Item templates are still generated at the final source-cell size and matched on the original image, so `cell_box` and `item_box` always use source-image coordinates. `single_roi` does not run grid detection and never resizes the input image.
