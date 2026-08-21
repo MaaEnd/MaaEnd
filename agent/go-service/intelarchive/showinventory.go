@@ -16,15 +16,24 @@ import (
 )
 
 var _ maa.CustomActionRunner = &ShowInventoryAction{}
+var _ maa.CustomActionRunner = &ResetSessionAction{}
 
 // ShowInventoryAction opens an Open Endfieldmap OEA import URL for the unlocked archive list.
 type ShowInventoryAction struct{}
 
+// ResetSessionAction clears the in-memory unlock session before a fresh scan.
+type ResetSessionAction struct{}
+
+func (a *ResetSessionAction) Run(_ *maa.Context, _ *maa.CustomActionArg) bool {
+	resetSession()
+	log.Info().Str("component", component).Msg("intel archive session reset")
+	return true
+}
+
 func (a *ShowInventoryAction) Run(ctx *maa.Context, _ *maa.CustomActionArg) bool {
-	unlocked, err := loadUnlocked()
-	if err != nil {
-		log.Error().Err(err).Str("component", component).Msg("failed to load unlocked for import")
-		return false
+	collected := sessionUnlockedIDs()
+	if len(collected) == 0 {
+		log.Warn().Str("component", component).Msg("session unlocked list is empty")
 	}
 
 	idx, err := loadCatalogIndex()
@@ -33,7 +42,7 @@ func (a *ShowInventoryAction) Run(ctx *maa.Context, _ *maa.CustomActionArg) bool
 		return false
 	}
 
-	url, err := buildIntelImportURL(unlocked.Unlocked, idx.AllUnlockIDs)
+	url, err := buildIntelImportURL(collected, idx.AllUnlockIDs)
 	if err != nil {
 		log.Error().Err(err).Str("component", component).Msg("failed to build intel import url")
 		return false
@@ -41,7 +50,7 @@ func (a *ShowInventoryAction) Run(ctx *maa.Context, _ *maa.CustomActionArg) bool
 
 	log.Info().
 		Str("component", component).
-		Int("collected", len(unlocked.Unlocked)).
+		Int("collected", len(collected)).
 		Int("catalog", len(idx.AllUnlockIDs)).
 		Int("url_len", len(url)).
 		Str("url", url).

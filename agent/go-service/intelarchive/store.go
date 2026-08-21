@@ -1,10 +1,7 @@
 package intelarchive
 
 import (
-	"encoding/json"
 	"fmt"
-	"os"
-	"path/filepath"
 	"sort"
 	"strconv"
 	"strings"
@@ -28,12 +25,7 @@ const (
 	component           = "intelarchive"
 	catalogResourcePath = "data/IntelArchive/catalog.json"
 	itemsResourcePath   = "data/IntelArchive/items.json"
-	unlockedFileName    = "IntelArchiveUnlocked.json"
 )
-
-func recordOutputDir() string {
-	return filepath.Join("debug", "record", "IntelArchive")
-}
 
 type catalogFile struct {
 	Version    int        `json:"version"`
@@ -89,27 +81,12 @@ type catalogIndex struct {
 	AllUnlockIDs   []string
 }
 
-// unlockedFile is the on-disk / in-memory unlock list (flat, no per-account buckets).
-type unlockedFile struct {
-	Version  int      `json:"version"`
-	Unlocked []string `json:"unlocked"`
-}
-
-// unlockedFileDisk accepts both the flat format and the legacy accounts map.
-type unlockedFileDisk struct {
-	Version  int                        `json:"version"`
-	Unlocked []string                   `json:"unlocked"`
-	Accounts map[string]accountUnlocked `json:"accounts"`
-}
-
-type accountUnlocked struct {
-	Unlocked []string `json:"unlocked"`
-}
+// sessionUnlocked holds unlock IDs for the current task run (in-memory only).
+var sessionUnlocked []string
 
 var (
-	catalogPathFunc  = func() string { return catalogResourcePath }
-	itemsPathFunc    = func() string { return itemsResourcePath }
-	unlockedPathFunc = func() string { return filepath.Join(recordOutputDir(), unlockedFileName) }
+	catalogPathFunc = func() string { return catalogResourcePath }
+	itemsPathFunc   = func() string { return itemsResourcePath }
 
 	catalogCache *catalogIndex
 	catalogErr   error
@@ -423,41 +400,12 @@ func uniquePrefixIDs(table map[string][]string, ocr string) (ids []string, match
 	return append([]string(nil), table[matchedName]...), matchedName
 }
 
-func loadUnlocked() (unlockedFile, error) {
-	path := unlockedPathFunc()
-	raw, err := os.ReadFile(path)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return unlockedFile{Version: 1, Unlocked: []string{}}, nil
-		}
-		return unlockedFile{}, fmt.Errorf("read unlocked file: %w", err)
-	}
-	if len(raw) == 0 {
-		return unlockedFile{Version: 1, Unlocked: []string{}}, nil
-	}
-
-	var disk unlockedFileDisk
-	if err := json.Unmarshal(raw, &disk); err != nil {
-		return unlockedFile{}, fmt.Errorf("unmarshal unlocked file: %w", err)
-	}
-	return normalizeUnlockedDisk(disk), nil
+func resetSession() {
+	sessionUnlocked = nil
 }
 
-func normalizeUnlockedDisk(disk unlockedFileDisk) unlockedFile {
-	doc := unlockedFile{Version: 1, Unlocked: []string{}}
-	if disk.Version != 0 {
-		doc.Version = disk.Version
-	}
-	if len(disk.Unlocked) > 0 || len(disk.Accounts) == 0 {
-		doc.Unlocked = dedupeStrings(disk.Unlocked)
-		return doc
-	}
-	merged := make([]string, 0)
-	for _, account := range disk.Accounts {
-		merged = append(merged, account.Unlocked...)
-	}
-	doc.Unlocked = dedupeStrings(merged)
-	return doc
+func sessionUnlockedIDs() []string {
+	return append([]string(nil), sessionUnlocked...)
 }
 
 func dedupeStrings(ids []string) []string {
@@ -480,64 +428,15 @@ func dedupeStrings(ids []string) []string {
 	return out
 }
 
-func saveUnlocked(doc unlockedFile) error {
-	path := unlockedPathFunc()
-	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
-		return fmt.Errorf("create unlocked dir: %w", err)
-	}
-	if doc.Version == 0 {
-		doc.Version = 1
-	}
-	if doc.Unlocked == nil {
-		doc.Unlocked = []string{}
-	}
-
-	raw, err := json.MarshalIndent(doc, "", "    ")
-	if err != nil {
-		return fmt.Errorf("marshal unlocked file: %w", err)
-	}
-	raw = append(raw, '\n')
-
-	tmp, err := os.CreateTemp(filepath.Dir(path), "."+unlockedFileName+".*.tmp")
-	if err != nil {
-		return fmt.Errorf("create unlocked temp: %w", err)
-	}
-	tmpPath := tmp.Name()
-	cleanup := true
-	defer func() {
-		if cleanup {
-			_ = os.Remove(tmpPath)
-		}
-	}()
-
-	if _, err := tmp.Write(raw); err != nil {
-		_ = tmp.Close()
-		return fmt.Errorf("write unlocked temp: %w", err)
-	}
-	if err := tmp.Close(); err != nil {
-		return fmt.Errorf("close unlocked temp: %w", err)
-	}
-	if err := os.Rename(tmpPath, path); err != nil {
-		return fmt.Errorf("rename unlocked file: %w", err)
-	}
-	cleanup = false
-	return nil
-}
-
-// unlockItems appends unlock IDs (page IDs, or item IDs when the catalog has no pages).
-// Missing file/dir is created. Returns newly added IDs.
+// unlockItems appends unlock IDs (page IDs, or item IDs when the catalog has no pages) to the session.
+// Returns newly added IDs.
 func unlockItems(itemIDs []string) ([]string, error) {
 	if len(itemIDs) == 0 {
 		return nil, nil
 	}
 
-	doc, err := loadUnlocked()
-	if err != nil {
-		return nil, err
-	}
-
-	owned := make(map[string]struct{}, len(doc.Unlocked))
-	for _, id := range doc.Unlocked {
+	owned := make(map[string]struct{}, len(sessionUnlocked))
+	for _, id := range sessionUnlocked {
 		owned[id] = struct{}{}
 	}
 
@@ -550,22 +449,17 @@ func unlockItems(itemIDs []string) ([]string, error) {
 			continue
 		}
 		owned[id] = struct{}{}
-		doc.Unlocked = append(doc.Unlocked, id)
+		sessionUnlocked = append(sessionUnlocked, id)
 		added = append(added, id)
 	}
 	if len(added) == 0 {
 		return nil, nil
 	}
 
-	if err := saveUnlocked(doc); err != nil {
-		return nil, err
-	}
-
 	log.Info().
 		Str("component", component).
 		Strs("added", added).
-		Int("unlocked_count", len(doc.Unlocked)).
-		Str("path", unlockedPathFunc()).
-		Msg("unlocked items persisted")
+		Int("unlocked_count", len(sessionUnlocked)).
+		Msg("unlocked items recorded in session")
 	return added, nil
 }
