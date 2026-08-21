@@ -4,7 +4,6 @@
 
 #include <algorithm>
 #include <cmath>
-#include <cstdio>
 #include <limits>
 #include <optional>
 
@@ -47,7 +46,6 @@ struct RouteDiag
 {
     std::string err;
     std::vector<std::string> warn;
-    std::vector<WorldPoint> xwall;
     std::vector<double> clearance;
     std::vector<double> height; // 逐点所在面的高度; 层预言机走不通时清空
     std::vector<size_t> waypoints;
@@ -470,10 +468,10 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     for (size_t i = 0; i < walk.v.size(); ++i) {
         walk.v[i] = static_cast<uint8_t>(info.core.v[i] != 0 && info.lay.v[i] != 0);
     }
-    const auto bn = BannedSteps(info.lay, info.wcsr, info.wP0, info.wP1, x0, y0);
-    std::unordered_set<int64_t> blocked_steps = bn;
-    blocked_steps.insert(info.sev.steps.begin(), info.sev.steps.end());
-    // 掩膜距离场对跨越约束的墙无感, 取真墙距离的下确界补上
+    // 边界边只用来算余量, 不用来禁步: 补洞封缝那一步已经判定这些细缝可以跨,
+    // 回头再拿同一批边禁掉跨缝的一步, 等于在每道接缝上凭空立一堵墙
+    std::unordered_set<int64_t> blocked_steps(info.sev.steps.begin(), info.sev.steps.end());
+    // 掩膜距离场对跨越边界边无感, 取到边界的距离的下确界补上
     Mask wfree(nx, ny, 0);
     for (size_t i = 0; i < wfree.v.size(); ++i) {
         wfree.v[i] = info.wcsr.start[i + 1] > info.wcsr.start[i] ? 0 : 1;
@@ -604,11 +602,9 @@ std::optional<std::vector<WorldPoint>> routeWindow(
         return std::nullopt;
     }
 
-    // 禁步面是硬的,墙边只罚分:窄处绕不开时宁可贴着走也不判不连通
-    const double BIGP = static_cast<double>(nx * ny) * kCS * (1.0 + kLam);
     const std::unordered_set<int64_t>* faces = &info.sev.steps;
-    const std::unordered_set<int64_t>* soft = &bn;
-    const double* soft_penalty = &BIGP;
+    const std::unordered_set<int64_t>* soft = nullptr;
+    const double* soft_penalty = nullptr;
     Mask on3 = cw3;
     // 可走集已经限死在终点那张面所属的类里, 起点这侧只剩层内挑高度
     const auto search = [&](const std::vector<uint8_t>& use,
@@ -728,19 +724,12 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     for (size_t k = 1; k < q->size(); ++k) {
         const int64_t ca = (*q)[k - 1].y * nx + (*q)[k - 1].x;
         const int64_t cb = (*q)[k].y * nx + (*q)[k].x;
-        if (!blocked_steps.contains(ca * NC + cb)) {
-            continue;
-        }
-        bad.push_back(k);
-        if (bn.contains(ca * NC + cb)) {
-            dg.xwall.push_back({ x0 + (static_cast<double>((*q)[k].x) + 0.5) * kCS, y0 + (static_cast<double>((*q)[k].y) + 0.5) * kCS });
+        if (blocked_steps.contains(ca * NC + cb)) {
+            bad.push_back(k);
         }
     }
-    if (!dg.xwall.empty()) {
-        dg.warn.push_back("不可避穿墙 " + std::to_string(dg.xwall.size()) + " 步");
-    }
-    if (bad.size() > dg.xwall.size()) {
-        dg.warn.push_back("不可避立面 " + std::to_string(bad.size() - dg.xwall.size()) + " 步");
+    if (!bad.empty()) {
+        dg.warn.push_back("不可避立面 " + std::to_string(bad.size()) + " 步");
     }
     dg.crossed_barrier = !bad.empty();
 
@@ -1205,7 +1194,6 @@ RecastPlanResult RecastNavEngine::planLocked(
                         }
                         res.warnings = dg.warn;
                         res.clearance = dg.clearance;
-                        res.wall_cross = dg.xwall;
                         res.snap_start = dg.snap_start;
                         res.snap_goal = dg.snap_goal;
                         res.waypoints = std::move(dg.waypoints);

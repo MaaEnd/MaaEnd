@@ -66,8 +66,6 @@ public:
 
     std::optional<SnapHit> snap(const WorldPoint& p, double radius, std::optional<double> floor_y) const;
 
-    std::vector<int32_t> batchLocate(const std::vector<WorldPoint>& pts, const std::vector<double>& hints) const;
-
     std::string name;
     uint16_t zone_id = 0;
     int64_t lo = 0;
@@ -82,12 +80,13 @@ private:
     std::string error_;
 };
 
+// 网格的边界边索引: 可走面到此为止, 边的另一侧是什么一概不问
 class WallOracle
 {
 public:
     explicit WallOracle(const ZoneClean& zc);
 
-    std::vector<int64_t> wallsInBbox(double x0, double y0, double x1, double y1);
+    std::vector<int64_t> wallsInBbox(double x0, double y0, double x1, double y1) const;
 
     std::vector<WorldPoint> P0;
     std::vector<WorldPoint> P1;
@@ -96,17 +95,8 @@ public:
     std::vector<double> HH;
 
 private:
-    bool hopNear(int64_t ei, double tol = 1.5) const;
-    void classify(const std::vector<int64_t>& idx);
-
-    const ZoneClean& zc_;
-    std::vector<WorldPoint> M_;
-    std::vector<WorldPoint> NOBS_;
     std::vector<WorldPoint> lo_;
     std::vector<WorldPoint> hi_;
-    std::vector<int8_t> cls_;
-    static constexpr double kHopCell = 4.0;
-    std::unordered_map<int64_t, std::vector<std::array<double, 3>>> hop_grid_;
 };
 
 }
