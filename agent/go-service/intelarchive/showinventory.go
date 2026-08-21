@@ -103,7 +103,7 @@ func buildIntelImportURL(collected, allUnlockIDs []string) (string, error) {
 		return "", fmt.Errorf("close gzip writer: %w", err)
 	}
 
-	return "https://oem.re/i/OEA-0-" + base64.RawURLEncoding.EncodeToString(buf.Bytes()), nil
+	return "https://oem.re/i/MAE-0-" + base64.RawURLEncoding.EncodeToString(buf.Bytes()), nil
 }
 
 func openBrowser(path string) bool {
