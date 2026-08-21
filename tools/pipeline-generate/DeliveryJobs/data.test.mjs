@@ -63,6 +63,22 @@ test("DeliveryJobs model has unique regions and depots", () => {
     }
 });
 
+test("DeliveryJobs offers transferable equipment components in Valley IV", () => {
+    const valleyIV = deliveryJobRegions.find((region) => region.Id === "ValleyIV");
+    assert.ok(valleyIV);
+    const itemIds = new Set(valleyIV.FillItems.map((item) => item.Id));
+    for (const itemId of [
+        "item_equip_script_4",
+        "item_equip_script_4_1",
+        "item_equip_script_4_2",
+        "item_equip_script_4_3",
+    ]) {
+        assert.ok(itemIds.has(itemId), `${itemId} must be available after transfer to Valley IV`);
+    }
+    assert.equal(itemIds.has("item_fertilize_1"), false);
+    assert.equal(itemIds.has("item_fertilize_2"), false);
+});
+
 test("DeliveryJobs generated region loops cover every depot in stable order", () => {
     for (const region of deliveryJobRegions) {
         const pipeline = readGeneratedPipeline("DeliveryJobs", "Region", `${region.Id}.json`);
@@ -403,6 +419,11 @@ test("DeliveryJobs packing item selection uses the IconRecognition shipment grid
             ],
         );
     }
+    assert.deepEqual(pipeline.DeliveryJobsSelectItemScrollUp.next, [
+        "MouseMoveReset",
+    ]);
+    assert.equal(pipeline.DeliveryJobsSelectItemScrollUp.duration, 200);
+    assert.equal(pipeline.DeliveryJobsSelectItemScrollUp.end_hold, 400);
 });
 
 test("DeliveryJobs shared bid page dispatches through common quote actions", () => {

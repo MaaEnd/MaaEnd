@@ -129,7 +129,7 @@ function getFillItemName(gameID) {
 }
 
 // 地区的可装箱物品取各仓储节点 fillable_items 的交集；
-// IconRecognition 物品目录未收录的物品（如 item_fertilize_* 测试物品）不提供选项
+// IconRecognition 物品目录未收录的物品不提供选项
 function listRegionFillItemIds(regionId, depots) {
     const depotItemSets = depots.map((depot) => new Set(depot.fillable_items));
     const commonIds = [...depotItemSets[0]].filter((id) => depotItemSets.every((set) => set.has(id)));

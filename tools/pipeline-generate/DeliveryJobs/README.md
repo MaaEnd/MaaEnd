@@ -47,7 +47,8 @@ pnpm fetch:zmdmap
 2. 新地区上线时，只需确认五个 `assets/locales/interface/*.json` 中存在对应的 `global.region.*` 文案，
    并在 `assets/resource/pipeline/Interface/SceneRegionalDevelopment.json` 中补充对应的场景节点；
    缺任何一项生成器都会直接报错并指出缺失内容。
-3. 装箱物品选项无需手工登记：生成器自动取地区各仓储节点 `fillable_items` 的交集，过滤出
+3. 装箱物品选项无需手工登记：精简数据依据 `FactoryItemTable.deliverItemTypeList` 与
+   `transferDomainIds` 判断物品可运入的地区，生成器再取地区各仓储节点 `fillable_items` 的交集，过滤出
    `assets/data/IconRecognition/recognition_items.json` 已收录的物品，由 IconRecognition（`grid_type=shipment`）识别；
    物品名称直接复用 `iconRecognition.name.*` 多语言 key。
 4. 运行 `pnpm generate:DeliveryJobs`，然后依次运行 `pnpm check` 和 `pnpm test`。

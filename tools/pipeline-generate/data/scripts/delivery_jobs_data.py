@@ -52,10 +52,10 @@ def build_delivery_jobs_data(tables: dict[str, Any]) -> dict[str, Any]:
                     deliver_item_type_list,
                     f"物品 {item_id} deliverItemTypeList",
                 ),
-                "show_in_regions": set(
+                "transfer_regions": set(
                     assert_list(
-                        entry.get("showInHubDomainIds"),
-                        f"物品 {item_id} showInHubDomainIds",
+                        entry.get("transferDomainIds"),
+                        f"物品 {item_id} transferDomainIds",
                     )
                 ),
             }
@@ -98,7 +98,7 @@ def build_delivery_jobs_data(tables: dict[str, Any]) -> dict[str, Any]:
             fillable_item_ids.update(
                 item["id"]
                 for item in deliverable_items
-                if region_id in item["show_in_regions"]
+                if region_id in item["transfer_regions"]
                 and intersects(item["deliver_item_types"], deliver_item_types)
             )
         if not has_level:

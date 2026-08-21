@@ -237,7 +237,7 @@
         ]
     },
     "DeliveryJobsSelectItemScrollUp": {
-        "desc": "如果要填充的物品不在第一屏，向上滑动屏幕",
+        "desc": "如果要填充的物品不在第一屏，向上滑动屏幕；静止后移鼠标到左上角，避免物品提示遮挡识别",
         "max_hit": 10,
         "pre_delay": 0,
         "action": "Swipe",
@@ -253,12 +253,15 @@
             10,
             10
         ],
-        "end_hold": 200,
-        // 要慢慢的滑，不然惯性就过头了
-        "duration": 2000,
+        // 短滑动后在终点按住，抑制惯性滚动
+        "end_hold": 400,
+        "duration": 200,
         "post_wait_freezes": 200,
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "MouseMoveReset"
+        ]
     },
     "DeliveryJobsFillCorrespondingGoods": {
         "desc": "手动填满对应货物，通过单击进度条最右侧",
