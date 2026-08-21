@@ -226,7 +226,7 @@
     "trialofswordmancy.recognition_failed": "剣術演武：認識失敗",
     "intelarchive.item_not_found": "情報アーカイブで一致するアイテムなし：%s",
     "intelarchive.item_unlocked": "%s を解除しました",
-    "intelarchive.report_opened": "ブラウザで所持一覧を開きました",
+    "intelarchive.report_opened": "ブラウザで Open Endfieldmap を開きました",
     "ims.sync_item_found": "%s を認識：%d",
     "ims.add_item_found": "%s を獲得 ×%d",
     "ims.expression_ok": "式が成立：%s",

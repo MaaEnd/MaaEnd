@@ -226,7 +226,7 @@
     "trialofswordmancy.recognition_failed": "選劍演武：識別失敗",
     "intelarchive.item_not_found": "未匹配到檔案：%s",
     "intelarchive.item_unlocked": "%s 已解鎖",
-    "intelarchive.report_opened": "已在瀏覽器中開啟庫存列表",
+    "intelarchive.report_opened": "已在瀏覽器開啟 Open Endfieldmap",
     "ims.sync_item_found": "識別到 %s：%d",
     "ims.add_item_found": "獲得 %s ×%d",
     "ims.expression_ok": "表達式成立：%s",
