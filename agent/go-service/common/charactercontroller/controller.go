@@ -2,6 +2,7 @@ package charactercontroller
 
 import (
 	"encoding/json"
+	"time"
 
 	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
@@ -113,6 +114,12 @@ func moveAxis(ctx *maa.Context, duration int) {
 	}
 }
 
+// sprintForward taps Shift once to sprint.
+func sprintForward(ctx *maa.Context) {
+	ctx.RunAction("__CharacterControllerShiftClickAction",
+		maa.Rect{0, 0, 0, 0}, "", nil)
+}
+
 type CharacterControllerYawDeltaAction struct{}
 
 func (a *CharacterControllerYawDeltaAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
@@ -169,11 +176,16 @@ func moveToTarget(ctx *maa.Context, arg *maa.CustomActionArg, alignThreshold int
 	rememberLastTarget(box, farTargetWidth)
 
 	if farTargetWidth != nil && box.Width() < *farTargetWidth {
+		// Keep original single W press, then Shift-sprint three times with gaps.
 		moveAxis(ctx, 200)
+		for i := 0; i < 3; i++ {
+			time.Sleep(300 * time.Millisecond)
+			sprintForward(ctx)
+		}
 		log.Debug().
 			Int("width", box.Width()).
 			Int("far_target_width", *farTargetWidth).
-			Msg("target too far — moving forward")
+			Msg("target too far — walk, then shift-sprint x3")
 		return true
 	}
 
