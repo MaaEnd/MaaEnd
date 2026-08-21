@@ -3,6 +3,7 @@ package goods
 import (
 	"testing"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/iconrecognition"
 	sellstrategy "github.com/MaaXYZ/MaaEnd/agent/go-service/sellproduct/goods/strategy"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 )
@@ -26,6 +27,19 @@ func TestParseCurrentGoodsRecognitionParam(t *testing.T) {
 	}
 	if _, err = parseCurrentGoodsRecognitionParam(`{"location":"InfraStation","roi":[1177,450]}`); err == nil {
 		t.Fatal("长度不足的 ROI 应校验失败")
+	}
+}
+
+// TestIsCurrentGoodsNoMatch 验证仅把 IconRecognition 的正常未命中视为回落条件。
+func TestIsCurrentGoodsNoMatch(t *testing.T) {
+	if isCurrentGoodsNoMatch(nil) {
+		t.Fatal("空错误不应视为 no_match")
+	}
+	if !isCurrentGoodsNoMatch(&iconrecognition.DetailError{Code: iconrecognition.ErrorCodeNoMatch}) {
+		t.Fatal("no_match 应视为正常未命中")
+	}
+	if isCurrentGoodsNoMatch(&iconrecognition.DetailError{Code: iconrecognition.ErrorCodeException}) {
+		t.Fatal("exception 不应视为正常未命中")
 	}
 }
 

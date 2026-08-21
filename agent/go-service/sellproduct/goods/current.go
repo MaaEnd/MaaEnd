@@ -88,8 +88,15 @@ func (r *CurrentGoodsRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogniti
 	}
 	parsed, _, err := iconrecognition.ParseRecognitionDetail(detail)
 	if err != nil {
-		// 未选中货品时槽位为空，IconRecognition 不命中属于正常情况。
-		log.Debug().Err(err).
+		log.Warn().Err(err).
+			Str("component", currentGoodsRecognitionName).
+			Str("location", param.Location).
+			Msg("failed to parse current goods icon recognition detail")
+		return nil, false
+	}
+	// no_match 表示识别正常完成但没有候选达到阈值，交由 Pipeline 回落到换货流程。
+	if isCurrentGoodsNoMatch(parsed.Error) {
+		log.Debug().
 			Str("component", currentGoodsRecognitionName).
 			Str("location", param.Location).
 			Msg("current goods slot is empty or unrecognized")
@@ -130,6 +137,10 @@ func (r *CurrentGoodsRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogniti
 		Score:    match.Score,
 	})
 	return &maa.CustomRecognitionResult{Box: match.CellBox, Detail: string(detailJSON)}, true
+}
+
+func isCurrentGoodsNoMatch(detailErr *iconrecognition.DetailError) bool {
+	return detailErr != nil && detailErr.Code == iconrecognition.ErrorCodeNoMatch
 }
 
 func parseCurrentGoodsRecognitionParam(raw string) (*currentGoodsRecognitionParam, error) {
