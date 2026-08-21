@@ -1117,7 +1117,7 @@
     },
     // ===== 动态优先级售卖循环 =====
     "SellProductReconstructionHQCurrentGoodsReady": {
-        "desc": "重建指挥部当前选中货品仍可售卖，沿用并跳过更换货品",
+        "desc": "重建指挥部当前选中货品符合静态选品策略，沿用并跳过更换货品",
         "recognition": "Custom",
         "custom_recognition": "SellProductCurrentGoods",
         "custom_recognition_param": {

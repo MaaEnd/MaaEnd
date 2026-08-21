@@ -40,7 +40,7 @@ Per outpost (SellProduct{LocationId}Sell)
 
 SellProductSellLoop (unlimited rounds; vouchers checked first each round)
   ├─ [Anchor]ZeroMoneyHandler     vouchers exhausted → SellProductSellLoopEnd (post-sell)
-  ├─ [Anchor]CurrentGoodsReady    current goods still sellable → adopt → SellProductAtSell
+  ├─ [Anchor]CurrentGoodsReady    current goods match the static strategy → adopt → SellProductAtSell
   └─ SellProductChangeGoods       click "Switch Goods" → ResetGoodsSelection → ChangeGoodsRelay
        ├─ [Anchor]SelectPriorityItem → SelectNewGoodConfirm → [Anchor]CommitPriorityItem
        │    → SellProductAtSell: re-check vouchers → out of stock → [Anchor]MarkOutOfStock
@@ -77,9 +77,9 @@ Task-level termination: if outpost management is locked, SceneManager cannot ent
 ### Current Goods Adoption (`SellProductCurrentGoods` custom recognizer)
 
 - Recognizes the currently selected goods icon in the outpost selling screen via IconRecognition `single_roi`, with candidates limited to the outpost's sellable items; the Win32 and ADB Pipelines pass `[1177,450,54,54]` and `[1151,393,66,66]` through `roi`, so Go hardcodes no platform coordinates.
-- Adoption checks first: not tried, not out of stock, not excluded by reserve rules; strict preferred-only mode also requires the item in the user's preferred list. Otherwise the flow falls back to the original "Switch Goods" path.
+- Rarity and price strategies reuse the normal selection rules. The current item is adopted only when it is exactly the next candidate after preferred slots, tried/out-of-stock state, and reserve rules are applied; otherwise the flow falls back to "Switch Goods" and scans the list.
+- The stock strategy depends on live storage quantities from the goods list, so it never recognizes or adopts the current item on the main screen. Every decision for the next item opens the list and scans stock again.
 - On hit, the `adopt` operation registers the recognized `itemId` as the outpost's current item with the same session effect as a switching `commit` (marks tried, updates the reserve-rule selection), so selling, reserve rules, and out-of-stock marking never distinguish where the goods came from.
-- Adoption semantics are "sell the current item first while it stays sellable": the main screen has no goods-grid stock observations, so no full strategy ordering runs here; once the item runs out of stock, SellLoop naturally moves on to the next one.
 
 ### Priority Selling (master switch, off by default, decoupled from region toggles)
 

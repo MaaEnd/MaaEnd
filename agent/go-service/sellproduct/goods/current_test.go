@@ -3,6 +3,7 @@ package goods
 import (
 	"testing"
 
+	sellstrategy "github.com/MaaXYZ/MaaEnd/agent/go-service/sellproduct/goods/strategy"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 )
 
@@ -28,44 +29,100 @@ func TestParseCurrentGoodsRecognitionParam(t *testing.T) {
 	}
 }
 
-// TestCurrentGoodsSellablePolicy 验证沿用判断分别受已尝试、缺货、保留规则和严格优先模式约束。
-func TestCurrentGoodsSellablePolicy(t *testing.T) {
+// TestCurrentGoodsMatchesSelectionFollowsStaticStrategy 验证仅沿用静态策略的下一候选，
+// 库存策略始终进入货品列表读取实时库存。
+func TestCurrentGoodsMatchesSelectionFollowsStaticStrategy(t *testing.T) {
+	groups := []itemPriorityGroup{
+		{ItemID: "high_rarity", Rarity: 4, UnitPrice: 30},
+		{ItemID: "high_price", Rarity: 3, UnitPrice: 70},
+	}
+	tests := []struct {
+		name         string
+		strategy     sellstrategy.Kind
+		current      string
+		wantSellable bool
+	}{
+		{name: "rarity best", strategy: sellstrategy.KindRarity, current: "high_rarity", wantSellable: true},
+		{name: "rarity lower", strategy: sellstrategy.KindRarity, current: "high_price"},
+		{name: "price best", strategy: sellstrategy.KindPrice, current: "high_price", wantSellable: true},
+		{name: "price lower", strategy: sellstrategy.KindPrice, current: "high_rarity"},
+		{name: "stock always scans", strategy: sellstrategy.KindStock, current: "high_rarity"},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			resetReserveSession()
+			policy := prioritySelectionPolicy{Strategy: test.strategy}
+			if got := currentGoodsMatchesSelection("Outpost", test.current, groups, policy); got != test.wantSellable {
+				t.Fatalf("当前货品沿用 = %v，期望 %v", got, test.wantSellable)
+			}
+		})
+	}
+	resetReserveSession()
+}
+
+// TestCurrentGoodsMatchesSelectionPolicy 验证沿用判断复用正式选品的优先顺序和排除规则。
+func TestCurrentGoodsMatchesSelectionPolicy(t *testing.T) {
+	groups := []itemPriorityGroup{
+		{ItemID: "item_a", Rarity: 2, UnitPrice: 10},
+		{ItemID: "item_b", Rarity: 3, UnitPrice: 20},
+	}
+
 	resetReserveSession()
 	configurePrioritySession(false, false)
 	policy := priorityPolicySnapshot()
-	if !currentGoodsSellable("Outpost", "item_a", policy) {
-		t.Fatal("默认策略下未处理的物品应可沿用")
+	if !currentGoodsMatchesSelection("Outpost", "item_b", groups, policy) {
+		t.Fatal("默认稀有度策略应沿用排序第一的物品")
+	}
+	if currentGoodsMatchesSelection("Outpost", "item_a", groups, policy) {
+		t.Fatal("默认稀有度策略不应沿用排序靠后的物品")
 	}
 
 	resetReserveSession()
-	prioritySelectionAdopt("Outpost", "item_a")
-	if currentGoodsSellable("Outpost", "item_a", priorityPolicySnapshot()) {
+	prioritySelectionAdopt("Outpost", "item_b")
+	if currentGoodsMatchesSelection("Outpost", "item_b", groups, priorityPolicySnapshot()) {
 		t.Fatal("已尝试物品不应沿用")
 	}
+	if !currentGoodsMatchesSelection("Outpost", "item_a", groups, priorityPolicySnapshot()) {
+		t.Fatal("应沿用排除已尝试物品后的下一候选")
+	}
 
 	resetReserveSession()
-	prioritySelectionAdopt("Outpost", "item_a")
+	prioritySelectionAdopt("Outpost", "item_b")
 	if _, _, ok := prioritySelectionMarkOutOfStock("Outpost"); !ok {
 		t.Fatal("沿用后的当前物品应可标记缺货")
 	}
-	if currentGoodsSellable("Outpost", "item_a", priorityPolicySnapshot()) {
+	if currentGoodsMatchesSelection("Outpost", "item_b", groups, priorityPolicySnapshot()) {
 		t.Fatal("缺货物品不应沿用")
 	}
 
 	resetReserveSession()
-	registerReserveRule("item_a", reserveBlacklistQuantity)
-	if currentGoodsSellable("Outpost", "item_a", priorityPolicySnapshot()) {
+	registerReserveRule("item_b", reserveBlacklistQuantity)
+	if currentGoodsMatchesSelection("Outpost", "item_b", groups, priorityPolicySnapshot()) {
 		t.Fatal("黑名单物品不应沿用")
 	}
 
 	resetReserveSession()
-	registerReserveRule("item_a", 10)
-	setSelectedReserveItem("item_a")
+	registerReserveRule("item_b", 10)
+	setSelectedReserveItem("item_b")
 	if _, _, _, ok := markSelectedReserveSatisfied(); !ok {
 		t.Fatal("保留规则应可标记满足")
 	}
-	if currentGoodsSellable("Outpost", "item_a", priorityPolicySnapshot()) {
+	if currentGoodsMatchesSelection("Outpost", "item_b", groups, priorityPolicySnapshot()) {
 		t.Fatal("保留量已满足的物品不应沿用")
+	}
+
+	resetReserveSession()
+	configurePrioritySession(true, false)
+	resetPreferredPriorityItems(true)
+	registerPriorityItem("item_a")
+	registerPriorityItem("item_b")
+	policy = priorityPolicySnapshot()
+	if !currentGoodsMatchesSelection("Outpost", "item_a", groups, policy) {
+		t.Fatal("应沿用优先槽位中的第一候选")
+	}
+	if currentGoodsMatchesSelection("Outpost", "item_b", groups, policy) {
+		t.Fatal("不应越过更靠前的优先物品沿用当前货品")
 	}
 
 	resetReserveSession()
@@ -73,11 +130,11 @@ func TestCurrentGoodsSellablePolicy(t *testing.T) {
 	resetPreferredPriorityItems(true)
 	registerPriorityItem("item_b")
 	policy = priorityPolicySnapshot()
-	if currentGoodsSellable("Outpost", "item_a", policy) {
+	if currentGoodsMatchesSelection("Outpost", "item_a", groups, policy) {
 		t.Fatal("严格优先模式下未配置的物品不应沿用")
 	}
-	if !currentGoodsSellable("Outpost", "item_b", policy) {
-		t.Fatal("严格优先模式下优先列表内的物品应可沿用")
+	if !currentGoodsMatchesSelection("Outpost", "item_b", groups, policy) {
+		t.Fatal("严格优先模式应沿用唯一配置的物品")
 	}
 	resetReserveSession()
 }

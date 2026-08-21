@@ -1088,7 +1088,7 @@
     },
     // ===== 动态优先级售卖循环 =====
     "SellProduct${LocationId}CurrentGoodsReady": {
-        "desc": "${LocationDesc}当前选中货品仍可售卖，沿用并跳过更换货品",
+        "desc": "${LocationDesc}当前选中货品符合静态选品策略，沿用并跳过更换货品",
         "recognition": "Custom",
         "custom_recognition": "SellProductCurrentGoods",
         "custom_recognition_param": {

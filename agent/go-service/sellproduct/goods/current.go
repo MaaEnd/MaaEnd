@@ -3,10 +3,10 @@ package goods
 import (
 	"encoding/json"
 	"fmt"
-	"slices"
 	"strings"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/iconrecognition"
+	sellstrategy "github.com/MaaXYZ/MaaEnd/agent/go-service/sellproduct/goods/strategy"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -26,8 +26,8 @@ type currentGoodsDetail struct {
 }
 
 // CurrentGoodsRecognition 在据点售卖主界面识别当前选中的货品图标。
-// 识别命中且该货品仍值得直接售卖（未尝试、未缺货、未被保留规则排除，
-// 严格优先模式下属于用户优先列表）时才命中，由 Pipeline 决定沿用或换货。
+// 稀有度和单价策略仅在当前货品恰好是下一候选时命中；库存策略依赖列表中的
+// 实时库存，不在主界面沿用当前货品，由 Pipeline 进入选货列表重新扫描。
 type CurrentGoodsRecognition struct{}
 
 var _ maa.CustomRecognitionRunner = (*CurrentGoodsRecognition)(nil)
@@ -39,6 +39,14 @@ func (r *CurrentGoodsRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogniti
 	param, err := parseCurrentGoodsRecognitionParam(arg.CustomRecognitionParam)
 	if err != nil {
 		log.Error().Err(err).Str("component", currentGoodsRecognitionName).Msg("invalid params")
+		return nil, false
+	}
+	policy := priorityPolicySnapshot()
+	if policy.Strategy == sellstrategy.KindStock {
+		log.Debug().
+			Str("component", currentGoodsRecognitionName).
+			Str("location", param.Location).
+			Msg("current goods adoption skipped for stock strategy")
 		return nil, false
 	}
 
@@ -101,13 +109,12 @@ func (r *CurrentGoodsRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogniti
 	}
 
 	match := parsed.Matches[0]
-	policy := priorityPolicySnapshot()
-	if !currentGoodsSellable(param.Location, match.ItemID, policy) {
+	if !currentGoodsMatchesSelection(param.Location, match.ItemID, groups, policy) {
 		log.Debug().
 			Str("component", currentGoodsRecognitionName).
 			Str("location", param.Location).
 			Str("item_id", match.ItemID).
-			Msg("current goods recognized but not sellable")
+			Msg("current goods recognized but not next selection")
 		return nil, false
 	}
 
@@ -144,26 +151,29 @@ func parseCurrentGoodsRecognitionParam(raw string) (*currentGoodsRecognitionPara
 	return &param, nil
 }
 
-// currentGoodsSellable 判断识别到的当前货品是否仍值得直接售卖：
-// 未尝试过、未缺货、未被保留规则排除，且严格优先模式下必须在用户优先列表中。
-func currentGoodsSellable(location, itemID string, policy prioritySelectionPolicy) bool {
-	attempted, outOfStock, _ := prioritySelectionSnapshot(location)
-	if _, done := attempted[itemID]; done {
+// currentGoodsMatchesSelection 判断当前货品是否等于静态策略的下一候选。
+// 稀有度和单价策略可用部署数据提前排序；库存策略必须打开列表读取实时库存。
+func currentGoodsMatchesSelection(
+	location string,
+	itemID string,
+	groups []itemPriorityGroup,
+	policy prioritySelectionPolicy,
+) bool {
+	if policy.Strategy == sellstrategy.KindStock {
 		return false
 	}
-	if _, unavailable := outOfStock[itemID]; unavailable {
-		return false
+
+	groups = prioritizeItemGroups(groups, policy.Preferred, policy.OnlyPreferred)
+	observations := make(map[string]sellstrategy.Candidate, len(groups))
+	for _, group := range groups {
+		observations[group.ItemID] = sellstrategy.Candidate{
+			ItemID:    group.ItemID,
+			Rarity:    group.Rarity,
+			UnitPrice: group.UnitPrice,
+		}
 	}
-	if _, blacklisted := reserveBlacklistedItemsSnapshot()[itemID]; blacklisted {
-		return false
-	}
-	if _, satisfied := reserveSatisfiedItemsSnapshot()[itemID]; satisfied {
-		return false
-	}
-	if policy.OnlyPreferred && !slices.Contains(policy.Preferred, itemID) {
-		return false
-	}
-	return true
+	targetItemID, _ := selectGoodsTarget(location, groups, policy, observations)
+	return targetItemID == itemID
 }
 
 // currentGoodsItemIDFromRecognition 从识别节点的 detail 中解析当前货品 ID，
