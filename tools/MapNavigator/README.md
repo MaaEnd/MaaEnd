@@ -207,6 +207,17 @@ dung01
 
 `.nav` 只连接 GLB 自身共享/重叠边，以及同高度的小距离 component bridge；不会为了跨 level 自动补 portal 或 drop link。游戏本身分离的 level 暂保持不可达。
 
+## 实机试跑
+
+左侧「连接状态」下方、页签之上的“实机试跑”面板对三个页签一律可用，跑的永远是**当前页签里那一份**：路径编辑跑编辑器路点，A\* 跑「复制配置」会给出的那串 `NAVMESH` 目标（同一处口径，两者不会漂移），断言模式跑的是画出来的那个框——原样交给 `MapLocateAssertLocation` 认一次，人在框里就提示通过、不在就提示不通过，不加额外判定。改完自动重新装载，不必手动同步。
+
+- **开始试跑 (F3)**：没有会话时连接游戏（Windows 非管理员会先请求提权），连上立即开跑；会话还在时直接重跑。
+- **终止试跑 (F4)**：正在跑就停下这一轮，人立即松手；已经停着则结束会话、放开游戏。
+
+会话在两轮之间保持连接，所以改完线按 F3 就能再跑一遍，不需要重连。F3/F4 由后端全局监听，游戏窗口在前台时同样有效；提权失败退回本进程时，面板提示会变成警告，此时只能用按钮终止。
+
+A\* 的起点只参与预览规划，不会进 `NAVMESH` 节点；实机是从角色当前位置直接走向第一个目标点，与复制出来的配置一致。
+
 ## 运行方式
 
 依赖声明在 `main.py` / `web/serve.py` 的 PEP 723 头里，uv 会自动准备对应环境：
@@ -243,8 +254,11 @@ uv run main.py
 - `connection_models.py`: 录制会话、Win32/ADB/PlayCover 配置与设备模型。
 - `connectors.py`: 录制连接器抽象，以及各 controller 建连实现。
 - `settings_store.py`: 本地用户连接偏好持久化。
+- `agent_session.py`: 一次 cpp Agent + Tasker 的生命周期，录制/试跑/单次定位/navmesh 查询共用同一套起法。
 - `recording_service.py`: Maa Agent 录制线程与数据采集，不直接耦合具体 controller 类型。
-- `record_worker.py`: 提权录制子进程。Windows 非管理员时录制跑在这里，与后端用回连 socket 通信（服务自身不重启、不提权）。
+- `navtest_service.py`: 实机试跑会话，把当前页签里的路线交给 `MapNavigateAction` 走一遍、断言框交给 `MapLocateAssertLocation` 认一次，F3 重跑 / F4 终止。
+- `session_worker.py`: 提权会话子进程。Windows 非管理员时录制与试跑跑在这里，与后端用回连 socket 通信（服务自身不重启、不提权）。
+- `session_modes.py`: 录制与试跑的差异表（服务怎么建、哪些消息算终结），进程内会话与子进程共用。
 - `clipboard.py`: 系统剪贴板写入（G 热键复制坐标）。
 - `navmesh_backend.py`: navmesh 查询后端，把 cpp-algo agent 当作常驻查询进程；几何解码、吸附、路线都在 agent 里算。
 - `json_import.py`: JSON/JSONC 导入解析与动作语义校验。

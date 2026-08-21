@@ -94,7 +94,9 @@ description: MaaEnd 自动寻路、地图定位、角色移动与路径导航开
 - `web/static/`：浏览器前端（原生 JS + JSDoc + WebGL，ESM 模块，零构建）；
 - `navmesh_backend.py`：navmesh 查询后端，把 cpp-algo agent 当作常驻查询进程，几何解码 / 吸附 / 路线都在 agent 里算；
 - `connectors.py` / `connection_models.py`：Win32 / ADB / PlayCover 录制连接层；
+- `agent_session.py`：cpp Agent + Tasker 的生命周期，录制 / 试跑 / 单次定位 / navmesh 查询共用；
 - `recording_service.py`：Maa Agent 录制线程与轨迹采集；
+- `navtest_service.py`：实机试跑会话，当前页签里的路线直接交给 `MapNavigateAction` 走一遍、断言框交给 `MapLocateAssertLocation` 认一次（F3 重跑 / F4 终止）；
 - `json_import.py`：JSON/JSONC 导入解析与动作语义校验；
 - `model.py`：路径数据结构、动作类型与规范化工具。
 

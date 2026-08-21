@@ -7,6 +7,11 @@
     <link rel="stylesheet" href="./css/style.css" />
   </head>
   <body>
+    <!-- 试跑进行中的全局横幅：角色正在游戏里走，终止键必须一眼可见 -->
+    <div id="navtest-overlay" class="navtest-overlay" hidden>
+      <span class="navtest-overlay-dot" aria-hidden="true"></span>
+      <span>试跑中 —— 按 <kbd>F4</kbd> 立即终止</span>
+    </div>
     <div id="app" class="modern-app">
       <!-- 侧边栏面板 -->
       <div id="sidebar">
@@ -89,6 +94,21 @@
             </div>
           </div>
           </div>
+        </div>
+
+        <!-- 实机试跑：三种模式共用，跑的永远是当前页签里那条线 -->
+        <div class="sidebar-section" id="panel-navtest">
+          <div class="section-header">
+            <span class="section-title">实机试跑</span>
+          </div>
+          <div id="navtest-hotkey-note" class="hotkey-banner">
+            <kbd>F3</kbd> 重跑 &nbsp;·&nbsp; <kbd>F4</kbd> 终止 &nbsp;·&nbsp; 游戏在前台也能按
+          </div>
+          <div class="sidebar-row grid-btns-2">
+            <button id="btn-navtest-run" class="btn btn-primary" type="button">开始试跑 (F3)</button>
+            <button id="btn-navtest-stop" class="btn btn-danger" type="button" disabled>终止试跑 (F4)</button>
+          </div>
+          <div id="navtest-armed" class="navtest-armed">未装载路线</div>
         </div>
 
         <!-- 主模式切换页签 -->

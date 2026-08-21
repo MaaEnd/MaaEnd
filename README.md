@@ -36,6 +36,10 @@ Powered by [MaaFramework](https://github.com/MaaXYZ/MaaFramework) & [MXU](https:
 
 > 💡 **提示**：新版本会自动更新，无需手动操作哦~
 
+## 食用指南
+
+请前往 [MaaEnd 官网](https://maaend.com/) 下载最新版本。
+
 ## ✨ 功能一览
 
 - 🎁 **一键预设场景**：日常全套、快速日常、挂机辅助、基质养成……四套常用场景预设一键切换，省去繁琐配置！✨
