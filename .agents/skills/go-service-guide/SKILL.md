@@ -58,6 +58,15 @@ func registerAll() {
 
 遗漏调用 = 组件不生效。
 
+## Schema 同步
+
+新增 Custom 组件时同步维护 Pipeline Schema：
+
+- 将 Custom Action 注册名加入 `tools/schema/custom.action.schema.json` 的 `enum`。
+- 将 Custom Recognition 注册名加入 `tools/schema/custom.recognition.schema.json` 的 `enum`。
+- 参数结构固定时，在对应 Custom Schema 中补充参数约束；复杂参数放入 `tools/schema/components/` 并通过 `$ref` 引用。无参数或允许任意值透传时，不要创建空参数 Schema。
+- 不要修改 `tools/schema/pipeline.schema.json`；该文件已引用上述两个 Custom Schema。
+
 ## 编译期接口校验
 
 所有注册类型必须在**定义该类型的文件**中包含编译期校验，不要集中放在 `register.go`：
@@ -218,6 +227,7 @@ func (s *MySink) OnTaskerTask(tasker *maa.Tasker, event maa.EventStatus, detail 
 
 - [ ] 注册名与 Pipeline `name` / `param` 一致
 - [ ] `Register()` 已在 `registerAll()` 中调用
+- [ ] 注册名已加入对应 Custom Schema 的 `enum`，固定参数结构已有约束
 - [ ] 编译期接口校验在类型定义文件中
 - [ ] zerolog 链式写法，无 `log.Printf`，上下文不拼进 Msg
 - [ ] 导出符号有注释

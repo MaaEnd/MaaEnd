@@ -64,14 +64,24 @@
 - **流程控制**：禁止在 Go 中编写大规模的业务流程，流程控制应交由 Pipeline JSON 负责。
 - **注册机制**：新的自定义动作/识别需在 `registerAll()` 中注册，具体实现参考各子包。
 
-### 3. 资源维护与任务新增
+### 3. Cpp Algo 规范
+
+- **职责分离**：Cpp Algo 支持原生 OpenCV 和 ONNX Runtime，优先用于实现单个复杂识别算法；操作及业务流程优先由 Go Service 与 Pipeline 负责。
+- **注册机制**：新的自定义动作/识别需在 `agent/cpp-algo/source/main.cpp` 中注册。
+
+### 4. Custom Schema 规范
+
+- **注册名同步**：新增 Go Service 或 Cpp Algo Custom Action / Recognition 时，必须将注册名加入 `tools/schema/custom.action.schema.json` 或 `tools/schema/custom.recognition.schema.json` 的 `enum`。
+- **参数约束**：参数结构固定时，应在对应 Custom Schema 中补充参数约束；无参数或允许任意值透传时，无需创建空参数 Schema。
+
+### 5. 资源维护与任务新增
 
 - **接口定义合规性**：`assets/interface.json` 必须符合 MaaFramework 项目接口 V2（见下方相关文档链接） 规范。
 - **国际化同步**：新增任务时，必须在 `assets/locales/` 下的相关语言 JSON 文件中添加对应的任务名称及描述。
 - **配置同步**：`assets/interface.json` 的修改需要手动从 `install` 目录同步回源码（如果是通过工具修改）。
 - **文件夹命名**：资源目录下的文件夹名禁止以下划线 `_` 开头（如 `__Private`）。Android 打包逻辑无法处理下划线开头的目录名，会导致资源无法打入包内；此限制仅针对文件夹名，任务名（JSON 键名）不受影响。
 
-### 4. 代码格式化规范
+### 6. 代码格式化规范
 
 - **Prettier 约束**：所有 JSON、YAML 文件必须遵循 `.prettierrc` 的配置。
 - **关键规则**：

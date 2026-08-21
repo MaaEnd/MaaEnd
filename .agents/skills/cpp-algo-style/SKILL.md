@@ -251,5 +251,6 @@ target_sources(cpp-algo PRIVATE
 - [ ] 新常量是否有 `k` 前缀和注释
 - [ ] 错误路径是否有日志和合理返回值
 - [ ] 新文件是否加入了 CMakeLists.txt 的显式列表（如已迁移）
+- [ ] 新增 Custom Action / Recognition 的注册名是否已分别加入 `tools/schema/custom.action.schema.json` / `tools/schema/custom.recognition.schema.json` 的 `enum`，固定参数结构是否已有约束
 
 详细的命名对照和重构示例见 [reference.md](reference.md)。

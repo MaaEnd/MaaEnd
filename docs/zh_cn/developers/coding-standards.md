@@ -148,6 +148,20 @@ MaaEnd 里一个功能改动常常不只改一个地方。
 - 在 `agent/go-service/register.go` 的 `registerAll()` 中接入
 - 重新执行 `uv run tools/build_and_install.py`
 
+### 新增 Cpp Algo Custom 组件
+
+- 在 `agent/cpp-algo/source/main.cpp` 中通过 `MaaAgentServerRegisterCustomAction` 或 `MaaAgentServerRegisterCustomRecognition` 注册
+- 重新执行 `uv run tools/build_and_install.py --cpp-algo`
+
+### 同步 Custom Schema
+
+新增上述任一种 Custom 组件时：
+
+- Custom Action 注册名加入 `tools/schema/custom.action.schema.json` 的 `enum`
+- Custom Recognition 注册名加入 `tools/schema/custom.recognition.schema.json` 的 `enum`
+- 参数结构固定时，在对应 Custom Schema 中补充参数约束；复杂参数可拆到 `tools/schema/components/` 后引用。无参数或允许任意值透传时，无需创建空参数 Schema
+- 无需修改已引用上述两个 Custom Schema 的 `tools/schema/pipeline.schema.json`
+
 > MXU 是面向终端用户的 GUI，不建议用于日常开发调试。上述开发工具可以极大程度提高开发效率。
 
 ## 调试工作流
