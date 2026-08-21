@@ -226,7 +226,7 @@
     "trialofswordmancy.recognition_failed": "Trial of Swordmancy: recognition failed",
     "intelarchive.item_not_found": "Intel Archive item not found: %s",
     "intelarchive.item_unlocked": "%s unlocked",
-    "intelarchive.report_opened": "Opened the inventory list in your browser",
+    "intelarchive.report_opened": "Opened Open Endfieldmap in your browser",
     "ims.sync_item_found": "Found %s: %d",
     "ims.add_item_found": "Gained %s ×%d",
     "ims.expression_ok": "expression matched: %s",

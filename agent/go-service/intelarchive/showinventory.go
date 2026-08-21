@@ -1,79 +1,109 @@
 package intelarchive
 
 import (
+	"bytes"
+	"compress/gzip"
+	"encoding/base64"
 	"encoding/json"
-	"os"
+	"fmt"
 	"os/exec"
-	"path/filepath"
 	"runtime"
-	"strings"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/resource"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
 
-const (
-	templateResourcePath = "data/IntelArchive/inventory.html"
-	reportFileName       = "IntelArchiveReport.html"
-)
-
 var _ maa.CustomActionRunner = &ShowInventoryAction{}
+var _ maa.CustomActionRunner = &ResetSessionAction{}
 
+// ShowInventoryAction opens an Open Endfieldmap OEA import URL for the unlocked archive list.
 type ShowInventoryAction struct{}
 
+// ResetSessionAction clears the in-memory unlock session before a fresh scan.
+type ResetSessionAction struct{}
+
+func (a *ResetSessionAction) Run(_ *maa.Context, _ *maa.CustomActionArg) bool {
+	resetSession()
+	log.Info().Str("component", component).Msg("intel archive session reset")
+	return true
+}
+
 func (a *ShowInventoryAction) Run(ctx *maa.Context, _ *maa.CustomActionArg) bool {
-	tpl, err := resource.ReadResource(templateResourcePath)
+	collected := sessionUnlockedIDs()
+	if len(collected) == 0 {
+		log.Warn().Str("component", component).Msg("session unlocked list is empty")
+	}
+
+	idx, err := loadCatalogIndex()
 	if err != nil {
-		log.Error().Err(err).Str("component", component).Msg("failed to read inventory template")
+		log.Error().Err(err).Str("component", component).Msg("failed to load catalog for import")
 		return false
 	}
 
-	var cat catalogFile
-	if err := resource.ReadJsonResource(catalogPathFunc(), &cat); err != nil {
-		log.Error().Err(err).Str("component", component).Msg("failed to load catalog for report")
-		return false
-	}
-
-	var items itemsFile
-	if err := resource.ReadJsonResource(itemsPathFunc(), &items); err != nil {
-		log.Error().Err(err).Str("component", component).Msg("failed to load items for report")
-		return false
-	}
-
-	unlocked, err := loadUnlocked()
+	url, err := buildIntelImportURL(collected, idx.AllUnlockIDs)
 	if err != nil {
-		log.Error().Err(err).Str("component", component).Msg("failed to load unlocked for report")
+		log.Error().Err(err).Str("component", component).Msg("failed to build intel import url")
 		return false
 	}
 
-	catalogJSON, _ := json.Marshal(cat)
-	itemsJSON, _ := json.Marshal(items)
-	unlockedJSON, _ := json.Marshal(unlocked)
+	log.Info().
+		Str("component", component).
+		Int("collected", len(collected)).
+		Int("catalog", len(idx.AllUnlockIDs)).
+		Int("url_len", len(url)).
+		Str("url", url).
+		Msg("intel import url built")
 
-	html := string(tpl)
-	html = strings.Replace(html, "/*__CATALOG__*/", string(catalogJSON), 1)
-	html = strings.Replace(html, "/*__ITEMS__*/", string(itemsJSON), 1)
-	html = strings.Replace(html, "/*__UNLOCKED__*/", string(unlockedJSON), 1)
-
-	outPath := filepath.Join(recordOutputDir(), reportFileName)
-	if err := os.MkdirAll(filepath.Dir(outPath), 0o755); err != nil {
-		log.Error().Err(err).Str("component", component).Msg("failed to create report dir")
-		return false
-	}
-	if err := os.WriteFile(outPath, []byte(html), 0o644); err != nil {
-		log.Error().Err(err).Str("component", component).Msg("failed to write report")
-		return false
-	}
-
-	absPath, _ := filepath.Abs(outPath)
-	log.Info().Str("component", component).Str("path", absPath).Msg("inventory report written")
-	if openBrowser(absPath) {
+	if openBrowser(url) {
 		maafocus.Print(ctx, i18n.T("intelarchive.report_opened"))
 	}
 	return true
+}
+
+func buildIntelImportURL(collected, allUnlockIDs []string) (string, error) {
+	collected = dedupeStrings(collected)
+	owned := make(map[string]struct{}, len(collected))
+	for _, id := range collected {
+		owned[id] = struct{}{}
+	}
+	notCollected := make([]string, 0, len(allUnlockIDs))
+	for _, id := range allUnlockIDs {
+		if id == "" {
+			continue
+		}
+		if _, ok := owned[id]; !ok {
+			notCollected = append(notCollected, id)
+		}
+	}
+
+	jsonBytes, err := json.Marshal(map[string]any{
+		"majorVersion": 0,
+		"minorVersion": 0,
+		"data": map[string]any{
+			"oeaVersion": "maaend",
+			"prtsAllItems": map[string]any{
+				"collected":    collected,
+				"notCollected": notCollected,
+			},
+		},
+	})
+	if err != nil {
+		return "", fmt.Errorf("marshal import payload: %w", err)
+	}
+
+	var buf bytes.Buffer
+	zw := gzip.NewWriter(&buf)
+	if _, err := zw.Write(jsonBytes); err != nil {
+		_ = zw.Close()
+		return "", fmt.Errorf("gzip import payload: %w", err)
+	}
+	if err := zw.Close(); err != nil {
+		return "", fmt.Errorf("close gzip writer: %w", err)
+	}
+
+	return "https://oem.re/i/MAE-0-" + base64.RawURLEncoding.EncodeToString(buf.Bytes()), nil
 }
 
 func openBrowser(path string) bool {
@@ -90,7 +120,6 @@ func openBrowser(path string) bool {
 		log.Warn().Err(err).Str("component", component).Msg("failed to open browser")
 		return false
 	}
-	// Release resources without waiting for browser to close
 	go cmd.Wait() //nolint:errcheck
 	return true
 }

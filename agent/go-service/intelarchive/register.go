@@ -7,5 +7,6 @@ func Register() {
 	maa.AgentServerRegisterCustomRecognition("IntelArchiveScanItemsRecognition", &ScanItemsRecognition{})
 	maa.AgentServerRegisterCustomRecognition("IntelArchiveScanDetailRecognition", &ScanDetailRecognition{})
 	maa.AgentServerRegisterCustomAction("IntelArchiveResolveTruncAction", &ResolveTruncAction{})
+	maa.AgentServerRegisterCustomAction("IntelArchiveResetSessionAction", &ResetSessionAction{})
 	maa.AgentServerRegisterCustomAction("IntelArchiveShowInventoryAction", &ShowInventoryAction{})
 }
