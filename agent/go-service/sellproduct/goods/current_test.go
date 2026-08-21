@@ -43,9 +43,9 @@ func TestIsCurrentGoodsNoMatch(t *testing.T) {
 	}
 }
 
-// TestCurrentGoodsMatchesSelectionFollowsStaticStrategy 验证仅沿用静态策略的下一候选，
-// 库存策略始终进入货品列表读取实时库存。
-func TestCurrentGoodsMatchesSelectionFollowsStaticStrategy(t *testing.T) {
+// TestCurrentGoodsMatchesSelectionFollowsStrategy 验证仅沿用当前策略的下一候选；
+// 没有优先货品时，库存策略进入货品列表读取实时库存。
+func TestCurrentGoodsMatchesSelectionFollowsStrategy(t *testing.T) {
 	groups := []itemPriorityGroup{
 		{ItemID: "high_rarity", Rarity: 4, UnitPrice: 30},
 		{ItemID: "high_price", Rarity: 3, UnitPrice: 70},
@@ -71,6 +71,35 @@ func TestCurrentGoodsMatchesSelectionFollowsStaticStrategy(t *testing.T) {
 				t.Fatalf("当前货品沿用 = %v，期望 %v", got, test.wantSellable)
 			}
 		})
+	}
+	resetReserveSession()
+}
+
+// TestCurrentGoodsMatchesSelectionStockPreferred 验证库存策略仍优先处理用户配置的
+// 优先货品，但不会越过更靠前且可用的优先槽位沿用当前货品。
+func TestCurrentGoodsMatchesSelectionStockPreferred(t *testing.T) {
+	groups := []itemPriorityGroup{
+		{ItemID: "item_a", Rarity: 2, UnitPrice: 10},
+		{ItemID: "item_b", Rarity: 3, UnitPrice: 20},
+	}
+
+	resetReserveSession()
+	configurePrioritySession(true, false)
+	configureSelectionStrategy(sellstrategy.KindStock, sellstrategy.Config{})
+	resetPreferredPriorityItems(true)
+	registerPriorityItem("item_a")
+	registerPriorityItem("item_b")
+	policy := priorityPolicySnapshot()
+	if !currentGoodsMatchesSelection("Outpost", "item_a", groups, policy) {
+		t.Fatal("库存策略应沿用第一可用优先货品")
+	}
+	if currentGoodsMatchesSelection("Outpost", "item_b", groups, policy) {
+		t.Fatal("库存策略不应越过第一可用优先货品")
+	}
+
+	prioritySelectionAdopt("Outpost", "item_a")
+	if !currentGoodsMatchesSelection("Outpost", "item_b", groups, priorityPolicySnapshot()) {
+		t.Fatal("第一优先货品已尝试后应沿用第二优先货品")
 	}
 	resetReserveSession()
 }

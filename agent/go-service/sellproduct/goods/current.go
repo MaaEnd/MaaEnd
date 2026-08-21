@@ -26,8 +26,8 @@ type currentGoodsDetail struct {
 }
 
 // CurrentGoodsRecognition 在据点售卖主界面识别当前选中的货品图标。
-// 稀有度和单价策略仅在当前货品恰好是下一候选时命中；库存策略依赖列表中的
-// 实时库存，不在主界面沿用当前货品，由 Pipeline 进入选货列表重新扫描。
+// 稀有度和单价策略仅在当前货品恰好是下一候选时命中；库存策略只沿用可由
+// 优先槽位直接确定的下一候选，其余情况由 Pipeline 进入选货列表重新扫描库存。
 type CurrentGoodsRecognition struct{}
 
 var _ maa.CustomRecognitionRunner = (*CurrentGoodsRecognition)(nil)
@@ -42,11 +42,11 @@ func (r *CurrentGoodsRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogniti
 		return nil, false
 	}
 	policy := priorityPolicySnapshot()
-	if policy.Strategy == sellstrategy.KindStock {
+	if policy.Strategy == sellstrategy.KindStock && len(policy.Preferred) == 0 {
 		log.Debug().
 			Str("component", currentGoodsRecognitionName).
 			Str("location", param.Location).
-			Msg("current goods adoption skipped for stock strategy")
+			Msg("current goods adoption skipped for stock strategy without preferred items")
 		return nil, false
 	}
 
@@ -162,18 +162,15 @@ func parseCurrentGoodsRecognitionParam(raw string) (*currentGoodsRecognitionPara
 	return &param, nil
 }
 
-// currentGoodsMatchesSelection 判断当前货品是否等于静态策略的下一候选。
-// 稀有度和单价策略可用部署数据提前排序；库存策略必须打开列表读取实时库存。
+// currentGoodsMatchesSelection 判断当前货品是否等于当前选品规则的下一候选。
+// 库存策略只能静态确定优先槽位中的候选；没有可用优先货品时，因库存未知而
+// 不会选中普通候选，Pipeline 会打开列表读取实时库存。
 func currentGoodsMatchesSelection(
 	location string,
 	itemID string,
 	groups []itemPriorityGroup,
 	policy prioritySelectionPolicy,
 ) bool {
-	if policy.Strategy == sellstrategy.KindStock {
-		return false
-	}
-
 	groups = prioritizeItemGroups(groups, policy.Preferred, policy.OnlyPreferred)
 	observations := make(map[string]sellstrategy.Candidate, len(groups))
 	for _, group := range groups {

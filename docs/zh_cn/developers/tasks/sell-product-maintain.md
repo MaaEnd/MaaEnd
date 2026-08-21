@@ -40,7 +40,7 @@ SellProductSchedule ──命中星期──> SellProductMain
 
 SellProductSellLoop（不限次数，每轮先查调度券）
   ├─ [Anchor]ZeroMoneyHandler     调度券不足 → SellProductSellLoopEnd（进售后）
-  ├─ [Anchor]CurrentGoodsReady    当前货品符合静态策略 → adopt 沿用 → SellProductAtSell
+  ├─ [Anchor]CurrentGoodsReady    当前货品符合当前选品规则 → adopt 沿用 → SellProductAtSell
   └─ SellProductChangeGoods       点「更换货品」→ ResetGoodsSelection → ChangeGoodsRelay
        ├─ [Anchor]SelectPriorityItem → SelectNewGoodConfirm → [Anchor]CommitPriorityItem
        │    → SellProductAtSell：再查调度券 → 缺货则 [Anchor]MarkOutOfStock 记缺货
@@ -77,7 +77,7 @@ SellProductSellLoop（不限次数，每轮先查调度券）
 
 - 据点主界面的货品槽位用 IconRecognition `single_roi` 识别当前选中的货品，候选只含本据点可售物品；Win32、ADB 两套 Pipeline 分别通过 `roi` 传入 `[1177,450,54,54]` 与 `[1151,393,66,66]`，Go 不硬编码平台坐标。
 - 稀有度和单价策略会复用正式选品规则，只有当前货品恰好是应用优先槽位、已尝试/缺货状态和保留规则后的下一候选时才沿用；否则落回「更换货品」流程扫描列表。
-- 库存策略依赖列表中的实时仓储数量，不识别或沿用主界面当前货品；每次选择下一种货品都打开列表重新扫描库存。
+- 优先槽位先于库存策略生效，因此库存策略也可沿用排除已尝试、缺货和保留规则后第一个可用的优先货品；当前货品不是该优先候选，或已无可用优先货品时，必须打开列表重新读取实时仓储数量，不能沿用普通候选。
 - 命中后由 `adopt` 操作把识别 detail 中的 `itemId` 登记为据点当前物品，状态效果与换货 `commit` 一致（记录已尝试、更新保留规则选中项），后续售卖、保留规则与缺货标记流程不区分货品来源。
 
 ### 优先售卖（默认关闭的总开关，与地区售卖开关解耦）
