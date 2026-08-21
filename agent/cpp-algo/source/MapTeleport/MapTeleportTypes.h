@@ -24,7 +24,9 @@ struct ViewportConfig
     // 粗解在降采样图上按等比阶梯扫全尺度带，细解回到原尺度只扫粗解邻域。
     // 尺度是等比量，线性步长在低档过密、高档过疏，所以阶梯用比例而非增量
     int coarseDownscale = 4;
-    double scaleMin = 0.20;
+    // 进图先缩到最小，此时尺度实测不低于 0.40。下界再往下只会让模板小到
+    // 靠极值统计虚高分抢走档位；上界留宽，各区底图尺寸不同不便钉死
+    double scaleMin = 0.30;
     double scaleMax = 4.00;
     double coarseRatio = 1.10;
     int fineSteps = 15;
@@ -43,10 +45,10 @@ struct AnchorConfig
     // 确认只在期望位置的小窗内做，屏幕别处的同款图标一律看不见
     int searchRadius = 40;
 
-    // 图标是固定屏幕尺寸的，不随地图缩放变：最佳尺度恒为 1.000，
-    // 偏离 5% 分数就掉到 0.6 以下。阶梯必须正好踩到 1.000
+    // 图标不随地图缩放变，但各端界面把它画得不一样大：桌面实测踩 1.000，移动端踩 1.250。
+    // 带宽要同时罩住两端，且阶梯得正好落在这两个值上——偏离 5% 分数就掉到 0.6 以下
     double scaleMin = 0.90;
-    double scaleMax = 1.15;
+    double scaleMax = 1.35;
     double scaleStep = 0.025;
 
     // 实测真图标最低 0.76，地图纹理上的背景峰不到 0.45

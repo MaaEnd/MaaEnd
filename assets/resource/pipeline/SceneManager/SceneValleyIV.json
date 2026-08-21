@@ -652,7 +652,7 @@
         "next": [
             "__ScenePrivateMapTeleportSuccess",
             "[JumpBack]__ScenePrivateMapLayerSwitchToMain",
-            "[JumpBack]__ScenePrivateMapZoomNonExtreme",
+            "[JumpBack]__ScenePrivateMapZoomOut",
             "[JumpBack][Anchor]__ScenePrivateMapTeleportPickAnchor"
         ]
     },

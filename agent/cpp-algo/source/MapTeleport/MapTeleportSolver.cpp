@@ -22,7 +22,8 @@ namespace
 constexpr int kMinTemplateSide = 24;
 constexpr int kMinAnchorSide = 6;
 constexpr const char* kAnchorTemplateDir = "SceneManager";
-constexpr const char* kAnchorTemplateName = "MapTeleport.png";
+// 本组件自带一份锚点模板：SceneManager 的同名图各端出货尺寸不成比例，一套尺度阶梯罩不住
+constexpr const char* kAnchorTemplateName = "MapTeleportAnchor.png";
 constexpr const char* kCoreTemplateNames[] = { "MapTeleportCoreHub.png", "MapTeleportCoreSettlement.png" };
 
 // HSV 的 S 通道。地图底色也能很艳，所以只在模板圈定的那些像素上取

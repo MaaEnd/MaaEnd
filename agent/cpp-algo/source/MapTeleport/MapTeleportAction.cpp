@@ -4,7 +4,6 @@
 #include <chrono>
 #include <cmath>
 #include <cstring>
-#include <limits>
 #include <optional>
 #include <string>
 #include <thread>
@@ -36,17 +35,42 @@ struct SelectParam
     MEO_JSONIZATION(zone, target, MEO_OPT max_attempts, MEO_OPT gate_base, MEO_OPT core);
 };
 
-// 目标离安全区边界不足这些像素就先平移，免得图标被 UI 压住或裁掉一半
+// 大地图铺满全屏，UI 只是浮在四角的几块。图标要认要点，只需躲开这几块，
+// 与视口求解那块窄 ROI 不是一回事：那块是为了别让浮层污染相关性才收得那么紧。
+// 拿它当「图标必须落进来」的判据会把大片能点的地方判成点不到，
+// 而地图拖到边界就不动了，判进不来又拖不动，只能空转到放弃
+constexpr ScreenMapRoi kIconArea { 0.02, 0.13, 0.80, 0.85 };
+
+// 目标离可用区边界不足这些像素就先平移，免得图标被 UI 压住或裁掉一半
 constexpr int kIconMargin = 30;
-constexpr int kSwipeDuration = 420;
-constexpr double kSwipeSpanRatio = 0.55; // 单次拖动不超过安全区尺寸的这个比例
+
+// 拖动按恒定速度发，别按恒定时长：同样 420ms，244px 的拖动兑现了六成、688px 只兑现四成，
+// 拉长时长把速度压回来才是对症的。上下限只防极短拖动抖成点击、极长拖动等太久
+constexpr double kSwipeSpeed = 0.5;      // 屏幕像素每毫秒
+constexpr int kSwipeDurationMin = 300;
+constexpr int kSwipeDurationMax = 1600;
+
+// 单次拖动不超过安全区尺寸的这个比例。发出的位移就是目标到画面中心的实际差值，
+// 拖过头在几何上不成立，所以这个上限只决定一次能挪多远、跑几个来回，留窄纯属白等
+constexpr double kSwipeSpanRatio = 0.85;
 constexpr int kSettleMillis = 700;       // 拖动后等地图停稳再截屏
 constexpr int kRetryMillis = 350;
 
-// 平移单独记账：把目标挪进画面是这一步该干的事，不该算作识别失败。
-// 拖到地图边界后再拖也不动，所以每次必须实打实缩短距离，否则立刻收手
+// 平移单独记账：把目标挪进画面是这一步该干的事，不该算作识别失败
 constexpr int kMaxPans = 16;
-constexpr double kPanProgress = 20.0;
+
+// 各端把发出的滑动兑现成多少地图位移并不一样，实测能差三分之一。
+// 拿相邻两拍量到的比值现补；上限只防测偏时越补越远
+constexpr double kGainMax = 2.0;
+constexpr double kGainMinSpan = 40.0;
+
+// 地图拖到边界就不动了。这根轴发出的位移够大却纹丝不动，就是顶到边了
+constexpr double kPinCommand = 20.0;
+constexpr double kPinMoved = 2.0;
+
+// 视口解不出来时同一张静止画面重截多少次结果都逐位一样，得先把地图挪开换个画面
+constexpr int kMaxNudges = 6;
+constexpr double kNudgeRatio = 0.35;
 
 // 已经站在目标上时用它退回大世界。地图可能是从菜单里打开的，
 // 逐个界面怎么关由这个公开接口负责，这里不自己按键
@@ -120,14 +144,14 @@ bool CaptureScreen(MaaController* controller, ScopedImageBuffer* buffer, cv::Mat
 }
 
 // 把 delta 钳到单次可拖的范围内，返回实际发出的位移
-bool DragMap(MaaController* controller, const cv::Rect& safe, const cv::Point2d& delta)
+cv::Point2d DragMap(MaaController* controller, const cv::Rect& safe, const cv::Point2d& delta)
 {
     const double maxX = safe.width * kSwipeSpanRatio;
     const double maxY = safe.height * kSwipeSpanRatio;
     const double dx = std::clamp(delta.x, -maxX, maxX);
     const double dy = std::clamp(delta.y, -maxY, maxY);
     if (std::hypot(dx, dy) < 1.0) {
-        return false;
+        return { 0.0, 0.0 };
     }
 
     const cv::Point2d center(safe.x + safe.width / 2.0, safe.y + safe.height / 2.0);
@@ -138,11 +162,50 @@ bool DragMap(MaaController* controller, const cv::Rect& safe, const cv::Point2d&
         static_cast<int>(std::lround(center.x + dx / 2.0)),
         static_cast<int>(std::lround(center.y + dy / 2.0)));
 
-    LogInfo << "MapTeleport: dragging map" << VAR(from.x) << VAR(from.y) << VAR(to.x) << VAR(to.y);
-    const MaaCtrlId swipe_id = MaaControllerPostSwipe(controller, from.x, from.y, to.x, to.y, kSwipeDuration);
+    const int duration = static_cast<int>(
+        std::clamp(std::hypot(dx, dy) / kSwipeSpeed, static_cast<double>(kSwipeDurationMin), static_cast<double>(kSwipeDurationMax)));
+
+    LogInfo << "MapTeleport: dragging map" << VAR(from.x) << VAR(from.y) << VAR(to.x) << VAR(to.y) << VAR(duration);
+    const MaaCtrlId swipe_id = MaaControllerPostSwipe(controller, from.x, from.y, to.x, to.y, duration);
     MaaControllerWait(controller, swipe_id);
     std::this_thread::sleep_for(std::chrono::milliseconds(kSettleMillis));
-    return true;
+    return { static_cast<double>(to.x - from.x), static_cast<double>(to.y - from.y) };
+}
+
+// 只把出了可用区的那根轴挪回中心。另一根轴本来就在画面里，跟着动一下纯属白挪，
+// 还会把画面推到地图边界或没渲染的地方去
+cv::Point2d PanDelta(const cv::Rect& safe, const cv::Point2d& expected)
+{
+    const cv::Point2d center(safe.x + safe.width / 2.0, safe.y + safe.height / 2.0);
+    cv::Point2d need { 0.0, 0.0 };
+    if (expected.x < safe.x || expected.x > safe.x + safe.width) {
+        need.x = center.x - expected.x;
+    }
+    if (expected.y < safe.y || expected.y > safe.y + safe.height) {
+        need.y = center.y - expected.y;
+    }
+    return need;
+}
+
+// 解不出来时先把上一拍拖过去的挪回一半——那边刚解出来过；没拖过就绕四个方向轮着试
+cv::Point2d NudgeDelta(const cv::Rect& safe, const cv::Point2d& last, int index)
+{
+    if (index == 0 && std::hypot(last.x, last.y) >= 1.0) {
+        return { -last.x / 2.0, -last.y / 2.0 };
+    }
+
+    const double sx = safe.width * kNudgeRatio;
+    const double sy = safe.height * kNudgeRatio;
+    switch (index % 4) {
+    case 0:
+        return { sx, 0.0 };
+    case 1:
+        return { 0.0, sy };
+    case 2:
+        return { -sx, 0.0 };
+    default:
+        return { 0.0, -sy };
+    }
 }
 
 } // namespace
@@ -187,7 +250,12 @@ MaaBool MAA_CALL MapTeleportSelectRun(
     ScopedImageBuffer buffer;
     int attempt = 0;
     int pans = 0;
-    double lastGap = std::numeric_limits<double>::max();
+    int nudges = 0;
+    double gain = 1.0;
+    bool pinnedX = false;
+    bool pinnedY = false;
+    cv::Point2d issued { 0.0, 0.0 };
+    std::optional<Viewport> previous;
 
     while (attempt < param.max_attempts) {
         cv::Mat screen;
@@ -197,41 +265,68 @@ MaaBool MAA_CALL MapTeleportSelectRun(
             continue;
         }
 
-        const auto viewport = solver.SolveViewport(screen, param.zone, viewportCfg);
-        if (!viewport) {
-            ++attempt;
-            LogWarn << "MapTeleport: viewport unsolved, retrying" << VAR(attempt);
-            std::this_thread::sleep_for(std::chrono::milliseconds(kRetryMillis));
-            continue;
-        }
-
-        const cv::Rect safe = MapTeleportSolver::SafeArea(screen.size(), viewportCfg.roi, kIconMargin);
+        const cv::Rect safe = MapTeleportSolver::SafeArea(screen.size(), kIconArea, kIconMargin);
         if (safe.empty()) {
             LogError << "MapTeleport: safe area degenerated" << VAR(screen.cols) << VAR(screen.rows);
             return false;
         }
 
+        const auto viewport = solver.SolveViewport(screen, param.zone, viewportCfg);
+        if (!viewport) {
+            previous.reset();
+            if (nudges >= kMaxNudges) {
+                ++attempt;
+                LogWarn << "MapTeleport: viewport still unsolved after nudging the map" << VAR(attempt) << VAR(nudges);
+                std::this_thread::sleep_for(std::chrono::milliseconds(kRetryMillis));
+                continue;
+            }
+            LogInfo << "MapTeleport: viewport unsolved, nudging the map" << VAR(nudges);
+            const cv::Point2d moved = DragMap(controller, safe, NudgeDelta(safe, issued, nudges));
+            ++nudges;
+            issued = moved;
+            if (std::hypot(moved.x, moved.y) < 1.0) {
+                ++attempt;
+            }
+            continue;
+        }
+        // 上一拍发出的位移兑现了多少：不动的那根轴是顶到了地图边界，兑现不足的比例现补回去
+        if (previous && std::abs(previous->scale - viewport->scale) < 1e-6 && std::hypot(issued.x, issued.y) >= 1.0) {
+            const cv::Point2d moved(
+                (previous->baseOrigin.x - viewport->baseOrigin.x) / viewport->scale,
+                (previous->baseOrigin.y - viewport->baseOrigin.y) / viewport->scale);
+            pinnedX = std::abs(issued.x) >= kPinCommand && std::abs(moved.x) < kPinMoved;
+            pinnedY = std::abs(issued.y) >= kPinCommand && std::abs(moved.y) < kPinMoved;
+
+            const double want = std::hypot(issued.x, issued.y);
+            const double got = std::hypot(moved.x, moved.y);
+            if (want >= kGainMinSpan && got >= 1.0) {
+                gain = std::clamp(want / got, 1.0, kGainMax);
+            }
+            LogInfo << "MapTeleport: drag delivered" << VAR(issued.x) << VAR(issued.y) << VAR(moved.x) << VAR(moved.y)
+                    << VAR(gain) << VAR(pinnedX) << VAR(pinnedY);
+        }
+        previous = viewport;
+        issued = { 0.0, 0.0 };
+
         const cv::Point2d expected = viewport->toScreen(target);
-        const cv::Point2d center(safe.x + safe.width / 2.0, safe.y + safe.height / 2.0);
-        if (!safe.contains(cv::Point(static_cast<int>(std::lround(expected.x)), static_cast<int>(std::lround(expected.y))))) {
-            const double gap = std::hypot(center.x - expected.x, center.y - expected.y);
-            if (pans >= kMaxPans || gap > lastGap - kPanProgress) {
-                LogError << "MapTeleport: panning no longer closes in on the target" << VAR(param.zone) << VAR(pans) << VAR(gap)
-                         << VAR(lastGap);
+        const cv::Point2d need = PanDelta(safe, expected);
+        if (std::hypot(need.x, need.y) >= 1.0) {
+            const bool stuck = (std::abs(need.x) < 1.0 || pinnedX) && (std::abs(need.y) < 1.0 || pinnedY);
+            if (pans >= kMaxPans || stuck) {
+                LogError << "MapTeleport: the map will not pan any further toward the target" << VAR(param.zone) << VAR(pans)
+                         << VAR(expected.x) << VAR(expected.y) << VAR(pinnedX) << VAR(pinnedY);
                 return false;
             }
-            lastGap = gap;
             ++pans;
-            LogInfo << "MapTeleport: target outside safe area, panning" << VAR(expected.x) << VAR(expected.y) << VAR(gap);
-            if (!DragMap(controller, safe, center - expected)) {
+            LogInfo << "MapTeleport: target outside safe area, panning" << VAR(expected.x) << VAR(expected.y) << VAR(need.x)
+                    << VAR(need.y) << VAR(gain);
+            issued = DragMap(controller, safe, need * gain);
+            if (std::hypot(issued.x, issued.y) < 1.0) {
                 LogError << "MapTeleport: target outside safe area but pan distance is degenerate";
                 return false;
             }
             continue;
         }
-
-        // 目标已在画面里，下次再被推出去算新的一轮，别拿上一轮的距离卡它
-        lastGap = std::numeric_limits<double>::max();
 
         ++attempt;
         std::optional<cv::Point2d> spot;
