@@ -241,7 +241,7 @@ function buildRegionOption(region) {
 
 function buildFillItemCases(region) {
     return region.FillItems.map((item) => ({
-        name: item.Name,
+        name: item.Id,
         label: item.Label,
         pipeline_override: {
             [`DeliveryJobsSelectItemToFill${region.Id}`]: {
@@ -309,9 +309,9 @@ function buildTaskOptions() {
     for (const region of deliveryJobRegions) {
         options[`WhatToFill${region.Id}`] = {
             type: "select",
-            label: `$task.DeliveryJobs.WhatToFill${region.Id}`,
+            label: `$global.region.${region.Id}`,
             cases: buildFillItemCases(region),
-            default_case: region.FillItems.find((item) => item.Id === region.DefaultFillItem).Name,
+            default_case: region.DefaultFillItem,
         };
     }
     return options;

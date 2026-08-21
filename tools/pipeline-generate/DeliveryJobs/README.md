@@ -23,6 +23,10 @@ pnpm fetch:zmdmap
 - `assets/resource/pipeline/DeliveryJobs/Depot/**/*.json`：每个仓储节点的任务、货物识别和进入节点；
 - `assets/tasks/DeliveryJobs.json`：地区、仓储节点处理方式和装箱物品选项。
 
+生成前会先运行 `sync-locales.mjs`：地区、仓储节点及物品的五语言名称分别来自
+`delivery_jobs.json`，物品是否生成则由 `recognition_items.json` 决定。同步器只补齐缺失或空白的
+`global.region.*` / `iconRecognition.name.*`，已有的人工消歧文案会保留。
+
 每个仓储节点提供五种处理方式：
 
 - **接取并转交**：装箱、接取任务，并在返回仓储节点后转交；
@@ -41,16 +45,16 @@ pnpm fetch:zmdmap
 
 ## 新增地区或仓储节点
 
-1. 不需要修改 `model.mjs`：地区、仓储节点完全由 `delivery_jobs.json` 驱动，MaaEnd 标识通过
-   `global.region.*` 文案与游戏数据中文名匹配得到，场景节点名按
+1. 不需要修改 `model.mjs`：地区、仓储节点完全由 `delivery_jobs.json` 驱动，MaaEnd 标识由
+   数据源英文名移除空格和标点后生成，场景节点名按
    `SceneEnterMenuRegionalDevelopment{Id}[DepotNode]` 约定生成。
-2. 新地区上线时，只需确认五个 `assets/locales/interface/*.json` 中存在对应的 `global.region.*` 文案，
-   并在 `assets/resource/pipeline/Interface/SceneRegionalDevelopment.json` 中补充对应的场景节点；
-   缺任何一项生成器都会直接报错并指出缺失内容。
+2. 新地区上线时，在 `assets/resource/pipeline/Interface/SceneRegionalDevelopment.json` 中补充对应的场景节点；
+   `global.region.*` 与 `iconRecognition.name.*` 缺失翻译由 `sync-locales.mjs` 根据数据源自动补齐。
 3. 装箱物品选项无需手工登记：精简数据依据 `FactoryItemTable.deliverItemTypeList` 与
    `transferDomainIds` 判断物品可运入的地区，生成器再取地区各仓储节点 `fillable_items` 的交集，过滤出
    `assets/data/IconRecognition/recognition_items.json` 已收录的物品，由 IconRecognition（`grid_type=shipment`）识别；
-   物品名称直接复用 `iconRecognition.name.*` 多语言 key。
-4. 运行 `pnpm generate:DeliveryJobs`，然后依次运行 `pnpm check` 和 `pnpm test`。
+   物品显示名称复用 `iconRecognition.name.*` 多语言 key，配置值使用稳定 item ID。
+4. 运行 `pnpm generate:DeliveryJobs`，再运行 `node --test tools/pipeline-generate/DeliveryJobs/*.test.mjs`、
+   `pnpm check` 和 `pnpm test`。
 
 生成的 Pipeline 和 Task 文件不应手工修改；流程级公共节点仍在 `PackCargo.json` 和 `TransferJob.json` 中维护。

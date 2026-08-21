@@ -47,6 +47,23 @@ test("DeliveryJobs model has unique regions and depots", () => {
         deliveryJobRegions.flatMap((region) => region.Depots),
         deliveryJobDepots.map((depot) => depot.Id),
     );
+    assert.deepEqual(
+        deliveryJobRegions.map((region) => region.Id),
+        [
+            "ValleyIV",
+            "Wuling",
+        ],
+    );
+    assert.deepEqual(
+        deliveryJobDepots.map((depot) => depot.Id),
+        [
+            "OriginiumSciencePark",
+            "OriginLodespring",
+            "PowerPlateau",
+            "WulingCity",
+            "TestArea",
+        ],
+    );
     const iconRecognitionItems = readJsonc(
         new URL("../../../assets/data/IconRecognition/recognition_items.json", import.meta.url),
     );
@@ -169,14 +186,15 @@ test("DeliveryJobs packing item options inject IconRecognition item ids", () => 
     for (const region of deliveryJobRegions) {
         const option = task.option[`WhatToFill${region.Id}`];
         assert.equal(option.type, "select");
+        assert.equal(option.label, `$global.region.${region.Id}`);
         assert.equal(option.cases.length, region.FillItems.length);
-        assert.equal(option.default_case, region.FillItems.find((item) => item.Id === region.DefaultFillItem).Name);
+        assert.equal(option.default_case, region.DefaultFillItem);
         for (const [
             index,
             item,
         ] of region.FillItems.entries()) {
             const optionCase = option.cases[index];
-            assert.equal(optionCase.name, item.Name);
+            assert.equal(optionCase.name, item.Id);
             assert.equal(optionCase.label, item.Label);
             assert.deepEqual(
                 optionCase.pipeline_override[`DeliveryJobsSelectItemToFill${region.Id}`].custom_recognition_param,
