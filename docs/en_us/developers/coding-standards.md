@@ -135,24 +135,27 @@ A functional change in MaaEnd often involves more than one place.
 - `assets/interface.json`
 - `tests/**/*.json`
 
-### Adding Go Custom Components
+### Maintaining Go Custom Components
 
-- Register it in the corresponding sub-package `register.go`
-- Integrate it in `agent/go-service/register.go`'s `registerAll()`
-- Re-run `uv run tools/build_and_install.py`
+- Add, update, or remove registrations in the corresponding sub-package `register.go`
+- When adding or removing a sub-package, integrate it into or remove it from `registerAll()` in `agent/go-service/register.go`
+- After making changes, re-run `uv run tools/build_and_install.py`
 
-### Adding Cpp Algo Custom Components
+### Maintaining Cpp Algo Custom Components
 
-- Register it in `agent/cpp-algo/source/main.cpp` with `MaaAgentServerRegisterCustomAction` or `MaaAgentServerRegisterCustomRecognition`
-- Re-run `uv run tools/build_and_install.py --cpp-algo`
+- Add, update, or remove registrations in `agent/cpp-algo/source/main.cpp` with `MaaAgentServerRegisterCustomAction` or `MaaAgentServerRegisterCustomRecognition`
+- After making changes, re-run `uv run tools/build_and_install.py --cpp-algo`
 
-### Synchronizing Custom Schemas
+### Maintaining Custom Schemas
 
-When adding either type of Custom component described above:
+When adding, modifying, renaming, or removing either type of Custom component described above:
 
-- Add every Custom Action registration name to the `enum` in `tools/schema/custom.action.schema.json`
-- Add every Custom Recognition registration name to the `enum` in `tools/schema/custom.recognition.schema.json`
-- If the parameter structure is fixed, add parameter constraints to the corresponding Custom Schema. Complex parameters may be defined under `tools/schema/components/` and referenced from there. Do not create an empty parameter Schema for a component with no parameters or one that intentionally accepts arbitrary values
+- Actions use `tools/schema/custom.action.schema.json`; Recognitions use `tools/schema/custom.recognition.schema.json`
+- When a registration name changes, update the `enum` in the corresponding Custom Schema. Update its Pipeline usages before renaming or removing it
+- When parameters change, update the parameter Schema, including names, types, required fields, and allowed values
+- When removing a component or parameter, also remove unused Schema rules and `$ref` entries
+- Complex parameter definitions may be placed under `tools/schema/components/` and referenced from there
+- Do not create an empty parameter Schema for a component with no parameters or one that intentionally accepts arbitrary values
 - Do not modify `tools/schema/pipeline.schema.json`; it already references both Custom Schemas
 
 > MXU is a GUI for end-users and is not recommended for daily development and debugging. The above development tools can greatly improve development efficiency.

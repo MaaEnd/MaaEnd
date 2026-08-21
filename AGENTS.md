@@ -62,17 +62,20 @@
 
 - **职责分离**：Go Service 仅用于处理 Pipeline 难以实现的复杂图像算法或特殊交互逻辑。
 - **流程控制**：禁止在 Go 中编写大规模的业务流程，流程控制应交由 Pipeline JSON 负责。
-- **注册机制**：新的自定义动作/识别需在 `registerAll()` 中注册，具体实现参考各子包。
+- **注册机制**：新增、重命名或删除自定义动作/识别时，需同步修改对应子包 `register.go`；新增或删除子包时，还需在 `registerAll()` 中接入或移除。
 
 ### 3. Cpp Algo 规范
 
 - **职责分离**：Cpp Algo 支持原生 OpenCV 和 ONNX Runtime，优先用于实现单个复杂识别算法；操作及业务流程优先由 Go Service 与 Pipeline 负责。
-- **注册机制**：新的自定义动作/识别需在 `agent/cpp-algo/source/main.cpp` 中注册。
+- **注册机制**：新增、重命名或删除自定义动作/识别时，需同步修改 `agent/cpp-algo/source/main.cpp` 中的注册。
 
 ### 4. Custom Schema 规范
 
-- **注册名同步**：新增 Go Service 或 Cpp Algo Custom Action / Recognition 时，必须将注册名加入 `tools/schema/custom.action.schema.json` 或 `tools/schema/custom.recognition.schema.json` 的 `enum`。
-- **参数约束**：参数结构固定时，应在对应 Custom Schema 中补充参数约束；无参数或允许任意值透传时，无需创建空参数 Schema。
+- **文件位置**：Action 使用 `tools/schema/custom.action.schema.json`，Recognition 使用 `tools/schema/custom.recognition.schema.json`。
+- **注册名同步**：注册名有变化时，更新对应 Custom Schema 的 `enum`；重命名或删除前先更新 Pipeline 中的用法。
+- **参数同步**：参数有变化时，更新对应的参数 Schema；删除组件或参数时，一并清理不再使用的 Schema 规则和 `$ref`。
+- **空参数边界**：无参数或允许任意值透传时，无需创建空参数 Schema。
+- **主 Schema 边界**：`tools/schema/pipeline.schema.json` 已引用两个 Custom Schema，无需修改。
 
 ### 5. 资源维护与任务新增
 
