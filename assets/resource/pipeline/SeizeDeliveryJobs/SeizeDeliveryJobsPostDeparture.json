@@ -74,7 +74,15 @@
         ],
         "on_error": [
             "[Anchor]SeizeDeliveryJobsDepartureOnError"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     // ===== 分割线：下面的节点由 Go 调用 =====
     "SeizeDeliveryJobsClickTracking": {
@@ -307,7 +315,13 @@
             // 后续由 Go 内部逻辑来重新调用提交货物分支
         ],
         "focus": {
-            "Node.Action.Starting": "准备重新前往终点"
+            "Node.Action.Starting": "准备重新前往终点",
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
         }
     }
 }
