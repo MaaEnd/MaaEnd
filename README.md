@@ -38,32 +38,7 @@ Powered by [MaaFramework](https://github.com/MaaXYZ/MaaFramework) & [MXU](https:
 
 ## 食用指南
 
-直接在 [发布页面](https://github.com/MaaEnd/MaaEnd/releases/latest) 下载最新稳定版（请注意，Windows on ARM 用户需要选择 `windows-aarch64` 版本）
-
-[如果你有 Mirror酱 CDK 的话，可以点此快速下载](https://mirrorchyan.com/zh/projects?rid=MaaEnd&source=maaend-release)
-
-### 如果你在 X64 Windows 上使用 Scoop 安装
-
-```PowerShell
-scoop install game/maaend #仅限x64 windows
-```
-
-### 如果你正在 WoA 上使用 Scoop 安装
-
-```PowerShell
-scoop bucket add ous50 https://github.com/ous50/ous50-bucket.git
-scoop install ous50/maaend
-```
-
-### HomeBrew(macOS/Linux)
-
-```shell
-brew install --cask ous50/tap/maaend
-```
-> [!NOTE]
-> 由于我们并没有 CodeSigning 证书，macOS 版本安装后打开有可能会被提示「此应用已损坏」。
-> 遇到这种情况的话请执行 `sudo xattr -cr /Applications/MaaEnd.app` 并重新打开 `MaaEnd` 即可。
-
+请前往 [MaaEnd 官网](https://maaend.com/) 下载最新版本。
 
 ## ✨ 功能一览
 
