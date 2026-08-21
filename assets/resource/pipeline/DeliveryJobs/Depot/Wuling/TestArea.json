@@ -129,7 +129,7 @@
         "pre_delay": 0,
         "action": "Click",
         "anchor": {
-            "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillWuling",
+            "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsWuling",
             "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
             "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStopForOngoingDelivery",
             "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentWulingDepotNode"

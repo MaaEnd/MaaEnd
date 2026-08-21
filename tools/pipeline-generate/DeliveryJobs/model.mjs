@@ -14,6 +14,7 @@ const iconRecognitionItems = JSON.parse(
 );
 // 装箱物品选项的默认物品（砂叶粉末），各地区均需可装箱
 const DEFAULT_FILL_ITEM_ID = "item_plant_moss_powder_3";
+export const DELIVERY_JOB_FILL_ITEM_PRIORITY_COUNT = 4;
 
 function assertRecord(value, label) {
     if (!value || typeof value !== "object" || Array.isArray(value)) {
@@ -192,6 +193,7 @@ assertUnique(
 export const deliveryJobRegions = configuredRegions.map(({id, source, fillItems, depots}) => ({
     Id: id,
     Name: source.names.zh_cn,
+    Names: source.names,
     RegionScene: `SceneEnterMenuRegionalDevelopment${id}`,
     DepotScene: `SceneEnterMenuRegionalDevelopment${id}DepotNode`,
     Depots: depots.map((depot) => depot.Id),
@@ -230,6 +232,21 @@ export const deliveryJobLocaleEntries = {
                 ]),
         ).values(),
     ],
+    fillItemPriorities: configuredRegions.flatMap(({id, source}) =>
+        Array.from({length: DELIVERY_JOB_FILL_ITEM_PRIORITY_COUNT}, (_, index) => {
+            const priority = index + 1;
+            return {
+                key: `task.DeliveryJobs.WhatToFill${id}Priority${priority}`,
+                names: {
+                    zh_cn: `${source.names.zh_cn} · 优先级 ${priority}`,
+                    zh_tw: `${source.names.zh_tw} · 優先級 ${priority}`,
+                    en_us: `${source.names.en_us} · Priority ${priority}`,
+                    ja_jp: `${source.names.ja_jp} · 優先度 ${priority}`,
+                    ko_kr: `${source.names.ko_kr} · 우선순위 ${priority}`,
+                },
+            };
+        }),
+    ),
 };
 
 export function rawJson(value) {

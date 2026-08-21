@@ -63,9 +63,26 @@ export function fillMissingLocaleEntries(messages, entries, fileLocale, keyPrefi
     };
 }
 
+export function removeStaleLocaleEntries(messages, entries, keyPattern) {
+    const expectedKeys = new Set(entries.map(({key}) => key));
+    const staleKeys = new Set(Object.keys(messages).filter((key) => keyPattern.test(key) && !expectedKeys.has(key)));
+    if (staleKeys.size === 0) {
+        return {
+            messages,
+            removed: 0,
+        };
+    }
+
+    return {
+        messages: Object.fromEntries(Object.entries(messages).filter(([key]) => !staleKeys.has(key))),
+        removed: staleKeys.size,
+    };
+}
+
 function validateLocaleCatalog(messages, fileLocale) {
     const missingKeys = [
         ...deliveryJobLocaleEntries.regions,
+        ...deliveryJobLocaleEntries.fillItemPriorities,
         ...deliveryJobLocaleEntries.items,
     ]
         .map(({key}) => key)
@@ -86,8 +103,19 @@ export function syncDeliveryJobsLocaleCatalogs() {
             fileLocale,
             "global.region.",
         );
-        const itemResult = fillMissingLocaleEntries(
+        const priorityCleanupResult = removeStaleLocaleEntries(
             regionResult.messages,
+            deliveryJobLocaleEntries.fillItemPriorities,
+            /^task\.DeliveryJobs\.WhatToFill[A-Za-z0-9]+Priority\d+$/,
+        );
+        const priorityResult = fillMissingLocaleEntries(
+            priorityCleanupResult.messages,
+            deliveryJobLocaleEntries.fillItemPriorities,
+            fileLocale,
+            "task.DeliveryJobs.WhatToFill",
+        );
+        const itemResult = fillMissingLocaleEntries(
+            priorityResult.messages,
             deliveryJobLocaleEntries.items,
             fileLocale,
             "iconRecognition.name.",
@@ -98,7 +126,7 @@ export function syncDeliveryJobsLocaleCatalogs() {
         if (syncedText !== originalText.replace(/\r\n/g, "\n")) {
             writeFileSync(localePath, syncedText, "utf8");
             console.log(
-                `[DeliveryJobs] 已为 ${fileLocale}.json 补齐 ${regionResult.filled} 个地区/仓储节点键和 ${itemResult.filled} 个物品键。`,
+                `[DeliveryJobs] 已为 ${fileLocale}.json 补齐 ${regionResult.filled} 个地区/仓储节点键、补齐 ${priorityResult.filled} 个并清理 ${priorityCleanupResult.removed} 个装箱优先级键，以及补齐 ${itemResult.filled} 个物品键。`,
             );
         }
     }

@@ -3,7 +3,7 @@ import {readFileSync} from "node:fs";
 import test from "node:test";
 
 import {deliveryJobLocaleEntries} from "./model.mjs";
-import {fillMissingLocaleEntries} from "./sync-locales.mjs";
+import {fillMissingLocaleEntries, removeStaleLocaleEntries} from "./sync-locales.mjs";
 
 test("DeliveryJobs locale sync fills missing and empty entries without replacing existing text", () => {
     const entries = [
@@ -50,11 +50,46 @@ test("DeliveryJobs locale sync requires an existing key group", () => {
     );
 });
 
+test("DeliveryJobs locale sync removes stale generated priority entries", () => {
+    const entries = [
+        {key: "task.DeliveryJobs.WhatToFillValleyIVPriority1"},
+        {key: "task.DeliveryJobs.WhatToFillValleyIVPriority2"},
+    ];
+    const messages = {
+        "task.DeliveryJobs.WhatToFillValleyIVPriority1": "Priority 1",
+        "task.DeliveryJobs.WhatToFillValleyIVPriority2": "Priority 2",
+        "task.DeliveryJobs.WhatToFillValleyIVPriority3": "Priority 3",
+        "task.DeliveryJobs.FillItemPriorityNone": "Not specified",
+        "task.Other.Priority3": "Other",
+    };
+
+    const result = removeStaleLocaleEntries(
+        messages,
+        entries,
+        /^task\.DeliveryJobs\.WhatToFill[A-Za-z0-9]+Priority\d+$/,
+    );
+
+    assert.deepEqual(result.messages, {
+        "task.DeliveryJobs.WhatToFillValleyIVPriority1": "Priority 1",
+        "task.DeliveryJobs.WhatToFillValleyIVPriority2": "Priority 2",
+        "task.DeliveryJobs.FillItemPriorityNone": "Not specified",
+        "task.Other.Priority3": "Other",
+    });
+    assert.equal(result.removed, 1);
+});
+
 test("DeliveryJobs generated locale entries exist in all interface locales", () => {
     const expectedKeys = [
         ...deliveryJobLocaleEntries.regions,
+        ...deliveryJobLocaleEntries.fillItemPriorities,
         ...deliveryJobLocaleEntries.items,
-    ].map(({key}) => key);
+    ]
+        .map(({key}) => key)
+        .concat([
+            "task.DeliveryJobs.FillItemPriorityRegionDescription",
+            "task.DeliveryJobs.FillItemPriorityNone",
+            "task.DeliveryJobs.ConfiguredFillItemsInsufficient",
+        ]);
     for (const fileLocale of [
         "zh_cn",
         "zh_tw",
@@ -69,5 +104,10 @@ test("DeliveryJobs generated locale entries exist in all interface locales", () 
             assert.equal(typeof messages[key], "string", `${fileLocale} missing ${key}`);
             assert.notEqual(messages[key].trim(), "", `${fileLocale} has empty ${key}`);
         }
+        const expectedPriorityKeys = deliveryJobLocaleEntries.fillItemPriorities.map(({key}) => key).sort();
+        const actualPriorityKeys = Object.keys(messages)
+            .filter((key) => /^task\.DeliveryJobs\.WhatToFill[A-Za-z0-9]+Priority\d+$/.test(key))
+            .sort();
+        assert.deepEqual(actualPriorityKeys, expectedPriorityKeys, `${fileLocale} has stale priority keys`);
     }
 });

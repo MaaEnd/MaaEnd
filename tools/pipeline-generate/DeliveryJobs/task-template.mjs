@@ -1,4 +1,4 @@
-import {deliveryJobDepots, deliveryJobRegions} from "./model.mjs";
+import {DELIVERY_JOB_FILL_ITEM_PRIORITY_COUNT, deliveryJobDepots, deliveryJobRegions} from "./model.mjs";
 
 const ALL_CARGO_EXPECTED = [
     "查看报价",
@@ -23,7 +23,7 @@ const PACK_CARGO_EXPECTED = [
 
 function buildCargoAnchor(depot, bidAction, ongoingDeliveryAction = "DeliveryJobsStopForOngoingDelivery") {
     return {
-        DeliveryJobsSelectItemToFill: `DeliveryJobsSelectItemToFill${depot.RegionId}`,
+        DeliveryJobsSelectPriorityItems: `DeliveryJobsSelectPriorityItems${depot.RegionId}`,
         DeliveryJobsRedistributionBidAction: bidAction,
         DeliveryJobsOngoingDeliveryAction: ongoingDeliveryAction,
         DeliveryJobsGoToDepot: depot.DepotScene,
@@ -239,12 +239,51 @@ function buildRegionOption(region) {
     };
 }
 
-function buildFillItemCases(region) {
-    return region.FillItems.map((item) => ({
+function priorityOptionName(regionId, priority) {
+    return `WhatToFill${regionId}Priority${priority}`;
+}
+
+function priorityOptionNames(regionId) {
+    return Array.from({length: DELIVERY_JOB_FILL_ITEM_PRIORITY_COUNT}, (_, index) =>
+        priorityOptionName(regionId, index + 1),
+    );
+}
+
+function buildFillItemPriorityRegionOption(region) {
+    return {
+        type: "switch",
+        label: `$global.region.${region.Id}`,
+        description: "$task.DeliveryJobs.FillItemPriorityRegionDescription",
+        cases: [
+            {
+                name: "Yes",
+                option: priorityOptionNames(region.Id),
+                pipeline_override: {
+                    [`DeliveryJobsSelectPriorityItems${region.Id}`]: {
+                        next: [
+                            `DeliveryJobsStartFill${region.Id}Priority1`,
+                        ],
+                    },
+                },
+            },
+            {
+                name: "No",
+            },
+        ],
+        default_case: "Yes",
+    };
+}
+
+function buildFillItemCases(region, priority) {
+    const cases = region.FillItems.map((item) => ({
         name: item.Id,
         label: item.Label,
         pipeline_override: {
-            [`DeliveryJobsSelectItemToFill${region.Id}`]: {
+            [`DeliveryJobsStartFill${region.Id}Priority${priority}`]: {
+                enabled: true,
+            },
+            [`DeliveryJobsSelectItemToFill${region.Id}Priority${priority}`]: {
+                enabled: true,
                 custom_recognition_param: {
                     grid_type: "shipment",
                     item_ids: [
@@ -258,6 +297,13 @@ function buildFillItemCases(region) {
             },
         },
     }));
+    if (priority > 1) {
+        cases.unshift({
+            name: "None",
+            label: "$task.DeliveryJobs.FillItemPriorityNone",
+        });
+    }
+    return cases;
 }
 
 function buildTaskOptions() {
@@ -293,11 +339,11 @@ function buildTaskOptions() {
                 pipeline_override: {
                     DeliveryJobsSelectTypeOfGoodsToPackNextStep: {
                         next: [
-                            "DeliveryJobsSelectItemLoop",
+                            "[Anchor]DeliveryJobsSelectPriorityItems",
                         ],
                     },
                 },
-                option: deliveryJobRegions.map((region) => `WhatToFill${region.Id}`),
+                option: deliveryJobRegions.map((region) => `FillItemPriorities${region.Id}`),
             },
             {
                 name: "No",
@@ -307,12 +353,15 @@ function buildTaskOptions() {
     };
 
     for (const region of deliveryJobRegions) {
-        options[`WhatToFill${region.Id}`] = {
-            type: "select",
-            label: `$global.region.${region.Id}`,
-            cases: buildFillItemCases(region),
-            default_case: region.DefaultFillItem,
-        };
+        options[`FillItemPriorities${region.Id}`] = buildFillItemPriorityRegionOption(region);
+        for (let priority = 1; priority <= DELIVERY_JOB_FILL_ITEM_PRIORITY_COUNT; priority += 1) {
+            options[priorityOptionName(region.Id, priority)] = {
+                type: "select",
+                label: `$task.DeliveryJobs.WhatToFill${region.Id}Priority${priority}`,
+                cases: buildFillItemCases(region, priority),
+                default_case: priority === 1 ? region.DefaultFillItem : "None",
+            };
+        }
     }
     return options;
 }
