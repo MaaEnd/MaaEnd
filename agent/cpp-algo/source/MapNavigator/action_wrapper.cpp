@@ -43,6 +43,11 @@ double ActionWrapper::DefaultTurnUnitsPerDegree() const
     return backend_->default_turn_units_per_degree();
 }
 
+double ActionWrapper::DefaultPitchUnitsPerDegree() const
+{
+    return backend_->default_pitch_units_per_degree();
+}
+
 SteeringTransportProfile ActionWrapper::SteeringProfile() const
 {
     return backend_->steering_transport_profile();

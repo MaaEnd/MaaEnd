@@ -1,7 +1,5 @@
 import {isFieldMissing, sanitizeDisplayName} from "./common.mjs";
 
-export const CAMERA_MAX_HIT_DEFAULT = 2;
-
 // MapNavigator 路线只要求路径；普通传送还需要起点断言的分区与矩形。
 const NAV_ROUTE_REQUIRED_FIELDS = [
     "NavPath",
@@ -17,7 +15,6 @@ const NAV_ROUTE_FIELDS = [
 
 const ROUTE_RENDER_FIELDS = [
     "EnterMap",
-    "CameraSwipeDirection",
 ];
 
 export function collectNavRouteFields(route) {
@@ -45,9 +42,6 @@ export function collectMissingRouteFields(route) {
     if (!quickTeleport && isFieldMissing(route.EnterMap)) {
         missingFields.push("EnterMap");
     }
-    if (isFieldMissing(route.CameraSwipeDirection)) {
-        missingFields.push("CameraSwipeDirection");
-    }
     if (navFieldsPresent.length > 0 && !hasNavRoute) {
         const hasAnyAssertField = NAV_ASSERT_FIELDS.some((field) => !isFieldMissing(route[field]));
         const requiredFields = quickTeleport && !hasAnyAssertField ? NAV_ROUTE_REQUIRED_FIELDS : NAV_ROUTE_FIELDS;
@@ -68,7 +62,6 @@ const UNREACHABLE_ROUTE_PLACEHOLDER = {
         1,
     ],
     NavZoneId: "Wuling_Base",
-    CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",
 };
 
 function defaultWarn(message) {
@@ -196,8 +189,7 @@ export function createRouteResolver(routeConfig, options = {}) {
                 }
             }
 
-            const {EnterMap, CameraSwipeDirection} = resolved;
-            const CameraMaxHit = override?.CameraMaxHit ?? CAMERA_MAX_HIT_DEFAULT;
+            const {EnterMap} = resolved;
             const Replace = override?.Replace ?? [];
             const heading = normalizeHeading(override?.Heading, mission, missionName, warn);
             const isAdapted = override != null && missingFields.length === 0;
@@ -219,8 +211,6 @@ export function createRouteResolver(routeConfig, options = {}) {
                 isAdapted,
                 missingFields,
                 EnterMap,
-                CameraSwipeDirection,
-                CameraMaxHit,
                 Replace,
                 QuickTeleport,
                 IsDirectPhoto: isAdapted && isDirectPhoto,

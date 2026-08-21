@@ -69,6 +69,25 @@ struct SemanticState
     bool portal_transit_keep_moving_until_fix = false;
     bool portal_transit_needs_reacquire = false;
     std::chrono::steady_clock::time_point portal_transit_started {};
+    std::chrono::steady_clock::time_point zipline_ride_started {};
+    // 按下起滑那一刻人站在哪儿。滑一趟必然离开这里, 所以它是「到底滑没滑起来」的唯一凭据
+    NaviPosition zipline_mount_pos {};
+    ZiplineTarget zipline_landing {};
+    int zipline_landing_hits = 0;
+    // 起滑按了几次。按下去没滑走多半是俯仰没对上, 抬头角是开环发的, 只能换一档再按; 试满就退索
+    int zipline_launch_attempts = 0;
+    // 上索起算, 镜头一共被抬了多少度。俯仰读不到, 只能自己记着发出去的量, 好让下一次按增量补
+    double zipline_pitch_deg = 0.0;
+    // 上一拍的位置和它连着重合了几次。滑行停稳却不在落点, 就是这趟滑岔了
+    NaviPosition zipline_last_pos {};
+    int zipline_settle_hits = 0;
+    // 滑反了正在原路滑回上索点。回去了就退索走路, 不会再滑第二趟
+    bool zipline_returning = false;
+    // 这一次上索是行进预筛叫停的, 人可能还差几步。此时认不出提示只说明预筛看错了, 不该丢链
+    bool zipline_prompt_probe = false;
+    // 人是不是站在架子上。链首上索时置位, 链尾下索或中途退索时清掉。站着时不能直接走路,
+    // 得先右键离开架子, 否则移动指令被架子上的选点状态吃掉
+    bool zipline_mounted = false;
     std::string held_zone_candidate;
     int held_zone_hits = 0;
 
@@ -81,6 +100,17 @@ struct SemanticState
         portal_transit_keep_moving_until_fix = false;
         portal_transit_needs_reacquire = false;
         portal_transit_started = {};
+        zipline_ride_started = {};
+        zipline_mount_pos = {};
+        zipline_landing = {};
+        zipline_landing_hits = 0;
+        zipline_launch_attempts = 0;
+        zipline_pitch_deg = 0.0;
+        zipline_last_pos = {};
+        zipline_settle_hits = 0;
+        zipline_returning = false;
+        zipline_prompt_probe = false;
+        zipline_mounted = false;
         held_zone_candidate.clear();
         held_zone_hits = 0;
     }
@@ -276,6 +306,24 @@ struct ProgressIdentityState
     }
 };
 
+// 走向上索点这一路上重规划了几次。上索点是必到的语义点, 重规划总是瞄回它, 所以架子够不着时
+// 会一路重规划到楔死超时把整趟导航掐掉。身份记的是 canonical 下标而不是路径下标: 重规划本身
+// 就会改路径下标, 挂在它上面的计数永远攒不满。
+struct ZiplineApproachState
+{
+    size_t anchor_index = std::numeric_limits<size_t>::max();
+    int32_t replans = 0;
+    // 到点按过一次没认出来。原地再按还是同一个答案, 所以改瞄备用站位并收紧判定圈, 让人挪一下再认
+    bool press_missed = false;
+
+    void Reset()
+    {
+        anchor_index = std::numeric_limits<size_t>::max();
+        replans = 0;
+        press_missed = false;
+    }
+};
+
 struct NavigationRuntimeState
 {
     RouteTrackerState route;
@@ -289,6 +337,9 @@ struct NavigationRuntimeState
     SteeringRateState steering_rate;
     OffRouteWedgeState offroute;
     CrossTierEscapeState cross_tier_escape;
+    // 顶层且不进任何一个 Reset: 它数的正是重规划本身, 跟着重规划清零就永远数不满。换了上索点
+    // 由它自己按身份清, 换了整趟导航由 BeginNavigation 清
+    ZiplineApproachState zipline_approach;
     // Consecutive global re-acquires (the navigation_state_machine "recovered via global re-acquire" path) since
     // the last genuine waypoint advance. Top-level on purpose: the loss/escape/overlay Resets that fire all through
     // a wrong-tier thrash storm never clear it — only real forward progress does — so it is the one storm-proof
@@ -321,6 +372,7 @@ struct NavigationRuntimeState
         steering_rate.Reset();
         offroute.Reset();
         cross_tier_escape.Reset();
+        zipline_approach.Reset();
         progress_identity.Reset();
         global_reacquire_streak = 0;
         dynamic_replan_requested = false;

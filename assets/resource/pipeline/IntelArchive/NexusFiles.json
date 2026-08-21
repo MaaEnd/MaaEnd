@@ -1,0 +1,206 @@
+{
+    "IntelArchiveSyncNexusFiles": {
+        "desc": "同步中枢档案",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuIntelArchiveNexusFiles"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]IntelArchiveSyncNexusFilesClickCentralTab",
+            "[JumpBack]IntelArchiveSyncNexusFilesClickReportTab",
+            "EmptyNode"
+        ]
+    },
+    "IntelArchiveSyncNexusFilesClickCentralTab": {
+        "desc": "点击左侧「中枢档案」页签",
+        "max_hit": 1,
+        "recognition": "OCR",
+        "roi": [
+            16,
+            80,
+            200,
+            100
+        ],
+        "expected": [
+            "中枢档案"
+        ],
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 100,
+            "target": [
+                280,
+                100,
+                960,
+                560
+            ]
+        },
+        "next": [
+            "IntelArchiveSyncNexusFilesScanCentral"
+        ]
+    },
+    "IntelArchiveSyncNexusFilesScanCentral": {
+        "desc": "「中枢档案」页签扫描循环",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "IntelArchiveSyncNexusFilesScrollFinishCentral",
+            "[JumpBack]IntelArchiveSyncNexusFilesScanAndScrollCentral"
+        ]
+    },
+    "IntelArchiveSyncNexusFilesScrollFinishCentral": {
+        "desc": "「中枢档案」列表已到底",
+        "recognition": "Custom",
+        "custom_recognition": "ListCompleteRecognition",
+        "custom_recognition_param": {
+            "threshold": 0.98
+        },
+        "roi": [
+            280,
+            100,
+            960,
+            560
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "attach": {
+            "ready": false
+        }
+    },
+    "IntelArchiveSyncNexusFilesClickReportTab": {
+        "desc": "点击左侧「调查报告」页签",
+        "max_hit": 1,
+        "recognition": "OCR",
+        "roi": [
+            40,
+            84,
+            230,
+            320
+        ],
+        "expected": [
+            "调查报告"
+        ],
+        "action": "Click",
+        "post_wait_freezes": 100,
+        "next": [
+            "IntelArchiveSyncNexusFilesScanReport"
+        ]
+    },
+    "IntelArchiveSyncNexusFilesScanReport": {
+        "desc": "「调查报告」页签扫描循环",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "IntelArchiveSyncNexusFilesScrollFinishReport",
+            "[JumpBack]IntelArchiveSyncNexusFilesScanAndScrollReport"
+        ]
+    },
+    "IntelArchiveSyncNexusFilesScrollFinishReport": {
+        "desc": "列表已到底",
+        "recognition": "Custom",
+        "custom_recognition": "ListCompleteRecognition",
+        "custom_recognition_param": {
+            "threshold": 0.98
+        },
+        "roi": [
+            280,
+            100,
+            960,
+            560
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "attach": {
+            "ready": false
+        }
+    },
+    "IntelArchiveSyncNexusFilesScanAndScrollCentral": {
+        "desc": "中枢档案本屏 OCR 入库",
+        "max_hit": 100,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "IntelArchiveScanItemsRecognition",
+                "custom_recognition_param": {
+                    "file_category": "document"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "IntelArchiveResolveTruncAction"
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "IntelArchiveSyncNexusFilesScroll"
+        ]
+    },
+    "IntelArchiveSyncNexusFilesScanAndScrollReport": {
+        "desc": "调查报告本屏 OCR 入库",
+        "max_hit": 100,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "IntelArchiveScanItemsRecognition",
+                "custom_recognition_param": {
+                    "file_category": "report"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "IntelArchiveResolveTruncAction"
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "IntelArchiveSyncNexusFilesScroll"
+        ]
+    },
+    "IntelArchiveSyncNexusFilesScroll": {
+        "desc": "列表下滑；静止后移鼠标到左上角复位",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            760,
+            520
+        ],
+        "end": [
+            760,
+            200
+        ],
+        "end_hold": 600,
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                280,
+                100,
+                960,
+                560
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "MouseMoveReset"
+        ]
+    }
+}

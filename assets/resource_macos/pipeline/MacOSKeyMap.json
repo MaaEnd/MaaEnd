@@ -178,6 +178,14 @@
             }
         }
     },
+    "MapNavigatorZiplineMount": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 3
+            }
+        }
+    },
     "MapTrackerOpenWorld_GetOffZipline": {
         "action": {
             "type": "ClickKey",
@@ -234,14 +242,6 @@
             }
         }
     },
-    "VisitFriendsEnterShipSuccess": {
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": 16
-            }
-        }
-    },
     "_AutoEcoFarmAltDown": {
         "action": {
             "type": "KeyDown",
@@ -282,15 +282,7 @@
             }
         }
     },
-    "_AutoEcoFarmEnterCameraModeFailKeyUp": {
-        "action": {
-            "type": "KeyUp",
-            "param": {
-                "key": 15
-            }
-        }
-    },
-    "_AutoEcoFarmEnterCameraModeKeyDownR": {
+    "_AutoEcoFarmEnterCameraModeFallback": {
         "action": {
             "type": "KeyDown",
             "param": {
@@ -298,7 +290,15 @@
             }
         }
     },
-    "_AutoEcoFarmEnterCameraModeKeyUpR": {
+    "_AutoEcoFarmEnterCameraModeFallbackRelease": {
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 15
+            }
+        }
+    },
+    "_AutoEcoFarmEnterCameraModeFallbackReleaseOnError": {
         "action": {
             "type": "KeyUp",
             "param": {

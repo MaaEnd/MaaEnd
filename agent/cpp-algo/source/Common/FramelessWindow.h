@@ -71,6 +71,10 @@ public:
     // 仅在 Open() 之前调用有效；之后调用会被忽略。
     void SetExcludeFromCapture(bool exclude);
 
+    // 窗口当前是否还开着。Open() 成功后为真，用户关掉窗口或调用 Close() 之后转假，
+    // 供业务线程把「用户把窗口关了」当成一个可等待的结束条件。
+    bool IsOpened() const noexcept { return opened_.load(std::memory_order_acquire); }
+
 protected:
     HWND GetHwnd() const noexcept { return hwnd_; }
 
@@ -163,6 +167,8 @@ public:
     void SetShowInTaskbar(bool show);
     void SetOpacity(double opacity);
     void SetExcludeFromCapture(bool exclude);
+
+    bool IsOpened() const noexcept { return opened_.load(std::memory_order_acquire); }
 
 protected:
     bool isOpened() const noexcept { return opened_.load(std::memory_order_acquire); }

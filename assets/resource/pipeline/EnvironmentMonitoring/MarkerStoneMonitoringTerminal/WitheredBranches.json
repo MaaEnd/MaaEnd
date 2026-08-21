@@ -354,7 +354,7 @@
         ]
     },
     "GoToWitheredBranchesNotAtStartPos": {
-        "desc": "不在枯枝任务开始位置附近，先传送再继续寻路",
+        "desc": "前往枯枝传送点，传送后调整朝向并拍照",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
@@ -370,22 +370,15 @@
         ]
     },
     "GoToWitheredBranchesMove": {
-        "desc": "自动寻路前往枯枝",
+        "desc": "在枯枝传送点调整拍照朝向",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
             "path": [
                 {
-                    "action": "NAVMESH",
-                    "target": [
-                        1361.74,
-                        2194.86
-                    ]
-                },
-                {
                     "action": "HEADING",
-                    "angle": 120
+                    "angle": 133
                 }
             ]
         },
@@ -407,23 +400,12 @@
         "desc": "在枯枝任务拍照点开始拍照",
         "pre_delay": 0,
         "anchor": {
-            "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal",
-            "EnvironmentMonitoringAdjustCamera": "WitheredBranchesAdjustCamera"
+            "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToMarkerStoneMonitoringTerminal"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "EnvironmentMonitoringTakePhoto"
-        ]
-    },
-    "WitheredBranchesAdjustCamera": {
-        "desc": "枯枝任务中调整朝向",
-        "max_hit": 2,
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "EnvironmentMonitoringSwipeScreenUp"
         ]
     }
 }

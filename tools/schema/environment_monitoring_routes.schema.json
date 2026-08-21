@@ -39,16 +39,6 @@
                         },
                         {
                             "required": [
-                                "CameraSwipeDirection"
-                            ]
-                        },
-                        {
-                            "required": [
-                                "CameraMaxHit"
-                            ]
-                        },
-                        {
-                            "required": [
                                 "Replace"
                             ]
                         },
@@ -65,9 +55,6 @@
                     ]
                 },
                 "then": {
-                    "required": [
-                        "CameraSwipeDirection"
-                    ],
                     "anyOf": [
                         {
                             "required": [
@@ -216,21 +203,6 @@
                     ]
                 }
             },
-            "CameraSwipeDirection": {
-                "type": "string",
-                "description": "拍照时调整摄像头朝向的滑屏方向。",
-                "enum": [
-                    "EnvironmentMonitoringSwipeScreenUp",
-                    "EnvironmentMonitoringSwipeScreenDown",
-                    "EnvironmentMonitoringSwipeScreenLeft",
-                    "EnvironmentMonitoringSwipeScreenRight"
-                ]
-            },
-            "CameraMaxHit": {
-                "type": "integer",
-                "description": "调整摄像头时的最大滑屏命中次数。可选；默认值为 2。拍照目标较难对准时可适当调大。",
-                "minimum": 1
-            },
             "Replace": {
                 "type": "array",
                 "description": "可选；任务列表和任务详情页 OCR 的 replace 替换表，用于修正任务文本中容易被误识别的字符。生成到 Check{Id}Text.replace 与 In{Id}Mission.replace。每一项为 [识别结果, 替换后文本]。",
@@ -259,7 +231,7 @@
             },
             "Heading": {
                 "type": "number",
-                "description": "可选；进入拍照模式前把角色朝向旋转到该角度。传送后直拍时只原地调整朝向，不需要任何地图断言或寻路字段。仅影响角色朝向，与摄像头滑屏（CameraSwipeDirection）相互独立。",
+                "description": "可选；进入拍照模式前把角色朝向旋转到该角度。传送后直拍时只原地调整朝向，不需要任何地图断言或寻路字段。",
                 "minimum": 0,
                 "exclusiveMaximum": 360
             },

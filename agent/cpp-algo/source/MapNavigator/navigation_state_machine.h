@@ -22,6 +22,7 @@ class IActionExecutor;
 class ActionWrapper;
 class MotionController;
 class PositionProvider;
+class RoiTemplateScanner;
 struct RouteTrackingState;
 
 class NavigationStateMachine
@@ -56,6 +57,8 @@ private:
         double route_heading = 0.0,
         bool emit_interior_corners = false);
     bool TryApplyDynamicOverlayToNextAnchor(const char* reason, bool use_detour, double route_heading = 0.0);
+    // 走不到的上索点在这里让路: 判成够不着就丢掉这条链改走路, 返回 true 表示这一拍已经处理完。
+    bool GiveUpUnreachableZipline(const char* reason);
     bool HandleDynamicReplanRequest(const char* reason);
     bool TryEnterCrossTierEscape();
     bool PlanCrossTierEscapeCorridorFromHere(const char* reason);
@@ -79,6 +82,8 @@ private:
     void StopScanners();
     void StartPromptScanners();
     void StartDeviceProbe();
+    // 架子的交互提示出现就算够得着了。预筛看错时返回 false, 这一拍照常往前走
+    bool TryZiplineMountPrompt(const Waypoint& waypoint, const RouteTrackingState& route);
     void UpdatePromptSprintSuppression();
     // Squared distance to the nearest prompt-driven point; -1 when the route has none or the agent is unlocalized.
     double NearestPromptDistanceSq() const;
@@ -102,6 +107,9 @@ private:
     AsyncPromptAction interact_prompt_;
 
     ObstacleDeviceRecovery device_recovery_;
+    // 上索提示的行进预筛。只复用扫描器, 不走提示动作那套: 那套认不出也照样推进路线,
+    // 而滑索认不出提示就得丢链改徒步
+    std::unique_ptr<RoiTemplateScanner> zipline_mount_scanner_;
     // Declared last so its destructor runs first — restores jogging while its collaborators are still alive.
     walkmode::Toggle walk_mode_;
 };

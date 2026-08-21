@@ -10,6 +10,7 @@ on:
       - ".github/workflows/install.yml"
       - "assets/**"
       - "agent/**"
+      - "tests/MaaEndTestset"
       - "tools/**"
 
   pull_request:
@@ -19,6 +20,7 @@ on:
       - ".github/workflows/install.yml"
       - "assets/**"
       - "agent/**"
+      - "tests/MaaEndTestset"
       - "tools/**"
 
   workflow_dispatch:
@@ -32,11 +34,30 @@ on:
 jobs:
   meta:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
     steps:
       - uses: actions/checkout@v6
         with:
           ref: ${{ github.event.inputs.ref || github.ref }}
           fetch-depth: 0
+      - id: icon-recognition-changes
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            icon_recognition:
+              - '.github/workflows/install.yml'
+              - 'agent/cpp-algo/CMakeLists.txt'
+              - 'agent/cpp-algo/CMakePresets.json'
+              - 'agent/cpp-algo/MaaUtils'
+              - 'agent/cpp-algo/source/CMakeLists.txt'
+              - 'agent/cpp-algo/source/IconRecognition/**'
+              - 'assets/data/IconRecognition/**'
+              - 'assets/resource/image/IconRecognition/**'
+              - 'tests/MaaEndTestset'
+              - 'tools/dep_3rdparty.py'
+              - 'tools/maadeps-download.py'
       - id: set_tag
         run: |
           # 检查标签格式
@@ -93,6 +114,7 @@ jobs:
       maafw_version: ${{ steps.maafw-latest-release.outputs.release }}
       mxu_version: ${{ steps.mxu-latest-release.outputs.release }}
       commit_sha: ${{ steps.commit.outputs.sha }}
+      icon_recognition_changed: ${{ steps.icon-recognition-changes.outputs.icon_recognition }}
 
   build_and_install:
     needs: meta
@@ -215,6 +237,21 @@ jobs:
             --interface install/interface.json
 
           cat install/interface.json
+
+      - name: Run IconRecognition quick tests
+        if: matrix.os == 'win' && matrix.arch == 'x86_64' && needs.meta.outputs.icon_recognition_changed == 'true'
+        shell: powershell
+        run: |
+          $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer\vswhere.exe'
+          $vsInstall = & $vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+          if ([string]::IsNullOrWhiteSpace($vsInstall)) {
+            throw 'Visual Studio C++ toolchain was not found'
+          }
+          $vsDevShell = Join-Path $vsInstall 'Common7\Tools\Launch-VsDevShell.ps1'
+          & 'agent/cpp-algo/source/IconRecognition/test/run-tests.ps1' `
+            -Task quick `
+            -Jobs 16 `
+            -VsDevShellPath $vsDevShell
 
       - uses: actions/upload-artifact@v6
         with:

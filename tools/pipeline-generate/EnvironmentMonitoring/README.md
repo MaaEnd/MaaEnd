@@ -59,11 +59,6 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
         // 普通传送必须有 NavZoneId / NavAssert 用来判断是否调用 EnterMap；
         // 快捷传送不执行起点断言，可同时省略二者。
         // 如果传送点可以直接拍照，则整组字段一起省略。
-    "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
-        // 摄像头朝向调整方向，四选一：Up / Down / Left / Right。
-    "CameraMaxHit": 2,
-        // 可选；调整摄像头时的最大滑屏命中次数，默认值为 2。
-        // 拍照目标较难对准时可适当调大。
     "Replace": [
         [
             "売",
@@ -75,11 +70,10 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
         // 可选；到达拍照点后、进入拍照模式前，先用 MapNavigator 的 HEADING 动作把
         // 角色朝向旋转到该角度（度数，与 MapNavigator 角度约定一致）。未配置时不调整。
         // 直拍路线也支持：传送后只原地调整朝向，再进入拍照流程。
-        // 与摄像头滑屏（CameraSwipeDirection）相互独立。
 }
 ```
 
-> `routes.json` 是严格 JSON：不允许行内注释、不允许尾随逗号。上面的注释只是文档示意，实际文件里要去掉。需要寻路时配置 `NavPath`，普通传送再配置 `NavZoneId` / `NavAssert`。如果传送点可以直接拍照，则整组地图断言和寻路字段都不要填，但可以按实测结果保留可选的 `Heading`。生成器会根据“存在真实传送入口和 `CameraSwipeDirection`，同时没有地图断言和寻路配置”自动进入直拍分支，不需要额外开关字段。
+> `routes.json` 是严格 JSON：不允许行内注释、不允许尾随逗号。上面的注释只是文档示意，实际文件里要去掉。需要寻路时配置 `NavPath`，普通传送再配置 `NavZoneId` / `NavAssert`。如果传送点可以直接拍照，则整组地图断言和寻路字段都不要填，但可以按实测结果保留可选的 `Heading`。生成器会根据“存在真实传送入口，同时没有地图断言和寻路配置”自动进入直拍分支，不需要额外开关字段。
 
 > 传送后的处理取决于入口和路线类型：传送后直拍不做位置断言或寻路，配置 `Heading` 时只原地调整朝向，随后进入任务专属拍照包装节点。`QuickTeleport` 的固定传送落点可直接开始寻路，因此允许省略 `NavZoneId` / `NavAssert`。普通传送的寻路路线仍会在决定是否调用 `EnterMap` 前用到断言配置，所以不能省略；传送完成后 `NavPath` 直接开始寻路，不再复核起点。
 >
@@ -89,11 +83,11 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 
 > 重新生成 EnvironmentMonitoring 时，生成器会自动同步 `MissionId` / `Name` / `Id` 并按 `MissionId` 排序。手动新增条目时必须填写 `MissionId`；如果环境监测数据中存在新任务但 `routes.json` 没有对应条目，生成器会自动追加仅含 `MissionId` / `Name` / `Id` 的未适配占位条目，方便维护者看到待补路线。
 
-> 编辑 `routes.json` 时 VS Code 会自动应用 `tools/schema/environment_monitoring_routes.schema.json`（通过 `.vscode/settings.json` 注册），提供字段补全、枚举值（`CameraSwipeDirection`）和必填项校验。
+> 编辑 `routes.json` 时 VS Code 会自动应用 `tools/schema/environment_monitoring_routes.schema.json`（通过 `.vscode/settings.json` 注册），提供字段补全和必填项校验。
 
 ### `routes.json` 写法参考
 
-所有完整适配条目都需要元数据、`CameraSwipeDirection`，以及 `EnterMap` / `QuickTeleport: true` 中的一种传送入口。其余字段按路线类型填写：
+所有完整适配条目都需要元数据，以及 `EnterMap` / `QuickTeleport: true` 中的一种传送入口。其余字段按路线类型填写：
 
 | 类型 | 地图与路线字段 | 断言矩形 | 生成流程 |
 | ----------------------------- | --------------------------------------------------------------- | --------------------------- | -------------------------------------------- |
@@ -101,6 +95,6 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 | 传送后直拍 | 不填任何地图和寻路字段；`Heading` 可选 | 不填 | 传送 →（可选原地调整朝向）→ 拍照 |
 | 寻路 | `NavPath`；普通传送再加 `NavZoneId`，可选 `Heading` | `NavAssert`，快捷传送可省略 | `MapNavigateAction` 按 `NavPath` 寻路 → 拍照 |
 
-`CameraMaxHit` 和 `Replace` 可用于所有已适配路线，不改变路线类型。直拍必须经过游戏实测确认，不能用来代替尚未录制的路线数据。寻路路线一律用 `NavPath`，普通传送再补 `NavZoneId` / `NavAssert`。
+`Replace` 可用于所有已适配路线，不改变路线类型。直拍必须经过游戏实测确认，不能用来代替尚未录制的路线数据。寻路路线一律用 `NavPath`，普通传送再补 `NavZoneId` / `NavAssert`。拍照目标未命中时由公共 `CameraScanAction` 自动执行九宫格与 fallback 镜头扫描，不需要路线级镜头方向配置。
 
 > 完整维护流程见 `docs/zh_cn/developers/tasks/environment-monitoring-maintain.md`。

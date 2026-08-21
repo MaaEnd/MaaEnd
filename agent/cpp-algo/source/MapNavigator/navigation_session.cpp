@@ -40,6 +40,8 @@ const char* NaviPhaseName(NaviPhase phase)
         return "Navigate";
     case NaviPhase::WaitTransfer:
         return "WaitTransfer";
+    case NaviPhase::WaitZipline:
+        return "WaitZipline";
     case NaviPhase::Finished:
         return "Finished";
     case NaviPhase::Failed:
@@ -274,6 +276,23 @@ void NavigationSession::SkipPastWaypoint(size_t waypoint_idx, const char* reason
     current_node_idx_ = waypoint_idx + 1;
     ResetProgress();
     ResetHardProgress();
+}
+
+bool NavigationSession::RetargetCurrentWaypoint(double x, double y, const char* reason)
+{
+    if (!RequireCurrentWaypoint("RetargetCurrentWaypoint")) {
+        return false;
+    }
+    Waypoint& waypoint = current_path_[current_node_idx_];
+    if (!waypoint.HasPosition()) {
+        return false;
+    }
+    LogInfo << "Waypoint retargeted." << VAR(reason) << VAR(current_node_idx_) << VAR(waypoint.x) << VAR(waypoint.y) << VAR(x) << VAR(y);
+    waypoint.x = x;
+    waypoint.y = y;
+    // 到点判据是按新落脚点重算的, 旧点上攒的最好成绩会让无进展判据以为人在倒退
+    ResetProgress();
+    return true;
 }
 
 void NavigationSession::ResetProgress()

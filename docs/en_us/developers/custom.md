@@ -82,6 +82,34 @@ The `FalseAction` implementation is located in `agent/go-service/common/falseact
 
 - Parameters: None.
 
+### FocusOCRAction
+
+The `FocusOCRAction` implementation is located in `agent/go-service/common/focusocr`. It takes a screenshot, runs a Pipeline recognition node, picks the first OCR text, and prints it via `maafocus`.
+
+Parameters:
+
+- `node: string`: Required. Pipeline recognition node name (OCR, or an `And` whose `box_index` points at OCR).
+- `focus: string`: Optional. `maafocus` message. `%s` is the OCR text, e.g. `Current sanity: %s`. If omitted, the raw text is printed.
+
+Example file: [`FocusOCRAction.json`](../../../assets/resource/pipeline/Interface/Example/FocusOCRAction.json)
+
+```json
+{
+    "action": {
+        "type": "Custom",
+        "param": {
+            "custom_action": "FocusOCRAction",
+            "custom_action_param": {
+                "node": "CommonSanityText",
+                "focus": "Current sanity: %s"
+            }
+        }
+    }
+}
+```
+
+The node's own recognition still belongs in Pipeline for routing. This Action only screenshots, recognizes, and reports after the node hits.
+
 ### RepeatUntilFoundAction / RepeatUntilNotFoundAction
 
 Both are implemented in `agent/go-service/common/repeataction`. They repeatedly run a built-in or custom action, then poll recognition inside a wait window. They succeed when the wait condition is met, and fail after `repeat_count` attempts without success.
@@ -109,6 +137,20 @@ Example file: [`RepeatUntilFoundAction.json`](../../../assets/resource/pipeline/
 `CharacterSearchAction` lives in `agent/go-service/common/charactercontroller`. When an interact point cannot be found, it walks a fixed WASD circle to fine-tune position and recognize target nodes. See [CharacterController reference](./components/character-controller.md#action-charactersearchaction) for parameters and path details.
 
 Example file: [`CharacterController.json`](../../../assets/resource/pipeline/Interface/Example/CharacterController.json)
+
+### CameraScanAction
+
+`CameraScanAction` lives in `agent/go-service/common/camerascan`. It moves the camera in discrete steps while recognizing targets in photo mode. The action scans the forward area in a center-out nine-grid spiral, then resets the camera and performs discrete yaw rings at middle, upper, and lower pitch levels. It recognizes before and after every camera movement except reset, succeeds when any target hits, and fails after the complete scan misses.
+
+- `wait_nodes: string[]`: Pipeline recognition nodes checked before and after every camera movement. Required; any hit succeeds. Reset movements are not checked.
+- `aim_target?: bool`: Whether to swipe from the screen center to the hit recognition result's `Box` center before returning. Defaults to `false`.
+- `move_up?: string`: Node for one upward camera step. Defaults to `__CameraScanMoveUp`.
+- `move_down?: string`: Node for one downward camera step. Defaults to `__CameraScanMoveDown`.
+- `move_left?: string`: Node for one leftward camera step. Defaults to `__CameraScanMoveLeft`.
+- `move_right?: string`: Node for one rightward camera step. Defaults to `__CameraScanMoveRight`.
+- `fallback_yaw_steps?: int`: Discrete yaw movements in each fallback ring. Defaults to `8`; range `[4, 72]`.
+
+Camera movement runs through `ctx.RunTask` on the corresponding direction nodes (defaults in `Common/Private/CameraScan/Action.json`). Configure `post_wait_freezes` on caller-provided direction nodes when the screen must settle after each move. Aiming still uses the private node `__CameraScanAimSwipe`.
 
 ### PipelineOverride
 
@@ -511,6 +553,7 @@ When writing a Pipeline, the built-in `TemplateMatch` / `OCR` / `Click` / `Swipe
 | Run a series of subtasks in order | `SubTask` |
 | Clear hit count of a node | `ClearHitCount` |
 | Force an Action to fail | `FalseAction` |
+| Screenshot then report Pipeline OCR | `FocusOCRAction` |
 | Repeat an action until a node appears | `RepeatUntilFoundAction` |
 | Repeat an action until a node disappears | `RepeatUntilNotFoundAction` |
 | Actively stop the current task | `PostStop` |

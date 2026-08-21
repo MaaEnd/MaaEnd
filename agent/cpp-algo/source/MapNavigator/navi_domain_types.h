@@ -32,6 +32,8 @@ namespace mapnavigator
 //            （检测只受冷却限速，误报由 OCR 名称白名单挡下，最多白停一次）
 // DIG      - 触发 AutoCollectDigStart pipeline 子任务（无条件 Click target=true 两次），用于挖掘点。
 //            与 COLLECT 不同，DIG 仍是精确抵达后停车触发（挖掘是定点动作，非行进检测）
+// ZIPLINE  - 滑索上索点：精确抵达后停车，把镜头转向下索点再交互上索，然后等滑行自己结束。
+//            只由滑索规划生成，不手写：能不能滑取决于两端的落差与跨度，那是规划器算出来的
 #define NAVI_ACTION_TYPES(X) \
     X(RUN)                   \
     X(SPRINT)                \
@@ -44,14 +46,34 @@ namespace mapnavigator
     X(NAVMESH)               \
     X(ZONE)                  \
     X(COLLECT)               \
-    X(DIG)
+    X(DIG)                   \
+    X(ZIPLINE)
 
 enum class ActionType
 {
 #define NAVI_X_(name) name,
     NAVI_ACTION_TYPES(NAVI_X_)
 #undef NAVI_X_
-    MEOJSON_ENUM_RANGE(RUN, DIG)
+    MEOJSON_ENUM_RANGE(RUN, ZIPLINE)
+};
+
+// 滑索的另一端。执行时先把镜头转向这里再交互上索，滑行结束后角色就落在这个点上。
+struct ZiplineTarget
+{
+    double x = 0.0;
+    double y = 0.0;
+    double height = 0.0;
+    // 索的仰角，正数是往上滑。落差大的一跳镜头不抬到这个角度就起不了滑。规划时按两端的世界
+    // 坐标算好，运行时不再碰单位——x/y 是缩放过的平面单位，跟 height 不同尺。
+    double elevation_deg = 0.0;
+};
+
+// 上索认不出提示时的备用站位。面板给的是离身位最近的那台设备, 架子边上贴着供电桩时会被它抢走,
+// 这个点从供电桩那侧让开一点点, 让架子重新成为最近的那个。
+struct ZiplineRestand
+{
+    double x = 0.0;
+    double y = 0.0;
 };
 
 struct Waypoint
@@ -81,6 +103,10 @@ struct Waypoint
     // INTERACT 专用: 行进预筛读 roi/template/threshold 的 TemplateMatch 节点, 留给提示长得不一样的业务;
     // 留空用出厂那份
     std::string interact_scan;
+    // ZIPLINE only: 滑索落点。只由滑索规划写入; 缺这个字段的 ZIPLINE 点是配置写错了, 执行侧拒绝
+    std::optional<ZiplineTarget> zipline_target;
+    // ZIPLINE only: 备用站位, 只在上索按空一次之后才改瞄它。架子旁边没有供电结构就不写
+    std::optional<ZiplineRestand> mount_restand;
 
     double GetLookahead() const
     {
@@ -115,7 +141,7 @@ struct Waypoint
         }
         return strict_arrival || action == ActionType::SPRINT || action == ActionType::JUMP || action == ActionType::INTERACT
                || action == ActionType::FIGHT || action == ActionType::TRANSFER || action == ActionType::PORTAL
-               || action == ActionType::NAVMESH || action == ActionType::DIG;
+               || action == ActionType::NAVMESH || action == ActionType::DIG || action == ActionType::ZIPLINE;
     }
 
     // 路线说了停下后认什么才走异步交互。只换预筛不给文本的点走不通: 共用识别节点里的占位文本没被顶掉, 停下来
@@ -123,6 +149,7 @@ struct Waypoint
     bool IsAsyncInteract() const { return action == ActionType::INTERACT && !interact_text.empty(); }
 
     // 走到跟前才算数的点: 交互提示得在屏幕上待得住, 所以判定圈、疾跑抑制、切走路都按同一套来
+    // 上索点也认提示, 但只有链首那一次要认 —— 收不收得看运行时上没上索, 所以那道收紧在状态机里
     bool StopsOnPromptDetection() const { return action == ActionType::COLLECT || IsAsyncInteract(); }
 
     bool HasPosition() const { return has_position; }

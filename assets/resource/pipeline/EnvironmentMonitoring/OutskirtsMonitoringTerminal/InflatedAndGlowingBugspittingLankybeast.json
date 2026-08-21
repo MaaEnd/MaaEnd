@@ -216,7 +216,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToInflatedAndGlowingBugspittingLankybeast"
+            "InflatedAndGlowingBugspittingLankybeastInQuickTeleportMap"
         ]
     },
     "AlreadyTrackedInflatedAndGlowingBugspittingLankybeast": {
@@ -230,7 +230,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToInflatedAndGlowingBugspittingLankybeast"
+            "InflatedAndGlowingBugspittingLankybeastOpenTrackedMissionMap"
         ]
     },
     "InflatedAndGlowingBugspittingLankybeastOpenTrackedMissionMap": {
@@ -340,10 +340,10 @@
         "custom_recognition_param": {
             "zone_id": "Wuling_Base",
             "target": [
-                698.52,
-                1887.7,
-                11.23,
-                10.44
+                0,
+                0,
+                1,
+                1
             ]
         },
         "pre_delay": 0,
@@ -360,7 +360,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldWulingWulingCity7"
+                "SceneAnyEnterWorld"
             ]
         },
         "post_delay": 0,
@@ -377,16 +377,15 @@
         "custom_action_param": {
             "path": [
                 {
-                    "action": "ZONE",
-                    "zone_id": "Wuling_Base"
+                    "action": "NAVMESH",
+                    "target": [
+                        774.59,
+                        2581.41
+                    ]
                 },
-                [
-                    718.59,
-                    1883.72
-                ],
                 {
                     "action": "HEADING",
-                    "angle": 45
+                    "angle": 307
                 }
             ]
         },
@@ -408,23 +407,12 @@
         "desc": "在肚子鼓气后发光的吐虫长股兽任务拍照点开始拍照",
         "pre_delay": 0,
         "anchor": {
-            "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
-            "EnvironmentMonitoringAdjustCamera": "InflatedAndGlowingBugspittingLankybeastAdjustCamera"
+            "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "EnvironmentMonitoringTakePhoto"
-        ]
-    },
-    "InflatedAndGlowingBugspittingLankybeastAdjustCamera": {
-        "desc": "肚子鼓气后发光的吐虫长股兽任务中调整朝向",
-        "max_hit": 2,
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "EnvironmentMonitoringSwipeScreenUp"
         ]
     }
 }

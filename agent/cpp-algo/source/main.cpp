@@ -6,6 +6,7 @@
 
 #include "Common/CrashHandler.h"
 #include "Common/ParentProcessWatcher.h"
+#include "Common/SystemMonitor.h"
 #include "EssenceGridScan/EssenceGridScan.h"
 #include "IconRecognition/IconRecognitionRecognition.h"
 #include "MapLocator/MapLocateAction.h"
@@ -16,6 +17,7 @@
 #include "RecoGrid/RecoGridRecognition.h"
 #include "Test/test.h"
 #include "WeaponInventoryScan/WeaponInventoryScan.h"
+#include "Zipline/ZiplineImportAction.h"
 #include "my_reco_1/my_reco_1.h"
 #include "utils.h"
 
@@ -46,6 +48,8 @@ int main(int argc, char** argv)
     // 转储落到 maa.log 同一目录，报 issue 打包日志时会一并带上。
     common::InstallCrashHandler(std::filesystem::path(kUserPath) / "debug");
 
+    common::StartSystemMonitor();
+
     MaaAgentServerRegisterCustomRecognition("MyReco1", ChildCustomRecognitionCallback, nullptr);
     MaaAgentServerRegisterCustomRecognition("MapLocateRecognition", maplocator::MapLocateRecognitionRun, nullptr);
     MaaAgentServerRegisterCustomRecognition("MapLocateAssertLocation", maplocator::MapLocateAssertLocationRun, nullptr);
@@ -65,6 +69,11 @@ int main(int argc, char** argv)
     MaaAgentServerRegisterCustomAction("MapNavigateAction", mapnavigator::MapNavigateActionRun, nullptr);
     MaaAgentServerRegisterCustomAction("MapNavigatorCompatible", mapnavigator::MapNavigatorCompatibleRun, nullptr);
     MaaAgentServerRegisterCustomAction("RealTimeTaskAction", realtimetask::RealTimeTaskActionRun, nullptr);
+#ifdef MAAEND_HAVE_WEBVIEW2
+    // 导入要开一个内嵌浏览器让用户自己登录, 而这个控件只有 Windows 有实现,
+    // 其余平台把这个动作名留给各自的实现
+    MaaAgentServerRegisterCustomAction("ZiplineImport", zipline::ZiplineImportActionRun, nullptr);
+#endif
 
     const char* identifier = argv[argc - 1];
 

@@ -1,0 +1,86 @@
+{
+    "__CameraScanMoveUp": {
+        "desc": "CameraScanAction 默认上移镜头",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            520,
+            360
+        ],
+        "end": [
+            520,
+            120
+        ],
+        "end_hold": 200,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__CameraScanMoveDown": {
+        "desc": "CameraScanAction 默认下移镜头",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            520,
+            360
+        ],
+        "end": [
+            520,
+            600
+        ],
+        "end_hold": 200,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__CameraScanMoveLeft": {
+        "desc": "CameraScanAction 默认左移镜头",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            520,
+            360
+        ],
+        "end": [
+            360,
+            360
+        ],
+        "end_hold": 200,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__CameraScanMoveRight": {
+        "desc": "CameraScanAction 默认右移镜头",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            520,
+            360
+        ],
+        "end": [
+            680,
+            360
+        ],
+        "end_hold": 200,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__CameraScanAimSwipe": {
+        "desc": "CameraScanAction 命中后对准目标的滑屏",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            520,
+            360
+        ],
+        "end": [
+            520,
+            360
+        ],
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

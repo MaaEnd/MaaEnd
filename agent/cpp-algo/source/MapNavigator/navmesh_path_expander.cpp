@@ -29,6 +29,7 @@
 #include "navi_controller.h"
 #include "navi_math.h"
 #include "navmesh_path_expander.h"
+#include "zipline_leg_planner.h"
 
 namespace mapnavigator
 {
@@ -392,7 +393,8 @@ navmesh::BaseNavRouteRequest BuildRouteRequest(
     const std::vector<uint32_t>& blocked_triangles = {},
     const std::vector<navmesh::WorldPoint>& blocked_points = {},
     float goal_floor_y = navmesh::kBaseNavFloorYNone,
-    std::optional<double> goal_deck_y = std::nullopt)
+    std::optional<double> goal_deck_y = std::nullopt,
+    std::optional<double> start_floor_y = std::nullopt)
 {
     navmesh::BaseNavRouteRequest request;
     request.zone_name = navmesh_zone;
@@ -408,8 +410,14 @@ navmesh::BaseNavRouteRequest BuildRouteRequest(
     // declared frame's floor when the caller supplies one (cross-tier targets), otherwise the same start
     // floor (legacy single-floor behavior). A geometry / base / unknown zone yields the sentinel ->
     // floor-blind, byte-identical to the pre-floor behavior. Mirrors the python tool's floor_y_for(tier).
-    request.start_floor_y = pack.floorYForZoneName(locator_zone);
-    request.goal_floor_y = goal_floor_y > navmesh::kBaseNavFloorYValidMin ? goal_floor_y : request.start_floor_y;
+    //
+    // 起点高度只在调用方确实知道角色站在哪一层时才覆盖 —— 目前唯一的来源是滑索下索点，
+    // 它的高度是导入数据里带来的逐点真值。不传就还是按 zone 的主层走，逐位不变。
+    const float zone_floor_y = pack.floorYForZoneName(locator_zone);
+    request.start_floor_y = start_floor_y ? static_cast<float>(*start_floor_y) : zone_floor_y;
+    // 终点兜底取 zone 主层而不是跟着起点走：起点被覆盖时那是「角色站在哪」，与终点该落在哪无关。
+    // 起点没被覆盖时两者本就同值。
+    request.goal_floor_y = goal_floor_y > navmesh::kBaseNavFloorYValidMin ? goal_floor_y : zone_floor_y;
     return request;
 }
 
@@ -515,7 +523,8 @@ std::optional<navmesh::BaseNavRouteResult> PlanNavmeshRouteImpl(
     const navmesh::WorldPoint& goal,
     const std::vector<uint32_t>& blocked_triangles,
     const std::vector<navmesh::WorldPoint>& blocked_points = {},
-    std::optional<double> goal_deck_y = std::nullopt)
+    std::optional<double> goal_deck_y = std::nullopt,
+    std::optional<double> start_floor_y = std::nullopt)
 {
     const std::string navmesh_zone = InferBaseNavZone(locator_zone, param.map_name);
     if (navmesh_zone.empty()) {
@@ -542,7 +551,8 @@ std::optional<navmesh::BaseNavRouteResult> PlanNavmeshRouteImpl(
         blocked_triangles,
         blocked_points,
         navmesh::kBaseNavFloorYNone,
-        goal_deck_y);
+        goal_deck_y,
+        start_floor_y);
     const auto plan_started_at = std::chrono::steady_clock::now();
     const auto route_result = PlanCorridorRoute(*navmesh, request);
     const int64_t plan_ms =
@@ -698,6 +708,78 @@ bool AppendStartRecovery(
     return true;
 }
 
+// 走路方案已经在手, 滑索只在严格更省时顶替它。这里不改目的地也不改到达声明:
+// 换的只是走法, 终点面 target.deck_y 照样钉在这一腿的末点上
+bool TryAppendZiplineLeg(
+    const NaviParam& param,
+    const CachedNavmesh& navmesh,
+    const ProjectedTarget& target,
+    const navmesh::BaseNavRouteResult& walking,
+    const std::function<bool()>& should_stop,
+    NavmeshExpansionState& state,
+    std::vector<Waypoint>& out_path)
+{
+    auto route = PlanZiplineRoute(
+        param,
+        state.current_zone,
+        state.navmesh_zone,
+        state.route_start,
+        target.point,
+        walking.path,
+        target.deck_y,
+        should_stop);
+    if (!route || route->approach.points.empty() || route->departure.points.empty() || route->towers.size() < 2) {
+        return false;
+    }
+
+    const size_t insert_index = out_path.size();
+    // 上索点自己补, 不让通用追加代劳: 起点已经站在索下时它一个点都不会产出, 而这个点必须存在
+    AppendGeneratedNavmeshWaypoints(route->approach, out_path, false, false, &navmesh.planner, route->approach.zone_id);
+    const navmesh::WorldPoint mount = route->approach.points.back();
+    // 一跳一个航点。中途落在下一根架子上, 人就站在下一跳的上索点上, 所以跳与跳之间不插走路点
+    for (size_t hop = 0; hop + 1 < route->towers.size(); ++hop) {
+        const zipline::ZiplineNode& from = route->towers[hop];
+        const zipline::ZiplineNode& to = route->towers[hop + 1];
+        // 头一跳的上索点取走路那一段的末点, 让两段严丝合缝地接上
+        out_path.emplace_back(hop == 0 ? mount.x : from.x, hop == 0 ? mount.y : from.y, ActionType::ZIPLINE);
+        out_path.back().strict_arrival = true;
+        out_path.back().target_deck_y = from.height;
+        // 备用站位只挂在链首: 后面那些跳是从索上落下来的, 不再按上索提示
+        if (hop == 0 && route->mount_restand) {
+            out_path.back().mount_restand = ZiplineRestand { .x = route->mount_restand->x, .y = route->mount_restand->y };
+        }
+        // 仰角只能用世界坐标算: 平面 x/y 是按地图比例缩放过的, 跟高度不同尺, 混着算出来的角
+        // 没有意义
+        const double span_x = to.world_x - from.world_x;
+        const double span_z = to.world_z - from.world_z;
+        const double rise = to.world_y - from.world_y;
+        out_path.back().zipline_target = ZiplineTarget {
+            .x = to.x,
+            .y = to.y,
+            .height = to.height,
+            .elevation_deg = std::atan2(rise, std::hypot(span_x, span_z)) * 180.0 / kPi,
+        };
+    }
+
+    const size_t departure_index = out_path.size();
+    const navmesh::WorldPoint landing = route->departure.points.back();
+    AppendGeneratedNavmeshWaypoints(route->departure, out_path, true, false, &navmesh.planner, route->departure.zone_id);
+    if (out_path.size() == departure_index) {
+        // 下索点就是终点: 滑行本身已经把人送到了, 补一个到达点让这一腿仍以目标点收尾
+        out_path.emplace_back(landing.x, landing.y, ActionType::RUN);
+        out_path.back().strict_arrival = true;
+    }
+    if (target.deck_y) {
+        out_path.back().target_deck_y = target.deck_y;
+    }
+
+    state.route_start = landing;
+    LogInfo << "Expanded NAVMESH waypoint via zipline." << VAR(state.navmesh_zone) << VAR(state.current_zone) << VAR(route->cost)
+            << VAR(insert_index) << VAR(out_path.size() - insert_index) << VAR(route->towers.size()) << VAR(mount.x) << VAR(mount.y)
+            << VAR(route->towers.back().x) << VAR(route->towers.back().y);
+    return true;
+}
+
 bool AppendNavmeshWaypoint(
     const NaviParam& param,
     const CachedNavmesh& navmesh,
@@ -749,6 +831,9 @@ bool AppendNavmeshWaypoint(
     }
 
     LogGeneratedNavmeshPath(state, request, route_result);
+    if (TryAppendZiplineLeg(param, navmesh, target, route_result, should_stop, state, out_path)) {
+        return true;
+    }
     const size_t insert_index = out_path.size();
     if (!AppendGeneratedNavmeshWaypoints(route_result.path, out_path, true, false, &navmesh.planner, route_result.path.zone_id)) {
         LogError << "NAVMESH planning returned an empty path." << VAR(state.navmesh_zone);
@@ -934,9 +1019,10 @@ std::optional<navmesh::BaseNavRouteResult> PlanNavmeshRoute(
     const std::string& locator_zone,
     const navmesh::WorldPoint& start,
     const navmesh::WorldPoint& goal,
-    std::optional<double> goal_deck_y)
+    std::optional<double> goal_deck_y,
+    std::optional<double> start_floor_y)
 {
-    return PlanNavmeshRouteImpl(param, locator_zone, start, goal, {}, {}, goal_deck_y);
+    return PlanNavmeshRouteImpl(param, locator_zone, start, goal, {}, {}, goal_deck_y, start_floor_y);
 }
 
 float NavmeshFloorYForZone(const NaviParam& param, const std::string& locator_zone)
@@ -977,6 +1063,36 @@ bool NavmeshZonesShareGeometry(const NaviParam& param, const std::string& zone_a
     };
     const int geom_a = geometry_id(zone_a);
     return geom_a >= 0 && geom_a == geometry_id(zone_b);
+}
+
+std::optional<NavmeshSnap> NavmeshSnapAt(
+    const NaviParam& param,
+    const std::string& locator_zone,
+    const navmesh::WorldPoint& point,
+    double radius,
+    std::optional<double> floor_y)
+{
+    const std::string navmesh_zone = InferBaseNavZone(locator_zone, param.map_name);
+    if (navmesh_zone.empty()) {
+        return std::nullopt;
+    }
+    const auto navmesh = LoadCachedNavmesh(ResolveNavmeshFile(param.navmesh_file), navmesh_zone);
+    if (!navmesh) {
+        return std::nullopt;
+    }
+    const auto proj = navmesh->pack.projectToBase(navmesh_zone, point.x, point.y);
+    if (!proj || proj->geometry_zone == nullptr) {
+        return std::nullopt;
+    }
+    const auto entry = navmesh->planner.snap(
+        proj->geometry_zone->zone_id,
+        { .x = proj->x, .y = proj->y },
+        radius,
+        floor_y ? static_cast<float>(*floor_y) : navmesh::kBaseNavFloorYNone);
+    if (!entry) {
+        return std::nullopt;
+    }
+    return NavmeshSnap { .distance = entry->distance, .height = navmesh->planner.triangleHeight(entry->triangle) };
 }
 
 double NavmeshOffMeshFraction(

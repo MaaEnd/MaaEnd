@@ -1,0 +1,93 @@
+{
+    "IntelArchiveResolveTrunc": {
+        "desc": "点击省略号条目详细分析",
+        "recognition": "DirectHit",
+        "action": "Click",
+        "target": [
+            0,
+            0,
+            0,
+            0
+        ],
+        "next": [
+            "IntelArchiveResolveTruncOpenSuccess"
+        ]
+    },
+    "IntelArchiveResolveTruncOpenSuccess": {
+        "desc": "等待档案消失",
+        "recognition": "And",
+        "all_of": [
+            "IntelArchiveRecognitionItemIcon",
+            "IntelArchiveRecognitionItemLine",
+            "IntelArchiveRecognitionItemTextBackground"
+        ],
+        "inverse": true,
+        "pre_wait_freezes": 100,
+        "next": [
+            "IntelArchiveResolveTruncOCR"
+        ]
+    },
+    "IntelArchiveResolveTruncNext": {
+        "desc": "点击下一篇",
+        "recognition": "OCR",
+        "roi": [
+            730,
+            630,
+            200,
+            80
+        ],
+        "expected": [
+            "下"
+        ],
+        "action": "Click",
+        "post_delay": 600, // 等待切换完成
+        "next": [
+            "IntelArchiveResolveTruncOCR"
+        ]
+    },
+    "IntelArchiveResolveTruncOCR": {
+        "desc": "详情页标题 OCR，与目录比对并入库",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "IntelArchiveScanDetailRecognition"
+            }
+        },
+        "pre_delay": 0,
+        "anchor": {
+            "MouseMoveResetAnchor": "MouseMoveReset"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack][Anchor]MouseMoveResetAnchor",
+            "IntelArchiveResolveTruncNext",
+            "IntelArchiveResolveTruncClose"
+        ]
+    },
+    "IntelArchiveResolveTruncClose": {
+        "desc": "关闭详情页",
+        "recognition": "And",
+        "all_of": [
+            "CloseButtonType1"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "IntelArchiveResolveTruncClosed"
+        ]
+    },
+    "IntelArchiveResolveTruncClosed": {
+        "desc": "确认详情已关闭、关闭按钮消失",
+        "recognition": "And",
+        "all_of": [
+            "CloseButtonType1"
+        ],
+        "inverse": true,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

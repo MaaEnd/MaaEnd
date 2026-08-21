@@ -19,12 +19,12 @@
 | 终端分组（生成） | `assets/resource/pipeline/EnvironmentMonitoring/Terminals.json` | 城郊监测终端 / 首墩监测终端的入口节点与各自的观察点 `next` 列表（**生成**） |
 | 终端跳转 | `assets/resource/pipeline/EnvironmentMonitoring/Locations.json` | `EnvironmentMonitoringGoTo*` 与 `Select*` 节点，从主菜单进入对应终端 |
 | 拍照流程 | `assets/resource/pipeline/EnvironmentMonitoring/TakePhoto.json` | 进入拍照模式、调整朝向、识别拍照按钮、达成目标后回到终端 |
-| 摄像头滑动 | `assets/resource/pipeline/EnvironmentMonitoring/TakePhoto.json` | `EnvironmentMonitoringSwipeScreen{Up/Down/Left/Right}` 四向调整朝向 |
+| 镜头扫描 | `assets/resource/pipeline/EnvironmentMonitoring/TakePhoto.json`、`agent/go-service/common/camerascan/` | 前方九宫格扫描，未命中时按中、上、下三档俯仰离散绕圈 |
 | 公共按钮 | `assets/resource/pipeline/EnvironmentMonitoring/Button.json` | `TrackMissionButton` 等环境监测专用通用按钮 |
 | 观察点节点（生成） | `assets/resource/pipeline/EnvironmentMonitoring/{Station}/{Id}.json` | **每个观察点一份 JSON**，由模板渲染（**生成**）；`Id` 由 `model.mjs` 自动生成，通常不用手写 |
 | 观察点模板 | `tools/pipeline-generate/EnvironmentMonitoring/generator/template.json` | 单观察点 Pipeline 模板（识别文本、接取/前往、传送、寻路、拍照） |
 | 终端模板 | `tools/pipeline-generate/EnvironmentMonitoring/generator/terminals-template.json` | 终端分组节点模板 |
-| 路线/坐标数据 | `tools/pipeline-generate/EnvironmentMonitoring/routes.json` | 按观察点 `MissionId` 匹配的路线覆盖（传送点、地图、路径、摄像头滑动方向）；`Name` 仅供人工阅读，`Id` 是最终模板节点 ID，方便搜索生成节点/文件名 |
+| 路线/坐标数据 | `tools/pipeline-generate/EnvironmentMonitoring/routes.json` | 按观察点 `MissionId` 匹配的路线覆盖（传送点、地图、路径）；`Name` 仅供人工阅读，`Id` 是最终模板节点 ID，方便搜索生成节点/文件名 |
 | 路线 JSON Schema | `tools/schema/environment_monitoring_routes.schema.json` | `routes.json` 的字段约束（必填项、枚举、坐标数组形状），通过 `.vscode/settings.json` 自动关联，提供 IDE 字段补全和校验 |
 | 失败收集参数 Schema | `tools/schema/components/failure_collector.schema.json` | 通用失败收集 Custom Action 的参数约束；动作名称注册在 `tools/schema/custom.action.schema.json` |
 | 路线同步逻辑 | `tools/pipeline-generate/EnvironmentMonitoring/generator/sync-routes.mjs` | 在生成前自动同步 `routes.json` 的 `MissionId` / `Name` / `Id`，并按 `MissionId` 排序 |
@@ -90,7 +90,6 @@ EnvironmentMonitoringMain
 GoTo{Id}Move                         （寻路动作；直拍有 Heading 时只原地调整朝向）
   └─ {Id}TakePhoto
        ├─ anchor: EnvironmentMonitoringBackToTerminal → ${GoToMonitoringTerminal}
-       ├─ anchor: EnvironmentMonitoringAdjustCamera   → ${Id}AdjustCamera
        └─ next: EnvironmentMonitoringTakePhoto
 EnvironmentMonitoringTakePhoto       （进入拍照模式 → 朝向 → 拍照）
   └─ [Anchor]EnvironmentMonitoringBackToTerminal
@@ -101,10 +100,11 @@ EnvironmentMonitoringTakePhoto       （进入拍照模式 → 朝向 → 拍照
 
 > [!NOTE]
 >
-> `anchor` 字段的两个 key 是模板里硬编码的占位符名，运行时被替换为：
+> `anchor` 字段的 key 是模板里硬编码的占位符名，运行时被替换为：
 >
 > - `EnvironmentMonitoringBackToTerminal` → 当前观察点所属终端的 `EnvironmentMonitoringGoTo{Station}` 节点（拍完回到正确终端）
-> - `EnvironmentMonitoringAdjustCamera` → `{Id}AdjustCamera`（执行该观察点的摄像头滑动方向）
+>
+> 拍照目标未命中时统一调用 `EnvironmentMonitoringCameraScan`。该节点通过 `CameraScanAction` 执行九宫格与 fallback 镜头扫描，不再按观察点生成调整镜头的 anchor。
 
 ## 命名规则
 
@@ -173,8 +173,7 @@ MysteriousCryptidGraffiti         → 谜之生物的涂鸦
 | `EnterMap` | `routes.json[*].EnterMap`，默认传送入口；可填写任意已定义、能作为 SubTask 正常返回的 Pipeline 节点名，不限制名称前缀；启用 `QuickTeleport` 时不会使用，可省略 |
 | `QuickTeleport` | `routes.json[*].QuickTeleport`，可选布尔值，默认 `false`；启用后从追踪任务地图依次点击“前往传送”和“传送”，不调用 `EnterMap` |
 | `NavZoneId` / `NavAssert` / `NavPath` | `routes.json[*]`，寻路路线的写法；`NavPath` 必填，普通传送还需 `NavZoneId` / `NavAssert`，生成 `MapLocateAssertLocation` + `MapNavigateAction`（`Heading` 会追加 `HEADING` 动作）；路线自己接管传送落点，传送后不再复核起点 |
-| `CameraSwipeDirection` | `routes.json[*]`，必须是 `EnvironmentMonitoringSwipeScreen{Up/Down/Left/Right}` 之一 |
-| `CameraMaxHit` | `routes.json[*].CameraMaxHit`，缺省为 `2`；对应 `${Id}AdjustCamera` 滑屏动作的最大命中次数 |
+| `CameraScanAction` | 公共镜头扫描动作；参数与扫描顺序固定在 `TakePhoto.json` 和 Go Service 中，不需要路线配置 |
 | `OcrReplace` | 由 `routes.json[*].Replace` 透传到 `Check${Id}Text.replace` 与 `In${Id}Mission.replace`；用于按任务配置任务列表和任务详情页 OCR 的易混字符替换，不影响路线是否已适配的判断 |
 | `ExpectedText` | 由 `environment_monitoring.json` 的 `mission.names` 自动展开（5 语言，英文转柔性正则） |
 | `InExpectedText` | 由 `environment_monitoring.json` 的 `mission.shot_target_names` 自动展开 |
@@ -229,7 +228,7 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 
 - `MapLocateAssertLocation`（识别）：根据当前小地图判断是否在 `NavAssert` 矩形内，普通传送路线用它决定要不要调用 `EnterMap`；`QuickTeleport` 从固定传送落点直接开始寻路，不进入该节点，可省略 `NavZoneId` / `NavAssert`。
 - `MapNavigateAction`（动作）：`NavPath` 原样作为它的 path，其中 `NAVMESH` 航点可按需携带 `target_tier` / `target_deck_y`；断言坐标取 `NavZoneId` 分区。传送后直接进入寻路动作，不再复核起点。
-- `${Id}TakePhoto`（包装节点）：为寻路和直拍路线统一设置 `EnvironmentMonitoringBackToTerminal` / `EnvironmentMonitoringAdjustCamera` anchor，再进入公共拍照流程。
+- `${Id}TakePhoto`（包装节点）：为寻路和直拍路线统一设置 `EnvironmentMonitoringBackToTerminal` anchor，再进入公共拍照流程。
 - 传送后直拍不执行寻路，配置 `Heading` 时生成一条只含 `HEADING` 动作的 `MapNavigateAction`，原地调整角色朝向再拍照。
 
 详细参数与坐标录制方式见 [map-locator.md](../components/map-locator.md) 与 [map-navigator.md](../components/map-navigator.md)。
@@ -238,11 +237,11 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 
 默认传送路线的 `EnterMap` 字段必须填写 `assets/resource/pipeline/` 中已存在的 Pipeline 节点名。名称不要求以 `Scene` 开头，也不限制字符组合；普通 SceneManager 万能跳转与封装了传送、交互等流程的任务入口均可使用，但节点必须能作为 SubTask 完整执行后正常返回。启用 `QuickTeleport: true` 时不会调用 `EnterMap`，该字段可以省略。
 
-`model.mjs` 通过判断 `routes.json` 条目是否完整决定是否进入寻路/拍照流程，未适配点会直接走 `${Id}NotAdapted` 分支。所有已适配条目都必须在真实 `EnterMap` 与 `QuickTeleport: true` 中至少选择一种传送入口，并配置 `CameraSwipeDirection`。如果传送落点已经满足拍照条件，则省略全部地图断言和寻路字段，生成器自动进入直拍分支；否则配置 `NavPath`，普通传送寻路路线还必须有 `NavZoneId` / `NavAssert` 断言配置，快捷传送寻路路线可同时省略二者。
+`model.mjs` 通过判断 `routes.json` 条目是否完整决定是否进入寻路/拍照流程，未适配点会直接走 `${Id}NotAdapted` 分支。所有已适配条目都必须在真实 `EnterMap` 与 `QuickTeleport: true` 中至少选择一种传送入口。如果传送落点已经满足拍照条件，则省略全部地图断言和寻路字段，生成器自动进入直拍分支；否则配置 `NavPath`，普通传送寻路路线还必须有 `NavZoneId` / `NavAssert` 断言配置，快捷传送寻路路线可同时省略二者。
 
 ### `routes.json` 配置类型
 
-所有完整适配条目都需要元数据、`CameraSwipeDirection`，以及 `EnterMap` / `QuickTeleport: true` 中的一种传送入口。不同路线类型的字段组合如下：
+所有完整适配条目都需要元数据，以及 `EnterMap` / `QuickTeleport: true` 中的一种传送入口。不同路线类型的字段组合如下：
 
 | 类型 | 地图与路线字段 | 断言矩形 | 运行行为 |
 | ----------------------------- | --------------------------------------------------------------- | --------------------------- | ------------------------------------------ |
@@ -250,7 +249,7 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 | 传送后直拍 | 不填任何地图和寻路字段；可选 `Heading` | 不填 | 传送 →（可选原地调整朝向）→ 拍照 |
 | 寻路 | `NavPath`；普通传送再加 `NavZoneId`，可选 `Heading` | `NavAssert`，快捷传送可省略 | `MapNavigateAction` 寻路 → 拍照 |
 
-`CameraMaxHit` 和 `Replace` 适用于所有已适配路线，不改变路线类型。直拍配置只能用于已经游戏实测确认的传送落点；缺少路线数据时继续保留 metadata-only 状态。寻路路线一律用 `NavPath`，普通传送再补 `NavZoneId` / `NavAssert`。
+`Replace` 适用于所有已适配路线，不改变路线类型。直拍配置只能用于已经游戏实测确认的传送落点；缺少路线数据时继续保留 metadata-only 状态。寻路路线一律用 `NavPath`，普通传送再补 `NavZoneId` / `NavAssert`。
 
 ### 主菜单入口
 
@@ -294,8 +293,6 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
         [x1, y1],
         [x2, y2]
     ],
-    "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp", // 朝向调整方向
-    // "CameraMaxHit": 2,  // 可选；滑屏最大命中次数，默认为 2；拍摄目标较难对准时可适当调大
     // "Replace": [["売", "壳"]] // 可选；任务列表和任务详情页 OCR 易混字符替换
     // "Heading": 90       // 可选；在路线末尾追加一个 HEADING 动作，把角色朝向转到该角度
 }
@@ -310,12 +307,11 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
     "Id": "MyNewObservationPoint",
     "EnterMap": "SceneEnterWorldWulingXxx",
     // 或使用 "QuickTeleport": true
-    "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
     "Heading": 90, // 可选；传送后先原地调整角色朝向
 }
 ```
 
-直拍条目不要填写任何地图断言和寻路字段（`NavZoneId` / `NavAssert` / `NavPath`）。可按实测结果配置 `Heading`，生成器会在传送后先原地调整朝向，再进入拍照流程。生成器根据“传送入口与拍照方向完整，同时没有地图断言和寻路配置”识别直拍模式。仅含 `MissionId` / `Name` / `Id` 的 metadata-only 条目仍然属于未适配。
+直拍条目不要填写任何地图断言和寻路字段（`NavZoneId` / `NavAssert` / `NavPath`）。可按实测结果配置 `Heading`，生成器会在传送后先原地调整朝向，再进入拍照流程。生成器根据“传送入口完整，同时没有地图断言和寻路配置”识别直拍模式。仅含 `MissionId` / `Name` / `Id` 的 metadata-only 条目仍然属于未适配。
 
 > [!IMPORTANT]
 >
@@ -332,8 +328,7 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 - `NavZoneId` 填 MapLocate 的 `zone_id`（如 `Wuling_Base`），它决定 `NavAssert` 坐标按哪个分区解释；终点落在分层平台上时，`NavPath` 里的 `NAVMESH` 动作按 tier 坐标写并带上 `target_tier`；目标点存在上下重叠面时带上工具选出的 `target_deck_y`。
 - 仅含 `NAVMESH` 的 `NavPath` 不需要在开头添加 `ZONE`；`NAVMESH` 会从 MapLocator 当前定位自动确定起点区域。`ZONE` 只为后续手录坐标点声明和校验分区，多分区或过图路径应保留录制工具导出的 `ZONE`。
 
-- 拍照时摄像头需要往哪个方向滑（决定 `CameraSwipeDirection`）。
-- 站位是否能让 `EnvironmentMonitoringTakePhoto` 走 `EnvironmentMonitoringEnterCameraMode`（自动朝向目标）成功；如果不行，会自动回退到 `EnvironmentMonitoringTakePhotoDirectly` + 手动滑屏 `${Id}AdjustCamera`。
+- 站位是否能让 `EnvironmentMonitoringTakePhoto` 正常进入拍照模式。目标未命中时会自动执行公共九宫格 + fallback 镜头扫描，无需记录单向滑屏配置。
 
 ### 5. 重新生成 Pipeline
 
@@ -371,12 +366,11 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 
 1. `tools/pipeline-generate/EnvironmentMonitoring/routes.json` 中新增/修改条目是否字段齐全。
 2. `routes.json` 中新增条目的 `MissionId` 是否能匹配 `environment_monitoring.json` 的 `mission_id`；`Id` 由生成器自动刷新。
-3. 已适配条目的传送入口已在真实 `EnterMap` 与 `QuickTeleport: true` 中至少选择一种，`CameraSwipeDirection` 已填写真实值；直拍路线没有任何地图与寻路字段，新增寻路路线配置 `NavPath`，且普通传送路线补齐真实 `NavZoneId` / `NavAssert`。
+3. 已适配条目的传送入口已在真实 `EnterMap` 与 `QuickTeleport: true` 中至少选择一种；直拍路线没有任何地图与寻路字段，新增寻路路线配置 `NavPath`，且普通传送路线补齐真实 `NavZoneId` / `NavAssert`。
 4. 重生成的 `Terminals.json` 中各 `{Station}MonitoringTerminalLoop.next` 包含全部新 `[JumpBack]{Id}Job`，并以 `EnvironmentMonitoringTerminalFinish` 收尾。
 5. 若填写了 `EnterMap`，其引用的节点确实存在于 `assets/resource/pipeline/`，并能作为 SubTask 完整执行后正常返回。
-6. `CameraSwipeDirection` 是 `EnvironmentMonitoringSwipeScreen{Up/Down/Left/Right}` 四者之一。
-7. **没有手改** `assets/resource/pipeline/EnvironmentMonitoring/{Station}/*.json` 或 `Terminals.json`（手改会被下次生成覆盖；如确需特殊节点，应在 `template.json` / `terminals-template.json` 中扩展）。
-8. JSON 文件遵循 `.prettierrc` 格式（生成器自带 `format: true`，但提交前 `pnpm prettier --write` 一遍更稳）。
+6. **没有手改** `assets/resource/pipeline/EnvironmentMonitoring/{Station}/*.json` 或 `Terminals.json`（手改会被下次生成覆盖；如确需特殊节点，应在 `template.json` / `terminals-template.json` 中扩展）。
+7. JSON 文件遵循 `.prettierrc` 格式（生成器自带 `format: true`，但提交前 `pnpm prettier --write` 一遍更稳）。
 
 ## 常见坑
 
@@ -386,7 +380,7 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 - **`Id` 与 `environment_monitoring.json` 英文名漂移**：当游戏侧改英文名后，自动算出的 `Id` 会变，可能带来生成文件重命名或旧文件残留；重新生成后 `routes.json` 里的 `Id` 会同步刷新。
 - **默认传送路线的 `EnterMap` 写了不存在或无法正常返回的节点**：生成本身不校验节点引用及运行行为，运行时会在 `GoTo{Id}NotAtStartPos` 失败；只有明确启用 `QuickTeleport: true` 时才能省略。
 - **路线经过未解锁区域 / 战斗 / 互动物**：寻路组件不处理战斗、剧情、过图和机关交互，路径只能选纯通行段。
-- **把缺路线数据误写成直拍**：只有游戏实测确认传送落点能完成拍照时，才能保留“传送入口 + `CameraSwipeDirection`”的精简配置；缺少真实路线数据时应继续保留 metadata-only 未适配条目。
+- **把缺路线数据误写成直拍**：只有游戏实测确认传送落点能完成拍照时，才能保留只有传送入口的精简配置；缺少真实路线数据时应继续保留 metadata-only 未适配条目。
 - **`Station` 新增但 `Locations.json` / `EnvironmentMonitoringLoop.next` 没同步**：新终端无法被识别进入，所有观察点都跑不到。
 - **`anchor` 占位符名一致性**：`template.json` 中 `anchor` 的 key 名 `EnvironmentMonitoringBackToTerminal` 必须与 `TakePhoto.json` 中的 `[Anchor]EnvironmentMonitoringBackToTerminal` 保持完全一致，否则 anchor 机制失效。
-- **「生成成功 ≠ 已完整适配」**：没有 `routes.json` 条目、或条目存在但必填字段缺失的观察点会生成成降级流程，只接取并追踪，不会前往拍照。完整自动化必须选择真实传送入口并配置 `CameraSwipeDirection`；随后要么使用经过实测的传送后直拍精简写法，要么补齐地图断言和寻路配置。
+- **「生成成功 ≠ 已完整适配」**：没有 `routes.json` 条目、或条目存在但必填字段缺失的观察点会生成成降级流程，只接取并追踪，不会前往拍照。完整自动化必须选择真实传送入口；随后要么使用经过实测的传送后直拍精简写法，要么补齐地图断言和寻路配置。

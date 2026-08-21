@@ -99,12 +99,13 @@
         "custom_action_param": {
             "nodes": [
                 "GiftOperatorMoveResetBackward",
-                "GiftOperatorMoveLocation3",
+                "GiftOperatorTurnEast",
                 "GiftOperatorMoveLocation3Move",
-                "GiftOperatorMoveLocation4",
-                "GiftOperatorMoveLocation2",
+                "GiftOperatorTurnSoutheast",
+                "GiftOperatorTurnNorthwest",
+                "GiftOperatorTurnNorthByWest",
                 "GiftOperatorMoveLocation2Move",
-                "GiftOperatorMoveLocation1",
+                "GiftOperatorTurnWest",
                 "GiftOperatorMoveLocation1Move",
                 "GiftOperatorGoAheadContact",
                 "GiftOperatorBack"

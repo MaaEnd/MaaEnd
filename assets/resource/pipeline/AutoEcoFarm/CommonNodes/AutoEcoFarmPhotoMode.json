@@ -1,47 +1,172 @@
 {
-    "_AutoEcoFarmEnterCameraModeKeyDownR": {
-        "desc": "通过长按R进入拍照模式",
+    "_AutoEcoFarmEnterCameraMode": {
+        "desc": "清理本轮拍照流程的命中计数并进入拍照模式",
         "recognition": "And",
         "all_of": [
             "_AutoEcoFarmInWorld"
         ],
-        "action": "KeyDown",
-        "key": 82, // R 0x52
-        "post_wait_freezes": {
-            "time": 500,
-            "target": [
-                488,
-                209,
-                40,
-                31
-            ]
-        },
-        "next": [
-            "_AutoEcoFarmEnterCameraModeChooseCamera",
-            "_AutoEcoFarmEnterCameraModeFailKeyUp"
-        ]
-    },
-    "_AutoEcoFarmEnterCameraModeFailKeyUp": {
-        "desc": "未出现选相机界面时松开R（next 兜底，不用 on_error），再 JumpBack",
         "pre_delay": 0,
-        "action": "KeyUp",
-        "key": 82, // R 0x52
-        "post_wait_freezes": {
-            "time": 500,
-            "target": [
-                1065,
-                551,
-                62,
-                51
+        "action": "Custom",
+        "custom_action": "ClearHitCount",
+        "custom_action_param": {
+            "nodes": [
+                "_AutoEcoFarmScrollEnvironmentDisplayOptions",
+                "_AutoEcoFarmHideFactoryFacilities"
             ]
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
-            "_AutoEcoFarmJumpBack"
+            "_AutoEcoFarmEnterCameraModeClick",
+            "_AutoEcoFarmEnterCameraModeFallback"
+        ]
+    },
+    "_AutoEcoFarmEnterCameraModeClick": {
+        "desc": "通过点击大世界右侧拍照按钮进入拍照模式",
+        "recognition": "And",
+        "all_of": [
+            "EnterCameraModeButton",
+            "_AutoEcoFarmInWorld"
         ],
-        "focus": {
-            "Node.Action.Starting": "未识别到选相机界面，任务继续"
-        }
+        "box_index": 0,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "AutoAltClickAction",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "_AutoEcoFarmWaitCameraMode"
+        ],
+        "on_error": [
+            "_AutoEcoFarmEnterCameraModeFallback"
+        ]
+    },
+    "_AutoEcoFarmEnterCameraModeFallback": {
+        "desc": "点击拍照按钮失败时使用通用快捷键进入拍照模式",
+        "recognition": "And",
+        "all_of": [
+            "_AutoEcoFarmInWorld"
+        ],
+        "pre_delay": 0,
+        "action": "KeyDown",
+        "key": 82, // R 0x52
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "_AutoEcoFarmEnterCameraModeFallbackSelectTool"
+        ],
+        "on_error": [
+            "_AutoEcoFarmPhotoModeFailJumpBack"
+        ]
+    },
+    "_AutoEcoFarmEnterCameraModeFallbackSelectTool": {
+        "desc": "通用快捷键回退进入选择工具界面",
+        "recognition": "And",
+        "all_of": [
+            "InSelectTool"
+        ],
+        "pre_wait_freezes": 80,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "timeout": 5000,
+        "rate_limit": 0,
+        "next": [
+            "_AutoEcoFarmEnterCameraModeFallbackChooseCamera"
+        ],
+        "on_error": [
+            "_AutoEcoFarmEnterCameraModeFallbackReleaseOnError"
+        ]
+    },
+    "_AutoEcoFarmEnterCameraModeFallbackChooseCamera": {
+        "desc": "通用快捷键回退选择拍照工具",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    404,
+                    117,
+                    463,
+                    464
+                ],
+                "template": "Common/CameraMode.png",
+                "threshold": 0.8,
+                "order_by": "Score"
+            }
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "timeout": 5000,
+        "rate_limit": 0,
+        "next": [
+            "_AutoEcoFarmEnterCameraModeFallbackRelease"
+        ],
+        "on_error": [
+            "_AutoEcoFarmEnterCameraModeFallbackReleaseOnError"
+        ]
+    },
+    "_AutoEcoFarmEnterCameraModeFallbackRelease": {
+        "desc": "释放通用快捷键并继续生态农场拍照流程",
+        "pre_delay": 0,
+        "action": "KeyUp",
+        "key": 82, // R 0x52
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "_AutoEcoFarmWaitCameraModeAfterFallback"
+        ],
+        "on_error": [
+            "_AutoEcoFarmPhotoModeFailJumpBack"
+        ]
+    },
+    "_AutoEcoFarmEnterCameraModeFallbackReleaseOnError": {
+        "desc": "回退选择拍照工具失败时释放通用快捷键",
+        "pre_delay": 0,
+        "action": "KeyUp",
+        "key": 82, // R 0x52
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "_AutoEcoFarmPhotoModeFailJumpBack"
+        ]
+    },
+    "_AutoEcoFarmWaitCameraMode": {
+        "desc": "等待拍照模式界面出现",
+        "recognition": "And",
+        "all_of": [
+            "ShutterButton"
+        ],
+        "pre_wait_freezes": 200,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "_AutoEcoFarmEnvironmentAlreadyNotDisplayed",
+            "_AutoEcoFarmOpenEnvironmentDisplayOptions",
+            "_AutoEcoFarmClickPhotoScene"
+        ],
+        "on_error": [
+            "_AutoEcoFarmEnterCameraModeFallback"
+        ]
+    },
+    "_AutoEcoFarmWaitCameraModeAfterFallback": {
+        "desc": "通用快捷键回退后等待拍照模式界面出现",
+        "recognition": "And",
+        "all_of": [
+            "ShutterButton"
+        ],
+        "pre_wait_freezes": 200,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "_AutoEcoFarmEnvironmentAlreadyNotDisplayed",
+            "_AutoEcoFarmOpenEnvironmentDisplayOptions",
+            "_AutoEcoFarmClickPhotoScene"
+        ],
+        "on_error": [
+            "_AutoEcoFarmPhotoModeFailJumpBack"
+        ]
     },
     "_AutoEcoFarmExitCameraMode": {
         "desc": "按右键退出拍照模式",
@@ -66,7 +191,7 @@
             }
         },
         "post_wait_freezes": {
-            "time": 500,
+            "time": 200,
             "target": [
                 12,
                 9,
@@ -78,49 +203,8 @@
             "_AutoEcoFarmJumpBack"
         ]
     },
-    "_AutoEcoFarmEnterCameraModeChooseCamera": {
-        "desc": "进入拍照模式，选择拍照",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    404,
-                    117,
-                    463,
-                    464
-                ],
-                "template": "Common/CameraMode.png",
-                "threshold": 0.8,
-                "order_by": "Score"
-            }
-        },
-        "action": "Click",
-        "post_wait_freezes": {
-            "time": 500,
-            "target": [
-                53,
-                7,
-                47,
-                42
-            ]
-        },
-        "next": [
-            "_AutoEcoFarmEnterCameraModeKeyUpR"
-        ]
-    },
-    "_AutoEcoFarmEnterCameraModeKeyUpR": {
-        "desc": "松开R解除占用",
-        "action": "KeyUp",
-        "key": 82, // R 0x52
-        "next": [
-            "_AutoEcoFarmEnvironmentAlreadyNotDisplayed",
-            "_AutoEcoFarmOpenEnvironmentDisplayOptions",
-            "[JumpBack]_AutoEcoFarmClickPhotoScene",
-            "_AutoEcoFarmPhotoModeFailJumpBackKeyUpR"
-        ]
-    },
-    "_AutoEcoFarmPhotoModeFailJumpBackKeyUpR": {
-        "desc": "拍照模式：松开 R 后未命中已展开的画面面板或画面图标，仅 JumpBack",
+    "_AutoEcoFarmPhotoModeFailJumpBack": {
+        "desc": "拍照模式：未命中已展开的画面面板或画面图标，仅 JumpBack",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "post_delay": 0,
@@ -132,14 +216,22 @@
             "Node.Recognition.Succeeded": "未识别到画面菜单，任务继续"
         }
     },
-    ///////点击画面部分
     "_AutoEcoFarmClickPhotoScene": {
-        "desc": "打开画面菜单（没打开的话）",
-        "recognition": "And",
-        "all_of": [
-            "_AutoEcoFarmPhotoScene",
-            "_AutoEcoFarmPhotoSceneIsWhite"
+        "desc": "通过 OCR 识别并打开画面菜单",
+        "recognition": "OCR",
+        "roi": [
+            20,
+            20,
+            110,
+            70
         ],
+        "expected": [
+            "画面",
+            "畫面",
+            "(?i)Scene",
+            "화면"
+        ],
+        "pre_delay": 0,
         "action": "Click",
         "post_wait_freezes": {
             "time": 500,
@@ -149,51 +241,54 @@
                 310,
                 270
             ]
-        }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "_AutoEcoFarmEnvironmentAlreadyNotDisplayed",
+            "_AutoEcoFarmOpenEnvironmentDisplayOptions",
+            "_AutoEcoFarmClickPhotoSceneFallback",
+            "_AutoEcoFarmPhotoModeFailJumpBack"
+        ]
     },
-    "_AutoEcoFarmPhotoScene": {
-        "desc": "[识别节点]拍照模式画面按钮",
-        "recognition": "TemplateMatch",
+    "_AutoEcoFarmClickPhotoSceneFallback": {
+        "desc": "画面菜单 OCR 点击失败时使用固定坐标重试",
+        "recognition": "OCR",
         "roi": [
             20,
-            0,
-            80,
-            60
+            20,
+            110,
+            70
         ],
-        "template": "AutoEcoFarm/AutoEcoFarmPhotoScene.png",
-        "threshold": 0.8,
-        "order_by": "Score",
-        "action": "Click"
-    },
-    "_AutoEcoFarmPhotoSceneIsWhite": {
-        "desc": "[识别节点]拍照模式画面按钮白色",
-        "recognition": {
-            "type": "ColorMatch",
-            "param": {
-                "roi": [
-                    20,
-                    0,
-                    80,
-                    60
-                ],
-                "method": 40,
-                "lower": [
-                    0,
-                    0,
-                    200
-                ],
-                "upper": [
-                    180,
-                    125,
-                    255
-                ],
-                "connected": true,
-                "count": 150
-            }
+        "expected": [
+            "画面",
+            "畫面",
+            "(?i)Scene",
+            "화면"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            60,
+            30
+        ],
+        "post_wait_freezes": {
+            "time": 500,
+            "target": [
+                20,
+                20,
+                310,
+                270
+            ]
         },
-        "action": "Click"
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "_AutoEcoFarmEnvironmentAlreadyNotDisplayed",
+            "_AutoEcoFarmOpenEnvironmentDisplayOptions",
+            "_AutoEcoFarmPhotoModeFailJumpBack"
+        ]
     },
-    ///////关闭工业设备部分
     "_AutoEcoFarmPhotoSettingsTab": {
         "desc": "[识别节点]拍照设置中的画面标签",
         "recognition": "OCR",
@@ -270,7 +365,7 @@
         "rate_limit": 0
     },
     "_AutoEcoFarmEnvironmentAlreadyNotDisplayed": {
-        "desc": "环境已经设为不显示，保持当前画面设置面板并进入等待",
+        "desc": "环境已经设为不显示，关闭画面设置面板",
         "recognition": "And",
         "all_of": [
             "_AutoEcoFarmPhotoSettingsTab",
@@ -280,7 +375,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "_AutoEcoFarmJumpBack"
+            "_AutoEcoFarmClosePhotoSettingsPanel"
         ]
     },
     "_AutoEcoFarmOpenEnvironmentDisplayOptions": {
@@ -293,6 +388,42 @@
         "box_index": 1,
         "pre_delay": 0,
         "action": "Click",
+        "target": [
+            260,
+            122
+        ],
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                190,
+                100,
+                140,
+                185
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "_AutoEcoFarmHideFactoryFacilities",
+            "_AutoEcoFarmVerifyFactoryFacilitiesUnchecked",
+            "_AutoEcoFarmScrollEnvironmentDisplayOptions",
+            "_AutoEcoFarmOpenEnvironmentDisplayOptionsFallback"
+        ]
+    },
+    "_AutoEcoFarmOpenEnvironmentDisplayOptionsFallback": {
+        "desc": "环境显示选项点击失败时使用固定坐标重试",
+        "recognition": "And",
+        "all_of": [
+            "_AutoEcoFarmPhotoSettingsTab",
+            "_AutoEcoFarmEnvironmentDisplayValue"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            260,
+            122
+        ],
         "post_wait_freezes": {
             "time": 200,
             "target": [
@@ -333,6 +464,7 @@
     },
     "_AutoEcoFarmScrollEnvironmentDisplayOptions": {
         "desc": "工业设备选项未完整显示时向上滑动列表",
+        "max_hit": 3,
         "recognition": "And",
         "all_of": [
             "_AutoEcoFarmPhotoSettingsTab",
@@ -366,7 +498,8 @@
         "rate_limit": 0,
         "next": [
             "_AutoEcoFarmHideFactoryFacilities",
-            "_AutoEcoFarmVerifyFactoryFacilitiesUnchecked"
+            "_AutoEcoFarmVerifyFactoryFacilitiesUnchecked",
+            "_AutoEcoFarmScrollEnvironmentDisplayOptions"
         ]
     },
     "_AutoEcoFarmFactoryFacilitiesOption": {
@@ -428,6 +561,9 @@
         "rate_limit": 0,
         "next": [
             "_AutoEcoFarmClosePhotoSettingsWithFactoryFacilitiesHidden"
+        ],
+        "on_error": [
+            "_AutoEcoFarmHideFactoryFacilities"
         ]
     },
     "_AutoEcoFarmVerifyFactoryFacilitiesUnchecked": {
@@ -442,11 +578,14 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "_AutoEcoFarmFactoryFacilitiesUncheckedMark"
+            "_AutoEcoFarmFactoryFacilitiesUncheckedMark",
+            "_AutoEcoFarmHideFactoryFacilities",
+            "_AutoEcoFarmScrollEnvironmentDisplayOptions"
         ]
     },
     "_AutoEcoFarmHideFactoryFacilities": {
         "desc": "取消勾选工业设备",
+        "max_hit": 3,
         "recognition": "And",
         "all_of": [
             "_AutoEcoFarmFactoryFacilitiesOption",
@@ -484,6 +623,10 @@
         "box_index": 1,
         "pre_delay": 0,
         "action": "Click",
+        "target": [
+            75,
+            55
+        ],
         "post_wait_freezes": {
             "time": 200,
             "target": [
@@ -521,6 +664,88 @@
             "表示設定"
         ],
         "inverse": true,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "_AutoEcoFarmJumpBack"
+        ]
+    },
+    "_AutoEcoFarmClosePhotoSettingsPanel": {
+        "desc": "关闭拍照画面设置面板",
+        "recognition": "And",
+        "all_of": [
+            "_AutoEcoFarmPhotoSettingsTab"
+        ],
+        "box_index": 0,
+        "pre_delay": 0,
+        "action": "Click",
+        "target": [
+            75,
+            55
+        ],
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                20,
+                20,
+                310,
+                270
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "_AutoEcoFarmPhotoSettingsPanelClosed"
+        ],
+        "on_error": [
+            "_AutoEcoFarmRecoverExitCameraMode"
+        ]
+    },
+    "_AutoEcoFarmRecoverExitCameraMode": {
+        "desc": "恢复流程退出拍照模式",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1065,
+                    551,
+                    62,
+                    51
+                ],
+                "template": "AutoEcoFarm/AutoEcoFarmBigCamera.png",
+                "threshold": 0.8,
+                "order_by": "Score"
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click",
+            "param": {
+                "contact": 1
+            }
+        },
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                12,
+                9,
+                350,
+                51
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "_AutoEcoFarmJumpBack"
+        ],
+        "on_error": [
+            "_AutoEcoFarmPhotoModeRecoveryFinished"
+        ]
+    },
+    "_AutoEcoFarmPhotoModeRecoveryFinished": {
+        "desc": "拍照模式恢复完成，返回工作循环",
+        "recognition": "DirectHit",
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,

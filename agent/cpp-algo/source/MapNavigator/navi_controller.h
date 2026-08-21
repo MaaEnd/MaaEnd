@@ -24,6 +24,9 @@ struct NaviParam
     // tier affine (see NormalizeLivePositionToBase). Native MapNavigator turns this on; the Compatible
     // entry leaves it off so its MapTracker-base-px frame is preserved byte-for-byte.
     bool normalize_position_via_navmesh = false;
+    // 这条路线允许不允许借滑索。默认关：没有显式写 zip 的请求一律纯走路，既不去找最近的
+    // 滑索也不做加速，规划结果与没有滑索这件事时逐位相同。
+    bool zipline_enabled = false;
 };
 
 class NaviController
@@ -32,7 +35,7 @@ public:
     explicit NaviController(MaaContext* ctx);
     ~NaviController() = default;
 
-    bool Navigate(const NaviParam& param);
+    bool Navigate(const NaviParam& requested_param);
 
 private:
     MaaContext* ctx_;

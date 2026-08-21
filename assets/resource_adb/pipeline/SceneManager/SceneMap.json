@@ -1,0 +1,32 @@
+{
+    // ADB 实测：减号 [1213, 440, 27, 27]，加号 [1213, 213, 27, 27]
+    "__ScenePrivateMapZoomInWhite": {
+        "roi": [
+            1213,
+            213,
+            27,
+            27
+        ]
+    },
+    "__ScenePrivateMapZoomOutWhite": {
+        "roi": [
+            1213,
+            440,
+            27,
+            27
+        ]
+    },
+    // +/− 按钮中心连线的中点：x = 1213 + 27/2 ≈ 1226，y = (226.5 + 453.5) / 2 = 340
+    "__ScenePrivateMapZoomNonExtremeFromZoomIn": {
+        "target": [
+            1226,
+            340
+        ]
+    },
+    "__ScenePrivateMapZoomNonExtremeFromZoomOut": {
+        "target": [
+            1226,
+            340
+        ]
+    }
+}

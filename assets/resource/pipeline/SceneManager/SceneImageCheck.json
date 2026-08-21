@@ -51,6 +51,7 @@
             "[JumpBack]__SceneImageCheckAICPlanColor",
             "[JumpBack]__SceneImageCheckMod",
             "[JumpBack]__SceneImageCheckLanguage",
+            "[JumpBack]__SceneImageCaptureUid",
             "__SceneImageCheckFinishSave"
         ]
     },
@@ -212,5 +213,14 @@
                 "display": "modal"
             }
         }
+    },
+    "__SceneImageCaptureUid": {
+        "desc": "获取一下uid",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "CaptureUid",
+        "post_delay": 0,
+        "rate_limit": 0
     }
 }

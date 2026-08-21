@@ -28,6 +28,10 @@ public:
     virtual bool is_supported() const = 0;
     virtual const std::string& unsupported_reason() const = 0;
     virtual double default_turn_units_per_degree() const = 0;
+
+    // 俯仰每度的鼠标量, 默认跟水平取同一份
+    virtual double default_pitch_units_per_degree() const { return default_turn_units_per_degree(); }
+
     virtual SteeringTransportProfile steering_transport_profile() const = 0;
 
     virtual bool supports_sprint() const { return true; }

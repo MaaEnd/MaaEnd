@@ -17,6 +17,9 @@ enum class NaviPhase
     Bootstrap,
     Navigate,
     WaitTransfer,
+    // 滑行中。所有卡死检测、绕障、重规划、采集扫描都只在 Navigate 下开火, 所以这个阶段
+    // 天然把它们全挡在外面 —— 人挂在索上, 那些判据没有一条是成立的
+    WaitZipline,
     Finished,
     Failed,
 };
@@ -50,6 +53,9 @@ struct NavigationSession
     void AdvanceToNextWaypoint(const char* reason);
     void AdvanceToNextWaypoint(ActionType expected_action, const char* reason);
     void SkipPastWaypoint(size_t waypoint_idx, const char* reason);
+    // 只挪当前航点的落脚点，语义和后面的点都不动：到点做的事没变，只是换个位置做。
+    // 走廊仍旧指向原来那个点，差的这一点点在判定圈的量级上，交给到点前的那几步收口。
+    bool RetargetCurrentWaypoint(double x, double y, const char* reason);
 
     void ResetProgress();
     void ObserveProgress(size_t waypoint_idx, double actual_distance, const std::chrono::steady_clock::time_point& now);

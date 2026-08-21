@@ -84,6 +84,34 @@ Action 节点用于执行自定义动作。常见写法如下：
 
 - 参数：无。
 
+### FocusOCRAction
+
+`FocusOCRAction` 实现位于 `agent/go-service/common/focusocr`。截图后执行指定 Pipeline 识别节点，取出第一条 OCR 文本，再通过 `maafocus` 输出。
+
+参数：
+
+- `node: string`：必填。Pipeline 识别节点名（OCR，或 `And` 且 `box_index` 指向 OCR）。
+- `focus: string`：可选。`maafocus` 文案，`%s` 为 OCR 文本，例如 `当前理智 %s`。省略则输出原文。
+
+示例文件：[`FocusOCRAction.json`](../../../assets/resource/pipeline/Interface/Example/FocusOCRAction.json)
+
+```json
+{
+    "action": {
+        "type": "Custom",
+        "param": {
+            "custom_action": "FocusOCRAction",
+            "custom_action_param": {
+                "node": "CommonSanityText",
+                "focus": "当前理智 %s"
+            }
+        }
+    }
+}
+```
+
+节点自身的 recognition 仍由 Pipeline 负责分流；本 Action 只在命中后截图、识别并播报。
+
 ### RepeatUntilFoundAction / RepeatUntilNotFoundAction
 
 二者实现均位于 `agent/go-service/common/repeataction`，用于反复执行一次内置或自定义动作，每次执行后在等待窗口内轮询识别；条件满足即成功，耗尽次数仍不满足则失败。
@@ -111,6 +139,20 @@ Action 节点用于执行自定义动作。常见写法如下：
 `CharacterSearchAction` 实现位于 `agent/go-service/common/charactercontroller`，用于找不到交互点时按固定 WASD 绕圈路径微调位置并识别目标节点。详细参数与路径说明见 [CharacterController 参考文档](./components/character-controller.md#action-charactersearchaction)。
 
 示例文件：[`CharacterController.json`](../../../assets/resource/pipeline/Interface/Example/CharacterController.json)
+
+### CameraScanAction
+
+`CameraScanAction` 实现位于 `agent/go-service/common/camerascan`，用于在拍照模式中分步移动镜头并识别目标。动作从中心按九宫格螺旋扫描前方区域；仍未命中时，复位镜头并按中、上、下三档俯仰分别离散旋转一圈。每次镜头移动前和移动后都会截图识别，复位动作不识别；任一目标命中即成功，完整扫描后仍未命中则失败。
+
+- `wait_nodes: string[]`：每次镜头移动前、后检查的 Pipeline 识别节点，必填；任一节点命中即成功。复位动作不检查。
+- `aim_target?: bool`：命中后是否从屏幕中心滑向该识别结果的 `Box` 中心，默认 `false`。
+- `move_up?: string`：上移镜头节点，默认 `__CameraScanMoveUp`。
+- `move_down?: string`：下移镜头节点，默认 `__CameraScanMoveDown`。
+- `move_left?: string`：左移镜头节点，默认 `__CameraScanMoveLeft`。
+- `move_right?: string`：右移镜头节点，默认 `__CameraScanMoveRight`。
+- `fallback_yaw_steps?: int`：fallback 每档俯仰绕圈的离散步数，默认 `8`，范围 `[4, 72]`。
+
+镜头移动通过 `ctx.RunTask` 执行对应方向节点（默认节点见 `Common/Private/CameraScan/Action.json`）。需要等待画面静止时，在调用方自定义的方向节点上配置 `post_wait_freezes`。对准目标时仍使用私有节点 `__CameraScanAimSwipe`。
 
 ### PipelineOverride
 
@@ -513,6 +555,7 @@ Pipeline 布局与 `ListCompleteRecognition` 相同：将本识别放在滚动�
 | 按顺序跑一组子任务 | `SubTask` |
 | 清零某节点的命中计数 | `ClearHitCount` |
 | 强制让 Action 失败 | `FalseAction` |
+| 截图后播报 Pipeline OCR | `FocusOCRAction` |
 | 重复动作直到节点出现 | `RepeatUntilFoundAction` |
 | 重复动作直到节点消失 | `RepeatUntilNotFoundAction` |
 | 主动停止当前任务 | `PostStop` |

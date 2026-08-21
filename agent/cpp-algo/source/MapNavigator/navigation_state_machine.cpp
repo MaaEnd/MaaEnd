@@ -23,10 +23,12 @@
 #include "navmesh_path_expander.h"
 #include "position_provider.h"
 #include "prompt_scan_profile.h"
+#include "roi_template_scanner.h"
 #include "route_tracker.h"
 #include "semantic_nodes.h"
 #include "sensitivity_observer.h"
 #include "steering_controller.h"
+#include "zipline_action.h"
 
 #include "../utils.h"
 
@@ -484,7 +486,8 @@ bool NavigationStateMachine::TickPhase(NaviPhase phase)
         return true;
     case NaviPhase::Navigate:
         return TickNavigate();
-    case NaviPhase::WaitTransfer: {
+    case NaviPhase::WaitTransfer:
+    case NaviPhase::WaitZipline: {
         const semantic_nodes::Result semantic_result = semantic_nodes::TickSemanticFlow(
             BuildSemanticContext(
                 action_wrapper_,
@@ -708,8 +711,48 @@ bool NavigationStateMachine::TryApplyDynamicOverlayToNextAnchor(const char* reas
         /*emit_interior_corners=*/false);
 }
 
+// 上索点是必到的语义点, 重规划总是把人瞄回它, 所以那根架子要是根本走不到(导入的坐标跟实际
+// 对不上, 或者脚下那片面接不上), 就会一路重规划到楔死超时把整趟导航掐掉。同一个上索点试够了
+// 就当它够不着, 丢掉这条链改走路 —— 索是捷径不是必经之路。
+bool NavigationStateMachine::GiveUpUnreachableZipline(const char* reason)
+{
+    const std::optional<DynamicAnchor> anchor = ResolveCurrentAnchor(session_, *position_);
+    if (!anchor || anchor->second.action != ActionType::ZIPLINE) {
+        return false;
+    }
+    ZiplineApproachState& approach = runtime_state_.zipline_approach;
+    if (approach.anchor_index != anchor->first) {
+        approach.anchor_index = anchor->first;
+        approach.replans = 0;
+        approach.press_missed = false;
+    }
+    if (++approach.replans <= kZiplineApproachReplanBudget) {
+        return false;
+    }
+
+    LogWarn << "Zipline mount tower unreachable after repeated replans; walking instead." << VAR(reason) << VAR(approach.replans)
+            << VAR(anchor->second.x) << VAR(anchor->second.y) << VAR(position_->x) << VAR(position_->y);
+    runtime_state_.dynamic_replan_requested = false;
+    semantic_nodes::AbandonZipline(
+        BuildSemanticContext(
+            action_wrapper_,
+            position_provider_,
+            session_,
+            motion_controller_,
+            action_executor_,
+            position_,
+            &runtime_state_,
+            maa_context_),
+        "zipline_unreachable",
+        reason);
+    return true;
+}
+
 bool NavigationStateMachine::HandleDynamicReplanRequest(const char* reason)
 {
+    if (GiveUpUnreachableZipline(reason)) {
+        return true;
+    }
     if (TryApplyDynamicOverlayToNextAnchor(reason, false)) {
         return true;
     }
@@ -1075,6 +1118,23 @@ bool NavigationStateMachine::TickNavigate()
         return true;
     }
 
+    if (TryZiplineMountPrompt(waypoint, route)) {
+        runtime_state_.semantic.zipline_prompt_probe = true;
+        const semantic_nodes::Result prompt_result = semantic_nodes::HandleArrivalSemantic(semantic_ctx, waypoint, route.waypoint_distance);
+        runtime_state_.semantic.zipline_prompt_probe = false;
+        if (prompt_result.request_failure) {
+            return FailNavigation(
+                prompt_result.failure_reason,
+                prompt_result.failure_log_message,
+                route.waypoint_distance,
+                0.0,
+                stalled_ms);
+        }
+        if (prompt_result.consumed) {
+            return true;
+        }
+    }
+
     double arrival_distance = route.arrival_band;
     if (waypoint.action == ActionType::PORTAL) {
         arrival_distance = std::max(arrival_distance, kPortalCommitDistance);
@@ -1087,6 +1147,18 @@ bool NavigationStateMachine::TickNavigate()
                     << VAR(route.waypoint_distance) << VAR(arrival_distance) << VAR(relaxed);
         }
         arrival_distance = std::max(arrival_distance, relaxed);
+    }
+    // 上索认的是跟采集一样的交互提示 —— 面板给的是离身位最近的那台设备, 按常规判定圈停下时人还
+    // 差着够不着架子, 所以判定圈按同一套收紧。只收链首那一次: 链中间的点人是从索上落到台面上的,
+    // 不用再认提示, 而台面上迈不动步, 收紧了就是站在原地等超时。真收不拢也放回去, 别多出一种卡死
+    if (waypoint.action == ActionType::ZIPLINE && !runtime_state_.semantic.zipline_mounted
+        && session_->HardStalledMs(now) <= kCollectArrivalRelaxMs) {
+        arrival_distance = std::min(arrival_distance, kCollectArrivalBandWu);
+        // 按空一次就当人站得还不够近: 收紧了接着走(有备用站位的已经改瞄它了), 原地重按只会得到
+        // 同一个答案。收不拢由上索点自己的重规划预算收口, 用完就退索走路
+        if (runtime_state_.zipline_approach.press_missed) {
+            arrival_distance = std::min(arrival_distance, kZiplineRestandBandWu);
+        }
     }
     if (route.waypoint_distance <= arrival_distance) {
         if (!route.startup_motion_confirmed) {
@@ -1258,6 +1330,25 @@ bool NavigationStateMachine::TickNavigate()
             // emergency stop after kDynamicRecoveryTotalTimeoutMs of real no-progress.
             const int64_t recovery_elapsed_ms = session_->HardStalledMs(now);
             if (recovery_elapsed_ms > kDynamicRecoveryTotalTimeoutMs) {
+                // 卡在索边收不拢, 先退索走路, 别直接判导航失败。丢链会把硬时钟归零, 再超时时手上
+                // 已经是走路点了, 那一次才是真失败, 所以这里不会绕回来。
+                if (waypoint.action == ActionType::ZIPLINE) {
+                    LogWarn << "Recovery timed out at a zipline tower; dropping the chain and walking." << VAR(recovery_elapsed_ms)
+                            << VAR(waypoint.x) << VAR(waypoint.y) << VAR(position_->x) << VAR(position_->y);
+                    semantic_nodes::AbandonZipline(
+                        BuildSemanticContext(
+                            action_wrapper_,
+                            position_provider_,
+                            session_,
+                            motion_controller_,
+                            action_executor_,
+                            position_,
+                            &runtime_state_,
+                            maa_context_),
+                        "zipline_recovery_timeout",
+                        "stuck at the tower after recovery ran out");
+                    return true;
+                }
                 return FailNavigation(
                     "dynamic_recovery_timeout",
                     "Dynamic recovery timeout reached and navigation was terminated.",
@@ -1657,6 +1748,9 @@ void NavigationStateMachine::StartScanners()
         collect_prompt_.SubmitFrame(frame);
         interact_prompt_.SubmitFrame(frame);
         device_recovery_.SubmitFrame(frame);
+        if (zipline_mount_scanner_ != nullptr) {
+            zipline_mount_scanner_->SubmitFrame(frame);
+        }
     });
 }
 
@@ -1671,6 +1765,7 @@ void NavigationStateMachine::StopScanners()
     collect_prompt_.Stop();
     interact_prompt_.Stop();
     device_recovery_.Stop();
+    zipline_mount_scanner_.reset();
 }
 
 void NavigationStateMachine::StartPromptScanners()
@@ -1700,6 +1795,37 @@ void NavigationStateMachine::StartDeviceProbe()
     device_recovery_.Start(base_roi);
 }
 
+// 导入的架子坐标跟脚下的面对不齐时, 严格到达要么迟迟收不拢要么把这条索直接放弃。提示是游戏
+// 自己说的「够得着」, 所以命中就放行到达判定; 判定圈之外的观测照样读掉, 免得跨进带内那一拍
+// 拿着旧观测开火。
+bool NavigationStateMachine::TryZiplineMountPrompt(const Waypoint& waypoint, const RouteTrackingState& route)
+{
+    if (waypoint.action != ActionType::ZIPLINE) {
+        zipline_mount_scanner_.reset(); // 链走完了, 别让它继续逐帧匹配
+        return false;
+    }
+    // 已经站在架子上时下一跳靠瞄准接上, 不再上索; 预筛这时既没用也该省下来
+    if (runtime_state_.semantic.zipline_mounted) {
+        return false;
+    }
+    if (zipline_mount_scanner_ == nullptr && maa_context_ != nullptr) {
+        PromptScanProfile profile;
+        if (!TryLoadPromptScanProfile(maa_context_, kZiplineMountScanNode, action_wrapper_->controller_type(), &profile)) {
+            LogWarn << "Zipline mount pre-filter not started; the chain stops on arrival instead." << VAR(kZiplineMountScanNode);
+            return false;
+        }
+        zipline_mount_scanner_ =
+            std::make_unique<RoiTemplateScanner>("zipline", profile.base_roi, profile.templ, profile.mask, profile.threshold);
+        LogInfo << "Zipline mount pre-filter started." << VAR(kZiplineMountScanNode) << VAR(profile.base_roi.x) << VAR(profile.base_roi.y)
+                << VAR(profile.threshold);
+    }
+    if (zipline_mount_scanner_ == nullptr) {
+        return false;
+    }
+    const bool flagged = zipline_mount_scanner_->ConsumeDetection();
+    return flagged && route.startup_motion_confirmed && route.waypoint_distance <= kPromptTriggerBandWu;
+}
+
 double NavigationStateMachine::NearestPromptDistanceSq() const
 {
     double nearest_sq = -1.0;
@@ -1707,6 +1833,23 @@ double NavigationStateMachine::NearestPromptDistanceSq() const
         const double distance_sq = prompt->NearestDistanceSq();
         if (distance_sq >= 0.0 && (nearest_sq < 0.0 || distance_sq < nearest_sq)) {
             nearest_sq = distance_sq;
+        }
+    }
+    // 上索点也算提示点: 同一个图标、同一件事 —— 够不够得着只看身位离架子多远。已经站上去了就不算,
+    // 剩下的跳靠瞄准接上; 走过的那些也不算, 链尾旁边的旧架子会把走路模式一直摁着
+    if (!runtime_state_.semantic.zipline_mounted) {
+        const std::vector<Waypoint>& path = session_->current_path();
+        for (size_t index = session_->current_node_idx(); index < path.size(); ++index) {
+            const Waypoint& waypoint = path[index];
+            if (waypoint.action != ActionType::ZIPLINE || !waypoint.HasPosition()) {
+                continue;
+            }
+            const double dx = waypoint.x - position_->x;
+            const double dy = waypoint.y - position_->y;
+            const double distance_sq = dx * dx + dy * dy;
+            if (nearest_sq < 0.0 || distance_sq < nearest_sq) {
+                nearest_sq = distance_sq;
+            }
         }
     }
     return nearest_sq;
@@ -1731,8 +1874,8 @@ void NavigationStateMachine::UpdateWalkMode(NaviPhase phase)
     const double nearest_sq = NearestPromptDistanceSq();
     const bool recovering = runtime_state_.recovery.active || runtime_state_.cross_tier_escape.active;
     const ActionType action = session_->HasCurrentWaypoint() ? session_->CurrentWaypoint().action : ActionType::HEADING;
-    const bool plain_approach =
-        action == ActionType::COLLECT || action == ActionType::INTERACT || action == ActionType::RUN || action == ActionType::NAVMESH;
+    const bool plain_approach = action == ActionType::COLLECT || action == ActionType::INTERACT || action == ActionType::RUN
+                                || action == ActionType::NAVMESH || action == ActionType::ZIPLINE;
     if (phase != NaviPhase::Navigate || nearest_sq < 0.0 || recovering || !plain_approach
         || !runtime_state_.route.startup_motion_confirmed) {
         walk_mode_.Request(false);

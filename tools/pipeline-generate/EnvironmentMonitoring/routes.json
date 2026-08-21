@@ -25,7 +25,6 @@
                 ]
             }
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown",
         "Heading": 90
     },
     {
@@ -50,7 +49,6 @@
                 2602.86
             ]
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown",
         "Heading": 198
     },
     {
@@ -78,7 +76,6 @@
                 ]
             }
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown",
         "Heading": 45
     },
     {
@@ -95,7 +92,6 @@
                 ]
             }
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
         "Heading": 180
     },
     {
@@ -112,7 +108,6 @@
                 ]
             }
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
         "Heading": 245
     },
     {
@@ -129,7 +124,6 @@
                 ]
             }
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
         "Heading": 290
     },
     {
@@ -153,7 +147,6 @@
                 ]
             }
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
         "Heading": 60
     },
     {
@@ -171,7 +164,6 @@
                 2405
             ]
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
         "Heading": 330
     },
     {
@@ -195,41 +187,29 @@
                 ]
             }
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown",
         "Heading": 100
     },
     {
         "MissionId": "m1m35",
         "Name": "肚子鼓气后发光的吐虫长股兽",
         "Id": "InflatedAndGlowingBugspittingLankybeast",
-        "EnterMap": "SceneEnterWorldWulingWulingCity7",
-        "NavZoneId": "Wuling_Base",
-        "NavAssert": [
-            698.52,
-            1887.7,
-            11.23,
-            10.44
-        ],
+        "QuickTeleport": true,
         "NavPath": [
             {
-                "action": "ZONE",
-                "zone_id": "Wuling_Base"
-            },
-            [
-                718.59,
-                1883.72
-            ]
+                "action": "NAVMESH",
+                "target": [
+                    774.59,
+                    2581.41
+                ]
+            }
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
-        "Heading": 45
+        "Heading": 307
     },
     {
         "MissionId": "m1m36",
         "Name": "东张西望的黑腹雉羽兽",
         "Id": "ObservantSableChestedFowlbeast",
         "QuickTeleport": true,
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenRight",
-        "CameraMaxHit": 3,
         "Heading": 0
     },
     {
@@ -253,7 +233,6 @@
                 ]
             }
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
         "Heading": 200
     },
     {
@@ -270,7 +249,6 @@
                 ]
             }
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
         "Heading": 30
     },
     {
@@ -291,29 +269,13 @@
                 ]
             }
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
         "Heading": 270
     },
     {
         "MissionId": "m1m40",
         "Name": "码头水车",
         "Id": "PierWaterwheel",
-        "QuickTeleport": true,
-        "NavPath": [
-            {
-                "action": "ZONE",
-                "zone_id": "Wuling_Base"
-            },
-            {
-                "action": "NAVMESH",
-                "target": [
-                    984.12,
-                    2205.15
-                ]
-            }
-        ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
-        "Heading": 105
+        "QuickTeleport": true
     },
     {
         "MissionId": "m1m56",
@@ -340,7 +302,6 @@
                 ]
             }
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown",
         "Replace": [
             [
                 "売",
@@ -363,7 +324,6 @@
                 ]
             }
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
         "Heading": 15
     },
     {
@@ -381,7 +341,6 @@
                 "target_tier": "Wuling_L3_299"
             }
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown",
         "Heading": 266
     },
     {
@@ -389,17 +348,7 @@
         "Name": "枯枝",
         "Id": "WitheredBranches",
         "QuickTeleport": true,
-        "NavPath": [
-            {
-                "action": "NAVMESH",
-                "target": [
-                    1361.74,
-                    2194.86
-                ]
-            }
-        ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
-        "Heading": 120
+        "Heading": 133
     },
     {
         "MissionId": "m1m60",
@@ -415,7 +364,6 @@
                 ]
             }
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenLeft",
         "Heading": 165
     },
     {
@@ -433,7 +381,6 @@
                 "target_tier": "Wuling_L4_330"
             }
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown",
         "Heading": 180
     },
     {
@@ -451,8 +398,6 @@
                 "target_tier": "Wuling_L4_330"
             }
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
-        "CameraMaxHit": 1,
         "Heading": 173
     },
     {
@@ -470,7 +415,6 @@
                 "target_tier": "Wuling_L4_330"
             }
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown",
         "Heading": 173
     },
     {
@@ -494,7 +438,6 @@
                 ]
             }
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
         "Heading": 177
     },
     {
@@ -532,8 +475,6 @@
                 "target_tier": "Wuling_L4_328"
             }
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown",
-        "CameraMaxHit": 1,
         "Heading": 260
     },
     {
@@ -541,7 +482,6 @@
         "Name": "念念家的桃树",
         "Id": "PeachTreeAtBabblesSHome",
         "QuickTeleport": true,
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
         "Heading": 66
     },
     {
@@ -559,7 +499,6 @@
                 "target_deck_y": 265.55
             }
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
         "Heading": 255
     },
     {
@@ -576,7 +515,6 @@
                 ]
             }
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
         "Replace": [
             [
                 "椿",
@@ -599,8 +537,6 @@
                 ]
             }
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown",
-        "CameraMaxHit": 4,
         "Heading": 180
     },
     {
@@ -617,8 +553,6 @@
                 ]
             }
         ],
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenDown",
-        "CameraMaxHit": 1,
         "Heading": 270
     },
     {
@@ -626,8 +560,6 @@
         "Name": "巨兽心脏",
         "Id": "FeranmutHeart",
         "QuickTeleport": true,
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenUp",
-        "CameraMaxHit": 1,
         "Heading": 270
     },
     {
@@ -635,8 +567,6 @@
         "Name": "“表象”",
         "Id": "Thillu",
         "QuickTeleport": true,
-        "CameraSwipeDirection": "EnvironmentMonitoringSwipeScreenRight",
-        "CameraMaxHit": 1,
         "Heading": 270
     }
 ]

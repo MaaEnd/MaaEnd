@@ -1,0 +1,21 @@
+{
+    "version": 1,
+    "categories": [
+        {
+            "id": "investigate",
+            "name": "情报采集"
+        },
+        {
+            "id": "multi_media",
+            "name": "音像存档"
+        },
+        {
+            "id": "text",
+            "name": "见闻辑录"
+        },
+        {
+            "id": "document",
+            "name": "中枢档案"
+        }
+    ]
+}

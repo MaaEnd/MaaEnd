@@ -1,0 +1,44 @@
+{
+    "CommonSanityText": {
+        "desc": "在理智标志旁侧 OCR 当前理智文本",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    {
+                        "sub_name": "mind_icon",
+                        "recognition": "TemplateMatch",
+                        "roi": [
+                            -350,
+                            0,
+                            350,
+                            60
+                        ],
+                        "template": [
+                            "SceneManager/MapMind.png"
+                        ]
+                    },
+                    {
+                        "recognition": "OCR",
+                        "roi": "mind_icon",
+                        "roi_offset": [
+                            30,
+                            -5,
+                            60,
+                            10
+                        ],
+                        // 80/135
+                        "expected": [
+                            // @i18n-skip
+                            "\\d+"
+                        ]
+                    }
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

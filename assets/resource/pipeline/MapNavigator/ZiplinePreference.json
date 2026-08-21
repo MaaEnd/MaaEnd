@@ -1,0 +1,8 @@
+{
+    "MapNavigatorZiplinePreference": {
+        "desc": "滑索规划的全局开关。只承载设置项写入的值,寻路开始前读一次,不会被执行",
+        "attach": {
+            "zipline": "auto"
+        }
+    }
+}

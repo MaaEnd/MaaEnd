@@ -8,6 +8,7 @@ namespace mapnavigator
 {
 
 constexpr int32_t kWorkWidth = 1280;
+constexpr int32_t kWorkHeight = 720;
 
 // --- ActionWrapper Constants ---
 constexpr double kTurn360UnitsPerWidth = 2.23006;
@@ -15,7 +16,7 @@ constexpr double kTurnDegreesPerCircle = 360.0;
 
 struct AdbTouchTurnProfile
 {
-    double default_units_per_degree = 3.5;
+    double default_units_per_degree = 5.0;
     int32_t swipe_duration_ms = 70;
     int32_t post_swipe_settle_ms = 0;
 };
@@ -39,6 +40,17 @@ inline double ComputeUnitsPerDegreeForWidth(int32_t screen_width)
 inline double ComputeDefaultUnitsPerDegree()
 {
     return ComputeUnitsPerDegreeForWidth(kWorkWidth);
+}
+
+// 俯仰用的是同一个系数, 只是换成屏幕高这条边
+inline double ComputeUnitsPerDegreeForHeight(int32_t screen_height)
+{
+    return kTurn360UnitsPerWidth * static_cast<double>(screen_height) / kTurnDegreesPerCircle;
+}
+
+inline double ComputeDefaultPitchUnitsPerDegree()
+{
+    return ComputeUnitsPerDegreeForHeight(kWorkHeight);
 }
 
 constexpr int32_t kActionSprintPressMs = 30;
@@ -220,6 +232,49 @@ constexpr int32_t kRelocationWaitTimeoutMs = 15000;
 constexpr int32_t kRelocationStableFixes = 2;
 constexpr double kRelocationResumeMinDistance = 3.0;
 
+// --- Zipline Constants ---
+// 一跳分三步: 站上架子(仅链首)、把镜头对准落点、按左键起滑。滑行途中人悬在半空, 位置一路在动,
+// 所以判完成只认「进了落点圈」这一条, 任何「动了就算走完」的判据都会在起滑瞬间成立
+constexpr double kZiplineLandingBandWu = 6.0;
+constexpr int32_t kZiplineRideRetryIntervalMs = 150;
+constexpr int32_t kZiplineRideTimeoutMs = 30000;
+// 落点圈内还要连着读到这么多个非 held 定位才收工, 避免滑行途中恰好飞过落点上方就提前落地
+constexpr int32_t kZiplineLandingStableFixes = 2;
+// 站上架子后交互提示就没了, 所以确认只看「还认不认得出这条提示」。留一小段窗口是因为按下的
+// 那一帧提示往往还在
+constexpr int32_t kZiplineMountConfirmAttempts = 6;
+constexpr int32_t kZiplineMountConfirmIntervalMs = 250;
+// 起滑按完先等这么久再开始量位移, 免得把起步前的几帧当成没滑起来
+constexpr int32_t kZiplineLaunchSettleMs = 400;
+// 瞄准精度只能在按左键之前保证: 按下去人就滑走了, 半空里没有跟随层能把方向修回来。走路那套
+// 40 度容差是靠跟随层善后才敢留的, 这里不能用
+constexpr double kZiplineAimToleranceDeg = 6.0;
+constexpr int32_t kZiplineAimMaxRetries = 3;
+// 落差够大时镜头得抬到索的仰角上才起得了滑。小地图读不到俯仰, 所以这一下是开环发出去的,
+// 不复核也不迭代
+constexpr double kZiplinePitchDeadbandDeg = 8.0;
+constexpr double kZiplinePitchMaxDeg = 60.0;
+// 按下去没滑走就换一档俯仰再按。三次分别是: 按算出来的仰角、反向、完全不动俯仰
+constexpr int32_t kZiplineLaunchAttempts = 3;
+// 滑行中位置每拍都在变, 连着这么多拍几乎不动就说明这趟已经结束了
+constexpr double kZiplineSettleMoveWu = 1.5;
+constexpr int32_t kZiplineSettleFixes = 4;
+// 下索是一次右键。站在架子上时移动指令会被架子的选点状态吃掉, 所以走路之前必须先下来
+constexpr int32_t kZiplineDismountHoldMs = 80;
+// 索没通电、两端根本没挂索时起滑是空响, 人还站在架子上。滑一趟是大位移, 所以「过了确认时间
+// 还在原地」与「滑起来了但没到落点」分得开, 不必耗满整个滑行超时。两个值待实机核准
+constexpr int32_t kZiplineMountConfirmMs = 5000;
+constexpr double kZiplineMountMinMoveWu = 3.0;
+// 同一个上索点最多让重规划试这么多次, 再要重规划就当这根架子够不着, 退索改走路。楔死看门狗
+// 6s 重规划一次、12s 掐掉整趟导航, 所以这里必须小到能在它掐之前让出路来。滑索省下的那点路
+// 远不值一次导航失败, 判错方向只损失一段捷径
+constexpr int32_t kZiplineApproachReplanBudget = 1;
+
+// 按了一次没认出来之后的判定圈。交互给的是离身位最近的那台设备, 认不出就得挪身位再认 ——
+// 判定圈收到这里, 让人真把那点距离走完(有备用站位就是走过去, 没有就是再走近点)。
+// 再往下收就到定位噪声底下了, 收不拢只会白等看门狗
+constexpr double kZiplineRestandBandWu = 1.0;
+
 constexpr double kNoProgressDistanceEpsilon = 0.5;
 constexpr double kRouteProgressEpsilon = 0.5;
 constexpr double kNoProgressMinDistance = 3.0;
@@ -244,6 +299,14 @@ constexpr const char* kCollectExitNode = "AutoCollectClickEnd";
 constexpr const char* kInteractEntryNode = "MapNavigatorInteractStart";
 constexpr const char* kInteractRecognitionNode = "MapNavigatorInteract";
 constexpr const char* kInteractExitNode = "MapNavigatorInteractEnd";
+// 上索走的也是这套三节点交互, 只是提示文字由节点自己带, 不由路线注入。
+// 确认上索另配一对: 只认图标, 不必为一次确认付 OCR 的钱。确认要的恰恰是「认不出」,
+// 所以照样得走 Start 节点 —— 直接派发识别节点会让认不出的那一趟耗满节点超时。
+constexpr const char* kZiplineMountEntryNode = "MapNavigatorZiplineMountStart";
+constexpr const char* kZiplineMountRecognitionNode = "MapNavigatorZiplineMount";
+constexpr const char* kZiplineMountExitNode = "MapNavigatorZiplineMountEnd";
+constexpr const char* kZiplineMountScanEntryNode = "MapNavigatorZiplineMountScanStart";
+constexpr const char* kZiplineMountScanNode = "MapNavigatorZiplineMountScan";
 constexpr int32_t kPromptPostSleepMs = 80;
 
 // Resolution every pipeline ROI is authored against; the scanner rescales it to whatever the frame really is.
