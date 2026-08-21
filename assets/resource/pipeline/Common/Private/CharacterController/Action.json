@@ -75,5 +75,12 @@
         "duration": 100,
         "key": 68, // D
         "post_delay": 0
+    },
+    "__CharacterControllerShiftClickAction": {
+        "desc": "Shift冲刺",
+        "pre_delay": 0,
+        "action": "ClickKey",
+        "key": 160, // Shift
+        "post_delay": 0
     }
 }
