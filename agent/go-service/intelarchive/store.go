@@ -86,10 +86,19 @@ type catalogIndex struct {
 	ItemPageCount  map[string]int
 	NormToOrig     map[string]string
 	UnlockCategory map[string]string
+	AllUnlockIDs   []string
 }
 
+// unlockedFile is the on-disk / in-memory unlock list (flat, no per-account buckets).
 type unlockedFile struct {
+	Version  int      `json:"version"`
+	Unlocked []string `json:"unlocked"`
+}
+
+// unlockedFileDisk accepts both the flat format and the legacy accounts map.
+type unlockedFileDisk struct {
 	Version  int                        `json:"version"`
+	Unlocked []string                   `json:"unlocked"`
 	Accounts map[string]accountUnlocked `json:"accounts"`
 }
 
@@ -179,6 +188,7 @@ func buildCatalogIndex(cat *catalogFile, items *itemsFile) (*catalogIndex, error
 		ItemPageCount:  make(map[string]int, len(items.Items)),
 		NormToOrig:     make(map[string]string, len(items.Items)*2),
 		UnlockCategory: make(map[string]string, len(items.Items)*2),
+		AllUnlockIDs:   make([]string, 0, len(items.Items)*2),
 	}
 	for _, id := range ids {
 		it := items.Items[id]
@@ -226,6 +236,9 @@ func buildCatalogIndex(cat *catalogFile, items *itemsFile) (*catalogIndex, error
 		if zhTW := strings.TrimSpace(it.Names[i18n.LangZhTW]); zhTW != "" {
 			indexNamed(idx, idx.NameToItems, zhTW, id)
 		}
+		if len(it.Pages) == 0 {
+			idx.AllUnlockIDs = append(idx.AllUnlockIDs, id)
+		}
 		for i, page := range it.Pages {
 			if page.ID == "" {
 				return nil, fmt.Errorf("item %q pages[%d] id is empty", id, i)
@@ -239,6 +252,7 @@ func buildCatalogIndex(cat *catalogFile, items *itemsFile) (*catalogIndex, error
 			}
 			idx.PageToItem[page.ID] = id
 			idx.UnlockCategory[page.ID] = it.FileCategory
+			idx.AllUnlockIDs = append(idx.AllUnlockIDs, page.ID)
 			indexItemName(idx, pageCN, page.ID)
 			if pageTW := strings.TrimSpace(page.Names[i18n.LangZhTW]); pageTW != "" {
 				indexItemName(idx, pageTW, page.ID)
@@ -414,31 +428,56 @@ func loadUnlocked() (unlockedFile, error) {
 	raw, err := os.ReadFile(path)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return unlockedFile{
-				Version:  1,
-				Accounts: map[string]accountUnlocked{},
-			}, nil
+			return unlockedFile{Version: 1, Unlocked: []string{}}, nil
 		}
 		return unlockedFile{}, fmt.Errorf("read unlocked file: %w", err)
 	}
 	if len(raw) == 0 {
-		return unlockedFile{
-			Version:  1,
-			Accounts: map[string]accountUnlocked{},
-		}, nil
+		return unlockedFile{Version: 1, Unlocked: []string{}}, nil
 	}
 
-	var doc unlockedFile
-	if err := json.Unmarshal(raw, &doc); err != nil {
+	var disk unlockedFileDisk
+	if err := json.Unmarshal(raw, &disk); err != nil {
 		return unlockedFile{}, fmt.Errorf("unmarshal unlocked file: %w", err)
 	}
-	if doc.Version == 0 {
-		doc.Version = 1
+	return normalizeUnlockedDisk(disk), nil
+}
+
+func normalizeUnlockedDisk(disk unlockedFileDisk) unlockedFile {
+	doc := unlockedFile{Version: 1, Unlocked: []string{}}
+	if disk.Version != 0 {
+		doc.Version = disk.Version
 	}
-	if doc.Accounts == nil {
-		doc.Accounts = map[string]accountUnlocked{}
+	if len(disk.Unlocked) > 0 || len(disk.Accounts) == 0 {
+		doc.Unlocked = dedupeStrings(disk.Unlocked)
+		return doc
 	}
-	return doc, nil
+	merged := make([]string, 0)
+	for _, account := range disk.Accounts {
+		merged = append(merged, account.Unlocked...)
+	}
+	doc.Unlocked = dedupeStrings(merged)
+	return doc
+}
+
+func dedupeStrings(ids []string) []string {
+	if len(ids) == 0 {
+		return []string{}
+	}
+	seen := make(map[string]struct{}, len(ids))
+	out := make([]string, 0, len(ids))
+	for _, id := range ids {
+		id = strings.TrimSpace(id)
+		if id == "" {
+			continue
+		}
+		if _, ok := seen[id]; ok {
+			continue
+		}
+		seen[id] = struct{}{}
+		out = append(out, id)
+	}
+	return out
 }
 
 func saveUnlocked(doc unlockedFile) error {
@@ -449,8 +488,8 @@ func saveUnlocked(doc unlockedFile) error {
 	if doc.Version == 0 {
 		doc.Version = 1
 	}
-	if doc.Accounts == nil {
-		doc.Accounts = map[string]accountUnlocked{}
+	if doc.Unlocked == nil {
+		doc.Unlocked = []string{}
 	}
 
 	raw, err := json.MarshalIndent(doc, "", "    ")
@@ -485,12 +524,9 @@ func saveUnlocked(doc unlockedFile) error {
 	return nil
 }
 
-// unlockItems appends unlock IDs (page IDs, or item IDs when the catalog has no pages) under the given UID.
+// unlockItems appends unlock IDs (page IDs, or item IDs when the catalog has no pages).
 // Missing file/dir is created. Returns newly added IDs.
-func unlockItems(uid string, itemIDs []string) ([]string, error) {
-	if uid == "" {
-		return nil, fmt.Errorf("uid is empty")
-	}
+func unlockItems(itemIDs []string) ([]string, error) {
 	if len(itemIDs) == 0 {
 		return nil, nil
 	}
@@ -500,9 +536,8 @@ func unlockItems(uid string, itemIDs []string) ([]string, error) {
 		return nil, err
 	}
 
-	account := doc.Accounts[uid]
-	owned := make(map[string]struct{}, len(account.Unlocked))
-	for _, id := range account.Unlocked {
+	owned := make(map[string]struct{}, len(doc.Unlocked))
+	for _, id := range doc.Unlocked {
 		owned[id] = struct{}{}
 	}
 
@@ -515,23 +550,21 @@ func unlockItems(uid string, itemIDs []string) ([]string, error) {
 			continue
 		}
 		owned[id] = struct{}{}
-		account.Unlocked = append(account.Unlocked, id)
+		doc.Unlocked = append(doc.Unlocked, id)
 		added = append(added, id)
 	}
 	if len(added) == 0 {
 		return nil, nil
 	}
 
-	doc.Accounts[uid] = account
 	if err := saveUnlocked(doc); err != nil {
 		return nil, err
 	}
 
 	log.Info().
 		Str("component", component).
-		Str("uid", uid).
 		Strs("added", added).
-		Int("unlocked_count", len(account.Unlocked)).
+		Int("unlocked_count", len(doc.Unlocked)).
 		Str("path", unlockedPathFunc()).
 		Msg("unlocked items persisted")
 	return added, nil

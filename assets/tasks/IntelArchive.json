@@ -5,10 +5,6 @@
             "label": "$task.IntelArchive.label",
             "entry": "IntelArchiveMain",
             "description": "$task.IntelArchive.description",
-            "option": [
-                "IntelArchiveSyncOwned",
-                "IntelArchiveShowInventory"
-            ],
             "controller": [
                 "ADB",
                 "CloudADB",
@@ -23,53 +19,5 @@
             ]
         }
     ],
-    "option": {
-        "IntelArchiveSyncOwned": {
-            "type": "switch",
-            "label": "$task.IntelArchive.option.SyncOwned.label",
-            "default_case": "Yes",
-            "cases": [
-                {
-                    "name": "Yes",
-                    "pipeline_override": {
-                        "IntelArchiveSyncSub": {
-                            "enabled": true
-                        }
-                    }
-                },
-                {
-                    "name": "No",
-                    "pipeline_override": {
-                        "IntelArchiveSyncSub": {
-                            "enabled": false
-                        }
-                    }
-                }
-            ]
-        },
-        "IntelArchiveShowInventory": {
-            "type": "switch",
-            "label": "$task.IntelArchive.option.ShowInventory.label",
-            "description": "$task.IntelArchive.option.ShowInventory.description",
-            "default_case": "Yes",
-            "cases": [
-                {
-                    "name": "Yes",
-                    "pipeline_override": {
-                        "IntelArchiveShowInventorySub": {
-                            "enabled": true
-                        }
-                    }
-                },
-                {
-                    "name": "No",
-                    "pipeline_override": {
-                        "IntelArchiveShowInventorySub": {
-                            "enabled": false
-                        }
-                    }
-                }
-            ]
-        }
-    }
+    "option": {}
 }
