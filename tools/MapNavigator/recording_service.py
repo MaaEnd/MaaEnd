@@ -2,17 +2,17 @@ from __future__ import annotations
 
 import json
 import math
-import subprocess
 import threading
 import time
 from dataclasses import dataclass
 from typing import Callable
 
+from agent_session import AgentSession
 from connection_models import RecordingSessionConfig
 from connectors import build_recording_connector
 import key_listener
 from model import ActionType, PathPoint, PathRecorder, normalize_zone_id
-from runtime import AGENT_DIR, CPP_AGENT_EXE, MAAFW_BIN_DIR, MaaRuntime, get_agent_env, new_agent_id
+from runtime import MaaRuntime
 
 
 StatusCallback = Callable[[str, str], None]
@@ -61,7 +61,6 @@ class RecordingService:
     """
 
     POLL_INTERVAL_SECONDS = 0.04
-    AGENT_BOOT_WAIT_SECONDS = 2.0
     LIVE_POSITION_EMIT_INTERVAL_SECONDS = 0.1
 
     def __init__(
@@ -75,7 +74,6 @@ class RecordingService:
         on_force_waypoint: ForceWaypointCallback | None = None,
         on_live_position: LivePositionCallback | None = None,
     ) -> None:
-        self._runtime = runtime
         self._on_status = on_status
         self._on_finished = on_finished
         self._on_error = on_error
@@ -85,7 +83,8 @@ class RecordingService:
         self._on_live_position = on_live_position
 
         self._recorder = PathRecorder()
-        self._agent_process: subprocess.Popen[str] | None = None
+        self._runtime = runtime
+        self._session = AgentSession(runtime)
         self._worker_thread: threading.Thread | None = None
         self._running_event = threading.Event()
         self._session_config: RecordingSessionConfig | None = None
@@ -135,6 +134,10 @@ class RecordingService:
         self._worker_thread = threading.Thread(target=self._run, daemon=True)
         self._worker_thread.start()
 
+    def apply_client_message(self, msg: dict) -> bool:
+        """处理一条前端消息, 返回 False 表示对方要求结束会话。录制期间只认 stop。"""
+        return msg.get("type") != "stop"
+
     def stop(self) -> None:
         self._running_event.clear()
 
@@ -143,48 +146,14 @@ class RecordingService:
             if self._session_config is None:
                 raise RuntimeError("录制会话配置缺失。")
 
-            agent_id = new_agent_id("MapLocatorAgent")
-            if not CPP_AGENT_EXE.exists():
-                raise FileNotFoundError(f"找不到 Agent 可执行文件: {CPP_AGENT_EXE}")
-
-            print(f"Starting Agent process: {CPP_AGENT_EXE} {agent_id}")
-            env = get_agent_env()
-            self._agent_process = subprocess.Popen([str(CPP_AGENT_EXE), agent_id], cwd=str(AGENT_DIR), env=env)
-            
-            print(f"Waiting {self.AGENT_BOOT_WAIT_SECONDS}s for Agent to boot...")
-            time.sleep(self.AGENT_BOOT_WAIT_SECONDS)
-            if self._agent_process.poll() is not None:
-                ret_code = self._agent_process.returncode
-                raise RuntimeError(f"Agent 启动失败，进程已退出，返回码: {ret_code}")
-
-            print("Opening runtime library...")
-            self._open_runtime_library()
-
-            print("Connecting controller...")
-            connector = build_recording_connector(self._runtime, self._session_config)
-            controller = connector.connect()
-            print("Controller connected.")
-
-            print("Connecting AgentClient...")
-            resource = self._runtime.Resource()
-            connector.attach_resource(resource)
-            client = self._runtime.AgentClient(identifier=agent_id)
-            client.bind(resource)
-            client.connect()
-            if not client.connected:
-                raise RuntimeError("Agent 连接失败。")
-            print("AgentClient connected.")
-
-            resource.override_pipeline(
-                {"MapLocateNode": {"recognition": "Custom", "custom_recognition": "MapLocateRecognition"}}
+            self._session.open(
+                build_recording_connector(self._runtime, self._session_config),
+                agent_name="MapLocatorAgent",
+                pipeline_override={
+                    "MapLocateNode": {"recognition": "Custom", "custom_recognition": "MapLocateRecognition"}
+                },
             )
-
-            print("Initializing Tasker...")
-            tasker = self._runtime.Tasker()
-            tasker.bind(resource, controller)
-            if not tasker.inited:
-                raise RuntimeError("Tasker 初始化失败。")
-            print("Tasker initialized.")
+            tasker = self._session.tasker
 
             # 预热态：识别引擎已就绪但尚未拿到首个定位，提示用户先别动，避免开头几步被吞。
             self._on_status(
@@ -210,14 +179,6 @@ class RecordingService:
             self._running_event.clear()
             self._shutdown_agent()
             self._session_config = None
-
-    def _open_runtime_library(self) -> None:
-        try:
-            self._runtime.Library.open(MAAFW_BIN_DIR)
-        except Exception as exc:
-            # 兼容重复初始化场景，不影响后续流程。
-            print(f"Opening runtime library at {MAAFW_BIN_DIR}... Error: {exc}")
-            return
 
     def _update_live_position(self, position: LivePosition) -> None:
         """由录制线程调用，更新快照并按固定频率推送给 UI。"""
@@ -346,11 +307,7 @@ class RecordingService:
 
     def _shutdown_agent(self) -> None:
         key_listener.stop()
-        if not self._agent_process:
-            return
-        self._agent_process.terminate()
-        self._agent_process.wait()
-        self._agent_process = None
+        self._session.close()
 
 
 def _compact_number(value: float) -> int | float:

@@ -24,6 +24,7 @@ const (
 	priorityOperationResetSelection = "reset_goods_selection"
 	priorityOperationRegister       = "register"
 	priorityOperationCommit         = "commit"
+	priorityOperationAdopt          = "adopt"
 	priorityOperationOutOfStock     = "out_of_stock"
 )
 
@@ -135,6 +136,25 @@ func (a *PrioritySessionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) 
 		setSelectedReserveItem(itemID)
 		printRuntimeItemSwitched(ctx, param.Location, itemID)
 		return true
+	case priorityOperationAdopt:
+		// 沿用界面识别到的当前货品，效果等同换货提交：记录据点当前物品、
+		// 更新保留规则选中项，后续售卖与缺货标记流程无需区分来源。
+		itemID, err := currentGoodsItemIDFromRecognition(arg.RecognitionDetail)
+		if err != nil {
+			log.Error().Err(err).
+				Str("component", prioritySessionActionName).
+				Str("location", param.Location).
+				Msg("adopt has no recognized current goods")
+			return false
+		}
+		prioritySelectionAdopt(param.Location, itemID)
+		setSelectedReserveItem(itemID)
+		log.Info().Str("component", prioritySessionActionName).
+			Str("location", param.Location).
+			Str("item_id", itemID).
+			Msg("current goods adopted")
+		printRuntimeItemAdopted(ctx, param.Location, itemID)
+		return true
 	case priorityOperationOutOfStock:
 		itemID, marked, ok := prioritySelectionMarkOutOfStock(param.Location)
 		if !ok {
@@ -174,7 +194,7 @@ func parsePrioritySessionActionParam(arg *maa.CustomActionArg) (*prioritySession
 			return nil, fmt.Errorf("invalid selection strategy %q", param.Strategy)
 		}
 	case priorityOperationRegister:
-	case priorityOperationCommit, priorityOperationOutOfStock:
+	case priorityOperationCommit, priorityOperationAdopt, priorityOperationOutOfStock:
 		if param.Location == "" {
 			return nil, fmt.Errorf("location is empty")
 		}
@@ -343,6 +363,20 @@ func prioritySelectionCommit(location string) (string, bool) {
 	delete(prioritySelection.Pending, location)
 	delete(prioritySelection.Exhaustion, location)
 	return itemID, true
+}
+
+// prioritySelectionAdopt 把界面识别到的当前货品登记为据点当前售卖物品，
+// 状态效果与换货提交一致：记录已尝试、清空待选和耗尽观察。
+func prioritySelectionAdopt(location, itemID string) {
+	prioritySelectionMu.Lock()
+	defer prioritySelectionMu.Unlock()
+	if prioritySelection.Attempted[location] == nil {
+		prioritySelection.Attempted[location] = map[string]struct{}{}
+	}
+	prioritySelection.Attempted[location][itemID] = struct{}{}
+	prioritySelection.Current[location] = itemID
+	delete(prioritySelection.Pending, location)
+	delete(prioritySelection.Exhaustion, location)
 }
 
 func prioritySelectionMarkOutOfStock(location string) (string, bool, bool) {

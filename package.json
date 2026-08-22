@@ -14,7 +14,7 @@
         "fetch:zmdmap": "node tools/pipeline-generate/fetch-data.mjs",
         "generate:MacOS": "node tools/pipeline-generate/macos-keymap.mjs",
         "generate:BatchUseDetector": "node tools/pipeline-generate/run-all.mjs BatchUseDetector",
-        "generate:DeliveryJobs": "pnpm fetch:zmdmap && node tools/pipeline-generate/DeliveryJobs/prepare.mjs && node tools/pipeline-generate/run-all.mjs DeliveryJobs",
+        "generate:DeliveryJobs": "pnpm fetch:zmdmap && node tools/pipeline-generate/DeliveryJobs/sync-locales.mjs && node tools/pipeline-generate/DeliveryJobs/prepare.mjs && node tools/pipeline-generate/run-all.mjs DeliveryJobs",
         "generate:EnvironmentMonitoring": "pnpm fetch:zmdmap && node tools/pipeline-generate/EnvironmentMonitoring/generator/sync-routes.mjs && node tools/pipeline-generate/run-all.mjs EnvironmentMonitoring",
         "generate:SellProduct": "pnpm fetch:zmdmap && node tools/pipeline-generate/SellProduct/sync-locales.mjs && node tools/pipeline-generate/SellProduct/selection-data.mjs && node tools/pipeline-generate/run-all.mjs SellProduct"
     },

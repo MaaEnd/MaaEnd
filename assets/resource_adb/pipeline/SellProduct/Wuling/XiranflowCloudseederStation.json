@@ -1,4 +1,15 @@
 {
+    "SellProductXiranflowCloudseederStationCurrentGoodsReady": {
+        "custom_recognition_param": {
+            "location": "XiranflowCloudseederStation",
+            "roi": [
+                1151,
+                393,
+                66,
+                66
+            ]
+        }
+    },
     "SellProductXiranflowCloudseederStationSelectPriorityItem": {
         "custom_recognition_param": {
             "location": "XiranflowCloudseederStation",

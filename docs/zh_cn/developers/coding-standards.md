@@ -142,11 +142,28 @@ MaaEnd 里一个功能改动常常不只改一个地方。
 - `assets/interface.json`
 - `tests/**/*.json`
 
-### 新增 Go Custom 组件
+### 维护 Go Custom 组件
 
-- 在对应子包 `register.go` 注册
-- 在 `agent/go-service/register.go` 的 `registerAll()` 中接入
-- 重新执行 `uv run tools/build_and_install.py`
+- 在对应子包 `register.go` 中新增、更新或移除注册
+- 新增或删除子包时，在 `agent/go-service/register.go` 的 `registerAll()` 中接入或移除
+- 修改完成后重新执行 `uv run tools/build_and_install.py`
+
+### 维护 Cpp Algo Custom 组件
+
+- 在 `agent/cpp-algo/source/main.cpp` 中通过 `MaaAgentServerRegisterCustomAction` 或 `MaaAgentServerRegisterCustomRecognition` 新增、更新或移除注册
+- 修改完成后重新执行 `uv run tools/build_and_install.py --cpp-algo`
+
+### 维护 Custom Schema
+
+新增、修改、重命名或删除上述任一种 Custom 组件时：
+
+- Action 对应 `tools/schema/custom.action.schema.json`，Recognition 对应 `tools/schema/custom.recognition.schema.json`
+- 注册名有变化时，更新对应 Custom Schema 的 `enum`；重命名或删除前先更新 Pipeline 中的用法
+- 参数有变化时，更新对应的参数 Schema，包括参数名、类型、是否必填和取值范围等
+- 删除组件或参数时，一并清理不再使用的 Schema 规则和 `$ref`
+- 复杂参数可拆到 `tools/schema/components/` 后引用
+- 无参数或允许任意值透传时，无需创建空参数 Schema
+- 无需修改已引用上述两个 Custom Schema 的 `tools/schema/pipeline.schema.json`
 
 > MXU 是面向终端用户的 GUI，不建议用于日常开发调试。上述开发工具可以极大程度提高开发效率。
 

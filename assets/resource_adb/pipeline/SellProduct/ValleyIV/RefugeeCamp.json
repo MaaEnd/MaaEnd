@@ -1,4 +1,15 @@
 {
+    "SellProductRefugeeCampCurrentGoodsReady": {
+        "custom_recognition_param": {
+            "location": "RefugeeCamp",
+            "roi": [
+                1151,
+                393,
+                66,
+                66
+            ]
+        }
+    },
     "SellProductRefugeeCampSelectPriorityItem": {
         "custom_recognition_param": {
             "location": "RefugeeCamp",

@@ -128,7 +128,7 @@
         "pre_delay": 0,
         "action": "Click",
         "anchor": {
-            "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillValleyIV",
+            "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsValleyIV",
             "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
             "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStopForOngoingDelivery",
             "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"

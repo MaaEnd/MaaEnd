@@ -1,0 +1,8 @@
+{
+    "template": "priority-adb-template.jsonc",
+    "data": "priority-data.mjs",
+    "outputDir": "../../../assets/resource_adb/pipeline/DeliveryJobs",
+    "outputFile": "PriorityItems.json",
+    "format": true,
+    "merged": true
+}

@@ -25,6 +25,7 @@
         "pre_delay": 0,
         "anchor": {
             "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip",
+            "SellProductCurrentGoodsReady": "SellProduct${LocationId}CurrentGoodsReady",
             "SellProductSelectPriorityItem": "SellProduct${LocationId}SelectPriorityItem",
             "SellProductPriorityItemsExhausted": "SellProduct${LocationId}PriorityItemsExhausted",
             "SellProductCommitPriorityItem": "SellProduct${LocationId}CommitPriorityItem",
@@ -1086,6 +1087,27 @@
         "rate_limit": 0
     },
     // ===== 动态优先级售卖循环 =====
+    "SellProduct${LocationId}CurrentGoodsReady": {
+        "desc": "${LocationDesc}当前选中货品符合当前选品规则，沿用并跳过更换货品",
+        "recognition": "Custom",
+        "custom_recognition": "SellProductCurrentGoods",
+        "custom_recognition_param": {
+            "location": "${LocationId}",
+            "roi": "${CurrentGoodsROI}"
+        },
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductPrioritySession",
+        "custom_action_param": {
+            "operation": "adopt",
+            "location": "${LocationId}"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductAtSell"
+        ]
+    },
     "SellProduct${LocationId}SelectPriorityItem": {
         "desc": "${LocationDesc}按当前策略选择下一个未尝试货品",
         "recognition": "Custom",

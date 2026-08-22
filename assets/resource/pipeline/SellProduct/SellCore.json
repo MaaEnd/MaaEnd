@@ -44,6 +44,7 @@
         "rate_limit": 0,
         "next": [
             "[Anchor]SellProductZeroMoneyHandler",
+            "[Anchor]SellProductCurrentGoodsReady",
             "SellProductChangeGoods"
         ]
     },
@@ -125,7 +126,10 @@
                     {
                         "recognition": "OCR",
                         "roi": "SellProductWhiteTextPosition",
+                        // 售卖后据点可能立即生产少量同类货品，1～3 位白色库存故意作为本轮停止信号，
+                        // 避免刚生产的货品被售卖循环重复处理；这也意味着切换后仅剩 1～999 件时会跳过本轮。
                         "expected": [
+                            // @i18n-skip
                             "^[0-9]{1,3}$"
                         ],
                         "only_rec": true

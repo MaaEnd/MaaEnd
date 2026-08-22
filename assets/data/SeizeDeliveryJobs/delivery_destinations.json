@@ -1,0 +1,654 @@
+{
+    "count": 22,
+    "ocr_key": "name",
+    "text": {
+        "name": "收货人 / 回收站名，取自 DomainDepotBuyerTable.buyerName。五语各值全唯一，是 OCR 主键",
+        "mission": "委托目标文案，已剥掉 <@qu.key>…</> 富文本标签。回收站之间共用同一句，不能单独当键",
+        "area": "所在仓储节点名；该层级还没配仓储节点时回落成地区名"
+    },
+    "coord": "u/v = MapLocator 底图像素，原点左上、y 向下；BaseNav 顶点也是这个平面（u, v, height），直接喂寻路即可。maps 里的 zone / sx / tx / sy / ty 原样取自 BaseNav pack 的 zone 表，世界坐标转进来是 u = sx*x + tx, v = -sy*z + ty",
+    "maps": {
+        "map01": {
+            "zone": "map01base",
+            "zone_id": 1,
+            "size": [
+                1440,
+                1350
+            ],
+            "sx": 0.703125,
+            "tx": 720.0,
+            "sy": 0.703125,
+            "ty": 630.0
+        },
+        "map02": {
+            "zone": "map02base",
+            "zone_id": 2,
+            "size": [
+                2016,
+                2976
+            ],
+            "sx": 0.75,
+            "tx": 1536.0,
+            "sy": 0.75,
+            "ty": 1344.0
+        }
+    },
+    "destinations": [
+        {
+            "id": "deliver_target_map01_lv005_01",
+            "kind": "npc",
+            "name": {
+                "zh_cn": "英格",
+                "zh_tw": "英格",
+                "en_us": "Ingol",
+                "ja_jp": "インゴル",
+                "ko_kr": "잉골"
+            },
+            "mission": {
+                "zh_cn": "把货物尽可能完整地交给英格",
+                "zh_tw": "盡可能完整地把貨物交給英格",
+                "en_us": "Deliver the goods to Ingol and keep them in good shape",
+                "ja_jp": "荷物をできるだけ損傷させずにインゴルに届ける",
+                "ko_kr": "화물을 최대한 온전한 상태로 잉골에게 전달하기"
+            },
+            "area": {
+                "zh_cn": "源石研究园",
+                "zh_tw": "源石研究園",
+                "en_us": "Originium Science Park",
+                "ja_jp": "源石研究パーク",
+                "ko_kr": "오리지늄 연구 구역"
+            },
+            "map": "map01",
+            "u": 1132.831,
+            "v": 900.497
+        },
+        {
+            "id": "deliver_target_map01_lv005_02",
+            "kind": "npc",
+            "name": {
+                "zh_cn": "基特",
+                "zh_tw": "基特",
+                "en_us": "Kitt",
+                "ja_jp": "キット",
+                "ko_kr": "킷"
+            },
+            "mission": {
+                "zh_cn": "把货物尽可能完整地交给基特",
+                "zh_tw": "盡可能完整地把貨物交給基特",
+                "en_us": "Deliver the goods to Kitt and keep them in good shape",
+                "ja_jp": "荷物をできるだけ損傷させずにキットに届ける",
+                "ko_kr": "화물을 최대한 온전한 상태로 킷에게 전달하기"
+            },
+            "area": {
+                "zh_cn": "源石研究园",
+                "zh_tw": "源石研究園",
+                "en_us": "Originium Science Park",
+                "ja_jp": "源石研究パーク",
+                "ko_kr": "오리지늄 연구 구역"
+            },
+            "map": "map01",
+            "u": 1161.842,
+            "v": 826.062
+        },
+        {
+            "id": "deliver_target_map01_lv005_03",
+            "kind": "npc",
+            "name": {
+                "zh_cn": "嘉娜",
+                "zh_tw": "嘉娜",
+                "en_us": "Jana",
+                "ja_jp": "ヤナ",
+                "ko_kr": "야나"
+            },
+            "mission": {
+                "zh_cn": "把货物尽可能完整地交给嘉娜",
+                "zh_tw": "盡可能完整地把貨物交給嘉娜",
+                "en_us": "Deliver the goods to Jana and keep them in good shape",
+                "ja_jp": "荷物をできるだけ損傷させずにヤナに届ける",
+                "ko_kr": "화물을 최대한 온전한 상태로 야나에게 전달하기"
+            },
+            "area": {
+                "zh_cn": "源石研究园",
+                "zh_tw": "源石研究園",
+                "en_us": "Originium Science Park",
+                "ja_jp": "源石研究パーク",
+                "ko_kr": "오리지늄 연구 구역"
+            },
+            "map": "map01",
+            "u": 968.209,
+            "v": 824.369
+        },
+        {
+            "id": "deliver_target_map01_lv005_recycle_02",
+            "kind": "recycle_bin",
+            "name": {
+                "zh_cn": "学术复读羽兽",
+                "zh_tw": "學術重修羽獸",
+                "en_us": "Fowlbeast Under Academic Probation",
+                "ja_jp": "学術羽獣返し",
+                "ko_kr": "아카데믹 프로베이션 파울비스트"
+            },
+            "mission": {
+                "zh_cn": "把货物尽可能完整地送至资源回收站",
+                "zh_tw": "盡可能完整地把貨物送至資源回收站",
+                "en_us": "Deliver the goods to the Recycling Station and keep them in good shape",
+                "ja_jp": "荷物をできるだけ損傷させずに資源回収所に届ける",
+                "ko_kr": "화물을 최대한 온전한 상태로 재활용센터에 운송하기"
+            },
+            "area": {
+                "zh_cn": "源石研究园",
+                "zh_tw": "源石研究園",
+                "en_us": "Originium Science Park",
+                "ja_jp": "源石研究パーク",
+                "ko_kr": "오리지늄 연구 구역"
+            },
+            "map": "map01",
+            "u": 905.299,
+            "v": 764.145
+        },
+        {
+            "id": "deliver_target_map01_lv005_recycle_03",
+            "kind": "recycle_bin",
+            "name": {
+                "zh_cn": "采购-醇化合物工厂模组",
+                "zh_tw": "採購-醇化合物工廠模組",
+                "en_us": "BUYER: Kohl Plant MOD",
+                "ja_jp": "購入-合成コール工場ユニット",
+                "ko_kr": "구매 - 콜 화합물 공장 모듈"
+            },
+            "mission": {
+                "zh_cn": "把货物尽可能完整地送至资源回收站",
+                "zh_tw": "盡可能完整地把貨物送至資源回收站",
+                "en_us": "Deliver the goods to the Recycling Station and keep them in good shape",
+                "ja_jp": "荷物をできるだけ損傷させずに資源回収所に届ける",
+                "ko_kr": "화물을 최대한 온전한 상태로 재활용센터에 운송하기"
+            },
+            "area": {
+                "zh_cn": "源石研究园",
+                "zh_tw": "源石研究園",
+                "en_us": "Originium Science Park",
+                "ja_jp": "源石研究パーク",
+                "ko_kr": "오리지늄 연구 구역"
+            },
+            "map": "map01",
+            "u": 1183.458,
+            "v": 817.116
+        },
+        {
+            "id": "deliver_target_map01_lv006_01",
+            "kind": "npc",
+            "name": {
+                "zh_cn": "马泰奥",
+                "zh_tw": "馬泰奧",
+                "en_us": "Matteo",
+                "ja_jp": "マッテオ",
+                "ko_kr": "마테오"
+            },
+            "mission": {
+                "zh_cn": "把货物尽可能完整地交给马泰奥",
+                "zh_tw": "盡可能完整地把貨物交給馬泰奧",
+                "en_us": "Deliver the goods to Matteo and keep them in good shape",
+                "ja_jp": "荷物をできるだけ損傷させずにマッテオに届ける",
+                "ko_kr": "화물을 최대한 온전한 상태로 마테오에게 전달하기"
+            },
+            "area": {
+                "zh_cn": "矿脉源区",
+                "zh_tw": "礦脈源區",
+                "en_us": "Origin Lodespring",
+                "ja_jp": "鉱山エリア",
+                "ko_kr": "광맥 구역"
+            },
+            "map": "map01",
+            "u": 1132.593,
+            "v": 471.222
+        },
+        {
+            "id": "deliver_target_map01_lv006_02",
+            "kind": "npc",
+            "name": {
+                "zh_cn": "陆言",
+                "zh_tw": "陸言",
+                "en_us": "Lu Yan",
+                "ja_jp": "ルー・イェン",
+                "ko_kr": "육언"
+            },
+            "mission": {
+                "zh_cn": "把货物尽可能完整地交给陆言",
+                "zh_tw": "盡可能完整地把貨物交給陸言",
+                "en_us": "Deliver the goods to Lu Yan and keep them in good shape",
+                "ja_jp": "荷物をできるだけ損傷させずにルー・イェンに届ける",
+                "ko_kr": "화물을 최대한 온전한 상태로 육언에게 전달하기"
+            },
+            "area": {
+                "zh_cn": "矿脉源区",
+                "zh_tw": "礦脈源區",
+                "en_us": "Origin Lodespring",
+                "ja_jp": "鉱山エリア",
+                "ko_kr": "광맥 구역"
+            },
+            "map": "map01",
+            "u": 1192.373,
+            "v": 433.958
+        },
+        {
+            "id": "deliver_target_map01_lv006_03",
+            "kind": "npc",
+            "name": {
+                "zh_cn": "莫莉",
+                "zh_tw": "莫莉",
+                "en_us": "Molly",
+                "ja_jp": "モリー",
+                "ko_kr": "몰리"
+            },
+            "mission": {
+                "zh_cn": "把货物尽可能完整地交给莫莉",
+                "zh_tw": "盡可能完整地把貨物交給莫莉",
+                "en_us": "Deliver the goods to Molly and keep them in good shape",
+                "ja_jp": "荷物をできるだけ損傷させずにモリーに届ける",
+                "ko_kr": "화물을 최대한 온전한 상태로 몰리에게 전달하기"
+            },
+            "area": {
+                "zh_cn": "矿脉源区",
+                "zh_tw": "礦脈源區",
+                "en_us": "Origin Lodespring",
+                "ja_jp": "鉱山エリア",
+                "ko_kr": "광맥 구역"
+            },
+            "map": "map01",
+            "u": 1172.391,
+            "v": 443.451
+        },
+        {
+            "id": "deliver_target_map01_lv006_recycle_01",
+            "kind": "recycle_bin",
+            "name": {
+                "zh_cn": "“不是废品佬”",
+                "zh_tw": "「不是資源回收人」",
+                "en_us": "\"Not the Junkyard Lord\"",
+                "ja_jp": "「ガラクタ屋じゃない」",
+                "ko_kr": "'이건 잡동사니가 아니야.'"
+            },
+            "mission": {
+                "zh_cn": "把货物尽可能完整地送至资源回收站",
+                "zh_tw": "盡可能完整地把貨物送至資源回收站",
+                "en_us": "Deliver the goods to the Recycling Station and keep them in good shape",
+                "ja_jp": "荷物をできるだけ損傷させずに資源回収所に届ける",
+                "ko_kr": "화물을 최대한 온전한 상태로 재활용센터에 운송하기"
+            },
+            "area": {
+                "zh_cn": "矿脉源区",
+                "zh_tw": "礦脈源區",
+                "en_us": "Origin Lodespring",
+                "ja_jp": "鉱山エリア",
+                "ko_kr": "광맥 구역"
+            },
+            "map": "map01",
+            "u": 1048.016,
+            "v": 429.484
+        },
+        {
+            "id": "deliver_target_map01_lv006_recycle_03",
+            "kind": "recycle_bin",
+            "name": {
+                "zh_cn": "采购-矿区医疗站模组",
+                "zh_tw": "採購-礦區醫療站模組",
+                "en_us": "BUYER: Mining Area Clinic MOD",
+                "ja_jp": "購入-鉱区診療所ユニット",
+                "ko_kr": "구매 - 광산 지역 의료소 모듈"
+            },
+            "mission": {
+                "zh_cn": "把货物尽可能完整地送至资源回收站",
+                "zh_tw": "盡可能完整地把貨物送至資源回收站",
+                "en_us": "Deliver the goods to the Recycling Station and keep them in good shape",
+                "ja_jp": "荷物をできるだけ損傷させずに資源回収所に届ける",
+                "ko_kr": "화물을 최대한 온전한 상태로 재활용센터에 운송하기"
+            },
+            "area": {
+                "zh_cn": "矿脉源区",
+                "zh_tw": "礦脈源區",
+                "en_us": "Origin Lodespring",
+                "ja_jp": "鉱山エリア",
+                "ko_kr": "광맥 구역"
+            },
+            "map": "map01",
+            "u": 1078.905,
+            "v": 504.33
+        },
+        {
+            "id": "deliver_target_map01_lv007_01",
+            "kind": "npc",
+            "name": {
+                "zh_cn": "库济米尼奇娜",
+                "zh_tw": "庫濟米尼奇娜",
+                "en_us": "Kuzminichna",
+                "ja_jp": "クスミニチナ",
+                "ko_kr": "쿠즈미니치나"
+            },
+            "mission": {
+                "zh_cn": "把货物尽可能完整地交给库济米尼奇娜",
+                "zh_tw": "盡可能完整地把貨物交給庫濟米尼奇娜",
+                "en_us": "Deliver the goods to Kuzminichna and keep them in good shape",
+                "ja_jp": "荷物をできるだけ損傷させずにクスミニチナに届ける",
+                "ko_kr": "화물을 최대한 온전하게 쿠즈미니치나에게 전달하기"
+            },
+            "area": {
+                "zh_cn": "供能高地",
+                "zh_tw": "供能高地",
+                "en_us": "Power Plateau",
+                "ja_jp": "エネルギー高地",
+                "ko_kr": "에너지 공급 고지"
+            },
+            "map": "map01",
+            "u": 616.693,
+            "v": 130.125
+        },
+        {
+            "id": "deliver_target_map01_lv007_02",
+            "kind": "npc",
+            "name": {
+                "zh_cn": "里斯卡",
+                "zh_tw": "里斯卡",
+                "en_us": "Riska",
+                "ja_jp": "リースカ",
+                "ko_kr": "리스카"
+            },
+            "mission": {
+                "zh_cn": "把货物尽可能完整地交给里斯卡",
+                "zh_tw": "盡可能完整地把貨物交給里斯卡",
+                "en_us": "Deliver the goods to Riska and keep them in good shape",
+                "ja_jp": "荷物をできるだけ損傷させずにリースカに届ける",
+                "ko_kr": "화물을 최대한 온전한 상태로 리스카에게 전달하기"
+            },
+            "area": {
+                "zh_cn": "供能高地",
+                "zh_tw": "供能高地",
+                "en_us": "Power Plateau",
+                "ja_jp": "エネルギー高地",
+                "ko_kr": "에너지 공급 고지"
+            },
+            "map": "map01",
+            "u": 527.836,
+            "v": 241.566
+        },
+        {
+            "id": "deliver_target_map01_lv007_03",
+            "kind": "npc",
+            "name": {
+                "zh_cn": "戈里昂",
+                "zh_tw": "戈里昂",
+                "en_us": "Gorion",
+                "ja_jp": "ゴリオン",
+                "ko_kr": "고리언"
+            },
+            "mission": {
+                "zh_cn": "把货物尽可能完整地交给戈里昂",
+                "zh_tw": "盡可能完整地把貨物交給戈里昂",
+                "en_us": "Deliver the goods to Gorion and keep them in good shape",
+                "ja_jp": "荷物をできるだけ損傷させずにゴリオンに届ける",
+                "ko_kr": "화물을 최대한 온전한 상태로 고리언에게 전달하기"
+            },
+            "area": {
+                "zh_cn": "供能高地",
+                "zh_tw": "供能高地",
+                "en_us": "Power Plateau",
+                "ja_jp": "エネルギー高地",
+                "ko_kr": "에너지 공급 고지"
+            },
+            "map": "map01",
+            "u": 681.185,
+            "v": 390.687
+        },
+        {
+            "id": "deliver_target_map01_lv007_recycle_02",
+            "kind": "recycle_bin",
+            "name": {
+                "zh_cn": "无畏的工团成员",
+                "zh_tw": "無畏的工團成員",
+                "en_us": "Fearless UWST Crew Mate",
+                "ja_jp": "恐れ知らずの工業団員",
+                "ko_kr": "두려움 없는 공단 직원"
+            },
+            "mission": {
+                "zh_cn": "把货物尽可能完整地送至资源回收站",
+                "zh_tw": "盡可能完整地把貨物送至資源回收站",
+                "en_us": "Deliver the goods to the Recycling Station and keep them in good shape",
+                "ja_jp": "荷物をできるだけ損傷させずに資源回収所に届ける",
+                "ko_kr": "화물을 최대한 온전한 상태로 재활용센터에 운송하기"
+            },
+            "area": {
+                "zh_cn": "供能高地",
+                "zh_tw": "供能高地",
+                "en_us": "Power Plateau",
+                "ja_jp": "エネルギー高地",
+                "ko_kr": "에너지 공급 고지"
+            },
+            "map": "map01",
+            "u": 502.664,
+            "v": 251.902
+        },
+        {
+            "id": "deliver_target_map01_lv007_recycle_03",
+            "kind": "recycle_bin",
+            "name": {
+                "zh_cn": "采购-超域试验场物资模组",
+                "zh_tw": "採購-超域實驗場物資模組",
+                "en_us": "BUYER: Æther Test Site Stock MOD",
+                "ja_jp": "購入-超域実験場商品ユニット",
+                "ko_kr": "구매 - 초자연 실험장 물자 모듈"
+            },
+            "mission": {
+                "zh_cn": "把货物尽可能完整地送至资源回收站",
+                "zh_tw": "盡可能完整地把貨物送至資源回收站",
+                "en_us": "Deliver the goods to the Recycling Station and keep them in good shape",
+                "ja_jp": "荷物をできるだけ損傷させずに資源回収所に届ける",
+                "ko_kr": "화물을 최대한 온전한 상태로 재활용센터에 운송하기"
+            },
+            "area": {
+                "zh_cn": "供能高地",
+                "zh_tw": "供能高地",
+                "en_us": "Power Plateau",
+                "ja_jp": "エネルギー高地",
+                "ko_kr": "에너지 공급 고지"
+            },
+            "map": "map01",
+            "u": 615.071,
+            "v": 397.166
+        },
+        {
+            "id": "deliver_target_map02_lv002_01",
+            "kind": "npc",
+            "name": {
+                "zh_cn": "苏白易",
+                "zh_tw": "蘇白易",
+                "en_us": "Su Baiyi",
+                "ja_jp": "スー・バイイー",
+                "ko_kr": "소백이"
+            },
+            "mission": {
+                "zh_cn": "把货物尽可能完整地交给苏白易",
+                "zh_tw": "盡可能完整地把貨物交給蘇白易",
+                "en_us": "Deliver the goods to Su Baiyi and keep them in good shape",
+                "ja_jp": "荷物をできるだけ損傷させずにスー・バイイーに届ける",
+                "ko_kr": "화물을 최대한 온전한 상태로 소백이에게 전달하기"
+            },
+            "area": {
+                "zh_cn": "武陵城区",
+                "zh_tw": "武陵城區",
+                "en_us": "Wuling City",
+                "ja_jp": "武陵城内",
+                "ko_kr": "무릉성 구역"
+            },
+            "map": "map02",
+            "u": 538.031,
+            "v": 1250.27
+        },
+        {
+            "id": "deliver_target_map02_lv002_02",
+            "kind": "npc",
+            "name": {
+                "zh_cn": "普里莫·林德",
+                "zh_tw": "普里莫·林德",
+                "en_us": "Primo Linde",
+                "ja_jp": "プリモ・リンデ",
+                "ko_kr": "프리모 린데"
+            },
+            "mission": {
+                "zh_cn": "把货物尽可能完整地交给普里莫·林德",
+                "zh_tw": "盡可能完整地把貨物交給普里莫·林德",
+                "en_us": "Deliver the goods to Primo Linde and keep them in good shape",
+                "ja_jp": "荷物をできるだけ損傷させずにプリモ・リンデに届ける",
+                "ko_kr": "화물을 최대한 온전한 상태로 프리모 린데에게 전달하기"
+            },
+            "area": {
+                "zh_cn": "武陵城区",
+                "zh_tw": "武陵城區",
+                "en_us": "Wuling City",
+                "ja_jp": "武陵城内",
+                "ko_kr": "무릉성 구역"
+            },
+            "map": "map02",
+            "u": 461.92,
+            "v": 1712.802
+        },
+        {
+            "id": "deliver_target_map02_lv002_03",
+            "kind": "npc",
+            "name": {
+                "zh_cn": "于施",
+                "zh_tw": "于施",
+                "en_us": "Yu Shi",
+                "ja_jp": "ユウ・シー",
+                "ko_kr": "우시"
+            },
+            "mission": {
+                "zh_cn": "把货物尽可能完整地交给于施",
+                "zh_tw": "盡可能完整地把貨物交給于施",
+                "en_us": "Deliver the goods to Yu Shi and keep them in good shape",
+                "ja_jp": "荷物をできるだけ損傷させずにユウ・シーに届ける",
+                "ko_kr": "화물을 최대한 온전한 상태로 우시에게 전달하기"
+            },
+            "area": {
+                "zh_cn": "武陵城区",
+                "zh_tw": "武陵城區",
+                "en_us": "Wuling City",
+                "ja_jp": "武陵城内",
+                "ko_kr": "무릉성 구역"
+            },
+            "map": "map02",
+            "u": 894.615,
+            "v": 1408.425
+        },
+        {
+            "id": "deliver_target_map02_lv002_recycle_01",
+            "kind": "recycle_bin",
+            "name": {
+                "zh_cn": "火锅探店达人",
+                "zh_tw": "火鍋試吃達人",
+                "en_us": "Hot Pot Aficionado",
+                "ja_jp": "火鍋屋グルメ達人",
+                "ko_kr": "훠궈 맛집 탐방 달인"
+            },
+            "mission": {
+                "zh_cn": "把货物尽可能完整地送至资源回收站",
+                "zh_tw": "盡可能完整地把貨物送至資源回收站",
+                "en_us": "Deliver the goods to the Recycling Station and keep them in good shape",
+                "ja_jp": "荷物をできるだけ損傷させずに資源回収所に届ける",
+                "ko_kr": "화물을 최대한 온전한 상태로 재활용센터에 운송하기"
+            },
+            "area": {
+                "zh_cn": "武陵城区",
+                "zh_tw": "武陵城區",
+                "en_us": "Wuling City",
+                "ja_jp": "武陵城内",
+                "ko_kr": "무릉성 구역"
+            },
+            "map": "map02",
+            "u": 513.135,
+            "v": 1650.773
+        },
+        {
+            "id": "deliver_target_map02_lv005_01",
+            "kind": "npc",
+            "name": {
+                "zh_cn": "赵昭",
+                "zh_tw": "趙昭",
+                "en_us": "Zhao Zhao",
+                "ja_jp": "ジャオ・ジャオ",
+                "ko_kr": "조조"
+            },
+            "mission": {
+                "zh_cn": "把货物尽可能完整地交给赵昭",
+                "zh_tw": "盡可能完整地把貨物交給趙昭",
+                "en_us": "Deliver the goods to Zhao Zhao and keep them in good shape",
+                "ja_jp": "荷物をできるだけ損傷させずにジャオ・ジャオに届ける",
+                "ko_kr": "화물을 최대한 온전한 상태로 조조에게 전달하기"
+            },
+            "area": {
+                "zh_cn": "试验园区",
+                "zh_tw": "實驗園區",
+                "en_us": "Test Area",
+                "ja_jp": "実験区域",
+                "ko_kr": "실험 구역"
+            },
+            "map": "map02",
+            "u": 1383.764,
+            "v": 1633.923
+        },
+        {
+            "id": "deliver_target_map02_lv005_02",
+            "kind": "npc",
+            "name": {
+                "zh_cn": "裴令容",
+                "zh_tw": "裴令容",
+                "en_us": "Pei Lingrong",
+                "ja_jp": "ペイ・リンロン",
+                "ko_kr": "배령용"
+            },
+            "mission": {
+                "zh_cn": "把货物尽可能完整地交给裴令容",
+                "zh_tw": "盡可能完整地把貨物交給裴令容",
+                "en_us": "Deliver the goods to Pei Lingrong and keep them in good shape",
+                "ja_jp": "荷物をできるだけ損傷させずにペイ・リンロンに届ける",
+                "ko_kr": "화물을 최대한 온전한 상태로 배령용에게 전달하기"
+            },
+            "area": {
+                "zh_cn": "试验园区",
+                "zh_tw": "實驗園區",
+                "en_us": "Test Area",
+                "ja_jp": "実験区域",
+                "ko_kr": "실험 구역"
+            },
+            "map": "map02",
+            "u": 1083.307,
+            "v": 1455.27
+        },
+        {
+            "id": "deliver_target_map02_lv005_03",
+            "kind": "npc",
+            "name": {
+                "zh_cn": "阿禾",
+                "zh_tw": "阿禾",
+                "en_us": "Ah He",
+                "ja_jp": "フウ",
+                "ko_kr": "수이"
+            },
+            "mission": {
+                "zh_cn": "把货物尽可能完整地交给阿禾",
+                "zh_tw": "盡可能完整地把貨物交給阿禾",
+                "en_us": "Deliver the goods to Ah He and keep them in good shape",
+                "ja_jp": "荷物をできるだけ損傷させずにフウに届ける",
+                "ko_kr": "화물을 최대한 온전한 상태로 수이에게 전달하기"
+            },
+            "area": {
+                "zh_cn": "试验园区",
+                "zh_tw": "實驗園區",
+                "en_us": "Test Area",
+                "ja_jp": "実験区域",
+                "ko_kr": "실험 구역"
+            },
+            "map": "map02",
+            "u": 1369.873,
+            "v": 1533.922
+        }
+    ]
+}

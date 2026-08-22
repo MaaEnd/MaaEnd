@@ -1488,3 +1488,95 @@ canvas {
 .btn-ghost:active {
   background: rgba(255, 255, 255, 0.15);
 }
+
+/* ===== 实机试跑 ===== */
+/* 热键提示平时只是条 tips: 跑起来后终止键由顶部 navtest-overlay 负责抢眼。
+   只有热键降级(真的收不到键)时才撑成醒目的警告框。 */
+.hotkey-banner {
+  margin: 0;
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.hotkey-banner.hotkey-degraded {
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgba(239, 68, 68, 0.14);
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  color: #fca5a5;
+  font-size: 12px;
+}
+
+.hotkey-banner kbd {
+  display: inline-block;
+  min-width: 20px;
+  padding: 0 5px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.navtest-armed {
+  margin-top: 8px;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+/* 跑起来之后铺满整幅页面顶部：无论滚到哪、焦点在哪，终止键都在视野里。 */
+.navtest-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: rgba(239, 68, 68, 0.92);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  box-shadow: 0 6px 24px rgba(239, 68, 68, 0.35);
+  animation: navtest-overlay-pulse 1.4s ease-in-out infinite;
+}
+
+.navtest-overlay kbd {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 5px;
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  font-family: var(--font-mono);
+  font-weight: 700;
+}
+
+.navtest-overlay-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ffffff;
+}
+
+@keyframes navtest-overlay-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.72; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .navtest-overlay {
+    animation: none;
+  }
+}

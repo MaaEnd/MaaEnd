@@ -7,5 +7,5 @@ func Register() {
 	maa.AgentServerRegisterCustomRecognition("SeizeDeliveryJobsScanTargetRecognition", &SeizeDeliveryJobsScanTargetRecognition{})
 	maa.AgentServerRegisterCustomAction("SeizeDeliveryJobsScanTargetAction", &SeizeDeliveryJobsScanTargetAction{})
 	maa.AgentServerRegisterCustomAction("SeizeDeliveryJobsResetScanStateAction", &SeizeDeliveryJobsResetScanStateAction{})
-	maa.AgentServerRegisterCustomAction("SeizeDeliveryJobsDepartureAction", &SeizeDeliveryJobsDepartureAction{})
+	maa.AgentServerRegisterCustomAction("SeizeDeliveryJobsResolveDestinationAction", &SeizeDeliveryJobsResolveDestinationAction{})
 }

@@ -40,6 +40,7 @@ Per outpost (SellProduct{LocationId}Sell)
 
 SellProductSellLoop (unlimited rounds; vouchers checked first each round)
   ├─ [Anchor]ZeroMoneyHandler     vouchers exhausted → SellProductSellLoopEnd (post-sell)
+  ├─ [Anchor]CurrentGoodsReady    current goods match the current selection rules → adopt → SellProductAtSell
   └─ SellProductChangeGoods       click "Switch Goods" → ResetGoodsSelection → ChangeGoodsRelay
        ├─ [Anchor]SelectPriorityItem → SelectNewGoodConfirm → [Anchor]CommitPriorityItem
        │    → SellProductAtSell: re-check vouchers → out of stock → [Anchor]MarkOutOfStock
@@ -72,6 +73,13 @@ Task-level termination: if outpost management is locked, SceneManager cannot ent
 - Excluded upfront: zero stock, already tried, confirmed out of stock, never-sell, and reserve-satisfied items.
 - A selection is only "pending"; `commit` marks it tried only after the selling screen is recognized again — failed clicks or single-frame OCR flicker never skip a high-priority item.
 - When every candidate is unusable, two consecutive stable recognitions of the same set → `PriorityItemsExhausted`, closing the list and ending this outpost. Empty OCR results never count as "nothing left".
+
+### Current Goods Adoption (`SellProductCurrentGoods` custom recognizer)
+
+- Recognizes the currently selected goods icon in the outpost selling screen via IconRecognition `single_roi`, with candidates limited to the outpost's sellable items; the Win32 and ADB Pipelines pass `[1177,450,54,54]` and `[1151,393,66,66]` through `roi`, so Go hardcodes no platform coordinates.
+- Rarity and price strategies reuse the normal selection rules. The current item is adopted only when it is exactly the next candidate after preferred slots, tried/out-of-stock state, and reserve rules are applied; otherwise the flow falls back to "Switch Goods" and scans the list.
+- Preferred slots take precedence over the stock strategy, so Stock may also adopt the first available preferred item after tried, out-of-stock, and reserve filters are applied. If the current item is not that preferred candidate, or no preferred item remains available, the goods list must be opened to read live storage quantities; an ordinary candidate is never adopted without that scan.
+- On hit, the `adopt` operation registers the recognized `itemId` as the outpost's current item with the same session effect as a switching `commit` (marks tried, updates the reserve-rule selection), so selling, reserve rules, and out-of-stock marking never distinguish where the goods came from.
 
 ### Priority Selling (master switch, off by default, decoupled from region toggles)
 
