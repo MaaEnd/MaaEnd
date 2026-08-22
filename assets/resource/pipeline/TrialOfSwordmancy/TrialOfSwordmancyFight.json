@@ -24,6 +24,48 @@
             "TrialOfSwordmancyPrepareTeam"
         ]
     },
+    // 溢出停手分支（TrialOfSwordmancyOverflowStop=Yes 时由 StartTrial 路由进入）
+    "TrialOfSwordmancyStartTrialOverflowWait": {
+        "desc": "已溢出，保留手牌等待手动完成本局",
+        "recognition": "And",
+        "all_of": [
+            "TrialOfSwordmancyStartTrial",
+            "TrialOfSwordmancyOverflowExclamation"
+        ],
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [],
+        "focus": {
+            "Node.Action.Succeeded": "已溢出，保留手牌结束任务，请手动完成本局演算"
+        }
+    },
+    // 原 StartTrial 行为副本（非溢出分支）
+    "TrialOfSwordmancyStartTrialAuto": {
+        "desc": "开始演算（自动）",
+        "recognition": "TemplateMatch",
+        "roi": [
+            986,
+            628,
+            17,
+            25
+        ],
+        "template": "TrialOfSwordmancy/TrialStart.png",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "RepeatUntilFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "interval_ms": 1500,
+            "wait_nodes": [
+                "TrialOfSwordmancyPrepareTeam"
+            ]
+        },
+        "post_delay": 0,
+        "next": [
+            "TrialOfSwordmancyPrepareTeam"
+        ]
+    },
     "TrialOfSwordmancyPrepareTeam": {
         // 同 ProtocolSpaceEnterSpacePrepareSuccess
         "desc": "准备编队界面",

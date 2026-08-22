@@ -1346,6 +1346,8 @@
     "option.TrialOfSwordmancyOverflow.cases.None.label": "オーバーフローしない",
     "option.TrialOfSwordmancyOverflow.cases.Once.label": "最大1回オーバーフローを許可",
     "option.TrialOfSwordmancyOverflow.cases.Twice.label": "最大2回オーバーフローを許可",
+    "option.TrialOfSwordmancyOverflowStop.label": "オーバーフロー時に停止して手動戦闘を待つ",
+    "option.TrialOfSwordmancyOverflowStop.description": "有効にすると、オーバーフローした局は<b>現在の手札を保持して演武タスクを終了</b>し、手動でのクリアを待ちます\n<b style='font-size:1.0em;color:#f0903a'>この局を決着させるまで、以降の報酬演算は進行できません。忘れずに完了してください</b>",
     "option.TrialOfSwordmancyAutoFight.label": "自動戦闘を有効化",
     "option.TrialOfSwordmancyAutoFight.description": "有効にすると、MaaEnd が自動で戦闘を行います\n\nオーバーフローなし＋自動戦闘なら、フルオートデイリーに組み込めます",
     "option.TrialOfSwordmancyReturnToWorld.label": "カード抽選終了後に大世界へ戻る",
