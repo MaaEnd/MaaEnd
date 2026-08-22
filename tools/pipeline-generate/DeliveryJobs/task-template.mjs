@@ -313,32 +313,6 @@ function buildAutoDeliveryRiskAcknowledgementOption() {
     };
 }
 
-function buildAutoDeliveryPreferZiplineOption() {
-    const buildCase = (name, ziplinePolicy) => ({
-        name,
-        pipeline_override: {
-            SeizeDeliveryJobsRunDeparture: {
-                custom_action_param: {
-                    map_name_regex: "^(map02_lv002|map02_lv005)$",
-                    zipline_policy: ziplinePolicy,
-                    is_retry: false,
-                },
-            },
-        },
-    });
-    return {
-        type: "switch",
-        controller: AUTO_DELIVERY_CONTROLLERS,
-        label: "$task.SeizeDeliveryJobsPostDeparturePreferZipline.label",
-        description: "$task.SeizeDeliveryJobsPostDeparturePreferZipline.description",
-        default_case: "No",
-        cases: [
-            buildCase("No", "Lazy"),
-            buildCase("Yes", "Active"),
-        ],
-    };
-}
-
 function buildRegionOption(region) {
     return {
         type: "switch",
@@ -457,8 +431,6 @@ function buildTaskOptions() {
     }
 
     options.DeliveryJobsAutoDeliveryRiskAcknowledgement = buildAutoDeliveryRiskAcknowledgementOption();
-    options.DeliveryJobsAutoDeliveryPreferZipline = buildAutoDeliveryPreferZiplineOption();
-
     options.PackCargoSelectItem = {
         type: "switch",
         label: "$task.DeliveryJobs.PackCargoSelectItem.label",
@@ -508,7 +480,6 @@ export default function buildDeliveryJobsTask() {
                     ...deliveryJobRegions.map((region) => region.Id),
                     "PackCargoSelectItem",
                     "DeliveryJobsAutoDeliveryRiskAcknowledgement",
-                    "DeliveryJobsAutoDeliveryPreferZipline",
                 ],
                 controller: [
                     "ADB",

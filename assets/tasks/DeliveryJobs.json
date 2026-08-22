@@ -9,8 +9,7 @@
                 "ValleyIV",
                 "Wuling",
                 "PackCargoSelectItem",
-                "DeliveryJobsAutoDeliveryRiskAcknowledgement",
-                "DeliveryJobsAutoDeliveryPreferZipline"
+                "DeliveryJobsAutoDeliveryRiskAcknowledgement"
             ],
             "controller": [
                 "ADB",
@@ -1618,42 +1617,6 @@
                     "pipeline_override": {
                         "DeliveryJobsAutoDeliveryGuard": {
                             "enabled": false
-                        }
-                    }
-                }
-            ]
-        },
-        "DeliveryJobsAutoDeliveryPreferZipline": {
-            "type": "switch",
-            "controller": [
-                "Win32-Front",
-                "Wlroots"
-            ],
-            "label": "$task.SeizeDeliveryJobsPostDeparturePreferZipline.label",
-            "description": "$task.SeizeDeliveryJobsPostDeparturePreferZipline.description",
-            "default_case": "No",
-            "cases": [
-                {
-                    "name": "No",
-                    "pipeline_override": {
-                        "SeizeDeliveryJobsRunDeparture": {
-                            "custom_action_param": {
-                                "map_name_regex": "^(map02_lv002|map02_lv005)$",
-                                "zipline_policy": "Lazy",
-                                "is_retry": false
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "Yes",
-                    "pipeline_override": {
-                        "SeizeDeliveryJobsRunDeparture": {
-                            "custom_action_param": {
-                                "map_name_regex": "^(map02_lv002|map02_lv005)$",
-                                "zipline_policy": "Active",
-                                "is_retry": false
-                            }
                         }
                     }
                 }

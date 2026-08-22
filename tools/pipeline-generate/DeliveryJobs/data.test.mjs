@@ -228,7 +228,6 @@ test("DeliveryJobs task registers region switches and the shared packing option"
         ...deliveryJobRegions.map((region) => region.Id),
         "PackCargoSelectItem",
         "DeliveryJobsAutoDeliveryRiskAcknowledgement",
-        "DeliveryJobsAutoDeliveryPreferZipline",
     ]);
     assert.equal(task.option.DeliveryJobsAcceptJobOnly, undefined);
     assert.equal(task.option.DeliveryJobsPackCargoOnly, undefined);
@@ -467,16 +466,7 @@ test("DeliveryJobs exposes automatic delivery for supported depots with controll
             },
         ],
     );
-    assert.deepEqual(task.option.DeliveryJobsAutoDeliveryPreferZipline.controller, AUTO_DELIVERY_CONTROLLERS);
-    assert.deepEqual(
-        task.option.DeliveryJobsAutoDeliveryPreferZipline.cases.map(
-            (item) => item.pipeline_override.SeizeDeliveryJobsRunDeparture.custom_action_param.zipline_policy,
-        ),
-        [
-            "Lazy",
-            "Active",
-        ],
-    );
+    assert.equal(task.option.DeliveryJobsAutoDeliveryPreferZipline, undefined);
     for (const depot of deliveryJobDepots) {
         assert.equal(task.option[`DeliveryJobsPostAcceptAction${depot.Id}`], undefined);
         assert.equal(task.option[`DeliveryJobsAtLeastMinimumPostAcceptAction${depot.Id}`], undefined);
