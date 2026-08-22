@@ -266,7 +266,7 @@ std::optional<SpotHit> MapTeleportSolver::ConfirmSpot(
     std::string pickName;
     std::optional<ScanHit> best;
     for (const std::string& name : names) {
-        const IconTemplate* templ = LoadIcon(name);
+        const IconTemplate* templ = LoadIconTemplate(name);
         if (templ == nullptr) {
             continue;
         }
@@ -428,7 +428,7 @@ const cv::Mat* MapTeleportSolver::LoadZoneBase(const std::string& zone)
     return &it->second;
 }
 
-const MapTeleportSolver::IconTemplate* MapTeleportSolver::LoadIcon(const std::string& name)
+const MapTeleportSolver::IconTemplate* MapTeleportSolver::LoadIconTemplate(const std::string& name)
 {
     const auto cached = _icons.find(name);
     if (cached != _icons.end()) {

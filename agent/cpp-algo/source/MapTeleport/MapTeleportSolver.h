@@ -46,7 +46,7 @@ private:
     };
 
     const cv::Mat* LoadZoneBase(const std::string& zone);
-    const IconTemplate* LoadIcon(const std::string& name);
+    const IconTemplate* LoadIconTemplate(const std::string& name);
 
     // 控制器自己的资源层排在基础层之前, 同名图标由前者胜出
     std::vector<std::filesystem::path> _imageRoots;
