@@ -1323,7 +1323,7 @@
     "task.ResourceRecycleStation.focus.Found": "Resource recycle station found",
     "task.ResourceRecycleStation.focus.Empty": "No collectible resources in this region",
     "task.AccountSwitch.label": "🔑 Auto Account Switch",
-    "task.AccountSwitch.description": "Automatically log out and switch accounts by the last 4 digits (CN Server) or masked email (Global Server)\n**Set the frame rate to 60 FPS, disable frame generation, and set the image enhancement option to TAAU in Endfield settings**",
+    "task.AccountSwitch.description": "Automatically log out and switch accounts by the last 4 digits (CN Server) or masked email (Global Server)",
     "task.DevTest.label": "🧪 Dev Test",
     "task.DevTest.description": "Empty task for development debugging. Fill in the pipeline node as needed.",
     "option.AccountSwitchLastFourDigits.label": "Target account last 4 digits",

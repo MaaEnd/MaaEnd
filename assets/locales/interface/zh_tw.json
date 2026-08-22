@@ -1323,7 +1323,7 @@
     "task.ResourceRecycleStation.focus.Found": "發現資源回收站",
     "task.ResourceRecycleStation.focus.Empty": "該地區暫無可收取資源",
     "task.AccountSwitch.label": "🔑自動切換帳號",
-    "task.AccountSwitch.description": "自動登出目前帳號並依後四位（國服）或遮罩電子郵件（國際服）切換帳號\n**請將終末地設定中的幀率改為60幀、關閉幀生成，並將畫質提升選項改為TAAU**",
+    "task.AccountSwitch.description": "自動登出目前帳號並依後四位（國服）或遮罩電子郵件（國際服）切換帳號",
     "task.DevTest.label": "🧪開發測試",
     "task.DevTest.description": "開發除錯用空任務，節點內容自行填寫",
     "option.AccountSwitchLastFourDigits.label": "目標帳號後四位",
