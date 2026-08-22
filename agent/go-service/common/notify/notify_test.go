@@ -2,6 +2,7 @@ package notify
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -588,4 +589,23 @@ func TestSinkFailedNotify(t *testing.T) {
 	// 同一 taskID 重复广播：只发送一次
 	sink.OnTaskerTask(nil, maa.EventStatusFailed, maa.TaskerTaskDetail{TaskID: 3, Entry: "TaskC"})
 	waitForRequests(t, &requests, 1)
+}
+
+func TestSanitizeError(t *testing.T) {
+	if sanitizeError(nil) != nil {
+		t.Errorf("nil should stay nil")
+	}
+	err := fmt.Errorf(`Post "https://api.day.app/SECRETKEY": dial tcp: connection refused`)
+	got := sanitizeError(err).Error()
+	if strings.Contains(got, "SECRETKEY") || strings.Contains(got, "api.day.app") {
+		t.Errorf("sanitized error still contains URL/key: %q", got)
+	}
+	if !strings.Contains(got, "<redacted url>") {
+		t.Errorf("sanitized error should mark redaction: %q", got)
+	}
+	// 不含 URL 的错误原样保留
+	plain := fmt.Errorf("unexpected status code: 500")
+	if sanitizeError(plain).Error() != "unexpected status code: 500" {
+		t.Errorf("plain error should be unchanged: %q", sanitizeError(plain).Error())
+	}
 }

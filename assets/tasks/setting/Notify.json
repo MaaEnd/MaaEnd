@@ -306,7 +306,7 @@
                     "label": "$option.NotifyServerChanTags.Tags.label",
                     "pipeline_type": "string",
                     "default": "",
-                    "placeholder": "$option.NotifyServerChanTags.Tags.placeholder"
+                    "description": "$option.NotifyServerChanTags.Tags.description"
                 }
             ],
             "pipeline_override": {
@@ -398,7 +398,7 @@
                     "label": "$option.NotifyServerChanShort.Short.label",
                     "pipeline_type": "string",
                     "default": "",
-                    "placeholder": "$option.NotifyServerChanShort.Short.placeholder"
+                    "description": "$option.NotifyServerChanShort.Short.description"
                 }
             ],
             "pipeline_override": {
@@ -456,7 +456,7 @@
                     "label": "$option.NotifyServerChanTitle.Title.label",
                     "pipeline_type": "string",
                     "default": "",
-                    "placeholder": "$option.NotifyServerChanTitle.Title.placeholder"
+                    "description": "$option.NotifyServerChanTitle.Title.description"
                 }
             ],
             "pipeline_override": {
@@ -476,7 +476,7 @@
                     "label": "$option.NotifyServerChanBody.Body.label",
                     "pipeline_type": "string",
                     "default": "",
-                    "placeholder": "$option.NotifyServerChanBody.Body.placeholder"
+                    "description": "$option.NotifyServerChanBody.Body.description"
                 }
             ],
             "pipeline_override": {
@@ -588,14 +588,14 @@
                     "label": "title",
                     "pipeline_type": "string",
                     "default": "",
-                    "placeholder": "$option.NotifyBarkParams.Title.placeholder"
+                    "description": "$option.NotifyBarkParams.Title.description"
                 },
                 {
                     "name": "Body",
                     "label": "body",
                     "pipeline_type": "string",
                     "default": "",
-                    "placeholder": "$option.NotifyBarkParams.Body.placeholder"
+                    "description": "$option.NotifyBarkParams.Body.description"
                 },
                 {
                     "name": "Subtitle",

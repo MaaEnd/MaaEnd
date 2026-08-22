@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -173,6 +174,17 @@ func checkStatus(resp *http.Response) error {
 	return nil
 }
 
+var urlInErrRegexp = regexp.MustCompile(`https?://[^\s"']+`)
+
+// sanitizeError 把错误文本中的 URL 整体打码：http.Client 的错误串包含完整请求 URL，
+// 可能携带渠道凭据（Bark key / ServerChan sendkey），不直接写入日志。
+func sanitizeError(err error) error {
+	if err == nil {
+		return nil
+	}
+	return fmt.Errorf("%s", urlInErrRegexp.ReplaceAllString(err.Error(), "<redacted url>"))
+}
+
 // postJSON 发送 JSON POST 并检查状态码；checkCode 时解析 body 的 code 字段（非 0 视为业务失败）。
 func postJSON(endpoint string, payload map[string]any, checkCode bool) error {
 	jsonBody, err := json.Marshal(payload)
@@ -181,7 +193,7 @@ func postJSON(endpoint string, payload map[string]any, checkCode bool) error {
 	}
 	resp, err := httpClient.Post(endpoint, "application/json;charset=utf-8", strings.NewReader(string(jsonBody)))
 	if err != nil {
-		return err
+		return sanitizeError(err)
 	}
 	defer resp.Body.Close()
 	if err := checkStatus(resp); err != nil {
@@ -190,7 +202,7 @@ func postJSON(endpoint string, payload map[string]any, checkCode bool) error {
 	if checkCode {
 		respBody, err := io.ReadAll(resp.Body)
 		if err != nil {
-			return nil
+			return fmt.Errorf("failed to read response body: %w", err)
 		}
 		var result struct {
 			Code int `json:"code"`
@@ -300,11 +312,10 @@ func sendWebhook(config Config, vars map[string]string) error {
 		Str("component", "Notify").
 		Str("channel", "webhook").
 		Str("method", method).
-		Str("url", urlStr).
 		Msg("sending webhook notify")
 	resp, err := httpClient.Do(req)
 	if err != nil {
-		return err
+		return sanitizeError(err)
 	}
 	defer resp.Body.Close()
 	if err := checkStatus(resp); err != nil {
@@ -358,7 +369,7 @@ func sendBark(config Config, title, body string, vars map[string]string) error {
 			payload["badge"] = badge
 		}
 	}
-	log.Debug().Str("component", "Notify").Str("channel", "bark").Str("url", endpoint).Msg("sending bark notify")
+	log.Debug().Str("component", "Notify").Str("channel", "bark").Msg("sending bark notify")
 	return postJSON(endpoint, payload, false)
 }
 
@@ -398,7 +409,7 @@ func sendServerChan(config Config, title, body string, vars map[string]string) e
 		payload["channel"] = channel
 	}
 	addIfPresent(payload, vars, "openid", config.ServerChanOpenID)
-	log.Debug().Str("component", "Notify").Str("channel", "serverchan").Str("url", endpoint).Msg("sending serverchan notify")
+	log.Debug().Str("component", "Notify").Str("channel", "serverchan").Msg("sending serverchan notify")
 	return postJSON(endpoint, payload, true)
 }
 
