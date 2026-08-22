@@ -491,17 +491,24 @@ std::optional<TransferHypothesis> select_grid_hypothesis(const cv::Mat& crop, bo
         }
     }
     if (hypotheses.empty()) {
-        hypotheses = sparse_candidates;
+        for (auto candidate : sparse_candidates) {
+            candidate.foreground_texture_coverage = ForegroundTextureCoverage(crop, candidate);
+            if (candidate.foreground_texture_coverage > 0.0) {
+                hypotheses.push_back(std::move(candidate));
+            }
+        }
     }
     if (hypotheses.empty()) {
         return std::nullopt;
     }
-    const bool has_texture_evidence = std::ranges::any_of(hypotheses, [](const TransferHypothesis& hypothesis) {
-        return hypothesis.foreground_texture_coverage > 0.0;
+    const bool has_reliable_texture_evidence = std::ranges::any_of(hypotheses, [](const TransferHypothesis& hypothesis) {
+        return hypothesis.foreground_texture_coverage >= kMinimumSparseTransferTextureCoverage;
     });
-    if (require_texture && has_texture_evidence) {
-        std::erase_if(hypotheses, [](const TransferHypothesis& hypothesis) {
-            return hypothesis.foreground_texture_coverage < kMinimumSparseTransferTextureCoverage;
+    if (require_texture) {
+        std::erase_if(hypotheses, [has_reliable_texture_evidence](const TransferHypothesis& hypothesis) {
+            return has_reliable_texture_evidence
+                       ? hypothesis.foreground_texture_coverage < kMinimumSparseTransferTextureCoverage
+                       : hypothesis.foreground_texture_coverage <= 0.0;
         });
     }
     if (hypotheses.empty()) {
