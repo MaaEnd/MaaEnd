@@ -128,23 +128,6 @@
             "optional": false
         },
         "next": [
-            "__AccountSwitchConfigureEmailPattern",
-            "__AccountSwitchClickDropdown"
-        ]
-    },
-    "__AccountSwitchConfigureEmailPattern": {
-        "desc": "配置国际服脱敏邮箱匹配规则",
-        "enabled": false,
-        "recognition": "DirectHit",
-        "action": "Custom",
-        "custom_action": "AttachToExpectedRegexAction",
-        "custom_action_param": {
-            "targets": [
-                "__AccountSwitchOCRSelectAccount",
-                "__AccountSwitchVerifySelected"
-            ]
-        },
-        "next": [
             "__AccountSwitchClickDropdown"
         ]
     },
@@ -164,7 +147,10 @@
                     // @i18n-skip
                     ".*[*\\d]\\s*\\d{4}\\s*(?:最近)?.*",
                     ".*\\d{4}\\s*(?:最近)?.*",
-                    "\\d{4}"
+                    "\\d{4}",
+                    // 国际服脱敏邮箱，如 zm*****18@hotmail.com
+                    "(?i).*\\*{3,}\\S*@\\S+.*",
+                    "(?i).*@\\S+\\.\\S+.*"
                 ]
             }
         },
@@ -227,7 +213,10 @@
                     // @i18n-skip
                     ".*[*\\d]\\s*\\d{4}\\s*(?:最近)?.*",
                     ".*\\d{4}\\s*(?:最近)?.*",
-                    "\\d{4}"
+                    "\\d{4}",
+                    // 国际服脱敏邮箱，如 zm*****18@hotmail.com
+                    "(?i).*\\*{3,}\\S*@\\S+.*",
+                    "(?i).*@\\S+\\.\\S+.*"
                 ]
             }
         },
@@ -287,7 +276,10 @@
                     ".*[*\\d]\\s*\\d{4}\\s*(?:最近)?.*",
                     ".*\\d{4}\\s*(?:最近)?.*",
                     "\\d{4}",
-                    "\\d{4}$"
+                    "\\d{4}$",
+                    // 国际服脱敏邮箱，如 zm*****18@hotmail.com
+                    "(?i).*\\*{3,}\\S*@\\S+.*",
+                    "(?i).*@\\S+\\.\\S+.*"
                 ]
             }
         },
@@ -312,7 +304,10 @@
                     ".*[*\\d]\\s*\\d{4}\\s*(?:最近)?.*",
                     ".*\\d{4}\\s*(?:最近)?.*",
                     "\\d{4}",
-                    "\\d{4}$"
+                    "\\d{4}$",
+                    // 国际服脱敏邮箱，如 zm*****18@hotmail.com
+                    "(?i).*\\*{3,}\\S*@\\S+.*",
+                    "(?i).*@\\S+\\.\\S+.*"
                 ]
             }
         },
