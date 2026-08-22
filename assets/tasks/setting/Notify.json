@@ -320,6 +320,7 @@
         "NotifyFail": {
             "type": "switch",
             "label": "$option.NotifyFail.label",
+            "description": "$option.NotifyFail.description",
             "default_case": "No",
             "cases": [
                 {

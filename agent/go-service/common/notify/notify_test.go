@@ -6,10 +6,12 @@ import (
 	"net/http/httptest"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
+	maa "github.com/MaaXYZ/maa-framework-go/v4"
 )
 
 func TestParseConfig(t *testing.T) {
@@ -117,6 +119,21 @@ func TestParseHeaders(t *testing.T) {
 	if headers["X-A"] != "1" || headers["X-B"] != "2" || headers["X-C"] != "3" {
 		t.Errorf("text headers mismatch: %+v", headers)
 	}
+	// 值含冒号：按第一个冒号切分
+	headers = ParseHeaders("X-Url: https://a/b:c")
+	if headers["X-Url"] != "https://a/b:c" {
+		t.Errorf("colon in value mismatch: %+v", headers)
+	}
+	// 坏 JSON（缺尾引号）：回退文本解析，不 panic
+	headers = ParseHeaders(`{"Content-Type": "application/json"`)
+	if v := headers[`{"Content-Type"`]; v != `"application/json"` {
+		t.Errorf("bad JSON fallback mismatch: %+v", headers)
+	}
+	// 全角冒号行：无法切分则跳过，不产生垃圾 header
+	headers = ParseHeaders("X-A：1")
+	if len(headers) != 0 {
+		t.Errorf("full-width colon line should be skipped: %+v", headers)
+	}
 }
 
 func TestPipeSeparated(t *testing.T) {
@@ -127,6 +144,9 @@ func TestPipeSeparated(t *testing.T) {
 		{"日常,重要", "日常|重要"},
 		{"日常, 重要", "日常|重要"},
 		{"A，B、C", "A|B|C"},
+		{"A，B、C、", "A|B|C"},
+		{"日常 ， 重要", "日常|重要"},
+		{"A,B|C", "A|B|C"},
 		{"A|B", "A|B"},
 		{"A,,B", "A|B"},
 		{" A , B ", "A|B"},
@@ -512,4 +532,60 @@ func TestSendServerChanBusinessError(t *testing.T) {
 	if Send(config, map[string]string{}) {
 		t.Errorf("Send should return false on non-zero api code")
 	}
+}
+
+func waitForRequests(t *testing.T, counter *atomic.Int32, want int32) {
+	t.Helper()
+	for i := 0; i < 100; i++ {
+		if counter.Load() == want {
+			return
+		}
+		time.Sleep(20 * time.Millisecond)
+	}
+	t.Fatalf("timeout waiting for %d requests, got %d", want, counter.Load())
+}
+
+func TestSinkFailedNotify(t *testing.T) {
+	configByTaskID = map[uint64]Config{}
+	lastConfig = Config{}
+	notifiedTaskIDs = sync.Map{}
+	defer func() {
+		configByTaskID = map[uint64]Config{}
+		lastConfig = Config{}
+		notifiedTaskIDs = sync.Map{}
+	}()
+
+	var requests atomic.Int32
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requests.Add(1)
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer server.Close()
+
+	sink := &Sink{}
+
+	// on_fail 开启但无渠道：无效配置，不发送
+	setConfigByTask(1, Config{OnFail: true})
+	sink.OnTaskerTask(nil, maa.EventStatusFailed, maa.TaskerTaskDetail{TaskID: 1, Entry: "TaskA"})
+	time.Sleep(100 * time.Millisecond)
+	if requests.Load() != 0 {
+		t.Errorf("on_fail without channel should not send, got %d requests", requests.Load())
+	}
+
+	// 渠道开启但 on_fail 关闭：不发送（主动关闭属正常）
+	setConfigByTask(2, Config{WebhookEnabled: true, WebhookURL: server.URL, WebhookMethod: "GET"})
+	sink.OnTaskerTask(nil, maa.EventStatusFailed, maa.TaskerTaskDetail{TaskID: 2, Entry: "TaskB"})
+	time.Sleep(100 * time.Millisecond)
+	if requests.Load() != 0 {
+		t.Errorf("on_fail off should not send, got %d requests", requests.Load())
+	}
+
+	// on_fail + 渠道：发送失败通知
+	setConfigByTask(3, Config{OnFail: true, FailTitle: "失败啦", WebhookEnabled: true, WebhookURL: server.URL, WebhookMethod: "GET"})
+	sink.OnTaskerTask(nil, maa.EventStatusFailed, maa.TaskerTaskDetail{TaskID: 3, Entry: "TaskC"})
+	waitForRequests(t, &requests, 1)
+
+	// 同一 taskID 重复广播：只发送一次
+	sink.OnTaskerTask(nil, maa.EventStatusFailed, maa.TaskerTaskDetail{TaskID: 3, Entry: "TaskC"})
+	waitForRequests(t, &requests, 1)
 }

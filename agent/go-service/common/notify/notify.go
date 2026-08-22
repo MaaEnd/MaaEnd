@@ -144,6 +144,10 @@ func ParseHeaders(raw string) map[string]string {
 	if err := json.Unmarshal([]byte(raw), &jsonHeaders); err == nil {
 		return jsonHeaders
 	}
+	// JSON 解析失败：若输入意图明显是 JSON（以 { 开头），提示后回退文本格式
+	if strings.HasPrefix(raw, "{") {
+		log.Warn().Str("component", "Notify").Msg("headers JSON invalid, fall back to text format")
+	}
 	headers := make(map[string]string)
 	parts := strings.FieldsFunc(raw, func(r rune) bool { return r == '\n' || r == '|' })
 	for _, part := range parts {

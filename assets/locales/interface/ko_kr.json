@@ -2155,7 +2155,7 @@
     "iconRecognition.name.item_spaceship_credit": "크레딧",
     "iconRecognition.name.item_originium_recharge": "파생 오리지늄",
     "option.NotifyFailTitle.Title.label": "비워두면 기본 제목",
-    "option.NotifyWebhookHeaders.Headers.label": "JSON 객체, 템플릿 변수 치환 지원",
+    "option.NotifyWebhookHeaders.Headers.label": "JSON 객체",
     "option.NotifyWebhook.cases.No.label": "비활성화",
     "option.NotifyServerChan.description": "WeChat 푸시. sctp로 시작하는 SendKey는 ServerChan3, SCT로 시작하는 것은 ServerChan Turbo",
     "option.NotifyFailBody.label": "내용 템플릿",
@@ -2176,8 +2176,9 @@
     "option.NotifyBark.cases.No.label": "비활성화",
     "option.NotifyWebhookHeaders.label": "요청 헤더",
     "option.NotifyWebhookUrl.label": "요청 URL",
+    "option.NotifyFail.description": "알림 채널을 최소 1개 이상 활성화해야 합니다. 없으면 실패 알림이 전송되지 않습니다",
     "option.NotifyFail.label": "실패 알림 활성화",
-    "option.NotifyWebhookBody.Body.label": "JSON 또는 텍스트, 템플릿 변수 치환 지원",
+    "option.NotifyWebhookBody.Body.label": "JSON 또는 텍스트",
     "option.NotifyFailBody.Body.label": "내용 템플릿",
     "option.NotifyBark.description": "iOS 푸시 알림. Bark 앱을 설치하고 기기 Key 입력",
     "option.Notify.label": "알림",
@@ -2211,7 +2212,7 @@
     "option.NotifyBarkParams.Body.placeholder": "{{body}} 참조 가능",
     "option.NotifyHelp.label": "알림 사용 안내",
     "task.NotifyTask.label": "🔔알림 보내기",
-    "task.NotifyTask.description": "설정에서 구성한 알림 채널을 사용하여 알림 전송",
+    "task.NotifyTask.description": "설정에서 구성한 알림 채널을 사용하여 알림 전송; 최소 1개의 채널을 활성화해야 하며, 없으면 전송되지 않습니다",
     "option.NotifyTaskTitle.label": "제목 템플릿",
     "option.NotifyTaskTitle.Title.label": "비워두면 기본 제목",
     "option.NotifyTaskBody.label": "내용 템플릿",
@@ -2225,5 +2226,5 @@
     "option.NotifyTaskServerChan.label": "ServerChan 채널로 보내기",
     "option.NotifyTaskServerChan.cases.Yes.label": "보내기",
     "option.NotifyTaskServerChan.cases.No.label": "보내지 않기",
-    "option.NotifyHelp.description": "**템플릿 변수** (제목/본문/Webhook 요청 본문에서 사용 가능):\n\n| 변수 | 설명 |\n| --- | --- |\n| `{{time}}` | 현재 시간 HH:mm:ss |\n| `{{date}}` | 현재 날짜 yyyy-MM-dd |\n| `{{datetime}}` | 날짜 시간 yyyy-MM-dd HH:mm:ss |\n| `{{task_name}}` | 작업 이름 (알림 작업에서는 알림 작업 이름) |\n| `{{task_status}}` | 작업 상태 (예: 실패) |\n| `{{controller}}` | 컨트롤러 이름 |\n| `{{resource}}` | 리소스 이름 |\n\n**제목/본문**: 채널 설정이 우선. 비어 있으면 알림 항목 템플릿(실패 알림 / 알림 작업) 사용. 채널의 제목/본문에서 `{{title}}` / `{{body}}`로 알림 항목 내용 재사용 가능\n\n**알림 작업**: 인스턴스 끝에 배치. 실행 시 설정의 알림 채널로 전송\n\n**Webhook**은 제목/본문을 읽지 않습니다. 요청 본문에서 템플릿 변수를 사용하세요\n\n**Bark 공식 튜토리얼 (요청 매개변수)**: https://bark.day.app/#/tutorial?id=%e8%af%b7%e6%b1%82%e5%8f%82%e6%95%b0"
+    "option.NotifyHelp.description": "**템플릿 변수** (제목/본문/Webhook 요청 본문에서 사용 가능):\n\n| 변수 | 설명 |\n| --- | --- |\n| `{{time}}` | 현재 시간 HH:mm:ss |\n| `{{date}}` | 현재 날짜 yyyy-MM-dd |\n| `{{datetime}}` | 날짜 시간 yyyy-MM-dd HH:mm:ss |\n| `{{task_name}}` | 작업 이름 (알림 작업에서는 알림 작업 이름) |\n| `{{task_status}}` | 작업 상태 (예: 실패) |\n| `{{controller}}` | 컨트롤러 이름 |\n| `{{resource}}` | 리소스 이름 |\n\n**제목/본문**: 채널 설정이 우선. 비어 있으면 알림 항목 템플릿(실패 알림 / 알림 작업) 사용. 채널의 제목/본문에서 `{{title}}` / `{{body}}`로 알림 항목 내용 재사용 가능\n\n**알림 작업**: 인스턴스 끝에 배치. 실행 시 설정의 알림 채널로 전송\n\n**Webhook**은 제목/본문을 읽지 않습니다. 요청 본문에서 템플릿 변수를 사용하세요\n\n**Bark 공식 튜토리얼 (요청 매개변수)**: https://bark.day.app/#/tutorial?id=%e8%af%b7%e6%b1%82%e5%8f%82%e6%95%b0\n\n참고: 알림을 보내려면 최소 1개의 알림 채널을 활성화해야 합니다. 알림 전송 기능(예: 작업 실패 알림)만 켜고 채널을 설정·활성화하지 않으면 알림이 전송되지 않습니다"
 }

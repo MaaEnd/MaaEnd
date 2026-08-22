@@ -67,7 +67,14 @@ func (s *Sink) OnTaskerTask(_ *maa.Tasker, event maa.EventStatus, detail maa.Tas
 	switch event {
 	case maa.EventStatusFailed:
 		config := getConfigByTask(detail.TaskID)
-		if !config.Enabled() || !config.OnFail {
+		if !config.Enabled() {
+			// on_fail 打开但没有启用任何渠道：属于无效配置，提示一次（按 task 去重）
+			if config.OnFail && shouldNotifyFail(detail.TaskID) {
+				log.Warn().Str("component", "Notify").Uint64("task_id", detail.TaskID).Str("entry", detail.Entry).Msg("on_fail enabled but no channel enabled; failure notification will not be delivered")
+			}
+			return
+		}
+		if !config.OnFail {
 			return
 		}
 		if !shouldNotifyFail(detail.TaskID) {

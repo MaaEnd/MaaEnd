@@ -2155,7 +2155,7 @@
     "iconRecognition.name.item_spaceship_credit": "Credits",
     "iconRecognition.name.item_originium_recharge": "Origeometry",
     "option.NotifyFailTitle.Title.label": "Leave empty for default title",
-    "option.NotifyWebhookHeaders.Headers.label": "JSON object; supports template variable replacement",
+    "option.NotifyWebhookHeaders.Headers.label": "JSON object",
     "option.NotifyWebhook.cases.No.label": "Disable",
     "option.NotifyServerChan.description": "WeChat push. SendKey starting with sctp uses ServerChan3, starting with SCT uses ServerChan Turbo",
     "option.NotifyFailBody.label": "Body template",
@@ -2176,8 +2176,9 @@
     "option.NotifyBark.cases.No.label": "Disable",
     "option.NotifyWebhookHeaders.label": "Request headers",
     "option.NotifyWebhookUrl.label": "Request URL",
+    "option.NotifyFail.description": "At least one notification channel must be enabled, otherwise failure notifications will not be sent",
     "option.NotifyFail.label": "Enable failure notification",
-    "option.NotifyWebhookBody.Body.label": "JSON or text; supports template variable replacement",
+    "option.NotifyWebhookBody.Body.label": "JSON or text",
     "option.NotifyFailBody.Body.label": "Body template",
     "option.NotifyBark.description": "iOS push notification; install the Bark app and fill in your device key",
     "option.Notify.label": "Notification",
@@ -2211,7 +2212,7 @@
     "option.NotifyBarkParams.Body.placeholder": "Use {{body}} to reference",
     "option.NotifyHelp.label": "Notification usage guide",
     "task.NotifyTask.label": "🔔Send Notification",
-    "task.NotifyTask.description": "Send a notification using the channels configured in settings",
+    "task.NotifyTask.description": "Send a notification using the channels configured in settings; at least one channel must be enabled, otherwise nothing is sent",
     "option.NotifyTaskTitle.label": "Title template",
     "option.NotifyTaskTitle.Title.label": "Leave empty for default title",
     "option.NotifyTaskBody.label": "Body template",
@@ -2225,5 +2226,5 @@
     "option.NotifyTaskServerChan.label": "Push via ServerChan",
     "option.NotifyTaskServerChan.cases.Yes.label": "Push",
     "option.NotifyTaskServerChan.cases.No.label": "Don't push",
-    "option.NotifyHelp.description": "**Template variables** (usable in title, body, and Webhook request body):\n\n| Variable | Description |\n| --- | --- |\n| `{{time}}` | Time HH:mm:ss |\n| `{{date}}` | Date yyyy-MM-dd |\n| `{{datetime}}` | Date time yyyy-MM-dd HH:mm:ss |\n| `{{task_name}}` | Task name |\n| `{{task_status}}` | Task status (e.g. Failure) |\n| `{{controller}}` | Controller name |\n| `{{resource}}` | Resource name |\n\n**Title/Body priority**: channel (Bark / ServerChan) title and body take priority; if left empty, the notification item (failure notification / notify task) templates are used (templates support variables like {{task_name}}); if both empty, title falls back to the default\n\n**`{{title}}` / `{{body}}`**: usable in the channel title/body fields (they reuse the notification item filled title/body); NOT usable inside notification items; Webhook request body can use them too\n\n**Notify task**: put the Notify Task at the end of an instance; when it runs it pushes a notification using the configured channels. Set title/body in the task (empty uses defaults)\n\n**Webhook** does not read title/body; use template variables in the request body directly\n\n**Bark official tutorial (request parameters)**: https://bark.day.app/#/tutorial?id=%e8%af%b7%e6%b1%82%e5%8f%82%e6%95%b0"
+    "option.NotifyHelp.description": "**Template variables** (usable in title, body, and Webhook request body):\n\n| Variable | Description |\n| --- | --- |\n| `{{time}}` | Time HH:mm:ss |\n| `{{date}}` | Date yyyy-MM-dd |\n| `{{datetime}}` | Date time yyyy-MM-dd HH:mm:ss |\n| `{{task_name}}` | Task name |\n| `{{task_status}}` | Task status (e.g. Failure) |\n| `{{controller}}` | Controller name |\n| `{{resource}}` | Resource name |\n\n**Title/Body priority**: channel (Bark / ServerChan) title and body take priority; if left empty, the notification item (failure notification / notify task) templates are used (templates support variables like {{task_name}}); if both empty, title falls back to the default\n\n**`{{title}}` / `{{body}}`**: usable in the channel title/body fields (they reuse the notification item filled title/body); NOT usable inside notification items; Webhook request body can use them too\n\n**Notify task**: put the Notify Task at the end of an instance; when it runs it pushes a notification using the configured channels. Set title/body in the task (empty uses defaults)\n\n**Webhook** does not read title/body; use template variables in the request body directly\n\n**Bark official tutorial (request parameters)**: https://bark.day.app/#/tutorial?id=%e8%af%b7%e6%b1%82%e5%8f%82%e6%95%b0\n\nPlease note: at least one notification channel must be enabled for notifications to be delivered; enabling only the notification trigger (e.g. task failure notification) without configuring and enabling any channel means nothing will be sent"
 }

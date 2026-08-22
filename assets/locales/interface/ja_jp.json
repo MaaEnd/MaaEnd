@@ -2155,7 +2155,7 @@
     "iconRecognition.name.item_spaceship_credit": "FP",
     "iconRecognition.name.item_originium_recharge": "展延源石",
     "option.NotifyFailTitle.Title.label": "空の場合はデフォルトタイトル",
-    "option.NotifyWebhookHeaders.Headers.label": "JSON オブジェクト、テンプレート変数置換対応",
+    "option.NotifyWebhookHeaders.Headers.label": "JSON オブジェクト",
     "option.NotifyWebhook.cases.No.label": "無効化",
     "option.NotifyServerChan.description": "WeChatプッシュ。sctp で始まる SendKey は ServerChan3、SCT で始まるものは ServerChan Turbo",
     "option.NotifyFailBody.label": "内容テンプレート",
@@ -2176,8 +2176,9 @@
     "option.NotifyBark.cases.No.label": "無効化",
     "option.NotifyWebhookHeaders.label": "リクエストヘッダー",
     "option.NotifyWebhookUrl.label": "リクエストURL",
+    "option.NotifyFail.description": "通知チャンネルを1つ以上有効にする必要があります。ない場合、失敗通知は送信されません",
     "option.NotifyFail.label": "失敗通知を有効化",
-    "option.NotifyWebhookBody.Body.label": "JSON またはテキスト、テンプレート変数置換対応",
+    "option.NotifyWebhookBody.Body.label": "JSON またはテキスト",
     "option.NotifyFailBody.Body.label": "内容テンプレート",
     "option.NotifyBark.description": "iOSプッシュ通知。BarkアプリをインストールしデバイスKeyを入力",
     "option.Notify.label": "通知",
@@ -2211,7 +2212,7 @@
     "option.NotifyBarkParams.Body.placeholder": "{{body}} で参照可",
     "option.NotifyHelp.label": "通知の使い方",
     "task.NotifyTask.label": "🔔通知を送信",
-    "task.NotifyTask.description": "設定で構成された通知チャンネルを使用して通知を送信",
+    "task.NotifyTask.description": "設定で構成された通知チャンネルを使用して通知を送信；少なくとも1つのチャンネルを有効にしないと送信されません",
     "option.NotifyTaskTitle.label": "タイトルテンプレート",
     "option.NotifyTaskTitle.Title.label": "空の場合はデフォルトタイトル",
     "option.NotifyTaskBody.label": "本文テンプレート",
@@ -2225,5 +2226,5 @@
     "option.NotifyTaskServerChan.label": "ServerChan チャンネルで送信",
     "option.NotifyTaskServerChan.cases.Yes.label": "送信",
     "option.NotifyTaskServerChan.cases.No.label": "送信しない",
-    "option.NotifyHelp.description": "**テンプレート変数**（タイトル/本文/Webhook リクエストボディで使用可）：\n\n| 変数 | 説明 |\n| --- | --- |\n| `{{time}}` | 時刻 HH:mm:ss |\n| `{{date}}` | 日付 yyyy-MM-dd |\n| `{{datetime}}` | 日時 yyyy-MM-dd HH:mm:ss |\n| `{{task_name}}` | タスク名 |\n| `{{task_status}}` | タスク状態（例：失敗） |\n| `{{controller}}` | コントローラー名 |\n| `{{resource}}` | リソース名 |\n\n**タイトル/本文**：チャンネル設定が優先。空なら通知項目テンプレート（失敗通知 / 通知タスク）を使用。チャンネルのタイトル/本文で `{{title}}` / `{{body}}` により通知項目内容を再利用可\n\n**通知タスク**：インスタンス末尾に配置。実行時に設定の通知チャンネルで送信\n\n**Webhook** はタイトル/本文を読み取りません。リクエストボディでテンプレート変数を使用してください\n\n**Bark 公式チュートリアル（リクエストパラメータ説明）**：https://bark.day.app/#/tutorial?id=%e8%af%b7%e6%b1%82%e5%8f%82%e6%95%b0"
+    "option.NotifyHelp.description": "**テンプレート変数**（タイトル/本文/Webhook リクエストボディで使用可）：\n\n| 変数 | 説明 |\n| --- | --- |\n| `{{time}}` | 時刻 HH:mm:ss |\n| `{{date}}` | 日付 yyyy-MM-dd |\n| `{{datetime}}` | 日時 yyyy-MM-dd HH:mm:ss |\n| `{{task_name}}` | タスク名 |\n| `{{task_status}}` | タスク状態（例：失敗） |\n| `{{controller}}` | コントローラー名 |\n| `{{resource}}` | リソース名 |\n\n**タイトル/本文**：チャンネル設定が優先。空なら通知項目テンプレート（失敗通知 / 通知タスク）を使用。チャンネルのタイトル/本文で `{{title}}` / `{{body}}` により通知項目内容を再利用可\n\n**通知タスク**：インスタンス末尾に配置。実行時に設定の通知チャンネルで送信\n\n**Webhook** はタイトル/本文を読み取りません。リクエストボディでテンプレート変数を使用してください\n\n**Bark 公式チュートリアル（リクエストパラメータ説明）**：https://bark.day.app/#/tutorial?id=%e8%af%b7%e6%b1%82%e5%8f%82%e6%95%b0\n\nご注意：通知を送信するには少なくとも1つの通知チャンネルを有効にする必要があります。通知送信機能（例：タスク失敗通知）だけを有効にし、チャンネルを設定・有効化していない場合、通知は送信されません"
 }
