@@ -92,21 +92,17 @@ func TestParseConfigEmpty(t *testing.T) {
 }
 
 func TestReplaceVars(t *testing.T) {
-	vars := BuildVars("DijiangRewards", "成功", time.Date(2026, 8, 21, 9, 30, 0, 0, time.Local))
+	vars := BuildVars("ExampleTask", "成功", time.Date(2026, 8, 21, 9, 30, 0, 0, time.Local))
 	got := ReplaceVars("任务 {{task_name}} {{task_status}}，时间 {{datetime}}，未知 {{unknown}}", vars)
-	want := "任务 DijiangRewards 成功，时间 " + vars["datetime"] + "，未知 {{unknown}}"
+	want := "任务 ExampleTask 成功，时间 " + vars["datetime"] + "，未知 {{unknown}}"
 	if got != want {
 		t.Errorf("ReplaceVars = %q, want %q", got, want)
 	}
 	if vars["time"] != "09:30:00" || vars["date"] != "2026-08-21" {
 		t.Errorf("time/date mismatch: %+v", vars)
 	}
-	// 任务级：name/task_name 均为任务名
-	if vars["name"] != "DijiangRewards" || vars["task_name"] != "DijiangRewards" {
-		t.Errorf("name/task_name mismatch: %+v", vars)
-	}
-	if ReplaceVars("{{name}}", vars) != "DijiangRewards" {
-		t.Errorf("{{name}} should resolve to task name")
+	if vars["task_name"] != "ExampleTask" {
+		t.Errorf("task_name mismatch: %+v", vars)
 	}
 }
 
@@ -262,14 +258,14 @@ func TestSendWebhook(t *testing.T) {
 		WebhookBody:    `{"title":"{{title}}","body":"{{body}}","name":"{{task_name}}"}`,
 	}
 	vars := map[string]string{
-		"task_name": "DijiangRewards",
+		"task_name": "ExampleTask",
 		"title":     "通知标题",
 		"body":      "通知正文",
 	}
 	if !Send(config, vars) {
 		t.Fatalf("Send returned false")
 	}
-	if gotMethod != "POST" || gotHeader != "通知标题" || gotBody != `{"title":"通知标题","body":"通知正文","name":"DijiangRewards"}` {
+	if gotMethod != "POST" || gotHeader != "通知标题" || gotBody != `{"title":"通知标题","body":"通知正文","name":"ExampleTask"}` {
 		t.Errorf("webhook result mismatch: method=%q header=%q body=%q", gotMethod, gotHeader, gotBody)
 	}
 }
@@ -364,16 +360,16 @@ func TestSendServerChanJSON(t *testing.T) {
 		ServerChanChannel: "weixin",
 		ServerChanOpenID:  "openid1",
 	}
-	if !Send(config, map[string]string{"task_name": "DijiangRewards", "title": "标题 {{task_name}}", "body": "正文 {{task_name}}"}) {
+	if !Send(config, map[string]string{"task_name": "ExampleTask", "title": "标题 {{task_name}}", "body": "正文 {{task_name}}"}) {
 		t.Fatalf("Send returned false")
 	}
 	if !strings.Contains(gotContentType, "application/json") {
 		t.Errorf("Content-Type = %q, want application/json", gotContentType)
 	}
-	if gotPayload["title"] != "标题 DijiangRewards" {
+	if gotPayload["title"] != "标题 ExampleTask" {
 		t.Errorf("title = %v, want channel-level override", gotPayload["title"])
 	}
-	if gotPayload["desp"] != "正文 DijiangRewards" {
+	if gotPayload["desp"] != "正文 ExampleTask" {
 		t.Errorf("desp = %v", gotPayload["desp"])
 	}
 	if gotPayload["tags"] != "日常|重要" || gotPayload["short"] != "简短描述" ||
@@ -464,13 +460,13 @@ func TestSendBarkJSON(t *testing.T) {
 		BarkTTL:       "86400",
 		BarkCall:      "1",
 	}
-	if !Send(config, map[string]string{"task_name": "DijiangRewards", "title": "标题 {{task_name}}", "body": "正文 {{task_name}}"}) {
+	if !Send(config, map[string]string{"task_name": "ExampleTask", "title": "标题 {{task_name}}", "body": "正文 {{task_name}}"}) {
 		t.Fatalf("Send returned false")
 	}
 	if !strings.Contains(gotContentType, "application/json") {
 		t.Errorf("Content-Type = %q, want application/json", gotContentType)
 	}
-	if gotPayload["title"] != "标题 DijiangRewards" || gotPayload["body"] != "正文 DijiangRewards" {
+	if gotPayload["title"] != "标题 ExampleTask" || gotPayload["body"] != "正文 ExampleTask" {
 		t.Errorf("title/body mismatch: %v", gotPayload)
 	}
 	if gotPayload["subtitle"] != "副标题" || gotPayload["group"] != "日常" || gotPayload["level"] != "critical" ||

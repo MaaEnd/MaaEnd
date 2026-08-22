@@ -107,14 +107,12 @@ func (c *Config) Enabled() bool {
 	return c.WebhookEnabled || c.BarkEnabled || c.ServerChanEnabled
 }
 
-// BuildVars 构造内置模板变量。taskName 为任务入口名（entry），status 为本地化状态文本（如 成功/Success）。
-// name 为通用主体名：失败通知为失败任务名，通知任务为通知任务名。
+// BuildVars 构造内置模板变量。taskName 为任务入口名（entry），status 为本地化状态文本（如 失败/Failure）。
 func BuildVars(taskName, status string, now time.Time) map[string]string {
 	vars := map[string]string{
 		"time":        now.Format("15:04:05"),
 		"date":        now.Format("2006-01-02"),
 		"datetime":    now.Format("2006-01-02 15:04:05"),
-		"name":        taskName,
 		"task_name":   taskName,
 		"task_status": status,
 	}
@@ -123,9 +121,6 @@ func BuildVars(taskName, status string, now time.Time) map[string]string {
 	}
 	if name := pienv.ResourceName(); name != "" {
 		vars["resource"] = name
-	}
-	if name := pienv.ClientName(); name != "" {
-		vars["client"] = name
 	}
 	return vars
 }
