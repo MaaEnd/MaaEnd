@@ -370,36 +370,35 @@ MaaBool MAA_CALL MapTeleportSelectRun(
 
         if (!icon) {
             // 角色标记画在图标之上，它落在期望位置就是图标认不出来的原因：人已经站在这了。
-            // 剩下的距离交给寻路，退回大世界当作到达。认不出图标的其他原因不会命中这一支
+            // 认不出图标的其他原因不会命中这一支
             PlayerMarkerConfig rescueCfg = markerCfg;
             if (spotCfg.radiusBase > 0.0) {
                 // 图标浮动多远，压在它上面的角色标记就离 target 多远，窗口得跟着放到浮动区那么宽
                 rescueCfg.searchRadius = static_cast<int>(std::lround(spotCfg.radiusBase / viewport->scale));
             }
             const auto marker = MapTeleportSolver::DetectPlayerMarker(screen, expected, rescueCfg);
-            if (marker) {
-                LogInfo << "MapTeleport: already standing on the target, skipping the teleport" << VAR(param.zone)
-                        << VAR(marker->center.x) << VAR(marker->center.y) << VAR(marker->area) << VAR(marker->solidity);
-                if (MaaContextRunTask(context, kEnterWorldEntry, "{}") == MaaInvalidId) {
-                    LogError << "MapTeleport: could not leave the map after skipping the teleport" << VAR(param.zone);
-                    return false;
-                }
-                return true;
+            if (!marker) {
+                LogWarn << "MapTeleport: icon not confirmed at expected position" << VAR(attempt) << VAR(expected.x)
+                        << VAR(expected.y);
+                std::this_thread::sleep_for(std::chrono::milliseconds(kRetryMillis));
+                continue;
             }
 
-            LogWarn << "MapTeleport: icon not confirmed at expected position" << VAR(attempt) << VAR(expected.x) << VAR(expected.y);
-            std::this_thread::sleep_for(std::chrono::milliseconds(kRetryMillis));
-            continue;
+            // 图标被标记盖住点不了，但标记落在这里就佐证了视口没解错，可以照期望位置点。
+            // 已经在点位上也照样传一次：判定圈比点位本身大得多，在圈里不等于站在它的落点上
+            LogInfo << "MapTeleport: player marker covers the icon, clicking the expected position" << VAR(param.zone)
+                    << VAR(marker->center.x) << VAR(marker->center.y) << VAR(marker->area) << VAR(marker->solidity);
         }
 
-        const int cx = static_cast<int>(std::lround(icon->center.x));
-        const int cy = static_cast<int>(std::lround(icon->center.y));
+        const cv::Point2d spot = icon ? icon->center : expected;
+        const int cx = static_cast<int>(std::lround(spot.x));
+        const int cy = static_cast<int>(std::lround(spot.y));
         LogInfo << "MapTeleport: clicking" << VAR(param.zone) << VAR(cx) << VAR(cy);
         const MaaCtrlId click_id = MaaControllerPostClick(controller, cx, cy);
         return MaaControllerWait(controller, click_id) == MaaStatus_Succeeded ? true : false;
     }
 
-    // 点不到就不点：认不出图标时宁可让上层走失败分支，也不按算出来的坐标空点
+    // 点不到就不点：既认不出图标、又没有角色标记佐证时，宁可让上层走失败分支，也不按算出来的坐标空点
     LogError << "MapTeleport: gave up without a confirmed icon" << VAR(param.zone) << VAR(target.x) << VAR(target.y)
              << VAR(param.max_attempts);
     return false;
