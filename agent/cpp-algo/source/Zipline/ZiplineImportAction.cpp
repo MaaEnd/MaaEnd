@@ -15,6 +15,7 @@
 
 #include <MaaUtils/Logger.h>
 
+#include "../Common/notice.h"
 #include "../Common/WebView2.h"
 #include "ZiplineFrames.h"
 #include "ZiplineStore.h"
@@ -293,7 +294,9 @@ void SubscribeSniffers(const std::shared_ptr<WebView2>& webview, const std::shar
             json::value(std::move(params)).dumps(),
             [state, url](bool ok, std::string result_json) {
                 if (!ok) {
-                    LogWarn << "ZiplineImport: getResponseBody failed" << VAR(url);
+                    // 页面对同一接口常发两次请求，经 Service Worker / 缓存应答的那份取不到响应体，
+                    // 属预期竞态，另一份会补上；真缺数据由收尾的 covered / expected 校验兜底。
+                    LogDebug << "ZiplineImport: getResponseBody failed" << VAR(url);
                     return;
                 }
                 const auto parsed_body = json::parse(result_json);
@@ -372,7 +375,8 @@ MaaBool MAA_CALL ZiplineImportActionRun(
     LogInfo << "ZiplineImport: waiting for the page to fetch its marks" << VAR(param.url) << VAR(param.timeout);
 
     MaaTasker* tasker = MaaContextGetTasker(context);
-    const auto deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(param.timeout);
+    const auto started_at = std::chrono::steady_clock::now();
+    const auto deadline = started_at + std::chrono::milliseconds(param.timeout);
 
     // 关窗判据要看抓全了没有，而「该抓哪些图」以标定过的地图为准：没标定的地图本来也不参与规划。
     ZiplineFrames frames;
@@ -383,6 +387,11 @@ MaaBool MAA_CALL ZiplineImportActionRun(
     std::unordered_set<std::string> covered;
     // 没登录时页面照样发标记请求、响应体照样有，只是 saveMarks 是空数组。这行提示只打一次。
     bool signin_hint_logged = false;
+    // 已登录判定：主地图列表「先空后非空」＝窗口里刚完成登录；首条就非空＝本来就登录着。
+    // 关卡/基地子列表对多数用户恒为空，永远进不了非空集合，不会干扰判定。
+    std::unordered_map<std::string, bool> list_first_parse_empty;
+    bool login_transition_seen = false;
+    bool signed_in_notice_decided = false;
     while (true) {
         std::vector<CapturedResponse> fresh;
         bool inflight = false;
@@ -401,12 +410,34 @@ MaaBool MAA_CALL ZiplineImportActionRun(
         for (auto& response : fresh) {
             // 只为了知道这条覆盖了哪几张图，过滤留到落盘时再做。
             std::unordered_map<std::string, std::vector<ZiplineMark>> by_map;
-            if (ParseMarks(response.body, {}, QueryValue(response.url, "mapId"), by_map)) {
+            if (!ParseMarks(response.body, {}, QueryValue(response.url, "mapId"), by_map)) {
+                captured.push_back(std::move(response));
+                continue;
+            }
+
+            const bool non_empty = !by_map.empty();
+            // 列表身份用 query 的 mapId/levelId，不用整个 URL，免得 roleId/serverId 变化拆散同一份列表。
+            const std::string list_key = QueryValue(response.url, "mapId") + "|" + QueryValue(response.url, "levelId");
+            const auto [it, inserted] = list_first_parse_empty.try_emplace(list_key, !non_empty);
+            if (non_empty) {
                 for (const auto& entry : by_map) {
                     covered.insert(entry.first);
                 }
+                if (!inserted && it->second) {
+                    login_transition_seen = true;
+                }
             }
             captured.push_back(std::move(response));
+        }
+
+        if (!covered.empty() && !signed_in_notice_decided) {
+            signed_in_notice_decided = true;
+            if (!login_transition_seen) {
+                common::notice::Publish(context, common::notice::Text("zipline.already_signed_in"));
+            }
+            else {
+                LogInfo << "ZiplineImport: mark list went from empty to non-empty, the user just signed in";
+            }
         }
 
         const auto now = std::chrono::steady_clock::now();
