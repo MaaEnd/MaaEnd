@@ -499,7 +499,10 @@ void WebView2::CallDevToolsMethod(
             wparams.c_str(),
             Callback<DevToolsHandler>([on_done, method](HRESULT err, LPCWSTR result) -> HRESULT {
                 if (FAILED(err)) {
-                    LogError << "WebView2: CallDevToolsProtocolMethod failed" << VAR(err) << VAR(method);
+                    // 方法级失败（如响应体已被回收）是可恢复错误，是否兜底由调用方决定。
+                    const std::string result_str = result ? wideToUtf8(result) : std::string {};
+                    LogWarn << "WebView2: CallDevToolsProtocolMethod failed" << VAR(err) << VAR(method)
+                            << VAR(result_str);
                 }
                 if (on_done) {
                     on_done(SUCCEEDED(err), result ? wideToUtf8(result) : std::string {});
