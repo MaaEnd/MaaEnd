@@ -9,6 +9,14 @@ const CURRENT_OPERATOR_ROI = [
     35,
 ];
 
+// Win32 据点售卖主界面的当前货品槽位，以 1280x720 为基准。
+const CURRENT_GOODS_ROI = [
+    1177,
+    450,
+    54,
+    54,
+];
+
 // Win32 BetterSliding 识别框，以 1280x720 为基准。
 const QUANTITY_BOX = [
     1107,
@@ -29,6 +37,7 @@ export default sellProductLocations.map((location) => ({
     LocationDesc: location.LocationDesc,
     TextExpected: location.TextExpected,
     CurrentOperatorROI: CURRENT_OPERATOR_ROI,
+    CurrentGoodsROI: CURRENT_GOODS_ROI,
     SliderQuantityBox: QUANTITY_BOX,
     AvailableQuantityBox: MAX_QUANTITY_BOX,
 }));

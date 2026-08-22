@@ -742,6 +742,14 @@
             }
         }
     },
+    "__CharacterControllerShiftClickAction": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 56
+            }
+        }
+    },
     "__MapNavigatorObstacleDevice_CancelMove": {
         "action": {
             "type": "ClickKey",

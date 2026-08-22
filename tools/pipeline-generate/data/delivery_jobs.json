@@ -30,239 +30,33 @@
                 "ko_kr": "오리지늄 연구 구역"
             },
             "fillable_items": [
-                "item_bottled_food_1",
-                "item_bottled_food_2",
-                "item_bottled_food_3",
-                "item_bottled_rec_hp_1",
-                "item_bottled_rec_hp_2",
-                "item_bottled_rec_hp_3",
-                "item_carbon_enr",
-                "item_carbon_enr_powder",
-                "item_carbon_mtl",
-                "item_carbon_powder",
-                "item_crystal_enr",
-                "item_crystal_enr_powder",
-                "item_crystal_powder",
-                "item_crystal_shell",
-                "item_equip_script_1",
-                "item_equip_script_2",
-                "item_equip_script_3",
-                "item_glass_bottle",
-                "item_glass_cmpt",
-                "item_glass_enr_bottle",
-                "item_glass_enr_cmpt",
-                "item_iron_bottle",
-                "item_iron_cmpt",
-                "item_iron_enr",
-                "item_iron_enr_bottle",
-                "item_iron_enr_cmpt",
-                "item_iron_enr_powder",
-                "item_iron_nugget",
-                "item_iron_ore",
-                "item_iron_powder",
-                "item_originium_enr_powder",
-                "item_originium_ore",
-                "item_originium_powder",
-                "item_plant_bbflower_1",
-                "item_plant_bbflower_powder_1",
-                "item_plant_bbflower_seed_1",
-                "item_plant_grass_1",
-                "item_plant_grass_2",
-                "item_plant_grass_powder_1",
-                "item_plant_grass_powder_2",
-                "item_plant_grass_seed_1",
-                "item_plant_grass_seed_2",
-                "item_plant_moss_1",
-                "item_plant_moss_2",
-                "item_plant_moss_3",
-                "item_plant_moss_enr_powder_1",
-                "item_plant_moss_enr_powder_2",
-                "item_plant_moss_powder_1",
-                "item_plant_moss_powder_2",
-                "item_plant_moss_powder_3",
-                "item_plant_moss_seed_1",
-                "item_plant_moss_seed_2",
-                "item_plant_moss_seed_3",
-                "item_plant_tundra_insect_powder_1",
-                "item_plant_tundra_insect_powder_2",
-                "item_proc_battery_1",
-                "item_proc_battery_2",
-                "item_proc_battery_3",
-                "item_proc_bomb_1",
-                "item_quartz_enr",
-                "item_quartz_enr_powder",
-                "item_quartz_glass",
-                "item_quartz_powder",
-                "item_quartz_sand"
-            ]
-        },
-        "domain_1_lv006_depot_1": {
-            "region_id": "domain_1",
-            "names": {
-                "zh_cn": "矿脉源区",
-                "zh_tw": "礦脈源區",
-                "en_us": "Origin Lodespring",
-                "ja_jp": "鉱山エリア",
-                "ko_kr": "광맥 구역"
-            },
-            "fillable_items": [
-                "item_bottled_food_1",
-                "item_bottled_food_2",
-                "item_bottled_food_3",
-                "item_bottled_rec_hp_1",
-                "item_bottled_rec_hp_2",
-                "item_bottled_rec_hp_3",
-                "item_carbon_enr",
-                "item_carbon_enr_powder",
-                "item_carbon_mtl",
-                "item_carbon_powder",
-                "item_crystal_enr",
-                "item_crystal_enr_powder",
-                "item_crystal_powder",
-                "item_crystal_shell",
-                "item_equip_script_1",
-                "item_equip_script_2",
-                "item_equip_script_3",
-                "item_glass_bottle",
-                "item_glass_cmpt",
-                "item_glass_enr_bottle",
-                "item_glass_enr_cmpt",
-                "item_iron_bottle",
-                "item_iron_cmpt",
-                "item_iron_enr",
-                "item_iron_enr_bottle",
-                "item_iron_enr_cmpt",
-                "item_iron_enr_powder",
-                "item_iron_nugget",
-                "item_iron_ore",
-                "item_iron_powder",
-                "item_originium_enr_powder",
-                "item_originium_ore",
-                "item_originium_powder",
-                "item_plant_bbflower_1",
-                "item_plant_bbflower_powder_1",
-                "item_plant_bbflower_seed_1",
-                "item_plant_grass_1",
-                "item_plant_grass_2",
-                "item_plant_grass_powder_1",
-                "item_plant_grass_powder_2",
-                "item_plant_grass_seed_1",
-                "item_plant_grass_seed_2",
-                "item_plant_moss_1",
-                "item_plant_moss_2",
-                "item_plant_moss_3",
-                "item_plant_moss_enr_powder_1",
-                "item_plant_moss_enr_powder_2",
-                "item_plant_moss_powder_1",
-                "item_plant_moss_powder_2",
-                "item_plant_moss_powder_3",
-                "item_plant_moss_seed_1",
-                "item_plant_moss_seed_2",
-                "item_plant_moss_seed_3",
-                "item_plant_tundra_insect_powder_1",
-                "item_plant_tundra_insect_powder_2",
-                "item_proc_battery_1",
-                "item_proc_battery_2",
-                "item_proc_battery_3",
-                "item_proc_bomb_1",
-                "item_quartz_enr",
-                "item_quartz_enr_powder",
-                "item_quartz_glass",
-                "item_quartz_powder",
-                "item_quartz_sand"
-            ]
-        },
-        "domain_1_lv007_depot_1": {
-            "region_id": "domain_1",
-            "names": {
-                "zh_cn": "供能高地",
-                "zh_tw": "供能高地",
-                "en_us": "Power Plateau",
-                "ja_jp": "エネルギー高地",
-                "ko_kr": "에너지 공급 고지"
-            },
-            "fillable_items": [
-                "item_bottled_food_1",
-                "item_bottled_food_2",
-                "item_bottled_food_3",
-                "item_bottled_rec_hp_1",
-                "item_bottled_rec_hp_2",
-                "item_bottled_rec_hp_3",
-                "item_carbon_enr",
-                "item_carbon_enr_powder",
-                "item_carbon_mtl",
-                "item_carbon_powder",
-                "item_crystal_enr",
-                "item_crystal_enr_powder",
-                "item_crystal_powder",
-                "item_crystal_shell",
-                "item_equip_script_1",
-                "item_equip_script_2",
-                "item_equip_script_3",
-                "item_glass_bottle",
-                "item_glass_cmpt",
-                "item_glass_enr_bottle",
-                "item_glass_enr_cmpt",
-                "item_iron_bottle",
-                "item_iron_cmpt",
-                "item_iron_enr",
-                "item_iron_enr_bottle",
-                "item_iron_enr_cmpt",
-                "item_iron_enr_powder",
-                "item_iron_nugget",
-                "item_iron_ore",
-                "item_iron_powder",
-                "item_originium_enr_powder",
-                "item_originium_ore",
-                "item_originium_powder",
-                "item_plant_bbflower_1",
-                "item_plant_bbflower_powder_1",
-                "item_plant_bbflower_seed_1",
-                "item_plant_grass_1",
-                "item_plant_grass_2",
-                "item_plant_grass_powder_1",
-                "item_plant_grass_powder_2",
-                "item_plant_grass_seed_1",
-                "item_plant_grass_seed_2",
-                "item_plant_moss_1",
-                "item_plant_moss_2",
-                "item_plant_moss_3",
-                "item_plant_moss_enr_powder_1",
-                "item_plant_moss_enr_powder_2",
-                "item_plant_moss_powder_1",
-                "item_plant_moss_powder_2",
-                "item_plant_moss_powder_3",
-                "item_plant_moss_seed_1",
-                "item_plant_moss_seed_2",
-                "item_plant_moss_seed_3",
-                "item_plant_tundra_insect_powder_1",
-                "item_plant_tundra_insect_powder_2",
-                "item_proc_battery_1",
-                "item_proc_battery_2",
-                "item_proc_battery_3",
-                "item_proc_bomb_1",
-                "item_quartz_enr",
-                "item_quartz_enr_powder",
-                "item_quartz_glass",
-                "item_quartz_powder",
-                "item_quartz_sand"
-            ]
-        },
-        "domain_2_lv002_depot_1": {
-            "region_id": "domain_2",
-            "names": {
-                "zh_cn": "武陵城区",
-                "zh_tw": "武陵城區",
-                "en_us": "Wuling City",
-                "ja_jp": "武陵城内",
-                "ko_kr": "무릉성 구역"
-            },
-            "fillable_items": [
+                "item_agfly_1_agmelee_1_moss_2_1",
+                "item_agmelee_1_moss_1_lbmob_1_1",
+                "item_agmelee_1_sp_2_slimeml_1_1",
+                "item_agrange_1_erhound_1_sp_1_1",
+                "item_agrange_1_lbshamman_bottled_1",
+                "item_agrange_1_moss_2_lbmob_1_1",
+                "item_bottled_flower1spc_1",
+                "item_bottled_flower1spc_2",
+                "item_bottled_flower1spc_3",
+                "item_bottled_flower2spc_1",
+                "item_bottled_flower2spc_2",
+                "item_bottled_flower2spc_3",
                 "item_bottled_food_1",
                 "item_bottled_food_2",
                 "item_bottled_food_3",
                 "item_bottled_food_4",
                 "item_bottled_food_5",
+                "item_bottled_grass1spc_1",
+                "item_bottled_grass1spc_2",
+                "item_bottled_grass2spc_1",
+                "item_bottled_grass2spc_2",
+                "item_bottled_insec1_1",
+                "item_bottled_insec1_2",
+                "item_bottled_insec2_1",
+                "item_bottled_insec2_2",
+                "item_bottled_moss_1_2_1",
+                "item_bottled_moss_2_animal_1",
                 "item_bottled_rec_hp_1",
                 "item_bottled_rec_hp_2",
                 "item_bottled_rec_hp_3",
@@ -283,10 +77,19 @@
                 "item_copper_nugget",
                 "item_copper_ore",
                 "item_copper_powder",
+                "item_corp1_animal_1",
+                "item_corp2_animal_1",
+                "item_corp3_animal_1",
+                "item_corp3_grass1_1",
+                "item_corp4_animal_1",
+                "item_corp4_grass2_1",
+                "item_corp4_spc",
                 "item_crystal_enr",
                 "item_crystal_enr_powder",
                 "item_crystal_powder",
                 "item_crystal_shell",
+                "item_dog_1_slimeml_1_1",
+                "item_dog_hsmob_corp_1",
                 "item_equip_script_1",
                 "item_equip_script_2",
                 "item_equip_script_3",
@@ -294,6 +97,8 @@
                 "item_equip_script_4_1",
                 "item_equip_script_4_2",
                 "item_equip_script_4_3",
+                "item_erhound_1_agmelee_1_moss_1_1",
+                "item_ethillu_1_wgslime_1_wgthorns_1_1",
                 "item_fbottle_copper_acid",
                 "item_fbottle_copper_copper",
                 "item_fbottle_copper_copper_enr",
@@ -360,9 +165,8 @@
                 "item_fbottle_ironenr_xiranite_enr",
                 "item_fbottle_ironenr_xiranite_lowpoly",
                 "item_fbottle_ironenr_xiranite_poly",
-                "item_fertilize_1",
-                "item_fertilize_2",
                 "item_filter_core",
+                "item_firebat_1_agrange_1_1",
                 "item_gasjar_copper_gas_acid",
                 "item_gasjar_copper_gas_copper",
                 "item_gasjar_copper_gas_copper_enr",
@@ -375,6 +179,11 @@
                 "item_glass_cmpt",
                 "item_glass_enr_bottle",
                 "item_glass_enr_cmpt",
+                "item_hscrane_1_hsmob_1_grass_1_1",
+                "item_hsfly_1_slimeml_1_hsmob_1_1",
+                "item_hshog_1_hsmob_1_slimeml_1_1",
+                "item_hsmob_1_dog_1_1",
+                "item_hsmob_1_grass_2_1",
                 "item_iron_bottle",
                 "item_iron_cmpt",
                 "item_iron_enr",
@@ -384,6 +193,15 @@
                 "item_iron_nugget",
                 "item_iron_ore",
                 "item_iron_powder",
+                "item_jzmonk_1_hsmob_1_1",
+                "item_klbuds_1_hsfly_1_1",
+                "item_klcreatures_1_wgthorns_1_1",
+                "item_lbmob_1_dog_1_moss_1_1",
+                "item_lbmob_1_lbshamman_1_sp_1_1",
+                "item_lbmob_1_moss_2_bottled_1",
+                "item_lbshamman_1_agmelee_1_1",
+                "item_lbshield_1_slimeml_1_dog_1_1",
+                "item_mimicw_1_moss_1_moss_2_1",
                 "item_muck_feces_1",
                 "item_muck_xiranite_1",
                 "item_originium_enr_powder",
@@ -398,6 +216,10 @@
                 "item_plant_grass_powder_2",
                 "item_plant_grass_seed_1",
                 "item_plant_grass_seed_2",
+                "item_plant_grass_spc_1",
+                "item_plant_grass_spc_2",
+                "item_plant_grass_spc_powder_1",
+                "item_plant_grass_spc_powder_2",
                 "item_plant_moss_1",
                 "item_plant_moss_2",
                 "item_plant_moss_3",
@@ -409,8 +231,23 @@
                 "item_plant_moss_seed_1",
                 "item_plant_moss_seed_2",
                 "item_plant_moss_seed_3",
+                "item_plant_moss_spc_1",
+                "item_plant_moss_spc_2",
+                "item_plant_moss_spc_powder_1",
+                "item_plant_moss_spc_powder_2",
+                "item_plant_sp_1",
+                "item_plant_sp_2",
+                "item_plant_sp_3",
+                "item_plant_sp_4",
+                "item_plant_sp_seed_1",
+                "item_plant_sp_seed_2",
+                "item_plant_sp_seed_3",
+                "item_plant_sp_seed_4",
+                "item_plant_tundra_insect_1",
+                "item_plant_tundra_insect_2",
                 "item_plant_tundra_insect_powder_1",
                 "item_plant_tundra_insect_powder_2",
+                "item_plant_tundra_wood",
                 "item_proc_battery_1",
                 "item_proc_battery_2",
                 "item_proc_battery_3",
@@ -422,6 +259,773 @@
                 "item_quartz_glass",
                 "item_quartz_powder",
                 "item_quartz_sand",
+                "item_slimeml_1_agrange_1_moss_2_1",
+                "item_slimeml_1_erhound_1_agfly_1_1",
+                "item_sp_1_moss_1_agmelee_1_1",
+                "item_sp_2_moss_2_agrange_1_1",
+                "item_wgshoal_1_grass_1_grass_2_1",
+                "item_wgslime_1_hsmob_1_grass_2_1",
+                "item_wgslime_1_wgthorns_1_1",
+                "item_wgthorns_1_hshog_1_hsmob_1_1",
+                "item_xiranite_enr_powder",
+                "item_xiranite_lowpoly",
+                "item_xiranite_poly",
+                "item_xiranite_powder"
+            ]
+        },
+        "domain_1_lv006_depot_1": {
+            "region_id": "domain_1",
+            "names": {
+                "zh_cn": "矿脉源区",
+                "zh_tw": "礦脈源區",
+                "en_us": "Origin Lodespring",
+                "ja_jp": "鉱山エリア",
+                "ko_kr": "광맥 구역"
+            },
+            "fillable_items": [
+                "item_agfly_1_agmelee_1_moss_2_1",
+                "item_agmelee_1_moss_1_lbmob_1_1",
+                "item_agmelee_1_sp_2_slimeml_1_1",
+                "item_agrange_1_erhound_1_sp_1_1",
+                "item_agrange_1_lbshamman_bottled_1",
+                "item_agrange_1_moss_2_lbmob_1_1",
+                "item_bottled_flower1spc_1",
+                "item_bottled_flower1spc_2",
+                "item_bottled_flower1spc_3",
+                "item_bottled_flower2spc_1",
+                "item_bottled_flower2spc_2",
+                "item_bottled_flower2spc_3",
+                "item_bottled_food_1",
+                "item_bottled_food_2",
+                "item_bottled_food_3",
+                "item_bottled_food_4",
+                "item_bottled_food_5",
+                "item_bottled_grass1spc_1",
+                "item_bottled_grass1spc_2",
+                "item_bottled_grass2spc_1",
+                "item_bottled_grass2spc_2",
+                "item_bottled_insec1_1",
+                "item_bottled_insec1_2",
+                "item_bottled_insec2_1",
+                "item_bottled_insec2_2",
+                "item_bottled_moss_1_2_1",
+                "item_bottled_moss_2_animal_1",
+                "item_bottled_rec_hp_1",
+                "item_bottled_rec_hp_2",
+                "item_bottled_rec_hp_3",
+                "item_bottled_rec_hp_4",
+                "item_bottled_rec_hp_5",
+                "item_carbon_enr",
+                "item_carbon_enr_powder",
+                "item_carbon_mtl",
+                "item_carbon_powder",
+                "item_copper_bottle",
+                "item_copper_cmpt",
+                "item_copper_enr",
+                "item_copper_enr2",
+                "item_copper_enr2_cmpt",
+                "item_copper_enr_bottle",
+                "item_copper_enr_cmpt",
+                "item_copper_jar",
+                "item_copper_nugget",
+                "item_copper_ore",
+                "item_copper_powder",
+                "item_corp1_animal_1",
+                "item_corp2_animal_1",
+                "item_corp3_animal_1",
+                "item_corp3_grass1_1",
+                "item_corp4_animal_1",
+                "item_corp4_grass2_1",
+                "item_corp4_spc",
+                "item_crystal_enr",
+                "item_crystal_enr_powder",
+                "item_crystal_powder",
+                "item_crystal_shell",
+                "item_dog_1_slimeml_1_1",
+                "item_dog_hsmob_corp_1",
+                "item_equip_script_1",
+                "item_equip_script_2",
+                "item_equip_script_3",
+                "item_equip_script_4",
+                "item_equip_script_4_1",
+                "item_equip_script_4_2",
+                "item_equip_script_4_3",
+                "item_erhound_1_agmelee_1_moss_1_1",
+                "item_ethillu_1_wgslime_1_wgthorns_1_1",
+                "item_fbottle_copper_acid",
+                "item_fbottle_copper_copper",
+                "item_fbottle_copper_copper_enr",
+                "item_fbottle_copper_grass_1",
+                "item_fbottle_copper_grass_2",
+                "item_fbottle_copper_sewage",
+                "item_fbottle_copper_water",
+                "item_fbottle_copper_xiranite",
+                "item_fbottle_copper_xiranite_enr",
+                "item_fbottle_copper_xiranite_lowpoly",
+                "item_fbottle_copper_xiranite_poly",
+                "item_fbottle_copperenr_acid",
+                "item_fbottle_copperenr_copper",
+                "item_fbottle_copperenr_copper_enr",
+                "item_fbottle_copperenr_grass_1",
+                "item_fbottle_copperenr_grass_2",
+                "item_fbottle_copperenr_sewage",
+                "item_fbottle_copperenr_water",
+                "item_fbottle_copperenr_xiranite",
+                "item_fbottle_copperenr_xiranite_enr",
+                "item_fbottle_copperenr_xiranite_lowpoly",
+                "item_fbottle_copperenr_xiranite_poly",
+                "item_fbottle_glass_acid",
+                "item_fbottle_glass_copper",
+                "item_fbottle_glass_copper_enr",
+                "item_fbottle_glass_grass_1",
+                "item_fbottle_glass_grass_2",
+                "item_fbottle_glass_sewage",
+                "item_fbottle_glass_water",
+                "item_fbottle_glass_xiranite",
+                "item_fbottle_glass_xiranite_enr",
+                "item_fbottle_glass_xiranite_lowpoly",
+                "item_fbottle_glass_xiranite_poly",
+                "item_fbottle_glassenr_acid",
+                "item_fbottle_glassenr_copper",
+                "item_fbottle_glassenr_copper_enr",
+                "item_fbottle_glassenr_grass_1",
+                "item_fbottle_glassenr_grass_2",
+                "item_fbottle_glassenr_sewage",
+                "item_fbottle_glassenr_water",
+                "item_fbottle_glassenr_xiranite",
+                "item_fbottle_glassenr_xiranite_enr",
+                "item_fbottle_glassenr_xiranite_lowpoly",
+                "item_fbottle_glassenr_xiranite_poly",
+                "item_fbottle_iron_acid",
+                "item_fbottle_iron_copper",
+                "item_fbottle_iron_copper_enr",
+                "item_fbottle_iron_grass_1",
+                "item_fbottle_iron_grass_2",
+                "item_fbottle_iron_sewage",
+                "item_fbottle_iron_water",
+                "item_fbottle_iron_xiranite",
+                "item_fbottle_iron_xiranite_enr",
+                "item_fbottle_iron_xiranite_lowpoly",
+                "item_fbottle_iron_xiranite_poly",
+                "item_fbottle_ironenr_acid",
+                "item_fbottle_ironenr_copper",
+                "item_fbottle_ironenr_copper_enr",
+                "item_fbottle_ironenr_grass_1",
+                "item_fbottle_ironenr_grass_2",
+                "item_fbottle_ironenr_sewage",
+                "item_fbottle_ironenr_water",
+                "item_fbottle_ironenr_xiranite",
+                "item_fbottle_ironenr_xiranite_enr",
+                "item_fbottle_ironenr_xiranite_lowpoly",
+                "item_fbottle_ironenr_xiranite_poly",
+                "item_filter_core",
+                "item_firebat_1_agrange_1_1",
+                "item_gasjar_copper_gas_acid",
+                "item_gasjar_copper_gas_copper",
+                "item_gasjar_copper_gas_copper_enr",
+                "item_gasjar_copper_gas_copper_enr2",
+                "item_gasjar_copper_gas_inert",
+                "item_gasjar_copper_gas_water",
+                "item_gasjar_copper_gas_xiranite",
+                "item_gasjar_copper_gas_xiranite_enr",
+                "item_glass_bottle",
+                "item_glass_cmpt",
+                "item_glass_enr_bottle",
+                "item_glass_enr_cmpt",
+                "item_hscrane_1_hsmob_1_grass_1_1",
+                "item_hsfly_1_slimeml_1_hsmob_1_1",
+                "item_hshog_1_hsmob_1_slimeml_1_1",
+                "item_hsmob_1_dog_1_1",
+                "item_hsmob_1_grass_2_1",
+                "item_iron_bottle",
+                "item_iron_cmpt",
+                "item_iron_enr",
+                "item_iron_enr_bottle",
+                "item_iron_enr_cmpt",
+                "item_iron_enr_powder",
+                "item_iron_nugget",
+                "item_iron_ore",
+                "item_iron_powder",
+                "item_jzmonk_1_hsmob_1_1",
+                "item_klbuds_1_hsfly_1_1",
+                "item_klcreatures_1_wgthorns_1_1",
+                "item_lbmob_1_dog_1_moss_1_1",
+                "item_lbmob_1_lbshamman_1_sp_1_1",
+                "item_lbmob_1_moss_2_bottled_1",
+                "item_lbshamman_1_agmelee_1_1",
+                "item_lbshield_1_slimeml_1_dog_1_1",
+                "item_mimicw_1_moss_1_moss_2_1",
+                "item_muck_feces_1",
+                "item_muck_xiranite_1",
+                "item_originium_enr_powder",
+                "item_originium_ore",
+                "item_originium_powder",
+                "item_plant_bbflower_1",
+                "item_plant_bbflower_powder_1",
+                "item_plant_bbflower_seed_1",
+                "item_plant_grass_1",
+                "item_plant_grass_2",
+                "item_plant_grass_powder_1",
+                "item_plant_grass_powder_2",
+                "item_plant_grass_seed_1",
+                "item_plant_grass_seed_2",
+                "item_plant_grass_spc_1",
+                "item_plant_grass_spc_2",
+                "item_plant_grass_spc_powder_1",
+                "item_plant_grass_spc_powder_2",
+                "item_plant_moss_1",
+                "item_plant_moss_2",
+                "item_plant_moss_3",
+                "item_plant_moss_enr_powder_1",
+                "item_plant_moss_enr_powder_2",
+                "item_plant_moss_powder_1",
+                "item_plant_moss_powder_2",
+                "item_plant_moss_powder_3",
+                "item_plant_moss_seed_1",
+                "item_plant_moss_seed_2",
+                "item_plant_moss_seed_3",
+                "item_plant_moss_spc_1",
+                "item_plant_moss_spc_2",
+                "item_plant_moss_spc_powder_1",
+                "item_plant_moss_spc_powder_2",
+                "item_plant_sp_1",
+                "item_plant_sp_2",
+                "item_plant_sp_3",
+                "item_plant_sp_4",
+                "item_plant_sp_seed_1",
+                "item_plant_sp_seed_2",
+                "item_plant_sp_seed_3",
+                "item_plant_sp_seed_4",
+                "item_plant_tundra_insect_1",
+                "item_plant_tundra_insect_2",
+                "item_plant_tundra_insect_powder_1",
+                "item_plant_tundra_insect_powder_2",
+                "item_plant_tundra_wood",
+                "item_proc_battery_1",
+                "item_proc_battery_2",
+                "item_proc_battery_3",
+                "item_proc_battery_4",
+                "item_proc_battery_5",
+                "item_proc_bomb_1",
+                "item_quartz_enr",
+                "item_quartz_enr_powder",
+                "item_quartz_glass",
+                "item_quartz_powder",
+                "item_quartz_sand",
+                "item_slimeml_1_agrange_1_moss_2_1",
+                "item_slimeml_1_erhound_1_agfly_1_1",
+                "item_sp_1_moss_1_agmelee_1_1",
+                "item_sp_2_moss_2_agrange_1_1",
+                "item_wgshoal_1_grass_1_grass_2_1",
+                "item_wgslime_1_hsmob_1_grass_2_1",
+                "item_wgslime_1_wgthorns_1_1",
+                "item_wgthorns_1_hshog_1_hsmob_1_1",
+                "item_xiranite_enr_powder",
+                "item_xiranite_lowpoly",
+                "item_xiranite_poly",
+                "item_xiranite_powder"
+            ]
+        },
+        "domain_1_lv007_depot_1": {
+            "region_id": "domain_1",
+            "names": {
+                "zh_cn": "供能高地",
+                "zh_tw": "供能高地",
+                "en_us": "Power Plateau",
+                "ja_jp": "エネルギー高地",
+                "ko_kr": "에너지 공급 고지"
+            },
+            "fillable_items": [
+                "item_agfly_1_agmelee_1_moss_2_1",
+                "item_agmelee_1_moss_1_lbmob_1_1",
+                "item_agmelee_1_sp_2_slimeml_1_1",
+                "item_agrange_1_erhound_1_sp_1_1",
+                "item_agrange_1_lbshamman_bottled_1",
+                "item_agrange_1_moss_2_lbmob_1_1",
+                "item_bottled_flower1spc_1",
+                "item_bottled_flower1spc_2",
+                "item_bottled_flower1spc_3",
+                "item_bottled_flower2spc_1",
+                "item_bottled_flower2spc_2",
+                "item_bottled_flower2spc_3",
+                "item_bottled_food_1",
+                "item_bottled_food_2",
+                "item_bottled_food_3",
+                "item_bottled_food_4",
+                "item_bottled_food_5",
+                "item_bottled_grass1spc_1",
+                "item_bottled_grass1spc_2",
+                "item_bottled_grass2spc_1",
+                "item_bottled_grass2spc_2",
+                "item_bottled_insec1_1",
+                "item_bottled_insec1_2",
+                "item_bottled_insec2_1",
+                "item_bottled_insec2_2",
+                "item_bottled_moss_1_2_1",
+                "item_bottled_moss_2_animal_1",
+                "item_bottled_rec_hp_1",
+                "item_bottled_rec_hp_2",
+                "item_bottled_rec_hp_3",
+                "item_bottled_rec_hp_4",
+                "item_bottled_rec_hp_5",
+                "item_carbon_enr",
+                "item_carbon_enr_powder",
+                "item_carbon_mtl",
+                "item_carbon_powder",
+                "item_copper_bottle",
+                "item_copper_cmpt",
+                "item_copper_enr",
+                "item_copper_enr2",
+                "item_copper_enr2_cmpt",
+                "item_copper_enr_bottle",
+                "item_copper_enr_cmpt",
+                "item_copper_jar",
+                "item_copper_nugget",
+                "item_copper_ore",
+                "item_copper_powder",
+                "item_corp1_animal_1",
+                "item_corp2_animal_1",
+                "item_corp3_animal_1",
+                "item_corp3_grass1_1",
+                "item_corp4_animal_1",
+                "item_corp4_grass2_1",
+                "item_corp4_spc",
+                "item_crystal_enr",
+                "item_crystal_enr_powder",
+                "item_crystal_powder",
+                "item_crystal_shell",
+                "item_dog_1_slimeml_1_1",
+                "item_dog_hsmob_corp_1",
+                "item_equip_script_1",
+                "item_equip_script_2",
+                "item_equip_script_3",
+                "item_equip_script_4",
+                "item_equip_script_4_1",
+                "item_equip_script_4_2",
+                "item_equip_script_4_3",
+                "item_erhound_1_agmelee_1_moss_1_1",
+                "item_ethillu_1_wgslime_1_wgthorns_1_1",
+                "item_fbottle_copper_acid",
+                "item_fbottle_copper_copper",
+                "item_fbottle_copper_copper_enr",
+                "item_fbottle_copper_grass_1",
+                "item_fbottle_copper_grass_2",
+                "item_fbottle_copper_sewage",
+                "item_fbottle_copper_water",
+                "item_fbottle_copper_xiranite",
+                "item_fbottle_copper_xiranite_enr",
+                "item_fbottle_copper_xiranite_lowpoly",
+                "item_fbottle_copper_xiranite_poly",
+                "item_fbottle_copperenr_acid",
+                "item_fbottle_copperenr_copper",
+                "item_fbottle_copperenr_copper_enr",
+                "item_fbottle_copperenr_grass_1",
+                "item_fbottle_copperenr_grass_2",
+                "item_fbottle_copperenr_sewage",
+                "item_fbottle_copperenr_water",
+                "item_fbottle_copperenr_xiranite",
+                "item_fbottle_copperenr_xiranite_enr",
+                "item_fbottle_copperenr_xiranite_lowpoly",
+                "item_fbottle_copperenr_xiranite_poly",
+                "item_fbottle_glass_acid",
+                "item_fbottle_glass_copper",
+                "item_fbottle_glass_copper_enr",
+                "item_fbottle_glass_grass_1",
+                "item_fbottle_glass_grass_2",
+                "item_fbottle_glass_sewage",
+                "item_fbottle_glass_water",
+                "item_fbottle_glass_xiranite",
+                "item_fbottle_glass_xiranite_enr",
+                "item_fbottle_glass_xiranite_lowpoly",
+                "item_fbottle_glass_xiranite_poly",
+                "item_fbottle_glassenr_acid",
+                "item_fbottle_glassenr_copper",
+                "item_fbottle_glassenr_copper_enr",
+                "item_fbottle_glassenr_grass_1",
+                "item_fbottle_glassenr_grass_2",
+                "item_fbottle_glassenr_sewage",
+                "item_fbottle_glassenr_water",
+                "item_fbottle_glassenr_xiranite",
+                "item_fbottle_glassenr_xiranite_enr",
+                "item_fbottle_glassenr_xiranite_lowpoly",
+                "item_fbottle_glassenr_xiranite_poly",
+                "item_fbottle_iron_acid",
+                "item_fbottle_iron_copper",
+                "item_fbottle_iron_copper_enr",
+                "item_fbottle_iron_grass_1",
+                "item_fbottle_iron_grass_2",
+                "item_fbottle_iron_sewage",
+                "item_fbottle_iron_water",
+                "item_fbottle_iron_xiranite",
+                "item_fbottle_iron_xiranite_enr",
+                "item_fbottle_iron_xiranite_lowpoly",
+                "item_fbottle_iron_xiranite_poly",
+                "item_fbottle_ironenr_acid",
+                "item_fbottle_ironenr_copper",
+                "item_fbottle_ironenr_copper_enr",
+                "item_fbottle_ironenr_grass_1",
+                "item_fbottle_ironenr_grass_2",
+                "item_fbottle_ironenr_sewage",
+                "item_fbottle_ironenr_water",
+                "item_fbottle_ironenr_xiranite",
+                "item_fbottle_ironenr_xiranite_enr",
+                "item_fbottle_ironenr_xiranite_lowpoly",
+                "item_fbottle_ironenr_xiranite_poly",
+                "item_filter_core",
+                "item_firebat_1_agrange_1_1",
+                "item_gasjar_copper_gas_acid",
+                "item_gasjar_copper_gas_copper",
+                "item_gasjar_copper_gas_copper_enr",
+                "item_gasjar_copper_gas_copper_enr2",
+                "item_gasjar_copper_gas_inert",
+                "item_gasjar_copper_gas_water",
+                "item_gasjar_copper_gas_xiranite",
+                "item_gasjar_copper_gas_xiranite_enr",
+                "item_glass_bottle",
+                "item_glass_cmpt",
+                "item_glass_enr_bottle",
+                "item_glass_enr_cmpt",
+                "item_hscrane_1_hsmob_1_grass_1_1",
+                "item_hsfly_1_slimeml_1_hsmob_1_1",
+                "item_hshog_1_hsmob_1_slimeml_1_1",
+                "item_hsmob_1_dog_1_1",
+                "item_hsmob_1_grass_2_1",
+                "item_iron_bottle",
+                "item_iron_cmpt",
+                "item_iron_enr",
+                "item_iron_enr_bottle",
+                "item_iron_enr_cmpt",
+                "item_iron_enr_powder",
+                "item_iron_nugget",
+                "item_iron_ore",
+                "item_iron_powder",
+                "item_jzmonk_1_hsmob_1_1",
+                "item_klbuds_1_hsfly_1_1",
+                "item_klcreatures_1_wgthorns_1_1",
+                "item_lbmob_1_dog_1_moss_1_1",
+                "item_lbmob_1_lbshamman_1_sp_1_1",
+                "item_lbmob_1_moss_2_bottled_1",
+                "item_lbshamman_1_agmelee_1_1",
+                "item_lbshield_1_slimeml_1_dog_1_1",
+                "item_mimicw_1_moss_1_moss_2_1",
+                "item_muck_feces_1",
+                "item_muck_xiranite_1",
+                "item_originium_enr_powder",
+                "item_originium_ore",
+                "item_originium_powder",
+                "item_plant_bbflower_1",
+                "item_plant_bbflower_powder_1",
+                "item_plant_bbflower_seed_1",
+                "item_plant_grass_1",
+                "item_plant_grass_2",
+                "item_plant_grass_powder_1",
+                "item_plant_grass_powder_2",
+                "item_plant_grass_seed_1",
+                "item_plant_grass_seed_2",
+                "item_plant_grass_spc_1",
+                "item_plant_grass_spc_2",
+                "item_plant_grass_spc_powder_1",
+                "item_plant_grass_spc_powder_2",
+                "item_plant_moss_1",
+                "item_plant_moss_2",
+                "item_plant_moss_3",
+                "item_plant_moss_enr_powder_1",
+                "item_plant_moss_enr_powder_2",
+                "item_plant_moss_powder_1",
+                "item_plant_moss_powder_2",
+                "item_plant_moss_powder_3",
+                "item_plant_moss_seed_1",
+                "item_plant_moss_seed_2",
+                "item_plant_moss_seed_3",
+                "item_plant_moss_spc_1",
+                "item_plant_moss_spc_2",
+                "item_plant_moss_spc_powder_1",
+                "item_plant_moss_spc_powder_2",
+                "item_plant_sp_1",
+                "item_plant_sp_2",
+                "item_plant_sp_3",
+                "item_plant_sp_4",
+                "item_plant_sp_seed_1",
+                "item_plant_sp_seed_2",
+                "item_plant_sp_seed_3",
+                "item_plant_sp_seed_4",
+                "item_plant_tundra_insect_1",
+                "item_plant_tundra_insect_2",
+                "item_plant_tundra_insect_powder_1",
+                "item_plant_tundra_insect_powder_2",
+                "item_plant_tundra_wood",
+                "item_proc_battery_1",
+                "item_proc_battery_2",
+                "item_proc_battery_3",
+                "item_proc_battery_4",
+                "item_proc_battery_5",
+                "item_proc_bomb_1",
+                "item_quartz_enr",
+                "item_quartz_enr_powder",
+                "item_quartz_glass",
+                "item_quartz_powder",
+                "item_quartz_sand",
+                "item_slimeml_1_agrange_1_moss_2_1",
+                "item_slimeml_1_erhound_1_agfly_1_1",
+                "item_sp_1_moss_1_agmelee_1_1",
+                "item_sp_2_moss_2_agrange_1_1",
+                "item_wgshoal_1_grass_1_grass_2_1",
+                "item_wgslime_1_hsmob_1_grass_2_1",
+                "item_wgslime_1_wgthorns_1_1",
+                "item_wgthorns_1_hshog_1_hsmob_1_1",
+                "item_xiranite_enr_powder",
+                "item_xiranite_lowpoly",
+                "item_xiranite_poly",
+                "item_xiranite_powder"
+            ]
+        },
+        "domain_2_lv002_depot_1": {
+            "region_id": "domain_2",
+            "names": {
+                "zh_cn": "武陵城区",
+                "zh_tw": "武陵城區",
+                "en_us": "Wuling City",
+                "ja_jp": "武陵城内",
+                "ko_kr": "무릉성 구역"
+            },
+            "fillable_items": [
+                "item_agfly_1_agmelee_1_moss_2_1",
+                "item_agmelee_1_moss_1_lbmob_1_1",
+                "item_agmelee_1_sp_2_slimeml_1_1",
+                "item_agrange_1_erhound_1_sp_1_1",
+                "item_agrange_1_lbshamman_bottled_1",
+                "item_agrange_1_moss_2_lbmob_1_1",
+                "item_bottled_flower1spc_1",
+                "item_bottled_flower1spc_2",
+                "item_bottled_flower1spc_3",
+                "item_bottled_flower2spc_1",
+                "item_bottled_flower2spc_2",
+                "item_bottled_flower2spc_3",
+                "item_bottled_food_1",
+                "item_bottled_food_2",
+                "item_bottled_food_3",
+                "item_bottled_food_4",
+                "item_bottled_food_5",
+                "item_bottled_grass1spc_1",
+                "item_bottled_grass1spc_2",
+                "item_bottled_grass2spc_1",
+                "item_bottled_grass2spc_2",
+                "item_bottled_insec1_1",
+                "item_bottled_insec1_2",
+                "item_bottled_insec2_1",
+                "item_bottled_insec2_2",
+                "item_bottled_moss_1_2_1",
+                "item_bottled_moss_2_animal_1",
+                "item_bottled_rec_hp_1",
+                "item_bottled_rec_hp_2",
+                "item_bottled_rec_hp_3",
+                "item_bottled_rec_hp_4",
+                "item_bottled_rec_hp_5",
+                "item_carbon_enr",
+                "item_carbon_enr_powder",
+                "item_carbon_mtl",
+                "item_carbon_powder",
+                "item_copper_bottle",
+                "item_copper_cmpt",
+                "item_copper_enr",
+                "item_copper_enr2",
+                "item_copper_enr2_cmpt",
+                "item_copper_enr_bottle",
+                "item_copper_enr_cmpt",
+                "item_copper_jar",
+                "item_copper_nugget",
+                "item_copper_ore",
+                "item_copper_powder",
+                "item_corp1_animal_1",
+                "item_corp2_animal_1",
+                "item_corp3_animal_1",
+                "item_corp3_grass1_1",
+                "item_corp4_animal_1",
+                "item_corp4_grass2_1",
+                "item_corp4_spc",
+                "item_crystal_enr",
+                "item_crystal_enr_powder",
+                "item_crystal_powder",
+                "item_crystal_shell",
+                "item_dog_1_slimeml_1_1",
+                "item_dog_hsmob_corp_1",
+                "item_equip_script_1",
+                "item_equip_script_2",
+                "item_equip_script_3",
+                "item_equip_script_4",
+                "item_equip_script_4_1",
+                "item_equip_script_4_2",
+                "item_equip_script_4_3",
+                "item_erhound_1_agmelee_1_moss_1_1",
+                "item_ethillu_1_wgslime_1_wgthorns_1_1",
+                "item_fbottle_copper_acid",
+                "item_fbottle_copper_copper",
+                "item_fbottle_copper_copper_enr",
+                "item_fbottle_copper_grass_1",
+                "item_fbottle_copper_grass_2",
+                "item_fbottle_copper_sewage",
+                "item_fbottle_copper_water",
+                "item_fbottle_copper_xiranite",
+                "item_fbottle_copper_xiranite_enr",
+                "item_fbottle_copper_xiranite_lowpoly",
+                "item_fbottle_copper_xiranite_poly",
+                "item_fbottle_copperenr_acid",
+                "item_fbottle_copperenr_copper",
+                "item_fbottle_copperenr_copper_enr",
+                "item_fbottle_copperenr_grass_1",
+                "item_fbottle_copperenr_grass_2",
+                "item_fbottle_copperenr_sewage",
+                "item_fbottle_copperenr_water",
+                "item_fbottle_copperenr_xiranite",
+                "item_fbottle_copperenr_xiranite_enr",
+                "item_fbottle_copperenr_xiranite_lowpoly",
+                "item_fbottle_copperenr_xiranite_poly",
+                "item_fbottle_glass_acid",
+                "item_fbottle_glass_copper",
+                "item_fbottle_glass_copper_enr",
+                "item_fbottle_glass_grass_1",
+                "item_fbottle_glass_grass_2",
+                "item_fbottle_glass_sewage",
+                "item_fbottle_glass_water",
+                "item_fbottle_glass_xiranite",
+                "item_fbottle_glass_xiranite_enr",
+                "item_fbottle_glass_xiranite_lowpoly",
+                "item_fbottle_glass_xiranite_poly",
+                "item_fbottle_glassenr_acid",
+                "item_fbottle_glassenr_copper",
+                "item_fbottle_glassenr_copper_enr",
+                "item_fbottle_glassenr_grass_1",
+                "item_fbottle_glassenr_grass_2",
+                "item_fbottle_glassenr_sewage",
+                "item_fbottle_glassenr_water",
+                "item_fbottle_glassenr_xiranite",
+                "item_fbottle_glassenr_xiranite_enr",
+                "item_fbottle_glassenr_xiranite_lowpoly",
+                "item_fbottle_glassenr_xiranite_poly",
+                "item_fbottle_iron_acid",
+                "item_fbottle_iron_copper",
+                "item_fbottle_iron_copper_enr",
+                "item_fbottle_iron_grass_1",
+                "item_fbottle_iron_grass_2",
+                "item_fbottle_iron_sewage",
+                "item_fbottle_iron_water",
+                "item_fbottle_iron_xiranite",
+                "item_fbottle_iron_xiranite_enr",
+                "item_fbottle_iron_xiranite_lowpoly",
+                "item_fbottle_iron_xiranite_poly",
+                "item_fbottle_ironenr_acid",
+                "item_fbottle_ironenr_copper",
+                "item_fbottle_ironenr_copper_enr",
+                "item_fbottle_ironenr_grass_1",
+                "item_fbottle_ironenr_grass_2",
+                "item_fbottle_ironenr_sewage",
+                "item_fbottle_ironenr_water",
+                "item_fbottle_ironenr_xiranite",
+                "item_fbottle_ironenr_xiranite_enr",
+                "item_fbottle_ironenr_xiranite_lowpoly",
+                "item_fbottle_ironenr_xiranite_poly",
+                "item_filter_core",
+                "item_firebat_1_agrange_1_1",
+                "item_gasjar_copper_gas_acid",
+                "item_gasjar_copper_gas_copper",
+                "item_gasjar_copper_gas_copper_enr",
+                "item_gasjar_copper_gas_copper_enr2",
+                "item_gasjar_copper_gas_inert",
+                "item_gasjar_copper_gas_water",
+                "item_gasjar_copper_gas_xiranite",
+                "item_gasjar_copper_gas_xiranite_enr",
+                "item_glass_bottle",
+                "item_glass_cmpt",
+                "item_glass_enr_bottle",
+                "item_glass_enr_cmpt",
+                "item_hscrane_1_hsmob_1_grass_1_1",
+                "item_hsfly_1_slimeml_1_hsmob_1_1",
+                "item_hshog_1_hsmob_1_slimeml_1_1",
+                "item_hsmob_1_dog_1_1",
+                "item_hsmob_1_grass_2_1",
+                "item_iron_bottle",
+                "item_iron_cmpt",
+                "item_iron_enr",
+                "item_iron_enr_bottle",
+                "item_iron_enr_cmpt",
+                "item_iron_enr_powder",
+                "item_iron_nugget",
+                "item_iron_ore",
+                "item_iron_powder",
+                "item_jzmonk_1_hsmob_1_1",
+                "item_klbuds_1_hsfly_1_1",
+                "item_klcreatures_1_wgthorns_1_1",
+                "item_lbmob_1_dog_1_moss_1_1",
+                "item_lbmob_1_lbshamman_1_sp_1_1",
+                "item_lbmob_1_moss_2_bottled_1",
+                "item_lbshamman_1_agmelee_1_1",
+                "item_lbshield_1_slimeml_1_dog_1_1",
+                "item_mimicw_1_moss_1_moss_2_1",
+                "item_muck_feces_1",
+                "item_muck_xiranite_1",
+                "item_originium_enr_powder",
+                "item_originium_ore",
+                "item_originium_powder",
+                "item_plant_bbflower_1",
+                "item_plant_bbflower_powder_1",
+                "item_plant_bbflower_seed_1",
+                "item_plant_grass_1",
+                "item_plant_grass_2",
+                "item_plant_grass_powder_1",
+                "item_plant_grass_powder_2",
+                "item_plant_grass_seed_1",
+                "item_plant_grass_seed_2",
+                "item_plant_grass_spc_1",
+                "item_plant_grass_spc_2",
+                "item_plant_grass_spc_powder_1",
+                "item_plant_grass_spc_powder_2",
+                "item_plant_moss_1",
+                "item_plant_moss_2",
+                "item_plant_moss_3",
+                "item_plant_moss_enr_powder_1",
+                "item_plant_moss_enr_powder_2",
+                "item_plant_moss_powder_1",
+                "item_plant_moss_powder_2",
+                "item_plant_moss_powder_3",
+                "item_plant_moss_seed_1",
+                "item_plant_moss_seed_2",
+                "item_plant_moss_seed_3",
+                "item_plant_moss_spc_1",
+                "item_plant_moss_spc_2",
+                "item_plant_moss_spc_powder_1",
+                "item_plant_moss_spc_powder_2",
+                "item_plant_sp_1",
+                "item_plant_sp_2",
+                "item_plant_sp_3",
+                "item_plant_sp_4",
+                "item_plant_sp_seed_1",
+                "item_plant_sp_seed_2",
+                "item_plant_sp_seed_3",
+                "item_plant_sp_seed_4",
+                "item_plant_tundra_insect_1",
+                "item_plant_tundra_insect_2",
+                "item_plant_tundra_insect_powder_1",
+                "item_plant_tundra_insect_powder_2",
+                "item_plant_tundra_wood",
+                "item_proc_battery_1",
+                "item_proc_battery_2",
+                "item_proc_battery_3",
+                "item_proc_battery_4",
+                "item_proc_battery_5",
+                "item_proc_bomb_1",
+                "item_quartz_enr",
+                "item_quartz_enr_powder",
+                "item_quartz_glass",
+                "item_quartz_powder",
+                "item_quartz_sand",
+                "item_slimeml_1_agrange_1_moss_2_1",
+                "item_slimeml_1_erhound_1_agfly_1_1",
+                "item_sp_1_moss_1_agmelee_1_1",
+                "item_sp_2_moss_2_agrange_1_1",
+                "item_wgshoal_1_grass_1_grass_2_1",
+                "item_wgslime_1_hsmob_1_grass_2_1",
+                "item_wgslime_1_wgthorns_1_1",
+                "item_wgthorns_1_hshog_1_hsmob_1_1",
                 "item_xiranite_enr_powder",
                 "item_xiranite_lowpoly",
                 "item_xiranite_poly",
@@ -438,11 +1042,33 @@
                 "ko_kr": "실험 구역"
             },
             "fillable_items": [
+                "item_agfly_1_agmelee_1_moss_2_1",
+                "item_agmelee_1_moss_1_lbmob_1_1",
+                "item_agmelee_1_sp_2_slimeml_1_1",
+                "item_agrange_1_erhound_1_sp_1_1",
+                "item_agrange_1_lbshamman_bottled_1",
+                "item_agrange_1_moss_2_lbmob_1_1",
+                "item_bottled_flower1spc_1",
+                "item_bottled_flower1spc_2",
+                "item_bottled_flower1spc_3",
+                "item_bottled_flower2spc_1",
+                "item_bottled_flower2spc_2",
+                "item_bottled_flower2spc_3",
                 "item_bottled_food_1",
                 "item_bottled_food_2",
                 "item_bottled_food_3",
                 "item_bottled_food_4",
                 "item_bottled_food_5",
+                "item_bottled_grass1spc_1",
+                "item_bottled_grass1spc_2",
+                "item_bottled_grass2spc_1",
+                "item_bottled_grass2spc_2",
+                "item_bottled_insec1_1",
+                "item_bottled_insec1_2",
+                "item_bottled_insec2_1",
+                "item_bottled_insec2_2",
+                "item_bottled_moss_1_2_1",
+                "item_bottled_moss_2_animal_1",
                 "item_bottled_rec_hp_1",
                 "item_bottled_rec_hp_2",
                 "item_bottled_rec_hp_3",
@@ -463,10 +1089,19 @@
                 "item_copper_nugget",
                 "item_copper_ore",
                 "item_copper_powder",
+                "item_corp1_animal_1",
+                "item_corp2_animal_1",
+                "item_corp3_animal_1",
+                "item_corp3_grass1_1",
+                "item_corp4_animal_1",
+                "item_corp4_grass2_1",
+                "item_corp4_spc",
                 "item_crystal_enr",
                 "item_crystal_enr_powder",
                 "item_crystal_powder",
                 "item_crystal_shell",
+                "item_dog_1_slimeml_1_1",
+                "item_dog_hsmob_corp_1",
                 "item_equip_script_1",
                 "item_equip_script_2",
                 "item_equip_script_3",
@@ -474,6 +1109,8 @@
                 "item_equip_script_4_1",
                 "item_equip_script_4_2",
                 "item_equip_script_4_3",
+                "item_erhound_1_agmelee_1_moss_1_1",
+                "item_ethillu_1_wgslime_1_wgthorns_1_1",
                 "item_fbottle_copper_acid",
                 "item_fbottle_copper_copper",
                 "item_fbottle_copper_copper_enr",
@@ -540,9 +1177,8 @@
                 "item_fbottle_ironenr_xiranite_enr",
                 "item_fbottle_ironenr_xiranite_lowpoly",
                 "item_fbottle_ironenr_xiranite_poly",
-                "item_fertilize_1",
-                "item_fertilize_2",
                 "item_filter_core",
+                "item_firebat_1_agrange_1_1",
                 "item_gasjar_copper_gas_acid",
                 "item_gasjar_copper_gas_copper",
                 "item_gasjar_copper_gas_copper_enr",
@@ -555,6 +1191,11 @@
                 "item_glass_cmpt",
                 "item_glass_enr_bottle",
                 "item_glass_enr_cmpt",
+                "item_hscrane_1_hsmob_1_grass_1_1",
+                "item_hsfly_1_slimeml_1_hsmob_1_1",
+                "item_hshog_1_hsmob_1_slimeml_1_1",
+                "item_hsmob_1_dog_1_1",
+                "item_hsmob_1_grass_2_1",
                 "item_iron_bottle",
                 "item_iron_cmpt",
                 "item_iron_enr",
@@ -564,6 +1205,15 @@
                 "item_iron_nugget",
                 "item_iron_ore",
                 "item_iron_powder",
+                "item_jzmonk_1_hsmob_1_1",
+                "item_klbuds_1_hsfly_1_1",
+                "item_klcreatures_1_wgthorns_1_1",
+                "item_lbmob_1_dog_1_moss_1_1",
+                "item_lbmob_1_lbshamman_1_sp_1_1",
+                "item_lbmob_1_moss_2_bottled_1",
+                "item_lbshamman_1_agmelee_1_1",
+                "item_lbshield_1_slimeml_1_dog_1_1",
+                "item_mimicw_1_moss_1_moss_2_1",
                 "item_muck_feces_1",
                 "item_muck_xiranite_1",
                 "item_originium_enr_powder",
@@ -578,6 +1228,10 @@
                 "item_plant_grass_powder_2",
                 "item_plant_grass_seed_1",
                 "item_plant_grass_seed_2",
+                "item_plant_grass_spc_1",
+                "item_plant_grass_spc_2",
+                "item_plant_grass_spc_powder_1",
+                "item_plant_grass_spc_powder_2",
                 "item_plant_moss_1",
                 "item_plant_moss_2",
                 "item_plant_moss_3",
@@ -589,8 +1243,23 @@
                 "item_plant_moss_seed_1",
                 "item_plant_moss_seed_2",
                 "item_plant_moss_seed_3",
+                "item_plant_moss_spc_1",
+                "item_plant_moss_spc_2",
+                "item_plant_moss_spc_powder_1",
+                "item_plant_moss_spc_powder_2",
+                "item_plant_sp_1",
+                "item_plant_sp_2",
+                "item_plant_sp_3",
+                "item_plant_sp_4",
+                "item_plant_sp_seed_1",
+                "item_plant_sp_seed_2",
+                "item_plant_sp_seed_3",
+                "item_plant_sp_seed_4",
+                "item_plant_tundra_insect_1",
+                "item_plant_tundra_insect_2",
                 "item_plant_tundra_insect_powder_1",
                 "item_plant_tundra_insect_powder_2",
+                "item_plant_tundra_wood",
                 "item_proc_battery_1",
                 "item_proc_battery_2",
                 "item_proc_battery_3",
@@ -602,6 +1271,14 @@
                 "item_quartz_glass",
                 "item_quartz_powder",
                 "item_quartz_sand",
+                "item_slimeml_1_agrange_1_moss_2_1",
+                "item_slimeml_1_erhound_1_agfly_1_1",
+                "item_sp_1_moss_1_agmelee_1_1",
+                "item_sp_2_moss_2_agrange_1_1",
+                "item_wgshoal_1_grass_1_grass_2_1",
+                "item_wgslime_1_hsmob_1_grass_2_1",
+                "item_wgslime_1_wgthorns_1_1",
+                "item_wgthorns_1_hshog_1_hsmob_1_1",
                 "item_xiranite_enr_powder",
                 "item_xiranite_lowpoly",
                 "item_xiranite_poly",
@@ -610,6 +1287,114 @@
         }
     },
     "items": {
+        "item_agfly_1_agmelee_1_moss_2_1": {
+            "names": {
+                "zh_cn": "星融果冻",
+                "zh_tw": "星融果凍",
+                "en_us": "Cosmo-Melto Jelly",
+                "ja_jp": "星解けのゼリー",
+                "ko_kr": "스타 퓨전 젤리"
+            }
+        },
+        "item_agmelee_1_moss_1_lbmob_1_1": {
+            "names": {
+                "zh_cn": "仿荤烩荞花",
+                "zh_tw": "仿葷燴蕎花",
+                "en_us": "Meaty Buckflower Stew",
+                "ja_jp": "蕎花の精進煮込み",
+                "ko_kr": "대체육 메밀꽃 볶음"
+            }
+        },
+        "item_agmelee_1_sp_2_slimeml_1_1": {
+            "names": {
+                "zh_cn": "爆辣焗烤源石虫",
+                "zh_tw": "爆辣焗烤源石蟲",
+                "en_us": "Superhot Slug Gratin",
+                "ja_jp": "オリジムシの激辛オーブン焼き",
+                "ko_kr": "매운 원석충 구이"
+            }
+        },
+        "item_agrange_1_erhound_1_sp_1_1": {
+            "names": {
+                "zh_cn": "雅各布的遗产",
+                "zh_tw": "雅各的遺產",
+                "en_us": "Jakub's Legacy",
+                "ja_jp": "ヤコブの遺産",
+                "ko_kr": "제이컵의 유산"
+            }
+        },
+        "item_agrange_1_lbshamman_bottled_1": {
+            "names": {
+                "zh_cn": "简易镇痛药膏",
+                "zh_tw": "簡易鎮痛藥膏",
+                "en_us": "Simple Pain Relief Salve",
+                "ja_jp": "即席鎮痛軟膏",
+                "ko_kr": "간편 진통 연고"
+            }
+        },
+        "item_agrange_1_moss_2_lbmob_1_1": {
+            "names": {
+                "zh_cn": "手工怪味酸糖",
+                "zh_tw": "手工怪味酸糖",
+                "en_us": "Handmade Weirdrop",
+                "ja_jp": "手作りの酸っぱい飴",
+                "ko_kr": "이상한 수제 사탕"
+            }
+        },
+        "item_bottled_flower1spc_1": {
+            "names": {
+                "zh_cn": "小瓶荞复锭剂",
+                "zh_tw": "小瓶蕎復錠劑",
+                "en_us": "Buckpill [S]",
+                "ja_jp": "火映蕎花錠剤Ⅰ",
+                "ko_kr": "메밀꽃 회복제(소)"
+            }
+        },
+        "item_bottled_flower1spc_2": {
+            "names": {
+                "zh_cn": "大瓶荞复锭剂",
+                "zh_tw": "大瓶蕎復錠劑",
+                "en_us": "Buckpill [L]",
+                "ja_jp": "火映蕎花錠剤Ⅱ",
+                "ko_kr": "메밀꽃 회복제(대)"
+            }
+        },
+        "item_bottled_flower1spc_3": {
+            "names": {
+                "zh_cn": "精选荞复锭剂",
+                "zh_tw": "精選蕎復錠劑",
+                "en_us": "Buckpill [Rf.]",
+                "ja_jp": "火映蕎花錠剤Ⅲ",
+                "ko_kr": "메밀꽃 회복제(특)"
+            }
+        },
+        "item_bottled_flower2spc_1": {
+            "names": {
+                "zh_cn": "小瓶柑实冲剂",
+                "zh_tw": "小瓶柑實沖泡劑",
+                "en_us": "Citromix [S]",
+                "ja_jp": "黒銀シトローム粉剤Ⅰ",
+                "ko_kr": "시트론 혼합제(소)"
+            }
+        },
+        "item_bottled_flower2spc_2": {
+            "names": {
+                "zh_cn": "大瓶柑实冲剂",
+                "zh_tw": "大瓶柑實沖泡劑",
+                "en_us": "Citromix [L]",
+                "ja_jp": "黒銀シトローム粉剤Ⅱ",
+                "ko_kr": "시트론 혼합제(대)"
+            }
+        },
+        "item_bottled_flower2spc_3": {
+            "names": {
+                "zh_cn": "精选柑实冲剂",
+                "zh_tw": "精選柑實沖泡劑",
+                "en_us": "Citromix [Rf.]",
+                "ja_jp": "黒銀シトローム粉剤Ⅲ",
+                "ko_kr": "시트론 혼합제(특)"
+            }
+        },
         "item_bottled_food_1": {
             "names": {
                 "zh_cn": "柑实罐头",
@@ -653,6 +1438,96 @@
                 "en_us": "Jincao Tea",
                 "ja_jp": "錦草ソーダⅡ",
                 "ko_kr": "고급 금초 청량음료"
+            }
+        },
+        "item_bottled_grass1spc_1": {
+            "names": {
+                "zh_cn": "锦草凉茶",
+                "zh_tw": "錦草涼茶",
+                "en_us": "Jincao Tisane",
+                "ja_jp": "錦草漢方茶Ⅰ",
+                "ko_kr": "금초 냉차"
+            }
+        },
+        "item_bottled_grass1spc_2": {
+            "names": {
+                "zh_cn": "大碗锦草凉茶",
+                "zh_tw": "大碗錦草涼茶",
+                "en_us": "Jincao Infusion",
+                "ja_jp": "錦草漢方茶Ⅱ",
+                "ko_kr": "금초 냉차(대)"
+            }
+        },
+        "item_bottled_grass2spc_1": {
+            "names": {
+                "zh_cn": "芽针喷剂",
+                "zh_tw": "芽針噴劑",
+                "en_us": "Yazhen Spray [S]",
+                "ja_jp": "芽針スプレーⅠ",
+                "ko_kr": "야침 스프레이"
+            }
+        },
+        "item_bottled_grass2spc_2": {
+            "names": {
+                "zh_cn": "大瓶芽针喷剂",
+                "zh_tw": "大瓶芽針噴劑",
+                "en_us": "Yazhen Spray [L]",
+                "ja_jp": "芽針スプレーⅡ",
+                "ko_kr": "야침 스프레이(대)"
+            }
+        },
+        "item_bottled_insec1_1": {
+            "names": {
+                "zh_cn": "刻术瓶",
+                "zh_tw": "刻術瓶",
+                "en_us": "Arts Vial",
+                "ja_jp": "刻術瓶",
+                "ko_kr": "아츠를 각인한 병"
+            }
+        },
+        "item_bottled_insec1_2": {
+            "names": {
+                "zh_cn": "刻术铁瓶",
+                "zh_tw": "刻術鐵瓶",
+                "en_us": "Arts Tube",
+                "ja_jp": "刻術鉄瓶",
+                "ko_kr": "아츠를 각인한 금속 병"
+            }
+        },
+        "item_bottled_insec2_1": {
+            "names": {
+                "zh_cn": "附术瓶",
+                "zh_tw": "附術瓶",
+                "en_us": "Kunst Vial",
+                "ja_jp": "付術瓶",
+                "ko_kr": "아츠가 부여된 병"
+            }
+        },
+        "item_bottled_insec2_2": {
+            "names": {
+                "zh_cn": "附术铁瓶",
+                "zh_tw": "附術鐵瓶",
+                "en_us": "Kunst Tube",
+                "ja_jp": "付術鉄瓶",
+                "ko_kr": "아츠가 부여된 금속 병"
+            }
+        },
+        "item_bottled_moss_1_2_1": {
+            "names": {
+                "zh_cn": "意乱药剂",
+                "zh_tw": "意亂藥劑",
+                "en_us": "Perplexing Medication",
+                "ja_jp": "混乱の薬",
+                "ko_kr": "혼란의 약제"
+            }
+        },
+        "item_bottled_moss_2_animal_1": {
+            "names": {
+                "zh_cn": "怪味肉酱",
+                "zh_tw": "怪味肉醬",
+                "en_us": "Bizarro Chili",
+                "ja_jp": "複雑な味のミートソース",
+                "ko_kr": "이상한 고기 소스"
             }
         },
         "item_bottled_rec_hp_1": {
@@ -835,6 +1710,69 @@
                 "ko_kr": "적동 가루"
             }
         },
+        "item_corp1_animal_1": {
+            "names": {
+                "zh_cn": "谷地馅饼",
+                "zh_tw": "谷地餡餅",
+                "en_us": "Valley Pie",
+                "ja_jp": "谷地パイ",
+                "ko_kr": "협곡 파이"
+            }
+        },
+        "item_corp2_animal_1": {
+            "names": {
+                "zh_cn": "辣炒肉丁",
+                "zh_tw": "辣炒肉丁",
+                "en_us": "Meat Stir-Fry",
+                "ja_jp": "角切り肉の辛炒め",
+                "ko_kr": "매운 볶음 고기"
+            }
+        },
+        "item_corp3_animal_1": {
+            "names": {
+                "zh_cn": "清炖兽排参须汤",
+                "zh_tw": "清燉獸排蔘鬚湯",
+                "en_us": "Ginseng Meat Stew",
+                "ja_jp": "獣肉と玉葉人参のスープ",
+                "ko_kr": "푹 삶은 갈비 미삼탕"
+            }
+        },
+        "item_corp3_grass1_1": {
+            "names": {
+                "zh_cn": "正本补元汤剂",
+                "zh_tw": "正本補元湯劑",
+                "en_us": "Fortifying Infusion",
+                "ja_jp": "滋養強壮の煎じ薬",
+                "ko_kr": "원기 회복 탕약"
+            }
+        },
+        "item_corp4_animal_1": {
+            "names": {
+                "zh_cn": "武陵炒饭",
+                "zh_tw": "武陵炒飯",
+                "en_us": "Wuling Fried Rice",
+                "ja_jp": "武陵チャーハン",
+                "ko_kr": "무릉 볶음밥"
+            }
+        },
+        "item_corp4_grass2_1": {
+            "names": {
+                "zh_cn": "锦素炒饭",
+                "zh_tw": "錦素炒飯",
+                "en_us": "Garden Fried Rice",
+                "ja_jp": "野菜たっぷりチャーハン",
+                "ko_kr": "채소 볶음밥"
+            }
+        },
+        "item_corp4_spc": {
+            "names": {
+                "zh_cn": "罗德岛特制口粮",
+                "zh_tw": "羅德島特製口糧",
+                "en_us": "Rhodes Island Special Ration",
+                "ja_jp": "ロドス特製レーション",
+                "ko_kr": "로도스 아일랜드 특별 제작 식량"
+            }
+        },
         "item_crystal_enr": {
             "names": {
                 "zh_cn": "密制晶体",
@@ -869,6 +1807,24 @@
                 "en_us": "Origocrust",
                 "ja_jp": "結晶外殻",
                 "ko_kr": "오리고 크러스트"
+            }
+        },
+        "item_dog_1_slimeml_1_1": {
+            "names": {
+                "zh_cn": "炖肉会议",
+                "zh_tw": "燉肉會議",
+                "en_us": "Stew Meeting",
+                "ja_jp": "豪快肉煮込み",
+                "ko_kr": "고기들의 회의"
+            }
+        },
+        "item_dog_hsmob_corp_1": {
+            "names": {
+                "zh_cn": "田家特色烂肉面",
+                "zh_tw": "田家特色爛肉麵",
+                "en_us": "Tian's Braised Meat Noodles",
+                "ja_jp": "テンの名物爛肉麺",
+                "ko_kr": "전씨네 특제 고기국수"
             }
         },
         "item_equip_script_1": {
@@ -932,6 +1888,24 @@
                 "en_us": "Pyrrolite Component",
                 "ja_jp": "焔銅装備部品",
                 "ko_kr": "작동 장비 부품"
+            }
+        },
+        "item_erhound_1_agmelee_1_moss_1_1": {
+            "names": {
+                "zh_cn": "雾火之花",
+                "zh_tw": "霧火之花",
+                "en_us": "Hazefyre Blossom",
+                "ja_jp": "霧火の花",
+                "ko_kr": "안갯불에 물든 꽃"
+            }
+        },
+        "item_ethillu_1_wgslime_1_wgthorns_1_1": {
+            "names": {
+                "zh_cn": "回响秘剂",
+                "zh_tw": "迴響秘劑",
+                "en_us": "Echoing Remedy",
+                "ja_jp": "回響の秘薬",
+                "ko_kr": "메아리의 비약"
             }
         },
         "item_fbottle_copper_acid": {
@@ -1528,24 +2502,6 @@
                 "ko_kr": "강철 병"
             }
         },
-        "item_fertilize_1": {
-            "names": {
-                "zh_cn": "肥料测试1",
-                "zh_tw": "肥料測試1",
-                "en_us": "Fertilizer Test 1",
-                "ja_jp": "肥料テスト1",
-                "ko_kr": "비료 테스트 1"
-            }
-        },
-        "item_fertilize_2": {
-            "names": {
-                "zh_cn": "肥料测试2",
-                "zh_tw": "肥料測試2",
-                "en_us": "Fertilizer Test 2",
-                "ja_jp": "肥料テスト2",
-                "ko_kr": "비료 테스트 2"
-            }
-        },
         "item_filter_core": {
             "names": {
                 "zh_cn": "分离芯",
@@ -1553,6 +2509,15 @@
                 "en_us": "Separator Core",
                 "ja_jp": "分離コア",
                 "ko_kr": "분리 필터"
+            }
+        },
+        "item_firebat_1_agrange_1_1": {
+            "names": {
+                "zh_cn": "可食用巢雕",
+                "zh_tw": "可食用巢雕",
+                "en_us": "Edible Denstack",
+                "ja_jp": "巣彫風味ソース",
+                "ko_kr": "식용 지옥의 용광로"
             }
         },
         "item_gasjar_copper_gas_acid": {
@@ -1663,6 +2628,51 @@
                 "ko_kr": "크리스톤 부품"
             }
         },
+        "item_hscrane_1_hsmob_1_grass_1_1": {
+            "names": {
+                "zh_cn": "潘师傅蛋羹",
+                "zh_tw": "潘師傅蒸蛋",
+                "en_us": "Master Pan's Egg Pudding",
+                "ja_jp": "ダパン師匠の茶碗蒸し",
+                "ko_kr": "판 사부의 계란찜"
+            }
+        },
+        "item_hsfly_1_slimeml_1_hsmob_1_1": {
+            "names": {
+                "zh_cn": "清炖息壤球",
+                "zh_tw": "清燉息壤球",
+                "en_us": "Simmered Xiranite Ball",
+                "ja_jp": "息壌肉団子スープ",
+                "ko_kr": "삶은 식양 완자"
+            }
+        },
+        "item_hshog_1_hsmob_1_slimeml_1_1": {
+            "names": {
+                "zh_cn": "武陵乱炒",
+                "zh_tw": "武陵亂炒",
+                "en_us": "Wuling Flame-Boyance",
+                "ja_jp": "武陵炒め",
+                "ko_kr": "무릉 볶음"
+            }
+        },
+        "item_hsmob_1_dog_1_1": {
+            "names": {
+                "zh_cn": "竹笋炒肉",
+                "zh_tw": "竹筍炒肉",
+                "en_us": "Bamboo Sprouts and Meat",
+                "ja_jp": "筍と肉の炒め物",
+                "ko_kr": "죽순 고기볶음"
+            }
+        },
+        "item_hsmob_1_grass_2_1": {
+            "names": {
+                "zh_cn": "炝炒时蔬",
+                "zh_tw": "熗炒時蔬",
+                "en_us": "Garden Stir-Fry",
+                "ja_jp": "野菜炒め",
+                "ko_kr": "제철 채소볶음"
+            }
+        },
         "item_iron_bottle": {
             "names": {
                 "zh_cn": "蓝铁瓶",
@@ -1742,6 +2752,87 @@
                 "en_us": "Ferrium Powder",
                 "ja_jp": "青鉄粉末",
                 "ko_kr": "페리움 가루"
+            }
+        },
+        "item_jzmonk_1_hsmob_1_1": {
+            "names": {
+                "zh_cn": "陈皮拌笋",
+                "zh_tw": "陳皮拌筍",
+                "en_us": "Rind-Flavored Sprouts",
+                "ja_jp": "陳皮と筍の和え物",
+                "ko_kr": "진피 죽순 무침"
+            }
+        },
+        "item_klbuds_1_hsfly_1_1": {
+            "names": {
+                "zh_cn": "洗灾秘剂",
+                "zh_tw": "洗災秘劑",
+                "en_us": "Ruin-Purger Remedy",
+                "ja_jp": "厄除の秘薬",
+                "ko_kr": "재앙 정화의 비약"
+            }
+        },
+        "item_klcreatures_1_wgthorns_1_1": {
+            "names": {
+                "zh_cn": "蓄石秘剂",
+                "zh_tw": "蓄石秘劑",
+                "en_us": "Stonehold Remedy",
+                "ja_jp": "蓄石の秘薬",
+                "ko_kr": "축석의 비약"
+            }
+        },
+        "item_lbmob_1_dog_1_moss_1_1": {
+            "names": {
+                "zh_cn": "塞什卡风肉排",
+                "zh_tw": "塞什卡風肉排",
+                "en_us": "Seš'qa Style Fillet",
+                "ja_jp": "セシュカ風ステーキ",
+                "ko_kr": "세쉬카풍 스테이크"
+            }
+        },
+        "item_lbmob_1_lbshamman_1_sp_1_1": {
+            "names": {
+                "zh_cn": "软骨饼干",
+                "zh_tw": "軟骨餅乾",
+                "en_us": "Cartilage Tack",
+                "ja_jp": "軟骨入りサブレ",
+                "ko_kr": "연골 과자"
+            }
+        },
+        "item_lbmob_1_moss_2_bottled_1": {
+            "names": {
+                "zh_cn": "秘方醒神茶",
+                "zh_tw": "秘方醒神茶",
+                "en_us": "Secret Stimulating Tisane",
+                "ja_jp": "秘伝目覚まし茶",
+                "ko_kr": "비법의 성신차"
+            }
+        },
+        "item_lbshamman_1_agmelee_1_1": {
+            "names": {
+                "zh_cn": "速食骨汤",
+                "zh_tw": "即食骨湯",
+                "en_us": "Instant Bone Soup",
+                "ja_jp": "即席骨だしスープ",
+                "ko_kr": "즉석 곰탕"
+            }
+        },
+        "item_lbshield_1_slimeml_1_dog_1_1": {
+            "names": {
+                "zh_cn": "约翰老爹汉堡",
+                "zh_tw": "約翰老爹漢堡",
+                "en_us": "Old Man John's Burger",
+                "ja_jp": "ダディ・ジョンズバーガー",
+                "ko_kr": "존 어르신의 햄버거"
+            }
+        },
+        "item_mimicw_1_moss_1_moss_2_1": {
+            "names": {
+                "zh_cn": "开工日肉汤",
+                "zh_tw": "開工日肉湯",
+                "en_us": "Sod-Turning Meat Soup",
+                "ja_jp": "着工日の肉スープ",
+                "ko_kr": "개업일 고깃국"
             }
         },
         "item_muck_feces_1": {
@@ -1870,6 +2961,42 @@
                 "ko_kr": "야침 씨앗"
             }
         },
+        "item_plant_grass_spc_1": {
+            "names": {
+                "zh_cn": "蓬茸锦草",
+                "zh_tw": "蓬茸錦草",
+                "en_us": "Fluffed Jincao",
+                "ja_jp": "毛羽錦草",
+                "ko_kr": "우거진 금초"
+            }
+        },
+        "item_plant_grass_spc_2": {
+            "names": {
+                "zh_cn": "荆刺芽针",
+                "zh_tw": "荊刺芽針",
+                "en_us": "Thorny Yazhen",
+                "ja_jp": "茨芽針",
+                "ko_kr": "가시 야침"
+            }
+        },
+        "item_plant_grass_spc_powder_1": {
+            "names": {
+                "zh_cn": "蓬茸锦草粉末",
+                "zh_tw": "蓬茸錦草粉末",
+                "en_us": "Fluffed Jincao Powder",
+                "ja_jp": "毛羽錦草粉薬",
+                "ko_kr": "우거진 금초 가루"
+            }
+        },
+        "item_plant_grass_spc_powder_2": {
+            "names": {
+                "zh_cn": "荆刺芽针粉末",
+                "zh_tw": "荊刺芽針粉末",
+                "en_us": "Thorny Yazhen Powder",
+                "ja_jp": "茨芽針粉薬",
+                "ko_kr": "가시 야침 가루"
+            }
+        },
         "item_plant_moss_1": {
             "names": {
                 "zh_cn": "荞花",
@@ -1969,6 +3096,132 @@
                 "ko_kr": "샌드리프 씨앗"
             }
         },
+        "item_plant_moss_spc_1": {
+            "names": {
+                "zh_cn": "映火荞花",
+                "zh_tw": "映火蕎花",
+                "en_us": "Firebuckle",
+                "ja_jp": "火映蕎花",
+                "ko_kr": "화염 메밀꽃"
+            }
+        },
+        "item_plant_moss_spc_2": {
+            "names": {
+                "zh_cn": "黯银柑实",
+                "zh_tw": "黯銀柑實",
+                "en_us": "Umbraline",
+                "ja_jp": "黒銀シトローム",
+                "ko_kr": "다크 시트론"
+            }
+        },
+        "item_plant_moss_spc_powder_1": {
+            "names": {
+                "zh_cn": "荞愈药粉",
+                "zh_tw": "蕎癒藥粉",
+                "en_us": "Firebuckle Powder",
+                "ja_jp": "火映蕎花粉薬",
+                "ko_kr": "화염 메밀꽃 가루"
+            }
+        },
+        "item_plant_moss_spc_powder_2": {
+            "names": {
+                "zh_cn": "柑实冲剂",
+                "zh_tw": "柑實沖泡劑",
+                "en_us": "Citromix",
+                "ja_jp": "黒銀シトローム粉薬",
+                "ko_kr": "다크 시트론 가루"
+            }
+        },
+        "item_plant_sp_1": {
+            "names": {
+                "zh_cn": "灰芦麦",
+                "zh_tw": "灰蘆麥",
+                "en_us": "Reed Rye",
+                "ja_jp": "灰麦",
+                "ko_kr": "회보리"
+            }
+        },
+        "item_plant_sp_2": {
+            "names": {
+                "zh_cn": "苦叶椒",
+                "zh_tw": "苦葉椒",
+                "en_us": "Tartpepper",
+                "ja_jp": "苦葉椒",
+                "ko_kr": "쓴맛 나는 고추"
+            }
+        },
+        "item_plant_sp_3": {
+            "names": {
+                "zh_cn": "琼叶参",
+                "zh_tw": "瓊葉蔘",
+                "en_us": "Redjade Ginseng",
+                "ja_jp": "玉葉人参",
+                "ko_kr": "홍옥 인삼"
+            }
+        },
+        "item_plant_sp_4": {
+            "names": {
+                "zh_cn": "金石稻",
+                "zh_tw": "金石稻",
+                "en_us": "Amber Rice",
+                "ja_jp": "金石稲",
+                "ko_kr": "금석벼"
+            }
+        },
+        "item_plant_sp_seed_1": {
+            "names": {
+                "zh_cn": "灰芦麦种子",
+                "zh_tw": "灰蘆麥種子",
+                "en_us": "Reed Rye Seed",
+                "ja_jp": "灰麦の種",
+                "ko_kr": "회보리 씨앗"
+            }
+        },
+        "item_plant_sp_seed_2": {
+            "names": {
+                "zh_cn": "苦叶椒种子",
+                "zh_tw": "苦葉椒種子",
+                "en_us": "Tartpepper Seed",
+                "ja_jp": "苦葉椒の種",
+                "ko_kr": "쓴맛 나는 고추 씨앗"
+            }
+        },
+        "item_plant_sp_seed_3": {
+            "names": {
+                "zh_cn": "琼叶参种子",
+                "zh_tw": "瓊葉蔘種子",
+                "en_us": "Redjade Ginseng Seed",
+                "ja_jp": "玉葉人参の種",
+                "ko_kr": "홍옥 인삼 씨앗"
+            }
+        },
+        "item_plant_sp_seed_4": {
+            "names": {
+                "zh_cn": "金石稻种子",
+                "zh_tw": "金石稻種子",
+                "en_us": "Amber Rice Seed",
+                "ja_jp": "金石稲の種",
+                "ko_kr": "금석벼 씨앗"
+            }
+        },
+        "item_plant_tundra_insect_1": {
+            "names": {
+                "zh_cn": "萤壳虫",
+                "zh_tw": "螢殼蟲",
+                "en_us": "Glowbug",
+                "ja_jp": "ホタルムシ",
+                "ko_kr": "야광 풍뎅이"
+            }
+        },
+        "item_plant_tundra_insect_2": {
+            "names": {
+                "zh_cn": "灼壳虫",
+                "zh_tw": "灼殼蟲",
+                "en_us": "Scorchbug",
+                "ja_jp": "アブリムシ",
+                "ko_kr": "화염 풍뎅이"
+            }
+        },
         "item_plant_tundra_insect_powder_1": {
             "names": {
                 "zh_cn": "萤壳虫粉末",
@@ -1985,6 +3238,15 @@
                 "en_us": "Scorchbug Powder",
                 "ja_jp": "アブリムシ粉末",
                 "ko_kr": "화염 풍뎅이 가루"
+            }
+        },
+        "item_plant_tundra_wood": {
+            "names": {
+                "zh_cn": "原木",
+                "zh_tw": "原木",
+                "en_us": "Wood",
+                "ja_jp": "木材",
+                "ko_kr": "원목"
             }
         },
         "item_proc_battery_1": {
@@ -2084,6 +3346,78 @@
                 "en_us": "Amethyst Ore",
                 "ja_jp": "紫晶鉱物",
                 "ko_kr": "자수정 광석"
+            }
+        },
+        "item_slimeml_1_agrange_1_moss_2_1": {
+            "names": {
+                "zh_cn": "小蜜虫布丁",
+                "zh_tw": "小蜜蟲布丁",
+                "en_us": "Mini Honey Slugpudding",
+                "ja_jp": "異香プリン",
+                "ko_kr": "꿀벌레 푸딩"
+            }
+        },
+        "item_slimeml_1_erhound_1_agfly_1_1": {
+            "names": {
+                "zh_cn": "手撕虫肉",
+                "zh_tw": "手撕蟲肉",
+                "en_us": "Pulled Slug Meat",
+                "ja_jp": "虫肉ジャーキー",
+                "ko_kr": "손으로 찢은 벌레 고기"
+            }
+        },
+        "item_sp_1_moss_1_agmelee_1_1": {
+            "names": {
+                "zh_cn": "枢纽区应急餐",
+                "zh_tw": "樞紐區緊急餐",
+                "en_us": "Hub Emergency Ration",
+                "ja_jp": "中枢基地の非常食",
+                "ko_kr": "거점 지역의 비상식량"
+            }
+        },
+        "item_sp_2_moss_2_agrange_1_1": {
+            "names": {
+                "zh_cn": "爆辣腌渍水果",
+                "zh_tw": "爆辣醃漬水果",
+                "en_us": "Superhot Fruit Preserves",
+                "ja_jp": "フルーツの激辛塩漬け",
+                "ko_kr": "매운 절임 과일"
+            }
+        },
+        "item_wgshoal_1_grass_1_grass_2_1": {
+            "names": {
+                "zh_cn": "小糖画",
+                "zh_tw": "小糖畫",
+                "en_us": "Mini Sugar Painting",
+                "ja_jp": "飴細工",
+                "ko_kr": "작은 설탕 그림"
+            }
+        },
+        "item_wgslime_1_hsmob_1_grass_2_1": {
+            "names": {
+                "zh_cn": "龙泡泡蔬菜冻",
+                "zh_tw": "龍泡泡蔬菜凍",
+                "en_us": "Chubby Lung Jellied Greens",
+                "ja_jp": "龍泡泡の野菜羊羹",
+                "ko_kr": "드래곤 버블 채소 젤리"
+            }
+        },
+        "item_wgslime_1_wgthorns_1_1": {
+            "names": {
+                "zh_cn": "神秘气泡饮料",
+                "zh_tw": "神秘氣泡飲料",
+                "en_us": "Mystery Soda",
+                "ja_jp": "不思議な炭酸飲料",
+                "ko_kr": "신비한 탄산음료"
+            }
+        },
+        "item_wgthorns_1_hshog_1_hsmob_1_1": {
+            "names": {
+                "zh_cn": "油爆“双脆”",
+                "zh_tw": "油爆「雙脆」",
+                "en_us": "Pan-Fried Double Crisp",
+                "ja_jp": "レバーとガツの強火炒め",
+                "ko_kr": "기름 폭발 볶음"
             }
         },
         "item_xiranite_enr_powder": {

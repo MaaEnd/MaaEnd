@@ -1,0 +1,71 @@
+{
+    "DeliveryJobsStartFill${RegionId}Priority${Priority}": {
+        "desc": "${RegionName}：开始尝试第 ${Priority} 优先级装箱货物",
+        "enabled": "${Enabled}",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "patch": {
+                "DeliveryJobsItemListAtTop": {
+                    "attach": {
+                        "ready": false
+                    }
+                },
+                "DeliveryJobsItemListAtBottom": {
+                    "attach": {
+                        "ready": false
+                    }
+                }
+            }
+        },
+        "anchor": {
+            "DeliveryJobsCurrentPriorityItem": "DeliveryJobsSelectItemToFill${RegionId}Priority${Priority}",
+            "DeliveryJobsNextPriority": "DeliveryJobsContinueFill${RegionId}AfterPriority${Priority}"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsResetItemListLoop"
+        ]
+    },
+    "DeliveryJobsSelectItemToFill${RegionId}Priority${Priority}": {
+        "desc": "选择${RegionName}第 ${Priority} 优先级装箱货物",
+        "enabled": "${Enabled}",
+        "recognition": "Custom",
+        "custom_recognition": "IconRecognition",
+        "custom_recognition_param": {
+            "grid_type": "shipment",
+            "item_ids": [
+                "${DefaultFillItem}"
+            ],
+            "item_recheck_filters": [
+                "${DefaultFillItemRecheckFilter}"
+            ],
+            "deduplicate": true
+        },
+        "roi": [
+            34,
+            132,
+            386,
+            474
+        ],
+        "pre_wait_freezes": 80,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsFillCorrespondingGoods"
+        ]
+    },
+    "DeliveryJobsContinueFill${RegionId}AfterPriority${Priority}": {
+        "desc": "${RegionName}：第 ${Priority} 优先级货物未装满，尝试后续已配置货物",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": "${NextPriorities}"
+    }
+}

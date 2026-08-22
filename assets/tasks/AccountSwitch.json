@@ -20,12 +20,13 @@
         "AccountSwitchLastFourDigits": {
             "type": "input",
             "label": "$option.AccountSwitchLastFourDigits.label",
+            "description": "$option.AccountSwitchLastFourDigits.description",
             "inputs": [
                 {
                     "name": "LastFourDigits",
                     "label": "$option.AccountSwitchLastFourDigits.LastFourDigits.label",
                     "pipeline_type": "string",
-                    "verify": "^\\d{4}$",
+                    "verify": "^.{1,64}$",
                     "default": ""
                 }
             ],
@@ -34,8 +35,7 @@
                     "recognition": {
                         "param": {
                             "expected": [
-                                ".*[*\\d]\\s*{LastFourDigits}\\s*(?:最近)?.*",
-                                ".*{LastFourDigits}\\s*(?:最近)?.*",
+                                ".*{LastFourDigits}.*",
                                 "{LastFourDigits}"
                             ]
                         }
@@ -45,8 +45,7 @@
                     "recognition": {
                         "param": {
                             "expected": [
-                                ".*[*\\d]\\s*{LastFourDigits}\\s*(?:最近)?.*",
-                                ".*{LastFourDigits}\\s*(?:最近)?.*",
+                                ".*{LastFourDigits}.*",
                                 "{LastFourDigits}"
                             ]
                         }

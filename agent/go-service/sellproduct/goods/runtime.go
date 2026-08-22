@@ -142,6 +142,18 @@ func runtimeItemSwitchedMessage(location string, itemID string) string {
 	)
 }
 
+func printRuntimeItemAdopted(ctx *maa.Context, location string, itemID string) {
+	maafocus.Print(ctx, runtimeItemAdoptedMessage(location, itemID))
+}
+
+func runtimeItemAdoptedMessage(location string, itemID string) string {
+	return i18n.T(
+		"sellproduct.runtime.item_adopted",
+		selectiondata.ItemName(itemID),
+		selectiondata.LocationName(location),
+	)
+}
+
 func printRuntimeItemOutOfStock(ctx *maa.Context, location string, itemID string) {
 	maafocus.Print(ctx, runtimeItemOutOfStockMessage(location, itemID))
 }

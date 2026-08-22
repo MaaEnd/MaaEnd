@@ -367,15 +367,17 @@ export function getWlrootsSockets() {
   return getJson('/api/wlroots/sockets');
 }
 
-// --- recording (WebSocket) -----------------------------------------------------------
+// --- game sessions (WebSocket) -------------------------------------------------------
 
 /**
- * Thin wrapper over the `/ws/record` WebSocket. The backend drives the whole
- * recording lifecycle; this class just relays JSON messages both ways and exposes
- * lifecycle callbacks. One socket per recording session.
+ * Shared plumbing for the two backend session sockets (`/ws/record`, `/ws/navtest`):
+ * connect, hand over the first payload, relay JSON both ways, expose lifecycle
+ * callbacks. Subclasses only decide what that first payload looks like.
  */
-export class RecordingSocket {
-  constructor() {
+class SessionSocket {
+  /** @param {string} path backend WebSocket route */
+  constructor(path) {
+    this._path = path;
     /** @type {WebSocket|null} */
     this._ws = null;
     /** @type {(msg:Object)=>void} */
@@ -388,21 +390,13 @@ export class RecordingSocket {
     this.onError = () => {};
   }
 
-  /**
-   * Open the socket and send the start payload (session config) once connected.
-   * @param {Object} sessionConfig `{kind:'win32'|'adb', win32?, adb?}`
-   * @returns {void}
-   */
-  start(sessionConfig) {
+  /** @param {Object} firstPayload sent as soon as the socket opens @returns {void} */
+  _open(firstPayload) {
     const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const ws = new WebSocket(`${proto}//${location.host}/ws/record`);
+    const ws = new WebSocket(`${proto}//${location.host}${this._path}`);
     this._ws = ws;
     ws.addEventListener('open', () => {
-      try {
-        ws.send(JSON.stringify(sessionConfig || {}));
-      } catch (err) {
-        this.onError(err);
-      }
+      this._send(firstPayload);
       this.onOpen();
     });
     ws.addEventListener('message', (ev) => {
@@ -418,17 +412,13 @@ export class RecordingSocket {
     ws.addEventListener('error', (ev) => this.onError(ev));
   }
 
-  /**
-   * Ask the backend to stop recording (it will emit a `finished` message, then the
-   * socket closes in the `finally`).
-   * @returns {void}
-   */
-  stop() {
+  /** @param {Object} payload @returns {void} */
+  _send(payload) {
     if (this._ws && this._ws.readyState === WebSocket.OPEN) {
       try {
-        this._ws.send(JSON.stringify({ type: 'stop' }));
-      } catch {
-        // socket already tearing down — ignore
+        this._ws.send(JSON.stringify(payload));
+      } catch (err) {
+        this.onError(err);
       }
     }
   }
@@ -443,5 +433,84 @@ export class RecordingSocket {
       }
       this._ws = null;
     }
+  }
+}
+
+/**
+ * Recording session. The backend drives the whole lifecycle; `stop` makes it emit a
+ * `finished` message and then close. One socket per recording session.
+ */
+export class RecordingSocket extends SessionSocket {
+  constructor() {
+    super('/ws/record');
+  }
+
+  /**
+   * @param {Object} sessionConfig `{kind:'win32'|'adb', win32?, adb?}`
+   * @returns {void}
+   */
+  start(sessionConfig) {
+    this._open(sessionConfig || {});
+  }
+
+  /** Ask the backend to stop recording. @returns {void} */
+  stop() {
+    this._send({ type: 'stop' });
+  }
+}
+
+/**
+ * Live test-run session. Stays open across runs: `arm` loads what the F3 hotkey runs
+ * (a route to walk, or an assert rect to check), `run` starts one, `abort` stops it.
+ * See serve.py `ws_navtest`.
+ */
+export class NavTestSocket extends SessionSocket {
+  constructor() {
+    super('/ws/navtest');
+  }
+
+  /**
+   * Open the session and walk `route` as soon as the game is connected.
+   * @param {Object} sessionConfig `{kind:'win32'|'adb'|..., win32?, adb?}`
+   * @param {{path: Array, exported: boolean, assert_target: ?Object}} route see {@link NavTestSocket#arm}
+   * @returns {void}
+   */
+  start(sessionConfig, route) {
+    this._open({ start: sessionConfig || {}, ...this._route(route) });
+  }
+
+  /**
+   * Load what F3 (and the next `run`) will run. `exported` false means editor waypoints
+   * the backend still has to export, true means ready pipeline nodes. `assert_target`
+   * `{zone_id, target:[x,y,w,h]}` runs the assert rect instead and wins over `path`.
+   * @param {{path: Array, exported: boolean, assert_target: ?Object}} route
+   * @returns {void}
+   */
+  arm(route) {
+    this._send({ type: 'arm', ...this._route(route) });
+  }
+
+  /** Re-arm with `route` and run it once. @returns {void} */
+  run(route) {
+    this._send({ type: 'run', ...this._route(route) });
+  }
+
+  /** @returns {{path: Array, exported: boolean, assert_target: ?Object}} */
+  _route(route) {
+    return {
+      path: (route && route.path) || [],
+      exported: !!(route && route.exported),
+      assert_target: (route && route.assert_target) || null,
+    };
+  }
+
+  /** Stop the run in flight (same effect as F4). @returns {void} */
+  abort() {
+    this._send({ type: 'abort' });
+  }
+
+  /** End the session; the backend tears down the agent. @returns {void} */
+  stop() {
+    this._send({ type: 'stop' });
   }
 }

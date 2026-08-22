@@ -573,65 +573,6 @@ WallCsr BuildWallIndex(const std::vector<WorldPoint>& p0, const std::vector<Worl
     return csr;
 }
 
-std::unordered_set<int64_t> BannedSteps(
-    const Mask& free,
-    const WallCsr& csr,
-    const std::vector<WorldPoint>& p0,
-    const std::vector<WorldPoint>& p1,
-    double ox,
-    double oy)
-{
-    std::unordered_set<int64_t> out;
-    if (p0.empty()) {
-        return out;
-    }
-    const int64_t nx = free.nx, ny = free.ny;
-    const int64_t NC = nx * ny;
-    for (int64_t c = 0; c < NC; ++c) {
-        if (csr.start[static_cast<size_t>(c + 1)] == csr.start[static_cast<size_t>(c)] || !free.v[static_cast<size_t>(c)]) {
-            continue;
-        }
-        const double cx = (static_cast<double>(c % nx) + 0.5) * kCS + ox;
-        const double cy = (static_cast<double>(c / nx) + 0.5) * kCS + oy;
-        for (const auto& d : kNb8) {
-            const int64_t ax = c % nx + d.dx, ay = c / nx + d.dy;
-            if (ax < 0 || ax >= nx || ay < 0 || ay >= ny) {
-                continue;
-            }
-            const int64_t b = ay * nx + ax;
-            if (!free.v[static_cast<size_t>(b)]) {
-                continue;
-            }
-            const double qx = cx + static_cast<double>(d.dx) * kCS;
-            const double qy = cy + static_cast<double>(d.dy) * kCS;
-            bool hit = false;
-            for (const int64_t cell : { c, b }) {
-                for (int64_t s = csr.start[static_cast<size_t>(cell)]; !hit && s < csr.start[static_cast<size_t>(cell + 1)]; ++s) {
-                    const int64_t w = csr.wid[static_cast<size_t>(s)];
-                    const double rx = qx - cx, ry = qy - cy;
-                    const double sx = p1[w].x - p0[w].x, sy = p1[w].y - p0[w].y;
-                    const double ux = p0[w].x - cx, uy = p0[w].y - cy;
-                    const double den = rx * sy - ry * sx;
-                    if (!(std::abs(den) > 1e-12)) {
-                        continue;
-                    }
-                    const double t = (ux * sy - uy * sx) / den;
-                    const double ww = (ux * ry - uy * rx) / den;
-                    hit = t > 1e-9 && t < 1 - 1e-9 && ww > -1e-9 && ww < 1 + 1e-9;
-                }
-                if (hit) {
-                    break;
-                }
-            }
-            if (hit) {
-                out.insert(c * NC + b);
-                out.insert(b * NC + c);
-            }
-        }
-    }
-    return out;
-}
-
 StepBarrier StepBreaks(const SpanTable& st, const std::vector<uint8_t>& vis, const Mask& lay, double ox, double oy)
 {
     StepBarrier out;

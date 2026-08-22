@@ -7,20 +7,13 @@
 from __future__ import annotations
 
 import json
-import subprocess
 import tempfile
 import threading
 from pathlib import Path
 from typing import Any
 
-from runtime import (
-    AGENT_DIR,
-    CPP_AGENT_EXE,
-    MAAFW_BIN_DIR,
-    get_agent_env,
-    load_maa_runtime,
-    new_agent_id,
-)
+from agent_session import AgentSession
+from runtime import load_maa_runtime
 
 _NODE = "MapNavmeshQuery"
 
@@ -52,16 +45,24 @@ def _make_null_controller() -> Any:
     return NullController()
 
 
+class _NullConnector:
+    """查询会话的连接方式: 交出空壳控制器, Resource 无须附加任何东西。"""
+
+    def connect(self) -> Any:
+        controller = _make_null_controller()
+        controller.post_connection().wait()
+        return controller
+
+    def attach_resource(self, resource: Any) -> None:
+        return
+
+
 class NavmeshBackend:
     """惰性拉起 agent 并保持连接; 首次查询时它才把 pack 读进内存。"""
 
     def __init__(self, navmesh_path: Path) -> None:
         self._path = navmesh_path
-        self._proc: subprocess.Popen | None = None
-        self._controller: Any = None
-        self._resource: Any = None
-        self._client: Any = None
-        self._tasker: Any = None
+        self._session: AgentSession | None = None
         self._error: str | None = None
         self._ready = threading.Event()
         self._started = False
@@ -95,34 +96,13 @@ class NavmeshBackend:
         runtime = load_maa_runtime()
         if runtime is None:
             raise RuntimeError("maafw 不可用")
-        if not CPP_AGENT_EXE.exists():
-            raise FileNotFoundError(f"找不到 Agent 可执行文件: {CPP_AGENT_EXE}")
-        try:
-            runtime.Library.open(MAAFW_BIN_DIR)
-        except Exception:  # noqa: BLE001 —— 已加载过时会抛, 幂等处理
-            pass
-
-        agent_id = new_agent_id("MapNavmeshAgent")
-        self._proc = subprocess.Popen([str(CPP_AGENT_EXE), agent_id], cwd=str(AGENT_DIR), env=get_agent_env())
-        self._controller = _make_null_controller()
-        self._controller.post_connection().wait()
-
-        self._resource = runtime.Resource()
-        self._client = runtime.AgentClient(identifier=agent_id)
-        self._client.bind(self._resource)
-        self._client.connect()
-        if not self._client.connected:
-            raise RuntimeError("Agent 连接失败")
-
-        self._tasker = runtime.Tasker()
-        self._tasker.bind(self._resource, self._controller)
-        if not self._tasker.inited:
-            raise RuntimeError("Tasker 初始化失败")
+        self._session = AgentSession(runtime)
+        self._session.open(_NullConnector(), agent_name="MapNavmeshAgent")
 
     def close(self) -> None:
-        proc, self._proc = self._proc, None
-        if proc is not None and proc.poll() is None:
-            proc.terminate()
+        session, self._session = self._session, None
+        if session is not None:
+            session.close()
 
     def status(self) -> dict[str, Any]:
         ready = self._ready.is_set() and self._error is None
@@ -150,10 +130,14 @@ class NavmeshBackend:
     def _post(self, op: str, **params: Any) -> dict[str, Any]:
         payload = {"op": op, "navmesh_file": str(self._path), **params}
         with self._query_lock:
+            session = self._session
+            if session is None:
+                raise RuntimeError("navmesh agent 未连接")
             # agent 死掉时框架只会静默给不出结果, 这里先把它认出来。
-            if self._proc is not None and self._proc.poll() is not None:
-                raise RuntimeError(f"navmesh agent 已退出 (返回码 {self._proc.returncode})")
-            self._resource.override_pipeline({
+            exit_code = session.agent_exit_code
+            if exit_code is not None:
+                raise RuntimeError(f"navmesh agent 已退出 (返回码 {exit_code})")
+            session.resource.override_pipeline({
                 _NODE: {
                     "recognition": "Custom",
                     "custom_recognition": _NODE,
@@ -163,9 +147,9 @@ class NavmeshBackend:
                     "rate_limit": 0,
                 },
             })
-            job = self._tasker.post_task(_NODE)
+            job = session.tasker.post_task(_NODE)
             job.wait()
-            detail = self._tasker.get_task_detail(job.job_id)
+            detail = session.tasker.get_task_detail(job.job_id)
             node = detail.nodes[0] if detail and detail.nodes else None
             raw = node.recognition.best_result.detail if node and node.recognition and node.recognition.best_result else None
 

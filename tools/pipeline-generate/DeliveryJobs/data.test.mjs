@@ -6,7 +6,7 @@ import {fileURLToPath} from "node:url";
 
 import {parse} from "jsonc-parser";
 
-import {deliveryJobDepots, deliveryJobRegions} from "./model.mjs";
+import {DELIVERY_JOB_FILL_ITEM_PRIORITY_COUNT, deliveryJobDepots, deliveryJobRegions} from "./model.mjs";
 
 function readJsonc(path) {
     return parse(readFileSync(path, "utf8"));
@@ -47,16 +47,53 @@ test("DeliveryJobs model has unique regions and depots", () => {
         deliveryJobRegions.flatMap((region) => region.Depots),
         deliveryJobDepots.map((depot) => depot.Id),
     );
+    assert.deepEqual(
+        deliveryJobRegions.map((region) => region.Id),
+        [
+            "ValleyIV",
+            "Wuling",
+        ],
+    );
+    assert.deepEqual(
+        deliveryJobDepots.map((depot) => depot.Id),
+        [
+            "OriginiumSciencePark",
+            "OriginLodespring",
+            "PowerPlateau",
+            "WulingCity",
+            "TestArea",
+        ],
+    );
+    const iconRecognitionItems = readJsonc(
+        new URL("../../../assets/data/IconRecognition/recognition_items.json", import.meta.url),
+    );
     for (const region of deliveryJobRegions) {
         assert.ok(region.Depots.length > 0, `${region.Id} must contain at least one depot`);
         assert.ok(region.FillItems.some((item) => item.Id === region.DefaultFillItem));
+        assert.ok(region.FillItems.length > 0, `${region.Id} must contain at least one fill item`);
         for (const item of region.FillItems) {
-            assert.ok(
-                existsSync(new URL(`../../../assets/resource/image/${item.Template}`, import.meta.url)),
-                `${region.Id} missing template ${item.Template}`,
-            );
+            const catalogEntry = iconRecognitionItems[item.ItemId];
+            assert.ok(catalogEntry, `${region.Id} item ${item.ItemId} missing from IconRecognition catalog`);
+            assert.equal(item.RecheckFilter, `${catalogEntry.storageKind}:${catalogEntry.categoryType}`);
+            assert.equal(item.Label, `$iconRecognition.name.${item.ItemId}`);
         }
     }
+});
+
+test("DeliveryJobs offers transferable equipment components in Valley IV", () => {
+    const valleyIV = deliveryJobRegions.find((region) => region.Id === "ValleyIV");
+    assert.ok(valleyIV);
+    const itemIds = new Set(valleyIV.FillItems.map((item) => item.Id));
+    for (const itemId of [
+        "item_equip_script_4",
+        "item_equip_script_4_1",
+        "item_equip_script_4_2",
+        "item_equip_script_4_3",
+    ]) {
+        assert.ok(itemIds.has(itemId), `${itemId} must be available after transfer to Valley IV`);
+    }
+    assert.equal(itemIds.has("item_fertilize_1"), false);
+    assert.equal(itemIds.has("item_fertilize_2"), false);
 });
 
 test("DeliveryJobs generated region loops cover every depot in stable order", () => {
@@ -72,6 +109,9 @@ test("DeliveryJobs generated region loops cover every depot in stable order", ()
             "InLocalDepotNode",
             `DeliveryJobsCheckLocalDepotNode${region.Depots[0]}Text`,
         ]);
+        assert.deepEqual(pipeline[`DeliveryJobsSelectPriorityItems${region.Id}`].next, [
+            "DeliveryJobsCargoFillToMax",
+        ]);
     }
 });
 
@@ -84,7 +124,7 @@ test("DeliveryJobs generated depot nodes enter the shared transfer and cargo flo
         assert.equal(pipeline[`DeliveryJobsEnter${depot.Id}DeliveryJob`].max_hit, 1);
         assert.equal(pipeline[`DeliveryJobsEnter${depot.Id}Cargo`].max_hit, 1);
         assert.deepEqual(pipeline[`DeliveryJobsEnter${depot.Id}Cargo`].anchor, {
-            DeliveryJobsSelectItemToFill: `DeliveryJobsSelectItemToFill${depot.RegionId}`,
+            DeliveryJobsSelectPriorityItems: `DeliveryJobsSelectPriorityItems${depot.RegionId}`,
             DeliveryJobsRedistributionBidAction: "DeliveryJobsRedistributionBidNextStep",
             DeliveryJobsOngoingDeliveryAction: "DeliveryJobsStopForOngoingDelivery",
             DeliveryJobsGoToDepot: depot.DepotScene,
@@ -109,18 +149,12 @@ test("DeliveryJobs generated quote nodes compare the threshold and route the sel
             `DeliveryJobs${depot.Id}QuoteBelowMinimum`,
             "DeliveryJobsBidPriceRecognitionFailed",
         ]);
-        assert.deepEqual(
-            pipeline[`DeliveryJobs${depot.Id}QuoteAtLeastMinimum`].custom_recognition_param,
-            {
-                expression: "{DeliveryJobsSelectedBidPrice}>=119000",
-            },
-        );
-        assert.deepEqual(
-            pipeline[`DeliveryJobs${depot.Id}QuoteBelowMinimum`].custom_recognition_param,
-            {
-                expression: "{DeliveryJobsSelectedBidPrice}<119000",
-            },
-        );
+        assert.deepEqual(pipeline[`DeliveryJobs${depot.Id}QuoteAtLeastMinimum`].custom_recognition_param, {
+            expression: "{DeliveryJobsSelectedBidPrice}>=119000",
+        });
+        assert.deepEqual(pipeline[`DeliveryJobs${depot.Id}QuoteBelowMinimum`].custom_recognition_param, {
+            expression: "{DeliveryJobsSelectedBidPrice}<119000",
+        });
         assert.deepEqual(pipeline[`DeliveryJobs${depot.Id}QuoteAtLeastMinimum`].anchor, {
             DeliveryJobsQuoteAction: "DeliveryJobsQuoteTransferJob",
             DeliveryJobsGoToDepot: `DeliveryJobsReturnAndTransfer${depot.Id}`,
@@ -148,6 +182,77 @@ test("DeliveryJobs task registers region switches and the shared packing option"
     ]);
     assert.equal(task.option.DeliveryJobsAcceptJobOnly, undefined);
     assert.equal(task.option.DeliveryJobsPackCargoOnly, undefined);
+});
+
+test("DeliveryJobs packing item options inject IconRecognition item ids", () => {
+    const task = readGeneratedTask();
+    const enabledCase = task.option.PackCargoSelectItem.cases.find((itemCase) => itemCase.name === "Yes");
+    assert.deepEqual(
+        enabledCase.option,
+        deliveryJobRegions.map((region) => `FillItemPriorities${region.Id}`),
+    );
+    assert.deepEqual(enabledCase.pipeline_override.DeliveryJobsSelectTypeOfGoodsToPackNextStep.next, [
+        "[Anchor]DeliveryJobsSelectPriorityItems",
+    ]);
+
+    for (const region of deliveryJobRegions) {
+        const regionOption = task.option[`FillItemPriorities${region.Id}`];
+        assert.equal(regionOption.type, "switch");
+        assert.equal(regionOption.label, `$global.region.${region.Id}`);
+        assert.equal(regionOption.description, "$task.DeliveryJobs.FillItemPriorityRegionDescription");
+        assert.equal(regionOption.default_case, "Yes");
+        const regionEnabledCase = regionOption.cases.find((itemCase) => itemCase.name === "Yes");
+        assert.deepEqual(
+            regionEnabledCase.option,
+            Array.from(
+                {length: DELIVERY_JOB_FILL_ITEM_PRIORITY_COUNT},
+                (_, index) => `WhatToFill${region.Id}Priority${index + 1}`,
+            ),
+        );
+        assert.deepEqual(regionEnabledCase.pipeline_override[`DeliveryJobsSelectPriorityItems${region.Id}`].next, [
+            `DeliveryJobsStartFill${region.Id}Priority1`,
+        ]);
+        for (let priority = 1; priority <= DELIVERY_JOB_FILL_ITEM_PRIORITY_COUNT; priority += 1) {
+            const optionName = `WhatToFill${region.Id}Priority${priority}`;
+            const option = task.option[optionName];
+            assert.equal(option.type, "select");
+            assert.equal(option.label, `$task.DeliveryJobs.WhatToFill${region.Id}Priority${priority}`);
+            assert.equal(option.cases.length, region.FillItems.length + (priority === 1 ? 0 : 1));
+            assert.equal(option.default_case, priority === 1 ? region.DefaultFillItem : "None");
+            if (priority > 1) {
+                assert.deepEqual(option.cases[0], {
+                    name: "None",
+                    label: "$task.DeliveryJobs.FillItemPriorityNone",
+                });
+            }
+            const itemCases = priority === 1 ? option.cases : option.cases.slice(1);
+            for (const [
+                index,
+                item,
+            ] of region.FillItems.entries()) {
+                const optionCase = itemCases[index];
+                assert.equal(optionCase.name, item.Id);
+                assert.equal(optionCase.label, item.Label);
+                assert.equal(
+                    optionCase.pipeline_override[`DeliveryJobsStartFill${region.Id}Priority${priority}`].enabled,
+                    true,
+                );
+                const selectionOverride =
+                    optionCase.pipeline_override[`DeliveryJobsSelectItemToFill${region.Id}Priority${priority}`];
+                assert.equal(selectionOverride.enabled, true);
+                assert.deepEqual(selectionOverride.custom_recognition_param, {
+                    grid_type: "shipment",
+                    item_ids: [
+                        item.ItemId,
+                    ],
+                    item_recheck_filters: [
+                        item.RecheckFilter,
+                    ],
+                    deduplicate: true,
+                });
+            }
+        }
+    }
 });
 
 test("DeliveryJobs task orders five independent modes for every depot", () => {
@@ -311,31 +416,151 @@ test("DeliveryJobs quote branches share actions with branch-specific defaults", 
 test("DeliveryJobs shared bid page locates the selected quote", () => {
     const pipeline = readGeneratedPipeline("DeliveryJobs", "PackCargo.json");
     const adbPipeline = readAdbPipeline("DeliveryJobs", "PackCargo.json");
-    assert.deepEqual(pipeline.DeliveryJobsSelectedBidLocationIcon.roi, [
-        970,
-        132,
-        223,
-        106,
-    ]);
+    assert.deepEqual(
+        pipeline.DeliveryJobsSelectedBidLocationIcon.roi,
+        [
+            970,
+            132,
+            223,
+            106,
+        ],
+    );
     assert.equal(pipeline.DeliveryJobsSelectedBidLocationIcon.template, "DeliveryJobs/LocationIcon.png");
     assert.ok(existsSync(new URL("../../../assets/resource/image/DeliveryJobs/LocationIcon.png", import.meta.url)));
     assert.ok(existsSync(new URL("../../../assets/resource_adb/image/DeliveryJobs/LocationIcon.png", import.meta.url)));
     assert.equal(pipeline.DeliveryJobsSelectedBidPriceOCR.roi, "DeliveryJobsSelectedBidLocationIcon");
-    assert.deepEqual(pipeline.DeliveryJobsSelectedBidPriceOCR.roi_offset, [
-        137,
-        16,
-        28,
-        -2,
-    ]);
-    assert.deepEqual(adbPipeline.DeliveryJobsSelectedBidPriceOCR.roi_offset, [
-        170,
-        20,
-        35,
-        -3,
-    ]);
+    assert.deepEqual(
+        pipeline.DeliveryJobsSelectedBidPriceOCR.roi_offset,
+        [
+            137,
+            16,
+            28,
+            -2,
+        ],
+    );
+    assert.deepEqual(
+        adbPipeline.DeliveryJobsSelectedBidPriceOCR.roi_offset,
+        [
+            170,
+            20,
+            35,
+            -3,
+        ],
+    );
     assert.equal(pipeline.DeliveryJobsSelectedBidPriceOCR.only_rec, true);
     assert.deepEqual(pipeline.DeliveryJobsSelectedBidPriceOCR.expected, ["\\d+(?:[.,]\\d+)?"]);
-    assert.deepEqual(pipeline.DeliveryJobsSelectedBidPriceOCR.replace, [["方", "万"]]);
+    assert.deepEqual(pipeline.DeliveryJobsSelectedBidPriceOCR.replace, [
+        [
+            "方",
+            "万",
+        ],
+    ]);
+});
+
+test("DeliveryJobs generated packing priorities configure ordered IconRecognition entries", () => {
+    const pipeline = readGeneratedPipeline("DeliveryJobs", "PriorityItems.json");
+    const adbPipeline = readAdbPipeline("DeliveryJobs", "PriorityItems.json");
+    for (const region of deliveryJobRegions) {
+        const defaultItem = region.FillItems.find((item) => item.Id === region.DefaultFillItem);
+        for (let priority = 1; priority <= DELIVERY_JOB_FILL_ITEM_PRIORITY_COUNT; priority += 1) {
+            const startNode = pipeline[`DeliveryJobsStartFill${region.Id}Priority${priority}`];
+            const selectNode = pipeline[`DeliveryJobsSelectItemToFill${region.Id}Priority${priority}`];
+            const continueNode = pipeline[`DeliveryJobsContinueFill${region.Id}AfterPriority${priority}`];
+            assert.equal(startNode.enabled, priority === 1);
+            assert.equal(selectNode.enabled, priority === 1);
+            assert.deepEqual(startNode.anchor, {
+                DeliveryJobsCurrentPriorityItem: `DeliveryJobsSelectItemToFill${region.Id}Priority${priority}`,
+                DeliveryJobsNextPriority: `DeliveryJobsContinueFill${region.Id}AfterPriority${priority}`,
+            });
+            assert.deepEqual(startNode.custom_action_param.patch, {
+                DeliveryJobsItemListAtTop: {attach: {ready: false}},
+                DeliveryJobsItemListAtBottom: {attach: {ready: false}},
+            });
+            assert.equal(selectNode.recognition, "Custom");
+            assert.equal(selectNode.custom_recognition, "IconRecognition");
+            assert.deepEqual(selectNode.custom_recognition_param, {
+                grid_type: "shipment",
+                item_ids: [
+                    region.DefaultFillItem,
+                ],
+                item_recheck_filters: [
+                    defaultItem.RecheckFilter,
+                ],
+                deduplicate: true,
+            });
+            assert.equal(selectNode.action, "Click");
+            assert.deepEqual(
+                adbPipeline[`DeliveryJobsSelectItemToFill${region.Id}Priority${priority}`].roi,
+                [
+                    43,
+                    169,
+                    480,
+                    408,
+                ],
+            );
+            assert.deepEqual(continueNode.next, [
+                ...Array.from(
+                    {length: DELIVERY_JOB_FILL_ITEM_PRIORITY_COUNT - priority},
+                    (_, index) => `DeliveryJobsStartFill${region.Id}Priority${priority + index + 1}`,
+                ),
+                "DeliveryJobsConfiguredFillItemsInsufficient",
+            ]);
+        }
+    }
+});
+
+test("DeliveryJobs packing flow resets, scans, and falls back between configured priorities", () => {
+    const pipeline = readGeneratedPipeline("DeliveryJobs", "PackCargo.json");
+    const adbPipeline = readAdbPipeline("DeliveryJobs", "PackCargo.json");
+    assert.deepEqual(pipeline.DeliveryJobsResetItemListLoop.next, [
+        "DeliveryJobsItemListAtTop",
+        "[JumpBack]DeliveryJobsSelectItemScrollDown",
+    ]);
+    assert.deepEqual(pipeline.DeliveryJobsSelectPriorityItemLoop.next, [
+        "[Anchor]DeliveryJobsCurrentPriorityItem",
+        "DeliveryJobsItemListAtBottom",
+        "[JumpBack]DeliveryJobsSelectItemScrollUp",
+    ]);
+    for (const boundary of [
+        "Top",
+        "Bottom",
+    ]) {
+        const nodeName = `DeliveryJobsItemListAt${boundary}`;
+        assert.equal(pipeline[nodeName].custom_recognition, "ListCompleteRecognition");
+        assert.deepEqual(pipeline[nodeName].attach, {ready: false});
+        assert.deepEqual(
+            adbPipeline[nodeName].roi,
+            [
+                43,
+                169,
+                480,
+                408,
+            ],
+        );
+    }
+    assert.deepEqual(pipeline.DeliveryJobsItemListAtBottom.next, [
+        "[Anchor]DeliveryJobsNextPriority",
+    ]);
+    assert.deepEqual(pipeline.DeliveryJobsSelectItemScrollUp.next, [
+        "MouseMoveReset",
+    ]);
+    assert.equal(pipeline.DeliveryJobsSelectItemScrollUp.duration, 200);
+    assert.equal(pipeline.DeliveryJobsSelectItemScrollUp.end_hold, 400);
+    assert.equal(pipeline.DeliveryJobsSelectItemScrollUp.max_hit, undefined);
+    assert.deepEqual(pipeline.DeliveryJobsSelectItemScrollDown.next, [
+        "MouseMoveReset",
+    ]);
+    assert.equal(pipeline.DeliveryJobsSelectItemScrollDown.duration, 200);
+    assert.equal(pipeline.DeliveryJobsSelectItemScrollDown.end_hold, 400);
+    assert.deepEqual(pipeline.DeliveryJobsFillCorrespondingGoods.next, [
+        "DeliveryJobsFillToMaxNextStep",
+        "[Anchor]DeliveryJobsNextPriority",
+    ]);
+    assert.equal(pipeline.DeliveryJobsConfiguredFillItemsInsufficient.custom_action, "FalseAction");
+    assert.equal(
+        pipeline.DeliveryJobsConfiguredFillItemsInsufficient.focus["Node.Recognition.Succeeded"],
+        "$task.DeliveryJobs.ConfiguredFillItemsInsufficient",
+    );
 });
 
 test("DeliveryJobs shared bid page dispatches through common quote actions", () => {

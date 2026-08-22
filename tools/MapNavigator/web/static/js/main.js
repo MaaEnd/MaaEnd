@@ -38,6 +38,7 @@ import {compactNumber, roundHalfEven} from "./rounding.js";
 import {initFeedback, setStatus} from "./ui/toast.js";
 import {ConnectionPanel} from "./ui/connection.js";
 import {RecordingController} from "./ui/recording.js";
+import {NavTestController} from "./ui/navtest.js";
 import {Importer} from "./ui/importer.js";
 import {PositionReadout} from "./ui/position.js";
 import {
@@ -279,6 +280,11 @@ class MapNavigatorApp {
             propertiesEmptyState: $("properties-empty-state"),
             propertiesEditor: $("properties-editor"),
             panelRecording: $("panel-recording"),
+            btnNavtestRun: $("btn-navtest-run"),
+            btnNavtestStop: $("btn-navtest-stop"),
+            navtestArmed: $("navtest-armed"),
+            navtestHotkeyNote: $("navtest-hotkey-note"),
+            navtestOverlay: $("navtest-overlay"),
             panelProperties: $("panel-properties"),
             panelAstar: $("panel-astar"),
             panelAssert: $("panel-assert"),
@@ -340,6 +346,15 @@ class MapNavigatorApp {
                 onPosition: (fix) => this.positionReadout.update(fix),
                 onPositionPending: () => this.positionReadout.setPending("正在获取实时位置与朝向..."),
                 onPositionUnavailable: (message) => this.positionReadout.setPending(message),
+            });
+            this.navtest = new NavTestController({
+                btnRun: this.els.btnNavtestRun,
+                btnStop: this.els.btnNavtestStop,
+                armedLabel: this.els.navtestArmed,
+                overlay: this.els.navtestOverlay,
+                hotkeyNote: this.els.navtestHotkeyNote,
+                connection: this.connection,
+                getRoute: () => this._navtestRoute(),
             });
             this.importer = new Importer(
                 {
@@ -1664,6 +1679,7 @@ class MapNavigatorApp {
                     "#10b981",
                 );
             }
+            if (this.navtest) this.navtest.routeChanged();
             this._paint();
             return;
         }
@@ -1773,7 +1789,7 @@ class MapNavigatorApp {
                 // 探针/路线的同步开头会清掉上一轮的离网徽标, 所以先调它们、再 _paint(),
                 // 免得这一帧还画着上一条路线的警示环。
                 this._probeLoneAstarPoint();
-                this._refreshDeckProbe();
+                this._astarRouteChanged();
                 this._paint();
                 return;
             }
@@ -1784,7 +1800,7 @@ class MapNavigatorApp {
             this.astarDecks.push(null);
             setStatus("正在计算 A* 路径...", "#eab308");
             this._calculateAstarPreview();
-            this._refreshDeckProbe();
+            this._astarRouteChanged();
             this._paint();
         } else {
             this.astarPoints.push([
@@ -1799,7 +1815,7 @@ class MapNavigatorApp {
                 setStatus(`正在计算第 ${this.astarPoints.length - 1} 段 A* 路径...`, "#eab308");
                 this._calculateAstarPreview();
             }
-            this._refreshDeckProbe();
+            this._astarRouteChanged();
             this._paint();
         }
     }
@@ -1927,6 +1943,7 @@ class MapNavigatorApp {
         if (this.astarPoints.length >= 2) {
             this._calculateAstarPreview();
         }
+        if (this.navtest) this.navtest.routeChanged();
         setStatus(
             height === null
                 ? "已清除该点的 target_deck_y。"
@@ -2173,7 +2190,13 @@ class MapNavigatorApp {
         this.astarRoute = null;
         this.astarLocateHints = [];
         this._resetOffMeshOverlays();
+        this._astarRouteChanged();
+    }
+
+    /** A* 预览线变了: 重探末点可走面, 并把新线装载到试跑会话。 @returns {void} */
+    _astarRouteChanged() {
         this._refreshDeckProbe();
+        if (this.navtest) this.navtest.routeChanged();
     }
 
     /** Reset A* view state on a zone change. @returns {void} */
@@ -2379,6 +2402,7 @@ class MapNavigatorApp {
         } else {
             this.els.assertSelectedTierLabel.textContent = zoneId;
         }
+        if (this.navtest) this.navtest.routeChanged();
         this._fitView();
     }
 
@@ -2534,6 +2558,7 @@ class MapNavigatorApp {
             this.assertRectWorld = null;
             this.isAssertSelecting = false;
             setStatus("已清除 Assert 区域。", "#10b981");
+            if (this.navtest) this.navtest.routeChanged();
             this._paint();
             return;
         }
@@ -2608,6 +2633,69 @@ class MapNavigatorApp {
     }
 
     /**
+     * The A* waypoints after the start, as NAVMESH action payloads. Requires a display
+     * zone and ≥2 points. 复制配置与实机试跑都走这一处, 跑的就是复制出来的那一份。
+     * @returns {Array<Object>}
+     */
+    _navmeshTargets() {
+        const tierId = this._activeDisplayTierId();
+        let tierName = "";
+        if (tierId !== null) {
+            const zone = this.field.zoneById(tierId);
+            if (zone && zone.name) {
+                tierName = zone.name;
+            }
+        }
+
+        const targets = [];
+        for (let i = 1; i < this.astarPoints.length; i++) {
+            const pt = this.astarPoints[i];
+            // 画的点本就是显示帧 px(有 tier 时即 tier px), 正是 target_tier 要的帧; 不带 tier 才转 base px。
+            const target = tierName ? pt : tierId !== null ? this.field.tierToBase(tierId, pt[0], pt[1]) : pt;
+            const payload = {
+                action: "NAVMESH",
+                target: [
+                    compactNumber(target[0]),
+                    compactNumber(target[1]),
+                ],
+            };
+            if (tierName) {
+                payload.target_tier = tierName;
+            }
+            if (this.astarDecks[i] !== null && this.astarDecks[i] !== undefined) {
+                payload.target_deck_y = this.astarDecks[i];
+            }
+            targets.push(payload);
+        }
+        return targets;
+    }
+
+    /**
+     * 试跑要跑的那一份, 取自当前页签: 路径编辑交编辑器原始路点 (导出在服务侧, 只此一处口径),
+     * A* 交已导出的 NAVMESH 节点 —— tier 变换与显示底图只有前端有, 后端换算不出来。
+     * 断言模式没有线, 交那个框, 由后端导成 MapLocateAssertLocation 节点认一次。
+     * @returns {{path: Array, exported: boolean, assert_target: ?Object}}
+     */
+    _navtestRoute() {
+        if (this.state.mode === Mode.ASTAR) {
+            const ready = this.field && this._displayZoneId() && this.astarPoints.length >= 2;
+            return { path: ready ? this._navmeshTargets() : [], exported: true };
+        }
+        if (this.state.mode === Mode.ASSERT) {
+            const zoneId = this._displayZoneId();
+            const target = this._currentAssertTarget();
+            // 零面积的框 (点一下没拖) 后端会拒, 这里就当作没画: 免得白连一次游戏。
+            const drawn = !!target && target[2] > 0 && target[3] > 0;
+            return {
+                path: [],
+                exported: false,
+                assert_target: zoneId && drawn ? { zone_id: zoneId, target } : null,
+            };
+        }
+        return { path: this.state.points, exported: false };
+    }
+
+    /**
      * Copy the A* waypoints (all clicked points after the start, in base px) as
      * NAVMESH action payloads — a single object for one target, an array for a
      * multi-leg route. With no route planned, falls back to the locate hint.
@@ -2661,35 +2749,8 @@ class MapNavigatorApp {
             setStatus("请先标出一个预览点（定位 / 填坐标 / 导入 JSON），或在地图上画一条预览路线", "#ef4444");
             return;
         }
-        const tierId = this._activeDisplayTierId();
-        let tierName = "";
-        if (tierId !== null) {
-            const zone = this.field.zoneById(tierId);
-            if (zone && zone.name) {
-                tierName = zone.name;
-            }
-        }
-
-        const targets = [];
-        for (let i = 1; i < this.astarPoints.length; i++) {
-            const pt = this.astarPoints[i];
-            // 画的点本就是显示帧 px(有 tier 时即 tier px), 正是 target_tier 要的帧; 不带 tier 才转 base px。
-            const target = tierName ? pt : tierId !== null ? this.field.tierToBase(tierId, pt[0], pt[1]) : pt;
-            const payload = {
-                action: "NAVMESH",
-                target: [
-                    compactNumber(target[0]),
-                    compactNumber(target[1]),
-                ],
-            };
-            if (tierName) {
-                payload.target_tier = tierName;
-            }
-            if (this.astarDecks[i] !== null && this.astarDecks[i] !== undefined) {
-                payload.target_deck_y = this.astarDecks[i];
-            }
-            targets.push(payload);
-        }
+        const targets = this._navmeshTargets();
+        const tierName = targets[0].target_tier || "";
 
         if (targets.length === 1) {
             await this._copyText(JSON.stringify(targets[0], null, 4));
@@ -2783,7 +2844,7 @@ class MapNavigatorApp {
                         this._probeLoneAstarPoint();
                         this._paint();
                     }
-                    this._refreshDeckProbe();
+                    this._astarRouteChanged();
                     e.preventDefault();
                     return;
                 }
@@ -2975,6 +3036,8 @@ class MapNavigatorApp {
     /** Reflect the current selection into the action/strict/chain controls (tk `_sync_action_controls`). */
     _syncActionControls() {
         this._renderWaypointList();
+        // 路线可能刚被改过: 重新装载到试跑会话, 让 F3 跑的始终是屏幕上这一条。
+        if (this.navtest) this.navtest.routeChanged();
         const zoneIndices = this.state.zonePointGlobalIndices();
         const selected = [...this.state.selectedIndices].sort((a, b) => a - b);
 
@@ -3374,6 +3437,7 @@ class MapNavigatorApp {
         this._syncAstarControls();
         this._refreshZoneLabel();
         this._syncModeTabUI();
+        if (this.navtest) this.navtest.routeChanged();
         this._fitView();
     }
 
@@ -3456,6 +3520,7 @@ class MapNavigatorApp {
         e.tabAstar.classList.remove("active");
         e.tabAssert.classList.remove("active");
 
+        // 试跑面板不参与切换: 三种模式都能跑, 会话又是持久的, 藏起来会让活着的会话没法停。
         e.panelRecording.hidden = true;
         e.panelProperties.hidden = true;
         e.panelAstar.hidden = true;

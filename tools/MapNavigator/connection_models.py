@@ -96,7 +96,7 @@ class RecordingSessionConfig:
 def session_config_from_payload(payload: dict[str, Any]) -> RecordingSessionConfig:
     """前端连接面板的 JSON -> 录制会话配置。缺字段一律回退到各自默认值。
 
-    住在这里而不是 serve.py: 提权录制子进程 (record_worker.py) 拿到的是同一份原始
+    住在这里而不是 serve.py: 提权会话子进程 (session_worker.py) 拿到的是同一份原始
     payload, 必须和后端走完全一样的解析。
     """
     kind = payload.get("kind", "win32")

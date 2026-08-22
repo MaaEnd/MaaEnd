@@ -50,6 +50,16 @@
         "rate_limit": 0,
         "next": "${LoopNext}"
     },
+    "DeliveryJobsSelectPriorityItems${RegionId}": {
+        "desc": "${RegionName}未启用指定货物优先级，使用游戏默认填充至满",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsCargoFillToMax"
+        ]
+    },
     "DeliveryJobsIn${RegionId}LocalDepotNode": {
         "desc": "在${RegionName}本地仓储节点界面",
         "recognition": "And",

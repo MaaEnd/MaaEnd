@@ -25,6 +25,7 @@
         "pre_delay": 0,
         "anchor": {
             "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip",
+            "SellProductCurrentGoodsReady": "SellProductCardiacRemediationStationCurrentGoodsReady",
             "SellProductSelectPriorityItem": "SellProductCardiacRemediationStationSelectPriorityItem",
             "SellProductPriorityItemsExhausted": "SellProductCardiacRemediationStationPriorityItemsExhausted",
             "SellProductCommitPriorityItem": "SellProductCardiacRemediationStationCommitPriorityItem",
@@ -1113,6 +1114,32 @@
         "rate_limit": 0
     },
     // ===== 动态优先级售卖循环 =====
+    "SellProductCardiacRemediationStationCurrentGoodsReady": {
+        "desc": "心脏修缮站当前选中货品符合当前选品规则，沿用并跳过更换货品",
+        "recognition": "Custom",
+        "custom_recognition": "SellProductCurrentGoods",
+        "custom_recognition_param": {
+            "location": "CardiacRemediationStation",
+            "roi": [
+                1177,
+                450,
+                54,
+                54
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductPrioritySession",
+        "custom_action_param": {
+            "operation": "adopt",
+            "location": "CardiacRemediationStation"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductAtSell"
+        ]
+    },
     "SellProductCardiacRemediationStationSelectPriorityItem": {
         "desc": "心脏修缮站按当前策略选择下一个未尝试货品",
         "recognition": "Custom",

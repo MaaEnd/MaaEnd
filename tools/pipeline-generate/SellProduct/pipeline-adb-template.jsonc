@@ -1,4 +1,10 @@
 {
+    "SellProduct${LocationId}CurrentGoodsReady": {
+        "custom_recognition_param": {
+            "location": "${LocationId}",
+            "roi": "${CurrentGoodsROIAdb}"
+        }
+    },
     "SellProduct${LocationId}SelectPriorityItem": {
         "custom_recognition_param": {
             "location": "${LocationId}",

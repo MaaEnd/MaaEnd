@@ -2,6 +2,8 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstdio>
+#include <cstdlib>
 #include <deque>
 #include <numeric>
 #include <utility>
@@ -497,43 +499,6 @@ ZoneClean::ZoneClean(const BaseNavPack& pack, const BaseNavPlanner& planner, con
             + " bridge " + std::to_string(n_bridge) + " srcadj " + std::to_string(n_srcadj);
 }
 
-std::vector<int32_t> ZoneClean::batchLocate(const std::vector<WorldPoint>& pts, const std::vector<double>& hints) const
-{
-    std::vector<int32_t> out(pts.size(), -1);
-    for (size_t p = 0; p < pts.size(); ++p) {
-        const int64_t gx = static_cast<int64_t>(std::floor(pts[p].x / PolyMesh::kGridCell));
-        const int64_t gy = static_cast<int64_t>(std::floor(pts[p].y / PolyMesh::kGridCell));
-        const auto [glo, ghi] = std::equal_range(mesh.gkeys.begin(), mesh.gkeys.end(), gx * PolyMesh::kGridStride + gy);
-        double best = 0.0;
-        int32_t bt = -1;
-        for (auto it = glo; it != ghi; ++it) {
-            const int32_t t = mesh.gtris[static_cast<size_t>(it - mesh.gkeys.begin())];
-            const auto& tri = mesh.T[static_cast<size_t>(t)];
-            const WorldPoint& A = mesh.V[tri[0]];
-            const WorldPoint& B = mesh.V[tri[1]];
-            const WorldPoint& C = mesh.V[tri[2]];
-            const double den = (B.y - C.y) * (A.x - C.x) + (C.x - B.x) * (A.y - C.y);
-            if (std::fabs(den) < 1e-12) {
-                continue;
-            }
-            const double wa = ((B.y - C.y) * (pts[p].x - C.x) + (C.x - B.x) * (pts[p].y - C.y)) / den;
-            const double wb = ((C.y - A.y) * (pts[p].x - C.x) + (A.x - C.x) * (pts[p].y - C.y)) / den;
-            const double wc = 1.0 - wa - wb;
-            if (!(wa >= -1e-9 && wb >= -1e-9 && wc >= -1e-9)) {
-                continue;
-            }
-            const double h = wa * mesh.H[tri[0]] + wb * mesh.H[tri[1]] + wc * mesh.H[tri[2]];
-            const double score = std::fabs(h - hints[p]);
-            if (bt < 0 || score < best) {
-                best = score;
-                bt = t;
-            }
-        }
-        out[p] = bt;
-    }
-    return out;
-}
-
 std::optional<ZoneClean::SnapHit> ZoneClean::snap(const WorldPoint& p, double radius, std::optional<double> floor_y) const
 {
     const double r = std::max(0.0, radius);
@@ -572,8 +537,9 @@ std::optional<ZoneClean::SnapHit> ZoneClean::snap(const WorldPoint& p, double ra
     return std::nullopt;
 }
 
+// 收齐网格的边界边。这份数据只说哪里能走, 不带墙面/断崖之类的信息,
+// 再去分辨某条边是墙还是接缝等于凭空造数据, 所以这里只收边、不分类
 WallOracle::WallOracle(const ZoneClean& zc)
-    : zc_(zc)
 {
     const auto& mesh = zc.mesh;
     for (size_t i = 0; i < mesh.T.size(); ++i) {
@@ -589,92 +555,14 @@ WallOracle::WallOracle(const ZoneClean& zc)
             P1.push_back(p1);
             H0.push_back(mesh.H[a]);
             H1.push_back(mesh.H[b]);
-            M_.push_back({ (p0.x + p1.x) / 2.0, (p0.y + p1.y) / 2.0 });
-            const double dx = p1.x - p0.x;
-            const double dy = p1.y - p0.y;
-            const double ln = std::max(std::hypot(dx, dy), 1e-12);
-            NOBS_.push_back({ dy / ln, -dx / ln });
             HH.push_back((mesh.H[a] + mesh.H[b]) / 2.0);
             lo_.push_back({ std::min(p0.x, p1.x), std::min(p0.y, p1.y) });
             hi_.push_back({ std::max(p0.x, p1.x), std::max(p0.y, p1.y) });
         }
     }
-    cls_.assign(P0.size(), -1);
-    const auto cellKey = [](int64_t cx, int64_t cy) {
-        return (cx + (int64_t(1) << 30)) * (int64_t(1) << 31) + (cy + (int64_t(1) << 30));
-    };
-    for (const HopPt& hp : zc.hops) {
-        const double hz = triHeight(mesh, hp.to_tri);
-        for (const WorldPoint* pt : { &hp.exit_pt, &hp.entry_pt }) {
-            const int64_t cx = static_cast<int64_t>(std::floor(pt->x / kHopCell));
-            const int64_t cy = static_cast<int64_t>(std::floor(pt->y / kHopCell));
-            hop_grid_[cellKey(cx, cy)].push_back({ pt->x, pt->y, hz });
-        }
-    }
 }
 
-bool WallOracle::hopNear(int64_t ei, double tol) const
-{
-    const WorldPoint p0 = P0[static_cast<size_t>(ei)];
-    const WorldPoint p1 = P1[static_cast<size_t>(ei)];
-    const double hh = HH[static_cast<size_t>(ei)];
-    const double dx = p1.x - p0.x;
-    const double dy = p1.y - p0.y;
-    const double l2 = std::max(dx * dx + dy * dy, 1e-18);
-    const int64_t cx0 = static_cast<int64_t>(std::floor((std::min(p0.x, p1.x) - tol) / kHopCell));
-    const int64_t cx1 = static_cast<int64_t>(std::floor((std::max(p0.x, p1.x) + tol) / kHopCell));
-    const int64_t cy0 = static_cast<int64_t>(std::floor((std::min(p0.y, p1.y) - tol) / kHopCell));
-    const int64_t cy1 = static_cast<int64_t>(std::floor((std::max(p0.y, p1.y) + tol) / kHopCell));
-    for (int64_t cx = cx0; cx <= cx1; ++cx) {
-        for (int64_t cy = cy0; cy <= cy1; ++cy) {
-            const auto it = hop_grid_.find((cx + (int64_t(1) << 30)) * (int64_t(1) << 31) + (cy + (int64_t(1) << 30)));
-            if (it == hop_grid_.end()) {
-                continue;
-            }
-            for (const auto& h : it->second) {
-                if (std::fabs(h[2] - hh) > kMcHBand) {
-                    continue;
-                }
-                const double t = std::min(1.0, std::max(0.0, ((h[0] - p0.x) * dx + (h[1] - p0.y) * dy) / l2));
-                if (std::hypot(p0.x + dx * t - h[0], p0.y + dy * t - h[1]) <= tol) {
-                    return true;
-                }
-            }
-        }
-    }
-    return false;
-}
-
-void WallOracle::classify(const std::vector<int64_t>& idx)
-{
-    std::vector<int64_t> todo;
-    for (const int64_t i : idx) {
-        if (cls_[static_cast<size_t>(i)] < 0) {
-            todo.push_back(i);
-        }
-    }
-    if (todo.empty()) {
-        return;
-    }
-    std::vector<WorldPoint> P;
-    std::vector<double> hh;
-    for (const int64_t i : todo) {
-        P.push_back({ M_[static_cast<size_t>(i)].x + NOBS_[static_cast<size_t>(i)].x * kEpsProbe,
-                      M_[static_cast<size_t>(i)].y + NOBS_[static_cast<size_t>(i)].y * kEpsProbe });
-        hh.push_back(HH[static_cast<size_t>(i)]);
-    }
-    const auto tri = zc_.batchLocate(P, hh);
-    for (size_t j = 0; j < todo.size(); ++j) {
-        const bool free = tri[j] >= 0 && std::fabs(triHeight(zc_.mesh, tri[j]) - hh[j]) <= kHBand;
-        bool wall = !free;
-        if (wall && hopNear(todo[j])) {
-            wall = false;
-        }
-        cls_[static_cast<size_t>(todo[j])] = wall ? 1 : 0;
-    }
-}
-
-std::vector<int64_t> WallOracle::wallsInBbox(double x0, double y0, double x1, double y1)
+std::vector<int64_t> WallOracle::wallsInBbox(double x0, double y0, double x1, double y1) const
 {
     std::vector<int64_t> idx;
     for (int64_t i = 0; i < static_cast<int64_t>(P0.size()); ++i) {
@@ -683,14 +571,7 @@ std::vector<int64_t> WallOracle::wallsInBbox(double x0, double y0, double x1, do
             idx.push_back(i);
         }
     }
-    classify(idx);
-    std::vector<int64_t> out;
-    for (const int64_t i : idx) {
-        if (cls_[static_cast<size_t>(i)] == 1) {
-            out.push_back(i);
-        }
-    }
-    return out;
+    return idx;
 }
 
 }

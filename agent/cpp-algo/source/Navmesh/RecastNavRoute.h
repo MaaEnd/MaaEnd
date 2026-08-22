@@ -24,8 +24,7 @@ struct RecastPlanResult
     std::vector<double> clearance; // 逐点通道半宽 px
     double length = 0.0;
     std::vector<std::string> warnings;
-    std::vector<WorldPoint> wall_cross; // 不可避穿墙步的格心
-    double snap_start = 0.0;            // 起/终点到可走格锚点距离 px
+    double snap_start = 0.0; // 起/终点到可走格锚点距离 px
     double snap_goal = 0.0;
     // 贪心拉直后的驱动航点下标(points 的下标,不含起点,末位恒为 points.size()-1)。
     // 空 = 该腿没有层预言机,拉直交给调用方。

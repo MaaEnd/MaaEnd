@@ -35,9 +35,7 @@ inline constexpr double kCornerStep = 0.5;         // 拐点外挪步长 px
 inline constexpr int64_t kCornerDirs = 32;         // 拐点外挪候选方向数
 inline constexpr int64_t kCornerRounds = 3;        // 拐点外挪迭代轮数
 inline constexpr double kCostTol = 1e-9;           // 代价判据相对容差, 容纳共线子路径的浮点求和差
-inline constexpr double kMcHBand = 8.0;            // 层高度带(墙筛/盖章)px
-inline constexpr double kHBand = 6.0;              // 真墙探针高度带 px
-inline constexpr double kEpsProbe = 0.75;          // 真墙探针距离 px
+inline constexpr double kMcHBand = 8.0;            // 层高度带(边界边筛/盖章)px
 inline constexpr double kSnapRadius = 8.0;         // 起终点吸附半径 px
 inline constexpr double kDeckBand = 2.0;           // 声明面高度匹配容差 px, 需远小于相邻面间距
 inline constexpr double kMargin = 25.0;            // 窗口外扩 px
@@ -147,14 +145,6 @@ std::vector<uint8_t> WallsAtLayer(
     double oy);
 
 WallCsr BuildWallIndex(const std::vector<WorldPoint>& p0, const std::vector<WorldPoint>& p1, double ox, double oy, int64_t nx, int64_t ny);
-
-std::unordered_set<int64_t> BannedSteps(
-    const Mask& free,
-    const WallCsr& csr,
-    const std::vector<WorldPoint>& p0,
-    const std::vector<WorldPoint>& p1,
-    double ox,
-    double oy);
 
 struct StepBarrier
 {

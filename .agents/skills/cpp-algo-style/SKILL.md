@@ -251,5 +251,8 @@ target_sources(cpp-algo PRIVATE
 - [ ] 新常量是否有 `k` 前缀和注释
 - [ ] 错误路径是否有日志和合理返回值
 - [ ] 新文件是否加入了 CMakeLists.txt 的显式列表（如已迁移）
+- [ ] Action 注册名变化是否已同步到 `tools/schema/custom.action.schema.json` 的 `enum`
+- [ ] Recognition 注册名变化是否已同步到 `tools/schema/custom.recognition.schema.json` 的 `enum`
+- [ ] 参数变化是否已同步到上述文件或 `tools/schema/components/`，删除内容是否已清理旧规则和 `$ref`
 
 详细的命名对照和重构示例见 [reference.md](reference.md)。

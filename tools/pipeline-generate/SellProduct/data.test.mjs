@@ -613,6 +613,64 @@ test("SellProduct 各平台通过 Pipeline 配置货品名称、库存和点击�
     }
 });
 
+test("SellProduct 全部据点的当前货品 ROI 由各平台 Pipeline 提供", () => {
+    const platforms = [
+        {
+            name: "Win32",
+            resourceDir: "resource",
+            roi: [
+                1177,
+                450,
+                54,
+                54,
+            ],
+        },
+        {
+            name: "ADB",
+            resourceDir: "resource_adb",
+            roi: [
+                1151,
+                393,
+                66,
+                66,
+            ],
+        },
+    ];
+
+    for (const platform of platforms) {
+        for (const location of sellProductLocations) {
+            const pipeline = readPipeline(
+                new URL(
+                    `../../../assets/${platform.resourceDir}/pipeline/SellProduct/${location.RegionPrefix}/${location.LocationId}.json`,
+                    import.meta.url,
+                ),
+            );
+            const prefix = `SellProduct${location.LocationId}`;
+            const node = pipeline[`${prefix}CurrentGoodsReady`];
+
+            assert.ok(node, `${platform.name} ${location.LocationId} 缺少 CurrentGoodsReady 节点`);
+            assert.equal(node.custom_recognition_param.location, location.LocationId);
+            assert.deepEqual(node.custom_recognition_param.roi, platform.roi);
+            assert.ok(
+                node.custom_recognition_param.roi.every(Number.isInteger),
+                `${platform.name} ${location.LocationId} roi 应只包含整数`,
+            );
+            assert.equal(
+                node.custom_recognition_param.roi[2],
+                node.custom_recognition_param.roi[3],
+                `${platform.name} ${location.LocationId} roi 应为正方形`,
+            );
+
+            if (platform.name === "Win32") {
+                assert.equal(
+                    pipeline[`${prefix}Sell`].anchor.SellProductCurrentGoodsReady,
+                    `${prefix}CurrentGoodsReady`,
+                );
+            }
+        }
+    }
+});
+
 test("SellProduct 每轮选货及保留交易后优先检查调度券不足", () => {
     const pipeline = readPipeline(
         new URL("../../../assets/resource/pipeline/SellProduct/SellCore.json", import.meta.url),
@@ -620,6 +678,7 @@ test("SellProduct 每轮选货及保留交易后优先检查调度券不足", ()
 
     assert.deepEqual(pipeline.SellProductSellLoop.next, [
         "[Anchor]SellProductZeroMoneyHandler",
+        "[Anchor]SellProductCurrentGoodsReady",
         "SellProductChangeGoods",
     ]);
     assert.deepEqual(pipeline.SellProductAtSell.next.slice(0, 2), [
