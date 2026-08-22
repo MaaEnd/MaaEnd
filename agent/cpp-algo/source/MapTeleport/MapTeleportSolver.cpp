@@ -21,10 +21,10 @@ namespace
 
 constexpr int kMinTemplateSide = 24;
 constexpr int kMinAnchorSide = 6;
-constexpr const char* kAnchorTemplateDir = "SceneManager";
-// 本组件自带一份锚点模板：SceneManager 的同名图各端出货尺寸不成比例，一套尺度阶梯罩不住
+constexpr const char* kIconTemplateDir = "SceneManager";
+// 节点没指定图标时用的通用传送点模板。本组件自带一份：SceneManager 的同名图
+// 各端出货尺寸不成比例，一套尺度阶梯罩不住
 constexpr const char* kAnchorTemplateName = "MapTeleportAnchor.png";
-constexpr const char* kCoreTemplateNames[] = { "MapTeleportCoreHub.png", "MapTeleportCoreSettlement.png" };
 
 // HSV 的 S 通道。地图底色也能很艳，所以只在模板圈定的那些像素上取
 cv::Mat SaturationOf(const cv::Mat& src)
@@ -186,6 +186,32 @@ std::optional<ScanHit> ScanScales(
     return best;
 }
 
+// 模板哪些像素是金的，就到实拍的同一批像素上看还金不金。没解锁的整块褪成灰，比例会塌下去
+double GoldRatio(const cv::Mat& screen, const cv::Mat& templSat, const cv::Mat& templMask, const cv::Rect& live, int satFloor)
+{
+    if (templSat.empty() || (live & cv::Rect(0, 0, screen.cols, screen.rows)) != live) {
+        return 0.0;
+    }
+
+    cv::Mat sat;
+    cv::resize(templSat, sat, live.size(), 0.0, 0.0, cv::INTER_NEAREST);
+    cv::Mat gold = (sat >= satFloor);
+    if (!templMask.empty()) {
+        cv::Mat mask;
+        cv::resize(templMask, mask, live.size(), 0.0, 0.0, cv::INTER_NEAREST);
+        cv::bitwise_and(gold, mask, gold);
+    }
+
+    const int total = cv::countNonZero(gold);
+    if (total == 0) {
+        return 0.0;
+    }
+
+    cv::Mat lit = (SaturationOf(screen(live)) >= satFloor);
+    cv::bitwise_and(lit, gold, lit);
+    return static_cast<double>(cv::countNonZero(lit)) / total;
+}
+
 } // namespace
 
 MapTeleportSolver::MapTeleportSolver(std::vector<fs::path> imageRoots)
@@ -205,23 +231,20 @@ cv::Rect MapTeleportSolver::SafeArea(const cv::Size& screenSize, const ScreenMap
     return cv::Rect(x0, y0, x1 - x0, y1 - y0) & cv::Rect(0, 0, screenSize.width, screenSize.height);
 }
 
-std::optional<CoreIconHit> MapTeleportSolver::ConfirmCoreIcon(
+std::optional<SpotHit> MapTeleportSolver::ConfirmSpot(
     const cv::Mat& screen,
     const cv::Point2d& expected,
     double viewportScale,
-    const CoreIconConfig& cfg)
+    const SpotConfig& cfg)
 {
     if (screen.empty() || viewportScale <= 0.0) {
         return std::nullopt;
     }
 
-    std::lock_guard guard(_mutex);
-    const std::vector<CoreTemplate>* templates = LoadCoreTemplates();
-    if (templates == nullptr) {
-        return std::nullopt;
-    }
-
-    const int radius = static_cast<int>(std::lround(cfg.searchBase / viewportScale));
+    // 浮动的点位在一片范围里找，坐标只圈得住范围；钉死的点位就在期望位置开个小窗确认
+    const bool floating = cfg.radiusBase > 0.0;
+    const int radius = floating ? static_cast<int>(std::lround(cfg.radiusBase / viewportScale))
+                                : std::max(cfg.radiusScreen, kMinTemplateSide);
     cv::Rect window(
         static_cast<int>(std::lround(expected.x)) - radius,
         static_cast<int>(std::lround(expected.y)) - radius,
@@ -229,61 +252,73 @@ std::optional<CoreIconHit> MapTeleportSolver::ConfirmCoreIcon(
         radius * 2);
     window &= cv::Rect(0, 0, screen.cols, screen.rows);
     if (window.empty()) {
+        LogWarn << "MapTeleport: confirm window off screen" << VAR(expected.x) << VAR(expected.y);
         return std::nullopt;
     }
 
+    std::lock_guard guard(_mutex);
     const cv::Mat patch = ToGray(screen)(window);
     const std::vector<double> ladder =
         LinearLadder(cfg.scaleMin, cfg.scaleMax, static_cast<int>(std::lround((cfg.scaleMax - cfg.scaleMin) / cfg.scaleStep)) + 1);
 
-    const CoreTemplate* pick = nullptr;
+    const std::vector<std::string> names = cfg.templates.empty() ? std::vector<std::string> { kAnchorTemplateName } : cfg.templates;
+    const IconTemplate* pick = nullptr;
+    std::string pickName;
     std::optional<ScanHit> best;
-    for (const CoreTemplate& templ : *templates) {
-        const auto hit = ScanScales(patch, templ.gray, templ.mask, ladder, kMinAnchorSide, 0, maplocator::PeakRefineMode::Continuous);
+    for (const std::string& name : names) {
+        const IconTemplate* templ = LoadIcon(name);
+        if (templ == nullptr) {
+            continue;
+        }
+        if (window.width < templ->gray.cols || window.height < templ->gray.rows) {
+            LogWarn << "MapTeleport: confirm window smaller than template" << VAR(name) << VAR(window.width) << VAR(window.height);
+            continue;
+        }
+        // 图标只有二十来像素宽，最小边长得按它来卡，照视口那套会把整个模板筛掉
+        const auto hit =
+            ScanScales(patch, templ->gray, templ->mask, ladder, kMinAnchorSide, 0, maplocator::PeakRefineMode::Continuous);
         if (hit && (!best || hit->score > best->score)) {
             best = hit;
-            pick = &templ;
+            pick = templ;
+            pickName = name;
         }
     }
     if (!best) {
-        LogWarn << "MapTeleport: no core icon candidate in the float region";
+        LogWarn << "MapTeleport: no icon candidate in the confirm window";
         return std::nullopt;
     }
     if (best->score < cfg.minScore) {
-        LogWarn << "MapTeleport: core icon score below floor" << VAR(pick->name) << VAR(best->score) << VAR(cfg.minScore);
+        LogWarn << "MapTeleport: icon score below floor" << VAR(pickName) << VAR(best->score) << VAR(cfg.minScore);
         return std::nullopt;
     }
 
-    CoreIconHit out;
+    SpotHit out;
+    out.templateName = pickName;
     out.center = cv::Point2d(window.x + best->loc.x + best->size.width / 2.0, window.y + best->loc.y + best->size.height / 2.0);
     out.size = best->size;
     out.score = best->score;
     out.matchScale = best->scale;
+    out.offsetBase = std::hypot(out.center.x - expected.x, out.center.y - expected.y) * viewportScale;
 
-    // 模板哪些像素是金的，就到实拍的同一批像素上看还金不金。没解锁的整块褪成灰，比例会塌下去
-    cv::Mat templSat;
-    cv::Mat templMask;
-    cv::resize(pick->saturation, templSat, best->size, 0.0, 0.0, cv::INTER_NEAREST);
-    cv::resize(pick->mask, templMask, best->size, 0.0, 0.0, cv::INTER_NEAREST);
-    cv::Mat gold = (templSat >= cfg.saturationFloor);
-    cv::bitwise_and(gold, templMask, gold);
-
-    const cv::Rect live(
-        window.x + static_cast<int>(std::lround(best->loc.x)),
-        window.y + static_cast<int>(std::lround(best->loc.y)),
-        best->size.width,
-        best->size.height);
-    const int total = cv::countNonZero(gold);
-    if (total > 0 && (live & cv::Rect(0, 0, screen.cols, screen.rows)) == live) {
-        const cv::Mat liveSat = SaturationOf(screen(live));
-        cv::Mat lit = (liveSat >= cfg.saturationFloor);
-        cv::bitwise_and(lit, gold, lit);
-        out.goldRatio = static_cast<double>(cv::countNonZero(lit)) / total;
+    // 钉死的点位偏得太远就是认错了；浮动的点位本来就该在范围里晃，窗口自己就是那道闸
+    if (!floating && out.offsetBase > cfg.gateBase) {
+        LogWarn << "MapTeleport: icon too far from expected position" << VAR(pickName) << VAR(out.offsetBase) << VAR(cfg.gateBase)
+                << VAR(out.center.x) << VAR(out.center.y) << VAR(expected.x) << VAR(expected.y);
+        return std::nullopt;
     }
-    out.unlocked = out.goldRatio >= cfg.minGoldRatio;
 
-    LogInfo << "MapTeleport: core icon matched" << VAR(pick->name) << VAR(out.center.x) << VAR(out.center.y) << VAR(out.score)
-            << VAR(out.matchScale) << VAR(out.goldRatio) << VAR(out.unlocked);
+    if (cfg.minGoldRatio > 0.0) {
+        const cv::Rect live(
+            window.x + static_cast<int>(std::lround(best->loc.x)),
+            window.y + static_cast<int>(std::lround(best->loc.y)),
+            best->size.width,
+            best->size.height);
+        out.goldRatio = GoldRatio(screen, pick->saturation, pick->mask, live, cfg.saturationFloor);
+        out.unlocked = out.goldRatio >= cfg.minGoldRatio;
+    }
+
+    LogInfo << "MapTeleport: icon confirmed" << VAR(pickName) << VAR(out.center.x) << VAR(out.center.y) << VAR(out.score)
+            << VAR(out.matchScale) << VAR(out.offsetBase) << VAR(out.goldRatio) << VAR(out.unlocked);
     return out;
 }
 
@@ -393,52 +428,32 @@ const cv::Mat* MapTeleportSolver::LoadZoneBase(const std::string& zone)
     return &it->second;
 }
 
-const cv::Mat* MapTeleportSolver::LoadAnchorTemplate()
+const MapTeleportSolver::IconTemplate* MapTeleportSolver::LoadIcon(const std::string& name)
 {
-    if (_anchorTemplateTried) {
-        return _anchorTemplate.empty() ? nullptr : &_anchorTemplate;
+    const auto cached = _icons.find(name);
+    if (cached != _icons.end()) {
+        return cached->second.gray.empty() ? nullptr : &cached->second;
     }
-    _anchorTemplateTried = true;
 
-    const auto file = mapnavigator::ResolveResourceImage(_imageRoots, fs::path(kAnchorTemplateDir) / kAnchorTemplateName);
-    cv::Mat image = file ? cv::imread(MAA_NS::path_to_utf8_string(*file), cv::IMREAD_UNCHANGED) : cv::Mat();
+    IconTemplate& slot = _icons[name];
+    const auto file = mapnavigator::ResolveResourceImage(_imageRoots, fs::path(kIconTemplateDir) / name);
+    const cv::Mat image = file ? cv::imread(MAA_NS::path_to_utf8_string(*file), cv::IMREAD_UNCHANGED) : cv::Mat();
     if (image.empty()) {
-        LogError << "MapTeleport: anchor template not found" << VAR(kAnchorTemplateName) << VAR(mapnavigator::DescribeRoots(_imageRoots));
+        LogError << "MapTeleport: icon template not found" << VAR(name) << VAR(mapnavigator::DescribeRoots(_imageRoots));
         return nullptr;
     }
 
-    _anchorTemplate = ToGray(image);
-    LogInfo << "MapTeleport: anchor template loaded" << VAR(MAA_NS::path_to_utf8_string(*file)) << VAR(_anchorTemplate.cols)
-            << VAR(_anchorTemplate.rows);
-    return &_anchorTemplate;
-}
-
-const std::vector<MapTeleportSolver::CoreTemplate>* MapTeleportSolver::LoadCoreTemplates()
-{
-    if (_coreTemplatesTried) {
-        return _coreTemplates.empty() ? nullptr : &_coreTemplates;
-    }
-    _coreTemplatesTried = true;
-
-    for (const char* name : kCoreTemplateNames) {
-        const auto file = mapnavigator::ResolveResourceImage(_imageRoots, fs::path(kAnchorTemplateDir) / name);
-        const cv::Mat image = file ? cv::imread(MAA_NS::path_to_utf8_string(*file), cv::IMREAD_UNCHANGED) : cv::Mat();
-        if (image.empty() || image.channels() != 4) {
-            LogError << "MapTeleport: core template unusable" << VAR(name) << VAR(mapnavigator::DescribeRoots(_imageRoots));
-            continue;
-        }
-
+    slot.gray = ToGray(image);
+    slot.saturation = SaturationOf(image);
+    if (image.channels() == 4) {
         // alpha 就是掩膜：图标外那圈光晕在实拍里透着地形，让它参与相关只会压低分
         std::vector<cv::Mat> planes;
         cv::split(image, planes);
-        const cv::Mat mask = planes[3] >= 128;
-
-        _coreTemplates.push_back(
-            CoreTemplate { .name = name, .gray = ToGray(image), .mask = mask, .saturation = SaturationOf(image) });
-        LogInfo << "MapTeleport: core template loaded" << VAR(name) << VAR(image.cols) << VAR(cv::countNonZero(mask));
+        slot.mask = planes[3] >= 128;
     }
 
-    return _coreTemplates.empty() ? nullptr : &_coreTemplates;
+    LogInfo << "MapTeleport: icon template loaded" << VAR(name) << VAR(image.cols) << VAR(image.rows) << VAR(image.channels());
+    return &slot;
 }
 
 bool MapTeleportSolver::HasZone(const std::string& zone)
@@ -547,72 +562,6 @@ std::optional<Viewport> MapTeleportSolver::SolveViewport(const cv::Mat& screen, 
     LogInfo << "MapTeleport: viewport solved" << VAR(zone) << VAR(vp.scale) << VAR(vp.baseOrigin.x) << VAR(vp.baseOrigin.y)
             << VAR(vp.score) << VAR(vp.delta) << VAR(vp.psr);
     return vp;
-}
-
-std::optional<AnchorHit> MapTeleportSolver::ConfirmAnchor(
-    const cv::Mat& screen,
-    const cv::Point2d& expected,
-    double viewportScale,
-    const AnchorConfig& cfg)
-{
-    if (screen.empty() || viewportScale <= 0.0) {
-        return std::nullopt;
-    }
-
-    std::lock_guard guard(_mutex);
-    const cv::Mat* templ = LoadAnchorTemplate();
-    if (templ == nullptr) {
-        return std::nullopt;
-    }
-
-    const int radius = std::max(cfg.searchRadius, kMinTemplateSide);
-    cv::Rect window(
-        static_cast<int>(std::lround(expected.x)) - radius,
-        static_cast<int>(std::lround(expected.y)) - radius,
-        radius * 2,
-        radius * 2);
-    window &= cv::Rect(0, 0, screen.cols, screen.rows);
-    if (window.width < templ->cols || window.height < templ->rows) {
-        LogWarn << "MapTeleport: confirm window too small" << VAR(window.width) << VAR(window.height);
-        return std::nullopt;
-    }
-
-    // 图标只有二十来像素宽，最小边长得按它来卡，照视口那套会把整个模板筛掉
-    const cv::Mat patch = ToGray(screen)(window);
-    const auto hit = ScanScales(
-        patch,
-        *templ,
-        cv::Mat(),
-        LinearLadder(cfg.scaleMin, cfg.scaleMax, static_cast<int>(std::lround((cfg.scaleMax - cfg.scaleMin) / cfg.scaleStep)) + 1),
-        kMinAnchorSide,
-        0,
-        maplocator::PeakRefineMode::Continuous);
-    if (!hit) {
-        LogWarn << "MapTeleport: no anchor candidate in confirm window";
-        return std::nullopt;
-    }
-
-    if (hit->score < cfg.minScore) {
-        LogWarn << "MapTeleport: anchor score below floor" << VAR(hit->score) << VAR(cfg.minScore);
-        return std::nullopt;
-    }
-
-    AnchorHit out;
-    out.center = cv::Point2d(window.x + hit->loc.x + hit->size.width / 2.0, window.y + hit->loc.y + hit->size.height / 2.0);
-    out.size = hit->size;
-    out.score = hit->score;
-    out.matchScale = hit->scale;
-    out.offsetBase = std::hypot(out.center.x - expected.x, out.center.y - expected.y) * viewportScale;
-
-    if (out.offsetBase > cfg.gateBase) {
-        LogWarn << "MapTeleport: anchor too far from expected position" << VAR(out.offsetBase) << VAR(cfg.gateBase)
-                << VAR(out.center.x) << VAR(out.center.y) << VAR(expected.x) << VAR(expected.y);
-        return std::nullopt;
-    }
-
-    LogInfo << "MapTeleport: anchor confirmed" << VAR(out.center.x) << VAR(out.center.y) << VAR(out.score) << VAR(out.matchScale)
-            << VAR(out.offsetBase);
-    return out;
 }
 
 MapTeleportSolver& GetSolver(std::string_view controller_type)

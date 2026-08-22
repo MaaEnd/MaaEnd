@@ -192,6 +192,30 @@
             "[JumpBack]SceneEnterMapWulingJingyuValley"
         ]
     },
+    "SceneEnterWorldWulingWulingCityCoreIcon": {
+        "desc": "从任意界面进入武陵-武陵城核心区大世界 (图标确认)",
+        "pre_delay": 0,
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCityCore"
+        },
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMapWulingWulingCityEnterWorldAnchorWithPick",
+            "[JumpBack]SceneEnterMapWulingWulingCity"
+        ]
+    },
+    "SceneEnterWorldWulingMarkerStoneCoreIcon": {
+        "desc": "从任意界面进入武陵-首墩核心区大世界 (图标确认)",
+        "pre_delay": 0,
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": "__ScenePrivateMapWulingMarkerStoneEnterWorldWulingMarkerStoneCore"
+        },
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMapWulingMarkerStoneEnterWorldAnchorWithPick",
+            "[JumpBack]SceneEnterMapWulingMarkerStone"
+        ]
+    },
     "SceneEnterWorldWulingWulingCityCore": {
         "desc": "从任意界面进入武陵-武陵城核心区大世界",
         "pre_delay": 0,

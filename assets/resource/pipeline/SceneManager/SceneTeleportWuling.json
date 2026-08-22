@@ -644,6 +644,44 @@
             "__ScenePrivateMapTeleportSuccess"
         ]
     },
+    "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCityCore": {
+        "desc": "在地图界面找锚点 (武陵城-核心区)",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingWulingCity"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapTeleportSelect",
+        "custom_action_param": {
+            "zone": "Wuling",
+            "target": [
+                636.2,
+                1319.2
+            ],
+            // 基建核心的图标随玩家在区域里的摆放浮动，坐标只圈得住范围，所以在范围里搜。
+            // 它的模板比通用传送点那张大得多，背景峰跟着抬到 0.654，阈值只能单独标。
+            // 两张模板是同一个点位的两种样式，取分高的那张
+            "icon": [
+                "MapTeleportCoreHub.png",
+                "MapTeleportCoreSettlement.png"
+            ],
+            "radius": 60,
+            "scale_max": 1.15,
+            "min_score": 0.82,
+            "min_gold_ratio": 0.5
+        },
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ]
+    },
     "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCity0": {
         "desc": "在地图界面找锚点 (武陵城-观测站)",
         "recognition": "And",
@@ -1010,6 +1048,41 @@
                 1399.1,
                 2440.2
             ]
+        },
+        "anchor": {
+            "__ScenePrivateMapTeleportPickAnchor": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
+        ]
+    },
+    "__ScenePrivateMapWulingMarkerStoneEnterWorldWulingMarkerStoneCore": {
+        "desc": "在地图界面找锚点 (首墩-核心区)",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingMarkerStone"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapTeleportSelect",
+        "custom_action_param": {
+            "zone": "Wuling",
+            "target": [
+                620.1,
+                2357.7
+            ],
+            "icon": [
+                "MapTeleportCoreHub.png",
+                "MapTeleportCoreSettlement.png"
+            ],
+            "radius": 60,
+            "scale_max": 1.15,
+            "min_score": 0.82,
+            "min_gold_ratio": 0.5
         },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""

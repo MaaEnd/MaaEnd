@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 #include <MaaUtils/NoWarningCV.hpp>
 
@@ -40,10 +41,17 @@ struct ViewportConfig
     double minDelta = 0.02;
 };
 
-struct AnchorConfig
+// 地图上的一个传送点位。传送点、基建核心都走这一套：在期望位置附近找出图标、确认、点它。
+// 点位之间只有模板图与几个阈值不同，全部由调用方从节点参数喂进来，这里给的缺省是通用传送点那组
+struct SpotConfig
 {
-    // 确认只在期望位置的小窗内做，屏幕别处的同款图标一律看不见
-    int searchRadius = 40;
+    // 图标模板名，留空用通用传送点那张。多张时取分最高的一张，用于同一点位有多种样式
+    std::vector<std::string> templates;
+
+    // 搜索半径。大于零走浮动搜索，单位底图像素，按视口尺度折算到屏幕；
+    // 否则在期望位置开定点小窗，单位屏幕像素
+    double radiusBase = 0.0;
+    int radiusScreen = 40;
 
     // 图标不随地图缩放变，但各端界面把它画得不一样大：桌面实测踩 1.000，移动端踩 1.250。
     // 带宽要同时罩住两端，且阶梯得正好落在这两个值上——偏离 5% 分数就掉到 0.6 以下
@@ -51,39 +59,22 @@ struct AnchorConfig
     double scaleMax = 1.35;
     double scaleStep = 0.025;
 
-    // 实测真图标最低 0.76，地图纹理上的背景峰不到 0.45
+    // 通用传送点那张模板实测真图标最低 0.76，地图纹理上的背景峰不到 0.45。
+    // 换模板必须重标：模板越大背景峰越高，56x56 那两张的背景峰能到 0.654
     double minScore = 0.55;
 
-    // 命中与期望位置的偏差上限，单位是底图像素。
-    // 同区传送点两两最近 23.5，此值留出两倍余量，认错点在几何上就不成立
+    // 命中与期望位置的偏差上限，单位底图像素。同区传送点两两最近 23.5，
+    // 此值留出两倍余量，认错点在几何上就不成立。浮动搜索时窗口本身就是闸，这一项不参与
     double gateBase = 10.0;
-};
-
-// 基建核心区的传送图标随玩家在区域里的摆放浮动，坐标只圈得住范围、圈不准点位，
-// 所以是在这块范围里搜模板，而不是到定点上确认。两种样式各一张模板，取分高的那张
-struct CoreIconConfig
-{
-    // 浮动区中心到角的距离，单位底图像素。判假由分数闸负责，窗口只管别漏，宁大勿小
-    double searchBase = 60.0;
-
-    // 同一个图标在各端界面里画得不一样大，模板因此按各端自己的显示尺寸分层出货，
-    // 与锚点模板同一前提，阶梯于是两端都正好踩到 1.000
-    double scaleMin = 0.90;
-    double scaleMax = 1.15;
-    double scaleStep = 0.025;
-
-    // 同一批实拍上量的两端：真图标最低 0.914，没有图标的地方最高 0.654。
-    // 同一个图标在不同帧之间抖 0.014，约为余量的七分之一
-    double minScore = 0.82;
 
     // 没解锁的图标只是褪成灰的，形状一模一样，归一化相关对整体明暗不敏感、判不出来。
     // 解锁与否因此单独判：模板自身哪些像素是金的，就去实拍的同一批像素上量饱和度。
-    // 已解锁的实测 0.74~0.98，而没有图标的地方也能到 0.54、越得过这道闸，
-    // 所以这一项只判解锁、不参与判真假，真假一律由分数闸定。
-    // TODO: 这两个阈值只在已解锁的实拍上标定过。手头没有未解锁的账号，拿不到实拍，
+    // 这一项只判解锁、不参与判真假——没有图标的地方也能到 0.54、越得过这道闸。
+    // 缺省不判：通用传送点那张模板从没在未解锁实拍上标定过，贸然武装会把认得出的点判成锁着的。
+    // TODO: 核心那两张的 0.50 也只在已解锁的实拍上标定过。手头没有未解锁的账号，拿不到实拍，
     // 未解锁那一侧至今没有验证过。有条件的开发者请补测，确认后删掉本注释
     int saturationFloor = 60;
-    double minGoldRatio = 0.50;
+    double minGoldRatio = 0.0;
 };
 
 // 角色标记是压在锚点图标之上的实心白三角，它出现在期望位置本身就是图标认不出来的原因。
@@ -121,13 +112,18 @@ struct Viewport
     }
 };
 
-struct AnchorHit
+struct SpotHit
 {
+    std::string templateName;
     cv::Point2d center { 0.0, 0.0 };
     cv::Size size { 0, 0 };
     double score = 0.0;
     double matchScale = 0.0;
     double offsetBase = 0.0;
+
+    // 只在配了解锁判据时有意义，否则恒为 0 与 true
+    double goldRatio = 0.0;
+    bool unlocked = true;
 };
 
 struct PlayerMarkerHit
@@ -135,16 +131,6 @@ struct PlayerMarkerHit
     cv::Point2d center { 0.0, 0.0 };
     int area = 0;
     double solidity = 0.0;
-};
-
-struct CoreIconHit
-{
-    cv::Point2d center { 0.0, 0.0 };
-    cv::Size size { 0, 0 };
-    double score = 0.0;
-    double matchScale = 0.0;
-    double goldRatio = 0.0;
-    bool unlocked = false;
 };
 
 } // namespace mapteleport

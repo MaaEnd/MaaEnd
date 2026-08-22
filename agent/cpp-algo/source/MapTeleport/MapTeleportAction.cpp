@@ -22,6 +22,8 @@ namespace mapteleport
 namespace
 {
 
+// 一个点位就是「底图上的一个坐标 + 认它的那张图标」。下面这些留空就按通用传送点走，
+// 图标不一样的点位（基建核心之类）把模板名和它自己那套阈值写进节点参数即可
 struct SelectParam
 {
     std::string zone;
@@ -29,10 +31,25 @@ struct SelectParam
     int max_attempts = 4;
     double gate_base = 10.0;
 
-    // 基建核心区的传送点：图标随玩家摆放浮动，target 只圈得住范围，换颜色判据确认
-    bool core = false;
+    std::vector<std::string> icon;
 
-    MEO_JSONIZATION(zone, target, MEO_OPT max_attempts, MEO_OPT gate_base, MEO_OPT core);
+    // 大于零表示图标在这个半径内浮动（底图像素），此时 gate_base 不参与
+    double radius = 0.0;
+
+    double scale_max = 0.0;
+    double min_score = 0.0;
+    double min_gold_ratio = 0.0;
+
+    MEO_JSONIZATION(
+        zone,
+        target,
+        MEO_OPT max_attempts,
+        MEO_OPT gate_base,
+        MEO_OPT icon,
+        MEO_OPT radius,
+        MEO_OPT scale_max,
+        MEO_OPT min_score,
+        MEO_OPT min_gold_ratio);
 };
 
 // 大地图铺满全屏，UI 只是浮在四角的几块。图标要认要点，只需躲开这几块，
@@ -240,9 +257,19 @@ MaaBool MAA_CALL MapTeleportSelectRun(
     MapTeleportSolver& solver = GetSolver(controller_type);
     const ViewportConfig viewportCfg {};
     const PlayerMarkerConfig markerCfg {};
-    const CoreIconConfig coreCfg {};
-    AnchorConfig anchorCfg {};
-    anchorCfg.gateBase = param.gate_base;
+
+    // 缺省是通用传送点那组标定，节点给了就按节点的来
+    SpotConfig spotCfg {};
+    spotCfg.templates = param.icon;
+    spotCfg.radiusBase = param.radius;
+    spotCfg.gateBase = param.gate_base;
+    if (param.scale_max > 0.0) {
+        spotCfg.scaleMax = param.scale_max;
+    }
+    if (param.min_score > 0.0) {
+        spotCfg.minScore = param.min_score;
+    }
+    spotCfg.minGoldRatio = param.min_gold_ratio;
 
     const cv::Point2d target(param.target[0], param.target[1]);
     LogInfo << "MapTeleport: start" << VAR(param.zone) << VAR(target.x) << VAR(target.y) << VAR(param.max_attempts);
@@ -329,39 +356,25 @@ MaaBool MAA_CALL MapTeleportSelectRun(
         }
 
         ++attempt;
-        std::optional<cv::Point2d> spot;
-        if (param.core) {
-            const auto icon = solver.ConfirmCoreIcon(screen, expected, viewport->scale, coreCfg);
-            if (icon && !icon->unlocked) {
-                // 没解锁的基建点不接受传送，这是规则不是识别失败，重试多少次都一样，立刻收场。
-                // TODO: 这一支缺未解锁的实拍，从没真跑到过，判据见 CoreIconConfig 的同名说明
-                LogWarn << "MapTeleport: this base is still locked, teleport is not available" << VAR(param.zone)
-                        << VAR(icon->goldRatio) << VAR(coreCfg.minGoldRatio);
-                if (MaaContextRunTask(context, kEnterWorldEntry, "{}") == MaaInvalidId) {
-                    LogError << "MapTeleport: could not leave the map after finding the base locked" << VAR(param.zone);
-                }
-                return false;
+        const auto icon = solver.ConfirmSpot(screen, expected, viewport->scale, spotCfg);
+        if (icon && !icon->unlocked) {
+            // 没解锁的点位不接受传送，这是规则不是识别失败，重试多少次都一样，立刻收场。
+            // TODO: 这一支缺未解锁的实拍，从没真跑到过，判据见 SpotConfig 里 minGoldRatio 的说明
+            LogWarn << "MapTeleport: this spot is still locked, teleport is not available" << VAR(param.zone)
+                    << VAR(icon->goldRatio) << VAR(spotCfg.minGoldRatio);
+            if (MaaContextRunTask(context, kEnterWorldEntry, "{}") == MaaInvalidId) {
+                LogError << "MapTeleport: could not leave the map after finding the spot locked" << VAR(param.zone);
             }
-            if (icon) {
-                spot = icon->center;
-                LogInfo << "MapTeleport: core icon confirmed" << VAR(param.zone) << VAR(icon->score) << VAR(icon->goldRatio);
-            }
-        }
-        else {
-            const auto anchor = solver.ConfirmAnchor(screen, expected, viewport->scale, anchorCfg);
-            if (anchor) {
-                spot = anchor->center;
-                LogInfo << "MapTeleport: anchor confirmed" << VAR(param.zone) << VAR(anchor->score) << VAR(anchor->offsetBase);
-            }
+            return false;
         }
 
-        if (!spot) {
+        if (!icon) {
             // 角色标记画在图标之上，它落在期望位置就是图标认不出来的原因：人已经站在这了。
             // 剩下的距离交给寻路，退回大世界当作到达。认不出图标的其他原因不会命中这一支
             PlayerMarkerConfig rescueCfg = markerCfg;
-            if (param.core) {
+            if (spotCfg.radiusBase > 0.0) {
                 // 图标浮动多远，压在它上面的角色标记就离 target 多远，窗口得跟着放到浮动区那么宽
-                rescueCfg.searchRadius = static_cast<int>(std::lround(coreCfg.searchBase / viewport->scale));
+                rescueCfg.searchRadius = static_cast<int>(std::lround(spotCfg.radiusBase / viewport->scale));
             }
             const auto marker = MapTeleportSolver::DetectPlayerMarker(screen, expected, rescueCfg);
             if (marker) {
@@ -379,8 +392,8 @@ MaaBool MAA_CALL MapTeleportSelectRun(
             continue;
         }
 
-        const int cx = static_cast<int>(std::lround(spot->x));
-        const int cy = static_cast<int>(std::lround(spot->y));
+        const int cx = static_cast<int>(std::lround(icon->center.x));
+        const int cy = static_cast<int>(std::lround(icon->center.y));
         LogInfo << "MapTeleport: clicking" << VAR(param.zone) << VAR(cx) << VAR(cy);
         const MaaCtrlId click_id = MaaControllerPostClick(controller, cx, cy);
         return MaaControllerWait(controller, click_id) == MaaStatus_Succeeded ? true : false;
