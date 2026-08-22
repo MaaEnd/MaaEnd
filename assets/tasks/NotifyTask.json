@@ -1,0 +1,147 @@
+{
+    "task": [
+        {
+            "name": "NotifyTask",
+            "label": "$task.NotifyTask.label",
+            "entry": "NotifySend",
+            "description": "$task.NotifyTask.description",
+            "group": [
+                "other_menu"
+            ],
+            "option": [
+                "NotifyTaskTitle",
+                "NotifyTaskBody",
+                "NotifyTaskWebhook",
+                "NotifyTaskBark",
+                "NotifyTaskServerChan"
+            ]
+        }
+    ],
+    "option": {
+        "NotifyTaskTitle": {
+            "type": "input",
+            "label": "$option.NotifyTaskTitle.label",
+            "inputs": [
+                {
+                    "name": "Title",
+                    "label": "$option.NotifyTaskTitle.Title.label",
+                    "pipeline_type": "string",
+                    "default": ""
+                }
+            ],
+            "pipeline_override": {
+                "__NotifyConfig": {
+                    "attach": {
+                        "task_title": "{Title}"
+                    }
+                }
+            }
+        },
+        "NotifyTaskBody": {
+            "type": "input",
+            "label": "$option.NotifyTaskBody.label",
+            "inputs": [
+                {
+                    "name": "Body",
+                    "label": "$option.NotifyTaskBody.Body.label",
+                    "pipeline_type": "string",
+                    "default": ""
+                }
+            ],
+            "pipeline_override": {
+                "__NotifyConfig": {
+                    "attach": {
+                        "task_body": "{Body}"
+                    }
+                }
+            }
+        },
+        "NotifyTaskWebhook": {
+            "type": "switch",
+            "label": "$option.NotifyTaskWebhook.label",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "label": "$option.NotifyTaskWebhook.cases.Yes.label",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "send_task_webhook": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "label": "$option.NotifyTaskWebhook.cases.No.label",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "send_task_webhook": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "NotifyTaskBark": {
+            "type": "switch",
+            "label": "$option.NotifyTaskBark.label",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "label": "$option.NotifyTaskBark.cases.Yes.label",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "send_task_bark": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "label": "$option.NotifyTaskBark.cases.No.label",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "send_task_bark": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "NotifyTaskServerChan": {
+            "type": "switch",
+            "label": "$option.NotifyTaskServerChan.label",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "label": "$option.NotifyTaskServerChan.cases.Yes.label",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "send_task_serverchan": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "label": "$option.NotifyTaskServerChan.cases.No.label",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "send_task_serverchan": false
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

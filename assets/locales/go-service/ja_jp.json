@@ -231,5 +231,7 @@
     "ims.add_item_found": "%s を獲得 ×%d",
     "ims.expression_ok": "式が成立：%s",
     "ims.expression_short": "式が不成立：%s",
-    "ims.item_current": "現在 %s：%d"
+    "ims.item_current": "現在 %s：%d",
+    "notify.status.failed": "失敗",
+    "notify.default_title": "MaaEnd 通知"
 }

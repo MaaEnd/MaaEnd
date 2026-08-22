@@ -27,6 +27,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/poststop"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/repeataction"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/schedule"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/notify"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/subtask"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/creditshopping"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/dijiangrewards"
@@ -72,6 +73,7 @@ func registerAll() {
 	listcomplete.Register()
 	expendable.Register()
 	attachregex.Register()
+	notify.Register()
 	autoalt.Register()
 	camerascan.Register()
 	charactercontroller.Register()

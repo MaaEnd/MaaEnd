@@ -231,5 +231,7 @@
     "ims.add_item_found": "获得 %s ×%d",
     "ims.expression_ok": "表达式成立：%s",
     "ims.expression_short": "表达式不成立：%s",
-    "ims.item_current": "当前 %s：%d"
+    "ims.item_current": "当前 %s：%d",
+    "notify.status.failed": "失败",
+    "notify.default_title": "MaaEnd 通知"
 }

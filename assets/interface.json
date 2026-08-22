@@ -243,12 +243,14 @@
         "tasks/SimpleProductionBatchStart.json",
         "tasks/ReceiveProdManual.json",
         "tasks/StashBackpack.json",
+        "tasks/NotifyTask.json",
         // preset
         "tasks/preset/DailyFull.json",
         "tasks/preset/QuickDaily.json",
         "tasks/preset/RealtimeAssist.json",
         // setting
         "tasks/setting/Keymap.json",
+        "tasks/setting/Notify.json",
         "tasks/setting/Zipline.json"
     ]
 }

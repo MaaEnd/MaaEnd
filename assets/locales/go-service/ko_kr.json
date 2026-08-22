@@ -231,5 +231,7 @@
     "ims.add_item_found": "%s 획득 ×%d",
     "ims.expression_ok": "식 성립: %s",
     "ims.expression_short": "식 불성립: %s",
-    "ims.item_current": "현재 %s: %d"
+    "ims.item_current": "현재 %s: %d",
+    "notify.status.failed": "실패",
+    "notify.default_title": "MaaEnd 알림"
 }

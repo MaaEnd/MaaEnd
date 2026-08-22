@@ -1,0 +1,744 @@
+{
+    "setting": [
+        {
+            "name": "NotifyChannel",
+            "label": "$option.NotifyChannel.label",
+            "description": "$option.NotifyChannel.description",
+            "option": [
+                "NotifyHelp",
+                "NotifyWebhook",
+                "NotifyBark",
+                "NotifyServerChan"
+            ]
+        },
+        {
+            "name": "NotifyContent",
+            "label": "$option.NotifyContent.label",
+            "description": "$option.NotifyContent.description",
+            "option": [
+                "NotifyFail"
+            ]
+        }
+    ],
+    "global_option": [
+        "NotifyWebhook",
+        "NotifyBark",
+        "NotifyServerChan",
+        "NotifyFail"
+    ],
+    "option": {
+        "NotifyWebhook": {
+            "type": "switch",
+            "label": "$option.NotifyWebhook.label",
+            "description": "$option.NotifyWebhook.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "label": "$option.NotifyWebhook.cases.Yes.label",
+                    "option": [
+                        "NotifyWebhookUrl",
+                        "NotifyWebhookMethod",
+                        "NotifyWebhookHeaders",
+                        "NotifyWebhookBody"
+                    ],
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "webhook_enabled": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "label": "$option.NotifyWebhook.cases.No.label",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "webhook_enabled": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "NotifyWebhookUrl": {
+            "type": "input",
+            "label": "$option.NotifyWebhookUrl.label",
+            "inputs": [
+                {
+                    "name": "Url",
+                    "label": "$option.NotifyWebhookUrl.Url.label",
+                    "pipeline_type": "string",
+                    "default": ""
+                }
+            ],
+            "pipeline_override": {
+                "__NotifyConfig": {
+                    "attach": {
+                        "webhook_url": "{Url}"
+                    }
+                }
+            }
+        },
+        "NotifyWebhookMethod": {
+            "type": "select",
+            "label": "$option.NotifyWebhookMethod.label",
+            "default_case": "POST",
+            "cases": [
+                {
+                    "name": "POST",
+                    "label": "POST",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "webhook_method": "POST"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "GET",
+                    "label": "GET",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "webhook_method": "GET"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "PUT",
+                    "label": "PUT",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "webhook_method": "PUT"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "PATCH",
+                    "label": "PATCH",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "webhook_method": "PATCH"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "DELETE",
+                    "label": "DELETE",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "webhook_method": "DELETE"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "HEAD",
+                    "label": "HEAD",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "webhook_method": "HEAD"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "OPTIONS",
+                    "label": "OPTIONS",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "webhook_method": "OPTIONS"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "NotifyWebhookHeaders": {
+            "type": "input",
+            "label": "$option.NotifyWebhookHeaders.label",
+            "inputs": [
+                {
+                    "name": "Headers",
+                    "label": "$option.NotifyWebhookHeaders.Headers.label",
+                    "pipeline_type": "string",
+                    "default": ""
+                }
+            ],
+            "pipeline_override": {
+                "__NotifyConfig": {
+                    "attach": {
+                        "webhook_headers": "{Headers}"
+                    }
+                }
+            }
+        },
+        "NotifyWebhookBody": {
+            "type": "input",
+            "label": "$option.NotifyWebhookBody.label",
+            "inputs": [
+                {
+                    "name": "Body",
+                    "label": "$option.NotifyWebhookBody.Body.label",
+                    "pipeline_type": "string",
+                    "default": ""
+                }
+            ],
+            "pipeline_override": {
+                "__NotifyConfig": {
+                    "attach": {
+                        "webhook_body": "{Body}"
+                    }
+                }
+            }
+        },
+        "NotifyBark": {
+            "type": "switch",
+            "label": "$option.NotifyBark.label",
+            "description": "$option.NotifyBark.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "label": "$option.NotifyBark.cases.Yes.label",
+                    "option": [
+                        "NotifyBarkParams",
+                        "NotifyBarkLevel"
+                    ],
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "bark_enabled": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "label": "$option.NotifyBark.cases.No.label",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "bark_enabled": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "NotifyServerChan": {
+            "type": "switch",
+            "label": "$option.NotifyServerChan.label",
+            "description": "$option.NotifyServerChan.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "label": "$option.NotifyServerChan.cases.Yes.label",
+                    "option": [
+                        "NotifyServerChanKey",
+                        "NotifyServerChanTags",
+                        "NotifyServerChanShort",
+                        "NotifyServerChanNoIP",
+                        "NotifyServerChanChannel",
+                        "NotifyServerChanOpenID",
+                        "NotifyServerChanTitle",
+                        "NotifyServerChanBody"
+                    ],
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "serverchan_enabled": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "label": "$option.NotifyServerChan.cases.No.label",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "serverchan_enabled": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "NotifyServerChanKey": {
+            "type": "input",
+            "label": "$option.NotifyServerChanKey.label",
+            "inputs": [
+                {
+                    "name": "Key",
+                    "label": "$option.NotifyServerChanKey.Key.label",
+                    "pipeline_type": "string",
+                    "default": ""
+                }
+            ],
+            "pipeline_override": {
+                "__NotifyConfig": {
+                    "attach": {
+                        "serverchan_key": "{Key}"
+                    }
+                }
+            }
+        },
+        "NotifyServerChanTags": {
+            "type": "input",
+            "label": "$option.NotifyServerChanTags.label",
+            "inputs": [
+                {
+                    "name": "Tags",
+                    "label": "$option.NotifyServerChanTags.Tags.label",
+                    "pipeline_type": "string",
+                    "default": "",
+                    "placeholder": "$option.NotifyServerChanTags.Tags.placeholder"
+                }
+            ],
+            "pipeline_override": {
+                "__NotifyConfig": {
+                    "attach": {
+                        "serverchan_tags": "{Tags}"
+                    }
+                }
+            }
+        },
+        "NotifyFail": {
+            "type": "switch",
+            "label": "$option.NotifyFail.label",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "label": "$option.NotifyFail.cases.Yes.label",
+                    "option": [
+                        "NotifyFailTitle",
+                        "NotifyFailBody"
+                    ],
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "on_fail": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "label": "$option.NotifyFail.cases.No.label",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "on_fail": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "NotifyFailTitle": {
+            "type": "input",
+            "label": "$option.NotifyFailTitle.label",
+            "inputs": [
+                {
+                    "name": "Title",
+                    "label": "$option.NotifyFailTitle.Title.label",
+                    "pipeline_type": "string",
+                    "default": ""
+                }
+            ],
+            "pipeline_override": {
+                "__NotifyConfig": {
+                    "attach": {
+                        "fail_title": "{Title}"
+                    }
+                }
+            }
+        },
+        "NotifyFailBody": {
+            "type": "input",
+            "label": "$option.NotifyFailBody.label",
+            "inputs": [
+                {
+                    "name": "Body",
+                    "label": "$option.NotifyFailBody.Body.label",
+                    "pipeline_type": "string",
+                    "default": ""
+                }
+            ],
+            "pipeline_override": {
+                "__NotifyConfig": {
+                    "attach": {
+                        "fail_body": "{Body}"
+                    }
+                }
+            }
+        },
+        "NotifyServerChanShort": {
+            "type": "input",
+            "label": "$option.NotifyServerChanShort.label",
+            "inputs": [
+                {
+                    "name": "Short",
+                    "label": "$option.NotifyServerChanShort.Short.label",
+                    "pipeline_type": "string",
+                    "default": "",
+                    "placeholder": "$option.NotifyServerChanShort.Short.placeholder"
+                }
+            ],
+            "pipeline_override": {
+                "__NotifyConfig": {
+                    "attach": {
+                        "serverchan_short": "{Short}"
+                    }
+                }
+            }
+        },
+        "NotifyServerChanChannel": {
+            "type": "input",
+            "label": "$option.NotifyServerChanChannel.label",
+            "inputs": [
+                {
+                    "name": "Channel",
+                    "label": "$option.NotifyServerChanChannel.Channel.label",
+                    "pipeline_type": "string",
+                    "default": ""
+                }
+            ],
+            "pipeline_override": {
+                "__NotifyConfig": {
+                    "attach": {
+                        "serverchan_channel": "{Channel}"
+                    }
+                }
+            }
+        },
+        "NotifyServerChanOpenID": {
+            "type": "input",
+            "label": "$option.NotifyServerChanOpenID.label",
+            "inputs": [
+                {
+                    "name": "OpenID",
+                    "label": "$option.NotifyServerChanOpenID.OpenID.label",
+                    "pipeline_type": "string",
+                    "default": ""
+                }
+            ],
+            "pipeline_override": {
+                "__NotifyConfig": {
+                    "attach": {
+                        "serverchan_openid": "{OpenID}"
+                    }
+                }
+            }
+        },
+        "NotifyServerChanTitle": {
+            "type": "input",
+            "label": "$option.NotifyServerChanTitle.label",
+            "inputs": [
+                {
+                    "name": "Title",
+                    "label": "$option.NotifyServerChanTitle.Title.label",
+                    "pipeline_type": "string",
+                    "default": "",
+                    "placeholder": "$option.NotifyServerChanTitle.Title.placeholder"
+                }
+            ],
+            "pipeline_override": {
+                "__NotifyConfig": {
+                    "attach": {
+                        "serverchan_title": "{Title}"
+                    }
+                }
+            }
+        },
+        "NotifyServerChanBody": {
+            "type": "input",
+            "label": "$option.NotifyServerChanBody.label",
+            "inputs": [
+                {
+                    "name": "Body",
+                    "label": "$option.NotifyServerChanBody.Body.label",
+                    "pipeline_type": "string",
+                    "default": "",
+                    "placeholder": "$option.NotifyServerChanBody.Body.placeholder"
+                }
+            ],
+            "pipeline_override": {
+                "__NotifyConfig": {
+                    "attach": {
+                        "serverchan_body": "{Body}"
+                    }
+                }
+            }
+        },
+        "NotifyServerChanNoIP": {
+            "type": "switch",
+            "label": "$option.NotifyServerChanNoIP.label",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "label": "$option.NotifyServerChanNoIP.cases.Yes.label",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "serverchan_noip": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "label": "$option.NotifyServerChanNoIP.cases.No.label",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "serverchan_noip": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "NotifyHelp": {
+            "type": "checkbox",
+            "label": "$option.NotifyHelp.label",
+            "description": "$option.NotifyHelp.description",
+            "cases": []
+        },
+        "NotifyBarkLevel": {
+            "type": "select",
+            "label": "level",
+            "default_case": "Active",
+            "cases": [
+                {
+                    "name": "Active",
+                    "label": "active",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "bark_level": "active"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Critical",
+                    "label": "critical",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "bark_level": "critical"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "TimeSensitive",
+                    "label": "timeSensitive",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "bark_level": "timeSensitive"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Passive",
+                    "label": "passive",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "bark_level": "passive"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "NotifyBarkParams": {
+            "type": "input",
+            "label": "",
+            "inputs": [
+                {
+                    "name": "Key",
+                    "label": "device_key",
+                    "pipeline_type": "string",
+                    "default": ""
+                },
+                {
+                    "name": "Title",
+                    "label": "title",
+                    "pipeline_type": "string",
+                    "default": "",
+                    "placeholder": "$option.NotifyBarkParams.Title.placeholder"
+                },
+                {
+                    "name": "Body",
+                    "label": "body",
+                    "pipeline_type": "string",
+                    "default": "",
+                    "placeholder": "$option.NotifyBarkParams.Body.placeholder"
+                },
+                {
+                    "name": "Subtitle",
+                    "label": "subtitle",
+                    "pipeline_type": "string",
+                    "default": ""
+                },
+                {
+                    "name": "Group",
+                    "label": "group",
+                    "pipeline_type": "string",
+                    "default": ""
+                },
+                {
+                    "name": "Sound",
+                    "label": "sound",
+                    "pipeline_type": "string",
+                    "default": ""
+                },
+                {
+                    "name": "Icon",
+                    "label": "icon",
+                    "pipeline_type": "string",
+                    "default": ""
+                },
+                {
+                    "name": "Image",
+                    "label": "image",
+                    "pipeline_type": "string",
+                    "default": ""
+                },
+                {
+                    "name": "Url",
+                    "label": "url",
+                    "pipeline_type": "string",
+                    "default": ""
+                },
+                {
+                    "name": "Badge",
+                    "label": "badge",
+                    "pipeline_type": "string",
+                    "default": ""
+                },
+                {
+                    "name": "Markdown",
+                    "label": "markdown",
+                    "pipeline_type": "string",
+                    "default": ""
+                },
+                {
+                    "name": "Copy",
+                    "label": "copy",
+                    "pipeline_type": "string",
+                    "default": ""
+                },
+                {
+                    "name": "IsArchive",
+                    "label": "isArchive",
+                    "pipeline_type": "string",
+                    "default": ""
+                },
+                {
+                    "name": "Ttl",
+                    "label": "ttl",
+                    "pipeline_type": "string",
+                    "default": ""
+                },
+                {
+                    "name": "DeviceKeys",
+                    "label": "device_keys",
+                    "pipeline_type": "string",
+                    "default": ""
+                },
+                {
+                    "name": "Volume",
+                    "label": "volume",
+                    "pipeline_type": "string",
+                    "default": ""
+                },
+                {
+                    "name": "Call",
+                    "label": "call",
+                    "pipeline_type": "string",
+                    "default": ""
+                },
+                {
+                    "name": "AutoCopy",
+                    "label": "autoCopy",
+                    "pipeline_type": "string",
+                    "default": ""
+                },
+                {
+                    "name": "Ciphertext",
+                    "label": "ciphertext",
+                    "pipeline_type": "string",
+                    "default": ""
+                },
+                {
+                    "name": "Action",
+                    "label": "action",
+                    "pipeline_type": "string",
+                    "default": ""
+                },
+                {
+                    "name": "Id",
+                    "label": "id",
+                    "pipeline_type": "string",
+                    "default": ""
+                },
+                {
+                    "name": "Delete",
+                    "label": "delete",
+                    "pipeline_type": "string",
+                    "default": ""
+                }
+            ],
+            "pipeline_override": {
+                "__NotifyConfig": {
+                    "attach": {
+                        "bark_key": "{Key}",
+                        "bark_title": "{Title}",
+                        "bark_body": "{Body}",
+                        "bark_subtitle": "{Subtitle}",
+                        "bark_group": "{Group}",
+                        "bark_sound": "{Sound}",
+                        "bark_icon": "{Icon}",
+                        "bark_image": "{Image}",
+                        "bark_url": "{Url}",
+                        "bark_badge": "{Badge}",
+                        "bark_markdown": "{Markdown}",
+                        "bark_copy": "{Copy}",
+                        "bark_isarchive": "{IsArchive}",
+                        "bark_ttl": "{Ttl}",
+                        "bark_devicekeys": "{DeviceKeys}",
+                        "bark_volume": "{Volume}",
+                        "bark_call": "{Call}",
+                        "bark_autocopy": "{AutoCopy}",
+                        "bark_ciphertext": "{Ciphertext}",
+                        "bark_action": "{Action}",
+                        "bark_id": "{Id}",
+                        "bark_delete": "{Delete}"
+                    }
+                }
+            }
+        }
+    }
+}
