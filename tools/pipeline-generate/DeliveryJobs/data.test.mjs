@@ -166,6 +166,26 @@ test("DeliveryJobs generated depot nodes enter the shared transfer and cargo flo
         assert.deepEqual(pipeline[`DeliveryJobsEnter${depot.Id}PriceDeliveryJob`].next, [
             "DeliveryJobsClickTransferJob",
         ]);
+        assert.deepEqual(pipeline[`DeliveryJobsStartAutoDelivery${depot.Id}`].anchor, {
+            SeizeDeliveryJobsAfterEnterCurrentJobDetail: "DeliveryJobsAutoDeliveryEntry",
+        });
+        assert.deepEqual(pipeline[`DeliveryJobsStartAutoDelivery${depot.Id}`].next, [
+            `DeliveryJobsReturnAndView${depot.Id}CurrentJob`,
+        ]);
+        assert.deepEqual(pipeline[`DeliveryJobsReturnAndView${depot.Id}CurrentJob`].custom_action_param.sub, [
+            depot.DepotScene,
+        ]);
+        assert.deepEqual(pipeline[`DeliveryJobsReturnAndView${depot.Id}CurrentJob`].next, [
+            `DeliveryJobsView${depot.Id}CurrentJob`,
+        ]);
+        assert.deepEqual(pipeline[`DeliveryJobsView${depot.Id}CurrentJob`].all_of, [
+            `DeliveryJobsCheckLocalDepotNode${depot.Id}Text`,
+            `DeliveryJobsCheck${depot.Id}DeliveryJob`,
+        ]);
+        assert.deepEqual(pipeline[`DeliveryJobsView${depot.Id}CurrentJob`].next, [
+            "[Anchor]SeizeDeliveryJobsAfterEnterCurrentJobDetail",
+        ]);
+        assert.equal(pipeline[`DeliveryJobsView${depot.Id}CurrentJob`].post_wait_freezes, 500);
     }
 });
 
@@ -358,12 +378,6 @@ test("DeliveryJobs ordinary depot modes override delivery and cargo behavior", (
 test("DeliveryJobs exposes automatic delivery for supported depots with controller-scoped safety options", () => {
     const task = readGeneratedTask();
     const autoDeliveryNodes = {
-        SeizeDeliveryJobsPostProcessingEntry: {
-            enabled: true,
-            next: [
-                "SeizeDeliveryJobsEnterDestinationMapWithDestinationResolve",
-            ],
-        },
         SeizeDeliveryJobsPostDepartureEntry: {
             enabled: true,
         },
@@ -402,6 +416,7 @@ test("DeliveryJobs exposes automatic delivery for supported depots with controll
         for (const {autoOverride, comparison, bidAction} of contexts) {
             const deliveryNode = `DeliveryJobsEnter${depot.Id}DeliveryJob`;
             const cargoNode = `DeliveryJobsEnter${depot.Id}Cargo`;
+            const startAutoDelivery = `DeliveryJobsStartAutoDelivery${depot.Id}`;
             assert.deepEqual(autoOverride[deliveryNode], {
                 enabled: true,
                 anchor: {
@@ -411,9 +426,15 @@ test("DeliveryJobs exposes automatic delivery for supported depots with controll
             assert.deepEqual(autoOverride[cargoNode].anchor, {
                 DeliveryJobsSelectPriorityItems: `DeliveryJobsSelectPriorityItems${depot.RegionId}`,
                 DeliveryJobsRedistributionBidAction: bidAction,
-                DeliveryJobsOngoingDeliveryAction: "DeliveryJobsAutoDeliveryEntry",
-                DeliveryJobsGoToDepot: "DeliveryJobsAutoDeliveryEntry",
+                DeliveryJobsOngoingDeliveryAction: startAutoDelivery,
+                DeliveryJobsGoToDepot: startAutoDelivery,
             });
+            assert.deepEqual(autoOverride.SeizeDeliveryJobsEnterCurrentJobDetail, {
+                next: [
+                    `DeliveryJobsReturnAndView${depot.Id}CurrentJob`,
+                ],
+            });
+            assert.equal(autoOverride.SeizeDeliveryJobsPostProcessingEntry, undefined);
             for (const [
                 node,
                 expected,
@@ -423,7 +444,7 @@ test("DeliveryJobs exposes automatic delivery for supported depots with controll
             if (comparison) {
                 assert.deepEqual(autoOverride[`DeliveryJobs${depot.Id}Quote${comparison}`].anchor, {
                     DeliveryJobsQuoteAction: "DeliveryJobsQuoteAcceptJobOnly",
-                    DeliveryJobsGoToDepot: "DeliveryJobsAutoDeliveryEntry",
+                    DeliveryJobsGoToDepot: startAutoDelivery,
                 });
             }
         }
@@ -551,7 +572,7 @@ test("DeliveryJobs quote branches share actions with branch-specific defaults", 
                     ? [
                           {
                               DeliveryJobsQuoteAction: "DeliveryJobsQuoteAcceptJobOnly",
-                              DeliveryJobsGoToDepot: "DeliveryJobsAutoDeliveryEntry",
+                              DeliveryJobsGoToDepot: `DeliveryJobsStartAutoDelivery${depot.Id}`,
                           },
                       ]
                     : []),
@@ -753,6 +774,9 @@ test("DeliveryJobs automatic delivery adapter returns on success and stops on fa
     const pipeline = readGeneratedPipeline("DeliveryJobs", "AutoDelivery.json");
     assert.deepEqual(pipeline.DeliveryJobsAutoDeliveryEntry.anchor, {
         SeizeDeliveryJobsAfterDelivery: "DeliveryJobsAutoDeliverySubTaskDone",
+        SeizeDeliveryJobsAfterEnterDestinationMap: "SeizeDeliveryJobsQuickTeleportSelect",
+        SeizeDeliveryJobsAfterQuickTeleport: "",
+        SeizeDeliveryJobsDepartureOnError: "SeizeDeliveryJobsFatalDeliveryNavigationFailed",
     });
     assert.deepEqual(pipeline.DeliveryJobsAutoDeliveryEntry.next, [
         "DeliveryJobsAutoDeliveryGuard",
@@ -760,7 +784,7 @@ test("DeliveryJobs automatic delivery adapter returns on success and stops on fa
     ]);
     assert.deepEqual(pipeline.DeliveryJobsAutoDeliveryRun.custom_action_param, {
         sub: [
-            "SeizeDeliveryJobsPostProcessingEntry",
+            "SeizeDeliveryJobsResolveDestinationBeforeTeleportEntry",
         ],
         continue: false,
         strict: true,

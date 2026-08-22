@@ -250,6 +250,8 @@ function buildQuoteActionOption(depot, {comparison, label, description, defaultC
 function buildAutoDeliveryOverride(depot, {bidAction, comparison}) {
     const deliveryNode = `DeliveryJobsEnter${depot.Id}DeliveryJob`;
     const cargoNode = `DeliveryJobsEnter${depot.Id}Cargo`;
+    const startAutoDelivery = `DeliveryJobsStartAutoDelivery${depot.Id}`;
+    const returnAndViewCurrentJob = `DeliveryJobsReturnAndView${depot.Id}CurrentJob`;
     const pipelineOverride = {
         [deliveryNode]: {
             enabled: true,
@@ -259,12 +261,11 @@ function buildAutoDeliveryOverride(depot, {bidAction, comparison}) {
         },
         [cargoNode]: {
             enabled: true,
-            anchor: buildCargoAnchor(depot, bidAction, AUTO_DELIVERY_ENTRY, AUTO_DELIVERY_ENTRY),
+            anchor: buildCargoAnchor(depot, bidAction, startAutoDelivery, startAutoDelivery),
         },
-        SeizeDeliveryJobsPostProcessingEntry: {
-            enabled: true,
+        SeizeDeliveryJobsEnterCurrentJobDetail: {
             next: [
-                "SeizeDeliveryJobsEnterDestinationMapWithDestinationResolve",
+                returnAndViewCurrentJob,
             ],
         },
         SeizeDeliveryJobsPostDepartureEntry: {
@@ -276,7 +277,7 @@ function buildAutoDeliveryOverride(depot, {bidAction, comparison}) {
         pipelineOverride[`DeliveryJobs${depot.Id}Quote${comparison}`] = {
             anchor: {
                 DeliveryJobsQuoteAction: "DeliveryJobsQuoteAcceptJobOnly",
-                DeliveryJobsGoToDepot: AUTO_DELIVERY_ENTRY,
+                DeliveryJobsGoToDepot: startAutoDelivery,
             },
         };
     }

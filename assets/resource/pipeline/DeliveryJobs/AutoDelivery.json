@@ -1,10 +1,13 @@
 {
     "DeliveryJobsAutoDeliveryEntry": {
-        "desc": "转交委托接取成功后进入共享全自动送货流程",
+        "desc": "从本地仓储节点的任务详情进入共享全自动送货流程",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "anchor": {
-            "SeizeDeliveryJobsAfterDelivery": "DeliveryJobsAutoDeliverySubTaskDone"
+            "SeizeDeliveryJobsAfterDelivery": "DeliveryJobsAutoDeliverySubTaskDone",
+            "SeizeDeliveryJobsAfterEnterDestinationMap": "SeizeDeliveryJobsQuickTeleportSelect",
+            "SeizeDeliveryJobsAfterQuickTeleport": "",
+            "SeizeDeliveryJobsDepartureOnError": "SeizeDeliveryJobsFatalDeliveryNavigationFailed"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -36,7 +39,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SeizeDeliveryJobsPostProcessingEntry"
+                "SeizeDeliveryJobsResolveDestinationBeforeTeleportEntry"
             ],
             "continue": false,
             "strict": true

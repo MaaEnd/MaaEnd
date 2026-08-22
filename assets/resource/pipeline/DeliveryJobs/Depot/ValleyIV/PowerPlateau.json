@@ -74,6 +74,54 @@
             "DeliveryJobsClickTransferJob"
         ]
     },
+    "DeliveryJobsStartAutoDeliveryPowerPlateau": {
+        "desc": "返回供能高地查看任务并开始全自动送货",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "anchor": {
+            "SeizeDeliveryJobsAfterEnterCurrentJobDetail": "DeliveryJobsAutoDeliveryEntry"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsReturnAndViewPowerPlateauCurrentJob"
+        ]
+    },
+    "DeliveryJobsReturnAndViewPowerPlateauCurrentJob": {
+        "desc": "返回供能高地本地仓储节点查看当前送货任务",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsViewPowerPlateauCurrentJob"
+        ]
+    },
+    "DeliveryJobsViewPowerPlateauCurrentJob": {
+        "desc": "供能高地：从本地仓储节点查看当前送货任务",
+        "recognition": "And",
+        "all_of": [
+            "DeliveryJobsCheckLocalDepotNodePowerPlateauText",
+            "DeliveryJobsCheckPowerPlateauDeliveryJob"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": 500,
+        "post_delay": 0,
+        "rate_limit": 500,
+        "next": [
+            "[Anchor]SeizeDeliveryJobsAfterEnterCurrentJobDetail"
+        ]
+    },
     "DeliveryJobsCheckLocalDepotNodePowerPlateauText": {
         "desc": "检查本地仓储节点中是否有供能高地",
         "recognition": "OCR",

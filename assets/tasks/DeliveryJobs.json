@@ -922,14 +922,13 @@
                             "anchor": {
                                 "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsWuling",
                                 "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
-                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsAutoDeliveryEntry",
-                                "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryEntry"
+                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStartAutoDeliveryWulingCity",
+                                "DeliveryJobsGoToDepot": "DeliveryJobsStartAutoDeliveryWulingCity"
                             }
                         },
-                        "SeizeDeliveryJobsPostProcessingEntry": {
-                            "enabled": true,
+                        "SeizeDeliveryJobsEnterCurrentJobDetail": {
                             "next": [
-                                "SeizeDeliveryJobsEnterDestinationMapWithDestinationResolve"
+                                "DeliveryJobsReturnAndViewWulingCityCurrentJob"
                             ]
                         },
                         "SeizeDeliveryJobsPostDepartureEntry": {
@@ -1108,14 +1107,13 @@
                             "anchor": {
                                 "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsWuling",
                                 "DeliveryJobsRedistributionBidAction": "DeliveryJobsDecideWulingCityQuote",
-                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsAutoDeliveryEntry",
-                                "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryEntry"
+                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStartAutoDeliveryWulingCity",
+                                "DeliveryJobsGoToDepot": "DeliveryJobsStartAutoDeliveryWulingCity"
                             }
                         },
-                        "SeizeDeliveryJobsPostProcessingEntry": {
-                            "enabled": true,
+                        "SeizeDeliveryJobsEnterCurrentJobDetail": {
                             "next": [
-                                "SeizeDeliveryJobsEnterDestinationMapWithDestinationResolve"
+                                "DeliveryJobsReturnAndViewWulingCityCurrentJob"
                             ]
                         },
                         "SeizeDeliveryJobsPostDepartureEntry": {
@@ -1124,7 +1122,7 @@
                         "DeliveryJobsWulingCityQuoteAtLeastMinimum": {
                             "anchor": {
                                 "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
-                                "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryEntry"
+                                "DeliveryJobsGoToDepot": "DeliveryJobsStartAutoDeliveryWulingCity"
                             }
                         }
                     }
@@ -1188,14 +1186,13 @@
                             "anchor": {
                                 "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsWuling",
                                 "DeliveryJobsRedistributionBidAction": "DeliveryJobsDecideWulingCityQuote",
-                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsAutoDeliveryEntry",
-                                "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryEntry"
+                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStartAutoDeliveryWulingCity",
+                                "DeliveryJobsGoToDepot": "DeliveryJobsStartAutoDeliveryWulingCity"
                             }
                         },
-                        "SeizeDeliveryJobsPostProcessingEntry": {
-                            "enabled": true,
+                        "SeizeDeliveryJobsEnterCurrentJobDetail": {
                             "next": [
-                                "SeizeDeliveryJobsEnterDestinationMapWithDestinationResolve"
+                                "DeliveryJobsReturnAndViewWulingCityCurrentJob"
                             ]
                         },
                         "SeizeDeliveryJobsPostDepartureEntry": {
@@ -1204,7 +1201,7 @@
                         "DeliveryJobsWulingCityQuoteBelowMinimum": {
                             "anchor": {
                                 "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
-                                "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryEntry"
+                                "DeliveryJobsGoToDepot": "DeliveryJobsStartAutoDeliveryWulingCity"
                             }
                         }
                     }
@@ -1287,14 +1284,13 @@
                             "anchor": {
                                 "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsWuling",
                                 "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
-                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsAutoDeliveryEntry",
-                                "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryEntry"
+                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStartAutoDeliveryTestArea",
+                                "DeliveryJobsGoToDepot": "DeliveryJobsStartAutoDeliveryTestArea"
                             }
                         },
-                        "SeizeDeliveryJobsPostProcessingEntry": {
-                            "enabled": true,
+                        "SeizeDeliveryJobsEnterCurrentJobDetail": {
                             "next": [
-                                "SeizeDeliveryJobsEnterDestinationMapWithDestinationResolve"
+                                "DeliveryJobsReturnAndViewTestAreaCurrentJob"
                             ]
                         },
                         "SeizeDeliveryJobsPostDepartureEntry": {
@@ -1473,14 +1469,13 @@
                             "anchor": {
                                 "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsWuling",
                                 "DeliveryJobsRedistributionBidAction": "DeliveryJobsDecideTestAreaQuote",
-                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsAutoDeliveryEntry",
-                                "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryEntry"
+                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStartAutoDeliveryTestArea",
+                                "DeliveryJobsGoToDepot": "DeliveryJobsStartAutoDeliveryTestArea"
                             }
                         },
-                        "SeizeDeliveryJobsPostProcessingEntry": {
-                            "enabled": true,
+                        "SeizeDeliveryJobsEnterCurrentJobDetail": {
                             "next": [
-                                "SeizeDeliveryJobsEnterDestinationMapWithDestinationResolve"
+                                "DeliveryJobsReturnAndViewTestAreaCurrentJob"
                             ]
                         },
                         "SeizeDeliveryJobsPostDepartureEntry": {
@@ -1489,7 +1484,7 @@
                         "DeliveryJobsTestAreaQuoteAtLeastMinimum": {
                             "anchor": {
                                 "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
-                                "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryEntry"
+                                "DeliveryJobsGoToDepot": "DeliveryJobsStartAutoDeliveryTestArea"
                             }
                         }
                     }
@@ -1553,14 +1548,13 @@
                             "anchor": {
                                 "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsWuling",
                                 "DeliveryJobsRedistributionBidAction": "DeliveryJobsDecideTestAreaQuote",
-                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsAutoDeliveryEntry",
-                                "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryEntry"
+                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStartAutoDeliveryTestArea",
+                                "DeliveryJobsGoToDepot": "DeliveryJobsStartAutoDeliveryTestArea"
                             }
                         },
-                        "SeizeDeliveryJobsPostProcessingEntry": {
-                            "enabled": true,
+                        "SeizeDeliveryJobsEnterCurrentJobDetail": {
                             "next": [
-                                "SeizeDeliveryJobsEnterDestinationMapWithDestinationResolve"
+                                "DeliveryJobsReturnAndViewTestAreaCurrentJob"
                             ]
                         },
                         "SeizeDeliveryJobsPostDepartureEntry": {
@@ -1569,7 +1563,7 @@
                         "DeliveryJobsTestAreaQuoteBelowMinimum": {
                             "anchor": {
                                 "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
-                                "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryEntry"
+                                "DeliveryJobsGoToDepot": "DeliveryJobsStartAutoDeliveryTestArea"
                             }
                         }
                     }
