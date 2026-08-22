@@ -31,12 +31,6 @@
                     "description": "Teleport point [x, y] in that zone's base map pixel frame.",
                     "$ref": "#/$defs/Coordinate2D"
                 },
-                "core": {
-                    "title": "Core",
-                    "description": "The point is the zone's base teleport point, whose icon floats with the player's own placement. Optional, defaults to false.",
-                    "type": "boolean",
-                    "default": false
-                },
                 "max_attempts": {
                     "title": "Max Attempts",
                     "description": "Recognition attempts. Panning the map is not charged against it. Optional, defaults to 4.",
@@ -46,10 +40,50 @@
                 },
                 "gate_base": {
                     "title": "Gate Base",
-                    "description": "Maximum offset between the match and the expected position, in base map pixels. Ordinary anchors only. Optional, defaults to 10.0.",
+                    "description": "Maximum offset between the match and the expected position, in base map pixels. Ignored when radius is set. Optional, defaults to 10.0.",
                     "type": "number",
                     "exclusiveMinimum": 0,
                     "default": 10.0
+                },
+                "icon": {
+                    "title": "Icon",
+                    "description": "Icon template file names under assets/resource/image/SceneManager/. The highest scoring one wins, which covers a point drawn in more than one style. Optional, defaults to the ordinary teleport point template.",
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "minItems": 1
+                },
+                "radius": {
+                    "title": "Radius",
+                    "description": "Search the icon within this radius of the target, in base map pixels, for a point whose icon is not pinned to a fixed spot. Zero searches a small fixed window instead. Optional, defaults to 0.",
+                    "type": "number",
+                    "minimum": 0,
+                    "default": 0
+                },
+                "scale_max": {
+                    "title": "Scale Max",
+                    "description": "Upper bound of the icon template scale sweep. Retune it together with the template: one shipped at a different size lands on a different scale. Zero keeps the built-in bound. Optional, defaults to 0.",
+                    "type": "number",
+                    "minimum": 0,
+                    "default": 0
+                },
+                "min_score": {
+                    "title": "Min Score",
+                    "description": "Match score floor. Retune it per template: a larger one scores higher on plain map texture, so the floor has to clear its background peak. Zero keeps the built-in floor. Optional, defaults to 0.",
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "default": 0
+                },
+                "min_gold_ratio": {
+                    "title": "Min Gold Ratio",
+                    "description": "Fraction of the template's gold pixels that must still read as saturated for the point to count as unlocked. Needs a template calibrated against locked captures. Zero skips the check. Optional, defaults to 0.",
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "default": 0
                 }
             }
         }
