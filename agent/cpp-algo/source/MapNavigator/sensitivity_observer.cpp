@@ -5,7 +5,7 @@
 
 #include <MaaUtils/Logger.h>
 
-#include "notice.h"
+#include "../Common/notice.h"
 #include "sensitivity_detector.h"
 
 namespace mapnavigator
@@ -26,7 +26,7 @@ void PublishVerdict(MaaContext* context, const Verdict& verdict)
     const int window_count = verdict.window_count;
     LogInfo << "Turn sensitivity looks too high." << VAR(ratio_percent) << VAR(window_count);
 
-    notice::Publish(context, notice::Text("navigation.sensitivity_mismatch", { ratio_percent, window_count }));
+    common::notice::Publish(context, common::notice::Text("navigation.sensitivity_mismatch", { ratio_percent, window_count }));
 }
 
 } // namespace

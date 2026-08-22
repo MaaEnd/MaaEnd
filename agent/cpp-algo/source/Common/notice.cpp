@@ -14,7 +14,7 @@
 
 #include "../utils.h"
 
-namespace mapnavigator::notice
+namespace common::notice
 {
 
 namespace
@@ -154,4 +154,4 @@ void Publish(MaaContext* context, const std::string& content)
     }
 }
 
-} // namespace mapnavigator::notice
+} // namespace common::notice
