@@ -939,6 +939,8 @@
     "task.SeizeDeliveryJobsPostProcessing.cases.TeleWalkFetchDeliver.label": "Fully Automatic Delivery",
     "task.AutoDeliveryRiskAcknowledgement.label": "I understand the possible consequences",
     "task.AutoDeliveryRiskAcknowledgement.description": "Automatic delivery is in beta and may cause **cargo damage, delivery failure, infinite loops**, or other unexpected situations. Please enable **global hotkeys** in the app settings so you can stop the task at any time.",
+    "task.AutoDeliveryPreferZipline.label": "Prefer Ziplines for Delivery",
+    "task.AutoDeliveryPreferZipline.description": "Allow navigation to use ziplines when they are powered, usable, and expected to be faster; not every route will select one.",
     "task.SeizeDeliveryJobsRepeatCount.label": "Delivery Count",
     "task.SeizeDeliveryJobsRepeatCount.description": "Maximum number of deliveries performed in a single task run",
     "task.SeizeDeliveryJobsRepeatCount.cases.1.label": "Max 1",

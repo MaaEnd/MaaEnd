@@ -28,6 +28,12 @@ const AUTO_DELIVERY_CONTROLLERS = [
 
 const AUTO_DELIVERY_ENTRY = "DeliveryJobsAutoDeliveryEntry";
 
+const AUTO_DELIVERY_RESOLVE_DESTINATION_NODES = [
+    "AutoDeliveryRunDeparture",
+    "AutoDeliveryResolveDestinationBeforeTeleport",
+    "AutoDeliveryResolveDestinationAfterTeleport",
+];
+
 function buildCargoAnchor(
     depot,
     bidAction,
@@ -317,6 +323,34 @@ function buildAutoDeliveryRiskAcknowledgementOption() {
     };
 }
 
+function buildAutoDeliveryPreferZiplineOption() {
+    const buildCase = (name, zip) => ({
+        name,
+        pipeline_override: Object.fromEntries(
+            AUTO_DELIVERY_RESOLVE_DESTINATION_NODES.map((node) => [
+                node,
+                {
+                    custom_action_param: {
+                        zip,
+                    },
+                },
+            ]),
+        ),
+    });
+
+    return {
+        type: "switch",
+        controller: AUTO_DELIVERY_CONTROLLERS,
+        label: "$task.AutoDeliveryPreferZipline.label",
+        description: "$task.AutoDeliveryPreferZipline.description",
+        default_case: "No",
+        cases: [
+            buildCase("No", false),
+            buildCase("Yes", true),
+        ],
+    };
+}
+
 function buildRegionOption(region) {
     return {
         type: "switch",
@@ -435,6 +469,7 @@ function buildTaskOptions() {
     }
 
     options.DeliveryJobsAutoDeliveryRiskAcknowledgement = buildAutoDeliveryRiskAcknowledgementOption();
+    options.DeliveryJobsAutoDeliveryPreferZipline = buildAutoDeliveryPreferZiplineOption();
     options.PackCargoSelectItem = {
         type: "switch",
         label: "$task.DeliveryJobs.PackCargoSelectItem.label",
@@ -484,6 +519,7 @@ export default function buildDeliveryJobsTask() {
                     ...deliveryJobRegions.map((region) => region.Id),
                     "PackCargoSelectItem",
                     "DeliveryJobsAutoDeliveryRiskAcknowledgement",
+                    "DeliveryJobsAutoDeliveryPreferZipline",
                 ],
                 controller: [
                     "ADB",

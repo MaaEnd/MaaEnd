@@ -1,6 +1,9 @@
 package autodelivery
 
 import (
+	"encoding/json"
+	"fmt"
+
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -18,12 +21,25 @@ type AutoDeliveryResolveDestinationAction struct{}
 
 var _ maa.CustomActionRunner = &AutoDeliveryResolveDestinationAction{}
 
+type resolveDeliveryDestinationParam struct {
+	Zip bool `json:"zip"`
+}
+
 // Run reads OCR results supplied by Pipeline, resolves a unique destination, and updates the Pipeline navigation nodes.
 func (a *AutoDeliveryResolveDestinationAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	if ctx == nil || arg == nil || arg.RecognitionDetail == nil {
 		log.Error().
 			Str("component", autoDeliveryResolveDestinationComponent).
 			Msg("action context or recognition detail is missing")
+		return false
+	}
+
+	param, err := parseResolveDeliveryDestinationParam(arg.CustomActionParam)
+	if err != nil {
+		log.Error().
+			Err(err).
+			Str("component", autoDeliveryResolveDestinationComponent).
+			Msg("failed to parse action parameters")
 		return false
 	}
 
@@ -55,7 +71,7 @@ func (a *AutoDeliveryResolveDestinationAction) Run(ctx *maa.Context, arg *maa.Cu
 		return false
 	}
 
-	if err := ctx.OverridePipeline(buildDeliveryNavigationOverride(destination)); err != nil {
+	if err := ctx.OverridePipeline(buildDeliveryNavigationOverride(destination, param.Zip)); err != nil {
 		log.Error().
 			Err(err).
 			Str("component", autoDeliveryResolveDestinationComponent).
@@ -79,6 +95,7 @@ func (a *AutoDeliveryResolveDestinationAction) Run(ctx *maa.Context, arg *maa.Cu
 		Float64("areaRunnerUpSimilarity", match.AreaRunnerUp).
 		Str("area", destination.AreaID).
 		Str("navigatorZone", destination.MapNavigatorZone).
+		Bool("zip", param.Zip).
 		Float64("targetX", destination.MapNavigatorTarget[0]).
 		Float64("targetY", destination.MapNavigatorTarget[1])
 	if destination.MapNavigatorTargetDeckY != nil {
@@ -87,6 +104,19 @@ func (a *AutoDeliveryResolveDestinationAction) Run(ctx *maa.Context, arg *maa.Cu
 	event.Msg("resolved delivery job destination")
 	return true
 }
+
+func parseResolveDeliveryDestinationParam(paramJSON string) (resolveDeliveryDestinationParam, error) {
+	if paramJSON == "" {
+		return resolveDeliveryDestinationParam{}, nil
+	}
+
+	var param resolveDeliveryDestinationParam
+	if err := json.Unmarshal([]byte(paramJSON), &param); err != nil {
+		return resolveDeliveryDestinationParam{}, fmt.Errorf("unmarshal parameters: %w", err)
+	}
+	return param, nil
+}
+
 func deliveryDestinationOCRFields(detail *maa.RecognitionDetail) (areaText, destinationText string, ok bool) {
 	areaDetail := findDeliveryRecognitionDetail(detail, autoDeliveryAreaOCRNode)
 	destinationDetail := findDeliveryRecognitionDetail(detail, autoDeliveryDestinationOCRNode)
@@ -118,7 +148,7 @@ func findDeliveryRecognitionDetail(detail *maa.RecognitionDetail, name string) *
 }
 
 // OverridePipeline performs a field-level shallow merge, so each custom_action_param is intentionally complete.
-func buildDeliveryNavigationOverride(destination deliveryDestination) map[string]any {
+func buildDeliveryNavigationOverride(destination deliveryDestination, zip bool) map[string]any {
 	initialPath := make([]any, 0, len(destination.InitialPathPrefix)+len(destination.InitialPathSuffix)+1)
 	initialPath = append(initialPath, destination.InitialPathPrefix...)
 	initialPath = append(initialPath, destination.InitialPathSuffix...)
@@ -130,12 +160,14 @@ func buildDeliveryNavigationOverride(destination deliveryDestination) map[string
 			"custom_action_param": map[string]any{
 				"map_name": destination.MapNavigatorZone,
 				"path":     initialPath,
+				"zip":      zip,
 			},
 		},
 		autoDeliveryRetryNavigateNode: map[string]any{
 			"custom_action_param": map[string]any{
 				"map_name": destination.MapNavigatorZone,
 				"path":     retryPath,
+				"zip":      false,
 			},
 		},
 	}

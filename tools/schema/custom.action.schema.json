@@ -107,6 +107,19 @@
 		{
 			"if": {
 				"properties": {
+					"custom_action": { "const": "AutoDeliveryResolveDestinationAction" }
+				},
+				"required": [ "custom_action" ]
+			},
+			"then": {
+				"properties": {
+					"custom_action_param": { "$ref": "./components/auto_delivery.schema.json#/$defs/ResolveDestinationParam" }
+				}
+			}
+		},
+		{
+			"if": {
+				"properties": {
 					"custom_action": { "const": "AddItemData" }
 				},
 				"required": [ "custom_action" ]

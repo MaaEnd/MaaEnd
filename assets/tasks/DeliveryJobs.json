@@ -9,7 +9,8 @@
                 "ValleyIV",
                 "Wuling",
                 "PackCargoSelectItem",
-                "DeliveryJobsAutoDeliveryRiskAcknowledgement"
+                "DeliveryJobsAutoDeliveryRiskAcknowledgement",
+                "DeliveryJobsAutoDeliveryPreferZipline"
             ],
             "controller": [
                 "ADB",
@@ -1641,6 +1642,58 @@
                     "pipeline_override": {
                         "DeliveryJobsAutoDeliveryGuard": {
                             "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "DeliveryJobsAutoDeliveryPreferZipline": {
+            "type": "switch",
+            "controller": [
+                "Win32-Front",
+                "Wlroots"
+            ],
+            "label": "$task.AutoDeliveryPreferZipline.label",
+            "description": "$task.AutoDeliveryPreferZipline.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "AutoDeliveryRunDeparture": {
+                            "custom_action_param": {
+                                "zip": false
+                            }
+                        },
+                        "AutoDeliveryResolveDestinationBeforeTeleport": {
+                            "custom_action_param": {
+                                "zip": false
+                            }
+                        },
+                        "AutoDeliveryResolveDestinationAfterTeleport": {
+                            "custom_action_param": {
+                                "zip": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "AutoDeliveryRunDeparture": {
+                            "custom_action_param": {
+                                "zip": true
+                            }
+                        },
+                        "AutoDeliveryResolveDestinationBeforeTeleport": {
+                            "custom_action_param": {
+                                "zip": true
+                            }
+                        },
+                        "AutoDeliveryResolveDestinationAfterTeleport": {
+                            "custom_action_param": {
+                                "zip": true
+                            }
                         }
                     }
                 }

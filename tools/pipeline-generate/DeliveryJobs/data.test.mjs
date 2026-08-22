@@ -13,6 +13,12 @@ const AUTO_DELIVERY_CONTROLLERS = [
     "Wlroots",
 ];
 
+const AUTO_DELIVERY_RESOLVE_DESTINATION_NODES = [
+    "AutoDeliveryRunDeparture",
+    "AutoDeliveryResolveDestinationBeforeTeleport",
+    "AutoDeliveryResolveDestinationAfterTeleport",
+];
+
 function readJsonc(path) {
     return parse(readFileSync(path, "utf8"));
 }
@@ -27,6 +33,10 @@ function readAdbPipeline(...segments) {
 
 function readGeneratedTask() {
     return readJsonc(new URL("../../../assets/tasks/DeliveryJobs.json", import.meta.url));
+}
+
+function readSeizeDeliveryJobsTask() {
+    return readJsonc(new URL("../../../assets/tasks/SeizeDeliveryJobs.json", import.meta.url));
 }
 
 function getDepotModeContext(task, depot) {
@@ -230,9 +240,36 @@ test("DeliveryJobs task registers region switches and the shared packing option"
         ...deliveryJobRegions.map((region) => region.Id),
         "PackCargoSelectItem",
         "DeliveryJobsAutoDeliveryRiskAcknowledgement",
+        "DeliveryJobsAutoDeliveryPreferZipline",
     ]);
     assert.equal(task.option.DeliveryJobsAcceptJobOnly, undefined);
     assert.equal(task.option.DeliveryJobsPackCargoOnly, undefined);
+});
+
+test("SeizeDeliveryJobs restores the shared automatic-delivery zipline preference", () => {
+    const task = readSeizeDeliveryJobsTask();
+    const fullyAutomaticCase = task.option.SeizeDeliveryJobsPostProcessing.cases.find(
+        (itemCase) => itemCase.name === "TeleWalkFetchDeliver",
+    );
+    assert.ok(fullyAutomaticCase.option.includes("SeizeDeliveryJobsPostDeparturePreferZipline"));
+
+    const ziplineOption = task.option.SeizeDeliveryJobsPostDeparturePreferZipline;
+    assert.equal(ziplineOption.default_case, "No");
+    for (const [
+        index,
+        zip,
+    ] of [
+        false,
+        true,
+    ].entries()) {
+        const itemCase = ziplineOption.cases[index];
+        assert.deepEqual(Object.keys(itemCase.pipeline_override), AUTO_DELIVERY_RESOLVE_DESTINATION_NODES);
+        for (const node of AUTO_DELIVERY_RESOLVE_DESTINATION_NODES) {
+            assert.deepEqual(itemCase.pipeline_override[node].custom_action_param, {
+                zip,
+            });
+        }
+    }
 });
 
 test("DeliveryJobs packing item options inject IconRecognition item ids", () => {
@@ -472,7 +509,23 @@ test("DeliveryJobs exposes automatic delivery for supported depots with controll
             },
         ],
     );
-    assert.equal(task.option.DeliveryJobsAutoDeliveryPreferZipline, undefined);
+    assert.deepEqual(task.option.DeliveryJobsAutoDeliveryPreferZipline.controller, AUTO_DELIVERY_CONTROLLERS);
+    assert.equal(task.option.DeliveryJobsAutoDeliveryPreferZipline.default_case, "No");
+    for (const [
+        index,
+        zip,
+    ] of [
+        false,
+        true,
+    ].entries()) {
+        const itemCase = task.option.DeliveryJobsAutoDeliveryPreferZipline.cases[index];
+        assert.deepEqual(Object.keys(itemCase.pipeline_override), AUTO_DELIVERY_RESOLVE_DESTINATION_NODES);
+        for (const node of AUTO_DELIVERY_RESOLVE_DESTINATION_NODES) {
+            assert.deepEqual(itemCase.pipeline_override[node].custom_action_param, {
+                zip,
+            });
+        }
+    }
     for (const depot of deliveryJobDepots) {
         assert.equal(task.option[`DeliveryJobsPostAcceptAction${depot.Id}`], undefined);
         assert.equal(task.option[`DeliveryJobsAtLeastMinimumPostAcceptAction${depot.Id}`], undefined);
@@ -830,6 +883,11 @@ test("AutoDelivery exposes a task-neutral delivery contract", () => {
         "AutoDeliveryTargetDepotNodeIsTestArea",
     ]);
     assert.equal(delivery.AutoDeliveryRunDeparture.custom_action, "AutoDeliveryResolveDestinationAction");
+    for (const node of AUTO_DELIVERY_RESOLVE_DESTINATION_NODES) {
+        assert.deepEqual(delivery[node].custom_action_param, {
+            zip: false,
+        });
+    }
     assert.equal(delivery.AutoDeliveryNavigate.custom_action, "MapNavigateAction");
     assert.equal(delivery.AutoDeliveryNavigate.custom_action_param.zipline_policy, undefined);
     assert.equal(delivery.AutoDeliveryRetryNavigate.custom_action_param.zipline_policy, undefined);

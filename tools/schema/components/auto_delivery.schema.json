@@ -1,0 +1,15 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+        "ResolveDestinationParam": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "zip": {
+                    "type": "boolean",
+                    "description": "Whether the initial delivery navigation may use ziplines"
+                }
+            }
+        }
+    }
+}

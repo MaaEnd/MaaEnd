@@ -307,6 +307,7 @@
                     "label": "$task.SeizeDeliveryJobsPostProcessing.cases.TeleWalkFetchDeliver.label",
                     "option": [
                         "SeizeDeliveryJobsPostDepartureRiskAcknowledgement",
+                        "SeizeDeliveryJobsPostDeparturePreferZipline",
                         "SeizeDeliveryJobsRepeatCount"
                     ],
                     "pipeline_override": {
@@ -354,6 +355,54 @@
                 },
                 {
                     "name": "Yes"
+                }
+            ]
+        },
+        "SeizeDeliveryJobsPostDeparturePreferZipline": {
+            "type": "switch",
+            "label": "$task.AutoDeliveryPreferZipline.label",
+            "description": "$task.AutoDeliveryPreferZipline.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "AutoDeliveryRunDeparture": {
+                            "custom_action_param": {
+                                "zip": false
+                            }
+                        },
+                        "AutoDeliveryResolveDestinationBeforeTeleport": {
+                            "custom_action_param": {
+                                "zip": false
+                            }
+                        },
+                        "AutoDeliveryResolveDestinationAfterTeleport": {
+                            "custom_action_param": {
+                                "zip": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "AutoDeliveryRunDeparture": {
+                            "custom_action_param": {
+                                "zip": true
+                            }
+                        },
+                        "AutoDeliveryResolveDestinationBeforeTeleport": {
+                            "custom_action_param": {
+                                "zip": true
+                            }
+                        },
+                        "AutoDeliveryResolveDestinationAfterTeleport": {
+                            "custom_action_param": {
+                                "zip": true
+                            }
+                        }
+                    }
                 }
             ]
         },

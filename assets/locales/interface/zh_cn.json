@@ -774,6 +774,8 @@
     "task.SeizeDeliveryJobsPostProcessing.cases.TeleWalkFetchDeliver.label": "全自动送货",
     "task.AutoDeliveryRiskAcknowledgement.label": "我已知悉可能的后果",
     "task.AutoDeliveryRiskAcknowledgement.description": "自动送货处于测试版，可能发生**货物损毁、送货失败、死循环**等意外情况。请务必在软件设置中开启**全局快捷键**以便随时停止任务。",
+    "task.AutoDeliveryPreferZipline.label": "送货时优先使用滑索",
+    "task.AutoDeliveryPreferZipline.description": "允许导航在预计更快且滑索已供电、可正常上下索时使用滑索；不保证每条路线都会选择滑索。",
     "task.SeizeDeliveryJobsRepeatCount.label": "送货次数",
     "task.SeizeDeliveryJobsRepeatCount.description": "全自动送货的最大循环次数",
     "task.SeizeDeliveryJobsRepeatCount.cases.1.label": "最多 1 次",

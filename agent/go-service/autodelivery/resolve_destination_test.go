@@ -23,7 +23,7 @@ func TestBuildDeliveryNavigationOverride(t *testing.T) {
 		},
 	}
 
-	override := buildDeliveryNavigationOverride(destination)
+	override := buildDeliveryNavigationOverride(destination, true)
 	initialParam := navigationParam(t, override, autoDeliveryNavigateNode)
 	retryParam := navigationParam(t, override, autoDeliveryRetryNavigateNode)
 
@@ -35,6 +35,12 @@ func TestBuildDeliveryNavigationOverride(t *testing.T) {
 	}
 	if _, exists := retryParam["zipline_policy"]; exists {
 		t.Fatal("retry MapNavigator parameters must not contain legacy zipline_policy")
+	}
+	if initialParam["zip"] != true {
+		t.Fatalf("initial MapNavigator zip request = %v, want true", initialParam["zip"])
+	}
+	if retryParam["zip"] != false {
+		t.Fatalf("retry MapNavigator zip request = %v, want false", retryParam["zip"])
 	}
 
 	wantWaypoint := map[string]any{
@@ -52,6 +58,36 @@ func TestBuildDeliveryNavigationOverride(t *testing.T) {
 	}
 	if !reflect.DeepEqual(retryParam["path"], []any{wantWaypoint}) {
 		t.Fatalf("unexpected retry path: %#v", retryParam["path"])
+	}
+}
+
+func TestParseResolveDeliveryDestinationParam(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name      string
+		paramJSON string
+		wantZip   bool
+		wantErr   bool
+	}{
+		{name: "empty", wantZip: false},
+		{name: "disabled", paramJSON: `{"zip":false}`, wantZip: false},
+		{name: "enabled", paramJSON: `{"zip":true}`, wantZip: true},
+		{name: "invalid", paramJSON: `{"zip":"true"}`, wantErr: true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			param, err := parseResolveDeliveryDestinationParam(tt.paramJSON)
+			if (err != nil) != tt.wantErr {
+				t.Fatalf("parseResolveDeliveryDestinationParam() error = %v, wantErr %v", err, tt.wantErr)
+			}
+			if param.Zip != tt.wantZip {
+				t.Fatalf("parseResolveDeliveryDestinationParam() zip = %v, want %v", param.Zip, tt.wantZip)
+			}
+		})
 	}
 }
 

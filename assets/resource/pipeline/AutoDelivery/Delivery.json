@@ -47,6 +47,9 @@
         },
         "action": "Custom",
         "custom_action": "AutoDeliveryResolveDestinationAction",
+        "custom_action_param": {
+            "zip": false
+        },
         "next": [
             "AutoDeliveryCancelTrackingForDelivery",
             "AutoDeliveryTrackingAlreadyOff"
@@ -86,6 +89,9 @@
         },
         "action": "Custom",
         "custom_action": "AutoDeliveryResolveDestinationAction",
+        "custom_action_param": {
+            "zip": false
+        },
         "anchor": {
             "AutoDeliveryAfterQuickTeleport": "AutoDeliveryQuickTeleportCancelTrackingEntry"
         },
@@ -166,6 +172,9 @@
         },
         "action": "Custom",
         "custom_action": "AutoDeliveryResolveDestinationAction",
+        "custom_action_param": {
+            "zip": false
+        },
         "next": [
             "AutoDeliveryCancelTrackingAfterQuickTeleport",
             "AutoDeliveryTrackingAlreadyOffAfterQuickTeleport"

@@ -15,6 +15,8 @@ AutoDelivery 封装运送委托接取后的公共流程：打开任务位置、�
 
 Pipeline 负责界面流程；Go Action `AutoDeliveryResolveDestinationAction` 只负责把 OCR 结果解析成唯一送货点，并完整覆写 `AutoDeliveryNavigate` 与 `AutoDeliveryRetryNavigate` 的 `MapNavigateAction` 参数。
 
+`AutoDeliveryResolveDestinationAction.custom_action_param.zip` 是可选布尔值，默认 `false`。设为 `true` 时，首次导航会向 `MapNavigateAction` 请求启用滑索规划；重试导航始终传入 `false`。该请求仍受全局滑索偏好的 `auto` / `always` / `never` 覆盖，并且只允许规划器在滑索可用且预计更快时选用滑索，不保证实际路线一定使用。
+
 ## 调用契约
 
 完整送货入口是 `AutoDeliveryResolveDestinationBeforeTeleportEntry`，调用前必须已经打开当前任务详情。
@@ -72,6 +74,8 @@ Pipeline 负责界面流程；Go Action `AutoDeliveryResolveDestinationAction` �
 ```
 
 AutoDelivery 的致命错误节点统一通过 `FalseAction` 返回失败，调用方不应通过覆写内部错误节点来改变流程。
+
+需要提供任务级滑索选项时，应将 `AutoDeliveryRunDeparture`、`AutoDeliveryResolveDestinationBeforeTeleport` 和 `AutoDeliveryResolveDestinationAfterTeleport` 三个解析节点的 `custom_action_param.zip` 设为同一值。三个入口分别覆盖正常取货、已携带货物和快速传送后的终点解析分支，漏配任一入口都可能让后续解析重新关闭滑索请求。
 
 ## 维护目的地
 
