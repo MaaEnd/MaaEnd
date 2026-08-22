@@ -91,11 +91,15 @@
                             "zone_id": "ValleyIV_Base"
                         },
                         {
-                            "action": "NAVMESH",
+                            "action": "INTERACT",
                             "target": [
-                                600.48,
-                                141.36
-                            ]
+                                601.45,
+                                141.11
+                            ],
+                            "interact_text": {
+                                "node": "__AutoEssenceRecoEssenceTriggerText"
+                            },
+                            "interact_scan": "__AutoEssenceRecoEssenceTriggerButton"
                         }
                     ]
                 }
@@ -103,6 +107,8 @@
         },
         "post_delay": 1500,
         "next": [
+            "AutoEssenceMistakeFactoryDevice",
+            "AutoEssenceClickEssenceStartPrepare",
             "AutoEssenceInteract"
         ],
         "focus": {

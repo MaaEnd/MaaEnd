@@ -88,13 +88,16 @@
                             "zone_id": "Wuling_L8_388"
                         },
                         {
-                            "action": "RUN",
+                            "action": "INTERACT",
                             "target": [
-                                258.17,
-                                281.28
+                                257.27,
+                                281.71
                             ],
                             "target_tier": "Wuling_L8_388",
-                            "strict_arrival": true
+                            "interact_text": {
+                                "node": "__AutoEssenceRecoEssenceTriggerText"
+                            },
+                            "interact_scan": "__AutoEssenceRecoEssenceTriggerButton"
                         }
                     ]
                 }
@@ -102,6 +105,8 @@
         },
         "post_delay": 1500,
         "next": [
+            "AutoEssenceMistakeFactoryDevice",
+            "AutoEssenceClickEssenceStartPrepare",
             "AutoEssenceInteract"
         ],
         "focus": {

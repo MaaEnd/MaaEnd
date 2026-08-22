@@ -85,17 +85,25 @@
                             "action": "ZONE",
                             "zone_id": "Wuling_Base"
                         },
-                        [
-                            1641.94,
-                            2702.1,
-                            true
-                        ]
+                        {
+                            "action": "INTERACT",
+                            "target": [
+                                1642.92,
+                                2701.92
+                            ],
+                            "interact_text": {
+                                "node": "__AutoEssenceRecoEssenceTriggerText"
+                            },
+                            "interact_scan": "__AutoEssenceRecoEssenceTriggerButton"
+                        }
                     ]
                 }
             }
         },
         "post_delay": 1500,
         "next": [
+            "AutoEssenceMistakeFactoryDevice",
+            "AutoEssenceClickEssenceStartPrepare",
             "AutoEssenceInteract"
         ],
         "focus": {

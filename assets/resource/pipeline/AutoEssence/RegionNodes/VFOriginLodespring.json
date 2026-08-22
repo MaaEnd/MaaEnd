@@ -206,13 +206,16 @@
                             "target_tier": "ValleyIV_L6_109"
                         },
                         {
-                            "action": "RUN",
+                            "action": "INTERACT",
                             "target": [
-                                97.3,
-                                180.75
+                                96.3,
+                                180.79
                             ],
                             "target_tier": "ValleyIV_L6_109",
-                            "strict_arrival": true
+                            "interact_text": {
+                                "node": "__AutoEssenceRecoEssenceTriggerText"
+                            },
+                            "interact_scan": "__AutoEssenceRecoEssenceTriggerButton"
                         }
                     ]
                 }
@@ -220,6 +223,8 @@
         },
         "post_delay": 1500,
         "next": [
+            "AutoEssenceMistakeFactoryDevice",
+            "AutoEssenceClickEssenceStartPrepare",
             "AutoEssenceInteract"
         ],
         "focus": {

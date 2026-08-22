@@ -250,11 +250,15 @@
                             "zone_id": "Wuling_Base"
                         },
                         {
-                            "action": "NAVMESH",
+                            "action": "INTERACT",
                             "target": [
-                                957.93,
-                                1401.58
-                            ]
+                                957.22,
+                                1402.28
+                            ],
+                            "interact_text": {
+                                "node": "__AutoEssenceRecoEssenceTriggerText"
+                            },
+                            "interact_scan": "__AutoEssenceRecoEssenceTriggerButton"
                         }
                     ]
                 }
@@ -262,6 +266,8 @@
         },
         "post_delay": 1500,
         "next": [
+            "AutoEssenceMistakeFactoryDevice",
+            "AutoEssenceClickEssenceStartPrepare",
             "AutoEssenceInteract"
         ],
         "focus": {

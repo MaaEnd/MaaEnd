@@ -63,17 +63,25 @@
                                 2376.68
                             ]
                         },
-                        [
-                            1250.36,
-                            2386.24,
-                            true
-                        ]
+                        {
+                            "action": "INTERACT",
+                            "target": [
+                                1250.55,
+                                2387.22
+                            ],
+                            "interact_text": {
+                                "node": "__AutoEssenceRecoEssenceTriggerText"
+                            },
+                            "interact_scan": "__AutoEssenceRecoEssenceTriggerButton"
+                        }
                     ]
                 }
             }
         },
         "post_delay": 1500,
         "next": [
+            "AutoEssenceMistakeFactoryDevice",
+            "AutoEssenceClickEssenceStartPrepare",
             "AutoEssenceInteract"
         ],
         "focus": {
