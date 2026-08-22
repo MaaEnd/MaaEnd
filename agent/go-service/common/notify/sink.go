@@ -13,7 +13,6 @@ import (
 var (
 	configMu       sync.RWMutex
 	configByTaskID = map[uint64]Config{} // taskID → 该任务的运行时配置（任务级 override 后）
-	lastConfig     Config                // 兜底：任务创建即失败（无节点事件）时回退
 
 	// notifiedTaskIDs 记录已发送失败通知的 task_id。框架可能对同一任务失败事件
 	// 重复广播，按 task_id 去重；LoadOrStore 原子，并行任务下也只发送一次。
@@ -66,7 +65,11 @@ var _ maa.TaskerEventSink = &Sink{}
 func (s *Sink) OnTaskerTask(_ *maa.Tasker, event maa.EventStatus, detail maa.TaskerTaskDetail) {
 	switch event {
 	case maa.EventStatusFailed:
-		config := getConfigByTask(detail.TaskID)
+		config, ok := getConfigByTask(detail.TaskID)
+		if !ok {
+			log.Warn().Str("component", "Notify").Uint64("task_id", detail.TaskID).Str("entry", detail.Entry).Msg("no cached config for task; failure notification skipped")
+			return
+		}
 		if !config.Enabled() {
 			// on_fail 打开但没有启用任何渠道：属于无效配置，提示一次（按 task 去重）
 			if config.OnFail && shouldNotifyFail(detail.TaskID) {
@@ -98,20 +101,15 @@ func (s *Sink) OnTaskerTask(_ *maa.Tasker, event maa.EventStatus, detail maa.Tas
 func setConfigByTask(taskID uint64, config Config) {
 	configMu.Lock()
 	defer configMu.Unlock()
-	if config.Enabled() {
-		lastConfig = config
-	}
 	configByTaskID[taskID] = config
 }
 
-// getConfigByTask 取指定任务缓存的配置；任务创建即失败（无节点事件）时回退全局最近配置。
-func getConfigByTask(taskID uint64) Config {
+// getConfigByTask 取指定任务缓存的配置；未缓存过（任务在节点事件前失败）返回 false。
+func getConfigByTask(taskID uint64) (Config, bool) {
 	configMu.RLock()
 	defer configMu.RUnlock()
-	if config, ok := configByTaskID[taskID]; ok {
-		return config
-	}
-	return lastConfig
+	config, ok := configByTaskID[taskID]
+	return config, ok
 }
 
 // shouldNotifyFail 判断该 task_id 是否应发送失败通知：同一 task_id 只发送一次，

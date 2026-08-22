@@ -234,29 +234,25 @@ func TestShouldNotifyFailConcurrent(t *testing.T) {
 
 func TestConfigByTaskIsolation(t *testing.T) {
 	configByTaskID = map[uint64]Config{}
-	lastConfig = Config{}
 
 	// 两个并行任务各自缓存不同的渠道配置，互不覆盖
 	setConfigByTask(1, Config{OnFail: true, FailTitle: "A", WebhookEnabled: true, WebhookURL: "https://a", WebhookBody: "bodyA"})
 	setConfigByTask(2, Config{OnFail: true, FailTitle: "B", BarkEnabled: true, BarkKey: "bkey"})
 
-	gotA := getConfigByTask(1)
-	if gotA.FailTitle != "A" || !gotA.WebhookEnabled || gotA.WebhookURL != "https://a" || gotA.WebhookBody != "bodyA" || gotA.BarkEnabled {
-		t.Errorf("task 1 config leaked/mixed: %+v", gotA)
+	gotA, okA := getConfigByTask(1)
+	if !okA || gotA.FailTitle != "A" || !gotA.WebhookEnabled || gotA.WebhookURL != "https://a" || gotA.WebhookBody != "bodyA" || gotA.BarkEnabled {
+		t.Errorf("task 1 config leaked/mixed: ok=%v %+v", okA, gotA)
 	}
-	gotB := getConfigByTask(2)
-	if gotB.FailTitle != "B" || !gotB.BarkEnabled || gotB.BarkKey != "bkey" || gotB.WebhookEnabled {
-		t.Errorf("task 2 config leaked/mixed: %+v", gotB)
+	gotB, okB := getConfigByTask(2)
+	if !okB || gotB.FailTitle != "B" || !gotB.BarkEnabled || gotB.BarkKey != "bkey" || gotB.WebhookEnabled {
+		t.Errorf("task 2 config leaked/mixed: ok=%v %+v", okB, gotB)
 	}
 
-	// 未知 task_id：回退全局最近配置（应为最后一次写入的 task 2 配置）
-	lastConfig = Config{OnFail: true, FailTitle: "L"}
-	gotFallback := getConfigByTask(999)
-	if gotFallback.FailTitle != "L" {
-		t.Errorf("fallback should use lastConfig: %+v", gotFallback)
+	// 未知 task_id：未缓存 → 返回 false，绝不回退其他任务的配置
+	if _, ok := getConfigByTask(999); ok {
+		t.Errorf("uncached task should not fall back to other tasks' config")
 	}
 	configByTaskID = map[uint64]Config{}
-	lastConfig = Config{}
 }
 
 func TestSendWebhook(t *testing.T) {
@@ -548,11 +544,9 @@ func waitForRequests(t *testing.T, counter *atomic.Int32, want int32) {
 
 func TestSinkFailedNotify(t *testing.T) {
 	configByTaskID = map[uint64]Config{}
-	lastConfig = Config{}
 	notifiedTaskIDs = sync.Map{}
 	defer func() {
 		configByTaskID = map[uint64]Config{}
-		lastConfig = Config{}
 		notifiedTaskIDs = sync.Map{}
 	}()
 
@@ -564,6 +558,13 @@ func TestSinkFailedNotify(t *testing.T) {
 	defer server.Close()
 
 	sink := &Sink{}
+
+	// 未缓存配置的任务失败（节点事件前失败）：不发送，绝不使用其他任务的配置
+	sink.OnTaskerTask(nil, maa.EventStatusFailed, maa.TaskerTaskDetail{TaskID: 99, Entry: "TaskX"})
+	time.Sleep(100 * time.Millisecond)
+	if requests.Load() != 0 {
+		t.Errorf("uncached task should not send, got %d requests", requests.Load())
+	}
 
 	// on_fail 开启但无渠道：无效配置，不发送
 	setConfigByTask(1, Config{OnFail: true})
