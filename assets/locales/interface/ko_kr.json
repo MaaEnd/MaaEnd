@@ -1347,7 +1347,7 @@
     "option.TrialOfSwordmancyOverflow.cases.Once.label": "최대 1회 오버플로우 허용",
     "option.TrialOfSwordmancyOverflow.cases.Twice.label": "최대 2회 오버플로우 허용",
     "option.TrialOfSwordmancyOverflowStop.label": "오버플로우 시 정지하여 수동 전투 대기",
-    "option.TrialOfSwordmancyOverflowStop.description": "활성화하면 오버플로우된 라운드는 <b>현재 패를 유지한 채 연무 작업을 종료</b>하고 수동 클리어를 기다립니다\n<b style='font-size:1.0em;color:#f0903a'>이 라운드가 정산되기 전까지 이후 보상 연산이 진행되지 않습니다. 시간 안에 완료하는 것을 잊지 마세요</b>",
+    "option.TrialOfSwordmancyOverflowStop.description": "활성화하면 오버플로우된 라운드는 <b>현재 패를 유지한 채 연무 작업을 종료</b>하고 수동 클리어를 기다립니다\n오버플로우되지 않은 라운드는 평소처럼 자동 전투됩니다\n<b style='font-size:1.0em;color:#f0903a'>이 라운드가 정산되기 전까지 이후 보상 연산이 진행되지 않습니다. 시간 안에 완료하는 것을 잊지 마세요</b>",
     "option.TrialOfSwordmancyAutoFight.label": "자동 전투 활성화",
     "option.TrialOfSwordmancyAutoFight.description": "활성화하면 MaaEnd가 자동으로 전투를 진행합니다\n\n오버플로우 미허용 + 자동 전투, 풀오토 일일에 포함 가능",
     "option.TrialOfSwordmancyReturnToWorld.label": "카드 뽑기 종료 후 대월드로 복귀",

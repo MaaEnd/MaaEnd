@@ -1347,7 +1347,7 @@
     "option.TrialOfSwordmancyOverflow.cases.Once.label": "接受至多1次溢出",
     "option.TrialOfSwordmancyOverflow.cases.Twice.label": "接受至多2次溢出",
     "option.TrialOfSwordmancyOverflowStop.label": "溢出时停手等待手动战斗",
-    "option.TrialOfSwordmancyOverflowStop.description": "开启后溢出局将<b>保留当前手牌并结束演武任务</b>，等待手动完成本局\n<b style='font-size:1.0em;color:#f0903a'>该局未结算前，后续的奖励演算将无法继续，请记得及时完成</b>",
+    "option.TrialOfSwordmancyOverflowStop.description": "开启后溢出局将<b>保留当前手牌并结束演武任务</b>，等待手动完成本局\n未溢出时正常自动战斗\n<b style='font-size:1.0em;color:#f0903a'>该局未结算前，后续的奖励演算将无法继续，请记得及时完成</b>",
     "option.TrialOfSwordmancyAutoFight.label": "启用自动战斗",
     "option.TrialOfSwordmancyAutoFight.description": "开启后由 MaaEnd 自动进行战斗\n\n不接受溢出+自动战斗，可放入全自动日常",
     "option.TrialOfSwordmancyReturnToWorld.label": "抽牌结束后返回大世界",
