@@ -179,6 +179,25 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "ItemTransferResetRepoSwitchHitCount"
+        ]
+    },
+    "ItemTransferResetRepoSwitchHitCount": {
+        "desc": "每轮转移开始前清理仓库切换节点的命中计数",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClearHitCount",
+                "custom_action_param": {
+                    "nodes": [
+                        "ItemTransferSwitchRepoToOrigin",
+                        "ItemTransferSwitchRepoToDestination",
+                        "ItemTransferSwitchRepoToOriginReturn"
+                    ]
+                }
+            }
+        },
+        "next": [
             "ItemTransferSwitchRepoToOrigin"
         ]
     },
@@ -218,6 +237,7 @@
         ]
     },
     "ItemTransferSwitchRepoToOrigin": {
+        "max_hit": 3,
         "recognition": "And",
         "all_of": [
             "ItemTransferRepoSwitchButton"
@@ -326,6 +346,19 @@
         ]
     },
     "ItemTransferOriginDispatch": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClearHitCount",
+                "custom_action_param": {
+                    "nodes": [
+                        "ItemTransferSwitchRepoToOrigin",
+                        "ItemTransferSwitchRepoToDestination",
+                        "ItemTransferSwitchRepoToOriginReturn"
+                    ]
+                }
+            }
+        },
         "anchor": {
             "ItemTransferForwardGateNext": "ItemTransferRepoToBag",
             "ItemTransferReturnGateNext": "ItemTransferTravelToDestinationForReturn"
@@ -337,6 +370,19 @@
         ]
     },
     "ItemTransferDestinationDispatch": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClearHitCount",
+                "custom_action_param": {
+                    "nodes": [
+                        "ItemTransferSwitchRepoToOrigin",
+                        "ItemTransferSwitchRepoToDestination",
+                        "ItemTransferSwitchRepoToOriginReturn"
+                    ]
+                }
+            }
+        },
         "anchor": {
             "ItemTransferReturnGateNext": "ItemTransferReturnRepoToBag",
             "ItemTransferForwardGateNext": "ItemTransferTravelToOriginForForward"
@@ -788,6 +834,7 @@
         ]
     },
     "ItemTransferSwitchRepoToDestination": {
+        "max_hit": 3,
         "recognition": "And",
         "all_of": [
             "ItemTransferRepoSwitchButton"
@@ -1357,6 +1404,7 @@
         ]
     },
     "ItemTransferSwitchRepoToOriginReturn": {
+        "max_hit": 3,
         "recognition": "And",
         "all_of": [
             "ItemTransferRepoSwitchButton"

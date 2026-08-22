@@ -96,6 +96,8 @@ constexpr double kMinimumTrustedStructureWithoutLegacySupport = 0.10;
 constexpr double kLegacyStructureWeight = 0.65;
 // legacy 候选中已对齐 rarity 色带比例的权重；调高更看重颜色锚点。
 constexpr double kLegacyRarityWeight = 0.35;
+// transfer 的弱 rarity 拟合必须包含彩色证据才可接管结构相位；灰色背景不能单独改写网格。
+constexpr int kMinimumReliableRarityCells = 1;
 // 补行所需的最低结构支持相对已有行均值比例；调高减少补行，调低可能扩展到空白行。
 constexpr double kRowCompletionSupportRatio = 0.04;
 // 仅一个直接观测时最多允许补出的行数；调大可覆盖更多行，也会放大单点误差。
@@ -1531,7 +1533,12 @@ GridLayout BuildTransferLayout(const cv::Mat& image, const cv::Rect& roi, const 
     std::vector<int> local_x = x_fit->starts;
     std::vector<int> local_y;
     const auto rarity_fit = FitRarityGrid(image(roi), local_x, hint.y_starts, profile);
-    if (rarity_fit) {
+    const bool reliable_rarity_fit =
+        rarity_fit.has_value()
+        && (!transfer
+            || rarity_fit->supporting_strong_cells >= kMinimumReliableRarityCells
+            || rarity_fit->supporting_chromatic_cells >= kMinimumReliableRarityCells);
+    if (reliable_rarity_fit) {
         local_x = rarity_fit->x_starts;
         const int count = std::min(profile.maximum_rows, std::max(static_cast<int>(hint.y_starts.size()), rarity_fit->supporting_rows));
         for (int row = 0; row < count; ++row) {
@@ -1623,7 +1630,7 @@ GridLayout BuildTransferLayout(const cv::Mat& image, const cv::Rect& roi, const 
                 break;
             }
             const bool stable_rarity_lattice =
-                (rarity_fit && rarity_fit->supporting_rows >= static_cast<int>(kStableRarityMinimumRows))
+                (reliable_rarity_fit && rarity_fit->supporting_rows >= static_cast<int>(kStableRarityMinimumRows))
                 || (trusted_selected && trusted_fit->y_axis.direct_indices.size() >= kStableRarityMinimumRows);
             if (!stable_rarity_lattice && (minimum_support <= 0.0 || row_support(following) < minimum_support)) {
                 break;
@@ -1632,7 +1639,7 @@ GridLayout BuildTransferLayout(const cv::Mat& image, const cv::Rect& roi, const 
         }
     }
     // 右侧七列始终检查分类工具栏遮挡；左侧四列的末行空行启发式只用于缺少 rarity 证据的旧结构路径。
-    if (!transfer && (column_count == 7 || (!rarity_fit && !trusted_selected))) {
+    if (!transfer && (column_count == 7 || (!reliable_rarity_fit && !trusted_selected))) {
         local_y = DropPortRows(image, roi, local_x, local_y, column_count, profile.cell_size);
     }
 

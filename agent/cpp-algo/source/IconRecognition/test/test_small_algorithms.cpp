@@ -627,6 +627,87 @@ void TestTransferRegionPartitionKeepsUndetectedOuterColumns()
     Check(regions[0].width >= detected_left.x + 4 * 69, "left transfer search region must retain room for a weak outer column");
 }
 
+void TestTransferGridDetectsSparseVisiblePhase()
+{
+    constexpr int kCellSize = 64;
+    constexpr int kPitch = 69;
+    constexpr int kColumns = 4;
+    constexpr int kVisiblePhaseX = 7;
+    constexpr int kBackgroundPhaseX = 36;
+    constexpr int kPhaseY = 15;
+    constexpr int kTargetColumn = 1;
+    const cv::Rect target_box(kVisiblePhaseX + kTargetColumn * kPitch, kPhaseY, kCellSize, kCellSize);
+    cv::Mat image(291, 330, CV_8UC3, cv::Scalar(24, 24, 24));
+
+    const auto draw_cell = [&](int x, int y, const cv::Scalar& border) {
+        image.colRange(x, x + 2).rowRange(y, y + kCellSize + 1).setTo(border);
+        image.colRange(x + kCellSize, x + kCellSize + 2).rowRange(y, y + kCellSize + 1).setTo(border);
+        image.rowRange(y, y + 2).colRange(x, x + kCellSize + 1).setTo(border);
+        image.rowRange(y + kCellSize, y + kCellSize + 2).colRange(x, x + kCellSize + 1).setTo(border);
+    };
+    // 模拟物品行下方的重复背景纹理，使结构检测稳定落在错误的半格相位。
+    for (int row = 0; row < 4; ++row) {
+        for (int column = 0; column < kColumns; ++column) {
+            draw_cell(kBackgroundPhaseX + column * kPitch, kPhaseY + row * kPitch, cv::Scalar(130, 130, 130));
+        }
+    }
+    // 可见物品行包含高纹理内容，避免测试只依赖单个模板图标。
+    for (int column = 0; column < kColumns; ++column) {
+        const int x = kVisiblePhaseX + column * kPitch;
+        draw_cell(x, kPhaseY, cv::Scalar(90, 90, 90));
+        for (int y = kPhaseY + 6; y < kPhaseY + kCellSize - 8; ++y) {
+            for (int local_x = 6; local_x < kCellSize - 6; ++local_x) {
+                const unsigned char value = static_cast<unsigned char>(40 + ((local_x * 7 + y * 11 + column * 13) % 180));
+                image.at<cv::Vec3b>(y, x + local_x) = cv::Vec3b(value, value, value);
+            }
+        }
+    }
+
+    const auto grid = iconrecognition::detail::DetectGrid(image, iconrecognition::GridType::Transfer, cv::Rect(0, 0, image.cols, image.rows), 1.0);
+    const auto target_cell = std::ranges::find_if(grid.cells, [&](const auto& cell) {
+        return std::abs(cell.cell_box.x - target_box.x) <= 1 && std::abs(cell.cell_box.y - target_box.y) <= 2;
+    });
+    std::string grid_summary = "sparse transfer grid must preserve the visible item phase";
+    if (!grid.grids.empty() && grid.grids.front().selection_diagnostics) {
+        const auto& layout = grid.grids.front();
+        const auto& diagnostics = *layout.selection_diagnostics;
+        grid_summary += "; origin=" + std::to_string(static_cast<int>(diagnostics.origin.x)) + ","
+                        + std::to_string(static_cast<int>(diagnostics.origin.y)) + "; pitch="
+                        + std::to_string(static_cast<int>(diagnostics.pitch.x)) + ","
+                        + std::to_string(static_cast<int>(diagnostics.pitch.y));
+        if (!layout.cells.empty()) {
+            grid_summary += "; first=" + std::to_string(layout.cells.front().cell_box.x) + ","
+                            + std::to_string(layout.cells.front().cell_box.y);
+        }
+    }
+    Check(target_cell != grid.cells.end(), grid_summary);
+
+    iconrecognition::detail::TemplateCatalog catalog("assets/data/IconRecognition", "assets/resource/image/IconRecognition");
+    Check(catalog.initialize(), "transfer recovery fixture catalog must initialize");
+    const auto& templates = catalog.load(kCellSize);
+    const auto target = std::ranges::find_if(templates, [](const auto& templ) { return templ.record.item_id == "item_iron_ore"; });
+    Check(target != templates.end(), "sparse transfer fixture must contain item_iron_ore");
+    target->image.copyTo(image(target_box));
+
+    iconrecognition::IconRecognizer recognizer("assets/data/IconRecognition");
+    Check(recognizer.initialize(), "sparse transfer recognizer must initialize");
+    iconrecognition::RecognitionRequest request;
+    request.grid_type = iconrecognition::GridType::Transfer;
+    request.roi = cv::Rect(0, 0, image.cols, image.rows);
+    request.candidates.item_ids = { "item_iron_ore" };
+    request.candidates.item_filters = { "Normal:Ore" };
+    request.candidates.item_recheck_filters = { "Normal:Ore" };
+    request.grid_scale_hint = 1.0;
+    request.deduplicate = true;
+    const auto result = recognizer.recognize(image, request);
+
+    Check(result.matched && result.matches.size() == 1, "sparse transfer target must be found from the detected grid");
+    Check(result.matches.front().item.item_id == "item_iron_ore", "sparse transfer detection must preserve the target id");
+    Check(
+        std::abs(result.matches.front().cell_box.x - target_box.x) <= 1 && std::abs(result.matches.front().cell_box.y - target_box.y) <= 2,
+        "transfer recognition must keep the target at its detected cell position");
+}
+
 void TestPortStoragerWideRoiUsesStablePanelPartitions()
 {
     const auto win32 = iconrecognition::detail::PartitionPortStoragerRegions(cv::Size(880, 350));
@@ -1245,6 +1326,7 @@ int main()
         TestRewardsAdbGridUsesSixColumnSharedOrigin();
         TestRewardsGridRenumbersColumnsAfterRoiFiltering();
         TestTransferRegionPartitionKeepsUndetectedOuterColumns();
+        TestTransferGridDetectsSparseVisiblePhase();
         TestPortStoragerWideRoiUsesStablePanelPartitions();
         TestCreditTradeGridUsesDimCardStructures();
         TestCreditTradeGridUsesSixColumnsWhenRoiCannotContainSeven();
