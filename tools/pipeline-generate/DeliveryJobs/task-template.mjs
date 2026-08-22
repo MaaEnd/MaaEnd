@@ -263,12 +263,16 @@ function buildAutoDeliveryOverride(depot, {bidAction, comparison}) {
             enabled: true,
             anchor: buildCargoAnchor(depot, bidAction, startAutoDelivery, startAutoDelivery),
         },
-        SeizeDeliveryJobsEnterCurrentJobDetail: {
-            next: [
-                returnAndViewCurrentJob,
-            ],
+        AutoDeliveryOpenCurrentJobDetail: {
+            custom_action_param: {
+                sub: [
+                    returnAndViewCurrentJob,
+                ],
+                continue: false,
+                strict: true,
+            },
         },
-        SeizeDeliveryJobsPostDepartureEntry: {
+        AutoDeliveryPostDepartureEntry: {
             enabled: true,
         },
     };
@@ -289,8 +293,8 @@ function buildAutoDeliveryRiskAcknowledgementOption() {
     return {
         type: "switch",
         controller: AUTO_DELIVERY_CONTROLLERS,
-        label: "$task.SeizeDeliveryJobsPostDepartureRiskAcknowledgement.label",
-        description: "$task.SeizeDeliveryJobsPostDepartureRiskAcknowledgement.description",
+        label: "$task.AutoDeliveryRiskAcknowledgement.label",
+        description: "$task.AutoDeliveryRiskAcknowledgement.description",
         default_case: "No",
         cases: [
             {

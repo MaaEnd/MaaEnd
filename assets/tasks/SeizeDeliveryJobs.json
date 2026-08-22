@@ -277,10 +277,13 @@
                     "label": "$task.SeizeDeliveryJobsPostProcessing.cases.Tele.label",
                     "pipeline_override": {
                         "SeizeDeliveryJobsPostProcessingEntry": {
-                            "enabled": true
-                        },
-                        "SeizeDeliveryJobsSuccessTeleportDone": {
-                            "enabled": true
+                            "enabled": true,
+                            "anchor": {
+                                "AutoDeliveryAfterQuickTeleport": "SeizeDeliveryJobsSuccessTeleportDone",
+                                "AutoDeliveryAfterWalkToDepot": "",
+                                "AutoDeliveryAfterDelivery": "SeizeDeliveryJobsMain",
+                                "AutoDeliveryAfterDeliveryFallback": "SeizeDeliveryJobsTaskEnd"
+                            }
                         }
                     }
                 },
@@ -289,10 +292,13 @@
                     "label": "$task.SeizeDeliveryJobsPostProcessing.cases.TeleWalk.label",
                     "pipeline_override": {
                         "SeizeDeliveryJobsPostProcessingEntry": {
-                            "enabled": true
-                        },
-                        "SeizeDeliveryJobsSuccessWalkDone": {
-                            "enabled": true
+                            "enabled": true,
+                            "anchor": {
+                                "AutoDeliveryAfterQuickTeleport": "",
+                                "AutoDeliveryAfterWalkToDepot": "SeizeDeliveryJobsSuccessWalkDone",
+                                "AutoDeliveryAfterDelivery": "SeizeDeliveryJobsMain",
+                                "AutoDeliveryAfterDeliveryFallback": "SeizeDeliveryJobsTaskEnd"
+                            }
                         }
                     }
                 },
@@ -301,17 +307,31 @@
                     "label": "$task.SeizeDeliveryJobsPostProcessing.cases.TeleWalkFetchDeliver.label",
                     "option": [
                         "SeizeDeliveryJobsPostDepartureRiskAcknowledgement",
-                        "SeizeDeliveryJobsPostDeparturePreferZipline",
                         "SeizeDeliveryJobsRepeatCount"
                     ],
                     "pipeline_override": {
                         "SeizeDeliveryJobsPostProcessingEntry": {
                             "enabled": true,
+                            "anchor": {
+                                "AutoDeliveryAfterQuickTeleport": "",
+                                "AutoDeliveryAfterWalkToDepot": "",
+                                "AutoDeliveryAfterDelivery": "SeizeDeliveryJobsMain",
+                                "AutoDeliveryAfterDeliveryFallback": "SeizeDeliveryJobsTaskEnd"
+                            },
                             "next": [
-                                "SeizeDeliveryJobsEnterDestinationMapWithDestinationResolve"
+                                "AutoDeliveryResolveDestinationBeforeTeleportEntry"
                             ]
                         },
-                        "SeizeDeliveryJobsPostDepartureEntry": {
+                        "AutoDeliveryOpenCurrentJobDetail": {
+                            "custom_action_param": {
+                                "sub": [
+                                    "SeizeDeliveryJobsEnterCurrentJobDetail"
+                                ],
+                                "continue": false,
+                                "strict": true
+                            }
+                        },
+                        "AutoDeliveryPostDepartureEntry": {
                             "enabled": true
                         }
                     }
@@ -320,8 +340,8 @@
         },
         "SeizeDeliveryJobsPostDepartureRiskAcknowledgement": {
             "type": "switch",
-            "label": "$task.SeizeDeliveryJobsPostDepartureRiskAcknowledgement.label",
-            "description": "$task.SeizeDeliveryJobsPostDepartureRiskAcknowledgement.description",
+            "label": "$task.AutoDeliveryRiskAcknowledgement.label",
+            "description": "$task.AutoDeliveryRiskAcknowledgement.description",
             "default_case": "No",
             "cases": [
                 {
@@ -334,27 +354,6 @@
                 },
                 {
                     "name": "Yes"
-                }
-            ]
-        },
-        "SeizeDeliveryJobsPostDeparturePreferZipline": {
-            "type": "switch",
-            "label": "$task.SeizeDeliveryJobsPostDeparturePreferZipline.label",
-            "description": "$task.SeizeDeliveryJobsPostDeparturePreferZipline.description",
-            "default_case": "No",
-            "cases": [
-                {
-                    "name": "No"
-                },
-                {
-                    "name": "Yes",
-                    "pipeline_override": {
-                        "SeizeDeliveryJobsRunDeparture": {
-                            "custom_action_param": {
-                                "zipline_policy": "Active"
-                            }
-                        }
-                    }
                 }
             ]
         },

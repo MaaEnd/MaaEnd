@@ -166,11 +166,15 @@ test("DeliveryJobs generated depot nodes enter the shared transfer and cargo flo
         assert.deepEqual(pipeline[`DeliveryJobsEnter${depot.Id}PriceDeliveryJob`].next, [
             "DeliveryJobsClickTransferJob",
         ]);
-        assert.deepEqual(pipeline[`DeliveryJobsStartAutoDelivery${depot.Id}`].anchor, {
-            SeizeDeliveryJobsAfterEnterCurrentJobDetail: "DeliveryJobsAutoDeliveryEntry",
+        assert.deepEqual(pipeline[`DeliveryJobsStartAutoDelivery${depot.Id}`].custom_action_param, {
+            sub: [
+                `DeliveryJobsReturnAndView${depot.Id}CurrentJob`,
+            ],
+            continue: false,
+            strict: true,
         });
         assert.deepEqual(pipeline[`DeliveryJobsStartAutoDelivery${depot.Id}`].next, [
-            `DeliveryJobsReturnAndView${depot.Id}CurrentJob`,
+            "DeliveryJobsAutoDeliveryEntry",
         ]);
         assert.deepEqual(pipeline[`DeliveryJobsReturnAndView${depot.Id}CurrentJob`].custom_action_param.sub, [
             depot.DepotScene,
@@ -182,9 +186,7 @@ test("DeliveryJobs generated depot nodes enter the shared transfer and cargo flo
             `DeliveryJobsCheckLocalDepotNode${depot.Id}Text`,
             `DeliveryJobsCheck${depot.Id}DeliveryJob`,
         ]);
-        assert.deepEqual(pipeline[`DeliveryJobsView${depot.Id}CurrentJob`].next, [
-            "[Anchor]SeizeDeliveryJobsAfterEnterCurrentJobDetail",
-        ]);
+        assert.equal(pipeline[`DeliveryJobsView${depot.Id}CurrentJob`].next, undefined);
         assert.equal(pipeline[`DeliveryJobsView${depot.Id}CurrentJob`].post_wait_freezes, 500);
     }
 });
@@ -377,7 +379,7 @@ test("DeliveryJobs ordinary depot modes override delivery and cargo behavior", (
 test("DeliveryJobs exposes automatic delivery for supported depots with controller-scoped safety options", () => {
     const task = readGeneratedTask();
     const autoDeliveryNodes = {
-        SeizeDeliveryJobsPostDepartureEntry: {
+        AutoDeliveryPostDepartureEntry: {
             enabled: true,
         },
     };
@@ -428,10 +430,14 @@ test("DeliveryJobs exposes automatic delivery for supported depots with controll
                 DeliveryJobsOngoingDeliveryAction: startAutoDelivery,
                 DeliveryJobsGoToDepot: startAutoDelivery,
             });
-            assert.deepEqual(autoOverride.SeizeDeliveryJobsEnterCurrentJobDetail, {
-                next: [
-                    `DeliveryJobsReturnAndView${depot.Id}CurrentJob`,
-                ],
+            assert.deepEqual(autoOverride.AutoDeliveryOpenCurrentJobDetail, {
+                custom_action_param: {
+                    sub: [
+                        `DeliveryJobsReturnAndView${depot.Id}CurrentJob`,
+                    ],
+                    continue: false,
+                    strict: true,
+                },
             });
             assert.equal(autoOverride.SeizeDeliveryJobsPostProcessingEntry, undefined);
             for (const [
@@ -763,10 +769,10 @@ test("DeliveryJobs shared bid page dispatches through common quote actions", () 
 test("DeliveryJobs automatic delivery adapter returns on success and stops on failure", () => {
     const pipeline = readGeneratedPipeline("DeliveryJobs", "AutoDelivery.json");
     assert.deepEqual(pipeline.DeliveryJobsAutoDeliveryEntry.anchor, {
-        SeizeDeliveryJobsAfterDelivery: "DeliveryJobsAutoDeliverySubTaskDone",
-        SeizeDeliveryJobsAfterEnterDestinationMap: "SeizeDeliveryJobsQuickTeleportSelect",
-        SeizeDeliveryJobsAfterQuickTeleport: "",
-        SeizeDeliveryJobsDepartureOnError: "SeizeDeliveryJobsFatalDeliveryNavigationFailed",
+        AutoDeliveryAfterQuickTeleport: "",
+        AutoDeliveryAfterWalkToDepot: "",
+        AutoDeliveryAfterDelivery: "DeliveryJobsAutoDeliverySubTaskDone",
+        AutoDeliveryAfterDeliveryFallback: "",
     });
     assert.deepEqual(pipeline.DeliveryJobsAutoDeliveryEntry.next, [
         "DeliveryJobsAutoDeliveryGuard",
@@ -774,7 +780,7 @@ test("DeliveryJobs automatic delivery adapter returns on success and stops on fa
     ]);
     assert.deepEqual(pipeline.DeliveryJobsAutoDeliveryRun.custom_action_param, {
         sub: [
-            "SeizeDeliveryJobsResolveDestinationBeforeTeleportEntry",
+            "AutoDeliveryResolveDestinationBeforeTeleportEntry",
         ],
         continue: false,
         strict: true,
@@ -789,13 +795,59 @@ test("DeliveryJobs automatic delivery adapter returns on success and stops on fa
     assert.equal(pipeline.DeliveryJobsAutoDeliveryGuard.enabled, true);
     assert.equal(pipeline.DeliveryJobsAutoDeliveryFailed.action, "StopTask");
 
-    const seizeMain = readGeneratedPipeline("SeizeDeliveryJobs", "SeizeDeliveryJobs.json");
-    const seizeDeparture = readGeneratedPipeline("SeizeDeliveryJobs", "SeizeDeliveryJobsPostDeparture.json");
-    assert.equal(seizeMain.SeizeDeliveryJobsMain.anchor.SeizeDeliveryJobsAfterDelivery, "SeizeDeliveryJobsMain");
-    assert.deepEqual(seizeDeparture.SeizeDeliveryJobsCloseRewardDialogClick.next, [
-        "[Anchor]SeizeDeliveryJobsAfterDelivery",
-        "SeizeDeliveryJobsTaskEnd",
+    const autoDelivery = readGeneratedPipeline("AutoDelivery", "Delivery.json");
+    const seizeAdapter = readGeneratedPipeline("SeizeDeliveryJobs", "AutoDeliveryAdapter.json");
+    assert.deepEqual(autoDelivery.AutoDeliveryCloseRewardDialogClick.next, [
+        "[Anchor]AutoDeliveryAfterDelivery",
+        "[Anchor]AutoDeliveryAfterDeliveryFallback",
     ]);
+    assert.deepEqual(seizeAdapter.SeizeDeliveryJobsPostProcessingEntry.anchor, {
+        AutoDeliveryAfterQuickTeleport: "",
+        AutoDeliveryAfterWalkToDepot: "",
+        AutoDeliveryAfterDelivery: "SeizeDeliveryJobsMain",
+        AutoDeliveryAfterDeliveryFallback: "SeizeDeliveryJobsTaskEnd",
+    });
+});
+
+test("AutoDelivery exposes a task-neutral delivery contract", () => {
+    const common = readGeneratedPipeline("AutoDelivery", "Common.json");
+    const pickup = readGeneratedPipeline("AutoDelivery", "Pickup.json");
+    const delivery = readGeneratedPipeline("AutoDelivery", "Delivery.json");
+
+    assert.deepEqual(common.AutoDeliveryOpenCurrentJobDetail.custom_action_param, {
+        sub: [
+            "AutoDeliveryOpenCurrentJobDetailNotConfigured",
+        ],
+        continue: false,
+        strict: true,
+    });
+    assert.deepEqual(common.AutoDeliveryOpenCurrentJobDetail.next, [
+        "[Anchor]AutoDeliveryAfterOpenCurrentJobDetail",
+    ]);
+    assert.deepEqual(pickup.AutoDeliveryQuickTeleportDone.next, [
+        "[Anchor]AutoDeliveryAfterQuickTeleport",
+        "AutoDeliveryTargetDepotNodeIsWulingCity",
+        "AutoDeliveryTargetDepotNodeIsTestArea",
+    ]);
+    assert.equal(delivery.AutoDeliveryRunDeparture.custom_action, "AutoDeliveryResolveDestinationAction");
+    assert.equal(delivery.AutoDeliveryNavigate.custom_action, "MapNavigateAction");
+    assert.equal(delivery.AutoDeliveryNavigate.custom_action_param.zipline_policy, undefined);
+    assert.equal(delivery.AutoDeliveryRetryNavigate.custom_action_param.zipline_policy, undefined);
+
+    for (const node of [
+        "AutoDeliveryFatalCannotDetermineDestination",
+        "AutoDeliveryFatalDeliveryNavigationFailed",
+        "AutoDeliveryFatalCannotResolveCarryingDestination",
+        "AutoDeliveryFatalAlreadyCarryingGoods",
+        "AutoDeliveryFatalCannotOpenCurrentJobDetail",
+        "AutoDeliveryFatalCannotFetchGoods",
+    ]) {
+        assert.equal(pickup[node].custom_action, "FalseAction", `${node} must propagate failure`);
+    }
+
+    assert.equal(JSON.stringify(common).includes("SeizeDeliveryJobs"), false);
+    assert.equal(JSON.stringify(pickup).includes("SeizeDeliveryJobs"), false);
+    assert.equal(JSON.stringify(delivery).includes("SeizeDeliveryJobs"), false);
 });
 
 test("DeliveryJobs stops only at explicit safety boundaries", () => {

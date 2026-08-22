@@ -45,6 +45,7 @@ MaaEnd 基于 [MaaFramework](https://github.com/MaaXYZ/MaaFramework)，主体流
 | 节点 | 说明 | 文档 |
 | ----------------------------------------------- | ----------------------------------------------------------- | -------------------------------------------------------------------------- |
 | SubTask / ClearHitCount / ExpressionRecognition | 子任务调度、计数清理、表达式识别 | [custom.md](./custom.md) |
+| AutoDelivery | 运送委托取货、终点识别、导航与提交 | [components/auto-delivery.md](./components/auto-delivery.md) |
 | AutoFight | 战斗内自动操作 | [components/auto-fight.md](./components/auto-fight.md) |
 | CharacterController | 角色视角旋转、移动、朝向目标 | [components/character-controller.md](./components/character-controller.md) |
 | BetterSliding | 离散数量滑条调节 | [components/better-sliding.md](./components/better-sliding.md) |

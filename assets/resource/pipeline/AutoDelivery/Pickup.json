@@ -1,21 +1,5 @@
 {
-    "SeizeDeliveryJobsPostProcessingEntry": {
-        "desc": "抢单成功后或手上已经有单的后处理入口（此节点默认关闭）",
-        "enabled": false,
-        "pre_delay": 0,
-        "anchor": {
-            "SeizeDeliveryJobsAfterEnterDestinationMap": "SeizeDeliveryJobsQuickTeleportSelect",
-            "SeizeDeliveryJobsAfterQuickTeleport": ""
-        },
-        "post_delay": 0,
-        "next": [
-            "SeizeDeliveryJobsEnterDestinationMap"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "**进入抢单后处理流程**"
-        }
-    },
-    "SeizeDeliveryJobsQuickTeleportSelect": {
+    "AutoDeliveryQuickTeleportSelect": {
         "desc": "在目的地地图界面，使用游戏自带的前往传送功能选中任务目标附近的传送点",
         "recognition": "TemplateMatch",
         "roi": [
@@ -32,13 +16,13 @@
         "action": "Click",
         "post_wait_freezes": 500, // 等待地图视窗移动到传送点
         "next": [
-            "SeizeDeliveryJobsQuickTeleport"
+            "AutoDeliveryQuickTeleport"
         ],
         "focus": {
             "Node.Action.Starting": "点击前往传送按钮"
         }
     },
-    "SeizeDeliveryJobsQuickTeleport": {
+    "AutoDeliveryQuickTeleport": {
         "desc": "在目的地地图界面，且已选中了传送点，直接点击传送",
         "recognition": "TemplateMatch",
         "roi": [
@@ -54,14 +38,14 @@
         "order_by": "Score",
         "action": "Click",
         "next": [
-            "SeizeDeliveryJobsQuickTeleportDone",
+            "AutoDeliveryQuickTeleportDone",
             "[JumpBack]SceneAnyEnterWorld"
         ],
         "focus": {
             "Node.Action.Starting": "点击传送按钮"
         }
     },
-    "SeizeDeliveryJobsQuickTeleportDone": {
+    "AutoDeliveryQuickTeleportDone": {
         "desc": "已在大世界中；已解析送货终点时先取消追踪再短程导航，否则根据当前位置判断仓储区域",
         "recognition": "And",
         "all_of": [
@@ -71,16 +55,15 @@
         "post_delay": 0,
         "timeout": 5000, // 断言在短时间内可以命中任一 next
         "next": [
-            "SeizeDeliveryJobsSuccessTeleportDone",
-            "[Anchor]SeizeDeliveryJobsAfterQuickTeleport",
-            "SeizeDeliveryJobsTargetDepotNodeIsWulingCity",
-            "SeizeDeliveryJobsTargetDepotNodeIsTestArea"
+            "[Anchor]AutoDeliveryAfterQuickTeleport",
+            "AutoDeliveryTargetDepotNodeIsWulingCity",
+            "AutoDeliveryTargetDepotNodeIsTestArea"
         ],
         "on_error": [
-            "SeizeDeliveryJobsFatalCannotDetermineDestination"
+            "AutoDeliveryFatalCannotDetermineDestination"
         ]
     },
-    "SeizeDeliveryJobsCheckCarryingAfterUnresolvedTeleport": {
+    "AutoDeliveryCheckCarryingAfterUnresolvedTeleport": {
         "desc": "终点 OCR 未命中时，在快速传送落地后先确认是否已经携带货物",
         "recognition": "DirectHit",
         "pre_wait_freezes": {
@@ -98,15 +81,15 @@
         "timeout": 5000,
         "rate_limit": 0,
         "next": [
-            "SeizeDeliveryJobsIsCarryingGoodsAfterUnresolvedTeleport",
-            "SeizeDeliveryJobsPrepareDepotNavigation"
+            "AutoDeliveryIsCarryingGoodsAfterUnresolvedTeleport",
+            "AutoDeliveryPrepareDepotNavigation"
         ]
     },
-    "SeizeDeliveryJobsIsCarryingGoodsAfterUnresolvedTeleport": {
+    "AutoDeliveryIsCarryingGoodsAfterUnresolvedTeleport": {
         "desc": "终点 OCR 未命中但已携带货物，重新进入任务详情识别终点",
         "recognition": "And",
         "all_of": [
-            "SeizeDeliveryJobsIsCarryingGoods"
+            "AutoDeliveryIsCarryingGoods"
         ],
         "box_index": 0,
         "pre_delay": 0,
@@ -114,10 +97,10 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SeizeDeliveryJobsRetryResolveDestinationEntry"
+            "AutoDeliveryRetryResolveDestinationEntry"
         ]
     },
-    "SeizeDeliveryJobsTargetDepotNodeIsWulingCity": {
+    "AutoDeliveryTargetDepotNodeIsWulingCity": {
         "desc": "判断当前是武陵城的送货任务",
         "recognition": "Custom",
         "custom_recognition": "MapLocateAssertLocation",
@@ -132,17 +115,17 @@
         },
         "pre_delay": 0,
         "anchor": {
-            "SeizeDeliveryJobsWalkToDepotNode": "SeizeDeliveryJobsWalkToDepotNodeWulingCity"
+            "AutoDeliveryWalkToDepotNode": "AutoDeliveryWalkToDepotNodeWulingCity"
         },
         "post_delay": 0,
         "next": [
-            "SeizeDeliveryJobsCheckCarryingGoods"
+            "AutoDeliveryCheckCarryingGoods"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "判断任务地点是武陵城"
         }
     },
-    "SeizeDeliveryJobsTargetDepotNodeIsTestArea": {
+    "AutoDeliveryTargetDepotNodeIsTestArea": {
         "desc": "判断当前是试验园区的送货任务",
         "recognition": "Custom",
         "custom_recognition": "MapLocateAssertLocation",
@@ -157,45 +140,44 @@
         },
         "pre_delay": 0,
         "anchor": {
-            "SeizeDeliveryJobsWalkToDepotNode": "SeizeDeliveryJobsWalkToDepotNodeTestArea"
+            "AutoDeliveryWalkToDepotNode": "AutoDeliveryWalkToDepotNodeTestArea"
         },
         "post_delay": 0,
         "next": [
-            "SeizeDeliveryJobsCheckCarryingGoods"
+            "AutoDeliveryCheckCarryingGoods"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "判断任务地点是试验园区"
         }
     },
-    "SeizeDeliveryJobsCheckCarryingGoods": {
+    "AutoDeliveryCheckCarryingGoods": {
         "desc": "返回大世界，检查是否已携带了货物",
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "SeizeDeliveryJobsIsCarryingGoods",
-            "[Anchor]SeizeDeliveryJobsWalkToDepotNode",
-            "SeizeDeliveryJobsFatalCannotDetermineDestination" // 兜底报错回显，以防 Anchor 未被赋值
+            "AutoDeliveryIsCarryingGoods",
+            "[Anchor]AutoDeliveryWalkToDepotNode",
+            "AutoDeliveryFatalCannotDetermineDestination" // 兜底报错回显，以防 Anchor 未被赋值
         ]
     },
-    "SeizeDeliveryJobsPrepareDepotNavigation": {
+    "AutoDeliveryPrepareDepotNavigation": {
         "desc": "前往仓储点前打开任务详情并取消任务追踪",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "DoNothing",
         "anchor": {
-            "SeizeDeliveryJobsAfterEnterCurrentJobDetail": "SeizeDeliveryJobsPrepareTrackingBeforeDepot",
-            "SeizeDeliveryJobsDepartureOnError": "SeizeDeliveryJobsFatalDeliveryNavigationFailed"
+            "AutoDeliveryAfterOpenCurrentJobDetail": "AutoDeliveryPrepareTrackingBeforeDepot"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SeizeDeliveryJobsEnterCurrentJobDetail"
+            "AutoDeliveryOpenCurrentJobDetail"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "前往仓储点前准备取消任务追踪"
         }
     },
-    "SeizeDeliveryJobsIsCarryingGoods": {
+    "AutoDeliveryIsCarryingGoods": {
         "desc": "发现已携带了货物，不再传送，直接尝试走送货流程",
         "recognition": "TemplateMatch",
         "roi": [
@@ -204,19 +186,19 @@
             170,
             90
         ],
-        "template": "SeizeDeliveryJobs/CarryingGoods.png",
+        "template": "AutoDelivery/CarryingGoods.png",
         "green_mask": true,
         "order_by": "Score",
         "next": [
-            "SeizeDeliveryJobsPostDepartureEntry",
-            "SeizeDeliveryJobsFatalAlreadyCarryingGoods"
+            "AutoDeliveryPostDepartureEntry",
+            "AutoDeliveryFatalAlreadyCarryingGoods"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "已经携带货物"
         }
     },
     // ===== 武陵城部分 =====
-    "SeizeDeliveryJobsWalkToDepotNodeWulingCity": {
+    "AutoDeliveryWalkToDepotNodeWulingCity": {
         "desc": "走到武陵城仓储节点",
         "pre_delay": 0,
         "action": "Custom",
@@ -258,10 +240,10 @@
         },
         "post_delay": 500, // 等待弹出接取货物按钮
         "next": [
-            "SeizeDeliveryJobsSuccessWalkDone",
-            "SeizeDeliveryJobsFetchGoods",
-            "[JumpBack]SeizeDeliveryJobsWalkToDepotNodeWulingCityBackward",
-            "SeizeDeliveryJobsFatalCannotFetchGoods"
+            "[Anchor]AutoDeliveryAfterWalkToDepot",
+            "AutoDeliveryFetchGoods",
+            "[JumpBack]AutoDeliveryWalkToDepotNodeWulingCityBackward",
+            "AutoDeliveryFatalCannotFetchGoods"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "正在走到武陵城仓储节点",
@@ -273,7 +255,7 @@
             }
         }
     },
-    "SeizeDeliveryJobsWalkToDepotNodeWulingCityBackward": {
+    "AutoDeliveryWalkToDepotNodeWulingCityBackward": {
         "desc": "背对武陵城仓储节点行走，随后走回去，用于未识别到接取货物按钮后的重试（需使用 JumpBack 调用）",
         "max_hit": 5, // 最大重试次数
         "pre_delay": 0,
@@ -311,7 +293,7 @@
         }
     },
     // ===== 试验园区部分 =====
-    "SeizeDeliveryJobsWalkToDepotNodeTestArea": {
+    "AutoDeliveryWalkToDepotNodeTestArea": {
         "desc": "走到试验园区仓储节点",
         "pre_delay": 0,
         "action": "Custom",
@@ -340,10 +322,10 @@
         },
         "post_delay": 2000, // 等待玩家止步
         "next": [
-            "SeizeDeliveryJobsSuccessWalkDone",
-            "SeizeDeliveryJobsFetchGoods",
-            "[JumpBack]SeizeDeliveryJobsWalkToDepotNodeTestAreaBackward",
-            "SeizeDeliveryJobsFatalCannotFetchGoods"
+            "[Anchor]AutoDeliveryAfterWalkToDepot",
+            "AutoDeliveryFetchGoods",
+            "[JumpBack]AutoDeliveryWalkToDepotNodeTestAreaBackward",
+            "AutoDeliveryFatalCannotFetchGoods"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "正在走到试验园区仓储节点",
@@ -355,7 +337,7 @@
             }
         }
     },
-    "SeizeDeliveryJobsWalkToDepotNodeTestAreaBackward": {
+    "AutoDeliveryWalkToDepotNodeTestAreaBackward": {
         "desc": "背对试验园区仓储节点行走，随后走回去，用于未识别到接取货物按钮后的重试",
         "max_hit": 5, // 最大重试次数
         "pre_delay": 0,
@@ -393,7 +375,7 @@
         }
     },
     // ===== 接取货物流程 =====
-    "SeizeDeliveryJobsFetchGoods": {
+    "AutoDeliveryFetchGoods": {
         "desc": "在任意仓储节点面前，接取货物",
         "recognition": "TemplateMatch",
         "roi": [
@@ -403,7 +385,7 @@
             270
         ],
         "template": [
-            "SeizeDeliveryJobs/FetchGoods.png"
+            "AutoDelivery/FetchGoods.png"
         ],
         "order_by": "Score",
         "pre_delay": 0,
@@ -411,38 +393,21 @@
         "custom_action": "AutoAltClickAction",
         "post_delay": 1000, // 等待接取成功的提示消失
         "next": [
-            "SeizeDeliveryJobsPostDepartureEntry"
+            "AutoDeliveryPostDepartureEntry"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "交互接取货物"
         }
     },
-    // ===== 成功早停节点 =====
-    "SeizeDeliveryJobsSuccessTeleportDone": {
-        "desc": "任务成功，触发早停，已传送到仓储节点附近（此节点默认关闭）",
-        "enabled": false,
-        "next": [
-            // 无后续节点，即停止任务
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "**传送好了！记得及时送货哟~**"
-        }
-    },
-    "SeizeDeliveryJobsSuccessWalkDone": {
-        "desc": "任务成功，触发早停，已走到仓储节点（此节点默认关闭）",
-        "enabled": false,
-        "next": [
-            // 无后续节点，即停止任务
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "**走到位了！记得及时送货哟~**"
-        }
-    },
     // ===== 错误处理节点 =====
-    "SeizeDeliveryJobsFatalCannotDetermineDestination": {
+    "AutoDeliveryFatalCannotDetermineDestination": {
         "desc": "致命错误，无法判断任务所在区域",
+        "recognition": "DirectHit",
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FalseAction",
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             // 无后续节点，即停止任务
         ],
@@ -450,28 +415,40 @@
             "Node.Recognition.Succeeded": "<p style=\"color: #f44\">无法判断当前任务所在区域，或当前任务不在已支持的地区内，故任务停止</p>"
         }
     },
-    "SeizeDeliveryJobsFatalDeliveryNavigationFailed": {
+    "AutoDeliveryFatalDeliveryNavigationFailed": {
         "desc": "致命错误，自动前往送货终点失败",
+        "recognition": "DirectHit",
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FalseAction",
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [],
         "focus": {
             "Node.Recognition.Succeeded": "<p style=\"color: #f44\">自动前往送货终点失败，任务停止</p>"
         }
     },
-    "SeizeDeliveryJobsFatalCannotResolveCarryingDestination": {
+    "AutoDeliveryFatalCannotResolveCarryingDestination": {
         "desc": "致命错误，已携带货物但仍无法识别送货终点",
+        "recognition": "DirectHit",
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FalseAction",
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [],
         "focus": {
             "Node.Recognition.Succeeded": "<p style=\"color: #f44\">已携带货物，但无法识别送货终点，任务停止</p>"
         }
     },
-    "SeizeDeliveryJobsFatalAlreadyCarryingGoods": {
+    "AutoDeliveryFatalAlreadyCarryingGoods": {
         "desc": "致命错误，已经携带了货物但未开启自动送货",
+        "recognition": "DirectHit",
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FalseAction",
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             // 无后续节点，即停止任务
         ],
@@ -479,13 +456,27 @@
             "Node.Recognition.Succeeded": "<p style=\"color: #f44\">已经携带了货物，但未开启自动送货</p>"
         }
     },
-    // ===== 其他公共节点 =====
-    "SeizeDeliveryJobsFatalCannotFetchGoods": {
-        "desc": "致命错误，始终未识别到接取货物按钮",
+    "AutoDeliveryFatalCannotOpenCurrentJobDetail": {
+        "desc": "致命错误，无法打开当前送货任务详情",
+        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "FalseAction",
         "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "<p style=\"color: #f44\">无法打开当前送货任务详情，任务停止</p>"
+        }
+    },
+    // ===== 其他公共节点 =====
+    "AutoDeliveryFatalCannotFetchGoods": {
+        "desc": "致命错误，始终未识别到接取货物按钮",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FalseAction",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             // 无后续节点，即停止任务
         ],

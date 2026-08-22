@@ -925,12 +925,16 @@
                                 "DeliveryJobsGoToDepot": "DeliveryJobsStartAutoDeliveryWulingCity"
                             }
                         },
-                        "SeizeDeliveryJobsEnterCurrentJobDetail": {
-                            "next": [
-                                "DeliveryJobsReturnAndViewWulingCityCurrentJob"
-                            ]
+                        "AutoDeliveryOpenCurrentJobDetail": {
+                            "custom_action_param": {
+                                "sub": [
+                                    "DeliveryJobsReturnAndViewWulingCityCurrentJob"
+                                ],
+                                "continue": false,
+                                "strict": true
+                            }
                         },
-                        "SeizeDeliveryJobsPostDepartureEntry": {
+                        "AutoDeliveryPostDepartureEntry": {
                             "enabled": true
                         }
                     }
@@ -1110,12 +1114,16 @@
                                 "DeliveryJobsGoToDepot": "DeliveryJobsStartAutoDeliveryWulingCity"
                             }
                         },
-                        "SeizeDeliveryJobsEnterCurrentJobDetail": {
-                            "next": [
-                                "DeliveryJobsReturnAndViewWulingCityCurrentJob"
-                            ]
+                        "AutoDeliveryOpenCurrentJobDetail": {
+                            "custom_action_param": {
+                                "sub": [
+                                    "DeliveryJobsReturnAndViewWulingCityCurrentJob"
+                                ],
+                                "continue": false,
+                                "strict": true
+                            }
                         },
-                        "SeizeDeliveryJobsPostDepartureEntry": {
+                        "AutoDeliveryPostDepartureEntry": {
                             "enabled": true
                         },
                         "DeliveryJobsWulingCityQuoteAtLeastMinimum": {
@@ -1189,12 +1197,16 @@
                                 "DeliveryJobsGoToDepot": "DeliveryJobsStartAutoDeliveryWulingCity"
                             }
                         },
-                        "SeizeDeliveryJobsEnterCurrentJobDetail": {
-                            "next": [
-                                "DeliveryJobsReturnAndViewWulingCityCurrentJob"
-                            ]
+                        "AutoDeliveryOpenCurrentJobDetail": {
+                            "custom_action_param": {
+                                "sub": [
+                                    "DeliveryJobsReturnAndViewWulingCityCurrentJob"
+                                ],
+                                "continue": false,
+                                "strict": true
+                            }
                         },
-                        "SeizeDeliveryJobsPostDepartureEntry": {
+                        "AutoDeliveryPostDepartureEntry": {
                             "enabled": true
                         },
                         "DeliveryJobsWulingCityQuoteBelowMinimum": {
@@ -1287,12 +1299,16 @@
                                 "DeliveryJobsGoToDepot": "DeliveryJobsStartAutoDeliveryTestArea"
                             }
                         },
-                        "SeizeDeliveryJobsEnterCurrentJobDetail": {
-                            "next": [
-                                "DeliveryJobsReturnAndViewTestAreaCurrentJob"
-                            ]
+                        "AutoDeliveryOpenCurrentJobDetail": {
+                            "custom_action_param": {
+                                "sub": [
+                                    "DeliveryJobsReturnAndViewTestAreaCurrentJob"
+                                ],
+                                "continue": false,
+                                "strict": true
+                            }
                         },
-                        "SeizeDeliveryJobsPostDepartureEntry": {
+                        "AutoDeliveryPostDepartureEntry": {
                             "enabled": true
                         }
                     }
@@ -1472,12 +1488,16 @@
                                 "DeliveryJobsGoToDepot": "DeliveryJobsStartAutoDeliveryTestArea"
                             }
                         },
-                        "SeizeDeliveryJobsEnterCurrentJobDetail": {
-                            "next": [
-                                "DeliveryJobsReturnAndViewTestAreaCurrentJob"
-                            ]
+                        "AutoDeliveryOpenCurrentJobDetail": {
+                            "custom_action_param": {
+                                "sub": [
+                                    "DeliveryJobsReturnAndViewTestAreaCurrentJob"
+                                ],
+                                "continue": false,
+                                "strict": true
+                            }
                         },
-                        "SeizeDeliveryJobsPostDepartureEntry": {
+                        "AutoDeliveryPostDepartureEntry": {
                             "enabled": true
                         },
                         "DeliveryJobsTestAreaQuoteAtLeastMinimum": {
@@ -1551,12 +1571,16 @@
                                 "DeliveryJobsGoToDepot": "DeliveryJobsStartAutoDeliveryTestArea"
                             }
                         },
-                        "SeizeDeliveryJobsEnterCurrentJobDetail": {
-                            "next": [
-                                "DeliveryJobsReturnAndViewTestAreaCurrentJob"
-                            ]
+                        "AutoDeliveryOpenCurrentJobDetail": {
+                            "custom_action_param": {
+                                "sub": [
+                                    "DeliveryJobsReturnAndViewTestAreaCurrentJob"
+                                ],
+                                "continue": false,
+                                "strict": true
+                            }
                         },
-                        "SeizeDeliveryJobsPostDepartureEntry": {
+                        "AutoDeliveryPostDepartureEntry": {
                             "enabled": true
                         },
                         "DeliveryJobsTestAreaQuoteBelowMinimum": {
@@ -1600,8 +1624,8 @@
                 "Win32-Front",
                 "Wlroots"
             ],
-            "label": "$task.SeizeDeliveryJobsPostDepartureRiskAcknowledgement.label",
-            "description": "$task.SeizeDeliveryJobsPostDepartureRiskAcknowledgement.description",
+            "label": "$task.AutoDeliveryRiskAcknowledgement.label",
+            "description": "$task.AutoDeliveryRiskAcknowledgement.description",
             "default_case": "No",
             "cases": [
                 {

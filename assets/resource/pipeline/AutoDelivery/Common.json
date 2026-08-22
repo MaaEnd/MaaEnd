@@ -1,0 +1,99 @@
+{
+    "AutoDeliveryOpenCurrentJobDetail": {
+        "desc": "调用方提供的当前送货任务详情入口；custom_action_param.sub 必须由任务配置覆写",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoDeliveryOpenCurrentJobDetailNotConfigured"
+            ],
+            "continue": false,
+            "strict": true
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]AutoDeliveryAfterOpenCurrentJobDetail"
+        ],
+        "on_error": [
+            "AutoDeliveryFatalCannotOpenCurrentJobDetail"
+        ]
+    },
+    "AutoDeliveryOpenCurrentJobDetailNotConfigured": {
+        "desc": "调用方未配置当前送货任务详情入口",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FalseAction",
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoDeliveryViewDestinationMapAfterResolve": {
+        "desc": "任务详情检查完成后，点击定位或开始追踪以打开目的地地图",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__AutoDeliveryViewDestinationMap",
+            "__AutoDeliveryStartTrackingTask"
+        ]
+    },
+    "__AutoDeliveryViewDestinationMap": {
+        "desc": "在任务详情页面，点击定位按钮，打开大地图查看目的地",
+        "recognition": "And",
+        "all_of": [
+            "TrackedMissionMapButton"
+        ],
+        "action": "Click",
+        "rate_limit": 500,
+        "next": [
+            "__AutoDeliveryInDestinationMap"
+        ],
+        "focus": {
+            "Node.Action.Starting": "点击查看任务位置"
+        }
+    },
+    "__AutoDeliveryStartTrackingTask": {
+        "desc": "在任务详情页面，若没找到定位按钮，则点击开始追踪任务按钮",
+        "recognition": "TemplateMatch",
+        "roi": [
+            1070,
+            570,
+            200,
+            140
+        ],
+        "template": "Common/Button/WhiteConfirmButtonType1.png",
+        "order_by": "Score",
+        "action": "Click",
+        "rate_limit": 500,
+        "next": [
+            "__AutoDeliveryInDestinationMap"
+        ],
+        "focus": {
+            "Node.Action.Starting": "点击开始追踪任务"
+        }
+    },
+    "__AutoDeliveryInDestinationMap": {
+        "desc": "确认已打开目的地地图",
+        "recognition": "TemplateMatch",
+        "roi": [
+            900,
+            10,
+            130,
+            140
+        ],
+        "template": "AutoDelivery/TrackTaskSuccess.png",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AutoDeliveryQuickTeleportSelect"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "正在查看任务位置"
+        }
+    }
+}

@@ -1,4 +1,4 @@
-"""生成 delivery_destinations.json。"""
+"""生成 AutoDelivery 使用的 delivery_destinations.json。"""
 
 from __future__ import annotations
 
@@ -31,7 +31,8 @@ from tablecfg_utils import (
 
 
 LABEL = "DeliveryDestinations"
-OUTPUT_PATH = DATA_DIR / "delivery_destinations.json"
+REPO_ROOT = DATA_DIR.parents[2]
+OUTPUT_PATH = REPO_ROOT / "assets" / "data" / "AutoDelivery" / "delivery_destinations.json"
 USER_AGENT = "MaaEnd-pipeline"
 
 TABLE_NAMES = (
@@ -47,7 +48,6 @@ DATA_BASE_URL = "https://assets.fz.wiki/output_maaend"
 TABLE_CFG_BASE_URL: str | None = None
 GAMEPLAY_CONFIG_BASE_URL: str | None = DATA_BASE_URL
 
-REPO_ROOT = DATA_DIR.parents[2]
 NAVMESH_DIR = REPO_ROOT / "assets" / "resource" / "model" / "map" / "navmesh"
 NAV_CANDIDATES = ("base.nav.gz", "base.nav")
 NAV_SUBMODULE_API = (

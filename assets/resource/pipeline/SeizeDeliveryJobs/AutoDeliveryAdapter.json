@@ -1,0 +1,54 @@
+{
+    "SeizeDeliveryJobsPostProcessingEntry": {
+        "desc": "抢单成功后或手上已经有单时，打开任务详情并进入共享送货流程（此节点默认关闭）",
+        "enabled": false,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SeizeDeliveryJobsEnterCurrentJobDetail"
+            ],
+            "continue": false,
+            "strict": true
+        },
+        "anchor": {
+            "AutoDeliveryAfterQuickTeleport": "",
+            "AutoDeliveryAfterWalkToDepot": "",
+            "AutoDeliveryAfterDelivery": "SeizeDeliveryJobsMain",
+            "AutoDeliveryAfterDeliveryFallback": "SeizeDeliveryJobsTaskEnd"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDeliveryViewDestinationMapAfterResolve"
+        ],
+        "on_error": [
+            "AutoDeliveryFatalCannotOpenCurrentJobDetail"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "**进入抢单后处理流程**"
+        }
+    },
+    "SeizeDeliveryJobsSuccessTeleportDone": {
+        "desc": "任务成功，已传送到仓储节点附近",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "**传送好了！记得及时送货哟~**"
+        }
+    },
+    "SeizeDeliveryJobsSuccessWalkDone": {
+        "desc": "任务成功，已走到仓储节点",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "**走到位了！记得及时送货哟~**"
+        }
+    }
+}

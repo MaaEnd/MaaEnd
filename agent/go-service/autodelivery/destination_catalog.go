@@ -1,4 +1,4 @@
-package seizedeliveryjobs
+package autodelivery
 
 import (
 	"fmt"
@@ -18,8 +18,8 @@ const (
 	deliveryAreaMinSimilarity        = 0.70
 	deliveryAreaMinMargin            = 0.05
 
-	deliveryDestinationCatalogResourcePath = "data/SeizeDeliveryJobs/delivery_destinations.json"
-	deliveryNavigationConfigResourcePath   = "data/SeizeDeliveryJobs/destinations.json"
+	deliveryDestinationCatalogResourcePath = "data/AutoDelivery/delivery_destinations.json"
+	deliveryNavigationConfigResourcePath   = "data/AutoDelivery/destinations.json"
 )
 
 type deliveryArea struct {

@@ -78,14 +78,19 @@
         "desc": "返回试验园区查看任务并开始全自动送货",
         "recognition": "DirectHit",
         "pre_delay": 0,
-        "action": "DoNothing",
-        "anchor": {
-            "SeizeDeliveryJobsAfterEnterCurrentJobDetail": "DeliveryJobsAutoDeliveryEntry"
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "DeliveryJobsReturnAndViewTestAreaCurrentJob"
+            ],
+            "continue": false,
+            "strict": true
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "DeliveryJobsReturnAndViewTestAreaCurrentJob"
+            "DeliveryJobsAutoDeliveryEntry"
         ]
     },
     "DeliveryJobsReturnAndViewTestAreaCurrentJob": {
@@ -117,10 +122,7 @@
         "action": "Click",
         "post_wait_freezes": 500,
         "post_delay": 0,
-        "rate_limit": 500,
-        "next": [
-            "[Anchor]SeizeDeliveryJobsAfterEnterCurrentJobDetail"
-        ]
+        "rate_limit": 500
     },
     "DeliveryJobsCheckLocalDepotNodeTestAreaText": {
         "desc": "检查本地仓储节点中是否有试验园区",

@@ -4,10 +4,10 @@
         "recognition": "DirectHit",
         "pre_delay": 0,
         "anchor": {
-            "SeizeDeliveryJobsAfterDelivery": "DeliveryJobsAutoDeliverySubTaskDone",
-            "SeizeDeliveryJobsAfterEnterDestinationMap": "SeizeDeliveryJobsQuickTeleportSelect",
-            "SeizeDeliveryJobsAfterQuickTeleport": "",
-            "SeizeDeliveryJobsDepartureOnError": "SeizeDeliveryJobsFatalDeliveryNavigationFailed"
+            "AutoDeliveryAfterQuickTeleport": "",
+            "AutoDeliveryAfterWalkToDepot": "",
+            "AutoDeliveryAfterDelivery": "DeliveryJobsAutoDeliverySubTaskDone",
+            "AutoDeliveryAfterDeliveryFallback": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -39,7 +39,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SeizeDeliveryJobsResolveDestinationBeforeTeleportEntry"
+                "AutoDeliveryResolveDestinationBeforeTeleportEntry"
             ],
             "continue": false,
             "strict": true

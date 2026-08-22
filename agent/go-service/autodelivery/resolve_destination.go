@@ -1,51 +1,29 @@
-package seizedeliveryjobs
+package autodelivery
 
 import (
-	"encoding/json"
-	"fmt"
-
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
 
 const (
-	deliveryZiplinePolicyNever  = "Never"
-	deliveryZiplinePolicyLazy   = "Lazy"
-	deliveryZiplinePolicyActive = "Active"
+	autoDeliveryResolveDestinationComponent = "AutoDeliveryResolveDestinationAction"
+	autoDeliveryNavigateNode                = "AutoDeliveryNavigate"
+	autoDeliveryRetryNavigateNode           = "AutoDeliveryRetryNavigate"
+	autoDeliveryAreaOCRNode                 = "AutoDeliveryAreaOCR"
+	autoDeliveryDestinationOCRNode          = "AutoDeliveryDestinationOCR"
 )
 
-type resolveDeliveryDestinationParam struct {
-	ZiplinePolicy string `json:"zipline_policy"`
-}
+// AutoDeliveryResolveDestinationAction resolves Pipeline OCR text and injects the matching MapNavigateAction parameters.
+type AutoDeliveryResolveDestinationAction struct{}
 
-const (
-	seizeDeliveryJobsResolveDestinationComponent = "SeizeDeliveryJobsResolveDestinationAction"
-	seizeDeliveryJobsNavigateNode                = "SeizeDeliveryJobsNavigate"
-	seizeDeliveryJobsRetryNavigateNode           = "SeizeDeliveryJobsRetryNavigate"
-	seizeDeliveryJobsAreaOCRNode                 = "SeizeDeliveryJobsAreaOCR"
-	seizeDeliveryJobsDestinationOCRNode          = "SeizeDeliveryJobsDestinationOCR"
-)
-
-// SeizeDeliveryJobsResolveDestinationAction resolves Pipeline OCR text and injects the matching MapNavigateAction parameters.
-type SeizeDeliveryJobsResolveDestinationAction struct{}
-
-var _ maa.CustomActionRunner = &SeizeDeliveryJobsResolveDestinationAction{}
+var _ maa.CustomActionRunner = &AutoDeliveryResolveDestinationAction{}
 
 // Run reads OCR results supplied by Pipeline, resolves a unique destination, and updates the Pipeline navigation nodes.
-func (a *SeizeDeliveryJobsResolveDestinationAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+func (a *AutoDeliveryResolveDestinationAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	if ctx == nil || arg == nil || arg.RecognitionDetail == nil {
 		log.Error().
-			Str("component", seizeDeliveryJobsResolveDestinationComponent).
+			Str("component", autoDeliveryResolveDestinationComponent).
 			Msg("action context or recognition detail is missing")
-		return false
-	}
-
-	param, err := parseResolveDeliveryDestinationParam(arg.CustomActionParam)
-	if err != nil {
-		log.Error().
-			Err(err).
-			Str("component", seizeDeliveryJobsResolveDestinationComponent).
-			Msg("failed to parse action parameters")
 		return false
 	}
 
@@ -66,7 +44,7 @@ func (a *SeizeDeliveryJobsResolveDestinationAction) Run(ctx *maa.Context, arg *m
 	if resolveErr != nil {
 		log.Error().
 			Err(resolveErr).
-			Str("component", seizeDeliveryJobsResolveDestinationComponent).
+			Str("component", autoDeliveryResolveDestinationComponent).
 			Str("areaText", areaText).
 			Str("destinationText", destinationText).
 			Float64("similarity", match.Similarity).
@@ -77,17 +55,17 @@ func (a *SeizeDeliveryJobsResolveDestinationAction) Run(ctx *maa.Context, arg *m
 		return false
 	}
 
-	if err := ctx.OverridePipeline(buildDeliveryNavigationOverride(destination, param.ZiplinePolicy)); err != nil {
+	if err := ctx.OverridePipeline(buildDeliveryNavigationOverride(destination)); err != nil {
 		log.Error().
 			Err(err).
-			Str("component", seizeDeliveryJobsResolveDestinationComponent).
+			Str("component", autoDeliveryResolveDestinationComponent).
 			Str("destination", destination.ID).
 			Msg("failed to inject delivery navigation parameters")
 		return false
 	}
 
 	event := log.Info().
-		Str("component", seizeDeliveryJobsResolveDestinationComponent).
+		Str("component", autoDeliveryResolveDestinationComponent).
 		Str("areaText", areaText).
 		Str("destinationText", destinationText).
 		Str("destination", destination.ID).
@@ -101,7 +79,6 @@ func (a *SeizeDeliveryJobsResolveDestinationAction) Run(ctx *maa.Context, arg *m
 		Float64("areaRunnerUpSimilarity", match.AreaRunnerUp).
 		Str("area", destination.AreaID).
 		Str("navigatorZone", destination.MapNavigatorZone).
-		Str("ziplinePolicy", param.ZiplinePolicy).
 		Float64("targetX", destination.MapNavigatorTarget[0]).
 		Float64("targetY", destination.MapNavigatorTarget[1])
 	if destination.MapNavigatorTargetDeckY != nil {
@@ -110,33 +87,9 @@ func (a *SeizeDeliveryJobsResolveDestinationAction) Run(ctx *maa.Context, arg *m
 	event.Msg("resolved delivery job destination")
 	return true
 }
-
-func parseResolveDeliveryDestinationParam(paramJSON string) (resolveDeliveryDestinationParam, error) {
-	param := resolveDeliveryDestinationParam{ZiplinePolicy: deliveryZiplinePolicyLazy}
-	if paramJSON != "" {
-		if err := json.Unmarshal([]byte(paramJSON), &param); err != nil {
-			return resolveDeliveryDestinationParam{}, fmt.Errorf("unmarshal parameters: %w", err)
-		}
-	}
-	if param.ZiplinePolicy == "" {
-		param.ZiplinePolicy = deliveryZiplinePolicyLazy
-	}
-	switch param.ZiplinePolicy {
-	case deliveryZiplinePolicyNever, deliveryZiplinePolicyLazy, deliveryZiplinePolicyActive:
-		return param, nil
-	default:
-		return resolveDeliveryDestinationParam{}, fmt.Errorf(
-			"zipline_policy must be one of %q, %q, %q",
-			deliveryZiplinePolicyNever,
-			deliveryZiplinePolicyLazy,
-			deliveryZiplinePolicyActive,
-		)
-	}
-}
-
 func deliveryDestinationOCRFields(detail *maa.RecognitionDetail) (areaText, destinationText string, ok bool) {
-	areaDetail := findDeliveryRecognitionDetail(detail, seizeDeliveryJobsAreaOCRNode)
-	destinationDetail := findDeliveryRecognitionDetail(detail, seizeDeliveryJobsDestinationOCRNode)
+	areaDetail := findDeliveryRecognitionDetail(detail, autoDeliveryAreaOCRNode)
+	destinationDetail := findDeliveryRecognitionDetail(detail, autoDeliveryDestinationOCRNode)
 	if areaDetail == nil || destinationDetail == nil {
 		return "", "", false
 	}
@@ -165,7 +118,7 @@ func findDeliveryRecognitionDetail(detail *maa.RecognitionDetail, name string) *
 }
 
 // OverridePipeline performs a field-level shallow merge, so each custom_action_param is intentionally complete.
-func buildDeliveryNavigationOverride(destination deliveryDestination, ziplinePolicy string) map[string]any {
+func buildDeliveryNavigationOverride(destination deliveryDestination) map[string]any {
 	initialPath := make([]any, 0, len(destination.InitialPathPrefix)+len(destination.InitialPathSuffix)+1)
 	initialPath = append(initialPath, destination.InitialPathPrefix...)
 	initialPath = append(initialPath, destination.InitialPathSuffix...)
@@ -173,18 +126,16 @@ func buildDeliveryNavigationOverride(destination deliveryDestination, ziplinePol
 	retryPath := []any{deliveryDestinationWaypoint(destination)}
 
 	return map[string]any{
-		seizeDeliveryJobsNavigateNode: map[string]any{
+		autoDeliveryNavigateNode: map[string]any{
 			"custom_action_param": map[string]any{
-				"map_name":       destination.MapNavigatorZone,
-				"zipline_policy": ziplinePolicy,
-				"path":           initialPath,
+				"map_name": destination.MapNavigatorZone,
+				"path":     initialPath,
 			},
 		},
-		seizeDeliveryJobsRetryNavigateNode: map[string]any{
+		autoDeliveryRetryNavigateNode: map[string]any{
 			"custom_action_param": map[string]any{
-				"map_name":       destination.MapNavigatorZone,
-				"zipline_policy": deliveryZiplinePolicyNever,
-				"path":           retryPath,
+				"map_name": destination.MapNavigatorZone,
+				"path":     retryPath,
 			},
 		},
 	}
