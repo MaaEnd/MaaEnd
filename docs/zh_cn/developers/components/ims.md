@@ -27,8 +27,17 @@ A2 负责「看一眼当前界面，把物品数量记下来」。业务侧**不
 | `SyncItemData` | 贵重品库 **培养素材页** |
 | `SyncShopItemData` | **采购中心**（衍质源石 / 嵌晶玉顶部数量） |
 | `SyncValuablesItemData` | 贵重品库 **珍贵物品页**（如特许寻访凭证） |
+| `SyncDepotItemData` | 帝江号仓库背包界面的**左侧仓库**（普通采集物，不含右侧背包） |
 
 需要声明「我要最新缓存」的任务应显式调用对应入口（已扫过会走 Skipped）。
+
+### 帝江号仓库入口
+
+`SyncDepotItemData` 进入帝江号仓库背包界面后，调用既有 A2 `SyncItemData` 扫描左侧仓库。该入口固定使用 `grid_type: transfer`，候选范围为 `Normal:Plant`、`Normal:Nurturance`、`Normal:Doodad`，覆盖普通植物、特殊路线采集物和虫类采集物。它**只统计左侧仓库**，不会把右侧背包中的数量计入缓存。
+
+入口先判断仓库列表是否存在滚动条：单页列表只扫描一次；多页列表会先滚动到顶部，再逐页扫描到底部。第一页使用 `page_dedup: false` 做地区重建，后续页使用 `page_dedup: true` 覆写当页命中，因此当前仓库不存在的候选物品会从旧缓存中移除，而后续翻页不会抹掉前面页的数据。
+
+首次成功后，入口会在当前 Resource 生命周期内关闭实际扫描通路，重复调用直接走 Skipped。AutoCollect 的目标库存模式会在本轮结束时重新开启该入口，但不会立即进行第二次扫描或估算本轮采集增量；下一个仓库库存消费者将重新同步真实仓库数量。切换账号时也会重新开启该入口，避免沿用前一账号的仓库快照。
 
 ### 调用规范（必读）
 
@@ -106,7 +115,7 @@ A2 负责「看一眼当前界面，把物品数量记下来」。业务侧**不
 2. **再次调用**：入口仍可进入，但会立刻判定「本轮已经同步过」，跳过扫库并继续后续业务。
 3. **下次冷启动**：重新加载 Resource / 重启客户端后，通路恢复；下一个 IMS 任务会重新扫库。
 
-> 预留入口与扫库参数见 `assets/resource/pipeline/IMS/SyncItemData.json`、`SyncShopItemData.json`、`SyncValuablesItemData.json`。
+> 预留入口与扫库参数见 `assets/resource/pipeline/IMS/SyncItemData.json`、`SyncShopItemData.json`、`SyncValuablesItemData.json`、`SyncDepotItemData.json`。
 >
 > `EnsureItemDataReadyMain` 仅用于「按 R2 过期策略决定要不要进 A2」的特殊场景；常规 IMS 任务应直接调对应 `Sync*ItemData`，而不是只靠过期门禁。
 
@@ -305,6 +314,7 @@ A2 落盘时会写下 `updated_at`。R2 用「现在 − 同步时间」是否�
 | `SyncItemData.json` | A2 培养素材页入口与同 Resource 锁定 |
 | `SyncShopItemData.json` | A2 采购中心入口 |
 | `SyncValuablesItemData.json` | A2 珍贵物品页入口 |
+| `SyncDepotItemData.json` | A2 帝江号仓库左侧普通采集物入口 |
 | `UpdateItemQuantity.json` | A1 |
 | `AddItemData.json` | A3 最佳实践（领奖后关闭） |
 | `ItemQuantitySatisfied.json` | R1（调用方覆盖 `expression`） |

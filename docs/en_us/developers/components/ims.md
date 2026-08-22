@@ -29,6 +29,15 @@ A2 means “look at the current screen and record item quantities”. Callers mu
 | `SyncItemData` | Valuables **Progression** tab (`grid_type: valuables`) |
 | `SyncShopItemData` | **Procurement Center** (Origeometry / Oroberyl header OCR) |
 | `SyncValuablesItemData` | Valuables **Valuables** tab (e.g. Chartered HH Permit) |
+| `SyncDepotItemData` | The **left-side depot** on the Dijiang depot/backpack screen (normal collectables; excludes the right-side backpack) |
+
+### Dijiang depot entry
+
+`SyncDepotItemData` enters the Dijiang depot/backpack screen and calls the existing A2 `SyncItemData` action for the left-side depot. It uses `grid_type: transfer` with `Normal:Plant`, `Normal:Nurturance`, and `Normal:Doodad`, covering regular plants, special-route collectables, and insect collectables. It counts **only the left-side depot**; quantities still in the right-side backpack are not included.
+
+The entry first checks whether the depot list has a scrollbar. A single-page list is scanned once. A multi-page list is first scrolled to the top and then scanned page by page to the bottom. The first page uses `page_dedup: false` for a region rebuild, while later pages use `page_dedup: true` to overwrite current-page hits without deleting items found on earlier pages.
+
+After the first successful scan, the actual scan path is locked for the current Resource lifetime and later calls take the Skipped path. AutoCollect's Target Inventory mode re-enables this entry when the run finishes, but does not immediately perform a second scan or invent deltas for collected items; the next depot inventory consumer performs a fresh scan. Account switching also re-enables the entry so another account cannot reuse the previous account's depot snapshot.
 
 ### Calling convention (required)
 
@@ -188,6 +197,7 @@ Ready when (1) at least one successful A2 exists (`hasData=true`) and (2) `updat
 | `agent/go-service/pkg/iconqty/` | Shared A2/A3: IconRecognition scan + `cell_box` quantity OCR |
 | `assets/data/IconRecognition/recognition_items.json` | IconRecognition catalog; A2 region rebuild expands `item_filters` |
 | `assets/resource/pipeline/IMS/` | Pipeline entries |
+| `assets/resource/pipeline/IMS/SyncDepotItemData.json` | A2 entry for normal collectables in the Dijiang left-side depot |
 | `assets/resource/pipeline/IMS/item/` | OCR-only nodes (`item_gold` / `item_diamond` / `ORIGEOMETRY.json`) |
 | [IconRecognition](./icon-recognition.md) | Icon matching and `iconRecognition.name.*` |
 

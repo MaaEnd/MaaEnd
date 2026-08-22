@@ -58,6 +58,95 @@
             "AutoCollectLoop"
         ]
     },
+    "AutoCollectInventoryPrepare": {
+        "desc": "目标库存模式：严格执行 IMS 仓库同步，失败时由 on_error 切换为无库存门控的兼容路径",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "SyncDepotItemData"
+                    ],
+                    "strict": true
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectInventoryReady"
+        ],
+        "on_error": [
+            "AutoCollectInventoryFallback"
+        ]
+    },
+    "AutoCollectInventoryReady": {
+        "desc": "仓库同步成功，开始按目标库存筛选采集路线",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectLoop"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoCollect.focus.inventory_ready"
+        }
+    },
+    "AutoCollectInventoryFallback": {
+        "desc": "仓库同步失败：任务级开启库存旁路，所有已勾选路线按原逻辑执行，不使用旧缓存",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "AutoCollectInventoryBypass": {
+                            "recognition": {
+                                "type": "Custom",
+                                "param": {
+                                    "custom_recognition": "ExpressionRecognition",
+                                    "custom_recognition_param": {
+                                        "expression": "1>0"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoCollectLoop"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$task.AutoCollect.focus.inventory_fallback"
+        }
+    },
+    "AutoCollectInventoryBypass": {
+        "desc": "目标库存识别旁路：默认恒不命中，仅仓库同步失败后由任务级覆盖切换为恒命中",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ExpressionRecognition",
+                "custom_recognition_param": {
+                    "expression": "0>1"
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0
+    },
     "AutoCollectLoop": {
         "desc": "依次执行已启用的自动采集路线",
         "next": [
@@ -96,6 +185,30 @@
                 "StashBackpackSubTask"
             ]
         },
+        "next": [
+            "AutoCollectFinish"
+        ]
+    },
+    "AutoCollectInventoryInvalidateSnapshot": {
+        "desc": "目标库存模式结束：重新开启仓库同步入口，确保下一次调用不会复用采集前快照",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "resource_override": true,
+                    "patch": {
+                        "SyncDepotItemDataBegin": {
+                            "enabled": true
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "AutoCollectFinish"
         ]

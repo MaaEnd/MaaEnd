@@ -379,6 +379,9 @@
                         "SyncItemDataBegin": {
                             "enabled": true
                         },
+                        "SyncDepotItemDataBegin": {
+                            "enabled": true
+                        },
                         "SyncShopItemDataBegin": {
                             "enabled": true
                         },

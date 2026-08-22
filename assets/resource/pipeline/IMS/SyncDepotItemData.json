@@ -1,0 +1,421 @@
+{
+    "SyncDepotItemData": {
+        "desc": "IMS A2 仓库入口：业务侧只需调用本节点。首次成功后 Resource 级关闭 SyncDepotItemDataBegin，同 Resource 后续调用走 Skipped",
+        "max_hit": 1,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SyncDepotItemDataBegin",
+            "SyncDepotItemDataSkipped"
+        ]
+    },
+    "SyncDepotItemDataBegin": {
+        "desc": "A2 实际执行入口：进入帝江号仓库背包界面并同步普通采集物；成功后由 SyncDepotItemDataLock 关闭本节点",
+        "enabled": true,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SyncDepotItemDataInBackpack",
+            "[JumpBack]SceneEnterMenuBackpackWithDepot"
+        ]
+    },
+    "SyncDepotItemDataSkipped": {
+        "desc": "本次 Resource 已同步过仓库普通采集物缓存，跳过 A2",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": []
+    },
+    "SyncDepotItemDataInBackpack": {
+        "desc": "确认已在帝江号仓库背包界面，将鼠标移出物品区域后选择全部分类",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InBackpack"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]MouseMoveReset",
+            "SyncDepotItemDataSelectAll"
+        ]
+    },
+    "SyncDepotItemDataSelectAll": {
+        "desc": "选择仓库全部分类，避免沿用用户上次打开仓库时的分类筛选",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    168,
+                    171,
+                    531,
+                    35
+                ],
+                "template": "ItemTransfer/All.png",
+                "threshold": 0.8,
+                "order_by": "Score"
+            }
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                154,
+                202,
+                585,
+                291
+            ],
+            "time": 400,
+            "timeout": 3000
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SyncDepotItemDataResetScrollState"
+        ]
+    },
+    "SyncDepotItemDataResetScrollState": {
+        "desc": "开始新一轮仓库扫描前重置上下边界判断状态",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "SyncDepotItemDataTopReached": {
+                            "attach": {
+                                "ready": false
+                            }
+                        },
+                        "SyncDepotItemDataBottomReached": {
+                            "attach": {
+                                "ready": false
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SyncDepotItemDataScrollbarPresent",
+            "SyncDepotItemDataRunSinglePage"
+        ]
+    },
+    "SyncDepotItemDataScrollbarPresent": {
+        "desc": "识别仓库滚动条；存在时先回到顶部，无滚动条时由后续单页分支处理",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ScrollbarRecognition",
+                "roi": [
+                    713,
+                    216,
+                    5,
+                    262
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SyncDepotItemDataScrollToTop"
+        ]
+    },
+    "SyncDepotItemDataScrollToTop": {
+        "desc": "状态驱动地将仓库列表滚动到顶部",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SyncDepotItemDataTopReached",
+            "SyncDepotItemDataScrollUp"
+        ]
+    },
+    "SyncDepotItemDataTopReached": {
+        "desc": "连续两次滚动条位置不变时判定仓库列表已到顶部",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ScrollbarCompleteRecognition",
+                "custom_recognition_param": {
+                    "position_tolerance": 2
+                },
+                "roi": [
+                    713,
+                    216,
+                    5,
+                    262
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SyncDepotItemDataRunFull"
+        ],
+        "attach": {
+            "ready": false
+        }
+    },
+    "SyncDepotItemDataScrollUp": {
+        "desc": "向上滚动一页后重新判断是否到顶",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Scroll",
+            "param": {
+                "target": [
+                    640,
+                    350
+                ],
+                "dy": 180
+            }
+        },
+        "post_wait_freezes": {
+            "target": [
+                154,
+                202,
+                585,
+                291
+            ],
+            "time": 400,
+            "timeout": 3000
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SyncDepotItemDataScrollToTop"
+        ]
+    },
+    "SyncDepotItemDataRunFull": {
+        "desc": "A2 首页面地区重建：清除并重建仓库普通植物、培养素材和采集材料缓存",
+        "recognition": "DirectHit",
+        "pre_wait_freezes": {
+            "target": [
+                154,
+                202,
+                585,
+                291
+            ],
+            "time": 400,
+            "timeout": 3000
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SyncItemData",
+                "custom_action_param": {
+                    "grid_type": "transfer",
+                    "roi": [
+                        154,
+                        202,
+                        585,
+                        291
+                    ],
+                    "item_filters": [
+                        "Normal:Plant",
+                        "Normal:Nurturance",
+                        "Normal:Doodad"
+                    ],
+                    "page_dedup": false,
+                    "notify_ui": false
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SyncDepotItemDataScanToBottom"
+        ]
+    },
+    "SyncDepotItemDataScanToBottom": {
+        "desc": "逐页扫描仓库列表，滚动条不再移动时结束",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SyncDepotItemDataBottomReached",
+            "SyncDepotItemDataScrollDown"
+        ]
+    },
+    "SyncDepotItemDataBottomReached": {
+        "desc": "连续两次滚动条位置不变时判定仓库列表已到底部",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ScrollbarCompleteRecognition",
+                "custom_recognition_param": {
+                    "position_tolerance": 2
+                },
+                "roi": [
+                    713,
+                    216,
+                    5,
+                    262
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SyncDepotItemDataLock"
+        ],
+        "attach": {
+            "ready": false
+        }
+    },
+    "SyncDepotItemDataScrollDown": {
+        "desc": "向下滚动一页后执行增量扫描",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Scroll",
+            "param": {
+                "target": [
+                    640,
+                    350
+                ],
+                "dy": -180
+            }
+        },
+        "post_wait_freezes": {
+            "target": [
+                154,
+                202,
+                585,
+                291
+            ],
+            "time": 400,
+            "timeout": 3000
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SyncDepotItemDataRunIncremental"
+        ]
+    },
+    "SyncDepotItemDataRunIncremental": {
+        "desc": "A2 后续页面增量扫描：只覆写当前页命中的普通采集物数量",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SyncItemData",
+                "custom_action_param": {
+                    "grid_type": "transfer",
+                    "roi": [
+                        154,
+                        202,
+                        585,
+                        291
+                    ],
+                    "item_filters": [
+                        "Normal:Plant",
+                        "Normal:Nurturance",
+                        "Normal:Doodad"
+                    ],
+                    "page_dedup": true,
+                    "notify_ui": false
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SyncDepotItemDataScanToBottom"
+        ]
+    },
+    "SyncDepotItemDataRunSinglePage": {
+        "desc": "无滚动条时执行单页地区重建扫描",
+        "recognition": "DirectHit",
+        "pre_wait_freezes": {
+            "target": [
+                154,
+                202,
+                585,
+                291
+            ],
+            "time": 400,
+            "timeout": 3000
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SyncItemData",
+                "custom_action_param": {
+                    "grid_type": "transfer",
+                    "roi": [
+                        154,
+                        202,
+                        585,
+                        291
+                    ],
+                    "item_filters": [
+                        "Normal:Plant",
+                        "Normal:Nurturance",
+                        "Normal:Doodad"
+                    ],
+                    "page_dedup": false,
+                    "notify_ui": false
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SyncDepotItemDataLock"
+        ]
+    },
+    "SyncDepotItemDataLock": {
+        "desc": "A2 成功后 Resource 级关闭 SyncDepotItemDataBegin，同 Resource 内不再重复扫描仓库普通采集物",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "resource_override": true,
+                    "patch": {
+                        "SyncDepotItemDataBegin": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": []
+    }
+}
