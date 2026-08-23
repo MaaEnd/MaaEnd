@@ -75,30 +75,25 @@ func (s *Sink) OnTaskerTask(_ *maa.Tasker, event maa.EventStatus, detail maa.Tas
 	case maa.EventStatusFailed:
 		config, ok := getConfigByTask(detail.TaskID)
 		if !ok {
+			// 已发送过失败通知的任务被重复广播（配置已清理）：静默，避免刷 warn
+			if _, notified := notifiedTaskIDs.Load(detail.TaskID); notified {
+				return
+			}
 			log.Warn().Str("component", "Notify").Uint64("task_id", detail.TaskID).Str("entry", detail.Entry).Msg("no cached config for task; failure notification skipped")
 			return
 		}
-		if !config.Enabled() {
+		if config.Enabled() && config.OnFail && shouldNotifyFail(detail.TaskID) {
+			now := time.Now()
+			vars := BuildVars(detail.Entry, i18n.T("notify.status.failed"), now, getStartTime(detail.TaskID))
+			vars["title"] = config.FailTitle
+			vars["body"] = config.FailBody
+			log.Info().Str("component", "Notify").Uint64("task_id", detail.TaskID).Str("entry", detail.Entry).Msg("task failed, sending notify")
+			go Send(config, vars)
+		} else if !config.Enabled() && config.OnFail && shouldNotifyFail(detail.TaskID) {
 			// on_fail 打开但没有启用任何渠道：属于无效配置，提示一次（按 task 去重）
-			if config.OnFail && shouldNotifyFail(detail.TaskID) {
-				log.Warn().Str("component", "Notify").Uint64("task_id", detail.TaskID).Str("entry", detail.Entry).Msg("on_fail enabled but no channel enabled; failure notification will not be delivered")
-			}
-			deleteConfigByTask(detail.TaskID)
-			return
+			log.Warn().Str("component", "Notify").Uint64("task_id", detail.TaskID).Str("entry", detail.Entry).Msg("on_fail enabled but no channel enabled; failure notification will not be delivered")
 		}
-		if !config.OnFail {
-			deleteConfigByTask(detail.TaskID)
-			return
-		}
-		if !shouldNotifyFail(detail.TaskID) {
-			return
-		}
-		now := time.Now()
-		vars := BuildVars(detail.Entry, i18n.T("notify.status.failed"), now, getStartTime(detail.TaskID))
-		vars["title"] = config.FailTitle
-		vars["body"] = config.FailBody
-		log.Info().Str("component", "Notify").Uint64("task_id", detail.TaskID).Str("entry", detail.Entry).Msg("task failed, sending notify")
-		go Send(config, vars)
+		// 无论是否发送，均清理本次任务缓存
 		deleteConfigByTask(detail.TaskID)
 	case maa.EventStatusSucceeded:
 		deleteConfigByTask(detail.TaskID)
