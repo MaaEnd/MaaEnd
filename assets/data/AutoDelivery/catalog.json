@@ -10,8 +10,7 @@
             "id": "domain_1_lv006_depot_1",
             "map": "map01",
             "route_node": "AutoDeliveryRouteDepotDomain1Lv006Depot1",
-            "zip_route_node": "AutoDeliveryRouteDepotDomain1Lv006Depot1WithZipline",
-            "retry_route_node": "AutoDeliveryRouteDepotRetryDomain1Lv006Depot1"
+            "zip_route_node": "AutoDeliveryRouteDepotDomain1Lv006Depot1WithZipline"
         },
         {
             "id": "domain_1_lv007_depot_1",
