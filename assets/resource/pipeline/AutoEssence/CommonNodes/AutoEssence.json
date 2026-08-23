@@ -67,7 +67,8 @@
             // 如果玩家当前已精准处于某个淤积点的交互位置，并且处于奖励待领取的状态
             "AutoEssenceClickObtainButton",
             "AutoEssenceClickDiscardButton",
-            "[JumpBack]AutoEssenceInObtain"
+            "[JumpBack]AutoEssenceInObtain",
+            "AutoEssenceDispatcher"
         ],
         "focus": {
             "Node.Action.Starting": "🧠正在判断交互状态"
@@ -99,6 +100,65 @@
         ],
         "focus": {
             "Node.Action.Starting": "↩️返回大世界"
+        }
+    },
+    "__AutoEssenceInteractOnReturn": {
+        "desc": "返程交互分发器：领取 / 放弃等；未命中则重走返程线路，仍不成再回落到寻路分发",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AutoEssenceClickTriggerButton",
+            "AutoEssenceClickObtainButton",
+            "AutoEssenceClickDiscardButton",
+            "AutoEssenceChooseScaling1",
+            "AutoEssenceConfirmObtain",
+            "[JumpBack]AutoEssenceInObtain",
+            "__AutoEssenceReturnToTriggerPointRetry",
+            "AutoEssenceDispatcher"
+        ],
+        "focus": {
+            "Node.Action.Starting": "🧠正在判断交互状态"
+        }
+    },
+    "__AutoEssenceReturnToTriggerPointRetry": {
+        "desc": "返程未能完成领取的守卫节点，重走返程线路",
+        "max_hit": 8,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "[Anchor]AutoEssenceReturnToTriggerPoint"
+        ]
+    },
+    "__AutoEssenceMistakeFactoryDeviceOnReturn": {
+        "desc": "返程误入工业设备界面，关闭后重走返程线路",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    950,
+                    30,
+                    270,
+                    230
+                ],
+                "template": "AutoEssence/FactoryDeviceDialog.png"
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    50,
+                    5,
+                    -50,
+                    -10
+                ]
+            }
+        },
+        "next": [
+            "__AutoEssenceReturnToTriggerPointRetry"
+        ],
+        "focus": {
+            "Node.Action.Starting": "😕误入工业设备界面，点击关闭按钮"
         }
     },
     "__AutoEssenceRecoEssenceTriggerButton": {
@@ -430,7 +490,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "[Anchor]AutoEssenceMoveToTriggerPoint" // 此 Anchor 最终会走回 AutoEssenceInteract 进行后续的奖励领取等操作
+            "[Anchor]AutoEssenceReturnToTriggerPoint" // 此 Anchor 最终会走回 AutoEssenceInteract 进行后续的奖励领取等操作
         ],
         "focus": {
             "Node.Recognition.Starting": "🔍检查挑战是否结束",

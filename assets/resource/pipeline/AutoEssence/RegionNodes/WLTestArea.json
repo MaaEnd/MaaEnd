@@ -4,7 +4,8 @@
         "pre_delay": 0,
         "anchor": {
             "AutoEssenceMoveToTriggerPoint": "GotoTriggerPointMove_WLTestArea",
-            "AutoEssenceMoveToTriggerPointMaybeTeleport": "GotoTriggerPointMaybeTeleport_WLTestArea"
+            "AutoEssenceMoveToTriggerPointMaybeTeleport": "GotoTriggerPointMaybeTeleport_WLTestArea",
+            "AutoEssenceReturnToTriggerPoint": "GotoTriggerPointReturn_WLTestArea"
         },
         "post_delay": 0,
         "focus": {
@@ -156,6 +157,52 @@
         ],
         "focus": {
             "Node.Action.Starting": "🚶正在前往激发点附近",
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "GotoTriggerPointReturn_WLTestArea": {
+        "desc": "挑战结束后走回淤积点领奖，扫的是领取按钮而不是激发按钮",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "Wuling_L5_321"
+                        },
+                        {
+                            "action": "INTERACT",
+                            "target": [
+                                77.86,
+                                95.66
+                            ],
+                            "target_tier": "Wuling_L5_321",
+                            "interact_text": {
+                                "node": "__AutoEssenceRecoEssenceObtainText"
+                            },
+                            "interact_scan": "__AutoEssenceRecoEssenceObtainButton"
+                        }
+                    ]
+                }
+            }
+        },
+        "post_delay": 1500,
+        "next": [
+            "__AutoEssenceMistakeFactoryDeviceOnReturn",
+            "AutoEssenceChooseScaling1",
+            "AutoEssenceConfirmObtain",
+            "AutoEssenceClickEssenceStartPrepare",
+            "__AutoEssenceInteractOnReturn"
+        ],
+        "focus": {
+            "Node.Action.Starting": "🚶正在走回淤积点领取奖励",
             "Node.Action.Succeeded": {
                 "trace": true
             },
