@@ -45,7 +45,10 @@ func TestParseConfig(t *testing.T) {
 			"fail_title": "任务失败",
 			"fail_body": "任务 {{task_name}} 失败于 {{datetime}}",
 			"task_title": "通知标题",
-			"task_body": "通知正文"
+			"task_body": "通知正文",
+			"task_notify_key": "monthly_card",
+			"task_notify.monthly_card": false,
+			"task_notify.survey": true
 		}
 	}`
 	config, err := ParseConfig(nodeJSON)
@@ -72,6 +75,15 @@ func TestParseConfig(t *testing.T) {
 	}
 	if config.TaskTitle != "通知标题" || config.TaskBody != "通知正文" {
 		t.Errorf("task template parse mismatch: %+v", config)
+	}
+	if config.TaskNotifyKey != "monthly_card" {
+		t.Errorf("task_notify_key mismatch: %+v", config)
+	}
+	if v, ok := config.TaskNotifyToggles["monthly_card"]; !ok || v {
+		t.Errorf("task_notify.monthly_card toggle mismatch: %+v", config.TaskNotifyToggles)
+	}
+	if v, ok := config.TaskNotifyToggles["survey"]; !ok || !v {
+		t.Errorf("task_notify.survey toggle mismatch: %+v", config.TaskNotifyToggles)
 	}
 	if !config.Enabled() {
 		t.Errorf("expected enabled")
@@ -645,8 +657,9 @@ func TestMergeConfig(t *testing.T) {
 	global := Config{
 		WebhookEnabled: true, BarkEnabled: true, ServerChanEnabled: true,
 		TaskTitle: "全局标题", TaskBody: "全局正文", TaskTitleKey: "global.title.key",
+		TaskNotifyToggles: map[string]bool{"monthly_card": true},
 	}
-	local := Config{TaskTitle: "本地标题", TaskTitleKey: "local.title.key"}
+	local := Config{TaskTitle: "本地标题", TaskTitleKey: "local.title.key", TaskNotifyKey: "monthly_card"}
 
 	merged := mergeConfig(global, local)
 	// 渠道字段以全局为准
@@ -657,6 +670,10 @@ func TestMergeConfig(t *testing.T) {
 	if merged.TaskTitle != "本地标题" || merged.TaskTitleKey != "local.title.key" {
 		t.Errorf("content should prefer local: %+v", merged)
 	}
+	// 通知项 ID 本地优先
+	if merged.TaskNotifyKey != "monthly_card" {
+		t.Errorf("task_notify_key should prefer local: %+v", merged)
+	}
 	// 本地未写的字段回退全局
 	if merged.TaskBody != "全局正文" {
 		t.Errorf("content should fall back to global: %+v", merged)
@@ -665,6 +682,32 @@ func TestMergeConfig(t *testing.T) {
 	// 本地内容全空：不覆盖全局
 	if merged2 := mergeConfig(global, Config{}); merged2.TaskTitle != "全局标题" || merged2.TaskTitleKey != "global.title.key" {
 		t.Errorf("empty local should not override global: %+v", merged2)
+	}
+}
+
+func TestTaskNotifySkipped(t *testing.T) {
+	// 未声明 task_notify_key：不判断，发送
+	if taskNotifySkipped(Config{TaskNotifyToggles: map[string]bool{"monthly_card": false}}) {
+		t.Errorf("no key should not skip")
+	}
+	// 声明了 key 但设置页未配置：默认启用，发送
+	if taskNotifySkipped(Config{TaskNotifyKey: "monthly_card"}) {
+		t.Errorf("unconfigured item should default to enabled")
+	}
+	if taskNotifySkipped(Config{TaskNotifyKey: "monthly_card", TaskNotifyToggles: map[string]bool{}}) {
+		t.Errorf("empty toggles should default to enabled")
+	}
+	// 设置页显式启用：发送
+	if taskNotifySkipped(Config{TaskNotifyKey: "monthly_card", TaskNotifyToggles: map[string]bool{"monthly_card": true}}) {
+		t.Errorf("enabled item should not skip")
+	}
+	// 设置页显式关闭：跳过
+	if !taskNotifySkipped(Config{TaskNotifyKey: "monthly_card", TaskNotifyToggles: map[string]bool{"monthly_card": false}}) {
+		t.Errorf("disabled item should skip")
+	}
+	// 其他通知项开关不影响本通知项
+	if taskNotifySkipped(Config{TaskNotifyKey: "monthly_card", TaskNotifyToggles: map[string]bool{"survey": false}}) {
+		t.Errorf("other item toggle should not affect this item")
 	}
 }
 

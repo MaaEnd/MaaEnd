@@ -75,20 +75,55 @@ type Config struct {
 	TaskTitle    string `json:"task_title"`     // 标题模板（原文）
 	TaskBody     string `json:"task_body"`      // 正文模板（原文）
 
-	// AllowTaskNotify 设置页总开关：是否允许任务/节点通过 NotifySendAction 发送自定义通知。
-	// nil=未配置（默认允许，不破坏旧行为）；设置页关闭时写入 false。
+	// AllowTaskNotify 设置页总开关（收纳开关）：是否允许任务/节点通过 NotifySendAction 发送自定义通知。
+	// nil=未配置（默认允许，不破坏旧行为）；设置页关闭时写入 false，同时收起所有通知项分项开关。
 	AllowTaskNotify *bool `json:"allow_task_notify"`
+
+	// TaskNotifyKey 通知项标识（调用节点 attach 写入，如 "monthly_card"）：配合设置页的
+	// 通知项分项开关（attach 顶层键 "task_notify.<id>"）决定该通知项是否被用户关闭。
+	TaskNotifyKey string `json:"task_notify_key"`
+
+	// TaskNotifyToggles 通知项开关表：键为通知项 ID，值为设置页配置的开关。
+	// 由 ParseConfig 从 attach 顶层 "task_notify.<id>" 键收集；未配置的通知项默认启用。
+	TaskNotifyToggles map[string]bool `json:"-"`
 }
 
-// ParseConfig 从节点 JSON（含 attach）解析通知配置。
+// ParseConfig 从节点 JSON（含 attach）解析通知配置，并收集 "task_notify.<id>" 通知项开关。
 func ParseConfig(nodeJSON string) (Config, error) {
 	var node struct {
-		Attach Config `json:"attach"`
+		Attach json.RawMessage `json:"attach"`
 	}
 	if err := json.Unmarshal([]byte(nodeJSON), &node); err != nil {
 		return Config{}, err
 	}
-	return node.Attach, nil
+	var config Config
+	if len(node.Attach) > 0 {
+		if err := json.Unmarshal(node.Attach, &config); err != nil {
+			return Config{}, err
+		}
+		config.TaskNotifyToggles = parseTaskNotifyToggles(node.Attach)
+	}
+	return config, nil
+}
+
+// parseTaskNotifyToggles 从 attach 顶层键中提取 "task_notify.<id>" 形式的通知项开关。
+// attach 合并按顶层 key 进行，每个通知项独立一个键，互不覆盖。
+func parseTaskNotifyToggles(attach json.RawMessage) map[string]bool {
+	var raw map[string]any
+	if err := json.Unmarshal(attach, &raw); err != nil {
+		return nil
+	}
+	toggles := make(map[string]bool)
+	for key, value := range raw {
+		id, ok := strings.CutPrefix(key, "task_notify.")
+		if !ok || id == "" {
+			continue
+		}
+		if v, ok := value.(bool); ok {
+			toggles[id] = v
+		}
+	}
+	return toggles
 }
 
 // Enabled 返回配置中是否有至少一个已注册且启用的渠道。
@@ -212,6 +247,12 @@ func (a *NotifySendAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		return true
 	}
 
+	// 通知项级开关：节点声明了 task_notify_key 时，按设置页分项开关判断，未配置默认启用
+	if taskNotifySkipped(config) {
+		log.Debug().Str("component", "NotifySendAction").Str("item", config.TaskNotifyKey).Msg("notify item disabled by setting, skip")
+		return true
+	}
+
 	vars := BuildVars(arg.CurrentTaskName, "", time.Now(), getControllerStartTime())
 	vars["title"] = resolveNotifyText(config.TaskTitleKey, config.TaskTitle, vars)
 	vars["body"] = resolveNotifyText(config.TaskBodyKey, config.TaskBody, vars)
@@ -236,7 +277,21 @@ func mergeConfig(global, local Config) Config {
 	if local.TaskBody != "" {
 		global.TaskBody = local.TaskBody
 	}
+	if local.TaskNotifyKey != "" {
+		global.TaskNotifyKey = local.TaskNotifyKey
+	}
 	return global
+}
+
+// taskNotifySkipped 判断通知项级开关是否跳过发送：
+// 未声明 task_notify_key 不判断；声明了但设置页未配置该通知项开关时默认启用。
+func taskNotifySkipped(config Config) bool {
+	key := config.TaskNotifyKey
+	if key == "" {
+		return false
+	}
+	enabled, ok := config.TaskNotifyToggles[key]
+	return ok && !enabled
 }
 
 // resolveNotifyText 解析标题/正文：i18n key 查到翻译时用翻译（再做变量替换），
