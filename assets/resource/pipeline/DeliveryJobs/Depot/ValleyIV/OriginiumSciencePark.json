@@ -71,6 +71,71 @@
             "DeliveryJobsClickTransferJob"
         ]
     },
+    "DeliveryJobsOpenOngoingAutoDeliveryOriginiumSciencePark": {
+        "desc": "检测到已有送货任务，返回源石研究园打开任务详情继续全自动送货",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "anchor": {
+            "DeliveryJobsAfterViewCurrentJob": "DeliveryJobsAutoDeliveryOriginiumSciencePark"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsReturnAndViewOriginiumScienceParkCurrentJob"
+        ]
+    },
+    "DeliveryJobsAutoDeliveryOriginiumSciencePark": {
+        "desc": "从源石研究园当前任务详情开始全自动送货",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "anchor": {
+            "AutoDeliveryAfterSubmitGoods": "DeliveryJobsValleyIVLoop"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsAutoDeliveryGuard",
+            "AutoDelivery"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DeliveryJobs.AutoDeliveryStart"
+        }
+    },
+    "DeliveryJobsReturnAndViewOriginiumScienceParkCurrentJob": {
+        "desc": "返回源石研究园本地仓储节点查看当前送货任务",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsViewOriginiumScienceParkCurrentJob"
+        ]
+    },
+    "DeliveryJobsViewOriginiumScienceParkCurrentJob": {
+        "desc": "源石研究园：从本地仓储节点查看当前送货任务",
+        "recognition": "And",
+        "all_of": [
+            "DeliveryJobsCheckLocalDepotNodeOriginiumScienceParkText",
+            "DeliveryJobsCheckOriginiumScienceParkDeliveryJob"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]DeliveryJobsAfterViewCurrentJob"
+        ]
+    },
     "DeliveryJobsCheckLocalDepotNodeOriginiumScienceParkText": {
         "desc": "检查本地仓储节点中是否有源石研究园",
         "recognition": "OCR",
@@ -132,6 +197,7 @@
             "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsValleyIV",
             "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
             "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStopForOngoingDelivery",
+            "DeliveryJobsAfterAcceptJob": "DeliveryJobsDeliverQuickly",
             "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
         },
         "post_delay": 0,

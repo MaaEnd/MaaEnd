@@ -1,0 +1,14 @@
+{
+    "DeliveryJobsAutoDeliveryGuard": {
+        "desc": "未确认全自动送货风险时停止任务（由任务选项控制）",
+        "enabled": true,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "StopTask",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Starting": "$task.DeliveryJobs.AutoDeliveryGuard"
+        }
+    }
+}
