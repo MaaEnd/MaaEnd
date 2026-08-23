@@ -461,7 +461,7 @@ func (a *NotifySendAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 
 	applyTaskToggle(&config)
 
-	vars := BuildVars(arg.CurrentTaskName, "", time.Now(), time.Time{})
+	vars := BuildVars(arg.CurrentTaskName, "", time.Now(), getStartTime(uint64(arg.TaskID)))
 	vars["title"] = config.TaskTitle
 	vars["body"] = config.TaskBody
 	Send(config, vars)
