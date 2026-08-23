@@ -1,0 +1,8 @@
+{
+    "template": "priority-template.jsonc",
+    "data": "priority-data.mjs",
+    "outputDir": "../../../assets/resource/pipeline/DeliveryJobs",
+    "outputFile": "PriorityItems.json",
+    "format": true,
+    "merged": true
+}

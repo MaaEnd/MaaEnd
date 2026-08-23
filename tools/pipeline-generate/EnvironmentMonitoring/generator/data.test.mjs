@@ -9,10 +9,10 @@ function buildDirectPhotoRow(hasHeading, quickTeleport = false) {
         Id: "TestMission",
         Name: "测试观察点",
         LocalizedName: {
-            "zh-CN": "测试观察点",
+            zh_cn: "测试观察点",
         },
         ShotTargetName: {
-            "zh-CN": "测试目标",
+            zh_cn: "测试目标",
         },
         route: {
             isAdapted: true,
@@ -23,8 +23,6 @@ function buildDirectPhotoRow(hasHeading, quickTeleport = false) {
             EnterMap: "SceneEnterWorldTest",
             MapAssertRecognition: "MapTrackerAssertLocation",
             MapAssertParam: {},
-            CameraSwipeDirection: "EnvironmentMonitoringSwipeScreenUp",
-            CameraMaxHit: 2,
             Replace: [],
             RouteAction: "MapTrackerToward",
             RouteActionParam: hasHeading ? {angle: 90} : {},

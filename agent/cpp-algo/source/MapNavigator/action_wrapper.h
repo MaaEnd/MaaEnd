@@ -24,14 +24,17 @@ public:
     bool is_supported() const;
     const char* unsupported_reason() const;
     double DefaultTurnUnitsPerDegree() const;
+    double DefaultPitchUnitsPerDegree() const;
     SteeringTransportProfile SteeringProfile() const;
     bool SupportsSprint() const;
+    bool SupportsWalkToggle() const;
 
     void SetMovementStateSync(bool forward, bool left, bool backward, bool right, int delay_millis);
     void TriggerJumpSync(int hold_millis);
     void TriggerInteractSync(int hold_millis);
     void PulseForwardSync(int hold_millis);
     void TriggerSprintSync();
+    void ToggleWalkModeSync();
     void ResetForwardWalkSync(int release_millis);
     void ClickMouseLeftSync();
 

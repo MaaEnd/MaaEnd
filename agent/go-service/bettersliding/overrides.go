@@ -24,6 +24,46 @@ func buildSwipeEnd(direction string) ([]int, error) {
 	}
 }
 
+// buildResetSwipeEnd returns the minimum-side end coordinate for the reset swipe.
+func buildResetSwipeEnd(direction string) ([]int, error) {
+	switch direction {
+	case "right", "up":
+		return []int{10, 700, 10, 10}, nil
+	case "left", "down":
+		return []int{1260, 10, 10, 10}, nil
+	default:
+		return nil, fmt.Errorf("unsupported direction %q", direction)
+	}
+}
+
+// buildResetSwipeOverride builds the pipeline override for the reset flow.
+// The BetterSlidingFindSwipeForReset gate controls whether the reset swipe runs;
+// BetterSlidingReset itself only gets its end overridden in the same multi-segment
+// style as BetterSlidingSwipeToMax, keeping the pipeline-defined begin anchored at
+// the just-recognized slider position.
+func buildResetSwipeOverride(direction string, enabled bool) (map[string]any, error) {
+	end, err := buildResetSwipeEnd(direction)
+	if err != nil {
+		return nil, err
+	}
+
+	return map[string]any{
+		nodeBetterSlidingFindSwipeForReset: map[string]any{
+			"enabled": enabled,
+		},
+		nodeBetterSlidingReset: map[string]any{
+			"action": map[string]any{
+				"param": map[string]any{
+					"end": []any{
+						nodeBetterSlidingFindSwipeForReset,
+						append([]int(nil), end...),
+					},
+				},
+			},
+		},
+	}, nil
+}
+
 func buildMainInitializationOverride(
 	end []int,
 	sliderQuantityBox []int,
@@ -34,7 +74,6 @@ func buildMainInitializationOverride(
 	sliderQuantityOnlyRec bool,
 	availableQuantityOnlyRec bool,
 	swipeButton string,
-	greenMask bool,
 ) map[string]any {
 	override := map[string]any{
 		nodeBetterSlidingSwipeToMax: map[string]any{
@@ -54,7 +93,7 @@ func buildMainInitializationOverride(
 			"recognition": map[string]any{
 				"param": map[string]any{
 					"template":   []string{swipeButton},
-					"green_mask": greenMask,
+					"green_mask": defaultGreenMask,
 				},
 			},
 		}
@@ -119,7 +158,7 @@ func buildMainInitializationOverride(
 	return override
 }
 
-func buildCheckQuantityBranchOverride(nextNode string, target buttonTarget, repeat int, greenMask bool) map[string]any {
+func buildCheckQuantityBranchOverride(nextNode string, target buttonTarget, repeat int) map[string]any {
 	if nextNode != nodeBetterSlidingIncreaseQuantity && nextNode != nodeBetterSlidingDecreaseQuantity {
 		return map[string]any{}
 	}
@@ -130,7 +169,7 @@ func buildCheckQuantityBranchOverride(nextNode string, target buttonTarget, repe
 
 	if target.template != "" {
 		helperNode := resolveButtonHelperNode(nextNode)
-		override[helperNode] = buildTemplateMatchButtonHelperOverride(target.template, greenMask)
+		override[helperNode] = buildTemplateMatchButtonHelperOverride(target.template)
 		override[nextNode] = buildTemplateMatchButtonOverride(helperNode, repeat)
 		return override
 	}
@@ -147,8 +186,8 @@ func buildCheckQuantityBranchOverride(nextNode string, target buttonTarget, repe
 	return override
 }
 
-func overrideCheckQuantityBranch(ctx *maa.Context, currentNode string, nextNode string, target buttonTarget, repeat int, greenMask bool) error {
-	if override := buildCheckQuantityBranchOverride(nextNode, target, repeat, greenMask); len(override) > 0 {
+func overrideCheckQuantityBranch(ctx *maa.Context, currentNode string, nextNode string, target buttonTarget, repeat int) error {
+	if override := buildCheckQuantityBranchOverride(nextNode, target, repeat); len(override) > 0 {
 		if err := ctx.OverridePipeline(override); err != nil {
 			return fmt.Errorf("%w: %w", errCheckQuantityBranchPipelineOverride, err)
 		}
@@ -188,12 +227,12 @@ func buildNodeEnableOverride(nodeName string, enabled bool) map[string]any {
 	}
 }
 
-func buildTemplateMatchButtonHelperOverride(template string, greenMask bool) map[string]any {
+func buildTemplateMatchButtonHelperOverride(template string) map[string]any {
 	return map[string]any{
 		"recognition": map[string]any{
 			"param": map[string]any{
 				"template":   []string{template},
-				"green_mask": greenMask,
+				"green_mask": defaultGreenMask,
 			},
 		},
 	}

@@ -30,7 +30,7 @@ func matchTemplateAll(ctx *maa.Context, img image.Image, template string, roi []
 		nodeName: map[string]any{
 			"recognition": "TemplateMatch",
 			"template":    template,
-			"threshold":   0.7,
+			"threshold":   0.667,
 			"roi":         roi,
 			"order_by":    "score",
 			"method":      5, // TM_CCOEFF_NORMED

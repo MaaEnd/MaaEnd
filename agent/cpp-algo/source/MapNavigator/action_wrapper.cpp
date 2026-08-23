@@ -43,6 +43,11 @@ double ActionWrapper::DefaultTurnUnitsPerDegree() const
     return backend_->default_turn_units_per_degree();
 }
 
+double ActionWrapper::DefaultPitchUnitsPerDegree() const
+{
+    return backend_->default_pitch_units_per_degree();
+}
+
 SteeringTransportProfile ActionWrapper::SteeringProfile() const
 {
     return backend_->steering_transport_profile();
@@ -51,6 +56,11 @@ SteeringTransportProfile ActionWrapper::SteeringProfile() const
 bool ActionWrapper::SupportsSprint() const
 {
     return backend_->supports_sprint();
+}
+
+bool ActionWrapper::SupportsWalkToggle() const
+{
+    return backend_->supports_walk_toggle();
 }
 
 void ActionWrapper::SetMovementStateSync(bool forward, bool left, bool backward, bool right, int delay_millis)
@@ -76,6 +86,11 @@ void ActionWrapper::PulseForwardSync(int hold_millis)
 void ActionWrapper::TriggerSprintSync()
 {
     backend_->TriggerSprintSync();
+}
+
+void ActionWrapper::ToggleWalkModeSync()
+{
+    backend_->ToggleWalkModeSync();
 }
 
 void ActionWrapper::ResetForwardWalkSync(int release_millis)

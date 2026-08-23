@@ -1,0 +1,414 @@
+{
+    "MapNavigatorObstacleDevice": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__MapNavigatorObstacleDevice_InteractPre",
+            "__MapNavigatorObstacleDevice_NoHit"
+        ]
+    },
+    "__MapNavigatorObstacleDevice_NoHit": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            // Finish pipeline execution
+        ]
+    },
+    "__MapNavigatorObstacleDevice_InteractPre": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    760,
+                    330,
+                    170,
+                    310
+                ],
+                "template": [
+                    "MapNavigator/ObstacleDevice/InteractButton.png"
+                ],
+                "order_by": "Score"
+            }
+        },
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 18 // Alt
+            }
+        },
+        "next": [
+            "__MapNavigatorObstacleDevice_Interact"
+        ]
+    },
+    "__MapNavigatorObstacleDevice_Interact": {
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": "__MapNavigatorObstacleDevice_InteractPre"
+            }
+        },
+        "next": [
+            "__MapNavigatorObstacleDevice_InteractPost"
+        ]
+    },
+    "__MapNavigatorObstacleDevice_InteractPost": {
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 18 // Alt
+            }
+        },
+        // 设备框内容淡入慢：实测点击后 0.79s 时按钮只有 0.53~0.65 认不出，1.28s 已到 0.97。
+        // 等淡入结束再看，否则会落到兜底的关闭按钮上，框刚开就被关掉。
+        "post_delay": 1000,
+        "timeout": 5000,
+        "rate_limit": 500,
+        "next": [
+            "__MapNavigatorObstacleDevice_DeleteDevice",
+            "__MapNavigatorObstacleDevice_MoveDevice",
+            "__MapNavigatorObstacleDevice_MoveAICCore",
+            "__MapNavigatorObstacleDevice_SkipChat",
+            "__MapNavigatorObstacleDevice_CloseBagDialog",
+            "__MapNavigatorObstacleDevice_CloseUnknownDeviceDialog"
+        ]
+    },
+    "__MapNavigatorObstacleDevice_IsInFactoryDeviceDialog": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    950,
+                    30,
+                    270,
+                    230
+                ],
+                "template": [
+                    "MapNavigator/ObstacleDevice/FactoryDeviceDialog.png"
+                ],
+                "order_by": "Score"
+            }
+        }
+    },
+    "__MapNavigatorObstacleDevice_IsDeleteSharedDeviceButton": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    700,
+                    120,
+                    200,
+                    180
+                ],
+                "template": [
+                    "MapNavigator/ObstacleDevice/DeleteSharedDeviceButton.png"
+                ],
+                "order_by": "Score"
+            }
+        }
+    },
+    "__MapNavigatorObstacleDevice_IsMoveDeviceButton": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    700,
+                    120,
+                    200,
+                    180
+                ],
+                "template": [
+                    "MapNavigator/ObstacleDevice/MoveDeviceButton.png"
+                ],
+                "order_by": "Score"
+            }
+        }
+    },
+    "__MapNavigatorObstacleDevice_IsInAICCoreDialog": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    10,
+                    560,
+                    130,
+                    150
+                ],
+                "template": [
+                    "MapNavigator/ObstacleDevice/AICCoreDialog.png"
+                ],
+                "order_by": "Score"
+            }
+        }
+    },
+    "__MapNavigatorObstacleDevice_IsMoveAICCoreButton": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    530,
+                    580,
+                    130,
+                    120
+                ],
+                "template": [
+                    "MapNavigator/ObstacleDevice/MoveAICCoreButton.png"
+                ],
+                "order_by": "Score"
+            }
+        }
+    },
+    "__MapNavigatorObstacleDevice_IsInChatDialog": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    20,
+                    20,
+                    90,
+                    90
+                ],
+                "template": [
+                    "MapNavigator/ObstacleDevice/ChatDialog.png"
+                ],
+                "green_mask": true,
+                "threshold": 0.6,
+                "order_by": "Score"
+            }
+        }
+    },
+    "__MapNavigatorObstacleDevice_IsSkipChatButton": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1190,
+                    10,
+                    90,
+                    90
+                ],
+                "template": [
+                    "MapNavigator/ObstacleDevice/SkipChatButton.png"
+                ],
+                "green_mask": true,
+                "threshold": 0.6,
+                "order_by": "Score"
+            }
+        }
+    },
+    "__MapNavigatorObstacleDevice_IsInBagDialog": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    700,
+                    70,
+                    130,
+                    130
+                ],
+                "template": [
+                    "MapNavigator/ObstacleDevice/BagDialog.png"
+                ],
+                "order_by": "Score"
+            }
+        }
+    },
+    "__MapNavigatorObstacleDevice_IsCloseBagDialogButton": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1050,
+                    70,
+                    130,
+                    130
+                ],
+                "template": [
+                    "MapNavigator/ObstacleDevice/CloseBagDialogButton.png"
+                ],
+                "order_by": "Score"
+            }
+        }
+    },
+    "__MapNavigatorObstacleDevice_DeleteDevice": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__MapNavigatorObstacleDevice_IsInFactoryDeviceDialog",
+                    "__MapNavigatorObstacleDevice_IsDeleteSharedDeviceButton"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "target": [
+                520,
+                300,
+                240,
+                120
+            ],
+            "time": 500,
+            "timeout": 10000
+        },
+        "next": [
+            "__MapNavigatorObstacleDevice_DeleteDeviceConfirm"
+        ]
+    },
+    "__MapNavigatorObstacleDevice_DeleteDeviceConfirm": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    750,
+                    390,
+                    170,
+                    160
+                ],
+                "template": [
+                    "Common/Button/YellowConfirmButtonType1.png",
+                    "Common/Button/YellowConfirmButtonType1Hover.png"
+                ],
+                "order_by": "Score"
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 500
+    },
+    "__MapNavigatorObstacleDevice_MoveDevice": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__MapNavigatorObstacleDevice_IsInFactoryDeviceDialog",
+                    "__MapNavigatorObstacleDevice_IsMoveDeviceButton"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 300,
+        "next": [
+            "__MapNavigatorObstacleDevice_CancelMove"
+        ]
+    },
+    "__MapNavigatorObstacleDevice_MoveAICCore": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__MapNavigatorObstacleDevice_IsInAICCoreDialog",
+                    "__MapNavigatorObstacleDevice_IsMoveAICCoreButton"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 1500,
+        "next": [
+            "__MapNavigatorObstacleDevice_CancelMove"
+        ]
+    },
+    "__MapNavigatorObstacleDevice_CancelMove": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 27 // Esc
+            }
+        }
+    },
+    "__MapNavigatorObstacleDevice_SkipChat": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__MapNavigatorObstacleDevice_IsInChatDialog",
+                    "__MapNavigatorObstacleDevice_IsSkipChatButton"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "target": [
+                520,
+                300,
+                240,
+                120
+            ],
+            "time": 500,
+            "timeout": 10000
+        },
+        "next": [
+            "__MapNavigatorObstacleDevice_SkipChatConfirm"
+        ]
+    },
+    "__MapNavigatorObstacleDevice_SkipChatConfirm": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    750,
+                    390,
+                    170,
+                    160
+                ],
+                "template": [
+                    "Common/Button/YellowConfirmButtonType1.png",
+                    "Common/Button/YellowConfirmButtonType1Hover.png"
+                ],
+                "order_by": "Score"
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 500
+    },
+    "__MapNavigatorObstacleDevice_CloseBagDialog": {
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__MapNavigatorObstacleDevice_IsInBagDialog",
+                    "__MapNavigatorObstacleDevice_IsCloseBagDialogButton"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click"
+        }
+    },
+    "__MapNavigatorObstacleDevice_CloseUnknownDeviceDialog": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    1050,
+                    70,
+                    130,
+                    130
+                ],
+                "template": [
+                    "MapNavigator/ObstacleDevice/CloseUnknownDeviceButton.png"
+                ],
+                "order_by": "Score"
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 500
+    }
+}

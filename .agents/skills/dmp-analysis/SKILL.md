@@ -9,6 +9,7 @@ description: 分析 Windows 崩溃转储文件（.dmp），诊断 MaaEnd 及其�
 
 - Windows minidump (.dmp) files from MaaEnd.
 - `MaaEnd.dmp` crashes almost always originate in **MaaFramework** (C++) or **MXU** (Rust/Tauri), not MaaEnd's Go code.
+- MaaEnd 自有 agent 是独立进程，崩溃时产生各自的 DMP：`cpp-algo.exe.<pid>.dmp`、`go-service.exe.<pid>.dmp`，符号来自 MaaEnd 自己的 Actions artifact（见 5.3 节，不随 release 发布）。
 - Only x86_64 covered below; for aarch64, substitute `x86_64` → `aarch64` in all download URLs.
 
 ## Prerequisites
@@ -64,16 +65,17 @@ Match this with `maafw.log` entries tagged `[Px18188]` to pinpoint the exact cra
 
 DMP module version info is frequently empty/unavailable. Prefer log and config sources:
 
-| Priority | Source                          | How                                                             |
-| -------- | ------------------------------- | --------------------------------------------------------------- |
-| 1        | `mxu-tauri.log`                 | `maa_init success, version: v5.x.x`                             |
-| 2        | `go-service.log`                | `client_maafw_version` / `client_version` in PI environment log |
-| 3        | Config files from logs package  | `interface.json`, `maa_option.json`                             |
-| 4        | Issue text                      | User-reported version                                           |
-| 5        | Module list in stackwalk output | Version column (often shows `?`)                                |
+| Priority | Source | How |
+| --- | --- | --- |
+| 1 | `mxu-tauri.log` | `maa_init success, version: v5.x.x` |
+| 2 | `go-service.log` | `client_maafw_version` / `client_version` in PI environment log |
+| 3 | Config files from logs package | `interface.json`, `maa_option.json` |
+| 4 | Issue text | User-reported version |
+| 5 | Module list in stackwalk output | Version column (often shows `?`) |
 
 Record:
 
+- **MaaEnd version** (e.g. `v0.8.0`; used to fetch MaaEnd symbols in 5.3)
 - **MaaFramework version** (e.g. `5.9.2`)
 - **MXU version** (e.g. `1.21.2`)
 
@@ -90,17 +92,17 @@ unzip -joq "$WORK/maa-fw.zip" 'symbol/*.pdb' -d "$WORK/pdb/"
 
 PDB files inside `symbol/`:
 
-| PDB                     | Corresponding Module                                    |
-| ----------------------- | ------------------------------------------------------- |
-| MaaFramework.pdb        | MaaFramework.dll — core pipeline runtime                |
-| MaaUtils.pdb            | MaaUtils.dll — utility library                          |
-| MaaToolkit.pdb          | MaaToolkit.dll — toolkit                                |
-| MaaWin32ControlUnit.pdb | MaaWin32ControlUnit.dll — Win32 controller              |
-| MaaAdbControlUnit.pdb   | MaaAdbControlUnit.dll — ADB controller                  |
-| MaaAgentServer.pdb      | MaaAgentServer.dll — agent server                       |
-| MaaAgentClient.pdb      | MaaAgentClient.dll — agent client                       |
-| MaaPiCli.pdb            | MaaPiCli.exe — CLI entry                                |
-| Others                  | GamepadControlUnit, CustomControlUnit, NodeServer, Node |
+| PDB | Corresponding Module |
+| --- | --- |
+| MaaFramework.pdb | MaaFramework.dll — core pipeline runtime |
+| MaaUtils.pdb | MaaUtils.dll — utility library |
+| MaaToolkit.pdb | MaaToolkit.dll — toolkit |
+| MaaWin32ControlUnit.pdb | MaaWin32ControlUnit.dll — Win32 controller |
+| MaaAdbControlUnit.pdb | MaaAdbControlUnit.dll — ADB controller |
+| MaaAgentServer.pdb | MaaAgentServer.dll — agent server |
+| MaaAgentClient.pdb | MaaAgentClient.dll — agent client |
+| MaaPiCli.pdb | MaaPiCli.exe — CLI entry |
+| Others | GamepadControlUnit, CustomControlUnit, NodeServer, Node |
 
 #### MXU
 
@@ -112,6 +114,48 @@ unzip -joq "$WORK/mxu.zip" 'mxu.pdb' -d "$WORK/pdb/"
 ```
 
 `mxu.pdb` is at the zip root (≈230 MB).
+
+#### MaaEnd（自有符号）
+
+MaaEnd 构建产出独立符号包，**仅存 Actions artifact（默认保留 90 天），不随 release 发布**。artifact 名即版本：`MaaEnd-pdb-win-<arch>-<tag>`，按 `client_version` 精确匹配：
+
+```bash
+MAAEND_VER="<version>"   # e.g. v0.8.0，与 interface.json 中 version 一致
+# 1) 按版本号定位最新 artifact id（--paginate 翻页；同名多次构建时按 created_at 取最新；若返回空说明已过期）
+ART_ID=$(gh api --paginate "repos/MaaEnd/MaaEnd/actions/artifacts?per_page=100" \
+  --jq '.artifacts[] | select(.name == "MaaEnd-pdb-win-x86_64-'"${MAAEND_VER}"'") | [.id, .created_at] | @tsv' \
+  | sort -k2 | tail -1 | cut -f1)
+[ -n "$ART_ID" ] || { echo "symbol artifact expired or not found (90-day retention)"; exit 1; }
+# 2) 下载并解压（GH_TOKEN 需有 actions:read 权限）
+curl -sL -H "Authorization: Bearer $GH_TOKEN" \
+  "https://api.github.com/repos/MaaEnd/MaaEnd/actions/artifacts/$ART_ID/zip" \
+  -o "$WORK/maaend-pdb.zip"
+unzip -joq "$WORK/maaend-pdb.zip" -d "$WORK/maaend-pdb/"
+```
+
+> artifact 过期后无法再下载，需在对应版本提交上本地构建生成符号（`python tools/build_and_install.py --cpp-algo`）。注意：本地构建的 PDB GUID 与用户崩溃时的二进制不一致，只能近似符号化（函数级）；且该命令只构建 cpp-algo，go-service 需另行执行 Go 构建。
+
+包内内容：
+
+| 文件 | 对应模块 | 用途 |
+| --- | --- | --- |
+| `cpp-algo.pdb` | `cpp-algo.exe`（C++ 自定义识别/动作 agent，独立进程） | dump_syms → .sym（与 MaaFramework PDB 流程相同） |
+| `go-service.exe` | `go-service.exe`（Go agent，独立进程） | **Go 工具链不产出 PDB**；该二进制为未剥离 DWARF 的精确构建产物，即调试符号本体 |
+| `symbols-manifest.json` | — | tag / commit / 上游版本，用于版本精确配对与校验 |
+
+- 崩溃模块为 `cpp-algo.exe`：按第 6 节流程转换 `cpp-algo.pdb`。
+- 崩溃模块为 `go-service.exe`：minidump-stackwalk 无法直接符号化 Go 二进制。从无符号输出中取栈帧地址（格式 `go-service.exe + 0xXXXX`，模块内相对偏移 RVA），**推荐用 gdb 解析**（自动处理重定位，无需手工换算）：
+
+  ```bash
+  gdb -batch -ex "core-file $WORK/MaaEnd.dmp" -ex "bt" "$WORK/maaend-pdb/go-service.exe"
+  ```
+
+  或用 `go tool addr2line`（注意：无 `-e` 参数，地址从 stdin 读取，且必须传完整虚拟地址）。Go amd64 PE 默认 image base 为 `0x140000000`，栈帧里的 RVA 需先换算成完整 VA 再传入：
+
+  ```bash
+  # 0xXXXX 替换为栈帧中的 RVA；换算后再解析（实测确认：传纯 RVA 会得到 ? / ?:0）
+  printf '0x%x\n' $((0x140000000 + 0xXXXX)) | go tool addr2line "$WORK/maaend-pdb/go-service.exe"
+  ```
 
 ### 6. Convert PDB → Breakpad .sym
 
@@ -152,6 +196,8 @@ Now stack traces include function names, source paths, and line numbers.
 3. **Faulting module ownership**:
     - `Maa*.dll` → MaaFramework → upstream `MaaXYZ/MaaFramework`
     - `mxu.exe` → MXU → upstream `MistEO/MXU`
+    - `cpp-algo.exe` → MaaEnd 自有 C++ agent → 按 5.3 节从 Actions artifact 获取对应 tag 的符号包
+    - `go-service.exe` → MaaEnd 自有 Go agent → 同上，用包内精确二进制 + addr2line/gdb
     - `onnxruntime_maa.dll`, `opencv_world4_maa.dll`, `fastdeploy_ppocr_maa.dll` → third-party inference/vision
     - `DirectML.dll` → DirectX ML runtime
     - `ViGEmClient.dll` → virtual gamepad

@@ -1,0 +1,8 @@
+{
+    "template": "depot-template.jsonc",
+    "data": "depot-data.mjs",
+    "outputDir": "../../../assets/resource/pipeline/DeliveryJobs/Depot",
+    "outputPattern": "${RegionId}/${DepotId}.json",
+    "format": true,
+    "merged": false
+}

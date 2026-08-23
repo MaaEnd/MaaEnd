@@ -782,7 +782,7 @@ func executeStuckMitigator(ctx *maa.Context, ca control.ControlAdaptor, action s
 		ca.SetPlayerMovement(ca.GetPlayerMovement(), control.PolicyActive)
 		ca.PlayerJump()
 	case "MoveOrDeleteDevice":
-		if _, err := ctx.RunTask("MapTrackerStuckMitigator_MoveOrDeleteDevice"); err != nil {
+		if _, err := ctx.RunTask("MapNavigatorObstacleDevice"); err != nil {
 			log.Warn().Err(err).Msg("Stuck mitigator MoveOrDeleteDevice failed")
 		}
 	default:

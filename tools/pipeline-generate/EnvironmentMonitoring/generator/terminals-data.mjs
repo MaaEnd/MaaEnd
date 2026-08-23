@@ -1,12 +1,12 @@
 import {buildStationDisplayName, buildStationId} from "./common.mjs";
-import {kiteStationData, monitoringMissions, MONITORING_TERMINAL_IDS} from "./model.mjs";
+import {environmentMonitoringData, monitoringMissions, MONITORING_TERMINAL_IDS} from "./model.mjs";
 
 function buildTerminalId(terminalId) {
-    return buildStationId(kiteStationData, terminalId);
+    return buildStationId(environmentMonitoringData, terminalId);
 }
 
 function buildTerminalName(terminalId) {
-    return buildStationDisplayName(kiteStationData, terminalId);
+    return buildStationDisplayName(environmentMonitoringData, terminalId);
 }
 
 // 当一个任务名是另一个任务名的子串时（如 "蓄水源石虫" ⊂ "充满活力的蓄水源石虫"），

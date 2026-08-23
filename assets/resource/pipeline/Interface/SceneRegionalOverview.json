@@ -1,0 +1,107 @@
+{
+    "SceneMenuRegionalOverviewAnyRecyclingStation": {
+        "desc": "在事务总览界面，找到资源回收站",
+        "recognition": "And",
+        "all_of": [
+            "InRegionalOverview",
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    186,
+                    69,
+                    45,
+                    404
+                ],
+                "template": [
+                    "SceneManager/RegionalOverview/RecyclingStationInactive.png",
+                    "SceneManager/RegionalOverview/RecyclingStationValleyIV.png",
+                    "SceneManager/RegionalOverview/RecyclingStationWuling.png"
+                ],
+                "threshold": 0.85
+            }
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "SceneMenuRegionalOverviewWulingTrialOfSwordmancy": {
+        "desc": "在武陵事务总览界面，找到选剑演武",
+        "recognition": "And",
+        "all_of": [
+            "InRegionalOverviewWuling",
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    186,
+                    69,
+                    45,
+                    404
+                ],
+                "template": [
+                    "SceneManager/RegionalOverview/TrialOfSwordmancyInactive.png",
+                    "SceneManager/RegionalOverview/TrialOfSwordmancyWuling.png"
+                ],
+                "threshold": 0.85
+            }
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "SceneEnterMenuRegionalOverviewValleyIVRecyclingStation": {
+        "desc": "进入事务总览-四号谷地-展开资源回收站",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuRegionalOverviewValleyIV"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMenuRegionalOverviewAnyRecyclingStationExpanded",
+            "__ScenePrivateMenuRegionalOverviewAnyExpandRecyclingStation",
+            "[JumpBack]__ScenePrivateMenuRegionalOverviewAnyCollapseAny"
+        ]
+    },
+    "SceneEnterMenuRegionalOverviewWulingRecyclingStation": {
+        "desc": "进入事务总览-武陵-展开资源回收站",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuRegionalOverviewWuling"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMenuRegionalOverviewAnyRecyclingStationExpanded",
+            "__ScenePrivateMenuRegionalOverviewAnyExpandRecyclingStation",
+            "[JumpBack]__ScenePrivateMenuRegionalOverviewAnyCollapseAny"
+        ]
+    },
+    "SceneEnterMenuRegionalOverviewWulingTrialOfSwordmancy": {
+        "desc": "进入事务总览-武陵-展开选剑演武",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuRegionalOverviewWuling"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMenuRegionalOverviewWulingTrialOfSwordmancyExpanded",
+            "__ScenePrivateMenuRegionalOverviewWulingExpandTrialOfSwordmancy",
+            "[JumpBack]__ScenePrivateMenuRegionalOverviewAnyCollapseAny"
+        ]
+    }
+}

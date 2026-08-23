@@ -72,7 +72,15 @@
                 ]
             ]
         },
-        "next": []
+        "next": [],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     //确认是否在武陵农场内，在则继续工作循环。如需更换目标农场，请修改下方 target 坐标，
     //将矩形范围扩大至覆盖整块目标农场的地图区域

@@ -64,7 +64,7 @@
             170,
             310
         ],
-        "template": "MapTracker/StuckMitigator/InteractButton.png",
+        "template": "MapNavigator/ObstacleDevice/InteractButton.png",
         "order_by": "Score"
     },
     "__WLMarkerStoneShip2_IsInteractButtonText": {

@@ -1,0 +1,8 @@
+{
+    "template": "core-template.jsonc",
+    "data": "core-data.mjs",
+    "outputDir": "../../../assets/resource/pipeline",
+    "outputPattern": "DeliveryJobs.json",
+    "format": true,
+    "merged": false
+}

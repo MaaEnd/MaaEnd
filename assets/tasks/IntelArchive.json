@@ -1,0 +1,23 @@
+{
+    "task": [
+        {
+            "name": "IntelArchive",
+            "label": "$task.IntelArchive.label",
+            "entry": "IntelArchiveMain",
+            "description": "$task.IntelArchive.description",
+            "controller": [
+                "ADB",
+                "CloudADB",
+                "MacOS-Background",
+                "MacOS-Front",
+                "PlayCover",
+                "Win32-Front",
+                "Wlroots"
+            ],
+            "group": [
+                "other_menu"
+            ]
+        }
+    ],
+    "option": {}
+}

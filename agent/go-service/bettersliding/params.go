@@ -17,7 +17,6 @@ type parsedBetterSlidingParams struct {
 	availableQuantityFilter       *quantityFilterParam
 	sliderQuantityOnlyRec         bool
 	availableQuantityOnlyRec      bool
-	greenMask                     bool
 	direction                     string
 	increaseButton                buttonTarget
 	decreaseButton                buttonTarget
@@ -30,6 +29,7 @@ type parsedBetterSlidingParams struct {
 	reverseTarget                 bool
 	swipeOnlyMode                 bool
 	finishAfterPreciseClick       bool
+	resetBeforeFindStart          bool
 }
 
 func detectBetterSlidingParamPresence(rawParam string) (betterSlidingParamPresence, error) {
@@ -44,7 +44,6 @@ func detectBetterSlidingParamPresence(rawParam string) (betterSlidingParamPresen
 		TargetQuantity:                hasNonNullRawKey(rawKeys, "TargetQuantity"),
 		SliderQuantity:                sliderQuantityPresent,
 		AvailableQuantity:             hasNonNullRawKey(rawKeys, "AvailableQuantity"),
-		GreenMask:                     hasNonNullRawKey(rawKeys, "GreenMask"),
 		Direction:                     hasNonNullRawKey(rawKeys, "Direction"),
 		IncreaseButton:                hasNonNullRawKey(rawKeys, "IncreaseButton"),
 		DecreaseButton:                hasNonNullRawKey(rawKeys, "DecreaseButton"),
@@ -56,6 +55,7 @@ func detectBetterSlidingParamPresence(rawParam string) (betterSlidingParamPresen
 		CenterPointOffset:             hasNonNullRawKey(rawKeys, "CenterPointOffset"),
 		ClampTargetToSliderMax:        hasNonNullRawKey(rawKeys, "ClampTargetToSliderMax"),
 		FinishAfterPreciseClick:       hasNonNullRawKey(rawKeys, "FinishAfterPreciseClick"),
+		ResetBeforeFindStart:          hasNonNullRawKey(rawKeys, "ResetBeforeFindStart"),
 	}, nil
 }
 
@@ -156,7 +156,6 @@ func (a *BetterSlidingAction) normalizeActionParams(params betterSlidingParam) (
 			availableQuantityFilter:       nil,
 			sliderQuantityOnlyRec:         false,
 			availableQuantityOnlyRec:      false,
-			greenMask:                     params.GreenMask,
 			direction:                     direction,
 			increaseButton:                buttonTarget{},
 			decreaseButton:                buttonTarget{},
@@ -169,6 +168,7 @@ func (a *BetterSlidingAction) normalizeActionParams(params betterSlidingParam) (
 			reverseTarget:                 params.ReverseTarget,
 			swipeOnlyMode:                 true,
 			finishAfterPreciseClick:       false,
+			resetBeforeFindStart:          params.ResetBeforeFindStart,
 		}, true
 	}
 
@@ -239,7 +239,6 @@ func (a *BetterSlidingAction) normalizeActionParams(params betterSlidingParam) (
 		availableQuantityFilter:       availableQuantityFilter,
 		sliderQuantityOnlyRec:         sliderQuantityOnlyRec,
 		availableQuantityOnlyRec:      availableQuantityOnlyRec,
-		greenMask:                     params.GreenMask,
 		direction:                     strings.ToLower(strings.TrimSpace(params.Direction)),
 		increaseButton:                increaseButton,
 		decreaseButton:                decreaseButton,
@@ -252,6 +251,7 @@ func (a *BetterSlidingAction) normalizeActionParams(params betterSlidingParam) (
 		reverseTarget:                 params.ReverseTarget,
 		swipeOnlyMode:                 false,
 		finishAfterPreciseClick:       params.FinishAfterPreciseClick,
+		resetBeforeFindStart:          params.ResetBeforeFindStart,
 	}, true
 }
 
@@ -267,7 +267,6 @@ func (a *BetterSlidingAction) applyActionParams(params parsedBetterSlidingParams
 	a.AvailableQuantityFilter = params.availableQuantityFilter
 	a.SliderQuantityOnlyRec = params.sliderQuantityOnlyRec
 	a.AvailableQuantityOnlyRec = params.availableQuantityOnlyRec
-	a.GreenMask = params.greenMask
 	a.Direction = params.direction
 	a.IncreaseButton = params.increaseButton
 	a.DecreaseButton = params.decreaseButton
@@ -280,6 +279,7 @@ func (a *BetterSlidingAction) applyActionParams(params parsedBetterSlidingParams
 	a.ReverseTarget = params.reverseTarget
 	a.SwipeOnlyMode = params.swipeOnlyMode
 	a.FinishAfterPreciseClick = params.finishAfterPreciseClick
+	a.ResetBeforeFindStart = params.resetBeforeFindStart
 }
 
 func (a *BetterSlidingAction) logParsedActionParams() {
@@ -291,7 +291,6 @@ func (a *BetterSlidingAction) logParsedActionParams() {
 		Str("direction", a.Direction).
 		Interface("increase_button", a.IncreaseButton.logValue()).
 		Interface("decrease_button", a.DecreaseButton.logValue()).
-		Bool("green_mask", a.GreenMask).
 		Bool("slider_quantity_filter_enabled", a.SliderQuantityFilter != nil).
 		Bool("available_quantity_filter_enabled", a.AvailableQuantityFilter != nil).
 		Bool("slider_quantity_only_rec", a.SliderQuantityOnlyRec).
@@ -299,6 +298,7 @@ func (a *BetterSlidingAction) logParsedActionParams() {
 		Ints("center_point_offset", []int{a.CenterPointOffset[0], a.CenterPointOffset[1]}).
 		Bool("clamp_target_to_slider_max", a.ClampTargetToSliderMax).
 		Bool("finish_after_precise_click", a.FinishAfterPreciseClick).
+		Bool("reset_before_find_start", a.ResetBeforeFindStart).
 		Str("swipe_button", a.SwipeButton).
 		Str("out_of_range_override_enable", a.OutOfRangeOverrideEnable).
 		Str("target_reachable_override_enable", a.TargetReachableOverrideEnable).
@@ -335,8 +335,8 @@ func (a *BetterSlidingAction) initLogger(taskName string) {
 }
 
 // mergeAttachParams reads the attach block from the caller pipeline node and merges
-// TargetQuantity, TargetQuantityType, ReverseTarget, and FinishAfterPreciseClick into
-// the customActionParam JSON.
+// TargetQuantity, TargetQuantityType, ReverseTarget, FinishAfterPreciseClick, and
+// ResetBeforeFindStart into the customActionParam JSON.
 // On any error, the original customActionParam string is returned unchanged.
 func mergeAttachParams(ctx *maa.Context, callerNodeName string, customActionParam string) string {
 	if ctx == nil || callerNodeName == "" {
@@ -442,6 +442,20 @@ func mergeAttachParams(ctx *maa.Context, callerNodeName string, customActionPara
 				Str("node", callerNodeName).
 				Str("field", "attach.FinishAfterPreciseClick").
 				Str("value", string(fapcRaw)).
+				Msg("failed to parse attach field")
+		}
+	}
+
+	if rbfsRaw, has := attachKeys["ResetBeforeFindStart"]; has {
+		var rbfs bool
+		if err := json.Unmarshal(rbfsRaw, &rbfs); err == nil {
+			paramMap["ResetBeforeFindStart"] = rbfs
+		} else {
+			logger.Warn().
+				Err(err).
+				Str("node", callerNodeName).
+				Str("field", "attach.ResetBeforeFindStart").
+				Str("value", string(rbfsRaw)).
 				Msg("failed to parse attach field")
 		}
 	}

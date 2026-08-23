@@ -1,5 +1,7 @@
 {
     "AutoCollectClickStart": {
+        "pre_delay": 0,
+        "post_delay": 0,
         "next": [
             "AutoCollectClick",
             "AutoCollectClickEnd"
@@ -63,6 +65,11 @@
                     "受蝕玉化葉",
                     "(?i)Blighted\\s*Jadeleaf",
                     "侵蝕玉化葉",
+                    "红矛叶",
+                    "紅矛葉",
+                    "Crimson Spearleaf",
+                    "赤槍葉",
+                    "붉은 창 잎",
                     "至晶多齿叶",
                     "至晶多齒葉",
                     "(?i)Vitrodendra",
@@ -104,30 +111,26 @@
                 ]
             }
         },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "AutoAltClickAction"
-            }
-        },
-        // "action": { //调试用，按q
-        //     "type": "ClickKey",
-        //     "param": {
-        //         "key": 81
-        //     }
-        // },
+        "pre_delay": 0,
+        "action": "ClickKey",
+        "key": 70, // F 交互；可通过全局设置 KeymapInteract 改绑
+        "post_delay": 0,
         "next": [
             "AutoCollectClickEnd"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "识别到采集物"
+            "Node.Recognition.Succeeded": "识别到采集物",
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
         }
     },
+    //子任务出口：由 MapNavigator 以 MaaContextRunTask 调起，跑到这里就结束、返回引擎
     "AutoCollectClickEnd": {
         "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "[Anchor]AutoCollectClickAfter"
-        ]
+        "post_delay": 0
     }
 }

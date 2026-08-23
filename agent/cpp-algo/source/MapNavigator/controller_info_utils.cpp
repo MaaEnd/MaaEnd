@@ -1,8 +1,10 @@
 #include <optional>
 
 #include <MaaFramework/Utility/MaaBuffer.h>
+#include <MaaUtils/Logger.h>
 #include <meojson/json.hpp>
 
+#include "../utils.h"
 #include "controller_info_utils.h"
 
 namespace mapnavigator
@@ -25,19 +27,24 @@ ControllerInfo ParseControllerInfo(MaaController* controller)
         return {};
     }
 
-    MaaStringBuffer* buffer = MaaStringBufferCreate();
-    if (buffer == nullptr) {
+    ScopedStringBuffer buffer;
+    if (buffer.Get() == nullptr || !MaaControllerGetInfo(controller, buffer.Get())) {
         return {};
     }
 
-    if (!MaaControllerGetInfo(controller, buffer)) {
-        MaaStringBufferDestroy(buffer);
+    const char* raw = MaaStringBufferGet(buffer.Get());
+    if (raw == nullptr) {
         return {};
     }
 
-    const char* raw = MaaStringBufferGet(buffer);
-    ControllerInfo info = json::parse(raw).value().as<ControllerInfo>();
-    MaaStringBufferDestroy(buffer);
+    // 格式不由本模块保证。解析失败按「拿不到信息」处理，与 controller 为空同路。
+    const auto parsed = json::parse(raw);
+    ControllerInfo info;
+    if (!parsed || !info.from_json(*parsed)) {
+        LogWarn << "Failed to parse controller info" << VAR(raw);
+        return {};
+    }
+
     return info;
 }
 

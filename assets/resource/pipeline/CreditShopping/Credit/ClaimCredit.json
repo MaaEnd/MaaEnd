@@ -49,7 +49,7 @@
         ]
     },
     "CreditShoppingClaimConfirm": {
-        "desc": "获取信用点或物品后：IMS A3 累加培养道具，再关闭奖励界面",
+        "desc": "获取信用点或物品后：IMS A3 累加（嵌晶玉/折金票/武库配额/信用 + SpecialItem 升级经验与材料），再关闭奖励界面",
         "recognition": {
             "type": "And",
             "param": {
@@ -75,32 +75,13 @@
             "param": {
                 "custom_action": "AddItemData",
                 "custom_action_param": {
-                    "items": {
-                        "ADVANCED_COGNITIVE_CARRIER": "ADVANCED_COGNITIVE_CARRIER",
-                        "ELEMENTARY_COGNITIVE_CARRIER": "ELEMENTARY_COGNITIVE_CARRIER",
-                        "ADVANCED_COMBAT_RECORD": "ADVANCED_COMBAT_RECORD",
-                        "INTERMEDIATE_COMBAT_RECORD": "INTERMEDIATE_COMBAT_RECORD",
-                        "ELEMENTARY_COMBAT_RECORD": "ELEMENTARY_COMBAT_RECORD",
-                        "MARK_OF_PERSEVERANCE": "MARK_OF_PERSEVERANCE",
-                        "PROTOSET": "PROTOSET",
-                        "PROTODISK": "PROTODISK",
-                        "TRIPHASIC_NANOFLAKE": "TRIPHASIC_NANOFLAKE",
-                        "QUADRANT_FITTING_FLUID": "QUADRANT_FITTING_FLUID",
-                        "TACHYON_SCREENING_LATTICE": "TACHYON_SCREENING_LATTICE",
-                        "D96_STEEL_SAMPLE_4": "D96_STEEL_SAMPLE_4",
-                        "METADIASTIMA_PHOTOEMISSION_TUBE": "METADIASTIMA_PHOTOEMISSION_TUBE",
-                        "PROTOHEDRON": "PROTOHEDRON",
-                        "PROTOPRISM": "PROTOPRISM",
-                        "T_CREDS": "T_CREDS",
-                        "OROBERYL": "OROBERYL",
-                        "ARMS_INSP_SET": "ARMS_INSP_SET",
-                        "ARMS_INSP_KIT": "ARMS_INSP_KIT",
-                        "ARMS_INSPECTOR": "ARMS_INSPECTOR",
-                        "HEAVY_CAST_DIE": "HEAVY_CAST_DIE",
-                        "CAST_DIE": "CAST_DIE",
-                        "COOLANT_GEL": "COOLANT_GEL",
-                        "WULING_ARTIFICING_CATALYST": "WULING_ARTIFICING_CATALYST"
-                    }
+                    "item_filters": [
+                        "Isolate:Diamond",
+                        "Isolate:Gold",
+                        "Isolate:WeaponGold",
+                        "Isolate:SpaceshipGold",
+                        "ValuableDepot:SpecialItem"
+                    ]
                 }
             }
         },

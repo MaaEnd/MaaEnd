@@ -216,7 +216,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToCollapsedTianshiPillar"
+            "CollapsedTianshiPillarInQuickTeleportMap"
         ]
     },
     "AlreadyTrackedCollapsedTianshiPillar": {
@@ -230,7 +230,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToCollapsedTianshiPillar"
+            "CollapsedTianshiPillarOpenTrackedMissionMap"
         ]
     },
     "CollapsedTianshiPillarOpenTrackedMissionMap": {
@@ -340,10 +340,10 @@
         "custom_recognition_param": {
             "zone_id": "Wuling_Base",
             "target": [
-                671.75,
-                2620.08,
-                46.31,
-                54.57
+                0,
+                0,
+                1,
+                1
             ]
         },
         "pre_delay": 0,
@@ -360,7 +360,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldWulingJingyuValley8"
+                "SceneAnyEnterWorld"
             ]
         },
         "post_delay": 0,
@@ -393,29 +393,26 @@
         "rate_limit": 0,
         "next": [
             "CollapsedTianshiPillarTakePhoto"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "CollapsedTianshiPillarTakePhoto": {
         "desc": "在倒塌的天师桩任务拍照点开始拍照",
         "pre_delay": 0,
         "anchor": {
-            "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal",
-            "EnvironmentMonitoringAdjustCamera": "CollapsedTianshiPillarAdjustCamera"
+            "EnvironmentMonitoringBackToTerminal": "EnvironmentMonitoringGoToOutskirtsMonitoringTerminal"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "EnvironmentMonitoringTakePhoto"
-        ]
-    },
-    "CollapsedTianshiPillarAdjustCamera": {
-        "desc": "倒塌的天师桩任务中调整朝向",
-        "max_hit": 2,
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "EnvironmentMonitoringSwipeScreenUp"
         ]
     }
 }

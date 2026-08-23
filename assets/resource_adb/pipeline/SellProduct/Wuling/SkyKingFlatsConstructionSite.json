@@ -1,4 +1,15 @@
 {
+    "SellProductSkyKingFlatsConstructionSiteCurrentGoodsReady": {
+        "custom_recognition_param": {
+            "location": "SkyKingFlatsConstructionSite",
+            "roi": [
+                1151,
+                393,
+                66,
+                66
+            ]
+        }
+    },
     "SellProductSkyKingFlatsConstructionSiteSelectPriorityItem": {
         "custom_recognition_param": {
             "location": "SkyKingFlatsConstructionSite",
@@ -25,7 +36,6 @@
     },
     "SellProductSkyKingFlatsConstructionSiteBetterSliding": {
         "custom_action_param": {
-            "GreenMask": true,
             "TargetQuantity": 999999,
             "ClampTargetToSliderMax": true,
             "AvailableQuantity": {

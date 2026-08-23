@@ -136,6 +136,15 @@
                 },
                 {
                     "name": "Yes",
+                    "pipeline_override": {
+                        "AutoFight": {
+                            "attach": {
+                                "pause_exit_nodes": [
+                                    "TrialOfSwordmancyFightSuccess"
+                                ]
+                            }
+                        }
+                    },
                     "option": [
                         "AutoFightSetting",
                         "TrialOfSwordmancyRecoverBeforeBattle"

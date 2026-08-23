@@ -11,13 +11,9 @@ import numpy as np
 from .core_utils import cv2
 from .maa_interface import MaaInterface, MaaRuntimeError, MapTrackerInferResult
 
-
 _INVALID_FILENAME_CHARS = re.compile(r'[<>:"/\\|?*\x00-\x1f]')
 _MIN_SAMPLE_DISTANCE = 10.0
 _INTERVAL_SECONDS = 1.0
-_MOSAIC_CELL_SIZE = 10
-_UNMOSAIC_TOP_LEFT_SIZE = (260, 180)
-_UNMOSAIC_TOP_RIGHT_SIZE = (410, 60)
 _MAX_CANDIDATES = 30
 
 
@@ -140,12 +136,9 @@ class SampleCoordinateIndex:
         )
 
 
-@dataclass(eq=False)
-class SampleCandidate:
-    id: str
-    result: MapTrackerInferResult
-    image: np.ndarray
-    created_at: float
+_MOSAIC_CELL_SIZE = 10
+_UNMOSAIC_TOP_LEFT_SIZE = (260, 180)
+_UNMOSAIC_TOP_RIGHT_SIZE = (410, 60)
 
 
 def _mosaic_private_regions(image: np.ndarray) -> np.ndarray:
@@ -166,6 +159,14 @@ def _mosaic_private_regions(image: np.ndarray) -> np.ndarray:
     output = image.copy()
     output[mask] = mosaic[mask]
     return output
+
+
+@dataclass(eq=False)
+class SampleCandidate:
+    id: str
+    result: MapTrackerInferResult
+    image: np.ndarray
+    created_at: float
 
 
 class SampleCollector:
@@ -347,14 +348,16 @@ class SampleCollector:
             stop_event = self._stop_event
             if stop_event is not None:
                 stop_event.set()
+            # Kill agent immediately so a stuck infer cannot delay shutdown.
+            maa_interface = self._maa_interface
+            if maa_interface is not None:
+                try:
+                    maa_interface.dispose_agent()
+                except Exception:
+                    pass
             thread = self._thread
             if thread is not None and thread.is_alive():
-                thread.join(timeout=5.0)
-            if thread is not None and thread.is_alive():
-                maa_interface = self._maa_interface
-                if maa_interface is not None:
-                    maa_interface.dispose_agent()
-                thread.join(timeout=5.0)
+                thread.join(timeout=1.0)
             if thread is None or not thread.is_alive():
                 self._thread = None
             else:

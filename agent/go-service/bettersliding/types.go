@@ -9,7 +9,6 @@ type betterSlidingParam struct {
 	TargetQuantity                int                        `json:"TargetQuantity"`
 	SliderQuantity                quantityParam              `json:"SliderQuantity"`
 	AvailableQuantity             quantityParam              `json:"AvailableQuantity"`
-	GreenMask                     bool                       `json:"GreenMask"`
 	Direction                     string                     `json:"Direction"`
 	IncreaseButton                any                        `json:"IncreaseButton"`
 	DecreaseButton                any                        `json:"DecreaseButton"`
@@ -21,6 +20,7 @@ type betterSlidingParam struct {
 	CenterPointOffset             any                        `json:"CenterPointOffset"`
 	ClampTargetToSliderMax        bool                       `json:"ClampTargetToSliderMax"`
 	FinishAfterPreciseClick       bool                       `json:"FinishAfterPreciseClick"`
+	ResetBeforeFindStart          bool                       `json:"ResetBeforeFindStart"`
 	presence                      betterSlidingParamPresence `json:"-"`
 }
 
@@ -28,7 +28,6 @@ type betterSlidingParamPresence struct {
 	TargetQuantity                bool
 	SliderQuantity                bool
 	AvailableQuantity             bool
-	GreenMask                     bool
 	Direction                     bool
 	IncreaseButton                bool
 	DecreaseButton                bool
@@ -40,6 +39,7 @@ type betterSlidingParamPresence struct {
 	CenterPointOffset             bool
 	ClampTargetToSliderMax        bool
 	FinishAfterPreciseClick       bool
+	ResetBeforeFindStart          bool
 }
 
 type quantityParam struct {
@@ -71,13 +71,14 @@ type quantityFilterParam struct {
 //   - SliderQuantity.OnlyRec: enable only_rec for the slider quantity OCR node
 //   - AvailableQuantity.Filter: optional color filter for available quantity OCR
 //   - AvailableQuantity.OnlyRec: enable only_rec for available quantity OCR
-//   - GreenMask: map to green_mask in TemplateMatch for slider/button templates
 //   - Direction: swipe direction (left/right/up/down)
 //   - IncreaseButton: increase button template path or coordinates
 //   - DecreaseButton: decrease button template path or coordinates
 //   - CenterPointOffset: click offset from slider handle center, default [-10, 0]
 //   - ClampTargetToSliderMax: clamp target to sliderMaxQuantity instead of failing (default false)
 //   - FinishAfterPreciseClick: skip fine-tuning and return success after precise click (default false)
+//   - ResetBeforeFindStart: swipe toward the minimum before matching the slider start position,
+//     so the recorded start position is the minimum value (default false)
 //   - SwipeButton: custom slider template path overriding BetterSlidingSwipeButton
 //   - OutOfRangeOverrideEnable: Pipeline node name to enable when target is out of range
 //   - TargetReachableOverrideEnable: Pipeline node name to enable when the resolved target can be
@@ -93,13 +94,13 @@ type BetterSlidingAction struct {
 	AvailableQuantityFilter       *quantityFilterParam
 	SliderQuantityOnlyRec         bool
 	AvailableQuantityOnlyRec      bool
-	GreenMask                     bool
 	Direction                     string
 	IncreaseButton                buttonTarget
 	DecreaseButton                buttonTarget
 	CenterPointOffset             [2]int
 	ClampTargetToSliderMax        bool
 	FinishAfterPreciseClick       bool
+	ResetBeforeFindStart          bool
 	SwipeButton                   string
 	OutOfRangeOverrideEnable      string
 	TargetReachableOverrideEnable string
@@ -141,5 +142,9 @@ const (
 )
 
 var defaultCenterPointOffset = [2]int{-10, 0}
+
+// defaultGreenMask 是 BetterSliding 按钮模板匹配默认启用的绿色掩码开关。
+// BetterSliding 对 SwipeButton / IncreaseButton / DecreaseButton 的模板匹配固定开启绿色掩码。
+const defaultGreenMask = true
 
 var _ maa.CustomActionRunner = &BetterSlidingAction{}

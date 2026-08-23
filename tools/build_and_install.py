@@ -7,6 +7,7 @@ import sys
 from pathlib import Path
 
 from cli_support import Console, init_localization
+from path_utils import remove_directory_or_link
 
 LOCALS_DIR = Path(__file__).parent / "locals" / "build_and_install"
 
@@ -33,13 +34,7 @@ def create_directory_link(src: Path, dst: Path) -> bool:
     - Unix/macOS：symlink
     """
     if dst.exists() or dst.is_symlink():
-        if dst.is_dir() and not dst.is_symlink():
-            try:
-                dst.rmdir()
-            except OSError:
-                shutil.rmtree(dst)
-        else:
-            dst.unlink(missing_ok=True)
+        remove_directory_or_link(dst)
 
     dst.parent.mkdir(parents=True, exist_ok=True)
 
@@ -96,7 +91,7 @@ def create_file_link(src: Path, dst: Path) -> bool:
 def copy_directory(src: Path, dst: Path) -> bool:
     """复制目录（替换）"""
     if dst.exists():
-        shutil.rmtree(dst)
+        remove_directory_or_link(dst)
     shutil.copytree(src, dst)
     return True
 

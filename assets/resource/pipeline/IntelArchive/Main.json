@@ -1,0 +1,53 @@
+{
+    "IntelArchiveMain": {
+        "desc": "情报档案库任务入口（骨架）",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]IntelArchiveSyncSub",
+            "[JumpBack]IntelArchiveShowInventorySub",
+            "EmptyNode"
+        ]
+    },
+    "IntelArchiveResetSession": {
+        "desc": "清空本次扫描会话",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "IntelArchiveResetSessionAction"
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "IntelArchiveSyncSub": {
+        "desc": "同步已有档案",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]IntelArchiveResetSession",
+            "[JumpBack]IntelArchiveSyncAudioRecords",
+            "[JumpBack]IntelArchiveSyncFindings",
+            "[JumpBack]IntelArchiveSyncNexusFiles",
+            "EmptyNode"
+        ]
+    },
+    "IntelArchiveShowInventorySub": {
+        "desc": "在浏览器打开 Open Endfieldmap 并导入扫描结果",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "IntelArchiveShowInventoryAction"
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

@@ -23,6 +23,11 @@
                     "name": "KeymapUseCurrentQuickTool",
                     "label": "$option.KeymapGeneral.inputs.KeymapUseCurrentQuickTool.label",
                     "default": "R"
+                },
+                {
+                    "name": "KeymapInteract",
+                    "label": "$option.KeymapGeneral.inputs.KeymapInteract.label",
+                    "default": "F"
                 }
             ],
             "pipeline_override": {
@@ -32,14 +37,29 @@
                 "EnterCameraModeKeyUp": {
                     "key": "{KeymapUseCurrentQuickTool.primary}"
                 },
-                "_AutoEcoFarmEnterCameraModeKeyDownR": {
+                "_AutoEcoFarmEnterCameraModeFallback": {
                     "key": "{KeymapUseCurrentQuickTool.primary}"
                 },
-                "_AutoEcoFarmEnterCameraModeFailKeyUp": {
+                "_AutoEcoFarmEnterCameraModeFallbackRelease": {
                     "key": "{KeymapUseCurrentQuickTool.primary}"
                 },
-                "_AutoEcoFarmEnterCameraModeKeyUpR": {
+                "_AutoEcoFarmEnterCameraModeFallbackReleaseOnError": {
                     "key": "{KeymapUseCurrentQuickTool.primary}"
+                },
+                "AutoCollectClick": {
+                    "key": "{KeymapInteract.primary}"
+                },
+                "MapNavigatorInteract": {
+                    "key": "{KeymapInteract.primary}"
+                },
+                "AutoPickFalls": {
+                    "key": "{KeymapInteract.primary}"
+                },
+                "AutoPickInteractive": {
+                    "key": "{KeymapInteract.primary}"
+                },
+                "MapNavigatorZiplineMount": {
+                    "key": "{KeymapInteract.primary}"
                 }
             }
         },

@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 #include <limits>
+#include <numbers>
 #include <numeric>
 #include <queue>
 #include <tuple>
@@ -335,6 +336,52 @@ std::vector<uint8_t> Flood(int64_t seed, const SpanTable& st, int64_t nx)
     return vis;
 }
 
+std::vector<int32_t> LabelRegions(const SpanTable& st, int64_t nx)
+{
+    const int64_t n = static_cast<int64_t>(st.sp_h.size());
+    std::vector<int32_t> parent(static_cast<size_t>(n));
+    std::iota(parent.begin(), parent.end(), 0);
+    const auto find = [&](int32_t a) {
+        while (parent[static_cast<size_t>(a)] != a) {
+            parent[static_cast<size_t>(a)] = parent[static_cast<size_t>(parent[static_cast<size_t>(a)])];
+            a = parent[static_cast<size_t>(a)];
+        }
+        return a;
+    };
+    // Flood 的邻接是对称的,所以只朝 +x/+y 合并一遍就够
+    const int64_t dirs[2][2] = { { 1, 0 }, { 0, 1 } };
+    for (int64_t ci = 0; ci < static_cast<int64_t>(st.occ.size()); ++ci) {
+        const int64_t cid = st.occ[static_cast<size_t>(ci)];
+        const int64_t gx = cid % nx;
+        for (const auto& d : dirs) {
+            if (d[0] != 0 && gx + d[0] >= nx) {
+                continue;
+            }
+            const int64_t j = occFind(st.occ, cid + d[1] * nx + d[0]);
+            if (j < 0) {
+                continue;
+            }
+            for (int64_t r = 0; r < st.ccnt[static_cast<size_t>(ci)]; ++r) {
+                const int64_t u = st.cstart[static_cast<size_t>(ci)] + r;
+                for (int64_t slot = 0; slot < st.K; ++slot) {
+                    if (!(std::fabs(st.HK[j * st.K + slot] - st.sp_h[static_cast<size_t>(u)]) <= 3.0f)) {
+                        continue;
+                    }
+                    const int32_t a = find(static_cast<int32_t>(u));
+                    const int32_t b = find(static_cast<int32_t>(st.IK[j * st.K + slot]));
+                    if (a != b) {
+                        parent[static_cast<size_t>(a)] = b;
+                    }
+                }
+            }
+        }
+    }
+    for (int64_t i = 0; i < n; ++i) {
+        parent[static_cast<size_t>(i)] = find(static_cast<int32_t>(i));
+    }
+    return parent;
+}
+
 std::vector<uint8_t> SpanReach(int64_t seed, const SpanTable& st, const std::vector<uint8_t>& ok, int64_t nx, int64_t ny)
 {
     std::vector<uint8_t> vis(st.sp_h.size(), 0);
@@ -524,65 +571,6 @@ WallCsr BuildWallIndex(const std::vector<WorldPoint>& p0, const std::vector<Worl
         csr.start[i] += csr.start[i - 1];
     }
     return csr;
-}
-
-std::unordered_set<int64_t> BannedSteps(
-    const Mask& free,
-    const WallCsr& csr,
-    const std::vector<WorldPoint>& p0,
-    const std::vector<WorldPoint>& p1,
-    double ox,
-    double oy)
-{
-    std::unordered_set<int64_t> out;
-    if (p0.empty()) {
-        return out;
-    }
-    const int64_t nx = free.nx, ny = free.ny;
-    const int64_t NC = nx * ny;
-    for (int64_t c = 0; c < NC; ++c) {
-        if (csr.start[static_cast<size_t>(c + 1)] == csr.start[static_cast<size_t>(c)] || !free.v[static_cast<size_t>(c)]) {
-            continue;
-        }
-        const double cx = (static_cast<double>(c % nx) + 0.5) * kCS + ox;
-        const double cy = (static_cast<double>(c / nx) + 0.5) * kCS + oy;
-        for (const auto& d : kNb8) {
-            const int64_t ax = c % nx + d.dx, ay = c / nx + d.dy;
-            if (ax < 0 || ax >= nx || ay < 0 || ay >= ny) {
-                continue;
-            }
-            const int64_t b = ay * nx + ax;
-            if (!free.v[static_cast<size_t>(b)]) {
-                continue;
-            }
-            const double qx = cx + static_cast<double>(d.dx) * kCS;
-            const double qy = cy + static_cast<double>(d.dy) * kCS;
-            bool hit = false;
-            for (const int64_t cell : { c, b }) {
-                for (int64_t s = csr.start[static_cast<size_t>(cell)]; !hit && s < csr.start[static_cast<size_t>(cell + 1)]; ++s) {
-                    const int64_t w = csr.wid[static_cast<size_t>(s)];
-                    const double rx = qx - cx, ry = qy - cy;
-                    const double sx = p1[w].x - p0[w].x, sy = p1[w].y - p0[w].y;
-                    const double ux = p0[w].x - cx, uy = p0[w].y - cy;
-                    const double den = rx * sy - ry * sx;
-                    if (!(std::abs(den) > 1e-12)) {
-                        continue;
-                    }
-                    const double t = (ux * sy - uy * sx) / den;
-                    const double ww = (ux * ry - uy * rx) / den;
-                    hit = t > 1e-9 && t < 1 - 1e-9 && ww > -1e-9 && ww < 1 + 1e-9;
-                }
-                if (hit) {
-                    break;
-                }
-            }
-            if (hit) {
-                out.insert(c * NC + b);
-                out.insert(b * NC + c);
-            }
-        }
-    }
-    return out;
 }
 
 StepBarrier StepBreaks(const SpanTable& st, const std::vector<uint8_t>& vis, const Mask& lay, double ox, double oy)
@@ -1358,6 +1346,11 @@ double ClearanceFloor::cost(const WorldPoint& p, const WorldPoint& q) const
 
 std::optional<std::vector<float>> LayerOracle::walk(const std::vector<WorldPoint>& pts, float h) const
 {
+    return walk(pts, std::vector<float> { h });
+}
+
+std::optional<std::vector<float>> LayerOracle::walk(const std::vector<WorldPoint>& pts, const std::vector<float>& h) const
+{
     std::vector<CellPt> cells;
     for (size_t i = 1; i < pts.size(); ++i) {
         const int64_t ax = static_cast<int64_t>((pts[i - 1].x - x0_) / kCS);
@@ -1376,7 +1369,7 @@ std::optional<std::vector<float>> LayerOracle::walk(const std::vector<WorldPoint
         }
     }
     std::erase_if(cells, [&](const CellPt& c) { return c.x < 0 || c.x >= nx_ || c.y < 0 || c.y >= ny_; });
-    std::vector<float> cur { h };
+    std::vector<float> cur = h;
     std::vector<float> nb;
     std::vector<float> nxt;
     CellPt pc = cells.empty() ? CellPt {} : cells[0];
@@ -1395,7 +1388,7 @@ std::optional<std::vector<float>> LayerOracle::walk(const std::vector<WorldPoint
             continue;
         }
         nxt.clear();
-        const double up = kSlope * std::hypot(static_cast<double>(cells[i].x - pc.x), static_cast<double>(cells[i].y - pc.y)) * kCS;
+        const double up = kSlope * std::hypot(static_cast<double>(cells[i].x - pc.x), static_cast<double>(cells[i].y - pc.y)) * kCS + kQH;
         for (const float t : nb) {
             for (const float c : cur) {
                 const float dh = t - c;
@@ -1489,9 +1482,26 @@ std::vector<WorldPoint> StringPull(
     return P;
 }
 
-std::vector<WorldPoint> Slim(const std::vector<WorldPoint>& pts, const Blockers& blk, double eps, const ClearanceFloor* cfl)
+// 层高逐点否决: 弦须从前一点的可达高度集走通, 且走到的高度集覆盖后一点原有的
+// 高度集, 后续各点据此仍然走得通。整线走查只能全取或全弃, 一处跨带就把整条线
+// 的共线剔除连坐掉, 网格锯齿会原样留在终线上。
+// 剔点后自该点起重算高度集: 剔点只会放大可达集, 沿用旧值会把后续弦按更窄的
+// 起点集判死。
+std::vector<WorldPoint>
+    Slim(const std::vector<WorldPoint>& pts, const Blockers& blk, double eps, const ClearanceFloor* cfl, const LayerOracle* lyo, float h)
 {
     std::vector<WorldPoint> P = pts;
+    std::vector<std::optional<std::vector<float>>> hv;
+    const auto chain = [&](size_t k) {
+        for (size_t i = k; i < P.size(); ++i) {
+            hv[i] = hv[i - 1].has_value() ? lyo->walk({ P[i - 1], P[i] }, *hv[i - 1]) : std::nullopt;
+        }
+    };
+    if (lyo != nullptr && !P.empty()) {
+        hv.assign(P.size(), std::nullopt);
+        hv[0] = std::vector<float> { h };
+        chain(1);
+    }
     bool ch = true;
     while (ch) {
         ch = false;
@@ -1502,11 +1512,24 @@ std::vector<WorldPoint> Slim(const std::vector<WorldPoint>& pts, const Blockers&
             const double L2 = ux * ux + uy * uy;
             const double t = L2 == 0.0 ? 0.0 : std::max(0.0, std::min(1.0, ((b.x - a.x) * ux + (b.y - a.y) * uy) / L2));
             const double d = std::hypot(b.x - a.x - t * ux, b.y - a.y - t * uy);
-            if (d <= eps && !blk.blocked(a, c)
-                && (cfl == nullptr
-                    || static_cast<double>(cfl->seg(a, c))
-                           >= std::min(static_cast<double>(cfl->seg(a, b)), static_cast<double>(cfl->seg(b, c))))) {
+            bool ok = d <= eps && !blk.blocked(a, c)
+                      && (cfl == nullptr
+                          || static_cast<double>(cfl->seg(a, c))
+                                 >= std::min(static_cast<double>(cfl->seg(a, b)), static_cast<double>(cfl->seg(b, c))));
+            std::optional<std::vector<float>> nh;
+            if (ok && lyo != nullptr) {
+                nh = hv[i - 1].has_value() ? lyo->walk({ a, c }, *hv[i - 1]) : std::nullopt;
+                ok = nh.has_value() && hv[i + 1].has_value() && std::all_of(hv[i + 1]->begin(), hv[i + 1]->end(), [&](float v) {
+                         return std::find(nh->begin(), nh->end(), v) != nh->end();
+                     });
+            }
+            if (ok) {
                 P.erase(P.begin() + static_cast<int64_t>(i));
+                if (lyo != nullptr) {
+                    hv.erase(hv.begin() + static_cast<int64_t>(i));
+                    hv[i] = nh;
+                    chain(i + 1);
+                }
                 ch = true;
             }
             else {
@@ -1515,6 +1538,135 @@ std::vector<WorldPoint> Slim(const std::vector<WorldPoint>& pts, const Blockers&
         }
     }
     return P;
+}
+
+namespace
+{
+
+double CellValue(const Grid<float>& F, double x0, double y0, double cs, const WorldPoint& p)
+{
+    const int64_t cy = std::min(std::max(static_cast<int64_t>((p.y - y0) / cs), int64_t { 0 }), F.ny - 1);
+    const int64_t cx = std::min(std::max(static_cast<int64_t>((p.x - x0) / cs), int64_t { 0 }), F.nx - 1);
+    return static_cast<double>(F.at(cy, cx));
+}
+
+double TurnCos(const WorldPoint& a, const WorldPoint& b, const WorldPoint& c)
+{
+    const double ux = b.x - a.x, uy = b.y - a.y;
+    const double vx = c.x - b.x, vy = c.y - b.y;
+    const double nu = std::hypot(ux, uy), nv = std::hypot(vx, vy);
+    if (nu < 1e-12 || nv < 1e-12) {
+        return -1.0;
+    }
+    return (ux * vx + uy * vy) / (nu * nv);
+}
+
+}
+
+// 拉直把拐点钉在轮廓角上, 过角即贴角切线, 实机绕不过去。沿转弯外侧扫方向把
+// 拐点外挪到留够过角余量; 只挪拐点不插点, 两段仍是直线, 直角不抹圆。
+// 判据取拐点自身净空: 用整弦会被两侧远处的窄段钉死, 角上的亏欠被掩盖。
+// 相邻段短于 kCornerSeg 的不算拐点, 亚像素锯齿挪动只会把线推向墙。
+// 候选按偏离转弯外侧的角度排序, 达标即停; 绝大多数方向被挡线否决, 少试方向
+// 会整体空转。两段弦净空各自允许半格退让, 挡线与层高各自否决。
+// 候选不得把转角掰得更尖: 外挪是给转弯让余量, 掰尖等于就地折返。
+std::vector<WorldPoint> WidenCorners(
+    const std::vector<WorldPoint>& pts,
+    const Blockers& blk,
+    const Grid<float>& dist,
+    double x0,
+    double y0,
+    double cs,
+    const ClearanceFloor* cfl,
+    const LayerOracle* lyo,
+    float h)
+{
+    std::vector<WorldPoint> Q = pts;
+    if (Q.size() < 3) {
+        return Q;
+    }
+    const double cosmin = std::cos(kCornerTurn * (std::numbers::pi / 180.0));
+    const int64_t nstep = std::max(int64_t { 1 }, static_cast<int64_t>(std::lround(kCornerMax / kCornerStep)));
+    std::vector<double> ang(static_cast<size_t>(kCornerDirs));
+    for (int64_t t = 0; t < kCornerDirs; ++t) {
+        ang[static_cast<size_t>(t)] = 2.0 * std::numbers::pi * static_cast<double>(t) / static_cast<double>(kCornerDirs);
+    }
+    for (int64_t r = 0; r < kCornerRounds; ++r) {
+        bool moved = false;
+        for (size_t k = 1; k + 1 < Q.size(); ++k) {
+            const WorldPoint &a = Q[k - 1], &b = Q[k], &c = Q[k + 1];
+            double ux = b.x - a.x, uy = b.y - a.y;
+            double vx = c.x - b.x, vy = c.y - b.y;
+            const double nu = std::hypot(ux, uy), nv = std::hypot(vx, vy);
+            if (nu < kCornerSeg || nv < kCornerSeg) {
+                continue;
+            }
+            ux /= nu;
+            uy /= nu;
+            vx /= nv;
+            vy /= nv;
+            if (ux * vx + uy * vy > cosmin) {
+                continue;
+            }
+            double best = CellValue(dist, x0, y0, cs, b);
+            if (best >= kCornerR) {
+                continue;
+            }
+            const double out = std::atan2(uy - vy, ux - vx);
+            const double fa = cfl != nullptr ? static_cast<double>(cfl->seg(a, b)) - kClrTol : -1.0;
+            const double fc = cfl != nullptr ? static_cast<double>(cfl->seg(b, c)) - kClrTol : -1.0;
+            const auto dev = [&](double t) {
+                return std::abs(std::remainder(t - out, 2.0 * std::numbers::pi));
+            };
+            std::vector<double> order = ang;
+            std::stable_sort(order.begin(), order.end(), [&](double p, double q) { return dev(p) < dev(q); });
+            const double turn = ux * vx + uy * vy;
+            bool have = false;
+            WorldPoint pick {};
+            for (const double t : order) {
+                const double dx = std::cos(t), dy = std::sin(t);
+                for (int64_t i = 1; i <= nstep; ++i) {
+                    const WorldPoint q { .x = b.x + dx * static_cast<double>(i) * kCornerStep,
+                                         .y = b.y + dy * static_cast<double>(i) * kCornerStep };
+                    if (blk.blocked(a, q) || blk.blocked(q, c)) {
+                        break;
+                    }
+                    if (TurnCos(a, q, c) < turn - 1e-9) {
+                        continue;
+                    }
+                    const double v = CellValue(dist, x0, y0, cs, q);
+                    if (v > best + 1e-9
+                        && (cfl == nullptr || (static_cast<double>(cfl->seg(a, q)) >= fa && static_cast<double>(cfl->seg(q, c)) >= fc))) {
+                        best = v;
+                        pick = q;
+                        have = true;
+                        if (best >= kCornerR) {
+                            break;
+                        }
+                    }
+                }
+                if (best >= kCornerR) {
+                    break;
+                }
+            }
+            if (!have) {
+                continue;
+            }
+            if (lyo != nullptr) {
+                std::vector<WorldPoint> probe = Q;
+                probe[k] = pick;
+                if (!lyo->walk(probe, h).has_value()) {
+                    continue;
+                }
+            }
+            Q[k] = pick;
+            moved = true;
+        }
+        if (!moved) {
+            break;
+        }
+    }
+    return Q;
 }
 
 std::vector<WorldPoint> DropLoops(const std::vector<WorldPoint>& pts)

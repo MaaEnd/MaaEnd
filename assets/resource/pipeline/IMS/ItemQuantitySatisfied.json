@@ -1,12 +1,12 @@
 {
     "ItemQuantitySatisfied": {
-        "desc": "IMS R1：条件表达式（{物品ID} 读缓存，语法同 ExpressionRecognition）。只读；可选 notify_ui，默认 false；与 ItemDataReady 组合请用 And",
+        "desc": "IMS R1：条件表达式（{物品ID} 读缓存，语法同 ExpressionRecognition）。只读；可选 notify_ui，默认 false；report_only=true 时只播报单物品当前数量并始终命中；与 ItemDataReady 组合请用 And",
         "recognition": {
             "type": "Custom",
             "param": {
                 "custom_recognition": "ItemQuantitySatisfied",
                 "custom_recognition_param": {
-                    "expression": "{PROTODISK}>=1",
+                    "expression": "{item_char_break_stage_1_2}>=1",
                     "notify_ui": false
                 }
             }

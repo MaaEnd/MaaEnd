@@ -20,7 +20,6 @@
                     "ClampTargetToSliderMax": true,
                     "DecreaseButton": "AutoStockpile/DecreaseButton.png",
                     "Direction": "right",
-                    "GreenMask": true,
                     "IncreaseButton": "AutoStockpile/IncreaseButton.png",
                     "SliderQuantity": {
                         "Box": [

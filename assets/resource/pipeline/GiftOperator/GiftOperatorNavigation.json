@@ -4,18 +4,14 @@
         "recognition": {
             "type": "Custom",
             "param": {
-                "custom_recognition": "MapTrackerAssertLocation",
+                "custom_recognition": "MapLocateAssertLocation",
                 "custom_recognition_param": {
-                    "expected": [
-                        {
-                            "map_name": "base01_lv003",
-                            "target": [
-                                180.4,
-                                171.4,
-                                19.6,
-                                11.8
-                            ]
-                        }
+                    "zone_id": "OMVBase01",
+                    "target": [
+                        177.62,
+                        168.76,
+                        19.3,
+                        11.62
                     ]
                 }
             }
@@ -24,13 +20,13 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GiftOperatorMoveResetBackward",
-            "GiftOperatorMoveLocation3",
+            //"GiftOperatorMoveResetBackward",
+            "GiftOperatorTurnEast",
             //"GiftOperatorMoveLocation3Move",
-            "GiftOperatorMoveLocation2",
-            //"GiftOperatorMoveLocation2Move",
-            "GiftOperatorMoveLocation1",
-            //"GiftOperatorMoveLocation1Move",
+            "GiftOperatorTurnNorthwest",
+            "GiftOperatorTurnNorthByWest",
+            "GiftOperatorTurnWest",
+            "GiftOperatorTurnSoutheast",
             "GiftOperatorMoveFail"
         ]
     },
@@ -73,8 +69,8 @@
             "Node.Recognition.Succeeded": "$task.GiftOperator.focus.move_fail"
         }
     },
-    "GiftOperatorMoveLocation1": {
-        "desc": "转向270度(正西)尝试接触到干员(预设位置1)",
+    "GiftOperatorTurnWest": {
+        "desc": "转向270度(正西)尝试接触到干员",
         "max_hit": 2,
         "pre_delay": 0,
         "action": {
@@ -93,7 +89,15 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "GiftOperatorMoveLocation1Move": {
         "desc": "移动尝试接触到干员(预设位置1)",
@@ -101,14 +105,17 @@
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "MapTrackerMove",
+                "custom_action": "MapNavigateAction",
                 "custom_action_param": {
-                    "map_name": "base01_lv003",
-                    "no_ensure_initial_movement_state": true,
                     "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "OMVBase01"
+                        },
                         [
-                            186.6,
-                            175.0
+                            183.73,
+                            172.31,
+                            true
                         ]
                     ]
                 }
@@ -123,11 +130,49 @@
                 121
             ],
             "timeout": 2000
+        },
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
         }
     },
-    "GiftOperatorMoveLocation2": {
-        "desc": "转向345度(北偏西15度)尝试接触到干员(预设位置2)",
-        "max_hit": 2,
+    "GiftOperatorTurnNorthwest": {
+        "desc": "转向315度(西北)尝试接触到干员",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "HEADING",
+                            "angle": 315,
+                            "zone_id": "OMVBase01"
+                        }
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "GiftOperatorTurnNorthByWest": {
+        "desc": "转向345度(北偏西15度)尝试接触到干员",
+        "max_hit": 1,
         "pre_delay": 0,
         "action": {
             "type": "Custom",
@@ -145,7 +190,15 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "GiftOperatorMoveLocation2Move": {
         "desc": "移动尝试接触到干员(预设位置2)",
@@ -153,14 +206,17 @@
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "MapTrackerMove",
+                "custom_action": "MapNavigateAction",
                 "custom_action_param": {
-                    "map_name": "base01_lv003",
-                    "no_ensure_initial_movement_state": true,
                     "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "OMVBase01"
+                        },
                         [
-                            188.0,
-                            175.3
+                            185.11,
+                            172.6,
+                            true
                         ]
                     ]
                 }
@@ -175,10 +231,18 @@
                 121
             ],
             "timeout": 2000
+        },
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
         }
     },
-    "GiftOperatorMoveLocation3": {
-        "desc": "转向90度(正东)尝试接触到干员(预设位置3)",
+    "GiftOperatorTurnEast": {
+        "desc": "转向90度(正东)尝试接触到干员",
         "max_hit": 2,
         "pre_delay": 0,
         "action": {
@@ -197,7 +261,45 @@
             }
         },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "GiftOperatorTurnSoutheast": {
+        "desc": "转向135度(东南)尝试接触到干员",
+        "max_hit": 2,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "HEADING",
+                            "angle": 135,
+                            "zone_id": "OMVBase01"
+                        }
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "GiftOperatorMoveLocation3Move": {
         "desc": "移动尝试接触到干员(预设位置3)",
@@ -205,14 +307,17 @@
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "MapTrackerMove",
+                "custom_action": "MapNavigateAction",
                 "custom_action_param": {
-                    "map_name": "base01_lv003",
-                    "no_ensure_initial_movement_state": true,
                     "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "OMVBase01"
+                        },
                         [
-                            188.6,
-                            176.2
+                            185.7,
+                            173.49,
+                            true
                         ]
                     ]
                 }
@@ -227,37 +332,56 @@
                 121
             ],
             "timeout": 2000
+        },
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
         }
     },
-    "GiftOperatorMoveMapTracker": {
-        "desc": "使用 MapTracker 识别寻路走到干员联络台",
+    "GiftOperatorMove": {
+        "desc": "寻路走到干员联络台",
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "MapTrackerMove",
+                "custom_action": "MapNavigateAction",
                 "custom_action_param": {
-                    "map_name": "base01_lv003",
                     "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "OMVBase01"
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                182.52,
+                                180.5
+                            ]
+                        },
                         [
-                            184.1,
-                            195.4
-                        ],
-                        [
-                            189.8,
-                            183.2
-                        ],
-                        [
-                            186.0,
-                            177.3
+                            182.52,
+                            173.4,
+                            true
                         ]
                     ]
                 }
             }
         },
         "next": [
-            "GiftOperatorClickContact",
-            "[JumpBack]GiftOperatorGoAheadContact"
-        ]
+            "GiftOperatorClickContact"
+            //"[JumpBack]GiftOperatorGoAheadContact"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "GiftOperatorGoAheadContact": {
         "desc": "继续向前走尝试接触联络台",
@@ -279,20 +403,32 @@
                     ]
                 }
             }
+        },
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
         }
     },
-    "GiftOperatorMoveMapTrackerSC": {
-        "desc": "使用 MapTracker 识别寻路走到干员联络台",
+    "GiftOperatorMoveSC": {
+        "desc": "寻路走到干员联络台",
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "MapTrackerMove",
+                "custom_action": "MapNavigateAction",
                 "custom_action_param": {
-                    "map_name": "base01_lv003",
                     "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "OMVBase01"
+                        },
                         [
-                            186.0,
-                            176.6
+                            183.14,
+                            173.88,
+                            true
                         ]
                     ]
                 }
@@ -300,10 +436,18 @@
         },
         "next": [
             "GiftOperatorClickContact"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
-    "GiftOperatorShiftToRunMapTracker": {
-        "desc": "按 Shift 恢复跑步模式，等待后再用 MapTracker 寻路",
+    "GiftOperatorShiftToRun": {
+        "desc": "按 Shift 恢复跑步模式，等待后再寻路",
         "action": {
             "type": "ClickKey",
             "param": {
@@ -312,10 +456,10 @@
         },
         "post_delay": 500,
         "next": [
-            "GiftOperatorMoveMapTracker"
+            "GiftOperatorMove"
         ]
     },
-    "GiftOperatorShiftToRunMapTrackerSC": {
+    "GiftOperatorShiftToRunSC": {
         "desc": "短路优化版本寻路,从干员联络站开始",
         "action": {
             "type": "ClickKey",
@@ -325,7 +469,7 @@
         },
         "post_delay": 500,
         "next": [
-            "GiftOperatorMoveMapTrackerSC"
+            "GiftOperatorMoveSC"
         ]
     }
 }

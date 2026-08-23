@@ -1,0 +1,582 @@
+{
+    "DeliveryJobsStartFillValleyIVPriority1": {
+        "desc": "四号谷地：开始尝试第 1 优先级装箱货物",
+        "enabled": true,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "patch": {
+                "DeliveryJobsItemListAtTop": {
+                    "attach": {
+                        "ready": false
+                    }
+                },
+                "DeliveryJobsItemListAtBottom": {
+                    "attach": {
+                        "ready": false
+                    }
+                }
+            }
+        },
+        "anchor": {
+            "DeliveryJobsCurrentPriorityItem": "DeliveryJobsSelectItemToFillValleyIVPriority1",
+            "DeliveryJobsNextPriority": "DeliveryJobsContinueFillValleyIVAfterPriority1"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsResetItemListLoop"
+        ]
+    },
+    "DeliveryJobsSelectItemToFillValleyIVPriority1": {
+        "desc": "选择四号谷地第 1 优先级装箱货物",
+        "enabled": true,
+        "recognition": "Custom",
+        "custom_recognition": "IconRecognition",
+        "custom_recognition_param": {
+            "grid_type": "shipment",
+            "item_ids": [
+                "item_plant_moss_powder_3"
+            ],
+            "item_recheck_filters": [
+                "Normal:Product"
+            ],
+            "deduplicate": true
+        },
+        "roi": [
+            34,
+            132,
+            386,
+            474
+        ],
+        "pre_wait_freezes": 80,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsFillCorrespondingGoods"
+        ]
+    },
+    "DeliveryJobsContinueFillValleyIVAfterPriority1": {
+        "desc": "四号谷地：第 1 优先级货物未装满，尝试后续已配置货物",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsStartFillValleyIVPriority2",
+            "DeliveryJobsStartFillValleyIVPriority3",
+            "DeliveryJobsStartFillValleyIVPriority4",
+            "DeliveryJobsConfiguredFillItemsInsufficient"
+        ]
+    },
+    "DeliveryJobsStartFillValleyIVPriority2": {
+        "desc": "四号谷地：开始尝试第 2 优先级装箱货物",
+        "enabled": false,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "patch": {
+                "DeliveryJobsItemListAtTop": {
+                    "attach": {
+                        "ready": false
+                    }
+                },
+                "DeliveryJobsItemListAtBottom": {
+                    "attach": {
+                        "ready": false
+                    }
+                }
+            }
+        },
+        "anchor": {
+            "DeliveryJobsCurrentPriorityItem": "DeliveryJobsSelectItemToFillValleyIVPriority2",
+            "DeliveryJobsNextPriority": "DeliveryJobsContinueFillValleyIVAfterPriority2"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsResetItemListLoop"
+        ]
+    },
+    "DeliveryJobsSelectItemToFillValleyIVPriority2": {
+        "desc": "选择四号谷地第 2 优先级装箱货物",
+        "enabled": false,
+        "recognition": "Custom",
+        "custom_recognition": "IconRecognition",
+        "custom_recognition_param": {
+            "grid_type": "shipment",
+            "item_ids": [
+                "item_plant_moss_powder_3"
+            ],
+            "item_recheck_filters": [
+                "Normal:Product"
+            ],
+            "deduplicate": true
+        },
+        "roi": [
+            34,
+            132,
+            386,
+            474
+        ],
+        "pre_wait_freezes": 80,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsFillCorrespondingGoods"
+        ]
+    },
+    "DeliveryJobsContinueFillValleyIVAfterPriority2": {
+        "desc": "四号谷地：第 2 优先级货物未装满，尝试后续已配置货物",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsStartFillValleyIVPriority3",
+            "DeliveryJobsStartFillValleyIVPriority4",
+            "DeliveryJobsConfiguredFillItemsInsufficient"
+        ]
+    },
+    "DeliveryJobsStartFillValleyIVPriority3": {
+        "desc": "四号谷地：开始尝试第 3 优先级装箱货物",
+        "enabled": false,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "patch": {
+                "DeliveryJobsItemListAtTop": {
+                    "attach": {
+                        "ready": false
+                    }
+                },
+                "DeliveryJobsItemListAtBottom": {
+                    "attach": {
+                        "ready": false
+                    }
+                }
+            }
+        },
+        "anchor": {
+            "DeliveryJobsCurrentPriorityItem": "DeliveryJobsSelectItemToFillValleyIVPriority3",
+            "DeliveryJobsNextPriority": "DeliveryJobsContinueFillValleyIVAfterPriority3"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsResetItemListLoop"
+        ]
+    },
+    "DeliveryJobsSelectItemToFillValleyIVPriority3": {
+        "desc": "选择四号谷地第 3 优先级装箱货物",
+        "enabled": false,
+        "recognition": "Custom",
+        "custom_recognition": "IconRecognition",
+        "custom_recognition_param": {
+            "grid_type": "shipment",
+            "item_ids": [
+                "item_plant_moss_powder_3"
+            ],
+            "item_recheck_filters": [
+                "Normal:Product"
+            ],
+            "deduplicate": true
+        },
+        "roi": [
+            34,
+            132,
+            386,
+            474
+        ],
+        "pre_wait_freezes": 80,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsFillCorrespondingGoods"
+        ]
+    },
+    "DeliveryJobsContinueFillValleyIVAfterPriority3": {
+        "desc": "四号谷地：第 3 优先级货物未装满，尝试后续已配置货物",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsStartFillValleyIVPriority4",
+            "DeliveryJobsConfiguredFillItemsInsufficient"
+        ]
+    },
+    "DeliveryJobsStartFillValleyIVPriority4": {
+        "desc": "四号谷地：开始尝试第 4 优先级装箱货物",
+        "enabled": false,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "patch": {
+                "DeliveryJobsItemListAtTop": {
+                    "attach": {
+                        "ready": false
+                    }
+                },
+                "DeliveryJobsItemListAtBottom": {
+                    "attach": {
+                        "ready": false
+                    }
+                }
+            }
+        },
+        "anchor": {
+            "DeliveryJobsCurrentPriorityItem": "DeliveryJobsSelectItemToFillValleyIVPriority4",
+            "DeliveryJobsNextPriority": "DeliveryJobsContinueFillValleyIVAfterPriority4"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsResetItemListLoop"
+        ]
+    },
+    "DeliveryJobsSelectItemToFillValleyIVPriority4": {
+        "desc": "选择四号谷地第 4 优先级装箱货物",
+        "enabled": false,
+        "recognition": "Custom",
+        "custom_recognition": "IconRecognition",
+        "custom_recognition_param": {
+            "grid_type": "shipment",
+            "item_ids": [
+                "item_plant_moss_powder_3"
+            ],
+            "item_recheck_filters": [
+                "Normal:Product"
+            ],
+            "deduplicate": true
+        },
+        "roi": [
+            34,
+            132,
+            386,
+            474
+        ],
+        "pre_wait_freezes": 80,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsFillCorrespondingGoods"
+        ]
+    },
+    "DeliveryJobsContinueFillValleyIVAfterPriority4": {
+        "desc": "四号谷地：第 4 优先级货物未装满，尝试后续已配置货物",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsConfiguredFillItemsInsufficient"
+        ]
+    },
+    "DeliveryJobsStartFillWulingPriority1": {
+        "desc": "武陵：开始尝试第 1 优先级装箱货物",
+        "enabled": true,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "patch": {
+                "DeliveryJobsItemListAtTop": {
+                    "attach": {
+                        "ready": false
+                    }
+                },
+                "DeliveryJobsItemListAtBottom": {
+                    "attach": {
+                        "ready": false
+                    }
+                }
+            }
+        },
+        "anchor": {
+            "DeliveryJobsCurrentPriorityItem": "DeliveryJobsSelectItemToFillWulingPriority1",
+            "DeliveryJobsNextPriority": "DeliveryJobsContinueFillWulingAfterPriority1"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsResetItemListLoop"
+        ]
+    },
+    "DeliveryJobsSelectItemToFillWulingPriority1": {
+        "desc": "选择武陵第 1 优先级装箱货物",
+        "enabled": true,
+        "recognition": "Custom",
+        "custom_recognition": "IconRecognition",
+        "custom_recognition_param": {
+            "grid_type": "shipment",
+            "item_ids": [
+                "item_plant_moss_powder_3"
+            ],
+            "item_recheck_filters": [
+                "Normal:Product"
+            ],
+            "deduplicate": true
+        },
+        "roi": [
+            34,
+            132,
+            386,
+            474
+        ],
+        "pre_wait_freezes": 80,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsFillCorrespondingGoods"
+        ]
+    },
+    "DeliveryJobsContinueFillWulingAfterPriority1": {
+        "desc": "武陵：第 1 优先级货物未装满，尝试后续已配置货物",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsStartFillWulingPriority2",
+            "DeliveryJobsStartFillWulingPriority3",
+            "DeliveryJobsStartFillWulingPriority4",
+            "DeliveryJobsConfiguredFillItemsInsufficient"
+        ]
+    },
+    "DeliveryJobsStartFillWulingPriority2": {
+        "desc": "武陵：开始尝试第 2 优先级装箱货物",
+        "enabled": false,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "patch": {
+                "DeliveryJobsItemListAtTop": {
+                    "attach": {
+                        "ready": false
+                    }
+                },
+                "DeliveryJobsItemListAtBottom": {
+                    "attach": {
+                        "ready": false
+                    }
+                }
+            }
+        },
+        "anchor": {
+            "DeliveryJobsCurrentPriorityItem": "DeliveryJobsSelectItemToFillWulingPriority2",
+            "DeliveryJobsNextPriority": "DeliveryJobsContinueFillWulingAfterPriority2"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsResetItemListLoop"
+        ]
+    },
+    "DeliveryJobsSelectItemToFillWulingPriority2": {
+        "desc": "选择武陵第 2 优先级装箱货物",
+        "enabled": false,
+        "recognition": "Custom",
+        "custom_recognition": "IconRecognition",
+        "custom_recognition_param": {
+            "grid_type": "shipment",
+            "item_ids": [
+                "item_plant_moss_powder_3"
+            ],
+            "item_recheck_filters": [
+                "Normal:Product"
+            ],
+            "deduplicate": true
+        },
+        "roi": [
+            34,
+            132,
+            386,
+            474
+        ],
+        "pre_wait_freezes": 80,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsFillCorrespondingGoods"
+        ]
+    },
+    "DeliveryJobsContinueFillWulingAfterPriority2": {
+        "desc": "武陵：第 2 优先级货物未装满，尝试后续已配置货物",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsStartFillWulingPriority3",
+            "DeliveryJobsStartFillWulingPriority4",
+            "DeliveryJobsConfiguredFillItemsInsufficient"
+        ]
+    },
+    "DeliveryJobsStartFillWulingPriority3": {
+        "desc": "武陵：开始尝试第 3 优先级装箱货物",
+        "enabled": false,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "patch": {
+                "DeliveryJobsItemListAtTop": {
+                    "attach": {
+                        "ready": false
+                    }
+                },
+                "DeliveryJobsItemListAtBottom": {
+                    "attach": {
+                        "ready": false
+                    }
+                }
+            }
+        },
+        "anchor": {
+            "DeliveryJobsCurrentPriorityItem": "DeliveryJobsSelectItemToFillWulingPriority3",
+            "DeliveryJobsNextPriority": "DeliveryJobsContinueFillWulingAfterPriority3"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsResetItemListLoop"
+        ]
+    },
+    "DeliveryJobsSelectItemToFillWulingPriority3": {
+        "desc": "选择武陵第 3 优先级装箱货物",
+        "enabled": false,
+        "recognition": "Custom",
+        "custom_recognition": "IconRecognition",
+        "custom_recognition_param": {
+            "grid_type": "shipment",
+            "item_ids": [
+                "item_plant_moss_powder_3"
+            ],
+            "item_recheck_filters": [
+                "Normal:Product"
+            ],
+            "deduplicate": true
+        },
+        "roi": [
+            34,
+            132,
+            386,
+            474
+        ],
+        "pre_wait_freezes": 80,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsFillCorrespondingGoods"
+        ]
+    },
+    "DeliveryJobsContinueFillWulingAfterPriority3": {
+        "desc": "武陵：第 3 优先级货物未装满，尝试后续已配置货物",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsStartFillWulingPriority4",
+            "DeliveryJobsConfiguredFillItemsInsufficient"
+        ]
+    },
+    "DeliveryJobsStartFillWulingPriority4": {
+        "desc": "武陵：开始尝试第 4 优先级装箱货物",
+        "enabled": false,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "patch": {
+                "DeliveryJobsItemListAtTop": {
+                    "attach": {
+                        "ready": false
+                    }
+                },
+                "DeliveryJobsItemListAtBottom": {
+                    "attach": {
+                        "ready": false
+                    }
+                }
+            }
+        },
+        "anchor": {
+            "DeliveryJobsCurrentPriorityItem": "DeliveryJobsSelectItemToFillWulingPriority4",
+            "DeliveryJobsNextPriority": "DeliveryJobsContinueFillWulingAfterPriority4"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsResetItemListLoop"
+        ]
+    },
+    "DeliveryJobsSelectItemToFillWulingPriority4": {
+        "desc": "选择武陵第 4 优先级装箱货物",
+        "enabled": false,
+        "recognition": "Custom",
+        "custom_recognition": "IconRecognition",
+        "custom_recognition_param": {
+            "grid_type": "shipment",
+            "item_ids": [
+                "item_plant_moss_powder_3"
+            ],
+            "item_recheck_filters": [
+                "Normal:Product"
+            ],
+            "deduplicate": true
+        },
+        "roi": [
+            34,
+            132,
+            386,
+            474
+        ],
+        "pre_wait_freezes": 80,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsFillCorrespondingGoods"
+        ]
+    },
+    "DeliveryJobsContinueFillWulingAfterPriority4": {
+        "desc": "武陵：第 4 优先级货物未装满，尝试后续已配置货物",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsConfiguredFillItemsInsufficient"
+        ]
+    }
+}

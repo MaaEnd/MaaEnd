@@ -49,7 +49,7 @@
         "next": [
             "ProtocolSpacePrepareLock",
             "ProtocolSpaceNormalPrepareChooseReward",
-            "ProtocolSpaceEnterSpace"
+            "ProtocolSpaceEnterSpacePrepare"
         ],
         "focus": {
             "Node.Action.Succeeded": "$task.ProtocolSpace.focus.select_level"
@@ -146,7 +146,7 @@
         "threshold": 0.9,
         "action": "Click",
         "next": [
-            "ProtocolSpaceEnterSpace"
+            "ProtocolSpaceEnterSpacePrepare"
         ]
     },
     "ProtocolSpaceDeepDivePrepareEnter": {
@@ -169,7 +169,7 @@
         "post_delay": 0,
         "next": [
             "ProtocolSpacePrepareLock",
-            "ProtocolSpaceEnterSpace"
+            "ProtocolSpaceEnterSpacePrepare"
         ]
     },
     "ProtocolSpacePrepareLock": {

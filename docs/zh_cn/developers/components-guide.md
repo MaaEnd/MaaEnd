@@ -52,6 +52,7 @@ MaaEnd 基于 [MaaFramework](https://github.com/MaaXYZ/MaaFramework)，主体流
 | MapNavigator | 自动寻路：给定目标坐标免录制直达，含交互/过图的路线支持录制 | [components/map-navigator.md](./components/map-navigator.md) |
 | MapTracker | 小地图追踪与路径移动 | [components/map-tracker.md](./components/map-tracker.md) |
 | RecoGrid Engine | C++ 网格识别与滚动累计扫描引擎 | [components/recogrid-engine.md](./components/recogrid-engine.md) |
+| IconRecognition | C++ 物品图标识别、固定 ROI 和 Maa Custom Recognition | [components/icon-recognition.md](./components/icon-recognition.md) |
 | IMS | 物品管理系统：A2 同步 / A1 加减 / A3 累加，R1 数量 / R2 就绪 | [components/ims.md](./components/ims.md) |
 
 ## 任务维护文档

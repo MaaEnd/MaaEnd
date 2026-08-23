@@ -9,7 +9,9 @@ import (
 	"time"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/iconqty"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/ocrnum"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/recogtarget"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
@@ -19,16 +21,31 @@ const componentSyncItemData = "SyncItemData"
 
 var _ maa.CustomActionRunner = &SyncItemData{}
 
-// syncItemDataParam is custom_action_param for SyncItemData.
+// syncItemDataParam is custom_action_param for SyncItemData (A2).
 //
-// items: 字典，键为物品 ID，值为 And 识别节点名；依次执行节点，沿 box_index 链取 OCR 数量。
-// page_dedup: 翻页去重。false=本轮结果整表创建；true=在已有缓存上按 ID 覆盖数量。
+// IconRecognition path (贵重品库等网格界面):
+//   - grid_type + optional item_filters / roi via pkg/iconqty;
+//   - every returned match quantity is OCR'd from cell_box.
+//
+// OCR / And+box_index path (顶栏货币、采购中心定点数字等):
+//   - items maps cache item ID -> pipeline recognition node name;
+//   - the node may be pure OCR, or And whose box_index selects the OCR digit result;
+//   - these keys always join region rebuild when page_dedup=false (miss → drop).
+//
+// At least one of grid_type (icon scan) / items must be set.
+// page_dedup=false region rebuild = IconRecognition catalog IDs from item_filters
+// (when grid_type is set) UNION keys of items.
 type syncItemDataParam struct {
-	Items     map[string]string `json:"items"`
-	PageDedup bool              `json:"page_dedup"`
+	GridType    string            `json:"grid_type"`
+	ROI         []int             `json:"roi"`
+	ItemFilters []string          `json:"item_filters"`
+	Items       map[string]string `json:"items"`
+	PageDedup   bool              `json:"page_dedup"`
+	NotifyUI    *bool             `json:"notify_ui"`
+	Deduplicate *bool             `json:"deduplicate"`
 }
 
-// SyncItemData scans configured item recognizers on the current screen and persists quantities.
+// SyncItemData scans configured items on the current screen and persists quantities.
 type SyncItemData struct{}
 
 // Run implements maa.CustomActionRunner.
@@ -49,12 +66,16 @@ func (a *SyncItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			Msg("failed to parse params")
 		return false
 	}
-	if len(params.Items) == 0 {
+
+	wantsIcon := wantsIconScan(params)
+	if !wantsIcon && len(params.Items) == 0 {
 		log.Error().
 			Str("component", componentSyncItemData).
-			Msg("items must not be empty")
+			Msg("grid_type or items must not be empty")
 		return false
 	}
+
+	notifyUI := resolveSyncNotifyUI(params.NotifyUI)
 
 	if err := ensureHydrated(); err != nil {
 		log.Error().
@@ -80,7 +101,21 @@ func (a *SyncItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		return false
 	}
 
-	merged, err := baseItemsForSync(params.PageDedup)
+	var regionIDs []string
+	if wantsIcon && !params.PageDedup {
+		regionIDs, err = resolveRegionRebuildIDs(params.GridType, params.ItemFilters)
+		if err != nil {
+			log.Error().
+				Err(err).
+				Str("component", componentSyncItemData).
+				Str("grid_type", params.GridType).
+				Strs("item_filters", params.ItemFilters).
+				Msg("failed to resolve region rebuild IDs from IconRecognition catalog")
+			return false
+		}
+	}
+	scanIDs := collectSyncScanIDs(regionIDs, params.Items)
+	merged, err := baseItemsForSync(params.PageDedup, scanIDs)
 	if err != nil {
 		log.Error().
 			Err(err).
@@ -89,25 +124,56 @@ func (a *SyncItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		return false
 	}
 
-	itemIDs := make([]string, 0, len(params.Items))
-	for itemID := range params.Items {
-		itemIDs = append(itemIDs, itemID)
-	}
-	sort.Strings(itemIDs)
-
 	hitCount := 0
-	for _, itemID := range itemIDs {
-		nodeName := strings.TrimSpace(params.Items[itemID])
-		itemID = strings.TrimSpace(itemID)
-		if itemID == "" || nodeName == "" {
+	if wantsIcon {
+		dedup := true
+		if params.Deduplicate != nil {
+			dedup = *params.Deduplicate
+		}
+		hits, err := iconqty.RecognizeQuantities(ctx, img, iconqty.Request{
+			GridType:    params.GridType,
+			ROI:         params.ROI,
+			ItemFilters: params.ItemFilters,
+			Deduplicate: dedup,
+		})
+		if err != nil {
 			log.Error().
+				Err(err).
 				Str("component", componentSyncItemData).
-				Str("item_id", itemID).
-				Str("node", nodeName).
-				Msg("items contains empty item id or node name")
+				Str("grid_type", params.GridType).
+				Strs("item_filters", params.ItemFilters).
+				Msg("failed to recognize icon items")
 			return false
 		}
+		for _, h := range hits {
+			prev, existed := merged[h.ItemID]
+			merged[h.ItemID] = h.Qty
+			hitCount++
+			displayName := iconqty.ItemDisplayName(h.ItemID)
+			if notifyUI {
+				maafocus.Print(ctx, i18n.T("ims.sync_item_found", displayName, h.Qty))
+			}
+			log.Info().
+				Str("component", componentSyncItemData).
+				Str("item_id", h.ItemID).
+				Str("item_name", displayName).
+				Str("source", "IconRecognition").
+				Int("quantity", h.Qty).
+				Int("previous", prev).
+				Bool("overwrote", existed).
+				Bool("page_dedup", params.PageDedup).
+				Bool("notify_ui", notifyUI).
+				Msg("item quantity recorded")
+		}
+	}
 
+	ocrItemIDs := make([]string, 0, len(params.Items))
+	for itemID := range params.Items {
+		ocrItemIDs = append(ocrItemIDs, itemID)
+	}
+	sort.Strings(ocrItemIDs)
+	for _, itemID := range ocrItemIDs {
+		nodeName := params.Items[itemID]
 		qty, ok, err := recognizeItemQuantity(ctx, nodeName, img)
 		if err != nil {
 			log.Error().
@@ -131,17 +197,21 @@ func (a *SyncItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		prev, existed := merged[itemID]
 		merged[itemID] = qty
 		hitCount++
-		displayName := itemDisplayName(itemID)
-		maafocus.Print(ctx, i18n.T("ims.sync_item_found", displayName, qty))
+		displayName := iconqty.ItemDisplayName(itemID)
+		if notifyUI {
+			maafocus.Print(ctx, i18n.T("ims.sync_item_found", displayName, qty))
+		}
 		log.Info().
 			Str("component", componentSyncItemData).
 			Str("item_id", itemID).
 			Str("item_name", displayName).
 			Str("node", nodeName).
+			Str("source", "pipeline_ocr").
 			Int("quantity", qty).
 			Int("previous", prev).
 			Bool("overwrote", existed).
 			Bool("page_dedup", params.PageDedup).
+			Bool("notify_ui", notifyUI).
 			Msg("item quantity recorded")
 	}
 
@@ -156,13 +226,41 @@ func (a *SyncItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 
 	log.Info().
 		Str("component", componentSyncItemData).
-		Int("item_param_count", len(params.Items)).
+		Str("grid_type", params.GridType).
+		Strs("item_filters", params.ItemFilters).
+		Int("region_rebuild_ids", len(regionIDs)).
+		Int("ocr_item_count", len(params.Items)).
 		Int("hit_count", hitCount).
 		Int("total_cached", len(merged)).
 		Bool("page_dedup", params.PageDedup).
 		Time("updated_at", at.UTC()).
 		Msg("item data sync finished")
 	return true
+}
+
+func wantsIconScan(params syncItemDataParam) bool {
+	return strings.TrimSpace(params.GridType) != ""
+}
+
+func collectSyncScanIDs(regionIDs []string, items map[string]string) []string {
+	seen := make(map[string]struct{}, len(regionIDs)+len(items))
+	out := make([]string, 0, len(regionIDs)+len(items))
+	for _, id := range regionIDs {
+		if _, ok := seen[id]; ok {
+			continue
+		}
+		seen[id] = struct{}{}
+		out = append(out, id)
+	}
+	for id := range items {
+		if _, ok := seen[id]; ok {
+			continue
+		}
+		seen[id] = struct{}{}
+		out = append(out, id)
+	}
+	sort.Strings(out)
+	return out
 }
 
 func parseSyncItemDataParam(raw string) (syncItemDataParam, error) {
@@ -173,42 +271,92 @@ func parseSyncItemDataParam(raw string) (syncItemDataParam, error) {
 	if err := json.Unmarshal([]byte(raw), &params); err != nil {
 		return syncItemDataParam{}, err
 	}
+	normalizedItems, err := normalizeItemsMap(params.Items)
+	if err != nil {
+		return syncItemDataParam{}, err
+	}
+	params.Items = normalizedItems
+	params.ItemFilters, err = iconqty.NormalizeStringList(params.ItemFilters, "item_filters")
+	if err != nil {
+		return syncItemDataParam{}, err
+	}
+	params.GridType = strings.TrimSpace(params.GridType)
 	return params, nil
 }
 
-func baseItemsForSync(pageDedup bool) (map[string]int, error) {
-	if !pageDedup {
-		return map[string]int{}, nil
+// normalizeItemsMap trims item IDs and node names so cache keys stay consistent
+// across region rebuild, recognition, and persistence.
+func normalizeItemsMap(items map[string]string) (map[string]string, error) {
+	if len(items) == 0 {
+		return items, nil
 	}
+	out := make(map[string]string, len(items))
+	for id, node := range items {
+		id = strings.TrimSpace(id)
+		node = strings.TrimSpace(node)
+		if id == "" || node == "" {
+			return nil, fmt.Errorf("items contains empty item id or node name")
+		}
+		if _, dup := out[id]; dup {
+			return nil, fmt.Errorf("items contains duplicate item id after trim: %s", id)
+		}
+		out[id] = node
+	}
+	return out, nil
+}
+
+// resolveSyncNotifyUI defaults to true when omitted (announce each hit item).
+func resolveSyncNotifyUI(v *bool) bool {
+	if v == nil {
+		return true
+	}
+	return *v
+}
+
+func baseItemsForSync(pageDedup bool, scanItemIDs []string) (map[string]int, error) {
 	// Caller must ensureHydrated first; memory is the session source of truth.
-	return ItemsSnapshot(), nil
+	snap := ItemsSnapshot()
+	if pageDedup {
+		return snap, nil
+	}
+	// Region rebuild: drop only IDs belonging to this scan, keep other regions.
+	out := make(map[string]int, len(snap))
+	for id, qty := range snap {
+		out[id] = qty
+	}
+	for _, id := range scanItemIDs {
+		delete(out, id)
+	}
+	return out, nil
 }
 
 func recognizeItemQuantity(ctx *maa.Context, andNode string, img image.Image) (qty int, hit bool, err error) {
-	detail, err := ctx.RunRecognition(andNode, img)
+	qty, hit, _, err = recognizeItemQuantityHit(ctx, andNode, img)
+	return qty, hit, err
+}
+
+// recognizeItemQuantityHit runs a pipeline recognition node and returns quantity
+// plus the root recognition detail (OCR / And+box_index path).
+func recognizeItemQuantityHit(
+	ctx *maa.Context,
+	andNode string,
+	img image.Image,
+) (qty int, hit bool, detail *maa.RecognitionDetail, err error) {
+	detail, err = ctx.RunRecognition(andNode, img)
 	if err != nil {
-		return 0, false, fmt.Errorf("run recognition %s: %w", andNode, err)
+		return 0, false, nil, fmt.Errorf("run recognition %s: %w", andNode, err)
 	}
 	if detail == nil || !detail.Hit {
-		return 0, false, nil
+		return 0, false, detail, nil
 	}
 
 	selected, err := recogtarget.SelectDetail(ctx, andNode, detail)
 	if err != nil {
-		return 0, false, fmt.Errorf("select box_index detail: %w", err)
+		return 0, false, detail, fmt.Errorf("select box_index detail: %w", err)
 	}
-	qty, err = extractOCRQuantity(selected)
+	qty, err = ocrnum.Extract(selected)
 	if err != nil {
-		return 0, false, fmt.Errorf("parse quantity from %s: %w", andNode, err)
+		return 0, false, detail, fmt.Errorf("parse quantity from %s: %w", andNode, err)
 	}
-	return qty, true, nil
-}
-
-func itemDisplayName(itemID string) string {
-	key := "ims.item." + itemID
-	name := i18n.T(key)
-	if name == key || strings.TrimSpace(name) == "" {
-		return itemID
-	}
-	return name
+	return qty, true, detail, nil
 }

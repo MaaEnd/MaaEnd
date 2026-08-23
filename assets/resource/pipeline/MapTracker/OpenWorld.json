@@ -10,7 +10,7 @@
                     340
                 ],
                 "template": [
-                    "MapTracker/OpenWorld/ZiplineInteract.png"
+                    "MapNavigator/Zipline/InteractButton.png"
                 ],
                 "threshold": [
                     0.8

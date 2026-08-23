@@ -69,6 +69,11 @@ These node names **do not start with `__ScenePrivate`**.
 | Menu | `SceneEnterMenuProtocolPass` | Enter Protocol Pass menu. |
 | Menu | `SceneEnterMenuBackpack` | Enter inventory screen. |
 | Menu | `SceneEnterMenuShop` | Enter shop screen. |
+| Menu | `SceneEnterMenuIntelArchive` | Enter Intel Archives. |
+| Menu | `SceneEnterMenuIntelArchiveIntelGathering` | Enter Intel Archives - Intel Gathering. |
+| Menu | `SceneEnterMenuIntelArchiveAudioRecords` | Enter Intel Archives - Audio Records. |
+| Menu | `SceneEnterMenuIntelArchiveFindings` | Enter Intel Archives - Findings. |
+| Menu | `SceneEnterMenuIntelArchiveNexusFiles` | Enter Intel Archives - Nexus Files. |
 | Menu | `SceneEnterMenuHeadhunt` | Enter Operator Headhunt screen. |
 | Helper | `SceneDialogConfirm` | Click confirm button in dialogs. |
 | Helper | `SceneDialogCancel` | Click cancel button in dialogs. |

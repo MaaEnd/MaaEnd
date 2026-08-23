@@ -55,7 +55,7 @@ type sellProductOperatorSnapshot struct {
 
 // currentSellProductCacheUID 获取 CaptureUID 模块生成的加盐哈希；尚未捕获时使用 unknown 分区。
 func currentSellProductCacheUID() string {
-	uid := captureuid.GetCachedUID()
+	uid := captureuid.GetCachedUID(captureuid.OutputTypeHashed)
 	if uid == "" {
 		return sellProductCacheUnknownUID
 	}

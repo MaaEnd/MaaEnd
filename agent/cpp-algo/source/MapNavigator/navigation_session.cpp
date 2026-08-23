@@ -14,6 +14,13 @@ namespace mapnavigator
 namespace
 {
 
+// Stands in for an out-of-range element; has_position is false, so callers take their no-position branch.
+const Waypoint& EmptyWaypoint()
+{
+    static const Waypoint empty {};
+    return empty;
+}
+
 size_t ResolveCanonicalFinalGoalIndex(const std::vector<Waypoint>& path)
 {
     for (size_t index = path.size(); index > 0; --index) {
@@ -33,6 +40,8 @@ const char* NaviPhaseName(NaviPhase phase)
         return "Navigate";
     case NaviPhase::WaitTransfer:
         return "WaitTransfer";
+    case NaviPhase::WaitZipline:
+        return "WaitZipline";
     case NaviPhase::Finished:
         return "Finished";
     case NaviPhase::Failed:
@@ -86,7 +95,10 @@ bool NavigationSession::HasCanonicalFinalGoal() const
 
 const Waypoint& NavigationSession::CanonicalFinalGoal() const
 {
-    assert(HasCanonicalFinalGoal() && "CanonicalFinalGoal requires a position node.");
+    if (!HasCanonicalFinalGoal()) {
+        LogError << "CanonicalFinalGoal requires a position node." << VAR(canonical_final_goal_index_) << VAR(original_path_.size());
+        return EmptyWaypoint();
+    }
     return original_path_[canonical_final_goal_index_];
 }
 
@@ -192,25 +204,33 @@ bool NavigationSession::HasCurrentWaypoint() const
 
 const Waypoint& NavigationSession::CurrentWaypoint() const
 {
-    RequireCurrentWaypoint("CurrentWaypoint");
+    if (!RequireCurrentWaypoint("CurrentWaypoint")) {
+        return EmptyWaypoint();
+    }
     return current_path_[current_node_idx_];
 }
 
 const Waypoint& NavigationSession::CurrentPathAt(size_t index) const
 {
-    RequireWaypointIndex(index, "CurrentPathAt");
+    if (!RequireWaypointIndex(index, "CurrentPathAt")) {
+        return EmptyWaypoint();
+    }
     return current_path_[index];
 }
 
 std::optional<size_t> NavigationSession::CanonicalIndexAtCurrent() const
 {
-    RequireCurrentWaypoint("CanonicalIndexAtCurrent");
+    if (!RequireCurrentWaypoint("CanonicalIndexAtCurrent")) {
+        return std::nullopt;
+    }
     return CanonicalIndexAtCurrentPath(current_node_idx_);
 }
 
 std::optional<size_t> NavigationSession::CanonicalIndexAtCurrentPath(size_t index) const
 {
-    RequireWaypointIndex(index, "CanonicalIndexAtCurrentPath");
+    if (!RequireWaypointIndex(index, "CanonicalIndexAtCurrentPath")) {
+        return std::nullopt;
+    }
     if (index < generated_prefix_size_) {
         return std::nullopt;
     }
@@ -229,7 +249,9 @@ void NavigationSession::UpdateCurrentZone(const std::string& zone_id)
 
 void NavigationSession::AdvanceToNextWaypoint(const char* reason)
 {
-    RequireCurrentWaypoint(reason);
+    if (!RequireCurrentWaypoint(reason)) {
+        return;
+    }
     ++current_node_idx_;
     ResetProgress();
     ResetHardProgress();
@@ -238,18 +260,39 @@ void NavigationSession::AdvanceToNextWaypoint(const char* reason)
 void NavigationSession::AdvanceToNextWaypoint(ActionType expected_action, const char* reason)
 {
     (void)expected_action;
-    RequireCurrentWaypoint(reason);
+    if (!RequireCurrentWaypoint(reason)) {
+        return;
+    }
     assert(current_path_[current_node_idx_].action == expected_action && "Unexpected action while advancing waypoint.");
     AdvanceToNextWaypoint(reason);
 }
 
 void NavigationSession::SkipPastWaypoint(size_t waypoint_idx, const char* reason)
 {
-    RequireWaypointIndex(waypoint_idx, reason);
+    if (!RequireWaypointIndex(waypoint_idx, reason)) {
+        return;
+    }
     assert(waypoint_idx >= current_node_idx_ && "SkipPastWaypoint cannot move backward.");
     current_node_idx_ = waypoint_idx + 1;
     ResetProgress();
     ResetHardProgress();
+}
+
+bool NavigationSession::RetargetCurrentWaypoint(double x, double y, const char* reason)
+{
+    if (!RequireCurrentWaypoint("RetargetCurrentWaypoint")) {
+        return false;
+    }
+    Waypoint& waypoint = current_path_[current_node_idx_];
+    if (!waypoint.HasPosition()) {
+        return false;
+    }
+    LogInfo << "Waypoint retargeted." << VAR(reason) << VAR(current_node_idx_) << VAR(waypoint.x) << VAR(waypoint.y) << VAR(x) << VAR(y);
+    waypoint.x = x;
+    waypoint.y = y;
+    // 到点判据是按新落脚点重算的, 旧点上攒的最好成绩会让无进展判据以为人在倒退
+    ResetProgress();
+    return true;
 }
 
 void NavigationSession::ResetProgress()
@@ -325,7 +368,12 @@ void NavigationSession::ResetHardProgress()
 
 void NavigationSession::ApplyDynamicOverlay(std::vector<Waypoint> generated_prefix, size_t continue_index, const NaviPosition& pos)
 {
-    assert(continue_index <= original_path_.size() && "Dynamic overlay continue index is out of range.");
+    // An out-of-range index would hand the insert below a reversed range, which wraps into a huge allocation.
+    if (continue_index > original_path_.size()) {
+        LogError << "Dynamic overlay continue index is out of range." << VAR(continue_index) << VAR(original_path_.size());
+        continue_index = original_path_.size();
+    }
+
     const bool retargeted = continue_index != path_origin_index_;
     current_path_ = std::move(generated_prefix);
     const size_t generated_count = current_path_.size();
@@ -360,17 +408,22 @@ void NavigationSession::UpdatePhase(NaviPhase next_phase, const char* reason)
     phase_ = next_phase;
 }
 
-void NavigationSession::RequireCurrentWaypoint(const char* reason) const
+bool NavigationSession::RequireCurrentWaypoint(const char* reason) const
 {
-    (void)reason;
-    assert(HasCurrentWaypoint() && "Current waypoint is required.");
+    if (HasCurrentWaypoint()) {
+        return true;
+    }
+    LogError << "Current waypoint is required." << VAR(reason) << VAR(current_node_idx_) << VAR(current_path_.size());
+    return false;
 }
 
-void NavigationSession::RequireWaypointIndex(size_t index, const char* reason) const
+bool NavigationSession::RequireWaypointIndex(size_t index, const char* reason) const
 {
-    (void)index;
-    (void)reason;
-    assert(index < current_path_.size() && "Waypoint index is out of range.");
+    if (index < current_path_.size()) {
+        return true;
+    }
+    LogError << "Waypoint index is out of range." << VAR(reason) << VAR(index) << VAR(current_path_.size());
+    return false;
 }
 
 } // namespace mapnavigator

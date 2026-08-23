@@ -1,0 +1,238 @@
+{
+    "IntelArchiveSyncIntelGathering": {
+        "desc": "同步情报采集：进入后逐条点击事件调查卡片，直到列表到底",
+        "enabled": false,
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuIntelArchiveIntelGathering"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "IntelArchiveSyncIntelGatheringScan"
+        ]
+    },
+    "IntelArchiveSyncIntelGatheringScan": {
+        "desc": "情报采集扫描循环",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]IntelArchiveSyncIntelGatheringPick",
+            "IntelArchiveSyncIntelGatheringScrollFinish",
+            "[JumpBack]IntelArchiveSyncIntelGatheringScroll"
+        ]
+    },
+    "IntelArchiveSyncIntelGatheringPick": {
+        "desc": "消费性选卡",
+        "recognition": "Custom",
+        "custom_recognition": "ExpendableRecognition",
+        "custom_recognition_param": {
+            "candidate": "IntelArchiveIncidentInvestigationText"
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "IntelArchiveSyncIntelGatheringOpenSuccess"
+        ],
+        "attach": {
+            "visited": []
+        }
+    },
+    "IntelArchiveSyncIntelGatheringOpenSuccess": {
+        "desc": "确认已进入情报调查详情",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            400,
+            100
+        ],
+        "expected": [
+            "事件调查"
+        ],
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "patch": {
+                "IntelArchiveSyncIntelGatheringInnerScrollFinish": {
+                    "attach": {
+                        "ready": false
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "IntelArchiveSyncIntelGatheringInnerScan"
+        ]
+    },
+    "IntelArchiveSyncIntelGatheringInnerScan": {
+        "desc": "事件调查内层扫描循环",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "IntelArchiveSyncIntelGatheringInnerScrollFinish",
+            "[JumpBack]IntelArchiveSyncIntelGatheringInnerScanAndScroll"
+        ]
+    },
+    "IntelArchiveSyncIntelGatheringInnerScanAndScroll": {
+        "desc": "本屏 OCR 入库；多页、省略号对不上、无名卡片交给 ResolveTruncAction",
+        "max_hit": 100,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "IntelArchiveScanItemsRecognition"
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "IntelArchiveResolveTruncAction"
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "IntelArchiveSyncIntelGatheringInnerScroll"
+        ]
+    },
+    "IntelArchiveSyncIntelGatheringInnerScrollFinish": {
+        "desc": "事件调查内层 item 列表已到底",
+        "recognition": "Custom",
+        "custom_recognition": "ListCompleteRecognition",
+        "custom_recognition_param": {
+            "threshold": 0.98
+        },
+        "roi": [
+            300,
+            0,
+            980,
+            720
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "IntelArchiveSyncIntelGatheringClose"
+        ],
+        "attach": {
+            "ready": false
+        }
+    },
+    "IntelArchiveSyncIntelGatheringInnerScroll": {
+        "desc": "事件调查内层列表下滑；滑动坐标与外层相同，进详情后列表中心若不同需实机微调",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            760,
+            520
+        ],
+        "end": [
+            760,
+            200
+        ],
+        "end_hold": 600,
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                300,
+                0,
+                980,
+                720
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "MouseMoveReset"
+        ]
+    },
+    "IntelArchiveSyncIntelGatheringClose": {
+        "desc": "关闭情报调查详情",
+        "recognition": "And",
+        "all_of": [
+            "CloseButtonType1"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "IntelArchiveSyncIntelGatheringClosed"
+        ]
+    },
+    "IntelArchiveSyncIntelGatheringClosed": {
+        "desc": "确认已回到情报采集列表",
+        "recognition": "And",
+        "all_of": [
+            "InIntelArchiveIntelGathering"
+        ],
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "IntelArchiveSyncIntelGatheringScrollFinish": {
+        "desc": "事件调查列表已到底",
+        "recognition": "Custom",
+        "custom_recognition": "ListCompleteRecognition",
+        "custom_recognition_param": {
+            "threshold": 0.98
+        },
+        "roi": [
+            0,
+            0,
+            980,
+            720
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "attach": {
+            "ready": false
+        }
+    },
+    "IntelArchiveSyncIntelGatheringScroll": {
+        "desc": "列表下滑",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            760,
+            520
+        ],
+        "end": [
+            760,
+            200
+        ],
+        "end_hold": 600,
+        "post_wait_freezes": {
+            "time": 200,
+            "target": [
+                280,
+                100,
+                960,
+                560
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "MouseMoveReset"
+        ]
+    }
+}

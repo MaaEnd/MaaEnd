@@ -5,6 +5,7 @@ const (
 
 	nodeBetterSlidingMain                 = "BetterSlidingMain"
 	nodeBetterSlidingFindStart            = "BetterSlidingFindStart"
+	nodeBetterSlidingFindSwipeForReset    = "BetterSlidingFindSwipeForReset"
 	nodeBetterSlidingGetSliderMaxQuantity = "BetterSlidingGetSliderMaxQuantity"
 	nodeBetterSlidingGetAvailableQuantity = "BetterSlidingGetAvailableQuantity"
 	nodeBetterSlidingFindEnd              = "BetterSlidingFindEnd"
@@ -25,6 +26,7 @@ const (
 	nodeBetterSlidingFail                    = "BetterSlidingFail"
 	nodeBetterSlidingIncreaseQuantity        = "BetterSlidingIncreaseQuantity"
 	nodeBetterSlidingDecreaseQuantity        = "BetterSlidingDecreaseQuantity"
+	nodeBetterSlidingReset                   = "BetterSlidingReset"
 )
 
 var betterSlidingActionNodes = []string{

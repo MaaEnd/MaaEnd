@@ -53,8 +53,52 @@
             }
         },
         "next": [
-            "SceneNoticeRewardsConfirm",
+            "DijiangRewardsFastCollectAddItemData",
             "InDijiangControlNexus"
+        ]
+    },
+    "DijiangRewardsFastCollectAddItemData": {
+        "desc": "快速收取奖励界面：IMS A3 累加 Plant/Nurturance/SpecialItem/信用，再关闭",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InNoticeRewards",
+                    "CloseRewardsButton"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 300,
+            "threshold": 0.97,
+            "timeout": 1500,
+            "target": [
+                528,
+                299,
+                222,
+                131
+            ]
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AddItemData",
+                "custom_action_param": {
+                    "item_filters": [
+                        "Normal:Plant",
+                        "Normal:Nurturance",
+                        "ValuableDepot:SpecialItem",
+                        "Isolate:SpaceshipGold"
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SceneNoticeRewardsConfirmClick"
         ]
     },
     "DijiangRewardsFastCollectClues": {
@@ -107,7 +151,7 @@
             }
         },
         "next": [
-            "SceneNoticeRewardsConfirm",
+            "DijiangRewardsFastCollectAddItemData",
             "InDijiangControlNexus"
         ]
     }

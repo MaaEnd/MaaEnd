@@ -1,0 +1,170 @@
+{
+    "__ScenePrivateMenuRegionalOverviewAnyCollapseAny": {
+        "desc": "在事务总览界面，收起任意一条条目",
+        "recognition": "And",
+        "all_of": [
+            "InRegionalOverview",
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    1053,
+                    69,
+                    27,
+                    651
+                ],
+                "template": "SceneManager/RegionalOverview/CollapseButton.png",
+                "threshold": 0.85,
+                "order_by": "Vertical"
+            }
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMenuRegionalOverviewAnyCollapseAnySuccess"
+        ]
+    },
+    "__ScenePrivateMenuRegionalOverviewAnyCollapseAnySuccess": {
+        "desc": "在事务总览界面，收起任意一条条目成功",
+        "recognition": "TemplateMatch",
+        "roi": "__ScenePrivateMenuRegionalOverviewAnyCollapseAny",
+        "roi_offset": [
+            -4,
+            -4,
+            8,
+            8
+        ],
+        "template": "SceneManager/RegionalOverview/ExpandButton.png",
+        "threshold": 0.85,
+        "pre_wait_freezes": {
+            "time": 80,
+            "target": [
+                160,
+                69,
+                953,
+                651
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__ScenePrivateMenuRegionalOverviewAnyExpandRecyclingStation": {
+        "desc": "在事务总览界面，展开资源回收站",
+        "recognition": "And",
+        "all_of": [
+            "SceneMenuRegionalOverviewAnyRecyclingStation",
+            {
+                "recognition": "TemplateMatch",
+                "roi": "SceneMenuRegionalOverviewAnyRecyclingStation",
+                "roi_offset": [
+                    864,
+                    7,
+                    -12,
+                    -11
+                ],
+                "template": "SceneManager/RegionalOverview/ExpandButton.png",
+                "threshold": 0.85
+            }
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMenuRegionalOverviewAnyRecyclingStationExpanded"
+        ]
+    },
+    "__ScenePrivateMenuRegionalOverviewAnyRecyclingStationExpanded": {
+        "desc": "在事务总览界面，且资源回收站已展开",
+        "recognition": "And",
+        "all_of": [
+            "SceneMenuRegionalOverviewAnyRecyclingStation",
+            {
+                "recognition": "TemplateMatch",
+                "roi": "SceneMenuRegionalOverviewAnyRecyclingStation",
+                "roi_offset": [
+                    864,
+                    7,
+                    -12,
+                    -11
+                ],
+                "template": "SceneManager/RegionalOverview/CollapseButton.png",
+                "threshold": 0.85
+            }
+        ],
+        "pre_wait_freezes": {
+            "time": 80,
+            "target": [
+                160,
+                69,
+                953,
+                651
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__ScenePrivateMenuRegionalOverviewWulingExpandTrialOfSwordmancy": {
+        "desc": "在武陵事务总览界面，展开选剑演武",
+        "recognition": "And",
+        "all_of": [
+            "SceneMenuRegionalOverviewWulingTrialOfSwordmancy",
+            {
+                "recognition": "TemplateMatch",
+                "roi": "SceneMenuRegionalOverviewWulingTrialOfSwordmancy",
+                "roi_offset": [
+                    864,
+                    7,
+                    -12,
+                    -11
+                ],
+                "template": "SceneManager/RegionalOverview/ExpandButton.png",
+                "threshold": 0.85
+            }
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMenuRegionalOverviewWulingTrialOfSwordmancyExpanded"
+        ]
+    },
+    "__ScenePrivateMenuRegionalOverviewWulingTrialOfSwordmancyExpanded": {
+        "desc": "在武陵事务总览界面，且选剑演武已展开",
+        "recognition": "And",
+        "all_of": [
+            "SceneMenuRegionalOverviewWulingTrialOfSwordmancy",
+            {
+                "recognition": "TemplateMatch",
+                "roi": "SceneMenuRegionalOverviewWulingTrialOfSwordmancy",
+                "roi_offset": [
+                    864,
+                    7,
+                    -12,
+                    -11
+                ],
+                "template": "SceneManager/RegionalOverview/CollapseButton.png",
+                "threshold": 0.85
+            }
+        ],
+        "pre_wait_freezes": {
+            "time": 80,
+            "target": [
+                160,
+                69,
+                953,
+                651
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

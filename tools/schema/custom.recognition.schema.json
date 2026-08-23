@@ -17,8 +17,12 @@
                 "ExpendableRecognition",
                 "ExpressionRecognition",
                 "ImageCheckNotPassedRecognition",
+                "IconRecognition",
+                "IntelArchiveScanDetailRecognition",
+                "IntelArchiveScanItemsRecognition",
                 "ItemDataReady",
                 "ItemQuantitySatisfied",
+                "ItemTransferSameItemRecognition",
                 "ListCompleteRecognition",
                 "MapLocateAssertLocation",
                 "MapTrackerAssertLocation",
@@ -31,7 +35,10 @@
                 "ReceptionRoomWaitExchangeKeepAliveDueRecognition",
                 "ScheduleRecognition",
                 "ScreenshotStableRecognition",
+                "ScrollbarRecognition",
+                "ScrollbarCompleteRecognition",
                 "SellProductCurrentBestOperator",
+                "SellProductCurrentGoods",
                 "SellProductCurrentOperatorUncached",
                 "SellProductOperatorCacheReady",
                 "SellProductOperatorListBottom",
@@ -50,6 +57,103 @@
         }
     },
     "allOf": [
+        {
+            "if": {
+                "type": "object",
+                "required": [ "custom_recognition" ],
+                "properties": {
+                    "custom_recognition": {
+                        "const": "IconRecognition"
+                    }
+                }
+            },
+            "then": {
+                "type": "object",
+                "required": [ "roi", "custom_recognition_param" ],
+                "properties": {
+                    "custom_recognition_param": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [ "grid_type" ],
+                        "properties": {
+                            "grid_type": {
+                                "type": "string",
+                                "enum": [
+                                    "trade",
+                                    "transfer",
+                                    "port_storager",
+                                    "valuables",
+                                    "shipment",
+                                    "credit_trade",
+                                    "rewards",
+                                    "single_roi"
+                                ],
+                                "title": "Grid Type",
+                                "description": "Icon grid layout used by IconRecognition."
+                            },
+                            "item_ids": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "minLength": 1
+                                },
+                                "uniqueItems": true,
+                                "title": "Item IDs",
+                                "description": "Optional item catalog IDs to match."
+                            },
+                            "item_filters": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "minLength": 1
+                                },
+                                "uniqueItems": true,
+                                "title": "Item Filters",
+                                "description": "Optional storageKind:categoryType filters for candidate icons."
+                            },
+                            "item_recheck_filters": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "minLength": 1
+                                },
+                                "uniqueItems": true,
+                                "title": "Item Recheck Filters",
+                                "description": "Optional storageKind:categoryType filters for reverse-checking item_ids; deduplicate is recommended to avoid repeated checks."
+                            },
+                            "threshold": {
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 1,
+                                "default": 0.85,
+                                "title": "Threshold",
+                                "description": "General minimum final match score enforced uniformly for every grid type."
+                            },
+                            "subpixel_threshold": {
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 1,
+                                "default": 0.6,
+                                "title": "Subpixel Threshold",
+                                "description": "Minimum base score for subpixel refinement."
+                            },
+                            "deduplicate": {
+                                "type": "boolean",
+                                "default": false,
+                                "title": "Deduplicate",
+                                "description": "Keep only the highest-scoring match for each item ID."
+                            },
+                            "debug": {
+                                "type": "boolean",
+                                "default": false,
+                                "title": "Debug",
+                                "description": "Collect IconRecognition diagnostics and debug captures."
+                            }
+                        }
+                    }
+                }
+            }
+        },
         {
             "if": {
                 "type": "object",
@@ -129,6 +233,98 @@
             "if": {
                 "type": "object",
                 "required": [ "custom_recognition" ],
+                "properties": { "custom_recognition": { "const": "ExpressionRecognition" } }
+            },
+            "then": {
+                "type": "object",
+                "required": [ "custom_recognition_param" ],
+                "properties": {
+                    "custom_recognition_param": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [ "expression" ],
+                        "properties": {
+                            "expression": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "box_node": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "focus_matched_resolved_expression": {
+                                "type": "boolean"
+                            },
+                            "focus_unmatched_resolved_expression": {
+                                "type": "boolean"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "type": "object",
+                "required": [ "custom_recognition" ],
+                "properties": { "custom_recognition": { "const": "IntelArchiveScanItemsRecognition" } }
+            },
+            "then": {
+                "type": "object",
+                "properties": {
+                    "custom_recognition_param": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "file_category": {
+                                "type": "string",
+                                "enum": [
+                                    "investigate",
+                                    "paper",
+                                    "digital",
+                                    "collection",
+                                    "media",
+                                    "document",
+                                    "report"
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "type": "object",
+                "required": [ "custom_recognition" ],
+                "properties": { "custom_recognition": { "const": "ItemTransferSameItemRecognition" } }
+            },
+            "then": {
+                "type": "object",
+                "required": [ "custom_recognition_param" ],
+                "properties": {
+                    "custom_recognition_param": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [ "forward_item_node", "return_item_node" ],
+                        "properties": {
+                            "forward_item_node": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "return_item_node": {
+                                "type": "string",
+                                "minLength": 1
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "type": "object",
+                "required": [ "custom_recognition" ],
                 "properties": { "custom_recognition": { "const": "ListCompleteRecognition" } }
             },
             "then": {
@@ -145,6 +341,49 @@
                                 "default": 0.9,
                                 "title": "Threshold",
                                 "description": "TemplateMatch threshold. Score >= threshold means the list is complete (return true/hit). Below threshold recaptures OverrideImage and returns false/miss so Pipeline can keep scrolling. Default 0.9. Recognition region uses the native recognition roi (V2: recognition.param.roi, sibling of custom_recognition; exposed as arg.Roi), not this param. Place this recognition before the swipe node; callers must use post_wait_freezes on the swipe so recognition runs only after the screen is still."
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "type": "object",
+                "required": [ "custom_recognition" ],
+                "properties": { "custom_recognition": { "const": "ScrollbarRecognition" } }
+            },
+            "then": {
+                "type": "object",
+                "required": [ "roi" ],
+                "properties": {
+                    "custom_recognition_param": {
+                        "type": "object",
+                        "additionalProperties": false
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "type": "object",
+                "required": [ "custom_recognition" ],
+                "properties": { "custom_recognition": { "const": "ScrollbarCompleteRecognition" } }
+            },
+            "then": {
+                "type": "object",
+                "required": [ "roi" ],
+                "properties": {
+                    "custom_recognition_param": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "position_tolerance": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "default": 2,
+                                "title": "Position Tolerance",
+                                "description": "Maximum 720p pixel difference allowed for both the top and bottom boundaries of the detected scrollbar thumb. When both boundaries remain within tolerance between consecutive frames, the list is complete. Default 2. Recognition region uses the native recognition roi."
                             }
                         }
                     }
@@ -283,6 +522,20 @@
                 "required": [ "custom_recognition_param" ],
                 "properties": {
                     "custom_recognition_param": { "$ref": "./components/map_tracker.schema.json#/$defs/MapTrackerBigMapFindImageParam" }
+                }
+            }
+        },
+        {
+            "if": {
+                "type": "object",
+                "required": [ "custom_recognition" ],
+                "properties": { "custom_recognition": { "const": "SellProductCurrentGoods" } }
+            },
+            "then": {
+                "type": "object",
+                "required": [ "custom_recognition_param" ],
+                "properties": {
+                    "custom_recognition_param": { "$ref": "./components/sell_product.schema.json#/$defs/CurrentGoodsRecognitionParam" }
                 }
             }
         },

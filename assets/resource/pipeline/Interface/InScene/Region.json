@@ -737,5 +737,35 @@
                 71
             ]
         }
+    },
+    "InRegionalOverview": {
+        "desc": "在事务总览界面",
+        "recognition": "Or",
+        "any_of": [
+            "InRegionalOverviewValleyIV",
+            "InRegionalOverviewWuling"
+        ],
+        "pre_delay": 0,
+        "rate_limit": 0
+    },
+    "InRegionalOverviewValleyIV": {
+        "desc": "在四号谷地事务总览界面",
+        "recognition": "And",
+        "all_of": [
+            "CheckRegionalOverviewValleyIVText"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InRegionalOverviewWuling": {
+        "desc": "在武陵事务总览界面",
+        "recognition": "And",
+        "all_of": [
+            "CheckRegionalOverviewWulingText"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     }
 }

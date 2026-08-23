@@ -26,6 +26,7 @@
 #include "navi_controller.h"
 #include "navi_math.h"
 #include "navi_param_parser.h"
+#include "zipline_preference.h"
 
 namespace mapnavigator
 {
@@ -846,6 +847,9 @@ MaaBool MAA_CALL MapNavigatorCompatibleRun(
     if (!TryParseNaviParam(*options_opt, param, "MapNavigatorCompatible")) {
         return kMaaFalse;
     }
+
+    ResolveInteractTextNodes(context, param);
+    param.zipline_enabled = ResolveZiplineEnabled(context, param.zipline_enabled);
 
     const MapTrackerMoveOptions move_options = read_maptracker_move_options(*options_opt);
     if (!convert_maptracker_coordinates(param)) {

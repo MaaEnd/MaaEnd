@@ -10,6 +10,7 @@ on:
       - ".github/workflows/install.yml"
       - "assets/**"
       - "agent/**"
+      - "tests/MaaEndTestset"
       - "tools/**"
 
   pull_request:
@@ -19,6 +20,7 @@ on:
       - ".github/workflows/install.yml"
       - "assets/**"
       - "agent/**"
+      - "tests/MaaEndTestset"
       - "tools/**"
 
   workflow_dispatch:
@@ -32,11 +34,30 @@ on:
 jobs:
   meta:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
     steps:
       - uses: actions/checkout@v6
         with:
           ref: ${{ github.event.inputs.ref || github.ref }}
           fetch-depth: 0
+      - id: icon-recognition-changes
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            icon_recognition:
+              - '.github/workflows/install.yml'
+              - 'agent/cpp-algo/CMakeLists.txt'
+              - 'agent/cpp-algo/CMakePresets.json'
+              - 'agent/cpp-algo/MaaUtils'
+              - 'agent/cpp-algo/source/CMakeLists.txt'
+              - 'agent/cpp-algo/source/IconRecognition/**'
+              - 'assets/data/IconRecognition/**'
+              - 'assets/resource/image/IconRecognition/**'
+              - 'tests/MaaEndTestset'
+              - 'tools/dep_3rdparty.py'
+              - 'tools/maadeps-download.py'
       - id: set_tag
         run: |
           # 检查标签格式
@@ -67,6 +88,11 @@ jobs:
           echo is_release=$is_release | tee -a $GITHUB_OUTPUT
           echo is_prerelease=$is_prerelease | tee -a $GITHUB_OUTPUT
 
+      - id: commit
+        run: |
+          # workflow_dispatch 指定 ref 时 github.sha 是默认分支 sha，这里取实际 checkout 的 commit
+          echo "sha=$(git rev-parse HEAD)" | tee -a $GITHUB_OUTPUT
+
       - id: maafw-latest-release
         uses: step-security/github-action-get-latest-release@v0.8.2
         with:
@@ -87,6 +113,8 @@ jobs:
       is_prerelease: ${{ steps.set_tag.outputs.is_prerelease }}
       maafw_version: ${{ steps.maafw-latest-release.outputs.release }}
       mxu_version: ${{ steps.mxu-latest-release.outputs.release }}
+      commit_sha: ${{ steps.commit.outputs.sha }}
+      icon_recognition_changed: ${{ steps.icon-recognition-changes.outputs.icon_recognition }}
 
   build_and_install:
     needs: meta
@@ -209,6 +237,21 @@ jobs:
             --interface install/interface.json
 
           cat install/interface.json
+
+      - name: Run IconRecognition quick tests
+        if: matrix.os == 'win' && matrix.arch == 'x86_64' && needs.meta.outputs.icon_recognition_changed == 'true'
+        shell: powershell
+        run: |
+          $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer\vswhere.exe'
+          $vsInstall = & $vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+          if ([string]::IsNullOrWhiteSpace($vsInstall)) {
+            throw 'Visual Studio C++ toolchain was not found'
+          }
+          $vsDevShell = Join-Path $vsInstall 'Common7\Tools\Launch-VsDevShell.ps1'
+          & 'agent/cpp-algo/source/IconRecognition/test/run-tests.ps1' `
+            -Task quick `
+            -Jobs 16 `
+            -VsDevShellPath $vsDevShell
 
       - uses: actions/upload-artifact@v6
         with:
@@ -406,12 +449,45 @@ jobs:
           ./rcedit.exe "install/MaaEnd.exe" --set-icon "maaend.ico"
           echo "MaaEnd.exe icon modified successfully"
 
-      - name: Remove cpp-algo debug symbols
+      # 调试符号仅存 Actions artifact（90 天保留，供 DMP 崩溃转储分析），不随 release 发布
+      - name: Package debug symbols
         shell: pwsh
         run: |
-          if (Test-Path "install/agent/cpp-algo.pdb") {
-            Remove-Item "install/agent/cpp-algo.pdb" -Force
+          if (-not (Test-Path "install/agent/cpp-algo.pdb")) {
+            throw "cpp-algo.pdb not found"
           }
+          if (-not (Test-Path "install/agent/go-service.exe")) {
+            throw "go-service.exe not found"
+          }
+
+          $symbols = "symbols"
+          New-Item -ItemType Directory -Force -Path $symbols | Out-Null
+          # cpp-algo PDB：与发布二进制同一次构建产出（GUID 自动配对）
+          Copy-Item "install/agent/cpp-algo.pdb" "$symbols/cpp-algo.pdb" -Force
+          # Go 工具链不产出 PDB：调试符号即未剥离 DWARF 的精确二进制（CI 构建不带 -s -w）
+          Copy-Item "install/agent/go-service.exe" "$symbols/go-service.exe" -Force
+          # 发布包仍不含 PDB（与旧行为一致）：已复制进符号包，从 install 中移除
+          Remove-Item "install/agent/cpp-algo.pdb" -Force
+
+          # go-service 版本自检：-X main.Version 注入的 tag 字符串应存在于二进制中
+          $bytes = [System.IO.File]::ReadAllBytes("$symbols/go-service.exe")
+          $ascii = [System.Text.Encoding]::ASCII.GetString($bytes)
+          if (-not $ascii.Contains("${{ needs.meta.outputs.tag }}")) {
+            throw "go-service.exe does not contain version stamp: ${{ needs.meta.outputs.tag }}"
+          }
+
+          # 符号清单：记录 tag / commit / 上游版本，便于按版本精确配对
+          $manifest = [ordered]@{
+            tag = "${{ needs.meta.outputs.tag }}"
+            arch = "${{ matrix.arch }}"
+            commit = "${{ needs.meta.outputs.commit_sha }}"
+            maafw_version = "${{ needs.meta.outputs.maafw_version }}"
+            mxu_version = "${{ needs.meta.outputs.mxu_version }}"
+            go_service = "unstripped binary with DWARF (Go emits no PDB); resolve with go tool addr2line"
+          } | ConvertTo-Json
+          Set-Content -Path "$symbols/symbols-manifest.json" -Value $manifest -Encoding utf8NoBOM
+
+          Compress-Archive -Path "symbols/*" -DestinationPath "MaaEnd-pdb-win-${{ matrix.arch }}.zip" -Force
 
       - name: Package ZIP
         shell: pwsh
@@ -422,6 +498,14 @@ jobs:
         with:
           name: MaaEnd-win-${{ matrix.arch }}-zip
           path: "MaaEnd-win-${{ matrix.arch }}.zip"
+
+      # artifact 名即版本号，便于 90 天内按版本检索下载；不带 -zip 后缀，
+      # 避免被 release job 的 MaaEnd-*-zip 下载 pattern 匹配（符号包不发布）
+      - uses: actions/upload-artifact@v6
+        with:
+          name: MaaEnd-pdb-win-${{ matrix.arch }}-${{ needs.meta.outputs.tag }}
+          path: "MaaEnd-pdb-win-${{ matrix.arch }}.zip"
+          retention-days: 90
 
   changelog:
     name: Generate changelog

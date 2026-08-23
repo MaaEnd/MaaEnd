@@ -1,0 +1,13 @@
+{
+    "task": [
+        {
+            "name": "DevTest",
+            "label": "$task.DevTest.label",
+            "entry": "DevTestMain",
+            "description": "$task.DevTest.description",
+            "group": [
+                "other_menu"
+            ]
+        }
+    ]
+}

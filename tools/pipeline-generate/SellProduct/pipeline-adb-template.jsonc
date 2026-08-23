@@ -1,4 +1,10 @@
 {
+    "SellProduct${LocationId}CurrentGoodsReady": {
+        "custom_recognition_param": {
+            "location": "${LocationId}",
+            "roi": "${CurrentGoodsROIAdb}"
+        }
+    },
     "SellProduct${LocationId}SelectPriorityItem": {
         "custom_recognition_param": {
             "location": "${LocationId}",
@@ -25,7 +31,6 @@
     },
     "SellProduct${LocationId}BetterSliding": {
         "custom_action_param": {
-            "GreenMask": true,
             "TargetQuantity": 999999,
             "ClampTargetToSliderMax": true,
             "AvailableQuantity": {

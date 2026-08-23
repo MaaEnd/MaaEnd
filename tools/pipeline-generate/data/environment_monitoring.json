@@ -1,0 +1,604 @@
+{
+    "terminals": {
+        "kitestation_002_1": {
+            "id": "kitestation_002_1",
+            "names": {
+                "zh_cn": "城郊监测终端",
+                "zh_tw": "城郊監測終端",
+                "en_us": "Outskirts Monitoring Terminal",
+                "ja_jp": "郊外観測端末",
+                "ko_kr": "교외 관측 단말기"
+            },
+            "missions": [
+                {
+                    "mission_id": "m1m26",
+                    "entrust_index": 1,
+                    "names": {
+                        "zh_cn": "侵蚀潮中损坏的信标",
+                        "zh_tw": "侵蝕潮中損壞的信標",
+                        "en_us": "Beacon Damaged in the Blight Tide",
+                        "ja_jp": "侵蝕潮で壊れたビーコン",
+                        "ko_kr": "침식 조류로 인해 훼손된 신호기"
+                    },
+                    "shot_target_names": {
+                        "zh_cn": "拍摄侵蚀潮中损坏的信标",
+                        "zh_tw": "拍攝侵蝕潮中損壞的信標",
+                        "en_us": "Photo: Damaged Beacon",
+                        "ja_jp": "侵蝕潮で破損したビーコンの写真を撮る",
+                        "ko_kr": "침식 조류로 인해 훼손된 신호기를 촬영하기"
+                    }
+                },
+                {
+                    "mission_id": "m1m27",
+                    "entrust_index": 2,
+                    "names": {
+                        "zh_cn": "蓄水源石虫",
+                        "zh_tw": "蓄水源石蟲",
+                        "en_us": "Cistern Originium Slugs",
+                        "ja_jp": "貯水オリジムシ",
+                        "ko_kr": "저수 원석충"
+                    },
+                    "shot_target_names": {
+                        "zh_cn": "拍摄一群蓄水源石虫",
+                        "zh_tw": "拍攝一群蓄水源石蟲",
+                        "en_us": "Photograph a group of Cistern Originium Slugs",
+                        "ja_jp": "貯水オリジムシの群れの写真を撮る",
+                        "ko_kr": "저수 원석충 무리를 촬영하기"
+                    }
+                },
+                {
+                    "mission_id": "m1m28",
+                    "entrust_index": 3,
+                    "names": {
+                        "zh_cn": "七彩鳞",
+                        "zh_tw": "七彩鱗",
+                        "en_us": "Rainbow Fin",
+                        "ja_jp": "七色鱗獣",
+                        "ko_kr": "무지개 린수"
+                    },
+                    "shot_target_names": {
+                        "zh_cn": "拍摄水中的七彩鳞",
+                        "zh_tw": "拍攝水中的七彩鱗",
+                        "en_us": "Photo: Rainbow Fin in Water",
+                        "ja_jp": "水中の七色鱗獣の写真を撮る",
+                        "ko_kr": "물속의 무지개 린수를 촬영하기"
+                    }
+                },
+                {
+                    "mission_id": "m1m29",
+                    "entrust_index": 4,
+                    "names": {
+                        "zh_cn": "室内作物",
+                        "zh_tw": "室內作物",
+                        "en_us": "Indoor Crops",
+                        "ja_jp": "室内の作物",
+                        "ko_kr": "실내 작물"
+                    },
+                    "shot_target_names": {
+                        "zh_cn": "拍摄室内培育的作物",
+                        "zh_tw": "拍攝室內培育的作物",
+                        "en_us": "Photo: Growing Crop",
+                        "ja_jp": "室内栽培の作物の写真を撮る",
+                        "ko_kr": "실내 재배하고 있는 작물을 촬영하기"
+                    }
+                },
+                {
+                    "mission_id": "m1m30",
+                    "entrust_index": 5,
+                    "names": {
+                        "zh_cn": "古树",
+                        "zh_tw": "古樹",
+                        "en_us": "Ancient Tree",
+                        "ja_jp": "古木",
+                        "ko_kr": "고목"
+                    },
+                    "shot_target_names": {
+                        "zh_cn": "拍摄生长在小水潭上的古树",
+                        "zh_tw": "拍攝生長在小水潭上的古樹",
+                        "en_us": "Photo: Ancient Tree in Lake",
+                        "ja_jp": "水中から生えた古木の写真を撮る",
+                        "ko_kr": "작은 웅덩이에서 자라는 고목을 촬영하기"
+                    }
+                },
+                {
+                    "mission_id": "m1m31",
+                    "entrust_index": 6,
+                    "names": {
+                        "zh_cn": "倒塌的天师桩",
+                        "zh_tw": "倒塌的天師樁",
+                        "en_us": "Collapsed Tianshi Pillar",
+                        "ja_jp": "倒れた天師杭",
+                        "ko_kr": "무너진 천사장"
+                    },
+                    "shot_target_names": {
+                        "zh_cn": "拍摄倒塌的天师桩",
+                        "zh_tw": "拍攝倒塌的天師樁",
+                        "en_us": "Photo: Collapsed Tianshi Pillar",
+                        "ja_jp": "倒れた天師杭の写真を撮る",
+                        "ko_kr": "무너진 천사장을 촬영하기"
+                    }
+                },
+                {
+                    "mission_id": "m1m32",
+                    "entrust_index": 7,
+                    "names": {
+                        "zh_cn": "“栖霞驻影”",
+                        "zh_tw": "「棲霞駐影」",
+                        "en_us": "\"Eternal Sunset\"",
+                        "ja_jp": "「棲霞留影」",
+                        "ko_kr": "'노을의 그림자'"
+                    },
+                    "shot_target_names": {
+                        "zh_cn": "拍摄生长在亭子中间的“栖霞驻影”",
+                        "zh_tw": "拍攝生長在亭子中間的「棲霞駐影」",
+                        "en_us": "Photo: \"Eternal Sunset\"",
+                        "ja_jp": "東屋中央の「棲霞留影」の写真を撮る",
+                        "ko_kr": "정자 한가운데에 자라는 '노을의 그림자'를 촬영하기"
+                    }
+                },
+                {
+                    "mission_id": "m1m33",
+                    "entrust_index": 8,
+                    "names": {
+                        "zh_cn": "“漱玉”",
+                        "zh_tw": "「漱玉」",
+                        "en_us": "\"Cleansing Jade\"",
+                        "ja_jp": "「漱玉」",
+                        "ko_kr": "'수옥'"
+                    },
+                    "shot_target_names": {
+                        "zh_cn": "拍摄在石柱上侧向生长的“漱玉”",
+                        "zh_tw": "拍攝在石柱上往側邊生長的「漱玉」",
+                        "en_us": "Photo: \"Cleansing Jade\"",
+                        "ja_jp": "石柱の横にある「漱玉」の写真を撮る",
+                        "ko_kr": "돌기둥 옆에서 자라는 '수옥'을 촬영하기"
+                    }
+                },
+                {
+                    "mission_id": "m1m34",
+                    "entrust_index": 9,
+                    "names": {
+                        "zh_cn": "充满活力的蓄水源石虫",
+                        "zh_tw": "充滿活力的蓄水源石蟲",
+                        "en_us": "Vigorous Cistern Originium Slug",
+                        "ja_jp": "活発になっている貯水オリジムシ",
+                        "ko_kr": "활기찬 저수 원석충"
+                    },
+                    "shot_target_names": {
+                        "zh_cn": "拍摄充满活力的蓄水源石虫",
+                        "zh_tw": "拍攝充滿活力的蓄水源石蟲",
+                        "en_us": "Photograph a Vigorous Cistern Originium Slug",
+                        "ja_jp": "活発になっている貯水オリジムシの写真を撮る",
+                        "ko_kr": "활기찬 저수 원석충 촬영하기"
+                    }
+                },
+                {
+                    "mission_id": "m1m35",
+                    "entrust_index": 10,
+                    "names": {
+                        "zh_cn": "肚子鼓气后发光的吐虫长股兽",
+                        "zh_tw": "肚子鼓氣後發光的吐蟲長股獸",
+                        "en_us": "Inflated and Glowing Bugspitting Lankybeast",
+                        "ja_jp": "腹が膨らんで光る虫吐き長脚獣",
+                        "ko_kr": "배를 부풀려 빛을 내는 버그스피팅 랭키비스트"
+                    },
+                    "shot_target_names": {
+                        "zh_cn": "拍摄肚子鼓气后发光的吐虫长股兽",
+                        "zh_tw": "拍攝肚子鼓氣後發光的吐蟲長股獸",
+                        "en_us": "Photograph an Inflated and Glowing Bugspitting Lankybeast",
+                        "ja_jp": "腹が膨らんで光る虫吐き長脚獣の写真を撮る",
+                        "ko_kr": "배를 부풀려 빛을 내는 버그스피팅 랭키비스트를 촬영하기"
+                    }
+                },
+                {
+                    "mission_id": "m1m36",
+                    "entrust_index": 11,
+                    "names": {
+                        "zh_cn": "东张西望的黑腹雉羽兽",
+                        "zh_tw": "東張西望的黑腹雉羽獸",
+                        "en_us": "Observant Sable-chested Fowlbeast",
+                        "ja_jp": "キョロキョロする黒腹羽獣",
+                        "ko_kr": "두리번거리는 세이블체스티드 파울비스트"
+                    },
+                    "shot_target_names": {
+                        "zh_cn": "拍摄农田中东张西望的黑腹雉羽兽",
+                        "zh_tw": "拍攝農田中東張西望的黑腹雉羽獸",
+                        "en_us": "Photo: Sable-chested Fowlbeast",
+                        "ja_jp": "農地でキョロキョロする黒腹羽獣の写真を撮る",
+                        "ko_kr": "논밭에서 두리번거리는 세이블체스티드 파울비스트를 촬영하기"
+                    }
+                },
+                {
+                    "mission_id": "m1m37",
+                    "entrust_index": 12,
+                    "names": {
+                        "zh_cn": "储备站周围的生态环境",
+                        "zh_tw": "儲備站周圍的生態環境",
+                        "en_us": "Ecology Near the Field Logistics Depot",
+                        "ja_jp": "備蓄施設周辺の生態環境",
+                        "ko_kr": "보급소 주변의 생태 환경"
+                    },
+                    "shot_target_names": {
+                        "zh_cn": "拍摄储备站周围的生态环境",
+                        "zh_tw": "拍攝儲備站周圍的生態環境",
+                        "en_us": "Photo: Field Logistics Depot Ecology",
+                        "ja_jp": "備蓄施設周辺の生態環境の写真を撮る",
+                        "ko_kr": "보급소 주변의 생태 환경을 촬영하기"
+                    }
+                },
+                {
+                    "mission_id": "m1m38",
+                    "entrust_index": 13,
+                    "names": {
+                        "zh_cn": "水灯虫",
+                        "zh_tw": "水燈蟲",
+                        "en_us": "Waterlamp",
+                        "ja_jp": "水灯虫",
+                        "ko_kr": "수등충"
+                    },
+                    "shot_target_names": {
+                        "zh_cn": "拍摄水灯虫",
+                        "zh_tw": "拍攝水燈蟲",
+                        "en_us": "Photo: Waterlamps",
+                        "ja_jp": "水灯虫の写真を撮る",
+                        "ko_kr": "수등충을 촬영하기"
+                    }
+                },
+                {
+                    "mission_id": "m1m39",
+                    "entrust_index": 14,
+                    "names": {
+                        "zh_cn": "枢壤仪",
+                        "zh_tw": "樞壤儀",
+                        "en_us": "Xiranite Nexus",
+                        "ja_jp": "枢壌儀",
+                        "ko_kr": "중추 식양 장치"
+                    },
+                    "shot_target_names": {
+                        "zh_cn": "拍摄枢壤仪",
+                        "zh_tw": "拍攝樞壤儀",
+                        "en_us": "Photo: Xiranite Nexus",
+                        "ja_jp": "枢壌儀の写真を撮る",
+                        "ko_kr": "중추 식양 장치를 촬영하기"
+                    }
+                },
+                {
+                    "mission_id": "m1m40",
+                    "entrust_index": 15,
+                    "names": {
+                        "zh_cn": "码头水车",
+                        "zh_tw": "碼頭水車",
+                        "en_us": "Pier Waterwheel",
+                        "ja_jp": "渡し場の水車",
+                        "ko_kr": "부두 물레방아"
+                    },
+                    "shot_target_names": {
+                        "zh_cn": "拍摄码头水车",
+                        "zh_tw": "拍攝碼頭水車",
+                        "en_us": "Photo: Pier Waterwheel",
+                        "ja_jp": "渡し場の水車の写真を撮る",
+                        "ko_kr": "부두 물레방아를 촬영하기"
+                    }
+                },
+                {
+                    "mission_id": "m1m56",
+                    "entrust_index": 16,
+                    "names": {
+                        "zh_cn": "小壳兽",
+                        "zh_tw": "小殼獸",
+                        "en_us": "Mini Shellbeast",
+                        "ja_jp": "小さな甲獣",
+                        "ko_kr": "작은 셸비스트"
+                    },
+                    "shot_target_names": {
+                        "zh_cn": "拍摄缩进壳中的小壳兽",
+                        "zh_tw": "拍攝縮進殼中的小殼獸",
+                        "en_us": "Photo: Mini Shellbeast in Defense",
+                        "ja_jp": "殻にこもる小さな甲獣の写真を撮る",
+                        "ko_kr": "껍질 속으로 숨은 작은 셸비스트를 촬영하기"
+                    }
+                }
+            ]
+        },
+        "kitestation_004_1": {
+            "id": "kitestation_004_1",
+            "names": {
+                "zh_cn": "首墩监测终端",
+                "zh_tw": "首墩監測終端",
+                "en_us": "Marker Stone Monitoring Terminal",
+                "ja_jp": "首礎観測端末",
+                "ko_kr": "수돈 관측 단말기"
+            },
+            "missions": [
+                {
+                    "mission_id": "m1m57",
+                    "entrust_index": 1,
+                    "names": {
+                        "zh_cn": "环形瀑布",
+                        "zh_tw": "環形瀑布",
+                        "en_us": "Annular Waterfall",
+                        "ja_jp": "環状滝",
+                        "ko_kr": "원형 폭포"
+                    },
+                    "shot_target_names": {
+                        "zh_cn": "拍摄祖泉周边的环形瀑布",
+                        "zh_tw": "拍攝祖泉周邊的環形瀑布",
+                        "en_us": "Photo: Annular Waterfall",
+                        "ja_jp": "祖泉周辺の環状滝の写真を撮る",
+                        "ko_kr": "선조의 샘 주변의 원형 폭포를 촬영하기"
+                    }
+                },
+                {
+                    "mission_id": "m1m58",
+                    "entrust_index": 2,
+                    "names": {
+                        "zh_cn": "水竹铃",
+                        "zh_tw": "水竹鈴",
+                        "en_us": "Bamboo Water Chimes",
+                        "ja_jp": "水竹鈴",
+                        "ko_kr": "수죽령"
+                    },
+                    "shot_target_names": {
+                        "zh_cn": "拍摄水竹铃",
+                        "zh_tw": "拍攝水竹鈴",
+                        "en_us": "Photo: Bamboo Water Chimes",
+                        "ja_jp": "水竹鈴の写真を撮る",
+                        "ko_kr": "수죽령을 촬영하기"
+                    }
+                },
+                {
+                    "mission_id": "m1m59",
+                    "entrust_index": 3,
+                    "names": {
+                        "zh_cn": "枯枝",
+                        "zh_tw": "枯枝",
+                        "en_us": "Withered Branches",
+                        "ja_jp": "枯れ枝",
+                        "ko_kr": "마른 가지"
+                    },
+                    "shot_target_names": {
+                        "zh_cn": "拍摄祖泉周边的枯枝",
+                        "zh_tw": "拍攝祖泉周邊的枯枝",
+                        "en_us": "Photo: Withered Branches",
+                        "ja_jp": "祖泉周辺の枯れ枝の写真を撮る",
+                        "ko_kr": "선조의 샘 주변의 마른 가지를 촬영하기"
+                    }
+                },
+                {
+                    "mission_id": "m1m60",
+                    "entrust_index": 4,
+                    "names": {
+                        "zh_cn": "谜之生物的涂鸦",
+                        "zh_tw": "謎之生物的塗鴉",
+                        "en_us": "Mysterious Cryptid Graffiti",
+                        "ja_jp": "謎の生物に関する落書き",
+                        "ko_kr": "미지의 생물이 남긴 낙서"
+                    },
+                    "shot_target_names": {
+                        "zh_cn": "拍摄谜之生物的涂鸦",
+                        "zh_tw": "拍攝謎之生物的塗鴉",
+                        "en_us": "Photo: Mysterious Cryptid Graffiti",
+                        "ja_jp": "謎の生物に関する落書きの写真を撮る",
+                        "ko_kr": "미지의 생물이 남긴 낙서를 촬영하기"
+                    }
+                },
+                {
+                    "mission_id": "m1m61",
+                    "entrust_index": 5,
+                    "names": {
+                        "zh_cn": "“旧庭树”",
+                        "zh_tw": "「舊庭樹」",
+                        "en_us": "\"Tree of the Old Courtyard\"",
+                        "ja_jp": "「旧庭の木」",
+                        "ko_kr": "옛 정원의 나무"
+                    },
+                    "shot_target_names": {
+                        "zh_cn": "拍摄“旧庭树”",
+                        "zh_tw": "拍攝「舊庭樹」",
+                        "en_us": "Photo: \"Tree of the Old Courtyard\"",
+                        "ja_jp": "「旧庭の木」の写真を撮る",
+                        "ko_kr": "'옛 정원의 나무'를 촬영하기"
+                    }
+                },
+                {
+                    "mission_id": "m1m62",
+                    "entrust_index": 6,
+                    "names": {
+                        "zh_cn": "垂藤",
+                        "zh_tw": "垂藤",
+                        "en_us": "Hanging Vines",
+                        "ja_jp": "垂れ藤",
+                        "ko_kr": "덩굴 식물"
+                    },
+                    "shot_target_names": {
+                        "zh_cn": "拍摄垂藤",
+                        "zh_tw": "拍攝垂藤",
+                        "en_us": "Photo: Hanging Vines",
+                        "ja_jp": "垂れ藤の写真を撮る",
+                        "ko_kr": "덩굴 식물 촬영하기"
+                    }
+                },
+                {
+                    "mission_id": "m1m63",
+                    "entrust_index": 7,
+                    "names": {
+                        "zh_cn": "植物观察点",
+                        "zh_tw": "植物觀察點",
+                        "en_us": "Flora Observation Point",
+                        "ja_jp": "植物観察スポット",
+                        "ko_kr": "식물 관찰 지점"
+                    },
+                    "shot_target_names": {
+                        "zh_cn": "拍摄植物观察点",
+                        "zh_tw": "拍攝植物觀察點",
+                        "en_us": "Photo: Flora Observation Point",
+                        "ja_jp": "植物観察スポットの写真を撮る",
+                        "ko_kr": "식물 관찰 지점을 촬영하기"
+                    }
+                },
+                {
+                    "mission_id": "m1m64",
+                    "entrust_index": 8,
+                    "names": {
+                        "zh_cn": "栖云生态点",
+                        "zh_tw": "棲雲生態點",
+                        "en_us": "Cloudrest Eco-Site",
+                        "ja_jp": "栖雲生態スポット",
+                        "ko_kr": "서운 생태 지점"
+                    },
+                    "shot_target_names": {
+                        "zh_cn": "拍摄栖云生态点",
+                        "zh_tw": "拍攝棲雲生態點",
+                        "en_us": "Photo: Cloudrest Eco-Site",
+                        "ja_jp": "栖雲生態スポットの写真を撮る",
+                        "ko_kr": "서운 생태 지점을 촬영하기"
+                    }
+                },
+                {
+                    "mission_id": "m1m65",
+                    "entrust_index": 9,
+                    "names": {
+                        "zh_cn": "彩虹",
+                        "zh_tw": "彩虹",
+                        "en_us": "Rainbow",
+                        "ja_jp": "虹",
+                        "ko_kr": "무지개"
+                    },
+                    "shot_target_names": {
+                        "zh_cn": "拍摄彩虹",
+                        "zh_tw": "拍攝彩虹",
+                        "en_us": "Photo: Rainbow",
+                        "ja_jp": "虹の写真を撮る",
+                        "ko_kr": "무지개를 촬영하기"
+                    }
+                },
+                {
+                    "mission_id": "m1m66",
+                    "entrust_index": 10,
+                    "names": {
+                        "zh_cn": "念念家的桃树",
+                        "zh_tw": "念念家的桃樹",
+                        "en_us": "Peach Tree at Babbles's Home",
+                        "ja_jp": "ネンネンの家にある桃の木",
+                        "ko_kr": "염념이네 복숭아나무"
+                    },
+                    "shot_target_names": {
+                        "zh_cn": "拍摄念念家的桃树",
+                        "zh_tw": "拍攝念念家的桃樹",
+                        "en_us": "Photo: Peach Tree at Babbles's Home",
+                        "ja_jp": "ネンネンの家にある桃の木の写真を撮る",
+                        "ko_kr": "염념이네 복숭아나무를 촬영하기"
+                    }
+                },
+                {
+                    "mission_id": "m1m67",
+                    "entrust_index": 11,
+                    "names": {
+                        "zh_cn": "净水温控装置",
+                        "zh_tw": "淨水溫控裝置",
+                        "en_us": "Water Temperature Controller",
+                        "ja_jp": "浄水温度調整装置",
+                        "ko_kr": "정수 온도 조절 장치"
+                    },
+                    "shot_target_names": {
+                        "zh_cn": "拍摄净水温控装置",
+                        "zh_tw": "拍攝淨水溫控裝置",
+                        "en_us": "Photo: Water Temperature Controller",
+                        "ja_jp": "浄水温度調整装置の写真を撮る",
+                        "ko_kr": "정수 온도 조절 장치를 촬영하기"
+                    }
+                },
+                {
+                    "mission_id": "m1m68",
+                    "entrust_index": 12,
+                    "names": {
+                        "zh_cn": "安思园的天师桩",
+                        "zh_tw": "安思園的天師樁",
+                        "en_us": "Serenity Garden Tianshi Pillar",
+                        "ja_jp": "安思園の天師杭",
+                        "ko_kr": "안사원의 천사장"
+                    },
+                    "shot_target_names": {
+                        "zh_cn": "拍摄安思园的天师桩",
+                        "zh_tw": "拍攝安思園的天師樁",
+                        "en_us": "Photo: Serenity Garden Tianshi Pillar",
+                        "ja_jp": "安思園の天師杭の写真を撮る",
+                        "ko_kr": "안사원의 천사장을 촬영하기"
+                    }
+                },
+                {
+                    "mission_id": "m1m69",
+                    "entrust_index": 13,
+                    "names": {
+                        "zh_cn": "“小池荷”",
+                        "zh_tw": "「小池荷」",
+                        "en_us": "\"Pool Lotus\"",
+                        "ja_jp": "「池の蓮」",
+                        "ko_kr": "'작은 연못의 연꽃'"
+                    },
+                    "shot_target_names": {
+                        "zh_cn": "拍摄“小池荷”",
+                        "zh_tw": "拍攝「小池荷」",
+                        "en_us": "Photo: \"Pool Lotus\"",
+                        "ja_jp": "「池の蓮」の写真を撮る",
+                        "ko_kr": "'작은 연못의 연꽃'을 촬영하기"
+                    }
+                },
+                {
+                    "mission_id": "m1m70",
+                    "entrust_index": 14,
+                    "names": {
+                        "zh_cn": "“金秋时”",
+                        "zh_tw": "「金秋時」",
+                        "en_us": "\"Autumn Gold\"",
+                        "ja_jp": "「錦秋時」",
+                        "ko_kr": "'황금빛 가을이 찾아올 때'"
+                    },
+                    "shot_target_names": {
+                        "zh_cn": "拍摄安思园的“金秋时”",
+                        "zh_tw": "拍攝安思園的「金秋時」",
+                        "en_us": "Photo: \"Autumn Gold\" at Serenity Garden",
+                        "ja_jp": "安思園で「錦秋時」の写真を撮る",
+                        "ko_kr": "안사원의 '황금빛 가을이 찾아올 때'를 촬영하기"
+                    }
+                },
+                {
+                    "mission_id": "m1m71",
+                    "entrust_index": 15,
+                    "names": {
+                        "zh_cn": "巨兽心脏",
+                        "zh_tw": "巨獸心臟",
+                        "en_us": "Feranmut Heart",
+                        "ja_jp": "巨獣の心臓",
+                        "ko_kr": "베헤모스의 심장"
+                    },
+                    "shot_target_names": {
+                        "zh_cn": "拍摄巨兽心脏",
+                        "zh_tw": "拍攝巨獸心臟",
+                        "en_us": "Photo: Feranmut Heart",
+                        "ja_jp": "巨獣の心臓の写真を撮る",
+                        "ko_kr": "베헤모스의 심장을 촬영하기"
+                    }
+                },
+                {
+                    "mission_id": "m1m72",
+                    "entrust_index": 16,
+                    "names": {
+                        "zh_cn": "“表象”",
+                        "zh_tw": "「表象」",
+                        "en_us": "\"Æthillu\"",
+                        "ja_jp": "「イーサルー」",
+                        "ko_kr": "'잔영'"
+                    },
+                    "shot_target_names": {
+                        "zh_cn": "拍摄悬浮的“表象”",
+                        "zh_tw": "拍攝懸浮的「表象」",
+                        "en_us": "Photo: The Floating \"Æthillu\"",
+                        "ja_jp": "浮いている「イーサルー」の写真を撮る",
+                        "ko_kr": "떠 있는 '잔영'을 촬영하기"
+                    }
+                }
+            ]
+        }
+    }
+}

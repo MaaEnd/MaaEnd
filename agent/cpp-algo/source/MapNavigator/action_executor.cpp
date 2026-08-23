@@ -86,6 +86,10 @@ ActionExecutionResult ActionExecutor::Execute(ActionType action)
     case ActionType::DIG:
         LogWarn << "DIG action dispatched to ActionExecutor unexpectedly.";
         break;
+
+    case ActionType::ZIPLINE:
+        LogWarn << "ZIPLINE action dispatched to ActionExecutor unexpectedly.";
+        break;
     }
 
     return result;

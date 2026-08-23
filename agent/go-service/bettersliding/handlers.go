@@ -92,8 +92,19 @@ func (a *BetterSlidingAction) handleMain(ctx *maa.Context, _ *maa.CustomActionAr
 		a.SliderQuantityOnlyRec,
 		a.AvailableQuantityOnlyRec,
 		a.SwipeButton,
-		a.GreenMask,
 	)
+
+	resetOverride, err := buildResetSwipeOverride(a.Direction, a.ResetBeforeFindStart)
+	if err != nil {
+		a.logger.Error().
+			Str("direction", a.Direction).
+			Err(err).
+			Msg("failed to build reset swipe override")
+		return false
+	}
+	for nodeName, nodeOverride := range resetOverride {
+		override[nodeName] = nodeOverride
+	}
 
 	if err := ctx.OverridePipeline(override); err != nil {
 		a.logger.Error().Err(err).Msg("failed to override pipeline for main initialization")
@@ -114,11 +125,11 @@ func (a *BetterSlidingAction) handleMain(ctx *maa.Context, _ *maa.CustomActionAr
 		Ints("slider_quantity_roi", a.SliderQuantityBox).
 		Ints("available_quantity_roi", a.AvailableQuantityBox).
 		Bool("available_quantity_explicit", a.AvailableQuantityExplicit).
-		Bool("green_mask", a.GreenMask).
 		Bool("slider_quantity_filter_enabled", a.SliderQuantityFilter != nil).
 		Bool("available_quantity_filter_enabled", a.AvailableQuantityFilter != nil).
 		Bool("slider_quantity_only_rec", a.SliderQuantityOnlyRec).
 		Bool("available_quantity_only_rec", a.AvailableQuantityOnlyRec).
+		Bool("reset_before_find_start", a.ResetBeforeFindStart).
 		Bool("swipe_only_mode", a.SwipeOnlyMode)
 
 	if a.SliderQuantityFilter != nil {
@@ -238,7 +249,6 @@ func (a *BetterSlidingAction) handleGetSliderMaxQuantity(ctx *maa.Context, arg *
 			nodeBetterSlidingDone,
 			buttonTarget{},
 			0,
-			a.GreenMask,
 		); err != nil {
 			logEvent := a.logger.Error().
 				Err(err).
@@ -282,7 +292,7 @@ func (a *BetterSlidingAction) handleGetSliderMaxQuantity(ctx *maa.Context, arg *
 		return false
 	}
 	if nextNode != "" {
-		if err := overrideCheckQuantityBranch(ctx, arg.CurrentTaskName, nextNode, buttonTarget{}, 0, a.GreenMask); err != nil {
+		if err := overrideCheckQuantityBranch(ctx, arg.CurrentTaskName, nextNode, buttonTarget{}, 0); err != nil {
 			logEvent := a.logger.Error().
 				Err(err).
 				Int("slider_max_quantity", a.sliderMaxQuantity).
@@ -452,6 +462,38 @@ func (a *BetterSlidingAction) handleFindEnd(ctx *maa.Context, arg *maa.CustomAct
 		}
 	}
 
+	if shouldResetBeforePreciseClick(a.TargetQuantity, a.sliderMaxQuantity) {
+		if err := ctx.OverridePipeline(map[string]any{
+			nodeBetterSlidingFindSwipeForReset: map[string]any{
+				"enabled": true,
+			},
+		}); err != nil {
+			a.logger.Error().
+				Err(err).
+				Msg("failed to enable reset gate before precise click")
+			return false
+		}
+
+		if err := ctx.OverrideNext(nodeBetterSlidingReset, []maa.NextItem{{Name: nodeBetterSlidingPreciseClick}}); err != nil {
+			a.logger.Error().
+				Err(err).
+				Msg("failed to route reset swipe to precise click")
+			return false
+		}
+
+		if err := ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: nodeBetterSlidingFindSwipeForReset}}); err != nil {
+			a.logger.Error().
+				Err(err).
+				Msg("failed to route find end to reset swipe")
+			return false
+		}
+
+		a.logger.Info().
+			Int("target_quantity", a.TargetQuantity).
+			Int("slider_max_quantity", a.sliderMaxQuantity).
+			Msg("target above 80% of slider max, reset to minimum before precise click")
+	}
+
 	return true
 }
 
@@ -474,7 +516,7 @@ func (a *BetterSlidingAction) handleCheckQuantity(ctx *maa.Context, arg *maa.Cus
 
 	switch {
 	case currentQuantity == a.TargetQuantity:
-		if err := overrideCheckQuantityBranch(ctx, arg.CurrentTaskName, nodeBetterSlidingDone, buttonTarget{}, 0, a.GreenMask); err != nil {
+		if err := overrideCheckQuantityBranch(ctx, arg.CurrentTaskName, nodeBetterSlidingDone, buttonTarget{}, 0); err != nil {
 			logEvent := a.logger.Error().
 				Err(err).
 				Int("current_quantity", currentQuantity).
@@ -496,7 +538,7 @@ func (a *BetterSlidingAction) handleCheckQuantity(ctx *maa.Context, arg *maa.Cus
 	case currentQuantity < a.TargetQuantity:
 		diff := a.TargetQuantity - currentQuantity
 		repeat := clampClickRepeat(diff)
-		if err := overrideCheckQuantityBranch(ctx, arg.CurrentTaskName, nodeBetterSlidingIncreaseQuantity, a.IncreaseButton, repeat, a.GreenMask); err != nil {
+		if err := overrideCheckQuantityBranch(ctx, arg.CurrentTaskName, nodeBetterSlidingIncreaseQuantity, a.IncreaseButton, repeat); err != nil {
 			logEvent := a.logger.Error().
 				Err(err).
 				Int("current_quantity", currentQuantity).
@@ -524,7 +566,7 @@ func (a *BetterSlidingAction) handleCheckQuantity(ctx *maa.Context, arg *maa.Cus
 	default:
 		diff := currentQuantity - a.TargetQuantity
 		repeat := clampClickRepeat(diff)
-		if err := overrideCheckQuantityBranch(ctx, arg.CurrentTaskName, nodeBetterSlidingDecreaseQuantity, a.DecreaseButton, repeat, a.GreenMask); err != nil {
+		if err := overrideCheckQuantityBranch(ctx, arg.CurrentTaskName, nodeBetterSlidingDecreaseQuantity, a.DecreaseButton, repeat); err != nil {
 			logEvent := a.logger.Error().
 				Err(err).
 				Int("current_quantity", currentQuantity).
@@ -757,4 +799,16 @@ func resolveSliderMaxQuantityNext(sliderMaxQuantity int, targetQuantity int) (st
 	}
 
 	return "", nil
+}
+
+// shouldResetBeforePreciseClick 判断目标数量是否严格大于滑条最大数量的 80%，
+// 决定精确点击前是否需要先向最小方向滑动复位。
+// 使用整数运算避免浮点误差：targetQuantity*5 > sliderMaxQuantity*4
+// 等价于 targetQuantity/sliderMaxQuantity > 0.8。
+func shouldResetBeforePreciseClick(targetQuantity int, sliderMaxQuantity int) bool {
+	if targetQuantity <= 0 || sliderMaxQuantity <= 1 || targetQuantity >= sliderMaxQuantity {
+		return false
+	}
+
+	return targetQuantity*5 > sliderMaxQuantity*4
 }

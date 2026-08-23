@@ -1,0 +1,18 @@
+{
+    "RegionalOverviewButton": {
+        "desc": "地区建设中的事务总览按钮",
+        "recognition": "TemplateMatch",
+        "roi": [
+            0,
+            226,
+            258,
+            136
+        ],
+        "template": [
+            "Common/Button/RegionalOverviewButton.png",
+            "Common/Button/RegionalOverviewButtonHover.png"
+        ],
+        "green_mask": true,
+        "threshold": 0.8
+    }
+}

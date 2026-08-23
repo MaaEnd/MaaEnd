@@ -191,7 +191,11 @@ export function getZoneIds() {
  * `off_mesh` rides along on the `ok:false` case so a failure can say *why* — an endpoint
  * outside the mesh reads very differently from two endpoints on disconnected pieces.
  *
- * @param {{zone_id:number, start:number[], goal:number[], snap_radius?:number, floor_y?:?number}} req
+ * `goal_deck_y` 是终点所在那张可走面的高度:`floor_y` 管吸附,它管在重叠面里选哪一张。
+ * 不给时寻路取整格全部面、先够到哪张停哪张(也就是加这个字段之前的行为)。
+ *
+ * @param {{zone_id:number, start:number[], goal:number[], snap_radius?:number, floor_y?:?number,
+ *   goal_deck_y?:?number}} req
  * @returns {Promise<{ok:boolean, points?:number[][], segment_breaks?:number[], cost?:number,
  *   blind_start?:?{entry:number[], distance:number, reason:string},
  *   blind_target?:?{reached:number[], gap:number, reason:string},
@@ -204,6 +208,7 @@ export function postRoute(req) {
     goal: req.goal,
     snap_radius: req.snap_radius === undefined ? 5.0 : req.snap_radius,
     floor_y: req.floor_y === undefined ? null : req.floor_y,
+    goal_deck_y: req.goal_deck_y === undefined ? null : req.goal_deck_y,
   });
 }
 
@@ -236,10 +241,26 @@ export function postOffMeshProbe(req) {
 }
 
 /**
+ * @typedef {{height:number, band:number[], on_surface:boolean, thin:boolean}} Deck 一张压在该
+ *   坐标底下的可走面。`height` 就是 target_deck_y 要填的数,`band` 是寻路认这张面的高度带。
+ */
+
+/**
+ * 问这个坐标底下压着几张可走面。小地图是二维的,走廊 / 天桥 / 屋顶会重叠在同一个点上。
+ * 返回按高度从高到低排,只有一项时说明这个点不存在重叠、不用标 deck。
+ *
+ * @param {{zone_id:number, point:number[]}} req
+ * @returns {Promise<{ok:boolean, decks?:Deck[], error?:string}>}
+ */
+export function postDeckProbe(req) {
+  return sendJson('/api/deck-probe', { zone_id: req.zone_id, point: req.point });
+}
+
+/**
  * Trigger a single location capture. Connects to the game, captures the third valid location frame,
- * terminates connection and returns {ok: true, x, y, zone}.
+ * terminates connection and returns {ok: true, x, y, zone, rot}.
  * @param {Object} [connection] optional connection override, defaults to settings store config.
- * @returns {Promise<{ok: boolean, x: number, y: number, zone: string}>}
+ * @returns {Promise<{ok: boolean, x: number, y: number, zone: string, rot: ?number}>}
  */
 export function locateOnce(connection) {
   return sendJson('/api/locate-once', { connection });
@@ -337,15 +358,26 @@ export function getAdbDevices(adbPath = '') {
   return getJson(`/api/adb/devices${q}`);
 }
 
-// --- recording (WebSocket) -----------------------------------------------------------
+/**
+ * Enumerate Wayland sockets under `$XDG_RUNTIME_DIR` (name contains "wayland"),
+ * plus the computed default socket path.
+ * @returns {Promise<{sockets:string[], default:string}>}
+ */
+export function getWlrootsSockets() {
+  return getJson('/api/wlroots/sockets');
+}
+
+// --- game sessions (WebSocket) -------------------------------------------------------
 
 /**
- * Thin wrapper over the `/ws/record` WebSocket. The backend drives the whole
- * recording lifecycle; this class just relays JSON messages both ways and exposes
- * lifecycle callbacks. One socket per recording session.
+ * Shared plumbing for the two backend session sockets (`/ws/record`, `/ws/navtest`):
+ * connect, hand over the first payload, relay JSON both ways, expose lifecycle
+ * callbacks. Subclasses only decide what that first payload looks like.
  */
-export class RecordingSocket {
-  constructor() {
+class SessionSocket {
+  /** @param {string} path backend WebSocket route */
+  constructor(path) {
+    this._path = path;
     /** @type {WebSocket|null} */
     this._ws = null;
     /** @type {(msg:Object)=>void} */
@@ -358,21 +390,13 @@ export class RecordingSocket {
     this.onError = () => {};
   }
 
-  /**
-   * Open the socket and send the start payload (session config) once connected.
-   * @param {Object} sessionConfig `{kind:'win32'|'adb', win32?, adb?}`
-   * @returns {void}
-   */
-  start(sessionConfig) {
+  /** @param {Object} firstPayload sent as soon as the socket opens @returns {void} */
+  _open(firstPayload) {
     const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const ws = new WebSocket(`${proto}//${location.host}/ws/record`);
+    const ws = new WebSocket(`${proto}//${location.host}${this._path}`);
     this._ws = ws;
     ws.addEventListener('open', () => {
-      try {
-        ws.send(JSON.stringify(sessionConfig || {}));
-      } catch (err) {
-        this.onError(err);
-      }
+      this._send(firstPayload);
       this.onOpen();
     });
     ws.addEventListener('message', (ev) => {
@@ -388,17 +412,13 @@ export class RecordingSocket {
     ws.addEventListener('error', (ev) => this.onError(ev));
   }
 
-  /**
-   * Ask the backend to stop recording (it will emit a `finished` message, then the
-   * socket closes in the `finally`).
-   * @returns {void}
-   */
-  stop() {
+  /** @param {Object} payload @returns {void} */
+  _send(payload) {
     if (this._ws && this._ws.readyState === WebSocket.OPEN) {
       try {
-        this._ws.send(JSON.stringify({ type: 'stop' }));
-      } catch {
-        // socket already tearing down — ignore
+        this._ws.send(JSON.stringify(payload));
+      } catch (err) {
+        this.onError(err);
       }
     }
   }
@@ -413,5 +433,84 @@ export class RecordingSocket {
       }
       this._ws = null;
     }
+  }
+}
+
+/**
+ * Recording session. The backend drives the whole lifecycle; `stop` makes it emit a
+ * `finished` message and then close. One socket per recording session.
+ */
+export class RecordingSocket extends SessionSocket {
+  constructor() {
+    super('/ws/record');
+  }
+
+  /**
+   * @param {Object} sessionConfig `{kind:'win32'|'adb', win32?, adb?}`
+   * @returns {void}
+   */
+  start(sessionConfig) {
+    this._open(sessionConfig || {});
+  }
+
+  /** Ask the backend to stop recording. @returns {void} */
+  stop() {
+    this._send({ type: 'stop' });
+  }
+}
+
+/**
+ * Live test-run session. Stays open across runs: `arm` loads what the F3 hotkey runs
+ * (a route to walk, or an assert rect to check), `run` starts one, `abort` stops it.
+ * See serve.py `ws_navtest`.
+ */
+export class NavTestSocket extends SessionSocket {
+  constructor() {
+    super('/ws/navtest');
+  }
+
+  /**
+   * Open the session and walk `route` as soon as the game is connected.
+   * @param {Object} sessionConfig `{kind:'win32'|'adb'|..., win32?, adb?}`
+   * @param {{path: Array, exported: boolean, assert_target: ?Object}} route see {@link NavTestSocket#arm}
+   * @returns {void}
+   */
+  start(sessionConfig, route) {
+    this._open({ start: sessionConfig || {}, ...this._route(route) });
+  }
+
+  /**
+   * Load what F3 (and the next `run`) will run. `exported` false means editor waypoints
+   * the backend still has to export, true means ready pipeline nodes. `assert_target`
+   * `{zone_id, target:[x,y,w,h]}` runs the assert rect instead and wins over `path`.
+   * @param {{path: Array, exported: boolean, assert_target: ?Object}} route
+   * @returns {void}
+   */
+  arm(route) {
+    this._send({ type: 'arm', ...this._route(route) });
+  }
+
+  /** Re-arm with `route` and run it once. @returns {void} */
+  run(route) {
+    this._send({ type: 'run', ...this._route(route) });
+  }
+
+  /** @returns {{path: Array, exported: boolean, assert_target: ?Object}} */
+  _route(route) {
+    return {
+      path: (route && route.path) || [],
+      exported: !!(route && route.exported),
+      assert_target: (route && route.assert_target) || null,
+    };
+  }
+
+  /** Stop the run in flight (same effect as F4). @returns {void} */
+  abort() {
+    this._send({ type: 'abort' });
+  }
+
+  /** End the session; the backend tears down the agent. @returns {void} */
+  stop() {
+    this._send({ type: 'stop' });
   }
 }

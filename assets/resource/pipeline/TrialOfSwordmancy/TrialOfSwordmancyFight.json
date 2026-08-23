@@ -95,7 +95,15 @@
         "on_error": [
             // 本次寻路必定失败
             "TrialOfSwordmancyEnterTrialTarget"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "TrialOfSwordmancyEnterTrialTarget": {
         "desc": "进入挑战目标界面",
@@ -146,7 +154,38 @@
         ]
     },
     "TrialOfSwordmancyFightSuccess": {
-        "desc": "战斗胜利",
+        "desc": "战斗胜利：IMS A3 只累加武陵调度券后再点继续",
+        "recognition": "And",
+        "all_of": [
+            "WhiteConfirmButtonType1"
+        ],
+        "pre_wait_freezes": {
+            "target": [
+                528,
+                299,
+                222,
+                131
+            ],
+            "time": 300,
+            "threshold": 0.97,
+            "timeout": 1500
+        },
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "AddItemData",
+        "custom_action_param": {
+            "item_ids": [
+                "item_domain_jinlong_coupon"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "TrialOfSwordmancyFightSuccessContinue"
+        ]
+    },
+    "TrialOfSwordmancyFightSuccessContinue": {
+        "desc": "点击再次演算",
         "recognition": "And",
         "all_of": [
             "WhiteConfirmButtonType1"

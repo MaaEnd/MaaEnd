@@ -16,33 +16,30 @@
             ]
         },
         {
+            // DeliveryJobsSelectItemToFill* 使用 Custom 识别（IconRecognition），节点测试无法覆盖，由 cpp-algo 测试集保证
             "image": "四号谷地_地区建设_仓储节点_货物装箱_填充货物.png",
             "hits": [
-                "DeliveryJobsCargoFillToMax",
-                "DeliveryJobsSelectItemToFillValleyIV"
+                "DeliveryJobsCargoFillToMax"
             ]
         },
         {
             "image": "武陵_地区建设_仓储节点_货物装箱_填充货物.png",
             "hits": [
-                "DeliveryJobsCargoFillToMax",
-                "DeliveryJobsSelectItemToFillWuling"
+                "DeliveryJobsCargoFillToMax"
             ]
         },
         {
             "image": "四号谷地_地区建设_仓储节点_货物装箱_选择填充的货物.png",
             "hits": [
                 "DeliveryJobsFillCorrespondingGoods",
-                "DeliveryJobsCargoFillToMax",
-                "DeliveryJobsSelectItemToFillValleyIV"
+                "DeliveryJobsCargoFillToMax"
             ]
         },
         {
             "image": "四号谷地_地区建设_仓储节点_货物装箱_填充至满.png",
             "hits": [
                 "DeliveryJobsFillToMaxNextStep",
-                "DeliveryJobsCargoFillToMax",
-                "DeliveryJobsSelectItemToFillValleyIV"
+                "DeliveryJobsCargoFillToMax"
             ]
         },
         {

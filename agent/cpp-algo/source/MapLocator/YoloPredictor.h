@@ -3,10 +3,11 @@
 #include <memory>
 #include <mutex>
 #include <onnxruntime/onnxruntime_cxx_api.h>
-#include <opencv2/opencv.hpp>
 #include <string>
 #include <unordered_map>
 #include <vector>
+
+#include <MaaUtils/NoWarningCV.hpp>
 
 #include "MapTypes.h"
 
@@ -52,6 +53,12 @@ private:
     std::unordered_map<std::string, TileRegion> tileRegions;
 
     std::mutex yoloMutex;
+    cv::Mat canvasScratch;
+    cv::Mat maskScratch;
+    cv::Mat processedScratch;
+    cv::Mat rgbScratch;
+    cv::Mat floatScratch;
+    std::vector<float> inputTensorScratch;
     double yoloConfThreshold;
 };
 

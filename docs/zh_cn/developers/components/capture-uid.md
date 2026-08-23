@@ -1,9 +1,9 @@
 # 开发手册 - CaptureUid 参考文档
 
-`CaptureUid` 是一个通用 UID 获取与缓存模块。它通过截屏 OCR 读取玩家 UID，经随机盐 SHA-256 哈希后缓存，供其他子系统以伪匿名标识符引用。
+`CaptureUid` 是一个通用 UID 获取与缓存模块。它通过截屏 OCR 读取玩家 UID，缓存原始 UID 数字，输出时按 `output_type` 转换为哈希（默认）、打码或原始形式，供其他子系统以伪匿名标识符引用。
 
 > [!important]
-> 原始 UID 不会被存储或记录。仅保留哈希后的伪匿名标识符，用于跨会话关联数据。
+> 原始 UID 仅保存在内存缓存中，不会落盘。需要持久化或上报时，应使用默认的 `hashed` 伪匿名标识符。
 
 ## 实现文件
 
@@ -63,6 +63,7 @@
 | `stay_on_current_screen` | `bool` | `true` | 是否在当前画面截屏 OCR。为 `false` 时先导航至 `SceneEnterMenuOperationalManual` 再截屏。 |
 | `allow_unknown` | `bool` | `true` | OCR 失败时返回 `"unknown"` 而非报错。为 `false` 时 OCR 失败将导致动作失败。 |
 | `clear_cache` | `bool` | `false` | 清空 UID 缓存并立即返回，不执行截屏 OCR。 |
+| `output_type` | `string` | `"hashed"` | 输出格式：`hashed`（加盐 SHA-256 前 16 位十六进制）、`masked`（保留首尾各 3 位，中间以 `*` 打码）、`raw`（原始 UID 数字）。 |
 
 > [!note]
 > `clear_cache` 为 `true` 时，其余参数均不生效——动作仅清空缓存后直接返回成功。
@@ -74,14 +75,14 @@
 ### 获取 UID（带缓存）
 
 ```go
-uid, err := captureuid.Capture(ctx, ctrl, true, true, true)
-// useCache=true, stayOnCurrentScreen=true, allowUnknown=true
+uid, err := captureuid.Capture(ctx, ctrl, true, true, true, captureuid.OutputTypeHashed)
+// useCache=true, stayOnCurrentScreen=true, allowUnknown=true, outputType=hashed
 ```
 
-### 读取缓存 UID
+### 读取缓存 UID（按输出格式转换）
 
 ```go
-uid := captureuid.GetCachedUID()
+uid := captureuid.GetCachedUID(captureuid.OutputTypeMasked)
 // 无缓存时返回空字符串 ""
 ```
 
@@ -100,14 +101,14 @@ captureuid.ClearCache()
 3. **截屏** — 通过 `ctrl.PostScreencap()` 获取当前画面。
 4. **OCR** — 在 ROI 区域 `{60, 690, 155, 25}` 内识别文字，提取所有数字字符。
 5. **数字校验** — 验证提取的数字位数为 8–12 位。不在此范围则按 `allow_unknown` 决定返回 `"unknown"` 或报错。
-6. **哈希** — 读取（或首次生成）随机盐 `debug/record/random_salt.txt`，计算 `SHA-256(数字UID + 盐)` 取前 16 位十六进制作为伪匿名标识符。
-7. **缓存** — 将哈希结果存入内存缓存，供后续调用直接使用。
+6. **输出格式化** — 按 `output_type` 转换：`hashed` 读取（或首次生成）随机盐 `debug/record/random_salt.txt` 并计算 `SHA-256(数字UID + 盐)` 前 16 位十六进制；`masked` 保留首尾各 3 位、中间以 `*` 打码；`raw` 原样返回。
+7. **缓存** — 将原始 UID 数字存入内存缓存，供后续调用按任意 `output_type` 转换使用。
 
 ## 隐私设计
 
-- 原始 UID 数字**不被存储或记录**，仅存在于当次计算的内存中。
+- 原始 UID 数字仅保存在内存缓存中，**不落盘**，也不会写入日志（日志只输出转换后的结果）。
 - 每次安装随机生成 16 字节盐，保存至 `debug/record/random_salt.txt`。
-- 最终标识符为 `SHA-256(UID数字 + 盐)[:16]` — 16 位十六进制字符串，足以跨会话标识同一玩家但无法反推原始 UID。
+- `hashed` 输出为 `SHA-256(UID数字 + 盐)[:16]` — 16 位十六进制字符串，足以跨会话标识同一玩家但无法反推原始 UID；需要持久化或上报时应使用该格式。
 
 ## 现有集成
 

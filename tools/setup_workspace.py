@@ -16,6 +16,7 @@ from urllib.parse import urlparse
 
 from cli_support import Console, init_localization
 import dep_3rdparty
+from path_utils import is_directory_link, remove_directory_or_link
 
 
 PROJECT_BASE: Path = Path(__file__).parent.parent.resolve()
@@ -31,13 +32,7 @@ def create_directory_link(src: Path, dst: Path) -> bool:
     - Unix/macOS：symlink
     """
     if dst.exists() or dst.is_symlink():
-        if dst.is_dir() and not dst.is_symlink():
-            try:
-                dst.rmdir()
-            except OSError:
-                shutil.rmtree(dst)
-        else:
-            dst.unlink(missing_ok=True)
+        remove_directory_or_link(dst)
 
     dst.parent.mkdir(parents=True, exist_ok=True)
 
@@ -666,9 +661,7 @@ def install_maafw(
     with tempfile.TemporaryDirectory() as tmp_dir:
         tmp_path = Path(tmp_dir)
 
-        maafw_dest_is_link = maafw_dest.is_symlink()
-        if hasattr(maafw_dest, 'is_junction'):
-            maafw_dest_is_link = maafw_dest_is_link or maafw_dest.is_junction()
+        maafw_dest_is_link = is_directory_link(maafw_dest)
 
         if maafw_dest_is_link:
             print(Console.ok(t("inf_link_already_exists", path=maafw_dest)))
@@ -676,7 +669,7 @@ def install_maafw(
             if maafw_dest.is_dir():
                 def _delete_maafw_dest():
                     print(Console.info(t("inf_delete_old_dir", path=maafw_dest)))
-                    shutil.rmtree(maafw_dest)
+                    remove_directory_or_link(maafw_dest)
                 try:
                     if not _retry_on_permission(_delete_maafw_dest, error_key="err_cannot_delete_maafw", path=maafw_dest):
                         return False, local_version, False

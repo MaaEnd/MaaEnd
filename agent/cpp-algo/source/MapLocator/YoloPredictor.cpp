@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <array>
 #include <filesystem>
 
 #include <MaaUtils/Logger.h>
@@ -122,7 +123,8 @@ YoloCoarseResult YoloPredictor::predictCoarseByYOLO(const cv::Mat& minimap)
         img3C = minimap.clone();
     }
 
-    cv::Mat canvas = cv::Mat::zeros(OUTPUT_SIZE, OUTPUT_SIZE, CV_8UC3);
+    canvasScratch.create(OUTPUT_SIZE, OUTPUT_SIZE, CV_8UC3);
+    canvasScratch.setTo(cv::Scalar::all(0));
     int h = img3C.rows, w = img3C.cols;
     int start_y = std::max(0, (OUTPUT_SIZE - h) / 2);
     int start_x = std::max(0, (OUTPUT_SIZE - w) / 2);
@@ -131,42 +133,44 @@ YoloCoarseResult YoloPredictor::predictCoarseByYOLO(const cv::Mat& minimap)
 
     cv::Rect canvas_roi(start_x, start_y, crop_w, crop_h);
     cv::Rect img_roi((w - crop_w) / 2, (h - crop_h) / 2, crop_w, crop_h);
-    img3C(img_roi).copyTo(canvas(canvas_roi));
+    img3C(img_roi).copyTo(canvasScratch(canvas_roi));
 
-    cv::Mat mask = cv::Mat::zeros(OUTPUT_SIZE, OUTPUT_SIZE, CV_8UC1);
-    cv::circle(mask, cv::Point(OUTPUT_SIZE / 2, OUTPUT_SIZE / 2), MASK_DIAMETER / 2, cv::Scalar(255), -1);
+    if (maskScratch.size() != cv::Size(OUTPUT_SIZE, OUTPUT_SIZE) || maskScratch.type() != CV_8UC1) {
+        maskScratch.create(OUTPUT_SIZE, OUTPUT_SIZE, CV_8UC1);
+        maskScratch.setTo(cv::Scalar::all(0));
+        cv::circle(maskScratch, cv::Point(OUTPUT_SIZE / 2, OUTPUT_SIZE / 2), MASK_DIAMETER / 2, cv::Scalar(255), -1);
+    }
 
-    cv::Mat processed_img;
-    cv::bitwise_and(canvas, canvas, processed_img, mask);
+    processedScratch.create(OUTPUT_SIZE, OUTPUT_SIZE, CV_8UC3);
+    processedScratch.setTo(cv::Scalar::all(0));
+    cv::bitwise_and(canvasScratch, canvasScratch, processedScratch, maskScratch);
 
-    cv::Mat rgb_img;
-    cv::cvtColor(processed_img, rgb_img, cv::COLOR_BGR2RGB);
+    cv::cvtColor(processedScratch, rgbScratch, cv::COLOR_BGR2RGB);
 
     // Convert to Float and Normalize [0, 1]
-    cv::Mat floatImg;
-    rgb_img.convertTo(floatImg, CV_32F, 1.0 / 255.0);
+    rgbScratch.convertTo(floatScratch, CV_32F, 1.0 / 255.0);
 
     // Prepare input tensor (NCHW: 1x3x128x128)
-    std::vector<float> inputTensorValues(1 * 3 * OUTPUT_SIZE * OUTPUT_SIZE);
+    inputTensorScratch.resize(1 * 3 * OUTPUT_SIZE * OUTPUT_SIZE);
 
     // HWC to CHW
     for (int c = 0; c < 3; c++) {
         for (int i = 0; i < OUTPUT_SIZE; i++) {
             for (int j = 0; j < OUTPUT_SIZE; j++) {
-                inputTensorValues[c * OUTPUT_SIZE * OUTPUT_SIZE + i * OUTPUT_SIZE + j] = floatImg.at<cv::Vec3f>(i, j)[c];
+                inputTensorScratch[c * OUTPUT_SIZE * OUTPUT_SIZE + i * OUTPUT_SIZE + j] = floatScratch.at<cv::Vec3f>(i, j)[c];
             }
         }
     }
 
-    std::vector<int64_t> inputShape = { 1, 3, OUTPUT_SIZE, OUTPUT_SIZE };
+    constexpr std::array<int64_t, 4> kInputShape { 1, 3, OUTPUT_SIZE, OUTPUT_SIZE };
 
     auto memoryInfo = Ort::MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemTypeDefault);
     Ort::Value inputTensor = Ort::Value::CreateTensor<float>(
         memoryInfo,
-        inputTensorValues.data(),
-        inputTensorValues.size(),
-        inputShape.data(),
-        inputShape.size());
+        inputTensorScratch.data(),
+        inputTensorScratch.size(),
+        kInputShape.data(),
+        kInputShape.size());
 
     if (inputNodeNames.empty() || outputNodeNames.empty()) {
         LogError << "YOLO Error: input/output node names are not configured. Check model JSON sidecar.";
@@ -202,8 +206,8 @@ YoloCoarseResult YoloPredictor::predictCoarseByYOLO(const cv::Mat& minimap)
         predictedName = yoloClassNames[maxIdx];
     }
 
-    LogInfo << "YOLO Raw All:" << yoloClassNames << std::vector<float>(outputData, outputData + outputCount);
-    LogInfo << "YOLO Raw:" << VAR(predictedName) << VAR(maxIdx) << VAR(maxConf);
+    LogTrace << "YOLO Raw All:" << yoloClassNames << std::vector<float>(outputData, outputData + outputCount);
+    LogDebug << "YOLO Raw:" << VAR(predictedName) << VAR(maxIdx) << VAR(maxConf);
     result.raw_class = predictedName;
     result.confidence = maxConf;
 

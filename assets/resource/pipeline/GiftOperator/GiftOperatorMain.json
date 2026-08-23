@@ -14,7 +14,7 @@
         "next": [
             "GiftOperatorInDijiang0",
             //"GiftOperatorInDijiang1",
-            "[JumpBack]SceneEnterWorldDijiang0"
+            "[JumpBack]GiftOperatorGoToDijiang"
         ]
     },
     "GiftOperatorInDijiang0": {
@@ -22,24 +22,30 @@
         "recognition": {
             "type": "Custom",
             "param": {
-                "custom_recognition": "MapTrackerAssertLocation",
+                "custom_recognition": "MapLocateAssertLocation",
                 "custom_recognition_param": {
-                    "expected": [
-                        {
-                            "map_name": "base01_lv003",
-                            "target": [
-                                158.3,
-                                189.9,
-                                10.3,
-                                9.2
-                            ]
-                        }
+                    "zone_id": "OMVBase01",
+                    "target": [
+                        155.86,
+                        186.98,
+                        10.14,
+                        9.06
                     ]
                 }
             }
         },
         "next": [
-            "GiftOperatorShiftToRunMapTracker"
+            "GiftOperatorShiftToRun"
+        ]
+    },
+    "GiftOperatorGoToDijiang": {
+        "desc": "前往帝江号舰桥大世界",
+        "max_hit": 3,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SceneEnterWorldDijiang0"
         ]
     },
     "GiftOperatorInDijiang1": {
@@ -47,24 +53,20 @@
         "recognition": {
             "type": "Custom",
             "param": {
-                "custom_recognition": "MapTrackerAssertLocation",
+                "custom_recognition": "MapLocateAssertLocation",
                 "custom_recognition_param": {
-                    "expected": [
-                        {
-                            "map_name": "base01_lv003",
-                            "target": [
-                                182.5,
-                                169.6,
-                                11.5,
-                                10.3
-                            ]
-                        }
+                    "zone_id": "OMVBase01",
+                    "target": [
+                        179.69,
+                        166.99,
+                        11.32,
+                        10.14
                     ]
                 }
             }
         },
         "next": [
-            "GiftOperatorShiftToRunMapTrackerSC"
+            "GiftOperatorShiftToRunSC"
         ]
     },
     "GiftOperatorLeave": {
@@ -107,11 +109,13 @@
         "custom_action_param": {
             "nodes": [
                 "GiftOperatorMoveResetBackward",
-                "GiftOperatorMoveLocation3",
+                "GiftOperatorTurnEast",
                 "GiftOperatorMoveLocation3Move",
-                "GiftOperatorMoveLocation2",
+                "GiftOperatorTurnSoutheast",
+                "GiftOperatorTurnNorthwest",
+                "GiftOperatorTurnNorthByWest",
                 "GiftOperatorMoveLocation2Move",
-                "GiftOperatorMoveLocation1",
+                "GiftOperatorTurnWest",
                 "GiftOperatorMoveLocation1Move",
                 "GiftOperatorGoAheadContact",
                 "GiftOperatorBack"
