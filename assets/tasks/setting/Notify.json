@@ -16,6 +16,7 @@
             "label": "$option.NotifyContent.label",
             "description": "$option.NotifyContent.description",
             "option": [
+                "NotifyAllowTask",
                 "NotifyFail"
             ]
         }
@@ -24,6 +25,7 @@
         "NotifyWebhook",
         "NotifyBark",
         "NotifyServerChan",
+        "NotifyAllowTask",
         "NotifyFail"
     ],
     "option": {
@@ -316,6 +318,36 @@
                     }
                 }
             }
+        },
+        "NotifyAllowTask": {
+            "type": "switch",
+            "label": "$option.NotifyAllowTask.label",
+            "description": "$option.NotifyAllowTask.description",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "label": "$option.NotifyAllowTask.cases.Yes.label",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "allow_task_notify": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "label": "$option.NotifyAllowTask.cases.No.label",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "allow_task_notify": false
+                            }
+                        }
+                    }
+                }
+            ]
         },
         "NotifyFail": {
             "type": "switch",
