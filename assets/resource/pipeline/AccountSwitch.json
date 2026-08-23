@@ -30,15 +30,32 @@
     },
     "__AccountSwitchAtLoginScreenDialogShow": {
         "desc": "在登陆界面，显示对话框",
-        "recognition": "TemplateMatch",
-        "roi": [
-            651,
-            130,
-            466,
-            495
-        ],
-        "template": [
-            "AccountSwitch/LoginClose.png"
+        "recognition": "Or",
+        "any_of": [
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    651,
+                    130,
+                    466,
+                    495
+                ],
+                "template": [
+                    "AccountSwitch/LoginClose.png"
+                ]
+            },
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    569,
+                    228,
+                    141,
+                    29
+                ],
+                "template": [
+                    "AccountSwitch/GryphLineLogo.png"
+                ]
+            }
         ],
         "pre_delay": 0,
         "post_delay": 0,
@@ -142,7 +159,8 @@
             "targets": [
                 "__AccountSwitchOCRSelectAccount",
                 "__AccountSwitchVerifySelected"
-            ]
+            ],
+            "substring": true
         },
         "next": [
             "__AccountSwitchClickDropdown"
@@ -218,10 +236,10 @@
             "type": "OCR",
             "param": {
                 "roi": [
-                    475,
-                    364,
-                    300,
-                    300
+                    467,
+                    295,
+                    342,
+                    421
                 ],
                 "expected": [
                     // @i18n-skip
