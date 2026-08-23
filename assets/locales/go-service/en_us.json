@@ -234,5 +234,6 @@
     "ims.expression_short": "expression not matched: %s",
     "ims.item_current": "Current %s: %d",
     "notify.status.failed": "Failure",
+    "notify.default_body": "Triggered at {{datetime}}",
     "notify.default_title": "MaaEnd Notification"
 }

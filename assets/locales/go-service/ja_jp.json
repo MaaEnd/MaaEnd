@@ -234,5 +234,6 @@
     "ims.expression_short": "式が不成立：%s",
     "ims.item_current": "現在 %s：%d",
     "notify.status.failed": "失敗",
+    "notify.default_body": "トリガー時刻 {{datetime}}",
     "notify.default_title": "MaaEnd 通知"
 }
