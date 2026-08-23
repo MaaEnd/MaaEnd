@@ -127,9 +127,16 @@ func BuildVars(taskName, status string, now time.Time) map[string]string {
 }
 
 // ReplaceVars 把模板中的 {{key}} 替换为 vars 中的值，未识别的变量原样保留。
+// 多轮替换直到收敛，避免 map 迭代顺序随机导致交叉引用结果不确定。
 func ReplaceVars(template string, vars map[string]string) string {
-	for key, value := range vars {
-		template = strings.ReplaceAll(template, "{{"+key+"}}", value)
+	for i := 0; i < 10; i++ {
+		prev := template
+		for key, value := range vars {
+			template = strings.ReplaceAll(template, "{{"+key+"}}", value)
+		}
+		if template == prev {
+			return template
+		}
 	}
 	return template
 }
@@ -185,8 +192,8 @@ func sanitizeError(err error) error {
 	return fmt.Errorf("%s", urlInErrRegexp.ReplaceAllString(err.Error(), "<redacted url>"))
 }
 
-// postJSON 发送 JSON POST 并检查状态码；checkCode 时解析 body 的 code 字段（非 0 视为业务失败）。
-func postJSON(endpoint string, payload map[string]any, checkCode bool) error {
+// postJSON 发送 JSON POST 并检查状态码；expectedCode >= 0 时解析 body 的 code 字段对比。
+func postJSON(endpoint string, payload map[string]any, expectedCode int) error {
 	jsonBody, err := json.Marshal(payload)
 	if err != nil {
 		return err
@@ -199,7 +206,7 @@ func postJSON(endpoint string, payload map[string]any, checkCode bool) error {
 	if err := checkStatus(resp); err != nil {
 		return err
 	}
-	if checkCode {
+	if expectedCode >= 0 {
 		respBody, err := io.ReadAll(resp.Body)
 		if err != nil {
 			return fmt.Errorf("failed to read response body: %w", err)
@@ -207,8 +214,11 @@ func postJSON(endpoint string, payload map[string]any, checkCode bool) error {
 		var result struct {
 			Code int `json:"code"`
 		}
-		if err := json.Unmarshal(respBody, &result); err == nil && result.Code != 0 {
-			return fmt.Errorf("api error code: %d", result.Code)
+		if err := json.Unmarshal(respBody, &result); err != nil {
+			return fmt.Errorf("failed to parse response body: %w", err)
+		}
+		if result.Code != expectedCode {
+			return fmt.Errorf("api code: %d, expected %d", result.Code, expectedCode)
 		}
 	}
 	return nil
@@ -299,7 +309,7 @@ func sendWebhook(config Config, vars map[string]string) error {
 
 	req, err := http.NewRequest(method, urlStr, strings.NewReader(body))
 	if err != nil {
-		return err
+		return sanitizeError(err)
 	}
 	for key, value := range headers {
 		req.Header.Set(key, value)
@@ -342,25 +352,29 @@ func sendBark(config Config, title, body string, vars map[string]string) error {
 		"title": title,
 		"body":  body,
 	}
-	addIfPresent(payload, vars, "subtitle", config.BarkSubtitle)
-	addIfPresent(payload, vars, "group", config.BarkGroup)
-	addIfPresent(payload, vars, "level", config.BarkLevel)
-	addIfPresent(payload, vars, "sound", config.BarkSound)
-	addIfPresent(payload, vars, "icon", config.BarkIcon)
-	addIfPresent(payload, vars, "image", config.BarkImage)
-	addIfPresent(payload, vars, "url", config.BarkURL)
-	addIfPresent(payload, vars, "markdown", config.BarkMarkdown)
-	addIfPresent(payload, vars, "copy", config.BarkCopy)
-	addIfPresent(payload, vars, "isArchive", config.BarkIsArchive)
-	addIfPresent(payload, vars, "ttl", config.BarkTTL)
-	addIfPresent(payload, vars, "device_keys", config.BarkDeviceKeys)
-	addIfPresent(payload, vars, "volume", config.BarkVolume)
-	addIfPresent(payload, vars, "call", config.BarkCall)
-	addIfPresent(payload, vars, "autoCopy", config.BarkAutoCopy)
-	addIfPresent(payload, vars, "ciphertext", config.BarkCiphertext)
-	addIfPresent(payload, vars, "action", config.BarkAction)
-	addIfPresent(payload, vars, "id", config.BarkID)
-	addIfPresent(payload, vars, "delete", config.BarkDelete)
+	for _, p := range []struct{ key, val string }{
+		{"subtitle", config.BarkSubtitle},
+		{"group", config.BarkGroup},
+		{"level", config.BarkLevel},
+		{"sound", config.BarkSound},
+		{"icon", config.BarkIcon},
+		{"image", config.BarkImage},
+		{"url", config.BarkURL},
+		{"markdown", config.BarkMarkdown},
+		{"copy", config.BarkCopy},
+		{"isArchive", config.BarkIsArchive},
+		{"ttl", config.BarkTTL},
+		{"device_keys", config.BarkDeviceKeys},
+		{"volume", config.BarkVolume},
+		{"call", config.BarkCall},
+		{"autoCopy", config.BarkAutoCopy},
+		{"ciphertext", config.BarkCiphertext},
+		{"action", config.BarkAction},
+		{"id", config.BarkID},
+		{"delete", config.BarkDelete},
+	} {
+		addIfPresent(payload, vars, p.key, p.val)
+	}
 	// badge 为数字参数，纯数字时按整数发送
 	if badge := ReplaceVars(strings.TrimSpace(config.BarkBadge), vars); badge != "" {
 		if n, err := strconv.Atoi(badge); err == nil {
@@ -370,7 +384,7 @@ func sendBark(config Config, title, body string, vars map[string]string) error {
 		}
 	}
 	log.Debug().Str("component", "Notify").Str("channel", "bark").Msg("sending bark notify")
-	return postJSON(endpoint, payload, false)
+	return postJSON(endpoint, payload, 200)
 }
 
 // serverChanEndpointDefault 根据 SendKey 前缀选择端点：
@@ -410,7 +424,7 @@ func sendServerChan(config Config, title, body string, vars map[string]string) e
 	}
 	addIfPresent(payload, vars, "openid", config.ServerChanOpenID)
 	log.Debug().Str("component", "Notify").Str("channel", "serverchan").Msg("sending serverchan notify")
-	return postJSON(endpoint, payload, true)
+	return postJSON(endpoint, payload, 0)
 }
 
 // NotifySendAction 供 Pipeline 手动触发通知：读取 __NotifyConfig 节点 attach 中的
@@ -423,12 +437,12 @@ func (a *NotifySendAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 	raw, err := ctx.GetNodeJSON(defaultConfigNode)
 	if err != nil {
 		log.Error().Err(err).Str("component", "NotifySendAction").Str("node", defaultConfigNode).Msg("failed to get node json")
-		return false
+		return true
 	}
 	config, err := ParseConfig(raw)
 	if err != nil {
 		log.Error().Err(err).Str("component", "NotifySendAction").Str("node", defaultConfigNode).Msg("failed to parse notify config")
-		return false
+		return true
 	}
 
 	applyTaskToggle(&config)
@@ -452,11 +466,4 @@ func applyTaskToggle(config *Config) {
 	if !config.SendTaskServerChan {
 		config.ServerChanEnabled = false
 	}
-}
-
-// Register 注册 NotifySendAction 自定义动作与任务失败事件监听。
-func Register() {
-	maa.AgentServerRegisterCustomAction("NotifySendAction", &NotifySendAction{})
-	maa.AgentServerAddTaskerSink(&Sink{})
-	maa.AgentServerAddContextSink(&ConfigSink{})
 }
