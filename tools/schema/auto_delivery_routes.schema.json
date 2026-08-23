@@ -38,7 +38,13 @@
                 "properties": {
                     "source_id": {
                         "type": "string",
-                        "minLength": 1
+                        "minLength": 1,
+                        "description": "仓储节点在 delivery_destinations.json 中的稳定 ID。"
+                    },
+                    "description": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "可选的人工维护说明，仅供阅读，不参与路线生成。"
                     },
                     "path": {
                         "$ref": "#/$defs/path"
@@ -64,7 +70,13 @@
                 "properties": {
                     "source_id": {
                         "type": "string",
-                        "minLength": 1
+                        "minLength": 1,
+                        "description": "送货终点在 delivery_destinations.json 中的稳定 ID。"
+                    },
+                    "description": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "可选的人工维护说明，仅供阅读，不参与路线生成。"
                     },
                     "path": {
                         "$ref": "#/$defs/path"
