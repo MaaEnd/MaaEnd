@@ -158,22 +158,55 @@
         "custom_action_param": {
             "patch": {
                 "VisitFriendsCheckAssistControlNexus": {
-                    "recognition": "OCR",
-                    "expected": [
-                        "a^"
-                    ]
+                    "recognition": "ColorMatch",
+                    "roi": [
+                        0,
+                        0,
+                        1,
+                        1
+                    ],
+                    "method": 6,
+                    "lower": [
+                        0
+                    ],
+                    "upper": [
+                        255
+                    ],
+                    "count": 2
                 },
                 "VisitFriendsCheckAssistMFGCabin": {
-                    "recognition": "OCR",
-                    "expected": [
-                        "a^"
-                    ]
+                    "recognition": "ColorMatch",
+                    "roi": [
+                        0,
+                        0,
+                        1,
+                        1
+                    ],
+                    "method": 6,
+                    "lower": [
+                        0
+                    ],
+                    "upper": [
+                        255
+                    ],
+                    "count": 2
                 },
                 "VisitFriendsCheckAssistGrowthChamber": {
-                    "recognition": "OCR",
-                    "expected": [
-                        "a^"
-                    ]
+                    "recognition": "ColorMatch",
+                    "roi": [
+                        0,
+                        0,
+                        1,
+                        1
+                    ],
+                    "method": 6,
+                    "lower": [
+                        0
+                    ],
+                    "upper": [
+                        255
+                    ],
+                    "count": 2
                 },
                 "VisitFriendsMenuAssistControlNexusEntry": {
                     "enabled": false
@@ -212,10 +245,21 @@
         "custom_action_param": {
             "patch": {
                 "VisitFriendsCheckAssistClueExchange": {
-                    "recognition": "OCR",
-                    "expected": [
-                        "a^"
-                    ]
+                    "recognition": "ColorMatch",
+                    "roi": [
+                        0,
+                        0,
+                        1,
+                        1
+                    ],
+                    "method": 6,
+                    "lower": [
+                        0
+                    ],
+                    "upper": [
+                        255
+                    ],
+                    "count": 2
                 },
                 "VisitFriendsMenuClueExchangeEntry": {
                     "enabled": false
