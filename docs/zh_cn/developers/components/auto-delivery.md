@@ -94,14 +94,18 @@ AutoDelivery 是任务无关的自动送货组件。调用方打开正确的当�
 
 | 路径 | 内容 |
 | --- | --- |
-| `assets/data/AutoDelivery/delivery_destinations.json` | 自动生成的仓储、终点、五语言文本、坐标和归属关系 |
-| `assets/data/AutoDelivery/overrides.json` | 特殊仓储路线、取货站位修正和终点完整路线 |
+| `tools/pipeline-generate/data/delivery_destinations.json` | zmdmap 数据 CI 自动生成并发布的仓储、终点、五语言文本、坐标和归属关系 |
+| `tools/pipeline-generate/AutoDelivery/routes.json` | 特殊仓储路线、取货站位修正和终点完整路线 |
+| `assets/resource/pipeline/AutoDelivery/Routes.json` | 由上述数据生成、可独立试跑的仓储与终点寻路节点 |
+| `assets/data/AutoDelivery/catalog.json` | 运行时 OCR 匹配目录，仅保留文本、归属关系和生成节点名 |
 | `assets/resource/pipeline/AutoDelivery/Common.json` | 公共入口和任务详情识别 |
 | `assets/resource/pipeline/AutoDelivery/Pickup.json` | 快速传送、仓储导航和取货 |
 | `assets/resource/pipeline/AutoDelivery/Delivery.json` | 取消追踪、终点导航和提交货物 |
-| `agent/go-service/autodelivery/` | OCR 匹配、数据校验和导航参数注入 |
+| `agent/go-service/autodelivery/` | OCR 匹配、运行时目录校验和生成路线节点分发 |
 
-普通仓储和终点由 `tools/pipeline-generate/data/scripts/delivery_destinations_data.py` 从游戏数据生成单个 `NAVMESH` 目标。只有断网格、分层、需要分段靠近或需要修正取货站位时，才在 `overrides.json` 中维护覆盖。
+普通仓储和终点由 `tools/pipeline-generate/data/scripts/delivery_destinations_data.py` 从游戏数据生成单个 `NAVMESH` 目标。只有断网格、分层、需要分段靠近或需要修正取货站位时，才在 `routes.json` 中维护覆盖。
+
+运行 `pnpm generate:AutoDelivery` 后，每条主路线会生成普通与允许滑索两个 `AutoDeliveryRoute...` 节点，`retry_path` 则生成一个不继承滑索选项的站位修正节点。固定的 `AutoDeliveryNavigateDepot`、`AutoDeliveryRetryNavigateDepot` 和 `AutoDeliveryNavigateDestination` 是 `SubTask` 分发器：Go Service 只根据 OCR 结果选择生成节点名，不再把坐标或完整 `path` 注入 Pipeline。生成节点是公开的单路线测试入口，`desc` 会注明路线对应的仓储节点；它们不替代完整送货业务的唯一入口 `AutoDelivery`。
 
 覆盖文件只有顶层 `depots` 和 `destinations`：
 
@@ -133,14 +137,16 @@ AutoDelivery 是任务无关的自动送货组件。调用方打开正确的当�
 
 ### 验证
 
-修改数据、识别或流程后，按改动范围运行：
+修改数据、识别或流程后，先重新生成路线与运行时目录，再按改动范围运行：
 
 ```powershell
+pnpm generate:AutoDelivery
+
 cd agent/go-service
 go test ./autodelivery
 
 cd ../..
-node --test tools/pipeline-generate/DeliveryJobs/*.test.mjs
+node --test tools/pipeline-generate/AutoDelivery/*.test.mjs tools/pipeline-generate/DeliveryJobs/*.test.mjs
 pnpm check
 pnpm test
 ```

@@ -45,7 +45,7 @@ pnpm fetch:zmdmap
 
 每次打开任务详情时，DeliveryJobs 都把 `AutoDelivery` 放入 `next`，当前取货或送货阶段由组件根据任务详情自行判断。已进入送货阶段时，组件取消任务追踪并从大世界前往终点；需要取货时，组件快速传送到仓储附近，取消追踪后前往仓储取货，再重新打开送货任务详情并继续终点流程。
 
-仓储坐标与全部送货终点均由 `delivery_destinations_data.py` 从游戏数据和 BaseNav 变换生成，普通点只需一个 `NAVMESH` 目标；断网格、分层或需要重新靠近取货点的路线才在 `assets/data/AutoDelivery/overrides.json` 中保留覆盖。终点覆盖的 `path` 是包含最终航点的完整路线；仓储 `departure_path` 作为所有归属终点的公共离开路线前缀。`retry_path` 的用途、执行边界与维护要求见 AutoDelivery 文档，DeliveryJobs 不直接调用该内部路线。
+仓储坐标与全部送货终点均由 `delivery_destinations_data.py` 从游戏数据和 BaseNav 变换生成，普通点只需一个 `NAVMESH` 目标；断网格、分层或需要重新靠近取货点的路线才在 `tools/pipeline-generate/AutoDelivery/routes.json` 中保留覆盖。AutoDelivery 生成器将每条路线渲染为可独立试跑的 Pipeline 节点，并生成不含坐标的运行时匹配目录；Go Service 识别目标后动态选择对应节点。终点覆盖的 `path` 是包含最终航点的完整路线；仓储 `departure_path` 作为所有归属终点的公共离开路线前缀。`retry_path` 的用途、执行边界与维护要求见 AutoDelivery 文档，DeliveryJobs 不直接调用该内部路线。
 
 风险确认与滑索偏好仅对 `Win32-Front` / `Wlroots` 控制器开放；受项目接口能力限制，其他控制器仍可能显示“全自动送货”处理方式，但无法关闭默认安全守卫，选择后会直接停止任务。滑索偏好只允许 MapNavigator 在预计更快且满足供电、上下索条件时规划滑索，不保证每条路线都会使用。送货成功后返回 DeliveryJobs 仓储节点循环，送货失败则停止整个任务，避免继续装箱。该功能仍处于测试阶段，使用前必须确认风险提示。
 

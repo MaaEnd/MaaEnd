@@ -1,0 +1,46 @@
+import {depots, destinations, rawJson} from "./model.mjs";
+
+function buildRows(id, description, path, routeNode, zipRouteNode) {
+    return [
+        {
+            Node: routeNode,
+            Description: `${description}（${id}）`,
+            ActionParam: rawJson({path, zip: false}),
+        },
+        {
+            Node: zipRouteNode,
+            Description: `${description}，允许使用滑索（${id}）`,
+            ActionParam: rawJson({path, zip: true}),
+        },
+    ];
+}
+
+export default [
+    ...depots.flatMap((depot) => [
+        ...buildRows(
+            depot.id,
+            `AutoDelivery 仓储路线：前往${depot.name}仓储节点`,
+            depot.path,
+            depot.routeNode,
+            depot.zipRouteNode,
+        ),
+        ...(depot.retryRouteNode
+            ? [
+                  {
+                      Node: depot.retryRouteNode,
+                      Description: `AutoDelivery 仓储站位修正路线：${depot.name}仓储节点（${depot.id}）`,
+                      ActionParam: rawJson({path: depot.retryPath}),
+                  },
+              ]
+            : []),
+    ]),
+    ...destinations.flatMap((destination) =>
+        buildRows(
+            destination.id,
+            `AutoDelivery 终点路线：从${destination.depotName}仓储节点前往${destination.name.zh_cn}`,
+            destination.path,
+            destination.routeNode,
+            destination.zipRouteNode,
+        ),
+    ),
+];

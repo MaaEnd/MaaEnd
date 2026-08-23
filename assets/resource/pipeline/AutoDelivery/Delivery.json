@@ -84,24 +84,10 @@
         ]
     },
     "AutoDeliveryNavigateDestination": {
-        "desc": "按送货目标识别节点注入的参数前往送货目标",
+        "desc": "动态调用送货目标识别节点选择的生成路线",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "MapNavigateAction",
-        "custom_action_param": {
-            // 运行时由 AutoDeliveryResolveDestinationAction 完整覆写
-            "map_name": "Wuling_Base",
-            "path": [
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        461.92,
-                        1712.802
-                    ],
-                    "target_deck_y": 315.37
-                }
-            ]
-        },
+        "custom_action": "FalseAction",
         "post_delay": 0,
         "rate_limit": 0,
         "next": [

@@ -11,7 +11,7 @@ const (
 	retryNavigateDepotNode = "AutoDeliveryRetryNavigateDepot"
 )
 
-// AutoDeliveryResolveDepotAction 根据区域 OCR 匹配仓储节点并注入对应的 MapNavigator 路线。
+// AutoDeliveryResolveDepotAction 根据区域 OCR 匹配仓储节点并选择对应的生成路线节点。
 type AutoDeliveryResolveDepotAction struct{}
 
 var _ maa.CustomActionRunner = &AutoDeliveryResolveDepotAction{}
@@ -100,35 +100,40 @@ func (a *AutoDeliveryResolveDepotAction) Run(ctx *maa.Context, arg *maa.CustomAc
 		Str("depot", route.ID).
 		Str("areaText", areaText).
 		Str("map", route.Map).
-		Int("pathPoints", len(route.Path)).
-		Int("retryPathPoints", len(route.RetryPath)).
+		Str("routeNode", selectRouteNode(route.RouteNode, route.ZipRouteNode, options.Zip)).
+		Str("retryRouteNode", route.RetryRouteNode).
 		Bool("zip", options.Zip).
 		Msg("configured delivery depot navigation")
 	return true
 }
 
-// OverridePipeline 采用字段级浅合并，因此这里必须提供完整的 custom_action_param。
 func buildDepotNavigationOverride(route depot, zip bool) map[string]any {
 	override := map[string]any{
 		navigateDepotNode: map[string]any{
-			"custom_action": "MapNavigateAction",
+			"custom_action": "SubTask",
 			"custom_action_param": map[string]any{
-				"path": route.Path,
-				"zip":  zip,
+				"sub": []string{selectRouteNode(route.RouteNode, route.ZipRouteNode, zip)},
 			},
 		},
 		retryNavigateDepotNode: map[string]any{
 			"enabled": false,
 		},
 	}
-	if len(route.RetryPath) != 0 {
+	if route.RetryRouteNode != "" {
 		override[retryNavigateDepotNode] = map[string]any{
 			"enabled":       true,
-			"custom_action": "MapNavigateAction",
+			"custom_action": "SubTask",
 			"custom_action_param": map[string]any{
-				"path": route.RetryPath,
+				"sub": []string{route.RetryRouteNode},
 			},
 		}
 	}
 	return override
+}
+
+func selectRouteNode(routeNode string, zipRouteNode string, zip bool) string {
+	if zip {
+		return zipRouteNode
+	}
+	return routeNode
 }

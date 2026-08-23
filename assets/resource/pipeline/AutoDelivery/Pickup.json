@@ -215,7 +215,7 @@
         ]
     },
     "AutoDeliveryNavigateDepot": {
-        "desc": "按仓储识别节点注入的参数前往仓储节点；未配置时安全失败",
+        "desc": "动态调用仓储识别节点选择的生成路线；未配置时安全失败",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "FalseAction",
@@ -319,7 +319,7 @@
         ]
     },
     "AutoDeliveryRetryNavigateDepot": {
-        "desc": "按仓储识别节点注入的私有重试路线重新靠近取货点；无重试路线时不启用",
+        "desc": "动态调用仓储配置的一次性站位修正路线；无重试路线时不启用",
         "enabled": false,
         "pre_delay": 0,
         "action": "Custom",

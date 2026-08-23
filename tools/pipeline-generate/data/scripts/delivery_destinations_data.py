@@ -32,9 +32,7 @@ from tablecfg_utils import (
 
 LABEL = "DeliveryDestinations"
 REPO_ROOT = DATA_DIR.parents[2]
-OUTPUT_PATH = (
-    REPO_ROOT / "assets" / "data" / "AutoDelivery" / "delivery_destinations.json"
-)
+OUTPUT_PATH = DATA_DIR / "delivery_destinations.json"
 USER_AGENT = "MaaEnd-pipeline"
 
 TABLE_NAMES = (

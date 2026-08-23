@@ -1142,8 +1142,8 @@ test("AutoDelivery keeps its task-detail entry and default branch flow explicit"
     assert.deepEqual(delivery.AutoDeliveryReturnWorldAndNavigateDestination.next, [
         "AutoDeliveryNavigateDestination",
     ]);
-    assert.equal(delivery.AutoDeliveryNavigateDestination.custom_action, "MapNavigateAction");
-    assert.equal(delivery.AutoDeliveryNavigateDestination.custom_action_param.zipline_policy, undefined);
+    assert.equal(delivery.AutoDeliveryNavigateDestination.custom_action, "FalseAction");
+    assert.equal(delivery.AutoDeliveryNavigateDestination.custom_action_param, undefined);
     assert.deepEqual(delivery.AutoDeliveryNavigateDestination.next, [
         "AutoDeliverySubmitGoodsWaitFreezes",
     ]);

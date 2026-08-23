@@ -12,7 +12,7 @@ const (
 	destinationOCRNode           = "AutoDeliveryDestinationOCR"
 )
 
-// AutoDeliveryResolveDestinationAction 根据 Pipeline OCR 文本匹配送货终点并注入 MapNavigateAction 参数。
+// AutoDeliveryResolveDestinationAction 根据 Pipeline OCR 文本匹配送货终点并选择对应的生成路线节点。
 type AutoDeliveryResolveDestinationAction struct{}
 
 var _ maa.CustomActionRunner = &AutoDeliveryResolveDestinationAction{}
@@ -86,20 +86,18 @@ func (a *AutoDeliveryResolveDestinationAction) Run(ctx *maa.Context, arg *maa.Cu
 		Float64("areaRunnerUpSimilarity", match.AreaRunnerUp).
 		Str("area", dest.AreaID).
 		Bool("zip", options.Zip).
-		Int("pathPoints", len(dest.Path)).
+		Str("routeNode", selectRouteNode(dest.RouteNode, dest.ZipRouteNode, options.Zip)).
 		Msg("resolved delivery job destination")
 	return true
 }
 
-// OverridePipeline 采用字段级浅合并，因此这里必须提供完整的 custom_action_param。
 func buildDestinationNavigationOverride(dest destination, zip bool) map[string]any {
-	param := map[string]any{
-		"path": dest.Path,
-		"zip":  zip,
-	}
 	return map[string]any{
 		navigateDestinationNode: map[string]any{
-			"custom_action_param": param,
+			"custom_action": "SubTask",
+			"custom_action_param": map[string]any{
+				"sub": []string{selectRouteNode(dest.RouteNode, dest.ZipRouteNode, zip)},
+			},
 		},
 	}
 }
