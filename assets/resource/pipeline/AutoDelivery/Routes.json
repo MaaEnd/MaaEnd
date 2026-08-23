@@ -535,6 +535,22 @@
                 {
                     "action": "NAVMESH",
                     "target": [
+                        1144.79,
+                        818.27
+                    ],
+                    "target_deck_y": 96.97
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1148.13,
+                        820.42
+                    ],
+                    "interact_text": "G层"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
                         1161.84,
                         826.06
                     ],
@@ -562,6 +578,22 @@
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
             "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1144.79,
+                        818.27
+                    ],
+                    "target_deck_y": 96.97
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1148.13,
+                        820.42
+                    ],
+                    "interact_text": "G层"
+                },
                 {
                     "action": "NAVMESH",
                     "target": [
