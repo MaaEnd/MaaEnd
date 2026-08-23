@@ -160,7 +160,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[JumpBack]AutoDeliverySkipChat",
+            "AutoDeliverySkipChat",
             "AutoDeliveryCloseRewardDialog"
         ],
         "focus": {
@@ -216,7 +216,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoDeliverySkipChatConfirm"
+            "AutoDeliverySkipChatConfirm",
+            "AutoDeliveryCloseRewardDialog"
         ]
     },
     "AutoDeliverySkipChatConfirm": {
@@ -236,7 +237,10 @@
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoDeliveryCloseRewardDialog"
+        ]
     },
     "AutoDeliveryCloseRewardDialog": {
         "desc": "提交货物后由 IMS A3 累加培养道具",

@@ -1159,6 +1159,17 @@ test("AutoDelivery keeps its task-detail entry and default branch flow explicit"
     assert.deepEqual(delivery.AutoDeliverySubmitGoods.all_of, [
         "AutoDeliverySubmitGoodsWaitFreezes",
     ]);
+    assert.deepEqual(delivery.AutoDeliverySubmitGoods.next, [
+        "AutoDeliverySkipChat",
+        "AutoDeliveryCloseRewardDialog",
+    ]);
+    assert.deepEqual(delivery.AutoDeliverySkipChat.next, [
+        "AutoDeliverySkipChatConfirm",
+        "AutoDeliveryCloseRewardDialog",
+    ]);
+    assert.deepEqual(delivery.AutoDeliverySkipChatConfirm.next, [
+        "AutoDeliveryCloseRewardDialog",
+    ]);
     assert.deepEqual(delivery.AutoDeliveryCloseRewardDialogClick.next, [
         "[Anchor]AutoDeliveryAfterSubmitGoods",
         "AutoDeliveryEnd",
