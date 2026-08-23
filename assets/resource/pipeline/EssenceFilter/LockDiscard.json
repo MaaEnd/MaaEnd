@@ -1,5 +1,14 @@
 {
     "EssenceFilterLockItem": {
+        "desc": "基质筛选锁定流程入口",
+        "recognition": "DirectHit",
+        "action": "DoNothing",
+        "next": [
+            "EssenceFilterCheckLocked",
+            "EssenceFilterClickLockItem"
+        ]
+    },
+    "EssenceFilterClickLockItem": {
         "desc": "锁定Essence",
         "recognition": {
             "type": "TemplateMatch",
@@ -21,7 +30,7 @@
         "post_delay": 300,
         "next": [
             "EssenceFilterCheckLocked",
-            "EssenceFilterLockItem"
+            "EssenceFilterClickLockItem"
         ],
         "focus": {
             "Node.Action.Succeeded": "已锁定基质"
@@ -48,13 +57,22 @@
             "EssenceGridAdvance"
         ],
         "on_error": [
-            "EssenceFilterLockItem"
+            "EssenceFilterClickLockItem"
         ],
         "focus": {
             "Node.Action.Succeeded": "已确认上锁"
         }
     },
     "EssenceFilterDiscardItem": {
+        "desc": "基质筛选废弃流程入口",
+        "recognition": "DirectHit",
+        "action": "DoNothing",
+        "next": [
+            "EssenceFilterCheckDiscarded",
+            "EssenceFilterClickDiscardItem"
+        ]
+    },
+    "EssenceFilterClickDiscardItem": {
         "desc": "废弃 Essence",
         "recognition": {
             "type": "TemplateMatch",
@@ -76,7 +94,7 @@
         "post_delay": 300,
         "next": [
             "EssenceFilterCheckDiscarded",
-            "EssenceFilterDiscardItem"
+            "EssenceFilterClickDiscardItem"
         ],
         "focus": {
             "Node.Action.Succeeded": "已废弃基质"
@@ -103,7 +121,7 @@
             "EssenceGridAdvance"
         ],
         "on_error": [
-            "EssenceFilterDiscardItem"
+            "EssenceFilterClickDiscardItem"
         ],
         "focus": {
             "Node.Action.Succeeded": "已确认废弃"

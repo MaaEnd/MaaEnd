@@ -1,5 +1,5 @@
 {
-    "EssenceFilterLockItem": {
+    "EssenceFilterClickLockItem": {
         "recognition": {
             "param": {
                 "roi": [
@@ -23,7 +23,7 @@
             }
         }
     },
-    "EssenceFilterDiscardItem": {
+    "EssenceFilterClickDiscardItem": {
         "recognition": {
             "param": {
                 "roi": [
