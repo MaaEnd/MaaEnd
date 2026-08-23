@@ -67,7 +67,6 @@
                 "ItemTransferFallbackAction",
                 "ItemTransferOCRAction",
                 "MapNavigateAction",
-                "MapTeleportSelect",
                 "MapTrackerBigMapPick",
                 "MapTrackerBigMapZoom",
                 "MapTrackerGoal",
@@ -283,20 +282,6 @@
 			"then": {
 				"properties": {
 					"custom_action_param": { "$ref": "./components/repeat_action.schema.json#/$defs/RepeatUntilNotFoundParam" }
-				},
-				"required": [ "custom_action_param" ]
-			}
-		},
-		{
-			"if": {
-				"properties": {
-					"custom_action": { "const": "MapTeleportSelect" }
-				},
-				"required": [ "custom_action" ]
-			},
-			"then": {
-				"properties": {
-					"custom_action_param": { "$ref": "./components/map_teleport.schema.json#/$defs/MapTeleportSelectParam" }
 				},
 				"required": [ "custom_action_param" ]
 			}

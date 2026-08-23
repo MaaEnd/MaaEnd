@@ -248,16 +248,14 @@
     },
     "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValley0": {
         "desc": "在地图界面找锚点 (景玉谷-生态实验站)",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingJingyuValley"
-        ],
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapTeleportSelect",
-        "custom_action_param": {
+        "action": "Click",
+        "custom_recognition_param": {
             "zone": "Wuling",
-            "target": [
+            "icon": "TeleportAnchor",
+            "at": [
                 814.5,
                 2138.2
             ]
@@ -275,16 +273,14 @@
     },
     "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValley1": {
         "desc": "在地图界面找锚点 (景玉谷-踩道)",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingJingyuValley"
-        ],
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapTeleportSelect",
-        "custom_action_param": {
+        "action": "Click",
+        "custom_recognition_param": {
             "zone": "Wuling",
-            "target": [
+            "icon": "TeleportAnchor",
+            "at": [
                 972.5,
                 2196.8
             ]
@@ -302,16 +298,14 @@
     },
     "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValley2": {
         "desc": "在地图界面找锚点 (景玉谷-聚宝窟外)",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingJingyuValley"
-        ],
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapTeleportSelect",
-        "custom_action_param": {
+        "action": "Click",
+        "custom_recognition_param": {
             "zone": "Wuling",
-            "target": [
+            "icon": "TeleportAnchor",
+            "at": [
                 791.7,
                 2324.0
             ]
@@ -329,16 +323,14 @@
     },
     "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValley3": {
         "desc": "在地图界面找锚点 (景玉谷-清波寨外寨)",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingJingyuValley"
-        ],
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapTeleportSelect",
-        "custom_action_param": {
+        "action": "Click",
+        "custom_recognition_param": {
             "zone": "Wuling",
-            "target": [
+            "icon": "TeleportAnchor",
+            "at": [
                 984.7,
                 2355.2
             ]
@@ -458,16 +450,14 @@
     },
     "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValley4": {
         "desc": "在地图界面找锚点 (景玉谷-聚宝窟内)，此锚点兼容性差已暂时弃用，目前采用传统模板匹配",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingJingyuValley"
-        ],
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapTeleportSelect",
-        "custom_action_param": {
+        "action": "Click",
+        "custom_recognition_param": {
             "zone": "Wuling",
-            "target": [
+            "icon": "TeleportAnchor",
+            "at": [
                 741.6,
                 2411.4
             ]
@@ -485,16 +475,14 @@
     },
     "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValley5": {
         "desc": "在地图界面找锚点 (景玉谷-天王坪)",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingJingyuValley"
-        ],
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapTeleportSelect",
-        "custom_action_param": {
+        "action": "Click",
+        "custom_recognition_param": {
             "zone": "Wuling",
-            "target": [
+            "icon": "TeleportAnchor",
+            "at": [
                 964.0,
                 2424.6
             ]
@@ -512,16 +500,14 @@
     },
     "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValley6": {
         "desc": "在地图界面找锚点 (景玉谷-驮鼻山)",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingJingyuValley"
-        ],
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapTeleportSelect",
-        "custom_action_param": {
+        "action": "Click",
+        "custom_recognition_param": {
             "zone": "Wuling",
-            "target": [
+            "icon": "TeleportAnchor",
+            "at": [
                 977.0,
                 2501.7
             ]
@@ -539,16 +525,14 @@
     },
     "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValley7": {
         "desc": "在地图界面找锚点 (景玉谷-迷踪林)",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingJingyuValley"
-        ],
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapTeleportSelect",
-        "custom_action_param": {
+        "action": "Click",
+        "custom_recognition_param": {
             "zone": "Wuling",
-            "target": [
+            "icon": "TeleportAnchor",
+            "at": [
                 753.7,
                 2595.3
             ]
@@ -566,16 +550,14 @@
     },
     "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValley8": {
         "desc": "在地图界面找锚点 (景玉谷-摘菱屿)",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingJingyuValley"
-        ],
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapTeleportSelect",
-        "custom_action_param": {
+        "action": "Click",
+        "custom_recognition_param": {
             "zone": "Wuling",
-            "target": [
+            "icon": "TeleportAnchor",
+            "at": [
                 689.9,
                 2654.0
             ]
@@ -593,16 +575,14 @@
     },
     "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValley9": {
         "desc": "在地图界面找锚点 (景玉谷-南山)",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingJingyuValley"
-        ],
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapTeleportSelect",
-        "custom_action_param": {
+        "action": "Click",
+        "custom_recognition_param": {
             "zone": "Wuling",
-            "target": [
+            "icon": "TeleportAnchor",
+            "at": [
                 814.2,
                 2773.2
             ]
@@ -620,16 +600,14 @@
     },
     "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValley10": {
         "desc": "在地图界面找锚点 (景玉谷-水泽涧)",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingJingyuValley"
-        ],
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapTeleportSelect",
-        "custom_action_param": {
+        "action": "Click",
+        "custom_recognition_param": {
             "zone": "Wuling",
-            "target": [
+            "icon": "TeleportAnchor",
+            "at": [
                 602.9,
                 2828.3
             ]
@@ -646,30 +624,17 @@
     },
     "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCityCore": {
         "desc": "在地图界面找锚点 (武陵城-核心区)",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingWulingCity"
-        ],
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapTeleportSelect",
-        "custom_action_param": {
+        "action": "Click",
+        "custom_recognition_param": {
             "zone": "Wuling",
-            "target": [
+            "icon": "Core",
+            "at": [
                 636.2,
                 1319.2
-            ],
-            // 基建核心的图标随玩家在区域里的摆放浮动，坐标只圈得住范围，所以在范围里搜。
-            // 它的模板比通用传送点那张大得多，背景峰跟着抬到 0.654，阈值只能单独标。
-            // 两张模板是同一个点位的两种样式，取分高的那张
-            "icon": [
-                "MapTeleportCoreHub.png",
-                "MapTeleportCoreSettlement.png"
-            ],
-            "radius": 60,
-            "scale_max": 1.15,
-            "min_score": 0.82,
-            "min_gold_ratio": 0.5
+            ]
         },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
@@ -684,16 +649,14 @@
     },
     "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCity0": {
         "desc": "在地图界面找锚点 (武陵城-观测站)",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingWulingCity"
-        ],
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapTeleportSelect",
-        "custom_action_param": {
+        "action": "Click",
+        "custom_recognition_param": {
             "zone": "Wuling",
-            "target": [
+            "icon": "TeleportAnchor",
+            "at": [
                 921.6,
                 1309.9
             ]
@@ -711,16 +674,14 @@
     },
     "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCity1": {
         "desc": "在地图界面找锚点 (武陵城-界石坪)",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingWulingCity"
-        ],
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapTeleportSelect",
-        "custom_action_param": {
+        "action": "Click",
+        "custom_recognition_param": {
             "zone": "Wuling",
-            "target": [
+            "icon": "TeleportAnchor",
+            "at": [
                 497.6,
                 1563.8
             ]
@@ -738,16 +699,14 @@
     },
     "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCity2": {
         "desc": "在地图界面找锚点 (武陵城-待修缮区)",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingWulingCity"
-        ],
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapTeleportSelect",
-        "custom_action_param": {
+        "action": "Click",
+        "custom_recognition_param": {
             "zone": "Wuling",
-            "target": [
+            "icon": "TeleportAnchor",
+            "at": [
                 914.2,
                 1586.6
             ]
@@ -765,16 +724,14 @@
     },
     "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCity3": {
         "desc": "在地图界面找锚点 (武陵城-方兴衢)",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingWulingCity"
-        ],
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapTeleportSelect",
-        "custom_action_param": {
+        "action": "Click",
+        "custom_recognition_param": {
             "zone": "Wuling",
-            "target": [
+            "icon": "TeleportAnchor",
+            "at": [
                 705.1,
                 1623.0
             ]
@@ -792,16 +749,14 @@
     },
     "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCity4": {
         "desc": "在地图界面找锚点 (武陵城-天师府学院)",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingWulingCity"
-        ],
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapTeleportSelect",
-        "custom_action_param": {
+        "action": "Click",
+        "custom_recognition_param": {
             "zone": "Wuling",
-            "target": [
+            "icon": "TeleportAnchor",
+            "at": [
                 529.4,
                 1743.2
             ]
@@ -819,16 +774,14 @@
     },
     "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCity5": {
         "desc": "在地图界面找锚点 (武陵城-天井院)",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingWulingCity"
-        ],
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapTeleportSelect",
-        "custom_action_param": {
+        "action": "Click",
+        "custom_recognition_param": {
             "zone": "Wuling",
-            "target": [
+            "icon": "TeleportAnchor",
+            "at": [
                 942.6,
                 1781.2
             ]
@@ -846,16 +799,14 @@
     },
     "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCity6": {
         "desc": "在地图界面找锚点 (武陵城-储备站左上)",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingWulingCity"
-        ],
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapTeleportSelect",
-        "custom_action_param": {
+        "action": "Click",
+        "custom_recognition_param": {
             "zone": "Wuling",
-            "target": [
+            "icon": "TeleportAnchor",
+            "at": [
                 866.0,
                 1868.7
             ]
@@ -873,16 +824,14 @@
     },
     "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCity7": {
         "desc": "在地图界面找锚点 (武陵城-三窟岗)",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingWulingCity"
-        ],
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapTeleportSelect",
-        "custom_action_param": {
+        "action": "Click",
+        "custom_recognition_param": {
             "zone": "Wuling",
-            "target": [
+            "icon": "TeleportAnchor",
+            "at": [
                 704.1,
                 1891.9
             ]
@@ -900,16 +849,14 @@
     },
     "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCity8": {
         "desc": "在地图界面找锚点 (武陵城-储备站右下)",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingWulingCity"
-        ],
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapTeleportSelect",
-        "custom_action_param": {
+        "action": "Click",
+        "custom_recognition_param": {
             "zone": "Wuling",
-            "target": [
+            "icon": "TeleportAnchor",
+            "at": [
                 973.1,
                 1959.3
             ]
@@ -927,16 +874,14 @@
     },
     "__ScenePrivateMapWulingQingboStockadeEnterWorldWulingQingboStockade0": {
         "desc": "在地图界面找锚点 (清波寨-顶天梁)",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingQingboStockade"
-        ],
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapTeleportSelect",
-        "custom_action_param": {
+        "action": "Click",
+        "custom_recognition_param": {
             "zone": "Wuling",
-            "target": [
+            "icon": "TeleportAnchor",
+            "at": [
                 1134.8,
                 2136.5
             ]
@@ -954,16 +899,14 @@
     },
     "__ScenePrivateMapWulingQingboStockadeEnterWorldWulingQingboStockade1": {
         "desc": "在地图界面找锚点 (清波寨-栈桥道)",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingQingboStockade"
-        ],
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapTeleportSelect",
-        "custom_action_param": {
+        "action": "Click",
+        "custom_recognition_param": {
             "zone": "Wuling",
-            "target": [
+            "icon": "TeleportAnchor",
+            "at": [
                 1172.3,
                 2282.5
             ]
@@ -981,16 +924,14 @@
     },
     "__ScenePrivateMapWulingQingboStockadeEnterWorldWulingQingboStockade2": {
         "desc": "在地图界面找锚点 (清波寨-主寨西南)",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingQingboStockade"
-        ],
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapTeleportSelect",
-        "custom_action_param": {
+        "action": "Click",
+        "custom_recognition_param": {
             "zone": "Wuling",
-            "target": [
+            "icon": "TeleportAnchor",
+            "at": [
                 1258.1,
                 2358.4
             ]
@@ -1008,16 +949,14 @@
     },
     "__ScenePrivateMapWulingQingboStockadeEnterWorldWulingQingboStockade3": {
         "desc": "在地图界面找锚点 (清波寨-祖泉)",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingQingboStockade"
-        ],
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapTeleportSelect",
-        "custom_action_param": {
+        "action": "Click",
+        "custom_recognition_param": {
             "zone": "Wuling",
-            "target": [
+            "icon": "TeleportAnchor",
+            "at": [
                 1363.6,
                 2185.8
             ]
@@ -1035,16 +974,14 @@
     },
     "__ScenePrivateMapWulingQingboStockadeEnterWorldWulingQingboStockade4": {
         "desc": "在地图界面找锚点 (清波寨-主寨东南)",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingQingboStockade"
-        ],
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapTeleportSelect",
-        "custom_action_param": {
+        "action": "Click",
+        "custom_recognition_param": {
             "zone": "Wuling",
-            "target": [
+            "icon": "TeleportAnchor",
+            "at": [
                 1399.1,
                 2440.2
             ]
@@ -1062,27 +999,17 @@
     },
     "__ScenePrivateMapWulingMarkerStoneEnterWorldWulingMarkerStoneCore": {
         "desc": "在地图界面找锚点 (首墩-核心区)",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingMarkerStone"
-        ],
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapTeleportSelect",
-        "custom_action_param": {
+        "action": "Click",
+        "custom_recognition_param": {
             "zone": "Wuling",
-            "target": [
+            "icon": "Core",
+            "at": [
                 620.1,
                 2357.7
-            ],
-            "icon": [
-                "MapTeleportCoreHub.png",
-                "MapTeleportCoreSettlement.png"
-            ],
-            "radius": 60,
-            "scale_max": 1.15,
-            "min_score": 0.82,
-            "min_gold_ratio": 0.5
+            ]
         },
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": ""
@@ -1097,16 +1024,14 @@
     },
     "__ScenePrivateMapWulingMarkerStoneEnterWorldWulingMarkerStone1": {
         "desc": "在地图界面找锚点 (首墩-望楼蓄水站)",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingMarkerStone"
-        ],
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapTeleportSelect",
-        "custom_action_param": {
+        "action": "Click",
+        "custom_recognition_param": {
             "zone": "Wuling",
-            "target": [
+            "icon": "TeleportAnchor",
+            "at": [
                 491.1,
                 2117.0
             ]
@@ -1124,16 +1049,14 @@
     },
     "__ScenePrivateMapWulingMarkerStoneEnterWorldWulingMarkerStone2": {
         "desc": "在地图界面找锚点 (首墩-湖心岛)",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingMarkerStone"
-        ],
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapTeleportSelect",
-        "custom_action_param": {
+        "action": "Click",
+        "custom_recognition_param": {
             "zone": "Wuling",
-            "target": [
+            "icon": "TeleportAnchor",
+            "at": [
                 412.5,
                 2232.3
             ]
@@ -1151,16 +1074,14 @@
     },
     "__ScenePrivateMapWulingMarkerStoneEnterWorldWulingMarkerStone3": {
         "desc": "在地图界面找锚点 (首墩-控制区)",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingMarkerStone"
-        ],
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapTeleportSelect",
-        "custom_action_param": {
+        "action": "Click",
+        "custom_recognition_param": {
             "zone": "Wuling",
-            "target": [
+            "icon": "TeleportAnchor",
+            "at": [
                 591.2,
                 2243.8
             ]
@@ -1178,16 +1099,14 @@
     },
     "__ScenePrivateMapWulingMarkerStoneEnterWorldWulingMarkerStone4": {
         "desc": "在地图界面找锚点 (首墩-栖云窟)",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingMarkerStone"
-        ],
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapTeleportSelect",
-        "custom_action_param": {
+        "action": "Click",
+        "custom_recognition_param": {
             "zone": "Wuling",
-            "target": [
+            "icon": "TeleportAnchor",
+            "at": [
                 504.1,
                 2582.4
             ]
@@ -1205,16 +1124,14 @@
     },
     "__ScenePrivateMapWulingTestAreaEnterWorldWulingTestArea1": {
         "desc": "在地图界面找锚点 (试验园区-综合科研区下)",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingTestArea"
-        ],
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapTeleportSelect",
-        "custom_action_param": {
+        "action": "Click",
+        "custom_recognition_param": {
             "zone": "Wuling",
-            "target": [
+            "icon": "TeleportAnchor",
+            "at": [
                 1291.4,
                 1757.8
             ]
@@ -1232,16 +1149,14 @@
     },
     "__ScenePrivateMapWulingTestAreaEnterWorldWulingTestArea2": {
         "desc": "在地图界面找锚点 (试验园区-测试区)",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingTestArea"
-        ],
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapTeleportSelect",
-        "custom_action_param": {
+        "action": "Click",
+        "custom_recognition_param": {
             "zone": "Wuling",
-            "target": [
+            "icon": "TeleportAnchor",
+            "at": [
                 1346.0,
                 1701.0
             ]
@@ -1259,16 +1174,14 @@
     },
     "__ScenePrivateMapWulingSwordVaultDaleEnterWorldWulingSwordVaultDale1": {
         "desc": "在地图界面找锚点 (藏剑谷-东谷遗迹)",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingSwordVaultDale"
-        ],
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapTeleportSelect",
-        "custom_action_param": {
+        "action": "Click",
+        "custom_recognition_param": {
             "zone": "Wuling",
-            "target": [
+            "icon": "TeleportAnchor",
+            "at": [
                 1817.3,
                 2777.1
             ]
@@ -1286,16 +1199,14 @@
     },
     "__ScenePrivateMapWulingSwordVaultDaleEnterWorldWulingSwordVaultDale2": {
         "desc": "在地图界面找锚点 (藏剑谷-悬谷台)",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingSwordVaultDale"
-        ],
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapTeleportSelect",
-        "custom_action_param": {
+        "action": "Click",
+        "custom_recognition_param": {
             "zone": "Wuling",
-            "target": [
+            "icon": "TeleportAnchor",
+            "at": [
                 1840.1,
                 2871.7
             ]
@@ -1313,16 +1224,14 @@
     },
     "__ScenePrivateMapWulingSwordVaultDaleEnterWorldWulingSwordVaultDale3": {
         "desc": "在地图界面找锚点 (藏剑谷-谷底秘库)",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingSwordVaultDale"
-        ],
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapTeleportSelect",
-        "custom_action_param": {
+        "action": "Click",
+        "custom_recognition_param": {
             "zone": "Wuling",
-            "target": [
+            "icon": "TeleportAnchor",
+            "at": [
                 1598.9,
                 2692.5
             ]
@@ -1687,16 +1596,14 @@
     },
     "__ScenePrivateMapWulingYinglungPassEnterWorldWulingYinglungPass0": {
         "desc": "在地图界面找锚点 (应龙关-临关渠北侧)",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingYinglungPass"
-        ],
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapTeleportSelect",
-        "custom_action_param": {
+        "action": "Click",
+        "custom_recognition_param": {
             "zone": "Wuling",
-            "target": [
+            "icon": "TeleportAnchor",
+            "at": [
                 881.4,
                 874.9
             ]
@@ -1714,16 +1621,14 @@
     },
     "__ScenePrivateMapWulingYinglungPassEnterWorldWulingYinglungPass1": {
         "desc": "在地图界面找锚点 (应龙关-奇松岭东侧)",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingYinglungPass"
-        ],
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapTeleportSelect",
-        "custom_action_param": {
+        "action": "Click",
+        "custom_recognition_param": {
             "zone": "Wuling",
-            "target": [
+            "icon": "TeleportAnchor",
+            "at": [
                 1112.0,
                 980.4
             ]
@@ -1741,16 +1646,14 @@
     },
     "__ScenePrivateMapWulingYinglungPassEnterWorldWulingYinglungPass2": {
         "desc": "在地图界面找锚点 (应龙关-应龙主营)",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingYinglungPass"
-        ],
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapTeleportSelect",
-        "custom_action_param": {
+        "action": "Click",
+        "custom_recognition_param": {
             "zone": "Wuling",
-            "target": [
+            "icon": "TeleportAnchor",
+            "at": [
                 1132.7,
                 799.3
             ]
@@ -1768,16 +1671,14 @@
     },
     "__ScenePrivateMapWulingYinglungPassEnterWorldWulingYinglungPass3": {
         "desc": "在地图界面找锚点 (应龙关-石涧崖南侧)",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingYinglungPass"
-        ],
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapTeleportSelect",
-        "custom_action_param": {
+        "action": "Click",
+        "custom_recognition_param": {
             "zone": "Wuling",
-            "target": [
+            "icon": "TeleportAnchor",
+            "at": [
                 1167.5,
                 1037.1
             ]
@@ -1795,16 +1696,14 @@
     },
     "__ScenePrivateMapWulingYinglungPassEnterWorldWulingYinglungPass4": {
         "desc": "在地图界面找锚点 (应龙关-置器阁)",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingYinglungPass"
-        ],
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapTeleportSelect",
-        "custom_action_param": {
+        "action": "Click",
+        "custom_recognition_param": {
             "zone": "Wuling",
-            "target": [
+            "icon": "TeleportAnchor",
+            "at": [
                 1209.8,
                 774.3
             ]
@@ -1822,16 +1721,14 @@
     },
     "__ScenePrivateMapWulingYinglungPassEnterWorldWulingYinglungPass5": {
         "desc": "在地图界面找锚点 (应龙关-应龙档案室)",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingYinglungPass"
-        ],
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapTeleportSelect",
-        "custom_action_param": {
+        "action": "Click",
+        "custom_recognition_param": {
             "zone": "Wuling",
-            "target": [
+            "icon": "TeleportAnchor",
+            "at": [
                 1211.5,
                 910.5
             ]
@@ -1849,16 +1746,14 @@
     },
     "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZone0": {
         "desc": "在地图界面找锚点 (北部禁区-前哨基地)",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingNorthWulingExclusionZone"
-        ],
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapTeleportSelect",
-        "custom_action_param": {
+        "action": "Click",
+        "custom_recognition_param": {
             "zone": "Wuling",
-            "target": [
+            "icon": "TeleportAnchor",
+            "at": [
                 1122.0,
                 597.7
             ]
@@ -1876,16 +1771,14 @@
     },
     "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZone1": {
         "desc": "在地图界面找锚点 (北部禁区-水利枢纽)",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingNorthWulingExclusionZone"
-        ],
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapTeleportSelect",
-        "custom_action_param": {
+        "action": "Click",
+        "custom_recognition_param": {
             "zone": "Wuling",
-            "target": [
+            "icon": "TeleportAnchor",
+            "at": [
                 1168.1,
                 316.2
             ]
@@ -1903,16 +1796,14 @@
     },
     "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZone2": {
         "desc": "在地图界面找锚点 (北部禁区-城建区西北侧)",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingNorthWulingExclusionZone"
-        ],
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapTeleportSelect",
-        "custom_action_param": {
+        "action": "Click",
+        "custom_recognition_param": {
             "zone": "Wuling",
-            "target": [
+            "icon": "TeleportAnchor",
+            "at": [
                 1203.0,
                 432.5
             ]
@@ -1930,16 +1821,14 @@
     },
     "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZone3": {
         "desc": "在地图界面找锚点 (北部禁区-谈剑堂)",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingNorthWulingExclusionZone"
-        ],
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapTeleportSelect",
-        "custom_action_param": {
+        "action": "Click",
+        "custom_recognition_param": {
             "zone": "Wuling",
-            "target": [
+            "icon": "TeleportAnchor",
+            "at": [
                 1281.1,
                 325.6
             ]
@@ -1957,16 +1846,14 @@
     },
     "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZone4": {
         "desc": "在地图界面找锚点 (北部禁区-城建区东南侧)",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingNorthWulingExclusionZone"
-        ],
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapTeleportSelect",
-        "custom_action_param": {
+        "action": "Click",
+        "custom_recognition_param": {
             "zone": "Wuling",
-            "target": [
+            "icon": "TeleportAnchor",
+            "at": [
                 1293.5,
                 611.0
             ]
@@ -1984,16 +1871,14 @@
     },
     "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZone5": {
         "desc": "在地图界面找锚点 (北部禁区-平波堤)",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingNorthWulingExclusionZone"
-        ],
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapTeleportSelect",
-        "custom_action_param": {
+        "action": "Click",
+        "custom_recognition_param": {
             "zone": "Wuling",
-            "target": [
+            "icon": "TeleportAnchor",
+            "at": [
                 1393.8,
                 502.4
             ]
@@ -2011,16 +1896,14 @@
     },
     "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZone6": {
         "desc": "在地图界面找锚点 (北部禁区-息壤研究所)",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingNorthWulingExclusionZone"
-        ],
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapTeleportSelect",
-        "custom_action_param": {
+        "action": "Click",
+        "custom_recognition_param": {
             "zone": "Wuling",
-            "target": [
+            "icon": "TeleportAnchor",
+            "at": [
                 1395.8,
                 320.8
             ]
@@ -2038,16 +1921,14 @@
     },
     "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZone7": {
         "desc": "在地图界面找锚点 (北部禁区-天师桩研发中心)",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingNorthWulingExclusionZone"
-        ],
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapTeleportSelect",
-        "custom_action_param": {
+        "action": "Click",
+        "custom_recognition_param": {
             "zone": "Wuling",
-            "target": [
+            "icon": "TeleportAnchor",
+            "at": [
                 1455.2,
                 529.6
             ]
@@ -2065,16 +1946,14 @@
     },
     "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZone8": {
         "desc": "在地图界面找锚点 (北部禁区-幽台试验场)",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingNorthWulingExclusionZone"
-        ],
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapTeleportSelect",
-        "custom_action_param": {
+        "action": "Click",
+        "custom_recognition_param": {
             "zone": "Wuling",
-            "target": [
+            "icon": "TeleportAnchor",
+            "at": [
                 1545.9,
                 323.2
             ]
@@ -2092,16 +1971,14 @@
     },
     "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZone9": {
         "desc": "在地图界面找锚点 (北部禁区-甚大裂隙地下层)",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingNorthWulingExclusionZone"
-        ],
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapTeleportSelect",
-        "custom_action_param": {
+        "action": "Click",
+        "custom_recognition_param": {
             "zone": "Wuling",
-            "target": [
+            "icon": "TeleportAnchor",
+            "at": [
                 1583.6,
                 442.9
             ]
@@ -2119,16 +1996,14 @@
     },
     "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZone10": {
         "desc": "在地图界面找锚点 (北部禁区-天柱)",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingNorthWulingExclusionZone"
-        ],
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapTeleportSelect",
-        "custom_action_param": {
+        "action": "Click",
+        "custom_recognition_param": {
             "zone": "Wuling",
-            "target": [
+            "icon": "TeleportAnchor",
+            "at": [
                 1587.6,
                 380.5
             ]
@@ -2146,16 +2021,14 @@
     },
     "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZone11": {
         "desc": "在地图界面找锚点 (北部禁区-甚大裂隙地表层)",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingNorthWulingExclusionZone"
-        ],
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapTeleportSelect",
-        "custom_action_param": {
+        "action": "Click",
+        "custom_recognition_param": {
             "zone": "Wuling",
-            "target": [
+            "icon": "TeleportAnchor",
+            "at": [
                 1590.9,
                 465.2
             ]

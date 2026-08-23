@@ -1,11 +1,14 @@
-#include "MapTeleportSolver.h"
+#include "WorldMapSolver.h"
 
 #include <algorithm>
 #include <cmath>
+#include <fstream>
+#include <sstream>
 #include <vector>
 
 #include <MaaUtils/Logger.h>
 #include <MaaUtils/Platform.h>
+#include <meojson/json.hpp>
 
 #include "MapLocator/MatchStrategy.h"
 #include "MapNavigator/controller_type_utils.h"
@@ -13,7 +16,7 @@
 
 namespace fs = std::filesystem;
 
-namespace mapteleport
+namespace worldmap
 {
 
 namespace
@@ -21,10 +24,34 @@ namespace
 
 constexpr int kMinTemplateSide = 24;
 constexpr int kMinAnchorSide = 6;
-constexpr const char* kIconTemplateDir = "SceneManager";
-// 节点没指定图标时用的通用传送点模板。本组件自带一份：SceneManager 的同名图
-// 各端出货尺寸不成比例，一套尺度阶梯罩不住
-constexpr const char* kAnchorTemplateName = "MapTeleportAnchor.png";
+constexpr const char* kIconDir = "SceneManager";
+
+// 图标表与它认的那些模板同目录，一起走资源层次：某一端的图标画得不一样时，
+// 那一层放自己的模板和自己的阈值即可
+constexpr const char* kIconTableName = "MapIcons.json";
+
+// 表里一条图标的原样。留空的项按 SpotConfig 的缺省走
+struct IconEntry
+{
+    std::vector<std::string> templates;
+    std::vector<double> scale;
+    double scale_step = 0.0;
+    double threshold = 0.0;
+    double gate = 0.0;
+    double radius = 0.0;
+    double gold_ratio = 0.0;
+    bool occluded_by_player = false;
+
+    MEO_JSONIZATION(
+        templates,
+        MEO_OPT scale,
+        MEO_OPT scale_step,
+        MEO_OPT threshold,
+        MEO_OPT gate,
+        MEO_OPT radius,
+        MEO_OPT gold_ratio,
+        MEO_OPT occluded_by_player);
+};
 
 // HSV 的 S 通道。地图底色也能很艳，所以只在模板圈定的那些像素上取
 cv::Mat SaturationOf(const cv::Mat& src)
@@ -214,12 +241,12 @@ double GoldRatio(const cv::Mat& screen, const cv::Mat& templSat, const cv::Mat& 
 
 } // namespace
 
-MapTeleportSolver::MapTeleportSolver(std::vector<fs::path> imageRoots)
+WorldMapSolver::WorldMapSolver(std::vector<fs::path> imageRoots)
     : _imageRoots(std::move(imageRoots))
 {
 }
 
-cv::Rect MapTeleportSolver::SafeArea(const cv::Size& screenSize, const ScreenMapRoi& roi, int margin)
+cv::Rect WorldMapSolver::SafeArea(const cv::Size& screenSize, const ScreenMapRoi& roi, int margin)
 {
     const int x0 = static_cast<int>(std::lround(screenSize.width * roi.left)) + margin;
     const int y0 = static_cast<int>(std::lround(screenSize.height * roi.top)) + margin;
@@ -231,13 +258,84 @@ cv::Rect MapTeleportSolver::SafeArea(const cv::Size& screenSize, const ScreenMap
     return cv::Rect(x0, y0, x1 - x0, y1 - y0) & cv::Rect(0, 0, screenSize.width, screenSize.height);
 }
 
-std::optional<SpotHit> MapTeleportSolver::ConfirmSpot(
+void WorldMapSolver::LoadIconTable()
+{
+    if (_iconTableLoaded) {
+        return;
+    }
+    _iconTableLoaded = true;
+
+    const auto file = mapnavigator::ResolveResourceImage(_imageRoots, fs::path(kIconDir) / kIconTableName);
+    if (!file) {
+        LogError << "WorldMap: icon table not found" << VAR(kIconTableName) << VAR(mapnavigator::DescribeRoots(_imageRoots));
+        return;
+    }
+
+    std::ifstream stream(*file);
+    if (!stream.is_open()) {
+        LogError << "WorldMap: cannot open icon table" << VAR(MAA_NS::path_to_utf8_string(*file));
+        return;
+    }
+    std::ostringstream text;
+    text << stream.rdbuf();
+
+    const auto parsed = json::parse(text.str());
+    if (!parsed || !parsed->is_object()) {
+        LogError << "WorldMap: icon table is not a JSON object" << VAR(MAA_NS::path_to_utf8_string(*file));
+        return;
+    }
+
+    for (const auto& [name, raw] : parsed->as_object()) {
+        IconEntry entry {};
+        if (!entry.from_json(raw) || entry.templates.empty()) {
+            LogError << "WorldMap: icon table entry needs a non-empty 'templates'" << VAR(name);
+            continue;
+        }
+
+        IconSpec spec {};
+        spec.spot.templates = entry.templates;
+        if (entry.scale.size() == 2 && entry.scale[0] > 0.0 && entry.scale[1] >= entry.scale[0]) {
+            spec.spot.scaleMin = entry.scale[0];
+            spec.spot.scaleMax = entry.scale[1];
+        }
+        if (entry.scale_step > 0.0) {
+            spec.spot.scaleStep = entry.scale_step;
+        }
+        if (entry.threshold > 0.0) {
+            spec.spot.minScore = entry.threshold;
+        }
+        if (entry.gate > 0.0) {
+            spec.spot.gateBase = entry.gate;
+        }
+        spec.spot.radiusBase = entry.radius;
+        spec.spot.minGoldRatio = entry.gold_ratio;
+        spec.occludedByPlayer = entry.occluded_by_player;
+        _iconTable.emplace(name, std::move(spec));
+    }
+
+    LogInfo << "WorldMap: icon table loaded" << VAR(MAA_NS::path_to_utf8_string(*file)) << VAR(_iconTable.size());
+}
+
+std::optional<IconSpec> WorldMapSolver::ResolveIcon(const std::string& name)
+{
+    std::lock_guard guard(_mutex);
+    LoadIconTable();
+
+    const auto it = _iconTable.find(name);
+    if (it == _iconTable.end()) {
+        LogError << "WorldMap: no such icon in the table" << VAR(name);
+        return std::nullopt;
+    }
+    return it->second;
+}
+
+std::optional<SpotHit> WorldMapSolver::ConfirmSpot(
     const cv::Mat& screen,
     const cv::Point2d& expected,
     double viewportScale,
     const SpotConfig& cfg)
 {
-    if (screen.empty() || viewportScale <= 0.0) {
+    if (screen.empty() || viewportScale <= 0.0 || cfg.templates.empty()) {
         return std::nullopt;
     }
 
@@ -252,7 +350,7 @@ std::optional<SpotHit> MapTeleportSolver::ConfirmSpot(
         radius * 2);
     window &= cv::Rect(0, 0, screen.cols, screen.rows);
     if (window.empty()) {
-        LogWarn << "MapTeleport: confirm window off screen" << VAR(expected.x) << VAR(expected.y);
+        LogWarn << "WorldMap: confirm window off screen" << VAR(expected.x) << VAR(expected.y);
         return std::nullopt;
     }
 
@@ -261,17 +359,16 @@ std::optional<SpotHit> MapTeleportSolver::ConfirmSpot(
     const std::vector<double> ladder =
         LinearLadder(cfg.scaleMin, cfg.scaleMax, static_cast<int>(std::lround((cfg.scaleMax - cfg.scaleMin) / cfg.scaleStep)) + 1);
 
-    const std::vector<std::string> names = cfg.templates.empty() ? std::vector<std::string> { kAnchorTemplateName } : cfg.templates;
     const IconTemplate* pick = nullptr;
     std::string pickName;
     std::optional<ScanHit> best;
-    for (const std::string& name : names) {
+    for (const std::string& name : cfg.templates) {
         const IconTemplate* templ = LoadIconTemplate(name);
         if (templ == nullptr) {
             continue;
         }
         if (window.width < templ->gray.cols || window.height < templ->gray.rows) {
-            LogWarn << "MapTeleport: confirm window smaller than template" << VAR(name) << VAR(window.width) << VAR(window.height);
+            LogWarn << "WorldMap: confirm window smaller than template" << VAR(name) << VAR(window.width) << VAR(window.height);
             continue;
         }
         // 图标只有二十来像素宽，最小边长得按它来卡，照视口那套会把整个模板筛掉
@@ -284,11 +381,11 @@ std::optional<SpotHit> MapTeleportSolver::ConfirmSpot(
         }
     }
     if (!best) {
-        LogWarn << "MapTeleport: no icon candidate in the confirm window";
+        LogWarn << "WorldMap: no icon candidate in the confirm window";
         return std::nullopt;
     }
     if (best->score < cfg.minScore) {
-        LogWarn << "MapTeleport: icon score below floor" << VAR(pickName) << VAR(best->score) << VAR(cfg.minScore);
+        LogWarn << "WorldMap: icon score below floor" << VAR(pickName) << VAR(best->score) << VAR(cfg.minScore);
         return std::nullopt;
     }
 
@@ -302,7 +399,7 @@ std::optional<SpotHit> MapTeleportSolver::ConfirmSpot(
 
     // 钉死的点位偏得太远就是认错了；浮动的点位本来就该在范围里晃，窗口自己就是那道闸
     if (!floating && out.offsetBase > cfg.gateBase) {
-        LogWarn << "MapTeleport: icon too far from expected position" << VAR(pickName) << VAR(out.offsetBase) << VAR(cfg.gateBase)
+        LogWarn << "WorldMap: icon too far from expected position" << VAR(pickName) << VAR(out.offsetBase) << VAR(cfg.gateBase)
                 << VAR(out.center.x) << VAR(out.center.y) << VAR(expected.x) << VAR(expected.y);
         return std::nullopt;
     }
@@ -317,12 +414,12 @@ std::optional<SpotHit> MapTeleportSolver::ConfirmSpot(
         out.unlocked = out.goldRatio >= cfg.minGoldRatio;
     }
 
-    LogInfo << "MapTeleport: icon confirmed" << VAR(pickName) << VAR(out.center.x) << VAR(out.center.y) << VAR(out.score)
+    LogInfo << "WorldMap: icon confirmed" << VAR(pickName) << VAR(out.center.x) << VAR(out.center.y) << VAR(out.score)
             << VAR(out.matchScale) << VAR(out.offsetBase) << VAR(out.goldRatio) << VAR(out.unlocked);
     return out;
 }
 
-std::optional<PlayerMarkerHit> MapTeleportSolver::DetectPlayerMarker(
+std::optional<PlayerMarkerHit> WorldMapSolver::DetectPlayerMarker(
     const cv::Mat& screen,
     const cv::Point2d& expected,
     const PlayerMarkerConfig& cfg)
@@ -346,7 +443,7 @@ std::optional<PlayerMarkerHit> MapTeleportSolver::DetectPlayerMarker(
         cv::cvtColor(patch, patch, cv::COLOR_BGRA2BGR);
     }
     if (patch.channels() != 3) {
-        LogWarn << "MapTeleport: player marker needs a colour image" << VAR(patch.channels());
+        LogWarn << "WorldMap: player marker needs a colour image" << VAR(patch.channels());
         return std::nullopt;
     }
 
@@ -402,7 +499,7 @@ std::optional<PlayerMarkerHit> MapTeleportSolver::DetectPlayerMarker(
     return best;
 }
 
-const cv::Mat* MapTeleportSolver::LoadZoneBase(const std::string& zone)
+const cv::Mat* WorldMapSolver::LoadZoneBase(const std::string& zone)
 {
     if (const auto it = _zoneBases.find(zone); it != _zoneBases.end()) {
         return it->second.empty() ? nullptr : &it->second;
@@ -411,24 +508,24 @@ const cv::Mat* MapTeleportSolver::LoadZoneBase(const std::string& zone)
     const auto zoneDir = mapnavigator::ResolveResourceImage(_imageRoots, fs::path("MapLocator") / MAA_NS::path(zone));
     const auto file = zoneDir ? FindZoneBaseFile(*zoneDir) : std::nullopt;
     if (!file) {
-        LogError << "MapTeleport: zone base image not found" << VAR(zone) << VAR(mapnavigator::DescribeRoots(_imageRoots));
+        LogError << "WorldMap: zone base image not found" << VAR(zone) << VAR(mapnavigator::DescribeRoots(_imageRoots));
         _zoneBases[zone] = cv::Mat();
         return nullptr;
     }
 
     cv::Mat image = cv::imread(MAA_NS::path_to_utf8_string(*file), cv::IMREAD_UNCHANGED);
     if (image.empty()) {
-        LogError << "MapTeleport: failed to read zone base" << VAR(MAA_NS::path_to_utf8_string(*file));
+        LogError << "WorldMap: failed to read zone base" << VAR(MAA_NS::path_to_utf8_string(*file));
         _zoneBases[zone] = cv::Mat();
         return nullptr;
     }
 
-    LogInfo << "MapTeleport: zone base loaded" << VAR(zone) << VAR(image.cols) << VAR(image.rows);
+    LogInfo << "WorldMap: zone base loaded" << VAR(zone) << VAR(image.cols) << VAR(image.rows);
     auto [it, _] = _zoneBases.emplace(zone, ToGray(image));
     return &it->second;
 }
 
-const MapTeleportSolver::IconTemplate* MapTeleportSolver::LoadIconTemplate(const std::string& name)
+const WorldMapSolver::IconTemplate* WorldMapSolver::LoadIconTemplate(const std::string& name)
 {
     const auto cached = _icons.find(name);
     if (cached != _icons.end()) {
@@ -436,10 +533,10 @@ const MapTeleportSolver::IconTemplate* MapTeleportSolver::LoadIconTemplate(const
     }
 
     IconTemplate& slot = _icons[name];
-    const auto file = mapnavigator::ResolveResourceImage(_imageRoots, fs::path(kIconTemplateDir) / name);
+    const auto file = mapnavigator::ResolveResourceImage(_imageRoots, fs::path(kIconDir) / name);
     const cv::Mat image = file ? cv::imread(MAA_NS::path_to_utf8_string(*file), cv::IMREAD_UNCHANGED) : cv::Mat();
     if (image.empty()) {
-        LogError << "MapTeleport: icon template not found" << VAR(name) << VAR(mapnavigator::DescribeRoots(_imageRoots));
+        LogError << "WorldMap: icon template not found" << VAR(name) << VAR(mapnavigator::DescribeRoots(_imageRoots));
         return nullptr;
     }
 
@@ -452,20 +549,20 @@ const MapTeleportSolver::IconTemplate* MapTeleportSolver::LoadIconTemplate(const
         slot.mask = planes[3] >= 128;
     }
 
-    LogInfo << "MapTeleport: icon template loaded" << VAR(name) << VAR(image.cols) << VAR(image.rows) << VAR(image.channels());
+    LogInfo << "WorldMap: icon template loaded" << VAR(name) << VAR(image.cols) << VAR(image.rows) << VAR(image.channels());
     return &slot;
 }
 
-bool MapTeleportSolver::HasZone(const std::string& zone)
+bool WorldMapSolver::HasZone(const std::string& zone)
 {
     std::lock_guard guard(_mutex);
     return LoadZoneBase(zone) != nullptr;
 }
 
-std::optional<Viewport> MapTeleportSolver::SolveViewport(const cv::Mat& screen, const std::string& zone, const ViewportConfig& cfg)
+std::optional<Viewport> WorldMapSolver::SolveViewport(const cv::Mat& screen, const std::string& zone, const ViewportConfig& cfg)
 {
     if (screen.empty()) {
-        LogError << "MapTeleport: empty screen image";
+        LogError << "WorldMap: empty screen image";
         return std::nullopt;
     }
 
@@ -477,7 +574,7 @@ std::optional<Viewport> MapTeleportSolver::SolveViewport(const cv::Mat& screen, 
 
     const cv::Rect roiRect = SafeArea(screen.size(), cfg.roi, 0);
     if (roiRect.width < kMinTemplateSide || roiRect.height < kMinTemplateSide) {
-        LogError << "MapTeleport: screen roi too small" << VAR(roiRect.width) << VAR(roiRect.height);
+        LogError << "WorldMap: screen roi too small" << VAR(roiRect.width) << VAR(roiRect.height);
         return std::nullopt;
     }
     const cv::Mat roi = ToGray(screen)(roiRect);
@@ -500,7 +597,7 @@ std::optional<Viewport> MapTeleportSolver::SolveViewport(const cv::Mat& screen, 
         maplocator::PeakRefineMode::Parabola,
         &coarseRungs);
     if (!coarse) {
-        LogWarn << "MapTeleport: coarse viewport scan found nothing" << VAR(zone);
+        LogWarn << "WorldMap: coarse viewport scan found nothing" << VAR(zone);
         return std::nullopt;
     }
 
@@ -516,7 +613,7 @@ std::optional<Viewport> MapTeleportSolver::SolveViewport(const cv::Mat& screen, 
         std::min(static_cast<int>(std::lround(roi.cols * (coarse->scale + span))) + pad * 2, base->cols - windowX),
         std::min(static_cast<int>(std::lround(roi.rows * (coarse->scale + span))) + pad * 2, base->rows - windowY));
     if (window.width < kMinTemplateSide || window.height < kMinTemplateSide) {
-        LogWarn << "MapTeleport: fine window degenerated" << VAR(window.width) << VAR(window.height);
+        LogWarn << "WorldMap: fine window degenerated" << VAR(window.width) << VAR(window.height);
         return std::nullopt;
     }
 
@@ -530,7 +627,7 @@ std::optional<Viewport> MapTeleportSolver::SolveViewport(const cv::Mat& screen, 
         0,
         maplocator::PeakRefineMode::Continuous);
     if (!fine) {
-        LogWarn << "MapTeleport: fine viewport scan found nothing" << VAR(zone);
+        LogWarn << "WorldMap: fine viewport scan found nothing" << VAR(zone);
         return std::nullopt;
     }
 
@@ -545,7 +642,7 @@ std::optional<Viewport> MapTeleportSolver::SolveViewport(const cv::Mat& screen, 
     const double delta = fine->score - rivalBest;
 
     if (fine->score < cfg.minScore || delta < cfg.minDelta) {
-        LogWarn << "MapTeleport: viewport rejected" << VAR(zone) << VAR(fine->score) << VAR(delta) << VAR(fine->psr)
+        LogWarn << "WorldMap: viewport rejected" << VAR(zone) << VAR(fine->score) << VAR(delta) << VAR(fine->psr)
                 << VAR(cfg.minScore) << VAR(cfg.minDelta);
         return std::nullopt;
     }
@@ -559,15 +656,15 @@ std::optional<Viewport> MapTeleportSolver::SolveViewport(const cv::Mat& screen, 
     vp.delta = delta;
     vp.psr = fine->psr;
 
-    LogInfo << "MapTeleport: viewport solved" << VAR(zone) << VAR(vp.scale) << VAR(vp.baseOrigin.x) << VAR(vp.baseOrigin.y)
+    LogInfo << "WorldMap: viewport solved" << VAR(zone) << VAR(vp.scale) << VAR(vp.baseOrigin.x) << VAR(vp.baseOrigin.y)
             << VAR(vp.score) << VAR(vp.delta) << VAR(vp.psr);
     return vp;
 }
 
-MapTeleportSolver& GetSolver(std::string_view controller_type)
+WorldMapSolver& GetSolver(std::string_view controller_type)
 {
-    static MapTeleportSolver solver(mapnavigator::ResourceImageRoots(controller_type));
+    static WorldMapSolver solver(mapnavigator::ResourceImageRoots(controller_type));
     return solver;
 }
 
-} // namespace mapteleport
+} // namespace worldmap

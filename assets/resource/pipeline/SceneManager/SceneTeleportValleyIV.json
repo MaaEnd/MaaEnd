@@ -1,16 +1,14 @@
 {
     "__ScenePrivateMapValleyIVEnterValleyIVTheHub1": {
         "desc": "在地图界面找锚点 (枢纽区-旧供水设施东侧)",
-        "recognition": "And",
-        "all_of": [
-            "InMapValleyIVTheHub"
-        ],
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapTeleportSelect",
-        "custom_action_param": {
+        "action": "Click",
+        "custom_recognition_param": {
             "zone": "ValleyIV",
-            "target": [
+            "icon": "TeleportAnchor",
+            "at": [
                 452.3,
                 910.8
             ]
@@ -28,16 +26,14 @@
     },
     "__ScenePrivateMapValleyIVEnterValleyIVTheHub2": {
         "desc": "在地图界面找锚点 (枢纽区-岩丘通道)",
-        "recognition": "And",
-        "all_of": [
-            "InMapValleyIVTheHub"
-        ],
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapTeleportSelect",
-        "custom_action_param": {
+        "action": "Click",
+        "custom_recognition_param": {
             "zone": "ValleyIV",
-            "target": [
+            "icon": "TeleportAnchor",
+            "at": [
                 527.8,
                 695.8
             ]

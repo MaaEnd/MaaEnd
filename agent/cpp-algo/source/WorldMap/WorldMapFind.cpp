@@ -1,4 +1,4 @@
-#include "MapTeleportAction.h"
+#include "WorldMapFind.h"
 
 #include <algorithm>
 #include <chrono>
@@ -13,43 +13,27 @@
 #include <MaaUtils/Logger.h>
 #include <meojson/json.hpp>
 
-#include "MapTeleportSolver.h"
+#include "WorldMapSolver.h"
 #include "utils.h"
 
-namespace mapteleport
+namespace worldmap
 {
 
 namespace
 {
 
-// 一个点位就是「底图上的一个坐标 + 认它的那张图标」。下面这些留空就按通用传送点走，
-// 图标不一样的点位（基建核心之类）把模板名和它自己那套阈值写进节点参数即可
-struct SelectParam
+// 区域底图上的一个坐标，加上认它的那个图标名。图标名不给就只解坐标不认图标，
+// 阈值一概不在这里露面：它们跟着图标走，写在图标表里
+struct FindParam
 {
     std::string zone;
-    std::vector<double> target;
+    std::vector<double> at;
+
+    std::string icon;
+    std::string state;
     int max_attempts = 4;
-    double gate_base = 10.0;
 
-    std::vector<std::string> icon;
-
-    // 大于零表示图标在这个半径内浮动（底图像素），此时 gate_base 不参与
-    double radius = 0.0;
-
-    double scale_max = 0.0;
-    double min_score = 0.0;
-    double min_gold_ratio = 0.0;
-
-    MEO_JSONIZATION(
-        zone,
-        target,
-        MEO_OPT max_attempts,
-        MEO_OPT gate_base,
-        MEO_OPT icon,
-        MEO_OPT radius,
-        MEO_OPT scale_max,
-        MEO_OPT min_score,
-        MEO_OPT min_gold_ratio);
+    MEO_JSONIZATION(zone, at, MEO_OPT icon, MEO_OPT state, MEO_OPT max_attempts);
 };
 
 // 大地图铺满全屏，UI 只是浮在四角的几块。图标要认要点，只需躲开这几块，
@@ -63,14 +47,14 @@ constexpr int kIconMargin = 30;
 
 // 拖动按恒定速度发，别按恒定时长：同样 420ms，244px 的拖动兑现了六成、688px 只兑现四成，
 // 拉长时长把速度压回来才是对症的。上下限只防极短拖动抖成点击、极长拖动等太久
-constexpr double kSwipeSpeed = 0.5;      // 屏幕像素每毫秒
+constexpr double kSwipeSpeed = 0.5; // 屏幕像素每毫秒
 constexpr int kSwipeDurationMin = 300;
 constexpr int kSwipeDurationMax = 1600;
 
 // 单次拖动不超过安全区尺寸的这个比例。发出的位移就是目标到画面中心的实际差值，
 // 拖过头在几何上不成立，所以这个上限只决定一次能挪多远、跑几个来回，留窄纯属白等
 constexpr double kSwipeSpanRatio = 0.85;
-constexpr int kSettleMillis = 700;       // 拖动后等地图停稳再截屏
+constexpr int kSettleMillis = 700; // 拖动后等地图停稳再截屏
 constexpr int kRetryMillis = 350;
 
 // 平移单独记账：把目标挪进画面是这一步该干的事，不该算作识别失败
@@ -89,30 +73,34 @@ constexpr double kPinMoved = 2.0;
 constexpr int kMaxNudges = 6;
 constexpr double kNudgeRatio = 0.35;
 
-// 已经站在目标上时用它退回大世界。地图可能是从菜单里打开的，
-// 逐个界面怎么关由这个公开接口负责，这里不自己按键
-constexpr const char* kEnterWorldEntry = "SceneAnyEnterWorld";
-
-bool ParseParam(const char* raw, SelectParam* out)
+bool ParseParam(const char* raw, FindParam* out)
 {
     if (raw == nullptr || std::strlen(raw) == 0) {
-        LogError << "MapTeleport: empty custom_action_param";
+        LogError << "WorldMap: empty custom_recognition_param";
         return false;
     }
 
     const auto parsed = json::parse(raw);
     if (!parsed) {
-        LogError << "MapTeleport: custom_action_param is not valid JSON" << VAR(raw);
+        LogError << "WorldMap: custom_recognition_param is not valid JSON" << VAR(raw);
         return false;
     }
 
-    SelectParam value {};
+    FindParam value {};
     if (!value.from_json(*parsed)) {
-        LogError << "MapTeleport: custom_action_param missing required fields" << VAR(raw);
+        LogError << "WorldMap: custom_recognition_param missing required fields" << VAR(raw);
         return false;
     }
-    if (value.zone.empty() || value.target.size() != 2) {
-        LogError << "MapTeleport: 'zone' must be non-empty and 'target' must hold exactly two numbers" << VAR(raw);
+    if (value.zone.empty() || value.at.size() != 2) {
+        LogError << "WorldMap: 'zone' must be non-empty and 'at' must hold exactly two numbers" << VAR(raw);
+        return false;
+    }
+    if (!value.state.empty() && value.state != "locked" && value.state != "unlocked") {
+        LogError << "WorldMap: 'state' must be either 'unlocked' or 'locked'" << VAR(value.state);
+        return false;
+    }
+    if (!value.state.empty() && value.icon.empty()) {
+        LogError << "WorldMap: 'state' needs an 'icon' to judge" << VAR(value.state);
         return false;
     }
     if (value.max_attempts < 1) {
@@ -148,11 +136,11 @@ bool CaptureScreen(MaaController* controller, ScopedImageBuffer* buffer, cv::Mat
 {
     const MaaCtrlId screencap_id = MaaControllerPostScreencap(controller);
     if (MaaControllerWait(controller, screencap_id) != MaaStatus_Succeeded) {
-        LogWarn << "MapTeleport: screencap did not succeed";
+        LogWarn << "WorldMap: screencap did not succeed";
         return false;
     }
     if (!MaaControllerCachedImage(controller, buffer->Get()) || MaaImageBufferIsEmpty(buffer->Get())) {
-        LogWarn << "MapTeleport: screencap returned an empty image";
+        LogWarn << "WorldMap: screencap returned an empty image";
         return false;
     }
 
@@ -182,7 +170,7 @@ cv::Point2d DragMap(MaaController* controller, const cv::Rect& safe, const cv::P
     const int duration = static_cast<int>(
         std::clamp(std::hypot(dx, dy) / kSwipeSpeed, static_cast<double>(kSwipeDurationMin), static_cast<double>(kSwipeDurationMax)));
 
-    LogInfo << "MapTeleport: dragging map" << VAR(from.x) << VAR(from.y) << VAR(to.x) << VAR(to.y) << VAR(duration);
+    LogInfo << "WorldMap: dragging map" << VAR(from.x) << VAR(from.y) << VAR(to.x) << VAR(to.y) << VAR(duration);
     const MaaCtrlId swipe_id = MaaControllerPostSwipe(controller, from.x, from.y, to.x, to.y, duration);
     MaaControllerWait(controller, swipe_id);
     std::this_thread::sleep_for(std::chrono::milliseconds(kSettleMillis));
@@ -225,56 +213,92 @@ cv::Point2d NudgeDelta(const cv::Rect& safe, const cv::Point2d& last, int index)
     }
 }
 
+MaaRect PointBox(const cv::Point2d& point)
+{
+    return MaaRect {
+        .x = static_cast<int32_t>(std::lround(point.x)),
+        .y = static_cast<int32_t>(std::lround(point.y)),
+        .width = 1,
+        .height = 1,
+    };
+}
+
+MaaRect SpotBox(const SpotHit& hit)
+{
+    return MaaRect {
+        .x = static_cast<int32_t>(std::lround(hit.center.x - hit.size.width / 2.0)),
+        .y = static_cast<int32_t>(std::lround(hit.center.y - hit.size.height / 2.0)),
+        .width = hit.size.width,
+        .height = hit.size.height,
+    };
+}
+
+void WriteDetail(MaaStringBuffer* out_detail, const json::object& payload)
+{
+    if (out_detail == nullptr) {
+        return;
+    }
+    const std::string text = payload.to_string();
+    MaaStringBufferSetEx(out_detail, text.c_str(), static_cast<MaaSize>(text.size()));
+}
+
 } // namespace
 
-MaaBool MAA_CALL MapTeleportSelectRun(
+MaaBool MAA_CALL MapFindRun(
     MaaContext* context,
     [[maybe_unused]] MaaTaskId task_id,
     [[maybe_unused]] const char* node_name,
-    [[maybe_unused]] const char* custom_action_name,
-    const char* custom_action_param,
-    [[maybe_unused]] MaaRecoId reco_id,
-    [[maybe_unused]] const MaaRect* box,
-    [[maybe_unused]] void* trans_arg)
+    [[maybe_unused]] const char* custom_recognition_name,
+    const char* custom_recognition_param,
+    const MaaImageBuffer* image,
+    [[maybe_unused]] const MaaRect* roi_param,
+    [[maybe_unused]] void* trans_arg,
+    MaaRect* out_box,
+    MaaStringBuffer* out_detail)
 {
     if (context == nullptr) {
-        LogError << "MapTeleport: null context";
+        LogError << "WorldMap: null context";
         return false;
     }
 
-    SelectParam param;
-    if (!ParseParam(custom_action_param, &param)) {
+    FindParam param;
+    if (!ParseParam(custom_recognition_param, &param)) {
         return false;
     }
 
     MaaController* controller = MaaTaskerGetController(MaaContextGetTasker(context));
     if (controller == nullptr) {
-        LogError << "MapTeleport: no controller bound to context";
+        LogError << "WorldMap: no controller bound to context";
         return false;
     }
 
-    const std::string controller_type = ControllerType(controller);
-    MapTeleportSolver& solver = GetSolver(controller_type);
+    WorldMapSolver& solver = GetSolver(ControllerType(controller));
     const ViewportConfig viewportCfg {};
-    const PlayerMarkerConfig markerCfg {};
 
-    // 缺省是通用传送点那组标定，节点给了就按节点的来
-    SpotConfig spotCfg {};
-    spotCfg.templates = param.icon;
-    spotCfg.radiusBase = param.radius;
-    spotCfg.gateBase = param.gate_base;
-    if (param.scale_max > 0.0) {
-        spotCfg.scaleMax = param.scale_max;
+    // 图标名给了就必须在表里查得到：查不到照样跑下去等于把认图标这一步悄悄跳过
+    std::optional<IconSpec> spec;
+    if (!param.icon.empty()) {
+        spec = solver.ResolveIcon(param.icon);
+        if (!spec) {
+            return false;
+        }
     }
-    if (param.min_score > 0.0) {
-        spotCfg.minScore = param.min_score;
+
+    const bool wantUnlocked = param.state != "locked";
+    if (!param.state.empty() && spec && spec->spot.minGoldRatio <= 0.0) {
+        LogError << "WorldMap: this icon has no unlock threshold, 'state' cannot be judged" << VAR(param.icon)
+                 << VAR(param.state);
+        return false;
     }
-    spotCfg.minGoldRatio = param.min_gold_ratio;
 
-    const cv::Point2d target(param.target[0], param.target[1]);
-    LogInfo << "MapTeleport: start" << VAR(param.zone) << VAR(target.x) << VAR(target.y) << VAR(param.max_attempts);
+    const cv::Point2d target(param.at[0], param.at[1]);
+    LogInfo << "WorldMap: find" << VAR(param.zone) << VAR(target.x) << VAR(target.y) << VAR(param.icon) << VAR(param.state)
+            << VAR(param.max_attempts);
 
+    // 框架给的这一帧白拿，先用它。之后每挪一次地图都得重截
     ScopedImageBuffer buffer;
+    cv::Mat screen = image != nullptr ? to_mat(image) : cv::Mat();
+
     int attempt = 0;
     int pans = 0;
     int nudges = 0;
@@ -285,29 +309,29 @@ MaaBool MAA_CALL MapTeleportSelectRun(
     std::optional<Viewport> previous;
 
     while (attempt < param.max_attempts) {
-        cv::Mat screen;
-        if (!CaptureScreen(controller, &buffer, &screen)) {
+        if (screen.empty() && !CaptureScreen(controller, &buffer, &screen)) {
             ++attempt;
             std::this_thread::sleep_for(std::chrono::milliseconds(kRetryMillis));
             continue;
         }
 
-        const cv::Rect safe = MapTeleportSolver::SafeArea(screen.size(), kIconArea, kIconMargin);
+        const cv::Rect safe = WorldMapSolver::SafeArea(screen.size(), kIconArea, kIconMargin);
         if (safe.empty()) {
-            LogError << "MapTeleport: safe area degenerated" << VAR(screen.cols) << VAR(screen.rows);
+            LogError << "WorldMap: safe area degenerated" << VAR(screen.cols) << VAR(screen.rows);
             return false;
         }
 
         const auto viewport = solver.SolveViewport(screen, param.zone, viewportCfg);
         if (!viewport) {
             previous.reset();
+            screen.release();
             if (nudges >= kMaxNudges) {
                 ++attempt;
-                LogWarn << "MapTeleport: viewport still unsolved after nudging the map" << VAR(attempt) << VAR(nudges);
+                LogWarn << "WorldMap: viewport still unsolved after nudging the map" << VAR(attempt) << VAR(nudges);
                 std::this_thread::sleep_for(std::chrono::milliseconds(kRetryMillis));
                 continue;
             }
-            LogInfo << "MapTeleport: viewport unsolved, nudging the map" << VAR(nudges);
+            LogInfo << "WorldMap: viewport unsolved, nudging the map" << VAR(nudges);
             const cv::Point2d moved = DragMap(controller, safe, NudgeDelta(safe, issued, nudges));
             ++nudges;
             issued = moved;
@@ -329,7 +353,7 @@ MaaBool MAA_CALL MapTeleportSelectRun(
             if (want >= kGainMinSpan && got >= 1.0) {
                 gain = std::clamp(want / got, 1.0, kGainMax);
             }
-            LogInfo << "MapTeleport: drag delivered" << VAR(issued.x) << VAR(issued.y) << VAR(moved.x) << VAR(moved.y)
+            LogInfo << "WorldMap: drag delivered" << VAR(issued.x) << VAR(issued.y) << VAR(moved.x) << VAR(moved.y)
                     << VAR(gain) << VAR(pinnedX) << VAR(pinnedY);
         }
         previous = viewport;
@@ -340,68 +364,92 @@ MaaBool MAA_CALL MapTeleportSelectRun(
         if (std::hypot(need.x, need.y) >= 1.0) {
             const bool stuck = (std::abs(need.x) < 1.0 || pinnedX) && (std::abs(need.y) < 1.0 || pinnedY);
             if (pans >= kMaxPans || stuck) {
-                LogError << "MapTeleport: the map will not pan any further toward the target" << VAR(param.zone) << VAR(pans)
+                LogError << "WorldMap: the map will not pan any further toward the target" << VAR(param.zone) << VAR(pans)
                          << VAR(expected.x) << VAR(expected.y) << VAR(pinnedX) << VAR(pinnedY);
                 return false;
             }
             ++pans;
-            LogInfo << "MapTeleport: target outside safe area, panning" << VAR(expected.x) << VAR(expected.y) << VAR(need.x)
+            LogInfo << "WorldMap: target outside safe area, panning" << VAR(expected.x) << VAR(expected.y) << VAR(need.x)
                     << VAR(need.y) << VAR(gain);
+            screen.release();
             issued = DragMap(controller, safe, need * gain);
             if (std::hypot(issued.x, issued.y) < 1.0) {
-                LogError << "MapTeleport: target outside safe area but pan distance is degenerate";
+                LogError << "WorldMap: target outside safe area but pan distance is degenerate";
                 return false;
             }
             continue;
         }
 
         ++attempt;
-        const auto icon = solver.ConfirmSpot(screen, expected, viewport->scale, spotCfg);
-        if (icon && !icon->unlocked) {
-            // 没解锁的点位不接受传送，这是规则不是识别失败，重试多少次都一样，立刻收场。
-            // TODO: 这一支缺未解锁的实拍，从没真跑到过，判据见 SpotConfig 里 minGoldRatio 的说明
-            LogWarn << "MapTeleport: this spot is still locked, teleport is not available" << VAR(param.zone)
-                    << VAR(icon->goldRatio) << VAR(spotCfg.minGoldRatio);
-            if (MaaContextRunTask(context, kEnterWorldEntry, "{}") == MaaInvalidId) {
-                LogError << "MapTeleport: could not leave the map after finding the spot locked" << VAR(param.zone);
+
+        json::object detail {
+            { "zone", param.zone },
+            { "at", json::array { target.x, target.y } },
+            { "screen", json::array { expected.x, expected.y } },
+            { "viewport_scale", viewport->scale },
+        };
+
+        // 图标名没给就只把坐标解出来，认不认得出图标由调用方自己接着判
+        if (!spec) {
+            WriteDetail(out_detail, detail);
+            if (out_box != nullptr) {
+                *out_box = PointBox(expected);
             }
+            LogInfo << "WorldMap: located" << VAR(param.zone) << VAR(expected.x) << VAR(expected.y);
+            return true;
+        }
+
+        const auto icon = solver.ConfirmSpot(screen, expected, viewport->scale, spec->spot);
+        if (icon && icon->unlocked != wantUnlocked) {
+            // 解锁与否是规则不是识别失败，重试多少次都一样，立刻收场
+            LogWarn << "WorldMap: the icon is here but not in the requested state" << VAR(param.zone) << VAR(param.icon)
+                    << VAR(icon->unlocked) << VAR(wantUnlocked) << VAR(icon->goldRatio);
             return false;
         }
-
-        if (!icon) {
-            // 角色标记画在图标之上，它落在期望位置就是图标认不出来的原因：人已经站在这了。
-            // 认不出图标的其他原因不会命中这一支
-            PlayerMarkerConfig rescueCfg = markerCfg;
-            if (spotCfg.radiusBase > 0.0) {
-                // 图标浮动多远，压在它上面的角色标记就离 target 多远，窗口得跟着放到浮动区那么宽
-                rescueCfg.searchRadius = static_cast<int>(std::lround(spotCfg.radiusBase / viewport->scale));
+        if (icon) {
+            detail.emplace("icon", param.icon);
+            detail.emplace("template", icon->templateName);
+            detail.emplace("score", icon->score);
+            detail.emplace("unlocked", icon->unlocked);
+            WriteDetail(out_detail, detail);
+            if (out_box != nullptr) {
+                *out_box = SpotBox(*icon);
             }
-            const auto marker = MapTeleportSolver::DetectPlayerMarker(screen, expected, rescueCfg);
-            if (!marker) {
-                LogWarn << "MapTeleport: icon not confirmed at expected position" << VAR(attempt) << VAR(expected.x)
-                        << VAR(expected.y);
-                std::this_thread::sleep_for(std::chrono::milliseconds(kRetryMillis));
-                continue;
-            }
-
-            // 图标被标记盖住点不了，但标记落在这里就佐证了视口没解错，可以照期望位置点。
-            // 已经在点位上也照样传一次：判定圈比点位本身大得多，在圈里不等于站在它的落点上
-            LogInfo << "MapTeleport: player marker covers the icon, clicking the expected position" << VAR(param.zone)
-                    << VAR(marker->center.x) << VAR(marker->center.y) << VAR(marker->area) << VAR(marker->solidity);
+            return true;
         }
 
-        const cv::Point2d spot = icon ? icon->center : expected;
-        const int cx = static_cast<int>(std::lround(spot.x));
-        const int cy = static_cast<int>(std::lround(spot.y));
-        LogInfo << "MapTeleport: clicking" << VAR(param.zone) << VAR(cx) << VAR(cy);
-        const MaaCtrlId click_id = MaaControllerPostClick(controller, cx, cy);
-        return MaaControllerWait(controller, click_id) == MaaStatus_Succeeded ? true : false;
+        // 角色标记画在图标之上，它落在期望位置就是图标认不出来的原因：人已经站在这了。
+        // 认不出图标的其他原因不会命中这一支
+        if (spec->occludedByPlayer && wantUnlocked) {
+            PlayerMarkerConfig markerCfg {};
+            if (spec->spot.radiusBase > 0.0) {
+                // 图标浮动多远，压在它上面的角色标记就离目标多远，窗口得跟着放到浮动区那么宽
+                markerCfg.searchRadius = static_cast<int>(std::lround(spec->spot.radiusBase / viewport->scale));
+            }
+            const auto marker = WorldMapSolver::DetectPlayerMarker(screen, expected, markerCfg);
+            if (marker) {
+                // 图标被标记盖住认不出，但标记落在这里就佐证了视口没解错，可以照期望位置交坐标
+                LogInfo << "WorldMap: player marker covers the icon, taking the expected position" << VAR(param.zone)
+                        << VAR(marker->center.x) << VAR(marker->center.y) << VAR(marker->area) << VAR(marker->solidity);
+                detail.emplace("icon", param.icon);
+                detail.emplace("player_marker", true);
+                WriteDetail(out_detail, detail);
+                if (out_box != nullptr) {
+                    *out_box = PointBox(expected);
+                }
+                return true;
+            }
+        }
+
+        LogWarn << "WorldMap: icon not confirmed at expected position" << VAR(attempt) << VAR(expected.x) << VAR(expected.y);
+        screen.release();
+        std::this_thread::sleep_for(std::chrono::milliseconds(kRetryMillis));
     }
 
-    // 点不到就不点：既认不出图标、又没有角色标记佐证时，宁可让上层走失败分支，也不按算出来的坐标空点
-    LogError << "MapTeleport: gave up without a confirmed icon" << VAR(param.zone) << VAR(target.x) << VAR(target.y)
-             << VAR(param.max_attempts);
+    // 认不出图标又没有角色标记佐证时就不给坐标：宁可让上层走失败分支，也不交一个算出来的空位置
+    LogError << "WorldMap: gave up without a confirmed icon" << VAR(param.zone) << VAR(target.x) << VAR(target.y)
+             << VAR(param.icon) << VAR(param.max_attempts);
     return false;
 }
 
-} // namespace mapteleport
+} // namespace worldmap

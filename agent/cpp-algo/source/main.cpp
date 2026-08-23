@@ -13,11 +13,11 @@
 #include "MapNavigator/MapNavigator.h"
 #include "MapNavigator/MapNavigatorCompatible.h"
 #include "MapNavmesh/MapNavmeshQuery.h"
-#include "MapTeleport/MapTeleportAction.h"
 #include "RealTimeTask/RealTimeTaskAction.h"
 #include "RecoGrid/RecoGridRecognition.h"
 #include "Test/test.h"
 #include "WeaponInventoryScan/WeaponInventoryScan.h"
+#include "WorldMap/WorldMapFind.h"
 #include "Zipline/ZiplineImportAction.h"
 #include "my_reco_1/my_reco_1.h"
 #include "utils.h"
@@ -67,6 +67,7 @@ int main(int argc, char** argv)
         weaponinventoryscan::WeaponInventoryScanRecognitionRun,
         nullptr);
     MaaAgentServerRegisterCustomRecognition("IconRecognition", iconrecognition::IconRecognitionRun, nullptr);
+    MaaAgentServerRegisterCustomRecognition("MapFind", worldmap::MapFindRun, nullptr);
     MaaAgentServerRegisterCustomAction("MapNavigateAction", mapnavigator::MapNavigateActionRun, nullptr);
     MaaAgentServerRegisterCustomAction("MapNavigatorCompatible", mapnavigator::MapNavigatorCompatibleRun, nullptr);
     MaaAgentServerRegisterCustomAction("RealTimeTaskAction", realtimetask::RealTimeTaskActionRun, nullptr);
@@ -75,7 +76,6 @@ int main(int argc, char** argv)
     // 其余平台把这个动作名留给各自的实现
     MaaAgentServerRegisterCustomAction("ZiplineImport", zipline::ZiplineImportActionRun, nullptr);
 #endif
-    MaaAgentServerRegisterCustomAction("MapTeleportSelect", mapteleport::MapTeleportSelectRun, nullptr);
 
     const char* identifier = argv[argc - 1];
 
