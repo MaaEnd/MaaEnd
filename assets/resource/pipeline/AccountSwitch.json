@@ -145,24 +145,6 @@
             "optional": false
         },
         "next": [
-            "__AccountSwitchConfigureEmailPattern",
-            "__AccountSwitchClickDropdown"
-        ]
-    },
-    "__AccountSwitchConfigureEmailPattern": {
-        "desc": "配置国际服脱敏邮箱匹配规则",
-        "enabled": false,
-        "recognition": "DirectHit",
-        "action": "Custom",
-        "custom_action": "AttachToExpectedRegexAction",
-        "custom_action_param": {
-            "targets": [
-                "__AccountSwitchOCRSelectAccount",
-                "__AccountSwitchVerifySelected"
-            ],
-            "substring": true
-        },
-        "next": [
             "__AccountSwitchClickDropdown"
         ]
     },
@@ -228,6 +210,24 @@
             ]
         },
         "post_delay": 0,
+        "next": [
+            "__AccountSwitchConfigureEmailPattern",
+            "__AccountSwitchOCRSelectAccount"
+        ]
+    },
+    "__AccountSwitchConfigureEmailPattern": {
+        "desc": "初始化国际服脱敏邮箱匹配规则",
+        "enabled": false,
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "AttachToExpectedRegexAction",
+        "custom_action_param": {
+            "targets": [
+                "__AccountSwitchOCRSelectAccount",
+                "__AccountSwitchVerifySelected"
+            ],
+            "substring": true
+        },
         "next": [
             "__AccountSwitchOCRSelectAccount"
         ]
