@@ -460,10 +460,6 @@ bool NavigationStateMachine::Bootstrap()
     runtime_state_.BeginNavigation(std::chrono::steady_clock::now());
     sensitivity::BeginRun();
 
-    if (session_->HasSatisfiedFinalSuccess(*position_, "bootstrap_already_at_final_goal")) {
-        return true;
-    }
-
     // 线路可以关掉起步 A*：两条取锚点的路子最后都要 PlanNavmeshRoute，跳过就等于不规划起步，
     // 落到下面两档现成兜底。这里不做任何判断，纯看线路声明——自动判"网格不对劲"只会误伤。
     std::optional<DynamicAnchor> anchor;
