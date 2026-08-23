@@ -68,12 +68,16 @@ type Config struct {
 	FailTitle string `json:"fail_title"`
 	FailBody  string `json:"fail_body"`
 
-	// 发送通知任务注入（任务 option 经 attach 顶层键合并写入）
-	TaskTitle          string `json:"task_title"`           // 通知任务的标题模板
-	TaskBody           string `json:"task_body"`            // 通知任务的内容模板
-	SendTaskWebhook    bool   `json:"send_task_webhook"`    // 任务级渠道开关，默认 true=跟随设置
-	SendTaskBark       bool   `json:"send_task_bark"`       // 任务级渠道开关，默认 true=跟随设置
-	SendTaskServerChan bool   `json:"send_task_serverchan"` // 任务级渠道开关，默认 true=跟随设置
+	// 自定义通知内容（经 attach 顶层键合并写入；NotifyTask 由设置页 option 注入，
+	// 其他任务可在调用节点 attach 直接编写，i18n key 优先于原文模板）
+	TaskTitleKey string `json:"task_title_key"` // 标题 i18n key，查到翻译优先于 TaskTitle
+	TaskBodyKey  string `json:"task_body_key"`  // 正文 i18n key，查到翻译优先于 TaskBody
+	TaskTitle    string `json:"task_title"`     // 标题模板（原文）
+	TaskBody     string `json:"task_body"`      // 正文模板（原文）
+
+	// AllowTaskNotify 设置页总开关：是否允许任务/节点通过 NotifySendAction 发送自定义通知。
+	// nil=未配置（默认允许，不破坏旧行为）；设置页关闭时写入 false。
+	AllowTaskNotify *bool `json:"allow_task_notify"`
 }
 
 // ParseConfig 从节点 JSON（含 attach）解析通知配置。
@@ -174,13 +178,16 @@ func Send(config Config, vars map[string]string) bool {
 	return sent
 }
 
-// NotifySendAction 供 Pipeline 手动触发通知：读取 __NotifyConfig 节点 attach 中的
-// 渠道配置并发送。通知失败不会导致 Pipeline 节点失败。
+// NotifySendAction 供 Pipeline 手动触发通知：渠道配置从 __NotifyConfig 读取，
+// 标题/正文支持两种写法——NotifyTask 由设置页 option 注入全局节点，
+// 其他任务可在调用节点 attach 直接编写（本地优先），并支持 i18n key。
+// 通知失败不会导致 Pipeline 节点失败。
 type NotifySendAction struct{}
 
 var _ maa.CustomActionRunner = &NotifySendAction{}
 
 func (a *NotifySendAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
+	// 渠道配置与默认内容：__NotifyConfig（设置页全局 option 注入）
 	raw, err := ctx.GetNodeJSON(defaultConfigNode)
 	if err != nil {
 		log.Error().Err(err).Str("component", "NotifySendAction").Str("node", defaultConfigNode).Msg("failed to get node json")
@@ -192,25 +199,53 @@ func (a *NotifySendAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		return true
 	}
 
-	applyTaskToggle(&config)
+	// 调用节点自定义内容（attach 本地优先，如月卡到期提醒等业务通知）
+	if raw, err := ctx.GetNodeJSON(arg.CurrentTaskName); err == nil {
+		if local, err := ParseConfig(raw); err == nil {
+			config = mergeConfig(config, local)
+		}
+	}
+
+	// 设置页总开关：关闭时跳过（未配置视为允许，不破坏旧行为）
+	if config.AllowTaskNotify != nil && !*config.AllowTaskNotify {
+		log.Debug().Str("component", "NotifySendAction").Msg("task notify disabled by setting, skip")
+		return true
+	}
 
 	vars := BuildVars(arg.CurrentTaskName, "", time.Now(), getControllerStartTime())
-	vars["title"] = config.TaskTitle
-	vars["body"] = config.TaskBody
+	vars["title"] = resolveNotifyText(config.TaskTitleKey, config.TaskTitle, vars)
+	vars["body"] = resolveNotifyText(config.TaskBodyKey, config.TaskBody, vars)
 	Send(config, vars)
 	// 通知发送失败不影响游戏流程，始终返回成功
 	return true
 }
 
-// applyTaskToggle 按任务级渠道开关覆盖本次发送渠道（attach 注入，默认 true=跟随设置启用）。
-func applyTaskToggle(config *Config) {
-	if !config.SendTaskWebhook {
-		config.WebhookEnabled = false
+// mergeConfig 合并全局渠道配置与调用节点内容配置：
+// 渠道字段以全局 __NotifyConfig 为准；内容字段调用节点 attach 优先、回退全局
+// （NotifyTask 的内容由设置页 option 注入全局节点，此处保证两种写法都生效）。
+func mergeConfig(global, local Config) Config {
+	if local.TaskTitleKey != "" {
+		global.TaskTitleKey = local.TaskTitleKey
 	}
-	if !config.SendTaskBark {
-		config.BarkEnabled = false
+	if local.TaskBodyKey != "" {
+		global.TaskBodyKey = local.TaskBodyKey
 	}
-	if !config.SendTaskServerChan {
-		config.ServerChanEnabled = false
+	if local.TaskTitle != "" {
+		global.TaskTitle = local.TaskTitle
 	}
+	if local.TaskBody != "" {
+		global.TaskBody = local.TaskBody
+	}
+	return global
+}
+
+// resolveNotifyText 解析标题/正文：i18n key 查到翻译时用翻译（再做变量替换），
+// key 未配置或查不到翻译时回退原文模板。
+func resolveNotifyText(key, fallback string, vars map[string]string) string {
+	if key != "" {
+		if translated := i18n.T(key); translated != key {
+			return ReplaceVars(translated, vars)
+		}
+	}
+	return ReplaceVars(fallback, vars)
 }

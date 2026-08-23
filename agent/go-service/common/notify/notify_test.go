@@ -45,10 +45,7 @@ func TestParseConfig(t *testing.T) {
 			"fail_title": "任务失败",
 			"fail_body": "任务 {{task_name}} 失败于 {{datetime}}",
 			"task_title": "通知标题",
-			"task_body": "通知正文",
-			"send_task_webhook": true,
-			"send_task_bark": false,
-			"send_task_serverchan": true
+			"task_body": "通知正文"
 		}
 	}`
 	config, err := ParseConfig(nodeJSON)
@@ -75,9 +72,6 @@ func TestParseConfig(t *testing.T) {
 	}
 	if config.TaskTitle != "通知标题" || config.TaskBody != "通知正文" {
 		t.Errorf("task template parse mismatch: %+v", config)
-	}
-	if !config.SendTaskWebhook || config.SendTaskBark || !config.SendTaskServerChan {
-		t.Errorf("task toggle parse mismatch: %+v", config)
 	}
 	if !config.Enabled() {
 		t.Errorf("expected enabled")
@@ -161,29 +155,6 @@ func TestPipeSeparated(t *testing.T) {
 		if got := pipeSeparated(c.raw); got != c.want {
 			t.Errorf("pipeSeparated(%q) = %q, want %q", c.raw, got, c.want)
 		}
-	}
-}
-
-func TestApplyTaskToggle(t *testing.T) {
-	// 全默认 true → 保持设置启用
-	c := Config{WebhookEnabled: true, BarkEnabled: true, ServerChanEnabled: true, SendTaskWebhook: true, SendTaskBark: true, SendTaskServerChan: true}
-	applyTaskToggle(&c)
-	if !c.Enabled() {
-		t.Errorf("task toggles all true should keep channels: %+v", c)
-	}
-
-	// 关掉 webhook（其余任务开关默认 true=跟随设置）→ 仅 webhook 关闭
-	c = Config{WebhookEnabled: true, BarkEnabled: true, ServerChanEnabled: true, SendTaskWebhook: false, SendTaskBark: true, SendTaskServerChan: true}
-	applyTaskToggle(&c)
-	if c.WebhookEnabled || !c.BarkEnabled || !c.ServerChanEnabled {
-		t.Errorf("task webhook off should disable only webhook: %+v", c)
-	}
-
-	// SendTask* 全关（零值）→ 渠道全关，不发送
-	c = Config{WebhookEnabled: true, BarkEnabled: true, ServerChanEnabled: true}
-	applyTaskToggle(&c)
-	if c.Enabled() {
-		t.Errorf("all false toggles should disable: %+v", c)
 	}
 }
 
@@ -667,5 +638,75 @@ func TestSanitizeError(t *testing.T) {
 	plain := fmt.Errorf("unexpected status code: 500")
 	if sanitizeError(plain).Error() != "unexpected status code: 500" {
 		t.Errorf("plain error should be unchanged: %q", sanitizeError(plain).Error())
+	}
+}
+
+func TestMergeConfig(t *testing.T) {
+	global := Config{
+		WebhookEnabled: true, BarkEnabled: true, ServerChanEnabled: true,
+		TaskTitle: "全局标题", TaskBody: "全局正文", TaskTitleKey: "global.title.key",
+	}
+	local := Config{TaskTitle: "本地标题", TaskTitleKey: "local.title.key"}
+
+	merged := mergeConfig(global, local)
+	// 渠道字段以全局为准
+	if !merged.WebhookEnabled || !merged.BarkEnabled || !merged.ServerChanEnabled {
+		t.Errorf("channel fields should come from global: %+v", merged)
+	}
+	// 内容字段调用节点优先
+	if merged.TaskTitle != "本地标题" || merged.TaskTitleKey != "local.title.key" {
+		t.Errorf("content should prefer local: %+v", merged)
+	}
+	// 本地未写的字段回退全局
+	if merged.TaskBody != "全局正文" {
+		t.Errorf("content should fall back to global: %+v", merged)
+	}
+
+	// 本地内容全空：不覆盖全局
+	if merged2 := mergeConfig(global, Config{}); merged2.TaskTitle != "全局标题" || merged2.TaskTitleKey != "global.title.key" {
+		t.Errorf("empty local should not override global: %+v", merged2)
+	}
+}
+
+func TestResolveNotifyText(t *testing.T) {
+	vars := map[string]string{"task_name": "T"}
+	// key 未配置 → 原文模板 + 变量替换
+	if got := resolveNotifyText("", "任务 {{task_name}}", vars); got != "任务 T" {
+		t.Errorf("fallback text = %q, want 任务 T", got)
+	}
+	// key 配置但查不到翻译（i18n.T 返回 key 本身）→ 回退原文
+	if got := resolveNotifyText("notify.no_such_key_xyz", "回退 {{task_name}}", vars); got != "回退 T" {
+		t.Errorf("missing key fallback = %q, want 回退 T", got)
+	}
+	// 原文为空 → 空串（由 Send 的 prefill 兜底默认标题）
+	if got := resolveNotifyText("", "", vars); got != "" {
+		t.Errorf("empty fallback = %q, want empty", got)
+	}
+}
+
+func TestParseConfigAllowTaskNotify(t *testing.T) {
+	// 未配置 → nil（默认允许）
+	config, err := ParseConfig(`{"attach": {"webhook_enabled": true}}`)
+	if err != nil {
+		t.Fatalf("ParseConfig failed: %v", err)
+	}
+	if config.AllowTaskNotify != nil {
+		t.Errorf("unset allow_task_notify should be nil, got %v", *config.AllowTaskNotify)
+	}
+	// 显式 false → 关闭自定义通知
+	config, err = ParseConfig(`{"attach": {"allow_task_notify": false}}`)
+	if err != nil {
+		t.Fatalf("ParseConfig failed: %v", err)
+	}
+	if config.AllowTaskNotify == nil || *config.AllowTaskNotify {
+		t.Errorf("allow_task_notify=false should parse to false, got %v", config.AllowTaskNotify)
+	}
+	// 显式 true → 允许
+	config, err = ParseConfig(`{"attach": {"allow_task_notify": true}}`)
+	if err != nil {
+		t.Fatalf("ParseConfig failed: %v", err)
+	}
+	if config.AllowTaskNotify == nil || !*config.AllowTaskNotify {
+		t.Errorf("allow_task_notify=true should parse to true, got %v", config.AllowTaskNotify)
 	}
 }
