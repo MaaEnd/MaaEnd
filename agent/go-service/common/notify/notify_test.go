@@ -360,7 +360,7 @@ func TestSendServerChanJSON(t *testing.T) {
 			t.Errorf("failed to decode payload: %v", err)
 		}
 		w.WriteHeader(http.StatusOK)
-		_, _ = w.Write([]byte(`{"code": 0, "message": "success"}`))
+		_, _ = w.Write([]byte(`{"code": 0}`))
 	}))
 	defer server.Close()
 
@@ -403,6 +403,7 @@ func TestSendChannelTitleOverride(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		_ = json.NewDecoder(r.Body).Decode(&gotPayload)
 		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(`{"code": 200}`))
 	}))
 	defer server.Close()
 
@@ -453,6 +454,7 @@ func TestSendBarkJSON(t *testing.T) {
 		gotContentType = r.Header.Get("Content-Type")
 		_ = json.NewDecoder(r.Body).Decode(&gotPayload)
 		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(`{"code": 200}`))
 	}))
 	defer server.Close()
 
@@ -531,6 +533,40 @@ func TestSendServerChanBusinessError(t *testing.T) {
 	}
 }
 
+func TestSendServerChanBadJSON(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(`not json`))
+	}))
+	defer server.Close()
+
+	orig := serverChanEndpoint
+	serverChanEndpoint = func(string) (string, error) { return server.URL, nil }
+	defer func() { serverChanEndpoint = orig }()
+
+	config := Config{ServerChanEnabled: true, ServerChanKey: "key"}
+	if Send(config, map[string]string{}) {
+		t.Errorf("Send should return false on non-JSON response body")
+	}
+}
+
+func TestSendBarkBusinessError(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(`{"code": 400, "message": "device key not found"}`))
+	}))
+	defer server.Close()
+
+	orig := barkEndpoint
+	barkEndpoint = func(string) (string, error) { return server.URL, nil }
+	defer func() { barkEndpoint = orig }()
+
+	config := Config{BarkEnabled: true, BarkKey: "key"}
+	if Send(config, map[string]string{}) {
+		t.Errorf("Send should return false on Bark code != 200")
+	}
+}
+
 func waitForRequests(t *testing.T, counter *atomic.Int32, want int32) {
 	t.Helper()
 	for i := 0; i < 100; i++ {
@@ -540,6 +576,17 @@ func waitForRequests(t *testing.T, counter *atomic.Int32, want int32) {
 		time.Sleep(20 * time.Millisecond)
 	}
 	t.Fatalf("timeout waiting for %d requests, got %d", want, counter.Load())
+}
+
+// waitForNoMoreRequests 等待 settled 窗口（连续 100ms 无新请求），断言计数不变。
+func waitForNoMoreRequests(t *testing.T, counter *atomic.Int32, want int32) {
+	t.Helper()
+	waitForRequests(t, counter, want)
+	// 再等 100ms，确认无新请求到达
+	time.Sleep(100 * time.Millisecond)
+	if got := counter.Load(); got != want {
+		t.Errorf("expected no more requests after settled, want %d got %d", want, got)
+	}
 }
 
 func TestSinkFailedNotify(t *testing.T) {
@@ -561,35 +608,30 @@ func TestSinkFailedNotify(t *testing.T) {
 
 	// 未缓存配置的任务失败（节点事件前失败）：不发送，绝不使用其他任务的配置
 	sink.OnTaskerTask(nil, maa.EventStatusFailed, maa.TaskerTaskDetail{TaskID: 99, Entry: "TaskX"})
-	time.Sleep(100 * time.Millisecond)
-	if requests.Load() != 0 {
-		t.Errorf("uncached task should not send, got %d requests", requests.Load())
-	}
+	waitForNoMoreRequests(t, &requests, 0)
 
 	// on_fail 开启但无渠道：无效配置，不发送
 	setConfigByTask(1, Config{OnFail: true})
 	sink.OnTaskerTask(nil, maa.EventStatusFailed, maa.TaskerTaskDetail{TaskID: 1, Entry: "TaskA"})
-	time.Sleep(100 * time.Millisecond)
-	if requests.Load() != 0 {
-		t.Errorf("on_fail without channel should not send, got %d requests", requests.Load())
-	}
+	waitForNoMoreRequests(t, &requests, 0)
 
 	// 渠道开启但 on_fail 关闭：不发送（主动关闭属正常）
 	setConfigByTask(2, Config{WebhookEnabled: true, WebhookURL: server.URL, WebhookMethod: "GET"})
 	sink.OnTaskerTask(nil, maa.EventStatusFailed, maa.TaskerTaskDetail{TaskID: 2, Entry: "TaskB"})
-	time.Sleep(100 * time.Millisecond)
-	if requests.Load() != 0 {
-		t.Errorf("on_fail off should not send, got %d requests", requests.Load())
-	}
+	waitForNoMoreRequests(t, &requests, 0)
 
 	// on_fail + 渠道：发送失败通知
 	setConfigByTask(3, Config{OnFail: true, FailTitle: "失败啦", WebhookEnabled: true, WebhookURL: server.URL, WebhookMethod: "GET"})
 	sink.OnTaskerTask(nil, maa.EventStatusFailed, maa.TaskerTaskDetail{TaskID: 3, Entry: "TaskC"})
 	waitForRequests(t, &requests, 1)
 
-	// 同一 taskID 重复广播：只发送一次
+	// 同一 taskID 重复广播：标记还在，不会发送第二次
 	sink.OnTaskerTask(nil, maa.EventStatusFailed, maa.TaskerTaskDetail{TaskID: 3, Entry: "TaskC"})
-	waitForRequests(t, &requests, 1)
+	waitForNoMoreRequests(t, &requests, 1)
+	// 不同 taskID 不受影响
+	setConfigByTask(4, Config{OnFail: true, FailTitle: "另一个", WebhookEnabled: true, WebhookURL: server.URL, WebhookMethod: "GET"})
+	sink.OnTaskerTask(nil, maa.EventStatusFailed, maa.TaskerTaskDetail{TaskID: 4, Entry: "TaskD"})
+	waitForRequests(t, &requests, 2)
 }
 
 func TestSanitizeError(t *testing.T) {
