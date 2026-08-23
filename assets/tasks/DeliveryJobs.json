@@ -110,7 +110,7 @@
                                 "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsValleyIV",
                                 "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
                                 "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsOpenOngoingAutoDeliveryOriginiumSciencePark",
-                                "DeliveryJobsAfterAcceptJob": "DeliveryJobsAutoDeliveryOriginiumSciencePark",
+                                "DeliveryJobsAfterAcceptJob": "DeliveryJobsDeliverQuickly",
                                 "DeliveryJobsGoToDepot": "DeliveryJobsOpenOngoingAutoDeliveryOriginiumSciencePark"
                             }
                         }
@@ -279,22 +279,6 @@
                     "name": "AutoDelivery",
                     "label": "$task.DeliveryJobs.QuoteAction.AutoDelivery",
                     "pipeline_override": {
-                        "DeliveryJobsEnterOriginiumScienceParkDeliveryJob": {
-                            "enabled": true,
-                            "next": [
-                                "DeliveryJobsAutoDeliveryOriginiumSciencePark"
-                            ]
-                        },
-                        "DeliveryJobsEnterOriginiumScienceParkCargo": {
-                            "enabled": true,
-                            "anchor": {
-                                "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsValleyIV",
-                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsDecideOriginiumScienceParkQuote",
-                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsOpenOngoingAutoDeliveryOriginiumSciencePark",
-                                "DeliveryJobsAfterAcceptJob": "DeliveryJobsAutoDeliveryOriginiumSciencePark",
-                                "DeliveryJobsGoToDepot": "DeliveryJobsOpenOngoingAutoDeliveryOriginiumSciencePark"
-                            }
-                        },
                         "DeliveryJobsOriginiumScienceParkQuoteAtLeastMinimum": {
                             "anchor": {
                                 "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
@@ -351,22 +335,6 @@
                     "name": "AutoDelivery",
                     "label": "$task.DeliveryJobs.QuoteAction.AutoDelivery",
                     "pipeline_override": {
-                        "DeliveryJobsEnterOriginiumScienceParkDeliveryJob": {
-                            "enabled": true,
-                            "next": [
-                                "DeliveryJobsAutoDeliveryOriginiumSciencePark"
-                            ]
-                        },
-                        "DeliveryJobsEnterOriginiumScienceParkCargo": {
-                            "enabled": true,
-                            "anchor": {
-                                "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsValleyIV",
-                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsDecideOriginiumScienceParkQuote",
-                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsOpenOngoingAutoDeliveryOriginiumSciencePark",
-                                "DeliveryJobsAfterAcceptJob": "DeliveryJobsAutoDeliveryOriginiumSciencePark",
-                                "DeliveryJobsGoToDepot": "DeliveryJobsOpenOngoingAutoDeliveryOriginiumSciencePark"
-                            }
-                        },
                         "DeliveryJobsOriginiumScienceParkQuoteBelowMinimum": {
                             "anchor": {
                                 "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
@@ -455,7 +423,7 @@
                                 "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsValleyIV",
                                 "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
                                 "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsOpenOngoingAutoDeliveryOriginLodespring",
-                                "DeliveryJobsAfterAcceptJob": "DeliveryJobsAutoDeliveryOriginLodespring",
+                                "DeliveryJobsAfterAcceptJob": "DeliveryJobsDeliverQuickly",
                                 "DeliveryJobsGoToDepot": "DeliveryJobsOpenOngoingAutoDeliveryOriginLodespring"
                             }
                         }
@@ -624,22 +592,6 @@
                     "name": "AutoDelivery",
                     "label": "$task.DeliveryJobs.QuoteAction.AutoDelivery",
                     "pipeline_override": {
-                        "DeliveryJobsEnterOriginLodespringDeliveryJob": {
-                            "enabled": true,
-                            "next": [
-                                "DeliveryJobsAutoDeliveryOriginLodespring"
-                            ]
-                        },
-                        "DeliveryJobsEnterOriginLodespringCargo": {
-                            "enabled": true,
-                            "anchor": {
-                                "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsValleyIV",
-                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsDecideOriginLodespringQuote",
-                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsOpenOngoingAutoDeliveryOriginLodespring",
-                                "DeliveryJobsAfterAcceptJob": "DeliveryJobsAutoDeliveryOriginLodespring",
-                                "DeliveryJobsGoToDepot": "DeliveryJobsOpenOngoingAutoDeliveryOriginLodespring"
-                            }
-                        },
                         "DeliveryJobsOriginLodespringQuoteAtLeastMinimum": {
                             "anchor": {
                                 "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
@@ -696,22 +648,6 @@
                     "name": "AutoDelivery",
                     "label": "$task.DeliveryJobs.QuoteAction.AutoDelivery",
                     "pipeline_override": {
-                        "DeliveryJobsEnterOriginLodespringDeliveryJob": {
-                            "enabled": true,
-                            "next": [
-                                "DeliveryJobsAutoDeliveryOriginLodespring"
-                            ]
-                        },
-                        "DeliveryJobsEnterOriginLodespringCargo": {
-                            "enabled": true,
-                            "anchor": {
-                                "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsValleyIV",
-                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsDecideOriginLodespringQuote",
-                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsOpenOngoingAutoDeliveryOriginLodespring",
-                                "DeliveryJobsAfterAcceptJob": "DeliveryJobsAutoDeliveryOriginLodespring",
-                                "DeliveryJobsGoToDepot": "DeliveryJobsOpenOngoingAutoDeliveryOriginLodespring"
-                            }
-                        },
                         "DeliveryJobsOriginLodespringQuoteBelowMinimum": {
                             "anchor": {
                                 "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
@@ -800,7 +736,7 @@
                                 "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsValleyIV",
                                 "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
                                 "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsOpenOngoingAutoDeliveryPowerPlateau",
-                                "DeliveryJobsAfterAcceptJob": "DeliveryJobsAutoDeliveryPowerPlateau",
+                                "DeliveryJobsAfterAcceptJob": "DeliveryJobsDeliverQuickly",
                                 "DeliveryJobsGoToDepot": "DeliveryJobsOpenOngoingAutoDeliveryPowerPlateau"
                             }
                         }
@@ -969,22 +905,6 @@
                     "name": "AutoDelivery",
                     "label": "$task.DeliveryJobs.QuoteAction.AutoDelivery",
                     "pipeline_override": {
-                        "DeliveryJobsEnterPowerPlateauDeliveryJob": {
-                            "enabled": true,
-                            "next": [
-                                "DeliveryJobsAutoDeliveryPowerPlateau"
-                            ]
-                        },
-                        "DeliveryJobsEnterPowerPlateauCargo": {
-                            "enabled": true,
-                            "anchor": {
-                                "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsValleyIV",
-                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsDecidePowerPlateauQuote",
-                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsOpenOngoingAutoDeliveryPowerPlateau",
-                                "DeliveryJobsAfterAcceptJob": "DeliveryJobsAutoDeliveryPowerPlateau",
-                                "DeliveryJobsGoToDepot": "DeliveryJobsOpenOngoingAutoDeliveryPowerPlateau"
-                            }
-                        },
                         "DeliveryJobsPowerPlateauQuoteAtLeastMinimum": {
                             "anchor": {
                                 "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
@@ -1041,22 +961,6 @@
                     "name": "AutoDelivery",
                     "label": "$task.DeliveryJobs.QuoteAction.AutoDelivery",
                     "pipeline_override": {
-                        "DeliveryJobsEnterPowerPlateauDeliveryJob": {
-                            "enabled": true,
-                            "next": [
-                                "DeliveryJobsAutoDeliveryPowerPlateau"
-                            ]
-                        },
-                        "DeliveryJobsEnterPowerPlateauCargo": {
-                            "enabled": true,
-                            "anchor": {
-                                "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsValleyIV",
-                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsDecidePowerPlateauQuote",
-                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsOpenOngoingAutoDeliveryPowerPlateau",
-                                "DeliveryJobsAfterAcceptJob": "DeliveryJobsAutoDeliveryPowerPlateau",
-                                "DeliveryJobsGoToDepot": "DeliveryJobsOpenOngoingAutoDeliveryPowerPlateau"
-                            }
-                        },
                         "DeliveryJobsPowerPlateauQuoteBelowMinimum": {
                             "anchor": {
                                 "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
@@ -1172,7 +1076,7 @@
                                 "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsWuling",
                                 "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
                                 "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsOpenOngoingAutoDeliveryWulingCity",
-                                "DeliveryJobsAfterAcceptJob": "DeliveryJobsAutoDeliveryWulingCity",
+                                "DeliveryJobsAfterAcceptJob": "DeliveryJobsDeliverQuickly",
                                 "DeliveryJobsGoToDepot": "DeliveryJobsOpenOngoingAutoDeliveryWulingCity"
                             }
                         }
@@ -1341,22 +1245,6 @@
                     "name": "AutoDelivery",
                     "label": "$task.DeliveryJobs.QuoteAction.AutoDelivery",
                     "pipeline_override": {
-                        "DeliveryJobsEnterWulingCityDeliveryJob": {
-                            "enabled": true,
-                            "next": [
-                                "DeliveryJobsAutoDeliveryWulingCity"
-                            ]
-                        },
-                        "DeliveryJobsEnterWulingCityCargo": {
-                            "enabled": true,
-                            "anchor": {
-                                "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsWuling",
-                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsDecideWulingCityQuote",
-                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsOpenOngoingAutoDeliveryWulingCity",
-                                "DeliveryJobsAfterAcceptJob": "DeliveryJobsAutoDeliveryWulingCity",
-                                "DeliveryJobsGoToDepot": "DeliveryJobsOpenOngoingAutoDeliveryWulingCity"
-                            }
-                        },
                         "DeliveryJobsWulingCityQuoteAtLeastMinimum": {
                             "anchor": {
                                 "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
@@ -1413,22 +1301,6 @@
                     "name": "AutoDelivery",
                     "label": "$task.DeliveryJobs.QuoteAction.AutoDelivery",
                     "pipeline_override": {
-                        "DeliveryJobsEnterWulingCityDeliveryJob": {
-                            "enabled": true,
-                            "next": [
-                                "DeliveryJobsAutoDeliveryWulingCity"
-                            ]
-                        },
-                        "DeliveryJobsEnterWulingCityCargo": {
-                            "enabled": true,
-                            "anchor": {
-                                "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsWuling",
-                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsDecideWulingCityQuote",
-                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsOpenOngoingAutoDeliveryWulingCity",
-                                "DeliveryJobsAfterAcceptJob": "DeliveryJobsAutoDeliveryWulingCity",
-                                "DeliveryJobsGoToDepot": "DeliveryJobsOpenOngoingAutoDeliveryWulingCity"
-                            }
-                        },
                         "DeliveryJobsWulingCityQuoteBelowMinimum": {
                             "anchor": {
                                 "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
@@ -1517,7 +1389,7 @@
                                 "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsWuling",
                                 "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
                                 "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsOpenOngoingAutoDeliveryTestArea",
-                                "DeliveryJobsAfterAcceptJob": "DeliveryJobsAutoDeliveryTestArea",
+                                "DeliveryJobsAfterAcceptJob": "DeliveryJobsDeliverQuickly",
                                 "DeliveryJobsGoToDepot": "DeliveryJobsOpenOngoingAutoDeliveryTestArea"
                             }
                         }
@@ -1686,22 +1558,6 @@
                     "name": "AutoDelivery",
                     "label": "$task.DeliveryJobs.QuoteAction.AutoDelivery",
                     "pipeline_override": {
-                        "DeliveryJobsEnterTestAreaDeliveryJob": {
-                            "enabled": true,
-                            "next": [
-                                "DeliveryJobsAutoDeliveryTestArea"
-                            ]
-                        },
-                        "DeliveryJobsEnterTestAreaCargo": {
-                            "enabled": true,
-                            "anchor": {
-                                "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsWuling",
-                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsDecideTestAreaQuote",
-                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsOpenOngoingAutoDeliveryTestArea",
-                                "DeliveryJobsAfterAcceptJob": "DeliveryJobsAutoDeliveryTestArea",
-                                "DeliveryJobsGoToDepot": "DeliveryJobsOpenOngoingAutoDeliveryTestArea"
-                            }
-                        },
                         "DeliveryJobsTestAreaQuoteAtLeastMinimum": {
                             "anchor": {
                                 "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
@@ -1758,22 +1614,6 @@
                     "name": "AutoDelivery",
                     "label": "$task.DeliveryJobs.QuoteAction.AutoDelivery",
                     "pipeline_override": {
-                        "DeliveryJobsEnterTestAreaDeliveryJob": {
-                            "enabled": true,
-                            "next": [
-                                "DeliveryJobsAutoDeliveryTestArea"
-                            ]
-                        },
-                        "DeliveryJobsEnterTestAreaCargo": {
-                            "enabled": true,
-                            "anchor": {
-                                "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsWuling",
-                                "DeliveryJobsRedistributionBidAction": "DeliveryJobsDecideTestAreaQuote",
-                                "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsOpenOngoingAutoDeliveryTestArea",
-                                "DeliveryJobsAfterAcceptJob": "DeliveryJobsAutoDeliveryTestArea",
-                                "DeliveryJobsGoToDepot": "DeliveryJobsOpenOngoingAutoDeliveryTestArea"
-                            }
-                        },
                         "DeliveryJobsTestAreaQuoteBelowMinimum": {
                             "anchor": {
                                 "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",

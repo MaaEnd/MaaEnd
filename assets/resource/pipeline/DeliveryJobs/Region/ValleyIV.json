@@ -59,7 +59,6 @@
     },
     "DeliveryJobsSelectPriorityItemsValleyIV": {
         "desc": "四号谷地未启用指定货物优先级，使用游戏默认填充至满",
-        "recognition": "DirectHit",
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,

@@ -216,10 +216,14 @@ function buildQuoteActionOption(depot, {comparison, label, description, defaultC
                       {
                           name: "AutoDelivery",
                           label: "$task.DeliveryJobs.QuoteAction.AutoDelivery",
-                          pipeline_override: buildAutoDeliveryOverride(depot, {
-                              bidAction: `DeliveryJobsDecide${depot.Id}Quote`,
-                              comparison,
-                          }),
+                          pipeline_override: {
+                              [comparisonNode]: {
+                                  anchor: {
+                                      DeliveryJobsQuoteAction: "DeliveryJobsQuoteAcceptJobOnly",
+                                      DeliveryJobsGoToDepot: `DeliveryJobsOpenOngoingAutoDelivery${depot.Id}`,
+                                  },
+                              },
+                          },
                       },
                   ]
                 : []),
@@ -252,32 +256,21 @@ function buildQuoteActionOption(depot, {comparison, label, description, defaultC
     };
 }
 
-function buildAutoDeliveryOverride(depot, {bidAction, comparison}) {
+function buildAutoDeliveryOverride(depot, {bidAction}) {
     const deliveryNode = `DeliveryJobsEnter${depot.Id}DeliveryJob`;
     const cargoNode = `DeliveryJobsEnter${depot.Id}Cargo`;
     const openOngoingAutoDelivery = `DeliveryJobsOpenOngoingAutoDelivery${depot.Id}`;
     const autoDelivery = `DeliveryJobsAutoDelivery${depot.Id}`;
-    const pipelineOverride = {
+    return {
         [deliveryNode]: {
             enabled: true,
             next: [autoDelivery],
         },
         [cargoNode]: {
             enabled: true,
-            anchor: buildCargoAnchor(depot, bidAction, openOngoingAutoDelivery, openOngoingAutoDelivery, autoDelivery),
+            anchor: buildCargoAnchor(depot, bidAction, openOngoingAutoDelivery, openOngoingAutoDelivery),
         },
     };
-
-    if (comparison) {
-        pipelineOverride[`DeliveryJobs${depot.Id}Quote${comparison}`] = {
-            anchor: {
-                DeliveryJobsQuoteAction: "DeliveryJobsQuoteAcceptJobOnly",
-                DeliveryJobsGoToDepot: openOngoingAutoDelivery,
-            },
-        };
-    }
-
-    return pipelineOverride;
 }
 
 function buildAutoDeliveryRiskAcknowledgementOption() {

@@ -39,7 +39,6 @@
     },
     "DeliveryJobsReturnAndTransferTestArea": {
         "desc": "返回试验园区并转交达到报价阈值的任务",
-        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
@@ -73,9 +72,7 @@
     },
     "DeliveryJobsOpenOngoingAutoDeliveryTestArea": {
         "desc": "检测到已有送货任务，返回试验园区打开任务详情继续全自动送货",
-        "recognition": "DirectHit",
         "pre_delay": 0,
-        "action": "DoNothing",
         "anchor": {
             "DeliveryJobsAfterViewCurrentJob": "DeliveryJobsAutoDeliveryTestArea"
         },
@@ -85,27 +82,8 @@
             "DeliveryJobsReturnAndViewTestAreaCurrentJob"
         ]
     },
-    "DeliveryJobsAutoDeliveryTestArea": {
-        "desc": "从试验园区当前任务详情开始全自动送货",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "anchor": {
-            "AutoDeliveryAfterSubmitGoods": "DeliveryJobsWulingLoop"
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "DeliveryJobsAutoDeliveryGuard",
-            "AutoDelivery"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "$task.DeliveryJobs.AutoDeliveryStart"
-        }
-    },
     "DeliveryJobsReturnAndViewTestAreaCurrentJob": {
         "desc": "返回试验园区本地仓储节点查看当前送货任务",
-        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
@@ -135,6 +113,22 @@
         "next": [
             "[Anchor]DeliveryJobsAfterViewCurrentJob"
         ]
+    },
+    "DeliveryJobsAutoDeliveryTestArea": {
+        "desc": "从试验园区当前任务详情开始全自动送货",
+        "pre_delay": 0,
+        "anchor": {
+            "AutoDeliveryAfterSubmitGoods": "DeliveryJobsWulingLoop"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsAutoDeliveryGuard",
+            "AutoDelivery"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DeliveryJobs.AutoDeliveryStart"
+        }
     },
     "DeliveryJobsCheckLocalDepotNodeTestAreaText": {
         "desc": "检查本地仓储节点中是否有试验园区",
@@ -208,7 +202,6 @@
     },
     "DeliveryJobsDecideTestAreaQuote": {
         "desc": "按报价决定如何处理试验园区的货物",
-        "recognition": "DirectHit",
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,

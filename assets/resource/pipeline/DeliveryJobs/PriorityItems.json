@@ -2,7 +2,6 @@
     "DeliveryJobsStartFillValleyIVPriority1": {
         "desc": "四号谷地：开始尝试第 1 优先级装箱货物",
         "enabled": true,
-        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "PipelineOverrideAction",
@@ -62,7 +61,6 @@
     },
     "DeliveryJobsContinueFillValleyIVAfterPriority1": {
         "desc": "四号谷地：第 1 优先级货物未装满，尝试后续已配置货物",
-        "recognition": "DirectHit",
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
@@ -76,7 +74,6 @@
     "DeliveryJobsStartFillValleyIVPriority2": {
         "desc": "四号谷地：开始尝试第 2 优先级装箱货物",
         "enabled": false,
-        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "PipelineOverrideAction",
@@ -136,7 +133,6 @@
     },
     "DeliveryJobsContinueFillValleyIVAfterPriority2": {
         "desc": "四号谷地：第 2 优先级货物未装满，尝试后续已配置货物",
-        "recognition": "DirectHit",
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
@@ -149,7 +145,6 @@
     "DeliveryJobsStartFillValleyIVPriority3": {
         "desc": "四号谷地：开始尝试第 3 优先级装箱货物",
         "enabled": false,
-        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "PipelineOverrideAction",
@@ -209,7 +204,6 @@
     },
     "DeliveryJobsContinueFillValleyIVAfterPriority3": {
         "desc": "四号谷地：第 3 优先级货物未装满，尝试后续已配置货物",
-        "recognition": "DirectHit",
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
@@ -221,7 +215,6 @@
     "DeliveryJobsStartFillValleyIVPriority4": {
         "desc": "四号谷地：开始尝试第 4 优先级装箱货物",
         "enabled": false,
-        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "PipelineOverrideAction",
@@ -281,7 +274,6 @@
     },
     "DeliveryJobsContinueFillValleyIVAfterPriority4": {
         "desc": "四号谷地：第 4 优先级货物未装满，尝试后续已配置货物",
-        "recognition": "DirectHit",
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
@@ -292,7 +284,6 @@
     "DeliveryJobsStartFillWulingPriority1": {
         "desc": "武陵：开始尝试第 1 优先级装箱货物",
         "enabled": true,
-        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "PipelineOverrideAction",
@@ -352,7 +343,6 @@
     },
     "DeliveryJobsContinueFillWulingAfterPriority1": {
         "desc": "武陵：第 1 优先级货物未装满，尝试后续已配置货物",
-        "recognition": "DirectHit",
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
@@ -366,7 +356,6 @@
     "DeliveryJobsStartFillWulingPriority2": {
         "desc": "武陵：开始尝试第 2 优先级装箱货物",
         "enabled": false,
-        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "PipelineOverrideAction",
@@ -426,7 +415,6 @@
     },
     "DeliveryJobsContinueFillWulingAfterPriority2": {
         "desc": "武陵：第 2 优先级货物未装满，尝试后续已配置货物",
-        "recognition": "DirectHit",
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
@@ -439,7 +427,6 @@
     "DeliveryJobsStartFillWulingPriority3": {
         "desc": "武陵：开始尝试第 3 优先级装箱货物",
         "enabled": false,
-        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "PipelineOverrideAction",
@@ -499,7 +486,6 @@
     },
     "DeliveryJobsContinueFillWulingAfterPriority3": {
         "desc": "武陵：第 3 优先级货物未装满，尝试后续已配置货物",
-        "recognition": "DirectHit",
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
@@ -511,7 +497,6 @@
     "DeliveryJobsStartFillWulingPriority4": {
         "desc": "武陵：开始尝试第 4 优先级装箱货物",
         "enabled": false,
-        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "PipelineOverrideAction",
@@ -571,7 +556,6 @@
     },
     "DeliveryJobsContinueFillWulingAfterPriority4": {
         "desc": "武陵：第 4 优先级货物未装满，尝试后续已配置货物",
-        "recognition": "DirectHit",
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,

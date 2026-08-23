@@ -178,7 +178,8 @@ test("DeliveryJobs generated depot nodes enter the shared transfer and cargo flo
             "DeliveryJobsClickTransferJob",
         ]);
         assert.equal(pipeline[`DeliveryJobsEnter${depot.Id}PriceDeliveryJob`].anchor, undefined);
-        assert.equal(pipeline[`DeliveryJobsOpenOngoingAutoDelivery${depot.Id}`].action, "DoNothing");
+        assert.equal(pipeline[`DeliveryJobsOpenOngoingAutoDelivery${depot.Id}`].recognition, undefined);
+        assert.equal(pipeline[`DeliveryJobsOpenOngoingAutoDelivery${depot.Id}`].action, undefined);
         assert.deepEqual(pipeline[`DeliveryJobsOpenOngoingAutoDelivery${depot.Id}`].anchor, {
             DeliveryJobsAfterViewCurrentJob: `DeliveryJobsAutoDelivery${depot.Id}`,
         });
@@ -429,53 +430,42 @@ test("DeliveryJobs exposes automatic delivery for supported depots with controll
         }
 
         const ordinaryAutoOverride = byName.AutoDelivery.pipeline_override;
-        const contexts = [
-            {
-                autoOverride: ordinaryAutoOverride,
-                comparison: "",
-                bidAction: "DeliveryJobsRedistributionBidNextStep",
-            },
-            {
-                autoOverride: task.option[`DeliveryJobsAtLeastMinimumQuoteAction${depot.Id}`].cases.find(
-                    (item) => item.name === "AutoDelivery",
-                ).pipeline_override,
-                comparison: "AtLeastMinimum",
-                bidAction: `DeliveryJobsDecide${depot.Id}Quote`,
-            },
-            {
-                autoOverride: task.option[`DeliveryJobsBelowMinimumQuoteAction${depot.Id}`].cases.find(
-                    (item) => item.name === "AutoDelivery",
-                ).pipeline_override,
-                comparison: "BelowMinimum",
-                bidAction: `DeliveryJobsDecide${depot.Id}Quote`,
-            },
-        ];
+        const deliveryNode = `DeliveryJobsEnter${depot.Id}DeliveryJob`;
+        const cargoNode = `DeliveryJobsEnter${depot.Id}Cargo`;
+        const openOngoingAutoDelivery = `DeliveryJobsOpenOngoingAutoDelivery${depot.Id}`;
+        const autoDelivery = `DeliveryJobsAutoDelivery${depot.Id}`;
+        assert.deepEqual(ordinaryAutoOverride[deliveryNode], {
+            enabled: true,
+            next: [autoDelivery],
+        });
+        assert.deepEqual(ordinaryAutoOverride[cargoNode].anchor, {
+            DeliveryJobsSelectPriorityItems: `DeliveryJobsSelectPriorityItems${depot.RegionId}`,
+            DeliveryJobsRedistributionBidAction: "DeliveryJobsRedistributionBidNextStep",
+            DeliveryJobsOngoingDeliveryAction: openOngoingAutoDelivery,
+            DeliveryJobsAfterAcceptJob: "DeliveryJobsDeliverQuickly",
+            DeliveryJobsGoToDepot: openOngoingAutoDelivery,
+        });
+        assert.equal(ordinaryAutoOverride.AutoDeliveryOpenCurrentJobDetail, undefined);
+        assert.equal(ordinaryAutoOverride.AutoDeliveryPostDepartureEntry, undefined);
+        assert.equal(ordinaryAutoOverride.SeizeDeliveryJobsPostProcessingEntry, undefined);
 
-        for (const {autoOverride, comparison, bidAction} of contexts) {
-            const deliveryNode = `DeliveryJobsEnter${depot.Id}DeliveryJob`;
-            const cargoNode = `DeliveryJobsEnter${depot.Id}Cargo`;
-            const openOngoingAutoDelivery = `DeliveryJobsOpenOngoingAutoDelivery${depot.Id}`;
-            const autoDelivery = `DeliveryJobsAutoDelivery${depot.Id}`;
-            assert.deepEqual(autoOverride[deliveryNode], {
-                enabled: true,
-                next: [autoDelivery],
+        for (const comparison of [
+            "AtLeastMinimum",
+            "BelowMinimum",
+        ]) {
+            const quoteAutoOverride = task.option[`DeliveryJobs${comparison}QuoteAction${depot.Id}`].cases.find(
+                (item) => item.name === "AutoDelivery",
+            ).pipeline_override;
+            assert.deepEqual(quoteAutoOverride, {
+                [`DeliveryJobs${depot.Id}Quote${comparison}`]: {
+                    anchor: {
+                        DeliveryJobsQuoteAction: "DeliveryJobsQuoteAcceptJobOnly",
+                        DeliveryJobsGoToDepot: openOngoingAutoDelivery,
+                    },
+                },
             });
-            assert.deepEqual(autoOverride[cargoNode].anchor, {
-                DeliveryJobsSelectPriorityItems: `DeliveryJobsSelectPriorityItems${depot.RegionId}`,
-                DeliveryJobsRedistributionBidAction: bidAction,
-                DeliveryJobsOngoingDeliveryAction: openOngoingAutoDelivery,
-                DeliveryJobsAfterAcceptJob: autoDelivery,
-                DeliveryJobsGoToDepot: openOngoingAutoDelivery,
-            });
-            assert.equal(autoOverride.AutoDeliveryOpenCurrentJobDetail, undefined);
-            assert.equal(autoOverride.AutoDeliveryPostDepartureEntry, undefined);
-            assert.equal(autoOverride.SeizeDeliveryJobsPostProcessingEntry, undefined);
-            if (comparison) {
-                assert.deepEqual(autoOverride[`DeliveryJobs${depot.Id}Quote${comparison}`].anchor, {
-                    DeliveryJobsQuoteAction: "DeliveryJobsQuoteAcceptJobOnly",
-                    DeliveryJobsGoToDepot: openOngoingAutoDelivery,
-                });
-            }
+            assert.equal(quoteAutoOverride[deliveryNode], undefined);
+            assert.equal(quoteAutoOverride[cargoNode], undefined);
         }
     }
 
