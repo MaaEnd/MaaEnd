@@ -64,6 +64,7 @@ These node names **do not start with `__ScenePrivate`**.
 | Map | `SceneEnterMapDijiang` | Enter Dijiang map screen. |
 | Map | `SceneEnterMapValleyIVTheHub` | Enter Valley IV - The Hub map screen. |
 | Menu | `SceneEnterMenuList` | Enter main menu list. |
+| Menu | `SceneEnterMenuMission` | Enter the Missions screen. |
 | Menu | `SceneEnterMenuRegionalDevelopment` | Enter Regional Development menu. |
 | Menu | `SceneEnterMenuEvent` | Enter Event menu. |
 | Menu | `SceneEnterMenuProtocolPass` | Enter Protocol Pass menu. |

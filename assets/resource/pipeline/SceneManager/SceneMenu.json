@@ -132,6 +132,152 @@
         "pre_delay": 0,
         "post_delay": 1500 // 3D动画菜单会一直动无法用wait_freeze
     },
+    "__ScenePrivateWorldEnterMenuMission": {
+        "desc": "从大世界进入任务界面",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClearHitCount",
+                "custom_action_param": {
+                    "nodes": [
+                        "__ScenePrivateMenuListScrollToMission"
+                    ],
+                    "strict": true
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMenuListEnterMenuMission",
+            "[JumpBack]__ScenePrivateWorldEnterMenuList"
+        ]
+    },
+    "__ScenePrivateMenuListEnterMenuMission": {
+        "desc": "从菜单列表进入任务界面；优先识别当前页，未找到时再滑动列表",
+        "recognition": "And",
+        "all_of": [
+            "InMenuList"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMenuListClickMenuMission",
+            "__ScenePrivateMenuListScrollToMission"
+        ]
+    },
+    "__ScenePrivateMenuListClickMenuMission": {
+        "desc": "从菜单列表点击任务入口",
+        "recognition": "And",
+        "all_of": [
+            "InMenuList",
+            {
+                "recognition": {
+                    "type": "OCR",
+                    "param": {
+                        "roi": [
+                            -400,
+                            0,
+                            400,
+                            720
+                        ],
+                        "expected": [
+                            "任务",
+                            "任務",
+                            "(?i)Missions",
+                            "任務",
+                            "임무"
+                        ]
+                    }
+                }
+            }
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SceneManagerMenuListClickItemAction"
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateAnyEnterMenuMissionSuccess"
+        ]
+    },
+    "__ScenePrivateMenuListScrollToMission": {
+        "desc": "菜单列表滑动到任务入口，最多三次",
+        "max_hit": 3,
+        "recognition": "And",
+        "all_of": [
+            "InMenuList"
+        ],
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    1118,
+                    565,
+                    10,
+                    10
+                ],
+                "end": [
+                    1118,
+                    233,
+                    10,
+                    10
+                ],
+                "end_hold": 500
+            }
+        },
+        "post_wait_freezes": 500,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMenuListClickMenuMission"
+        ]
+    },
+    "__ScenePrivateAnyEnterMenuMissionSuccess": {
+        "desc": "成功进入任务界面",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    150,
+                    70
+                ],
+                "expected": [
+                    "任务",
+                    "任務",
+                    "(?i)Missions",
+                    "任務",
+                    "임무"
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                0,
+                0,
+                200,
+                100
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
     "__ScenePrivateWorldMenuLeftExpand": {
         "desc": "打开大世界界面左侧展开的菜单",
         "recognition": {
