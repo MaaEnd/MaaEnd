@@ -30,32 +30,15 @@
     },
     "__AccountSwitchAtLoginScreenDialogShow": {
         "desc": "在登陆界面，显示对话框",
-        "recognition": "Or",
-        "any_of": [
-            {
-                "recognition": "TemplateMatch",
-                "roi": [
-                    651,
-                    130,
-                    466,
-                    495
-                ],
-                "template": [
-                    "AccountSwitch/LoginClose.png"
-                ]
-            },
-            {
-                "recognition": "TemplateMatch",
-                "roi": [
-                    569,
-                    228,
-                    141,
-                    29
-                ],
-                "template": [
-                    "AccountSwitch/GryphLineLogo.png"
-                ]
-            }
+        "recognition": "TemplateMatch",
+        "roi": [
+            651,
+            130,
+            466,
+            495
+        ],
+        "template": [
+            "AccountSwitch/LoginClose.png"
         ],
         "pre_delay": 0,
         "post_delay": 0,
