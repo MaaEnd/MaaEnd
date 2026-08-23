@@ -331,7 +331,24 @@
         ]
     },
     "AutoDeliveryOpenMissionAfterFetchGoods": {
-        "desc": "取货后进入任务界面并切换到送货任务",
+        "desc": "取货后进入任务界面",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuMission"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDeliveryFindDeliveryMissionAfterFetchGoods"
+        ]
+    },
+    "AutoDeliveryFindDeliveryMissionAfterFetchGoods": {
+        "desc": "进入任务界面后切换到送货任务",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
@@ -348,8 +365,7 @@
             "AutoDeliveryDeliveryMissionSelected",
             "AutoDeliverySelectDeliveryMission",
             "[JumpBack]AutoDeliveryScrollMissionList",
-            "AutoDeliveryDeliveryMissionNotFound",
-            "[JumpBack]SceneEnterMenuMission"
+            "AutoDeliveryDeliveryMissionNotFound"
         ]
     },
     "AutoDeliveryInMissionMenu": {

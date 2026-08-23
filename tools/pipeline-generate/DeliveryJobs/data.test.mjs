@@ -1015,14 +1015,22 @@ test("AutoDelivery keeps its task-detail entry and default branch flow explicit"
         "AutoDeliveryOpenMissionAfterFetchGoods",
     ]);
     assert.deepEqual(pickup.AutoDeliveryOpenMissionAfterFetchGoods.next, [
+        "AutoDeliveryFindDeliveryMissionAfterFetchGoods",
+    ]);
+    assert.equal(pickup.AutoDeliveryOpenMissionAfterFetchGoods.custom_action, "SubTask");
+    assert.deepEqual(pickup.AutoDeliveryOpenMissionAfterFetchGoods.custom_action_param, {
+        sub: [
+            "SceneEnterMenuMission",
+        ],
+    });
+    assert.deepEqual(pickup.AutoDeliveryFindDeliveryMissionAfterFetchGoods.next, [
         "AutoDeliveryDeliveryMissionSelected",
         "AutoDeliverySelectDeliveryMission",
         "[JumpBack]AutoDeliveryScrollMissionList",
         "AutoDeliveryDeliveryMissionNotFound",
-        "[JumpBack]SceneEnterMenuMission",
     ]);
-    assert.equal(pickup.AutoDeliveryOpenMissionAfterFetchGoods.custom_action, "ClearHitCount");
-    assert.deepEqual(pickup.AutoDeliveryOpenMissionAfterFetchGoods.custom_action_param, {
+    assert.equal(pickup.AutoDeliveryFindDeliveryMissionAfterFetchGoods.custom_action, "ClearHitCount");
+    assert.deepEqual(pickup.AutoDeliveryFindDeliveryMissionAfterFetchGoods.custom_action_param, {
         nodes: [
             "AutoDeliveryScrollMissionList",
         ],
