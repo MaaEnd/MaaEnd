@@ -112,7 +112,6 @@
             "AutoEssenceClickDiscardButton",
             "AutoEssenceChooseScaling1",
             "AutoEssenceConfirmObtain",
-            "__AutoEssenceCloseObtainDialogOnReturn",
             "[JumpBack]AutoEssenceInObtain",
             "__AutoEssenceReturnToTriggerPointRetry",
             "AutoEssenceDispatcher"
@@ -129,34 +128,6 @@
         "next": [
             "[Anchor]AutoEssenceReturnToTriggerPoint"
         ]
-    },
-    "__AutoEssenceCloseObtainDialogOnReturn": {
-        "desc": "不领取模式下返程交互键误开领取界面，关闭后改点放弃奖励（此节点默认关闭）",
-        "enabled": false,
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    630,
-                    430,
-                    420,
-                    260
-                ],
-                "template": "Common/Button/CancelButtonType1.png"
-            }
-        },
-        "pre_wait_freezes": 2000,
-        "action": {
-            "type": "Click"
-        },
-        "post_delay": 1000,
-        "next": [
-            "AutoEssenceClickDiscardButton",
-            "__AutoEssenceReturnToTriggerPointRetry"
-        ],
-        "focus": {
-            "Node.Action.Starting": "✖️不领取，关闭误开的领取界面"
-        }
     },
     "__AutoEssenceMistakeFactoryDeviceOnReturn": {
         "desc": "返程误入工业设备界面，关闭后重走返程线路",
