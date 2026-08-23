@@ -1,22 +1,4 @@
 {
-    "EssenceFilterLockItemLog": {
-        "desc": "日志：即将锁定Essence",
-        "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "EssenceFilterTraceAction",
-                "custom_action_param": {
-                    "step": "LockItem"
-                }
-            }
-        },
-        "post_delay": 0,
-        "next": [
-            "EssenceFilterCheckLocked",
-            "EssenceFilterLockItem"
-        ]
-    },
     "EssenceFilterLockItem": {
         "desc": "锁定Essence",
         "recognition": {
@@ -71,24 +53,6 @@
         "focus": {
             "Node.Action.Succeeded": "已确认上锁"
         }
-    },
-    "EssenceFilterDiscardItemLog": {
-        "desc": "日志：即将废弃 Essence",
-        "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "EssenceFilterTraceAction",
-                "custom_action_param": {
-                    "step": "DiscardItem"
-                }
-            }
-        },
-        "post_delay": 0,
-        "next": [
-            "EssenceFilterCheckDiscarded",
-            "EssenceFilterDiscardItem"
-        ]
     },
     "EssenceFilterDiscardItem": {
         "desc": "废弃 Essence",

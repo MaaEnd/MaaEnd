@@ -30,22 +30,22 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 
 	// EssenceFilterAfterBattleInit：每次战利品流程都会进入；仅首次做下方完整初始化，之后每次只做 afterBattleInitResetPerLoot。
 	if arg != nil && arg.CurrentTaskName == "EssenceFilterAfterBattleInit" {
-		if st := getRunState(); st != nil && st.MatchEngine != nil {
+		if st := currentRun; st != nil && st.MatchEngine != nil {
 			afterBattleInitResetPerLoot(st)
 			return true
 		}
 	}
 
-	engine, opts, err := EnsureMatchEngine(ctx, nil, arg.CurrentTaskName)
+	engine, opts, err := loadMatchEngine(ctx, arg.CurrentTaskName)
 	if err != nil {
 		log.Error().Err(err).Str("component", "EssenceFilter").Str("step", "LoadMatchEngine").Msg("load match data failed")
-		reportFocusByKey(ctx, nil, "focus.error.load_engine_failed", err.Error())
+		reportFocusByKey(ctx, "focus.error.load_engine_failed", err.Error())
 		return false
 	}
-	inputLocale := matchapi.NormalizeInputLocale(opts.InputLanguage)
+	inputLocale := engine.Locale()
 
 	log.Info().Str("component", "EssenceFilter").Str("input_language", inputLocale).Msg("match engine ready")
-	reportSimpleByKey(ctx, nil, "focus.init.data_loaded")
+	reportSimpleByKey(ctx, "focus.init.data_loaded")
 	var weaponRarity []int
 	if opts.Rarity6Weapon {
 		weaponRarity = append(weaponRarity, 6)
@@ -56,16 +56,16 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 	if opts.Rarity4Weapon {
 		weaponRarity = append(weaponRarity, 4)
 	}
-	var essenceTypes []EssenceMeta
+	var essenceTypes []string
 	if opts.FlawlessEssence {
-		essenceTypes = append(essenceTypes, FlawlessEssenceMeta)
+		essenceTypes = append(essenceTypes, flawlessEssenceName)
 	}
 	if opts.PureEssence {
-		essenceTypes = append(essenceTypes, PureEssenceMeta)
+		essenceTypes = append(essenceTypes, pureEssenceName)
 	}
 	if len(essenceTypes) == 0 {
 		log.Error().Str("component", "EssenceFilter").Str("step", "ValidatePresets").Msg("no essence type selected")
-		reportColoredByKey(ctx, nil, "#ff0000", "focus.init.no_essence_type")
+		reportColoredByKey(ctx, "#ff0000", "focus.init.no_essence_type")
 		return false
 	}
 
@@ -79,19 +79,16 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 		essenceMode = EssenceModePureOnly
 	}
 
-	st := &RunState{EssenceTypes: essenceTypes}
-	st.Reset()
+	st := &RunState{}
 	st.PipelineOpts = *opts
-	st.InputLanguage = inputLocale
 	st.MatchEngine = engine
 	st.EssenceMode = essenceMode
 
 	matchOpts := matchOptsFromPipeline(opts)
 	st.TargetSkillCombinations = engine.BuildTargets(matchOpts)
 	st.MatchedCombinationSummary = make(map[string]*matchapi.SkillCombinationSummary)
-	st.EssenceTypes = essenceTypes
-	setRunState(st)
-	reportInitSelection(ctx, st, weaponRarity, essenceTypes)
+	currentRun = st
+	reportInitSelection(ctx, weaponRarity, essenceTypes)
 
 	names := make([]string, 0, len(st.TargetSkillCombinations))
 	for _, combo := range st.TargetSkillCombinations {
@@ -100,30 +97,13 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 	vm := buildInitViewModel(st)
 	filteredWeapons := vm.FilteredWeapons
 	log.Info().Str("component", "EssenceFilter").Str("step", "FilterWeapons").Int("filtered_count", len(filteredWeapons)).Strs("weapons", names).Msg("weapons filtered")
-	reportInitWeapons(ctx, st, filteredWeapons)
+	reportInitWeapons(ctx, filteredWeapons)
 
 	log.Info().Str("component", "EssenceFilter").Str("step", "BuildSkillCombinations").Int("combinations", len(st.TargetSkillCombinations)).Msg("skill combinations built")
 	log.Info().Str("component", "EssenceFilter").Msg("init done")
 
-	reportInitSkillList(ctx, st, vm.SlotSkills)
+	reportInitSkillList(ctx, vm.SlotSkills)
 	reportDataVersionNotice(ctx, st)
-	return true
-}
-
-// --- Trace ---
-
-// EssenceFilterTraceAction - log node/step
-type EssenceFilterTraceAction struct{}
-
-func (a *EssenceFilterTraceAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
-	var params struct {
-		Step string `json:"step"`
-	}
-	_ = json.Unmarshal([]byte(arg.CustomActionParam), &params)
-	if params.Step == "" {
-		params.Step = arg.CurrentTaskName
-	}
-	log.Info().Str("component", "EssenceFilter").Str("step", params.Step).Str("node", arg.CurrentTaskName).Msg("trace")
 	return true
 }
 
@@ -141,7 +121,7 @@ func (a *EssenceFilterCheckItemAction) Run(ctx *maa.Context, arg *maa.CustomActi
 		_ = json.Unmarshal([]byte(arg.CustomActionParam), &params)
 	}
 	log.Info().Str("component", "EssenceFilter").Str("action", "CheckItem").Msg("start")
-	st := getRunState()
+	st := currentRun
 	if st == nil {
 		log.Error().Str("component", "EssenceFilter").Str("action", "CheckItem").Msg("no run state")
 		return false
@@ -159,7 +139,7 @@ func (a *EssenceFilterCheckItemAction) Run(ctx *maa.Context, arg *maa.CustomActi
 		log.Error().Str("component", "EssenceFilter").Msg("OCR detail missing from pipeline")
 		return false
 	}
-	text := matchapi.NormalizeInputForMatch(rawText, st.InputLanguage)
+	text := matchapi.NormalizeInputForMatch(rawText, st.MatchEngine.Locale())
 	if text == "" {
 		log.Error().Str("component", "EssenceFilter").Int("slot", params.Slot).Str("raw", rawText).Msg("OCR empty")
 		return false
@@ -197,7 +177,7 @@ func (a *EssenceFilterCheckItemLevelAction) Run(ctx *maa.Context, arg *maa.Custo
 		log.Error().Str("component", "EssenceFilter").Int("slot", params.Slot).Msg("level OCR detail missing or empty")
 		return false
 	}
-	st := getRunState()
+	st := currentRun
 	if st == nil {
 		return false
 	}
@@ -216,9 +196,9 @@ func (a *EssenceFilterCheckItemLevelAction) Run(ctx *maa.Context, arg *maa.Custo
 type EssenceFilterSkillDecisionAction struct{}
 
 func (a *EssenceFilterSkillDecisionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
-	st := getRunState()
+	st := currentRun
 	if st == nil {
-		reportFocusByKey(ctx, nil, "focus.error.no_run_state")
+		reportFocusByKey(ctx, "focus.error.no_run_state")
 		return false
 	}
 	ocr := matchapi.OCRInput{
@@ -227,12 +207,12 @@ func (a *EssenceFilterSkillDecisionAction) Run(ctx *maa.Context, arg *maa.Custom
 	}
 
 	if st.MatchEngine == nil {
-		reportFocusByKey(ctx, st, "focus.error.no_match_engine")
+		reportFocusByKey(ctx, "focus.error.no_match_engine")
 		return false
 	}
 	return runUnifiedSkillDecision(ctx, arg, st, st.MatchEngine, ocr, decisionNextNodes{
-		Lock:    "EssenceFilterLockItemLog",
-		Discard: "EssenceFilterDiscardItemLog",
+		Lock:    "EssenceFilterLockItem",
+		Discard: "EssenceFilterDiscardItem",
 		Skip:    "EssenceGridAdvance",
 	})
 }
@@ -244,21 +224,20 @@ type EssenceFilterFinishAction struct{}
 
 func (a *EssenceFilterFinishAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	log.Info().Str("component", "EssenceFilter").Msg("finish")
-	st := getRunState()
+	st := currentRun
 	if st != nil {
 		log.Info().Str("component", "EssenceFilter").Int("matched_total", st.MatchedCount).Msg("locked items")
-		reportColoredByKey(ctx, st, "#11cf00", "focus.finish.summary", st.VisitedCount, st.MatchedCount)
+		reportColoredByKey(ctx, "#11cf00", "focus.finish.summary", st.MatchedCount)
 		reportFinishExtRuleStats(ctx, st)
 		reportFinishArtifacts(ctx, st)
 	}
-	setRunState(nil)
+	currentRun = nil
 	return true
 }
 
 // Compile-time interface checks
 var (
 	_ maa.CustomActionRunner = &EssenceFilterInitAction{}
-	_ maa.CustomActionRunner = &EssenceFilterTraceAction{}
 	_ maa.CustomActionRunner = &EssenceFilterCheckItemAction{}
 	_ maa.CustomActionRunner = &EssenceFilterCheckItemLevelAction{}
 	_ maa.CustomActionRunner = &EssenceFilterSkillDecisionAction{}

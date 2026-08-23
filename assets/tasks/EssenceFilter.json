@@ -291,11 +291,6 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "EssenceFilterInit": {
-                            "attach": {
-                                "skip_thumb_lock": true
-                            }
-                        },
                         "EssenceGridAdvance": {
                             "attach": {
                                 "skip_thumb_lock": true
@@ -306,11 +301,6 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "EssenceFilterInit": {
-                            "attach": {
-                                "skip_thumb_lock": false
-                            }
-                        },
                         "EssenceGridAdvance": {
                             "attach": {
                                 "skip_thumb_lock": false
@@ -329,11 +319,6 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "EssenceFilterInit": {
-                            "attach": {
-                                "skip_thumb_discard": true
-                            }
-                        },
                         "EssenceGridAdvance": {
                             "attach": {
                                 "skip_thumb_discard": true
@@ -344,11 +329,6 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "EssenceFilterInit": {
-                            "attach": {
-                                "skip_thumb_discard": false
-                            }
-                        },
                         "EssenceGridAdvance": {
                             "attach": {
                                 "skip_thumb_discard": false

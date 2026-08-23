@@ -30,9 +30,33 @@ target_link_libraries(icon-recognition-core
     PUBLIC MaaUtils ${OpenCV_LIBS})
 add_dependencies(icon-recognition-core MaaUtils)
 
+set(recogrid_src
+    RecoGrid/CellMask.cpp
+    RecoGrid/GridDetector.cpp
+    RecoGrid/GridRecognizer.cpp
+    RecoGrid/PHashFilter.cpp
+)
+list(TRANSFORM recogrid_src PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/")
+
+add_library(recogrid STATIC ${recogrid_src})
+target_include_directories(recogrid
+    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${MAA_PRIVATE_INC} ${MAA_PUBLIC_INC})
+target_link_libraries(recogrid
+    PUBLIC MaaUtils ${OpenCV_LIBS})
+add_dependencies(recogrid MaaUtils)
+
+set(grid_tracker_src
+    GridTracker/GridTracker.cpp
+)
+list(TRANSFORM grid_tracker_src PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/")
+
+add_library(grid-tracker STATIC ${grid_tracker_src})
+target_include_directories(grid-tracker PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(grid-tracker PUBLIC recogrid)
+
 file(GLOB_RECURSE cpp_algo_src CONFIGURE_DEPENDS *.h *.hpp *.cpp)
 list(FILTER cpp_algo_src EXCLUDE REGEX "/IconRecognition/test/")
-list(REMOVE_ITEM cpp_algo_src ${icon_recognition_core_src})
+list(REMOVE_ITEM cpp_algo_src ${icon_recognition_core_src} ${recogrid_src} ${grid_tracker_src})
 
 add_executable(cpp-algo ${cpp_algo_src} ${cpp_algo_header})
 
@@ -40,7 +64,7 @@ target_include_directories(cpp-algo
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${MAA_PRIVATE_INC} ${MAA_PUBLIC_INC})
 
 target_link_libraries(cpp-algo
-    PRIVATE icon-recognition-core MaaUtils MaaFramework::MaaToolkit MaaAgentServer::MaaAgentServer
+    PRIVATE icon-recognition-core grid-tracker MaaUtils MaaFramework::MaaToolkit MaaAgentServer::MaaAgentServer
     PRIVATE Boost::system ${OpenCV_LIBS} ONNXRuntime::ONNXRuntime ZLIB::ZLIB)
 
 if(LINUX)

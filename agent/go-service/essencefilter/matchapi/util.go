@@ -6,10 +6,6 @@ import (
 	"unicode/utf8"
 )
 
-func cleanChinese(text string) string {
-	return normalizeForMatch(text, LocaleCN)
-}
-
 // NormalizeInputForMatch normalizes OCR or pool text for matching for the given locale.
 // Exported for EssenceFilter actions and tests.
 func NormalizeInputForMatch(text string, locale string) string {

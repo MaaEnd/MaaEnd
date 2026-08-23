@@ -165,7 +165,7 @@
     "essencefilter.focus.row.enter_final_scan": "추가 스와이프를 마쳐 마무리 스캔으로 들어갑니다",
     "essencefilter.focus.row.pending_final_swipe": "남은 수량 %d개 <= %d개이므로, 먼저 한 번 더 스와이프한 뒤 마무리 스캔합니다 (총 %d개, %d행 처리)",
     "essencefilter.focus.row.swipe_to": "%d행까지 스와이프했습니다",
-    "essencefilter.focus.finish.summary": "필터링 완료! 탐색한 아이템: %d개, 잠금 확정 아이템: %d개",
+    "essencefilter.focus.finish.summary": "필터링 완료! 잠금 확정 아이템: %d개",
     "essencefilter.focus.finish.ext_future": "확장 규칙 \"미래 유망\" 적중: %d개",
     "essencefilter.focus.finish.ext_practical": "확장 규칙 \"실용 기질\" 적중: %d개",
     "essencefilter.focus.plan.no_feasible_location_plans": "가능한 지역 플랜이 없습니다. 미졸업 무기 목록만 표시합니다.",

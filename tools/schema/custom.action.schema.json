@@ -51,7 +51,6 @@
                 "EssenceFilterRowNextItemAction",
                 "EssenceFilterSkillDecisionAction",
                 "EssenceFilterSwipeCalibrateAction",
-                "EssenceFilterTraceAction",
 				"FailureCollectorFinish",
 				"FailureCollectorRunTask",
 				"FailureCollectorReset",

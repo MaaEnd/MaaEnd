@@ -14,9 +14,7 @@
 #include "MapNavigator/MapNavigatorCompatible.h"
 #include "MapNavmesh/MapNavmeshQuery.h"
 #include "RealTimeTask/RealTimeTaskAction.h"
-#include "RecoGrid/RecoGridRecognition.h"
 #include "Test/test.h"
-#include "WeaponInventoryScan/WeaponInventoryScan.h"
 #include "Zipline/ZiplineImportAction.h"
 #include "my_reco_1/my_reco_1.h"
 #include "utils.h"
@@ -50,6 +48,8 @@ int main(int argc, char** argv)
 
     common::StartSystemMonitor();
 
+    essencegridscan::EssenceGrid essence_grid;
+
     MaaAgentServerRegisterCustomRecognition("MyReco1", ChildCustomRecognitionCallback, nullptr);
     MaaAgentServerRegisterCustomRecognition("MapLocateRecognition", maplocator::MapLocateRecognitionRun, nullptr);
     MaaAgentServerRegisterCustomRecognition("MapLocateAssertLocation", maplocator::MapLocateAssertLocationRun, nullptr);
@@ -58,13 +58,14 @@ int main(int argc, char** argv)
         mapnavigator::MapNavigatorAssertLocationCompatibleRun,
         nullptr);
     MaaAgentServerRegisterCustomRecognition("MapNavmeshQuery", mapnavmesh::MapNavmeshQueryRun, nullptr);
-    MaaAgentServerRegisterCustomRecognition("RecoGridRecognition", recogrid::RecoGridRecognitionRun, nullptr);
-    MaaAgentServerRegisterCustomRecognition("EssenceGridAdvanceRecognition", essencegridscan::EssenceGridAdvanceRecognitionRun, nullptr);
-    MaaAgentServerRegisterCustomRecognition("EssenceGridPendingRecognition", essencegridscan::EssenceGridPendingRecognitionRun, nullptr);
     MaaAgentServerRegisterCustomRecognition(
-        "WeaponInventoryScanRecognition",
-        weaponinventoryscan::WeaponInventoryScanRecognitionRun,
-        nullptr);
+        "EssenceGridAdvanceRecognition",
+        essencegridscan::EssenceGrid::advanceRecognitionRun,
+        &essence_grid);
+    MaaAgentServerRegisterCustomRecognition(
+        "EssenceGridPendingRecognition",
+        essencegridscan::EssenceGrid::pendingRecognitionRun,
+        &essence_grid);
     MaaAgentServerRegisterCustomRecognition("IconRecognition", iconrecognition::IconRecognitionRun, nullptr);
     MaaAgentServerRegisterCustomAction("MapNavigateAction", mapnavigator::MapNavigateActionRun, nullptr);
     MaaAgentServerRegisterCustomAction("MapNavigatorCompatible", mapnavigator::MapNavigatorCompatibleRun, nullptr);

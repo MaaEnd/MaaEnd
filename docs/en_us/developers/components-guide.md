@@ -51,7 +51,7 @@ The following nodes are implemented based on Go/C++ and have high business-speci
 | MapLocator | AI + CV minimap positioning | [components/map-locator.md](./components/map-locator.md) |
 | MapNavigator | Automatic pathfinding: reaches a target coordinate without recording; routes with interactions can be recorded | [components/map-navigator.md](./components/map-navigator.md) |
 | MapTracker | Minimap tracking and path movement | [components/map-tracker.md](./components/map-tracker.md) |
-| RecoGrid Engine | C++ grid recognition and rolling cumulative scanning engine | [components/recogrid-engine.md](./components/recogrid-engine.md) |
+| RecoGrid / GridTracker / EssenceGrid | C++ single-frame grid recognition, cross-frame tracking, and Essence integration | [components/recogrid-engine.md](./components/recogrid-engine.md) |
 | IconRecognition | C++ item icon recognition, fixed ROI, and Maa Custom Recognition | [components/icon-recognition.md](./components/icon-recognition.md) |
 | IMS | Item Management System: A2 sync / A1 delta / A3 add, R1 quantity / R2 readiness | [components/ims.md](./components/ims.md) |
 

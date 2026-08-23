@@ -165,7 +165,7 @@
     "essencefilter.focus.row.enter_final_scan": "補助スワイプ完了。最終スキャンに入ります。",
     "essencefilter.focus.row.pending_final_swipe": "残り %d <= %d のため、追加で1回スワイプしてから最終スキャンします（合計 %d、処理済み %d 行）。",
     "essencefilter.focus.row.swipe_to": "%d 行目までスワイプしました。",
-    "essencefilter.focus.finish.summary": "フィルタ完了。走査数: %d、ロック確定: %d。",
+    "essencefilter.focus.finish.summary": "フィルタ完了。ロック確定: %d。",
     "essencefilter.focus.finish.ext_future": "拡張ルール「将来有望」一致数: %d",
     "essencefilter.focus.finish.ext_practical": "拡張ルール「実用」一致数: %d",
     "essencefilter.focus.plan.no_feasible_location_plans": "実行可能な地点プランがありません。未卒業武器リストのみ表示します。",

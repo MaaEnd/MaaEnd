@@ -72,9 +72,8 @@ func escapeHTML(s string) string {
 // --- 战利品摘要与预刻写方案（同一 case：本次运行的结果展示）---
 
 // logMatchSummary - 输出“战利品 summary”，按技能组合聚合统计
-func logMatchSummary(ctx *maa.Context) {
-	st := getRunState()
-	if st == nil || len(st.MatchedCombinationSummary) == 0 {
+func logMatchSummary(ctx *maa.Context, st *RunState) {
+	if len(st.MatchedCombinationSummary) == 0 {
 		LogMXUSimpleHTML(ctx, i18n.T("essencefilter.no_locked"))
 		return
 	}
@@ -172,11 +171,7 @@ func weaponsToViews(weapons []matchapi.WeaponData) []weaponColorView {
 	return views
 }
 
-func logCalculatorResult(ctx *maa.Context) {
-	st := getRunState()
-	if st == nil {
-		return
-	}
+func logCalculatorResult(ctx *maa.Context, st *RunState) {
 	po := &st.PipelineOpts
 	selectedRarities := make(map[int]bool)
 	if po.Rarity4Weapon {
