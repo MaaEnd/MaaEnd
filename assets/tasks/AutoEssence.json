@@ -164,6 +164,15 @@
                         "AutoEssenceClickDiscardButton": {
                             "enabled": true
                         },
+                        "AutoEssenceChooseScaling1": {
+                            "enabled": false
+                        },
+                        "AutoEssenceConfirmObtain": {
+                            "enabled": false
+                        },
+                        "__AutoEssenceCloseObtainDialogOnReturn": {
+                            "enabled": true
+                        },
                         "AutoEssenceDismissWarningSanityLowExit": {
                             "enabled": false
                         },
@@ -182,7 +191,16 @@
                         "AutoEssenceClickDiscardButton": {
                             "enabled": false
                         },
+                        "AutoEssenceChooseScaling1": {
+                            "enabled": true
+                        },
                         "AutoEssenceChooseScaling2": {
+                            "enabled": false
+                        },
+                        "AutoEssenceConfirmObtain": {
+                            "enabled": true
+                        },
+                        "__AutoEssenceCloseObtainDialogOnReturn": {
                             "enabled": false
                         },
                         "AutoEssenceDismissWarningSanityLowExit": {
@@ -207,8 +225,17 @@
                         "AutoEssenceClickDiscardButton": {
                             "enabled": false
                         },
+                        "AutoEssenceChooseScaling1": {
+                            "enabled": true
+                        },
                         "AutoEssenceChooseScaling2": {
                             "enabled": true
+                        },
+                        "AutoEssenceConfirmObtain": {
+                            "enabled": true
+                        },
+                        "__AutoEssenceCloseObtainDialogOnReturn": {
+                            "enabled": false
                         },
                         "AutoEssenceDismissWarningSanityLowExit": {
                             "enabled": true
