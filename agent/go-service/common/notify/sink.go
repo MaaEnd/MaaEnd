@@ -30,16 +30,18 @@ func (s *ConfigSink) OnNodePipelineNode(ctx *maa.Context, event maa.EventStatus,
 	if event != maa.EventStatusStarting {
 		return
 	}
+	// 同一 taskID 下所有节点配置一致，首节点缓存后跳过后续节点
+	if _, ok := getConfigByTask(detail.TaskID); ok {
+		return
+	}
 	raw, err := ctx.GetNodeJSON(defaultConfigNode)
 	if err != nil {
 		log.Warn().Err(err).Str("component", "Notify").Str("node", defaultConfigNode).Msg("failed to read notify config node, notify disabled")
-		setConfigByTask(detail.TaskID, Config{})
 		return
 	}
 	config, err := ParseConfig(raw)
 	if err != nil {
 		log.Warn().Err(err).Str("component", "Notify").Str("node", defaultConfigNode).Msg("failed to parse notify config, notify disabled")
-		setConfigByTask(detail.TaskID, Config{})
 		return
 	}
 	setConfigByTask(detail.TaskID, config)
@@ -89,9 +91,10 @@ func (s *Sink) OnTaskerTask(_ *maa.Tasker, event maa.EventStatus, detail maa.Tas
 		vars["body"] = config.FailBody
 		log.Info().Str("component", "Notify").Uint64("task_id", detail.TaskID).Str("entry", detail.Entry).Msg("task failed, sending notify")
 		go Send(config, vars)
-		notifiedTaskIDs.Delete(detail.TaskID)
+		configMu.Lock()
+		delete(configByTaskID, detail.TaskID)
+		configMu.Unlock()
 	case maa.EventStatusSucceeded:
-		notifiedTaskIDs.Delete(detail.TaskID)
 		configMu.Lock()
 		delete(configByTaskID, detail.TaskID)
 		configMu.Unlock()
