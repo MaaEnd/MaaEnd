@@ -2,7 +2,7 @@
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://github.com/MaaEnd/MaaEnd/blob/v2/tools/schema/auto_delivery_routes.schema.json",
     "title": "AutoDelivery routes.json",
-    "description": "AutoDelivery 仓储与送货终点的实测 MapNavigator 路线覆盖。",
+    "description": "AutoDelivery 仓储与送货终点的检索元数据及实测 MapNavigator 路线覆盖。",
     "type": "object",
     "additionalProperties": false,
     "required": [
@@ -16,30 +16,19 @@
                 "type": "object",
                 "additionalProperties": false,
                 "required": [
-                    "source_id"
-                ],
-                "anyOf": [
-                    {
-                        "required": [
-                            "path"
-                        ]
-                    },
-                    {
-                        "required": [
-                            "retry_path"
-                        ]
-                    },
-                    {
-                        "required": [
-                            "departure_path"
-                        ]
-                    }
+                    "source_id",
+                    "name"
                 ],
                 "properties": {
                     "source_id": {
                         "type": "string",
                         "minLength": 1,
                         "description": "仓储节点在 delivery_destinations.json 中的稳定 ID。"
+                    },
+                    "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "从 delivery_destinations.json 同步的中文名称，仅供检索。"
                     },
                     "description": {
                         "type": "string",
@@ -65,13 +54,24 @@
                 "additionalProperties": false,
                 "required": [
                     "source_id",
-                    "path"
+                    "name",
+                    "depot_id"
                 ],
                 "properties": {
                     "source_id": {
                         "type": "string",
                         "minLength": 1,
                         "description": "送货终点在 delivery_destinations.json 中的稳定 ID。"
+                    },
+                    "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "从 delivery_destinations.json 同步的中文名称，仅供检索。"
+                    },
+                    "depot_id": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "从 delivery_destinations.json 同步的起点仓储 ID，仅供检索。"
                     },
                     "description": {
                         "type": "string",

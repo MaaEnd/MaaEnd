@@ -4,6 +4,110 @@ import test from "node:test";
 
 import routeRows from "./routes-data.mjs";
 import {depots, destinations, runtimeCatalog} from "./model.mjs";
+import {buildSyncedRouteConfig} from "./sync-routes.mjs";
+
+const catalogSource = JSON.parse(readFileSync(new URL("../data/delivery_destinations.json", import.meta.url), "utf8"));
+const routeSource = JSON.parse(readFileSync(new URL("./routes.json", import.meta.url), "utf8"));
+
+test("AutoDelivery 路线同步刷新元数据并保留人工覆盖字段", () => {
+    const synced = buildSyncedRouteConfig(
+        {
+            depots: [
+                {
+                    id: "depot-1",
+                    name: {zh_cn: "仓储一"},
+                },
+                {
+                    id: "depot-2",
+                    name: {zh_cn: "仓储二"},
+                },
+            ],
+            destinations: [
+                {
+                    id: "destination-1",
+                    name: {zh_cn: "终点一"},
+                    depot_id: "depot-1",
+                },
+            ],
+        },
+        {
+            depots: [
+                {
+                    source_id: "depot-1",
+                    name: "旧仓储名",
+                    description: "人工说明",
+                    retry_path: [
+                        [
+                            1,
+                            2,
+                        ],
+                    ],
+                },
+            ],
+            destinations: [],
+        },
+    );
+
+    assert.deepEqual(synced.depots, [
+        {
+            source_id: "depot-1",
+            name: "仓储一",
+            description: "人工说明",
+            retry_path: [
+                [
+                    1,
+                    2,
+                ],
+            ],
+        },
+        {
+            source_id: "depot-2",
+            name: "仓储二",
+        },
+    ]);
+    assert.deepEqual(synced.destinations, [
+        {
+            source_id: "destination-1",
+            name: "终点一",
+            depot_id: "depot-1",
+        },
+    ]);
+});
+
+test("AutoDelivery routes.json 同步完整检索元数据并仅为必要项保留路线覆盖", () => {
+    assert.deepEqual(
+        routeSource.depots.map((item) => item.source_id),
+        catalogSource.depots.map((item) => item.id).sort(),
+    );
+    assert.deepEqual(
+        routeSource.destinations.map((item) => item.source_id),
+        catalogSource.destinations.map((item) => item.id).sort(),
+    );
+
+    const depotSourceById = new Map(
+        catalogSource.depots.map((item) => [
+            item.id,
+            item,
+        ]),
+    );
+    for (const route of routeSource.depots) {
+        assert.equal(route.name, depotSourceById.get(route.source_id).name.zh_cn);
+    }
+    const destinationSourceById = new Map(
+        catalogSource.destinations.map((item) => [
+            item.id,
+            item,
+        ]),
+    );
+    for (const route of routeSource.destinations) {
+        const source = destinationSourceById.get(route.source_id);
+        assert.equal(route.name, source.name.zh_cn);
+        assert.equal(route.depot_id, source.depot_id);
+    }
+
+    assert.ok(routeSource.depots.some((item) => !item.path && !item.retry_path && !item.departure_path));
+    assert.ok(routeSource.destinations.some((item) => !item.path));
+});
 
 test("AutoDelivery 路线为每个仓储和终点生成可独立执行的普通/滑索节点", () => {
     const retryCount = depots.filter((item) => item.retryRouteNode).length;

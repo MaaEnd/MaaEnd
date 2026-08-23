@@ -79,9 +79,6 @@ export const depots = assertArray(catalogSource.depots, "delivery_destinations.d
     const id = assertNonEmptyString(source.id, `depots[${index}].id`);
     const override = depotOverrides.get(id);
     const path = override?.path?.length ? override.path : buildNavmeshPath(source, `仓储 ${id}`);
-    if (override && !override.path?.length && !override.retry_path?.length && !override.departure_path?.length) {
-        throw new Error(`[AutoDelivery] 仓储路线覆盖 ${id} 没有任何有效路径`);
-    }
     return {
         id,
         name: assertNonEmptyString(source.name?.zh_cn, `depots[${index}].name.zh_cn`),
@@ -119,9 +116,6 @@ export const destinations = assertArray(catalogSource.destinations, "delivery_de
             throw new Error(`[AutoDelivery] 终点 ${id} 引用了未知仓储 ${source.depot_id}`);
         }
         const override = destinationOverrides.get(id);
-        if (override && !override.path?.length) {
-            throw new Error(`[AutoDelivery] 终点路线覆盖 ${id} 的 path 为空`);
-        }
         const ownPath = override?.path?.length ? override.path : buildNavmeshPath(source, `终点 ${id}`);
         return {
             id,

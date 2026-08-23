@@ -1,7 +1,94 @@
 {
     "destinations": [
         {
+            "source_id": "deliver_target_map01_lv005_01",
+            "name": "英格",
+            "depot_id": "domain_1_lv005_depot_1"
+        },
+        {
+            "source_id": "deliver_target_map01_lv005_02",
+            "name": "基特",
+            "depot_id": "domain_1_lv005_depot_1",
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1161.84,
+                        826.06
+                    ],
+                    "target_deck_y": 87.27
+                }
+            ]
+        },
+        {
+            "source_id": "deliver_target_map01_lv005_03",
+            "name": "嘉娜",
+            "depot_id": "domain_1_lv005_depot_1"
+        },
+        {
+            "source_id": "deliver_target_map01_lv005_recycle_02",
+            "name": "学术复读羽兽",
+            "depot_id": "domain_1_lv005_depot_1"
+        },
+        {
+            "source_id": "deliver_target_map01_lv005_recycle_03",
+            "name": "采购-醇化合物工厂模组",
+            "depot_id": "domain_1_lv005_depot_1"
+        },
+        {
+            "source_id": "deliver_target_map01_lv006_01",
+            "name": "马泰奥",
+            "depot_id": "domain_1_lv006_depot_1"
+        },
+        {
+            "source_id": "deliver_target_map01_lv006_02",
+            "name": "陆言",
+            "depot_id": "domain_1_lv006_depot_1"
+        },
+        {
+            "source_id": "deliver_target_map01_lv006_03",
+            "name": "莫莉",
+            "depot_id": "domain_1_lv006_depot_1"
+        },
+        {
+            "source_id": "deliver_target_map01_lv006_recycle_01",
+            "name": "“不是废品佬”",
+            "depot_id": "domain_1_lv006_depot_1"
+        },
+        {
+            "source_id": "deliver_target_map01_lv006_recycle_03",
+            "name": "采购-矿区医疗站模组",
+            "depot_id": "domain_1_lv006_depot_1"
+        },
+        {
+            "source_id": "deliver_target_map01_lv007_01",
+            "name": "库济米尼奇娜",
+            "depot_id": "domain_1_lv007_depot_1"
+        },
+        {
+            "source_id": "deliver_target_map01_lv007_02",
+            "name": "里斯卡",
+            "depot_id": "domain_1_lv007_depot_1"
+        },
+        {
+            "source_id": "deliver_target_map01_lv007_03",
+            "name": "戈里昂",
+            "depot_id": "domain_1_lv007_depot_1"
+        },
+        {
+            "source_id": "deliver_target_map01_lv007_recycle_02",
+            "name": "无畏的工团成员",
+            "depot_id": "domain_1_lv007_depot_1"
+        },
+        {
+            "source_id": "deliver_target_map01_lv007_recycle_03",
+            "name": "采购-超域试验场物资模组",
+            "depot_id": "domain_1_lv007_depot_1"
+        },
+        {
             "source_id": "deliver_target_map02_lv002_01",
+            "name": "苏白易",
+            "depot_id": "domain_2_lv002_depot_1",
             "description": "技术生产办公室（左上）",
             "path": [
                 {
@@ -40,6 +127,8 @@
         },
         {
             "source_id": "deliver_target_map02_lv002_02",
+            "name": "普里莫·林德",
+            "depot_id": "domain_2_lv002_depot_1",
             "description": "材料研究所（左下）",
             "path": [
                 {
@@ -75,6 +164,8 @@
         },
         {
             "source_id": "deliver_target_map02_lv002_03",
+            "name": "于施",
+            "depot_id": "domain_2_lv002_depot_1",
             "description": "观测站（右上）",
             "path": [
                 {
@@ -99,6 +190,8 @@
         },
         {
             "source_id": "deliver_target_map02_lv002_recycle_01",
+            "name": "火锅探店达人",
+            "depot_id": "domain_2_lv002_depot_1",
             "description": "猫头鹰（资源回收站）",
             "path": [
                 {
@@ -127,6 +220,8 @@
         },
         {
             "source_id": "deliver_target_map02_lv005_01",
+            "name": "赵昭",
+            "depot_id": "domain_2_lv005_depot_1",
             "description": "经纬田区（右）",
             "path": [
                 {
@@ -146,7 +241,14 @@
             ]
         },
         {
+            "source_id": "deliver_target_map02_lv005_02",
+            "name": "裴令容",
+            "depot_id": "domain_2_lv005_depot_1"
+        },
+        {
             "source_id": "deliver_target_map02_lv005_03",
+            "name": "阿禾",
+            "depot_id": "domain_2_lv005_depot_1",
             "description": "三号丙型辅桩区（右上）",
             "path": [
                 {
@@ -199,7 +301,12 @@
     ],
     "depots": [
         {
+            "source_id": "domain_1_lv005_depot_1",
+            "name": "源石研究园"
+        },
+        {
             "source_id": "domain_1_lv006_depot_1",
+            "name": "矿脉源区",
             "description": "矿脉源区；目录坐标正确，但默认到达半径可能停在取货交互范围外",
             "retry_path": [
                 {
@@ -221,7 +328,12 @@
             ]
         },
         {
+            "source_id": "domain_1_lv007_depot_1",
+            "name": "供能高地"
+        },
+        {
             "source_id": "domain_2_lv002_depot_1",
+            "name": "武陵城区",
             "description": "武陵城区；仓储节点与传送落点之间的桥面未铺入网格",
             "path": [
                 {
@@ -292,6 +404,7 @@
         },
         {
             "source_id": "domain_2_lv005_depot_1",
+            "name": "试验园区",
             "description": "试验园区；保留已验证的分段落点",
             "path": [
                 {

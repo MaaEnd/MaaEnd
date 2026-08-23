@@ -535,9 +535,10 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1161.842,
-                        826.062
-                    ]
+                        1161.84,
+                        826.06
+                    ],
+                    "target_deck_y": 87.27
                 }
             ],
             "zip": false
@@ -564,9 +565,10 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1161.842,
-                        826.062
-                    ]
+                        1161.84,
+                        826.06
+                    ],
+                    "target_deck_y": 87.27
                 }
             ],
             "zip": true
