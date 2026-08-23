@@ -1,6 +1,6 @@
 {
     "SyncDepotItemData": {
-        "desc": "IMS A2 仓库入口：业务侧只需调用本节点。首次成功后 Resource 级关闭 SyncDepotItemDataBegin，同 Resource 后续调用走 Skipped",
+        "desc": "IMS A2 两仓入口：业务侧只需调用本节点。首次成功后 Resource 级关闭 SyncDepotItemDataBegin，同 Resource 后续调用走 Skipped",
         "max_hit": 1,
         "recognition": "DirectHit",
         "pre_delay": 0,
@@ -13,11 +13,24 @@
         ]
     },
     "SyncDepotItemDataBegin": {
-        "desc": "A2 实际执行入口：进入帝江号仓库背包界面并同步普通采集物；成功后由 SyncDepotItemDataLock 关闭本节点",
+        "desc": "A2 实际执行入口：进入帝江号仓库背包界面，依次同步四号谷地与武陵的普通采集物总量；成功后由 SyncDepotItemDataLock 关闭本节点",
         "enabled": true,
         "recognition": "DirectHit",
         "pre_delay": 0,
-        "action": "DoNothing",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "resource_override": true,
+                    "patch": {
+                        "SyncDepotItemDataCompleted": {
+                            "enabled": false
+                        }
+                    }
+                }
+            }
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -26,7 +39,7 @@
         ]
     },
     "SyncDepotItemDataSkipped": {
-        "desc": "本次 Resource 已同步过仓库普通采集物缓存，跳过 A2",
+        "desc": "本次 Resource 已同步过两座仓库的普通采集物总量，跳过 A2",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "DoNothing",
@@ -34,18 +47,212 @@
         "rate_limit": 0,
         "next": []
     },
+    "SyncDepotItemDataCompleted": {
+        "desc": "仅在两仓全部分页完成且事务提交成功后启用，供调用方验证本轮同步完整性",
+        "enabled": false,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]SyncDepotItemDataCompletedNext"
+        ]
+    },
     "SyncDepotItemDataInBackpack": {
-        "desc": "确认已在帝江号仓库背包界面，将鼠标移出物品区域后选择全部分类",
+        "desc": "确认已在帝江号仓库背包界面且仓库切换按钮可用，准备固定扫描四号谷地与武陵",
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
-                    "InBackpack"
+                    "InBackpack",
+                    "ItemTransferRepoSwitchButton"
                 ]
             }
         },
         "pre_delay": 0,
         "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SyncDepotItemDataConfigureRegions"
+        ]
+    },
+    "SyncDepotItemDataConfigureRegions": {
+        "desc": "复用 ItemTransfer 仓库切换流程：固定四号谷地为首仓、武陵为第二仓",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "ItemTransferClickOrigin": {
+                            "expected": [
+                                "四号谷地",
+                                "四號谷地",
+                                "Valley IV"
+                            ]
+                        },
+                        "ItemTransferClickOriginClicked": {
+                            "expected": [
+                                "四号谷地",
+                                "四號谷地",
+                                "Valley IV"
+                            ]
+                        },
+                        "ItemTransferClickDestination": {
+                            "expected": [
+                                "武陵",
+                                "Wuling"
+                            ]
+                        },
+                        "ItemTransferClickDestinationClicked": {
+                            "expected": [
+                                "武陵",
+                                "Wuling"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SyncDepotItemDataSwitchToValleyIV"
+        ]
+    },
+    "SyncDepotItemDataSwitchToValleyIV": {
+        "desc": "复用 ItemTransferSwitchRepoToOrigin 连接四号谷地仓库",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "anchor": {
+            "ItemTransferOriginArrivedNext": "SyncDepotItemDataScanValleyIV"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ItemTransferSwitchRepoToOrigin"
+        ]
+    },
+    "SyncDepotItemDataScanValleyIV": {
+        "desc": "四号谷地作为首仓，用 A2 replace 执行地区重建",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "SyncDepotItemDataRunFull": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "merge_mode": "replace",
+                                        "transaction_mode": "begin"
+                                    }
+                                }
+                            }
+                        },
+                        "SyncDepotItemDataRunIncremental": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "merge_mode": "replace",
+                                        "transaction_mode": "continue"
+                                    }
+                                }
+                            }
+                        },
+                        "SyncDepotItemDataRunSinglePage": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "merge_mode": "replace",
+                                        "transaction_mode": "begin"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "anchor": {
+            "SyncDepotItemDataScanComplete": "SyncDepotItemDataSwitchToWuling"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]MouseMoveReset",
+            "SyncDepotItemDataSelectAll"
+        ]
+    },
+    "SyncDepotItemDataSwitchToWuling": {
+        "desc": "复用 ItemTransferSwitchRepoToDestination 连接武陵仓库",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "anchor": {
+            "ItemTransferDestinationArrivedNext": "SyncDepotItemDataScanWuling"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ItemTransferSwitchRepoToDestination"
+        ]
+    },
+    "SyncDepotItemDataScanWuling": {
+        "desc": "武陵作为第二仓，用 A2 sum 在四号谷地基准上幂等求和",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverride",
+                "custom_action_param": {
+                    "patch": {
+                        "SyncDepotItemDataRunFull": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "merge_mode": "sum",
+                                        "transaction_mode": "continue"
+                                    }
+                                }
+                            }
+                        },
+                        "SyncDepotItemDataRunIncremental": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "merge_mode": "sum",
+                                        "transaction_mode": "continue"
+                                    }
+                                }
+                            }
+                        },
+                        "SyncDepotItemDataRunSinglePage": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "merge_mode": "sum",
+                                        "transaction_mode": "continue"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "anchor": {
+            "SyncDepotItemDataScanComplete": "SyncDepotItemDataCommit"
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -115,6 +322,7 @@
         "rate_limit": 0,
         "next": [
             "SyncDepotItemDataScrollbarPresent",
+            "[JumpBack]MouseMoveReset",
             "SyncDepotItemDataRunSinglePage"
         ]
     },
@@ -174,6 +382,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]MouseMoveReset",
             "SyncDepotItemDataRunFull"
         ],
         "attach": {
@@ -286,7 +495,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SyncDepotItemDataLock"
+            "[Anchor]SyncDepotItemDataScanComplete"
         ],
         "attach": {
             "ready": false
@@ -319,6 +528,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]MouseMoveReset",
             "SyncDepotItemDataRunIncremental"
         ]
     },
@@ -393,11 +603,31 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[Anchor]SyncDepotItemDataScanComplete"
+        ]
+    },
+    "SyncDepotItemDataCommit": {
+        "desc": "两仓全部分页完成后一次性提交暂存快照；提交失败时不设置完成标记和成功锁",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SyncItemData",
+                "custom_action_param": {
+                    "transaction_mode": "commit",
+                    "notify_ui": false
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
             "SyncDepotItemDataLock"
         ]
     },
     "SyncDepotItemDataLock": {
-        "desc": "A2 成功后 Resource 级关闭 SyncDepotItemDataBegin，同 Resource 内不再重复扫描仓库普通采集物",
+        "desc": "A2 两仓事务提交成功后设置完成标记并 Resource 级关闭 Begin，同 Resource 内只复用完整快照",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": {
@@ -409,6 +639,9 @@
                     "patch": {
                         "SyncDepotItemDataBegin": {
                             "enabled": false
+                        },
+                        "SyncDepotItemDataCompleted": {
+                            "enabled": true
                         }
                     }
                 }

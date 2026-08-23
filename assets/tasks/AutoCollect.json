@@ -136,12 +136,7 @@
                     "pipeline_override": {
                         "AutoCollectBeforeStashBackpack": {
                             "next": [
-                                "AutoCollectInventoryPrepare"
-                            ]
-                        },
-                        "AutoCollectAfterStashBackpack": {
-                            "next": [
-                                "AutoCollectInventoryInvalidateSnapshot"
+                                "AutoCollectInventoryResetSnapshot"
                             ]
                         }
                     },

@@ -22,6 +22,9 @@ func TestParseSyncItemDataParamMap(t *testing.T) {
 	if !params.PageDedup {
 		t.Fatal("expected page_dedup true")
 	}
+	if params.MergeMode != syncMergeModeReplace {
+		t.Fatalf("merge_mode=%q, want replace", params.MergeMode)
+	}
 	if params.Items["item_expcard_stage2_high"] != "item_expcard_stage2_high" {
 		t.Fatalf("items=%v", params.Items)
 	}
@@ -65,6 +68,362 @@ func TestParseSyncItemDataParamMap(t *testing.T) {
 		"items": {"  ": "NODE"}
 	}`); err == nil {
 		t.Fatal("expected empty id after trim to fail")
+	}
+
+	params, err = parseSyncItemDataParam(`{
+		"items": {"A": "A"},
+		"merge_mode": "sum"
+	}`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if params.MergeMode != syncMergeModeSum {
+		t.Fatalf("merge_mode=%q, want sum", params.MergeMode)
+	}
+	if _, err := parseSyncItemDataParam(`{
+		"items": {"A": "A"},
+		"merge_mode": "append"
+	}`); err == nil {
+		t.Fatal("expected unsupported merge_mode to fail")
+	}
+
+	params, err = parseSyncItemDataParam(`{
+		"transaction_mode": "commit"
+	}`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if params.TransactionMode != syncTransactionModeCommit {
+		t.Fatalf("transaction_mode=%q, want commit", params.TransactionMode)
+	}
+	if _, err := parseSyncItemDataParam(`{
+		"items": {"A": "A"},
+		"transaction_mode": "finish"
+	}`); err == nil {
+		t.Fatal("expected unsupported transaction_mode to fail")
+	}
+}
+
+func TestSyncItemDataSumModeUsesImmutableBaseline(t *testing.T) {
+	oldItems := ItemsSnapshot()
+	oldReady, oldSync := globalCache.snapshot()
+	t.Cleanup(func() {
+		globalCache.markSynced(oldSync, oldItems)
+		if !oldReady {
+			globalCache.clear()
+		}
+	})
+	globalCache.markSynced(time.Now().UTC(), map[string]int{
+		"A":     8,
+		"B":     5,
+		"D":     7,
+		"OTHER": 9,
+	})
+
+	action := &SyncItemData{}
+	firstPage := syncItemDataParam{MergeMode: syncMergeModeSum}
+	merged, sumBase, err := action.prepareSyncBase(1001, firstPage, []string{"A", "B", "C", "D", "E"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if merged["A"] != 8 || merged["B"] != 5 || merged["OTHER"] != 9 {
+		t.Fatalf("first-page merged=%v", merged)
+	}
+	if sumBase["A"] != 8 || sumBase["B"] != 5 || sumBase["C"] != 0 || sumBase["D"] != 7 || sumBase["E"] != 0 {
+		t.Fatalf("sum base=%v", sumBase)
+	}
+
+	merged["A"] = mergedSyncQuantity(firstPage.MergeMode, sumBase, "A", 10)
+	merged["C"] = mergedSyncQuantity(firstPage.MergeMode, sumBase, "C", 4)
+	globalCache.markSynced(time.Now().UTC(), merged)
+
+	nextPage := syncItemDataParam{MergeMode: syncMergeModeSum, PageDedup: true}
+	merged, sumBase, err = action.prepareSyncBase(1001, nextPage, []string{"A", "B", "C", "D", "E"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	// A is visible again on an overlapping page. The result must stay 8+10,
+	// rather than adding 10 to the already merged value 18.
+	merged["A"] = mergedSyncQuantity(nextPage.MergeMode, sumBase, "A", 10)
+	merged["B"] = mergedSyncQuantity(nextPage.MergeMode, sumBase, "B", 6)
+	if merged["A"] != 18 {
+		t.Fatalf("overlapping A=%d, want 18", merged["A"])
+	}
+	if merged["B"] != 11 {
+		t.Fatalf("B=%d, want 11", merged["B"])
+	}
+	if merged["C"] != 4 {
+		t.Fatalf("unseen-on-next-page C=%d, want 4", merged["C"])
+	}
+	if merged["D"] != 7 {
+		t.Fatalf("unseen-in-second-depot D=%d, want first-depot quantity 7", merged["D"])
+	}
+	if _, ok := merged["E"]; ok {
+		t.Fatalf("missing-in-both-depots E should stay absent, got=%v", merged)
+	}
+	if merged["OTHER"] != 9 {
+		t.Fatalf("unrelated item changed: %v", merged)
+	}
+}
+
+func TestSyncItemDataSumContinuationRequiresMatchingTask(t *testing.T) {
+	oldItems := ItemsSnapshot()
+	oldReady, oldSync := globalCache.snapshot()
+	t.Cleanup(func() {
+		globalCache.markSynced(oldSync, oldItems)
+		if !oldReady {
+			globalCache.clear()
+		}
+	})
+	globalCache.markSynced(time.Now().UTC(), map[string]int{"A": 8})
+
+	action := &SyncItemData{}
+	if _, _, err := action.prepareSyncBase(1001, syncItemDataParam{
+		MergeMode: syncMergeModeSum,
+		PageDedup: true,
+	}, []string{"A"}); err == nil {
+		t.Fatal("expected continuation without baseline to fail")
+	}
+	if _, _, err := action.prepareSyncBase(1001, syncItemDataParam{
+		MergeMode: syncMergeModeSum,
+	}, []string{"A"}); err != nil {
+		t.Fatal(err)
+	}
+	if _, _, err := action.prepareSyncBase(2002, syncItemDataParam{
+		MergeMode: syncMergeModeSum,
+		PageDedup: true,
+	}, []string{"A"}); err == nil {
+		t.Fatal("expected continuation from another task to fail")
+	}
+
+	if _, _, err := action.prepareSyncBase(1001, syncItemDataParam{
+		MergeMode: syncMergeModeReplace,
+	}, []string{"A"}); err != nil {
+		t.Fatal(err)
+	}
+	if _, _, err := action.prepareSyncBase(1001, syncItemDataParam{
+		MergeMode: syncMergeModeSum,
+		PageDedup: true,
+	}, []string{"A"}); err == nil {
+		t.Fatal("expected replace rebuild to clear the sum baseline")
+	}
+}
+
+func TestSyncItemDataTransactionStagesTwoDepotsUntilCommit(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "IMS.json")
+	oldPathFunc := recordPathFunc
+	recordPathFunc = func() string { return path }
+	t.Cleanup(func() {
+		recordPathFunc = oldPathFunc
+		ClearCache()
+	})
+	ClearCache()
+
+	at := time.Now().UTC().Add(-time.Hour)
+	if err := persistSynced(at, map[string]int{
+		"A":     99,
+		"D":     7,
+		"OTHER": 9,
+	}); err != nil {
+		t.Fatal(err)
+	}
+
+	action := &SyncItemData{}
+	scanIDs := []string{"A", "B", "C", "D", "E"}
+	firstPage := syncItemDataParam{
+		MergeMode:       syncMergeModeReplace,
+		TransactionMode: syncTransactionModeBegin,
+	}
+	merged, sumBase, err := action.prepareSyncBase(1001, firstPage, scanIDs)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if sumBase != nil {
+		t.Fatalf("replace begin sumBase=%v, want nil", sumBase)
+	}
+	if len(merged) != 1 || merged["OTHER"] != 9 {
+		t.Fatalf("first-depot rebuild base=%v", merged)
+	}
+	merged["A"] = 8
+	merged["B"] = 5
+	merged["D"] = 7
+	if err := action.storeTransactionResult(1001, merged); err != nil {
+		t.Fatal(err)
+	}
+	if got := ItemsSnapshot()["A"]; got != 99 {
+		t.Fatalf("formal cache changed before commit: A=%d", got)
+	}
+	if ready, syncedAt := globalCache.snapshot(); !ready || !syncedAt.Equal(at) {
+		t.Fatalf("staging changed readiness timestamp: ready=%v synced_at=%v", ready, syncedAt)
+	}
+
+	nextFirstDepotPage := syncItemDataParam{
+		MergeMode:       syncMergeModeReplace,
+		PageDedup:       true,
+		TransactionMode: syncTransactionModeContinue,
+	}
+	merged, _, err = action.prepareSyncBase(1001, nextFirstDepotPage, scanIDs)
+	if err != nil {
+		t.Fatal(err)
+	}
+	merged["C"] = 2
+	if err := action.storeTransactionResult(1001, merged); err != nil {
+		t.Fatal(err)
+	}
+
+	secondDepotFirstPage := syncItemDataParam{
+		MergeMode:       syncMergeModeSum,
+		TransactionMode: syncTransactionModeContinue,
+	}
+	merged, sumBase, err = action.prepareSyncBase(1001, secondDepotFirstPage, scanIDs)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if sumBase["A"] != 8 || sumBase["B"] != 5 || sumBase["C"] != 2 || sumBase["D"] != 7 || sumBase["E"] != 0 {
+		t.Fatalf("second-depot baseline=%v", sumBase)
+	}
+	merged["A"] = mergedSyncQuantity(secondDepotFirstPage.MergeMode, sumBase, "A", 10)
+	merged["C"] = mergedSyncQuantity(secondDepotFirstPage.MergeMode, sumBase, "C", 4)
+	if err := action.storeTransactionResult(1001, merged); err != nil {
+		t.Fatal(err)
+	}
+
+	secondDepotNextPage := syncItemDataParam{
+		MergeMode:       syncMergeModeSum,
+		PageDedup:       true,
+		TransactionMode: syncTransactionModeContinue,
+	}
+	merged, sumBase, err = action.prepareSyncBase(1001, secondDepotNextPage, scanIDs)
+	if err != nil {
+		t.Fatal(err)
+	}
+	merged["A"] = mergedSyncQuantity(secondDepotNextPage.MergeMode, sumBase, "A", 10)
+	merged["B"] = mergedSyncQuantity(secondDepotNextPage.MergeMode, sumBase, "B", 6)
+	if err := action.storeTransactionResult(1001, merged); err != nil {
+		t.Fatal(err)
+	}
+	if got := ItemsSnapshot()["A"]; got != 99 {
+		t.Fatalf("formal cache changed during second depot: A=%d", got)
+	}
+
+	if !action.commitTransaction(1001) {
+		t.Fatal("expected transaction commit to succeed")
+	}
+	committed := ItemsSnapshot()
+	if committed["A"] != 18 || committed["B"] != 11 || committed["C"] != 6 || committed["D"] != 7 {
+		t.Fatalf("committed two-depot quantities=%v", committed)
+	}
+	if _, ok := committed["E"]; ok {
+		t.Fatalf("missing-in-both-depots E should stay absent, got=%v", committed)
+	}
+	if committed["OTHER"] != 9 {
+		t.Fatalf("unrelated item changed: %v", committed)
+	}
+	if ready, syncedAt := globalCache.snapshot(); !ready || !syncedAt.After(at) {
+		t.Fatalf("commit did not refresh readiness timestamp: ready=%v synced_at=%v", ready, syncedAt)
+	}
+	if action.transactionItems != nil || action.transactionTaskID != 0 || action.transactionSumBase != nil {
+		t.Fatal("successful commit should clear transaction state")
+	}
+}
+
+func TestSyncItemDataTransactionRejectsContinuationAndDiscardsInterruptedStage(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "IMS.json")
+	oldPathFunc := recordPathFunc
+	recordPathFunc = func() string { return path }
+	t.Cleanup(func() {
+		recordPathFunc = oldPathFunc
+		ClearCache()
+	})
+	ClearCache()
+
+	if err := persistSynced(time.Now().UTC(), map[string]int{"A": 50}); err != nil {
+		t.Fatal(err)
+	}
+	action := &SyncItemData{}
+	continueParams := syncItemDataParam{
+		MergeMode:       syncMergeModeReplace,
+		PageDedup:       true,
+		TransactionMode: syncTransactionModeContinue,
+	}
+	if _, _, err := action.prepareSyncBase(1001, continueParams, []string{"A"}); err == nil {
+		t.Fatal("expected continuation without staging snapshot to fail")
+	}
+
+	beginParams := syncItemDataParam{
+		MergeMode:       syncMergeModeReplace,
+		TransactionMode: syncTransactionModeBegin,
+	}
+	merged, _, err := action.prepareSyncBase(1001, beginParams, []string{"A"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	merged["A"] = 1
+	if err := action.storeTransactionResult(1001, merged); err != nil {
+		t.Fatal(err)
+	}
+	if got := ItemsSnapshot()["A"]; got != 50 {
+		t.Fatalf("interrupted stage changed formal cache: A=%d", got)
+	}
+
+	merged, _, err = action.prepareSyncBase(2002, beginParams, []string{"A"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	merged["A"] = 2
+	if err := action.storeTransactionResult(2002, merged); err != nil {
+		t.Fatal(err)
+	}
+	if action.commitTransaction(1001) {
+		t.Fatal("stale task should not commit a replacement transaction")
+	}
+	if !action.commitTransaction(2002) {
+		t.Fatal("replacement transaction should commit")
+	}
+	if got := ItemsSnapshot()["A"]; got != 2 {
+		t.Fatalf("committed A=%d, want 2", got)
+	}
+}
+
+func TestSyncItemDataTransactionCommitFailureKeepsStageAndFormalCache(t *testing.T) {
+	dir := t.TempDir()
+	validPath := filepath.Join(dir, "IMS.json")
+	oldPathFunc := recordPathFunc
+	recordPathFunc = func() string { return validPath }
+	t.Cleanup(func() {
+		recordPathFunc = oldPathFunc
+		ClearCache()
+	})
+	ClearCache()
+
+	if err := persistSynced(time.Now().UTC(), map[string]int{"A": 50}); err != nil {
+		t.Fatal(err)
+	}
+	action := &SyncItemData{}
+	params := syncItemDataParam{
+		MergeMode:       syncMergeModeReplace,
+		TransactionMode: syncTransactionModeBegin,
+	}
+	merged, _, err := action.prepareSyncBase(1001, params, []string{"A"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	merged["A"] = 7
+	if err := action.storeTransactionResult(1001, merged); err != nil {
+		t.Fatal(err)
+	}
+
+	recordPathFunc = func() string { return dir }
+	if action.commitTransaction(1001) {
+		t.Fatal("commit to a directory path should fail")
+	}
+	if got := ItemsSnapshot()["A"]; got != 50 {
+		t.Fatalf("failed commit changed formal cache: A=%d", got)
+	}
+	if action.transactionItems == nil || action.transactionItems["A"] != 7 {
+		t.Fatalf("failed commit discarded staging: %v", action.transactionItems)
 	}
 }
 

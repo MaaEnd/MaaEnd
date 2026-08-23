@@ -29,15 +29,17 @@ A2 means “look at the current screen and record item quantities”. Callers mu
 | `SyncItemData` | Valuables **Progression** tab (`grid_type: valuables`) |
 | `SyncShopItemData` | **Procurement Center** (Origeometry / Oroberyl header OCR) |
 | `SyncValuablesItemData` | Valuables **Valuables** tab (e.g. Chartered HH Permit) |
-| `SyncDepotItemData` | The **left-side depot** on the Dijiang depot/backpack screen (normal collectables; excludes the right-side backpack) |
+| `SyncDepotItemData` | Combined **Valley IV + Wuling left-side depots** on the Dijiang depot/backpack screen (normal collectables; excludes the right-side backpack) |
 
 ### Dijiang depot entry
 
-`SyncDepotItemData` enters the Dijiang depot/backpack screen and calls the existing A2 `SyncItemData` action for the left-side depot. It uses `grid_type: transfer` with `Normal:Plant`, `Normal:Nurturance`, and `Normal:Doodad`, covering regular plants, special-route collectables, and insect collectables. It counts **only the left-side depot**; quantities still in the right-side backpack are not included.
+`SyncDepotItemData` enters the Dijiang depot/backpack screen, reuses ItemTransfer's depot-switch flow, connects Valley IV and then Wuling, and calls the existing A2 `SyncItemData` action for each connected left-side depot. It uses `grid_type: transfer` with `Normal:Plant`, `Normal:Nurturance`, and `Normal:Doodad`, covering regular plants, special-route collectables, and insect collectables. The resulting cache is **Valley IV depot + Wuling depot**; quantities in the right-side backpack are excluded.
 
-The entry first checks whether the depot list has a scrollbar. A single-page list is scanned once. A multi-page list is first scrolled to the top and then scanned page by page to the bottom. The first page uses `page_dedup: false` for a region rebuild, while later pages use `page_dedup: true` to overwrite current-page hits without deleting items found on earlier pages.
+Each depot first checks whether its list has a scrollbar. A single-page list is scanned once; a multi-page list is scrolled to the top and then scanned to the bottom. Before every actual scan, the mouse is moved out of the item grid so a stable hover tooltip cannot cover an icon or quantity. Valley IV uses the default `merge_mode: replace`: its first page rebuilds the candidate region with `page_dedup: false`, and later pages overwrite current-page hits with `page_dedup: true`. Wuling uses `merge_mode: sum`: its first page captures an immutable Valley IV baseline, and every page writes `Valley IV baseline + current Wuling absolute quantity`. Overlapping pages are therefore idempotent and cannot add the same item twice.
 
-After the first successful scan, the actual scan path is locked for the current Resource lifetime and later calls take the Skipped path. AutoCollect's Target Inventory mode re-enables this entry when the run finishes, but does not immediately perform a second scan or invent deltas for collected items; the next depot inventory consumer performs a fresh scan. Account switching also re-enables the entry so another account cannot reuse the previous account's depot snapshot.
+Depot pages use `transaction_mode` staging: every page updates only the current Pipeline TaskID's staging snapshot, and the formal IMS cache plus `updated_at` are updated once after both depots finish. A failed or interrupted scan cannot publish a first page, first depot, or partial second depot as a formal snapshot; the next `begin` discards unfinished staging.
+
+After a complete commit, the actual scan path is locked for the current Resource lifetime and later calls take the Skipped path. AutoCollect's Target Inventory mode explicitly verifies the current run's completion marker; an Action failure or prematurely ended flow ignores old cache data and continues selected routes. After successful verification and before any collection route, AutoCollect immediately re-enables the depot entry. It does not perform a second scan or invent collection deltas; the next depot inventory consumer performs a fresh scan. Account switching re-enables the entry and clears its completion marker so another account cannot reuse the previous account's state.
 
 ### Calling convention (required)
 
@@ -60,7 +62,10 @@ IMS does **not** keep an item allowlist: whatever IconRecognition finds on scree
 | `item_filters` | Narrows IconRecognition **candidate templates** only (e.g. `ValuableDepot:SpecialItem`); does not filter which IDs IMS keeps |
 | `items` | **Anchored quantity nodes** (still required for region rebuild): cache ID → Pipeline recognition node. The node may be pure OCR, or And with `box_index` selecting the OCR digit result (top-bar currencies, shop digits, etc.) |
 | `deduplicate` | IconRecognition dedupe; A2 defaults to `true` |
-| `page_dedup` / `notify_ui` | Same semantics as before |
+| `merge_mode` | Write mode; defaults to `replace`. `sum` merges a second absolute inventory region into the first-region baseline; it is not a reward delta |
+| `page_dedup` | Distinguishes the first page from continuation pages together with `merge_mode`; see below |
+| `transaction_mode` | Optional TaskID-scoped staging: `begin` starts and scans, `continue` scans into the same stage, and `commit` skips recognition and publishes the completed stage. Omit for immediate persistence |
+| `notify_ui` | Whether to announce every hit; defaults to `true` |
 
 Provide `grid_type` and/or `items`. Shop-only OCR entries may pass only `items` (e.g. `item_originium_recharge` / `item_diamond`). Keys in `items` always join `page_dedup=false` region rebuild (miss removes the ID).
 
@@ -84,16 +89,30 @@ Example (Progression tab):
 2. If `items` is set: run OCR-only nodes in sorted key order via `box_index`.
 3. **Hit + valid quantity:** record `item ID → quantity`.
 4. **Miss:** do not record that ID this round (see region rebuild / overwrite below).
-5. Persist memory and `./debug/record/IMS.json`, update `updated_at`.
+5. A non-transactional call persists memory and `./debug/record/IMS.json` and updates `updated_at`. Transactional `begin` / `continue` only update staging; `commit` updates the formal cache and timestamp.
 
 Hits also emit localized item name + quantity via UI Focus by default (`ims.sync_item_found`). Pass `notify_ui: false` to silence (omit defaults to `true`).
 
-### Region rebuild vs overwrite (`page_dedup`)
+### Write mode and paging (`merge_mode` + `page_dedup`)
 
-| `page_dedup` | Mode | Behavior |
-| --- | --- | --- |
-| `false` (default) | **Region rebuild** | Clear this region’s candidates, then write hits: (1) IDs expanded from `item_filters` (or grid defaults) via IconRecognition `recognition_items.json`; (2) every key in `items` (anchored OCR / And+`box_index`). Misses are removed. Cached IDs from **other regions** are kept. |
-| `true` | **Overwrite** | Start from existing cache; overwrite quantities for IDs hit this round; keep old values for IDs not seen. |
+| `merge_mode` | `page_dedup` | Mode | Behavior |
+| --- | --- | --- | --- |
+| `replace` (default) | `false` (default) | **Region rebuild** | Clear this region’s candidates, then write hits: (1) IDs expanded from `item_filters` (or grid defaults) via IconRecognition `recognition_items.json`; (2) every key in `items` (anchored OCR / And+`box_index`). Misses are removed. Cached IDs from **other regions** are kept. |
+| `replace` | `true` | **Overwrite** | Start from existing cache; overwrite quantities for IDs hit this round; keep old values for IDs not seen. |
+| `sum` | `false` | **Start sum** | Capture an immutable baseline for the current task and candidate region; keep the baseline and write `baseline + current-page absolute quantity`. |
+| `sum` | `true` | **Continue sum** | Must run in the same Pipeline task as Start sum; recompute from the same baseline, making overlapping pages idempotent. |
+
+`sum` combines two **absolute inventory snapshots**. It does not replace A3 reward-delta semantics and should not be called outside a complete `first region replace → second region sum` flow. Ordinary paged scans keep the default `replace` mode.
+
+For a multi-page or multi-region snapshot that must not publish partial data when interrupted, use one Pipeline TaskID:
+
+```text
+First actual scan: transaction_mode = begin
+Remaining pages/regions: transaction_mode = continue
+Complete-success endpoint: transaction_mode = commit
+```
+
+`begin` replaces unfinished staging left on the same runner. `continue` and `commit` must match the staging TaskID. `commit` needs neither `grid_type` nor `items` and performs no screenshot. Omitting `transaction_mode` preserves the original immediate-persist behavior.
 
 The reserved entry `SyncItemData` defaults to:
 
@@ -197,7 +216,7 @@ Ready when (1) at least one successful A2 exists (`hasData=true`) and (2) `updat
 | `agent/go-service/pkg/iconqty/` | Shared A2/A3: IconRecognition scan + `cell_box` quantity OCR |
 | `assets/data/IconRecognition/recognition_items.json` | IconRecognition catalog; A2 region rebuild expands `item_filters` |
 | `assets/resource/pipeline/IMS/` | Pipeline entries |
-| `assets/resource/pipeline/IMS/SyncDepotItemData.json` | A2 entry for normal collectables in the Dijiang left-side depot |
+| `assets/resource/pipeline/IMS/SyncDepotItemData.json` | A2 entry for combined normal collectables in the Dijiang Valley IV + Wuling left-side depots |
 | `assets/resource/pipeline/IMS/item/` | OCR-only nodes (`item_gold` / `item_diamond` / `ORIGEOMETRY.json`) |
 | [IconRecognition](./icon-recognition.md) | Icon matching and `iconRecognition.name.*` |
 

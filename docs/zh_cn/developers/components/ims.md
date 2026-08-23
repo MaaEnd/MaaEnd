@@ -27,17 +27,19 @@ A2 负责「看一眼当前界面，把物品数量记下来」。业务侧**不
 | `SyncItemData` | 贵重品库 **培养素材页** |
 | `SyncShopItemData` | **采购中心**（衍质源石 / 嵌晶玉顶部数量） |
 | `SyncValuablesItemData` | 贵重品库 **珍贵物品页**（如特许寻访凭证） |
-| `SyncDepotItemData` | 帝江号仓库背包界面的**左侧仓库**（普通采集物，不含右侧背包） |
+| `SyncDepotItemData` | 帝江号仓库背包界面的**四号谷地 + 武陵两座左侧仓库总量**（普通采集物，不含右侧背包） |
 
 需要声明「我要最新缓存」的任务应显式调用对应入口（已扫过会走 Skipped）。
 
 ### 帝江号仓库入口
 
-`SyncDepotItemData` 进入帝江号仓库背包界面后，调用既有 A2 `SyncItemData` 扫描左侧仓库。该入口固定使用 `grid_type: transfer`，候选范围为 `Normal:Plant`、`Normal:Nurturance`、`Normal:Doodad`，覆盖普通植物、特殊路线采集物和虫类采集物。它**只统计左侧仓库**，不会把右侧背包中的数量计入缓存。
+`SyncDepotItemData` 进入帝江号仓库背包界面后，复用 ItemTransfer 的仓库切换流程，固定依次连接四号谷地与武陵，并调用既有 A2 `SyncItemData` 扫描每次连接后的左侧仓库。该入口固定使用 `grid_type: transfer`，候选范围为 `Normal:Plant`、`Normal:Nurturance`、`Normal:Doodad`，覆盖普通植物、特殊路线采集物和虫类采集物。最终缓存口径是**四号谷地仓库 + 武陵仓库**；右侧背包数量不计入。
 
-入口先判断仓库列表是否存在滚动条：单页列表只扫描一次；多页列表会先滚动到顶部，再逐页扫描到底部。第一页使用 `page_dedup: false` 做地区重建，后续页使用 `page_dedup: true` 覆写当页命中，因此当前仓库不存在的候选物品会从旧缓存中移除，而后续翻页不会抹掉前面页的数据。
+每座仓库都会先判断列表是否存在滚动条：单页列表只扫描一次；多页列表会先滚动到顶部，再逐页扫描到底部。每次实际扫描前都会将鼠标移出物品格区，避免稳定显示的悬浮提示遮挡图标或数量。四号谷地使用默认 `merge_mode: replace`：第一页以 `page_dedup: false` 重建候选区域，后续页以 `page_dedup: true` 覆写当页命中。武陵使用 `merge_mode: sum`：第一页保存不可变的四号谷地基准，后续每页都按「四号谷地基准 + 当前武陵绝对数量」覆写两仓总量；相邻页面即使重叠，也不会重复累加同一物品。
 
-首次成功后，入口会在当前 Resource 生命周期内关闭实际扫描通路，重复调用直接走 Skipped。AutoCollect 的目标库存模式会在本轮结束时重新开启该入口，但不会立即进行第二次扫描或估算本轮采集增量；下一个仓库库存消费者将重新同步真实仓库数量。切换账号时也会重新开启该入口，避免沿用前一账号的仓库快照。
+两仓分页使用 `transaction_mode` 暂存：所有页面只更新当前 Pipeline TaskID 的 staging，两仓全部完成后才一次性提交正式 IMS 并刷新 `updated_at`。扫描失败或中途停止不会把第一页、第一仓或第二仓中间页写成正式快照；下一次 `begin` 会丢弃未完成 staging。
+
+首次完整提交后，入口会在当前 Resource 生命周期内关闭实际扫描通路，重复调用直接走 Skipped。AutoCollect 的目标库存模式会显式验证本轮完整提交标记；Action 失败或流程提前结束时会忽略旧缓存并按勾选路线继续。验证成功后、任何采集路线执行前，AutoCollect 会立即重新开启仓库入口，不进行第二次扫描，也不估算本轮采集增量；下一个仓库库存消费者将重新同步真实仓库数量。切换账号时会同时重新开启入口并清除完成标记，避免沿用前一账号的仓库状态。
 
 ### 调用规范（必读）
 
@@ -62,7 +64,10 @@ A2 负责「看一眼当前界面，把物品数量记下来」。业务侧**不
 | `item_filters` | 缩小 IconRecognition **候选模板**（如培养页 `ValuableDepot:SpecialItem`）；不限制「只缓存哪些 ID」 |
 | `items` | **定点数量节点**（地区重建仍需保留）：缓存 ID → Pipeline 识别节点。节点可以是纯 OCR，或 And 且 `box_index` 指向 OCR 数字结果（顶栏货币、采购中心等） |
 | `deduplicate` | IconRecognition 去重；A2 默认 `true` |
-| `page_dedup` / `notify_ui` | 语义同前 |
+| `merge_mode` | 写入模式；默认 `replace`。`sum` 用于把第二个绝对库存区域合并到首个区域基准，不是奖励增量 |
+| `page_dedup` | 配合 `merge_mode` 区分首页面与后续页面，见下表 |
+| `transaction_mode` | 可选的 TaskID 级暂存：`begin` 开始并扫描、`continue` 继续扫描、`commit` 不识别画面而只提交完整 staging；省略时保持扫描后立即落盘 |
+| `notify_ui` | 是否播报每个命中物品；默认 `true` |
 
 提供 `grid_type`（IconRecognition 扫库）与 `items` 至少其一。采购中心等可只传 `items`（如 `item_originium_recharge` / `item_diamond`）。`items` 里的键在 `page_dedup=false` 时一律参与地区重建（未命中则从缓存删除）。
 
@@ -86,18 +91,30 @@ A2 负责「看一眼当前界面，把物品数量记下来」。业务侧**不
 2. 若有 `items`：按键名排序跑定点识别节点，沿 `box_index` 取 OCR 数量。
 3. **命中且数量合法**：记录 `物品 ID → 数量`。
 4. **未命中**：本轮不记录该 ID（见下方「地区重建 / 覆写」）。
-5. 全部跑完后写入内存与 `./debug/record/IMS.json`，并更新 `updated_at`。
+5. 非事务调用在本次扫描后写入内存与 `./debug/record/IMS.json` 并更新 `updated_at`；事务调用的 `begin` / `continue` 只更新 staging，只有 `commit` 才更新正式缓存和时间戳。
 
 命中时默认会通过 UI Focus 打出本地化物品名与数量（`ims.sync_item_found`）。可用参数 `notify_ui: false` 关闭（省略默认 `true`）；商店万能跳转顺手缓存使用 `SyncShopItemDataRunNoNotify`。
 
-### 地区重建模式 vs 覆写模式（`page_dedup`）
+### 写入模式与分页（`merge_mode` + `page_dedup`）
 
-| `page_dedup` | 模式 | 行为 |
-| --- | --- | --- |
-| `false`（默认） | **地区重建** | 清空本地区候选后再写入命中：① `item_filters`（或 grid 默认）在 IconRecognition `recognition_items.json` 展开的 ID；② 本轮 `items` 的全部键（定点 OCR / And+`box_index`）。未命中则删除；**其他地区**已缓存的 ID 保留。 |
-| `true` | **覆写** | 在已有缓存上，按本轮命中的 ID **覆盖数量**；没扫到的 ID **保留旧值**。 |
+| `merge_mode` | `page_dedup` | 模式 | 行为 |
+| --- | --- | --- | --- |
+| `replace`（默认） | `false`（默认） | **地区重建** | 清空本地区候选后再写入命中：① `item_filters`（或 grid 默认）在 IconRecognition `recognition_items.json` 展开的 ID；② 本轮 `items` 的全部键（定点 OCR / And+`box_index`）。未命中则删除；**其他地区**已缓存的 ID 保留。 |
+| `replace` | `true` | **覆写** | 在已有缓存上，按本轮命中的 ID **覆盖数量**；没扫到的 ID **保留旧值**。 |
+| `sum` | `false` | **开始求和** | 保存当前任务、本次候选区域的不可变基准；不清除基准，按「基准 + 当前页识别绝对值」写入。 |
+| `sum` | `true` | **继续求和** | 必须与开始求和处于同一个 Pipeline 任务；继续按相同基准计算并覆写，因此重叠页面是幂等的。 |
 
-覆写适合「列表要翻页」的场景：第 1 页地区重建；后续页只覆写当页可见 ID，避免抹掉前面页。预留入口 `SyncItemData` 的默认链路为：
+`sum` 合并的是两个界面上的**绝对库存快照**，不能替代 A3 的奖励增量语义，也不应脱离完整的「首区域 replace → 第二区域 sum」流程单独调用。普通翻页仍使用默认 `replace`：第 1 页地区重建；后续页只覆写当页可见 ID，避免抹掉前面页。预留入口 `SyncItemData` 的默认链路为：
+
+跨多个页面或库存区域且要求“中断时不污染正式缓存”时，可在同一 Pipeline TaskID 内使用：
+
+```text
+首个实际扫描：transaction_mode = begin
+其余页面/区域：transaction_mode = continue
+完整成功终点：transaction_mode = commit
+```
+
+`begin` 会替换同 runner 上一次未完成的 staging；`continue` / `commit` 必须与 staging 的 TaskID 一致。`commit` 不要求 `grid_type` 或 `items`，也不会再次截图。省略 `transaction_mode` 时，兼容原有每次 A2 调用立即持久化的行为。
 
 ```text
 初次：SyncItemDataRunFull（page_dedup = false，地区重建）
@@ -114,6 +131,8 @@ A2 负责「看一眼当前界面，把物品数量记下来」。业务侧**不
 1. **首次调用**：真正进入目标界面扫库，写好缓存后，用 Resource 级覆盖把「再扫一次」的通路关掉，且本次运行内不再打开。
 2. **再次调用**：入口仍可进入，但会立刻判定「本轮已经同步过」，跳过扫库并继续后续业务。
 3. **下次冷启动**：重新加载 Resource / 重启客户端后，通路恢复；下一个 IMS 任务会重新扫库。
+
+`SyncDepotItemData` 的 AutoCollect 消费周期是例外：目标库存模式取得并验证完整两仓快照后，会在路线执行前立即重新开启入口，因此任务中途停止也不会把采集前快照继续锁给后续消费者。
 
 > 预留入口与扫库参数见 `assets/resource/pipeline/IMS/SyncItemData.json`、`SyncShopItemData.json`、`SyncValuablesItemData.json`、`SyncDepotItemData.json`。
 >
@@ -314,7 +333,7 @@ A2 落盘时会写下 `updated_at`。R2 用「现在 − 同步时间」是否�
 | `SyncItemData.json` | A2 培养素材页入口与同 Resource 锁定 |
 | `SyncShopItemData.json` | A2 采购中心入口 |
 | `SyncValuablesItemData.json` | A2 珍贵物品页入口 |
-| `SyncDepotItemData.json` | A2 帝江号仓库左侧普通采集物入口 |
+| `SyncDepotItemData.json` | A2 帝江号四号谷地 + 武陵两座左侧仓库普通采集物总量入口 |
 | `UpdateItemQuantity.json` | A1 |
 | `AddItemData.json` | A3 最佳实践（领奖后关闭） |
 | `ItemQuantitySatisfied.json` | R1（调用方覆盖 `expression`） |
@@ -324,7 +343,7 @@ A2 落盘时会写下 `updated_at`。R2 用「现在 − 同步时间」是否�
 ### 缓存约定
 
 - 会话内以进程内存为准；热路径不反复读盘。
-- A2 / A1 / A3（在 `hasData` 时）成功写入会同步落盘，供下次冷启动恢复。
+- A2 非事务调用、A2 事务 `commit`、A1、A3（在 `hasData` 时）成功写入会同步落盘，供下次冷启动恢复；A2 的事务 `begin` / `continue` 不会修改正式缓存。
 - `ClearCache`（测试 / 账号切换）清空内存，且**不会**再从磁盘灌回。
 - 缓存允许小幅偏差，靠周期 A2 纠偏。
 

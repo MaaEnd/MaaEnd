@@ -131,7 +131,7 @@
         "SyncItemDataParam": {
             "type": "object",
             "title": "SyncItemData Param",
-            "description": "A2 screen sync. Prefer IconRecognition via grid_type + item_filters (full-grid scan of everything on screen); quantity OCR from each cell_box. Optional items map covers OCR-only nodes (top-bar currencies). Provide grid_type and/or items. Results are written to debug/record/IMS.json with updated_at.",
+            "description": "A2 screen sync. Prefer IconRecognition via grid_type + item_filters (full-grid scan of everything on screen); quantity OCR from each cell_box. Optional items map covers OCR-only nodes (top-bar currencies). Provide grid_type and/or items except for transaction_mode=commit. Non-transactional results are written immediately; begin/continue stage pages and commit writes the completed snapshot to debug/record/IMS.json with updated_at.",
             "additionalProperties": false,
             "properties": {
                 "grid_type": {
@@ -180,9 +180,29 @@
                 },
                 "page_dedup": {
                     "title": "Page Dedup",
-                    "description": "When false (default), region-rebuild: clear cache IDs matching item_filters in IconRecognition recognition_items.json, plus all keys in items; then write hits. When true, merge and overwrite hit IDs only (used after paging).",
+                    "description": "With merge_mode=replace: false (default) rebuilds the scanned region and true overwrites hit IDs only. With merge_mode=sum: false starts an immutable baseline for the current task and true continues it so overlapping pages remain idempotent.",
                     "type": "boolean",
                     "default": false
+                },
+                "merge_mode": {
+                    "title": "Merge Mode",
+                    "description": "How recognized absolute quantities are written. replace (default) keeps the existing A2 rebuild/overwrite behavior. sum adds a second absolute inventory region to the immutable baseline captured by its first page; later pages recompute baseline + recognized quantity instead of repeatedly adding to the cache. sum continuation pages require the same Pipeline task and page_dedup=true.",
+                    "type": "string",
+                    "enum": [
+                        "replace",
+                        "sum"
+                    ],
+                    "default": "replace"
+                },
+                "transaction_mode": {
+                    "title": "Transaction Mode",
+                    "description": "Optional TaskID-scoped staging for atomic multi-page sync. begin starts/replaces a staging snapshot and scans the current page; continue scans into the same task's staging snapshot; commit performs no recognition and persists the completed staging snapshot once. Omit to keep the existing immediate-persist behavior.",
+                    "type": "string",
+                    "enum": [
+                        "begin",
+                        "continue",
+                        "commit"
+                    ]
                 },
                 "notify_ui": {
                     "title": "Notify UI",
