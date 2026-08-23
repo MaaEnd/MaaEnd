@@ -109,13 +109,17 @@ func (c *Config) Enabled() bool {
 }
 
 // BuildVars 构造内置模板变量。taskName 为任务入口名（entry），status 为本地化状态文本（如 失败/Failure）。
-func BuildVars(taskName, status string, now time.Time) map[string]string {
+// startTime 为零值时跳过 duration 变量。
+func BuildVars(taskName, status string, now, startTime time.Time) map[string]string {
 	vars := map[string]string{
 		"time":        now.Format("15:04:05"),
 		"date":        now.Format("2006-01-02"),
 		"datetime":    now.Format("2006-01-02 15:04:05"),
 		"task_name":   taskName,
 		"task_status": status,
+	}
+	if !startTime.IsZero() {
+		vars["duration"] = now.Sub(startTime).Truncate(time.Second).String()
 	}
 	if name := pienv.ControllerName(); name != "" {
 		vars["controller"] = name
@@ -266,7 +270,7 @@ func Send(config Config, vars map[string]string) bool {
 	prefillBody := ReplaceVars(firstNonEmpty(vars["body"]), vars)
 	// 写回变量，供渠道标题/正文与 Webhook 请求体 {{title}}/{{body}} 引用
 	vars["title"] = firstNonEmpty(prefillTitle, i18n.T("notify.default_title"))
-	vars["body"] = prefillBody
+	vars["body"] = firstNonEmpty(prefillBody, i18n.T("notify.default_body"))
 
 	sent := false
 	if config.WebhookEnabled {
@@ -388,7 +392,7 @@ func sendBark(config Config, title, body string, vars map[string]string) error {
 }
 
 // serverChanEndpointDefault 根据 SendKey 前缀选择端点：
-// sctp 开头为 ServerChan3（SC3），端点为 https://{sendkey}.push.ft07.com/send（sendkey 整体作子域）；
+// sctp 开头为 ServerChan3（SC3），端点为 https://{uid}.push.ft07.com/send/{sendkey}.send（uid 从 sendkey 提取）；
 // 其余为 ServerChan Turbo，端点为 https://sctapi.ftqq.com/{sendkey}.send。
 func serverChanEndpointDefault(key string) (string, error) {
 	key = strings.TrimSpace(key)
@@ -396,9 +400,19 @@ func serverChanEndpointDefault(key string) (string, error) {
 		return "", fmt.Errorf("serverchan sendkey is empty")
 	}
 	if strings.HasPrefix(key, "sctp") {
-		return fmt.Sprintf("https://%s.push.ft07.com/send", key), nil
+		uid := sc3UID(key)
+		return fmt.Sprintf("https://%s.push.ft07.com/send/%s.send", uid, url.PathEscape(key)), nil
 	}
 	return fmt.Sprintf("https://sctapi.ftqq.com/%s.send", url.PathEscape(key)), nil
+}
+
+// sc3UID 从 sctp{uid}t{token} 中提取 uid；无 t 分隔符时退化整体作 uid。
+func sc3UID(key string) string {
+	rest := key[4:]
+	if idx := strings.Index(rest, "t"); idx >= 0 {
+		return rest[:idx]
+	}
+	return rest
 }
 
 // sendServerChan 按官方 SDK 发送 POST JSON，支持 tags/short/noip/channel/openid 参数，
@@ -447,7 +461,7 @@ func (a *NotifySendAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 
 	applyTaskToggle(&config)
 
-	vars := BuildVars(arg.CurrentTaskName, "", time.Now())
+	vars := BuildVars(arg.CurrentTaskName, "", time.Now(), time.Time{})
 	vars["title"] = config.TaskTitle
 	vars["body"] = config.TaskBody
 	Send(config, vars)
