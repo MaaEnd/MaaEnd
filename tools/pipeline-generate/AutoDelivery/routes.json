@@ -1,0 +1,522 @@
+{
+    "destinations": [
+        {
+            "source_id": "deliver_target_map01_lv005_01",
+            "name": "英格",
+            "depot_id": "domain_1_lv005_depot_1"
+        },
+        {
+            "source_id": "deliver_target_map01_lv005_02",
+            "name": "基特",
+            "depot_id": "domain_1_lv005_depot_1",
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1144.79,
+                        818.27
+                    ],
+                    "target_deck_y": 96.97
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1148.13,
+                        820.42
+                    ],
+                    "interact_text": "G层"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1161.84,
+                        826.06
+                    ],
+                    "target_deck_y": 87.27
+                }
+            ]
+        },
+        {
+            "source_id": "deliver_target_map01_lv005_03",
+            "name": "嘉娜",
+            "depot_id": "domain_1_lv005_depot_1"
+        },
+        {
+            "source_id": "deliver_target_map01_lv005_recycle_02",
+            "name": "学术复读羽兽",
+            "depot_id": "domain_1_lv005_depot_1"
+        },
+        {
+            "source_id": "deliver_target_map01_lv005_recycle_03",
+            "name": "采购-醇化合物工厂模组",
+            "depot_id": "domain_1_lv005_depot_1"
+        },
+        {
+            "source_id": "deliver_target_map01_lv006_01",
+            "name": "马泰奥",
+            "depot_id": "domain_1_lv006_depot_1"
+        },
+        {
+            "source_id": "deliver_target_map01_lv006_02",
+            "name": "陆言",
+            "depot_id": "domain_1_lv006_depot_1"
+        },
+        {
+            "source_id": "deliver_target_map01_lv006_03",
+            "name": "莫莉",
+            "depot_id": "domain_1_lv006_depot_1"
+        },
+        {
+            "source_id": "deliver_target_map01_lv006_recycle_01",
+            "name": "“不是废品佬”",
+            "depot_id": "domain_1_lv006_depot_1"
+        },
+        {
+            "source_id": "deliver_target_map01_lv006_recycle_03",
+            "name": "采购-矿区医疗站模组",
+            "depot_id": "domain_1_lv006_depot_1"
+        },
+        {
+            "source_id": "deliver_target_map01_lv007_01",
+            "name": "库济米尼奇娜",
+            "depot_id": "domain_1_lv007_depot_1"
+        },
+        {
+            "source_id": "deliver_target_map01_lv007_02",
+            "name": "里斯卡",
+            "depot_id": "domain_1_lv007_depot_1"
+        },
+        {
+            "source_id": "deliver_target_map01_lv007_03",
+            "name": "戈里昂",
+            "depot_id": "domain_1_lv007_depot_1"
+        },
+        {
+            "source_id": "deliver_target_map01_lv007_recycle_02",
+            "name": "无畏的工团成员",
+            "depot_id": "domain_1_lv007_depot_1"
+        },
+        {
+            "source_id": "deliver_target_map01_lv007_recycle_03",
+            "name": "采购-超域试验场物资模组",
+            "depot_id": "domain_1_lv007_depot_1"
+        },
+        {
+            "source_id": "deliver_target_map02_lv002_01",
+            "name": "苏白易",
+            "depot_id": "domain_2_lv002_depot_1",
+            "description": "技术生产办公室（左上）",
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        724.98,
+                        1596.8
+                    ]
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        562.69,
+                        1419.46
+                    ]
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        543.49,
+                        1283.93
+                    ]
+                },
+                [
+                    543.38,
+                    1270.17
+                ],
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        538.031,
+                        1250.27
+                    ]
+                }
+            ]
+        },
+        {
+            "source_id": "deliver_target_map02_lv002_02",
+            "name": "普里莫·林德",
+            "depot_id": "domain_2_lv002_depot_1",
+            "description": "材料研究所（左下）",
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        724.98,
+                        1596.8
+                    ]
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        552.15,
+                        1654.82
+                    ]
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        525.72,
+                        1749.78
+                    ]
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        461.92,
+                        1712.802
+                    ],
+                    "target_deck_y": 315.37
+                }
+            ]
+        },
+        {
+            "source_id": "deliver_target_map02_lv002_03",
+            "name": "于施",
+            "depot_id": "domain_2_lv002_depot_1",
+            "description": "观测站（右上）",
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        840.79,
+                        1475.83
+                    ]
+                },
+                [
+                    852.39,
+                    1471.77
+                ],
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        894.615,
+                        1408.425
+                    ]
+                }
+            ]
+        },
+        {
+            "source_id": "deliver_target_map02_lv002_recycle_01",
+            "name": "火锅探店达人",
+            "depot_id": "domain_2_lv002_depot_1",
+            "description": "猫头鹰（资源回收站）",
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        724.98,
+                        1596.8
+                    ]
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        493.01,
+                        1633.2
+                    ]
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        512.92,
+                        1652.04
+                    ],
+                    "target_deck_y": 325.79
+                }
+            ]
+        },
+        {
+            "source_id": "deliver_target_map02_lv005_01",
+            "name": "赵昭",
+            "depot_id": "domain_2_lv005_depot_1",
+            "description": "经纬田区（右）",
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1344.56,
+                        1734.39
+                    ]
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1383.764,
+                        1633.923
+                    ]
+                }
+            ]
+        },
+        {
+            "source_id": "deliver_target_map02_lv005_02",
+            "name": "裴令容",
+            "depot_id": "domain_2_lv005_depot_1"
+        },
+        {
+            "source_id": "deliver_target_map02_lv005_03",
+            "name": "阿禾",
+            "depot_id": "domain_2_lv005_depot_1",
+            "description": "三号丙型辅桩区（右上）",
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1242.49,
+                        1707.18
+                    ],
+                    "target_deck_y": 264.11
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1206.29,
+                        1698.98
+                    ],
+                    "target_deck_y": 261.9
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1208.37,
+                        1602.21
+                    ]
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1327.44,
+                        1594.77
+                    ]
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1355.59,
+                        1517.12
+                    ],
+                    "target_deck_y": 259.34
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1369.873,
+                        1533.922
+                    ]
+                }
+            ]
+        }
+    ],
+    "depots": [
+        {
+            "source_id": "domain_1_lv005_depot_1",
+            "name": "源石研究园"
+        },
+        {
+            "source_id": "domain_1_lv006_depot_1",
+            "name": "矿脉源区",
+            "description": "矿脉源区；需要跳过去，并从侧面上集装箱。",
+            "departure_path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1002.89,
+                        304.52
+                    ]
+                },
+                {
+                    "action": "TRANSFER",
+                    "target": [
+                        1002.89,
+                        304.52
+                    ]
+                },
+                [
+                    995.79,
+                    320.78
+                ],
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1021.31,
+                        368.82
+                    ]
+                },
+                [
+                    1021.93,
+                    368.68
+                ],
+                [
+                    1022.8,
+                    368.08
+                ],
+                [
+                    1022.99,
+                    367.27
+                ],
+                [
+                    1022.95,
+                    366.51
+                ],
+                [
+                    1022.75,
+                    365.1
+                ],
+                [
+                    1022.65,
+                    364.16
+                ],
+                [
+                    1022.72,
+                    362.78
+                ],
+                [
+                    1022.88,
+                    362.06
+                ],
+                [
+                    1023,
+                    361.05
+                ],
+                [
+                    1023.98,
+                    360.77
+                ],
+                [
+                    1025.17,
+                    360.62
+                ],
+                [
+                    1025.89,
+                    360.55
+                ]
+            ]
+        },
+        {
+            "source_id": "domain_1_lv007_depot_1",
+            "name": "供能高地"
+        },
+        {
+            "source_id": "domain_2_lv002_depot_1",
+            "name": "武陵城区",
+            "description": "武陵城区；仓储节点与传送落点之间的桥面未铺入网格",
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        954.6,
+                        1777.18
+                    ]
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        965.81,
+                        1800.4
+                    ]
+                },
+                [
+                    963.66,
+                    1824.46
+                ],
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        952.2,
+                        1832.68
+                    ]
+                }
+            ],
+            "retry_path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        964.99,
+                        1829.41
+                    ]
+                },
+                [
+                    952.2,
+                    1832.68,
+                    true
+                ]
+            ],
+            "departure_path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        963.66,
+                        1824.46
+                    ]
+                },
+                [
+                    965.5,
+                    1803.38
+                ]
+            ]
+        },
+        {
+            "source_id": "domain_2_lv005_depot_1",
+            "name": "试验园区",
+            "description": "试验园区；保留已验证的分段落点",
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1264.02,
+                        1734.67
+                    ]
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1252.63,
+                        1751.03
+                    ]
+                }
+            ],
+            "retry_path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1252.58,
+                        1739.8
+                    ]
+                },
+                [
+                    1252.63,
+                    1751.03,
+                    true
+                ]
+            ]
+        }
+    ]
+}

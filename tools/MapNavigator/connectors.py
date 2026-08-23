@@ -3,22 +3,20 @@ from __future__ import annotations
 import ctypes
 import inspect
 import json
-import os
 import shutil
 import subprocess
 from abc import ABC, abstractmethod
-from pathlib import Path
 from typing import Any
 
 from connection_models import (
     AdbConnectionConfig,
     AdbDeviceInfo,
+    LinuxConnectionConfig,
     PlayCoverConnectionConfig,
     RecordingSessionConfig,
     Win32ConnectionConfig,
-    WlRootsConnectionConfig,
 )
-from runtime import AGENT_DIR, MaaRuntime, RESOURCE_ADB_DIR, RESOURCE_WLROOTS_DIR
+from runtime import AGENT_DIR, MAAFW_BIN_DIR, MaaRuntime, RESOURCE_ADB_DIR, RESOURCE_LINUX_DIR
 
 DEFAULT_ADB_INPUT_METHODS = 1 | 2 | 4
 DEFAULT_ADB_SCREENCAP_METHODS = 1 | 2 | 4 | 64
@@ -133,35 +131,45 @@ class PlayCoverRecordingConnector(RecordingConnector):
                 raise RuntimeError(f"PlayCover 附加资源失败: {exc}") from exc
 
 
-class WlRootsRecordingConnector(RecordingConnector):
-    """基于 WlRoots (Linux Wayland 合成器) 建立录制连接。"""
+class LinuxRecordingConnector(RecordingConnector):
+    """基于 Linux-Gamescope (PipeWire 截图 + libei 输入) 建立录制连接。"""
 
-    def __init__(self, runtime: MaaRuntime, config: WlRootsConnectionConfig) -> None:
+    def __init__(self, runtime: MaaRuntime, config: LinuxConnectionConfig) -> None:
         super().__init__(runtime)
         self._config = config
 
     def connect(self) -> Any:
-        if self._runtime.WlRootsController is None:
-            raise RuntimeError("当前 maafw Python 运行时不支持 WlRootsController (仅 Linux 支持)。")
+        if self._runtime.LinuxController is None:
+            raise RuntimeError("当前 maafw Python 运行时不支持 LinuxController (仅 Linux 支持)。")
 
-        socket_path = self._config.wlr_socket_path.strip()
-        if not socket_path:
-            raise RuntimeError("未指定 Wayland socket 路径。")
+        pw_node_id = int(self._config.pw_node_id or 0)
+        eis_socket_path = self._config.eis_socket_path.strip()
+        if not pw_node_id:
+            raise RuntimeError("未选定 gamescope 实例 (缺少 PipeWire 节点 ID)。")
+        if not eis_socket_path:
+            raise RuntimeError("未选定 gamescope 实例 (缺少 EIS socket 路径)。")
 
-        # use_win32_vk_code 与 assets/interface.json 的 Wlroots 控制器条目保持一致:
-        # MaaEnd pipeline 的按键动作按 Win32 VK 码表书写。MapNavigator 录制只截图不投递
-        # 按键, 该参数对录制无实际影响, 但连接器不应自创与项目约定不同的取值。
-        controller = self._runtime.WlRootsController(wlr_socket_path=socket_path, use_win32_vk_code=True)
+        # screencap_method/input_method 枚举与 assets/interface.json 的 Linux-Gamescope
+        # 控制器条目保持一致 (4 = PipeWire / 4 = Libei)。MapNavigator 录制只截图不投递
+        # 按键, input 对录制无实际影响, 但连接器不应自创与项目约定不同的取值。
+        controller = self._runtime.LinuxController(
+            {
+                "screencap_method": 4,
+                "input_method": 4,
+                "pw_node_id": pw_node_id,
+                "eis_socket_path": eis_socket_path,
+            }
+        )
         controller.post_connection().wait()
         return controller
 
     def attach_resource(self, resource: Any) -> None:
         attach_path = getattr(resource, "post_path", None)
-        if callable(attach_path) and RESOURCE_WLROOTS_DIR.exists():
+        if callable(attach_path) and RESOURCE_LINUX_DIR.exists():
             try:
-                attach_path(str(RESOURCE_WLROOTS_DIR)).wait()
+                attach_path(str(RESOURCE_LINUX_DIR)).wait()
             except Exception as exc:
-                raise RuntimeError(f"附加 WlRoots 资源失败: {exc}") from exc
+                raise RuntimeError(f"附加 Linux 资源失败: {exc}") from exc
 
 
 def build_recording_connector(runtime: MaaRuntime, session: RecordingSessionConfig) -> RecordingConnector:
@@ -169,8 +177,8 @@ def build_recording_connector(runtime: MaaRuntime, session: RecordingSessionConf
         return AdbRecordingConnector(runtime, session.adb)
     elif session.kind == "playcover":
         return PlayCoverRecordingConnector(runtime, session.playcover)
-    elif session.kind == "wlroots":
-        return WlRootsRecordingConnector(runtime, session.wlroots)
+    elif session.kind == "linux":
+        return LinuxRecordingConnector(runtime, session.linux)
     return Win32RecordingConnector(runtime, session.win32)
 
 
@@ -228,34 +236,28 @@ def list_adb_devices(adb_path: str) -> list[AdbDeviceInfo]:
     return devices
 
 
-def list_wlroots_sockets() -> list[str]:
-    """枚举 $XDG_RUNTIME_DIR 下名字含 wayland 的 socket 路径。
+def list_gamescope_instances(runtime: Any) -> list[dict[str, Any]]:
+    """枚举当前环境下发现的 gamescope 实例, 供前端下拉候选。
 
-    用「名字含 wayland」而不是 `wayland-*` 前缀, 是为了覆盖 `niri.wayland-1.1238.sock`
-    这类非标准前缀的真实合成器 socket。只做枚举, 不验证协议支持。
+    每个实例给出 display 编号、PipeWire 截图节点 ID 与 EIS socket 路径;
+    没有 gamescope 运行 / 缺少 Toolkit 支持时返回空列表。
     """
-    runtime_dir = os.environ.get("XDG_RUNTIME_DIR", "").strip()
-    if not runtime_dir:
-        uid = getattr(os, "getuid", lambda: 0)()
-        runtime_dir = f"/run/user/{uid}"
-
-    root = Path(runtime_dir)
-    if not root.is_dir():
+    toolkit = getattr(runtime, "Toolkit", None)
+    if toolkit is None:
         return []
-
-    found: list[str] = []
     try:
-        for entry in root.iterdir():
-            if "wayland" not in entry.name:
-                continue
-            try:
-                if entry.is_socket():
-                    found.append(str(entry))
-            except OSError:
-                continue
-    except OSError:
-        return []
-    return sorted(found)
+        runtime.Library.open(MAAFW_BIN_DIR)
+        instances = toolkit.find_gamescope_instances()
+    except Exception as exc:  # noqa: BLE001
+        return [{"error": str(exc)}]
+    return [
+        {
+            "display_no": inst.display_no,
+            "pw_node_id": inst.pipewire_node_id,
+            "eis_socket_path": inst.eis_socket_path,
+        }
+        for inst in instances
+    ]
 
 
 def find_game_window(expected_title: str) -> int:

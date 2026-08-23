@@ -49,7 +49,6 @@
                 "TrialOfSwordmancy.Recognize",
                 "TrialOfSwordmancy.RecognizeAband",
                 "TrialOfSwordmancy.RecognizeDeck",
-                "WeaponInventoryScanRecognition",
                 "SeizeDeliveryJobsFindTargetRecognition",
                 "SeizeDeliveryJobsScanTargetRecognition",
                 "autoEcoFarmCalculateSwipeTarget",

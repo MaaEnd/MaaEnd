@@ -1,0 +1,33 @@
+{
+    "configs": {
+        "name": "自动送货，测试任务选择、仓储节点与送货目标识别",
+        "resource": "官服",
+        "controller": [
+            "Win32",
+            "ADB"
+        ]
+    },
+    "cases": [
+        {
+            "name": "等待前往仓储节点接取货物",
+            "image": "武陵_任务_送货任务_前往仓储节点接取货物.png",
+            "hits": [
+                "AutoDeliveryRecognizeDepot",
+                "AutoDeliveryInMissionMenu",
+                "AutoDeliverySelectDeliveryMission",
+                "AutoDeliveryDeliveryMissionSelected"
+            ]
+        },
+        {
+            "name": "运送货物至资源回收站",
+            "image": "武陵_任务_送货任务_运送至资源回收站.png",
+            "hits": [
+                "AutoDeliveryRecognizeDestination",
+                "AutoDeliveryRecognizeDepot",
+                "AutoDeliveryInMissionMenu",
+                "AutoDeliverySelectDeliveryMission",
+                "AutoDeliveryDeliveryMissionSelected"
+            ]
+        }
+    ]
+}

@@ -122,7 +122,7 @@ Pipeline、Go Service 和 C++ API 使用同一套识别语义，只是字段承�
 
 | 运行时 `type` | 画面要求 | 网格 profile |
 | --- | --- | --- |
-| Win32、Linux/WlRoots、MacOS | 1280x720 | 标准 720p UI |
+| Win32、Linux、MacOS | 1280x720 | 标准 720p UI |
 | Adb、PlayCover | 1280x720、240 dpi | ADB 放大 UI |
 
 Custom 入口会从 `MaaContext` 读取运行时 `type` 并选择对应 profile；CloudADB 的运行时 `type` 是 `Adb`。除 Win32/Adb 外，上表中的兼容映射暂没有独立截图数据验证，后续可能根据实际画面调整。其他控制器、直接 C++ 调用或上下文不可用时从请求 ROI 的图像证据推断。证据不足时返回 `exception`，调用方不能指定比例。检测器只在内存中临时归一化画面以定位网格，返回前会把格子坐标映射回原图；物品模板仍按原图格子尺寸生成并在原图上匹配，因此 `cell_box`、`item_box` 始终是原图坐标。`single_roi` 不执行网格检测，也不会缩放输入图。

@@ -14,7 +14,7 @@
 
 | 模块 | 路径 | 作用 |
 | ------------------- | --------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 任务入口 | `assets/tasks/EnvironmentMonitoring.json` | interface 任务定义（无可配置选项，控制器 = Win32-Front / Wlroots / ADB） |
+| 任务入口 | `assets/tasks/EnvironmentMonitoring.json` | interface 任务定义（无可配置选项，控制器 = Win32-Front / Linux / ADB） |
 | 主流程 Pipeline | `assets/resource/pipeline/EnvironmentMonitoring.json` | 主入口节点 `EnvironmentMonitoringMain`，循环识别两个监测终端 |
 | 终端分组（生成） | `assets/resource/pipeline/EnvironmentMonitoring/Terminals.json` | 城郊监测终端 / 首墩监测终端的入口节点与各自的观察点 `next` 列表（**生成**） |
 | 终端跳转 | `assets/resource/pipeline/EnvironmentMonitoring/Locations.json` | `EnvironmentMonitoringGoTo*` 与 `Select*` 节点，从主菜单进入对应终端 |

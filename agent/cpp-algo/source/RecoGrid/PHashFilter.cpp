@@ -1,13 +1,10 @@
 #include "PHashFilter.h"
 
-#include "GridGeometry.h"
-
-#include <MaaUtils/NoWarningCV.hpp>
-
 #include <algorithm>
 #include <cmath>
-#include <stdexcept>
 #include <vector>
+
+#include <MaaUtils/NoWarningCV.hpp>
 
 namespace recogrid
 {
@@ -48,7 +45,7 @@ cv::Mat ToPHashGray(const cv::Mat& image)
         cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
     }
     else {
-        throw std::invalid_argument("Unsupported image channel count for pHash");
+        return {};
     }
 
     return gray;
@@ -68,7 +65,7 @@ cv::Mat ToFeatureBgr(const cv::Mat& image)
         cv::cvtColor(image, bgr, cv::COLOR_GRAY2BGR);
     }
     else {
-        throw std::invalid_argument("Unsupported image channel count for cell feature");
+        return {};
     }
     return bgr;
 }
@@ -78,11 +75,15 @@ cv::Mat ToFeatureBgr(const cv::Mat& image)
 Hash ComputeHash(const cv::Mat& image)
 {
     if (image.empty()) {
-        throw std::invalid_argument("Cannot compute pHash for an empty image");
+        return 0;
     }
 
+    const cv::Mat gray = ToPHashGray(image);
+    if (gray.empty()) {
+        return 0;
+    }
     cv::Mat resized;
-    cv::resize(ToPHashGray(image), resized, cv::Size(kDctSize, kDctSize), 0, 0, cv::INTER_AREA);
+    cv::resize(gray, resized, cv::Size(kDctSize, kDctSize), 0, 0, cv::INTER_AREA);
     resized.convertTo(resized, CV_32F);
 
     cv::Mat dctCoefficients;
@@ -131,31 +132,18 @@ int HammingDistance(Hash lhs, Hash rhs)
     return distance;
 }
 
-std::vector<Hash> ComputeCellHashes(const cv::Mat& roi, const std::vector<cv::Rect>& cells, const CellMaskRatios& maskRatios)
-{
-    std::vector<Hash> hashes;
-    hashes.reserve(cells.size());
-
-    for (const auto& cell : cells) {
-        const cv::Rect clipped = ClampRect(cell, roi.size());
-        if (clipped.empty()) {
-            hashes.push_back(0);
-            continue;
-        }
-        hashes.push_back(ComputeHash(ApplyIgnoreMask(roi(clipped), maskRatios)));
-    }
-
-    return hashes;
-}
-
 CellFeature ComputeCellFeature(const cv::Mat& image)
 {
     if (image.empty()) {
-        throw std::invalid_argument("Cannot compute cell feature for an empty image");
+        return {};
     }
 
+    const cv::Mat bgr = ToFeatureBgr(image);
+    if (bgr.empty()) {
+        return {};
+    }
     cv::Mat resized;
-    cv::resize(ToFeatureBgr(image), resized, cv::Size(kFeatureSize, kFeatureSize), 0, 0, cv::INTER_AREA);
+    cv::resize(bgr, resized, cv::Size(kFeatureSize, kFeatureSize), 0, 0, cv::INTER_AREA);
     if (!resized.isContinuous()) {
         resized = resized.clone();
     }
@@ -182,105 +170,6 @@ int FeatureDistance(const CellFeature& lhs, const CellFeature& rhs)
 
     const double average = static_cast<double>(total) / static_cast<double>(lhs.data.size());
     return static_cast<int>(std::round(average * static_cast<double>(kFeatureDistanceScale) / 255.0));
-}
-
-std::vector<CellFeature> ComputeCellFeatures(const cv::Mat& roi, const std::vector<cv::Rect>& cells, const CellMaskRatios& maskRatios)
-{
-    std::vector<CellFeature> features;
-    features.reserve(cells.size());
-
-    for (const auto& cell : cells) {
-        const cv::Rect clipped = ClampRect(cell, roi.size());
-        if (clipped.empty()) {
-            features.push_back({});
-            continue;
-        }
-        features.push_back(ComputeCellFeature(ApplyIgnoreMask(roi(clipped), maskRatios)));
-    }
-
-    return features;
-}
-
-Hash ComputeHashResizedTo(const cv::Mat& image, cv::Size size, const CellMaskRatios& maskRatios)
-{
-    if (image.empty()) {
-        throw std::invalid_argument("Cannot resize an empty image for pHash");
-    }
-    if (size.width <= 0 || size.height <= 0) {
-        throw std::invalid_argument("Cannot resize pHash input to empty size");
-    }
-
-    cv::Mat resized;
-    const int interpolation = image.cols > size.width || image.rows > size.height ? cv::INTER_AREA : cv::INTER_CUBIC;
-    cv::resize(image, resized, size, 0, 0, interpolation);
-    return ComputeHash(ApplyIgnoreMask(resized, maskRatios));
-}
-
-std::vector<Candidate> FilterCandidates(
-    const cv::Mat& roi,
-    const std::vector<cv::Rect>& cells,
-    Hash targetHash,
-    int maxDistance,
-    const CellMaskRatios& maskRatios)
-{
-    std::vector<Candidate> candidates;
-    candidates.reserve(cells.size());
-
-    for (std::size_t i = 0; i < cells.size(); ++i) {
-        const cv::Rect clipped = ClampRect(cells[i], roi.size());
-        if (clipped.empty()) {
-            continue;
-        }
-
-        const Hash cellHash = ComputeHash(ApplyIgnoreMask(roi(clipped), maskRatios));
-        const int distance = HammingDistance(cellHash, targetHash);
-        if (distance <= maxDistance) {
-            candidates.push_back({ i, cells[i], cellHash, distance });
-        }
-    }
-
-    std::sort(candidates.begin(), candidates.end(), [](const Candidate& lhs, const Candidate& rhs) {
-        if (lhs.distance != rhs.distance) {
-            return lhs.distance < rhs.distance;
-        }
-        return lhs.cellIndex < rhs.cellIndex;
-    });
-
-    return candidates;
-}
-
-std::vector<Candidate> FilterCandidates(
-    const cv::Mat& roi,
-    const std::vector<cv::Rect>& cells,
-    const cv::Mat& target,
-    int maxDistance,
-    const CellMaskRatios& maskRatios)
-{
-    std::vector<Candidate> candidates;
-    candidates.reserve(cells.size());
-
-    for (std::size_t i = 0; i < cells.size(); ++i) {
-        const cv::Rect clipped = ClampRect(cells[i], roi.size());
-        if (clipped.empty()) {
-            continue;
-        }
-
-        const Hash targetHash = ComputeHashResizedTo(target, clipped.size(), maskRatios);
-        const Hash cellHash = ComputeHash(ApplyIgnoreMask(roi(clipped), maskRatios));
-        const int distance = HammingDistance(cellHash, targetHash);
-        if (distance <= maxDistance) {
-            candidates.push_back({ i, cells[i], cellHash, distance });
-        }
-    }
-
-    std::sort(candidates.begin(), candidates.end(), [](const Candidate& lhs, const Candidate& rhs) {
-        if (lhs.distance != rhs.distance) {
-            return lhs.distance < rhs.distance;
-        }
-        return lhs.cellIndex < rhs.cellIndex;
-    });
-
-    return candidates;
 }
 
 } // namespace recogrid

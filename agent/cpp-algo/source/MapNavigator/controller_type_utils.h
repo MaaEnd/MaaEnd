@@ -35,9 +35,9 @@ inline bool IsPlayCoverControllerType(std::string_view controller_type)
     return EqualsIgnoreCase(controller_type, "playcover") || EqualsIgnoreCase(controller_type, "play_cover");
 }
 
-inline bool IsWlrootsLikeControllerType(std::string_view controller_type)
+inline bool IsLinuxControllerType(std::string_view controller_type)
 {
-    return EqualsIgnoreCase(controller_type, "linux") || EqualsIgnoreCase(controller_type, "wlroots");
+    return EqualsIgnoreCase(controller_type, "linux");
 }
 
 // 框架先加载 ./resource, 再把控制器自己的 overlay 叠上去, 所以 overlay 里的同名图会胜出; 这里照同一个
@@ -54,8 +54,8 @@ inline std::vector<std::filesystem::path> ResourceImageRoots(std::string_view co
     else if (IsAdbLikeControllerType(controller_type)) {
         dirs.emplace_back("resource_adb");
     }
-    else if (IsWlrootsLikeControllerType(controller_type)) {
-        dirs.emplace_back("resource_wlroots");
+    else if (IsLinuxControllerType(controller_type)) {
+        dirs.emplace_back("resource_linux");
     }
     else if (EqualsIgnoreCase(controller_type, "macos")) {
         dirs.emplace_back("resource_macos");

@@ -80,7 +80,7 @@ Consult as needed. Only required when using the corresponding component.
 | [AutoFight](./components/auto-fight.md) | In-battle automation module, automatically performs normal attacks, skills, chain skills, etc. |
 | [CharacterController](./components/character-controller.md) | Character view rotation, movement, and automatic movement towards target |
 | [BetterSliding](./components/better-sliding.md) | Common custom action for adjusting discrete quantity sliders by target value |
-| [RecoGrid Engine](./components/recogrid-engine.md) | C++ grid recognition, multi-template classification, and scroll accumulation scanning engine |
+| [RecoGrid / GridTracker / EssenceGrid](./components/recogrid-engine.md) | Layered single-frame recognition, cross-frame tracking, and Essence business integration |
 | [MapLocator](./components/map-locator.md) | AI + CV based minimap positioning system, outputs region, coordinates, and orientation |
 | [MapTracker](./components/map-tracker.md) | Computer vision based minimap tracking and path movement |
 | [MapNavigator](./components/map-navigator.md) | Path navigation Action, supports record-free target-based pathfinding and GUI recording |

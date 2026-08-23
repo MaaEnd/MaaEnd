@@ -55,28 +55,17 @@
         "MissionId": "m1m28",
         "Name": "七彩鳞",
         "Id": "RainbowFin",
-        "EnterMap": "SceneEnterWorldWulingJingyuValley10",
-        "NavZoneId": "Wuling_Base",
-        "NavAssert": [
-            603.08,
-            2818.92,
-            14.77,
-            14.78
-        ],
+        "QuickTeleport": true,
         "NavPath": [
-            {
-                "action": "ZONE",
-                "zone_id": "Wuling_Base"
-            },
             {
                 "action": "NAVMESH",
                 "target": [
-                    681.85,
-                    2759.81
+                    707.48,
+                    2665.23
                 ]
             }
         ],
-        "Heading": 45
+        "Heading": 140
     },
     {
         "MissionId": "m1m29",
@@ -130,24 +119,17 @@
         "MissionId": "m1m32",
         "Name": "“栖霞驻影”",
         "Id": "EternalSunset",
-        "EnterMap": "SceneEnterWorldWulingJingyuValley2",
-        "NavZoneId": "Wuling_Base",
-        "NavAssert": [
-            790.15,
-            2316.48,
-            14.77,
-            14.78
-        ],
+        "QuickTeleport": true,
         "NavPath": [
             {
                 "action": "NAVMESH",
                 "target": [
-                    820.03,
-                    2310.06
+                    820.47,
+                    2324.7
                 ]
             }
         ],
-        "Heading": 60
+        "Heading": 43
     },
     {
         "MissionId": "m1m33",

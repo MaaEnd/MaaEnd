@@ -10,8 +10,10 @@
                 "PuzzleSolverMode"
             ],
             "controller": [
-                "Win32-Front",
-                "Wlroots"
+                "Linux-Gamescope",
+                "Linux-ScreenCast",
+                "Linux-Wlroots",
+                "Win32-Front"
             ],
             "group": [
                 "open_world"

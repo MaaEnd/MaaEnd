@@ -67,10 +67,6 @@ func rarityListToString(rarities []int) string {
 	}
 }
 
-func essenceListToString(EssenceTypes []EssenceMeta) string {
-	names := make([]string, len(EssenceTypes))
-	for i, e := range EssenceTypes {
-		names[i] = e.Name
-	}
-	return strings.Join(names, i18n.Separator())
+func essenceListToString(essenceTypes []string) string {
+	return strings.Join(essenceTypes, i18n.Separator())
 }

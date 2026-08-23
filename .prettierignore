@@ -17,7 +17,7 @@ tools/schema/
 # 从 zmdmap 获取的数据不需要格式化
 assets/data/ZmdMap/
 tools/pipeline-generate/data/*.json
-assets/data/SeizeDeliveryJobs/delivery_destinations.json
+assets/data/AutoDelivery/delivery_destinations.json
 
 # 锁文件
 pnpm-lock.yaml

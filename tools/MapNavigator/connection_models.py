@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from typing import Any, Literal
 
 
-ConnectionKind = Literal["win32", "adb", "playcover", "wlroots"]
+ConnectionKind = Literal["win32", "adb", "playcover", "linux"]
 
 
 @dataclass(frozen=True)
@@ -60,16 +60,19 @@ class PlayCoverConnectionConfig:
 
 
 @dataclass(frozen=True)
-class WlRootsConnectionConfig:
-    """WlRoots (Linux Wayland) 录制所需的连接配置。
+class LinuxConnectionConfig:
+    """Linux-Gamescope 录制所需的连接配置。
 
-    wlr_socket_path 是合成器的 Wayland socket 完整路径, 例如
-    ``/run/user/1000/wayland-0``。注意它不一定是 ``$WAYLAND_DISPLAY`` 指向的
-    那个 socket —— 游戏通常跑在嵌套合成器 (如 gamescope) 上, 连错成桌面会话会
-    截到桌面而不是游戏。
+    由 `Toolkit.find_gamescope_instances()` 发现的一个 gamescope 实例得出:
+
+    - `pw_node_id`: gamescope 在 PipeWire 会话中的截图节点 ID (即 GamescopeInstance 的
+      `pipewire_node_id`)。LinuxController 用它直连该节点做截图 (screencap)。
+    - `eis_socket_path`: libei (EIS) 输入 socket 路径 (即 GamescopeInstance 的
+      `eis_socket_path`)。本工具录制时不投递按键, 但 LinuxController 仍需该字段。
     """
 
-    wlr_socket_path: str = ""
+    pw_node_id: int = 0
+    eis_socket_path: str = ""
 
 
 @dataclass(frozen=True)
@@ -80,7 +83,7 @@ class RecordingSessionConfig:
     win32: Win32ConnectionConfig = field(default_factory=Win32ConnectionConfig)
     adb: AdbConnectionConfig = field(default_factory=AdbConnectionConfig)
     playcover: PlayCoverConnectionConfig = field(default_factory=PlayCoverConnectionConfig)
-    wlroots: WlRootsConnectionConfig = field(default_factory=WlRootsConnectionConfig)
+    linux: LinuxConnectionConfig = field(default_factory=LinuxConnectionConfig)
 
     def display_name(self) -> str:
         if self.kind == "adb":
@@ -88,8 +91,8 @@ class RecordingSessionConfig:
             return f"ADB / {target}"
         elif self.kind == "playcover":
             return f"PlayCover / {self.playcover.uuid}"
-        elif self.kind == "wlroots":
-            return f"WlRoots / {self.wlroots.wlr_socket_path or '未指定 socket'}"
+        elif self.kind == "linux":
+            return f"Linux-Gamescope / 节点 {self.linux.pw_node_id or '未选择'}"
         return f"Win32 / {self.win32.window_title}"
 
 
@@ -120,12 +123,13 @@ def session_config_from_payload(payload: dict[str, Any]) -> RecordingSessionConf
                 uuid=str(playcover.get("uuid", "maa.playcover") or "maa.playcover"),
             ),
         )
-    elif kind == "wlroots":
-        wlroots = payload.get("wlroots") or {}
+    elif kind == "linux":
+        linux = payload.get("linux") or {}
         return RecordingSessionConfig(
-            kind="wlroots",
-            wlroots=WlRootsConnectionConfig(
-                wlr_socket_path=str(wlroots.get("wlr_socket_path", "") or ""),
+            kind="linux",
+            linux=LinuxConnectionConfig(
+                pw_node_id=int(linux.get("pw_node_id", 0) or 0),
+                eis_socket_path=str(linux.get("eis_socket_path", "") or ""),
             ),
         )
     win = payload.get("win32") or {}

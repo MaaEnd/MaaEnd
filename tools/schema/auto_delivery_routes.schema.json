@@ -1,0 +1,95 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://github.com/MaaEnd/MaaEnd/blob/v2/tools/schema/auto_delivery_routes.schema.json",
+    "title": "AutoDelivery routes.json",
+    "description": "AutoDelivery 仓储与送货终点的检索元数据及实测 MapNavigator 路线覆盖。",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "depots",
+        "destinations"
+    ],
+    "properties": {
+        "depots": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "source_id",
+                    "name"
+                ],
+                "properties": {
+                    "source_id": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "仓储节点在 delivery_destinations.json 中的稳定 ID。"
+                    },
+                    "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "从 delivery_destinations.json 同步的中文名称，仅供检索。"
+                    },
+                    "description": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "可选的人工维护说明，仅供阅读，不参与路线生成。"
+                    },
+                    "path": {
+                        "$ref": "#/$defs/path"
+                    },
+                    "retry_path": {
+                        "$ref": "#/$defs/path"
+                    },
+                    "departure_path": {
+                        "$ref": "#/$defs/path"
+                    }
+                }
+            }
+        },
+        "destinations": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                    "source_id",
+                    "name",
+                    "depot_id"
+                ],
+                "properties": {
+                    "source_id": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "送货终点在 delivery_destinations.json 中的稳定 ID。"
+                    },
+                    "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "从 delivery_destinations.json 同步的中文名称，仅供检索。"
+                    },
+                    "depot_id": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "从 delivery_destinations.json 同步的起点仓储 ID，仅供检索。"
+                    },
+                    "description": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "可选的人工维护说明，仅供阅读，不参与路线生成。"
+                    },
+                    "path": {
+                        "$ref": "#/$defs/path"
+                    }
+                }
+            }
+        }
+    },
+    "$defs": {
+        "path": {
+            "type": "array",
+            "minItems": 1,
+            "description": "MapNavigateAction.custom_action_param.path，必须来自 MapNavigator 工具或实机录制。"
+        }
+    }
+}

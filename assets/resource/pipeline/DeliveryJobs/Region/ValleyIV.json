@@ -28,13 +28,11 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "DeliveryJobsDepotLocked",
             "DeliveryJobsValleyIVLoop"
         ]
     },
     "DeliveryJobsValleyIVLoop": {
         "desc": "四号谷地运送委托主循环",
-        "max_hit": 1,
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
@@ -61,7 +59,6 @@
     },
     "DeliveryJobsSelectPriorityItemsValleyIV": {
         "desc": "四号谷地未启用指定货物优先级，使用游戏默认填充至满",
-        "recognition": "DirectHit",
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,

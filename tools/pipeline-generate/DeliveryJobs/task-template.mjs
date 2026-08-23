@@ -21,12 +21,29 @@ const PACK_CARGO_EXPECTED = [
     "화물 포장",
 ];
 
-function buildCargoAnchor(depot, bidAction, ongoingDeliveryAction = "DeliveryJobsStopForOngoingDelivery") {
+const AUTO_DELIVERY_CONTROLLERS = [
+    "Win32-Front",
+    "Linux-Wlroots",
+];
+
+const AUTO_DELIVERY_RECOGNIZE_NODES = [
+    "AutoDeliveryRecognizeDepot",
+    "AutoDeliveryRecognizeDestination",
+];
+
+function buildCargoAnchor(
+    depot,
+    bidAction,
+    ongoingDeliveryAction = "DeliveryJobsStopForOngoingDelivery",
+    goToDepot = depot.DepotScene,
+    afterAcceptJob = "DeliveryJobsDeliverQuickly",
+) {
     return {
         DeliveryJobsSelectPriorityItems: `DeliveryJobsSelectPriorityItems${depot.RegionId}`,
         DeliveryJobsRedistributionBidAction: bidAction,
         DeliveryJobsOngoingDeliveryAction: ongoingDeliveryAction,
-        DeliveryJobsGoToDepot: depot.DepotScene,
+        DeliveryJobsAfterAcceptJob: afterAcceptJob,
+        DeliveryJobsGoToDepot: goToDepot,
     };
 }
 
@@ -68,6 +85,17 @@ function buildDepotOption(depot) {
                     bidAction: "DeliveryJobsRedistributionBidNextStep",
                 }),
             },
+            ...(depot.AutoDeliverySupported
+                ? [
+                      {
+                          name: "AutoDelivery",
+                          label: "$task.DeliveryJobs.DepotAction.AutoDelivery",
+                          pipeline_override: buildAutoDeliveryOverride(depot, {
+                              bidAction: "DeliveryJobsRedistributionBidNextStep",
+                          }),
+                      },
+                  ]
+                : []),
             {
                 name: "ByQuote",
                 label: "$task.DeliveryJobs.DepotAction.ByQuote",
@@ -183,6 +211,22 @@ function buildQuoteActionOption(depot, {comparison, label, description, defaultC
                     },
                 },
             },
+            ...(depot.AutoDeliverySupported
+                ? [
+                      {
+                          name: "AutoDelivery",
+                          label: "$task.DeliveryJobs.QuoteAction.AutoDelivery",
+                          pipeline_override: {
+                              [comparisonNode]: {
+                                  anchor: {
+                                      DeliveryJobsQuoteAction: "DeliveryJobsQuoteAcceptJobOnly",
+                                      DeliveryJobsGoToDepot: `DeliveryJobsOpenOngoingAutoDelivery${depot.Id}`,
+                                  },
+                              },
+                          },
+                      },
+                  ]
+                : []),
             {
                 name: "AcceptJobOnly",
                 label: "$task.DeliveryJobs.QuoteAction.AcceptJobOnly",
@@ -209,6 +253,79 @@ function buildQuoteActionOption(depot, {comparison, label, description, defaultC
             },
         ],
         default_case: defaultCase,
+    };
+}
+
+function buildAutoDeliveryOverride(depot, {bidAction}) {
+    const deliveryNode = `DeliveryJobsEnter${depot.Id}DeliveryJob`;
+    const cargoNode = `DeliveryJobsEnter${depot.Id}Cargo`;
+    const openOngoingAutoDelivery = `DeliveryJobsOpenOngoingAutoDelivery${depot.Id}`;
+    const autoDelivery = `DeliveryJobsAutoDelivery${depot.Id}`;
+    return {
+        [deliveryNode]: {
+            enabled: true,
+            next: [autoDelivery],
+        },
+        [cargoNode]: {
+            enabled: true,
+            anchor: buildCargoAnchor(depot, bidAction, openOngoingAutoDelivery, openOngoingAutoDelivery),
+        },
+    };
+}
+
+function buildAutoDeliveryRiskAcknowledgementOption() {
+    return {
+        type: "switch",
+        controller: AUTO_DELIVERY_CONTROLLERS,
+        label: "$task.AutoDeliveryRiskAcknowledgement.label",
+        description: "$task.AutoDeliveryRiskAcknowledgement.description",
+        default_case: "No",
+        cases: [
+            {
+                name: "No",
+                pipeline_override: {
+                    DeliveryJobsAutoDeliveryGuard: {
+                        enabled: true,
+                    },
+                },
+            },
+            {
+                name: "Yes",
+                pipeline_override: {
+                    DeliveryJobsAutoDeliveryGuard: {
+                        enabled: false,
+                    },
+                },
+            },
+        ],
+    };
+}
+
+function buildAutoDeliveryPreferZiplineOption() {
+    const buildCase = (name, zip) => ({
+        name,
+        pipeline_override: Object.fromEntries(
+            AUTO_DELIVERY_RECOGNIZE_NODES.map((node) => [
+                node,
+                {
+                    custom_action_param: {
+                        zip,
+                    },
+                },
+            ]),
+        ),
+    });
+
+    return {
+        type: "switch",
+        controller: AUTO_DELIVERY_CONTROLLERS,
+        label: "$task.AutoDeliveryPreferZipline.label",
+        description: "$task.AutoDeliveryPreferZipline.description",
+        default_case: "No",
+        cases: [
+            buildCase("No", false),
+            buildCase("Yes", true),
+        ],
     };
 }
 
@@ -329,6 +446,8 @@ function buildTaskOptions() {
         }
     }
 
+    options.DeliveryJobsAutoDeliveryRiskAcknowledgement = buildAutoDeliveryRiskAcknowledgementOption();
+    options.DeliveryJobsAutoDeliveryPreferZipline = buildAutoDeliveryPreferZiplineOption();
     options.PackCargoSelectItem = {
         type: "switch",
         label: "$task.DeliveryJobs.PackCargoSelectItem.label",
@@ -377,15 +496,19 @@ export default function buildDeliveryJobsTask() {
                 option: [
                     ...deliveryJobRegions.map((region) => region.Id),
                     "PackCargoSelectItem",
+                    "DeliveryJobsAutoDeliveryRiskAcknowledgement",
+                    "DeliveryJobsAutoDeliveryPreferZipline",
                 ],
                 controller: [
                     "ADB",
                     "CloudADB",
+                    "Linux-Gamescope",
+                    "Linux-ScreenCast",
+                    "Linux-Wlroots",
                     "MacOS-Background",
                     "MacOS-Front",
                     "PlayCover",
-                    "Win32-Front",
-                    "Wlroots",
+                    "Win32-Front"
                 ],
                 group: [
                     "regional_development",

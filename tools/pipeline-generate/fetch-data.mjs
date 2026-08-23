@@ -15,6 +15,7 @@ const DATA_BASE_URL = "https://assets.fz.wiki/output_maaend";
 
 const DATA_FILES = [
     "delivery_jobs.json",
+    "delivery_destinations.json",
     "environment_monitoring.json",
     "sell_product.json",
 ];

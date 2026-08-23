@@ -30,8 +30,9 @@ const (
 	// 调小可识别更短的滑块，也会增加孤立高亮噪声造成的误检。
 	scrollbarMinLength = 5
 
-	attachScrollbarTop    = "scrollbar_top"
-	attachScrollbarBottom = "scrollbar_bottom"
+	attachScrollbarTop     = "scrollbar_top"
+	attachScrollbarBottom  = "scrollbar_bottom"
+	attachScrollbarMissing = "scrollbar_missing"
 )
 
 // ScrollbarRecognition 识别滚动条白色滑块，并返回其绝对位置和相对 ROI 的边界信息。
@@ -135,32 +136,47 @@ func (r *ScrollbarCompleteRecognition) Run(
 		image.Rect(roi[0], roi[1], roi[0]+roi[2], roi[1]+roi[3]),
 	)
 	if !found {
-		log.Warn().
+		complete, err := observeMissingScrollbar(ctx, currentNode)
+		if err != nil {
+			log.Error().
+				Err(err).
+				Str("component", scrollbarCompleteComponentName).
+				Str("node", currentNode).
+				Msg("failed to record missing scrollbar observation")
+			return nil, false
+		}
+		if !complete {
+			log.Info().
+				Str("component", scrollbarCompleteComponentName).
+				Str("node", currentNode).
+				Msg("scrollbar missing observation recorded, confirming once")
+			return nil, false
+		}
+
+		log.Info().
 			Str("component", scrollbarCompleteComponentName).
 			Str("node", currentNode).
-			Msg("valid scrollbar segment not found")
-		return nil, false
+			Msg("scrollbar missing in consecutive observations, list is not scrollable")
+		return &maa.CustomRecognitionResult{
+			Box: roi,
+			Detail: marshalDetail(map[string]any{
+				"scrollbar_found": false,
+				"complete":        true,
+			}),
+		}, true
 	}
 
-	previous, ready, err := loadScrollbarPosition(ctx, currentNode)
+	previous, ready, complete, err := observeScrollbar(ctx, currentNode, segment, params.PositionTolerance)
 	if err != nil {
 		log.Error().
 			Err(err).
 			Str("component", scrollbarCompleteComponentName).
 			Str("node", currentNode).
-			Msg("failed to load scrollbar position")
+			Msg("failed to record valid scrollbar observation")
 		return nil, false
 	}
 
-	if !ready || !scrollbarSegmentsMatch(previous, segment, params.PositionTolerance) {
-		if err := saveScrollbarPosition(ctx, currentNode, segment); err != nil {
-			log.Error().
-				Err(err).
-				Str("component", scrollbarCompleteComponentName).
-				Str("node", currentNode).
-				Msg("failed to save scrollbar position")
-			return nil, false
-		}
+	if !complete {
 		log.Info().
 			Str("component", scrollbarCompleteComponentName).
 			Str("node", currentNode).
@@ -321,6 +337,95 @@ func loadScrollbarPosition(store nodeStore, nodeName string) (scrollbarSegment, 
 	return segment, true, nil
 }
 
+func observeMissingScrollbar(store nodeStore, nodeName string) (bool, error) {
+	missing, err := loadMissingScrollbar(store, nodeName)
+	if err != nil {
+		return false, err
+	}
+	if missing {
+		return true, nil
+	}
+	if err := saveMissingScrollbar(store, nodeName, true); err != nil {
+		return false, err
+	}
+	return false, nil
+}
+
+// observeScrollbar 先按旧位置判断列表是否停止移动，再保存当前有效位置并清除缺失确认状态。
+func observeScrollbar(
+	store nodeStore,
+	nodeName string,
+	segment scrollbarSegment,
+	positionTolerance int,
+) (previous scrollbarSegment, ready bool, complete bool, err error) {
+	previous, ready, err = loadScrollbarPosition(store, nodeName)
+	if err != nil {
+		return scrollbarSegment{}, false, false, err
+	}
+	complete = ready && scrollbarSegmentsMatch(previous, segment, positionTolerance)
+	if err = saveScrollbarPosition(store, nodeName, segment); err != nil {
+		return previous, ready, false, err
+	}
+	return previous, ready, complete, nil
+}
+
+func loadMissingScrollbar(store nodeStore, nodeName string) (bool, error) {
+	raw, err := store.GetNodeJSON(nodeName)
+	if err != nil {
+		return false, err
+	}
+	var wrapper struct {
+		Attach map[string]json.RawMessage `json:"attach"`
+	}
+	if err := json.Unmarshal([]byte(raw), &wrapper); err != nil {
+		return false, err
+	}
+	readyRaw, ok := wrapper.Attach[attachReady]
+	if !ok {
+		return false, nil
+	}
+	var ready bool
+	if err := json.Unmarshal(readyRaw, &ready); err != nil {
+		return false, fmt.Errorf("attach.%s must be bool: %w", attachReady, err)
+	}
+	if !ready {
+		return false, nil
+	}
+	missingRaw, ok := wrapper.Attach[attachScrollbarMissing]
+	if !ok {
+		return false, nil
+	}
+	var missing bool
+	if err := json.Unmarshal(missingRaw, &missing); err != nil {
+		return false, fmt.Errorf("attach.%s must be bool: %w", attachScrollbarMissing, err)
+	}
+	return missing, nil
+}
+
+func saveMissingScrollbar(store nodeStore, nodeName string, missing bool) error {
+	raw, err := store.GetNodeJSON(nodeName)
+	if err != nil {
+		return err
+	}
+	var wrapper struct {
+		Attach map[string]any `json:"attach"`
+	}
+	if err := json.Unmarshal([]byte(raw), &wrapper); err != nil {
+		return err
+	}
+	if wrapper.Attach == nil {
+		wrapper.Attach = make(map[string]any)
+	}
+	wrapper.Attach[attachReady] = true
+	wrapper.Attach[attachScrollbarMissing] = missing
+
+	return store.OverridePipeline(map[string]any{
+		nodeName: map[string]any{
+			"attach": wrapper.Attach,
+		},
+	})
+}
+
 func unmarshalAttachInt(attach map[string]json.RawMessage, key string, target *int) error {
 	raw, ok := attach[key]
 	if !ok {
@@ -349,6 +454,7 @@ func saveScrollbarPosition(store nodeStore, nodeName string, segment scrollbarSe
 	wrapper.Attach[attachReady] = true
 	wrapper.Attach[attachScrollbarTop] = segment.Top
 	wrapper.Attach[attachScrollbarBottom] = segment.Bottom
+	wrapper.Attach[attachScrollbarMissing] = false
 
 	return store.OverridePipeline(map[string]any{
 		nodeName: map[string]any{

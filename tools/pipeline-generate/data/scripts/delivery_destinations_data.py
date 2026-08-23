@@ -1,4 +1,4 @@
-"""生成 delivery_destinations.json。"""
+"""生成 AutoDelivery 使用的 delivery_destinations.json。"""
 
 from __future__ import annotations
 
@@ -11,8 +11,9 @@ import sys
 import urllib.error
 import urllib.request
 import zlib
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Any, Sequence
+from typing import Any
 
 from tablecfg_utils import (
     DATA_DIR,
@@ -29,16 +30,16 @@ from tablecfg_utils import (
     write_dataset,
 )
 
-
 LABEL = "DeliveryDestinations"
+REPO_ROOT = DATA_DIR.parents[2]
 OUTPUT_PATH = DATA_DIR / "delivery_destinations.json"
 USER_AGENT = "MaaEnd-pipeline"
 
 TABLE_NAMES = (
-    "DomainDataTable.json",
     "DomainDepotTable.json",
     "DomainDepotDeliverTargetTable.json",
     "DomainDepotBuyerTable.json",
+    "LevelDescTable.json",
     *LOCALE_TABLES,
 )
 GAMEPLAY_CONFIG_NAMES = ("NpcProxyTable.json", "LevelMapMark.json")
@@ -47,7 +48,6 @@ DATA_BASE_URL = "https://assets.fz.wiki/output_maaend"
 TABLE_CFG_BASE_URL: str | None = None
 GAMEPLAY_CONFIG_BASE_URL: str | None = DATA_BASE_URL
 
-REPO_ROOT = DATA_DIR.parents[2]
 NAVMESH_DIR = REPO_ROOT / "assets" / "resource" / "model" / "map" / "navmesh"
 NAV_CANDIDATES = ("base.nav.gz", "base.nav")
 NAV_SUBMODULE_API = (
@@ -109,7 +109,10 @@ def load_json_group(
 def find_geo_zone_table(raw: bytes, counts: tuple[int, ...]) -> int:
     at = raw.find(NAV_GEO_TAG, struct.calcsize(NAV_HEADER))
     while at >= 0:
-        if at + NAV_GEO_HEADER <= len(raw) and struct.unpack_from("<3I", raw, at + 8) == counts:
+        if (
+            at + NAV_GEO_HEADER <= len(raw)
+            and struct.unpack_from("<3I", raw, at + 8) == counts
+        ):
             return at + struct.unpack_from("<Q", raw, at + 64)[0]
         at = raw.find(NAV_GEO_TAG, at + 4)
     raise NavPrefixTooShort
@@ -138,7 +141,14 @@ def parse_nav_zones(raw: bytes, source: str) -> dict[str, dict[str, Any]]:
         offset += name_size
         if name in zones:
             raise TableCfgError(f"zone 名 {name} 重复：{source}")
-        zones[name] = {"size": (int(width), int(height)), "sx": sx, "tx": tx, "sy": sy, "ty": ty}
+        zones[name] = {
+            "zone_id": int(fields[0]),
+            "size": (int(width), int(height)),
+            "sx": sx,
+            "tx": tx,
+            "sy": sy,
+            "ty": ty,
+        }
     if not zones:
         raise TableCfgError(f"没有解析到 zone：{source}")
     return zones
@@ -167,7 +177,9 @@ def read_remote_prefix(url: str, size: int) -> bytes:
 
 
 def resolve_remote_nav_url() -> str:
-    sha = assert_record(fetch_json(NAV_SUBMODULE_API), "assets/resource/model").get("sha")
+    sha = assert_record(fetch_json(NAV_SUBMODULE_API), "assets/resource/model").get(
+        "sha"
+    )
     if not isinstance(sha, str) or not sha:
         raise TableCfgError("没能确定 assets/resource/model 的版本")
     return NAV_REMOTE_TEMPLATE.format(sha=sha)
@@ -184,7 +196,11 @@ def load_nav_zones(explicit: str | None) -> dict[str, dict[str, Any]]:
             source, reader = path, read_local_prefix
     else:
         local = next(
-            (NAVMESH_DIR / name for name in NAV_CANDIDATES if (NAVMESH_DIR / name).is_file()),
+            (
+                NAVMESH_DIR / name
+                for name in NAV_CANDIDATES
+                if (NAVMESH_DIR / name).is_file()
+            ),
             None,
         )
         if local is not None:
@@ -209,7 +225,9 @@ def resolve_zone(zones: dict[str, dict[str, Any]], map_id: str) -> dict[str, Any
     raise TableCfgError(f"没有 {map_id} 对应的 zone")
 
 
-def project_to_pixel(zone: dict[str, Any], x: float, z: float, label: str) -> tuple[float, float]:
+def project_to_pixel(
+    zone: dict[str, Any], x: float, z: float, label: str
+) -> tuple[float, float]:
     u = zone["sx"] * x + zone["tx"]
     v = -zone["sy"] * z + zone["ty"]
     width, height = zone["size"]
@@ -286,12 +304,10 @@ def strip_rich_text(names: dict[str, str], label: str) -> dict[str, str]:
     return stripped
 
 
-def build_area_names(
+def build_depots_by_level(
     depot_table: dict[str, Any],
-    domain_table: dict[str, Any],
-    locale_tables: dict[str, dict[str, Any]],
-) -> tuple[dict[str, Any], dict[str, Any]]:
-    depot_by_level: dict[str, Any] = {}
+) -> dict[str, dict[str, Any]]:
+    depot_by_level: dict[str, dict[str, Any]] = {}
     for depot_id, entry_value in sorted_entries(depot_table):
         entry = assert_record(entry_value, f"仓储节点 {depot_id}")
         level_id = entry.get("refLevelId")
@@ -299,26 +315,59 @@ def build_area_names(
             raise TableCfgError(f"仓储节点 {depot_id} 缺少 refLevelId")
         if level_id in depot_by_level:
             raise TableCfgError(f"层级 {level_id} 对应多个仓储节点")
-        depot_by_level[level_id] = build_localized_names(
-            entry.get("depotName"), locale_tables, f"仓储节点 {depot_id}"
-        )
+        depot_by_level[level_id] = {"id": depot_id}
+    return depot_by_level
 
-    region_names = {
-        region_id: build_localized_names(
-            assert_record(entry_value, f"地区 {region_id}").get("domainName"),
-            locale_tables,
-            f"地区 {region_id}",
+
+def build_depots(
+    depot_table: dict[str, Any],
+    locale_tables: dict[str, dict[str, Any]],
+    mark_index: dict[str, dict[str, Any]],
+    zones: dict[str, dict[str, Any]],
+    used_zones: dict[str, dict[str, Any]],
+) -> list[dict[str, Any]]:
+    depots: list[dict[str, Any]] = []
+    for depot_id, entry_value in sorted_entries(depot_table):
+        entry = assert_record(entry_value, f"仓储节点 {depot_id}")
+        level_id = entry.get("refLevelId")
+        if not isinstance(level_id, str) or level_id.count("_") != 1:
+            raise TableCfgError(
+                f"仓储节点 {depot_id} 的 refLevelId {level_id!r} 不是 mapXX_lvYYY"
+            )
+        map_id = level_id.split("_")[0]
+
+        basic = mark_index.get(depot_id)
+        if basic is None:
+            raise TableCfgError(f"仓储节点 {depot_id} 在 LevelMapMark 中没有同名标记")
+        x, z = read_xz(basic.get("pos"), f"LevelMapMark[{depot_id}].pos")
+
+        zone = used_zones.get(map_id)
+        if zone is None:
+            zone = resolve_zone(zones, map_id)
+            used_zones[map_id] = zone
+        u, v = project_to_pixel(zone, x, z, f"仓储节点 {depot_id}")
+
+        depots.append(
+            {
+                "id": depot_id,
+                "name": build_localized_names(
+                    entry.get("depotName"), locale_tables, f"仓储节点 {depot_id}"
+                ),
+                "map": map_id,
+                "u": u,
+                "v": v,
+            }
         )
-        for region_id, entry_value in sorted_entries(domain_table)
-    }
-    return depot_by_level, region_names
+    if not depots:
+        raise TableCfgError("DomainDepotTable 里一个仓储节点都没有")
+    return depots
 
 
 def build_delivery_destinations_data(
     tables: dict[str, Any],
     gameplay_config: dict[str, Any],
     zones: dict[str, dict[str, Any]],
-) -> list[dict[str, Any]]:
+) -> dict[str, Any]:
     deliver_target_table = assert_record(
         tables["DomainDepotDeliverTargetTable.json"], "DomainDepotDeliverTargetTable"
     )
@@ -326,20 +375,23 @@ def build_delivery_destinations_data(
         tables["DomainDepotBuyerTable.json"], "DomainDepotBuyerTable"
     )
     depot_table = assert_record(tables["DomainDepotTable.json"], "DomainDepotTable")
-    domain_table = assert_record(tables["DomainDataTable.json"], "DomainDataTable")
+    level_desc_table = assert_record(tables["LevelDescTable.json"], "LevelDescTable")
     locale_tables = build_locale_tables(tables)
 
     npc_positions = assert_record(
-        assert_record(gameplay_config["NpcProxyTable.json"], "NpcProxyTable").get("dataTable"),
+        assert_record(gameplay_config["NpcProxyTable.json"], "NpcProxyTable").get(
+            "dataTable"
+        ),
         "NpcProxyTable.dataTable",
     )
     mark_index = build_mark_index(
         assert_record(gameplay_config["LevelMapMark.json"], "LevelMapMark")
     )
-    depot_by_level, region_names = build_area_names(depot_table, domain_table, locale_tables)
+    depot_by_level = build_depots_by_level(depot_table)
 
-    destinations: list[dict[str, Any]] = []
     used_zones: dict[str, dict[str, Any]] = {}
+    depots = build_depots(depot_table, locale_tables, mark_index, zones, used_zones)
+    destinations: list[dict[str, Any]] = []
     for target_id, entry_value in sorted_entries(deliver_target_table):
         entry = assert_record(entry_value, f"送货目的地 {target_id}")
         label = f"送货目的地 {target_id}"
@@ -363,13 +415,21 @@ def build_delivery_destinations_data(
         u, v = project_to_pixel(zone, x, z, label)
 
         buyer_id = target_id.replace("deliver_target", "buyer", 1)
-        buyer = assert_record(buyer_table.get(buyer_id), f"{label} 对应的收货人 {buyer_id}")
+        buyer = assert_record(
+            buyer_table.get(buyer_id), f"{label} 对应的收货人 {buyer_id}"
+        )
         if buyer.get("level") != level_id:
-            raise TableCfgError(f"收货人 {buyer_id} 的层级与{label}的层级 {level_id} 不一致")
+            raise TableCfgError(
+                f"收货人 {buyer_id} 的层级与{label}的层级 {level_id} 不一致"
+            )
 
-        area = depot_by_level.get(level_id) or region_names.get(entry.get("domainId"))
-        if area is None:
-            raise TableCfgError(f"{label} 既没有仓储节点名也没有地区名")
+        level_desc = assert_record(
+            level_desc_table.get(level_id), f"{label} 对应的关卡 {level_id}"
+        )
+        area = build_localized_names(
+            level_desc.get("showName"), locale_tables, f"关卡 {level_id}"
+        )
+        depot = depot_by_level.get(level_id)
 
         destinations.append(
             {
@@ -385,6 +445,7 @@ def build_delivery_destinations_data(
                     f"{label}任务目标",
                 ),
                 "area": area,
+                "depot_id": depot["id"] if depot is not None else "",
                 "map": map_id,
                 "u": u,
                 "v": v,
@@ -400,12 +461,45 @@ def build_delivery_destinations_data(
             dupes = sorted({value for value in values if values.count(value) > 1})
             raise TableCfgError(f"{locale} 的 name 有重复：{dupes}")
 
-    return destinations
+    maps = {
+        map_id: {
+            "zone": zone["name"],
+            "zone_id": zone["zone_id"],
+            "size": list(zone["size"]),
+            "sx": zone["sx"],
+            "tx": zone["tx"],
+            "sy": zone["sy"],
+            "ty": zone["ty"],
+        }
+        for map_id, zone in sorted(used_zones.items())
+    }
+    return {
+        "text": {
+            "name": "取自 DomainDepotBuyerTable.buyerName；普通收货任务用作 OCR 目标，回收站任务仅保留为数据标识",
+            "mission": "委托目标文案，已剥掉 <@qu.key>…</> 富文本标签；回收站任务用作 OCR 目标，同区域重复时保持歧义失败",
+            "area": "任务详情页显示的关卡名，取自 LevelDescTable.showName",
+            "depot_id": "该终点所属仓储节点 ID；没有同层仓储节点时为空字符串",
+            "depots": "仓储节点坐标，按 DomainDepotTable.id 精确关联 LevelMapMark.markInstId",
+        },
+        "maps": maps,
+        "coord": (
+            "u/v = MapLocator 底图像素，原点左上、y 向下；BaseNav 顶点也是这个平面（u, v, height），"
+            "直接喂寻路即可。maps 里的 zone / sx / tx / sy / ty 原样取自 BaseNav pack 的 zone 表，"
+            "世界坐标转进来是 u = sx*x + tx, v = -sy*z + ty"
+        ),
+        "ocr_key": "name",
+        "depot_count": len(depots),
+        "count": len(destinations),
+        "depots": depots,
+        "destinations": destinations,
+    }
 
 
 def parse_arguments(args: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="生成送货点数据")
-    parser.add_argument("--table-cfg-dir", type=Path, default=None, help="TableCfg 目录")
+    parser.add_argument(
+        "--table-cfg-dir", type=Path, default=None, help="TableCfg 目录"
+    )
     parser.add_argument(
         "--gameplay-config-dir", type=Path, default=None, help="GameplayConfig 目录"
     )
@@ -419,7 +513,11 @@ def main(args: Sequence[str] | None = None) -> int:
     options = parse_arguments(args)
     try:
         tables = load_json_group(
-            TABLE_NAMES, options.table_cfg_dir, TABLE_CFG_BASE_URL, "TableCfg", "--table-cfg-dir"
+            TABLE_NAMES,
+            options.table_cfg_dir,
+            TABLE_CFG_BASE_URL,
+            "TableCfg",
+            "--table-cfg-dir",
         )
         gameplay_config = load_json_group(
             GAMEPLAY_CONFIG_NAMES,
@@ -434,8 +532,17 @@ def main(args: Sequence[str] | None = None) -> int:
             print(f"[{LABEL}] 生成结果未变化，跳过写入；可使用 --force 强制重写")
             return 0
         write_dataset(options.output, data)
-        print(f"[{LABEL}] 已生成 {len(data)} 个送货点：{options.output}")
-    except (OSError, ValueError, struct.error, zlib.error, urllib.error.URLError) as error:
+        print(
+            f"[{LABEL}] 已生成 {data['depot_count']} 个仓储节点、"
+            f"{data['count']} 个送货点：{options.output}"
+        )
+    except (
+        OSError,
+        ValueError,
+        struct.error,
+        zlib.error,
+        urllib.error.URLError,
+    ) as error:
         print(f"[{LABEL}] {error}", file=sys.stderr)
         return 1
     return 0

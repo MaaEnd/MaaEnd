@@ -65,8 +65,9 @@ inline constexpr AsyncPromptActionSpec kInteractPromptSpec {
 };
 
 // Runs one prompt subtask and waits out the settle after it. expected replaces the recognition node's authored text
-// list for this one run; nullptr or empty leaves the node's own table in place.
-void RunPromptSubtask(MaaContext* context, const AsyncPromptActionSpec& spec, const std::vector<std::string>* expected);
+// list for this one run; nullptr or empty leaves the node's own table in place. rec swaps the node's own action out
+// for DoNothing, so the run only recognizes and the caller's pipeline decides what to press.
+void RunPromptSubtask(MaaContext* context, const AsyncPromptActionSpec& spec, const std::vector<std::string>* expected, bool rec);
 
 // Owns one kind's pre-filter and pacing. A route without this kind of point costs one bool check per tick.
 class AsyncPromptAction

@@ -4,7 +4,7 @@
 #   "fastapi",
 #   "uvicorn",
 #   "websockets",
-#   "maafw",
+#   "maafw==5.13.0b4",
 #   "pynput",
 #   "pyperclip",
 #   "numpy",
@@ -23,8 +23,8 @@
   GET  /api/settings          -> 读取 ~/.maaend/mapnavigator.json
   PUT  /api/settings          -> 写入 ~/.maaend/mapnavigator.json
   GET  /api/adb/devices       -> adb devices -l 枚举 (容错)
-  GET  /api/wlroots/sockets   -> $XDG_RUNTIME_DIR 下 Wayland socket 枚举 (供 datalist)
-  POST /api/connection/check  -> 主动探测当前连接配置是否可达 (win32 窗口 / adb 设备 / playcover 端口 / wlroots socket)
+  GET  /api/gamescope/instances   -> 当前发现到的 gamescope 实例枚举 (供下拉)
+  POST /api/connection/check  -> 主动探测当前连接配置是否可达 (win32 窗口 / adb 设备 / playcover 端口 / linux gamescope)
   POST /api/locate-once       -> 单次游戏内定位 (临时连接, 取第 3 个有效帧的位置与朝向)
   POST /api/import/analyze    -> 解析上传 JSON (路线/Assert); 缺 zone 时回片段供前端指定
   POST /api/import/finalize   -> 按片段 zone 指定定稿导入 (convert_maptracker+infer+normalize)
@@ -68,7 +68,7 @@ from connectors import (  # noqa: E402
     build_recording_connector,
     find_game_window,
     list_adb_devices,
-    list_wlroots_sockets,
+    list_gamescope_instances,
     resolve_adb_path,
 )
 from model import normalize_zone_id, resolve_zone_image  # noqa: E402
@@ -86,7 +86,6 @@ from settings_store import (  # noqa: E402
     MapNavigatorSettings,
     MapNavigatorSettingsStore,
     default_connection_kind,
-    default_wlroots_socket_path,
     supported_connection_kinds,
 )
 
@@ -579,8 +578,8 @@ async def api_put_settings(payload: dict[str, Any] = Body(default_factory=dict))
         win32_window_title=str(payload.get("win32_window_title", current.win32_window_title)),
         playcover_uuid=str(payload.get("playcover_uuid", current.playcover_uuid)),
         playcover_address=str(payload.get("playcover_address", current.playcover_address)),
-        wlroots_socket_path=str(payload.get("wlroots_socket_path", current.wlroots_socket_path)).strip()
-        or default_wlroots_socket_path(),
+        linux_pw_node_id=int(payload.get("linux_pw_node_id", current.linux_pw_node_id) or 0),
+        linux_eis_socket_path=str(payload.get("linux_eis_socket_path", current.linux_eis_socket_path) or ""),
         recent_adb_targets=recent,
     )
     try:
@@ -595,8 +594,8 @@ async def api_connection_check(payload: dict[str, Any] = Body(default_factory=di
     """主动探测当前连接配置是否可达 (不建立录制会话)。
 
     win32 = 窗口句柄查找; adb = 设备枚举 (网络地址先 adb connect); playcover = PlayTools
-    端口 TCP 探活 + PlayCover.app 安装检查; wlroots = socket 存在性 + 类型检查
-    (协议支持无法廉价验证, 由真实截图时兜底)。探测均为阻塞调用 (adb 子进程 / socket 超时),
+    端口 TCP 探活 + PlayCover.app 安装检查; linux = gamescope 实例是否已选定 (截图/输入能力
+    无法廉价验证, 由真实截屏时兑底)。探测均为阻塞调用 (adb 子进程 / socket 超时),
     必须在 threadpool 中执行, 否则会卡住事件循环上的其他请求 (前端输入防抖会频繁触发本端点)。
     """
 
@@ -665,24 +664,17 @@ async def api_connection_check(payload: dict[str, Any] = Body(default_factory=di
                 return {"connected": False, "message": "未在默认位置找到 PlayCover.app 安装"}
             return {"connected": True, "message": f"PlayCover 在线, 端口: {address}"}
 
-        if kind == "wlroots":
+        if kind == "linux":
             if not sys.platform.startswith("linux"):
-                return {"connected": False, "message": "非 Linux 环境不支持 WlRoots 连接"}
-            socket_path = str(payload.get("wlroots_socket_path", current.wlroots_socket_path)).strip()
-            if not socket_path:
-                return {"connected": False, "message": "未指定 Wayland socket 路径"}
-            try:
-                socket_path_obj = Path(socket_path)
-                if not socket_path_obj.exists():
-                    return {"connected": False, "message": f"Wayland socket 不存在: {socket_path}"}
-                if not socket_path_obj.is_socket():
-                    return {"connected": False, "message": f"路径存在但不是 socket: {socket_path}"}
-            except OSError as exc:  # noqa: BLE001
-                return {"connected": False, "message": f"Wayland socket 检测异常: {exc}"}
+                return {"connected": False, "message": "非 Linux 环境不支持 Linux-Gamescope 连接"}
+            pw_node_id = int(payload.get("linux_pw_node_id", current.linux_pw_node_id) or 0)
+            eis_socket_path = str(payload.get("linux_eis_socket_path", current.linux_eis_socket_path) or "").strip()
+            if not pw_node_id or not eis_socket_path:
+                return {"connected": False, "message": "未选定 gamescope 实例"}
             runtime = get_runtime()
-            if runtime is None or getattr(runtime, "WlRootsController", None) is None:
-                return {"connected": False, "message": "当前运行环境未提供 WlRoots 库支持"}
-            return {"connected": True, "message": f"WlRoots 在线: {socket_path}"}
+            if runtime is None or getattr(runtime, "LinuxController", None) is None:
+                return {"connected": False, "message": "当前运行环境未提供 Linux 库支持"}
+            return {"connected": True, "message": f"Linux-Gamescope 在线: PipeWire 节点 {pw_node_id}"}
 
         return {"connected": False, "message": f"未知连接类型: {kind}"}
 
@@ -715,15 +707,16 @@ async def api_adb_devices(adb_path: str = "") -> dict[str, Any]:
         return {"devices": [], "error": str(exc)}
 
 
-@app.get("/api/wlroots/sockets")
-async def api_wlroots_sockets() -> dict[str, Any]:
-    """枚举 $XDG_RUNTIME_DIR 下名字含 wayland 的 socket, 供前端 datalist 候选。
+@app.get("/api/gamescope/instances")
+async def api_gamescope_instances() -> dict[str, Any]:
+    """枚举当前发现到的 gamescope 实例, 供前端下拉选择。
 
-    只做目录枚举 + socket 判断, 不验证合成器是否支持 wlr-screencopy —— 那要真实
-    截图才知道, 由连接状态探测 / 录制时兜底。
+    gamescope 未运行时返回空列表。仅做实例发现, 不验证其截图/输入能力 —— 那要真实
+    截屏才知道, 由连接状态探测 / 录制时兜底。
     """
-    sockets = await run_in_threadpool(list_wlroots_sockets)
-    return {"sockets": sockets, "default": default_wlroots_socket_path()}
+    runtime = get_runtime()
+    instances = await run_in_threadpool(list_gamescope_instances, runtime)
+    return {"instances": instances}
 
 
 # --- 导入 / 导出 (Option 1: 复用未改动的 json_import.py + maptracker_compat.py) --------
@@ -1299,7 +1292,7 @@ async def api_locate_once(payload: dict[str, Any] = Body(default_factory=dict)) 
             "win32": {"window_title": current.win32_window_title},
             "adb": {"adb_path": current.adb_path, "address": current.adb_address},
             "playcover": {"address": current.playcover_address, "uuid": current.playcover_uuid},
-            "wlroots": {"wlr_socket_path": current.wlroots_socket_path},
+            "linux": {"pw_node_id": current.linux_pw_node_id, "eis_socket_path": current.linux_eis_socket_path},
         }
     session_config = session_config_from_payload(cfg_payload)
 

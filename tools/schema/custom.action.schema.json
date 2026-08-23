@@ -14,6 +14,8 @@
                 "AutoAltSwipeAction",
                 "AutoCtrlClickAction",
                 "AutoFightMainAction",
+                "AutoDeliveryResolveDepotAction",
+                "AutoDeliveryResolveDestinationAction",
                 "AutoSellItemExecuteItemTaskAction",
                 "AutoStockStapleQuantityControlAction",
                 "AutoStockpile.CaptureUid",
@@ -51,7 +53,6 @@
                 "EssenceFilterRowNextItemAction",
                 "EssenceFilterSkillDecisionAction",
                 "EssenceFilterSwipeCalibrateAction",
-                "EssenceFilterTraceAction",
 				"FailureCollectorFinish",
 				"FailureCollectorRunTask",
 				"FailureCollectorReset",
@@ -80,7 +81,6 @@
                 "PostStop",
                 "PullCountCalculatorAction",
                 "PuzzleAction",
-                "SeizeDeliveryJobsResolveDestinationAction",
                 "SeizeDeliveryJobsResetScanStateAction",
                 "SeizeDeliveryJobsScanTargetAction",
                 "SellProductLocationPlan",
@@ -104,6 +104,24 @@
         }
     },
 	"allOf": [
+		{
+			"if": {
+				"properties": {
+					"custom_action": {
+						"enum": [
+							"AutoDeliveryResolveDepotAction",
+							"AutoDeliveryResolveDestinationAction"
+						]
+					}
+				},
+				"required": [ "custom_action" ]
+			},
+			"then": {
+				"properties": {
+					"custom_action_param": { "$ref": "./components/auto_delivery.schema.json#/$defs/ResolveNavigationParam" }
+				}
+			}
+		},
 		{
 			"if": {
 				"properties": {

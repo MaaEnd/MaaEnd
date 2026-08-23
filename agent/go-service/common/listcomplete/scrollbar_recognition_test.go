@@ -154,6 +154,91 @@ func TestScrollbarPositionRoundTrip(t *testing.T) {
 	}
 }
 
+func TestMissingScrollbarCompletesAfterConsecutiveConfirmation(t *testing.T) {
+	t.Parallel()
+
+	const node = "ScrollbarBoundary"
+	store := newFakeNodeStore()
+
+	complete, err := observeMissingScrollbar(store, node)
+	if err != nil {
+		t.Fatalf("first missing observation: %v", err)
+	}
+	if complete {
+		t.Fatal("first missing observation must request one confirmation scroll")
+	}
+
+	complete, err = observeMissingScrollbar(store, node)
+	if err != nil {
+		t.Fatalf("second missing observation: %v", err)
+	}
+	if !complete {
+		t.Fatal("second consecutive missing observation must treat the list as not scrollable")
+	}
+
+	if err := saveReady(store, node, false); err != nil {
+		t.Fatalf("reset scan state: %v", err)
+	}
+	complete, err = observeMissingScrollbar(store, node)
+	if err != nil {
+		t.Fatalf("first missing observation after scan reset: %v", err)
+	}
+	if complete {
+		t.Fatal("attach.ready=false must start a fresh missing confirmation cycle")
+	}
+
+	if err := saveScrollbarPosition(store, node, scrollbarSegment{Top: 8, Bottom: 30}); err != nil {
+		t.Fatalf("save valid scrollbar position: %v", err)
+	}
+	complete, err = observeMissingScrollbar(store, node)
+	if err != nil {
+		t.Fatalf("missing observation after valid scrollbar: %v", err)
+	}
+	if complete {
+		t.Fatal("a valid scrollbar observation must reset missing confirmation state")
+	}
+}
+
+func TestUnchangedScrollbarObservationResetsMissingConfirmation(t *testing.T) {
+	t.Parallel()
+
+	const node = "ScrollbarBoundary"
+	store := newFakeNodeStore()
+	segment := scrollbarSegment{Top: 8, Bottom: 30}
+
+	_, ready, complete, err := observeScrollbar(store, node, segment, defaultPositionTolerance)
+	if err != nil {
+		t.Fatalf("first valid scrollbar observation: %v", err)
+	}
+	if ready || complete {
+		t.Fatal("first valid scrollbar observation must record the position without completing")
+	}
+
+	complete, err = observeMissingScrollbar(store, node)
+	if err != nil {
+		t.Fatalf("missing observation after valid scrollbar: %v", err)
+	}
+	if complete {
+		t.Fatal("first missing observation must request confirmation")
+	}
+
+	_, ready, complete, err = observeScrollbar(store, node, segment, defaultPositionTolerance)
+	if err != nil {
+		t.Fatalf("unchanged valid scrollbar observation: %v", err)
+	}
+	if !ready || !complete {
+		t.Fatal("unchanged valid scrollbar observation must report the list complete")
+	}
+
+	complete, err = observeMissingScrollbar(store, node)
+	if err != nil {
+		t.Fatalf("missing observation after unchanged valid scrollbar: %v", err)
+	}
+	if complete {
+		t.Fatal("unchanged valid scrollbar observation must reset missing confirmation state")
+	}
+}
+
 func paintWhiteRows(img *image.RGBA, top, bottom int) {
 	paintWhiteRowsAtX(img, 2, top, bottom)
 }

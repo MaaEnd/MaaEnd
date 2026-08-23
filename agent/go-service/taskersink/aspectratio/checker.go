@@ -480,8 +480,8 @@ func displayControllerType(controllerType string) string {
 		return "ADB"
 	case control.CONTROL_TYPE_WIN32:
 		return "Win32"
-	case control.CONTROL_TYPE_WLROOTS:
-		return "Wlroots"
+	case control.CONTROL_TYPE_LINUX:
+		return "Linux"
 	default:
 		return controllerType
 	}
@@ -493,8 +493,8 @@ func normalizeControllerType(controllerType string) string {
 		return control.CONTROL_TYPE_ADB
 	case "win32":
 		return control.CONTROL_TYPE_WIN32
-	case "wlroots":
-		return control.CONTROL_TYPE_WLROOTS
+	case "linux":
+		return control.CONTROL_TYPE_LINUX
 	default:
 		return ""
 	}

@@ -47,6 +47,12 @@
                 "/tools/pipeline-generate/EnvironmentMonitoring/routes.json"
             ],
             "url": "/tools/schema/environment_monitoring_routes.schema.json"
+        },
+        {
+            "fileMatch": [
+                "/tools/pipeline-generate/AutoDelivery/routes.json"
+            ],
+            "url": "/tools/schema/auto_delivery_routes.schema.json"
         }
     ],
     "files.associations": {

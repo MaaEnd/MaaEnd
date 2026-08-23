@@ -592,8 +592,8 @@ Result HandleArrivalSemantic(const Context& ctx, const Waypoint& waypoint, doubl
         StopMotionAndCommitment(ctx);
 
         LogInfo << "Action: INTERACT reached, running the authoritative recognition." << VAR(actual_distance)
-                << VAR(waypoint.interact_text.size()) << VAR(waypoint.interact_scan);
-        RunPromptSubtask(ctx.maa_context, kInteractPromptSpec, &waypoint.interact_text);
+                << VAR(waypoint.interact_text.size()) << VAR(waypoint.interact_scan) << VAR(waypoint.interact_rec);
+        RunPromptSubtask(ctx.maa_context, kInteractPromptSpec, &waypoint.interact_text, waypoint.interact_rec);
 
         ctx.session->NoteCanonicalFinalGoalConsumed(arrived_absolute_node_idx, *ctx.position, "async_interact_completed");
         ctx.session->AdvanceToNextWaypoint(waypoint.action, "async_interact_completed");

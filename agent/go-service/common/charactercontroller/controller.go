@@ -41,7 +41,7 @@ func rotateView(ctx *maa.Context, dx, dy int) {
 		"__CharacterControllerDeltaSwipeAction": map[string]any{
 			"begin": maa.Rect{fromX, fromY, 1, 1},
 			"end":   maa.Rect{fromX + dx, fromY + dy, 1, 1},
-			// wlroots resource remaps this node to RelativeMove; keep dx/dy for that path.
+			// linux resource remaps this node to RelativeMove; keep dx/dy for that path.
 			"custom_action_param": map[string]any{
 				"dx": dx,
 				"dy": dy,

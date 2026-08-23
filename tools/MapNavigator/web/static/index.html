@@ -45,7 +45,7 @@
             <select id="connection-kind-combo" class="combo">
               <option value="win32">Windows 窗口句柄</option>
               <option value="adb">Android ADB 桥接</option>
-              <option value="wlroots">WlRoots (Linux Wayland)</option>
+              <option value="linux">Linux-Gamescope</option>
               <option value="playcover">PlayCover (macOS)</option>
             </select>
           </div>
@@ -83,14 +83,15 @@
             </div>
           </div>
 
-          <div id="wlroots-group" class="conn-group" hidden>
+          <div id="linux-group" class="conn-group" hidden>
             <div class="sidebar-row select-row">
-              <label class="sidebar-label" for="wlroots-socket-entry">Wayland socket</label>
-              <input id="wlroots-socket-entry" class="entry entry-wlroots" type="text" list="wlroots-socket-list" placeholder="例如 /run/user/1000/wayland-0" />
-              <datalist id="wlroots-socket-list"></datalist>
+              <label class="sidebar-label" for="linux-instance-combo">gamescope 实例</label>
+              <select id="linux-instance-combo" class="combo">
+                <option value="">未检测到 gamescope 实例</option>
+              </select>
             </div>
             <div class="sidebar-row" style="margin-top: 4px">
-              <button id="btn-refresh-wlroots" class="btn btn-secondary btn-sm" type="button" style="width: 100%">检测并刷新 socket</button>
+              <button id="btn-refresh-linux" class="btn btn-secondary btn-sm" type="button" style="width: 100%">检测并刷新实例</button>
             </div>
           </div>
           </div>

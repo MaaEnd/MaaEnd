@@ -14,7 +14,7 @@ MAAFW_BIN_DIR = INSTALL_DIR / "maafw"
 RESOURCE_DIR = PROJECT_ROOT / "assets" / "resource"
 MAP_IMAGE_DIR = RESOURCE_DIR / "image"
 RESOURCE_ADB_DIR = PROJECT_ROOT / "assets" / "resource_adb"
-RESOURCE_WLROOTS_DIR = PROJECT_ROOT / "assets" / "resource_wlroots"
+RESOURCE_LINUX_DIR = PROJECT_ROOT / "assets" / "resource_linux"
 
 
 def _resolve_cpp_agent_executable() -> Path:
@@ -63,7 +63,7 @@ class MaaRuntime:
     Win32Controller: Any
     AdbController: Any
     PlayCoverController: Any
-    WlRootsController: Any
+    LinuxController: Any
     Tasker: Any
     AgentClient: Any
     Toolkit: Any
@@ -96,9 +96,9 @@ def load_maa_runtime() -> MaaRuntime | None:
         PlayCoverController = None
 
     try:
-        from maa.controller import WlRootsController
+        from maa.controller import LinuxController
     except ImportError:
-        WlRootsController = None
+        LinuxController = None
 
     try:
         from maa.toolkit import Toolkit
@@ -111,7 +111,7 @@ def load_maa_runtime() -> MaaRuntime | None:
         Win32Controller=Win32Controller,
         AdbController=AdbController,
         PlayCoverController=PlayCoverController,
-        WlRootsController=WlRootsController,
+        LinuxController=LinuxController,
         Tasker=Tasker,
         AgentClient=AgentClient,
         Toolkit=Toolkit,
