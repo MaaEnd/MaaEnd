@@ -11,14 +11,17 @@ import (
 func TestBuildDeliveryNavigationOverride(t *testing.T) {
 	t.Parallel()
 
-	deckY := 315.37
-	destination := destination{
-		Target:      [2]float64{525.72, 1749.78},
-		TargetDeckY: &deckY,
-		InitialPath: []any{
-			map[string]any{"action": "ZONE", "zone_id": "Wuling_Base"},
-			[]any{724.98, 1596.8},
+	path := []any{
+		map[string]any{"action": "ZONE", "zone_id": "Wuling_Base"},
+		[]any{724.98, 1596.8},
+		map[string]any{
+			"action":        "NAVMESH",
+			"target":        [2]float64{525.72, 1749.78},
+			"target_deck_y": 315.37,
 		},
+	}
+	destination := destination{
+		Path: path,
 	}
 
 	override := buildDestinationNavigationOverride(destination, true)
@@ -34,17 +37,7 @@ func TestBuildDeliveryNavigationOverride(t *testing.T) {
 		t.Fatalf("MapNavigator zip request = %v, want true", param["zip"])
 	}
 
-	wantWaypoint := map[string]any{
-		"action":        "NAVMESH",
-		"target":        [2]float64{525.72, 1749.78},
-		"target_deck_y": deckY,
-	}
-	wantPath := []any{
-		map[string]any{"action": "ZONE", "zone_id": "Wuling_Base"},
-		[]any{724.98, 1596.8},
-		wantWaypoint,
-	}
-	if !reflect.DeepEqual(param["path"], wantPath) {
+	if !reflect.DeepEqual(param["path"], path) {
 		t.Fatalf("unexpected path: %#v", param["path"])
 	}
 }
@@ -53,7 +46,10 @@ func TestBuildDeliveryNavigationOverrideUsesCurrentMap(t *testing.T) {
 	t.Parallel()
 
 	override := buildDestinationNavigationOverride(destination{
-		Target: [2]float64{1043.46, 804.72},
+		Path: []any{map[string]any{
+			"action": "NAVMESH",
+			"target": [2]float64{1043.46, 804.72},
+		}},
 	}, false)
 	param := navigationParam(t, override, navigateDestinationNode)
 	if _, exists := param["map_name"]; exists {
@@ -99,7 +95,7 @@ func TestBuildDeliveryDestinationDataIncludesUnconfiguredCatalogEntries(t *testi
 	destinationPath := []any{[]any{320.0, 410.0}}
 	config := navigationOverrides{
 		Depots: []depotOverride{
-			{SourceID: "domain_2_lv005_depot_1", DestinationPathPrefix: depotPrefix},
+			{SourceID: "domain_2_lv005_depot_1", DeparturePath: depotPrefix},
 		},
 		Destinations: []destinationOverride{
 			{SourceID: "deliver_target_map02_lv005_01", Path: destinationPath},
@@ -134,13 +130,46 @@ func TestBuildDeliveryDestinationDataIncludesUnconfiguredCatalogEntries(t *testi
 	if valley.Kind != destinationKindRecycleBin {
 		t.Fatalf("recycle destination kind = %q, want %q", valley.Kind, destinationKindRecycleBin)
 	}
+	wantGeneratedPath := []any{map[string]any{
+		"action": "NAVMESH",
+		"target": [2]float64{100, 200},
+	}}
+	if !reflect.DeepEqual(valley.Path, wantGeneratedPath) {
+		t.Fatalf("unexpected generated Valley IV path: %#v", valley.Path)
+	}
 	wuling := destinations[1]
 	if wuling.ID != "deliver_target_map02_lv005_01" || wuling.DepotID != "domain_2_lv005_depot_1" {
 		t.Fatalf("unexpected configured Wuling destination: %#v", wuling)
 	}
-	wantInitialPath := append(append([]any{}, depotPrefix...), destinationPath...)
-	if !reflect.DeepEqual(wuling.InitialPath, wantInitialPath) {
-		t.Fatalf("unexpected configured Wuling path: %#v", wuling.InitialPath)
+	wantPath := append(append([]any{}, depotPrefix...), destinationPath...)
+	if !reflect.DeepEqual(wuling.Path, wantPath) {
+		t.Fatalf("unexpected configured Wuling path: %#v", wuling.Path)
+	}
+}
+
+func TestBuildDeliveryDestinationDataRejectsEmptyOverridePath(t *testing.T) {
+	t.Parallel()
+
+	catalog := generatedCatalog{Destinations: []generatedDestination{
+		{
+			ID:      "deliver_target_map01_lv005_01",
+			Kind:    destinationKindNPC,
+			U:       100,
+			V:       200,
+			Name:    map[string]string{"zh_cn": "英格"},
+			Mission: map[string]string{"zh_cn": "把货物交给英格"},
+			Area:    map[string]string{"zh_cn": "源石研究园"},
+		},
+	}}
+	_, _, err := buildDestinations(
+		catalog,
+		navigationOverrides{Destinations: []destinationOverride{
+			{SourceID: "deliver_target_map01_lv005_01"},
+		}},
+		map[string]depot{},
+	)
+	if err == nil {
+		t.Fatal("buildDeliveryDestinationData() must reject an override with an empty path")
 	}
 }
 

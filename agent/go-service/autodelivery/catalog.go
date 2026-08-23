@@ -27,9 +27,7 @@ type destination struct {
 	Kind             string
 	AreaID           string
 	DepotID          string
-	Target           [2]float64
-	TargetDeckY      *float64
-	InitialPath      []any
+	Path             []any
 	DestinationTexts []string
 	ObjectiveTexts   []string
 }
@@ -63,25 +61,23 @@ type navigationOverrides struct {
 }
 
 type depotOverride struct {
-	SourceID              string `json:"source_id"`
-	Path                  []any  `json:"path"`
-	RetryPath             []any  `json:"retry_path"`
-	DestinationPathPrefix []any  `json:"destination_path_prefix"`
+	SourceID      string `json:"source_id"`
+	Path          []any  `json:"path"`
+	RetryPath     []any  `json:"retry_path"`
+	DeparturePath []any  `json:"departure_path"`
 }
 
 type destinationOverride struct {
-	SourceID       string      `json:"source_id"`
-	TargetOverride *[2]float64 `json:"target_override"`
-	TargetDeckY    *float64    `json:"target_deck_y"`
-	Path           []any       `json:"path"`
+	SourceID string `json:"source_id"`
+	Path     []any  `json:"path"`
 }
 
 type depot struct {
-	ID                    string
-	Map                   string
-	Path                  []any
-	RetryPath             []any
-	DestinationPathPrefix []any
+	ID            string
+	Map           string
+	Path          []any
+	RetryPath     []any
+	DeparturePath []any
 }
 
 type catalogCache struct {
@@ -194,9 +190,9 @@ func buildDepots(
 		if !exists {
 			return nil, fmt.Errorf("AutoDelivery depot override %q is not present in the generated catalog", config.SourceID)
 		}
-		if len(config.Path) == 0 && len(config.RetryPath) == 0 && len(config.DestinationPathPrefix) == 0 {
+		if len(config.Path) == 0 && len(config.RetryPath) == 0 && len(config.DeparturePath) == 0 {
 			return nil, fmt.Errorf(
-				"AutoDelivery depot override %q has neither path, retry_path nor destination_path_prefix",
+				"AutoDelivery depot override %q has neither path, retry_path nor departure_path",
 				config.SourceID,
 			)
 		}
@@ -204,7 +200,7 @@ func buildDepots(
 			route.Path = config.Path
 		}
 		route.RetryPath = config.RetryPath
-		route.DestinationPathPrefix = config.DestinationPathPrefix
+		route.DeparturePath = config.DeparturePath
 		depots[config.SourceID] = route
 	}
 	return depots, nil
@@ -242,8 +238,8 @@ func buildDestinations(
 				config.SourceID,
 			)
 		}
-		if config.TargetOverride == nil && config.TargetDeckY == nil && len(config.Path) == 0 {
-			return nil, nil, fmt.Errorf("delivery destination override %q is empty", config.SourceID)
+		if len(config.Path) == 0 {
+			return nil, nil, fmt.Errorf("delivery destination override %q has an empty path", config.SourceID)
 		}
 		destinationOverrides[config.SourceID] = config
 	}
@@ -282,18 +278,17 @@ func buildDestinations(
 		if err != nil {
 			return nil, nil, fmt.Errorf("MapNavigator destination %q: %w", source.ID, err)
 		}
-		mapNavigatorTarget := [2]float64{source.U, source.V}
-		var targetDeckY *float64
-		var initialPath []any
+		var path []any
 		if route, exists := depots[source.DepotID]; exists {
-			initialPath = append(initialPath, route.DestinationPathPrefix...)
+			path = append(path, route.DeparturePath...)
 		}
 		if override, exists := destinationOverrides[source.ID]; exists {
-			targetDeckY = override.TargetDeckY
-			initialPath = append(initialPath, override.Path...)
-			if override.TargetOverride != nil {
-				mapNavigatorTarget = *override.TargetOverride
-			}
+			path = append(path, override.Path...)
+		} else {
+			path = append(path, map[string]any{
+				"action": "NAVMESH",
+				"target": [2]float64{source.U, source.V},
+			})
 		}
 		if depotID, exists := areaDepotIDs[areaID]; exists && depotID != source.DepotID {
 			return nil, nil, fmt.Errorf(
@@ -317,9 +312,7 @@ func buildDestinations(
 			Kind:             kind,
 			AreaID:           areaID,
 			DepotID:          source.DepotID,
-			Target:           mapNavigatorTarget,
-			TargetDeckY:      targetDeckY,
-			InitialPath:      initialPath,
+			Path:             path,
 			DestinationTexts: destinationTexts,
 			ObjectiveTexts:   objectiveTexts,
 		})

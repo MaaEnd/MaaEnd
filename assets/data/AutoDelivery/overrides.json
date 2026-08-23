@@ -28,13 +28,19 @@
                 [
                     543.38,
                     1270.17
-                ]
+                ],
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        538.031,
+                        1250.27
+                    ]
+                }
             ]
         },
         {
             "source_id": "deliver_target_map02_lv002_02",
             "description": "材料研究所（左下）",
-            "target_deck_y": 315.37,
             "path": [
                 {
                     "action": "NAVMESH",
@@ -56,6 +62,14 @@
                         525.72,
                         1749.78
                     ]
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        461.92,
+                        1712.802
+                    ],
+                    "target_deck_y": 315.37
                 }
             ]
         },
@@ -73,17 +87,19 @@
                 [
                     852.39,
                     1471.77
-                ]
+                ],
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        894.615,
+                        1408.425
+                    ]
+                }
             ]
         },
         {
             "source_id": "deliver_target_map02_lv002_recycle_01",
             "description": "猫头鹰（资源回收站）",
-            "target_override": [
-                512.92,
-                1652.04
-            ],
-            "target_deck_y": 325.79,
             "path": [
                 {
                     "action": "NAVMESH",
@@ -98,6 +114,14 @@
                         493.01,
                         1633.2
                     ]
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        512.92,
+                        1652.04
+                    ],
+                    "target_deck_y": 325.79
                 }
             ]
         },
@@ -110,6 +134,13 @@
                     "target": [
                         1344.56,
                         1734.39
+                    ]
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1383.764,
+                        1633.923
                     ]
                 }
             ]
@@ -155,6 +186,13 @@
                         1517.12
                     ],
                     "target_deck_y": 259.34
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1369.873,
+                        1533.922
+                    ]
                 }
             ]
         }
@@ -234,7 +272,7 @@
                     true
                 ]
             ],
-            "destination_path_prefix": [
+            "departure_path": [
                 {
                     "action": "ZONE",
                     "zone_id": "Wuling_Base"

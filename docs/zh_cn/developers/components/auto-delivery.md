@@ -149,13 +149,13 @@ DeliveryJobs 在单击“查看任务”后进入仓储适配节点，再由 `Au
 | 路径 | 内容 |
 | --------------------------------------------------------- | -------------------------------------------- |
 | `assets/data/AutoDelivery/delivery_destinations.json` | 自动生成的仓储、终点、五语言文本、坐标和归属关系 |
-| `assets/data/AutoDelivery/overrides.json` | 特殊主路线、`retry_path`、终点分段路线和楼层覆盖 |
+| `assets/data/AutoDelivery/overrides.json` | 特殊主路线、`retry_path`、离开仓储的公共路线和终点完整路线 |
 | `assets/resource/pipeline/AutoDelivery/Common.json` | 统一调用入口和任务详情识别 |
 | `assets/resource/pipeline/AutoDelivery/Pickup.json` | 快速传送、仓储寻路和取货 |
 | `assets/resource/pipeline/AutoDelivery/Delivery.json` | 返回大世界、终点寻路和提交货物 |
 | `agent/go-service/autodelivery/` | OCR 匹配、数据校验和寻路节点参数注入 |
 
-普通仓储和终点直接使用自动目录中的坐标生成单个 `NAVMESH` 航点。只有断网格、分层、需要分段靠近或需要取货位置修正时，才在 `overrides.json` 中维护覆盖。
+普通仓储和终点使用自动目录坐标生成单个 `NAVMESH` 航点。断网格、分层、分段靠近和取货位置修正在 `overrides.json` 中配置。终点 `path` 是包含最终航点的完整 MapNavigator 路线，楼层高度写在对应 `NAVMESH` 航点的 `target_deck_y` 中。
 
 终点目录中的 `area` 取自 `LevelDescTable.showName`，对应任务详情页实际显示的关卡名称，而不是地区建设中的仓储节点名称。普通收货任务从完整目标文案中匹配 `buyerName`；`kind` 为 `recycle_bin` 的回收站任务不显示 `buyerName`，改为匹配完整 `mission`。同一区域存在多个相同回收站文案时保持歧义失败，不任意选择终点。
 
@@ -163,8 +163,10 @@ DeliveryJobs 在单击“查看任务”后进入仓储适配节点，再由 `Au
 
 | 数组 | 可覆盖字段 |
 | -------------- | -------------------------------------------------------------------- |
-| `depots` | `path`、`retry_path`、`destination_path_prefix` |
-| `destinations` | `path`、`target_override`、`target_deck_y` |
+| `depots` | `path`、`retry_path`、`departure_path` |
+| `destinations` | `path` |
+
+`departure_path` 是取货后离开仓储的公共路线。终点导航路线为 `depot.departure_path + destination.path`；未配置终点覆盖时，`destination.path` 为自动目录坐标生成的单个 `NAVMESH` 航点。
 
 ## 接入检查
 

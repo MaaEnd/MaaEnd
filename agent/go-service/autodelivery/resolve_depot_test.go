@@ -88,7 +88,7 @@ func TestBuildDeliveryDepotDataRejectsEmptyOverride(t *testing.T) {
 		}},
 	)
 	if err == nil {
-		t.Fatal("buildDeliveryDepotData() must reject overrides without path, retry_path or destination_path_prefix")
+		t.Fatal("buildDeliveryDepotData() must reject overrides without path, retry_path or departure_path")
 	}
 }
 
@@ -201,8 +201,8 @@ func TestBuildDeliveryDepotDataWithRepositoryData(t *testing.T) {
 		t.Fatalf("Valley IV depot count = %d, want 3", valleyIVDepotCount)
 	}
 
-	if len(config.Depots) != 4 {
-		t.Fatalf("depot override count = %d, want 4", len(config.Depots))
+	if len(config.Depots) != 3 {
+		t.Fatalf("depot override count = %d, want 3", len(config.Depots))
 	}
 	for _, override := range config.Depots {
 		depot, exists := depots[override.SourceID]
@@ -215,12 +215,12 @@ func TestBuildDeliveryDepotDataWithRepositoryData(t *testing.T) {
 		if !reflect.DeepEqual(depot.RetryPath, override.RetryPath) {
 			t.Fatalf("overridden depot %q retry path = %#v, want %#v", override.SourceID, depot.RetryPath, override.RetryPath)
 		}
-		if !reflect.DeepEqual(depot.DestinationPathPrefix, override.DestinationPathPrefix) {
+		if !reflect.DeepEqual(depot.DeparturePath, override.DeparturePath) {
 			t.Fatalf(
-				"overridden depot %q destination prefix = %#v, want %#v",
+				"overridden depot %q departure path = %#v, want %#v",
 				override.SourceID,
-				depot.DestinationPathPrefix,
-				override.DestinationPathPrefix,
+				depot.DeparturePath,
+				override.DeparturePath,
 			)
 		}
 	}
@@ -237,26 +237,10 @@ func TestBuildDeliveryDepotDataWithRepositoryData(t *testing.T) {
 		if !exists {
 			t.Fatalf("overridden destination %q is missing", override.SourceID)
 		}
-		wantPath := append([]any{}, depots[destination.DepotID].DestinationPathPrefix...)
+		wantPath := append([]any{}, depots[destination.DepotID].DeparturePath...)
 		wantPath = append(wantPath, override.Path...)
-		if !reflect.DeepEqual(destination.InitialPath, wantPath) {
-			t.Fatalf("overridden destination %q path = %#v, want %#v", override.SourceID, destination.InitialPath, wantPath)
-		}
-		if override.TargetOverride != nil && destination.Target != *override.TargetOverride {
-			t.Fatalf(
-				"overridden destination %q target = %#v, want %#v",
-				override.SourceID,
-				destination.Target,
-				*override.TargetOverride,
-			)
-		}
-		if !reflect.DeepEqual(destination.TargetDeckY, override.TargetDeckY) {
-			t.Fatalf(
-				"overridden destination %q deck = %#v, want %#v",
-				override.SourceID,
-				destination.TargetDeckY,
-				override.TargetDeckY,
-			)
+		if !reflect.DeepEqual(destination.Path, wantPath) {
+			t.Fatalf("overridden destination %q path = %#v, want %#v", override.SourceID, destination.Path, wantPath)
 		}
 	}
 }

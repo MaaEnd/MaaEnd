@@ -71,7 +71,7 @@ func (a *AutoDeliveryResolveDestinationAction) Run(ctx *maa.Context, arg *maa.Cu
 		return false
 	}
 
-	event := log.Info().
+	log.Info().
 		Str("component", resolveDestinationActionName).
 		Str("areaText", areaText).
 		Str("destinationText", destinationText).
@@ -86,23 +86,15 @@ func (a *AutoDeliveryResolveDestinationAction) Run(ctx *maa.Context, arg *maa.Cu
 		Float64("areaRunnerUpSimilarity", match.AreaRunnerUp).
 		Str("area", dest.AreaID).
 		Bool("zip", options.Zip).
-		Float64("targetX", dest.Target[0]).
-		Float64("targetY", dest.Target[1])
-	if dest.TargetDeckY != nil {
-		event.Float64("targetDeckY", *dest.TargetDeckY)
-	}
-	event.Msg("resolved delivery job destination")
+		Int("pathPoints", len(dest.Path)).
+		Msg("resolved delivery job destination")
 	return true
 }
 
 // OverridePipeline 采用字段级浅合并，因此这里必须提供完整的 custom_action_param。
 func buildDestinationNavigationOverride(dest destination, zip bool) map[string]any {
-	path := make([]any, 0, len(dest.InitialPath)+1)
-	path = append(path, dest.InitialPath...)
-	path = append(path, destinationWaypoint(dest))
-
 	param := map[string]any{
-		"path": path,
+		"path": dest.Path,
 		"zip":  zip,
 	}
 	return map[string]any{
@@ -110,15 +102,4 @@ func buildDestinationNavigationOverride(dest destination, zip bool) map[string]a
 			"custom_action_param": param,
 		},
 	}
-}
-
-func destinationWaypoint(dest destination) map[string]any {
-	waypoint := map[string]any{
-		"action": "NAVMESH",
-		"target": dest.Target,
-	}
-	if dest.TargetDeckY != nil {
-		waypoint["target_deck_y"] = *dest.TargetDeckY
-	}
-	return waypoint
 }
