@@ -81,8 +81,16 @@ func (a *EssenceFilterAfterBattleSkillDecisionAction) Run(ctx *maa.Context, arg 
 		return false
 	}
 	return runUnifiedSkillDecision(ctx, arg, st, st.MatchEngine, ocr, decisionNextNodes{
-		Lock:    "EssenceFilterAfterBattleLockItem",
-		Discard: "EssenceFilterAfterBattleDiscardItem",
-		Skip:    "EssenceFilterAfterBattleCloseDetail",
+		Lock: []maa.NextItem{
+			{Name: "EssenceFilterAfterBattleCheckLocked"},
+			{Name: "EssenceFilterAfterBattleLockItem"},
+		},
+		Discard: []maa.NextItem{
+			{Name: "EssenceFilterAfterBattleCheckDiscarded"},
+			{Name: "EssenceFilterAfterBattleDiscardItem"},
+		},
+		Skip: []maa.NextItem{
+			{Name: "EssenceFilterAfterBattleCloseDetail"},
+		},
 	})
 }

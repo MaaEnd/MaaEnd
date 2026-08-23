@@ -211,9 +211,17 @@ func (a *EssenceFilterSkillDecisionAction) Run(ctx *maa.Context, arg *maa.Custom
 		return false
 	}
 	return runUnifiedSkillDecision(ctx, arg, st, st.MatchEngine, ocr, decisionNextNodes{
-		Lock:    "EssenceFilterLockItem",
-		Discard: "EssenceFilterDiscardItem",
-		Skip:    "EssenceGridAdvance",
+		Lock: []maa.NextItem{
+			{Name: "EssenceFilterCheckLocked"},
+			{Name: "EssenceFilterLockItem"},
+		},
+		Discard: []maa.NextItem{
+			{Name: "EssenceFilterCheckDiscarded"},
+			{Name: "EssenceFilterDiscardItem"},
+		},
+		Skip: []maa.NextItem{
+			{Name: "EssenceGridAdvance"},
+		},
 	})
 }
 

@@ -217,9 +217,9 @@ func reportFinishArtifacts(ctx *maa.Context, st *RunState) {
 }
 
 type decisionNextNodes struct {
-	Lock    string
-	Discard string
-	Skip    string
+	Lock    []maa.NextItem
+	Discard []maa.NextItem
+	Skip    []maa.NextItem
 }
 
 func runUnifiedSkillDecision(
@@ -263,7 +263,7 @@ func runUnifiedSkillDecision(
 				}
 			}
 		}
-		ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: next.Lock}})
+		ctx.OverrideNext(arg.CurrentTaskName, next.Lock)
 
 	case matchapi.MatchFuturePromising, matchapi.MatchSlot3Level3Practical:
 		var reason string
@@ -300,19 +300,19 @@ func runUnifiedSkillDecision(
 				}
 			}
 			reportExtRule(ctx, reason, true)
-			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: next.Lock}})
+			ctx.OverrideNext(arg.CurrentTaskName, next.Lock)
 		} else {
 			reportExtRule(ctx, reason, false)
-			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: next.Skip}})
+			ctx.OverrideNext(arg.CurrentTaskName, next.Skip)
 		}
 
 	case matchapi.MatchNone:
 		if matchResult.ShouldDiscard {
 			reportNoMatch(ctx, true)
-			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: next.Discard}})
+			ctx.OverrideNext(arg.CurrentTaskName, next.Discard)
 		} else {
 			reportNoMatch(ctx, false)
-			ctx.OverrideNext(arg.CurrentTaskName, []maa.NextItem{{Name: next.Skip}})
+			ctx.OverrideNext(arg.CurrentTaskName, next.Skip)
 		}
 	}
 
