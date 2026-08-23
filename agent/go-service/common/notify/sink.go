@@ -12,7 +12,8 @@ import (
 
 var (
 	configMu       sync.RWMutex
-	configByTaskID = map[uint64]Config{} // taskID → 该任务的运行时配置（任务级 override 后）
+	configByTaskID = map[uint64]Config{}    // taskID → 该任务的运行时配置（任务级 override 后）
+	taskStartTime  = map[uint64]time.Time{} // taskID → 任务开始时间
 
 	// notifiedTaskIDs 记录已发送失败通知的 task_id。框架可能对同一任务失败事件
 	// 重复广播，按 task_id 去重；LoadOrStore 原子，并行任务下也只发送一次。
@@ -77,27 +78,25 @@ func (s *Sink) OnTaskerTask(_ *maa.Tasker, event maa.EventStatus, detail maa.Tas
 			if config.OnFail && shouldNotifyFail(detail.TaskID) {
 				log.Warn().Str("component", "Notify").Uint64("task_id", detail.TaskID).Str("entry", detail.Entry).Msg("on_fail enabled but no channel enabled; failure notification will not be delivered")
 			}
+			deleteConfigByTask(detail.TaskID)
 			return
 		}
 		if !config.OnFail {
+			deleteConfigByTask(detail.TaskID)
 			return
 		}
 		if !shouldNotifyFail(detail.TaskID) {
 			return
 		}
 		now := time.Now()
-		vars := BuildVars(detail.Entry, i18n.T("notify.status.failed"), now)
+		vars := BuildVars(detail.Entry, i18n.T("notify.status.failed"), now, getStartTime(detail.TaskID))
 		vars["title"] = config.FailTitle
 		vars["body"] = config.FailBody
 		log.Info().Str("component", "Notify").Uint64("task_id", detail.TaskID).Str("entry", detail.Entry).Msg("task failed, sending notify")
 		go Send(config, vars)
-		configMu.Lock()
-		delete(configByTaskID, detail.TaskID)
-		configMu.Unlock()
+		deleteConfigByTask(detail.TaskID)
 	case maa.EventStatusSucceeded:
-		configMu.Lock()
-		delete(configByTaskID, detail.TaskID)
-		configMu.Unlock()
+		deleteConfigByTask(detail.TaskID)
 	}
 }
 
@@ -105,6 +104,7 @@ func setConfigByTask(taskID uint64, config Config) {
 	configMu.Lock()
 	defer configMu.Unlock()
 	configByTaskID[taskID] = config
+	taskStartTime[taskID] = time.Now()
 }
 
 // getConfigByTask 取指定任务缓存的配置；未缓存过（任务在节点事件前失败）返回 false。
@@ -113,6 +113,19 @@ func getConfigByTask(taskID uint64) (Config, bool) {
 	defer configMu.RUnlock()
 	config, ok := configByTaskID[taskID]
 	return config, ok
+}
+
+func deleteConfigByTask(taskID uint64) {
+	configMu.Lock()
+	delete(configByTaskID, taskID)
+	delete(taskStartTime, taskID)
+	configMu.Unlock()
+}
+
+func getStartTime(taskID uint64) time.Time {
+	configMu.RLock()
+	defer configMu.RUnlock()
+	return taskStartTime[taskID]
 }
 
 // shouldNotifyFail 判断该 task_id 是否应发送失败通知：同一 task_id 只发送一次，
