@@ -119,24 +119,17 @@
         "MissionId": "m1m32",
         "Name": "“栖霞驻影”",
         "Id": "EternalSunset",
-        "EnterMap": "SceneEnterWorldWulingJingyuValley2",
-        "NavZoneId": "Wuling_Base",
-        "NavAssert": [
-            790.15,
-            2316.48,
-            14.77,
-            14.78
-        ],
+        "QuickTeleport": true,
         "NavPath": [
             {
                 "action": "NAVMESH",
                 "target": [
-                    820.03,
-                    2310.06
+                    820.47,
+                    2324.7
                 ]
             }
         ],
-        "Heading": 60
+        "Heading": 43
     },
     {
         "MissionId": "m1m33",

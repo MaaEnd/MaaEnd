@@ -216,7 +216,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToEternalSunset"
+            "EternalSunsetInQuickTeleportMap"
         ]
     },
     "AlreadyTrackedEternalSunset": {
@@ -230,7 +230,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToEternalSunset"
+            "EternalSunsetOpenTrackedMissionMap"
         ]
     },
     "EternalSunsetOpenTrackedMissionMap": {
@@ -340,10 +340,10 @@
         "custom_recognition_param": {
             "zone_id": "Wuling_Base",
             "target": [
-                790.15,
-                2316.48,
-                14.77,
-                14.78
+                0,
+                0,
+                1,
+                1
             ]
         },
         "pre_delay": 0,
@@ -360,7 +360,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldWulingJingyuValley2"
+                "SceneAnyEnterWorld"
             ]
         },
         "post_delay": 0,
@@ -379,13 +379,13 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        820.03,
-                        2310.06
+                        820.47,
+                        2324.7
                     ]
                 },
                 {
                     "action": "HEADING",
-                    "angle": 60
+                    "angle": 43
                 }
             ]
         },
