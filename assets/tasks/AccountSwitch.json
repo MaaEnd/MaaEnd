@@ -102,46 +102,12 @@
                 }
             ],
             "pipeline_override": {
-                "__AccountSwitchClickDropdown": {
-                    "recognition": {
-                        "param": {
-                            "expected": [
-                                "(?i).*\\*{5}\\S*@\\S+.*"
-                            ]
-                        }
-                    }
-                },
                 "__AccountSwitchOCRSelectAccount": {
                     "attach": {
                         "email": "{Email}"
                     }
                 },
-                "__AccountSwitchCheckAccount": {
-                    "recognition": {
-                        "param": {
-                            "roi": [
-                                503,
-                                294,
-                                278,
-                                38
-                            ],
-                            "expected": [
-                                "(?i).*\\*{5}\\S*@\\S+.*"
-                            ]
-                        }
-                    }
-                },
                 "__AccountSwitchVerifySelected": {
-                    "recognition": {
-                        "param": {
-                            "roi": [
-                                503,
-                                294,
-                                278,
-                                38
-                            ]
-                        }
-                    },
                     "attach": {
                         "email": "{Email}"
                     }
