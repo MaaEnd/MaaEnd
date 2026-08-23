@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/accountswitch"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/aerosalvage"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/autodelivery"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autoecofarm"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autofight"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autosell"
@@ -93,6 +94,7 @@ func registerAll() {
 	maptracker.Register()
 	batchaddfriends.Register()
 	autoecofarm.Register()
+	autodelivery.Register()
 	autofight.Register()
 	scenemanager.Register()
 	seizedeliveryjobs.Register()

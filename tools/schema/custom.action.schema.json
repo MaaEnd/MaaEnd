@@ -14,6 +14,8 @@
                 "AutoAltSwipeAction",
                 "AutoCtrlClickAction",
                 "AutoFightMainAction",
+                "AutoDeliveryResolveDepotAction",
+                "AutoDeliveryResolveDestinationAction",
                 "AutoSellItemExecuteItemTaskAction",
                 "AutoStockStapleQuantityControlAction",
                 "AutoStockpile.CaptureUid",
@@ -104,6 +106,24 @@
         }
     },
 	"allOf": [
+		{
+			"if": {
+				"properties": {
+					"custom_action": {
+						"enum": [
+							"AutoDeliveryResolveDepotAction",
+							"AutoDeliveryResolveDestinationAction"
+						]
+					}
+				},
+				"required": [ "custom_action" ]
+			},
+			"then": {
+				"properties": {
+					"custom_action_param": { "$ref": "./components/auto_delivery.schema.json#/$defs/ResolveNavigationParam" }
+				}
+			}
+		},
 		{
 			"if": {
 				"properties": {
