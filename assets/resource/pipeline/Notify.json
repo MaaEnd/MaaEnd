@@ -47,14 +47,11 @@
             "fail_title": "",
             "fail_body": "",
             "task_title": "",
-            "task_body": "",
-            "send_task_webhook": true,
-            "send_task_bark": true,
-            "send_task_serverchan": true
+            "task_body": ""
         }
     },
     "NotifySend": {
-        "desc": "通知任务入口：也可在任意 pipeline 中引用本节点，按 __NotifyConfig 配置推送一条通知，通知失败不影响流程",
+        "desc": "通知任务入口：也可在任意 pipeline 中引用本节点，按 __NotifyConfig 配置推送一条通知。其他任务可在自己的节点上直接使用 NotifySendAction，并在该节点 attach 中编写 task_title/task_body（或 i18n key task_title_key/task_body_key）发送自定义通知，通知失败不影响流程",
         "recognition": "DirectHit",
         "action": "Custom",
         "custom_action": "NotifySendAction",
