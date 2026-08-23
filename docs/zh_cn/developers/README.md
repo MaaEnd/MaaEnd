@@ -77,6 +77,7 @@ flowchart TD
 
 | 文档 | 说明 |
 | -------------------------------------------------------------------- | --------------------------------------------------- |
+| [AutoDelivery 通用送货](./components/auto-delivery.md) | 仓储与终点识别、导航、取货和提交的可组合原子能力 |
 | [AutoFight 自动战斗](./components/auto-fight.md) | 战斗内自动操作模块，自动完成普攻、技能、连携技等 |
 | [CharacterController 角色控制](./components/character-controller.md) | 角色视角旋转、移动及朝向目标自动移动 |
 | [BetterSliding 定量滑动](./components/better-sliding.md) | 按目标值调节离散数量滑条的公共自定义动作 |
