@@ -4,8 +4,7 @@
         "pre_delay": 0,
         "anchor": {
             "AutoEssenceMoveToTriggerPoint": "GotoTriggerPointMove_WLYinglungPass",
-            "AutoEssenceMoveToTriggerPointMaybeTeleport": "GotoTriggerPointMaybeTeleport_WLYinglungPass",
-            "AutoEssenceReturnToTriggerPoint": "GotoTriggerPointReturn_WLYinglungPass"
+            "AutoEssenceMoveToTriggerPointMaybeTeleport": "GotoTriggerPointMaybeTeleport_WLYinglungPass"
         },
         "post_delay": 0,
         "focus": {
@@ -77,71 +76,6 @@
             }
         }
     },
-    "GotoTriggerPointReturn_WLYinglungPass": {
-        "desc": "挑战结束后走回淤积点领奖，扫的是领取按钮而不是激发按钮",
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "MapNavigateAction",
-                "custom_action_param": {
-                    "path": [
-                        {
-                            "action": "ZONE",
-                            "zone_id": "Wuling_Base"
-                        },
-                        {
-                            "action": "NAVMESH",
-                            "target": [
-                                1068.26,
-                                814.83
-                            ]
-                        },
-                        [
-                            1068.26,
-                            832.88
-                        ],
-                        [
-                            1068.26,
-                            850.93
-                        ],
-                        [
-                            1068.26,
-                            868.98,
-                            true
-                        ],
-                        {
-                            "action": "INTERACT",
-                            "target": [
-                                1068.58,
-                                885.84
-                            ],
-                            "interact_text": {
-                                "node": "__AutoEssenceRecoEssenceObtainText"
-                            },
-                            "interact_scan": "__AutoEssenceRecoEssenceObtainButton"
-                        }
-                    ]
-                }
-            }
-        },
-        "post_delay": 1500,
-        "next": [
-            "__AutoEssenceMistakeFactoryDeviceOnReturn",
-            "AutoEssenceChooseScaling1",
-            "AutoEssenceConfirmObtain",
-            "AutoEssenceClickEssenceStartPrepare",
-            "__AutoEssenceInteractOnReturn"
-        ],
-        "focus": {
-            "Node.Action.Starting": "🚶正在走回淤积点领取奖励",
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
-        }
-    },
     "GotoTriggerPointMove_WLYinglungPass": {
         "action": {
             "type": "Custom",
@@ -173,25 +107,17 @@
                             868.98,
                             true
                         ],
-                        {
-                            "action": "INTERACT",
-                            "target": [
-                                1068.58,
-                                885.84
-                            ],
-                            "interact_text": {
-                                "node": "__AutoEssenceRecoEssenceTriggerText"
-                            },
-                            "interact_scan": "__AutoEssenceRecoEssenceTriggerButton"
-                        }
+                        [
+                            1068.56,
+                            884.84,
+                            true
+                        ]
                     ]
                 }
             }
         },
         "post_delay": 1500, // 确保彻底停下，规避移动惯性
         "next": [
-            "AutoEssenceMistakeFactoryDevice",
-            "AutoEssenceClickEssenceStartPrepare",
             "AutoEssenceInteract"
         ],
         "focus": {
