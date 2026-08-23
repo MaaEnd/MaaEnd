@@ -254,18 +254,6 @@
             "AutoDeliveryRetryNavigateDepot"
         ]
     },
-    "AutoDeliveryRetryNavigateDepot": {
-        "desc": "按仓储识别节点注入的私有重试路线重新靠近取货点；无重试路线时不启用",
-        "enabled": false,
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "FalseAction",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoDeliveryFetchGoodsButtonWaitFreezes"
-        ]
-    },
     "AutoDeliveryFetchGoodsButtonWaitFreezes": {
         "desc": "在仓储节点前识别接取货物按钮，并等待交互按钮稳定",
         "recognition": "TemplateMatch",
@@ -330,6 +318,18 @@
             "AutoDeliveryOpenMissionAfterFetchGoods"
         ]
     },
+    "AutoDeliveryRetryNavigateDepot": {
+        "desc": "按仓储识别节点注入的私有重试路线重新靠近取货点；无重试路线时不启用",
+        "enabled": false,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FalseAction",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDeliveryFetchGoodsButtonWaitFreezes"
+        ]
+    },
     "AutoDeliveryOpenMissionAfterFetchGoods": {
         "desc": "取货后进入任务界面",
         "recognition": "DirectHit",
@@ -368,23 +368,29 @@
             "AutoDeliveryDeliveryMissionNotFound"
         ]
     },
-    "AutoDeliveryInMissionMenu": {
-        "desc": "确认当前位于任务界面",
+    "AutoDeliveryDeliveryMissionSelected": {
+        "desc": "确认右侧详情已经切换到送货任务",
         "recognition": "OCR",
         "roi": [
-            0,
-            0,
-            150,
-            70
+            410,
+            55,
+            250,
+            60
         ],
         "expected": [
-            "任务",
-            "任務",
-            "(?i)Missions",
-            "任務",
-            "임무"
+            "送货任务",
+            "送貨任務",
+            "(?i)Delivery\\s*Job",
+            "配達任務",
+            "배송 임무"
         ],
-        "order_by": "Expected"
+        "order_by": "Expected",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDelivery"
+        ]
     },
     "AutoDeliveryDeliveryMissionListItem": {
         "desc": "在任务列表中识别送货任务",
@@ -418,6 +424,24 @@
         "next": [
             "AutoDeliveryDeliveryMissionSelected"
         ]
+    },
+    "AutoDeliveryInMissionMenu": {
+        "desc": "确认当前位于任务界面",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            150,
+            70
+        ],
+        "expected": [
+            "任务",
+            "任務",
+            "(?i)Missions",
+            "任務",
+            "임무"
+        ],
+        "order_by": "Expected"
     },
     "AutoDeliveryScrollMissionList": {
         "desc": "任务列表当前页未找到送货任务时向下滑动，最多三次",
@@ -461,29 +485,5 @@
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
-    },
-    "AutoDeliveryDeliveryMissionSelected": {
-        "desc": "确认右侧详情已经切换到送货任务",
-        "recognition": "OCR",
-        "roi": [
-            410,
-            55,
-            250,
-            60
-        ],
-        "expected": [
-            "送货任务",
-            "送貨任務",
-            "(?i)Delivery\\s*Job",
-            "配達任務",
-            "배송 임무"
-        ],
-        "order_by": "Expected",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoDelivery"
-        ]
     }
 }

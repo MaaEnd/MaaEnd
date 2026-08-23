@@ -15,43 +15,6 @@
             "AutoDeliveryRecognizeDepot"
         ]
     },
-    "AutoDeliveryEnd": {
-        "desc": "当前自动送货阶段完成后正常结束组件",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "AutoDeliveryRecognizeDepot": {
-        "desc": "从当前送货任务详情识别仓储节点，并注入前往仓储节点的寻路参数",
-        "recognition": "And",
-        "all_of": [
-            "AutoDeliveryAreaOCR"
-        ],
-        "box_index": 0,
-        "pre_wait_freezes": {
-            "time": 300,
-            "target": [
-                455,
-                88,
-                250,
-                28
-            ]
-        },
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "AutoDeliveryResolveDepotAction",
-        "custom_action_param": {
-            "zip": false
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoDeliveryQuickTeleport"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": "已识别当前仓储节点"
-        }
-    },
     "AutoDeliveryRecognizeDestination": {
         "desc": "从当前送货任务详情识别送货目标，并注入前往送货目标的寻路参数",
         "recognition": "And",
@@ -84,6 +47,37 @@
         ],
         "focus": {
             "Node.Action.Succeeded": "已识别当前送货目标"
+        }
+    },
+    "AutoDeliveryRecognizeDepot": {
+        "desc": "从当前送货任务详情识别仓储节点，并注入前往仓储节点的寻路参数",
+        "recognition": "And",
+        "all_of": [
+            "AutoDeliveryAreaOCR"
+        ],
+        "box_index": 0,
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                455,
+                88,
+                250,
+                28
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "AutoDeliveryResolveDepotAction",
+        "custom_action_param": {
+            "zip": false
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDeliveryQuickTeleport"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "已识别当前仓储节点"
         }
     },
     "AutoDeliveryAreaOCR": {
@@ -164,5 +158,11 @@
         // 目标文案是动态的五语言文本，因此不设置 expected
         "only_rec": false,
         "order_by": "Horizontal"
+    },
+    "AutoDeliveryEnd": {
+        "desc": "当前自动送货阶段完成后正常结束组件",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     }
 }
