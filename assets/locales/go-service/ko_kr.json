@@ -76,6 +76,7 @@
     "autofight.endaxis.waiting_combo_cooldown": "연계기 쿨다운 완료 대기 중",
     "autofight.endaxis.retry_timeline": "새 타임라인 회차를 시도합니다",
     "autofight.endaxis.no_matching_scenario": "현재 종결기 상태에 사용 가능한 타임라인 방안이 없습니다. 더 많은 방안을 추가하세요",
+    "autofight.endaxis.requisite_unmet_skip": "타임라인 동작 \"%s\" 건너뛰기: 스킬 사용 조건 미충족",
     "pullcount.resource.originium": "연질 원석의 오로베릴 환산값",
     "pullcount.resource.oroberyl": "오로베릴",
     "pullcount.resource_read_success": "%s 읽기 성공: %d",

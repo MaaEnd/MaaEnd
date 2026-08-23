@@ -721,6 +721,9 @@ func (a *AutoFightMainAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bo
 						}
 					}
 				}
+			} else if skippedName := timeline.TakeSkippedActionName(); skippedName != "" {
+				// 队首动作因 requisites 条件不满足被跳过（如开关型战技的姿态已生效）
+				maafocus.PrintThrottle(ctx, 3*time.Second, i18n.T("autofight.endaxis.requisite_unmet_skip", skippedName))
 			}
 		}
 

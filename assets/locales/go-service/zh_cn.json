@@ -76,6 +76,7 @@
     "autofight.endaxis.waiting_combo_cooldown": "等待连携技冷却完成",
     "autofight.endaxis.retry_timeline": "尝试新一轮排轴",
     "autofight.endaxis.no_matching_scenario": "当前终结技状态没有可用排轴，需添加更多方案",
+    "autofight.endaxis.requisite_unmet_skip": "跳过排轴动作「%s」，技能使用条件不满足",
     "pullcount.resource.originium": "衍质源石换算嵌晶玉",
     "pullcount.resource.oroberyl": "嵌晶玉",
     "pullcount.resource_read_success": "%s读取成功：%d",

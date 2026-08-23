@@ -76,6 +76,7 @@
     "autofight.endaxis.waiting_combo_cooldown": "連携技のクールダウン完了を待機中",
     "autofight.endaxis.retry_timeline": "新しい軸取りラウンドを試みます",
     "autofight.endaxis.no_matching_scenario": "現在の終結技状態に使用可能な軸取りがありません。プランを追加してください",
+    "autofight.endaxis.requisite_unmet_skip": "軸取りアクション「%s」をスキップ：スキル使用条件を満たしていません",
     "pullcount.resource.originium": "衍質源石を嵌晶玉へ換算した値",
     "pullcount.resource.oroberyl": "嵌晶玉",
     "pullcount.resource_read_success": "%sの読み取り成功：%d",
