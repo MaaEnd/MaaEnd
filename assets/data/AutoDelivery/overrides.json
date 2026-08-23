@@ -183,28 +183,6 @@
             ]
         },
         {
-            "source_id": "domain_1_lv007_depot_1",
-            "description": "供能高地；默认的坐标总是会走到背后",
-            "path": [
-                [
-                    {
-                        "action": "NAVMESH",
-                        "target": [
-                            655.36,
-                            234.48
-                        ]
-                    },
-                    {
-                        "action": "NAVMESH",
-                        "target": [
-                            636.34,
-                            231.43
-                        ]
-                    }
-                ]
-            ]
-        },
-        {
             "source_id": "domain_2_lv002_depot_1",
             "description": "武陵城区；仓储节点与传送落点之间的桥面未铺入网格",
             "path": [
