@@ -648,13 +648,33 @@
             }
         },
         "next": [
+            "ItemTransferResetRepoScrollHitCount"
+        ]
+    },
+    "ItemTransferResetRepoScrollHitCount": {
+        "desc": "每次完整扫描仓库前清理上下滚动节点的命中计数",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClearHitCount",
+                "custom_action_param": {
+                    "nodes": [
+                        "ItemTransferScrollUpwardRepo",
+                        "ItemTransferScrollDownwardRepo"
+                    ],
+                    "strict": true
+                }
+            }
+        },
+        "next": [
             "ItemTransferRepoScrollToTop"
         ]
     },
     "ItemTransferRepoScrollToTop": {
         "next": [
             "ItemTransferRepoTopReached",
-            "[JumpBack]ItemTransferScrollUpwardRepo"
+            "[JumpBack]ItemTransferScrollUpwardRepo",
+            "ItemTransferStop"
         ]
     },
     "ItemTransferRepoTopReached": {
@@ -684,7 +704,8 @@
             "[JumpBack][Anchor]MouseMoveResetAnchor",
             "[Anchor]ItemTransferCurrentRepoFind",
             "ItemTransferRepoBottomReached",
-            "[JumpBack]ItemTransferScrollDownwardRepo"
+            "[JumpBack]ItemTransferScrollDownwardRepo",
+            "ItemTransferStop"
         ]
     },
     "ItemTransferRepoBottomReached": {
@@ -707,6 +728,7 @@
         }
     },
     "ItemTransferScrollDownwardRepo": {
+        "max_hit": 20,
         "action": "Scroll",
         "target": [
             640,
@@ -729,6 +751,7 @@
     },
     "ItemTransferScrollUpwardRepo": {
         "desc": "完整扫描前向上滚动一页",
+        "max_hit": 20,
         "action": "Scroll",
         "target": [
             640,
@@ -1040,13 +1063,33 @@
             }
         },
         "next": [
+            "ItemTransferResetBagScrollHitCount"
+        ]
+    },
+    "ItemTransferResetBagScrollHitCount": {
+        "desc": "每次完整扫描背包前清理上下滚动节点的命中计数",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClearHitCount",
+                "custom_action_param": {
+                    "nodes": [
+                        "ItemTransferScrollUpwardBag",
+                        "ItemTransferScrollDownwardBag"
+                    ],
+                    "strict": true
+                }
+            }
+        },
+        "next": [
             "ItemTransferBagScrollToTop"
         ]
     },
     "ItemTransferBagScrollToTop": {
         "next": [
             "ItemTransferBagTopReached",
-            "[JumpBack]ItemTransferScrollUpwardBag"
+            "[JumpBack]ItemTransferScrollUpwardBag",
+            "ItemTransferStop"
         ]
     },
     "ItemTransferBagTopReached": {
@@ -1076,7 +1119,8 @@
             "[JumpBack][Anchor]MouseMoveResetAnchor",
             "[Anchor]ItemTransferCurrentBagFind",
             "ItemTransferBagBottomReached",
-            "[JumpBack]ItemTransferScrollDownwardBag"
+            "[JumpBack]ItemTransferScrollDownwardBag",
+            "ItemTransferStop"
         ]
     },
     "ItemTransferBagBottomReached": {
@@ -1099,6 +1143,7 @@
         }
     },
     "ItemTransferScrollDownwardBag": {
+        "max_hit": 20,
         "action": "Scroll",
         "target": [
             837,
@@ -1121,6 +1166,7 @@
     },
     "ItemTransferScrollUpwardBag": {
         "desc": "完整扫描前向上滚动一页",
+        "max_hit": 20,
         "action": "Scroll",
         "target": [
             837,

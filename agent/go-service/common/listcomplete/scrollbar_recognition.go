@@ -166,25 +166,17 @@ func (r *ScrollbarCompleteRecognition) Run(
 		}, true
 	}
 
-	previous, ready, err := loadScrollbarPosition(ctx, currentNode)
+	previous, ready, complete, err := observeScrollbar(ctx, currentNode, segment, params.PositionTolerance)
 	if err != nil {
 		log.Error().
 			Err(err).
 			Str("component", scrollbarCompleteComponentName).
 			Str("node", currentNode).
-			Msg("failed to load scrollbar position")
+			Msg("failed to record valid scrollbar observation")
 		return nil, false
 	}
 
-	if !ready || !scrollbarSegmentsMatch(previous, segment, params.PositionTolerance) {
-		if err := saveScrollbarPosition(ctx, currentNode, segment); err != nil {
-			log.Error().
-				Err(err).
-				Str("component", scrollbarCompleteComponentName).
-				Str("node", currentNode).
-				Msg("failed to save scrollbar position")
-			return nil, false
-		}
+	if !complete {
 		log.Info().
 			Str("component", scrollbarCompleteComponentName).
 			Str("node", currentNode).
@@ -357,6 +349,24 @@ func observeMissingScrollbar(store nodeStore, nodeName string) (bool, error) {
 		return false, err
 	}
 	return false, nil
+}
+
+// observeScrollbar 先按旧位置判断列表是否停止移动，再保存当前有效位置并清除缺失确认状态。
+func observeScrollbar(
+	store nodeStore,
+	nodeName string,
+	segment scrollbarSegment,
+	positionTolerance int,
+) (previous scrollbarSegment, ready bool, complete bool, err error) {
+	previous, ready, err = loadScrollbarPosition(store, nodeName)
+	if err != nil {
+		return scrollbarSegment{}, false, false, err
+	}
+	complete = ready && scrollbarSegmentsMatch(previous, segment, positionTolerance)
+	if err = saveScrollbarPosition(store, nodeName, segment); err != nil {
+		return previous, ready, false, err
+	}
+	return previous, ready, complete, nil
 }
 
 func loadMissingScrollbar(store nodeStore, nodeName string) (bool, error) {
