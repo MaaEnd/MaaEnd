@@ -279,22 +279,25 @@
                     "label": "$task.SeizeDeliveryJobsPostProcessing.cases.Tele.label",
                     "pipeline_override": {
                         "SeizeDeliveryJobsPostProcessingEntry": {
-                            "enabled": true
-                        },
-                        "SeizeDeliveryJobsSuccessTeleportDone": {
-                            "enabled": true
+                            "enabled": true,
+                            "next": [
+                                "SeizeDeliveryJobsTeleport"
+                            ]
                         }
                     }
                 },
                 {
                     "name": "TeleWalk",
                     "label": "$task.SeizeDeliveryJobsPostProcessing.cases.TeleWalk.label",
+                    "option": [
+                        "SeizeDeliveryJobsPostDeparturePreferZipline"
+                    ],
                     "pipeline_override": {
                         "SeizeDeliveryJobsPostProcessingEntry": {
-                            "enabled": true
-                        },
-                        "SeizeDeliveryJobsSuccessWalkDone": {
-                            "enabled": true
+                            "enabled": true,
+                            "next": [
+                                "SeizeDeliveryJobsTeleportAndWalk"
+                            ]
                         }
                     }
                 },
@@ -310,11 +313,8 @@
                         "SeizeDeliveryJobsPostProcessingEntry": {
                             "enabled": true,
                             "next": [
-                                "SeizeDeliveryJobsEnterDestinationMapWithDestinationResolve"
+                                "SeizeDeliveryJobsFullDelivery"
                             ]
-                        },
-                        "SeizeDeliveryJobsPostDepartureEntry": {
-                            "enabled": true
                         }
                     }
                 }
@@ -322,8 +322,8 @@
         },
         "SeizeDeliveryJobsPostDepartureRiskAcknowledgement": {
             "type": "switch",
-            "label": "$task.SeizeDeliveryJobsPostDepartureRiskAcknowledgement.label",
-            "description": "$task.SeizeDeliveryJobsPostDepartureRiskAcknowledgement.description",
+            "label": "$task.AutoDeliveryRiskAcknowledgement.label",
+            "description": "$task.AutoDeliveryRiskAcknowledgement.description",
             "default_case": "No",
             "cases": [
                 {
@@ -341,19 +341,36 @@
         },
         "SeizeDeliveryJobsPostDeparturePreferZipline": {
             "type": "switch",
-            "label": "$task.SeizeDeliveryJobsPostDeparturePreferZipline.label",
-            "description": "$task.SeizeDeliveryJobsPostDeparturePreferZipline.description",
+            "label": "$task.AutoDeliveryPreferZipline.label",
+            "description": "$task.AutoDeliveryPreferZipline.description",
             "default_case": "No",
             "cases": [
                 {
-                    "name": "No"
+                    "name": "No",
+                    "pipeline_override": {
+                        "AutoDeliveryRecognizeDepot": {
+                            "custom_action_param": {
+                                "zip": false
+                            }
+                        },
+                        "AutoDeliveryRecognizeDestination": {
+                            "custom_action_param": {
+                                "zip": false
+                            }
+                        }
+                    }
                 },
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "SeizeDeliveryJobsRunDeparture": {
+                        "AutoDeliveryRecognizeDepot": {
                             "custom_action_param": {
-                                "zipline_policy": "Active"
+                                "zip": true
+                            }
+                        },
+                        "AutoDeliveryRecognizeDestination": {
+                            "custom_action_param": {
+                                "zip": true
                             }
                         }
                     }
