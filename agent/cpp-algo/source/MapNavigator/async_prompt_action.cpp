@@ -25,9 +25,9 @@ namespace mapnavigator
 namespace
 {
 
-// override 是合并进节点而非替换, 所以只写调用方拥有的两件事: 截断共用出口的 next(子任务到此返回), 以及
-// 路线给的文本。roi/action/key 一律留在 pipeline 里。
-std::string BuildRunOverride(const AsyncPromptActionSpec& spec, const std::vector<std::string>* expected)
+// override 是合并进节点而非替换, 所以只写调用方拥有的三件事: 截断共用出口的 next(子任务到此返回), 路线给的
+// 文本, 以及 rec 模式下把按键换成 DoNothing。roi/key 一律留在 pipeline 里。
+std::string BuildRunOverride(const AsyncPromptActionSpec& spec, const std::vector<std::string>* expected, bool rec)
 {
     json::object exit_node;
     exit_node["next"] = json::array {};
@@ -35,17 +35,25 @@ std::string BuildRunOverride(const AsyncPromptActionSpec& spec, const std::vecto
     json::object root;
     root[spec.exit_node] = std::move(exit_node);
 
-    if (expected != nullptr && !expected->empty()) {
-        json::array expected_list;
-        for (const std::string& text : *expected) {
-            expected_list.emplace_back(text);
-        }
-        json::object param;
-        param["expected"] = std::move(expected_list);
-        json::object recognition;
-        recognition["param"] = std::move(param);
+    const bool has_expected = expected != nullptr && !expected->empty();
+    if (has_expected || rec) {
         json::object recognition_node;
-        recognition_node["recognition"] = std::move(recognition);
+        if (has_expected) {
+            json::array expected_list;
+            for (const std::string& text : *expected) {
+                expected_list.emplace_back(text);
+            }
+            json::object param;
+            param["expected"] = std::move(expected_list);
+            json::object recognition;
+            recognition["param"] = std::move(param);
+            recognition_node["recognition"] = std::move(recognition);
+        }
+        if (rec) {
+            json::object do_nothing;
+            do_nothing["type"] = "DoNothing";
+            recognition_node["action"] = std::move(do_nothing);
+        }
         root[spec.recognition_node] = std::move(recognition_node);
     }
 
@@ -96,13 +104,13 @@ PromptScanProfile DefaultScanProfile(
 
 } // namespace
 
-void RunPromptSubtask(MaaContext* context, const AsyncPromptActionSpec& spec, const std::vector<std::string>* expected)
+void RunPromptSubtask(MaaContext* context, const AsyncPromptActionSpec& spec, const std::vector<std::string>* expected, bool rec)
 {
     if (context == nullptr) {
         return;
     }
 
-    const std::string pipeline_override = BuildRunOverride(spec, expected);
+    const std::string pipeline_override = BuildRunOverride(spec, expected, rec);
     const MaaTaskId sub_id = MaaContextRunTask(context, spec.entry_node, pipeline_override.c_str());
     if (sub_id == MaaInvalidId) {
         LogWarn << "Prompt subtask failed to dispatch." << VAR(spec.tag) << VAR(spec.entry_node);
@@ -216,6 +224,7 @@ bool AsyncPromptAction::TryTriggerWhileWalking(MotionController* motion_controll
 
     // 提示图标是全局的, 路过任何可交互物都会闪, 所以只在自家语义点附近才动手, 带宽同走路模式的激活带。
     const std::vector<std::string>* expected = nullptr;
+    bool rec = false;
     bool in_band = false;
     if (spec_.text_from_route) {
         // 这一下命中就把点算走完, 所以还要求正走向的就是它: 蹭到别家的提示会静默消掉本点
@@ -224,6 +233,7 @@ bool AsyncPromptAction::TryTriggerWhileWalking(MotionController* motion_controll
         in_band = waypoint != nullptr && waypoint_distance <= kPromptTriggerBandWu;
         if (in_band) {
             expected = &waypoint->interact_text;
+            rec = waypoint->interact_rec;
         }
     }
     else {
@@ -240,10 +250,10 @@ bool AsyncPromptAction::TryTriggerWhileWalking(MotionController* motion_controll
 
     last_trigger_at_ = now;
     LogInfo << "Async prompt flagged — stopping for authoritative recognition." << VAR(spec_.tag) << VAR(waypoint_distance)
-            << VAR(node_idx);
+            << VAR(node_idx) << VAR(rec);
     motion_controller->SetForwardState(false);
     utils::SleepFor(kStopWaitMs);
-    RunPromptSubtask(context_, spec_, expected);
+    RunPromptSubtask(context_, spec_, expected, rec);
     return true;
 }
 
@@ -262,8 +272,9 @@ bool AsyncPromptAction::TryTriggerAtRouteTail()
         return false;
     }
 
-    LogInfo << "Route tail prompt flagged — running the authoritative recognition before finishing." << VAR(spec_.tag);
-    RunPromptSubtask(context_, spec_, waypoint != nullptr ? &waypoint->interact_text : nullptr);
+    const bool rec = waypoint != nullptr && waypoint->interact_rec;
+    LogInfo << "Route tail prompt flagged — running the authoritative recognition before finishing." << VAR(spec_.tag) << VAR(rec);
+    RunPromptSubtask(context_, spec_, waypoint != nullptr ? &waypoint->interact_text : nullptr, rec);
     return true;
 }
 

@@ -99,6 +99,7 @@ Controls the character to move automatically along a given path and execute addi
 - `sprint_threshold`: Positive real number, `25.0` by default. The "length of continuously runnable segment ahead" threshold used for automatic sprint judgment, rather than just looking at the straight-line distance to the current point.
 - `interact_text`: String or array of strings, empty by default. Route-wide default for the interact prompt text, see [Async Interaction](#async-interaction-interact). The field also supports camelCase `interactText`; text written on a waypoint wins, and the route-wide value only fills in the `INTERACT` points that carry none of their own. An empty string or an empty array is rejected outright (the whole parameter parse fails) rather than treated as absent, because empty text matches anything on the recognition side.
 - `interact_scan`: String, empty by default. Route-wide default for the walking pre-filter node, see [Replacing the Icon Pre-filter](#replacing-the-icon-pre-filter). The field also supports camelCase `interactScan`; a node named on a waypoint wins, and an empty string counts as absent (falling back to the shipped one).
+- `interact_rec`: Boolean, `false` by default. Whether this route's `INTERACT` points recognize the prompt without pressing anything, see [Recognize Only, Never Press](#recognize-only-never-press-rec-mode). The field also supports camelCase `interactRec`. Unlike the two above it does not follow "the waypoint wins": writing `true` here turns the whole route's `INTERACT` points on, and a waypoint cannot turn itself back off — a boolean cannot tell "written `false`" from "not written", so this field only ever switches points on. Leave it off the route root when some points should still press.
 - Other unknown top-level fields: Currently ignored silently without causing errors.
 
 #### `path` Data Structure
@@ -652,14 +653,15 @@ For all `COLLECT`, `DIG`, and strict arrival points, the sprint on the entire pr
 
 The reason the route has to supply the text: there are far too many kinds of interactable, and the prompt wording differs per business, so no single shared table can enumerate them. Collectible names *are* a shared table, which is why `COLLECT` keeps its text in the Pipeline node; interact text has to be injected by whichever route uses it.
 
-What a route may customize is those two recognitions — when to stop, and whether this is the one:
+What a route may customize is those two recognitions — when to stop, and whether this is the one — plus whether a match presses anything:
 
 | Field | Replaces | Left out |
 | --------------- | ----------------------------------------------------------- | ----------------------------------------------- |
 | `interact_scan` | The icon pre-filter that decides **when to stop** while walking | The shipped one, looking for the default icon |
 | `interact_text` | The OCR text that decides **whether this is it** once stopped | The point is not async; it interacts on arrival |
+| `interact_rec` | Whether a match **presses anything** | It presses |
 
-**The action is not customizable — it is always the interact key** (F on Windows, a key code on macOS, a tap on the recognized prompt on touch controllers). Everything past the UI the interaction opens belongs to the outer Pipeline; navigation returns once the point is done. See [Replacing the Icon Pre-filter](#replacing-the-icon-pre-filter).
+What gets pressed is not customizable — it is always the interact key (F on Windows, a key code on macOS, a tap on the recognized prompt on touch controllers). To keep navigation from pressing at all, set `interact_rec`, see [Recognize Only, Never Press](#recognize-only-never-press-rec-mode). Everything past the UI the interaction opens belongs to the outer Pipeline; navigation returns once the point is done. See [Replacing the Icon Pre-filter](#replacing-the-icon-pre-filter).
 
 ### Writing Method
 
@@ -676,6 +678,7 @@ Write the interaction point in the object form and add `interact_text`:
 - `interact_text` accepts a string or an array of strings; any one of them matching is enough to press.
 - The text is matched against the OCR result as a **regular expression**, the same semantics as Pipeline's `expected`. Copy the in-game wording as-is; escape regex metacharacters yourself if the wording contains any.
 - When a whole route belongs to one business, put `interact_text` at the top level of `custom_action_param` as the default, see [Node Parameters](#node-parameters).
+- When navigation should only walk there and recognize the prompt, leaving the press to the outer Pipeline, add `interact_rec`, see [Recognize Only, Never Press](#recognize-only-never-press-rec-mode).
 - A single route may mix interaction points from several businesses, and mix them with `COLLECT` / `DIG`, in any number.
 - **No trailing `true` is needed**: `INTERACT` is already handled with strict arrival semantics.
 
@@ -746,6 +749,26 @@ The shipped one is an ordinary Pipeline node, `MapNavigatorInteractScan`, with i
 - **A pre-filter needs `interact_text` alongside it.** A point naming only `interact_scan` falls back to the plain meaning (press the interact key on arrival) with the pre-filter inert, and logs one `names a prompt scan node without any interact text` line. The text may live on the point or be inherited from the route root.
 - A loose threshold cannot stall navigation: one pre-filter hit completes the point, so a pre-filter that fires on anything only spends its own points one by one and the route still drains forward. Those points do not actually interact, though, so set the threshold from the icon itself.
 
+### Recognize Only, Never Press: rec Mode
+
+An `INTERACT` point carrying `"interact_rec": true` keeps the whole sequence — the pre-filter while walking, the stop when the prompt appears, the OCR confirmation once stopped — and **drops only the final key press**. The arrival radius stays tightened to the async-interaction value, and a prompt hit still completes the point.
+
+When this is what you want: the prompt is up but *which* entry to take is the business's decision, while the interact key can only ever take the default one. The typical shape is one interactable carrying several rows (claim / discard and the like) — the key always takes the first row, so the business's own "which row" switch never gets to matter. Let navigation just get there and recognize the prompt, hand the choice back to the outer Pipeline, and that switch is in charge again.
+
+```json
+{
+    "action": "INTERACT",
+    "target": [331, 1578],
+    "interact_text": "领取",
+    "interact_rec": true
+}
+```
+
+- **It needs `interact_text` alongside it**, for the same reason `interact_scan` does: a point whose text never resolved cannot enter the async path at all and falls back to the plain meaning (press the interact key on arrival), which is exactly what rec mode exists to avoid. To keep that degradation from pressing anyway, the plain path honours this field too — it skips the press and logs one `INTERACT in rec mode, skipping the key press` line.
+- **The recognition after stopping still runs**; only the recognition node's own key action is swapped for `DoNothing`. So `interact_text` is authored exactly as before, and whether it matched still shows up in the log.
+- **Navigation emits no click at all.** Whether the interaction happened is entirely the outer Pipeline's to validate — that was already async interaction's contract; rec mode just follows it through.
+- When a whole route belongs to one business, `interact_rec` can go at the top level of `custom_action_param`, see [Node Parameters](#node-parameters) — bearing in mind it only ever switches points on.
+
 ### Arrival Determination and Movement
 
 Async interaction points use the same set of values as collection points, all runtime-managed, with nothing for the path author to control:
@@ -759,7 +782,7 @@ The pre-filter only runs **while that point is the one being walked to and the l
 ### Fallback and Failure Semantics
 
 - If the prompt never shows up on the way, **the authoritative recognition still runs once upon precise arrival** — a missed pre-filter does not skip the point. Every async interaction point therefore gets exactly one authoritative recognition: a hit on the way completes it, and otherwise arrival makes it up.
-- **Async interaction never fails navigation.** The key press only happens when OCR matches the injected text; navigation itself does not verify that the interaction actually took place, and does not error out because no prompt was recognized. Whether the interaction succeeded has to be validated by the outer Pipeline (for example, the UI that should appear afterwards).
+- **Async interaction never fails navigation.** The key press only happens when OCR matches the injected text, and never at all in rec mode; navigation itself does not verify that the interaction actually took place, and does not error out because no prompt was recognized. Whether the interaction succeeded has to be validated by the outer Pipeline (for example, the UI that should appear afterwards).
 
 When the interaction opens a UI (a registration desk, a commission board), **make that point the last one of the route**: once the UI is up the character stops moving and the minimap is covered, so later points cannot be walked. This is the same author-side discipline as plain `INTERACT` without `interact_text` — async or not makes no difference here.
 
@@ -784,5 +807,5 @@ The following files are maintained by cpp-algo developers; path authors do not n
 - `agent/cpp-algo/source/MapNavigator/async_prompt_action.h` / `.cpp`: the shared implementation of prompt-driven actions, used by both `COLLECT` and async `INTERACT`.
 - `agent/cpp-algo/source/MapNavigator/prompt_scan_profile.h` / `.cpp`: reading the pre-filter parameters out of a Pipeline node, and the validation chain around it.
 - `agent/cpp-algo/source/MapNavigator/navi_config.h`: subtask node names, pre-filter cadence and last-resort constants, arrival values and others.
-- `agent/cpp-algo/source/MapNavigator/navi_param_parser.cpp`: parsing of `interact_text` / `interact_scan` and propagation of the route-wide defaults.
+- `agent/cpp-algo/source/MapNavigator/navi_param_parser.cpp`: parsing of `interact_text` / `interact_scan` / `interact_rec` and propagation of the route-wide defaults.
 - `agent/cpp-algo/source/MapNavigator/semantic_nodes.cpp`: the fallback execution logic upon arrival.
