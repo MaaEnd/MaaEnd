@@ -145,12 +145,13 @@ EssenceGrid processes only tracker `new_cells`:
 ## Go and Pipeline
 
 After Pipeline clicks a cell, Pipeline OCR nodes read three skills and levels.
-Go normalizes the OCR result, performs matching, and chooses one actual action
-entry: `LockItem`, `DiscardItem`, or the skip route.
+Go normalizes the OCR result, performs matching, and chooses the next branch candidates:
 
-Pipeline owns button recognition, clicking, and `CheckLocked` /
-`CheckDiscarded` verification. Go must not route directly to a post-action
-check node, because doing so skips the operation.
+- target matched: routes to `[CheckLocked, LockItem]`;
+- unmatched with discard enabled: routes to `[CheckDiscarded, DiscardItem]`;
+- other cases: routes to `[EssenceGridAdvance]` (or `[EssenceFilterAfterBattleCloseDetail]`).
+
+Lock and discard decisions route with `Check*` preceding `*Item`. For essences already in the target state, the check node matches immediately and advances to the next item. For items requiring action, execution falls through to the action node to perform clicking and subsequent verification.
 
 ## Controller overrides
 

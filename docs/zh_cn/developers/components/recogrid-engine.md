@@ -146,13 +146,13 @@ EssenceGrid 只处理 Tracker 的 `new_cells`：
 
 ## Go 与 Pipeline
 
-Pipeline 点击格子后，三个技能和等级由 OCR 节点读取。Go 的 `runUnifiedSkillDecision` 只决定分支：
+Pipeline 点击格子后，三个技能和等级由 OCR 节点读取。Go 的 `runUnifiedSkillDecision` 决定分支候选：
 
-- 命中目标：进入 `LockItem`；
-- 未命中且开启废弃：进入 `DiscardItem`；
+- 命中目标：进入 `[CheckLocked, LockItem]` 候选列表；
+- 未命中且开启废弃：进入 `[CheckDiscarded, DiscardItem]` 候选列表；
 - 其他情况：回到 `EssenceGridAdvance`。
 
-实际按钮识别、点击和 `CheckLocked` / `CheckDiscarded` 确认都属于 Pipeline。Go 不能直接跳到确认节点，否则会跳过动作。
+锁定与废弃决策优先通过 `CheckLocked` / `CheckDiscarded` 匹配目标状态。已处于目标状态时直接流转下一项；处于待操作状态时由 `LockItem` / `DiscardItem` 执行点击并由后续节点确认。
 
 ## 控制器差异
 

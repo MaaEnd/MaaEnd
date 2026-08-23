@@ -14,12 +14,16 @@
 | Go `essencefilter` | OCR 归一化、技能匹配、Lock/Discard/Skip 决策、统计 |
 | Pipeline | 点击、滑动、等待和操作后确认 |
 
-Go 只通过 `ctx.OverrideNext` 选择 Pipeline 分支：
+Go 通过 `ctx.OverrideNext` 选择 Pipeline 分支：
 
-- 库存：`EssenceFilterLockItem` / `EssenceFilterDiscardItem` / `EssenceGridAdvance`；
-- 战后：`EssenceFilterAfterBattleLockItem` / `EssenceFilterAfterBattleDiscardItem` / `EssenceFilterAfterBattleCloseDetail`。
+- 库存锁定：`[EssenceFilterCheckLocked, EssenceFilterLockItem]`；
+- 库存废弃：`[EssenceFilterCheckDiscarded, EssenceFilterDiscardItem]`；
+- 库存跳过：`[EssenceGridAdvance]`；
+- 战后锁定：`[EssenceFilterAfterBattleCheckLocked, EssenceFilterAfterBattleLockItem]`；
+- 战后废弃：`[EssenceFilterAfterBattleCheckDiscarded, EssenceFilterAfterBattleDiscardItem]`；
+- 战后跳过：`[EssenceFilterAfterBattleCloseDetail]`。
 
-动作入口必须指向实际的 `LockItem` / `DiscardItem`，不能直接指向操作后的 `CheckLocked` / `CheckDiscarded`。
+锁定与废弃决策以 `[CheckLocked, LockItem]` 与 `[CheckDiscarded, DiscardItem]` 的顺序路由候选节点。已处于目标状态的基质由前置 `Check*` 节点直接命中并进入下一格；处于未锁定/未废弃状态的基质回落至 `*Item` 节点执行点击与确认。
 
 ## 文件与职责
 
