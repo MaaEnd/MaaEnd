@@ -95,7 +95,7 @@ func TestParseConfigEmpty(t *testing.T) {
 }
 
 func TestReplaceVars(t *testing.T) {
-	vars := BuildVars("ExampleTask", "成功", time.Date(2026, 8, 21, 9, 30, 0, 0, time.Local))
+	vars := BuildVars("ExampleTask", "成功", time.Date(2026, 8, 21, 9, 30, 0, 0, time.Local), time.Date(2026, 8, 21, 9, 28, 0, 0, time.Local))
 	got := ReplaceVars("任务 {{task_name}} {{task_status}}，时间 {{datetime}}，未知 {{unknown}}", vars)
 	want := "任务 ExampleTask 成功，时间 " + vars["datetime"] + "，未知 {{unknown}}"
 	if got != want {
@@ -106,6 +106,9 @@ func TestReplaceVars(t *testing.T) {
 	}
 	if vars["task_name"] != "ExampleTask" {
 		t.Errorf("task_name mismatch: %+v", vars)
+	}
+	if vars["duration"] != "2m0s" {
+		t.Errorf("duration mismatch: %q", vars["duration"])
 	}
 }
 
@@ -324,9 +327,9 @@ func TestServerChanEndpoint(t *testing.T) {
 		want    string
 		wantErr bool
 	}{
-		// ServerChan3（SC3）：sctp 前缀，sendkey 整体作子域（官方 SDK 格式）
-		{"sctp12345tabcdef", "https://sctp12345tabcdef.push.ft07.com/send", false},
-		{"sctp42tabc", "https://sctp42tabc.push.ft07.com/send", false},
+		// ServerChan3（SC3）：sctp 前缀，uid 作子域，sendkey 在路径
+		{"sctp12345tabcdef", "https://12345.push.ft07.com/send/sctp12345tabcdef.send", false},
+		{"sctp42tabc", "https://42.push.ft07.com/send/sctp42tabc.send", false},
 		// ServerChan Turbo：SCT 前缀
 		{"SCTabc123", "https://sctapi.ftqq.com/SCTabc123.send", false},
 		// 空
@@ -347,6 +350,20 @@ func TestServerChanEndpoint(t *testing.T) {
 		}
 		if got != c.want {
 			t.Errorf("serverChanEndpoint(%q) = %q, want %q", c.key, got, c.want)
+		}
+	}
+}
+
+func TestSC3UID(t *testing.T) {
+	cases := []struct{ key, want string }{
+		{"sctp12345tabcdef", "12345"},
+		{"sctp42tabc", "42"},
+		{"sctp1t", "1"},
+		{"sctp12345", "12345"}, // 无 t 分隔符，退化
+	}
+	for _, c := range cases {
+		if got := sc3UID(c.key); got != c.want {
+			t.Errorf("sc3UID(%q) = %q, want %q", c.key, got, c.want)
 		}
 	}
 }
