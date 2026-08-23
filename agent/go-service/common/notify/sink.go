@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/pienv"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -14,6 +15,10 @@ var (
 	configMu       sync.RWMutex
 	configByTaskID = map[uint64]Config{}    // taskID → 该任务的运行时配置（任务级 override 后）
 	taskStartTime  = map[uint64]time.Time{} // taskID → 任务开始时间
+
+	// controllerStartTime 记录每个 controller 上首次任务启动的时间，用作 {{duration}} 起点。
+	// 同一 controller 同时只会跑一个实例，不会串。
+	controllerStartTime = map[string]time.Time{}
 
 	// notifiedTaskIDs 记录已发送失败通知的 task_id。框架可能对同一任务失败事件
 	// 重复广播，按 task_id 去重；LoadOrStore 原子，并行任务下也只发送一次。
@@ -104,7 +109,13 @@ func setConfigByTask(taskID uint64, config Config) {
 	configMu.Lock()
 	defer configMu.Unlock()
 	configByTaskID[taskID] = config
-	taskStartTime[taskID] = time.Now()
+	now := time.Now()
+	taskStartTime[taskID] = now
+	if name := pienv.ControllerName(); name != "" {
+		if _, ok := controllerStartTime[name]; !ok {
+			controllerStartTime[name] = now
+		}
+	}
 }
 
 // getConfigByTask 取指定任务缓存的配置；未缓存过（任务在节点事件前失败）返回 false。
@@ -126,6 +137,12 @@ func getStartTime(taskID uint64) time.Time {
 	configMu.RLock()
 	defer configMu.RUnlock()
 	return taskStartTime[taskID]
+}
+
+func getControllerStartTime() time.Time {
+	configMu.RLock()
+	defer configMu.RUnlock()
+	return controllerStartTime[pienv.ControllerName()]
 }
 
 // shouldNotifyFail 判断该 task_id 是否应发送失败通知：同一 task_id 只发送一次，
