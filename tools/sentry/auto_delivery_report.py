@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import re
 import sys
 from collections import defaultdict
@@ -509,8 +510,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     arguments = create_argument_parser().parse_args(argv)
     if not arguments.catalog.is_file():
         raise FileNotFoundError(f"找不到送货目标目录：{arguments.catalog}")
-    if arguments.timeout <= 0:
-        raise ValueError("--timeout 必须大于 0。")
+    if not math.isfinite(arguments.timeout) or arguments.timeout <= 0:
+        raise ValueError("--timeout 必须是大于 0 的有限数值。")
     tasks = arguments.tasks or list(DEFAULT_TASKS)
 
     report, unknown_nodes = collect_report(
