@@ -101,10 +101,19 @@ func (a *CloseGameAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	params := loadAttach(ctx, nodeName)
 
 	resolution := defaultResolution
-	if width, widthOK := parseUint32FromRaw(params.ResolutionWidth); widthOK {
-		if height, heightOK := parseUint32FromRaw(params.ResolutionHeight); heightOK {
-			resolution = fmt.Sprintf("%dx%d", width, height)
-		}
+	width, widthOK := parseUint32FromRaw(params.ResolutionWidth)
+	height, heightOK := parseUint32FromRaw(params.ResolutionHeight)
+	switch {
+	case widthOK && heightOK:
+		resolution = fmt.Sprintf("%dx%d", width, height)
+	case widthOK || heightOK || len(params.ResolutionWidth) > 0 || len(params.ResolutionHeight) > 0:
+		log.Error().
+			Bool("width_ok", widthOK).
+			Bool("height_ok", heightOK).
+			Str("width_raw", string(params.ResolutionWidth)).
+			Str("height_raw", string(params.ResolutionHeight)).
+			Str("fallback", defaultResolution).
+			Msg("CloseGameAction: incomplete or invalid resolution attach, keeping default")
 	}
 
 	procs, err := process.Processes()
