@@ -362,6 +362,7 @@
         "NotifyItemNotifyTask": {
             "type": "switch",
             "label": "$option.NotifyItemNotifyTask.label",
+            "description": "$option.NotifyItemNotifyTask.description",
             "default_case": "Yes",
             "cases": [
                 {
