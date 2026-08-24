@@ -114,6 +114,7 @@ func (a *CloseGameAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			Str("height_raw", string(params.ResolutionHeight)).
 			Str("fallback", defaultResolution).
 			Msg("CloseGameAction: incomplete or invalid resolution attach, keeping default")
+		return false
 	}
 
 	procs, err := process.Processes()
