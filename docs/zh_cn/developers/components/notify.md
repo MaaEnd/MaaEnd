@@ -100,7 +100,7 @@ Notify 是 MaaEnd 的多渠道外部通知模块
 | `{{time}}` | 时间 HH:mm:ss |
 | `{{date}}` | 日期 yyyy-MM-dd |
 | `{{datetime}}` | 日期时间 yyyy-MM-dd HH:mm:ss |
-| `{{task_name}}` | 任务名 |
+| `{{task_name}}` | 任务显示名（如 🔑自动切换账号；自动从任务入口解析，解析失败回退入口名） |
 | `{{task_status}}` | 任务状态（如 失败） |
 | `{{duration}}` | 执行耗时（如 1m23s） |
 | `{{controller}}` | 控制器名 |
