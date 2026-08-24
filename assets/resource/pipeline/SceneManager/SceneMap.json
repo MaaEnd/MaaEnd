@@ -65,6 +65,7 @@
         },
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
             "__ScenePrivateMapTeleportConfirm"
         ]
     },
@@ -544,6 +545,33 @@
         "next": [
             "__ScenePrivateAnyEnterMapSuccess"
         ]
+    },
+    "__ScenePrivateMapMarkerPanelClose": {
+        // 点空地会弹出创建标记面板，它的创建按钮和真传送按钮是同一个黄勾、同一个位置，
+        // 传送确认节点分不出来，会照按不误，白建一个标记（自定义标记点有上限）。
+        // 认垃圾桶是因为只有标记面板才删得了标记；右上角那个 X 干净地图上也在，
+        // 无条件点会把地图关掉，所以必须先认出面板再点
+        "desc": "在地图界面，误开创建标记面板时点右上角 X 取消。这个 X 只收面板，不关地图",
+        "recognition": "TemplateMatch",
+        "roi": [
+            -110,
+            570,
+            110,
+            80
+        ],
+        "template": [
+            "SceneManager/MapMarkerPanelDelete.png"
+        ],
+        // 面板上 1.00，干净地图全图最高 0.52。取宽的一档，垃圾桶置灰时也还认得出
+        "threshold": 0.7,
+        "action": "Click",
+        "target": [
+            1218,
+            14,
+            30,
+            30
+        ],
+        "post_wait_freezes": 200
     },
     "__ScenePrivateWorldEnterMapAny": {
         "desc": "在大世界界面，进入地图界面",
