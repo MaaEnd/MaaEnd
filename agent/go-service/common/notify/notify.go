@@ -253,13 +253,20 @@ func (a *NotifySendAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		return true
 	}
 
-	// 任务名优先取入口名（TaskID 反查）并解析为显示名，查不到时回退当前节点名
-	taskName := arg.CurrentTaskName
-	if arg.TaskID > 0 {
-		if td, err := ctx.GetTasker().GetTaskDetail(arg.TaskID); err == nil && td.Entry != "" {
-			taskName = resolveTaskName(td.Entry)
-		}
-	}
+	// 任务名优先取入口名（TaskID 反查）并解析为显示名；反查取不到（任务执行初期
+	// node_ids 为空时 maa-framework-go 不返回 entry，见 resolveActionTaskName 注释）
+	// 则回退用当前节点名解析（NotifyTask 节点名即入口名，可正常解析）。
+	taskName := resolveActionTaskName(
+		arg.TaskID,
+		arg.CurrentTaskName,
+		func(id int64) string {
+			td, err := ctx.GetTasker().GetTaskDetail(id)
+			if err != nil || td.Entry == "" {
+				return ""
+			}
+			return td.Entry
+		},
+	)
 
 	vars := BuildVars(taskName, "", time.Now(), getControllerStartTime())
 	vars["title"] = resolveNotifyText(config.TaskTitle, vars)
@@ -267,6 +274,21 @@ func (a *NotifySendAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 	Send(config, vars)
 	// 通知发送失败不影响游戏流程，始终返回成功
 	return true
+}
+
+// resolveActionTaskName 解析通知动作的任务显示名：
+//   - 优先用 GetTaskDetail 反查的任务入口名解析；
+//   - 反查取不到（任务执行初期 node_ids 为空时，maa-framework-go 的
+//     MaaTaskerGetTaskDetail 绑定在 size==0 时直接返回空 Entry，不读响应里的入口名）
+//     则退回到用当前节点名解析（NotifyTask 的节点名即入口名，可解析为显示名）；
+//   - 两者都查不到翻译时回退原样（resolveTaskName 的兜底行为）。
+func resolveActionTaskName(taskID int64, currentTaskName string, getEntry func(int64) string) string {
+	if taskID > 0 {
+		if entry := getEntry(taskID); entry != "" {
+			return resolveTaskName(entry)
+		}
+	}
+	return resolveTaskName(currentTaskName)
 }
 
 // mergeConfig 合并全局渠道配置与调用节点内容配置：
