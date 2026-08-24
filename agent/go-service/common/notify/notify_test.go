@@ -508,6 +508,57 @@ func TestSendBarkJSON(t *testing.T) {
 	}
 }
 
+func TestSendBarkBatch(t *testing.T) {
+	var gotPayload map[string]any
+	var gotPath string
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		gotPath = r.URL.Path
+		_ = json.NewDecoder(r.Body).Decode(&gotPayload)
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(`{"code": 200}`))
+	}))
+	defer server.Close()
+
+	// 只注入批量端点：若走了单设备端点（barkEndpoint 未注入）会请求真实 api.day.app 而失败
+	orig := barkBatchEndpoint
+	barkBatchEndpoint = func() string { return server.URL }
+	defer func() { barkBatchEndpoint = orig }()
+
+	config := Config{
+		BarkEnabled:    true,
+		BarkKey:        "single-key",
+		BarkDeviceKeys: "key1, key2\nkey3",
+	}
+	if !Send(config, map[string]string{}) {
+		t.Fatalf("Send returned false")
+	}
+	if gotPath != "/" {
+		t.Errorf("request path = %q, want / (batch endpoint)", gotPath)
+	}
+	keys, ok := gotPayload["device_keys"].([]any)
+	if !ok {
+		t.Fatalf("device_keys = %v (%T), want array", gotPayload["device_keys"], gotPayload["device_keys"])
+	}
+	if len(keys) != 3 || keys[0] != "key1" || keys[1] != "key2" || keys[2] != "key3" {
+		t.Errorf("device_keys = %v, want [key1 key2 key3]", keys)
+	}
+}
+
+func TestParseDeviceKeys(t *testing.T) {
+	// 空串 → nil
+	if got := parseDeviceKeys("", map[string]string{}); got != nil {
+		t.Errorf("empty = %v, want nil", got)
+	}
+	// 逗号/换行分隔 + 去空白 + 跳过空段
+	if got := parseDeviceKeys(" key1 , key2\n\nkey3 ", map[string]string{}); len(got) != 3 || got[0] != "key1" || got[1] != "key2" || got[2] != "key3" {
+		t.Errorf("parsed = %v, want [key1 key2 key3]", got)
+	}
+	// 支持模板变量
+	if got := parseDeviceKeys("{{a}},key2", map[string]string{"a": "K1"}); len(got) != 2 || got[0] != "K1" || got[1] != "key2" {
+		t.Errorf("vars parsed = %v, want [K1 key2]", got)
+	}
+}
+
 func TestSendServerChanHTTPError(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
