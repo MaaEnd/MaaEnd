@@ -280,6 +280,13 @@ constexpr int32_t kZiplineRecoveryTimeoutMs = 6000;
 // 预算用尽就放弃这轮扫描, 交给调用侧的下一级回退。
 constexpr int32_t kReachableAnchorPlanAttemptsMax = 8;
 
+// 封禁跳与规划候选的配对半径。链首封禁记录的是上索走位点而不是架子本身(相差供电桩让位
+// 那一点点), 太紧封不住; 太松会顺带罚掉旁边平行的另一根索, 代价只是少一条捷径。
+constexpr double kZiplineHopBanMatchWu = 10.0;
+// 一趟导航里弃索这么多次说明这一带的标定或定位整体不可靠, 重展开不再让滑索参与,
+// 顺带兜住"封一跳、换一链、再失败"的重试链条。
+constexpr int32_t kZiplineAbandonWalkFallbackCount = 3;
+
 // 按了一次没认出来之后的判定圈。交互给的是离身位最近的那台设备, 认不出就得挪身位再认 ——
 // 判定圈收到这里, 让人真把那点距离走完(有备用站位就是走过去, 没有就是再走近点)。
 // 再往下收就到定位噪声底下了, 收不拢只会白等看门狗

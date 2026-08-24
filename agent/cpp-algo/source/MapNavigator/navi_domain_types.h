@@ -77,6 +77,17 @@ struct ZiplineRestand
     double y = 0.0;
 };
 
+// 执行侧判死过的一跳。重展开时滑索照常参与规划, 只是这两根架子之间的索不再是候选——
+// 不然重规划会再选中刚失败的链, 无限重试。坐标按规划产出的架子平面位置记; 链首航点站的
+// 是上索走位点而不是架子本身, 所以匹配放宽到 kZiplineHopBanMatchWu。
+struct ZiplineHopBan
+{
+    double from_x = 0.0;
+    double from_y = 0.0;
+    double to_x = 0.0;
+    double to_y = 0.0;
+};
+
 struct Waypoint
 {
     double x;

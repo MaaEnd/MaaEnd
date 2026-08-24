@@ -826,7 +826,7 @@ bool NavigationStateMachine::HandleZiplineRecoveryReplan()
                               anchor->second,
                               /*use_detour=*/false);
     // 链尾落点规划出的剩余展开路径从半路的架子上可能一个点都够不着; 那不代表导航失败, 只代表
-    // 这份展开作废了 —— 回到作者的原始路线, 关掉滑索重新展开剩余部分。
+    // 这份展开作废了 —— 回到作者的原始路线重新展开剩余部分, 刚判死的那跳已进封禁名单。
     if (!rejoined && !TryReplanRemainingAuthoredRoute("zipline_recovery_reexpand")) {
         return FailNavigation(
             "zipline_recovery_route_unavailable",
@@ -842,9 +842,10 @@ bool NavigationStateMachine::HandleZiplineRecoveryReplan()
     return true;
 }
 
-// 全局规划替换掉的作者提示点在这里找回来: 按当前进度点上记的组首下标切出剩余作者路线, 关掉滑索
-// 从脚下重新全局展开, 再整条换掉旧展开。直连规划失败时展开会回放作者提示点, 头几个可能落在身后,
-// 所以换路后再用可达锚点扫描挑第一个真正接得上的点; 扫不出来就按顺序从头走, 交给走路侧的恢复。
+// 全局规划替换掉的作者提示点在这里找回来: 按当前进度点上记的组首下标切出剩余作者路线, 带着
+// 封禁名单从脚下重新全局展开, 再整条换掉旧展开。直连规划失败时展开会回放作者提示点, 头几个
+// 可能落在身后, 所以换路后再用可达锚点扫描挑第一个真正接得上的点; 扫不出来就按顺序从头走,
+// 交给走路侧的恢复。
 bool NavigationStateMachine::TryReplanRemainingAuthoredRoute(const char* reason)
 {
     const std::vector<Waypoint>& authored = param_.authored_path;
@@ -871,7 +872,16 @@ bool NavigationStateMachine::TryReplanRemainingAuthoredRoute(const char* reason)
     }
 
     NaviParam replan_param = param_;
-    replan_param.zipline_enabled = false;
+    // 重展开时滑索照常参与, 只把执行侧判死过的跳从候选里拿掉——一根索滑不动不该罚掉整段路
+    // 的所有捷径。弃索次数太多说明这一带的标定或定位整体不可靠, 才整段退回纯走路。
+    if (runtime_state_.zipline_abandon_count >= kZiplineAbandonWalkFallbackCount) {
+        replan_param.zipline_enabled = false;
+        LogWarn << "Authored route replan disables ziplines: too many abandons this run."
+                << VAR(runtime_state_.zipline_abandon_count);
+    }
+    else {
+        replan_param.banned_zipline_hops = runtime_state_.zipline_hop_bans;
+    }
     replan_param.path.assign(authored.begin() + static_cast<std::ptrdiff_t>(slice_begin), authored.end());
     std::vector<Waypoint> replanned;
     if (!ExpandNavmeshWaypoints(replan_param, *position_, should_stop_, replanned) || replanned.empty()) {
