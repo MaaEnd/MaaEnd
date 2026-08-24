@@ -2184,7 +2184,7 @@
     "option.NotifyBark.label": "Bark 渠道",
     "option.NotifyWebhookMethod.label": "请求方法",
     "option.NotifyAllowTask.label": "允许任务发送自定义通知",
-    "option.NotifyAllowTask.description": "自定义通知指『发送通知任务』及接入通知功能的任务主动发送的通知：关闭后全部跳过，任务失败通知不受影响",
+    "option.NotifyAllowTask.description": "自定义通知指「🔔发送通知」及接入通知功能的任务主动发送的通知：关闭后全部跳过，任务失败通知不受影响",
     "option.NotifyItemsHelp.label": "通知项开关列表",
     "option.NotifyItemsHelp.description": "已接入任务通知的任务会在此显示独立开关，可单独关闭某个通知项；关闭后该任务发送的通知将被跳过",
     "option.NotifyItemNotifyTask.label": "发送通知任务",

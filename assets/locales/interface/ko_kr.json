@@ -2184,7 +2184,7 @@
     "option.NotifyBark.label": "Bark 채널",
     "option.NotifyWebhookMethod.label": "요청 메서드",
     "option.NotifyAllowTask.label": "작업의 사용자 지정 알림 허용",
-    "option.NotifyAllowTask.description": "사용자 지정 알림은 알림 보내기 작업이나 알림 기능을 사용하는 작업이 능동적으로 보내는 알림입니다. 끄면 모두 건너뛰며 작업 실패 알림에는 영향이 없습니다",
+    "option.NotifyAllowTask.description": "사용자 지정 알림은 작업「🔔알림 보내기」나 알림 기능을 사용하는 작업이 능동적으로 보내는 알림입니다. 끄면 모두 건너뛰며 작업 실패 알림에는 영향이 없습니다",
     "option.NotifyItemsHelp.label": "알림 항목 스위치 목록",
     "option.NotifyItemsHelp.description": "작업 알림을 사용하는 작업은 여기에 개별 스위치가 표시되어 특정 알림 항목만 끌 수 있습니다. 끄면 해당 작업의 알림이 건너뜁니다",
     "option.NotifyItemNotifyTask.label": "알림 보내기 작업",

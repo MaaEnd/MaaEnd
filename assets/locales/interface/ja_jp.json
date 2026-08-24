@@ -2184,7 +2184,7 @@
     "option.NotifyBark.label": "Bark チャンネル",
     "option.NotifyWebhookMethod.label": "リクエストメソッド",
     "option.NotifyAllowTask.label": "タスクからのカスタム通知を許可",
-    "option.NotifyAllowTask.description": "カスタム通知とは、通知タスクや通知機能を利用するタスクが能動的に送信する通知です。オフにするとこれらはすべてスキップされ、失敗通知には影響しません",
+    "option.NotifyAllowTask.description": "カスタム通知とは、タスク「🔔通知を送信」や通知機能を利用するタスクが能動的に送信する通知です。オフにするとこれらはすべてスキップされ、失敗通知には影響しません",
     "option.NotifyItemsHelp.label": "通知項目のスイッチ一覧",
     "option.NotifyItemsHelp.description": "タスク通知を利用するタスクはここに個別スイッチが表示され、特定の通知項目だけを無効化できます。無効化するとそのタスクからの通知はスキップされます",
     "option.NotifyItemNotifyTask.label": "通知タスク",

@@ -2184,7 +2184,7 @@
     "option.NotifyBark.label": "Bark channel",
     "option.NotifyWebhookMethod.label": "Request method",
     "option.NotifyAllowTask.label": "Allow tasks to send custom notifications",
-    "option.NotifyAllowTask.description": "Custom notifications are those actively sent by tasks such as the Notify Task or tasks integrating the notification feature. When off, they are all skipped; task failure notifications are unaffected",
+    "option.NotifyAllowTask.description": "Custom notifications are those actively sent by tasks such as「🔔Send Notification」or tasks integrating the notification feature. When off, they are all skipped; task failure notifications are unaffected",
     "option.NotifyItemsHelp.label": "Notification item toggles",
     "option.NotifyItemsHelp.description": "Tasks that use task notifications show an independent toggle here, allowing you to disable a specific notification item; when disabled, notifications from that task are skipped",
     "option.NotifyItemNotifyTask.label": "Notify Task",
