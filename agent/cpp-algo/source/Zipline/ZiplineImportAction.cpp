@@ -28,6 +28,7 @@ namespace
 
 constexpr const char* kDefaultMapUrl = "https://game.skland.com/map/endfield";
 // 标记列表接口的路径片段。只匹配路径，避免被 query 里的参数顺序影响。
+// 可被 param 覆盖：各区服是同一套前端，路径本该一致，万一哪边不一样不必重新编译。
 constexpr const char* kMarkListPathFragment = "/map/mark/list";
 // 窗口的存活上限，留给用户登录：登录后抓齐只要几秒，正常路径根本用不到这个数。
 constexpr int64_t kDefaultTimeoutMs = 300000;
@@ -44,6 +45,7 @@ constexpr size_t kBodyLogPreviewBytes = 256;
 struct ImportParam
 {
     std::string url = kDefaultMapUrl;
+    std::string mark_list_path = kMarkListPathFragment;
     int64_t timeout = kDefaultTimeoutMs;
     int width = kDefaultWindowWidth;
     int height = kDefaultWindowHeight;
@@ -85,6 +87,12 @@ bool ParseParam(const char* raw, ImportParam& out)
 
     const auto& obj = parsed->as_object();
     out.url = obj.get("url", out.url);
+    out.mark_list_path = obj.get("mark_list_path", out.mark_list_path);
+    // 空片段会匹配上页面的每一条响应，把整个会话都当成标记列表抓回来。
+    if (out.mark_list_path.empty()) {
+        LogError << "ZiplineImport: mark_list_path must not be empty";
+        return false;
+    }
     out.timeout = obj.get("timeout", out.timeout);
     out.width = obj.get("width", out.width);
     out.height = obj.get("height", out.height);
@@ -239,10 +247,10 @@ size_t PersistCaptured(const std::vector<CapturedResponse>& captured, const std:
     return total;
 }
 
-void SubscribeSniffers(const std::shared_ptr<WebView2>& webview, const std::shared_ptr<SniffState>& state)
+void SubscribeSniffers(const std::shared_ptr<WebView2>& webview, const std::shared_ptr<SniffState>& state, std::string mark_list_path)
 {
     // 响应头到达：只记下路径命中的请求，此刻响应体还没收完，不能取。
-    webview->SubscribeDevToolsEvent("Network.responseReceived", [state](std::string params_json) {
+    webview->SubscribeDevToolsEvent("Network.responseReceived", [state, mark_list_path](std::string params_json) {
         const auto parsed = json::parse(params_json);
         if (!parsed || !parsed->is_object()) {
             return;
@@ -254,7 +262,7 @@ void SubscribeSniffers(const std::shared_ptr<WebView2>& webview, const std::shar
         }
 
         const std::string url = obj.at("response").as_object().get("url", std::string {});
-        if (url.find(kMarkListPathFragment) == std::string::npos) {
+        if (url.find(mark_list_path) == std::string::npos) {
             return;
         }
 
@@ -358,7 +366,7 @@ MaaBool MAA_CALL ZiplineImportActionRun(
     }
 
     auto state = std::make_shared<SniffState>();
-    SubscribeSniffers(webview, state);
+    SubscribeSniffers(webview, state, param.mark_list_path);
     // 订阅必须先于 Network.enable 排队，两者都走同一条 UI 线程待办，顺序有保证。
     webview->CallDevToolsMethod("Network.enable", "{}", [](bool ok, std::string) {
         if (!ok) {
@@ -372,7 +380,8 @@ MaaBool MAA_CALL ZiplineImportActionRun(
         }
     });
 
-    LogInfo << "ZiplineImport: waiting for the page to fetch its marks" << VAR(param.url) << VAR(param.timeout);
+    LogInfo << "ZiplineImport: waiting for the page to fetch its marks" << VAR(param.url) << VAR(param.mark_list_path)
+            << VAR(param.timeout);
 
     MaaTasker* tasker = MaaContextGetTasker(context);
     const auto started_at = std::chrono::steady_clock::now();
