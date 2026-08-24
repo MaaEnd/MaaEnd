@@ -354,7 +354,7 @@
         ]
     },
     "GoToPeachTreeAtBabblesSHomeNotAtStartPos": {
-        "desc": "前往念念家的桃树传送点，传送后调整朝向并拍照",
+        "desc": "不在念念家的桃树任务开始位置附近，先传送再继续寻路",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
@@ -370,15 +370,23 @@
         ]
     },
     "GoToPeachTreeAtBabblesSHomeMove": {
-        "desc": "在念念家的桃树传送点调整拍照朝向",
+        "desc": "自动寻路前往念念家的桃树",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
             "path": [
                 {
+                    "action": "NAVMESH",
+                    "target": [
+                        258.16,
+                        207.3
+                    ],
+                    "target_tier": "Wuling_L4_328"
+                },
+                {
                     "action": "HEADING",
-                    "angle": 66
+                    "angle": 92
                 }
             ]
         },
