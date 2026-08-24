@@ -26,7 +26,8 @@ Notify 是 MaaEnd 的多渠道外部通知模块
     "识别月卡到期": {
         "recognition": "OCR",
         "expected": ["月卡已过期"],
-        "action": "NotifySendAction",
+        "action": "Custom",
+        "custom_action": "NotifySendAction",
         "attach": {
             "task_title": "$notify.monthly_card.expired", // 以 $ 开头 = i18n key（查不到翻译显示去掉 $ 的 key）
             "task_body": "请及时续费",                     // 普通文本原样发送
