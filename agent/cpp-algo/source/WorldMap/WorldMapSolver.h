@@ -46,6 +46,9 @@ private:
         cv::Mat gray;
         cv::Mat mask;
         cv::Mat saturation;
+
+        // 图标本体上最厚实的那一点，相对模板中心，单位模板像素
+        cv::Point2d hotspot { 0.0, 0.0 };
     };
 
     const cv::Mat* LoadZoneBase(const std::string& zone);

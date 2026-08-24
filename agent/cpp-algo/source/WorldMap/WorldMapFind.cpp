@@ -5,6 +5,7 @@
 #include <cmath>
 #include <cstring>
 #include <optional>
+#include <random>
 #include <string>
 #include <thread>
 #include <vector>
@@ -46,28 +47,38 @@ constexpr ScreenMapRoi kIconArea { 0.02, 0.13, 0.80, 0.85 };
 constexpr int kIconMargin = 30;
 
 // 拖动按恒定速度发，别按恒定时长：同样 420ms，244px 的拖动兑现了六成、688px 只兑现四成，
-// 拉长时长把速度压回来才是对症的。上下限只防极短拖动抖成点击、极长拖动等太久
-constexpr double kSwipeSpeed = 0.5; // 屏幕像素每毫秒
-constexpr int kSwipeDurationMin = 300;
-constexpr int kSwipeDurationMax = 1600;
+// 拉长时长把速度压回来才是对症的。上下限只防极短拖动抖成点击、极长拖动等太久。
+// 鼠标后端不吃这一套打折——实测 389px 兑现了 106%，所以速度按它来定；
+// 真有端上兑现不足，下面那套实测位移＋增益会把差的补回来
+constexpr double kSwipeSpeed = 2.0; // 屏幕像素每毫秒
+constexpr int kSwipeDurationMin = 100;
+constexpr int kSwipeDurationMax = 600;
 
 // 单次拖动不超过安全区尺寸的这个比例。发出的位移就是目标到画面中心的实际差值，
 // 拖过头在几何上不成立，所以这个上限只决定一次能挪多远、跑几个来回，留窄纯属白等
 constexpr double kSwipeSpanRatio = 0.85;
-constexpr int kSettleMillis = 700; // 拖动后等地图停稳再截屏
+// 拖动后等地图停稳再截屏。实测松手后还会多滑约半成，留一点余量把余滑等完，
+// 截在滑动中会把这一拖的位移量错、连带把增益也带偏
+constexpr int kSettleMillis = 250;
 constexpr int kRetryMillis = 350;
 
 // 平移单独记账：把目标挪进画面是这一步该干的事，不该算作识别失败
 constexpr int kMaxPans = 16;
 
 // 各端把发出的滑动兑现成多少地图位移并不一样，实测能差三分之一。
-// 拿相邻两拍量到的比值现补；上限只防测偏时越补越远
+// 拿相邻两拍量到的比值现补；上限只防测偏时越补越远。
+// 兑现比低到 kGainMinRatio 以下的那一拍不是端上打折，是这次拖动压根没生效，
+// 拿它算比值只会把后面每一拖都放大到上限
 constexpr double kGainMax = 2.0;
 constexpr double kGainMinSpan = 40.0;
+constexpr double kGainMinRatio = 0.25;
 
-// 地图拖到边界就不动了。这根轴发出的位移够大却纹丝不动，就是顶到边了
+// 这根轴发出的位移够大却纹丝不动，可能是地图顶到了边界，也可能是起手正压在图标或连线上、
+// 触控被那个控件吃掉了。两者靠「换条路径再拖」区分：被吃掉的换个起点就动了，
+// 真到边界的换几条路径还是零，连着 kPinStreak 拍都零才判死
 constexpr double kPinCommand = 20.0;
 constexpr double kPinMoved = 2.0;
+constexpr int kPinStreak = 3;
 
 // 视口解不出来时同一张静止画面重截多少次结果都逐位一样，得先把地图挪开换个画面
 constexpr int kMaxNudges = 6;
@@ -148,7 +159,18 @@ bool CaptureScreen(MaaController* controller, ScopedImageBuffer* buffer, cv::Mat
     return !out->empty();
 }
 
-// 把 delta 钳到单次可拖的范围内，返回实际发出的位移
+double RandomIn(double lo, double hi)
+{
+    if (!(hi > lo)) {
+        return (lo + hi) / 2.0;
+    }
+    static thread_local std::mt19937 rng(std::random_device {}());
+    return std::uniform_real_distribution<double>(lo, hi)(rng);
+}
+
+// 把 delta 钳到单次可拖的范围内，返回实际发出的位移。
+// 线段在安全区里的落位每次随机取：起手压在图标或连线上时触控会被那个控件吃掉，
+// 而钉死在正中心的话重试逐位重复同一条路径，吃掉一次就永远吃
 cv::Point2d DragMap(MaaController* controller, const cv::Rect& safe, const cv::Point2d& delta)
 {
     const double maxX = safe.width * kSwipeSpanRatio;
@@ -159,7 +181,10 @@ cv::Point2d DragMap(MaaController* controller, const cv::Rect& safe, const cv::P
         return { 0.0, 0.0 };
     }
 
-    const cv::Point2d center(safe.x + safe.width / 2.0, safe.y + safe.height / 2.0);
+    // 中点能落的范围＝安全区往里缩掉半个线段，这样两端都还在安全区内
+    const cv::Point2d center(
+        RandomIn(safe.x + std::abs(dx) / 2.0, safe.x + safe.width - std::abs(dx) / 2.0),
+        RandomIn(safe.y + std::abs(dy) / 2.0, safe.y + safe.height - std::abs(dy) / 2.0));
     const cv::Point from(
         static_cast<int>(std::lround(center.x - dx / 2.0)),
         static_cast<int>(std::lround(center.y - dy / 2.0)));
@@ -223,14 +248,11 @@ MaaRect PointBox(const cv::Point2d& point)
     };
 }
 
+// 交图标本体上的那一点，不交整个模板框：框架会在给它的框里随机取点落指，
+// 而定居点核心的图标只占模板框的一成多，交整框就是在图标旁边的地面上掷骰子
 MaaRect SpotBox(const SpotHit& hit)
 {
-    return MaaRect {
-        .x = static_cast<int32_t>(std::lround(hit.center.x - hit.size.width / 2.0)),
-        .y = static_cast<int32_t>(std::lround(hit.center.y - hit.size.height / 2.0)),
-        .width = hit.size.width,
-        .height = hit.size.height,
-    };
+    return PointBox(hit.hotspot);
 }
 
 void WriteDetail(MaaStringBuffer* out_detail, const json::object& payload)
@@ -303,8 +325,8 @@ MaaBool MAA_CALL MapFindRun(
     int pans = 0;
     int nudges = 0;
     double gain = 1.0;
-    bool pinnedX = false;
-    bool pinnedY = false;
+    int stallX = 0;
+    int stallY = 0;
     cv::Point2d issued { 0.0, 0.0 };
     std::optional<Viewport> previous;
 
@@ -345,16 +367,16 @@ MaaBool MAA_CALL MapFindRun(
             const cv::Point2d moved(
                 (previous->baseOrigin.x - viewport->baseOrigin.x) / viewport->scale,
                 (previous->baseOrigin.y - viewport->baseOrigin.y) / viewport->scale);
-            pinnedX = std::abs(issued.x) >= kPinCommand && std::abs(moved.x) < kPinMoved;
-            pinnedY = std::abs(issued.y) >= kPinCommand && std::abs(moved.y) < kPinMoved;
+            stallX = std::abs(issued.x) >= kPinCommand && std::abs(moved.x) < kPinMoved ? stallX + 1 : 0;
+            stallY = std::abs(issued.y) >= kPinCommand && std::abs(moved.y) < kPinMoved ? stallY + 1 : 0;
 
             const double want = std::hypot(issued.x, issued.y);
             const double got = std::hypot(moved.x, moved.y);
-            if (want >= kGainMinSpan && got >= 1.0) {
+            if (want >= kGainMinSpan && got >= want * kGainMinRatio) {
                 gain = std::clamp(want / got, 1.0, kGainMax);
             }
             LogInfo << "WorldMap: drag delivered" << VAR(issued.x) << VAR(issued.y) << VAR(moved.x) << VAR(moved.y)
-                    << VAR(gain) << VAR(pinnedX) << VAR(pinnedY);
+                    << VAR(gain) << VAR(stallX) << VAR(stallY);
         }
         previous = viewport;
         issued = { 0.0, 0.0 };
@@ -362,22 +384,35 @@ MaaBool MAA_CALL MapFindRun(
         const cv::Point2d expected = viewport->toScreen(target);
         const cv::Point2d need = PanDelta(safe, expected);
         if (std::hypot(need.x, need.y) >= 1.0) {
+            // 换了几条路径还是纹丝不动，才认这根轴真到边了；只零一拍多半是触控被压在起手点上的控件吃了
+            const bool pinnedX = stallX >= kPinStreak;
+            const bool pinnedY = stallY >= kPinStreak;
             const bool stuck = (std::abs(need.x) < 1.0 || pinnedX) && (std::abs(need.y) < 1.0 || pinnedY);
             if (pans >= kMaxPans || stuck) {
-                LogError << "WorldMap: the map will not pan any further toward the target" << VAR(param.zone) << VAR(pans)
-                         << VAR(expected.x) << VAR(expected.y) << VAR(pinnedX) << VAR(pinnedY);
-                return false;
+                // 挪不动了也别空手回去。出了安全区不等于出了能点的地方——那圈边距是留给识别的余量，
+                // 目标只要还落在可用区里就照常认、照常点
+                const cv::Rect usable = WorldMapSolver::SafeArea(screen.size(), kIconArea, 0);
+                const cv::Point at(static_cast<int>(std::lround(expected.x)), static_cast<int>(std::lround(expected.y)));
+                if (!usable.contains(at)) {
+                    LogError << "WorldMap: the map will not pan any further and the target is out of reach" << VAR(param.zone)
+                             << VAR(pans) << VAR(expected.x) << VAR(expected.y) << VAR(stallX) << VAR(stallY);
+                    return false;
+                }
+                LogWarn << "WorldMap: the map will not pan any further, taking the target where it stands" << VAR(param.zone)
+                        << VAR(pans) << VAR(expected.x) << VAR(expected.y) << VAR(stallX) << VAR(stallY);
             }
-            ++pans;
-            LogInfo << "WorldMap: target outside safe area, panning" << VAR(expected.x) << VAR(expected.y) << VAR(need.x)
-                    << VAR(need.y) << VAR(gain);
-            screen.release();
-            issued = DragMap(controller, safe, need * gain);
-            if (std::hypot(issued.x, issued.y) < 1.0) {
-                LogError << "WorldMap: target outside safe area but pan distance is degenerate";
-                return false;
+            else {
+                ++pans;
+                LogInfo << "WorldMap: target outside safe area, panning" << VAR(expected.x) << VAR(expected.y) << VAR(need.x)
+                        << VAR(need.y) << VAR(gain);
+                screen.release();
+                issued = DragMap(controller, safe, need * gain);
+                if (std::hypot(issued.x, issued.y) < 1.0) {
+                    LogError << "WorldMap: target outside safe area but pan distance is degenerate";
+                    return false;
+                }
+                continue;
             }
-            continue;
         }
 
         ++attempt;
@@ -411,6 +446,7 @@ MaaBool MAA_CALL MapFindRun(
             detail.emplace("template", icon->templateName);
             detail.emplace("score", icon->score);
             detail.emplace("unlocked", icon->unlocked);
+            detail.emplace("click", json::array { icon->hotspot.x, icon->hotspot.y });
             WriteDetail(out_detail, detail);
             if (out_box != nullptr) {
                 *out_box = SpotBox(*icon);

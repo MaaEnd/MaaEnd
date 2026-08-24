@@ -71,6 +71,61 @@ cv::Mat SaturationOf(const cv::Mat& src)
     return planes[1];
 }
 
+// 图标本体上最厚实的那一点，相对模板中心。取掩膜最大连通块（本体），
+// 再取块内离边缘最远处：定居点核心的模板是「金雕像 + 等级牌」两块夹着一片空档，
+// 框中心正落在空档里，交整框出去就会点到图标旁边的地面上。
+// 距离并列时取最靠近本体重心的那个——全不透明的模板整条中轴线并列，取首会偏到一边
+cv::Point2d BodyHotspot(const cv::Mat& mask, const cv::Size& size)
+{
+    const cv::Point2d center((size.width - 1) / 2.0, (size.height - 1) / 2.0);
+    if (mask.empty() || mask.size() != size) {
+        return { 0.0, 0.0 };
+    }
+
+    cv::Mat labels;
+    cv::Mat stats;
+    cv::Mat centroids;
+    const int count = cv::connectedComponentsWithStats(mask, labels, stats, centroids, 8, CV_32S);
+    int body = 0;
+    int bodyArea = 0;
+    for (int i = 1; i < count; ++i) {
+        const int area = stats.at<int>(i, cv::CC_STAT_AREA);
+        if (area > bodyArea) {
+            bodyArea = area;
+            body = i;
+        }
+    }
+    if (body == 0) {
+        return { 0.0, 0.0 };
+    }
+
+    // 补一圈零再做距离变换，免得贴着模板边的图标被当成离边缘很远
+    cv::Mat padded;
+    cv::copyMakeBorder(labels == body, padded, 1, 1, 1, 1, cv::BORDER_CONSTANT, cv::Scalar(0));
+    cv::Mat dist;
+    cv::distanceTransform(padded, dist, cv::DIST_L2, 5);
+
+    double peak = 0.0;
+    cv::minMaxLoc(dist, nullptr, &peak);
+    const cv::Point2d anchor(centroids.at<double>(body, 0), centroids.at<double>(body, 1));
+    cv::Point2d best = anchor;
+    double bestGap = -1.0;
+    for (int y = 0; y < size.height; ++y) {
+        for (int x = 0; x < size.width; ++x) {
+            // 差半像素以内算并列
+            if (dist.at<float>(y + 1, x + 1) < peak - 0.5) {
+                continue;
+            }
+            const double gap = std::hypot(x - anchor.x, y - anchor.y);
+            if (bestGap < 0.0 || gap < bestGap) {
+                bestGap = gap;
+                best = cv::Point2d(x, y);
+            }
+        }
+    }
+    return best - center;
+}
+
 cv::Mat ToGray(const cv::Mat& src)
 {
     if (src.channels() == 4) {
@@ -339,83 +394,122 @@ std::optional<SpotHit> WorldMapSolver::ConfirmSpot(
         return std::nullopt;
     }
 
-    // 浮动的点位在一片范围里找，坐标只圈得住范围；钉死的点位就在期望位置开个小窗确认
-    const bool floating = cfg.radiusBase > 0.0;
-    const int radius = floating ? static_cast<int>(std::lround(cfg.radiusBase / viewportScale))
-                                : std::max(cfg.radiusScreen, kMinTemplateSide);
-    cv::Rect window(
-        static_cast<int>(std::lround(expected.x)) - radius,
-        static_cast<int>(std::lround(expected.y)) - radius,
-        radius * 2,
-        radius * 2);
-    window &= cv::Rect(0, 0, screen.cols, screen.rows);
-    if (window.empty()) {
-        LogWarn << "WorldMap: confirm window off screen" << VAR(expected.x) << VAR(expected.y);
-        return std::nullopt;
-    }
-
     std::lock_guard guard(_mutex);
-    const cv::Mat patch = ToGray(screen)(window);
+    const cv::Mat gray = ToGray(screen);
     const std::vector<double> ladder =
         LinearLadder(cfg.scaleMin, cfg.scaleMax, static_cast<int>(std::lround((cfg.scaleMax - cfg.scaleMin) / cfg.scaleStep)) + 1);
 
-    const IconTemplate* pick = nullptr;
-    std::string pickName;
-    std::optional<ScanHit> best;
-    for (const std::string& name : cfg.templates) {
-        const IconTemplate* templ = LoadIconTemplate(name);
-        if (templ == nullptr) {
-            continue;
-        }
-        if (window.width < templ->gray.cols || window.height < templ->gray.rows) {
-            LogWarn << "WorldMap: confirm window smaller than template" << VAR(name) << VAR(window.width) << VAR(window.height);
-            continue;
-        }
-        // 图标只有二十来像素宽，最小边长得按它来卡，照视口那套会把整个模板筛掉
-        const auto hit =
-            ScanScales(patch, templ->gray, templ->mask, ladder, kMinAnchorSide, 0, maplocator::PeakRefineMode::Continuous);
-        if (hit && (!best || hit->score > best->score)) {
-            best = hit;
-            pick = templ;
-            pickName = name;
-        }
-    }
-    if (!best) {
-        LogWarn << "WorldMap: no icon candidate in the confirm window";
-        return std::nullopt;
-    }
-    if (best->score < cfg.minScore) {
-        LogWarn << "WorldMap: icon score below floor" << VAR(pickName) << VAR(best->score) << VAR(cfg.minScore);
-        return std::nullopt;
-    }
+    struct Candidate
+    {
+        SpotHit hit;
+        const IconTemplate* templ = nullptr;
+        cv::Rect live;
+    };
 
-    SpotHit out;
-    out.templateName = pickName;
-    out.center = cv::Point2d(window.x + best->loc.x + best->size.width / 2.0, window.y + best->loc.y + best->size.height / 2.0);
-    out.size = best->size;
-    out.score = best->score;
-    out.matchScale = best->scale;
-    out.offsetBase = std::hypot(out.center.x - expected.x, out.center.y - expected.y) * viewportScale;
+    // 在期望位置开个半径 radius 的窗口扫一遍，只出结果不做判定
+    auto scan = [&](int radius) -> std::optional<Candidate> {
+        cv::Rect window(
+            static_cast<int>(std::lround(expected.x)) - radius,
+            static_cast<int>(std::lround(expected.y)) - radius,
+            radius * 2,
+            radius * 2);
+        window &= cv::Rect(0, 0, screen.cols, screen.rows);
+        if (window.empty()) {
+            LogWarn << "WorldMap: confirm window off screen" << VAR(expected.x) << VAR(expected.y);
+            return std::nullopt;
+        }
 
-    // 钉死的点位偏得太远就是认错了；浮动的点位本来就该在范围里晃，窗口自己就是那道闸
-    if (!floating && out.offsetBase > cfg.gateBase) {
-        LogWarn << "WorldMap: icon too far from expected position" << VAR(pickName) << VAR(out.offsetBase) << VAR(cfg.gateBase)
-                << VAR(out.center.x) << VAR(out.center.y) << VAR(expected.x) << VAR(expected.y);
-        return std::nullopt;
-    }
+        const cv::Mat patch = gray(window);
+        const IconTemplate* pick = nullptr;
+        std::string pickName;
+        std::optional<ScanHit> best;
+        for (const std::string& name : cfg.templates) {
+            const IconTemplate* templ = LoadIconTemplate(name);
+            if (templ == nullptr) {
+                continue;
+            }
+            if (window.width < templ->gray.cols || window.height < templ->gray.rows) {
+                LogWarn << "WorldMap: confirm window smaller than template" << VAR(name) << VAR(window.width)
+                        << VAR(window.height);
+                continue;
+            }
+            // 图标只有二十来像素宽，最小边长得按它来卡，照视口那套会把整个模板筛掉
+            const auto hit =
+                ScanScales(patch, templ->gray, templ->mask, ladder, kMinAnchorSide, 0, maplocator::PeakRefineMode::Continuous);
+            if (hit && (!best || hit->score > best->score)) {
+                best = hit;
+                pick = templ;
+                pickName = name;
+            }
+        }
+        if (!best) {
+            LogWarn << "WorldMap: no icon candidate in the confirm window" << VAR(radius);
+            return std::nullopt;
+        }
+        if (best->score < cfg.minScore) {
+            LogWarn << "WorldMap: icon score below floor" << VAR(pickName) << VAR(best->score) << VAR(cfg.minScore)
+                    << VAR(radius);
+            return std::nullopt;
+        }
 
-    if (cfg.minGoldRatio > 0.0) {
-        const cv::Rect live(
+        Candidate found;
+        found.templ = pick;
+        found.live = cv::Rect(
             window.x + static_cast<int>(std::lround(best->loc.x)),
             window.y + static_cast<int>(std::lround(best->loc.y)),
             best->size.width,
             best->size.height);
-        out.goldRatio = GoldRatio(screen, pick->saturation, pick->mask, live, cfg.saturationFloor);
+        found.hit.templateName = pickName;
+        found.hit.center =
+            cv::Point2d(window.x + best->loc.x + best->size.width / 2.0, window.y + best->loc.y + best->size.height / 2.0);
+        found.hit.hotspot = found.hit.center + pick->hotspot * best->scale;
+        found.hit.size = best->size;
+        found.hit.score = best->score;
+        found.hit.matchScale = best->scale;
+        found.hit.offsetBase = std::hypot(found.hit.center.x - expected.x, found.hit.center.y - expected.y) * viewportScale;
+        return found;
+    };
+
+    // 浮动的点位在一片范围里找，坐标只圈得住范围；钉死的点位就在期望位置开个小窗确认
+    const bool floating = cfg.radiusBase > 0.0;
+    const int radius = floating ? static_cast<int>(std::lround(cfg.radiusBase / viewportScale))
+                                : std::max(cfg.radiusScreen, kMinTemplateSide);
+    auto found = scan(radius);
+
+    // 窗口比判定圈宽得多，里面坐着同类图标时取最高分未必取到期望的那个：
+    // 实测过隔壁传送点只高 0.024 分就把正对着期望位置的那个挤掉了。
+    // 判定圈外的先别扔，按判定圈的尺度再看一次近处——只多一次观测，近处没有就还用原来那个
+    if (found && !floating && found->hit.offsetBase > cfg.gateBase) {
+        const int tight = std::max(static_cast<int>(std::lround(cfg.gateBase / viewportScale)), kMinTemplateSide);
+        if (tight < radius) {
+            LogInfo << "WorldMap: nearest icon sits outside the gate, looking again closer in" << VAR(found->hit.offsetBase)
+                    << VAR(cfg.gateBase) << VAR(radius) << VAR(tight);
+            if (auto closer = scan(tight); closer && closer->hit.offsetBase < found->hit.offsetBase) {
+                found = closer;
+            }
+        }
+    }
+
+    if (!found) {
+        return std::nullopt;
+    }
+
+    SpotHit out = found->hit;
+    // 钉死的点位偏得太远就是认错了；浮动的点位本来就该在范围里晃，窗口自己就是那道闸
+    if (!floating && out.offsetBase > cfg.gateBase) {
+        LogWarn << "WorldMap: icon too far from expected position" << VAR(out.templateName) << VAR(out.offsetBase)
+                << VAR(cfg.gateBase) << VAR(out.center.x) << VAR(out.center.y) << VAR(expected.x) << VAR(expected.y);
+        return std::nullopt;
+    }
+
+    if (cfg.minGoldRatio > 0.0) {
+        out.goldRatio = GoldRatio(screen, found->templ->saturation, found->templ->mask, found->live, cfg.saturationFloor);
         out.unlocked = out.goldRatio >= cfg.minGoldRatio;
     }
 
-    LogInfo << "WorldMap: icon confirmed" << VAR(pickName) << VAR(out.center.x) << VAR(out.center.y) << VAR(out.score)
-            << VAR(out.matchScale) << VAR(out.offsetBase) << VAR(out.goldRatio) << VAR(out.unlocked);
+    LogInfo << "WorldMap: icon confirmed" << VAR(out.templateName) << VAR(out.center.x) << VAR(out.center.y)
+            << VAR(out.hotspot.x) << VAR(out.hotspot.y) << VAR(out.score) << VAR(out.matchScale) << VAR(out.offsetBase)
+            << VAR(out.goldRatio) << VAR(out.unlocked);
     return out;
 }
 
@@ -548,8 +642,10 @@ const WorldMapSolver::IconTemplate* WorldMapSolver::LoadIconTemplate(const std::
         cv::split(image, planes);
         slot.mask = planes[3] >= 128;
     }
+    slot.hotspot = BodyHotspot(slot.mask, image.size());
 
-    LogInfo << "WorldMap: icon template loaded" << VAR(name) << VAR(image.cols) << VAR(image.rows) << VAR(image.channels());
+    LogInfo << "WorldMap: icon template loaded" << VAR(name) << VAR(image.cols) << VAR(image.rows) << VAR(image.channels())
+            << VAR(slot.hotspot.x) << VAR(slot.hotspot.y);
     return &slot;
 }
 

@@ -125,6 +125,10 @@ struct SpotHit
 {
     std::string templateName;
     cv::Point2d center { 0.0, 0.0 };
+
+    // 该点哪一点：图标本体最厚实处，已折算到屏幕。模板框里图标只占一成多，
+    // 交整框出去会被框架在框内随机取点，落到图标旁边的空地上
+    cv::Point2d hotspot { 0.0, 0.0 };
     cv::Size size { 0, 0 };
     double score = 0.0;
     double matchScale = 0.0;
