@@ -324,6 +324,35 @@ struct ZiplineApproachState
     }
 };
 
+// 退索恢复必须重新取得位置所有权。滑行中的快速位移和小地图遮挡可能让最后一帧落在远处的相似
+// 纹理上；ResetTracking 之后用贴近 navmesh 的连续新定位重新确认，再允许状态机规划接回剩余路线。
+struct ZiplineRecoveryState
+{
+    std::chrono::steady_clock::time_point started_at { };
+    NaviPosition stable_pos { };
+    int32_t stable_hits = 0;
+    int32_t rejected_fixes = 0;
+    bool pending = false;
+
+    void Begin(const std::chrono::steady_clock::time_point& now)
+    {
+        started_at = now;
+        stable_pos = { };
+        stable_hits = 0;
+        rejected_fixes = 0;
+        pending = true;
+    }
+
+    void Reset()
+    {
+        started_at = { };
+        stable_pos = { };
+        stable_hits = 0;
+        rejected_fixes = 0;
+        pending = false;
+    }
+};
+
 struct NavigationRuntimeState
 {
     RouteTrackerState route;
@@ -340,6 +369,7 @@ struct NavigationRuntimeState
     // 顶层且不进任何一个 Reset: 它数的正是重规划本身, 跟着重规划清零就永远数不满。换了上索点
     // 由它自己按身份清, 换了整趟导航由 BeginNavigation 清
     ZiplineApproachState zipline_approach;
+    ZiplineRecoveryState zipline_recovery;
     // Consecutive global re-acquires (the navigation_state_machine "recovered via global re-acquire" path) since
     // the last genuine waypoint advance. Top-level on purpose: the loss/escape/overlay Resets that fire all through
     // a wrong-tier thrash storm never clear it — only real forward progress does — so it is the one storm-proof
@@ -356,6 +386,7 @@ struct NavigationRuntimeState
         recovery_escalation.Reset();
         steering_rate.Reset();
         offroute.Reset();
+        zipline_recovery.Reset();
         dynamic_replan_requested = false;
         nav_run_dirty = true;
     }
@@ -373,6 +404,7 @@ struct NavigationRuntimeState
         offroute.Reset();
         cross_tier_escape.Reset();
         zipline_approach.Reset();
+        zipline_recovery.Reset();
         progress_identity.Reset();
         global_reacquire_streak = 0;
         dynamic_replan_requested = false;
@@ -390,6 +422,7 @@ struct NavigationRuntimeState
         river_fall.Reset();
         bypass.Reset();
         offroute.Reset();
+        zipline_recovery.Reset();
         global_reacquire_streak = 0;
         dynamic_replan_requested = false;
         nav_run_dirty = true;

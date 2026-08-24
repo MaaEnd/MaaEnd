@@ -161,12 +161,13 @@ struct NaviWaypointObjectInput
     bool strict_ = false;
     bool strict_arrival_ = false;
     bool strictArrival_ = false;
+    bool required_ = false;
     double x_ = 0.0;
     double y_ = 0.0;
     double angle_ = 0.0;
     double heading_ = 0.0;
     double yaw_ = 0.0;
-    std::array<double, 2> target_ {};
+    std::array<double, 2> target_ { };
     bool has_action_ = false;
     bool has_actions_ = false;
     bool has_zone_id_ = false;
@@ -201,6 +202,7 @@ struct NaviWaypointObjectInput
         MEO_OPT MEO_KEY("strict") strict_,
         MEO_OPT MEO_KEY("strict_arrival") strict_arrival_,
         MEO_OPT MEO_KEY("strictArrival") strictArrival_,
+        MEO_OPT MEO_KEY("required") required_,
         MEO_OPT MEO_KEY("x") x_,
         MEO_OPT MEO_KEY("y") y_,
         MEO_OPT MEO_KEY("angle") angle_,
@@ -228,6 +230,7 @@ struct NaviWaypointObjectPresenceInput
     std::optional<json::value> strict_;
     std::optional<json::value> strict_arrival_;
     std::optional<json::value> strictArrival_;
+    std::optional<json::value> required_;
     std::optional<json::value> x_;
     std::optional<json::value> y_;
     std::optional<json::value> angle_;
@@ -248,6 +251,7 @@ struct NaviWaypointObjectPresenceInput
         MEO_OPT MEO_KEY("strict") strict_,
         MEO_OPT MEO_KEY("strict_arrival") strict_arrival_,
         MEO_OPT MEO_KEY("strictArrival") strictArrival_,
+        MEO_OPT MEO_KEY("required") required_,
         MEO_OPT MEO_KEY("x") x_,
         MEO_OPT MEO_KEY("y") y_,
         MEO_OPT MEO_KEY("angle") angle_,
@@ -321,8 +325,9 @@ struct NaviWaypointInput
     bool interact_rec_ = false;
     std::optional<double> target_deck_y_;
     bool strict_arrival_ = false;
+    bool required_ = false;
     double angle_ = 0.0;
-    std::array<double, 2> target_ {};
+    std::array<double, 2> target_ { };
     bool has_x_ = false;
     bool has_y_ = false;
     bool has_angle_ = false;
@@ -336,7 +341,7 @@ struct NaviWaypointInput
 
     bool from_json(const json::value& input)
     {
-        *this = NaviWaypointInput {};
+        *this = NaviWaypointInput { };
 
         if (input.is_array()) {
             if (!input.is<std::vector<NaviWaypointArrayItem>>()) {
@@ -419,6 +424,7 @@ private:
         interact_rec_ = interact_spec.rec;
         target_deck_y_ = resolveTargetDeckY(object_input);
         strict_arrival_ = resolveStrictArrival(object_input);
+        required_ = object_input.required_;
         x_ = object_input.x_;
         y_ = object_input.y_;
         angle_ = resolveAngle(object_input);
@@ -468,7 +474,7 @@ private:
                 return *value;
             }
         }
-        return {};
+        return { };
     }
 
     static std::string resolveZoneId(const NaviWaypointObjectInput& input)
@@ -483,7 +489,7 @@ private:
                 return *value;
             }
         }
-        return {};
+        return { };
     }
 
     static std::optional<double> resolveTargetDeckY(const NaviWaypointObjectInput& input)
@@ -539,7 +545,7 @@ struct NaviParamInput
     double angle_ = 0.0;
     double heading_ = 0.0;
     double yaw_ = 0.0;
-    std::array<double, 2> target_ {};
+    std::array<double, 2> target_ { };
     bool has_path_ = false;
     bool has_navmesh_file_ = false;
     bool has_nav_file_ = false;
@@ -667,6 +673,7 @@ void append_expanded_waypoints(
     const std::string& zone_id,
     const std::string& target_tier,
     bool strict_arrival,
+    bool route_required,
     std::vector<Waypoint>& out_waypoints)
 {
     const bool has_non_run_action =
@@ -676,6 +683,7 @@ void append_expanded_waypoints(
         waypoint.zone_id = zone_id;
         waypoint.target_tier = target_tier;
         waypoint.strict_arrival = strict_arrival;
+        waypoint.route_required = route_required;
         out_waypoints.push_back(std::move(waypoint));
         return;
     }
@@ -688,6 +696,7 @@ void append_expanded_waypoints(
         waypoint.zone_id = zone_id;
         waypoint.target_tier = target_tier;
         waypoint.strict_arrival = strict_arrival;
+        waypoint.route_required = route_required;
         out_waypoints.push_back(std::move(waypoint));
     }
 }
@@ -791,6 +800,7 @@ bool append_parsed_waypoint(const NaviWaypointInput& input, std::vector<Waypoint
             Waypoint heading_waypoint = Waypoint::HeadingToTarget(input.target_.at(0), input.target_.at(1));
             heading_waypoint.zone_id = zone_id;
             heading_waypoint.target_tier = input.target_tier_;
+            heading_waypoint.route_required = input.required_;
             out_waypoints.push_back(std::move(heading_waypoint));
             return true;
         }
@@ -799,6 +809,7 @@ bool append_parsed_waypoint(const NaviWaypointInput& input, std::vector<Waypoint
         }
         Waypoint heading_waypoint = Waypoint::Heading(input.angle_);
         heading_waypoint.zone_id = zone_id;
+        heading_waypoint.route_required = input.required_;
         out_waypoints.push_back(std::move(heading_waypoint));
         return true;
     }
@@ -816,6 +827,7 @@ bool append_parsed_waypoint(const NaviWaypointInput& input, std::vector<Waypoint
         navmesh_waypoint.target_tier = input.target_tier_;
         // 该坐标压着好几张可走面时, 声明落在哪一张的高度; 不填保持原样
         navmesh_waypoint.target_deck_y = input.target_deck_y_;
+        navmesh_waypoint.route_required = input.required_;
         out_waypoints.push_back(std::move(navmesh_waypoint));
         return true;
     }
@@ -826,7 +838,15 @@ bool append_parsed_waypoint(const NaviWaypointInput& input, std::vector<Waypoint
         const double target_x = input.has_target_ ? input.target_.at(0) : input.x_;
         const double target_y = input.has_target_ ? input.target_.at(1) : input.y_;
         const size_t first_expanded = out_waypoints.size();
-        append_expanded_waypoints(target_x, target_y, input.actions_, zone_id, input.target_tier_, input.strict_arrival_, out_waypoints);
+        append_expanded_waypoints(
+            target_x,
+            target_y,
+            input.actions_,
+            zone_id,
+            input.target_tier_,
+            input.strict_arrival_,
+            input.required_,
+            out_waypoints);
         // One coordinate may carry several actions and expand into several waypoints; only the INTERACT ones take these.
         apply_interact_text(input.interact_text_, input.interact_text_node_, out_waypoints, first_expanded);
         apply_interact_scan(input.interact_scan_, out_waypoints, first_expanded);
@@ -914,7 +934,7 @@ bool TryParseNaviParam(const json::value& custom_action_param, NaviParam& out_pa
 bool TryParseNaviParam(const char* custom_action_param, NaviParam& out_param, std::string_view caller_name)
 {
     if (custom_action_param == nullptr || std::strlen(custom_action_param) == 0) {
-        out_param = NaviParam {};
+        out_param = NaviParam { };
         return true;
     }
 

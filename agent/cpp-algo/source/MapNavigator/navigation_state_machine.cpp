@@ -281,8 +281,12 @@ std::optional<BootstrapContinueCandidate> ResolveBootstrapContinueCandidate(cons
     };
 }
 
-std::optional<DynamicAnchor>
-    ResolveBootstrapNavmeshAnchor(const NaviParam& param, NavigationSession* session, const NaviPosition& position, size_t start_index)
+std::optional<DynamicAnchor> ResolveReachableNavmeshAnchor(
+    const NaviParam& param,
+    NavigationSession* session,
+    const NaviPosition& position,
+    size_t start_index,
+    const char* reason)
 {
     const size_t path_size = session->current_path().size();
     std::optional<DynamicAnchor> anchor;
@@ -329,7 +333,8 @@ std::optional<DynamicAnchor>
 
     // plan_attempts - 1 waypoints ahead of the anchor turned out unreachable.
     if (anchor) {
-        LogInfo << "Bootstrap navmesh anchor selected." << VAR(anchor->first) << VAR(anchor_cost) << VAR(plan_attempts) << VAR(start_index);
+        LogInfo << "Reachable navmesh anchor selected." << VAR(reason) << VAR(anchor->first) << VAR(anchor_cost) << VAR(plan_attempts)
+                << VAR(start_index);
     }
     return anchor;
 }
@@ -344,7 +349,7 @@ std::optional<DynamicAnchor> ResolveBootstrapAnchor(const NaviParam& param, Navi
         LogInfo << "Bootstrap dynamic anchor scan adjusted." << VAR(continue_candidate->reason) << VAR(start_index)
                 << VAR(continue_candidate->route_distance);
     }
-    if (std::optional<DynamicAnchor> navmesh_anchor = ResolveBootstrapNavmeshAnchor(param, session, position, start_index)) {
+    if (std::optional<DynamicAnchor> navmesh_anchor = ResolveReachableNavmeshAnchor(param, session, position, start_index, "bootstrap")) {
         return navmesh_anchor;
     }
     return ResolveCurrentAnchorFrom(session, position, start_index);
@@ -748,6 +753,84 @@ bool NavigationStateMachine::GiveUpUnreachableZipline(const char* reason)
     return true;
 }
 
+bool NavigationStateMachine::HandleZiplineRecoveryReplan()
+{
+    ZiplineRecoveryState& recovery = runtime_state_.zipline_recovery;
+    if (!recovery.pending) {
+        return HandleDynamicReplanRequest("dynamic_replan");
+    }
+
+    StopMotion();
+    const auto now = std::chrono::steady_clock::now();
+    const int64_t elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - recovery.started_at).count();
+    if (elapsed_ms >= kZiplineRecoveryTimeoutMs) {
+        return FailNavigation(
+            "zipline_recovery_localization_timeout",
+            "Zipline recovery could not obtain a stable on-mesh position; refusing to follow the stale departure route.",
+            0.0,
+            0.0,
+            elapsed_ms);
+    }
+
+    const bool force_global_search = recovery.stable_hits == 0;
+    if (!CaptureCurrentPosition(force_global_search)) {
+        utils::SleepFor(kZiplineRecoveryRetryIntervalMs);
+        return true;
+    }
+
+    const navmesh::WorldPoint fix { .x = position_->x, .y = position_->y };
+    const auto snap = NavmeshSnapAt(param_, position_->zone_id, fix, param_.navmesh_snap_radius);
+    const bool fresh_fix = !position_provider_->LastCaptureWasHeld();
+    const bool on_mesh = snap && snap->distance <= param_.navmesh_snap_radius;
+    if (!fresh_fix || !on_mesh) {
+        ++recovery.rejected_fixes;
+        if (recovery.rejected_fixes == 1) {
+            LogWarn << "Zipline recovery rejected an untrusted position; forcing another global locate." << VAR(fresh_fix) << VAR(on_mesh)
+                    << VAR(position_->x) << VAR(position_->y) << VAR(position_->zone_id);
+        }
+        recovery.stable_hits = 0;
+        position_provider_->ResetTracking();
+        utils::SleepFor(kZiplineRecoveryRetryIntervalMs);
+        return true;
+    }
+
+    const bool same_fix =
+        recovery.stable_hits > 0 && recovery.stable_pos.zone_id == position_->zone_id
+        && std::hypot(recovery.stable_pos.x - position_->x, recovery.stable_pos.y - position_->y) <= kZiplineRecoveryStableRadiusWu;
+    recovery.stable_pos = *position_;
+    recovery.stable_hits = same_fix ? recovery.stable_hits + 1 : 1;
+    if (recovery.stable_hits < kZiplineRecoveryStableFixes) {
+        utils::SleepFor(kZiplineRecoveryRetryIntervalMs);
+        return true;
+    }
+
+    if (!position_->zone_id.empty()) {
+        session_->UpdateCurrentZone(position_->zone_id);
+    }
+    LogInfo << "Zipline recovery position stabilized." << VAR(elapsed_ms) << VAR(recovery.stable_hits) << VAR(recovery.rejected_fixes)
+            << VAR(position_->x) << VAR(position_->y) << VAR(position_->zone_id);
+
+    const std::optional<DynamicAnchor> anchor =
+        ResolveReachableNavmeshAnchor(param_, session_, *position_, session_->current_node_idx(), "zipline_recovery");
+    if (!anchor
+        || !TryApplyDynamicOverlayToAnchor(
+            "zipline_recovery",
+            anchor->first,
+            anchor->second,
+            /*use_detour=*/false)) {
+        return FailNavigation(
+            "zipline_recovery_route_unavailable",
+            "Zipline recovery found no reachable point in the remaining route; refusing to follow the stale departure route.",
+            0.0,
+            0.0,
+            elapsed_ms);
+    }
+
+    recovery.Reset();
+    SelectPhaseForCurrentWaypoint("zipline_recovery");
+    return true;
+}
+
 bool NavigationStateMachine::HandleDynamicReplanRequest(const char* reason)
 {
     if (GiveUpUnreachableZipline(reason)) {
@@ -920,6 +1003,9 @@ bool NavigationStateMachine::TickNavigate()
         return FailNavigation(active_semantic_result.failure_reason, active_semantic_result.failure_log_message, 0.0, 0.0, 0);
     }
     if (runtime_state_.dynamic_replan_requested) {
+        if (runtime_state_.zipline_recovery.pending) {
+            return HandleZiplineRecoveryReplan();
+        }
         return HandleDynamicReplanRequest("dynamic_replan");
     }
     if (active_semantic_result.stay_in_current_tick) {
@@ -967,6 +1053,9 @@ bool NavigationStateMachine::TickNavigate()
         return FailNavigation(inline_semantic_result.failure_reason, inline_semantic_result.failure_log_message, 0.0, 0.0, 0);
     }
     if (runtime_state_.dynamic_replan_requested) {
+        if (runtime_state_.zipline_recovery.pending) {
+            return HandleZiplineRecoveryReplan();
+        }
         return HandleDynamicReplanRequest("dynamic_replan");
     }
     if (inline_semantic_result.stay_in_current_tick) {

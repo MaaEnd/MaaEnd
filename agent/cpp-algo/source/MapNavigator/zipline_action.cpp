@@ -212,8 +212,8 @@ void FireLaunch(const Context& ctx)
 
 } // namespace
 
-// 滑索的每一条异常出口都从这里走。索是捷径不是必经之路，捷径走不成的正确答案永远是走路，
-// 不是让整趟导航失败——人挂在索上或者卡在架子边上时，失败等于原地不动到超时。
+// 滑索的每一条异常出口都从这里走。索是捷径不是必经之路，捷径走不成就丢掉剩余链并重新接回
+// 后续路线；不能在人挂在索上或者卡在架子边上时直接结束，否则角色只会原地不动到超时。
 Result AbandonZipline(const Context& ctx, const char* reason, const char* detail)
 {
     Result result;
@@ -236,7 +236,7 @@ Result AbandonZipline(const Context& ctx, const char* reason, const char* detail
         ctx.session->SkipPastWaypoint(hop + dropped - 1, reason);
     }
 
-    LogWarn << "Action: ZIPLINE given up, walking the rest of the way." << VAR(reason) << VAR(detail) << VAR(dropped)
+    LogWarn << "Action: ZIPLINE given up, recovering from a fresh position." << VAR(reason) << VAR(detail) << VAR(dropped)
             << VAR(ctx.position->x) << VAR(ctx.position->y);
 
     ClearRideState(ctx);
@@ -245,8 +245,10 @@ Result AbandonZipline(const Context& ctx, const char* reason, const char* detail
     ctx.runtime_state->route.Reset();
     ctx.position_provider->ResetTracking();
     ctx.session->ResetProgress();
-    // 剩下的路是照着「从落点出发」规划的，人却还在索这一头，得重新规划一条过去。
-    // OnWaypointAdvance 会清掉这个标志，所以只能压在它后面。
+    // 剩下的路是照着「从落点出发」规划的，人却可能仍在索这一头。先丢掉滑行期间的跟踪状态，
+    // 等连续新定位重新贴回 navmesh，再从剩余路线里找第一个实际可达的接入点。OnWaypointAdvance
+    // 会清掉恢复状态和重规划标志，所以两者只能压在它后面。
+    ctx.runtime_state->zipline_recovery.Begin(std::chrono::steady_clock::now());
     ctx.runtime_state->dynamic_replan_requested = true;
 
     SelectPhaseForCurrentWaypoint(ctx, reason);

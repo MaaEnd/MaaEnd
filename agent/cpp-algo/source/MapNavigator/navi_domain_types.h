@@ -95,6 +95,9 @@ struct Waypoint
     // NAVMESH only: height of the overlapping deck this waypoint sits on. Pins the goal span for the leg
     // ending here and the start span for the leg leaving it. Unset -> full span set, unchanged.
     std::optional<double> target_deck_y;
+    // Authored path only: make this node a hard boundary between globally planned legs. Every non-ZONE node
+    // is an optional route/action hint by default, regardless of its action type or whether it has a position.
+    bool route_required;
     // INTERACT 专用: 该点的提示文字, 停车后当 OCR expected 用。留空则不做这次确认, 该点也就不算异步交互
     std::vector<std::string> interact_text;
     // INTERACT 专用: 作者写的是 { "node": ... } 时先落在这里, 开跑前从那个 OCR 节点读出 expected 填进
@@ -176,6 +179,7 @@ struct Waypoint
         , heading_uses_target(false)
         , heading_angle(0.0)
         , zone_id()
+        , route_required(false)
         , interact_rec(false)
     {
     }
@@ -190,6 +194,7 @@ struct Waypoint
         , heading_uses_target(false)
         , heading_angle(0.0)
         , zone_id()
+        , route_required(false)
         , interact_rec(false)
     {
     }

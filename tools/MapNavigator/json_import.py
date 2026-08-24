@@ -98,6 +98,7 @@ def export_path_nodes(points: list[PathPoint]) -> list[dict[str, Any] | list[int
             current_zone = zone_id
 
         strict_arrival = coerce_strict_arrival(point.get("strict"), default=False)
+        required = coerce_strict_arrival(point.get("required"), default=False)
         target_tier = normalize_zone_id(point.get("target_tier", ""))
         for action in get_point_actions(point):
             target = [_compact_number(point["x"]), _compact_number(point["y"])]
@@ -106,17 +107,22 @@ def export_path_nodes(points: list[PathPoint]) -> list[dict[str, Any] | list[int
                 navmesh_node: dict[str, Any] = {"action": "NAVMESH", "target": target}
                 if target_tier:
                     navmesh_node["target_tier"] = target_tier
+                if required:
+                    navmesh_node["required"] = True
                 exported_nodes.append(navmesh_node)
                 continue
 
-            if target_tier:
+            if target_tier or required:
                 positioned_node: dict[str, Any] = {
                     "action": export_action_token(action),
                     "target": target,
-                    "target_tier": target_tier,
                 }
+                if target_tier:
+                    positioned_node["target_tier"] = target_tier
                 if strict_arrival:
                     positioned_node["strict"] = True
+                if required:
+                    positioned_node["required"] = True
                 exported_nodes.append(positioned_node)
                 continue
 
@@ -659,6 +665,8 @@ def _parse_point_dict(node: dict[str, Any], zone_hint: str) -> PathPoint | None:
         "zone": zone,
         "strict": _resolve_strict_hint(node, False),
     }
+    if coerce_strict_arrival(node.get("required"), default=False):
+        point["required"] = True
     target_tier = _resolve_target_tier(node)
     if target_tier:
         point["target_tier"] = target_tier

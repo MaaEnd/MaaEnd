@@ -300,7 +300,7 @@ export const PointEditing = {
    * Mutates `points`.
    * @returns {void}
    */
-  insertPoint(points, zoneIndices, currentZone, actionName, strictArrival, worldX, worldY) {
+  insertPoint(points, zoneIndices, currentZone, actionName, strictArrival, routeRequired, worldX, worldY) {
     const actionType = actionNameToType(actionName);
     const newPoint = {
       x: roundCoord(worldX),
@@ -310,6 +310,7 @@ export const PointEditing = {
       zone: currentZone,
       strict: strictArrival,
     };
+    if (routeRequired) newPoint.required = true;
 
     if (zoneIndices.length < 2) {
       points.push(newPoint);
@@ -339,12 +340,12 @@ export const PointEditing = {
   },
 
   /**
-   * Set the selected point's action, strict flag, and optional coordinate frame. Uses `setPointActions` when the chain is
-   * unchanged (preserve auto/suppress flags), else `setManualPointActions`. Mirrors
+   * Set the selected point's action, strict flag, NAVMESH boundary flag, and optional coordinate frame. Uses
+   * `setPointActions` when the chain is unchanged (preserve auto/suppress flags), else `setManualPointActions`. Mirrors
    * `apply_attributes`. Mutates `points`.
    * @returns {boolean} whether it applied
    */
-  applyAttributes(points, zoneIndices, selectedIdx, actionName, strictArrival, targetTier = '') {
+  applyAttributes(points, zoneIndices, selectedIdx, actionName, strictArrival, routeRequired, targetTier = '') {
     if (selectedIdx === null || selectedIdx >= zoneIndices.length) return false;
     const globalIdx = zoneIndices[selectedIdx];
     const currentActions = getPointActions(points[globalIdx]);
@@ -355,6 +356,8 @@ export const PointEditing = {
       setManualPointActions(points[globalIdx], newActions);
     }
     points[globalIdx].strict = strictArrival;
+    if (routeRequired) points[globalIdx].required = true;
+    else delete points[globalIdx].required;
     const normalizedTargetTier = normalizeZoneId(targetTier);
     if (normalizedTargetTier) points[globalIdx].target_tier = normalizedTargetTier;
     else delete points[globalIdx].target_tier;
@@ -576,7 +579,7 @@ export class AppState {
    * Insert a point into the current zone.
    * @returns {void}
    */
-  editInsertPoint(actionName, strictArrival, worldX, worldY) {
+  editInsertPoint(actionName, strictArrival, routeRequired, worldX, worldY) {
     this.snapshot();
     PointEditing.insertPoint(
       this.points,
@@ -584,6 +587,7 @@ export class AppState {
       this.currentZone(),
       actionName,
       strictArrival,
+      routeRequired,
       worldX,
       worldY,
     );
@@ -594,7 +598,7 @@ export class AppState {
    * Apply action + strict to the primary selection.
    * @returns {boolean}
    */
-  editApplyAttributes(actionName, strictArrival, targetTier = '') {
+  editApplyAttributes(actionName, strictArrival, routeRequired, targetTier = '') {
     this.snapshot();
     const applied = PointEditing.applyAttributes(
       this.points,
@@ -602,6 +606,7 @@ export class AppState {
       this.selectedIdx,
       actionName,
       strictArrival,
+      routeRequired,
       targetTier,
     );
     if (applied) this.reindex();
@@ -610,17 +615,17 @@ export class AppState {
 
   /**
    * Apply the action, strict flag, and optional coordinate frame to EVERY selected point.
-   * @param {string} actionName @param {boolean} strictArrival @param {string} targetTier
+   * @param {string} actionName @param {boolean} strictArrival @param {boolean} routeRequired @param {string} targetTier
    * @returns {{selectionEmpty:boolean, changed:boolean}}
    */
-  editApplyActionToSelected(actionName, strictArrival, targetTier = '') {
+  editApplyActionToSelected(actionName, strictArrival, routeRequired, targetTier = '') {
     if (!this.selectedIndices.size) return { selectionEmpty: true, changed: false };
     this.snapshot();
     const zoneIndices = this.zonePointGlobalIndices();
     let changed = false;
     for (const localIdx of [...this.selectedIndices].sort((a, b) => a - b)) {
       changed =
-        PointEditing.applyAttributes(this.points, zoneIndices, localIdx, actionName, strictArrival, targetTier) ||
+        PointEditing.applyAttributes(this.points, zoneIndices, localIdx, actionName, strictArrival, routeRequired, targetTier) ||
         changed;
     }
     if (changed) this.reindex();

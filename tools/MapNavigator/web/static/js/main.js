@@ -221,6 +221,7 @@ class MapNavigatorApp {
             targetTierList: $("target-tier-list"),
             assertZoneCombo: $("assert-zone-combo"),
             chkStrict: $("chk-strict"),
+            chkRequired: $("chk-required"),
             toolPan: $("tool-pan"),
             toolAdd: $("tool-add"),
             toolSelect: $("tool-select"),
@@ -1729,7 +1730,7 @@ class MapNavigatorApp {
                 wx,
                 wy,
             ] = this.camera.canvasToWorld(x, y);
-            this.state.editInsertPoint(this._actionName(), this._strict(), wx, wy);
+            this.state.editInsertPoint(this._actionName(), this._strict(), this._required(), wx, wy);
             this._resetPropertyControls();
             this._afterStructureChanged();
             return;
@@ -2525,6 +2526,11 @@ class MapNavigatorApp {
         return this.els.chkStrict.checked;
     }
 
+    /** @returns {boolean} whether the selected point is a required global-planning boundary. */
+    _required() {
+        return this.els.chkRequired.checked;
+    }
+
     /** @returns {string} the explicitly declared coordinate frame for selected points. */
     _targetTier() {
         return normalizeZoneId(this.els.targetTierEntry.value);
@@ -2532,7 +2538,12 @@ class MapNavigatorApp {
 
     /** "设为该动作" button: apply the dropdown action + strict flag to the selection. @returns {void} */
     _applyAction() {
-        const result = this.state.editApplyActionToSelected(this._actionName(), this._strict(), this._targetTier());
+        const result = this.state.editApplyActionToSelected(
+            this._actionName(),
+            this._strict(),
+            this._required(),
+            this._targetTier(),
+        );
         if (result.selectionEmpty) {
             setStatus("请先点击选中一个点", "#f59e0b");
             return;
@@ -3012,6 +3023,7 @@ class MapNavigatorApp {
     _resetPropertyControls() {
         this.els.actionMenu.value = ACTION_NAMES[ActionType.RUN];
         this.els.chkStrict.checked = false;
+        this.els.chkRequired.checked = false;
         this.els.targetTierEntry.value = "";
         this.els.actionChainLabel.textContent = "Run";
         if (this.els.propertiesEmptyState && this.els.propertiesEditor) {
@@ -3053,12 +3065,14 @@ class MapNavigatorApp {
             const points = selected.map((idx) => this.state.points[zoneIndices[idx]]);
             const chains = new Set(points.map((p) => JSON.stringify(getPointActions(p))));
             const stricts = new Set(points.map((p) => !!p.strict));
+            const requireds = new Set(points.map((p) => !!p.required));
             const targetTiers = new Set(points.map((p) => normalizeZoneId(p.target_tier || "")));
             if (chains.size === 1) {
                 const actions = getPointActions(points[0]);
                 this.els.actionMenu.value = ACTION_NAMES[actions[actions.length - 1]] || "Run";
             }
             if (stricts.size === 1) this.els.chkStrict.checked = [...stricts][0];
+            if (requireds.size === 1) this.els.chkRequired.checked = [...requireds][0];
             this.els.targetTierEntry.value = targetTiers.size === 1 ? [...targetTiers][0] : "";
             this.els.actionChainLabel.textContent = `多选 ${selected.length} 点`;
             return;
@@ -3073,6 +3087,7 @@ class MapNavigatorApp {
         const actions = getPointActions(point);
         this.els.actionMenu.value = ACTION_NAMES[actions[actions.length - 1]] || "Run";
         this.els.chkStrict.checked = !!point.strict;
+        this.els.chkRequired.checked = !!point.required;
         this.els.targetTierEntry.value = normalizeZoneId(point.target_tier || "");
         this.els.actionChainLabel.textContent = this._formatActionChain(point);
     }
@@ -3138,6 +3153,13 @@ class MapNavigatorApp {
                 strict.textContent = "严";
                 strict.title = "严格到达";
                 row.appendChild(strict);
+            }
+            if (point.required) {
+                const required = document.createElement("span");
+                required.className = "wp-strict";
+                required.textContent = "必";
+                required.title = "路径必经边界";
+                row.appendChild(required);
             }
             if (point.target_tier) {
                 const tier = document.createElement("span");

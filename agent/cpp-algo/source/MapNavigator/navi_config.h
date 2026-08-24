@@ -270,6 +270,13 @@ constexpr double kZiplineMountMinMoveWu = 3.0;
 // 远不值一次导航失败, 判错方向只损失一段捷径
 constexpr int32_t kZiplineApproachReplanBudget = 1;
 
+// 退索后的第一帧可能仍是滑行期间的错误跟踪结果。恢复只接受贴近 navmesh、连续数帧彼此一致的
+// 新定位；超时直接结束本次导航，绝不拿预计算的离索路线从错误落点继续走。
+constexpr int32_t kZiplineRecoveryStableFixes = 3;
+constexpr double kZiplineRecoveryStableRadiusWu = 3.0;
+constexpr int32_t kZiplineRecoveryRetryIntervalMs = 120;
+constexpr int32_t kZiplineRecoveryTimeoutMs = 6000;
+
 // 按了一次没认出来之后的判定圈。交互给的是离身位最近的那台设备, 认不出就得挪身位再认 ——
 // 判定圈收到这里, 让人真把那点距离走完(有备用站位就是走过去, 没有就是再走近点)。
 // 再往下收就到定位噪声底下了, 收不拢只会白等看门狗

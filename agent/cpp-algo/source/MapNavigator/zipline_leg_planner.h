@@ -28,11 +28,13 @@ struct ZiplineRoute
     std::optional<navmesh::WorldPoint> mount_restand;
 };
 
-// 在本区找一条比纯走路更省的滑索路线；没有更省的、该区没标定过、或请求没开滑索时返回 nullopt。
+// 在本区找一条滑索路线：纯走路可达时只返回显著更省的方案；纯走路不可达时返回能把
+// 起终两侧可走面接起来的最低成本连续链。没有可用方案、该区没标定过、或请求没开滑索时返回 nullopt。
 //
-// walking_path 是纯走路方案，它的折线长度同时充当收益门槛：只有省下 min_gain 以上的方案才会被返回。
-// 传折线而不是传长度，是为了让两边的长度出自同一把尺子——换成调用方自己量，量法一旦不同，
-// 差出来的就是一个没人看得见的错误决策。
+// walking_path 非空时是纯走路方案，它的折线长度同时充当收益门槛：只有省下 min_gain 以上的
+// 方案才会被返回。传折线而不是传长度，是为了让两边的长度出自同一把尺子——换成调用方自己量，
+// 量法一旦不同，差出来的就是一个没人看得见的错误决策。传 nullptr 表示纯走路不可达，此时
+// 不设收益门槛，候选仍必须分别规划出“起点到上索点”和“下索点到终点”两段可走路径。
 // 候选先按欧氏下界筛，欧氏距离恒不大于真实路径长度，所以被剪掉的分支不可能更优——
 // 结果与穷举所有滑索对逐位一致，剪枝只省时间不改答案。
 //
@@ -47,7 +49,7 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
     const std::string& navmesh_zone,
     const navmesh::WorldPoint& start,
     const navmesh::WorldPoint& goal,
-    const navmesh::WorldPath& walking_path,
+    const navmesh::WorldPath* walking_path,
     std::optional<double> goal_deck_y,
     const std::function<bool()>& should_stop);
 
