@@ -134,7 +134,7 @@
     "option.Zipline.label": "Zipline",
     "option.Zipline.description": "Whether navigation may take a detour to ride a zipline",
     "option.ZiplineRouting.label": "Use ziplines when navigating",
-    "option.ZiplineRouting.description": "**Run the \"🛝 Import / Update Zipline Coordinates\" task first**\nFollow the task: only routes that ask for a zipline use one\nAlways on: every route looks for a faster zipline\nAlways off: walk only",
+    "option.ZiplineRouting.description": "**Without imported coordinates this setting has no effect and routes walk the whole way.**\nRun the \"🛝 Import / Update Zipline Coordinates\" task from the task list first; a single import stays valid.\nFollow the task: used only on routes that specify a zipline\nAlways on: use ziplines wherever possible; those that fail the benefit check are skipped\nAlways off: walk the whole way",
     "option.ZiplineRouting.cases.Auto.label": "Follow the task",
     "option.ZiplineRouting.cases.Always.label": "Always on",
     "option.ZiplineRouting.cases.Never.label": "Always off",

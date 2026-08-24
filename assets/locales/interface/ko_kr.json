@@ -132,7 +132,7 @@
     "option.Zipline.label": "집라인",
     "option.Zipline.description": "경로 탐색 시 집라인을 타러 우회할지 여부",
     "option.ZiplineRouting.label": "경로 탐색에 집라인 사용",
-    "option.ZiplineRouting.description": "**먼저 「🛝 짚라인 좌표 가져오기/갱신」 작업을 실행하세요**\n작업 설정 따르기: 경로에 명시된 경우에만 사용\n항상 사용: 매번 더 빠른 짚라인을 탐색\n항상 사용 안 함: 도보만 사용",
+    "option.ZiplineRouting.description": "**좌표를 가져오지 않으면 이 설정은 적용되지 않고 전 구간을 도보로 이동합니다.**\n먼저 작업 목록에서 「🛝 짚라인 좌표 가져오기/갱신」을 실행하십시오. 한 번만 가져오면 계속 유효합니다.\n작업 설정 따르기: 경로에 지정된 때에만 사용\n항상 사용: 가능한 한 사용(효율 판정을 통과하지 못한 집라인은 자동 제외)\n항상 사용 안 함: 전 구간 도보 이동",
     "option.ZiplineRouting.cases.Auto.label": "작업 설정 따르기",
     "option.ZiplineRouting.cases.Always.label": "항상 사용",
     "option.ZiplineRouting.cases.Never.label": "항상 사용 안 함",

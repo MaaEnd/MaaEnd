@@ -134,7 +134,7 @@
     "option.Zipline.label": "滑索",
     "option.Zipline.description": "控制尋路時要不要繞去坐滑索",
     "option.ZiplineRouting.label": "尋路時使用滑索",
-    "option.ZiplineRouting.description": "**需要先執行「🛝匯入/更新滑索座標」任務匯入資料**\n跟隨任務：只有路線自己寫明要用滑索時才用\n始終啟用：每次尋路都找一找有沒有更快的滑索\n始終停用：一律只走路",
+    "option.ZiplineRouting.description": "**未匯入滑索座標時本項不會生效，尋路將全程步行。**\n請先在任務清單中執行「🛝匯入/更新滑索座標」，匯入一次長期有效。\n跟隨任務：僅在路線指定使用滑索時啟用\n始終啟用：盡可能使用滑索，未通過效益判定的滑索會自動略過\n始終停用：全程步行",
     "option.ZiplineRouting.cases.Auto.label": "跟隨任務",
     "option.ZiplineRouting.cases.Always.label": "始終啟用",
     "option.ZiplineRouting.cases.Never.label": "始終停用",

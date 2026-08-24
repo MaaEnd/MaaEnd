@@ -132,7 +132,7 @@
     "option.Zipline.label": "ジップライン",
     "option.Zipline.description": "経路探索でジップラインに寄り道するかどうか",
     "option.ZiplineRouting.label": "経路探索でジップラインを使う",
-    "option.ZiplineRouting.description": "**先に「🛝 ジップライン座標をインポート／更新」タスクを実行してください**\nタスクに従う：ルート側で指定されている場合のみ使用\n常に有効：毎回より速いジップラインを探す\n常に無効：徒歩のみ",
+    "option.ZiplineRouting.description": "**座標をインポートしていない場合、この設定は機能せず、全区間を徒歩で移動します。**\n先にタスク一覧から「🛝 ジップライン座標をインポート／更新」を実行してください。一度インポートすれば以後も有効です。\nタスクに従う：ルートで指定されたときのみ使用\n常に有効：可能な限り使用（効果判定を満たさないものは自動的に除外）\n常に無効：全区間を徒歩で移動",
     "option.ZiplineRouting.cases.Auto.label": "タスクに従う",
     "option.ZiplineRouting.cases.Always.label": "常に有効",
     "option.ZiplineRouting.cases.Never.label": "常に無効",
