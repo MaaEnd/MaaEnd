@@ -1,8 +1,9 @@
 """根据 Sentry spans 生成环境监测任务失败情况报告。
 
-执行次数按包含 ``GoTo*Move`` span 的唯一 trace 统计。移动失败取自失败的
-移动 span；扫描失败归属于同一 trace 中时间最近的前置 ``GoTo*Move`` span。
-同一观察点、同一 trace 中的重复 span 只计数一次。
+执行次数按包含 ``GoTo*Move`` span 的唯一 trace 统计。传送失败取自路线专属的
+``QuickTeleport`` span，移动失败取自失败的移动 span；扫描失败归属于同一 trace
+中时间最近的前置 ``GoTo*Move`` span。同一观察点、同一 trace 中的同类重复 span
+只计数一次，总失败按三类失败 trace 的并集统计。
 """
 
 from __future__ import annotations
@@ -24,6 +25,9 @@ from typing import Any, Iterable, Iterator, Sequence, TextIO
 
 
 MOVE_DESCRIPTION_PATTERN = re.compile(r"^GoTo(.+)Move$")
+QUICK_TELEPORT_DESCRIPTION_PATTERN = re.compile(
+    r"^(.+?)QuickTeleport(?:Select|Done)?$"
+)
 EXPLORE_LIMIT = 1_000
 DEFAULT_ROUTES_PATH = (
     Path(__file__).resolve().parents[1]
@@ -53,6 +57,7 @@ class ReportRow:
     observation_point: str
     route_id: str
     executions: int
+    teleport_failures: int
     move_failures: int
     scan_failures: int
     total_failures: int
@@ -66,6 +71,12 @@ def parse_timestamp(value: str) -> datetime:
 
 def route_id_from_description(description: str) -> str | None:
     match = MOVE_DESCRIPTION_PATTERN.fullmatch(description)
+    return match.group(1) if match else None
+
+
+def route_id_from_quick_teleport_description(description: str) -> str | None:
+    """从路线专属快捷传送节点名中提取观察点 ID。"""
+    match = QUICK_TELEPORT_DESCRIPTION_PATTERN.fullmatch(description)
     return match.group(1) if match else None
 
 
@@ -201,6 +212,21 @@ def failure_pairs_from_rows(rows: Iterable[dict[str, Any]]) -> set[FailurePair]:
     return pairs
 
 
+def teleport_failure_pairs_from_rows(
+    rows: Iterable[dict[str, Any]],
+    route_ids: set[str],
+) -> set[FailurePair]:
+    """提取传送失败，并过滤不属于环境监测观察点的公共传送节点。"""
+    pairs: set[FailurePair] = set()
+    for row in rows:
+        route_id = route_id_from_quick_teleport_description(
+            str(row["span.description"])
+        )
+        if route_id in route_ids:
+            pairs.add((route_id, str(row["trace"])))
+    return pairs
+
+
 def scan_failures_from_rows(rows: Iterable[dict[str, Any]]) -> list[ScanFailure]:
     return [
         ScanFailure(
@@ -264,12 +290,16 @@ def count_pairs_by_route(pairs: Iterable[FailurePair]) -> dict[str, int]:
 def build_report(
     route_names: dict[str, str],
     execution_counts: dict[str, int],
+    teleport_failure_pairs: set[FailurePair],
     move_failure_pairs: set[FailurePair],
     scan_failure_pairs: set[FailurePair],
 ) -> list[ReportRow]:
+    teleport_failure_counts = count_pairs_by_route(teleport_failure_pairs)
     move_failure_counts = count_pairs_by_route(move_failure_pairs)
     scan_failure_counts = count_pairs_by_route(scan_failure_pairs)
-    all_failure_pairs = move_failure_pairs | scan_failure_pairs
+    all_failure_pairs = (
+        teleport_failure_pairs | move_failure_pairs | scan_failure_pairs
+    )
     total_failure_counts = count_pairs_by_route(all_failure_pairs)
 
     rows = []
@@ -281,6 +311,7 @@ def build_report(
                 observation_point=route_names.get(route_id, route_id),
                 route_id=route_id,
                 executions=executions,
+                teleport_failures=teleport_failure_counts.get(route_id, 0),
                 move_failures=move_failure_counts.get(route_id, 0),
                 scan_failures=scan_failure_counts.get(route_id, 0),
                 total_failures=total_failures,
@@ -317,6 +348,10 @@ def collect_report(
         scope_filter = f"environment:{environment}"
 
     move_filter = f"{scope_filter} span.description:GoTo*Move"
+    teleport_failure_filter = (
+        f"{scope_filter} task:EnvironmentMonitoring "
+        "span.description:*QuickTeleport* span.status:internal_error"
+    )
     move_failure_filter = f"{move_filter} span.status:internal_error"
     scan_failure_filter = (
         f"{scope_filter} "
@@ -324,7 +359,9 @@ def collect_report(
         "span.status:internal_error"
     )
 
-    show_progress("[1/4] 查询观察点执行次数", quiet=quiet)
+    route_names = load_route_names(routes_path)
+
+    show_progress("[1/5] 查询观察点执行次数", quiet=quiet)
     execution_rows = explore(
         sentry_command,
         target=target,
@@ -334,7 +371,17 @@ def collect_report(
         sort="-count_unique(trace)",
         verbose=verbose,
     )
-    show_progress("[2/4] 查询移动失败", quiet=quiet)
+    show_progress("[2/5] 查询传送失败", quiet=quiet)
+    teleport_failure_rows = explore(
+        sentry_command,
+        target=target,
+        period=period,
+        fields=("timestamp", "trace", "span.description"),
+        query=teleport_failure_filter,
+        sort="timestamp",
+        verbose=verbose,
+    )
+    show_progress("[3/5] 查询移动失败", quiet=quiet)
     move_failure_rows = explore(
         sentry_command,
         target=target,
@@ -344,7 +391,7 @@ def collect_report(
         sort="timestamp",
         verbose=verbose,
     )
-    show_progress("[3/4] 查询扫描失败", quiet=quiet)
+    show_progress("[4/5] 查询扫描失败", quiet=quiet)
     scan_failure_rows = explore(
         sentry_command,
         target=target,
@@ -380,8 +427,12 @@ def collect_report(
         all_moves,
     )
     report = build_report(
-        load_route_names(routes_path),
+        route_names,
         execution_counts_from_rows(execution_rows),
+        teleport_failure_pairs_from_rows(
+            teleport_failure_rows,
+            set(route_names),
+        ),
         failure_pairs_from_rows(move_failure_rows),
         scan_failure_pairs,
     )
@@ -406,7 +457,7 @@ def show_batch_progress(current: int, total: int, *, quiet: bool) -> None:
     completed = round(width * current / total)
     bar = "█" * completed + "░" * (width - completed)
     print(
-        f"\r[4/4] 关联扫描失败 trace [{bar}] {current}/{total}",
+        f"\r[5/5] 关联扫描失败 trace [{bar}] {current}/{total}",
         end="",
         file=sys.stderr,
         flush=True,
@@ -436,11 +487,20 @@ def pad_display(value: str, width: int, *, align_right: bool = False) -> str:
 
 
 def write_console(rows: Sequence[ReportRow], output: TextIO) -> None:
-    headers = ("观察点", "执行", "移动失败", "扫描失败", "总失败", "失败率")
+    headers = (
+        "观察点",
+        "执行",
+        "传送失败",
+        "移动失败",
+        "扫描失败",
+        "总失败",
+        "失败率",
+    )
     values = [
         (
             row.observation_point,
             str(row.executions),
+            str(row.teleport_failures),
             str(row.move_failures),
             str(row.scan_failures),
             str(row.total_failures),
@@ -472,13 +532,16 @@ def write_console(rows: Sequence[ReportRow], output: TextIO) -> None:
 
 
 def write_markdown(rows: Sequence[ReportRow], output: TextIO) -> None:
-    print("| 观察点 | 执行 | 移动失败 | 扫描失败 | 总失败 | 失败率 |", file=output)
-    print("|---|---:|---:|---:|---:|---:|", file=output)
+    print(
+        "| 观察点 | 执行 | 传送失败 | 移动失败 | 扫描失败 | 总失败 | 失败率 |",
+        file=output,
+    )
+    print("|---|---:|---:|---:|---:|---:|---:|", file=output)
     for row in rows:
         name = row.observation_point.replace("|", "\\|")
         print(
-            f"| {name} | {row.executions} | {row.move_failures} | "
-            f"{row.scan_failures} | {row.total_failures} | "
+            f"| {name} | {row.executions} | {row.teleport_failures} | "
+            f"{row.move_failures} | {row.scan_failures} | {row.total_failures} | "
             f"{format_rate(row.failure_rate)} |",
             file=output,
         )
