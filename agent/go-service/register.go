@@ -24,6 +24,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/falseaction"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/focusocr"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/listcomplete"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/closegame"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/pipelineoverride"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/poststop"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/repeataction"
@@ -67,6 +68,7 @@ func registerAll() {
 	subtask.Register()
 	failurecollector.Register()
 	clearhitcount.Register()
+	closegame.Register()
 	pipelineoverride.Register()
 	expressionrecognition.Register()
 	focusocr.Register()

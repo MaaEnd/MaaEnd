@@ -1,0 +1,11 @@
+{
+    "CloseGamePC": {
+        "desc": "关闭游戏（PC）：强制结束 Endfield.exe 进程；可选在关闭后写入游戏显示设置",
+        "action": "Custom",
+        "custom_action": "CloseGameAction",
+        "attach": {
+            "ApplyGameSetting": false
+        },
+        "next": []
+    }
+}
