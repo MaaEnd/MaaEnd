@@ -329,6 +329,13 @@ std::optional<DynamicAnchor> ResolveReachableNavmeshAnchor(
         if (IsRequiredSemanticAnchor(waypoint)) {
             break;
         }
+        // 每次不可达都是一次跑满的 A*(秒级); 连败到预算就放弃这轮扫描, 交给调用侧的下一级回退,
+        // 不再像 34 连败那样把恢复阶段拖上一分多钟。
+        if (plan_attempts >= kReachableAnchorPlanAttemptsMax) {
+            LogWarn << "Reachable navmesh anchor scan exhausted its plan budget." << VAR(reason) << VAR(plan_attempts) << VAR(index)
+                    << VAR(path_size);
+            break;
+        }
     }
 
     // plan_attempts - 1 waypoints ahead of the anchor turned out unreachable.
@@ -812,15 +819,19 @@ bool NavigationStateMachine::HandleZiplineRecoveryReplan()
 
     const std::optional<DynamicAnchor> anchor =
         ResolveReachableNavmeshAnchor(param_, session_, *position_, session_->current_node_idx(), "zipline_recovery");
-    if (!anchor
-        || !TryApplyDynamicOverlayToAnchor(
-            "zipline_recovery",
-            anchor->first,
-            anchor->second,
-            /*use_detour=*/false)) {
+    const bool rejoined = anchor
+                          && TryApplyDynamicOverlayToAnchor(
+                              "zipline_recovery",
+                              anchor->first,
+                              anchor->second,
+                              /*use_detour=*/false);
+    // 链尾落点规划出的剩余展开路径从半路的架子上可能一个点都够不着; 那不代表导航失败, 只代表
+    // 这份展开作废了 —— 回到作者的原始路线, 关掉滑索重新展开剩余部分。
+    if (!rejoined && !TryReplanRemainingAuthoredRoute("zipline_recovery_reexpand")) {
         return FailNavigation(
             "zipline_recovery_route_unavailable",
-            "Zipline recovery found no reachable point in the remaining route; refusing to follow the stale departure route.",
+            "Zipline recovery found no reachable point in the remaining route and could not re-expand the authored route; "
+            "refusing to follow the stale departure route.",
             0.0,
             0.0,
             elapsed_ms);
@@ -828,6 +839,64 @@ bool NavigationStateMachine::HandleZiplineRecoveryReplan()
 
     recovery.Reset();
     SelectPhaseForCurrentWaypoint("zipline_recovery");
+    return true;
+}
+
+// 全局规划替换掉的作者提示点在这里找回来: 按当前进度点上记的组首下标切出剩余作者路线, 关掉滑索
+// 从脚下重新全局展开, 再整条换掉旧展开。直连规划失败时展开会回放作者提示点, 头几个可能落在身后,
+// 所以换路后再用可达锚点扫描挑第一个真正接得上的点; 扫不出来就按顺序从头走, 交给走路侧的恢复。
+bool NavigationStateMachine::TryReplanRemainingAuthoredRoute(const char* reason)
+{
+    const std::vector<Waypoint>& authored = param_.authored_path;
+    if (authored.empty()) {
+        return false;
+    }
+
+    size_t slice_begin = authored.size();
+    for (size_t index = session_->current_node_idx(); index < session_->current_path().size(); ++index) {
+        const std::optional<size_t> canonical_index = session_->CanonicalIndexAtCurrentPath(index);
+        if (!canonical_index) {
+            continue;
+        }
+        const size_t stamp = session_->original_path()[*canonical_index].authored_group_begin;
+        if (stamp < authored.size()) {
+            slice_begin = stamp;
+            break;
+        }
+    }
+    if (slice_begin >= authored.size()) {
+        LogWarn << "Authored route replan unavailable: no authored origin recorded past the current node." << VAR(reason)
+                << VAR(session_->current_node_idx()) << VAR(session_->current_path().size());
+        return false;
+    }
+
+    NaviParam replan_param = param_;
+    replan_param.zipline_enabled = false;
+    replan_param.path.assign(authored.begin() + static_cast<std::ptrdiff_t>(slice_begin), authored.end());
+    std::vector<Waypoint> replanned;
+    if (!ExpandNavmeshWaypoints(replan_param, *position_, should_stop_, replanned) || replanned.empty()) {
+        LogWarn << "Authored route replan failed to expand the remaining route." << VAR(reason) << VAR(slice_begin)
+                << VAR(replan_param.path.size());
+        return false;
+    }
+    // 展开是对切片跑的, 组首下标记的是切片内偏移; 折回完整作者路线的坐标系, 让不变量保持成立
+    for (Waypoint& waypoint : replanned) {
+        if (waypoint.authored_group_begin != std::numeric_limits<size_t>::max()) {
+            waypoint.authored_group_begin += slice_begin;
+        }
+    }
+
+    session_->ReplaceRoute(std::move(replanned), *position_, reason);
+    runtime_state_.route.Reset();
+    runtime_state_.nav_run_dirty = true;
+    runtime_state_.dynamic_replan_requested = false;
+
+    const std::optional<DynamicAnchor> anchor = ResolveReachableNavmeshAnchor(param_, session_, *position_, 0, reason);
+    if (anchor) {
+        TryApplyDynamicOverlayToAnchor(reason, anchor->first, anchor->second, /*use_detour=*/false);
+    }
+    LogInfo << "Zipline recovery re-expanded the remaining authored route." << VAR(reason) << VAR(slice_begin)
+            << VAR(session_->current_path().size()) << VAR(position_->x) << VAR(position_->y) << VAR(position_->zone_id);
     return true;
 }
 

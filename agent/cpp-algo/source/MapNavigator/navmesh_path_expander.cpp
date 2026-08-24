@@ -1146,6 +1146,7 @@ bool ExpandNavmeshWaypoints(
         if (waypoint.IsZoneDeclaration()) {
             state->current_zone = waypoint.zone_id;
             out_path.push_back(waypoint);
+            out_path.back().authored_group_begin = index;
             ++index;
             continue;
         }
@@ -1158,8 +1159,13 @@ bool ExpandNavmeshWaypoints(
             }
         }
         const bool endpoint_is_hard = group_end > index && param.path[group_end - 1].route_required;
+        const size_t group_output_begin = out_path.size();
         if (!AppendGlobalRouteGroup(param, *navmesh, param.path, index, group_end, endpoint_is_hard, should_stop, *state, out_path)) {
             return false;
+        }
+        // 记下这段产物折回作者路线时该从哪一组接; 滑索恢复按它切出剩余作者路线重新展开
+        for (size_t output = group_output_begin; output < out_path.size(); ++output) {
+            out_path[output].authored_group_begin = index;
         }
         index = group_end;
     }

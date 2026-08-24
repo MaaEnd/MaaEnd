@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <chrono>
+#include <limits>
 #include <optional>
 #include <string>
 #include <vector>
@@ -113,6 +114,9 @@ struct Waypoint
     std::optional<ZiplineTarget> zipline_target;
     // ZIPLINE only: 备用站位, 只在上索按空一次之后才改瞄它。架子旁边没有供电结构就不写
     std::optional<ZiplineRestand> mount_restand;
+    // 展开路径专用: 这个点由原始作者 path 的哪一组(组首下标)展开而来。滑索链半路失败时按它把
+    // 进度折回作者路线重新展开; 作者原始点和运行时生成的点不带(= max)。
+    size_t authored_group_begin = std::numeric_limits<size_t>::max();
 
     double GetLookahead() const
     {

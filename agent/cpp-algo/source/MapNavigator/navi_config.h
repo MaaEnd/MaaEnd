@@ -276,6 +276,9 @@ constexpr int32_t kZiplineRecoveryStableFixes = 3;
 constexpr double kZiplineRecoveryStableRadiusWu = 3.0;
 constexpr int32_t kZiplineRecoveryRetryIntervalMs = 120;
 constexpr int32_t kZiplineRecoveryTimeoutMs = 6000;
+// 可达锚点扫描的串行 A* 预算。每次不可达都要跑满一次搜索(秒级), 曾出现 34 连败额外卡约 70s;
+// 预算用尽就放弃这轮扫描, 交给调用侧的下一级回退。
+constexpr int32_t kReachableAnchorPlanAttemptsMax = 8;
 
 // 按了一次没认出来之后的判定圈。交互给的是离身位最近的那台设备, 认不出就得挪身位再认 ——
 // 判定圈收到这里, 让人真把那点距离走完(有备用站位就是走过去, 没有就是再走近点)。
