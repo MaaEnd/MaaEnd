@@ -69,11 +69,10 @@ type Config struct {
 	FailBody  string `json:"fail_body"`
 
 	// 自定义通知内容（经 attach 顶层键合并写入；NotifyTask 由设置页 option 注入，
-	// 其他任务可在调用节点 attach 直接编写，i18n key 优先于原文模板）
-	TaskTitleKey string `json:"task_title_key"` // 标题 i18n key，查到翻译优先于 TaskTitle
-	TaskBodyKey  string `json:"task_body_key"`  // 正文 i18n key，查到翻译优先于 TaskBody
-	TaskTitle    string `json:"task_title"`     // 标题模板（原文）
-	TaskBody     string `json:"task_body"`      // 正文模板（原文）
+	// 其他任务可在调用节点 attach 直接编写）。支持两种写法：普通文本，或 "$" 开头的
+	// i18n key（与 MXU 前端约定一致，如 "$notify.monthly_card.expired"）。
+	TaskTitle string `json:"task_title"` // 标题模板：普通文本，或 $ 开头的 i18n key
+	TaskBody  string `json:"task_body"`  // 正文模板：普通文本，或 $ 开头的 i18n key
 
 	// AllowTaskNotify 设置页总开关（收纳开关）：是否允许任务/节点通过 NotifySendAction 发送自定义通知。
 	// nil=未配置（默认允许，不破坏旧行为）；设置页关闭时写入 false，同时收起所有通知项分项开关。
@@ -215,7 +214,8 @@ func Send(config Config, vars map[string]string) bool {
 
 // NotifySendAction 供 Pipeline 手动触发通知：渠道配置从 __NotifyConfig 读取，
 // 标题/正文支持两种写法——NotifyTask 由设置页 option 注入全局节点，
-// 其他任务可在调用节点 attach 直接编写（本地优先），并支持 i18n key。
+// 其他任务可在调用节点 attach 直接编写（本地优先）；内容以 "$" 开头时视为 i18n key
+// （查不到翻译则显示去掉 $ 的 key，与 MXU 前端 resolveI18nText 约定一致）。
 // 通知失败不会导致 Pipeline 节点失败。
 type NotifySendAction struct{}
 
@@ -262,8 +262,8 @@ func (a *NotifySendAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 	}
 
 	vars := BuildVars(taskName, "", time.Now(), getControllerStartTime())
-	vars["title"] = resolveNotifyText(config.TaskTitleKey, config.TaskTitle, vars)
-	vars["body"] = resolveNotifyText(config.TaskBodyKey, config.TaskBody, vars)
+	vars["title"] = resolveNotifyText(config.TaskTitle, vars)
+	vars["body"] = resolveNotifyText(config.TaskBody, vars)
 	Send(config, vars)
 	// 通知发送失败不影响游戏流程，始终返回成功
 	return true
@@ -273,12 +273,6 @@ func (a *NotifySendAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 // 渠道字段以全局 __NotifyConfig 为准；内容字段调用节点 attach 优先、回退全局
 // （NotifyTask 的内容由设置页 option 注入全局节点，此处保证两种写法都生效）。
 func mergeConfig(global, local Config) Config {
-	if local.TaskTitleKey != "" {
-		global.TaskTitleKey = local.TaskTitleKey
-	}
-	if local.TaskBodyKey != "" {
-		global.TaskBodyKey = local.TaskBodyKey
-	}
 	if local.TaskTitle != "" {
 		global.TaskTitle = local.TaskTitle
 	}
@@ -302,13 +296,16 @@ func taskNotifySkipped(config Config) bool {
 	return ok && !enabled
 }
 
-// resolveNotifyText 解析标题/正文：i18n key 查到翻译时用翻译（再做变量替换），
-// key 未配置或查不到翻译时回退原文模板。
-func resolveNotifyText(key, fallback string, vars map[string]string) string {
-	if key != "" {
+// resolveNotifyText 解析标题/正文：以 "$" 开头的文本视为 i18n key（与 MXU 前端约定一致），
+// 查到翻译时用翻译（再做变量替换），查不到或非 "$" 开头时按原文处理。
+// 回退语义与 i18n.T 一致：查不到翻译显示去掉 $ 的 key 本身。
+func resolveNotifyText(text string, vars map[string]string) string {
+	if strings.HasPrefix(text, "$") {
+		key := strings.TrimPrefix(text, "$")
 		if translated := i18n.T(key); translated != key {
 			return ReplaceVars(translated, vars)
 		}
+		return ReplaceVars(key, vars)
 	}
-	return ReplaceVars(fallback, vars)
+	return ReplaceVars(text, vars)
 }

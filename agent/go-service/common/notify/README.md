@@ -8,7 +8,7 @@
 
 | 文件 | 职责 |
 | -------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| `notify.go` | 核心：`Config`（attach 顶层键配置，一次解析全包消费）、`ParseConfig`、模板变量（`BuildVars` / `ReplaceVars`）、`Send` 调度、`NotifySendAction` 自定义动作、`mergeConfig`（节点内容优先合并）、`resolveNotifyText`（i18n key 优先回退原文）、`taskNotifySkipped`（通知项开关判断） |
+| `notify.go` | 核心：`Config`（attach 顶层键配置，一次解析全包消费）、`ParseConfig`、模板变量（`BuildVars` / `ReplaceVars`）、`Send` 调度、`NotifySendAction` 自定义动作、`mergeConfig`（节点内容优先合并）、`resolveNotifyText`（`$` 开头视为 i18n key，查不到回退去掉 `$` 的 key）、`taskNotifySkipped`（通知项开关判断） |
 | `channel.go` | `Channel` 接口（`Name` / `Enabled` / `Send`）+ 注册表（`RegisterChannel`，渠道文件 `init` 注册一行）+ 公共辅助（`addIfPresent` / `firstNonEmpty` / `channelTitleBody`） |
 | `http.go` | 公共 HTTP：`httpClient`（10s 超时）、`postJSON`（响应体 1MB 上限、业务 code 校验）、`checkStatus`、`sanitizeError`（错误中 URL 整体脱敏，防凭据泄漏） |
 | `webhook.go` | Webhook 渠道：自定义方法/请求头/请求体，全模板变量；`ParseHeaders`（JSON 优先、文本回退） |

@@ -664,10 +664,10 @@ func TestSanitizeError(t *testing.T) {
 func TestMergeConfig(t *testing.T) {
 	global := Config{
 		WebhookEnabled: true, BarkEnabled: true, ServerChanEnabled: true,
-		TaskTitle: "全局标题", TaskBody: "全局正文", TaskTitleKey: "global.title.key",
+		TaskTitle: "全局标题", TaskBody: "全局正文",
 		TaskNotifyToggles: map[string]bool{"monthly_card": true},
 	}
-	local := Config{TaskTitle: "本地标题", TaskTitleKey: "local.title.key", TaskNotifyKey: "monthly_card"}
+	local := Config{TaskTitle: "本地标题", TaskNotifyKey: "monthly_card"}
 
 	merged := mergeConfig(global, local)
 	// 渠道字段以全局为准
@@ -675,7 +675,7 @@ func TestMergeConfig(t *testing.T) {
 		t.Errorf("channel fields should come from global: %+v", merged)
 	}
 	// 内容字段调用节点优先
-	if merged.TaskTitle != "本地标题" || merged.TaskTitleKey != "local.title.key" {
+	if merged.TaskTitle != "本地标题" {
 		t.Errorf("content should prefer local: %+v", merged)
 	}
 	// 通知项 ID 本地优先
@@ -688,7 +688,7 @@ func TestMergeConfig(t *testing.T) {
 	}
 
 	// 本地内容全空：不覆盖全局
-	if merged2 := mergeConfig(global, Config{}); merged2.TaskTitle != "全局标题" || merged2.TaskTitleKey != "global.title.key" {
+	if merged2 := mergeConfig(global, Config{}); merged2.TaskTitle != "全局标题" {
 		t.Errorf("empty local should not override global: %+v", merged2)
 	}
 }
@@ -720,18 +720,31 @@ func TestTaskNotifySkipped(t *testing.T) {
 }
 
 func TestResolveNotifyText(t *testing.T) {
+	i18n.Init() // 幂等；首次以 zh_cn 初始化，使 notify.default_title 等翻译可用
 	vars := map[string]string{"task_name": "T"}
-	// key 未配置 → 原文模板 + 变量替换
-	if got := resolveNotifyText("", "任务 {{task_name}}", vars); got != "任务 T" {
-		t.Errorf("fallback text = %q, want 任务 T", got)
+	// 普通文本 → 原样 + 变量替换
+	if got := resolveNotifyText("任务 {{task_name}}", vars); got != "任务 T" {
+		t.Errorf("plain text = %q, want 任务 T", got)
 	}
-	// key 配置但查不到翻译（i18n.T 返回 key 本身）→ 回退原文
-	if got := resolveNotifyText("notify.no_such_key_xyz", "回退 {{task_name}}", vars); got != "回退 T" {
-		t.Errorf("missing key fallback = %q, want 回退 T", got)
+	// "$" 开头且查到翻译 → 用翻译 + 变量替换
+	if got := resolveNotifyText("$notify.default_title", vars); got != "MaaEnd 通知" {
+		t.Errorf("i18n found = %q, want MaaEnd 通知", got)
 	}
-	// 原文为空 → 空串（由 Send 的 prefill 兜底默认标题）
-	if got := resolveNotifyText("", "", vars); got != "" {
-		t.Errorf("empty fallback = %q, want empty", got)
+	// "$" 开头但查不到翻译 → 显示去掉 $ 的 key 本身（与 i18n.T 回退一致）
+	if got := resolveNotifyText("$notify.no_such_key_xyz", vars); got != "notify.no_such_key_xyz" {
+		t.Errorf("i18n missing = %q, want notify.no_such_key_xyz", got)
+	}
+	// 翻译值本身含模板变量 → 变量替换（notify.default_body 含 {{datetime}}，构造缺失时回退 key）
+	if got := resolveNotifyText("$notify.no_such_key_{{task_name}}", vars); got != "notify.no_such_key_T" {
+		t.Errorf("i18n missing with vars = %q, want notify.no_such_key_T", got)
+	}
+	// 空串 → 空串（由 Send 的 prefill 兜底默认标题）
+	if got := resolveNotifyText("", vars); got != "" {
+		t.Errorf("empty = %q, want empty", got)
+	}
+	// 单独一个 $ → key 为空串，回退空串
+	if got := resolveNotifyText("$", vars); got != "" {
+		t.Errorf("bare dollar = %q, want empty", got)
 	}
 }
 
