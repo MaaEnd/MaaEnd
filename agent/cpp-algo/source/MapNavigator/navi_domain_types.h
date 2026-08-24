@@ -83,6 +83,9 @@ struct Waypoint
     ActionType action;
     bool has_position;
     bool strict_arrival;
+    // 线路里明写的那个 strict_arrival, 原样留一份。strict_arrival 本身还被解析器、展开器、bootstrap、
+    // 滑索当精度标志置位, 读它分不出是作者写的还是引擎自己加的
+    bool authored_strict_arrival;
     // 该点处的通道半宽 px, 0 = 未知(非 navmesh 规划的点)
     double corridor_clearance;
     bool heading_uses_target;
@@ -147,10 +150,33 @@ struct Waypoint
                || action == ActionType::NAVMESH || action == ActionType::DIG || action == ActionType::ZIPLINE;
     }
 
-    // 停稳重测后才验收的点。滑索和传送门排除在外: 那两种各有自己的站位和提交距离, 往圈心收反而站不上去
+    // 末端纠正到位才验收的点, 只认线路明写的 strict_arrival。不写 default: 加动作时漏归类, clang/gcc 会
+    // 报 -Wswitch; 真漏到运行期也按不纠正走, 那是这套东西上线前的行为
     bool SettlesAtArrival() const
     {
-        return RequiresStrictArrival() && action != ActionType::ZIPLINE && action != ActionType::PORTAL;
+        if (!has_position || !authored_strict_arrival) {
+            return false;
+        }
+        switch (action) {
+        // 滑索和传送门各有自己的站位与提交距离, 往圈心收反而站不上去
+        case ActionType::ZIPLINE:
+        case ActionType::PORTAL:
+        // 判出提示就地停车, 再往回走等于离开刚认下的那个目标
+        case ActionType::INTERACT:
+        case ActionType::COLLECT:
+            return false;
+        case ActionType::RUN:
+        case ActionType::SPRINT:
+        case ActionType::JUMP:
+        case ActionType::FIGHT:
+        case ActionType::TRANSFER:
+        case ActionType::HEADING:
+        case ActionType::NAVMESH:
+        case ActionType::ZONE:
+        case ActionType::DIG:
+            return true;
+        }
+        return false;
     }
 
     // 路线说了停下后认什么才走异步交互。只换预筛不给文本的点走不通: 共用识别节点里的占位文本没被顶掉, 停下来
@@ -178,6 +204,7 @@ struct Waypoint
         , action(ActionType::RUN)
         , has_position(true)
         , strict_arrival(false)
+        , authored_strict_arrival(false)
         , corridor_clearance(0.0)
         , heading_uses_target(false)
         , heading_angle(0.0)
@@ -192,6 +219,7 @@ struct Waypoint
         , action(waypoint_action)
         , has_position(true)
         , strict_arrival(false)
+        , authored_strict_arrival(false)
         , corridor_clearance(0.0)
         , heading_uses_target(false)
         , heading_angle(0.0)
