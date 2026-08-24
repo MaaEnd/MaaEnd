@@ -48,7 +48,8 @@ func postJSON(endpoint string, payload map[string]any, expectedCode int) error {
 		return err
 	}
 	if expectedCode >= 0 {
-		respBody, err := io.ReadAll(resp.Body)
+		// 限制响应体大小（1MB），防止服务端异常返回超大 body 吃内存
+		respBody, err := io.ReadAll(io.LimitReader(resp.Body, 1<<20))
 		if err != nil {
 			return fmt.Errorf("failed to read response body: %w", err)
 		}
