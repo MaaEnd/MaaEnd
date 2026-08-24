@@ -15,12 +15,13 @@ import re
 import sys
 from collections import defaultdict
 from dataclasses import asdict, dataclass
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Iterable, Iterator, Sequence, TextIO
 
 try:
     from .report_common import (
+        DEFAULT_SENTRY_TIMEOUT_SECONDS,
         explore,
         format_rate,
         resolve_sentry_command,
@@ -29,6 +30,7 @@ try:
     )
 except ImportError:
     from report_common import (
+        DEFAULT_SENTRY_TIMEOUT_SECONDS,
         explore,
         format_rate,
         resolve_sentry_command,
@@ -98,15 +100,31 @@ def batched(values: Sequence[str], size: int) -> Iterator[Sequence[str]]:
 
 
 def extend_period_for_trace_lookup(period: str) -> str:
-    """把相对统计窗口向前扩一小时，以覆盖位于窗口边界外的前置移动。"""
+    """把相对或日期统计窗口向前扩一小时，覆盖边界外的前置移动。"""
     match = re.fullmatch(r"(\d+)([hdw])", period)
-    if not match:
+    if match:
+        amount = int(match.group(1))
+        unit = match.group(2)
+        hours_per_unit = {"h": 1, "d": 24, "w": 24 * 7}
+        return f"{amount * hours_per_unit[unit] + 1}h"
+
+    absolute_match = re.fullmatch(
+        r"(\d{4}-\d{2}-\d{2})\.\.(\d{4}-\d{2}-\d{2})",
+        period,
+    )
+    if not absolute_match:
+        return period
+    try:
+        start = datetime.strptime(absolute_match.group(1), "%Y-%m-%d").replace(
+            tzinfo=timezone.utc
+        )
+        datetime.strptime(absolute_match.group(2), "%Y-%m-%d")
+    except ValueError:
         return period
 
-    amount = int(match.group(1))
-    unit = match.group(2)
-    hours_per_unit = {"h": 1, "d": 24, "w": 24 * 7}
-    return f"{amount * hours_per_unit[unit] + 1}h"
+    extended_start = (start - timedelta(hours=1)).isoformat(timespec="seconds")
+    extended_start = extended_start.replace("+00:00", "Z")
+    return f"{extended_start}..{absolute_match.group(2)}"
 
 
 def load_route_names(path: Path) -> dict[str, str]:
@@ -259,6 +277,7 @@ def collect_report(
     period: str,
     routes_path: Path,
     trace_batch_size: int,
+    timeout_seconds: float,
     verbose: bool,
     quiet: bool,
 ) -> tuple[list[ReportRow], int]:
@@ -291,6 +310,7 @@ def collect_report(
         query=move_filter,
         sort="-count_unique(trace)",
         verbose=verbose,
+        timeout_seconds=timeout_seconds,
     )
     show_progress("[2/5] 查询传送失败", quiet=quiet)
     teleport_failure_rows = explore(
@@ -301,6 +321,7 @@ def collect_report(
         query=teleport_failure_filter,
         sort="timestamp",
         verbose=verbose,
+        timeout_seconds=timeout_seconds,
     )
     show_progress("[3/5] 查询移动失败", quiet=quiet)
     move_failure_rows = explore(
@@ -311,6 +332,7 @@ def collect_report(
         query=move_failure_filter,
         sort="timestamp",
         verbose=verbose,
+        timeout_seconds=timeout_seconds,
     )
     show_progress("[4/5] 查询扫描失败", quiet=quiet)
     scan_failure_rows = explore(
@@ -321,6 +343,7 @@ def collect_report(
         query=scan_failure_filter,
         sort="timestamp",
         verbose=verbose,
+        timeout_seconds=timeout_seconds,
     )
 
     scan_failures = scan_failures_from_rows(scan_failure_rows)
@@ -339,6 +362,7 @@ def collect_report(
             query=f"{move_filter} {trace_filter}",
             sort="timestamp",
             verbose=verbose,
+            timeout_seconds=timeout_seconds,
         )
         all_moves.extend(timed_moves_from_rows(move_rows))
     finish_batch_progress(bool(trace_batches), quiet=quiet)
@@ -479,6 +503,12 @@ def create_argument_parser() -> argparse.ArgumentParser:
         default=20,
         help="每次批量查询的 trace 数量",
     )
+    parser.add_argument(
+        "--timeout",
+        type=float,
+        default=DEFAULT_SENTRY_TIMEOUT_SECONDS,
+        help="单次 Sentry 查询超时秒数（默认：120）",
+    )
     parser.add_argument("--verbose", action="store_true", help="输出 sentry 查询命令")
     parser.add_argument("--quiet", action="store_true", help="不输出查询进度")
     return parser
@@ -492,6 +522,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     arguments = create_argument_parser().parse_args(argv)
     if arguments.trace_batch_size < 1:
         raise ValueError("--trace-batch-size 必须大于 0。")
+    if arguments.timeout <= 0:
+        raise ValueError("--timeout 必须大于 0。")
     if not arguments.routes.is_file():
         raise FileNotFoundError(f"找不到环境监测路线配置：{arguments.routes}")
 
@@ -503,6 +535,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         period=arguments.period,
         routes_path=arguments.routes,
         trace_batch_size=arguments.trace_batch_size,
+        timeout_seconds=arguments.timeout,
         verbose=arguments.verbose,
         quiet=arguments.quiet,
     )

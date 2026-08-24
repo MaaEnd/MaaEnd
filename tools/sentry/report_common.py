@@ -12,6 +12,7 @@ from typing import Any, Sequence, TextIO
 
 
 EXPLORE_LIMIT = 1_000
+DEFAULT_SENTRY_TIMEOUT_SECONDS = 120.0
 
 
 def resolve_sentry_command() -> str:
@@ -35,19 +36,27 @@ def run_sentry_json(
     arguments: Sequence[str],
     *,
     verbose: bool = False,
+    timeout_seconds: float = DEFAULT_SENTRY_TIMEOUT_SECONDS,
 ) -> dict[str, Any]:
     """执行 Sentry CLI 并解析其 JSON 输出。"""
     if verbose:
         print(f"+ sentry {' '.join(arguments)}", file=sys.stderr)
 
-    process = subprocess.run(
-        [sentry_command, *arguments],
-        check=False,
-        capture_output=True,
-        text=True,
-        encoding="utf-8",
-        errors="replace",
-    )
+    try:
+        process = subprocess.run(
+            [sentry_command, *arguments],
+            check=False,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=timeout_seconds,
+        )
+    except subprocess.TimeoutExpired as error:
+        raise RuntimeError(
+            f"sentry {' '.join(arguments)} 执行超过 {timeout_seconds:g} 秒，"
+            "请检查网络、认证状态或缩短查询范围。"
+        ) from error
     if process.returncode != 0:
         diagnostic = process.stderr.strip() or process.stdout.strip()
         raise RuntimeError(
@@ -77,15 +86,16 @@ def explore(
     query: str,
     sort: str | None = None,
     verbose: bool = False,
+    timeout_seconds: float = DEFAULT_SENTRY_TIMEOUT_SECONDS,
 ) -> list[dict[str, Any]]:
-    """查询 Sentry spans，并拒绝静默截断超过行数限制的结果。"""
-    arguments = ["explore", target, "--dataset", "spans"]
+    """查询 Sentry spans，并跟随游标返回全部分页结果。"""
+    base_arguments = ["explore", target, "--dataset", "spans"]
     for field in fields:
-        arguments.extend(("--field", field))
-    arguments.extend(("--query", query))
+        base_arguments.extend(("--field", field))
+    base_arguments.extend(("--query", query))
     if sort:
-        arguments.extend(("--sort", sort))
-    arguments.extend(
+        base_arguments.extend(("--sort", sort))
+    base_arguments.extend(
         (
             "--period",
             period,
@@ -96,16 +106,33 @@ def explore(
         )
     )
 
-    result = run_sentry_json(sentry_command, arguments, verbose=verbose)
-    if result.get("hasMore"):
-        raise RuntimeError(
-            f"查询结果超过 sentry explore 单次 {EXPLORE_LIMIT} 行限制。"
-            f"请缩短 --period 后重试。查询：{query}"
+    rows: list[dict[str, Any]] = []
+    cursor: str | None = None
+    seen_cursors: set[str] = set()
+    while True:
+        arguments = [*base_arguments]
+        if cursor:
+            arguments.extend(("--cursor", cursor))
+        result = run_sentry_json(
+            sentry_command,
+            arguments,
+            verbose=verbose,
+            timeout_seconds=timeout_seconds,
         )
-    data = result.get("data", [])
-    if not isinstance(data, list):
-        raise RuntimeError("sentry explore 返回的 data 不是数组。")
-    return data
+        data = result.get("data", [])
+        if not isinstance(data, list):
+            raise RuntimeError("sentry explore 返回的 data 不是数组。")
+        rows.extend(data)
+        if not result.get("hasMore"):
+            return rows
+
+        next_cursor = result.get("nextCursor")
+        if not isinstance(next_cursor, str) or not next_cursor:
+            raise RuntimeError("sentry explore 声明存在下一页，但未返回有效游标。")
+        if next_cursor in seen_cursors:
+            raise RuntimeError(f"sentry explore 返回了重复分页游标：{next_cursor}")
+        seen_cursors.add(next_cursor)
+        cursor = next_cursor
 
 
 def format_rate(rate: float | None) -> str:

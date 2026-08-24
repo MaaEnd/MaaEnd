@@ -18,6 +18,7 @@ from typing import Any, Iterable, Sequence, TextIO
 
 try:
     from .report_common import (
+        DEFAULT_SENTRY_TIMEOUT_SECONDS,
         explore,
         format_rate,
         resolve_sentry_command,
@@ -26,6 +27,7 @@ try:
     )
 except ImportError:
     from report_common import (
+        DEFAULT_SENTRY_TIMEOUT_SECONDS,
         explore,
         format_rate,
         resolve_sentry_command,
@@ -112,32 +114,76 @@ def build_node_id(source_id: str) -> str:
     )
 
 
+def require_object(value: Any, label: str) -> dict[str, Any]:
+    """读取目录对象，并把结构错误统一转换为 ValueError。"""
+    if not isinstance(value, dict):
+        raise ValueError(f"送货目录结构错误：{label} 必须是对象。")
+    return value
+
+
+def require_array(value: Any, label: str) -> list[Any]:
+    """读取目录数组，并把结构错误统一转换为 ValueError。"""
+    if not isinstance(value, list):
+        raise ValueError(f"送货目录结构错误：{label} 必须是数组。")
+    return value
+
+
+def require_text(record: dict[str, Any], key: str, label: str) -> str:
+    """读取目录必需文本字段。"""
+    value = record.get(key)
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError(f"送货目录结构错误：{label}.{key} 必须是非空字符串。")
+    return value
+
+
+def require_localized_text(
+    record: dict[str, Any],
+    key: str,
+    label: str,
+) -> str:
+    """读取目录必需的简体中文本地化字段。"""
+    localized = require_object(record.get(key), f"{label}.{key}")
+    return require_text(localized, "zh_cn", f"{label}.{key}")
+
+
 def load_route_definitions(path: Path) -> dict[str, RouteDefinition]:
     """读取送货目录，并建立生成节点名到逻辑路线的映射。"""
     with path.open(encoding="utf-8") as file:
         catalog = json.load(file)
 
+    catalog_object = require_object(catalog, "根节点")
+    depots = require_array(catalog_object.get("depots"), "depots")
+    destinations = require_array(
+        catalog_object.get("destinations"),
+        "destinations",
+    )
+
     definitions: dict[str, RouteDefinition] = {}
-    for depot in catalog["depots"]:
-        route_id = str(depot["id"])
+    for index, value in enumerate(depots):
+        label = f"depots[{index}]"
+        depot = require_object(value, label)
+        route_id = require_text(depot, "id", label)
         node_id = build_node_id(route_id)
         node_names = (
             f"AutoDeliveryRouteDepot{node_id}",
             f"AutoDeliveryRouteDepot{node_id}WithZipline",
             f"AutoDeliveryRouteDepotRetry{node_id}",
         )
+        depot_name = require_localized_text(depot, "name", label)
         definition = RouteDefinition(
             route_id=route_id,
             route_type="仓储",
-            name=str(depot["name"]["zh_cn"]),
-            area=str(depot["name"]["zh_cn"]),
+            name=depot_name,
+            area=depot_name,
             node_names=node_names,
         )
         for node_name in node_names:
             definitions[node_name] = definition
 
-    for destination in catalog["destinations"]:
-        route_id = str(destination["id"])
+    for index, value in enumerate(destinations):
+        label = f"destinations[{index}]"
+        destination = require_object(value, label)
+        route_id = require_text(destination, "id", label)
         node_id = build_node_id(route_id)
         node_names = (
             f"AutoDeliveryRouteDestination{node_id}",
@@ -146,8 +192,8 @@ def load_route_definitions(path: Path) -> dict[str, RouteDefinition]:
         definition = RouteDefinition(
             route_id=route_id,
             route_type="终点",
-            name=str(destination["name"]["zh_cn"]),
-            area=str(destination["area"]["zh_cn"]),
+            name=require_localized_text(destination, "name", label),
+            area=require_localized_text(destination, "area", label),
             node_names=node_names,
         )
         for node_name in node_names:
@@ -258,9 +304,11 @@ def collect_report(
     period: str,
     tasks: Sequence[str],
     catalog_path: Path,
+    timeout_seconds: float,
     verbose: bool,
     quiet: bool,
 ) -> tuple[Report, set[str]]:
+    route_definitions = load_route_definitions(catalog_path)
     if release:
         escaped_release = release.replace('"', '\\"')
         scope_filter = f'release:"{escaped_release}"'
@@ -279,6 +327,7 @@ def collect_report(
         query=f"{scope_filter} span.description:[{phase_nodes}]",
         sort="timestamp",
         verbose=verbose,
+        timeout_seconds=timeout_seconds,
     )
 
     show_progress("[2/3] 查询失败节点分布", quiet=quiet)
@@ -293,6 +342,7 @@ def collect_report(
         ),
         sort="-count_unique(trace)",
         verbose=verbose,
+        timeout_seconds=timeout_seconds,
     )
 
     show_progress("[3/3] 查询送货路线内部错误", quiet=quiet)
@@ -304,10 +354,11 @@ def collect_report(
         query=f"{scope_filter} span.description:AutoDeliveryRoute*",
         sort="timestamp",
         verbose=verbose,
+        timeout_seconds=timeout_seconds,
     )
     routes, unknown_nodes = build_route_rows(
         route_rows,
-        load_route_definitions(catalog_path),
+        route_definitions,
     )
     return (
         Report(
@@ -439,6 +490,12 @@ def create_argument_parser() -> argparse.ArgumentParser:
         default=DEFAULT_CATALOG_PATH,
         help="delivery_destinations.json 路径",
     )
+    parser.add_argument(
+        "--timeout",
+        type=float,
+        default=DEFAULT_SENTRY_TIMEOUT_SECONDS,
+        help="单次 Sentry 查询超时秒数（默认：120）",
+    )
     parser.add_argument("--verbose", action="store_true", help="输出 sentry 查询命令")
     parser.add_argument("--quiet", action="store_true", help="不输出查询进度")
     return parser
@@ -452,6 +509,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     arguments = create_argument_parser().parse_args(argv)
     if not arguments.catalog.is_file():
         raise FileNotFoundError(f"找不到送货目标目录：{arguments.catalog}")
+    if arguments.timeout <= 0:
+        raise ValueError("--timeout 必须大于 0。")
     tasks = arguments.tasks or list(DEFAULT_TASKS)
 
     report, unknown_nodes = collect_report(
@@ -462,6 +521,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         period=arguments.period,
         tasks=tasks,
         catalog_path=arguments.catalog,
+        timeout_seconds=arguments.timeout,
         verbose=arguments.verbose,
         quiet=arguments.quiet,
     )
