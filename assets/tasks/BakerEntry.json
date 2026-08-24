@@ -7,11 +7,13 @@
             "description": "$task.BakerEntry.description",
             "controller": [
                 "ADB",
+                "Linux-Gamescope",
+                "Linux-ScreenCast",
+                "Linux-Wlroots",
                 "MacOS-Background",
                 "MacOS-Front",
                 "PlayCover",
-                "Win32-Front",
-                "Wlroots"
+                "Win32-Front"
             ],
             "group": [
                 "other_menu"

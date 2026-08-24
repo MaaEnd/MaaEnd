@@ -23,22 +23,8 @@ type EssenceFilterOptions struct {
 	DiscardUnmatched bool `json:"discard_unmatched"`
 	// 筛选结束后推荐预刻写方案（枚举最优方案并输出到日志）；开启时会同时写入工作目录 ./EssencePlan.html（每次覆盖）
 	ExportCalculatorScript bool `json:"export_calculator_script"`
-	// 库存遍历由 C++ EssenceGridScan 读取该选项，并在入队前跳过已锁定/已废弃缩略图。
-	SkipThumbLock    bool `json:"skip_thumb_lock"`
-	SkipThumbDiscard bool `json:"skip_thumb_discard"`
-
 	// InputLanguage is game/OCR language for skill matching: CN|TC|EN|JP|KR (default CN).
 	InputLanguage string `json:"input_language"`
-}
-
-type ColorRange struct {
-	Lower [3]int
-	Upper [3]int
-}
-
-type EssenceMeta struct {
-	Name  string
-	Range ColorRange
 }
 
 // EssenceMode describes which essence tiers are selected for this run.
@@ -50,21 +36,7 @@ const (
 	EssenceModePureOnly                        // only pure selected; skip flawless until pure appears
 )
 
-// Global variables (data in db.go; runtime state in RunState; matcher config in config.go)
-var (
-	// Essence color matching parameters (defaults; per-run selection in RunState.EssenceTypes)
-	FlawlessEssenceMeta = EssenceMeta{
-		Name: "无暇基质",
-		Range: ColorRange{
-			Lower: [3]int{18, 70, 220},
-			Upper: [3]int{26, 255, 255},
-		},
-	}
-	PureEssenceMeta = EssenceMeta{
-		Name: "高纯基质",
-		Range: ColorRange{
-			Lower: [3]int{130, 55, 80},
-			Upper: [3]int{136, 255, 255},
-		},
-	}
+const (
+	flawlessEssenceName = "无暇基质"
+	pureEssenceName     = "高纯基质"
 )

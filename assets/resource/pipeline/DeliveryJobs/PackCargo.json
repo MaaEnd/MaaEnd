@@ -419,7 +419,7 @@
         ]
     },
     "DeliveryJobsRedistributionBidNextStep": {
-        "desc": "调度申请后下一步",
+        "desc": "确认接取任务后，根据当前仓储节点模式处理首次任务详情",
         "recognition": "And",
         "all_of": [
             "YellowConfirmButtonType2",
@@ -431,7 +431,7 @@
         "rate_limit": 0,
         "next": [
             "DeliveryJobsBackToDepot",
-            "DeliveryJobsDeliverQuickly"
+            "[Anchor]DeliveryJobsAfterAcceptJob"
         ]
     },
     "DeliveryJobsQuoteTransferJob": {

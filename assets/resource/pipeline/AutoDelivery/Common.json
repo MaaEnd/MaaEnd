@@ -1,0 +1,168 @@
+{
+    "AutoDelivery": {
+        "desc": "等待当前送货任务详情加载完成，并自动判断需要取货还是送货",
+        "recognition": "And",
+        "all_of": [
+            "AutoDeliveryAreaOCR",
+            "AutoDeliveryCurrentJobActionButton"
+        ],
+        "box_index": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDeliveryRecognizeDestination",
+            "AutoDeliveryRecognizeDepot"
+        ]
+    },
+    "AutoDeliveryRecognizeDestination": {
+        "desc": "从当前送货任务详情识别送货目标，并注入前往送货目标的寻路参数",
+        "recognition": "And",
+        "all_of": [
+            "AutoDeliveryAreaOCR",
+            "AutoDeliveryDestinationField"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                455,
+                180,
+                790,
+                43
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "AutoDeliveryResolveDestinationAction",
+        "custom_action_param": {
+            "zip": false
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]AutoDeliveryAfterRecognizeDestination",
+            "AutoDeliveryCancelCurrentJobTracking",
+            "AutoDeliveryCurrentJobTrackingAlreadyOff"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "已识别当前送货目标"
+        }
+    },
+    "AutoDeliveryRecognizeDepot": {
+        "desc": "从当前送货任务详情识别仓储节点，并注入前往仓储节点的寻路参数",
+        "recognition": "And",
+        "all_of": [
+            "AutoDeliveryAreaOCR"
+        ],
+        "box_index": 0,
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                455,
+                88,
+                250,
+                28
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "AutoDeliveryResolveDepotAction",
+        "custom_action_param": {
+            "zip": false
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDeliveryQuickTeleport"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "已识别当前仓储节点"
+        }
+    },
+    "AutoDeliveryAreaOCR": {
+        "desc": "识别任务详情标题下方的当前区域；文本匹配和歧义判断交给 Go",
+        "recognition": "OCR",
+        "roi": [
+            455,
+            88,
+            250,
+            28
+        ],
+        "only_rec": false,
+        "order_by": "Horizontal"
+    },
+    "AutoDeliveryCurrentJobActionButton": {
+        "desc": "确认当前送货任务详情已显示定位或开始追踪按钮",
+        "recognition": "Or",
+        "any_of": [
+            "TrackedMissionMapButton",
+            "AutoDeliveryStartTrackingButton"
+        ]
+    },
+    "AutoDeliveryStartTrackingButton": {
+        "desc": "识别当前送货任务详情中的开始追踪按钮",
+        "recognition": "TemplateMatch",
+        "roi": [
+            1070,
+            570,
+            200,
+            140
+        ],
+        "template": [
+            "Common/Button/WhiteConfirmButtonType1.png",
+            "Common/Button/WhiteConfirmButtonType1Hover.png"
+        ],
+        "order_by": "Score"
+    },
+    "AutoDeliveryDestinationField": {
+        "desc": "确认任务条件区域包含黄色文本，并保留送货目标 OCR 结果",
+        "recognition": "And",
+        "all_of": [
+            "AutoDeliveryDestinationYellow",
+            "AutoDeliveryDestinationOCR"
+        ],
+        "box_index": 1
+    },
+    "AutoDeliveryDestinationYellow": {
+        "desc": "确认任务条件区域存在黄色文本，避免把白色任务说明当作终点",
+        "recognition": "ColorMatch",
+        "roi": [
+            455,
+            180,
+            790,
+            43
+        ],
+        "method": 40,
+        "lower": [
+            20,
+            120,
+            120
+        ],
+        "upper": [
+            30,
+            255,
+            255
+        ],
+        "count": 20
+    },
+    "AutoDeliveryDestinationOCR": {
+        "desc": "识别第一条送货条件；多语言排版可能带入相邻条件，Go 会做子串容错匹配",
+        "recognition": "OCR",
+        "roi": [
+            455,
+            180,
+            790,
+            43
+        ],
+        // 目标文案是动态的五语言文本，因此不设置 expected
+        "only_rec": false,
+        "order_by": "Horizontal"
+    },
+    "AutoDeliveryEnd": {
+        "desc": "当前自动送货阶段完成后正常结束组件",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

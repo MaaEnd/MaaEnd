@@ -359,12 +359,11 @@ export function getAdbDevices(adbPath = '') {
 }
 
 /**
- * Enumerate Wayland sockets under `$XDG_RUNTIME_DIR` (name contains "wayland"),
- * plus the computed default socket path.
- * @returns {Promise<{sockets:string[], default:string}>}
+ * Enumerate running gamescope instances (display no, PipeWire node, EIS socket).
+ * @returns {Promise<{instances:Array<{display_no:number, pw_node_id:number, eis_socket_path:string}>}>}
  */
-export function getWlrootsSockets() {
-  return getJson('/api/wlroots/sockets');
+export function getGamescopeInstances() {
+  return getJson('/api/gamescope/instances');
 }
 
 // --- game sessions (WebSocket) -------------------------------------------------------

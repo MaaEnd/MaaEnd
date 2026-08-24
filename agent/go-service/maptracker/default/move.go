@@ -168,8 +168,8 @@ func (a *MapTrackerMove) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 
 	// Adaptive rotation sensitivity local state
 	rotationSpeed := ROTATION_DEFAULT_SPEED
-	if ctrlType == control.CONTROL_TYPE_WLROOTS {
-		rotationSpeed = ROTATION_DEFAULT_SPEED_WLROOTS
+	if ctrlType == control.CONTROL_TYPE_LINUX {
+		rotationSpeed = ROTATION_DEFAULT_SPEED_LINUX
 	}
 	var rotAdjState, rotAdjStateCache *PlayerRotationAdjustmentState
 

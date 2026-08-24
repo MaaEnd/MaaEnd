@@ -20,7 +20,7 @@ type EssenceFilterAfterBattleNthRecognition struct{}
 var _ maa.CustomRecognitionRunner = &EssenceFilterAfterBattleNthRecognition{}
 
 func (r *EssenceFilterAfterBattleNthRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
-	st := getRunState()
+	st := currentRun
 	if st == nil {
 		return nil, false
 	}

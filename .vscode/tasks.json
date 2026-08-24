@@ -90,6 +90,16 @@
             "group": "build"
         },
         {
+            "label": "Generate: AutoDelivery",
+            "type": "shell",
+            "command": "pnpm generate:AutoDelivery",
+            "runOptions": {
+                "instanceLimit": 1
+            },
+            "problemMatcher": [],
+            "group": "build"
+        },
+        {
             "label": "Format: All",
             "type": "shell",
             "command": "pnpm format:all",

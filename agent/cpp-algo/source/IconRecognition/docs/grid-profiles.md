@@ -23,7 +23,7 @@
 
 两种 profile 都只提供定位策略所需的先验，不是公开协议。调用方不能根据这些字段自行计算 ROI 或格子坐标。
 
-`GridDetector` 复用 Win32 标准 profile 与 ADB 240 dpi 放大 profile，调用方不能指定比例。Custom 入口按运行时 `type` 将 `Win32`、`Linux`/`WlRoots`、`MacOS` 暂映射到标准 profile，将 `Adb`、`PlayCover` 暂映射到 ADB profile；CloudADB 的运行时 `type` 是 `Adb`。除 Win32/Adb 外，这些映射暂没有独立截图数据验证，后续可按实际画面调整；其他情况从 ROI 图像推断。ADB 画面会临时归一化到标准逻辑密度，再使用上述定位 profile。检测结果在返回前统一映射为原图坐标，临时归一化图不会进入图标匹配阶段。profile 判断只读取调用方 ROI，不推导或修改 ROI；证据不足时直接失败。公开参数与失败行为见[开发者使用指南](/docs/zh_cn/developers/components/icon-recognition.md)。
+`GridDetector` 复用 Win32 标准 profile 与 ADB 240 dpi 放大 profile，调用方不能指定比例。Custom 入口按运行时 `type` 将 `Win32`、`Linux`、`MacOS` 暂映射到标准 profile，将 `Adb`、`PlayCover` 暂映射到 ADB profile；CloudADB 的运行时 `type` 是 `Adb`。除 Win32/Adb 外，这些映射暂没有独立截图数据验证，后续可按实际画面调整；其他情况从 ROI 图像推断。ADB 画面会临时归一化到标准逻辑密度，再使用上述定位 profile。检测结果在返回前统一映射为原图坐标，临时归一化图不会进入图标匹配阶段。profile 判断只读取调用方 ROI，不推导或修改 ROI；证据不足时直接失败。公开参数与失败行为见[开发者使用指南](/docs/zh_cn/developers/components/icon-recognition.md)。
 
 ## 各类网格的维护入口
 

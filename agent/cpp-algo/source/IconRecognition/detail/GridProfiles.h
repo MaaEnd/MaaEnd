@@ -77,6 +77,8 @@ struct TransferGridHint
     double occupancy = 0.0;
     std::vector<int> x_starts;
     std::vector<int> y_starts;
+    // 稀疏单行候选中具有前景纹理的格子比例，用于与多行背景伪网格消歧。
+    double foreground_texture_coverage = 0.0;
 };
 
 GridProfile ProfileFor(GridType type);

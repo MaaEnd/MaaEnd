@@ -20,7 +20,7 @@ namespace mapnavigator
 // INTERACT - 到达该点时刹车交互一次。路线给了 interact_text 则升级为异步交互：行进中检测到交互提示就停车
 //            跑一次子任务，到点时再兜底一次；没给文本就保持原语义——到点狂按F键。文字可以直接写，也可以写
 //            { "node": ... } 指一个 OCR 节点，多条路线共用一张表。interact_scan 只换预筛看什么，得配着
-//            interact_text 用。动作恒为交互键，不可换。
+//            interact_text 用。动作恒为交互键，不可换；写 interact_rec 走 rec 模式，只认提示不按键。
 // TRANSFER - 精确抵达该点后停住，等待机关/跳板/回传等把角色转移到下一段可达路径
 // PORTAL   - 跨区过渡节点，触发后进入盲走等待区域切换
 // HEADING  - 无坐标朝向节点，执行时只调整镜头到指定角度，再按下W继续前进
@@ -103,6 +103,9 @@ struct Waypoint
     // INTERACT 专用: 行进预筛读 roi/template/threshold 的 TemplateMatch 节点, 留给提示长得不一样的业务;
     // 留空用出厂那份
     std::string interact_scan;
+    // INTERACT 专用: rec 模式, 只认提示不按键。判定圈、行进中提示停车都照旧, 按不按、按哪个留给业务侧决定。
+    // 写在路线顶层是整条路线的默认, 点上只能开不能关
+    bool interact_rec;
     // ZIPLINE only: 滑索落点。只由滑索规划写入; 缺这个字段的 ZIPLINE 点是配置写错了, 执行侧拒绝
     std::optional<ZiplineTarget> zipline_target;
     // ZIPLINE only: 备用站位, 只在上索按空一次之后才改瞄它。架子旁边没有供电结构就不写
@@ -148,6 +151,9 @@ struct Waypoint
     // 也认不出东西, 所以那种点退回原语义而不是白停一次。
     bool IsAsyncInteract() const { return action == ActionType::INTERACT && !interact_text.empty(); }
 
+    // 不看有没有文本: 文本没解析出来的点会退回原语义(到点狂按F), 那正是 rec 模式要避开的
+    bool IsRecInteract() const { return action == ActionType::INTERACT && interact_rec; }
+
     // 走到跟前才算数的点: 交互提示得在屏幕上待得住, 所以判定圈、疾跑抑制、切走路都按同一套来
     // 上索点也认提示, 但只有链首那一次要认 —— 收不收得看运行时上没上索, 所以那道收紧在状态机里
     bool StopsOnPromptDetection() const { return action == ActionType::COLLECT || IsAsyncInteract(); }
@@ -170,6 +176,7 @@ struct Waypoint
         , heading_uses_target(false)
         , heading_angle(0.0)
         , zone_id()
+        , interact_rec(false)
     {
     }
 
@@ -183,6 +190,7 @@ struct Waypoint
         , heading_uses_target(false)
         , heading_angle(0.0)
         , zone_id()
+        , interact_rec(false)
     {
     }
 

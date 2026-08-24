@@ -138,6 +138,70 @@ jobs:
             **Version Information:**
             - Version: ${{ steps.version.outputs.version }}
 
+  sync-essence-filter:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate MaaEndBot GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ vars.MAAEND_BOT_APP_CLIENT_ID }}
+          private-key: ${{ secrets.MAAEND_BOT_APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          ref: ${{ github.event.repository.default_branch }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Sync EssenceFilter source data
+        id: sync
+        run: |
+          python3 -u tools/essence_filter/sync_zmdmap.py
+          if git diff --quiet -- \
+            assets/data/EssenceFilter/energy_point_gems.json \
+            assets/data/EssenceFilter/weapons_output.json; then
+            echo "updated=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "updated=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Generate EssenceFilter data
+        if: steps.sync.outputs.updated == 'true'
+        run: |
+          python3 -u tools/essence_filter/extract_skill_pools.py
+          python3 -u tools/essence_filter/build_locations.py --time
+
+      - name: Create Pull Request
+        if: steps.sync.outputs.updated == 'true'
+        uses: peter-evans/create-pull-request@v8
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          committer: "maaendbotapp[bot] <305547419+maaendbotapp[bot]@users.noreply.github.com>"
+          author: "maaendbotapp[bot] <305547419+maaendbotapp[bot]@users.noreply.github.com>"
+          add-paths: |
+            assets/data/EssenceFilter/energy_point_gems.json
+            assets/data/EssenceFilter/weapons_output.json
+            assets/data/EssenceFilter/skill_pools.json
+            assets/data/EssenceFilter/locations.json
+            assets/data/EssenceFilter/matcher_config.json
+          commit-message: "chore(essencefilter): sync zmdmap data"
+          branch: chore/sync-zmdmap-essence-filter-data
+          title: "chore(essencefilter): sync zmdmap data"
+          body: |
+            ## Summary
+
+            This PR synchronized the latest valid EssenceFilter data from zmdmap and regenerated dependent data files.
+
+            Please review the changes before merging it.
+
   sync-map:
     runs-on: ubuntu-latest
     steps:

@@ -1,0 +1,278 @@
+{
+    "AutoDeliveryCancelCurrentJobTrackingButton": {
+        "desc": "识别当前送货任务详情中的取消追踪按钮",
+        "recognition": "TemplateMatch",
+        "roi": [
+            1100,
+            560,
+            170,
+            150
+        ],
+        "template": [
+            "Common/Button/CancelButtonType2.png",
+            "Common/Button/CancelButtonType2Hover.png"
+        ],
+        "order_by": "Score"
+    },
+    "AutoDeliveryCancelCurrentJobTracking": {
+        "desc": "送货前取消当前任务追踪，避免任务追踪图标干扰 MapNavigator 寻路",
+        "recognition": "And",
+        "all_of": [
+            "AutoDeliveryCancelCurrentJobTrackingButton"
+        ],
+        "box_index": 0,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDeliveryCurrentJobTrackingGone"
+        ]
+    },
+    "AutoDeliveryCurrentJobTrackingAlreadyOff": {
+        "desc": "确认当前任务已经未追踪",
+        "recognition": "And",
+        "all_of": [
+            "AutoDeliveryStartTrackingButton"
+        ],
+        "box_index": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDeliveryReturnWorldAndNavigateDestination"
+        ]
+    },
+    "AutoDeliveryCurrentJobTrackingGone": {
+        "desc": "确认取消追踪按钮已经消失",
+        "recognition": "TemplateMatch",
+        "roi": [
+            1100,
+            560,
+            170,
+            150
+        ],
+        "template": [
+            "Common/Button/CancelButtonType2.png",
+            "Common/Button/CancelButtonType2Hover.png"
+        ],
+        "order_by": "Score",
+        "inverse": true,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDeliveryReturnWorldAndNavigateDestination"
+        ]
+    },
+    "AutoDeliveryReturnWorldAndNavigateDestination": {
+        "desc": "确认任务未追踪后返回大世界并前往已识别的送货目标",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ],
+            "continue": false,
+            "strict": true
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDeliveryNavigateDestination"
+        ]
+    },
+    "AutoDeliveryNavigateDestination": {
+        "desc": "动态调用送货目标识别节点选择的生成路线",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FalseAction",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDeliverySubmitGoodsWaitFreezes"
+        ],
+        "focus": {
+            "Node.Action.Starting": "正在前往当前送货目标",
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "AutoDeliverySubmitGoodsWaitFreezes": {
+        "desc": "在送货目标附近识别交互按钮，并等待交互按钮稳定",
+        "recognition": "TemplateMatch",
+        "roi": [
+            760,
+            350,
+            200,
+            270
+        ],
+        "template": [
+            "AutoDelivery/SubmitGoods.png", // NPC 交货按钮
+            "AutoDelivery/SubmitGoods2.png" // 非 NPC 交货按钮
+        ],
+        "threshold": 0.8,
+        "order_by": "Score",
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                760,
+                350,
+                200,
+                270
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDeliverySubmitGoods"
+        ]
+    },
+    "AutoDeliverySubmitGoods": {
+        "desc": "在送货目标附近识别交互按钮并提交货物",
+        "recognition": "And",
+        "all_of": [
+            "AutoDeliverySubmitGoodsWaitFreezes"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "AutoAltClickAction",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDeliverySkipChat",
+            "AutoDeliveryCloseRewardDialog"
+        ],
+        "focus": {
+            "Node.Action.Starting": "开始提交货物"
+        }
+    },
+    "AutoDeliveryIsInChatDialog": {
+        "recognition": "TemplateMatch",
+        "roi": [
+            20,
+            20,
+            90,
+            90
+        ],
+        "template": "MapNavigator/ObstacleDevice/ChatDialog.png",
+        "green_mask": true,
+        "threshold": 0.6,
+        "order_by": "Score"
+    },
+    "AutoDeliveryIsSkipChatButton": {
+        "recognition": "TemplateMatch",
+        "roi": [
+            1190,
+            10,
+            90,
+            90
+        ],
+        "template": "MapNavigator/ObstacleDevice/SkipChatButton.png",
+        "green_mask": true,
+        "threshold": 0.6,
+        "order_by": "Score"
+    },
+    "AutoDeliverySkipChat": {
+        "desc": "送货交互进入对话时跳过对话",
+        "recognition": "And",
+        "all_of": [
+            "AutoDeliveryIsInChatDialog",
+            "AutoDeliveryIsSkipChatButton"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "target": [
+                520,
+                300,
+                240,
+                120
+            ],
+            "time": 500,
+            "timeout": 10000
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDeliverySkipChatConfirm",
+            "AutoDeliveryCloseRewardDialog"
+        ]
+    },
+    "AutoDeliverySkipChatConfirm": {
+        "desc": "确认跳过送货对话",
+        "recognition": "TemplateMatch",
+        "roi": [
+            750,
+            390,
+            170,
+            160
+        ],
+        "template": [
+            "Common/Button/YellowConfirmButtonType1.png",
+            "Common/Button/YellowConfirmButtonType1Hover.png"
+        ],
+        "order_by": "Score",
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDeliveryCloseRewardDialog"
+        ]
+    },
+    "AutoDeliveryCloseRewardDialog": {
+        "desc": "提交货物后由 IMS A3 累加培养道具",
+        "recognition": "And",
+        "all_of": [
+            "CloseRewardsButton"
+        ],
+        "box_index": 0,
+        "pre_wait_freezes": {
+            "target": [
+                528,
+                299,
+                222,
+                131
+            ],
+            "time": 300,
+            "threshold": 0.97,
+            "timeout": 1500
+        },
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "AddItemData",
+        "custom_action_param": {},
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDeliveryCloseRewardDialogClick"
+        ],
+        "focus": {
+            "Node.Action.Starting": "**成功提交货物**"
+        }
+    },
+    "AutoDeliveryCloseRewardDialogClick": {
+        "desc": "关闭送货奖励界面",
+        "recognition": "And",
+        "all_of": [
+            "CloseRewardsButton"
+        ],
+        "box_index": 0,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]AutoDeliveryAfterSubmitGoods",
+            "AutoDeliveryEnd"
+        ]
+    }
+}

@@ -14,6 +14,11 @@ import (
 type attachToExpectedRegexParam struct {
 	Target  string   `json:"target"`
 	Targets []string `json:"targets"`
+	// Substring 控制是否启用子串匹配模式。
+	// 默认（不传）：精确匹配，如 ^(escaped)$
+	// 传 true：子串匹配，如 .*(escaped).*
+	// AccountSwitch 邮箱匹配使用此参数，因为 OCR 文本可能包含" 最近"等后缀。
+	Substring *bool `json:"substring,omitempty"`
 }
 
 // AttachToExpectedRegexAction merges attach keywords from the target node itself
@@ -51,15 +56,21 @@ func (a *AttachToExpectedRegexAction) Run(ctx *maa.Context, arg *maa.CustomActio
 		return false
 	}
 
+	// 默认精确匹配，向后兼容 AutoStockStaple、CreditShopping 等已有调用。
+	// 传 "substring": true 启用子串匹配，供 AccountSwitch 邮箱匹配使用。
+	substring := false
+	if param.Substring != nil {
+		substring = *param.Substring
+	}
 	for _, target := range targets {
-		if !applyAttachRegexOverride(ctx, target, "AttachToExpectedRegexAction") {
+		if !applyAttachRegexOverride(ctx, target, substring, "AttachToExpectedRegexAction") {
 			return false
 		}
 	}
 	return true
 }
 
-func applyAttachRegexOverride(ctx *maa.Context, targetNodeName string, component string) bool {
+func applyAttachRegexOverride(ctx *maa.Context, targetNodeName string, substring bool, component string) bool {
 	nodeAttachCache := make(map[string]map[string]interface{})
 	getNodeAttach := func(nodeName string) map[string]interface{} {
 		if attach, ok := nodeAttachCache[nodeName]; ok {
@@ -156,6 +167,9 @@ func applyAttachRegexOverride(ctx *maa.Context, targetNodeName string, component
 		return merged
 	}
 
+	// substring=false（默认）：^(kw1|kw2)$ 精确全串匹配
+	// substring=true：.*(kw1|kw2).* 子串匹配，AccountSwitch 邮箱模式使用，
+	// 因 OCR 可能读到" 最近"等后缀。
 	buildWhitelistRegex := func(keywords []string) string {
 		if len(keywords) == 0 {
 			return "a^"
@@ -163,6 +177,9 @@ func applyAttachRegexOverride(ctx *maa.Context, targetNodeName string, component
 		escaped := make([]string, 0, len(keywords))
 		for _, keyword := range keywords {
 			escaped = append(escaped, regexp.QuoteMeta(keyword))
+		}
+		if substring {
+			return fmt.Sprintf(".*(%s).*", strings.Join(escaped, "|"))
 		}
 		return fmt.Sprintf("^(%s)$", strings.Join(escaped, "|"))
 	}

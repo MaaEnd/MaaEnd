@@ -165,7 +165,7 @@
     "essencefilter.focus.row.enter_final_scan": "Supplementary swipe done. Entering tail scan.",
     "essencefilter.focus.row.pending_final_swipe": "Remaining %d <= %d. Do one extra swipe then tail scan (total %d, processed %d rows).",
     "essencefilter.focus.row.swipe_to": "Swiped to row %d.",
-    "essencefilter.focus.finish.summary": "Filtering complete! Visited: %d, locked: %d.",
+    "essencefilter.focus.finish.summary": "Filtering complete! Locked: %d.",
     "essencefilter.focus.finish.ext_future": "Extension rule \"Future-promising\" hits: %d",
     "essencefilter.focus.finish.ext_practical": "Extension rule \"Practical\" hits: %d",
     "essencefilter.focus.plan.no_feasible_location_plans": "No feasible location plans found. Showing only the ungraduated weapon list.",

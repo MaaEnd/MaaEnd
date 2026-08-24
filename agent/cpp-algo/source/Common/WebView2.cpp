@@ -501,8 +501,7 @@ void WebView2::CallDevToolsMethod(
                 if (FAILED(err)) {
                     // 方法级失败（如响应体已被回收）是可恢复错误，是否兜底由调用方决定。
                     const std::string result_str = result ? wideToUtf8(result) : std::string {};
-                    LogWarn << "WebView2: CallDevToolsProtocolMethod failed" << VAR(err) << VAR(method)
-                            << VAR(result_str);
+                    LogWarn << "WebView2: CallDevToolsProtocolMethod failed" << VAR(err) << VAR(method) << VAR(result_str);
                 }
                 if (on_done) {
                     on_done(SUCCEEDED(err), result ? wideToUtf8(result) : std::string {});

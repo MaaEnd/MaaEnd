@@ -1,0 +1,29 @@
+{
+    "AutoDeliveryDeliveryMissionListItem": {
+        "roi": [
+            105,
+            85,
+            450,
+            590
+        ]
+    },
+    "AutoDeliveryScrollMissionList": {
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                105,
+                85,
+                450,
+                590
+            ]
+        }
+    },
+    "AutoDeliveryDeliveryMissionSelected": {
+        "roi": [
+            570,
+            70,
+            260,
+            60
+        ]
+    }
+}

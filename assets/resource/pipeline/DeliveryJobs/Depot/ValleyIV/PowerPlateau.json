@@ -39,7 +39,6 @@
     },
     "DeliveryJobsReturnAndTransferPowerPlateau": {
         "desc": "返回供能高地并转交达到报价阈值的任务",
-        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
@@ -70,6 +69,66 @@
         "next": [
             "DeliveryJobsClickTransferJob"
         ]
+    },
+    "DeliveryJobsOpenOngoingAutoDeliveryPowerPlateau": {
+        "desc": "检测到已有送货任务，返回供能高地打开任务详情继续全自动送货",
+        "pre_delay": 0,
+        "anchor": {
+            "DeliveryJobsAfterViewCurrentJob": "DeliveryJobsAutoDeliveryPowerPlateau"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsReturnAndViewPowerPlateauCurrentJob"
+        ]
+    },
+    "DeliveryJobsReturnAndViewPowerPlateauCurrentJob": {
+        "desc": "返回供能高地本地仓储节点查看当前送货任务",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsViewPowerPlateauCurrentJob"
+        ]
+    },
+    "DeliveryJobsViewPowerPlateauCurrentJob": {
+        "desc": "供能高地：从本地仓储节点查看当前送货任务",
+        "recognition": "And",
+        "all_of": [
+            "DeliveryJobsCheckLocalDepotNodePowerPlateauText",
+            "DeliveryJobsCheckPowerPlateauDeliveryJob"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]DeliveryJobsAfterViewCurrentJob"
+        ]
+    },
+    "DeliveryJobsAutoDeliveryPowerPlateau": {
+        "desc": "从供能高地当前任务详情开始全自动送货",
+        "pre_delay": 0,
+        "anchor": {
+            "AutoDeliveryAfterSubmitGoods": "DeliveryJobsValleyIVLoop"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsAutoDeliveryGuard",
+            "AutoDelivery"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.DeliveryJobs.AutoDeliveryStart"
+        }
     },
     "DeliveryJobsCheckLocalDepotNodePowerPlateauText": {
         "desc": "检查本地仓储节点中是否有供能高地",
@@ -131,6 +190,7 @@
             "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsValleyIV",
             "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
             "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStopForOngoingDelivery",
+            "DeliveryJobsAfterAcceptJob": "DeliveryJobsDeliverQuickly",
             "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
         },
         "post_delay": 0,
@@ -141,7 +201,6 @@
     },
     "DeliveryJobsDecidePowerPlateauQuote": {
         "desc": "按报价决定如何处理供能高地的货物",
-        "recognition": "DirectHit",
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,

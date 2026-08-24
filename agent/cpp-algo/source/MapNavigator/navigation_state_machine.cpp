@@ -1186,7 +1186,13 @@ bool NavigationStateMachine::TickNavigate()
                 motion_controller_->SetForwardState(false);
                 utils::SleepFor(kStopWaitMs);
             }
-            action_executor_->Execute(waypoint.action);
+            // rec 模式的点走到这里说明文本没解析出来, 异步那条路没接住它。原语义是到点狂按F, 正是它要避开的
+            if (waypoint.IsRecInteract()) {
+                LogInfo << "Action: INTERACT in rec mode, skipping the key press." << VAR(waypoint.interact_text_node);
+            }
+            else {
+                action_executor_->Execute(waypoint.action);
+            }
             session_->NoteCanonicalFinalGoalConsumed(arrived_absolute_node_idx, *position_, "waypoint_action_completed");
             session_->AdvanceToNextWaypoint(waypoint.action, "waypoint_action_completed");
             runtime_state_.OnWaypointAdvance();

@@ -31,7 +31,7 @@
 
 普通界面先由 `GridDetector` 在请求 ROI 内寻找一个或多个格子。它只负责定位，不读取物品 catalog，也不决定最终匹配结果。定位结果随后统一转换为 `GridCell`，交给图标匹配阶段。
 
-当前网格定位复用两套 1280x720 controller profile：Win32 基准 UI，以及 ADB 放大 UI。Custom 入口按运行时 `type` 选择：`Win32`、`Linux`/`WlRoots`、`MacOS` 暂按标准 profile，`Adb`、`PlayCover` 暂按 ADB profile；CloudADB 的运行时 `type` 是 `Adb`，会自然落入后一组。除 Win32/Adb 外，这些兼容映射暂没有独立截图数据验证，后续可根据实际画面调整；直接 C++ 调用、上下文不可用或未知类型仍从 ROI 图像推断。调用方不能指定比例，证据不足时定位失败。
+当前网格定位复用两套 1280x720 controller profile：Win32 基准 UI，以及 ADB 放大 UI。Custom 入口按运行时 `type` 选择：`Win32`、`Linux`、`MacOS` 暂按标准 profile，`Adb`、`PlayCover` 暂按 ADB profile；CloudADB 的运行时 `type` 是 `Adb`，会自然落入后一组。除 Win32/Adb 外，这些兼容映射暂没有独立截图数据验证，后续可根据实际画面调整；直接 C++ 调用、上下文不可用或未知类型仍从 ROI 图像推断。调用方不能指定比例，证据不足时定位失败。
 
 选中 ADB profile 后，`GridDetector` 会临时把输入图归一化到标准 720p 网格逻辑密度，在归一化图上运行同一套定位算法，再把格子、布局和诊断坐标映射回输入原图。临时图在检测函数返回时释放；下游只接收原图坐标和内部选中的 profile 比例，不会继续使用归一化图。
 

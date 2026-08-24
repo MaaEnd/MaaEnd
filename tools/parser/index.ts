@@ -50,16 +50,6 @@ const tryAddTemplateFields = (
   }
 }
 
-const tryAddRecoGridTemplateFields = (param: ParserNode, utils: ParserUtils, result: PropSelectorResult[]) => {
-  tryAddTemplateFields(param, utils, result, ['template_path'], ['template_paths'], resourceTemplatePrefixes)
-
-  for (const [key, obj] of utils.parseObject(param)) {
-    if (key === 'options') {
-      tryAddTemplateFields(obj, utils, result, ['template_path'], ['template_paths'], resourceTemplatePrefixes)
-    }
-  }
-}
-
 const tryAddPipelineOverrideTemplates = (param: ParserNode, utils: ParserUtils, result: PropSelectorResult[]) => {
   for (const [key, obj] of utils.parseObject(param)) {
     if (key === 'template') {
@@ -115,10 +105,7 @@ const customRecoParser: PropSelector = (name, param, utils) => {
   // 模板引用
   if (name === 'MapTrackerBigMapFindImage') {
     tryAddTemplateFields(param, utils, result, ['template'], [], resourceTemplatePrefixes)
-  } else if (name === 'RecoGridRecognition') {
-    tryAddRecoGridTemplateFields(param, utils, result)
   } else if (name === 'EssenceGridAdvanceRecognition') {
-    tryAddRecoGridTemplateFields(param, utils, result)
     tryAddTemplateFields(
       param,
       utils,

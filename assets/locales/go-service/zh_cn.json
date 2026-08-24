@@ -165,7 +165,7 @@
     "essencefilter.focus.row.enter_final_scan": "补 swipe 完成，进入尾扫",
     "essencefilter.focus.row.pending_final_swipe": "剩余 %d 个 ≤ %d，先补一次滑动再尾扫（总 %d，已 %d 行）",
     "essencefilter.focus.row.swipe_to": "滑动到第 %d 行",
-    "essencefilter.focus.finish.summary": "筛选完成！共历遍物品：%d，确认锁定物品：%d",
+    "essencefilter.focus.finish.summary": "筛选完成！确认锁定物品：%d",
     "essencefilter.focus.finish.ext_future": "扩展规则「未来可期」命中：%d 个",
     "essencefilter.focus.finish.ext_practical": "扩展规则「实用基质」命中：%d 个",
     "essencefilter.focus.plan.no_feasible_location_plans": "当前没有可行地点方案，仅展示未毕业武器列表。",

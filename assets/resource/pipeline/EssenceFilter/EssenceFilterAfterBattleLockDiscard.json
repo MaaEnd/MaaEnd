@@ -1,23 +1,17 @@
 {
-    "EssenceFilterAfterBattleLockItemLog": {
-        "desc": "日志：即将锁定Essence",
+    "EssenceFilterAfterBattleLockItem": {
+        "desc": "战后基质筛选锁定流程入口",
+        "recognition": "DirectHit",
         "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "EssenceFilterTraceAction",
-                "custom_action_param": {
-                    "step": "LockItem"
-                }
-            }
-        },
+        "action": "DoNothing",
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "EssenceFilterAfterBattleCheckLocked",
-            "EssenceFilterAfterBattleLockItem"
+            "EssenceFilterAfterBattleClickLockItem"
         ]
     },
-    "EssenceFilterAfterBattleLockItem": {
+    "EssenceFilterAfterBattleClickLockItem": {
         "desc": "锁定Essence",
         "recognition": {
             "type": "TemplateMatch",
@@ -40,7 +34,7 @@
         "post_delay": 300,
         "next": [
             "EssenceFilterAfterBattleCheckLocked",
-            "EssenceFilterAfterBattleLockItem"
+            "EssenceFilterAfterBattleClickLockItem"
         ],
         "focus": {
             //"Node.Action.Succeeded": "已锁定基质"
@@ -68,7 +62,7 @@
             "EssenceFilterAfterBattleRowNextItem"
         ],
         "on_error": [
-            "EssenceFilterAfterBattleLockItem"
+            "EssenceFilterAfterBattleClickLockItem"
         ],
         "focus": {
             //"Node.Action.Succeeded": "已确认上锁"
@@ -93,25 +87,19 @@
         "pre_delay": 0,
         "post_delay": 0
     },
-    "EssenceFilterAfterBattleDiscardItemLog": {
-        "desc": "日志：即将废弃 Essence",
+    "EssenceFilterAfterBattleDiscardItem": {
+        "desc": "战后基质筛选废弃流程入口",
+        "recognition": "DirectHit",
         "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "EssenceFilterTraceAction",
-                "custom_action_param": {
-                    "step": "DiscardItem"
-                }
-            }
-        },
+        "action": "DoNothing",
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "EssenceFilterAfterBattleCheckDiscarded",
-            "EssenceFilterAfterBattleDiscardItem"
+            "EssenceFilterAfterBattleClickDiscardItem"
         ]
     },
-    "EssenceFilterAfterBattleDiscardItem": {
+    "EssenceFilterAfterBattleClickDiscardItem": {
         "desc": "废弃 Essence",
         "recognition": {
             "type": "TemplateMatch",
@@ -135,7 +123,7 @@
         "post_delay": 0,
         "next": [
             "EssenceFilterAfterBattleCheckDiscarded",
-            "EssenceFilterAfterBattleDiscardItem"
+            "EssenceFilterAfterBattleClickDiscardItem"
         ],
         "focus": {
             //"Node.Action.Succeeded": "已废弃基质"
@@ -164,7 +152,7 @@
             "EssenceFilterAfterBattleRowNextItem"
         ],
         "on_error": [
-            "EssenceFilterAfterBattleDiscardItem"
+            "EssenceFilterAfterBattleClickDiscardItem"
         ],
         "focus": {
             //"Node.Action.Succeeded": "已确认废弃"

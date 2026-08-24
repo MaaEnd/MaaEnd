@@ -16,8 +16,6 @@ int ScaledLength(int base, double ratio)
     return std::clamp(static_cast<int>(std::round(static_cast<double>(base) * ratio)), 0, base);
 }
 
-} // namespace
-
 std::vector<cv::Rect> IgnoreRects(cv::Size cellSize, const CellMaskRatios& ratios)
 {
     std::vector<cv::Rect> rects;
@@ -44,6 +42,8 @@ std::vector<cv::Rect> IgnoreRects(cv::Size cellSize, const CellMaskRatios& ratio
     return rects;
 }
 
+} // namespace
+
 cv::Mat BuildIgnoreMask(cv::Size cellSize, const CellMaskRatios& ratios)
 {
     if (cellSize.width <= 0 || cellSize.height <= 0) {
@@ -69,29 +69,6 @@ cv::Mat ApplyIgnoreMask(const cv::Mat& image, const CellMaskRatios& ratios)
     if (!keepMask.empty()) {
         output.setTo(cv::Scalar::all(255), keepMask == 0);
     }
-    return output;
-}
-
-cv::Mat ApplyTemplateMask(const cv::Mat& image, const CellMaskRatios& ratios)
-{
-    if (image.empty()) {
-        return image;
-    }
-
-    const cv::Mat keepMask = BuildIgnoreMask(image.size(), ratios);
-    if (keepMask.empty()) {
-        return image;
-    }
-
-    if (image.channels() != 4) {
-        return ApplyIgnoreMask(image, ratios);
-    }
-
-    cv::Mat output = image.clone();
-    std::vector<cv::Mat> bgra;
-    cv::split(output, bgra);
-    bgra[3].setTo(0, keepMask == 0);
-    cv::merge(bgra, output);
     return output;
 }
 

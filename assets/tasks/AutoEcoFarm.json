@@ -6,8 +6,10 @@
             "entry": "AutoEcoFarmTask",
             "description": "$task.AutoEcoFarm.description",
             "controller": [
-                "Win32-Front",
-                "Wlroots"
+                "Linux-Gamescope",
+                "Linux-ScreenCast",
+                "Linux-Wlroots",
+                "Win32-Front"
             ],
             "option": [
                 "SelectFarm",

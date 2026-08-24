@@ -182,7 +182,7 @@ private:
 ### DetectControllerType 提取到 controller_type_utils.h
 
 ```cpp
-// 在 controller_type_utils.h 中添加（当前该文件只有 IsAdbLike / IsWlroots 判断）
+// 在 controller_type_utils.h 中添加（当前该文件只有 IsAdbLike / IsLinux 判断）
 
 #include <MaaFramework/MaaAPI.h>
 

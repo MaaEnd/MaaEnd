@@ -147,8 +147,8 @@ std::vector<std::filesystem::path> ResourceImageRoots(std::string_view controlle
     else if (IsAdbLikeControllerType(controller_type)) {
         dirs.emplace_back("resource_adb");
     }
-    else if (IsWlrootsLikeControllerType(controller_type)) {
-        dirs.emplace_back("resource_wlroots");
+    else if (IsLinuxControllerType(controller_type)) {
+        dirs.emplace_back("resource_linux");
     }
     else if (EqualsIgnoreCase(controller_type, "macos")) {
         dirs.emplace_back("resource_macos");
