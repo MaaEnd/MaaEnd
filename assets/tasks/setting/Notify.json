@@ -37,7 +37,6 @@
             "cases": [
                 {
                     "name": "Yes",
-                    "label": "$option.NotifyWebhook.cases.Yes.label",
                     "option": [
                         "NotifyWebhookUrl",
                         "NotifyWebhookMethod",
@@ -54,7 +53,6 @@
                 },
                 {
                     "name": "No",
-                    "label": "$option.NotifyWebhook.cases.No.label",
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
@@ -214,7 +212,6 @@
             "cases": [
                 {
                     "name": "Yes",
-                    "label": "$option.NotifyBark.cases.Yes.label",
                     "option": [
                         "NotifyBarkParams",
                         "NotifyBarkLevel"
@@ -229,7 +226,6 @@
                 },
                 {
                     "name": "No",
-                    "label": "$option.NotifyBark.cases.No.label",
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
@@ -248,7 +244,6 @@
             "cases": [
                 {
                     "name": "Yes",
-                    "label": "$option.NotifyServerChan.cases.Yes.label",
                     "option": [
                         "NotifyServerChanKey",
                         "NotifyServerChanTags",
@@ -269,7 +264,6 @@
                 },
                 {
                     "name": "No",
-                    "label": "$option.NotifyServerChan.cases.No.label",
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
@@ -327,7 +321,6 @@
             "cases": [
                 {
                     "name": "Yes",
-                    "label": "$option.NotifyAllowTask.cases.Yes.label",
                     "option": [
                         "NotifyItemsHelp",
                         "NotifyItemNotifyTask"
@@ -342,7 +335,6 @@
                 },
                 {
                     "name": "No",
-                    "label": "$option.NotifyAllowTask.cases.No.label",
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
@@ -367,7 +359,6 @@
             "cases": [
                 {
                     "name": "Yes",
-                    "label": "$option.NotifyItemNotifyTask.cases.Yes.label",
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
@@ -378,7 +369,6 @@
                 },
                 {
                     "name": "No",
-                    "label": "$option.NotifyItemNotifyTask.cases.No.label",
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
@@ -397,7 +387,6 @@
             "cases": [
                 {
                     "name": "Yes",
-                    "label": "$option.NotifyFail.cases.Yes.label",
                     "option": [
                         "NotifyFailTitle",
                         "NotifyFailBody"
@@ -412,7 +401,6 @@
                 },
                 {
                     "name": "No",
-                    "label": "$option.NotifyFail.cases.No.label",
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
@@ -566,7 +554,6 @@
             "cases": [
                 {
                     "name": "Yes",
-                    "label": "$option.NotifyServerChanNoIP.cases.Yes.label",
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
@@ -577,7 +564,6 @@
                 },
                 {
                     "name": "No",
-                    "label": "$option.NotifyServerChanNoIP.cases.No.label",
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
