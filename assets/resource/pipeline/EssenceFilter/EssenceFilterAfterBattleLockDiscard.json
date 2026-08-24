@@ -1,5 +1,17 @@
 {
     "EssenceFilterAfterBattleLockItem": {
+        "desc": "战后基质筛选锁定流程入口",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "EssenceFilterAfterBattleCheckLocked",
+            "EssenceFilterAfterBattleClickLockItem"
+        ]
+    },
+    "EssenceFilterAfterBattleClickLockItem": {
         "desc": "锁定Essence",
         "recognition": {
             "type": "TemplateMatch",
@@ -22,7 +34,7 @@
         "post_delay": 300,
         "next": [
             "EssenceFilterAfterBattleCheckLocked",
-            "EssenceFilterAfterBattleLockItem"
+            "EssenceFilterAfterBattleClickLockItem"
         ],
         "focus": {
             //"Node.Action.Succeeded": "已锁定基质"
@@ -50,7 +62,7 @@
             "EssenceFilterAfterBattleRowNextItem"
         ],
         "on_error": [
-            "EssenceFilterAfterBattleLockItem"
+            "EssenceFilterAfterBattleClickLockItem"
         ],
         "focus": {
             //"Node.Action.Succeeded": "已确认上锁"
@@ -76,6 +88,18 @@
         "post_delay": 0
     },
     "EssenceFilterAfterBattleDiscardItem": {
+        "desc": "战后基质筛选废弃流程入口",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "EssenceFilterAfterBattleCheckDiscarded",
+            "EssenceFilterAfterBattleClickDiscardItem"
+        ]
+    },
+    "EssenceFilterAfterBattleClickDiscardItem": {
         "desc": "废弃 Essence",
         "recognition": {
             "type": "TemplateMatch",
@@ -99,7 +123,7 @@
         "post_delay": 0,
         "next": [
             "EssenceFilterAfterBattleCheckDiscarded",
-            "EssenceFilterAfterBattleDiscardItem"
+            "EssenceFilterAfterBattleClickDiscardItem"
         ],
         "focus": {
             //"Node.Action.Succeeded": "已废弃基质"
@@ -128,7 +152,7 @@
             "EssenceFilterAfterBattleRowNextItem"
         ],
         "on_error": [
-            "EssenceFilterAfterBattleDiscardItem"
+            "EssenceFilterAfterBattleClickDiscardItem"
         ],
         "focus": {
             //"Node.Action.Succeeded": "已确认废弃"

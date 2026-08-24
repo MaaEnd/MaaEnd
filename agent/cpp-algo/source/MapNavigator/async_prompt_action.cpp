@@ -249,8 +249,8 @@ bool AsyncPromptAction::TryTriggerWhileWalking(MotionController* motion_controll
     }
 
     last_trigger_at_ = now;
-    LogInfo << "Async prompt flagged — stopping for authoritative recognition." << VAR(spec_.tag) << VAR(waypoint_distance)
-            << VAR(node_idx) << VAR(rec);
+    LogInfo << "Async prompt flagged — stopping for authoritative recognition." << VAR(spec_.tag) << VAR(waypoint_distance) << VAR(node_idx)
+            << VAR(rec);
     motion_controller->SetForwardState(false);
     utils::SleepFor(kStopWaitMs);
     RunPromptSubtask(context_, spec_, expected, rec);

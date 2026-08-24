@@ -149,8 +149,7 @@
                     ".*\\d{4}\\s*(?:最近)?.*",
                     "\\d{4}",
                     // 国际服脱敏邮箱，如 zm*****18@hotmail.com
-                    "(?i).*\\*{3,}\\S*@\\S+.*",
-                    "(?i).*@\\S+\\.\\S+.*"
+                    "(?i).*\\*{5}\\S*@\\S+.*"
                 ]
             }
         },
@@ -195,6 +194,24 @@
         },
         "post_delay": 0,
         "next": [
+            "__AccountSwitchConfigureEmailPattern",
+            "__AccountSwitchOCRSelectAccount"
+        ]
+    },
+    "__AccountSwitchConfigureEmailPattern": {
+        "desc": "初始化国际服脱敏邮箱匹配规则",
+        "enabled": false,
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "AttachToExpectedRegexAction",
+        "custom_action_param": {
+            "targets": [
+                "__AccountSwitchOCRSelectAccount",
+                "__AccountSwitchVerifySelected"
+            ],
+            "substring": true
+        },
+        "next": [
             "__AccountSwitchOCRSelectAccount"
         ]
     },
@@ -204,19 +221,16 @@
             "type": "OCR",
             "param": {
                 "roi": [
-                    475,
-                    364,
-                    300,
-                    300
+                    467,
+                    295,
+                    342,
+                    421
                 ],
                 "expected": [
                     // @i18n-skip
                     ".*[*\\d]\\s*\\d{4}\\s*(?:最近)?.*",
                     ".*\\d{4}\\s*(?:最近)?.*",
-                    "\\d{4}",
-                    // 国际服脱敏邮箱，如 zm*****18@hotmail.com
-                    "(?i).*\\*{3,}\\S*@\\S+.*",
-                    "(?i).*@\\S+\\.\\S+.*"
+                    "\\d{4}"
                 ]
             }
         },
@@ -266,10 +280,10 @@
             "type": "OCR",
             "param": {
                 "roi": [
-                    470,
-                    311,
-                    300,
-                    300
+                    503,
+                    294,
+                    278,
+                    38
                 ],
                 "expected": [
                     // @i18n-skip
@@ -278,8 +292,7 @@
                     "\\d{4}",
                     "\\d{4}$",
                     // 国际服脱敏邮箱，如 zm*****18@hotmail.com
-                    "(?i).*\\*{3,}\\S*@\\S+.*",
-                    "(?i).*@\\S+\\.\\S+.*"
+                    "(?i).*\\*{5}\\S*@\\S+.*"
                 ]
             }
         },
@@ -294,20 +307,17 @@
             "type": "OCR",
             "param": {
                 "roi": [
-                    470,
-                    311,
-                    300,
-                    300
+                    503,
+                    294,
+                    278,
+                    38
                 ],
                 "expected": [
                     // @i18n-skip
                     ".*[*\\d]\\s*\\d{4}\\s*(?:最近)?.*",
                     ".*\\d{4}\\s*(?:最近)?.*",
                     "\\d{4}",
-                    "\\d{4}$",
-                    // 国际服脱敏邮箱，如 zm*****18@hotmail.com
-                    "(?i).*\\*{3,}\\S*@\\S+.*",
-                    "(?i).*@\\S+\\.\\S+.*"
+                    "\\d{4}$"
                 ]
             }
         },

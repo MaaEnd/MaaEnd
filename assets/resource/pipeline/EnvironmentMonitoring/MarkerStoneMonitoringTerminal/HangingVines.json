@@ -216,7 +216,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "HangingVinesInQuickTeleportMap"
+            "GoToHangingVines"
         ]
     },
     "AlreadyTrackedHangingVines": {
@@ -230,7 +230,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "HangingVinesOpenTrackedMissionMap"
+            "GoToHangingVines"
         ]
     },
     "HangingVinesOpenTrackedMissionMap": {
@@ -340,10 +340,10 @@
         "custom_recognition_param": {
             "zone_id": "Wuling_Base",
             "target": [
-                0,
-                0,
-                1,
-                1
+                556.4,
+                2209.45,
+                82.62,
+                59.95
             ]
         },
         "pre_delay": 0,
@@ -360,7 +360,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneAnyEnterWorld"
+                "SceneEnterWorldWulingMarkerStone3"
             ]
         },
         "post_delay": 0,
@@ -379,14 +379,14 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        69.1,
-                        129.69
+                        79.73,
+                        198.88
                     ],
                     "target_tier": "Wuling_L4_330"
                 },
                 {
                     "action": "HEADING",
-                    "angle": 173
+                    "angle": 0
                 }
             ]
         },

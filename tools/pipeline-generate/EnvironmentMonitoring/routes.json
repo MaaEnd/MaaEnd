@@ -119,7 +119,14 @@
         "MissionId": "m1m32",
         "Name": "“栖霞驻影”",
         "Id": "EternalSunset",
-        "QuickTeleport": true,
+        "EnterMap": "SceneEnterWorldWulingJingyuValley2",
+        "NavZoneId": "Wuling_Base",
+        "NavAssert": [
+            783.72,
+            2303.61,
+            51.61,
+            43.01
+        ],
         "NavPath": [
             {
                 "action": "NAVMESH",
@@ -369,18 +376,25 @@
         "MissionId": "m1m62",
         "Name": "垂藤",
         "Id": "HangingVines",
-        "QuickTeleport": true,
+        "EnterMap": "SceneEnterWorldWulingMarkerStone3",
+        "NavZoneId": "Wuling_Base",
+        "NavAssert": [
+            556.4,
+            2209.45,
+            82.62,
+            59.95
+        ],
         "NavPath": [
             {
                 "action": "NAVMESH",
                 "target": [
-                    69.1,
-                    129.69
+                    79.73,
+                    198.88
                 ],
                 "target_tier": "Wuling_L4_330"
             }
         ],
-        "Heading": 173
+        "Heading": 0
     },
     {
         "MissionId": "m1m63",
@@ -464,7 +478,17 @@
         "Name": "念念家的桃树",
         "Id": "PeachTreeAtBabblesSHome",
         "QuickTeleport": true,
-        "Heading": 66
+        "NavPath": [
+            {
+                "action": "NAVMESH",
+                "target": [
+                    258.16,
+                    207.3
+                ],
+                "target_tier": "Wuling_L4_328"
+            }
+        ],
+        "Heading": 92
     },
     {
         "MissionId": "m1m67",

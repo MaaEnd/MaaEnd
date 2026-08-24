@@ -270,7 +270,15 @@
             "[JumpBack]__ScenePrivateMapMarkerPanelClose",
             "__ScenePrivateMapTeleportConfirm",
             "__ScenePrivateMapTeleportSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValley1": {
         "desc": "在地图界面找锚点 (景玉谷-踩道)",
@@ -296,7 +304,15 @@
             "[JumpBack]__ScenePrivateMapMarkerPanelClose",
             "__ScenePrivateMapTeleportConfirm",
             "__ScenePrivateMapTeleportSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValley2": {
         "desc": "在地图界面找锚点 (景玉谷-聚宝窟外)",
@@ -322,7 +338,15 @@
             "[JumpBack]__ScenePrivateMapMarkerPanelClose",
             "__ScenePrivateMapTeleportConfirm",
             "__ScenePrivateMapTeleportSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValley3": {
         "desc": "在地图界面找锚点 (景玉谷-清波寨外寨)",
@@ -348,7 +372,15 @@
             "[JumpBack]__ScenePrivateMapMarkerPanelClose",
             "__ScenePrivateMapTeleportConfirm",
             "__ScenePrivateMapTeleportSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "__ScenePrivateMapUnknownEnterWorldWulingJingyuValley4Try1": {
         "desc": "在地图界面找锚点",
@@ -476,7 +508,15 @@
             "[JumpBack]__ScenePrivateMapMarkerPanelClose",
             "__ScenePrivateMapTeleportConfirm",
             "__ScenePrivateMapTeleportSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValley5": {
         "desc": "在地图界面找锚点 (景玉谷-天王坪)",
@@ -502,7 +542,15 @@
             "[JumpBack]__ScenePrivateMapMarkerPanelClose",
             "__ScenePrivateMapTeleportConfirm",
             "__ScenePrivateMapTeleportSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValley6": {
         "desc": "在地图界面找锚点 (景玉谷-驮鼻山)",
@@ -528,7 +576,15 @@
             "[JumpBack]__ScenePrivateMapMarkerPanelClose",
             "__ScenePrivateMapTeleportConfirm",
             "__ScenePrivateMapTeleportSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValley7": {
         "desc": "在地图界面找锚点 (景玉谷-迷踪林)",
@@ -554,7 +610,15 @@
             "[JumpBack]__ScenePrivateMapMarkerPanelClose",
             "__ScenePrivateMapTeleportConfirm",
             "__ScenePrivateMapTeleportSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValley8": {
         "desc": "在地图界面找锚点 (景玉谷-摘菱屿)",
@@ -580,7 +644,15 @@
             "[JumpBack]__ScenePrivateMapMarkerPanelClose",
             "__ScenePrivateMapTeleportConfirm",
             "__ScenePrivateMapTeleportSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValley9": {
         "desc": "在地图界面找锚点 (景玉谷-南山)",
@@ -606,7 +678,15 @@
             "[JumpBack]__ScenePrivateMapMarkerPanelClose",
             "__ScenePrivateMapTeleportConfirm",
             "__ScenePrivateMapTeleportSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "__ScenePrivateMapWulingJingyuValleyEnterWorldWulingJingyuValley10": {
         "desc": "在地图界面找锚点 (景玉谷-水泽涧)",
@@ -632,7 +712,15 @@
             "[JumpBack]__ScenePrivateMapMarkerPanelClose",
             "__ScenePrivateMapTeleportConfirm",
             "__ScenePrivateMapTeleportSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCityCore": {
         "desc": "在地图界面找锚点 (武陵城-核心区)",
@@ -658,7 +746,15 @@
             "[JumpBack]__ScenePrivateMapMarkerPanelClose",
             "__ScenePrivateMapTeleportConfirm",
             "__ScenePrivateMapTeleportSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCity0": {
         "desc": "在地图界面找锚点 (武陵城-观测站)",
@@ -684,7 +780,15 @@
             "[JumpBack]__ScenePrivateMapMarkerPanelClose",
             "__ScenePrivateMapTeleportConfirm",
             "__ScenePrivateMapTeleportSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCity1": {
         "desc": "在地图界面找锚点 (武陵城-界石坪)",
@@ -710,7 +814,15 @@
             "[JumpBack]__ScenePrivateMapMarkerPanelClose",
             "__ScenePrivateMapTeleportConfirm",
             "__ScenePrivateMapTeleportSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCity2": {
         "desc": "在地图界面找锚点 (武陵城-待修缮区)",
@@ -736,7 +848,15 @@
             "[JumpBack]__ScenePrivateMapMarkerPanelClose",
             "__ScenePrivateMapTeleportConfirm",
             "__ScenePrivateMapTeleportSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCity3": {
         "desc": "在地图界面找锚点 (武陵城-方兴衢)",
@@ -762,7 +882,15 @@
             "[JumpBack]__ScenePrivateMapMarkerPanelClose",
             "__ScenePrivateMapTeleportConfirm",
             "__ScenePrivateMapTeleportSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCity4": {
         "desc": "在地图界面找锚点 (武陵城-天师府学院)",
@@ -788,7 +916,15 @@
             "[JumpBack]__ScenePrivateMapMarkerPanelClose",
             "__ScenePrivateMapTeleportConfirm",
             "__ScenePrivateMapTeleportSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCity5": {
         "desc": "在地图界面找锚点 (武陵城-天井院)",
@@ -814,7 +950,15 @@
             "[JumpBack]__ScenePrivateMapMarkerPanelClose",
             "__ScenePrivateMapTeleportConfirm",
             "__ScenePrivateMapTeleportSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCity6": {
         "desc": "在地图界面找锚点 (武陵城-储备站左上)",
@@ -840,7 +984,15 @@
             "[JumpBack]__ScenePrivateMapMarkerPanelClose",
             "__ScenePrivateMapTeleportConfirm",
             "__ScenePrivateMapTeleportSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCity7": {
         "desc": "在地图界面找锚点 (武陵城-三窟岗)",
@@ -866,7 +1018,15 @@
             "[JumpBack]__ScenePrivateMapMarkerPanelClose",
             "__ScenePrivateMapTeleportConfirm",
             "__ScenePrivateMapTeleportSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "__ScenePrivateMapWulingWulingCityEnterWorldWulingWulingCity8": {
         "desc": "在地图界面找锚点 (武陵城-储备站右下)",
@@ -892,7 +1052,15 @@
             "[JumpBack]__ScenePrivateMapMarkerPanelClose",
             "__ScenePrivateMapTeleportConfirm",
             "__ScenePrivateMapTeleportSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "__ScenePrivateMapWulingQingboStockadeEnterWorldWulingQingboStockade0": {
         "desc": "在地图界面找锚点 (清波寨-顶天梁)",
@@ -918,7 +1086,15 @@
             "[JumpBack]__ScenePrivateMapMarkerPanelClose",
             "__ScenePrivateMapTeleportConfirm",
             "__ScenePrivateMapTeleportSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "__ScenePrivateMapWulingQingboStockadeEnterWorldWulingQingboStockade1": {
         "desc": "在地图界面找锚点 (清波寨-栈桥道)",
@@ -944,7 +1120,15 @@
             "[JumpBack]__ScenePrivateMapMarkerPanelClose",
             "__ScenePrivateMapTeleportConfirm",
             "__ScenePrivateMapTeleportSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "__ScenePrivateMapWulingQingboStockadeEnterWorldWulingQingboStockade2": {
         "desc": "在地图界面找锚点 (清波寨-主寨西南)",
@@ -970,7 +1154,15 @@
             "[JumpBack]__ScenePrivateMapMarkerPanelClose",
             "__ScenePrivateMapTeleportConfirm",
             "__ScenePrivateMapTeleportSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "__ScenePrivateMapWulingQingboStockadeEnterWorldWulingQingboStockade3": {
         "desc": "在地图界面找锚点 (清波寨-祖泉)",
@@ -996,7 +1188,15 @@
             "[JumpBack]__ScenePrivateMapMarkerPanelClose",
             "__ScenePrivateMapTeleportConfirm",
             "__ScenePrivateMapTeleportSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "__ScenePrivateMapWulingQingboStockadeEnterWorldWulingQingboStockade4": {
         "desc": "在地图界面找锚点 (清波寨-主寨东南)",
@@ -1022,7 +1222,15 @@
             "[JumpBack]__ScenePrivateMapMarkerPanelClose",
             "__ScenePrivateMapTeleportConfirm",
             "__ScenePrivateMapTeleportSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "__ScenePrivateMapWulingMarkerStoneEnterWorldWulingMarkerStoneCore": {
         "desc": "在地图界面找锚点 (首墩-核心区)",
@@ -1048,7 +1256,15 @@
             "[JumpBack]__ScenePrivateMapMarkerPanelClose",
             "__ScenePrivateMapTeleportConfirm",
             "__ScenePrivateMapTeleportSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "__ScenePrivateMapWulingMarkerStoneEnterWorldWulingMarkerStone1": {
         "desc": "在地图界面找锚点 (首墩-望楼蓄水站)",
@@ -1074,7 +1290,15 @@
             "[JumpBack]__ScenePrivateMapMarkerPanelClose",
             "__ScenePrivateMapTeleportConfirm",
             "__ScenePrivateMapTeleportSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "__ScenePrivateMapWulingMarkerStoneEnterWorldWulingMarkerStone2": {
         "desc": "在地图界面找锚点 (首墩-湖心岛)",
@@ -1100,7 +1324,15 @@
             "[JumpBack]__ScenePrivateMapMarkerPanelClose",
             "__ScenePrivateMapTeleportConfirm",
             "__ScenePrivateMapTeleportSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "__ScenePrivateMapWulingMarkerStoneEnterWorldWulingMarkerStone3": {
         "desc": "在地图界面找锚点 (首墩-控制区)",
@@ -1126,7 +1358,15 @@
             "[JumpBack]__ScenePrivateMapMarkerPanelClose",
             "__ScenePrivateMapTeleportConfirm",
             "__ScenePrivateMapTeleportSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "__ScenePrivateMapWulingMarkerStoneEnterWorldWulingMarkerStone4": {
         "desc": "在地图界面找锚点 (首墩-栖云窟)",
@@ -1152,7 +1392,15 @@
             "[JumpBack]__ScenePrivateMapMarkerPanelClose",
             "__ScenePrivateMapTeleportConfirm",
             "__ScenePrivateMapTeleportSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "__ScenePrivateMapWulingTestAreaEnterWorldWulingTestArea1": {
         "desc": "在地图界面找锚点 (试验园区-综合科研区下)",
@@ -1178,7 +1426,15 @@
             "[JumpBack]__ScenePrivateMapMarkerPanelClose",
             "__ScenePrivateMapTeleportConfirm",
             "__ScenePrivateMapTeleportSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "__ScenePrivateMapWulingTestAreaEnterWorldWulingTestArea2": {
         "desc": "在地图界面找锚点 (试验园区-测试区)",
@@ -1204,7 +1460,15 @@
             "[JumpBack]__ScenePrivateMapMarkerPanelClose",
             "__ScenePrivateMapTeleportConfirm",
             "__ScenePrivateMapTeleportSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "__ScenePrivateMapWulingSwordVaultDaleEnterWorldWulingSwordVaultDale1": {
         "desc": "在地图界面找锚点 (藏剑谷-东谷遗迹)",
@@ -1230,7 +1494,15 @@
             "[JumpBack]__ScenePrivateMapMarkerPanelClose",
             "__ScenePrivateMapTeleportConfirm",
             "__ScenePrivateMapTeleportSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "__ScenePrivateMapWulingSwordVaultDaleEnterWorldWulingSwordVaultDale2": {
         "desc": "在地图界面找锚点 (藏剑谷-悬谷台)",
@@ -1256,7 +1528,15 @@
             "[JumpBack]__ScenePrivateMapMarkerPanelClose",
             "__ScenePrivateMapTeleportConfirm",
             "__ScenePrivateMapTeleportSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "__ScenePrivateMapWulingSwordVaultDaleEnterWorldWulingSwordVaultDale3": {
         "desc": "在地图界面找锚点 (藏剑谷-谷底秘库)",
@@ -1282,7 +1562,15 @@
             "[JumpBack]__ScenePrivateMapMarkerPanelClose",
             "__ScenePrivateMapTeleportConfirm",
             "__ScenePrivateMapTeleportSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "__ScenePrivateMapUnknownEnterWorldWulingMarkerStone4Try1": {
         "desc": "在地图界面找锚点 (首墩-栖云窟)",
@@ -1655,7 +1943,15 @@
             "[JumpBack]__ScenePrivateMapMarkerPanelClose",
             "__ScenePrivateMapTeleportConfirm",
             "__ScenePrivateMapTeleportSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "__ScenePrivateMapWulingYinglungPassEnterWorldWulingYinglungPass1": {
         "desc": "在地图界面找锚点 (应龙关-奇松岭东侧)",
@@ -1681,7 +1977,15 @@
             "[JumpBack]__ScenePrivateMapMarkerPanelClose",
             "__ScenePrivateMapTeleportConfirm",
             "__ScenePrivateMapTeleportSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "__ScenePrivateMapWulingYinglungPassEnterWorldWulingYinglungPass2": {
         "desc": "在地图界面找锚点 (应龙关-应龙主营)",
@@ -1707,7 +2011,15 @@
             "[JumpBack]__ScenePrivateMapMarkerPanelClose",
             "__ScenePrivateMapTeleportConfirm",
             "__ScenePrivateMapTeleportSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "__ScenePrivateMapWulingYinglungPassEnterWorldWulingYinglungPass3": {
         "desc": "在地图界面找锚点 (应龙关-石涧崖南侧)",
@@ -1733,7 +2045,15 @@
             "[JumpBack]__ScenePrivateMapMarkerPanelClose",
             "__ScenePrivateMapTeleportConfirm",
             "__ScenePrivateMapTeleportSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "__ScenePrivateMapWulingYinglungPassEnterWorldWulingYinglungPass4": {
         "desc": "在地图界面找锚点 (应龙关-置器阁)",
@@ -1759,7 +2079,15 @@
             "[JumpBack]__ScenePrivateMapMarkerPanelClose",
             "__ScenePrivateMapTeleportConfirm",
             "__ScenePrivateMapTeleportSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "__ScenePrivateMapWulingYinglungPassEnterWorldWulingYinglungPass5": {
         "desc": "在地图界面找锚点 (应龙关-应龙档案室)",
@@ -1785,7 +2113,15 @@
             "[JumpBack]__ScenePrivateMapMarkerPanelClose",
             "__ScenePrivateMapTeleportConfirm",
             "__ScenePrivateMapTeleportSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZone0": {
         "desc": "在地图界面找锚点 (北部禁区-前哨基地)",
@@ -1811,7 +2147,15 @@
             "[JumpBack]__ScenePrivateMapMarkerPanelClose",
             "__ScenePrivateMapTeleportConfirm",
             "__ScenePrivateMapTeleportSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZone1": {
         "desc": "在地图界面找锚点 (北部禁区-水利枢纽)",
@@ -1837,7 +2181,15 @@
             "[JumpBack]__ScenePrivateMapMarkerPanelClose",
             "__ScenePrivateMapTeleportConfirm",
             "__ScenePrivateMapTeleportSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZone2": {
         "desc": "在地图界面找锚点 (北部禁区-城建区西北侧)",
@@ -1863,7 +2215,15 @@
             "[JumpBack]__ScenePrivateMapMarkerPanelClose",
             "__ScenePrivateMapTeleportConfirm",
             "__ScenePrivateMapTeleportSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZone3": {
         "desc": "在地图界面找锚点 (北部禁区-谈剑堂)",
@@ -1889,7 +2249,15 @@
             "[JumpBack]__ScenePrivateMapMarkerPanelClose",
             "__ScenePrivateMapTeleportConfirm",
             "__ScenePrivateMapTeleportSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZone4": {
         "desc": "在地图界面找锚点 (北部禁区-城建区东南侧)",
@@ -1915,7 +2283,15 @@
             "[JumpBack]__ScenePrivateMapMarkerPanelClose",
             "__ScenePrivateMapTeleportConfirm",
             "__ScenePrivateMapTeleportSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZone5": {
         "desc": "在地图界面找锚点 (北部禁区-平波堤)",
@@ -1941,7 +2317,15 @@
             "[JumpBack]__ScenePrivateMapMarkerPanelClose",
             "__ScenePrivateMapTeleportConfirm",
             "__ScenePrivateMapTeleportSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZone6": {
         "desc": "在地图界面找锚点 (北部禁区-息壤研究所)",
@@ -1967,7 +2351,15 @@
             "[JumpBack]__ScenePrivateMapMarkerPanelClose",
             "__ScenePrivateMapTeleportConfirm",
             "__ScenePrivateMapTeleportSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZone7": {
         "desc": "在地图界面找锚点 (北部禁区-天师桩研发中心)",
@@ -1993,7 +2385,15 @@
             "[JumpBack]__ScenePrivateMapMarkerPanelClose",
             "__ScenePrivateMapTeleportConfirm",
             "__ScenePrivateMapTeleportSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZone8": {
         "desc": "在地图界面找锚点 (北部禁区-幽台试验场)",
@@ -2019,7 +2419,15 @@
             "[JumpBack]__ScenePrivateMapMarkerPanelClose",
             "__ScenePrivateMapTeleportConfirm",
             "__ScenePrivateMapTeleportSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZone9": {
         "desc": "在地图界面找锚点 (北部禁区-甚大裂隙地下层)",
@@ -2045,7 +2453,15 @@
             "[JumpBack]__ScenePrivateMapMarkerPanelClose",
             "__ScenePrivateMapTeleportConfirm",
             "__ScenePrivateMapTeleportSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZone10": {
         "desc": "在地图界面找锚点 (北部禁区-天柱)",
@@ -2071,7 +2487,15 @@
             "[JumpBack]__ScenePrivateMapMarkerPanelClose",
             "__ScenePrivateMapTeleportConfirm",
             "__ScenePrivateMapTeleportSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "__ScenePrivateMapWulingNorthWulingExclusionZoneEnterWorldWulingNorthWulingExclusionZone11": {
         "desc": "在地图界面找锚点 (北部禁区-甚大裂隙地表层)",
@@ -2097,6 +2521,14 @@
             "[JumpBack]__ScenePrivateMapMarkerPanelClose",
             "__ScenePrivateMapTeleportConfirm",
             "__ScenePrivateMapTeleportSuccess"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     }
 }
