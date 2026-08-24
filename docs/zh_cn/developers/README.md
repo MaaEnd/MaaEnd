@@ -78,6 +78,7 @@ flowchart TD
 | 文档 | 说明 |
 | -------------------------------------------------------------------- | --------------------------------------------------- |
 | [AutoFight 自动战斗](./components/auto-fight.md) | 战斗内自动操作模块，自动完成普攻、技能、连携技等 |
+| [Notify 通知系统](./components/notify.md) | 多渠道外部通知系统，控制全局失败通知与第三方任务自定义通知 |
 | [CharacterController 角色控制](./components/character-controller.md) | 角色视角旋转、移动及朝向目标自动移动 |
 | [BetterSliding 定量滑动](./components/better-sliding.md) | 按目标值调节离散数量滑条的公共自定义动作 |
 | [RecoGrid Engine 网格扫描](./components/recogrid-engine.md) | C++ 网格识别、多模板分类与滚动累计扫描引擎 |
