@@ -56,9 +56,9 @@
         "action": "Custom",
         "custom_action": "NotifySendAction",
         "custom_action_param": {},
+        "next": [],
         "attach": {
             "task_notify_key": "notify_task"
-        },
-        "next": []
+        }
     }
 }
