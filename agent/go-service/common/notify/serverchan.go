@@ -3,6 +3,7 @@ package notify
 import (
 	"fmt"
 	"net/url"
+	"regexp"
 	"strings"
 
 	"github.com/rs/zerolog/log"
@@ -60,19 +61,26 @@ func serverChanEndpointDefault(key string) (string, error) {
 		return "", fmt.Errorf("serverchan sendkey is empty")
 	}
 	if strings.HasPrefix(key, "sctp") {
-		uid := sc3UID(key)
+		uid, ok := sc3UID(key)
+		if !ok {
+			// 错误信息不带 sendkey 原文（含 token 凭据，直接进日志会泄漏）
+			return "", fmt.Errorf("invalid serverchan3 sendkey")
+		}
 		return fmt.Sprintf("https://%s.push.ft07.com/send/%s.send", uid, url.PathEscape(key)), nil
 	}
 	return fmt.Sprintf("https://sctapi.ftqq.com/%s.send", url.PathEscape(key)), nil
 }
 
-// sc3UID 从 sctp{uid}t{token} 中提取 uid；无 t 分隔符时退化整体作 uid。
-func sc3UID(key string) string {
-	rest := key[4:]
-	if idx := strings.Index(rest, "t"); idx >= 0 {
-		return rest[:idx]
+// sc3UIDRegexp 官方正则：sctp{uid}t{token}，uid 为纯数字（https://sct.ftqq.com 文档）。
+var sc3UIDRegexp = regexp.MustCompile(`^sctp(\d+)t`)
+
+// sc3UID 从 sctp{uid}t{token} 中提取 uid；格式不符合官方正则（无 t 分隔或 uid 非纯数字）时返回 false。
+func sc3UID(key string) (string, bool) {
+	m := sc3UIDRegexp.FindStringSubmatch(key)
+	if m == nil {
+		return "", false
 	}
-	return rest
+	return m[1], true
 }
 
 // pipeSeparated 把用户按逗号输入的多值列表统一为官方接口要求的 | 分隔。

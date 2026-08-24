@@ -315,6 +315,8 @@ func TestServerChanEndpoint(t *testing.T) {
 		{"sctp42tabc", "https://42.push.ft07.com/send/sctp42tabc.send", false},
 		// ServerChan Turbo：SCT 前缀
 		{"SCTabc123", "https://sctapi.ftqq.com/SCTabc123.send", false},
+		// 畸形 SC3：uid 非纯数字，不符合官方正则 /^sctp(\d+)t/
+		{"sctp12ab34tcde", "", true},
 		// 空
 		{"", "", true},
 		{"  ", "", true},
@@ -338,15 +340,21 @@ func TestServerChanEndpoint(t *testing.T) {
 }
 
 func TestSC3UID(t *testing.T) {
-	cases := []struct{ key, want string }{
-		{"sctp12345tabcdef", "12345"},
-		{"sctp42tabc", "42"},
-		{"sctp1t", "1"},
-		{"sctp12345", "12345"}, // 无 t 分隔符，退化
+	cases := []struct {
+		key  string
+		want string
+		ok   bool
+	}{
+		{"sctp12345tabcdef", "12345", true},
+		{"sctp42tabc", "42", true},
+		{"sctp1t", "1", true},
+		{"sctp12345", "", false},      // 无 t 分隔符，不符合官方格式
+		{"sctp12ab34tcde", "", false}, // uid 非纯数字
 	}
 	for _, c := range cases {
-		if got := sc3UID(c.key); got != c.want {
-			t.Errorf("sc3UID(%q) = %q, want %q", c.key, got, c.want)
+		got, ok := sc3UID(c.key)
+		if got != c.want || ok != c.ok {
+			t.Errorf("sc3UID(%q) = (%q, %v), want (%q, %v)", c.key, got, ok, c.want, c.ok)
 		}
 	}
 }
