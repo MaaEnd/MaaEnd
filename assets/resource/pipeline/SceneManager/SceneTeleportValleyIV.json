@@ -24,7 +24,15 @@
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
             "__ScenePrivateMapTeleportConfirm"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     "__ScenePrivateMapValleyIVEnterValleyIVTheHub2": {
         "desc": "在地图界面找锚点 (枢纽区-岩丘通道)",
@@ -51,7 +59,15 @@
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
             "__ScenePrivateMapTeleportConfirm"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
     },
     // 下方所有节点是基于目标匹配的旧版实现
     "__ScenePrivateMapUnknownEnterWorldValleyIVOriginiumSciencePark0Try1": {
