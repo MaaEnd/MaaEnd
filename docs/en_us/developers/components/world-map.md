@@ -15,9 +15,9 @@ WorldMap is a recognition layer. It only resolves a coordinate into a screen pos
 
 ## MapFind
 
-Find the given coordinate on the current map and confirm the icon sitting there.
+Find the given coordinate on the current map, and confirm the icon sitting there if an icon name was given.
 
-The node captures the screen itself, solves the viewport, and pans the map when needed, until the target is inside the usable area and the icon is confirmed. **No icon, no coordinate** — being able to compute a position does not mean anything is there. It would rather fail and let the caller retry or take another candidate than hand back a computed empty spot.
+The node captures the screen itself, solves the viewport, and pans the map when needed, until the target is inside the usable area. **Once `icon` is given, no confirmation means no coordinate** — being able to compute a position does not mean anything is there. It would rather fail and let the caller retry or take another candidate than hand back a computed empty spot. Without an `icon` it just solves the coordinate and hands it back, making no such promise.
 
 ### Node parameters
 

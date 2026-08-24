@@ -626,6 +626,7 @@
             "__ScenePrivateMapTeleportPickAnchor": ""
         },
         "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
             "[JumpBack]__ScenePrivateMapMarkerPanelClose",

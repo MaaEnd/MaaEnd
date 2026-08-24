@@ -126,21 +126,29 @@ bool ParseParam(const char* raw, FindParam* out)
 // 会把上一个取回来的控制器就地析构掉, 长期持有它的人当场悬垂
 std::string ControllerType(MaaController* controller)
 {
+    // 取不到就只剩基础资源层可用, 端上那层图会被静默跳过, 所以每条空路径都得留下痕迹
     ScopedStringBuffer buffer;
     if (buffer.Get() == nullptr || !MaaControllerGetInfo(controller, buffer.Get()) || MaaStringBufferIsEmpty(buffer.Get())) {
+        LogError << "WorldMap: controller info unavailable";
         return {};
     }
 
     const char* raw = MaaStringBufferGet(buffer.Get());
     if (raw == nullptr || raw[0] == '\0') {
+        LogError << "WorldMap: controller info is empty";
         return {};
     }
 
-    const auto info = json::parse(raw).value_or(json::object {});
-    if (!info.contains("type") || !info.at("type").is_string()) {
+    const auto info = json::parse(raw);
+    if (!info) {
+        LogError << "WorldMap: controller info is not valid json" << VAR(raw);
         return {};
     }
-    return info.at("type").as_string();
+    if (!info->contains("type") || !info->at("type").is_string()) {
+        LogError << "WorldMap: controller info carries no 'type' string" << VAR(raw);
+        return {};
+    }
+    return info->at("type").as_string();
 }
 
 bool CaptureScreen(MaaController* controller, ScopedImageBuffer* buffer, cv::Mat* out)

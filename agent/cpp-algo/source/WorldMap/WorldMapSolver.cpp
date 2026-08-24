@@ -6,6 +6,7 @@
 #include <sstream>
 #include <vector>
 
+#include <MaaUtils/ImageIo.h>
 #include <MaaUtils/Logger.h>
 #include <MaaUtils/Platform.h>
 #include <meojson/json.hpp>
@@ -607,7 +608,7 @@ const cv::Mat* WorldMapSolver::LoadZoneBase(const std::string& zone)
         return nullptr;
     }
 
-    cv::Mat image = cv::imread(MAA_NS::path_to_utf8_string(*file), cv::IMREAD_UNCHANGED);
+    cv::Mat image = MAA_NS::imread(*file, cv::IMREAD_UNCHANGED);
     if (image.empty()) {
         LogError << "WorldMap: failed to read zone base" << VAR(MAA_NS::path_to_utf8_string(*file));
         _zoneBases[zone] = cv::Mat();
@@ -628,7 +629,7 @@ const WorldMapSolver::IconTemplate* WorldMapSolver::LoadIconTemplate(const std::
 
     IconTemplate& slot = _icons[name];
     const auto file = mapnavigator::ResolveResourceImage(_imageRoots, fs::path(kIconDir) / name);
-    const cv::Mat image = file ? cv::imread(MAA_NS::path_to_utf8_string(*file), cv::IMREAD_UNCHANGED) : cv::Mat();
+    const cv::Mat image = file ? MAA_NS::imread(*file, cv::IMREAD_UNCHANGED) : cv::Mat();
     if (image.empty()) {
         LogError << "WorldMap: icon template not found" << VAR(name) << VAR(mapnavigator::DescribeRoots(_imageRoots));
         return nullptr;

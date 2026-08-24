@@ -8,6 +8,7 @@
 #include <ranges>
 #include <string>
 #include <string_view>
+#include <system_error>
 #include <vector>
 
 #include "../utils.h"
@@ -76,7 +77,8 @@ inline std::optional<std::filesystem::path>
 {
     for (const std::filesystem::path& root : roots) {
         std::filesystem::path candidate = root / relative;
-        if (std::filesystem::exists(candidate)) {
+        std::error_code ec;
+        if (std::filesystem::exists(candidate, ec) && !ec) {
             return candidate;
         }
     }
