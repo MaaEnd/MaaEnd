@@ -323,7 +323,7 @@
                     "name": "Yes",
                     "option": [
                         "NotifyItemsHelp",
-                        "NotifyItemNotifyTask"
+                        "NotifyItemManualNotifySend"
                     ],
                     "pipeline_override": {
                         "__NotifyConfig": {
@@ -351,10 +351,12 @@
             "description": "$option.NotifyItemsHelp.description",
             "cases": []
         },
-        "NotifyItemNotifyTask": {
+        // 对应 pipeline/Notify.json 中 NotifySend 节点的 task_notify_key = "manual_notify_send"。
+        // 下方 Yes/No 写入的 attach 键 task_notify.manual_notify_send 必须与该值一致，否则分项开关对不上号。
+        "NotifyItemManualNotifySend": {
             "type": "switch",
-            "label": "$option.NotifyItemNotifyTask.label",
-            "description": "$option.NotifyItemNotifyTask.description",
+            "label": "$option.NotifyItemManualNotifySend.label",
+            "description": "$option.NotifyItemManualNotifySend.description",
             "default_case": "Yes",
             "cases": [
                 {
@@ -362,7 +364,7 @@
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
-                                "task_notify.notify_task": true
+                                "task_notify.manual_notify_send": true
                             }
                         }
                     }
@@ -372,7 +374,7 @@
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
-                                "task_notify.notify_task": false
+                                "task_notify.manual_notify_send": false
                             }
                         }
                     }

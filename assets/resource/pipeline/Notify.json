@@ -58,7 +58,9 @@
         "custom_action_param": {},
         "next": [],
         "attach": {
-            "task_notify_key": "notify_task"
+            // task_notify_key = 通知项 ID，配合设置页分项开关（见 setting/Notify.json 的 NotifyItemManualNotifySend）
+            // 值必须与开关写入的 attach 顶层键 task_notify.<id> 一致；与任务名 NotifyTask、入口名 NotifySend 是三个独立命名，勿混
+            "task_notify_key": "manual_notify_send"
         }
     }
 }
