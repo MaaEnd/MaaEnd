@@ -18,6 +18,9 @@ bool CaptureStableHeading(const Context& ctx, double* out_heading);
 bool CommitHeadingTurn(const Context& ctx, double heading_delta);
 // 复核转向结果并按需补一次。返回实际朝向；读不到稳定朝向时返回 fallback_heading。
 double VerifyAndCorrectHeading(const Context& ctx, double target_heading, double fallback_heading);
+// 刹停、等读数不动了再重测，差得多就转向目标走一小步复测。返回是否已进到验收圈内；
+// 返回 false 只表示没能收拢（走不动/次数或时间用尽），点位照旧按判定圈算到达。
+bool SettleAtStrictGoal(const Context& ctx, const Waypoint& waypoint);
 
 } // namespace semantic_nodes
 

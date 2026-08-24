@@ -67,6 +67,29 @@ constexpr double kStrictArrivalSprintBrakeDistance = 6.0;
 constexpr int32_t kWalkResetReleaseMs = 120;
 constexpr double kSamePointActionChainDistance = 0.2;
 
+// --- Strict-Arrival Settle ---
+// The arrival band is a braking trigger, not an acceptance radius: entering it only means it is time to stop.
+// Acceptance is decided afterwards, from a position read at rest, and the residual is walked off. Every band
+// value stays exactly as it was, and every exit below accepts the point the way the code did before.
+constexpr double kStrictSettleAcceptBandWu = 0.5;
+constexpr int32_t kStrictSettleMaxCorrections = 4;
+constexpr int32_t kStrictSettleBudgetMs = 6000;
+// Rest detection: consecutive reads must land within the epsilon before a residual is trusted. Coasting at a
+// walk still moves further than the epsilon per interval, so a coast cannot pass as a rest.
+constexpr double kStrictSettleRestEpsilonWu = 0.05;
+constexpr int32_t kStrictSettleRestIntervalMs = 120;
+constexpr int32_t kStrictSettleRestHits = 3;
+constexpr int32_t kStrictSettleRestMaxFrames = 12;
+// A step shorter than the locator's stationary latch cannot be told apart from not having moved, so steps are
+// floored at it and two sub-latch steps in a row mean the step is not landing at all rather than landing short.
+constexpr double kStrictSettleMinStepWu = 0.6;
+constexpr double kStrictSettleStalledStepWu = 0.4;
+constexpr int32_t kStrictSettleStalledSteps = 2;
+// The first step runs open-loop at this length; its measured travel sizes the ones after it.
+constexpr int32_t kStrictSettleStepMs = 200;
+constexpr int32_t kStrictSettleMinStepMs = 120;
+constexpr int32_t kStrictSettleMaxStepMs = 450;
+
 // --- Navigation Mainline Constants ---
 constexpr int32_t kLocatorWaitMaxRetries = 100;
 constexpr int32_t kLocatorWaitIntervalMs = 100;

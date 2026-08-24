@@ -147,6 +147,12 @@ struct Waypoint
                || action == ActionType::NAVMESH || action == ActionType::DIG || action == ActionType::ZIPLINE;
     }
 
+    // 停稳重测后才验收的点。滑索和传送门排除在外: 那两种各有自己的站位和提交距离, 往圈心收反而站不上去
+    bool SettlesAtArrival() const
+    {
+        return RequiresStrictArrival() && action != ActionType::ZIPLINE && action != ActionType::PORTAL;
+    }
+
     // 路线说了停下后认什么才走异步交互。只换预筛不给文本的点走不通: 共用识别节点里的占位文本没被顶掉, 停下来
     // 也认不出东西, 所以那种点退回原语义而不是白停一次。
     bool IsAsyncInteract() const { return action == ActionType::INTERACT && !interact_text.empty(); }
