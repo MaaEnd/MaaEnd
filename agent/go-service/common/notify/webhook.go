@@ -81,7 +81,8 @@ func ParseHeaders(raw string) map[string]string {
 		}
 		key, value, ok := strings.Cut(part, ":")
 		if !ok {
-			log.Warn().Str("component", "Notify").Str("line", part).Msg("invalid header line, expect \"Key: Value\"")
+			// 不记录原文：输入可能包含 Authorization 等凭据，漏写冒号时整行会被当成待解析内容
+			log.Warn().Str("component", "Notify").Msg("invalid header line, expect \"Key: Value\"")
 			continue
 		}
 		headers[strings.TrimSpace(key)] = strings.TrimSpace(value)
