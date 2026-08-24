@@ -253,7 +253,15 @@ func (a *NotifySendAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		return true
 	}
 
-	vars := BuildVars(arg.CurrentTaskName, "", time.Now(), getControllerStartTime())
+	// 任务名优先取入口名（TaskID 反查）并解析为显示名，查不到时回退当前节点名
+	taskName := arg.CurrentTaskName
+	if arg.TaskID > 0 {
+		if td, err := ctx.GetTasker().GetTaskDetail(arg.TaskID); err == nil && td.Entry != "" {
+			taskName = resolveTaskName(td.Entry)
+		}
+	}
+
+	vars := BuildVars(taskName, "", time.Now(), getControllerStartTime())
 	vars["title"] = resolveNotifyText(config.TaskTitleKey, config.TaskTitle, vars)
 	vars["body"] = resolveNotifyText(config.TaskBodyKey, config.TaskBody, vars)
 	Send(config, vars)

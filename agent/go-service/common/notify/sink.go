@@ -84,7 +84,7 @@ func (s *Sink) OnTaskerTask(_ *maa.Tasker, event maa.EventStatus, detail maa.Tas
 		}
 		if config.Enabled() && config.OnFail && shouldNotifyFail(detail.TaskID) {
 			now := time.Now()
-			vars := BuildVars(detail.Entry, i18n.T("notify.status.failed"), now, getStartTime(detail.TaskID))
+			vars := BuildVars(resolveTaskName(detail.Entry), i18n.T("notify.status.failed"), now, getStartTime(detail.TaskID))
 			vars["title"] = config.FailTitle
 			vars["body"] = config.FailBody
 			log.Info().Str("component", "Notify").Uint64("task_id", detail.TaskID).Str("entry", detail.Entry).Msg("task failed, sending notify")
