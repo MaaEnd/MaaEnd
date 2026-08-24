@@ -1170,10 +1170,14 @@ bool NavigationStateMachine::TickNavigate()
         else {
             // 严判点的判定圈只当刹车触发: 进圈先停稳重测, 差得多就转向目标走回去。滑索和传送门有各自的
             // 站位与提交距离, 判定圈被放宽或收紧的那几种情况要的也正是原来的宽松判定, 都不介入。
-            if (waypoint.SettlesAtArrival() && route.waypoint_distance <= route.arrival_band) {
-                semantic_nodes::SettleAtStrictGoal(semantic_ctx, waypoint);
-                // 收尾里的转镜头没走操舵那条路, 在途转角账认不出来, 清掉重新起算
-                runtime_state_.steering_rate.Reset();
+            if (waypoint.SettlesAtArrival()) {
+                if (route.waypoint_distance <= route.arrival_band) {
+                    semantic_nodes::SettleAtStrictGoal(semantic_ctx, waypoint);
+                    // 收尾里的转镜头没走操舵那条路, 在途转角账认不出来, 清掉重新起算
+                    runtime_state_.steering_rate.Reset();
+                }
+                // 走路买的是接近段和收尾的精度, 到点就还回去: 跳跃、冲刺这些动作照旧在慢跑态下执行
+                walk_mode_.Request(false);
             }
 
             const semantic_nodes::Result arrival_semantic_result =
