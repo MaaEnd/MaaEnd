@@ -1168,8 +1168,8 @@ bool NavigationStateMachine::TickNavigate()
                      << VAR(route.projection_anchor);
         }
         else {
-            // 严判点的判定圈只当刹车触发: 进圈先停稳重测, 差得多就转向目标走回去。滑索和传送门有各自的
-            // 站位与提交距离, 判定圈被放宽或收紧的那几种情况要的也正是原来的宽松判定, 都不介入。
+            // 严判点的判定圈只当纠正触发: 进圈后按残差转向目标接着走回去, 全程不松前进键。滑索和传送门
+            // 有各自的站位与提交距离, 判定圈被放宽或收紧的那几种情况要的也正是原来的宽松判定, 都不介入。
             if (waypoint.SettlesAtArrival()) {
                 if (route.waypoint_distance <= route.arrival_band) {
                     semantic_nodes::SettleAtStrictGoal(semantic_ctx, waypoint);
@@ -1896,7 +1896,7 @@ void NavigationStateMachine::UpdateWalkMode(NaviPhase phase)
     const ActionType action = has_waypoint ? session_->CurrentWaypoint().action : ActionType::HEADING;
     const bool plain_approach = action == ActionType::COLLECT || action == ActionType::INTERACT || action == ActionType::RUN
                                 || action == ActionType::NAVMESH || action == ActionType::ZIPLINE;
-    // 停稳重测的点按同一套来: 走路让滑行距离减半, 到点后要走回去的那段也就短一半
+    // 末端要纠正的点按同一套来: 走路让滑行距离减半, 到点后要走回去的那段也就短一半
     bool settling_approach = false;
     if (has_waypoint && session_->CurrentWaypoint().SettlesAtArrival()) {
         const Waypoint& goal = session_->CurrentWaypoint();

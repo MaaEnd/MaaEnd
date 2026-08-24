@@ -68,18 +68,15 @@ constexpr int32_t kWalkResetReleaseMs = 120;
 constexpr double kSamePointActionChainDistance = 0.2;
 
 // --- Strict-Arrival Settle ---
-// The arrival band is a braking trigger, not an acceptance radius: entering it only means it is time to stop.
-// Acceptance is decided afterwards, from a position read at rest, and the residual is walked off. Every band
-// value stays exactly as it was, and every exit below accepts the point the way the code did before.
+// The arrival band is a correction trigger, not an acceptance radius: entering it only means the residual is
+// worth walking off. Forward stays held the whole way through -- a view drag with the key released turns the
+// camera and leaves the character facing where it was. Every exit below accepts the point as it did before.
 constexpr double kStrictSettleAcceptBandWu = 0.5;
 constexpr int32_t kStrictSettleMaxCorrections = 4;
 constexpr int32_t kStrictSettleBudgetMs = 6000;
-// Rest detection: consecutive reads must land within the epsilon before a residual is trusted. Coasting at a
-// walk still moves further than the epsilon per interval, so a coast cannot pass as a rest.
-constexpr double kStrictSettleRestEpsilonWu = 0.05;
-constexpr int32_t kStrictSettleRestIntervalMs = 120;
-constexpr int32_t kStrictSettleRestHits = 3;
-constexpr int32_t kStrictSettleRestMaxFrames = 12;
+// Retry budget for one usable fix: frames the locator held or blacked out are skipped rather than counted.
+constexpr int32_t kStrictSettleFixIntervalMs = 120;
+constexpr int32_t kStrictSettleFixMaxFrames = 12;
 // A step shorter than the locator's stationary latch cannot be told apart from not having moved, so steps are
 // floored at it and two sub-latch steps in a row mean the step is not landing at all rather than landing short.
 constexpr double kStrictSettleMinStepWu = 0.6;

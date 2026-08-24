@@ -333,33 +333,21 @@ Result ConsumeHeadingNodesImpl(const Context& ctx)
     return result;
 }
 
-// At rest means several reads in a row that never left the first of them. Comparing against the first rather than
-// the previous read is what stops a coast from passing: per-read motion can sit under the epsilon, cumulative
-// motion cannot. False when no clean fix comes back within the frame budget.
-bool CaptureRestingPosition(const Context& ctx, NaviPosition* out_pos)
+// One usable fix, skipping frames the locator held or blacked out. Reads taken while walking lag behind, and the
+// residual is judged from one of them on purpose: at a walk the lag is small, and standing still to re-measure is
+// exactly what this replaced. False when nothing usable comes back within the frame budget.
+bool CaptureCleanFix(const Context& ctx, NaviPosition* out_pos)
 {
-    std::optional<NaviPosition> anchor;
-    int hits = 0;
-    for (int frame = 0; frame < kStrictSettleRestMaxFrames; ++frame) {
+    for (int frame = 0; frame < kStrictSettleFixMaxFrames; ++frame) {
         if (frame > 0) {
-            utils::SleepFor(kStrictSettleRestIntervalMs);
+            utils::SleepFor(kStrictSettleFixIntervalMs);
         }
         if (!ctx.position_provider->Capture(ctx.position, false, ctx.session->current_zone_id())
             || ctx.position_provider->LastCaptureWasHeld() || ctx.position_provider->LastCaptureWasBlackScreen()) {
-            anchor.reset();
-            hits = 0;
             continue;
         }
-        const NaviPosition current = *ctx.position;
-        if (anchor && std::hypot(current.x - anchor->x, current.y - anchor->y) <= kStrictSettleRestEpsilonWu) {
-            if (++hits >= kStrictSettleRestHits) {
-                *out_pos = current;
-                return true;
-            }
-            continue;
-        }
-        anchor = current;
-        hits = 0;
+        *out_pos = *ctx.position;
+        return true;
     }
     return false;
 }
@@ -468,11 +456,13 @@ double VerifyAndCorrectHeading(const Context& ctx, double target_heading, double
 bool SettleAtStrictGoal(const Context& ctx, const Waypoint& waypoint)
 {
     const auto started = std::chrono::steady_clock::now();
-    StopMotionAndCommitment(ctx);
+    // 全程按着前进键: 松手再转镜头只有镜头会动, 角色朝向不变, 迈出去的那步还是走老方向。按着转才跟
+    // 主循环的操舵是同一回事, 走路态本身就慢, 也没有需要先刹掉的滑行
+    ctx.motion_controller->SetForwardState(true);
 
-    // The first leg measured is the coast after braking, each later one is the step this loop issued. Either way its
-    // direction is where the character was pointing, which the minimap arrow can report flipped, and it costs no probe
-    // step. Its length doubles as the calibration that sizes the next step.
+    // The first leg measured is whatever the approach covered since the tick's fix, each later one is the step this
+    // loop walked. Either way its direction is where the character was pointing, which the minimap arrow can report
+    // flipped, and it costs no probe step. Its length doubles as the calibration that sizes the next step.
     NaviPosition step_from = *ctx.position;
     int step_ms = 0;
     std::optional<double> heading;
@@ -480,15 +470,16 @@ bool SettleAtStrictGoal(const Context& ctx, const Waypoint& waypoint)
     int stalled_steps = 0;
 
     for (int correction = 0; correction <= kStrictSettleMaxCorrections; ++correction) {
-        NaviPosition rest {};
-        if (!CaptureRestingPosition(ctx, &rest)) {
-            LogWarn << "Strict arrival settle gave up: no resting fix." << VAR(correction);
+        NaviPosition fix {};
+        if (!CaptureCleanFix(ctx, &fix)) {
+            StopMotionAndCommitment(ctx);
+            LogWarn << "Strict arrival settle gave up: no locator fix." << VAR(correction);
             return false;
         }
 
-        const double travelled = std::hypot(rest.x - step_from.x, rest.y - step_from.y);
+        const double travelled = std::hypot(fix.x - step_from.x, fix.y - step_from.y);
         if (travelled >= kStrictSettleStalledStepWu) {
-            heading = NaviMath::CalcTargetRotation(step_from.x, step_from.y, rest.x, rest.y);
+            heading = NaviMath::CalcTargetRotation(step_from.x, step_from.y, fix.x, fix.y);
             stalled_steps = 0;
             if (step_ms > 0) {
                 wu_per_ms = travelled / static_cast<double>(step_ms);
@@ -498,9 +489,10 @@ bool SettleAtStrictGoal(const Context& ctx, const Waypoint& waypoint)
             ++stalled_steps;
         }
 
-        const double residual = std::hypot(waypoint.x - rest.x, waypoint.y - rest.y);
+        const double residual = std::hypot(waypoint.x - fix.x, waypoint.y - fix.y);
         if (residual <= kStrictSettleAcceptBandWu) {
-            LogInfo << "Strict arrival verified at rest." << VAR(residual) << VAR(correction) << VAR(rest.x) << VAR(rest.y);
+            StopMotionAndCommitment(ctx);
+            LogInfo << "Strict arrival verified." << VAR(residual) << VAR(correction) << VAR(fix.x) << VAR(fix.y);
             return true;
         }
 
@@ -508,34 +500,38 @@ bool SettleAtStrictGoal(const Context& ctx, const Waypoint& waypoint)
             std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - started).count();
         if (correction == kStrictSettleMaxCorrections || stalled_steps >= kStrictSettleStalledSteps
             || elapsed_ms >= kStrictSettleBudgetMs) {
+            StopMotionAndCommitment(ctx);
             LogWarn << "Strict arrival settle gave up, accepting on band." << VAR(residual) << VAR(correction)
-                    << VAR(stalled_steps) << VAR(elapsed_ms) << VAR(rest.x) << VAR(rest.y);
+                    << VAR(stalled_steps) << VAR(elapsed_ms) << VAR(fix.x) << VAR(fix.y);
             return false;
         }
 
-        const double bearing = NaviMath::CalcTargetRotation(rest.x, rest.y, waypoint.x, waypoint.y);
-        const double from_heading = heading ? *heading : NaviMath::NormalizeHeading(rest.angle);
+        const double bearing = NaviMath::CalcTargetRotation(fix.x, fix.y, waypoint.x, waypoint.y);
+        const double from_heading = heading ? *heading : NaviMath::NormalizeHeading(fix.angle);
         // Sized by what is left, floored at the stationary latch: a shorter step cannot be told apart from not having
         // moved, so it would also destroy the only test for a step that is being blocked.
         const double step_wu = std::max(residual, kStrictSettleMinStepWu);
-        const int pulse_ms = wu_per_ms > 0.0
+        const int step_hold_ms = wu_per_ms > 0.0
             ? std::clamp(static_cast<int>(std::lround(step_wu / wu_per_ms)), kStrictSettleMinStepMs, kStrictSettleMaxStepMs)
             : kStrictSettleStepMs;
 
         LogInfo << "Strict arrival correcting." << VAR(residual) << VAR(bearing) << VAR(from_heading) << VAR(step_wu)
-                << VAR(pulse_ms) << VAR(correction);
+                << VAR(step_hold_ms) << VAR(correction);
+        const auto step_started = std::chrono::steady_clock::now();
         if (!TurnToHeadingOnce(ctx, NaviMath::CalcDeltaRotation(from_heading, bearing))) {
+            StopMotionAndCommitment(ctx);
             LogWarn << "Strict arrival settle gave up: view delta rejected." << VAR(residual) << VAR(correction);
             return false;
         }
         heading = bearing;
-        utils::SleepFor(kWaitAfterFirstTurnMs);
+        utils::SleepFor(step_hold_ms);
 
-        step_from = rest;
-        step_ms = pulse_ms;
-        ctx.action_wrapper->PulseForwardSync(pulse_ms);
-        ctx.motion_controller->SetForwardState(false);
+        // 转身那阵子人也在走, 所以这一步有多长要按真实经过的时间算, 拿 sleep 的长度会把速度估高
+        step_from = fix;
+        step_ms = static_cast<int>(
+            std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - step_started).count());
     }
+    StopMotionAndCommitment(ctx);
     return false;
 }
 
