@@ -4550,6 +4550,8 @@
             ]
         },
         "next": [
+            "AutoStockStapleBagFullHandler",
+            "AutoStockStapleBagFullGiveUp",
             "AutoStockStapleQuantityControlCloseRewards"
         ]
     },

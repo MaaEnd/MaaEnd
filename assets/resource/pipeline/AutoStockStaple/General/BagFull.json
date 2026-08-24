@@ -1,0 +1,187 @@
+{
+    "AutoStockStapleBagFullDetect": {
+        "desc": "识别背包已满提示",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    482,
+                    85,
+                    308,
+                    78
+                ],
+                "expected": [
+                    "背包已满，无法购买",
+                    "背包已滿，無法購買"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoStockStapleBagFullWaitDisappear": {
+        "desc": "等待背包已满提示自动消失",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    482,
+                    85,
+                    308,
+                    78
+                ],
+                "expected": [
+                    "背包已满，无法购买",
+                    "背包已滿，無法購買"
+                ]
+            },
+            "inverse": true
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleBagFullCloseBuyWindow"
+        ]
+    },
+    "AutoStockStapleBagFullCloseBuyWindow": {
+        "desc": "关闭购买窗口",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CloseButtonType1"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": 200,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleBagFullStash"
+        ]
+    },
+    "AutoStockStapleBagFullStash": {
+        "desc": "调用存放背包子任务整理背包",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "StashBackpackSubTask"
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleBagFullRestart"
+        ]
+    },
+    "AutoStockStapleBagFullRestart": {
+        "desc": "重启稳定物资购买流程，未达标商品继续购买",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SubTask",
+                "custom_action_param": {
+                    "sub": [
+                        "AutoStockStapleMain"
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoStockStapleBagFullHandler": {
+        "desc": "背包已满处理入口，max_hit 为整理背包次数上限",
+        "max_hit": 3,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleBagFullDetect"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleBagFullWaitDisappear"
+        ]
+    },
+    "AutoStockStapleBagFullGiveUp": {
+        "desc": "达到整理次数上限后放弃本次购买",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleBagFullDetect"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleBagFullWaitDisappearGiveUp"
+        ]
+    },
+    "AutoStockStapleBagFullWaitDisappearGiveUp": {
+        "desc": "等待背包已满提示自动消失",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    482,
+                    85,
+                    308,
+                    78
+                ],
+                "expected": [
+                    "背包已满，无法购买",
+                    "背包已滿，無法購買"
+                ]
+            },
+            "inverse": true
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleBagFullCloseBuyWindowGiveUp"
+        ]
+    },
+    "AutoStockStapleBagFullCloseBuyWindowGiveUp": {
+        "desc": "关闭购买窗口并结束本次购买",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CloseButtonType1"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": 200,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StopNode"
+        ]
+    }
+}
