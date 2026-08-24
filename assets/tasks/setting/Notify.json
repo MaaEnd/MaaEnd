@@ -653,7 +653,8 @@
                     "name": "Key",
                     "label": "device_key",
                     "pipeline_type": "string",
-                    "default": ""
+                    "default": "",
+                    "description": "$option.NotifyBarkParams.Key.description"
                 },
                 {
                     "name": "Title",
@@ -673,115 +674,134 @@
                     "name": "Subtitle",
                     "label": "subtitle",
                     "pipeline_type": "string",
-                    "default": ""
+                    "default": "",
+                    "description": "$option.NotifyBarkParams.Subtitle.description"
                 },
                 {
                     "name": "Group",
                     "label": "group",
                     "pipeline_type": "string",
-                    "default": ""
+                    "default": "",
+                    "description": "$option.NotifyBarkParams.Group.description"
                 },
                 {
                     "name": "Sound",
                     "label": "sound",
                     "pipeline_type": "string",
-                    "default": ""
+                    "default": "",
+                    "description": "$option.NotifyBarkParams.Sound.description"
                 },
                 {
                     "name": "Icon",
                     "label": "icon",
                     "pipeline_type": "string",
-                    "default": ""
+                    "default": "",
+                    "description": "$option.NotifyBarkParams.Icon.description"
                 },
                 {
                     "name": "Image",
                     "label": "image",
                     "pipeline_type": "string",
-                    "default": ""
+                    "default": "",
+                    "description": "$option.NotifyBarkParams.Image.description"
                 },
                 {
                     "name": "Url",
                     "label": "url",
                     "pipeline_type": "string",
-                    "default": ""
+                    "default": "",
+                    "description": "$option.NotifyBarkParams.Url.description"
                 },
                 {
                     "name": "Badge",
                     "label": "badge",
                     "pipeline_type": "string",
-                    "default": ""
+                    "default": "",
+                    "description": "$option.NotifyBarkParams.Badge.description"
                 },
                 {
                     "name": "Markdown",
                     "label": "markdown",
                     "pipeline_type": "string",
-                    "default": ""
+                    "default": "",
+                    "description": "$option.NotifyBarkParams.Markdown.description"
                 },
                 {
                     "name": "Copy",
                     "label": "copy",
                     "pipeline_type": "string",
-                    "default": ""
+                    "default": "",
+                    "description": "$option.NotifyBarkParams.Copy.description"
                 },
                 {
                     "name": "IsArchive",
                     "label": "isArchive",
                     "pipeline_type": "string",
-                    "default": ""
+                    "default": "",
+                    "description": "$option.NotifyBarkParams.IsArchive.description"
                 },
                 {
                     "name": "Ttl",
                     "label": "ttl",
                     "pipeline_type": "string",
-                    "default": ""
+                    "default": "",
+                    "description": "$option.NotifyBarkParams.Ttl.description"
                 },
                 {
                     "name": "DeviceKeys",
                     "label": "device_keys",
                     "pipeline_type": "string",
-                    "default": ""
+                    "default": "",
+                    "description": "$option.NotifyBarkParams.DeviceKeys.description"
                 },
                 {
                     "name": "Volume",
                     "label": "volume",
                     "pipeline_type": "string",
-                    "default": ""
+                    "default": "",
+                    "description": "$option.NotifyBarkParams.Volume.description"
                 },
                 {
                     "name": "Call",
                     "label": "call",
                     "pipeline_type": "string",
-                    "default": ""
+                    "default": "",
+                    "description": "$option.NotifyBarkParams.Call.description"
                 },
                 {
                     "name": "AutoCopy",
                     "label": "autoCopy",
                     "pipeline_type": "string",
-                    "default": ""
+                    "default": "",
+                    "description": "$option.NotifyBarkParams.AutoCopy.description"
                 },
                 {
                     "name": "Ciphertext",
                     "label": "ciphertext",
                     "pipeline_type": "string",
-                    "default": ""
+                    "default": "",
+                    "description": "$option.NotifyBarkParams.Ciphertext.description"
                 },
                 {
                     "name": "Action",
                     "label": "action",
                     "pipeline_type": "string",
-                    "default": ""
+                    "default": "",
+                    "description": "$option.NotifyBarkParams.Action.description"
                 },
                 {
                     "name": "Id",
                     "label": "id",
                     "pipeline_type": "string",
-                    "default": ""
+                    "default": "",
+                    "description": "$option.NotifyBarkParams.Id.description"
                 },
                 {
                     "name": "Delete",
                     "label": "delete",
                     "pipeline_type": "string",
-                    "default": ""
+                    "default": "",
+                    "description": "$option.NotifyBarkParams.Delete.description"
                 }
             ],
             "pipeline_override": {
