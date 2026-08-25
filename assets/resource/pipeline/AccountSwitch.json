@@ -220,11 +220,12 @@
         "recognition": {
             "type": "OCR",
             "param": {
-                "roi": [
-                    467,
-                    295,
-                    342,
-                    421
+                "roi": "__AccountSwitchClickDropdown",
+                "roi_offset": [
+                    -30,
+                    30,
+                    150,
+                    300
                 ],
                 "expected": [
                     // @i18n-skip
@@ -240,7 +241,6 @@
             "op": "click",
             "window": "combo"
         },
-        "post_wait_freezes": 300,
         "next": [
             "__AccountSwitchCloseCombo"
         ]
@@ -279,11 +279,12 @@
         "recognition": {
             "type": "OCR",
             "param": {
-                "roi": [
-                    503,
-                    294,
-                    278,
-                    38
+                "roi": "__AccountSwitchClickDropdown",
+                "roi_offset": [
+                    -15,
+                    -15,
+                    60,
+                    30
                 ],
                 "expected": [
                     // @i18n-skip
@@ -306,11 +307,12 @@
         "recognition": {
             "type": "OCR",
             "param": {
-                "roi": [
-                    503,
-                    294,
-                    278,
-                    38
+                "roi": "__AccountSwitchClickDropdown",
+                "roi_offset": [
+                    -15,
+                    -15,
+                    60,
+                    30
                 ],
                 "expected": [
                     // @i18n-skip
