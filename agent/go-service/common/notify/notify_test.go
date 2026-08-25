@@ -559,6 +559,112 @@ func TestParseDeviceKeys(t *testing.T) {
 	}
 }
 
+func TestSendTelegram(t *testing.T) {
+	var gotPayload map[string]any
+	var gotPath string
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		gotPath = r.URL.Path
+		_ = json.NewDecoder(r.Body).Decode(&gotPayload)
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(`{"ok": true, "result": {"message_id": 1}}`))
+	}))
+	defer server.Close()
+
+	orig := telegramEndpoint
+	telegramEndpoint = func(string) (string, error) { return server.URL, nil }
+	defer func() { telegramEndpoint = orig }()
+
+	config := Config{
+		TelegramEnabled:             true,
+		TelegramToken:               "123456:ABC-DEF",
+		TelegramChatID:              "user1",
+		TelegramTitle:               "通知 {{task_name}}",
+		TelegramBody:                "正文 {{task_name}}",
+		TelegramParseMode:           "MarkdownV2",
+		TelegramDisableNotification: true,
+	}
+	if !Send(config, map[string]string{"task_name": "ExampleTask", "title": "标题 {{task_name}}", "body": "正文 {{task_name}}"}) {
+		t.Fatalf("Send returned false")
+	}
+	if gotPath != "/" {
+		t.Errorf("request path = %q, want / (injected endpoint)", gotPath)
+	}
+	if gotPayload["chat_id"] != "user1" {
+		t.Errorf("chat_id = %v, want user1", gotPayload["chat_id"])
+	}
+	if gotPayload["text"] != "通知 ExampleTask\n\n正文 ExampleTask" {
+		t.Errorf("text = %q, want 通知 ExampleTask\\n\\n正文 ExampleTask", gotPayload["text"])
+	}
+	if gotPayload["parse_mode"] != "MarkdownV2" {
+		t.Errorf("parse_mode = %v, want MarkdownV2", gotPayload["parse_mode"])
+	}
+	if gotPayload["disable_notification"] != true {
+		t.Errorf("disable_notification = %v, want true", gotPayload["disable_notification"])
+	}
+}
+
+func TestSendTelegramMultiChat(t *testing.T) {
+	var requests atomic.Int32
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requests.Add(1)
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(`{"ok": true, "result": {}}`))
+	}))
+	defer server.Close()
+
+	orig := telegramEndpoint
+	telegramEndpoint = func(string) (string, error) { return server.URL, nil }
+	defer func() { telegramEndpoint = orig }()
+
+	config := Config{
+		TelegramEnabled: true,
+		TelegramToken:   "t",
+		TelegramChatID:  "user1,user2,user3",
+		TelegramTitle:   "标题",
+	}
+	if !Send(config, map[string]string{}) {
+		t.Fatalf("Send returned false")
+	}
+	if requests.Load() != 3 {
+		t.Errorf("requests = %d, want 3 (one per chat_id)", requests.Load())
+	}
+}
+
+func TestSendTelegramErrors(t *testing.T) {
+	// token 为空 → 构造端点失败
+	if err := (telegramChannel{}).Send(Config{TelegramEnabled: true, TelegramChatID: "1", TelegramTitle: "标题"}, map[string]string{}); err == nil {
+		t.Errorf("empty token should error")
+	}
+	// chat_id 为空 → 发送失败
+	orig := telegramEndpoint
+	telegramEndpoint = func(string) (string, error) { return "http://example.invalid", nil }
+	defer func() { telegramEndpoint = orig }()
+	if err := (telegramChannel{}).Send(Config{TelegramEnabled: true, TelegramToken: "t", TelegramChatID: "", TelegramTitle: "标题"}, map[string]string{}); err == nil {
+		t.Errorf("empty chat_id should error")
+	}
+
+	// ok=false 的业务错误
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(`{"ok": false, "description": "chat not found"}`))
+	}))
+	defer server.Close()
+	telegramEndpoint = func(string) (string, error) { return server.URL, nil }
+	if err := (telegramChannel{}).Send(Config{TelegramEnabled: true, TelegramToken: "t", TelegramChatID: "1", TelegramTitle: "标题"}, map[string]string{}); err == nil || !strings.Contains(err.Error(), "chat not found") {
+		t.Errorf("ok=false should error with description, got %v", err)
+	}
+
+	// HTTP 500
+	server500 := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusInternalServerError)
+	}))
+	defer server500.Close()
+	telegramEndpoint = func(string) (string, error) { return server500.URL, nil }
+	if err := (telegramChannel{}).Send(Config{TelegramEnabled: true, TelegramToken: "t", TelegramChatID: "1", TelegramTitle: "标题"}, map[string]string{}); err == nil {
+		t.Errorf("HTTP 500 should error")
+	}
+}
+
 func TestSendServerChanHTTPError(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
