@@ -9,7 +9,9 @@
                 "NotifyWebhook",
                 "NotifyBark",
                 "NotifyServerChan",
-                "NotifyTelegram"
+                "NotifyTelegram",
+                "NotifyDiscord",
+                "NotifyProxy"
             ]
         },
         {
@@ -27,6 +29,8 @@
         "NotifyBark",
         "NotifyServerChan",
         "NotifyTelegram",
+        "NotifyDiscord",
+        "NotifyProxy",
         "NotifyAllowTask",
         "NotifyFail"
     ],
@@ -833,8 +837,7 @@
                     "name": "Yes",
                     "option": [
                         "NotifyTelegramParams",
-                        "NotifyTelegramDisableNotification",
-                        "NotifyTelegramProxy"
+                        "NotifyTelegramDisableNotification"
                     ],
                     "pipeline_override": {
                         "__NotifyConfig": {
@@ -944,17 +947,264 @@
                 }
             ]
         },
-        "NotifyTelegramProxy": {
+        "NotifyDiscord": {
             "type": "switch",
-            "label": "$option.NotifyTelegramProxy.label",
-            "description": "$option.NotifyTelegramProxy.description",
+            "label": "$option.NotifyDiscord.label",
+            "description": "$option.NotifyDiscord.description",
             "default_case": "No",
             "cases": [
                 {
                     "name": "Yes",
                     "option": [
-                        "NotifyTelegramProxyUseUpdate"
+                        "NotifyDiscordParams"
                     ],
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "discord_enabled": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "discord_enabled": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "NotifyDiscordParams": {
+            "type": "input",
+            "label": "$option.NotifyDiscordParams.label",
+            "inputs": [
+                {
+                    "name": "WebhookURL",
+                    "label": "$option.NotifyDiscordParams.WebhookURL.label",
+                    "pipeline_type": "string",
+                    "default": "",
+                    "description": "$option.NotifyDiscordParams.WebhookURL.description"
+                },
+                {
+                    "name": "Username",
+                    "label": "$option.NotifyDiscordParams.Username.label",
+                    "pipeline_type": "string",
+                    "default": "",
+                    "description": "$option.NotifyDiscordParams.Username.description"
+                },
+                {
+                    "name": "AvatarURL",
+                    "label": "$option.NotifyDiscordParams.AvatarURL.label",
+                    "pipeline_type": "string",
+                    "default": "",
+                    "description": "$option.NotifyDiscordParams.AvatarURL.description"
+                },
+                {
+                    "name": "Title",
+                    "label": "$option.NotifyDiscordParams.Title.label",
+                    "pipeline_type": "string",
+                    "default": "",
+                    "description": "$option.NotifyDiscordParams.Title.description"
+                },
+                {
+                    "name": "Body",
+                    "label": "$option.NotifyDiscordParams.Body.label",
+                    "pipeline_type": "string",
+                    "default": "",
+                    "description": "$option.NotifyDiscordParams.Body.description"
+                }
+            ],
+            "pipeline_override": {
+                "__NotifyConfig": {
+                    "attach": {
+                        "discord_webhook_url": "{WebhookURL}",
+                        "discord_username": "{Username}",
+                        "discord_avatar_url": "{AvatarURL}",
+                        "discord_title": "{Title}",
+                        "discord_body": "{Body}"
+                    }
+                }
+            }
+        },
+        "NotifyProxy": {
+            "type": "switch",
+            "label": "$option.NotifyProxy.label",
+            "description": "$option.NotifyProxy.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "NotifyProxyUseUpdate",
+                        "NotifyProxyWebhook",
+                        "NotifyProxyBark",
+                        "NotifyProxyServerChan",
+                        "NotifyProxyTelegram",
+                        "NotifyProxyDiscord"
+                    ],
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "use_proxy": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "use_proxy": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "NotifyProxyUseUpdate": {
+            "type": "switch",
+            "label": "$option.NotifyProxyUseUpdate.label",
+            "description": "$option.NotifyProxyUseUpdate.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "use_update_proxy": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "option": [
+                        "NotifyProxyUrl"
+                    ],
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "use_update_proxy": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "NotifyProxyUrl": {
+            "type": "input",
+            "label": "$option.NotifyProxyUrl.label",
+            "inputs": [
+                {
+                    "name": "Url",
+                    "label": "$option.NotifyProxyUrl.Url.label",
+                    "pipeline_type": "string",
+                    "default": "",
+                    "description": "$option.NotifyProxyUrl.Url.description"
+                }
+            ],
+            "pipeline_override": {
+                "__NotifyConfig": {
+                    "attach": {
+                        "proxy_url": "{Url}"
+                    }
+                }
+            }
+        },
+        "NotifyProxyWebhook": {
+            "type": "switch",
+            "label": "$option.NotifyProxyWebhook.label",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "webhook_use_proxy": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "webhook_use_proxy": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "NotifyProxyBark": {
+            "type": "switch",
+            "label": "$option.NotifyProxyBark.label",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "bark_use_proxy": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "bark_use_proxy": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "NotifyProxyServerChan": {
+            "type": "switch",
+            "label": "$option.NotifyProxyServerChan.label",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "serverchan_use_proxy": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "serverchan_use_proxy": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "NotifyProxyTelegram": {
+            "type": "switch",
+            "label": "$option.NotifyProxyTelegram.label",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
@@ -975,56 +1225,32 @@
                 }
             ]
         },
-        "NotifyTelegramProxyUseUpdate": {
+        "NotifyProxyDiscord": {
             "type": "switch",
-            "label": "$option.NotifyTelegramProxyUseUpdate.label",
-            "description": "$option.NotifyTelegramProxyUseUpdate.description",
-            "default_case": "No",
+            "label": "$option.NotifyProxyDiscord.label",
+            "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
-                                "telegram_use_update_proxy": true
+                                "discord_use_proxy": true
                             }
                         }
                     }
                 },
                 {
                     "name": "No",
-                    "option": [
-                        "NotifyTelegramProxyUrl"
-                    ],
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
-                                "telegram_use_update_proxy": false
+                                "discord_use_proxy": false
                             }
                         }
                     }
                 }
             ]
-        },
-        "NotifyTelegramProxyUrl": {
-            "type": "input",
-            "label": "$option.NotifyTelegramProxyUrl.label",
-            "inputs": [
-                {
-                    "name": "Url",
-                    "label": "$option.NotifyTelegramProxyUrl.Url.label",
-                    "pipeline_type": "string",
-                    "default": "",
-                    "description": "$option.NotifyTelegramProxyUrl.Url.description"
-                }
-            ],
-            "pipeline_override": {
-                "__NotifyConfig": {
-                    "attach": {
-                        "telegram_proxy_url": "{Url}"
-                    }
-                }
-            }
         }
     }
 }
