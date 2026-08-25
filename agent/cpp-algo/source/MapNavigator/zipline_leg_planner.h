@@ -18,11 +18,11 @@ struct NaviParam;
 struct ZiplineOutcome
 {
     bool used = false;       // 至少有一条腿走了滑索
-    bool no_data = false;    // 没有标定，或这个区没有可用记录
+    bool no_data = false;    // 有标定但没导入坐标，或这个区一根通电的都没记到
     bool not_chosen = false; // 有候选，但没有一条比走路划算
 };
 
-// 由寻路入口在请求开始时清零、结束时取用。
+// 由寻路入口在请求开始时清零、结束时取用。账记在调用线程上，并发请求各算各的。
 void ResetZiplineOutcome();
 ZiplineOutcome CurrentZiplineOutcome();
 

@@ -71,6 +71,7 @@ bool ResolveZiplineEnabled(MaaContext* context, bool requested)
 
 void NoticeZiplineOutcome(MaaContext* context)
 {
+    // 这两个闩故意跨请求存活:同一句话在一次运行里说一遍就够了,按请求重置等于每条腿都弹。
     static std::atomic_bool told_no_data { false };
     static std::atomic_bool told_not_chosen { false };
 
