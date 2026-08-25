@@ -30,6 +30,7 @@
     "RecycleBin": {
         "templates": [
             "../AutoDelivery/RecycleBin.png"
-        ]
+        ],
+        "gold_ratio": 0.5
     }
 }

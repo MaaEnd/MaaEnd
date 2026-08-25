@@ -118,7 +118,7 @@ The icon table is `assets/resource/image/SceneManager/MapIcons.json`, one entry 
 
 The table sits beside the templates it names and resolves through the same resource layers: a client whose icons are drawn differently ships its own templates and its own thresholds in its own layer.
 
-Two entries exist today:
+Three entries exist today:
 
 **`TeleportAnchor`**, the ordinary teleport anchor. Its position is fixed, `at` is the icon itself, and a match offset beyond `gate` is treated as the wrong icon. The two closest teleport points in a zone are 23.5 base map pixels apart, so a 10 pixel gate leaves twice the margin needed.
 
@@ -127,6 +127,14 @@ Two entries exist today:
 > [!WARNING]
 >
 > The unlock threshold for `Core` was only ever calibrated against unlocked captures. The author has no locked account and could not capture one, so **the locked side has never been verified**. It does not affect the normal flow for unlocked points — that branch is only reached once an icon is confirmed and its gold ratio falls below the gate. `TeleportAnchor` carries no `gold_ratio` at all, so asking for `state` on it raises an error rather than returning an uncalibrated verdict.
+
+**`RecycleBin`**, the resource recycling station. A sub-area holds several of them, a delivery job names exactly one, and the map draws **an icon on every one of them**: the one the job names is blue, the rest are white, and the shape is identical. Normalised correlation is insensitive to overall brightness, so the blue template still scores 0.65 against a white icon and clears the 0.55 threshold — on score alone both candidates confirm, which is no discrimination at all. Discrimination therefore goes to `gold_ratio`: measured 0.92 on the named one against 0.05 on the others, so a gate at 0.5 leaves over 0.4 of margin on either side.
+
+> [!NOTE]
+>
+> `RecycleBin` borrows the `gold_ratio` and `state` fields, but what it judges is not lock state — it is "is this the one the current delivery job names". The mechanism is exactly the same, saturation measured over the pixels the template marks out; only the name does not fit. Nodes need not write `state`: the default already asks for the blue one, and a white one fails on the spot as a state mismatch and yields to the next candidate node.
+>
+> This threshold was calibrated from one blue and one white icon in a single capture. The margin on both sides is wide, but that one pair is the whole sample. Blue is also not exclusive to this icon — the same map carries other blue icons, they simply sit far enough from the recycling station coordinates never to fall inside that small fixed window.
 
 ---
 
