@@ -67,7 +67,8 @@
             // 如果玩家当前已精准处于某个淤积点的交互位置，并且处于奖励待领取的状态
             "AutoEssenceClickObtainButton",
             "AutoEssenceClickDiscardButton",
-            "[JumpBack]AutoEssenceInObtain"
+            "[JumpBack]AutoEssenceInObtain",
+            "[Anchor]AutoEssenceMoveToTriggerPoint"
         ],
         "focus": {
             "Node.Action.Starting": "🧠正在判断交互状态"
