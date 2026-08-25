@@ -21,8 +21,8 @@ namespace
 // 归在它名下；resource/model 是另一个仓库的子模块，本仓库的配置不能落进去。
 constexpr const char* kFramesRelativePath = "data/MapNavigator/zipline_frames.json";
 
-// 森空岛记录的是建筑的整数中心格。偶数尺寸无法围绕整数中心对称，写进这份配置只会
-// 产生半格歧义，因此网格供电模型只接受两个正奇数。
+// 网格供电要用唯一中心格描述覆盖范围，也要用占地半宽界定角格锚点到中心的偏移。
+// 偶数尺寸没有唯一中心格，会产生半格歧义，因此这部分模型只接受两个正奇数。
 bool parse_odd_grid_size(const json::object& obj, const char* key, std::array<int, 2>& out)
 {
     if (!obj.contains(key) || !obj.at(key).is_array()) {
@@ -147,6 +147,10 @@ bool ZiplineFrames::load(const std::filesystem::path& path)
                 ZiplinePowerSource source;
                 source.template_id = obj.get("template_id", std::string { });
                 source.name = obj.get("name", std::string { });
+                if (obj.contains("footprint") && !parse_odd_grid_size(obj, "footprint", source.footprint)) {
+                    LogWarn << "ZiplineFrames: power source with an invalid odd-grid footprint, skipped" << VAR(source.name);
+                    continue;
+                }
                 source.radius = obj.get("radius", 0.0);
                 const bool has_coverage_size = obj.contains("coverage_size");
                 if (has_coverage_size && !parse_odd_grid_size(obj, "coverage_size", source.coverage_size)) {

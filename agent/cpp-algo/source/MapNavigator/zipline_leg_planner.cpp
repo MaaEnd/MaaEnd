@@ -92,6 +92,7 @@ struct SupplyPoint
     double x = 0.0;
     double z = 0.0;
     double radius = 0.0;
+    std::array<int, 2> footprint { 1, 1 };
     std::array<int, 2> coverage_size { 0, 0 };
 };
 
@@ -100,25 +101,54 @@ constexpr double absolute_value(double value)
     return value < 0.0 ? -value : value;
 }
 
-// 两个奇数尺寸的网格都以整数格为中心。供电格半宽与架子占地半宽相加，就是两者仍有
-// 至少一格重合时允许的最大中心轴差。
-constexpr bool
-    grid_areas_overlap(double delta_x, double delta_z, const std::array<int, 2>& coverage_size, const std::array<int, 2>& tower_footprint)
+constexpr double grid_half_span(int size)
 {
-    const double reach_x = static_cast<double>((coverage_size[0] - 1) / 2 + (tower_footprint[0] - 1) / 2);
-    const double reach_z = static_cast<double>((coverage_size[1] - 1) / 2 + (tower_footprint[1] - 1) / 2);
+    return static_cast<double>((size - 1) / 2);
+}
+
+// 森空岛 saveMarks 的 pos 不是建筑中心，而是会随朝向落在不同角格上的锚点；响应又不带
+// 朝向。实测同一台 3x3 中继器原地旋转后，pos 会沿一轴跳 2 格，正好等于占地边长减一。
+// 因此单个标记无法唯一还原中心，只能把双方所有可能的中心位置都纳入判定：
+//
+//   真实中心允许的轴差 = 供电覆盖半宽 + 架子占地半宽
+//   标记到真实中心的不确定性 = 供电结构占地半宽 + 架子占地半宽
+//
+// 两项相加得到标记点允许的轴差。这里选择“任一可能朝向能重合就保留”，是为了避免把实际
+// 通电的滑索提前挡在规划图外；在森空岛提供朝向前，代价是边界上可能保留少量未通电架子。
+constexpr bool
+    grid_areas_may_overlap(
+        double delta_x,
+        double delta_z,
+        const std::array<int, 2>& coverage_size,
+        const std::array<int, 2>& supply_footprint,
+        const std::array<int, 2>& tower_footprint)
+{
+    const double center_reach_x = grid_half_span(coverage_size[0]) + grid_half_span(tower_footprint[0]);
+    const double center_reach_z = grid_half_span(coverage_size[1]) + grid_half_span(tower_footprint[1]);
+    const double anchor_uncertainty_x = grid_half_span(supply_footprint[0]) + grid_half_span(tower_footprint[0]);
+    const double anchor_uncertainty_z = grid_half_span(supply_footprint[1]) + grid_half_span(tower_footprint[1]);
+    const double reach_x = center_reach_x + anchor_uncertainty_x;
+    const double reach_z = center_reach_z + anchor_uncertainty_z;
     return absolute_value(delta_x) <= reach_x && absolute_value(delta_z) <= reach_z;
 }
 
-static_assert(grid_areas_overlap(4.0, 4.0, { 7, 7 }, { 3, 3 }));
-static_assert(!grid_areas_overlap(0.0, 5.0, { 7, 7 }, { 3, 3 }));
+// 7x7 中继器与 3x3 滑索的中心重合边界是 4；双方角格锚点各引入 1 格不确定性，
+// 所以标记点边界是 6。实测误判的 (5, 2) 必须保留，任一轴到 7 才能确定不重合。
+static_assert(grid_areas_may_overlap(5.0, 2.0, { 7, 7 }, { 3, 3 }, { 3, 3 }));
+static_assert(grid_areas_may_overlap(6.0, 6.0, { 7, 7 }, { 3, 3 }, { 3, 3 }));
+static_assert(!grid_areas_may_overlap(0.0, 7.0, { 7, 7 }, { 3, 3 }, { 3, 3 }));
 
 // 这根架子通不通电。只量原始世界坐标的水平 x/z；架子与供电结构的高低差不进判据。
 bool IsPowered(const zipline::ZiplineMark& tower, const std::array<int, 2>& tower_footprint, const std::vector<SupplyPoint>& supplies)
 {
     return std::any_of(supplies.begin(), supplies.end(), [&](const SupplyPoint& supply) {
         if (supply.coverage_size[0] > 0 && supply.coverage_size[1] > 0) {
-            return grid_areas_overlap(supply.x - tower.x, supply.z - tower.z, supply.coverage_size, tower_footprint);
+            return grid_areas_may_overlap(
+                supply.x - tower.x,
+                supply.z - tower.z,
+                supply.coverage_size,
+                supply.footprint,
+                tower_footprint);
         }
         return std::hypot(supply.x - tower.x, supply.z - tower.z) <= supply.radius;
     });
@@ -351,6 +381,7 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
                         .x = mark.x,
                         .z = mark.z,
                         .radius = source->radius,
+                        .footprint = source->footprint,
                         .coverage_size = source->coverage_size,
                     });
                 supply_points.push_back(ToWorld(frame->project(mark)));

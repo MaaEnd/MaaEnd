@@ -59,8 +59,8 @@ struct ZiplineType
     std::string name;
     // 同型两根架子之间的索长上限，单位是世界距离。
     double max_span = 0.0;
-    // 架子在工厂网格上的水平占地 [x, z]。森空岛记录的是整数中心格，两个奇数尺寸的
-    // 占地可据此直接判断格子是否相交。
+    // 架子在工厂网格上的水平占地 [x, z]。森空岛记录的是随朝向变化的角格锚点而非
+    // 中心格；没有朝向时靠占地尺寸界定中心可能落在哪一格。
     std::array<int, 2> footprint { 1, 1 };
 };
 
@@ -71,10 +71,13 @@ struct ZiplinePowerSource
     std::string template_id;
     // 给人看的名字，取自接口的 markTemplates，判定不读它。
     std::string name;
+    // 供电结构自身在工厂网格上的水平占地 [x, z]。网格型供电源用它界定角格锚点到
+    // 实际中心的最大偏移；圆形直连规则暂不使用。
+    std::array<int, 2> footprint { 1, 1 };
     // 圆形直连半径，单位是世界距离，只量水平距离。与 coverage_size 二选一。
     double radius = 0.0;
-    // 以供电结构整数中心格为中心的总覆盖尺寸 [x, z]。当前只接受奇数尺寸，确保边界
-    // 能与森空岛记录的整数中心格一一对应。与 radius 二选一。
+    // 以供电结构实际中心格为中心的总覆盖尺寸 [x, z]。当前只接受奇数尺寸，确保存在
+    // 唯一中心格；森空岛标记锚点到该中心的偏移由 footprint 给出。与 radius 二选一。
     std::array<int, 2> coverage_size { 0, 0 };
 };
 
