@@ -136,6 +136,7 @@ void ClearRideState(const Context& ctx)
     ctx.runtime_state->semantic.zipline_last_pos = {};
     ctx.runtime_state->semantic.zipline_settle_hits = 0;
     ctx.runtime_state->semantic.zipline_returning = false;
+    ctx.runtime_state->semantic.zipline_settle_relocated = false;
 }
 
 // 一跳里第几次按左键该把镜头抬到多少度。俯仰读不回来, dy 的正负也没实机核过, 所以第二次直接
@@ -212,8 +213,8 @@ void FireLaunch(const Context& ctx)
 
 } // namespace
 
-// 滑索的每一条异常出口都从这里走。索是捷径不是必经之路，捷径走不成的正确答案永远是走路，
-// 不是让整趟导航失败——人挂在索上或者卡在架子边上时，失败等于原地不动到超时。
+// 滑索的每一条异常出口都从这里走。索是捷径不是必经之路，捷径走不成就丢掉剩余链并重新接回
+// 后续路线；不能在人挂在索上或者卡在架子边上时直接结束，否则角色只会原地不动到超时。
 Result AbandonZipline(const Context& ctx, const char* reason, const char* detail)
 {
     Result result;
@@ -236,7 +237,27 @@ Result AbandonZipline(const Context& ctx, const char* reason, const char* detail
         ctx.session->SkipPastWaypoint(hop + dropped - 1, reason);
     }
 
-    LogWarn << "Action: ZIPLINE given up, walking the rest of the way." << VAR(reason) << VAR(detail) << VAR(dropped)
+    // 把判死的这一跳记进封禁名单, 重展开时滑索照常参与、只有这根索不再是候选。滑行中挂掉时
+    // 链上的当前航点已经指向下一跳, 失败的跳在 mount_pos/landing 里; 还没起滑就挂用链首那一跳。
+    const bool in_flight = ctx.runtime_state->semantic.zipline_ride_started.time_since_epoch().count() != 0
+                           && ctx.runtime_state->semantic.zipline_mount_pos.valid;
+    if (in_flight) {
+        const NaviPosition& mount = ctx.runtime_state->semantic.zipline_mount_pos;
+        const ZiplineTarget& landing = ctx.runtime_state->semantic.zipline_landing;
+        ctx.runtime_state->zipline_hop_bans.push_back(
+            ZiplineHopBan { .from_x = mount.x, .from_y = mount.y, .to_x = landing.x, .to_y = landing.y });
+    }
+    else if (hop < path.size() && path[hop].action == ActionType::ZIPLINE && path[hop].zipline_target) {
+        ctx.runtime_state->zipline_hop_bans.push_back(ZiplineHopBan {
+            .from_x = path[hop].x,
+            .from_y = path[hop].y,
+            .to_x = path[hop].zipline_target->x,
+            .to_y = path[hop].zipline_target->y,
+        });
+    }
+    ++ctx.runtime_state->zipline_abandon_count;
+
+    LogWarn << "Action: ZIPLINE given up, recovering from a fresh position." << VAR(reason) << VAR(detail) << VAR(dropped)
             << VAR(ctx.position->x) << VAR(ctx.position->y);
 
     ClearRideState(ctx);
@@ -245,8 +266,10 @@ Result AbandonZipline(const Context& ctx, const char* reason, const char* detail
     ctx.runtime_state->route.Reset();
     ctx.position_provider->ResetTracking();
     ctx.session->ResetProgress();
-    // 剩下的路是照着「从落点出发」规划的，人却还在索这一头，得重新规划一条过去。
-    // OnWaypointAdvance 会清掉这个标志，所以只能压在它后面。
+    // 剩下的路是照着「从落点出发」规划的，人却可能仍在索这一头。先丢掉滑行期间的跟踪状态，
+    // 等连续新定位重新贴回 navmesh，再从剩余路线里找第一个实际可达的接入点。OnWaypointAdvance
+    // 会清掉恢复状态和重规划标志，所以两者只能压在它后面。
+    ctx.runtime_state->zipline_recovery.Begin(std::chrono::steady_clock::now());
     ctx.runtime_state->dynamic_replan_requested = true;
 
     SelectPhaseForCurrentWaypoint(ctx, reason);
@@ -336,6 +359,8 @@ Result StartZiplineHop(
     ctx.runtime_state->semantic.zipline_mount_pos = *ctx.position;
     ctx.runtime_state->semantic.zipline_landing = landing;
     ctx.runtime_state->semantic.zipline_landing_hits = 0;
+    ctx.runtime_state->semantic.zipline_settle_hits = 0;
+    ctx.runtime_state->semantic.zipline_settle_relocated = false;
     ctx.position_provider->ResetTracking();
 
     // 起滑那一刻人还在上索点, 这条链就算已经是路线的尾巴也不能在这里收工:
@@ -411,6 +436,19 @@ Result TickZiplineRide(const Context& ctx)
         // 滑走了, 人却停在既不是落点也不是架子的地方, 这趟就是滑岔了。离落点更近说明方向没错,
         // 就地退索走路; 离上索点更近说明滑反了, 索是双向的, 原路滑回去再走
         if (ctx.runtime_state->semantic.zipline_settle_hits >= kZiplineSettleFixes && moved >= kZiplineMountMinMoveWu) {
+            // 冷启动后的第一批低分错锁能连着几帧纹丝不动, 骗过上面的稳定判据(实测把滑到落点的
+            // 链整条判死过)。弃索是贵决定: 先扔掉跟踪状态强制一次全新全局定位, 用干净的锁定
+            // 重新数满稳定帧, 结论没变才作数; 新锁定落在落点圈里就顺着成功路径走。
+            if (!ctx.runtime_state->semantic.zipline_settle_relocated) {
+                ctx.runtime_state->semantic.zipline_settle_relocated = true;
+                ctx.runtime_state->semantic.zipline_settle_hits = 0;
+                ctx.position_provider->ResetTracking();
+                LogInfo << "Action: ZIPLINE settle verdict deferred for a fresh global locate." << VAR(distance_to_landing)
+                        << VAR(moved) << VAR(waited_ms);
+                result.stay_in_current_tick = true;
+                utils::SleepFor(kZiplineRideRetryIntervalMs);
+                return result;
+            }
             const double distance_to_mount = std::hypot(ctx.position->x - mount.x, ctx.position->y - mount.y);
             LogWarn << "Action: ZIPLINE stopped away from the landing point." << VAR(distance_to_landing) << VAR(distance_to_mount)
                     << VAR(waited_ms) << VAR(ctx.runtime_state->semantic.zipline_returning);
@@ -425,6 +463,7 @@ Result TickZiplineRide(const Context& ctx)
             ctx.runtime_state->semantic.zipline_landing = back;
             ctx.runtime_state->semantic.zipline_landing_hits = 0;
             ctx.runtime_state->semantic.zipline_settle_hits = 0;
+            ctx.runtime_state->semantic.zipline_settle_relocated = false;
             // 滑完一趟镜头俯仰又不知道是多少了, 跟刚上索时一样从当下这个姿态起算
             ctx.runtime_state->semantic.zipline_launch_attempts = 0;
             ctx.runtime_state->semantic.zipline_pitch_deg = 0.0;

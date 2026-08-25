@@ -83,6 +83,9 @@ struct SemanticState
     int zipline_settle_hits = 0;
     // 滑反了正在原路滑回上索点。回去了就退索走路, 不会再滑第二趟
     bool zipline_returning = false;
+    // 停稳判定要下"滑岔了"结论前, 是否已经扔掉跟踪状态强制重定位复核过一次。冷启动后的
+    // 低分错锁能连着几帧纹丝不动骗过稳定判据, 弃索这么贵的决定不能建立在它上面
+    bool zipline_settle_relocated = false;
     // 这一次上索是行进预筛叫停的, 人可能还差几步。此时认不出提示只说明预筛看错了, 不该丢链
     bool zipline_prompt_probe = false;
     // 人是不是站在架子上。链首上索时置位, 链尾下索或中途退索时清掉。站着时不能直接走路,
@@ -109,6 +112,7 @@ struct SemanticState
         zipline_last_pos = {};
         zipline_settle_hits = 0;
         zipline_returning = false;
+        zipline_settle_relocated = false;
         zipline_prompt_probe = false;
         zipline_mounted = false;
         held_zone_candidate.clear();
@@ -324,6 +328,35 @@ struct ZiplineApproachState
     }
 };
 
+// 退索恢复必须重新取得位置所有权。滑行中的快速位移和小地图遮挡可能让最后一帧落在远处的相似
+// 纹理上；ResetTracking 之后用贴近 navmesh 的连续新定位重新确认，再允许状态机规划接回剩余路线。
+struct ZiplineRecoveryState
+{
+    std::chrono::steady_clock::time_point started_at { };
+    NaviPosition stable_pos { };
+    int32_t stable_hits = 0;
+    int32_t rejected_fixes = 0;
+    bool pending = false;
+
+    void Begin(const std::chrono::steady_clock::time_point& now)
+    {
+        started_at = now;
+        stable_pos = { };
+        stable_hits = 0;
+        rejected_fixes = 0;
+        pending = true;
+    }
+
+    void Reset()
+    {
+        started_at = { };
+        stable_pos = { };
+        stable_hits = 0;
+        rejected_fixes = 0;
+        pending = false;
+    }
+};
+
 struct NavigationRuntimeState
 {
     RouteTrackerState route;
@@ -340,6 +373,11 @@ struct NavigationRuntimeState
     // 顶层且不进任何一个 Reset: 它数的正是重规划本身, 跟着重规划清零就永远数不满。换了上索点
     // 由它自己按身份清, 换了整趟导航由 BeginNavigation 清
     ZiplineApproachState zipline_approach;
+    ZiplineRecoveryState zipline_recovery;
+    // 顶层且不进任何一个 Reset: 封禁与弃索计数的生命周期是一整趟导航, 只由 BeginNavigation 清。
+    // 跟着重规划清零, 重展开就会再选中刚失败的索。
+    std::vector<ZiplineHopBan> zipline_hop_bans;
+    int32_t zipline_abandon_count = 0;
     // Consecutive global re-acquires (the navigation_state_machine "recovered via global re-acquire" path) since
     // the last genuine waypoint advance. Top-level on purpose: the loss/escape/overlay Resets that fire all through
     // a wrong-tier thrash storm never clear it — only real forward progress does — so it is the one storm-proof
@@ -356,6 +394,7 @@ struct NavigationRuntimeState
         recovery_escalation.Reset();
         steering_rate.Reset();
         offroute.Reset();
+        zipline_recovery.Reset();
         dynamic_replan_requested = false;
         nav_run_dirty = true;
     }
@@ -373,6 +412,9 @@ struct NavigationRuntimeState
         offroute.Reset();
         cross_tier_escape.Reset();
         zipline_approach.Reset();
+        zipline_recovery.Reset();
+        zipline_hop_bans.clear();
+        zipline_abandon_count = 0;
         progress_identity.Reset();
         global_reacquire_streak = 0;
         dynamic_replan_requested = false;
@@ -390,6 +432,7 @@ struct NavigationRuntimeState
         river_fall.Reset();
         bypass.Reset();
         offroute.Reset();
+        zipline_recovery.Reset();
         global_reacquire_streak = 0;
         dynamic_replan_requested = false;
         nav_run_dirty = true;

@@ -1,0 +1,269 @@
+{
+    "task": [
+        {
+            "name": "CloseGamePC",
+            "label": "$task.CloseGamePC.label",
+            "entry": "CloseGamePC",
+            "option": [
+                "CloseGamePCApplyGameSetting"
+            ],
+            "controller": [
+                "Win32-Front"
+            ],
+            "group": [
+                "other_menu"
+            ]
+        }
+    ],
+    "option": {
+        "CloseGamePCApplyGameSetting": {
+            "type": "switch",
+            "label": "$option.CloseGamePCApplyGameSetting.label",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "CloseGamePCGameSettingRegion",
+                        "CloseGamePCGameSettingDisplayType",
+                        "CloseGamePCGameSettingGraphicsQuality",
+                        "CloseGamePCGameSettingFrameRate"
+                    ],
+                    "pipeline_override": {
+                        "CloseGamePC": {
+                            "attach": {
+                                "ApplyGameSetting": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "CloseGamePC": {
+                            "attach": {
+                                "ApplyGameSetting": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "CloseGamePCGameSettingRegion": {
+            "type": "select",
+            "label": "$option.GameSettingRegion.label",
+            "default_case": "CN",
+            "cases": [
+                {
+                    "name": "CN",
+                    "label": "$option.GameSettingRegion.cases.CN.label",
+                    "pipeline_override": {
+                        "CloseGamePC": {
+                            "attach": {
+                                "GameSettingRegion": "CN"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Global",
+                    "label": "$option.GameSettingRegion.cases.Global.label",
+                    "pipeline_override": {
+                        "CloseGamePC": {
+                            "attach": {
+                                "GameSettingRegion": "Global"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "CloseGamePCGameSettingDisplayType": {
+            "type": "select",
+            "label": "$option.GameSettingDisplayType.label",
+            "default_case": "Window",
+            "cases": [
+                {
+                    "name": "Window",
+                    "label": "$option.GameSettingDisplayType.cases.Window.label",
+                    "option": [
+                        "CloseGamePCGameSettingResolution"
+                    ],
+                    "pipeline_override": {
+                        "CloseGamePC": {
+                            "attach": {
+                                "GameSettingDisplayType": "Window"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Fullscreen",
+                    "label": "$option.GameSettingDisplayType.cases.Fullscreen.label",
+                    "option": [
+                        "CloseGamePCGameSettingResolution"
+                    ],
+                    "pipeline_override": {
+                        "CloseGamePC": {
+                            "attach": {
+                                "GameSettingDisplayType": "Fullscreen"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "CloseGamePCGameSettingResolution": {
+            "type": "input",
+            "label": "$option.CloseGamePCGameSettingResolution.label",
+            "inputs": [
+                {
+                    "name": "CloseGamePCGameSettingResolutionWidth",
+                    "label": "$option.CloseGamePCGameSettingResolutionWidth.label",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "default": "1280"
+                },
+                {
+                    "name": "CloseGamePCGameSettingResolutionHeight",
+                    "label": "$option.CloseGamePCGameSettingResolutionHeight.label",
+                    "pipeline_type": "int",
+                    "verify": "^\\d+$",
+                    "default": "720"
+                }
+            ],
+            "pipeline_override": {
+                "CloseGamePC": {
+                    "attach": {
+                        "ResolutionWidth": "{CloseGamePCGameSettingResolutionWidth}",
+                        "ResolutionHeight": "{CloseGamePCGameSettingResolutionHeight}"
+                    }
+                }
+            }
+        },
+        "CloseGamePCGameSettingGraphicsQuality": {
+            "type": "select",
+            "label": "$option.CloseGamePCGameSettingGraphicsQuality.label",
+            "default_case": "Unchanged",
+            "cases": [
+                {
+                    "name": "Unchanged",
+                    "label": "$option.CloseGamePCGameSettingGraphicsQuality.cases.Unchanged.label",
+                    "pipeline_override": {
+                        "CloseGamePC": {
+                            "attach": {
+                                "GraphicsQuality": -1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "VeryLow",
+                    "label": "$option.CloseGamePCGameSettingGraphicsQuality.cases.VeryLow.label",
+                    "pipeline_override": {
+                        "CloseGamePC": {
+                            "attach": {
+                                "GraphicsQuality": 5
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Low",
+                    "label": "$option.CloseGamePCGameSettingGraphicsQuality.cases.Low.label",
+                    "pipeline_override": {
+                        "CloseGamePC": {
+                            "attach": {
+                                "GraphicsQuality": 4
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Medium",
+                    "label": "$option.CloseGamePCGameSettingGraphicsQuality.cases.Medium.label",
+                    "pipeline_override": {
+                        "CloseGamePC": {
+                            "attach": {
+                                "GraphicsQuality": 3
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "High",
+                    "label": "$option.CloseGamePCGameSettingGraphicsQuality.cases.High.label",
+                    "pipeline_override": {
+                        "CloseGamePC": {
+                            "attach": {
+                                "GraphicsQuality": 2
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Ultra",
+                    "label": "$option.CloseGamePCGameSettingGraphicsQuality.cases.Ultra.label",
+                    "pipeline_override": {
+                        "CloseGamePC": {
+                            "attach": {
+                                "GraphicsQuality": 1
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "CloseGamePCGameSettingFrameRate": {
+            "type": "select",
+            "label": "$option.CloseGamePCGameSettingFrameRate.label",
+            "default_case": "Unchanged",
+            "cases": [
+                {
+                    "name": "Unchanged",
+                    "label": "$option.CloseGamePCGameSettingFrameRate.cases.Unchanged.label",
+                    "pipeline_override": {
+                        "CloseGamePC": {
+                            "attach": {
+                                "FrameRate": -1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Fps30",
+                    "label": "$option.CloseGamePCGameSettingFrameRate.cases.Fps30.label",
+                    "pipeline_override": {
+                        "CloseGamePC": {
+                            "attach": {
+                                "FrameRate": 3000
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Fps60",
+                    "label": "$option.CloseGamePCGameSettingFrameRate.cases.Fps60.label",
+                    "pipeline_override": {
+                        "CloseGamePC": {
+                            "attach": {
+                                "FrameRate": 2000
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Fps120",
+                    "label": "$option.CloseGamePCGameSettingFrameRate.cases.Fps120.label",
+                    "pipeline_override": {
+                        "CloseGamePC": {
+                            "attach": {
+                                "FrameRate": 1000
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

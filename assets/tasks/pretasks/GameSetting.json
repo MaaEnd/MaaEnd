@@ -13,7 +13,9 @@
         ],
         "option": [
             "GameSettingRegion",
-            "GameSettingDisplayType"
+            "GameSettingDisplayType",
+            "GameSettingGraphicsQuality",
+            "GameSettingFrameRate"
         ]
     },
     "option": {
@@ -66,6 +68,60 @@
                 },
                 {
                     "name": "2560x1440"
+                }
+            ]
+        },
+        "GameSettingGraphicsQuality": {
+            "label": "$option.GameSettingGraphicsQuality.label",
+            "type": "select",
+            "default_case": "Unchanged",
+            "cases": [
+                {
+                    "name": "Unchanged",
+                    "label": "$option.GameSettingGraphicsQuality.cases.Unchanged.label"
+                },
+                {
+                    "name": "VeryLow",
+                    "label": "$option.GameSettingGraphicsQuality.cases.VeryLow.label"
+                },
+                {
+                    "name": "Low",
+                    "label": "$option.GameSettingGraphicsQuality.cases.Low.label"
+                },
+                {
+                    "name": "Medium",
+                    "label": "$option.GameSettingGraphicsQuality.cases.Medium.label"
+                },
+                {
+                    "name": "High",
+                    "label": "$option.GameSettingGraphicsQuality.cases.High.label"
+                },
+                {
+                    "name": "Ultra",
+                    "label": "$option.GameSettingGraphicsQuality.cases.Ultra.label"
+                }
+            ]
+        },
+        "GameSettingFrameRate": {
+            "label": "$option.GameSettingFrameRate.label",
+            "type": "select",
+            "default_case": "Unchanged",
+            "cases": [
+                {
+                    "name": "Unchanged",
+                    "label": "$option.GameSettingFrameRate.cases.Unchanged.label"
+                },
+                {
+                    "name": "Fps30",
+                    "label": "$option.GameSettingFrameRate.cases.Fps30.label"
+                },
+                {
+                    "name": "Fps60",
+                    "label": "$option.GameSettingFrameRate.cases.Fps60.label"
+                },
+                {
+                    "name": "Fps120",
+                    "label": "$option.GameSettingFrameRate.cases.Fps120.label"
                 }
             ]
         }

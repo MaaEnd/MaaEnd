@@ -133,6 +133,7 @@ bool NaviController::Navigate(const NaviParam& requested_param)
 
     NaviParam expanded_param = param;
     expanded_param.path = std::move(expanded_path);
+    expanded_param.authored_path = std::move(param.path);
 
     NavigationSession session(expanded_param.path, pos);
     session.UpdatePhase(NaviPhase::Bootstrap, "initial_fix");

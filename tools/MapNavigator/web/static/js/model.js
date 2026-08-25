@@ -4,7 +4,7 @@
  *
  * A `PathPoint` is a plain object:
  *   { x:number, y:number, action:number, actions:number[], zone:string, strict:boolean,
- *     target_tier?:string, auto_portal?:true, suppress_auto_portal?:true }
+ *     required?:true, target_tier?:string, auto_portal?:true, suppress_auto_portal?:true }
  * Invariant on `actions`: either `[RUN]` or a list of non-RUN/NONE actions; `action`
  * always mirrors the last element of the normalised chain.
  * @module model
@@ -331,6 +331,7 @@ export function normalizePathPoints(points) {
     };
     const targetTier = normalizeZoneId(point.target_tier === undefined ? '' : point.target_tier);
     if (targetTier) np.target_tier = targetTier;
+    if (Boolean(point.required)) np.required = true;
     if (Boolean(point.auto_portal)) np.auto_portal = true;
     if (Boolean(point.suppress_auto_portal)) np.suppress_auto_portal = true;
     syncPortalFlags(np);
@@ -384,6 +385,7 @@ export function normalizePathPoints(points) {
       last.y === point.y &&
       last.zone === point.zone &&
       last.strict === point.strict &&
+      Boolean(last.required) === Boolean(point.required) &&
       (last.target_tier || '') === (point.target_tier || '')
     ) {
       const mergedAutoPortal = Boolean(last.auto_portal) || Boolean(point.auto_portal);

@@ -12,7 +12,7 @@ import traceback
 import urllib.error
 import urllib.request
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import quote, urlencode, urlparse
 
 from cli_support import Console, init_localization
 import dep_3rdparty
@@ -23,6 +23,7 @@ PROJECT_BASE: Path = Path(__file__).parent.parent.resolve()
 MFW_REPO: str = "MaaXYZ/MaaFramework"
 MXU_REPO: str = "MistEO/MXU"
 MAAEND_REPO: str = "MaaEnd/MaaEnd"
+MAIN_BRANCH: str = "v2"
 
 
 def create_directory_link(src: Path, dst: Path) -> bool:
@@ -909,6 +910,32 @@ def _github_auth_headers() -> dict[str, str] | None:
     }
 
 
+def _git_output(*args: str) -> str | None:
+    """Return trimmed output from a git command in the project checkout."""
+    try:
+        result = subprocess.run(
+            ["git", "-C", str(PROJECT_BASE), *args],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+    except OSError:
+        return None
+    if result.returncode != 0:
+        return None
+    output = result.stdout.strip()
+    return output or None
+
+
+def _current_git_branch() -> str | None:
+    """Return the checked-out branch, or ``None`` for a detached checkout."""
+    return _git_output("symbolic-ref", "--quiet", "--short", "HEAD")
+
+
+def _current_git_head_sha() -> str | None:
+    return _git_output("rev-parse", "HEAD")
+
+
 def _is_git_sha(version: str | None) -> bool:
     """Return True if version looks like a short git SHA (7-40 hex chars)."""
     if not version:
@@ -979,14 +1006,17 @@ def _find_cpp_algo_in_ci(
     auth_headers: dict[str, str] | None,
     pr_number: int | None = None,
     run_id: int | None = None,
+    branch: str | None = None,
 ) -> tuple[str | None, str | None]:
     """Find a cpp-algo CI artifact from a successful install.yml workflow run.
 
     - When *run_id* is specified, fetches that exact workflow run's artifacts.
     - When *pr_number* is specified, searches for the latest successful
       install.yml run for that pull request.
-    - Otherwise, searches the latest successful push runs on the v2 branch
-      (default behavior for merged code).
+    - Otherwise, searches the current checkout's branch. The protected ``v2``
+      branch is restricted to successful push runs; other branches first try
+      the current HEAD (PR/workflow-dispatch builds), then the latest run for
+      that branch.
 
     Returns (download_url, version_sha) or (None, None).
     """
@@ -1157,37 +1187,70 @@ def _find_cpp_algo_in_ci(
         print(Console.info(t("inf_ci_artifact_pr_no_runs", pr=pr_number)))
         return None, None
 
-    # --- default branch: latest successful push runs on v2 ---
-    print(Console.info(t("inf_ci_artifact_search", name=artifact_name)))
+    # --- default branch: use the checkout's branch, with v2 kept as the
+    # protected default when a detached checkout has no branch name. ---
+    checkout_branch = branch if branch is not None else _current_git_branch()
+    branch = checkout_branch or MAIN_BRANCH
+    print(Console.info(t("inf_ci_artifact_search_branch", name=artifact_name, branch=branch)))
+
+    def _search_runs(runs_url: str) -> tuple[str | None, str | None]:
+        try:
+            data = _github_api_get(runs_url, auth_headers)
+        except urllib.error.HTTPError as e:
+            if e.code in (403, 429):
+                print(Console.warn(t("wrn_ci_artifact_rate_limited", code=e.code)))
+            else:
+                print(Console.warn(t("wrn_ci_artifact_list_runs_failed", error=e)))
+            return None, None
+        except urllib.error.URLError as e:
+            print(Console.warn(t("wrn_ci_artifact_network_error", error=e.reason)))
+            return None, None
+        except Exception as e:
+            print(Console.warn(t("wrn_ci_artifact_list_runs_failed", error=e)))
+            return None, None
+
+        runs = data.get("workflow_runs", [])
+        if not runs:
+            return None, None
+        result = _find_cpp_algo_artifact_in_runs(auth_headers, runs, artifact_name)
+        return result
+
+    # Only a normalized non-main branch may use the current HEAD as a precise
+    # match. Detached checkouts normalize to v2 and must stay on its push-only
+    # artifact path.
+    if branch != MAIN_BRANCH:
+        head_sha = _current_git_head_sha()
+        if head_sha:
+            head_query = urlencode({
+                "head_sha": head_sha,
+                "status": "success",
+                "per_page": "20",
+            })
+            result = _search_runs(
+                f"https://api.github.com/repos/{MAAEND_REPO}/actions/workflows/"
+                f"install.yml/runs?{head_query}"
+            )
+            if result[0] is not None:
+                return result
+
+    branch_query = {
+        "branch": branch,
+        "status": "success",
+        "per_page": "20",
+    }
+    # install.yml is only push-triggered on v2. Keep that invariant explicit;
+    # non-main branches are searched across PR/dispatch runs instead.
+    if branch == MAIN_BRANCH:
+        branch_query["event"] = "push"
     runs_url = (
         f"https://api.github.com/repos/{MAAEND_REPO}/actions/workflows/"
-        f"install.yml/runs?branch=v2&status=success&event=push&per_page=10"
+        f"install.yml/runs?{urlencode(branch_query, quote_via=quote)}"
     )
-
-    try:
-        data = _github_api_get(runs_url, auth_headers)
-    except urllib.error.HTTPError as e:
-        if e.code in (403, 429):
-            print(Console.warn(t("wrn_ci_artifact_rate_limited", code=e.code)))
-        else:
-            print(Console.warn(t("wrn_ci_artifact_list_runs_failed", error=e)))
-        return None, None
-    except urllib.error.URLError as e:
-        print(Console.warn(t("wrn_ci_artifact_network_error", error=e.reason)))
-        return None, None
-    except Exception as e:
-        print(Console.warn(t("wrn_ci_artifact_list_runs_failed", error=e)))
-        return None, None
-
-    runs = data.get("workflow_runs", [])
-    if not runs:
-        print(Console.info(t("inf_ci_artifact_no_runs")))
-        return None, None
-
-    result = _find_cpp_algo_artifact_in_runs(auth_headers, runs, artifact_name)
+    result = _search_runs(runs_url)
     if result[0] is not None:
         return result
 
+    print(Console.info(t("inf_ci_artifact_no_runs", branch=branch)))
     print(Console.info(t("inf_ci_artifact_not_found")))
     return None, None
 
@@ -1219,7 +1282,7 @@ def install_cpp_algo(
     )
 
     # When a specific PR/run was requested but no artifact was found, fall
-    # back to the default CI search (latest v2 push) before trying a release.
+    # back to the current checkout's branch before trying a release.
     if ci_url is None and (pr_number is not None or run_id is not None):
         print(Console.warn(t("wrn_ci_artifact_pr_run_not_found_fallback")))
         ci_url, ci_version = _find_cpp_algo_in_ci(auth_headers)

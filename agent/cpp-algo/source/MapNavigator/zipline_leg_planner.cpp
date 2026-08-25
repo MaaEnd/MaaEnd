@@ -272,7 +272,7 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
     const std::string& navmesh_zone,
     const navmesh::WorldPoint& start,
     const navmesh::WorldPoint& goal,
-    const navmesh::WorldPath& walking_path,
+    const navmesh::WorldPath* walking_path,
     std::optional<double> goal_deck_y,
     const std::function<bool()>& should_stop)
 {
@@ -281,20 +281,27 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
         return std::nullopt;
     }
 
-    // 要了滑索却没用上时，说清楚是为什么。一条腿至多一条，且没要滑索的请求一条都不出。
-    const auto walk_only = [&](const char* why) -> std::optional<ZiplineRoute> {
-        LogInfo << "ZiplineRoute: walking this leg instead." << VAR(why) << VAR(navmesh_zone);
+    const bool walking_baseline_available = walking_path != nullptr && !walking_path->points.empty();
+
+    // 要了滑索却没用上时，说清楚是输给了步行，还是没能桥接原本不连通的两端。
+    const auto no_zipline = [&](const char* why) -> std::optional<ZiplineRoute> {
+        if (walking_baseline_available) {
+            LogInfo << "ZiplineRoute: walking this leg instead." << VAR(why) << VAR(navmesh_zone);
+        }
+        else {
+            LogInfo << "ZiplineRoute: no bridge for the disconnected walking leg." << VAR(why) << VAR(navmesh_zone);
+        }
         return std::nullopt;
     };
 
     const std::shared_ptr<const ZiplineData> data = SharedData();
     if (!data->ok || data->frames.empty()) {
-        return walk_only("no zipline calibration on disk");
+        return no_zipline("no zipline calibration on disk");
     }
 
     const zipline::ZiplineFrame* frame = data->frames.findByZone(navmesh_zone);
     if (!frame) {
-        return walk_only("this zone is not calibrated");
+        return no_zipline("this zone is not calibrated");
     }
 
     // 不通电的滑索架在游戏里走不了，规划前先按供电范围把它们挡掉。
@@ -340,17 +347,18 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
     }
 
     if (nodes.size() < 2) {
-        return walk_only("no powered ziplines recorded in this zone");
+        return no_zipline("no powered ziplines recorded in this zone");
     }
 
-    // 只有比走路省下 min_gain 以上才算有收益：省得比一次上索的开销还少时，这点便宜落在
-    // 代价模型自身的误差里，换来的却是实打实的多一次交互。
+    // 有步行基线时，只有省下 min_gain 以上才算有收益：省得比一次上索的开销还少时，这点
+    // 便宜落在代价模型自身的误差里，换来的却是实打实的多一次交互。纯步行不连通时没有
+    // 可比较的基线，任何能把起终两侧可走面接起来的连续链都优先于盲走和作者路径回退。
     const zipline::ZiplineCostModel& cost = data->frames.cost();
-    const double baseline_length = PolylineLength(walking_path);
-    const double gain_threshold = baseline_length - cost.min_gain;
+    const double baseline_length = walking_baseline_available ? PolylineLength(*walking_path) : 0.0;
+    const double gain_threshold = walking_baseline_available ? baseline_length - cost.min_gain : std::numeric_limits<double>::infinity();
     // 走路短到白送一整段滑行都追不平上索的开销时，下面的吸附和规划都不必做了。
-    if (gain_threshold <= cost.mount_penalty) {
-        return walk_only("the walk is too short for any zipline to pay off");
+    if (walking_baseline_available && gain_threshold <= cost.mount_penalty) {
+        return no_zipline("the walk is too short for any zipline to pay off");
     }
 
     // 只筛两端：上索点和下索点得让人走到跟前，链中间那些是从索上落到下一根架子上的，脚下有没有
@@ -378,7 +386,7 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
     // 一根都上不去时后面的配对必然是空的，早一步收场；原因也要说成「上不去」而不是「不划算」，
     // 前者多半是标定或高度对不上，后者才是真的不划算。
     if (out_of_reach + wrong_floor == nodes.size()) {
-        return walk_only("not one zipline here can be walked up to");
+        return no_zipline("not one zipline here can be walked up to");
     }
 
     // 索长上限逐点查一次就够：配对是 O(n²) 的，放进内层循环等于把字符串查表也乘上 n²。
@@ -402,7 +410,36 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
     };
 
     // 一条路线用几条索由代价决定，不设跳数上限：换乘要收钱，划不来的长链自己就被淘汰了。
-    const std::vector<std::vector<size_t>> links = BuildLinks(nodes, span_limit);
+    std::vector<std::vector<size_t>> links = BuildLinks(nodes, span_limit);
+
+    // 执行侧判死过的跳直接从连通图里拿掉。索不分上下行, 一根滑不动的索反着大概率也滑不动,
+    // 两个方向一起封。
+    if (!param.banned_zipline_hops.empty()) {
+        const auto near_tower = [&nodes](size_t tower, double x, double y) {
+            return std::hypot(nodes[tower].x - x, nodes[tower].y - y) <= kZiplineHopBanMatchWu;
+        };
+        size_t banned_edges = 0;
+        for (size_t i = 0; i < links.size(); ++i) {
+            std::vector<size_t>& outgoing = links[i];
+            outgoing.erase(
+                std::remove_if(
+                    outgoing.begin(),
+                    outgoing.end(),
+                    [&](size_t j) {
+                        for (const ZiplineHopBan& ban : param.banned_zipline_hops) {
+                            if ((near_tower(i, ban.from_x, ban.from_y) && near_tower(j, ban.to_x, ban.to_y))
+                                || (near_tower(i, ban.to_x, ban.to_y) && near_tower(j, ban.from_x, ban.from_y))) {
+                                ++banned_edges;
+                                return true;
+                            }
+                        }
+                        return false;
+                    }),
+                outgoing.end());
+        }
+        LogInfo << "ZiplineRoute: dropped the hops the runtime already gave up on." << VAR(param.banned_zipline_hops.size())
+                << VAR(banned_edges);
+    }
 
     std::vector<Candidate> candidates;
     std::vector<double> chain_cost;
@@ -429,7 +466,7 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
 
     if (candidates.empty()) {
         // 摸得到、挂得上、还顺路的那一根不存在，三件事在这里合成一个结果。
-        return walk_only("no reachable pair of ziplines leads anywhere useful");
+        return no_zipline("no reachable pair of ziplines leads anywhere useful");
     }
     std::sort(candidates.begin(), candidates.end(), [](const Candidate& a, const Candidate& b) { return a.lower_bound < b.lower_bound; });
 
@@ -515,7 +552,7 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
     }
 
     if (!best) {
-        return walk_only("no zipline route beats walking");
+        return no_zipline(walking_baseline_available ? "no zipline route beats walking" : "no feasible zipline bridge to target");
     }
 
     // 中间经过哪几根架子到这时才还原：候选是成对枚举出来的，逐个存下整条链纯属浪费。
@@ -527,8 +564,9 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
     // 只有链首那一根要按提示上索, 中途都是从索上落到下一根架子上的
     best->mount_restand = MountStandPoint(param, locator_zone, best->towers.front(), supply_points);
 
-    LogInfo << "ZiplineRoute: picked" << VAR(baseline_length) << VAR(best->cost) << VAR(best->towers.size()) << VAR(best->towers.front().x)
-            << VAR(best->towers.front().y) << VAR(best->towers.back().x) << VAR(best->towers.back().y);
+    LogInfo << "ZiplineRoute: picked" << VAR(walking_baseline_available) << VAR(baseline_length) << VAR(best->cost)
+            << VAR(best->towers.size()) << VAR(best->towers.front().x) << VAR(best->towers.front().y) << VAR(best->towers.back().x)
+            << VAR(best->towers.back().y);
     return best;
 }
 
