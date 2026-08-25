@@ -84,7 +84,9 @@ func (s *Sink) OnTaskerTask(_ *maa.Tasker, event maa.EventStatus, detail maa.Tas
 		}
 		if config.Enabled() && config.OnFail && shouldNotifyFail(detail.TaskID) {
 			now := time.Now()
-			vars := BuildVars(resolveTaskName(detail.Entry), i18n.T("notify.status.failed"), now, getStartTime(detail.TaskID))
+			// 失败通知的 {{duration}} 同样用实例总耗时（controllerStartTime），
+			// 与 NotifyTask 一致：从实例首个任务启动到失败时刻，而非失败任务自身耗时
+			vars := BuildVars(resolveTaskName(detail.Entry), i18n.T("notify.status.failed"), now, getControllerStartTime())
 			vars["title"] = config.FailTitle
 			vars["body"] = config.FailBody
 			log.Info().Str("component", "Notify").Uint64("task_id", detail.TaskID).Str("entry", detail.Entry).Msg("task failed, sending notify")
