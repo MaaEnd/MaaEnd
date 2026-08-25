@@ -8,7 +8,8 @@
                 "NotifyHelp",
                 "NotifyWebhook",
                 "NotifyBark",
-                "NotifyServerChan"
+                "NotifyServerChan",
+                "NotifyTelegram"
             ]
         },
         {
@@ -25,6 +26,7 @@
         "NotifyWebhook",
         "NotifyBark",
         "NotifyServerChan",
+        "NotifyTelegram",
         "NotifyAllowTask",
         "NotifyFail"
     ],
@@ -817,6 +819,201 @@
                         "bark_action": "{Action}",
                         "bark_id": "{Id}",
                         "bark_delete": "{Delete}"
+                    }
+                }
+            }
+        },
+        "NotifyTelegram": {
+            "type": "switch",
+            "label": "$option.NotifyTelegram.label",
+            "description": "$option.NotifyTelegram.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "NotifyTelegramParams",
+                        "NotifyTelegramDisableNotification",
+                        "NotifyTelegramProxy"
+                    ],
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "telegram_enabled": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "telegram_enabled": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "NotifyTelegramParams": {
+            "type": "input",
+            "label": "",
+            "inputs": [
+                {
+                    "name": "Token",
+                    "label": "bot_token",
+                    "pipeline_type": "string",
+                    "default": "",
+                    "description": "$option.NotifyTelegramParams.Token.description"
+                },
+                {
+                    "name": "ChatId",
+                    "label": "chat_id",
+                    "pipeline_type": "string",
+                    "default": "",
+                    "description": "$option.NotifyTelegramParams.ChatId.description"
+                },
+                {
+                    "name": "Title",
+                    "label": "title",
+                    "pipeline_type": "string",
+                    "default": "",
+                    "description": "$option.NotifyTelegramParams.Title.description"
+                },
+                {
+                    "name": "Body",
+                    "label": "body",
+                    "pipeline_type": "string",
+                    "default": "",
+                    "description": "$option.NotifyTelegramParams.Body.description"
+                },
+                {
+                    "name": "ParseMode",
+                    "label": "parse_mode",
+                    "pipeline_type": "string",
+                    "default": "",
+                    "description": "$option.NotifyTelegramParams.ParseMode.description"
+                }
+            ],
+            "pipeline_override": {
+                "__NotifyConfig": {
+                    "attach": {
+                        "telegram_token": "{Token}",
+                        "telegram_chat_id": "{ChatId}",
+                        "telegram_title": "{Title}",
+                        "telegram_body": "{Body}",
+                        "telegram_parse_mode": "{ParseMode}"
+                    }
+                }
+            }
+        },
+        "NotifyTelegramDisableNotification": {
+            "type": "switch",
+            "label": "$option.NotifyTelegramDisableNotification.label",
+            "description": "$option.NotifyTelegramDisableNotification.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "telegram_disable_notification": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "telegram_disable_notification": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "NotifyTelegramProxy": {
+            "type": "switch",
+            "label": "$option.NotifyTelegramProxy.label",
+            "description": "$option.NotifyTelegramProxy.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "NotifyTelegramProxyUseUpdate"
+                    ],
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "telegram_use_proxy": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "telegram_use_proxy": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "NotifyTelegramProxyUseUpdate": {
+            "type": "switch",
+            "label": "$option.NotifyTelegramProxyUseUpdate.label",
+            "description": "$option.NotifyTelegramProxyUseUpdate.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "telegram_use_update_proxy": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "option": [
+                        "NotifyTelegramProxyUrl"
+                    ],
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "telegram_use_update_proxy": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "NotifyTelegramProxyUrl": {
+            "type": "input",
+            "label": "$option.NotifyTelegramProxyUrl.label",
+            "inputs": [
+                {
+                    "name": "Url",
+                    "label": "$option.NotifyTelegramProxyUrl.Url.label",
+                    "pipeline_type": "string",
+                    "default": "",
+                    "description": "$option.NotifyTelegramProxyUrl.Url.description"
+                }
+            ],
+            "pipeline_override": {
+                "__NotifyConfig": {
+                    "attach": {
+                        "telegram_proxy_url": "{Url}"
                     }
                 }
             }
