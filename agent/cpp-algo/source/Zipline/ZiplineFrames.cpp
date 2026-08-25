@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 #include <fstream>
+#include <limits>
 #include <system_error>
 
 #include <meojson/json.hpp>
@@ -37,7 +38,8 @@ bool parse_odd_grid_size(const json::object& obj, const char* key, std::array<in
             return false;
         }
         const double value = values[i].as_double();
-        if (!std::isfinite(value) || value <= 0.0 || std::floor(value) != value || static_cast<int>(value) % 2 == 0) {
+        if (!std::isfinite(value) || value <= 0.0 || value > static_cast<double>(std::numeric_limits<int>::max())
+            || std::floor(value) != value || static_cast<int>(value) % 2 == 0) {
             return false;
         }
         out[i] = static_cast<int>(value);
