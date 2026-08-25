@@ -28,6 +28,7 @@ type destination struct {
 	DepotID          string
 	RouteNode        string
 	ZipRouteNode     string
+	RetryRouteNode   string
 	DestinationTexts []string
 	ObjectiveTexts   []string
 }
@@ -46,14 +47,15 @@ type generatedDepot struct {
 }
 
 type generatedDestination struct {
-	ID           string            `json:"id"`
-	Kind         string            `json:"kind"`
-	DepotID      string            `json:"depot_id"`
-	Name         map[string]string `json:"name"`
-	Mission      map[string]string `json:"mission"`
-	Area         map[string]string `json:"area"`
-	RouteNode    string            `json:"route_node"`
-	ZipRouteNode string            `json:"zip_route_node"`
+	ID             string            `json:"id"`
+	Kind           string            `json:"kind"`
+	DepotID        string            `json:"depot_id"`
+	Name           map[string]string `json:"name"`
+	Mission        map[string]string `json:"mission"`
+	Area           map[string]string `json:"area"`
+	RouteNode      string            `json:"route_node"`
+	ZipRouteNode   string            `json:"zip_route_node"`
+	RetryRouteNode string            `json:"retry_route_node"`
 }
 
 type depot struct {
@@ -195,6 +197,7 @@ func buildDestinations(generated generatedCatalog, depots map[string]depot) ([]a
 			DepotID:          source.DepotID,
 			RouteNode:        source.RouteNode,
 			ZipRouteNode:     source.ZipRouteNode,
+			RetryRouteNode:   source.RetryRouteNode,
 			DestinationTexts: destinationTexts,
 			ObjectiveTexts:   objectiveTexts,
 		})

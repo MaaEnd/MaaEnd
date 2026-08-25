@@ -76,6 +76,7 @@ FAILURE_LABELS = {
     "AutoDeliveryReturnWorldAndNavigateDepot": "返回大世界并准备仓储导航",
     "AutoDeliveryNavigateDepot": "前往仓储节点",
     "AutoDeliveryFetchGoods": "接取货物",
+    "AutoDeliverySearchFetchGoodsButton": "环绕查找接取货物按钮",
     "AutoDeliveryFetchGoodsButtonWaitFreezes": "识别接取货物按钮",
     "AutoDeliveryFetchGoodsButton": "点击接取货物",
     "AutoDeliveryFetchGoodsDone": "确认已携带货物",
@@ -95,6 +96,8 @@ FAILURE_LABELS = {
     "AutoDeliveryCurrentJobTrackingGone": "确认送货任务追踪标记已消失",
     "AutoDeliveryReturnWorldAndNavigateDestination": "返回大世界并准备终点导航",
     "AutoDeliveryNavigateDestination": "前往送货目标",
+    "AutoDeliverySearchSubmitGoodsButton": "环绕查找交货按钮",
+    "AutoDeliveryRetryNavigateDestination": "送货目标站位重试",
     "AutoDeliverySubmitGoodsWaitFreezes": "识别交货按钮",
     "AutoDeliverySubmitGoods": "提交货物",
     "AutoDeliveryIsInChatDialog": "识别送货对话",
@@ -232,6 +235,7 @@ def load_route_definitions(path: Path) -> dict[str, RouteDefinition]:
         node_names = (
             f"AutoDeliveryRouteDestination{node_id}",
             f"AutoDeliveryRouteDestination{node_id}WithZipline",
+            f"AutoDeliveryRouteDestinationRetry{node_id}",
         )
         definition = RouteDefinition(
             route_id=route_id,

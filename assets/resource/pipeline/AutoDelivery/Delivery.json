@@ -91,7 +91,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoDeliverySubmitGoodsWaitFreezes"
+            "AutoDeliverySubmitGoodsWaitFreezes",
+            "AutoDeliverySearchSubmitGoodsButton"
         ],
         "focus": {
             "Node.Action.Starting": "正在前往当前送货目标",
@@ -102,6 +103,38 @@
                 "trace": true
             }
         }
+    },
+    "AutoDeliverySearchSubmitGoodsButton": {
+        "desc": "到达送货目标后未找到交货按钮时，环绕微调站位并持续查找按钮",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "CharacterSearchAction",
+        "custom_action_param": {
+            "wait_nodes": [
+                "AutoDeliverySubmitGoodsWaitFreezes"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDeliverySubmitGoodsWaitFreezes"
+        ],
+        "on_error": [
+            "AutoDeliveryRetryNavigateDestination"
+        ]
+    },
+    "AutoDeliveryRetryNavigateDestination": {
+        "desc": "动态调用送货目标配置的一次性站位修正路线；无重试路线时不启用",
+        "enabled": false,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FalseAction",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDeliverySubmitGoodsWaitFreezes"
+        ]
     },
     "AutoDeliverySubmitGoodsWaitFreezes": {
         "desc": "在送货目标附近识别交互按钮，并等待交互按钮稳定",

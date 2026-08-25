@@ -158,6 +158,10 @@ constexpr double kHighConfidenceOverride = 0.85;  // 压倒分：远跳但此分
 constexpr const char* kColdStartCollectingMessage = "Cold-start collecting.";
 constexpr double kSeamFallbackMinPeakScore = 0.0;
 
+// 小地图被遮挡时最长拒绝多久，超时放行以免长期被遮挡的点位彻底卡死。
+// 实测遮挡自行消散耗时 2.8~4.2s，取 5s 留余量；上界是导航起步等待定位的 10s 预算。
+constexpr int kOcclusionRejectTimeoutMs = 5000;
+
 // tracking 匹配低于此分时通知上层考虑改走全局搜索
 constexpr double kFastTrackingPassScore = 0.75;
 constexpr double kStableDeadband = 0.15;

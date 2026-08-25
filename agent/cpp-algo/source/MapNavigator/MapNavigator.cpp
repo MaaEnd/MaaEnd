@@ -54,7 +54,9 @@ MaaBool MAA_CALL MapNavigateActionRun(
     param.normalize_position_via_navmesh = true;
 
     NaviController controller(context);
-    return controller.Navigate(param) ? kMaaTrue : kMaaFalse;
+    const bool arrived = controller.Navigate(param);
+    NoticeZiplineOutcome(context);
+    return arrived ? kMaaTrue : kMaaFalse;
 }
 
 } // namespace mapnavigator

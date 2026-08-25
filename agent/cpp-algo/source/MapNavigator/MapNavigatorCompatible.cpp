@@ -872,7 +872,9 @@ MaaBool MAA_CALL MapNavigatorCompatibleRun(
     }
 
     NaviController controller(context);
-    if (!controller.Navigate(param)) {
+    const bool arrived = controller.Navigate(param);
+    NoticeZiplineOutcome(context);
+    if (!arrived) {
         return kMaaFalse;
     }
     ensure_final_orientation(context, param, move_options);

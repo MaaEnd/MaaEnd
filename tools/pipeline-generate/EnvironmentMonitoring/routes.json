@@ -270,24 +270,13 @@
         "MissionId": "m1m56",
         "Name": "小壳兽",
         "Id": "MiniShellbeast",
-        "EnterMap": "SceneEnterWorldWulingWulingCity4",
-        "NavZoneId": "Wuling_Base",
-        "NavAssert": [
-            523.06,
-            1739.74,
-            14.98,
-            14.38
-        ],
+        "QuickTeleport": true,
         "NavPath": [
-            {
-                "action": "ZONE",
-                "zone_id": "Wuling_Base"
-            },
             {
                 "action": "NAVMESH",
                 "target": [
-                    501.88,
-                    1748.21
+                    467.7,
+                    1751.95
                 ]
             }
         ],
@@ -297,7 +286,7 @@
                 "壳"
             ]
         ],
-        "Heading": 15
+        "Heading": 182
     },
     {
         "MissionId": "m1m57",

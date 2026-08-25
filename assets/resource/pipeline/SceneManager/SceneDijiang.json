@@ -99,6 +99,7 @@
         },
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
             "__ScenePrivateMapTeleportConfirm"
         ]
     },

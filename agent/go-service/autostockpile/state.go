@@ -14,6 +14,7 @@ type DecisionState struct {
 	EffectiveConfig    SelectionConfig
 	RawRecognitionData RecognitionData
 	CurrentDecision    currentDecision
+	SkipNextRound      bool
 }
 
 var (

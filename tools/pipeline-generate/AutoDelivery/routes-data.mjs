@@ -34,13 +34,22 @@ export default [
               ]
             : []),
     ]),
-    ...destinations.flatMap((destination) =>
-        buildRows(
+    ...destinations.flatMap((destination) => [
+        ...buildRows(
             destination.id,
             `AutoDelivery 终点路线：从${destination.depotName}仓储节点前往${destination.name.zh_cn}`,
             destination.path,
             destination.routeNode,
             destination.zipRouteNode,
         ),
-    ),
+        ...(destination.retryRouteNode
+            ? [
+                  {
+                      Node: destination.retryRouteNode,
+                      Description: `AutoDelivery 终点站位修正路线：${destination.name.zh_cn}（${destination.id}）`,
+                      ActionParam: rawJson({path: destination.retryPath}),
+                  },
+              ]
+            : []),
+    ]),
 ];

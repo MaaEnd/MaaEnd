@@ -76,7 +76,7 @@ struct SemanticState
     int zipline_landing_hits = 0;
     // 起滑按了几次。按下去没滑走多半是俯仰没对上, 抬头角是开环发的, 只能换一档再按; 试满就退索
     int zipline_launch_attempts = 0;
-    // 上索起算, 镜头一共被抬了多少度。俯仰读不到, 只能自己记着发出去的量, 好让下一次按增量补
+    // 上索后先把镜头拉到俯仰上限, 再记住从这个固定基准发出的目标角；连续滑索沿用它按增量补
     double zipline_pitch_deg = 0.0;
     // 上一拍的位置和它连着重合了几次。滑行停稳却不在落点, 就是这趟滑岔了
     NaviPosition zipline_last_pos {};
@@ -332,8 +332,8 @@ struct ZiplineApproachState
 // 纹理上；ResetTracking 之后用贴近 navmesh 的连续新定位重新确认，再允许状态机规划接回剩余路线。
 struct ZiplineRecoveryState
 {
-    std::chrono::steady_clock::time_point started_at { };
-    NaviPosition stable_pos { };
+    std::chrono::steady_clock::time_point started_at {};
+    NaviPosition stable_pos {};
     int32_t stable_hits = 0;
     int32_t rejected_fixes = 0;
     bool pending = false;
@@ -341,7 +341,7 @@ struct ZiplineRecoveryState
     void Begin(const std::chrono::steady_clock::time_point& now)
     {
         started_at = now;
-        stable_pos = { };
+        stable_pos = {};
         stable_hits = 0;
         rejected_fixes = 0;
         pending = true;
@@ -349,8 +349,8 @@ struct ZiplineRecoveryState
 
     void Reset()
     {
-        started_at = { };
-        stable_pos = { };
+        started_at = {};
+        stable_pos = {};
         stable_hits = 0;
         rejected_fixes = 0;
         pending = false;

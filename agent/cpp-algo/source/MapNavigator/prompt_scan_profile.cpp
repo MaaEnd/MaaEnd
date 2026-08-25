@@ -133,48 +133,6 @@ bool ReadSingleNumber(const json::value& holder, double* out)
     return true;
 }
 
-// 框架先加载 ./resource, 再把控制器自己的 overlay 叠上去, 所以 overlay 里的同名图会胜出; 这里照同一个
-// 顺序找, 基础资源永远排最后。云游戏与本地 ADB 在控制器类型上无法区分, 所以 resource_cloud_adb 不参与。
-std::vector<std::filesystem::path> ResourceImageRoots(std::string_view controller_type)
-{
-    const std::filesystem::path install_dir = std::filesystem::absolute(get_exe_dir() / "..");
-
-    std::vector<std::string> dirs;
-    if (IsPlayCoverControllerType(controller_type)) {
-        dirs.emplace_back("resource_playcover");
-        dirs.emplace_back("resource_adb");
-    }
-    else if (IsAdbLikeControllerType(controller_type)) {
-        dirs.emplace_back("resource_adb");
-    }
-    else if (IsLinuxControllerType(controller_type)) {
-        dirs.emplace_back("resource_linux");
-    }
-    else if (EqualsIgnoreCase(controller_type, "macos")) {
-        dirs.emplace_back("resource_macos");
-    }
-    dirs.emplace_back("resource");
-
-    std::vector<std::filesystem::path> roots;
-    roots.reserve(dirs.size());
-    for (const std::string& dir : dirs) {
-        roots.push_back(install_dir / dir / "image");
-    }
-    return roots;
-}
-
-std::string DescribeRoots(const std::vector<std::filesystem::path>& roots)
-{
-    std::string text;
-    for (const std::filesystem::path& root : roots) {
-        if (!text.empty()) {
-            text += " | ";
-        }
-        text += MAA_NS::path_to_utf8_string(root);
-    }
-    return text;
-}
-
 } // namespace
 
 bool TryReadNodeRoi(MaaContext* context, const std::string& node_name, cv::Rect* out)
@@ -268,15 +226,8 @@ bool TryLoadPromptScanProfile(MaaContext* context, const std::string& scan_node,
     }
 
     const std::vector<std::filesystem::path> roots = ResourceImageRoots(controller_type);
-    std::filesystem::path resolved;
-    for (const std::filesystem::path& root : roots) {
-        const std::filesystem::path candidate = root / relative_path;
-        if (std::filesystem::exists(candidate)) {
-            resolved = candidate;
-            break;
-        }
-    }
-    if (resolved.empty()) {
+    const std::optional<std::filesystem::path> resolved = ResolveResourceImage(roots, relative_path);
+    if (!resolved) {
         LogError << "Prompt scan template not found under any loaded resource tree." << VAR(scan_node) << VAR(relative_path)
                  << VAR(DescribeRoots(roots));
         return false;
@@ -293,7 +244,7 @@ bool TryLoadPromptScanProfile(MaaContext* context, const std::string& scan_node,
     cv::Mat mask;
     cv::Mat templ;
     if (green_mask) {
-        const cv::Mat color = MAA_NS::imread(resolved, cv::IMREAD_COLOR);
+        const cv::Mat color = MAA_NS::imread(*resolved, cv::IMREAD_COLOR);
         if (!color.empty()) {
             cv::inRange(color, cv::Scalar(0, 255, 0), cv::Scalar(0, 255, 0), mask);
             mask = ~mask;
@@ -304,10 +255,10 @@ bool TryLoadPromptScanProfile(MaaContext* context, const std::string& scan_node,
         }
     }
     else {
-        templ = MAA_NS::imread(resolved, cv::IMREAD_GRAYSCALE);
+        templ = MAA_NS::imread(*resolved, cv::IMREAD_GRAYSCALE);
     }
     if (templ.empty()) {
-        LogError << "Prompt scan template failed to decode." << VAR(scan_node) << VAR(MAA_NS::path_to_utf8_string(resolved));
+        LogError << "Prompt scan template failed to decode." << VAR(scan_node) << VAR(MAA_NS::path_to_utf8_string(*resolved));
         return false;
     }
     // cv::matchTemplate 的硬前提。这里不放过, 后台线程每帧都会踩上去; 而 cpp-algo 不留 try/catch。
@@ -322,8 +273,9 @@ bool TryLoadPromptScanProfile(MaaContext* context, const std::string& scan_node,
     out->templ = templ;
     out->mask = mask;
     out->threshold = threshold;
-    LogInfo << "Prompt scan profile loaded from the pipeline." << VAR(scan_node) << VAR(MAA_NS::path_to_utf8_string(resolved))
-            << VAR(threshold) << VAR(green_mask) << VAR(base_roi.x) << VAR(base_roi.y) << VAR(base_roi.width) << VAR(base_roi.height);
+    LogInfo << "Prompt scan profile loaded from the pipeline." << VAR(scan_node) << VAR(MAA_NS::path_to_utf8_string(*resolved))
+            << VAR(threshold) << VAR(green_mask) << VAR(base_roi.x) << VAR(base_roi.y) << VAR(base_roi.width)
+            << VAR(base_roi.height);
     return true;
 }
 

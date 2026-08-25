@@ -992,6 +992,16 @@ test("AutoDelivery keeps its task-detail entry and default branch flow explicit"
     ]);
     assert.deepEqual(pickup.AutoDeliveryFetchGoods.next, [
         "AutoDeliveryFetchGoodsButtonWaitFreezes",
+        "AutoDeliverySearchFetchGoodsButton",
+    ]);
+    assert.equal(pickup.AutoDeliverySearchFetchGoodsButton.custom_action, "CharacterSearchAction");
+    assert.deepEqual(pickup.AutoDeliverySearchFetchGoodsButton.custom_action_param.wait_nodes, [
+        "AutoDeliveryFetchGoodsButtonWaitFreezes",
+    ]);
+    assert.deepEqual(pickup.AutoDeliverySearchFetchGoodsButton.next, [
+        "AutoDeliveryFetchGoodsButtonWaitFreezes",
+    ]);
+    assert.deepEqual(pickup.AutoDeliverySearchFetchGoodsButton.on_error, [
         "AutoDeliveryRetryNavigateDepot",
     ]);
     assert.equal(pickup.AutoDeliveryRetryNavigateDepot.enabled, false);
@@ -1146,6 +1156,22 @@ test("AutoDelivery keeps its task-detail entry and default branch flow explicit"
     assert.equal(delivery.AutoDeliveryNavigateDestination.custom_action_param, undefined);
     assert.deepEqual(delivery.AutoDeliveryNavigateDestination.next, [
         "AutoDeliverySubmitGoodsWaitFreezes",
+        "AutoDeliverySearchSubmitGoodsButton",
+    ]);
+    assert.equal(delivery.AutoDeliverySearchSubmitGoodsButton.custom_action, "CharacterSearchAction");
+    assert.deepEqual(delivery.AutoDeliverySearchSubmitGoodsButton.custom_action_param.wait_nodes, [
+        "AutoDeliverySubmitGoodsWaitFreezes",
+    ]);
+    assert.deepEqual(delivery.AutoDeliverySearchSubmitGoodsButton.next, [
+        "AutoDeliverySubmitGoodsWaitFreezes",
+    ]);
+    assert.deepEqual(delivery.AutoDeliverySearchSubmitGoodsButton.on_error, [
+        "AutoDeliveryRetryNavigateDestination",
+    ]);
+    assert.equal(delivery.AutoDeliveryRetryNavigateDestination.enabled, false);
+    assert.equal(delivery.AutoDeliveryRetryNavigateDestination.custom_action, "FalseAction");
+    assert.deepEqual(delivery.AutoDeliveryRetryNavigateDestination.next, [
+        "AutoDeliverySubmitGoodsWaitFreezes",
     ]);
     assert.deepEqual(delivery.AutoDeliverySubmitGoodsWaitFreezes.pre_wait_freezes, {
         time: 300,
@@ -1178,8 +1204,28 @@ test("AutoDelivery keeps its task-detail entry and default branch flow explicit"
     assert.equal(JSON.stringify(pickup).includes('"anchor"'), false);
     assert.equal(JSON.stringify(delivery).includes('"anchor"'), false);
     assert.equal(JSON.stringify(common).includes('"on_error"'), false);
-    assert.equal(JSON.stringify(pickup).includes('"on_error"'), false);
-    assert.equal(JSON.stringify(delivery).includes('"on_error"'), false);
+    assert.deepEqual(
+        Object.entries(pickup)
+            .filter(
+                ([
+                    ,
+                    node,
+                ]) => node.on_error !== undefined,
+            )
+            .map(([nodeName]) => nodeName),
+        ["AutoDeliverySearchFetchGoodsButton"],
+    );
+    assert.deepEqual(
+        Object.entries(delivery)
+            .filter(
+                ([
+                    ,
+                    node,
+                ]) => node.on_error !== undefined,
+            )
+            .map(([nodeName]) => nodeName),
+        ["AutoDeliverySearchSubmitGoodsButton"],
+    );
     assert.equal(JSON.stringify(pickup).includes("MapLocateAssertLocation"), false);
 
     assert.equal(JSON.stringify(common).includes("SeizeDeliveryJobs"), false);

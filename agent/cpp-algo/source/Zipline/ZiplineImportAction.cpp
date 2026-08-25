@@ -500,6 +500,10 @@ MaaBool MAA_CALL ZiplineImportActionRun(
 
     const size_t total = PersistCaptured(captured, param.template_ids);
     LogInfo << "ZiplineImport: done" << VAR(captured.size()) << VAR(total);
+    if (total > 0) {
+        // 导完就散场的话没人知道还差一步: 设置里的三态默认是跟随任务, 不会自己去找滑索。
+        common::notice::Publish(context, common::notice::Text("zipline.import_done", { static_cast<int64_t>(total) }));
+    }
     return total > 0;
 }
 

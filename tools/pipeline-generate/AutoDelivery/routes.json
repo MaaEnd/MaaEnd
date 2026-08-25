@@ -592,7 +592,7 @@
         {
             "source_id": "domain_2_lv005_depot_1",
             "name": "试验园区",
-            "description": "试验园区；保留已验证的分段落点",
+            "description": "试验园区；出发时绕过仓储中心",
             "path": [
                 {
                     "action": "ZONE",
@@ -630,6 +630,32 @@
                     1751.03,
                     true
                 ]
+            ],
+            "departure_path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1258.92,
+                        1751.65
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1259.66,
+                        1758.06
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1236.55,
+                        1753.2
+                    ],
+                    "required": true
+                }
             ]
         }
     ]

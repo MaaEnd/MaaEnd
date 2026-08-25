@@ -1,0 +1,30 @@
+{
+    "TeleportAnchor": {
+        "templates": [
+            "MapTeleportAnchor.png"
+        ],
+        "scale": [
+            0.90,
+            1.35
+        ],
+        "scale_step": 0.025,
+        "threshold": 0.55,
+        "gate": 10.0,
+        "occluded_by_player": true
+    },
+    "Core": {
+        "templates": [
+            "MapTeleportCoreHub.png",
+            "MapTeleportCoreSettlement.png"
+        ],
+        "scale": [
+            0.90,
+            1.15
+        ],
+        "scale_step": 0.025,
+        "threshold": 0.82,
+        "radius": 60.0,
+        "gold_ratio": 0.5,
+        "occluded_by_player": true
+    }
+}

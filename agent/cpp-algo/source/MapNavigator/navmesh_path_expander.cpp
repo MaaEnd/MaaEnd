@@ -912,10 +912,10 @@ bool AppendAuthoredWaypoint(
     return true;
 }
 
-// Every point is an optional route/action hint until `required: true`, a ZONE declaration, or the path tail
-// closes the interval. Try one direct start-to-end plan first so walking and zipline compete over the whole
-// interval. If that is unavailable, replay every authored point with its original action; semantic actions
-// therefore remain real fallbacks rather than route-wide obligations.
+// With ziplines enabled, movement points are optional route/action hints until `required: true`, an intrinsic
+// HEADING/COLLECT/DIG boundary, a ZONE declaration, or the path tail closes the interval. Try one direct
+// start-to-end plan first so walking and zipline compete over the whole interval. If that is unavailable,
+// replay every authored point with its original action; optional semantic actions remain real fallbacks.
 bool AppendGlobalRouteGroup(
     const NaviParam& param,
     const CachedNavmesh& navmesh,
@@ -987,6 +987,77 @@ bool AppendGlobalRouteGroup(
         if (!AppendAuthoredWaypoint(param, navmesh, path[index], should_stop, state, out_path)) {
             return false;
         }
+    }
+    return true;
+}
+
+bool AppendAuthoredRoute(
+    const NaviParam& param,
+    const CachedNavmesh& navmesh,
+    const std::vector<Waypoint>& path,
+    const std::function<bool()>& should_stop,
+    NavmeshExpansionState& state,
+    std::vector<Waypoint>& out_path)
+{
+    for (size_t index = 0; index < path.size(); ++index) {
+        if (should_stop()) {
+            return false;
+        }
+
+        const Waypoint& waypoint = path[index];
+        const size_t output_begin = out_path.size();
+        if (waypoint.IsZoneDeclaration()) {
+            state.current_zone = waypoint.zone_id;
+            out_path.push_back(waypoint);
+        }
+        else if (!AppendAuthoredWaypoint(param, navmesh, waypoint, should_stop, state, out_path)) {
+            return false;
+        }
+
+        for (size_t output = output_begin; output < out_path.size(); ++output) {
+            out_path[output].authored_group_begin = index;
+        }
+    }
+    return true;
+}
+
+bool AppendGloballyPlannedRoute(
+    const NaviParam& param,
+    const CachedNavmesh& navmesh,
+    const std::function<bool()>& should_stop,
+    NavmeshExpansionState& state,
+    std::vector<Waypoint>& out_path)
+{
+    for (size_t index = 0; index < param.path.size();) {
+        if (should_stop()) {
+            return false;
+        }
+        const Waypoint& waypoint = param.path[index];
+        if (waypoint.IsZoneDeclaration()) {
+            state.current_zone = waypoint.zone_id;
+            out_path.push_back(waypoint);
+            out_path.back().authored_group_begin = index;
+            ++index;
+            continue;
+        }
+        size_t group_end = index;
+        while (group_end < param.path.size() && !param.path[group_end].IsZoneDeclaration()) {
+            const bool closes_group = param.path[group_end].ClosesGlobalRouteGroup();
+            ++group_end;
+            if (closes_group) {
+                break;
+            }
+        }
+        const bool endpoint_is_hard = group_end > index && param.path[group_end - 1].ClosesGlobalRouteGroup();
+        const size_t group_output_begin = out_path.size();
+        if (!AppendGlobalRouteGroup(param, navmesh, param.path, index, group_end, endpoint_is_hard, should_stop, state, out_path)) {
+            return false;
+        }
+        // 记下这段产物折回作者路线时该从哪一组接; 滑索恢复按它切出剩余作者路线重新展开
+        for (size_t output = group_output_begin; output < out_path.size(); ++output) {
+            out_path[output].authored_group_begin = index;
+        }
+        index = group_end;
     }
     return true;
 }
@@ -1095,16 +1166,13 @@ bool ExpandNavmeshWaypoints(
     std::vector<Waypoint>& out_path)
 {
     const bool contains_navmesh = ContainsNavmeshWaypoint(param.path);
-    const bool needs_global_planning = ContainsGlobalRouteTarget(param.path);
+    const bool needs_global_planning = param.zipline_enabled && ContainsGlobalRouteTarget(param.path);
     const bool needs_regular_projection =
         param.normalize_position_via_navmesh && std::any_of(param.path.begin(), param.path.end(), [](const Waypoint& waypoint) {
-            return HasExplicitCoordinateFrame(waypoint) && (waypoint.HasPosition() || waypoint.route_required);
+            return HasExplicitCoordinateFrame(waypoint) && (waypoint.HasPosition() || waypoint.ClosesGlobalRouteGroup());
         });
-    if (!needs_global_planning && !needs_regular_projection) {
-        out_path.clear();
-        std::copy_if(param.path.begin(), param.path.end(), std::back_inserter(out_path), [](const Waypoint& waypoint) {
-            return waypoint.IsZoneDeclaration() || waypoint.route_required;
-        });
+    if (!contains_navmesh && !needs_global_planning && !needs_regular_projection) {
+        out_path = param.path;
         return true;
     }
 
@@ -1133,36 +1201,10 @@ bool ExpandNavmeshWaypoints(
     }
 
     out_path.clear();
-    for (size_t index = 0; index < param.path.size();) {
-        if (should_stop()) {
-            return false;
-        }
-        const Waypoint& waypoint = param.path[index];
-        if (waypoint.IsZoneDeclaration()) {
-            state->current_zone = waypoint.zone_id;
-            out_path.push_back(waypoint);
-            out_path.back().authored_group_begin = index;
-            ++index;
-            continue;
-        }
-        size_t group_end = index;
-        while (group_end < param.path.size() && !param.path[group_end].IsZoneDeclaration()) {
-            const bool closes_group = param.path[group_end].route_required;
-            ++group_end;
-            if (closes_group) {
-                break;
-            }
-        }
-        const bool endpoint_is_hard = group_end > index && param.path[group_end - 1].route_required;
-        const size_t group_output_begin = out_path.size();
-        if (!AppendGlobalRouteGroup(param, *navmesh, param.path, index, group_end, endpoint_is_hard, should_stop, *state, out_path)) {
-            return false;
-        }
-        // 记下这段产物折回作者路线时该从哪一组接; 滑索恢复按它切出剩余作者路线重新展开
-        for (size_t output = group_output_begin; output < out_path.size(); ++output) {
-            out_path[output].authored_group_begin = index;
-        }
-        index = group_end;
+    const bool expanded = needs_global_planning ? AppendGloballyPlannedRoute(param, *navmesh, should_stop, *state, out_path)
+                                                : AppendAuthoredRoute(param, *navmesh, param.path, should_stop, *state, out_path);
+    if (!expanded) {
+        return false;
     }
     const int64_t expand_total_ms =
         std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - expand_started_at).count();

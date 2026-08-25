@@ -15,7 +15,7 @@ MapNavigator 是用于 C++ MapNavigator 模块使用的地图路径录制与编�
 - GUI 动作编辑主要面向坐标点动作：`RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / COLLECT / DIG`。
 - `COLLECT / DIG` 是采集/挖掘语义点：精确抵达后由 `MapNavigator` 同步触发 `AutoCollectClickStart` / `AutoCollectDigStart` pipeline 子任务，期间不退出 NaviController，避免每次采集都重建定位/重新 Bootstrap/吃掉起步宽限。
 - 支持为单个点标记 `strict`，用于要求该点必须精确抵达。
-- 支持为单个点标记 `required`；除 `ZONE` 外所有路线点和动作默认都可被全局规划跳过，只有该字段为真时才成为必经、必执行边界。
+- 支持为单个点标记 `required`。未启用滑索时按作者顺序执行全部节点；启用滑索后，中间的移动和兜底点可被全局规划跳过，`required` 用于标记必须抵达并执行的点。`ZONE`、`HEADING`、`COLLECT`、`DIG` 始终保留。
 - 支持为单个坐标点声明 `target_tier`；它只指定该点的坐标来源层级，不会改变 `ZONE` 或触发区域切换。
 - 默认复制 `MapNavigator` 可直接粘贴的 canonical `path`：有 zone 时写 `ZONE` 无坐标声明节点，没有 zone 时保留纯坐标点数组。
 - 支持独立的 `Assert 模式`：手动选择底图并框选矩形区域，导出 `MapLocateAssertLocation` 节点。

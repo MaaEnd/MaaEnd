@@ -1,6 +1,7 @@
 #include "zipline_leg_planner.h"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <limits>
 #include <memory>
@@ -21,6 +22,13 @@ namespace mapnavigator
 
 namespace
 {
+
+// 这次寻路里滑索的去向，由 no_zipline 与选中分支写入。逐条腿累加而不是覆盖：
+// 只留最后一条腿的结论会把前面用上滑索的那些说没。清零、规划、取用同在寻路入口那一次
+// 调用里跑完，thread_local 就把并发请求各自的账分开了。
+thread_local bool g_zipline_used = false;
+thread_local bool g_zipline_no_data = false;
+thread_local bool g_zipline_not_chosen = false;
 
 // 一次请求里最多额外跑几条 navmesh 规划。候选是成对的，不设上限的话，滑索密集的地图
 // 会把规划耗时抬高一个量级；触顶后只拿已经算出来的候选做决策，并在日志里说明截断。
@@ -47,7 +55,7 @@ std::filesystem::file_time_type FileStamp(const std::filesystem::path& path)
 {
     std::error_code ec;
     const auto stamp = std::filesystem::last_write_time(path, ec);
-    return ec ? std::filesystem::file_time_type {} : stamp;
+    return ec ? std::filesystem::file_time_type { } : stamp;
 }
 
 // 标定与滑索记录都是只读的，但导入动作会在同一次运行里改写它们，所以按 mtime 决定重不重读：
@@ -57,8 +65,8 @@ std::shared_ptr<const ZiplineData> SharedData()
 {
     static std::mutex mutex;
     static std::shared_ptr<const ZiplineData> cached;
-    static std::filesystem::file_time_type frames_stamp {};
-    static std::filesystem::file_time_type store_stamp {};
+    static std::filesystem::file_time_type frames_stamp { };
+    static std::filesystem::file_time_type store_stamp { };
 
     const std::filesystem::path frames_path = zipline::ZiplineFrames::DefaultPath();
     const std::filesystem::path store_path = zipline::ZiplineStore::DefaultPath();
@@ -85,18 +93,70 @@ double Distance(const navmesh::WorldPoint& a, const navmesh::WorldPoint& b)
     return std::hypot(b.x - a.x, b.y - a.y);
 }
 
-// 一个供电结构的供电范围。半径按 templateId 查一次就够，别放进逐根架子的内层循环。
+// 一个供电结构的供电范围。规则按 templateId 查一次就够，别放进逐根架子的内层循环。
 struct SupplyPoint
 {
     double x = 0.0;
     double z = 0.0;
     double radius = 0.0;
+    std::array<int, 2> footprint { 1, 1 };
+    std::array<int, 2> coverage_size { 0, 0 };
 };
 
-// 这根架子通不通电。只量水平距离：供电范围是个平面半径，架子与供电结构的高低差不进判据。
-bool IsPowered(const zipline::ZiplineMark& tower, const std::vector<SupplyPoint>& supplies)
+constexpr double absolute_value(double value)
+{
+    return value < 0.0 ? -value : value;
+}
+
+constexpr double grid_half_span(int size)
+{
+    return static_cast<double>((size - 1) / 2);
+}
+
+// 森空岛 saveMarks 的 pos 不是建筑中心，而是会随朝向落在不同角格上的锚点；响应又不带
+// 朝向。实测同一台 3x3 中继器原地旋转后，pos 会沿一轴跳 2 格，正好等于占地边长减一。
+// 因此单个标记无法唯一还原中心，只能把双方所有可能的中心位置都纳入判定：
+//
+//   真实中心允许的轴差 = 供电覆盖半宽 + 架子占地半宽
+//   标记到真实中心的不确定性 = 供电结构占地半宽 + 架子占地半宽
+//
+// 两项相加得到标记点允许的轴差。这里选择“任一可能朝向能重合就保留”，是为了避免把实际
+// 通电的滑索提前挡在规划图外；在森空岛提供朝向前，代价是边界上可能保留少量未通电架子。
+constexpr bool
+    grid_areas_may_overlap(
+        double delta_x,
+        double delta_z,
+        const std::array<int, 2>& coverage_size,
+        const std::array<int, 2>& supply_footprint,
+        const std::array<int, 2>& tower_footprint)
+{
+    const double center_reach_x = grid_half_span(coverage_size[0]) + grid_half_span(tower_footprint[0]);
+    const double center_reach_z = grid_half_span(coverage_size[1]) + grid_half_span(tower_footprint[1]);
+    const double anchor_uncertainty_x = grid_half_span(supply_footprint[0]) + grid_half_span(tower_footprint[0]);
+    const double anchor_uncertainty_z = grid_half_span(supply_footprint[1]) + grid_half_span(tower_footprint[1]);
+    const double reach_x = center_reach_x + anchor_uncertainty_x;
+    const double reach_z = center_reach_z + anchor_uncertainty_z;
+    return absolute_value(delta_x) <= reach_x && absolute_value(delta_z) <= reach_z;
+}
+
+// 7x7 中继器与 3x3 滑索的中心重合边界是 4；双方角格锚点各引入 1 格不确定性，
+// 所以标记点边界是 6。实测误判的 (5, 2) 必须保留，任一轴到 7 才能确定不重合。
+static_assert(grid_areas_may_overlap(5.0, 2.0, { 7, 7 }, { 3, 3 }, { 3, 3 }));
+static_assert(grid_areas_may_overlap(6.0, 6.0, { 7, 7 }, { 3, 3 }, { 3, 3 }));
+static_assert(!grid_areas_may_overlap(0.0, 7.0, { 7, 7 }, { 3, 3 }, { 3, 3 }));
+
+// 这根架子通不通电。只量原始世界坐标的水平 x/z；架子与供电结构的高低差不进判据。
+bool IsPowered(const zipline::ZiplineMark& tower, const std::array<int, 2>& tower_footprint, const std::vector<SupplyPoint>& supplies)
 {
     return std::any_of(supplies.begin(), supplies.end(), [&](const SupplyPoint& supply) {
+        if (supply.coverage_size[0] > 0 && supply.coverage_size[1] > 0) {
+            return grid_areas_may_overlap(
+                supply.x - tower.x,
+                supply.z - tower.z,
+                supply.coverage_size,
+                supply.footprint,
+                tower_footprint);
+        }
         return std::hypot(supply.x - tower.x, supply.z - tower.z) <= supply.radius;
     });
 }
@@ -266,6 +326,22 @@ private:
 
 } // namespace
 
+void ResetZiplineOutcome()
+{
+    g_zipline_used = false;
+    g_zipline_no_data = false;
+    g_zipline_not_chosen = false;
+}
+
+ZiplineOutcome CurrentZiplineOutcome()
+{
+    return ZiplineOutcome {
+        .used = g_zipline_used,
+        .no_data = g_zipline_no_data,
+        .not_chosen = g_zipline_not_chosen,
+    };
+}
+
 std::optional<ZiplineRoute> PlanZiplineRoute(
     const NaviParam& param,
     const std::string& locator_zone,
@@ -284,24 +360,31 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
     const bool walking_baseline_available = walking_path != nullptr && !walking_path->points.empty();
 
     // 要了滑索却没用上时，说清楚是输给了步行，还是没能桥接原本不连通的两端。
-    const auto no_zipline = [&](const char* why) -> std::optional<ZiplineRoute> {
+    // outcome 指向这条腿该记进哪本账：「这里没滑索可用」和「有滑索但没选中」指向的操作不同，
+    // 混成一句会把用户带偏。传 nullptr 表示这条腿不记账，理由见各调用点。
+    const auto no_zipline = [&](const char* why, bool* outcome) -> std::optional<ZiplineRoute> {
         if (walking_baseline_available) {
             LogInfo << "ZiplineRoute: walking this leg instead." << VAR(why) << VAR(navmesh_zone);
         }
         else {
             LogInfo << "ZiplineRoute: no bridge for the disconnected walking leg." << VAR(why) << VAR(navmesh_zone);
         }
+        if (outcome) {
+            *outcome = true;
+        }
         return std::nullopt;
     };
 
     const std::shared_ptr<const ZiplineData> data = SharedData();
     if (!data->ok || data->frames.empty()) {
-        return no_zipline("no zipline calibration on disk");
+        return no_zipline("no zipline calibration on disk", &g_zipline_no_data);
     }
 
     const zipline::ZiplineFrame* frame = data->frames.findByZone(navmesh_zone);
     if (!frame) {
-        return no_zipline("this zone is not calibrated");
+        // 没标定的区按「本来就没滑索」处理，不记账也就不提示：叫用户去导入坐标救不了这里，
+        // 已导入的人还会被引去做一次白工。
+        return no_zipline("this zone is not calibrated", nullptr);
     }
 
     // 不通电的滑索架在游戏里走不了，规划前先按供电范围把它们挡掉。
@@ -321,9 +404,16 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
         // 供电结构和滑索架在同一份记录里，先把这张图的电网收齐，再逐根架子判。
         std::vector<SupplyPoint> supplies;
         for (const auto& mark : record.marks) {
-            const double radius = data->frames.supplyRadius(mark.template_id);
-            if (radius > 0.0) {
-                supplies.push_back(SupplyPoint { .x = mark.x, .z = mark.z, .radius = radius });
+            const zipline::ZiplinePowerSource* source = data->frames.powerSource(mark.template_id);
+            if (source != nullptr) {
+                supplies.push_back(
+                    SupplyPoint {
+                        .x = mark.x,
+                        .z = mark.z,
+                        .radius = source->radius,
+                        .footprint = source->footprint,
+                        .coverage_size = source->coverage_size,
+                    });
                 supply_points.push_back(ToWorld(frame->project(mark)));
             }
         }
@@ -335,7 +425,7 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
             if (!frame->accepts(mark)) {
                 continue;
             }
-            if (require_power && !IsPowered(mark, supplies)) {
+            if (require_power && !IsPowered(mark, data->frames.footprint(mark.template_id), supplies)) {
                 ++unpowered;
                 continue;
             }
@@ -347,7 +437,7 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
     }
 
     if (nodes.size() < 2) {
-        return no_zipline("no powered ziplines recorded in this zone");
+        return no_zipline("no powered ziplines recorded in this zone", &g_zipline_no_data);
     }
 
     // 有步行基线时，只有省下 min_gain 以上才算有收益：省得比一次上索的开销还少时，这点
@@ -358,7 +448,7 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
     const double gain_threshold = walking_baseline_available ? baseline_length - cost.min_gain : std::numeric_limits<double>::infinity();
     // 走路短到白送一整段滑行都追不平上索的开销时，下面的吸附和规划都不必做了。
     if (walking_baseline_available && gain_threshold <= cost.mount_penalty) {
-        return no_zipline("the walk is too short for any zipline to pay off");
+        return no_zipline("the walk is too short for any zipline to pay off", &g_zipline_not_chosen);
     }
 
     // 只筛两端：上索点和下索点得让人走到跟前，链中间那些是从索上落到下一根架子上的，脚下有没有
@@ -386,7 +476,7 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
     // 一根都上不去时后面的配对必然是空的，早一步收场；原因也要说成「上不去」而不是「不划算」，
     // 前者多半是标定或高度对不上，后者才是真的不划算。
     if (out_of_reach + wrong_floor == nodes.size()) {
-        return no_zipline("not one zipline here can be walked up to");
+        return no_zipline("not one zipline here can be walked up to", &g_zipline_not_chosen);
     }
 
     // 索长上限逐点查一次就够：配对是 O(n²) 的，放进内层循环等于把字符串查表也乘上 n²。
@@ -466,7 +556,7 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
 
     if (candidates.empty()) {
         // 摸得到、挂得上、还顺路的那一根不存在，三件事在这里合成一个结果。
-        return no_zipline("no reachable pair of ziplines leads anywhere useful");
+        return no_zipline("no reachable pair of ziplines leads anywhere useful", &g_zipline_not_chosen);
     }
     std::sort(candidates.begin(), candidates.end(), [](const Candidate& a, const Candidate& b) { return a.lower_bound < b.lower_bound; });
 
@@ -499,9 +589,11 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
     std::optional<ZiplineRoute> best;
     std::optional<Candidate> best_candidate;
     bool truncated = false;
+    bool interrupted = false;
 
     for (const auto& candidate : candidates) {
         if (should_stop && should_stop()) {
+            interrupted = true;
             break;
         }
         // 候选按下界升序，当前下界都追不上最好成绩时，后面的更追不上。
@@ -552,7 +644,11 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
     }
 
     if (!best) {
-        return no_zipline(walking_baseline_available ? "no zipline route beats walking" : "no feasible zipline bridge to target");
+        // 候选没评完就跑不出「都不划算」这个结论：预算耗尽或请求被叫停时空着手回去，
+        // 免得把没比过的那些一起判了。
+        return no_zipline(
+            walking_baseline_available ? "no zipline route beats walking" : "no feasible zipline bridge to target",
+            truncated || interrupted ? nullptr : &g_zipline_not_chosen);
     }
 
     // 中间经过哪几根架子到这时才还原：候选是成对枚举出来的，逐个存下整条链纯属浪费。
@@ -567,6 +663,7 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
     LogInfo << "ZiplineRoute: picked" << VAR(walking_baseline_available) << VAR(baseline_length) << VAR(best->cost)
             << VAR(best->towers.size()) << VAR(best->towers.front().x) << VAR(best->towers.front().y) << VAR(best->towers.back().x)
             << VAR(best->towers.back().y);
+    g_zipline_used = true;
     return best;
 }
 

@@ -23,7 +23,8 @@
                 "AutoStockpileServerTime",
                 "AutoStockpileAllowDataUpload",
                 "AutoStockpileElasticValleyIV",
-                "AutoStockpileElasticWuling"
+                "AutoStockpileElasticWuling",
+                "AutoStockpileMinBuyCount"
             ]
         }
     ],
@@ -80,42 +81,6 @@
                 }
             ]
         },
-        "AutoStockpileElasticValleyIV": {
-            "type": "switch",
-            "label": "$task.AutoStockpile.option.AutoStockpileElasticValleyIV.label",
-            "default_case": "Yes",
-            "cases": [
-                {
-                    "name": "Yes",
-                    "pipeline_override": {
-                        "AutoStockpileElasticValleyIV": {
-                            "enabled": true
-                        }
-                    }
-                },
-                {
-                    "name": "No"
-                }
-            ]
-        },
-        "AutoStockpileElasticWuling": {
-            "type": "switch",
-            "label": "$task.AutoStockpile.option.AutoStockpileElasticWuling.label",
-            "default_case": "Yes",
-            "cases": [
-                {
-                    "name": "Yes",
-                    "pipeline_override": {
-                        "AutoStockpileElasticWuling": {
-                            "enabled": true
-                        }
-                    }
-                },
-                {
-                    "name": "No"
-                }
-            ]
-        },
         "AutoStockpileAllowDataUpload": {
             "type": "switch",
             "label": "$task.AutoStockpile.option.AutoStockpileAllowDataUpload.label",
@@ -151,6 +116,90 @@
                         },
                         "AutoStockpileGetUid": {
                             "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoStockpileElasticValleyIV": {
+            "type": "switch",
+            "label": "$task.AutoStockpile.option.AutoStockpileElasticValleyIV.label",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "AutoStockpileElasticValleyIV": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ]
+        },
+        "AutoStockpileElasticWuling": {
+            "type": "switch",
+            "label": "$task.AutoStockpile.option.AutoStockpileElasticWuling.label",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "AutoStockpileElasticWuling": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No"
+                }
+            ]
+        },   
+        "AutoStockpileMinBuyCount": {
+            "type": "switch",
+            "label": "$task.AutoStockpile.option.AutoStockpileMinBuyCount.label",
+            "description": "$task.AutoStockpile.option.AutoStockpileMinBuyCount.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "AutoStockpileMinBuyRegion"
+                    ]
+                },
+                {
+                    "name": "No"
+                }
+            ]
+        },
+        "AutoStockpileMinBuyRegion": {
+            "type": "select",
+            "label": "$task.AutoStockpile.option.AutoStockpileMinBuyRegion.label",
+            "default_case": "ValleyIV",
+            "cases": [
+                {
+                    "name": "ValleyIV",
+                    "label": "$task.AutoStockpile.option.AutoStockpileMinBuyRegion.cases.ValleyIV.label",
+                    "pipeline_override": {
+                        "AutoStockpileAttach": {
+                            "attach": {
+                                "min_buy_count": 1,
+                                "min_buy_region": "ValleyIV"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Wuling",
+                    "label": "$task.AutoStockpile.option.AutoStockpileMinBuyRegion.cases.Wuling.label",
+                    "pipeline_override": {
+                        "AutoStockpileAttach": {
+                            "attach": {
+                                "min_buy_count": 1,
+                                "min_buy_region": "Wuling"
+                            }
                         }
                     }
                 }

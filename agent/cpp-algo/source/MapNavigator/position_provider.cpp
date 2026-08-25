@@ -125,6 +125,7 @@ bool PositionProvider::Capture(NaviPosition* out_pos, bool force_global_search, 
     out_pos->x = locate_result.position->x;
     out_pos->y = locate_result.position->y;
     out_pos->angle = locate_result.position->angle;
+    out_pos->score = locate_result.position->score;
     out_pos->zone_id = locate_result.position->zoneId;
     out_pos->valid = true;
     out_pos->timestamp = capture_started_at;

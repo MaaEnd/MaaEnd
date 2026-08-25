@@ -84,6 +84,7 @@ Consult as needed. Only required when using the corresponding component.
 | [MapLocator](./components/map-locator.md) | AI + CV based minimap positioning system, outputs region, coordinates, and orientation |
 | [MapTracker](./components/map-tracker.md) | Computer vision based minimap tracking and path movement |
 | [MapNavigator](./components/map-navigator.md) | Path navigation Action, supports record-free target-based pathfinding and GUI recording |
+| [WorldMap](./components/world-map.md) | World map coordinate recognition, confirms the icon at a base map coordinate and hands back its screen position |
 | [IMS (Item Management System)](./components/ims.md) | Cultivation-item cache: A2 sync / A1 delta / A3 add, R1 quantity gate / R2 readiness gate |
 
 ### Task Maintenance Documents (`tasks/`)

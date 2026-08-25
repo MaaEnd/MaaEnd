@@ -13,6 +13,7 @@ constexpr int32_t kWorkHeight = 720;
 // --- ActionWrapper Constants ---
 constexpr double kTurn360UnitsPerWidth = 2.23006;
 constexpr double kTurnDegreesPerCircle = 360.0;
+constexpr double kPitchDegreesPerRange = 180.0;
 
 struct AdbTouchTurnProfile
 {
@@ -42,10 +43,10 @@ inline double ComputeDefaultUnitsPerDegree()
     return ComputeUnitsPerDegreeForWidth(kWorkWidth);
 }
 
-// 俯仰用的是同一个系数, 只是换成屏幕高这条边
+// 俯仰的可动行程是 180 度, 纵轴代入屏幕高
 inline double ComputeUnitsPerDegreeForHeight(int32_t screen_height)
 {
-    return kTurn360UnitsPerWidth * static_cast<double>(screen_height) / kTurnDegreesPerCircle;
+    return kTurn360UnitsPerWidth * static_cast<double>(screen_height) / kPitchDegreesPerRange;
 }
 
 inline double ComputeDefaultPitchUnitsPerDegree()
@@ -270,15 +271,24 @@ constexpr int32_t kZiplineLaunchSettleMs = 400;
 // 40 度容差是靠跟随层善后才敢留的, 这里不能用
 constexpr double kZiplineAimToleranceDeg = 6.0;
 constexpr int32_t kZiplineAimMaxRetries = 3;
-// 落差够大时镜头得抬到索的仰角上才起得了滑。小地图读不到俯仰, 所以这一下是开环发出去的,
-// 不复核也不迭代
+// 落差够大时镜头得抬到索的仰角上才起得了滑。小地图读不到俯仰, 所以每次从地面登上滑索架后
+// 先通过 Pipeline 把镜头拉到上限, 将该硬限位记作 +90 度, 再从这个固定基准开环调整。连续滑索
+// 没有上下索动作, 直接沿用上一跳记住的俯仰。游戏的俯仰范围不对称: 仰角最多 90 度, 俯角最多 60 度。
 constexpr double kZiplinePitchDeadbandDeg = 8.0;
-constexpr double kZiplinePitchMaxDeg = 60.0;
+constexpr double kZiplinePitchMaximumElevationDeg = 90.0;
+constexpr double kZiplinePitchMaximumDepressionDeg = 60.0;
+// 复位依靠俯仰硬限位, 多发这段角度用于覆盖灵敏度取整与游戏内输入损耗；撞到限位后不会继续转动。
+constexpr double kZiplinePitchResetOvershootDeg = 30.0;
 // 按下去没滑走就换一档俯仰再按。三次分别是: 按算出来的仰角、反向、完全不动俯仰
 constexpr int32_t kZiplineLaunchAttempts = 3;
 // 滑行中位置每拍都在变, 连着这么多拍几乎不动就说明这趟已经结束了
 constexpr double kZiplineSettleMoveWu = 1.5;
 constexpr int32_t kZiplineSettleFixes = 4;
+// 全局搜索偶尔会在同一区域错锁到远处的相似纹理。低分本身不能判错，滑到相邻索也可能真离开
+// 目标线段；只有「低于断言定位的常用及格线」且「距上索点远超当前索跨度」才拒绝这一帧。
+constexpr double kZiplineOutlierFixConfidence = 0.70;
+constexpr double kZiplineOutlierSpanFactorSquared = 9.0;
+constexpr double kZiplineOutlierDistanceSlackWu = 12.0;
 // 下索是一次右键。站在架子上时移动指令会被架子的选点状态吃掉, 所以走路之前必须先下来
 constexpr int32_t kZiplineDismountHoldMs = 80;
 // 索没通电、两端根本没挂索时起滑是空响, 人还站在架子上。滑一趟是大位移, 所以「过了确认时间
@@ -344,6 +354,7 @@ constexpr const char* kZiplineMountRecognitionNode = "MapNavigatorZiplineMount";
 constexpr const char* kZiplineMountExitNode = "MapNavigatorZiplineMountEnd";
 constexpr const char* kZiplineMountScanEntryNode = "MapNavigatorZiplineMountScanStart";
 constexpr const char* kZiplineMountScanNode = "MapNavigatorZiplineMountScan";
+constexpr const char* kZiplinePitchResetNode = "MapNavigatorZiplinePitchReset";
 constexpr int32_t kPromptPostSleepMs = 80;
 
 // Resolution every pipeline ROI is authored against; the scanner rescales it to whatever the frame really is.

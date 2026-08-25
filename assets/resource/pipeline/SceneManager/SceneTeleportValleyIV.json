@@ -1,29 +1,28 @@
 {
     "__ScenePrivateMapValleyIVEnterValleyIVTheHub1": {
         "desc": "在地图界面找锚点 (枢纽区-旧供水设施东侧)",
-        "recognition": "And",
-        "all_of": [
-            "InMapValleyIVTheHub"
-        ],
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapTrackerBigMapPick",
-        "custom_action_param": {
-            "map_name": "map01_lv001",
-            "target": [
-                392.6,
-                498.7
-            ],
-            "on_find": "Click"
+        "action": "Click",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "icon": "TeleportAnchor",
+            "at": [
+                452.3,
+                910.8
+            ]
         },
         "anchor": {
-            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+            "__ScenePrivateMapTeleportPickAnchor": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
-            "__ScenePrivateMapTeleportConfirm"
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
         ],
         "focus": {
             "Node.Action.Succeeded": {
@@ -36,29 +35,28 @@
     },
     "__ScenePrivateMapValleyIVEnterValleyIVTheHub2": {
         "desc": "在地图界面找锚点 (枢纽区-岩丘通道)",
-        "recognition": "And",
-        "all_of": [
-            "InMapValleyIVTheHub"
-        ],
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "MapTrackerBigMapPick",
-        "custom_action_param": {
-            "map_name": "map01_lv001",
-            "target": [
-                474.5,
-                265.5
-            ],
-            "on_find": "Click"
+        "action": "Click",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "icon": "TeleportAnchor",
+            "at": [
+                527.8,
+                695.8
+            ]
         },
         "anchor": {
-            "__ScenePrivateMapMapTrackerBigMapPickAnchor": ""
+            "__ScenePrivateMapTeleportPickAnchor": ""
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
-            "__ScenePrivateMapTeleportConfirm"
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
+            "__ScenePrivateMapTeleportConfirm",
+            "__ScenePrivateMapTeleportSuccess"
         ],
         "focus": {
             "Node.Action.Succeeded": {

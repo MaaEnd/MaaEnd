@@ -13,6 +13,19 @@ namespace mapnavigator
 
 struct NaviParam;
 
+// 一次寻路里滑索的去向，逐条腿累加。没数据要用户去导坐标，有数据却没选中不需要任何操作，
+// 两者分开记才说得清。
+struct ZiplineOutcome
+{
+    bool used = false;       // 至少有一条腿走了滑索
+    bool no_data = false;    // 有标定但没导入坐标，或这个区一根通电的都没记到
+    bool not_chosen = false; // 有候选，但没有一条比走路划算
+};
+
+// 由寻路入口在请求开始时清零、结束时取用。账记在调用线程上，并发请求各算各的。
+void ResetZiplineOutcome();
+ZiplineOutcome CurrentZiplineOutcome();
+
 // 一条借滑索的路线：走到 towers 的头一根上索，顺着索一跳跳滑到最后一根，再走完剩下的路。
 struct ZiplineRoute
 {
