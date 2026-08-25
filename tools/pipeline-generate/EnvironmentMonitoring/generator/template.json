@@ -351,6 +351,24 @@
                 "trace": true
             }
         },
+        "next": "${MoveNext}"
+    },
+    "GoTo${Id}MoveAfterFight": {
+        "desc": "可能的战斗结束后，恢复性地走回${Name}拍照点",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "${RouteAction}",
+        "custom_action_param": "${RouteActionParam}",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        },
         "next": [
             "${Id}TakePhoto"
         ]
