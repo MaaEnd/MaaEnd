@@ -126,28 +126,28 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 	}
 
 	// 第一轮：正常选品
-	minBuyFallback := false
+	// 「至少购买一个」：锁定本次运行首个访问的地区，选品失败时降级为最低价商品（数量 1）
+	minBuyEnabled := attach.MinBuy && !bypassThresholdFilter
+	if minBuyEnabled {
+		log.Info().
+			Str("component", "autostockpile").
+			Str("region", region).
+			Str("min_buy_region", syncMinBuyRegion(region)).
+			Msg("min buy region resolved")
+	}
+
 	selection, quantityDecision, err := computeDecision(*data, cfg, bypassThresholdFilter)
 	if err != nil {
 		return stopTaskWithFocus(ctx, mapComputeDecisionErrorToAbortReason(err), err)
 	}
 
-	// 「至少购买一个」：正常选品失败 + 非爆仓 + 所选区域 → 降级重选
-	minBuyEnabled := attach.MinBuyCount >= 1 && !bypassThresholdFilter &&
-		attach.MinBuyRegion == region
-	if !selection.Selected && minBuyEnabled {
-		selection2, _, err2 := computeDecision(*data, cfg, true) // 忽视阈值购买
-		if err2 != nil {
-			return stopTaskWithFocus(ctx, mapComputeDecisionErrorToAbortReason(err2), err2)
-		}
-		if selection2.Selected {
-			selection = selection2
-			quantityDecision = makeQuantityDecision(
-				quantityModeSwipeSpecificQuantity,
-				attach.MinBuyCount,
-				i18n.T("autostockpile.qty_min_buy_fallback"),
-			)
-			minBuyFallback = true
+	if !selection.Selected {
+		if fallbackSelection, fallbackQuantity, ok := resolveMinBuyFallback(
+			selection, *data, region, minBuyEnabled, i18n.T("autostockpile.qty_min_buy_fallback"),
+		); ok {
+			selection = fallbackSelection
+			quantityDecision = fallbackQuantity
+
 			log.Info().
 				Str("component", "autostockpile").
 				Str("fallback_product", selection.ProductName).
@@ -239,7 +239,6 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			Selection:        selection,
 			QuantityDecision: quantityDecision,
 		},
-		SkipNextRound: minBuyFallback,
 	})
 
 	selectionMode := formatSelectionMode(selection, *data)
@@ -406,6 +405,7 @@ func stopTaskWithFocus(ctx *maa.Context, reason AbortReason, err error) bool {
 	return false
 }
 
+// formatSelectionMode 返回当前选择模式的本地化描述。
 func formatSelectionMode(selection SelectionResult, data RecognitionData) string {
 	if selection.CurrentPrice < selection.Threshold {
 		return i18n.T("autostockpile.mode_low_price")
@@ -414,9 +414,4 @@ func formatSelectionMode(selection SelectionResult, data RecognitionData) string
 		return i18n.T("autostockpile.mode_overflow")
 	}
 	return i18n.T("autostockpile.mode_low_price")
-}
-
-// makeQuantityDecision creates a quantityDecision. Extracted to avoid variable shadowing in Run().
-func makeQuantityDecision(mode quantityMode, target int, reason string) quantityDecision {
-	return quantityDecision{Mode: mode, Target: target, Reason: reason}
 }
