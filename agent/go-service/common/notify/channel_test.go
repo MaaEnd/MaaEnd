@@ -6,7 +6,7 @@ import (
 
 func TestChannelRegistry(t *testing.T) {
 	// 内置渠道均已注册
-	wantNames := map[string]bool{"webhook": true, "bark": true, "serverchan": true, "telegram": true, "discord": true}
+	wantNames := map[string]bool{"webhook": true, "bark": true, "serverchan": true, "telegram": true, "discord": true, "wecom": true}
 	for _, name := range channelOrder {
 		if !wantNames[name] {
 			t.Errorf("unexpected channel in registry: %q", name)

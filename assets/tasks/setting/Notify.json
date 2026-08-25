@@ -11,6 +11,7 @@
                 "NotifyServerChan",
                 "NotifyTelegram",
                 "NotifyDiscord",
+                "NotifyWeCom",
                 "NotifyProxy"
             ]
         },
@@ -30,6 +31,7 @@
         "NotifyServerChan",
         "NotifyTelegram",
         "NotifyDiscord",
+        "NotifyWeCom",
         "NotifyProxy",
         "NotifyAllowTask",
         "NotifyFail"
@@ -1044,7 +1046,8 @@
                         "NotifyProxyBark",
                         "NotifyProxyServerChan",
                         "NotifyProxyTelegram",
-                        "NotifyProxyDiscord"
+                        "NotifyProxyDiscord",
+                        "NotifyProxyWeCom"
                     ],
                     "pipeline_override": {
                         "__NotifyConfig": {
@@ -1246,6 +1249,142 @@
                         "__NotifyConfig": {
                             "attach": {
                                 "discord_use_proxy": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "NotifyWeCom": {
+            "type": "switch",
+            "label": "$option.NotifyWeCom.label",
+            "description": "$option.NotifyWeCom.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "NotifyWeComParams",
+                        "NotifyWeComMsgType"
+                    ],
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "wecom_enabled": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "wecom_enabled": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "NotifyWeComParams": {
+            "type": "input",
+            "label": "$option.NotifyWeComParams.label",
+            "inputs": [
+                {
+                    "name": "WebhookURL",
+                    "label": "$option.NotifyWeComParams.WebhookURL.label",
+                    "pipeline_type": "string",
+                    "default": "",
+                    "description": "$option.NotifyWeComParams.WebhookURL.description"
+                },
+                {
+                    "name": "Title",
+                    "label": "$option.NotifyWeComParams.Title.label",
+                    "pipeline_type": "string",
+                    "default": "",
+                    "description": "$option.NotifyWeComParams.Title.description"
+                },
+                {
+                    "name": "Body",
+                    "label": "$option.NotifyWeComParams.Body.label",
+                    "pipeline_type": "string",
+                    "default": "",
+                    "description": "$option.NotifyWeComParams.Body.description"
+                }
+            ],
+            "pipeline_override": {
+                "__NotifyConfig": {
+                    "attach": {
+                        "wecom_webhook_url": "{WebhookURL}",
+                        "wecom_title": "{Title}",
+                        "wecom_body": "{Body}"
+                    }
+                }
+            }
+        },
+        "NotifyWeComMsgType": {
+            "type": "select",
+            "label": "$option.NotifyWeComMsgType.label",
+            "description": "$option.NotifyWeComMsgType.description",
+            "default_case": "text",
+            "cases": [
+                {
+                    "name": "text",
+                    "label": "$option.NotifyWeComMsgType.text.label",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "wecom_msgtype": "text"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "markdown",
+                    "label": "$option.NotifyWeComMsgType.markdown.label",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "wecom_msgtype": "markdown"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "markdown_v2",
+                    "label": "$option.NotifyWeComMsgType.markdown_v2.label",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "wecom_msgtype": "markdown_v2"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "NotifyProxyWeCom": {
+            "type": "switch",
+            "label": "$option.NotifyProxyWeCom.label",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "wecom_use_proxy": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "wecom_use_proxy": false
                             }
                         }
                     }
