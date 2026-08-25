@@ -59,16 +59,23 @@ struct ZiplineType
     std::string name;
     // 同型两根架子之间的索长上限，单位是世界距离。
     double max_span = 0.0;
+    // 架子在工厂网格上的水平占地 [x, z]。森空岛记录的是整数中心格，两个奇数尺寸的
+    // 占地可据此直接判断格子是否相交。
+    std::array<int, 2> footprint { 1, 1 };
 };
 
 // 一种供电结构的供电范围。不通电的滑索架在游戏里走不了，靠它把这些架子挡在规划之外。
+// 供电桩与用电设施直接连线时按圆形物理距离判断；中继器的近场供电按工厂网格覆盖判断。
 struct ZiplinePowerSource
 {
     std::string template_id;
     // 给人看的名字，取自接口的 markTemplates，判定不读它。
     std::string name;
-    // 供电半径，单位是世界距离，只量水平距离。
+    // 圆形直连半径，单位是世界距离，只量水平距离。与 coverage_size 二选一。
     double radius = 0.0;
+    // 以供电结构整数中心格为中心的总覆盖尺寸 [x, z]。当前只接受奇数尺寸，确保边界
+    // 能与森空岛记录的整数中心格一一对应。与 radius 二选一。
+    std::array<int, 2> coverage_size { 0, 0 };
 };
 
 // 滑索相对走路的代价折算。判据两边同乘走路速度后全是像素量纲，与 navmesh 的
@@ -109,8 +116,11 @@ public:
     // 忘了登记的后果是这类索用不上，而不是照着猜出来的长度规划出一条不存在的索。
     double maxSpan(const std::string& template_id) const;
 
-    // 这种标记的供电半径。不是供电结构就返回 0。
-    double supplyRadius(const std::string& template_id) const;
+    // 这种架子的工厂网格占地。没登记过的类型按一个中心格处理。
+    std::array<int, 2> footprint(const std::string& template_id) const;
+
+    // 这种标记对应的供电规则。不是供电结构就返回 nullptr。
+    const ZiplinePowerSource* powerSource(const std::string& template_id) const;
 
     // 一个供电结构都没登记时为 false，此时不做通电筛选，全部架子照单参与规划。
     bool hasPowerSources() const { return !power_sources_.empty(); }

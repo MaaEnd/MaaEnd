@@ -1,6 +1,7 @@
 #include "zipline_leg_planner.h"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <limits>
 #include <memory>
@@ -47,7 +48,7 @@ std::filesystem::file_time_type FileStamp(const std::filesystem::path& path)
 {
     std::error_code ec;
     const auto stamp = std::filesystem::last_write_time(path, ec);
-    return ec ? std::filesystem::file_time_type {} : stamp;
+    return ec ? std::filesystem::file_time_type { } : stamp;
 }
 
 // 标定与滑索记录都是只读的，但导入动作会在同一次运行里改写它们，所以按 mtime 决定重不重读：
@@ -57,8 +58,8 @@ std::shared_ptr<const ZiplineData> SharedData()
 {
     static std::mutex mutex;
     static std::shared_ptr<const ZiplineData> cached;
-    static std::filesystem::file_time_type frames_stamp {};
-    static std::filesystem::file_time_type store_stamp {};
+    static std::filesystem::file_time_type frames_stamp { };
+    static std::filesystem::file_time_type store_stamp { };
 
     const std::filesystem::path frames_path = zipline::ZiplineFrames::DefaultPath();
     const std::filesystem::path store_path = zipline::ZiplineStore::DefaultPath();
@@ -85,18 +86,40 @@ double Distance(const navmesh::WorldPoint& a, const navmesh::WorldPoint& b)
     return std::hypot(b.x - a.x, b.y - a.y);
 }
 
-// 一个供电结构的供电范围。半径按 templateId 查一次就够，别放进逐根架子的内层循环。
+// 一个供电结构的供电范围。规则按 templateId 查一次就够，别放进逐根架子的内层循环。
 struct SupplyPoint
 {
     double x = 0.0;
     double z = 0.0;
     double radius = 0.0;
+    std::array<int, 2> coverage_size { 0, 0 };
 };
 
-// 这根架子通不通电。只量水平距离：供电范围是个平面半径，架子与供电结构的高低差不进判据。
-bool IsPowered(const zipline::ZiplineMark& tower, const std::vector<SupplyPoint>& supplies)
+constexpr double absolute_value(double value)
+{
+    return value < 0.0 ? -value : value;
+}
+
+// 两个奇数尺寸的网格都以整数格为中心。供电格半宽与架子占地半宽相加，就是两者仍有
+// 至少一格重合时允许的最大中心轴差。
+constexpr bool
+    grid_areas_overlap(double delta_x, double delta_z, const std::array<int, 2>& coverage_size, const std::array<int, 2>& tower_footprint)
+{
+    const double reach_x = static_cast<double>((coverage_size[0] - 1) / 2 + (tower_footprint[0] - 1) / 2);
+    const double reach_z = static_cast<double>((coverage_size[1] - 1) / 2 + (tower_footprint[1] - 1) / 2);
+    return absolute_value(delta_x) <= reach_x && absolute_value(delta_z) <= reach_z;
+}
+
+static_assert(grid_areas_overlap(4.0, 4.0, { 7, 7 }, { 3, 3 }));
+static_assert(!grid_areas_overlap(0.0, 5.0, { 7, 7 }, { 3, 3 }));
+
+// 这根架子通不通电。只量原始世界坐标的水平 x/z；架子与供电结构的高低差不进判据。
+bool IsPowered(const zipline::ZiplineMark& tower, const std::array<int, 2>& tower_footprint, const std::vector<SupplyPoint>& supplies)
 {
     return std::any_of(supplies.begin(), supplies.end(), [&](const SupplyPoint& supply) {
+        if (supply.coverage_size[0] > 0 && supply.coverage_size[1] > 0) {
+            return grid_areas_overlap(supply.x - tower.x, supply.z - tower.z, supply.coverage_size, tower_footprint);
+        }
         return std::hypot(supply.x - tower.x, supply.z - tower.z) <= supply.radius;
     });
 }
@@ -321,9 +344,15 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
         // 供电结构和滑索架在同一份记录里，先把这张图的电网收齐，再逐根架子判。
         std::vector<SupplyPoint> supplies;
         for (const auto& mark : record.marks) {
-            const double radius = data->frames.supplyRadius(mark.template_id);
-            if (radius > 0.0) {
-                supplies.push_back(SupplyPoint { .x = mark.x, .z = mark.z, .radius = radius });
+            const zipline::ZiplinePowerSource* source = data->frames.powerSource(mark.template_id);
+            if (source != nullptr) {
+                supplies.push_back(
+                    SupplyPoint {
+                        .x = mark.x,
+                        .z = mark.z,
+                        .radius = source->radius,
+                        .coverage_size = source->coverage_size,
+                    });
                 supply_points.push_back(ToWorld(frame->project(mark)));
             }
         }
@@ -335,7 +364,7 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
             if (!frame->accepts(mark)) {
                 continue;
             }
-            if (require_power && !IsPowered(mark, supplies)) {
+            if (require_power && !IsPowered(mark, data->frames.footprint(mark.template_id), supplies)) {
                 ++unpowered;
                 continue;
             }
