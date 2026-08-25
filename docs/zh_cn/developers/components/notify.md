@@ -2,7 +2,7 @@
 
 Notify 是 MaaEnd 的多渠道外部通知模块
 
-任务失败、以及任意任务主动发起的自定义通知，统一向设置页启用的渠道（Webhook / Bark / ServerChan / Telegram / 可新增其他渠道）推送
+任务失败、以及任意任务主动发起的自定义通知，统一向设置页启用的渠道（Webhook / Bark / ServerChan / Telegram / Discord / 可新增其他渠道）推送
 
 流程编排由 Pipeline 负责，Go 只负责开关判定、内容解析与渠道发送
 
@@ -108,130 +108,56 @@ Notify 是 MaaEnd 的多渠道外部通知模块
 
 ## 自定义渠道：新增其他通知渠道
 
-新增一个渠道（如 XYZ）共六步：
+渠道是自包含模块，新增一个渠道（如 XYZ）不动其他任何文件，照抄 `discord.go` 改前缀即可
 
-**1、新文件实现 `Channel` 接口 + `init` 注册一行**（仿照 `webhook.go` / `bark.go` / `serverchan.go`）：
+**1、新文件 `xyz.go`**：一个类型同时作工厂（零值注册）与实例（cfg 字段），配置类型化、无需断言
 
 ```go
-type xyzChannel struct{}
+// xyzConfig 私有配置（attach 顶层 xyz_* 键）
+type xyzConfig struct {
+    Enabled  bool   `json:"xyz_enabled"`
+    UseProxy bool   `json:"xyz_use_proxy"` // 是否走全局代理（配合 use_proxy 主开关）
+    Key      string `json:"xyz_key"`
+    Title    string `json:"xyz_title"`
+}
+
+type xyzChannel struct {
+    cfg xyzConfig
+}
 
 func init() { RegisterChannel(xyzChannel{}) }
 
+var _ ChannelFactory = xyzChannel{}
+var _ Channel = xyzChannel{}
+
 func (xyzChannel) Name() string { return "xyz" }
 
-func (xyzChannel) Enabled(config Config) bool { return config.XyzEnabled }
-
-func (xyzChannel) Send(config Config, vars map[string]string) error {
-    // 构造请求并发送，失败返回 error（调度层统一记日志）
-    ...
-}
-```
-
-**2、`Config` 加开关与参数字段**（`ParseConfig` 自动解析）：
-
-```go
-XyzEnabled bool   `json:"xyz_enabled"`
-XyzKey     string `json:"xyz_key"`
-XyzTitle   string `json:"xyz_title"` // 及渠道所需的其他参数
-```
-
-**3、设置页加开关**（`setting/Notify.json`，仿照 `NotifyWebhook`）+ 5 语言 i18n：
-
-```json
-"NotifyXyz": {
-    "type": "switch",
-    "label": "$option.NotifyXyz.label",
-    "description": "$option.NotifyXyz.description",
-    "default_case": "No",
-    "cases": [
-        {
-            "name": "Yes",
-            "option": ["NotifyXyzParams"],
-            "pipeline_override": { "__NotifyConfig": { "attach": { "xyz_enabled": true } } }
-        },
-        {
-            "name": "No",
-            "pipeline_override": { "__NotifyConfig": { "attach": { "xyz_enabled": false } } }
-        }
-    ]
-}
-```
-
-**4、设置页加参数配置项**（可仿照 `NotifyBarkParams` 的写法，`name` 需与步骤 2 字段对应）：
-
-```json
-"NotifyXyzParams": {
-    "type": "input",
-    "label": "",
-    "inputs": [
-        {
-            "name": "Key",
-            "label": "key",
-            "pipeline_type": "string",
-            "default": "",
-            "description": "$option.NotifyXyzParams.Key.description"
-        },
-        {
-            "name": "Title",
-            "label": "title",
-            "pipeline_type": "string",
-            "default": ""
-        }
-    ],
-    "pipeline_override": {
-        "__NotifyConfig": {
-            "attach": {
-                "xyz_key": "{Key}",
-                "xyz_title": "{Title}"
-            }
-        }
+func (xyzChannel) Create(attach map[string]any) (Channel, error) {
+    var cfg xyzConfig
+    if err := decodeAttach(attach, &cfg); err != nil {
+        return nil, err
     }
+    return xyzChannel{cfg: cfg}, nil
+}
+
+func (c xyzChannel) Enabled() bool  { return c.cfg.Enabled }
+func (c xyzChannel) UseProxy() bool { return c.cfg.UseProxy }
+
+func (c xyzChannel) Send(ctx *SendContext) error {
+    config := c.cfg
+    vars := ctx.Vars
+    // 构造 payload 并发送，响应按 HTTP 状态 / 业务 code 判断，失败返回 error
+    return postJSON(ctx.Client, xyzEndpoint(config.Key), payload, 0)
 }
 ```
 
-**5、补全i18n**（可选但推荐，5 语言 `assets/locales/interface/*.json`）：
+**2、设置页加开关 + 参数**（`setting/Notify.json`，仿照 `NotifyDiscord` / `NotifyDiscordParams`），写入 `xyz_enabled` / `xyz_key` 等 attach 键
 
-```json
-"option.NotifyXyz.label": "XYZ 渠道",
-"option.NotifyXyz.description": "XYZ 渠道说明",
-"option.NotifyXyzParams.Key.description": "key 说明"
-```
+**3、5 语言 i18n**（`assets/locales/interface/*.json` 加 `option.NotifyXyz.*` 键）
 
-> [!note]
-> input 参数项可以补 `description` 介绍用途（推荐），走 i18n
+**4、补发送测试**（httptest + 端点注入，仿照 `discord_test.go`），并把 `"xyz"` 加入 `TestChannelRegistry` 期望列表
 
-**6、补单元测试**（仿照 `notify_test.go` 现有用例）：
-
-渠道发送用例用 httptest 本地服务器 + 端点注入（与 `TestSendBarkJSON` / `TestSendServerChanJSON` 同款），端点构造函数需做成包级变量（如 `barkEndpoint`）以便注入：
-
-```go
-func TestSendXyz(t *testing.T) {
-    var got map[string]any
-    server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-        _ = json.NewDecoder(r.Body).Decode(&got)
-        w.WriteHeader(http.StatusOK)
-        _, _ = w.Write([]byte(`{"code": 0}`))
-    }))
-    defer server.Close()
-
-    orig := xyzEndpoint
-    xyzEndpoint = func(string) (string, error) { return server.URL, nil }
-    defer func() { xyzEndpoint = orig }()
-
-    if !Send(Config{XyzEnabled: true, XyzKey: "key"}, map[string]string{}) {
-        t.Fatalf("Send returned false")
-    }
-    if got["title"] != "..." {
-        t.Errorf("payload mismatch: %v", got)
-    }
-}
-```
-
-同时把新渠道名加进注册表测试 `TestChannelRegistry` 的期望列表：
-
-```go
-wantNames := map[string]bool{"webhook": true, "bark": true, "serverchan": true, "xyz": true}
-```
+> 渠道内只管自己的配置与请求；代理（`ctx.Client`）、模板变量（`ctx.Vars`）、标题/正文拼合（`channelTitleBody`）都由调度层与公共模块提供
 
 全部完成后 `Send()` 自动遍历注册表调用新渠道，失败通知 / 第三方自定义通知 **全部自动生效，无需改动调度与触发代码**
 
@@ -254,10 +180,12 @@ wantNames := map[string]bool{"webhook": true, "bark": true, "serverchan": true, 
 
 | 文件 | 职责 |
 | --- | --- |
-| `notify.go` | `Config` 解析、模板变量、`Send` 调度、`NotifySendAction` |
-| `channel.go` | `Channel` 接口 + 注册表（新增渠道 = 新文件实现接口 + `init` 注册一行） |
+| `notify.go` | 调度层：`ParseConfig`、`Send`（代理解析 + 遍历注册表分发）、`NotifySendAction` |
+| `config.go` | 运行配置：`GlobalConfig`（系统开关 + 标题正文模板 + 全局代理）、`RuntimeConfig`、`decodeAttach`、`MergeAttach` |
+| `channel.go` | `Channel` / `ChannelFactory` 接口 + `SendContext` + 注册表 |
+| `vars.go` | 模板变量模块：`BuildVars` / `ReplaceVars` / `channelTitleBody` |
 | `http.go` | 超时 client、`postJSON`、错误脱敏 |
-| `webhook.go` / `bark.go` / `serverchan.go` / `telegram.go` | 各渠道实现 |
-| `telegram_proxy.go` | Telegram 代理：手动地址 / 复用 MXU 更新设置代理（读 `install/config/mxu-{项目名}.json`）、`proxyClient`（http/https） |
+| `proxy.go` | 全局代理模块：`resolveProxy`、`proxyClient`、MXU 更新代理读取 |
+| `webhook.go` / `bark.go` / `serverchan.go` / `telegram.go` / `discord.go` | 各渠道实现 |
 | `sink.go` | 失败事件监听、配置按 taskID 缓存与去重 |
 | `register.go` | 动作与事件监听注册 |
