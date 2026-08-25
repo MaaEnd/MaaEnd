@@ -226,7 +226,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToMiniShellbeast"
+            "MiniShellbeastInQuickTeleportMap"
         ]
     },
     "AlreadyTrackedMiniShellbeast": {
@@ -240,7 +240,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GoToMiniShellbeast"
+            "MiniShellbeastOpenTrackedMissionMap"
         ]
     },
     "MiniShellbeastOpenTrackedMissionMap": {
@@ -350,10 +350,10 @@
         "custom_recognition_param": {
             "zone_id": "Wuling_Base",
             "target": [
-                523.06,
-                1739.74,
-                14.98,
-                14.38
+                0,
+                0,
+                1,
+                1
             ]
         },
         "pre_delay": 0,
@@ -370,7 +370,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldWulingWulingCity4"
+                "SceneAnyEnterWorld"
             ]
         },
         "post_delay": 0,
@@ -387,19 +387,15 @@
         "custom_action_param": {
             "path": [
                 {
-                    "action": "ZONE",
-                    "zone_id": "Wuling_Base"
-                },
-                {
                     "action": "NAVMESH",
                     "target": [
-                        501.88,
-                        1748.21
+                        467.7,
+                        1751.95
                     ]
                 },
                 {
                     "action": "HEADING",
-                    "angle": 15
+                    "angle": 182
                 }
             ]
         },
