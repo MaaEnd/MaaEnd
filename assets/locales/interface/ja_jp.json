@@ -165,7 +165,6 @@
     "option.AutoPat.description": "荷役獣をなでなでします。自動拾得と併用するとさらに効果的。重複なでなでを判別できないため、なでなで後は素早く動物を変えることをお勧めします🐮",
     "task.EssenceFilter.label": "🔒基質フィルターロック",
     "task.EssenceFilter.description": "データ同期には時間がかかるため、バージョン更新前後の約1週間は新武器に対応できない場合があります。",
-    "task.EssenceFilter.focus.tier_boundary_flawless": "純粋のみ選択中：清浄基質を検出したため、スキャンを停止します",
     "task.EssenceFilter.focus.afterbattle_tier_boundary_flawless": "純粋のみ選択中：清浄基質を検出したため、戦闘後フィルタを終了します",
     "task.EssenceFilter.focus.afterbattle_tier_skip_pure_only": "清浄のみ選択中：純粋基質をスキップします",
     "option.SelectInputLanguage.label": "ゲーム言語",

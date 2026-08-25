@@ -169,7 +169,6 @@
     "option.WebEvent202605MaxShot.inputs.MaxShot.label": "目標堆疊次數",
     "task.EssenceFilter.label": "🔒基質篩選鎖定",
     "task.EssenceFilter.description": "資料同步需要時間，版本更新前後一週可能無法相容新武器",
-    "task.EssenceFilter.focus.tier_boundary_flawless": "僅選擇無瑕基質：偵測到高純基質，停止掃描",
     "task.EssenceFilter.focus.afterbattle_tier_boundary_flawless": "僅選擇無瑕基質：偵測到高純基質，退出戰後篩選",
     "task.EssenceFilter.focus.afterbattle_tier_skip_pure_only": "僅選擇高純基質：跳過無瑕基質",
     "option.SelectInputLanguage.label": "遊戲語言",

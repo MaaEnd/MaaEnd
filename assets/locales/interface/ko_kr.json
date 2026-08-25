@@ -165,7 +165,6 @@
     "option.AutoPat.description": "짐승을 쓰다듬습니다. 자동 줍기와 함께 사용하면 더 좋습니다. 중복 쓰다듬기를 식별할 수 없으므로 쓰다듬은 후 빠르게 동물을 바꾸는 것이 좋습니다🐮",
     "task.EssenceFilter.label": "🔒 기질 필터 잠금",
     "task.EssenceFilter.description": "데이터 동기화에는 시간이 필요하므로 버전 업데이트 전후 약 1주일 동안 새 무기를 지원하지 못할 수 있습니다.",
-    "task.EssenceFilter.focus.tier_boundary_flawless": "무결만 선택: 순수 기질이 감지되어 스캔을 중단합니다",
     "task.EssenceFilter.focus.afterbattle_tier_boundary_flawless": "무결만 선택: 순수 기질이 감지되어 전투 후 필터를 종료합니다",
     "task.EssenceFilter.focus.afterbattle_tier_skip_pure_only": "순수만 선택: 무결 기질을 건너뜁니다",
     "option.SelectInputLanguage.label": "게임 언어",

@@ -169,7 +169,6 @@
     "option.WebEvent202605MaxShot.inputs.MaxShot.label": "Target stack count",
     "task.EssenceFilter.label": "🔒 Essence Filter Lock",
     "task.EssenceFilter.description": "Data sync takes time. New weapons may not be supported for about a week around version updates.",
-    "task.EssenceFilter.focus.tier_boundary_flawless": "Flawless-only: Pure essence detected, stopping scan",
     "task.EssenceFilter.focus.afterbattle_tier_boundary_flawless": "Flawless-only: Pure essence detected, exiting post-battle filter",
     "task.EssenceFilter.focus.afterbattle_tier_skip_pure_only": "Pure-only: Skipping flawless essence",
     "option.SelectInputLanguage.label": "Game language",
