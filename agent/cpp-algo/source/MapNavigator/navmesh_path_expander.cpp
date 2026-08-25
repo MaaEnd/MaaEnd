@@ -842,29 +842,24 @@ bool AppendNavmeshWaypoint(
             }
             return false;
         }
-        if (failure_is_terminal) {
-            LogWarn << "NAVMESH waypoint not directly reachable; attempting blind-target fallback." << VAR(state.navmesh_zone)
-                    << VAR(state.current_zone) << VAR(target.point.x) << VAR(target.point.y) << VAR(navmesh::ToString(route_result.status));
-        }
-        else {
-            LogDebug << "Global NAVMESH target not directly reachable; probing blind-target fallback." << VAR(state.navmesh_zone)
+        // 全局规划只有完整抵达终点才能跳过作者提示；盲走只是逐点执行时的局部兜底，
+        // 不能把“走到可走面边缘再直冲终点”冒充成完整路线。
+        if (!failure_is_terminal) {
+            LogDebug << "Global NAVMESH target not directly reachable; preserving authored hints." << VAR(state.navmesh_zone)
                      << VAR(state.current_zone) << VAR(target.point.x) << VAR(target.point.y)
                      << VAR(navmesh::ToString(route_result.status));
+            return false;
         }
+        LogWarn << "NAVMESH waypoint not directly reachable; attempting blind-target fallback." << VAR(state.navmesh_zone)
+                << VAR(state.current_zone) << VAR(target.point.x) << VAR(target.point.y) << VAR(navmesh::ToString(route_result.status));
         if (AppendBlindTargetFallback(param, navmesh, target.point, target.floor_y, should_stop, state, out_path)) {
             return true;
         }
         if (should_stop()) {
             return false;
         }
-        if (failure_is_terminal) {
-            LogError << "Failed to plan NAVMESH waypoint." << VAR(state.navmesh_zone) << VAR(state.current_zone) << VAR(target.point.x)
-                     << VAR(target.point.y) << VAR(navmesh::ToString(route_result.status));
-        }
-        else {
-            LogDebug << "Global NAVMESH target unavailable." << VAR(state.navmesh_zone) << VAR(state.current_zone) << VAR(target.point.x)
-                     << VAR(target.point.y) << VAR(navmesh::ToString(route_result.status));
-        }
+        LogError << "Failed to plan NAVMESH waypoint." << VAR(state.navmesh_zone) << VAR(state.current_zone) << VAR(target.point.x)
+                 << VAR(target.point.y) << VAR(navmesh::ToString(route_result.status));
         return false;
     }
 
