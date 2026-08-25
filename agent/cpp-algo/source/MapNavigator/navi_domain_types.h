@@ -254,6 +254,7 @@ struct NaviPosition
     double x = 0.0;
     double y = 0.0;
     double angle = 0.0;
+    double score = 0.0;
     bool valid = false;
     std::string zone_id;
     std::chrono::steady_clock::time_point timestamp;

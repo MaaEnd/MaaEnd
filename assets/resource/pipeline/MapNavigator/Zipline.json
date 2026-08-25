@@ -72,5 +72,18 @@
         },
         "pre_delay": 0,
         "post_delay": 0
+    },
+    "MapNavigatorZiplinePitchReset": {
+        "desc": "首次上索后通过相对鼠标移动将镜头拉到俯仰上限，以天空方向作为固定基准；dy 由 MapNavigator 按分辨率覆盖",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "CharacterControllerRelativeMoveAction",
+        "custom_action_param": {
+            "dx": 0,
+            "dy": -1500
+        },
+        "post_delay": 200,
+        "rate_limit": 0
     }
 }

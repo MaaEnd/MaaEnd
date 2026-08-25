@@ -66,7 +66,8 @@ ViewUnitsPerDegree ComputeViewUnitsPerDegree(MaaController* ctrl, const std::str
 
     const int turn360 = ComputeTurn360Units(screen_width);
     const double units_per_degree = ComputeUnitsPerDegreeForWidth(screen_width);
-    const double pitch_units_per_degree = ComputeUnitsPerDegreeForHeight(screen_height);
+    // 相对鼠标移动的横纵轴使用同一灵敏度。按屏幕高度再次缩放会让 16:9 下的俯仰量只剩 56.25%。
+    const double pitch_units_per_degree = units_per_degree;
     LogInfo << "Computed turn scale from raw controller resolution." << VAR(backend_name) << VAR(screen_width) << VAR(screen_height)
             << VAR(turn360) << VAR(units_per_degree) << VAR(pitch_units_per_degree);
     return ViewUnitsPerDegree { units_per_degree, pitch_units_per_degree };
