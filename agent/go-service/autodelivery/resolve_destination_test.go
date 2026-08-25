@@ -11,7 +11,7 @@ import (
 func TestBuildDeliveryNavigationOverrideSelectsGeneratedSubTask(t *testing.T) {
 	t.Parallel()
 
-	destination := destination{RouteNode: "normal", ZipRouteNode: "zip"}
+	destination := destination{RouteNode: "normal", ZipRouteNode: "zip", RetryRouteNode: "retry"}
 	override := buildDestinationNavigationOverride(destination, true)
 	node := override[navigateDestinationNode].(map[string]any)
 	if node["custom_action"] != "SubTask" {
@@ -19,6 +19,24 @@ func TestBuildDeliveryNavigationOverrideSelectsGeneratedSubTask(t *testing.T) {
 	}
 	if got := navigationParam(t, override, navigateDestinationNode)["sub"]; !reflect.DeepEqual(got, []string{"zip"}) {
 		t.Fatalf("destination dispatcher sub = %#v", got)
+	}
+	retryNode := override[retryNavigateDestinationNode].(map[string]any)
+	if retryNode["enabled"] != true || retryNode["custom_action"] != "SubTask" {
+		t.Fatalf("unexpected destination retry dispatcher: %#v", retryNode)
+	}
+	if got := navigationParam(t, override, retryNavigateDestinationNode)["sub"]; !reflect.DeepEqual(got, []string{"retry"}) {
+		t.Fatalf("destination retry dispatcher sub = %#v", got)
+	}
+}
+
+func TestBuildDeliveryNavigationOverrideDisablesMissingRetryRoute(t *testing.T) {
+	t.Parallel()
+
+	destination := destination{RouteNode: "normal", ZipRouteNode: "zip"}
+	override := buildDestinationNavigationOverride(destination, false)
+	retryNode := override[retryNavigateDestinationNode].(map[string]any)
+	if retryNode["enabled"] != false {
+		t.Fatalf("unexpected destination retry dispatcher: %#v", retryNode)
 	}
 }
 

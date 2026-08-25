@@ -8,6 +8,7 @@ import (
 const (
 	resolveDestinationActionName = "AutoDeliveryResolveDestinationAction"
 	navigateDestinationNode      = "AutoDeliveryNavigateDestination"
+	retryNavigateDestinationNode = "AutoDeliveryRetryNavigateDestination"
 	areaOCRNode                  = "AutoDeliveryAreaOCR"
 	destinationOCRNode           = "AutoDeliveryDestinationOCR"
 )
@@ -87,17 +88,31 @@ func (a *AutoDeliveryResolveDestinationAction) Run(ctx *maa.Context, arg *maa.Cu
 		Str("area", dest.AreaID).
 		Bool("zip", options.Zip).
 		Str("routeNode", selectRouteNode(dest.RouteNode, dest.ZipRouteNode, options.Zip)).
+		Str("retryRouteNode", dest.RetryRouteNode).
 		Msg("resolved delivery job destination")
 	return true
 }
 
 func buildDestinationNavigationOverride(dest destination, zip bool) map[string]any {
-	return map[string]any{
+	override := map[string]any{
 		navigateDestinationNode: map[string]any{
 			"custom_action": "SubTask",
 			"custom_action_param": map[string]any{
 				"sub": []string{selectRouteNode(dest.RouteNode, dest.ZipRouteNode, zip)},
 			},
 		},
+		retryNavigateDestinationNode: map[string]any{
+			"enabled": false,
+		},
 	}
+	if dest.RetryRouteNode != "" {
+		override[retryNavigateDestinationNode] = map[string]any{
+			"enabled":       true,
+			"custom_action": "SubTask",
+			"custom_action_param": map[string]any{
+				"sub": []string{dest.RetryRouteNode},
+			},
+		}
+	}
+	return override
 }

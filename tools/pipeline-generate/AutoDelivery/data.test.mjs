@@ -44,7 +44,19 @@ test("AutoDelivery 路线同步刷新元数据并保留人工覆盖字段", () =
                     ],
                 },
             ],
-            destinations: [],
+            destinations: [
+                {
+                    source_id: "destination-1",
+                    name: "旧终点名",
+                    depot_id: "old-depot",
+                    retry_path: [
+                        [
+                            3,
+                            4,
+                        ],
+                    ],
+                },
+            ],
         },
     );
 
@@ -70,6 +82,12 @@ test("AutoDelivery 路线同步刷新元数据并保留人工覆盖字段", () =
             source_id: "destination-1",
             name: "终点一",
             depot_id: "depot-1",
+            retry_path: [
+                [
+                    3,
+                    4,
+                ],
+            ],
         },
     ]);
 });
@@ -110,7 +128,10 @@ test("AutoDelivery routes.json 同步完整检索元数据并仅为必要项保�
 });
 
 test("AutoDelivery 路线为每个仓储和终点生成可独立执行的普通/滑索节点", () => {
-    const retryCount = depots.filter((item) => item.retryRouteNode).length;
+    const retryCount = [
+        ...depots,
+        ...destinations,
+    ].filter((item) => item.retryRouteNode).length;
     assert.equal(routeRows.length, depots.length * 2 + destinations.length * 2 + retryCount);
     assert.equal(new Set(routeRows.map((item) => item.Node)).size, routeRows.length);
     for (const row of routeRows) {

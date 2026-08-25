@@ -129,8 +129,10 @@ export const destinations = assertArray(catalogSource.destinations, "delivery_de
                 ...depot.departurePath,
                 ...ownPath,
             ],
+            retryPath: override?.retry_path ?? [],
             routeNode: buildRouteNode("Destination", id),
             zipRouteNode: buildRouteNode("Destination", id, true),
+            retryRouteNode: override?.retry_path?.length ? buildRouteNode("DestinationRetry", id) : "",
         };
     })
     .sort((left, right) => left.id.localeCompare(right.id));
@@ -165,6 +167,7 @@ export const runtimeCatalog = {
         area: item.area,
         route_node: item.routeNode,
         zip_route_node: item.zipRouteNode,
+        ...(item.retryRouteNode ? {retry_route_node: item.retryRouteNode} : {}),
     })),
 };
 

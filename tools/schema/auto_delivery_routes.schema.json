@@ -80,6 +80,9 @@
                     },
                     "path": {
                         "$ref": "#/$defs/path"
+                    },
+                    "retry_path": {
+                        "$ref": "#/$defs/path"
                     }
                 }
             }
