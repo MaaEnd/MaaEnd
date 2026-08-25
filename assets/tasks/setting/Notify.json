@@ -858,39 +858,39 @@
         },
         "NotifyTelegramParams": {
             "type": "input",
-            "label": "",
+            "label": "$option.NotifyTelegramParams.label",
             "inputs": [
                 {
                     "name": "Token",
-                    "label": "bot_token",
+                    "label": "$option.NotifyTelegramParams.Token.label",
                     "pipeline_type": "string",
                     "default": "",
                     "description": "$option.NotifyTelegramParams.Token.description"
                 },
                 {
                     "name": "ChatId",
-                    "label": "chat_id",
+                    "label": "$option.NotifyTelegramParams.ChatId.label",
                     "pipeline_type": "string",
                     "default": "",
                     "description": "$option.NotifyTelegramParams.ChatId.description"
                 },
                 {
                     "name": "Title",
-                    "label": "title",
+                    "label": "$option.NotifyTelegramParams.Title.label",
                     "pipeline_type": "string",
                     "default": "",
                     "description": "$option.NotifyTelegramParams.Title.description"
                 },
                 {
                     "name": "Body",
-                    "label": "body",
+                    "label": "$option.NotifyTelegramParams.Body.label",
                     "pipeline_type": "string",
                     "default": "",
                     "description": "$option.NotifyTelegramParams.Body.description"
                 },
                 {
                     "name": "ParseMode",
-                    "label": "parse_mode",
+                    "label": "$option.NotifyTelegramParams.ParseMode.label",
                     "pipeline_type": "string",
                     "default": "",
                     "description": "$option.NotifyTelegramParams.ParseMode.description"
