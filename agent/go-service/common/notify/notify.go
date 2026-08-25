@@ -62,6 +62,20 @@ type Config struct {
 	ServerChanTitle   string `json:"serverchan_title"`   // 渠道级标题，优先级高于通知项；支持 {{title}} 引用通知项预填，留空回退通知项
 	ServerChanBody    string `json:"serverchan_body"`    // 渠道级正文，同标题语义；支持 {{body}} 引用通知项预填
 
+	// Telegram Bot 渠道
+	TelegramEnabled             bool   `json:"telegram_enabled"`
+	TelegramToken               string `json:"telegram_token"`                // Bot token（@BotFather 创建，仅拼接进 URL，不写入日志）
+	TelegramChatID              string `json:"telegram_chat_id"`              // 接收 chat_id，逗号分隔支持多个
+	TelegramTitle               string `json:"telegram_title"`                // 渠道级标题，支持 {{title}} 引用通知项预填，留空回退通知项
+	TelegramBody                string `json:"telegram_body"`                 // 渠道级正文，同标题语义；支持 {{body}} 引用通知项预填
+	TelegramParseMode           string `json:"telegram_parse_mode"`           // 空=纯文本；HTML / Markdown / MarkdownV2
+	TelegramDisableNotification bool   `json:"telegram_disable_notification"` // 静默推送（disable_notification=true，不响铃）
+
+	// Telegram 代理（部分网络环境无法直连 api.telegram.org）
+	TelegramUseProxy       bool   `json:"telegram_use_proxy"`        // 是否使用代理访问 Telegram API
+	TelegramUseUpdateProxy bool   `json:"telegram_use_update_proxy"` // 复用「更新设置」里配置的代理（读取 install/config/mxu-*.json）
+	TelegramProxyURL       string `json:"telegram_proxy_url"`        // 手动代理地址（http:// 或 https://）
+
 	// 失败通知
 	OnFail bool `json:"on_fail"`
 
