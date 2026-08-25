@@ -25,12 +25,13 @@ func (a *AutoDeliveryResolveDepotAction) Run(ctx *maa.Context, arg *maa.CustomAc
 		return false
 	}
 
-	options, err := parseNavigationOptions(arg.CustomActionParam)
+	options, err := loadNavigationOptions(ctx, navigateDepotNode)
 	if err != nil {
 		log.Error().
 			Err(err).
 			Str("component", resolveDepotActionName).
-			Msg("failed to parse action parameters")
+			Str("node", navigateDepotNode).
+			Msg("failed to load navigation options")
 		return false
 	}
 

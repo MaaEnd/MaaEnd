@@ -14,7 +14,21 @@ const (
 	destinationMinMargin     = 0.05
 	areaMinSimilarity        = 0.70
 	areaMinMargin            = 0.05
+	valleyIVMap              = "map01"
 )
+
+type recycleBinAmbiguityError struct {
+	AreaID     string
+	Candidates []destination
+}
+
+func (e *recycleBinAmbiguityError) Error() string {
+	ids := make([]string, 0, len(e.Candidates))
+	for _, candidate := range e.Candidates {
+		ids = append(ids, candidate.ID)
+	}
+	return fmt.Sprintf("delivery recycle bin match is ambiguous in area %q: candidates=%s", e.AreaID, strings.Join(ids, ","))
+}
 
 type destinationMatch struct {
 	ObjectiveText      string
@@ -62,6 +76,15 @@ func resolveDestinationByArea(areaOCR, destinationOCR string) (destination, dest
 	if len(candidates) == 0 {
 		return destination{}, areaMatch, fmt.Errorf("delivery area %q has no destination candidates", area.ID)
 	}
+	if recycleBins, recycleMatch, ok := resolveAmbiguousRecycleBins(destinationOCR, candidates); ok {
+		recycleMatch.AreaText = areaMatch.AreaText
+		recycleMatch.AreaSimilarity = areaMatch.Similarity
+		recycleMatch.AreaRunnerUp = areaMatch.RunnerUpSimilarity
+		return destination{}, recycleMatch, &recycleBinAmbiguityError{
+			AreaID:     area.ID,
+			Candidates: recycleBins,
+		}
+	}
 
 	selected, match, err := resolveDestinationText(destinationOCR, candidates)
 	match.AreaText = areaMatch.AreaText
@@ -71,6 +94,35 @@ func resolveDestinationByArea(areaOCR, destinationOCR string) (destination, dest
 		return destination{}, match, err
 	}
 	return selected, match, nil
+}
+
+func resolveAmbiguousRecycleBins(ocrText string, destinations []destination) ([]destination, destinationMatch, bool) {
+	normalizedOCR := normalizeOCRText(ocrText)
+	if normalizedOCR == "" {
+		return nil, destinationMatch{}, false
+	}
+
+	recycleBins := make([]destination, 0, 2)
+	for _, candidate := range destinations {
+		if candidate.Kind == destinationKindRecycleBin && candidate.Map == valleyIVMap {
+			recycleBins = append(recycleBins, candidate)
+		}
+	}
+	if len(recycleBins) != 2 {
+		return nil, destinationMatch{}, false
+	}
+	sort.Slice(recycleBins, func(i, j int) bool { return recycleBins[i].ID < recycleBins[j].ID })
+
+	best := bestTextMatch(normalizedOCR, recycleBins[0].ObjectiveTexts)
+	runnerUp := bestTextMatch(normalizedOCR, recycleBins[1].ObjectiveTexts)
+	if best.Similarity < destinationMinSimilarity || runnerUp.Similarity < destinationMinSimilarity {
+		return nil, destinationMatch{}, false
+	}
+	if runnerUp.Similarity > best.Similarity {
+		best, runnerUp = runnerUp, best
+	}
+	best.RunnerUpSimilarity = runnerUp.Similarity
+	return recycleBins, best, true
 }
 
 func resolveArea(ocrText string, areas []area) (area, destinationMatch, error) {

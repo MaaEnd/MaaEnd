@@ -4,6 +4,7 @@ import test from "node:test";
 
 import routeRows from "./routes-data.mjs";
 import {depots, destinations, runtimeCatalog} from "./model.mjs";
+import {recycleBinResolveNodes, valleyIVRecycleBins} from "./recycle-bins-data.mjs";
 import {buildSyncedRouteConfig} from "./sync-routes.mjs";
 
 const catalogSource = JSON.parse(readFileSync(new URL("../data/delivery_destinations.json", import.meta.url), "utf8"));
@@ -147,6 +148,73 @@ test("AutoDelivery 运行时目录只保留匹配文本和生成节点名", () =
     assert.equal(JSON.stringify(runtimeCatalog).includes('"path"'), false);
     assert.equal(JSON.stringify(runtimeCatalog).includes('"u"'), false);
     assert.equal(JSON.stringify(runtimeCatalog).includes('"v"'), false);
+});
+
+test("AutoDelivery 为四号谷地资源回收站生成按区域二选一的地图图标判定", () => {
+    const pipeline = JSON.parse(
+        readFileSync(
+            new URL("../../../assets/resource/pipeline/AutoDelivery/RecycleBins.json", import.meta.url),
+            "utf8",
+        ),
+    );
+    assert.equal(valleyIVRecycleBins.length, 6);
+    assert.equal(recycleBinResolveNodes.length, valleyIVRecycleBins.length);
+    assert.equal(Object.keys(pipeline).length, 15);
+
+    const sourceById = new Map(
+        catalogSource.destinations.map((destination) => [
+            destination.id,
+            destination,
+        ]),
+    );
+    for (const {node, destinationId} of recycleBinResolveNodes) {
+        const source = sourceById.get(destinationId);
+        assert.ok(source);
+        assert.equal(pipeline[node].custom_recognition, "MapFind");
+        assert.deepEqual(pipeline[node].custom_recognition_param, {
+            zone: "ValleyIV",
+            icon: "RecycleBin",
+            at: [
+                source.u,
+                source.v,
+            ],
+        });
+        assert.equal(pipeline[node].custom_action, "AutoDeliveryResolveDestinationAction");
+        assert.deepEqual(pipeline[node].custom_action_param, {
+            destination_id: destinationId,
+        });
+        assert.deepEqual(pipeline[node].next, [
+            "AutoDeliveryPrepareNavigateDestination",
+        ]);
+    }
+
+    const binsByArea = new Map();
+    for (const destination of valleyIVRecycleBins) {
+        const areaBins = binsByArea.get(destination.areaId) ?? [];
+        areaBins.push(destination);
+        binsByArea.set(destination.areaId, areaBins);
+    }
+    assert.equal(binsByArea.size, 3);
+    for (const [
+        areaId,
+        areaBins,
+    ] of binsByArea) {
+        assert.equal(areaBins.length, 2);
+        const inMapNode = `AutoDeliveryRecycleBin${areaId}InDestinationMap`;
+        assert.deepEqual(pipeline[`AutoDeliveryViewRecycleBin${areaId}Map`].next, [
+            inMapNode,
+        ]);
+        assert.deepEqual(pipeline[`AutoDeliveryStartTrackingRecycleBin${areaId}`].next, [
+            inMapNode,
+        ]);
+        assert.deepEqual(
+            pipeline[inMapNode].next,
+            areaBins.map(({id}) => {
+                const {node} = recycleBinResolveNodes.find(({destinationId}) => destinationId === id);
+                return node;
+            }),
+        );
+    }
 });
 
 test("AutoDelivery 已生成 Pipeline 与运行时目录覆盖全部路线", () => {

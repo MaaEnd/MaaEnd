@@ -24,6 +24,7 @@ type area struct {
 type destination struct {
 	ID               string
 	Kind             string
+	Map              string
 	AreaID           string
 	DepotID          string
 	RouteNode        string
@@ -93,6 +94,19 @@ func getDestinations() ([]destination, error) {
 		catalog.depots = depots
 	})
 	return catalog.destinations, catalog.err
+}
+
+func getDestination(destinationID string) (destination, error) {
+	destinations, err := getDestinations()
+	if err != nil {
+		return destination{}, err
+	}
+	for _, candidate := range destinations {
+		if candidate.ID == destinationID {
+			return candidate, nil
+		}
+	}
+	return destination{}, fmt.Errorf("delivery destination %q is not present in the AutoDelivery catalog", destinationID)
 }
 
 func getDepot(depotID string) (depot, error) {
@@ -174,6 +188,7 @@ func buildDestinations(generated generatedCatalog, depots map[string]depot) ([]a
 		if strings.TrimSpace(source.RouteNode) == "" || strings.TrimSpace(source.ZipRouteNode) == "" {
 			return nil, nil, fmt.Errorf("AutoDelivery destination %q has incomplete route nodes", source.ID)
 		}
+		depotRoute := depots[source.DepotID]
 		areaID, err := localizedAreaID(source.Area)
 		if err != nil {
 			return nil, nil, fmt.Errorf("AutoDelivery destination %q: %w", source.ID, err)
@@ -193,6 +208,7 @@ func buildDestinations(generated generatedCatalog, depots map[string]depot) ([]a
 		destinations = append(destinations, destination{
 			ID:               source.ID,
 			Kind:             source.Kind,
+			Map:              depotRoute.Map,
 			AreaID:           areaID,
 			DepotID:          source.DepotID,
 			RouteNode:        source.RouteNode,

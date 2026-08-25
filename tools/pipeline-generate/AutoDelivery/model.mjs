@@ -28,12 +28,21 @@ function assertUnique(items, keyOf, label) {
     }
 }
 
-function buildNodeId(sourceId) {
+export function buildNodeId(sourceId) {
     return sourceId
         .split(/[^A-Za-z0-9]+/)
         .filter(Boolean)
         .map((part) => `${part[0].toUpperCase()}${part.slice(1)}`)
         .join("");
+}
+
+function buildAreaId(area, label) {
+    const english = assertNonEmptyString(area?.en_us, `${label}.area.en_us`);
+    const id = english.replace(/[^A-Za-z0-9]/g, "");
+    if (id === "") {
+        throw new TypeError(`[AutoDelivery] ${label} 的 area.en_us 无法生成区域 ID`);
+    }
+    return id;
 }
 
 function buildRouteNode(kind, sourceId, zip = false) {
@@ -120,11 +129,17 @@ export const destinations = assertArray(catalogSource.destinations, "delivery_de
         return {
             id,
             kind: source.kind,
+            areaId: buildAreaId(source.area, `destinations[${index}]`),
+            map: depot.map,
             depotId: source.depot_id,
             depotName: depot.name,
             name: source.name,
             mission: source.mission,
             area: source.area,
+            mapAt: [
+                source.u,
+                source.v,
+            ],
             path: [
                 ...depot.departurePath,
                 ...ownPath,

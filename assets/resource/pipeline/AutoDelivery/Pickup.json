@@ -242,6 +242,9 @@
             "Node.Action.Failed": {
                 "trace": true
             }
+        },
+        "attach": {
+            "zip": false
         }
     },
     "AutoDeliveryFetchGoods": {

@@ -27,6 +27,10 @@ func TestBuildDeliveryNavigationOverrideSelectsGeneratedSubTask(t *testing.T) {
 	if got := navigationParam(t, override, retryNavigateDestinationNode)["sub"]; !reflect.DeepEqual(got, []string{"retry"}) {
 		t.Fatalf("destination retry dispatcher sub = %#v", got)
 	}
+	flow := override[afterResolveDestinationNode].(map[string]any)
+	if !reflect.DeepEqual(flow["next"], defaultDestinationFlow()) {
+		t.Fatalf("destination flow next = %#v", flow["next"])
+	}
 }
 
 func TestBuildDeliveryNavigationOverrideDisablesMissingRetryRoute(t *testing.T) {
@@ -37,6 +41,23 @@ func TestBuildDeliveryNavigationOverrideDisablesMissingRetryRoute(t *testing.T) 
 	retryNode := override[retryNavigateDestinationNode].(map[string]any)
 	if retryNode["enabled"] != false {
 		t.Fatalf("unexpected destination retry dispatcher: %#v", retryNode)
+	}
+}
+
+func TestBuildRecycleBinResolutionOverrideSelectsAreaMapFlow(t *testing.T) {
+	t.Parallel()
+
+	override := buildRecycleBinResolutionOverride("OriginiumSciencePark")
+	if len(override) != 1 {
+		t.Fatalf("recycle bin override = %#v, want only the destination flow node", override)
+	}
+	flow := override[afterResolveDestinationNode].(map[string]any)
+	want := []string{
+		"AutoDeliveryViewRecycleBinOriginiumScienceParkMap",
+		"AutoDeliveryStartTrackingRecycleBinOriginiumSciencePark",
+	}
+	if !reflect.DeepEqual(flow["next"], want) {
+		t.Fatalf("recycle bin flow next = %#v, want %#v", flow["next"], want)
 	}
 }
 
@@ -126,26 +147,65 @@ func TestResolveDestinationTextRejectsAmbiguousRecycleBins(t *testing.T) {
 	}
 }
 
+func TestResolveAmbiguousRecycleBinsUsesValleyIVMapCandidates(t *testing.T) {
+	t.Parallel()
+
+	const objective = "把货物尽可能完整地送至资源回收站"
+	destinations := []destination{
+		{
+			ID:             "deliver_target_map01_lv005_recycle_03",
+			Kind:           destinationKindRecycleBin,
+			Map:            valleyIVMap,
+			ObjectiveTexts: []string{objective},
+		},
+		{
+			ID:             "deliver_target_map01_lv005_recycle_02",
+			Kind:           destinationKindRecycleBin,
+			Map:            valleyIVMap,
+			ObjectiveTexts: []string{objective},
+		},
+	}
+
+	candidates, match, ok := resolveAmbiguousRecycleBins(objective, destinations)
+	if !ok {
+		t.Fatal("resolveAmbiguousRecycleBins() did not detect the two Valley IV candidates")
+	}
+	if got := []string{candidates[0].ID, candidates[1].ID}; !reflect.DeepEqual(got, []string{
+		"deliver_target_map01_lv005_recycle_02",
+		"deliver_target_map01_lv005_recycle_03",
+	}) {
+		t.Fatalf("recycle bin candidates = %#v", got)
+	}
+	if match.Similarity != 1 || match.RunnerUpSimilarity != 1 {
+		t.Fatalf("recycle bin match = %#v", match)
+	}
+
+	destinations[0].Map = "map02"
+	if _, _, ok := resolveAmbiguousRecycleBins(objective, destinations); ok {
+		t.Fatal("resolveAmbiguousRecycleBins() must reject mixed or unsupported maps")
+	}
+}
+
 func TestParseNavigationOptions(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		name      string
-		paramJSON string
-		wantZip   bool
-		wantErr   bool
+		name     string
+		nodeJSON string
+		wantZip  bool
+		wantErr  bool
 	}{
-		{name: "empty", wantZip: false},
-		{name: "disabled", paramJSON: `{"zip":false}`, wantZip: false},
-		{name: "enabled", paramJSON: `{"zip":true}`, wantZip: true},
-		{name: "invalid", paramJSON: `{"zip":"true"}`, wantErr: true},
+		{name: "missing", nodeJSON: `{}`, wantZip: false},
+		{name: "disabled", nodeJSON: `{"attach":{"zip":false}}`, wantZip: false},
+		{name: "enabled", nodeJSON: `{"attach":{"zip":true}}`, wantZip: true},
+		{name: "invalid", nodeJSON: `{"attach":{"zip":"true"}}`, wantErr: true},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			options, err := parseNavigationOptions(tt.paramJSON)
+			options, err := parseNavigationOptions(tt.nodeJSON, navigateDestinationNode)
 			if (err != nil) != tt.wantErr {
 				t.Fatalf("parseNavigationOptions() error = %v, wantErr %v", err, tt.wantErr)
 			}
@@ -153,6 +213,18 @@ func TestParseNavigationOptions(t *testing.T) {
 				t.Fatalf("parseNavigationOptions() zip = %v, want %v", options.Zip, tt.wantZip)
 			}
 		})
+	}
+}
+
+func TestParseDestinationSelection(t *testing.T) {
+	t.Parallel()
+
+	selection, err := parseDestinationSelection(`{"destination_id":" deliver_target_map01_lv005_recycle_02 "}`)
+	if err != nil {
+		t.Fatalf("parseDestinationSelection() error = %v", err)
+	}
+	if selection.DestinationID != "deliver_target_map01_lv005_recycle_02" {
+		t.Fatalf("parseDestinationSelection() = %#v", selection)
 	}
 }
 

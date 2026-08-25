@@ -13,9 +13,9 @@ const AUTO_DELIVERY_CONTROLLERS = [
     "Linux-Wlroots",
 ];
 
-const AUTO_DELIVERY_RECOGNIZE_NODES = [
-    "AutoDeliveryRecognizeDepot",
-    "AutoDeliveryRecognizeDestination",
+const AUTO_DELIVERY_NAVIGATE_NODES = [
+    "AutoDeliveryNavigateDepot",
+    "AutoDeliveryNavigateDestination",
 ];
 
 function readJsonc(path) {
@@ -250,7 +250,7 @@ test("DeliveryJobs task registers region switches and the shared packing option"
     assert.equal(task.option.DeliveryJobsPackCargoOnly, undefined);
 });
 
-test("SeizeDeliveryJobs applies the shared zipline preference to the fixed AutoDelivery recognizers", () => {
+test("SeizeDeliveryJobs applies the shared zipline preference to AutoDelivery navigation nodes", () => {
     const task = readSeizeDeliveryJobsTask();
     const walkCase = task.option.SeizeDeliveryJobsPostProcessing.cases.find((itemCase) => itemCase.name === "TeleWalk");
     const fullyAutomaticCase = task.option.SeizeDeliveryJobsPostProcessing.cases.find(
@@ -269,9 +269,9 @@ test("SeizeDeliveryJobs applies the shared zipline preference to the fixed AutoD
         true,
     ].entries()) {
         const itemCase = ziplineOption.cases[index];
-        assert.deepEqual(Object.keys(itemCase.pipeline_override), AUTO_DELIVERY_RECOGNIZE_NODES);
-        for (const node of AUTO_DELIVERY_RECOGNIZE_NODES) {
-            assert.deepEqual(itemCase.pipeline_override[node].custom_action_param, {
+        assert.deepEqual(Object.keys(itemCase.pipeline_override), AUTO_DELIVERY_NAVIGATE_NODES);
+        for (const node of AUTO_DELIVERY_NAVIGATE_NODES) {
+            assert.deepEqual(itemCase.pipeline_override[node].attach, {
                 zip,
             });
         }
@@ -496,9 +496,9 @@ test("DeliveryJobs exposes automatic delivery for supported depots with controll
         true,
     ].entries()) {
         const itemCase = task.option.DeliveryJobsAutoDeliveryPreferZipline.cases[index];
-        assert.deepEqual(Object.keys(itemCase.pipeline_override), AUTO_DELIVERY_RECOGNIZE_NODES);
-        for (const node of AUTO_DELIVERY_RECOGNIZE_NODES) {
-            assert.deepEqual(itemCase.pipeline_override[node].custom_action_param, {
+        assert.deepEqual(Object.keys(itemCase.pipeline_override), AUTO_DELIVERY_NAVIGATE_NODES);
+        for (const node of AUTO_DELIVERY_NAVIGATE_NODES) {
+            assert.deepEqual(itemCase.pipeline_override[node].attach, {
                 zip,
             });
         }
@@ -931,9 +931,7 @@ test("AutoDelivery keeps its task-detail entry and default branch flow explicit"
         "AutoDeliveryAreaOCR",
     ]);
     assert.equal(common.AutoDeliveryRecognizeDepot.custom_action, "AutoDeliveryResolveDepotAction");
-    assert.deepEqual(common.AutoDeliveryRecognizeDepot.custom_action_param, {
-        zip: false,
-    });
+    assert.equal(common.AutoDeliveryRecognizeDepot.custom_action_param, undefined);
     assert.deepEqual(common.AutoDeliveryRecognizeDepot.next, [
         "AutoDeliveryQuickTeleport",
     ]);
@@ -942,14 +940,32 @@ test("AutoDelivery keeps its task-detail entry and default branch flow explicit"
         "AutoDeliveryDestinationField",
     ]);
     assert.equal(common.AutoDeliveryRecognizeDestination.custom_action, "AutoDeliveryResolveDestinationAction");
-    assert.deepEqual(common.AutoDeliveryRecognizeDestination.custom_action_param, {
-        zip: false,
-    });
+    assert.equal(common.AutoDeliveryRecognizeDestination.custom_action_param, undefined);
     assert.deepEqual(common.AutoDeliveryRecognizeDestination.next, [
         "[Anchor]AutoDeliveryAfterRecognizeDestination",
+        "AutoDeliveryAfterResolveDestination",
+    ]);
+    assert.deepEqual(delivery.AutoDeliveryAfterResolveDestination.next, [
         "AutoDeliveryCancelCurrentJobTracking",
         "AutoDeliveryCurrentJobTrackingAlreadyOff",
     ]);
+    assert.deepEqual(delivery.AutoDeliveryPrepareNavigateDestination.custom_action_param, {
+        sub: [
+            "SceneEnterMenuMission",
+        ],
+        continue: false,
+        strict: true,
+    });
+    assert.deepEqual(delivery.AutoDeliveryPrepareNavigateDestination.next, [
+        "AutoDeliveryCancelCurrentJobTracking",
+        "AutoDeliveryCurrentJobTrackingAlreadyOff",
+    ]);
+    assert.deepEqual(pickup.AutoDeliveryNavigateDepot.attach, {
+        zip: false,
+    });
+    assert.deepEqual(delivery.AutoDeliveryNavigateDestination.attach, {
+        zip: false,
+    });
     assert.deepEqual(pickup.AutoDeliveryQuickTeleportDone.next, [
         "[Anchor]AutoDeliveryAfterQuickTeleport",
         "AutoDeliveryPrepareNavigateDepot",

@@ -104,18 +104,13 @@
 		{
 			"if": {
 				"properties": {
-					"custom_action": {
-						"enum": [
-							"AutoDeliveryResolveDepotAction",
-							"AutoDeliveryResolveDestinationAction"
-						]
-					}
+					"custom_action": { "const": "AutoDeliveryResolveDestinationAction" }
 				},
 				"required": [ "custom_action" ]
 			},
 			"then": {
 				"properties": {
-					"custom_action_param": { "$ref": "./components/auto_delivery.schema.json#/$defs/ResolveNavigationParam" }
+					"custom_action_param": { "$ref": "./components/auto_delivery.schema.json#/$defs/ResolveDestinationParam" }
 				}
 			}
 		},

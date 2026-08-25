@@ -1690,13 +1690,13 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "AutoDeliveryRecognizeDepot": {
-                            "custom_action_param": {
+                        "AutoDeliveryNavigateDepot": {
+                            "attach": {
                                 "zip": false
                             }
                         },
-                        "AutoDeliveryRecognizeDestination": {
-                            "custom_action_param": {
+                        "AutoDeliveryNavigateDestination": {
+                            "attach": {
                                 "zip": false
                             }
                         }
@@ -1705,13 +1705,13 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "AutoDeliveryRecognizeDepot": {
-                            "custom_action_param": {
+                        "AutoDeliveryNavigateDepot": {
+                            "attach": {
                                 "zip": true
                             }
                         },
-                        "AutoDeliveryRecognizeDestination": {
-                            "custom_action_param": {
+                        "AutoDeliveryNavigateDestination": {
+                            "attach": {
                                 "zip": true
                             }
                         }

@@ -26,5 +26,10 @@
         "radius": 60.0,
         "gold_ratio": 0.5,
         "occluded_by_player": true
+    },
+    "RecycleBin": {
+        "templates": [
+            "../AutoDelivery/RecycleBin.png"
+        ]
     }
 }

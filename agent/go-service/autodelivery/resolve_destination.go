@@ -1,6 +1,8 @@
 package autodelivery
 
 import (
+	"errors"
+
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -9,16 +11,17 @@ const (
 	resolveDestinationActionName = "AutoDeliveryResolveDestinationAction"
 	navigateDestinationNode      = "AutoDeliveryNavigateDestination"
 	retryNavigateDestinationNode = "AutoDeliveryRetryNavigateDestination"
+	afterResolveDestinationNode  = "AutoDeliveryAfterResolveDestination"
 	areaOCRNode                  = "AutoDeliveryAreaOCR"
 	destinationOCRNode           = "AutoDeliveryDestinationOCR"
 )
 
-// AutoDeliveryResolveDestinationAction 根据 Pipeline OCR 文本匹配送货终点并选择对应的生成路线节点。
+// AutoDeliveryResolveDestinationAction 根据 Pipeline OCR 文本或已确认的终点 ID 选择对应的生成路线节点。
 type AutoDeliveryResolveDestinationAction struct{}
 
 var _ maa.CustomActionRunner = &AutoDeliveryResolveDestinationAction{}
 
-// Run 读取 Pipeline 提供的 OCR 结果，匹配唯一终点并更新终点导航节点。
+// Run 读取 Pipeline 提供的 OCR 结果或精确终点 ID，并更新终点导航节点。
 func (a *AutoDeliveryResolveDestinationAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	if ctx == nil || arg == nil || arg.RecognitionDetail == nil {
 		log.Error().
@@ -27,7 +30,7 @@ func (a *AutoDeliveryResolveDestinationAction) Run(ctx *maa.Context, arg *maa.Cu
 		return false
 	}
 
-	options, err := parseNavigationOptions(arg.CustomActionParam)
+	selection, err := parseDestinationSelection(arg.CustomActionParam)
 	if err != nil {
 		log.Error().
 			Err(err).
@@ -35,25 +38,67 @@ func (a *AutoDeliveryResolveDestinationAction) Run(ctx *maa.Context, arg *maa.Cu
 			Msg("failed to parse action parameters")
 		return false
 	}
+	options, err := loadNavigationOptions(ctx, navigateDestinationNode)
+	if err != nil {
+		log.Error().
+			Err(err).
+			Str("component", resolveDestinationActionName).
+			Str("node", navigateDestinationNode).
+			Msg("failed to load navigation options")
+		return false
+	}
 
-	areaText, destinationText, combined := destinationOCRFields(arg.RecognitionDetail)
 	var (
-		dest       destination
-		match      destinationMatch
-		resolveErr error
+		areaText        string
+		destinationText string
+		dest            destination
+		match           destinationMatch
+		resolveErr      error
 	)
-	if combined {
-		dest, match, resolveErr = resolveDestinationByArea(areaText, destinationText)
+	if selection.DestinationID != "" {
+		dest, resolveErr = getDestination(selection.DestinationID)
 	} else {
-		destinationText, resolveErr = recognitionText(arg.RecognitionDetail)
-		if resolveErr == nil {
-			dest, match, resolveErr = resolveDestination(destinationText)
+		var combined bool
+		areaText, destinationText, combined = destinationOCRFields(arg.RecognitionDetail)
+		if combined {
+			dest, match, resolveErr = resolveDestinationByArea(areaText, destinationText)
+		} else {
+			destinationText, resolveErr = recognitionText(arg.RecognitionDetail)
+			if resolveErr == nil {
+				dest, match, resolveErr = resolveDestination(destinationText)
+			}
 		}
 	}
 	if resolveErr != nil {
+		var ambiguity *recycleBinAmbiguityError
+		if errors.As(resolveErr, &ambiguity) {
+			if err := ctx.OverridePipeline(buildRecycleBinResolutionOverride(ambiguity.AreaID)); err != nil {
+				log.Error().
+					Err(err).
+					Str("component", resolveDestinationActionName).
+					Str("area", ambiguity.AreaID).
+					Msg("failed to configure recycle bin map resolution")
+				return false
+			}
+
+			candidateIDs := make([]string, 0, len(ambiguity.Candidates))
+			for _, candidate := range ambiguity.Candidates {
+				candidateIDs = append(candidateIDs, candidate.ID)
+			}
+			log.Info().
+				Str("component", resolveDestinationActionName).
+				Str("areaText", areaText).
+				Str("destinationText", destinationText).
+				Str("area", ambiguity.AreaID).
+				Strs("candidates", candidateIDs).
+				Msg("delivery recycle bin needs map resolution")
+			return true
+		}
+
 		log.Error().
 			Err(resolveErr).
 			Str("component", resolveDestinationActionName).
+			Str("requestedDestination", selection.DestinationID).
 			Str("areaText", areaText).
 			Str("destinationText", destinationText).
 			Float64("similarity", match.Similarity).
@@ -74,6 +119,7 @@ func (a *AutoDeliveryResolveDestinationAction) Run(ctx *maa.Context, arg *maa.Cu
 
 	log.Info().
 		Str("component", resolveDestinationActionName).
+		Str("requestedDestination", selection.DestinationID).
 		Str("areaText", areaText).
 		Str("destinationText", destinationText).
 		Str("destination", dest.ID).
@@ -95,6 +141,9 @@ func (a *AutoDeliveryResolveDestinationAction) Run(ctx *maa.Context, arg *maa.Cu
 
 func buildDestinationNavigationOverride(dest destination, zip bool) map[string]any {
 	override := map[string]any{
+		afterResolveDestinationNode: map[string]any{
+			"next": defaultDestinationFlow(),
+		},
 		navigateDestinationNode: map[string]any{
 			"custom_action": "SubTask",
 			"custom_action_param": map[string]any{
@@ -115,4 +164,22 @@ func buildDestinationNavigationOverride(dest destination, zip bool) map[string]a
 		}
 	}
 	return override
+}
+
+func buildRecycleBinResolutionOverride(areaID string) map[string]any {
+	return map[string]any{
+		afterResolveDestinationNode: map[string]any{
+			"next": []string{
+				"AutoDeliveryViewRecycleBin" + areaID + "Map",
+				"AutoDeliveryStartTrackingRecycleBin" + areaID,
+			},
+		},
+	}
+}
+
+func defaultDestinationFlow() []string {
+	return []string{
+		"AutoDeliveryCancelCurrentJobTracking",
+		"AutoDeliveryCurrentJobTrackingAlreadyOff",
+	}
 }

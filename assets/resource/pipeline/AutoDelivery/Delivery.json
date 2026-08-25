@@ -1,4 +1,16 @@
 {
+    "AutoDeliveryAfterResolveDestination": {
+        "desc": "根据 AutoDeliveryRecognizeDestination 的解析结果，进入普通送货或资源回收站地图判定流程",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDeliveryCancelCurrentJobTracking",
+            "AutoDeliveryCurrentJobTrackingAlreadyOff"
+        ]
+    },
     "AutoDeliveryCancelCurrentJobTrackingButton": {
         "desc": "识别当前送货任务详情中的取消追踪按钮",
         "recognition": "TemplateMatch",
@@ -65,6 +77,26 @@
             "AutoDeliveryReturnWorldAndNavigateDestination"
         ]
     },
+    "AutoDeliveryPrepareNavigateDestination": {
+        "desc": "通过大地图确认资源回收站后返回任务界面，以便取消追踪再开始寻路",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuMission"
+            ],
+            "continue": false,
+            "strict": true
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDeliveryCancelCurrentJobTracking",
+            "AutoDeliveryCurrentJobTrackingAlreadyOff"
+        ]
+    },
     "AutoDeliveryReturnWorldAndNavigateDestination": {
         "desc": "确认任务未追踪后返回大世界并前往已识别的送货目标",
         "pre_delay": 0,
@@ -102,6 +134,9 @@
             "Node.Action.Failed": {
                 "trace": true
             }
+        },
+        "attach": {
+            "zip": false
         }
     },
     "AutoDeliverySearchSubmitGoodsButton": {

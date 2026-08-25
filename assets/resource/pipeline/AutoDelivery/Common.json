@@ -16,7 +16,7 @@
         ]
     },
     "AutoDeliveryRecognizeDestination": {
-        "desc": "从当前送货任务详情识别送货目标，并注入前往送货目标的寻路参数",
+        "desc": "从当前送货任务详情识别送货目标；同区重复资源回收站转入大地图判定，其余目标直接注入寻路参数",
         "recognition": "And",
         "all_of": [
             "AutoDeliveryAreaOCR",
@@ -35,18 +35,14 @@
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "AutoDeliveryResolveDestinationAction",
-        "custom_action_param": {
-            "zip": false
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "[Anchor]AutoDeliveryAfterRecognizeDestination",
-            "AutoDeliveryCancelCurrentJobTracking",
-            "AutoDeliveryCurrentJobTrackingAlreadyOff"
+            "AutoDeliveryAfterResolveDestination"
         ],
         "focus": {
-            "Node.Action.Succeeded": "已识别当前送货目标"
+            "Node.Action.Succeeded": "已处理当前送货目标"
         }
     },
     "AutoDeliveryRecognizeDepot": {
@@ -68,9 +64,6 @@
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "AutoDeliveryResolveDepotAction",
-        "custom_action_param": {
-            "zip": false
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [

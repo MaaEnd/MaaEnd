@@ -1,0 +1,8 @@
+{
+    "template": "recycle-bins-template.json",
+    "data": "recycle-bins-data.mjs",
+    "outputDir": "../../../assets/resource/pipeline/AutoDelivery",
+    "outputFile": "RecycleBins.json",
+    "format": true,
+    "merged": true
+}
