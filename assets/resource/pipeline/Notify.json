@@ -45,6 +45,7 @@
             "serverchan_body": "",
             "telegram_enabled": false,
             "telegram_token": "",
+            "telegram_api_url": "",
             "telegram_chat_id": "",
             "telegram_title": "",
             "telegram_body": "",

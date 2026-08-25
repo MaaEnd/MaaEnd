@@ -14,7 +14,7 @@
 | `webhook.go` | Webhook 渠道：自定义方法/请求头/请求体，全模板变量；`ParseHeaders`（JSON 优先、文本回退） |
 | `bark.go` | Bark 渠道：官方全部参数（非空才携带、均做变量替换）；`bark_devicekeys` 逗号分隔时走 `/push` 批量推送；`barkEndpoint` / `barkBatchEndpoint`（包级变量，测试注入） |
 | `serverchan.go` | ServerChan 渠道：SC3（`sctp` 前缀按官方正则 `/^sctp(\d+)t/` 提取 uid，畸形 sendkey 拒绝构造端点）/ Turbo 双端点自动分流；`pipeSeparated`（逗号输入转 `\|`） |
-| `telegram.go` | Telegram Bot 渠道：`sendMessage` 推送（标题+正文拼合，`chat_id` 逗号分隔多播）；`postTelegram` 校验 Telegram 的 `ok` 布尔响应（与 `postJSON` 的 `code` 约定不同）；`telegramEndpoint`（包级变量，测试注入） |
+| `telegram.go` | Telegram Bot 渠道：`sendMessage` 推送（标题+正文拼合，`chat_id` 逗号分隔多播）；`postTelegram` 校验 Telegram 的 `ok` 布尔响应（与 `postJSON` 的 `code` 约定不同）；`telegramEndpoint`（包级变量，测试注入）——API 地址留空用官方，填写第三方服务地址自动拼接 `/bot{token}/sendMessage` |
 | `telegram_proxy.go` | Telegram 代理：`resolveTelegramProxy`（手动地址 / 复用更新设置代理二选一）、`proxyClient`（仅标准库，支持 http/https 代理，socks5 明确报错）、更新设置代理读取（`install/config/mxu-{项目名}.json` 的 `settings.proxy.url`，`mxuProxyConfigPath` 包级变量可注入） |
 | `sink.go` | 事件监听：`ConfigSink`（节点事件缓存配置，按 taskID 隔离）、`Sink`（任务失败事件发通知，按 taskID 去重、失败后清理缓存）、`controllerStartTime`（`{{duration}}` 起点）、`splitList` |
 | `taskname.go` | `{{task_name}}` 显示名解析：扫描 `tasks/*.json` 建立 `entry → i18n label` 映射（`sync.Once` 缓存），`resolveTaskName` 解析失败回退入口名 |

@@ -14,6 +14,9 @@ import (
 // telegramEndpoint 端点构造函数为包级变量，便于测试注入本地服务器。
 var telegramEndpoint = telegramEndpointDefault
 
+// telegramAPIURLDefault 官方 Telegram Bot API 服务地址。
+const telegramAPIURLDefault = "https://api.telegram.org"
+
 // telegramChannel Telegram Bot 渠道：通过 Bot API sendMessage 推送通知。
 // 复用统一调度（Send 遍历注册表）与标题/正文/模板变量约定。
 type telegramChannel struct{}
@@ -31,7 +34,7 @@ func (telegramChannel) Enabled(config Config) bool {
 }
 
 func (telegramChannel) Send(config Config, vars map[string]string) error {
-	endpoint, err := telegramEndpoint(strings.TrimSpace(config.TelegramToken))
+	endpoint, err := telegramEndpoint(strings.TrimSpace(config.TelegramToken), config.TelegramAPIURL)
 	if err != nil {
 		return err
 	}
@@ -118,10 +121,16 @@ func postTelegram(client *http.Client, endpoint string, payload map[string]any) 
 }
 
 // telegramEndpointDefault 构造 Telegram Bot API sendMessage 端点。
-// 注意：token 是 URL 路径的一部分，不进入日志（sanitizeError 会对完整 URL 打码）。
-func telegramEndpointDefault(token string) (string, error) {
-	if strings.TrimSpace(token) == "" {
+// apiURL 留空使用官方服务地址，填写第三方 API 服务地址（如 https://tg-proxy.example.com），
+// 自动拼接 /bot{token}/sendMessage；注意：token 是 URL 路径的一部分，不进入日志（sanitizeError 会对完整 URL 打码）。
+func telegramEndpointDefault(token, apiURL string) (string, error) {
+	token = strings.TrimSpace(token)
+	if token == "" {
 		return "", fmt.Errorf("telegram token is empty")
 	}
-	return fmt.Sprintf("https://api.telegram.org/bot%s/sendMessage", strings.TrimSpace(token)), nil
+	base := strings.TrimRight(strings.TrimSpace(apiURL), "/")
+	if base == "" {
+		base = telegramAPIURLDefault
+	}
+	return fmt.Sprintf("%s/bot%s/sendMessage", base, token), nil
 }

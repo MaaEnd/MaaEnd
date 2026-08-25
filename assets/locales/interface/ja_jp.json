@@ -2191,6 +2191,8 @@
     "option.NotifyTelegramParams.Body.description": "プッシュ本文。{{body}} で通知項目の内容を参照可能",
     "option.NotifyTelegramParams.ParseMode.label": "メッセージ形式",
     "option.NotifyTelegramParams.ParseMode.description": "メッセージ形式：空欄はプレーンテキスト、HTML または MarkdownV2（特殊文字は公式仕様に従いエスケープ）",
+    "option.NotifyTelegramParams.ApiUrl.label": "API URL",
+    "option.NotifyTelegramParams.ApiUrl.description": "空欄は公式 API。第三者 API のサーバーアドレスを入力（/bot{token}/sendMessage を自動付加）、例: https://tg-proxy.example.com",
     "option.NotifyTelegramProxy.label": "プロキシを使用",
     "option.NotifyTelegramProxy.description": "プロキシ経由で Telegram API にアクセス（直結できない場合に有効化）",
     "option.NotifyTelegramProxyUseUpdate.label": "更新設定のプロキシを使用",

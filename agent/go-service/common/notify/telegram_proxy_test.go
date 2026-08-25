@@ -123,7 +123,7 @@ func TestSendTelegramWithProxy(t *testing.T) {
 	defer server.Close()
 
 	origEndpoint := telegramEndpoint
-	telegramEndpoint = func(string) (string, error) { return server.URL, nil }
+	telegramEndpoint = func(string, string) (string, error) { return server.URL, nil }
 	defer func() { telegramEndpoint = origEndpoint }()
 
 	config := Config{
@@ -157,5 +157,22 @@ func writeMXUConfig(t *testing.T, path, proxyURL string) {
 	}
 	if err := os.WriteFile(path, data, 0o644); err != nil {
 		t.Fatal(err)
+	}
+}
+
+func TestTelegramEndpointDefault(t *testing.T) {
+	// 留空 API URL → 官方地址
+	got, err := telegramEndpointDefault("123456:ABC-DEF", "")
+	if err != nil || got != "https://api.telegram.org/bot123456:ABC-DEF/sendMessage" {
+		t.Errorf("official endpoint = %q, err=%v", got, err)
+	}
+	// 第三方 API 地址（带尾斜杠）→ 去斜杠后拼接 /bot{token}/sendMessage
+	got, err = telegramEndpointDefault("123456:ABC-DEF", "https://tg-proxy.example.com/")
+	if err != nil || got != "https://tg-proxy.example.com/bot123456:ABC-DEF/sendMessage" {
+		t.Errorf("third-party endpoint = %q, err=%v", got, err)
+	}
+	// token 为空 → 报错
+	if _, err := telegramEndpointDefault("  ", "https://tg-proxy.example.com"); err == nil {
+		t.Errorf("empty token should error")
 	}
 }

@@ -235,19 +235,6 @@ wantNames := map[string]bool{"webhook": true, "bark": true, "serverchan": true, 
 
 全部完成后 `Send()` 自动遍历注册表调用新渠道，失败通知 / 第三方自定义通知 **全部自动生效，无需改动调度与触发代码**
 
-## Telegram 渠道
-
-Bot token 从 @BotFather 创建机器人后获得；chat_id 为接收通知的用户 id 或群组 id（可逗号分隔多播）。消息格式支持 `parse_mode`（HTML / MarkdownV2，特殊字符需按官方规则转义），开启「静默推送」开关可静默推送（不响铃、不弹预览）。
-
-**代理**：部分网络环境无法直连 `api.telegram.org`（连接超时）。设置页开启「使用代理」后可二选一：
-
-| 选项 | 说明 |
-| --- | --- |
-| 使用更新设置的代理 | 复用「更新设置」里配置的代理，读取 `install/config/mxu-{项目名}.json` 的 `settings.proxy.url` |
-| 手动填写代理地址 | 如 `http://127.0.0.1:7890`；仅支持 http/https（标准库实现，未引入 socks5 依赖，socks5 请填对应的 http 端口） |
-
-代理地址只用于发送请求，不会写入日志（错误脱敏同样覆盖代理场景）
-
 ## 调用逻辑（Go 自动判定）
 
 ```

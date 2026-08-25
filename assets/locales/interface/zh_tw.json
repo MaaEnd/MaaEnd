@@ -2191,6 +2191,8 @@
     "option.NotifyTelegramParams.Body.description": "推播內容，可用 {{body}} 引用通知項內容",
     "option.NotifyTelegramParams.ParseMode.label": "訊息格式",
     "option.NotifyTelegramParams.ParseMode.description": "訊息格式：留空純文字；HTML 或 MarkdownV2（特殊字元需按官方跳脫）",
+    "option.NotifyTelegramParams.ApiUrl.label": "API 位址",
+    "option.NotifyTelegramParams.ApiUrl.description": "留空使用官方 API；填寫第三方 API 服務位址（自動拼接 /bot{token}/sendMessage），如 https://tg-proxy.example.com",
     "option.NotifyTelegramProxy.label": "使用代理",
     "option.NotifyTelegramProxy.description": "透過代理存取 Telegram API（無法直連時啟用）",
     "option.NotifyTelegramProxyUseUpdate.label": "使用更新設定的代理",

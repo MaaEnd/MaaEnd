@@ -894,6 +894,13 @@
                     "pipeline_type": "string",
                     "default": "",
                     "description": "$option.NotifyTelegramParams.ParseMode.description"
+                },
+                {
+                    "name": "ApiUrl",
+                    "label": "$option.NotifyTelegramParams.ApiUrl.label",
+                    "pipeline_type": "string",
+                    "default": "",
+                    "description": "$option.NotifyTelegramParams.ApiUrl.description"
                 }
             ],
             "pipeline_override": {
@@ -903,7 +910,8 @@
                         "telegram_chat_id": "{ChatId}",
                         "telegram_title": "{Title}",
                         "telegram_body": "{Body}",
-                        "telegram_parse_mode": "{ParseMode}"
+                        "telegram_parse_mode": "{ParseMode}",
+                        "telegram_api_url": "{ApiUrl}"
                     }
                 }
             }

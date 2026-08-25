@@ -571,7 +571,7 @@ func TestSendTelegram(t *testing.T) {
 	defer server.Close()
 
 	orig := telegramEndpoint
-	telegramEndpoint = func(string) (string, error) { return server.URL, nil }
+	telegramEndpoint = func(string, string) (string, error) { return server.URL, nil }
 	defer func() { telegramEndpoint = orig }()
 
 	config := Config{
@@ -613,7 +613,7 @@ func TestSendTelegramMultiChat(t *testing.T) {
 	defer server.Close()
 
 	orig := telegramEndpoint
-	telegramEndpoint = func(string) (string, error) { return server.URL, nil }
+	telegramEndpoint = func(string, string) (string, error) { return server.URL, nil }
 	defer func() { telegramEndpoint = orig }()
 
 	config := Config{
@@ -637,7 +637,7 @@ func TestSendTelegramErrors(t *testing.T) {
 	}
 	// chat_id 为空 → 发送失败
 	orig := telegramEndpoint
-	telegramEndpoint = func(string) (string, error) { return "http://example.invalid", nil }
+	telegramEndpoint = func(string, string) (string, error) { return "http://example.invalid", nil }
 	defer func() { telegramEndpoint = orig }()
 	if err := (telegramChannel{}).Send(Config{TelegramEnabled: true, TelegramToken: "t", TelegramChatID: "", TelegramTitle: "标题"}, map[string]string{}); err == nil {
 		t.Errorf("empty chat_id should error")
@@ -649,7 +649,7 @@ func TestSendTelegramErrors(t *testing.T) {
 		_, _ = w.Write([]byte(`{"ok": false, "description": "chat not found"}`))
 	}))
 	defer server.Close()
-	telegramEndpoint = func(string) (string, error) { return server.URL, nil }
+	telegramEndpoint = func(string, string) (string, error) { return server.URL, nil }
 	if err := (telegramChannel{}).Send(Config{TelegramEnabled: true, TelegramToken: "t", TelegramChatID: "1", TelegramTitle: "标题"}, map[string]string{}); err == nil || !strings.Contains(err.Error(), "chat not found") {
 		t.Errorf("ok=false should error with description, got %v", err)
 	}
@@ -659,7 +659,7 @@ func TestSendTelegramErrors(t *testing.T) {
 		w.WriteHeader(http.StatusInternalServerError)
 	}))
 	defer server500.Close()
-	telegramEndpoint = func(string) (string, error) { return server500.URL, nil }
+	telegramEndpoint = func(string, string) (string, error) { return server500.URL, nil }
 	if err := (telegramChannel{}).Send(Config{TelegramEnabled: true, TelegramToken: "t", TelegramChatID: "1", TelegramTitle: "标题"}, map[string]string{}); err == nil {
 		t.Errorf("HTTP 500 should error")
 	}

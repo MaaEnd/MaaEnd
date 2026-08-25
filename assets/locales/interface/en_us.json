@@ -2191,6 +2191,8 @@
     "option.NotifyTelegramParams.Body.description": "Push content; can use {{body}} to reference the notification content",
     "option.NotifyTelegramParams.ParseMode.label": "Message format",
     "option.NotifyTelegramParams.ParseMode.description": "Message format: leave empty for plain text; HTML or MarkdownV2 (escape special characters as per official docs)",
+    "option.NotifyTelegramParams.ApiUrl.label": "API URL",
+    "option.NotifyTelegramParams.ApiUrl.description": "Leave empty for the official API; fill in a third-party API server address (appends /bot{token}/sendMessage automatically), e.g. https://tg-proxy.example.com",
     "option.NotifyTelegramProxy.label": "Use proxy",
     "option.NotifyTelegramProxy.description": "Access the Telegram API through a proxy (enable when direct connection fails)",
     "option.NotifyTelegramProxyUseUpdate.label": "Use the proxy from update settings",

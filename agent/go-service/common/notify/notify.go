@@ -65,6 +65,7 @@ type Config struct {
 	// Telegram Bot 渠道
 	TelegramEnabled             bool   `json:"telegram_enabled"`
 	TelegramToken               string `json:"telegram_token"`                // Bot token（@BotFather 创建，仅拼接进 URL，不写入日志）
+	TelegramAPIURL              string `json:"telegram_api_url"`              // 第三方 API 服务地址；留空用官方 https://api.telegram.org
 	TelegramChatID              string `json:"telegram_chat_id"`              // 接收 chat_id，逗号分隔支持多个
 	TelegramTitle               string `json:"telegram_title"`                // 渠道级标题，支持 {{title}} 引用通知项预填，留空回退通知项
 	TelegramBody                string `json:"telegram_body"`                 // 渠道级正文，同标题语义；支持 {{body}} 引用通知项预填

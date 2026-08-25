@@ -2191,6 +2191,8 @@
     "option.NotifyTelegramParams.Body.description": "推送内容，可用 {{body}} 引用通知项内容",
     "option.NotifyTelegramParams.ParseMode.label": "消息格式",
     "option.NotifyTelegramParams.ParseMode.description": "消息格式：留空纯文本；HTML 或 MarkdownV2（特殊字符需按官方转义）",
+    "option.NotifyTelegramParams.ApiUrl.label": "API 地址",
+    "option.NotifyTelegramParams.ApiUrl.description": "留空使用官方 API；填写第三方 API 服务地址（自动拼接 /bot{token}/sendMessage），如 https://tg-proxy.example.com",
     "option.NotifyTelegramProxy.label": "使用代理",
     "option.NotifyTelegramProxy.description": "通过代理访问 Telegram API（无法直连时启用）",
     "option.NotifyTelegramProxyUseUpdate.label": "使用更新设置的代理",
