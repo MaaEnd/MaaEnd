@@ -2,7 +2,7 @@
 
 Notify 是 MaaEnd 的多渠道外部通知模块
 
-任务失败、以及任意任务主动发起的自定义通知，统一向设置页启用的渠道（Webhook / Bark / ServerChan / 可新增其他渠道）推送
+任务失败、以及任意任务主动发起的自定义通知，统一向设置页启用的渠道（Webhook / Bark / ServerChan / Telegram / 可新增其他渠道）推送
 
 流程编排由 Pipeline 负责，Go 只负责开关判定、内容解析与渠道发送
 
@@ -233,6 +233,19 @@ wantNames := map[string]bool{"webhook": true, "bark": true, "serverchan": true, 
 
 全部完成后 `Send()` 自动遍历注册表调用新渠道，失败通知 / 第三方自定义通知 **全部自动生效，无需改动调度与触发代码**
 
+## Telegram 渠道
+
+Bot token 从 @BotFather 创建机器人后获得；chat_id 为接收通知的用户 id 或群组 id（可逗号分隔多播）。消息格式支持 `parse_mode`（HTML / MarkdownV2，特殊字符需按官方规则转义），开启「静默推送」开关可静默推送（不响铃、不弹预览）。
+
+**代理**：部分网络环境无法直连 `api.telegram.org`（连接超时）。设置页开启「使用代理」后可二选一：
+
+| 选项 | 说明 |
+| --- | --- |
+| 使用更新设置的代理 | 复用「更新设置」里配置的代理，读取 `install/config/mxu-{项目名}.json` 的 `settings.proxy.url` |
+| 手动填写代理地址 | 如 `http://127.0.0.1:7890`；仅支持 http/https（标准库实现，未引入 socks5 依赖，socks5 请填对应的 http 端口） |
+
+代理地址只用于发送请求，不会写入日志（错误脱敏同样覆盖代理场景）
+
 ## 调用逻辑（Go 自动判定）
 
 ```
@@ -255,6 +268,7 @@ wantNames := map[string]bool{"webhook": true, "bark": true, "serverchan": true, 
 | `notify.go` | `Config` 解析、模板变量、`Send` 调度、`NotifySendAction` |
 | `channel.go` | `Channel` 接口 + 注册表（新增渠道 = 新文件实现接口 + `init` 注册一行） |
 | `http.go` | 超时 client、`postJSON`、错误脱敏 |
-| `webhook.go` / `bark.go` / `serverchan.go` | 各渠道实现 |
+| `webhook.go` / `bark.go` / `serverchan.go` / `telegram.go` | 各渠道实现 |
+| `telegram_proxy.go` | Telegram 代理：手动地址 / 复用 MXU 更新设置代理（读 `install/config/mxu-{项目名}.json`）、`proxyClient`（http/https） |
 | `sink.go` | 失败事件监听、配置按 taskID 缓存与去重 |
 | `register.go` | 动作与事件监听注册 |
