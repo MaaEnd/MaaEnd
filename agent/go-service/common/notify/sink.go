@@ -13,8 +13,7 @@ import (
 
 var (
 	configMu       sync.RWMutex
-	configByTaskID = map[uint64]Config{}    // taskID → 该任务的运行时配置（任务级 override 后）
-	taskStartTime  = map[uint64]time.Time{} // taskID → 任务开始时间
+	configByTaskID = map[uint64]Config{} // taskID → 该任务的运行时配置（任务级 override 后）
 
 	// controllerStartTime 记录每个 controller 上首次任务启动的时间，用作 {{duration}} 起点。
 	// 同一 controller 同时只会跑一个实例，不会串。
@@ -107,7 +106,6 @@ func setConfigByTask(taskID uint64, config Config) {
 	defer configMu.Unlock()
 	configByTaskID[taskID] = config
 	now := time.Now()
-	taskStartTime[taskID] = now
 	if name := pienv.ControllerName(); name != "" {
 		if _, ok := controllerStartTime[name]; !ok {
 			controllerStartTime[name] = now
@@ -126,14 +124,7 @@ func getConfigByTask(taskID uint64) (Config, bool) {
 func deleteConfigByTask(taskID uint64) {
 	configMu.Lock()
 	delete(configByTaskID, taskID)
-	delete(taskStartTime, taskID)
 	configMu.Unlock()
-}
-
-func getStartTime(taskID uint64) time.Time {
-	configMu.RLock()
-	defer configMu.RUnlock()
-	return taskStartTime[taskID]
 }
 
 func getControllerStartTime() time.Time {
