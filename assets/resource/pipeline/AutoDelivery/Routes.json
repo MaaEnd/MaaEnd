@@ -2780,6 +2780,30 @@
                 {
                     "action": "NAVMESH",
                     "target": [
+                        1258.92,
+                        1751.65
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1259.66,
+                        1758.06
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1236.55,
+                        1753.2
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
                         1344.56,
                         1734.39
                     ]
@@ -2813,6 +2837,30 @@
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
             "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1258.92,
+                        1751.65
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1259.66,
+                        1758.06
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1236.55,
+                        1753.2
+                    ],
+                    "required": true
+                },
                 {
                     "action": "NAVMESH",
                     "target": [
@@ -2852,6 +2900,30 @@
                 {
                     "action": "NAVMESH",
                     "target": [
+                        1258.92,
+                        1751.65
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1259.66,
+                        1758.06
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1236.55,
+                        1753.2
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
                         1083.307,
                         1455.27
                     ]
@@ -2881,6 +2953,30 @@
                 {
                     "action": "NAVMESH",
                     "target": [
+                        1258.92,
+                        1751.65
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1259.66,
+                        1758.06
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1236.55,
+                        1753.2
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
                         1083.307,
                         1455.27
                     ]
@@ -2907,6 +3003,30 @@
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
             "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1258.92,
+                        1751.65
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1259.66,
+                        1758.06
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1236.55,
+                        1753.2
+                    ],
+                    "required": true
+                },
                 {
                     "action": "NAVMESH",
                     "target": [
@@ -2974,6 +3094,30 @@
         "custom_action": "MapNavigateAction",
         "custom_action_param": {
             "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1258.92,
+                        1751.65
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1259.66,
+                        1758.06
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1236.55,
+                        1753.2
+                    ],
+                    "required": true
+                },
                 {
                     "action": "NAVMESH",
                     "target": [
