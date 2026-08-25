@@ -11,6 +11,19 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// telegramConfig 是 Telegram Bot 渠道的私有配置（attach 顶层 telegram_* 键）。
+type telegramConfig struct {
+	Enabled             bool   `json:"telegram_enabled"`
+	UseProxy            bool   `json:"telegram_use_proxy"`            // 是否走全局代理（配合全局 use_proxy 主开关）
+	Token               string `json:"telegram_token"`                // Bot token（@BotFather 创建，仅拼接进 URL，不写入日志）
+	APIURL              string `json:"telegram_api_url"`              // 第三方 API 服务地址；留空用官方 https://api.telegram.org
+	ChatID              string `json:"telegram_chat_id"`              // 接收 chat_id，逗号分隔支持多个
+	Title               string `json:"telegram_title"`                // 渠道级标题，支持 {{title}} 引用通知项预填，留空回退通知项
+	Body                string `json:"telegram_body"`                 // 渠道级正文，同标题语义；支持 {{body}} 引用通知项预填
+	ParseMode           string `json:"telegram_parse_mode"`           // 空=纯文本；HTML / Markdown / MarkdownV2
+	DisableNotification bool   `json:"telegram_disable_notification"` // 静默推送（disable_notification=true，不响铃）
+}
+
 // telegramEndpoint 端点构造函数为包级变量，便于测试注入本地服务器。
 var telegramEndpoint = telegramEndpointDefault
 
@@ -19,42 +32,49 @@ const telegramAPIURLDefault = "https://api.telegram.org"
 
 // telegramChannel Telegram Bot 渠道：通过 Bot API sendMessage 推送通知。
 // 复用统一调度（Send 遍历注册表）与标题/正文/模板变量约定。
-type telegramChannel struct{}
+type telegramChannel struct {
+	cfg telegramConfig
+}
 
 func init() { RegisterChannel(telegramChannel{}) }
 
+var _ ChannelFactory = telegramChannel{}
 var _ Channel = telegramChannel{}
 
 func (telegramChannel) Name() string {
 	return "telegram"
 }
 
-func (telegramChannel) Enabled(config Config) bool {
-	return config.TelegramEnabled
+func (telegramChannel) Create(attach map[string]any) (Channel, error) {
+	var cfg telegramConfig
+	if err := decodeAttach(attach, &cfg); err != nil {
+		return nil, err
+	}
+	return telegramChannel{cfg: cfg}, nil
 }
 
-func (telegramChannel) Send(config Config, vars map[string]string) error {
-	endpoint, err := telegramEndpoint(strings.TrimSpace(config.TelegramToken), config.TelegramAPIURL)
+func (c telegramChannel) Enabled() bool {
+	return c.cfg.Enabled
+}
+
+func (c telegramChannel) UseProxy() bool {
+	return c.cfg.UseProxy
+}
+
+func (c telegramChannel) Send(ctx *SendContext) error {
+	config := c.cfg
+	vars := ctx.Vars
+	endpoint, err := telegramEndpoint(strings.TrimSpace(config.Token), config.APIURL)
 	if err != nil {
 		return err
 	}
-	client := httpClient
-	if config.TelegramUseProxy {
-		proxyURL, err := resolveTelegramProxy(config)
-		if err != nil {
-			return err
-		}
-		if client, err = proxyClient(proxyURL); err != nil {
-			return err
-		}
-	}
-	chatIDs := splitList(config.TelegramChatID, ',')
+	chatIDs := splitList(config.ChatID, ',')
 	if len(chatIDs) == 0 {
 		return fmt.Errorf("telegram chat_id is empty")
 	}
 
 	// Telegram sendMessage 只有一个 text 字段：标题 + 正文拼合（各自支持模板变量与 {{title}}/{{body}} 预填）
-	title, body := channelTitleBody(config.TelegramTitle, config.TelegramBody, vars)
+	title, body := channelTitleBody(config.Title, config.Body, vars)
 	text := title
 	if body != "" {
 		if text != "" {
@@ -66,7 +86,7 @@ func (telegramChannel) Send(config Config, vars map[string]string) error {
 		return fmt.Errorf("telegram text is empty")
 	}
 
-	parseMode := ReplaceVars(strings.TrimSpace(config.TelegramParseMode), vars)
+	parseMode := ReplaceVars(strings.TrimSpace(config.ParseMode), vars)
 
 	for _, chatID := range chatIDs {
 		payload := map[string]any{
@@ -76,11 +96,11 @@ func (telegramChannel) Send(config Config, vars map[string]string) error {
 		if parseMode != "" {
 			payload["parse_mode"] = parseMode
 		}
-		if config.TelegramDisableNotification {
+		if config.DisableNotification {
 			payload["disable_notification"] = true
 		}
 		log.Debug().Str("component", "Notify").Str("channel", "telegram").Str("chat_id", chatID).Msg("sending telegram notify")
-		if err := postTelegram(client, endpoint, payload); err != nil {
+		if err := postTelegram(ctx.Client, endpoint, payload); err != nil {
 			return err
 		}
 	}

@@ -9,33 +9,38 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"sync"
 )
 
-// Telegram 代理：部分网络环境无法直连 api.telegram.org，支持手动代理地址，
-// 或复用「更新设置」里配置的代理（读取 install/config/mxu-{项目名}.json）。
+// 全局代理模块：所有渠道统一使用（由调度层解析并构造 client）。
+// 支持手动代理地址，或复用「更新设置」里配置的代理（读取 install/config/mxu-{项目名}.json）。
+// 渠道自身不感知代理——Send() 统一调用 resolveProxy + proxyClient 后传入 SendContext.Client。
 
-// mxuProxyConfigPath 返回 MXU 配置文件路径；包级变量便于测试注入。
+// mxuProxyConfigPath 返回更新设置的配置文件路径；包级变量便于测试注入。
 var mxuProxyConfigPath = findMxuProxyConfigPath
 
 // interfaceNameRegexp 从 interface.json（JSONC）中取顶层 name 字段。
 // 只需 name 一个值，用正则跳过注释解析，避免引入 JSONC 解析器。
 var interfaceNameRegexp = regexp.MustCompile(`"name"\s*:\s*"([^"]+)"`)
 
-// resolveTelegramProxy 解析 Telegram 渠道的代理地址：
-//   - TelegramUseUpdateProxy 开启时复用「更新设置」里的代理（读取失败/未配置则报错）；
-//   - 否则使用手动填写的 TelegramProxyURL。
-func resolveTelegramProxy(config Config) (string, error) {
-	if config.TelegramUseUpdateProxy {
+// proxyClients 按解析出的代理地址缓存 client，避免每次发送都重建 Transport。
+var proxyClients sync.Map // proxyURL → *http.Client
+
+// resolveProxy 解析全局代理地址：
+//   - useUpdate 开启时复用「更新设置」里的代理（读取失败/未配置则报错）；
+//   - 否则使用手动填写的 manualURL。
+func resolveProxy(useUpdate bool, manualURL string) (string, error) {
+	if useUpdate {
 		if path := mxuProxyConfigPath(); path != "" {
 			if proxyURL, err := readMxuProxyURL(path); err == nil {
 				return proxyURL, nil
 			}
 		}
-		return "", fmt.Errorf("mxu update proxy not configured (settings.proxy.url in config/mxu-*.json)")
+		return "", fmt.Errorf("update proxy not configured (settings.proxy.url in config/mxu-*.json)")
 	}
-	proxyURL := strings.TrimSpace(config.TelegramProxyURL)
+	proxyURL := strings.TrimSpace(manualURL)
 	if proxyURL == "" {
-		return "", fmt.Errorf("telegram proxy url is empty")
+		return "", fmt.Errorf("proxy url is empty")
 	}
 	return proxyURL, nil
 }
@@ -118,7 +123,7 @@ type mxuConfigFile struct {
 	} `json:"settings"`
 }
 
-// readMxuProxyURL 读取 MXU 配置文件中的更新代理地址（settings.proxy.url）。
+// readMxuProxyURL 读取更新设置配置文件中的代理地址（settings.proxy.url）。
 func readMxuProxyURL(path string) (string, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -130,15 +135,18 @@ func readMxuProxyURL(path string) (string, error) {
 	}
 	proxyURL := strings.TrimSpace(cfg.Settings.Proxy.URL)
 	if proxyURL == "" {
-		return "", fmt.Errorf("mxu update proxy not configured")
+		return "", fmt.Errorf("update proxy not configured")
 	}
 	return proxyURL, nil
 }
 
-// proxyClient 构造走代理的 HTTP 客户端，与默认客户端同样套用 defaultTimeout。
+// proxyClient 构造（或按地址复用）走代理的 HTTP 客户端，与默认客户端同样套用 defaultTimeout。
 // 仅支持 http/https 代理（http.Transport.Proxy 原生支持）；socks5 未引入额外依赖，
 // 报错提示改用对应 http 代理端口。
 func proxyClient(proxyURL string) (*http.Client, error) {
+	if c, ok := proxyClients.Load(proxyURL); ok {
+		return c.(*http.Client), nil
+	}
 	u, err := url.Parse(proxyURL)
 	if err != nil {
 		return nil, fmt.Errorf("invalid proxy url: %w", err)
@@ -152,5 +160,7 @@ func proxyClient(proxyURL string) (*http.Client, error) {
 		)
 	}
 	transport := &http.Transport{Proxy: http.ProxyURL(u)}
-	return &http.Client{Timeout: defaultTimeout, Transport: transport}, nil
+	client := &http.Client{Timeout: defaultTimeout, Transport: transport}
+	actual, _ := proxyClients.LoadOrStore(proxyURL, client)
+	return actual.(*http.Client), nil
 }

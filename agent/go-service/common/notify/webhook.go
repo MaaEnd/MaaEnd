@@ -9,33 +9,60 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// webhookConfig 是 Webhook 渠道的私有配置（attach 顶层 webhook_* 键）。
+type webhookConfig struct {
+	Enabled  bool   `json:"webhook_enabled"`
+	UseProxy bool   `json:"webhook_use_proxy"` // 是否走全局代理（配合全局 use_proxy 主开关）
+	URL      string `json:"webhook_url"`
+	Method   string `json:"webhook_method"`
+	Headers  string `json:"webhook_headers"`
+	Body     string `json:"webhook_body"`
+}
+
 // webhookChannel 通用 Webhook 渠道：自定义方法/请求头/请求体，支持全部模板变量。
 // 不读取标题/正文，可在请求体里用 {{title}}/{{body}} 引用本次通知的标题/正文。
-type webhookChannel struct{}
+type webhookChannel struct {
+	cfg webhookConfig
+}
 
 func init() { RegisterChannel(webhookChannel{}) }
 
+var _ ChannelFactory = webhookChannel{}
 var _ Channel = webhookChannel{}
 
 func (webhookChannel) Name() string {
 	return "webhook"
 }
 
-func (webhookChannel) Enabled(config Config) bool {
-	return config.WebhookEnabled
+func (webhookChannel) Create(attach map[string]any) (Channel, error) {
+	var cfg webhookConfig
+	if err := decodeAttach(attach, &cfg); err != nil {
+		return nil, err
+	}
+	return webhookChannel{cfg: cfg}, nil
 }
 
-func (webhookChannel) Send(config Config, vars map[string]string) error {
-	urlStr := ReplaceVars(strings.TrimSpace(config.WebhookURL), vars)
+func (c webhookChannel) Enabled() bool {
+	return c.cfg.Enabled
+}
+
+func (c webhookChannel) UseProxy() bool {
+	return c.cfg.UseProxy
+}
+
+func (c webhookChannel) Send(ctx *SendContext) error {
+	config := c.cfg
+	vars := ctx.Vars
+	urlStr := ReplaceVars(strings.TrimSpace(config.URL), vars)
 	if urlStr == "" {
 		return fmt.Errorf("webhook url is empty")
 	}
-	method := strings.ToUpper(strings.TrimSpace(config.WebhookMethod))
+	method := strings.ToUpper(strings.TrimSpace(config.Method))
 	if method == "" {
 		method = http.MethodPost
 	}
-	headers := ParseHeaders(ReplaceVars(config.WebhookHeaders, vars))
-	body := ReplaceVars(config.WebhookBody, vars)
+	headers := ParseHeaders(ReplaceVars(config.Headers, vars))
+	body := ReplaceVars(config.Body, vars)
 
 	req, err := http.NewRequest(method, urlStr, strings.NewReader(body))
 	if err != nil {
@@ -49,7 +76,7 @@ func (webhookChannel) Send(config Config, vars map[string]string) error {
 	}
 
 	log.Debug().Str("component", "Notify").Str("channel", "webhook").Str("method", method).Msg("sending webhook notify")
-	resp, err := httpClient.Do(req)
+	resp, err := ctx.Client.Do(req)
 	if err != nil {
 		return sanitizeError(err)
 	}

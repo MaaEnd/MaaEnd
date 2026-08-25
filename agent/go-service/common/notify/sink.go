@@ -13,7 +13,7 @@ import (
 
 var (
 	configMu       sync.RWMutex
-	configByTaskID = map[uint64]Config{} // taskID → 该任务的运行时配置（任务级 override 后）
+	configByTaskID = map[uint64]RuntimeConfig{} // taskID → 该任务的运行时配置（任务级 override 后）
 
 	// controllerStartTime 记录每个 controller 上首次任务启动的时间，用作 {{duration}} 起点。
 	// 同一 controller 同时只会跑一个实例，不会串。
@@ -44,12 +44,12 @@ func (s *ConfigSink) OnNodePipelineNode(ctx *maa.Context, event maa.EventStatus,
 		log.Warn().Err(err).Str("component", "Notify").Str("node", defaultConfigNode).Msg("failed to read notify config node, notify disabled")
 		return
 	}
-	config, err := ParseConfig(raw)
+	runtime, err := ParseConfig(raw)
 	if err != nil {
 		log.Warn().Err(err).Str("component", "Notify").Str("node", defaultConfigNode).Msg("failed to parse notify config, notify disabled")
 		return
 	}
-	setConfigByTask(detail.TaskID, config)
+	setConfigByTask(detail.TaskID, runtime)
 	log.Debug().Str("component", "Notify").Uint64("task_id", detail.TaskID).Msg("notify config cached for task")
 }
 
@@ -72,7 +72,7 @@ var _ maa.TaskerEventSink = &Sink{}
 func (s *Sink) OnTaskerTask(_ *maa.Tasker, event maa.EventStatus, detail maa.TaskerTaskDetail) {
 	switch event {
 	case maa.EventStatusFailed:
-		config, ok := getConfigByTask(detail.TaskID)
+		runtime, ok := getConfigByTask(detail.TaskID)
 		if !ok {
 			// 已发送过失败通知的任务被重复广播（配置已清理）：静默，避免刷 warn
 			if _, notified := notifiedTaskIDs.Load(detail.TaskID); notified {
@@ -81,16 +81,17 @@ func (s *Sink) OnTaskerTask(_ *maa.Tasker, event maa.EventStatus, detail maa.Tas
 			log.Warn().Str("component", "Notify").Uint64("task_id", detail.TaskID).Str("entry", detail.Entry).Msg("no cached config for task; failure notification skipped")
 			return
 		}
-		if config.Enabled() && config.OnFail && shouldNotifyFail(detail.TaskID) {
+		enabled := runtime.Enabled()
+		if enabled && runtime.Global.OnFail && shouldNotifyFail(detail.TaskID) {
 			now := time.Now()
 			// 失败通知的 {{duration}} 同样用实例总耗时（controllerStartTime），
 			// 与 NotifyTask 一致：从实例首个任务启动到失败时刻，而非失败任务自身耗时
 			vars := BuildVars(resolveTaskName(detail.Entry), i18n.T("notify.status.failed"), now, getControllerStartTime())
-			vars["title"] = config.FailTitle
-			vars["body"] = config.FailBody
+			vars["title"] = runtime.Global.FailTitle
+			vars["body"] = runtime.Global.FailBody
 			log.Info().Str("component", "Notify").Uint64("task_id", detail.TaskID).Str("entry", detail.Entry).Msg("task failed, sending notify")
-			go Send(config, vars)
-		} else if !config.Enabled() && config.OnFail && shouldNotifyFail(detail.TaskID) {
+			go Send(runtime, vars)
+		} else if !enabled && runtime.Global.OnFail && shouldNotifyFail(detail.TaskID) {
 			// on_fail 打开但没有启用任何渠道：属于无效配置，提示一次（按 task 去重）
 			log.Warn().Str("component", "Notify").Uint64("task_id", detail.TaskID).Str("entry", detail.Entry).Msg("on_fail enabled but no channel enabled; failure notification will not be delivered")
 		}
@@ -101,10 +102,10 @@ func (s *Sink) OnTaskerTask(_ *maa.Tasker, event maa.EventStatus, detail maa.Tas
 	}
 }
 
-func setConfigByTask(taskID uint64, config Config) {
+func setConfigByTask(taskID uint64, runtime RuntimeConfig) {
 	configMu.Lock()
 	defer configMu.Unlock()
-	configByTaskID[taskID] = config
+	configByTaskID[taskID] = runtime
 	now := time.Now()
 	if name := pienv.ControllerName(); name != "" {
 		if _, ok := controllerStartTime[name]; !ok {
@@ -114,11 +115,11 @@ func setConfigByTask(taskID uint64, config Config) {
 }
 
 // getConfigByTask 取指定任务缓存的配置；未缓存过（任务在节点事件前失败）返回 false。
-func getConfigByTask(taskID uint64) (Config, bool) {
+func getConfigByTask(taskID uint64) (RuntimeConfig, bool) {
 	configMu.RLock()
 	defer configMu.RUnlock()
-	config, ok := configByTaskID[taskID]
-	return config, ok
+	runtime, ok := configByTaskID[taskID]
+	return runtime, ok
 }
 
 func deleteConfigByTask(taskID uint64) {

@@ -12,15 +12,15 @@ func TestChannelRegistry(t *testing.T) {
 			t.Errorf("unexpected channel in registry: %q", name)
 		}
 	}
-	if len(channels) != len(wantNames) {
-		t.Errorf("channel count = %d, want %d", len(channels), len(wantNames))
+	if len(channelFactories) != len(wantNames) {
+		t.Errorf("channel count = %d, want %d", len(channelFactories), len(wantNames))
 	}
 	// 注册表与遍历顺序一致
-	if len(channelOrder) != len(channels) {
-		t.Errorf("channelOrder len = %d, channels len = %d", len(channelOrder), len(channels))
+	if len(channelOrder) != len(channelFactories) {
+		t.Errorf("channelOrder len = %d, channelFactories len = %d", len(channelOrder), len(channelFactories))
 	}
 	for _, name := range channelOrder {
-		if channels[name] == nil {
+		if channelFactories[name] == nil {
 			t.Errorf("channel %q registered in order but missing from map", name)
 		}
 	}
@@ -28,9 +28,9 @@ func TestChannelRegistry(t *testing.T) {
 
 func TestRegisterChannelDuplicate(t *testing.T) {
 	// 重复注册同名渠道被忽略，不 panic 不覆盖
-	before := len(channels)
+	before := len(channelFactories)
 	RegisterChannel(webhookChannel{})
-	if len(channels) != before {
+	if len(channelFactories) != before {
 		t.Errorf("duplicate registration should be ignored")
 	}
 }

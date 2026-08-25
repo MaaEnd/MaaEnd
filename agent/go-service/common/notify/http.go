@@ -17,7 +17,7 @@ var httpClient = &http.Client{Timeout: defaultTimeout}
 var urlInErrRegexp = regexp.MustCompile(`https?://[^\s"']+`)
 
 // sanitizeError 把错误文本中的 URL 整体打码：http.Client 的错误串包含完整请求 URL，
-// 可能携带渠道凭据（Bark key / ServerChan sendkey），不直接写入日志。
+// 可能携带渠道凭据（Bark key / ServerChan sendkey / Webhook token），不直接写入日志。
 func sanitizeError(err error) error {
 	if err == nil {
 		return nil
@@ -33,13 +33,14 @@ func checkStatus(resp *http.Response) error {
 	return nil
 }
 
-// postJSON 发送 JSON POST 并检查状态码；expectedCode >= 0 时解析 body 的 code 字段对比。
-func postJSON(endpoint string, payload map[string]any, expectedCode int) error {
+// postJSON 用指定 client 发送 JSON POST 并检查状态码；expectedCode >= 0 时解析 body 的 code 字段对比。
+// client 由调度层统一提供（含全局代理），渠道不得自行构建代理。
+func postJSON(client *http.Client, endpoint string, payload map[string]any, expectedCode int) error {
 	jsonBody, err := json.Marshal(payload)
 	if err != nil {
 		return err
 	}
-	resp, err := httpClient.Post(endpoint, "application/json;charset=utf-8", bytes.NewReader(jsonBody))
+	resp, err := client.Post(endpoint, "application/json;charset=utf-8", bytes.NewReader(jsonBody))
 	if err != nil {
 		return sanitizeError(err)
 	}

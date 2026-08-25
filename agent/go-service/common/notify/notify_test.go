@@ -15,6 +15,21 @@ import (
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 )
 
+// testRuntime 从 attach map 构造 RuntimeConfig（解析 GlobalConfig + 通知项开关）。
+func testRuntime(attach map[string]any) RuntimeConfig {
+	r := RuntimeConfig{Attach: attach}
+	if attach != nil {
+		_ = decodeAttach(attach, &r.Global)
+		r.Global.TaskNotifyToggles = parseTaskNotifyToggles(attach)
+	}
+	return r
+}
+
+// testCtx 构造直调渠道 Send 用的上下文（默认 client + 空 vars）。
+func testCtx() *SendContext {
+	return &SendContext{Client: httpClient, Vars: map[string]string{}}
+}
+
 func TestParseConfig(t *testing.T) {
 	nodeJSON := `{
 		"recognition": "DirectHit",
@@ -51,51 +66,71 @@ func TestParseConfig(t *testing.T) {
 			"task_notify.survey": true
 		}
 	}`
-	config, err := ParseConfig(nodeJSON)
+	runtime, err := ParseConfig(nodeJSON)
 	if err != nil {
 		t.Fatalf("ParseConfig failed: %v", err)
 	}
-	if !config.WebhookEnabled || config.WebhookURL != "https://example.com/hook" || config.WebhookMethod != "POST" ||
-		config.WebhookHeaders != "X-A: 1" || config.WebhookBody != `{"a":1}` {
-		t.Errorf("webhook parse mismatch: %+v", config)
+	// 全局配置
+	g := runtime.Global
+	if !g.OnFail || g.FailTitle != "任务失败" || !strings.Contains(g.FailBody, "{{task_name}}") {
+		t.Errorf("fail notify parse mismatch: %+v", g)
 	}
-	if !config.BarkEnabled || config.BarkKey != "barkkey" ||
-		config.BarkTitle != "渠道标题" || config.BarkBody != "渠道正文" ||
-		config.BarkSubtitle != "副标题" || config.BarkGroup != "日常" || config.BarkLevel != "critical" {
-		t.Errorf("bark parse mismatch: %+v", config)
+	if g.TaskTitle != "通知标题" || g.TaskBody != "通知正文" {
+		t.Errorf("task template parse mismatch: %+v", g)
 	}
-	if !config.ServerChanEnabled || config.ServerChanKey != "sctp12345tabc" || config.ServerChanTags != "日常|重要" ||
-		config.ServerChanTitle != "SC渠道标题" || config.ServerChanBody != "SC渠道正文" ||
-		config.ServerChanShort != "简短" || !config.ServerChanNoIP || config.ServerChanChannel != "weixin" ||
-		config.ServerChanOpenID != "openid1" {
-		t.Errorf("serverchan parse mismatch: %+v", config)
+	if g.TaskNotifyKey != "monthly_card" {
+		t.Errorf("task_notify_key mismatch: %+v", g)
 	}
-	if !config.OnFail || config.FailTitle != "任务失败" || !strings.Contains(config.FailBody, "{{task_name}}") {
-		t.Errorf("fail notify parse mismatch: %+v", config)
+	if v, ok := g.TaskNotifyToggles["monthly_card"]; !ok || v {
+		t.Errorf("task_notify.monthly_card toggle mismatch: %+v", g.TaskNotifyToggles)
 	}
-	if config.TaskTitle != "通知标题" || config.TaskBody != "通知正文" {
-		t.Errorf("task template parse mismatch: %+v", config)
+	if v, ok := g.TaskNotifyToggles["survey"]; !ok || !v {
+		t.Errorf("task_notify.survey toggle mismatch: %+v", g.TaskNotifyToggles)
 	}
-	if config.TaskNotifyKey != "monthly_card" {
-		t.Errorf("task_notify_key mismatch: %+v", config)
+	// 渠道级配置各自 Create 解析（互不耦合）
+	wch, err := (webhookChannel{}).Create(runtime.Attach)
+	if err != nil {
+		t.Fatalf("webhook create: %v", err)
 	}
-	if v, ok := config.TaskNotifyToggles["monthly_card"]; !ok || v {
-		t.Errorf("task_notify.monthly_card toggle mismatch: %+v", config.TaskNotifyToggles)
+	wcfg := wch.(webhookChannel).cfg
+	if !wcfg.Enabled || wcfg.URL != "https://example.com/hook" ||
+		wcfg.Method != "POST" || wcfg.Headers != "X-A: 1" ||
+		wcfg.Body != `{"a":1}` {
+		t.Errorf("webhook parse mismatch: %+v", wcfg)
 	}
-	if v, ok := config.TaskNotifyToggles["survey"]; !ok || !v {
-		t.Errorf("task_notify.survey toggle mismatch: %+v", config.TaskNotifyToggles)
+	bch, err := (barkChannel{}).Create(runtime.Attach)
+	if err != nil {
+		t.Fatalf("bark create: %v", err)
 	}
-	if !config.Enabled() {
+	bcfg := bch.(barkChannel).cfg
+	if !bcfg.Enabled || bcfg.Key != "barkkey" ||
+		bcfg.Title != "渠道标题" || bcfg.Body != "渠道正文" ||
+		bcfg.Subtitle != "副标题" || bcfg.Group != "日常" || bcfg.Level != "critical" {
+		t.Errorf("bark parse mismatch: %+v", bcfg)
+	}
+	sch, err := (serverChanChannel{}).Create(runtime.Attach)
+	if err != nil {
+		t.Fatalf("serverchan create: %v", err)
+	}
+	scfg := sch.(serverChanChannel).cfg
+	if !scfg.Enabled || scfg.Key != "sctp12345tabc" ||
+		scfg.Tags != "日常|重要" || scfg.Title != "SC渠道标题" ||
+		scfg.Body != "SC渠道正文" || scfg.Short != "简短" ||
+		!scfg.NoIP || scfg.Channel != "weixin" ||
+		scfg.OpenID != "openid1" {
+		t.Errorf("serverchan parse mismatch: %+v", scfg)
+	}
+	if !runtime.Enabled() {
 		t.Errorf("expected enabled")
 	}
 }
 
 func TestParseConfigEmpty(t *testing.T) {
-	config, err := ParseConfig(`{"action": "DoNothing"}`)
+	runtime, err := ParseConfig(`{"action": "DoNothing"}`)
 	if err != nil {
 		t.Fatalf("ParseConfig failed: %v", err)
 	}
-	if config.Enabled() {
+	if runtime.Enabled() {
 		t.Errorf("expected disabled for empty config")
 	}
 }
@@ -219,26 +254,46 @@ func TestShouldNotifyFailConcurrent(t *testing.T) {
 }
 
 func TestConfigByTaskIsolation(t *testing.T) {
-	configByTaskID = map[uint64]Config{}
+	configByTaskID = map[uint64]RuntimeConfig{}
 
 	// 两个并行任务各自缓存不同的渠道配置，互不覆盖
-	setConfigByTask(1, Config{OnFail: true, FailTitle: "A", WebhookEnabled: true, WebhookURL: "https://a", WebhookBody: "bodyA"})
-	setConfigByTask(2, Config{OnFail: true, FailTitle: "B", BarkEnabled: true, BarkKey: "bkey"})
+	setConfigByTask(1, testRuntime(map[string]any{
+		"on_fail": true, "fail_title": "A",
+		"webhook_enabled": true, "webhook_url": "https://a", "webhook_body": "bodyA",
+	}))
+	setConfigByTask(2, testRuntime(map[string]any{
+		"on_fail": true, "fail_title": "B",
+		"bark_enabled": true, "bark_key": "bkey",
+	}))
 
 	gotA, okA := getConfigByTask(1)
-	if !okA || gotA.FailTitle != "A" || !gotA.WebhookEnabled || gotA.WebhookURL != "https://a" || gotA.WebhookBody != "bodyA" || gotA.BarkEnabled {
+	if !okA || gotA.Global.FailTitle != "A" {
 		t.Errorf("task 1 config leaked/mixed: ok=%v %+v", okA, gotA)
 	}
+	wchA, _ := (webhookChannel{}).Create(gotA.Attach)
+	bchA, _ := (barkChannel{}).Create(gotA.Attach)
+	wcfgA := wchA.(webhookChannel).cfg
+	bcfgA := bchA.(barkChannel).cfg
+	if !wcfgA.Enabled || wcfgA.URL != "https://a" || wcfgA.Body != "bodyA" || bcfgA.Enabled {
+		t.Errorf("task 1 webhook config leaked/mixed: %+v", gotA)
+	}
 	gotB, okB := getConfigByTask(2)
-	if !okB || gotB.FailTitle != "B" || !gotB.BarkEnabled || gotB.BarkKey != "bkey" || gotB.WebhookEnabled {
+	if !okB || gotB.Global.FailTitle != "B" {
 		t.Errorf("task 2 config leaked/mixed: ok=%v %+v", okB, gotB)
+	}
+	bchB, _ := (barkChannel{}).Create(gotB.Attach)
+	wchB, _ := (webhookChannel{}).Create(gotB.Attach)
+	bcfgB := bchB.(barkChannel).cfg
+	wcfgB := wchB.(webhookChannel).cfg
+	if !bcfgB.Enabled || bcfgB.Key != "bkey" || wcfgB.Enabled {
+		t.Errorf("task 2 bark config leaked/mixed: %+v", gotB)
 	}
 
 	// 未知 task_id：未缓存 → 返回 false，绝不回退其他任务的配置
 	if _, ok := getConfigByTask(999); ok {
 		t.Errorf("uncached task should not fall back to other tasks' config")
 	}
-	configByTaskID = map[uint64]Config{}
+	configByTaskID = map[uint64]RuntimeConfig{}
 }
 
 func TestSendWebhook(t *testing.T) {
@@ -253,19 +308,19 @@ func TestSendWebhook(t *testing.T) {
 	}))
 	defer server.Close()
 
-	config := Config{
-		WebhookEnabled: true,
-		WebhookURL:     server.URL,
-		WebhookMethod:  "POST",
-		WebhookHeaders: "X-Custom: {{title}}",
-		WebhookBody:    `{"title":"{{title}}","body":"{{body}}","name":"{{task_name}}"}`,
-	}
+	runtime := testRuntime(map[string]any{
+		"webhook_enabled": true,
+		"webhook_url":     server.URL,
+		"webhook_method":  "POST",
+		"webhook_headers": "X-Custom: {{title}}",
+		"webhook_body":    `{"title":"{{title}}","body":"{{body}}","name":"{{task_name}}"}`,
+	})
 	vars := map[string]string{
 		"task_name": "ExampleTask",
 		"title":     "通知标题",
 		"body":      "通知正文",
 	}
-	if !Send(config, vars) {
+	if !Send(runtime, vars) {
 		t.Fatalf("Send returned false")
 	}
 	if gotMethod != "POST" || gotHeader != "通知标题" || gotBody != `{"title":"通知标题","body":"通知正文","name":"ExampleTask"}` {
@@ -279,15 +334,14 @@ func TestSendWebhookError(t *testing.T) {
 	}))
 	defer server.Close()
 
-	config := Config{WebhookEnabled: true, WebhookURL: server.URL, WebhookMethod: "GET"}
-	if Send(config, map[string]string{}) {
+	runtime := testRuntime(map[string]any{"webhook_enabled": true, "webhook_url": server.URL, "webhook_method": "GET"})
+	if Send(runtime, map[string]string{}) {
 		t.Errorf("Send should return false on 500")
 	}
 }
 
 func TestSendNoChannel(t *testing.T) {
-	config := Config{OnFail: true}
-	if !Send(config, map[string]string{}) {
+	if !Send(testRuntime(nil), map[string]string{}) {
 		t.Errorf("Send with no enabled channel should return true")
 	}
 }
@@ -298,8 +352,8 @@ func TestSendWebhookDisabledChannelSkipped(t *testing.T) {
 	}))
 	defer server.Close()
 
-	config := Config{WebhookEnabled: false, WebhookURL: server.URL, WebhookMethod: "GET"}
-	if !Send(config, map[string]string{}) {
+	runtime := testRuntime(map[string]any{"webhook_enabled": false, "webhook_url": server.URL, "webhook_method": "GET"})
+	if !Send(runtime, map[string]string{}) {
 		t.Errorf("Send with disabled channel should return true")
 	}
 }
@@ -376,16 +430,16 @@ func TestSendServerChanJSON(t *testing.T) {
 	serverChanEndpoint = func(key string) (string, error) { return server.URL, nil }
 	defer func() { serverChanEndpoint = origEndpoint }()
 
-	config := Config{
-		ServerChanEnabled: true,
-		ServerChanKey:     "sctp12345tabcdef",
-		ServerChanTags:    "日常,重要", // 界面按逗号输入，发送时转为 |
-		ServerChanShort:   "简短描述",
-		ServerChanNoIP:    true,
-		ServerChanChannel: "weixin",
-		ServerChanOpenID:  "openid1",
-	}
-	if !Send(config, map[string]string{"task_name": "ExampleTask", "title": "标题 {{task_name}}", "body": "正文 {{task_name}}"}) {
+	runtime := testRuntime(map[string]any{
+		"serverchan_enabled": true,
+		"serverchan_key":     "sctp12345tabcdef",
+		"serverchan_tags":    "日常,重要", // 界面按逗号输入，发送时转为 |
+		"serverchan_short":   "简短描述",
+		"serverchan_noip":    true,
+		"serverchan_channel": "weixin",
+		"serverchan_openid":  "openid1",
+	})
+	if !Send(runtime, map[string]string{"task_name": "ExampleTask", "title": "标题 {{task_name}}", "body": "正文 {{task_name}}"}) {
 		t.Fatalf("Send returned false")
 	}
 	if !strings.Contains(gotContentType, "application/json") {
@@ -420,8 +474,8 @@ func TestSendChannelTitleOverride(t *testing.T) {
 	defer func() { barkEndpoint = orig }()
 
 	// 1. 渠道配置了标题/正文 → 渠道优先（高于通知项 vars 内容）
-	config := Config{BarkEnabled: true, BarkKey: "key", BarkTitle: "渠道标题", BarkBody: "渠道正文"}
-	if !Send(config, map[string]string{"title": "通知标题", "body": "通知正文"}) {
+	runtime := testRuntime(map[string]any{"bark_enabled": true, "bark_key": "key", "bark_title": "渠道标题", "bark_body": "渠道正文"})
+	if !Send(runtime, map[string]string{"title": "通知标题", "body": "通知正文"}) {
 		t.Fatalf("Send returned false")
 	}
 	if gotPayload["title"] != "渠道标题" || gotPayload["body"] != "渠道正文" {
@@ -429,8 +483,8 @@ func TestSendChannelTitleOverride(t *testing.T) {
 	}
 
 	// 2. 渠道模板含 {{title}}/{{body}} → 复用通知项预填内容
-	config = Config{BarkEnabled: true, BarkKey: "key", BarkTitle: "【{{title}}】", BarkBody: "-{{body}}-"}
-	if !Send(config, map[string]string{"title": "通知标题", "body": "通知正文"}) {
+	runtime = testRuntime(map[string]any{"bark_enabled": true, "bark_key": "key", "bark_title": "【{{title}}】", "bark_body": "-{{body}}-"})
+	if !Send(runtime, map[string]string{"title": "通知标题", "body": "通知正文"}) {
 		t.Fatalf("Send returned false")
 	}
 	if gotPayload["title"] != "【通知标题】" || gotPayload["body"] != "-通知正文-" {
@@ -438,8 +492,8 @@ func TestSendChannelTitleOverride(t *testing.T) {
 	}
 
 	// 3. 渠道留空 → 回退通知项（vars）内容
-	config = Config{BarkEnabled: true, BarkKey: "key"}
-	if !Send(config, map[string]string{"title": "通知标题", "body": "通知正文"}) {
+	runtime = testRuntime(map[string]any{"bark_enabled": true, "bark_key": "key"})
+	if !Send(runtime, map[string]string{"title": "通知标题", "body": "通知正文"}) {
 		t.Fatalf("Send returned false")
 	}
 	if gotPayload["title"] != "通知标题" || gotPayload["body"] != "通知正文" {
@@ -447,7 +501,7 @@ func TestSendChannelTitleOverride(t *testing.T) {
 	}
 
 	// 4. 渠道与通知项都空 → 默认标题
-	if !Send(config, map[string]string{}) {
+	if !Send(runtime, map[string]string{}) {
 		t.Fatalf("Send returned false")
 	}
 	if gotPayload["title"] != i18n.T("notify.default_title") {
@@ -470,24 +524,24 @@ func TestSendBarkJSON(t *testing.T) {
 	barkEndpoint = func(string) (string, error) { return server.URL, nil }
 	defer func() { barkEndpoint = orig }()
 
-	config := Config{
-		BarkEnabled:   true,
-		BarkKey:       "key",
-		BarkSubtitle:  "副标题",
-		BarkGroup:     "日常",
-		BarkLevel:     "critical",
-		BarkSound:     "minuet",
-		BarkIcon:      "https://example.com/icon.png",
-		BarkImage:     "https://example.com/img.png",
-		BarkURL:       "https://example.com",
-		BarkBadge:     "3",
-		BarkMarkdown:  "# 标题",
-		BarkCopy:      "复制内容",
-		BarkIsArchive: "1",
-		BarkTTL:       "86400",
-		BarkCall:      "1",
-	}
-	if !Send(config, map[string]string{"task_name": "ExampleTask", "title": "标题 {{task_name}}", "body": "正文 {{task_name}}"}) {
+	runtime := testRuntime(map[string]any{
+		"bark_enabled":   true,
+		"bark_key":       "key",
+		"bark_subtitle":  "副标题",
+		"bark_group":     "日常",
+		"bark_level":     "critical",
+		"bark_sound":     "minuet",
+		"bark_icon":      "https://example.com/icon.png",
+		"bark_image":     "https://example.com/img.png",
+		"bark_url":       "https://example.com",
+		"bark_badge":     "3",
+		"bark_markdown":  "# 标题",
+		"bark_copy":      "复制内容",
+		"bark_isarchive": "1",
+		"bark_ttl":       "86400",
+		"bark_call":      "1",
+	})
+	if !Send(runtime, map[string]string{"task_name": "ExampleTask", "title": "标题 {{task_name}}", "body": "正文 {{task_name}}"}) {
 		t.Fatalf("Send returned false")
 	}
 	if !strings.Contains(gotContentType, "application/json") {
@@ -524,12 +578,12 @@ func TestSendBarkBatch(t *testing.T) {
 	barkBatchEndpoint = func() string { return server.URL }
 	defer func() { barkBatchEndpoint = orig }()
 
-	config := Config{
-		BarkEnabled:    true,
-		BarkKey:        "single-key",
-		BarkDeviceKeys: "key1, key2\nkey3",
-	}
-	if !Send(config, map[string]string{}) {
+	runtime := testRuntime(map[string]any{
+		"bark_enabled":    true,
+		"bark_key":        "single-key",
+		"bark_devicekeys": "key1, key2\nkey3",
+	})
+	if !Send(runtime, map[string]string{}) {
 		t.Fatalf("Send returned false")
 	}
 	if gotPath != "/" {
@@ -574,16 +628,16 @@ func TestSendTelegram(t *testing.T) {
 	telegramEndpoint = func(string, string) (string, error) { return server.URL, nil }
 	defer func() { telegramEndpoint = orig }()
 
-	config := Config{
-		TelegramEnabled:             true,
-		TelegramToken:               "123456:ABC-DEF",
-		TelegramChatID:              "user1",
-		TelegramTitle:               "通知 {{task_name}}",
-		TelegramBody:                "正文 {{task_name}}",
-		TelegramParseMode:           "MarkdownV2",
-		TelegramDisableNotification: true,
-	}
-	if !Send(config, map[string]string{"task_name": "ExampleTask", "title": "标题 {{task_name}}", "body": "正文 {{task_name}}"}) {
+	runtime := testRuntime(map[string]any{
+		"telegram_enabled":              true,
+		"telegram_token":                "123456:ABC-DEF",
+		"telegram_chat_id":              "user1",
+		"telegram_title":                "通知 {{task_name}}",
+		"telegram_body":                 "正文 {{task_name}}",
+		"telegram_parse_mode":           "MarkdownV2",
+		"telegram_disable_notification": true,
+	})
+	if !Send(runtime, map[string]string{"task_name": "ExampleTask", "title": "标题 {{task_name}}", "body": "正文 {{task_name}}"}) {
 		t.Fatalf("Send returned false")
 	}
 	if gotPath != "/" {
@@ -616,13 +670,13 @@ func TestSendTelegramMultiChat(t *testing.T) {
 	telegramEndpoint = func(string, string) (string, error) { return server.URL, nil }
 	defer func() { telegramEndpoint = orig }()
 
-	config := Config{
-		TelegramEnabled: true,
-		TelegramToken:   "t",
-		TelegramChatID:  "user1,user2,user3",
-		TelegramTitle:   "标题",
-	}
-	if !Send(config, map[string]string{}) {
+	runtime := testRuntime(map[string]any{
+		"telegram_enabled": true,
+		"telegram_token":   "t",
+		"telegram_chat_id": "user1,user2,user3",
+		"telegram_title":   "标题",
+	})
+	if !Send(runtime, map[string]string{}) {
 		t.Fatalf("Send returned false")
 	}
 	if requests.Load() != 3 {
@@ -632,14 +686,16 @@ func TestSendTelegramMultiChat(t *testing.T) {
 
 func TestSendTelegramErrors(t *testing.T) {
 	// token 为空 → 构造端点失败
-	if err := (telegramChannel{}).Send(Config{TelegramEnabled: true, TelegramChatID: "1", TelegramTitle: "标题"}, map[string]string{}); err == nil {
+	ch := telegramChannel{cfg: telegramConfig{Enabled: true, ChatID: "1", Title: "标题"}}
+	if err := ch.Send(testCtx()); err == nil {
 		t.Errorf("empty token should error")
 	}
 	// chat_id 为空 → 发送失败
 	orig := telegramEndpoint
 	telegramEndpoint = func(string, string) (string, error) { return "http://example.invalid", nil }
 	defer func() { telegramEndpoint = orig }()
-	if err := (telegramChannel{}).Send(Config{TelegramEnabled: true, TelegramToken: "t", TelegramChatID: "", TelegramTitle: "标题"}, map[string]string{}); err == nil {
+	ch = telegramChannel{cfg: telegramConfig{Enabled: true, Token: "t", ChatID: "", Title: "标题"}}
+	if err := ch.Send(testCtx()); err == nil {
 		t.Errorf("empty chat_id should error")
 	}
 
@@ -650,7 +706,8 @@ func TestSendTelegramErrors(t *testing.T) {
 	}))
 	defer server.Close()
 	telegramEndpoint = func(string, string) (string, error) { return server.URL, nil }
-	if err := (telegramChannel{}).Send(Config{TelegramEnabled: true, TelegramToken: "t", TelegramChatID: "1", TelegramTitle: "标题"}, map[string]string{}); err == nil || !strings.Contains(err.Error(), "chat not found") {
+	ch = telegramChannel{cfg: telegramConfig{Enabled: true, Token: "t", ChatID: "1", Title: "标题"}}
+	if err := ch.Send(testCtx()); err == nil || !strings.Contains(err.Error(), "chat not found") {
 		t.Errorf("ok=false should error with description, got %v", err)
 	}
 
@@ -660,7 +717,8 @@ func TestSendTelegramErrors(t *testing.T) {
 	}))
 	defer server500.Close()
 	telegramEndpoint = func(string, string) (string, error) { return server500.URL, nil }
-	if err := (telegramChannel{}).Send(Config{TelegramEnabled: true, TelegramToken: "t", TelegramChatID: "1", TelegramTitle: "标题"}, map[string]string{}); err == nil {
+	ch = telegramChannel{cfg: telegramConfig{Enabled: true, Token: "t", ChatID: "1", Title: "标题"}}
+	if err := ch.Send(testCtx()); err == nil {
 		t.Errorf("HTTP 500 should error")
 	}
 }
@@ -675,8 +733,8 @@ func TestSendServerChanHTTPError(t *testing.T) {
 	serverChanEndpoint = func(string) (string, error) { return server.URL, nil }
 	defer func() { serverChanEndpoint = orig }()
 
-	config := Config{ServerChanEnabled: true, ServerChanKey: "key"}
-	if Send(config, map[string]string{}) {
+	runtime := testRuntime(map[string]any{"serverchan_enabled": true, "serverchan_key": "key"})
+	if Send(runtime, map[string]string{}) {
 		t.Errorf("Send should return false on 500")
 	}
 }
@@ -692,8 +750,8 @@ func TestSendServerChanBusinessError(t *testing.T) {
 	serverChanEndpoint = func(string) (string, error) { return server.URL, nil }
 	defer func() { serverChanEndpoint = orig }()
 
-	config := Config{ServerChanEnabled: true, ServerChanKey: "key"}
-	if Send(config, map[string]string{}) {
+	runtime := testRuntime(map[string]any{"serverchan_enabled": true, "serverchan_key": "key"})
+	if Send(runtime, map[string]string{}) {
 		t.Errorf("Send should return false on non-zero api code")
 	}
 }
@@ -709,8 +767,8 @@ func TestSendServerChanBadJSON(t *testing.T) {
 	serverChanEndpoint = func(string) (string, error) { return server.URL, nil }
 	defer func() { serverChanEndpoint = orig }()
 
-	config := Config{ServerChanEnabled: true, ServerChanKey: "key"}
-	if Send(config, map[string]string{}) {
+	runtime := testRuntime(map[string]any{"serverchan_enabled": true, "serverchan_key": "key"})
+	if Send(runtime, map[string]string{}) {
 		t.Errorf("Send should return false on non-JSON response body")
 	}
 }
@@ -726,8 +784,8 @@ func TestSendBarkBusinessError(t *testing.T) {
 	barkEndpoint = func(string) (string, error) { return server.URL, nil }
 	defer func() { barkEndpoint = orig }()
 
-	config := Config{BarkEnabled: true, BarkKey: "key"}
-	if Send(config, map[string]string{}) {
+	runtime := testRuntime(map[string]any{"bark_enabled": true, "bark_key": "key"})
+	if Send(runtime, map[string]string{}) {
 		t.Errorf("Send should return false on Bark code != 200")
 	}
 }
@@ -755,10 +813,10 @@ func waitForNoMoreRequests(t *testing.T, counter *atomic.Int32, want int32) {
 }
 
 func TestSinkFailedNotify(t *testing.T) {
-	configByTaskID = map[uint64]Config{}
+	configByTaskID = map[uint64]RuntimeConfig{}
 	notifiedTaskIDs = sync.Map{}
 	defer func() {
-		configByTaskID = map[uint64]Config{}
+		configByTaskID = map[uint64]RuntimeConfig{}
 		notifiedTaskIDs = sync.Map{}
 	}()
 
@@ -776,17 +834,17 @@ func TestSinkFailedNotify(t *testing.T) {
 	waitForNoMoreRequests(t, &requests, 0)
 
 	// on_fail 开启但无渠道：无效配置，不发送
-	setConfigByTask(1, Config{OnFail: true})
+	setConfigByTask(1, testRuntime(map[string]any{"on_fail": true}))
 	sink.OnTaskerTask(nil, maa.EventStatusFailed, maa.TaskerTaskDetail{TaskID: 1, Entry: "TaskA"})
 	waitForNoMoreRequests(t, &requests, 0)
 
 	// 渠道开启但 on_fail 关闭：不发送（主动关闭属正常）
-	setConfigByTask(2, Config{WebhookEnabled: true, WebhookURL: server.URL, WebhookMethod: "GET"})
+	setConfigByTask(2, testRuntime(map[string]any{"webhook_enabled": true, "webhook_url": server.URL, "webhook_method": "GET"}))
 	sink.OnTaskerTask(nil, maa.EventStatusFailed, maa.TaskerTaskDetail{TaskID: 2, Entry: "TaskB"})
 	waitForNoMoreRequests(t, &requests, 0)
 
 	// on_fail + 渠道：发送失败通知
-	setConfigByTask(3, Config{OnFail: true, FailTitle: "失败啦", WebhookEnabled: true, WebhookURL: server.URL, WebhookMethod: "GET"})
+	setConfigByTask(3, testRuntime(map[string]any{"on_fail": true, "fail_title": "失败啦", "webhook_enabled": true, "webhook_url": server.URL, "webhook_method": "GET"}))
 	sink.OnTaskerTask(nil, maa.EventStatusFailed, maa.TaskerTaskDetail{TaskID: 3, Entry: "TaskC"})
 	waitForRequests(t, &requests, 1)
 
@@ -794,7 +852,7 @@ func TestSinkFailedNotify(t *testing.T) {
 	sink.OnTaskerTask(nil, maa.EventStatusFailed, maa.TaskerTaskDetail{TaskID: 3, Entry: "TaskC"})
 	waitForNoMoreRequests(t, &requests, 1)
 	// 不同 taskID 不受影响
-	setConfigByTask(4, Config{OnFail: true, FailTitle: "另一个", WebhookEnabled: true, WebhookURL: server.URL, WebhookMethod: "GET"})
+	setConfigByTask(4, testRuntime(map[string]any{"on_fail": true, "fail_title": "另一个", "webhook_enabled": true, "webhook_url": server.URL, "webhook_method": "GET"}))
 	sink.OnTaskerTask(nil, maa.EventStatusFailed, maa.TaskerTaskDetail{TaskID: 4, Entry: "TaskD"})
 	waitForRequests(t, &requests, 2)
 }
@@ -818,60 +876,75 @@ func TestSanitizeError(t *testing.T) {
 	}
 }
 
-func TestMergeConfig(t *testing.T) {
-	global := Config{
-		WebhookEnabled: true, BarkEnabled: true, ServerChanEnabled: true,
-		TaskTitle: "全局标题", TaskBody: "全局正文",
-		TaskNotifyToggles: map[string]bool{"monthly_card": true},
+func TestMergeAttach(t *testing.T) {
+	global := map[string]any{
+		"webhook_enabled": true, "bark_enabled": true, "serverchan_enabled": true,
+		"task_title": "全局标题", "task_body": "全局正文",
 	}
-	local := Config{TaskTitle: "本地标题", TaskNotifyKey: "monthly_card"}
+	local := map[string]any{"task_title": "本地标题", "task_notify_key": "monthly_card"}
 
-	merged := mergeConfig(global, local)
+	merged := MergeAttach(global, local)
 	// 渠道字段以全局为准
-	if !merged.WebhookEnabled || !merged.BarkEnabled || !merged.ServerChanEnabled {
+	if merged["webhook_enabled"] != true || merged["bark_enabled"] != true || merged["serverchan_enabled"] != true {
 		t.Errorf("channel fields should come from global: %+v", merged)
 	}
 	// 内容字段调用节点优先
-	if merged.TaskTitle != "本地标题" {
+	if merged["task_title"] != "本地标题" {
 		t.Errorf("content should prefer local: %+v", merged)
 	}
 	// 通知项 ID 本地优先
-	if merged.TaskNotifyKey != "monthly_card" {
+	if merged["task_notify_key"] != "monthly_card" {
 		t.Errorf("task_notify_key should prefer local: %+v", merged)
 	}
 	// 本地未写的字段回退全局
-	if merged.TaskBody != "全局正文" {
+	if merged["task_body"] != "全局正文" {
 		t.Errorf("content should fall back to global: %+v", merged)
 	}
 
 	// 本地内容全空：不覆盖全局
-	if merged2 := mergeConfig(global, Config{}); merged2.TaskTitle != "全局标题" {
+	merged2 := MergeAttach(global, map[string]any{})
+	if merged2["task_title"] != "全局标题" {
 		t.Errorf("empty local should not override global: %+v", merged2)
+	}
+}
+
+func TestContainsContent(t *testing.T) {
+	if ContainsContent(nil) {
+		t.Errorf("nil attach should have no content")
+	}
+	if ContainsContent(map[string]any{}) {
+		t.Errorf("empty attach should have no content")
+	}
+	if !ContainsContent(map[string]any{"task_title": "x"}) {
+		t.Errorf("task_title should count as content")
+	}
+	if ContainsContent(map[string]any{"webhook_enabled": true}) {
+		t.Errorf("channel-only attach should have no content")
 	}
 }
 
 func TestTaskNotifySkipped(t *testing.T) {
 	// 未声明 task_notify_key：不判断，发送
-	if taskNotifySkipped(Config{TaskNotifyToggles: map[string]bool{"monthly_card": false}}) {
+	if taskNotifySkipped(GlobalConfig{TaskNotifyToggles: map[string]bool{"monthly_card": false}}) {
 		t.Errorf("no key should not skip")
 	}
 	// 声明了 key 但设置页未配置：默认启用，发送
-	if taskNotifySkipped(Config{TaskNotifyKey: "monthly_card"}) {
+	if taskNotifySkipped(GlobalConfig{TaskNotifyKey: "monthly_card"}) {
 		t.Errorf("unconfigured item should default to enabled")
 	}
-	if taskNotifySkipped(Config{TaskNotifyKey: "monthly_card", TaskNotifyToggles: map[string]bool{}}) {
+	if taskNotifySkipped(GlobalConfig{TaskNotifyKey: "monthly_card", TaskNotifyToggles: map[string]bool{}}) {
 		t.Errorf("empty toggles should default to enabled")
 	}
 	// 设置页显式启用：发送
-	if taskNotifySkipped(Config{TaskNotifyKey: "monthly_card", TaskNotifyToggles: map[string]bool{"monthly_card": true}}) {
+	if taskNotifySkipped(GlobalConfig{TaskNotifyKey: "monthly_card", TaskNotifyToggles: map[string]bool{"monthly_card": true}}) {
 		t.Errorf("enabled item should not skip")
 	}
 	// 设置页显式关闭：跳过
-	if !taskNotifySkipped(Config{TaskNotifyKey: "monthly_card", TaskNotifyToggles: map[string]bool{"monthly_card": false}}) {
+	if !taskNotifySkipped(GlobalConfig{TaskNotifyKey: "monthly_card", TaskNotifyToggles: map[string]bool{"monthly_card": false}}) {
 		t.Errorf("disabled item should skip")
 	}
 	// 其他通知项开关不影响本通知项
-	if taskNotifySkipped(Config{TaskNotifyKey: "monthly_card", TaskNotifyToggles: map[string]bool{"survey": false}}) {
+	if taskNotifySkipped(GlobalConfig{TaskNotifyKey: "monthly_card", TaskNotifyToggles: map[string]bool{"survey": false}}) {
 		t.Errorf("other item toggle should not affect this item")
 	}
 }
@@ -930,27 +1003,27 @@ func TestResolveActionTaskName(t *testing.T) {
 
 func TestParseConfigAllowTaskNotify(t *testing.T) {
 	// 未配置 → nil（默认允许）
-	config, err := ParseConfig(`{"attach": {"webhook_enabled": true}}`)
+	runtime, err := ParseConfig(`{"attach": {"webhook_enabled": true}}`)
 	if err != nil {
 		t.Fatalf("ParseConfig failed: %v", err)
 	}
-	if config.AllowTaskNotify != nil {
-		t.Errorf("unset allow_task_notify should be nil, got %v", *config.AllowTaskNotify)
+	if runtime.Global.AllowTaskNotify != nil {
+		t.Errorf("unset allow_task_notify should be nil, got %v", *runtime.Global.AllowTaskNotify)
 	}
 	// 显式 false → 关闭自定义通知
-	config, err = ParseConfig(`{"attach": {"allow_task_notify": false}}`)
+	runtime, err = ParseConfig(`{"attach": {"allow_task_notify": false}}`)
 	if err != nil {
 		t.Fatalf("ParseConfig failed: %v", err)
 	}
-	if config.AllowTaskNotify == nil || *config.AllowTaskNotify {
-		t.Errorf("allow_task_notify=false should parse to false, got %v", config.AllowTaskNotify)
+	if runtime.Global.AllowTaskNotify == nil || *runtime.Global.AllowTaskNotify {
+		t.Errorf("allow_task_notify=false should parse to false, got %v", runtime.Global.AllowTaskNotify)
 	}
 	// 显式 true → 允许
-	config, err = ParseConfig(`{"attach": {"allow_task_notify": true}}`)
+	runtime, err = ParseConfig(`{"attach": {"allow_task_notify": true}}`)
 	if err != nil {
 		t.Fatalf("ParseConfig failed: %v", err)
 	}
-	if config.AllowTaskNotify == nil || !*config.AllowTaskNotify {
-		t.Errorf("allow_task_notify=true should parse to true, got %v", config.AllowTaskNotify)
+	if runtime.Global.AllowTaskNotify == nil || !*runtime.Global.AllowTaskNotify {
+		t.Errorf("allow_task_notify=true should parse to true, got %v", runtime.Global.AllowTaskNotify)
 	}
 }

@@ -14,7 +14,7 @@ func TestSendDoesNotMutateVars(t *testing.T) {
 	}))
 	defer server.Close()
 
-	config := Config{WebhookEnabled: true, WebhookURL: server.URL, WebhookMethod: "GET"}
+	config := testRuntime(map[string]any{"webhook_enabled": true, "webhook_url": server.URL, "webhook_method": "GET"})
 	vars := map[string]string{"task_name": "T"}
 	if !Send(config, vars) {
 		t.Fatalf("Send returned false")
