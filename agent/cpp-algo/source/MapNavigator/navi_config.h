@@ -8,10 +8,12 @@ namespace mapnavigator
 {
 
 constexpr int32_t kWorkWidth = 1280;
+constexpr int32_t kWorkHeight = 720;
 
 // --- ActionWrapper Constants ---
 constexpr double kTurn360UnitsPerWidth = 2.23006;
 constexpr double kTurnDegreesPerCircle = 360.0;
+constexpr double kPitchDegreesPerRange = 180.0;
 
 struct AdbTouchTurnProfile
 {
@@ -41,10 +43,15 @@ inline double ComputeDefaultUnitsPerDegree()
     return ComputeUnitsPerDegreeForWidth(kWorkWidth);
 }
 
-// 桌面端发送的是相对鼠标量, 横纵轴使用同一份角度尺度, 不能按画面高宽比缩放俯仰。
+// 俯仰的可动行程是 180 度, 纵轴代入屏幕高
+inline double ComputeUnitsPerDegreeForHeight(int32_t screen_height)
+{
+    return kTurn360UnitsPerWidth * static_cast<double>(screen_height) / kPitchDegreesPerRange;
+}
+
 inline double ComputeDefaultPitchUnitsPerDegree()
 {
-    return ComputeDefaultUnitsPerDegree();
+    return ComputeUnitsPerDegreeForHeight(kWorkHeight);
 }
 
 constexpr int32_t kActionSprintPressMs = 30;
