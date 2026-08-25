@@ -340,10 +340,10 @@
         "custom_recognition_param": {
             "zone_id": "Wuling_Base",
             "target": [
-                378.56,
-                2345.75,
-                120.17,
-                97.03
+                598.0,
+                2336.0,
+                60.0,
+                48.0
             ]
         },
         "pre_delay": 0,
@@ -360,7 +360,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldWulingMarkerStone_Ship2DestinationThenWalkAndFight"
+                "SceneEnterWorldWulingMarkerStoneCoreIcon"
             ]
         },
         "post_delay": 0,
@@ -371,6 +371,41 @@
     },
     "GoToCloudrestEcoSiteMove": {
         "desc": "自动寻路前往栖云生态点",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        431.11,
+                        2407.17
+                    ]
+                },
+                {
+                    "action": "HEADING",
+                    "angle": 177
+                }
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoFight",
+            "GoToCloudrestEcoSiteMoveAfterFight"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "GoToCloudrestEcoSiteMoveAfterFight": {
+        "desc": "可能的战斗结束后，恢复性地走回栖云生态点拍照点",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
