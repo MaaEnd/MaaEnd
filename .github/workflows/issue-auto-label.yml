@@ -1,15 +1,44 @@
-name: task issue auto label
+name: issue auto label
 
 on:
   issues:
     types: [opened]
 
 jobs:
-  auto-label-task:
+  auto-label:
     runs-on: ubuntu-latest
     permissions:
       issues: write
     steps:
+      - name: Label team member issues
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const issue = context.payload.issue;
+            const association = issue.author_association;
+
+            console.log(
+              `Issue #${issue.number} author_association: ${association}`
+            );
+
+            if (association === 'OWNER' || association === 'MEMBER') {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                labels: ['MaaEnd Team'],
+              });
+
+              console.log(
+                `Added MaaEnd Team label to issue #${issue.number} (author: ${association})`
+              );
+            } else {
+              console.log(
+                `Skipping MaaEnd Team label for issue #${issue.number} (author: ${association})`
+              );
+            }
+
       - name: Match task labels by issue content
         uses: actions/github-script@v7
         with:
