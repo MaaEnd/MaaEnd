@@ -26,11 +26,6 @@
                 "ListCompleteRecognition",
                 "MapFind",
                 "MapLocateAssertLocation",
-                "MapTrackerAssertLocation",
-                "MapTrackerAssertLocationCompatible",
-                "MapTrackerBigMapFindImage",
-                "MapTrackerBigMapInfer",
-                "MapTrackerInfer",
                 "PuzzleRecognition",
                 "ReceptionRoomExchangeCountdownWithinThresholdRecognition",
                 "ReceptionRoomWaitExchangeKeepAliveDueRecognition",
@@ -432,20 +427,6 @@
             "if": {
                 "type": "object",
                 "required": [ "custom_recognition" ],
-                "properties": { "custom_recognition": { "const": "MapTrackerAssertLocation" } }
-            },
-            "then": {
-                "type": "object",
-                "required": [ "custom_recognition_param" ],
-                "properties": {
-                    "custom_recognition_param": { "$ref": "./components/map_tracker.schema.json#/$defs/MapTrackerAssertLocationParam" }
-                }
-            }
-        },
-        {
-            "if": {
-                "type": "object",
-                "required": [ "custom_recognition" ],
                 "properties": { "custom_recognition": { "const": "MapFind" } }
             },
             "then": {
@@ -494,48 +475,6 @@
                             }
                         }
                     }
-                }
-            }
-        },
-        {
-            "if": {
-                "type": "object",
-                "required": [ "custom_recognition" ],
-                "properties": { "custom_recognition": { "const": "MapTrackerInfer" } }
-            },
-            "then": {
-                "type": "object",
-                "required": [ "custom_recognition_param" ],
-                "properties": {
-                    "custom_recognition_param": { "$ref": "./components/map_tracker.schema.json#/$defs/MapTrackerInferParam" }
-                }
-            }
-        },
-        {
-            "if": {
-                "type": "object",
-                "required": [ "custom_recognition" ],
-                "properties": { "custom_recognition": { "const": "MapTrackerBigMapInfer" } }
-            },
-            "then": {
-                "type": "object",
-                "required": [ "custom_recognition_param" ],
-                "properties": {
-                    "custom_recognition_param": { "$ref": "./components/map_tracker.schema.json#/$defs/MapTrackerBigMapInferParam" }
-                }
-            }
-        },
-        {
-            "if": {
-                "type": "object",
-                "required": [ "custom_recognition" ],
-                "properties": { "custom_recognition": { "const": "MapTrackerBigMapFindImage" } }
-            },
-            "then": {
-                "type": "object",
-                "required": [ "custom_recognition_param" ],
-                "properties": {
-                    "custom_recognition_param": { "$ref": "./components/map_tracker.schema.json#/$defs/MapTrackerBigMapFindImageParam" }
                 }
             }
         },

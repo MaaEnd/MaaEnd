@@ -48,9 +48,8 @@ MaaBool MAA_CALL MapNavigateActionRun(
     ResolveInteractTextNodes(context, param);
     param.zipline_enabled = ResolveZiplineEnabled(context, param.zipline_enabled);
 
-    // Native entry plans on the navmesh base mesh, so normalize live fixes onto the navmesh base-pixel
-    // frame using the navmesh's own baked tier affine. The Compatible entry leaves this off (its frame
-    // is the MapTracker base-px), keeping that path byte-identical.
+    // Planning runs on the navmesh base mesh, so normalize live fixes onto the navmesh base-pixel
+    // frame using the navmesh's own baked tier affine.
     param.normalize_position_via_navmesh = true;
 
     NaviController controller(context);

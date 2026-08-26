@@ -27,7 +27,7 @@
   POST /api/connection/check  -> 主动探测当前连接配置是否可达 (win32 窗口 / adb 设备 / playcover 端口 / linux gamescope)
   POST /api/locate-once       -> 单次游戏内定位 (临时连接, 取第 3 个有效帧的位置与朝向)
   POST /api/import/analyze    -> 解析上传 JSON (路线/Assert); 缺 zone 时回片段供前端指定
-  POST /api/import/finalize   -> 按片段 zone 指定定稿导入 (convert_maptracker+infer+normalize)
+  POST /api/import/finalize   -> 按片段 zone 指定定稿导入 (归一化 + zone 校验)
   POST /api/export/path       -> 点位 -> path 节点 + JSON 文本 (与 tk 逐字节一致)
   POST /api/export/assert     -> zone_id + target -> AssertLocation 节点 + JSON 文本
   WS   /ws/record             -> 录制桥接 (start/stop; G 复制坐标, X 强制打点)
@@ -534,7 +534,7 @@ async def api_basemap_by_zone(zone_id: str) -> FileResponse:
 async def api_zone_ids() -> dict[str, Any]:
     """assert 模式 zone 下拉的可选值 (json_import.list_available_zone_ids, fs 扫描各图源目录)。
 
-    惰性 import json_import —— 与导入端点一致, 使纯导航/编辑用户即使缺 maptracker 变换文件也能启动。
+    惰性 import json_import —— 与导入端点一致, 使纯导航/编辑用户即使缺图源目录也能启动。
     """
 
     def _list() -> list[str]:
@@ -719,11 +719,10 @@ async def api_gamescope_instances() -> dict[str, Any]:
     return {"instances": instances}
 
 
-# --- 导入 / 导出 (Option 1: 复用未改动的 json_import.py + maptracker_compat.py) --------
+# --- 导入 / 导出 (复用 json_import.py) ------------------------------------------------
 # 前端只做收发: POST 文件文本 -> 后端算 -> 拿回归一化点位; POST 点位 -> 拿回 JSON 文本。
-# 大文件 (含 PNG 亮度采样 / 目录遍历) 单一实现在 Python, 与 tk 工具字节一致 (见 DESIGN §5)。
-# 惰性 import: 只在真正导入/导出时才加载 json_import (它会读 maptracker_coordinate_transforms.json),
-# 从而纯导航/编辑用户即使缺该文件也能启动服务。
+# 惰性 import: 只在真正导入/导出时才加载 json_import (它会扫描图源目录),
+# 从而纯导航/编辑用户即使缺这些资源也能启动服务。
 def _write_temp_json(text: str) -> Path:
     """把上传文本写到临时 .json, 以复用 load_*_from_json_file(path) —— json_import.py 零改动。"""
     import tempfile
@@ -792,7 +791,6 @@ async def api_import_analyze(payload: dict[str, Any] = Body(default_factory=dict
 
     def _run() -> dict[str, Any]:
         from json_import import (
-            infer_missing_zones,
             list_available_zone_ids,
             load_assert_location_from_json_file,
             load_points_from_json_file,
@@ -802,9 +800,9 @@ async def api_import_analyze(payload: dict[str, Any] = Body(default_factory=dict
 
         tmp = _write_temp_json(text)
         try:
-            # 先按路线导入 (apply_zone_inference=False, apply_maptracker_compat 用默认 True —— 与 tk 一致)
+            # 先按路线导入, 失败再退回 Assert
             try:
-                route = load_points_from_json_file(tmp, apply_zone_inference=False)
+                route = load_points_from_json_file(tmp)
             except Exception as route_exc:  # noqa: BLE001 —— tk import_json 捕获全部异常再试 Assert
                 try:
                     location = load_assert_location_from_json_file(tmp)
@@ -819,20 +817,17 @@ async def api_import_analyze(payload: dict[str, Any] = Body(default_factory=dict
                     "zone_id": location.zone_id,
                     "target": [float(x), float(y), float(width), float(height)],
                     "condition_count": int(location.condition_count),
-                    "converted_from_maptracker": bool(location.converted_from_maptracker),
                 }
 
             imported_points = route.points
-            converted_count = route.converted_maptracker_point_count
             if not route.source_has_zone_info:
                 segments = split_route_into_segments(imported_points)
                 zone_options = list_available_zone_ids()
                 if segments and zone_options:
-                    # 需要交互式区域指定 (tk _prompt_zone_assignment_for_import)
-                    suggested_points = infer_missing_zones(imported_points)
+                    # 源文件没带 zone -> 回片段给前端逐段指定
                     seg_infos: list[dict[str, Any]] = []
                     for idx, (start, end) in enumerate(segments):
-                        dominant = _dominant_zone_of(suggested_points[start:end])
+                        dominant = _dominant_zone_of(imported_points[start:end])
                         if dominant not in zone_options:
                             dominant = zone_options[0]
                         seg_infos.append(
@@ -852,11 +847,10 @@ async def api_import_analyze(payload: dict[str, Any] = Body(default_factory=dict
                         "segments": seg_infos,
                         "zone_options": zone_options,
                         "route_count": route.route_count,
-                        "converted_count": converted_count,
                     }
-                # 无片段/无可选区域 -> tk 直接沿用原点位, 进入 infer+normalize
+                # 无片段/无可选区域 -> 沿用原点位直接归一化
 
-            final_points = normalize_path_points(infer_missing_zones(imported_points))
+            final_points = normalize_path_points(imported_points)
             unresolved = _unresolved_zone_ids(final_points)
             if unresolved:
                 return {"ok": False, "error": _unresolved_zone_message(unresolved)}
@@ -866,7 +860,6 @@ async def api_import_analyze(payload: dict[str, Any] = Body(default_factory=dict
                 "needs_assignment": False,
                 "points": final_points,
                 "route_count": route.route_count,
-                "converted_count": converted_count,
             }
         finally:
             try:
@@ -879,20 +872,13 @@ async def api_import_analyze(payload: dict[str, Any] = Body(default_factory=dict
 
 @app.post("/api/import/finalize")
 async def api_import_finalize(payload: dict[str, Any] = Body(default_factory=dict)) -> Any:
-    """复刻 confirm() + 其后的转换尾段: 给 raw_points 按片段赋 zone, 再 convert_maptracker
-    -> infer -> normalize -> 校验。converted_count 只是本阶段新增, 前端与 analyze 的相加。
-    """
+    """给 raw_points 按片段赋 zone, 再归一化并校验 zone 可解析。"""
     raw_points = payload.get("raw_points", [])
     assignments = payload.get("zone_assignments", [])
     if not isinstance(raw_points, list) or not isinstance(assignments, list):
         raise HTTPException(status_code=400, detail="raw_points / zone_assignments 需为数组")
 
     def _run() -> dict[str, Any]:
-        from json_import import infer_missing_zones
-        from maptracker_compat import (
-            convert_maptracker_points_to_mapnavigator,
-            maptracker_base_map_name_from_zone,
-        )
         from model import normalize_path_points
 
         assigned_points = [dict(point) for point in raw_points]
@@ -903,7 +889,6 @@ async def api_import_finalize(payload: dict[str, Any] = Body(default_factory=dic
             zone_name = str(assignment.get("zone", "") or "").strip()
             if not zone_name:
                 return {"ok": False, "error": "请先为每个片段选择对应地图。"}
-            zone_name = maptracker_base_map_name_from_zone(zone_name) or zone_name
             selected_zone_names.append(zone_name)
             for point_idx in range(start, end):
                 if 0 <= point_idx < len(assigned_points):
@@ -912,12 +897,11 @@ async def api_import_finalize(payload: dict[str, Any] = Body(default_factory=dic
         if not selected_zone_names:
             return {"ok": False, "error": "当前没有任何可用区域映射。"}
 
-        points, converted_count = convert_maptracker_points_to_mapnavigator(assigned_points)
-        final_points = normalize_path_points(infer_missing_zones(points))
+        final_points = normalize_path_points(assigned_points)
         unresolved = _unresolved_zone_ids(final_points)
         if unresolved:
             return {"ok": False, "error": _unresolved_zone_message(unresolved)}
-        return {"ok": True, "points": final_points, "converted_count": converted_count}
+        return {"ok": True, "points": final_points}
 
     return await run_in_threadpool(_run)
 

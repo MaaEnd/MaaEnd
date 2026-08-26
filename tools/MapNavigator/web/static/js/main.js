@@ -3413,15 +3413,15 @@ class MapNavigatorApp {
     }
 
     /**
-     * Status note for a route whose zone has no navmesh basemap (MapTracker routes such as
-     * `map02_lv005` live in their own image frame, which only 路径编辑 can show).
+     * Status note for a route whose zone has no navmesh basemap —— such a zone lives in its
+     * own image frame, which only 路径编辑 can show.
      * @param {object[]} points @param {string} what what the current mode cannot do
      * @returns {{text:string, color:string}}
      */
     _noNavmeshBasemapNote(points, what) {
         const zone = normalizeZoneId((points[0] && points[0].zone) || "") || "未知";
         return {
-            text: `zone=${zone} 不是 navmesh 底图区域（MapTracker 路线），${what}，可切到「路径编辑」模式查看`,
+            text: `zone=${zone} 不是 navmesh 底图区域，${what}，可切到「路径编辑」模式查看`,
             color: "#f59e0b",
         };
     }

@@ -103,9 +103,7 @@ const customRecoParser: PropSelector = (name, param, utils) => {
   const result: PropSelectorResult[] = []
 
   // 模板引用
-  if (name === 'MapTrackerBigMapFindImage') {
-    tryAddTemplateFields(param, utils, result, ['template'], [], resourceTemplatePrefixes)
-  } else if (name === 'EssenceGridAdvanceRecognition') {
+  if (name === 'EssenceGridAdvanceRecognition') {
     tryAddTemplateFields(
       param,
       utils,

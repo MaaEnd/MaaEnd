@@ -24,8 +24,7 @@ struct NaviParam
     // Bootstrap 里现成的两档兜底（串行续接 / 直接朝路线头走），照录制点走。默认开，不设置的线路行为不变。
     bool enable_bootstrap_navmesh = true;
     // When set, live fixes are projected onto the navmesh base-pixel frame via the navmesh's own baked
-    // tier affine (see NormalizeLivePositionToBase). Native MapNavigator turns this on; the Compatible
-    // entry leaves it off so its MapTracker-base-px frame is preserved byte-for-byte.
+    // tier affine (see NormalizeLivePositionToBase). MapNavigator turns this on.
     bool normalize_position_via_navmesh = false;
     // 这条路线允许不允许借滑索。默认关：没有显式写 zip 的请求一律纯走路，既不去找最近的
     // 滑索也不做加速，规划结果与没有滑索这件事时逐位相同。

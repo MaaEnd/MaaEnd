@@ -66,13 +66,6 @@
                 "ItemTransferFallbackAction",
                 "ItemTransferOCRAction",
                 "MapNavigateAction",
-                "MapTrackerBigMapPick",
-                "MapTrackerBigMapZoom",
-                "MapTrackerGoal",
-                "MapTrackerMove",
-                "MapTrackerMoveCompatible",
-                "MapTrackerToward",
-                "MapTrackerZipline",
                 "PipelineOverride",
                 "PipelineOverrideAction",
                 "PostStop",
@@ -305,112 +298,28 @@
     "if": {
         "type": "object",
         "required": [ "custom_action" ],
-        "properties": { "custom_action": { "const": "MapTrackerMove" } }
+        "properties": { "custom_action": { "const": "AutoAltSwipeAction" } }
     },
     "then": {
         "type": "object",
         "required": [ "custom_action_param" ],
         "properties": {
-            "custom_action_param": { "$ref": "./components/map_tracker.schema.json#/$defs/MapTrackerMoveParam" }
+            "custom_action_param": { "$ref": "./components/auto_alt.schema.json#/$defs/AutoAltSwipeParam" }
         }
     },
     "else": {
         "if": {
             "type": "object",
             "required": [ "custom_action" ],
-            "properties": { "custom_action": { "const": "MapTrackerGoal" } }
+            "properties": {
+                "custom_action": { "const": "FailureCollectorRunTask" }
+            }
         },
         "then": {
             "type": "object",
             "required": [ "custom_action_param" ],
             "properties": {
-                "custom_action_param": { "$ref": "./components/map_tracker.schema.json#/$defs/MapTrackerGoalParam" }
-            }
-        },
-        "else": {
-            "if": {
-                "type": "object",
-                "required": [ "custom_action" ],
-                "properties": { "custom_action": { "const": "MapTrackerZipline" } }
-            },
-            "then": {
-                "type": "object",
-                "required": [ "custom_action_param" ],
-                "properties": {
-                    "custom_action_param": { "$ref": "./components/map_tracker.schema.json#/$defs/MapTrackerZiplineParam" }
-                }
-            },
-            "else": {
-                "if": {
-                    "type": "object",
-                    "required": [ "custom_action" ],
-                    "properties": { "custom_action": { "const": "MapTrackerToward" } }
-                },
-                "then": {
-                    "type": "object",
-                    "required": [ "custom_action_param" ],
-                    "properties": {
-                        "custom_action_param": { "$ref": "./components/map_tracker.schema.json#/$defs/MapTrackerTowardParam" }
-                    }
-                },
-                "else": {
-                    "if": {
-                        "type": "object",
-                        "required": [ "custom_action" ],
-                        "properties": { "custom_action": { "const": "MapTrackerBigMapPick" } }
-                    },
-                    "then": {
-                        "type": "object",
-                        "required": [ "custom_action_param" ],
-                        "properties": {
-                            "custom_action_param": { "$ref": "./components/map_tracker.schema.json#/$defs/MapTrackerBigMapPickParam" }
-                        }
-                    },
-                    "else": {
-                        "if": {
-                            "type": "object",
-                            "required": [ "custom_action" ],
-                            "properties": { "custom_action": { "const": "MapTrackerBigMapZoom" } }
-                        },
-                        "then": {
-                            "type": "object",
-                            "required": [ "custom_action_param" ],
-                            "properties": {
-                                "custom_action_param": { "$ref": "./components/map_tracker.schema.json#/$defs/MapTrackerBigMapZoomParam" }
-                            }
-                        },
-                        "else": {
-                            "if": {
-                                "type": "object",
-                                "required": [ "custom_action" ],
-                                "properties": { "custom_action": { "const": "AutoAltSwipeAction" } }
-                            },
-                            "then": {
-                                "type": "object",
-                                "required": [ "custom_action_param" ],
-                                "properties": {
-                                    "custom_action_param": { "$ref": "./components/auto_alt.schema.json#/$defs/AutoAltSwipeParam" }
-                                }
-                            },
-                            "else": {
-                                "if": {
-                                    "type": "object",
-                                    "required": [ "custom_action" ],
-                                    "properties": {
-                                        "custom_action": { "const": "FailureCollectorRunTask" }
-                                    }
-                                },
-                                "then": {
-                                    "type": "object",
-                                    "required": [ "custom_action_param" ],
-                                    "properties": {
-                                        "custom_action_param": { "$ref": "./components/failure_collector.schema.json#/$defs/RunTaskParam" }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+                "custom_action_param": { "$ref": "./components/failure_collector.schema.json#/$defs/RunTaskParam" }
             }
         }
     }

@@ -266,15 +266,15 @@ export function locateOnce(connection) {
   return sendJson('/api/locate-once', { connection });
 }
 
-// --- import / export (backend keeps json_import.py / maptracker_compat.py) ------------
+// --- import / export (backend keeps json_import.py) -----------------------------------
 
 /**
  * Analyze an uploaded JSON (phase 1 of import, mirrors the head of tk `import_json`).
  * The backend tries a route import first, falling back to an AssertLocation import.
  * Discriminated by `kind`:
- *   - `{ok:true, kind:'path', needs_assignment:false, points, route_count, converted_count}`
- *   - `{ok:true, kind:'path', needs_assignment:true, raw_points, segments, zone_options, route_count, converted_count}`
- *   - `{ok:true, kind:'assert', zone_id, target, condition_count, converted_from_maptracker}`
+ *   - `{ok:true, kind:'path', needs_assignment:false, points, route_count}`
+ *   - `{ok:true, kind:'path', needs_assignment:true, raw_points, segments, zone_options, route_count}`
+ *   - `{ok:true, kind:'assert', zone_id, target, condition_count}`
  *   - `{ok:false, error}` (verbatim Chinese message)
  * @param {string} text raw file contents
  * @returns {Promise<Object>}
@@ -285,10 +285,10 @@ export function importAnalyze(text) {
 
 /**
  * Finalize a route import after the user assigns a zone per segment (phase 2, mirrors
- * tk `confirm()` + the post-dialog convert/infer/normalize tail).
+ * tk `confirm()` + the post-dialog normalize tail).
  * @param {Array<Object>} rawPoints the `raw_points` from {@link importAnalyze}
  * @param {Array<{start:number, end:number, zone:string}>} zoneAssignments per-segment zone
- * @returns {Promise<{ok:boolean, points?:Array<Object>, converted_count?:number, error?:string}>}
+ * @returns {Promise<{ok:boolean, points?:Array<Object>, error?:string}>}
  */
 export function importFinalize(rawPoints, zoneAssignments) {
   return sendJson('/api/import/finalize', { raw_points: rawPoints, zone_assignments: zoneAssignments });

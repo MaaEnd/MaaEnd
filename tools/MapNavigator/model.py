@@ -384,7 +384,6 @@ def resolve_zone_image(zone_id: str, map_image_dir: Path) -> Path | None:
     支持以下命名模式：
     - MapLocator: Region_L{level}_{tier} -> MapLocator/Region/Lv{level:03d}Tier{tier}.png
     - MapLocator: Region_Base -> MapLocator/Region/Base.png
-    - MapTracker: map01_lv001(_tier_114).png
     - 回退扫描：MapLocator 任意子目录下 `{zone_id}.png`
     """
     normalized_zone_id = normalize_zone_id(zone_id)
@@ -402,15 +401,6 @@ def resolve_zone_image(zone_id: str, map_image_dir: Path) -> Path | None:
         map_locator_dir = map_image_dir
     else:
         map_locator_dir = map_image_dir / "MapLocator"
-
-    if map_image_dir.name.lower() == "map" and map_image_dir.parent.name.lower() == "maptracker":
-        map_tracker_dir = map_image_dir
-    else:
-        map_tracker_dir = map_image_dir / "MapTracker" / "map"
-
-    tracker_candidate = map_tracker_dir / f"{normalized_zone_id}.png"
-    if tracker_candidate.exists():
-        return tracker_candidate
 
     level_match = re.match(r"^(\w+?)_L(\d+)_(\d+)$", normalized_zone_id)
     if level_match:

@@ -9,7 +9,6 @@ MapNavigator 是用于 C++ MapNavigator 模块使用的地图路径录制与编�
 - 通过统一的录制连接层在 `Win32`、`ADB` 与 `Linux-Gamescope` 之间切换。
 - 录制地图路径并按区域切换浏览。
 - 导入已有 JSON/JSONC，递归搜索可识别的 `path` 数据并显示。
-- 导入 `MapTrackerMove` / `MapTrackerAssertLocation` 时自动按兼容表转换到 `MapNavigator` / `MapLocateAssertLocation` 的 Base 坐标系。
 - 导入时严格校验动作语义；未知动作会被拒绝，而不是静默降级。
 - 在跨区域边界自动将前一区域的最后一个点和后一区域的第一个点标记为 `PORTAL`。
 - GUI 动作编辑主要面向坐标点动作：`RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / COLLECT / DIG`。
@@ -124,7 +123,7 @@ MapNavigator 是用于 C++ MapNavigator 模块使用的地图路径录制与编�
 
 - 进入某段导航前，先判断人物是否已经站在预期区域内。
 - 需要对某个 zone 的局部矩形范围做纯判定。
-- 不希望引入 `MapTracker`，只想复用 `MapLocator` 当前的定位结果。
+- 只想复用 `MapLocator` 当前的定位结果，不额外跑一趟导航。
 
 ### 使用方式
 
@@ -266,7 +265,6 @@ uv run main.py
 - `clipboard.py`: 系统剪贴板写入（G 热键复制坐标）。
 - `navmesh_backend.py`: navmesh 查询后端，把 cpp-algo agent 当作常驻查询进程；几何解码、吸附、路线都在 agent 里算。
 - `json_import.py`: JSON/JSONC 导入解析与动作语义校验。
-- `maptracker_compat.py`: `MapTracker*` 节点到 Base 坐标系的兼容转换表。
 - `key_listener.py`: 录制期间的全局按键监听与系统权限检查。
 - `model.py`: 路径数据结构、动作类型与路径规范化工具。
 - `runtime.py`: 项目路径定位与 maafw 运行时加载。

@@ -10,8 +10,6 @@ description: MaaEnd 自动寻路、地图定位、角色移动与路径导航开
 - **MapLocator**（Recognition 层）：识别角色当前所处区域、全局像素坐标与朝向。
 - **MapNavigator**（Action 层）：基于 MapLocator 的持续定位，驱动角色移动到目标位置。
 
-需要注意当前项目中存在两套相似的系统，一套是使用 C++ 编写的 MapNavigator/MapLocator，另一套是使用 Go 编写的 MapTracker，两套系统的实现方式完全不同且没有交集，本指南针对的是 C++ 版本，在开发时要区分。
-
 ## 参考资料
 
 ### 重要文档

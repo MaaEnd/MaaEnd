@@ -185,8 +185,7 @@ constexpr int kArbiterReclaimStreak = 5;
 constexpr double kArbiterReclaimDriftDistance = 6.0;
 
 // 小地图与底图的像素尺度比，是底图导出时定死的资产属性。tier 图按游戏原生尺度导出，
-// base 图里只有 ValleyIV 被放大过 16/15。量法：拿 tier 图去 parent base 上匹配求峰，
-// 或读 maptracker_coordinate_transforms.json 里该 zone 的 scale_x 乘 65/64。
+// base 图里只有 ValleyIV 被放大过 16/15。量法：拿 tier 图去 parent base 上匹配求峰。
 inline double ZoneTemplateScale(const std::string& zoneId)
 {
     return zoneId == "ValleyIV_Base" ? 15.0 / 16.0 : 1.0;

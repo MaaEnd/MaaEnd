@@ -36,7 +36,6 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/ims"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/intelarchive"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/itemtransfer"
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/maptracker"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/resource"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pullcount"
 	puzzle "github.com/MaaXYZ/MaaEnd/agent/go-service/puzzle-solver"
@@ -93,7 +92,6 @@ func registerAll() {
 	bettersliding.Register()
 	essencefilter.Register()
 	dijiangrewards.Register()
-	maptracker.Register()
 	batchaddfriends.Register()
 	autoecofarm.Register()
 	autodelivery.Register()

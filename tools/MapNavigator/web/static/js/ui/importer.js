@@ -91,31 +91,30 @@ export class Importer {
     if (result.needs_assignment) {
       const assignments = await this._promptZoneAssignment(result.segments || [], result.zone_options || []);
       if (!assignments) return; // cancelled
-      await this._finalize(result.raw_points || [], assignments, result.converted_count || 0, result.route_count || 0);
+      await this._finalize(result.raw_points || [], assignments, result.route_count || 0);
       return;
     }
 
-    this._loadPath(result.points || [], result.converted_count || 0, result.route_count || 0);
+    this._loadPath(result.points || [], result.route_count || 0);
   }
 
   /**
    * Load a finished path + emit the tk import status line.
-   * @param {Array<Object>} points @param {number} convertedCount @param {number} routeCount
+   * @param {Array<Object>} points @param {number} routeCount
    * @returns {void}
    */
-  _loadPath(points, convertedCount, routeCount) {
+  _loadPath(points, routeCount) {
     // The hook may replace the lead-in and its color (A* marks preview points instead of
     // a route; neither A* nor Assert can draw points whose zone has no navmesh basemap).
     const note = this.hooks.loadPoints(points) || {};
     let status = note.text || `已导入 ${points.length} 个路径点`;
     if (routeCount > 1) status += `（共找到 ${routeCount} 条候选路径，已加载点数最多的一条）`;
-    if (convertedCount > 0) status += `，已转换 ${convertedCount} 个 MapTracker 坐标`;
     setStatus(status, note.color || '#10b981');
   }
 
   /**
    * Apply an imported AssertLocation (tk `_try_import_assert_json` tail).
-   * @param {{zone_id:string, target:number[], condition_count:number, converted_from_maptracker:boolean}} r
+   * @param {{zone_id:string, target:number[], condition_count:number}} r
    * @returns {void}
    */
   _applyAssert(r) {
@@ -123,17 +122,15 @@ export class Importer {
     this.hooks.applyAssert(r.zone_id, r.target);
     let status = `已导入 Assert: zone=${r.zone_id} target=[${x.toFixed(1)}, ${y.toFixed(1)}, ${w.toFixed(1)}, ${h.toFixed(1)}]`;
     if (r.condition_count > 1) status += `（共找到 ${r.condition_count} 个条件，已加载第一个）`;
-    if (r.converted_from_maptracker) status += '，已转换 MapTracker 坐标';
     setStatus(status, '#10b981');
   }
 
   /**
-   * Phase-2 finalize (server assigns zones + converts) then load.
-   * @param {Array<Object>} rawPoints @param {Array<Object>} assignments
-   * @param {number} analyzeConverted converted count from phase 1 @param {number} routeCount
+   * Phase-2 finalize (server assigns zones) then load.
+   * @param {Array<Object>} rawPoints @param {Array<Object>} assignments @param {number} routeCount
    * @returns {Promise<void>}
    */
-  async _finalize(rawPoints, assignments, analyzeConverted, routeCount) {
+  async _finalize(rawPoints, assignments, routeCount) {
     let result;
     try {
       result = await importFinalize(rawPoints, assignments);
@@ -145,7 +142,7 @@ export class Importer {
       setStatus((result && result.error) || '导入失败', '#ef4444');
       return;
     }
-    this._loadPath(result.points || [], analyzeConverted + (result.converted_count || 0), routeCount);
+    this._loadPath(result.points || [], routeCount);
   }
 
   /**

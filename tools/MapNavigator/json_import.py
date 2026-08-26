@@ -1,16 +1,13 @@
 from __future__ import annotations
 
-import copy
 import json
 import math
 import re
-import struct
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
-from maptracker_compat import convert_maptracker_points_to_mapnavigator, convert_maptracker_rect
 from model import (
     ACTION_NAME_LOOKUP,
     ActionType,
@@ -33,8 +30,6 @@ STRICT_KEYS = ("strict", "strict_arrival", "strictArrival")
 TARGET_TIER_KEYS = ("target_tier", "targetTier")
 CONTROL_ACTION_NAMES = {"HEADING", "ZONE"}
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-MAP_TRACKER_MAP_DIR = PROJECT_ROOT / "assets" / "resource" / "image" / "MapTracker" / "map"
-MAP_TRACKER_BBOX_PATH = MAP_TRACKER_MAP_DIR / "map_bbox.json"
 MAP_LOCATOR_DIR = PROJECT_ROOT / "assets" / "resource" / "image" / "MapLocator"
 
 
@@ -43,7 +38,6 @@ class ImportedRoute:
     points: list[PathPoint]
     route_count: int
     source_has_zone_info: bool
-    converted_maptracker_point_count: int = 0
 
 
 @dataclass(frozen=True)
@@ -51,14 +45,9 @@ class ImportedAssertLocation:
     zone_id: str
     target: tuple[float, float, float, float]
     condition_count: int
-    converted_from_maptracker: bool = False
 
 
-def load_points_from_json_file(
-    file_path: str | Path,
-    apply_zone_inference: bool = True,
-    apply_maptracker_compat: bool = True,
-) -> ImportedRoute:
+def load_points_from_json_file(file_path: str | Path) -> ImportedRoute:
     data = load_jsonc(file_path)
     routes = discover_path_routes(data)
     if not routes:
@@ -66,16 +55,10 @@ def load_points_from_json_file(
 
     selected_route = max(routes, key=len)
     source_has_zone_info = any(normalize_zone_id(point.get("zone", "")) for point in selected_route)
-    converted_count = 0
-    if apply_maptracker_compat:
-        selected_route, converted_count = convert_maptracker_points_to_mapnavigator(selected_route)
-    if apply_zone_inference:
-        selected_route = infer_missing_zones(selected_route)
     return ImportedRoute(
         points=normalize_path_points(selected_route),
         route_count=len(routes),
         source_has_zone_info=source_has_zone_info,
-        converted_maptracker_point_count=converted_count,
     )
 
 
@@ -186,57 +169,6 @@ def discover_assert_locations(data: Any) -> list[ImportedAssertLocation]:
     return assert_locations
 
 
-def infer_missing_zones(points: list[PathPoint]) -> list[PathPoint]:
-    if not points:
-        return points
-    if all(point.get("zone") for point in points):
-        return points
-
-    candidates = _load_map_candidates()
-    if not candidates:
-        return points
-
-    inferred = [copy.deepcopy(point) for point in points]
-    point_matches: list[list[str]] = []
-    route_scores: dict[str, int] = {}
-
-    for point in inferred:
-        explicit_zone = normalize_zone_id(point.get("zone", ""))
-        if explicit_zone:
-            route_scores[explicit_zone] = route_scores.get(explicit_zone, 0) + 100
-            point_matches.append([explicit_zone])
-            continue
-
-        matches = _match_point_to_zones(point["x"], point["y"], candidates)
-        point_matches.append(matches)
-        for rank, zone_name in enumerate(matches[:5]):
-            route_scores[zone_name] = route_scores.get(zone_name, 0) + max(1, 5 - rank)
-
-    primary_zone = max(route_scores.items(), key=lambda item: item[1])[0] if route_scores else ""
-    primary_hits = sum(1 for matches in point_matches if primary_zone and primary_zone in matches)
-
-    if primary_zone and primary_hits >= max(2, len(inferred) // 2):
-        for idx, point in enumerate(inferred):
-            if point.get("zone"):
-                continue
-            if not point_matches[idx] or primary_zone in point_matches[idx]:
-                point["zone"] = primary_zone
-
-    for idx, point in enumerate(inferred):
-        if point.get("zone"):
-            continue
-        matches = point_matches[idx]
-        if not matches:
-            continue
-        if primary_zone and primary_zone in matches and primary_hits >= max(2, len(inferred) // 2):
-            point["zone"] = primary_zone
-        else:
-            point["zone"] = matches[0]
-
-    _fill_unknown_zones(inferred, fallback_zone=primary_zone)
-    return inferred
-
-
 def split_route_into_segments(points: list[PathPoint]) -> list[tuple[int, int]]:
     if not points:
         return []
@@ -326,47 +258,13 @@ def _walk_assert_location_node(node: Any, assert_locations: list[ImportedAssertL
 
 
 def _parse_assert_location_node(node: dict[str, Any]) -> ImportedAssertLocation | None:
-    custom_recognition = node.get("custom_recognition")
-    if custom_recognition == "MapTrackerAssertLocation":
-        param = node.get("custom_recognition_param")
-        if not isinstance(param, dict):
-            return None
-        return _parse_maptracker_assert_param(param)
-
-    if custom_recognition == "MapLocateAssertLocation":
-        param = node.get("custom_recognition_param")
-        if not isinstance(param, dict):
-            return None
-        return _parse_maplocate_assert_param(param)
-
-    if node.get("recognition") == "Custom":
+    if node.get("custom_recognition") != "MapLocateAssertLocation":
         return None
 
-    return _parse_maptracker_assert_param(node)
-
-
-def _parse_maptracker_assert_param(param: dict[str, Any]) -> ImportedAssertLocation | None:
-    expected = param.get("expected")
-    if not isinstance(expected, list) or not expected:
+    param = node.get("custom_recognition_param")
+    if not isinstance(param, dict):
         return None
-
-    for condition in expected:
-        if not isinstance(condition, dict):
-            continue
-
-        map_name = normalize_zone_id(condition.get("map_name", ""))
-        target = _parse_rect(condition.get("target"))
-        if not map_name or target is None:
-            continue
-
-        converted = convert_maptracker_rect(map_name, target)
-        if converted is None:
-            return ImportedAssertLocation(map_name, target, len(expected), converted_from_maptracker=False)
-
-        zone_id, converted_target = converted
-        return ImportedAssertLocation(zone_id, converted_target, len(expected), converted_from_maptracker=True)
-
-    return None
+    return _parse_maplocate_assert_param(param)
 
 
 def _parse_maplocate_assert_param(param: dict[str, Any]) -> ImportedAssertLocation | None:
@@ -374,7 +272,7 @@ def _parse_maplocate_assert_param(param: dict[str, Any]) -> ImportedAssertLocati
     target = _parse_rect(param.get("target"))
     if not zone_id or target is None:
         return None
-    return ImportedAssertLocation(zone_id, target, 1, converted_from_maptracker=False)
+    return ImportedAssertLocation(zone_id, target, 1)
 
 
 def _parse_rect(value: Any) -> tuple[float, float, float, float] | None:
@@ -416,56 +314,8 @@ def _parse_route(node: Any, zone_hint: str) -> list[PathPoint] | None:
 
 
 @lru_cache(maxsize=1)
-def _load_map_candidates() -> list[dict[str, float | str]]:
-    bbox_data: dict[str, list[float]] = {}
-    if MAP_TRACKER_BBOX_PATH.exists():
-        try:
-            raw = json.loads(MAP_TRACKER_BBOX_PATH.read_text(encoding="utf-8"))
-            if isinstance(raw, dict):
-                bbox_data = raw
-        except Exception as exc:
-            print(f"Failed to load bbox data from {MAP_TRACKER_BBOX_PATH}: {exc}")
-            bbox_data = {}
-
-    candidates: list[dict[str, float | str]] = []
-    if not MAP_TRACKER_MAP_DIR.exists():
-        return candidates
-
-    for image_path in MAP_TRACKER_MAP_DIR.glob("*.png"):
-        size = _read_png_size(image_path)
-        if size is None:
-            continue
-
-        width, height = size
-        zone_name = image_path.stem
-        rect = bbox_data.get(zone_name, [0, 0, width, height])
-        if not isinstance(rect, list) or len(rect) != 4:
-            rect = [0, 0, width, height]
-
-        x1, y1, x2, y2 = [float(value) for value in rect]
-        if x2 <= x1 or y2 <= y1:
-            x1, y1, x2, y2 = 0.0, 0.0, float(width), float(height)
-
-        candidates.append(
-            {
-                "zone": zone_name,
-                "bbox_x1": x1,
-                "bbox_y1": y1,
-                "bbox_x2": x2,
-                "bbox_y2": y2,
-                "bbox_area": (x2 - x1) * (y2 - y1),
-                "img_width": float(width),
-                "img_height": float(height),
-                "img_area": float(width * height),
-            }
-        )
-
-    return candidates
-
-
-@lru_cache(maxsize=1)
 def _load_available_zone_ids() -> tuple[str, ...]:
-    zone_ids: set[str] = {str(candidate["zone"]) for candidate in _load_map_candidates()}
+    zone_ids: set[str] = set()
 
     if MAP_LOCATOR_DIR.exists():
         for image_path in MAP_LOCATOR_DIR.rglob("*.png"):
@@ -487,82 +337,6 @@ def _map_locator_zone_ids(image_path: Path) -> tuple[str, ...]:
         return (f"{parent_name}_L{int(level_match.group(1))}_{level_match.group(2)}",)
 
     return (stem,)
-
-
-def _read_png_size(image_path: Path) -> tuple[int, int] | None:
-    try:
-        with image_path.open("rb") as file:
-            header = file.read(24)
-        if len(header) < 24 or header[:8] != b"\x89PNG\r\n\x1a\n":
-            return None
-        width, height = struct.unpack(">II", header[16:24])
-        return width, height
-    except Exception as exc:
-        print(f"Failed to read PNG size for {image_path}: {exc}")
-        return None
-
-
-def _match_point_to_zones(point_x: float, point_y: float, candidates: list[dict[str, float | str]]) -> list[str]:
-    bbox_matches: list[tuple[float, str]] = []
-    image_matches: list[tuple[float, str]] = []
-
-    for candidate in candidates:
-        zone_name = str(candidate["zone"])
-        if (
-            float(candidate["bbox_x1"]) <= point_x <= float(candidate["bbox_x2"])
-            and float(candidate["bbox_y1"]) <= point_y <= float(candidate["bbox_y2"])
-        ):
-            bbox_matches.append((float(candidate["bbox_area"]), zone_name))
-            continue
-
-        if 0.0 <= point_x <= float(candidate["img_width"]) and 0.0 <= point_y <= float(candidate["img_height"]):
-            image_matches.append((float(candidate["img_area"]), zone_name))
-
-    if bbox_matches:
-        return [zone_name for _area, zone_name in sorted(bbox_matches, key=lambda item: item[0])]
-    if image_matches:
-        return [zone_name for _area, zone_name in sorted(image_matches, key=lambda item: item[0])]
-    return []
-
-
-def _fill_unknown_zones(points: list[PathPoint], fallback_zone: str) -> None:
-    if not points:
-        return
-
-    known_indices = [idx for idx, point in enumerate(points) if normalize_zone_id(point.get("zone", ""))]
-    if not known_indices:
-        if fallback_zone:
-            for point in points:
-                point["zone"] = fallback_zone
-        return
-
-    for idx, point in enumerate(points):
-        if normalize_zone_id(point.get("zone", "")):
-            continue
-
-        prev_zone = ""
-        next_zone = ""
-
-        for prev_idx in range(idx - 1, -1, -1):
-            zone_name = normalize_zone_id(points[prev_idx].get("zone", ""))
-            if zone_name:
-                prev_zone = zone_name
-                break
-
-        for next_idx in range(idx + 1, len(points)):
-            zone_name = normalize_zone_id(points[next_idx].get("zone", ""))
-            if zone_name:
-                next_zone = zone_name
-                break
-
-        if prev_zone and prev_zone == next_zone:
-            point["zone"] = prev_zone
-        elif prev_zone:
-            point["zone"] = prev_zone
-        elif next_zone:
-            point["zone"] = next_zone
-        elif fallback_zone:
-            point["zone"] = fallback_zone
 
 
 def _parse_point(node: Any, zone_hint: str) -> PathPoint | None:

@@ -50,7 +50,6 @@ The following nodes are implemented based on Go/C++ and have high business-speci
 | BetterSliding | Discrete quantity slider adjustment | [components/better-sliding.md](./components/better-sliding.md) |
 | MapLocator | AI + CV minimap positioning | [components/map-locator.md](./components/map-locator.md) |
 | MapNavigator | Automatic pathfinding: reaches a target coordinate without recording; routes with interactions can be recorded | [components/map-navigator.md](./components/map-navigator.md) |
-| MapTracker | Minimap tracking and path movement | [components/map-tracker.md](./components/map-tracker.md) |
 | WorldMap | World map coordinate recognition: given a zone and a base map coordinate, confirms the icon and hands back its screen position | [components/world-map.md](./components/world-map.md) |
 | RecoGrid / GridTracker / EssenceGrid | C++ single-frame grid recognition, cross-frame tracking, and Essence integration | [components/recogrid-engine.md](./components/recogrid-engine.md) |
 | IconRecognition | C++ item icon recognition, fixed ROI, and Maa Custom Recognition | [components/icon-recognition.md](./components/icon-recognition.md) |

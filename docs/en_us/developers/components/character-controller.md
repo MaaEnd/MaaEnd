@@ -4,7 +4,7 @@
 
 This document explains how to use nodes related to CharacterController.
 
-**CharacterController** provides a set of custom Actions for **controlling game characters**, including features like rotating the view, moving forward/backward, circle-walk search for targets, and automatically moving toward a target. These nodes are often used with MapTracker for more precise character control.
+**CharacterController** provides a set of custom Actions for **controlling game characters**, including features like rotating the view, moving forward/backward, circle-walk search for targets, and automatically moving toward a target. These nodes are often used with MapNavigator for more precise character control.
 
 > [!IMPORTANT]
 >
