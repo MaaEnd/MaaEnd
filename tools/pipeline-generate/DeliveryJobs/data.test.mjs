@@ -1112,7 +1112,7 @@ test("AutoDelivery keeps its task-detail entry and default branch flow explicit"
         "AutoDeliveryInMissionMenu",
     ]);
     assert.deepEqual(pickup.AutoDeliveryDeliveryMissionSelected.next, [
-        "AutoDelivery",
+        "AutoDeliveryRecognizeDestination",
     ]);
     assert.deepEqual(
         pickupAdb.AutoDeliveryDeliveryMissionListItem.roi,

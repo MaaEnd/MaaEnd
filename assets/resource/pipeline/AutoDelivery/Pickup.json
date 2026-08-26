@@ -397,7 +397,7 @@
         ]
     },
     "AutoDeliveryDeliveryMissionSelected": {
-        "desc": "确认右侧详情已经切换到送货任务",
+        "desc": "确认右侧详情已经切换到送货任务，并直接识别取货后的送货目标",
         "recognition": "OCR",
         "roi": [
             410,
@@ -417,7 +417,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoDelivery"
+            "AutoDeliveryRecognizeDestination"
         ]
     },
     "AutoDeliveryDeliveryMissionListItem": {
