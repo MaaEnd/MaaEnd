@@ -87,7 +87,7 @@
             "[Anchor]AutoEssenceMoveToTriggerPoint"
         ],
         "focus": {
-            "Node.Action.Starting": "🧠正在判断交互状态"
+            "Node.Action.Starting": "🧠正在判断当前状态"
         }
     },
     "__AutoEssenceBackToWorldOnce": {
