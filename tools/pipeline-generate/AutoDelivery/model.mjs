@@ -1,13 +1,9 @@
 import {readFileSync} from "node:fs";
 
+import {BASE_NAV_ZONE_IMAGE_PARTS} from "../../MapNavigator/web/static/js/model.js";
+
 const catalogSource = JSON.parse(readFileSync(new URL("../data/delivery_destinations.json", import.meta.url), "utf8"));
 const routeSource = JSON.parse(readFileSync(new URL("./routes.json", import.meta.url), "utf8"));
-const mapLocatorSource = JSON.parse(
-    readFileSync(
-        new URL("../../../assets/resource/image/MapLocator/maptracker_coordinate_transforms.json", import.meta.url),
-        "utf8",
-    ),
-);
 
 function assertArray(value, label) {
     if (!Array.isArray(value)) {
@@ -51,31 +47,15 @@ function buildAreaId(area, label) {
     return id;
 }
 
-const mapZones = new Map();
-
 function buildMapZone(map, label) {
-    const cached = mapZones.get(map);
-    if (cached) {
-        return cached;
+    const baseNavZone = assertNonEmptyString(catalogSource.maps?.[map]?.zone, `${label}.maps.${map}.zone`);
+    const [
+        resourceType,
+        zone,
+    ] = BASE_NAV_ZONE_IMAGE_PARTS[baseNavZone] ?? [];
+    if (resourceType !== "MapLocator" || !zone) {
+        throw new Error(`[AutoDelivery] ${label} 的 BaseNav 地区 ${baseNavZone} 无法对应 MapLocator 地区`);
     }
-
-    const mapPrefix = `${map}_`;
-    const zones = new Set();
-    for (const transform of assertArray(mapLocatorSource.transforms, "MapLocator.transforms")) {
-        if (typeof transform.map_name !== "string" || !transform.map_name.startsWith(mapPrefix)) {
-            continue;
-        }
-        const match = /^(.+)_Base$/.exec(transform.zone_id);
-        if (match) {
-            zones.add(match[1]);
-        }
-    }
-    if (zones.size !== 1) {
-        throw new Error(`[AutoDelivery] ${label} 的地图 ${map} 无法唯一对应 MapLocator 地区：${[...zones].join(", ")}`);
-    }
-
-    const [zone] = zones;
-    mapZones.set(map, zone);
     return zone;
 }
 

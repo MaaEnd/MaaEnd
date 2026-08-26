@@ -252,6 +252,16 @@ test("AutoDelivery 资源回收站保留游戏内区域序号", () => {
     }
 });
 
+test("AutoDelivery 将 BaseNav 地区映射到 MapLocator 资源区", () => {
+    assert.deepEqual(
+        [...new Set(destinations.map((destination) => `${destination.map}:${destination.mapZone}`))].sort(),
+        [
+            "map01:ValleyIV",
+            "map02:Wuling",
+        ],
+    );
+});
+
 test("AutoDelivery 为同地图同区域的多个资源回收站生成地图图标候选", () => {
     const areaPipeline = JSON.parse(
         readFileSync(
