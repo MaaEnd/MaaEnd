@@ -1,0 +1,26 @@
+{
+    "AutoDeliveryFindRecycleBin${DestinationNodeId}": {
+        "desc": "在${AreaName}大地图的指定坐标确认资源回收站图标（${DestinationId}）",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "${MapZone}",
+            "icon": "RecycleBin",
+            "at": "${DestinationMapAt}"
+        },
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "AutoDeliveryResolveDestinationAction",
+        "custom_action_param": {
+            "destination_id": "${DestinationId}"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDeliveryPrepareNavigateDestination"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "已通过地图图标确认资源回收站 ${DestinationId}"
+        }
+    }
+}

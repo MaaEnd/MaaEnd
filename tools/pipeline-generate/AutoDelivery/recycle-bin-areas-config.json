@@ -1,8 +1,8 @@
 {
-    "template": "recycle-bins-template.json",
+    "template": "recycle-bin-areas-template.json",
     "data": "recycle-bins-data.mjs",
     "outputDir": "../../../assets/resource/pipeline/AutoDelivery",
-    "outputFile": "RecycleBins.json",
+    "outputFile": "RecycleBinAreas.json",
     "format": true,
     "merged": true
 }

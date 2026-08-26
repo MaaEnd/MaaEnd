@@ -47,14 +47,10 @@
     },
     "AutoDeliveryInDestinationMap": {
         "desc": "确认已打开任务目标地图",
-        "recognition": "TemplateMatch",
-        "roi": [
-            900,
-            10,
-            130,
-            140
+        "recognition": "And",
+        "all_of": [
+            "AutoDeliveryTaskDestinationMap"
         ],
-        "template": "AutoDelivery/TrackTaskSuccess.png",
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,

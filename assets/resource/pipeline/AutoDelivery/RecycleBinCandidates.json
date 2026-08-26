@@ -1,0 +1,164 @@
+{
+    "AutoDeliveryFindRecycleBinDeliverTargetMap01Lv005Recycle02": {
+        "desc": "在源石研究园大地图的指定坐标确认资源回收站图标（deliver_target_map01_lv005_recycle_02）",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "icon": "RecycleBin",
+            "at": [
+                905.299,
+                764.145
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "AutoDeliveryResolveDestinationAction",
+        "custom_action_param": {
+            "destination_id": "deliver_target_map01_lv005_recycle_02"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDeliveryPrepareNavigateDestination"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "已通过地图图标确认资源回收站 deliver_target_map01_lv005_recycle_02"
+        }
+    },
+    "AutoDeliveryFindRecycleBinDeliverTargetMap01Lv005Recycle03": {
+        "desc": "在源石研究园大地图的指定坐标确认资源回收站图标（deliver_target_map01_lv005_recycle_03）",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "icon": "RecycleBin",
+            "at": [
+                1183.458,
+                817.116
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "AutoDeliveryResolveDestinationAction",
+        "custom_action_param": {
+            "destination_id": "deliver_target_map01_lv005_recycle_03"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDeliveryPrepareNavigateDestination"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "已通过地图图标确认资源回收站 deliver_target_map01_lv005_recycle_03"
+        }
+    },
+    "AutoDeliveryFindRecycleBinDeliverTargetMap01Lv006Recycle01": {
+        "desc": "在矿脉源区大地图的指定坐标确认资源回收站图标（deliver_target_map01_lv006_recycle_01）",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "icon": "RecycleBin",
+            "at": [
+                1048.016,
+                429.484
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "AutoDeliveryResolveDestinationAction",
+        "custom_action_param": {
+            "destination_id": "deliver_target_map01_lv006_recycle_01"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDeliveryPrepareNavigateDestination"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "已通过地图图标确认资源回收站 deliver_target_map01_lv006_recycle_01"
+        }
+    },
+    "AutoDeliveryFindRecycleBinDeliverTargetMap01Lv006Recycle03": {
+        "desc": "在矿脉源区大地图的指定坐标确认资源回收站图标（deliver_target_map01_lv006_recycle_03）",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "icon": "RecycleBin",
+            "at": [
+                1078.905,
+                504.33
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "AutoDeliveryResolveDestinationAction",
+        "custom_action_param": {
+            "destination_id": "deliver_target_map01_lv006_recycle_03"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDeliveryPrepareNavigateDestination"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "已通过地图图标确认资源回收站 deliver_target_map01_lv006_recycle_03"
+        }
+    },
+    "AutoDeliveryFindRecycleBinDeliverTargetMap01Lv007Recycle02": {
+        "desc": "在供能高地大地图的指定坐标确认资源回收站图标（deliver_target_map01_lv007_recycle_02）",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "icon": "RecycleBin",
+            "at": [
+                502.664,
+                251.902
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "AutoDeliveryResolveDestinationAction",
+        "custom_action_param": {
+            "destination_id": "deliver_target_map01_lv007_recycle_02"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDeliveryPrepareNavigateDestination"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "已通过地图图标确认资源回收站 deliver_target_map01_lv007_recycle_02"
+        }
+    },
+    "AutoDeliveryFindRecycleBinDeliverTargetMap01Lv007Recycle03": {
+        "desc": "在供能高地大地图的指定坐标确认资源回收站图标（deliver_target_map01_lv007_recycle_03）",
+        "recognition": "Custom",
+        "custom_recognition": "MapFind",
+        "custom_recognition_param": {
+            "zone": "ValleyIV",
+            "icon": "RecycleBin",
+            "at": [
+                615.071,
+                397.166
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "AutoDeliveryResolveDestinationAction",
+        "custom_action_param": {
+            "destination_id": "deliver_target_map01_lv007_recycle_03"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDeliveryPrepareNavigateDestination"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "已通过地图图标确认资源回收站 deliver_target_map01_lv007_recycle_03"
+        }
+    }
+}

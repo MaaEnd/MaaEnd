@@ -1,0 +1,8 @@
+{
+    "template": "recycle-bin-candidates-template.json",
+    "data": "recycle-bin-candidates-data.mjs",
+    "outputDir": "../../../assets/resource/pipeline/AutoDelivery",
+    "outputFile": "RecycleBinCandidates.json",
+    "format": true,
+    "merged": true
+}

@@ -147,32 +147,39 @@ func TestResolveDestinationTextRejectsAmbiguousRecycleBins(t *testing.T) {
 	}
 }
 
-func TestResolveAmbiguousRecycleBinsUsesValleyIVMapCandidates(t *testing.T) {
+func TestResolveAmbiguousRecycleBinsUsesSameMapCandidates(t *testing.T) {
 	t.Parallel()
 
 	const objective = "把货物尽可能完整地送至资源回收站"
 	destinations := []destination{
 		{
-			ID:             "deliver_target_map01_lv005_recycle_03",
+			ID:             "deliver_target_map02_lv002_recycle_03",
 			Kind:           destinationKindRecycleBin,
-			Map:            valleyIVMap,
+			Map:            "map02",
 			ObjectiveTexts: []string{objective},
 		},
 		{
-			ID:             "deliver_target_map01_lv005_recycle_02",
+			ID:             "deliver_target_map02_lv002_recycle_01",
 			Kind:           destinationKindRecycleBin,
-			Map:            valleyIVMap,
+			Map:            "map02",
+			ObjectiveTexts: []string{objective},
+		},
+		{
+			ID:             "deliver_target_map02_lv002_recycle_02",
+			Kind:           destinationKindRecycleBin,
+			Map:            "map02",
 			ObjectiveTexts: []string{objective},
 		},
 	}
 
 	candidates, match, ok := resolveAmbiguousRecycleBins(objective, destinations)
 	if !ok {
-		t.Fatal("resolveAmbiguousRecycleBins() did not detect the two Valley IV candidates")
+		t.Fatal("resolveAmbiguousRecycleBins() did not detect the same-map candidates")
 	}
-	if got := []string{candidates[0].ID, candidates[1].ID}; !reflect.DeepEqual(got, []string{
-		"deliver_target_map01_lv005_recycle_02",
-		"deliver_target_map01_lv005_recycle_03",
+	if got := []string{candidates[0].ID, candidates[1].ID, candidates[2].ID}; !reflect.DeepEqual(got, []string{
+		"deliver_target_map02_lv002_recycle_01",
+		"deliver_target_map02_lv002_recycle_02",
+		"deliver_target_map02_lv002_recycle_03",
 	}) {
 		t.Fatalf("recycle bin candidates = %#v", got)
 	}
@@ -180,9 +187,9 @@ func TestResolveAmbiguousRecycleBinsUsesValleyIVMapCandidates(t *testing.T) {
 		t.Fatalf("recycle bin match = %#v", match)
 	}
 
-	destinations[0].Map = "map02"
+	destinations[0].Map = "map01"
 	if _, _, ok := resolveAmbiguousRecycleBins(objective, destinations); ok {
-		t.Fatal("resolveAmbiguousRecycleBins() must reject mixed or unsupported maps")
+		t.Fatal("resolveAmbiguousRecycleBins() must reject mixed maps")
 	}
 }
 

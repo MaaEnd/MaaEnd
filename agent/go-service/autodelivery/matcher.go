@@ -14,7 +14,6 @@ const (
 	destinationMinMargin     = 0.05
 	areaMinSimilarity        = 0.70
 	areaMinMargin            = 0.05
-	valleyIVMap              = "map01"
 )
 
 type recycleBinAmbiguityError struct {
@@ -102,24 +101,37 @@ func resolveAmbiguousRecycleBins(ocrText string, destinations []destination) ([]
 		return nil, destinationMatch{}, false
 	}
 
-	recycleBins := make([]destination, 0, 2)
+	recycleBins := make([]destination, 0, len(destinations))
+	recycleBinMap := ""
 	for _, candidate := range destinations {
-		if candidate.Kind == destinationKindRecycleBin && candidate.Map == valleyIVMap {
-			recycleBins = append(recycleBins, candidate)
+		if candidate.Kind != destinationKindRecycleBin {
+			continue
 		}
+		if strings.TrimSpace(candidate.Map) == "" {
+			return nil, destinationMatch{}, false
+		}
+		if recycleBinMap == "" {
+			recycleBinMap = candidate.Map
+		} else if candidate.Map != recycleBinMap {
+			return nil, destinationMatch{}, false
+		}
+		recycleBins = append(recycleBins, candidate)
 	}
-	if len(recycleBins) != 2 {
+	if len(recycleBins) < 2 {
 		return nil, destinationMatch{}, false
 	}
 	sort.Slice(recycleBins, func(i, j int) bool { return recycleBins[i].ID < recycleBins[j].ID })
 
-	best := bestTextMatch(normalizedOCR, recycleBins[0].ObjectiveTexts)
-	runnerUp := bestTextMatch(normalizedOCR, recycleBins[1].ObjectiveTexts)
-	if best.Similarity < destinationMinSimilarity || runnerUp.Similarity < destinationMinSimilarity {
-		return nil, destinationMatch{}, false
+	matches := make([]destinationMatch, 0, len(recycleBins))
+	for _, recycleBin := range recycleBins {
+		matches = append(matches, bestTextMatch(normalizedOCR, recycleBin.ObjectiveTexts))
 	}
-	if runnerUp.Similarity > best.Similarity {
-		best, runnerUp = runnerUp, best
+	sort.SliceStable(matches, func(i, j int) bool { return matches[i].Similarity > matches[j].Similarity })
+
+	best := matches[0]
+	runnerUp := matches[1]
+	if runnerUp.Similarity < destinationMinSimilarity {
+		return nil, destinationMatch{}, false
 	}
 	best.RunnerUpSimilarity = runnerUp.Similarity
 	return recycleBins, best, true

@@ -2,6 +2,12 @@ import {readFileSync} from "node:fs";
 
 const catalogSource = JSON.parse(readFileSync(new URL("../data/delivery_destinations.json", import.meta.url), "utf8"));
 const routeSource = JSON.parse(readFileSync(new URL("./routes.json", import.meta.url), "utf8"));
+const mapLocatorSource = JSON.parse(
+    readFileSync(
+        new URL("../../../assets/resource/image/MapLocator/maptracker_coordinate_transforms.json", import.meta.url),
+        "utf8",
+    ),
+);
 
 function assertArray(value, label) {
     if (!Array.isArray(value)) {
@@ -43,6 +49,34 @@ function buildAreaId(area, label) {
         throw new TypeError(`[AutoDelivery] ${label} 的 area.en_us 无法生成区域 ID`);
     }
     return id;
+}
+
+const mapZones = new Map();
+
+function buildMapZone(map, label) {
+    const cached = mapZones.get(map);
+    if (cached) {
+        return cached;
+    }
+
+    const mapPrefix = `${map}_`;
+    const zones = new Set();
+    for (const transform of assertArray(mapLocatorSource.transforms, "MapLocator.transforms")) {
+        if (typeof transform.map_name !== "string" || !transform.map_name.startsWith(mapPrefix)) {
+            continue;
+        }
+        const match = /^(.+)_Base$/.exec(transform.zone_id);
+        if (match) {
+            zones.add(match[1]);
+        }
+    }
+    if (zones.size !== 1) {
+        throw new Error(`[AutoDelivery] ${label} 的地图 ${map} 无法唯一对应 MapLocator 地区：${[...zones].join(", ")}`);
+    }
+
+    const [zone] = zones;
+    mapZones.set(map, zone);
+    return zone;
 }
 
 function buildRouteNode(kind, sourceId, zip = false) {
@@ -131,6 +165,7 @@ export const destinations = assertArray(catalogSource.destinations, "delivery_de
             kind: source.kind,
             areaId: buildAreaId(source.area, `destinations[${index}]`),
             map: depot.map,
+            mapZone: buildMapZone(depot.map, `终点 ${id}`),
             depotId: source.depot_id,
             depotName: depot.name,
             name: source.name,
