@@ -3,6 +3,7 @@
         "name": "取自 DomainDepotBuyerTable.buyerName；普通收货任务用作 OCR 目标，回收站任务仅保留为数据标识",
         "mission": "委托目标文案，已剥掉 <@qu.key>…</> 富文本标签；回收站任务用作 OCR 目标，同区域重复时保持歧义失败",
         "area": "任务详情页显示的关卡名，取自 LevelDescTable.showName",
+        "serial_id": "资源回收站在当前区域内显示的序号，取自 RecycleBinTable.serialId",
         "depot_id": "该终点所属仓储节点 ID；没有同层仓储节点时为空字符串",
         "depots": "仓储节点坐标，按 DomainDepotTable.id 精确关联 LevelMapMark.markInstId"
     },
@@ -194,6 +195,7 @@
         {
             "id": "deliver_target_map01_lv005_recycle_02",
             "kind": "recycle_bin",
+            "serial_id": 1,
             "name": {
                 "zh_cn": "学术复读羽兽",
                 "zh_tw": "學術重修羽獸",
@@ -223,6 +225,7 @@
         {
             "id": "deliver_target_map01_lv005_recycle_03",
             "kind": "recycle_bin",
+            "serial_id": 2,
             "name": {
                 "zh_cn": "采购-醇化合物工厂模组",
                 "zh_tw": "採購-醇化合物工廠模組",
@@ -339,6 +342,7 @@
         {
             "id": "deliver_target_map01_lv006_recycle_01",
             "kind": "recycle_bin",
+            "serial_id": 1,
             "name": {
                 "zh_cn": "“不是废品佬”",
                 "zh_tw": "「不是資源回收人」",
@@ -368,6 +372,7 @@
         {
             "id": "deliver_target_map01_lv006_recycle_03",
             "kind": "recycle_bin",
+            "serial_id": 2,
             "name": {
                 "zh_cn": "采购-矿区医疗站模组",
                 "zh_tw": "採購-礦區醫療站模組",
@@ -484,6 +489,7 @@
         {
             "id": "deliver_target_map01_lv007_recycle_02",
             "kind": "recycle_bin",
+            "serial_id": 1,
             "name": {
                 "zh_cn": "无畏的工团成员",
                 "zh_tw": "無畏的工團成員",
@@ -513,6 +519,7 @@
         {
             "id": "deliver_target_map01_lv007_recycle_03",
             "kind": "recycle_bin",
+            "serial_id": 2,
             "name": {
                 "zh_cn": "采购-超域试验场物资模组",
                 "zh_tw": "採購-超域實驗場物資模組",
@@ -629,6 +636,7 @@
         {
             "id": "deliver_target_map02_lv002_recycle_01",
             "kind": "recycle_bin",
+            "serial_id": 1,
             "name": {
                 "zh_cn": "火锅探店达人",
                 "zh_tw": "火鍋試吃達人",

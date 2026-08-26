@@ -14,6 +14,7 @@ func TestBuildDepotsUsesGeneratedRouteNodes(t *testing.T) {
 	generated := generatedCatalog{Depots: []generatedDepot{
 		{
 			ID:             "domain_1_lv005_depot_1",
+			Name:           map[string]string{"zh_cn": "源石研究园"},
 			Map:            "map01",
 			RouteNode:      "AutoDeliveryRouteDepotDefault",
 			ZipRouteNode:   "AutoDeliveryRouteDepotDefaultWithZipline",
@@ -29,6 +30,27 @@ func TestBuildDepotsUsesGeneratedRouteNodes(t *testing.T) {
 		depot.ZipRouteNode != "AutoDeliveryRouteDepotDefaultWithZipline" ||
 		depot.RetryRouteNode != "AutoDeliveryRouteDepotRetryDefault" {
 		t.Fatalf("unexpected generated depot: %#v", depot)
+	}
+	if depot.Names["zh_cn"] != "源石研究园" {
+		t.Fatalf("unexpected depot names: %#v", depot.Names)
+	}
+}
+
+func TestLocalizedNameForLangUsesCurrentLanguageAndFallbacks(t *testing.T) {
+	t.Parallel()
+
+	names := map[string]string{
+		"zh_cn": "源石研究园",
+		"en_us": "Originium Science Park",
+	}
+	if got := localizedNameForLang(names, "en_us", "fallback"); got != "Originium Science Park" {
+		t.Fatalf("localizedNameForLang() = %q", got)
+	}
+	if got := localizedNameForLang(names, "ja_jp", "fallback"); got != "源石研究园" {
+		t.Fatalf("localizedNameForLang() fallback = %q", got)
+	}
+	if got := localizedNameForLang(nil, "zh_cn", "fallback"); got != "fallback" {
+		t.Fatalf("localizedNameForLang() final fallback = %q", got)
 	}
 }
 

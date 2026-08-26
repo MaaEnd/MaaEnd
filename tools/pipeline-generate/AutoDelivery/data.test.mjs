@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import {existsSync, readFileSync} from "node:fs";
+import {existsSync, readdirSync, readFileSync} from "node:fs";
 import test from "node:test";
 
 import {parse as parseJsonc} from "jsonc-parser";
@@ -155,6 +155,15 @@ test("AutoDelivery 路线为每个仓储和终点生成可独立执行的普通/
 test("AutoDelivery 运行时目录只保留匹配文本和生成节点名", () => {
     assert.equal(runtimeCatalog.depots.length, depots.length);
     assert.equal(runtimeCatalog.destinations.length, destinations.length);
+    const depotSourceById = new Map(
+        catalogSource.depots.map((item) => [
+            item.id,
+            item,
+        ]),
+    );
+    for (const depot of runtimeCatalog.depots) {
+        assert.deepEqual(depot.name, depotSourceById.get(depot.id).name);
+    }
     assert.equal(JSON.stringify(runtimeCatalog).includes('"path"'), false);
     assert.equal(JSON.stringify(runtimeCatalog).includes('"u"'), false);
     assert.equal(JSON.stringify(runtimeCatalog).includes('"v"'), false);
@@ -225,6 +234,22 @@ test("AutoDelivery 仅合并同一地图同一区域的多个资源回收站", (
             ],
         ],
     );
+});
+
+test("AutoDelivery 资源回收站保留游戏内区域序号", () => {
+    assert.match(catalogSource.text.serial_id, /RecycleBinTable\.serialId/);
+    const serialsByArea = new Map();
+    const sources = catalogSource.destinations.filter((destination) => destination.kind === "recycle_bin");
+    assert.equal(sources.length, recycleBins.length);
+
+    for (const source of sources) {
+        assert.ok(Number.isInteger(source.serial_id) && source.serial_id > 0, `${source.id} has invalid serial_id`);
+        const area = source.area.en_us;
+        const serials = serialsByArea.get(area) ?? new Set();
+        assert.equal(serials.has(source.serial_id), false, `${area} has duplicate recycle bin #${source.serial_id}`);
+        serials.add(source.serial_id);
+        serialsByArea.set(area, serials);
+    }
 });
 
 test("AutoDelivery 为同地图同区域的多个资源回收站生成地图图标候选", () => {
@@ -326,5 +351,75 @@ test("AutoDelivery 已生成 Pipeline 与运行时目录覆盖全部路线", () 
         assert.equal(pipeline[row.Node].custom_action, "MapNavigateAction");
         assert.deepEqual(pipeline[row.Node].custom_action_param, row.ActionParam.value);
         assert.equal(pipeline[row.Node].next, undefined);
+    }
+});
+
+test("AutoDelivery focus 文案统一使用完整 i18n 键", () => {
+    const pipelineDir = new URL("../../../assets/resource/pipeline/AutoDelivery/", import.meta.url);
+    const pipelineUrls = readdirSync(pipelineDir)
+        .filter((file) => file.endsWith(".json"))
+        .map((file) => new URL(file, pipelineDir));
+    const focusKeys = new Set();
+
+    for (const url of pipelineUrls) {
+        const pipeline = parseJsonc(readFileSync(url, "utf8"));
+        for (const node of Object.values(pipeline)) {
+            for (const value of Object.values(node.focus || {})) {
+                if (typeof value !== "string") {
+                    continue;
+                }
+                assert.match(value, /^\$task\.AutoDelivery\.focus\.[a-z0-9_]+$/, `${url.pathname}: ${value}`);
+                focusKeys.add(value.slice(1));
+            }
+        }
+    }
+
+    const expectedKeys = [...focusKeys].sort();
+    assert.ok(expectedKeys.length > 0);
+    const dynamicFocusKeys = [
+        "autodelivery.focus.depot_resolved",
+        "autodelivery.focus.destination_resolved",
+    ];
+    const goServiceKeys = [
+        ...dynamicFocusKeys,
+        "autodelivery.destination.recycle_bin",
+    ].sort();
+
+    for (const lang of [
+        "zh_cn",
+        "zh_tw",
+        "en_us",
+        "ja_jp",
+        "ko_kr",
+    ]) {
+        const locale = JSON.parse(
+            readFileSync(new URL(`../../../assets/locales/interface/${lang}.json`, import.meta.url), "utf8"),
+        );
+        const localeKeys = Object.keys(locale)
+            .filter((key) => key.startsWith("task.AutoDelivery.focus."))
+            .sort();
+        assert.deepEqual(localeKeys, expectedKeys, `${lang} AutoDelivery focus keys differ`);
+        for (const key of expectedKeys) {
+            assert.match(locale[key], /^🚛 /, `${lang} ${key} is missing the AutoDelivery emoji`);
+        }
+
+        const goServiceLocale = JSON.parse(
+            readFileSync(new URL(`../../../assets/locales/go-service/${lang}.json`, import.meta.url), "utf8"),
+        );
+        const goServiceLocaleKeys = Object.keys(goServiceLocale)
+            .filter((key) => key.startsWith("autodelivery."))
+            .sort();
+        assert.deepEqual(goServiceLocaleKeys, goServiceKeys, `${lang} AutoDelivery go-service keys differ`);
+        for (const key of dynamicFocusKeys) {
+            assert.match(goServiceLocale[key], /^🚛 /, `${lang} ${key} is missing the AutoDelivery emoji`);
+        }
+        for (const key of goServiceKeys) {
+            assert.equal((goServiceLocale[key].match(/%s/g) || []).length, 1, `${lang} ${key} must contain one %s`);
+        }
+        assert.equal(
+            (goServiceLocale["autodelivery.destination.recycle_bin"].match(/%d/g) || []).length,
+            1,
+            `${lang} autodelivery.destination.recycle_bin must contain one %d`,
+        );
     }
 });

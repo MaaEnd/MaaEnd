@@ -39,6 +39,7 @@ TABLE_NAMES = (
     "DomainDepotTable.json",
     "DomainDepotDeliverTargetTable.json",
     "DomainDepotBuyerTable.json",
+    "RecycleBinTable.json",
     "LevelDescTable.json",
     *LOCALE_TABLES,
 )
@@ -375,6 +376,9 @@ def build_delivery_destinations_data(
         tables["DomainDepotBuyerTable.json"], "DomainDepotBuyerTable"
     )
     depot_table = assert_record(tables["DomainDepotTable.json"], "DomainDepotTable")
+    recycle_bin_table = assert_record(
+        tables["RecycleBinTable.json"], "RecycleBinTable"
+    )
     level_desc_table = assert_record(tables["LevelDescTable.json"], "LevelDescTable")
     locale_tables = build_locale_tables(tables)
 
@@ -408,6 +412,21 @@ def build_delivery_destinations_data(
         entity_type = normalize_entity_type(entry.get("entityType"), label)
         x, z = locate_target(entity_type, entity_key, npc_positions, mark_index, label)
 
+        serial_id: int | None = None
+        if entity_type == ENTITY_TYPE_RECYCLE_BIN:
+            recycle_bin = assert_record(
+                recycle_bin_table.get(entity_key),
+                f"{label} 对应的资源回收站 {entity_key}",
+            )
+            if recycle_bin.get("levelId") != level_id:
+                raise TableCfgError(
+                    f"资源回收站 {entity_key} 的层级与{label}的层级 {level_id} 不一致"
+                )
+            value = recycle_bin.get("serialId")
+            if not isinstance(value, int) or isinstance(value, bool) or value <= 0:
+                raise TableCfgError(f"资源回收站 {entity_key} 的 serialId {value!r} 无效")
+            serial_id = value
+
         zone = used_zones.get(map_id)
         if zone is None:
             zone = resolve_zone(zones, map_id)
@@ -431,26 +450,26 @@ def build_delivery_destinations_data(
         )
         depot = depot_by_level.get(level_id)
 
-        destinations.append(
-            {
-                "id": target_id,
-                "kind": ENTITY_TYPE_KINDS[entity_type],
-                "name": build_localized_names(
-                    buyer.get("buyerName"), locale_tables, f"收货人 {buyer_id}"
+        destination = {
+            "id": target_id,
+            "kind": ENTITY_TYPE_KINDS[entity_type],
+            **({"serial_id": serial_id} if serial_id is not None else {}),
+            "name": build_localized_names(
+                buyer.get("buyerName"), locale_tables, f"收货人 {buyer_id}"
+            ),
+            "mission": strip_rich_text(
+                build_localized_names(
+                    entry.get("missionObjDesc"), locale_tables, f"{label}任务目标"
                 ),
-                "mission": strip_rich_text(
-                    build_localized_names(
-                        entry.get("missionObjDesc"), locale_tables, f"{label}任务目标"
-                    ),
-                    f"{label}任务目标",
-                ),
-                "area": area,
-                "depot_id": depot["id"] if depot is not None else "",
-                "map": map_id,
-                "u": u,
-                "v": v,
-            }
-        )
+                f"{label}任务目标",
+            ),
+            "area": area,
+            "depot_id": depot["id"] if depot is not None else "",
+            "map": map_id,
+            "u": u,
+            "v": v,
+        }
+        destinations.append(destination)
 
     if not destinations:
         raise TableCfgError("DomainDepotDeliverTargetTable 里一个送货点都没有")
@@ -478,6 +497,7 @@ def build_delivery_destinations_data(
             "name": "取自 DomainDepotBuyerTable.buyerName；普通收货任务用作 OCR 目标，回收站任务仅保留为数据标识",
             "mission": "委托目标文案，已剥掉 <@qu.key>…</> 富文本标签；回收站任务用作 OCR 目标，同区域重复时保持歧义失败",
             "area": "任务详情页显示的关卡名，取自 LevelDescTable.showName",
+            "serial_id": "资源回收站在当前区域内显示的序号，取自 RecycleBinTable.serialId",
             "depot_id": "该终点所属仓储节点 ID；没有同层仓储节点时为空字符串",
             "depots": "仓储节点坐标，按 DomainDepotTable.id 精确关联 LevelMapMark.markInstId",
         },

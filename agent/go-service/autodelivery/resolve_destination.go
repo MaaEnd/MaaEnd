@@ -3,6 +3,8 @@ package autodelivery
 import (
 	"errors"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -116,6 +118,7 @@ func (a *AutoDeliveryResolveDestinationAction) Run(ctx *maa.Context, arg *maa.Cu
 			Msg("failed to inject delivery navigation parameters")
 		return false
 	}
+	maafocus.Print(ctx, i18n.T("autodelivery.focus.destination_resolved", destinationDisplayName(dest)))
 
 	log.Info().
 		Str("component", resolveDestinationActionName).
@@ -137,6 +140,14 @@ func (a *AutoDeliveryResolveDestinationAction) Run(ctx *maa.Context, arg *maa.Cu
 		Str("retryRouteNode", dest.RetryRouteNode).
 		Msg("resolved delivery job destination")
 	return true
+}
+
+func destinationDisplayName(dest destination) string {
+	if dest.Kind == destinationKindRecycleBin {
+		areaName := localizedName(dest.AreaNames, dest.AreaID)
+		return i18n.T("autodelivery.destination.recycle_bin", areaName, dest.SerialID)
+	}
+	return localizedName(dest.Names, dest.ID)
 }
 
 func buildDestinationNavigationOverride(dest destination, zip bool) map[string]any {

@@ -21,10 +21,7 @@
         "rate_limit": 0,
         "next": [
             "AutoDeliveryPrepareNavigateDestination"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": "已通过地图图标确认资源回收站 deliver_target_map01_lv005_recycle_02"
-        }
+        ]
     },
     "AutoDeliveryFindRecycleBinDeliverTargetMap01Lv005Recycle03": {
         "desc": "在源石研究园大地图的指定坐标确认资源回收站图标（deliver_target_map01_lv005_recycle_03）",
@@ -48,10 +45,7 @@
         "rate_limit": 0,
         "next": [
             "AutoDeliveryPrepareNavigateDestination"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": "已通过地图图标确认资源回收站 deliver_target_map01_lv005_recycle_03"
-        }
+        ]
     },
     "AutoDeliveryFindRecycleBinDeliverTargetMap01Lv006Recycle01": {
         "desc": "在矿脉源区大地图的指定坐标确认资源回收站图标（deliver_target_map01_lv006_recycle_01）",
@@ -75,10 +69,7 @@
         "rate_limit": 0,
         "next": [
             "AutoDeliveryPrepareNavigateDestination"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": "已通过地图图标确认资源回收站 deliver_target_map01_lv006_recycle_01"
-        }
+        ]
     },
     "AutoDeliveryFindRecycleBinDeliverTargetMap01Lv006Recycle03": {
         "desc": "在矿脉源区大地图的指定坐标确认资源回收站图标（deliver_target_map01_lv006_recycle_03）",
@@ -102,10 +93,7 @@
         "rate_limit": 0,
         "next": [
             "AutoDeliveryPrepareNavigateDestination"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": "已通过地图图标确认资源回收站 deliver_target_map01_lv006_recycle_03"
-        }
+        ]
     },
     "AutoDeliveryFindRecycleBinDeliverTargetMap01Lv007Recycle02": {
         "desc": "在供能高地大地图的指定坐标确认资源回收站图标（deliver_target_map01_lv007_recycle_02）",
@@ -129,10 +117,7 @@
         "rate_limit": 0,
         "next": [
             "AutoDeliveryPrepareNavigateDestination"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": "已通过地图图标确认资源回收站 deliver_target_map01_lv007_recycle_02"
-        }
+        ]
     },
     "AutoDeliveryFindRecycleBinDeliverTargetMap01Lv007Recycle03": {
         "desc": "在供能高地大地图的指定坐标确认资源回收站图标（deliver_target_map01_lv007_recycle_03）",
@@ -156,9 +141,6 @@
         "rate_limit": 0,
         "next": [
             "AutoDeliveryPrepareNavigateDestination"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": "已通过地图图标确认资源回收站 deliver_target_map01_lv007_recycle_03"
-        }
+        ]
     }
 }

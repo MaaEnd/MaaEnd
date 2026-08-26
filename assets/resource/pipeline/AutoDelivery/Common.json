@@ -40,10 +40,7 @@
         "next": [
             "[Anchor]AutoDeliveryAfterRecognizeDestination",
             "AutoDeliveryAfterResolveDestination"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": "已处理当前送货目标"
-        }
+        ]
     },
     "AutoDeliveryRecognizeDepot": {
         "desc": "从当前送货任务详情识别仓储节点，并注入前往仓储节点的寻路参数",
@@ -68,10 +65,7 @@
         "rate_limit": 0,
         "next": [
             "AutoDeliveryQuickTeleport"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": "已识别当前仓储节点"
-        }
+        ]
     },
     "AutoDeliveryAreaOCR": {
         "desc": "识别任务详情标题下方的当前区域；文本匹配和歧义判断交给 Go",

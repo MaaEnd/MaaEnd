@@ -88,6 +88,41 @@ func TestBuildDestinationsRejectsUnknownDepotAndKind(t *testing.T) {
 	}
 }
 
+func TestBuildDestinationsPreservesRecycleBinSerialID(t *testing.T) {
+	t.Parallel()
+
+	source := generatedDestination{
+		ID:           "deliver_target_map01_lv005_recycle_03",
+		Kind:         destinationKindRecycleBin,
+		SerialID:     2,
+		DepotID:      "depot",
+		Name:         map[string]string{"zh_cn": "数据标识"},
+		Mission:      map[string]string{"zh_cn": "把货物尽可能完整地送至资源回收站"},
+		Area:         map[string]string{"zh_cn": "源石研究园", "en_us": "Originium Science Park"},
+		RouteNode:    "normal",
+		ZipRouteNode: "zip",
+	}
+	_, destinations, err := buildDestinations(
+		generatedCatalog{Destinations: []generatedDestination{source}},
+		map[string]depot{"depot": {ID: "depot", Map: "map01"}},
+	)
+	if err != nil {
+		t.Fatalf("buildDestinations() error = %v", err)
+	}
+	if len(destinations) != 1 || destinations[0].SerialID != 2 {
+		t.Fatalf("unexpected recycle bin destination: %#v", destinations)
+	}
+
+	source.SerialID = 0
+	_, _, err = buildDestinations(
+		generatedCatalog{Destinations: []generatedDestination{source}},
+		map[string]depot{"depot": {ID: "depot", Map: "map01"}},
+	)
+	if err == nil || !strings.Contains(err.Error(), "serial id") {
+		t.Fatalf("buildDestinations() error = %v, want invalid serial id", err)
+	}
+}
+
 func TestResolveDestinationTextSpecialCasesRecycleBins(t *testing.T) {
 	t.Parallel()
 

@@ -2,24 +2,52 @@
     "depots": [
         {
             "id": "domain_1_lv005_depot_1",
+            "name": {
+                "zh_cn": "源石研究园",
+                "zh_tw": "源石研究園",
+                "en_us": "Originium Science Park",
+                "ja_jp": "源石研究パーク",
+                "ko_kr": "오리지늄 연구 구역"
+            },
             "map": "map01",
             "route_node": "AutoDeliveryRouteDepotDomain1Lv005Depot1",
             "zip_route_node": "AutoDeliveryRouteDepotDomain1Lv005Depot1WithZipline"
         },
         {
             "id": "domain_1_lv006_depot_1",
+            "name": {
+                "zh_cn": "矿脉源区",
+                "zh_tw": "礦脈源區",
+                "en_us": "Origin Lodespring",
+                "ja_jp": "鉱山エリア",
+                "ko_kr": "광맥 구역"
+            },
             "map": "map01",
             "route_node": "AutoDeliveryRouteDepotDomain1Lv006Depot1",
             "zip_route_node": "AutoDeliveryRouteDepotDomain1Lv006Depot1WithZipline"
         },
         {
             "id": "domain_1_lv007_depot_1",
+            "name": {
+                "zh_cn": "供能高地",
+                "zh_tw": "供能高地",
+                "en_us": "Power Plateau",
+                "ja_jp": "エネルギー高地",
+                "ko_kr": "에너지 공급 고지"
+            },
             "map": "map01",
             "route_node": "AutoDeliveryRouteDepotDomain1Lv007Depot1",
             "zip_route_node": "AutoDeliveryRouteDepotDomain1Lv007Depot1WithZipline"
         },
         {
             "id": "domain_2_lv002_depot_1",
+            "name": {
+                "zh_cn": "武陵城区",
+                "zh_tw": "武陵城區",
+                "en_us": "Wuling City",
+                "ja_jp": "武陵城内",
+                "ko_kr": "무릉성 구역"
+            },
             "map": "map02",
             "route_node": "AutoDeliveryRouteDepotDomain2Lv002Depot1",
             "zip_route_node": "AutoDeliveryRouteDepotDomain2Lv002Depot1WithZipline",
@@ -27,6 +55,13 @@
         },
         {
             "id": "domain_2_lv005_depot_1",
+            "name": {
+                "zh_cn": "试验园区",
+                "zh_tw": "實驗園區",
+                "en_us": "Test Area",
+                "ja_jp": "実験区域",
+                "ko_kr": "실험 구역"
+            },
             "map": "map02",
             "route_node": "AutoDeliveryRouteDepotDomain2Lv005Depot1",
             "zip_route_node": "AutoDeliveryRouteDepotDomain2Lv005Depot1WithZipline",
@@ -121,6 +156,7 @@
         {
             "id": "deliver_target_map01_lv005_recycle_02",
             "kind": "recycle_bin",
+            "serial_id": 1,
             "depot_id": "domain_1_lv005_depot_1",
             "name": {
                 "zh_cn": "学术复读羽兽",
@@ -149,6 +185,7 @@
         {
             "id": "deliver_target_map01_lv005_recycle_03",
             "kind": "recycle_bin",
+            "serial_id": 2,
             "depot_id": "domain_1_lv005_depot_1",
             "name": {
                 "zh_cn": "采购-醇化合物工厂模组",
@@ -261,6 +298,7 @@
         {
             "id": "deliver_target_map01_lv006_recycle_01",
             "kind": "recycle_bin",
+            "serial_id": 1,
             "depot_id": "domain_1_lv006_depot_1",
             "name": {
                 "zh_cn": "“不是废品佬”",
@@ -289,6 +327,7 @@
         {
             "id": "deliver_target_map01_lv006_recycle_03",
             "kind": "recycle_bin",
+            "serial_id": 2,
             "depot_id": "domain_1_lv006_depot_1",
             "name": {
                 "zh_cn": "采购-矿区医疗站模组",
@@ -401,6 +440,7 @@
         {
             "id": "deliver_target_map01_lv007_recycle_02",
             "kind": "recycle_bin",
+            "serial_id": 1,
             "depot_id": "domain_1_lv007_depot_1",
             "name": {
                 "zh_cn": "无畏的工团成员",
@@ -429,6 +469,7 @@
         {
             "id": "deliver_target_map01_lv007_recycle_03",
             "kind": "recycle_bin",
+            "serial_id": 2,
             "depot_id": "domain_1_lv007_depot_1",
             "name": {
                 "zh_cn": "采购-超域试验场物资模组",
@@ -541,6 +582,7 @@
         {
             "id": "deliver_target_map02_lv002_recycle_01",
             "kind": "recycle_bin",
+            "serial_id": 1,
             "depot_id": "domain_2_lv002_depot_1",
             "name": {
                 "zh_cn": "火锅探店达人",

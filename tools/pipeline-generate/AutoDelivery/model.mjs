@@ -125,6 +125,7 @@ export const depots = assertArray(catalogSource.depots, "delivery_destinations.d
     return {
         id,
         name: assertNonEmptyString(source.name?.zh_cn, `depots[${index}].name.zh_cn`),
+        names: source.name,
         map: assertNonEmptyString(source.map, `depots[${index}].map`),
         path,
         retryPath: override?.retry_path ?? [],
@@ -154,6 +155,9 @@ export const destinations = assertArray(catalogSource.destinations, "delivery_de
         if (source.kind !== "npc" && source.kind !== "recycle_bin") {
             throw new Error(`[AutoDelivery] 终点 ${id} 的 kind 无效：${source.kind}`);
         }
+        if (source.kind === "recycle_bin" && (!Number.isInteger(source.serial_id) || source.serial_id <= 0)) {
+            throw new Error(`[AutoDelivery] 资源回收站终点 ${id} 的 serial_id 无效：${source.serial_id}`);
+        }
         const depot = depotById.get(source.depot_id);
         if (!depot) {
             throw new Error(`[AutoDelivery] 终点 ${id} 引用了未知仓储 ${source.depot_id}`);
@@ -163,6 +167,7 @@ export const destinations = assertArray(catalogSource.destinations, "delivery_de
         return {
             id,
             kind: source.kind,
+            serialId: source.kind === "recycle_bin" ? source.serial_id : null,
             areaId: buildAreaId(source.area, `destinations[${index}]`),
             map: depot.map,
             mapZone: buildMapZone(depot.map, `终点 ${id}`),
@@ -203,6 +208,7 @@ for (const id of destinationOverrides.keys()) {
 export const runtimeCatalog = {
     depots: depots.map((item) => ({
         id: item.id,
+        name: item.names,
         map: item.map,
         route_node: item.routeNode,
         zip_route_node: item.zipRouteNode,
@@ -211,6 +217,7 @@ export const runtimeCatalog = {
     destinations: destinations.map((item) => ({
         id: item.id,
         kind: item.kind,
+        ...(item.serialId === null ? {} : {serial_id: item.serialId}),
         depot_id: item.depotId,
         name: item.name,
         mission: item.mission,

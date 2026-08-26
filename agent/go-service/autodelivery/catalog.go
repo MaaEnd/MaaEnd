@@ -6,6 +6,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/resource"
 )
 
@@ -30,6 +31,9 @@ type destination struct {
 	RouteNode        string
 	ZipRouteNode     string
 	RetryRouteNode   string
+	SerialID         int
+	Names            map[string]string
+	AreaNames        map[string]string
 	DestinationTexts []string
 	ObjectiveTexts   []string
 }
@@ -40,16 +44,18 @@ type generatedCatalog struct {
 }
 
 type generatedDepot struct {
-	ID             string `json:"id"`
-	Map            string `json:"map"`
-	RouteNode      string `json:"route_node"`
-	ZipRouteNode   string `json:"zip_route_node"`
-	RetryRouteNode string `json:"retry_route_node"`
+	ID             string            `json:"id"`
+	Name           map[string]string `json:"name"`
+	Map            string            `json:"map"`
+	RouteNode      string            `json:"route_node"`
+	ZipRouteNode   string            `json:"zip_route_node"`
+	RetryRouteNode string            `json:"retry_route_node"`
 }
 
 type generatedDestination struct {
 	ID             string            `json:"id"`
 	Kind           string            `json:"kind"`
+	SerialID       int               `json:"serial_id"`
 	DepotID        string            `json:"depot_id"`
 	Name           map[string]string `json:"name"`
 	Mission        map[string]string `json:"mission"`
@@ -61,6 +67,7 @@ type generatedDestination struct {
 
 type depot struct {
 	ID             string
+	Names          map[string]string
 	Map            string
 	RouteNode      string
 	ZipRouteNode   string
@@ -146,11 +153,15 @@ func buildDepots(generated generatedCatalog) (map[string]depot, error) {
 		if strings.TrimSpace(source.RouteNode) == "" || strings.TrimSpace(source.ZipRouteNode) == "" {
 			return nil, fmt.Errorf("AutoDelivery depot %q has incomplete route nodes", source.ID)
 		}
+		if len(localizedTexts(source.Name)) == 0 {
+			return nil, fmt.Errorf("AutoDelivery depot %q has no localized name", source.ID)
+		}
 		if _, exists := depots[source.ID]; exists {
 			return nil, fmt.Errorf("duplicate AutoDelivery depot id %q", source.ID)
 		}
 		depots[source.ID] = depot{
 			ID:             source.ID,
+			Names:          source.Name,
 			Map:            source.Map,
 			RouteNode:      source.RouteNode,
 			ZipRouteNode:   source.ZipRouteNode,
@@ -181,6 +192,9 @@ func buildDestinations(generated generatedCatalog, depots map[string]depot) ([]a
 		case destinationKindNPC, destinationKindRecycleBin:
 		default:
 			return nil, nil, fmt.Errorf("AutoDelivery destination %q has unknown kind %q", source.ID, source.Kind)
+		}
+		if source.Kind == destinationKindRecycleBin && source.SerialID <= 0 {
+			return nil, nil, fmt.Errorf("AutoDelivery recycle bin destination %q has invalid serial id %d", source.ID, source.SerialID)
 		}
 		if _, exists := depots[source.DepotID]; !exists {
 			return nil, nil, fmt.Errorf("AutoDelivery destination %q references unknown depot %q", source.ID, source.DepotID)
@@ -214,6 +228,9 @@ func buildDestinations(generated generatedCatalog, depots map[string]depot) ([]a
 			RouteNode:        source.RouteNode,
 			ZipRouteNode:     source.ZipRouteNode,
 			RetryRouteNode:   source.RetryRouteNode,
+			SerialID:         source.SerialID,
+			Names:            source.Name,
+			AreaNames:        source.Area,
 			DestinationTexts: destinationTexts,
 			ObjectiveTexts:   objectiveTexts,
 		})
@@ -227,6 +244,32 @@ func buildDestinations(generated generatedCatalog, depots map[string]depot) ([]a
 	}
 	sort.Slice(areas, func(i, j int) bool { return areas[i].ID < areas[j].ID })
 	return areas, destinations, nil
+}
+
+func localizedName(names map[string]string, fallback string) string {
+	return localizedNameForLang(names, i18n.Lang(), fallback)
+}
+
+func localizedNameForLang(names map[string]string, lang string, fallback string) string {
+	lang = i18n.NormalizeLang(lang)
+	if name := strings.TrimSpace(names[lang]); name != "" {
+		return name
+	}
+	if name := strings.TrimSpace(names[i18n.DefaultLang]); name != "" {
+		return name
+	}
+
+	languages := make([]string, 0, len(names))
+	for language := range names {
+		languages = append(languages, language)
+	}
+	sort.Strings(languages)
+	for _, language := range languages {
+		if name := strings.TrimSpace(names[language]); name != "" {
+			return name
+		}
+	}
+	return fallback
 }
 
 func localizedAreaID(localized map[string]string) (string, error) {

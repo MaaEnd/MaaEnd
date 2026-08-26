@@ -24,7 +24,7 @@
             "AutoDeliveryInDestinationMap"
         ],
         "focus": {
-            "Node.Action.Starting": "点击查看任务位置"
+            "Node.Action.Starting": "$task.AutoDelivery.focus.open_destination_map"
         }
     },
     "AutoDeliveryStartTrackingTask": {
@@ -42,7 +42,7 @@
             "AutoDeliveryInDestinationMap"
         ],
         "focus": {
-            "Node.Action.Starting": "点击开始追踪任务"
+            "Node.Action.Starting": "$task.AutoDelivery.focus.start_tracking"
         }
     },
     "AutoDeliveryInDestinationMap": {
@@ -58,7 +58,7 @@
             "AutoDeliveryQuickTeleportSelect"
         ],
         "focus": {
-            "Node.Recognition.Succeeded": "正在查看任务位置"
+            "Node.Recognition.Succeeded": "$task.AutoDelivery.focus.destination_map_opened"
         }
     },
     "AutoDeliveryQuickTeleportSelect": {
@@ -84,7 +84,7 @@
             "AutoDeliveryQuickTeleportClick"
         ],
         "focus": {
-            "Node.Action.Starting": "点击前往传送按钮"
+            "Node.Action.Starting": "$task.AutoDelivery.focus.select_quick_teleport"
         }
     },
     "AutoDeliveryQuickTeleportClick": {
@@ -110,7 +110,7 @@
             "[JumpBack]SceneAnyEnterWorld"
         ],
         "focus": {
-            "Node.Action.Starting": "点击传送按钮"
+            "Node.Action.Starting": "$task.AutoDelivery.focus.quick_teleport"
         }
     },
     "AutoDeliveryQuickTeleportDone": {
@@ -231,7 +231,7 @@
             "AutoDeliveryFetchGoods"
         ],
         "focus": {
-            "Node.Action.Starting": "正在前往当前仓储节点",
+            "Node.Action.Starting": "$task.AutoDelivery.focus.navigate_depot",
             "Node.Action.Succeeded": {
                 "trace": true
             },
@@ -315,7 +315,7 @@
             "AutoDeliveryFetchGoodsDone"
         ],
         "focus": {
-            "Node.Action.Starting": "交互接取货物"
+            "Node.Action.Starting": "$task.AutoDelivery.focus.fetch_goods"
         }
     },
     "AutoDeliveryFetchGoodsDone": {

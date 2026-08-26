@@ -18,9 +18,6 @@
         "rate_limit": 0,
         "next": [
             "AutoDeliveryPrepareNavigateDestination"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": "已通过地图图标确认资源回收站 ${DestinationId}"
-        }
+        ]
     }
 }
