@@ -554,11 +554,14 @@ func TestSendBarkJSON(t *testing.T) {
 		gotPayload["sound"] != "minuet" || gotPayload["icon"] != "https://example.com/icon.png" ||
 		gotPayload["image"] != "https://example.com/img.png" || gotPayload["url"] != "https://example.com" ||
 		gotPayload["markdown"] != "# 标题" || gotPayload["copy"] != "复制内容" ||
-		gotPayload["isArchive"] != "1" || gotPayload["ttl"] != "86400" || gotPayload["call"] != "1" {
+		gotPayload["isArchive"] != "1" || gotPayload["call"] != "1" {
 		t.Errorf("bark params mismatch: %v", gotPayload)
 	}
 	if gotPayload["badge"] != float64(3) {
 		t.Errorf("badge = %v (%T), want 3", gotPayload["badge"], gotPayload["badge"])
+	}
+	if gotPayload["ttl"] != float64(86400) {
+		t.Errorf("ttl = %v (%T), want 86400", gotPayload["ttl"], gotPayload["ttl"])
 	}
 }
 
