@@ -23,7 +23,9 @@ const PACK_CARGO_EXPECTED = [
 
 const AUTO_DELIVERY_CONTROLLERS = [
     "Win32-Front",
-    "Linux-Wlroots",
+    "Linux-Gamescope",
+    "Linux-ScreenCast",
+    "Linux-Wlroots"
 ];
 
 const AUTO_DELIVERY_NAVIGATE_NODES = [
