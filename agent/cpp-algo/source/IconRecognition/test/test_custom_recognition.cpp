@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <filesystem>
+#include <fstream>
 #include <iostream>
 #include <stdexcept>
 #include <string>
@@ -14,6 +15,7 @@
 #include "../../utils.h"
 #include "IconRecognitionRecognition.h"
 #include "IconRecognizer.h"
+#include "detail/DisabledIcon.h"
 #include "detail/RecognitionDiagnostics.h"
 #include "detail/TemplateTypes.h"
 
@@ -197,6 +199,67 @@ struct RecheckDeduplicateFixture
     cv::Rect roi { 0, 0, kTransferSyntheticWidth, kTransferSyntheticHeight };
 };
 
+struct RegionRestrictedFixture
+{
+    std::filesystem::path data_root;
+    cv::Mat normal_pixels;
+    cv::Mat disabled_pixels;
+    cv::Rect roi;
+};
+
+RegionRestrictedFixture MakeRegionRestrictedFixture(std::string_view fixture_name, bool write_overlays)
+{
+    const auto root = std::filesystem::path("agent/cpp-algo/source/IconRecognition/test/build") / fixture_name;
+    std::filesystem::remove_all(root);
+    const auto data_root = root / "data" / "IconRecognition";
+    const auto image_root = root / "resource" / "image" / "IconRecognition";
+    std::filesystem::create_directories(data_root);
+    std::filesystem::create_directories(image_root / "1");
+    std::ofstream(data_root / "recognition_items.json", std::ios::binary | std::ios::trunc)
+        << R"({"restricted":{"name":"受限物品","category":"test","storageKind":"Normal","categoryType":"Ore","rarity":1,"iconId":"restricted","fluidIconId":"","regionRestricted":true}})";
+
+    const cv::Mat source = iconrecognition::detail::DecodeBgra(
+        get_exe_dir() / ".." / "resource" / "image" / "IconRecognition" / "1" / "item_copper_ore.png");
+    Require(cv::imwrite((image_root / "1" / "restricted.png").string(), source), "unable to write restricted icon fixture");
+    const cv::Mat dark_band(28, 120, CV_8UC4, cv::Scalar(0, 0, 0, 255));
+    const cv::Mat white_mark(24, 24, CV_8UC4, cv::Scalar(255, 255, 255, 255));
+    if (write_overlays) {
+        std::filesystem::create_directories(image_root / "Overlay");
+        Require(
+            cv::imwrite((image_root / "Overlay" / "icon_placement_disabled_bg.png").string(), dark_band),
+            "unable to write restricted background fixture");
+        Require(
+            cv::imwrite((image_root / "Overlay" / "icon_placement_disabled.png").string(), white_mark),
+            "unable to write restricted mark fixture");
+    }
+
+    const iconrecognition::detail::TemplateRecord record { .item_id = "restricted", .region_restricted = true };
+    const auto normal = iconrecognition::detail::PrepareStandardTemplate(
+        record,
+        source,
+        kTransferSyntheticCellSize,
+        kSyntheticAlphaThreshold);
+    const auto disabled =
+        iconrecognition::detail::BuildRegionUnavailableTemplate(normal, dark_band, white_mark, kSyntheticAlphaThreshold);
+    const cv::Rect roi { 0, 0, kTransferSyntheticWidth, kTransferSyntheticHeight };
+    const cv::Point cell_origin { 2, 2 };
+    cv::Mat grid_background = cv::Mat::zeros(roi.size(), CV_8UC3);
+    for (int x = 0; x < roi.width; x += kTransferSyntheticPitch) {
+        grid_background.colRange(x, std::min(x + 2, roi.width)).setTo(cv::Scalar(245, 245, 245));
+    }
+    for (int y = 0; y < roi.height; y += kTransferSyntheticPitch) {
+        grid_background.rowRange(y, std::min(y + 2, roi.height)).setTo(cv::Scalar(245, 245, 245));
+    }
+    const cv::Size canvas_size = roi.size();
+    cv::Mat normal_pixels = cv::Mat::zeros(canvas_size, CV_8UC3);
+    cv::Mat disabled_pixels = cv::Mat::zeros(canvas_size, CV_8UC3);
+    grid_background.copyTo(normal_pixels);
+    grid_background.copyTo(disabled_pixels);
+    normal.image.copyTo(normal_pixels(cv::Rect(cell_origin, normal.image.size())));
+    disabled.image.copyTo(disabled_pixels(cv::Rect(cell_origin, disabled.image.size())));
+    return { data_root, std::move(normal_pixels), std::move(disabled_pixels), roi };
+}
+
 RecheckDeduplicateFixture MakeRecheckDeduplicateFixture()
 {
     cv::Mat pixels(kTransferSyntheticHeight, kTransferSyntheticWidth, CV_8UC3, cv::Scalar(18, 18, 18));
@@ -218,6 +281,20 @@ RecheckDeduplicateFixture MakeRecheckDeduplicateFixture()
         prepared.image.copyTo(pixels(cv::Rect(origin.x, origin.y, kTransferSyntheticCellSize, kTransferSyntheticCellSize)));
     }
     return { std::move(pixels) };
+}
+
+RecheckDeduplicateFixture MakeRecheckAdditionalFilterFixture()
+{
+    auto fixture = MakeRecheckDeduplicateFixture();
+    const auto template_path = get_exe_dir() / ".." / "resource" / "image" / "IconRecognition" / "2" / "item_carbon_mtl.png";
+    const iconrecognition::detail::TemplateRecord record { .item_id = "item_carbon_mtl" };
+    const auto prepared = iconrecognition::detail::PrepareStandardTemplate(
+        record,
+        iconrecognition::detail::DecodeBgra(template_path),
+        kTransferSyntheticCellSize,
+        kSyntheticAlphaThreshold);
+    prepared.image.copyTo(fixture.pixels(cv::Rect(71, 2, kTransferSyntheticCellSize, kTransferSyntheticCellSize)));
+    return fixture;
 }
 
 json::object RunFailure(const MaaImageBuffer* image, const char* param, MaaRect& out_box, const MaaRect* roi = &kValidRoi)
@@ -312,6 +389,8 @@ void TestMalformedCandidateListsAreRejected()
     for (const auto& [param, field] : {
              std::pair { R"({"grid_type":"single_roi","item_ids":"bad"})", "item_ids" },
              std::pair { R"({"grid_type":"single_roi","item_filters":[1]})", "item_filters" },
+             std::pair { R"({"grid_type":"single_roi","additional_item_filters":[1]})", "additional_item_filters" },
+             std::pair { R"({"grid_type":"single_roi","excluded_item_ids":[1]})", "excluded_item_ids" },
              std::pair { R"({"grid_type":"single_roi","item_recheck_filters":[1]})", "item_recheck_filters" },
          }) {
         MaaRect out_box { 101, 202, 303, 404 };
@@ -335,6 +414,9 @@ void TestMalformedScalarParametersAreRejected()
              std::pair { R"({"grid_type":"single_roi","subpixel_threshold":"bad"})", "subpixel_threshold" },
              std::pair { R"({"grid_type":"single_roi","debug":"bad"})", "debug" },
              std::pair { R"({"grid_type":"transfer","deduplicate":"bad"})", "deduplicate" },
+             std::pair {
+                 R"({"grid_type":"single_roi","recognize_region_unavailable":"bad"})",
+                 "recognize_region_unavailable" },
          }) {
         MaaRect out_box { 101, 202, 303, 404 };
         const auto detail = RunFailure(image.get(), param, out_box);
@@ -407,6 +489,9 @@ void TestSuccessfulSingleRoiUsesPrimaryCellBox()
     Require(match.contains("cell_box") && match.at("cell_box").is_array(), "successful match must contain array cell_box");
     Require(match.contains("item_box") && match.at("item_box").is_array(), "successful match must contain array item_box");
     Require(match.contains("score") && match.at("score").is_number(), "successful match must contain score");
+    Require(
+        !match.contains("region_unavailable"),
+        "normal successful match must omit region_unavailable");
     const auto& cell_box = match.at("cell_box").as_array();
     Require(cell_box.size() == 4, "cell_box must contain four components");
     Require(out_box.x == cell_box.at(0).as_integer(), "out_box.x must equal primary cell_box.x");
@@ -481,6 +566,31 @@ void TestItemRecheckFiltersRespectDeduplication()
     Require(with_deduplicate.matches.size() == 1, "deduplicate=true must keep only one candidate with the same item_id");
 }
 
+void TestItemRecheckFiltersIgnoreAdditionalFilterMatches()
+{
+    const auto fixture = MakeRecheckAdditionalFilterFixture();
+    iconrecognition::IconRecognizer recognizer(get_exe_dir() / ".." / "data" / "IconRecognition");
+    Require(recognizer.initialize(), "additional-filter recheck recognizer must initialize");
+
+    iconrecognition::RecognitionRequest request;
+    request.grid_type = iconrecognition::GridType::Transfer;
+    request.roi = fixture.roi;
+    request.candidates.item_ids = { "item_copper_ore" };
+    request.candidates.item_filters = { "Normal:Ore" };
+    request.candidates.additional_item_filters = { "Normal:Product" };
+    request.candidates.item_recheck_filters = { "Normal:Ore" };
+
+    const auto result = recognizer.recognize(fixture.pixels, request);
+    Require(result.matched, "original ids and additional-filter matches must both be recognized");
+    Require(result.matches.size() == 2, "item_recheck_filters must not reject matches added by additional_item_filters");
+    Require(
+        std::ranges::any_of(result.matches, [](const auto& match) { return match.item.item_id == "item_copper_ore"; }),
+        "rechecked original item id must remain in the result");
+    Require(
+        std::ranges::any_of(result.matches, [](const auto& match) { return match.item.item_id == "item_carbon_mtl"; }),
+        "additional filter match must bypass item-id recheck");
+}
+
 void TestRecognizerPreservesInternalDiagnostics()
 {
     const auto fixture = MakeSingleRoiFixture();
@@ -507,6 +617,91 @@ void TestRecognizerPreservesInternalDiagnostics()
     Require(performance.matcher.score_calls >= performance.ranking.baseline_candidates, "matcher diagnostics must count score calls");
     Require(performance.total_ms >= performance.ranking.total_ms, "total recognition time must cover ranking time");
     Require(!json::value(result).as_object().contains("diagnostics"), "public detail must not serialize internal diagnostics");
+}
+
+void TestRegionRestrictedFallbackRunsOnlyAfterNormalRejection()
+{
+    const auto normal_fixture = MakeRegionRestrictedFixture("generated-region-restricted-normal", true);
+    iconrecognition::IconRecognizer normal_recognizer(normal_fixture.data_root);
+    Require(normal_recognizer.initialize(), "normal restricted recognizer must initialize");
+    iconrecognition::RecognitionRequest request;
+    request.grid_type = iconrecognition::GridType::Transfer;
+    request.roi = normal_fixture.roi;
+    request.candidates.item_ids = { "restricted" };
+    request.candidates.item_filters = { "Normal:Ore" };
+    request.recognize_region_unavailable = true;
+    request.threshold = 0.98;
+
+    const auto normal_result = normal_recognizer.recognize(normal_fixture.normal_pixels, request);
+    Require(normal_result.matched && normal_result.matches.size() == 1, "normal template must match before disabled fallback");
+    Require(
+        !normal_result.matches.front().region_unavailable,
+        "normal template match must not be marked unavailable in the current region");
+    Require(
+        normal_result.diagnostics
+            && !normal_result.diagnostics->cells.front().region_unavailable_fallback_used,
+        "accepted normal match must not run disabled fallback");
+
+    const auto disabled_fixture = MakeRegionRestrictedFixture("generated-region-restricted-disabled", true);
+    iconrecognition::IconRecognizer disabled_recognizer(disabled_fixture.data_root);
+    Require(disabled_recognizer.initialize(), "disabled restricted recognizer must initialize");
+    request.roi = disabled_fixture.roi;
+    request.recognize_region_unavailable = false;
+    const auto disabled_by_default = disabled_recognizer.recognize(disabled_fixture.disabled_pixels, request);
+    Require(!disabled_by_default.matched, "disabled template must not match when fallback remains disabled");
+
+    request.recognize_region_unavailable = true;
+    const auto disabled_result = disabled_recognizer.recognize(disabled_fixture.disabled_pixels, request);
+    Require(disabled_result.matched && disabled_result.matches.size() == 1, "enabled fallback must recognize the disabled template");
+    Require(disabled_result.matches.front().item.item_id == "restricted", "disabled fallback must preserve the original item id");
+    Require(
+        disabled_result.matches.front().region_unavailable,
+        "region-unavailable fallback match must preserve its state");
+    Require(
+        disabled_result.diagnostics
+            && disabled_result.diagnostics->cells.front().region_unavailable_fallback_used,
+        "disabled fallback diagnostics must record that the fallback was used");
+
+    request.candidates.item_recheck_filters = { "Normal:Ore" };
+    const auto rechecked_disabled_result = disabled_recognizer.recognize(disabled_fixture.disabled_pixels, request);
+    Require(
+        rechecked_disabled_result.matched && rechecked_disabled_result.matches.size() == 1,
+        "item recheck must preserve a disabled fallback match");
+    Require(
+        rechecked_disabled_result.matches.front().region_unavailable,
+        "rechecked fallback must retain region_unavailable=true");
+
+    // 地区禁用后备不应随着开关误应用到交易、奖励或单 ROI 等其他界面。
+    request.grid_type = iconrecognition::GridType::SingleRoi;
+    request.roi = cv::Rect { 2, 2, kTransferSyntheticCellSize, kTransferSyntheticCellSize };
+    const auto unsupported_grid_result = disabled_recognizer.recognize(disabled_fixture.disabled_pixels, request);
+    Require(!unsupported_grid_result.matched, "unsupported grid types must not use region-restricted fallback");
+}
+
+void TestRegionRestrictedPreloadHonorsEnabledRequest()
+{
+    const auto fixture = MakeRegionRestrictedFixture("generated-region-restricted-preload", true);
+    iconrecognition::IconRecognizer recognizer(fixture.data_root);
+    Require(recognizer.initialize(), "preload recognizer must initialize without loading region-restricted overlays");
+
+    iconrecognition::RecognitionRequest enabled_request;
+    enabled_request.grid_type = iconrecognition::GridType::Transfer;
+    enabled_request.roi = fixture.roi;
+    enabled_request.candidates.item_ids = { "restricted" };
+    enabled_request.candidates.item_filters = { "Normal:Ore" };
+    enabled_request.recognize_region_unavailable = true;
+    enabled_request.threshold = 0.98;
+    Require(recognizer.preload({ enabled_request }), "enabled preload must prepare region-unavailable variants");
+
+    Require(
+        std::filesystem::remove(
+            fixture.data_root.parent_path().parent_path() / "resource" / "image" / "IconRecognition" / "Overlay"
+            / "icon_placement_disabled.png"),
+        "preload fixture must remove one overlay asset after warm-up");
+    const auto result = recognizer.recognize(fixture.disabled_pixels, enabled_request);
+    Require(
+        result.matched && result.matches.size() == 1 && result.matches.front().region_unavailable,
+        "recognition after removing the asset must use the preloaded region-unavailable template");
 }
 
 void TestGridDiagnosticsSerializeSelectionEvidence()
@@ -679,7 +874,10 @@ int main()
         TestSuccessfulSingleRoiUsesPrimaryCellBox();
         TestItemRecheckFiltersValidateCandidates();
         TestItemRecheckFiltersRespectDeduplication();
+        TestItemRecheckFiltersIgnoreAdditionalFilterMatches();
         TestRecognizerPreservesInternalDiagnostics();
+        TestRegionRestrictedFallbackRunsOnlyAfterNormalRejection();
+        TestRegionRestrictedPreloadHonorsEnabledRequest();
         TestGridDiagnosticsSerializeSelectionEvidence();
         TestRecognizerPreloadsEveryRequestedTemplateSize();
         TestMaaFrameworkWrapsCustomDetail();

@@ -6,6 +6,7 @@
 #include <meojson/json.hpp>
 
 #include "CompositeIcon.h"
+#include "DisabledIcon.h"
 
 namespace iconrecognition::detail
 {
@@ -14,6 +15,29 @@ namespace
 
 // 透明度低于该值的像素不参与模板匹配；调高可抑制半透明边缘噪声，调低可保留更多细节。
 constexpr int kTemplateAlphaThreshold = 230;
+// 地区不可用横条源素材在 128px 图标基准下的像素宽高；加载时严格校验，避免误用裁剪或缩放后的资源。
+constexpr int kRegionUnavailableBandSourceWidth = 120;
+constexpr int kRegionUnavailableBandSourceHeight = 28;
+// 地区不可用白色标识源素材在 128px 图标基准下的像素宽高。
+constexpr int kRegionUnavailableMarkSourceWidth = 24;
+constexpr int kRegionUnavailableMarkSourceHeight = 24;
+
+cv::Mat DecodeDisabledOverlay(const std::filesystem::path& path, const cv::Size& expected_size)
+{
+    if (!std::filesystem::is_regular_file(path)) {
+        throw std::runtime_error("disabled overlay not found: " + path.string());
+    }
+    const cv::Mat overlay = cv::imread(path.string(), cv::IMREAD_UNCHANGED);
+    if (overlay.empty()) {
+        throw std::runtime_error("unable to decode disabled overlay: " + path.string());
+    }
+    if (overlay.type() != CV_8UC4 || overlay.size() != expected_size) {
+        throw std::runtime_error(
+            "disabled overlay must be a " + std::to_string(expected_size.width) + "x" + std::to_string(expected_size.height)
+            + " BGRA image: " + path.string());
+    }
+    return overlay;
+}
 
 } // namespace
 
@@ -33,12 +57,16 @@ bool TemplateCatalog::InitializeUnlocked()
 {
     records_.clear();
     cache_.clear();
+    region_unavailable_cache_.clear();
+    region_unavailable_background_.release();
+    region_unavailable_mark_.release();
     const auto parsed = json::open((data_root_ / "recognition_items.json").string());
     if (!parsed || !parsed->is_object()) {
         throw std::runtime_error("recognition_items.json must be an object");
     }
     const std::set<std::string> expected { "name", "category", "storageKind", "categoryType", "rarity", "iconId", "fluidIconId" };
-    const std::set<std::string> optional { "sortId1", "sortId2" };
+    const std::set<std::string> optional_sort { "sortId1", "sortId2" };
+    const std::set<std::string> optional_boolean { "regionRestricted" };
     const auto is_integer = [](const json::value& value) {
         return value.is_number() && value.as_double() == static_cast<double>(value.as_integer());
     };
@@ -58,11 +86,14 @@ bool TemplateCatalog::InitializeUnlocked()
             }
         }
         for (const auto& [field, field_value] : object) {
-            if (!expected.contains(field) && !optional.contains(field)) {
+            if (!expected.contains(field) && !optional_sort.contains(field) && !optional_boolean.contains(field)) {
                 throw std::runtime_error("catalog field unknown: " + item_id + "." + field);
             }
-            if (optional.contains(field) && !is_integer(field_value)) {
+            if (optional_sort.contains(field) && !is_integer(field_value)) {
                 throw std::runtime_error("catalog sort field invalid: " + item_id + "." + field);
+            }
+            if (optional_boolean.contains(field) && !field_value.is_boolean()) {
+                throw std::runtime_error("catalog boolean field invalid: " + item_id + "." + field);
             }
         }
         const auto get_string = [&](const char* key) {
@@ -91,6 +122,7 @@ bool TemplateCatalog::InitializeUnlocked()
             rarity,
             icon_id,
             fluid_icon_id,
+            object.contains("regionRestricted") && object.at("regionRestricted").as_boolean(),
         });
     }
     if (records_.empty()) {
@@ -125,6 +157,11 @@ std::filesystem::path ResolveIconPath(const std::filesystem::path& image_root, c
 const std::vector<PreparedTemplate>& TemplateCatalog::load(int target_size)
 {
     const std::lock_guard lock(mutex_);
+    return loadUnlocked(target_size);
+}
+
+const std::vector<PreparedTemplate>& TemplateCatalog::loadUnlocked(int target_size)
+{
     if (!initialized_) {
         InitializeUnlocked();
     }
@@ -152,6 +189,38 @@ const std::vector<PreparedTemplate>& TemplateCatalog::load(int target_size)
         }
     }
     return cache_.emplace(target_size, std::move(result)).first->second;
+}
+
+const std::vector<PreparedTemplate>& TemplateCatalog::loadRegionUnavailable(int target_size)
+{
+    const std::lock_guard lock(mutex_);
+    if (const auto it = region_unavailable_cache_.find(target_size); it != region_unavailable_cache_.end()) {
+        return it->second;
+    }
+    const auto& base_templates = loadUnlocked(target_size);
+    if (region_unavailable_background_.empty() || region_unavailable_mark_.empty()) {
+        const auto overlay_root = image_root_ / "Overlay";
+        cv::Mat background = DecodeDisabledOverlay(
+            overlay_root / "icon_placement_disabled_bg.png",
+            cv::Size(kRegionUnavailableBandSourceWidth, kRegionUnavailableBandSourceHeight));
+        cv::Mat mark = DecodeDisabledOverlay(
+            overlay_root / "icon_placement_disabled.png",
+            cv::Size(kRegionUnavailableMarkSourceWidth, kRegionUnavailableMarkSourceHeight));
+        region_unavailable_background_ = std::move(background);
+        region_unavailable_mark_ = std::move(mark);
+    }
+
+    std::vector<PreparedTemplate> result;
+    for (const auto& base : base_templates) {
+        if (base.record.region_restricted) {
+            result.push_back(BuildRegionUnavailableTemplate(
+                base,
+                region_unavailable_background_,
+                region_unavailable_mark_,
+                kTemplateAlphaThreshold));
+        }
+    }
+    return region_unavailable_cache_.emplace(target_size, std::move(result)).first->second;
 }
 
 } // namespace iconrecognition::detail

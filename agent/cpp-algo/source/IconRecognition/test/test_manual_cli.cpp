@@ -45,6 +45,9 @@ void TestHelpModes()
     Check(usage.find("--image") != std::string::npos, "usage must document image selection");
     Check(usage.find("--jobs <N|auto>") != std::string::npos, "usage must document worker selection");
     Check(usage.find("--debug") != std::string::npos, "usage must document debug performance diagnostics");
+    Check(
+        usage.find("--recognize-region-unavailable") != std::string::npos,
+        "usage must document current-region availability auditing");
     Check(usage.find("--dataset win32|adb") != std::string::npos, "usage must document dataset selection");
     Check(usage.find("--rois <path>") != std::string::npos, "usage must document ROI selection");
     Check(usage.find("full|left|right|split|all") != std::string::npos, "usage must document dual-grid modes");
@@ -143,6 +146,24 @@ void TestDebugMode()
     Check(debug.debug, "--debug must enable performance diagnostics");
 
     CheckRejected({ "--grid-type", "transfer", "--debug", "--debug" }, "duplicate debug option");
+}
+
+void TestRegionRestrictedMode()
+{
+    const auto defaults = iconrecognition::test::ParseManualRunnerOptions({ "--grid-type", "transfer" });
+    Check(
+        !defaults.recognize_region_unavailable,
+        "manual runner current-region availability recognition must remain disabled by default");
+
+    const auto enabled = iconrecognition::test::ParseManualRunnerOptions(
+        { "--grid-type", "transfer", "--recognize-region-unavailable" });
+    Check(
+        enabled.recognize_region_unavailable,
+        "manual runner flag must enable current-region availability recognition");
+
+    CheckRejected(
+        { "--all", "--recognize-region-unavailable", "--recognize-region-unavailable" },
+        "duplicate region-restricted option");
 }
 
 void TestExpectedResultsPath()
@@ -287,6 +308,7 @@ int main()
         TestDualGridModes();
         TestJobSelection();
         TestDebugMode();
+        TestRegionRestrictedMode();
         TestDatasetSelection();
         TestExpectedResultsPath();
         TestParallelExecutorKeepsIndexedResultsAndErrors();

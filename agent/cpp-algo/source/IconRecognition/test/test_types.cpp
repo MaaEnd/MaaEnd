@@ -39,11 +39,30 @@ int RunIconRecognitionTypesTest()
     RecognitionRequest request;
     Check(request.grid_type == GridType::Transfer, "request default grid type mismatch");
     Check(!request.deduplicate, "request deduplicate must default to false");
+    Check(
+        !request.recognize_region_unavailable,
+        "recognition of items unavailable in the current region must default to false");
     Check(ParseGridType("single_roi") == GridType::SingleRoi, "single_roi grid type must parse");
     Check(GridTypeName(GridType::SingleRoi) == "single_roi", "single_roi grid type name mismatch");
     const auto rewards = ParseGridType("rewards");
     Check(rewards.has_value(), "rewards grid type must parse");
     Check(GridTypeName(*rewards) == "rewards", "rewards grid type name mismatch");
+    Check(
+        SupportsRegionUnavailableRecognition(GridType::Transfer)
+            && SupportsRegionUnavailableRecognition(GridType::PortStorager),
+        "region-restricted fallback must support transfer and port_storager grids");
+    for (const auto grid_type : {
+             GridType::Trade,
+             GridType::Valuables,
+             GridType::Shipment,
+             GridType::CreditTrade,
+             GridType::Rewards,
+             GridType::SingleRoi,
+         }) {
+        Check(
+            !SupportsRegionUnavailableRecognition(grid_type),
+            "current-region availability recognition must be disabled for unsupported grids");
+    }
 
     RecognitionResult result;
     result.matched = true;
@@ -61,13 +80,14 @@ int RunIconRecognitionTypesTest()
         .cell_box = cv::Rect(30, 40, 64, 64),
         .item_box = cv::Rect(38, 48, 48, 48),
         .score = 0.9,
+        .region_unavailable = false,
         .row = 0,
         .column = 1,
     });
 
     const json::object object = json::value(result).as_object();
     Check(object.contains("detail_version"), "serialized result must contain detail_version");
-    Check(object.at("detail_version").as_integer() == 2, "serialized result must use detail contract version 2");
+    Check(object.at("detail_version").as_integer() == 3, "serialized result must use detail contract version 3");
     Check(object.contains("matched"), "serialized result must contain matched");
     Check(object.contains("roi"), "serialized result must contain roi");
     Check(object.contains("matches"), "serialized result must contain matches");
@@ -86,8 +106,23 @@ int RunIconRecognitionTypesTest()
     Check(match.at("cell_box").is_array() && match.at("cell_box").as_array().size() == 4, "serialized cell_box must use Maa array format");
     Check(match.at("item_box").is_array() && match.at("item_box").as_array().size() == 4, "serialized item_box must use Maa array format");
     Check(match.contains("score"), "serialized match must contain score");
+    Check(
+        !match.contains("region_unavailable"),
+        "normal serialized match must omit region_unavailable");
+    Check(!match.contains("disabled"), "serialized match must not expose the ambiguous disabled field");
     Check(match.contains("row"), "serialized match must contain row");
     Check(match.contains("column"), "serialized match must contain column");
+
+    ItemMatch disabled_match {
+        .item = ItemInfo { .item_id = "item_disabled" },
+        .region_unavailable = true,
+    };
+    const json::object disabled_object = json::value(disabled_match).as_object();
+    Check(
+        disabled_object.contains("region_unavailable")
+            && disabled_object.at("region_unavailable").as_boolean(),
+        "region-unavailable match must serialize region_unavailable=true");
+    Check(!disabled_object.contains("disabled"), "region-unavailable match must not serialize disabled");
 
     result.matches.push_back(ItemMatch {
         .item = ItemInfo { .item_id = "item_a" },

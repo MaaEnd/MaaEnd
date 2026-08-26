@@ -134,17 +134,22 @@ The component does not infer, move, or expand the request ROI from the selected 
 | Field | Type | Required | Default | Description |
 | -------------------- | ------------------- | ---------------------------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
 | `grid_type` | string / `GridType` | Yes for Custom; set it explicitly in C++ | None for Custom | Selects the grid locator for the current screen. See the table below. The C++ member initializer is only a construction placeholder |
-| `item_ids` | string[] | No | `[]` | Keeps only the listed items. Multiple IDs form a union; duplicates are rejected |
+| `item_ids` | string[] | No | `[]` | Keeps only the listed items. Multiple IDs form a union; duplicate values are treated as one |
 | `item_filters` | string[] | No | Depends on `grid_type` | Selects candidates by `storageKind:categoryType`. Multiple filters form a union; `*` selects every category under that `storageKind` |
+| `additional_item_filters` | string[] | No | `[]` | Appends these categories after intersecting the base filters with `item_ids` |
+| `excluded_item_ids` | string[] | No | `[]` | Removes the specified item IDs from the candidate set |
 | `item_recheck_filters` | string[] | No | `[]` | Active when both this field and `item_ids` are non-empty; uses the same format as `item_filters`; performs a single-cell recheck on matched candidate cells |
+| `recognize_region_unavailable` | boolean | No | `false` | Applies only to backpack/warehouse (`transfer`) and storage-station (`port_storager`) scenes. When enabled, if normal recognition does not match a cell, the component also tries items unavailable due to current-region restrictions. Items on the Dijiang do not appear in this state, so the option is not needed there |
 | `threshold` | number | No | `0.85` | Minimum final match score, enforced uniformly for every grid type |
 | `subpixel_threshold` | number | No | `0.60` | Tries finer position offsets when the base score reaches this value but remains below `threshold` |
 | `deduplicate` | boolean | No | `false` | Keeps only the highest-scoring cell for each `item_id` |
 | `debug` | boolean | No | `false` | Grid and cell diagnostics are collected when recognition reaches the result-assembly stage; early `invalid_image` or `exception` returns may lack them. `debug` controls performance timing and Custom debug-file writing |
 
 - **`threshold` and `subpixel_threshold`**: Thresholds must satisfy `0 <= subpixel_threshold < threshold <= 1`. When a base score is below `subpixel_threshold`, the component considers that candidate clearly unreliable, skips the finer position search, and does not add it to `matches`. Scores between the two thresholds are refined. A result is returned only when its final score reaches `threshold` and it passes the low-texture check. Shipment quantity bars and valuable-depot portrait regions are excluded from the template-matching mask, but they do not bypass the uniform threshold. Check the ROI, frame stability, and candidate filters before lowering thresholds.
-- **`item_ids` and `item_filters`**: `item_ids` specifies the items to find, while `item_filters` limits the candidate templates by category. When both are supplied, their intersection is used. Unknown or duplicate IDs, malformed filters, an empty filtered set, or an ID excluded by the filters returns `exception`.
-- **`item_recheck_filters`**: When `item_ids` is used to find specific items, visually similar items outside that set may be mistaken for a target item. `item_recheck_filters` performs a single-cell recheck on matched candidate cells, keeping only candidates confirmed as the target `item_id`. Compared with omitting `item_ids` and using only `item_filters` to recognize the entire grid, this approach rechecks only matched cells and is usually faster. Set `deduplicate: true` as well to avoid repeated rechecks of the same item.
+- **Candidate-set order**: The final set is `(((item_filters or grid defaults) ∩ item_ids) ∪ additional_item_filters) - excluded_item_ids`; omit the intersection when `item_ids` is absent. `excluded_item_ids` is applied as the final candidate-set operation, so listed items never participate in recognition. Duplicate values in candidate arrays are treated as one. Unknown IDs in `item_ids` or `excluded_item_ids`, malformed or catalog-unmatched filters, and an empty final set return `invalid_argument`.
+- **`item_recheck_filters`**: When `item_ids` is used to find specific items, visually similar items outside that set may be mistaken for a target item. `item_recheck_filters` rechecks only matches from the original `item_ids`; it does not recheck items appended by `additional_item_filters`. Compared with omitting `item_ids` and using only `item_filters` to recognize the entire grid, this approach rechecks only matched cells and is usually faster. Set `deduplicate: true` as well to avoid repeated rechecks of the same item.
+
+For template composition, masking, and fallback matching details, see [Recognition algorithm](/agent/cpp-algo/source/IconRecognition/docs/algorithm.md#候选选择与图标匹配).
 
 ### grid_type, default candidates, and reference ROIs
 
@@ -170,6 +175,7 @@ An item ID is a top-level key from [`recognition_items.json`](/assets/data/IconR
 ```json
 {
     "item_copper_ore": {
+        "name": "铜矿",
         "category": "矿物",
         "storageKind": "Normal",
         "categoryType": "Ore",
@@ -179,7 +185,7 @@ An item ID is a top-level key from [`recognition_items.json`](/assets/data/IconR
 }
 ```
 
-Pass `item_copper_ore`, not `iconId`, a locale key, or a display name. `iconId` is used only to locate the published icon asset.
+Pass `item_copper_ore`, not `iconId`, a locale key, or a display name. `iconId` is used only to locate the published icon asset. The catalog `name` is the downloaded Chinese name for readability only; runtime `matches[].name` still derives a locale key from `item_id`. Only restricted items additionally export `regionRestricted: true`; ordinary items omit the field.
 
 ### `item_filters` categories
 
@@ -220,7 +226,7 @@ Wildcard forms include `Normal:*`, `ValuableDepot:*`, and `Isolate:*`. The wildc
 
 | Field | Type | Description |
 | ---------------- | ------- | --------------------------------------------------------------------------------- |
-| `detail_version` | integer | Detail contract version; currently `2` |
+| `detail_version` | integer | Detail contract version; currently `3` |
 | `matched` | boolean | Whether at least one result was accepted |
 | `grid_type` | string | Requested grid type. It may be absent when parsing fails before the type is known |
 | `roi` | integer[4] | Request ROI as `[x,y,width,height]` |
@@ -239,6 +245,7 @@ Fields in `matches[]`:
 | `cell_box` | integer[4] | Owning grid cell as `[x,y,width,height]`; equal to the request ROI for `single_roi` |
 | `item_box` | integer[4] | Final template match location as `[x,y,width,height]` |
 | `score` | number | Final match score |
+| `region_unavailable` | boolean | Whether the item is unavailable in the current region; emitted only when `true` and omitted for normal matches |
 | `row` / `column` | integer | Row and column for real grids; absent for `single_roi` |
 
 Results are sorted by descending `score`, then by `cell_box.y`, `cell_box.x`, and `item_id`. With `deduplicate=true`, only the first sorted result for each `item_id` remains.
@@ -329,6 +336,9 @@ detail, err := ctx.RunRecognitionDirect(
             iconrecognition.WithGridType(iconrecognition.GridTypeTransfer),
             iconrecognition.WithItemIDs("item_copper_ore"),
             iconrecognition.WithItemFilters(iconrecognition.StorageFilter().Normal.Ore),
+            iconrecognition.WithAdditionalItemFilters(iconrecognition.StorageFilter().Normal.Product),
+            iconrecognition.WithExcludedItemIDs("item_carbon_mtl"),
+            iconrecognition.WithRecognizeRegionUnavailable(true),
             iconrecognition.WithDeduplicate(true),
         ),
     },
@@ -341,6 +351,7 @@ if err != nil {
 }
 for _, match := range parsed.Matches {
     _ = match.CellBox
+    _ = match.RegionUnavailable
 }
 ```
 
@@ -360,6 +371,9 @@ iconrecognition::RecognitionRequest request;
 request.grid_type = iconrecognition::GridType::Transfer;
 request.roi = cv::Rect(154, 202, 983, 291);
 request.candidates.item_ids = { "item_copper_ore" };
+request.candidates.additional_item_filters = { "Normal:Product" };
+request.candidates.excluded_item_ids = { "item_carbon_mtl" };
+request.recognize_region_unavailable = true;
 request.deduplicate = true;
 
 // Optional warm-up before concurrent recognition.
@@ -370,7 +384,7 @@ if (!recognizer.preload({ request })) {
 const iconrecognition::RecognitionResult result = recognizer.recognize(image, request);
 ```
 
-`request.candidates.item_ids` and `item_filters` correspond to the same-named Pipeline and Go parameters. C++ returns `RecognitionResult` directly, without MaaFramework's outer JSON wrapper.
+The ID and filter fields in `request.candidates` correspond to the same-named Pipeline and Go parameters; `request.recognize_region_unavailable` controls the current-region-unavailable fallback. C++ returns `RecognitionResult` directly, without MaaFramework's outer JSON wrapper.
 
 ## Debug output
 

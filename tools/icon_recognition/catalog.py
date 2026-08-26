@@ -27,7 +27,7 @@ def _icon_path(item_id: str, item: Mapping[str, Any], image_root: Path) -> Path 
 
 def build_catalog(source: Mapping[str, Any], image_root: str | Path) -> OrderedDict[str, dict[str, Any]]:
     image_root = Path(image_root)
-    items = OrderedDict(source.items())
+    items = OrderedDict(sorted(source.items()))
     references = {
         container
         for item in items.values()
@@ -90,11 +90,17 @@ def _record(item_id: str, item: Mapping[str, Any], path: Path, fluid_icon_id: st
         if isinstance(value, bool) or not isinstance(value, int):
             raise ValueError(f"{item_id}.{field} 必须是整数")
         record[field] = value
+    region_restricted = item.get("regionRestricted", False)
+    if not isinstance(region_restricted, bool):
+        raise ValueError(f"{item_id}.regionRestricted 必须是布尔值")
+    if region_restricted:
+        record["regionRestricted"] = True
     return record
 
 
 def write_catalog(catalog: Mapping[str, Any], output: str | Path) -> None:
-    Path(output).write_text(json.dumps(catalog, ensure_ascii=False, indent=4) + "\n", encoding="utf-8")
+    ordered = OrderedDict(sorted(catalog.items()))
+    Path(output).write_text(json.dumps(ordered, ensure_ascii=False, indent=4) + "\n", encoding="utf-8")
 
 
 def main() -> int:

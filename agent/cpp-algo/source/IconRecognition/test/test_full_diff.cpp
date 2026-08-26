@@ -312,13 +312,15 @@ iconrecognition::RecognitionResult RunCase(
     iconrecognition::IconRecognizer& recognizer,
     const cv::Mat& image,
     const iconrecognition::test::ManualRunnerCase& test_case,
-    bool debug)
+    bool debug,
+    bool recognize_region_unavailable)
 {
     iconrecognition::RecognitionRequest request;
     request.grid_type = test_case.grid_type;
     request.roi = test_case.roi;
     request.candidates = test_case.candidates;
     request.debug = debug;
+    request.recognize_region_unavailable = recognize_region_unavailable;
     if ((request.roi & cv::Rect(0, 0, image.cols, image.rows)) != request.roi) {
         throw std::runtime_error("roi must be fully inside the input image");
     }
@@ -386,7 +388,9 @@ std::size_t PhysicalCoreCount()
     return std::max(1U, std::thread::hardware_concurrency());
 }
 
-std::vector<iconrecognition::RecognitionRequest> PreloadRequests(const std::vector<iconrecognition::test::ManualRunnerCase>& cases)
+std::vector<iconrecognition::RecognitionRequest> PreloadRequests(
+    const std::vector<iconrecognition::test::ManualRunnerCase>& cases,
+    bool recognize_region_unavailable)
 {
     std::vector<iconrecognition::RecognitionRequest> requests;
     requests.reserve(cases.size());
@@ -395,6 +399,7 @@ std::vector<iconrecognition::RecognitionRequest> PreloadRequests(const std::vect
         request.grid_type = test_case.grid_type;
         request.roi = test_case.roi;
         request.candidates = test_case.candidates;
+        request.recognize_region_unavailable = recognize_region_unavailable;
         requests.push_back(std::move(request));
     }
     return requests;
@@ -456,7 +461,7 @@ int main(int argc, char** argv)
         }
         const double initialize_ms = ElapsedMilliseconds(initialize_started);
         const auto preload_started = RunnerClock::now();
-        if (!recognizer.preload(PreloadRequests(cases))) {
+        if (!recognizer.preload(PreloadRequests(cases, options.recognize_region_unavailable))) {
             throw std::runtime_error("recognizer template preload failed");
         }
         const double preload_ms = ElapsedMilliseconds(preload_started);
@@ -489,7 +494,8 @@ int main(int argc, char** argv)
                 throw std::runtime_error("unable to decode input image: " + test_case.image_path.string());
             }
             const auto recognition_started = RunnerClock::now();
-            const auto result = RunCase(recognizer, image, test_case, options.debug);
+            const auto result =
+                RunCase(recognizer, image, test_case, options.debug, options.recognize_region_unavailable);
             case_performance.recognition_ms = ElapsedMilliseconds(recognition_started);
             const std::string image_name = test_case.image_path.lexically_relative(input_root).generic_string();
             const bool expected_checked =

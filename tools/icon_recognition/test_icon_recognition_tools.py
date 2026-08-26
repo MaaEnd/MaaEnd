@@ -6,7 +6,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from catalog import build_catalog
+from catalog import build_catalog, write_catalog
 from download import (
     DEFAULT_CACHE_ROOT,
     IMAGE_BASE_URL,
@@ -26,7 +26,7 @@ from localization import (
     build_locale_values,
     update_interface_locale,
 )
-from publish import default_publish_paths, publish_fixed_items
+from publish import default_publish_paths, publish, publish_fixed_items
 from expected import merge_expected_results
 from text import clean_text, validate_identifier
 
@@ -107,6 +107,8 @@ class IconRecognitionToolsTest(unittest.TestCase):
                     key: f"{language}:{item_id}"
                     for item_id, key in FIXED_NAME_KEYS.items()
                 }
+                if locale == "en_us":
+                    translations.pop(FIXED_NAME_KEYS["item_diamond"])
                 language_path = paths.language_root / f"lang_{language}.json"
                 language_path.parent.mkdir(parents=True, exist_ok=True)
                 language_path.write_text(json.dumps(translations), encoding="utf-8")
@@ -124,12 +126,16 @@ class IconRecognitionToolsTest(unittest.TestCase):
             self.assertEqual(count, 9)
             self.assertIn("item_kept", catalog)
             self.assertEqual(catalog["item_diamond"]["rarity"], 6)
+            self.assertEqual(catalog["item_diamond"]["name"], "zh-CN:item_diamond")
             self.assertFalse(stale.exists())
             self.assertTrue((paths.asset_image_root / "6" / "item_diamond.png").is_file())
             locale = json.loads((paths.locale_root / "en_us.json").read_text(encoding="utf-8"))
             self.assertEqual(locale["unrelated"], "keep")
             self.assertEqual(locale["iconRecognition.name.item_kept"], "Keep")
-            self.assertEqual(locale["iconRecognition.name.item_diamond"], "en-US:item_diamond")
+            self.assertEqual(
+                locale["iconRecognition.name.item_diamond"],
+                FIXED_NAME_KEYS["item_diamond"],
+            )
 
     def test_expected_merge_replaces_old_image_cases_and_keeps_all_reported_rois(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -167,12 +173,12 @@ class IconRecognitionToolsTest(unittest.TestCase):
                         "cases": [
                             {
                                 "image": "rewards/130.local1.png",
-                                "roi": {"x": 150, "y": 180, "width": 980, "height": 360},
+                                "roi": [150, 180, 980, 360],
                                 "detail": str(detail),
                             },
                             {
                                 "image": "rewards/130.local1.png",
-                                "roi": {"x": 1130, "y": 180, "width": 100, "height": 100},
+                                "roi": [1130, 180, 100, 100],
                                 "detail": str(second_detail),
                             },
                         ]
@@ -191,6 +197,60 @@ class IconRecognitionToolsTest(unittest.TestCase):
                 'rewards/130.png,"[150,180,980,360]",item_new,2\n'
                 'rewards/130.png,"[150,180,980,360]",item_other,1\n'
                 'transfer/1.png,"[1,2,3,4]",item_old,1\n',
+            )
+
+    def test_expected_merge_rejects_object_roi(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            tracked = root / "tracked.csv"
+            tracked.write_text("image,roi,item_id,count\n", encoding="utf-8")
+            detail = root / "detail.json"
+            detail.write_text('{"matches": []}', encoding="utf-8")
+            report = root / "report.json"
+            report.write_text(
+                json.dumps(
+                    {
+                        "cases": [
+                            {
+                                "image": "shipment/1.png",
+                                "roi": {"x": 1, "y": 2, "width": 3, "height": 4},
+                                "detail": str(detail),
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            with self.assertRaisesRegex(
+                ValueError,
+                r"report ROI must be \[x,y,width,height\]",
+            ):
+                merge_expected_results(tracked, report, root / "expected.csv")
+
+    def test_expected_merge_naturally_sorts_numbered_images(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            tracked = root / "tracked.csv"
+            tracked.write_text(
+                'image,roi,item_id,count\n'
+                'shipment/10.png,"[1,2,3,4]",item_10,1\n'
+                'shipment/1.png,"[1,2,3,4]",item_1,1\n'
+                'shipment/9.png,"[1,2,3,4]",item_9,1\n',
+                encoding="utf-8",
+            )
+            report = root / "report.json"
+            report.write_text('{"cases": []}', encoding="utf-8")
+            output = root / "expected.csv"
+
+            merge_expected_results(tracked, report, output)
+
+            self.assertEqual(
+                output.read_text(encoding="utf-8"),
+                'image,roi,item_id,count\n'
+                'shipment/1.png,"[1,2,3,4]",item_1,1\n'
+                'shipment/9.png,"[1,2,3,4]",item_9,1\n'
+                'shipment/10.png,"[1,2,3,4]",item_10,1\n',
             )
 
     @staticmethod
@@ -343,6 +403,124 @@ class IconRecognitionToolsTest(unittest.TestCase):
         self.assertEqual(removals, [])
         self.assertEqual(result["item_test"]["sortId1"], -100)
         self.assertEqual(result["item_test"]["sortId2"], 12)
+
+    def test_catalog_order_does_not_depend_on_source_order(self) -> None:
+        source = {
+            "item_b": self._mini_item(iconId="item_b"),
+            "item_a": self._mini_item(iconId="item_a"),
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            image_root = Path(directory)
+            for item_id in source:
+                icon = image_root / "3" / f"{item_id}.png"
+                icon.parent.mkdir(parents=True, exist_ok=True)
+                icon.write_bytes(b"png")
+
+            catalog = build_catalog(source, image_root)
+
+        self.assertEqual(list(catalog), ["item_a", "item_b"])
+
+    def test_write_catalog_order_does_not_depend_on_mapping_order(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "recognition_items.json"
+
+            write_catalog({"item_b": {"name": "乙"}, "item_a": {"name": "甲"}}, output)
+
+            catalog = json.loads(output.read_text(encoding="utf-8"))
+        self.assertEqual(list(catalog), ["item_a", "item_b"])
+
+    def test_region_restricted_is_optional_and_only_true_is_published(self) -> None:
+        source = {
+            "item_missing": self._mini_item(iconId="item_missing"),
+            "item_false": self._mini_item(
+                iconId="item_false",
+                regionRestricted=False,
+            ),
+            "item_true": self._mini_item(
+                iconId="item_true",
+                regionRestricted=True,
+            ),
+        }
+
+        items, removals = prepare_item_map(source, blacklist=())
+
+        self.assertEqual(removals, [])
+        self.assertNotIn("regionRestricted", items["item_missing"])
+        self.assertNotIn("regionRestricted", items["item_false"])
+        self.assertIs(items["item_true"].get("regionRestricted"), True)
+
+        with tempfile.TemporaryDirectory() as directory:
+            image_root = Path(directory)
+            for item_id in source:
+                icon = image_root / "3" / f"{item_id}.png"
+                icon.parent.mkdir(parents=True, exist_ok=True)
+                icon.write_bytes(b"png")
+            catalog = build_catalog(items, image_root)
+
+        self.assertNotIn("regionRestricted", catalog["item_missing"])
+        self.assertNotIn("regionRestricted", catalog["item_false"])
+        self.assertIs(catalog["item_true"].get("regionRestricted"), True)
+
+    def test_region_restricted_rejects_non_boolean_values(self) -> None:
+        with self.assertRaisesRegex(
+            ValueError,
+            r"item_test\.regionRestricted 必须是布尔值",
+        ):
+            prepare_item_map(
+                {
+                    "item_test": self._mini_item(
+                        regionRestricted="true",
+                    )
+                },
+                blacklist=(),
+            )
+
+    def test_publish_replaces_catalog_name_hash_with_zh_cn_locale(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            paths = default_publish_paths(root)
+            item = self._mini_item(name="item_name_hash")
+            paths.item_source.parent.mkdir(parents=True, exist_ok=True)
+            paths.item_source.write_text(
+                json.dumps({"item_test": item}),
+                encoding="utf-8",
+            )
+            paths.localization_item_source.write_text(
+                json.dumps({"item_test": item}),
+                encoding="utf-8",
+            )
+            paths.weapon_source.write_text("{}", encoding="utf-8")
+            icon = paths.image_root / "3" / "item_test.png"
+            icon.parent.mkdir(parents=True, exist_ok=True)
+            icon.write_bytes(b"png")
+            for locale, (_, language) in LOCALE_MAP.items():
+                translations = (
+                    {}
+                    if locale == "en_us"
+                    else {
+                        "item_name_hash": (
+                            "测试物品"
+                            if locale == "zh_cn"
+                            else f"{language}:item_test"
+                        )
+                    }
+                )
+                (paths.language_root / f"lang_{language}.json").write_text(
+                    json.dumps(translations, ensure_ascii=False),
+                    encoding="utf-8",
+                )
+                locale_path = paths.locale_root / f"{locale}.json"
+                locale_path.parent.mkdir(parents=True, exist_ok=True)
+                locale_path.write_text("{}", encoding="utf-8")
+
+            publish(paths)
+
+            catalog = json.loads(paths.catalog_output.read_text(encoding="utf-8"))
+            en_us = json.loads(
+                (paths.locale_root / "en_us.json").read_text(encoding="utf-8")
+            )
+        self.assertEqual(catalog["item_test"]["name"], "测试物品")
+        self.assertEqual(en_us["iconRecognition.name.item_test"], "item_name_hash")
 
     def test_prepare_item_map_accepts_isolate_category_types(self) -> None:
         items, removals = prepare_item_map(
@@ -543,6 +721,48 @@ class IconRecognitionToolsTest(unittest.TestCase):
                 "unrelated": "keep",
                 "iconRecognition.name.current": "Current",
             },
+        )
+
+    def test_locale_update_keeps_item_keys_in_one_stable_group(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "locale.json"
+            path.write_text(
+                json.dumps(
+                    {
+                        "before": "Before",
+                        "iconRecognition.name.item_b": "Old B",
+                        "middle": "Middle",
+                        "iconRecognition.name.item_a": "Old A",
+                        "after": "After",
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            update_interface_locale(
+                path,
+                {
+                    "iconRecognition.name.item_c": "Item C",
+                    "iconRecognition.name.item_a": "Item A",
+                    "iconRecognition.name.item_b": "Item B",
+                },
+            )
+
+            result = json.loads(path.read_text(encoding="utf-8"))
+        self.assertEqual(
+            list(result),
+            [
+                "before",
+                "iconRecognition.name.item_b",
+                "iconRecognition.name.item_a",
+                "iconRecognition.name.item_c",
+                "middle",
+                "after",
+            ],
+        )
+        self.assertEqual(
+            [result[key] for key in result if key.startswith("iconRecognition.name.")],
+            ["Item B", "Item A", "Item C"],
         )
 
 

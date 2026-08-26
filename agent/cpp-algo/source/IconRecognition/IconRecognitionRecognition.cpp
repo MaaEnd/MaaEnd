@@ -46,6 +46,8 @@ CandidateFilter ReadCandidates(const json::object& object)
     };
     candidates.item_ids = read("item_ids");
     candidates.item_filters = read("item_filters");
+    candidates.additional_item_filters = read("additional_item_filters");
+    candidates.excluded_item_ids = read("excluded_item_ids");
     candidates.item_recheck_filters = read("item_recheck_filters");
     return candidates;
 }
@@ -201,6 +203,10 @@ MaaBool MAA_CALL IconRecognitionRun(
         request.threshold = ReadDouble(object, "threshold", request.threshold);
         request.subpixel_threshold = ReadDouble(object, "subpixel_threshold", request.subpixel_threshold);
         request.deduplicate = ReadBool(object, "deduplicate", request.deduplicate);
+        request.recognize_region_unavailable = ReadBool(
+            object,
+            "recognize_region_unavailable",
+            request.recognize_region_unavailable);
         request.debug = debug;
         RecognitionResult result = GetRecognizer().recognize(to_mat(image), request);
         if (debug) {

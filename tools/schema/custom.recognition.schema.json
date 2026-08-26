@@ -97,7 +97,6 @@
                                     "type": "string",
                                     "minLength": 1
                                 },
-                                "uniqueItems": true,
                                 "title": "Item IDs",
                                 "description": "Optional item catalog IDs to match."
                             },
@@ -107,9 +106,26 @@
                                     "type": "string",
                                     "minLength": 1
                                 },
-                                "uniqueItems": true,
                                 "title": "Item Filters",
                                 "description": "Optional storageKind:categoryType filters for candidate icons."
+                            },
+                            "additional_item_filters": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "minLength": 1
+                                },
+                                "title": "Additional Item Filters",
+                                "description": "Optional storageKind:categoryType filters appended after intersecting item_filters/defaults with item_ids."
+                            },
+                            "excluded_item_ids": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "minLength": 1
+                                },
+                                "title": "Excluded Item IDs",
+                                "description": "Optional catalog IDs removed after additional_item_filters are appended."
                             },
                             "item_recheck_filters": {
                                 "type": "array",
@@ -117,9 +133,14 @@
                                     "type": "string",
                                     "minLength": 1
                                 },
-                                "uniqueItems": true,
                                 "title": "Item Recheck Filters",
                                 "description": "Optional storageKind:categoryType filters for reverse-checking item_ids; deduplicate is recommended to avoid repeated checks."
+                            },
+                            "recognize_region_unavailable": {
+                                "type": "boolean",
+                                "default": false,
+                                "title": "Recognize Items Unavailable in the Current Region",
+                                "description": "After normal recognition fails, try current-region-unavailable variants for transfer/port_storager backpack or storage-station grids. Enable only in regional scenes; items on the Dijiang do not have this state."
                             },
                             "threshold": {
                                 "type": "number",

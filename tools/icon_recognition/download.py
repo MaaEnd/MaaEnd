@@ -145,6 +145,17 @@ def _require_optional_string(
     return value
 
 
+def _require_optional_boolean(
+    source: Mapping[str, Any], field: str, context: str
+) -> bool:
+    if field not in source:
+        return False
+    value = source[field]
+    if not isinstance(value, bool):
+        raise ValueError(f"{context}.{field} 必须是布尔值")
+    return value
+
+
 def _require_string_list(
     source: Mapping[str, Any], field: str, context: str
 ) -> list[str]:
@@ -212,7 +223,7 @@ def _normalize_item(item_id: str, raw_source: Any) -> dict[str, Any]:
 
     storage_kind = _require_string(raw_source, "storageKind", item_id)
     category_type = _require_string(raw_source, "categoryType", item_id)
-    return {
+    result = {
         "name": clean_text(raw_source.get("name"), field=f"{item_id}.name"),
         "category": _category_name(storage_kind, category_type),
         "storageKind": storage_kind,
@@ -232,6 +243,9 @@ def _normalize_item(item_id: str, raw_source: Any) -> dict[str, Any]:
             raw_source, "emptyContainers", item_id
         ),
     }
+    if _require_optional_boolean(raw_source, "regionRestricted", item_id):
+        result["regionRestricted"] = True
+    return result
 
 
 def prepare_item_map(

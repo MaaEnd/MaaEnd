@@ -62,6 +62,7 @@ json::value CellRecognitionDiagnostics::to_json() const
         { "score", score },
         { "candidate_count", static_cast<unsigned long long>(candidate_count) },
         { "fallback_used", fallback_used },
+        { "region_unavailable_fallback_used", region_unavailable_fallback_used },
         { "best_phase", json::object { { "x", best_phase.x }, { "y", best_phase.y } } },
         { "rarity", json::object { { "coverage", rarity_coverage } } },
         { "mask_kind", mask_kind },
