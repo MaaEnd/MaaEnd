@@ -7,13 +7,13 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/rs/zerolog/log"
 )
 
@@ -87,10 +87,11 @@ func (c dingtalkChannel) Send(ctx *SendContext) error {
 
 	payload := map[string]any{"msgtype": msgType}
 	if msgType == "markdown" {
-		md := map[string]any{"text": body}
-		if title != "" {
-			md["title"] = title
+		// 钉钉 markdown 官方要求 title 必填（会话列表透出）；空时回退默认标题兜底
+		if title == "" {
+			title = i18n.T("notify.default_title")
 		}
+		md := map[string]any{"text": body, "title": title}
 		payload["markdown"] = md
 	} else {
 		content := title
@@ -125,10 +126,9 @@ func postDingTalk(client *http.Client, endpoint string, payload map[string]any) 
 	if resp.StatusCode >= 400 {
 		return fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
-	// 限制响应体大小（1MB），防止服务端异常返回超大 body 吃内存
-	respBody, err := io.ReadAll(io.LimitReader(resp.Body, 1<<20))
+	respBody, err := readResponseBody(resp)
 	if err != nil {
-		return fmt.Errorf("failed to read response body: %w", err)
+		return err
 	}
 	var result struct {
 		ErrCode int    `json:"errcode"`
@@ -145,7 +145,7 @@ func postDingTalk(client *http.Client, endpoint string, payload map[string]any) 
 
 // dingtalkEndpointDefault 校验并返回钉钉消息推送端点（完整 URL）。
 // secret 非空时按官方加签规则追加 timestamp 与 sign 参数；
-// 留空/非法协议直接报错，access_token 不进入日志（sanitizeError 对完整 URL 打码）。
+// 留空/非法协议/host 缺失/缺 access_token 直接报错，access_token 不进入日志（sanitizeError 对完整 URL 打码）。
 func dingtalkEndpointDefault(webhookURL, secret string) (string, error) {
 	webhookURL = ensureHTTPS(webhookURL)
 	if webhookURL == "" {
@@ -155,6 +155,12 @@ func dingtalkEndpointDefault(webhookURL, secret string) (string, error) {
 	if err != nil || (u.Scheme != "http" && u.Scheme != "https") {
 		return "", fmt.Errorf("invalid dingtalk webhook url")
 	}
+	if u.Host == "" {
+		return "", fmt.Errorf("invalid dingtalk webhook url: missing host")
+	}
+	if u.Query().Get("access_token") == "" {
+		return "", fmt.Errorf("dingtalk webhook url missing access_token")
+	}
 	secret = strings.TrimSpace(secret)
 	if secret == "" {
 		return webhookURL, nil
@@ -162,7 +168,7 @@ func dingtalkEndpointDefault(webhookURL, secret string) (string, error) {
 	timestamp := time.Now().UnixMilli()
 	sign := dingtalkSign(secret, timestamp)
 	sep := "&"
-	if !strings.Contains(webhookURL, "?") {
+	if u.RawQuery == "" {
 		sep = "?"
 	}
 	return webhookURL + sep + "timestamp=" + strconv.FormatInt(timestamp, 10) + "&sign=" + sign, nil

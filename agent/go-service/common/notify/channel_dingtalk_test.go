@@ -188,10 +188,13 @@ func TestDingTalkEndpointDefault(t *testing.T) {
 	if err != nil || !strings.Contains(got, "&timestamp=") || !strings.Contains(got, "&sign=") {
 		t.Errorf("signed = %q, err=%v; want &timestamp=&sign=", got, err)
 	}
-	// 加签（URL 无查询串）：用 ? 分隔
-	got, err = dingtalkEndpointDefault("https://oapi.dingtalk.com/robot/send", "SECsecret")
-	if err != nil || !strings.Contains(got, "?timestamp=") || !strings.Contains(got, "&sign=") {
-		t.Errorf("signed no-query = %q, err=%v; want ?timestamp=&sign=", got, err)
+	// 缺 access_token → 报错
+	if _, err := dingtalkEndpointDefault("https://oapi.dingtalk.com/robot/send", "SECsecret"); err == nil {
+		t.Errorf("missing access_token should error")
+	}
+	// 缺 host → 报错
+	if _, err := dingtalkEndpointDefault("https:///robot/send?access_token=abc", ""); err == nil {
+		t.Errorf("missing host should error")
 	}
 	// 空 → 报错
 	if _, err := dingtalkEndpointDefault("", ""); err == nil {
