@@ -125,10 +125,7 @@
         "next": [
             "DeliveryJobsAutoDeliveryGuard",
             "AutoDelivery"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "$task.DeliveryJobs.AutoDeliveryStart"
-        }
+        ]
     },
     "DeliveryJobsCheckLocalDepotNodeOriginLodespringText": {
         "desc": "检查本地仓储节点中是否有矿脉源区",

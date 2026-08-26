@@ -13,7 +13,10 @@
         "next": [
             "AutoDeliveryRecognizeDestination",
             "AutoDeliveryRecognizeDepot"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoDelivery.focus.start"
+        }
     },
     "AutoDeliveryRecognizeDestination": {
         "desc": "从当前送货任务详情识别送货目标；同区重复资源回收站转入大地图判定，其余目标直接注入寻路参数",
