@@ -3,9 +3,10 @@ package notify
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
-	"io"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/rs/zerolog/log"
@@ -93,6 +94,10 @@ func (c telegramChannel) Send(ctx *SendContext) error {
 	default:
 		return fmt.Errorf("invalid telegram parse_mode: %s", parseMode)
 	}
+	// 纯文本模式：text 上限 4096 字符，超长静默截断；富文本模式不截断（避免切断实体结构）
+	if parseMode == "" {
+		text = truncateRunes(text, 4096)
+	}
 	// Markdown/MarkdownV2/HTML 模式需转义正文特殊字符，否则 Telegram 返回 400 can't parse entities；
 	// 统一走 markdown.go 的解析器渲染（实体外转义、实体内部按官方规则豁免、按方言输出）
 	switch parseMode {
@@ -104,6 +109,7 @@ func (c telegramChannel) Send(ctx *SendContext) error {
 		text = renderTelegramHTML(text)
 	}
 
+	var errs []error
 	for _, chatID := range chatIDs {
 		payload := map[string]any{
 			"chat_id": chatID,
@@ -117,8 +123,13 @@ func (c telegramChannel) Send(ctx *SendContext) error {
 		}
 		log.Debug().Str("component", "Notify").Str("channel", "telegram").Str("chat_id", chatID).Msg("sending telegram notify")
 		if err := postTelegram(ctx.Client, endpoint, payload); err != nil {
-			return err
+			// 单 chat_id 失败不中断，继续向其余 chat_id 推送；汇总错误避免部分成功误报整渠道失败
+			errs = append(errs, fmt.Errorf("chat_id %s: %w", chatID, err))
+			log.Warn().Err(err).Str("component", "Notify").Str("channel", "telegram").Str("chat_id", chatID).Msg("telegram send to chat failed, continue")
 		}
+	}
+	if len(errs) > 0 {
+		return fmt.Errorf("telegram send failed for %d/%d chat_ids: %w", len(errs), len(chatIDs), errors.Join(errs...))
 	}
 	return nil
 }
@@ -137,9 +148,9 @@ func postTelegram(client *http.Client, endpoint string, payload map[string]any) 
 	defer resp.Body.Close()
 	// 先读响应体（限流），Telegram 真实失败几乎都返回 4xx + {"ok":false,"description":...}，
 	// 需读 body 拿 description，不能先按状态码早退
-	respBody, err := io.ReadAll(io.LimitReader(resp.Body, 1<<20))
+	respBody, err := readResponseBody(resp)
 	if err != nil {
-		return fmt.Errorf("failed to read response body: %w", err)
+		return err
 	}
 	var result struct {
 		OK          bool   `json:"ok"`
@@ -171,11 +182,15 @@ func telegramEndpointDefault(token, apiURL string) (string, error) {
 	if token == "" {
 		return "", fmt.Errorf("telegram token is empty")
 	}
-	base := strings.TrimRight(ensureHTTPS(apiURL), "/")
-	if base == "" {
-		base = telegramAPIURLDefault
+	base := telegramAPIURLDefault
+	if strings.TrimSpace(apiURL) != "" {
+		v, err := validateHTTPURL(apiURL, "telegram api_url")
+		if err != nil {
+			return "", err
+		}
+		base = strings.TrimRight(v, "/")
 	}
-	return fmt.Sprintf("%s/bot%s/sendMessage", base, token), nil
+	return fmt.Sprintf("%s/bot%s/sendMessage", base, url.PathEscape(token)), nil
 }
 
 // escapeTelegramMarkdownV2 转义 Telegram MarkdownV2 模式的特殊字符（官方要求转义 18 个字符 + 转义前缀反斜杠）。
