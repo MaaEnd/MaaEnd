@@ -72,7 +72,15 @@ func firstNonEmpty(values ...string) string {
 
 // channelTitleBody 解析渠道级标题/正文：渠道配置优先（支持 {{title}}/{{body}}
 // 引用通知项预填），留空回退 vars 预填内容。
+// 结果再经 unescapeNewline 把字面 "\n"（反斜杠+n）转成真实换行，便于单行输入框表达换行。
 func channelTitleBody(chTitle, chBody string, vars map[string]string) (string, string) {
-	return ReplaceVars(firstNonEmpty(chTitle, vars["title"]), vars),
-		ReplaceVars(firstNonEmpty(chBody, vars["body"]), vars)
+	return unescapeNewline(ReplaceVars(firstNonEmpty(chTitle, vars["title"]), vars)),
+		unescapeNewline(ReplaceVars(firstNonEmpty(chBody, vars["body"]), vars))
+}
+
+// unescapeNewline 把字面 "\n"（反斜杠 + n 两字符）转成真实换行符。
+// 单行输入框无法直接回车换行，用户常写 \n 表达换行；此转换统一作用于渠道标题/正文
+// （webhook 自定义 JSON body 不经过此处，保持 JSON 语义不受影响）。
+func unescapeNewline(s string) string {
+	return strings.ReplaceAll(s, `\n`, "\n")
 }

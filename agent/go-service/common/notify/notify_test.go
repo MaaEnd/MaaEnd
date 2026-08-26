@@ -153,16 +153,48 @@ func TestReplaceVars(t *testing.T) {
 	}
 }
 
+func TestUnescapeNewline(t *testing.T) {
+	cases := []struct {
+		in   string
+		want string
+	}{
+		{"", ""},
+		{"plain", "plain"},
+		{`a\nb`, "a\nb"}, // 字面 \n → 真实换行
+		{`## {{body}} \n ### {datetime}`, "## {{body}} \n ### {datetime}"},
+		{`多行\n第二行\n第三行`, "多行\n第二行\n第三行"}, // 多个 \n 依次转义
+	}
+	for _, c := range cases {
+		if got := unescapeNewline(c.in); got != c.want {
+			t.Errorf("unescapeNewline(%q) = %q, want %q", c.in, got, c.want)
+		}
+	}
+}
+
+func TestChannelTitleBodyUnescapeNewline(t *testing.T) {
+	vars := map[string]string{"title": "T", "body": "B"}
+	// 渠道正文里字面 \n 应转成换行，模板变量 {{body}} 已替换为 B
+	_, body := channelTitleBody("", `{{body}}\n{{datetime}}`, vars)
+	if body != "B\n{{datetime}}" {
+		t.Errorf("body = %q, want %q", body, "B\n{{datetime}}")
+	}
+}
+
 func TestParseHeaders(t *testing.T) {
 	// JSON 对象
 	headers := ParseHeaders(`{"Content-Type": "application/json", "Authorization": "Bearer abc"}`)
 	if headers["Content-Type"] != "application/json" || headers["Authorization"] != "Bearer abc" {
 		t.Errorf("JSON headers mismatch: %+v", headers)
 	}
-	// 旧格式（换行 / | 分隔）
-	headers = ParseHeaders("X-A: 1|X-B: 2\nX-C: 3")
+	// 文本格式（仅换行分隔，| 保留在值内）
+	headers = ParseHeaders("X-A: 1\nX-B: 2\nX-C: 3")
 	if headers["X-A"] != "1" || headers["X-B"] != "2" || headers["X-C"] != "3" {
 		t.Errorf("text headers mismatch: %+v", headers)
+	}
+	// | 不再作为分隔符，值内 | 原样保留
+	headers = ParseHeaders("X-A: 1|X-B: 2")
+	if headers["X-A"] != "1|X-B: 2" {
+		t.Errorf("pipe in value should be preserved: %+v", headers)
 	}
 	// 值含冒号：按第一个冒号切分
 	headers = ParseHeaders("X-Url: https://a/b:c")
