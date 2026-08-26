@@ -128,7 +128,7 @@ func postWeCom(client *http.Client, endpoint string, payload map[string]any) err
 // wecomEndpointDefault 校验并返回企微消息推送端点（完整 URL，含 key query 参数）。
 // 留空/非法协议直接报错，key 不进入日志（sanitizeError 会对完整 URL 打码）。
 func wecomEndpointDefault(webhookURL string) (string, error) {
-	webhookURL = strings.TrimSpace(webhookURL)
+	webhookURL = ensureHTTPS(webhookURL)
 	if webhookURL == "" {
 		return "", fmt.Errorf("wecom webhook url is empty")
 	}

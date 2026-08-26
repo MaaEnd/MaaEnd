@@ -125,6 +125,11 @@ func TestWeComEndpointDefault(t *testing.T) {
 	if err != nil || got != "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=abc" {
 		t.Errorf("valid = %q, err=%v", got, err)
 	}
+	// 缺省协议 → 自动补 https://
+	got, err = wecomEndpointDefault("qyapi.weixin.qq.com/cgi-bin/webhook/send?key=abc")
+	if err != nil || got != "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=abc" {
+		t.Errorf("no-scheme = %q, err=%v; want https:// prefix", got, err)
+	}
 	// 空 → 报错
 	if _, err := wecomEndpointDefault(""); err == nil {
 		t.Errorf("empty should error")

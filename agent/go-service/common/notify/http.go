@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"regexp"
+	"strings"
 	"time"
 )
 
@@ -15,6 +16,16 @@ const defaultTimeout = 10 * time.Second
 var httpClient = &http.Client{Timeout: defaultTimeout}
 
 var urlInErrRegexp = regexp.MustCompile(`https?://[^\s"']+`)
+
+// ensureHTTPS 给缺省协议的地址补 https:// 前缀：已含 scheme（如 http://、https://）的原样返回，
+// 否则默认使用 https://（用户只填主机名/路径时保底，避免请求失败）。
+func ensureHTTPS(raw string) string {
+	raw = strings.TrimSpace(raw)
+	if raw == "" || strings.Contains(raw, "://") {
+		return raw
+	}
+	return "https://" + raw
+}
 
 // sanitizeError 把错误文本中的 URL 整体打码：http.Client 的错误串包含完整请求 URL，
 // 可能携带渠道凭据（Bark key / ServerChan sendkey / Webhook token），不直接写入日志。

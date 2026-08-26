@@ -117,6 +117,11 @@ func TestDiscordEndpointDefault(t *testing.T) {
 	if err != nil || got != "https://discord.com/api/webhooks/123/tok" {
 		t.Errorf("valid = %q, err=%v", got, err)
 	}
+	// 缺省协议 → 自动补 https://
+	got, err = discordEndpointDefault("discord.com/api/webhooks/123/tok")
+	if err != nil || got != "https://discord.com/api/webhooks/123/tok" {
+		t.Errorf("no-scheme = %q, err=%v; want https:// prefix", got, err)
+	}
 	// 空 → 报错
 	if _, err := discordEndpointDefault(""); err == nil {
 		t.Errorf("empty should error")

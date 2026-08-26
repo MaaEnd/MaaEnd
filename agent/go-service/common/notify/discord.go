@@ -93,7 +93,7 @@ func (c discordChannel) Send(ctx *SendContext) error {
 // discordEndpointDefault 校验并返回 Discord Webhook 执行端点（完整 URL，含 webhook id 与 token）。
 // Webhook URL 即完整端点：留空/非法协议直接报错，token 不进入日志（sanitizeError 会对完整 URL 打码）。
 func discordEndpointDefault(webhookURL string) (string, error) {
-	webhookURL = strings.TrimSpace(webhookURL)
+	webhookURL = ensureHTTPS(webhookURL)
 	if webhookURL == "" {
 		return "", fmt.Errorf("discord webhook url is empty")
 	}

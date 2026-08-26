@@ -57,6 +57,7 @@ func (c webhookChannel) Send(ctx *SendContext) error {
 	if urlStr == "" {
 		return fmt.Errorf("webhook url is empty")
 	}
+	urlStr = ensureHTTPS(urlStr)
 	method := strings.ToUpper(strings.TrimSpace(config.Method))
 	if method == "" {
 		method = http.MethodPost

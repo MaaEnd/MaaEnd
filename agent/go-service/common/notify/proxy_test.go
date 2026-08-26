@@ -206,6 +206,11 @@ func TestTelegramEndpointDefault(t *testing.T) {
 	if err != nil || got != "https://tg-proxy.example.com/bot123456:ABC-DEF/sendMessage" {
 		t.Errorf("third-party endpoint = %q, err=%v", got, err)
 	}
+	// 缺省协议 → 自动补 https://
+	got, err = telegramEndpointDefault("123456:ABC-DEF", "tg-proxy.example.com")
+	if err != nil || got != "https://tg-proxy.example.com/bot123456:ABC-DEF/sendMessage" {
+		t.Errorf("no-scheme endpoint = %q, err=%v; want https:// prefix", got, err)
+	}
 	// token 为空 → 报错
 	if _, err := telegramEndpointDefault("  ", "https://tg-proxy.example.com"); err == nil {
 		t.Errorf("empty token should error")

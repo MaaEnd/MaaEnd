@@ -148,7 +148,7 @@ func telegramEndpointDefault(token, apiURL string) (string, error) {
 	if token == "" {
 		return "", fmt.Errorf("telegram token is empty")
 	}
-	base := strings.TrimRight(strings.TrimSpace(apiURL), "/")
+	base := strings.TrimRight(ensureHTTPS(apiURL), "/")
 	if base == "" {
 		base = telegramAPIURLDefault
 	}
