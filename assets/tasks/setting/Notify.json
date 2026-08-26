@@ -13,6 +13,7 @@
                 "NotifyDiscord",
                 "NotifyWeCom",
                 "NotifyNtfy",
+                "NotifyGotify",
                 "NotifyProxy"
             ]
         },
@@ -34,6 +35,7 @@
         "NotifyDiscord",
         "NotifyWeCom",
         "NotifyNtfy",
+        "NotifyGotify",
         "NotifyProxy",
         "NotifyAllowTask",
         "NotifyFail"
@@ -1050,7 +1052,8 @@
                         "NotifyProxyTelegram",
                         "NotifyProxyDiscord",
                         "NotifyProxyWeCom",
-                        "NotifyProxyNtfy"
+                        "NotifyProxyNtfy",
+                        "NotifyProxyGotify"
                     ],
                     "pipeline_override": {
                         "__NotifyConfig": {
@@ -1562,6 +1565,161 @@
                         "__NotifyConfig": {
                             "attach": {
                                 "channel_ntfy_use_proxy": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "NotifyGotify": {
+            "type": "switch",
+            "label": "$option.NotifyGotify.label",
+            "description": "$option.NotifyGotify.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "NotifyGotifyPriority",
+                        "NotifyGotifyParams"
+                    ],
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "channel_gotify_enabled": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "channel_gotify_enabled": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "NotifyGotifyParams": {
+            "type": "input",
+            "label": "$option.NotifyGotifyParams.label",
+            "inputs": [
+                {
+                    "name": "URL",
+                    "label": "$option.NotifyGotifyParams.URL.label",
+                    "pipeline_type": "string",
+                    "default": "",
+                    "description": "$option.NotifyGotifyParams.URL.description"
+                },
+                {
+                    "name": "Token",
+                    "label": "$option.NotifyGotifyParams.Token.label",
+                    "pipeline_type": "string",
+                    "default": "",
+                    "description": "$option.NotifyGotifyParams.Token.description"
+                },
+                {
+                    "name": "Title",
+                    "label": "$option.NotifyGotifyParams.Title.label",
+                    "pipeline_type": "string",
+                    "default": "",
+                    "description": "$option.NotifyGotifyParams.Title.description"
+                },
+                {
+                    "name": "Body",
+                    "label": "$option.NotifyGotifyParams.Body.label",
+                    "pipeline_type": "string",
+                    "default": "",
+                    "description": "$option.NotifyGotifyParams.Body.description"
+                }
+            ],
+            "pipeline_override": {
+                "__NotifyConfig": {
+                    "attach": {
+                        "channel_gotify_url": "{URL}",
+                        "channel_gotify_token": "{Token}",
+                        "channel_gotify_title": "{Title}",
+                        "channel_gotify_body": "{Body}"
+                    }
+                }
+            }
+        },
+        "NotifyGotifyPriority": {
+            "type": "select",
+            "label": "$option.NotifyGotifyPriority.label",
+            "description": "$option.NotifyGotifyPriority.description",
+            "default_case": "default",
+            "cases": [
+                {
+                    "name": "default",
+                    "label": "$option.NotifyGotifyPriority.default.label",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "channel_gotify_priority": ""
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "0",
+                    "label": "$option.NotifyGotifyPriority.zero.label",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "channel_gotify_priority": "0"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "5",
+                    "label": "$option.NotifyGotifyPriority.sound.label",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "channel_gotify_priority": "5"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "10",
+                    "label": "$option.NotifyGotifyPriority.max.label",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "channel_gotify_priority": "10"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "NotifyProxyGotify": {
+            "type": "switch",
+            "label": "$option.NotifyProxyGotify.label",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "channel_gotify_use_proxy": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "channel_gotify_use_proxy": false
                             }
                         }
                     }
