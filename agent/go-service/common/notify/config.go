@@ -18,10 +18,11 @@ type GlobalConfig struct {
 	FailBody  string `json:"fail_body"`
 
 	// 自定义通知内容（经 attach 顶层键合并写入；NotifyTask 由设置页 option 注入，
-	// 其他任务可在调用节点 attach 直接编写）。支持两种写法：普通文本，或 "$" 开头的
-	// i18n key（与 MXU 前端约定一致，如 "$notify.monthly_card.expired"）。
-	TaskTitle string `json:"task_title"` // 标题模板：普通文本，或 $ 开头的 i18n key
-	TaskBody  string `json:"task_body"`  // 正文模板：普通文本，或 $ 开头的 i18n key
+	// 其他任务可在调用节点 attach 直接编写）。两种来源语义不同：设置页（玩家 UI）
+	// 填写的是普通文本；第三方节点 attach 编写的支持以 "$" 开头的 i18n key
+	// （查不到翻译则回退去掉 $ 的 key），见 resolveTitleBody。
+	TaskTitle string `json:"task_title"` // 标题模板：玩家 UI 普通文本，或第三方 attach 的 $ i18n key
+	TaskBody  string `json:"task_body"`  // 正文模板：玩家 UI 普通文本，或第三方 attach 的 $ i18n key
 
 	// AllowTaskNotify 设置页总开关（收纳开关）：是否允许任务/节点通过 NotifySendAction 发送自定义通知。
 	// nil=未配置（默认允许，不破坏旧行为）；设置页关闭时写入 false，同时收起所有通知项分项开关。

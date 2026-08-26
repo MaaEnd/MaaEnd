@@ -978,6 +978,41 @@ func TestResolveNotifyText(t *testing.T) {
 	}
 }
 
+func TestResolveTitleBody(t *testing.T) {
+	i18n.Init() // 幂等；使 notify.default_title 等翻译可用
+	vars := map[string]string{"task_name": "T"}
+
+	// 玩家 UI（第三方 attach 未提供内容）填的标题/正文：即使以 $ 开头也原样保留，
+	// 不查 i18n、不剥 $、不替换变量（$ 仅对第三方节点 attach 生效）
+	if title, body := resolveTitleBody("$notify.default_title", "$5 体力 {{task_name}}", map[string]any{}, vars); title != "$notify.default_title" || body != "$5 体力 {{task_name}}" {
+		t.Errorf("player UI = (%q, %q), want ($notify.default_title, $5 体力 {{task_name}})", title, body)
+	}
+
+	// 第三方 attach 仅提供标题（$ i18n 命中）→ 解析；正文沿用全局
+	local := map[string]any{"task_title": "$notify.default_title"}
+	if title, body := resolveTitleBody("全局标题", "全局正文", local, vars); title != "MaaEnd 通知" || body != "全局正文" {
+		t.Errorf("local title only = (%q, %q), want (MaaEnd 通知, 全局正文)", title, body)
+	}
+
+	// 第三方 attach 仅提供正文（$ i18n 查不到 → 回退去掉 $ 的字面量）→ 解析；标题沿用全局
+	local = map[string]any{"task_body": "$notify.no_such_key"}
+	if title, body := resolveTitleBody("全局标题", "全局正文", local, vars); title != "全局标题" || body != "notify.no_such_key" {
+		t.Errorf("local body only = (%q, %q), want (全局标题, notify.no_such_key)", title, body)
+	}
+
+	// 第三方 attach 标题/正文都提供，正文含模板变量
+	local = map[string]any{"task_title": "$notify.default_title", "task_body": "任务 {{task_name}} 到期"}
+	if title, body := resolveTitleBody("全局标题", "全局正文", local, vars); title != "MaaEnd 通知" || body != "任务 T 到期" {
+		t.Errorf("local both = (%q, %q), want (MaaEnd 通知, 任务 T 到期)", title, body)
+	}
+
+	// 第三方 attach 提供空串 → 视为未提供，沿用全局
+	local = map[string]any{"task_title": ""}
+	if title, body := resolveTitleBody("全局标题", "全局正文", local, vars); title != "全局标题" || body != "全局正文" {
+		t.Errorf("local empty = (%q, %q), want (全局标题, 全局正文)", title, body)
+	}
+}
+
 func TestResolveActionTaskName(t *testing.T) {
 	i18n.Init() // 幂等；使 task.*.label 翻译可用
 	getEntryOK := func(int64) string { return "AccountSwitchStart" }

@@ -107,9 +107,9 @@ func Send(runtime RuntimeConfig, vars map[string]string) bool {
 }
 
 // NotifySendAction 供 Pipeline 手动触发通知：渠道配置从 __NotifyConfig 读取，
-// 标题/正文支持两种写法——NotifyTask 由设置页 option 注入全局节点，
-// 其他任务可在调用节点 attach 直接编写（本地优先）；内容以 "$" 开头时视为 i18n key
-// （查不到翻译则显示去掉 $ 的 key，与 MXU 前端 resolveI18nText 约定一致）。
+// 标题/正文支持两种来源——NotifyTask 由设置页 option 注入全局节点（玩家 UI，普通文本），
+// 其他任务可在调用节点 attach 直接编写（本地优先）；仅第三方节点 attach 提供的
+// 标题/正文支持以 "$" 开头的 i18n key（查不到翻译则显示去掉 $ 的 key）。
 // 通知失败不会导致 Pipeline 节点失败。
 type NotifySendAction struct{}
 
@@ -128,12 +128,18 @@ func (a *NotifySendAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		return true
 	}
 
-	// 调用节点自定义内容（attach 本地优先，如月卡到期提醒等业务通知）
+	// 调用节点自定义内容（attach 本地优先，如月卡到期提醒等业务通知）。
+	// localAttach 保留调用节点的原始 attach：后续仅对「第三方节点 attach 提供的
+	// task_title/task_body」做 $ i18n 解析，玩家 UI（__NotifyConfig）注入的普通文本不解析。
+	var localAttach map[string]any
 	if raw, err := ctx.GetNodeJSON(arg.CurrentTaskName); err == nil {
-		if local, err := parseAttach(raw); err == nil && ContainsContent(local) {
-			runtime.Attach = MergeAttach(runtime.Attach, local)
-			_ = decodeAttach(runtime.Attach, &runtime.Global)
-			runtime.Global.TaskNotifyToggles = parseTaskNotifyToggles(runtime.Attach)
+		if local, err := parseAttach(raw); err == nil {
+			localAttach = local
+			if ContainsContent(local) {
+				runtime.Attach = MergeAttach(runtime.Attach, local)
+				_ = decodeAttach(runtime.Attach, &runtime.Global)
+				runtime.Global.TaskNotifyToggles = parseTaskNotifyToggles(runtime.Attach)
+			}
 		}
 	}
 
@@ -165,8 +171,12 @@ func (a *NotifySendAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 	)
 
 	vars := BuildVars(taskName, "", time.Now(), getControllerStartTime())
-	vars["title"] = resolveNotifyText(runtime.Global.TaskTitle, vars)
-	vars["body"] = resolveNotifyText(runtime.Global.TaskBody, vars)
+	vars["title"], vars["body"] = resolveTitleBody(
+		runtime.Global.TaskTitle,
+		runtime.Global.TaskBody,
+		localAttach,
+		vars,
+	)
 	Send(runtime, vars)
 	// 通知发送失败不影响游戏流程，始终返回成功
 	return true
@@ -214,6 +224,23 @@ func taskNotifySkipped(global GlobalConfig) bool {
 	}
 	enabled, ok := global.TaskNotifyToggles[key]
 	return ok && !enabled
+}
+
+// resolveTitleBody 按来源解析标题/正文：
+//   - 第三方节点 attach 提供的 task_title/task_body 支持 "$" i18n（走 resolveNotifyText）；
+//   - 设置页（玩家 UI）注入 __NotifyConfig 的全局 task_title/task_body 为普通文本，原样返回。
+//
+// mergedTitle/mergedBody 是 MergeAttach 后的值（本地优先）；local 是调用节点原始 attach。
+// 仅当 local 显式提供非空字段时，才对该字段做 $ 解析；否则沿用全局值（普通文本）。
+func resolveTitleBody(mergedTitle, mergedBody string, local map[string]any, vars map[string]string) (string, string) {
+	title, body := mergedTitle, mergedBody
+	if v, ok := local["task_title"].(string); ok && v != "" {
+		title = resolveNotifyText(v, vars)
+	}
+	if v, ok := local["task_body"].(string); ok && v != "" {
+		body = resolveNotifyText(v, vars)
+	}
+	return title, body
 }
 
 // resolveNotifyText 解析标题/正文：以 "$" 开头的文本视为 i18n key（与 MXU 前端约定一致），

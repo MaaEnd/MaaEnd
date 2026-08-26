@@ -10,7 +10,7 @@
 
 | 文件 | 职责 |
 | -------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| `notify.go` | 调度层：`ParseConfig`（解析运行配置）、`Send`（统一解析代理→遍历注册表分发）、`NotifySendAction` 自定义动作、`resolveNotifyText`（`$` 开头视为 i18n key，查不到回退去掉 `$` 的 key）、`taskNotifySkipped`（通知项开关判断） |
+| `notify.go` | 调度层：`ParseConfig`（解析运行配置）、`Send`（统一解析代理→遍历注册表分发）、`NotifySendAction` 自定义动作、`resolveTitleBody`/`resolveNotifyText`（仅第三方 attach 的 `$` i18n 解析）、`taskNotifySkipped`（通知项开关判断） |
 | `config.go` | 运行配置：`GlobalConfig`（系统开关 on_fail/allow_task_notify/task_notify.* + 标题正文模板 + 全局代理）、`RuntimeConfig`（全局 + 原始 attach 供渠道工厂 Create）、`decodeAttach`（attach → 结构体，未知键忽略）、`MergeAttach`（节点内容覆盖全局内容） |
 | `channel.go` | `Channel` 接口（`Enabled` / `UseProxy` / `Send`）+ `ChannelFactory` 接口（`Name` / `Create`）+ `SendContext` + 注册表（`RegisterChannel`，渠道文件 `init` 注册零值工厂一行） |
 | `vars.go` | 模板变量模块：`BuildVars` / `ReplaceVars` / `channelTitleBody` / `firstNonEmpty` / `addIfPresent` |

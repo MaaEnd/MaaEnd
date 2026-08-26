@@ -29,7 +29,7 @@ Notify 是 MaaEnd 的多渠道外部通知模块
         "action": "Custom",
         "custom_action": "NotifySendAction",
         "attach": {
-            "task_title": "$notify.monthly_card.expired", // 以 $ 开头 = i18n key（查不到翻译显示去掉 $ 的 key）
+            "task_title": "$notify.monthly_card.expired", // 第三方 attach 支持 $ i18n：key 需先在 assets/locales/go-service/*.json 添加五语言翻译，查不到翻译则显示去掉 $ 的 key
             "task_body": "请及时续费",                     // 普通文本原样发送
             "task_notify_key": "monthly_card"             // 通知项 ID（可选，用于独立开关）
         }
@@ -43,7 +43,7 @@ Notify 是 MaaEnd 的多渠道外部通知模块
 
 | 字段 | 说明 |
 | --- | --- |
-| `task_title` / `task_body` | 标题/正文模板，支持模板变量（见下）；**以 `$` 开头的值视为 i18n key**（与 MXU 前端约定一致，查 `assets/locales/go-service/*.json` 与 `assets/locales/interface/*.json` 合并后的翻译表），查到翻译则用翻译，查不到则显示去掉 `$` 的 key 本身 |
+| `task_title` / `task_body` | 标题/正文模板，支持模板变量（见下）。**第三方节点 attach 编写的值**以 `$` 开头时视为 i18n key（查 `assets/locales/go-service/*.json` 与 `assets/locales/interface/*.json` 合并后的翻译表），查到翻译则用翻译，查不到则显示去掉 `$` 的 key 本身；**玩家在设置页填写的值**为普通文本，不解析 `$` |
 | `task_notify_key` | 通知项 ID，**可选，推荐**：不写则不受通知项开关影响（默认启用）；写了需另外配置设置页独立开关 |
 
 ### 设置页加通知项开关（可选）
@@ -170,7 +170,7 @@ func (c xyzChannel) Send(ctx *SendContext) error {
 2  读当前节点 attach
 3  总开关判断：allow_task_notify 为 false 则跳过
 4  通知项判断：task_notify.<task_notify_key> 为 false 则跳过
-5  内容解析：以 $ 开头的值查 i18n 翻译，查到用翻译、查不到显示去掉 $ 的 key；普通文本原样（再做模板变量替换）
+5  内容解析：第三方 attach 以 $ 开头的值查 i18n 翻译，查到用翻译、查不到显示去掉 $ 的 key；玩家 UI 与普通文本原样（再做模板变量替换）
 6  Send() 向 __NotifyConfig 读到的已启用渠道推送
 ```
 
