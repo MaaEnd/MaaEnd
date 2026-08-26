@@ -25,7 +25,7 @@
         "inverse": true,
         "next": [
             "[JumpBack]__GotoTriggerPointTeleportOnce_WLTestArea",
-            "__GotoTriggerPointMoveFromPlatform_WLTestArea"
+            "GotoTriggerPointMove_WLTestArea"
         ],
         "focus": {
             "Node.Action.Starting": "✈️准备传送到最近锚点"
@@ -40,77 +40,6 @@
         ]
     },
     "GotoTriggerPointMove_WLTestArea": {
-        "desc": "传送落点在上层平台，激发点在下层，起点两层都可能，先判断在哪一层",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "__GotoTriggerPointMoveFromLowerDeck_WLTestArea",
-            "__GotoTriggerPointMoveFromPlatform_WLTestArea"
-        ]
-    },
-    "__GotoTriggerPointMoveFromLowerDeck_WLTestArea": {
-        "desc": "已在下层，直接走向激发点",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "MapLocateAssertLocation",
-                "custom_recognition_param": {
-                    "zone_id": "Wuling_L5_321",
-                    "target": [
-                        0.0,
-                        0.0,
-                        256.0,
-                        160.0
-                    ]
-                }
-            }
-        },
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "MapNavigateAction",
-                "custom_action_param": {
-                    "path": [
-                        {
-                            "action": "ZONE",
-                            "zone_id": "Wuling_L5_321"
-                        },
-                        {
-                            "action": "RUN",
-                            "target": [
-                                119.26,
-                                95.21
-                            ],
-                            "target_tier": "Wuling_L5_321"
-                        },
-                        {
-                            "action": "RUN",
-                            "target": [
-                                86.12,
-                                95.53
-                            ],
-                            "target_tier": "Wuling_L5_321",
-                            "strict_arrival": true
-                        }
-                    ]
-                }
-            }
-        },
-        "next": [
-            "GotoTriggerPointMoveExact_WLTestArea"
-        ],
-        "focus": {
-            "Node.Action.Starting": "🚶正在前往激发点附近",
-            "Node.Action.Succeeded": {
-                "trace": true
-            },
-            "Node.Action.Failed": {
-                "trace": true
-            }
-        }
-    },
-    "__GotoTriggerPointMoveFromPlatform_WLTestArea": {
-        "desc": "在上层平台，跑到台边跳下后走向激发点",
         "action": {
             "type": "Custom",
             "param": {
@@ -119,14 +48,10 @@
                     "enable_bootstrap_navmesh": false,
                     "path": [
                         {
-                            "action": "ZONE",
-                            "zone_id": "Wuling_L5_322"
-                        },
-                        {
                             "action": "RUN",
                             "target": [
-                                223.15,
-                                95.48
+                                225.66,
+                                94.04
                             ],
                             "target_tier": "Wuling_L5_322"
                         },
