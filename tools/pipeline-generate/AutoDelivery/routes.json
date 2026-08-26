@@ -473,24 +473,6 @@
                     ]
                 }
             ],
-            "retry_path": [
-                {
-                    "action": "ZONE",
-                    "zone_id": "Wuling_Base"
-                },
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        964.99,
-                        1829.41
-                    ]
-                },
-                [
-                    952.2,
-                    1832.68,
-                    true
-                ]
-            ],
             "departure_path": [
                 {
                     "action": "ZONE",
@@ -532,24 +514,6 @@
                         1751.03
                     ]
                 }
-            ],
-            "retry_path": [
-                {
-                    "action": "ZONE",
-                    "zone_id": "Wuling_Base"
-                },
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        1252.58,
-                        1739.8
-                    ]
-                },
-                [
-                    1252.63,
-                    1751.03,
-                    true
-                ]
             ],
             "departure_path": [
                 {

@@ -88,21 +88,20 @@
         "custom_action_param": {
             "path": [
                 {
-                    "action": "ZONE",
-                    "zone_id": "Wuling_Base"
+                    "action": "NAVMESH",
+                    "target": [
+                        1252.425,
+                        1746.923
+                    ],
+                    "required": true
                 },
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1252.58,
-                        1739.8
+                        1252.425,
+                        1752.923
                     ]
-                },
-                [
-                    1252.63,
-                    1751.03,
-                    true
-                ]
+                }
             ]
         },
         "post_delay": 0,
