@@ -14,6 +14,7 @@
                 "NotifyWeCom",
                 "NotifyNtfy",
                 "NotifyGotify",
+                "NotifyDingTalk",
                 "NotifyProxy"
             ]
         },
@@ -36,6 +37,7 @@
         "NotifyWeCom",
         "NotifyNtfy",
         "NotifyGotify",
+        "NotifyDingTalk",
         "NotifyProxy",
         "NotifyAllowTask",
         "NotifyFail"
@@ -1053,7 +1055,8 @@
                         "NotifyProxyDiscord",
                         "NotifyProxyWeCom",
                         "NotifyProxyNtfy",
-                        "NotifyProxyGotify"
+                        "NotifyProxyGotify",
+                        "NotifyProxyDingTalk"
                     ],
                     "pipeline_override": {
                         "__NotifyConfig": {
@@ -1720,6 +1723,168 @@
                         "__NotifyConfig": {
                             "attach": {
                                 "channel_gotify_use_proxy": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "NotifyDingTalk": {
+            "type": "switch",
+            "label": "$option.NotifyDingTalk.label",
+            "description": "$option.NotifyDingTalk.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "NotifyDingTalkMsgType",
+                        "NotifyDingTalkAtAll",
+                        "NotifyDingTalkParams"
+                    ],
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "channel_dingtalk_enabled": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "channel_dingtalk_enabled": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "NotifyDingTalkParams": {
+            "type": "input",
+            "label": "$option.NotifyDingTalkParams.label",
+            "inputs": [
+                {
+                    "name": "URL",
+                    "label": "$option.NotifyDingTalkParams.URL.label",
+                    "pipeline_type": "string",
+                    "default": "",
+                    "description": "$option.NotifyDingTalkParams.URL.description"
+                },
+                {
+                    "name": "Secret",
+                    "label": "$option.NotifyDingTalkParams.Secret.label",
+                    "pipeline_type": "string",
+                    "default": "",
+                    "description": "$option.NotifyDingTalkParams.Secret.description"
+                },
+                {
+                    "name": "Title",
+                    "label": "$option.NotifyDingTalkParams.Title.label",
+                    "pipeline_type": "string",
+                    "default": "",
+                    "description": "$option.NotifyDingTalkParams.Title.description"
+                },
+                {
+                    "name": "Body",
+                    "label": "$option.NotifyDingTalkParams.Body.label",
+                    "pipeline_type": "string",
+                    "default": "",
+                    "description": "$option.NotifyDingTalkParams.Body.description"
+                }
+            ],
+            "pipeline_override": {
+                "__NotifyConfig": {
+                    "attach": {
+                        "channel_dingtalk_url": "{URL}",
+                        "channel_dingtalk_secret": "{Secret}",
+                        "channel_dingtalk_title": "{Title}",
+                        "channel_dingtalk_body": "{Body}"
+                    }
+                }
+            }
+        },
+        "NotifyDingTalkMsgType": {
+            "type": "select",
+            "label": "$option.NotifyDingTalkMsgType.label",
+            "description": "$option.NotifyDingTalkMsgType.description",
+            "default_case": "text",
+            "cases": [
+                {
+                    "name": "text",
+                    "label": "$option.NotifyDingTalkMsgType.text.label",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "channel_dingtalk_msgtype": "text"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "markdown",
+                    "label": "$option.NotifyDingTalkMsgType.markdown.label",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "channel_dingtalk_msgtype": "markdown"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "NotifyDingTalkAtAll": {
+            "type": "switch",
+            "label": "$option.NotifyDingTalkAtAll.label",
+            "description": "$option.NotifyDingTalkAtAll.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "channel_dingtalk_at_all": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "channel_dingtalk_at_all": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "NotifyProxyDingTalk": {
+            "type": "switch",
+            "label": "$option.NotifyProxyDingTalk.label",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "channel_dingtalk_use_proxy": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "channel_dingtalk_use_proxy": false
                             }
                         }
                     }

@@ -24,6 +24,7 @@
 | `channel_wecom.go` | 渠道模块：企业微信群机器人，`msgtype`（text/markdown/markdown_v2）+ `content` 标题+正文拼合；`postWeCom` 校验 `errcode`（企微失败也返回 HTTP 200，故单独校验） |
 | `channel_ntfy.go` | 渠道模块：ntfy，标题用 `Title` header、正文用请求 body（标题正文分离）；可选优先级/标签/`Bearer` token；响应按 HTTP 状态判断 |
 | `channel_gotify.go` | 渠道模块：Gotify，`X-Gotify-Key` 鉴权、JSON body 标题+正文拼合，可选优先级（0-10，空用应用默认）；响应按 HTTP 状态判断 |
+| `channel_dingtalk.go` | 渠道模块：钉钉群机器人，`errcode` 校验、text/markdown 标题+正文拼合，可选加签（HMAC-SHA256 sign）与 @所有人；响应解析 `errcode==0` |
 | `sink.go` | 事件监听：`ConfigSink`（节点事件缓存配置，按 taskID 隔离）、`Sink`（任务失败事件发通知，按 taskID 去重、失败后清理缓存）、`controllerStartTime`（`{{duration}}` 起点）、`splitList` |
 | `taskname.go` | `{{task_name}}` 显示名解析：扫描 `tasks/*.json` 建立 `entry → i18n label` 映射（`sync.Once` 缓存），`resolveTaskName` 解析失败回退入口名 |
 | `register.go` | `Register()`：注册 `NotifySendAction` 动作 + `Sink` / `ConfigSink` 事件监听，供上层 `go-service` 统一加载 |
@@ -38,6 +39,7 @@
 | `channel_wecom_test.go` | 企业微信发送（msgtype/text.content 拼合、markdown 分支）、错误路径（空/非法 URL、空内容、errcode!=0、HTTP 500）、端点校验 |
 | `channel_ntfy_test.go` | ntfy 发送（Title/Priority/Tags header + body 拼合、Bearer token）、错误路径（空/非法 URL、空内容、HTTP 401）、端点校验 |
 | `channel_gotify_test.go` | Gotify 发送（X-Gotify-Key header + JSON body 的 message/title/priority 拼合与省略）、错误路径（空/非法 URL、空内容、HTTP 401）、端点校验 |
+| `channel_dingtalk_test.go` | 钉钉发送（msgtype/text.content 拼合、markdown 分支、@所有人、加签 sign）、错误路径（空/非法 URL、空内容、errcode!=0、HTTP 500）、端点校验 |
 | `channel_test.go` | 注册表完整性、重复注册忽略 |
 | `send_test.go` | `Send` 不污染调用方 vars |
 | `taskname_test.go` | 任务定义扫描、显示名解析端到端与回退 |

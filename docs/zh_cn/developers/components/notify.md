@@ -189,6 +189,6 @@ func (c xyzChannel) Send(ctx *SendContext) error {
 | `vars.go` | 模板变量模块：`BuildVars` / `ReplaceVars` / `channelTitleBody` |
 | `http.go` | 超时 client、`postJSON`、错误脱敏 |
 | `proxy.go` | 全局代理模块：`resolveProxy`、`proxyClient`、MXU 更新代理读取 |
-| `channel_webhook.go` / `channel_bark.go` / `channel_serverchan.go` / `channel_telegram.go` / `channel_discord.go` / `channel_wecom.go` / `channel_ntfy.go` / `channel_gotify.go` | 各渠道实现 |
+| `channel_webhook.go` / `channel_bark.go` / `channel_serverchan.go` / `channel_telegram.go` / `channel_discord.go` / `channel_wecom.go` / `channel_ntfy.go` / `channel_gotify.go` / `channel_dingtalk.go` | 各渠道实现 |
 | `sink.go` | 失败事件监听、配置按 taskID 缓存与去重 |
 | `register.go` | 动作与事件监听注册 |
