@@ -53,11 +53,10 @@ func (c webhookChannel) UseProxy() bool {
 func (c webhookChannel) Send(ctx *SendContext) error {
 	config := c.cfg
 	vars := ctx.Vars
-	urlStr := ReplaceVars(strings.TrimSpace(config.URL), vars)
-	if urlStr == "" {
-		return fmt.Errorf("webhook url is empty")
+	urlStr, err := normalizeWebhookURL(ReplaceVars(strings.TrimSpace(config.URL), vars))
+	if err != nil {
+		return err
 	}
-	urlStr = ensureHTTPS(urlStr)
 	method := strings.ToUpper(strings.TrimSpace(config.Method))
 	if method == "" {
 		method = http.MethodPost
@@ -86,7 +85,7 @@ func (c webhookChannel) Send(ctx *SendContext) error {
 }
 
 // ParseHeaders 解析请求头：优先按 JSON 对象（map[string]string）解析；
-// 失败时回退按换行或 | 分隔的 "名称: 值" 文本格式。
+// 失败时回退按换行分隔的 "名称: 值" 文本格式（保留 | 在值内，如 Authorization: Bearer a|b）。
 func ParseHeaders(raw string) map[string]string {
 	raw = strings.TrimSpace(raw)
 	if raw == "" {
@@ -101,7 +100,7 @@ func ParseHeaders(raw string) map[string]string {
 		log.Warn().Str("component", "Notify").Msg("headers JSON invalid, fall back to text format")
 	}
 	headers := make(map[string]string)
-	parts := strings.FieldsFunc(raw, func(r rune) bool { return r == '\n' || r == '|' })
+	parts := strings.FieldsFunc(raw, func(r rune) bool { return r == '\n' })
 	for _, part := range parts {
 		part = strings.TrimSpace(part)
 		if part == "" {
@@ -113,7 +112,46 @@ func ParseHeaders(raw string) map[string]string {
 			log.Warn().Str("component", "Notify").Msg("invalid header line, expect \"Key: Value\"")
 			continue
 		}
-		headers[strings.TrimSpace(key)] = strings.TrimSpace(value)
+		key = strings.TrimSpace(key)
+		if key == "" {
+			log.Warn().Str("component", "Notify").Msg("empty header name ignored")
+			continue
+		}
+		headers[key] = strings.TrimSpace(value)
 	}
 	return headers
+}
+
+// normalizeWebhookURL 规范化 webhook 地址：
+// 无 scheme 且形如 host:port（含 IP:port，如 192.168.1.5:8080）时视为自托管 http 服务，补 http://；
+// 否则走 validateHTTPURL（补 https:// 并校验 http/https scheme 白名单）。
+func normalizeWebhookURL(raw string) (string, error) {
+	if raw == "" {
+		return "", fmt.Errorf("webhook url is empty")
+	}
+	if strings.Index(raw, "://") > 0 {
+		return validateHTTPURL(raw, "webhook") // 已含 scheme：直接校验
+	}
+	if isHostPort(raw) {
+		return "http://" + raw, nil // 自托管 host:port：默认 http
+	}
+	return validateHTTPURL(raw, "webhook")
+}
+
+// isHostPort 判断无 scheme 的地址是否形如 host:port（如 192.168.1.5:8080、localhost:3000）。
+func isHostPort(raw string) bool {
+	i := strings.LastIndex(raw, ":")
+	if i <= 0 || i == len(raw)-1 {
+		return false
+	}
+	host, port := raw[:i], raw[i+1:]
+	if strings.ContainsAny(host, "/") {
+		return false
+	}
+	for _, c := range port {
+		if c < '0' || c > '9' {
+			return false
+		}
+	}
+	return true
 }
