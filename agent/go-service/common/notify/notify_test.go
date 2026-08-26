@@ -1030,6 +1030,15 @@ func TestReplaceVarsSelfReference(t *testing.T) {
 	}
 }
 
+func TestReplaceVarsExplosion(t *testing.T) {
+	// 多个自引用：每轮 {{title}} 数量 ×4，指数膨胀；输出长度上限应截断（不 OOM）
+	vars := map[string]string{"title": "{{title}}{{title}}{{title}}{{title}}"}
+	got := ReplaceVars("{{title}}", vars)
+	if len(got) != maxTemplateLen {
+		t.Errorf("exploded length = %d, want truncated to %d", len(got), maxTemplateLen)
+	}
+}
+
 func TestResolveActionTaskName(t *testing.T) {
 	i18n.Init() // 幂等；使 task.*.label 翻译可用
 	getEntryOK := func(int64) string { return "AccountSwitchStart" }

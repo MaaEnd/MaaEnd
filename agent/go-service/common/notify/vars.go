@@ -31,8 +31,12 @@ func BuildVars(taskName, status string, now, startTime time.Time) map[string]str
 	return vars
 }
 
+// maxTemplateLen 模板替换输出长度上限，防止变量自引用导致指数膨胀（OOM）。
+const maxTemplateLen = 64 * 1024
+
 // ReplaceVars 把模板中的 {{key}} 替换为 vars 中的值，未识别的变量原样保留。
-// 多轮替换直到收敛，避免 map 迭代顺序随机导致交叉引用结果不确定。
+// 多轮替换直到收敛（10 轮上限 + 输出长度上限）；变量互相引用时结果随 map
+// 迭代顺序而定，属既有边界（自引用会残留 {{key}} 字面量或触发长度截断）。
 func ReplaceVars(template string, vars map[string]string) string {
 	for i := 0; i < 10; i++ {
 		prev := template
@@ -41,6 +45,9 @@ func ReplaceVars(template string, vars map[string]string) string {
 		}
 		if template == prev {
 			return template
+		}
+		if len(template) > maxTemplateLen {
+			return template[:maxTemplateLen]
 		}
 	}
 	return template
