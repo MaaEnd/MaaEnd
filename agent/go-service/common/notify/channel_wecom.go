@@ -78,9 +78,12 @@ func (c wecomChannel) Send(ctx *SendContext) error {
 		return fmt.Errorf("wecom content is empty")
 	}
 
-	msgType := strings.TrimSpace(config.MsgType)
+	msgType := strings.ToLower(strings.TrimSpace(config.MsgType))
 	if msgType == "" {
 		msgType = "text"
+	}
+	if msgType != "text" && msgType != "markdown" {
+		return fmt.Errorf("invalid wecom msgtype: %s", msgType)
 	}
 	payload := map[string]any{
 		"msgtype": msgType,

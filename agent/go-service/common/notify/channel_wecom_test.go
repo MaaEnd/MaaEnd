@@ -94,6 +94,11 @@ func TestSendWeComErrors(t *testing.T) {
 	if err := ch.Send(testCtx()); err == nil || !strings.Contains(err.Error(), "content") {
 		t.Errorf("empty content should error, got %v", err)
 	}
+	// 非法 msgtype → 报错
+	ch = wecomChannel{cfg: wecomConfig{Enabled: true, WebhookURL: "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=K", Title: "标题", MsgType: "foo"}}
+	if err := ch.Send(testCtx()); err == nil || !strings.Contains(err.Error(), "msgtype") {
+		t.Errorf("invalid msgtype should error, got %v", err)
+	}
 
 	// errcode != 0 的业务错误（HTTP 仍 200）
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
