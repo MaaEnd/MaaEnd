@@ -8,6 +8,7 @@
 
 const REQUEST_PREFIX = "[req=";
 const REQUEST_SUFFIX = "] [ipc_addr_=";
+const OBSERVED_MIN_STEP = 1.0;
 
 const REASON_TEXT = Object.freeze({
     "the walk is too short for any zipline to pay off": "路程太短，上索固定开销无法回本",
@@ -46,6 +47,10 @@ function boolValue(line, name) {
     if (raw === "true") return true;
     if (raw === "false") return false;
     return null;
+}
+
+function pointDistance(lhs, rhs) {
+    return Math.hypot(lhs[0] - rhs[0], lhs[1] - rhs[1]);
 }
 
 function arrayValue(line, name) {
@@ -136,12 +141,85 @@ function newRun(parsed, line, sourceName, index) {
         authoredPath: path,
         authoredPoints: path.map((entry) => entry.point),
         walks: [],
+        observedWalks: [],
         ziplines: [],
         decisions: [],
         completed: null,
         _pendingWalk: null,
         _pendingPick: null,
+        _observedWalk: [],
+        _observedTail: null,
+        _observedZone: "",
+        _ziplineInFlight: false,
+        _ziplineLastPosition: null,
     };
+}
+
+function flushObservedWalk(run) {
+    const points = run._observedWalk;
+    const tail = run._observedTail;
+    if (points.length && tail) {
+        const tailDistance = pointDistance(points[points.length - 1], tail.point);
+        if (tailDistance >= OBSERVED_MIN_STEP || (points.length >= 2 && tailDistance > 1e-6)) {
+            points.push(tail.point);
+        }
+    }
+    if (points.length >= 2) run.observedWalks.push(points);
+    run._observedWalk = [];
+    run._observedTail = null;
+    run._observedZone = "";
+}
+
+function appendObservedPosition(run, sample) {
+    if (run._observedZone && sample.zone && sample.zone !== run._observedZone) {
+        flushObservedWalk(run);
+    }
+    run._observedZone ||= sample.zone;
+    run._observedTail = sample;
+    const points = run._observedWalk;
+    if (!points.length || pointDistance(points[points.length - 1], sample.point) >= OBSERVED_MIN_STEP) {
+        points.push(sample.point);
+    }
+}
+
+function addObservedPosition(run, line) {
+    const point = [
+        numberValue(line, "position.x"),
+        numberValue(line, "position.y"),
+    ];
+    const valid =
+        numberValue(line, "status") === 0 &&
+        boolValue(line, "position.isHeld") !== true &&
+        point.every(Number.isFinite);
+    if (!valid) {
+        if (run._ziplineInFlight) run._ziplineLastPosition = null;
+        else flushObservedWalk(run);
+        return;
+    }
+
+    const sample = {
+        point,
+        zone: valueOf(line, "position.zoneId") || "",
+    };
+    if (run._ziplineInFlight) {
+        run._ziplineLastPosition = sample;
+        return;
+    }
+    appendObservedPosition(run, sample);
+}
+
+function startZiplineRide(run) {
+    flushObservedWalk(run);
+    run._ziplineInFlight = true;
+    run._ziplineLastPosition = null;
+}
+
+function finishZiplineRide(run, resumeAtLastPosition = true) {
+    if (!run._ziplineInFlight) return;
+    run._ziplineInFlight = false;
+    const landing = run._ziplineLastPosition;
+    run._ziplineLastPosition = null;
+    if (resumeAtLastPosition && landing) appendObservedPosition(run, landing);
 }
 
 function addWalk(run, line) {
@@ -251,6 +329,7 @@ function pendingExecutionChain(run) {
 }
 
 function addLaunch(run, line) {
+    startZiplineRide(run);
     const landing = [numberValue(line, "landing.x"), numberValue(line, "landing.y")];
     if (!landing.every(Number.isFinite)) return;
     const chain = pendingExecutionChain(run);
@@ -260,13 +339,16 @@ function addLaunch(run, line) {
 
 function addLanding(run, line) {
     const chain = run.ziplines.find((candidate) => candidate.landed < candidate.launches.length);
-    if (!chain) return;
-    const landing = [numberValue(line, "landing.x"), numberValue(line, "landing.y")];
-    chain.landings.push(landing.every(Number.isFinite) ? landing : chain.launches[chain.landed]);
-    chain.landed += 1;
+    if (chain) {
+        const landing = [numberValue(line, "landing.x"), numberValue(line, "landing.y")];
+        chain.landings.push(landing.every(Number.isFinite) ? landing : chain.launches[chain.landed]);
+        chain.landed += 1;
+    }
+    finishZiplineRide(run);
 }
 
 function closeRun(run, line, succeeded) {
+    flushObservedWalk(run);
     for (const walk of run.walks) {
         if (walk.decision === "pending") walk.decision = "walk";
     }
@@ -278,6 +360,11 @@ function closeRun(run, line, succeeded) {
     delete run._pendingWalk;
     delete run._pendingPick;
     delete run._fallbackZone;
+    delete run._observedWalk;
+    delete run._observedTail;
+    delete run._observedZone;
+    delete run._ziplineInFlight;
+    delete run._ziplineLastPosition;
 }
 
 function lineBelongsToRunEnd(run, line) {
@@ -306,7 +393,9 @@ export function parseMapNavigatorLog(text, sourceName = "maafw.log") {
         }
         if (!current) continue;
 
-        if (line.includes("NAVMESH generated path.")) addWalk(current, line);
+        if (line.includes("PositionProvider::Capture") && line.includes("MapLocator")) {
+            addObservedPosition(current, line);
+        } else if (line.includes("NAVMESH generated path.")) addWalk(current, line);
         else if (line.includes("ZiplineRoute: picked")) rememberZiplinePick(current, line);
         else if (line.includes("Expanded NAVMESH waypoint via zipline.")) addZipline(current, line);
         else if (line.includes("ZiplineRoute: walking this leg instead.")) rejectOrChooseWalk(current, line);
@@ -319,6 +408,10 @@ export function parseMapNavigatorLog(text, sourceName = "maafw.log") {
         } else if (line.includes("Action: ZIPLINE launched toward the landing point.")) addLaunch(current, line);
         else if (line.includes("Action: ZIPLINE ride landed.")) addLanding(current, line);
 
+        if (line.includes("Phase transition.") && line.includes("[from_phase_name=WaitZipline]")) {
+            finishZiplineRide(current, false);
+        }
+
         const succeeded = lineBelongsToRunEnd(current, line);
         if (succeeded !== null) {
             closeRun(current, line, succeeded);
@@ -326,7 +419,9 @@ export function parseMapNavigatorLog(text, sourceName = "maafw.log") {
         }
     }
     if (current) closeRun(current, "", null);
-    return runs.filter((run) => run.authoredPoints.length || run.walks.length || run.ziplines.length);
+    return runs.filter(
+        (run) => run.authoredPoints.length || run.walks.length || run.observedWalks.length || run.ziplines.length,
+    );
 }
 
 /** All base-map points needed to frame one parsed run. @param {Object} run @returns {number[][]} */
@@ -334,6 +429,7 @@ export function logRunPoints(run) {
     if (!run) return [];
     const points = [...(run.authoredPoints || [])];
     for (const walk of run.walks || []) points.push(...walk.points);
+    for (const walk of run.observedWalks || []) points.push(...walk);
     for (const chain of run.ziplines || []) {
         if (Array.isArray(chain.mount)) points.push(chain.mount);
         if (Array.isArray(chain.last)) points.push(chain.last);

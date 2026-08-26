@@ -360,6 +360,10 @@ canvas {
   border-color: #ff3b9d;
 }
 
+.log-line-swatch.observed {
+  border-color: #22c55e;
+}
+
 .log-line-swatch.baseline {
   border-color: rgba(245, 158, 11, 0.75);
   border-top-style: dashed;

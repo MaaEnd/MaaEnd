@@ -118,9 +118,9 @@ export class Overlay {
   }
 
   /**
-   * Read-only MapNavigator decision overlay. Planned walks and runtime-confirmed zipline
-   * hops are deliberately separate from the dashed endpoint estimates: the log records
-   * no complete approach/exit polyline, so those lines must never look authoritative.
+   * Read-only MapNavigator decision overlay. Planned walks, MapLocator observations,
+   * runtime-confirmed zipline hops, and dashed endpoint estimates remain separate so
+   * inferred geometry never looks like a measured trajectory.
    * @param {Camera} camera
    * @param {Object} log
    * @returns {void}
@@ -147,6 +147,12 @@ export class Overlay {
     if (log.showWalk) {
       for (const points of log.walks || []) {
         this._strokeLogPolyline(camera, points, {color: '#ff3b9d', width: 3});
+      }
+    }
+
+    if (log.showObserved) {
+      for (const points of log.observed || []) {
+        this._strokeLogPolyline(camera, points, {color: '#22c55e', width: 3.5});
       }
     }
 

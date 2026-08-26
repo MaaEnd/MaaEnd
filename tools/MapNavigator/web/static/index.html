@@ -148,7 +148,11 @@
             </label>
             <label class="chk log-layer-option">
               <input id="log-show-walk" type="checkbox" checked />
-              <span class="log-line-swatch walk"></span>实际选择步行
+              <span class="log-line-swatch walk"></span>采用的步行规划
+            </label>
+            <label class="chk log-layer-option">
+              <input id="log-show-observed" type="checkbox" checked />
+              <span class="log-line-swatch observed"></span>实测地面轨迹
             </label>
             <label class="chk log-layer-option">
               <input id="log-show-baseline" type="checkbox" checked />
@@ -163,7 +167,9 @@
               <span class="log-line-swatch estimate"></span>接近/离索端点估计
             </label>
           </div>
-          <div class="sidebar-hint">虚线“端点估计”不是角色逐帧轨迹；日志没有记录这两段完整折线</div>
+          <div class="sidebar-hint">
+            绿色轨迹来自 MapLocator 成功且非保持的定位；滑索飞行和定位空窗不会连线。虚线“端点估计”不是实测轨迹
+          </div>
           <div id="log-decision-summary" class="log-decision-summary" aria-live="polite">
             导入日志后，这里会列出每段的成本计算和选择原因。
           </div>

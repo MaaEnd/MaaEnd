@@ -167,6 +167,7 @@ class MapNavigatorApp {
         this.logLayers = {
             showAuthored: true,
             showWalk: true,
+            showObserved: true,
             showBaseline: true,
             showZipline: true,
             showEstimates: true,
@@ -312,6 +313,7 @@ class MapNavigatorApp {
             logRunSelect: $("log-run-select"),
             logShowAuthored: $("log-show-authored"),
             logShowWalk: $("log-show-walk"),
+            logShowObserved: $("log-show-observed"),
             logShowBaseline: $("log-show-baseline"),
             logShowZipline: $("log-show-zipline"),
             logShowEstimates: $("log-show-estimates"),
@@ -731,6 +733,7 @@ class MapNavigatorApp {
         for (const [control, key] of [
             [e.logShowAuthored, "showAuthored"],
             [e.logShowWalk, "showWalk"],
+            [e.logShowObserved, "showObserved"],
             [e.logShowBaseline, "showBaseline"],
             [e.logShowZipline, "showZipline"],
             [e.logShowEstimates, "showEstimates"],
@@ -1038,6 +1041,7 @@ class MapNavigatorApp {
             walks: (run.walks || [])
                 .filter((walk) => walk.decision === "walk")
                 .map((walk) => displayPolyline(walk.points)),
+            observed: (run.observedWalks || []).map(displayPolyline),
             baselines: (run.walks || [])
                 .filter((walk) => walk.decision === "baseline")
                 .map((walk) => displayPolyline(walk.points)),
@@ -1051,7 +1055,7 @@ class MapNavigatorApp {
         const log = this._logAnalysisForDisplay();
         if (!log) return [];
         const points = [...log.authored];
-        for (const path of [...log.walks, ...log.baselines]) points.push(...path);
+        for (const path of [...log.walks, ...log.observed, ...log.baselines]) points.push(...path);
         for (const segment of [...log.ziplines, ...log.estimates]) points.push(segment.from, segment.to);
         return points;
     }
@@ -2660,7 +2664,12 @@ class MapNavigatorApp {
         const landed = (run.ziplines || []).reduce((sum, chain) => sum + (chain.landed || 0), 0);
         const launched = (run.ziplines || []).reduce((sum, chain) => sum + (chain.launches || []).length, 0);
         const ziplineFact = launched ? `滑索 ${landed}/${launched} 跳确认落地` : "无实际滑索发射";
-        facts.textContent = `${run.timestamp || "时间未知"} · ${run.zone || "区域未知"} · ${result} · ${ziplineFact} · ${run.sourceName}`;
+        const observedSegments = (run.observedWalks || []).length;
+        const observedPoints = (run.observedWalks || []).reduce((sum, points) => sum + points.length, 0);
+        const observedFact = observedPoints
+            ? `实测地面轨迹 ${observedSegments} 段/${observedPoints} 点`
+            : "无实测地面轨迹";
+        facts.textContent = `${run.timestamp || "时间未知"} · ${run.zone || "区域未知"} · ${result} · ${ziplineFact} · ${observedFact} · ${run.sourceName}`;
         host.appendChild(facts);
 
         const decisions = run.decisions || [];

@@ -23,6 +23,10 @@ const request = {
   task_id: 200000001,
 };
 
+function position(timestamp, x, y, {status = 0, held = false} = {}) {
+  return `[${timestamp}][INF][position_provider.cpp][mapnavigator::PositionProvider::Capture] MapLocator [status=${status}] [position.zoneId=Wuling_Base] [position.x=${x}] [position.y=${y}] [position.isHeld=${held}]`;
+}
+
 const lines = [
   `[2026-08-26 11:42:20.323][INF][AgentServer.cpp] [req=${JSON.stringify(request)}] [ipc_addr_=ipc://test.sock]`,
   '[2026-08-26 11:42:50.039][INF][navmesh_path_expander.cpp] NAVMESH generated path. [state.navmesh_zone=map02base] [route_result.cost=467.555411] [navmesh_path_points=[[965.5,1803.38],[900,1700],[724.98,1596.8]]]',
@@ -84,6 +88,80 @@ test('frames author, walk, and zipline coordinates', () => {
   const points = logRunPoints(run);
   assert.ok(points.some(([x, y]) => x === 955.5 && y === 1777.5));
   assert.ok(points.some(([x, y]) => x === 538.031 && y === 1250.27));
+});
+
+test('extracts measured ground tracks without connecting zipline rides or held positions', () => {
+  const traceLines = [
+    lines[0],
+    position('2026-08-26 11:42:21.000', 965.5, 1803.38),
+    position('2026-08-26 11:42:22.000', 955.8, 1777.7),
+    '[2026-08-26 11:43:11.644][INF][zipline_action.cpp] Action: ZIPLINE launched toward the landing point. [landing.x=940.5] [landing.y=1699.5]',
+    position('2026-08-26 11:43:15.000', 950, 1750),
+    position('2026-08-26 11:43:18.800', 940.8, 1699.8),
+    '[2026-08-26 11:43:18.812][INF][zipline_action.cpp] Action: ZIPLINE ride landed.',
+    position('2026-08-26 11:43:19.000', 942, 1698),
+    '[2026-08-26 11:43:20.128][INF][zipline_action.cpp] Action: ZIPLINE launched toward the landing point. [landing.x=912] [landing.y=1584]',
+    position('2026-08-26 11:43:30.000', 912.2, 1584.1),
+    '[2026-08-26 11:43:33.696][INF][zipline_action.cpp] Action: ZIPLINE ride landed.',
+    position('2026-08-26 11:43:34.000', 900, 1585),
+    position('2026-08-26 11:43:35.000', 850, 1590, {held: true}),
+    position('2026-08-26 11:43:36.000', 800, 1594),
+    position('2026-08-26 11:43:37.000', 724.98, 1596.8),
+    lines[lines.length - 1],
+  ];
+  const [run] = parseMapNavigatorLog(traceLines.join('\n'));
+
+  assert.deepEqual(run.observedWalks, [
+    [
+      [965.5, 1803.38],
+      [955.8, 1777.7],
+    ],
+    [
+      [940.8, 1699.8],
+      [942, 1698],
+    ],
+    [
+      [912.2, 1584.1],
+      [900, 1585],
+    ],
+    [
+      [800, 1594],
+      [724.98, 1596.8],
+    ],
+  ]);
+  assert.ok(!run.observedWalks.flat().some(([x, y]) => x === 950 && y === 1750));
+  assert.ok(!run.observedWalks.flat().some(([x, y]) => x === 850 && y === 1590));
+
+  const points = logRunPoints(run);
+  assert.ok(points.some(([x, y]) => x === 940.8 && y === 1699.8));
+  assert.ok(points.some(([x, y]) => x === 724.98 && y === 1596.8));
+});
+
+test('resumes measured tracking after a zipline phase ends without a confirmed landing', () => {
+  const traceLines = [
+    lines[0],
+    position('2026-08-26 11:42:21.000', 965.5, 1803.38),
+    position('2026-08-26 11:42:22.000', 955.8, 1777.7),
+    '[2026-08-26 11:43:11.644][INF][zipline_action.cpp] Action: ZIPLINE launched toward the landing point. [landing.x=940.5] [landing.y=1699.5]',
+    position('2026-08-26 11:43:15.000', 950, 1750),
+    '[2026-08-26 11:43:16.000][INF][navigation_session.cpp] Phase transition. [from_phase_name=WaitZipline] [to_phase_name=Recover] [reason=zipline_ride_failed]',
+    position('2026-08-26 11:43:17.000', 800, 1594),
+    position('2026-08-26 11:43:18.000', 724.98, 1596.8),
+    lines[lines.length - 1],
+  ];
+  const [run] = parseMapNavigatorLog(traceLines.join('\n'));
+
+  assert.deepEqual(run.observedWalks, [
+    [
+      [965.5, 1803.38],
+      [955.8, 1777.7],
+    ],
+    [
+      [800, 1594],
+      [724.98, 1596.8],
+    ],
+  ]);
+  assert.ok(!run.observedWalks.flat().some(([x, y]) => x === 950 && y === 1750));
 });
 
 test('keeps searchable runtime reasons while presenting Chinese text', () => {
