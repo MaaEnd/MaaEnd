@@ -1653,6 +1653,8 @@
             "type": "switch",
             "controller": [
                 "Win32-Front",
+                "Linux-Gamescope",
+                "Linux-ScreenCast",
                 "Linux-Wlroots"
             ],
             "label": "$task.AutoDeliveryRiskAcknowledgement.label",
@@ -1681,6 +1683,8 @@
             "type": "switch",
             "controller": [
                 "Win32-Front",
+                "Linux-Gamescope",
+                "Linux-ScreenCast",
                 "Linux-Wlroots"
             ],
             "label": "$task.AutoDeliveryPreferZipline.label",
