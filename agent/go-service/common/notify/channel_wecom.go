@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -85,6 +84,12 @@ func (c wecomChannel) Send(ctx *SendContext) error {
 	if msgType != "text" && msgType != "markdown" {
 		return fmt.Errorf("invalid wecom msgtype: %s", msgType)
 	}
+	// 企微 content 长度上限：text 2048 字节 / markdown 4096 字节，超长静默截断
+	if msgType == "markdown" {
+		content = truncateBytes(content, 4096)
+	} else {
+		content = truncateBytes(content, 2048)
+	}
 	payload := map[string]any{
 		"msgtype": msgType,
 		msgType:   map[string]any{"content": content},
@@ -110,10 +115,9 @@ func postWeCom(client *http.Client, endpoint string, payload map[string]any) err
 	if resp.StatusCode >= 400 {
 		return fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
-	// 限制响应体大小（1MB），防止服务端异常返回超大 body 吃内存
-	respBody, err := io.ReadAll(io.LimitReader(resp.Body, 1<<20))
+	respBody, err := readResponseBody(resp)
 	if err != nil {
-		return fmt.Errorf("failed to read response body: %w", err)
+		return err
 	}
 	var result struct {
 		ErrCode int    `json:"errcode"`

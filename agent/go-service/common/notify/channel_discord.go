@@ -74,6 +74,8 @@ func (c discordChannel) Send(ctx *SendContext) error {
 	if content == "" {
 		return fmt.Errorf("discord content is empty")
 	}
+	// Discord Execute Webhook 的 content 上限 2000 字符，超长静默截断
+	content = truncateRunes(content, 2000)
 
 	payload := map[string]any{
 		"content": content,
@@ -87,7 +89,7 @@ func (c discordChannel) Send(ctx *SendContext) error {
 
 	log.Debug().Str("component", "Notify").Str("channel", "discord").Msg("sending discord notify")
 	// Execute Webhook 默认返回 204 No Content，无业务 code 字段 → 直接按 HTTP 状态判断（<400 成功）
-	return postJSON(ctx.Client, endpoint, payload, -1)
+	return postJSON(ctx.Client, endpoint, payload, noCodeCheck)
 }
 
 // discordEndpointDefault 校验并返回 Discord Webhook 执行端点（完整 URL，含 webhook id 与 token）。
