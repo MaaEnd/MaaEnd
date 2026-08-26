@@ -78,7 +78,11 @@ func (s *Sink) OnTaskerTask(_ *maa.Tasker, event maa.EventStatus, detail maa.Tas
 			if _, notified := notifiedTaskIDs.Load(detail.TaskID); notified {
 				return
 			}
-			log.Warn().Str("component", "Notify").Uint64("task_id", detail.TaskID).Str("entry", detail.Entry).Msg("no cached config for task; failure notification skipped")
+			// 任务在首个节点事件（ConfigSink 缓存时机）之前失败，配置未缓存。
+			// 框架限制：失败事件（TaskerEventSink）无 Context，无法读 override 后的用户配置
+			// （on_fail / 渠道开关均在 Context 层），Tasker.GetResource 只能读静态默认定义，
+			// 故无法在此发出失败通知；仅记录日志说明边界。
+			log.Warn().Str("component", "Notify").Uint64("task_id", detail.TaskID).Str("entry", detail.Entry).Msg("task failed before any node event; no cached config (framework limitation), failure notification skipped")
 			return
 		}
 		enabled := runtime.Enabled()
