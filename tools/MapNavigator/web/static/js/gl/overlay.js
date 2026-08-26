@@ -126,6 +126,12 @@ export class Overlay {
    * @returns {void}
    */
   _drawLogAnalysis(camera, log) {
+    if (log.showRecordedTowers) {
+      for (const tower of log.recordedTowers || []) {
+        this._drawRecordedZiplineTower(camera, tower);
+      }
+    }
+
     if (log.showAuthored) {
       this._strokeLogPolyline(camera, log.authored || [], {
         color: 'rgba(248, 250, 252, 0.9)',
@@ -199,6 +205,66 @@ export class Overlay {
       }
       ctx.restore();
     }
+
+    if (log.showSelectedTowers) {
+      for (const tower of log.selectedTowers || []) {
+        this._drawSelectedZiplineTower(camera, tower);
+      }
+    }
+  }
+
+  /** Pale background candidate from ZIP record/Ziplines.json. */
+  _drawRecordedZiplineTower(camera, tower) {
+    if (!tower || !Array.isArray(tower.point)) return;
+    const [cx, cy] = camera.worldToCanvas(tower.point[0], tower.point[1]);
+    if (cx < -8 || cy < -8 || cx > this.cssW + 8 || cy > this.cssH + 8) return;
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.beginPath();
+    ctx.moveTo(0, -5.5);
+    ctx.lineTo(5.5, 0);
+    ctx.lineTo(0, 5.5);
+    ctx.lineTo(-5.5, 0);
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(139, 92, 246, 0.58)';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(8, 15, 28, 0.82)';
+    ctx.lineWidth = 3.5;
+    ctx.stroke();
+    ctx.strokeStyle = '#ddd6fe';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(0, 0, 1.5, 0, Math.PI * 2);
+    ctx.fillStyle = '#ffffff';
+    ctx.fill();
+    ctx.restore();
+  }
+
+  /** Selected chain tower: cyan filled when reached, amber hollow when not confirmed. */
+  _drawSelectedZiplineTower(camera, tower) {
+    if (!tower || !Array.isArray(tower.point)) return;
+    const [cx, cy] = camera.worldToCanvas(tower.point[0], tower.point[1]);
+    const color = tower.confirmed ? '#22d3ee' : '#f59e0b';
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.setLineDash([]);
+    ctx.beginPath();
+    ctx.arc(cx, cy, 7, 0, Math.PI * 2);
+    ctx.fillStyle = tower.confirmed ? color : 'rgba(8, 15, 28, 0.9)';
+    ctx.fill();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+    if (tower.confirmed) {
+      ctx.beginPath();
+      ctx.arc(cx, cy, 2, 0, Math.PI * 2);
+      ctx.fillStyle = '#ffffff';
+      ctx.fill();
+    }
+    ctx.restore();
+    this._drawLogCaption(cx, cy - 17, tower.label || '滑索架', color);
   }
 
   /** @param {Camera} camera @param {number[][]} points @param {Object} style */

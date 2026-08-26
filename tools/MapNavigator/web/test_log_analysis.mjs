@@ -4,6 +4,7 @@ import test from 'node:test';
 import {
   logRunPoints,
   logZiplineGeometry,
+  logZiplineTowers,
   parseMapNavigatorLog,
   ziplineReasonText,
 } from './static/js/log_analysis.js';
@@ -81,6 +82,53 @@ test('parses one selected zipline chain and its actual launches', () => {
     {from: [965.5, 1803.38], to: [955.5, 1777.5], kind: 'approach'},
     {from: [912, 1584], to: [724.98, 1596.8], kind: 'exit'},
   ]);
+
+  assert.deepEqual(logZiplineTowers(run.ziplines[0]), [
+    {index: 0, point: [955.5, 1777.5], height: null, confirmed: true},
+    {index: 1, point: [940.5, 1699.5], height: null, confirmed: true},
+    {index: 2, point: [957, 1653], height: null, confirmed: true},
+    {index: 3, point: [912, 1584], height: null, confirmed: true},
+  ]);
+});
+
+test('marks only reached towers as confirmed when a selected chain stops partway', () => {
+  const partial = [
+    lines[0],
+    lines[1],
+    lines[2],
+    lines[3],
+    lines[4],
+    '[2026-08-26 11:43:16.000][INF][navigation_session.cpp] Phase transition. [from_phase_name=WaitZipline] [to_phase_name=Recover] [reason=zipline_ride_failed]',
+    '[2026-08-26 11:43:17.000][INF][EventDispatcher.hpp] [msg=Node.Action.Failed] [details={"name":"AutoDeliveryRouteDestinationWithZipline"}]',
+  ];
+  const [run] = parseMapNavigatorLog(partial.join('\n'));
+
+  assert.equal(run.ziplines[0].chainIndex, 0);
+  assert.deepEqual(logZiplineTowers(run.ziplines[0]), [
+    {index: 0, point: [955.5, 1777.5], height: null, confirmed: true},
+    {index: 1, point: [940.5, 1699.5], height: null, confirmed: false},
+    {index: 2, point: [912, 1584], height: null, confirmed: false},
+  ]);
+});
+
+test('does not treat a disconnected walking baseline as a zero-cost comparison', () => {
+  const disconnected = [
+    lines[0],
+    lines[1].replace('route_result.cost=467.555411', 'route_result.cost=0'),
+    lines[2]
+      .replace('walking_baseline_available=true', 'walking_baseline_available=false')
+      .replace('baseline_length=467.555411', 'baseline_length=0'),
+    lines[3].replace('walking_baseline_available=true', 'walking_baseline_available=false'),
+    lines[lines.length - 1],
+  ];
+  const [run] = parseMapNavigatorLog(disconnected.join('\n'));
+  const decision = run.decisions.find((entry) => entry.kind === 'zipline');
+
+  assert.equal(run.ziplines[0].walkingBaselineAvailable, false);
+  assert.equal(run.ziplines[0].baselineLength, null);
+  assert.equal(decision.walkingBaselineAvailable, false);
+  assert.equal(decision.saving, null);
+  assert.equal(decision.savingPercent, null);
 });
 
 test('frames author, walk, and zipline coordinates', () => {

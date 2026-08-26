@@ -53,6 +53,14 @@ function pointDistance(lhs, rhs) {
     return Math.hypot(lhs[0] - rhs[0], lhs[1] - rhs[1]);
 }
 
+function normalizedTowerPoints(value) {
+    if (!Array.isArray(value)) return [];
+    return value
+        .filter((point) => Array.isArray(point) && point.length >= 2)
+        .map((point) => point.slice(0, 3).map(Number))
+        .filter((point) => point.length >= 2 && point.every(Number.isFinite));
+}
+
 function arrayValue(line, name) {
     const marker = `[${name}=`;
     const markerAt = line.indexOf(marker);
@@ -278,7 +286,9 @@ function rememberZiplinePick(run, line) {
 
 function addZipline(run, line) {
     const picked = run._pendingPick || {};
-    const baselineAvailable = boolValue(line, "walking_baseline_available") === true;
+    const lineBaselineAvailable = boolValue(line, "walking_baseline_available");
+    const baselineAvailable =
+        lineBaselineAvailable === null ? picked.walkingBaselineAvailable === true : lineBaselineAvailable;
     let baselineWalk = null;
     if (baselineAvailable && run._pendingWalk && run._pendingWalk.decision === "pending") {
         baselineWalk = run._pendingWalk;
@@ -290,8 +300,10 @@ function addZipline(run, line) {
     const mount = [numberValue(line, "mount.x"), numberValue(line, "mount.y")];
     const last = [numberValue(line, "route->towers.back().x"), numberValue(line, "route->towers.back().y")];
     const chain = {
+        chainIndex: run.ziplines.length,
         timestamp: timestampOf(line),
-        baselineLength: picked.baselineLength ?? (baselineWalk ? baselineWalk.cost : null),
+        walkingBaselineAvailable: baselineAvailable,
+        baselineLength: baselineAvailable ? (picked.baselineLength ?? (baselineWalk ? baselineWalk.cost : null)) : null,
         cost: numberValue(line, "route->cost") ?? picked.cost ?? null,
         towerCount: numberValue(line, "route->towers.size()") ?? picked.towerCount ?? null,
         mount: mount.every(Number.isFinite) ? mount : picked.first,
@@ -304,6 +316,8 @@ function addZipline(run, line) {
     run.ziplines.push(chain);
     run._pendingPick = null;
     addDecision(run, "zipline", line, {
+        chainIndex: chain.chainIndex,
+        walkingBaselineAvailable: chain.walkingBaselineAvailable,
         baselineLength: chain.baselineLength,
         cost: chain.cost,
         towerCount: chain.towerCount,
@@ -434,8 +448,32 @@ export function logRunPoints(run) {
         if (Array.isArray(chain.mount)) points.push(chain.mount);
         if (Array.isArray(chain.last)) points.push(chain.last);
         points.push(...(chain.launches || []));
+        points.push(...logZiplineTowers(chain).map((tower) => tower.point));
     }
     return points.filter((point) => Array.isArray(point) && point.length >= 2 && point.every(Number.isFinite));
+}
+
+/**
+ * Tower positions observable in the existing runtime log: the mount, launch
+ * targets, and final tower. A tower is confirmed only after execution reached it.
+ * @param {Object} chain
+ * @returns {Array<{index:number,point:number[],height:?number,confirmed:boolean}>}
+ */
+export function logZiplineTowers(chain) {
+    if (!chain) return [];
+    const points = normalizedTowerPoints([chain.mount, ...(chain.launches || []), chain.last]).filter(
+        (point, index, all) => index === 0 || pointDistance(point, all[index - 1]) > 1e-6,
+    );
+
+    const launches = Array.isArray(chain.launches) ? chain.launches.length : 0;
+    const landed = Number.isFinite(chain.landed) ? Math.max(0, chain.landed) : 0;
+    const furthestConfirmed = launches ? Math.max(launches - 1, landed) : -1;
+    return points.map((point, index) => ({
+        index,
+        point: point.slice(0, 2),
+        height: point.length >= 3 ? point[2] : null,
+        confirmed: index <= furthestConfirmed,
+    }));
 }
 
 /**

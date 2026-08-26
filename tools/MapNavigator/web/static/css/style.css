@@ -379,6 +379,30 @@ canvas {
   opacity: 0.7;
 }
 
+.log-point-swatch {
+  width: 10px;
+  height: 10px;
+  border: 2px solid;
+  border-radius: 50%;
+  display: inline-block;
+  flex: 0 0 auto;
+  margin: 0 9px;
+  box-sizing: border-box;
+}
+
+.log-point-swatch.selected-tower {
+  border-color: #22d3ee;
+  background: #22d3ee;
+}
+
+.log-point-swatch.recorded-tower {
+  border-color: #ddd6fe;
+  border-radius: 1px;
+  background: #8b5cf6;
+  box-shadow: 0 0 0 1px rgba(8, 15, 28, 0.85);
+  transform: rotate(45deg);
+}
+
 .log-decision-summary {
   display: flex;
   flex-direction: column;
@@ -430,6 +454,36 @@ canvas {
   color: var(--text-muted);
   font-family: var(--font-mono);
   overflow-wrap: anywhere;
+}
+
+.log-tower-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 6px 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  background: rgba(34, 211, 238, 0.035);
+  font-family: var(--font-mono);
+}
+
+.log-tower-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.log-tower-state {
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.log-tower-state.confirmed {
+  color: #22d3ee;
+}
+
+.log-tower-state.unconfirmed {
+  color: #f59e0b;
 }
 
 /* 重叠面列表:同一坐标底下压着的几张可走面,选中一层会在画布上高亮。 */

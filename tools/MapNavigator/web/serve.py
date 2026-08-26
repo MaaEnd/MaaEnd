@@ -18,6 +18,7 @@
   GET  /basemap/{path}        -> assets/resource/image/ 下的底图 PNG (防 .. 穿越)
   GET  /basemap-by-zone       -> 任意 zone 字符串 -> 解析后的底图 PNG (resolve_zone_image)
   GET  /api/zone-ids          -> assert 模式 zone 下拉可选值 (list_available_zone_ids)
+  GET  /api/zipline-frames    -> 滑索世界坐标到 base 底图的只读标定
   GET  /mesh/{zone_id}        -> 某几何区的 NMSH 二进制网格缓冲 (application/octet-stream)
   POST /api/route             -> 栅格路线; 失败时附起终点的离网探针
   GET  /api/settings          -> 读取 ~/.maaend/mapnavigator.json
@@ -101,6 +102,7 @@ from starlette.datastructures import MutableHeaders  # noqa: E402
 NAVMESH_DIR = RESOURCE_DIR / "model" / "map" / "navmesh"
 NAVMESH_GZ = NAVMESH_DIR / "base.nav.gz"
 NAVMESH_RAW = NAVMESH_DIR / "base.nav"
+ZIPLINE_FRAMES = RESOURCE_DIR.parent / "data" / "MapNavigator" / "zipline_frames.json"
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 
 # 只绑 127.0.0.1 —— 后端会 spawn 进程 / 连 ADB / 载 maafw, 绝不暴露到局域网。
@@ -544,6 +546,14 @@ async def api_zone_ids() -> dict[str, Any]:
 
     zone_ids = await run_in_threadpool(_list)
     return {"zone_ids": zone_ids}
+
+
+@app.get("/api/zipline-frames")
+async def api_zipline_frames() -> FileResponse:
+    """Expose the repository calibration read-only; ZIP records stay in the browser."""
+    if not ZIPLINE_FRAMES.is_file():
+        raise HTTPException(status_code=404, detail="缺少滑索坐标标定 zipline_frames.json")
+    return FileResponse(ZIPLINE_FRAMES, media_type="application/json")
 
 
 @app.get("/api/platform")

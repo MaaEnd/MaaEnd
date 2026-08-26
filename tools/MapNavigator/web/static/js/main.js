@@ -25,7 +25,9 @@ import {Overlay} from "./gl/overlay.js";
 import {formatHeading, transformHeading} from "./heading.js";
 import {NavmeshField} from "./navmesh_field.js";
 import {AppState, Mode} from "./state.js";
-import {logZiplineGeometry, parseMapNavigatorLog} from "./log_analysis.js";
+import {logZiplineGeometry, logZiplineTowers, parseMapNavigatorLog} from "./log_analysis.js";
+import {groupLogInputFiles, openZipArchive, selectMaaEndArchiveEntries} from "./log_archive.js";
+import {projectZiplineRecords} from "./zipline_records.js";
 import {
     ACTION_NAMES,
     ActionType,
@@ -47,6 +49,7 @@ import {
     getLoadStatus,
     getMesh,
     getZoneIds,
+    getZiplineFrames,
     basemapByZoneUrl,
     postRoute,
     postOffMeshProbe,
@@ -164,12 +167,18 @@ class MapNavigatorApp {
         this.logRuns = [];
         /** @type {?Object} */
         this.selectedLogRun = null;
+        /** @type {Map<string,{label:string,records:?Object,sourceNames:string[]}>} */
+        this.logArchiveGroups = new Map();
+        /** @type {?Object} repository zipline_frames.json calibration. */
+        this.ziplineFrameConfig = null;
         this.logLayers = {
             showAuthored: true,
             showWalk: true,
             showObserved: true,
             showBaseline: true,
             showZipline: true,
+            showSelectedTowers: true,
+            showRecordedTowers: true,
             showEstimates: true,
         };
 
@@ -316,6 +325,8 @@ class MapNavigatorApp {
             logShowObserved: $("log-show-observed"),
             logShowBaseline: $("log-show-baseline"),
             logShowZipline: $("log-show-zipline"),
+            logShowSelectedTowers: $("log-show-selected-towers"),
+            logShowRecordedTowers: $("log-show-recorded-towers"),
             logShowEstimates: $("log-show-estimates"),
             logDecisionSummary: $("log-decision-summary"),
             btnAssertLocate: $("btn-assert-locate"),
@@ -736,6 +747,8 @@ class MapNavigatorApp {
             [e.logShowObserved, "showObserved"],
             [e.logShowBaseline, "showBaseline"],
             [e.logShowZipline, "showZipline"],
+            [e.logShowSelectedTowers, "showSelectedTowers"],
+            [e.logShowRecordedTowers, "showRecordedTowers"],
             [e.logShowEstimates, "showEstimates"],
         ]) {
             control.addEventListener("change", () => {
@@ -1018,6 +1031,53 @@ class MapNavigatorApp {
         return points;
     }
 
+    /** Geometry/base zone name used by zipline_frames.json (for example map02base). */
+    _logGeometryZoneName(run) {
+        if (!run || !this.field) return "";
+        const zoneId = this._resolveZoneId(run.zone);
+        if (Number.isNaN(zoneId)) return "";
+        const base = this.field.zoneById(this.field.geometryZoneId(zoneId));
+        return base ? base.name : "";
+    }
+
+    /** Candidate ZIP marks plus the tower positions observable in this run's existing logs. */
+    _logTowerData(run = this.selectedLogRun) {
+        if (!run) return {selected: [], recorded: []};
+        const archiveGroup = run._archiveGroupKey ? this.logArchiveGroups.get(run._archiveGroupKey) : null;
+        const recorded = projectZiplineRecords(
+            archiveGroup && archiveGroup.records,
+            this.ziplineFrameConfig,
+            this._logGeometryZoneName(run),
+        );
+        const selected = [];
+        let labelIndex = 1;
+        for (const chain of run.ziplines || []) {
+            for (const tower of logZiplineTowers(chain)) {
+                let matchingRecord = null;
+                let matchingDistance = Infinity;
+                for (const candidate of recorded) {
+                    const distance = Math.hypot(
+                        candidate.point[0] - tower.point[0],
+                        candidate.point[1] - tower.point[1],
+                    );
+                    if (distance < matchingDistance) {
+                        matchingRecord = candidate;
+                        matchingDistance = distance;
+                    }
+                }
+                selected.push({
+                    ...tower,
+                    chainIndex: chain.chainIndex,
+                    towerIndex: tower.index,
+                    label: `索${labelIndex}`,
+                    height: matchingDistance <= 0.75 ? matchingRecord.height : tower.height,
+                });
+                labelIndex += 1;
+            }
+        }
+        return {selected, recorded};
+    }
+
     /** Build the display-frame geometry consumed by Overlay's read-only log layer. */
     _logAnalysisForDisplay() {
         const run = this.selectedLogRun;
@@ -1035,6 +1095,7 @@ class MapNavigatorApp {
                 estimates.push({...segment, from: displayPoint(segment.from), to: displayPoint(segment.to)});
             }
         }
+        const towers = this._logTowerData(run);
         return {
             ...this.logLayers,
             authored: displayPolyline(this._logAuthoredBasePoints()),
@@ -1047,6 +1108,14 @@ class MapNavigatorApp {
                 .map((walk) => displayPolyline(walk.points)),
             ziplines,
             estimates,
+            selectedTowers: towers.selected.map((tower) => ({
+                ...tower,
+                point: displayPoint(tower.point),
+            })),
+            recordedTowers: towers.recorded.map((tower) => ({
+                ...tower,
+                point: displayPoint(tower.point),
+            })),
         };
     }
 
@@ -1057,6 +1126,7 @@ class MapNavigatorApp {
         const points = [...log.authored];
         for (const path of [...log.walks, ...log.observed, ...log.baselines]) points.push(...path);
         for (const segment of [...log.ziplines, ...log.estimates]) points.push(segment.from, segment.to);
+        for (const tower of log.selectedTowers || []) points.push(tower.point);
         return points;
     }
 
@@ -2507,19 +2577,72 @@ class MapNavigatorApp {
     //  Read-only MapNavigator log analysis
     // ==================================================================================
 
-    /** Read one or more local maafw logs and replace the current analysis set. */
+    /** Read local maafw logs or MaaEnd ZIP parts and replace the current analysis set. */
     async _importLogFiles(fileList) {
         const files = Array.from(fileList || []);
         if (!files.length) return;
-        setStatus(`正在解析 ${files.length} 个日志文件…`, "#3b82f6");
+        setStatus(`正在检查 ${files.length} 个日志/ZIP 文件…`, "#3b82f6");
         this.els.btnLogImport.disabled = true;
         try {
-            const groups = await Promise.all(
-                files.map(async (file) => parseMapNavigatorLog(await file.text(), file.webkitRelativePath || file.name)),
+            const inputs = groupLogInputFiles(files);
+            let frameWarning = "";
+            if (inputs.archiveGroups.length && !this.ziplineFrameConfig) {
+                try {
+                    this.ziplineFrameConfig = await getZiplineFrames();
+                } catch (err) {
+                    frameWarning = `；滑索标定加载失败：${err && err.message ? err.message : err}`;
+                }
+            }
+
+            const runs = [];
+            const archiveGroups = new Map();
+            let parsedLogCount = 0;
+            let ziplineSnapshotCount = 0;
+
+            for (const file of inputs.plainFiles) {
+                const sourceName = file.webkitRelativePath || file.name;
+                setStatus(`正在解析 ${sourceName}…`, "#3b82f6");
+                runs.push(...parseMapNavigatorLog(await file.text(), sourceName));
+                parsedLogCount += 1;
+            }
+
+            for (const group of inputs.archiveGroups) {
+                const groupState = {
+                    label: group.label,
+                    records: null,
+                    sourceNames: group.files.map((file) => file.name),
+                };
+                archiveGroups.set(group.key, groupState);
+                for (const file of group.files) {
+                    setStatus(`正在读取 ${file.name} 的目录…`, "#3b82f6");
+                    const archive = await openZipArchive(file, file.name);
+                    const selected = selectMaaEndArchiveEntries(archive.entries);
+
+                    for (const entry of selected.ziplineRecords) {
+                        setStatus(`正在读取 ${file.name}/${entry.name}…`, "#3b82f6");
+                        const parsed = JSON.parse(await archive.readText(entry));
+                        if (!parsed || !Array.isArray(parsed.maps)) {
+                            throw new Error(`${file.name}/${entry.name} 不是有效的 Ziplines.json`);
+                        }
+                        groupState.records = parsed;
+                        ziplineSnapshotCount += 1;
+                    }
+
+                    for (const entry of selected.logs) {
+                        const sourceName = `${file.name}/${entry.name}`;
+                        setStatus(`正在解析 ${sourceName}…`, "#3b82f6");
+                        const parsedRuns = parseMapNavigatorLog(await archive.readText(entry), sourceName);
+                        for (const run of parsedRuns) run._archiveGroupKey = group.key;
+                        runs.push(...parsedRuns);
+                        parsedLogCount += 1;
+                    }
+                }
+            }
+
+            this.logArchiveGroups = archiveGroups;
+            this.logRuns = runs.sort(
+                (a, b) => b.timestamp.localeCompare(a.timestamp) || a.sourceName.localeCompare(b.sourceName),
             );
-            this.logRuns = groups
-                .flat()
-                .sort((a, b) => b.timestamp.localeCompare(a.timestamp) || a.sourceName.localeCompare(b.sourceName));
             this.logRuns.forEach((run, index) => {
                 run._uiKey = String(index);
             });
@@ -2527,10 +2650,18 @@ class MapNavigatorApp {
             this.els.logRunFilter.value = "";
             this.els.logRunFilter.disabled = this.logRuns.length === 0;
             this.els.logRunSelect.disabled = this.logRuns.length === 0;
-            this.els.logImportMeta.textContent = `${files.length} 个文件 · 找到 ${this.logRuns.length} 次 MapNavigateAction`;
+            const zipMeta = inputs.archiveGroups.length
+                ? ` · ${inputs.archiveGroups.length} 个 ZIP 日志包 · ${ziplineSnapshotCount} 份滑索快照`
+                : "";
+            this.els.logImportMeta.textContent = `${files.length} 个文件 · ${parsedLogCount} 份 cpp-algo 日志${zipMeta} · 找到 ${this.logRuns.length} 次 MapNavigateAction${frameWarning}`;
             this._populateLogRunSelect();
             if (this.logRuns.length) {
-                setStatus(`日志解析完成：找到 ${this.logRuns.length} 次导航运行。`, "#10b981");
+                setStatus(
+                    frameWarning
+                        ? `日志解析完成：找到 ${this.logRuns.length} 次导航运行${frameWarning}`
+                        : `日志解析完成：找到 ${this.logRuns.length} 次导航运行。`,
+                    frameWarning ? "#f59e0b" : "#10b981",
+                );
             } else {
                 setStatus("日志中没有找到带路径数据的 MapNavigateAction。", "#f59e0b");
             }
@@ -2627,6 +2758,7 @@ class MapNavigatorApp {
     _clearLogAnalysis() {
         this.logRuns = [];
         this.selectedLogRun = null;
+        this.logArchiveGroups = new Map();
         this.els.logRunFilter.value = "";
         this.els.logRunFilter.disabled = true;
         this.els.logRunSelect.disabled = true;
@@ -2660,6 +2792,7 @@ class MapNavigatorApp {
 
         const facts = document.createElement("div");
         facts.className = "log-run-facts";
+        const towerData = this._logTowerData(run);
         const result = run.completed === true ? "成功" : run.completed === false ? "失败" : "未记录结束";
         const landed = (run.ziplines || []).reduce((sum, chain) => sum + (chain.landed || 0), 0);
         const launched = (run.ziplines || []).reduce((sum, chain) => sum + (chain.launches || []).length, 0);
@@ -2669,8 +2802,40 @@ class MapNavigatorApp {
         const observedFact = observedPoints
             ? `实测地面轨迹 ${observedSegments} 段/${observedPoints} 点`
             : "无实测地面轨迹";
-        facts.textContent = `${run.timestamp || "时间未知"} · ${run.zone || "区域未知"} · ${result} · ${ziplineFact} · ${observedFact} · ${run.sourceName}`;
+        const recordedFact = run._archiveGroupKey
+            ? `ZIP 候选滑索架 ${towerData.recorded.length} 座`
+            : "未关联 ZIP 滑索快照";
+        facts.textContent = `${run.timestamp || "时间未知"} · ${run.zone || "区域未知"} · ${result} · ${ziplineFact} · ${observedFact} · ${recordedFact} · ${run.sourceName}`;
         host.appendChild(facts);
+
+        if (towerData.selected.length) {
+            const towerList = document.createElement("div");
+            towerList.className = "log-tower-list";
+            for (const tower of towerData.selected) {
+                const row = document.createElement("div");
+                row.className = "log-tower-row";
+                const height = Number.isFinite(tower.height) ? tower.height.toFixed(2) : "?";
+                const coordinates = document.createElement("span");
+                coordinates.textContent = `${tower.label} [${tower.point[0].toFixed(2)}, ${tower.point[1].toFixed(2)}, ${height}]`;
+                const state = document.createElement("span");
+                state.className = `log-tower-state ${tower.confirmed ? "confirmed" : "unconfirmed"}`;
+                state.textContent = tower.confirmed ? "实际经过" : "未确认经过";
+                row.append(coordinates, state);
+                towerList.appendChild(row);
+            }
+            host.appendChild(towerList);
+
+            const expectedTowers = (run.ziplines || []).reduce(
+                (sum, chain) => sum + (Number.isFinite(chain.towerCount) ? chain.towerCount : 0),
+                0,
+            );
+            if (expectedTowers > towerData.selected.length) {
+                const limited = document.createElement("div");
+                limited.className = "log-run-facts";
+                limited.textContent = `运行日志只保留首尾架和实际发射落点，当前可定位 ${towerData.selected.length}/${expectedTowers} 座；其余位置请对照 ZIP 候选背景点。`;
+                host.appendChild(limited);
+            }
+        }
 
         const decisions = run.decisions || [];
         if (!decisions.length) {
@@ -2688,16 +2853,21 @@ class MapNavigatorApp {
             const kindClass = decision.kind === "zipline" ? "zipline" : decision.kind === "walk" ? "walk" : "warning";
             card.className = `log-decision-card ${kindClass}`;
 
-            if (
-                decision.kind === "zipline" &&
-                Number.isFinite(decision.baselineLength) &&
-                Number.isFinite(decision.cost)
-            ) {
-                const saving = decision.baselineLength - decision.cost;
-                const percent = decision.baselineLength > 0 ? (saving / decision.baselineLength) * 100 : 0;
+            if (decision.kind === "zipline") {
                 const formula = document.createElement("div");
                 formula.className = "log-decision-formula";
-                formula.textContent = `${decision.baselineLength.toFixed(3)} − ${decision.cost.toFixed(3)} = ${saving.toFixed(3)}（节省 ${percent.toFixed(2)}%）`;
+                if (
+                    decision.walkingBaselineAvailable &&
+                    Number.isFinite(decision.baselineLength) &&
+                    Number.isFinite(decision.cost)
+                ) {
+                    const saving = decision.baselineLength - decision.cost;
+                    const percent = decision.baselineLength > 0 ? (saving / decision.baselineLength) * 100 : 0;
+                    formula.textContent = `${decision.baselineLength.toFixed(3)} − ${decision.cost.toFixed(3)} = ${saving.toFixed(3)}（节省 ${percent.toFixed(2)}%）`;
+                } else {
+                    const cost = Number.isFinite(decision.cost) ? `（滑索代价 ${decision.cost.toFixed(3)}）` : "";
+                    formula.textContent = `步行基线不可达，使用滑索桥接${cost}`;
+                }
                 card.appendChild(formula);
                 const detail = document.createElement("div");
                 const towers = Number.isFinite(decision.towerCount) ? decision.towerCount : null;
@@ -3897,7 +4067,7 @@ class MapNavigatorApp {
             setStatus(
                 this.selectedLogRun
                     ? "日志分析模式：地图只读，可缩放和平移；虚线端点连接为估计。"
-                    : "日志分析模式：请导入解压后的 cpp-algo/debug/maafw*.log。",
+                    : "日志分析模式：请选择 MaaEnd ZIP 分包或解压后的 cpp-algo/debug/maafw*.log。",
                 "#3b82f6",
             );
         }

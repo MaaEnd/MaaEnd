@@ -125,12 +125,12 @@
           <div class="section-header">
             <span class="section-title">导航日志分析</span>
           </div>
-          <div class="sidebar-hint">导入解压后的 cpp-algo/debug/maafw*.log；文件不会上传</div>
+          <div class="sidebar-hint">直接选择 MaaEnd ZIP 分包或解压后的 cpp-algo/debug/maafw*.log；文件不会上传</div>
           <div class="sidebar-row grid-btns-2">
-            <button id="btn-log-import" class="btn btn-primary" type="button">导入日志</button>
+            <button id="btn-log-import" class="btn btn-primary" type="button">导入日志或 ZIP</button>
             <button id="btn-log-clear" class="btn btn-danger-outline" type="button">清除</button>
           </div>
-          <input id="log-file-input" type="file" accept=".log,.txt,text/plain" multiple hidden />
+          <input id="log-file-input" type="file" accept=".log,.txt,.zip,text/plain,application/zip" multiple hidden />
           <div id="log-import-meta" class="log-import-meta">尚未导入日志</div>
 
           <label class="sidebar-label" for="log-run-filter">按时间、节点或文件筛选</label>
@@ -163,12 +163,23 @@
               <span class="log-line-swatch zipline"></span>实际滑索段
             </label>
             <label class="chk log-layer-option">
+              <input id="log-show-selected-towers" type="checkbox" checked />
+              <span class="log-point-swatch selected-tower"></span>本次选择的滑索架
+            </label>
+            <label class="chk log-layer-option">
+              <input id="log-show-recorded-towers" type="checkbox" checked />
+              <span class="log-point-swatch recorded-tower"></span>ZIP 记录的滑索架
+            </label>
+            <label class="chk log-layer-option">
               <input id="log-show-estimates" type="checkbox" checked />
               <span class="log-line-swatch estimate"></span>接近/离索端点估计
             </label>
           </div>
           <div class="sidebar-hint">
             绿色轨迹来自 MapLocator 成功且非保持的定位；滑索飞行和定位空窗不会连线。虚线“端点估计”不是实测轨迹
+          </div>
+          <div class="sidebar-hint">
+            ZIP 中的滑索架只作候选背景，可能包含未供电或运行时排除项；本次选择仍以运行日志为准
           </div>
           <div id="log-decision-summary" class="log-decision-summary" aria-live="polite">
             导入日志后，这里会列出每段的成本计算和选择原因。

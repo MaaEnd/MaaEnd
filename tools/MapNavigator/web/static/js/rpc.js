@@ -179,6 +179,11 @@ export function getZoneIds() {
   return getJson('/api/zone-ids');
 }
 
+/** World-coordinate calibration used only to display ZIP-local Ziplines.json marks. */
+export function getZiplineFrames() {
+  return getJson('/api/zipline-frames');
+}
+
 /**
  * Request an A* preview route. Resolves the backend payload verbatim, including the
  * `{ok:false, error}` "unreachable" case (see module note).
