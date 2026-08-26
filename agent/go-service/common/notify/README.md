@@ -14,17 +14,17 @@
 | `config.go` | 运行配置：`GlobalConfig`（系统开关 on_fail/allow_task_notify/task_notify.* + 标题正文模板 + 全局代理）、`RuntimeConfig`（全局 + 原始 attach 供渠道工厂 Create）、`decodeAttach`（attach → 结构体，未知键忽略）、`MergeAttach`（节点内容覆盖全局内容） |
 | `channel.go` | `Channel` 接口（`Enabled` / `UseProxy` / `Send`）+ `ChannelFactory` 接口（`Name` / `Create`）+ `SendContext` + 注册表（`RegisterChannel`，渠道文件 `init` 注册零值工厂一行） |
 | `vars.go` | 模板变量模块：`BuildVars` / `ReplaceVars` / `channelTitleBody` / `firstNonEmpty` / `addIfPresent` |
-| `markdown.go` | 轻量 Markdown 子集解析器 + 三种 Telegram 渲染（`renderTelegramV2` / `renderTelegramLegacy` / `renderTelegramHTML`）；其他渠道透传不解析 |
+| `length.go` | 内容长度截断辅助：`truncateRunes`（按字符）/ `truncateBytes`（按字节、UTF-8 边界回退） |
 | `http.go` | 共享 HTTP：`httpClient`（10s 超时）、`postJSON(client,...)`（响应体 1MB 上限、业务 code 校验）、`checkStatus`、`sanitizeError`（错误中 URL 整体脱敏，防凭据泄漏） |
 | `proxy.go` | 全局代理模块：`resolveProxy`（手动地址 / 复用更新设置代理二选一）、`proxyClient`（仅标准库，http/https；socks5 明确报错）、更新设置代理读取（`install/config/mxu-{项目名}.json` 的 `settings.proxy.url`）、按地址缓存 client |
 | `channel_webhook.go` | 渠道模块：Webhook，自定义方法/请求头/请求体，全模板变量；`ParseHeaders`（JSON 优先、文本回退） |
 | `channel_bark.go` | 渠道模块：Bark，官方全部参数（非空才携带、均做变量替换）；`channel_bark_devicekeys` 逗号分隔时走 `/push` 批量推送 |
 | `channel_serverchan.go` | 渠道模块：ServerChan，SC3（`sctp` 前缀按官方正则 `/^sctp(\d+)t/` 提取 uid）/ Turbo 双端点自动分流；`pipeSeparated` |
-| `channel_telegram.go` | 渠道模块：Telegram Bot，`sendMessage` 推送（标题+正文拼合，`chat_id` 逗号分隔多播）；`postTelegram` 校验 `ok` 布尔响应；API 地址留空用官方，填写第三方服务地址自动拼接 `/bot{token}/sendMessage`；正文按 parse_mode 走 `markdown.go` 渲染 |
-| `channel_discord.go` | 渠道模块：Discord Webhook，`content` 标题+正文拼合，可选 `username`/`avatar_url` 覆盖；响应按 HTTP 状态判断（204 即成功）；content 原生渲染 markdown 子集，正文透传 |
-| `channel_wecom.go` | 渠道模块：企业微信群机器人，`msgtype`（text/markdown）+ `content` 标题+正文拼合；`postWeCom` 校验 `errcode`（企微失败也返回 HTTP 200，故单独校验）；markdown 类型按官方子集透传 |
-| `channel_ntfy.go` | 渠道模块：ntfy，标题用 `Title` header、正文用请求 body（标题正文分离）；可选优先级/标签/`Bearer` token/`Markdown` 渲染开关（`Markdown: yes` 头，仅 web 端）；响应按 HTTP 状态判断 |
-| `channel_gotify.go` | 渠道模块：Gotify，`X-Gotify-Key` 鉴权、JSON body 标题+正文拼合，可选优先级（0-10，空用应用默认）与 `Markdown` 渲染开关（`extras.client::display.contentType`）；响应按 HTTP 状态判断 |
+| `channel_telegram.go` | 渠道模块：Telegram Bot，纯文本 `sendMessage` 推送（标题+正文拼合，4096 字符截断；`chat_id` 逗号分隔多播容错）；`postTelegram` 校验 `ok` 布尔响应；API 地址留空用官方，token 经 `url.PathEscape` 拼接 `/bot{token}/sendMessage` |
+| `channel_discord.go` | 渠道模块：Discord Webhook，`content` 标题+正文拼合（2000 字符截断），可选 `username`/`avatar_url` 覆盖；响应按 HTTP 状态判断（204 即成功） |
+| `channel_wecom.go` | 渠道模块：企业微信群机器人，`msgtype`（text/markdown）+ `content` 标题+正文拼合（text 2048B / markdown 4096B 截断）；`postWeCom` 校验 `errcode`（企微失败也返回 HTTP 200，故单独校验）；markdown 类型由企微服务端原生渲染 |
+| `channel_ntfy.go` | 渠道模块：ntfy，标题用 `Title` header、正文用请求 body（标题正文分离）；可选优先级（白名单校验）/标签/`Bearer` token；响应按 HTTP 状态判断 |
+| `channel_gotify.go` | 渠道模块：Gotify，`X-Gotify-Key` 鉴权、JSON body 标题+正文拼合，可选优先级（0-10 越界报错，空用应用默认）；响应按 HTTP 状态判断 |
 | `channel_dingtalk.go` | 渠道模块：钉钉群机器人，`errcode` 校验、text/markdown 标题+正文拼合，可选加签（HMAC-SHA256 sign）与 @所有人；响应解析 `errcode==0` |
 | `sink.go` | 事件监听：`ConfigSink`（节点事件缓存配置，按 taskID 隔离）、`Sink`（任务失败事件发通知，按 taskID 去重、失败后清理缓存）、`controllerStartTime`（`{{duration}}` 起点）、`splitList` |
 | `taskname.go` | `{{task_name}}` 显示名解析：扫描 `tasks/*.json` 建立 `entry → i18n label` 映射（`sync.Once` 缓存），`resolveTaskName` 解析失败回退入口名 |
@@ -109,9 +109,4 @@ func (c xyzChannel) Send(ctx *SendContext) error {
 3. **两级代理**：代理是系统级配置（`use_proxy` 主开关 + `use_update_proxy` / `proxy_url` 地址），`Send()` 统一解析一次；每个渠道另有独立开关（`channel_<channel>_use_proxy`，经 `Channel.UseProxy()` 声明），主开关开启且渠道开关开启时才走代理，渠道零代理代码
 4. **任务名显示名**：`{{task_name}}` 经 `resolveTaskName` 输出 i18n 显示名（如 🔑自动切换账号），从任务入口名反查任务定义；解析失败回退入口名
 5. **事件与动作分离**：失败通知走 `Sink`（事件驱动，无 Context 时用缓存配置），自定义通知走 `NotifySendAction`（动作内读 `__NotifyConfig` + 当前节点 attach 合并）
-6. **富文本支持矩阵**（只按官方协议，不硬转 Markdown）：
-   - **原生透传（免声明）**：Discord `content`、ServerChan `desp` 天然渲染 markdown 子集，正文原样发送、零改写。
-   - **原生透传（需声明）**：企微 `msgtype=markdown`（6 语法白名单）、钉钉 `msgtype=markdown`（9 语法白名单）——由既有 msgtype 选项声明，正文原样发送；子集外标记原样显示、不报错。
-   - **可选渲染开关（本次新增，默认关）**：ntfy（`channel_ntfy_markdown` → `Markdown: yes` 头，仅 web 端）、Gotify（`channel_gotify_markdown` → `extras.client::display.contentType`，WebUI≥2.0.5 / Android≥2.0.7）。
-   - **必须转义/转换**：Telegram（唯一会因未转义被服务端 400 拒绝的渠道），正文按 `parse_mode` 走 `markdown.go` 渲染——MarkdownV2 实体外全量转义、code/pre 内只转义反引号与反斜杠；legacy 只支持粗/斜/链接/行内码/代码块且禁止嵌套（不支持的结构降级为文本）；HTML 用标签表达结构。
-   - **无格式能力**：Gotify 未开开关时、Webhook、各渠道 title 字段一律纯文本。
+6. **富文本原则**：**Go 层不做任何 markdown 解析/转义/渲染**，正文按纯文本发送（仅按各渠道官方长度上限截断）。需要富文本的渠道一律走其原生声明机制：企微/钉钉 `msgtype=markdown`（服务端渲染）、Discord `content` / ServerChan `desp`（客户端原生渲染）、Bark 历史遗留的 `markdown` 参数由 App 端处理。

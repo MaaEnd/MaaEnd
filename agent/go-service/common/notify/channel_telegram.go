@@ -21,7 +21,6 @@ type telegramConfig struct {
 	ChatID              string `json:"channel_telegram_chat_id"`              // 接收 chat_id，逗号分隔支持多个
 	Title               string `json:"channel_telegram_title"`                // 渠道级标题，支持 {{title}} 引用通知项预填，留空回退通知项
 	Body                string `json:"channel_telegram_body"`                 // 渠道级正文，同标题语义；支持 {{body}} 引用通知项预填
-	ParseMode           string `json:"channel_telegram_parse_mode"`           // 空=纯文本；HTML / Markdown / MarkdownV2
 	DisableNotification bool   `json:"channel_telegram_disable_notification"` // 静默推送（disable_notification=true，不响铃）
 }
 
@@ -86,37 +85,14 @@ func (c telegramChannel) Send(ctx *SendContext) error {
 	if text == "" {
 		return fmt.Errorf("telegram text is empty")
 	}
-
-	parseMode := ReplaceVars(strings.TrimSpace(config.ParseMode), vars)
-	switch parseMode {
-	case "", "HTML", "Markdown", "MarkdownV2":
-		// 合法取值
-	default:
-		return fmt.Errorf("invalid telegram parse_mode: %s", parseMode)
-	}
-	// 纯文本模式：text 上限 4096 字符，超长静默截断；富文本模式不截断（避免切断实体结构）
-	if parseMode == "" {
-		text = truncateRunes(text, 4096)
-	}
-	// Markdown/MarkdownV2/HTML 模式需转义正文特殊字符，否则 Telegram 返回 400 can't parse entities；
-	// 统一走 markdown.go 的解析器渲染（实体外转义、实体内部按官方规则豁免、按方言输出）
-	switch parseMode {
-	case "MarkdownV2":
-		text = renderTelegramV2(text)
-	case "Markdown":
-		text = renderTelegramLegacy(text)
-	case "HTML":
-		text = renderTelegramHTML(text)
-	}
+	// 纯文本发送：text 上限 4096 字符，超长静默截断
+	text = truncateRunes(text, 4096)
 
 	var errs []error
 	for _, chatID := range chatIDs {
 		payload := map[string]any{
 			"chat_id": chatID,
 			"text":    text,
-		}
-		if parseMode != "" {
-			payload["parse_mode"] = parseMode
 		}
 		if config.DisableNotification {
 			payload["disable_notification"] = true
@@ -191,28 +167,4 @@ func telegramEndpointDefault(token, apiURL string) (string, error) {
 		base = strings.TrimRight(v, "/")
 	}
 	return fmt.Sprintf("%s/bot%s/sendMessage", base, url.PathEscape(token)), nil
-}
-
-// escapeTelegramMarkdownV2 转义 Telegram MarkdownV2 模式的特殊字符（官方要求转义 18 个字符 + 转义前缀反斜杠）。
-func escapeTelegramMarkdownV2(s string) string {
-	return strings.NewReplacer(
-		"_", `\_`, "*", `\*`, "[", `\[`, "]", `\]`, "(", `\(`, ")", `\)`,
-		"~", `\~`, "`", "\\`", ">", `\>`, "#", `\#`, "+", `\+`, "-", `\-`,
-		"=", `\=`, "|", `\|`, "{", `\{`, "}", `\}`, ".", `\.`, "!", `\!`,
-		"\\", `\\`,
-	).Replace(s)
-}
-
-// escapeTelegramMarkdown 转义 Telegram legacy Markdown 模式实体外的特殊字符。
-// 官方只允许转义 _ * ` [ 四字符（"To escape characters '_', '*', '`', '[' outside
-// of an entity, prepend the character '\' before them"），故不转义 ] 与 \。
-func escapeTelegramMarkdown(s string) string {
-	return strings.NewReplacer(
-		"_", `\_`, "*", `\*`, "`", "\\`", "[", `\[`,
-	).Replace(s)
-}
-
-// escapeTelegramHTML 转义 Telegram HTML 模式的特殊字符（< > &）。
-func escapeTelegramHTML(s string) string {
-	return strings.NewReplacer("&", "&amp;", "<", "&lt;", ">", "&gt;").Replace(s)
 }

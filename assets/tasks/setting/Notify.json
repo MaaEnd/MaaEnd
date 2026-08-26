@@ -722,13 +722,6 @@
                     "description": "$option.NotifyBarkParams.Badge.description"
                 },
                 {
-                    "name": "Markdown",
-                    "label": "markdown",
-                    "pipeline_type": "string",
-                    "default": "",
-                    "description": "$option.NotifyBarkParams.Markdown.description"
-                },
-                {
                     "name": "Copy",
                     "label": "copy",
                     "pipeline_type": "string",
@@ -819,7 +812,6 @@
                         "channel_bark_image": "{Image}",
                         "channel_bark_url": "{Url}",
                         "channel_bark_badge": "{Badge}",
-                        "channel_bark_markdown": "{Markdown}",
                         "channel_bark_copy": "{Copy}",
                         "channel_bark_isarchive": "{IsArchive}",
                         "channel_bark_ttl": "{Ttl}",
@@ -845,7 +837,6 @@
                     "name": "Yes",
                     "option": [
                         "NotifyTelegramParams",
-                        "NotifyTelegramParseMode",
                         "NotifyTelegramDisableNotification"
                     ],
                     "pipeline_override": {
@@ -919,58 +910,6 @@
                     }
                 }
             }
-        },
-        "NotifyTelegramParseMode": {
-            "type": "select",
-            "label": "$option.NotifyTelegramParseMode.label",
-            "description": "$option.NotifyTelegramParseMode.description",
-            "default_case": "plain",
-            "cases": [
-                {
-                    "name": "plain",
-                    "label": "$option.NotifyTelegramParseMode.plain.label",
-                    "pipeline_override": {
-                        "__NotifyConfig": {
-                            "attach": {
-                                "channel_telegram_parse_mode": ""
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "HTML",
-                    "label": "$option.NotifyTelegramParseMode.HTML.label",
-                    "pipeline_override": {
-                        "__NotifyConfig": {
-                            "attach": {
-                                "channel_telegram_parse_mode": "HTML"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "Markdown",
-                    "label": "$option.NotifyTelegramParseMode.Markdown.label",
-                    "pipeline_override": {
-                        "__NotifyConfig": {
-                            "attach": {
-                                "channel_telegram_parse_mode": "Markdown"
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "MarkdownV2",
-                    "label": "$option.NotifyTelegramParseMode.MarkdownV2.label",
-                    "pipeline_override": {
-                        "__NotifyConfig": {
-                            "attach": {
-                                "channel_telegram_parse_mode": "MarkdownV2"
-                            }
-                        }
-                    }
-                }
-            ]
         },
         "NotifyTelegramDisableNotification": {
             "type": "switch",
@@ -1444,8 +1383,7 @@
                     "name": "Yes",
                     "option": [
                         "NotifyNtfyPriority",
-                        "NotifyNtfyParams",
-                        "NotifyNtfyMarkdown"
+                        "NotifyNtfyParams"
                     ],
                     "pipeline_override": {
                         "__NotifyConfig": {
@@ -1609,34 +1547,6 @@
                 }
             ]
         },
-        "NotifyNtfyMarkdown": {
-            "type": "switch",
-            "label": "$option.NotifyNtfyMarkdown.label",
-            "description": "$option.NotifyNtfyMarkdown.description",
-            "default_case": "No",
-            "cases": [
-                {
-                    "name": "Yes",
-                    "pipeline_override": {
-                        "__NotifyConfig": {
-                            "attach": {
-                                "channel_ntfy_markdown": true
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "No",
-                    "pipeline_override": {
-                        "__NotifyConfig": {
-                            "attach": {
-                                "channel_ntfy_markdown": false
-                            }
-                        }
-                    }
-                }
-            ]
-        },
         "NotifyGotify": {
             "type": "switch",
             "label": "$option.NotifyGotify.label",
@@ -1647,8 +1557,7 @@
                     "name": "Yes",
                     "option": [
                         "NotifyGotifyPriority",
-                        "NotifyGotifyParams",
-                        "NotifyGotifyMarkdown"
+                        "NotifyGotifyParams"
                     ],
                     "pipeline_override": {
                         "__NotifyConfig": {
@@ -1760,34 +1669,6 @@
                         "__NotifyConfig": {
                             "attach": {
                                 "channel_gotify_priority": "10"
-                            }
-                        }
-                    }
-                }
-            ]
-        },
-        "NotifyGotifyMarkdown": {
-            "type": "switch",
-            "label": "$option.NotifyGotifyMarkdown.label",
-            "description": "$option.NotifyGotifyMarkdown.description",
-            "default_case": "No",
-            "cases": [
-                {
-                    "name": "Yes",
-                    "pipeline_override": {
-                        "__NotifyConfig": {
-                            "attach": {
-                                "channel_gotify_markdown": true
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "No",
-                    "pipeline_override": {
-                        "__NotifyConfig": {
-                            "attach": {
-                                "channel_gotify_markdown": false
                             }
                         }
                     }

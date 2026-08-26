@@ -26,7 +26,6 @@ type barkConfig struct {
 	Image      string `json:"channel_bark_image"`
 	URL        string `json:"channel_bark_url"`
 	Badge      string `json:"channel_bark_badge"`
-	Markdown   string `json:"channel_bark_markdown"`
 	Copy       string `json:"channel_bark_copy"`
 	IsArchive  string `json:"channel_bark_isarchive"`
 	TTL        string `json:"channel_bark_ttl"`
@@ -108,7 +107,6 @@ func (c barkChannel) Send(ctx *SendContext) error {
 		{"icon", config.Icon},
 		{"image", config.Image},
 		{"url", config.URL},
-		{"markdown", config.Markdown},
 		{"copy", config.Copy},
 		{"isArchive", config.IsArchive},
 		{"volume", config.Volume},

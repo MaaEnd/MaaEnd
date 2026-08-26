@@ -567,7 +567,6 @@ func TestSendBarkJSON(t *testing.T) {
 		"channel_bark_image":     "https://example.com/img.png",
 		"channel_bark_url":       "https://example.com",
 		"channel_bark_badge":     "3",
-		"channel_bark_markdown":  "# 标题",
 		"channel_bark_copy":      "复制内容",
 		"channel_bark_isarchive": "1",
 		"channel_bark_ttl":       "86400",
@@ -585,7 +584,7 @@ func TestSendBarkJSON(t *testing.T) {
 	if gotPayload["subtitle"] != "副标题" || gotPayload["group"] != "日常" || gotPayload["level"] != "critical" ||
 		gotPayload["sound"] != "minuet" || gotPayload["icon"] != "https://example.com/icon.png" ||
 		gotPayload["image"] != "https://example.com/img.png" || gotPayload["url"] != "https://example.com" ||
-		gotPayload["markdown"] != "# 标题" || gotPayload["copy"] != "复制内容" ||
+		gotPayload["copy"] != "复制内容" ||
 		gotPayload["isArchive"] != "1" || gotPayload["call"] != "1" {
 		t.Errorf("bark params mismatch: %v", gotPayload)
 	}
@@ -669,7 +668,6 @@ func TestSendTelegram(t *testing.T) {
 		"channel_telegram_chat_id":              "user1",
 		"channel_telegram_title":                "通知 {{task_name}}",
 		"channel_telegram_body":                 "正文 {{task_name}}",
-		"channel_telegram_parse_mode":           "MarkdownV2",
 		"channel_telegram_disable_notification": true,
 	})
 	if !Send(runtime, map[string]string{"task_name": "ExampleTask", "title": "标题 {{task_name}}", "body": "正文 {{task_name}}"}) {
@@ -684,39 +682,8 @@ func TestSendTelegram(t *testing.T) {
 	if gotPayload["text"] != "通知 ExampleTask\n\n正文 ExampleTask" {
 		t.Errorf("text = %q, want 通知 ExampleTask\\n\\n正文 ExampleTask", gotPayload["text"])
 	}
-	if gotPayload["parse_mode"] != "MarkdownV2" {
-		t.Errorf("parse_mode = %v, want MarkdownV2", gotPayload["parse_mode"])
-	}
 	if gotPayload["disable_notification"] != true {
 		t.Errorf("disable_notification = %v, want true", gotPayload["disable_notification"])
-	}
-}
-
-func TestSendTelegramMarkdownV2Escape(t *testing.T) {
-	var gotPayload map[string]any
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		_ = json.NewDecoder(r.Body).Decode(&gotPayload)
-		w.WriteHeader(http.StatusOK)
-		_, _ = w.Write([]byte(`{"ok": true, "result": {}}`))
-	}))
-	defer server.Close()
-
-	orig := telegramEndpoint
-	telegramEndpoint = func(string, string) (string, error) { return server.URL, nil }
-	defer func() { telegramEndpoint = orig }()
-
-	runtime := testRuntime(map[string]any{
-		"channel_telegram_enabled":    true,
-		"channel_telegram_token":      "123456:ABC-DEF",
-		"channel_telegram_chat_id":    "user1",
-		"channel_telegram_title":      "标题_*[x]",
-		"channel_telegram_parse_mode": "MarkdownV2",
-	})
-	if !Send(runtime, map[string]string{"title": "标题_*[x]", "body": "正文"}) {
-		t.Fatalf("Send returned false")
-	}
-	if gotPayload["text"] != `标题\_\*\[x\]`+"\n\n正文" {
-		t.Errorf("text = %q, want escaped MarkdownV2", gotPayload["text"])
 	}
 }
 
@@ -760,11 +727,6 @@ func TestSendTelegramErrors(t *testing.T) {
 	ch = telegramChannel{cfg: telegramConfig{Enabled: true, Token: "t", ChatID: "", Title: "标题"}}
 	if err := ch.Send(testCtx()); err == nil {
 		t.Errorf("empty chat_id should error")
-	}
-	// 非法 parse_mode → 报错
-	ch = telegramChannel{cfg: telegramConfig{Enabled: true, Token: "t", ChatID: "1", Title: "标题", ParseMode: "Foo"}}
-	if err := ch.Send(testCtx()); err == nil || !strings.Contains(err.Error(), "parse_mode") {
-		t.Errorf("invalid parse_mode should error, got %v", err)
 	}
 
 	// ok=false 的业务错误

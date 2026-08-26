@@ -57,46 +57,6 @@ func TestSendNtfy(t *testing.T) {
 	}
 }
 
-func TestSendNtfyMarkdown(t *testing.T) {
-	var gotMarkdown string
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		gotMarkdown = r.Header.Get("Markdown")
-		w.WriteHeader(http.StatusOK)
-	}))
-	defer server.Close()
-
-	orig := ntfyEndpoint
-	ntfyEndpoint = func(string) (string, error) { return server.URL, nil }
-	defer func() { ntfyEndpoint = orig }()
-
-	// 未开启 → 不发 Markdown 头
-	runtime := testRuntime(map[string]any{
-		"channel_ntfy_enabled": true,
-		"channel_ntfy_url":     "https://ntfy.sh/mytopic",
-		"channel_ntfy_body":    "正文",
-	})
-	if !Send(runtime, map[string]string{}) {
-		t.Fatalf("Send returned false")
-	}
-	if gotMarkdown != "" {
-		t.Errorf("Markdown header should be empty without opt-in, got %q", gotMarkdown)
-	}
-
-	// 开启 → Markdown: yes
-	runtime = testRuntime(map[string]any{
-		"channel_ntfy_enabled":  true,
-		"channel_ntfy_url":      "https://ntfy.sh/mytopic",
-		"channel_ntfy_body":     "正文",
-		"channel_ntfy_markdown": true,
-	})
-	if !Send(runtime, map[string]string{}) {
-		t.Fatalf("Send returned false")
-	}
-	if gotMarkdown != "yes" {
-		t.Errorf("Markdown header = %q, want yes", gotMarkdown)
-	}
-}
-
 func TestSendNtfyAuth(t *testing.T) {
 	var gotAuth string
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

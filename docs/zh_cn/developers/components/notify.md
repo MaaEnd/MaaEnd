@@ -181,20 +181,14 @@ func (c xyzChannel) Send(ctx *SendContext) error {
 
 ## 富文本（Markdown）支持
 
-各渠道对富文本的支持按官方协议分为三类，统一原则是**不硬转 Markdown、只按官方支持程度处理**：
+Go 层**不做任何 markdown 解析/转义/渲染**，正文一律按纯文本发送（仅按各渠道官方长度上限截断）。需要富文本的渠道走其原生声明机制：
 
-| 分型 | 渠道 | 处理 |
-| --- | --- | --- |
-| 原生透传（免声明） | Discord `content`、ServerChan `desp` | 正文原样发送，客户端自动渲染 markdown 子集 |
-| 原生透传（需声明） | 企微 `msgtype=markdown`、钉钉 `msgtype=markdown` | 由 msgtype 选项声明，正文原样发送；企微仅 6 语法、钉钉仅 9 语法白名单，子集外标记原样显示不报错 |
-| 可选渲染开关（默认关） | ntfy、Gotify | ntfy 走 `Markdown: yes` 头（仅 web 端）；Gotify 走 `extras.client::display.contentType`（WebUI≥2.0.5 / Android≥2.0.7） |
-| 必须转义/转换 | Telegram | 唯一会因未转义被服务端 400 拒绝的渠道；正文按 `parse_mode` 走 `markdown.go` 解析器渲染 |
-| 无格式能力 | Webhook、各渠道 title、Gotify 未开开关时 | 纯文本 |
-
-Telegram 三种 parse_mode 的渲染规则（`markdown.go`）：
-- **MarkdownV2**：实体外按官方 18 字符 + 反斜杠转义；code/pre 实体内只转义反引号与反斜杠；链接 URL 内转义右括号；标题映射为加粗行、无序列表用 `•`、有序列表用 `N\.`、分隔线用 `―――`（MarkdownV2 无标题/列表语法）。
-- **legacy Markdown**：只支持粗/斜/链接/行内码/代码块，实体外仅转义 `_ * \` [`，实体内禁止转义，不支持的结构（下划线/删除线/剧透/引用）降级为文本。
-- **HTML**：结构用 `<b>/<i>/<u>/<s>/<tg-spoiler>/<code>/<pre>/<a>/<blockquote>` 标签，文本段转义 `< > &`。
+| 渠道 | 富文本方式 |
+| --- | --- |
+| 企微 / 钉钉 | `msgtype=markdown`（服务端原生渲染，代码仅透传字段） |
+| Discord | `content` 客户端原生渲染 markdown 子集 |
+| ServerChan | `desp` 服务端原生渲染 markdown |
+| 其余渠道 | 纯文本 |
 
 ## 实现文件
 
@@ -204,7 +198,6 @@ Telegram 三种 parse_mode 的渲染规则（`markdown.go`）：
 | `config.go` | 运行配置：`GlobalConfig`（系统开关 + 标题正文模板 + 全局代理）、`RuntimeConfig`、`decodeAttach`、`MergeAttach` |
 | `channel.go` | `Channel` / `ChannelFactory` 接口 + `SendContext` + 注册表 |
 | `vars.go` | 模板变量模块：`BuildVars` / `ReplaceVars` / `channelTitleBody` |
-| `markdown.go` | 轻量 Markdown 子集解析器 + 三种 Telegram 渲染（`renderTelegramV2` / `renderTelegramLegacy` / `renderTelegramHTML`） |
 | `length.go` | 内容长度截断辅助（`truncateRunes` / `truncateBytes`） |
 | `http.go` | 超时 client、`postJSON`、`readResponseBody`、错误脱敏 |
 | `proxy.go` | 全局代理模块：`resolveProxy`、`proxyClient`、MXU 更新代理读取 |

@@ -21,7 +21,6 @@ type gotifyConfig struct {
 	Title    string `json:"channel_gotify_title"`     // 渠道级标题，支持 {{title}} 引用通知项预填，留空回退通知项
 	Body     string `json:"channel_gotify_body"`      // 渠道级正文，同标题语义；支持 {{body}} 引用通知项预填
 	Priority string `json:"channel_gotify_priority"`  // "0"~"10"，空=用 application 默认优先级
-	Markdown bool   `json:"channel_gotify_markdown"`  // 正文按 markdown 渲染（WebUI≥2.0.5 GFM / Android≥2.0.7 commonmark）
 }
 
 // gotifyEndpoint 端点构造函数为包级变量，便于测试注入本地服务器。
@@ -85,13 +84,6 @@ func (c gotifyChannel) Send(ctx *SendContext) error {
 			return fmt.Errorf("gotify priority out of range 0~10: %d", n)
 		}
 		payload["priority"] = n
-	}
-	if config.Markdown {
-		// Gotify 官方：消息自带 extras["client::display"]["contentType"]="text/markdown"
-		// 决定客户端逐条渲染（JSON body 才接受 extras；默认 text/plain）
-		payload["extras"] = map[string]any{
-			"client::display": map[string]any{"contentType": "text/markdown"},
-		}
 	}
 
 	jsonBody, err := json.Marshal(payload)

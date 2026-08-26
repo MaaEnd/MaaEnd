@@ -20,7 +20,6 @@ type ntfyConfig struct {
 	Priority string `json:"channel_ntfy_priority"`  // min | low | default | high | max，空=default
 	Tags     string `json:"channel_ntfy_tags"`      // 标签，逗号分隔（emoji short code 自动转 emoji），可选
 	Token    string `json:"channel_ntfy_token"`     // 访问令牌（私有 topic 认证），可选，仅放 header 不进 URL
-	Markdown bool   `json:"channel_ntfy_markdown"`  // 正文按 markdown 渲染（web 端；发 Markdown: yes 头）
 }
 
 // ntfyEndpoint 端点构造函数为包级变量，便于测试注入本地服务器。
@@ -90,10 +89,6 @@ func (c ntfyChannel) Send(ctx *SendContext) error {
 	}
 	if token := strings.TrimSpace(config.Token); token != "" {
 		req.Header.Set("Authorization", "Bearer "+token)
-	}
-	if config.Markdown {
-		// ntfy 官方：X-Markdown 头（别名 Markdown/md）取 true/1/yes 开启正文 markdown 渲染（当前仅 web 端）
-		req.Header.Set("Markdown", "yes")
 	}
 
 	log.Debug().Str("component", "Notify").Str("channel", "ntfy").Msg("sending ntfy notify")

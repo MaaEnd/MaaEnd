@@ -51,38 +51,6 @@ func TestSendGotify(t *testing.T) {
 	}
 }
 
-func TestSendGotifyMarkdown(t *testing.T) {
-	var gotPayload map[string]any
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		_ = json.NewDecoder(r.Body).Decode(&gotPayload)
-		w.WriteHeader(http.StatusOK)
-	}))
-	defer server.Close()
-
-	orig := gotifyEndpoint
-	gotifyEndpoint = func(string) (string, error) { return server.URL, nil }
-	defer func() { gotifyEndpoint = orig }()
-
-	// 开启 → 携带 extras contentType
-	runtime := testRuntime(map[string]any{
-		"channel_gotify_enabled":  true,
-		"channel_gotify_url":      "https://push.example.de",
-		"channel_gotify_body":     "正文",
-		"channel_gotify_markdown": true,
-	})
-	if !Send(runtime, map[string]string{}) {
-		t.Fatalf("Send returned false")
-	}
-	extras, ok := gotPayload["extras"].(map[string]any)
-	if !ok {
-		t.Fatalf("extras missing or wrong type: %v", gotPayload["extras"])
-	}
-	display, ok := extras["client::display"].(map[string]any)
-	if !ok || display["contentType"] != "text/markdown" {
-		t.Errorf("extras = %v, want client::display.contentType=text/markdown", extras)
-	}
-}
-
 func TestSendGotifyMinimal(t *testing.T) {
 	// 仅 message（body），priority 未配置应省略（用 application 默认）
 	var gotPayload map[string]any
