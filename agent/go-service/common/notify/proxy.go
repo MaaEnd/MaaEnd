@@ -7,7 +7,6 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strings"
 	"sync"
 )
@@ -18,10 +17,6 @@ import (
 
 // mxuProxyConfigPath 返回更新设置的配置文件路径；包级变量便于测试注入。
 var mxuProxyConfigPath = findMxuProxyConfigPath
-
-// interfaceNameRegexp 从 interface.json（JSONC）中取顶层 name 字段。
-// 只需 name 一个值，用正则跳过注释解析，避免引入 JSONC 解析器。
-var interfaceNameRegexp = regexp.MustCompile(`"name"\s*:\s*"([^"]+)"`)
 
 // proxyClients 按解析出的代理地址缓存 client，避免每次发送都重建 Transport。
 var proxyClients sync.Map // proxyURL → *http.Client
@@ -34,9 +29,11 @@ func resolveProxy(useUpdate bool, manualURL string) (string, error) {
 		if path := mxuProxyConfigPath(); path != "" {
 			if proxyURL, err := readMxuProxyURL(path); err == nil {
 				return proxyURL, nil
+			} else {
+				return "", fmt.Errorf("read update proxy config failed: %w", err)
 			}
 		}
-		return "", fmt.Errorf("update proxy not configured (settings.proxy.url in config/mxu-*.json)")
+		return "", fmt.Errorf("update proxy config not found (install/config/mxu-*.json)")
 	}
 	proxyURL := strings.TrimSpace(manualURL)
 	if proxyURL == "" {
@@ -103,13 +100,74 @@ func findInstallRoot() string {
 }
 
 // interfaceProjectName 读取 interface.json 的顶层 name 字段（JSONC，允许注释）。
+// 用最小扫描器跳过字符串值、// 与 /* */ 注释，只认顶层对象（depth==1）的 "name" 键，
+// 避免嵌套字段（controller/task 的 name）与注释里的 "name" 干扰取错项目名。
 func interfaceProjectName(path string) string {
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return ""
 	}
-	if m := interfaceNameRegexp.FindSubmatch(data); len(m) == 2 {
-		return string(m[1])
+	return topLevelName(string(data))
+}
+
+// topLevelName 从 JSONC 文本中提取顶层对象（depth==1）的 "name" 字符串值。
+// 逐字符扫描：跳过字符串字面量、// 行注释、/* */ 块注释；遇到顶层 "name" 键时读取其值。
+func topLevelName(s string) string {
+	depth := 0
+	for i := 0; i < len(s); i++ {
+		switch s[i] {
+		case '{':
+			depth++
+		case '}':
+			depth--
+		case '"':
+			// 读取一个字符串字面量（键或值）
+			j := i + 1
+			for j < len(s) && s[j] != '"' {
+				if s[j] == '\\' {
+					j++ // 跳过转义字符
+				}
+				j++
+			}
+			str := s[i+1 : j]
+			i = j // 推进到闭合引号
+			// 顶层 "name" 键：跳过空白与冒号，读取其字符串值
+			if depth == 1 && str == "name" {
+				k := i + 1
+				for k < len(s) && (s[k] == ' ' || s[k] == '\t' || s[k] == '\n' || s[k] == '\r') {
+					k++
+				}
+				if k < len(s) && s[k] == ':' {
+					k++
+					for k < len(s) && (s[k] == ' ' || s[k] == '\t' || s[k] == '\n' || s[k] == '\r') {
+						k++
+					}
+					if k < len(s) && s[k] == '"' {
+						m := k + 1
+						for m < len(s) && s[m] != '"' {
+							if s[m] == '\\' {
+								m++
+							}
+							m++
+						}
+						return s[k+1 : m]
+					}
+				}
+			}
+		case '/':
+			// 跳过 // 行注释与 /* */ 块注释
+			if i+1 < len(s) && s[i+1] == '/' {
+				for i < len(s) && s[i] != '\n' {
+					i++
+				}
+			} else if i+1 < len(s) && s[i+1] == '*' {
+				i += 2
+				for i+1 < len(s) && !(s[i] == '*' && s[i+1] == '/') {
+					i++
+				}
+				i++
+			}
+		}
 	}
 	return ""
 }

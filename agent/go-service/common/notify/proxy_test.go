@@ -133,8 +133,8 @@ func TestSendWithProxy(t *testing.T) {
 		"channel_telegram_token":     "t",
 		"channel_telegram_chat_id":   "user1",
 		"channel_telegram_title":     "标题",
-		"use_proxy":          true,
-		"proxy_url":          server.URL,
+		"use_proxy":                  true,
+		"proxy_url":                  server.URL,
 	})
 	if !Send(runtime, map[string]string{}) {
 		t.Fatalf("Send returned false")
@@ -166,8 +166,8 @@ func TestSendProxyPerChannel(t *testing.T) {
 		"channel_telegram_token":     "t",
 		"channel_telegram_chat_id":   "user1",
 		"channel_telegram_title":     "标题",
-		"use_proxy":          true,
-		"proxy_url":          server.URL,
+		"use_proxy":                  true,
+		"proxy_url":                  server.URL,
 	})
 	if Send(runtime, map[string]string{}) {
 		t.Errorf("Send should return false when channel proxy disabled and endpoint unreachable")
