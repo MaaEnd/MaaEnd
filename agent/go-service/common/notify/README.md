@@ -21,7 +21,7 @@
 | `channel_serverchan.go` | 渠道模块：ServerChan，SC3（`sctp` 前缀按官方正则 `/^sctp(\d+)t/` 提取 uid）/ Turbo 双端点自动分流；`pipeSeparated` |
 | `channel_telegram.go` | 渠道模块：Telegram Bot，`sendMessage` 推送（标题+正文拼合，`chat_id` 逗号分隔多播）；`postTelegram` 校验 `ok` 布尔响应；API 地址留空用官方，填写第三方服务地址自动拼接 `/bot{token}/sendMessage` |
 | `channel_discord.go` | 渠道模块：Discord Webhook，`content` 标题+正文拼合，可选 `username`/`avatar_url` 覆盖；响应按 HTTP 状态判断（204 即成功） |
-| `channel_wecom.go` | 渠道模块：企业微信群机器人，`msgtype`（text/markdown/markdown_v2）+ `content` 标题+正文拼合；`postWeCom` 校验 `errcode`（企微失败也返回 HTTP 200，故单独校验） |
+| `channel_wecom.go` | 渠道模块：企业微信群机器人，`msgtype`（text/markdown）+ `content` 标题+正文拼合；`postWeCom` 校验 `errcode`（企微失败也返回 HTTP 200，故单独校验） |
 | `channel_ntfy.go` | 渠道模块：ntfy，标题用 `Title` header、正文用请求 body（标题正文分离）；可选优先级/标签/`Bearer` token；响应按 HTTP 状态判断 |
 | `channel_gotify.go` | 渠道模块：Gotify，`X-Gotify-Key` 鉴权、JSON body 标题+正文拼合，可选优先级（0-10，空用应用默认）；响应按 HTTP 状态判断 |
 | `channel_dingtalk.go` | 渠道模块：钉钉群机器人，`errcode` 校验、text/markdown 标题+正文拼合，可选加签（HMAC-SHA256 sign）与 @所有人；响应解析 `errcode==0` |

@@ -17,7 +17,7 @@ type wecomConfig struct {
 	Enabled    bool   `json:"channel_wecom_enabled"`
 	UseProxy   bool   `json:"channel_wecom_use_proxy"`   // 是否走全局代理（配合全局 use_proxy 主开关）
 	WebhookURL string `json:"channel_wecom_webhook_url"` // 完整 webhook 地址（含 key query 参数，不写入日志）
-	MsgType    string `json:"channel_wecom_msgtype"`     // text（默认）| markdown | markdown_v2
+	MsgType    string `json:"channel_wecom_msgtype"`     // text（默认）| markdown
 	Title      string `json:"channel_wecom_title"`       // 渠道级标题，支持 {{title}} 引用通知项预填，留空回退通知项
 	Body       string `json:"channel_wecom_body"`        // 渠道级正文，同标题语义；支持 {{body}} 引用通知项预填
 }
@@ -26,7 +26,7 @@ type wecomConfig struct {
 var wecomEndpoint = wecomEndpointDefault
 
 // wecomChannel 企业微信群机器人渠道：向 webhook 推送消息。
-// 消息类型为文本类（text/markdown/markdown_v2），content 为标题+正文拼合（与 Telegram/Discord 约定一致）。
+// 消息类型为文本类（text/markdown），content 为标题+正文拼合（与 Telegram/Discord 约定一致）。
 // 响应校验 errcode（0=成功），避免企微业务失败被 HTTP 200 掩盖。
 type wecomChannel struct {
 	cfg wecomConfig

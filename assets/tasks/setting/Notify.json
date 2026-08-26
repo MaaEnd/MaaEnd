@@ -1359,17 +1359,6 @@
                             }
                         }
                     }
-                },
-                {
-                    "name": "markdown_v2",
-                    "label": "$option.NotifyWeComMsgType.markdown_v2.label",
-                    "pipeline_override": {
-                        "__NotifyConfig": {
-                            "attach": {
-                                "channel_wecom_msgtype": "markdown_v2"
-                            }
-                        }
-                    }
                 }
             ]
         },
