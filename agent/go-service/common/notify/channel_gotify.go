@@ -77,9 +77,14 @@ func (c gotifyChannel) Send(ctx *SendContext) error {
 		payload["title"] = title
 	}
 	if priority := strings.TrimSpace(config.Priority); priority != "" {
-		if n, err := strconv.Atoi(priority); err == nil {
-			payload["priority"] = n
+		n, err := strconv.Atoi(priority)
+		if err != nil {
+			return fmt.Errorf("invalid gotify priority: %s", priority)
 		}
+		if n < 0 || n > 10 {
+			return fmt.Errorf("gotify priority out of range 0~10: %d", n)
+		}
+		payload["priority"] = n
 	}
 	if config.Markdown {
 		// Gotify 官方：消息自带 extras["client::display"]["contentType"]="text/markdown"
