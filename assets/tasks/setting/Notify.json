@@ -845,6 +845,7 @@
                     "name": "Yes",
                     "option": [
                         "NotifyTelegramParams",
+                        "NotifyTelegramParseMode",
                         "NotifyTelegramDisableNotification"
                     ],
                     "pipeline_override": {
@@ -900,13 +901,6 @@
                     "description": "$option.NotifyTelegramParams.Body.description"
                 },
                 {
-                    "name": "ParseMode",
-                    "label": "$option.NotifyTelegramParams.ParseMode.label",
-                    "pipeline_type": "string",
-                    "default": "",
-                    "description": "$option.NotifyTelegramParams.ParseMode.description"
-                },
-                {
                     "name": "ApiUrl",
                     "label": "$option.NotifyTelegramParams.ApiUrl.label",
                     "pipeline_type": "string",
@@ -921,11 +915,62 @@
                         "channel_telegram_chat_id": "{ChatId}",
                         "channel_telegram_title": "{Title}",
                         "channel_telegram_body": "{Body}",
-                        "channel_telegram_parse_mode": "{ParseMode}",
                         "channel_telegram_api_url": "{ApiUrl}"
                     }
                 }
             }
+        },
+        "NotifyTelegramParseMode": {
+            "type": "select",
+            "label": "$option.NotifyTelegramParseMode.label",
+            "description": "$option.NotifyTelegramParseMode.description",
+            "default_case": "plain",
+            "cases": [
+                {
+                    "name": "plain",
+                    "label": "$option.NotifyTelegramParseMode.plain.label",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "channel_telegram_parse_mode": ""
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "HTML",
+                    "label": "$option.NotifyTelegramParseMode.HTML.label",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "channel_telegram_parse_mode": "HTML"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Markdown",
+                    "label": "$option.NotifyTelegramParseMode.Markdown.label",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "channel_telegram_parse_mode": "Markdown"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "MarkdownV2",
+                    "label": "$option.NotifyTelegramParseMode.MarkdownV2.label",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "channel_telegram_parse_mode": "MarkdownV2"
+                            }
+                        }
+                    }
+                }
+            ]
         },
         "NotifyTelegramDisableNotification": {
             "type": "switch",
