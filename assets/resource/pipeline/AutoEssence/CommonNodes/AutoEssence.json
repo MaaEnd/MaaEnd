@@ -1,4 +1,42 @@
 {
+    "AutoEssenceSchedule": {
+        "desc": "基质刷取计划任务",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AutoEssenceScheduleEnabled",
+            "AutoEssenceScheduleEnd"
+        ]
+    },
+    "AutoEssenceScheduleEnabled": {
+        "desc": "基质刷取计划任务命中",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ScheduleRecognition",
+                "custom_recognition_param": {}
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AutoEssenceMain"
+        ],
+        "attach": {
+            "monday": false,
+            "tuesday": false,
+            "wednesday": false,
+            "thursday": false,
+            "friday": false,
+            "saturday": false,
+            "sunday": false
+        }
+    },
+    "AutoEssenceScheduleEnd": {
+        "desc": "基质刷取计划任务跳过",
+        "pre_delay": 0,
+        "post_delay": 0
+    },
     "AutoEssenceMain": {
         "desc": "自动基质刷取的主入口",
         "pre_delay": 0,
