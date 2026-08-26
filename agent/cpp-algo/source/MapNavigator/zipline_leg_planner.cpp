@@ -195,15 +195,29 @@ std::optional<navmesh::WorldPoint> MountStandPoint(
     return stand;
 }
 
-// 两根架子在游戏世界里的直线距离，用来判它们之间挂没挂索。
-// 必须在世界坐标里量：索长是物理量，而两张图的 base 像素比例并不一样。
-double WorldSpan(const zipline::ZiplineNode& a, const zipline::ZiplineNode& b)
+// 森空岛只给随朝向变化的角格锚点，双方中心在每条水平轴上都可能朝彼此靠近各自的
+// 占地半宽。高度坐标不受朝向影响，原样计入三维距离。返回平方值供配对内层循环直接比较。
+constexpr double minimum_possible_world_span_squared(
+    double anchor_delta_x,
+    double delta_y,
+    double anchor_delta_z,
+    const std::array<int, 2>& footprint_a,
+    const std::array<int, 2>& footprint_b)
 {
-    const double dx = b.world_x - a.world_x;
-    const double dy = b.world_y - a.world_y;
-    const double dz = b.world_z - a.world_z;
-    return std::sqrt(dx * dx + dy * dy + dz * dz);
+    const double uncertainty_x = grid_half_span(footprint_a[0]) + grid_half_span(footprint_b[0]);
+    const double uncertainty_z = grid_half_span(footprint_a[1]) + grid_half_span(footprint_b[1]);
+    const double dx = std::max(absolute_value(anchor_delta_x) - uncertainty_x, 0.0);
+    const double dz = std::max(absolute_value(anchor_delta_z) - uncertainty_z, 0.0);
+    return dx * dx + delta_y * delta_y + dz * dz;
 }
+
+// 现场两组 3x3 长距滑索的角格锚点距离分别为 111.526 和 110.204；允许双方中心各向内
+// 移 1 格后，最小可能距离为 108.931 和 107.986，均应保留在 110 米候选范围内。
+static_assert(minimum_possible_world_span_squared(47.0, 25.0, 98.0, { 3, 3 }, { 3, 3 }) <= 110.0 * 110.0);
+static_assert(minimum_possible_world_span_squared(108.0, 16.0, 15.0, { 3, 3 }, { 3, 3 }) <= 110.0 * 110.0);
+// 单格锚点没有中心不确定性；即使是 3x3，扣除不确定性后仍超过上限的组合也不能连边。
+static_assert(minimum_possible_world_span_squared(47.0, 25.0, 98.0, { 1, 1 }, { 1, 1 }) > 110.0 * 110.0);
+static_assert(minimum_possible_world_span_squared(113.0, 0.0, 0.0, { 3, 3 }, { 3, 3 }) > 110.0 * 110.0);
 
 // 折线自身的长度。BaseNavRouteResult::cost 是搜索代价，不是几何长度，两者不能混用。
 double PolylineLength(const navmesh::WorldPath& path)
@@ -217,11 +231,13 @@ double PolylineLength(const navmesh::WorldPath& path)
 
 constexpr size_t kNoTower = std::numeric_limits<size_t>::max();
 
-// 哪两根架子之间挂着索，记录本身没说，这里按几何推断：同一种架子、同一层、世界距离不超过
-// 这种架子的索长上限，就当它们之间有一条索。索不分上下行，所以两个方向都算。
-// 推错的代价是有界的——执行时上索之后等不到落点，滑行超时，这一腿失败；推漏的代价只是
-// 少用一条索。宁可推漏。
-std::vector<std::vector<size_t>> BuildLinks(const std::vector<zipline::ZiplineNode>& nodes, const std::vector<double>& span_limit)
+// 哪两根架子之间挂着索，记录本身没说，这里按几何推断：同一种架子、同一层、任一可能中心的
+// 世界距离不超过这种架子的索长上限，就当它们之间有一条候选索。索不分上下行，所以两个方向
+// 都算。位置含糊时优先保留候选；推错后执行侧会封掉失败边并重新规划，推漏则整条连续链都无法发现。
+std::vector<std::vector<size_t>> BuildLinks(
+    const std::vector<zipline::ZiplineNode>& nodes,
+    const std::vector<double>& span_limit,
+    const std::vector<std::array<int, 2>>& footprints)
 {
     std::vector<std::vector<size_t>> links(nodes.size());
     for (size_t i = 0; i < nodes.size(); ++i) {
@@ -232,7 +248,13 @@ std::vector<std::vector<size_t>> BuildLinks(const std::vector<zipline::ZiplineNo
             if (nodes[i].template_id != nodes[j].template_id || nodes[i].level_id != nodes[j].level_id) {
                 continue;
             }
-            if (WorldSpan(nodes[i], nodes[j]) > span_limit[i]) {
+            const double span_squared = minimum_possible_world_span_squared(
+                nodes[j].world_x - nodes[i].world_x,
+                nodes[j].world_y - nodes[i].world_y,
+                nodes[j].world_z - nodes[i].world_z,
+                footprints[i],
+                footprints[j]);
+            if (span_squared > span_limit[i] * span_limit[i]) {
                 continue;
             }
             links[i].push_back(j);
@@ -475,10 +497,12 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
     // 索长上限逐点查一次就够：配对是 O(n²) 的，放进内层循环等于把字符串查表也乘上 n²。
     // 查不到的类型上限为 0，下面直接跳过——没登记过物理属性的架子不参与配对。
     std::vector<double> span_limit(nodes.size());
+    std::vector<std::array<int, 2>> footprints(nodes.size());
     std::vector<double> lb_from_start(nodes.size());
     std::vector<double> lb_to_goal(nodes.size());
     for (size_t i = 0; i < nodes.size(); ++i) {
         span_limit[i] = data->frames.maxSpan(nodes[i].template_id);
+        footprints[i] = data->frames.footprint(nodes[i].template_id);
         lb_from_start[i] = Distance(start, ToWorld(nodes[i]));
         lb_to_goal[i] = Distance(ToWorld(nodes[i]), goal);
     }
@@ -493,7 +517,7 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
     };
 
     // 一条路线用几条索由代价决定，不设跳数上限：换乘要收钱，划不来的长链自己就被淘汰了。
-    std::vector<std::vector<size_t>> links = BuildLinks(nodes, span_limit);
+    std::vector<std::vector<size_t>> links = BuildLinks(nodes, span_limit, footprints);
 
     // 执行侧判死过的跳直接从连通图里拿掉。索不分上下行, 一根滑不动的索反着大概率也滑不动,
     // 两个方向一起封。
