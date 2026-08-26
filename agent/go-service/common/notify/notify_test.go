@@ -35,27 +35,27 @@ func TestParseConfig(t *testing.T) {
 		"recognition": "DirectHit",
 		"action": "DoNothing",
 		"attach": {
-			"webhook_enabled": true,
-			"webhook_url": "https://example.com/hook",
-			"webhook_method": "POST",
-			"webhook_headers": "X-A: 1",
-			"webhook_body": "{\"a\":1}",
-			"bark_enabled": true,
-			"bark_key": "barkkey",
-			"bark_title": "渠道标题",
-			"bark_body": "渠道正文",
-			"bark_subtitle": "副标题",
-			"bark_group": "日常",
-			"bark_level": "critical",
-			"serverchan_enabled": true,
-			"serverchan_key": "sctp12345tabc",
-			"serverchan_title": "SC渠道标题",
-			"serverchan_body": "SC渠道正文",
-			"serverchan_tags": "日常|重要",
-			"serverchan_short": "简短",
-			"serverchan_noip": true,
-			"serverchan_channel": "weixin",
-			"serverchan_openid": "openid1",
+			"channel_webhook_enabled": true,
+			"channel_webhook_url": "https://example.com/hook",
+			"channel_webhook_method": "POST",
+			"channel_webhook_headers": "X-A: 1",
+			"channel_webhook_body": "{\"a\":1}",
+			"channel_bark_enabled": true,
+			"channel_bark_key": "barkkey",
+			"channel_bark_title": "渠道标题",
+			"channel_bark_body": "渠道正文",
+			"channel_bark_subtitle": "副标题",
+			"channel_bark_group": "日常",
+			"channel_bark_level": "critical",
+			"channel_serverchan_enabled": true,
+			"channel_serverchan_key": "sctp12345tabc",
+			"channel_serverchan_title": "SC渠道标题",
+			"channel_serverchan_body": "SC渠道正文",
+			"channel_serverchan_tags": "日常|重要",
+			"channel_serverchan_short": "简短",
+			"channel_serverchan_noip": true,
+			"channel_serverchan_channel": "weixin",
+			"channel_serverchan_openid": "openid1",
 			"on_fail": true,
 			"fail_title": "任务失败",
 			"fail_body": "任务 {{task_name}} 失败于 {{datetime}}",
@@ -259,11 +259,11 @@ func TestConfigByTaskIsolation(t *testing.T) {
 	// 两个并行任务各自缓存不同的渠道配置，互不覆盖
 	setConfigByTask(1, testRuntime(map[string]any{
 		"on_fail": true, "fail_title": "A",
-		"webhook_enabled": true, "webhook_url": "https://a", "webhook_body": "bodyA",
+		"channel_webhook_enabled": true, "channel_webhook_url": "https://a", "channel_webhook_body": "bodyA",
 	}))
 	setConfigByTask(2, testRuntime(map[string]any{
 		"on_fail": true, "fail_title": "B",
-		"bark_enabled": true, "bark_key": "bkey",
+		"channel_bark_enabled": true, "channel_bark_key": "bkey",
 	}))
 
 	gotA, okA := getConfigByTask(1)
@@ -309,11 +309,11 @@ func TestSendWebhook(t *testing.T) {
 	defer server.Close()
 
 	runtime := testRuntime(map[string]any{
-		"webhook_enabled": true,
-		"webhook_url":     server.URL,
-		"webhook_method":  "POST",
-		"webhook_headers": "X-Custom: {{title}}",
-		"webhook_body":    `{"title":"{{title}}","body":"{{body}}","name":"{{task_name}}"}`,
+		"channel_webhook_enabled": true,
+		"channel_webhook_url":     server.URL,
+		"channel_webhook_method":  "POST",
+		"channel_webhook_headers": "X-Custom: {{title}}",
+		"channel_webhook_body":    `{"title":"{{title}}","body":"{{body}}","name":"{{task_name}}"}`,
 	})
 	vars := map[string]string{
 		"task_name": "ExampleTask",
@@ -334,7 +334,7 @@ func TestSendWebhookError(t *testing.T) {
 	}))
 	defer server.Close()
 
-	runtime := testRuntime(map[string]any{"webhook_enabled": true, "webhook_url": server.URL, "webhook_method": "GET"})
+	runtime := testRuntime(map[string]any{"channel_webhook_enabled": true, "channel_webhook_url": server.URL, "channel_webhook_method": "GET"})
 	if Send(runtime, map[string]string{}) {
 		t.Errorf("Send should return false on 500")
 	}
@@ -352,7 +352,7 @@ func TestSendWebhookDisabledChannelSkipped(t *testing.T) {
 	}))
 	defer server.Close()
 
-	runtime := testRuntime(map[string]any{"webhook_enabled": false, "webhook_url": server.URL, "webhook_method": "GET"})
+	runtime := testRuntime(map[string]any{"channel_webhook_enabled": false, "channel_webhook_url": server.URL, "channel_webhook_method": "GET"})
 	if !Send(runtime, map[string]string{}) {
 		t.Errorf("Send with disabled channel should return true")
 	}
@@ -431,13 +431,13 @@ func TestSendServerChanJSON(t *testing.T) {
 	defer func() { serverChanEndpoint = origEndpoint }()
 
 	runtime := testRuntime(map[string]any{
-		"serverchan_enabled": true,
-		"serverchan_key":     "sctp12345tabcdef",
-		"serverchan_tags":    "日常,重要", // 界面按逗号输入，发送时转为 |
-		"serverchan_short":   "简短描述",
-		"serverchan_noip":    true,
-		"serverchan_channel": "weixin",
-		"serverchan_openid":  "openid1",
+		"channel_serverchan_enabled": true,
+		"channel_serverchan_key":     "sctp12345tabcdef",
+		"channel_serverchan_tags":    "日常,重要", // 界面按逗号输入，发送时转为 |
+		"channel_serverchan_short":   "简短描述",
+		"channel_serverchan_noip":    true,
+		"channel_serverchan_channel": "weixin",
+		"channel_serverchan_openid":  "openid1",
 	})
 	if !Send(runtime, map[string]string{"task_name": "ExampleTask", "title": "标题 {{task_name}}", "body": "正文 {{task_name}}"}) {
 		t.Fatalf("Send returned false")
@@ -474,7 +474,7 @@ func TestSendChannelTitleOverride(t *testing.T) {
 	defer func() { barkEndpoint = orig }()
 
 	// 1. 渠道配置了标题/正文 → 渠道优先（高于通知项 vars 内容）
-	runtime := testRuntime(map[string]any{"bark_enabled": true, "bark_key": "key", "bark_title": "渠道标题", "bark_body": "渠道正文"})
+	runtime := testRuntime(map[string]any{"channel_bark_enabled": true, "channel_bark_key": "key", "channel_bark_title": "渠道标题", "channel_bark_body": "渠道正文"})
 	if !Send(runtime, map[string]string{"title": "通知标题", "body": "通知正文"}) {
 		t.Fatalf("Send returned false")
 	}
@@ -483,7 +483,7 @@ func TestSendChannelTitleOverride(t *testing.T) {
 	}
 
 	// 2. 渠道模板含 {{title}}/{{body}} → 复用通知项预填内容
-	runtime = testRuntime(map[string]any{"bark_enabled": true, "bark_key": "key", "bark_title": "【{{title}}】", "bark_body": "-{{body}}-"})
+	runtime = testRuntime(map[string]any{"channel_bark_enabled": true, "channel_bark_key": "key", "channel_bark_title": "【{{title}}】", "channel_bark_body": "-{{body}}-"})
 	if !Send(runtime, map[string]string{"title": "通知标题", "body": "通知正文"}) {
 		t.Fatalf("Send returned false")
 	}
@@ -492,7 +492,7 @@ func TestSendChannelTitleOverride(t *testing.T) {
 	}
 
 	// 3. 渠道留空 → 回退通知项（vars）内容
-	runtime = testRuntime(map[string]any{"bark_enabled": true, "bark_key": "key"})
+	runtime = testRuntime(map[string]any{"channel_bark_enabled": true, "channel_bark_key": "key"})
 	if !Send(runtime, map[string]string{"title": "通知标题", "body": "通知正文"}) {
 		t.Fatalf("Send returned false")
 	}
@@ -525,21 +525,21 @@ func TestSendBarkJSON(t *testing.T) {
 	defer func() { barkEndpoint = orig }()
 
 	runtime := testRuntime(map[string]any{
-		"bark_enabled":   true,
-		"bark_key":       "key",
-		"bark_subtitle":  "副标题",
-		"bark_group":     "日常",
-		"bark_level":     "critical",
-		"bark_sound":     "minuet",
-		"bark_icon":      "https://example.com/icon.png",
-		"bark_image":     "https://example.com/img.png",
-		"bark_url":       "https://example.com",
-		"bark_badge":     "3",
-		"bark_markdown":  "# 标题",
-		"bark_copy":      "复制内容",
-		"bark_isarchive": "1",
-		"bark_ttl":       "86400",
-		"bark_call":      "1",
+		"channel_bark_enabled":   true,
+		"channel_bark_key":       "key",
+		"channel_bark_subtitle":  "副标题",
+		"channel_bark_group":     "日常",
+		"channel_bark_level":     "critical",
+		"channel_bark_sound":     "minuet",
+		"channel_bark_icon":      "https://example.com/icon.png",
+		"channel_bark_image":     "https://example.com/img.png",
+		"channel_bark_url":       "https://example.com",
+		"channel_bark_badge":     "3",
+		"channel_bark_markdown":  "# 标题",
+		"channel_bark_copy":      "复制内容",
+		"channel_bark_isarchive": "1",
+		"channel_bark_ttl":       "86400",
+		"channel_bark_call":      "1",
 	})
 	if !Send(runtime, map[string]string{"task_name": "ExampleTask", "title": "标题 {{task_name}}", "body": "正文 {{task_name}}"}) {
 		t.Fatalf("Send returned false")
@@ -579,9 +579,9 @@ func TestSendBarkBatch(t *testing.T) {
 	defer func() { barkBatchEndpoint = orig }()
 
 	runtime := testRuntime(map[string]any{
-		"bark_enabled":    true,
-		"bark_key":        "single-key",
-		"bark_devicekeys": "key1, key2\nkey3",
+		"channel_bark_enabled":    true,
+		"channel_bark_key":        "single-key",
+		"channel_bark_devicekeys": "key1, key2\nkey3",
 	})
 	if !Send(runtime, map[string]string{}) {
 		t.Fatalf("Send returned false")
@@ -629,13 +629,13 @@ func TestSendTelegram(t *testing.T) {
 	defer func() { telegramEndpoint = orig }()
 
 	runtime := testRuntime(map[string]any{
-		"telegram_enabled":              true,
-		"telegram_token":                "123456:ABC-DEF",
-		"telegram_chat_id":              "user1",
-		"telegram_title":                "通知 {{task_name}}",
-		"telegram_body":                 "正文 {{task_name}}",
-		"telegram_parse_mode":           "MarkdownV2",
-		"telegram_disable_notification": true,
+		"channel_telegram_enabled":              true,
+		"channel_telegram_token":                "123456:ABC-DEF",
+		"channel_telegram_chat_id":              "user1",
+		"channel_telegram_title":                "通知 {{task_name}}",
+		"channel_telegram_body":                 "正文 {{task_name}}",
+		"channel_telegram_parse_mode":           "MarkdownV2",
+		"channel_telegram_disable_notification": true,
 	})
 	if !Send(runtime, map[string]string{"task_name": "ExampleTask", "title": "标题 {{task_name}}", "body": "正文 {{task_name}}"}) {
 		t.Fatalf("Send returned false")
@@ -671,10 +671,10 @@ func TestSendTelegramMultiChat(t *testing.T) {
 	defer func() { telegramEndpoint = orig }()
 
 	runtime := testRuntime(map[string]any{
-		"telegram_enabled": true,
-		"telegram_token":   "t",
-		"telegram_chat_id": "user1,user2,user3",
-		"telegram_title":   "标题",
+		"channel_telegram_enabled": true,
+		"channel_telegram_token":   "t",
+		"channel_telegram_chat_id": "user1,user2,user3",
+		"channel_telegram_title":   "标题",
 	})
 	if !Send(runtime, map[string]string{}) {
 		t.Fatalf("Send returned false")
@@ -733,7 +733,7 @@ func TestSendServerChanHTTPError(t *testing.T) {
 	serverChanEndpoint = func(string) (string, error) { return server.URL, nil }
 	defer func() { serverChanEndpoint = orig }()
 
-	runtime := testRuntime(map[string]any{"serverchan_enabled": true, "serverchan_key": "key"})
+	runtime := testRuntime(map[string]any{"channel_serverchan_enabled": true, "channel_serverchan_key": "key"})
 	if Send(runtime, map[string]string{}) {
 		t.Errorf("Send should return false on 500")
 	}
@@ -750,7 +750,7 @@ func TestSendServerChanBusinessError(t *testing.T) {
 	serverChanEndpoint = func(string) (string, error) { return server.URL, nil }
 	defer func() { serverChanEndpoint = orig }()
 
-	runtime := testRuntime(map[string]any{"serverchan_enabled": true, "serverchan_key": "key"})
+	runtime := testRuntime(map[string]any{"channel_serverchan_enabled": true, "channel_serverchan_key": "key"})
 	if Send(runtime, map[string]string{}) {
 		t.Errorf("Send should return false on non-zero api code")
 	}
@@ -767,7 +767,7 @@ func TestSendServerChanBadJSON(t *testing.T) {
 	serverChanEndpoint = func(string) (string, error) { return server.URL, nil }
 	defer func() { serverChanEndpoint = orig }()
 
-	runtime := testRuntime(map[string]any{"serverchan_enabled": true, "serverchan_key": "key"})
+	runtime := testRuntime(map[string]any{"channel_serverchan_enabled": true, "channel_serverchan_key": "key"})
 	if Send(runtime, map[string]string{}) {
 		t.Errorf("Send should return false on non-JSON response body")
 	}
@@ -784,7 +784,7 @@ func TestSendBarkBusinessError(t *testing.T) {
 	barkEndpoint = func(string) (string, error) { return server.URL, nil }
 	defer func() { barkEndpoint = orig }()
 
-	runtime := testRuntime(map[string]any{"bark_enabled": true, "bark_key": "key"})
+	runtime := testRuntime(map[string]any{"channel_bark_enabled": true, "channel_bark_key": "key"})
 	if Send(runtime, map[string]string{}) {
 		t.Errorf("Send should return false on Bark code != 200")
 	}
@@ -839,12 +839,12 @@ func TestSinkFailedNotify(t *testing.T) {
 	waitForNoMoreRequests(t, &requests, 0)
 
 	// 渠道开启但 on_fail 关闭：不发送（主动关闭属正常）
-	setConfigByTask(2, testRuntime(map[string]any{"webhook_enabled": true, "webhook_url": server.URL, "webhook_method": "GET"}))
+	setConfigByTask(2, testRuntime(map[string]any{"channel_webhook_enabled": true, "channel_webhook_url": server.URL, "channel_webhook_method": "GET"}))
 	sink.OnTaskerTask(nil, maa.EventStatusFailed, maa.TaskerTaskDetail{TaskID: 2, Entry: "TaskB"})
 	waitForNoMoreRequests(t, &requests, 0)
 
 	// on_fail + 渠道：发送失败通知
-	setConfigByTask(3, testRuntime(map[string]any{"on_fail": true, "fail_title": "失败啦", "webhook_enabled": true, "webhook_url": server.URL, "webhook_method": "GET"}))
+	setConfigByTask(3, testRuntime(map[string]any{"on_fail": true, "fail_title": "失败啦", "channel_webhook_enabled": true, "channel_webhook_url": server.URL, "channel_webhook_method": "GET"}))
 	sink.OnTaskerTask(nil, maa.EventStatusFailed, maa.TaskerTaskDetail{TaskID: 3, Entry: "TaskC"})
 	waitForRequests(t, &requests, 1)
 
@@ -852,7 +852,7 @@ func TestSinkFailedNotify(t *testing.T) {
 	sink.OnTaskerTask(nil, maa.EventStatusFailed, maa.TaskerTaskDetail{TaskID: 3, Entry: "TaskC"})
 	waitForNoMoreRequests(t, &requests, 1)
 	// 不同 taskID 不受影响
-	setConfigByTask(4, testRuntime(map[string]any{"on_fail": true, "fail_title": "另一个", "webhook_enabled": true, "webhook_url": server.URL, "webhook_method": "GET"}))
+	setConfigByTask(4, testRuntime(map[string]any{"on_fail": true, "fail_title": "另一个", "channel_webhook_enabled": true, "channel_webhook_url": server.URL, "channel_webhook_method": "GET"}))
 	sink.OnTaskerTask(nil, maa.EventStatusFailed, maa.TaskerTaskDetail{TaskID: 4, Entry: "TaskD"})
 	waitForRequests(t, &requests, 2)
 }
@@ -878,14 +878,14 @@ func TestSanitizeError(t *testing.T) {
 
 func TestMergeAttach(t *testing.T) {
 	global := map[string]any{
-		"webhook_enabled": true, "bark_enabled": true, "serverchan_enabled": true,
+		"channel_webhook_enabled": true, "channel_bark_enabled": true, "channel_serverchan_enabled": true,
 		"task_title": "全局标题", "task_body": "全局正文",
 	}
 	local := map[string]any{"task_title": "本地标题", "task_notify_key": "monthly_card"}
 
 	merged := MergeAttach(global, local)
 	// 渠道字段以全局为准
-	if merged["webhook_enabled"] != true || merged["bark_enabled"] != true || merged["serverchan_enabled"] != true {
+	if merged["channel_webhook_enabled"] != true || merged["channel_bark_enabled"] != true || merged["channel_serverchan_enabled"] != true {
 		t.Errorf("channel fields should come from global: %+v", merged)
 	}
 	// 内容字段调用节点优先
@@ -918,7 +918,7 @@ func TestContainsContent(t *testing.T) {
 	if !ContainsContent(map[string]any{"task_title": "x"}) {
 		t.Errorf("task_title should count as content")
 	}
-	if ContainsContent(map[string]any{"webhook_enabled": true}) {
+	if ContainsContent(map[string]any{"channel_webhook_enabled": true}) {
 		t.Errorf("channel-only attach should have no content")
 	}
 }
@@ -1055,7 +1055,7 @@ func TestResolveActionTaskName(t *testing.T) {
 
 func TestParseConfigAllowTaskNotify(t *testing.T) {
 	// 未配置 → nil（默认允许）
-	runtime, err := ParseConfig(`{"attach": {"webhook_enabled": true}}`)
+	runtime, err := ParseConfig(`{"attach": {"channel_webhook_enabled": true}}`)
 	if err != nil {
 		t.Fatalf("ParseConfig failed: %v", err)
 	}

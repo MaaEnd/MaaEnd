@@ -111,17 +111,17 @@ Notify 是 MaaEnd 的多渠道外部通知模块
 
 ## 自定义渠道：新增其他通知渠道
 
-渠道是自包含模块，新增一个渠道（如 XYZ）不动其他任何文件，照抄 `discord.go` 改前缀即可
+渠道是自包含模块，新增一个渠道（如 XYZ）不动其他任何文件，照抄 `channel_discord.go` 改前缀即可
 
-**1、新文件 `xyz.go`**：一个类型同时作工厂（零值注册）与实例（cfg 字段），配置类型化、无需断言
+**1、新文件 `channel_xyz.go`**：一个类型同时作工厂（零值注册）与实例（cfg 字段），配置类型化、无需断言
 
 ```go
-// xyzConfig 私有配置（attach 顶层 xyz_* 键）
+// xyzConfig 私有配置（attach 顶层 channel_xyz_* 键）
 type xyzConfig struct {
-    Enabled  bool   `json:"xyz_enabled"`
-    UseProxy bool   `json:"xyz_use_proxy"` // 是否走全局代理（配合 use_proxy 主开关）
-    Key      string `json:"xyz_key"`
-    Title    string `json:"xyz_title"`
+    Enabled  bool   `json:"channel_xyz_enabled"`
+    UseProxy bool   `json:"channel_xyz_use_proxy"` // 是否走全局代理（配合 use_proxy 主开关）
+    Key      string `json:"channel_xyz_key"`
+    Title    string `json:"channel_xyz_title"`
 }
 
 type xyzChannel struct {
@@ -154,11 +154,11 @@ func (c xyzChannel) Send(ctx *SendContext) error {
 }
 ```
 
-**2、设置页加开关 + 参数**（`setting/Notify.json`，仿照 `NotifyDiscord` / `NotifyDiscordParams`），写入 `xyz_enabled` / `xyz_key` 等 attach 键
+**2、设置页加开关 + 参数**（`setting/Notify.json`，仿照 `NotifyDiscord` / `NotifyDiscordParams`），写入 `channel_xyz_enabled` / `channel_xyz_key` 等 attach 键
 
 **3、5 语言 i18n**（`assets/locales/interface/*.json` 加 `option.NotifyXyz.*` 键）
 
-**4、补发送测试**（httptest + 端点注入，仿照 `discord_test.go`），并把 `"xyz"` 加入 `TestChannelRegistry` 期望列表
+**4、补发送测试**（httptest + 端点注入，仿照 `channel_discord_test.go`），并把 `"xyz"` 加入 `TestChannelRegistry` 期望列表
 
 > 渠道内只管自己的配置与请求；代理（`ctx.Client`）、模板变量（`ctx.Vars`）、标题/正文拼合（`channelTitleBody`）都由调度层与公共模块提供
 
@@ -189,6 +189,6 @@ func (c xyzChannel) Send(ctx *SendContext) error {
 | `vars.go` | 模板变量模块：`BuildVars` / `ReplaceVars` / `channelTitleBody` |
 | `http.go` | 超时 client、`postJSON`、错误脱敏 |
 | `proxy.go` | 全局代理模块：`resolveProxy`、`proxyClient`、MXU 更新代理读取 |
-| `webhook.go` / `bark.go` / `serverchan.go` / `telegram.go` / `discord.go` | 各渠道实现 |
+| `channel_webhook.go` / `channel_bark.go` / `channel_serverchan.go` / `channel_telegram.go` / `channel_discord.go` / `channel_wecom.go` / `channel_ntfy.go` | 各渠道实现 |
 | `sink.go` | 失败事件监听、配置按 taskID 缓存与去重 |
 | `register.go` | 动作与事件监听注册 |

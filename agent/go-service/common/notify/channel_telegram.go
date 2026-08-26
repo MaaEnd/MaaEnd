@@ -11,17 +11,17 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// telegramConfig 是 Telegram Bot 渠道的私有配置（attach 顶层 telegram_* 键）。
+// telegramConfig 是 Telegram Bot 渠道的私有配置（attach 顶层 channel_telegram_* 键）。
 type telegramConfig struct {
-	Enabled             bool   `json:"telegram_enabled"`
-	UseProxy            bool   `json:"telegram_use_proxy"`            // 是否走全局代理（配合全局 use_proxy 主开关）
-	Token               string `json:"telegram_token"`                // Bot token（@BotFather 创建，仅拼接进 URL，不写入日志）
-	APIURL              string `json:"telegram_api_url"`              // 第三方 API 服务地址；留空用官方 https://api.telegram.org
-	ChatID              string `json:"telegram_chat_id"`              // 接收 chat_id，逗号分隔支持多个
-	Title               string `json:"telegram_title"`                // 渠道级标题，支持 {{title}} 引用通知项预填，留空回退通知项
-	Body                string `json:"telegram_body"`                 // 渠道级正文，同标题语义；支持 {{body}} 引用通知项预填
-	ParseMode           string `json:"telegram_parse_mode"`           // 空=纯文本；HTML / Markdown / MarkdownV2
-	DisableNotification bool   `json:"telegram_disable_notification"` // 静默推送（disable_notification=true，不响铃）
+	Enabled             bool   `json:"channel_telegram_enabled"`
+	UseProxy            bool   `json:"channel_telegram_use_proxy"`            // 是否走全局代理（配合全局 use_proxy 主开关）
+	Token               string `json:"channel_telegram_token"`                // Bot token（@BotFather 创建，仅拼接进 URL，不写入日志）
+	APIURL              string `json:"channel_telegram_api_url"`              // 第三方 API 服务地址；留空用官方 https://api.telegram.org
+	ChatID              string `json:"channel_telegram_chat_id"`              // 接收 chat_id，逗号分隔支持多个
+	Title               string `json:"channel_telegram_title"`                // 渠道级标题，支持 {{title}} 引用通知项预填，留空回退通知项
+	Body                string `json:"channel_telegram_body"`                 // 渠道级正文，同标题语义；支持 {{body}} 引用通知项预填
+	ParseMode           string `json:"channel_telegram_parse_mode"`           // 空=纯文本；HTML / Markdown / MarkdownV2
+	DisableNotification bool   `json:"channel_telegram_disable_notification"` // 静默推送（disable_notification=true，不响铃）
 }
 
 // telegramEndpoint 端点构造函数为包级变量，便于测试注入本地服务器。

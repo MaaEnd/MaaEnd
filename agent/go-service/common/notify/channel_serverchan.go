@@ -9,18 +9,18 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// serverChanConfig 是 ServerChan 渠道的私有配置（attach 顶层 serverchan_* 键）。
+// serverChanConfig 是 ServerChan 渠道的私有配置（attach 顶层 channel_serverchan_* 键）。
 type serverChanConfig struct {
-	Enabled  bool   `json:"serverchan_enabled"`
-	UseProxy bool   `json:"serverchan_use_proxy"` // 是否走全局代理（配合全局 use_proxy 主开关）
-	Key      string `json:"serverchan_key"`
-	Tags     string `json:"serverchan_tags"`    // SC3：标签列表，界面按逗号输入，发送时转 |
-	Short    string `json:"serverchan_short"`   // 消息卡片简短描述
-	NoIP     bool   `json:"serverchan_noip"`    // SCT：隐藏调用 IP
-	Channel  string `json:"serverchan_channel"` // SCT：消息通道，界面按逗号输入，发送时转 |
-	OpenID   string `json:"serverchan_openid"`  // SCT：抄送 openid，官方接口即逗号分隔
-	Title    string `json:"serverchan_title"`   // 渠道级标题，优先级高于通知项；支持 {{title}} 引用通知项预填，留空回退通知项
-	Body     string `json:"serverchan_body"`    // 渠道级正文，同标题语义；支持 {{body}} 引用通知项预填
+	Enabled  bool   `json:"channel_serverchan_enabled"`
+	UseProxy bool   `json:"channel_serverchan_use_proxy"` // 是否走全局代理（配合全局 use_proxy 主开关）
+	Key      string `json:"channel_serverchan_key"`
+	Tags     string `json:"channel_serverchan_tags"`    // SC3：标签列表，界面按逗号输入，发送时转 |
+	Short    string `json:"channel_serverchan_short"`   // 消息卡片简短描述
+	NoIP     bool   `json:"channel_serverchan_noip"`    // SCT：隐藏调用 IP
+	Channel  string `json:"channel_serverchan_channel"` // SCT：消息通道，界面按逗号输入，发送时转 |
+	OpenID   string `json:"channel_serverchan_openid"`  // SCT：抄送 openid，官方接口即逗号分隔
+	Title    string `json:"channel_serverchan_title"`   // 渠道级标题，优先级高于通知项；支持 {{title}} 引用通知项预填，留空回退通知项
+	Body     string `json:"channel_serverchan_body"`    // 渠道级正文，同标题语义；支持 {{body}} 引用通知项预填
 }
 
 // serverChanEndpoint 端点构造函数为包级变量，便于测试注入本地服务器。

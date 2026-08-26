@@ -128,11 +128,11 @@ func TestSendWithProxy(t *testing.T) {
 	defer func() { telegramEndpoint = origEndpoint }()
 
 	runtime := testRuntime(map[string]any{
-		"telegram_enabled":   true,
-		"telegram_use_proxy": true,
-		"telegram_token":     "t",
-		"telegram_chat_id":   "user1",
-		"telegram_title":     "标题",
+		"channel_telegram_enabled":   true,
+		"channel_telegram_use_proxy": true,
+		"channel_telegram_token":     "t",
+		"channel_telegram_chat_id":   "user1",
+		"channel_telegram_title":     "标题",
 		"use_proxy":          true,
 		"proxy_url":          server.URL,
 	})
@@ -145,7 +145,7 @@ func TestSendWithProxy(t *testing.T) {
 }
 
 func TestSendProxyPerChannel(t *testing.T) {
-	// 每渠道独立开关：telegram_use_proxy=false 时，即使全局 use_proxy=true，
+	// 每渠道独立开关：channel_telegram_use_proxy=false 时，即使全局 use_proxy=true，
 	// telegram 仍直连（telegramEndpoint 指向不可达地址 → 发送失败），代理服务器不命中。
 	var gotRequest bool
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -161,11 +161,11 @@ func TestSendProxyPerChannel(t *testing.T) {
 
 	// 渠道关闭代理 → 直连不可达地址 → Send false，代理服务器无请求
 	runtime := testRuntime(map[string]any{
-		"telegram_enabled":   true,
-		"telegram_use_proxy": false,
-		"telegram_token":     "t",
-		"telegram_chat_id":   "user1",
-		"telegram_title":     "标题",
+		"channel_telegram_enabled":   true,
+		"channel_telegram_use_proxy": false,
+		"channel_telegram_token":     "t",
+		"channel_telegram_chat_id":   "user1",
+		"channel_telegram_title":     "标题",
 		"use_proxy":          true,
 		"proxy_url":          server.URL,
 	})

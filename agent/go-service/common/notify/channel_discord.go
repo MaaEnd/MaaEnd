@@ -8,15 +8,15 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// discordConfig 是 Discord Webhook 渠道的私有配置（attach 顶层 discord_* 键）。
+// discordConfig 是 Discord Webhook 渠道的私有配置（attach 顶层 channel_discord_* 键）。
 type discordConfig struct {
-	Enabled    bool   `json:"discord_enabled"`
-	UseProxy   bool   `json:"discord_use_proxy"`   // 是否走全局代理（配合全局 use_proxy 主开关）
-	WebhookURL string `json:"discord_webhook_url"` // 完整 webhook 地址（含 id 与 token，不写入日志）
-	Username   string `json:"discord_username"`    // 覆盖 webhook 默认用户名（可选，支持模板变量）
-	AvatarURL  string `json:"discord_avatar_url"`  // 覆盖 webhook 默认头像（可选，支持模板变量）
-	Title      string `json:"discord_title"`       // 渠道级标题，支持 {{title}} 引用通知项预填，留空回退通知项
-	Body       string `json:"discord_body"`        // 渠道级正文，同标题语义；支持 {{body}} 引用通知项预填
+	Enabled    bool   `json:"channel_discord_enabled"`
+	UseProxy   bool   `json:"channel_discord_use_proxy"`   // 是否走全局代理（配合全局 use_proxy 主开关）
+	WebhookURL string `json:"channel_discord_webhook_url"` // 完整 webhook 地址（含 id 与 token，不写入日志）
+	Username   string `json:"channel_discord_username"`    // 覆盖 webhook 默认用户名（可选，支持模板变量）
+	AvatarURL  string `json:"channel_discord_avatar_url"`  // 覆盖 webhook 默认头像（可选，支持模板变量）
+	Title      string `json:"channel_discord_title"`       // 渠道级标题，支持 {{title}} 引用通知项预填，留空回退通知项
+	Body       string `json:"channel_discord_body"`        // 渠道级正文，同标题语义；支持 {{body}} 引用通知项预填
 }
 
 // discordEndpoint 端点构造函数为包级变量，便于测试注入本地服务器。

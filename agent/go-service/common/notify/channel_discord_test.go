@@ -23,12 +23,12 @@ func TestSendDiscord(t *testing.T) {
 	defer func() { discordEndpoint = orig }()
 
 	runtime := testRuntime(map[string]any{
-		"discord_enabled":     true,
-		"discord_webhook_url": "https://discord.com/api/webhooks/123/tok",
-		"discord_username":    "MaaEnd {{task_name}}",
-		"discord_avatar_url":  "https://example.com/avatar.png",
-		"discord_title":       "通知 {{task_name}}",
-		"discord_body":        "正文 {{task_name}}",
+		"channel_discord_enabled":     true,
+		"channel_discord_webhook_url": "https://discord.com/api/webhooks/123/tok",
+		"channel_discord_username":    "MaaEnd {{task_name}}",
+		"channel_discord_avatar_url":  "https://example.com/avatar.png",
+		"channel_discord_title":       "通知 {{task_name}}",
+		"channel_discord_body":        "正文 {{task_name}}",
 	})
 	if !Send(runtime, map[string]string{"task_name": "ExampleTask", "title": "标题 {{task_name}}", "body": "正文 {{task_name}}"}) {
 		t.Fatalf("Send returned false")
@@ -61,9 +61,9 @@ func TestSendDiscordMinimal(t *testing.T) {
 
 	// username/avatar_url 留空 → 不携带这两个字段；标题用渠道配置、正文回退通知项
 	runtime := testRuntime(map[string]any{
-		"discord_enabled":     true,
-		"discord_webhook_url": "https://discord.com/api/webhooks/123/tok",
-		"discord_title":       "标题",
+		"channel_discord_enabled":     true,
+		"channel_discord_webhook_url": "https://discord.com/api/webhooks/123/tok",
+		"channel_discord_title":       "标题",
 	})
 	if !Send(runtime, map[string]string{"title": "通知标题", "body": "通知正文"}) {
 		t.Fatalf("Send returned false")

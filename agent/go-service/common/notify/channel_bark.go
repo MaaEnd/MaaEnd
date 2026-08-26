@@ -9,35 +9,35 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// barkConfig 是 Bark 渠道的私有配置（attach 顶层 bark_* 键，含官方全部参数）。
+// barkConfig 是 Bark 渠道的私有配置（attach 顶层 channel_bark_* 键，含官方全部参数）。
 type barkConfig struct {
-	Enabled  bool   `json:"bark_enabled"`
-	UseProxy bool   `json:"bark_use_proxy"` // 是否走全局代理（配合全局 use_proxy 主开关）
-	Key      string `json:"bark_key"`
-	Title    string `json:"bark_title"` // 渠道级标题，优先级高于通知项；支持 {{title}} 引用通知项预填，留空回退通知项
-	Body     string `json:"bark_body"`  // 渠道级正文，同标题语义；支持 {{body}} 引用通知项预填
+	Enabled  bool   `json:"channel_bark_enabled"`
+	UseProxy bool   `json:"channel_bark_use_proxy"` // 是否走全局代理（配合全局 use_proxy 主开关）
+	Key      string `json:"channel_bark_key"`
+	Title    string `json:"channel_bark_title"` // 渠道级标题，优先级高于通知项；支持 {{title}} 引用通知项预填，留空回退通知项
+	Body     string `json:"channel_bark_body"`  // 渠道级正文，同标题语义；支持 {{body}} 引用通知项预填
 
 	// Bark 官方参数（https://bark.day.app/#/tutorial）
-	Subtitle   string `json:"bark_subtitle"`
-	Group      string `json:"bark_group"`
-	Level      string `json:"bark_level"` // critical | active | timeSensitive | passive
-	Sound      string `json:"bark_sound"`
-	Icon       string `json:"bark_icon"`
-	Image      string `json:"bark_image"`
-	URL        string `json:"bark_url"`
-	Badge      string `json:"bark_badge"`
-	Markdown   string `json:"bark_markdown"`
-	Copy       string `json:"bark_copy"`
-	IsArchive  string `json:"bark_isarchive"`
-	TTL        string `json:"bark_ttl"`
-	DeviceKeys string `json:"bark_devicekeys"`
-	Volume     string `json:"bark_volume"`
-	Call       string `json:"bark_call"`
-	AutoCopy   string `json:"bark_autocopy"`
-	Ciphertext string `json:"bark_ciphertext"`
-	Action     string `json:"bark_action"`
-	ID         string `json:"bark_id"`
-	Delete     string `json:"bark_delete"`
+	Subtitle   string `json:"channel_bark_subtitle"`
+	Group      string `json:"channel_bark_group"`
+	Level      string `json:"channel_bark_level"` // critical | active | timeSensitive | passive
+	Sound      string `json:"channel_bark_sound"`
+	Icon       string `json:"channel_bark_icon"`
+	Image      string `json:"channel_bark_image"`
+	URL        string `json:"channel_bark_url"`
+	Badge      string `json:"channel_bark_badge"`
+	Markdown   string `json:"channel_bark_markdown"`
+	Copy       string `json:"channel_bark_copy"`
+	IsArchive  string `json:"channel_bark_isarchive"`
+	TTL        string `json:"channel_bark_ttl"`
+	DeviceKeys string `json:"channel_bark_devicekeys"`
+	Volume     string `json:"channel_bark_volume"`
+	Call       string `json:"channel_bark_call"`
+	AutoCopy   string `json:"channel_bark_autocopy"`
+	Ciphertext string `json:"channel_bark_ciphertext"`
+	Action     string `json:"channel_bark_action"`
+	ID         string `json:"channel_bark_id"`
+	Delete     string `json:"channel_bark_delete"`
 }
 
 // barkEndpoint 单设备端点构造函数为包级变量，便于测试注入本地服务器。

@@ -27,12 +27,12 @@ func TestSendNtfy(t *testing.T) {
 	defer func() { ntfyEndpoint = orig }()
 
 	runtime := testRuntime(map[string]any{
-		"ntfy_enabled":  true,
-		"ntfy_url":      "https://ntfy.sh/mytopic",
-		"ntfy_title":    "通知 {{task_name}}",
-		"ntfy_body":     "正文 {{task_name}}",
-		"ntfy_priority": "high",
-		"ntfy_tags":     "warning,{{task_name}}",
+		"channel_ntfy_enabled":  true,
+		"channel_ntfy_url":      "https://ntfy.sh/mytopic",
+		"channel_ntfy_title":    "通知 {{task_name}}",
+		"channel_ntfy_body":     "正文 {{task_name}}",
+		"channel_ntfy_priority": "high",
+		"channel_ntfy_tags":     "warning,{{task_name}}",
 	})
 	if !Send(runtime, map[string]string{"task_name": "ExampleTask", "title": "标题 {{task_name}}", "body": "正文 {{task_name}}"}) {
 		t.Fatalf("Send returned false")
@@ -70,10 +70,10 @@ func TestSendNtfyAuth(t *testing.T) {
 	defer func() { ntfyEndpoint = orig }()
 
 	runtime := testRuntime(map[string]any{
-		"ntfy_enabled": true,
-		"ntfy_url":     "https://ntfy.sh/mytopic",
-		"ntfy_body":    "正文",
-		"ntfy_token":   "tk_abc123",
+		"channel_ntfy_enabled": true,
+		"channel_ntfy_url":     "https://ntfy.sh/mytopic",
+		"channel_ntfy_body":    "正文",
+		"channel_ntfy_token":   "tk_abc123",
 	})
 	if !Send(runtime, map[string]string{}) {
 		t.Fatalf("Send returned false")

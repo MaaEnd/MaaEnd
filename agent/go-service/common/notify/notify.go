@@ -40,7 +40,7 @@ func ParseConfig(nodeJSON string) (RuntimeConfig, error) {
 
 // Send 遍历注册表中所有已启用的渠道发送通知，任一渠道发送成功即返回 true；
 // 全部失败返回 false（不影响调用方流程，仅记录日志）。
-// 标题/正文优先级：渠道配置（如 discord_title，支持 {{title}}/{{body}} 引用通知项预填内容）> 通知项模板（vars["title"]/["body"]）> 默认标题。
+// 标题/正文优先级：渠道配置（如 channel_discord_title，支持 {{title}}/{{body}} 引用通知项预填内容）> 通知项模板（vars["title"]/["body"]）> 默认标题。
 // Webhook 不读取标题/正文，可在请求体里用 {{title}}/{{body}} 引用本次通知的标题/正文。
 //
 // 代理统一在此解析：配置了全局代理（use_proxy）时构造代理 client，

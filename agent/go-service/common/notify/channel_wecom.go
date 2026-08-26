@@ -12,14 +12,14 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// wecomConfig 是企业微信（WeCom）群机器人渠道的私有配置（attach 顶层 wecom_* 键）。
+// wecomConfig 是企业微信（WeCom）群机器人渠道的私有配置（attach 顶层 channel_wecom_* 键）。
 type wecomConfig struct {
-	Enabled    bool   `json:"wecom_enabled"`
-	UseProxy   bool   `json:"wecom_use_proxy"`   // 是否走全局代理（配合全局 use_proxy 主开关）
-	WebhookURL string `json:"wecom_webhook_url"` // 完整 webhook 地址（含 key query 参数，不写入日志）
-	MsgType    string `json:"wecom_msgtype"`     // text（默认）| markdown | markdown_v2
-	Title      string `json:"wecom_title"`       // 渠道级标题，支持 {{title}} 引用通知项预填，留空回退通知项
-	Body       string `json:"wecom_body"`        // 渠道级正文，同标题语义；支持 {{body}} 引用通知项预填
+	Enabled    bool   `json:"channel_wecom_enabled"`
+	UseProxy   bool   `json:"channel_wecom_use_proxy"`   // 是否走全局代理（配合全局 use_proxy 主开关）
+	WebhookURL string `json:"channel_wecom_webhook_url"` // 完整 webhook 地址（含 key query 参数，不写入日志）
+	MsgType    string `json:"channel_wecom_msgtype"`     // text（默认）| markdown | markdown_v2
+	Title      string `json:"channel_wecom_title"`       // 渠道级标题，支持 {{title}} 引用通知项预填，留空回退通知项
+	Body       string `json:"channel_wecom_body"`        // 渠道级正文，同标题语义；支持 {{body}} 引用通知项预填
 }
 
 // wecomEndpoint 端点构造函数为包级变量，便于测试注入本地服务器。

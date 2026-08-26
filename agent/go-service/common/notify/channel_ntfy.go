@@ -9,16 +9,16 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// ntfyConfig 是 ntfy 渠道的私有配置（attach 顶层 ntfy_* 键）。
+// ntfyConfig 是 ntfy 渠道的私有配置（attach 顶层 channel_ntfy_* 键）。
 type ntfyConfig struct {
-	Enabled  bool   `json:"ntfy_enabled"`
-	UseProxy bool   `json:"ntfy_use_proxy"` // 是否走全局代理（配合全局 use_proxy 主开关）
-	URL      string `json:"ntfy_url"`       // 完整地址（含 topic，如 https://ntfy.sh/mytopic，支持自托管；不写入日志）
-	Title    string `json:"ntfy_title"`     // 渠道级标题，支持 {{title}} 引用通知项预填，留空回退通知项
-	Body     string `json:"ntfy_body"`      // 渠道级正文，同标题语义；支持 {{body}} 引用通知项预填
-	Priority string `json:"ntfy_priority"`  // min | low | default | high | max，空=default
-	Tags     string `json:"ntfy_tags"`      // 标签，逗号分隔（emoji short code 自动转 emoji），可选
-	Token    string `json:"ntfy_token"`     // 访问令牌（私有 topic 认证），可选，仅放 header 不进 URL
+	Enabled  bool   `json:"channel_ntfy_enabled"`
+	UseProxy bool   `json:"channel_ntfy_use_proxy"` // 是否走全局代理（配合全局 use_proxy 主开关）
+	URL      string `json:"channel_ntfy_url"`       // 完整地址（含 topic，如 https://ntfy.sh/mytopic，支持自托管；不写入日志）
+	Title    string `json:"channel_ntfy_title"`     // 渠道级标题，支持 {{title}} 引用通知项预填，留空回退通知项
+	Body     string `json:"channel_ntfy_body"`      // 渠道级正文，同标题语义；支持 {{body}} 引用通知项预填
+	Priority string `json:"channel_ntfy_priority"`  // min | low | default | high | max，空=default
+	Tags     string `json:"channel_ntfy_tags"`      // 标签，逗号分隔（emoji short code 自动转 emoji），可选
+	Token    string `json:"channel_ntfy_token"`     // 访问令牌（私有 topic 认证），可选，仅放 header 不进 URL
 }
 
 // ntfyEndpoint 端点构造函数为包级变量，便于测试注入本地服务器。

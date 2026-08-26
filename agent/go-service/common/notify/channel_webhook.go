@@ -9,14 +9,14 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// webhookConfig 是 Webhook 渠道的私有配置（attach 顶层 webhook_* 键）。
+// webhookConfig 是 Webhook 渠道的私有配置（attach 顶层 channel_webhook_* 键）。
 type webhookConfig struct {
-	Enabled  bool   `json:"webhook_enabled"`
-	UseProxy bool   `json:"webhook_use_proxy"` // 是否走全局代理（配合全局 use_proxy 主开关）
-	URL      string `json:"webhook_url"`
-	Method   string `json:"webhook_method"`
-	Headers  string `json:"webhook_headers"`
-	Body     string `json:"webhook_body"`
+	Enabled  bool   `json:"channel_webhook_enabled"`
+	UseProxy bool   `json:"channel_webhook_use_proxy"` // 是否走全局代理（配合全局 use_proxy 主开关）
+	URL      string `json:"channel_webhook_url"`
+	Method   string `json:"channel_webhook_method"`
+	Headers  string `json:"channel_webhook_headers"`
+	Body     string `json:"channel_webhook_body"`
 }
 
 // webhookChannel 通用 Webhook 渠道：自定义方法/请求头/请求体，支持全部模板变量。

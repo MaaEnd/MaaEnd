@@ -56,7 +56,7 @@
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
-                                "webhook_enabled": true
+                                "channel_webhook_enabled": true
                             }
                         }
                     }
@@ -66,7 +66,7 @@
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
-                                "webhook_enabled": false
+                                "channel_webhook_enabled": false
                             }
                         }
                     }
@@ -87,7 +87,7 @@
             "pipeline_override": {
                 "__NotifyConfig": {
                     "attach": {
-                        "webhook_url": "{Url}"
+                        "channel_webhook_url": "{Url}"
                     }
                 }
             }
@@ -103,7 +103,7 @@
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
-                                "webhook_method": "POST"
+                                "channel_webhook_method": "POST"
                             }
                         }
                     }
@@ -114,7 +114,7 @@
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
-                                "webhook_method": "GET"
+                                "channel_webhook_method": "GET"
                             }
                         }
                     }
@@ -125,7 +125,7 @@
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
-                                "webhook_method": "PUT"
+                                "channel_webhook_method": "PUT"
                             }
                         }
                     }
@@ -136,7 +136,7 @@
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
-                                "webhook_method": "PATCH"
+                                "channel_webhook_method": "PATCH"
                             }
                         }
                     }
@@ -147,7 +147,7 @@
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
-                                "webhook_method": "DELETE"
+                                "channel_webhook_method": "DELETE"
                             }
                         }
                     }
@@ -158,7 +158,7 @@
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
-                                "webhook_method": "HEAD"
+                                "channel_webhook_method": "HEAD"
                             }
                         }
                     }
@@ -169,7 +169,7 @@
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
-                                "webhook_method": "OPTIONS"
+                                "channel_webhook_method": "OPTIONS"
                             }
                         }
                     }
@@ -190,7 +190,7 @@
             "pipeline_override": {
                 "__NotifyConfig": {
                     "attach": {
-                        "webhook_headers": "{Headers}"
+                        "channel_webhook_headers": "{Headers}"
                     }
                 }
             }
@@ -209,7 +209,7 @@
             "pipeline_override": {
                 "__NotifyConfig": {
                     "attach": {
-                        "webhook_body": "{Body}"
+                        "channel_webhook_body": "{Body}"
                     }
                 }
             }
@@ -229,7 +229,7 @@
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
-                                "bark_enabled": true
+                                "channel_bark_enabled": true
                             }
                         }
                     }
@@ -239,7 +239,7 @@
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
-                                "bark_enabled": false
+                                "channel_bark_enabled": false
                             }
                         }
                     }
@@ -267,7 +267,7 @@
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
-                                "serverchan_enabled": true
+                                "channel_serverchan_enabled": true
                             }
                         }
                     }
@@ -277,7 +277,7 @@
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
-                                "serverchan_enabled": false
+                                "channel_serverchan_enabled": false
                             }
                         }
                     }
@@ -298,7 +298,7 @@
             "pipeline_override": {
                 "__NotifyConfig": {
                     "attach": {
-                        "serverchan_key": "{Key}"
+                        "channel_serverchan_key": "{Key}"
                     }
                 }
             }
@@ -318,7 +318,7 @@
             "pipeline_override": {
                 "__NotifyConfig": {
                     "attach": {
-                        "serverchan_tags": "{Tags}"
+                        "channel_serverchan_tags": "{Tags}"
                     }
                 }
             }
@@ -476,7 +476,7 @@
             "pipeline_override": {
                 "__NotifyConfig": {
                     "attach": {
-                        "serverchan_short": "{Short}"
+                        "channel_serverchan_short": "{Short}"
                     }
                 }
             }
@@ -495,7 +495,7 @@
             "pipeline_override": {
                 "__NotifyConfig": {
                     "attach": {
-                        "serverchan_channel": "{Channel}"
+                        "channel_serverchan_channel": "{Channel}"
                     }
                 }
             }
@@ -514,7 +514,7 @@
             "pipeline_override": {
                 "__NotifyConfig": {
                     "attach": {
-                        "serverchan_openid": "{OpenID}"
+                        "channel_serverchan_openid": "{OpenID}"
                     }
                 }
             }
@@ -534,7 +534,7 @@
             "pipeline_override": {
                 "__NotifyConfig": {
                     "attach": {
-                        "serverchan_title": "{Title}"
+                        "channel_serverchan_title": "{Title}"
                     }
                 }
             }
@@ -554,7 +554,7 @@
             "pipeline_override": {
                 "__NotifyConfig": {
                     "attach": {
-                        "serverchan_body": "{Body}"
+                        "channel_serverchan_body": "{Body}"
                     }
                 }
             }
@@ -569,7 +569,7 @@
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
-                                "serverchan_noip": true
+                                "channel_serverchan_noip": true
                             }
                         }
                     }
@@ -579,7 +579,7 @@
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
-                                "serverchan_noip": false
+                                "channel_serverchan_noip": false
                             }
                         }
                     }
@@ -603,7 +603,7 @@
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
-                                "bark_level": "active"
+                                "channel_bark_level": "active"
                             }
                         }
                     }
@@ -614,7 +614,7 @@
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
-                                "bark_level": "critical"
+                                "channel_bark_level": "critical"
                             }
                         }
                     }
@@ -625,7 +625,7 @@
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
-                                "bark_level": "timeSensitive"
+                                "channel_bark_level": "timeSensitive"
                             }
                         }
                     }
@@ -636,7 +636,7 @@
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
-                                "bark_level": "passive"
+                                "channel_bark_level": "passive"
                             }
                         }
                     }
@@ -805,28 +805,28 @@
             "pipeline_override": {
                 "__NotifyConfig": {
                     "attach": {
-                        "bark_key": "{Key}",
-                        "bark_title": "{Title}",
-                        "bark_body": "{Body}",
-                        "bark_subtitle": "{Subtitle}",
-                        "bark_group": "{Group}",
-                        "bark_sound": "{Sound}",
-                        "bark_icon": "{Icon}",
-                        "bark_image": "{Image}",
-                        "bark_url": "{Url}",
-                        "bark_badge": "{Badge}",
-                        "bark_markdown": "{Markdown}",
-                        "bark_copy": "{Copy}",
-                        "bark_isarchive": "{IsArchive}",
-                        "bark_ttl": "{Ttl}",
-                        "bark_devicekeys": "{DeviceKeys}",
-                        "bark_volume": "{Volume}",
-                        "bark_call": "{Call}",
-                        "bark_autocopy": "{AutoCopy}",
-                        "bark_ciphertext": "{Ciphertext}",
-                        "bark_action": "{Action}",
-                        "bark_id": "{Id}",
-                        "bark_delete": "{Delete}"
+                        "channel_bark_key": "{Key}",
+                        "channel_bark_title": "{Title}",
+                        "channel_bark_body": "{Body}",
+                        "channel_bark_subtitle": "{Subtitle}",
+                        "channel_bark_group": "{Group}",
+                        "channel_bark_sound": "{Sound}",
+                        "channel_bark_icon": "{Icon}",
+                        "channel_bark_image": "{Image}",
+                        "channel_bark_url": "{Url}",
+                        "channel_bark_badge": "{Badge}",
+                        "channel_bark_markdown": "{Markdown}",
+                        "channel_bark_copy": "{Copy}",
+                        "channel_bark_isarchive": "{IsArchive}",
+                        "channel_bark_ttl": "{Ttl}",
+                        "channel_bark_devicekeys": "{DeviceKeys}",
+                        "channel_bark_volume": "{Volume}",
+                        "channel_bark_call": "{Call}",
+                        "channel_bark_autocopy": "{AutoCopy}",
+                        "channel_bark_ciphertext": "{Ciphertext}",
+                        "channel_bark_action": "{Action}",
+                        "channel_bark_id": "{Id}",
+                        "channel_bark_delete": "{Delete}"
                     }
                 }
             }
@@ -846,7 +846,7 @@
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
-                                "telegram_enabled": true
+                                "channel_telegram_enabled": true
                             }
                         }
                     }
@@ -856,7 +856,7 @@
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
-                                "telegram_enabled": false
+                                "channel_telegram_enabled": false
                             }
                         }
                     }
@@ -913,12 +913,12 @@
             "pipeline_override": {
                 "__NotifyConfig": {
                     "attach": {
-                        "telegram_token": "{Token}",
-                        "telegram_chat_id": "{ChatId}",
-                        "telegram_title": "{Title}",
-                        "telegram_body": "{Body}",
-                        "telegram_parse_mode": "{ParseMode}",
-                        "telegram_api_url": "{ApiUrl}"
+                        "channel_telegram_token": "{Token}",
+                        "channel_telegram_chat_id": "{ChatId}",
+                        "channel_telegram_title": "{Title}",
+                        "channel_telegram_body": "{Body}",
+                        "channel_telegram_parse_mode": "{ParseMode}",
+                        "channel_telegram_api_url": "{ApiUrl}"
                     }
                 }
             }
@@ -934,7 +934,7 @@
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
-                                "telegram_disable_notification": true
+                                "channel_telegram_disable_notification": true
                             }
                         }
                     }
@@ -944,7 +944,7 @@
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
-                                "telegram_disable_notification": false
+                                "channel_telegram_disable_notification": false
                             }
                         }
                     }
@@ -965,7 +965,7 @@
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
-                                "discord_enabled": true
+                                "channel_discord_enabled": true
                             }
                         }
                     }
@@ -975,7 +975,7 @@
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
-                                "discord_enabled": false
+                                "channel_discord_enabled": false
                             }
                         }
                     }
@@ -1025,11 +1025,11 @@
             "pipeline_override": {
                 "__NotifyConfig": {
                     "attach": {
-                        "discord_webhook_url": "{WebhookURL}",
-                        "discord_username": "{Username}",
-                        "discord_avatar_url": "{AvatarURL}",
-                        "discord_title": "{Title}",
-                        "discord_body": "{Body}"
+                        "channel_discord_webhook_url": "{WebhookURL}",
+                        "channel_discord_username": "{Username}",
+                        "channel_discord_avatar_url": "{AvatarURL}",
+                        "channel_discord_title": "{Title}",
+                        "channel_discord_body": "{Body}"
                     }
                 }
             }
@@ -1133,7 +1133,7 @@
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
-                                "webhook_use_proxy": true
+                                "channel_webhook_use_proxy": true
                             }
                         }
                     }
@@ -1143,7 +1143,7 @@
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
-                                "webhook_use_proxy": false
+                                "channel_webhook_use_proxy": false
                             }
                         }
                     }
@@ -1160,7 +1160,7 @@
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
-                                "bark_use_proxy": true
+                                "channel_bark_use_proxy": true
                             }
                         }
                     }
@@ -1170,7 +1170,7 @@
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
-                                "bark_use_proxy": false
+                                "channel_bark_use_proxy": false
                             }
                         }
                     }
@@ -1187,7 +1187,7 @@
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
-                                "serverchan_use_proxy": true
+                                "channel_serverchan_use_proxy": true
                             }
                         }
                     }
@@ -1197,7 +1197,7 @@
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
-                                "serverchan_use_proxy": false
+                                "channel_serverchan_use_proxy": false
                             }
                         }
                     }
@@ -1214,7 +1214,7 @@
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
-                                "telegram_use_proxy": true
+                                "channel_telegram_use_proxy": true
                             }
                         }
                     }
@@ -1224,7 +1224,7 @@
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
-                                "telegram_use_proxy": false
+                                "channel_telegram_use_proxy": false
                             }
                         }
                     }
@@ -1241,7 +1241,7 @@
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
-                                "discord_use_proxy": true
+                                "channel_discord_use_proxy": true
                             }
                         }
                     }
@@ -1251,7 +1251,7 @@
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
-                                "discord_use_proxy": false
+                                "channel_discord_use_proxy": false
                             }
                         }
                     }
@@ -1273,7 +1273,7 @@
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
-                                "wecom_enabled": true
+                                "channel_wecom_enabled": true
                             }
                         }
                     }
@@ -1283,7 +1283,7 @@
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
-                                "wecom_enabled": false
+                                "channel_wecom_enabled": false
                             }
                         }
                     }
@@ -1319,9 +1319,9 @@
             "pipeline_override": {
                 "__NotifyConfig": {
                     "attach": {
-                        "wecom_webhook_url": "{WebhookURL}",
-                        "wecom_title": "{Title}",
-                        "wecom_body": "{Body}"
+                        "channel_wecom_webhook_url": "{WebhookURL}",
+                        "channel_wecom_title": "{Title}",
+                        "channel_wecom_body": "{Body}"
                     }
                 }
             }
@@ -1338,7 +1338,7 @@
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
-                                "wecom_msgtype": "text"
+                                "channel_wecom_msgtype": "text"
                             }
                         }
                     }
@@ -1349,7 +1349,7 @@
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
-                                "wecom_msgtype": "markdown"
+                                "channel_wecom_msgtype": "markdown"
                             }
                         }
                     }
@@ -1360,7 +1360,7 @@
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
-                                "wecom_msgtype": "markdown_v2"
+                                "channel_wecom_msgtype": "markdown_v2"
                             }
                         }
                     }
@@ -1377,7 +1377,7 @@
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
-                                "wecom_use_proxy": true
+                                "channel_wecom_use_proxy": true
                             }
                         }
                     }
@@ -1387,7 +1387,7 @@
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
-                                "wecom_use_proxy": false
+                                "channel_wecom_use_proxy": false
                             }
                         }
                     }
@@ -1409,7 +1409,7 @@
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
-                                "ntfy_enabled": true
+                                "channel_ntfy_enabled": true
                             }
                         }
                     }
@@ -1419,7 +1419,7 @@
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
-                                "ntfy_enabled": false
+                                "channel_ntfy_enabled": false
                             }
                         }
                     }
@@ -1469,11 +1469,11 @@
             "pipeline_override": {
                 "__NotifyConfig": {
                     "attach": {
-                        "ntfy_url": "{URL}",
-                        "ntfy_title": "{Title}",
-                        "ntfy_body": "{Body}",
-                        "ntfy_tags": "{Tags}",
-                        "ntfy_token": "{Token}"
+                        "channel_ntfy_url": "{URL}",
+                        "channel_ntfy_title": "{Title}",
+                        "channel_ntfy_body": "{Body}",
+                        "channel_ntfy_tags": "{Tags}",
+                        "channel_ntfy_token": "{Token}"
                     }
                 }
             }
@@ -1490,7 +1490,7 @@
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
-                                "ntfy_priority": "default"
+                                "channel_ntfy_priority": "default"
                             }
                         }
                     }
@@ -1501,7 +1501,7 @@
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
-                                "ntfy_priority": "min"
+                                "channel_ntfy_priority": "min"
                             }
                         }
                     }
@@ -1512,7 +1512,7 @@
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
-                                "ntfy_priority": "low"
+                                "channel_ntfy_priority": "low"
                             }
                         }
                     }
@@ -1523,7 +1523,7 @@
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
-                                "ntfy_priority": "high"
+                                "channel_ntfy_priority": "high"
                             }
                         }
                     }
@@ -1534,7 +1534,7 @@
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
-                                "ntfy_priority": "max"
+                                "channel_ntfy_priority": "max"
                             }
                         }
                     }
@@ -1551,7 +1551,7 @@
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
-                                "ntfy_use_proxy": true
+                                "channel_ntfy_use_proxy": true
                             }
                         }
                     }
@@ -1561,7 +1561,7 @@
                     "pipeline_override": {
                         "__NotifyConfig": {
                             "attach": {
-                                "ntfy_use_proxy": false
+                                "channel_ntfy_use_proxy": false
                             }
                         }
                     }

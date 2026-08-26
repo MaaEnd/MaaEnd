@@ -22,10 +22,10 @@ func TestSendWeCom(t *testing.T) {
 	defer func() { wecomEndpoint = orig }()
 
 	runtime := testRuntime(map[string]any{
-		"wecom_enabled":     true,
-		"wecom_webhook_url": "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=KEY",
-		"wecom_title":       "通知 {{task_name}}",
-		"wecom_body":        "正文 {{task_name}}",
+		"channel_wecom_enabled":     true,
+		"channel_wecom_webhook_url": "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=KEY",
+		"channel_wecom_title":       "通知 {{task_name}}",
+		"channel_wecom_body":        "正文 {{task_name}}",
 	})
 	if !Send(runtime, map[string]string{"task_name": "ExampleTask", "title": "标题 {{task_name}}", "body": "正文 {{task_name}}"}) {
 		t.Fatalf("Send returned false")
@@ -56,10 +56,10 @@ func TestSendWeComMarkdown(t *testing.T) {
 	defer func() { wecomEndpoint = orig }()
 
 	runtime := testRuntime(map[string]any{
-		"wecom_enabled":     true,
-		"wecom_webhook_url": "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=KEY",
-		"wecom_msgtype":     "markdown",
-		"wecom_title":       "标题",
+		"channel_wecom_enabled":     true,
+		"channel_wecom_webhook_url": "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=KEY",
+		"channel_wecom_msgtype":     "markdown",
+		"channel_wecom_title":       "标题",
 	})
 	if !Send(runtime, map[string]string{"title": "标题", "body": "正文"}) {
 		t.Fatalf("Send returned false")
