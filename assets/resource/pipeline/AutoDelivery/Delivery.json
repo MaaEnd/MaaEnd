@@ -116,10 +116,19 @@
         ]
     },
     "AutoDeliveryNavigateDestination": {
-        "desc": "动态调用送货目标识别节点选择的生成路线",
+        "desc": "动态调用送货目标识别节点选择的生成路线；未配置时安全失败",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "FalseAction",
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                763,
+                349,
+                195,
+                270
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -165,6 +174,15 @@
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "FalseAction",
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                763,
+                349,
+                195,
+                270
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
