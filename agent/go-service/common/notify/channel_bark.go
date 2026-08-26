@@ -121,19 +121,16 @@ func (c barkChannel) Send(ctx *SendContext) error {
 	} {
 		addIfPresent(payload, vars, p.key, p.val)
 	}
-	// badge/ttl 为数字参数，纯数字时按整数发送（ttl 为归档消息存活秒数）
+	// badge/ttl 为数字参数，纯数字时按整数发送（ttl 为归档消息存活秒数）；非数字跳过该字段，
+	// 不降级发 string（官方要求 integer，避免服务端拒收）
 	if badge := ReplaceVars(strings.TrimSpace(config.Badge), vars); badge != "" {
 		if n, err := strconv.Atoi(badge); err == nil {
 			payload["badge"] = n
-		} else {
-			payload["badge"] = badge
 		}
 	}
 	if ttl := ReplaceVars(strings.TrimSpace(config.TTL), vars); ttl != "" {
 		if n, err := strconv.Atoi(ttl); err == nil {
 			payload["ttl"] = n
-		} else {
-			payload["ttl"] = ttl
 		}
 	}
 	log.Debug().Str("component", "Notify").Str("channel", "bark").Msg("sending bark notify")
