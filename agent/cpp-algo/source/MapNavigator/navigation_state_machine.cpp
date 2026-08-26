@@ -387,6 +387,17 @@ semantic_nodes::Context BuildSemanticContext(
 
 } // namespace
 
+std::optional<size_t> ResolveRouteResumeIndex(const std::vector<Waypoint>& path, const NaviPosition& position)
+{
+    const std::optional<BootstrapContinueCandidate> candidate = ResolveBootstrapContinueCandidate(path, position);
+    if (!candidate || candidate->continue_index == 0 || candidate->continue_index >= path.size()) {
+        return std::nullopt;
+    }
+    LogInfo << "Route resume index resolved." << VAR(candidate->continue_index) << VAR(candidate->route_distance) << VAR(candidate->reason)
+            << VAR(position.x) << VAR(position.y) << VAR(position.zone_id);
+    return candidate->continue_index;
+}
+
 NavigationStateMachine::NavigationStateMachine(
     const NaviParam& param,
     ActionWrapper* action_wrapper,

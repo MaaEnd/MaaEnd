@@ -1,4 +1,6 @@
+#include <limits>
 #include <mutex>
+#include <optional>
 #include <set>
 #include <string>
 #include <utility>
@@ -124,8 +126,19 @@ bool NaviController::Navigate(const NaviParam& requested_param)
     LogInfo << "Initial Pos fixed:" << VAR(position_x) << VAR(position_y);
 
     std::vector<Waypoint> expanded_path;
+    size_t resume_index = 0;
     if (!ExpandNavmeshWaypoints(param, pos, is_stopping, expanded_path)) {
-        return false;
+        const std::optional<size_t> resume = ResolveRouteResumeIndex(param.path, pos);
+        if (!resume) {
+            return false;
+        }
+        NaviParam resumed_param = param;
+        resumed_param.path.assign(param.path.begin() + static_cast<std::ptrdiff_t>(*resume), param.path.end());
+        if (!ExpandNavmeshWaypoints(resumed_param, pos, is_stopping, expanded_path)) {
+            return false;
+        }
+        resume_index = *resume;
+        LogInfo << "Expanded the route again after skipping the traversed prefix." << VAR(resume_index);
     }
     if (expanded_path.empty()) {
         return true;
@@ -134,6 +147,13 @@ bool NaviController::Navigate(const NaviParam& requested_param)
     NaviParam expanded_param = param;
     expanded_param.path = std::move(expanded_path);
     expanded_param.authored_path = std::move(param.path);
+    if (resume_index > 0) {
+        for (Waypoint& waypoint : expanded_param.path) {
+            if (waypoint.authored_group_begin != std::numeric_limits<size_t>::max()) {
+                waypoint.authored_group_begin += resume_index;
+            }
+        }
+    }
 
     NavigationSession session(expanded_param.path, pos);
     session.UpdatePhase(NaviPhase::Bootstrap, "initial_fix");

@@ -6,6 +6,7 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <vector>
 
 #include "async_prompt_action.h"
 #include "nav_run_controller.h"
@@ -24,6 +25,8 @@ class MotionController;
 class PositionProvider;
 class RoiTemplateScanner;
 struct RouteTrackingState;
+
+std::optional<size_t> ResolveRouteResumeIndex(const std::vector<Waypoint>& path, const NaviPosition& position);
 
 class NavigationStateMachine
 {
