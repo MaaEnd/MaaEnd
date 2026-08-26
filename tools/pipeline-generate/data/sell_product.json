@@ -832,166 +832,6 @@
                 }
             ]
         },
-        "stm_tundra_2": {
-            "id": "stm_tundra_2",
-            "region_id": "domain_1",
-            "names": {
-                "zh_cn": "基建前站",
-                "zh_tw": "基建前站",
-                "en_us": "Infra-Station",
-                "ja_jp": "建設基地",
-                "ko_kr": "기초 건설 주둔지"
-            },
-            "prosperity_levels": [
-                {
-                    "level": 1,
-                    "trade_items": [
-                        {
-                            "item_id": "item_proc_battery_1",
-                            "unit_price": 16
-                        },
-                        {
-                            "item_id": "item_iron_cmpt",
-                            "unit_price": 1
-                        }
-                    ]
-                },
-                {
-                    "level": 2,
-                    "trade_items": [
-                        {
-                            "item_id": "item_proc_battery_2",
-                            "unit_price": 30
-                        },
-                        {
-                            "item_id": "item_bottled_rec_hp_2",
-                            "unit_price": 27
-                        },
-                        {
-                            "item_id": "item_proc_battery_1",
-                            "unit_price": 16
-                        },
-                        {
-                            "item_id": "item_iron_cmpt",
-                            "unit_price": 1
-                        }
-                    ]
-                },
-                {
-                    "level": 3,
-                    "trade_items": [
-                        {
-                            "item_id": "item_bottled_rec_hp_3",
-                            "unit_price": 70
-                        },
-                        {
-                            "item_id": "item_proc_battery_3",
-                            "unit_price": 70
-                        },
-                        {
-                            "item_id": "item_proc_battery_2",
-                            "unit_price": 30
-                        },
-                        {
-                            "item_id": "item_bottled_rec_hp_2",
-                            "unit_price": 27
-                        },
-                        {
-                            "item_id": "item_proc_battery_1",
-                            "unit_price": 16
-                        },
-                        {
-                            "item_id": "item_iron_cmpt",
-                            "unit_price": 1
-                        }
-                    ]
-                },
-                {
-                    "level": 4,
-                    "trade_items": [
-                        {
-                            "item_id": "item_bottled_food_3",
-                            "unit_price": 70
-                        },
-                        {
-                            "item_id": "item_bottled_rec_hp_3",
-                            "unit_price": 70
-                        },
-                        {
-                            "item_id": "item_proc_battery_3",
-                            "unit_price": 70
-                        },
-                        {
-                            "item_id": "item_proc_battery_2",
-                            "unit_price": 30
-                        },
-                        {
-                            "item_id": "item_bottled_food_2",
-                            "unit_price": 27
-                        },
-                        {
-                            "item_id": "item_bottled_rec_hp_2",
-                            "unit_price": 27
-                        },
-                        {
-                            "item_id": "item_proc_battery_1",
-                            "unit_price": 16
-                        },
-                        {
-                            "item_id": "item_bottled_food_1",
-                            "unit_price": 10
-                        },
-                        {
-                            "item_id": "item_iron_cmpt",
-                            "unit_price": 1
-                        }
-                    ]
-                }
-            ],
-            "features": [
-                {
-                    "bonus_types": [
-                        "expProfit"
-                    ],
-                    "operator_ids": [
-                        "chr_0002_endminm",
-                        "chr_0003_endminf",
-                        "chr_0004_pelica",
-                        "chr_0005_chen",
-                        "chr_0006_wolfgd",
-                        "chr_0017_yvonne",
-                        "chr_0019_karin",
-                        "chr_0020_meurs",
-                        "chr_0021_whiten",
-                        "chr_0022_bounda",
-                        "chr_0023_antal",
-                        "chr_0027_tangtang",
-                        "chr_0028_wulfa"
-                    ]
-                },
-                {
-                    "bonus_types": [
-                        "moneyProfit"
-                    ],
-                    "operator_ids": [
-                        "chr_0009_azrila",
-                        "chr_0011_seraph",
-                        "chr_0017_yvonne",
-                        "chr_0033_camille"
-                    ]
-                },
-                {
-                    "bonus_types": [
-                        "moneyProduceSpeed"
-                    ],
-                    "operator_ids": [
-                        "chr_0005_chen",
-                        "chr_0017_yvonne",
-                        "chr_0035_liino"
-                    ]
-                }
-            ]
-        },
         "stm_hongs_2": {
             "id": "stm_hongs_2",
             "region_id": "domain_2",
@@ -1198,171 +1038,6 @@
                         "chr_0019_karin",
                         "chr_0029_pograni",
                         "chr_0030_zhuangfy"
-                    ]
-                }
-            ]
-        },
-        "stm_tundra_3": {
-            "id": "stm_tundra_3",
-            "region_id": "domain_1",
-            "names": {
-                "zh_cn": "重建指挥部",
-                "zh_tw": "重建指揮部",
-                "en_us": "Reconstruction HQ",
-                "ja_jp": "再建管理本部",
-                "ko_kr": "재건 지휘부"
-            },
-            "prosperity_levels": [
-                {
-                    "level": 1,
-                    "trade_items": [
-                        {
-                            "item_id": "item_proc_battery_2",
-                            "unit_price": 30
-                        },
-                        {
-                            "item_id": "item_bottled_rec_hp_2",
-                            "unit_price": 27
-                        },
-                        {
-                            "item_id": "item_iron_enr_cmpt",
-                            "unit_price": 3
-                        }
-                    ]
-                },
-                {
-                    "level": 2,
-                    "trade_items": [
-                        {
-                            "item_id": "item_bottled_rec_hp_3",
-                            "unit_price": 70
-                        },
-                        {
-                            "item_id": "item_proc_battery_3",
-                            "unit_price": 70
-                        },
-                        {
-                            "item_id": "item_proc_battery_2",
-                            "unit_price": 30
-                        },
-                        {
-                            "item_id": "item_bottled_rec_hp_2",
-                            "unit_price": 27
-                        },
-                        {
-                            "item_id": "item_iron_enr_cmpt",
-                            "unit_price": 3
-                        }
-                    ]
-                },
-                {
-                    "level": 3,
-                    "trade_items": [
-                        {
-                            "item_id": "item_bottled_rec_hp_3",
-                            "unit_price": 70
-                        },
-                        {
-                            "item_id": "item_bottled_food_3",
-                            "unit_price": 70
-                        },
-                        {
-                            "item_id": "item_proc_battery_3",
-                            "unit_price": 70
-                        },
-                        {
-                            "item_id": "item_proc_battery_2",
-                            "unit_price": 30
-                        },
-                        {
-                            "item_id": "item_bottled_food_2",
-                            "unit_price": 27
-                        },
-                        {
-                            "item_id": "item_bottled_rec_hp_2",
-                            "unit_price": 27
-                        },
-                        {
-                            "item_id": "item_bottled_food_1",
-                            "unit_price": 10
-                        },
-                        {
-                            "item_id": "item_iron_enr_cmpt",
-                            "unit_price": 3
-                        }
-                    ]
-                },
-                {
-                    "level": 4,
-                    "trade_items": [
-                        {
-                            "item_id": "item_bottled_rec_hp_3",
-                            "unit_price": 70
-                        },
-                        {
-                            "item_id": "item_bottled_food_3",
-                            "unit_price": 70
-                        },
-                        {
-                            "item_id": "item_proc_battery_3",
-                            "unit_price": 70
-                        },
-                        {
-                            "item_id": "item_proc_battery_2",
-                            "unit_price": 30
-                        },
-                        {
-                            "item_id": "item_bottled_food_2",
-                            "unit_price": 27
-                        },
-                        {
-                            "item_id": "item_bottled_rec_hp_2",
-                            "unit_price": 27
-                        },
-                        {
-                            "item_id": "item_bottled_food_1",
-                            "unit_price": 10
-                        },
-                        {
-                            "item_id": "item_iron_enr_cmpt",
-                            "unit_price": 3
-                        }
-                    ]
-                }
-            ],
-            "features": [
-                {
-                    "bonus_types": [
-                        "expProfit"
-                    ],
-                    "operator_ids": [
-                        "chr_0013_aglina",
-                        "chr_0014_aurora",
-                        "chr_0016_laevat",
-                        "chr_0025_ardelia",
-                        "chr_0029_pograni"
-                    ]
-                },
-                {
-                    "bonus_types": [
-                        "moneyProfit"
-                    ],
-                    "operator_ids": [
-                        "chr_0005_chen",
-                        "chr_0013_aglina",
-                        "chr_0024_deepfin",
-                        "chr_0029_pograni",
-                        "chr_0030_zhuangfy"
-                    ]
-                },
-                {
-                    "bonus_types": [
-                        "moneyProduceSpeed"
-                    ],
-                    "operator_ids": [
-                        "chr_0004_pelica",
-                        "chr_0013_aglina",
-                        "chr_0016_laevat"
                     ]
                 }
             ]
@@ -1720,6 +1395,331 @@
                         "chr_0023_antal",
                         "chr_0028_wulfa",
                         "chr_0033_camille"
+                    ]
+                }
+            ]
+        },
+        "stm_tundra_2": {
+            "id": "stm_tundra_2",
+            "region_id": "domain_1",
+            "names": {
+                "zh_cn": "基建前站",
+                "zh_tw": "基建前站",
+                "en_us": "Infra-Station",
+                "ja_jp": "建設基地",
+                "ko_kr": "기초 건설 주둔지"
+            },
+            "prosperity_levels": [
+                {
+                    "level": 1,
+                    "trade_items": [
+                        {
+                            "item_id": "item_proc_battery_1",
+                            "unit_price": 16
+                        },
+                        {
+                            "item_id": "item_iron_cmpt",
+                            "unit_price": 1
+                        }
+                    ]
+                },
+                {
+                    "level": 2,
+                    "trade_items": [
+                        {
+                            "item_id": "item_proc_battery_2",
+                            "unit_price": 30
+                        },
+                        {
+                            "item_id": "item_bottled_rec_hp_2",
+                            "unit_price": 27
+                        },
+                        {
+                            "item_id": "item_proc_battery_1",
+                            "unit_price": 16
+                        },
+                        {
+                            "item_id": "item_iron_cmpt",
+                            "unit_price": 1
+                        }
+                    ]
+                },
+                {
+                    "level": 3,
+                    "trade_items": [
+                        {
+                            "item_id": "item_bottled_rec_hp_3",
+                            "unit_price": 70
+                        },
+                        {
+                            "item_id": "item_proc_battery_3",
+                            "unit_price": 70
+                        },
+                        {
+                            "item_id": "item_proc_battery_2",
+                            "unit_price": 30
+                        },
+                        {
+                            "item_id": "item_bottled_rec_hp_2",
+                            "unit_price": 27
+                        },
+                        {
+                            "item_id": "item_proc_battery_1",
+                            "unit_price": 16
+                        },
+                        {
+                            "item_id": "item_iron_cmpt",
+                            "unit_price": 1
+                        }
+                    ]
+                },
+                {
+                    "level": 4,
+                    "trade_items": [
+                        {
+                            "item_id": "item_bottled_food_3",
+                            "unit_price": 70
+                        },
+                        {
+                            "item_id": "item_bottled_rec_hp_3",
+                            "unit_price": 70
+                        },
+                        {
+                            "item_id": "item_proc_battery_3",
+                            "unit_price": 70
+                        },
+                        {
+                            "item_id": "item_proc_battery_2",
+                            "unit_price": 30
+                        },
+                        {
+                            "item_id": "item_bottled_food_2",
+                            "unit_price": 27
+                        },
+                        {
+                            "item_id": "item_bottled_rec_hp_2",
+                            "unit_price": 27
+                        },
+                        {
+                            "item_id": "item_proc_battery_1",
+                            "unit_price": 16
+                        },
+                        {
+                            "item_id": "item_bottled_food_1",
+                            "unit_price": 10
+                        },
+                        {
+                            "item_id": "item_iron_cmpt",
+                            "unit_price": 1
+                        }
+                    ]
+                }
+            ],
+            "features": [
+                {
+                    "bonus_types": [
+                        "expProfit"
+                    ],
+                    "operator_ids": [
+                        "chr_0002_endminm",
+                        "chr_0003_endminf",
+                        "chr_0004_pelica",
+                        "chr_0005_chen",
+                        "chr_0006_wolfgd",
+                        "chr_0017_yvonne",
+                        "chr_0019_karin",
+                        "chr_0020_meurs",
+                        "chr_0021_whiten",
+                        "chr_0022_bounda",
+                        "chr_0023_antal",
+                        "chr_0027_tangtang",
+                        "chr_0028_wulfa"
+                    ]
+                },
+                {
+                    "bonus_types": [
+                        "moneyProfit"
+                    ],
+                    "operator_ids": [
+                        "chr_0009_azrila",
+                        "chr_0011_seraph",
+                        "chr_0017_yvonne",
+                        "chr_0033_camille"
+                    ]
+                },
+                {
+                    "bonus_types": [
+                        "moneyProduceSpeed"
+                    ],
+                    "operator_ids": [
+                        "chr_0005_chen",
+                        "chr_0017_yvonne",
+                        "chr_0035_liino"
+                    ]
+                }
+            ]
+        },
+        "stm_tundra_3": {
+            "id": "stm_tundra_3",
+            "region_id": "domain_1",
+            "names": {
+                "zh_cn": "重建指挥部",
+                "zh_tw": "重建指揮部",
+                "en_us": "Reconstruction HQ",
+                "ja_jp": "再建管理本部",
+                "ko_kr": "재건 지휘부"
+            },
+            "prosperity_levels": [
+                {
+                    "level": 1,
+                    "trade_items": [
+                        {
+                            "item_id": "item_proc_battery_2",
+                            "unit_price": 30
+                        },
+                        {
+                            "item_id": "item_bottled_rec_hp_2",
+                            "unit_price": 27
+                        },
+                        {
+                            "item_id": "item_iron_enr_cmpt",
+                            "unit_price": 3
+                        }
+                    ]
+                },
+                {
+                    "level": 2,
+                    "trade_items": [
+                        {
+                            "item_id": "item_bottled_rec_hp_3",
+                            "unit_price": 70
+                        },
+                        {
+                            "item_id": "item_proc_battery_3",
+                            "unit_price": 70
+                        },
+                        {
+                            "item_id": "item_proc_battery_2",
+                            "unit_price": 30
+                        },
+                        {
+                            "item_id": "item_bottled_rec_hp_2",
+                            "unit_price": 27
+                        },
+                        {
+                            "item_id": "item_iron_enr_cmpt",
+                            "unit_price": 3
+                        }
+                    ]
+                },
+                {
+                    "level": 3,
+                    "trade_items": [
+                        {
+                            "item_id": "item_bottled_rec_hp_3",
+                            "unit_price": 70
+                        },
+                        {
+                            "item_id": "item_bottled_food_3",
+                            "unit_price": 70
+                        },
+                        {
+                            "item_id": "item_proc_battery_3",
+                            "unit_price": 70
+                        },
+                        {
+                            "item_id": "item_proc_battery_2",
+                            "unit_price": 30
+                        },
+                        {
+                            "item_id": "item_bottled_food_2",
+                            "unit_price": 27
+                        },
+                        {
+                            "item_id": "item_bottled_rec_hp_2",
+                            "unit_price": 27
+                        },
+                        {
+                            "item_id": "item_bottled_food_1",
+                            "unit_price": 10
+                        },
+                        {
+                            "item_id": "item_iron_enr_cmpt",
+                            "unit_price": 3
+                        }
+                    ]
+                },
+                {
+                    "level": 4,
+                    "trade_items": [
+                        {
+                            "item_id": "item_bottled_rec_hp_3",
+                            "unit_price": 70
+                        },
+                        {
+                            "item_id": "item_bottled_food_3",
+                            "unit_price": 70
+                        },
+                        {
+                            "item_id": "item_proc_battery_3",
+                            "unit_price": 70
+                        },
+                        {
+                            "item_id": "item_proc_battery_2",
+                            "unit_price": 30
+                        },
+                        {
+                            "item_id": "item_bottled_food_2",
+                            "unit_price": 27
+                        },
+                        {
+                            "item_id": "item_bottled_rec_hp_2",
+                            "unit_price": 27
+                        },
+                        {
+                            "item_id": "item_bottled_food_1",
+                            "unit_price": 10
+                        },
+                        {
+                            "item_id": "item_iron_enr_cmpt",
+                            "unit_price": 3
+                        }
+                    ]
+                }
+            ],
+            "features": [
+                {
+                    "bonus_types": [
+                        "expProfit"
+                    ],
+                    "operator_ids": [
+                        "chr_0013_aglina",
+                        "chr_0014_aurora",
+                        "chr_0016_laevat",
+                        "chr_0025_ardelia",
+                        "chr_0029_pograni"
+                    ]
+                },
+                {
+                    "bonus_types": [
+                        "moneyProfit"
+                    ],
+                    "operator_ids": [
+                        "chr_0005_chen",
+                        "chr_0013_aglina",
+                        "chr_0024_deepfin",
+                        "chr_0029_pograni",
+                        "chr_0030_zhuangfy"
+                    ]
+                },
+                {
+                    "bonus_types": [
+                        "moneyProduceSpeed"
+                    ],
+                    "operator_ids": [
+                        "chr_0004_pelica",
+                        "chr_0013_aglina",
+                        "chr_0016_laevat"
                     ]
                 }
             ]
