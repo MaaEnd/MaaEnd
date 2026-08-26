@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 
 	"github.com/rs/zerolog/log"
@@ -79,6 +80,9 @@ func (c ntfyChannel) Send(ctx *SendContext) error {
 		req.Header.Set("Title", title)
 	}
 	if priority := strings.TrimSpace(config.Priority); priority != "" && priority != "default" {
+		if !isNtfyPriority(priority) {
+			return fmt.Errorf("invalid ntfy priority: %s", priority)
+		}
 		req.Header.Set("Priority", priority)
 	}
 	if tags := strings.TrimSpace(ReplaceVars(config.Tags, vars)); tags != "" {
@@ -113,4 +117,15 @@ func ntfyEndpointDefault(rawURL string) (string, error) {
 		return "", fmt.Errorf("invalid ntfy url")
 	}
 	return rawURL, nil
+}
+
+// isNtfyPriority 校验 ntfy 优先级为官方白名单值（min/low/default/high/max，或数字 1~5）。
+func isNtfyPriority(p string) bool {
+	switch p {
+	case "min", "low", "default", "high", "max":
+		return true
+	}
+	// 兼容数字形式（官方允许 1~5）
+	n, err := strconv.Atoi(p)
+	return err == nil && n >= 1 && n <= 5
 }
