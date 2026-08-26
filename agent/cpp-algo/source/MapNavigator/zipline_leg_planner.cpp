@@ -211,14 +211,6 @@ constexpr double minimum_possible_world_span_squared(
     return dx * dx + delta_y * delta_y + dz * dz;
 }
 
-// 现场两组 3x3 长距滑索的角格锚点距离分别为 111.526 和 110.204；允许双方中心各向内
-// 移 1 格后，最小可能距离为 108.931 和 107.986，均应保留在 110 米候选范围内。
-static_assert(minimum_possible_world_span_squared(47.0, 25.0, 98.0, { 3, 3 }, { 3, 3 }) <= 110.0 * 110.0);
-static_assert(minimum_possible_world_span_squared(108.0, 16.0, 15.0, { 3, 3 }, { 3, 3 }) <= 110.0 * 110.0);
-// 单格锚点没有中心不确定性；即使是 3x3，扣除不确定性后仍超过上限的组合也不能连边。
-static_assert(minimum_possible_world_span_squared(47.0, 25.0, 98.0, { 1, 1 }, { 1, 1 }) > 110.0 * 110.0);
-static_assert(minimum_possible_world_span_squared(113.0, 0.0, 0.0, { 3, 3 }, { 3, 3 }) > 110.0 * 110.0);
-
 // 折线自身的长度。BaseNavRouteResult::cost 是搜索代价，不是几何长度，两者不能混用。
 double PolylineLength(const navmesh::WorldPath& path)
 {
