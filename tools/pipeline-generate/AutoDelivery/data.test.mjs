@@ -401,6 +401,9 @@ test("AutoDelivery focus 文案统一使用完整 i18n 键", () => {
         assert.deepEqual(localeKeys, expectedKeys, `${lang} AutoDelivery focus keys differ`);
         for (const key of expectedKeys) {
             assert.match(locale[key], /^🚛 /, `${lang} ${key} is missing the AutoDelivery emoji`);
+            if (lang === "zh_cn" || lang === "zh_tw") {
+                assert.equal(locale[key].includes("正在"), false, `${lang} ${key} should use a concise action phrase`);
+            }
         }
 
         const goServiceLocale = JSON.parse(
