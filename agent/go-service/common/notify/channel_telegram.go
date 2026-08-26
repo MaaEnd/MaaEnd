@@ -119,10 +119,8 @@ func postTelegram(client *http.Client, endpoint string, payload map[string]any) 
 		return sanitizeError(err)
 	}
 	defer resp.Body.Close()
-	if resp.StatusCode >= 400 {
-		return fmt.Errorf("unexpected status code: %d", resp.StatusCode)
-	}
-	// 限制响应体大小（1MB），防止服务端异常返回超大 body 吃内存
+	// 先读响应体（限流），Telegram 真实失败几乎都返回 4xx + {"ok":false,"description":...}，
+	// 需读 body 拿 description，不能先按状态码早退
 	respBody, err := io.ReadAll(io.LimitReader(resp.Body, 1<<20))
 	if err != nil {
 		return fmt.Errorf("failed to read response body: %w", err)
@@ -132,10 +130,19 @@ func postTelegram(client *http.Client, endpoint string, payload map[string]any) 
 		Description string `json:"description"`
 	}
 	if err := json.Unmarshal(respBody, &result); err != nil {
+		if resp.StatusCode >= 400 {
+			return fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+		}
 		return fmt.Errorf("failed to parse response body: %w", err)
 	}
 	if !result.OK {
-		return fmt.Errorf("telegram api error: %s", result.Description)
+		if result.Description != "" {
+			return fmt.Errorf("telegram api error: %s (status %d)", result.Description, resp.StatusCode)
+		}
+		return fmt.Errorf("telegram api error: ok=false (status %d)", resp.StatusCode)
+	}
+	if resp.StatusCode >= 400 {
+		return fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 	return nil
 }

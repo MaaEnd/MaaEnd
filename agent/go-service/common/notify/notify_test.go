@@ -711,6 +711,18 @@ func TestSendTelegramErrors(t *testing.T) {
 		t.Errorf("ok=false should error with description, got %v", err)
 	}
 
+	// 4xx + ok=false + description（Telegram 真实失败形态：4xx 时也应透出 description）
+	server4xx := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(`{"ok": false, "error_code": 400, "description": "chat not found"}`))
+	}))
+	defer server4xx.Close()
+	telegramEndpoint = func(string, string) (string, error) { return server4xx.URL, nil }
+	ch = telegramChannel{cfg: telegramConfig{Enabled: true, Token: "t", ChatID: "1", Title: "标题"}}
+	if err := ch.Send(testCtx()); err == nil || !strings.Contains(err.Error(), "chat not found") {
+		t.Errorf("4xx should error with description, got %v", err)
+	}
+
 	// HTTP 500
 	server500 := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
