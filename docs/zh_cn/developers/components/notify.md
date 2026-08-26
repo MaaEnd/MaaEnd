@@ -29,7 +29,7 @@ Notify 是 MaaEnd 的多渠道外部通知模块
         "action": "Custom",
         "custom_action": "NotifySendAction",
         "attach": {
-            "task_title": "$notify.monthly_card.expired", // 第三方 attach 支持 $ i18n：key 需先在 assets/locales/go-service/*.json 添加五语言翻译，查不到翻译则显示去掉 $ 的 key
+            "task_title": "$notify.monthly_card.expired", // 第三方 attach 支持 $ i18n：key 必须写入 assets/locales/go-service/*.json（补 5 语言），查不到翻译则显示去掉 $ 的 key
             "task_body": "请及时续费",                     // 普通文本原样发送
             "task_notify_key": "monthly_card"             // 通知项 ID（可选，用于独立开关）
         }
@@ -43,8 +43,11 @@ Notify 是 MaaEnd 的多渠道外部通知模块
 
 | 字段 | 说明 |
 | --- | --- |
-| `task_title` / `task_body` | 标题/正文模板，支持模板变量（见下）。**第三方节点 attach 编写的值**以 `$` 开头时视为 i18n key（查 `assets/locales/go-service/*.json` 与 `assets/locales/interface/*.json` 合并后的翻译表），查到翻译则用翻译，查不到则显示去掉 `$` 的 key 本身；**玩家在设置页填写的值**为普通文本，不解析 `$` |
+| `task_title` / `task_body` | 标题/正文模板，支持模板变量（见下）。**第三方节点 attach 编写的值**以 `$` 开头时视为 i18n key，**必须使用 `assets/locales/go-service/*.json` 存储翻译**（不要放 interface），查到翻译则用翻译，查不到则显示去掉 `$` 的 key 本身；**玩家在设置页填写的值**为普通文本，不解析 `$` |
 | `task_notify_key` | 通知项 ID，**可选，推荐**：不写则不受通知项开关影响（默认启用）；写了需另外配置设置页独立开关 |
+
+> [!note]
+> **`$` i18n 翻译存放位置（强制约定）**：`task_title` / `task_body` 中以 `$` 开头的 i18n key（如 `$notify.monthly_card.expired`），翻译**必须写入 `assets/locales/go-service/*.json`**，并补齐 5 语言。不要写入 `assets/locales/interface/*.json`——interface 目录仅用于界面文案（任务名 `$task.*.label`、设置项 `$option.*.*`）。key 查不到翻译时显示去掉 `$` 的 key 本身
 
 ### 设置页加通知项开关（可选）
 
