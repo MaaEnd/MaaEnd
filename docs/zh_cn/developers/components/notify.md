@@ -2,7 +2,7 @@
 
 Notify 是 MaaEnd 的多渠道外部通知模块
 
-任务失败、以及任意任务主动发起的自定义通知，统一向设置页启用的渠道（Webhook / Bark / ServerChan / Telegram / Discord / 可新增其他渠道）推送
+任务失败、以及任意任务主动发起的自定义通知，统一向设置页启用的渠道（Webhook / Bark / ServerChan / Telegram / Discord / 企业微信 / ntfy / Gotify / 钉钉 / 可新增其他渠道）推送
 
 流程编排由 Pipeline 负责，Go 只负责开关判定、内容解析与渠道发送
 
@@ -200,13 +200,15 @@ Telegram 三种 parse_mode 的渲染规则（`markdown.go`）：
 
 | 文件 | 职责 |
 | --- | --- |
-| `notify.go` | 调度层：`ParseConfig`、`Send`（代理解析 + 遍历注册表分发）、`NotifySendAction` |
+| `notify.go` | 调度层：`ParseConfig`、`Send`（代理解析 + 遍历注册表分发）、`NotifySendAction`、`resolveTitleBody`/`resolveNotifyText`（第三方 attach 的 `$` i18n 解析）、`taskNotifySkipped`（通知项开关判断） |
 | `config.go` | 运行配置：`GlobalConfig`（系统开关 + 标题正文模板 + 全局代理）、`RuntimeConfig`、`decodeAttach`、`MergeAttach` |
 | `channel.go` | `Channel` / `ChannelFactory` 接口 + `SendContext` + 注册表 |
 | `vars.go` | 模板变量模块：`BuildVars` / `ReplaceVars` / `channelTitleBody` |
 | `markdown.go` | 轻量 Markdown 子集解析器 + 三种 Telegram 渲染（`renderTelegramV2` / `renderTelegramLegacy` / `renderTelegramHTML`） |
-| `http.go` | 超时 client、`postJSON`、错误脱敏 |
+| `length.go` | 内容长度截断辅助（`truncateRunes` / `truncateBytes`） |
+| `http.go` | 超时 client、`postJSON`、`readResponseBody`、错误脱敏 |
 | `proxy.go` | 全局代理模块：`resolveProxy`、`proxyClient`、MXU 更新代理读取 |
 | `channel_webhook.go` / `channel_bark.go` / `channel_serverchan.go` / `channel_telegram.go` / `channel_discord.go` / `channel_wecom.go` / `channel_ntfy.go` / `channel_gotify.go` / `channel_dingtalk.go` | 各渠道实现 |
 | `sink.go` | 失败事件监听、配置按 taskID 缓存与去重 |
+| `taskname.go` | `{{task_name}}` 显示名解析（扫描任务定义建立 entry→label 映射） |
 | `register.go` | 动作与事件监听注册 |
