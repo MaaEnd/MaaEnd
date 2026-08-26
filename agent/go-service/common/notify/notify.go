@@ -140,7 +140,11 @@ func (a *NotifySendAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 				_ = decodeAttach(runtime.Attach, &runtime.Global)
 				runtime.Global.TaskNotifyToggles = parseTaskNotifyToggles(runtime.Attach)
 			}
+		} else {
+			log.Warn().Err(err).Str("component", "NotifySendAction").Str("task", arg.CurrentTaskName).Msg("failed to parse local attach, skip local override")
 		}
+	} else {
+		log.Warn().Err(err).Str("component", "NotifySendAction").Str("task", arg.CurrentTaskName).Msg("failed to read current task node, skip local override")
 	}
 
 	// 设置页总开关：关闭时跳过（未配置视为允许，不破坏旧行为）
