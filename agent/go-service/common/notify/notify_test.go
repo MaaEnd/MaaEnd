@@ -1013,6 +1013,23 @@ func TestResolveTitleBody(t *testing.T) {
 	}
 }
 
+func TestReplaceVarsSelfReference(t *testing.T) {
+	// 纯自引用（{{title}} 的值就是 {{title}}）：第 1 轮即收敛，返回原样，不死循环
+	vars := map[string]string{"title": "{{title}}"}
+	if got := ReplaceVars("{{title}}", vars); got != "{{title}}" {
+		t.Errorf("pure self-ref = %q, want {{title}}", got)
+	}
+
+	// 带前后缀的自引用：值里只有 1 个 {{title}}，每轮线性 +4 字符（9 字符的 {{title}}
+	// 换成 13 字符的值），10 轮后 len = 13 + 40 = 53，必然终止（不会死循环），
+	// 但不会收敛（仍残留 {{title}} 引用）
+	vars = map[string]string{"title": "x {{title}} y"}
+	got := ReplaceVars("x {{title}} y", vars)
+	if len(got) != 53 {
+		t.Errorf("prefixed self-ref len = %d, want 53", len(got))
+	}
+}
+
 func TestResolveActionTaskName(t *testing.T) {
 	i18n.Init() // 幂等；使 task.*.label 翻译可用
 	getEntryOK := func(int64) string { return "AccountSwitchStart" }
