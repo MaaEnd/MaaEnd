@@ -87,6 +87,19 @@ func (c telegramChannel) Send(ctx *SendContext) error {
 	}
 
 	parseMode := ReplaceVars(strings.TrimSpace(config.ParseMode), vars)
+	switch parseMode {
+	case "", "HTML", "Markdown", "MarkdownV2":
+		// 合法取值
+	default:
+		return fmt.Errorf("invalid telegram parse_mode: %s", parseMode)
+	}
+	// MarkdownV2/HTML 模式需转义正文特殊字符，否则 Telegram 返回 400 can't parse entities
+	switch parseMode {
+	case "MarkdownV2":
+		text = escapeTelegramMarkdownV2(text)
+	case "HTML":
+		text = escapeTelegramHTML(text)
+	}
 
 	for _, chatID := range chatIDs {
 		payload := map[string]any{
@@ -160,4 +173,18 @@ func telegramEndpointDefault(token, apiURL string) (string, error) {
 		base = telegramAPIURLDefault
 	}
 	return fmt.Sprintf("%s/bot%s/sendMessage", base, token), nil
+}
+
+// escapeTelegramMarkdownV2 转义 Telegram MarkdownV2 模式的特殊字符（官方要求转义 18 个字符）。
+func escapeTelegramMarkdownV2(s string) string {
+	return strings.NewReplacer(
+		"_", `\_`, "*", `\*`, "[", `\[`, "]", `\]`, "(", `\(`, ")", `\)`,
+		"~", `\~`, "`", "\\`", ">", `\>`, "#", `\#`, "+", `\+`, "-", `\-`,
+		"=", `\=`, "|", `\|`, "{", `\{`, "}", `\}`, ".", `\.`, "!", `\!`,
+	).Replace(s)
+}
+
+// escapeTelegramHTML 转义 Telegram HTML 模式的特殊字符（< > &）。
+func escapeTelegramHTML(s string) string {
+	return strings.NewReplacer("&", "&amp;", "<", "&lt;", ">", "&gt;").Replace(s)
 }

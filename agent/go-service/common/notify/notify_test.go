@@ -657,6 +657,34 @@ func TestSendTelegram(t *testing.T) {
 	}
 }
 
+func TestSendTelegramMarkdownV2Escape(t *testing.T) {
+	var gotPayload map[string]any
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_ = json.NewDecoder(r.Body).Decode(&gotPayload)
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(`{"ok": true, "result": {}}`))
+	}))
+	defer server.Close()
+
+	orig := telegramEndpoint
+	telegramEndpoint = func(string, string) (string, error) { return server.URL, nil }
+	defer func() { telegramEndpoint = orig }()
+
+	runtime := testRuntime(map[string]any{
+		"channel_telegram_enabled":    true,
+		"channel_telegram_token":      "123456:ABC-DEF",
+		"channel_telegram_chat_id":    "user1",
+		"channel_telegram_title":      "标题_*[x]",
+		"channel_telegram_parse_mode": "MarkdownV2",
+	})
+	if !Send(runtime, map[string]string{"title": "标题_*[x]", "body": "正文"}) {
+		t.Fatalf("Send returned false")
+	}
+	if gotPayload["text"] != `标题\_\*\[x\]`+"\n\n正文" {
+		t.Errorf("text = %q, want escaped MarkdownV2", gotPayload["text"])
+	}
+}
+
 func TestSendTelegramMultiChat(t *testing.T) {
 	var requests atomic.Int32
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -697,6 +725,11 @@ func TestSendTelegramErrors(t *testing.T) {
 	ch = telegramChannel{cfg: telegramConfig{Enabled: true, Token: "t", ChatID: "", Title: "标题"}}
 	if err := ch.Send(testCtx()); err == nil {
 		t.Errorf("empty chat_id should error")
+	}
+	// 非法 parse_mode → 报错
+	ch = telegramChannel{cfg: telegramConfig{Enabled: true, Token: "t", ChatID: "1", Title: "标题", ParseMode: "Foo"}}
+	if err := ch.Send(testCtx()); err == nil || !strings.Contains(err.Error(), "parse_mode") {
+		t.Errorf("invalid parse_mode should error, got %v", err)
 	}
 
 	// ok=false 的业务错误
