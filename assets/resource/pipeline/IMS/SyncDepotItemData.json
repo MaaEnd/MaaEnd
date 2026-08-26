@@ -152,6 +152,20 @@
                             "action": {
                                 "param": {
                                     "custom_action_param": {
+                                        "grid_type": "transfer",
+                                        "roi": [
+                                            154,
+                                            202,
+                                            585,
+                                            291
+                                        ],
+                                        "item_filters": [
+                                            "Normal:Plant",
+                                            "Normal:Nurturance",
+                                            "Normal:Doodad"
+                                        ],
+                                        "page_dedup": false,
+                                        "notify_ui": false,
                                         "merge_mode": "replace",
                                         "transaction_mode": "begin"
                                     }
@@ -162,6 +176,20 @@
                             "action": {
                                 "param": {
                                     "custom_action_param": {
+                                        "grid_type": "transfer",
+                                        "roi": [
+                                            154,
+                                            202,
+                                            585,
+                                            291
+                                        ],
+                                        "item_filters": [
+                                            "Normal:Plant",
+                                            "Normal:Nurturance",
+                                            "Normal:Doodad"
+                                        ],
+                                        "page_dedup": true,
+                                        "notify_ui": false,
                                         "merge_mode": "replace",
                                         "transaction_mode": "continue"
                                     }
@@ -172,6 +200,20 @@
                             "action": {
                                 "param": {
                                     "custom_action_param": {
+                                        "grid_type": "transfer",
+                                        "roi": [
+                                            154,
+                                            202,
+                                            585,
+                                            291
+                                        ],
+                                        "item_filters": [
+                                            "Normal:Plant",
+                                            "Normal:Nurturance",
+                                            "Normal:Doodad"
+                                        ],
+                                        "page_dedup": false,
+                                        "notify_ui": false,
                                         "merge_mode": "replace",
                                         "transaction_mode": "begin"
                                     }
@@ -188,7 +230,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[JumpBack]MouseMoveReset",
+            "SyncDepotItemDataAllSelected",
             "SyncDepotItemDataSelectAll"
         ]
     },
@@ -220,6 +262,20 @@
                             "action": {
                                 "param": {
                                     "custom_action_param": {
+                                        "grid_type": "transfer",
+                                        "roi": [
+                                            154,
+                                            202,
+                                            585,
+                                            291
+                                        ],
+                                        "item_filters": [
+                                            "Normal:Plant",
+                                            "Normal:Nurturance",
+                                            "Normal:Doodad"
+                                        ],
+                                        "page_dedup": false,
+                                        "notify_ui": false,
                                         "merge_mode": "sum",
                                         "transaction_mode": "continue"
                                     }
@@ -230,6 +286,20 @@
                             "action": {
                                 "param": {
                                     "custom_action_param": {
+                                        "grid_type": "transfer",
+                                        "roi": [
+                                            154,
+                                            202,
+                                            585,
+                                            291
+                                        ],
+                                        "item_filters": [
+                                            "Normal:Plant",
+                                            "Normal:Nurturance",
+                                            "Normal:Doodad"
+                                        ],
+                                        "page_dedup": true,
+                                        "notify_ui": false,
                                         "merge_mode": "sum",
                                         "transaction_mode": "continue"
                                     }
@@ -240,6 +310,20 @@
                             "action": {
                                 "param": {
                                     "custom_action_param": {
+                                        "grid_type": "transfer",
+                                        "roi": [
+                                            154,
+                                            202,
+                                            585,
+                                            291
+                                        ],
+                                        "item_filters": [
+                                            "Normal:Plant",
+                                            "Normal:Nurturance",
+                                            "Normal:Doodad"
+                                        ],
+                                        "page_dedup": false,
+                                        "notify_ui": false,
                                         "merge_mode": "sum",
                                         "transaction_mode": "continue"
                                     }
@@ -256,12 +340,39 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[JumpBack]MouseMoveReset",
+            "SyncDepotItemDataAllSelected",
             "SyncDepotItemDataSelectAll"
         ]
     },
+    "SyncDepotItemDataAllSelected": {
+        "desc": "OCR 识别到全部文字，代表仓库当前已处于全部分类",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    245,
+                    168,
+                    90,
+                    44
+                ],
+                "expected": [
+                    "全部",
+                    "(?i)All",
+                    "すべて",
+                    "전체"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SyncDepotItemDataResetScrollState"
+        ]
+    },
     "SyncDepotItemDataSelectAll": {
-        "desc": "选择仓库全部分类，避免沿用用户上次打开仓库时的分类筛选",
+        "desc": "未处于全部分类时，点击未选中的全部分类图标",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -318,11 +429,14 @@
                 }
             }
         },
+        "anchor": {
+            "MouseMoveResetAnchor": "MouseMoveReset"
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "SyncDepotItemDataScrollbarPresent",
-            "[JumpBack]MouseMoveReset",
+            "[JumpBack][Anchor]MouseMoveResetAnchor",
             "SyncDepotItemDataRunSinglePage"
         ]
     },
@@ -379,10 +493,13 @@
         },
         "pre_delay": 0,
         "action": "DoNothing",
+        "anchor": {
+            "MouseMoveResetAnchor": "MouseMoveReset"
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[JumpBack]MouseMoveReset",
+            "[JumpBack][Anchor]MouseMoveResetAnchor",
             "SyncDepotItemDataRunFull"
         ],
         "attach": {
@@ -515,6 +632,9 @@
                 "dy": -180
             }
         },
+        "anchor": {
+            "MouseMoveResetAnchor": "MouseMoveReset"
+        },
         "post_wait_freezes": {
             "target": [
                 154,
@@ -528,7 +648,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[JumpBack]MouseMoveReset",
+            "[JumpBack][Anchor]MouseMoveResetAnchor",
             "SyncDepotItemDataRunIncremental"
         ]
     },
