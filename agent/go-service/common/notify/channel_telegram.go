@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"regexp"
 	"strings"
 
 	"github.com/rs/zerolog/log"
@@ -95,14 +94,14 @@ func (c telegramChannel) Send(ctx *SendContext) error {
 		return fmt.Errorf("invalid telegram parse_mode: %s", parseMode)
 	}
 	// Markdown/MarkdownV2/HTML 模式需转义正文特殊字符，否则 Telegram 返回 400 can't parse entities；
-	// 转义按 token 保留用户有意书写的富文本结构（如 **bold**、[text](url)、<b>…</b>）
+	// 统一走 markdown.go 的解析器渲染（实体外转义、实体内部按官方规则豁免、按方言输出）
 	switch parseMode {
 	case "MarkdownV2":
-		text = escapeTelegramMarkdownV2Keep(text)
+		text = renderTelegramV2(text)
 	case "Markdown":
-		text = escapeTelegramMarkdownKeep(text)
+		text = renderTelegramLegacy(text)
 	case "HTML":
-		text = escapeTelegramHTMLKeep(text)
+		text = renderTelegramHTML(text)
 	}
 
 	for _, chatID := range chatIDs {
@@ -189,60 +188,16 @@ func escapeTelegramMarkdownV2(s string) string {
 	).Replace(s)
 }
 
-// escapeTelegramMarkdown 转义 Telegram legacy Markdown 模式的特殊字符（_ * [ ] ` 及转义前缀反斜杠）。
+// escapeTelegramMarkdown 转义 Telegram legacy Markdown 模式实体外的特殊字符。
+// 官方只允许转义 _ * ` [ 四字符（"To escape characters '_', '*', '`', '[' outside
+// of an entity, prepend the character '\' before them"），故不转义 ] 与 \。
 func escapeTelegramMarkdown(s string) string {
 	return strings.NewReplacer(
-		"_", `\_`, "*", `\*`, "[", `\[`, "]", `\]`, "`", "\\`", "\\", `\\`,
+		"_", `\_`, "*", `\*`, "`", "\\`", "[", `\[`,
 	).Replace(s)
 }
 
 // escapeTelegramHTML 转义 Telegram HTML 模式的特殊字符（< > &）。
 func escapeTelegramHTML(s string) string {
 	return strings.NewReplacer("&", "&amp;", "<", "&lt;", ">", "&gt;").Replace(s)
-}
-
-// 富文本结构 token：匹配后原样保留（不参与转义），仅对其周围的普通文本段转义。
-var (
-	// markdownV2TokenRe 覆盖 MarkdownV2 的实体语法：粗体/斜体/下划线/删除线/剧透/行内代码/链接。
-	markdownV2TokenRe = regexp.MustCompile(
-		`\*+[^*\n]+\*+|__+[^_\n]+__+|_+[^_\n]+_+|~~+[^~\n]+~~+|\|\|+[^|\n]+\|\|+|` + "`" + `+[^` + "`" + `\n]+` + "`" + `+|\[[^\]\n]+\]\([^)\n]+\)`,
-	)
-	// markdownTokenRe 覆盖 legacy Markdown 支持的实体语法。
-	markdownTokenRe = regexp.MustCompile(
-		`\*+[^*\n]+\*+|_+[^_\n]+_+|` + "`" + `+[^` + "`" + `\n]+` + "`" + `+|\[[^\]\n]+\]\([^)\n]+\)`,
-	)
-	// htmlTokenRe 覆盖 HTML 标签（含属性）。
-	htmlTokenRe = regexp.MustCompile(`<[^>]+>`)
-)
-
-// escapeTelegramMarkdownV2Keep 保留 MarkdownV2 富文本结构，仅转义普通文本段。
-func escapeTelegramMarkdownV2Keep(s string) string {
-	return escapeKeepFormat(s, markdownV2TokenRe, escapeTelegramMarkdownV2)
-}
-
-// escapeTelegramMarkdownKeep 保留 legacy Markdown 富文本结构，仅转义普通文本段。
-func escapeTelegramMarkdownKeep(s string) string {
-	return escapeKeepFormat(s, markdownTokenRe, escapeTelegramMarkdown)
-}
-
-// escapeTelegramHTMLKeep 保留 HTML 标签结构，仅转义普通文本段。
-func escapeTelegramHTMLKeep(s string) string {
-	return escapeKeepFormat(s, htmlTokenRe, escapeTelegramHTML)
-}
-
-// escapeKeepFormat 对 s 分段转义：token 匹配出的格式结构原样保留，其余普通文本段经 escape 转义，
-// 避免整段转义把用户书写的富文本变成字面量（例如 **bold** 被转成 \*\*bold\*\*）。
-func escapeKeepFormat(s string, token *regexp.Regexp, escape func(string) string) string {
-	if s == "" {
-		return ""
-	}
-	var b strings.Builder
-	last := 0
-	for _, loc := range token.FindAllStringIndex(s, -1) {
-		b.WriteString(escape(s[last:loc[0]]))
-		b.WriteString(s[loc[0]:loc[1]])
-		last = loc[1]
-	}
-	b.WriteString(escape(s[last:]))
-	return b.String()
 }
