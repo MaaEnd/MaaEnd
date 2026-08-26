@@ -211,6 +211,7 @@ export class Overlay {
         this._drawSelectedZiplineTower(camera, tower);
       }
     }
+    this._drawLogMeasurement(camera, log.measurement);
   }
 
   /** Pale background candidate from ZIP record/Ziplines.json. */
@@ -265,6 +266,59 @@ export class Overlay {
     }
     ctx.restore();
     this._drawLogCaption(cx, cy - 17, tower.label || '滑索架', color);
+  }
+
+  /** A/B analysis ruler. It is dashed so it cannot be mistaken for a planned or ridden leg. */
+  _drawLogMeasurement(camera, measurement) {
+    const towers = measurement && Array.isArray(measurement.towers) ? measurement.towers : [];
+    if (!towers.length) return;
+    const result = measurement.result || null;
+    const color =
+      result && result.geometryConnected === true
+        ? '#22c55e'
+        : result && result.geometryConnected === false
+          ? '#ef4444'
+          : '#e2e8f0';
+
+    if (towers.length >= 2) {
+      this._strokeLogPolyline(camera, [towers[0].point, towers[1].point], {
+        color,
+        width: 2.5,
+        dash: [4, 4],
+      });
+      const [ax, ay] = camera.worldToCanvas(towers[0].point[0], towers[0].point[1]);
+      const [bx, by] = camera.worldToCanvas(towers[1].point[0], towers[1].point[1]);
+      const caption = Number.isFinite(result && result.worldDistance)
+        ? `${result.worldDistance.toFixed(2)} m`
+        : Number.isFinite(result && result.baseDistance)
+          ? `${result.baseDistance.toFixed(2)} px`
+          : '距离未知';
+      this._drawLogCaption((ax + bx) / 2, (ay + by) / 2 - 12, caption, color);
+    }
+
+    for (const tower of towers) {
+      const [cx, cy] = camera.worldToCanvas(tower.point[0], tower.point[1]);
+      const markerColor = tower.marker === 'B' ? '#f472b6' : '#60a5fa';
+      const ctx = this.ctx;
+      ctx.save();
+      ctx.setLineDash([]);
+      ctx.beginPath();
+      ctx.arc(cx, cy, 11, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(8, 15, 28, 0.88)';
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(0, 0, 0, 0.65)';
+      ctx.lineWidth = 5;
+      ctx.stroke();
+      ctx.strokeStyle = markerColor;
+      ctx.lineWidth = 3;
+      ctx.stroke();
+      ctx.fillStyle = '#ffffff';
+      ctx.font = `bold 10px ${MONO}`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(tower.marker || '?', cx, cy + 0.5);
+      ctx.restore();
+    }
   }
 
   /** @param {Camera} camera @param {number[][]} points @param {Object} style */

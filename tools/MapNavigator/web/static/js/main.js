@@ -27,7 +27,11 @@ import {NavmeshField} from "./navmesh_field.js";
 import {AppState, Mode} from "./state.js";
 import {logZiplineGeometry, logZiplineTowers, parseMapNavigatorLog} from "./log_analysis.js";
 import {groupLogInputFiles, openZipArchive, selectMaaEndArchiveEntries} from "./log_archive.js";
-import {projectZiplineRecords} from "./zipline_records.js";
+import {
+    measureZiplinePair,
+    nextZiplineMeasurementSelection,
+    projectZiplineRecords,
+} from "./zipline_records.js";
 import {
     ACTION_NAMES,
     ActionType,
@@ -67,6 +71,7 @@ const LEFT_PANEL_FIT_OFFSET = 350;
 // World px kept around the A* preview markers when framing them.
 const ASTAR_HINT_FIT_PADDING = 200;
 const COPY_FORMAT_COORDINATES = "coordinates";
+const LOG_TOWER_HIT_RADIUS = 14;
 
 /** round(value, 2) with CPython banker's rounding — parity for assert-target export. */
 function bankerRound2(value) {
@@ -171,6 +176,8 @@ class MapNavigatorApp {
         this.logArchiveGroups = new Map();
         /** @type {?Object} repository zipline_frames.json calibration. */
         this.ziplineFrameConfig = null;
+        /** @type {string[]} measure keys for the current A/B zipline tower selection. */
+        this.logDistanceSelection = [];
         this.logLayers = {
             showAuthored: true,
             showWalk: true,
@@ -328,6 +335,8 @@ class MapNavigatorApp {
             logShowSelectedTowers: $("log-show-selected-towers"),
             logShowRecordedTowers: $("log-show-recorded-towers"),
             logShowEstimates: $("log-show-estimates"),
+            btnLogDistanceClear: $("btn-log-distance-clear"),
+            logDistanceSummary: $("log-distance-summary"),
             logDecisionSummary: $("log-decision-summary"),
             btnAssertLocate: $("btn-assert-locate"),
             btnAstarLocate: $("btn-astar-locate"),
@@ -741,6 +750,10 @@ class MapNavigatorApp {
         e.logFileInput.addEventListener("change", () => this._importLogFiles(e.logFileInput.files));
         e.logRunFilter.addEventListener("input", () => this._populateLogRunSelect());
         e.logRunSelect.addEventListener("change", () => this._onLogRunChanged());
+        e.btnLogDistanceClear.addEventListener("click", () => {
+            this._clearLogDistanceSelection();
+            setStatus("已清除滑索架测距。", "#10b981");
+        });
         for (const [control, key] of [
             [e.logShowAuthored, "showAuthored"],
             [e.logShowWalk, "showWalk"],
@@ -1055,27 +1068,181 @@ class MapNavigatorApp {
             for (const tower of logZiplineTowers(chain)) {
                 let matchingRecord = null;
                 let matchingDistance = Infinity;
+                let matchingHeightDistance = Infinity;
+                let matchingScore = Infinity;
                 for (const candidate of recorded) {
                     const distance = Math.hypot(
                         candidate.point[0] - tower.point[0],
                         candidate.point[1] - tower.point[1],
                     );
-                    if (distance < matchingDistance) {
+                    const heightDistance =
+                        Number.isFinite(tower.height) && Number.isFinite(candidate.height)
+                            ? Math.abs(candidate.height - tower.height)
+                            : 0;
+                    const score = Math.hypot(distance, heightDistance);
+                    if (score < matchingScore) {
                         matchingRecord = candidate;
                         matchingDistance = distance;
+                        matchingHeightDistance = heightDistance;
+                        matchingScore = score;
                     }
                 }
+                const matchedRecord =
+                    matchingDistance <= 0.75 && matchingHeightDistance <= 0.75 ? matchingRecord : null;
                 selected.push({
                     ...tower,
+                    measureKey: `selected:${chain.chainIndex}:${tower.index}`,
                     chainIndex: chain.chainIndex,
                     towerIndex: tower.index,
                     label: `索${labelIndex}`,
-                    height: matchingDistance <= 0.75 ? matchingRecord.height : tower.height,
+                    height: matchedRecord ? matchedRecord.height : tower.height,
+                    world: matchedRecord ? matchedRecord.world : null,
+                    mapId: matchedRecord ? matchedRecord.mapId : "",
+                    levelId: matchedRecord ? matchedRecord.levelId : "",
+                    templateId: matchedRecord ? matchedRecord.templateId : "",
                 });
                 labelIndex += 1;
             }
         }
         return {selected, recorded};
+    }
+
+    /** Resolve the current A/B keys against freshly projected towers. */
+    _logDistanceMeasurement(towerData = this._logTowerData()) {
+        const byKey = new Map(
+            [
+                ...(towerData.selected || []),
+                ...(towerData.recorded || []),
+            ].map((tower) => [
+                tower.measureKey,
+                tower,
+            ]),
+        );
+        const towers = this.logDistanceSelection
+            .map((key) => byKey.get(key))
+            .filter(Boolean)
+            .slice(0, 2);
+        if (towers.length !== this.logDistanceSelection.length) {
+            this.logDistanceSelection = towers.map((tower) => tower.measureKey);
+        }
+        return {
+            towers,
+            result: towers.length === 2 ? measureZiplinePair(towers[0], towers[1], this.ziplineFrameConfig) : null,
+        };
+    }
+
+    /** Render selected tower coordinates, the distance formula, and the limited geometry verdict. */
+    _renderLogDistance() {
+        const host = this.els.logDistanceSummary;
+        host.textContent = "";
+        const measurement = this._logDistanceMeasurement();
+        this.els.btnLogDistanceClear.disabled = measurement.towers.length === 0;
+
+        if (!this.selectedLogRun) {
+            host.textContent = this.logRuns.length
+                ? "当前筛选没有匹配记录。"
+                : "导入日志后，单击地图上的滑索架选择 A 点。";
+            return;
+        }
+        if (!measurement.towers.length) {
+            host.textContent = "单击地图上的紫色菱形或编号滑索架选择 A 点；再点一座选择 B 点，拖动仍可平移";
+            return;
+        }
+
+        for (const [
+            index,
+            tower,
+        ] of measurement.towers.entries()) {
+            const marker = index === 0 ? "A" : "B";
+            const row = document.createElement("div");
+            row.className = "log-distance-point";
+            const title = document.createElement("div");
+            title.className = "log-distance-point-title";
+            const source =
+                tower.label || (String(tower.measureKey || "").startsWith("record:") ? "ZIP 候选架" : "滑索架");
+            title.textContent = `${marker} · ${source}`;
+            const base = document.createElement("div");
+            base.className = "log-distance-coordinates";
+            const height = Number.isFinite(tower.height) ? `，导航高度 ${tower.height.toFixed(2)}` : "";
+            base.textContent = `底图 [${tower.point[0].toFixed(2)}, ${tower.point[1].toFixed(2)}]${height}`;
+            row.append(title, base);
+            if (Array.isArray(tower.world) && tower.world.slice(0, 3).every(Number.isFinite)) {
+                const world = document.createElement("div");
+                world.className = "log-distance-coordinates";
+                world.textContent = `世界 [${tower.world[0].toFixed(2)}, ${tower.world[1].toFixed(2)}, ${tower.world[2].toFixed(2)}] m`;
+                row.appendChild(world);
+            }
+            const identity = document.createElement("div");
+            identity.className = "log-distance-identity";
+            identity.textContent = `类型 ${tower.templateId || "未知"} · level ${tower.levelId || "未知"}`;
+            row.appendChild(identity);
+            host.appendChild(row);
+        }
+
+        if (measurement.towers.length === 1) {
+            const hint = document.createElement("div");
+            hint.className = "log-distance-note";
+            hint.textContent = "已选择 A 点；请再点一座滑索架作为 B 点。再次点 A 可取消。";
+            host.appendChild(hint);
+            return;
+        }
+
+        const result = measurement.result;
+        const resultBox = document.createElement("div");
+        resultBox.className = "log-distance-result";
+        if (Number.isFinite(result.worldDistance)) {
+            const primary = document.createElement("div");
+            primary.className = "log-distance-primary";
+            primary.textContent = `世界三维距离 ${result.worldDistance.toFixed(2)} m`;
+            const formula = document.createElement("div");
+            formula.className = "log-distance-formula";
+            formula.textContent = `√((${result.deltaX.toFixed(2)})² + (${result.deltaY.toFixed(2)})² + (${result.deltaZ.toFixed(2)})²) = ${result.worldDistance.toFixed(2)} m`;
+            const components = document.createElement("div");
+            components.className = "log-distance-components";
+            components.textContent = `水平 ${result.horizontalDistance.toFixed(2)} m · 高差 |ΔY| ${result.heightDelta.toFixed(2)} m`;
+            resultBox.append(primary, formula, components);
+        } else {
+            const missing = document.createElement("div");
+            missing.className = "log-distance-primary";
+            missing.textContent = "缺少世界坐标，无法计算三维距离";
+            resultBox.appendChild(missing);
+        }
+        if (Number.isFinite(result.baseDistance)) {
+            const baseDistance = document.createElement("div");
+            baseDistance.className = "log-distance-components";
+            baseDistance.textContent = `底图直线距离 ${result.baseDistance.toFixed(2)} px`;
+            resultBox.appendChild(baseDistance);
+        }
+
+        const verdict = document.createElement("div");
+        const verdictClass =
+            result.geometryConnected === true
+                ? "connected"
+                : result.geometryConnected === false
+                  ? "disconnected"
+                  : "unknown";
+        verdict.className = `log-distance-verdict ${verdictClass}`;
+        const verdictTitle =
+            result.geometryConnected === true
+                ? "几何上可连接"
+                : result.geometryConnected === false
+                  ? "几何上不可连接"
+                  : "无法判断几何连接";
+        verdict.textContent = `${verdictTitle}：${result.geometryReason}`;
+        resultBox.appendChild(verdict);
+        host.appendChild(resultBox);
+
+        const warning = document.createElement("div");
+        warning.className = "log-distance-note";
+        warning.textContent = "几何满足不代表实际可用；供电、可达性、禁用边和成本规划仍以运行时结果为准。";
+        host.appendChild(warning);
+    }
+
+    /** Clear the current A/B tower selection without changing the imported run. */
+    _clearLogDistanceSelection() {
+        this.logDistanceSelection = [];
+        this._renderLogDistance();
+        this._paint();
     }
 
     /** Build the display-frame geometry consumed by Overlay's read-only log layer. */
@@ -1096,6 +1263,7 @@ class MapNavigatorApp {
             }
         }
         const towers = this._logTowerData(run);
+        const measurement = this._logDistanceMeasurement(towers);
         return {
             ...this.logLayers,
             authored: displayPolyline(this._logAuthoredBasePoints()),
@@ -1116,6 +1284,14 @@ class MapNavigatorApp {
                 ...tower,
                 point: displayPoint(tower.point),
             })),
+            measurement: {
+                towers: measurement.towers.map((tower, index) => ({
+                    ...tower,
+                    marker: index === 0 ? "A" : "B",
+                    point: displayPoint(tower.point),
+                })),
+                result: measurement.result,
+            },
         };
     }
 
@@ -1677,11 +1853,21 @@ class MapNavigatorApp {
             y,
         ] = this._evtXY(e);
 
+        if (this.state.mode === Mode.LOG && this.activeTool === "log-pan") {
+            this.isDragging = false;
+            this.isPanCandidate = true;
+            this.isPanning = false;
+            this.isBoxSelecting = false;
+            this.isAssertSelecting = false;
+            this.pointerDownX = x;
+            this.pointerDownY = y;
+            return;
+        }
+
         if (
             this.activeTool === "pan" ||
             this.activeTool === "assert-pan" ||
-            this.activeTool === "astar-pan" ||
-            this.activeTool === "log-pan"
+            this.activeTool === "astar-pan"
         ) {
             this.isPanning = true;
             this.dragStartX = x;
@@ -1853,6 +2039,14 @@ class MapNavigatorApp {
             return;
         }
 
+        if (this.state.mode === Mode.LOG) {
+            if (this.isPanCandidate) {
+                this.isPanCandidate = false;
+                this._handleLogTowerClick(x, y);
+            }
+            return;
+        }
+
         if (this.state.mode === Mode.ASTAR) {
             if (this.isPanCandidate) {
                 this.isPanCandidate = false;
@@ -1944,6 +2138,45 @@ class MapNavigatorApp {
         }
 
         this.isDragging = false;
+    }
+
+    /** Select the nearest visible tower for an A/B world-span measurement. */
+    _handleLogTowerClick(canvasX, canvasY) {
+        if (!this.selectedLogRun) return;
+        const towers = this._logTowerData();
+        const visible = [
+            ...(this.logLayers.showSelectedTowers ? towers.selected : []),
+            ...(this.logLayers.showRecordedTowers ? towers.recorded : []),
+        ];
+        let hit = null;
+        let hitDistance = LOG_TOWER_HIT_RADIUS;
+        for (const tower of visible) {
+            const display = this._baseToDisplay(tower.point[0], tower.point[1]);
+            const canvas = this.camera.worldToCanvas(display[0], display[1]);
+            const distance = Math.hypot(canvas[0] - canvasX, canvas[1] - canvasY);
+            if (distance < hitDistance) {
+                hit = tower;
+                hitDistance = distance;
+            }
+        }
+        if (!hit) {
+            setStatus("没有点中滑索架；请单击紫色菱形或编号圆点，拖动可平移地图。", "#f59e0b");
+            return;
+        }
+
+        this.logDistanceSelection = nextZiplineMeasurementSelection(this.logDistanceSelection, hit.measureKey);
+        const measurement = this._logDistanceMeasurement(towers);
+        if (!measurement.towers.length) {
+            setStatus("已清除滑索架测距。", "#10b981");
+        } else if (measurement.towers.length === 1) {
+            setStatus("已选择 A 点；请再点一座滑索架作为 B 点。", "#3b82f6");
+        } else if (Number.isFinite(measurement.result && measurement.result.worldDistance)) {
+            setStatus(`滑索架世界距离：${measurement.result.worldDistance.toFixed(2)} m。`, "#10b981");
+        } else {
+            setStatus("已选择 A/B，但其中一座缺少世界坐标，只能显示底图距离。", "#f59e0b");
+        }
+        this._renderLogDistance();
+        this._paint();
     }
 
     /** Wheel input: zoom the map at the cursor. @param {WheelEvent} e @returns {void} */
@@ -2647,6 +2880,7 @@ class MapNavigatorApp {
                 run._uiKey = String(index);
             });
             this.selectedLogRun = null;
+            this.logDistanceSelection = [];
             this.els.logRunFilter.value = "";
             this.els.logRunFilter.disabled = this.logRuns.length === 0;
             this.els.logRunSelect.disabled = this.logRuns.length === 0;
@@ -2699,7 +2933,9 @@ class MapNavigatorApp {
             option.textContent = this.logRuns.length ? "没有匹配的运行记录" : "请先导入日志";
             combo.appendChild(option);
             this.selectedLogRun = null;
+            this.logDistanceSelection = [];
             this._renderLogSummary();
+            this._renderLogDistance();
             this._paint();
             return;
         }
@@ -2716,13 +2952,16 @@ class MapNavigatorApp {
     /** Select the dropdown's run, switch to its basemap, and frame the recorded geometry. */
     _onLogRunChanged() {
         const key = this.els.logRunSelect.value;
-        this.selectedLogRun = this.logRuns.find((run) => run._uiKey === key) || null;
+        const nextRun = this.logRuns.find((run) => run._uiKey === key) || null;
+        if (nextRun !== this.selectedLogRun) this.logDistanceSelection = [];
+        this.selectedLogRun = nextRun;
         this._showSelectedLogRun({fit: true});
     }
 
     /** @param {{fit?:boolean}} [opts] */
     _showSelectedLogRun(opts = {}) {
         this._renderLogSummary();
+        this._renderLogDistance();
         const run = this.selectedLogRun;
         if (!run) {
             this._paint();
@@ -2758,6 +2997,7 @@ class MapNavigatorApp {
     _clearLogAnalysis() {
         this.logRuns = [];
         this.selectedLogRun = null;
+        this.logDistanceSelection = [];
         this.logArchiveGroups = new Map();
         this.els.logRunFilter.value = "";
         this.els.logRunFilter.disabled = true;
@@ -2769,6 +3009,7 @@ class MapNavigatorApp {
         this.els.logRunSelect.appendChild(option);
         this.els.logImportMeta.textContent = "尚未导入日志";
         this._renderLogSummary();
+        this._renderLogDistance();
         setStatus("已清除日志分析。", "#10b981");
         this._paint();
     }
@@ -3441,8 +3682,10 @@ class MapNavigatorApp {
         if (e.toolAssertEdit) e.toolAssertEdit.classList.toggle("active", tool === "assert-edit");
 
         const canvas = e.overlayCanvas;
-        if (tool === "pan" || tool === "assert-pan" || tool === "astar-pan" || tool === "log-pan") {
+        if (tool === "pan" || tool === "assert-pan" || tool === "astar-pan") {
             canvas.style.cursor = "grab";
+        } else if (tool === "log-pan") {
+            canvas.style.cursor = "crosshair";
         } else if (tool === "add" || tool === "astar-single" || tool === "astar-multi") {
             canvas.style.cursor = "crosshair";
         } else if (tool === "select") {

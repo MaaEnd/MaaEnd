@@ -343,6 +343,91 @@ canvas {
   margin: 0;
 }
 
+.log-distance-box {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: rgba(139, 92, 246, 0.045);
+}
+
+.log-distance-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.log-distance-title {
+  color: var(--text-primary);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.log-distance-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: var(--text-secondary);
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.log-distance-point {
+  padding-left: 7px;
+  border-left: 3px solid #60a5fa;
+}
+
+.log-distance-point:nth-of-type(2) {
+  border-left-color: #f472b6;
+}
+
+.log-distance-point-title,
+.log-distance-primary {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.log-distance-coordinates,
+.log-distance-formula {
+  font-family: var(--font-mono);
+  overflow-wrap: anywhere;
+}
+
+.log-distance-identity,
+.log-distance-note {
+  color: var(--text-muted);
+  overflow-wrap: anywhere;
+}
+
+.log-distance-result {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 7px 8px;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.log-distance-verdict {
+  margin-top: 2px;
+  font-weight: 600;
+}
+
+.log-distance-verdict.connected {
+  color: #22c55e;
+}
+
+.log-distance-verdict.disconnected {
+  color: #ef4444;
+}
+
+.log-distance-verdict.unknown {
+  color: #f59e0b;
+}
+
 .log-line-swatch {
   width: 28px;
   height: 0;
