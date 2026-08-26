@@ -81,6 +81,9 @@ func (c dingtalkChannel) Send(ctx *SendContext) error {
 	if msgType == "" {
 		msgType = "text"
 	}
+	if msgType != "text" && msgType != "markdown" {
+		return fmt.Errorf("invalid dingtalk msgtype: %s", msgType)
+	}
 
 	payload := map[string]any{"msgtype": msgType}
 	if msgType == "markdown" {
