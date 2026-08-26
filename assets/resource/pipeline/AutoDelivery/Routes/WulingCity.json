@@ -287,8 +287,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        541.013,
-                        1250.596
+                        543.995,
+                        1250.922
                     ],
                     "required": true
                 },
@@ -455,8 +455,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        464.919,
-                        1712.725
+                        467.918,
+                        1712.648
                     ],
                     "required": true
                 },
@@ -601,8 +601,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        894.718,
-                        1411.423
+                        894.822,
+                        1414.421
                     ],
                     "required": true
                 },
@@ -756,7 +756,7 @@
                     "action": "NAVMESH",
                     "target": [
                         513.135,
-                        1647.773
+                        1656.773
                     ],
                     "required": true
                 },

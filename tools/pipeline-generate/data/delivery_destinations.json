@@ -6,7 +6,7 @@
         "serial_id": "资源回收站在当前区域内显示的序号，取自 RecycleBinTable.serialId",
         "depot_id": "该终点所属仓储节点 ID；没有同层仓储节点时为空字符串",
         "depots": "仓储节点坐标，按 DomainDepotTable.id 精确关联 LevelMapMark.markInstId；yaw 为朝向（绕 Y 轴欧拉角，度），取自 LevelData 交互实体 rotation.y，缺省为 0",
-        "destinations": "普通收货 NPC 的 yaw 取自 NpcProxyTable.rotation.y；资源回收站的 yaw 取自 LevelData 交互实体 rotation.y，缺省为 0"
+        "destinations": "普通收货 NPC 的 yaw 取自 NpcProxyTable.rotation.y；资源回收站的 yaw 取自 LevelData 交互实体 rotation.y 并翻转 180 度，缺省为 0"
     },
     "maps": {
         "map01": {
@@ -230,7 +230,7 @@
             "map": "map01",
             "u": 905.299,
             "v": 764.145,
-            "yaw": 270.0
+            "yaw": 90.0
         },
         {
             "id": "deliver_target_map01_lv005_recycle_03",
@@ -261,7 +261,7 @@
             "map": "map01",
             "u": 1183.458,
             "v": 817.116,
-            "yaw": 135.0
+            "yaw": 315.0
         },
         {
             "id": "deliver_target_map01_lv006_01",
@@ -382,7 +382,7 @@
             "map": "map01",
             "u": 1048.016,
             "v": 429.484,
-            "yaw": 139.641
+            "yaw": 319.641
         },
         {
             "id": "deliver_target_map01_lv006_recycle_03",
@@ -413,7 +413,7 @@
             "map": "map01",
             "u": 1078.905,
             "v": 504.33,
-            "yaw": 105.156
+            "yaw": 285.156
         },
         {
             "id": "deliver_target_map01_lv007_01",
@@ -534,7 +534,7 @@
             "map": "map01",
             "u": 502.664,
             "v": 251.902,
-            "yaw": 180.0
+            "yaw": 0.0
         },
         {
             "id": "deliver_target_map01_lv007_recycle_03",
@@ -565,7 +565,7 @@
             "map": "map01",
             "u": 615.071,
             "v": 397.166,
-            "yaw": 0.0
+            "yaw": 180.0
         },
         {
             "id": "deliver_target_map02_lv002_01",
@@ -686,7 +686,7 @@
             "map": "map02",
             "u": 513.135,
             "v": 1650.773,
-            "yaw": 0.0
+            "yaw": 180.0
         },
         {
             "id": "deliver_target_map02_lv005_01",

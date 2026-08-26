@@ -5,7 +5,7 @@ import {BASE_NAV_ZONE_IMAGE_PARTS} from "../../MapNavigator/web/static/js/model.
 const catalogSource = JSON.parse(readFileSync(new URL("../data/delivery_destinations.json", import.meta.url), "utf8"));
 const routeSource = JSON.parse(readFileSync(new URL("./routes.json", import.meta.url), "utf8"));
 
-const APPROACH_DISTANCE_METERS = 4;
+const APPROACH_DISTANCE_METERS = 8;
 const COORDINATE_PRECISION = 3;
 
 function assertArray(value, label) {

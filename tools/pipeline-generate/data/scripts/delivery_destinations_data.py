@@ -363,6 +363,11 @@ def read_yaw(value: Any, label: str) -> float:
     return float(value)
 
 
+def reverse_yaw(yaw: float) -> float:
+    """将交互实体朝向翻转为角色正面接近方向。"""
+    return round((yaw + 180.0) % 360.0, 9)
+
+
 def build_required_pose_entities(
     depot_table: dict[str, Any], deliver_target_table: dict[str, Any]
 ) -> dict[str, set[tuple[str, str]]]:
@@ -594,7 +599,8 @@ def build_delivery_destinations_data(
                     f"资源回收站 {entity_key} 的 serialId {value!r} 无效"
                 )
             serial_id = value
-            yaw = entity_yaws.get((level_id, entity_key), 0.0)
+            raw_yaw = entity_yaws.get((level_id, entity_key))
+            yaw = reverse_yaw(raw_yaw) if raw_yaw is not None else 0.0
 
         zone = used_zones.get(map_id)
         if zone is None:
@@ -675,7 +681,7 @@ def build_delivery_destinations_data(
             ),
             "destinations": (
                 "普通收货 NPC 的 yaw 取自 NpcProxyTable.rotation.y；"
-                "资源回收站的 yaw 取自 LevelData 交互实体 rotation.y，缺省为 0"
+                "资源回收站的 yaw 取自 LevelData 交互实体 rotation.y 并翻转 180 度，缺省为 0"
             ),
         },
         "maps": maps,

@@ -10,8 +10,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        909.468,
-                        264.338
+                        906.681,
+                        264.716
                     ],
                     "required": true
                 },
@@ -47,8 +47,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        909.468,
-                        264.338
+                        906.681,
+                        264.716
                     ],
                     "required": true
                 },
@@ -84,8 +84,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        909.468,
-                        264.338
+                        906.681,
+                        264.716
                     ],
                     "required": true
                 },
@@ -325,7 +325,7 @@
                     "action": "NAVMESH",
                     "target": [
                         1132.593,
-                        468.409
+                        465.597
                     ],
                     "required": true
                 },
@@ -564,8 +564,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1194.33,
-                        435.978
+                        1196.287,
+                        437.998
                     ],
                     "required": true
                 },
@@ -804,8 +804,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1172.064,
-                        440.658
+                        1171.738,
+                        437.864
                     ],
                     "required": true
                 },
@@ -913,8 +913,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1049.837,
-                        431.627
+                        1044.373,
+                        425.198
                     ],
                     "required": true
                 },
@@ -1023,8 +1023,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1049.837,
-                        431.627
+                        1044.373,
+                        425.198
                     ],
                     "required": true
                 },
@@ -1060,8 +1060,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1049.837,
-                        431.627
+                        1044.373,
+                        425.198
                     ],
                     "required": true
                 },
@@ -1169,8 +1169,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1081.62,
-                        505.065
+                        1073.476,
+                        502.859
                     ],
                     "required": true
                 },
@@ -1279,8 +1279,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1081.62,
-                        505.065
+                        1073.476,
+                        502.859
                     ],
                     "required": true
                 },
@@ -1316,8 +1316,8 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1081.62,
-                        505.065
+                        1073.476,
+                        502.859
                     ],
                     "required": true
                 },

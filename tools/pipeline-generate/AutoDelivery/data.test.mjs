@@ -20,7 +20,7 @@ import {buildSyncedRouteConfig} from "./sync-routes.mjs";
 const catalogSource = JSON.parse(readFileSync(new URL("../data/delivery_destinations.json", import.meta.url), "utf8"));
 const routeSource = JSON.parse(readFileSync(new URL("./routes.json", import.meta.url), "utf8"));
 
-test("AutoDelivery 按 yaw 正方向生成 4 米接近点", () => {
+test("AutoDelivery 按 yaw 正方向生成 8 米接近点", () => {
     const map = {sx: 0.75, sy: 0.75};
     const source = {u: 100, v: 200};
     const expectedByYaw = new Map([
@@ -28,13 +28,13 @@ test("AutoDelivery 按 yaw 正方向生成 4 米接近点", () => {
             0,
             [
                 100,
-                197,
+                194,
             ],
         ],
         [
             90,
             [
-                103,
+                106,
                 200,
             ],
         ],
@@ -42,13 +42,13 @@ test("AutoDelivery 按 yaw 正方向生成 4 米接近点", () => {
             180,
             [
                 100,
-                203,
+                206,
             ],
         ],
         [
             270,
             [
-                97,
+                94,
                 200,
             ],
         ],
@@ -60,7 +60,7 @@ test("AutoDelivery 按 yaw 正方向生成 4 米接近点", () => {
     ] of expectedByYaw) {
         const target = buildYawApproachTarget({...source, yaw}, map, `测试朝向 ${yaw}`);
         assert.deepEqual(target, expected);
-        assert.ok(Math.abs(Math.hypot((target[0] - source.u) / map.sx, (target[1] - source.v) / map.sy) - 4) < 1e-9);
+        assert.ok(Math.abs(Math.hypot((target[0] - source.u) / map.sx, (target[1] - source.v) / map.sy) - 8) < 1e-9);
     }
 });
 
@@ -115,7 +115,7 @@ test("AutoDelivery 仓储和资源回收站主路线从正面接近且所有目�
                 Math.hypot(
                     (defaultPath[0].target[0] - source.u) / map.sx,
                     (defaultPath[0].target[1] - source.v) / map.sy,
-                ) - 4,
+                ) - 8,
             ) < 0.002,
         );
     }
@@ -149,7 +149,7 @@ test("AutoDelivery 仓储和资源回收站主路线从正面接近且所有目�
                     Math.hypot(
                         (defaultPath[0].target[0] - source.u) / map.sx,
                         (defaultPath[0].target[1] - source.v) / map.sy,
-                    ) - 4,
+                    ) - 8,
                 ) < 0.002,
             );
         }

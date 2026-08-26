@@ -103,7 +103,7 @@ AutoDelivery 是任务无关的自动送货组件。调用方打开正确的当�
 | `assets/resource/pipeline/AutoDelivery/Delivery.json` | 取消追踪、终点导航和提交货物 |
 | `agent/go-service/autodelivery/` | OCR 匹配、运行时目录校验和生成路线节点分发 |
 
-普通仓储和资源回收站由 `tools/pipeline-generate/data/scripts/delivery_destinations_data.py` 提供游戏数据坐标与 yaw。路线生成器先在目标 yaw 正方向 4 米处生成一个 `required: true` 的 `NAVMESH` 必经点，再前往原始坐标，从而保证从交互正面接近；普通收货 NPC 仍只生成原始坐标的单个 `NAVMESH` 目标。只有断网格、分层或需要特殊站位时，才在 `routes.json` 中维护覆盖。
+普通仓储和资源回收站由 `tools/pipeline-generate/data/scripts/delivery_destinations_data.py` 提供游戏数据坐标与 yaw。路线生成器先在目标 yaw 正方向 8 米处生成一个 `required: true` 的 `NAVMESH` 必经点，再前往原始坐标，从而保证从交互正面接近；普通收货 NPC 仍只生成原始坐标的单个 `NAVMESH` 目标。只有断网格、分层或需要特殊站位时，才在 `routes.json` 中维护覆盖。
 
 运行 `pnpm generate:AutoDelivery` 后，每条主路线会生成普通与允许滑索两个 `AutoDeliveryRoute...` 节点。所有仓储和送货目标还会用同一条两点接近路线生成一个不启用滑索的 retry 节点；显式 `retry_path` 可以覆盖该路线。固定的 `AutoDeliveryNavigateDepot`、`AutoDeliveryRetryNavigateDepot`、`AutoDeliveryNavigateDestination` 和 `AutoDeliveryRetryNavigateDestination` 是 `SubTask` 分发器：Go Service 只根据 OCR 结果选择生成节点名，不再把坐标或完整 `path` 注入 Pipeline。生成节点是公开的单路线测试入口，`desc` 会注明路线对应的仓储节点；它们不替代完整送货业务的唯一入口 `AutoDelivery`。
 
@@ -121,7 +121,7 @@ AutoDelivery 是任务无关的自动送货组件。调用方打开正确的当�
 
 ### `retry_path`
 
-`retry_path` 使用与 `MapNavigateAction.custom_action_param.path` 相同的格式。它从主路线结束后的实际站位开始执行，应包含独立运行所需的区域声明和路径点。所有仓储和送货目标未配置时都使用自动生成的“4 米必经接近点 → 原始终点”路线，无需手工复制坐标；这不改变 NPC 主路线仍为单个终点的规则。
+`retry_path` 使用与 `MapNavigateAction.custom_action_param.path` 相同的格式。它从主路线结束后的实际站位开始执行，应包含独立运行所需的区域声明和路径点。所有仓储和送货目标未配置时都使用自动生成的“8 米必经接近点 → 原始终点”路线，无需手工复制坐标；这不改变 NPC 主路线仍为单个终点的规则。
 
 只在已经确认自动两点修正不适用时配置 `retry_path`，例如断网格、分层或目标附近需要绕行。不要用它掩盖模板不稳定、页面未加载或主路线错误。
 
