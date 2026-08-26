@@ -771,7 +771,7 @@ public:
                         }
                     }
                     if (!region_unavailable_selected->empty()) {
-                        evaluation = EvaluateCellTemplates(
+                        CellEvaluation fallback = EvaluateCellTemplates(
                             image,
                             request.grid_type,
                             cell.cell_box,
@@ -783,7 +783,10 @@ public:
                             request.threshold,
                             request.subpixel_threshold,
                             performance_ptr);
-                        region_unavailable_fallback_used = true;
+                        if (fallback.accepted) {
+                            evaluation = std::move(fallback);
+                            region_unavailable_fallback_used = true;
+                        }
                     }
                 }
 
