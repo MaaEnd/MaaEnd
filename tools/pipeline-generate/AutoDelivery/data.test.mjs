@@ -348,19 +348,35 @@ test("AutoDelivery 为同地图同区域的多个资源回收站生成地图图�
     }
 });
 
-test("AutoDelivery 已生成 Pipeline 与运行时目录覆盖全部路线", () => {
-    const pipeline = JSON.parse(
-        readFileSync(new URL("../../../assets/resource/pipeline/AutoDelivery/Routes.json", import.meta.url), "utf8"),
+test("AutoDelivery 已生成 Pipeline 按仓储分组并与运行时目录覆盖全部路线", () => {
+    const routesDir = new URL("../../../assets/resource/pipeline/AutoDelivery/Routes/", import.meta.url);
+    const routeFiles = readdirSync(routesDir)
+        .filter((file) => file.endsWith(".json"))
+        .sort();
+    const expectedRouteFiles = [...new Set(routeRows.map((row) => `${row.RouteFileId}.json`))].sort();
+    assert.deepEqual(routeFiles, expectedRouteFiles);
+    assert.equal(
+        existsSync(new URL("../../../assets/resource/pipeline/AutoDelivery/Routes.json", import.meta.url)),
+        false,
     );
+
+    const pipelinesByFile = new Map(
+        routeFiles.map((file) => [
+            file,
+            JSON.parse(readFileSync(new URL(file, routesDir), "utf8")),
+        ]),
+    );
+    const pipeline = Object.assign({}, ...pipelinesByFile.values());
     const catalog = JSON.parse(
         readFileSync(new URL("../../../assets/data/AutoDelivery/catalog.json", import.meta.url), "utf8"),
     );
     assert.deepEqual(catalog, runtimeCatalog);
     assert.deepEqual(new Set(Object.keys(pipeline)), new Set(routeRows.map((item) => item.Node)));
     for (const row of routeRows) {
-        assert.equal(pipeline[row.Node].custom_action, "MapNavigateAction");
-        assert.deepEqual(pipeline[row.Node].custom_action_param, row.ActionParam.value);
-        assert.equal(pipeline[row.Node].next, undefined);
+        const node = pipelinesByFile.get(`${row.RouteFileId}.json`)[row.Node];
+        assert.equal(node.custom_action, "MapNavigateAction");
+        assert.deepEqual(node.custom_action_param, row.ActionParam.value);
+        assert.equal(node.next, undefined);
     }
 });
 
@@ -369,6 +385,12 @@ test("AutoDelivery focus 文案统一使用完整 i18n 键", () => {
     const pipelineUrls = readdirSync(pipelineDir)
         .filter((file) => file.endsWith(".json"))
         .map((file) => new URL(file, pipelineDir));
+    const routePipelineDir = new URL("Routes/", pipelineDir);
+    pipelineUrls.push(
+        ...readdirSync(routePipelineDir)
+            .filter((file) => file.endsWith(".json"))
+            .map((file) => new URL(file, routePipelineDir)),
+    );
     const focusKeys = new Set();
 
     for (const url of pipelineUrls) {

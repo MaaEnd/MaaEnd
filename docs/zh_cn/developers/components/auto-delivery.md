@@ -96,7 +96,7 @@ AutoDelivery 是任务无关的自动送货组件。调用方打开正确的当�
 | --- | --- |
 | `tools/pipeline-generate/data/delivery_destinations.json` | zmdmap 数据 CI 自动生成并发布的仓储、终点、五语言文本、坐标和归属关系 |
 | `tools/pipeline-generate/AutoDelivery/routes.json` | 特殊仓储路线、取货站位修正和终点完整路线 |
-| `assets/resource/pipeline/AutoDelivery/Routes.json` | 由上述数据生成、可独立试跑的仓储与终点寻路节点 |
+| `assets/resource/pipeline/AutoDelivery/Routes/{RouteFileId}.json` | 由上述数据按仓储节点分组生成、可独立试跑的仓储与终点寻路节点 |
 | `assets/data/AutoDelivery/catalog.json` | 运行时 OCR 匹配目录，仅保留文本、归属关系和生成节点名 |
 | `assets/resource/pipeline/AutoDelivery/Common.json` | 公共入口和任务详情识别 |
 | `assets/resource/pipeline/AutoDelivery/Pickup.json` | 快速传送、仓储导航和取货 |

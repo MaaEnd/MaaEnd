@@ -1,0 +1,384 @@
+{
+    "AutoDeliveryRouteDepotDomain1Lv005Depot1": {
+        "desc": "AutoDelivery 仓储路线：前往源石研究园仓储节点（domain_1_lv005_depot_1）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1043.463,
+                        804.72
+                    ]
+                }
+            ],
+            "zip": false
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "AutoDeliveryRouteDepotDomain1Lv005Depot1WithZipline": {
+        "desc": "AutoDelivery 仓储路线：前往源石研究园仓储节点，允许使用滑索（domain_1_lv005_depot_1）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1043.463,
+                        804.72
+                    ]
+                }
+            ],
+            "zip": true
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00501": {
+        "desc": "AutoDelivery 终点路线：从源石研究园仓储节点前往英格（deliver_target_map01_lv005_01）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1132.831,
+                        900.497
+                    ]
+                }
+            ],
+            "zip": false
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00501WithZipline": {
+        "desc": "AutoDelivery 终点路线：从源石研究园仓储节点前往英格，允许使用滑索（deliver_target_map01_lv005_01）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1132.831,
+                        900.497
+                    ]
+                }
+            ],
+            "zip": true
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00502": {
+        "desc": "AutoDelivery 终点路线：从源石研究园仓储节点前往基特（deliver_target_map01_lv005_02）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1144.79,
+                        818.27
+                    ],
+                    "target_deck_y": 96.97
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1148.13,
+                        820.42
+                    ],
+                    "interact_text": "G层"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1161.84,
+                        826.06
+                    ],
+                    "target_deck_y": 87.27
+                }
+            ],
+            "zip": false
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00502WithZipline": {
+        "desc": "AutoDelivery 终点路线：从源石研究园仓储节点前往基特，允许使用滑索（deliver_target_map01_lv005_02）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1144.79,
+                        818.27
+                    ],
+                    "target_deck_y": 96.97
+                },
+                {
+                    "action": "INTERACT",
+                    "target": [
+                        1148.13,
+                        820.42
+                    ],
+                    "interact_text": "G层"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1161.84,
+                        826.06
+                    ],
+                    "target_deck_y": 87.27
+                }
+            ],
+            "zip": true
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00503": {
+        "desc": "AutoDelivery 终点路线：从源石研究园仓储节点前往嘉娜（deliver_target_map01_lv005_03）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        968.209,
+                        824.369
+                    ]
+                }
+            ],
+            "zip": false
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00503WithZipline": {
+        "desc": "AutoDelivery 终点路线：从源石研究园仓储节点前往嘉娜，允许使用滑索（deliver_target_map01_lv005_03）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        968.209,
+                        824.369
+                    ]
+                }
+            ],
+            "zip": true
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "AutoDeliveryRouteDestinationDeliverTargetMap01Lv005Recycle02": {
+        "desc": "AutoDelivery 终点路线：从源石研究园仓储节点前往学术复读羽兽（deliver_target_map01_lv005_recycle_02）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        905.299,
+                        764.145
+                    ]
+                }
+            ],
+            "zip": false
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "AutoDeliveryRouteDestinationDeliverTargetMap01Lv005Recycle02WithZipline": {
+        "desc": "AutoDelivery 终点路线：从源石研究园仓储节点前往学术复读羽兽，允许使用滑索（deliver_target_map01_lv005_recycle_02）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        905.299,
+                        764.145
+                    ]
+                }
+            ],
+            "zip": true
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "AutoDeliveryRouteDestinationDeliverTargetMap01Lv005Recycle03": {
+        "desc": "AutoDelivery 终点路线：从源石研究园仓储节点前往采购-醇化合物工厂模组（deliver_target_map01_lv005_recycle_03）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1183.458,
+                        817.116
+                    ]
+                }
+            ],
+            "zip": false
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "AutoDeliveryRouteDestinationDeliverTargetMap01Lv005Recycle03WithZipline": {
+        "desc": "AutoDelivery 终点路线：从源石研究园仓储节点前往采购-醇化合物工厂模组，允许使用滑索（deliver_target_map01_lv005_recycle_03）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1183.458,
+                        817.116
+                    ]
+                }
+            ],
+            "zip": true
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    }
+}

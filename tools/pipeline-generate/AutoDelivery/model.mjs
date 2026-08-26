@@ -47,6 +47,14 @@ function buildAreaId(area, label) {
     return id;
 }
 
+function buildRouteFileId(name, label) {
+    const id = buildNodeId(assertNonEmptyString(name?.en_us, `${label}.name.en_us`));
+    if (id === "") {
+        throw new TypeError(`[AutoDelivery] ${label} 的 name.en_us 无法生成路线文件 ID`);
+    }
+    return id;
+}
+
 function buildMapZone(map, label) {
     const baseNavZone = assertNonEmptyString(catalogSource.maps?.[map]?.zone, `${label}.maps.${map}.zone`);
     const [
@@ -106,6 +114,7 @@ export const depots = assertArray(catalogSource.depots, "delivery_destinations.d
         id,
         name: assertNonEmptyString(source.name?.zh_cn, `depots[${index}].name.zh_cn`),
         names: source.name,
+        routeFileId: buildRouteFileId(source.name, `depots[${index}]`),
         map: assertNonEmptyString(source.map, `depots[${index}].map`),
         path,
         retryPath: override?.retry_path ?? [],
@@ -116,6 +125,7 @@ export const depots = assertArray(catalogSource.depots, "delivery_destinations.d
     };
 });
 assertUnique(depots, (item) => item.id, "仓储 ID");
+assertUnique(depots, (item) => item.routeFileId, "仓储路线文件 ID");
 
 const depotById = new Map(
     depots.map((item) => [
@@ -153,6 +163,7 @@ export const destinations = assertArray(catalogSource.destinations, "delivery_de
             mapZone: buildMapZone(depot.map, `终点 ${id}`),
             depotId: source.depot_id,
             depotName: depot.name,
+            routeFileId: depot.routeFileId,
             name: source.name,
             mission: source.mission,
             area: source.area,

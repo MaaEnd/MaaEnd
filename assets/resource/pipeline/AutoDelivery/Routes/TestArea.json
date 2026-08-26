@@ -1,0 +1,527 @@
+{
+    "AutoDeliveryRouteDepotDomain2Lv005Depot1": {
+        "desc": "AutoDelivery 仓储路线：前往试验园区仓储节点（domain_2_lv005_depot_1）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1264.02,
+                        1734.67
+                    ]
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1252.63,
+                        1751.03
+                    ]
+                }
+            ],
+            "zip": false
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "AutoDeliveryRouteDepotDomain2Lv005Depot1WithZipline": {
+        "desc": "AutoDelivery 仓储路线：前往试验园区仓储节点，允许使用滑索（domain_2_lv005_depot_1）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1264.02,
+                        1734.67
+                    ]
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1252.63,
+                        1751.03
+                    ]
+                }
+            ],
+            "zip": true
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "AutoDeliveryRouteDepotRetryDomain2Lv005Depot1": {
+        "desc": "AutoDelivery 仓储站位修正路线：试验园区仓储节点（domain_2_lv005_depot_1）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1252.58,
+                        1739.8
+                    ]
+                },
+                [
+                    1252.63,
+                    1751.03,
+                    true
+                ]
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "AutoDeliveryRouteDestinationDeliverTargetMap02Lv00501": {
+        "desc": "AutoDelivery 终点路线：从试验园区仓储节点前往赵昭（deliver_target_map02_lv005_01）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1258.92,
+                        1751.65
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1259.66,
+                        1758.06
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1236.55,
+                        1753.2
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1344.56,
+                        1734.39
+                    ]
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1383.764,
+                        1633.923
+                    ]
+                }
+            ],
+            "zip": false
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "AutoDeliveryRouteDestinationDeliverTargetMap02Lv00501WithZipline": {
+        "desc": "AutoDelivery 终点路线：从试验园区仓储节点前往赵昭，允许使用滑索（deliver_target_map02_lv005_01）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1258.92,
+                        1751.65
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1259.66,
+                        1758.06
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1236.55,
+                        1753.2
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1344.56,
+                        1734.39
+                    ]
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1383.764,
+                        1633.923
+                    ]
+                }
+            ],
+            "zip": true
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "AutoDeliveryRouteDestinationDeliverTargetMap02Lv00502": {
+        "desc": "AutoDelivery 终点路线：从试验园区仓储节点前往裴令容（deliver_target_map02_lv005_02）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1258.92,
+                        1751.65
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1259.66,
+                        1758.06
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1236.55,
+                        1753.2
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1083.307,
+                        1455.27
+                    ]
+                }
+            ],
+            "zip": false
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "AutoDeliveryRouteDestinationDeliverTargetMap02Lv00502WithZipline": {
+        "desc": "AutoDelivery 终点路线：从试验园区仓储节点前往裴令容，允许使用滑索（deliver_target_map02_lv005_02）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1258.92,
+                        1751.65
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1259.66,
+                        1758.06
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1236.55,
+                        1753.2
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1083.307,
+                        1455.27
+                    ]
+                }
+            ],
+            "zip": true
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "AutoDeliveryRouteDestinationDeliverTargetMap02Lv00503": {
+        "desc": "AutoDelivery 终点路线：从试验园区仓储节点前往阿禾（deliver_target_map02_lv005_03）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1258.92,
+                        1751.65
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1259.66,
+                        1758.06
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1236.55,
+                        1753.2
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1242.49,
+                        1707.18
+                    ],
+                    "target_deck_y": 264.11
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1206.29,
+                        1698.98
+                    ],
+                    "target_deck_y": 261.9
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1208.37,
+                        1602.21
+                    ]
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1327.44,
+                        1594.77
+                    ]
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1355.59,
+                        1517.12
+                    ],
+                    "target_deck_y": 259.34
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1369.873,
+                        1533.922
+                    ]
+                }
+            ],
+            "zip": false
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "AutoDeliveryRouteDestinationDeliverTargetMap02Lv00503WithZipline": {
+        "desc": "AutoDelivery 终点路线：从试验园区仓储节点前往阿禾，允许使用滑索（deliver_target_map02_lv005_03）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1258.92,
+                        1751.65
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1259.66,
+                        1758.06
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1236.55,
+                        1753.2
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1242.49,
+                        1707.18
+                    ],
+                    "target_deck_y": 264.11
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1206.29,
+                        1698.98
+                    ],
+                    "target_deck_y": 261.9
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1208.37,
+                        1602.21
+                    ]
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1327.44,
+                        1594.77
+                    ]
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1355.59,
+                        1517.12
+                    ],
+                    "target_deck_y": 259.34
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1369.873,
+                        1533.922
+                    ]
+                }
+            ],
+            "zip": true
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    }
+}

@@ -1,0 +1,398 @@
+{
+    "AutoDeliveryRouteDepotDomain1Lv007Depot1": {
+        "desc": "AutoDelivery 仓储路线：前往供能高地仓储节点（domain_1_lv007_depot_1）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        666.84,
+                        212.87
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        659.59,
+                        221.96
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        637.14,
+                        232.61
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        635.995,
+                        230.292
+                    ]
+                }
+            ],
+            "zip": false
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "AutoDeliveryRouteDepotDomain1Lv007Depot1WithZipline": {
+        "desc": "AutoDelivery 仓储路线：前往供能高地仓储节点，允许使用滑索（domain_1_lv007_depot_1）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        666.84,
+                        212.87
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        659.59,
+                        221.96
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        637.14,
+                        232.61
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        635.995,
+                        230.292
+                    ]
+                }
+            ],
+            "zip": true
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00701": {
+        "desc": "AutoDelivery 终点路线：从供能高地仓储节点前往库济米尼奇娜（deliver_target_map01_lv007_01）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        616.693,
+                        130.125
+                    ]
+                }
+            ],
+            "zip": false
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00701WithZipline": {
+        "desc": "AutoDelivery 终点路线：从供能高地仓储节点前往库济米尼奇娜，允许使用滑索（deliver_target_map01_lv007_01）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        616.693,
+                        130.125
+                    ]
+                }
+            ],
+            "zip": true
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00702": {
+        "desc": "AutoDelivery 终点路线：从供能高地仓储节点前往里斯卡（deliver_target_map01_lv007_02）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        527.836,
+                        241.566
+                    ]
+                }
+            ],
+            "zip": false
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00702WithZipline": {
+        "desc": "AutoDelivery 终点路线：从供能高地仓储节点前往里斯卡，允许使用滑索（deliver_target_map01_lv007_02）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        527.836,
+                        241.566
+                    ]
+                }
+            ],
+            "zip": true
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00703": {
+        "desc": "AutoDelivery 终点路线：从供能高地仓储节点前往戈里昂（deliver_target_map01_lv007_03）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        681.185,
+                        390.687
+                    ]
+                }
+            ],
+            "zip": false
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00703WithZipline": {
+        "desc": "AutoDelivery 终点路线：从供能高地仓储节点前往戈里昂，允许使用滑索（deliver_target_map01_lv007_03）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        681.185,
+                        390.687
+                    ]
+                }
+            ],
+            "zip": true
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "AutoDeliveryRouteDestinationDeliverTargetMap01Lv007Recycle02": {
+        "desc": "AutoDelivery 终点路线：从供能高地仓储节点前往无畏的工团成员（deliver_target_map01_lv007_recycle_02）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        502.664,
+                        251.902
+                    ]
+                }
+            ],
+            "zip": false
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "AutoDeliveryRouteDestinationDeliverTargetMap01Lv007Recycle02WithZipline": {
+        "desc": "AutoDelivery 终点路线：从供能高地仓储节点前往无畏的工团成员，允许使用滑索（deliver_target_map01_lv007_recycle_02）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        502.664,
+                        251.902
+                    ]
+                }
+            ],
+            "zip": true
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "AutoDeliveryRouteDestinationDeliverTargetMap01Lv007Recycle03": {
+        "desc": "AutoDelivery 终点路线：从供能高地仓储节点前往采购-超域试验场物资模组（deliver_target_map01_lv007_recycle_03）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        615.071,
+                        397.166
+                    ]
+                }
+            ],
+            "zip": false
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "AutoDeliveryRouteDestinationDeliverTargetMap01Lv007Recycle03WithZipline": {
+        "desc": "AutoDelivery 终点路线：从供能高地仓储节点前往采购-超域试验场物资模组，允许使用滑索（deliver_target_map01_lv007_recycle_03）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        615.071,
+                        397.166
+                    ]
+                }
+            ],
+            "zip": true
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    }
+}

@@ -20,7 +20,7 @@
         "generate:SellProduct": "pnpm fetch:zmdmap && node tools/pipeline-generate/SellProduct/sync-locales.mjs && node tools/pipeline-generate/SellProduct/selection-data.mjs && node tools/pipeline-generate/run-all.mjs SellProduct"
     },
     "devDependencies": {
-        "@joebao/maa-pipeline-generate": "^1.2.3",
+        "@joebao/maa-pipeline-generate": "^1.3.0",
         "@nekosu/maa-tools": "1.0.22",
         "@nekosu/prettier-plugin-maafw-sort": "1.0.4",
         "@types/node": "^24.11.0",

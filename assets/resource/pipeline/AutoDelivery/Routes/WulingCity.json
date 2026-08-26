@@ -1,0 +1,639 @@
+{
+    "AutoDeliveryRouteDepotDomain2Lv002Depot1": {
+        "desc": "AutoDelivery 仓储路线：前往武陵城区仓储节点（domain_2_lv002_depot_1）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        954.6,
+                        1777.18
+                    ]
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        965.81,
+                        1800.4
+                    ]
+                },
+                [
+                    963.66,
+                    1824.46
+                ],
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        952.2,
+                        1832.68
+                    ]
+                }
+            ],
+            "zip": false
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "AutoDeliveryRouteDepotDomain2Lv002Depot1WithZipline": {
+        "desc": "AutoDelivery 仓储路线：前往武陵城区仓储节点，允许使用滑索（domain_2_lv002_depot_1）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        954.6,
+                        1777.18
+                    ]
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        965.81,
+                        1800.4
+                    ]
+                },
+                [
+                    963.66,
+                    1824.46
+                ],
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        952.2,
+                        1832.68
+                    ]
+                }
+            ],
+            "zip": true
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "AutoDeliveryRouteDepotRetryDomain2Lv002Depot1": {
+        "desc": "AutoDelivery 仓储站位修正路线：武陵城区仓储节点（domain_2_lv002_depot_1）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        964.99,
+                        1829.41
+                    ]
+                },
+                [
+                    952.2,
+                    1832.68,
+                    true
+                ]
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "AutoDeliveryRouteDestinationDeliverTargetMap02Lv00201": {
+        "desc": "AutoDelivery 终点路线：从武陵城区仓储节点前往苏白易（deliver_target_map02_lv002_01）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        963.66,
+                        1824.46
+                    ]
+                },
+                [
+                    965.5,
+                    1803.38
+                ],
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        724.98,
+                        1596.8
+                    ]
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        562.69,
+                        1419.46
+                    ]
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        543.49,
+                        1283.93
+                    ]
+                },
+                [
+                    543.38,
+                    1270.17
+                ],
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        538.031,
+                        1250.27
+                    ]
+                }
+            ],
+            "zip": false
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "AutoDeliveryRouteDestinationDeliverTargetMap02Lv00201WithZipline": {
+        "desc": "AutoDelivery 终点路线：从武陵城区仓储节点前往苏白易，允许使用滑索（deliver_target_map02_lv002_01）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        963.66,
+                        1824.46
+                    ]
+                },
+                [
+                    965.5,
+                    1803.38
+                ],
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        724.98,
+                        1596.8
+                    ]
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        562.69,
+                        1419.46
+                    ]
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        543.49,
+                        1283.93
+                    ]
+                },
+                [
+                    543.38,
+                    1270.17
+                ],
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        538.031,
+                        1250.27
+                    ]
+                }
+            ],
+            "zip": true
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "AutoDeliveryRouteDestinationDeliverTargetMap02Lv00202": {
+        "desc": "AutoDelivery 终点路线：从武陵城区仓储节点前往普里莫·林德（deliver_target_map02_lv002_02）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        963.66,
+                        1824.46
+                    ]
+                },
+                [
+                    965.5,
+                    1803.38
+                ],
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        724.98,
+                        1596.8
+                    ]
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        552.15,
+                        1654.82
+                    ]
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        525.72,
+                        1749.78
+                    ]
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        461.92,
+                        1712.802
+                    ],
+                    "target_deck_y": 315.37
+                }
+            ],
+            "zip": false
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "AutoDeliveryRouteDestinationDeliverTargetMap02Lv00202WithZipline": {
+        "desc": "AutoDelivery 终点路线：从武陵城区仓储节点前往普里莫·林德，允许使用滑索（deliver_target_map02_lv002_02）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        963.66,
+                        1824.46
+                    ]
+                },
+                [
+                    965.5,
+                    1803.38
+                ],
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        724.98,
+                        1596.8
+                    ]
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        552.15,
+                        1654.82
+                    ]
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        525.72,
+                        1749.78
+                    ]
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        461.92,
+                        1712.802
+                    ],
+                    "target_deck_y": 315.37
+                }
+            ],
+            "zip": true
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "AutoDeliveryRouteDestinationDeliverTargetMap02Lv00203": {
+        "desc": "AutoDelivery 终点路线：从武陵城区仓储节点前往于施（deliver_target_map02_lv002_03）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        963.66,
+                        1824.46
+                    ]
+                },
+                [
+                    965.5,
+                    1803.38
+                ],
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        840.79,
+                        1475.83
+                    ]
+                },
+                [
+                    852.39,
+                    1471.77
+                ],
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        894.615,
+                        1408.425
+                    ]
+                }
+            ],
+            "zip": false
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "AutoDeliveryRouteDestinationDeliverTargetMap02Lv00203WithZipline": {
+        "desc": "AutoDelivery 终点路线：从武陵城区仓储节点前往于施，允许使用滑索（deliver_target_map02_lv002_03）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        963.66,
+                        1824.46
+                    ]
+                },
+                [
+                    965.5,
+                    1803.38
+                ],
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        840.79,
+                        1475.83
+                    ]
+                },
+                [
+                    852.39,
+                    1471.77
+                ],
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        894.615,
+                        1408.425
+                    ]
+                }
+            ],
+            "zip": true
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "AutoDeliveryRouteDestinationDeliverTargetMap02Lv002Recycle01": {
+        "desc": "AutoDelivery 终点路线：从武陵城区仓储节点前往火锅探店达人（deliver_target_map02_lv002_recycle_01）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        963.66,
+                        1824.46
+                    ]
+                },
+                [
+                    965.5,
+                    1803.38
+                ],
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        724.98,
+                        1596.8
+                    ]
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        493.01,
+                        1633.2
+                    ]
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        512.92,
+                        1652.04
+                    ],
+                    "target_deck_y": 325.79
+                }
+            ],
+            "zip": false
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "AutoDeliveryRouteDestinationDeliverTargetMap02Lv002Recycle01WithZipline": {
+        "desc": "AutoDelivery 终点路线：从武陵城区仓储节点前往火锅探店达人，允许使用滑索（deliver_target_map02_lv002_recycle_01）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        963.66,
+                        1824.46
+                    ]
+                },
+                [
+                    965.5,
+                    1803.38
+                ],
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        724.98,
+                        1596.8
+                    ]
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        493.01,
+                        1633.2
+                    ]
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        512.92,
+                        1652.04
+                    ],
+                    "target_deck_y": 325.79
+                }
+            ],
+            "zip": true
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    }
+}
