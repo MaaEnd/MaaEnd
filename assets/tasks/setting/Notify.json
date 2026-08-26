@@ -12,6 +12,7 @@
                 "NotifyTelegram",
                 "NotifyDiscord",
                 "NotifyWeCom",
+                "NotifyNtfy",
                 "NotifyProxy"
             ]
         },
@@ -32,6 +33,7 @@
         "NotifyTelegram",
         "NotifyDiscord",
         "NotifyWeCom",
+        "NotifyNtfy",
         "NotifyProxy",
         "NotifyAllowTask",
         "NotifyFail"
@@ -1047,7 +1049,8 @@
                         "NotifyProxyServerChan",
                         "NotifyProxyTelegram",
                         "NotifyProxyDiscord",
-                        "NotifyProxyWeCom"
+                        "NotifyProxyWeCom",
+                        "NotifyProxyNtfy"
                     ],
                     "pipeline_override": {
                         "__NotifyConfig": {
@@ -1385,6 +1388,180 @@
                         "__NotifyConfig": {
                             "attach": {
                                 "wecom_use_proxy": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "NotifyNtfy": {
+            "type": "switch",
+            "label": "$option.NotifyNtfy.label",
+            "description": "$option.NotifyNtfy.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "NotifyNtfyPriority",
+                        "NotifyNtfyParams"
+                    ],
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "ntfy_enabled": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "ntfy_enabled": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "NotifyNtfyParams": {
+            "type": "input",
+            "label": "$option.NotifyNtfyParams.label",
+            "inputs": [
+                {
+                    "name": "URL",
+                    "label": "$option.NotifyNtfyParams.URL.label",
+                    "pipeline_type": "string",
+                    "default": "",
+                    "description": "$option.NotifyNtfyParams.URL.description"
+                },
+                {
+                    "name": "Title",
+                    "label": "$option.NotifyNtfyParams.Title.label",
+                    "pipeline_type": "string",
+                    "default": "",
+                    "description": "$option.NotifyNtfyParams.Title.description"
+                },
+                {
+                    "name": "Body",
+                    "label": "$option.NotifyNtfyParams.Body.label",
+                    "pipeline_type": "string",
+                    "default": "",
+                    "description": "$option.NotifyNtfyParams.Body.description"
+                },
+                {
+                    "name": "Tags",
+                    "label": "$option.NotifyNtfyParams.Tags.label",
+                    "pipeline_type": "string",
+                    "default": "",
+                    "description": "$option.NotifyNtfyParams.Tags.description"
+                },
+                {
+                    "name": "Token",
+                    "label": "$option.NotifyNtfyParams.Token.label",
+                    "pipeline_type": "string",
+                    "default": "",
+                    "description": "$option.NotifyNtfyParams.Token.description"
+                }
+            ],
+            "pipeline_override": {
+                "__NotifyConfig": {
+                    "attach": {
+                        "ntfy_url": "{URL}",
+                        "ntfy_title": "{Title}",
+                        "ntfy_body": "{Body}",
+                        "ntfy_tags": "{Tags}",
+                        "ntfy_token": "{Token}"
+                    }
+                }
+            }
+        },
+        "NotifyNtfyPriority": {
+            "type": "select",
+            "label": "$option.NotifyNtfyPriority.label",
+            "description": "$option.NotifyNtfyPriority.description",
+            "default_case": "default",
+            "cases": [
+                {
+                    "name": "default",
+                    "label": "$option.NotifyNtfyPriority.default.label",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "ntfy_priority": "default"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "min",
+                    "label": "$option.NotifyNtfyPriority.min.label",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "ntfy_priority": "min"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "low",
+                    "label": "$option.NotifyNtfyPriority.low.label",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "ntfy_priority": "low"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "high",
+                    "label": "$option.NotifyNtfyPriority.high.label",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "ntfy_priority": "high"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "max",
+                    "label": "$option.NotifyNtfyPriority.max.label",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "ntfy_priority": "max"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "NotifyProxyNtfy": {
+            "type": "switch",
+            "label": "$option.NotifyProxyNtfy.label",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "ntfy_use_proxy": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "__NotifyConfig": {
+                            "attach": {
+                                "ntfy_use_proxy": false
                             }
                         }
                     }

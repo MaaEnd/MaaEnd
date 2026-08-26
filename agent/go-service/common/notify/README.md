@@ -1,6 +1,6 @@
 # Notify
 
-多渠道通知 Go Service：任务失败、发送通知任务、以及任意任务主动发起的自定义通知，统一向设置页启用的渠道（Webhook / Bark / ServerChan / Telegram / Discord / 企业微信 / 可新增其他渠道）推送。开关判定、内容解析与渠道发送由本包负责，触发时机与流程由 Pipeline 控制。
+多渠道通知 Go Service：任务失败、发送通知任务、以及任意任务主动发起的自定义通知，统一向设置页启用的渠道（Webhook / Bark / ServerChan / Telegram / Discord / 企业微信 / ntfy / 可新增其他渠道）推送。开关判定、内容解析与渠道发送由本包负责，触发时机与流程由 Pipeline 控制。
 
 完整接入说明见 `docs/zh_cn/developers/components/notify.md`
 
@@ -22,6 +22,7 @@
 | `telegram.go` | 渠道模块：Telegram Bot，`sendMessage` 推送（标题+正文拼合，`chat_id` 逗号分隔多播）；`postTelegram` 校验 `ok` 布尔响应；API 地址留空用官方，填写第三方服务地址自动拼接 `/bot{token}/sendMessage` |
 | `discord.go` | 渠道模块：Discord Webhook，`content` 标题+正文拼合，可选 `username`/`avatar_url` 覆盖；响应按 HTTP 状态判断（204 即成功） |
 | `wecom.go` | 渠道模块：企业微信群机器人，`msgtype`（text/markdown/markdown_v2）+ `content` 标题+正文拼合；`postWeCom` 校验 `errcode`（企微失败也返回 HTTP 200，故单独校验） |
+| `ntfy.go` | 渠道模块：ntfy，标题用 `Title` header、正文用请求 body（标题正文分离）；可选优先级/标签/`Bearer` token；响应按 HTTP 状态判断 |
 | `sink.go` | 事件监听：`ConfigSink`（节点事件缓存配置，按 taskID 隔离）、`Sink`（任务失败事件发通知，按 taskID 去重、失败后清理缓存）、`controllerStartTime`（`{{duration}}` 起点）、`splitList` |
 | `taskname.go` | `{{task_name}}` 显示名解析：扫描 `tasks/*.json` 建立 `entry → i18n label` 映射（`sync.Once` 缓存），`resolveTaskName` 解析失败回退入口名 |
 | `register.go` | `Register()`：注册 `NotifySendAction` 动作 + `Sink` / `ConfigSink` 事件监听，供上层 `go-service` 统一加载 |
@@ -34,6 +35,7 @@
 | `proxy_test.go` | 代理解析（手动 / 复用 MXU 更新代理）、MXU 配置读取、`proxyClient`（http 支持 / socks5 报错）、全局代理发送链路 |
 | `discord_test.go` | Discord 发送（content/username/avatar_url 拼合与省略）、错误路径（空/非法 URL、空内容、HTTP 500）、端点校验 |
 | `wecom_test.go` | 企业微信发送（msgtype/text.content 拼合、markdown 分支）、错误路径（空/非法 URL、空内容、errcode!=0、HTTP 500）、端点校验 |
+| `ntfy_test.go` | ntfy 发送（Title/Priority/Tags header + body 拼合、Bearer token）、错误路径（空/非法 URL、空内容、HTTP 401）、端点校验 |
 | `channel_test.go` | 注册表完整性、重复注册忽略 |
 | `send_test.go` | `Send` 不污染调用方 vars |
 | `taskname_test.go` | 任务定义扫描、显示名解析端到端与回退 |
