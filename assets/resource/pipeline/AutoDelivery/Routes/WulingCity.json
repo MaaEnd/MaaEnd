@@ -276,6 +276,42 @@
             }
         }
     },
+    "AutoDeliveryRouteDestinationRetryDeliverTargetMap02Lv00201": {
+        "desc": "AutoDelivery 终点站位修正路线：苏白易（deliver_target_map02_lv002_01）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        541.013,
+                        1250.596
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        538.031,
+                        1250.27
+                    ]
+                }
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
     "AutoDeliveryRouteDestinationDeliverTargetMap02Lv00202": {
         "desc": "AutoDelivery 终点路线：从武陵城区仓储节点前往普里莫·林德（deliver_target_map02_lv002_02）",
         "recognition": "DirectHit",
@@ -408,6 +444,42 @@
             }
         }
     },
+    "AutoDeliveryRouteDestinationRetryDeliverTargetMap02Lv00202": {
+        "desc": "AutoDelivery 终点站位修正路线：普里莫·林德（deliver_target_map02_lv002_02）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        464.919,
+                        1712.725
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        461.92,
+                        1712.802
+                    ]
+                }
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
     "AutoDeliveryRouteDestinationDeliverTargetMap02Lv00203": {
         "desc": "AutoDelivery 终点路线：从武陵城区仓储节点前往于施（deliver_target_map02_lv002_03）",
         "recognition": "DirectHit",
@@ -506,6 +578,42 @@
                 }
             ],
             "zip": true
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "AutoDeliveryRouteDestinationRetryDeliverTargetMap02Lv00203": {
+        "desc": "AutoDelivery 终点站位修正路线：于施（deliver_target_map02_lv002_03）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        894.718,
+                        1411.423
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        894.615,
+                        1408.425
+                    ]
+                }
+            ]
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -624,6 +732,42 @@
                 }
             ],
             "zip": true
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "AutoDeliveryRouteDestinationRetryDeliverTargetMap02Lv002Recycle01": {
+        "desc": "AutoDelivery 终点站位修正路线：火锅探店达人（deliver_target_map02_lv002_recycle_01）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        513.135,
+                        1647.773
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        513.135,
+                        1650.773
+                    ]
+                }
+            ]
         },
         "post_delay": 0,
         "rate_limit": 0,

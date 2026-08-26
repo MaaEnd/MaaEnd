@@ -5,7 +5,7 @@ import test from "node:test";
 import {parse as parseJsonc} from "jsonc-parser";
 
 import routeRows from "./routes-data.mjs";
-import {depots, destinations, runtimeCatalog} from "./model.mjs";
+import {buildNavmeshPath, buildYawApproachTarget, depots, destinations, runtimeCatalog} from "./model.mjs";
 import {
     ambiguousRecycleBinGroups,
     ambiguousRecycleBins,
@@ -19,6 +19,152 @@ import {buildSyncedRouteConfig} from "./sync-routes.mjs";
 
 const catalogSource = JSON.parse(readFileSync(new URL("../data/delivery_destinations.json", import.meta.url), "utf8"));
 const routeSource = JSON.parse(readFileSync(new URL("./routes.json", import.meta.url), "utf8"));
+
+test("AutoDelivery 按 yaw 正方向生成 4 米接近点", () => {
+    const map = {sx: 0.75, sy: 0.75};
+    const source = {u: 100, v: 200};
+    const expectedByYaw = new Map([
+        [
+            0,
+            [
+                100,
+                197,
+            ],
+        ],
+        [
+            90,
+            [
+                103,
+                200,
+            ],
+        ],
+        [
+            180,
+            [
+                100,
+                203,
+            ],
+        ],
+        [
+            270,
+            [
+                97,
+                200,
+            ],
+        ],
+    ]);
+
+    for (const [
+        yaw,
+        expected,
+    ] of expectedByYaw) {
+        const target = buildYawApproachTarget({...source, yaw}, map, `测试朝向 ${yaw}`);
+        assert.deepEqual(target, expected);
+        assert.ok(Math.abs(Math.hypot((target[0] - source.u) / map.sx, (target[1] - source.v) / map.sy) - 4) < 1e-9);
+    }
+});
+
+test("AutoDelivery 仓储和资源回收站主路线从正面接近且所有目标自动生成重试路线", () => {
+    const depotOverrides = new Map(
+        routeSource.depots.map((item) => [
+            item.source_id,
+            item,
+        ]),
+    );
+    const destinationOverrides = new Map(
+        routeSource.destinations.map((item) => [
+            item.source_id,
+            item,
+        ]),
+    );
+    const sourceByDepotId = new Map(
+        catalogSource.depots.map((item) => [
+            item.id,
+            item,
+        ]),
+    );
+    const sourceByDestinationId = new Map(
+        catalogSource.destinations.map((item) => [
+            item.id,
+            item,
+        ]),
+    );
+
+    for (const depot of depots) {
+        const source = sourceByDepotId.get(depot.id);
+        const defaultPath = buildNavmeshPath(source, `仓储 ${depot.id}`, true);
+        const override = depotOverrides.get(depot.id);
+        if (override?.path?.length) {
+            assert.deepEqual(depot.path, override.path);
+        } else {
+            assert.deepEqual(depot.path, defaultPath);
+        }
+
+        const expectedRetryPath = override?.retry_path?.length ? override.retry_path : defaultPath;
+        assert.deepEqual(depot.retryPath, expectedRetryPath);
+        assert.match(depot.retryRouteNode, /^AutoDeliveryRouteDepotRetry/);
+        assert.equal(defaultPath.length, 2);
+        assert.equal(defaultPath[0].required, true);
+        assert.deepEqual(defaultPath[1].target, [
+            source.u,
+            source.v,
+        ]);
+        const map = catalogSource.maps[source.map];
+        assert.ok(
+            Math.abs(
+                Math.hypot(
+                    (defaultPath[0].target[0] - source.u) / map.sx,
+                    (defaultPath[0].target[1] - source.v) / map.sy,
+                ) - 4,
+            ) < 0.002,
+        );
+    }
+
+    for (const destination of destinations) {
+        const source = sourceByDestinationId.get(destination.id);
+        const override = destinationOverrides.get(destination.id);
+        const depot = depots.find((item) => item.id === destination.depotId);
+        const ownPath = destination.path.slice(depot.departurePath.length);
+        const withApproachPoint = source.kind === "recycle_bin";
+        const defaultPath = buildNavmeshPath(source, `终点 ${destination.id}`, withApproachPoint);
+        if (override?.path?.length) {
+            assert.deepEqual(ownPath, override.path);
+        } else {
+            assert.deepEqual(ownPath, defaultPath);
+        }
+
+        const defaultRetryPath = buildNavmeshPath(source, `终点重试 ${destination.id}`, true);
+        const expectedRetryPath = override?.retry_path?.length ? override.retry_path : defaultRetryPath;
+        assert.deepEqual(destination.retryPath, expectedRetryPath);
+        assert.match(destination.retryRouteNode, /^AutoDeliveryRouteDestinationRetry/);
+
+        if (!withApproachPoint) {
+            assert.equal(defaultPath.length, 1);
+        } else {
+            assert.equal(defaultPath.length, 2);
+            assert.equal(defaultPath[0].required, true);
+            const map = catalogSource.maps[source.map];
+            assert.ok(
+                Math.abs(
+                    Math.hypot(
+                        (defaultPath[0].target[0] - source.u) / map.sx,
+                        (defaultPath[0].target[1] - source.v) / map.sy,
+                    ) - 4,
+                ) < 0.002,
+            );
+        }
+        assert.deepEqual(defaultPath.at(-1).target, [
+            source.u,
+            source.v,
+        ]);
+    }
+});
+
+test("AutoDelivery 接近点拒绝无效朝向和地图比例", () => {
+    const source = {u: 100, v: 200, yaw: 0};
+    assert.throws(() => buildYawApproachTarget({...source, yaw: Number.NaN}, {sx: 1, sy: 1}, "无效朝向"), /yaw/);
+    assert.throws(() => buildYawApproachTarget(source, {sx: 0, sy: 1}, "无效比例"), /sx\/sy/);
+});
 
 test("AutoDelivery 路线同步刷新元数据并保留人工覆盖字段", () => {
     const synced = buildSyncedRouteConfig(
@@ -148,7 +294,7 @@ test("AutoDelivery 路线为每个仓储和终点生成可独立执行的普通/
     for (const row of routeRows) {
         assert.match(row.Node, /^AutoDeliveryRoute/);
         assert.ok(row.ActionParam.value.path.length > 0);
-        assert.match(row.Description, /仓储节点/);
+        assert.match(row.Description, /仓储节点|终点站位修正路线/);
     }
 });
 

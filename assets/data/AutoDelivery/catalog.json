@@ -11,7 +11,8 @@
             },
             "map": "map01",
             "route_node": "AutoDeliveryRouteDepotDomain1Lv005Depot1",
-            "zip_route_node": "AutoDeliveryRouteDepotDomain1Lv005Depot1WithZipline"
+            "zip_route_node": "AutoDeliveryRouteDepotDomain1Lv005Depot1WithZipline",
+            "retry_route_node": "AutoDeliveryRouteDepotRetryDomain1Lv005Depot1"
         },
         {
             "id": "domain_1_lv006_depot_1",
@@ -24,7 +25,8 @@
             },
             "map": "map01",
             "route_node": "AutoDeliveryRouteDepotDomain1Lv006Depot1",
-            "zip_route_node": "AutoDeliveryRouteDepotDomain1Lv006Depot1WithZipline"
+            "zip_route_node": "AutoDeliveryRouteDepotDomain1Lv006Depot1WithZipline",
+            "retry_route_node": "AutoDeliveryRouteDepotRetryDomain1Lv006Depot1"
         },
         {
             "id": "domain_1_lv007_depot_1",
@@ -37,7 +39,8 @@
             },
             "map": "map01",
             "route_node": "AutoDeliveryRouteDepotDomain1Lv007Depot1",
-            "zip_route_node": "AutoDeliveryRouteDepotDomain1Lv007Depot1WithZipline"
+            "zip_route_node": "AutoDeliveryRouteDepotDomain1Lv007Depot1WithZipline",
+            "retry_route_node": "AutoDeliveryRouteDepotRetryDomain1Lv007Depot1"
         },
         {
             "id": "domain_2_lv002_depot_1",
@@ -95,7 +98,8 @@
                 "ko_kr": "오리지늄 연구 구역"
             },
             "route_node": "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00501",
-            "zip_route_node": "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00501WithZipline"
+            "zip_route_node": "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00501WithZipline",
+            "retry_route_node": "AutoDeliveryRouteDestinationRetryDeliverTargetMap01Lv00501"
         },
         {
             "id": "deliver_target_map01_lv005_02",
@@ -123,7 +127,8 @@
                 "ko_kr": "오리지늄 연구 구역"
             },
             "route_node": "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00502",
-            "zip_route_node": "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00502WithZipline"
+            "zip_route_node": "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00502WithZipline",
+            "retry_route_node": "AutoDeliveryRouteDestinationRetryDeliverTargetMap01Lv00502"
         },
         {
             "id": "deliver_target_map01_lv005_03",
@@ -151,7 +156,8 @@
                 "ko_kr": "오리지늄 연구 구역"
             },
             "route_node": "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00503",
-            "zip_route_node": "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00503WithZipline"
+            "zip_route_node": "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00503WithZipline",
+            "retry_route_node": "AutoDeliveryRouteDestinationRetryDeliverTargetMap01Lv00503"
         },
         {
             "id": "deliver_target_map01_lv005_recycle_02",
@@ -180,7 +186,8 @@
                 "ko_kr": "오리지늄 연구 구역"
             },
             "route_node": "AutoDeliveryRouteDestinationDeliverTargetMap01Lv005Recycle02",
-            "zip_route_node": "AutoDeliveryRouteDestinationDeliverTargetMap01Lv005Recycle02WithZipline"
+            "zip_route_node": "AutoDeliveryRouteDestinationDeliverTargetMap01Lv005Recycle02WithZipline",
+            "retry_route_node": "AutoDeliveryRouteDestinationRetryDeliverTargetMap01Lv005Recycle02"
         },
         {
             "id": "deliver_target_map01_lv005_recycle_03",
@@ -209,7 +216,8 @@
                 "ko_kr": "오리지늄 연구 구역"
             },
             "route_node": "AutoDeliveryRouteDestinationDeliverTargetMap01Lv005Recycle03",
-            "zip_route_node": "AutoDeliveryRouteDestinationDeliverTargetMap01Lv005Recycle03WithZipline"
+            "zip_route_node": "AutoDeliveryRouteDestinationDeliverTargetMap01Lv005Recycle03WithZipline",
+            "retry_route_node": "AutoDeliveryRouteDestinationRetryDeliverTargetMap01Lv005Recycle03"
         },
         {
             "id": "deliver_target_map01_lv006_01",
@@ -237,7 +245,8 @@
                 "ko_kr": "광맥 구역"
             },
             "route_node": "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00601",
-            "zip_route_node": "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00601WithZipline"
+            "zip_route_node": "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00601WithZipline",
+            "retry_route_node": "AutoDeliveryRouteDestinationRetryDeliverTargetMap01Lv00601"
         },
         {
             "id": "deliver_target_map01_lv006_02",
@@ -265,7 +274,8 @@
                 "ko_kr": "광맥 구역"
             },
             "route_node": "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00602",
-            "zip_route_node": "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00602WithZipline"
+            "zip_route_node": "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00602WithZipline",
+            "retry_route_node": "AutoDeliveryRouteDestinationRetryDeliverTargetMap01Lv00602"
         },
         {
             "id": "deliver_target_map01_lv006_03",
@@ -293,7 +303,8 @@
                 "ko_kr": "광맥 구역"
             },
             "route_node": "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00603",
-            "zip_route_node": "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00603WithZipline"
+            "zip_route_node": "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00603WithZipline",
+            "retry_route_node": "AutoDeliveryRouteDestinationRetryDeliverTargetMap01Lv00603"
         },
         {
             "id": "deliver_target_map01_lv006_recycle_01",
@@ -322,7 +333,8 @@
                 "ko_kr": "광맥 구역"
             },
             "route_node": "AutoDeliveryRouteDestinationDeliverTargetMap01Lv006Recycle01",
-            "zip_route_node": "AutoDeliveryRouteDestinationDeliverTargetMap01Lv006Recycle01WithZipline"
+            "zip_route_node": "AutoDeliveryRouteDestinationDeliverTargetMap01Lv006Recycle01WithZipline",
+            "retry_route_node": "AutoDeliveryRouteDestinationRetryDeliverTargetMap01Lv006Recycle01"
         },
         {
             "id": "deliver_target_map01_lv006_recycle_03",
@@ -351,7 +363,8 @@
                 "ko_kr": "광맥 구역"
             },
             "route_node": "AutoDeliveryRouteDestinationDeliverTargetMap01Lv006Recycle03",
-            "zip_route_node": "AutoDeliveryRouteDestinationDeliverTargetMap01Lv006Recycle03WithZipline"
+            "zip_route_node": "AutoDeliveryRouteDestinationDeliverTargetMap01Lv006Recycle03WithZipline",
+            "retry_route_node": "AutoDeliveryRouteDestinationRetryDeliverTargetMap01Lv006Recycle03"
         },
         {
             "id": "deliver_target_map01_lv007_01",
@@ -379,7 +392,8 @@
                 "ko_kr": "에너지 공급 고지"
             },
             "route_node": "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00701",
-            "zip_route_node": "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00701WithZipline"
+            "zip_route_node": "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00701WithZipline",
+            "retry_route_node": "AutoDeliveryRouteDestinationRetryDeliverTargetMap01Lv00701"
         },
         {
             "id": "deliver_target_map01_lv007_02",
@@ -407,7 +421,8 @@
                 "ko_kr": "에너지 공급 고지"
             },
             "route_node": "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00702",
-            "zip_route_node": "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00702WithZipline"
+            "zip_route_node": "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00702WithZipline",
+            "retry_route_node": "AutoDeliveryRouteDestinationRetryDeliverTargetMap01Lv00702"
         },
         {
             "id": "deliver_target_map01_lv007_03",
@@ -435,7 +450,8 @@
                 "ko_kr": "에너지 공급 고지"
             },
             "route_node": "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00703",
-            "zip_route_node": "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00703WithZipline"
+            "zip_route_node": "AutoDeliveryRouteDestinationDeliverTargetMap01Lv00703WithZipline",
+            "retry_route_node": "AutoDeliveryRouteDestinationRetryDeliverTargetMap01Lv00703"
         },
         {
             "id": "deliver_target_map01_lv007_recycle_02",
@@ -464,7 +480,8 @@
                 "ko_kr": "에너지 공급 고지"
             },
             "route_node": "AutoDeliveryRouteDestinationDeliverTargetMap01Lv007Recycle02",
-            "zip_route_node": "AutoDeliveryRouteDestinationDeliverTargetMap01Lv007Recycle02WithZipline"
+            "zip_route_node": "AutoDeliveryRouteDestinationDeliverTargetMap01Lv007Recycle02WithZipline",
+            "retry_route_node": "AutoDeliveryRouteDestinationRetryDeliverTargetMap01Lv007Recycle02"
         },
         {
             "id": "deliver_target_map01_lv007_recycle_03",
@@ -493,7 +510,8 @@
                 "ko_kr": "에너지 공급 고지"
             },
             "route_node": "AutoDeliveryRouteDestinationDeliverTargetMap01Lv007Recycle03",
-            "zip_route_node": "AutoDeliveryRouteDestinationDeliverTargetMap01Lv007Recycle03WithZipline"
+            "zip_route_node": "AutoDeliveryRouteDestinationDeliverTargetMap01Lv007Recycle03WithZipline",
+            "retry_route_node": "AutoDeliveryRouteDestinationRetryDeliverTargetMap01Lv007Recycle03"
         },
         {
             "id": "deliver_target_map02_lv002_01",
@@ -521,7 +539,8 @@
                 "ko_kr": "무릉성"
             },
             "route_node": "AutoDeliveryRouteDestinationDeliverTargetMap02Lv00201",
-            "zip_route_node": "AutoDeliveryRouteDestinationDeliverTargetMap02Lv00201WithZipline"
+            "zip_route_node": "AutoDeliveryRouteDestinationDeliverTargetMap02Lv00201WithZipline",
+            "retry_route_node": "AutoDeliveryRouteDestinationRetryDeliverTargetMap02Lv00201"
         },
         {
             "id": "deliver_target_map02_lv002_02",
@@ -549,7 +568,8 @@
                 "ko_kr": "무릉성"
             },
             "route_node": "AutoDeliveryRouteDestinationDeliverTargetMap02Lv00202",
-            "zip_route_node": "AutoDeliveryRouteDestinationDeliverTargetMap02Lv00202WithZipline"
+            "zip_route_node": "AutoDeliveryRouteDestinationDeliverTargetMap02Lv00202WithZipline",
+            "retry_route_node": "AutoDeliveryRouteDestinationRetryDeliverTargetMap02Lv00202"
         },
         {
             "id": "deliver_target_map02_lv002_03",
@@ -577,7 +597,8 @@
                 "ko_kr": "무릉성"
             },
             "route_node": "AutoDeliveryRouteDestinationDeliverTargetMap02Lv00203",
-            "zip_route_node": "AutoDeliveryRouteDestinationDeliverTargetMap02Lv00203WithZipline"
+            "zip_route_node": "AutoDeliveryRouteDestinationDeliverTargetMap02Lv00203WithZipline",
+            "retry_route_node": "AutoDeliveryRouteDestinationRetryDeliverTargetMap02Lv00203"
         },
         {
             "id": "deliver_target_map02_lv002_recycle_01",
@@ -606,7 +627,8 @@
                 "ko_kr": "무릉성"
             },
             "route_node": "AutoDeliveryRouteDestinationDeliverTargetMap02Lv002Recycle01",
-            "zip_route_node": "AutoDeliveryRouteDestinationDeliverTargetMap02Lv002Recycle01WithZipline"
+            "zip_route_node": "AutoDeliveryRouteDestinationDeliverTargetMap02Lv002Recycle01WithZipline",
+            "retry_route_node": "AutoDeliveryRouteDestinationRetryDeliverTargetMap02Lv002Recycle01"
         },
         {
             "id": "deliver_target_map02_lv005_01",
@@ -634,7 +656,8 @@
                 "ko_kr": "실험 구역"
             },
             "route_node": "AutoDeliveryRouteDestinationDeliverTargetMap02Lv00501",
-            "zip_route_node": "AutoDeliveryRouteDestinationDeliverTargetMap02Lv00501WithZipline"
+            "zip_route_node": "AutoDeliveryRouteDestinationDeliverTargetMap02Lv00501WithZipline",
+            "retry_route_node": "AutoDeliveryRouteDestinationRetryDeliverTargetMap02Lv00501"
         },
         {
             "id": "deliver_target_map02_lv005_02",
@@ -662,7 +685,8 @@
                 "ko_kr": "실험 구역"
             },
             "route_node": "AutoDeliveryRouteDestinationDeliverTargetMap02Lv00502",
-            "zip_route_node": "AutoDeliveryRouteDestinationDeliverTargetMap02Lv00502WithZipline"
+            "zip_route_node": "AutoDeliveryRouteDestinationDeliverTargetMap02Lv00502WithZipline",
+            "retry_route_node": "AutoDeliveryRouteDestinationRetryDeliverTargetMap02Lv00502"
         },
         {
             "id": "deliver_target_map02_lv005_03",
@@ -690,7 +714,8 @@
                 "ko_kr": "실험 구역"
             },
             "route_node": "AutoDeliveryRouteDestinationDeliverTargetMap02Lv00503",
-            "zip_route_node": "AutoDeliveryRouteDestinationDeliverTargetMap02Lv00503WithZipline"
+            "zip_route_node": "AutoDeliveryRouteDestinationDeliverTargetMap02Lv00503WithZipline",
+            "retry_route_node": "AutoDeliveryRouteDestinationRetryDeliverTargetMap02Lv00503"
         }
     ]
 }

@@ -15,6 +15,6 @@ pnpm generate:AutoDelivery
 
 完整送货业务调用方仍只进入 `AutoDelivery`。生成的 `AutoDeliveryRoute...` 节点是公开的单路线测试入口，可在节点测试工具中单独运行；正常流程由 Go Service 识别当前仓储/终点后，通过固定 `SubTask` 分发节点动态调用。
 
-运行生成命令时，`sync-routes.mjs` 会按 `source_id` 刷新仓储的 `name` 以及终点的 `name` / `depot_id`，为游戏数据中的新增项补充 metadata-only 条目，并保留已有的人工字段。仓储和终点都支持 `description` / `path` / `retry_path`；`departure_path` 仅用于仓储，并会拼接到该仓储所有终点主路线之前。
+运行生成命令时，`sync-routes.mjs` 会按 `source_id` 刷新仓储的 `name` 以及终点的 `name` / `depot_id`，为游戏数据中的新增项补充 metadata-only 条目，并保留已有的人工字段。仓储和终点都支持 `description` / `path` / `retry_path`；`departure_path` 仅用于仓储，并会拼接到该仓储所有终点主路线之前。所有仓储和送货目标默认还会用自动两点接近路线生成 retry 节点，显式 `retry_path` 可覆盖其站位修正路径。
 
-修改 `routes.json` 时只使用 MapNavigator 工具实测得到的路径。普通可达目标仅保留同步出的元数据，由生成器使用游戏数据坐标生成单个 `NAVMESH` 点；跨层、断网格、交互或需要站位修正的路线才填写对应的路径覆盖。不要为了补齐字段而复制默认坐标。
+修改 `routes.json` 时只使用 MapNavigator 工具实测得到的路径。普通可达目标仅保留同步出的元数据：仓储节点和资源回收站会在终点的 yaw 正方向 4 米处生成一个 `required: true` 的 `NAVMESH` 必经点，再前往原始坐标，保证从交互正面接近；普通收货 NPC 仍只生成原始坐标的单个 `NAVMESH` 点。跨层、断网格、交互或需要站位修正的路线才填写对应的路径覆盖，人工 `path` 不会自动插入接近点。不要为了补齐字段而复制默认坐标。

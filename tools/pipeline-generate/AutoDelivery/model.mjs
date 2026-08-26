@@ -5,6 +5,9 @@ import {BASE_NAV_ZONE_IMAGE_PARTS} from "../../MapNavigator/web/static/js/model.
 const catalogSource = JSON.parse(readFileSync(new URL("../data/delivery_destinations.json", import.meta.url), "utf8"));
 const routeSource = JSON.parse(readFileSync(new URL("./routes.json", import.meta.url), "utf8"));
 
+const APPROACH_DISTANCE_METERS = 4;
+const COORDINATE_PRECISION = 3;
+
 function assertArray(value, label) {
     if (!Array.isArray(value)) {
         throw new TypeError(`[AutoDelivery] ${label} 必须是数组`);
@@ -71,18 +74,57 @@ function buildRouteNode(kind, sourceId, zip = false) {
     return `AutoDeliveryRoute${kind}${buildNodeId(sourceId)}${zip ? "WithZipline" : ""}`;
 }
 
-function buildNavmeshPath(source, label) {
+function roundCoordinate(value) {
+    return Number(value.toFixed(COORDINATE_PRECISION));
+}
+
+export function buildYawApproachTarget(source, map, label) {
     if (!Number.isFinite(source.u) || !Number.isFinite(source.v) || source.u < 0 || source.v < 0) {
         throw new TypeError(`[AutoDelivery] ${label} 的 u/v 坐标无效`);
+    }
+
+    if (!Number.isFinite(source.yaw)) {
+        throw new TypeError(`[AutoDelivery] ${label} 的 yaw 朝向无效`);
+    }
+    if (!Number.isFinite(map?.sx) || map.sx <= 0 || !Number.isFinite(map?.sy) || map.sy <= 0) {
+        throw new TypeError(`[AutoDelivery] ${label} 的地图 sx/sy 比例无效`);
+    }
+
+    const radians = (source.yaw * Math.PI) / 180;
+    return [
+        roundCoordinate(source.u + APPROACH_DISTANCE_METERS * map.sx * Math.sin(radians)),
+        roundCoordinate(source.v - APPROACH_DISTANCE_METERS * map.sy * Math.cos(radians)),
+    ];
+}
+
+export function buildNavmeshPath(source, label, withApproachPoint = false) {
+    if (!Number.isFinite(source.u) || !Number.isFinite(source.v) || source.u < 0 || source.v < 0) {
+        throw new TypeError(`[AutoDelivery] ${label} 的 u/v 坐标无效`);
+    }
+
+    const destination = {
+        action: "NAVMESH",
+        target: [
+            source.u,
+            source.v,
+        ],
+    };
+    if (!withApproachPoint) {
+        return [destination];
+    }
+
+    const mapId = assertNonEmptyString(source.map, `${label}.map`);
+    const map = catalogSource.maps?.[mapId];
+    if (!map) {
+        throw new Error(`[AutoDelivery] ${label} 引用了未知地图 ${mapId}`);
     }
     return [
         {
             action: "NAVMESH",
-            target: [
-                source.u,
-                source.v,
-            ],
+            target: buildYawApproachTarget(source, map, label),
+            required: true,
         },
+        destination,
     ];
 }
 
@@ -109,7 +151,9 @@ const destinationOverrides = new Map(destinationOverrideItems);
 export const depots = assertArray(catalogSource.depots, "delivery_destinations.depots").map((source, index) => {
     const id = assertNonEmptyString(source.id, `depots[${index}].id`);
     const override = depotOverrides.get(id);
-    const path = override?.path?.length ? override.path : buildNavmeshPath(source, `仓储 ${id}`);
+    const defaultPath = buildNavmeshPath(source, `仓储 ${id}`, true);
+    const path = override?.path?.length ? override.path : defaultPath;
+    const retryPath = override?.retry_path?.length ? override.retry_path : defaultPath;
     return {
         id,
         name: assertNonEmptyString(source.name?.zh_cn, `depots[${index}].name.zh_cn`),
@@ -117,11 +161,11 @@ export const depots = assertArray(catalogSource.depots, "delivery_destinations.d
         routeFileId: buildRouteFileId(source.name, `depots[${index}]`),
         map: assertNonEmptyString(source.map, `depots[${index}].map`),
         path,
-        retryPath: override?.retry_path ?? [],
+        retryPath,
         departurePath: override?.departure_path ?? [],
         routeNode: buildRouteNode("Depot", id),
         zipRouteNode: buildRouteNode("Depot", id, true),
-        retryRouteNode: override?.retry_path?.length ? buildRouteNode("DepotRetry", id) : "",
+        retryRouteNode: buildRouteNode("DepotRetry", id),
     };
 });
 assertUnique(depots, (item) => item.id, "仓储 ID");
@@ -153,7 +197,11 @@ export const destinations = assertArray(catalogSource.destinations, "delivery_de
             throw new Error(`[AutoDelivery] 终点 ${id} 引用了未知仓储 ${source.depot_id}`);
         }
         const override = destinationOverrides.get(id);
-        const ownPath = override?.path?.length ? override.path : buildNavmeshPath(source, `终点 ${id}`);
+        const withApproachPoint = source.kind === "recycle_bin";
+        const defaultPath = buildNavmeshPath(source, `终点 ${id}`, withApproachPoint);
+        const ownPath = override?.path?.length ? override.path : defaultPath;
+        const defaultRetryPath = buildNavmeshPath(source, `终点重试 ${id}`, true);
+        const retryPath = override?.retry_path?.length ? override.retry_path : defaultRetryPath;
         return {
             id,
             kind: source.kind,
@@ -175,10 +223,10 @@ export const destinations = assertArray(catalogSource.destinations, "delivery_de
                 ...depot.departurePath,
                 ...ownPath,
             ],
-            retryPath: override?.retry_path ?? [],
+            retryPath,
             routeNode: buildRouteNode("Destination", id),
             zipRouteNode: buildRouteNode("Destination", id, true),
-            retryRouteNode: override?.retry_path?.length ? buildRouteNode("DestinationRetry", id) : "",
+            retryRouteNode: buildRouteNode("DestinationRetry", id),
         };
     })
     .sort((left, right) => left.id.localeCompare(right.id));
