@@ -2,8 +2,8 @@
  * main.js — keystone orchestrator. Boots the app and owns every piece of glue the
  * other modules don't: the render loop (`_doRedraw` / `_paint`, mirroring
  * app_tk `_do_redraw`), the pointer state machine (`on_click`/`on_drag`/`on_release`
- * + right-button pan), wheel/keyboard, the three mutually-exclusive modes
- * (edit / assert / A*), zone navigation, fit-view, the copy actions, and the wiring
+ * + right-button pan), wheel/keyboard, the four mutually-exclusive modes
+ * (edit / assert / A* / log analysis), zone navigation, fit-view, the copy actions, and the wiring
  * of the {@link ConnectionPanel} / {@link RecordingController} / {@link Importer}
  * controllers.
  *
@@ -25,6 +25,7 @@ import {Overlay} from "./gl/overlay.js";
 import {formatHeading, transformHeading} from "./heading.js";
 import {NavmeshField} from "./navmesh_field.js";
 import {AppState, Mode} from "./state.js";
+import {logZiplineGeometry, parseMapNavigatorLog} from "./log_analysis.js";
 import {
     ACTION_NAMES,
     ActionType,
@@ -158,6 +159,19 @@ class MapNavigatorApp {
         /** @type {?number} debounce handle for the edit-mode probe. */
         this._offMeshTimer = null;
 
+        // --- read-only log analysis state ---
+        /** @type {Array<Object>} parsed MapNavigateAction runs from all imported files. */
+        this.logRuns = [];
+        /** @type {?Object} */
+        this.selectedLogRun = null;
+        this.logLayers = {
+            showAuthored: true,
+            showWalk: true,
+            showBaseline: true,
+            showZipline: true,
+            showEstimates: true,
+        };
+
         // --- basemap texture bookkeeping (async <img> load) ---
         /** @type {?string} zone name currently uploaded to the renderer basemap. */
         this._bgZone = null;
@@ -266,6 +280,7 @@ class MapNavigatorApp {
             tabEdit: $("tab-edit"),
             tabAstar: $("tab-astar"),
             tabAssert: $("tab-assert"),
+            tabLog: $("tab-log"),
             btnClearAssert: $("btn-clear-assert"),
             btnSelectTier: $("btn-select-tier"),
             btnSelectAssertTier: $("btn-select-assert-tier"),
@@ -288,6 +303,19 @@ class MapNavigatorApp {
             panelProperties: $("panel-properties"),
             panelAstar: $("panel-astar"),
             panelAssert: $("panel-assert"),
+            panelLog: $("panel-log"),
+            btnLogImport: $("btn-log-import"),
+            btnLogClear: $("btn-log-clear"),
+            logFileInput: $("log-file-input"),
+            logImportMeta: $("log-import-meta"),
+            logRunFilter: $("log-run-filter"),
+            logRunSelect: $("log-run-select"),
+            logShowAuthored: $("log-show-authored"),
+            logShowWalk: $("log-show-walk"),
+            logShowBaseline: $("log-show-baseline"),
+            logShowZipline: $("log-show-zipline"),
+            logShowEstimates: $("log-show-estimates"),
+            logDecisionSummary: $("log-decision-summary"),
             btnAssertLocate: $("btn-assert-locate"),
             btnAstarLocate: $("btn-astar-locate"),
             waypointList: $("waypoint-list"),
@@ -431,6 +459,8 @@ class MapNavigatorApp {
         if (this.state.mode === Mode.ASTAR) {
             this._applyDefaultAstarZoneSelection();
             this._onAstarZoneChanged();
+        } else if (this.state.mode === Mode.LOG && this.selectedLogRun) {
+            this._showSelectedLogRun({fit: true});
         }
     }
 
@@ -692,6 +722,24 @@ class MapNavigatorApp {
         e.tabEdit.addEventListener("click", () => this._selectModeTab("edit"));
         e.tabAstar.addEventListener("click", () => this._selectModeTab("astar"));
         e.tabAssert.addEventListener("click", () => this._selectModeTab("assert"));
+        e.tabLog.addEventListener("click", () => this._selectModeTab("log"));
+        e.btnLogImport.addEventListener("click", () => e.logFileInput.click());
+        e.btnLogClear.addEventListener("click", () => this._clearLogAnalysis());
+        e.logFileInput.addEventListener("change", () => this._importLogFiles(e.logFileInput.files));
+        e.logRunFilter.addEventListener("input", () => this._populateLogRunSelect());
+        e.logRunSelect.addEventListener("change", () => this._onLogRunChanged());
+        for (const [control, key] of [
+            [e.logShowAuthored, "showAuthored"],
+            [e.logShowWalk, "showWalk"],
+            [e.logShowBaseline, "showBaseline"],
+            [e.logShowZipline, "showZipline"],
+            [e.logShowEstimates, "showEstimates"],
+        ]) {
+            control.addEventListener("change", () => {
+                this.logLayers[key] = control.checked;
+                this._paint();
+            });
+        }
         e.btnClearAssert.addEventListener("click", () => this._deleteSelectedPoint());
         e.btnSelectTier.addEventListener("click", () => this._openTierPicker());
         e.btnSelectAssertTier.addEventListener("click", () => this._openTierPicker());
@@ -741,6 +789,8 @@ class MapNavigatorApp {
                     this._setActiveTool("assert-pan");
                 } else if (this.state.mode === Mode.ASTAR) {
                     this._setActiveTool("astar-pan");
+                } else if (this.state.mode === Mode.LOG) {
+                    this._setActiveTool("log-pan");
                 }
             }
         });
@@ -784,7 +834,7 @@ class MapNavigatorApp {
 
     /** @returns {string} the zone id string for the current mode's display frame. */
     _displayZoneId() {
-        if (this.state.mode === Mode.ASTAR || this.state.mode === Mode.ASSERT) {
+        if (this.state.mode === Mode.ASTAR || this.state.mode === Mode.ASSERT || this.state.mode === Mode.LOG) {
             return normalizeZoneId(this.els.astarDisplayZoneCombo.value, this._defaultAstarDisplayZone());
         }
         return this.state.currentZone();
@@ -799,7 +849,11 @@ class MapNavigatorApp {
 
     /** @returns {?number} zone id of the translated tier backing the canvas, else null. */
     _activeDisplayTierId() {
-        if ((this.state.mode !== Mode.ASTAR && this.state.mode !== Mode.ASSERT) || !this.field) return null;
+        if (
+            (this.state.mode !== Mode.ASTAR && this.state.mode !== Mode.ASSERT && this.state.mode !== Mode.LOG) ||
+            !this.field
+        )
+            return null;
         const zoneId = this._astarZoneId();
         if (Number.isNaN(zoneId)) return null;
         if (!this.field.isTier(zoneId)) return null;
@@ -871,6 +925,7 @@ class MapNavigatorApp {
             };
         }
         const displayAstarLocateHints = mode === Mode.ASTAR ? this._astarDisplayHints() : [];
+        const displayLogAnalysis = mode === Mode.LOG ? this._logAnalysisForDisplay() : null;
 
         const vm = {
             mode,
@@ -893,6 +948,7 @@ class MapNavigatorApp {
             selectionRect: this.selectionRect,
             assertLocateHint: displayAssertLocateHint,
             astarLocateHints: displayAstarLocateHints,
+            logAnalysis: displayLogAnalysis,
             offMeshMarks: this._offMeshForMode(mode),
         };
         this.renderer.requestRender(this.camera);
@@ -934,6 +990,70 @@ class MapNavigatorApp {
                 by,
             ];
         return this.field.baseToTier(tierId, bx, by);
+    }
+
+    /** Parsed author hints converted from their own zone/tier frame into base px. */
+    _logAuthoredBasePoints() {
+        const run = this.selectedLogRun;
+        if (!run) return [];
+        const runZoneId = this._resolveZoneId(run.zone);
+        const runGeometry =
+            this.field && !Number.isNaN(runZoneId) ? this.field.geometryZoneId(runZoneId) : null;
+        const entries = run.authoredPath || (run.authoredPoints || []).map((point) => ({point}));
+        const points = [];
+        for (const entry of entries) {
+            if (!entry || !Array.isArray(entry.point)) continue;
+            const frame = entry.targetTier || entry.zone || "";
+            const zoneId = this._resolveZoneId(frame);
+            if (this.field && !Number.isNaN(zoneId)) {
+                if (runGeometry !== null && this.field.geometryZoneId(zoneId) !== runGeometry) continue;
+                points.push(this._pointToBase(zoneId, entry.point[0], entry.point[1]));
+            } else {
+                points.push(entry.point);
+            }
+        }
+        return points;
+    }
+
+    /** Build the display-frame geometry consumed by Overlay's read-only log layer. */
+    _logAnalysisForDisplay() {
+        const run = this.selectedLogRun;
+        if (!run) return null;
+        const displayPoint = (point) => this._baseToDisplay(point[0], point[1]);
+        const displayPolyline = (points) => (points || []).map(displayPoint);
+        const ziplines = [];
+        const estimates = [];
+        for (const chain of run.ziplines || []) {
+            const geometry = logZiplineGeometry(chain);
+            for (const segment of geometry.actual) {
+                ziplines.push({...segment, from: displayPoint(segment.from), to: displayPoint(segment.to)});
+            }
+            for (const segment of geometry.estimated) {
+                estimates.push({...segment, from: displayPoint(segment.from), to: displayPoint(segment.to)});
+            }
+        }
+        return {
+            ...this.logLayers,
+            authored: displayPolyline(this._logAuthoredBasePoints()),
+            walks: (run.walks || [])
+                .filter((walk) => walk.decision === "walk")
+                .map((walk) => displayPolyline(walk.points)),
+            baselines: (run.walks || [])
+                .filter((walk) => walk.decision === "baseline")
+                .map((walk) => displayPolyline(walk.points)),
+            ziplines,
+            estimates,
+        };
+    }
+
+    /** All displayed log coordinates used by fit-view. */
+    _logDisplayPoints() {
+        const log = this._logAnalysisForDisplay();
+        if (!log) return [];
+        const points = [...log.authored];
+        for (const path of [...log.walks, ...log.baselines]) points.push(...path);
+        for (const segment of [...log.ziplines, ...log.estimates]) points.push(segment.from, segment.to);
+        return points;
     }
 
     /** A* preview markers projected base → display frame, including their heading vector. */
@@ -1334,6 +1454,7 @@ class MapNavigatorApp {
 
         const assertTarget = this._currentAssertTarget();
         const routePoints = this._routeDisplayPoints();
+        const logPoints = mode === Mode.LOG ? this._logDisplayPoints() : [];
         if (mode === Mode.ASSERT && assertTarget) {
             minX = assertTarget[0];
             maxX = assertTarget[0] + assertTarget[2];
@@ -1368,6 +1489,13 @@ class MapNavigatorApp {
                     maxX,
                     maxY,
                 ] = bounds;
+        } else if (mode === Mode.LOG && logPoints.length) {
+            const xs = logPoints.map((point) => point[0]);
+            const ys = logPoints.map((point) => point[1]);
+            minX = Math.min(...xs);
+            maxX = Math.max(...xs);
+            minY = Math.min(...ys);
+            maxY = Math.max(...ys);
         } else if (points.length) {
             const xs = points.map((p) => p.x);
             const ys = points.map((p) => p.y);
@@ -1475,7 +1603,12 @@ class MapNavigatorApp {
             y,
         ] = this._evtXY(e);
 
-        if (this.activeTool === "pan" || this.activeTool === "assert-pan" || this.activeTool === "astar-pan") {
+        if (
+            this.activeTool === "pan" ||
+            this.activeTool === "assert-pan" ||
+            this.activeTool === "astar-pan" ||
+            this.activeTool === "log-pan"
+        ) {
             this.isPanning = true;
             this.dragStartX = x;
             this.dragStartY = y;
@@ -2367,7 +2500,221 @@ class MapNavigatorApp {
     }
 
     // ==================================================================================
-    //  Mode switching (mutually exclusive: edit / assert / A*)
+    //  Read-only MapNavigator log analysis
+    // ==================================================================================
+
+    /** Read one or more local maafw logs and replace the current analysis set. */
+    async _importLogFiles(fileList) {
+        const files = Array.from(fileList || []);
+        if (!files.length) return;
+        setStatus(`正在解析 ${files.length} 个日志文件…`, "#3b82f6");
+        this.els.btnLogImport.disabled = true;
+        try {
+            const groups = await Promise.all(
+                files.map(async (file) => parseMapNavigatorLog(await file.text(), file.webkitRelativePath || file.name)),
+            );
+            this.logRuns = groups
+                .flat()
+                .sort((a, b) => b.timestamp.localeCompare(a.timestamp) || a.sourceName.localeCompare(b.sourceName));
+            this.logRuns.forEach((run, index) => {
+                run._uiKey = String(index);
+            });
+            this.selectedLogRun = null;
+            this.els.logRunFilter.value = "";
+            this.els.logRunFilter.disabled = this.logRuns.length === 0;
+            this.els.logRunSelect.disabled = this.logRuns.length === 0;
+            this.els.logImportMeta.textContent = `${files.length} 个文件 · 找到 ${this.logRuns.length} 次 MapNavigateAction`;
+            this._populateLogRunSelect();
+            if (this.logRuns.length) {
+                setStatus(`日志解析完成：找到 ${this.logRuns.length} 次导航运行。`, "#10b981");
+            } else {
+                setStatus("日志中没有找到带路径数据的 MapNavigateAction。", "#f59e0b");
+            }
+        } catch (err) {
+            setStatus(`日志解析失败：${err && err.message ? err.message : err}`, "#ef4444");
+        } finally {
+            this.els.btnLogImport.disabled = false;
+            this.els.logFileInput.value = "";
+        }
+    }
+
+    /** Apply the text filter and keep the selected run when it remains visible. */
+    _populateLogRunSelect() {
+        const combo = this.els.logRunSelect;
+        const query = String(this.els.logRunFilter.value || "")
+            .trim()
+            .toLowerCase();
+        const previous = this.selectedLogRun ? this.selectedLogRun._uiKey : "";
+        combo.textContent = "";
+        const visible = this.logRuns.filter((run) => {
+            if (!query) return true;
+            return `${run.timestamp} ${run.nodeName} ${run.sourceName} ${run.zone}`.toLowerCase().includes(query);
+        });
+        for (const run of visible) {
+            const option = document.createElement("option");
+            option.value = run._uiKey;
+            option.textContent = this._logRunLabel(run);
+            option.title = `${run.timestamp} · ${run.nodeName} · ${run.sourceName}`;
+            combo.appendChild(option);
+        }
+        combo.disabled = visible.length === 0;
+        if (!visible.length) {
+            const option = document.createElement("option");
+            option.value = "";
+            option.textContent = this.logRuns.length ? "没有匹配的运行记录" : "请先导入日志";
+            combo.appendChild(option);
+            this.selectedLogRun = null;
+            this._renderLogSummary();
+            this._paint();
+            return;
+        }
+        combo.value = visible.some((run) => run._uiKey === previous) ? previous : visible[0]._uiKey;
+        this._onLogRunChanged();
+    }
+
+    /** @param {Object} run @returns {string} */
+    _logRunLabel(run) {
+        const result = run.completed === true ? "成功" : run.completed === false ? "失败" : "未结束";
+        return `${run.timestamp || "时间未知"} · ${result} · ${run.nodeName} · ${run.sourceName}`;
+    }
+
+    /** Select the dropdown's run, switch to its basemap, and frame the recorded geometry. */
+    _onLogRunChanged() {
+        const key = this.els.logRunSelect.value;
+        this.selectedLogRun = this.logRuns.find((run) => run._uiKey === key) || null;
+        this._showSelectedLogRun({fit: true});
+    }
+
+    /** @param {{fit?:boolean}} [opts] */
+    _showSelectedLogRun(opts = {}) {
+        this._renderLogSummary();
+        const run = this.selectedLogRun;
+        if (!run) {
+            this._paint();
+            return;
+        }
+        if (this.state.mode !== Mode.LOG) return;
+        if (!this.field) {
+            setStatus("运行记录已选择，等待 navmesh 区域表加载后显示底图。", "#3b82f6");
+            this._paint();
+            return;
+        }
+        const zone = this.field.zoneByName(run.zone) || this.field.zoneById(parseInt(run.zone, 10));
+        if (!zone) {
+            setStatus(`日志区域 ${run.zone || "未知"} 不在当前 navmesh 数据中。`, "#f59e0b");
+            this._paint();
+            return;
+        }
+        const base = this.field.zoneById(this.field.geometryZoneId(zone.zone_id));
+        if (!base || !this.field.displayBaseNames().includes(base.name)) {
+            setStatus(`日志区域 ${run.zone} 没有可显示的底图。`, "#f59e0b");
+            this._paint();
+            return;
+        }
+        this.els.astarDisplayZoneCombo.value = base.name;
+        this._refreshAstarZoneChoices();
+        if (this.els.astarZoneCombo.options.length) this.els.astarZoneCombo.selectedIndex = 0;
+        this._refreshZoneLabel();
+        if (opts.fit) this._fitView();
+        else this._doRedraw();
+    }
+
+    /** Clear imported log data without touching the editor's route. */
+    _clearLogAnalysis() {
+        this.logRuns = [];
+        this.selectedLogRun = null;
+        this.els.logRunFilter.value = "";
+        this.els.logRunFilter.disabled = true;
+        this.els.logRunSelect.disabled = true;
+        this.els.logRunSelect.textContent = "";
+        const option = document.createElement("option");
+        option.value = "";
+        option.textContent = "请先导入日志";
+        this.els.logRunSelect.appendChild(option);
+        this.els.logImportMeta.textContent = "尚未导入日志";
+        this._renderLogSummary();
+        setStatus("已清除日志分析。", "#10b981");
+        this._paint();
+    }
+
+    /** Render costs, savings, raw reason identifiers, and execution confirmation. */
+    _renderLogSummary() {
+        const host = this.els.logDecisionSummary;
+        host.textContent = "";
+        const run = this.selectedLogRun;
+        if (!run) {
+            host.textContent = this.logRuns.length
+                ? "当前筛选没有匹配记录。"
+                : "导入日志后，这里会列出每段的成本计算和选择原因。";
+            return;
+        }
+
+        const heading = document.createElement("div");
+        heading.className = "log-run-heading";
+        heading.textContent = run.nodeName;
+        host.appendChild(heading);
+
+        const facts = document.createElement("div");
+        facts.className = "log-run-facts";
+        const result = run.completed === true ? "成功" : run.completed === false ? "失败" : "未记录结束";
+        const landed = (run.ziplines || []).reduce((sum, chain) => sum + (chain.landed || 0), 0);
+        const launched = (run.ziplines || []).reduce((sum, chain) => sum + (chain.launches || []).length, 0);
+        const ziplineFact = launched ? `滑索 ${landed}/${launched} 跳确认落地` : "无实际滑索发射";
+        facts.textContent = `${run.timestamp || "时间未知"} · ${run.zone || "区域未知"} · ${result} · ${ziplineFact} · ${run.sourceName}`;
+        host.appendChild(facts);
+
+        const decisions = run.decisions || [];
+        if (!decisions.length) {
+            const card = document.createElement("div");
+            card.className = "log-decision-card warning";
+            card.textContent = run.zipRequested
+                ? "请求启用了滑索，但这份日志没有记录可解析的路线决策。"
+                : "本次请求未启用滑索；仅显示作者提示和已生成的步行规划。";
+            host.appendChild(card);
+            return;
+        }
+
+        for (const decision of decisions) {
+            const card = document.createElement("div");
+            const kindClass = decision.kind === "zipline" ? "zipline" : decision.kind === "walk" ? "walk" : "warning";
+            card.className = `log-decision-card ${kindClass}`;
+
+            if (
+                decision.kind === "zipline" &&
+                Number.isFinite(decision.baselineLength) &&
+                Number.isFinite(decision.cost)
+            ) {
+                const saving = decision.baselineLength - decision.cost;
+                const percent = decision.baselineLength > 0 ? (saving / decision.baselineLength) * 100 : 0;
+                const formula = document.createElement("div");
+                formula.className = "log-decision-formula";
+                formula.textContent = `${decision.baselineLength.toFixed(3)} − ${decision.cost.toFixed(3)} = ${saving.toFixed(3)}（节省 ${percent.toFixed(2)}%）`;
+                card.appendChild(formula);
+                const detail = document.createElement("div");
+                const towers = Number.isFinite(decision.towerCount) ? decision.towerCount : null;
+                detail.textContent = towers
+                    ? `选择滑索：${towers} 座滑索架，实际链长 ${Math.max(0, towers - 1)} 跳。`
+                    : "选择滑索。";
+                card.appendChild(detail);
+            } else {
+                const detail = document.createElement("div");
+                const cost = Number.isFinite(decision.cost) ? `（步行代价 ${decision.cost.toFixed(3)}）` : "";
+                detail.textContent = `${decision.text || "路线决策"}${cost}`;
+                card.appendChild(detail);
+            }
+
+            if (decision.reason) {
+                const raw = document.createElement("div");
+                raw.className = "log-decision-raw";
+                raw.textContent = `why=${decision.reason}`;
+                card.appendChild(raw);
+            }
+            host.appendChild(card);
+        }
+    }
+
+    // ==================================================================================
+    //  Mode switching (mutually exclusive: edit / assert / A* / log)
     // ==================================================================================
 
     /**
@@ -2553,6 +2900,10 @@ class MapNavigatorApp {
 
     /** Delete per mode: A* preview, assert rect, or the selected route points. @returns {void} */
     _deleteSelectedPoint() {
+        if (this.state.mode === Mode.LOG) {
+            setStatus("日志分析模式为只读；请用“清除”移除导入的日志。", "#f59e0b");
+            return;
+        }
         if (this.state.mode === Mode.ASTAR) {
             this._clearAstarPreview();
             setStatus("已清除 A* 预览。", "#10b981");
@@ -2686,6 +3037,9 @@ class MapNavigatorApp {
      * @returns {{path: Array, exported: boolean, assert_target: ?Object}}
      */
     _navtestRoute() {
+        if (this.state.mode === Mode.LOG) {
+            return {path: [], exported: false, assert_target: null};
+        }
         if (this.state.mode === Mode.ASTAR) {
             const ready = this.field && this._displayZoneId() && this.astarPoints.length >= 2;
             return { path: ready ? this._navmeshTargets() : [], exported: true };
@@ -2892,7 +3246,7 @@ class MapNavigatorApp {
 
     /**
      * Switch the active canvas tool, updating toolbar highlight + canvas cursor.
-     * @param {'pan'|'add'|'select'|'astar-single'|'astar-multi'|'astar-pan'|'assert-pan'|'assert-edit'} tool
+     * @param {'pan'|'add'|'select'|'astar-single'|'astar-multi'|'astar-pan'|'assert-pan'|'assert-edit'|'log-pan'} tool
      * @returns {void}
      */
     _setActiveTool(tool) {
@@ -2908,7 +3262,7 @@ class MapNavigatorApp {
         if (e.toolAssertEdit) e.toolAssertEdit.classList.toggle("active", tool === "assert-edit");
 
         const canvas = e.overlayCanvas;
-        if (tool === "pan" || tool === "assert-pan" || tool === "astar-pan") {
+        if (tool === "pan" || tool === "assert-pan" || tool === "astar-pan" || tool === "log-pan") {
             canvas.style.cursor = "grab";
         } else if (tool === "add" || tool === "astar-single" || tool === "astar-multi") {
             canvas.style.cursor = "crosshair";
@@ -2923,13 +3277,13 @@ class MapNavigatorApp {
 
     /** @returns {void} */
     _undo() {
-        if (this.state.mode === Mode.ASTAR) return;
+        if (this.state.mode === Mode.ASTAR || this.state.mode === Mode.LOG) return;
         if (this.state.undo()) this._afterHistory();
     }
 
     /** @returns {void} */
     _redo() {
-        if (this.state.mode === Mode.ASTAR) return;
+        if (this.state.mode === Mode.ASTAR || this.state.mode === Mode.LOG) return;
         if (this.state.redo()) this._afterHistory();
     }
 
@@ -2942,6 +3296,7 @@ class MapNavigatorApp {
 
     /** C key: copy coords (tk `_on_copy_coord_key`). */
     _copyCoordKey() {
+        if (this.state.mode === Mode.LOG) return;
         if (this.state.mode === Mode.ASTAR) {
             let points = this.astarRoute && this.astarRoute.points ? this.astarRoute.points : [];
             if (!points.length) {
@@ -3296,6 +3651,11 @@ class MapNavigatorApp {
             this.els.zoneLabel.textContent = zoneId ? `Assert: ${zoneId}` : "Assert: 请选择地图";
             return;
         }
+        if (this.state.mode === Mode.LOG) {
+            const run = this.selectedLogRun;
+            this.els.zoneLabel.textContent = run ? `Log: ${run.zone || "未知区域"}` : "Log: 未选择运行记录";
+            return;
+        }
         this.els.zoneLabel.textContent = this.state.zoneState.labelText();
     }
 
@@ -3478,13 +3838,18 @@ class MapNavigatorApp {
     }
 
     /**
-     * Sidebar mode-tab click: switch to edit / assert / A*, clearing the other
+     * Sidebar mode-tab click: switch to edit / assert / A* / log, clearing the other
      * modes' canvas artifacts and picking a default zone where needed.
-     * @param {'edit'|'assert'|'astar'} modeName
+     * @param {'edit'|'assert'|'astar'|'log'} modeName
      * @returns {void}
      */
     _selectModeTab(modeName) {
         const e = this.els;
+
+        if (modeName === "log" && this.navtest && this.navtest.running) {
+            setStatus("请先按 F4 终止当前实机试跑，再进入日志分析模式。", "#f59e0b");
+            return;
+        }
 
         if (modeName !== "astar") {
             this._clearAstarPreview();
@@ -3517,6 +3882,15 @@ class MapNavigatorApp {
                 this._onAstarZoneChanged(false);
             }
             setStatus("A* 模式：左键点起点，再点终点生成预览路线。", "#3b82f6");
+        } else if (modeName === "log") {
+            this.state.mode = Mode.LOG;
+            this._showSelectedLogRun({fit: true});
+            setStatus(
+                this.selectedLogRun
+                    ? "日志分析模式：地图只读，可缩放和平移；虚线端点连接为估计。"
+                    : "日志分析模式：请导入解压后的 cpp-algo/debug/maafw*.log。",
+                "#3b82f6",
+            );
         }
 
         this._syncAssertControls();
@@ -3524,6 +3898,7 @@ class MapNavigatorApp {
         this._syncActionControls();
         this._refreshZoneLabel();
         this._syncModeTabUI();
+        if (this.navtest) this.navtest.routeChanged();
         this._doRedraw();
     }
 
@@ -3539,36 +3914,48 @@ class MapNavigatorApp {
         e.tabEdit.classList.remove("active");
         e.tabAstar.classList.remove("active");
         e.tabAssert.classList.remove("active");
+        e.tabLog.classList.remove("active");
 
-        // 试跑面板不参与切换: 三种模式都能跑, 会话又是持久的, 藏起来会让活着的会话没法停。
+        // 试跑面板不隐藏：日志模式禁用“开始”，但仍保留“终止”来收掉已有会话。
         e.panelRecording.hidden = true;
         e.panelProperties.hidden = true;
         e.panelAstar.hidden = true;
         e.panelAssert.hidden = true;
+        e.panelLog.hidden = true;
+        e.btnDelPointFloat.hidden = mode === Mode.LOG;
+        if (this.navtest) this.navtest.setDisabled(mode === Mode.LOG);
 
         if (mode === Mode.ASTAR) {
             e.tabAstar.classList.add("active");
             e.panelAstar.hidden = false;
-            e.canvasWrap.classList.remove("mode-edit", "mode-assert");
+            e.canvasWrap.classList.remove("mode-edit", "mode-assert", "mode-log");
             e.canvasWrap.classList.add("mode-astar");
-            document.body.classList.remove("mode-edit", "mode-assert");
+            document.body.classList.remove("mode-edit", "mode-assert", "mode-log");
             document.body.classList.add("mode-astar");
             this._setActiveTool("astar-single");
         } else if (mode === Mode.ASSERT) {
             e.tabAssert.classList.add("active");
             e.panelAssert.hidden = false;
-            e.canvasWrap.classList.remove("mode-edit", "mode-astar");
+            e.canvasWrap.classList.remove("mode-edit", "mode-astar", "mode-log");
             e.canvasWrap.classList.add("mode-assert");
-            document.body.classList.remove("mode-edit", "mode-astar");
+            document.body.classList.remove("mode-edit", "mode-astar", "mode-log");
             document.body.classList.add("mode-assert");
             this._setActiveTool("assert-edit");
+        } else if (mode === Mode.LOG) {
+            e.tabLog.classList.add("active");
+            e.panelLog.hidden = false;
+            e.canvasWrap.classList.remove("mode-edit", "mode-astar", "mode-assert");
+            e.canvasWrap.classList.add("mode-log");
+            document.body.classList.remove("mode-edit", "mode-astar", "mode-assert");
+            document.body.classList.add("mode-log");
+            this._setActiveTool("log-pan");
         } else {
             e.tabEdit.classList.add("active");
             e.panelRecording.hidden = false;
             e.panelProperties.hidden = false;
-            e.canvasWrap.classList.remove("mode-astar", "mode-assert");
+            e.canvasWrap.classList.remove("mode-astar", "mode-assert", "mode-log");
             e.canvasWrap.classList.add("mode-edit");
-            document.body.classList.remove("mode-astar", "mode-assert");
+            document.body.classList.remove("mode-astar", "mode-assert", "mode-log");
             document.body.classList.add("mode-edit");
             this._setActiveTool("add");
         }

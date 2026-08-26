@@ -117,6 +117,56 @@
           <button id="tab-astar" class="mode-tab-btn active" type="button">A* 寻路</button>
           <button id="tab-assert" class="mode-tab-btn" type="button">断言模式</button>
           <button id="tab-edit" class="mode-tab-btn" type="button">路径编辑</button>
+          <button id="tab-log" class="mode-tab-btn" type="button">日志分析</button>
+        </div>
+
+        <!-- MapNavigator 日志分析（文件只在浏览器本地读取） -->
+        <div class="sidebar-section" id="panel-log" hidden>
+          <div class="section-header">
+            <span class="section-title">导航日志分析</span>
+          </div>
+          <div class="sidebar-hint">导入解压后的 cpp-algo/debug/maafw*.log；文件不会上传</div>
+          <div class="sidebar-row grid-btns-2">
+            <button id="btn-log-import" class="btn btn-primary" type="button">导入日志</button>
+            <button id="btn-log-clear" class="btn btn-danger-outline" type="button">清除</button>
+          </div>
+          <input id="log-file-input" type="file" accept=".log,.txt,text/plain" multiple hidden />
+          <div id="log-import-meta" class="log-import-meta">尚未导入日志</div>
+
+          <label class="sidebar-label" for="log-run-filter">按时间、节点或文件筛选</label>
+          <input id="log-run-filter" class="entry" type="search" placeholder="例如 11:42 或 AutoDelivery" disabled />
+          <label class="sidebar-label" for="log-run-select">导航运行记录</label>
+          <select id="log-run-select" class="combo log-run-select" disabled>
+            <option value="">请先导入日志</option>
+          </select>
+
+          <div class="log-layer-title">地图标注</div>
+          <div class="log-layer-grid">
+            <label class="chk log-layer-option">
+              <input id="log-show-authored" type="checkbox" checked />
+              <span class="log-line-swatch authored"></span>作者路径提示
+            </label>
+            <label class="chk log-layer-option">
+              <input id="log-show-walk" type="checkbox" checked />
+              <span class="log-line-swatch walk"></span>实际选择步行
+            </label>
+            <label class="chk log-layer-option">
+              <input id="log-show-baseline" type="checkbox" checked />
+              <span class="log-line-swatch baseline"></span>未采用步行基线
+            </label>
+            <label class="chk log-layer-option">
+              <input id="log-show-zipline" type="checkbox" checked />
+              <span class="log-line-swatch zipline"></span>实际滑索段
+            </label>
+            <label class="chk log-layer-option">
+              <input id="log-show-estimates" type="checkbox" checked />
+              <span class="log-line-swatch estimate"></span>接近/离索端点估计
+            </label>
+          </div>
+          <div class="sidebar-hint">虚线“端点估计”不是角色逐帧轨迹；日志没有记录这两段完整折线</div>
+          <div id="log-decision-summary" class="log-decision-summary" aria-live="polite">
+            导入日志后，这里会列出每段的成本计算和选择原因。
+          </div>
         </div>
 
         <!-- 轨迹与录制 -->

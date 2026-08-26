@@ -1,0 +1,377 @@
+/**
+ * Parse cpp-algo MaaFramework logs into MapNavigator runs that can be inspected on
+ * the existing basemap. The parser is deliberately independent from DOM APIs so a
+ * real log fragment can be covered by Node tests.
+ *
+ * @module log_analysis
+ */
+
+const REQUEST_PREFIX = "[req=";
+const REQUEST_SUFFIX = "] [ipc_addr_=";
+
+const REASON_TEXT = Object.freeze({
+    "the walk is too short for any zipline to pay off": "路程太短，上索固定开销无法回本",
+    "no reachable pair of ziplines leads anywhere useful": "没有可达且方向有用的滑索组合",
+    "no zipline route beats walking": "滑索总代价不低于步行",
+    "no feasible zipline bridge to target": "没有滑索链能完整桥接不连通路段",
+    "no powered ziplines recorded in this zone": "当前区域没有已记录且供电的滑索",
+    "not one zipline here can be walked up to": "没有滑索端点可从导航网格走到",
+    "no zipline calibration on disk": "缺少滑索坐标标定",
+    "this zone is not calibrated": "当前区域没有滑索标定",
+});
+
+function timestampOf(line) {
+    const match = /^\[([^\]]+)\]/.exec(line);
+    return match ? match[1] : "";
+}
+
+function escapedRegex(text) {
+    return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function valueOf(line, name) {
+    const match = new RegExp(`\\[${escapedRegex(name)}=([^\\]]*)\\]`).exec(line);
+    return match ? match[1] : null;
+}
+
+function numberValue(line, name) {
+    const raw = valueOf(line, name);
+    if (raw === null) return null;
+    const value = Number(raw);
+    return Number.isFinite(value) ? value : null;
+}
+
+function boolValue(line, name) {
+    const raw = valueOf(line, name);
+    if (raw === "true") return true;
+    if (raw === "false") return false;
+    return null;
+}
+
+function arrayValue(line, name) {
+    const marker = `[${name}=`;
+    const markerAt = line.indexOf(marker);
+    if (markerAt < 0) return null;
+    const start = markerAt + marker.length;
+    if (line[start] !== "[") return null;
+
+    let depth = 0;
+    for (let i = start; i < line.length; i += 1) {
+        if (line[i] === "[") depth += 1;
+        else if (line[i] === "]") {
+            depth -= 1;
+            if (depth === 0) {
+                try {
+                    return JSON.parse(line.slice(start, i + 1));
+                } catch {
+                    return null;
+                }
+            }
+        }
+    }
+    return null;
+}
+
+function parseRequest(line) {
+    if (!line.includes('"custom_action_name":"MapNavigateAction"')) {
+        return null;
+    }
+    const begin = line.indexOf(REQUEST_PREFIX);
+    const end = line.indexOf(REQUEST_SUFFIX, begin + REQUEST_PREFIX.length);
+    if (begin < 0 || end < 0) return null;
+    try {
+        const request = JSON.parse(line.slice(begin + REQUEST_PREFIX.length, end));
+        const param = JSON.parse(request.custom_action_param || "{}");
+        return {request, param};
+    } catch {
+        return null;
+    }
+}
+
+function authoredPath(path) {
+    if (!Array.isArray(path)) return [];
+    const result = [];
+    let zone = "";
+    for (const point of path) {
+        if (point && typeof point === "object" && !Array.isArray(point) && point.action === "ZONE") {
+            zone = String(point.zone_id || point.zoneId || "");
+            continue;
+        }
+        let target = null;
+        if (Array.isArray(point)) target = point;
+        else if (point && typeof point === "object" && Array.isArray(point.target)) target = point.target;
+        if (!target || target.length < 2) continue;
+        const x = Number(target[0]);
+        const y = Number(target[1]);
+        if (!Number.isFinite(x) || !Number.isFinite(y)) continue;
+        result.push({
+            point: [x, y],
+            zone,
+            targetTier:
+                point && typeof point === "object" && !Array.isArray(point)
+                    ? String(point.target_tier || point.targetTier || "")
+                    : "",
+            action:
+                point && typeof point === "object" && !Array.isArray(point)
+                    ? String(point.action || "RUN")
+                    : String(target[2] || "RUN"),
+        });
+    }
+    return result;
+}
+
+function newRun(parsed, line, sourceName, index) {
+    const {request, param} = parsed;
+    const path = authoredPath(param.path);
+    return {
+        id: `${sourceName}:${index}`,
+        sourceName,
+        timestamp: timestampOf(line),
+        endTimestamp: "",
+        nodeName: String(request.node_name || "MapNavigateAction"),
+        taskId: request.task_id ?? null,
+        zone: "",
+        _fallbackZone: String(param.map_name || (path.find((entry) => entry.zone) || {}).zone || ""),
+        zipRequested: param.zip === true,
+        authoredPath: path,
+        authoredPoints: path.map((entry) => entry.point),
+        walks: [],
+        ziplines: [],
+        decisions: [],
+        completed: null,
+        _pendingWalk: null,
+        _pendingPick: null,
+    };
+}
+
+function addWalk(run, line) {
+    const points = arrayValue(line, "navmesh_path_points");
+    const cost = numberValue(line, "route_result.cost");
+    if (!Array.isArray(points) || points.length < 2 || cost === null) return;
+    const normalized = points
+        .filter((point) => Array.isArray(point) && point.length >= 2)
+        .map((point) => [Number(point[0]), Number(point[1])])
+        .filter((point) => point.every(Number.isFinite));
+    if (normalized.length < 2) return;
+
+    const walk = {
+        timestamp: timestampOf(line),
+        points: normalized,
+        cost,
+        decision: "pending",
+        reason: "",
+    };
+    run.walks.push(walk);
+    run._pendingWalk = walk;
+    run.zone ||= valueOf(line, "state.navmesh_zone") || "";
+}
+
+function addDecision(run, kind, line, detail = {}) {
+    run.decisions.push({kind, timestamp: timestampOf(line), ...detail});
+}
+
+function rejectOrChooseWalk(run, line) {
+    const reason = valueOf(line, "why") || "";
+    const walk = run._pendingWalk;
+    if (walk && walk.decision === "pending") {
+        walk.decision = "walk";
+        walk.reason = reason;
+        run._pendingWalk = null;
+    }
+    addDecision(run, "walk", line, {
+        reason,
+        text: REASON_TEXT[reason] || reason || "本段选择步行",
+        cost: walk ? walk.cost : null,
+    });
+    run.zone ||= valueOf(line, "navmesh_zone") || "";
+}
+
+function rememberZiplinePick(run, line) {
+    run._pendingPick = {
+        timestamp: timestampOf(line),
+        walkingBaselineAvailable: boolValue(line, "walking_baseline_available") === true,
+        baselineLength: numberValue(line, "baseline_length"),
+        cost: numberValue(line, "best->cost"),
+        towerCount: numberValue(line, "best->towers.size()"),
+        first: [numberValue(line, "best->towers.front().x"), numberValue(line, "best->towers.front().y")],
+        last: [numberValue(line, "best->towers.back().x"), numberValue(line, "best->towers.back().y")],
+    };
+}
+
+function addZipline(run, line) {
+    const picked = run._pendingPick || {};
+    const baselineAvailable = boolValue(line, "walking_baseline_available") === true;
+    let baselineWalk = null;
+    if (baselineAvailable && run._pendingWalk && run._pendingWalk.decision === "pending") {
+        baselineWalk = run._pendingWalk;
+        baselineWalk.decision = "baseline";
+        baselineWalk.reason = "zipline selected";
+        run._pendingWalk = null;
+    }
+
+    const mount = [numberValue(line, "mount.x"), numberValue(line, "mount.y")];
+    const last = [numberValue(line, "route->towers.back().x"), numberValue(line, "route->towers.back().y")];
+    const chain = {
+        timestamp: timestampOf(line),
+        baselineLength: picked.baselineLength ?? (baselineWalk ? baselineWalk.cost : null),
+        cost: numberValue(line, "route->cost") ?? picked.cost ?? null,
+        towerCount: numberValue(line, "route->towers.size()") ?? picked.towerCount ?? null,
+        mount: mount.every(Number.isFinite) ? mount : picked.first,
+        last: last.every(Number.isFinite) ? last : picked.last,
+        baselineWalk,
+        launches: [],
+        landings: [],
+        landed: 0,
+    };
+    run.ziplines.push(chain);
+    run._pendingPick = null;
+    addDecision(run, "zipline", line, {
+        baselineLength: chain.baselineLength,
+        cost: chain.cost,
+        towerCount: chain.towerCount,
+        saving:
+            Number.isFinite(chain.baselineLength) && Number.isFinite(chain.cost)
+                ? chain.baselineLength - chain.cost
+                : null,
+        savingPercent:
+            Number.isFinite(chain.baselineLength) &&
+            chain.baselineLength > 0 &&
+            Number.isFinite(chain.cost)
+                ? ((chain.baselineLength - chain.cost) / chain.baselineLength) * 100
+                : null,
+    });
+    run.zone ||= valueOf(line, "state.navmesh_zone") || "";
+}
+
+function pendingExecutionChain(run) {
+    return run.ziplines.find((chain) => {
+        const expected = Number.isFinite(chain.towerCount) ? Math.max(1, chain.towerCount - 1) : Infinity;
+        return chain.launches.length < expected;
+    });
+}
+
+function addLaunch(run, line) {
+    const landing = [numberValue(line, "landing.x"), numberValue(line, "landing.y")];
+    if (!landing.every(Number.isFinite)) return;
+    const chain = pendingExecutionChain(run);
+    if (!chain) return;
+    chain.launches.push(landing);
+}
+
+function addLanding(run, line) {
+    const chain = run.ziplines.find((candidate) => candidate.landed < candidate.launches.length);
+    if (!chain) return;
+    const landing = [numberValue(line, "landing.x"), numberValue(line, "landing.y")];
+    chain.landings.push(landing.every(Number.isFinite) ? landing : chain.launches[chain.landed]);
+    chain.landed += 1;
+}
+
+function closeRun(run, line, succeeded) {
+    for (const walk of run.walks) {
+        if (walk.decision === "pending") walk.decision = "walk";
+    }
+    run._pendingWalk = null;
+    run._pendingPick = null;
+    run.zone ||= run._fallbackZone;
+    run.endTimestamp = timestampOf(line);
+    run.completed = succeeded;
+    delete run._pendingWalk;
+    delete run._pendingPick;
+    delete run._fallbackZone;
+}
+
+function lineBelongsToRunEnd(run, line) {
+    if (!line.includes(run.nodeName)) return null;
+    if (line.includes("[msg=Node.Action.Succeeded]")) return true;
+    if (line.includes("[msg=Node.Action.Failed]")) return false;
+    return null;
+}
+
+/**
+ * Parse one MaaFramework/cpp-algo log file.
+ * @param {string} text
+ * @param {string} [sourceName='maafw.log']
+ * @returns {Array<Object>}
+ */
+export function parseMapNavigatorLog(text, sourceName = "maafw.log") {
+    const runs = [];
+    let current = null;
+    for (const line of String(text || "").split(/\r?\n/)) {
+        const request = parseRequest(line);
+        if (request) {
+            if (current) closeRun(current, line, null);
+            current = newRun(request, line, sourceName, runs.length);
+            runs.push(current);
+            continue;
+        }
+        if (!current) continue;
+
+        if (line.includes("NAVMESH generated path.")) addWalk(current, line);
+        else if (line.includes("ZiplineRoute: picked")) rememberZiplinePick(current, line);
+        else if (line.includes("Expanded NAVMESH waypoint via zipline.")) addZipline(current, line);
+        else if (line.includes("ZiplineRoute: walking this leg instead.")) rejectOrChooseWalk(current, line);
+        else if (line.includes("ZiplineRoute: no bridge for the disconnected walking leg.")) {
+            const reason = valueOf(line, "why") || "";
+            addDecision(current, "bridge-failed", line, {reason, text: REASON_TEXT[reason] || reason});
+            current.zone ||= valueOf(line, "navmesh_zone") || "";
+        } else if (line.includes("Global authored route unavailable; replaying authored hints.")) {
+            addDecision(current, "authored-replay", line, {text: "整段直达失败，回放作者路径并逐段规划"});
+        } else if (line.includes("Action: ZIPLINE launched toward the landing point.")) addLaunch(current, line);
+        else if (line.includes("Action: ZIPLINE ride landed.")) addLanding(current, line);
+
+        const succeeded = lineBelongsToRunEnd(current, line);
+        if (succeeded !== null) {
+            closeRun(current, line, succeeded);
+            current = null;
+        }
+    }
+    if (current) closeRun(current, "", null);
+    return runs.filter((run) => run.authoredPoints.length || run.walks.length || run.ziplines.length);
+}
+
+/** All base-map points needed to frame one parsed run. @param {Object} run @returns {number[][]} */
+export function logRunPoints(run) {
+    if (!run) return [];
+    const points = [...(run.authoredPoints || [])];
+    for (const walk of run.walks || []) points.push(...walk.points);
+    for (const chain of run.ziplines || []) {
+        if (Array.isArray(chain.mount)) points.push(chain.mount);
+        if (Array.isArray(chain.last)) points.push(chain.last);
+        points.push(...(chain.launches || []));
+    }
+    return points.filter((point) => Array.isArray(point) && point.length >= 2 && point.every(Number.isFinite));
+}
+
+/**
+ * Zipline segments that the runtime actually launched, plus the two straight endpoint
+ * connections that can only be estimated from the selected walking baseline.
+ * @param {Object} chain
+ * @returns {{actual:Array<{from:number[],to:number[],landed:boolean}>, estimated:Array<{from:number[],to:number[],kind:string}>}}
+ */
+export function logZiplineGeometry(chain) {
+    if (!chain) return {actual: [], estimated: []};
+    const actual = [];
+    let from = Array.isArray(chain.mount) ? chain.mount : null;
+    for (let i = 0; from && i < (chain.launches || []).length; i += 1) {
+        const to = chain.launches[i];
+        if (!Array.isArray(to)) continue;
+        actual.push({from, to, landed: i < (chain.landed || 0)});
+        from = to;
+    }
+
+    const estimated = [];
+    const baseline = chain.baselineWalk && chain.baselineWalk.points;
+    if (Array.isArray(baseline) && baseline.length >= 2 && Array.isArray(chain.mount)) {
+        estimated.push({from: baseline[0], to: chain.mount, kind: "approach"});
+        const last = actual.length ? actual[actual.length - 1].to : chain.last;
+        if (Array.isArray(last)) {
+            estimated.push({from: last, to: baseline[baseline.length - 1], kind: "exit"});
+        }
+    }
+    return {actual, estimated};
+}
+
+/** Human-readable reason from the runtime's stable raw identifier. @param {string} reason @returns {string} */
+export function ziplineReasonText(reason) {
+    return REASON_TEXT[reason] || reason || "本段选择步行";
+}

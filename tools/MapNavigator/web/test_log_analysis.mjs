@@ -1,0 +1,113 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+
+import {
+  logRunPoints,
+  logZiplineGeometry,
+  parseMapNavigatorLog,
+  ziplineReasonText,
+} from './static/js/log_analysis.js';
+
+const request = {
+  _CustomActionRequest: 1,
+  custom_action_name: 'MapNavigateAction',
+  custom_action_param: JSON.stringify({
+    path: [
+      {action: 'ZONE', zone_id: 'Wuling_Base'},
+      {action: 'NAVMESH', target: [965.5, 1803.38]},
+      {action: 'NAVMESH', target: [724.98, 1596.8]},
+    ],
+    zip: true,
+  }),
+  node_name: 'AutoDeliveryRouteDestinationWithZipline',
+  task_id: 200000001,
+};
+
+const lines = [
+  `[2026-08-26 11:42:20.323][INF][AgentServer.cpp] [req=${JSON.stringify(request)}] [ipc_addr_=ipc://test.sock]`,
+  '[2026-08-26 11:42:50.039][INF][navmesh_path_expander.cpp] NAVMESH generated path. [state.navmesh_zone=map02base] [route_result.cost=467.555411] [navmesh_path_points=[[965.5,1803.38],[900,1700],[724.98,1596.8]]]',
+  '[2026-08-26 11:42:53.239][INF][zipline_leg_planner.cpp] ZiplineRoute: picked [walking_baseline_available=true] [baseline_length=467.555411] [best->cost=355.899450] [best->towers.size()=4] [best->towers.front().x=955.5] [best->towers.front().y=1777.5] [best->towers.back().x=912] [best->towers.back().y=1584]',
+  '[2026-08-26 11:42:53.239][INF][navmesh_path_expander.cpp] Expanded NAVMESH waypoint via zipline. [state.navmesh_zone=map02base] [walking_baseline_available=true] [route->cost=355.899450] [route->towers.size()=4] [mount.x=955.5] [mount.y=1777.5] [route->towers.back().x=912] [route->towers.back().y=1584]',
+  '[2026-08-26 11:43:11.644][INF][zipline_action.cpp] Action: ZIPLINE launched toward the landing point. [landing.x=940.5] [landing.y=1699.5]',
+  '[2026-08-26 11:43:18.812][INF][zipline_action.cpp] Action: ZIPLINE ride landed.',
+  '[2026-08-26 11:43:20.128][INF][zipline_action.cpp] Action: ZIPLINE launched toward the landing point. [landing.x=957] [landing.y=1653]',
+  '[2026-08-26 11:43:24.495][INF][zipline_action.cpp] Action: ZIPLINE ride landed.',
+  '[2026-08-26 11:43:25.930][INF][zipline_action.cpp] Action: ZIPLINE launched toward the landing point. [landing.x=912] [landing.y=1584]',
+  '[2026-08-26 11:43:33.696][INF][zipline_action.cpp] Action: ZIPLINE ride landed.',
+  '[2026-08-26 11:43:34.000][INF][navmesh_path_expander.cpp] NAVMESH generated path. [state.navmesh_zone=map02base] [route_result.cost=22.381149] [navmesh_path_points=[[543.38,1270.17],[538.031,1250.27]]]',
+  '[2026-08-26 11:43:34.010][INF][zipline_leg_planner.cpp] ZiplineRoute: walking this leg instead. [why=the walk is too short for any zipline to pay off] [navmesh_zone=map02base]',
+  '[2026-08-26 11:45:38.041][INF][EventDispatcher.hpp] [msg=Node.Action.Succeeded] [details={"name":"AutoDeliveryRouteDestinationWithZipline"}]',
+];
+
+test('parses one selected zipline chain and its actual launches', () => {
+  const [run] = parseMapNavigatorLog(lines.join('\n'), 'cpp-algo-maafw.log');
+
+  assert.ok(run);
+  assert.equal(run.nodeName, 'AutoDeliveryRouteDestinationWithZipline');
+  assert.equal(run.zone, 'map02base');
+  assert.equal(run.zipRequested, true);
+  assert.equal(run.completed, true);
+  assert.deepEqual(run.authoredPoints, [
+    [965.5, 1803.38],
+    [724.98, 1596.8],
+  ]);
+  assert.equal(run.authoredPath[0].zone, 'Wuling_Base');
+
+  assert.equal(run.walks.length, 2);
+  assert.equal(run.walks[0].decision, 'baseline');
+  assert.equal(run.walks[1].decision, 'walk');
+
+  assert.equal(run.ziplines.length, 1);
+  assert.equal(run.ziplines[0].towerCount, 4);
+  assert.equal(run.ziplines[0].landed, 3);
+  assert.deepEqual(run.ziplines[0].launches, [
+    [940.5, 1699.5],
+    [957, 1653],
+    [912, 1584],
+  ]);
+  assert.ok(Math.abs(run.decisions.find((decision) => decision.kind === 'zipline').saving - 111.655961) < 1e-9);
+  assert.ok(
+    Math.abs(run.decisions.find((decision) => decision.kind === 'zipline').savingPercent - 23.880798) < 1e-6,
+  );
+
+  const geometry = logZiplineGeometry(run.ziplines[0]);
+  assert.equal(geometry.actual.length, 3);
+  assert.ok(geometry.actual.every((segment) => segment.landed));
+  assert.deepEqual(geometry.estimated, [
+    {from: [965.5, 1803.38], to: [955.5, 1777.5], kind: 'approach'},
+    {from: [912, 1584], to: [724.98, 1596.8], kind: 'exit'},
+  ]);
+});
+
+test('frames author, walk, and zipline coordinates', () => {
+  const [run] = parseMapNavigatorLog(lines.join('\n'));
+  const points = logRunPoints(run);
+  assert.ok(points.some(([x, y]) => x === 955.5 && y === 1777.5));
+  assert.ok(points.some(([x, y]) => x === 538.031 && y === 1250.27));
+});
+
+test('keeps searchable runtime reasons while presenting Chinese text', () => {
+  assert.equal(
+    ziplineReasonText('no zipline route beats walking'),
+    '滑索总代价不低于步行',
+  );
+  assert.equal(ziplineReasonText('future raw reason'), 'future raw reason');
+});
+
+test('keeps authored tier metadata for display-frame conversion', () => {
+  const tieredRequest = {
+    ...request,
+    custom_action_param: JSON.stringify({
+      path: [
+        {action: 'ZONE', zone_id: 'Wuling_Base'},
+        {action: 'NAVMESH', target: [81.77, 108.72], target_tier: 'Wuling_L4_328'},
+      ],
+    }),
+  };
+  const [run] = parseMapNavigatorLog(
+    `[2026-08-26 12:00:00.000][INF][AgentServer.cpp] [req=${JSON.stringify(tieredRequest)}] [ipc_addr_=ipc://test.sock]`,
+  );
+  assert.equal(run.authoredPath[0].targetTier, 'Wuling_L4_328');
+  assert.equal(run.zone, 'Wuling_Base');
+  assert.equal(run.completed, null);
+});

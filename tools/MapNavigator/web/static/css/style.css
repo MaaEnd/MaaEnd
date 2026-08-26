@@ -312,6 +312,122 @@ canvas {
   margin: 4px 0 2px 0;
 }
 
+/* ===== 导航日志分析 ===== */
+.log-import-meta {
+  color: var(--text-secondary);
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.log-run-select {
+  width: 100%;
+  font-family: var(--font-mono);
+  font-size: 10px;
+}
+
+.log-layer-title {
+  padding-top: 8px;
+  border-top: 1px solid var(--border-color);
+  color: var(--text-primary);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.log-layer-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+}
+
+.log-layer-option {
+  margin: 0;
+}
+
+.log-line-swatch {
+  width: 28px;
+  height: 0;
+  border-top: 3px solid;
+  display: inline-block;
+  flex: 0 0 auto;
+}
+
+.log-line-swatch.authored {
+  border-color: #f8fafc;
+  border-top-style: dashed;
+}
+
+.log-line-swatch.walk {
+  border-color: #ff3b9d;
+}
+
+.log-line-swatch.baseline {
+  border-color: rgba(245, 158, 11, 0.75);
+  border-top-style: dashed;
+}
+
+.log-line-swatch.zipline {
+  border-color: #22d3ee;
+}
+
+.log-line-swatch.estimate {
+  border-color: #22d3ee;
+  border-top-style: dashed;
+  opacity: 0.7;
+}
+
+.log-decision-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  color: var(--text-secondary);
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.log-run-heading {
+  color: var(--text-primary);
+  font-size: 11px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.log-run-facts {
+  color: var(--text-muted);
+  overflow-wrap: anywhere;
+}
+
+.log-decision-card {
+  padding: 7px 8px;
+  border: 1px solid var(--border-color);
+  border-left: 3px solid #64748b;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.log-decision-card.zipline {
+  border-left-color: #22d3ee;
+}
+
+.log-decision-card.walk {
+  border-left-color: #ff3b9d;
+}
+
+.log-decision-card.warning {
+  border-left-color: #f59e0b;
+}
+
+.log-decision-formula {
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  margin-bottom: 2px;
+}
+
+.log-decision-raw {
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  overflow-wrap: anywhere;
+}
+
 /* 重叠面列表:同一坐标底下压着的几张可走面,选中一层会在画布上高亮。 */
 .deck-box {
   flex-direction: column;
@@ -1461,6 +1577,11 @@ canvas {
 .mode-assert .btn-tool.group-assert,
 #canvas-wrap.mode-assert .btn-tool.group-assert {
   display: flex !important;
+}
+
+.mode-log .canvas-editor-toolbar,
+#canvas-wrap.mode-log .canvas-editor-toolbar {
+  display: none;
 }
 
 /* ===== 幽灵按钮 (用于精细操作/刷新等微小交互) ===== */
