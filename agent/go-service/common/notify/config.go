@@ -84,7 +84,7 @@ func MergeAttach(global, local map[string]any) map[string]any {
 		merged[k] = v
 	}
 	for _, key := range []string{"task_title", "task_body", "task_notify_key"} {
-		if v, ok := local[key]; ok {
+		if v, ok := local[key]; ok && v != "" {
 			merged[key] = v
 		}
 	}
