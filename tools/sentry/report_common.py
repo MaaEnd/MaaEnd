@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -13,6 +14,10 @@ from typing import Any, Sequence, TextIO
 
 EXPLORE_LIMIT = 1_000
 DEFAULT_SENTRY_TIMEOUT_SECONDS = 120.0
+DEFAULT_RELEASE_DISCOVERY_PERIOD = "90d"
+MAAEND_BETA_RELEASE_PATTERN = re.compile(
+    r"(?:^|\+)MaaEnd@v(\d+)\.(\d+)\.(\d+)-beta\.(\d+)$"
+)
 
 
 def resolve_sentry_command() -> str:
@@ -133,6 +138,52 @@ def explore(
             raise RuntimeError(f"sentry explore 返回了重复分页游标：{next_cursor}")
         seen_cursors.add(next_cursor)
         cursor = next_cursor
+
+
+def select_latest_maaend_beta_release(rows: Sequence[dict[str, Any]]) -> str:
+    """从 release 聚合结果中选择最新且样本最多的 MaaEnd beta release。"""
+    candidates: list[tuple[tuple[int, int, int, int], int, str]] = []
+    for row in rows:
+        release = row.get("release")
+        trace_count = row.get("count_unique(trace)")
+        if not isinstance(release, str) or not isinstance(trace_count, int):
+            continue
+
+        match = MAAEND_BETA_RELEASE_PATTERN.search(release)
+        if match is None:
+            continue
+        version = tuple(int(part) for part in match.groups())
+        candidates.append((version, trace_count, release))
+
+    if not candidates:
+        raise RuntimeError(
+            "Sentry 中找不到格式为 MaaEnd@vX.Y.Z-beta.N 的 beta release，"
+            "请通过 --release 显式指定。"
+        )
+    return max(candidates)[2]
+
+
+def resolve_latest_maaend_beta_release(
+    sentry_command: str,
+    *,
+    target: str,
+    environment: str,
+    verbose: bool = False,
+    timeout_seconds: float = DEFAULT_SENTRY_TIMEOUT_SECONDS,
+) -> str:
+    """查询 Sentry，并解析指定环境中最新的 MaaEnd beta release。"""
+    escaped_environment = environment.replace('"', '\\"')
+    rows = explore(
+        sentry_command,
+        target=target,
+        period=DEFAULT_RELEASE_DISCOVERY_PERIOD,
+        fields=("release", "count_unique(trace)"),
+        query=f'environment:"{escaped_environment}"',
+        sort="-count_unique(trace)",
+        verbose=verbose,
+        timeout_seconds=timeout_seconds,
+    )
+    return select_latest_maaend_beta_release(rows)
 
 
 def format_rate(rate: float | None) -> str:
