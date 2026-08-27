@@ -15,7 +15,8 @@
             "GameSettingRegion",
             "GameSettingDisplayType",
             "GameSettingGraphicsQuality",
-            "GameSettingFrameRate"
+            "GameSettingFrameRate",
+            "GameSettingAutoHDR"
         ]
     },
     "option": {
@@ -122,6 +123,26 @@
                 {
                     "name": "Fps120",
                     "label": "$option.GameSettingFrameRate.cases.Fps120.label"
+                }
+            ]
+        },
+        "GameSettingAutoHDR": {
+            "type": "select",
+            "label": "$option.GameSettingAutoHDR.label",
+            "description": "$option.GameSettingAutoHDR.description",
+            "default_case": "Unchanged",
+            "cases": [
+                {
+                    "name": "Unchanged",
+                    "label": "$option.GameSettingAutoHDR.cases.Unchanged.label"
+                },
+                {
+                    "name": "Disable",
+                    "label": "$option.GameSettingAutoHDR.cases.Disable.label"
+                },
+                {
+                    "name": "Enable",
+                    "label": "$option.GameSettingAutoHDR.cases.Enable.label"
                 }
             ]
         }

@@ -27,6 +27,7 @@ type gameSettingOptions struct {
 	Resolution      string `json:"GameSettingResolution"`
 	GraphicsQuality string `json:"GameSettingGraphicsQuality"`
 	FrameRate       string `json:"GameSettingFrameRate"`
+	AutoHDR         string `json:"GameSettingAutoHDR"`
 }
 
 // Run 对应 assets/tasks/pretasks/GameSetting.json 的 pretask 入口。
@@ -56,6 +57,7 @@ func Run(args []string) bool {
 		Str("resolution", opts.Resolution).
 		Str("graphics_quality", opts.GraphicsQuality).
 		Str("frame_rate", opts.FrameRate).
+		Str("auto_hdr", opts.AutoHDR).
 		Msg("applying game settings")
 
 	if !Apply(opts.Region, opts.DisplayType, opts.Resolution) {
@@ -106,6 +108,15 @@ func Run(args []string) bool {
 			Msg("applied frame rate")
 	}
 
+	if err := ApplyAutoHDR(opts.AutoHDR); err != nil {
+		log.Error().
+			Err(err).
+			Str("component", "gamesetting").
+			Str("auto_hdr", opts.AutoHDR).
+			Msg("failed to apply Auto HDR")
+		return false
+	}
+
 	return true
 }
 
@@ -116,6 +127,7 @@ func parseGameSettingOptions(args []string) (gameSettingOptions, error) {
 		Resolution:      defaultResolution,
 		GraphicsQuality: optionUnchanged,
 		FrameRate:       optionUnchanged,
+		AutoHDR:         optionUnchanged,
 	}
 	if len(args) == 0 {
 		return opts, nil
@@ -143,6 +155,9 @@ func parseGameSettingOptions(args []string) (gameSettingOptions, error) {
 	}
 	if opts.FrameRate == "" {
 		opts.FrameRate = optionUnchanged
+	}
+	if opts.AutoHDR == "" {
+		opts.AutoHDR = optionUnchanged
 	}
 	return opts, nil
 }

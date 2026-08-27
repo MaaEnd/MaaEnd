@@ -27,7 +27,8 @@
                         "CloseGamePCGameSettingRegion",
                         "CloseGamePCGameSettingDisplayType",
                         "CloseGamePCGameSettingGraphicsQuality",
-                        "CloseGamePCGameSettingFrameRate"
+                        "CloseGamePCGameSettingFrameRate",
+                        "CloseGamePCAutoHDR"
                     ],
                     "pipeline_override": {
                         "CloseGamePC": {
@@ -259,6 +260,47 @@
                         "CloseGamePC": {
                             "attach": {
                                 "FrameRate": 1000
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "CloseGamePCAutoHDR": {
+            "type": "select",
+            "label": "$option.CloseGamePCAutoHDR.label",
+            "description": "$option.GameSettingAutoHDR.description",
+            "default_case": "Unchanged",
+            "cases": [
+                {
+                    "name": "Unchanged",
+                    "label": "$option.GameSettingAutoHDR.cases.Unchanged.label",
+                    "pipeline_override": {
+                        "CloseGamePC": {
+                            "attach": {
+                                "AutoHDR": "Unchanged"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Disable",
+                    "label": "$option.GameSettingAutoHDR.cases.Disable.label",
+                    "pipeline_override": {
+                        "CloseGamePC": {
+                            "attach": {
+                                "AutoHDR": "Disable"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Enable",
+                    "label": "$option.GameSettingAutoHDR.cases.Enable.label",
+                    "pipeline_override": {
+                        "CloseGamePC": {
+                            "attach": {
+                                "AutoHDR": "Enable"
                             }
                         }
                     }

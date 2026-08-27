@@ -25,6 +25,7 @@ type closeGameSettingParam struct {
 	ResolutionHeight       json.RawMessage `json:"ResolutionHeight,omitempty"`
 	GraphicsQuality        int             `json:"GraphicsQuality"`
 	FrameRate              int             `json:"FrameRate"`
+	AutoHDR                string          `json:"AutoHDR,omitempty"`
 }
 
 func parseUint32FromRaw(raw json.RawMessage) (uint32, bool) {
@@ -54,6 +55,7 @@ func loadAttach(ctx *maa.Context, nodeName string) closeGameSettingParam {
 		GameSettingDisplayType: "Window",
 		GraphicsQuality:        -1,
 		FrameRate:              -1,
+		AutoHDR:                "Unchanged",
 	}
 	if ctx == nil || nodeName == "" {
 		return params
@@ -87,6 +89,9 @@ func loadAttach(ctx *maa.Context, nodeName string) closeGameSettingParam {
 	}
 	if wrapper.Attach.FrameRate != 0 {
 		params.FrameRate = wrapper.Attach.FrameRate
+	}
+	if wrapper.Attach.AutoHDR != "" {
+		params.AutoHDR = wrapper.Attach.AutoHDR
 	}
 	return params
 }
@@ -176,12 +181,18 @@ func (a *CloseGameAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		log.Info().Int("frame_rate", params.FrameRate).Msg("CloseGameAction: applied frame rate")
 	}
 
+	if err := gamesetting.ApplyAutoHDR(params.AutoHDR); err != nil {
+		log.Error().Err(err).Str("auto_hdr", params.AutoHDR).Msg("CloseGameAction: failed to apply Auto HDR")
+		return false
+	}
+
 	log.Info().
 		Str("region", params.GameSettingRegion).
 		Str("display_type", params.GameSettingDisplayType).
 		Str("resolution", resolution).
 		Int("graphics_quality", params.GraphicsQuality).
 		Int("frame_rate", params.FrameRate).
+		Str("auto_hdr", params.AutoHDR).
 		Msg("CloseGameAction: applied game settings")
 
 	return true
