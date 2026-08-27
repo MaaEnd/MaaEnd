@@ -2,7 +2,7 @@
     "error_load_locale": "[ERROR] 加载语言文件失败，请完整地克隆仓库。文件路径: {path}",
     "inf_github_token_configured": "[INF] 已配置 GitHub Token，将用于 API 请求",
     "wrn_github_token_not_configured": "[WRN] 未配置 GitHub Token，将使用匿名 API 请求（可能限流）",
-    "inf_github_token_hint": "[INF] 如遇 API 速率限制，请设置环境变量 GITHUB_TOKEN/GH_TOKEN",
+    "inf_github_token_hint": "[INF] 如遇 API 速率限制，请设置环境变量 GITHUB_TOKEN/GH_TOKEN，或运行 gh auth login",
     "cmd_prefix": "[CMD]",
     "inf_command_success": "[INF] 命令执行成功: {cmd}",
     "err_command_failed": "[ERR] 命令执行失败: {cmd}\n  错误: {error}",

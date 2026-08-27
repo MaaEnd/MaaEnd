@@ -11,6 +11,7 @@ import time
 import traceback
 import urllib.error
 import urllib.request
+from functools import cache
 from pathlib import Path
 from urllib.parse import quote, urlencode, urlparse
 
@@ -115,9 +116,37 @@ CACHE_DIR: Path = PROJECT_BASE / ".cache"
 VERSION_FILE_NAME: str = "version.json"
 
 
+@cache
+def get_github_token() -> str:
+    """Return a GitHub token from the environment or GitHub CLI."""
+    for variable in ("GITHUB_TOKEN", "GH_TOKEN"):
+        token = os.environ.get(variable, "").strip()
+        if token:
+            return token
+
+    gh_path = shutil.which("gh")
+    if not gh_path:
+        return ""
+
+    try:
+        result = subprocess.run(
+            [gh_path, "auth", "token"],
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=5,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return ""
+
+    if result.returncode != 0:
+        return ""
+    return result.stdout.strip()
+
+
 def configure_token() -> None:
     """配置 GitHub Token，输出检测结果"""
-    token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
+    token = get_github_token()
     if token:
         print(Console.ok(t("inf_github_token_configured")))
     else:
@@ -223,7 +252,7 @@ def get_latest_release_url(
     https://docs.github.com/en/rest/releases/releases?apiVersion=2022-11-28#list-releases
     """
     api_url = f"https://api.github.com/repos/{repo}/releases"
-    token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
+    token = get_github_token()
 
     try:
         print(Console.info(t("inf_get_latest_release", repo=repo)))
@@ -899,8 +928,7 @@ def copy_cpp_algo_binary(src_path: Path, install_root: Path) -> None:
 
 def _github_auth_headers() -> dict[str, str] | None:
     """Return GitHub API auth headers, or None if no token is configured."""
-    token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN") or ""
-    token = token.strip()
+    token = get_github_token()
     if not token:
         return None
     return {

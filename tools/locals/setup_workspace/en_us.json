@@ -2,7 +2,7 @@
     "error_load_locale": "[ERROR] Failed to load locale file. Please ensure you have cloned the repository completely. File path: {path}",
     "inf_github_token_configured": "[INF] GitHub Token configured, will be used for API requests",
     "wrn_github_token_not_configured": "[WRN] GitHub Token not configured, using anonymous API requests (may be rate limited)",
-    "inf_github_token_hint": "[INF] If you encounter API rate limits, please set GITHUB_TOKEN/GH_TOKEN environment variable",
+    "inf_github_token_hint": "[INF] If you encounter API rate limits, set GITHUB_TOKEN/GH_TOKEN or run gh auth login",
     "cmd_prefix": "[CMD]",
     "inf_command_success": "[INF] Command executed successfully: {cmd}",
     "err_command_failed": "[ERR] Command execution failed: {cmd}\n  Error: {error}",
