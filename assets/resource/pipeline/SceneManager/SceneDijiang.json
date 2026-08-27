@@ -103,6 +103,16 @@
             "__ScenePrivateMapTeleportConfirm"
         ]
     },
+    "__ScenePrivateAnyEnterWorldDijiangSuccess": {
+        "desc": "在任意界面，成功进入帝江号大世界",
+        "recognition": "And",
+        "all_of": [
+            "InDijiangWorld"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
     "__ScenePrivateWorldEnterMenuControlNexus": {
         "desc": "从主界面按 I 键打开帝江号总控中枢入口",
         "recognition": {
