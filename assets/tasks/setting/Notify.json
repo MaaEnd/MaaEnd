@@ -15,14 +15,7 @@
                 "NotifyNtfy",
                 "NotifyGotify",
                 "NotifyDingTalk",
-                "NotifyProxy"
-            ]
-        },
-        {
-            "name": "NotifyContent",
-            "label": "$option.NotifyContent.label",
-            "description": "$option.NotifyContent.description",
-            "option": [
+                "NotifyProxy",
                 "NotifyAllowTask",
                 "NotifyFail"
             ]
