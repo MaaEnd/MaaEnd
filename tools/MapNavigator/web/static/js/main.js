@@ -43,6 +43,7 @@ import {
 } from "./model.js";
 import {compactNumber, roundHalfEven} from "./rounding.js";
 import {initFeedback, setStatus} from "./ui/toast.js";
+import {nextWheelSelectIndex} from "./ui/select.js";
 import {ConnectionPanel} from "./ui/connection.js";
 import {RecordingController} from "./ui/recording.js";
 import {NavTestController} from "./ui/navtest.js";
@@ -750,6 +751,21 @@ class MapNavigatorApp {
         e.logFileInput.addEventListener("change", () => this._importLogFiles(e.logFileInput.files));
         e.logRunFilter.addEventListener("input", () => this._populateLogRunSelect());
         e.logRunSelect.addEventListener("change", () => this._onLogRunChanged());
+        e.logRunSelect.addEventListener(
+            "wheel",
+            (event) => {
+                const nextIndex = nextWheelSelectIndex(
+                    e.logRunSelect.selectedIndex,
+                    e.logRunSelect.options.length,
+                    event.deltaY,
+                );
+                if (nextIndex === e.logRunSelect.selectedIndex) return;
+                event.preventDefault();
+                e.logRunSelect.selectedIndex = nextIndex;
+                this._onLogRunChanged();
+            },
+            {passive: false},
+        );
         e.btnLogDistanceClear.addEventListener("click", () => {
             this._clearLogDistanceSelection();
             setStatus("已清除滑索架测距。", "#10b981");
