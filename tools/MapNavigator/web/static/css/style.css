@@ -195,7 +195,66 @@ canvas {
   text-align: right;
 }
 
-/* ===== 模式切换 Tabs ===== */
+/* ===== 顶层工作区切换 ===== */
+.workspace-segmented-control {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  padding: 3px;
+  background: rgba(0, 0, 0, 0.42);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.workspace-tab-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-width: 0;
+  padding: 8px 10px;
+  color: var(--text-secondary);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  font-family: var(--font-ui);
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.workspace-tab-btn > span {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.workspace-tab-btn > small {
+  overflow: hidden;
+  max-width: 100%;
+  color: var(--text-muted);
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.workspace-tab-btn:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.workspace-tab-btn.active {
+  color: var(--text-primary);
+  background: rgba(37, 99, 235, 0.16);
+  border-color: rgba(59, 130, 246, 0.34);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.24);
+}
+
+.workspace-tab-btn.active > small {
+  color: #93c5fd;
+}
+
+/* ===== 路线制作模式切换 Tabs ===== */
 .mode-segmented-control {
   display: flex;
   background: rgba(0, 0, 0, 0.3);

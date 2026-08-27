@@ -22,6 +22,18 @@
           </div>
         </div>
 
+        <!-- 顶层工作区：路线制作提供连接能力，日志分析保持纯离线 -->
+        <div class="workspace-segmented-control" role="tablist" aria-label="工作区">
+          <button id="tab-route" class="workspace-tab-btn active" type="button" role="tab" aria-selected="true">
+            <span>路线制作</span>
+            <small>编辑与试跑</small>
+          </button>
+          <button id="tab-log" class="workspace-tab-btn" type="button" role="tab" aria-selected="false">
+            <span>日志分析</span>
+            <small>本地离线复盘</small>
+          </button>
+        </div>
+
         <!-- 连接配置 -->
         <div class="sidebar-section" id="panel-connection">
           <div class="section-header" style="display: flex; align-items: center; justify-content: space-between;">
@@ -112,12 +124,11 @@
           <div id="navtest-armed" class="navtest-armed">未装载路线</div>
         </div>
 
-        <!-- 主模式切换页签 -->
-        <div class="mode-segmented-control">
+        <!-- 路线制作内部模式切换 -->
+        <div id="route-mode-tabs" class="mode-segmented-control" role="tablist" aria-label="路线制作工具">
           <button id="tab-astar" class="mode-tab-btn active" type="button">A* 寻路</button>
           <button id="tab-assert" class="mode-tab-btn" type="button">断言模式</button>
           <button id="tab-edit" class="mode-tab-btn" type="button">路径编辑</button>
-          <button id="tab-log" class="mode-tab-btn" type="button">日志分析</button>
         </div>
 
         <!-- MapNavigator 日志分析（文件只在浏览器本地读取） -->

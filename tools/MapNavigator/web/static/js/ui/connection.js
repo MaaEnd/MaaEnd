@@ -45,6 +45,7 @@ export class ConnectionPanel {
     this._instancesLoadedOnce = false;
     this._persistTimer = 0;
     this._checkTimer = 0;
+    this._suspended = false;
     /** @type {boolean} last observed connected state; drives auto-collapse on the rising edge. */
     this._wasConnected = false;
     /** @type {{platform:string, supported_kinds:string[], default_kind:string}} */
@@ -211,9 +212,19 @@ export class ConnectionPanel {
   /** @private */
   _checkDebounced() {
     clearTimeout(this._checkTimer);
+    if (this._suspended) return;
     this._checkTimer = setTimeout(() => {
       this.checkConnectionStatus();
     }, 500);
+  }
+
+  /** Pause/resume automatic status probes while the offline log workspace is active. */
+  setSuspended(suspended) {
+    const next = Boolean(suspended);
+    if (this._suspended === next) return;
+    this._suspended = next;
+    clearTimeout(this._checkTimer);
+    if (!this._suspended) this._checkDebounced();
   }
 
   /** Collapse/expand the connection card body. @param {boolean} collapsed @returns {void} */
@@ -233,7 +244,7 @@ export class ConnectionPanel {
    * @returns {Promise<void>}
    */
   async checkConnectionStatus() {
-    if (!this.statusDot) return;
+    if (!this.statusDot || this._suspended) return;
 
     this.statusDot.classList.remove('connected');
     this.statusDot.classList.add('connecting');

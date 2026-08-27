@@ -87,6 +87,8 @@ class MapNavigatorApp {
         this.renderer = new Renderer(this.els.glCanvas);
         this.overlay = new Overlay(this.els.overlayCanvas);
         this.state = new AppState();
+        /** @type {'astar'|'assert'|'edit'} route tool restored after leaving log analysis. */
+        this._lastRouteMode = "astar";
 
         /** @type {?NavmeshField} */
         this.field = null;
@@ -295,6 +297,7 @@ class MapNavigatorApp {
             importDialogCancel: $("import-dialog-cancel"),
             importDialogOk: $("import-dialog-ok"),
             propertiesLegend: $("properties-legend"),
+            tabRoute: $("tab-route"),
             tabEdit: $("tab-edit"),
             tabAstar: $("tab-astar"),
             tabAssert: $("tab-assert"),
@@ -313,6 +316,9 @@ class MapNavigatorApp {
             propertiesEmptyState: $("properties-empty-state"),
             propertiesEditor: $("properties-editor"),
             panelRecording: $("panel-recording"),
+            panelConnection: $("panel-connection"),
+            panelNavtest: $("panel-navtest"),
+            routeModeTabs: $("route-mode-tabs"),
             btnNavtestRun: $("btn-navtest-run"),
             btnNavtestStop: $("btn-navtest-stop"),
             navtestArmed: $("navtest-armed"),
@@ -742,6 +748,7 @@ class MapNavigatorApp {
         // One file picker, three entry points (edit / A* / assert) — same two-phase import.
         e.btnAstarImport.addEventListener("click", () => this.importer.openPicker());
         e.btnAssertImport.addEventListener("click", () => this.importer.openPicker());
+        e.tabRoute.addEventListener("click", () => this._selectModeTab(this._lastRouteMode));
         e.tabEdit.addEventListener("click", () => this._selectModeTab("edit"));
         e.tabAstar.addEventListener("click", () => this._selectModeTab("astar"));
         e.tabAssert.addEventListener("click", () => this._selectModeTab("assert"));
@@ -4305,6 +4312,7 @@ class MapNavigatorApp {
 
         if (modeName === "edit") {
             this.state.mode = Mode.EDIT;
+            this._lastRouteMode = "edit";
             setStatus("返回路径编辑模式。", "#10b981");
         } else if (modeName === "assert") {
             this.state.mode = Mode.ASSERT;
@@ -4316,9 +4324,11 @@ class MapNavigatorApp {
             if (!normalizeZoneId(e.assertZoneCombo.value)) {
                 e.assertZoneCombo.value = this._defaultAssertZone();
             }
+            this._lastRouteMode = "assert";
             setStatus("断言模式：先选地图，再用左键拖拽框出断言区域；Delete 或清除按钮可清除。", "#3b82f6");
         } else if (modeName === "astar") {
             this.state.mode = Mode.ASTAR;
+            this._lastRouteMode = "astar";
             if (this.field) {
                 if (!e.astarZoneCombo.value) {
                     this._applyDefaultAstarZoneSelection();
@@ -4359,8 +4369,19 @@ class MapNavigatorApp {
         e.tabAstar.classList.remove("active");
         e.tabAssert.classList.remove("active");
         e.tabLog.classList.remove("active");
+        e.tabRoute.classList.remove("active");
 
-        // 试跑面板不隐藏：日志模式禁用“开始”，但仍保留“终止”来收掉已有会话。
+        const logWorkspace = mode === Mode.LOG;
+        e.tabLog.classList.toggle("active", logWorkspace);
+        e.tabLog.setAttribute("aria-selected", String(logWorkspace));
+        e.tabRoute.classList.toggle("active", !logWorkspace);
+        e.tabRoute.setAttribute("aria-selected", String(!logWorkspace));
+        e.panelConnection.hidden = logWorkspace;
+        e.panelNavtest.hidden = logWorkspace;
+        e.routeModeTabs.hidden = logWorkspace;
+        e.positionReadout.hidden = logWorkspace;
+        if (this.connection) this.connection.setSuspended(logWorkspace);
+
         e.panelRecording.hidden = true;
         e.panelProperties.hidden = true;
         e.panelAstar.hidden = true;
@@ -4386,7 +4407,6 @@ class MapNavigatorApp {
             document.body.classList.add("mode-assert");
             this._setActiveTool("assert-edit");
         } else if (mode === Mode.LOG) {
-            e.tabLog.classList.add("active");
             e.panelLog.hidden = false;
             e.canvasWrap.classList.remove("mode-edit", "mode-astar", "mode-assert");
             e.canvasWrap.classList.add("mode-log");
