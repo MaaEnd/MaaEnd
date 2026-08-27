@@ -39,6 +39,7 @@ import {
     ACTION_COLORS,
     ACTION_MENU_TYPES,
     getPointActions,
+    matchTargetDeckHeight,
     normalizeZoneId,
 } from "./model.js";
 import {compactNumber, roundHalfEven} from "./rounding.js";
@@ -148,9 +149,16 @@ class MapNavigatorApp {
         this.hintDeck = null;
         /** @type {?{index:number, decks:Array<{height:number, band:number[], thin:boolean}>}} */
         this.deckProbe = null;
+        /** @type {?{globalIndex:number, decks:Array<{height:number, band:number[], thin:boolean}>}} */
+        this.editDeckProbe = null;
         /** @type {?number} 正在预览的那一层高度。 */
         this.deckPreview = null;
         this._deckToken = 0;
+        this._editDeckToken = 0;
+        /** @type {?string} 当前路径编辑 NAVMESH 路点的重叠面探针签名。 */
+        this._editDeckSig = null;
+        /** @type {?number} 路点拖动时重叠面探针的防抖句柄。 */
+        this._editDeckTimer = null;
         /**
          * Straight lines the runtime walks with no navmesh under it, base px: `off` is the
          * point outside the mesh, `mesh` where the mesh takes over. Taken from the backend's
@@ -295,6 +303,9 @@ class MapNavigatorApp {
             actionChainLabel: $("action-chain-label"),
             targetTierEntry: $("target-tier-entry"),
             targetTierList: $("target-tier-list"),
+            editDeckBox: $("edit-deck-box"),
+            editDeckTitle: $("edit-deck-title"),
+            editDeckList: $("edit-deck-list"),
             assertZoneCombo: $("assert-zone-combo"),
             chkStrict: $("chk-strict"),
             chkRequired: $("chk-required"),
@@ -1121,7 +1132,10 @@ class MapNavigatorApp {
         if (mode === Mode.EDIT) overlayPoints = this._currentSegmentPoints();
         else if (mode === Mode.ASSERT) overlayPoints = this._displayRealPoints();
 
-        if (mode === Mode.EDIT) this._scheduleEditOffMeshProbe();
+        if (mode === Mode.EDIT) {
+            this._scheduleEditOffMeshProbe();
+            this._scheduleEditDeckProbe();
+        }
 
         let displayAssertLocateHint = null;
         if (mode === Mode.ASSERT && this.assertLocateHint) {
@@ -2023,6 +2037,171 @@ class MapNavigatorApp {
             });
         }
         return out;
+    }
+
+    /**
+     * Resolve the single selected EDIT-mode NAVMESH point into the base geometry used by
+     * `/api/deck-probe`. An explicit target_tier owns the coordinate transform; without
+     * one the runtime keeps the legacy target in base pixels even when the route zone is a tier.
+     * @returns {?{globalIndex:number, point:Object, geometryZoneId:number, base:number[], signature:string}}
+     */
+    _selectedEditDeckTarget() {
+        if (this.state.mode !== Mode.EDIT || !this.field || this.state.selectedIndices.size !== 1) return null;
+        const zoneIndices = this.state.zonePointGlobalIndices();
+        const localIndex = [...this.state.selectedIndices][0];
+        const globalIndex = zoneIndices[localIndex];
+        const point = this.state.points[globalIndex];
+        if (!point || !getPointActions(point).includes(ActionType.NAVMESH)) return null;
+
+        const targetTier = normalizeZoneId(point.target_tier || "");
+        const routeZoneId = this._resolveZoneId(point.zone);
+        const frameZoneId = targetTier ? this._resolveZoneId(targetTier) : routeZoneId;
+        if (Number.isNaN(frameZoneId)) return null;
+        const base = targetTier
+            ? this._pointToBase(frameZoneId, point.x, point.y)
+            : [
+                  point.x,
+                  point.y,
+              ];
+        const geometryZoneId = this.field.geometryZoneId(frameZoneId);
+        return {
+            globalIndex,
+            point,
+            geometryZoneId,
+            base,
+            signature: `${globalIndex}:${geometryZoneId}:${base[0]},${base[1]}:${targetTier}`,
+        };
+    }
+
+    /** Query overlapping surfaces whenever the selected NAVMESH target changes. @returns {void} */
+    _scheduleEditDeckProbe() {
+        const target = this._selectedEditDeckTarget();
+        const signature = target ? target.signature : "";
+        if (signature === this._editDeckSig) return;
+        this._editDeckSig = signature;
+        this._editDeckToken += 1;
+        clearTimeout(this._editDeckTimer);
+        this.editDeckProbe = null;
+        this.deckPreview = null;
+        this.renderer.setDeckBand(null);
+        this._renderEditDeckList();
+        if (!target) return;
+        this._editDeckTimer = setTimeout(() => this._probeEditDeckTarget(target), 100);
+    }
+
+    /** @param {{globalIndex:number, geometryZoneId:number, base:number[]}} target @returns {Promise<void>} */
+    async _probeEditDeckTarget(target) {
+        const token = ++this._editDeckToken;
+        let res;
+        try {
+            res = await postDeckProbe({zone_id: target.geometryZoneId, point: target.base});
+        } catch {
+            return; // 探针只辅助选层，失败不能阻断路径编辑
+        }
+        if (token !== this._editDeckToken) return;
+        this.editDeckProbe =
+            res && res.ok && Array.isArray(res.decks)
+                ? {globalIndex: target.globalIndex, decks: res.decks}
+                : null;
+        this._renderEditDeckList();
+    }
+
+    /** Render the selected NAVMESH point's overlapping surfaces in the property panel. @returns {void} */
+    _renderEditDeckList() {
+        const box = this.els.editDeckBox;
+        const list = this.els.editDeckList;
+        if (!box || !list) return;
+        list.replaceChildren();
+
+        const target = this._selectedEditDeckTarget();
+        if (!target) {
+            box.hidden = true;
+            return;
+        }
+        const probe =
+            this.editDeckProbe && this.editDeckProbe.globalIndex === target.globalIndex
+                ? this.editDeckProbe
+                : null;
+        const decks = probe ? probe.decks : [];
+        const filled =
+            typeof target.point.target_deck_y === "number" && Number.isFinite(target.point.target_deck_y)
+                ? target.point.target_deck_y
+                : null;
+        const matchedHeight = matchTargetDeckHeight(decks, filled);
+        if (decks.length < 2 && filled === null) {
+            box.hidden = true;
+            return;
+        }
+
+        box.hidden = false;
+        this.els.editDeckTitle.textContent =
+            decks.length >= 2
+                ? `重叠面：该点底下压着 ${decks.length} 张可走面`
+                : `目标面：当前 target_deck_y = ${filled.toFixed(2)}`;
+
+        decks.forEach((deck, i) => {
+            const row = document.createElement("div");
+            row.className = "deck-item";
+            if (this.deckPreview === deck.height) row.classList.add("is-preview");
+            if (matchedHeight === deck.height) row.classList.add("is-filled");
+
+            const pick = document.createElement("button");
+            pick.type = "button";
+            pick.className = "deck-pick";
+            pick.title = "预览这一层";
+            pick.textContent = deck.height.toFixed(2);
+            const note = document.createElement("small");
+            note.textContent = ` 自上而下第 ${i + 1} 层 / 共 ${decks.length} 层${deck.thin ? "（薄片，多半是墙顶）" : ""}`;
+            pick.appendChild(note);
+            pick.addEventListener("click", () => {
+                this._setDeckPreview(this.deckPreview === deck.height ? null : deck.height, probe);
+                this._renderEditDeckList();
+            });
+            row.appendChild(pick);
+
+            const fill = document.createElement("button");
+            fill.type = "button";
+            fill.className = "btn btn-secondary btn-sm";
+            fill.textContent = matchedHeight === deck.height ? "清除" : "选择";
+            fill.addEventListener("click", () =>
+                this._fillEditDeck(matchedHeight === deck.height ? null : deck.height),
+            );
+            row.appendChild(fill);
+            list.appendChild(row);
+        });
+
+        if (filled !== null && matchedHeight === null) {
+            const row = document.createElement("div");
+            row.className = "deck-item is-filled";
+            const current = document.createElement("span");
+            current.className = "deck-pick";
+            current.textContent = `${filled.toFixed(2)} 当前配置（未在可选重叠面中匹配）`;
+            row.appendChild(current);
+            const clear = document.createElement("button");
+            clear.type = "button";
+            clear.className = "btn btn-secondary btn-sm";
+            clear.textContent = "清除";
+            clear.addEventListener("click", () => this._fillEditDeck(null));
+            row.appendChild(clear);
+            list.appendChild(row);
+        }
+    }
+
+    /** Persist a selected deck on the current NAVMESH waypoint. @param {?number} height @returns {void} */
+    _fillEditDeck(height) {
+        const result = this.state.editSetSelectedTargetDeck(height);
+        if (result.unsupported) {
+            setStatus("请先单独选中一个 NAVMESH 路点。", "#f59e0b");
+            return;
+        }
+        if (!result.changed) return;
+        this._afterStructureChanged();
+        setStatus(
+            height === null
+                ? "已清除该路点的 target_deck_y。"
+                : `该路点 target_deck_y = ${height.toFixed(2)}，规划、复制和试跑都会使用该目标面。`,
+            "#10b981",
+        );
     }
 
     /**
@@ -3057,11 +3236,11 @@ class MapNavigatorApp {
      * 把落在该层高度带里的面点亮、其余压暗,好让开发者一眼看出这是屋顶还是底下那条走廊。
      * @param {?number} height @returns {void}
      */
-    _setDeckPreview(height) {
+    _setDeckPreview(height, probe = this.deckProbe) {
         this.deckPreview = height;
         const band =
-            this.deckProbe && height !== null
-                ? (this.deckProbe.decks.find((d) => d.height === height) || {}).band
+            probe && height !== null
+                ? (probe.decks.find((d) => d.height === height) || {}).band
                 : null;
         this.renderer.setDeckBand(band || null);
         this._paint();
@@ -4650,6 +4829,7 @@ class MapNavigatorApp {
         this.els.chkRequired.checked = false;
         this.els.targetTierEntry.value = "";
         this.els.actionChainLabel.textContent = "Run";
+        if (this.els.editDeckBox) this.els.editDeckBox.hidden = true;
         if (this.els.propertiesEmptyState && this.els.propertiesEditor) {
             this.els.propertiesEmptyState.hidden = false;
             this.els.propertiesEditor.hidden = true;
@@ -4670,6 +4850,7 @@ class MapNavigatorApp {
     /** Reflect the current selection into the action/strict/chain controls (tk `_sync_action_controls`). */
     _syncActionControls() {
         this._renderWaypointList();
+        this._renderEditDeckList();
         // 路线可能刚被改过: 重新装载到试跑会话, 让 F3 跑的始终是屏幕上这一条。
         if (this.navtest) this.navtest.routeChanged();
         const zoneIndices = this.state.zonePointGlobalIndices();
@@ -5142,6 +5323,9 @@ class MapNavigatorApp {
             setStatus("请先按 F4 终止当前实机试跑，再进入日志分析模式。", "#f59e0b");
             return;
         }
+
+        this.deckPreview = null;
+        this.renderer.setDeckBand(null);
 
         if (modeName !== "astar") {
             this._clearAstarPreview();

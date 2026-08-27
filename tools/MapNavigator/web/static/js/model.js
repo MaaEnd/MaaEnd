@@ -4,7 +4,8 @@
  *
  * A `PathPoint` is a plain object:
  *   { x:number, y:number, action:number, actions:number[], zone:string, strict:boolean,
- *     required?:true, target_tier?:string, auto_portal?:true, suppress_auto_portal?:true }
+ *     required?:true, target_tier?:string, target_deck_y?:number,
+ *     auto_portal?:true, suppress_auto_portal?:true }
  * Invariant on `actions`: either `[RUN]` or a list of non-RUN/NONE actions; `action`
  * always mirrors the last element of the normalised chain.
  * @module model
@@ -209,6 +210,30 @@ export function normalizeZoneId(value, def = '') {
 }
 
 /**
+ * Match an authored target_deck_y to the nearest probed surface using the runtime's
+ * 2 px deck band. Returns that surface's canonical height, or null when none match.
+ * @param {Array<{height:number}>} decks
+ * @param {unknown} targetDeckY
+ * @param {number} [tolerance=2.0]
+ * @returns {?number}
+ */
+export function matchTargetDeckHeight(decks, targetDeckY, tolerance = 2.0) {
+  if (typeof targetDeckY !== 'number' || !Number.isFinite(targetDeckY)) return null;
+  let matched = null;
+  let bestDistance = Infinity;
+  for (const deck of decks) {
+    const height = Number(deck && deck.height);
+    if (!Number.isFinite(height)) continue;
+    const distance = Math.abs(height - targetDeckY);
+    if (distance < bestDistance) {
+      matched = height;
+      bestDistance = distance;
+    }
+  }
+  return bestDistance <= tolerance ? matched : null;
+}
+
+/**
  * @param {PathPoint} point
  * @returns {number[]}
  */
@@ -331,6 +356,16 @@ export function normalizePathPoints(points) {
     };
     const targetTier = normalizeZoneId(point.target_tier === undefined ? '' : point.target_tier);
     if (targetTier) np.target_tier = targetTier;
+    const rawTargetDeckY = point.target_deck_y;
+    if (
+      typeof rawTargetDeckY !== 'boolean' &&
+      rawTargetDeckY !== null &&
+      rawTargetDeckY !== undefined &&
+      (typeof rawTargetDeckY !== 'string' || rawTargetDeckY.trim())
+    ) {
+      const targetDeckY = Number(rawTargetDeckY);
+      if (Number.isFinite(targetDeckY)) np.target_deck_y = targetDeckY;
+    }
     if (Boolean(point.required)) np.required = true;
     if (Boolean(point.auto_portal)) np.auto_portal = true;
     if (Boolean(point.suppress_auto_portal)) np.suppress_auto_portal = true;
@@ -386,7 +421,8 @@ export function normalizePathPoints(points) {
       last.zone === point.zone &&
       last.strict === point.strict &&
       Boolean(last.required) === Boolean(point.required) &&
-      (last.target_tier || '') === (point.target_tier || '')
+      (last.target_tier || '') === (point.target_tier || '') &&
+      last.target_deck_y === point.target_deck_y
     ) {
       const mergedAutoPortal = Boolean(last.auto_portal) || Boolean(point.auto_portal);
       const mergedSuppressed = Boolean(last.suppress_auto_portal) || Boolean(point.suppress_auto_portal);
