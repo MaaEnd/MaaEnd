@@ -2350,5 +2350,5 @@
     "option.NotifyBarkParams.Id.description": "使用相同的 ID 值時，將更新對應推送的通知內容（需 Bark v1.5.2+）",
     "option.NotifyBarkParams.Delete.description": "傳 \"1\" 時，從系統通知中心和 APP 內歷史記錄中刪除通知，需搭配 id 參數",
     "option.NotifyHelp.label": "通知使用說明",
-    "option.NotifyHelp.description": "**模板變數**（標題/正文/Webhook 請求體中均可使用）：\n\n| 變數 | 說明 |\n| --- | --- |\n| `{{time}}` | 時間 HH:mm:ss |\n| `{{date}}` | 日期 yyyy-MM-dd |\n| `{{datetime}}` | 日期時間 yyyy-MM-dd HH:mm:ss |\n| `{{task_name}}` | 任務名 |\n| `{{task_status}}` | 任務狀態（如 失敗） |\n| `{{duration}}` | 執行耗時（如 1m23s） |\n| `{{controller}}` | 控制器名 |\n| `{{resource}}` | 資源包名 |\n| `{{title}}` | 通知項標題（渠道配置中可引用，優先於任務配置內容） |\n| `{{body}}` | 通知項正文（渠道配置中可引用，優先於任務配置內容） |"
+    "option.NotifyHelp.description": "模板變數說明見：[通知模板變數](https://github.com/MaaEnd/MaaEnd/blob/main/docs/zh_cn/users/notify-variables.md)"
 }

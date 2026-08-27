@@ -2350,5 +2350,5 @@
     "option.NotifyBarkParams.Id.description": "同じ ID で対応するプッシュを更新（Bark v1.5.2+ が必要）",
     "option.NotifyBarkParams.Delete.description": "\"1\" で通知センターと履歴から通知を削除。id パラメータが必要",
     "option.NotifyHelp.label": "通知の使い方",
-    "option.NotifyHelp.description": "**テンプレート変数**（タイトル/本文/Webhook リクエストボディで使用可）：\n\n| 変数 | 説明 |\n| --- | --- |\n| `{{time}}` | 時刻 HH:mm:ss |\n| `{{date}}` | 日付 yyyy-MM-dd |\n| `{{datetime}}` | 日時 yyyy-MM-dd HH:mm:ss |\n| `{{task_name}}` | タスク名 |\n| `{{task_status}}` | タスク状態（例：失敗） |\n| `{{duration}}` | 実行時間（例：1m23s） |\n| `{{controller}}` | コントローラー名 |\n| `{{resource}}` | リソース名 |\n| `{{title}}` | 通知項目タイトル（チャンネル設定で参照可、タスク設定より優先） |\n| `{{body}}` | 通知項目本文（チャンネル設定で参照可、タスク設定より優先） |"
+    "option.NotifyHelp.description": "テンプレート変数の説明はこちら：[通知テンプレート変数](https://github.com/MaaEnd/MaaEnd/blob/main/docs/zh_cn/users/notify-variables.md)"
 }

@@ -1,6 +1,6 @@
 # Notify
 
-多渠道通知 Go Service：任务失败、发送通知任务、以及任意任务主动发起的自定义通知，统一向设置页启用的渠道（Webhook / Bark / ServerChan / Telegram / Discord / 企业微信 / ntfy / Gotify / 钉钉 / 可新增其他渠道）推送。开关判定、内容解析与渠道发送由本包负责，触发时机与流程由 Pipeline 控制。
+多渠道通知 Go Service：任务失败、以及任意任务主动发起的自定义通知，统一向设置页启用的渠道（Webhook / Bark / ServerChan / Telegram / Discord / 企业微信 / ntfy / Gotify / 钉钉 / 可新增其他渠道）推送。开关判定、内容解析与渠道发送由本包负责，触发时机与流程由 Pipeline 控制。
 
 完整接入说明见 `docs/zh_cn/developers/components/notify.md`
 

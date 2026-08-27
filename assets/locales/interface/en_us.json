@@ -2350,5 +2350,5 @@
     "option.NotifyBarkParams.Id.description": "Same ID updates the corresponding push (requires Bark v1.5.2+)",
     "option.NotifyBarkParams.Delete.description": "Set \"1\" to delete the notification from the notification center and history; requires the id parameter",
     "option.NotifyHelp.label": "Notification usage guide",
-    "option.NotifyHelp.description": "**Template variables** (usable in title, body, and Webhook request body):\n\n| Variable | Description |\n| --- | --- |\n| `{{time}}` | Time HH:mm:ss |\n| `{{date}}` | Date yyyy-MM-dd |\n| `{{datetime}}` | Date time yyyy-MM-dd HH:mm:ss |\n| `{{task_name}}` | Task name |\n| `{{task_status}}` | Task status (e.g. Failure) |\n| `{{duration}}` | Elapsed time (e.g. 1m23s) |\n| `{{controller}}` | Controller name |\n| `{{resource}}` | Resource name |\n| `{{title}}` | Notification item title (referenceable in channel config; channel takes priority over task config) |\n| `{{body}}` | Notification item body (referenceable in channel config; channel takes priority over task config) |"
+    "option.NotifyHelp.description": "Template variables documentation: [Notification Template Variables](https://github.com/MaaEnd/MaaEnd/blob/main/docs/zh_cn/users/notify-variables.md)"
 }

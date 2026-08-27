@@ -2350,5 +2350,5 @@
     "option.NotifyBarkParams.Id.description": "같은 ID로 해당 푸시를 업데이트 (Bark v1.5.2+ 필요)",
     "option.NotifyBarkParams.Delete.description": "\"1\" 설정 시 알림 센터와 기록에서 알림을 삭제. id 파라미터 필요",
     "option.NotifyHelp.label": "알림 사용 안내",
-    "option.NotifyHelp.description": "**템플릿 변수** (제목/본문/Webhook 요청 본문에서 사용 가능):\n\n| 변수 | 설명 |\n| --- | --- |\n| `{{time}}` | 현재 시간 HH:mm:ss |\n| `{{date}}` | 현재 날짜 yyyy-MM-dd |\n| `{{datetime}}` | 날짜 시간 yyyy-MM-dd HH:mm:ss |\n| `{{task_name}}` | 작업 이름 (알림 작업에서는 알림 작업 이름) |\n| `{{task_status}}` | 작업 상태 (예: 실패) |\n| `{{duration}}` | 실행 시간 (예: 1m23s) |\n| `{{controller}}` | 컨트롤러 이름 |\n| `{{resource}}` | 리소스 이름 |\n| `{{title}}` | 알림 항목 제목(채널 설정에서 참조 가능, 작업 설정보다 우선) |\n| `{{body}}` | 알림 항목 본문(채널 설정에서 참조 가능, 작업 설정보다 우선) |"
+    "option.NotifyHelp.description": "템플릿 변수 설명은 여기: [알림 템플릿 변수](https://github.com/MaaEnd/MaaEnd/blob/main/docs/zh_cn/users/notify-variables.md)"
 }
