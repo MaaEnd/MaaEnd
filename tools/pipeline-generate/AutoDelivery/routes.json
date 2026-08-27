@@ -214,7 +214,24 @@
             "source_id": "deliver_target_map02_lv005_03",
             "name": "阿禾",
             "depot_id": "domain_2_lv005_depot_1",
-            "description": "三号丙型辅桩区（右上）"
+            "description": "三号丙型辅桩区（右上）",
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1204.85,
+                        1621.16
+                    ],
+                    "required": true
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1369.87,
+                        1533.92
+                    ]
+                }
+            ]
         }
     ],
     "depots": [
