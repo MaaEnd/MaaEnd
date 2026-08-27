@@ -36,6 +36,7 @@ class PathPoint(TypedDict):
     strict: bool
     required: NotRequired[bool]
     target_tier: NotRequired[str]
+    target_deck_y: NotRequired[float]
     auto_portal: NotRequired[bool]
     suppress_auto_portal: NotRequired[bool]
 
@@ -274,6 +275,15 @@ def normalize_path_points(points: list[PathPoint]) -> list[PathPoint]:
         target_tier = normalize_zone_id(point.get("target_tier", ""))
         if target_tier:
             normalized_point["target_tier"] = target_tier
+        target_deck_y = point.get("target_deck_y")
+        if not isinstance(target_deck_y, bool):
+            try:
+                normalized_deck_y = float(target_deck_y)
+            except (TypeError, ValueError):
+                pass
+            else:
+                if math.isfinite(normalized_deck_y):
+                    normalized_point["target_deck_y"] = normalized_deck_y
         if bool(point.get("required")):
             normalized_point["required"] = True
         if bool(point.get("auto_portal")):
@@ -322,6 +332,7 @@ def normalize_path_points(points: list[PathPoint]) -> list[PathPoint]:
             and merged[-1]["strict"] == point["strict"]
             and bool(merged[-1].get("required")) == bool(point.get("required"))
             and merged[-1].get("target_tier", "") == point.get("target_tier", "")
+            and merged[-1].get("target_deck_y") == point.get("target_deck_y")
         ):
             merged_auto_portal = bool(merged[-1].get("auto_portal")) or bool(point.get("auto_portal"))
             merged_suppressed = bool(merged[-1].get("suppress_auto_portal")) or bool(point.get("suppress_auto_portal"))

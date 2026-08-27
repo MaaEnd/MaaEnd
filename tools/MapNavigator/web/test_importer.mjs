@@ -49,9 +49,9 @@ test('A* import resolves target tiers and keeps only the first navmesh geometry'
   const zoneIds = { Base: 1, Tier: 2, Other: 3 };
   const result = collectAstarImportBasePoints(
     [
-      { x: 10, y: 20, zone: 'Base', target_tier: 'Tier' },
-      { x: 30, y: 40, zone: 'Base' },
-      { x: 50, y: 60, zone: 'Other' },
+      { x: 10, y: 20, zone: 'Base', target_tier: 'Tier', target_deck_y: 111.5 },
+      { x: 30, y: 40, zone: 'Base', target_deck_y: '222.5' },
+      { x: 50, y: 60, zone: 'Other', target_deck_y: 333.5 },
       { x: 70, y: 80, zone: 'Missing' },
     ],
     (zone) => zoneIds[zone] ?? Number.NaN,
@@ -65,6 +65,7 @@ test('A* import resolves target tiers and keeps only the first navmesh geometry'
       [110, 220],
       [30, 40],
     ],
+    decks: [111.5, 222.5],
     skipped: 2,
   });
 });
@@ -77,7 +78,7 @@ test('A* import prepends a manual start to every pending target', () => {
         [10, 20],
         [30, 40],
       ],
-      123.5,
+      [111.5, 222.5],
       (x, y) => [x + 100, y + 200],
     ),
     {
@@ -86,10 +87,24 @@ test('A* import prepends a manual start to every pending target', () => {
         [110, 220],
         [130, 240],
       ],
-      decks: [null, null, 123.5],
+      decks: [null, 111.5, 222.5],
     },
   );
-  assert.equal(completeAstarImportWithStart([5, 6], [], null, (x, y) => [x, y]), null);
+  assert.equal(completeAstarImportWithStart([5, 6], [], [], (x, y) => [x, y]), null);
+});
+
+test('A* import keeps missing and invalid target decks aligned as null', () => {
+  const result = collectAstarImportBasePoints(
+    [
+      { x: 10, y: 20, zone: 'Base' },
+      { x: 30, y: 40, zone: 'Base', target_deck_y: 'invalid' },
+    ],
+    () => 1,
+    (zoneId) => zoneId,
+    (_zoneId, x, y) => [x, y],
+  );
+
+  assert.deepEqual(result.decks, [null, null]);
 });
 
 test('clipboard reader returns the current JSON text unchanged', async () => {

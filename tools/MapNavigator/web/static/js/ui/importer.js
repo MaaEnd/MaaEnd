@@ -45,7 +45,7 @@ export function filterProjectNodes(nodes, query, kind) {
  * @param {(zone:string)=>number} resolveZoneId
  * @param {(zoneId:number)=>number} geometryZoneId
  * @param {(zoneId:number, x:number, y:number)=>number[]} pointToBase
- * @returns {{firstZoneId:?number, basePoints:number[][], skipped:number}}
+ * @returns {{firstZoneId:?number, basePoints:number[][], decks:Array<?number>, skipped:number}}
  */
 export function collectAstarImportBasePoints(points, resolveZoneId, geometryZoneId, pointToBase) {
   const resolved = points.map((point) => ({
@@ -53,10 +53,11 @@ export function collectAstarImportBasePoints(points, resolveZoneId, geometryZone
     zoneId: resolveZoneId((point && point.target_tier) || (point && point.zone) || ''),
   }));
   const first = resolved.find(({ zoneId }) => Number.isFinite(zoneId));
-  if (!first) return { firstZoneId: null, basePoints: [], skipped: points.length };
+  if (!first) return { firstZoneId: null, basePoints: [], decks: [], skipped: points.length };
 
   const geometryId = geometryZoneId(first.zoneId);
   const basePoints = [];
+  const decks = [];
   let skipped = 0;
   for (const { point, zoneId } of resolved) {
     if (!Number.isFinite(zoneId) || geometryZoneId(zoneId) !== geometryId) {
@@ -69,27 +70,34 @@ export function collectAstarImportBasePoints(points, resolveZoneId, geometryZone
       continue;
     }
     basePoints.push(base.slice(0, 2));
+    const rawDeck = point && point.target_deck_y;
+    const deck = Number(rawDeck);
+    decks.push(
+      rawDeck !== null && rawDeck !== '' && typeof rawDeck !== 'boolean' && Number.isFinite(deck) ? deck : null,
+    );
   }
-  return { firstZoneId: first.zoneId, basePoints, skipped };
+  return { firstZoneId: first.zoneId, basePoints, decks, skipped };
 }
 
 /**
  * Prepend one manually clicked start to imported targets waiting in base coordinates.
  * Convert every target back into the active display frame so the regular A* planner can
- * apply its usual base conversion once. The deck selector belongs to the final target.
+ * apply its usual base conversion once. Keep each imported target's deck aligned with it.
  * @param {number[]} start display-frame start
  * @param {number[][]} pendingTargets base-frame imported targets
- * @param {?number} finalTargetDeck imported final target's selected `target_deck_y`
+ * @param {Array<?number>} pendingDecks imported targets' `target_deck_y` values
  * @param {(x:number, y:number)=>number[]} baseToDisplay
  * @returns {?{points:number[][], decks:Array<?number>}}
  */
-export function completeAstarImportWithStart(start, pendingTargets, finalTargetDeck, baseToDisplay) {
+export function completeAstarImportWithStart(start, pendingTargets, pendingDecks, baseToDisplay) {
   if (
     !Array.isArray(start) ||
     start.length < 2 ||
     !start.slice(0, 2).every(Number.isFinite) ||
     !Array.isArray(pendingTargets) ||
-    pendingTargets.length === 0
+    pendingTargets.length === 0 ||
+    !Array.isArray(pendingDecks) ||
+    pendingDecks.length !== pendingTargets.length
   ) {
     return null;
   }
@@ -101,11 +109,9 @@ export function completeAstarImportWithStart(start, pendingTargets, finalTargetD
       : null;
   });
   if (targets.some((target) => target === null)) return null;
-  const decks = new Array(targets.length + 1).fill(null);
-  decks[decks.length - 1] = finalTargetDeck ?? null;
   return {
     points: [start.slice(0, 2), ...targets],
-    decks,
+    decks: [null, ...pendingDecks.map((deck) => (Number.isFinite(deck) ? deck : null))],
   };
 }
 

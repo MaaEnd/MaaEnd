@@ -28,6 +28,7 @@ ZONE_HINT_KEYS = ("map_name", "mapName", "zone", "zone_id", "zoneId")
 ACTION_KEYS = ("action", "action_type", "actionType", "type")
 STRICT_KEYS = ("strict", "strict_arrival", "strictArrival")
 TARGET_TIER_KEYS = ("target_tier", "targetTier")
+TARGET_DECK_Y_KEYS = ("target_deck_y", "targetDeckY")
 CONTROL_ACTION_NAMES = {"HEADING", "ZONE"}
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 ASSETS_DIR = PROJECT_ROOT / "assets"
@@ -246,6 +247,7 @@ def export_path_nodes(points: list[PathPoint]) -> list[dict[str, Any] | list[int
         strict_arrival = coerce_strict_arrival(point.get("strict"), default=False)
         required = coerce_strict_arrival(point.get("required"), default=False)
         target_tier = normalize_zone_id(point.get("target_tier", ""))
+        target_deck_y = point.get("target_deck_y")
         for action in get_point_actions(point):
             target = [_compact_number(point["x"]), _compact_number(point["y"])]
             if action == int(ActionType.NAVMESH):
@@ -253,6 +255,8 @@ def export_path_nodes(points: list[PathPoint]) -> list[dict[str, Any] | list[int
                 navmesh_node: dict[str, Any] = {"action": "NAVMESH", "target": target}
                 if target_tier:
                     navmesh_node["target_tier"] = target_tier
+                if target_deck_y is not None:
+                    navmesh_node["target_deck_y"] = _compact_number(target_deck_y)
                 if required:
                     navmesh_node["required"] = True
                 exported_nodes.append(navmesh_node)
@@ -611,6 +615,9 @@ def _parse_point_dict(node: dict[str, Any], zone_hint: str) -> PathPoint | None:
     target_tier = _resolve_target_tier(node)
     if target_tier:
         point["target_tier"] = target_tier
+    target_deck_y = _resolve_target_deck_y(node)
+    if target_deck_y is not None:
+        point["target_deck_y"] = target_deck_y
     return point
 
 
@@ -695,6 +702,16 @@ def _resolve_target_tier(node: dict[str, Any]) -> str:
         if target_tier:
             return target_tier
     return ""
+
+
+def _resolve_target_deck_y(node: dict[str, Any]) -> float | None:
+    for key in TARGET_DECK_Y_KEYS:
+        if key not in node:
+            continue
+        target_deck_y = _as_float(node.get(key))
+        if target_deck_y is not None and math.isfinite(target_deck_y):
+            return target_deck_y
+    return None
 
 
 def _as_float(value: Any) -> float | None:

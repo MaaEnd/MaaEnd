@@ -127,6 +127,8 @@ class MapNavigatorApp {
         this.astarLocateHints = [];
         /** @type {number[][]} imported targets waiting for a manual start, in base px. */
         this.astarPendingTargets = [];
+        /** @type {Array<?number>} imported targets' `target_deck_y`, aligned with pending targets. */
+        this.astarPendingDecks = [];
         /** @type {?{x0:number,y0:number,x1:number,y1:number}} canvas-px selection box. */
         this.selectionRect = null;
         /** @type {Array<number[]>} A* path finder waypoints in display-frame world. */
@@ -2610,7 +2612,7 @@ class MapNavigatorApp {
                           wy,
                       ],
                       this.astarPendingTargets,
-                      this.hintDeck,
+                      this.astarPendingDecks,
                       (bx, by) => this._baseToDisplay(bx, by),
                   )
                 : null;
@@ -2621,6 +2623,7 @@ class MapNavigatorApp {
             this.astarRoute = null;
             this.astarLocateHints = [];
             this.astarPendingTargets = [];
+            this.astarPendingDecks = [];
             this.hintDeck = null;
             setStatus(`正在从手动起点规划经过 ${importedCount} 个导入点...`, "#eab308");
             this._calculateAstarPreview();
@@ -3044,6 +3047,7 @@ class MapNavigatorApp {
         this.astarRoute = null;
         this.astarLocateHints = [];
         this.astarPendingTargets = [];
+        this.astarPendingDecks = [];
         this._resetOffMeshOverlays();
         this._astarRouteChanged();
     }
@@ -3172,6 +3176,7 @@ class MapNavigatorApp {
     _addAstarHint(x, y, label, rot = null) {
         this.astarLocateHints.push({x, y, label, rot});
         this.astarPendingTargets = [];
+        this.astarPendingDecks = [];
         this.hintDeck = null;
         this._refreshDeckProbe();
     }
@@ -4738,6 +4743,7 @@ class MapNavigatorApp {
             rot: null,
         }));
         this.astarPendingTargets = imported.basePoints.map((point) => point.slice(0, 2));
+        this.astarPendingDecks = imported.decks.slice();
         this.hintDeck = null;
         this._setActiveTool(importedCount === 1 ? "astar-single" : "astar-multi");
         this._astarRouteChanged();

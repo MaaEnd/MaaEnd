@@ -12,7 +12,7 @@ from json_import import (
     load_project_import_node,
     scan_project_import_nodes,
 )
-from model import ActionType, PathPoint
+from model import ActionType, PathPoint, normalize_path_points
 
 
 def make_point(action: ActionType, *, strict: bool = False, required: bool = False) -> PathPoint:
@@ -67,6 +67,45 @@ class ExportPathNodesTest(unittest.TestCase):
                 }
             ],
         )
+
+    def test_preserves_navmesh_target_deck_y_on_import_and_export(self) -> None:
+        routes = discover_path_routes(
+            {
+                "path": [
+                    {
+                        "action": "NAVMESH",
+                        "target": [
+                            1242.04,
+                            773.41,
+                        ],
+                        "targetDeckY": "123.5",
+                    }
+                ]
+            }
+        )
+
+        self.assertEqual(routes[0][0]["target_deck_y"], 123.5)
+        self.assertEqual(
+            export_path_nodes(routes[0]),
+            [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        1242.04,
+                        773.41,
+                    ],
+                    "target_deck_y": 123.5,
+                }
+            ],
+        )
+
+    def test_does_not_merge_same_coordinate_with_different_target_decks(self) -> None:
+        first = make_point(ActionType.NAVMESH)
+        first["target_deck_y"] = 100.0
+        second = make_point(ActionType.NAVMESH)
+        second["target_deck_y"] = 200.0
+
+        self.assertEqual(len(normalize_path_points([first, second])), 2)
 
     def test_exports_required_recorded_action_as_object(self) -> None:
         nodes = export_path_nodes([make_point(ActionType.TRANSFER, required=True)])
