@@ -340,13 +340,21 @@ def _retry_on_permission(operation, *, error_key: str = "", **fmt_args) -> bool:
                 return False
 
 
-def _update_versions(install_root: Path, values: dict[str, str]) -> None:
-    """更新 version.json 中多个组件的版本号（单次读-改-写）"""
+def _update_versions(install_root: Path, values: dict[str, str | None]) -> None:
+    """更新 version.json 中多个组件的版本号（单次读-改-写）。
+
+    值为非空字符串时写入；值为 None 时删除对应键（用于清除过期记录，如
+    release 回退安装后移除旧的 CI artifact digest）。
+    """
     if not values:
         return
     version_file = install_root / VERSION_FILE_NAME
     versions = read_versions_file(version_file)
-    versions.update({k: v for k, v in values.items() if v})
+    for key, value in values.items():
+        if value is None:
+            versions.pop(key, None)
+        elif value:
+            versions[key] = value
     write_versions_file(version_file, versions)
 
 
@@ -356,6 +364,8 @@ def _update_component_version(
     version: str,
 ) -> None:
     """更新 version.json 中单个组件的版本号"""
+    if not version:
+        return
     _update_versions(install_root, {component_key: version})
 
 
@@ -1247,7 +1257,7 @@ def _find_cpp_algo_in_ci(
     branch = checkout_branch or MAIN_BRANCH
     print(Console.info(t("inf_ci_artifact_search_branch", name=artifact_name, branch=branch)))
 
-    def _search_runs(runs_url: str) -> tuple[str | None, str | None]:
+    def _search_runs(runs_url: str) -> tuple[str | None, str | None, str | None]:
         try:
             data = _github_api_get(runs_url, auth_headers)
         except urllib.error.HTTPError as e:
@@ -1548,8 +1558,11 @@ def install_cpp_algo(
             print(Console.ok(t("inf_cpp_algo_install_complete")))
             cleanup_cache_file(download_path)
             version_to_write = remote_version or local_version
+            # 走 Release 回退安装成功：清除 CI artifact digest 记录，避免旧 digest
+            # 在新一轮 CI 恢复后误判"一致"而跳过下载。
             if version_to_write:
                 _update_component_version(install_root, "cpp_algo", version_to_write)
+            _update_versions(install_root, {"cpp_algo_sha256": None})
             return True, version_to_write, True
         except Exception as e:
             traceback.print_exc()
