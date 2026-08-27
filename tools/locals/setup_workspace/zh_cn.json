@@ -71,6 +71,8 @@
     "inf_cpp_algo_installed_skip": "[INF] cpp-algo 已安装，跳过（如需更新，请使用 --update 参数）",
     "err_cpp_algo_url_not_found": "[ERR] 未找到 cpp-algo 下载链接",
     "inf_cpp_algo_latest_version": "[INF] cpp-algo 已是最新版本 ({version})，跳过下载",
+    "inf_cpp_algo_digest_match": "[INF] 远端 cpp-algo artifact 的 SHA256 与本地记录一致 ({sha})，跳过下载",
+    "wrn_cpp_algo_digest_unavailable": "[WRN] 无法获取远端 cpp-algo artifact 校验和，按原逻辑继续",
     "inf_extract_install_cpp_algo": "[INF] 解压并安装 cpp-algo...",
     "err_cpp_algo_not_found": "[ERR] 未能找到 {name}",
     "err_cpp_algo_dmg_unsupported": "[ERR] 当前系统不支持直接处理 dmg，请手动从发布包安装 cpp-algo",

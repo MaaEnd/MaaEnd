@@ -71,6 +71,8 @@
     "inf_cpp_algo_installed_skip": "[INF] cpp-algo already installed, skipping (use --update to update)",
     "err_cpp_algo_url_not_found": "[ERR] cpp-algo download URL not found",
     "inf_cpp_algo_latest_version": "[INF] cpp-algo is already up to date ({version}), skipping download",
+    "inf_cpp_algo_digest_match": "[INF] Remote cpp-algo artifact SHA256 matches the locally recorded value ({sha}), skipping download",
+    "wrn_cpp_algo_digest_unavailable": "[WRN] Could not retrieve the remote cpp-algo artifact checksum; falling back to the original logic",
     "inf_extract_install_cpp_algo": "[INF] Extracting and installing cpp-algo...",
     "err_cpp_algo_not_found": "[ERR] Could not find {name}",
     "err_cpp_algo_dmg_unsupported": "[ERR] This system cannot process dmg directly, please install cpp-algo manually from release package",
