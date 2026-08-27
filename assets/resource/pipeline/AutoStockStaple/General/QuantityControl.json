@@ -4550,7 +4550,8 @@
             ]
         },
         "next": [
-            "AutoStockStapleBagFullHandler",
+            "AutoStockStapleBagFullHandlerValleyIV",
+            "AutoStockStapleBagFullHandlerWuling",
             "AutoStockStapleBagFullGiveUp",
             "AutoStockStapleQuantityControlCloseRewards"
         ]

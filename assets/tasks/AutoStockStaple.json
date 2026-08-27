@@ -2154,7 +2154,10 @@
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "AutoStockStapleBagFullHandler": {
+                        "AutoStockStapleBagFullHandlerValleyIV": {
+                            "enabled": true
+                        },
+                        "AutoStockStapleBagFullHandlerWuling": {
                             "enabled": true
                         },
                         "AutoStockStapleBagFullGiveUp": {
@@ -2174,7 +2177,10 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "AutoStockStapleBagFullHandler": {
+                        "AutoStockStapleBagFullHandlerValleyIV": {
+                            "enabled": false
+                        },
+                        "AutoStockStapleBagFullHandlerWuling": {
                             "enabled": false
                         }
                     }

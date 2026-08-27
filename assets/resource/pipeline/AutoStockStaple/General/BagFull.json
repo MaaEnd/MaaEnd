@@ -20,6 +20,84 @@
         "post_delay": 0,
         "rate_limit": 0
     },
+    "AutoStockStapleBagFullHandlerValleyIV": {
+        "desc": "谷地背包已满处理入口，整理一次无效则放弃",
+        "max_hit": 1,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleBagFullDetect",
+                    "InValleyIVText"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleBagFullResetValleyIV"
+        ]
+    },
+    "AutoStockStapleBagFullResetValleyIV": {
+        "desc": "清空谷地购买阶段命中计数，重启后谷地可重新执行",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClearHitCount",
+                "custom_action_param": {
+                    "nodes": [
+                        "AutoStockStapleValleyIV"
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleBagFullCloseBuyWindow"
+        ]
+    },
+    "AutoStockStapleBagFullHandlerWuling": {
+        "desc": "武陵背包已满处理入口，整理一次无效则放弃",
+        "max_hit": 1,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoStockStapleBagFullDetect",
+                    "InWulingText"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleBagFullResetWuling"
+        ]
+    },
+    "AutoStockStapleBagFullResetWuling": {
+        "desc": "清空武陵购买阶段命中计数，重启后武陵可重新执行",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClearHitCount",
+                "custom_action_param": {
+                    "nodes": [
+                        "AutoStockStapleWuling"
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoStockStapleBagFullCloseBuyWindow"
+        ]
+    },
     "AutoStockStapleBagFullCloseBuyWindow": {
         "desc": "关闭购买窗口",
         "recognition": {
@@ -58,46 +136,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleBagFullResetLocation"
-        ]
-    },
-    "AutoStockStapleBagFullResetLocation": {
-        "desc": "清空谷地与武陵购买阶段的命中计数，重启后两地可重新执行",
-        "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "ClearHitCount",
-                "custom_action_param": {
-                    "nodes": [
-                        "AutoStockStapleValleyIV",
-                        "AutoStockStapleWuling"
-                    ]
-                }
-            }
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
             "AutoStockStapleMain"
-        ]
-    },
-    "AutoStockStapleBagFullHandler": {
-        "desc": "背包已满处理入口，整理一次无效则放弃",
-        "max_hit": 1,
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "AutoStockStapleBagFullDetect"
-                ]
-            }
-        },
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoStockStapleBagFullCloseBuyWindow"
         ]
     },
     "AutoStockStapleBagFullGiveUp": {

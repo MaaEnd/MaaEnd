@@ -8,7 +8,8 @@
                 "custom_action": "ClearHitCount",
                 "custom_action_param": {
                     "nodes": [
-                        "AutoStockStapleBagFullHandler"
+                        "AutoStockStapleBagFullHandlerValleyIV",
+                        "AutoStockStapleBagFullHandlerWuling"
                     ]
                 }
             }
