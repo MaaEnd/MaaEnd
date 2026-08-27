@@ -2209,8 +2209,8 @@
     "option.NotifyProxyUseUpdate.label": "Use the proxy from update settings",
     "option.NotifyProxyUseUpdate.description": "Reuse the proxy configured in the update settings; turn off to manually fill in a proxy below",
     "option.NotifyProxyUrl.label": "Proxy URL",
-    "option.NotifyProxyUrl.Url.label": "socks5://127.0.0.1:7891",
-    "option.NotifyProxyUrl.Url.description": "Manually enter the proxy URL; socks5 recommended, e.g. socks5://127.0.0.1:7891 (http/https also supported)",
+    "option.NotifyProxyUrl.Url.label": "socks5://127.0.0.1:7897",
+    "option.NotifyProxyUrl.Url.description": "Manually enter the proxy URL; socks5 recommended, e.g. socks5://127.0.0.1:7897 (http/https also supported)",
     "option.NotifyProxyWebhook.label": "Use proxy for Webhook",
     "option.NotifyProxyBark.label": "Use proxy for Bark",
     "option.NotifyProxyServerChan.label": "Use proxy for ServerChan",
@@ -2307,9 +2307,6 @@
     "option.NotifyWebhook.label": "Webhook channel",
     "option.NotifyBark.label": "Bark channel",
     "option.NotifyWebhookMethod.label": "Request method",
-    "option.NotifyAllowTask.label": "Enable task custom notifications",
-    "option.NotifyAllowTask.description": "Whether to receive notifications actively sent by tasks (e.g. monthly card expiry). Keep enabled unless there is a specific need to turn it off",
-    "option.NotifyItemsHelp.label": "Independent notification item toggles",
     "option.NotifyWebhookBody.label": "Request body",
     "option.NotifyServerChanShort.label": "Short description (short)",
     "option.NotifyServerChanShort.Short.label": "Short card description",
@@ -2348,5 +2345,5 @@
     "option.NotifyBarkParams.Id.description": "Same ID updates the corresponding push (requires Bark v1.5.2+)",
     "option.NotifyBarkParams.Delete.description": "Set \"1\" to delete the notification from the notification center and history; requires the id parameter",
     "option.NotifyHelp.label": "Notification usage guide",
-    "option.NotifyHelp.description": "Template variables documentation: [Notification Template Variables](https://github.com/MaaEnd/MaaEnd/blob/main/docs/zh_cn/users/notify-variables.md)"
+    "option.NotifyHelp.description": "Template variables can be used for custom content replacement. Documentation: [Notification Template Variables](https://github.com/MaaEnd/MaaEnd/blob/v2/docs/zh_cn/users/notify-variables.md)"
 }

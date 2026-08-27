@@ -2209,8 +2209,8 @@
     "option.NotifyProxyUseUpdate.label": "更新設定のプロキシを使用",
     "option.NotifyProxyUseUpdate.description": "更新設定で設定したプロキシを再利用。オフの場合は下のプロキシを手入力",
     "option.NotifyProxyUrl.label": "プロキシ URL",
-    "option.NotifyProxyUrl.Url.label": "socks5://127.0.0.1:7891",
-    "option.NotifyProxyUrl.Url.description": "プロキシ URL を手入力。socks5 を推奨（例: socks5://127.0.0.1:7891、http/https も対応）",
+    "option.NotifyProxyUrl.Url.label": "socks5://127.0.0.1:7897",
+    "option.NotifyProxyUrl.Url.description": "プロキシ URL を手入力。socks5 を推奨（例: socks5://127.0.0.1:7897、http/https も対応）",
     "option.NotifyProxyWebhook.label": "Webhook はプロキシを使用",
     "option.NotifyProxyBark.label": "Bark はプロキシを使用",
     "option.NotifyProxyServerChan.label": "ServerChan はプロキシを使用",
@@ -2307,9 +2307,6 @@
     "option.NotifyWebhook.label": "Webhook チャンネル",
     "option.NotifyBark.label": "Bark チャンネル",
     "option.NotifyWebhookMethod.label": "リクエストメソッド",
-    "option.NotifyAllowTask.label": "タスクのカスタム通知を有効化",
-    "option.NotifyAllowTask.description": "タスクが能動的に送信する通知（月カード期限切れなど）を受け取るかどうか。特別な理由がなければオフにしないでください",
-    "option.NotifyItemsHelp.label": "通知項目の独立スイッチ",
     "option.NotifyWebhookBody.label": "リクエストボディ",
     "option.NotifyServerChanShort.label": "短い説明（short）",
     "option.NotifyServerChanShort.Short.label": "カードの短い説明",
@@ -2348,5 +2345,5 @@
     "option.NotifyBarkParams.Id.description": "同じ ID で対応するプッシュを更新（Bark v1.5.2+ が必要）",
     "option.NotifyBarkParams.Delete.description": "\"1\" で通知センターと履歴から通知を削除。id パラメータが必要",
     "option.NotifyHelp.label": "通知の使い方",
-    "option.NotifyHelp.description": "テンプレート変数の説明はこちら：[通知テンプレート変数](https://github.com/MaaEnd/MaaEnd/blob/main/docs/zh_cn/users/notify-variables.md)"
+    "option.NotifyHelp.description": "テンプレート変数でカスタム内容の置換が可能です。説明はこちら：[通知テンプレート変数](https://github.com/MaaEnd/MaaEnd/blob/v2/docs/zh_cn/users/notify-variables.md)"
 }

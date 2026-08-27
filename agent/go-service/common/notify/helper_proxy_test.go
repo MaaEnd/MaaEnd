@@ -101,7 +101,7 @@ func TestProxyClient(t *testing.T) {
 	}
 
 	// socks5 → 走 SOCKS5 拨号器（DialContext 非 nil、不走 Transport.Proxy）
-	socksClient, err := proxyClient("socks5://127.0.0.1:7891")
+	socksClient, err := proxyClient("socks5://127.0.0.1:7897")
 	if err != nil {
 		t.Fatalf("socks5 proxy: %v", err)
 	}

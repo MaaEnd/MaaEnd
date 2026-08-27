@@ -2209,8 +2209,8 @@
     "option.NotifyProxyUseUpdate.label": "업데이트 설정의 프록시 사용",
     "option.NotifyProxyUseUpdate.description": "업데이트 설정에서 구성한 프록시 재사용. 끄면 아래에 프록시를 직접 입력",
     "option.NotifyProxyUrl.label": "프록시 URL",
-    "option.NotifyProxyUrl.Url.label": "socks5://127.0.0.1:7891",
-    "option.NotifyProxyUrl.Url.description": "프록시 URL을 직접 입력. socks5 권장(예: socks5://127.0.0.1:7891, http/https도 지원)",
+    "option.NotifyProxyUrl.Url.label": "socks5://127.0.0.1:7897",
+    "option.NotifyProxyUrl.Url.description": "프록시 URL을 직접 입력. socks5 권장(예: socks5://127.0.0.1:7897, http/https도 지원)",
     "option.NotifyProxyWebhook.label": "Webhook 프록시 사용",
     "option.NotifyProxyBark.label": "Bark 프록시 사용",
     "option.NotifyProxyServerChan.label": "ServerChan 프록시 사용",
@@ -2307,9 +2307,6 @@
     "option.NotifyWebhook.label": "Webhook 채널",
     "option.NotifyBark.label": "Bark 채널",
     "option.NotifyWebhookMethod.label": "요청 메서드",
-    "option.NotifyAllowTask.label": "작업 사용자 지정 알림 활성화",
-    "option.NotifyAllowTask.description": "작업이 능동적으로 보내는 알림(월간 카드 만료 등)을 받을지 여부. 특별한 이유가 없으면 끄지 마세요",
-    "option.NotifyItemsHelp.label": "알림 항목 독립 스위치",
     "option.NotifyWebhookBody.label": "요청 본문",
     "option.NotifyServerChanShort.label": "짧은 설명 (short)",
     "option.NotifyServerChanShort.Short.label": "카드의 짧은 설명",
@@ -2348,5 +2345,5 @@
     "option.NotifyBarkParams.Id.description": "같은 ID로 해당 푸시를 업데이트 (Bark v1.5.2+ 필요)",
     "option.NotifyBarkParams.Delete.description": "\"1\" 설정 시 알림 센터와 기록에서 알림을 삭제. id 파라미터 필요",
     "option.NotifyHelp.label": "알림 사용 안내",
-    "option.NotifyHelp.description": "템플릿 변수 설명은 여기: [알림 템플릿 변수](https://github.com/MaaEnd/MaaEnd/blob/main/docs/zh_cn/users/notify-variables.md)"
+    "option.NotifyHelp.description": "템플릿 변수로 사용자 지정 내용을 교체할 수 있습니다. 설명은 여기: [알림 템플릿 변수](https://github.com/MaaEnd/MaaEnd/blob/v2/docs/zh_cn/users/notify-variables.md)"
 }

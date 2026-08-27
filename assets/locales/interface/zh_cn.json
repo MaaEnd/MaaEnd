@@ -2209,8 +2209,8 @@
     "option.NotifyProxyUseUpdate.label": "使用更新设置的代理",
     "option.NotifyProxyUseUpdate.description": "复用更新设置里配置的代理；关闭时手动填写下方代理地址",
     "option.NotifyProxyUrl.label": "代理地址",
-    "option.NotifyProxyUrl.Url.label": "socks5://127.0.0.1:7891",
-    "option.NotifyProxyUrl.Url.description": "手动填写代理地址，推荐 socks5，如 socks5://127.0.0.1:7891（也支持 http/https）",
+    "option.NotifyProxyUrl.Url.label": "socks5://127.0.0.1:7897",
+    "option.NotifyProxyUrl.Url.description": "手动填写代理地址，推荐 socks5，如 socks5://127.0.0.1:7897（也支持 http/https）",
     "option.NotifyProxyWebhook.label": "Webhook 使用代理",
     "option.NotifyProxyBark.label": "Bark 使用代理",
     "option.NotifyProxyServerChan.label": "ServerChan 使用代理",
@@ -2307,9 +2307,6 @@
     "option.NotifyWebhook.label": "Webhook 渠道",
     "option.NotifyBark.label": "Bark 渠道",
     "option.NotifyWebhookMethod.label": "请求方法",
-    "option.NotifyAllowTask.label": "启用任务自定义通知",
-    "option.NotifyAllowTask.description": "是否接收任务主动发送的通知，如月卡到期等；无特殊需求请勿关闭",
-    "option.NotifyItemsHelp.label": "通知项独立开关",
     "option.NotifyWebhookBody.label": "请求体",
     "option.NotifyServerChanShort.label": "简短描述（short）",
     "option.NotifyServerChanShort.Short.label": "卡片简短描述",
@@ -2347,5 +2344,5 @@
     "option.NotifyBarkParams.Id.description": "使用相同的 ID 值时，将更新对应推送的通知内容（需 Bark v1.5.2+）",
     "option.NotifyBarkParams.Delete.description": "传 \"1\" 时，从系统通知中心和 APP 内历史记录中删除通知，需搭配 id 参数",
     "option.NotifyHelp.label": "通知使用说明",
-    "option.NotifyHelp.description": "模板变量说明见：[通知模板变量](https://github.com/MaaEnd/MaaEnd/blob/main/docs/zh_cn/users/notify-variables.md)"
+    "option.NotifyHelp.description": "可使用模板变量功能进行自定义内容替换，模板变量说明见：[通知模板变量](https://github.com/MaaEnd/MaaEnd/blob/v2/docs/zh_cn/users/notify-variables.md)"
 }
