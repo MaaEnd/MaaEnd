@@ -101,6 +101,8 @@ public:
     std::vector<uint32_t> candidateTriangles(uint16_t zone_id, const WorldPoint& point, double radius) const;
     std::array<WorldPoint, 3> trianglePoints(uint32_t triangle_index) const;
     double triangleHeight(uint32_t triangle_index) const;
+    uint32_t componentId(uint32_t triangle_index) const;
+    uint32_t componentSize(uint32_t triangle_index) const;
 
 private:
     const BaseNavPack& pack_;

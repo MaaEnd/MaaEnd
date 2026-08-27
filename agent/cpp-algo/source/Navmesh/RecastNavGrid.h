@@ -25,8 +25,9 @@ inline constexpr double kLam = 4.0;                // 按局部通道目标计�
 inline constexpr double kLamR = 28.0;              // 按固定余量目标 kR 计亏欠的满亏欠一步加价倍数
 inline constexpr double kRidgeFloor = 0.5;         // 脊线保底余量地板 px
 inline constexpr double kMaxErr = 0.5;             // 轮廓 DP 容差 px
-inline constexpr double kSlimEps = 0.5;            // 终线共线剔除容差 px
+inline constexpr double kSlimClearanceBypass = 1.0; // 直连净空超过该值时跳过原净空比较 px
 inline constexpr double kClrTol = 0.125;           // 拉直允许的净空退让 px, 取半格即采样步长
+inline constexpr size_t kStringPullMaxMergeGap = 6; // StringPull 最多跨越的输入路径步数
 inline constexpr double kCornerR = 1.75;           // 过角期望余量 px
 inline constexpr double kCornerTurn = 5.0;         // 需要留过角余量的最小转角 度
 inline constexpr double kCornerSeg = 2.0;          // 认定为拐点的最小相邻段长 px
@@ -288,10 +289,11 @@ std::vector<WorldPoint> StringPull(
 std::vector<WorldPoint> Slim(
     const std::vector<WorldPoint>& pts,
     const Blockers& blk,
-    double eps,
     const ClearanceFloor* cfl,
     const LayerOracle* lyo = nullptr,
-    float h = 0.0F);
+    float h = 0.0F,
+    bool prefer_fewer_points = true,
+    size_t max_merge_gap = 0);
 
 std::vector<WorldPoint> WidenCorners(
     const std::vector<WorldPoint>& pts,

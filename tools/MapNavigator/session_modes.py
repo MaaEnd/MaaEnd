@@ -66,6 +66,7 @@ def _build_navtest(runtime: Any, emit: Emit, log: Log, start: dict) -> Any:
         on_finished=lambda ok, reason, kind: emit(
             {"type": "finished", "ok": ok, "reason": reason, "kind": kind}
         ),
+        on_position=lambda position: emit(position),
         on_error=lambda message: emit({"type": "error", "message": message}),
         on_closed=lambda: emit({"type": "session_over"}),
     )

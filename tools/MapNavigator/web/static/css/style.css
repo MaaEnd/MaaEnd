@@ -1985,6 +1985,53 @@ canvas {
   display: flex !important;
 }
 
+.nav-debug-options {
+  display: block;
+  padding-top: 8px;
+}
+
+.nav-debug-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+
+.nav-debug-summary::-webkit-details-marker {
+  display: none;
+}
+
+.nav-debug-chevron {
+  width: 0;
+  height: 0;
+  margin-right: 2px;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  border-left: 5px solid var(--text-muted);
+  transition: transform 0.15s ease;
+}
+
+.nav-debug-options[open] .nav-debug-chevron {
+  transform: rotate(90deg);
+}
+
+.nav-debug-options-body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+  padding-top: 4px;
+}
+
+.nav-debug-options-body .chk {
+  display: flex;
+  width: 100%;
+  margin-top: 6px;
+}
+
 .mode-assert .btn-tool.group-assert,
 #canvas-wrap.mode-assert .btn-tool.group-assert {
   display: flex !important;

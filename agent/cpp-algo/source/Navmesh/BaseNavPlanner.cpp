@@ -469,6 +469,17 @@ double BaseNavPlanner::triangleHeight(uint32_t triangle_index) const
     return triangle_heights_[triangle_index];
 }
 
+uint32_t BaseNavPlanner::componentId(uint32_t triangle_index) const
+{
+    return triangle_index < natural_component_ids_.size() ? natural_component_ids_[triangle_index] : std::numeric_limits<uint32_t>::max();
+}
+
+uint32_t BaseNavPlanner::componentSize(uint32_t triangle_index) const
+{
+    const uint32_t id = componentId(triangle_index);
+    return id < natural_component_sizes_.size() ? natural_component_sizes_[id] : 0;
+}
+
 std::optional<std::array<WorldPoint, 2>> BaseNavPlanner::closestEdgeBridgePoints(uint32_t lhs, uint32_t rhs) const
 {
     const auto lhs_points = trianglePoints(lhs);

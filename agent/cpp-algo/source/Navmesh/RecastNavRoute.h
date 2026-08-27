@@ -29,6 +29,23 @@ struct RecastPlanResult
     // 贪心拉直后的驱动航点下标(points 的下标,不含起点,末位恒为 points.size()-1)。
     // 空 = 该腿没有层预言机,拉直交给调用方。
     std::vector<size_t> waypoints;
+    struct Debug
+    {
+        double x0 = 0.0;
+        double y0 = 0.0;
+        int64_t nx = 0;
+        int64_t ny = 0;
+        double cell_size = 0.0;
+        std::vector<WorldPoint> astar_cells;
+        std::vector<WorldPoint> rerouted_points;
+        std::vector<WorldPoint> string_pull_points;
+        std::vector<WorldPoint> assembled_points;
+        std::vector<WorldPoint> loop_fixed_points;
+        std::vector<WorldPoint> slim_points;
+        std::vector<WorldPoint> widened_points;
+        std::vector<WorldPoint> planned_points;
+        std::vector<std::string> warnings;
+    } debug;
 };
 
 class RecastNavEngine

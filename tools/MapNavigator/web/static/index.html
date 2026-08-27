@@ -330,6 +330,24 @@
             <span id="astar-selected-tier-label" class="selected-tier-label">未选择</span>
           </div>
 
+          <details id="nav-debug-options" class="sidebar-row border-top nav-debug-options">
+            <summary class="nav-debug-summary">
+              <span class="sidebar-label">寻路诊断</span>
+              <span class="nav-debug-chevron" aria-hidden="true"></span>
+            </summary>
+            <div class="nav-debug-options-body">
+              <label class="chk"><input id="chk-nav-debug-search" type="checkbox" /> A* 选择格点</label>
+              <label class="chk"><input id="chk-nav-debug-rerouted" type="checkbox" /> 绿色段二次重寻</label>
+              <label class="chk"><input id="chk-nav-debug-string-pull" type="checkbox" /> StringPull 连续拉直</label>
+              <label class="chk"><input id="chk-nav-debug-assembled" type="checkbox" /> 端点拼接与去重</label>
+              <label class="chk"><input id="chk-nav-debug-loop-fixed" type="checkbox" /> 交叉点处理</label>
+              <label class="chk"><input id="chk-nav-debug-slim" type="checkbox" /> Slim 抽稀</label>
+              <label class="chk"><input id="chk-nav-debug-widen-corners" type="checkbox" /> WidenCorners 拐角外移</label>
+              <label class="chk"><input id="chk-nav-debug-planned" type="checkbox" /> 最终计划路径</label>
+              <label class="chk" title="录制时在地图上绘制游戏实际走过的轨迹"><input id="chk-nav-debug-live-path" type="checkbox" /> 实时实际路径</label>
+            </div>
+          </details>
+
           <!-- 隐藏取值控件：由层级选择弹窗/定位写入 -->
           <select id="astar-display-zone-combo" class="combo combo-zone" hidden></select>
           <select id="astar-zone-combo" class="combo combo-zone" hidden></select>

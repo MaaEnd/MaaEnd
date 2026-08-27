@@ -52,6 +52,18 @@ struct RouteDiag
     bool crossed_barrier = false;
     double snap_start = 0.0;
     double snap_goal = 0.0;
+    double x0 = 0.0;
+    double y0 = 0.0;
+    int64_t nx = 0;
+    int64_t ny = 0;
+    std::vector<WorldPoint> astar_cells;
+    std::vector<WorldPoint> rerouted_points;
+    std::vector<WorldPoint> string_pull_points;
+    std::vector<WorldPoint> assembled_points;
+    std::vector<WorldPoint> loop_fixed_points;
+    std::vector<WorldPoint> slim_points;
+    std::vector<WorldPoint> widened_points;
+    std::vector<WorldPoint> planned_points;
 };
 
 // 窗口里从预烘图解出来的记录。格号已换成窗口格号,窗外的与不属于本瓦自有矩形的
@@ -717,6 +729,14 @@ std::optional<std::vector<WorldPoint>> routeWindow(
         }
         dg.warn.push_back("层不连通→退回格级");
     }
+    dg.x0 = x0;
+    dg.y0 = y0;
+    dg.nx = nx;
+    dg.ny = ny;
+    dg.astar_cells.reserve(q->size());
+    for (const CellPt& c : *q) {
+        dg.astar_cells.push_back({ x0 + (static_cast<double>(c.x) + 0.5) * kCS, y0 + (static_cast<double>(c.y) + 0.5) * kCS });
+    }
     dg.snap_start = dsa;
     dg.snap_goal = dga;
     const int64_t NC = nx * ny;
@@ -930,6 +950,12 @@ std::optional<std::vector<WorldPoint>> routeWindow(
                     }
                     if (l2 <= l1 * 1.2 + 2.0 / kCS) {
                         pp = cen(*q2);
+                        for (const auto& p : pp) {
+                            if (dg.rerouted_points.empty()
+                                || std::hypot(p.x - dg.rerouted_points.back().x, p.y - dg.rerouted_points.back().y) > 1e-9) {
+                                dg.rerouted_points.push_back(p);
+                            }
+                        }
                         if (qs.has_value()) {
                             hs = h2;
                         }
@@ -957,6 +983,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
         }
         taut.insert(taut.end(), pp.begin(), pp.end());
     }
+    dg.string_pull_points = taut;
 
     std::vector<WorldPoint> line;
     line.push_back(s);
@@ -975,15 +1002,19 @@ std::optional<std::vector<WorldPoint>> routeWindow(
             ded.push_back(stripped[i]);
         }
     }
+    dg.assembled_points = ded;
     std::vector<WorldPoint> out = DropLoops(ded);
+    dg.loop_fixed_points = out;
     const LayerOracle* lyo_p = qs.has_value() ? &lyo : nullptr;
     const float lyo_h = qs.has_value() ? st3.sp_h[static_cast<size_t>(qs->front())] : 0.0F;
-    if (kSlimEps > 0 && out.size() > 2) {
-        out = Slim(out, blk_gray, kSlimEps, &cfl, lyo_p, lyo_h);
+    if (out.size() > 2) {
+        out = Slim(out, blk_gray, &cfl, lyo_p, lyo_h);
     }
+    dg.slim_points = out;
     if (out.size() > 2) {
         out = WidenCorners(out, blk_gray, dist, info.x0, info.y0, kCS, &cfl, lyo_p, lyo_h);
     }
+    dg.widened_points = out;
     dg.clearance.reserve(out.size());
     for (const auto& p : out) {
         const int64_t cx = std::min(std::max(static_cast<int64_t>(std::floor((p.x - info.x0) / kCS)), int64_t { 0 }), nx - 1);
@@ -1013,6 +1044,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
         }
     }
     PullWaypoints(out, dg, pl, zid, blk_gray, lyo_p != nullptr);
+    dg.planned_points = out;
     return out;
 }
 
@@ -1197,6 +1229,20 @@ RecastPlanResult RecastNavEngine::planLocked(
                         res.snap_start = dg.snap_start;
                         res.snap_goal = dg.snap_goal;
                         res.waypoints = std::move(dg.waypoints);
+                        res.debug.x0 = dg.x0;
+                        res.debug.y0 = dg.y0;
+                        res.debug.nx = dg.nx;
+                        res.debug.ny = dg.ny;
+                        res.debug.cell_size = kCS;
+                        res.debug.astar_cells = std::move(dg.astar_cells);
+                        res.debug.rerouted_points = std::move(dg.rerouted_points);
+                        res.debug.string_pull_points = std::move(dg.string_pull_points);
+                        res.debug.assembled_points = std::move(dg.assembled_points);
+                        res.debug.loop_fixed_points = std::move(dg.loop_fixed_points);
+                        res.debug.slim_points = std::move(dg.slim_points);
+                        res.debug.widened_points = std::move(dg.widened_points);
+                        res.debug.planned_points = std::move(dg.planned_points);
+                        res.debug.warnings = res.warnings;
                         return res;
                     }
                     err = "终线触界,扩窗重跑";

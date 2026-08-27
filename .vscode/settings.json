@@ -77,5 +77,6 @@
         "editor.codeActionsOnSave": {
             "source.organizeImports": "explicit"
         }
-    }
+    },
+    "cmake.ignoreCMakeListsMissing": true
 }

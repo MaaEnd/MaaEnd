@@ -104,6 +104,8 @@ export class Overlay {
       }
       if (vm.astar) {
         this._drawAstarPreview(camera, vm.astar);
+        this._drawAstarDiagnostics(camera, vm.astar.diagnostics, vm.astar.debugOptions || {});
+        this._drawLivePath(camera, vm.astar.livePath);
       }
     }
     if (mode === 'log' && vm.logAnalysis) {
@@ -811,7 +813,7 @@ export class Overlay {
     const ctx = this.ctx;
     const previewPoints = astar.previewPoints || [];
 
-    if (previewPoints.length >= 2) {
+    if (astar.showPlannedPath !== false && previewPoints.length >= 2) {
       ctx.save();
       const segments = this._astarSegments(previewPoints, astar.segmentBreaks, astar.hasRoute);
 
@@ -834,13 +836,12 @@ export class Overlay {
       ctx.lineWidth = 1.0;
       this._strokeSegments(camera, segments);
 
-      this._drawFlowingParticle(camera, segments);
       ctx.restore();
     }
 
     this._drawBlindWalks(camera, astar.blindWalks || []);
 
-    if (astar.segmentBreaks && astar.segmentBreaks.length) {
+    if (astar.showPlannedPath !== false && astar.segmentBreaks && astar.segmentBreaks.length) {
       const breakRadius = Math.max(1.5, Math.min(4, 2 * camera.viewScale));
       for (const idx of astar.segmentBreaks) {
         if (idx <= 0 || idx >= previewPoints.length - 1) continue;
@@ -910,6 +911,78 @@ export class Overlay {
   }
 
   /**
+   * Draw reliable navigation diagnostics. These are the cells and stages returned by the
+   * planner, not a guessed heatmap of the priority queue.
+   * @param {Camera} camera
+   * @param {Array<Object>} diagnostics
+   * @param {{search?:boolean,rerouted?:boolean,stringPull?:boolean,assembled?:boolean,loopFixed?:boolean,slim?:boolean,widenCorners?:boolean}} options
+   * @returns {void}
+   */
+  _drawAstarDiagnostics(camera, diagnostics, options) {
+    if (!diagnostics || !diagnostics.length) return;
+    const ctx = this.ctx;
+    const drawDots = (points, color, radius, alpha) => {
+      if (!points || !points.length) return;
+      ctx.save();
+      ctx.fillStyle = color;
+      ctx.globalAlpha = alpha;
+      for (const point of points) {
+        const [x, y] = camera.worldToCanvas(point[0], point[1]);
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+    };
+    const drawLine = (points, color, width, dash = [5, 3]) => {
+      if (!points || points.length < 2) return;
+      ctx.save();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = width;
+      ctx.setLineDash(dash);
+      this._strokeSegments(camera, [points]);
+      ctx.restore();
+    };
+    for (const diag of diagnostics) {
+      if (options.search) {
+        drawDots(diag.astar_cells, '#38bdf8', 2.1, 0.9);
+        if (diag.astar_cells && diag.astar_cells.length > 1) {
+          ctx.save();
+          ctx.strokeStyle = '#38bdf8';
+          ctx.lineWidth = 1.1;
+          ctx.setLineDash([2, 2]);
+          this._strokeSegments(camera, [diag.astar_cells]);
+          ctx.restore();
+        }
+      }
+      if (options.rerouted) {
+        drawDots(diag.rerouted_points, '#22c55e', 2.8, 0.95);
+        drawLine(diag.rerouted_points, '#22c55e', 1.8);
+      }
+      if (options.stringPull) {
+        drawDots(diag.string_pull_points, '#a78bfa', 2.8, 0.95);
+        drawLine(diag.string_pull_points, '#a78bfa', 2);
+      }
+      if (options.assembled) {
+        drawDots(diag.assembled_points, '#22d3ee', 3, 0.95);
+        drawLine(diag.assembled_points, '#22d3ee', 1.8);
+      }
+      if (options.loopFixed) {
+        drawDots(diag.loop_fixed_points, '#60a5fa', 3, 0.95);
+        drawLine(diag.loop_fixed_points, '#60a5fa', 1.8);
+      }
+      if (options.slim) {
+        drawDots(diag.slim_points, '#f59e0b', 3.1, 0.95);
+        drawLine(diag.slim_points, '#f59e0b', 2);
+      }
+      if (options.widenCorners) {
+        drawDots(diag.widened_points, '#fb7185', 3.4, 0.95);
+        drawLine(diag.widened_points, '#fb7185', 2.2);
+      }
+    }
+  }
+
+  /**
    * Stroke every segment polyline with the context's current stroke style.
    * @param {Camera} camera @param {number[][][]} segments
    * @returns {void}
@@ -928,58 +1001,58 @@ export class Overlay {
     }
   }
 
-  /**
-   * One white glowing particle that traces the whole route in a 6s loop (the
-   * animation-frame loop in main.js keeps rendering while a preview is shown).
-   * @param {Camera} camera @param {number[][][]} segments
-   * @returns {void}
-   */
-  _drawFlowingParticle(camera, segments) {
+  /** Draw the measured trajectory and latest real position, never an extrapolated one. */
+  _drawLivePath(camera, livePath) {
+    if (!livePath) return;
+    const points = (livePath.points || []).filter(
+      (point) => point && Number.isFinite(point.x) && Number.isFinite(point.y),
+    );
+    const current = livePath.current;
     const ctx = this.ctx;
-    const speedMs = 6000;
-    const pulseT = (Date.now() % speedMs) / speedMs;
 
-    const pts = [];
-    for (const segment of segments) {
-      for (const p of segment) {
-        const pt = camera.worldToCanvas(p[0], p[1]);
-        if (pts.length > 0) {
-          const last = pts[pts.length - 1];
-          if (Math.hypot(last[0] - pt[0], last[1] - pt[1]) < 0.1) continue;
-        }
-        pts.push(pt);
-      }
-    }
-    if (pts.length < 2) return;
-
-    const lengths = [];
-    let totalLength = 0;
-    for (let i = 0; i < pts.length - 1; i += 1) {
-      const dist = Math.hypot(pts[i + 1][0] - pts[i][0], pts[i + 1][1] - pts[i][1]);
-      lengths.push(dist);
-      totalLength += dist;
-    }
-    if (!(totalLength > 0)) return;
-
-    let target = totalLength * pulseT;
-    let mx = pts[pts.length - 1][0];
-    let my = pts[pts.length - 1][1];
-    for (let i = 0; i < lengths.length; i += 1) {
-      if (target <= lengths[i]) {
-        const ratio = lengths[i] > 0 ? target / lengths[i] : 0;
-        mx = pts[i][0] + (pts[i + 1][0] - pts[i][0]) * ratio;
-        my = pts[i][1] + (pts[i + 1][1] - pts[i][1]) * ratio;
-        break;
-      }
-      target -= lengths[i];
+    if (points.length >= 2) {
+      ctx.save();
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.setLineDash([]);
+      ctx.beginPath();
+      points.forEach((point, index) => {
+        const [x, y] = camera.worldToCanvas(point.x, point.y);
+        if (index === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.strokeStyle = 'rgba(0, 0, 0, 0.65)';
+      ctx.lineWidth = 6;
+      ctx.stroke();
+      ctx.strokeStyle = '#22d3ee';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+      ctx.restore();
     }
 
-    ctx.fillStyle = '#ffffff';
-    ctx.shadowColor = '#ffffff';
-    ctx.shadowBlur = 5;
+    if (!current || !Number.isFinite(current.x) || !Number.isFinite(current.y)) return;
+    const [cx, cy] = camera.worldToCanvas(current.x, current.y);
+    ctx.save();
+    ctx.setLineDash([]);
     ctx.beginPath();
-    ctx.arc(mx, my, 3.0, 0, Math.PI * 2);
+    ctx.arc(cx, cy, 10, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(8, 15, 28, 0.9)';
     ctx.fill();
+    ctx.strokeStyle = '#22d3ee';
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+    if (Number.isFinite(current.rot)) {
+      const radians = (current.rot * Math.PI) / 180;
+      const tipX = cx + Math.sin(radians) * 18;
+      const tipY = cy - Math.cos(radians) * 18;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(tipX, tipY);
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+    ctx.restore();
   }
 
   /**

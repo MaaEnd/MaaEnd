@@ -135,6 +135,8 @@ class MapNavigatorApp {
         this.astarPoints = [];
         /** @type {?{points:number[][], segment_breaks:number[], cost:number}} */
         this.astarRoute = null;
+        /** @type {Array<Object>} one real navmesh diagnostic payload per planned leg. */
+        this.astarDiagnostics = [];
         /**
          * 每个 A* 路点声明的可走面高度(`target_deck_y`),与 {@link astarPoints} 同下标;
          * `null` = 不声明 = 寻路取整格全部面。`hintDeck` 是最后一个预览目标点的同一件事。
@@ -155,6 +157,28 @@ class MapNavigatorApp {
          * @type {Array<{off:number[], mesh:number[], distance:number, kind:string}>}
          */
         this.astarBlindWalks = [];
+        const readDebugFlag = (key, defaultValue) => {
+            const stored = localStorage.getItem(key);
+            return stored === null ? defaultValue : stored === "1";
+        };
+        this.navDebug = {
+            search: readDebugFlag("maaend.mapnavigator.debugSearch", false),
+            rerouted: readDebugFlag("maaend.mapnavigator.debugRerouted", false),
+            stringPull: readDebugFlag("maaend.mapnavigator.debugStringPull", false),
+            assembled: readDebugFlag("maaend.mapnavigator.debugAssembled", false),
+            loopFixed: readDebugFlag("maaend.mapnavigator.debugLoopFixed", false),
+            slim: readDebugFlag("maaend.mapnavigator.debugSlim", false),
+            widenCorners: readDebugFlag("maaend.mapnavigator.debugWidenCorners", false),
+            planned: readDebugFlag("maaend.mapnavigator.debugPlanned", true),
+            live: readDebugFlag("maaend.mapnavigator.showLivePath", true),
+        };
+        this.showLivePath = this.navDebug.live;
+        this._syncNavDebugControls();
+        this.els.navDebugOptions.open = false;
+        /** @type {Array<{x:number,y:number,rot:?number}>} measured points in base px. */
+        this.livePathBase = [];
+        /** @type {?{x:number,y:number,rot:?number}} latest measured position in base px. */
+        this.livePositionBase = null;
         /**
          * Off-mesh points to badge, base px. `exact` marks the ones whose distance came from a
          * real route (a blind walk); the rest are geometric nearest-mesh probes — a *goal*'s
@@ -290,6 +314,16 @@ class MapNavigatorApp {
             connectionSummary: $("connection-summary"),
             astarDisplayZoneCombo: $("astar-display-zone-combo"),
             astarZoneCombo: $("astar-zone-combo"),
+            navDebugOptions: $("nav-debug-options"),
+            chkNavDebugSearch: $("chk-nav-debug-search"),
+            chkNavDebugRerouted: $("chk-nav-debug-rerouted"),
+            chkNavDebugStringPull: $("chk-nav-debug-string-pull"),
+            chkNavDebugAssembled: $("chk-nav-debug-assembled"),
+            chkNavDebugLoopFixed: $("chk-nav-debug-loop-fixed"),
+            chkNavDebugSlim: $("chk-nav-debug-slim"),
+            chkNavDebugWidenCorners: $("chk-nav-debug-widen-corners"),
+            chkNavDebugPlanned: $("chk-nav-debug-planned"),
+            chkNavDebugLivePath: $("chk-nav-debug-live-path"),
             btnClearAstar: $("btn-clear-astar"),
             btnCopyNavmesh: $("btn-copy-navmesh"),
             loadProgress: $("load-progress"),
@@ -439,6 +473,13 @@ class MapNavigatorApp {
                 hotkeyNote: this.els.navtestHotkeyNote,
                 connection: this.connection,
                 getRoute: () => this._navtestRoute(),
+                onPosition: (fix) => this._onLivePosition(fix),
+                onRunState: (running) => {
+                    if (running) {
+                        this._clearLivePath();
+                        this.positionReadout.setPending("正在获取实时位置与朝向...");
+                    }
+                },
             });
             this.importer = new Importer(
                 {
@@ -754,6 +795,24 @@ class MapNavigatorApp {
     //  Event wiring
     // ==================================================================================
 
+    /** Keep every diagnostic checkbox aligned with the persisted rendering state. */
+    _syncNavDebugControls() {
+        for (const [entry, key] of [
+            [this.els.chkNavDebugSearch, "search"],
+            [this.els.chkNavDebugRerouted, "rerouted"],
+            [this.els.chkNavDebugStringPull, "stringPull"],
+            [this.els.chkNavDebugAssembled, "assembled"],
+            [this.els.chkNavDebugLoopFixed, "loopFixed"],
+            [this.els.chkNavDebugSlim, "slim"],
+            [this.els.chkNavDebugWidenCorners, "widenCorners"],
+            [this.els.chkNavDebugPlanned, "planned"],
+            [this.els.chkNavDebugLivePath, "live"],
+        ]) {
+            entry.checked = Boolean(this.navDebug[key]);
+        }
+        this.showLivePath = this.navDebug.live;
+    }
+
     /** Attach every DOM event listener (buttons, combos, tabs, canvas, keyboard). @returns {void} */
     _wireEvents() {
         const e = this.els;
@@ -768,6 +827,28 @@ class MapNavigatorApp {
         e.assertZoneCombo.addEventListener("change", () => this._onAssertZoneChanged());
         e.astarDisplayZoneCombo.addEventListener("change", () => this._onAstarDisplayZoneChanged());
         e.astarZoneCombo.addEventListener("change", () => this._onAstarZoneChanged());
+        for (const [entry, key] of [
+            [e.chkNavDebugSearch, "search"],
+            [e.chkNavDebugRerouted, "rerouted"],
+            [e.chkNavDebugStringPull, "stringPull"],
+            [e.chkNavDebugAssembled, "assembled"],
+            [e.chkNavDebugLoopFixed, "loopFixed"],
+            [e.chkNavDebugSlim, "slim"],
+            [e.chkNavDebugWidenCorners, "widenCorners"],
+            [e.chkNavDebugPlanned, "planned"],
+        ]) {
+            entry.addEventListener("change", () => {
+                this.navDebug[key] = entry.checked;
+                localStorage.setItem(`maaend.mapnavigator.debug${key[0].toUpperCase()}${key.slice(1)}`, entry.checked ? "1" : "0");
+                this._paint();
+            });
+        }
+        e.chkNavDebugLivePath.addEventListener("change", () => {
+            this.showLivePath = e.chkNavDebugLivePath.checked;
+            this.navDebug.live = this.showLivePath;
+            localStorage.setItem("maaend.mapnavigator.showLivePath", this.showLivePath ? "1" : "0");
+            this._paint();
+        });
         e.btnClearAstar.addEventListener("click", () => this._onClearAstar());
         e.btnCopyNavmesh.addEventListener("click", () => this._copyNavmesh());
         e.btnAssertLocate.addEventListener("click", () => this._onLocateCurrentPosition("assert"));
@@ -1056,6 +1137,10 @@ class MapNavigatorApp {
                           goalOnly: this.astarGoal && !this.astarRoute ? this.astarGoal : null,
                           waypoints: this.astarPoints,
                           blindWalks: this._blindWalksForDisplay(),
+                          livePath: this._livePathForDisplay(),
+                          diagnostics: this._astarDiagnosticsForDisplay(),
+                          debugOptions: this.navDebug,
+                          showPlannedPath: this.navDebug.planned,
                       }
                     : null,
             selectionRect: this.selectionRect,
@@ -1066,10 +1151,6 @@ class MapNavigatorApp {
         };
         this.renderer.requestRender(this.camera);
         this.overlay.render(this.camera, vm);
-
-        if (mode === Mode.ASTAR && (this.astarRoute || this.astarStart || this.astarGoal)) {
-            this._requestAnimationLoop();
-        }
     }
 
     /** @returns {Array<Object>} the current zone segment's point objects. */
@@ -1733,6 +1814,79 @@ class MapNavigatorApp {
             out.push({...point, x: dx, y: dy});
         }
         return out;
+    }
+
+    /** Consume one real locator fix and append it to the measured base-frame trajectory. */
+    _onLivePosition(fix) {
+        if (this.positionReadout) this.positionReadout.update(fix);
+        if (!this.field || !fix) return;
+
+        const zoneId = this._resolveZoneId(fix.zone);
+        const displayZoneId = this._astarZoneId();
+        if (Number.isNaN(zoneId) || Number.isNaN(displayZoneId)) return;
+        if (this.field.geometryZoneId(zoneId) !== this.field.geometryZoneId(displayZoneId)) {
+            this._clearLivePath();
+            if (this.state.mode === Mode.ASTAR) this._paint();
+            return;
+        }
+
+        const [x, y] = this._pointToBase(zoneId, fix.x, fix.y);
+        const rot = this._headingToBase(zoneId, fix.x, fix.y, fix.rot);
+        this.livePositionBase = {x, y, rot};
+        const last = this.livePathBase[this.livePathBase.length - 1];
+        if (!last || Math.hypot(last.x - x, last.y - y) >= 1) {
+            this.livePathBase.push({x, y, rot});
+        }
+        if (this.state.mode === Mode.ASTAR) this._paint();
+    }
+
+    /** Clear measured live-path state without affecting the planned preview. */
+    _clearLivePath() {
+        this.livePathBase = [];
+        this.livePositionBase = null;
+    }
+
+    /** Project measured base-frame points into the current A* display frame. */
+    _livePathForDisplay() {
+        if (!this.showLivePath || !this.field || this.state.mode !== Mode.ASTAR) return null;
+        return {
+            points: this.livePathBase.map((point) => {
+                const [x, y] = this._baseToDisplay(point.x, point.y);
+                return {x, y, rot: this._headingBaseToDisplay(point.x, point.y, point.rot)};
+            }),
+            current: this.livePositionBase
+                ? (() => {
+                      const [x, y] = this._baseToDisplay(this.livePositionBase.x, this.livePositionBase.y);
+                      return {
+                          x,
+                          y,
+                          rot: this._headingBaseToDisplay(
+                              this.livePositionBase.x,
+                              this.livePositionBase.y,
+                              this.livePositionBase.rot,
+                          ),
+                      };
+                  })()
+                : null,
+        };
+    }
+
+    /** Project the real per-leg navmesh diagnostics into the current display frame. */
+    _astarDiagnosticsForDisplay() {
+        const project = (points) => (points || []).map(([x, y]) => this._baseToDisplay(x, y));
+        return this.astarDiagnostics.map((diag) => ({
+            ...diag,
+            astar_cells: project(diag.astar_cells),
+            rerouted_points: project(diag.rerouted_points),
+            string_pull_points: project(diag.string_pull_points),
+            assembled_points: project(diag.assembled_points),
+            loop_fixed_points: project(diag.loop_fixed_points),
+            slim_points: project(diag.slim_points),
+            widened_points: project(diag.widened_points),
+            planned_points: project(diag.planned_points),
+            start: project([diag.start])[0],
+            goal: project([diag.goal])[0],
+        }));
     }
 
     /**
@@ -2818,6 +2972,7 @@ class MapNavigatorApp {
      */
     async _probeLoneAstarPoint() {
         this._resetOffMeshOverlays();
+        this.astarDiagnostics = [];
         const token = this._probeToken;
         if (!this.field || this.astarPoints.length !== 1) return;
 
@@ -2926,6 +3081,11 @@ class MapNavigatorApp {
                 }
 
                 const segmentPts = res.points || [];
+                this.astarDiagnostics.push({
+                    ...(res.debug || {}),
+                    start: legStart,
+                    goal: legGoal,
+                });
                 const dropped = combinedPoints.length > 0 && segmentPts.length > 0 ? 1 : 0;
                 const offset = combinedPoints.length - dropped;
                 for (const b of res.segment_breaks || []) {
@@ -3048,7 +3208,9 @@ class MapNavigatorApp {
         this.astarLocateHints = [];
         this.astarPendingTargets = [];
         this.astarPendingDecks = [];
+        this.astarDiagnostics = [];
         this._resetOffMeshOverlays();
+        this._clearLivePath();
         this._astarRouteChanged();
     }
 
@@ -4964,25 +5126,6 @@ class MapNavigatorApp {
         e.tabAstar.setAttribute("aria-pressed", String(mode === Mode.ASTAR));
         e.tabAssert.setAttribute("aria-pressed", String(mode === Mode.ASSERT));
         e.tabEdit.setAttribute("aria-pressed", String(mode === Mode.EDIT));
-    }
-
-    /**
-     * Run a rAF repaint loop while an A* route/marker is visible (drives the flowing
-     * route animation); stops itself once nothing animated remains.
-     * @returns {void}
-     */
-    _requestAnimationLoop() {
-        if (this._animating) return;
-        this._animating = true;
-        const loop = () => {
-            if (this.state.mode !== Mode.ASTAR || !(this.astarRoute || this.astarStart || this.astarGoal)) {
-                this._animating = false;
-                return;
-            }
-            this._paint();
-            requestAnimationFrame(loop);
-        };
-        requestAnimationFrame(loop);
     }
 
     /** Open the tier-picker dialog with base buttons + the current base's tier grid. @returns {void} */

@@ -7,7 +7,10 @@
 
 from __future__ import annotations
 
+import re
 import threading
+import time
+from pathlib import Path
 from typing import Any, Callable
 
 from agent_session import AgentSession
@@ -23,6 +26,7 @@ ReadyCallback = Callable[[], None]
 ArmedCallback = Callable[[int, str], None]
 RunStateCallback = Callable[[bool], None]
 FinishedCallback = Callable[[bool, str, str], None]
+PositionCallback = Callable[[dict[str, Any]], None]
 ErrorCallback = Callable[[str], None]
 ClosedCallback = Callable[[], None]
 
@@ -50,6 +54,7 @@ class NavTestService:
         on_armed: ArmedCallback,
         on_run_state: RunStateCallback,
         on_finished: FinishedCallback,
+        on_position: PositionCallback,
         on_error: ErrorCallback,
         on_closed: ClosedCallback,
     ) -> None:
@@ -58,6 +63,7 @@ class NavTestService:
         self._on_armed = on_armed
         self._on_run_state = on_run_state
         self._on_finished = on_finished
+        self._on_position = on_position
         self._on_error = on_error
         self._on_closed = on_closed
 
@@ -76,6 +82,76 @@ class NavTestService:
         self._armed_kind = "route"
         self._tasker: Any = None
         self._resource: Any = None
+        self._position_thread: threading.Thread | None = None
+        self._position_stop = threading.Event()
+
+    _POSITION_RE = re.compile(
+        r"MapLocator \[status=0\].*?\[position\.zoneId=(.*?)\] "
+        r"\[position\.x=([-+0-9.eE]+)\] \[position\.y=([-+0-9.eE]+)\].*?"
+        r"\[position\.angle=([-+0-9.eE]+)\]"
+    )
+
+    @staticmethod
+    def _position_log_path() -> Path:
+        return (
+            Path(__file__).resolve().parents[2]
+            / "install"
+            / "agent"
+            / "debug"
+            / "cpp-algo"
+            / "debug"
+            / "maafw.log"
+        )
+
+    def _start_position_observer(self) -> None:
+        self._stop_position_observer()
+        self._position_stop.clear()
+        self._position_thread = threading.Thread(
+            target=self._position_observer_loop,
+            args=(self._position_log_path(),),
+            name="MapNavigatorLivePosition",
+            daemon=True,
+        )
+        self._position_thread.start()
+
+    def _stop_position_observer(self) -> None:
+        self._position_stop.set()
+        thread = self._position_thread
+        if thread is not None and thread.is_alive():
+            thread.join(1.0)
+        self._position_thread = None
+
+    def _position_observer_loop(self, path: Path) -> None:
+        offset = 0
+        try:
+            with path.open("r", encoding="utf-8", errors="replace") as stream:
+                stream.seek(0, 2)
+                offset = stream.tell()
+                while not self._position_stop.is_set():
+                    stream.seek(offset)
+                    line = stream.readline()
+                    if not line:
+                        time.sleep(0.04)
+                        continue
+                    offset = stream.tell()
+                    match = self._POSITION_RE.search(line)
+                    if not match:
+                        continue
+                    zone, x, y, rot = match.groups()
+                    try:
+                        self._on_position(
+                            {
+                                "type": "position",
+                                "x": float(x),
+                                "y": float(y),
+                                "zone": zone,
+                                "rot": float(rot) % 360.0,
+                            }
+                        )
+                    except (ValueError, TypeError):
+                        continue
+        except OSError as exc:
+            self._on_status(f"实时寻路位置观察不可用: {exc}", "#f59e0b")
 
     @property
     def is_alive(self) -> bool:
@@ -300,8 +376,13 @@ class NavTestService:
 
         resource.override_pipeline(override)
 
-        job = tasker.post_task(node_name).wait()
-        succeeded = bool(job.succeeded)
+        if kind == "route":
+            self._start_position_observer()
+        try:
+            job = tasker.post_task(node_name).wait()
+            succeeded = bool(job.succeeded)
+        finally:
+            self._stop_position_observer()
         self._running.clear()
         self._on_run_state(False)
 
@@ -315,6 +396,7 @@ class NavTestService:
         key_listener.register(HOTKEY_ABORT, self.hotkey_abort)
 
     def _shutdown_agent(self) -> None:
+        self._stop_position_observer()
         key_listener.stop()
         with self._state_lock:
             self._tasker = None

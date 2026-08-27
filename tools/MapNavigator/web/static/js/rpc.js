@@ -201,7 +201,7 @@ export function getZiplineFrames() {
  *
  * @param {{zone_id:number, start:number[], goal:number[], snap_radius?:number, floor_y?:?number,
  *   goal_deck_y?:?number}} req
- * @returns {Promise<{ok:boolean, points?:number[][], segment_breaks?:number[], cost?:number,
+ * @returns {Promise<{ok:boolean, points?:number[][], segment_breaks?:number[], cost?:number, debug?:Object,
  *   blind_start?:?{entry:number[], distance:number, reason:string},
  *   blind_target?:?{reached:number[], gap:number, reason:string},
  *   off_mesh?:{start:?OffMeshProbe, goal:?OffMeshProbe}, error?:string}>}

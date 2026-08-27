@@ -487,6 +487,7 @@ async def api_route(req: RouteRequest) -> dict[str, Any]:
             "points": result["points"],
             "segment_breaks": [],
             "cost": result["cost"],
+            "debug": result.get("debug"),
             "blind_start": None,
             "blind_target": None,
         }

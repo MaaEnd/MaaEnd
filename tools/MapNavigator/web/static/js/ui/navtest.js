@@ -16,6 +16,7 @@
  *   - `{type:'ready'}`                    → session connected, F3 is live
  *   - `{type:'armed', count, kind}`       → what the backend will run ('route' | 'assert')
  *   - `{type:'run_state', running}`       → drives the abort overlay
+ *   - `{type:'position', x, y, zone, rot}` → actual MapNavigateAction locator fix
  *   - `{type:'finished', ok, reason, kind}` → one run ended (`reason` distinguishes an F4 abort)
  *   - `{type:'hotkey_degraded', message}` → hotkeys may not arrive; buttons only
  *   - `{type:'session_over'}`             → session released the game (F4 or panel)
@@ -40,6 +41,8 @@ export class NavTestController {
    *   @param {import('./connection.js').ConnectionPanel} opts.connection
    *   @param {()=>{path: Array, exported: boolean, assert_target: ?Object}} opts.getRoute
    *     what the active editor tab would run
+   *   @param {(fix:{x:number,y:number,zone:string,rot:?number})=>void} opts.onPosition
+   *   @param {(running:boolean)=>void} opts.onRunState
    */
   constructor(opts) {
     this.btnRun = opts.btnRun;
@@ -49,6 +52,8 @@ export class NavTestController {
     this.hotkeyNote = opts.hotkeyNote;
     this.connection = opts.connection;
     this.getRoute = opts.getRoute || (() => ({ path: [], exported: false, assert_target: null }));
+    this.onPosition = opts.onPosition || (() => {});
+    this.onRunState = opts.onRunState || (() => {});
     // 存 innerHTML: 提示行里的 <kbd> 按键芯片被降级警告覆盖后, 还要能原样还原。
     this._hotkeyNoteHtml = this.hotkeyNote.innerHTML;
 
@@ -213,7 +218,11 @@ export class NavTestController {
         break;
       case 'run_state':
         this.running = !!msg.running;
+        this.onRunState(this.running);
         this._syncUi();
+        break;
+      case 'position':
+        this.onPosition({x: msg.x, y: msg.y, zone: msg.zone, rot: msg.rot});
         break;
       case 'finished': {
         this.running = false;

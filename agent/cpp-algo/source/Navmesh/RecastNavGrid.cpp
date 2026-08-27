@@ -1423,74 +1423,27 @@ std::vector<WorldPoint> StringPull(
     const LayerOracle* lyo,
     const std::vector<float>* hs)
 {
-    std::vector<WorldPoint> P = pts;
-    std::vector<float> seg;
-    std::vector<double> cst;
-    if (cfl != nullptr && P.size() > 1) {
-        seg.reserve(P.size() - 1);
-        cst.reserve(P.size() - 1);
-        for (size_t k = 0; k + 1 < P.size(); ++k) {
-            seg.push_back(cfl->seg(P[k], P[k + 1]));
-            cst.push_back(cfl->cost(P[k], P[k + 1]));
-        }
+    if (lyo != nullptr && (hs == nullptr || hs->empty())) {
+        return pts;
     }
-    const bool guard = !seg.empty();
-    std::vector<size_t> idx(P.size());
-    for (size_t k = 0; k < idx.size(); ++k) {
-        idx[k] = k;
-    }
-    std::vector<float> acc;
-    std::vector<double> ac2;
-    for (int round = 0; round < 6; ++round) {
-        std::vector<WorldPoint> out { P[0] };
-        std::vector<size_t> oid { idx[0] };
-        size_t i = 0;
-        while (i < P.size() - 1) {
-            if (guard) {
-                acc.assign(seg.begin() + static_cast<int64_t>(idx[i]), seg.end());
-                for (size_t k = 1; k < acc.size(); ++k) {
-                    acc[k] = std::min(acc[k], acc[k - 1]);
-                }
-                ac2.assign(cst.begin() + static_cast<int64_t>(idx[i]), cst.end());
-                for (size_t k = 1; k < ac2.size(); ++k) {
-                    ac2[k] += ac2[k - 1];
-                }
-            }
-            size_t j = P.size() - 1;
-            while (j > i + 1) {
-                const size_t k = idx[j] - idx[i] - 1;
-                if (!blk.blocked(P[i], P[j])
-                    && (!guard
-                        || (static_cast<double>(cfl->seg(P[i], P[j])) >= static_cast<double>(acc[k]) - kClrTol
-                            && cfl->cost(P[i], P[j]) <= ac2[k] * (1.0 + kCostTol)))
-                    && (lyo == nullptr || lyo->ok(P[i], P[j], (*hs)[idx[i]], (*hs)[idx[j]]))) {
-                    break;
-                }
-                --j;
-            }
-            out.push_back(P[j]);
-            oid.push_back(idx[j]);
-            i = j;
-        }
-        const bool changed = out.size() != P.size();
-        P = std::move(out);
-        idx = std::move(oid);
-        if (!changed) {
-            break;
-        }
-    }
-    return P;
+    return Slim(pts, blk, cfl, lyo, hs == nullptr ? 0.0F : hs->front(), false, kStringPullMaxMergeGap);
 }
 
-// 层高逐点否决: 弦须从前一点的可达高度集走通, 且走到的高度集覆盖后一点原有的
-// 高度集, 后续各点据此仍然走得通。整线走查只能全取或全弃, 一处跨带就把整条线
-// 的共线剔除连坐掉, 网格锯齿会原样留在终线上。
-// 剔点后自该点起重算高度集: 剔点只会放大可达集, 沿用旧值会把后续弦按更窄的
-// 起点集判死。
+// 动态规划抽稀: 把输入路径点作为有向无环图的节点, 任意安全直连作为候选边。
+// 首要目标是最大化整条合并路径的最小净空; Slim 可在净空接近时再选择更少的路径点。
 std::vector<WorldPoint>
-    Slim(const std::vector<WorldPoint>& pts, const Blockers& blk, double eps, const ClearanceFloor* cfl, const LayerOracle* lyo, float h)
+    Slim(const std::vector<WorldPoint>& pts,
+         const Blockers& blk,
+         const ClearanceFloor* cfl,
+         const LayerOracle* lyo,
+         float h,
+         bool prefer_fewer_points,
+         size_t max_merge_gap)
 {
-    std::vector<WorldPoint> P = pts;
+    if (pts.size() < 3) {
+        return pts;
+    }
+    const std::vector<WorldPoint>& P = pts;
     std::vector<std::optional<std::vector<float>>> hv;
     const auto chain = [&](size_t k) {
         for (size_t i = k; i < P.size(); ++i) {
@@ -1502,42 +1455,76 @@ std::vector<WorldPoint>
         hv[0] = std::vector<float> { h };
         chain(1);
     }
-    bool ch = true;
-    while (ch) {
-        ch = false;
-        size_t i = 1;
-        while (i + 1 < P.size()) {
-            const WorldPoint &a = P[i - 1], &b = P[i], &c = P[i + 1];
-            const double ux = c.x - a.x, uy = c.y - a.y;
-            const double L2 = ux * ux + uy * uy;
-            const double t = L2 == 0.0 ? 0.0 : std::max(0.0, std::min(1.0, ((b.x - a.x) * ux + (b.y - a.y) * uy) / L2));
-            const double d = std::hypot(b.x - a.x - t * ux, b.y - a.y - t * uy);
-            bool ok = d <= eps && !blk.blocked(a, c)
-                      && (cfl == nullptr
-                          || static_cast<double>(cfl->seg(a, c))
-                                 >= std::min(static_cast<double>(cfl->seg(a, b)), static_cast<double>(cfl->seg(b, c))));
-            std::optional<std::vector<float>> nh;
-            if (ok && lyo != nullptr) {
-                nh = hv[i - 1].has_value() ? lyo->walk({ a, c }, *hv[i - 1]) : std::nullopt;
-                ok = nh.has_value() && hv[i + 1].has_value() && std::all_of(hv[i + 1]->begin(), hv[i + 1]->end(), [&](float v) {
-                         return std::find(nh->begin(), nh->end(), v) != nh->end();
-                     });
+    std::vector<double> original_clearance(P.size(), std::numeric_limits<double>::infinity());
+    if (cfl != nullptr) {
+        for (size_t i = 1; i < P.size(); ++i) {
+            original_clearance[i] = cfl->seg(P[i - 1], P[i]);
+        }
+    }
+
+    struct DpState
+    {
+        double bottleneck = -std::numeric_limits<double>::infinity();
+        size_t segments = std::numeric_limits<size_t>::max();
+        size_t previous = std::numeric_limits<size_t>::max();
+    };
+    std::vector<DpState> dp(P.size());
+    dp[0] = { std::numeric_limits<double>::infinity(), 0, 0 };
+    for (size_t j = 1; j < P.size(); ++j) {
+        double previous_min = std::numeric_limits<double>::infinity();
+        const size_t first = max_merge_gap > 0 && j > max_merge_gap ? j - max_merge_gap : 0;
+        for (size_t i = j; i > first;) {
+            --i;
+            if (cfl != nullptr) {
+                previous_min = std::min(previous_min, original_clearance[i + 1]);
             }
-            if (ok) {
-                P.erase(P.begin() + static_cast<int64_t>(i));
-                if (lyo != nullptr) {
-                    hv.erase(hv.begin() + static_cast<int64_t>(i));
-                    hv[i] = nh;
-                    chain(i + 1);
+            if (dp[i].segments == std::numeric_limits<size_t>::max()) {
+                continue;
+            }
+            const bool adjacent = j == i + 1;
+            const double direct_clearance = cfl == nullptr ? std::numeric_limits<double>::infinity() : cfl->seg(P[i], P[j]);
+            const bool clearance_ok = cfl == nullptr || direct_clearance > kSlimClearanceBypass || direct_clearance >= previous_min;
+            // 原始相邻边是保底路径,即使当前抽稀判据无法复核它也不能丢掉;
+            // 只有跨越中间点的候选边才需要通过合并安全性检查。
+            if (!adjacent && (!clearance_ok || blk.blocked(P[i], P[j]))) {
+                continue;
+            }
+            if (!adjacent && lyo != nullptr) {
+                const auto nh = hv[i].has_value() ? lyo->walk({ P[i], P[j] }, *hv[i]) : std::nullopt;
+                if (!nh.has_value() || !hv[j].has_value() || !std::all_of(hv[j]->begin(), hv[j]->end(), [&](float v) {
+                        return std::find(nh->begin(), nh->end(), v) != nh->end();
+                    })) {
+                    continue;
                 }
-                ch = true;
             }
-            else {
-                ++i;
+            const double bottleneck = std::min(dp[i].bottleneck, direct_clearance);
+            const size_t segments = dp[i].segments + 1;
+            const bool better = dp[j].segments == std::numeric_limits<size_t>::max()
+                || bottleneck > dp[j].bottleneck + kClrTol
+                || (prefer_fewer_points && std::fabs(bottleneck - dp[j].bottleneck) <= kClrTol && segments < dp[j].segments);
+            if (better) {
+                dp[j] = { bottleneck, segments, i };
             }
         }
     }
-    return P;
+    if (dp.back().segments == std::numeric_limits<size_t>::max()) {
+        return pts;
+    }
+
+    std::vector<size_t> keep;
+    for (size_t i = P.size() - 1; i != std::numeric_limits<size_t>::max(); i = dp[i].previous) {
+        keep.push_back(i);
+        if (i == 0) {
+            break;
+        }
+    }
+    std::reverse(keep.begin(), keep.end());
+    std::vector<WorldPoint> out;
+    out.reserve(keep.size());
+    for (const size_t i : keep) {
+        out.push_back(P[i]);
+    }
+    return out;
 }
 
 namespace
