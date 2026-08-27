@@ -106,11 +106,11 @@ func Send(runtime RuntimeConfig, vars map[string]string) bool {
 	return sent
 }
 
-// NotifySendAction 供 Pipeline 手动触发通知：渠道配置从 __NotifyConfig 读取，
-// 标题/正文支持两种来源——NotifyTask 由设置页 option 注入全局节点（玩家 UI，普通文本），
-// 其他任务可在调用节点 attach 直接编写（本地优先）；仅第三方节点 attach 提供的
-// 标题/正文支持以 "$" 开头的 i18n key（查不到翻译则显示去掉 $ 的 key）。
-// 通知失败不会导致 Pipeline 节点失败。
+// NotifySendAction 供 Pipeline 手动触发通知：渠道配置从 __NotifyConfig 读取
+// 标题/正文由调用节点 attach 直接编写（本地优先）
+// 仅第三方节点 attach 提供的标题/正文支持以 "$" 开头的 i18n key
+// i18n key 查不到翻译则显示去掉 $ 的 key 本身
+// 通知失败不会导致 Pipeline 节点失败
 type NotifySendAction struct{}
 
 var _ maa.CustomActionRunner = &NotifySendAction{}
@@ -161,7 +161,7 @@ func (a *NotifySendAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 
 	// 任务名优先取入口名（TaskID 反查）并解析为显示名；反查取不到（任务执行初期
 	// node_ids 为空时 maa-framework-go 不返回 entry，见 resolveActionTaskName 注释）
-	// 则回退用当前节点名解析（NotifyTask 节点名即入口名，可正常解析）。
+	// 则回退用当前节点名解析（任务入口节点名即入口名，可正常解析）。
 	taskName := resolveActionTaskName(
 		arg.TaskID,
 		arg.CurrentTaskName,
@@ -208,7 +208,7 @@ func parseAttach(nodeJSON string) (map[string]any, error) {
 //   - 优先用 GetTaskDetail 反查的任务入口名解析；
 //   - 反查取不到（任务执行初期 node_ids 为空时，maa-framework-go 的
 //     MaaTaskerGetTaskDetail 绑定在 size==0 时直接返回空 Entry，不读响应里的入口名）
-//     则退回到用当前节点名解析（NotifyTask 的节点名即入口名，可解析为显示名）；
+//     则退回到用当前节点名解析（任务入口节点名即入口名，可解析为显示名）；
 //   - 两者都查不到翻译时回退原样（resolveTaskName 的兜底行为）。
 func resolveActionTaskName(taskID int64, currentTaskName string, getEntry func(int64) string) string {
 	if taskID > 0 {

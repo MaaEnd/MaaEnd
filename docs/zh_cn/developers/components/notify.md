@@ -51,19 +51,18 @@ Notify 是 MaaEnd 的多渠道外部通知模块
 
 ### 设置页加通知项开关（可选）
 
-想让用户能单独关闭你的通知项，按以下三步（照抄 `NotifyItemManualNotifySend` 的现有实现即可）：
+想让用户能单独关闭你的通知项，在 `assets/tasks/setting/Notify.json` 中按以下三步添加开关：
 
-**1、在 `NotifyAllowTask` 的 Yes case `option` 数组里加名字**（`assets/tasks/setting/Notify.json`）：
+**1、把开关名加入 `NotifyAllowTask` 的 Yes case `option` 数组**（`NotifyAllowTask` 即「允许任务发送自定义通知」总开关；它的 Yes case 里的 `option` 数组目前只有 `"NotifyItemsHelp"`，把你的开关名追加进去）：
 
 ```json
 "option": [
     "NotifyItemsHelp",
-    "NotifyItemManualNotifySend",
     "NotifyItemMonthlyCard"
 ]
 ```
 
-**2、在文件底部 `option` 对象中补完整定义**（与 `NotifyItemManualNotifySend` 平级）：
+**2、在 `NotifyAllowTask` option 定义之后、顶层 `option` 对象内（与 `NotifyFail` 等平级）补完整定义**——键名必须与第 1 步数组里的名字一致（本例 `NotifyItemMonthlyCard`）：
 
 ```json
 "NotifyItemMonthlyCard": {
