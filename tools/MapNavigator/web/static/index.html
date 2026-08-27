@@ -192,24 +192,6 @@
           <div class="sidebar-hint">
             ZIP 中的滑索架只作候选背景，可能包含未供电或运行时排除项；本次选择仍以运行日志为准
           </div>
-          <div class="log-inspection-box">
-            <div class="log-distance-header">
-              <span class="log-distance-title">点位详情</span>
-              <button id="btn-log-point-clear" class="btn btn-secondary btn-sm" type="button" disabled>清除</button>
-            </div>
-            <div id="log-point-summary" class="log-distance-summary">
-              单击作者路径点、规划点、实测点或滑索架查看具体信息
-            </div>
-          </div>
-          <div class="log-distance-box">
-            <div class="log-distance-header">
-              <span class="log-distance-title">滑索架测距</span>
-              <button id="btn-log-distance-clear" class="btn btn-secondary btn-sm" type="button" disabled>清除</button>
-            </div>
-            <div id="log-distance-summary" class="log-distance-summary">
-              先点击地图右上角的测距工具，再依次选择两座滑索架
-            </div>
-          </div>
           <div id="log-decision-summary" class="log-decision-summary" aria-live="polite">
             导入日志后，这里会列出每段的成本计算和选择原因。
           </div>
@@ -446,6 +428,23 @@
             <button id="btn-del-point-float" class="btn btn-float btn-float-danger" type="button" title="删除选中路点">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
             </button>
+          </div>
+
+          <div id="log-context-panel" class="log-context-panel" hidden>
+            <div id="log-inspection-box" class="log-inspection-box" hidden>
+              <div class="log-distance-header">
+                <span class="log-distance-title">点位详情</span>
+                <button id="btn-log-point-clear" class="btn btn-secondary btn-sm" type="button">清除</button>
+              </div>
+              <div id="log-point-summary" class="log-distance-summary" aria-live="polite"></div>
+            </div>
+            <div id="log-distance-box" class="log-distance-box" hidden>
+              <div class="log-distance-header">
+                <span class="log-distance-title">滑索架测距</span>
+                <button id="btn-log-distance-clear" class="btn btn-secondary btn-sm" type="button" disabled>清除</button>
+              </div>
+              <div id="log-distance-summary" class="log-distance-summary" aria-live="polite"></div>
+            </div>
           </div>
 
           <!-- 路点动作图例（浮层，JS 依据动作色表动态生成，仅路径编辑模式显示） -->

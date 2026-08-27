@@ -347,8 +347,11 @@ class MapNavigatorApp {
             logShowSelectedTowers: $("log-show-selected-towers"),
             logShowRecordedTowers: $("log-show-recorded-towers"),
             logShowEstimates: $("log-show-estimates"),
+            logContextPanel: $("log-context-panel"),
+            logInspectionBox: $("log-inspection-box"),
             btnLogPointClear: $("btn-log-point-clear"),
             logPointSummary: $("log-point-summary"),
+            logDistanceBox: $("log-distance-box"),
             btnLogDistanceClear: $("btn-log-distance-clear"),
             logDistanceSummary: $("log-distance-summary"),
             logDecisionSummary: $("log-decision-summary"),
@@ -1390,19 +1393,23 @@ class MapNavigatorApp {
         }
     }
 
+    /** Show the floating log result panel only while one of its contextual cards is visible. */
+    _syncLogContextPanel() {
+        const e = this.els;
+        e.logContextPanel.hidden =
+            this.state.mode !== Mode.LOG || (e.logInspectionBox.hidden && e.logDistanceBox.hidden);
+    }
+
     /** Render the selected read-only point metadata. */
     _renderLogInspection() {
-        const host = this.els.logPointSummary;
+        const e = this.els;
+        const host = e.logPointSummary;
         host.textContent = "";
-        this.els.btnLogPointClear.disabled = !this.logInspectedPoint;
-        if (!this.selectedLogRun) {
-            host.textContent = this.logRuns.length
-                ? "当前筛选没有匹配记录。"
-                : "导入日志后，可单击地图中的各种点位查看具体信息。";
-            return;
-        }
-        if (!this.logInspectedPoint) {
-            host.textContent = "单击作者路径点、规划点、实测点或滑索架查看具体信息；拖动仍可平移";
+        const visible = !!this.selectedLogRun && !!this.logInspectedPoint;
+        e.logInspectionBox.hidden = !visible;
+        e.btnLogPointClear.disabled = !visible;
+        this._syncLogContextPanel();
+        if (!visible) {
             return;
         }
 
@@ -1423,6 +1430,7 @@ class MapNavigatorApp {
         }
         selected.append(title, details);
         host.appendChild(selected);
+        this._syncLogContextPanel();
     }
 
     /** Clear point inspection without changing the A/B measurement. */
@@ -1434,10 +1442,16 @@ class MapNavigatorApp {
 
     /** Render selected tower coordinates, the distance formula, and the limited geometry verdict. */
     _renderLogDistance() {
-        const host = this.els.logDistanceSummary;
+        const e = this.els;
+        const host = e.logDistanceSummary;
         host.textContent = "";
         const measurement = this._logDistanceMeasurement();
-        this.els.btnLogDistanceClear.disabled = measurement.towers.length === 0;
+        const visible =
+            this.activeTool === "log-measure" ||
+            (this.activeTool === "log-pan" && this._altSavedTool === "log-measure");
+        e.logDistanceBox.hidden = !visible;
+        e.btnLogDistanceClear.disabled = measurement.towers.length === 0;
+        this._syncLogContextPanel();
 
         if (!this.selectedLogRun) {
             host.textContent = this.logRuns.length
@@ -4059,6 +4073,12 @@ class MapNavigatorApp {
             canvas.style.cursor = "cell";
         } else {
             canvas.style.cursor = "default";
+        }
+        if (e.logDistanceBox) {
+            const showMeasurement =
+                tool === "log-measure" || (tool === "log-pan" && this._altSavedTool === "log-measure");
+            e.logDistanceBox.hidden = !showMeasurement;
+            this._syncLogContextPanel();
         }
     }
 
