@@ -4,6 +4,7 @@
             "name": "CloseGamePC",
             "label": "$task.CloseGamePC.label",
             "entry": "CloseGamePC",
+            "description": "$task.CloseGamePC.description",
             "option": [
                 "CloseGamePCApplyGameSetting"
             ],

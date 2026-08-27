@@ -607,6 +607,7 @@
     "task.CloseGame.label": "❌關閉遊戲（安卓端）",
     "task.CloseGame.description": "自動關閉遊戲",
     "task.CloseGamePC.label": "❌關閉遊戲（PC）",
+    "task.CloseGamePC.description": "關閉遊戲程序。已加入本任務時，無需再用結束程序任務結束 Endfield.exe",
     "option.CloseGamePCApplyGameSetting.label": "關閉後設定遊戲",
     "option.CloseGamePCGameSettingResolution.label": "解析度",
     "option.CloseGamePCGameSettingResolutionWidth.label": "寬",

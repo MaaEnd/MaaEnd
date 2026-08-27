@@ -933,6 +933,7 @@
     "task.CloseGame.label": "❌ Close Game (Android)",
     "task.CloseGame.description": "Automatically close the game.",
     "task.CloseGamePC.label": "❌ Close Game (PC)",
+    "task.CloseGamePC.description": "Closes the game process. If this task is added, you do not need the Kill Process task to end Endfield.exe.",
     "option.CloseGamePCApplyGameSetting.label": "Apply game settings after close",
     "option.CloseGamePCGameSettingResolution.label": "Resolution",
     "option.CloseGamePCGameSettingResolutionWidth.label": "Width",

@@ -603,6 +603,7 @@
     "task.CloseGame.label": "❌ ゲーム終了（Android）",
     "task.CloseGame.description": "ゲームを自動終了します。",
     "task.CloseGamePC.label": "❌ ゲーム終了（PC）",
+    "task.CloseGamePC.description": "ゲームプロセスを終了します。本タスクを追加した場合、「プロセス終了」タスクで Endfield.exe を終了する必要はありません。",
     "option.CloseGamePCApplyGameSetting.label": "終了後にゲーム設定を適用",
     "option.CloseGamePCGameSettingResolution.label": "解像度",
     "option.CloseGamePCGameSettingResolutionWidth.label": "幅",

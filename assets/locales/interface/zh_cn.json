@@ -756,6 +756,7 @@
     "task.CloseGame.label": "❌关闭游戏（安卓端）",
     "task.CloseGame.description": "自动关闭游戏",
     "task.CloseGamePC.label": "❌关闭游戏（PC）",
+    "task.CloseGamePC.description": "关闭游戏进程。已添加本任务时，无需再用结束进程任务结束 Endfield.exe",
     "option.CloseGamePCApplyGameSetting.label": "关闭后设置游戏",
     "option.CloseGamePCGameSettingResolution.label": "分辨率",
     "option.CloseGamePCGameSettingResolutionWidth.label": "宽",
