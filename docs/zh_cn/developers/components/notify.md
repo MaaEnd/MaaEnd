@@ -197,10 +197,10 @@ Go 层**不做任何 markdown 解析/转义/渲染**，正文一律按纯文本�
 | `notify.go` | 调度层：`ParseConfig`、`Send`（代理解析 + 遍历注册表分发）、`NotifySendAction`、`resolveTitleBody`/`resolveNotifyText`（第三方 attach 的 `$` i18n 解析）、`taskNotifySkipped`（通知项开关判断） |
 | `config.go` | 运行配置：`GlobalConfig`（系统开关 + 标题正文模板 + 全局代理）、`RuntimeConfig`、`decodeAttach`、`MergeAttach` |
 | `channel.go` | `Channel` / `ChannelFactory` 接口 + `SendContext` + 注册表 |
-| `vars.go` | 模板变量模块：`BuildVars` / `ReplaceVars` / `channelTitleBody` |
-| `length.go` | 内容长度截断辅助（`truncateRunes` / `truncateBytes`） |
-| `http.go` | 超时 client、`postJSON`、`readResponseBody`、错误脱敏 |
-| `proxy.go` | 全局代理模块：`resolveProxy`、`proxyClient`、MXU 更新代理读取 |
+| `helper_vars.go` | 模板变量模块：`BuildVars` / `ReplaceVars` / `channelTitleBody` |
+| `helper_length.go` | 内容长度截断辅助（`truncateRunes` / `truncateBytes`） |
+| `helper_http.go` | 超时 client、`postJSON`、`readResponseBody`、错误脱敏 |
+| `helper_proxy.go` | 全局代理模块：`resolveProxy`、`proxyClient`、MXU 更新代理读取 |
 | `channel_webhook.go` / `channel_bark.go` / `channel_serverchan.go` / `channel_telegram.go` / `channel_discord.go` / `channel_wecom.go` / `channel_ntfy.go` / `channel_gotify.go` / `channel_dingtalk.go` | 各渠道实现 |
 | `sink.go` | 失败事件监听、配置按 taskID 缓存与去重 |
 | `taskname.go` | `{{task_name}}` 显示名解析（扫描任务定义建立 entry→label 映射） |
