@@ -88,8 +88,8 @@ func (s *Sink) OnTaskerTask(_ *maa.Tasker, event maa.EventStatus, detail maa.Tas
 		enabled := runtime.Enabled()
 		if enabled && runtime.Global.OnFail && shouldNotifyFail(detail.TaskID) {
 			now := time.Now()
-			// 失败通知的 {{duration}} 同样用实例总耗时（controllerStartTime），
-			// 与 NotifyTask 一致：从实例首个任务启动到失败时刻，而非失败任务自身耗时
+			// 失败通知的 {{duration}} 用实例总耗时（controllerStartTime）：
+			// 从实例首个任务启动到失败时刻，而非失败任务自身耗时
 			vars := BuildVars(resolveTaskName(detail.Entry), i18n.T("notify.status.failed"), now, getControllerStartTime())
 			vars["title"] = runtime.Global.FailTitle
 			vars["body"] = runtime.Global.FailBody

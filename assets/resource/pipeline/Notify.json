@@ -100,18 +100,5 @@
             "task_title": "",
             "task_body": ""
         }
-    },
-    "NotifySend": {
-        "desc": "通知任务入口：也可在任意 pipeline 中引用本节点，按 __NotifyConfig 配置推送一条通知。其他任务可在自己的节点上直接使用 NotifySendAction，并在该节点 attach 中编写 task_title/task_body 发送自定义通知（第三方节点 attach 的 task_title/task_body 支持以 $ 开头的 i18n key，如 \"$notify.monthly_card.expired\"，key 需预先加入 locale，查不到翻译则显示去掉 $ 的 key；玩家在设置页填写的标题/正文为普通文本，不解析 $）；如需按通知项独立开关，可在 attach 写 task_notify_key（如 monthly_card），并在设置页『允许任务发送自定义通知』下新增对应的分项开关（pipeline_override 写 attach 键 task_notify.monthly_card），用户关闭后该通知项将被跳过，通知失败不影响流程",
-        "recognition": "DirectHit",
-        "action": "Custom",
-        "custom_action": "NotifySendAction",
-        "custom_action_param": {},
-        "next": [],
-        "attach": {
-            // task_notify_key = 通知项 ID，配合设置页分项开关（见 setting/Notify.json 的 NotifyItemManualNotifySend）
-            // 值必须与开关写入的 attach 顶层键 task_notify.<id> 一致；与任务名 NotifyTask、入口名 NotifySend 是三个独立命名，勿混
-            "task_notify_key": "manual_notify_send"
-        }
     }
 }

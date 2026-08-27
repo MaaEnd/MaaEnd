@@ -1090,17 +1090,17 @@ func TestResolveActionTaskName(t *testing.T) {
 	if got := resolveActionTaskName(200000001, "NotifySend", getEntryOK); got != "🔑自动切换账号" {
 		t.Errorf("entry resolved = %q, want 🔑自动切换账号", got)
 	}
-	// 反查取不到 entry：回退当前节点名解析（NotifyTask 节点名即入口名）
-	if got := resolveActionTaskName(200000001, "NotifySend", getEntryEmpty); got != "🔔发送通知" {
-		t.Errorf("current-task-name fallback = %q, want 🔔发送通知", got)
+	// 反查取不到 entry：回退当前节点名解析（入口节点名即入口名）
+	if got := resolveActionTaskName(200000001, "AccountSwitchStart", getEntryEmpty); got != "🔑自动切换账号" {
+		t.Errorf("current-task-name fallback = %q, want 🔑自动切换账号", got)
 	}
 	// 反查取不到且节点名不在任务映射：原样返回
 	if got := resolveActionTaskName(200000001, "SomeCustomNode", getEntryEmpty); got != "SomeCustomNode" {
 		t.Errorf("unknown node fallback = %q, want SomeCustomNode", got)
 	}
 	// taskID 无效：直接用当前节点名解析
-	if got := resolveActionTaskName(0, "NotifySend", getEntryOK); got != "🔔发送通知" {
-		t.Errorf("no task id = %q, want 🔔发送通知", got)
+	if got := resolveActionTaskName(0, "AccountSwitchStart", getEntryOK); got != "🔑自动切换账号" {
+		t.Errorf("no task id = %q, want 🔑自动切换账号", got)
 	}
 }
 
