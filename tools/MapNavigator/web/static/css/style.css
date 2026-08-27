@@ -343,24 +343,8 @@ canvas {
 
 .grid-btns-import {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
-}
-
-.btn-more {
-  min-width: 50px;
-  padding-right: 8px;
-  padding-left: 8px;
-}
-
-.sidebar-more-menu {
-  display: flex;
-  justify-content: flex-end;
-  padding-top: 8px;
-}
-
-.sidebar-more-menu[hidden] {
-  display: none;
 }
 
 .grid-btns-3 {

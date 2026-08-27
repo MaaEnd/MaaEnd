@@ -250,8 +250,6 @@ class MapNavigatorApp {
             btnCopyAssert: $("btn-copy-assert"),
             assertCopyFormat: $("assert-copy-format"),
             btnImport: $("btn-import"),
-            btnEditImportMore: $("btn-edit-import-more"),
-            editImportMoreMenu: $("edit-import-more-menu"),
             btnEditReadClipboard: $("btn-edit-read-clipboard"),
             btnPrev: $("btn-prev"),
             btnNext: $("btn-next"),
@@ -379,11 +377,7 @@ class MapNavigatorApp {
             btnAstarMarkCoord: $("btn-astar-mark-coord"),
             btnAstarImport: $("btn-astar-import"),
             btnAssertImport: $("btn-assert-import"),
-            btnAstarImportMore: $("btn-astar-import-more"),
-            astarImportMoreMenu: $("astar-import-more-menu"),
             btnAstarReadClipboard: $("btn-astar-read-clipboard"),
-            btnAssertImportMore: $("btn-assert-import-more"),
-            assertImportMoreMenu: $("assert-import-more-menu"),
             btnAssertReadClipboard: $("btn-assert-read-clipboard"),
             astarDeckBox: $("astar-deck-box"),
             astarDeckTitle: $("astar-deck-title"),
@@ -788,9 +782,9 @@ class MapNavigatorApp {
         }
         e.btnAstarImport.addEventListener("click", () => this.importer.openProjectPicker("astar"));
         e.btnAssertImport.addEventListener("click", () => this.importer.openProjectPicker("assert"));
-        this._wireImportMore(e.btnEditImportMore, e.editImportMoreMenu, e.btnEditReadClipboard);
-        this._wireImportMore(e.btnAstarImportMore, e.astarImportMoreMenu, e.btnAstarReadClipboard);
-        this._wireImportMore(e.btnAssertImportMore, e.assertImportMoreMenu, e.btnAssertReadClipboard);
+        e.btnEditReadClipboard.addEventListener("click", () => this.importer.readClipboard());
+        e.btnAstarReadClipboard.addEventListener("click", () => this.importer.readClipboard());
+        e.btnAssertReadClipboard.addEventListener("click", () => this.importer.readClipboard());
         e.tabRoute.addEventListener("click", () => this._selectModeTab(this._lastRouteMode));
         e.tabEdit.addEventListener("click", () => this._selectModeTab("edit"));
         e.tabAstar.addEventListener("click", () => this._selectModeTab("astar"));
@@ -930,28 +924,6 @@ class MapNavigatorApp {
         } else {
             window.addEventListener("resize", () => this._resize());
         }
-    }
-
-    /** Toggle one mode's secondary import menu and keep clipboard import shared. */
-    _wireImportMore(button, menu, clipboardButton) {
-        button.addEventListener("click", () => {
-            const opening = menu.hidden;
-            for (const [otherButton, otherMenu] of [
-                [this.els.btnEditImportMore, this.els.editImportMoreMenu],
-                [this.els.btnAstarImportMore, this.els.astarImportMoreMenu],
-                [this.els.btnAssertImportMore, this.els.assertImportMoreMenu],
-            ]) {
-                otherMenu.hidden = true;
-                otherButton.setAttribute("aria-expanded", "false");
-            }
-            menu.hidden = !opening;
-            button.setAttribute("aria-expanded", opening ? "true" : "false");
-        });
-        clipboardButton.addEventListener("click", () => {
-            menu.hidden = true;
-            button.setAttribute("aria-expanded", "false");
-            this.importer.readClipboard();
-        });
     }
 
     /** Resize both canvases to the wrap's CSS size at the device pixel ratio. @returns {void} */
@@ -2782,7 +2754,7 @@ class MapNavigatorApp {
             });
             row.appendChild(pick);
 
-            // 第一个点是角色起点不是导航目标, 复制配置时不会输出, 所以只给预览不给选择
+            // 第一个点是角色起点不是导航目标, 复制路径时不会输出, 所以只给预览不给选择
             if (index !== 0) {
                 const fill = document.createElement("button");
                 fill.type = "button";
@@ -2829,7 +2801,7 @@ class MapNavigatorApp {
         setStatus(
             height === null
                 ? "已清除该点的 target_deck_y。"
-                : `该点 target_deck_y = ${height.toFixed(2)}，复制配置时会带上。`,
+                : `该点 target_deck_y = ${height.toFixed(2)}，复制路径时会带上。`,
             "#10b981",
         );
     }
@@ -3834,7 +3806,7 @@ class MapNavigatorApp {
 
     /** Keep each copy button's label aligned with its selected output format. @returns {void} */
     _syncCopyButtonLabels() {
-        this.els.btnCopyNavmesh.textContent = "复制 JSON 配置";
+        this.els.btnCopyNavmesh.textContent = "复制路径";
         this.els.btnCopyAssert.textContent =
             this.els.assertCopyFormat.value === COPY_FORMAT_COORDINATES ? "复制坐标" : "复制断言 JSON";
     }
@@ -3884,7 +3856,7 @@ class MapNavigatorApp {
 
     /**
      * The A* waypoints after the start, as NAVMESH action payloads. Requires a display
-     * zone and ≥2 points. 复制配置与实机试跑都走这一处, 跑的就是复制出来的那一份。
+     * zone and ≥2 points. 复制路径与实机试跑都走这一处, 跑的就是复制出来的那一份。
      * @returns {Array<Object>}
      */
     _navmeshTargets() {
