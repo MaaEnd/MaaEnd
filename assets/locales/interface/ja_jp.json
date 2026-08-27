@@ -2210,7 +2210,7 @@
     "option.NotifyProxyUseUpdate.description": "更新設定で設定したプロキシを再利用。オフの場合は下のプロキシを手入力",
     "option.NotifyProxyUrl.label": "プロキシ URL",
     "option.NotifyProxyUrl.Url.label": "http://127.0.0.1:7890",
-    "option.NotifyProxyUrl.Url.description": "プロキシ URL を手入力（例: http://127.0.0.1:7890）。http/https のみ対応、socks5 は http ポートを指定",
+    "option.NotifyProxyUrl.Url.description": "プロキシ URL を手入力（例: http://127.0.0.1:7890）。http/https のみ対応",
     "option.NotifyProxyWebhook.label": "Webhook はプロキシを使用",
     "option.NotifyProxyBark.label": "Bark はプロキシを使用",
     "option.NotifyProxyServerChan.label": "ServerChan はプロキシを使用",

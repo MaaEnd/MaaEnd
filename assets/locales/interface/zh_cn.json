@@ -2210,7 +2210,7 @@
     "option.NotifyProxyUseUpdate.description": "复用更新设置里配置的代理；关闭时手动填写下方代理地址",
     "option.NotifyProxyUrl.label": "代理地址",
     "option.NotifyProxyUrl.Url.label": "http://127.0.0.1:7890",
-    "option.NotifyProxyUrl.Url.description": "手动填写代理地址，如 http://127.0.0.1:7890（支持 http/https，socks5 请填对应的 http 端口）",
+    "option.NotifyProxyUrl.Url.description": "手动填写代理地址，如 http://127.0.0.1:7890（仅支持 http/https）",
     "option.NotifyProxyWebhook.label": "Webhook 使用代理",
     "option.NotifyProxyBark.label": "Bark 使用代理",
     "option.NotifyProxyServerChan.label": "ServerChan 使用代理",

@@ -199,8 +199,7 @@ func readMxuProxyURL(path string) (string, error) {
 }
 
 // proxyClient 构造（或按地址复用）走代理的 HTTP 客户端，与默认客户端同样套用 defaultTimeout。
-// 仅支持 http/https 代理（http.Transport.Proxy 原生支持）；socks5 未引入额外依赖，
-// 报错提示改用对应 http 代理端口。
+// 仅支持 http/https 代理（http.Transport.Proxy 原生支持）；其他 scheme（如 socks5）明确报错。
 func proxyClient(proxyURL string) (*http.Client, error) {
 	if c, ok := proxyClients.Load(proxyURL); ok {
 		return c.(*http.Client), nil
@@ -213,7 +212,7 @@ func proxyClient(proxyURL string) (*http.Client, error) {
 	case "http", "https":
 	default:
 		return nil, fmt.Errorf(
-			"unsupported proxy scheme %q: only http/https supported, use the http port of your socks5 proxy",
+			"unsupported proxy scheme %q: only http/https supported",
 			u.Scheme,
 		)
 	}
