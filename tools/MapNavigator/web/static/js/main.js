@@ -1206,16 +1206,16 @@ class MapNavigatorApp {
         const result = measurement.result;
         const resultBox = document.createElement("div");
         resultBox.className = "log-distance-result";
-        if (Number.isFinite(result.worldDistance)) {
+        if (Number.isFinite(result.minimumWorldDistance) && Number.isFinite(result.maximumWorldDistance)) {
             const primary = document.createElement("div");
             primary.className = "log-distance-primary";
-            primary.textContent = `世界三维距离 ${result.worldDistance.toFixed(2)} m`;
+            primary.textContent = `可能中心跨度 ${result.minimumWorldDistance.toFixed(2)}～${result.maximumWorldDistance.toFixed(2)} m`;
             const formula = document.createElement("div");
             formula.className = "log-distance-formula";
-            formula.textContent = `√((${result.deltaX.toFixed(2)})² + (${result.deltaY.toFixed(2)})² + (${result.deltaZ.toFixed(2)})²) = ${result.worldDistance.toFixed(2)} m`;
+            formula.textContent = `原始锚点三维距离 ${result.worldDistance.toFixed(2)} m · X/Z 轴合计不确定性 ±${result.uncertaintyX.toFixed(2)} / ±${result.uncertaintyZ.toFixed(2)} m`;
             const components = document.createElement("div");
             components.className = "log-distance-components";
-            components.textContent = `水平 ${result.horizontalDistance.toFixed(2)} m · 高差 |ΔY| ${result.heightDelta.toFixed(2)} m`;
+            components.textContent = `可能水平距离 ${result.minimumHorizontalDistance.toFixed(2)}～${result.maximumHorizontalDistance.toFixed(2)} m · 高差 |ΔY| ${result.heightDelta.toFixed(2)} m（不偏移）`;
             resultBox.append(primary, formula, components);
         } else {
             const missing = document.createElement("div");
@@ -2186,8 +2186,14 @@ class MapNavigatorApp {
             setStatus("已清除滑索架测距。", "#10b981");
         } else if (measurement.towers.length === 1) {
             setStatus("已选择 A 点；请再点一座滑索架作为 B 点。", "#3b82f6");
-        } else if (Number.isFinite(measurement.result && measurement.result.worldDistance)) {
-            setStatus(`滑索架世界距离：${measurement.result.worldDistance.toFixed(2)} m。`, "#10b981");
+        } else if (
+            Number.isFinite(measurement.result && measurement.result.minimumWorldDistance) &&
+            Number.isFinite(measurement.result && measurement.result.maximumWorldDistance)
+        ) {
+            setStatus(
+                `滑索架可能中心跨度：${measurement.result.minimumWorldDistance.toFixed(2)}～${measurement.result.maximumWorldDistance.toFixed(2)} m。`,
+                "#10b981",
+            );
         } else {
             setStatus("已选择 A/B，但其中一座缺少世界坐标，只能显示底图距离。", "#f59e0b");
         }
