@@ -10,7 +10,7 @@ import {
 const frames = {
   types: [
     {name: '滑索架', template_id: 'zipline', max_span: 80, footprint: [3, 3]},
-    {name: '长距滑索架', template_id: 'long-zipline', max_span: 110, footprint: [3, 3]},
+    {name: '长距滑索架', template_id: 'long-zipline', max_span: 110, footprint: [5, 7]},
   ],
   frames: [
     {
@@ -85,6 +85,23 @@ test('uses the minimum possible center span for the runtime geometry verdict', (
   assert.equal(result.maximumWorldDistance, Math.hypot(83, 2));
   assert.equal(result.geometryConnected, true);
   assert.match(result.geometryReason, /79\.00 m 不超过 80\.00 m/);
+});
+
+test('combines both footprints when measuring towers of different types', () => {
+  const result = measureZiplinePair(
+    {point: [0, 0], world: [0, 0, 0], templateId: 'zipline', levelId: 'level-a'},
+    {point: [20, 30], world: [20, 0, 30], templateId: 'long-zipline', levelId: 'level-a'},
+    frames,
+  );
+
+  assert.deepEqual([result.uncertaintyX, result.uncertaintyZ], [3, 4]);
+  assert.equal(result.minimumWorldDistance, Math.hypot(17, 26));
+  assert.equal(result.maximumWorldDistance, Math.hypot(23, 34));
+  assert.equal(result.minimumHorizontalDistance, Math.hypot(17, 26));
+  assert.equal(result.maximumHorizontalDistance, Math.hypot(23, 34));
+  assert.equal(result.maxSpan, null);
+  assert.equal(result.geometryConnected, false);
+  assert.equal(result.geometryReason, '滑索架类型不同');
 });
 
 test('rejects geometric links that differ in type, level, or span', () => {
