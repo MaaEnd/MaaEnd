@@ -8,7 +8,8 @@ require (
 	github.com/rs/zerolog v1.34.0
 	github.com/shirou/gopsutil/v4 v4.26.2
 	golang.org/x/image v0.37.0
-	golang.org/x/sys v0.42.0
+	golang.org/x/net v0.58.0
+	golang.org/x/sys v0.47.0
 )
 
 require (

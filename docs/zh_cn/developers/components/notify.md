@@ -200,7 +200,7 @@ Go 层**不做任何 markdown 解析/转义/渲染**，正文一律按纯文本�
 | `helper_vars.go` | 模板变量模块：`BuildVars` / `ReplaceVars` / `channelTitleBody` |
 | `helper_length.go` | 内容长度截断辅助（`truncateRunes` / `truncateBytes`） |
 | `helper_http.go` | 超时 client、`postJSON`、`readResponseBody`、错误脱敏 |
-| `helper_proxy.go` | 全局代理模块：`resolveProxy`、`proxyClient`、MXU 更新代理读取 |
+| `helper_proxy.go` | 全局代理模块：`resolveProxy`、`proxyClient`（http/https/socks5）、MXU 更新代理读取 |
 | `channel_webhook.go` / `channel_bark.go` / `channel_serverchan.go` / `channel_telegram.go` / `channel_discord.go` / `channel_wecom.go` / `channel_ntfy.go` / `channel_gotify.go` / `channel_dingtalk.go` | 各渠道实现 |
 | `sink.go` | 失败事件监听、配置按 taskID 缓存与去重 |
 | `taskname.go` | `{{task_name}}` 显示名解析（扫描任务定义建立 entry→label 映射） |

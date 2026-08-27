@@ -39,7 +39,7 @@ type GlobalConfig struct {
 	// 全局代理（作用于所有渠道，由调度层统一解析并构造 client）
 	UseProxy       bool   `json:"use_proxy"`        // 是否使用代理发送通知
 	UseUpdateProxy bool   `json:"use_update_proxy"` // 复用「更新设置」里配置的代理（读取 install/config/mxu-*.json）
-	ProxyURL       string `json:"proxy_url"`        // 手动代理地址（http:// 或 https://）
+	ProxyURL       string `json:"proxy_url"`        // 手动代理地址（http://、https:// 或 socks5://）
 }
 
 // RuntimeConfig 是 __NotifyConfig 节点解析出的运行期配置：全局配置 + 原始 attach。

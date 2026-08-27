@@ -16,7 +16,7 @@
 | `helper_vars.go` | 模板变量模块：`BuildVars` / `ReplaceVars` / `channelTitleBody` / `firstNonEmpty` / `addIfPresent` |
 | `helper_length.go` | 内容长度截断辅助：`truncateRunes`（按字符）/ `truncateBytes`（按字节、UTF-8 边界回退） |
 | `helper_http.go` | 共享 HTTP：`httpClient`（10s 超时）、`postJSON(client,...)`（响应体 1MB 上限、业务 code 校验）、`checkStatus`、`sanitizeError`（错误中 URL 整体脱敏，防凭据泄漏） |
-| `helper_proxy.go` | 全局代理模块：`resolveProxy`（手动地址 / 复用更新设置代理二选一）、`proxyClient`（仅标准库，http/https；socks5 明确报错）、更新设置代理读取（`install/config/mxu-{项目名}.json` 的 `settings.proxy.url`）、按地址缓存 client |
+| `helper_proxy.go` | 全局代理模块：`resolveProxy`（手动地址 / 复用更新设置代理二选一）、`proxyClient`（http/https 走 Transport.Proxy，socks5 走 SOCKS5 拨号器）、更新设置代理读取（`install/config/mxu-{项目名}.json` 的 `settings.proxy.url`）、按地址缓存 client |
 | `channel_webhook.go` | 渠道模块：Webhook，自定义方法/请求头/请求体，全模板变量；`ParseHeaders`（JSON 优先、文本回退） |
 | `channel_bark.go` | 渠道模块：Bark，官方全部参数（非空才携带、均做变量替换）；`channel_bark_devicekeys` 逗号分隔时走 `/push` 批量推送 |
 | `channel_serverchan.go` | 渠道模块：ServerChan，SC3（`sctp` 前缀按官方正则 `/^sctp(\d+)t/` 提取 uid）/ Turbo 双端点自动分流；`pipeSeparated` |
@@ -35,7 +35,7 @@
 | 文件 | 覆盖 |
 | -------- | ---------------------------------------------------------------------------------------------- |
 | `notify_test.go` | 配置解析、模板变量、渠道发送（httptest + 端点注入，含 Telegram `ok` 响应校验）、业务码校验、错误脱敏、失败事件链路、去重与并发 |
-| `helper_proxy_test.go` | 代理解析（手动 / 复用 MXU 更新代理）、MXU 配置读取、`proxyClient`（http 支持 / socks5 报错）、全局代理发送链路 |
+| `helper_proxy_test.go` | 代理解析（手动 / 复用 MXU 更新代理）、MXU 配置读取、`proxyClient`（http/socks5 支持）、全局代理发送链路 |
 | `channel_discord_test.go` | Discord 发送（content/username/avatar_url 拼合与省略）、错误路径（空/非法 URL、空内容、HTTP 500）、端点校验 |
 | `channel_wecom_test.go` | 企业微信发送（msgtype/text.content 拼合、markdown 分支）、错误路径（空/非法 URL、空内容、errcode!=0、HTTP 500）、端点校验 |
 | `channel_ntfy_test.go` | ntfy 发送（Title/Priority/Tags header + body 拼合、Bearer token）、错误路径（空/非法 URL、空内容、HTTP 401）、端点校验 |

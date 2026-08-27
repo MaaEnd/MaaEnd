@@ -9,6 +9,8 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+
+	"golang.org/x/net/proxy"
 )
 
 // 全局代理模块：所有渠道统一使用（由调度层解析并构造 client）。
@@ -199,7 +201,7 @@ func readMxuProxyURL(path string) (string, error) {
 }
 
 // proxyClient 构造（或按地址复用）走代理的 HTTP 客户端，与默认客户端同样套用 defaultTimeout。
-// 仅支持 http/https 代理（http.Transport.Proxy 原生支持）；其他 scheme（如 socks5）明确报错。
+// http/https 代理走 http.Transport.Proxy；socks5/socks5h 走 SOCKS5 拨号器（Transport.DialContext）。
 func proxyClient(proxyURL string) (*http.Client, error) {
 	if c, ok := proxyClients.Load(proxyURL); ok {
 		return c.(*http.Client), nil
@@ -208,15 +210,29 @@ func proxyClient(proxyURL string) (*http.Client, error) {
 	if err != nil {
 		return nil, fmt.Errorf("invalid proxy url: %w", err)
 	}
+	var transport *http.Transport
 	switch u.Scheme {
 	case "http", "https":
+		transport = &http.Transport{Proxy: http.ProxyURL(u)}
+	case "socks5", "socks5h":
+		var auth *proxy.Auth
+		if u.User != nil {
+			auth = &proxy.Auth{User: u.User.Username()}
+			if pass, ok := u.User.Password(); ok {
+				auth.Password = pass
+			}
+		}
+		dialer, err := proxy.SOCKS5("tcp", u.Host, auth, proxy.Direct)
+		if err != nil {
+			return nil, fmt.Errorf("invalid socks5 proxy: %w", err)
+		}
+		transport = &http.Transport{DialContext: dialer.(proxy.ContextDialer).DialContext}
 	default:
 		return nil, fmt.Errorf(
-			"unsupported proxy scheme %q: only http/https supported",
+			"unsupported proxy scheme %q: only http/https/socks5 supported",
 			u.Scheme,
 		)
 	}
-	transport := &http.Transport{Proxy: http.ProxyURL(u)}
 	client := &http.Client{Timeout: defaultTimeout, Transport: transport}
 	actual, _ := proxyClients.LoadOrStore(proxyURL, client)
 	return actual.(*http.Client), nil

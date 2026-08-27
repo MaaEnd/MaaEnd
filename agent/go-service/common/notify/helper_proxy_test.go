@@ -100,9 +100,17 @@ func TestProxyClient(t *testing.T) {
 		t.Errorf("expected transport with Proxy set")
 	}
 
-	// socks5 → 明确报错（未引入额外依赖）
-	if _, err := proxyClient("socks5://127.0.0.1:7891"); err == nil || !strings.Contains(err.Error(), "unsupported proxy scheme") {
-		t.Errorf("socks5 should error, got %v", err)
+	// socks5 → 走 SOCKS5 拨号器（DialContext 非 nil、不走 Transport.Proxy）
+	socksClient, err := proxyClient("socks5://127.0.0.1:7891")
+	if err != nil {
+		t.Fatalf("socks5 proxy: %v", err)
+	}
+	socksTransport, ok := socksClient.Transport.(*http.Transport)
+	if !ok || socksTransport.DialContext == nil {
+		t.Errorf("expected transport with DialContext set for socks5")
+	}
+	if socksTransport.Proxy != nil {
+		t.Errorf("socks5 should not use Transport.Proxy")
 	}
 
 	// 非法地址 → 报错
