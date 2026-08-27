@@ -218,6 +218,17 @@
             <button id="btn-edit-read-clipboard" class="btn btn-secondary" type="button" title="读取并自动解析剪贴板中的 JSON">读取剪贴板</button>
             <button id="btn-copy-path" class="btn btn-secondary" type="button">复制路径</button>
           </div>
+
+          <div class="sidebar-row border-top" style="margin-top: 10px; padding-top: 10px">
+            <label class="chk" title="按 MapNavigator 运行时语义规划当前区域片段；触屏控制器不会执行滑索">
+              <input id="chk-edit-zipline" type="checkbox" /> 启用滑索规划（桌面端）
+            </label>
+          </div>
+          <div class="sidebar-hint">以当前片段第一个路点为预览起点；规划结果不会改写作者路点</div>
+          <div class="sidebar-row grid-btns-2">
+            <button id="btn-edit-plan" class="btn btn-primary" type="button">规划当前片段</button>
+            <button id="btn-edit-plan-clear" class="btn btn-danger-outline" type="button" disabled>清除规划</button>
+          </div>
         </div>
 
         <!-- 路点属性 -->

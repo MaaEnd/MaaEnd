@@ -355,7 +355,8 @@ export class Importer {
       return `MapLocateAssertLocation · ${node.zone_id || '未知区域'} · [${target}]${count}`;
     }
     const zones = Array.isArray(node.zone_ids) && node.zone_ids.length ? ` · ${node.zone_ids.join('、')}` : '';
-    return `${Number(node.point_count) || 0} 个路径点 · ${Number(node.navmesh_count) || 0} 个 NAVMESH${zones}`;
+    const zipline = node.zip_enabled ? ' · 已启用滑索' : '';
+    return `${Number(node.point_count) || 0} 个路径点 · ${Number(node.navmesh_count) || 0} 个 NAVMESH${zones}${zipline}`;
   }
 
   /** Load the selected node through the guarded backend endpoint, then reuse import dispatch. */
@@ -377,7 +378,10 @@ export class Importer {
         this._applyAssert({ ...result, target, source_label: sourceLabel });
       } else {
         if (!Array.isArray(result.path)) throw new Error('所选导航节点缺少有效 path');
-        await this.analyzeText(JSON.stringify({ path: result.path }), sourceLabel);
+        await this.analyzeText(
+          JSON.stringify({path: result.path, ...(result.zip_enabled ? {zip: true} : {})}),
+          sourceLabel,
+        );
       }
       this._closeProjectPicker();
     } catch (err) {
@@ -452,22 +456,29 @@ export class Importer {
     if (result.needs_assignment) {
       const assignments = await this._promptZoneAssignment(result.segments || [], result.zone_options || []);
       if (!assignments) return; // cancelled
-      await this._finalize(result.raw_points || [], assignments, result.route_count || 0, sourceLabel);
+      await this._finalize(
+        result.raw_points || [],
+        assignments,
+        result.route_count || 0,
+        sourceLabel,
+        !!result.zip_enabled,
+      );
       return;
     }
 
-    this._loadPath(result.points || [], result.route_count || 0, sourceLabel);
+    this._loadPath(result.points || [], result.route_count || 0, sourceLabel, !!result.zip_enabled);
   }
 
   /**
    * Load a finished path + emit the tk import status line.
    * @param {Array<Object>} points @param {number} routeCount @param {string} [sourceLabel]
+   * @param {boolean} [zipEnabled]
    * @returns {void}
    */
-  _loadPath(points, routeCount, sourceLabel = '') {
+  _loadPath(points, routeCount, sourceLabel = '', zipEnabled = false) {
     // The hook may replace the lead-in and its color (A* marks preview points instead of
     // a route; neither A* nor Assert can draw points whose zone has no navmesh basemap).
-    const note = this.hooks.loadPoints(points) || {};
+    const note = this.hooks.loadPoints(points, {zipEnabled}) || {};
     let status;
     if (note.text) {
       status = sourceLabel ? `${note.text}（来源：${sourceLabel}）` : note.text;
@@ -495,10 +506,10 @@ export class Importer {
   /**
    * Phase-2 finalize (server assigns zones) then load.
    * @param {Array<Object>} rawPoints @param {Array<Object>} assignments @param {number} routeCount
-   * @param {string} [sourceLabel]
+   * @param {string} [sourceLabel] @param {boolean} [zipEnabled]
    * @returns {Promise<void>}
    */
-  async _finalize(rawPoints, assignments, routeCount, sourceLabel = '') {
+  async _finalize(rawPoints, assignments, routeCount, sourceLabel = '', zipEnabled = false) {
     let result;
     try {
       result = await importFinalize(rawPoints, assignments);
@@ -510,7 +521,7 @@ export class Importer {
       setStatus((result && result.error) || '导入失败', '#ef4444');
       return;
     }
-    this._loadPath(result.points || [], routeCount, sourceLabel);
+    this._loadPath(result.points || [], routeCount, sourceLabel, zipEnabled);
   }
 
   /**

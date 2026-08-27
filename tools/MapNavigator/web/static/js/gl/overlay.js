@@ -71,6 +71,7 @@ export class Overlay {
    *   @param {Array<Object>} [vm.points] current-segment points (display-frame coords)
    *   @param {?number} [vm.selectedIdx] primary selection (local index into vm.points)
    *   @param {Set<number>} [vm.selectedIndices] multi-selection (local indices)
+   *   @param {?Object} [vm.editPreview] runtime preview for the current edit segment
    *   @param {?number[]} [vm.assertTarget] `[x,y,w,h]` display-frame, or null
    *   @param {?{x:number,y:number,label:string,rot:?number}} [vm.assertLocateHint] game locate marker
    *   @param {?Array<{x:number,y:number,label:string,rot:?number}>} [vm.astarLocateHints] preview markers
@@ -91,6 +92,9 @@ export class Overlay {
     // Real route points in every mode (the caller decides which ones are in frame);
     // assert/A* artifacts are layered on top so they stay readable over a route.
     this._drawPath(camera, vm.points || []);
+    if (mode === 'edit' && vm.editPreview) {
+      this._drawAstarPreview(camera, vm.editPreview);
+    }
     this._drawNodes(camera, vm.points || [], vm.selectedIdx, vm.selectedIndices || new Set());
 
     if (mode === 'assert') {
@@ -807,15 +811,22 @@ export class Overlay {
    *   @param {number[][]} [astar.waypoints] multi-leg click points (S, 2..n-1, G badges)
    *   @param {Array<Object>} [astar.blindWalks] straight lines the runtime walks off-mesh —
    *     see {@link Overlay#_drawBlindWalks}
+   *   @param {number[][][]} [astar.walkSegments] runtime-expanded walking polylines
+   *   @param {Array<{from:number[],to:number[]}>} [astar.ziplineSegments] selected zipline hops
    * @returns {void}
    */
   _drawAstarPreview(camera, astar) {
     const ctx = this.ctx;
     const previewPoints = astar.previewPoints || [];
+    const walkSegments = astar.walkSegments || [];
+    const ziplineSegments = astar.ziplineSegments || [];
+    const usesRuntimeSegments = walkSegments.length > 0 || ziplineSegments.length > 0;
 
     if (astar.showPlannedPath !== false && previewPoints.length >= 2) {
       ctx.save();
-      const segments = this._astarSegments(previewPoints, astar.segmentBreaks, astar.hasRoute);
+      const segments = usesRuntimeSegments
+        ? walkSegments
+        : this._astarSegments(previewPoints, astar.segmentBreaks, astar.hasRoute);
 
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
@@ -839,9 +850,16 @@ export class Overlay {
       ctx.restore();
     }
 
+    this._drawZiplineSegments(camera, ziplineSegments);
+
     this._drawBlindWalks(camera, astar.blindWalks || []);
 
-    if (astar.showPlannedPath !== false && astar.segmentBreaks && astar.segmentBreaks.length) {
+    if (
+      astar.showPlannedPath !== false &&
+      !usesRuntimeSegments &&
+      astar.segmentBreaks &&
+      astar.segmentBreaks.length
+    ) {
       const breakRadius = Math.max(1.5, Math.min(4, 2 * camera.viewScale));
       for (const idx of astar.segmentBreaks) {
         if (idx <= 0 || idx >= previewPoints.length - 1) continue;
@@ -908,6 +926,45 @@ export class Overlay {
     if (astar.goalOnly && !astar.hasRoute) {
       drawBadge(astar.goalOnly, 'G', '#ff007f', 'rgba(255, 0, 127, 0.4)');
     }
+  }
+
+  /** Draw runtime-selected zipline hops as cyan directed edges. */
+  _drawZiplineSegments(camera, segments) {
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.setLineDash([]);
+
+    for (const segment of segments) {
+      if (!segment.from || !segment.to) continue;
+      const [x1, y1] = camera.worldToCanvas(segment.from[0], segment.from[1]);
+      const [x2, y2] = camera.worldToCanvas(segment.to[0], segment.to[1]);
+      const stroke = (style, width) => {
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.strokeStyle = style;
+        ctx.lineWidth = width;
+        ctx.stroke();
+      };
+      stroke('rgba(0, 0, 0, 0.45)', 7);
+      stroke('rgba(0, 225, 255, 0.35)', 5);
+      stroke('#00d9ff', 3);
+
+      const angle = Math.atan2(y2 - y1, x2 - x1);
+      const arrowX = x1 + (x2 - x1) * 0.65;
+      const arrowY = y1 + (y2 - y1) * 0.65;
+      const arrowSize = 7;
+      ctx.beginPath();
+      ctx.moveTo(arrowX + Math.cos(angle) * arrowSize, arrowY + Math.sin(angle) * arrowSize);
+      ctx.lineTo(arrowX + Math.cos(angle + 2.5) * arrowSize, arrowY + Math.sin(angle + 2.5) * arrowSize);
+      ctx.lineTo(arrowX + Math.cos(angle - 2.5) * arrowSize, arrowY + Math.sin(angle - 2.5) * arrowSize);
+      ctx.closePath();
+      ctx.fillStyle = '#ffffff';
+      ctx.fill();
+    }
+    ctx.restore();
   }
 
   /**

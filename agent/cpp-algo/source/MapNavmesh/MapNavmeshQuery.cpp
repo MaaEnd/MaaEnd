@@ -13,11 +13,14 @@
 #include <unordered_map>
 #include <vector>
 
-#include <MaaFramework/Utility/MaaBuffer.h>
-#include <MaaUtils/Logger.h>
 #include <meojson/json.hpp>
 
+#include <MaaFramework/Utility/MaaBuffer.h>
+#include <MaaUtils/Logger.h>
+
+#include "../MapNavigator/navi_param_parser.h"
 #include "../MapNavigator/navmesh_path_expander.h"
+#include "../MapNavigator/zipline_leg_planner.h"
 #include "../Navmesh/BaseNavGeometry.h"
 #include "../Navmesh/BaseNavPlanner.h"
 #include "../Navmesh/BaseNavReader.h"
@@ -39,6 +42,8 @@ namespace
 
 // 探针往外找多远才算"最近的网格点": 取运行时两个盲走预算里更大的那个, 再远也已经无解。
 constexpr double kOffMeshSearchRadius = std::max(mapnavigator::kStartRecoveryMaxBlindWalk, mapnavigator::kBlindTargetMaxExtension);
+// 路线预览拼接相邻片段时，只消除计算噪声造成的同点重复。
+constexpr double kPreviewPointMergeEpsilon = 1e-6;
 
 struct QueryParam
 {
@@ -53,6 +58,9 @@ struct QueryParam
     // 空 = 不限层 / 不限面，meojson 没有 optional，用空槽表达。
     std::vector<double> floor_y;
     std::vector<double> goal_deck_y;
+    std::vector<double> position;
+    std::string position_zone;
+    json::value custom_action_param = json::object { };
     std::string out_file;
 
     MEO_JSONIZATION(
@@ -66,6 +74,9 @@ struct QueryParam
         MEO_OPT snap_radius,
         MEO_OPT floor_y,
         MEO_OPT goal_deck_y,
+        MEO_OPT position,
+        MEO_OPT position_zone,
+        MEO_OPT custom_action_param,
         MEO_OPT out_file)
 };
 
@@ -398,6 +409,126 @@ json::object BuildRoute(QueryContext& context, const QueryParam& param)
     return json::object { { "ok", true }, { "points", std::move(points) }, { "cost", plan.length }, { "debug", std::move(debug) } };
 }
 
+bool SamePoint(const navmesh::WorldPoint& lhs, const navmesh::WorldPoint& rhs)
+{
+    return std::hypot(lhs.x - rhs.x, lhs.y - rhs.y) < kPreviewPointMergeEpsilon;
+}
+
+void AppendDistinct(std::vector<navmesh::WorldPoint>& points, const navmesh::WorldPoint& point)
+{
+    if (points.empty() || !SamePoint(points.back(), point)) {
+        points.push_back(point);
+    }
+}
+
+json::array PointsToJson(const std::vector<navmesh::WorldPoint>& points)
+{
+    json::array out;
+    for (const navmesh::WorldPoint& point : points) {
+        out.emplace_back(json::array { point.x, point.y });
+    }
+    return out;
+}
+
+json::object BuildRoutePreview(const QueryParam& query)
+{
+    if (query.position.size() < 2 || query.position_zone.empty()) {
+        return Fail("route_preview 需要 position=[x,y] 与 position_zone");
+    }
+    if (!query.custom_action_param.is_object()) {
+        return Fail("route_preview 的 custom_action_param 必须是对象");
+    }
+
+    mapnavigator::NaviParam param;
+    if (!mapnavigator::TryParseNaviParam(query.custom_action_param, param, "MapNavmeshQuery route_preview")) {
+        return Fail("custom_action_param 解析失败");
+    }
+    if (param.path.empty()) {
+        return Fail("route_preview 的 path 不能为空");
+    }
+    param.navmesh_file = query.navmesh_file;
+    param.normalize_position_via_navmesh = true;
+
+    mapnavigator::NaviPosition position {
+        .x = query.position[0],
+        .y = query.position[1],
+        .zone_id = query.position_zone,
+    };
+    mapnavigator::NormalizeLivePositionToBase(param, position);
+
+    mapnavigator::ResetZiplineOutcome();
+    std::vector<mapnavigator::Waypoint> expanded;
+    if (!mapnavigator::ExpandNavmeshWaypoints(param, position, [] { return false; }, expanded)) {
+        return Fail("路线展开失败");
+    }
+
+    std::vector<navmesh::WorldPoint> all_points;
+    std::vector<navmesh::WorldPoint> current_walk;
+    json::array walk_segments;
+    json::array zipline_segments;
+    const navmesh::WorldPoint start { .x = position.x, .y = position.y };
+    AppendDistinct(all_points, start);
+    AppendDistinct(current_walk, start);
+
+    const auto flush_walk = [&]() {
+        if (current_walk.size() >= 2) {
+            walk_segments.emplace_back(PointsToJson(current_walk));
+        }
+        current_walk.clear();
+    };
+
+    for (const mapnavigator::Waypoint& waypoint : expanded) {
+        if (!waypoint.HasPosition()) {
+            continue;
+        }
+        const navmesh::WorldPoint point { .x = waypoint.x, .y = waypoint.y };
+        AppendDistinct(all_points, point);
+        AppendDistinct(current_walk, point);
+
+        if (waypoint.action != mapnavigator::ActionType::ZIPLINE) {
+            continue;
+        }
+        if (!waypoint.zipline_target) {
+            return Fail("滑索展开结果缺少下索点");
+        }
+
+        flush_walk();
+        const mapnavigator::ZiplineTarget& target = *waypoint.zipline_target;
+        const navmesh::WorldPoint landing { .x = target.x, .y = target.y };
+        json::object segment {
+            { "from", json::array { point.x, point.y } },
+            { "to", json::array { landing.x, landing.y } },
+            { "from_height", waypoint.target_deck_y ? json::value(*waypoint.target_deck_y) : json::value() },
+            { "to_height", target.height },
+            { "elevation_deg", target.elevation_deg },
+            { "authored_group_begin", waypoint.authored_group_begin },
+        };
+        if (waypoint.mount_restand) {
+            segment.emplace("mount_restand", json::array { waypoint.mount_restand->x, waypoint.mount_restand->y });
+        }
+        zipline_segments.emplace_back(std::move(segment));
+        AppendDistinct(all_points, landing);
+        AppendDistinct(current_walk, landing);
+    }
+    flush_walk();
+
+    const mapnavigator::ZiplineOutcome outcome = mapnavigator::CurrentZiplineOutcome();
+    return json::object {
+        { "ok", true },
+        { "points", PointsToJson(all_points) },
+        { "walk_segments", std::move(walk_segments) },
+        { "zipline_segments", std::move(zipline_segments) },
+        { "expanded_waypoints", expanded.size() },
+        { "zipline",
+          json::object {
+              { "requested", param.zipline_enabled },
+              { "used", outcome.used },
+              { "no_data", outcome.no_data },
+              { "not_chosen", outcome.not_chosen },
+          } },
+    };
+}
+
 json::object BuildWarm(QueryContext& context, const QueryParam& param)
 {
     const navmesh::BaseNavZone* zone = context.pack.findZone(context.pack.geometryZoneId(static_cast<uint16_t>(param.zone_id)));
@@ -412,6 +543,9 @@ json::object Dispatch(const QueryParam& param)
 {
     if (param.op.empty()) {
         return Fail("缺少 op");
+    }
+    if (param.op == "route_preview") {
+        return BuildRoutePreview(param);
     }
     std::string error;
     QueryContext* context = AcquireContext(param.navmesh_file, error);

@@ -58,6 +58,7 @@ import {
     getZiplineFrames,
     basemapByZoneUrl,
     postRoute,
+    postRoutePreview,
     postOffMeshProbe,
     postDeckProbe,
     exportPath,
@@ -193,6 +194,10 @@ class MapNavigatorApp {
          * @type {Array<Object>}
          */
         this.editOffMeshMarks = [];
+        /** Runtime-expanded preview for the current EDIT zone segment, always in base px. */
+        this.editRoute = null;
+        /** Guards against stale edit previews replacing a newer request or route state. */
+        this._editRouteToken = 0;
         /** Guards against a stale probe response overwriting a newer one. @type {number} */
         this._probeToken = 0;
         /** @type {?string} NAVMESH-waypoint signature the edit-mode badges were probed for. */
@@ -273,6 +278,9 @@ class MapNavigatorApp {
             btnStart: $("btn-start"),
             btnStop: $("btn-stop"),
             btnCopyPath: $("btn-copy-path"),
+            btnEditPlan: $("btn-edit-plan"),
+            btnEditPlanClear: $("btn-edit-plan-clear"),
+            chkEditZipline: $("chk-edit-zipline"),
             btnCopyAssert: $("btn-copy-assert"),
             assertCopyFormat: $("assert-copy-format"),
             btnImport: $("btn-import"),
@@ -499,7 +507,7 @@ class MapNavigatorApp {
                     projectOk: this.els.projectNodeOk,
                 },
                 {
-                    loadPoints: (points) => this._importLoadPoints(points),
+                    loadPoints: (points, options) => this._importLoadPoints(points, options),
                     applyAssert: (zoneId, target) => this._importApplyAssert(zoneId, target),
                 },
             );
@@ -817,6 +825,17 @@ class MapNavigatorApp {
     _wireEvents() {
         const e = this.els;
         e.btnCopyPath.addEventListener("click", () => this._copyPath());
+        e.btnEditPlan.addEventListener("click", () => this._calculateEditPreview());
+        e.btnEditPlanClear.addEventListener("click", () => {
+            this._clearEditPreview();
+            setStatus("已清除当前片段的规划预览。", "#10b981");
+            this._paint();
+        });
+        e.chkEditZipline.addEventListener("change", () => {
+            this._syncCopyButtonLabels();
+            if (this.navtest) this.navtest.routeChanged();
+            if (this.editRoute) this._calculateEditPreview();
+        });
         e.btnCopyAssert.addEventListener("click", () => this._copyAssert());
         e.assertCopyFormat.addEventListener("change", () => this._syncCopyButtonLabels());
         e.btnPrev.addEventListener("click", () => this._prevZone());
@@ -1120,6 +1139,7 @@ class MapNavigatorApp {
         }
         const displayAstarLocateHints = mode === Mode.ASTAR ? this._astarDisplayHints() : [];
         const displayLogAnalysis = mode === Mode.LOG ? this._logAnalysisForDisplay() : null;
+        const displayEditPreview = mode === Mode.EDIT ? this._editPreviewForDisplay() : null;
 
         const vm = {
             mode,
@@ -1127,6 +1147,7 @@ class MapNavigatorApp {
             // Selection is local to the EDIT segment.
             selectedIdx: mode === Mode.EDIT ? this.state.selectedIdx : null,
             selectedIndices: mode === Mode.EDIT ? this.state.selectedIndices : new Set(),
+            editPreview: displayEditPreview,
             assertTarget: mode === Mode.ASSERT ? this._assertTargetForDisplay() : null,
             astar:
                 mode === Mode.ASTAR
@@ -1156,6 +1177,32 @@ class MapNavigatorApp {
     /** @returns {Array<Object>} the current zone segment's point objects. */
     _currentSegmentPoints() {
         return this.state.zonePointGlobalIndices().map((idx) => this.state.points[idx]);
+    }
+
+    /** Runtime preview projected from base px into the current EDIT segment's display frame. */
+    _editPreviewForDisplay() {
+        if (!this.editRoute || !this.field) return null;
+        const zoneId = this._resolveZoneId(this.state.currentZone());
+        const project = (point) => {
+            if (!Number.isNaN(zoneId) && this.field.isTier(zoneId) && this.field.isRealTier(zoneId)) {
+                return this.field.baseToTier(zoneId, point[0], point[1]);
+            }
+            return point;
+        };
+        return {
+            previewPoints: (this.editRoute.points || []).map(project),
+            segmentBreaks: [],
+            hasRoute: true,
+            waypoints: [],
+            blindWalks: [],
+            walkSegments: (this.editRoute.walk_segments || []).map((segment) => segment.map(project)),
+            ziplineSegments: (this.editRoute.zipline_segments || []).map((segment) => ({
+                ...segment,
+                from: project(segment.from),
+                to: project(segment.to),
+                mount_restand: segment.mount_restand ? project(segment.mount_restand) : null,
+            })),
+        };
     }
 
     /**
@@ -2653,6 +2700,13 @@ class MapNavigatorApp {
             return;
         }
 
+        if (this.isDragging) {
+            this.isDragging = false;
+            this._clearEditPreview();
+            if (this.navtest) this.navtest.routeChanged();
+            this._doRedraw();
+            return;
+        }
         this.isDragging = false;
     }
 
@@ -2738,8 +2792,81 @@ class MapNavigatorApp {
     }
 
     // ==================================================================================
-    //  A* preview
+    //  Runtime route previews
     // ==================================================================================
+
+    /** Drop the runtime preview without changing any authored point. */
+    _clearEditPreview() {
+        this._editRouteToken += 1;
+        this.editRoute = null;
+        this.els.btnEditPlanClear.disabled = true;
+    }
+
+    /** Expand the current EDIT zone segment with the same planner used by MapNavigateAction. */
+    async _calculateEditPreview() {
+        const points = this._currentSegmentPoints();
+        if (points.length < 2) {
+            setStatus("当前片段至少需要两个路点才能规划。", "#f59e0b");
+            return;
+        }
+        const start = points[0];
+        const positionZone = normalizeZoneId(start.target_tier || start.zone);
+        if (!positionZone) {
+            setStatus("当前片段缺少起点区域，无法交给运行时规划。", "#ef4444");
+            return;
+        }
+
+        const token = ++this._editRouteToken;
+        this.editRoute = null;
+        this.els.btnEditPlan.disabled = true;
+        this.els.btnEditPlanClear.disabled = true;
+        this._paint();
+        setStatus("正在按运行时语义规划当前片段…", "#3b82f6");
+
+        try {
+            // 第一个作者点在离线预览里充当已抵达的起点；再次把它作为首个 NAVMESH
+            // 目标会制造一条无意义的原地规划，并可能因该点位于盲走区而提前失败。
+            const exported = await exportPath(points.slice(1));
+            const customActionParam = {path: exported.nodes || []};
+            if (this.els.chkEditZipline.checked) customActionParam.zip = true;
+            const result = await postRoutePreview({
+                position: [start.x, start.y],
+                position_zone: positionZone,
+                custom_action_param: customActionParam,
+            });
+            if (token !== this._editRouteToken || (result && result.stale)) return;
+            if (!result || !result.ok) throw new Error(result?.error || "路线展开失败");
+
+            this.editRoute = {
+                points: result.points || [],
+                walk_segments: result.walk_segments || [],
+                zipline_segments: result.zipline_segments || [],
+                zipline: result.zipline || {},
+            };
+            this.els.btnEditPlanClear.disabled = false;
+            const hops = this.editRoute.zipline_segments.length;
+            const expanded = result.expanded_waypoints || this.editRoute.points.length;
+            if (hops > 0) {
+                setStatus(`当前片段已规划：采用 ${hops} 跳滑索，展开为 ${expanded} 个运行时路点。`, "#10b981");
+            } else if (this.editRoute.zipline.no_data) {
+                setStatus("当前区域没有可用的滑索记录，规划已回退为步行路线。", "#f59e0b");
+            } else if (this.editRoute.zipline.not_chosen) {
+                setStatus("滑索没有显著优于步行，运行时会采用当前步行路线。", "#10b981");
+            } else {
+                setStatus(`当前片段已展开为 ${expanded} 个运行时路点。`, "#10b981");
+            }
+            this._paint();
+        } catch (err) {
+            if (token !== this._editRouteToken) return;
+            const message = err && err.message ? err.message : err;
+            this.editRoute = null;
+            this.els.btnEditPlanClear.disabled = true;
+            setStatus(`规划失败: ${message}`, "#ef4444");
+            this._paint();
+        } finally {
+            if (token === this._editRouteToken) this.els.btnEditPlan.disabled = false;
+        }
+    }
 
     /**
      * A* canvas click: astar-single restarts a 2-point start/goal pair; astar-multi
@@ -3937,6 +4064,7 @@ class MapNavigatorApp {
             this._moveAstarDisplayZone(-1);
             return;
         }
+        this._clearEditPreview();
         this.state.zoneState.prevZone();
         this.state.clearSelection();
         this._syncActionControls();
@@ -3950,6 +4078,7 @@ class MapNavigatorApp {
             this._moveAstarDisplayZone(1);
             return;
         }
+        this._clearEditPreview();
         this.state.zoneState.nextZone();
         this.state.clearSelection();
         this._syncActionControls();
@@ -4047,8 +4176,10 @@ class MapNavigatorApp {
 
     /** tk `_on_points_structure_changed` tail (points already reindexed by the edit helper). */
     _afterStructureChanged() {
+        this._clearEditPreview();
         this._syncActionControls();
         this._refreshZoneLabel();
+        if (this.navtest) this.navtest.routeChanged();
         this._doRedraw();
     }
 
@@ -4058,6 +4189,7 @@ class MapNavigatorApp {
 
     /** Keep each copy button's label aligned with its selected output format. @returns {void} */
     _syncCopyButtonLabels() {
+        this.els.btnCopyPath.textContent = this.els.chkEditZipline.checked ? "复制完整参数" : "复制路径";
         this.els.btnCopyNavmesh.textContent = "复制路径";
         this.els.btnCopyAssert.textContent =
             this.els.assertCopyFormat.value === COPY_FORMAT_COORDINATES ? "复制坐标" : "复制断言";
@@ -4071,8 +4203,13 @@ class MapNavigatorApp {
         }
         try {
             const result = await exportPath(this.state.points);
-            await this._copyText(result.text);
-            setStatus("MapNavigator path 已复制到剪贴板", "#10b981");
+            if (this.els.chkEditZipline.checked) {
+                await this._copyText(JSON.stringify({path: result.nodes, zip: true}, null, 4));
+                setStatus("MapNavigator 完整参数已复制到剪贴板（已启用滑索）", "#10b981");
+            } else {
+                await this._copyText(result.text);
+                setStatus("MapNavigator path 已复制到剪贴板", "#10b981");
+            }
         } catch (err) {
             const msg = err && err.message ? err.message : err;
             setStatus(`复制失败: ${msg}`, "#ef4444");
@@ -4148,15 +4285,15 @@ class MapNavigatorApp {
      * 试跑要跑的那一份, 取自当前页签: 路径编辑交编辑器原始路点 (导出在服务侧, 只此一处口径),
      * A* 交已导出的 NAVMESH 节点 —— tier 变换与显示底图只有前端有, 后端换算不出来。
      * 断言模式没有线, 交那个框, 由后端导成 MapLocateAssertLocation 节点认一次。
-     * @returns {{path: Array, exported: boolean, assert_target: ?Object}}
+     * @returns {{path: Array, exported: boolean, zip: boolean, assert_target: ?Object}}
      */
     _navtestRoute() {
         if (this.state.mode === Mode.LOG) {
-            return {path: [], exported: false, assert_target: null};
+            return {path: [], exported: false, zip: false, assert_target: null};
         }
         if (this.state.mode === Mode.ASTAR) {
             const ready = this.field && this._displayZoneId() && this.astarPoints.length >= 2;
-            return { path: ready ? this._navmeshTargets() : [], exported: true };
+            return {path: ready ? this._navmeshTargets() : [], exported: true, zip: false};
         }
         if (this.state.mode === Mode.ASSERT) {
             const zoneId = this._displayZoneId();
@@ -4166,10 +4303,11 @@ class MapNavigatorApp {
             return {
                 path: [],
                 exported: false,
+                zip: false,
                 assert_target: zoneId && drawn ? { zone_id: zoneId, target } : null,
             };
         }
-        return { path: this.state.points, exported: false };
+        return {path: this.state.points, exported: false, zip: this.els.chkEditZipline.checked};
     }
 
     /**
@@ -4418,8 +4556,10 @@ class MapNavigatorApp {
 
     /** Refresh controls + repaint after an undo/redo restored a snapshot. @returns {void} */
     _afterHistory() {
+        this._clearEditPreview();
         this._syncActionControls();
         this._refreshZoneLabel();
+        if (this.navtest) this.navtest.routeChanged();
         this._doRedraw();
     }
 
@@ -4825,6 +4965,7 @@ class MapNavigatorApp {
      * @returns {void}
      */
     _onRecordingFinished(rawPoints) {
+        this._clearEditPreview();
         this.state.setPoints(rawPoints);
         this.state.clearSelection();
         this._syncActionControls();
@@ -4841,11 +4982,17 @@ class MapNavigatorApp {
      * - EDIT / Assert: the points become the real route (Assert draws them read-only).
      * - A*: imported coordinates wait as targets until a manual start is clicked.
      * @param {object[]} points
+     * @param {{zipEnabled?:boolean}} [options]
      * @returns {{text?:string, color?:string}|void} a status lead-in replacing the importer's default
      */
-    _importLoadPoints(points) {
+    _importLoadPoints(points, options = {}) {
         if (this.state.mode === Mode.ASTAR) return this._importAsAstarRoute(points);
 
+        this._clearEditPreview();
+        if (this.state.mode === Mode.EDIT) {
+            this.els.chkEditZipline.checked = !!options.zipEnabled;
+            this._syncCopyButtonLabels();
+        }
         this.state.setPoints(points);
         this.state.clearSelection();
         this._resetPropertyControls();
@@ -4998,6 +5145,9 @@ class MapNavigatorApp {
 
         if (modeName !== "astar") {
             this._clearAstarPreview();
+        }
+        if (modeName !== "edit") {
+            this._clearEditPreview();
         }
         if (modeName !== "assert") {
             this.assertRectWorld = null;

@@ -9,6 +9,7 @@ from json_import import (
     discover_assert_locations,
     discover_path_routes,
     export_path_nodes,
+    load_points_from_json_file,
     load_project_import_node,
     scan_project_import_nodes,
 )
@@ -145,6 +146,17 @@ class ExportPathNodesTest(unittest.TestCase):
 
 
 class GenericImportShapesTest(unittest.TestCase):
+    def test_preserves_route_level_zip_option(self) -> None:
+        with tempfile.NamedTemporaryFile("w", suffix=".json", encoding="utf-8", delete=False) as handle:
+            json.dump({"path": [[1, 2], [3, 4]], "zip": True}, handle)
+            path = Path(handle.name)
+        try:
+            route = load_points_from_json_file(path)
+        finally:
+            path.unlink(missing_ok=True)
+
+        self.assertTrue(route.zip_enabled)
+
     def test_discovers_a_bare_path_array(self) -> None:
         routes = discover_path_routes([[1, 2], [3, 4, "SPRINT"]])
 
@@ -338,7 +350,36 @@ class ProjectImportNodesTest(unittest.TestCase):
             self.assets_dir,
         )
 
-        self.assertEqual(loaded, {"kind": "path", "path": expected_path})
+        self.assertEqual(
+            loaded,
+            {"kind": "path", "path": expected_path, "zip_enabled": False},
+        )
+
+    def test_preserves_selected_map_navigate_zip_option(self) -> None:
+        expected_path = [[1, 2], [3, 4]]
+        self._write(
+            "resource/pipeline/routes.json",
+            json.dumps(
+                {
+                    "Selected": {
+                        "custom_action": "MapNavigateAction",
+                        "custom_action_param": {"path": expected_path, "zip": True},
+                    }
+                }
+            ),
+        )
+
+        loaded = load_project_import_node(
+            "path",
+            "assets/resource/pipeline/routes.json",
+            "Selected",
+            self.assets_dir,
+        )
+
+        self.assertEqual(
+            loaded,
+            {"kind": "path", "path": expected_path, "zip_enabled": True},
+        )
 
     def test_loads_the_selected_assert_location(self) -> None:
         self._write(

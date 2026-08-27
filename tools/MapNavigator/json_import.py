@@ -40,6 +40,7 @@ class ImportedRoute:
     points: list[PathPoint]
     route_count: int
     source_has_zone_info: bool
+    zip_enabled: bool = False
 
 
 @dataclass(frozen=True)
@@ -60,6 +61,7 @@ class ProjectImportNode:
     zone_id: str = ""
     target: tuple[float, float, float, float] | None = None
     condition_count: int = 0
+    zip_enabled: bool = False
 
 
 def scan_project_import_nodes(
@@ -117,6 +119,7 @@ def scan_project_import_nodes(
                             int(ActionType.NAVMESH) in get_point_actions(point) for point in route
                         ),
                         zone_ids=zone_ids,
+                        zip_enabled=node["custom_action_param"].get("zip") is True,
                     )
                 )
 
@@ -163,7 +166,11 @@ def load_project_import_node(
         if route is None:
             raise ValueError("所选节点不是带有效 path 的 MapNavigateAction")
         param = node["custom_action_param"]
-        return {"kind": "path", "path": param["path"]}
+        return {
+            "kind": "path",
+            "path": param["path"],
+            "zip_enabled": param.get("zip") is True,
+        }
 
     if kind == "assert":
         assert_locations = discover_assert_locations(node)
@@ -213,16 +220,17 @@ def _project_map_navigate_route(node: Any) -> list[PathPoint] | None:
 
 def load_points_from_json_file(file_path: str | Path) -> ImportedRoute:
     data = load_jsonc(file_path)
-    routes = discover_path_routes(data)
-    if not routes:
+    route_requests = _discover_route_requests(data)
+    if not route_requests:
         raise ValueError("未找到可识别的 path 数据")
 
-    selected_route = max(routes, key=len)
+    selected_route, zip_enabled = max(route_requests, key=lambda item: len(item[0]))
     source_has_zone_info = any(normalize_zone_id(point.get("zone", "")) for point in selected_route)
     return ImportedRoute(
         points=normalize_path_points(selected_route),
-        route_count=len(routes),
+        route_count=len(route_requests),
         source_has_zone_info=source_has_zone_info,
+        zip_enabled=zip_enabled,
     )
 
 
@@ -329,7 +337,11 @@ def _load_jsonc_text(text: str) -> Any:
 
 
 def discover_path_routes(data: Any) -> list[list[PathPoint]]:
-    routes: list[list[PathPoint]] = []
+    return [route for route, _zip_enabled in _discover_route_requests(data)]
+
+
+def _discover_route_requests(data: Any) -> list[tuple[list[PathPoint], bool]]:
+    routes: list[tuple[list[PathPoint], bool]] = []
     _walk_json_node(data, routes, zone_hint="")
     return routes
 
@@ -387,7 +399,11 @@ def list_available_zone_ids() -> list[str]:
     return sorted(_load_available_zone_ids())
 
 
-def _walk_json_node(node: Any, routes: list[list[PathPoint]], zone_hint: str) -> None:
+def _walk_json_node(
+    node: Any,
+    routes: list[tuple[list[PathPoint], bool]],
+    zone_hint: str,
+) -> None:
     if isinstance(node, dict):
         local_zone = _resolve_zone_hint(node, zone_hint)
 
@@ -395,7 +411,7 @@ def _walk_json_node(node: Any, routes: list[list[PathPoint]], zone_hint: str) ->
         if path_value is not None:
             route = _parse_route(path_value, local_zone)
             if route:
-                routes.append(route)
+                routes.append((route, node.get("zip") is True))
 
         for key, value in node.items():
             if key == "path" and path_value is not None:
@@ -406,7 +422,7 @@ def _walk_json_node(node: Any, routes: list[list[PathPoint]], zone_hint: str) ->
     if isinstance(node, list):
         route = _parse_route(node, zone_hint)
         if route:
-            routes.append(route)
+            routes.append((route, False))
             return
 
         for item in node:

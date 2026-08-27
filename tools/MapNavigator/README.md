@@ -16,6 +16,7 @@ MapNavigator 是用于 C++ MapNavigator 模块使用的地图路径录制与编�
 - 支持为单个点标记 `required`。未启用滑索时按作者顺序执行全部节点；启用滑索后，中间的移动和兜底点可被全局规划跳过，`required` 用于标记必须抵达并执行的点。`ZONE`、`HEADING`、`COLLECT`、`DIG` 始终保留。
 - 支持为单个坐标点声明 `target_tier`；它只指定该点的坐标来源层级，不会改变 `ZONE` 或触发区域切换。
 - 默认复制 `MapNavigator` 可直接粘贴的 canonical `path`：有 zone 时写 `ZONE` 无坐标声明节点，没有 zone 时保留纯坐标点数组。
+- 路径编辑页可直接按运行时语义规划当前区域片段，并选择是否启用桌面端滑索规划；预览不会改写作者路点。
 - 支持独立的 `Assert 模式`：手动选择底图并框选矩形区域，导出 `MapLocateAssertLocation` 节点。
 - 支持 `A* 模式`：加载 BaseNav `.nav` / `.nav.gz` 后选择起点和终点，在 GUI 上显示计算路线；在 X / Y 任一坐标框粘贴 `[x, y]` 数组可自动回填两项，再点击 `标点` 显示目标预览点。
 - 支持只读的 `日志分析` 模式：浏览器本地导入一个或多个 `cpp-algo/debug/maafw*.log`，也可直接选择 MaaEnd 的 `-partNN.zip` 独立分包；工具逐条解压 cpp-algo 日志并读取同组 `record/Ziplines.json`，在对应底图上对照路线决策、实测轨迹、本次选择的滑索架和快照中的候选滑索架。
@@ -43,9 +44,17 @@ MapNavigator 是用于 C++ MapNavigator 模块使用的地图路径录制与编�
 
 在 `路径编辑` 模式开始录制后，底部读数会以固定频率刷新位置与朝向。定位短暂丢失时保留最后一次真实观测，不使用轨迹预测补出虚拟位置。
 
+## 路径编辑规划
+
+路径编辑页可点击 `规划当前片段`，以当前区域片段的第一个作者路点为离线预览起点，将该片段的完整 `path` 交给 C++ `MapNavigateAction` 展开器。粉色折线表示运行时生成的步行段，青色有向边表示选中的滑索跳；`required`、`target_tier`、`target_deck_y` 与动作边界均使用实际运行时语义。跨区域路线按页面当前片段分别预览，避免把不同底图坐标画在一起。
+
+勾选 `启用滑索规划（桌面端）` 后，规划、复制和实机试跑都会携带同一个 `zip: true`。没有可用滑索记录或滑索成本不占优时，预览会按运行时规则回退为步行。内部展开的步行点和 `ZIPLINE` 点只用于显示，不会写回编辑器中的作者路线。
+
+滑索预览读取当前安装目录的 `debug/record/Ziplines.json` 与仓库中的 `data/MapNavigator/zipline_frames.json`。触屏控制器无法执行桌面端上索操作，实际试跑时运行时仍会关闭滑索并改走步行。
+
 ## 复制格式
 
-复制到剪贴板的内容是 `path` 本体，可直接粘贴到 `MapNavigator` 的 `custom_action_param.path`。其结构与加载格式保持一致：
+默认复制到剪贴板的内容是 `path` 本体，可直接粘贴到 `MapNavigator` 的 `custom_action_param.path`。其结构与加载格式保持一致：
 
 ```json
 [
@@ -108,6 +117,8 @@ MapNavigator 是用于 C++ MapNavigator 模块使用的地图路径录制与编�
     }
 ]
 ```
+
+启用滑索规划时，按钮改为 `复制完整参数`，复制结果为可直接放入 `MapNavigateAction.custom_action_param` 的 `{ "path": [...], "zip": true }`。
 
 - `ZONE` 是可选的无坐标声明节点，用于给后续点提供区域校验信息。
 - 普通坐标点继续使用 `[x, y]` / `[x, y, "ACTION"]`。
