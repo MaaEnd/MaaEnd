@@ -5,6 +5,7 @@ import {
   collectAstarImportBasePoints,
   completeAstarImportWithStart,
   filterProjectNodes,
+  normalizeAssertTarget,
   readClipboardText,
 } from './static/js/ui/importer.js';
 
@@ -123,4 +124,17 @@ test('clipboard reader reports an unavailable Clipboard API', async () => {
 test('clipboard reader preserves read failures for the UI to explain', async () => {
   const denied = Object.assign(new Error('permission denied'), { name: 'NotAllowedError' });
   await assert.rejects(readClipboardText({ readText: async () => Promise.reject(denied) }), denied);
+});
+
+test('assert import normalizes four finite numeric target values', () => {
+  assert.deepEqual(normalizeAssertTarget(['1', 2, '30.5', 40]), [1, 2, 30.5, 40]);
+  assert.deepEqual(normalizeAssertTarget([1, 2, 30, 40, 50]), [1, 2, 30, 40]);
+});
+
+test('assert import rejects incomplete, non-finite, and empty rectangles', () => {
+  assert.equal(normalizeAssertTarget([1, 2, 30]), null);
+  assert.equal(normalizeAssertTarget([1, 2, 'invalid', 40]), null);
+  assert.equal(normalizeAssertTarget([1, 2, 30, Number.POSITIVE_INFINITY]), null);
+  assert.equal(normalizeAssertTarget([null, 2, 30, 40]), null);
+  assert.equal(normalizeAssertTarget([1, 2, 0, 40]), null);
 });

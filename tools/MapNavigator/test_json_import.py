@@ -258,7 +258,10 @@ class ProjectImportNodesTest(unittest.TestCase):
             }
             """,
         )
-        self._write("resource/pipeline/broken.json", "{broken")
+        self._write(
+            "resource/pipeline/broken.json",
+            '{"Broken": {"custom_action": "MapNavigateAction", ',
+        )
 
         nodes = scan_project_import_nodes(self.assets_dir)
 

@@ -133,6 +133,22 @@ export async function readClipboardText(clipboard) {
   return text;
 }
 
+/**
+ * Normalize an AssertLocation target before any UI state is changed.
+ * @param {unknown} target
+ * @returns {?number[]}
+ */
+export function normalizeAssertTarget(target) {
+  if (!Array.isArray(target) || target.length < 4) return null;
+  const values = target.slice(0, 4);
+  if (values.some((value) => value === null || typeof value === 'boolean' || String(value).trim() === '')) {
+    return null;
+  }
+  const normalized = values.map(Number);
+  if (!normalized.every(Number.isFinite) || normalized[2] <= 0 || normalized[3] <= 0) return null;
+  return normalized;
+}
+
 export class Importer {
   /**
    * @param {Object} els import controls, zone dialog, and project-node dialog
@@ -354,15 +370,16 @@ export class Importer {
       if (!result || result.ok === false) {
         throw new Error((result && result.error) || '所选项目节点无法载入');
       }
-      this._closeProjectPicker();
       const sourceLabel = `${selected.node_name}（${selected.resource_path}）`;
       if (result.kind === 'assert') {
-        if (!Array.isArray(result.target)) throw new Error('所选断言节点缺少有效 target');
-        this._applyAssert({ ...result, source_label: sourceLabel });
+        const target = normalizeAssertTarget(result.target);
+        if (!target) throw new Error('所选断言节点缺少有效 target');
+        this._applyAssert({ ...result, target, source_label: sourceLabel });
       } else {
         if (!Array.isArray(result.path)) throw new Error('所选导航节点缺少有效 path');
         await this.analyzeText(JSON.stringify({ path: result.path }), sourceLabel);
       }
+      this._closeProjectPicker();
     } catch (err) {
       this._projectNodesError = `读取项目节点失败: ${err && err.message ? err.message : err}`;
       setStatus(this._projectNodesError, '#ef4444');
@@ -422,7 +439,12 @@ export class Importer {
     }
 
     if (result.kind === 'assert') {
-      this._applyAssert({ ...result, source_label: sourceLabel });
+      const target = normalizeAssertTarget(result.target);
+      if (!target) {
+        setStatus('导入失败: 断言节点缺少有效 target', '#ef4444');
+        return;
+      }
+      this._applyAssert({ ...result, target, source_label: sourceLabel });
       return;
     }
 
