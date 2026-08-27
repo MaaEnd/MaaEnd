@@ -58,6 +58,27 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "AutoStockStapleBagFullResetLocation"
+        ]
+    },
+    "AutoStockStapleBagFullResetLocation": {
+        "desc": "清空谷地与武陵购买阶段的命中计数，重启后两地可重新执行",
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClearHitCount",
+                "custom_action_param": {
+                    "nodes": [
+                        "AutoStockStapleValleyIV",
+                        "AutoStockStapleWuling"
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
             "AutoStockStapleMain"
         ]
     },

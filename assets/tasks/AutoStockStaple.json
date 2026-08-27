@@ -2159,6 +2159,15 @@
                         },
                         "AutoStockStapleBagFullGiveUp": {
                             "enabled": true
+                        },
+                        "StashBackpackMain": {
+                            "enabled": true
+                        },
+                        "StashBackpackStashQuick": {
+                            "enabled": true
+                        },
+                        "StashBackpackUsableItemsLimited": {
+                            "enabled": true
                         }
                     }
                 },
