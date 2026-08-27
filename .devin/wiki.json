@@ -5,11 +5,11 @@
             "author": "maintainer"
         },
         {
-            "content": "MaaEnd 是基于 MaaFramework 和 MXU 开发的游戏自动化辅助工具，面向《明日方舟：终末地》（Arknights: Endfield）。项目采用 Pipeline JSON 低代码 + Go Service 自定义扩展的架构：主体业务流程由 JSON 驱动，复杂图像算法和特殊交互逻辑由 Go 编写的 agent/go-service 实现。前端界面由 MXU（基于 Tauri + Vue）提供。",
+            "content": "MaaEnd 是基于 MaaFramework 与 MXU 开发的游戏自动化辅助工具，面向《明日方舟：终末地》（Arknights: Endfield）。项目采用低代码 + 扩展层架构：主体业务流程由 Pipeline JSON 驱动；复杂图像算法和特殊交互逻辑由 Go（agent/go-service）与原生 C++（agent/cpp-algo）实现；前端界面由 MXU（MaaFramework Next UI，Tauri + React/TypeScript）提供。",
             "author": "maintainer"
         },
         {
-            "content": "项目核心目录结构：assets/resource/pipeline/ 是所有 Pipeline 任务逻辑（JSON 低代码）；assets/resource/image/ 是模板匹配所需的截图资源（基准分辨率 720p）；assets/resource/model/ 存放 OCR 和目标检测模型；agent/go-service/ 是 Go 自定义识别器/动作的源码；assets/tasks/ 定义用户可见的任务列表；assets/interface.json 是 MaaFramework 项目接口入口；assets/locales/ 存放国际化翻译文件；docs/ 下有中英文开发者和用户文档；tools/ 包含辅助脚本和 Pipeline 生成工具。",
+            "content": "项目核心目录结构：assets/resource/pipeline/ 是所有 Pipeline 任务逻辑（JSON 低代码）；assets/resource/image/ 是模板匹配所需的截图资源（基准分辨率 720p，即 1280×720）；assets/resource/model/ 存放 OCR 和目标检测模型；assets/config/ 为运行配置、assets/data/ 为任务数据；assets/tasks/ 定义用户可见的任务列表；assets/interface.json 是 MaaFramework 项目接口入口；assets/locales/ 存放国际化和翻译文件；assets/resource_adb/、assets/resource_linux/ 等为多平台适配资源；agent/go-service/ 是 Go 自定义识别器/动作源码，agent/cpp-algo/ 是原生 C++ 识别源码；docs/ 下有中英文开发者文档；tools/ 包含辅助脚本和 Pipeline 生成、校验工具。",
             "author": "maintainer"
         },
         {
@@ -17,11 +17,11 @@
             "author": "maintainer"
         },
         {
-            "content": "Go Service 架构说明：agent/go-service/main.go 是入口，register.go 统一注册所有自定义识别器和动作。各功能模块按子包组织（如 essencefilter/、puzzle-solver/、autofight/、bettersliding/ 等），每个子包有自己的 register.go。Go Service 通过 MaaFramework 的 CustomRecognition 和 CustomAction 接口与 Pipeline 交互，仅处理 Pipeline 难以实现的复杂算法，流程控制仍由 Pipeline 负责。",
+            "content": "Go Service 架构说明：agent/go-service/main.go 是入口，register.go 统一注册所有自定义识别器和动作，各功能子包（essencefilter/、puzzle-solver/、autofight/、bettersliding/、autostockpile/、creditshopping/、autodelivery/、sellproduct/ 等）有自己的 register.go。Go Service 通过 MaaFramework 的 CustomRecognition 和 CustomAction 接口与 Pipeline 交互，仅处理 Pipeline 难以实现的复杂算法，流程控制仍由 Pipeline 负责。原生 C++ 层 agent/cpp-algo 负责地图定位/寻路、图标识别、网格识别等高性能识别，并在 agent/cpp-algo/source/main.cpp 中注册。",
             "author": "maintainer"
         },
         {
-            "content": "项目支持的平台：PC 端（Win32 前台控制器）和安卓端（ADB 控制器）。安卓端的适配资源位于 assets/resource_adb/ 目录下，与 PC 端的 assets/resource/ 平行存在。",
+            "content": "项目支持的平台：主要支持 PC（Windows 桌面控制器）和安卓端（ADB 控制器），并逐步覆盖 Linux、macOS（含 PlayCover）等，另有 CloudADB 控制器（assets/interface.json 中注册为 name: CloudADB）通过 ADB 连接《云·终末地》官方云游戏客户端（测试版）。各平台的差异化适配资源位于 assets/resource_adb/、assets/resource_cloud_adb/、assets/resource_linux/、assets/resource_macos/、assets/resource_playcover/ 等目录，与 PC 端的 assets/resource/ 平行存在；控制器适配抽象位于 agent/go-service/pkg/control/。",
             "author": "maintainer"
         },
         {
@@ -29,23 +29,23 @@
             "author": "maintainer"
         },
         {
-            "content": "核心功能模块包括：实时开荒辅助（自动剧情、辅助战斗、自动拾取等）、拼图求解（AI 图像识别解谜）、基质筛选与刷取、协议空间自动刷取、环境监测、生态农场、自动采集、送货任务、委托抢单、倒卖系统、信用点购物、蓝图导入、基建任务、好友拜访等。参见 README.md 获取完整功能列表。",
+            "content": "核心功能模块包括：实时开荒辅助（自动剧情、辅助战斗、自动拾取等）、拼图求解（AI 图像识别解谜）、基质筛选与刷取、协议空间自动刷取、环境监测、生态农场、自动采集、自动囤货/采购/售货、送货任务与委托抢单、信用点购物、蓝图与滑索导入、装配与基建任务、好友拜访与批量加好友、批量使用道具、物品转移、账号切换、气溶胶回收、情报档案、卡池计数、试炼解谜、WebEvent 活动等。参见 README.md 获取完整功能列表。",
             "author": "maintainer"
         }
     ],
     "pages": [
         {
             "title": "项目概述",
-            "purpose": "介绍 MaaEnd 项目的定位、面向的游戏（明日方舟：终末地）、核心功能列表、技术栈（MaaFramework + MXU + Go）和支持的平台（PC/安卓）。引用 README.md 和 docs/zh_cn/ 文档。"
+            "purpose": "介绍 MaaEnd 项目的定位、面向的游戏（明日方舟：终末地）、核心功能列表、技术栈（MaaFramework + MXU + Go + C++）和支持的平台（PC/安卓/云终末地等）。引用 README.md、AGENTS.md 和 docs/zh_cn/ 文档。"
         },
         {
             "title": "系统架构",
-            "purpose": "描述项目整体架构：Pipeline JSON 低代码层、Go Service 扩展层、MXU 前端层、MaaFramework 底层框架的关系。包含架构图、数据流图和模块间通信方式。引用 AGENTS.md 和 docs/zh_cn/developers/README.md。",
+            "purpose": "描述项目整体架构：Pipeline JSON 低代码层、Go Service 扩展层、C++ cpp-algo 原生算法层、MXU 前端层、MaaFramework 底层框架的关系。涵盖 IconRecognition 图标识别、WorldMap 大地图识别、RecoGrid 网格识别等 cpp-algo 核心模块，以及 IMS 物品管理系统等 Go 基础组件。引用 AGENTS.md 和 docs/zh_cn/developers/README.md。",
             "parent": "项目概述"
         },
         {
             "title": "目录结构",
-            "purpose": "详细说明项目目录布局：assets/（resource/pipeline、resource/image、resource/model、tasks、interface.json、locales、config、data）、agent/go-service/、docs/、tools/、scripts/ 等各目录的职责和内容。",
+            "purpose": "详细说明项目目录布局：assets/（resource/pipeline、resource/image、resource/model、config、data、tasks、interface.json、locales、resource_adb 等平台资源目录）、agent/go-service/、agent/cpp-algo/、docs/、tools/ 等各目录的职责和内容。",
             "parent": "项目概述"
         },
         {
@@ -54,17 +54,22 @@
         },
         {
             "title": "场景管理器",
-            "purpose": "文档化 SceneManager 模块（assets/resource/pipeline/SceneManager/）的设计：如何识别当前游戏场景、场景切换逻辑、与其他任务模块的衔接方式。引用 docs/zh_cn/developers/scene-manager.md。",
+            "purpose": "文档化 SceneManager 模块的设计：Pipeline 层（assets/resource/pipeline/SceneManager/）与 Go 层（agent/go-service/scenemanager/）如何协同识别当前游戏场景、处理场景切换逻辑、与其他任务模块的衔接方式。引用 docs/zh_cn/developers/scene-manager.md。",
             "parent": "Pipeline 低代码系统"
         },
         {
             "title": "通用节点与按钮处理",
-            "purpose": "说明 assets/resource/pipeline/Common/ 目录下的通用可复用节点，包括通用按钮点击（Common/Button/）、私有工具节点（Private/）、角色控制器衔接等。引用 docs/zh_cn/developers/common-buttons.md。",
+            "purpose": "说明 assets/resource/pipeline/Common/ 目录下的通用可复用节点，包括通用按钮点击（Common/Button/）、私有工具节点（Common/Private/）、角色控制器衔接等。引用 docs/zh_cn/developers/common-buttons.md。",
+            "parent": "Pipeline 低代码系统"
+        },
+        {
+            "title": "Custom 自定义识别与动作机制",
+            "purpose": "解释如何编写自定义识别（CustomRecognition）和自定义动作（CustomAction），注册方式（main.go / main.cpp 中的注册函数，各子包 register.go 的职责），与 Pipeline 的交互数据格式（out_detail），以及 Go Service 与 cpp-algo 在注册机制上的差异。引用 docs/zh_cn/developers/custom.md 和 docs/zh_cn/developers/components-guide.md。",
             "parent": "Pipeline 低代码系统"
         },
         {
             "title": "Go Service 扩展",
-            "purpose": "详解 agent/go-service/ 的架构：入口 main.go、注册机制 register.go、各功能子包的组织方式、CustomRecognition 和 CustomAction 接口、与 Pipeline 的交互方式、日志和错误处理约定。"
+            "purpose": "详解 agent/go-service/ 的架构：入口 main.go、注册机制（各子包 register.go 汇总到主 register.go 的 registerAll()）、各功能子包的组织方式、CustomRecognition 和 CustomAction 接口、与 Pipeline 的交互方式、日志和错误处理约定，以及与 agent/cpp-algo 的分工。"
         },
         {
             "title": "基质筛选模块",
@@ -73,16 +78,12 @@
         },
         {
             "title": "拼图求解模块",
-            "purpose": "文档化 puzzle-solver 子包（agent/go-service/puzzle-solver/）的实现：图像识别拼图状态、求解算法、与 Pipeline 的注册和交互方式。",
+            "purpose": "文档化 puzzle-solver 子包（agent/go-service/puzzle-solver/）的实现：图像识别拼图状态、求解算法、与 Pipeline 的注册和交互方式。同类解谜模块还包括 trialofswordmancy（试炼解谜）。",
             "parent": "Go Service 扩展"
         },
         {
-            "title": "地图定位与导航",
-            "purpose": "文档化 cpp-algo 的 MapLocator（小地图定位）与 MapNavigator（路径导航）：区域识别、坐标与朝向输出、navmesh 寻路与路线执行。引用 docs/zh_cn/developers/map-navigator.md 和 docs/zh_cn/developers/map-locator.md。"
-        },
-        {
             "title": "辅助战斗系统",
-            "purpose": "文档化自动战斗相关模块：Go 层的 autofight 子包（技能释放、闪避、锁定目标等逻辑）和 Pipeline 层的 AutoFight 目录。引用 docs/zh_cn/developers/auto-fight.md 和 docs/zh_cn/developers/character-controller.md。",
+            "purpose": "文档化自动战斗相关模块：Go 层的 autofight 子包（技能释放、闪避、锁定目标等逻辑）与 common/charactercontroller 子包，以及 Pipeline 层的 AutoFight 目录。引用 docs/zh_cn/developers/components/auto-fight.md 和 docs/zh_cn/developers/components/character-controller.md。",
             "parent": "Go Service 扩展"
         },
         {
@@ -91,12 +92,33 @@
             "parent": "Go Service 扩展"
         },
         {
+            "title": "IMS 物品管理系统",
+            "purpose": "文档化 IMS（Item Management System）子包（agent/go-service/ims/）的实现：物品数据缓存与同步、物品目录查询、物品数量判断、国际化和多语言支持。该模块是 Go Service 的数据层，被 AutoStockpile、AutoDelivery、SellProduct 等多个任务依赖。引用 docs/zh_cn/developers/components/ims.md。",
+            "parent": "Go Service 扩展"
+        },
+        {
+            "title": "地图定位与导航",
+            "purpose": "文档化 cpp-algo 的 MapLocator（小地图定位）与 MapNavigator（路径导航）：区域识别、坐标与朝向输出、navmesh 寻路与路线执行。引用 docs/zh_cn/developers/components/map-navigator.md 和 docs/zh_cn/developers/components/map-locator.md。"
+        },
+        {
+            "title": "WorldMap 大地图识别",
+            "purpose": "文档化 cpp-algo 的 WorldMap 模块（agent/cpp-algo/source/WorldMap/）：大地图传送点识别与定位、传送点名称匹配、坐标转换。与 MapNavigator 配合实现跨区域传送。引用 docs/zh_cn/developers/components/world-map.md。"
+        },
+        {
+            "title": "IconRecognition 物品图标识别系统",
+            "purpose": "文档化 cpp-algo 的 IconRecognition 模块（agent/cpp-algo/source/IconRecognition/）：物品图标定位、分类与数量识别，支持多平台 controller profile（Win32 / ADB 等）。该模块是 EssenceFilter、CreditShopping、SellProduct 等任务的基础识别能力。引用 docs/zh_cn/developers/components/icon-recognition.md。"
+        },
+        {
+            "title": "RecoGrid / EssenceGrid 网格识别引擎",
+            "purpose": "文档化网格识别引擎：cpp-algo 的 RecoGrid（agent/cpp-algo/source/RecoGrid/）和 EssenceGridScan（agent/cpp-algo/source/EssenceGridScan/）。用于基质筛选、气溶胶回收等需要识别网格状物品布局的场景。引用 docs/zh_cn/developers/components/recogrid-engine.md。"
+        },
+        {
             "title": "任务功能模块总览",
-            "purpose": "总览所有用户可见的自动化任务功能：日常奖励、协议空间、环境监测、生态农场、自动采集、倒卖系统、送货任务、委托抢单、信用点购物、基质刷取、蓝图导入、基建任务、好友系统等。说明 assets/tasks/ 的任务定义方式和预设场景机制。"
+            "purpose": "总览所有用户可见的自动化任务功能。按 Pipeline 目录列举：\n- 日常类：DailyRewards（日常奖励）、ProtocolSpace（协议空间）、DijiangRewards（基建任务）\n- 经济类：AutoStockpile（自动囤货）、AutoSell（自动售卖）、AutoStockStaple（稳定物资采购）、CreditShopping（信用点购物）、SellProduct（售卖产品）\n- 战斗类：AutoFight（辅助战斗）、AutoEssence（自动刷取基质）、EssenceFilter（基质筛选）\n- 地图类：AutoCollect（自动采集）、AutoEcoFarm（生态农场）、EnvironmentMonitoring（环境监测）、DeliveryJobs（送货任务）、SeizeDeliveryJobs（委托抢单）\n- 交互类：RealTimeTask（实时开荒辅助）、AutoDelivery（自动送货）、ItemTransfer（物品转移）、GiftOperator（赠送干员礼物）\n- 工具类：BatchUseDetector（批量使用道具）、AutoUseSpMedication（批量使用药品）、GearAssembly（装配）、ResourceRecycleStation（资源回收站）、Crafting（制作）、Weapon（武器）、SimpleProductionBatchStart（批量生产）、SwitchTeam（切换队伍）、StashBackpack（后台背包整理）\n- 社交类：VisitFriends（拜访好友）、BatchAddFriends（批量加好友）\n- 系统类：AccountSwitch（账号切换）、CloseGame（关闭游戏）、ImportBluePrints（蓝图导入）、ZiplineImport（滑索导入）、IntelArchive（情报档案）、PullCountCalculator（卡池计数计算器）、AeroSalvage（气溶胶回收）、TrialOfSwordmancy（试炼解谜）、WebEvent（活动任务）\n说明 assets/tasks/ 的任务定义方式和预设场景机制。"
         },
         {
             "title": "自动囤货与倒卖",
-            "purpose": "文档化 AutoStockpile 模块：Go 层的 autostockpile 子包（商品扫描、策略决策、数量计算、状态管理）和 Pipeline 层的 AutoStockpile 和 AutoSell 目录。引用 docs/zh_cn/developers/auto-stockpile-maintain.md。",
+            "purpose": "文档化 AutoStockpile 与 AutoSell 模块：Go 层的 autostockpile/autosell 子包（商品扫描、策略决策、数量计算、状态管理）和 Pipeline 层的 AutoStockpile、AutoSell 目录；另有 AutoStockStaple 负责采购日常稳定物资。引用 docs/zh_cn/developers/tasks/auto-stockpile-maintain.md。",
             "parent": "任务功能模块总览"
         },
         {
@@ -106,24 +128,74 @@
         },
         {
             "title": "实时开荒辅助",
-            "purpose": "文档化 RealTimeTask 模块（assets/resource/pipeline/RealTimeTask/）：实时识别画面、自动剧情跳过、交互处理（指引光标、翻说明书等）、自动拾取、便捷操作（传送确认、滑滑索）、拍一拍等功能的 Pipeline 实现。",
+            "purpose": "文档化 RealTimeTask 模块（assets/resource/pipeline/RealTimeTask/）：实时识别画面、自动剧情跳过、交互处理（指引光标、翻说明书等）、自动拾取、便捷操作（传送确认、滑滑索）、拍一拍等功能的 Pipeline 实现；配合 agent/cpp-algo/source/RealTimeTask/ 的自定义动作。",
+            "parent": "任务功能模块总览"
+        },
+        {
+            "title": "自动送货任务",
+            "purpose": "文档化 AutoDelivery 模块：Go 层的 autodelivery 子包（目录解析、目的地定位、路径导航）、Pipeline 层的 AutoDelivery 目录。引用 docs/zh_cn/developers/components/auto-delivery.md。",
+            "parent": "任务功能模块总览"
+        },
+        {
+            "title": "基建任务",
+            "purpose": "文档化 DijiangRewards 模块：Pipeline 层的 DijiangRewards 目录与 Go 层的 dijiangrewards 子包（接待室领取、成长舱操作等）。引用 docs/zh_cn/developers/tasks/dijiang-rewards-maintain.md。",
+            "parent": "任务功能模块总览"
+        },
+        {
+            "title": "环境监测",
+            "purpose": "文档化 EnvironmentMonitoring 模块：Pipeline 层的 EnvironmentMonitoring 目录与 Go 层配合，实现各观察点的自动监测。引用 docs/zh_cn/developers/tasks/environment-monitoring-maintain.md。",
+            "parent": "任务功能模块总览"
+        },
+        {
+            "title": "售卖产品",
+            "purpose": "文档化 SellProduct 模块：Go 层的 sellproduct 子包（商品管理、运营人员管理、售卖策略）和 Pipeline 层目录。引用 docs/zh_cn/developers/tasks/sell-product-maintain.md。",
+            "parent": "任务功能模块总览"
+        },
+        {
+            "title": "稳定物资采购",
+            "purpose": "文档化 AutoStockStaple 模块：Go 层的 autostockstaple 子包和 Pipeline 层的 AutoStockStaple 目录，负责每日稳定需求物资的自动购买。引用 docs/zh_cn/developers/tasks/auto-stockstaple-maintain.md。",
+            "parent": "任务功能模块总览"
+        },
+        {
+            "title": "赠送干员礼物",
+            "purpose": "文档化 GiftOperator 模块：Pipeline 层的 GiftOperator 目录，实现自动赠送干员礼物。引用 docs/zh_cn/developers/tasks/gift-operator-maintain.md。",
+            "parent": "任务功能模块总览"
+        },
+        {
+            "title": "自动采集",
+            "purpose": "文档化 AutoCollect 模块：Pipeline 层的 AutoCollect 目录，实现自动采集路线录制与执行。",
+            "parent": "任务功能模块总览"
+        },
+        {
+            "title": "生态农场",
+            "purpose": "文档化 AutoEcoFarm 模块：Go 层的 autoecofarm 子包（目标缩放、模板覆盖、最近节点查找）和 Pipeline 层的 AutoEcoFarm 目录。",
+            "parent": "任务功能模块总览"
+        },
+        {
+            "title": "协议空间",
+            "purpose": "文档化 ProtocolSpace 模块：Pipeline 层的 ProtocolSpace 目录，实现协议空间的自动刷取。",
+            "parent": "任务功能模块总览"
+        },
+        {
+            "title": "日常奖励",
+            "purpose": "文档化 DailyRewards 模块：Pipeline 层的 DailyRewards 目录，实现每日签到、奖励领取等日常操作。",
             "parent": "任务功能模块总览"
         },
         {
             "title": "多端适配",
-            "purpose": "说明 PC 端（Win32）和安卓端（ADB）的适配方案：assets/resource/ 与 assets/resource_adb/ 的差异、控制器抽象层（agent/go-service/pkg/control/）、interface.json 中的控制器配置。"
+            "purpose": "说明多端适配方案：PC（Windows 桌面）、安卓（ADB）及其它平台（Linux、macOS/PlayCover）的差异化资源目录（assets/resource_adb/、assets/resource_linux/、assets/resource_macos/、assets/resource_playcover/），以及 CloudADB 控制器（assets/interface.json 注册为 name: CloudADB）对接《云·终末地》官方云游戏客户端的 assets/resource_cloud_adb/ 适配资源；控制器适配抽象位于 agent/go-service/pkg/control/ 的 adaptor_desktop/adb/linux/macos。"
         },
         {
             "title": "国际化与本地化",
-            "purpose": "文档化 assets/locales/ 的多语言体系：interface 层翻译（任务名称、描述）、go-service 层翻译、支持的语言列表（zh_cn、zh_tw、en_us、ja_jp、ko_kr）、翻译文件的组织规范。"
+            "purpose": "文档化 assets/locales/ 的多语言体系：interface、go-service、cpp-algo 三层的翻译（任务名称、描述、UI 文本），支持的语言列表（zh_cn、zh_tw、en_us、ja_jp、ko_kr），翻译文件的组织规范。"
         },
         {
             "title": "辅助工具与脚本",
-            "purpose": "文档化 tools/ 目录下的辅助工具：Pipeline 生成器（pipeline-generate/）、基质筛选工具（essence_filter/）、地图导航工具（MapNavigator/）、工作区初始化脚本（setup_workspace.py）等。"
+            "purpose": "文档化 tools/ 目录下的辅助工具：Pipeline 生成与校验（pipeline-generate/、schema/、parser/、merge_pipeline.py、validate_schema.py）、地图导航录制工具（MapNavigator/）、基质筛选工具（essence_filter/）、国际化工具（i18n/）、图标识别工具（icon_recognition/）、工作区初始化脚本（setup_workspace.py）等。"
         },
         {
             "title": "开发指南",
-            "purpose": "汇总面向开发者的信息：环境搭建（Git、Python、Node.js、pnpm、Go）、本地部署流程、Pipeline 编码规范、Go Service 编码规范、代码格式化（Prettier）、提交与审查要点。引用 docs/zh_cn/developers/README.md 和 docs/zh_cn/developers/getting-started.md 和 AGENTS.md。"
+            "purpose": "汇总面向开发者的信息：环境搭建（Git、Python(uv)、Node.js、pnpm、Go、C++/CMake）、本地部署流程、Pipeline 编码规范、Go Service 编码规范、cpp-algo 编码规范、代码格式化（Prettier）、提交与审查要点。引用 docs/zh_cn/developers/README.md、docs/zh_cn/developers/getting-started.md、docs/zh_cn/developers/super-basic-introduction.md、docs/zh_cn/developers/release-process.md、docs/zh_cn/developers/tools-and-debug.md 和 AGENTS.md。"
         },
         {
             "title": "节点测试与调试",
