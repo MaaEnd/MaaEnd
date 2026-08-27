@@ -55,7 +55,7 @@
         "next": [
             "ItemTransferStartInDijiangBackpack",
             "ItemTransferStartOpenRepo",
-            "[JumpBack]SceneEnterWorldDijiang2"
+            "[JumpBack]SceneEnterWorldDijiang"
         ]
     },
     "ItemTransferStartInDijiangBackpack": {
