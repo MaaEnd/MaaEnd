@@ -38,6 +38,42 @@ export function filterProjectNodes(nodes, query, kind) {
 }
 
 /**
+ * Resolve imported route coordinates into one navmesh geometry's base frame.
+ * `target_tier` describes the coordinate frame of that point and therefore takes
+ * precedence over the route's `ZONE` context.
+ * @param {Array<Object>} points
+ * @param {(zone:string)=>number} resolveZoneId
+ * @param {(zoneId:number)=>number} geometryZoneId
+ * @param {(zoneId:number, x:number, y:number)=>number[]} pointToBase
+ * @returns {{firstZoneId:?number, basePoints:number[][], skipped:number}}
+ */
+export function collectAstarImportBasePoints(points, resolveZoneId, geometryZoneId, pointToBase) {
+  const resolved = points.map((point) => ({
+    point,
+    zoneId: resolveZoneId((point && point.target_tier) || (point && point.zone) || ''),
+  }));
+  const first = resolved.find(({ zoneId }) => Number.isFinite(zoneId));
+  if (!first) return { firstZoneId: null, basePoints: [], skipped: points.length };
+
+  const geometryId = geometryZoneId(first.zoneId);
+  const basePoints = [];
+  let skipped = 0;
+  for (const { point, zoneId } of resolved) {
+    if (!Number.isFinite(zoneId) || geometryZoneId(zoneId) !== geometryId) {
+      skipped += 1;
+      continue;
+    }
+    const base = pointToBase(zoneId, point.x, point.y);
+    if (!Array.isArray(base) || base.length < 2 || !base.slice(0, 2).every(Number.isFinite)) {
+      skipped += 1;
+      continue;
+    }
+    basePoints.push(base.slice(0, 2));
+  }
+  return { firstZoneId: first.zoneId, basePoints, skipped };
+}
+
+/**
  * Read non-empty text from an injected Clipboard API implementation.
  * Keeping this environment-independent makes the error paths testable without
  * touching the user's real clipboard.
@@ -158,7 +194,8 @@ export class Importer {
       return;
     }
     if (this._projectMode === 'astar') {
-      this.els.projectHint.textContent = '选择 MapNavigateAction 节点，将其中坐标标成 A* 预览点。';
+      this.els.projectHint.textContent =
+        '选择 MapNavigateAction 节点；至少两个坐标时作为 A* 关键点立即规划，单个坐标保留为目标预览点。';
       return;
     }
     this.els.projectHint.textContent =

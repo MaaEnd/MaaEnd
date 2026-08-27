@@ -1,7 +1,11 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { filterProjectNodes, readClipboardText } from './static/js/ui/importer.js';
+import {
+  collectAstarImportBasePoints,
+  filterProjectNodes,
+  readClipboardText,
+} from './static/js/ui/importer.js';
 
 const routes = [
   {
@@ -38,6 +42,30 @@ test('blank project route filter keeps the backend order', () => {
 
 test('project node filter separates assertions and searches by zone', () => {
   assert.deepEqual(filterProjectNodes(routes, 'wuling_base', 'assert'), [routes[2]]);
+});
+
+test('A* import resolves target tiers and keeps only the first navmesh geometry', () => {
+  const zoneIds = { Base: 1, Tier: 2, Other: 3 };
+  const result = collectAstarImportBasePoints(
+    [
+      { x: 10, y: 20, zone: 'Base', target_tier: 'Tier' },
+      { x: 30, y: 40, zone: 'Base' },
+      { x: 50, y: 60, zone: 'Other' },
+      { x: 70, y: 80, zone: 'Missing' },
+    ],
+    (zone) => zoneIds[zone] ?? Number.NaN,
+    (zoneId) => (zoneId === 2 ? 1 : zoneId),
+    (zoneId, x, y) => (zoneId === 2 ? [x + 100, y + 200] : [x, y]),
+  );
+
+  assert.deepEqual(result, {
+    firstZoneId: 2,
+    basePoints: [
+      [110, 220],
+      [30, 40],
+    ],
+    skipped: 2,
+  });
 });
 
 test('clipboard reader returns the current JSON text unchanged', async () => {

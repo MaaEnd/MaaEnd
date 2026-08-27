@@ -47,7 +47,7 @@ import {nextWheelSelectIndex} from "./ui/select.js";
 import {ConnectionPanel} from "./ui/connection.js";
 import {RecordingController} from "./ui/recording.js";
 import {NavTestController} from "./ui/navtest.js";
-import {Importer} from "./ui/importer.js";
+import {collectAstarImportBasePoints, Importer} from "./ui/importer.js";
 import {PositionReadout} from "./ui/position.js";
 import {
     getZones,
@@ -4566,12 +4566,12 @@ class MapNavigatorApp {
     /**
      * {@link Importer} parsed a path import.
      * - EDIT / Assert: the points become the real route (Assert draws them read-only).
-     * - A*: it holds no route, only target marks — the coordinates become preview points.
+     * - A*: imported coordinates become A* waypoints and are planned immediately.
      * @param {object[]} points
      * @returns {{text?:string, color?:string}|void} a status lead-in replacing the importer's default
      */
     _importLoadPoints(points) {
-        if (this.state.mode === Mode.ASTAR) return this._importAsAstarHints(points);
+        if (this.state.mode === Mode.ASTAR) return this._importAsAstarRoute(points);
 
         this.state.setPoints(points);
         this.state.clearSelection();
@@ -4591,41 +4591,63 @@ class MapNavigatorApp {
     }
 
     /**
-     * A* import: mark every imported coordinate as a preview point (base px), after
-     * switching the display frame to the route's own map. The editor's route is left alone.
+     * A* import: convert every coordinate on the first navmesh geometry into the selected
+     * display frame. Two or more become waypoints and are planned immediately; a lone
+     * coordinate remains a copyable target hint because there is no start to plan from.
+     * The editor's real route remains untouched.
      * @param {object[]} points
      * @returns {{text?:string, color?:string}|void} the status lead-in
      */
-    _importAsAstarHints(points) {
+    _importAsAstarRoute(points) {
         if (!this.field || !points.length) return;
 
-        const zoneIds = points.map((point) => this._resolveZoneId(point.zone));
-        const firstZoneId = zoneIds.find((id) => !Number.isNaN(id));
-        if (firstZoneId === undefined) return this._noNavmeshBasemapNote(points, "A* 模式无法标点");
+        const imported = collectAstarImportBasePoints(
+            points,
+            (zone) => this._resolveZoneId(zone),
+            (zoneId) => this.field.geometryZoneId(zoneId),
+            (zoneId, x, y) => this._pointToBase(zoneId, x, y),
+        );
+        if (imported.firstZoneId === null) return this._noNavmeshBasemapNote(points, "A* 模式无法规划这些点");
 
-        // Resets the A* view state (drops the previous marks), so it must run before marking.
-        if (this._selectDisplayZoneById(firstZoneId)) this._onAstarZoneChanged(false);
+        // The zone switch clears A* state, so it must happen before installing imported waypoints.
+        if (!this._selectDisplayZoneById(imported.firstZoneId))
+            return this._noNavmeshBasemapNote(points, "A* 模式无法规划这些点");
+        this._onAstarZoneChanged(false);
 
-        const displayGeomId = this.field.geometryZoneId(firstZoneId);
-        let skipped = 0;
-        points.forEach((point, i) => {
-            const zoneId = zoneIds[i];
-            if (Number.isNaN(zoneId) || this.field.geometryZoneId(zoneId) !== displayGeomId) {
-                skipped += 1;
-                return;
-            }
+        const displayPoints = imported.basePoints.map(([x, y]) => this._baseToDisplay(x, y));
+        const importedCount = displayPoints.length;
+        const skippedNote = imported.skipped ? `，${imported.skipped} 个点不属于当前底图，已跳过` : "";
+        if (importedCount === 0) {
+            return {
+                text: `没有可用于 A* 规划的坐标${skippedNote}`,
+                color: "#f59e0b",
+            };
+        }
+        if (importedCount === 1) {
             const [
                 bx,
                 by,
-            ] = this._pointToBase(zoneId, point.x, point.y);
-            this._addAstarHint(bx, by, String(i + 1));
-        });
-        this._focusAstarHints();
+            ] = imported.basePoints[0];
+            this._addAstarHint(bx, by, "1");
+            this._fitDisplayPoints(displayPoints.map(([x, y]) => ({x, y})));
+            return {
+                text: `已导入 1 个目标预览点；缺少起点，无法规划路线${skippedNote}`,
+                color: "#f59e0b",
+            };
+        }
 
-        const marked = this.astarLocateHints.length;
-        if (skipped)
-            return {text: `已在 A* 模式标出 ${marked} 个预览点，${skipped} 个点属于其它底图，已跳过`, color: "#f59e0b"};
-        return {text: `已在 A* 模式标出 ${marked} 个预览点`};
+        this.astarPoints = displayPoints;
+        this.astarDecks = this.astarPoints.map(() => null);
+        this.astarRoute = null;
+        this.astarLocateHints = [];
+        this._astarRouteChanged();
+        this._fitDisplayPoints(this.astarPoints.map(([x, y]) => ({x, y})));
+
+        this._calculateAstarPreview();
+        return {
+            text: `已导入 ${importedCount} 个 A* 关键点，正在规划相邻点间的路线${skippedNote}`,
+            color: "#eab308",
+        };
     }
 
     /**
