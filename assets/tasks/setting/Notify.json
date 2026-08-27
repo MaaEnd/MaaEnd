@@ -16,7 +16,6 @@
                 "NotifyGotify",
                 "NotifyDingTalk",
                 "NotifyProxy",
-                "NotifyAllowTask",
                 "NotifyFail"
             ]
         }
@@ -32,7 +31,6 @@
         "NotifyGotify",
         "NotifyDingTalk",
         "NotifyProxy",
-        "NotifyAllowTask",
         "NotifyFail"
     ],
     "option": {
@@ -319,42 +317,6 @@
                     }
                 }
             }
-        },
-        "NotifyAllowTask": {
-            "type": "switch",
-            "label": "$option.NotifyAllowTask.label",
-            "description": "$option.NotifyAllowTask.description",
-            "default_case": "Yes",
-            "cases": [
-                {
-                    "name": "Yes",
-                    "option": [
-                        "NotifyItemsHelp"
-                    ],
-                    "pipeline_override": {
-                        "__NotifyConfig": {
-                            "attach": {
-                                "allow_task_notify": true
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "No",
-                    "pipeline_override": {
-                        "__NotifyConfig": {
-                            "attach": {
-                                "allow_task_notify": false
-                            }
-                        }
-                    }
-                }
-            ]
-        },
-        "NotifyItemsHelp": {
-            "type": "checkbox",
-            "label": "$option.NotifyItemsHelp.label",
-            "cases": []
         },
         "NotifyFail": {
             "type": "switch",

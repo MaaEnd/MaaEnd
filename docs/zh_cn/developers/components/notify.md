@@ -2,91 +2,11 @@
 
 Notify 是 MaaEnd 的多渠道外部通知模块
 
-任务失败、以及任意任务主动发起的自定义通知，统一向设置页启用的渠道（Webhook / Bark / ServerChan / Telegram / Discord / 企业微信 / ntfy / Gotify / 钉钉 / 可新增其他渠道）推送
+任务失败时，统一向设置页启用的渠道（Webhook / Bark / ServerChan / Telegram / Discord / 企业微信 / ntfy / Gotify / 钉钉 / 可新增其他渠道）推送通知
 
 流程编排由 Pipeline 负责，Go 只负责开关判定、内容解析与渠道发送
 
 实现位置：`agent/go-service/common/notify/`
-
-## 触发方式一览
-
-| 触发方式 | 谁触发 | 需要配置 |
-| --- | --- | --- |
-| **全局任务失败通知** | 框架任务失败事件自动触发（`Sink`） | 设置页开启「任务失败通知」 |
-| **自定义通知** | 任意任务的任意节点声明 `NotifySendAction` 动作 | 节点 attach 写内容；可选设置页通知项开关 |
-
-两种最终都汇入同一个 `Send()` 调度，并向设置页启用的所有渠道推送
-
-## 自定义通知：第三方任务接入
-
-其他任务想主动发通知（如月卡到期、调查问卷出现），只需在节点上声明动作 + attach 内容：
-
-```json
-{
-    "识别月卡到期": {
-        "recognition": "OCR",
-        "expected": ["月卡已过期"],
-        "action": "Custom",
-        "custom_action": "NotifySendAction",
-        "attach": {
-            "task_title": "$notify.monthly_card.expired", // 第三方 attach 支持 $ i18n：key 必须写入 assets/locales/go-service/*.json（补 5 语言），查不到翻译则显示去掉 $ 的 key
-            "task_body": "请及时续费",                     // 普通文本原样发送
-            "task_notify_key": "monthly_card"             // 通知项 ID（可选，用于独立开关）
-        }
-    }
-}
-```
-
-任务只需在 **合适的时机** 执行该节点，后续开关判定、内容解析、渠道发送全部自动，无需任何 Go 代码
-
-### attach 参数
-
-| 字段 | 说明 |
-| --- | --- |
-| `task_title` / `task_body` | 标题/正文模板，支持模板变量（见下）。**第三方节点 attach 编写的值**以 `$` 开头时视为 i18n key，**必须使用 `assets/locales/go-service/*.json` 存储翻译**（不要放 interface），查到翻译则用翻译，查不到则显示去掉 `$` 的 key 本身；**玩家在设置页填写的值**为普通文本，不解析 `$` |
-| `task_notify_key` | 通知项 ID，**可选，推荐**：不写则不受通知项开关影响（默认启用）；写了需另外配置设置页独立开关 |
-
-> [!note]
-> **`$` i18n 翻译存放位置（强制约定）**：`task_title` / `task_body` 中以 `$` 开头的 i18n key（如 `$notify.monthly_card.expired`），翻译**必须写入 `assets/locales/go-service/*.json`**，并补齐 5 语言。不要写入 `assets/locales/interface/*.json`——interface 目录仅用于界面文案（任务名 `$task.*.label`、设置项 `$option.*.*`）。key 查不到翻译时显示去掉 `$` 的 key 本身
-
-### 设置页加通知项开关（可选）
-
-想让用户能单独关闭你的通知项，在 `assets/tasks/setting/Notify.json` 中按以下三步添加开关：
-
-**1、把开关名加入 `NotifyAllowTask` 的 Yes case `option` 数组**（`NotifyAllowTask` 即「允许任务发送自定义通知」总开关；它的 Yes case 里的 `option` 数组目前只有 `"NotifyItemsHelp"`，把你的开关名追加进去）：
-
-```json
-"option": [
-    "NotifyItemsHelp",
-    "NotifyItemMonthlyCard"
-]
-```
-
-**2、在 `NotifyAllowTask` option 定义之后、顶层 `option` 对象内（与 `NotifyFail` 等平级）补完整定义**——键名必须与第 1 步数组里的名字一致（本例 `NotifyItemMonthlyCard`）：
-
-```json
-"NotifyItemMonthlyCard": {
-    "type": "switch",
-    "label": "$option.NotifyItemMonthlyCard.label",
-    "description": "$option.NotifyItemMonthlyCard.description",
-    "default_case": "Yes",
-    "cases": [
-        {
-            "name": "Yes",
-            "pipeline_override": { "__NotifyConfig": { "attach": { "task_notify.monthly_card": true } } }
-        },
-        {
-            "name": "No",
-            "pipeline_override": { "__NotifyConfig": { "attach": { "task_notify.monthly_card": false } } }
-        }
-    ]
-}
-```
-
-**3、补 i18n**：5 语言 `assets/locales/interface/*.json` 加 `option.NotifyItemMonthlyCard.{label, description}`
-
-> [!note]
-> 未配置开关的通知项默认启用，每个通知项各占一个独立的 `task_notify.<id>` 键（如 `task_notify.monthly_card`），设置页多个开关各写各的键、互不影响；不要把多个开关塞进同一个键里，不然后写的会把先写的盖掉
 
 ## 模板变量
 
@@ -145,22 +65,7 @@ func (c xyzChannel) Send(ctx *SendContext) error {
 
 > 渠道内只管自己的配置与请求；代理（`ctx.Client`）、模板变量（`ctx.Vars`）、标题/正文拼合（`channelTitleBody`）都由调度层与公共模块提供
 
-全部完成后 `Send()` 自动遍历注册表调用新渠道，失败通知 / 第三方自定义通知 **全部自动生效，无需改动调度与触发代码**
-
-## 调用逻辑（Go 自动判定）
-
-```
-自定义任务调 NotifySendAction
-        ↓ GO 自动判断
-1  读 __NotifyConfig 所有开关状态
-2  读当前节点 attach
-3  总开关判断：allow_task_notify 为 false 则跳过
-4  通知项判断：task_notify.<task_notify_key> 为 false 则跳过
-5  内容解析：第三方 attach 以 $ 开头的值查 i18n 翻译，查到用翻译、查不到显示去掉 $ 的 key；玩家 UI 与普通文本原样（再做模板变量替换）
-6  Send() 向 __NotifyConfig 读到的已启用渠道推送
-```
-
-通知发送失败不影响游戏流程（动作始终返回成功）
+全部完成后 `Send()` 自动遍历注册表调用新渠道，失败通知 **自动生效，无需改动调度与触发代码**
 
 ## 富文本（Markdown）支持
 
@@ -177,8 +82,8 @@ Go 层**不做任何 markdown 解析/转义/渲染**，正文一律按纯文本�
 
 | 文件 | 职责 |
 | --- | --- |
-| `notify.go` | 调度层：`ParseConfig`、`Send`（代理解析 + 遍历注册表分发）、`NotifySendAction`、`resolveTitleBody`/`resolveNotifyText`（第三方 attach 的 `$` i18n 解析）、`taskNotifySkipped`（通知项开关判断） |
-| `config.go` | 运行配置：`GlobalConfig`（系统开关 + 标题正文模板 + 全局代理）、`RuntimeConfig`、`decodeAttach`、`MergeAttach` |
+| `notify.go` | 调度层：`ParseConfig`、`Send`（代理解析 + 遍历注册表分发） |
+| `config.go` | 运行配置：`GlobalConfig`（失败通知开关与模板 + 全局代理）、`RuntimeConfig`、`decodeAttach` |
 | `channel.go` | `Channel` / `ChannelFactory` 接口 + `SendContext` + 注册表 |
 | `helper_vars.go` | 模板变量模块：`BuildVars` / `ReplaceVars` / `channelTitleBody` |
 | `helper_length.go` | 内容长度截断辅助（`truncateRunes` / `truncateBytes`） |
@@ -186,5 +91,4 @@ Go 层**不做任何 markdown 解析/转义/渲染**，正文一律按纯文本�
 | `helper_proxy.go` | 全局代理模块：`resolveProxy`、`proxyClient`（http/https/socks5）、MXU 更新代理读取 |
 | `channel_webhook.go` / `channel_bark.go` / `channel_serverchan.go` / `channel_telegram.go` / `channel_discord.go` / `channel_wecom.go` / `channel_ntfy.go` / `channel_gotify.go` / `channel_dingtalk.go` | 各渠道实现 |
 | `sink.go` | 失败事件监听、配置按 taskID 缓存与去重 |
-| `taskname.go` | `{{task_name}}` 显示名解析（扫描任务定义建立 entry→label 映射） |
-| `register.go` | 动作与事件监听注册 |
+| `taskname.go` | `{{task_name}}` 显示名解析（扫描任务定义建立 entry→label 映射） || `register.go` | 动作与事件监听注册 |

@@ -15,12 +15,11 @@ import (
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 )
 
-// testRuntime 从 attach map 构造 RuntimeConfig（解析 GlobalConfig + 通知项开关）。
+// testRuntime 从 attach map 构造 RuntimeConfig（解析 GlobalConfig）。
 func testRuntime(attach map[string]any) RuntimeConfig {
 	r := RuntimeConfig{Attach: attach}
 	if attach != nil {
 		_ = decodeAttach(attach, &r.Global)
-		r.Global.TaskNotifyToggles = parseTaskNotifyToggles(attach)
 	}
 	return r
 }
@@ -58,12 +57,7 @@ func TestParseConfig(t *testing.T) {
 			"channel_serverchan_openid": "openid1",
 			"on_fail": true,
 			"fail_title": "任务失败",
-			"fail_body": "任务 {{task_name}} 失败于 {{datetime}}",
-			"task_title": "通知标题",
-			"task_body": "通知正文",
-			"task_notify_key": "monthly_card",
-			"task_notify.monthly_card": false,
-			"task_notify.survey": true
+			"fail_body": "任务 {{task_name}} 失败于 {{datetime}}"
 		}
 	}`
 	runtime, err := ParseConfig(nodeJSON)
@@ -74,18 +68,6 @@ func TestParseConfig(t *testing.T) {
 	g := runtime.Global
 	if !g.OnFail || g.FailTitle != "任务失败" || !strings.Contains(g.FailBody, "{{task_name}}") {
 		t.Errorf("fail notify parse mismatch: %+v", g)
-	}
-	if g.TaskTitle != "通知标题" || g.TaskBody != "通知正文" {
-		t.Errorf("task template parse mismatch: %+v", g)
-	}
-	if g.TaskNotifyKey != "monthly_card" {
-		t.Errorf("task_notify_key mismatch: %+v", g)
-	}
-	if v, ok := g.TaskNotifyToggles["monthly_card"]; !ok || v {
-		t.Errorf("task_notify.monthly_card toggle mismatch: %+v", g.TaskNotifyToggles)
-	}
-	if v, ok := g.TaskNotifyToggles["survey"]; !ok || !v {
-		t.Errorf("task_notify.survey toggle mismatch: %+v", g.TaskNotifyToggles)
 	}
 	// 渠道级配置各自 Create 解析（互不耦合）
 	wch, err := (webhookChannel{}).Create(runtime.Attach)
@@ -918,143 +900,6 @@ func TestSanitizeError(t *testing.T) {
 	}
 }
 
-func TestMergeAttach(t *testing.T) {
-	global := map[string]any{
-		"channel_webhook_enabled": true, "channel_bark_enabled": true, "channel_serverchan_enabled": true,
-		"task_title": "全局标题", "task_body": "全局正文",
-	}
-	local := map[string]any{"task_title": "本地标题", "task_notify_key": "monthly_card"}
-
-	merged := MergeAttach(global, local)
-	// 渠道字段以全局为准
-	if merged["channel_webhook_enabled"] != true || merged["channel_bark_enabled"] != true || merged["channel_serverchan_enabled"] != true {
-		t.Errorf("channel fields should come from global: %+v", merged)
-	}
-	// 内容字段调用节点优先
-	if merged["task_title"] != "本地标题" {
-		t.Errorf("content should prefer local: %+v", merged)
-	}
-	// 通知项 ID 本地优先
-	if merged["task_notify_key"] != "monthly_card" {
-		t.Errorf("task_notify_key should prefer local: %+v", merged)
-	}
-	// 本地未写的字段回退全局
-	if merged["task_body"] != "全局正文" {
-		t.Errorf("content should fall back to global: %+v", merged)
-	}
-
-	// 本地内容全空：不覆盖全局
-	merged2 := MergeAttach(global, map[string]any{})
-	if merged2["task_title"] != "全局标题" {
-		t.Errorf("empty local should not override global: %+v", merged2)
-	}
-}
-
-func TestContainsContent(t *testing.T) {
-	if ContainsContent(nil) {
-		t.Errorf("nil attach should have no content")
-	}
-	if ContainsContent(map[string]any{}) {
-		t.Errorf("empty attach should have no content")
-	}
-	if !ContainsContent(map[string]any{"task_title": "x"}) {
-		t.Errorf("task_title should count as content")
-	}
-	if ContainsContent(map[string]any{"channel_webhook_enabled": true}) {
-		t.Errorf("channel-only attach should have no content")
-	}
-}
-
-func TestTaskNotifySkipped(t *testing.T) {
-	// 未声明 task_notify_key：不判断，发送
-	if taskNotifySkipped(GlobalConfig{TaskNotifyToggles: map[string]bool{"monthly_card": false}}) {
-		t.Errorf("no key should not skip")
-	}
-	// 声明了 key 但设置页未配置：默认启用，发送
-	if taskNotifySkipped(GlobalConfig{TaskNotifyKey: "monthly_card"}) {
-		t.Errorf("unconfigured item should default to enabled")
-	}
-	if taskNotifySkipped(GlobalConfig{TaskNotifyKey: "monthly_card", TaskNotifyToggles: map[string]bool{}}) {
-		t.Errorf("empty toggles should default to enabled")
-	}
-	// 设置页显式启用：发送
-	if taskNotifySkipped(GlobalConfig{TaskNotifyKey: "monthly_card", TaskNotifyToggles: map[string]bool{"monthly_card": true}}) {
-		t.Errorf("enabled item should not skip")
-	}
-	// 设置页显式关闭：跳过
-	if !taskNotifySkipped(GlobalConfig{TaskNotifyKey: "monthly_card", TaskNotifyToggles: map[string]bool{"monthly_card": false}}) {
-		t.Errorf("disabled item should skip")
-	}
-	// 其他通知项开关不影响本通知项
-	if taskNotifySkipped(GlobalConfig{TaskNotifyKey: "monthly_card", TaskNotifyToggles: map[string]bool{"survey": false}}) {
-		t.Errorf("other item toggle should not affect this item")
-	}
-}
-
-func TestResolveNotifyText(t *testing.T) {
-	i18n.Init() // 幂等；首次以 zh_cn 初始化，使 notify.default_title 等翻译可用
-	vars := map[string]string{"task_name": "T"}
-	// 普通文本 → 原样 + 变量替换
-	if got := resolveNotifyText("任务 {{task_name}}", vars); got != "任务 T" {
-		t.Errorf("plain text = %q, want 任务 T", got)
-	}
-	// "$" 开头且查到翻译 → 用翻译 + 变量替换
-	if got := resolveNotifyText("$notify.default_title", vars); got != "MaaEnd 通知" {
-		t.Errorf("i18n found = %q, want MaaEnd 通知", got)
-	}
-	// "$" 开头但查不到翻译 → 显示去掉 $ 的 key 本身（与 i18n.T 回退一致）
-	if got := resolveNotifyText("$notify.no_such_key_xyz", vars); got != "notify.no_such_key_xyz" {
-		t.Errorf("i18n missing = %q, want notify.no_such_key_xyz", got)
-	}
-	// 翻译值本身含模板变量 → 变量替换（notify.default_body 含 {{datetime}}，构造缺失时回退 key）
-	if got := resolveNotifyText("$notify.no_such_key_{{task_name}}", vars); got != "notify.no_such_key_T" {
-		t.Errorf("i18n missing with vars = %q, want notify.no_such_key_T", got)
-	}
-	// 空串 → 空串（由 Send 的 prefill 兜底默认标题）
-	if got := resolveNotifyText("", vars); got != "" {
-		t.Errorf("empty = %q, want empty", got)
-	}
-	// 单独一个 $ → key 为空串，回退空串
-	if got := resolveNotifyText("$", vars); got != "" {
-		t.Errorf("bare dollar = %q, want empty", got)
-	}
-}
-
-func TestResolveTitleBody(t *testing.T) {
-	i18n.Init() // 幂等；使 notify.default_title 等翻译可用
-	vars := map[string]string{"task_name": "T"}
-
-	// 玩家 UI（第三方 attach 未提供内容）填的标题/正文：即使以 $ 开头也原样保留，
-	// 不查 i18n、不剥 $、不替换变量（$ 仅对第三方节点 attach 生效）
-	if title, body := resolveTitleBody("$notify.default_title", "$5 体力 {{task_name}}", map[string]any{}, vars); title != "$notify.default_title" || body != "$5 体力 {{task_name}}" {
-		t.Errorf("player UI = (%q, %q), want ($notify.default_title, $5 体力 {{task_name}})", title, body)
-	}
-
-	// 第三方 attach 仅提供标题（$ i18n 命中）→ 解析；正文沿用全局
-	local := map[string]any{"task_title": "$notify.default_title"}
-	if title, body := resolveTitleBody("全局标题", "全局正文", local, vars); title != "MaaEnd 通知" || body != "全局正文" {
-		t.Errorf("local title only = (%q, %q), want (MaaEnd 通知, 全局正文)", title, body)
-	}
-
-	// 第三方 attach 仅提供正文（$ i18n 查不到 → 回退去掉 $ 的字面量）→ 解析；标题沿用全局
-	local = map[string]any{"task_body": "$notify.no_such_key"}
-	if title, body := resolveTitleBody("全局标题", "全局正文", local, vars); title != "全局标题" || body != "notify.no_such_key" {
-		t.Errorf("local body only = (%q, %q), want (全局标题, notify.no_such_key)", title, body)
-	}
-
-	// 第三方 attach 标题/正文都提供，正文含模板变量
-	local = map[string]any{"task_title": "$notify.default_title", "task_body": "任务 {{task_name}} 到期"}
-	if title, body := resolveTitleBody("全局标题", "全局正文", local, vars); title != "MaaEnd 通知" || body != "任务 T 到期" {
-		t.Errorf("local both = (%q, %q), want (MaaEnd 通知, 任务 T 到期)", title, body)
-	}
-
-	// 第三方 attach 提供空串 → 视为未提供，沿用全局
-	local = map[string]any{"task_title": ""}
-	if title, body := resolveTitleBody("全局标题", "全局正文", local, vars); title != "全局标题" || body != "全局正文" {
-		t.Errorf("local empty = (%q, %q), want (全局标题, 全局正文)", title, body)
-	}
-}
-
 func TestReplaceVarsSelfReference(t *testing.T) {
 	// 纯自引用（{{title}} 的值就是 {{title}}）：第 1 轮即收敛，返回原样，不死循环
 	vars := map[string]string{"title": "{{title}}"}
@@ -1078,55 +923,5 @@ func TestReplaceVarsExplosion(t *testing.T) {
 	got := ReplaceVars("{{title}}", vars)
 	if len(got) != maxTemplateLen {
 		t.Errorf("exploded length = %d, want truncated to %d", len(got), maxTemplateLen)
-	}
-}
-
-func TestResolveActionTaskName(t *testing.T) {
-	i18n.Init() // 幂等；使 task.*.label 翻译可用
-	getEntryOK := func(int64) string { return "AccountSwitchStart" }
-	getEntryEmpty := func(int64) string { return "" } // GetTaskDetail 取不到 entry（node_ids 为空）
-
-	// 反查成功：用入口名解析显示名
-	if got := resolveActionTaskName(200000001, "NotifySend", getEntryOK); got != "🔑自动切换账号" {
-		t.Errorf("entry resolved = %q, want 🔑自动切换账号", got)
-	}
-	// 反查取不到 entry：回退当前节点名解析（入口节点名即入口名）
-	if got := resolveActionTaskName(200000001, "AccountSwitchStart", getEntryEmpty); got != "🔑自动切换账号" {
-		t.Errorf("current-task-name fallback = %q, want 🔑自动切换账号", got)
-	}
-	// 反查取不到且节点名不在任务映射：原样返回
-	if got := resolveActionTaskName(200000001, "SomeCustomNode", getEntryEmpty); got != "SomeCustomNode" {
-		t.Errorf("unknown node fallback = %q, want SomeCustomNode", got)
-	}
-	// taskID 无效：直接用当前节点名解析
-	if got := resolveActionTaskName(0, "AccountSwitchStart", getEntryOK); got != "🔑自动切换账号" {
-		t.Errorf("no task id = %q, want 🔑自动切换账号", got)
-	}
-}
-
-func TestParseConfigAllowTaskNotify(t *testing.T) {
-	// 未配置 → nil（默认允许）
-	runtime, err := ParseConfig(`{"attach": {"channel_webhook_enabled": true}}`)
-	if err != nil {
-		t.Fatalf("ParseConfig failed: %v", err)
-	}
-	if runtime.Global.AllowTaskNotify != nil {
-		t.Errorf("unset allow_task_notify should be nil, got %v", *runtime.Global.AllowTaskNotify)
-	}
-	// 显式 false → 关闭自定义通知
-	runtime, err = ParseConfig(`{"attach": {"allow_task_notify": false}}`)
-	if err != nil {
-		t.Fatalf("ParseConfig failed: %v", err)
-	}
-	if runtime.Global.AllowTaskNotify == nil || *runtime.Global.AllowTaskNotify {
-		t.Errorf("allow_task_notify=false should parse to false, got %v", runtime.Global.AllowTaskNotify)
-	}
-	// 显式 true → 允许
-	runtime, err = ParseConfig(`{"attach": {"allow_task_notify": true}}`)
-	if err != nil {
-		t.Fatalf("ParseConfig failed: %v", err)
-	}
-	if runtime.Global.AllowTaskNotify == nil || !*runtime.Global.AllowTaskNotify {
-		t.Errorf("allow_task_notify=true should parse to true, got %v", runtime.Global.AllowTaskNotify)
 	}
 }

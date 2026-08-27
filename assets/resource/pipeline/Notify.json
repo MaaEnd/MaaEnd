@@ -96,9 +96,7 @@
             "proxy_url": "",
             "on_fail": false,
             "fail_title": "",
-            "fail_body": "",
-            "task_title": "",
-            "task_body": ""
+            "fail_body": ""
         }
     }
 }

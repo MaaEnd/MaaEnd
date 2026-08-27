@@ -1,6 +1,6 @@
 # Notify
 
-多渠道通知 Go Service：任务失败、以及任意任务主动发起的自定义通知，统一向设置页启用的渠道（Webhook / Bark / ServerChan / Telegram / Discord / 企业微信 / ntfy / Gotify / 钉钉 / 可新增其他渠道）推送。开关判定、内容解析与渠道发送由本包负责，触发时机与流程由 Pipeline 控制。
+多渠道通知 Go Service：任务失败时统一向设置页启用的渠道（Webhook / Bark / ServerChan / Telegram / Discord / 企业微信 / ntfy / Gotify / 钉钉 / 可新增其他渠道）推送。开关判定、内容解析与渠道发送由本包负责，触发时机与流程由 Pipeline 控制。
 
 完整接入说明见 `docs/zh_cn/developers/components/notify.md`
 
@@ -10,8 +10,8 @@
 
 | 文件 | 职责 |
 | -------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| `notify.go` | 调度层：`ParseConfig`（解析运行配置）、`Send`（统一解析代理→遍历注册表分发）、`NotifySendAction` 自定义动作、`resolveTitleBody`/`resolveNotifyText`（仅第三方 attach 的 `$` i18n 解析）、`taskNotifySkipped`（通知项开关判断） |
-| `config.go` | 运行配置：`GlobalConfig`（系统开关 on_fail/allow_task_notify/task_notify.* + 标题正文模板 + 全局代理）、`RuntimeConfig`（全局 + 原始 attach 供渠道工厂 Create）、`decodeAttach`（attach → 结构体，未知键忽略）、`MergeAttach`（节点内容覆盖全局内容） |
+| `notify.go` | 调度层：`ParseConfig`（解析运行配置）、`Send`（统一解析代理→遍历注册表分发） |
+| `config.go` | 运行配置：`GlobalConfig`（系统开关 on_fail + 失败通知模板 + 全局代理）、`RuntimeConfig`（全局 + 原始 attach 供渠道工厂 Create）、`decodeAttach`（attach → 结构体，未知键忽略） |
 | `channel.go` | `Channel` 接口（`Enabled` / `UseProxy` / `Send`）+ `ChannelFactory` 接口（`Name` / `Create`）+ `SendContext` + 注册表（`RegisterChannel`，渠道文件 `init` 注册零值工厂一行） |
 | `helper_vars.go` | 模板变量模块：`BuildVars` / `ReplaceVars` / `channelTitleBody` / `firstNonEmpty` / `addIfPresent` |
 | `helper_length.go` | 内容长度截断辅助：`truncateRunes`（按字符）/ `truncateBytes`（按字节、UTF-8 边界回退） |
@@ -28,7 +28,7 @@
 | `channel_dingtalk.go` | 渠道模块：钉钉群机器人，`errcode` 校验、text/markdown 标题+正文拼合，可选加签（HMAC-SHA256 sign）与 @所有人；响应解析 `errcode==0` |
 | `sink.go` | 事件监听：`ConfigSink`（节点事件缓存配置，按 taskID 隔离）、`Sink`（任务失败事件发通知，按 taskID 去重、失败后清理缓存）、`controllerStartTime`（`{{duration}}` 起点）、`splitList` |
 | `taskname.go` | `{{task_name}}` 显示名解析：扫描 `tasks/*.json` 建立 `entry → i18n label` 映射（`sync.Once` 缓存），`resolveTaskName` 解析失败回退入口名 |
-| `register.go` | `Register()`：注册 `NotifySendAction` 动作 + `Sink` / `ConfigSink` 事件监听，供上层 `go-service` 统一加载 |
+| `register.go` | `Register()`：注册 `Sink` / `ConfigSink` 事件监听，供上层 `go-service` 统一加载 |
 
 ## 测试
 
@@ -104,9 +104,9 @@ func (c xyzChannel) Send(ctx *SendContext) error {
 
 ## 关键机制
 
-1. **统一调度 + 渠道解耦**：`Send()` 遍历注册表，向所有启用渠道推送；渠道 = 自包含模块（私有配置 + 工厂 Create + Enabled/Send），不依赖其他渠道、不感知代理与通知项内容解析，配置是实例的类型化字段（无 `any`、无断言）
-2. **attach 顶层键合并**：所有配置经 `__NotifyConfig.attach` 顶层键注入，多个设置项各写各的键互不覆盖（通知项开关用 `task_notify.<id>` 前缀平铺键）
+1. **统一调度 + 渠道解耦**：`Send()` 遍历注册表，向所有启用渠道推送；渠道 = 自包含模块（私有配置 + 工厂 Create + Enabled/Send），不依赖其他渠道、不感知代理与内容解析，配置是实例的类型化字段（无 `any`、无断言）
+2. **attach 顶层键合并**：所有配置经 `__NotifyConfig.attach` 顶层键注入，多个设置项各写各的键互不覆盖
 3. **两级代理**：代理是系统级配置（`use_proxy` 主开关 + `use_update_proxy` / `proxy_url` 地址），`Send()` 统一解析一次；每个渠道另有独立开关（`channel_<channel>_use_proxy`，经 `Channel.UseProxy()` 声明），主开关开启且渠道开关开启时才走代理，渠道零代理代码
 4. **任务名显示名**：`{{task_name}}` 经 `resolveTaskName` 输出 i18n 显示名（如 🔑自动切换账号），从任务入口名反查任务定义；解析失败回退入口名
-5. **事件与动作分离**：失败通知走 `Sink`（事件驱动，无 Context 时用缓存配置），自定义通知走 `NotifySendAction`（动作内读 `__NotifyConfig` + 当前节点 attach 合并）
+5. **事件驱动**：失败通知走 `Sink`（事件驱动，无 Context 时用缓存配置）
 6. **富文本原则**：**Go 层不做任何 markdown 解析/转义/渲染**，正文按纯文本发送（仅按各渠道官方长度上限截断）。需要富文本的渠道一律走其原生声明机制：企微/钉钉 `msgtype=markdown`（服务端渲染）、Discord `content` / ServerChan `desp`（客户端原生渲染）、Bark 历史遗留的 `markdown` 参数由 App 端处理。

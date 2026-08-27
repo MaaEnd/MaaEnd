@@ -75,7 +75,6 @@
                 "MapTrackerMoveCompatible",
                 "MapTrackerToward",
                 "MapTrackerZipline",
-                "NotifySendAction",
                 "OCREssenceInventoryNumberAction",
                 "PipelineOverride",
                 "PipelineOverrideAction",
