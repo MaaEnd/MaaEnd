@@ -121,10 +121,13 @@ TurnCommandResult MotionController::ApplySteering(double yaw_delta_deg, int64_t 
         action_wrapper_->SetMovementStateSync(false, false, false, false, 0);
     }
 
-    // Spend a long tick on several batches rather than one, so the turn achieved per metre walked holds up as
-    // the loop slows down. The transport's own minimum spacing still bounds how many actually fit.
+    // Spend the batches on the angle the command asks for rather than on how long the tick was: metering a big
+    // about-face one batch per tick stretched it over ~1.7s, and the character walks the whole time, so the turn
+    // swept a 3.5m arc into whatever stood beside it. The ceiling still caps every tick, which is what keeps each
+    // one an observation point -- a 185 turn goes out as 90 + 90 + 5, never all at once.
     const double batch_cap = steering_profile_.max_batch_delta_deg;
-    int64_t batches = std::clamp<int64_t>(tick_gap_ms / kSteeringRateReferenceMs, 1, kSteeringMaxBatchesPerTick);
+    int64_t batches =
+        std::clamp<int64_t>(static_cast<int64_t>(std::ceil(std::abs(yaw_delta_deg) / batch_cap)), 1, kSteeringMaxBatchesPerTick);
     if (steering_profile_.min_send_interval_ms > 0) {
         batches = std::max<int64_t>(1, std::min(batches, tick_gap_ms / steering_profile_.min_send_interval_ms));
     }

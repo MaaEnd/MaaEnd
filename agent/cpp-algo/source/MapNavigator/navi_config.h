@@ -111,13 +111,16 @@ constexpr int32_t kForwardHoldFutileReassertsBeforeRecovery = 2;
 // with the loop instead of silently discarding the rate.
 constexpr uint64_t kSteeringRateMaxGapTicks = 4;
 constexpr int32_t kSteeringRateReferenceMs = 100;
-// How long a sent turn may still be owed before it is written off. Measured on device the game yaws at about
-// 100 deg/s, so a capped command needs some 300ms to land; past double that the drag was swallowed, and holding
-// the debt any longer would suppress steering against a turn that is never arriving.
+// How long a sent turn may still be owed before it is written off, past which the drag was swallowed and holding
+// the debt would suppress steering against a turn never arriving. Covers the worst observed capture-to-fix lag
+// plus the time one per-drag-capped command takes to sweep; a tick that spends several batches sweeps further,
+// so the caller adds time for the part beyond the first. Yaw rate measured on device from single-command turns.
 constexpr int64_t kSteeringPendingLifetimeMs = 600;
-// Turn batches one tick may spend. The backend's per-batch cap is a per-drag reliability limit, not a budget
-// for the whole tick: a slow loop gets fewer, longer ticks, so one batch each would shrink the turn achieved
-// per metre walked just as the lag makes more of it necessary. Bounded so a misread heading cannot spin far.
+constexpr double kYawRateDegPerSec = 320.0;
+// Turn batches one tick may spend, and so the ceiling on how far one tick turns. Spending them on the angle the
+// command asks for rather than on how long the tick was lets a reversal finish in three ticks instead of seven,
+// while the ceiling keeps every tick an observation point: a heading read wrong on one frame costs at most this
+// much before the next fix corrects it.
 constexpr int32_t kSteeringMaxBatchesPerTick = 3;
 constexpr double kSteeringHeadingChangeEpsilonDeg = 0.05;
 constexpr int32_t kPostHeadingForwardPulseMs = 270;
