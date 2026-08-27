@@ -126,7 +126,7 @@ constexpr int32_t kHeadingVerifyMaxRetries = 3;
 constexpr int32_t kHeadingTurnStepIntervalMs = 100;     // step pacing floor; raised to the backend min send interval
 constexpr double kHeadingStableReadToleranceDeg = 15.0; // two fresh reads must agree this closely to count
 constexpr int32_t kHeadingStableReadIntervalMs = 120;
-constexpr int32_t kHeadingStableReadMaxFrames = 4;      // read budget; no stable pair -> accept open-loop
+constexpr int32_t kHeadingStableReadMaxFrames = 4;      // default HEADING read budget; the caller decides its fallback
 constexpr int32_t kSerialRouteRetryDelayMs = 180;
 constexpr double kBootstrapOwnershipProjectionCorridor = 3.0;
 constexpr double kBootstrapOwnershipProjectionFrontThreshold = 0.35;
@@ -270,7 +270,9 @@ constexpr int32_t kZiplineLaunchSettleMs = 400;
 // 瞄准精度只能在按左键之前保证: 按下去人就滑走了, 半空里没有跟随层能把方向修回来。走路那套
 // 40 度容差是靠跟随层善后才敢留的, 这里不能用
 constexpr double kZiplineAimToleranceDeg = 6.0;
-constexpr int32_t kZiplineAimMaxRetries = 3;
+// 上索后的稳定等待与全部水平修正共用这个截止时间。每次只发一个后端批次并等待真实反馈，
+// 避免大角度转向在上索动画尚未结束时一次性排入多条输入。
+constexpr int32_t kZiplineAimHeadingTimeoutMs = 6000;
 // 落差够大时镜头得抬到索的仰角上才起得了滑。小地图读不到俯仰, 所以每次从地面登上滑索架后
 // 先通过 Pipeline 把镜头拉到上限, 将该硬限位记作 +90 度, 再从这个固定基准开环调整。连续滑索
 // 没有上下索动作, 直接沿用上一跳记住的俯仰。游戏的俯仰范围不对称: 仰角最多 90 度, 俯角最多 60 度。

@@ -219,32 +219,52 @@ bool ResetPitchToMaximum(const Context& ctx)
     return true;
 }
 
-// 站在架子上瞄准。水平方向闭环收进容差, 俯仰按算好的仰角开环发。转镜头不带前进脉冲: 架子上
-// 转镜头就能带动小地图朝向, 而站在架子上按前进是没验证过的输入。读不到稳定朝向就返回 false,
-// 宁可退索走路也不盲按左键——按下去就滑走了, 没有第二次机会。
+// 站在架子上瞄准。先等上索后的新定位稳定，再按后端单批上限逐步转镜头；每一步都等稳定反馈后
+// 重算剩余角度，避免拿上索前的旧朝向一次性排入整段转向。俯仰仍按算好的仰角开环发。
+// 站在架子上按前进是没验证过的输入，所以这里只转镜头；闭环超时就退索，不盲按左键起滑。
 bool AimAtLanding(const Context& ctx, const ZiplineTarget& landing, int attempt, bool reset_pitch)
 {
-    const double target_heading = NaviMath::CalcTargetRotation(ctx.position->x, ctx.position->y, landing.x, landing.y);
-    double achieved = NaviMath::NormalizeAngle(ctx.position->angle);
-    double residual = NaviMath::NormalizeAngle(target_heading - achieved);
-    for (int correction = 0; correction <= kZiplineAimMaxRetries; ++correction) {
-        if (!TurnToHeadingOnce(ctx, residual)) {
-            LogWarn << "Zipline aim: the view turn was rejected." << VAR(residual);
-            return false;
-        }
-        utils::SleepFor(kWaitAfterFirstTurnMs);
-        if (!CaptureStableHeading(ctx, &achieved)) {
-            LogWarn << "Zipline aim: no stable heading on the tower." << VAR(target_heading);
-            return false;
-        }
+    const auto started_at = std::chrono::steady_clock::now();
+    const auto deadline = started_at + std::chrono::milliseconds(kZiplineAimHeadingTimeoutMs);
+
+    double achieved = 0.0;
+    if (!CaptureStableHeadingUntil(ctx, &achieved, deadline)) {
+        LogWarn << "Zipline aim: no stable heading on the tower before the deadline." << VAR(attempt) << VAR(kZiplineAimHeadingTimeoutMs);
+        return false;
+    }
+
+    const SteeringTransportProfile profile = ctx.action_wrapper->SteeringProfile();
+    double target_heading = 0.0;
+    double residual = 0.0;
+    int turn_step = 0;
+    while (true) {
+        target_heading = NaviMath::CalcTargetRotation(ctx.position->x, ctx.position->y, landing.x, landing.y);
         residual = NaviMath::NormalizeAngle(target_heading - achieved);
         if (std::abs(residual) <= kZiplineAimToleranceDeg) {
             break;
         }
-    }
-    if (std::abs(residual) > kZiplineAimToleranceDeg) {
-        LogWarn << "Zipline aim: the heading never settled." << VAR(target_heading) << VAR(achieved) << VAR(residual);
-        return false;
+        if (std::chrono::steady_clock::now() >= deadline) {
+            LogWarn << "Zipline aim: heading correction timed out." << VAR(attempt) << VAR(turn_step) << VAR(target_heading)
+                    << VAR(achieved) << VAR(residual) << VAR(kZiplineAimHeadingTimeoutMs);
+            return false;
+        }
+
+        const double turn_delta = std::clamp(residual, -profile.max_batch_delta_deg, profile.max_batch_delta_deg);
+        LogInfo << "Zipline aim: issuing closed-loop turn step." << VAR(attempt) << VAR(turn_step) << VAR(target_heading) << VAR(achieved)
+                << VAR(residual) << VAR(turn_delta);
+        if (!TurnToHeadingOnce(ctx, turn_delta)) {
+            LogWarn << "Zipline aim: the view turn was rejected." << VAR(turn_step) << VAR(turn_delta);
+            return false;
+        }
+        ++turn_step;
+        utils::SleepFor(kWaitAfterFirstTurnMs);
+        if (!CaptureStableHeadingUntil(ctx, &achieved, deadline)) {
+            const int64_t elapsed_ms =
+                std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - started_at).count();
+            LogWarn << "Zipline aim: no stable feedback after the turn step." << VAR(attempt) << VAR(turn_step) << VAR(target_heading)
+                    << VAR(residual) << VAR(elapsed_ms);
+            return false;
+        }
     }
 
     if (reset_pitch && !ResetPitchToMaximum(ctx)) {
@@ -263,8 +283,8 @@ bool AimAtLanding(const Context& ctx, const ZiplineTarget& landing, int attempt,
         utils::SleepFor(kWaitAfterFirstTurnMs);
     }
 
-    LogInfo << "Zipline aim settled." << VAR(attempt) << VAR(target_heading) << VAR(achieved) << VAR(landing.elevation_deg)
-            << VAR(pitch_target);
+    LogInfo << "Zipline aim settled." << VAR(attempt) << VAR(turn_step) << VAR(target_heading) << VAR(achieved)
+            << VAR(landing.elevation_deg) << VAR(pitch_target);
     return true;
 }
 
