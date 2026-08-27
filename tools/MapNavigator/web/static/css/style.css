@@ -641,6 +641,39 @@ canvas {
   border-left-color: #f59e0b;
 }
 
+.log-decision-card.failure {
+  border-left-color: #ef4444;
+  background: rgba(239, 68, 68, 0.055);
+}
+
+.log-failure-title {
+  color: #fca5a5;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.log-failure-summary {
+  color: var(--text-primary);
+  margin: 2px 0;
+}
+
+.log-failure-message {
+  color: var(--text-secondary);
+  margin-top: 3px;
+  overflow-wrap: anywhere;
+}
+
+.log-failure-incident {
+  margin-top: 6px;
+  padding-top: 5px;
+  border-top: 1px solid rgba(239, 68, 68, 0.22);
+}
+
+.log-failure-incident-title {
+  color: #fbbf24;
+  font-weight: 600;
+}
+
 .log-decision-formula {
   color: var(--text-primary);
   font-family: var(--font-mono);

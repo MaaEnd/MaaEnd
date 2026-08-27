@@ -52,6 +52,7 @@ test('parses one selected zipline chain and its actual launches', () => {
   assert.equal(run.zone, 'map02base');
   assert.equal(run.zipRequested, true);
   assert.equal(run.completed, true);
+  assert.equal(run.failure, null);
   assert.deepEqual(run.authoredPoints, [
     [965.5, 1803.38],
     [724.98, 1596.8],
@@ -108,6 +109,44 @@ test('marks only reached towers as confirmed when a selected chain stops partway
     {index: 0, point: [955.5, 1777.5], height: null, confirmed: true},
     {index: 1, point: [940.5, 1699.5], height: null, confirmed: false},
     {index: 2, point: [912, 1584], height: null, confirmed: false},
+  ]);
+});
+
+test('extracts the terminal navigation reason and nearest zipline recovery event', () => {
+  const failed = [
+    lines[0],
+    '[2026-08-27 14:57:10.818][WRN][zipline_action.cpp][mapnavigator::semantic_nodes::AbandonZipline] Action: ZIPLINE given up, recovering from a fresh position. [reason=zipline_aim_failed] [detail=could not aim the view at the landing point] [dropped=16] [ctx.position->x=964.970000] [ctx.position->y=1827.190000]',
+    '[2026-08-27 14:57:42.247][INF][navigation_session.cpp][mapnavigator::NavigationSession::UpdatePhase] Phase transition. [from_phase_name=Navigate] [to_phase_name=Failed] [reason=offroute_wedge_timeout] [current_node_idx_=0] [path_origin_index_=13]',
+    '[2026-08-27 14:57:42.247][ERR][navigation_state_machine.cpp][mapnavigator::NavigationStateMachine::FailNavigation] Off-route with no route progress past the wedge timeout; terminating so the pipeline can retry. [current_distance=3.932283] [yaw_error=-130.386859] [stalled_ms=0]',
+    '[2026-08-27 14:57:42.258][INF][EventDispatcher.hpp] [msg=Node.Action.Failed] [details={"name":"AutoDeliveryRouteDestinationWithZipline"}]',
+  ];
+  const [run] = parseMapNavigatorLog(failed.join('\n'));
+
+  assert.equal(run.completed, false);
+  assert.deepEqual(run.failure, {
+    timestamp: '2026-08-27 14:57:42.247',
+    reason: 'offroute_wedge_timeout',
+    text: '偏离路线后持续没有路线进展，解卡超时',
+    fromPhase: 'Navigate',
+    currentNodeIndex: 0,
+    pathOriginIndex: 13,
+    message: 'Off-route with no route progress past the wedge timeout; terminating so the pipeline can retry.',
+    metrics: {
+      current_distance: 3.932283,
+      yaw_error: -130.386859,
+      stalled_ms: 0,
+    },
+  });
+  assert.deepEqual(run.incidents, [
+    {
+      kind: 'zipline-abandoned',
+      timestamp: '2026-08-27 14:57:10.818',
+      reason: 'zipline_aim_failed',
+      text: '滑索瞄准落点失败',
+      detail: 'could not aim the view at the landing point',
+      dropped: 16,
+      position: [964.97, 1827.19],
+    },
   ]);
 });
 

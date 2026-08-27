@@ -3351,7 +3351,15 @@ class MapNavigatorApp {
         combo.textContent = "";
         const visible = this.logRuns.filter((run) => {
             if (!query) return true;
-            return `${run.timestamp} ${run.nodeName} ${run.sourceName} ${run.zone}`.toLowerCase().includes(query);
+            const failure = run.failure
+                ? `${run.failure.reason || ""} ${run.failure.text || ""} ${run.failure.message || ""}`
+                : "";
+            const incidents = (run.incidents || [])
+                .map((incident) => `${incident.reason || ""} ${incident.text || ""} ${incident.detail || ""}`)
+                .join(" ");
+            return `${run.timestamp} ${run.nodeName} ${run.sourceName} ${run.zone} ${failure} ${incidents}`
+                .toLowerCase()
+                .includes(query);
         });
         for (const run of visible) {
             const option = document.createElement("option");
@@ -3456,6 +3464,81 @@ class MapNavigatorApp {
         this._paint();
     }
 
+    /** Render the terminal navigation reason and the nearest preceding recovery event. */
+    _renderLogFailure(host, run) {
+        if (run.completed !== false) return;
+
+        const failure = run.failure;
+        const card = document.createElement("div");
+        card.className = "log-decision-card failure";
+
+        const title = document.createElement("div");
+        title.className = "log-failure-title";
+        title.textContent = "失败原因";
+        card.appendChild(title);
+
+        const summary = document.createElement("div");
+        summary.className = "log-failure-summary";
+        summary.textContent = failure
+            ? failure.text
+            : "日志只记录了运行失败，没有找到可解析的 MapNavigator 终止原因。";
+        card.appendChild(summary);
+
+        if (failure?.reason) {
+            const reason = document.createElement("div");
+            reason.className = "log-decision-raw";
+            reason.textContent = `reason=${failure.reason}`;
+            card.appendChild(reason);
+        }
+        if (failure?.message) {
+            const message = document.createElement("div");
+            message.className = "log-failure-message";
+            message.textContent = failure.message;
+            card.appendChild(message);
+        }
+
+        const metrics = failure?.metrics ? Object.entries(failure.metrics) : [];
+        if (metrics.length) {
+            const raw = document.createElement("div");
+            raw.className = "log-decision-raw";
+            raw.textContent = metrics.map(([name, value]) => `${name}=${value}`).join(" · ");
+            card.appendChild(raw);
+        }
+
+        const incidents = run.incidents || [];
+        const incident = incidents.length ? incidents[incidents.length - 1] : null;
+        if (incident) {
+            const incidentBox = document.createElement("div");
+            incidentBox.className = "log-failure-incident";
+
+            const incidentTitle = document.createElement("div");
+            incidentTitle.className = "log-failure-incident-title";
+            incidentTitle.textContent = `最近一次恢复事件${incident.timestamp ? ` · ${incident.timestamp}` : ""}`;
+            incidentBox.appendChild(incidentTitle);
+
+            const incidentSummary = document.createElement("div");
+            incidentSummary.textContent = incident.text;
+            incidentBox.appendChild(incidentSummary);
+
+            const rawParts = [];
+            if (incident.reason) rawParts.push(`reason=${incident.reason}`);
+            if (incident.detail) rawParts.push(`detail=${incident.detail}`);
+            if (Number.isFinite(incident.dropped)) rawParts.push(`dropped=${incident.dropped}`);
+            if (Array.isArray(incident.position)) {
+                rawParts.push(`position=[${incident.position.map((value) => value.toFixed(2)).join(", ")}]`);
+            }
+            if (rawParts.length) {
+                const incidentRaw = document.createElement("div");
+                incidentRaw.className = "log-decision-raw";
+                incidentRaw.textContent = rawParts.join(" · ");
+                incidentBox.appendChild(incidentRaw);
+            }
+            card.appendChild(incidentBox);
+        }
+
+        host.appendChild(card);
+    }
+
     /** Render costs, savings, raw reason identifiers, and execution confirmation. */
     _renderLogSummary() {
         const host = this.els.logDecisionSummary;
@@ -3490,6 +3573,8 @@ class MapNavigatorApp {
             : "未关联 ZIP 滑索快照";
         facts.textContent = `${run.timestamp || "时间未知"} · ${run.zone || "区域未知"} · ${result} · ${ziplineFact} · ${observedFact} · ${recordedFact} · ${run.sourceName}`;
         host.appendChild(facts);
+
+        this._renderLogFailure(host, run);
 
         if (towerData.selected.length) {
             const towerList = document.createElement("div");

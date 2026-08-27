@@ -21,6 +21,38 @@ const REASON_TEXT = Object.freeze({
     "this zone is not calibrated": "当前区域没有滑索标定",
 });
 
+const NAVIGATION_REASON_TEXT = Object.freeze({
+    route_tail_without_final_success: "路线已经耗尽，但没有确认抵达最终目标",
+    localization_lost_timeout: "定位持续丢失，重新定位超时",
+    localization_thrash: "定位反复丢失与恢复，路线始终没有推进",
+    zipline_recovery_localization_timeout: "滑索恢复时无法获得稳定的可走面位置",
+    zipline_recovery_route_unavailable: "滑索恢复后找不到可接回的剩余路线",
+    crosstier_escape_stalled: "跨层脱困路线持续没有进展",
+    river_fall_recovery_timeout: "落水恢复持续没有进展并超时",
+    offroute_wedge_timeout: "偏离路线后持续没有路线进展，解卡超时",
+    dynamic_recovery_timeout: "动态解卡持续没有进展并超时",
+    no_progress_timeout: "导航持续没有进展并超时",
+    portal_transit_timeout: "等待区域切换超时",
+    transfer_wait_timeout: "等待传送完成超时",
+    heading_turn_failed: "调整朝向失败",
+    dig_context_missing: "缺少执行挖掘所需的 Pipeline 上下文",
+    dig_dispatch_failed: "挖掘子任务派发失败",
+});
+
+const ZIPLINE_INCIDENT_TEXT = Object.freeze({
+    zipline_target_missing: "滑索节点缺少落点",
+    zipline_no_context: "缺少识别上索提示所需的 Pipeline 上下文",
+    zipline_prompt_missing: "滑索架旁没有识别到上索提示",
+    zipline_mount_failed: "按下交互键后仍未成功登上滑索架",
+    zipline_aim_failed: "滑索瞄准落点失败",
+    zipline_ride_timeout: "滑索飞行定位超时",
+    zipline_launch_exhausted: "多次尝试后仍未从滑索架发射",
+    zipline_landed_off_target: "滑索停在了目标落点之外",
+    zipline_rode_back: "滑索误乘回上索点",
+    zipline_unreachable: "多次重规划后仍无法抵达上索点",
+    zipline_recovery_timeout: "卡在滑索架旁，解卡超时后放弃滑索链",
+});
+
 function timestampOf(line) {
     const match = /^\[([^\]]+)\]/.exec(line);
     return match ? match[1] : "";
@@ -33,6 +65,25 @@ function escapedRegex(text) {
 function valueOf(line, name) {
     const match = new RegExp(`\\[${escapedRegex(name)}=([^\\]]*)\\]`).exec(line);
     return match ? match[1] : null;
+}
+
+function messageAfter(line, marker) {
+    const markerAt = line.indexOf(marker);
+    if (markerAt < 0) return "";
+    const tail = line.slice(markerAt + marker.length).trim();
+    const fieldAt = tail.search(/\s\[[^=\]]+=/);
+    return (fieldAt < 0 ? tail : tail.slice(0, fieldAt)).trim();
+}
+
+function selectedValues(line, names) {
+    const result = {};
+    for (const name of names) {
+        const raw = valueOf(line, name);
+        if (raw === null) continue;
+        const number = Number(raw);
+        result[name] = Number.isFinite(number) ? number : raw;
+    }
+    return result;
 }
 
 function numberValue(line, name) {
@@ -152,6 +203,8 @@ function newRun(parsed, line, sourceName, index) {
         observedWalks: [],
         ziplines: [],
         decisions: [],
+        incidents: [],
+        failure: null,
         completed: null,
         _pendingWalk: null,
         _pendingPick: null,
@@ -254,6 +307,50 @@ function addWalk(run, line) {
 
 function addDecision(run, kind, line, detail = {}) {
     run.decisions.push({kind, timestamp: timestampOf(line), ...detail});
+}
+
+function addZiplineIncident(run, line) {
+    const reason = valueOf(line, "reason") || "";
+    const position = [numberValue(line, "ctx.position->x"), numberValue(line, "ctx.position->y")];
+    run.incidents.push({
+        kind: "zipline-abandoned",
+        timestamp: timestampOf(line),
+        reason,
+        text: ZIPLINE_INCIDENT_TEXT[reason] || reason || "运行时放弃了滑索链",
+        detail: valueOf(line, "detail") || "",
+        dropped: numberValue(line, "dropped"),
+        position: position.every(Number.isFinite) ? position : null,
+    });
+}
+
+function addFailureTransition(run, line) {
+    const reason = valueOf(line, "reason") || "";
+    const previous = run.failure || {};
+    run.failure = {
+        ...previous,
+        timestamp: timestampOf(line),
+        reason,
+        text: NAVIGATION_REASON_TEXT[reason] || reason || "导航运行失败",
+        fromPhase: valueOf(line, "from_phase_name") || "",
+        currentNodeIndex: numberValue(line, "current_node_idx_"),
+        pathOriginIndex: numberValue(line, "path_origin_index_"),
+        message: previous.message || "",
+        metrics: previous.metrics || {},
+    };
+}
+
+function addFailureDetail(run, line) {
+    const previous = run.failure || {};
+    run.failure = {
+        timestamp: previous.timestamp || timestampOf(line),
+        reason: previous.reason || "",
+        text: previous.text || "导航运行失败",
+        fromPhase: previous.fromPhase || "",
+        currentNodeIndex: previous.currentNodeIndex ?? null,
+        pathOriginIndex: previous.pathOriginIndex ?? null,
+        message: messageAfter(line, "FailNavigation]"),
+        metrics: selectedValues(line, ["current_distance", "yaw_error", "stalled_ms"]),
+    };
 }
 
 function rejectOrChooseWalk(run, line) {
@@ -370,7 +467,7 @@ function closeRun(run, line, succeeded) {
     run._pendingPick = null;
     run.zone ||= run._fallbackZone;
     run.endTimestamp = timestampOf(line);
-    run.completed = succeeded;
+    run.completed = succeeded === null && run.failure ? false : succeeded;
     delete run._pendingWalk;
     delete run._pendingPick;
     delete run._fallbackZone;
@@ -421,10 +518,15 @@ export function parseMapNavigatorLog(text, sourceName = "maafw.log") {
             addDecision(current, "authored-replay", line, {text: "整段直达失败，回放作者路径并逐段规划"});
         } else if (line.includes("Action: ZIPLINE launched toward the landing point.")) addLaunch(current, line);
         else if (line.includes("Action: ZIPLINE ride landed.")) addLanding(current, line);
-
-        if (line.includes("Phase transition.") && line.includes("[from_phase_name=WaitZipline]")) {
-            finishZiplineRide(current, false);
+        else if (line.includes("Action: ZIPLINE given up, recovering from a fresh position.")) {
+            addZiplineIncident(current, line);
         }
+
+        if (line.includes("Phase transition.")) {
+            if (line.includes("[from_phase_name=WaitZipline]")) finishZiplineRide(current, false);
+            if (line.includes("[to_phase_name=Failed]")) addFailureTransition(current, line);
+        }
+        if (line.includes("FailNavigation]")) addFailureDetail(current, line);
 
         const succeeded = lineBelongsToRunEnd(current, line);
         if (succeeded !== null) {
