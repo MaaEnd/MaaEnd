@@ -18,7 +18,7 @@ MapNavigator 是用于 C++ MapNavigator 模块使用的地图路径录制与编�
 - 支持为单个坐标点声明 `target_tier`；它只指定该点的坐标来源层级，不会改变 `ZONE` 或触发区域切换。
 - 默认复制 `MapNavigator` 可直接粘贴的 canonical `path`：有 zone 时写 `ZONE` 无坐标声明节点，没有 zone 时保留纯坐标点数组。
 - 支持独立的 `Assert 模式`：手动选择底图并框选矩形区域，导出 `MapLocateAssertLocation` 节点。
-- 支持 `A* 模式`：加载 BaseNav `.nav` / `.nav.gz` 后选择起点和终点，在 GUI 上显示计算路线。
+- 支持 `A* 模式`：加载 BaseNav `.nav` / `.nav.gz` 后选择起点和终点，在 GUI 上显示计算路线；在 X / Y 任一坐标框粘贴 `[x, y]` 数组可自动回填两项，再点击 `标点` 显示目标预览点。
 - 支持只读的 `日志分析` 模式：浏览器本地导入一个或多个 `cpp-algo/debug/maafw*.log`，也可直接选择 MaaEnd 的 `-partNN.zip` 独立分包；工具逐条解压 cpp-algo 日志并读取同组 `record/Ziplines.json`，在对应底图上对照路线决策、实测轨迹、本次选择的滑索架和快照中的候选滑索架。
 - 单次定位与录制期间都会显示 MapLocator 返回的实时坐标、区域和角色朝向；单次定位参考点还会在底图上绘制朝向箭头。
 

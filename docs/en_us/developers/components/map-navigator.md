@@ -44,6 +44,8 @@ No pre-recording of the route, no intermediate points, and no `zone_id` are need
 
 This form is already used in production routes such as Auto Collect and Environment Monitoring.
 
+In the GUI's A\* tab, paste a JSON coordinate pair such as `[724.98, 1596.8]` into either the X or Y field to fill both values automatically, then click **Mark Point** to show the target preview.
+
 #### Recorded: `path`
 
 When the route itself contains semantics the navigator cannot infer on its own — interacting at a certain point, passing through a map transition point, using a jump platform, or waiting for an external teleport — you need a recorded path. The accompanying GUI tool `/tools/MapNavigator` lets you walk the route once in-game to record it automatically, then fine-tune it, add actions, and copy it with one click.

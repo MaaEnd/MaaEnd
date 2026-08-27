@@ -45,6 +45,7 @@ import {compactNumber, roundHalfEven} from "./rounding.js";
 import {initFeedback, setStatus} from "./ui/toast.js";
 import {nextWheelSelectIndex} from "./ui/select.js";
 import {ConnectionPanel} from "./ui/connection.js";
+import {parsePastedCoordinatePair} from "./ui/coordinate.js";
 import {RecordingController} from "./ui/recording.js";
 import {NavTestController} from "./ui/navtest.js";
 import {collectAstarImportBasePoints, completeAstarImportWithStart, Importer} from "./ui/importer.js";
@@ -780,6 +781,7 @@ class MapNavigatorApp {
             e.astarCoordX,
             e.astarCoordY,
         ]) {
+            entry.addEventListener("paste", (ev) => this._onAstarCoordPaste(ev));
             entry.addEventListener("keydown", (ev) => {
                 if (ev.key === "Enter") this._onAstarMarkCoord();
             });
@@ -3219,6 +3221,22 @@ class MapNavigatorApp {
         this.els.astarZoneCombo.value = label;
         this.els.astarSelectedTierLabel.textContent = label;
         return true;
+    }
+
+    /**
+     * Paste in either coordinate box: a JSON `[x, y]` pair fills both boxes. Other
+     * text keeps the browser's normal single-box paste behavior.
+     * @param {ClipboardEvent} event
+     * @returns {void}
+     */
+    _onAstarCoordPaste(event) {
+        const text = event.clipboardData ? event.clipboardData.getData("text/plain") : "";
+        const pair = parsePastedCoordinatePair(text);
+        if (!pair) return;
+        event.preventDefault();
+        this.els.astarCoordX.value = String(pair[0]);
+        this.els.astarCoordY.value = String(pair[1]);
+        setStatus(`已从粘贴内容解析坐标: [${pair[0]}, ${pair[1]}]，点击「标点」即可显示。`, "#10b981");
     }
 
     /**
