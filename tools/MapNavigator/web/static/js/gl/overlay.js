@@ -211,6 +211,7 @@ export class Overlay {
         this._drawSelectedZiplineTower(camera, tower);
       }
     }
+    this._drawLogInspection(camera, log.inspection);
     this._drawLogMeasurement(camera, log.measurement);
   }
 
@@ -266,6 +267,41 @@ export class Overlay {
     }
     ctx.restore();
     this._drawLogCaption(cx, cy - 17, tower.label || '滑索架', color);
+  }
+
+  /** Highlight the point selected by the default log inspection tool. */
+  _drawLogInspection(camera, inspection) {
+    if (!inspection || !Array.isArray(inspection.point)) return;
+    const [cx, cy] = camera.worldToCanvas(inspection.point[0], inspection.point[1]);
+    const color = inspection.color || '#22d3ee';
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.setLineDash([]);
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, 14, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(0, 0, 0, 0.72)';
+    ctx.lineWidth = 6;
+    ctx.stroke();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(cx - 18, cy);
+    ctx.lineTo(cx - 9, cy);
+    ctx.moveTo(cx + 9, cy);
+    ctx.lineTo(cx + 18, cy);
+    ctx.moveTo(cx, cy - 18);
+    ctx.lineTo(cx, cy - 9);
+    ctx.moveTo(cx, cy + 9);
+    ctx.lineTo(cx, cy + 18);
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    ctx.restore();
+
+    this._drawLogCaption(cx, cy + 28, inspection.title || '点位详情', color);
   }
 
   /** A/B analysis ruler. It is dashed so it cannot be mistaken for a planned or ridden leg. */

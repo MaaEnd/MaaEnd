@@ -402,6 +402,7 @@ canvas {
   margin: 0;
 }
 
+.log-inspection-box,
 .log-distance-box {
   display: flex;
   flex-direction: column;
@@ -410,6 +411,35 @@ canvas {
   border: 1px solid var(--border-color);
   border-radius: 6px;
   background: rgba(139, 92, 246, 0.045);
+}
+
+.log-inspection-box {
+  background: rgba(34, 211, 238, 0.035);
+}
+
+.log-point-detail {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 3px 8px;
+  margin: 4px 0 0;
+}
+
+.log-inspection-selected {
+  padding-left: 7px;
+  border-left: 3px solid #22d3ee;
+}
+
+.log-point-detail dt {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.log-point-detail dd {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
 }
 
 .log-distance-header {
@@ -1213,6 +1243,12 @@ canvas {
 .btn-float:hover {
   background: rgba(255, 255, 255, 0.08);
   color: #ffffff;
+}
+
+.btn-float.active {
+  background: rgba(37, 99, 235, 0.26);
+  color: #93c5fd;
+  box-shadow: inset 0 0 0 1px rgba(96, 165, 250, 0.38);
 }
 
 .btn-float-danger {

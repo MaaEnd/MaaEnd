@@ -73,6 +73,7 @@ const LEFT_PANEL_FIT_OFFSET = 350;
 const ASTAR_HINT_FIT_PADDING = 200;
 const COPY_FORMAT_COORDINATES = "coordinates";
 const LOG_TOWER_HIT_RADIUS = 14;
+const LOG_POINT_HIT_RADIUS = 12;
 
 /** round(value, 2) with CPython banker's rounding — parity for assert-target export. */
 function bankerRound2(value) {
@@ -181,6 +182,10 @@ class MapNavigatorApp {
         this.ziplineFrameConfig = null;
         /** @type {string[]} measure keys for the current A/B zipline tower selection. */
         this.logDistanceSelection = [];
+        /** @type {?Object} point selected by the default log inspection tool. */
+        this.logInspectedPoint = null;
+        /** @type {?Object} cached inspection candidates for hover hit-testing. */
+        this._logInspectionCandidateCache = null;
         this.logLayers = {
             showAuthored: true,
             showWalk: true,
@@ -342,9 +347,13 @@ class MapNavigatorApp {
             logShowSelectedTowers: $("log-show-selected-towers"),
             logShowRecordedTowers: $("log-show-recorded-towers"),
             logShowEstimates: $("log-show-estimates"),
+            btnLogPointClear: $("btn-log-point-clear"),
+            logPointSummary: $("log-point-summary"),
             btnLogDistanceClear: $("btn-log-distance-clear"),
             logDistanceSummary: $("log-distance-summary"),
             logDecisionSummary: $("log-decision-summary"),
+            btnLogMeasure: $("btn-log-measure"),
+            logMeasureDivider: $("log-measure-divider"),
             btnAssertLocate: $("btn-assert-locate"),
             btnAstarLocate: $("btn-astar-locate"),
             waypointList: $("waypoint-list"),
@@ -777,6 +786,21 @@ class MapNavigatorApp {
             this._clearLogDistanceSelection();
             setStatus("已清除滑索架测距。", "#10b981");
         });
+        e.btnLogPointClear.addEventListener("click", () => {
+            this._clearLogInspection();
+            setStatus("已清除点位详情。", "#10b981");
+        });
+        e.btnLogMeasure.addEventListener("click", () => {
+            const measuring = this.activeTool !== "log-measure";
+            this._setActiveTool(measuring ? "log-measure" : "log-inspect");
+            this._renderLogDistance();
+            setStatus(
+                measuring
+                    ? "滑索架测距已启用：请依次选择 A、B 两座滑索架。"
+                    : "已退出滑索架测距；单击地图点位可查看具体信息。",
+                measuring ? "#3b82f6" : "#10b981",
+            );
+        });
         for (const [control, key] of [
             [e.logShowAuthored, "showAuthored"],
             [e.logShowWalk, "showWalk"],
@@ -789,6 +813,13 @@ class MapNavigatorApp {
         ]) {
             control.addEventListener("change", () => {
                 this.logLayers[key] = control.checked;
+                if (
+                    this.logInspectedPoint &&
+                    !this._logInspectionCandidates().some((candidate) => candidate.key === this.logInspectedPoint.key)
+                ) {
+                    this.logInspectedPoint = null;
+                    this._renderLogInspection();
+                }
                 this._paint();
             });
         }
@@ -1044,27 +1075,32 @@ class MapNavigatorApp {
         return this.field.baseToTier(tierId, bx, by);
     }
 
-    /** Parsed author hints converted from their own zone/tier frame into base px. */
-    _logAuthoredBasePoints() {
+    /** Parsed author hints, retaining metadata while converting each point into base px. */
+    _logAuthoredBaseEntries() {
         const run = this.selectedLogRun;
         if (!run) return [];
         const runZoneId = this._resolveZoneId(run.zone);
         const runGeometry =
             this.field && !Number.isNaN(runZoneId) ? this.field.geometryZoneId(runZoneId) : null;
         const entries = run.authoredPath || (run.authoredPoints || []).map((point) => ({point}));
-        const points = [];
-        for (const entry of entries) {
+        const result = [];
+        for (const [index, entry] of entries.entries()) {
             if (!entry || !Array.isArray(entry.point)) continue;
             const frame = entry.targetTier || entry.zone || "";
             const zoneId = this._resolveZoneId(frame);
+            let point = entry.point;
             if (this.field && !Number.isNaN(zoneId)) {
                 if (runGeometry !== null && this.field.geometryZoneId(zoneId) !== runGeometry) continue;
-                points.push(this._pointToBase(zoneId, entry.point[0], entry.point[1]));
-            } else {
-                points.push(entry.point);
+                point = this._pointToBase(zoneId, entry.point[0], entry.point[1]);
             }
+            result.push({...entry, index, sourcePoint: entry.point, point});
         }
-        return points;
+        return result;
+    }
+
+    /** Parsed author hints converted from their own zone/tier frame into base px. */
+    _logAuthoredBasePoints() {
+        return this._logAuthoredBaseEntries().map((entry) => entry.point);
     }
 
     /** Geometry/base zone name used by zipline_frames.json (for example map02base). */
@@ -1154,6 +1190,248 @@ class MapNavigatorApp {
         };
     }
 
+    /** Visible log points that the default inspection tool can select. */
+    _logInspectionCandidates() {
+        const run = this.selectedLogRun;
+        if (!run) return [];
+        const visibilityKey = [
+            this.logLayers.showAuthored,
+            this.logLayers.showWalk,
+            this.logLayers.showObserved,
+            this.logLayers.showBaseline,
+            this.logLayers.showZipline,
+            this.logLayers.showSelectedTowers,
+            this.logLayers.showRecordedTowers,
+        ].join(":");
+        const cached = this._logInspectionCandidateCache;
+        if (cached && cached.run === run && cached.field === this.field && cached.visibilityKey === visibilityKey) {
+            return cached.candidates;
+        }
+        const candidates = [];
+        const pointText = (point) => `[${point[0].toFixed(2)}, ${point[1].toFixed(2)}]`;
+        const numberText = (value) => (Number.isFinite(value) ? value.toFixed(2) : "未知");
+        const add = (candidate) => {
+            if (
+                candidate &&
+                Array.isArray(candidate.point) &&
+                candidate.point.length >= 2 &&
+                candidate.point.slice(0, 2).every(Number.isFinite)
+            ) {
+                candidates.push(candidate);
+            }
+        };
+        const addTower = (tower, source) => {
+            const selected = source === "selected";
+            const details = [
+                ["来源", selected ? "本次运行选择" : "ZIP 快照候选"],
+                ["底图坐标", pointText(tower.point)],
+                ["导航高度", numberText(tower.height)],
+            ];
+            if (selected) {
+                details.splice(
+                    1,
+                    0,
+                    ["执行状态", tower.confirmed ? "日志已确认经过" : "日志未确认经过"],
+                    ["链 / 序号", `${tower.chainIndex + 1} / ${tower.towerIndex + 1}`],
+                );
+            }
+            if (Array.isArray(tower.world) && tower.world.slice(0, 3).every(Number.isFinite)) {
+                details.push([
+                    "世界坐标",
+                    `[${tower.world[0].toFixed(2)}, ${tower.world[1].toFixed(2)}, ${tower.world[2].toFixed(2)}] m`,
+                ]);
+            }
+            details.push(["模板", tower.templateId || "未知"], ["Level", tower.levelId || "未知"]);
+            add({
+                key: `tower:${tower.measureKey}`,
+                kind: "tower",
+                point: tower.point,
+                title: selected ? `${tower.label || "滑索架"} · 本次选择` : "ZIP 候选滑索架",
+                color: selected ? (tower.confirmed ? "#22d3ee" : "#f59e0b") : "#a78bfa",
+                details,
+            });
+        };
+
+        const towers = this._logTowerData(run);
+        if (this.logLayers.showSelectedTowers) {
+            for (const tower of towers.selected) addTower(tower, "selected");
+        }
+        if (this.logLayers.showRecordedTowers) {
+            for (const tower of towers.recorded) addTower(tower, "recorded");
+        }
+
+        if (this.logLayers.showAuthored) {
+            for (const entry of this._logAuthoredBaseEntries()) {
+                const frame = entry.targetTier || entry.zone || run.zone || "当前底图";
+                const details = [
+                    ["来源", "作者路径"],
+                    ["序号", String(entry.index + 1)],
+                    ["动作", entry.action || "RUN"],
+                    ["坐标系", frame],
+                ];
+                if (frame !== "当前底图") details.push(["原始坐标", pointText(entry.sourcePoint)]);
+                details.push(["底图坐标", pointText(entry.point)]);
+                add({
+                    key: `authored:${entry.index}`,
+                    point: entry.point,
+                    title: `作者路径点 ${entry.index + 1}`,
+                    color: "#f8fafc",
+                    details,
+                });
+            }
+        }
+
+        if (this.logLayers.showZipline) {
+            for (const [chainIndex, chain] of (run.ziplines || []).entries()) {
+                const geometry = logZiplineGeometry(chain);
+                for (const [hopIndex, segment] of geometry.actual.entries()) {
+                    for (const [endpoint, point] of [
+                        ["起点", segment.from],
+                        ["终点", segment.to],
+                    ]) {
+                        add({
+                            key: `zipline:${chainIndex}:${hopIndex}:${endpoint}`,
+                            point,
+                            title: `实际滑索端点 · ${endpoint}`,
+                            color: segment.landed ? "#22d3ee" : "#f59e0b",
+                            details: [
+                                ["来源", "运行日志"],
+                                ["链 / 跳", `${chainIndex + 1} / ${hopIndex + 1}`],
+                                ["端点", endpoint],
+                                ["落地状态", segment.landed ? "已确认落地" : "未确认落地"],
+                                ["底图坐标", pointText(point)],
+                            ],
+                        });
+                    }
+                }
+            }
+        }
+
+        const addWalkPoints = (decision, visible, title, color, decisionText) => {
+            if (!visible) return;
+            for (const [walkIndex, walk] of (run.walks || [])
+                .filter((item) => item.decision === decision)
+                .entries()) {
+                for (const [pointIndex, point] of (walk.points || []).entries()) {
+                    add({
+                        key: `${decision}:${walkIndex}:${pointIndex}`,
+                        point,
+                        title,
+                        color,
+                        details: [
+                            ["来源", "NavMesh 规划"],
+                            ["决策", decisionText],
+                            ["段 / 点", `${walkIndex + 1} / ${pointIndex + 1}`],
+                            ["成本", numberText(walk.cost)],
+                            ["原因", walk.reason || "未记录"],
+                            ["底图坐标", pointText(point)],
+                        ],
+                    });
+                }
+            }
+        };
+        addWalkPoints("walk", this.logLayers.showWalk, "采用的步行规划点", "#ff3b9d", "采用步行");
+        addWalkPoints(
+            "baseline",
+            this.logLayers.showBaseline,
+            "未采用的步行基线点",
+            "#f59e0b",
+            "滑索方案取代步行",
+        );
+
+        if (this.logLayers.showObserved) {
+            for (const [walkIndex, points] of (run.observedWalks || []).entries()) {
+                for (const [pointIndex, point] of points.entries()) {
+                    add({
+                        key: `observed:${walkIndex}:${pointIndex}`,
+                        point,
+                        title: "实测轨迹点",
+                        color: "#22c55e",
+                        details: [
+                            ["来源", "MapLocator 实测"],
+                            ["轨迹段 / 点", `${walkIndex + 1} / ${pointIndex + 1}`],
+                            ["底图坐标", pointText(point)],
+                        ],
+                    });
+                }
+            }
+        }
+        this._logInspectionCandidateCache = {run, field: this.field, visibilityKey, candidates};
+        return candidates;
+    }
+
+    /** Nearest visible point inside the click radius. */
+    _hitLogPoint(candidates, canvasX, canvasY, radius = LOG_POINT_HIT_RADIUS) {
+        let hit = null;
+        let hitDistance = radius;
+        for (const candidate of candidates) {
+            const display = this._baseToDisplay(candidate.point[0], candidate.point[1]);
+            const canvas = this.camera.worldToCanvas(display[0], display[1]);
+            const distance = Math.hypot(canvas[0] - canvasX, canvas[1] - canvasY);
+            if (distance < hitDistance) {
+                hit = candidate;
+                hitDistance = distance;
+            }
+        }
+        return hit;
+    }
+
+    /** Show a hand only when the current log tool can act on the hovered point. */
+    _updateLogHoverCursor(canvasX, canvasY) {
+        if (this.state.mode !== Mode.LOG || this.isPanning) return;
+        const canvas = this.els.overlayCanvas;
+        if (this.activeTool === "log-inspect") {
+            const hit = this._hitLogPoint(this._logInspectionCandidates(), canvasX, canvasY);
+            canvas.style.cursor = hit ? "pointer" : "default";
+        } else if (this.activeTool === "log-measure") {
+            const towers = this._logInspectionCandidates().filter((candidate) => candidate.kind === "tower");
+            const hit = this._hitLogPoint(towers, canvasX, canvasY, LOG_TOWER_HIT_RADIUS);
+            canvas.style.cursor = hit ? "pointer" : "crosshair";
+        }
+    }
+
+    /** Render the selected read-only point metadata. */
+    _renderLogInspection() {
+        const host = this.els.logPointSummary;
+        host.textContent = "";
+        this.els.btnLogPointClear.disabled = !this.logInspectedPoint;
+        if (!this.selectedLogRun) {
+            host.textContent = this.logRuns.length
+                ? "当前筛选没有匹配记录。"
+                : "导入日志后，可单击地图中的各种点位查看具体信息。";
+            return;
+        }
+        if (!this.logInspectedPoint) {
+            host.textContent = "单击作者路径点、规划点、实测点或滑索架查看具体信息；拖动仍可平移";
+            return;
+        }
+
+        const selected = document.createElement("div");
+        selected.className = "log-inspection-selected";
+        selected.style.borderLeftColor = this.logInspectedPoint.color || "#22d3ee";
+        const title = document.createElement("div");
+        title.className = "log-distance-point-title";
+        title.textContent = this.logInspectedPoint.title || "点位详情";
+        const details = document.createElement("dl");
+        details.className = "log-point-detail";
+        for (const [label, value] of this.logInspectedPoint.details || []) {
+            const term = document.createElement("dt");
+            term.textContent = label;
+            const description = document.createElement("dd");
+            description.textContent = value;
+            details.append(term, description);
+        }
+        selected.append(title, details);
+        host.appendChild(selected);
+    }
+
+    /** Clear point inspection without changing the A/B measurement. */
+    _clearLogInspection() {
+        this.logInspectedPoint = null;
+        this._renderLogInspection();
+        this._paint();
+    }
+
     /** Render selected tower coordinates, the distance formula, and the limited geometry verdict. */
     _renderLogDistance() {
         const host = this.els.logDistanceSummary;
@@ -1164,11 +1442,14 @@ class MapNavigatorApp {
         if (!this.selectedLogRun) {
             host.textContent = this.logRuns.length
                 ? "当前筛选没有匹配记录。"
-                : "导入日志后，单击地图上的滑索架选择 A 点。";
+                : "导入日志后，可点击地图右上角的测距工具选择两座滑索架。";
             return;
         }
         if (!measurement.towers.length) {
-            host.textContent = "单击地图上的紫色菱形或编号滑索架选择 A 点；再点一座选择 B 点，拖动仍可平移";
+            host.textContent =
+                this.activeTool === "log-measure"
+                    ? "测距已启用，请单击紫色菱形或编号滑索架选择 A 点；拖动仍可平移"
+                    : "点击地图右上角的测距工具后，再依次选择 A、B 两座滑索架";
             return;
         }
 
@@ -1205,7 +1486,10 @@ class MapNavigatorApp {
         if (measurement.towers.length === 1) {
             const hint = document.createElement("div");
             hint.className = "log-distance-note";
-            hint.textContent = "已选择 A 点；请再点一座滑索架作为 B 点。再次点 A 可取消。";
+            hint.textContent =
+                this.activeTool === "log-measure"
+                    ? "已选择 A 点；请再点一座滑索架作为 B 点。再次点 A 可取消。"
+                    : "已保留 A 点；再次开启右上角测距工具后可继续选择 B 点。";
             host.appendChild(hint);
             return;
         }
@@ -1315,6 +1599,9 @@ class MapNavigatorApp {
                 })),
                 result: measurement.result,
             },
+            inspection: this.logInspectedPoint
+                ? {...this.logInspectedPoint, point: displayPoint(this.logInspectedPoint.point)}
+                : null,
         };
     }
 
@@ -1868,6 +2155,7 @@ class MapNavigatorApp {
             this.isPanning = true;
             this.dragStartX = x;
             this.dragStartY = y;
+            this.els.overlayCanvas.style.cursor = "grabbing";
             return;
         }
         if (e.button !== 0) return;
@@ -1876,7 +2164,10 @@ class MapNavigatorApp {
             y,
         ] = this._evtXY(e);
 
-        if (this.state.mode === Mode.LOG && this.activeTool === "log-pan") {
+        if (
+            this.state.mode === Mode.LOG &&
+            ["log-inspect", "log-measure", "log-pan"].includes(this.activeTool)
+        ) {
             this.isDragging = false;
             this.isPanCandidate = true;
             this.isPanning = false;
@@ -1985,6 +2276,10 @@ class MapNavigatorApp {
             y,
         ] = this._evtXY(e);
 
+        if (this.state.mode === Mode.LOG && !this.isPanning && !this.isPanCandidate) {
+            this._updateLogHoverCursor(x, y);
+        }
+
         if (this.isPanning) {
             this.camera.panBy(x - this.dragStartX, y - this.dragStartY);
             this.dragStartX = x;
@@ -1998,6 +2293,7 @@ class MapNavigatorApp {
             this.isPanning = true;
             this.dragStartX = x;
             this.dragStartY = y;
+            this.els.overlayCanvas.style.cursor = "grabbing";
             return;
         }
         if (this.state.mode === Mode.ASTAR) return;
@@ -2058,6 +2354,7 @@ class MapNavigatorApp {
         if (this.isPanning) {
             this.isPanning = false;
             this._setActiveTool(this.activeTool);
+            if (this.state.mode === Mode.LOG) this._updateLogHoverCursor(x, y);
             this._paint();
             return;
         }
@@ -2065,7 +2362,8 @@ class MapNavigatorApp {
         if (this.state.mode === Mode.LOG) {
             if (this.isPanCandidate) {
                 this.isPanCandidate = false;
-                this._handleLogTowerClick(x, y);
+                if (this.activeTool === "log-measure") this._handleLogMeasureClick(x, y);
+                else if (this.activeTool === "log-inspect") this._handleLogInspectClick(x, y);
             }
             return;
         }
@@ -2163,27 +2461,49 @@ class MapNavigatorApp {
         this.isDragging = false;
     }
 
-    /** Select the nearest visible tower for an A/B world-span measurement. */
-    _handleLogTowerClick(canvasX, canvasY) {
-        if (!this.selectedLogRun) return;
-        const towers = this._logTowerData();
-        const visible = [
-            ...(this.logLayers.showSelectedTowers ? towers.selected : []),
-            ...(this.logLayers.showRecordedTowers ? towers.recorded : []),
+    /** Towers currently visible and therefore eligible for measurement. */
+    _visibleLogTowers(towerData = this._logTowerData()) {
+        return [
+            ...(this.logLayers.showSelectedTowers ? towerData.selected : []),
+            ...(this.logLayers.showRecordedTowers ? towerData.recorded : []),
         ];
-        let hit = null;
-        let hitDistance = LOG_TOWER_HIT_RADIUS;
-        for (const tower of visible) {
-            const display = this._baseToDisplay(tower.point[0], tower.point[1]);
-            const canvas = this.camera.worldToCanvas(display[0], display[1]);
-            const distance = Math.hypot(canvas[0] - canvasX, canvas[1] - canvasY);
-            if (distance < hitDistance) {
-                hit = tower;
-                hitDistance = distance;
-            }
+    }
+
+    /** Nearest visible tower inside the dedicated tower hit radius. */
+    _hitLogTower(canvasX, canvasY, towers) {
+        return this._hitLogPoint(towers, canvasX, canvasY, LOG_TOWER_HIT_RADIUS);
+    }
+
+    /** Inspect the nearest visible log point without changing measurement state. */
+    _handleLogInspectClick(canvasX, canvasY) {
+        if (!this.selectedLogRun) {
+            setStatus("请先导入并选择一条导航运行记录。", "#f59e0b");
+            return;
         }
+        const hit = this._hitLogPoint(this._logInspectionCandidates(), canvasX, canvasY);
         if (!hit) {
-            setStatus("没有点中滑索架；请单击紫色菱形或编号圆点，拖动可平移地图。", "#f59e0b");
+            this.logInspectedPoint = null;
+            this._renderLogInspection();
+            this._paint();
+            setStatus("没有点中可查看的点位；已清除点位详情，拖动可平移地图。", "#f59e0b");
+            return;
+        }
+        this.logInspectedPoint = hit;
+        this._renderLogInspection();
+        this._paint();
+        setStatus(`正在查看：${hit.title}。`, hit.color || "#3b82f6");
+    }
+
+    /** Select the nearest visible tower for an A/B world-span measurement. */
+    _handleLogMeasureClick(canvasX, canvasY) {
+        if (!this.selectedLogRun) {
+            setStatus("请先导入并选择一条导航运行记录。", "#f59e0b");
+            return;
+        }
+        const towers = this._logTowerData();
+        const hit = this._hitLogTower(canvasX, canvasY, this._visibleLogTowers(towers));
+        if (!hit) {
+            setStatus("没有点中滑索架；测距工具只选择紫色菱形或编号圆点，拖动可平移地图。", "#f59e0b");
             return;
         }
 
@@ -2910,6 +3230,7 @@ class MapNavigatorApp {
             });
             this.selectedLogRun = null;
             this.logDistanceSelection = [];
+            this.logInspectedPoint = null;
             this.els.logRunFilter.value = "";
             this.els.logRunFilter.disabled = this.logRuns.length === 0;
             this.els.logRunSelect.disabled = this.logRuns.length === 0;
@@ -2963,7 +3284,9 @@ class MapNavigatorApp {
             combo.appendChild(option);
             this.selectedLogRun = null;
             this.logDistanceSelection = [];
+            this.logInspectedPoint = null;
             this._renderLogSummary();
+            this._renderLogInspection();
             this._renderLogDistance();
             this._paint();
             return;
@@ -2982,7 +3305,10 @@ class MapNavigatorApp {
     _onLogRunChanged() {
         const key = this.els.logRunSelect.value;
         const nextRun = this.logRuns.find((run) => run._uiKey === key) || null;
-        if (nextRun !== this.selectedLogRun) this.logDistanceSelection = [];
+        if (nextRun !== this.selectedLogRun) {
+            this.logDistanceSelection = [];
+            this.logInspectedPoint = null;
+        }
         this.selectedLogRun = nextRun;
         this._showSelectedLogRun({fit: true});
     }
@@ -2990,6 +3316,7 @@ class MapNavigatorApp {
     /** @param {{fit?:boolean}} [opts] */
     _showSelectedLogRun(opts = {}) {
         this._renderLogSummary();
+        this._renderLogInspection();
         this._renderLogDistance();
         const run = this.selectedLogRun;
         if (!run) {
@@ -3027,6 +3354,7 @@ class MapNavigatorApp {
         this.logRuns = [];
         this.selectedLogRun = null;
         this.logDistanceSelection = [];
+        this.logInspectedPoint = null;
         this.logArchiveGroups = new Map();
         this.els.logRunFilter.value = "";
         this.els.logRunFilter.disabled = true;
@@ -3038,6 +3366,7 @@ class MapNavigatorApp {
         this.els.logRunSelect.appendChild(option);
         this.els.logImportMeta.textContent = "尚未导入日志";
         this._renderLogSummary();
+        this._renderLogInspection();
         this._renderLogDistance();
         setStatus("已清除日志分析。", "#10b981");
         this._paint();
@@ -3695,7 +4024,7 @@ class MapNavigatorApp {
 
     /**
      * Switch the active canvas tool, updating toolbar highlight + canvas cursor.
-     * @param {'pan'|'add'|'select'|'astar-single'|'astar-multi'|'astar-pan'|'assert-pan'|'assert-edit'|'log-pan'} tool
+     * @param {'pan'|'add'|'select'|'astar-single'|'astar-multi'|'astar-pan'|'assert-pan'|'assert-edit'|'log-inspect'|'log-measure'|'log-pan'} tool
      * @returns {void}
      */
     _setActiveTool(tool) {
@@ -3709,12 +4038,19 @@ class MapNavigatorApp {
         if (e.toolAstarMulti) e.toolAstarMulti.classList.toggle("active", tool === "astar-multi");
         if (e.toolAssertPan) e.toolAssertPan.classList.toggle("active", tool === "assert-pan");
         if (e.toolAssertEdit) e.toolAssertEdit.classList.toggle("active", tool === "assert-edit");
+        if (e.btnLogMeasure) {
+            const measuring = tool === "log-measure";
+            e.btnLogMeasure.classList.toggle("active", measuring);
+            e.btnLogMeasure.setAttribute("aria-pressed", String(measuring));
+        }
 
         const canvas = e.overlayCanvas;
-        if (tool === "pan" || tool === "assert-pan" || tool === "astar-pan") {
+        if (tool === "pan" || tool === "assert-pan" || tool === "astar-pan" || tool === "log-pan") {
             canvas.style.cursor = "grab";
-        } else if (tool === "log-pan") {
+        } else if (tool === "log-measure") {
             canvas.style.cursor = "crosshair";
+        } else if (tool === "log-inspect") {
+            canvas.style.cursor = "default";
         } else if (tool === "add" || tool === "astar-single" || tool === "astar-multi") {
             canvas.style.cursor = "crosshair";
         } else if (tool === "select") {
@@ -4341,7 +4677,7 @@ class MapNavigatorApp {
             this._showSelectedLogRun({fit: true});
             setStatus(
                 this.selectedLogRun
-                    ? "日志分析模式：地图只读，可缩放和平移；虚线端点连接为估计。"
+                    ? "日志分析模式：默认单击查看点位；右上角可开启滑索架测距，拖动仍可平移。"
                     : "日志分析模式：请选择 MaaEnd ZIP 分包或解压后的 cpp-algo/debug/maafw*.log。",
                 "#3b82f6",
             );
@@ -4380,6 +4716,8 @@ class MapNavigatorApp {
         e.panelNavtest.hidden = logWorkspace;
         e.routeModeTabs.hidden = logWorkspace;
         e.positionReadout.hidden = logWorkspace;
+        e.btnLogMeasure.hidden = !logWorkspace;
+        e.logMeasureDivider.hidden = !logWorkspace;
         if (this.connection) this.connection.setSuspended(logWorkspace);
 
         e.panelRecording.hidden = true;
@@ -4412,7 +4750,11 @@ class MapNavigatorApp {
             e.canvasWrap.classList.add("mode-log");
             document.body.classList.remove("mode-edit", "mode-astar", "mode-assert");
             document.body.classList.add("mode-log");
-            this._setActiveTool("log-pan");
+            this._setActiveTool(
+                this.activeTool === "log-measure" || this.activeTool === "log-inspect"
+                    ? this.activeTool
+                    : "log-inspect",
+            );
         } else {
             e.tabEdit.classList.add("active");
             e.panelRecording.hidden = false;
