@@ -83,29 +83,12 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoStockStapleBagFullRestart"
+            "AutoStockStapleMain"
         ]
     },
-    "AutoStockStapleBagFullRestart": {
-        "desc": "重启稳定物资购买流程，未达标商品继续购买",
-        "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "SubTask",
-                "custom_action_param": {
-                    "sub": [
-                        "AutoStockStapleMain"
-                    ]
-                }
-            }
-        },
-        "post_delay": 0,
-        "rate_limit": 0
-    },
     "AutoStockStapleBagFullHandler": {
-        "desc": "背包已满处理入口，max_hit 为整理背包次数上限",
-        "max_hit": 3,
+        "desc": "背包已满处理入口，整理一次无效则放弃",
+        "max_hit": 1,
         "recognition": {
             "type": "And",
             "param": {
@@ -122,7 +105,7 @@
         ]
     },
     "AutoStockStapleBagFullGiveUp": {
-        "desc": "达到整理次数上限后放弃本次购买",
+        "desc": "整理背包无效后放弃本次购买",
         "recognition": {
             "type": "And",
             "param": {
@@ -164,7 +147,7 @@
         ]
     },
     "AutoStockStapleBagFullCloseBuyWindowGiveUp": {
-        "desc": "关闭购买窗口并结束本次购买",
+        "desc": "关闭购买窗口并结束本次任务",
         "recognition": {
             "type": "And",
             "param": {

@@ -23,8 +23,7 @@
                 "AutoStockStapleSchedule",
                 "AutoStockStapleValleyIV",
                 "AutoStockStapleWuling",
-                "AutoStockStapleAutoStashBackpack",
-                "AutoStockStapleAutoStashBackpackLimit"
+                "AutoStockStapleAutoStashBackpack"
             ]
         }
     ],
@@ -2157,6 +2156,9 @@
                     "pipeline_override": {
                         "AutoStockStapleBagFullHandler": {
                             "enabled": true
+                        },
+                        "AutoStockStapleBagFullGiveUp": {
+                            "enabled": true
                         }
                     }
                 },
@@ -2165,31 +2167,13 @@
                     "pipeline_override": {
                         "AutoStockStapleBagFullHandler": {
                             "enabled": false
+                        },
+                        "AutoStockStapleBagFullGiveUp": {
+                            "enabled": false
                         }
                     }
                 }
             ]
-        },
-        "AutoStockStapleAutoStashBackpackLimit": {
-            "type": "input",
-            "label": "$task.AutoStockStaple.option.AutoStockStapleAutoStashBackpackLimit.label",
-            "description": "$task.AutoStockStaple.option.AutoStockStapleAutoStashBackpackLimit.description",
-            "inputs": [
-                {
-                    "name": "StashBackpackLimit",
-                    "label": "$task.AutoStockStaple.option.AutoStockStapleAutoStashBackpackLimit.inputs.StashBackpackLimit.label",
-                    "description": "$task.AutoStockStaple.option.AutoStockStapleAutoStashBackpackLimit.inputs.StashBackpackLimit.description",
-                    "pipeline_type": "int",
-                    "default": "3",
-                    "verify": "^[1-9]\\d*$",
-                    "pattern_msg": "$task.AutoStockStaple.option.AutoStockStapleAutoStashBackpackLimit.inputs.StashBackpackLimit.pattern_msg"
-                }
-            ],
-            "pipeline_override": {
-                "AutoStockStapleBagFullHandler": {
-                    "max_hit": "{StashBackpackLimit}"
-                }
-            }
         }
     }
 }
