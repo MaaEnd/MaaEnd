@@ -252,6 +252,7 @@
         "tasks/DijiangRewards.json",
         "tasks/VisitFriends.json",
         "tasks/GiftOperator.json",
+        "tasks/GiftOperatorReceive.json",
         "tasks/BatchAddFriends.json",
         // group: other_menu
         "tasks/PullCountCalculator.json",

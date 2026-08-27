@@ -196,7 +196,7 @@
     "option.SelectOperator.label": "赠送干员",
     "option.SelectOperator.description": "指定干员时通过模板匹配寻人；「任意」会先切换为信赖排序并连选三名未满信赖干员，有利于提高选人成功率。",
     "option.OnlyReceiveGift.label": "只收礼物",
-    "option.OnlyReceiveGift.description": "开启后只领取干员赠送的礼物，不再发起新的对话和送礼。",
+    "option.OnlyReceiveGift.description": "开启后只领取干员赠送的礼物，不再发起新的对话和送礼；可在「赠送干员」中指定领取对象，只领取该干员的礼物。",
     "option.AcceptAllGifts.label": "接受全部礼物",
     "option.AcceptAllGifts.description": "仅在「只收礼物」开启时可用。开启后将不会在对话中途点击离开；只有在联络界面识别到「无可选干员」时可退出本轮并在离开后重新开始任务入口，用于轮流领取多名干员的礼物。",
     "option.GiftCount.label": "赠送数量",
@@ -2214,5 +2214,7 @@
     "iconRecognition.name.item_domain_jinlong_coupon": "武陵调度券",
     "iconRecognition.name.item_domain_tundra_coupon": "谷地调度券",
     "iconRecognition.name.item_spaceship_credit": "信用",
-    "iconRecognition.name.item_originium_recharge": "衍质源石"
+    "iconRecognition.name.item_originium_recharge": "衍质源石",
+    "task.GiftOperatorReceive.label": "只收礼物",
+    "task.GiftOperatorReceive.description": "只领取干员赠送的礼物；可勾选最多 5 名指定干员，领取后自动继续，领满或全部处理完结束。"
 }

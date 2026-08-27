@@ -17,6 +17,38 @@
             "[JumpBack]GiftOperatorGoToDijiang"
         ]
     },
+    "GiftOperatorReceiveMain": {
+        "desc": "只收礼物：任务入口（不存放背包），领取后经 ReceiveDialogLoop 回到此节点",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "GiftOperatorClearHitCount"
+            ]
+        },
+        "post_delay": 0,
+        "next": [
+            "GiftOperatorInDijiang0",
+            "[JumpBack]GiftOperatorGoToDijiang"
+        ]
+    },
+    "GiftOperatorMainLoop": {
+        "desc": "只收礼物+指定干员：循环入口（新一轮联络界面扫描），不再存放背包",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "GiftOperatorClearHitCountLoop"
+            ]
+        },
+        "post_delay": 0,
+        "next": [
+            "GiftOperatorInDijiang0",
+            "[JumpBack]GiftOperatorGoToDijiang"
+        ]
+    },
     "GiftOperatorInDijiang0": {
         "desc": "确认已在帝江号舰桥大世界",
         "recognition": {
@@ -118,7 +150,36 @@
                 "GiftOperatorTurnWest",
                 "GiftOperatorMoveLocation1Move",
                 "GiftOperatorGoAheadContact",
-                "GiftOperatorBack"
+                "GiftOperatorBack",
+                "GiftOperatorSwipe", //每轮联络界面扫描重置滑动次数
+                "GiftOperatorClickContact", //刷新循环每轮重置点击联络台计数
+                "GiftOperatorNoGiftOperatorSpecified" //任务开始（含领取后回 Main）重置本轮无可领计数
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "GiftOperatorClearHitCountLoop": {
+        "desc": "清空节点MaxHit（循环入口专用，不重置本轮无可领计数）",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "ClearHitCount",
+        "custom_action_param": {
+            "nodes": [
+                "GiftOperatorMoveResetBackward",
+                "GiftOperatorTurnEast",
+                "GiftOperatorMoveLocation3Move",
+                "GiftOperatorTurnSoutheast",
+                "GiftOperatorTurnNorthwest",
+                "GiftOperatorTurnNorthByWest",
+                "GiftOperatorMoveLocation2Move",
+                "GiftOperatorTurnWest",
+                "GiftOperatorMoveLocation1Move",
+                "GiftOperatorGoAheadContact",
+                "GiftOperatorBack",
+                "GiftOperatorSwipe", //每轮联络界面扫描重置滑动次数
+                "GiftOperatorClickContact", //刷新循环每轮重置点击联络台计数
+                "GiftOperatorGoToDijiang" //刷新地图（谷地→帝江）后重置传送次数
             ]
         },
         "post_delay": 0,

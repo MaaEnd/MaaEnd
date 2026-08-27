@@ -1,7 +1,7 @@
 # 开发手册 - 赠送干员礼物维护文档
 
 本文说明 `GiftOperator` 的文件分布与两条执行路线。  
-该文档更新于 2026 年 6 月 28 日。
+该文档更新于 2026 年 8 月 25 日。
 
 ## 文件路径
 
@@ -29,7 +29,7 @@
 | --- | -------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
 | 1 | `assets/resource/image/GiftOperator/Operators/<Name>.png` | Win32 干员头像模板；入库前须用 `tools/gift_operator/fill_gift_operator_green_box.py` 处理 |
 | 2 | `assets/resource_adb/image/GiftOperator/Operators/<Name>.png` | ADB 干员头像模板；同上处理 |
-| 3 | `assets/tasks/GiftOperator.json` → `SelectOperator` | 新增 case，在 UI 提供可选干员，并为「只收礼物」路线提供干员信息 |
+| 3 | `assets/tasks/GiftOperator.json` → `SelectOperator` | 新增 case，在 UI 提供可选干员；case 内同时提供「送礼指定干员」与「只收礼物 + 指定干员」组合选人所需的头像模板覆盖 |
 | 4 | `assets/resource/pipeline/GiftOperator/Operator/Operator.json` | 「只收礼物」模式下各干员的 OCR 识别与白名单 |
 | 5 | `assets/resource/pipeline/GiftOperator/GiftOperatorContact.json` → `GiftOperatorSelectGiftOp.next` | 在「只收礼物」选人节点的 `next` 数组追加 `GiftOperatorSelect_<Name>`，否则该干员节点不会被触发 |
 | 6 | `assets/locales/interface/*.json` → `operator.<Name>` | 各语言干员显示名称 |
@@ -53,15 +53,20 @@
 
 ## 路线二：只收礼物
 
-对应选项「只收礼物」开启。不再主动送礼，只领取干员送来的礼物。
+对应选项「只收礼物」开启。不再主动送礼，只领取干员送来的礼物。此时「赠送干员」选项（**多选框**，可勾选最多 5 名干员）同样生效，用于限定领取对象。
 
-1. 同样先存放背包，再寻路至干员联络台。
-2. 在联络列表中[识别带礼物图标的干员](#收礼模式如何正确选中目标干员)（实现见 `GiftOperatorContact.json` 与 `Operator/Operator.json`），而非按信赖排序或指定干员选人。
-3. 确认呼唤，进入对话，优先点击「收下礼物」。
-4. 领取后：
-    - **接受全部礼物**关闭 → 跳过对话后离开，任务结束。
-    - **接受全部礼物**开启 → 回到任务开头，继续找下一名有礼物的干员；直到联络界面无可选干员才离开。
-5. 若背包已满，提示后结束任务。
+1. **不存放背包**，直接寻路至干员联络台。
+2. 在联络列表中[识别带礼物图标的干员](#收礼模式如何正确选中目标干员)（实现见 `GiftOperatorContact.json` 与 `Operator/Operator.json`），而非按信赖排序。
+3. 再选人（点击后须经[选中态校验](#选中态校验)确认，实现见 `GiftOperatorContact.json`）：
+    - **任意**：任意带礼物图标的干员。
+    - **指定干员（多选）**：以「礼物图标 + 干员头像」组合判断——先定位带礼物的行，再用头像模板匹配目标干员（每名干员一个独立组合节点 `GiftOperatorSelectSpecifiedGiftOp_<Name>`，`max_hit=1`），命中后同样校验选中态再呼唤。**不滑动列表**（`GiftOperatorSwipe` 在只收任务中禁用）：当前屏没有带礼物的指定干员时，**直接刷新地图**等待，不尝试下滑寻找。
+4. 确认呼唤，进入对话，点击「收下礼物」。
+5. 领取后：
+    - 指定干员（多选）→ **自动回到任务入口继续找下一名未领取的指定干员**；每个干员的组合节点命中一次即耗尽（已领取不再参与）。
+    - **接受全部礼物**关闭且未指定干员 → 跳过对话后离开，任务结束。
+    - **接受全部礼物**开启 → 继续找下一名有礼物的干员。
+6. 结束条件：本轮联络界面没有任何可领取的指定干员时，进入**刷新地图循环**——先经 `SceneEnterWorldValleyIVTheHub` 进入谷地大世界触发加载，再经 `GiftOperatorGoToDijiang` 重新进入帝江号舰桥，随后走 `GiftOperatorMainLoop`（不再存放背包）重新扫描联络界面，直到领到礼物为止；`GiftOperatorNoGiftOperatorSpecified`（`max_hit=3`）限制**单个等待期**最多刷新 3 次，仍无可领则落入「无可选干员」，任务结束（即领满已勾选干员）。
+7. 若背包已满，提示后结束任务。
 
 ## 特殊处理
 
@@ -118,6 +123,34 @@
 
 当前屏找不到带礼物的干员时，列表最多滑动 2 次；仍找不到则落入「无可选干员」，在开启「接受全部礼物」时可作为整轮结束条件。
 
+#### 只收礼物 + 指定干员（多选）
+
+「赠送干员」为**多选框**，最多可勾选 5 名干员。开启「只收礼物」并勾选干员后，收礼目标收窄为**这些干员**。此时不走「先点礼物行、再识别是谁」的流程，而是先确认「该行带礼物、且该行是某个勾选干员」，两条件同时满足才点击，避免误选其他干员的礼物行（实现见 `GiftOperatorContact.json`）：
+
+1. **定位礼物图标**：在联络列表区域用 `Gift.png` 模板匹配礼物图标（`green_mask`）。
+2. **匹配指定头像**：以礼物图标命中位置为锚点，在相邻区域二次匹配某勾选干员的头像（`Operators/<Name>.png`）。
+3. **点击并校验**：两项都命中才点击该行，随后同样走[选中态校验](#选中态校验)，确认序号 `1` 后再呼唤。
+
+每个勾选干员对应一组独立节点（`assets/tasks/GiftOperator.json` → `SelectOperator` 各 case 启用对应组，互不覆盖）：
+
+- `GiftOperatorSelectSpecifiedGiftOp_<Name>`：`And`（共享 `GiftOperatorSpecifiedGiftIcon` + 该干员的 `GiftOperatorSpecifiedGiftAvatar_<Name>`），`max_hit=1`——**命中一次（呼唤该干员）后即耗尽，后续轮次不再选择，即「已领取不参与」**。
+- `GiftOperatorNamePatch_<Name>`：命中后动态把对话阶段名称 OCR 白名单设为该干员名字，避免多选时白名单互相覆盖。
+- 未勾选的干员组合节点保持 `enabled=false`，不参与轮询。
+
+领取流程：每领完一名干员自动回到任务入口（独立「只收礼物」任务走 `GiftOperatorReceiveMain`，**全程不存放背包**）继续找下一名未领取干员。只收任务中 `GiftOperatorSwipe` 被禁用，**不滑动列表**：当前屏没有带礼物的指定干员时，直接进入刷新地图循环。
+
+日志进度报告（独立「只收礼物」任务）：勾选任意干员（每天目标 **5 名**），并行领取——谁有礼物先领谁，**不强制顺序**。每领一名：
+- 该干员的 `GiftOperatorNamePatch_<Name>` 节点 `focus` 输出「🎁 已领取 <干员名> 的礼物」；
+- 领取成功后 `GiftOperatorReceiveDialogLoop` → `GiftOperatorRemainReport` 剩余数链（`GiftOperatorRemain4/3/2/1/0`，各 `max_hit=1` 计数递减）输出「🎁 已领取 k/5 名，剩余指定干员 N 名」。
+
+领满 5 名时 `GiftOperatorRemain0` 输出「已领取 5/5 名，全部完成」并调用 `PostStop` **主动停止任务**。
+
+刷新地图循环：本轮联络界面找不到任何带礼物的勾选干员时，`GiftOperatorNoGiftOperatorSpecified`（在独立「只收礼物」任务及「只收礼物 + 指定干员」模式启用，无命中上限）进入刷新链，**无限刷新直到领满每天的礼物量**（领满由 `Remain0`/`PostStop` 结束）：
+
+1. `GiftOperatorRefreshMap` → 不在大世界时 `[JumpBack]SceneEnterWorldValleyIVTheHub` **进入谷地大世界**触发地图加载；
+2. `GiftOperatorRefreshMapInValley`（`And[InWorld]` 确认已在大世界）→ `[JumpBack]GiftOperatorGoToDijiang` **重新进入帝江号舰桥**；
+3. `GiftOperatorRefreshMapInDijiang`（复用 `MapLocateAssertLocation` 断言舰桥位置）→ `GiftOperatorMainLoop`（不再存放背包，仅重置滑动等计数）重新扫描联络界面。
+
 ### 召唤干员后：找不到对话按钮怎么办
 
 呼唤确认后，任务会先等干员出现并尝试点击对话入口。若此时画面上还看不到可交互的对话按钮，不会一直傻等，而是进入**站位修正兜底**，逻辑在 `GiftOperatorNavigation.json`。
@@ -142,4 +175,5 @@
 ### 默认模式选人的差异（对比收礼）
 
 「任意」路线不靠头像，而是：切信赖度升序 → 从上到下找**信赖未满且未被选中**的行，连点三名。  
-「指定干员」路线与收礼第二步类似，直接在列表里用头像模板匹配，但不需要先找礼物图标。
+「指定干员」路线与收礼第二步类似，直接在列表里用头像模板匹配，但不需要先找礼物图标。  
+「只收礼物 + 指定干员」与默认「指定干员」一样用头像模板匹配，但额外要求该行同时带礼物图标（组合节点 `GiftOperatorSelectSpecifiedGiftOp`），且对话阶段名称 OCR 白名单由选项 case 静态指定。

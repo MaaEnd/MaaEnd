@@ -24,7 +24,7 @@
     ],
     "option": {
         "SelectOperator": {
-            "type": "select",
+            "type": "checkbox",
             "label": "$option.SelectOperator.label",
             "default_case": "Any",
             "description": "$option.SelectOperator.description",
@@ -36,19 +36,103 @@
                         "GiftOperatorSelectSpecifiedOp": {
                             "enabled": false
                         },
-                        "GiftOperatorContacSortOrder": {
-                            "enabled": true
-                        },
-                        "GiftOperatorContacSortBy": {
-                            "enabled": true
-                        },
-                        "GiftOperatorSelectOp1": {
-                            "enabled": true
-                        },
                         "GiftOperatorName": {
                             "expected": [
                                 ".*"
                             ]
+                        },
+                        "GiftOperatorSelectSpecifiedGiftOp": {
+                            "enabled": false
+                        },
+                        "GiftOperatorNoGiftOperatorSpecified": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedGiftOp_Perlica": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedGiftOp_Yvonne": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedGiftOp_Ardelia": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedGiftOp_Gilberta": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedGiftOp_ChenQianyu": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedGiftOp_Wulfgard": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedGiftOp_Antal": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedGiftOp_Xaihi": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedGiftOp_Lifeng": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedGiftOp_Catcher": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedGiftOp_Arclight": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedGiftOp_Avywenna": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedGiftOp_Laevatain": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedGiftOp_Alesh": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedGiftOp_Pogranichnik": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedGiftOp_LastRite": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedGiftOp_Ember": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedGiftOp_Snowshine": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedGiftOp_DaPan": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedGiftOp_Fluorite": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedGiftOp_Akekuri": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedGiftOp_Estella": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedGiftOp_Rossi": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedGiftOp_Tangtang": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedGiftOp_ZhuangFangyi": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedGiftOp_MiFu": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedGiftOp_Camille": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedGiftOp_Jue": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedGiftOp_Liino": {
+                            "enabled": false
                         }
                     }
                 },
@@ -66,18 +150,19 @@
                             "enabled": false
                         },
                         "GiftOperatorSelectSpecifiedOp": {
-                            "enabled": true,
                             "template": [
                                 "GiftOperator/Operators/Perlica.png"
                             ]
                         },
-                        "GiftOperatorName": {
-                            "expected": [
-                                "佩丽卡",
-                                "佩麗卡",
-                                "Perlica",
-                                "ペリカ",
-                                "펠리카"
+                        "GiftOperatorSelectGiftOp": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedGiftOp_Perlica": {
+                            "enabled": true
+                        },
+                        "GiftOperatorReceiveDialog": {
+                            "next": [
+                                "GiftOperatorMain"
                             ]
                         }
                     }
@@ -96,18 +181,19 @@
                             "enabled": false
                         },
                         "GiftOperatorSelectSpecifiedOp": {
-                            "enabled": true,
                             "template": [
                                 "GiftOperator/Operators/Yvonne.png"
                             ]
                         },
-                        "GiftOperatorName": {
-                            "expected": [
-                                "伊冯",
-                                "伊馮",
-                                "Yvonne",
-                                "イヴォンヌ",
-                                "이본"
+                        "GiftOperatorSelectGiftOp": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedGiftOp_Yvonne": {
+                            "enabled": true
+                        },
+                        "GiftOperatorReceiveDialog": {
+                            "next": [
+                                "GiftOperatorMain"
                             ]
                         }
                     }
@@ -126,18 +212,19 @@
                             "enabled": false
                         },
                         "GiftOperatorSelectSpecifiedOp": {
-                            "enabled": true,
                             "template": [
                                 "GiftOperator/Operators/Ardelia.png"
                             ]
                         },
-                        "GiftOperatorName": {
-                            "expected": [
-                                "艾尔黛拉",
-                                "艾爾黛拉",
-                                "Ardelia",
-                                "アルデリア",
-                                "아델리아"
+                        "GiftOperatorSelectGiftOp": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedGiftOp_Ardelia": {
+                            "enabled": true
+                        },
+                        "GiftOperatorReceiveDialog": {
+                            "next": [
+                                "GiftOperatorMain"
                             ]
                         }
                     }
@@ -156,18 +243,19 @@
                             "enabled": false
                         },
                         "GiftOperatorSelectSpecifiedOp": {
-                            "enabled": true,
                             "template": [
                                 "GiftOperator/Operators/Gilberta.png"
                             ]
                         },
-                        "GiftOperatorName": {
-                            "expected": [
-                                "洁尔佩塔",
-                                "潔爾佩塔",
-                                "Gilberta",
-                                "ギルベルタ",
-                                "질베르타"
+                        "GiftOperatorSelectGiftOp": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedGiftOp_Gilberta": {
+                            "enabled": true
+                        },
+                        "GiftOperatorReceiveDialog": {
+                            "next": [
+                                "GiftOperatorMain"
                             ]
                         }
                     }
@@ -186,18 +274,19 @@
                             "enabled": false
                         },
                         "GiftOperatorSelectSpecifiedOp": {
-                            "enabled": true,
                             "template": [
                                 "GiftOperator/Operators/ChenQianyu.png"
                             ]
                         },
-                        "GiftOperatorName": {
-                            "expected": [
-                                "陈千语",
-                                "陳千語",
-                                "Chen Qianyu",
-                                "チェン・センユー",
-                                "진천우"
+                        "GiftOperatorSelectGiftOp": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedGiftOp_ChenQianyu": {
+                            "enabled": true
+                        },
+                        "GiftOperatorReceiveDialog": {
+                            "next": [
+                                "GiftOperatorMain"
                             ]
                         }
                     }
@@ -216,18 +305,19 @@
                             "enabled": false
                         },
                         "GiftOperatorSelectSpecifiedOp": {
-                            "enabled": true,
                             "template": [
                                 "GiftOperator/Operators/Wulfgard.png"
                             ]
                         },
-                        "GiftOperatorName": {
-                            "expected": [
-                                "狼卫",
-                                "狼衛",
-                                "Wulfgard",
-                                "ウルフガード",
-                                "울프가드"
+                        "GiftOperatorSelectGiftOp": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedGiftOp_Wulfgard": {
+                            "enabled": true
+                        },
+                        "GiftOperatorReceiveDialog": {
+                            "next": [
+                                "GiftOperatorMain"
                             ]
                         }
                     }
@@ -246,18 +336,19 @@
                             "enabled": false
                         },
                         "GiftOperatorSelectSpecifiedOp": {
-                            "enabled": true,
                             "template": [
                                 "GiftOperator/Operators/Antal.png"
                             ]
                         },
-                        "GiftOperatorName": {
-                            "expected": [
-                                "安塔尔",
-                                "安塔爾",
-                                "Antal",
-                                "アンタル",
-                                "안탈"
+                        "GiftOperatorSelectGiftOp": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedGiftOp_Antal": {
+                            "enabled": true
+                        },
+                        "GiftOperatorReceiveDialog": {
+                            "next": [
+                                "GiftOperatorMain"
                             ]
                         }
                     }
@@ -276,18 +367,19 @@
                             "enabled": false
                         },
                         "GiftOperatorSelectSpecifiedOp": {
-                            "enabled": true,
                             "template": [
                                 "GiftOperator/Operators/Xaihi.png"
                             ]
                         },
-                        "GiftOperatorName": {
-                            "expected": [
-                                "赛希",
-                                "賽希",
-                                "Xaihi",
-                                "ザイヒ",
-                                "자이히"
+                        "GiftOperatorSelectGiftOp": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedGiftOp_Xaihi": {
+                            "enabled": true
+                        },
+                        "GiftOperatorReceiveDialog": {
+                            "next": [
+                                "GiftOperatorMain"
                             ]
                         }
                     }
@@ -306,18 +398,19 @@
                             "enabled": false
                         },
                         "GiftOperatorSelectSpecifiedOp": {
-                            "enabled": true,
                             "template": [
                                 "GiftOperator/Operators/Lifeng.png"
                             ]
                         },
-                        "GiftOperatorName": {
-                            "expected": [
-                                "黎风",
-                                "黎風",
-                                "Lifeng",
-                                "リーフォン",
-                                "여풍"
+                        "GiftOperatorSelectGiftOp": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedGiftOp_Lifeng": {
+                            "enabled": true
+                        },
+                        "GiftOperatorReceiveDialog": {
+                            "next": [
+                                "GiftOperatorMain"
                             ]
                         }
                     }
@@ -336,18 +429,19 @@
                             "enabled": false
                         },
                         "GiftOperatorSelectSpecifiedOp": {
-                            "enabled": true,
                             "template": [
                                 "GiftOperator/Operators/Catcher.png"
                             ]
                         },
-                        "GiftOperatorName": {
-                            "expected": [
-                                "卡契尔",
-                                "卡契爾",
-                                "Catcher",
-                                "キャッチャー",
-                                "카치르"
+                        "GiftOperatorSelectGiftOp": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedGiftOp_Catcher": {
+                            "enabled": true
+                        },
+                        "GiftOperatorReceiveDialog": {
+                            "next": [
+                                "GiftOperatorMain"
                             ]
                         }
                     }
@@ -366,18 +460,19 @@
                             "enabled": false
                         },
                         "GiftOperatorSelectSpecifiedOp": {
-                            "enabled": true,
                             "template": [
                                 "GiftOperator/Operators/Arclight.png"
                             ]
                         },
-                        "GiftOperatorName": {
-                            "expected": [
-                                "弧光",
-                                "弧光",
-                                "Arclight",
-                                "アークライト",
-                                "아크라이트"
+                        "GiftOperatorSelectGiftOp": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedGiftOp_Arclight": {
+                            "enabled": true
+                        },
+                        "GiftOperatorReceiveDialog": {
+                            "next": [
+                                "GiftOperatorMain"
                             ]
                         }
                     }
@@ -396,18 +491,19 @@
                             "enabled": false
                         },
                         "GiftOperatorSelectSpecifiedOp": {
-                            "enabled": true,
                             "template": [
                                 "GiftOperator/Operators/Avywenna.png"
                             ]
                         },
-                        "GiftOperatorName": {
-                            "expected": [
-                                "艾维文娜",
-                                "艾維文娜",
-                                "Avywenna",
-                                "アイビーエナ",
-                                "아비웨나"
+                        "GiftOperatorSelectGiftOp": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedGiftOp_Avywenna": {
+                            "enabled": true
+                        },
+                        "GiftOperatorReceiveDialog": {
+                            "next": [
+                                "GiftOperatorMain"
                             ]
                         }
                     }
@@ -426,18 +522,19 @@
                             "enabled": false
                         },
                         "GiftOperatorSelectSpecifiedOp": {
-                            "enabled": true,
                             "template": [
                                 "GiftOperator/Operators/Laevatain.png"
                             ]
                         },
-                        "GiftOperatorName": {
-                            "expected": [
-                                "莱万汀",
-                                "萊萬汀",
-                                "Laevatain",
-                                "レーヴァテイン",
-                                "레바테인"
+                        "GiftOperatorSelectGiftOp": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedGiftOp_Laevatain": {
+                            "enabled": true
+                        },
+                        "GiftOperatorReceiveDialog": {
+                            "next": [
+                                "GiftOperatorMain"
                             ]
                         }
                     }
@@ -456,18 +553,19 @@
                             "enabled": false
                         },
                         "GiftOperatorSelectSpecifiedOp": {
-                            "enabled": true,
                             "template": [
                                 "GiftOperator/Operators/Alesh.png"
                             ]
                         },
-                        "GiftOperatorName": {
-                            "expected": [
-                                "阿列什",
-                                "阿列什",
-                                "Alesh",
-                                "アレッシュ",
-                                "알레쉬"
+                        "GiftOperatorSelectGiftOp": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedGiftOp_Alesh": {
+                            "enabled": true
+                        },
+                        "GiftOperatorReceiveDialog": {
+                            "next": [
+                                "GiftOperatorMain"
                             ]
                         }
                     }
@@ -486,18 +584,19 @@
                             "enabled": false
                         },
                         "GiftOperatorSelectSpecifiedOp": {
-                            "enabled": true,
                             "template": [
                                 "GiftOperator/Operators/Pogranichnik.png"
                             ]
                         },
-                        "GiftOperatorName": {
-                            "expected": [
-                                "骏卫",
-                                "駿衛",
-                                "Pogranichnik",
-                                "ポグラニチニク",
-                                "포그라니치니크"
+                        "GiftOperatorSelectGiftOp": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedGiftOp_Pogranichnik": {
+                            "enabled": true
+                        },
+                        "GiftOperatorReceiveDialog": {
+                            "next": [
+                                "GiftOperatorMain"
                             ]
                         }
                     }
@@ -516,18 +615,19 @@
                             "enabled": false
                         },
                         "GiftOperatorSelectSpecifiedOp": {
-                            "enabled": true,
                             "template": [
                                 "GiftOperator/Operators/LastRite.png"
                             ]
                         },
-                        "GiftOperatorName": {
-                            "expected": [
-                                "别礼",
-                                "別禮",
-                                "Last Rite",
-                                "ラストライト",
-                                "라스트 라이트"
+                        "GiftOperatorSelectGiftOp": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedGiftOp_LastRite": {
+                            "enabled": true
+                        },
+                        "GiftOperatorReceiveDialog": {
+                            "next": [
+                                "GiftOperatorMain"
                             ]
                         }
                     }
@@ -546,18 +646,19 @@
                             "enabled": false
                         },
                         "GiftOperatorSelectSpecifiedOp": {
-                            "enabled": true,
                             "template": [
                                 "GiftOperator/Operators/Ember.png"
                             ]
                         },
-                        "GiftOperatorName": {
-                            "expected": [
-                                "余烬",
-                                "餘燼",
-                                "Ember",
-                                "エンバー",
-                                "엠버"
+                        "GiftOperatorSelectGiftOp": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedGiftOp_Ember": {
+                            "enabled": true
+                        },
+                        "GiftOperatorReceiveDialog": {
+                            "next": [
+                                "GiftOperatorMain"
                             ]
                         }
                     }
@@ -576,18 +677,19 @@
                             "enabled": false
                         },
                         "GiftOperatorSelectSpecifiedOp": {
-                            "enabled": true,
                             "template": [
                                 "GiftOperator/Operators/Snowshine.png"
                             ]
                         },
-                        "GiftOperatorName": {
-                            "expected": [
-                                "昼雪",
-                                "晝雪",
-                                "Snowshine",
-                                "スノーシャイン",
-                                "스노우샤인"
+                        "GiftOperatorSelectGiftOp": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedGiftOp_Snowshine": {
+                            "enabled": true
+                        },
+                        "GiftOperatorReceiveDialog": {
+                            "next": [
+                                "GiftOperatorMain"
                             ]
                         }
                     }
@@ -606,18 +708,19 @@
                             "enabled": false
                         },
                         "GiftOperatorSelectSpecifiedOp": {
-                            "enabled": true,
                             "template": [
                                 "GiftOperator/Operators/DaPan.png"
                             ]
                         },
-                        "GiftOperatorName": {
-                            "expected": [
-                                "大潘",
-                                "大潘",
-                                "Da Pan",
-                                "ダパン",
-                                "판"
+                        "GiftOperatorSelectGiftOp": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedGiftOp_DaPan": {
+                            "enabled": true
+                        },
+                        "GiftOperatorReceiveDialog": {
+                            "next": [
+                                "GiftOperatorMain"
                             ]
                         }
                     }
@@ -636,18 +739,19 @@
                             "enabled": false
                         },
                         "GiftOperatorSelectSpecifiedOp": {
-                            "enabled": true,
                             "template": [
                                 "GiftOperator/Operators/Fluorite.png"
                             ]
                         },
-                        "GiftOperatorName": {
-                            "expected": [
-                                "萤石",
-                                "螢石",
-                                "Fluorite",
-                                "フローライト",
-                                "플루라이트"
+                        "GiftOperatorSelectGiftOp": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedGiftOp_Fluorite": {
+                            "enabled": true
+                        },
+                        "GiftOperatorReceiveDialog": {
+                            "next": [
+                                "GiftOperatorMain"
                             ]
                         }
                     }
@@ -666,18 +770,19 @@
                             "enabled": false
                         },
                         "GiftOperatorSelectSpecifiedOp": {
-                            "enabled": true,
                             "template": [
                                 "GiftOperator/Operators/Akekuri.png"
                             ]
                         },
-                        "GiftOperatorName": {
-                            "expected": [
-                                "秋栗",
-                                "秋栗",
-                                "Akekuri",
-                                "アケクリ",
-                                "아케쿠리"
+                        "GiftOperatorSelectGiftOp": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedGiftOp_Akekuri": {
+                            "enabled": true
+                        },
+                        "GiftOperatorReceiveDialog": {
+                            "next": [
+                                "GiftOperatorMain"
                             ]
                         }
                     }
@@ -696,18 +801,19 @@
                             "enabled": false
                         },
                         "GiftOperatorSelectSpecifiedOp": {
-                            "enabled": true,
                             "template": [
                                 "GiftOperator/Operators/Estella.png"
                             ]
                         },
-                        "GiftOperatorName": {
-                            "expected": [
-                                "埃特拉",
-                                "埃特拉",
-                                "Estella",
-                                "エステーラ",
-                                "에스텔라"
+                        "GiftOperatorSelectGiftOp": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedGiftOp_Estella": {
+                            "enabled": true
+                        },
+                        "GiftOperatorReceiveDialog": {
+                            "next": [
+                                "GiftOperatorMain"
                             ]
                         }
                     }
@@ -726,18 +832,19 @@
                             "enabled": false
                         },
                         "GiftOperatorSelectSpecifiedOp": {
-                            "enabled": true,
                             "template": [
                                 "GiftOperator/Operators/Rossi.png"
                             ]
                         },
-                        "GiftOperatorName": {
-                            "expected": [
-                                "洛茜",
-                                "洛西",
-                                "Rossi",
-                                "ロッシ",
-                                "로시"
+                        "GiftOperatorSelectGiftOp": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedGiftOp_Rossi": {
+                            "enabled": true
+                        },
+                        "GiftOperatorReceiveDialog": {
+                            "next": [
+                                "GiftOperatorMain"
                             ]
                         }
                     }
@@ -756,18 +863,19 @@
                             "enabled": false
                         },
                         "GiftOperatorSelectSpecifiedOp": {
-                            "enabled": true,
                             "template": [
                                 "GiftOperator/Operators/Tangtang.png"
                             ]
                         },
-                        "GiftOperatorName": {
-                            "expected": [
-                                "汤汤",
-                                "湯湯",
-                                "Tangtang",
-                                "タンタン",
-                                "탕탕"
+                        "GiftOperatorSelectGiftOp": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedGiftOp_Tangtang": {
+                            "enabled": true
+                        },
+                        "GiftOperatorReceiveDialog": {
+                            "next": [
+                                "GiftOperatorMain"
                             ]
                         }
                     }
@@ -786,18 +894,19 @@
                             "enabled": false
                         },
                         "GiftOperatorSelectSpecifiedOp": {
-                            "enabled": true,
                             "template": [
                                 "GiftOperator/Operators/ZhuangFangyi.png"
                             ]
                         },
-                        "GiftOperatorName": {
-                            "expected": [
-                                "庄方宜",
-                                "莊方宜",
-                                "Zhuang Fangyi",
-                                "ゾアン・ファンイ",
-                                "장방이"
+                        "GiftOperatorSelectGiftOp": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedGiftOp_ZhuangFangyi": {
+                            "enabled": true
+                        },
+                        "GiftOperatorReceiveDialog": {
+                            "next": [
+                                "GiftOperatorMain"
                             ]
                         }
                     }
@@ -816,18 +925,19 @@
                             "enabled": false
                         },
                         "GiftOperatorSelectSpecifiedOp": {
-                            "enabled": true,
                             "template": [
                                 "GiftOperator/Operators/MiFu.png"
                             ]
                         },
-                        "GiftOperatorName": {
-                            "expected": [
-                                "弭弗",
-                                "弭弗",
-                                "Mi Fu",
-                                "ミ・フ",
-                                "미푸"
+                        "GiftOperatorSelectGiftOp": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedGiftOp_MiFu": {
+                            "enabled": true
+                        },
+                        "GiftOperatorReceiveDialog": {
+                            "next": [
+                                "GiftOperatorMain"
                             ]
                         }
                     }
@@ -846,18 +956,19 @@
                             "enabled": false
                         },
                         "GiftOperatorSelectSpecifiedOp": {
-                            "enabled": true,
                             "template": [
                                 "GiftOperator/Operators/Camille.png"
                             ]
                         },
-                        "GiftOperatorName": {
-                            "expected": [
-                                "卡缪",
-                                "卡繆",
-                                "Camille",
-                                "カミーユ",
-                                "카뮤"
+                        "GiftOperatorSelectGiftOp": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedGiftOp_Camille": {
+                            "enabled": true
+                        },
+                        "GiftOperatorReceiveDialog": {
+                            "next": [
+                                "GiftOperatorMain"
                             ]
                         }
                     }
@@ -876,18 +987,19 @@
                             "enabled": false
                         },
                         "GiftOperatorSelectSpecifiedOp": {
-                            "enabled": true,
                             "template": [
                                 "GiftOperator/Operators/Arcane.png"
                             ]
                         },
-                        "GiftOperatorName": {
-                            "expected": [
-                                "诀",
-                                "訣",
-                                "Arcane",
-                                "オクギ",
-                                "결"
+                        "GiftOperatorSelectGiftOp": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedGiftOp_Jue": {
+                            "enabled": true
+                        },
+                        "GiftOperatorReceiveDialog": {
+                            "next": [
+                                "GiftOperatorMain"
                             ]
                         }
                     }
@@ -906,18 +1018,19 @@
                             "enabled": false
                         },
                         "GiftOperatorSelectSpecifiedOp": {
-                            "enabled": true,
                             "template": [
                                 "GiftOperator/Operators/Liino.png"
                             ]
                         },
-                        "GiftOperatorName": {
-                            "expected": [
-                                "梨诺",
-                                "梨諾",
-                                "Liino",
-                                "リーノ",
-                                "리노"
+                        "GiftOperatorSelectGiftOp": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedGiftOp_Liino": {
+                            "enabled": true
+                        },
+                        "GiftOperatorReceiveDialog": {
+                            "next": [
+                                "GiftOperatorMain"
                             ]
                         }
                     }
@@ -933,6 +1046,7 @@
                 {
                     "name": "Yes",
                     "option": [
+                        "SelectOperator",
                         "AcceptAllGifts"
                     ],
                     "pipeline_override": {
@@ -964,6 +1078,9 @@
                                 "GiftOperatorBranchReceive",
                                 "GiftOperatorLeave"
                             ]
+                        },
+                        "GiftOperatorNoGiftOperatorSpecified": {
+                            "enabled": true
                         }
                     }
                 },
@@ -973,7 +1090,20 @@
                         "SelectOperator",
                         "SendWrongGift"
                     ],
-                    "pipeline_override": {}
+                    "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": true
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": true
+                        },
+                        "GiftOperatorSelectOp1": {
+                            "enabled": true
+                        },
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "enabled": true
+                        }
+                    }
                 }
             ]
         },
