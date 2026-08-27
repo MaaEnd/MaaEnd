@@ -391,7 +391,7 @@ It supports:
 1. Direct connection to the current game window to record actual movement trajectories.
 2. Automatic addition of `ZONE` / `PORTAL` semantics based on area transitions.
 3. Deleting points, dragging points, changing coordinate point actions, modifying strict arrival, and declaring an optional per-point coordinate tier in the GUI.
-4. Importing existing JSON / JSONC, recursively searching for recognizable `path` data and continuing editing.
+4. Selecting existing project Pipeline nodes from `assets`, or reading JSON from the current clipboard under `More`.
 5. One-click copying of canonical `path` that can be directly pasted into `custom_action_param.path`.
 6. Through an independent `Assert mode` to manually select the base map and frame rectangular areas, exporting `MapLocateAssertLocation` nodes.
 7. Entering BaseNav A\* mode, loading `.nav.gz` / `.nav`, previewing paths on the red triangle face overlay, and copying `NAVMESH` nodes.
@@ -530,11 +530,11 @@ What the tool copies to the clipboard is **only the `path` body**, not the compl
 
 This is also why it is recommended to finish all orchestration in the GUI before copying, because the exported content is already in the canonical format that MapNavigator can directly consume.
 
-### Importing Existing Paths for Editing
+### Importing Project Nodes
 
-If you have already written a path in another Pipeline, or a colleague has given you a piece of JSON / JSONC, you can also click **`Import JSON`**.
+All three route-making modes use **`Select Project Node`** as their primary import entry. The path editor and A\* preview list `MapNavigateAction` nodes; Assert mode lists `MapLocateAssertLocation` nodes by default and can switch to reference routes. The selector searches by resource path, node name, or zone, so files containing several Pipeline nodes are not imported ambiguously.
 
-The tool will recursively scan the file for recognizable `path` data and automatically load the candidate route with the most points. If the source data lacks zone information, the GUI will prompt you to assign areas to each route segment before continuing with editing and exporting.
+Each mode provides **`Read Clipboard JSON`** under **`More`**. The generic recursive importer recognizes a complete Pipeline, a single `MapNavigateAction` / `MapLocateAssertLocation` node, a `{"path": [...]}` object, or a bare `path` array. If path data lacks zone information, the GUI prompts for a zone assignment before loading it. Clipboard access is initiated by the button click, and the browser may request permission the first time.
 
 This is very suitable for the following scenarios:
 

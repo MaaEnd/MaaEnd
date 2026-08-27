@@ -274,6 +274,30 @@ export function locateOnce(connection) {
 // --- import / export (backend keeps json_import.py) -----------------------------------
 
 /**
+ * Importable MapNavigateAction / MapLocateAssertLocation nodes under project assets.
+ * @returns {Promise<{nodes:Array<Object>}>}
+ */
+export function getProjectNodes() {
+  return getJson('/api/project-nodes');
+}
+
+/**
+ * Load one previously discovered project node. The backend revalidates that
+ * `resourcePath` still resolves inside project assets before reading it.
+ * @param {'path'|'assert'} kind import node kind
+ * @param {string} resourcePath project-relative assets path
+ * @param {string} nodeName top-level Pipeline node name
+ * @returns {Promise<Object>}
+ */
+export function loadProjectNode(kind, resourcePath, nodeName) {
+  return sendJson('/api/project-nodes/load', {
+    kind,
+    resource_path: resourcePath,
+    node_name: nodeName,
+  });
+}
+
+/**
  * Analyze an uploaded JSON (phase 1 of import, mirrors the head of tk `import_json`).
  * The backend tries a route import first, falling back to an AssertLocation import.
  * Discriminated by `kind`:

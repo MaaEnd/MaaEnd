@@ -213,11 +213,14 @@
             <button id="btn-next" class="btn btn-secondary btn-icon" type="button" title="下一个片段">&gt;</button>
           </div>
 
-          <div class="sidebar-row grid-btns-2">
-            <button id="btn-import" class="btn btn-secondary" type="button">导入 JSON</button>
+          <div class="sidebar-row grid-btns-import">
+            <button id="btn-import" class="btn btn-secondary" type="button">选择项目节点</button>
             <button id="btn-copy-path" class="btn btn-secondary" type="button">复制路径</button>
+            <button id="btn-edit-import-more" class="btn btn-secondary btn-more" type="button" aria-expanded="false">更多</button>
           </div>
-          <input id="file-input" type="file" accept=".json,.jsonc,application/json" hidden />
+          <div id="edit-import-more-menu" class="sidebar-more-menu" hidden>
+            <button id="btn-edit-read-clipboard" class="btn btn-secondary" type="button">读取剪贴板 JSON</button>
+          </div>
         </div>
 
         <!-- 路点属性 -->
@@ -303,9 +306,13 @@
               <option value="coordinates">仅坐标（NavAssert）</option>
             </select>
           </div>
-          <div class="sidebar-row grid-btns-2">
-            <button id="btn-assert-import" class="btn btn-secondary" type="button" title="导入路线（画出真实点）或 AssertLocation（画出断言矩形）">导入 JSON</button>
+          <div class="sidebar-row grid-btns-import">
+            <button id="btn-assert-import" class="btn btn-secondary" type="button" title="选择断言节点，或切换到参考路线">选择项目节点</button>
             <button id="btn-copy-assert" class="btn btn-secondary" type="button" title="复制当前断言矩形，需先在地图上拖拽画框">复制断言 JSON</button>
+            <button id="btn-assert-import-more" class="btn btn-secondary btn-more" type="button" aria-expanded="false">更多</button>
+          </div>
+          <div id="assert-import-more-menu" class="sidebar-more-menu" hidden>
+            <button id="btn-assert-read-clipboard" class="btn btn-secondary" type="button">读取剪贴板 JSON</button>
           </div>
           <div class="sidebar-row">
             <button id="btn-clear-assert" class="btn btn-danger-outline" style="width: 100%" type="button">清除断言</button>
@@ -350,9 +357,13 @@
             <div class="sidebar-hint">点一层预览，「选择」把该层高度写进 target_deck_y</div>
           </div>
 
-          <div class="sidebar-row grid-btns-2">
-            <button id="btn-astar-import" class="btn btn-secondary" type="button" title="把 JSON 里的点标成预览点（不写入路线）">导入 JSON</button>
+          <div class="sidebar-row grid-btns-import">
+            <button id="btn-astar-import" class="btn btn-secondary" type="button" title="选择项目路线并把其中坐标标成预览点">选择项目节点</button>
             <button id="btn-copy-navmesh" class="btn btn-secondary" type="button" title="复制最后一个预览点为 NAVMESH 目标（有预览路线时复制整条）">复制 JSON 配置</button>
+            <button id="btn-astar-import-more" class="btn btn-secondary btn-more" type="button" aria-expanded="false">更多</button>
+          </div>
+          <div id="astar-import-more-menu" class="sidebar-more-menu" hidden>
+            <button id="btn-astar-read-clipboard" class="btn btn-secondary" type="button">读取剪贴板 JSON</button>
           </div>
           <div class="sidebar-row">
             <button id="btn-clear-astar" class="btn btn-danger-outline" style="width: 100%" type="button">清除预览</button>
@@ -478,6 +489,24 @@
               <div id="position-zone" class="position-readout-zone">等待游戏定位</div>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 从当前项目 assets 选择 MapNavigateAction / MapLocateAssertLocation 节点 -->
+    <div id="project-node-dialog" class="modal" hidden>
+      <div class="modal-panel project-node-panel">
+        <h2 class="modal-title">选择项目节点</h2>
+        <p id="project-node-hint" class="modal-hint"></p>
+        <div id="project-node-kinds" class="project-node-kinds" role="tablist" aria-label="断言导入类型" hidden>
+          <button id="project-node-kind-assert" class="project-node-kind active" type="button" role="tab" aria-selected="true">断言节点</button>
+          <button id="project-node-kind-path" class="project-node-kind" type="button" role="tab" aria-selected="false">参考路线</button>
+        </div>
+        <input id="project-node-search" class="entry project-node-search" type="search" placeholder="搜索资源路径、节点名或区域" />
+        <div id="project-node-list" class="project-node-list" role="listbox" aria-label="项目节点"></div>
+        <div class="modal-actions">
+          <button id="project-node-cancel" class="btn btn-secondary" type="button">取消</button>
+          <button id="project-node-ok" class="btn btn-primary" type="button" disabled>载入所选节点</button>
         </div>
       </div>
     </div>

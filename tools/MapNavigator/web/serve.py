@@ -27,6 +27,8 @@
   GET  /api/gamescope/instances   -> 当前发现到的 gamescope 实例枚举 (供下拉)
   POST /api/connection/check  -> 主动探测当前连接配置是否可达 (win32 窗口 / adb 设备 / playcover 端口 / linux gamescope)
   POST /api/locate-once       -> 单次游戏内定位 (临时连接, 取第 3 个有效帧的位置与朝向)
+  GET  /api/project-nodes      -> 扫描 assets 中可导入的导航 / 断言节点
+  POST /api/project-nodes/load -> 读取所选项目节点
   POST /api/import/analyze    -> 解析上传 JSON (路线/Assert); 缺 zone 时回片段供前端指定
   POST /api/import/finalize   -> 按片段 zone 指定定稿导入 (归一化 + zone 校验)
   POST /api/export/path       -> 点位 -> path 节点 + JSON 文本 (与 tk 逐字节一致)
@@ -730,7 +732,8 @@ async def api_gamescope_instances() -> dict[str, Any]:
 
 
 # --- 导入 / 导出 (复用 json_import.py) ------------------------------------------------
-# 前端只做收发: POST 文件文本 -> 后端算 -> 拿回归一化点位; POST 点位 -> 拿回 JSON 文本。
+# 项目路线由后端扫描并受限读取；通用导入仍是 POST 文件文本 -> 后端算 -> 拿回归一化点位。
+# 导出则是 POST 点位 -> 拿回 JSON 文本。
 # 惰性 import: 只在真正导入/导出时才加载 json_import (它会扫描图源目录),
 # 从而纯导航/编辑用户即使缺这些资源也能启动服务。
 def _write_temp_json(text: str) -> Path:
@@ -741,6 +744,39 @@ def _write_temp_json(text: str) -> Path:
     with os.fdopen(fd, "w", encoding="utf-8") as handle:
         handle.write(text)
     return Path(tmp)
+
+
+@app.get("/api/project-nodes")
+async def api_project_nodes() -> dict[str, Any]:
+    """扫描项目 assets，返回路线制作工具可选择的导航 / 断言节点。"""
+
+    def _run() -> dict[str, Any]:
+        from json_import import scan_project_import_nodes
+
+        return {"nodes": [asdict(node) for node in scan_project_import_nodes()]}
+
+    return await run_in_threadpool(_run)
+
+
+@app.post("/api/project-nodes/load")
+async def api_load_project_node(payload: dict[str, Any] = Body(default_factory=dict)) -> Any:
+    """重新校验 assets 相对路径并读取所选节点，不接受任意本地文件路径。"""
+    kind = str(payload.get("kind", "") or "").strip()
+    resource_path = str(payload.get("resource_path", "") or "").strip()
+    node_name = str(payload.get("node_name", "") or "").strip()
+    if kind not in {"path", "assert"} or not resource_path or not node_name:
+        raise HTTPException(status_code=400, detail="kind / resource_path / node_name 无效")
+
+    def _run() -> dict[str, Any]:
+        from json_import import load_project_import_node
+
+        try:
+            imported = load_project_import_node(kind, resource_path, node_name)
+        except (OSError, ValueError) as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+        return {"ok": True, "resource_path": resource_path, "node_name": node_name, **imported}
+
+    return await run_in_threadpool(_run)
 
 
 # 导入是「分析 -> (可选)区域指定 -> 定稿」两阶段, 逐字节复刻 app_tk.import_json /

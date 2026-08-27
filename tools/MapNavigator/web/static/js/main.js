@@ -247,7 +247,9 @@ class MapNavigatorApp {
             btnCopyAssert: $("btn-copy-assert"),
             assertCopyFormat: $("assert-copy-format"),
             btnImport: $("btn-import"),
-            fileInput: $("file-input"),
+            btnEditImportMore: $("btn-edit-import-more"),
+            editImportMoreMenu: $("edit-import-more-menu"),
+            btnEditReadClipboard: $("btn-edit-read-clipboard"),
             btnPrev: $("btn-prev"),
             btnNext: $("btn-next"),
             zoneLabel: $("zone-label"),
@@ -301,6 +303,15 @@ class MapNavigatorApp {
             importDialogRows: $("import-dialog-rows"),
             importDialogCancel: $("import-dialog-cancel"),
             importDialogOk: $("import-dialog-ok"),
+            projectNodeDialog: $("project-node-dialog"),
+            projectNodeHint: $("project-node-hint"),
+            projectNodeKinds: $("project-node-kinds"),
+            projectNodeKindAssert: $("project-node-kind-assert"),
+            projectNodeKindPath: $("project-node-kind-path"),
+            projectNodeSearch: $("project-node-search"),
+            projectNodeList: $("project-node-list"),
+            projectNodeCancel: $("project-node-cancel"),
+            projectNodeOk: $("project-node-ok"),
             propertiesLegend: $("properties-legend"),
             tabRoute: $("tab-route"),
             tabEdit: $("tab-edit"),
@@ -365,6 +376,12 @@ class MapNavigatorApp {
             btnAstarMarkCoord: $("btn-astar-mark-coord"),
             btnAstarImport: $("btn-astar-import"),
             btnAssertImport: $("btn-assert-import"),
+            btnAstarImportMore: $("btn-astar-import-more"),
+            astarImportMoreMenu: $("astar-import-more-menu"),
+            btnAstarReadClipboard: $("btn-astar-read-clipboard"),
+            btnAssertImportMore: $("btn-assert-import-more"),
+            assertImportMoreMenu: $("assert-import-more-menu"),
+            btnAssertReadClipboard: $("btn-assert-read-clipboard"),
             astarDeckBox: $("astar-deck-box"),
             astarDeckTitle: $("astar-deck-title"),
             astarDeckList: $("astar-deck-list"),
@@ -426,12 +443,20 @@ class MapNavigatorApp {
             });
             this.importer = new Importer(
                 {
-                    fileInput: this.els.fileInput,
                     btnImport: this.els.btnImport,
                     dialog: this.els.importDialog,
                     dialogRows: this.els.importDialogRows,
                     dialogOk: this.els.importDialogOk,
                     dialogCancel: this.els.importDialogCancel,
+                    projectDialog: this.els.projectNodeDialog,
+                    projectHint: this.els.projectNodeHint,
+                    projectKinds: this.els.projectNodeKinds,
+                    projectKindAssert: this.els.projectNodeKindAssert,
+                    projectKindPath: this.els.projectNodeKindPath,
+                    projectSearch: this.els.projectNodeSearch,
+                    projectList: this.els.projectNodeList,
+                    projectCancel: this.els.projectNodeCancel,
+                    projectOk: this.els.projectNodeOk,
                 },
                 {
                     loadPoints: (points) => this._importLoadPoints(points),
@@ -757,9 +782,11 @@ class MapNavigatorApp {
                 if (ev.key === "Enter") this._onAstarMarkCoord();
             });
         }
-        // One file picker, three entry points (edit / A* / assert) — same two-phase import.
-        e.btnAstarImport.addEventListener("click", () => this.importer.openPicker());
-        e.btnAssertImport.addEventListener("click", () => this.importer.openPicker());
+        e.btnAstarImport.addEventListener("click", () => this.importer.openProjectPicker("astar"));
+        e.btnAssertImport.addEventListener("click", () => this.importer.openProjectPicker("assert"));
+        this._wireImportMore(e.btnEditImportMore, e.editImportMoreMenu, e.btnEditReadClipboard);
+        this._wireImportMore(e.btnAstarImportMore, e.astarImportMoreMenu, e.btnAstarReadClipboard);
+        this._wireImportMore(e.btnAssertImportMore, e.assertImportMoreMenu, e.btnAssertReadClipboard);
         e.tabRoute.addEventListener("click", () => this._selectModeTab(this._lastRouteMode));
         e.tabEdit.addEventListener("click", () => this._selectModeTab("edit"));
         e.tabAstar.addEventListener("click", () => this._selectModeTab("astar"));
@@ -899,6 +926,28 @@ class MapNavigatorApp {
         } else {
             window.addEventListener("resize", () => this._resize());
         }
+    }
+
+    /** Toggle one mode's secondary import menu and keep clipboard import shared. */
+    _wireImportMore(button, menu, clipboardButton) {
+        button.addEventListener("click", () => {
+            const opening = menu.hidden;
+            for (const [otherButton, otherMenu] of [
+                [this.els.btnEditImportMore, this.els.editImportMoreMenu],
+                [this.els.btnAstarImportMore, this.els.astarImportMoreMenu],
+                [this.els.btnAssertImportMore, this.els.assertImportMoreMenu],
+            ]) {
+                otherMenu.hidden = true;
+                otherButton.setAttribute("aria-expanded", "false");
+            }
+            menu.hidden = !opening;
+            button.setAttribute("aria-expanded", opening ? "true" : "false");
+        });
+        clipboardButton.addEventListener("click", () => {
+            menu.hidden = true;
+            button.setAttribute("aria-expanded", "false");
+            this.importer.readClipboard();
+        });
     }
 
     /** Resize both canvases to the wrap's CSS size at the device pixel ratio. @returns {void} */
