@@ -47,7 +47,7 @@ import {nextWheelSelectIndex} from "./ui/select.js";
 import {ConnectionPanel} from "./ui/connection.js";
 import {RecordingController} from "./ui/recording.js";
 import {NavTestController} from "./ui/navtest.js";
-import {collectAstarImportBasePoints, Importer} from "./ui/importer.js";
+import {collectAstarImportBasePoints, completeAstarImportWithStart, Importer} from "./ui/importer.js";
 import {PositionReadout} from "./ui/position.js";
 import {
     getZones,
@@ -124,6 +124,8 @@ class MapNavigatorApp {
          * @type {Array<{x:number, y:number, label:string, rot:?number}>}
          */
         this.astarLocateHints = [];
+        /** @type {number[][]} imported targets waiting for a manual start, in base px. */
+        this.astarPendingTargets = [];
         /** @type {?{x0:number,y0:number,x1:number,y1:number}} canvas-px selection box. */
         this.selectionRect = null;
         /** @type {Array<number[]>} A* path finder waypoints in display-frame world. */
@@ -132,7 +134,7 @@ class MapNavigatorApp {
         this.astarRoute = null;
         /**
          * 每个 A* 路点声明的可走面高度(`target_deck_y`),与 {@link astarPoints} 同下标;
-         * `null` = 不声明 = 寻路取整格全部面。`hintDeck` 是只有一个预览点时的同一件事。
+         * `null` = 不声明 = 寻路取整格全部面。`hintDeck` 是最后一个预览目标点的同一件事。
          * @type {Array<?number>}
          */
         this.astarDecks = [];
@@ -2626,6 +2628,33 @@ class MapNavigatorApp {
             wy,
         ] = this.camera.canvasToWorld(x, y);
 
+        const importedRoute =
+            this.astarPoints.length === 0
+                ? completeAstarImportWithStart(
+                      [
+                          wx,
+                          wy,
+                      ],
+                      this.astarPendingTargets,
+                      this.hintDeck,
+                      (bx, by) => this._baseToDisplay(bx, by),
+                  )
+                : null;
+        if (importedRoute) {
+            const importedCount = this.astarPendingTargets.length;
+            this.astarPoints = importedRoute.points;
+            this.astarDecks = importedRoute.decks;
+            this.astarRoute = null;
+            this.astarLocateHints = [];
+            this.astarPendingTargets = [];
+            this.hintDeck = null;
+            setStatus(`正在从手动起点规划经过 ${importedCount} 个导入点...`, "#eab308");
+            this._calculateAstarPreview();
+            this._astarRouteChanged();
+            this._paint();
+            return;
+        }
+
         if (this.activeTool === "astar-single") {
             if (this.astarPoints.length === 0 || this.astarPoints.length >= 2) {
                 this.astarPoints = [
@@ -3040,6 +3069,7 @@ class MapNavigatorApp {
         this.hintDeck = null;
         this.astarRoute = null;
         this.astarLocateHints = [];
+        this.astarPendingTargets = [];
         this._resetOffMeshOverlays();
         this._astarRouteChanged();
     }
@@ -3167,6 +3197,7 @@ class MapNavigatorApp {
      */
     _addAstarHint(x, y, label, rot = null) {
         this.astarLocateHints.push({x, y, label, rot});
+        this.astarPendingTargets = [];
         this.hintDeck = null;
         this._refreshDeckProbe();
     }
@@ -4566,7 +4597,7 @@ class MapNavigatorApp {
     /**
      * {@link Importer} parsed a path import.
      * - EDIT / Assert: the points become the real route (Assert draws them read-only).
-     * - A*: imported coordinates become A* waypoints and are planned immediately.
+     * - A*: imported coordinates wait as targets until a manual start is clicked.
      * @param {object[]} points
      * @returns {{text?:string, color?:string}|void} a status lead-in replacing the importer's default
      */
@@ -4591,10 +4622,9 @@ class MapNavigatorApp {
     }
 
     /**
-     * A* import: convert every coordinate on the first navmesh geometry into the selected
-     * display frame. Two or more become waypoints and are planned immediately; a lone
-     * coordinate remains a copyable target hint because there is no start to plan from.
-     * The editor's real route remains untouched.
+     * A* import: keep every coordinate on the first navmesh geometry as a pending target.
+     * The next map click prepends a manual start and then plans through all targets in the
+     * imported order. The editor's real route remains untouched.
      * @param {object[]} points
      * @returns {{text?:string, color?:string}|void} the status lead-in
      */
@@ -4623,30 +4653,24 @@ class MapNavigatorApp {
                 color: "#f59e0b",
             };
         }
-        if (importedCount === 1) {
-            const [
-                bx,
-                by,
-            ] = imported.basePoints[0];
-            this._addAstarHint(bx, by, "1");
-            this._fitDisplayPoints(displayPoints.map(([x, y]) => ({x, y})));
-            return {
-                text: `已导入 1 个目标预览点；缺少起点，无法规划路线${skippedNote}`,
-                color: "#f59e0b",
-            };
-        }
-
-        this.astarPoints = displayPoints;
-        this.astarDecks = this.astarPoints.map(() => null);
+        this.astarPoints = [];
+        this.astarDecks = [];
         this.astarRoute = null;
-        this.astarLocateHints = [];
+        this.astarLocateHints = imported.basePoints.map(([x, y], index) => ({
+            x,
+            y,
+            label: importedCount === 1 ? "导入目标" : `导入点 ${index + 1}`,
+            rot: null,
+        }));
+        this.astarPendingTargets = imported.basePoints.map((point) => point.slice(0, 2));
+        this.hintDeck = null;
+        this._setActiveTool(importedCount === 1 ? "astar-single" : "astar-multi");
         this._astarRouteChanged();
-        this._fitDisplayPoints(this.astarPoints.map(([x, y]) => ({x, y})));
-
-        this._calculateAstarPreview();
+        this._refreshDeckProbe();
+        this._fitDisplayPoints(displayPoints.map(([x, y]) => ({x, y})));
         return {
-            text: `已导入 ${importedCount} 个 A* 关键点，正在规划相邻点间的路线${skippedNote}`,
-            color: "#eab308",
+            text: `已导入 ${importedCount} 个目标点；请在地图上单击起点，随后将按导入顺序自动规划${skippedNote}`,
+            color: "#3b82f6",
         };
     }
 

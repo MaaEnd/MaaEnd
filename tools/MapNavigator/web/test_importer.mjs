@@ -3,6 +3,7 @@ import test from 'node:test';
 
 import {
   collectAstarImportBasePoints,
+  completeAstarImportWithStart,
   filterProjectNodes,
   readClipboardText,
 } from './static/js/ui/importer.js';
@@ -66,6 +67,29 @@ test('A* import resolves target tiers and keeps only the first navmesh geometry'
     ],
     skipped: 2,
   });
+});
+
+test('A* import prepends a manual start to every pending target', () => {
+  assert.deepEqual(
+    completeAstarImportWithStart(
+      [5, 6],
+      [
+        [10, 20],
+        [30, 40],
+      ],
+      123.5,
+      (x, y) => [x + 100, y + 200],
+    ),
+    {
+      points: [
+        [5, 6],
+        [110, 220],
+        [130, 240],
+      ],
+      decks: [null, null, 123.5],
+    },
+  );
+  assert.equal(completeAstarImportWithStart([5, 6], [], null, (x, y) => [x, y]), null);
 });
 
 test('clipboard reader returns the current JSON text unchanged', async () => {

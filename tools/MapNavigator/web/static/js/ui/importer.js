@@ -74,6 +74,42 @@ export function collectAstarImportBasePoints(points, resolveZoneId, geometryZone
 }
 
 /**
+ * Prepend one manually clicked start to imported targets waiting in base coordinates.
+ * Convert every target back into the active display frame so the regular A* planner can
+ * apply its usual base conversion once. The deck selector belongs to the final target.
+ * @param {number[]} start display-frame start
+ * @param {number[][]} pendingTargets base-frame imported targets
+ * @param {?number} finalTargetDeck imported final target's selected `target_deck_y`
+ * @param {(x:number, y:number)=>number[]} baseToDisplay
+ * @returns {?{points:number[][], decks:Array<?number>}}
+ */
+export function completeAstarImportWithStart(start, pendingTargets, finalTargetDeck, baseToDisplay) {
+  if (
+    !Array.isArray(start) ||
+    start.length < 2 ||
+    !start.slice(0, 2).every(Number.isFinite) ||
+    !Array.isArray(pendingTargets) ||
+    pendingTargets.length === 0
+  ) {
+    return null;
+  }
+  const targets = pendingTargets.map((target) => {
+    if (!Array.isArray(target) || target.length < 2 || !target.slice(0, 2).every(Number.isFinite)) return null;
+    const display = baseToDisplay(target[0], target[1]);
+    return Array.isArray(display) && display.length >= 2 && display.slice(0, 2).every(Number.isFinite)
+      ? display.slice(0, 2)
+      : null;
+  });
+  if (targets.some((target) => target === null)) return null;
+  const decks = new Array(targets.length + 1).fill(null);
+  decks[decks.length - 1] = finalTargetDeck ?? null;
+  return {
+    points: [start.slice(0, 2), ...targets],
+    decks,
+  };
+}
+
+/**
  * Read non-empty text from an injected Clipboard API implementation.
  * Keeping this environment-independent makes the error paths testable without
  * touching the user's real clipboard.
@@ -195,7 +231,7 @@ export class Importer {
     }
     if (this._projectMode === 'astar') {
       this.els.projectHint.textContent =
-        '选择 MapNavigateAction 节点；至少两个坐标时作为 A* 关键点立即规划，单个坐标保留为目标预览点。';
+        '选择 MapNavigateAction 节点；导入坐标后在地图上单击补充起点，再按导入顺序自动规划。';
       return;
     }
     this.els.projectHint.textContent =
