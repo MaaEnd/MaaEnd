@@ -4,6 +4,7 @@
             "name": "Keymap",
             "label": "$option.Keymap.label",
             "description": "$option.Keymap.description",
+            "default_expand": false,
             "option": [
                 "KeymapGeneral",
                 "KeymapFight"
