@@ -337,27 +337,6 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        724.98,
-                        1596.8
-                    ]
-                },
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        552.15,
-                        1654.82
-                    ]
-                },
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        525.72,
-                        1749.78
-                    ]
-                },
-                {
-                    "action": "NAVMESH",
-                    "target": [
                         461.92,
                         1712.802
                     ],
@@ -400,27 +379,6 @@
                     965.5,
                     1803.38
                 ],
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        724.98,
-                        1596.8
-                    ]
-                },
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        552.15,
-                        1654.82
-                    ]
-                },
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        525.72,
-                        1749.78
-                    ]
-                },
                 {
                     "action": "NAVMESH",
                     "target": [
@@ -651,20 +609,6 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        724.98,
-                        1596.8
-                    ]
-                },
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        493.01,
-                        1633.2
-                    ]
-                },
-                {
-                    "action": "NAVMESH",
-                    "target": [
                         512.92,
                         1652.04
                     ],
@@ -707,20 +651,6 @@
                     965.5,
                     1803.38
                 ],
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        724.98,
-                        1596.8
-                    ]
-                },
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        493.01,
-                        1633.2
-                    ]
-                },
                 {
                     "action": "NAVMESH",
                     "target": [

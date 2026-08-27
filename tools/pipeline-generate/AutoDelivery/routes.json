@@ -150,27 +150,6 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        724.98,
-                        1596.8
-                    ]
-                },
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        552.15,
-                        1654.82
-                    ]
-                },
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        525.72,
-                        1749.78
-                    ]
-                },
-                {
-                    "action": "NAVMESH",
-                    "target": [
                         461.92,
                         1712.802
                     ],
@@ -213,20 +192,6 @@
                 {
                     "action": "NAVMESH",
                     "target": [
-                        724.98,
-                        1596.8
-                    ]
-                },
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        493.01,
-                        1633.2
-                    ]
-                },
-                {
-                    "action": "NAVMESH",
-                    "target": [
                         512.92,
                         1652.04
                     ],
@@ -238,23 +203,7 @@
             "source_id": "deliver_target_map02_lv005_01",
             "name": "赵昭",
             "depot_id": "domain_2_lv005_depot_1",
-            "description": "经纬田区（右）",
-            "path": [
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        1344.56,
-                        1734.39
-                    ]
-                },
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        1383.764,
-                        1633.923
-                    ]
-                }
-            ]
+            "description": "经纬田区（右）"
         },
         {
             "source_id": "deliver_target_map02_lv005_02",
@@ -494,49 +443,13 @@
         {
             "source_id": "domain_2_lv005_depot_1",
             "name": "试验园区",
-            "description": "试验园区；出发时绕过仓储中心",
-            "path": [
-                {
-                    "action": "ZONE",
-                    "zone_id": "Wuling_Base"
-                },
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        1264.02,
-                        1734.67
-                    ]
-                },
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        1252.63,
-                        1751.03
-                    ]
-                }
-            ],
+            "description": "试验园区；出发时避免直接穿过仓储中心",
             "departure_path": [
                 {
                     "action": "NAVMESH",
                     "target": [
-                        1258.92,
-                        1751.65
-                    ],
-                    "required": true
-                },
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        1259.66,
-                        1758.06
-                    ],
-                    "required": true
-                },
-                {
-                    "action": "NAVMESH",
-                    "target": [
-                        1236.55,
-                        1753.2
+                        1252.24,
+                        1744.17
                     ],
                     "required": true
                 }
