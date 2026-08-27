@@ -242,7 +242,7 @@ export class Importer {
     ]) {
       const active = this._projectKind === kind;
       button.classList.toggle('active', active);
-      button.setAttribute('aria-selected', active ? 'true' : 'false');
+      button.setAttribute('aria-pressed', active ? 'true' : 'false');
     }
   }
 

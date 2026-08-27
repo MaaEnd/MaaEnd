@@ -23,12 +23,12 @@
         </div>
 
         <!-- 顶层工作区：路线制作提供连接能力，日志分析保持纯离线 -->
-        <div class="workspace-segmented-control" role="tablist" aria-label="工作区">
-          <button id="tab-route" class="workspace-tab-btn active" type="button" role="tab" aria-selected="true">
+        <div class="workspace-segmented-control" role="group" aria-label="工作区">
+          <button id="tab-route" class="workspace-tab-btn active" type="button" aria-pressed="true">
             <span>路线制作</span>
             <small>编辑与试跑</small>
           </button>
-          <button id="tab-log" class="workspace-tab-btn" type="button" role="tab" aria-selected="false">
+          <button id="tab-log" class="workspace-tab-btn" type="button" aria-pressed="false">
             <span>日志分析</span>
             <small>本地离线复盘</small>
           </button>
@@ -125,10 +125,10 @@
         </div>
 
         <!-- 路线制作内部模式切换 -->
-        <div id="route-mode-tabs" class="mode-segmented-control" role="tablist" aria-label="路线制作工具">
-          <button id="tab-astar" class="mode-tab-btn active" type="button">A* 寻路</button>
-          <button id="tab-assert" class="mode-tab-btn" type="button">断言模式</button>
-          <button id="tab-edit" class="mode-tab-btn" type="button">路径编辑</button>
+        <div id="route-mode-tabs" class="mode-segmented-control" role="group" aria-label="路线制作工具">
+          <button id="tab-astar" class="mode-tab-btn active" type="button" aria-pressed="true">A* 寻路</button>
+          <button id="tab-assert" class="mode-tab-btn" type="button" aria-pressed="false">断言模式</button>
+          <button id="tab-edit" class="mode-tab-btn" type="button" aria-pressed="false">路径编辑</button>
         </div>
 
         <!-- MapNavigator 日志分析（文件只在浏览器本地读取） -->
@@ -489,9 +489,9 @@
       <div class="modal-panel project-node-panel">
         <h2 class="modal-title">选择项目节点</h2>
         <p id="project-node-hint" class="modal-hint"></p>
-        <div id="project-node-kinds" class="project-node-kinds" role="tablist" aria-label="断言导入类型" hidden>
-          <button id="project-node-kind-assert" class="project-node-kind active" type="button" role="tab" aria-selected="true">断言节点</button>
-          <button id="project-node-kind-path" class="project-node-kind" type="button" role="tab" aria-selected="false">参考路线</button>
+        <div id="project-node-kinds" class="project-node-kinds" role="group" aria-label="断言导入类型" hidden>
+          <button id="project-node-kind-assert" class="project-node-kind active" type="button" aria-pressed="true">断言节点</button>
+          <button id="project-node-kind-path" class="project-node-kind" type="button" aria-pressed="false">参考路线</button>
         </div>
         <input id="project-node-search" class="entry project-node-search" type="search" placeholder="搜索资源路径、节点名或区域" />
         <div id="project-node-list" class="project-node-list" role="listbox" aria-label="项目节点"></div>

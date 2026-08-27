@@ -4905,9 +4905,9 @@ class MapNavigatorApp {
 
         const logWorkspace = mode === Mode.LOG;
         e.tabLog.classList.toggle("active", logWorkspace);
-        e.tabLog.setAttribute("aria-selected", String(logWorkspace));
+        e.tabLog.setAttribute("aria-pressed", String(logWorkspace));
         e.tabRoute.classList.toggle("active", !logWorkspace);
-        e.tabRoute.setAttribute("aria-selected", String(!logWorkspace));
+        e.tabRoute.setAttribute("aria-pressed", String(!logWorkspace));
         e.panelConnection.hidden = logWorkspace;
         e.panelNavtest.hidden = logWorkspace;
         e.routeModeTabs.hidden = logWorkspace;
@@ -4961,6 +4961,9 @@ class MapNavigatorApp {
             document.body.classList.add("mode-edit");
             this._setActiveTool("add");
         }
+        e.tabAstar.setAttribute("aria-pressed", String(mode === Mode.ASTAR));
+        e.tabAssert.setAttribute("aria-pressed", String(mode === Mode.ASSERT));
+        e.tabEdit.setAttribute("aria-pressed", String(mode === Mode.EDIT));
     }
 
     /**
