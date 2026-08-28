@@ -430,6 +430,24 @@ def setup_windows_msvc_env(arch: str = "x86_64") -> bool:
         loaded += 1
 
     print(f"  {Console.ok(t('msvc_env_loaded', count=loaded))}")
+
+    # 诊断：确认 cl.exe 是否已进入 PATH（交叉编译时 Hostx64/<target>）
+    cl_in_path = shutil.which("cl.exe")
+    if cl_in_path:
+        print(f"  [diag] cl.exe in PATH: {cl_in_path}")
+    else:
+        # 手动在 VC bin 目录里找 cl.exe
+        vc_bin = Path(vs_path) / "VC" / "Tools" / "MSVC"
+        found_cl = []
+        if vc_bin.exists():
+            for msvc_dir in sorted(vc_bin.iterdir(), reverse=True):
+                for host in ["Hostx64", "HostARM64"]:
+                    for tgt in ["arm64", "x64", "x86"]:
+                        cand = msvc_dir / "bin" / host / tgt / "cl.exe"
+                        if cand.exists():
+                            found_cl.append(str(cand))
+        print(f"  [diag] cl.exe NOT in PATH; found on disk: {found_cl[:6]}")
+        print(f"  [diag] PATH tail: {os.environ.get('PATH','')[-400:]}")
     return True
 
 
