@@ -31,6 +31,7 @@ const SELECTION_RECT_STROKE = '#38bdf8';
 // Off-mesh warnings share the amber of the hint marker — "look here", never "blocked".
 const OFFMESH_COLOR = '#ffaa00';
 const OFFMESH_DIM = 'rgba(255, 170, 0, 0.55)';
+const ROUTE_FAILURE_COLOR = '#ef4444';
 
 export class Overlay {
   /**
@@ -97,6 +98,7 @@ export class Overlay {
       if (vm.editPreview) {
         this._drawAstarPreview(camera, vm.editPreview);
         this._drawAstarDiagnostics(camera, vm.editPreview.diagnostics, vm.editPreview.debugOptions || {});
+        this._drawRouteFailure(camera, vm.editPreview.failure);
       }
       this._drawLivePath(camera, vm.livePath);
     }
@@ -130,6 +132,63 @@ export class Overlay {
     if (vm.selectionRect) {
       this._drawSelectionRect(vm.selectionRect);
     }
+  }
+
+  /**
+   * Runtime-confirmed connectivity gap, falling back to the whole authored leg when detailed diagnosis
+   * is unavailable. Coordinates are already projected into the current display frame.
+   * @param {Camera} camera
+   * @param {?{segment_start?:number[],segment_goal?:number[],gap_start?:number[],gap_goal?:number[],gap_distance?:number}} failure
+   * @returns {void}
+   */
+  _drawRouteFailure(camera, failure) {
+    if (!failure) return;
+    const precise = !!(failure.gap_start && failure.gap_goal);
+    const start = precise ? failure.gap_start : failure.segment_start;
+    const goal = precise ? failure.gap_goal : failure.segment_goal;
+    if (!start || !goal) return;
+    const [x1, y1] = camera.worldToCanvas(start[0], start[1]);
+    const [x2, y2] = camera.worldToCanvas(goal[0], goal[1]);
+    if (![x1, y1, x2, y2].every(Number.isFinite)) return;
+
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.lineCap = 'round';
+    ctx.setLineDash([9, 6]);
+    ctx.strokeStyle = 'rgba(0, 0, 0, 0.65)';
+    ctx.lineWidth = 6;
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+
+    ctx.strokeStyle = ROUTE_FAILURE_COLOR;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    for (const [x, y] of [
+      [x1, y1],
+      [x2, y2],
+    ]) {
+      ctx.beginPath();
+      ctx.arc(x, y, 8, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(11, 18, 32, 0.9)';
+      ctx.fill();
+      ctx.strokeStyle = ROUTE_FAILURE_COLOR;
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+    }
+
+    this._drawCaption(x1, y1 - 24, precise ? '起点侧边界' : '失败段起点', ROUTE_FAILURE_COLOR);
+    this._drawCaption(x2, y2 - 24, precise ? '目标侧边界' : '失败目标', ROUTE_FAILURE_COLOR);
+    const distance = Number(failure.gap_distance);
+    const gapLabel = precise && Number.isFinite(distance) ? `断口 ${distance.toFixed(1)} px` : '未连通段';
+    this._drawCaption((x1 + x2) / 2, (y1 + y2) / 2, gapLabel, ROUTE_FAILURE_COLOR);
+    ctx.restore();
   }
 
   /**
@@ -592,8 +651,8 @@ export class Overlay {
     ctx.restore();
   }
 
-  /** Amber caption on a dark plate, centered at (cx, cy). @returns {void} */
-  _drawCaption(cx, cy, text) {
+  /** Caption on a dark plate, centered at (cx, cy). @returns {void} */
+  _drawCaption(cx, cy, text, color = OFFMESH_COLOR) {
     const ctx = this.ctx;
     ctx.save();
     ctx.setLineDash([]);
@@ -605,14 +664,14 @@ export class Overlay {
     const w = ctx.measureText(text).width + padX * 2;
     const h = 15;
     ctx.fillStyle = 'rgba(11, 18, 32, 0.85)';
-    ctx.strokeStyle = OFFMESH_COLOR;
+    ctx.strokeStyle = color;
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.rect(cx - w / 2, cy - h / 2, w, h);
     ctx.fill();
     ctx.stroke();
 
-    ctx.fillStyle = OFFMESH_COLOR;
+    ctx.fillStyle = color;
     ctx.fillText(text, cx, cy);
     ctx.restore();
   }

@@ -503,6 +503,21 @@ json::object BuildRoutePreview(const QueryParam& query)
         if (failure.authored_index) {
             detail.emplace("authored_index", *failure.authored_index);
         }
+        if (failure.segment_start) {
+            detail.emplace("segment_start", json::array { failure.segment_start->x, failure.segment_start->y });
+        }
+        if (failure.segment_goal) {
+            detail.emplace("segment_goal", json::array { failure.segment_goal->x, failure.segment_goal->y });
+        }
+        if (failure.gap_start) {
+            detail.emplace("gap_start", json::array { failure.gap_start->x, failure.gap_start->y });
+        }
+        if (failure.gap_goal) {
+            detail.emplace("gap_goal", json::array { failure.gap_goal->x, failure.gap_goal->y });
+        }
+        if (failure.gap_distance) {
+            detail.emplace("gap_distance", *failure.gap_distance);
+        }
         if (failure.target) {
             detail.emplace("target", json::array { failure.target->x, failure.target->y });
         }

@@ -121,13 +121,16 @@ void RecordWaypointFailure(
     const Waypoint& waypoint,
     std::optional<size_t> authored_index,
     const NavmeshExpansionState& state,
-    const navmesh::BaseNavRouteResult* route_result = nullptr)
+    const navmesh::BaseNavRouteResult* route_result = nullptr,
+    std::optional<navmesh::WorldPoint> segment_goal = std::nullopt)
 {
     NavmeshExpansionFailure failure {
         .code = std::move(code),
         .message = DescribeAuthoredWaypoint(waypoint, authored_index) + detail,
         .authored_index = authored_index,
         .zone_id = state.current_zone,
+        .segment_start = state.route_start,
+        .segment_goal = segment_goal,
         .target_tier = waypoint.target_tier,
         .target_deck_y = waypoint.target_deck_y,
     };
@@ -137,6 +140,9 @@ void RecordWaypointFailure(
     if (route_result != nullptr) {
         failure.route_status = navmesh::ToString(route_result->status);
         failure.route_error = route_result->error;
+        failure.gap_start = route_result->gap_start;
+        failure.gap_goal = route_result->gap_goal;
+        failure.gap_distance = route_result->gap_distance;
     }
     g_expansion_failure = std::move(failure);
 }
@@ -553,6 +559,9 @@ navmesh::BaseNavRouteResult PlanCorridorRoute(
         request.blocked_triangles,
         request.blocked_points,
         should_stop);
+    result.gap_start = plan.debug.gap_start;
+    result.gap_goal = plan.debug.gap_goal;
+    result.gap_distance = plan.debug.gap_distance;
     if (!plan.ok || plan.points.size() < 2) {
         result.error = plan.error.empty() ? "规划结果没有可执行路径点" : plan.error;
         if (!detour_probe) {
@@ -954,13 +963,17 @@ bool AppendNavmeshWaypoint(
                          << VAR(target.point.x) << VAR(target.point.y) << VAR(*target.deck_y)
                          << VAR(navmesh::ToString(route_result.status));
                 const std::string route_error = route_result.error.empty() ? navmesh::ToString(route_result.status) : route_result.error;
+                const bool disconnected = route_result.gap_start.has_value() && route_result.gap_goal.has_value();
                 RecordWaypointFailure(
-                    "target_deck_unreachable",
-                    std::format(" 无法抵达指定目标面（target_deck_y={:.2f}）：{}", *target.deck_y, route_error),
+                    disconnected ? "route_disconnected" : "target_deck_unreachable",
+                    disconnected
+                        ? std::format(" 的指定目标面与起点不连通（target_deck_y={:.2f}）：{}", *target.deck_y, route_error)
+                        : std::format(" 无法抵达指定目标面（target_deck_y={:.2f}）：{}", *target.deck_y, route_error),
                     waypoint,
                     authored_index,
                     state,
-                    &route_result);
+                    &route_result,
+                    target.point);
             }
             else {
                 LogDebug << "Global NAVMESH target is unavailable on the declared deck." << VAR(state.navmesh_zone)
@@ -1006,7 +1019,7 @@ bool AppendNavmeshWaypoint(
         if (!blind_fallback_error.empty()) {
             detail += "；盲走兜底失败：" + blind_fallback_error;
         }
-        RecordWaypointFailure("route_unreachable", std::move(detail), waypoint, authored_index, state, &route_result);
+        RecordWaypointFailure("route_unreachable", std::move(detail), waypoint, authored_index, state, &route_result, target.point);
         return false;
     }
 
@@ -1017,7 +1030,7 @@ bool AppendNavmeshWaypoint(
     const size_t insert_index = out_path.size();
     if (!AppendGeneratedNavmeshWaypoints(route_result.path, out_path, true, false, &navmesh.planner, route_result.path.zone_id)) {
         LogError << "NAVMESH planning returned an empty path." << VAR(state.navmesh_zone);
-        RecordWaypointFailure("empty_route", " 的规划结果没有可执行路点", waypoint, authored_index, state, &route_result);
+        RecordWaypointFailure("empty_route", " 的规划结果没有可执行路点", waypoint, authored_index, state, &route_result, target.point);
         return false;
     }
 

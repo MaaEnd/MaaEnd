@@ -206,6 +206,8 @@ class MapNavigatorApp {
         this.editOffMeshMarks = [];
         /** Runtime-expanded preview and selected-leg diagnostics for the current EDIT segment, in base px. */
         this.editRoute = null;
+        /** Runtime-reported failed leg for the current EDIT segment, in base px. */
+        this.editRouteFailure = null;
         /** Guards against stale edit previews replacing a newer request or route state. */
         this._editRouteToken = 0;
         /** Guards against a stale probe response overwriting a newer one. @type {number} */
@@ -1204,7 +1206,7 @@ class MapNavigatorApp {
 
     /** Runtime preview projected from base px into the current EDIT segment's display frame. */
     _editPreviewForDisplay() {
-        if (!this.editRoute || !this.field) return null;
+        if ((!this.editRoute && !this.editRouteFailure) || !this.field) return null;
         const zoneId = this._resolveZoneId(this.state.currentZone());
         const project = (point) => {
             if (!Number.isNaN(zoneId) && this.field.isTier(zoneId) && this.field.isRealTier(zoneId)) {
@@ -1212,22 +1214,33 @@ class MapNavigatorApp {
             }
             return point;
         };
+        const route = this.editRoute || {};
+        const failure = this.editRouteFailure;
         return {
-            previewPoints: (this.editRoute.points || []).map(project),
+            previewPoints: (route.points || []).map(project),
             segmentBreaks: [],
-            hasRoute: true,
+            hasRoute: !!this.editRoute,
             waypoints: [],
             blindWalks: [],
-            diagnostics: this._diagnosticsForDisplay(this.editRoute.diagnostics || []),
+            diagnostics: this._diagnosticsForDisplay(route.diagnostics || []),
             debugOptions: this.navDebug,
             showPlannedPath: this.navDebug.planned,
-            walkSegments: (this.editRoute.walk_segments || []).map((segment) => segment.map(project)),
-            ziplineSegments: (this.editRoute.zipline_segments || []).map((segment) => ({
+            walkSegments: (route.walk_segments || []).map((segment) => segment.map(project)),
+            ziplineSegments: (route.zipline_segments || []).map((segment) => ({
                 ...segment,
                 from: project(segment.from),
                 to: project(segment.to),
                 mount_restand: segment.mount_restand ? project(segment.mount_restand) : null,
             })),
+            failure: failure
+                ? {
+                      ...failure,
+                      segment_start: failure.segment_start ? project(failure.segment_start) : null,
+                      segment_goal: failure.segment_goal ? project(failure.segment_goal) : null,
+                      gap_start: failure.gap_start ? project(failure.gap_start) : null,
+                      gap_goal: failure.gap_goal ? project(failure.gap_goal) : null,
+                  }
+                : null,
         };
     }
 
@@ -3032,6 +3045,7 @@ class MapNavigatorApp {
     _clearEditPreview() {
         this._editRouteToken += 1;
         this.editRoute = null;
+        this.editRouteFailure = null;
         this.els.btnEditPlanClear.disabled = true;
     }
 
@@ -3051,6 +3065,7 @@ class MapNavigatorApp {
 
         const token = ++this._editRouteToken;
         this.editRoute = null;
+        this.editRouteFailure = null;
         this.els.btnEditPlan.disabled = true;
         this.els.btnEditPlanClear.disabled = true;
         this._paint();
@@ -3068,7 +3083,10 @@ class MapNavigatorApp {
                 custom_action_param: customActionParam,
             });
             if (token !== this._editRouteToken || (result && result.stale)) return;
-            if (!result || !result.ok) throw new Error(result?.error || "路线展开失败");
+            if (!result || !result.ok) {
+                this.editRouteFailure = result?.failure || null;
+                throw new Error(result?.error || "路线展开失败");
+            }
 
             this.editRoute = {
                 points: result.points || [],
@@ -3094,9 +3112,19 @@ class MapNavigatorApp {
             if (token !== this._editRouteToken) return;
             const message = err && err.message ? err.message : err;
             this.editRoute = null;
-            this.els.btnEditPlanClear.disabled = true;
+            this.els.btnEditPlanClear.disabled = !this.editRouteFailure;
             setStatus(`规划失败: ${message}`, "#ef4444");
-            this._paint();
+            const gap = this.editRouteFailure;
+            if (gap?.gap_start && gap?.gap_goal) {
+                const start = this._baseToDisplay(gap.gap_start[0], gap.gap_start[1]);
+                const goal = this._baseToDisplay(gap.gap_goal[0], gap.gap_goal[1]);
+                this._fitDisplayPoints([
+                    {x: start[0], y: start[1]},
+                    {x: goal[0], y: goal[1]},
+                ]);
+            } else {
+                this._paint();
+            }
         } finally {
             if (token === this._editRouteToken) this.els.btnEditPlan.disabled = false;
         }

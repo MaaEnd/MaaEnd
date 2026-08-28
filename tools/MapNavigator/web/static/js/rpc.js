@@ -226,7 +226,9 @@ export function postRoute(req) {
  *   walk_segments?:number[][][], zipline_segments?:Array<Object>,
  *   diagnostics?:Array<Object>, expanded_waypoints?:number, zipline?:Object, error?:string,
  *   failure?:{code:string, message:string, authored_index?:number, zone_id?:string,
- *     target?:number[], target_tier?:string, target_deck_y?:number,
+ *     segment_start?:number[], segment_goal?:number[], gap_start?:number[], gap_goal?:number[], gap_distance?:number,
+ *     target?:number[],
+ *     target_tier?:string, target_deck_y?:number,
  *     route_status?:string, route_error?:string}}>}
  */
 export function postRoutePreview(req) {

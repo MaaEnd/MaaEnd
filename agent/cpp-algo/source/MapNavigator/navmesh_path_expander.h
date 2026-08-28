@@ -28,6 +28,11 @@ struct NavmeshExpansionFailure
     std::string message;
     std::optional<size_t> authored_index;
     std::string zone_id;
+    std::optional<navmesh::WorldPoint> segment_start;
+    std::optional<navmesh::WorldPoint> segment_goal;
+    std::optional<navmesh::WorldPoint> gap_start;
+    std::optional<navmesh::WorldPoint> gap_goal;
+    std::optional<double> gap_distance;
     std::optional<navmesh::WorldPoint> target;
     std::string target_tier;
     std::optional<double> target_deck_y;

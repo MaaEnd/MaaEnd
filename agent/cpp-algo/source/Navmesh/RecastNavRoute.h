@@ -4,6 +4,7 @@
 #include <functional>
 #include <memory>
 #include <mutex>
+#include <optional>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -44,6 +45,9 @@ struct RecastPlanResult
         std::vector<WorldPoint> slim_points;
         std::vector<WorldPoint> widened_points;
         std::vector<WorldPoint> planned_points;
+        std::optional<WorldPoint> gap_start;
+        std::optional<WorldPoint> gap_goal;
+        std::optional<double> gap_distance;
         std::vector<std::string> warnings;
     } debug;
 };
