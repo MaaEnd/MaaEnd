@@ -416,6 +416,15 @@ def build_cpp_algo(
     )
     print(f"  {t('maadeps_triplet')}: {maadeps_triplet}")
 
+    ccache_prog = shutil.which("ccache")
+    if ccache_prog:
+        os.environ["CCACHE_DIR"] = str(root_dir / ".cache" / "ccache")
+        Path(os.environ["CCACHE_DIR"]).mkdir(parents=True, exist_ok=True)
+        print(f"  {Console.ok(t('ccache_status', path=os.environ['CCACHE_DIR']))}")
+        print(f"  {t('ccache_compiler_launcher')}: {ccache_prog}")
+    else:
+        print(f"  {Console.warn(t('ccache_not_found'))}")
+
     # cmake --preset <configure_preset>（按候选列表依次尝试）
     configure_preset = configure_preset_candidates[0]
     build_dir = cpp_algo_dir / "build"
@@ -433,12 +442,14 @@ def build_cpp_algo(
             )
             return False
 
+        enable_ccache = "ON" if ccache_prog else "OFF"
         configure_cmd = [
             "cmake",
             "--preset",
             preset,
             f"-DMAADEPS_TRIPLET={maadeps_triplet}",
             f"-DCMAKE_INSTALL_PREFIX={install_dir}",
+            f"-DENABLE_CCACHE={enable_ccache}",
         ]
 
         # macOS 需要额外的参数

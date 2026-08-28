@@ -192,6 +192,10 @@ jobs:
         arch: [aarch64, x86_64]
       fail-fast: false
     runs-on: ${{ matrix.os == 'win' && 'windows-latest' || (matrix.os == 'macos' && 'macos-latest' || 'ubuntu-latest') }}
+    env:
+      CCACHE_DIR: ${{ github.workspace }}/.cache/ccache
+      CCACHE_MAXSIZE: 1G
+      CCACHE_BASEDIR: ${{ github.workspace }}
 
     steps:
       - uses: actions/checkout@v6
@@ -203,13 +207,14 @@ jobs:
         if: matrix.os == 'linux'
         run: |
           sudo apt-get update -y
-          sudo apt-get install -y ninja-build cmake
+          sudo apt-get install -y ninja-build cmake ccache
 
       - name: Install macOS dependencies
         if: matrix.os == 'macos'
         run: |
           brew list ninja >/dev/null 2>&1 || brew install ninja
           brew list cmake >/dev/null 2>&1 || brew install cmake
+          brew list ccache >/dev/null 2>&1 || brew install ccache
 
       - name: Setup Windows 10 SDK
         if: matrix.os == 'win'
@@ -239,6 +244,17 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           python3 tools/maadeps-download.py ${{ matrix.arch == 'x86_64' && 'x64' || 'arm64' }}-${{ matrix.os == 'win' && 'windows' || (matrix.os == 'macos' && 'osx' || 'linux') }}
+
+      - name: Cache ccache
+        if: matrix.os != 'win'
+        id: cache-ccache
+        uses: actions/cache@v5
+        with:
+          path: |
+            ./.cache/ccache
+          key: ccache-${{ matrix.os }}-${{ matrix.arch }}-${{ hashFiles('agent/cpp-algo/CMakeLists.txt','agent/cpp-algo/CMakePresets.json','agent/cpp-algo/cmake/**','agent/cpp-algo/source/**','agent/cpp-algo/MaaUtils/cmake/**','agent/cpp-algo/MaaUtils/MaaUtils.cmake') }}
+          restore-keys: |
+            ccache-${{ matrix.os }}-${{ matrix.arch }}-
 
       - name: Setup WebView2 SDK
         if: matrix.os == 'win'
@@ -305,6 +321,11 @@ jobs:
             --interface install/interface.json
 
           cat install/interface.json
+
+      - name: Show ccache stats
+        if: matrix.os != 'win'
+        shell: bash
+        run: ccache -sv || true
 
       - name: Run IconRecognition quick tests
         if: matrix.os == 'win' && matrix.arch == 'x86_64' && needs.meta.outputs.icon_recognition_changed == 'true'
