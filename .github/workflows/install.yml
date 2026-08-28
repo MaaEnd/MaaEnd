@@ -264,9 +264,9 @@ jobs:
           python3 tools/maadeps-download.py ${{ matrix.arch == 'x86_64' && 'x64' || 'arm64' }}-${{ matrix.os == 'win' && 'windows' || (matrix.os == 'macos' && 'osx' || 'linux') }}
 
       - name: Save MaaDeps
-        # 临时：注释掉 non-PR only 条件以便 PR 测试阶段验证缓存热构建；
-        # 合并前恢复为 if: github.event_name != 'pull_request' 并清理测试产生的缓存。
-        # if: ${{ github.event_name != 'pull_request' && steps.cache-maadeps.outputs.cache-hit != 'true' }}
+        # 仅非 PR（v2 push / tag / workflow_dispatch）才保存，PR 只恢复不写入，
+        # 避免每个 PR 的 merge ref 各囤一份 maadeps 快照撑爆仓库 10GB 缓存上限。
+        if: ${{ github.event_name != 'pull_request' && steps.cache-maadeps.outputs.cache-hit != 'true' }}
         uses: actions/cache/save@v5
         with:
           path: |
@@ -357,9 +357,9 @@ jobs:
       - name: Save ccache
         # 置于 Install（真正构建）之后：保存的是本次构建产生的新缓存；
         # key 已存在时 actions/cache/save 只发 warning 不覆盖已有快照（不会导致 job 失败）。
-        # 临时：注释掉 non-PR only 条件以便 PR 测试阶段验证缓存热构建；
-        # 合并前恢复为 if: github.event_name != 'pull_request' 并清理测试产生的缓存。
-        # if: ${{ github.event_name != 'pull_request' && steps.cache-ccache.outputs.cache-hit != 'true' }}
+        # 仅非 PR（v2 push / tag / workflow_dispatch）才保存，PR 只恢复不写入，
+        # 避免每个 PR 的 merge ref 各囤一份 ccache 快照撑爆仓库 10GB 缓存上限。
+        if: ${{ github.event_name != 'pull_request' && steps.cache-ccache.outputs.cache-hit != 'true' }}
         uses: actions/cache/save@v5
         with:
           path: |

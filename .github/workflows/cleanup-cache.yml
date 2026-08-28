@@ -1,0 +1,45 @@
+name: Cleanup Actions Cache
+
+# 清理 GitHub Actions 缓存，防止多 PR / 多次 push 的旧 key 把 10GB 免费上限顶满。
+# 规则见 tools/cleanup_caches.py（同 ref x key 前缀保留 2 份 + 并发保护 + v2 maadeps 白名单）。
+
+on:
+  schedule:
+    - cron: "0 4 * * *" # 每日 UTC 04:00（国内 12:00）兜底清理
+  workflow_dispatch: # 手动触发
+  pull_request_target:
+    types: [closed] # PR 关闭/合并时清理该 PR 的 merge ref 缓存
+
+permissions:
+  actions: write # 删除缓存所需
+  contents: read
+
+jobs:
+  pr-closed:
+    if: ${{ github.event_name == 'pull_request_target' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Cleanup closed PR merge-ref caches
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_REF: refs/pull/${{ github.event.pull_request.number }}/merge
+        run: |
+          echo "Cleaning caches for ${PR_REF}"
+          python tools/cleanup_caches.py --ref "${PR_REF}" --apply
+
+  scheduled:
+    if: ${{ github.event_name != 'pull_request_target' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Dry-run report
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python tools/cleanup_caches.py
+      - name: Apply cleanup
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python tools/cleanup_caches.py --apply
