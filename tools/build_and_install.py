@@ -33,7 +33,7 @@ def _timing(label: str, start: float) -> None:
 
 
 def _find_ccache(root_dir: Path) -> str | None:
-    """找可用的 ccache：优先工作区官方版 (.cache/ccache-bin)，退回 PATH；需 >= 4.6 (MSVC 支持)。"""
+    """找可用的 ccache: 优先工作区官方版 (.cache/ccache-bin), 退回 PATH; 需 >= 4.6 (MSVC 支持)。"""
     candidates: list[Path] = []
     # 1) 工作区官方版本（最可靠，规避 Strawberry Perl 自带的旧 3.x）
     ws_bin = root_dir / ".cache" / "ccache-bin" / "ccache.exe"
@@ -342,7 +342,7 @@ def build_go_agent(
 
 
 def setup_windows_msvc_env(arch: str = "x86_64") -> bool:
-    """初始化 MSVC 环境 (vswhere + vcvarsall)，供 Ninja + cl.exe 使用。失败返回 False。"""
+    """初始化 MSVC 环境 (vswhere + vcvarsall), 供 Ninja + cl.exe 使用。失败返回 False。"""
     sys_root = os.environ.get("ProgramFiles(x86)", r"C:\Program Files (x86)")
     vswhere = Path(sys_root) / "Microsoft Visual Studio" / "Installer" / "vswhere.exe"
     if not vswhere.exists():
@@ -631,7 +631,7 @@ def build_cpp_algo(
     if ccache_prog:
         os.environ["CCACHE_DIR"] = str(root_dir / ".cache" / "ccache")
         Path(os.environ["CCACHE_DIR"]).mkdir(parents=True, exist_ok=True)
-        # 前置到 PATH，确保 CMake 命中官方 4.14 而非 Strawberry 旧 3.x
+        # 前置到 PATH, 确保 CMake 命中官方 4.14 而非 Strawberry 旧 3.x
         ccache_dir = str(Path(ccache_prog).parent)
         old_path = os.environ.get("PATH", "")
         if ccache_dir not in old_path.split(os.pathsep):

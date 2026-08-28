@@ -15,6 +15,7 @@
 from __future__ import annotations
 
 import argparse
+import calendar
 import json
 import os
 import sys
@@ -154,12 +155,14 @@ def plan(caches: list[dict], keep: int, access_window_s: int,
     def age_last_access(cache: dict) -> float:
         la = cache.get("last_accessed_at") or cache.get("created_at") or ""
         try:
-            t = time.mktime(time.strptime(la[:19], "%Y-%m-%dT%H:%M:%S"))
+            # GitHub API 的时间戳是 UTC (带 Z), 用 calendar.timegm 按 UTC 解析,
+            # 避免 time.mktime 按本地时区解释导致本机/非 UTC 环境并发保护窗口偏移。
+            t = calendar.timegm(time.strptime(la[:19], "%Y-%m-%dT%H:%M:%S"))
             return now - t
         except ValueError:
             return 0.0
 
-    # ---- 规则 0：merge ref 中与 v2 同 key 的 maadeps 冗余副本全删 (PR 走 v2 恢复) ----
+    # ---- 规则 0: merge ref 中与 v2 同 key 的 maadeps 冗余副本全删 (PR 走 v2 恢复) ----
     v2_maadeps_keys = {
         c.get("key")
         for c in caches
@@ -189,7 +192,7 @@ def plan(caches: list[dict], keep: int, access_window_s: int,
                 to_delete.append(c)
                 remaining.remove(c)
 
-    # ---- 规则 2：同 (ref, key 前缀) 保留最新 keep 份, 其余删除 ----
+    # ---- 规则 2: 同 (ref, key 前缀) 保留最新 keep 份, 其余删除 ----
     groups: dict[tuple[str, str], list[dict]] = {}
     for c in remaining:
         ref = c.get("ref") or ""
@@ -222,7 +225,7 @@ def plan(caches: list[dict], keep: int, access_window_s: int,
             continue
         final_to_delete.append(c)
 
-    # ---- 规则 4：总量水位保护 (从完整 caches 容量计, 只减 final_to_delete, 避免双扣) ----
+    # ---- 规则 4: 总量水位保护 (从完整 caches 容量计, 只减 final_to_delete, 避免双扣) ----
     remaining_size = sum(c.get("size_in_bytes", 0) for c in caches)
     deleted_size = sum(c.get("size_in_bytes", 0) for c in final_to_delete)
     if watermark_gb and remaining_size - deleted_size > watermark_gb * 1024**3:
