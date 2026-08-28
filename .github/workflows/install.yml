@@ -256,6 +256,13 @@ jobs:
             ./agent/cpp-algo/MaaUtils/MaaDeps
           key: maadeps-${{ matrix.os }}-${{ matrix.arch }}-${{ hashFiles('./tools/maadeps-download.py') }}
 
+      - name: Bootstrap MaaDeps
+        if: steps.cache-maadeps.outputs.cache-hit != 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python3 tools/maadeps-download.py ${{ matrix.arch == 'x86_64' && 'x64' || 'arm64' }}-${{ matrix.os == 'win' && 'windows' || (matrix.os == 'macos' && 'osx' || 'linux') }}
+
       - name: Save MaaDeps
         # 临时：注释掉 non-PR only 条件以便 PR 测试阶段验证缓存热构建；
         # 合并前恢复为 if: github.event_name != 'pull_request' 并清理测试产生的缓存。
@@ -265,13 +272,6 @@ jobs:
           path: |
             ./agent/cpp-algo/MaaUtils/MaaDeps
           key: maadeps-${{ matrix.os }}-${{ matrix.arch }}-${{ hashFiles('./tools/maadeps-download.py') }}
-
-      - name: Bootstrap MaaDeps
-        if: steps.cache-maadeps.outputs.cache-hit != 'true'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          python3 tools/maadeps-download.py ${{ matrix.arch == 'x86_64' && 'x64' || 'arm64' }}-${{ matrix.os == 'win' && 'windows' || (matrix.os == 'macos' && 'osx' || 'linux') }}
 
       # ccache 同样 restore/save 分离：restore 对所有事件执行（PR 命中 v2 快照），
       # save 仅限非 PR，全仓库只维护 v2 一份，多 PR 并行不会撑爆缓存上限。
@@ -287,16 +287,6 @@ jobs:
           restore-keys: |
             ${{ matrix.os == 'win' && 'ccache-v4' || 'ccache' }}-${{ matrix.os }}-${{ matrix.arch }}-
 
-      - name: Save ccache
-        # 临时：注释掉 non-PR only 条件以便 PR 测试阶段验证缓存热构建；
-        # 合并前恢复为 if: github.event_name != 'pull_request' 并清理测试产生的缓存。
-        # if: ${{ github.event_name != 'pull_request' && steps.cache-ccache.outputs.cache-hit != 'true' }}
-        uses: actions/cache/save@v5
-        with:
-          path: |
-            ./.cache/ccache
-          # 与 restore 同一 key；命中则 skip（actions/cache/save 不覆盖已存在条目）
-          key: ${{ matrix.os == 'win' && 'ccache-v4' || 'ccache' }}-${{ matrix.os }}-${{ matrix.arch }}-${{ hashFiles('agent/cpp-algo/CMakeLists.txt','agent/cpp-algo/CMakePresets.json','agent/cpp-algo/cmake/**','agent/cpp-algo/source/**','agent/cpp-algo/MaaUtils/cmake/**','agent/cpp-algo/MaaUtils/MaaUtils.cmake') }}
 
       - name: Setup WebView2 SDK
         if: matrix.os == 'win'
@@ -364,6 +354,19 @@ jobs:
             --interface install/interface.json
 
           cat install/interface.json
+
+      - name: Save ccache
+        # 置于 Install（真正构建）之后：保存的是本次构建产生的新缓存；
+        # cache-hit 时 actions/cache/save 自动跳过，不覆盖已有快照。
+        # 临时：注释掉 non-PR only 条件以便 PR 测试阶段验证缓存热构建；
+        # 合并前恢复为 if: github.event_name != 'pull_request' 并清理测试产生的缓存。
+        # if: ${{ github.event_name != 'pull_request' && steps.cache-ccache.outputs.cache-hit != 'true' }}
+        uses: actions/cache/save@v5
+        with:
+          path: |
+            ./.cache/ccache
+          # 与 restore 同一 key；命中则 skip（actions/cache/save 不覆盖已存在条目）
+          key: ${{ matrix.os == 'win' && 'ccache-v4' || 'ccache' }}-${{ matrix.os }}-${{ matrix.arch }}-${{ hashFiles('agent/cpp-algo/CMakeLists.txt','agent/cpp-algo/CMakePresets.json','agent/cpp-algo/cmake/**','agent/cpp-algo/source/**','agent/cpp-algo/MaaUtils/cmake/**','agent/cpp-algo/MaaUtils/MaaUtils.cmake') }}
 
       - name: Show ccache stats
         shell: bash
