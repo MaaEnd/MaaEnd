@@ -116,6 +116,47 @@
           </div>
         </div>
 
+        <!-- 路径编辑：底图与实时定位状态独立于路径录制和规划 -->
+        <div class="sidebar-section" id="panel-edit-map" hidden>
+          <div class="section-header">
+            <span class="section-title">地图与定位</span>
+          </div>
+          <div class="sidebar-row">
+            <button id="btn-select-tier" class="btn btn-primary" type="button" style="width: 100%">选择底图与层级</button>
+          </div>
+          <div class="sidebar-row select-tier-row">
+            <span class="sidebar-label">当前层级:</span>
+            <span id="astar-selected-tier-label" class="selected-tier-label">未选择</span>
+          </div>
+          <div class="sidebar-row">
+            <button id="btn-edit-locate" class="btn btn-primary" type="button" style="width: 100%" title="在当前路径底图上标出游戏内当前位置，不新增路点" disabled>标出游戏内当前位置（参考点）</button>
+          </div>
+
+          <!-- 隐藏取值控件：由层级选择弹窗写入 -->
+          <select id="astar-display-zone-combo" class="combo combo-zone" hidden></select>
+          <select id="astar-zone-combo" class="combo combo-zone" hidden></select>
+        </div>
+
+        <!-- 断言模式：保持独立底图与参考点状态，但复用同一信息架构 -->
+        <div class="sidebar-section" id="panel-assert-map" hidden>
+          <div class="section-header">
+            <span class="section-title">地图与定位</span>
+          </div>
+          <div class="sidebar-row">
+            <button id="btn-select-assert-tier" class="btn btn-primary" type="button" style="width: 100%">选择底图与层级</button>
+          </div>
+          <div class="sidebar-row select-tier-row">
+            <span class="sidebar-label">当前层级:</span>
+            <span id="assert-selected-tier-label" class="selected-tier-label">未选择</span>
+          </div>
+          <div class="sidebar-row">
+            <button id="btn-assert-locate" class="btn btn-primary" style="width: 100%" type="button" title="定位后在该参考点周围拖拽画出断言矩形" disabled>标出游戏内当前位置（参考点）</button>
+          </div>
+
+          <!-- 隐藏取值控件：由层级选择弹窗/定位写入 -->
+          <select id="assert-zone-combo" class="combo combo-zone" hidden></select>
+        </div>
+
         <!-- 实机试跑：仅路径编辑使用，跑的永远是当前作者路线 -->
         <div class="sidebar-section" id="panel-navtest">
           <div class="section-header">
@@ -197,30 +238,13 @@
           </div>
         </div>
 
-        <!-- 轨迹与录制 -->
+        <!-- 路径与录制 -->
         <div class="sidebar-section" id="panel-recording" hidden>
           <div class="section-header">
-            <span class="section-title">轨迹与录制</span>
+            <span class="section-title">路径与录制</span>
           </div>
 
           <div class="sidebar-hint">手工点击新增 NAVMESH 目标；轨迹录制产生 RUN 路点</div>
-
-          <div class="sidebar-row">
-            <button id="btn-select-tier" class="btn btn-primary" type="button" style="width: 100%">选择路径底图与层级</button>
-          </div>
-
-          <div class="sidebar-row select-tier-row">
-            <span class="sidebar-label">路径层级:</span>
-            <span id="astar-selected-tier-label" class="selected-tier-label">未选择</span>
-          </div>
-
-          <div class="sidebar-row">
-            <button id="btn-edit-locate" class="btn btn-primary" type="button" style="width: 100%" title="在当前路径底图上标出游戏内当前位置，不新增路点" disabled>标出游戏内当前位置（参考点）</button>
-          </div>
-
-          <!-- 隐藏取值控件：由层级选择弹窗写入 -->
-          <select id="astar-display-zone-combo" class="combo combo-zone" hidden></select>
-          <select id="astar-zone-combo" class="combo combo-zone" hidden></select>
 
           <div class="sidebar-row grid-btns-2">
             <button id="btn-start" class="btn btn-primary" type="button" disabled>开始录制</button>
@@ -331,29 +355,14 @@
           </div>
         </div>
 
-        <!-- 断言区域设置 -->
+        <!-- 断言区域 -->
         <div class="sidebar-section" id="panel-assert" hidden>
           <div class="section-header">
-            <span class="section-title">断言区域设置</span>
+            <span class="section-title">断言区域</span>
           </div>
 
           <div class="sidebar-hint">断言是一个矩形：在地图上拖拽画框，定位只给参考点</div>
 
-          <div class="sidebar-row">
-            <button id="btn-select-assert-tier" class="btn btn-primary" type="button" style="width: 100%">选择断言底图与层级</button>
-          </div>
-
-          <div class="sidebar-row select-tier-row">
-            <span class="sidebar-label">已选层级:</span>
-            <span id="assert-selected-tier-label" class="selected-tier-label">未选择</span>
-          </div>
-
-          <!-- 隐藏取值控件：由层级选择弹窗/定位写入 -->
-          <select id="assert-zone-combo" class="combo combo-zone" hidden></select>
-
-          <div class="sidebar-row border-top" style="margin-top: 4px; padding-top: 12px">
-            <button id="btn-assert-locate" class="btn btn-primary" style="width: 100%; margin-bottom: 8px;" type="button" title="定位后在该参考点周围拖拽画出断言矩形" disabled>标出游戏内当前位置（参考点）</button>
-          </div>
           <div class="sidebar-row copy-format-row">
             <label class="sidebar-label" for="assert-copy-format">复制内容</label>
             <select id="assert-copy-format" class="combo copy-format-combo">

@@ -392,6 +392,8 @@ class MapNavigatorApp {
             propertiesEmptyState: $("properties-empty-state"),
             propertiesEditor: $("properties-editor"),
             panelRecording: $("panel-recording"),
+            panelEditMap: $("panel-edit-map"),
+            panelAssertMap: $("panel-assert-map"),
             panelConnection: $("panel-connection"),
             panelNavtest: $("panel-navtest"),
             routeModeTabs: $("route-mode-tabs"),
@@ -5571,6 +5573,8 @@ class MapNavigatorApp {
         if (this.connection) this.connection.setSuspended(logWorkspace);
 
         e.panelRecording.hidden = true;
+        e.panelEditMap.hidden = true;
+        e.panelAssertMap.hidden = true;
         e.panelProperties.hidden = true;
         e.panelAstar.hidden = true;
         e.panelAssert.hidden = true;
@@ -5588,6 +5592,7 @@ class MapNavigatorApp {
             this._setActiveTool("astar-single");
         } else if (mode === Mode.ASSERT) {
             e.tabAssert.classList.add("active");
+            e.panelAssertMap.hidden = false;
             e.panelAssert.hidden = false;
             e.canvasWrap.classList.remove("mode-edit", "mode-astar", "mode-log");
             e.canvasWrap.classList.add("mode-assert");
@@ -5607,6 +5612,7 @@ class MapNavigatorApp {
             );
         } else {
             e.tabEdit.classList.add("active");
+            e.panelEditMap.hidden = false;
             e.panelRecording.hidden = false;
             e.panelProperties.hidden = false;
             e.canvasWrap.classList.remove("mode-astar", "mode-assert", "mode-log");

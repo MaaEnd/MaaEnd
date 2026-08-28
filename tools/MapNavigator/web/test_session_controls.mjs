@@ -61,6 +61,36 @@ test('live-position buttons start disabled and use the primary blue style', () =
   }
 });
 
+test('edit and assert use separate but matching map and location cards', () => {
+  const html = readFileSync(new URL('./static/index.html', import.meta.url), 'utf8');
+  const editMapStart = html.indexOf('id="panel-edit-map"');
+  const assertMapStart = html.indexOf('id="panel-assert-map"');
+  const navtestStart = html.indexOf('id="panel-navtest"');
+  const recordingStart = html.indexOf('id="panel-recording"');
+  const propertiesStart = html.indexOf('id="panel-properties"');
+  const assertStart = html.indexOf('id="panel-assert"');
+  const astarStart = html.indexOf('id="panel-astar"');
+
+  assert.ok(editMapStart > 0 && assertMapStart > editMapStart && navtestStart > assertMapStart);
+  const editMap = html.slice(editMapStart, assertMapStart);
+  const assertMap = html.slice(assertMapStart, navtestStart);
+  const recording = html.slice(recordingStart, propertiesStart);
+  const assertPanel = html.slice(assertStart, astarStart);
+
+  for (const card of [editMap, assertMap]) {
+    assert.match(card, /<span class="section-title">地图与定位<\/span>/);
+    assert.match(card, />选择底图与层级<\/button>/);
+    assert.match(card, />标出游戏内当前位置（参考点）<\/button>/);
+    assert.match(card, />当前层级:<\/span>/);
+  }
+  assert.match(editMap, /id="btn-select-tier"/);
+  assert.match(editMap, /id="btn-edit-locate"/);
+  assert.match(assertMap, /id="btn-select-assert-tier"/);
+  assert.match(assertMap, /id="btn-assert-locate"/);
+  assert.doesNotMatch(recording, /id="btn-select-tier"|id="btn-edit-locate"/);
+  assert.doesNotMatch(assertPanel, /id="btn-select-assert-tier"|id="btn-assert-locate"/);
+});
+
 test('recording start follows the probed connection state', () => {
   const connection = new FakeConnection();
   const btnStart = new FakeButton();
