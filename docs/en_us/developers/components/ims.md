@@ -65,7 +65,7 @@ IMS does **not** keep an item allowlist: whatever IconRecognition finds on scree
 | `merge_mode` | Write mode; defaults to `replace`. `sum` merges a second absolute inventory region into the first-region baseline; it is not a reward delta |
 | `page_dedup` | Distinguishes the first page from continuation pages together with `merge_mode`; see below |
 | `transaction_mode` | Optional TaskID-scoped staging: `begin` starts and scans, `continue` scans into the same stage, and `commit` skips recognition and publishes the completed stage. Omit for immediate persistence |
-| `notify_ui` | Whether to announce every hit; defaults to `true` |
+| `notify_ui` | Whether to announce hits; defaults to `true`. Scan stages announce per page, while `commit` announces only final deduplicated quantities for items hit by the transaction |
 
 Provide `grid_type` and/or `items`. Shop-only OCR entries may pass only `items` (e.g. `item_originium_recharge` / `item_diamond`). Keys in `items` always join `page_dedup=false` region rebuild (miss removes the ID).
 
@@ -85,13 +85,13 @@ Example (Progression tab):
 
 ### What runs
 
-1. IconRecognition path: one full-grid scan via `item_filters` (or grid defaults), OCR quantity from each `cell_box`, cache every hit.
+1. IconRecognition path: one full-grid scan via `item_filters` (or grid defaults), derive the bottom quantity band from the grid's reference size and actual `cell_box`, OCR quantity, and cache every hit. The quantity path currently supports `transfer`, `valuables`, and `rewards`; the standard Win32 band is 18px high and ADB source cells map it to 22px at 1.25 scale.
 2. If `items` is set: run OCR-only nodes in sorted key order via `box_index`.
 3. **Hit + valid quantity:** record `item ID → quantity`.
 4. **Miss:** do not record that ID this round (see region rebuild / overwrite below).
 5. A non-transactional call persists memory and `./debug/record/IMS.json` and updates `updated_at`. Transactional `begin` / `continue` only update staging; `commit` updates the formal cache and timestamp.
 
-Hits also emit localized item name + quantity via UI Focus by default (`ims.sync_item_found`). Pass `notify_ui: false` to silence (omit defaults to `true`).
+Hits also emit localized item name + quantity via UI Focus by default (`ims.sync_item_found`). Pass `notify_ui: false` to silence (omit defaults to `true`). Transactional `begin` / `continue` calls may stay silent and set `notify_ui: true` only on `commit`; after persistence succeeds, that emits one final quantity for each item actually hit by the transaction and excludes unrelated IMS cache regions.
 
 ### Write mode and paging (`merge_mode` + `page_dedup`)
 
@@ -112,7 +112,7 @@ Remaining pages/regions: transaction_mode = continue
 Complete-success endpoint: transaction_mode = commit
 ```
 
-`begin` replaces unfinished staging left on the same runner. `continue` and `commit` must match the staging TaskID. `commit` needs neither `grid_type` nor `items` and performs no screenshot. Omitting `transaction_mode` preserves the original immediate-persist behavior.
+`begin` replaces unfinished staging left on the same runner. `continue` and `commit` must match the staging TaskID. `commit` needs neither `grid_type` nor `items` and performs no screenshot; with `notify_ui: true`, it sorts by localized item name and announces the final deduplicated result after a successful commit. Omitting `transaction_mode` preserves the original immediate-persist behavior.
 
 The reserved entry `SyncItemData` defaults to:
 

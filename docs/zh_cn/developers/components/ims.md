@@ -67,7 +67,7 @@ A2 负责「看一眼当前界面，把物品数量记下来」。业务侧**不
 | `merge_mode` | 写入模式；默认 `replace`。`sum` 用于把第二个绝对库存区域合并到首个区域基准，不是奖励增量 |
 | `page_dedup` | 配合 `merge_mode` 区分首页面与后续页面，见下表 |
 | `transaction_mode` | 可选的 TaskID 级暂存：`begin` 开始并扫描、`continue` 继续扫描、`commit` 不识别画面而只提交完整 staging；省略时保持扫描后立即落盘 |
-| `notify_ui` | 是否播报每个命中物品；默认 `true` |
+| `notify_ui` | 是否播报命中物品；默认 `true`。事务扫描阶段按页播报，`commit` 阶段则只播报本事务实际命中物品的最终去重数量 |
 
 提供 `grid_type`（IconRecognition 扫库）与 `items` 至少其一。采购中心等可只传 `items`（如 `item_originium_recharge` / `item_diamond`）。`items` 里的键在 `page_dedup=false` 时一律参与地区重建（未命中则从缓存删除）。
 
@@ -87,13 +87,13 @@ A2 负责「看一眼当前界面，把物品数量记下来」。业务侧**不
 
 ### 运行时做了什么
 
-1. 若有 `grid_type`：用 `item_filters`（或 grid 默认候选）**一次整屏扫格**，对每个命中格子按 `cell_box` ROI 偏移 OCR 数量并写入缓存。
+1. 若有 `grid_type`：用 `item_filters`（或 grid 默认候选）**一次整屏扫格**，根据网格标准尺寸与实际 `cell_box` 计算底部数量文字带，OCR 数量并写入缓存。当前数量路径支持 `transfer`、`valuables`、`rewards`；标准 Win32 数量带高 18px，ADB 实际格子按 1.25 倍映射为 22px。
 2. 若有 `items`：按键名排序跑定点识别节点，沿 `box_index` 取 OCR 数量。
 3. **命中且数量合法**：记录 `物品 ID → 数量`。
 4. **未命中**：本轮不记录该 ID（见下方「地区重建 / 覆写」）。
 5. 非事务调用在本次扫描后写入内存与 `./debug/record/IMS.json` 并更新 `updated_at`；事务调用的 `begin` / `continue` 只更新 staging，只有 `commit` 才更新正式缓存和时间戳。
 
-命中时默认会通过 UI Focus 打出本地化物品名与数量（`ims.sync_item_found`）。可用参数 `notify_ui: false` 关闭（省略默认 `true`）；商店万能跳转顺手缓存使用 `SyncShopItemDataRunNoNotify`。
+命中时默认会通过 UI Focus 打出本地化物品名与数量（`ims.sync_item_found`）。可用参数 `notify_ui: false` 关闭（省略默认 `true`）；商店万能跳转顺手缓存使用 `SyncShopItemDataRunNoNotify`。事务模式可让 `begin` / `continue` 保持静默，并在 `commit` 设置 `notify_ui: true`；此时仅在持久化成功后，播报本事务实际命中物品的最终去重数量，不包含其他 IMS 缓存区域。
 
 ### 写入模式与分页（`merge_mode` + `page_dedup`）
 
@@ -114,7 +114,7 @@ A2 负责「看一眼当前界面，把物品数量记下来」。业务侧**不
 完整成功终点：transaction_mode = commit
 ```
 
-`begin` 会替换同 runner 上一次未完成的 staging；`continue` / `commit` 必须与 staging 的 TaskID 一致。`commit` 不要求 `grid_type` 或 `items`，也不会再次截图。省略 `transaction_mode` 时，兼容原有每次 A2 调用立即持久化的行为。
+`begin` 会替换同 runner 上一次未完成的 staging；`continue` / `commit` 必须与 staging 的 TaskID 一致。`commit` 不要求 `grid_type` 或 `items`，也不会再次截图；当 `notify_ui: true` 时，会在提交成功后按本地化物品名排序并播报最终去重结果。省略 `transaction_mode` 时，兼容原有每次 A2 调用立即持久化的行为。
 
 ```text
 初次：SyncItemDataRunFull（page_dedup = false，地区重建）

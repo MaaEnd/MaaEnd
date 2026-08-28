@@ -74,6 +74,7 @@ type SyncItemData struct {
 	transactionTaskID  int64
 	transactionItems   map[string]int
 	transactionSumBase map[string]int
+	transactionHitIDs  map[string]struct{}
 }
 
 // Run implements maa.CustomActionRunner.
@@ -95,6 +96,7 @@ func (a *SyncItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		return false
 	}
 
+	notifyUI := resolveSyncNotifyUI(params.NotifyUI)
 	if params.TransactionMode == syncTransactionModeCommit {
 		if err := ensureHydrated(); err != nil {
 			log.Error().
@@ -103,7 +105,7 @@ func (a *SyncItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 				Msg("failed to hydrate ims cache")
 			return false
 		}
-		return a.commitTransaction(arg.TaskID)
+		return a.commitTransactionWithReport(ctx, arg.TaskID, notifyUI)
 	}
 
 	wantsIcon := wantsIconScan(params)
@@ -113,8 +115,6 @@ func (a *SyncItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			Msg("grid_type or items must not be empty")
 		return false
 	}
-
-	notifyUI := resolveSyncNotifyUI(params.NotifyUI)
 
 	if err := ensureHydrated(); err != nil {
 		log.Error().
@@ -166,6 +166,7 @@ func (a *SyncItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	}
 
 	hitCount := 0
+	hitItemIDs := make([]string, 0)
 	if wantsIcon {
 		dedup := true
 		if params.Deduplicate != nil {
@@ -191,6 +192,7 @@ func (a *SyncItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			quantity := mergedSyncQuantity(params.MergeMode, sumBase, h.ItemID, h.Qty)
 			merged[h.ItemID] = quantity
 			hitCount++
+			hitItemIDs = append(hitItemIDs, h.ItemID)
 			displayName := iconqty.ItemDisplayName(h.ItemID)
 			if notifyUI {
 				maafocus.Print(ctx, i18n.T("ims.sync_item_found", displayName, quantity))
@@ -242,6 +244,7 @@ func (a *SyncItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		quantity := mergedSyncQuantity(params.MergeMode, sumBase, itemID, qty)
 		merged[itemID] = quantity
 		hitCount++
+		hitItemIDs = append(hitItemIDs, itemID)
 		displayName := iconqty.ItemDisplayName(itemID)
 		if notifyUI {
 			maafocus.Print(ctx, i18n.T("ims.sync_item_found", displayName, quantity))
@@ -273,7 +276,7 @@ func (a *SyncItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 				Msg("failed to persist ims record")
 			return false
 		}
-	} else if err := a.storeTransactionResult(arg.TaskID, merged); err != nil {
+	} else if err := a.storeTransactionResult(arg.TaskID, merged, hitItemIDs...); err != nil {
 		log.Error().
 			Err(err).
 			Str("component", componentSyncItemData).
@@ -474,6 +477,7 @@ func (a *SyncItemData) prepareTransactionBase(
 		a.transactionTaskID = taskID
 		a.transactionItems = copyItemQuantities(merged)
 		a.transactionSumBase = nil
+		a.transactionHitIDs = make(map[string]struct{})
 	} else {
 		if a.transactionItems == nil {
 			return nil, nil, fmt.Errorf("transaction continuation has no active staging snapshot")
@@ -510,7 +514,7 @@ func (a *SyncItemData) prepareTransactionBase(
 	return merged, copyItemQuantities(a.transactionSumBase), nil
 }
 
-func (a *SyncItemData) storeTransactionResult(taskID int64, items map[string]int) error {
+func (a *SyncItemData) storeTransactionResult(taskID int64, items map[string]int, hitItemIDs ...string) error {
 	a.transactionMu.Lock()
 	defer a.transactionMu.Unlock()
 	if a.transactionItems == nil {
@@ -524,13 +528,26 @@ func (a *SyncItemData) storeTransactionResult(taskID int64, items map[string]int
 		)
 	}
 	a.transactionItems = copyItemQuantities(items)
+	if a.transactionHitIDs == nil {
+		a.transactionHitIDs = make(map[string]struct{})
+	}
+	for _, itemID := range hitItemIDs {
+		itemID = strings.TrimSpace(itemID)
+		if itemID != "" {
+			a.transactionHitIDs[itemID] = struct{}{}
+		}
+	}
 	return nil
 }
 
 func (a *SyncItemData) commitTransaction(taskID int64) bool {
+	return a.commitTransactionWithReport(nil, taskID, false)
+}
+
+func (a *SyncItemData) commitTransactionWithReport(ctx *maa.Context, taskID int64, notifyUI bool) bool {
 	a.transactionMu.Lock()
-	defer a.transactionMu.Unlock()
 	if a.transactionItems == nil {
+		a.transactionMu.Unlock()
 		log.Error().
 			Str("component", componentSyncItemData).
 			Int64("task_id", taskID).
@@ -538,16 +555,19 @@ func (a *SyncItemData) commitTransaction(taskID int64) bool {
 		return false
 	}
 	if a.transactionTaskID != taskID {
+		stagingTaskID := a.transactionTaskID
+		a.transactionMu.Unlock()
 		log.Error().
 			Str("component", componentSyncItemData).
 			Int64("task_id", taskID).
-			Int64("staging_task_id", a.transactionTaskID).
+			Int64("staging_task_id", stagingTaskID).
 			Msg("transaction commit task does not match staging task")
 		return false
 	}
 
 	at := time.Now()
 	if err := persistSynced(at, a.transactionItems); err != nil {
+		a.transactionMu.Unlock()
 		log.Error().
 			Err(err).
 			Str("component", componentSyncItemData).
@@ -557,16 +577,58 @@ func (a *SyncItemData) commitTransaction(taskID int64) bool {
 	}
 
 	totalCached := len(a.transactionItems)
+	reportItems := make(map[string]int, len(a.transactionHitIDs))
+	for itemID := range a.transactionHitIDs {
+		if quantity, ok := a.transactionItems[itemID]; ok {
+			reportItems[itemID] = quantity
+		}
+	}
 	a.transactionTaskID = 0
 	a.transactionItems = nil
 	a.transactionSumBase = nil
+	a.transactionHitIDs = nil
+	a.transactionMu.Unlock()
+
+	reportedItemCount := 0
+	if notifyUI && ctx != nil {
+		reportedItemCount = reportSyncedItems(ctx, reportItems)
+	}
 	log.Info().
 		Str("component", componentSyncItemData).
 		Int64("task_id", taskID).
 		Int("total_cached", totalCached).
+		Bool("notify_ui", notifyUI).
+		Int("reported_item_count", reportedItemCount).
 		Time("updated_at", at.UTC()).
 		Msg("staged item data committed")
 	return true
+}
+
+type syncedItemReport struct {
+	itemID   string
+	name     string
+	quantity int
+}
+
+func reportSyncedItems(ctx *maa.Context, items map[string]int) int {
+	reports := make([]syncedItemReport, 0, len(items))
+	for itemID, quantity := range items {
+		reports = append(reports, syncedItemReport{
+			itemID:   itemID,
+			name:     iconqty.ItemDisplayName(itemID),
+			quantity: quantity,
+		})
+	}
+	sort.Slice(reports, func(i, j int) bool {
+		if reports[i].name != reports[j].name {
+			return reports[i].name < reports[j].name
+		}
+		return reports[i].itemID < reports[j].itemID
+	})
+	for _, report := range reports {
+		maafocus.Print(ctx, i18n.T("ims.sync_item_found", report.name, report.quantity))
+	}
+	return len(reports)
 }
 
 func (a *SyncItemData) clearSumSession() {

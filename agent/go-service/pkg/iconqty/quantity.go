@@ -11,8 +11,14 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// Quantity OCR uses Maa roi_offset relative to IconRecognition cell_box.
-// Win32: [0, 78, 0, -78]; ADB: [0, 98, 0, -98].
+// quantityBandHeightAtBaseScale is the quantity text band height at
+// IconRecognition grid_scale 1.0. Larger controller profiles (ADB is 1.25)
+// are recovered from the actual cell_box, not from a second constant.
+const quantityBandHeightAtBaseScale = 18
+
+// 历史标定值：quantity OCR 曾按控制器类型选择固定 roi_offset（96px Win32 格 /
+// 120px ADB 格）。运行时已改为 QuantityROIFromCellBox 从 grid_type + 实际
+// cell_box 推导，这里仅保留标定记录，不参与识别路径。
 var (
 	QuantityROIOffsetWin32 = [4]int{0, 78, 0, -78}
 	QuantityROIOffsetADB   = [4]int{0, 98, 0, -98}
@@ -24,14 +30,19 @@ type QuantityHit struct {
 	Qty    int
 }
 
-func quantityROIOffset() [4]int {
-	if isADBController() {
-		return QuantityROIOffsetADB
+func quantityBaseCellHeight(gridType string) (int, bool) {
+	switch strings.TrimSpace(gridType) {
+	case GridTransfer:
+		return 64, true
+	case GridValuables, GridRewards:
+		return 96, true
+	default:
+		return 0, false
 	}
-	return QuantityROIOffsetWin32
 }
 
 // ApplyROIOffset applies a Maa-style roi_offset [x,y,w,h] to box.
+// 同上，运行时已无调用方。
 func ApplyROIOffset(box maa.Rect, off [4]int) (maa.Rect, bool) {
 	out := maa.Rect{
 		box[0] + off[0],
@@ -45,9 +56,31 @@ func ApplyROIOffset(box maa.Rect, off [4]int) (maa.Rect, bool) {
 	return out, true
 }
 
-// QuantityROIFromCellBox applies the controller-specific quantity roi_offset.
-func QuantityROIFromCellBox(cell maa.Rect) (maa.Rect, bool) {
-	return ApplyROIOffset(cell, quantityROIOffset())
+// QuantityROIFromCellBox returns the quantity text band at the bottom of a
+// grid-specific IconRecognition cell. The actual cell height carries the
+// controller scale because IconRecognition maps cells back to source pixels.
+func QuantityROIFromCellBox(gridType string, cell maa.Rect) (maa.Rect, error) {
+	if cell[2] <= 0 || cell[3] <= 0 {
+		return maa.Rect{}, fmt.Errorf("invalid cell_box %v", cell)
+	}
+	baseCellHeight, ok := quantityBaseCellHeight(gridType)
+	if !ok {
+		return maa.Rect{}, fmt.Errorf("unsupported quantity grid_type %q", strings.TrimSpace(gridType))
+	}
+	quantityHeight := cell[3] * quantityBandHeightAtBaseScale / baseCellHeight
+	if quantityHeight <= 0 || quantityHeight > cell[3] {
+		return maa.Rect{}, fmt.Errorf(
+			"invalid quantity band for grid_type %q and cell_box %v",
+			strings.TrimSpace(gridType),
+			cell,
+		)
+	}
+	return maa.Rect{
+		cell[0],
+		cell[1] + cell[3] - quantityHeight,
+		cell[2],
+		quantityHeight,
+	}, nil
 }
 
 // RecognizeQuantities runs one IconRecognition pass, then OCRs quantity from
@@ -71,14 +104,9 @@ func RecognizeQuantities(ctx *maa.Context, img image.Image, req Request) ([]Quan
 		if m.CellBox[2] <= 0 || m.CellBox[3] <= 0 {
 			return nil, fmt.Errorf("IconRecognition match missing cell_box for %s", itemID)
 		}
-		qtyROI, ok := QuantityROIFromCellBox(m.CellBox)
-		if !ok {
-			log.Info().
-				Str("component", "iconqty").
-				Str("item_id", itemID).
-				Interface("cell_box", m.CellBox).
-				Msg("quantity roi invalid after offset, skip")
-			continue
+		qtyROI, err := QuantityROIFromCellBox(req.GridType, m.CellBox)
+		if err != nil {
+			return nil, fmt.Errorf("quantity roi for %s: %w", itemID, err)
 		}
 		qty, hit, err := RecognizeQuantityInROI(ctx, img, qtyROI)
 		if err != nil {

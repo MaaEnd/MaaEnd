@@ -727,7 +727,7 @@
         ]
     },
     "SyncDepotItemDataCommit": {
-        "desc": "两仓全部分页完成后一次性提交暂存快照；提交失败时不设置完成标记和成功锁",
+        "desc": "两仓全部分页完成后一次性提交暂存快照，并播报本次命中物品的最终去重合计；提交失败时不设置完成标记和成功锁",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": {
@@ -736,7 +736,7 @@
                 "custom_action": "SyncItemData",
                 "custom_action_param": {
                     "transaction_mode": "commit",
-                    "notify_ui": false
+                    "notify_ui": true
                 }
             }
         },
