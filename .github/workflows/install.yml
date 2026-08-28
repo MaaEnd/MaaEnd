@@ -265,9 +265,12 @@ jobs:
         with:
           path: |
             ./.cache/ccache
-          key: ccache-${{ matrix.os }}-${{ matrix.arch }}-${{ hashFiles('agent/cpp-algo/CMakeLists.txt','agent/cpp-algo/CMakePresets.json','agent/cpp-algo/cmake/**','agent/cpp-algo/source/**','agent/cpp-algo/MaaUtils/cmake/**','agent/cpp-algo/MaaUtils/MaaUtils.cmake') }}
+          # Windows 的 ccache 历史缓存由 Strawberry 3.x 写入，3.x/4.x 的 MSVC 缓存格式不兼容：
+          # 4.x 恢复 3.x 缓存会 0 命中，且主 key 精确命中导致 actions/cache 不再保存 -> 死循环。
+          # 故 Windows 缓存 key 加 v4 标记作废旧条目重建；其他平台 ccache 本就是 4.x，key 不变。
+          key: ${{ matrix.os == 'win' && 'ccache-v4' || 'ccache' }}-${{ matrix.os }}-${{ matrix.arch }}-${{ hashFiles('agent/cpp-algo/CMakeLists.txt','agent/cpp-algo/CMakePresets.json','agent/cpp-algo/cmake/**','agent/cpp-algo/source/**','agent/cpp-algo/MaaUtils/cmake/**','agent/cpp-algo/MaaUtils/MaaUtils.cmake') }}
           restore-keys: |
-            ccache-${{ matrix.os }}-${{ matrix.arch }}-
+            ${{ matrix.os == 'win' && 'ccache-v4' || 'ccache' }}-${{ matrix.os }}-${{ matrix.arch }}-
 
       - name: Setup WebView2 SDK
         if: matrix.os == 'win'
