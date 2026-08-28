@@ -9,6 +9,8 @@
         "format:md:check": "markdownlint .",
         "format:go": "cd agent/go-service && go fmt ./...",
         "format:all": "pnpm format && pnpm format:md && pnpm format:go",
+        "同步": "uv run --no-project python tools/sync_upstream.py",
+        "sync:upstream": "uv run --no-project python tools/sync_upstream.py",
         "check": "maa-tools check",
         "test": "maa-tools test",
         "fetch:zmdmap": "node tools/pipeline-generate/fetch-data.mjs",
