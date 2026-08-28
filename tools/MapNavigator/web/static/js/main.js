@@ -1256,12 +1256,14 @@ class MapNavigatorApp {
             debugOptions: this.navDebug,
             showPlannedPath: this.navDebug.planned,
             walkSegments: (route.walk_segments || []).map((segment) => segment.map(project)),
-            ziplineSegments: (route.zipline_segments || []).map((segment) => ({
-                ...segment,
-                from: project(segment.from),
-                to: project(segment.to),
-                mount_restand: segment.mount_restand ? project(segment.mount_restand) : null,
-            })),
+            ziplineSegments: (route.zipline_segments || [])
+                .filter((segment) => Array.isArray(segment?.from) && Array.isArray(segment?.to))
+                .map((segment) => ({
+                    ...segment,
+                    from: project(segment.from),
+                    to: project(segment.to),
+                    mount_restand: Array.isArray(segment.mount_restand) ? project(segment.mount_restand) : null,
+                })),
             failure: failure
                 ? {
                       ...failure,

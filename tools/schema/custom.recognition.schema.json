@@ -26,6 +26,7 @@
                 "ListCompleteRecognition",
                 "MapFind",
                 "MapLocateAssertLocation",
+                "MapNavmeshQuery",
                 "PuzzleRecognition",
                 "ReceptionRoomExchangeCountdownWithinThresholdRecognition",
                 "ReceptionRoomWaitExchangeKeepAliveDueRecognition",
@@ -495,6 +496,22 @@
                                 "type": "boolean"
                             }
                         }
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "type": "object",
+                "required": [ "custom_recognition" ],
+                "properties": { "custom_recognition": { "const": "MapNavmeshQuery" } }
+            },
+            "then": {
+                "type": "object",
+                "required": [ "custom_recognition_param" ],
+                "properties": {
+                    "custom_recognition_param": {
+                        "$ref": "./components/map_navmesh.schema.json#/$defs/MapNavmeshQueryParam"
                     }
                 }
             }

@@ -42,6 +42,7 @@ class NavmeshBackendLatestQueryTest(unittest.TestCase):
         active.start()
         self.assertTrue(active_entered.wait(2.0))
         obsolete.start()
+        self.assertTrue(self._wait_for_generation(backend, "route-preview", 2))
         latest.start()
 
         self.assertTrue(

@@ -259,6 +259,7 @@ export class ConnectionPanel {
     this._suspended = next;
     this._checkVersion += 1;
     this._setConnected(false);
+    if (this.statusDot) this.statusDot.classList.remove('connected', 'connecting');
     clearTimeout(this._checkTimer);
     if (!this._suspended) this._checkDebounced();
   }

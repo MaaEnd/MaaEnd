@@ -48,6 +48,18 @@ test('connection panel publishes readiness changes', () => {
   assert.equal(panel.isConnected(), false);
 });
 
+test('suspending connection probes clears stale status-dot styles', () => {
+  const removed = [];
+  const statusDot = { classList: { remove: (...classes) => removed.push(classes) } };
+  globalThis.document = { getElementById: (id) => (id === 'status-dot' ? statusDot : null) };
+  const panel = new ConnectionPanel({});
+
+  panel.setSuspended(true);
+
+  assert.deepEqual(removed, [['connected', 'connecting']]);
+  assert.equal(panel.isConnected(), false);
+});
+
 test('live-position buttons start disabled and use the primary blue style', () => {
   const html = readFileSync(new URL('./static/index.html', import.meta.url), 'utf8');
   for (const id of ['btn-edit-locate', 'btn-assert-locate', 'btn-astar-locate']) {

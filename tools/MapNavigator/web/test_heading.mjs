@@ -81,7 +81,7 @@ test('forwards structured WebSocket position messages', () => {
     btnStart: fakeElement(),
     btnStop: fakeElement(),
     appEl: fakeElement(),
-    connection: {},
+    connection: { onStatusChange: (listener) => listener(true) },
     onPosition: (fix) => received.push(fix),
   });
 
