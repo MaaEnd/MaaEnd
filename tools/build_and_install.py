@@ -402,7 +402,7 @@ def setup_windows_msvc_env(arch: str = "x86_64") -> bool:
     # 注意必须用 shell=True：cmd /c 对带空格路径的引号处理有坑，shell 交由 Windows 解析。
     try:
         env_dump = subprocess.run(
-            f'call "{vcvarsall}" {msvc_arch} >nul 2>&1 && set',
+            f'call "{vcvarsall}" {msvc_arch} >nul && set',
             shell=True,
             capture_output=True,
             text=True,
@@ -642,6 +642,12 @@ def build_cpp_algo(
     if ccache_prog:
         os.environ["CCACHE_DIR"] = str(root_dir / ".cache" / "ccache")
         Path(os.environ["CCACHE_DIR"]).mkdir(parents=True, exist_ok=True)
+        # 把 ccache 所在目录前置到 PATH，确保 CMake 的 find_program(CCACHE_PROG ccache)
+        # 命中官方新版（如 .cache/ccache-bin 的 4.14），而不是 Strawberry 自带的旧 3.x。
+        ccache_dir = str(Path(ccache_prog).parent)
+        old_path = os.environ.get("PATH", "")
+        if ccache_dir not in old_path.split(os.pathsep):
+            os.environ["PATH"] = ccache_dir + os.pathsep + old_path
         print(f"  {Console.ok(t('ccache_status', path=os.environ['CCACHE_DIR']))}")
         print(f"  {t('ccache_compiler_launcher')}: {ccache_prog}")
     else:

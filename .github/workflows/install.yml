@@ -233,6 +233,9 @@ jobs:
           unzip -o .cache/ccache.zip -d .cache/ccache-bin
           find .cache/ccache-bin -name 'ccache.exe' -exec cp -f {} .cache/ccache-bin/ccache.exe \;
           ./.cache/ccache-bin/ccache.exe --version | head -1
+          # 把官方 4.14 前置到 PATH：CMake 的 find_program(ccache)、ccache -sv 统计
+          # 以及 IconRecognition 测试子工程的 configure 都走这一份，避免命中 Strawberry 自带 3.x。
+          echo "${GITHUB_WORKSPACE}/.cache/ccache-bin" >> "${GITHUB_PATH}"
       - name: Setup Go
         uses: actions/setup-go@v6
         with:
