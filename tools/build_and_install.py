@@ -431,23 +431,33 @@ def setup_windows_msvc_env(arch: str = "x86_64") -> bool:
 
     print(f"  {Console.ok(t('msvc_env_loaded', count=loaded))}")
 
-    # 诊断：确认 cl.exe 是否已进入 PATH（交叉编译时 Hostx64/<target>）
+    # 确保 cl.exe 在 PATH 中（vcvarsall 在部分环境可能不把目标架构的 bin 加入 PATH，
+    # 交叉编译时尤为明显）。先检查，缺失则手动把 MSVC bin 目录加到 PATH 前部。
     cl_in_path = shutil.which("cl.exe")
     if cl_in_path:
         print(f"  [diag] cl.exe in PATH: {cl_in_path}")
+        return True
+
+    # 手动在 VC bin 目录里找目标架构的 cl.exe 并补 PATH
+    vc_bin = Path(vs_path) / "VC" / "Tools" / "MSVC"
+    found_cl: list[str] = []
+    if vc_bin.exists():
+        tgt = "arm64" if arch == "aarch64" else "x64"
+        for msvc_dir in sorted(vc_bin.iterdir(), reverse=True):
+            # Hostx64/<tgt> 是 CI 交叉编译的主要形态；HostARM64/<tgt> 供 ARM64 宿主
+            for host in ["Hostx64", "HostARM64"]:
+                cand_dir = msvc_dir / "bin" / host / tgt
+                cand = cand_dir / "cl.exe"
+                if cand.exists():
+                    found_cl.append(str(cand))
+                    # 加到 PATH 前部，避免 mingw/LLVM 抢占
+                    old_path = os.environ.get("PATH", "")
+                    os.environ["PATH"] = str(cand_dir) + os.pathsep + old_path
+    if found_cl:
+        print(f"  [diag] cl.exe NOT in PATH; prepended from disk: {found_cl[0]}")
+        print(f"  [diag] cl.exe now in PATH: {shutil.which('cl.exe')}")
     else:
-        # 手动在 VC bin 目录里找 cl.exe
-        vc_bin = Path(vs_path) / "VC" / "Tools" / "MSVC"
-        found_cl = []
-        if vc_bin.exists():
-            for msvc_dir in sorted(vc_bin.iterdir(), reverse=True):
-                for host in ["Hostx64", "HostARM64"]:
-                    for tgt in ["arm64", "x64", "x86"]:
-                        cand = msvc_dir / "bin" / host / tgt / "cl.exe"
-                        if cand.exists():
-                            found_cl.append(str(cand))
-        print(f"  [diag] cl.exe NOT in PATH; found on disk: {found_cl[:6]}")
-        print(f"  [diag] PATH tail: {os.environ.get('PATH','')[-400:]}")
+        print(f"  [diag] cl.exe NOT found on disk (target={arch}); found: {found_cl}")
     return True
 
 
