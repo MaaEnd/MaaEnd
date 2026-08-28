@@ -506,6 +506,7 @@ class MapNavigatorApp {
                     }
                 },
             });
+            this.connection.onStatusChange((connected) => this._syncLocateActions(connected));
             this.importer = new Importer(
                 {
                     btnImport: this.els.btnImport,
@@ -3635,6 +3636,10 @@ class MapNavigatorApp {
      * @returns {Promise<void>}
      */
     async _onLocateCurrentPosition(mode) {
+        if (!this.connection || !this.connection.isConnected()) {
+            setStatus("请先确认游戏连接状态正常。", "#ef4444");
+            return;
+        }
         if (!this.field) {
             setStatus("地图尚未就绪，无法定位。", "#ef4444");
             return;
@@ -3757,7 +3762,14 @@ class MapNavigatorApp {
             setStatus(`定位异常: ${err && err.message ? err.message : err}`, "#ef4444");
             if (this.positionReadout) this.positionReadout.setPending("未获取到位置与朝向");
         } finally {
-            if (locateButton) locateButton.disabled = false;
+            if (locateButton) locateButton.disabled = !this.connection.isConnected();
+        }
+    }
+
+    /** Enable live-position actions only after the current connection probe succeeds. */
+    _syncLocateActions(connected) {
+        for (const button of [this.els.btnEditLocate, this.els.btnAssertLocate, this.els.btnAstarLocate]) {
+            if (button) button.disabled = !connected;
         }
     }
 
