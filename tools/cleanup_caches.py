@@ -193,8 +193,10 @@ def plan(caches: list[dict], keep: int, access_window_s: int,
             remaining.remove(c)
 
     # ---- 规则 1：已关闭/合并 PR 的 merge ref 全删 ----
+    # 注意遍历 remaining 而非 caches：规则 0 已把"与 v2 同 key 的 maadeps 冗余副本"
+    # 从 remaining 移除（它们已进 to_delete），若这里再对同一对象 remove 会抛 ValueError。
     pr_cache: dict[str, list[dict]] = {}
-    for c in caches:
+    for c in remaining:
         ref = c.get("ref") or ""
         if ref.startswith("refs/pull/") and ref.endswith("/merge"):
             pr_cache.setdefault(ref, []).append(c)
@@ -242,7 +244,9 @@ def plan(caches: list[dict], keep: int, access_window_s: int,
         final_to_delete.append(c)
 
     # ---- 规则 4：总量水位保护 ----
-    remaining_size = sum(c.get("size_in_bytes", 0) for c in remaining)
+    # 从完整 caches 容量出发，只减 final_to_delete：remaining 已被规则 0-2 移除候选，
+    # 若用 remaining_size 再减 deleted_size 会双重扣除，导致水位触发时可能不清理。
+    remaining_size = sum(c.get("size_in_bytes", 0) for c in caches)
     deleted_size = sum(c.get("size_in_bytes", 0) for c in final_to_delete)
     if watermark_gb and remaining_size - deleted_size > watermark_gb * 1024**3:
         # 从旧到新删，直到低于 target

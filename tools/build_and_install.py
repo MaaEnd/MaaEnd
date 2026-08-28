@@ -397,7 +397,12 @@ def setup_windows_msvc_env(arch: str = "x86_64") -> bool:
         )
         return False
 
-    msvc_arch = "arm64" if arch == "aarch64" else "x64"
+    # vcvarsall 参数：x86_64 -> x64（x64 host -> x64 target）
+    #              aarch64 -> x64_arm64（x64 host -> arm64 target，交叉编译）
+    # 注意不能用裸 "arm64"：那表示 ARM64 host -> ARM64 target（VsDevCmd 的
+    # -host_arch=arm64），在 x64 runner 上会配置 HostARM64 工具链，而实际
+    # cl/link 由下方 PATH 修正强制指向 Hostx64/arm64，语义不一致。
+    msvc_arch = "x64_arm64" if arch == "aarch64" else "x64"
     # 用 shell 执行 vcvarsall.bat <arch> 并导出环境变量（set 命令输出）。
     # 注意必须用 shell=True：cmd /c 对带空格路径的引号处理有坑，shell 交由 Windows 解析。
     try:
