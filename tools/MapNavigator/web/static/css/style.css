@@ -929,6 +929,12 @@ canvas {
   min-width: 90px;
 }
 
+.waypoint-option-row {
+  justify-content: flex-end;
+  gap: 16px;
+  margin: 8px 0;
+}
+
 .combo-zone {
   min-width: 140px;
 }
