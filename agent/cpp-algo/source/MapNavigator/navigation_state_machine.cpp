@@ -1715,12 +1715,10 @@ bool NavigationStateMachine::TickNavigate()
     // The floor covers one batch; a tick that spends several sweeps further and takes correspondingly longer to
     // land, so add time for the part beyond the first batch. A debt written off mid-sweep makes the loop command
     // the remainder a second time, which overshoots by whatever was still in flight and then hunts back.
-    const double extra_sweep_deg =
-        std::max(0.0, std::abs(steering_rate.cmd_delta_deg) - motion_controller_->SteeringBatchCapDeg());
+    const double extra_sweep_deg = std::max(0.0, std::abs(steering_rate.cmd_delta_deg) - motion_controller_->SteeringBatchCapDeg());
     const int64_t base_pending_lifetime_ms =
         kSteeringPendingLifetimeMs + static_cast<int64_t>(extra_sweep_deg / kYawRateDegPerSec * 1000.0);
-    const int64_t pending_lifetime_ms =
-        walk_mode_.engaged() ? base_pending_lifetime_ms * kWalkModeSlowFactor : base_pending_lifetime_ms;
+    const int64_t pending_lifetime_ms = walk_mode_.engaged() ? base_pending_lifetime_ms * kWalkModeSlowFactor : base_pending_lifetime_ms;
     if (steering_rate.pending_turn_deg != 0.0) {
         const int64_t pending_age_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - steering_rate.cmd_at).count();
         if (pending_age_ms >= pending_lifetime_ms) {

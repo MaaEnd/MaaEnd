@@ -26,6 +26,7 @@ public:
 
     bool IsMoving() const;
     bool IsMovingForward() const;
+
     // The transport's per-drag cap, which is the angle the pending-turn floor is sized to cover.
     double SteeringBatchCapDeg() const { return steering_profile_.max_batch_delta_deg; }
 
