@@ -1010,7 +1010,7 @@ test("AutoDelivery keeps its task-detail entry and default branch flow explicit"
     ]);
     assert.deepEqual(pickup.AutoDeliveryTrackingGoneBeforeNavigateDepot.all_of, [
         "AutoDeliveryCurrentDeliveryMissionDetail",
-        "AutoDeliveryCancelCurrentJobTrackingButtonGone",
+        "AutoDeliveryStartTrackingButton",
     ]);
     assert.deepEqual(pickup.AutoDeliveryTrackingGoneBeforeNavigateDepot.next, [
         "AutoDeliveryReturnWorldAndNavigateDepot",
@@ -1195,10 +1195,9 @@ test("AutoDelivery keeps its task-detail entry and default branch flow explicit"
     assert.deepEqual(delivery.AutoDeliveryCurrentJobTrackingAlreadyOff.next, [
         "AutoDeliveryReturnWorldAndNavigateDestination",
     ]);
-    assert.equal(delivery.AutoDeliveryCancelCurrentJobTrackingButtonGone.inverse, true);
     assert.deepEqual(delivery.AutoDeliveryCurrentJobTrackingGone.all_of, [
         "AutoDeliveryCurrentDeliveryMissionDetail",
-        "AutoDeliveryCancelCurrentJobTrackingButtonGone",
+        "AutoDeliveryStartTrackingButton",
     ]);
     assert.deepEqual(delivery.AutoDeliveryCurrentJobTrackingGone.next, [
         "AutoDeliveryReturnWorldAndNavigateDestination",

@@ -94,7 +94,6 @@ FAILURE_LABELS = {
     "AutoDeliveryDeliveryMissionNotFound": "未找到送货任务",
     # 终点导航与交货
     "AutoDeliveryCancelCurrentJobTrackingButton": "识别取消追踪按钮",
-    "AutoDeliveryCancelCurrentJobTrackingButtonGone": "确认取消追踪按钮消失",
     "AutoDeliveryCancelCurrentJobTracking": "送货导航前取消追踪",
     "AutoDeliveryCurrentJobTrackingAlreadyOff": "确认送货任务未追踪",
     "AutoDeliveryCurrentJobTrackingGone": "确认送货任务追踪标记已消失",

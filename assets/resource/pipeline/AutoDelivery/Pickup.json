@@ -183,13 +183,13 @@
         ]
     },
     "AutoDeliveryTrackingGoneBeforeNavigateDepot": {
-        "desc": "在送货任务详情中确认前往仓储节点前取消追踪按钮已经消失",
+        "desc": "在送货任务详情中确认前往仓储节点前开始追踪按钮已经出现",
         "recognition": "And",
         "all_of": [
             "AutoDeliveryCurrentDeliveryMissionDetail",
-            "AutoDeliveryCancelCurrentJobTrackingButtonGone"
+            "AutoDeliveryStartTrackingButton"
         ],
-        "box_index": 0,
+        "box_index": 1,
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,

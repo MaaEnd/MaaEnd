@@ -26,22 +26,6 @@
         ],
         "order_by": "Score"
     },
-    "AutoDeliveryCancelCurrentJobTrackingButtonGone": {
-        "desc": "识别当前画面中的取消追踪按钮已经消失",
-        "recognition": "TemplateMatch",
-        "roi": [
-            1100,
-            560,
-            170,
-            150
-        ],
-        "template": [
-            "Common/Button/CancelButtonType2.png",
-            "Common/Button/CancelButtonType2Hover.png"
-        ],
-        "order_by": "Score",
-        "inverse": true
-    },
     "AutoDeliveryCancelCurrentJobTracking": {
         "desc": "送货前取消当前任务追踪，避免任务追踪图标干扰 MapNavigator 寻路",
         "recognition": "And",
@@ -74,13 +58,13 @@
         ]
     },
     "AutoDeliveryCurrentJobTrackingGone": {
-        "desc": "在送货任务详情中确认取消追踪按钮已经消失",
+        "desc": "在送货任务详情中确认开始追踪按钮已经出现",
         "recognition": "And",
         "all_of": [
             "AutoDeliveryCurrentDeliveryMissionDetail",
-            "AutoDeliveryCancelCurrentJobTrackingButtonGone"
+            "AutoDeliveryStartTrackingButton"
         ],
-        "box_index": 0,
+        "box_index": 1,
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
