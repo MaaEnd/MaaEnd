@@ -22,6 +22,16 @@ function assertNonEmptyString(value, label) {
     return value;
 }
 
+function readWalkOnly(value, label) {
+    if (value === undefined) {
+        return false;
+    }
+    if (typeof value !== "boolean") {
+        throw new TypeError(`[AutoDelivery] ${label}.walk_only 必须是布尔值`);
+    }
+    return value;
+}
+
 function assertUnique(items, keyOf, label) {
     const seen = new Set();
     for (const item of items) {
@@ -151,6 +161,7 @@ const destinationOverrides = new Map(destinationOverrideItems);
 export const depots = assertArray(catalogSource.depots, "delivery_destinations.depots").map((source, index) => {
     const id = assertNonEmptyString(source.id, `depots[${index}].id`);
     const override = depotOverrides.get(id);
+    const walkOnly = readWalkOnly(override?.walk_only, `仓储 ${id}`);
     const defaultPath = buildNavmeshPath(source, `仓储 ${id}`, true);
     const path = override?.path?.length ? override.path : defaultPath;
     const retryPath = override?.retry_path?.length ? override.retry_path : defaultPath;
@@ -163,6 +174,7 @@ export const depots = assertArray(catalogSource.depots, "delivery_destinations.d
         path,
         retryPath,
         departurePath: override?.departure_path ?? [],
+        walkOnly,
         routeNode: buildRouteNode("Depot", id),
         zipRouteNode: buildRouteNode("Depot", id, true),
         retryRouteNode: buildRouteNode("DepotRetry", id),
@@ -197,6 +209,7 @@ export const destinations = assertArray(catalogSource.destinations, "delivery_de
             throw new Error(`[AutoDelivery] 终点 ${id} 引用了未知仓储 ${source.depot_id}`);
         }
         const override = destinationOverrides.get(id);
+        const walkOnly = readWalkOnly(override?.walk_only, `终点 ${id}`);
         const withApproachPoint = source.kind === "recycle_bin";
         const defaultPath = buildNavmeshPath(source, `终点 ${id}`, withApproachPoint);
         const ownPath = override?.path?.length ? override.path : defaultPath;
@@ -224,6 +237,7 @@ export const destinations = assertArray(catalogSource.destinations, "delivery_de
                 ...ownPath,
             ],
             retryPath,
+            walkOnly,
             routeNode: buildRouteNode("Destination", id),
             zipRouteNode: buildRouteNode("Destination", id, true),
             retryRouteNode: buildRouteNode("DestinationRetry", id),
