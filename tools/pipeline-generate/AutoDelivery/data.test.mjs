@@ -4,7 +4,7 @@ import test from "node:test";
 
 import {parse as parseJsonc} from "jsonc-parser";
 
-import routeRows from "./routes-data.mjs";
+import routeRows, {buildRows} from "./routes-data.mjs";
 import {buildNavmeshPath, buildYawApproachTarget, depots, destinations, runtimeCatalog} from "./model.mjs";
 import {
     ambiguousRecycleBinGroups,
@@ -193,6 +193,7 @@ test("AutoDelivery 路线同步刷新元数据并保留人工覆盖字段", () =
                     source_id: "depot-1",
                     name: "旧仓储名",
                     description: "人工说明",
+                    walk_only: true,
                     retry_path: [
                         [
                             1,
@@ -206,6 +207,7 @@ test("AutoDelivery 路线同步刷新元数据并保留人工覆盖字段", () =
                     source_id: "destination-1",
                     name: "旧终点名",
                     depot_id: "old-depot",
+                    walk_only: true,
                     retry_path: [
                         [
                             3,
@@ -222,6 +224,7 @@ test("AutoDelivery 路线同步刷新元数据并保留人工覆盖字段", () =
             source_id: "depot-1",
             name: "仓储一",
             description: "人工说明",
+            walk_only: true,
             retry_path: [
                 [
                     1,
@@ -239,6 +242,7 @@ test("AutoDelivery 路线同步刷新元数据并保留人工覆盖字段", () =
             source_id: "destination-1",
             name: "终点一",
             depot_id: "depot-1",
+            walk_only: true,
             retry_path: [
                 [
                     3,
@@ -247,6 +251,44 @@ test("AutoDelivery 路线同步刷新元数据并保留人工覆盖字段", () =
             ],
         },
     ]);
+});
+
+test("AutoDelivery walk_only 路线在全局启用滑索时仍仅步行", () => {
+    const rows = buildRows(
+        "TestArea",
+        "destination-1",
+        "测试路线",
+        [
+            [
+                1,
+                2,
+            ],
+        ],
+        "AutoDeliveryRouteDestinationTest",
+        "AutoDeliveryRouteDestinationTestWithZipline",
+        true,
+    );
+
+    assert.equal(rows.length, 2);
+    assert.equal(rows[0].ActionParam.value.zip, false);
+    assert.equal(rows[1].ActionParam.value.zip, false);
+    assert.match(rows[1].Description, /仅允许步行/);
+
+    const defaultRows = buildRows(
+        "TestArea",
+        "destination-2",
+        "默认路线",
+        [
+            [
+                3,
+                4,
+            ],
+        ],
+        "AutoDeliveryRouteDestinationDefault",
+        "AutoDeliveryRouteDestinationDefaultWithZipline",
+    );
+    assert.equal(defaultRows[1].ActionParam.value.zip, true);
+    assert.match(defaultRows[1].Description, /允许使用滑索/);
 });
 
 test("AutoDelivery routes.json 同步完整检索元数据并仅为必要项保留路线覆盖", () => {
