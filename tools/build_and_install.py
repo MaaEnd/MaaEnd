@@ -400,10 +400,16 @@ def build_cpp_algo(
     configure_preset_candidates: list[str]
     if resolved_os == "win":
         if resolved_arch == "aarch64":
+            # ARM64 交叉编译本轮仍用 VS generator（Ninja+MSVC 的 ARM 交叉环境未验证）
             configure_preset_candidates = ["MSVC 2026 ARM", "MSVC 2022 ARM"]
         else:
-            # 兼容仅安装 VS2022 的环境：优先尝试 2026，失败时自动回退 2022
-            configure_preset_candidates = ["MSVC 2026", "MSVC 2022"]
+            # 优先 Ninja Multi-Config（多核并行编译，大幅缩短 MSVC 构建时间），
+            # 失败时回退 VS generator
+            configure_preset_candidates = [
+                "NinjaMulti Win32",
+                "MSVC 2026",
+                "MSVC 2022",
+            ]
     elif resolved_os == "linux":
         if resolved_arch == "aarch64":
             configure_preset_candidates = ["NinjaMulti Linux arm64"]
@@ -427,7 +433,7 @@ def build_cpp_algo(
     )
     print(f"  {t('maadeps_triplet')}: {maadeps_triplet}")
 
-    # Windows 不使用 ccache：MSVC + VS generator 命中率差，且避免空转开销
+    # Windows 本轮先禁用 ccache（先单独验证 Ninja 并行编译的效果，避免多变量混淆）
     ccache_prog = None if resolved_os == "win" else shutil.which("ccache")
     if ccache_prog:
         os.environ["CCACHE_DIR"] = str(root_dir / ".cache" / "ccache")

@@ -222,6 +222,12 @@ jobs:
         with:
           sdk-version: 26100
 
+      - name: Setup MSVC dev environment (Ninja needs cl.exe/INCLUDE/LIB)
+        if: matrix.os == 'win' && matrix.arch == 'x86_64'
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
       - name: Setup Go
         uses: actions/setup-go@v6
         with:
