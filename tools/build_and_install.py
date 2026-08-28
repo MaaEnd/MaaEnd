@@ -451,21 +451,30 @@ def setup_windows_msvc_env(arch: str = "x86_64") -> bool:
 
     # Windows Kits 的 bin：rc.exe 用宿主架构（x64）——arm64 的 rc.exe 是 ARM64 原生程序，
     # 在 x64 runner 上无法运行（Exec format error）。交叉编译时 manifest 由 x64 的 rc 处理。
-    kits_root = Path(os.environ.get("WindowsSdkDir", r"C:\Program Files (x86)\Windows Kits\10\bin"))
-    # 优先用 Windows SDK 版本目录下的 x64
-    kits_bin = None
-    if kits_root.exists():
-        for sdk_ver in sorted(kits_root.iterdir(), reverse=True):
-            cand = sdk_ver / "x64"
-            if (cand / "rc.exe").exists():
-                kits_bin = cand
-                break
-    if kits_bin is None:
-        fallback = kits_root / "x64"
-        if (fallback / "rc.exe").exists():
-            kits_bin = fallback
-    if kits_bin is not None:
-        prepend_dirs.append(str(kits_bin))
+    # 用 glob 直接找 <SDK bin>/<version>/x64/rc.exe，跨 runner 稳定
+    import glob as _glob
+
+    rc_exe_path = None
+    for probe_root in [
+        Path(os.environ.get("WindowsSdkDir", "")) / "bin",
+        Path(r"C:\Program Files (x86)\Windows Kits\10\bin"),
+    ]:
+        if not probe_root.exists():
+            continue
+        matches = sorted(
+            _glob.glob(str(probe_root / "*" / "x64" / "rc.exe")),
+            reverse=True,
+        )
+        if matches:
+            rc_exe_path = Path(matches[0])
+            break
+    if rc_exe_path is not None:
+        prepend_dirs.append(str(rc_exe_path.parent))
+        # 让 configure 阶段能拿到 x64 rc 的完整路径（CMake 的 Ninja+MSVC 会按目标架构选 arm64 rc，
+        # 必须显式覆盖为宿主 x64 rc）
+        os.environ["MAAEND_RC_COMPILER"] = str(rc_exe_path)
+    else:
+        os.environ.pop("MAAEND_RC_COMPILER", None)
 
     if prepend_dirs:
         old_path = os.environ.get("PATH", "")
@@ -670,6 +679,12 @@ def build_cpp_algo(
         if resolved_os == "win" and enable_ccache == "ON":
             configure_cmd.append(
                 "-DCMAKE_MSVC_DEBUG_INFORMATION_FORMAT=Embedded"
+            )
+
+        # Windows 交叉编译：显式指定 x64(宿主) rc.exe，避免 CMake 选 arm64 rc 在 x64 runner 上失败
+        if resolved_os == "win" and os.environ.get("MAAEND_RC_COMPILER"):
+            configure_cmd.append(
+                f"-DCMAKE_RC_COMPILER={os.environ['MAAEND_RC_COMPILER']}"
             )
 
         # macOS 需要额外的参数
