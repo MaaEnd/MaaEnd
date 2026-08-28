@@ -449,10 +449,22 @@ def setup_windows_msvc_env(arch: str = "x86_64") -> bool:
                     prepend_dirs.append(str(cand_dir))
                     break
 
-    # Windows Kits 的 bin（提供 arm64/x64 的 rc.exe 等）
+    # Windows Kits 的 bin：rc.exe 用宿主架构（x64）——arm64 的 rc.exe 是 ARM64 原生程序，
+    # 在 x64 runner 上无法运行（Exec format error）。交叉编译时 manifest 由 x64 的 rc 处理。
     kits_root = Path(os.environ.get("WindowsSdkDir", r"C:\Program Files (x86)\Windows Kits\10\bin"))
-    kits_bin = kits_root / tgt
-    if kits_bin.exists():
+    # 优先用 Windows SDK 版本目录下的 x64
+    kits_bin = None
+    if kits_root.exists():
+        for sdk_ver in sorted(kits_root.iterdir(), reverse=True):
+            cand = sdk_ver / "x64"
+            if (cand / "rc.exe").exists():
+                kits_bin = cand
+                break
+    if kits_bin is None:
+        fallback = kits_root / "x64"
+        if (fallback / "rc.exe").exists():
+            kits_bin = fallback
+    if kits_bin is not None:
         prepend_dirs.append(str(kits_bin))
 
     if prepend_dirs:
