@@ -432,32 +432,40 @@ def setup_windows_msvc_env(arch: str = "x86_64") -> bool:
     print(f"  {Console.ok(t('msvc_env_loaded', count=loaded))}")
 
     # 确保 cl.exe 在 PATH 中（vcvarsall 在部分环境可能不把目标架构的 bin 加入 PATH，
-    # 交叉编译时尤为明显）。先检查，缺失则手动把 MSVC bin 目录加到 PATH 前部。
+    # 交叉编译时尤为明显）。无论如何，都把"最新版 MSVC 目标架构 bin + Windows Kits
+    # 目标架构 bin"强制放到 PATH 最前，避免旧版本 cl 或 mingw/LLVM 抢占。
+    tgt = "arm64" if arch == "aarch64" else "x64"
+    vc_bin = Path(vs_path) / "VC" / "Tools" / "MSVC"
+    prepend_dirs: list[str] = []
+
+    if vc_bin.exists():
+        msvc_dirs = sorted(vc_bin.iterdir(), key=lambda p: p.name, reverse=True)
+        if msvc_dirs:
+            latest_msvc = msvc_dirs[0]
+            # Hostx64/<tgt> 是 CI 交叉编译的主要形态；HostARM64/<tgt> 供 ARM64 宿主
+            for host in ["Hostx64", "HostARM64"]:
+                cand_dir = latest_msvc / "bin" / host / tgt
+                if (cand_dir / "cl.exe").exists():
+                    prepend_dirs.append(str(cand_dir))
+                    break
+
+    # Windows Kits 的 bin（提供 arm64/x64 的 rc.exe 等）
+    kits_root = Path(os.environ.get("WindowsSdkDir", r"C:\Program Files (x86)\Windows Kits\10\bin"))
+    kits_bin = kits_root / tgt
+    if kits_bin.exists():
+        prepend_dirs.append(str(kits_bin))
+
+    if prepend_dirs:
+        old_path = os.environ.get("PATH", "")
+        new_path = os.pathsep.join(prepend_dirs) + os.pathsep + old_path
+        os.environ["PATH"] = new_path
+
     cl_in_path = shutil.which("cl.exe")
     if cl_in_path:
         print(f"  [diag] cl.exe in PATH: {cl_in_path}")
-        return True
-
-    # 手动在 VC bin 目录里找目标架构的 cl.exe 并补 PATH
-    vc_bin = Path(vs_path) / "VC" / "Tools" / "MSVC"
-    found_cl: list[str] = []
-    if vc_bin.exists():
-        tgt = "arm64" if arch == "aarch64" else "x64"
-        for msvc_dir in sorted(vc_bin.iterdir(), reverse=True):
-            # Hostx64/<tgt> 是 CI 交叉编译的主要形态；HostARM64/<tgt> 供 ARM64 宿主
-            for host in ["Hostx64", "HostARM64"]:
-                cand_dir = msvc_dir / "bin" / host / tgt
-                cand = cand_dir / "cl.exe"
-                if cand.exists():
-                    found_cl.append(str(cand))
-                    # 加到 PATH 前部，避免 mingw/LLVM 抢占
-                    old_path = os.environ.get("PATH", "")
-                    os.environ["PATH"] = str(cand_dir) + os.pathsep + old_path
-    if found_cl:
-        print(f"  [diag] cl.exe NOT in PATH; prepended from disk: {found_cl[0]}")
-        print(f"  [diag] cl.exe now in PATH: {shutil.which('cl.exe')}")
     else:
-        print(f"  [diag] cl.exe NOT found on disk (target={arch}); found: {found_cl}")
+        print(f"  [diag] cl.exe STILL not in PATH; prepend_dirs={prepend_dirs}")
+    print(f"  [diag] rc.exe in PATH: {shutil.which('rc.exe')}")
     return True
 
 
