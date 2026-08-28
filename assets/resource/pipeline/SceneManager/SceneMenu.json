@@ -2171,13 +2171,13 @@
                 "custom_action_param": {
                     "custom_action": "AutoAltClickAction",
                     "wait_nodes": [
-                        "__ScenePrivateAnyEnterMenuBackpackSuccess"
+                        "InDijiangDepot"
                     ]
                 }
             }
         },
         "next": [
-            "__ScenePrivateAnyEnterMenuBackpackSuccess"
+            "InDijiangDepot"
         ]
     },
     "__ScenePrivateMenuListEnterMenuBackpack": {
