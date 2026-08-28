@@ -1,6 +1,6 @@
 {
     "navigation.latency_slow": "<span style=\"color: red; font-weight: bold;\">尋路每拍耗時中位數 %d ms（正常約 110 ms）：截圖 %d ms、影像處理 %d ms、定位 %d ms、轉向下發 %d ms、其餘 %d ms。這麼慢會來不及轉彎，容易撞牆或掉水。建議降低遊戲畫質與解析度、關掉佔用高的背景程式，並檢查 GPU 佔用是否過高。此提示不會中斷任務。</span>",
-    "navigation.sensitivity_mismatch": "<span style=\"color: red; font-weight: bold;\">尋路轉向角度持續偏大：實測轉過的角度約為指令角度的 %d%%，正常應在 100%% 附近；該結果為最近 %d 段取樣的中位值。轉向過量會使尋路反覆修正方向，可能導致撞牆或落水。該現象通常由遊戲內鏡頭靈敏度被調高引起，建議恢復為預設值。此提示不會中斷任務。</span>",
+    "navigation.sensitivity_mismatch": "<span style=\"color: red; font-weight: bold;\">尋路轉向角度持續偏大：實測轉過的角度約為指令角度的 %d%%，正常應在 100%% 附近；該結果為最近 %d 個取樣視窗的中位值。轉向過量會使尋路反覆修正方向，可能導致撞牆或落水。該現象通常由遊戲內鏡頭靈敏度被調高或滑鼠 DPI 過高引起，建議將遊戲靈敏度恢復成 0，並降低滑鼠 DPI。此提示不會中斷任務。</span>",
     "zipline.already_signed_in": "偵測到已登入，本次無需再次登入；標記擷取完成後視窗會自動關閉。",
     "zipline.import_done": "<span style=\"font-weight: bold;\">滑索座標已更新，共 %d 筆。</span>如需尋路盡可能使用滑索，請在設定的「滑索」中將「尋路時使用滑索」設為「始終啟用」；維持「跟隨任務」時，僅在路線指定使用滑索的情況下啟用。",
     "zipline.no_data": "<span style=\"color: red; font-weight: bold;\">本次尋路未使用滑索：目前區域沒有可用的滑索座標。請先在任務清單中執行「🛝匯入/更新滑索座標」，匯入完成後重新執行。此提示不會中斷任務。</span>",
