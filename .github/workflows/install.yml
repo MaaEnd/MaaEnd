@@ -287,7 +287,6 @@ jobs:
           restore-keys: |
             ${{ matrix.os == 'win' && 'ccache-v4' || 'ccache' }}-${{ matrix.os }}-${{ matrix.arch }}-
 
-
       - name: Setup WebView2 SDK
         if: matrix.os == 'win'
         shell: bash
@@ -357,7 +356,7 @@ jobs:
 
       - name: Save ccache
         # 置于 Install（真正构建）之后：保存的是本次构建产生的新缓存；
-        # cache-hit 时 actions/cache/save 自动跳过，不覆盖已有快照。
+        # key 已存在时 actions/cache/save 只发 warning 不覆盖已有快照（不会导致 job 失败）。
         # 临时：注释掉 non-PR only 条件以便 PR 测试阶段验证缓存热构建；
         # 合并前恢复为 if: github.event_name != 'pull_request' 并清理测试产生的缓存。
         # if: ${{ github.event_name != 'pull_request' && steps.cache-ccache.outputs.cache-hit != 'true' }}
@@ -365,7 +364,7 @@ jobs:
         with:
           path: |
             ./.cache/ccache
-          # 与 restore 同一 key；命中则 skip（actions/cache/save 不覆盖已存在条目）
+          # 与 restore 同一 key；key 已存在时 save warning 并跳过（不覆盖）
           key: ${{ matrix.os == 'win' && 'ccache-v4' || 'ccache' }}-${{ matrix.os }}-${{ matrix.arch }}-${{ hashFiles('agent/cpp-algo/CMakeLists.txt','agent/cpp-algo/CMakePresets.json','agent/cpp-algo/cmake/**','agent/cpp-algo/source/**','agent/cpp-algo/MaaUtils/cmake/**','agent/cpp-algo/MaaUtils/MaaUtils.cmake') }}
 
       - name: Show ccache stats
