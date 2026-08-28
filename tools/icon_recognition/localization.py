@@ -8,6 +8,8 @@ from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
 
+import json5
+
 from fixed_items import FIXED_NAME_KEYS
 from text import clean_text
 
@@ -80,7 +82,7 @@ def update_interface_locale(
     remove_stale: bool = True,
 ) -> None:
     target = Path(path)
-    interface = json.loads(target.read_text(encoding="utf-8"))
+    interface = json5.loads(target.read_text(encoding="utf-8"))
     if not isinstance(interface, dict):
         raise ValueError(f"locale must be an object: {target}")
 
@@ -113,12 +115,14 @@ def update_interface_locale(
         for item_key in item_keys:
             updated[item_key] = values[item_key]
 
+    if updated == interface:
+        return
     target.write_text(json.dumps(updated, ensure_ascii=False, indent=4) + "\n", encoding="utf-8")
 
 
 def load_json_object(path: str | Path) -> dict[str, Any]:
     source = Path(path)
-    payload = json.loads(source.read_text(encoding="utf-8-sig"))
+    payload = json5.loads(source.read_text(encoding="utf-8-sig"))
     if not isinstance(payload, dict):
         raise ValueError(f"JSON 顶层必须是对象: {source}")
     return payload

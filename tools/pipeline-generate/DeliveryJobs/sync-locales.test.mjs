@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
-import {readFileSync} from "node:fs";
 import test from "node:test";
 
+import {readJsonc} from "../jsonc.mjs";
 import {deliveryJobLocaleEntries} from "./model.mjs";
 import {fillMissingLocaleEntries, removeStaleLocaleEntries} from "./sync-locales.mjs";
 
@@ -97,9 +97,7 @@ test("DeliveryJobs generated locale entries exist in all interface locales", () 
         "ja_jp",
         "ko_kr",
     ]) {
-        const messages = JSON.parse(
-            readFileSync(new URL(`../../../assets/locales/interface/${fileLocale}.json`, import.meta.url), "utf8"),
-        );
+        const messages = readJsonc(new URL(`../../../assets/locales/interface/${fileLocale}.json`, import.meta.url));
         for (const key of expectedKeys) {
             assert.equal(typeof messages[key], "string", `${fileLocale} missing ${key}`);
             assert.notEqual(messages[key].trim(), "", `${fileLocale} has empty ${key}`);

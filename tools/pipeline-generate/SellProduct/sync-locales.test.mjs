@@ -1,12 +1,12 @@
 import assert from "node:assert/strict";
-import {readFileSync} from "node:fs";
 import test from "node:test";
 
+import {readJsonc} from "../jsonc.mjs";
 import {sellProductLocaleEntries, sellProductLocations} from "./model.mjs";
 import {insertMissingItemMessages, rebuildSettlementMessages} from "./sync-locales.mjs";
 
 function readPipeline(url) {
-    return JSON.parse(readFileSync(url, "utf8").replace(/^\s*\/\/.*$/gm, ""));
+    return readJsonc(url);
 }
 
 test("SellProduct locale settlement keys are rebuilt in game order", () => {
@@ -110,9 +110,7 @@ test("SellProduct UI focus messages use complete interface i18n keys", () => {
         "ja_jp",
         "ko_kr",
     ]) {
-        const locale = JSON.parse(
-            readFileSync(new URL(`../../../assets/locales/interface/${lang}.json`, import.meta.url), "utf8"),
-        );
+        const locale = readJsonc(new URL(`../../../assets/locales/interface/${lang}.json`, import.meta.url));
         for (const key of focusKeys) {
             assert.equal(typeof locale[key], "string", `${lang} missing ${key}`);
             assert.notEqual(locale[key].trim(), "", `${lang} has empty ${key}`);
@@ -129,7 +127,7 @@ test("SellProduct Go UI messages have matching keys in all locales", () => {
         "ko_kr",
     ].map((lang) => [
         lang,
-        JSON.parse(readFileSync(new URL(`../../../assets/locales/go-service/${lang}.json`, import.meta.url), "utf8")),
+        readJsonc(new URL(`../../../assets/locales/go-service/${lang}.json`, import.meta.url)),
     ]);
     const expectedKeys = Object.keys(localeEntries[0][1])
         .filter((key) => key.startsWith("sellproduct."))

@@ -1,5 +1,10 @@
 function(configure_icon_recognition_test target)
-    target_include_directories(${target} PRIVATE "${CMAKE_CURRENT_LIST_DIR}/..")
+    target_include_directories(
+        ${target}
+        PRIVATE
+            "${CMAKE_CURRENT_LIST_DIR}/../.."
+            "${CMAKE_CURRENT_LIST_DIR}/.."
+    )
     if(MSVC)
         target_compile_options(${target} PRIVATE /utf-8 /W4 /WX /wd4251)
     else()

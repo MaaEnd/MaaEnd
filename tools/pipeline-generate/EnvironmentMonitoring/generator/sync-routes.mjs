@@ -1,6 +1,7 @@
 import {existsSync, readFileSync, writeFileSync} from "node:fs";
 import {dirname, resolve} from "node:path";
 import {pathToFileURL} from "node:url";
+import {parseJsonc} from "../../jsonc.mjs";
 import {
     buildGeneratedIdIndex,
     collectMonitoringMissions,
@@ -60,7 +61,7 @@ function syncRouteLocaleCatalogs(missions, idByMissionId) {
     for (const fileLocale of INTERFACE_LOCALES) {
         const localePath = resolve(localeDir, `${fileLocale}.json`);
         const originalText = readFileSync(localePath, "utf8");
-        const messages = JSON.parse(originalText);
+        const messages = parseJsonc(originalText, localePath);
         const failureMessages = {};
         const sortedMissions = [...missions].sort((left, right) => {
             const leftId = idByMissionId.get(left.missionId);
@@ -93,8 +94,8 @@ function syncRouteLocaleCatalogs(missions, idByMissionId) {
             Object.assign(syncedMessages, failureMessages);
         }
         validateRouteLocaleCatalog(syncedMessages, failureMessages, missions.length, routeKeyPrefix, fileLocale);
-        const syncedText = `${JSON.stringify(syncedMessages, null, 4)}\n`;
-        if (syncedText !== originalText.replace(/\r\n/g, "\n")) {
+        if (JSON.stringify(syncedMessages) !== JSON.stringify(messages)) {
+            const syncedText = `${JSON.stringify(syncedMessages, null, 4)}\n`;
             writeFileSync(localePath, syncedText, "utf8");
             console.log(`[EnvironmentMonitoring] 已同步 ${fileLocale}.json 的路线失败提示。`);
         }
@@ -241,7 +242,7 @@ export function syncRouteConfig() {
     }
 
     const originalText = readFileSync(ROUTES_PATH, "utf8");
-    const routes = JSON.parse(originalText);
+    const routes = parseJsonc(originalText, ROUTES_PATH);
     const missions = collectMonitoringMissions(readJson(ENVIRONMENT_MONITORING_DATA_PATH));
     const idByMissionId = buildGeneratedIdIndex(missions);
     syncRouteLocaleCatalogs(missions, idByMissionId);

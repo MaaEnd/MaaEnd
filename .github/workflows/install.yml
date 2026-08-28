@@ -368,7 +368,7 @@ jobs:
         run: ccache -sv || true
 
       - name: Run IconRecognition quick tests
-        if: matrix.os == 'win' && matrix.arch == 'x86_64' && needs.meta.outputs.icon_recognition_changed == 'true'
+        if: matrix.os == 'win' && matrix.arch == 'x86_64' && (needs.meta.outputs.is_release == 'true' || needs.meta.outputs.icon_recognition_changed == 'true')
         shell: powershell
         run: |
           $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer\vswhere.exe'

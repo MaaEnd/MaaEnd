@@ -2,6 +2,7 @@ import {readFileSync, writeFileSync} from "node:fs";
 import {dirname, resolve} from "node:path";
 import {fileURLToPath, pathToFileURL} from "node:url";
 
+import {parseJsonc} from "../jsonc.mjs";
 import {deliveryJobLocaleEntries} from "./model.mjs";
 
 const INTERFACE_LOCALES = [
@@ -96,7 +97,7 @@ export function syncDeliveryJobsLocaleCatalogs() {
     for (const fileLocale of INTERFACE_LOCALES) {
         const localePath = resolve(LOCALE_DIR, `${fileLocale}.json`);
         const originalText = readFileSync(localePath, "utf8");
-        const originalMessages = JSON.parse(originalText);
+        const originalMessages = parseJsonc(originalText, localePath);
         const regionResult = fillMissingLocaleEntries(
             originalMessages,
             deliveryJobLocaleEntries.regions,
@@ -122,8 +123,9 @@ export function syncDeliveryJobsLocaleCatalogs() {
         );
         validateLocaleCatalog(itemResult.messages, fileLocale);
 
-        const syncedText = `${JSON.stringify(itemResult.messages, null, 4)}\n`;
-        if (syncedText !== originalText.replace(/\r\n/g, "\n")) {
+        const changed = regionResult.filled + priorityCleanupResult.removed + priorityResult.filled + itemResult.filled;
+        if (changed > 0) {
+            const syncedText = `${JSON.stringify(itemResult.messages, null, 4)}\n`;
             writeFileSync(localePath, syncedText, "utf8");
             console.log(
                 `[DeliveryJobs] 已为 ${fileLocale}.json 补齐 ${regionResult.filled} 个地区/仓储节点键、补齐 ${priorityResult.filled} 个并清理 ${priorityCleanupResult.removed} 个装箱优先级键，以及补齐 ${itemResult.filled} 个物品键。`,

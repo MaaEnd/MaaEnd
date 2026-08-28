@@ -2,6 +2,7 @@ import {readFileSync, writeFileSync} from "node:fs";
 import {dirname, resolve} from "node:path";
 import {fileURLToPath, pathToFileURL} from "node:url";
 
+import {parseJsonc, readJsonc} from "../jsonc.mjs";
 import {sellProductLocaleEntries, sellProductLocations} from "./model.mjs";
 import {sellProductItemLocaleEntries} from "./selection-data.mjs";
 
@@ -188,7 +189,7 @@ function validateLocaleCatalog(messages, fileLocale) {
 
 export function syncSellProductLocaleCatalogs() {
     // task-data.mjs 以中文名反查物品键，因此重复判定统一基于简中目录，保证五语言键集合一致。
-    const zhCNMessages = JSON.parse(readFileSync(resolve(LOCALE_DIR, "zh_cn.json"), "utf8"));
+    const zhCNMessages = readJsonc(resolve(LOCALE_DIR, "zh_cn.json"));
     const existingItemCNNames = new Set(
         Object.entries(zhCNMessages)
             .filter(([key]) => key.startsWith("item."))
@@ -204,7 +205,7 @@ export function syncSellProductLocaleCatalogs() {
     for (const fileLocale of INTERFACE_LOCALES) {
         const localePath = resolve(LOCALE_DIR, `${fileLocale}.json`);
         const originalText = readFileSync(localePath, "utf8");
-        const originalMessages = JSON.parse(originalText);
+        const originalMessages = parseJsonc(originalText, localePath);
         // 据点开关位于 SellProduct 固定设置之后、下一个任务之前。
         const stationResult = rebuildSettlementMessages(originalMessages, fileLocale, "task.VisitFriends.label");
 
@@ -223,10 +224,9 @@ export function syncSellProductLocaleCatalogs() {
         );
         validateLocaleCatalog(itemResult.messages, fileLocale);
 
-        // 与项目 JSON 约定保持一致：4 空格缩进、文件末尾一个换行。
-        // 比较时统一原文件的 CRLF，保证 Windows 下无内容变化时也不会反复重写。
-        const syncedText = `${JSON.stringify(itemResult.messages, null, 4)}\n`;
-        if (syncedText !== originalText.replace(/\r\n/g, "\n")) {
+        // 仅在解析后的内容或键顺序变化时写回，避免无变化运行删除 JSONC 注释。
+        if (JSON.stringify(itemResult.messages) !== JSON.stringify(originalMessages)) {
+            const syncedText = `${JSON.stringify(itemResult.messages, null, 4)}\n`;
             writeFileSync(localePath, syncedText, "utf8");
             console.log(
                 `[SellProduct] 已为 ${fileLocale}.json 按据点顺序重排，更新 ${stationResult.updated} 个据点名，清理 ${stationResult.removed} 个旧据点键，补齐 ${stationResult.inserted} 个据点键、${operatorResult.inserted} 个干员键和 ${itemResult.inserted} 个物品键。`,
