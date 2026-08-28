@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {ActionType, matchTargetDeckHeight, normalizePathPoints} from "./static/js/model.js";
-import {AppState} from "./static/js/state.js";
+import {AppState, Mode} from "./static/js/state.js";
 
 function makePoint(action = ActionType.NAVMESH, overrides = {}) {
     return {
@@ -15,6 +15,28 @@ function makePoint(action = ActionType.NAVMESH, overrides = {}) {
         ...overrides,
     };
 }
+
+test("path editor starts active and hand-authored points default to NAVMESH", () => {
+    const state = new AppState();
+    assert.equal(state.mode, Mode.EDIT);
+
+    state.editInsertManualNavmeshPoint(123.45, 678.9, "Wuling_Base");
+    assert.equal(state.points.length, 1);
+    assert.deepEqual(state.points[0].actions, [ActionType.NAVMESH]);
+    assert.equal(state.points[0].zone, "Wuling_Base");
+    assert.equal(state.points[0].strict, false);
+    assert.equal(state.points[0].required, undefined);
+});
+
+test("hand-authored tier points carry target_tier while recorded RUN points stay RUN", () => {
+    const state = new AppState();
+    state.editInsertManualNavmeshPoint(81.77, 108.72, "ValleyIV_L1_171", "ValleyIV_L1_171");
+    assert.equal(state.points[0].target_tier, "ValleyIV_L1_171");
+
+    state.setPoints([makePoint(ActionType.RUN)]);
+    assert.deepEqual(state.points[0].actions, [ActionType.RUN]);
+    assert.equal(state.points[0].target_tier, undefined);
+});
 
 test("path normalization preserves finite target decks and keeps distinct decks separate", () => {
     const normalized = normalizePathPoints([

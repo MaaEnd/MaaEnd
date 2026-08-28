@@ -91,8 +91,8 @@ class MapNavigatorApp {
         this.renderer = new Renderer(this.els.glCanvas);
         this.overlay = new Overlay(this.els.overlayCanvas);
         this.state = new AppState();
-        /** @type {'astar'|'assert'|'edit'} route tool restored after leaving log analysis. */
-        this._lastRouteMode = "astar";
+        /** @type {'assert'|'edit'} route tool restored after leaving log analysis. */
+        this._lastRouteMode = "edit";
 
         /** @type {?NavmeshField} */
         this.field = null;
@@ -581,7 +581,7 @@ class MapNavigatorApp {
         this._populateAstarDisplayCombo();
         this._syncAstarControls();
         this._refreshZoneLabel();
-        if (this.state.mode === Mode.ASTAR) {
+        if (this.state.mode === Mode.ASTAR || (this.state.mode === Mode.EDIT && !this.state.points.length)) {
             this._applyDefaultAstarZoneSelection();
             this._onAstarZoneChanged();
         } else if (this.state.mode === Mode.LOG && this.selectedLogRun) {
@@ -1061,7 +1061,10 @@ class MapNavigatorApp {
         if (this.state.mode === Mode.ASTAR || this.state.mode === Mode.ASSERT || this.state.mode === Mode.LOG) {
             return normalizeZoneId(this.els.astarDisplayZoneCombo.value, this._defaultAstarDisplayZone());
         }
-        return this.state.currentZone();
+        return normalizeZoneId(
+            this.state.currentZone(),
+            normalizeZoneId(this.els.astarDisplayZoneCombo.value, this._defaultAstarDisplayZone()),
+        );
     }
 
     /** @returns {number} zone id parsed from the tier combo's `"id:name"` value, or NaN. */
@@ -1073,10 +1076,12 @@ class MapNavigatorApp {
 
     /** @returns {?number} zone id of the translated tier backing the canvas, else null. */
     _activeDisplayTierId() {
-        if (
-            (this.state.mode !== Mode.ASTAR && this.state.mode !== Mode.ASSERT && this.state.mode !== Mode.LOG) ||
-            !this.field
-        )
+        const usesSelectedFrame =
+            this.state.mode === Mode.ASTAR ||
+            this.state.mode === Mode.ASSERT ||
+            this.state.mode === Mode.LOG ||
+            (this.state.mode === Mode.EDIT && !normalizeZoneId(this.state.currentZone()));
+        if (!usesSelectedFrame || !this.field)
             return null;
         const zoneId = this._astarZoneId();
         if (Number.isNaN(zoneId)) return null;
@@ -2873,7 +2878,12 @@ class MapNavigatorApp {
                 wx,
                 wy,
             ] = this.camera.canvasToWorld(x, y);
-            this.state.editInsertPoint(this._actionName(), this._strict(), this._required(), wx, wy);
+            const frame = this._manualEditFrame();
+            if (!frame.zone) {
+                setStatus("请先选择路径底图与层级。", "#f59e0b");
+                return;
+            }
+            this.state.editInsertManualNavmeshPoint(wx, wy, frame.zone, frame.targetTier);
             this._resetPropertyControls();
             this._afterStructureChanged();
             return;
@@ -4305,6 +4315,21 @@ class MapNavigatorApp {
         return normalizeZoneId(this.els.targetTierEntry.value);
     }
 
+    /** Coordinate frame used by a newly hand-authored NAVMESH waypoint. */
+    _manualEditFrame() {
+        if (!this.field) return {zone: normalizeZoneId(this.state.currentZone()), targetTier: ""};
+
+        const currentZone = normalizeZoneId(this.state.currentZone());
+        const zoneId = currentZone ? this._resolveZoneId(currentZone) : this._astarZoneId();
+        if (Number.isNaN(zoneId)) return {zone: currentZone, targetTier: ""};
+        const zone = this.field.zoneById(zoneId);
+        const zoneName = normalizeZoneId(zone && zone.name, currentZone);
+        return {
+            zone: zoneName,
+            targetTier: this.field.isTier(zoneId) && this.field.isRealTier(zoneId) ? zoneName : "",
+        };
+    }
+
     /** "设为该动作" button: apply the dropdown action + strict flag to the selection. @returns {void} */
     _applyAction() {
         const result = this.state.editApplyActionToSelected(
@@ -4357,6 +4382,7 @@ class MapNavigatorApp {
     _afterStructureChanged() {
         this._clearEditPreview();
         this._syncActionControls();
+        this._syncAstarControls();
         this._refreshZoneLabel();
         if (this.navtest) this.navtest.routeChanged();
         this._doRedraw();
@@ -4737,6 +4763,7 @@ class MapNavigatorApp {
     _afterHistory() {
         this._clearEditPreview();
         this._syncActionControls();
+        this._syncAstarControls();
         this._refreshZoneLabel();
         if (this.navtest) this.navtest.routeChanged();
         this._doRedraw();
@@ -4824,11 +4851,11 @@ class MapNavigatorApp {
 
     /** Reset the property panel to its no-selection defaults. @returns {void} */
     _resetPropertyControls() {
-        this.els.actionMenu.value = ACTION_NAMES[ActionType.RUN];
+        this.els.actionMenu.value = ACTION_NAMES[ActionType.NAVMESH];
         this.els.chkStrict.checked = false;
         this.els.chkRequired.checked = false;
         this.els.targetTierEntry.value = "";
-        this.els.actionChainLabel.textContent = "Run";
+        this.els.actionChainLabel.textContent = "Navmesh";
         if (this.els.editDeckBox) this.els.editDeckBox.hidden = true;
         if (this.els.propertiesEmptyState && this.els.propertiesEditor) {
             this.els.propertiesEmptyState.hidden = false;
@@ -5106,6 +5133,11 @@ class MapNavigatorApp {
             this.els.zoneLabel.textContent = run ? `Log: ${run.zone || "未知区域"}` : "Log: 未选择运行记录";
             return;
         }
+        if (!this.state.points.length) {
+            const label = this.els.astarZoneCombo.value || "未选择层级";
+            this.els.zoneLabel.textContent = `新路径: ${label}`;
+            return;
+        }
         this.els.zoneLabel.textContent = this.state.zoneState.labelText();
     }
 
@@ -5117,18 +5149,27 @@ class MapNavigatorApp {
         this.els.assertZoneCombo.disabled = !(assertMode && this._availableZoneIds.length);
     }
 
-    /** Enable/disable A*-mode controls + tier label for the current mode. @returns {void} */
+    /** Enable the shared map picker for an empty edit route or the retained internal preview state. */
     _syncAstarControls() {
         const active = this.state.mode === Mode.ASTAR;
+        const emptyEdit = this.state.mode === Mode.EDIT && !this.state.points.length;
+        const pickerActive = active || emptyEdit;
         this.els.astarZoneCombo.disabled = !(active && this.field);
         this.els.astarDisplayZoneCombo.disabled = !(active && this.field && this.field.displayBaseNames().length);
         if (this.state.mode !== Mode.ASSERT) {
             this.els.btnPrev.disabled = false;
             this.els.btnNext.disabled = false;
         }
-        if (active) {
+        if (pickerActive) {
             this.els.btnSelectTier.disabled = !(this.field && this.field.displayBaseNames().length);
             this.els.astarSelectedTierLabel.textContent = this.els.astarZoneCombo.value || "未选择层级";
+            this.els.astarSelectedTierLabel.style.display = "inline-block";
+        } else if (this.state.mode === Mode.EDIT) {
+            this.els.btnSelectTier.disabled = true;
+            const zone = normalizeZoneId(this.state.currentZone());
+            const zoneId = this._resolveZoneId(zone);
+            this.els.astarSelectedTierLabel.textContent =
+                !Number.isNaN(zoneId) && this.field ? this.field.zoneLabel(zoneId) || zone : zone || "未选择层级";
             this.els.astarSelectedTierLabel.style.display = "inline-block";
         } else {
             this.els.btnSelectTier.disabled = true;
@@ -5150,6 +5191,7 @@ class MapNavigatorApp {
         this.state.setPoints(rawPoints);
         this.state.clearSelection();
         this._syncActionControls();
+        this._syncAstarControls();
         this._refreshZoneLabel();
         setStatus(
             "录制结束。滚轮缩放，右键或 Alt+拖拽平移；添加工具左键点击插点，拖拽路点微调，Ctrl+拖拽框选批量操作，C 键复制选中点坐标。",
