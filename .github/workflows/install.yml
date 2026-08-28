@@ -227,7 +227,7 @@ jobs:
         shell: bash
         run: |
           # Strawberry Perl 自带的 ccache 是 3.x 不支持 MSVC。直接下载官方 4.14 release。
-          CCACHE_ARCH=${{ matrix.arch == 'aarch64' && 'aarch64' || 'x86_64' }}
+          CCACHE_ARCH=x86_64
           mkdir -p .cache/ccache-bin
           curl -sSL -o .cache/ccache.zip "https://github.com/ccache/ccache/releases/download/v4.14/ccache-4.14-windows-${CCACHE_ARCH}.zip"
           unzip -o .cache/ccache.zip -d .cache/ccache-bin

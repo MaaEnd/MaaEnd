@@ -612,6 +612,12 @@ def build_cpp_algo(
             f"-DENABLE_CCACHE={enable_ccache}",
         ]
 
+        # MSVC + ccache：/Zi(ProgramDatabase) 无法缓存，改用 Embedded(/Z7) 才能命中
+        if resolved_os == "win" and enable_ccache == "ON":
+            configure_cmd.append(
+                "-DCMAKE_MSVC_DEBUG_INFORMATION_FORMAT=Embedded"
+            )
+
         # macOS 需要额外的参数
         if resolved_os == "macos":
             osx_arch = "x86_64" if resolved_arch == "x86_64" else "arm64"
