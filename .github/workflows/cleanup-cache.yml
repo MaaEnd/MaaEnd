@@ -16,10 +16,15 @@ permissions:
 
 jobs:
   pr-closed:
-    if: ${{ github.event_name == 'pull_request_target' }}
+    if: ${{ github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name == github.repository }}
     runs-on: ubuntu-latest
     steps:
+      # 安全契约：本 job 在 base 仓库上下文中运行，checkout 必须显式 pin 到
+      # 目标分支（受审计的 v2 代码），不依赖 checkout 默认行为
+      # （pull_request_target 下默认检出 merge ref，内含 PR head 代码）。
       - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
       - name: Cleanup closed PR merge-ref caches
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
