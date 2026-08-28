@@ -256,8 +256,10 @@ jobs:
             ./agent/cpp-algo/MaaUtils/MaaDeps
           key: maadeps-${{ matrix.os }}-${{ matrix.arch }}-${{ hashFiles('./tools/maadeps-download.py') }}
 
-      - name: Save MaaDeps (non-PR only)
-        if: ${{ github.event_name != 'pull_request' && steps.cache-maadeps.outputs.cache-hit != 'true' }}
+      - name: Save MaaDeps
+        # 临时：注释掉 non-PR only 条件以便 PR 测试阶段验证缓存热构建；
+        # 合并前恢复为 if: github.event_name != 'pull_request' 并清理测试产生的缓存。
+        # if: ${{ github.event_name != 'pull_request' && steps.cache-maadeps.outputs.cache-hit != 'true' }}
         uses: actions/cache/save@v5
         with:
           path: |
@@ -285,8 +287,10 @@ jobs:
           restore-keys: |
             ${{ matrix.os == 'win' && 'ccache-v4' || 'ccache' }}-${{ matrix.os }}-${{ matrix.arch }}-
 
-      - name: Save ccache (non-PR only)
-        if: ${{ github.event_name != 'pull_request' && steps.cache-ccache.outputs.cache-hit != 'true' }}
+      - name: Save ccache
+        # 临时：注释掉 non-PR only 条件以便 PR 测试阶段验证缓存热构建；
+        # 合并前恢复为 if: github.event_name != 'pull_request' 并清理测试产生的缓存。
+        # if: ${{ github.event_name != 'pull_request' && steps.cache-ccache.outputs.cache-hit != 'true' }}
         uses: actions/cache/save@v5
         with:
           path: |
