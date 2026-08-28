@@ -314,7 +314,11 @@ async def lifespan(_app: FastAPI):
     configure_runtime_env()
     STATIC_DIR.mkdir(parents=True, exist_ok=True)
     navmesh_backend.ensure_loading()  # 立即在后台拉起 agent 并让它读 navmesh
-    yield
+    try:
+        yield
+    finally:
+        # Agent 不再继承 Ctrl+C，必须在服务退出时由 owner 明确收回。
+        await run_in_threadpool(navmesh_backend.close)
 
 
 app = FastAPI(title="MapNavigator Web Backend", lifespan=lifespan)
@@ -1489,4 +1493,8 @@ if __name__ == "__main__":
         ).start()
 
     # 交出已绑定的 socket (而非让 uvicorn 自己 bind), 端口即为上面宣告给浏览器的那个。
-    uvicorn.Server(uvicorn.Config(app, host=LISTEN_HOST, port=listen_port)).run(sockets=[listen_socket])
+    try:
+        uvicorn.Server(uvicorn.Config(app, host=LISTEN_HOST, port=listen_port)).run(sockets=[listen_socket])
+    except KeyboardInterrupt:
+        # Python 3.14 的 asyncio.run 会在 Uvicorn 完成 shutdown 后重新抛出 KeyboardInterrupt。
+        pass
