@@ -246,7 +246,6 @@ jobs:
           python3 tools/maadeps-download.py ${{ matrix.arch == 'x86_64' && 'x64' || 'arm64' }}-${{ matrix.os == 'win' && 'windows' || (matrix.os == 'macos' && 'osx' || 'linux') }}
 
       - name: Cache ccache
-        if: matrix.os != 'win'
         id: cache-ccache
         uses: actions/cache@v5
         with:
@@ -324,7 +323,6 @@ jobs:
           cat install/interface.json
 
       - name: Show ccache stats
-        if: matrix.os != 'win'
         shell: bash
         run: ccache -sv || true
 

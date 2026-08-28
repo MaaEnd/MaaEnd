@@ -530,15 +530,13 @@ def build_cpp_algo(
     )
     print(f"  {t('maadeps_triplet')}: {maadeps_triplet}")
 
-    # Windows 本轮先禁用 ccache（先单独验证 Ninja 并行编译的效果，避免多变量混淆）
-    ccache_prog = None if resolved_os == "win" else shutil.which("ccache")
+    # ccache：所有平台都尝试启用（Windows x64 走 Ninja Multi-Config + cl.exe，ccache 支持 MSVC）
+    ccache_prog = shutil.which("ccache")
     if ccache_prog:
         os.environ["CCACHE_DIR"] = str(root_dir / ".cache" / "ccache")
         Path(os.environ["CCACHE_DIR"]).mkdir(parents=True, exist_ok=True)
         print(f"  {Console.ok(t('ccache_status', path=os.environ['CCACHE_DIR']))}")
         print(f"  {t('ccache_compiler_launcher')}: {ccache_prog}")
-    elif resolved_os == "win":
-        print(f"  {Console.info(t('ccache_windows_disabled'))}")
     else:
         print(f"  {Console.warn(t('ccache_not_found'))}")
 
