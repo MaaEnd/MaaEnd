@@ -55,6 +55,7 @@ class ProjectImportNode:
     kind: str
     resource_path: str
     node_name: str
+    desc: str = ""
     point_count: int = 0
     navmesh_count: int = 0
     zone_ids: tuple[str, ...] = ()
@@ -93,6 +94,8 @@ def scan_project_import_nodes(
 
         resource_path = resolved_file.relative_to(root.parent).as_posix()
         for node_name, node in data.items():
+            raw_desc = node.get("desc", "") if isinstance(node, dict) else ""
+            desc = raw_desc.strip() if isinstance(raw_desc, str) else ""
             try:
                 route = _project_map_navigate_route(node)
                 assert_locations = discover_assert_locations(node)
@@ -114,6 +117,7 @@ def scan_project_import_nodes(
                         kind="path",
                         resource_path=resource_path,
                         node_name=str(node_name),
+                        desc=desc,
                         point_count=len(route),
                         navmesh_count=sum(
                             int(ActionType.NAVMESH) in get_point_actions(point) for point in route
@@ -130,6 +134,7 @@ def scan_project_import_nodes(
                         kind="assert",
                         resource_path=resource_path,
                         node_name=str(node_name),
+                        desc=desc,
                         zone_id=location.zone_id,
                         target=location.target,
                         condition_count=len(assert_locations),

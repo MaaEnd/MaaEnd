@@ -72,8 +72,8 @@ const ASTAR_PREVIEW_SNAP_RADIUS = 5.0; // px (tk ASTAR_PREVIEW_SNAP_RADIUS)
 const LOAD_POLL_MS = 400;
 // CSS px the floating left panel overlays the canvas; fit-view centers in the rest.
 const LEFT_PANEL_FIT_OFFSET = 350;
-// World px kept around the A* preview markers when framing them.
-const ASTAR_HINT_FIT_PADDING = 200;
+// World px kept around locate markers when framing them.
+const LOCATE_HINT_FIT_PADDING = 200;
 const COPY_FORMAT_COORDINATES = "coordinates";
 const LOG_TOWER_HIT_RADIUS = 14;
 const LOG_POINT_HIT_RADIUS = 12;
@@ -116,7 +116,9 @@ class MapNavigatorApp {
         this.assertStartWorldX = 0;
         this.assertStartWorldY = 0;
 
-        // --- assert / A* view state ---
+        // --- edit / assert / A* view state ---
+        /** @type {?{x:number,y:number,rot:?number,label:string,geometryZoneId:number}} edit locate hint in base px. */
+        this.editLocateHint = null;
         /** @type {?number[]} raw drag rect `[x0,y0,x1,y1]` in display-frame world. */
         this.assertRectWorld = null;
         /** @type {?{x:number,y:number,rot:?number,label:string}} assert locate hint in base px. */
@@ -424,6 +426,7 @@ class MapNavigatorApp {
             logDecisionSummary: $("log-decision-summary"),
             btnLogMeasure: $("btn-log-measure"),
             logMeasureDivider: $("log-measure-divider"),
+            btnEditLocate: $("btn-edit-locate"),
             btnAssertLocate: $("btn-assert-locate"),
             btnAstarLocate: $("btn-astar-locate"),
             waypointList: $("waypoint-list"),
@@ -881,6 +884,7 @@ class MapNavigatorApp {
         });
         e.btnClearAstar.addEventListener("click", () => this._onClearAstar());
         e.btnCopyNavmesh.addEventListener("click", () => this._copyNavmesh());
+        e.btnEditLocate.addEventListener("click", () => this._onLocateCurrentPosition("edit"));
         e.btnAssertLocate.addEventListener("click", () => this._onLocateCurrentPosition("assert"));
         e.btnAstarLocate.addEventListener("click", () => this._onLocateCurrentPosition("astar"));
         e.btnAstarMarkCoord.addEventListener("click", () => this._onAstarMarkCoord());
@@ -1076,14 +1080,9 @@ class MapNavigatorApp {
 
     /** @returns {?number} zone id of the translated tier backing the canvas, else null. */
     _activeDisplayTierId() {
-        const usesSelectedFrame =
-            this.state.mode === Mode.ASTAR ||
-            this.state.mode === Mode.ASSERT ||
-            this.state.mode === Mode.LOG ||
-            (this.state.mode === Mode.EDIT && !normalizeZoneId(this.state.currentZone()));
-        if (!usesSelectedFrame || !this.field)
-            return null;
-        const zoneId = this._astarZoneId();
+        if (!this.field) return null;
+        const editZone = this.state.mode === Mode.EDIT ? normalizeZoneId(this.state.currentZone()) : "";
+        const zoneId = editZone ? this._resolveZoneId(editZone) : this._astarZoneId();
         if (Number.isNaN(zoneId)) return null;
         if (!this.field.isTier(zoneId)) return null;
         if (!this.field.isRealTier(zoneId)) return null;
@@ -1126,7 +1125,7 @@ class MapNavigatorApp {
         this._paint();
     }
 
-    /** Draw the current frame — syncs the A* mesh, requests the GL render, draws the overlay. */
+    /** Draw the current frame — syncs the navmesh, requests the GL render, draws the overlay. */
     _paint() {
         this._syncAstarMesh();
 
@@ -1142,6 +1141,7 @@ class MapNavigatorApp {
             this._scheduleEditDeckProbe();
         }
 
+        const displayEditLocateHint = mode === Mode.EDIT ? this._editLocateHintForDisplay() : null;
         let displayAssertLocateHint = null;
         if (mode === Mode.ASSERT && this.assertLocateHint) {
             const hint = this.assertLocateHint;
@@ -1184,6 +1184,7 @@ class MapNavigatorApp {
                       }
                     : null,
             selectionRect: this.selectionRect,
+            editLocateHint: displayEditLocateHint,
             assertLocateHint: displayAssertLocateHint,
             astarLocateHints: displayAstarLocateHints,
             logAnalysis: displayLogAnalysis,
@@ -1815,6 +1816,32 @@ class MapNavigatorApp {
         });
     }
 
+    /** EDIT locate marker projected into the current path frame, or null on another basemap. */
+    _editLocateHintForDisplay() {
+        const hint = this.editLocateHint;
+        if (!hint || !this.field) return null;
+        const displayZoneId = this._resolveZoneId(this._displayZoneId());
+        if (Number.isNaN(displayZoneId)) return null;
+        if (this.field.geometryZoneId(displayZoneId) !== hint.geometryZoneId) return null;
+        const [x, y] = this._baseToDisplay(hint.x, hint.y);
+        return {x, y, label: hint.label, rot: this._headingBaseToDisplay(hint.x, hint.y, hint.rot)};
+    }
+
+    /** Frame the EDIT locate marker without changing the author route. */
+    _focusEditLocateHint() {
+        const hint = this._editLocateHintForDisplay();
+        if (!hint) return;
+        const pad = LOCATE_HINT_FIT_PADDING;
+        this.camera.fitView(
+            [hint.x - pad, hint.y - pad, hint.x + pad, hint.y + pad],
+            this._cssW,
+            this._cssH,
+            60,
+            LEFT_PANEL_FIT_OFFSET,
+        );
+        this._paint();
+    }
+
     /** MapLocator zone-frame heading → base-frame heading. @returns {?number} */
     _headingToBase(zoneId, x, y, rot) {
         return transformHeading(rot, (px, py) => this._pointToBase(zoneId, px, py), x, y);
@@ -1835,7 +1862,7 @@ class MapNavigatorApp {
         if (!hints.length) return null;
         const xs = hints.map((hint) => hint.x);
         const ys = hints.map((hint) => hint.y);
-        const pad = ASTAR_HINT_FIT_PADDING;
+        const pad = LOCATE_HINT_FIT_PADDING;
         return [
             Math.min(...xs) - pad,
             Math.min(...ys) - pad,
@@ -2366,20 +2393,25 @@ class MapNavigatorApp {
         }
     }
 
-    // --- A* mesh (NMSH over GL) ---
+    // --- navmesh (NMSH over GL) ---
 
-    /** Upload / hide the A* mesh for the current display zone (keyed, so cheap per paint). */
+    /** Upload / hide the navmesh for the A* or EDIT display zone (keyed, so cheap per paint). */
     _syncAstarMesh() {
-        if (this.state.mode !== Mode.ASTAR || !this.field) {
+        const meshMode = this.state.mode === Mode.ASTAR || this.state.mode === Mode.EDIT;
+        if (!meshMode || !this.field) {
+            if (this._meshKey !== null) this._meshToken += 1;
             this._meshKey = null;
             this.renderer.setMeshVisible(false);
             this.renderer.setDotsVisible(false);
             return;
         }
-        const displayZoneId = this._astarZoneId();
+        const displayZoneId =
+            this.state.mode === Mode.EDIT ? this._resolveZoneId(this._displayZoneId()) : this._astarZoneId();
         if (Number.isNaN(displayZoneId)) {
+            if (this._meshKey !== null) this._meshToken += 1;
             this._meshKey = null;
             this.renderer.setMeshVisible(false);
+            this.renderer.setDotsVisible(false);
             return;
         }
         const geomId = this.field.geometryZoneId(displayZoneId);
@@ -3555,9 +3587,9 @@ class MapNavigatorApp {
 
     /**
      * "定位当前位置" button: one-shot backend locate (`/api/locate-once`), then feed
-     * the fix into the calling mode's flow — astar: mark a preview hint (switching
-     * the displayed zone if the fix is elsewhere); assert: switch zone and drop the
-     * drag-rect hint; edit: insert a route point after the current selection.
+     * the fix into the calling mode's flow — edit: mark a read-only reference point;
+     * astar: mark a preview hint (switching the displayed zone if the fix is elsewhere);
+     * assert: switch zone and drop the drag-rect hint.
      * @param {'edit'|'assert'|'astar'} mode
      * @returns {Promise<void>}
      */
@@ -3568,7 +3600,12 @@ class MapNavigatorApp {
         }
 
         const connectionPayload = this.connection ? this.connection.buildSession() : null;
-        const locateButton = mode === "assert" ? this.els.btnAssertLocate : this.els.btnAstarLocate;
+        const locateButton =
+            mode === "edit"
+                ? this.els.btnEditLocate
+                : mode === "assert"
+                  ? this.els.btnAssertLocate
+                  : this.els.btnAstarLocate;
         if (locateButton) locateButton.disabled = true;
         setStatus("正在连接游戏并获取位置，请保持游戏前台运行...", "#3b82f6");
         if (this.positionReadout) this.positionReadout.setPending("正在获取位置与朝向...");
@@ -3581,7 +3618,46 @@ class MapNavigatorApp {
                 if (this.positionReadout) this.positionReadout.update({x, y, zone, rot});
                 setStatus(`定位成功: [${x.toFixed(1)}, ${y.toFixed(1)}] · ${headingText} @ ${zone}`, "#10b981");
 
-                if (mode === "astar") {
+                if (mode === "edit") {
+                    const zoneIdNum = this._resolveZoneId(zone);
+                    if (Number.isNaN(zoneIdNum)) {
+                        this.editLocateHint = null;
+                        setStatus(`定位成功，但区域 ${zone} 没有可用的 navmesh 底图。`, "#f59e0b");
+                        this._paint();
+                    } else {
+                        if (!this.state.points.length) {
+                            if (this._selectDisplayZoneById(zoneIdNum)) this._onAstarZoneChanged(false);
+                        }
+                        const displayZoneId = this._resolveZoneId(this._displayZoneId());
+                        const geometryZoneId = this.field.geometryZoneId(zoneIdNum);
+                        if (
+                            Number.isNaN(displayZoneId) ||
+                            this.field.geometryZoneId(displayZoneId) !== geometryZoneId
+                        ) {
+                            this.editLocateHint = null;
+                            setStatus(
+                                `定位成功，但当前位置 ${zone} 不属于当前路径底图；参考点未显示。`,
+                                "#f59e0b",
+                            );
+                            this._paint();
+                        } else {
+                            const [bx, by] = this._pointToBase(zoneIdNum, x, y);
+                            const baseRot = this._headingToBase(zoneIdNum, x, y, rot);
+                            this.editLocateHint = {
+                                x: bx,
+                                y: by,
+                                rot: baseRot,
+                                label: `游戏当前位置 · ${headingText}`,
+                                geometryZoneId,
+                            };
+                            this._focusEditLocateHint();
+                            setStatus(
+                                `已在当前路径底图标出游戏当前位置 [${x.toFixed(1)}, ${y.toFixed(1)}] · ${headingText}；未新增路点。`,
+                                "#10b981",
+                            );
+                        }
+                    }
+                } else if (mode === "astar") {
                     const zoneIdNum = this._resolveZoneId(zone);
                     if (!Number.isNaN(zoneIdNum)) {
                         if (this._astarZoneId() !== zoneIdNum) {

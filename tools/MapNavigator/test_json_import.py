@@ -230,6 +230,7 @@ class ProjectImportNodesTest(unittest.TestCase):
             json.dumps(
                 {
                     "RouteB": {
+                        "desc": "四号谷地参考路线",
                         "custom_action": "MapNavigateAction",
                         "custom_action_param": {"path": [[5, 6]]},
                     },
@@ -238,6 +239,7 @@ class ProjectImportNodesTest(unittest.TestCase):
                         "custom_action_param": {"path": [[7, 8]]},
                     },
                     "AssertB": {
+                        "desc": "四号谷地位置断言",
                         "recognition": "Custom",
                         "custom_recognition": "MapLocateAssertLocation",
                         "custom_recognition_param": {
@@ -254,6 +256,7 @@ class ProjectImportNodesTest(unittest.TestCase):
             {
                 // 项目路线允许 JSONC 注释与尾逗号
                 "RouteA": {
+                    "desc": "武陵参考路线",
                     "custom_action": "MapNavigateAction",
                     "custom_action_param": {
                         "path": [
@@ -283,6 +286,7 @@ class ProjectImportNodesTest(unittest.TestCase):
                     node.kind,
                     node.resource_path,
                     node.node_name,
+                    node.desc,
                     node.point_count,
                     node.navmesh_count,
                     node.zone_ids,
@@ -296,6 +300,7 @@ class ProjectImportNodesTest(unittest.TestCase):
                     "path",
                     "assets/resource/pipeline/a.jsonc",
                     "RouteA",
+                    "武陵参考路线",
                     2,
                     1,
                     ("Wuling_Base",),
@@ -306,6 +311,7 @@ class ProjectImportNodesTest(unittest.TestCase):
                     "assert",
                     "assets/resource/pipeline/b.json",
                     "AssertB",
+                    "四号谷地位置断言",
                     0,
                     0,
                     (),
@@ -316,6 +322,7 @@ class ProjectImportNodesTest(unittest.TestCase):
                     "path",
                     "assets/resource/pipeline/b.json",
                     "RouteB",
+                    "四号谷地参考路线",
                     1,
                     0,
                     (),

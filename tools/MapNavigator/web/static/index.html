@@ -214,6 +214,10 @@
             <span id="astar-selected-tier-label" class="selected-tier-label">未选择</span>
           </div>
 
+          <div class="sidebar-row">
+            <button id="btn-edit-locate" class="btn btn-secondary" type="button" style="width: 100%" title="在当前路径底图上标出游戏内当前位置，不新增路点">标出游戏内当前位置（参考点）</button>
+          </div>
+
           <!-- 隐藏取值控件：由层级选择弹窗写入 -->
           <select id="astar-display-zone-combo" class="combo combo-zone" hidden></select>
           <select id="astar-zone-combo" class="combo combo-zone" hidden></select>
@@ -532,7 +536,7 @@
           <button id="project-node-kind-assert" class="project-node-kind active" type="button" aria-pressed="true">断言节点</button>
           <button id="project-node-kind-path" class="project-node-kind" type="button" aria-pressed="false">参考路线</button>
         </div>
-        <input id="project-node-search" class="entry project-node-search" type="search" placeholder="搜索资源路径、节点名或区域" />
+        <input id="project-node-search" class="entry project-node-search" type="search" placeholder="搜索资源路径、节点名、描述或区域" />
         <div id="project-node-list" class="project-node-list" role="listbox" aria-label="项目节点"></div>
         <div class="modal-actions">
           <button id="project-node-cancel" class="btn btn-secondary" type="button">取消</button>

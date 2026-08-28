@@ -1719,6 +1719,14 @@ canvas {
   font-weight: 600;
 }
 
+.project-node-desc {
+  color: var(--text-secondary);
+  font-size: 11px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
 .project-node-path {
   color: var(--text-secondary);
   font-family: var(--font-mono, monospace);

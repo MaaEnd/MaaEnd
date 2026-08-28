@@ -19,7 +19,7 @@ import { getProjectNodes, importAnalyze, importFinalize, loadProjectNode } from 
 import { setStatus } from './toast.js';
 
 /**
- * Match one kind of project node by resource path, Pipeline node name, or zone.
+ * Match one kind of project node by resource path, Pipeline node name, description, or zone.
  * @param {Array<Object>} nodes @param {string} query @param {'path'|'assert'} kind
  * @returns {Array<Object>}
  */
@@ -31,7 +31,7 @@ export function filterProjectNodes(nodes, query, kind) {
     if (node.kind !== kind) return false;
     if (!needle) return true;
     const zones = Array.isArray(node.zone_ids) ? node.zone_ids.join('\n') : '';
-    return `${node.resource_path || ''}\n${node.node_name || ''}\n${node.zone_id || ''}\n${zones}`
+    return `${node.resource_path || ''}\n${node.node_name || ''}\n${node.desc || ''}\n${node.zone_id || ''}\n${zones}`
       .toLocaleLowerCase()
       .includes(needle);
   });
@@ -287,7 +287,7 @@ export class Importer {
     }
     if (!visible.length) {
       this._appendProjectNodeMessage(
-        this._projectNodes.length ? '没有匹配的资源路径、节点名或区域。' : 'assets 中没有可导入的节点。',
+        this._projectNodes.length ? '没有匹配的资源路径、节点名、描述或区域。' : 'assets 中没有可导入的节点。',
       );
       return;
     }
@@ -306,6 +306,14 @@ export class Importer {
       name.className = 'project-node-name';
       name.textContent = node.node_name;
       item.appendChild(name);
+
+      const description = String(node.desc || '').trim();
+      if (description) {
+        const desc = document.createElement('span');
+        desc.className = 'project-node-desc';
+        desc.textContent = description;
+        item.appendChild(desc);
+      }
 
       const path = document.createElement('span');
       path.className = 'project-node-path';

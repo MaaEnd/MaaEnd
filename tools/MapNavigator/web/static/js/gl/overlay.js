@@ -73,6 +73,7 @@ export class Overlay {
    *   @param {Set<number>} [vm.selectedIndices] multi-selection (local indices)
    *   @param {?Object} [vm.editPreview] runtime preview for the current edit segment
    *   @param {?number[]} [vm.assertTarget] `[x,y,w,h]` display-frame, or null
+   *   @param {?{x:number,y:number,label:string,rot:?number}} [vm.editLocateHint] EDIT reference marker
    *   @param {?{x:number,y:number,label:string,rot:?number}} [vm.assertLocateHint] game locate marker
    *   @param {?Array<{x:number,y:number,label:string,rot:?number}>} [vm.astarLocateHints] preview markers
    *   @param {Object} [vm.astar] see {@link Overlay#_drawAstarPreview}
@@ -97,6 +98,10 @@ export class Overlay {
     }
     this._drawNodes(camera, vm.points || [], vm.selectedIdx, vm.selectedIndices || new Set());
 
+    if (mode === 'edit' && vm.editLocateHint) {
+      const hint = vm.editLocateHint;
+      this._drawHintMarker(camera, hint.x, hint.y, hint.label, hint.rot);
+    }
     if (mode === 'assert') {
       this._drawAssertRect(camera, vm.assertTarget || null);
       const hint = vm.assertLocateHint;
