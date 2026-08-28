@@ -4,6 +4,7 @@ import platform
 import shutil
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 from cli_support import Console, init_localization
@@ -25,6 +26,10 @@ def init_local() -> None:
 
 def t(key: str, **kwargs) -> str:
     return _local_t(key, **kwargs)
+
+
+def _timing(label: str, start: float) -> None:
+    print(f"  [timing] {label}: {time.monotonic() - start:.1f}s", flush=True)
 
 
 def create_directory_link(src: Path, dst: Path) -> bool:
@@ -185,6 +190,7 @@ def build_go_agent(
     if ci_mode:
         tidy_cmd.append("-diff")
 
+    t_tidy_start = time.monotonic()
     tidy_result = subprocess.run(
         tidy_cmd,
         cwd=go_service_dir,
@@ -213,7 +219,9 @@ def build_go_agent(
         return False
     if tidy_result.stderr:
         print(tidy_result.stderr)
+    _timing("go mod tidy", t_tidy_start)
 
+    t_vendor_start = time.monotonic()
     vendor_result = subprocess.run(
         ["go", "mod", "vendor"],
         cwd=go_service_dir,
@@ -231,6 +239,7 @@ def build_go_agent(
         return False
     if vendor_result.stderr:
         print(vendor_result.stderr)
+    _timing("go mod vendor", t_vendor_start)
 
     # go build
     # CI 模式：release with debug info（保留 DWARF 调试信息，不使用 -s -w）
@@ -269,6 +278,7 @@ def build_go_agent(
     print(f"  {Console.warn(t('build_mode'))}: {build_mode_text}")
     print(f"  {Console.info(t('build_command'))}: {' '.join(build_cmd)}")
 
+    t_build_start = time.monotonic()
     result = subprocess.run(
         build_cmd,
         cwd=go_service_dir,
@@ -286,6 +296,7 @@ def build_go_agent(
         return False
     if result.stderr:
         print(result.stderr)
+    _timing("go build", t_build_start)
 
     print(f"  {Console.ok('->')} {output_path}")
     return True
@@ -436,6 +447,7 @@ def build_cpp_algo(
             f"  {Console.warn(t('warning'))} {t('cmake_cache_cleanup_first_try_hint')}"
         )
 
+    t_configure_start = time.monotonic()
     for idx, preset in enumerate(configure_preset_candidates):
         if idx > 0 and not cleanup_cmake_cache(
             build_dir, interactive_retry=not ci_mode
@@ -484,6 +496,7 @@ def build_cpp_algo(
                 print(
                     f"  {Console.warn(t('warning'))} {t('cmake_fallback_preset_used', preset=preset)}"
                 )
+            _timing("cmake configure", t_configure_start)
             break
 
         # 失败时：如果还有下一个候选，继续尝试；否则报错退出
@@ -509,6 +522,7 @@ def build_cpp_algo(
     ]
     print(f"  {t('build_command')}: {' '.join(build_cmd)}")
 
+    t_build_start = time.monotonic()
     result = subprocess.run(
         build_cmd,
         cwd=cpp_algo_dir,
@@ -525,6 +539,7 @@ def build_cpp_algo(
         return False
     if result.stderr:
         print(result.stderr)
+    _timing("cmake build", t_build_start)
 
     # cmake --install build --prefix <install_dir> --config <build_type>
     install_cmd = [
@@ -538,6 +553,7 @@ def build_cpp_algo(
     ]
     print(f"  {t('build_command')}: {' '.join(install_cmd)}")
 
+    t_install_start = time.monotonic()
     result = subprocess.run(
         install_cmd,
         cwd=cpp_algo_dir,
@@ -554,6 +570,7 @@ def build_cpp_algo(
         return False
     if result.stderr:
         print(result.stderr)
+    _timing("cmake install", t_install_start)
 
     agent_dir = install_dir / "agent"
     print(f"  -> {agent_dir}")
@@ -591,6 +608,7 @@ def main():
 
     # 1. 链接/复制 assets 目录内容 和 docs/img 目录
     print(Console.step(t("step_process_assets")))
+    t_step1_start = time.monotonic()
     for item in assets_dir.iterdir():
         dst = install_dir / item.name
         if item.is_dir():
@@ -607,23 +625,28 @@ def main():
             print(f"  {Console.ok('->')} {docs_img_dst}")
         else:
             print(f"  {Console.warn(t('warning'))} {t('docs_copy_failed')}")
+    _timing("step1 copy assets+docs", t_step1_start)
 
     # 2. 构建 Go Agent
     print(Console.step(t("step_build_go")))
+    t_step2_start = time.monotonic()
     if not build_go_agent(
         root_dir, install_dir, args.target_os, args.target_arch, args.version, use_copy
     ):
         print(f"  {Console.err(t('error'))} {t('build_go_failed')}")
         sys.exit(1)
+    _timing("step2 go agent", t_step2_start)
 
     # 3. 构建 C++ Algo Agent（仅在指定 --cpp-algo 时）
     if args.cpp_algo:
         print(Console.step(t("step_build_cpp")))
+        t_step3_start = time.monotonic()
         if not build_cpp_algo(
             root_dir, install_dir, args.target_os, args.target_arch, use_copy
         ):
             print(f"  {t('error')} {t('build_cpp_failed')}")
             sys.exit(1)
+        _timing("step3 cpp agent", t_step3_start)
     else:
         print(Console.step(t("step_skip_cpp")))
 
