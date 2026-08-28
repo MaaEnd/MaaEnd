@@ -422,6 +422,7 @@ canvas {
   pointer-events: auto;
 }
 
+.edit-inspection-box,
 .log-inspection-box,
 .log-distance-box {
   display: flex;
@@ -436,6 +437,7 @@ canvas {
   box-shadow: 0 8px 28px rgba(0, 0, 0, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
+.edit-inspection-box,
 .log-inspection-box {
   border-color: rgba(34, 211, 238, 0.34);
 }

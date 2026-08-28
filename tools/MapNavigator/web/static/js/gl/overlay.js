@@ -73,6 +73,7 @@ export class Overlay {
    *   @param {?number} [vm.selectedIdx] primary selection (local index into vm.points)
    *   @param {Set<number>} [vm.selectedIndices] multi-selection (local indices)
    *   @param {?Object} [vm.editPreview] runtime preview for the current edit segment
+   *   @param {?{x:number,y:number,label:string,selected:boolean}} [vm.editPreviewStart] manual EDIT planning start
    *   @param {?number[]} [vm.assertTarget] `[x,y,w,h]` display-frame, or null
    *   @param {?{x:number,y:number,label:string,rot:?number}} [vm.editLocateHint] EDIT reference marker
    *   @param {?{x:number,y:number,label:string,rot:?number}} [vm.assertLocateHint] game locate marker
@@ -103,6 +104,10 @@ export class Overlay {
       this._drawLivePath(camera, vm.livePath);
     }
     this._drawNodes(camera, vm.points || [], vm.selectedIdx, vm.selectedIndices || new Set());
+
+    if (mode === 'edit' && vm.editPreviewStart) {
+      this._drawPlanningStartMarker(camera, vm.editPreviewStart);
+    }
 
     if (mode === 'edit' && vm.editLocateHint) {
       const hint = vm.editLocateHint;
@@ -189,6 +194,45 @@ export class Overlay {
     const gapLabel = precise && Number.isFinite(distance) ? `断口 ${distance.toFixed(1)} px` : '未连通段';
     this._drawCaption((x1 + x2) / 2, (y1 + y2) / 2, gapLabel, ROUTE_FAILURE_COLOR);
     ctx.restore();
+  }
+
+  /** Cyan S badge for the preview-only planning start. */
+  _drawPlanningStartMarker(camera, marker) {
+    if (!marker || !Number.isFinite(marker.x) || !Number.isFinite(marker.y)) return;
+    const [cx, cy] = camera.worldToCanvas(marker.x, marker.y);
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.setLineDash([]);
+
+    if (marker.selected) {
+      ctx.beginPath();
+      ctx.arc(cx, cy, 17, 0, Math.PI * 2);
+      ctx.strokeStyle = '#f43f5e';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, 13, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(0, 225, 255, 0.45)';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, 9, 0, Math.PI * 2);
+    ctx.fillStyle = '#00b8d4';
+    ctx.fill();
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font = `bold 10px ${MONO}`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('S', cx, cy + 0.5);
+    ctx.restore();
+    this._drawCaption(cx, cy + 25, marker.label || '规划起点', '#67e8f9');
   }
 
   /**

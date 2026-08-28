@@ -91,6 +91,32 @@ test('edit and assert use separate but matching map and location cards', () => {
   assert.doesNotMatch(assertPanel, /id="btn-select-assert-tier"|id="btn-assert-locate"/);
 });
 
+test('edit planning exposes a preview-only manual start control', () => {
+  const html = readFileSync(new URL('./static/index.html', import.meta.url), 'utf8');
+  const recordingStart = html.indexOf('id="panel-recording"');
+  const propertiesStart = html.indexOf('id="panel-properties"');
+  const editorToolbarStart = html.indexOf('class="canvas-editor-toolbar"');
+  const floatingToolbarStart = html.indexOf('class="canvas-floating-controls"');
+  const floatingToolbarEnd = html.indexOf('id="log-context-panel"');
+  const recording = html.slice(recordingStart, propertiesStart);
+  const editorToolbar = html.slice(editorToolbarStart, floatingToolbarStart);
+  const floatingToolbar = html.slice(floatingToolbarStart, floatingToolbarEnd);
+
+  assert.doesNotMatch(editorToolbar, /id="tool-edit-start"/);
+  assert.match(floatingToolbar, /id="tool-edit-start" class="btn btn-float"/);
+  assert.match(floatingToolbar, /id="edit-start-divider"[^>]*hidden/);
+  assert.doesNotMatch(recording, /id="tool-edit-start"|id="btn-edit-start"/);
+  assert.match(recording, /手动起点只用于规划预览，不会写入作者路径/);
+  assert.match(html, /id="edit-inspection-box"[^>]*hidden/);
+});
+
+test('edit and log point details expose matching cancel-selection controls', () => {
+  const html = readFileSync(new URL('./static/index.html', import.meta.url), 'utf8');
+
+  assert.match(html, /id="btn-edit-selection-clear"[^>]*>取消选择<\/button>/);
+  assert.match(html, /id="btn-log-point-clear"[^>]*>取消选择<\/button>/);
+});
+
 test('recording start follows the probed connection state', () => {
   const connection = new FakeConnection();
   const btnStart = new FakeButton();

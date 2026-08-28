@@ -23,6 +23,7 @@ import {Camera} from "./camera.js";
 import {Renderer} from "./gl/renderer.js";
 import {Overlay} from "./gl/overlay.js";
 import {formatHeading, transformHeading} from "./heading.js";
+import {buildEditPreviewPlan} from "./edit_preview.js";
 import {NavmeshField} from "./navmesh_field.js";
 import {AppState, Mode} from "./state.js";
 import {logZiplineGeometry, logZiplineTowers, parseMapNavigatorLog} from "./log_analysis.js";
@@ -107,6 +108,8 @@ class MapNavigatorApp {
         this.isPanning = false;
         this.isBoxSelecting = false;
         this.isAssertSelecting = false;
+        this.isEditPreviewStartDragCandidate = false;
+        this.isEditPreviewStartDragging = false;
         this.pointerDownX = 0;
         this.pointerDownY = 0;
         this.dragStartX = 0;
@@ -121,6 +124,8 @@ class MapNavigatorApp {
         this.editLocateHint = null;
         /** @type {?number[]} raw drag rect `[x0,y0,x1,y1]` in display-frame world. */
         this.assertRectWorld = null;
+        /** @type {?number[]} assert rect restored when Escape cancels an in-progress redraw. */
+        this._assertRectBeforeDrag = null;
         /** @type {?{x:number,y:number,rot:?number,label:string}} assert locate hint in base px. */
         this.assertLocateHint = null;
         /**
@@ -208,6 +213,11 @@ class MapNavigatorApp {
         this.editRoute = null;
         /** Runtime-reported failed leg for the current EDIT segment, in base px. */
         this.editRouteFailure = null;
+        /** @type {?{x:number,y:number,position:number[],positionZone:string,geometryZoneId:number,segmentIndex:number}} */
+        this.editPreviewStart = null;
+        this.editPreviewStartSelected = false;
+        /** @type {?string} tool restored after the one-shot manual-start click. */
+        this._editPreviewStartReturnTool = null;
         /** Guards against stale edit previews replacing a newer request or route state. */
         this._editRouteToken = 0;
         /** Guards against a stale probe response overwriting a newer one. @type {number} */
@@ -292,6 +302,7 @@ class MapNavigatorApp {
             btnCopyPath: $("btn-copy-path"),
             btnEditPlan: $("btn-edit-plan"),
             btnEditPlanClear: $("btn-edit-plan-clear"),
+            editPlanStartLabel: $("edit-plan-start-label"),
             chkEditZipline: $("chk-edit-zipline"),
             btnCopyAssert: $("btn-copy-assert"),
             assertCopyFormat: $("assert-copy-format"),
@@ -316,6 +327,8 @@ class MapNavigatorApp {
             toolPan: $("tool-pan"),
             toolAdd: $("tool-add"),
             toolSelect: $("tool-select"),
+            toolEditStart: $("tool-edit-start"),
+            editStartDivider: $("edit-start-divider"),
             toolAstarSingle: $("tool-astar-single"),
             toolAstarMulti: $("tool-astar-multi"),
             toolAssertPan: $("tool-assert-pan"),
@@ -421,6 +434,9 @@ class MapNavigatorApp {
             logShowRecordedTowers: $("log-show-recorded-towers"),
             logShowEstimates: $("log-show-estimates"),
             logContextPanel: $("log-context-panel"),
+            editInspectionBox: $("edit-inspection-box"),
+            editPointSummary: $("edit-point-summary"),
+            btnEditSelectionClear: $("btn-edit-selection-clear"),
             logInspectionBox: $("log-inspection-box"),
             btnLogPointClear: $("btn-log-point-clear"),
             logPointSummary: $("log-point-summary"),
@@ -851,6 +867,11 @@ class MapNavigatorApp {
             setStatus("已清除当前片段的规划预览。", "#10b981");
             this._paint();
         });
+        e.toolEditStart.addEventListener("click", () => {
+            this._editPreviewStartReturnTool = this.activeTool === "edit-start" ? "add" : this.activeTool;
+            this._setActiveTool("edit-start");
+            setStatus("请在地图上点击规划起点。", "#3b82f6");
+        });
         e.chkEditZipline.addEventListener("change", () => {
             this._syncCopyButtonLabels();
             if (this.navtest) this.navtest.routeChanged();
@@ -937,9 +958,13 @@ class MapNavigatorApp {
             this._clearLogDistanceSelection();
             setStatus("已清除滑索架测距。", "#10b981");
         });
+        e.btnEditSelectionClear.addEventListener("click", () => {
+            this._clearEditSelection();
+            setStatus("已取消当前选择。", "#10b981");
+        });
         e.btnLogPointClear.addEventListener("click", () => {
             this._clearLogInspection();
-            setStatus("已清除点位详情。", "#10b981");
+            setStatus("已取消点位选择。", "#10b981");
         });
         e.btnLogMeasure.addEventListener("click", () => {
             const measuring = this.activeTool !== "log-measure";
@@ -1165,6 +1190,7 @@ class MapNavigatorApp {
         const displayAstarLocateHints = mode === Mode.ASTAR ? this._astarDisplayHints() : [];
         const displayLogAnalysis = mode === Mode.LOG ? this._logAnalysisForDisplay() : null;
         const displayEditPreview = mode === Mode.EDIT ? this._editPreviewForDisplay() : null;
+        const displayEditPreviewStart = mode === Mode.EDIT ? this._editPreviewStartForDisplay() : null;
         const displayLivePath = mode === Mode.EDIT || mode === Mode.ASTAR ? this._livePathForDisplay() : null;
 
         const vm = {
@@ -1174,6 +1200,7 @@ class MapNavigatorApp {
             selectedIdx: mode === Mode.EDIT ? this.state.selectedIdx : null,
             selectedIndices: mode === Mode.EDIT ? this.state.selectedIndices : new Set(),
             editPreview: displayEditPreview,
+            editPreviewStart: displayEditPreviewStart,
             assertTarget: mode === Mode.ASSERT ? this._assertTargetForDisplay() : null,
             astar:
                 mode === Mode.ASTAR
@@ -1245,6 +1272,14 @@ class MapNavigatorApp {
                   }
                 : null,
         };
+    }
+
+    /** The current segment's manual preview start projected from base px into the display frame. */
+    _editPreviewStartForDisplay() {
+        const start = this._activeEditPreviewStart();
+        if (!start) return null;
+        const [x, y] = this._baseToDisplay(start.x, start.y);
+        return {x, y, label: "规划起点", selected: this.editPreviewStartSelected};
     }
 
     /**
@@ -1590,11 +1625,140 @@ class MapNavigatorApp {
         }
     }
 
-    /** Show the floating log result panel only while one of its contextual cards is visible. */
+    /** Show the shared top-right context panel for EDIT selections or LOG inspection cards. */
     _syncLogContextPanel() {
         const e = this.els;
-        e.logContextPanel.hidden =
-            this.state.mode !== Mode.LOG || (e.logInspectionBox.hidden && e.logDistanceBox.hidden);
+        const editVisible = this.state.mode === Mode.EDIT && !e.editInspectionBox.hidden;
+        const logVisible =
+            this.state.mode === Mode.LOG && (!e.logInspectionBox.hidden || !e.logDistanceBox.hidden);
+        e.logContextPanel.hidden = !editVisible && !logVisible;
+    }
+
+    /** Render metadata for the selected author waypoint or manual planning start. */
+    _renderEditInspection() {
+        const e = this.els;
+        const host = e.editPointSummary;
+        host.textContent = "";
+
+        let title = "";
+        let color = "#22d3ee";
+        let details = [];
+        const manualStart = this.editPreviewStartSelected ? this._activeEditPreviewStart() : null;
+        if (manualStart) {
+            title = "规划起点";
+            details = [
+                ["类型", "离线规划起点"],
+                ["坐标", `[${manualStart.position[0].toFixed(2)}, ${manualStart.position[1].toFixed(2)}]`],
+                ["层级", manualStart.positionZone],
+                ["底图坐标", `[${manualStart.x.toFixed(2)}, ${manualStart.y.toFixed(2)}]`],
+                ["片段", String(manualStart.segmentIndex + 1)],
+            ];
+        } else {
+            const selectedIndices = [...this.state.selectedIndices].sort((a, b) => a - b);
+            const zoneIndices = this.state.zonePointGlobalIndices();
+            if (selectedIndices.length === 1) {
+                const localIndex = selectedIndices[0];
+                const point = this.state.points[zoneIndices[localIndex]];
+                if (point) {
+                    title = `作者路点 #${localIndex}`;
+                    color = ACTION_COLORS[point.action] || "#3498db";
+                    const flags = [point.strict ? "严格抵达" : "", point.required ? "路径必经" : ""].filter(Boolean);
+                    details = [
+                        ["动作", this._formatActionChain(point)],
+                        ["坐标", `[${point.x.toFixed(2)}, ${point.y.toFixed(2)}]`],
+                        ["区域", normalizeZoneId(point.zone) || "未声明"],
+                        ["层级", normalizeZoneId(point.target_tier) || "跟随区域"],
+                        ["目标面", Number.isFinite(point.target_deck_y) ? point.target_deck_y.toFixed(2) : "自动"],
+                        ["标志", flags.join(" / ") || "无"],
+                    ];
+                }
+            } else if (selectedIndices.length > 1) {
+                title = `已选择 ${selectedIndices.length} 个作者路点`;
+                details = [
+                    ["序号", selectedIndices.join(", ")],
+                    ["操作", "可批量修改动作或删除"],
+                ];
+            }
+        }
+
+        const visible = this.state.mode === Mode.EDIT && !!title;
+        e.editInspectionBox.hidden = !visible;
+        e.btnEditSelectionClear.disabled = !visible;
+        if (visible) {
+            const selected = document.createElement("div");
+            selected.className = "log-inspection-selected";
+            selected.style.borderLeftColor = color;
+            const heading = document.createElement("div");
+            heading.className = "log-distance-point-title";
+            heading.textContent = title;
+            const list = document.createElement("dl");
+            list.className = "log-point-detail";
+            for (const [label, value] of details) {
+                const term = document.createElement("dt");
+                term.textContent = label;
+                const description = document.createElement("dd");
+                description.textContent = value;
+                list.append(term, description);
+            }
+            selected.append(heading, list);
+            host.appendChild(selected);
+        }
+        this._syncLogContextPanel();
+    }
+
+    /** Clear EDIT object selection and optionally leave the one-shot start-setting tool. */
+    _clearEditSelection({cancelTool = false} = {}) {
+        const wasSettingStart = this.activeTool === "edit-start";
+        const hadTransientGesture =
+            this.isBoxSelecting || this.isEditPreviewStartDragCandidate || this.isEditPreviewStartDragging;
+        const hadSelection = this.state.selectedIndices.size > 0 || this.editPreviewStartSelected;
+        if (!hadSelection && !hadTransientGesture && !(cancelTool && wasSettingStart)) return false;
+
+        this.state.clearSelection();
+        this.editPreviewStartSelected = false;
+        this.isBoxSelecting = false;
+        this.isEditPreviewStartDragCandidate = false;
+        this.isEditPreviewStartDragging = false;
+        this.selectionRect = null;
+        if (cancelTool && wasSettingStart) {
+            const returnTool = this._editPreviewStartReturnTool || "add";
+            this._editPreviewStartReturnTool = null;
+            this._setActiveTool(returnTool);
+        }
+        this._syncActionControls();
+        this._paint();
+        return true;
+    }
+
+    /** Apply Escape consistently to transient selections without deleting authored data. */
+    _cancelCurrentSelection() {
+        if (this.state.mode === Mode.EDIT) {
+            const changed = this._clearEditSelection({cancelTool: true});
+            if (changed) setStatus("已取消当前选择。", "#10b981");
+            return changed;
+        }
+        if (this.state.mode === Mode.ASSERT) {
+            if (!this.isAssertSelecting) return false;
+            this.isAssertSelecting = false;
+            this.assertRectWorld = this._assertRectBeforeDrag;
+            this._assertRectBeforeDrag = null;
+            this._paint();
+            setStatus("已取消本次断言区域绘制。", "#10b981");
+            return true;
+        }
+        if (this.state.mode !== Mode.LOG) return false;
+
+        const wasMeasuring = this.activeTool === "log-measure";
+        const changed = !!this.logInspectedPoint || this.logDistanceSelection.length > 0 || wasMeasuring;
+        if (!changed) return false;
+        this.logInspectedPoint = null;
+        this.logDistanceSelection = [];
+        if (wasMeasuring) this._setActiveTool("log-inspect");
+        this._renderLogInspection();
+        this._renderLogDistance();
+        this._paint();
+        setStatus("已取消当前选择。", "#10b981");
+        return true;
     }
 
     /** Render the selected read-only point metadata. */
@@ -2695,6 +2859,7 @@ class MapNavigatorApp {
                     setStatus("请先在 Assert 模式下选择地图。", "#ef4444");
                     return;
                 }
+                this._assertRectBeforeDrag = this.assertRectWorld ? [...this.assertRectWorld] : null;
                 this.isAssertSelecting = true;
                 this.assertLocateHint = null;
                 this.isDragging = false;
@@ -2719,6 +2884,23 @@ class MapNavigatorApp {
         }
 
         if (this.state.mode === Mode.EDIT && (this.activeTool === "add" || this.activeTool === "select")) {
+            if (this._hitEditPreviewStart(x, y)) {
+                this.isEditPreviewStartDragCandidate = true;
+                this.isEditPreviewStartDragging = false;
+                this.isPanCandidate = false;
+                this.isPanning = false;
+                this.isDragging = false;
+                this.isDragCandidate = false;
+                this.isBoxSelecting = false;
+                this.editPreviewStartSelected = true;
+                this.pointerDownX = x;
+                this.pointerDownY = y;
+                this.state.clearSelection();
+                this._syncActionControls();
+                this._paint();
+                return;
+            }
+            this.editPreviewStartSelected = false;
             const isSelectTool = this.activeTool === "select";
             const hitIdx = this.state.hitTest(this._worldToCanvasFn(), x, y);
             if (hitIdx === null) {
@@ -2747,6 +2929,17 @@ class MapNavigatorApp {
                 this.pointerDownX = x;
                 this.pointerDownY = y;
             }
+            return;
+        }
+
+        if (this.state.mode === Mode.EDIT && this.activeTool === "edit-start") {
+            this.isDragging = false;
+            this.isPanCandidate = true;
+            this.isPanning = false;
+            this.isBoxSelecting = false;
+            this.isAssertSelecting = false;
+            this.pointerDownX = x;
+            this.pointerDownY = y;
         }
     }
 
@@ -2797,6 +2990,22 @@ class MapNavigatorApp {
                 wy,
             ];
             this._paint();
+            return;
+        }
+
+        if (this.isEditPreviewStartDragCandidate) {
+            if (!this._movedExceeded(this.pointerDownX, this.pointerDownY, x, y)) return;
+            this.isEditPreviewStartDragCandidate = false;
+            this.isEditPreviewStartDragging = true;
+            this._clearEditPreview();
+        }
+
+        if (this.isEditPreviewStartDragging) {
+            if (this._setEditPreviewStartAtCanvas(x, y, false)) {
+                this._syncEditPreviewStartControls();
+                this._renderEditInspection();
+                this._paint();
+            }
             return;
         }
 
@@ -2877,6 +3086,7 @@ class MapNavigatorApp {
                 wy,
             ];
             this.isAssertSelecting = false;
+            this._assertRectBeforeDrag = null;
             const target = this._currentAssertTarget();
             if (target) {
                 setStatus(
@@ -2887,6 +3097,23 @@ class MapNavigatorApp {
                 );
             }
             if (this.navtest) this.navtest.routeChanged();
+            this._paint();
+            return;
+        }
+
+        if (this.isEditPreviewStartDragCandidate) {
+            this.isEditPreviewStartDragCandidate = false;
+            this._renderEditInspection();
+            this._paint();
+            return;
+        }
+
+        if (this.isEditPreviewStartDragging) {
+            this.isEditPreviewStartDragging = false;
+            this._setEditPreviewStartAtCanvas(x, y, false);
+            this._syncEditPreviewStartControls();
+            this._renderEditInspection();
+            setStatus("规划起点已移动。", "#10b981");
             this._paint();
             return;
         }
@@ -2907,6 +3134,8 @@ class MapNavigatorApp {
                     if (selected.has(hitIdx)) selected.delete(hitIdx);
                     else selected.add(hitIdx);
                     this.state.setSelection([...selected], hitIdx);
+                } else {
+                    this.state.clearSelection();
                 }
             } else {
                 const indices = this.state.collectIndicesInRect(
@@ -2927,6 +3156,10 @@ class MapNavigatorApp {
 
         if (this.isPanCandidate) {
             this.isPanCandidate = false;
+            if (this.state.mode === Mode.EDIT && this.activeTool === "edit-start") {
+                this._handleEditPreviewStartClick(x, y);
+                return;
+            }
             if (this.state.mode === Mode.EDIT && this.activeTool !== "add") {
                 this.state.clearSelection();
                 this._syncActionControls();
@@ -2953,6 +3186,7 @@ class MapNavigatorApp {
             this.isDragging = false;
             this._clearEditPreview();
             if (this.navtest) this.navtest.routeChanged();
+            this._renderEditInspection();
             this._doRedraw();
             return;
         }
@@ -3052,17 +3286,101 @@ class MapNavigatorApp {
         this.els.btnEditPlanClear.disabled = true;
     }
 
+    /** Return the manual preview start only while its original edit segment and geometry are active. */
+    _activeEditPreviewStart() {
+        const start = this.editPreviewStart;
+        if (!start || !this.field || start.segmentIndex !== this.state.zoneState.currentSegmentIdx) return null;
+        const displayZoneId = this._resolveZoneId(this._displayZoneId());
+        if (Number.isNaN(displayZoneId)) return null;
+        return this.field.geometryZoneId(displayZoneId) === start.geometryZoneId ? start : null;
+    }
+
+    /** Whether a canvas position hits the current segment's planning-start badge. */
+    _hitEditPreviewStart(canvasX, canvasY) {
+        const marker = this._editPreviewStartForDisplay();
+        if (!marker) return false;
+        const [x, y] = this.camera.worldToCanvas(marker.x, marker.y);
+        return Math.hypot(x - canvasX, y - canvasY) <= 16;
+    }
+
+    /** Refresh the manual-start status and controls for the current edit segment. */
+    _syncEditPreviewStartControls() {
+        const start = this._activeEditPreviewStart();
+        if (!start) {
+            this.els.editPlanStartLabel.textContent = "规划起点：当前片段第一个路点";
+            return;
+        }
+        const [x, y] = this._baseToDisplay(start.x, start.y);
+        this.els.editPlanStartLabel.textContent = `规划起点：手动 [${x.toFixed(1)}, ${y.toFixed(1)}]`;
+    }
+
+    /** Drop the preview-only manual start without changing any authored point. */
+    _clearEditPreviewStart() {
+        this.editPreviewStart = null;
+        this.editPreviewStartSelected = false;
+        this._syncEditPreviewStartControls();
+        this._renderEditInspection();
+    }
+
+    /** Update the preview start from an EDIT canvas point, preserving its original tier frame. */
+    _setEditPreviewStartAtCanvas(canvasX, canvasY, clearPreview = true) {
+        if (!this.field) {
+            setStatus("navmesh 尚未就绪。", "#ef4444");
+            return false;
+        }
+        const tierId = this._activeDisplayTierId();
+        const coordinateZoneId = tierId === null ? this._resolveZoneId(this._displayZoneId()) : tierId;
+        if (Number.isNaN(coordinateZoneId)) {
+            setStatus("请先选择路径底图与层级。", "#f59e0b");
+            return false;
+        }
+        const geometryZoneId = this.field.geometryZoneId(coordinateZoneId);
+        const geometryZone = this.field.zoneById(geometryZoneId);
+        const coordinateZone = this.field.zoneById(coordinateZoneId);
+        const positionZone = normalizeZoneId(coordinateZone && coordinateZone.name);
+        if (!geometryZone || !positionZone) {
+            setStatus("当前层级缺少坐标定义，无法设置规划起点。", "#ef4444");
+            return false;
+        }
+
+        const [wx, wy] = this.camera.canvasToWorld(canvasX, canvasY);
+        const [x, y] = this._pointToBase(coordinateZoneId, wx, wy);
+        if (clearPreview) this._clearEditPreview();
+        this.editPreviewStart = {
+            x,
+            y,
+            position: [wx, wy],
+            positionZone,
+            geometryZoneId,
+            segmentIndex: this.state.zoneState.currentSegmentIdx,
+        };
+        return true;
+    }
+
+    /** Set a preview-only start, then restore the tool active before the one-shot action. */
+    _handleEditPreviewStartClick(canvasX, canvasY) {
+        if (!this._setEditPreviewStartAtCanvas(canvasX, canvasY)) return;
+        this.editPreviewStartSelected = true;
+        this.state.clearSelection();
+        this._syncEditPreviewStartControls();
+        this._syncActionControls();
+        const returnTool = this._editPreviewStartReturnTool || "add";
+        this._editPreviewStartReturnTool = null;
+        this._setActiveTool(returnTool);
+        const start = this.editPreviewStart;
+        setStatus(
+            `规划起点已设置: [${start.position[0].toFixed(1)}, ${start.position[1].toFixed(1)}]。`,
+            "#10b981",
+        );
+        this._paint();
+    }
+
     /** Expand the current EDIT zone segment with the same planner used by MapNavigateAction. */
     async _calculateEditPreview() {
         const points = this._currentSegmentPoints();
-        if (points.length < 2) {
-            setStatus("当前片段至少需要两个路点才能规划。", "#f59e0b");
-            return;
-        }
-        const start = points[0];
-        const positionZone = normalizeZoneId(start.target_tier || start.zone);
-        if (!positionZone) {
-            setStatus("当前片段缺少起点区域，无法交给运行时规划。", "#ef4444");
+        const plan = buildEditPreviewPlan(points, this._activeEditPreviewStart());
+        if (!plan.ok) {
+            setStatus(plan.error, "#f59e0b");
             return;
         }
 
@@ -3075,14 +3393,13 @@ class MapNavigatorApp {
         setStatus("正在按运行时语义规划当前片段…", "#3b82f6");
 
         try {
-            // 第一个作者点在离线预览里充当已抵达的起点；再次把它作为首个 NAVMESH
-            // 目标会制造一条无意义的原地规划，并可能因该点位于盲走区而提前失败。
-            const exported = await exportPath(points.slice(1));
+            // 默认模式把第一个作者点视作已抵达的起点；手动起点则保留全部作者点为目标。
+            const exported = await exportPath(plan.targets);
             const customActionParam = {path: exported.nodes || []};
             if (this.els.chkEditZipline.checked) customActionParam.zip = true;
             const result = await postRoutePreview({
-                position: [start.x, start.y],
-                position_zone: positionZone,
+                position: plan.position,
+                position_zone: plan.positionZone,
                 custom_action_param: customActionParam,
             });
             if (token !== this._editRouteToken || (result && result.stale)) return;
@@ -4293,6 +4610,7 @@ class MapNavigatorApp {
         this.els.assertZoneCombo.value = zoneId;
         this.assertRectWorld = null;
         this.isAssertSelecting = false;
+        this._assertRectBeforeDrag = null;
         this._refreshZoneLabel();
         if (this.field) {
             const zoneIdNum = parseInt(zoneId, 10);
@@ -4389,6 +4707,7 @@ class MapNavigatorApp {
             return;
         }
         this._clearEditPreview();
+        this.editPreviewStartSelected = false;
         this.state.zoneState.prevZone();
         this.state.clearSelection();
         this._syncActionControls();
@@ -4403,6 +4722,7 @@ class MapNavigatorApp {
             return;
         }
         this._clearEditPreview();
+        this.editPreviewStartSelected = false;
         this.state.zoneState.nextZone();
         this.state.clearSelection();
         this._syncActionControls();
@@ -4499,8 +4819,16 @@ class MapNavigatorApp {
             }
             this.assertRectWorld = null;
             this.isAssertSelecting = false;
+            this._assertRectBeforeDrag = null;
             setStatus("已清除 Assert 区域。", "#10b981");
             if (this.navtest) this.navtest.routeChanged();
+            this._paint();
+            return;
+        }
+        if (this.editPreviewStartSelected && this._activeEditPreviewStart()) {
+            this._clearEditPreview();
+            this._clearEditPreviewStart();
+            setStatus("已删除手动规划起点。", "#10b981");
             this._paint();
             return;
         }
@@ -4749,6 +5077,10 @@ class MapNavigatorApp {
         ) {
             return;
         }
+        if (e.key === "Escape" && this._cancelCurrentSelection()) {
+            e.preventDefault();
+            return;
+        }
         const ctrl = e.ctrlKey || e.metaKey;
         if (ctrl && (e.key === "z" || e.key === "Z")) {
             if (e.shiftKey) this._redo();
@@ -4820,7 +5152,7 @@ class MapNavigatorApp {
 
     /**
      * Switch the active canvas tool, updating toolbar highlight + canvas cursor.
-     * @param {'pan'|'add'|'select'|'astar-single'|'astar-multi'|'astar-pan'|'assert-pan'|'assert-edit'|'log-inspect'|'log-measure'|'log-pan'} tool
+     * @param {'pan'|'add'|'select'|'edit-start'|'astar-single'|'astar-multi'|'astar-pan'|'assert-pan'|'assert-edit'|'log-inspect'|'log-measure'|'log-pan'} tool
      * @returns {void}
      */
     _setActiveTool(tool) {
@@ -4830,6 +5162,11 @@ class MapNavigatorApp {
         if (e.toolPan) e.toolPan.classList.toggle("active", tool === "pan");
         if (e.toolAdd) e.toolAdd.classList.toggle("active", tool === "add");
         if (e.toolSelect) e.toolSelect.classList.toggle("active", tool === "select");
+        if (e.toolEditStart) {
+            const settingEditStart = tool === "edit-start";
+            e.toolEditStart.classList.toggle("active", settingEditStart);
+            e.toolEditStart.setAttribute("aria-pressed", String(settingEditStart));
+        }
         if (e.toolAstarSingle) e.toolAstarSingle.classList.toggle("active", tool === "astar-single");
         if (e.toolAstarMulti) e.toolAstarMulti.classList.toggle("active", tool === "astar-multi");
         if (e.toolAssertPan) e.toolAssertPan.classList.toggle("active", tool === "assert-pan");
@@ -4847,7 +5184,7 @@ class MapNavigatorApp {
             canvas.style.cursor = "crosshair";
         } else if (tool === "log-inspect") {
             canvas.style.cursor = "default";
-        } else if (tool === "add" || tool === "astar-single" || tool === "astar-multi") {
+        } else if (tool === "add" || tool === "edit-start" || tool === "astar-single" || tool === "astar-multi") {
             canvas.style.cursor = "crosshair";
         } else if (tool === "select") {
             canvas.style.cursor = "default";
@@ -4993,6 +5330,7 @@ class MapNavigatorApp {
 
     /** Reflect the current selection into the action/strict/chain controls (tk `_sync_action_controls`). */
     _syncActionControls() {
+        this._renderEditInspection();
         this._renderWaypointList();
         this._renderEditDeckList();
         // 路线可能刚被改过: 重新装载到试跑会话, 让 F3 跑的始终是屏幕上这一条。
@@ -5235,6 +5573,7 @@ class MapNavigatorApp {
 
     /** Update the zone label for the current mode's frame. @returns {void} */
     _refreshZoneLabel() {
+        this._syncEditPreviewStartControls();
         if (this.state.mode === Mode.ASTAR) {
             const zoneId = this._displayZoneId();
             this.els.zoneLabel.textContent = zoneId ? `A*: ${zoneId}` : "A*: 请选择底图";
@@ -5305,6 +5644,7 @@ class MapNavigatorApp {
      */
     _onRecordingFinished(rawPoints) {
         this._clearEditPreview();
+        this._clearEditPreviewStart();
         this.state.setPoints(rawPoints);
         this.state.clearSelection();
         this._syncActionControls();
@@ -5329,6 +5669,7 @@ class MapNavigatorApp {
         if (this.state.mode === Mode.ASTAR) return this._importAsAstarRoute(points);
 
         this._clearEditPreview();
+        this._clearEditPreviewStart();
         if (this.state.mode === Mode.EDIT) {
             this.els.chkEditZipline.checked = !!options.zipEnabled;
             this._syncCopyButtonLabels();
@@ -5445,6 +5786,7 @@ class MapNavigatorApp {
             y + h,
         ];
         this.isAssertSelecting = false;
+        this._assertRectBeforeDrag = null;
         this._syncAssertControls();
         this._syncAstarControls();
         this._refreshZoneLabel();
@@ -5495,6 +5837,7 @@ class MapNavigatorApp {
         if (modeName !== "assert") {
             this.assertRectWorld = null;
             this.isAssertSelecting = false;
+            this._assertRectBeforeDrag = null;
         }
 
         if (modeName === "edit") {
@@ -5568,6 +5911,8 @@ class MapNavigatorApp {
         e.panelNavtest.hidden = !navtestAvailable;
         e.routeModeTabs.hidden = logWorkspace;
         e.positionReadout.hidden = logWorkspace;
+        e.toolEditStart.hidden = mode !== Mode.EDIT;
+        e.editStartDivider.hidden = mode !== Mode.EDIT;
         e.btnLogMeasure.hidden = !logWorkspace;
         e.logMeasureDivider.hidden = !logWorkspace;
         if (this.connection) this.connection.setSuspended(logWorkspace);
@@ -5624,6 +5969,8 @@ class MapNavigatorApp {
         e.tabAstar.setAttribute("aria-pressed", String(mode === Mode.ASTAR));
         e.tabAssert.setAttribute("aria-pressed", String(mode === Mode.ASSERT));
         e.tabEdit.setAttribute("aria-pressed", String(mode === Mode.EDIT));
+        this._renderEditInspection();
+        this._syncLogContextPanel();
     }
 
     /** Open the tier-picker dialog with base buttons + the current base's tier grid. @returns {void} */

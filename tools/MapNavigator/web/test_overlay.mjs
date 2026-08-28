@@ -21,6 +21,7 @@ function renderWithMarker(mode, markerKey) {
     overlay._drawLogAnalysis = () => {};
     overlay._drawOffMeshMarks = () => {};
     overlay._drawSelectionRect = () => {};
+    overlay._drawPlanningStartMarker = () => {};
 
     const markers = [];
     overlay._drawHintMarker = (_camera, x, y, label, rot) => markers.push({x, y, label, rot});
@@ -43,6 +44,35 @@ test("draws the game-position reference marker in edit mode", () => {
 
 test("does not leak the edit reference marker into assert mode", () => {
     assert.deepEqual(renderWithMarker("assert", "editLocateHint"), []);
+});
+
+test("draws the manual planning start only in edit mode", () => {
+    const overlay = Object.create(Overlay.prototype);
+    overlay.dpr = 1;
+    overlay.cssW = 800;
+    overlay.cssH = 600;
+    overlay.ctx = {
+        setTransform() {},
+        clearRect() {},
+    };
+    overlay._drawPath = () => {};
+    overlay._drawAstarPreview = () => {};
+    overlay._drawNodes = () => {};
+    overlay._drawAssertRect = () => {};
+    overlay._drawAstarDiagnostics = () => {};
+    overlay._drawLivePath = () => {};
+    overlay._drawLogAnalysis = () => {};
+    overlay._drawOffMeshMarks = () => {};
+    overlay._drawSelectionRect = () => {};
+    overlay._drawHintMarker = () => {};
+
+    const markers = [];
+    overlay._drawPlanningStartMarker = (_camera, marker) => markers.push(marker);
+    const marker = {x: 12, y: 34, label: "规划起点"};
+    overlay.render({}, {mode: "edit", points: [], editPreviewStart: marker});
+    overlay.render({}, {mode: "assert", points: [], editPreviewStart: marker});
+
+    assert.deepEqual(markers, [marker]);
 });
 
 test("draws selected-route diagnostics in edit mode", () => {
