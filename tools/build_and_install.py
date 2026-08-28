@@ -302,6 +302,93 @@ def build_go_agent(
     return True
 
 
+def setup_windows_msvc_env() -> bool:
+    """在 Windows 上初始化 MSVC 开发环境（Ninja + cl.exe 需要 INCLUDE/LIB/PATH）。
+
+    通过 vswhere 定位 Visual Studio，再调用 vcvars64.bat 导出环境变量，
+    注入 os.environ，使后续 cmake/Ninja 能找到 cl.exe 及标准库头文件。
+    返回 True 表示成功；失败时返回 False（调用方可回退到 VS generator）。
+    """
+    sys_root = os.environ.get("ProgramFiles(x86)", r"C:\Program Files (x86)")
+    vswhere = Path(sys_root) / "Microsoft Visual Studio" / "Installer" / "vswhere.exe"
+    if not vswhere.exists():
+        # 兼容 VS 安装到非标准位置：尝试从 vswhere 注册表路径查找
+        vswhere = Path("C:") / "Program Files (x86)" / "Microsoft Visual Studio" / "Installer" / "vswhere.exe"
+
+    if not vswhere.exists():
+        print(f"  {Console.warn(t('warning'))} {t('vswhere_not_found')}")
+        return False
+
+    try:
+        result = subprocess.run(
+            [
+                str(vswhere),
+                "-latest",
+                "-products",
+                "*",
+                "-requires",
+                "Microsoft.VisualStudio.Component.VC.Tools.x86.x64",
+                "-property",
+                "installationPath",
+            ],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+        )
+    except (OSError, subprocess.SubprocessError) as exc:
+        print(f"  {Console.warn(t('warning'))} {t('vswhere_query_failed', error=exc)}")
+        return False
+
+    vs_path = result.stdout.strip()
+    if result.returncode != 0 or not vs_path:
+        print(f"  {Console.warn(t('warning'))} {t('vswhere_not_found')}")
+        return False
+
+    # vcvars64.bat 位置（VS2022/2026 通用）
+    vcvars = (
+        Path(vs_path) / "VC" / "Auxiliary" / "Build" / "vcvars64.bat"
+    )
+    if not vcvars.exists():
+        print(
+            f"  {Console.warn(t('warning'))} {t('vcvars_not_found', path=vcvars)}"
+        )
+        return False
+
+    # 用 shell 执行 vcvars64.bat 并导出环境变量（set 命令输出）。
+    # 注意必须用 shell=True：cmd /c 对带空格路径的引号处理有坑，shell 交由 Windows 解析。
+    try:
+        env_dump = subprocess.run(
+            f'call "{vcvars}" >nul 2>&1 && set',
+            shell=True,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+        )
+    except (OSError, subprocess.SubprocessError) as exc:
+        print(f"  {Console.warn(t('warning'))} {t('vcvars_run_failed', error=exc)}")
+        return False
+
+    if env_dump.returncode != 0 or not env_dump.stdout:
+        print(f"  {Console.warn(t('warning'))} {t('vcvars_run_failed', error=env_dump.stderr[:200])}")
+        return False
+
+    loaded = 0
+    for line in env_dump.stdout.splitlines():
+        if "=" not in line:
+            continue
+        key, _, value = line.partition("=")
+        key = key.strip()
+        value = value.strip()
+        if not key:
+            continue
+        os.environ[key] = value
+        loaded += 1
+
+    print(f"  {Console.ok(t('msvc_env_loaded', count=loaded))}")
+    return True
+
+
 def check_cmake_environment() -> bool:
     """检查 CMake 环境是否可用"""
     try:
@@ -418,6 +505,16 @@ def build_cpp_algo(
     else:
         # macOS
         configure_preset_candidates = ["NinjaMulti"]
+
+    # Windows x64 走 Ninja 时，需要先初始化 MSVC 开发环境（cl.exe/INCLUDE/LIB）
+    if resolved_os == "win" and resolved_arch == "x86_64":
+        if configure_preset_candidates[0] == "NinjaMulti Win32":
+            if not setup_windows_msvc_env():
+                print(
+                    f"  {Console.warn(t('warning'))} {t('msvc_env_fail_fallback')}"
+                )
+                # 回退到 VS generator（CMake 可自动定位 VS，无需环境变量）
+                configure_preset_candidates = ["MSVC 2026", "MSVC 2022"]
 
     # 构建 MAADEPS_TRIPLET: maa-{x64|arm64}-{windows|linux|osx}
     arch_part = "x64" if resolved_arch == "x86_64" else "arm64"

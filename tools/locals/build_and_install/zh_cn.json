@@ -75,5 +75,11 @@
     "arg_arch": "目标架构 (x86_64/aarch64)",
     "arg_version": "版本号（写入 Go Agent）",
     "arg_cpp_algo": "同时编译 C++ Algo Agent（默认不编译）",
-    "step_skip_cpp": "[3/4] 跳过 C++ Algo Agent（未指定 --cpp-algo）"
+    "step_skip_cpp": "[3/4] 跳过 C++ Algo Agent（未指定 --cpp-algo）",
+    "vswhere_not_found": "未找到 vswhere，无法定位 Visual Studio（继续回退 VS generator）",
+    "vswhere_query_failed": "vswhere 查询 Visual Studio 失败: {error}",
+    "vcvars_not_found": "未找到 vcvars64.bat: {path}",
+    "vcvars_run_failed": "vcvars64.bat 执行失败: {error}",
+    "msvc_env_loaded": "MSVC 开发环境已加载（{count} 个环境变量）",
+    "msvc_env_fail_fallback": "MSVC 环境初始化失败，回退到 Visual Studio generator"
 }
