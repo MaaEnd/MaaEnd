@@ -1,0 +1,56 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "WorldMap Component Schema",
+    "description": "All WorldMap custom recognition parameter definitions. Referenced by custom.recognition.schema.json.",
+    "$defs": {
+        "Coordinate2D": {
+            "type": "array",
+            "description": "A 2D coordinate [x, y].",
+            "prefixItems": [
+                { "type": "number" },
+                { "type": "number" }
+            ],
+            "minItems": 2,
+            "maxItems": 2,
+            "items": false
+        },
+        "MapFindParam": {
+            "type": "object",
+            "description": "Parameters for MapFind: work out where the open world map is currently showing, bring the given base map coordinate into view, and hand back the screen position it landed on. What to do with that position is the node's own action.",
+            "additionalProperties": false,
+            "required": [ "zone", "at" ],
+            "properties": {
+                "zone": {
+                    "title": "Zone",
+                    "description": "Zone name, i.e. the directory name under assets/resource/image/MapLocator/.",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "at": {
+                    "title": "At",
+                    "description": "The point to find, [x, y] in that zone's base map pixel frame.",
+                    "$ref": "#/$defs/Coordinate2D"
+                },
+                "icon": {
+                    "title": "Icon",
+                    "description": "Name of an entry in assets/resource/image/SceneManager/MapIcons.json. The templates and every threshold that goes with them live in that table, so a new kind of icon is a table entry rather than a set of node parameters. Omit it to only solve the coordinate, confirming no icon at all.",
+                    "type": "string",
+                    "minLength": 1
+                },
+                "state": {
+                    "title": "State",
+                    "description": "Which unlock state counts as a hit. Requires an icon whose table entry carries gold_ratio, since that is what tells the two states apart. Optional, defaults to unlocked.",
+                    "enum": [ "unlocked", "locked" ],
+                    "default": "unlocked"
+                },
+                "max_attempts": {
+                    "title": "Max Attempts",
+                    "description": "Recognition attempts. Panning the map is not charged against it. Optional, defaults to 4.",
+                    "type": "integer",
+                    "minimum": 1,
+                    "default": 4
+                }
+            }
+        }
+    }
+}

@@ -12,7 +12,14 @@ from pathlib import Path
 from catalog import build_catalog, write_catalog
 from download import validate_icon_png_bytes
 from fixed_items import FIXED_ITEMS
-from localization import LOCALE_MAP, build_locale_values, generate_locales, load_json_object
+from localization import (
+    LOCALE_MAP,
+    build_locale_values,
+    build_source_index,
+    generate_locales,
+    load_json_object,
+    update_interface_locale,
+)
 
 
 @dataclass(frozen=True)
@@ -47,6 +54,18 @@ def publish(paths: PublishPaths) -> tuple[int, dict[str, int]]:
     if not isinstance(source, dict):
         raise ValueError(f"JSON 顶层必须是对象: {paths.item_source}")
     catalog = build_catalog(source, paths.image_root)
+    localization_source = build_source_index(
+        load_json_object(paths.localization_item_source),
+        load_json_object(paths.weapon_source),
+    )
+    zh_cn_values = build_locale_values(
+        catalog,
+        localization_source,
+        "CN",
+        load_json_object(paths.language_root / "lang_zh-CN.json"),
+    )
+    for item_id, record in catalog.items():
+        record["name"] = zh_cn_values[f"iconRecognition.name.{item_id}"]
     paths.catalog_output.parent.mkdir(parents=True, exist_ok=True)
     write_catalog(catalog, paths.catalog_output)
     locale_counts = generate_locales(
@@ -92,20 +111,23 @@ def publish_fixed_items(paths: PublishPaths) -> int:
     fixed_catalog = build_catalog(fixed_source, paths.asset_image_root)
     if len(fixed_catalog) != len(FIXED_ITEMS):
         raise ValueError("固定物品图标未完整生成 catalog")
-    catalog = load_json_object(paths.catalog_output)
-    catalog.update(fixed_catalog)
-    write_catalog(OrderedDict(sorted(catalog.items())), paths.catalog_output)
-
+    zh_cn_values = build_locale_values(
+        fixed_catalog,
+        {},
+        "CN",
+        load_json_object(paths.language_root / "lang_zh-CN.json"),
+    )
     for locale, (weapon_language, path_language) in LOCALE_MAP.items():
         translations = load_json_object(paths.language_root / f"lang_{path_language}.json")
         values = build_locale_values(fixed_catalog, {}, weapon_language, translations)
         locale_path = paths.locale_root / f"{locale}.json"
-        interface = load_json_object(locale_path)
-        interface.update(values)
-        locale_path.write_text(
-            json.dumps(interface, ensure_ascii=False, indent=4) + "\n",
-            encoding="utf-8",
-        )
+        update_interface_locale(locale_path, values, remove_stale=False)
+
+    for item_id, record in fixed_catalog.items():
+        record["name"] = zh_cn_values[f"iconRecognition.name.{item_id}"]
+    catalog = load_json_object(paths.catalog_output)
+    catalog.update(fixed_catalog)
+    write_catalog(OrderedDict(sorted(catalog.items())), paths.catalog_output)
     return len(fixed_catalog)
 
 

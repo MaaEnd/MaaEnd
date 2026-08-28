@@ -57,18 +57,6 @@
             "target_path": "docs/en_us/developers/components/map-navigator.md",
             "source_sha256": "35ad94d2b22a23972eedabc33b50b3ae0ab4fc42689c24ac228b9ebc929257eb"
         },
-        "docs/zh_cn/developers/components/map-tracker(advanced).md": {
-            "source_path": "docs/zh_cn/developers/components/map-tracker(advanced).md",
-            "relative_path": "developers/components/map-tracker(advanced).md",
-            "target_path": "docs/en_us/developers/components/map-tracker(advanced).md",
-            "source_sha256": "126dfa962ab27d3b076885246e0685af3cf068401b7e5526e6ee9e341377a4f1"
-        },
-        "docs/zh_cn/developers/components/map-tracker.md": {
-            "source_path": "docs/zh_cn/developers/components/map-tracker.md",
-            "relative_path": "developers/components/map-tracker.md",
-            "target_path": "docs/en_us/developers/components/map-tracker.md",
-            "source_sha256": "9d2934fcc998e2d8c12703b5b8ed877cc814007b8662fe8e61b5147cd634a25d"
-        },
         "docs/zh_cn/developers/components/recogrid-engine.md": {
             "source_path": "docs/zh_cn/developers/components/recogrid-engine.md",
             "relative_path": "developers/components/recogrid-engine.md",

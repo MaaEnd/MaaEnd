@@ -162,6 +162,26 @@ class ItemTransferGeneratorTest(unittest.TestCase):
             ],
         )
 
+    def test_transfer_case_order_does_not_depend_on_catalog_order(self) -> None:
+        items = {
+            "item_a": make_item("Product", -81, 1),
+            "item_b": make_item("Product", -60, 1),
+            "item_c": make_item("Nurturance", 90, 1),
+        }
+        zh_cn = {
+            f"iconRecognition.name.{item_id}": item_id
+            for item_id in items
+        }
+
+        forward = build_transfer_cases(items, zh_cn, FORWARD_NODES)
+        reversed_forward = build_transfer_cases(
+            dict(reversed(list(items.items()))),
+            zh_cn,
+            FORWARD_NODES,
+        )
+
+        self.assertEqual(reversed_forward, forward)
+
     def test_build_transfer_cases_uses_direction_specific_nodes(self) -> None:
         catalog = {
             "item_product": make_item("Product", -60, 1),

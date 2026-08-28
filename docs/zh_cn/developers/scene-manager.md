@@ -61,6 +61,7 @@ SceneManager 使用 MaaFramework 的 `[JumpBack]` 机制，将场景接口组织
 | 地图 | `SceneEnterMapDijiang` | 进入帝江号地图界面 |
 | 地图 | `SceneEnterMapValleyIVTheHub` | 进入四号谷地-枢纽区地图界面 |
 | 菜单 | `SceneEnterMenuList` | 进入菜单总列表 |
+| 菜单 | `SceneEnterMenuMission` | 进入任务界面 |
 | 菜单 | `SceneEnterMenuRegionalDevelopment` | 进入地区建设菜单 |
 | 菜单 | `SceneEnterMenuEvent` | 进入活动菜单 |
 | 菜单 | `SceneEnterMenuProtocolPass` | 进入通行证菜单 |

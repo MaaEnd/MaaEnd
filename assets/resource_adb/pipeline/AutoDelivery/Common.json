@@ -1,0 +1,26 @@
+{
+    "AutoDeliveryAreaOCR": {
+        "roi": [
+            615,
+            111,
+            250,
+            40
+        ]
+    },
+    "AutoDeliveryDestinationYellow": {
+        "roi": [
+            621,
+            247,
+            610,
+            43
+        ]
+    },
+    "AutoDeliveryDestinationOCR": {
+        "roi": [
+            621,
+            247,
+            610,
+            43
+        ]
+    }
+}

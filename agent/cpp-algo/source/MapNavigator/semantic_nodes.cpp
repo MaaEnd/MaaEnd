@@ -333,6 +333,47 @@ Result ConsumeHeadingNodesImpl(const Context& ctx)
     return result;
 }
 
+// One usable fix, skipping frames the locator held or blacked out. Reads taken while walking lag behind, and the
+// residual is judged from one of them on purpose: at a walk the lag is small, and standing still to re-measure is
+// exactly what this replaced. False when nothing usable comes back within the frame budget.
+bool CaptureCleanFix(const Context& ctx, NaviPosition* out_pos)
+{
+    for (int frame = 0; frame < kStrictSettleFixMaxFrames; ++frame) {
+        if (frame > 0) {
+            utils::SleepFor(kStrictSettleFixIntervalMs);
+        }
+        if (!ctx.position_provider->Capture(ctx.position, false, ctx.session->current_zone_id())
+            || ctx.position_provider->LastCaptureWasHeld() || ctx.position_provider->LastCaptureWasBlackScreen()) {
+            continue;
+        }
+        *out_pos = *ctx.position;
+        return true;
+    }
+    return false;
+}
+
+template <typename CanCaptureFrame>
+bool CaptureStableHeadingImpl(const Context& ctx, double* out_heading, const CanCaptureFrame& can_capture_frame)
+{
+    std::optional<double> previous;
+    for (int frame = 0; can_capture_frame(frame); ++frame) {
+        if (frame > 0) {
+            utils::SleepFor(kHeadingStableReadIntervalMs);
+        }
+        if (!ctx.position_provider->Capture(ctx.position, false, ctx.session->current_zone_id())
+            || ctx.position_provider->LastCaptureWasHeld()) {
+            continue;
+        }
+        const double current = NaviMath::NormalizeAngle(ctx.position->angle);
+        if (previous && std::abs(NaviMath::NormalizeAngle(current - *previous)) <= kHeadingStableReadToleranceDeg) {
+            *out_heading = current;
+            return true;
+        }
+        previous = current;
+    }
+    return false;
+}
+
 } // namespace
 
 bool TurnToHeadingOnce(const Context& ctx, double heading_delta)
@@ -363,23 +404,16 @@ bool TurnToHeadingOnce(const Context& ctx, double heading_delta)
 
 bool CaptureStableHeading(const Context& ctx, double* out_heading)
 {
-    std::optional<double> previous;
-    for (int frame = 0; frame < kHeadingStableReadMaxFrames; ++frame) {
-        if (frame > 0) {
-            utils::SleepFor(kHeadingStableReadIntervalMs);
-        }
-        if (!ctx.position_provider->Capture(ctx.position, false, ctx.session->current_zone_id())
-            || ctx.position_provider->LastCaptureWasHeld()) {
-            continue;
-        }
-        const double current = NaviMath::NormalizeAngle(ctx.position->angle);
-        if (previous && std::abs(NaviMath::NormalizeAngle(current - *previous)) <= kHeadingStableReadToleranceDeg) {
-            *out_heading = current;
-            return true;
-        }
-        previous = current;
-    }
-    return false;
+    return CaptureStableHeadingImpl(ctx, out_heading, [](int frame) { return frame < kHeadingStableReadMaxFrames; });
+}
+
+bool CaptureStableHeadingUntil(const Context& ctx, double* out_heading, std::chrono::steady_clock::time_point deadline)
+{
+    const auto interval = std::chrono::milliseconds(kHeadingStableReadIntervalMs);
+    return CaptureStableHeadingImpl(ctx, out_heading, [&](int frame) {
+        const auto now = std::chrono::steady_clock::now();
+        return frame == 0 ? now < deadline : now + interval <= deadline;
+    });
 }
 
 void StopMotionAndCommitment(const Context& ctx)
@@ -432,6 +466,88 @@ double VerifyAndCorrectHeading(const Context& ctx, double target_heading, double
         }
     }
     return achieved;
+}
+
+bool SettleAtStrictGoal(const Context& ctx, const Waypoint& waypoint)
+{
+    const auto started = std::chrono::steady_clock::now();
+    // 全程按着前进键: 松手再转镜头只有镜头会动, 角色朝向不变, 迈出去的那步还是走老方向。按着转才跟
+    // 主循环的操舵是同一回事, 走路态本身就慢, 也没有需要先刹掉的滑行
+    ctx.motion_controller->SetForwardState(true);
+
+    // The first leg measured is whatever the approach covered since the tick's fix, each later one is the step this
+    // loop walked. Either way its direction is where the character was pointing, which the minimap arrow can report
+    // flipped, and it costs no probe step. Its length doubles as the calibration that sizes the next step.
+    NaviPosition step_from = *ctx.position;
+    int step_ms = 0;
+    std::optional<double> heading;
+    double wu_per_ms = 0.0;
+    int stalled_steps = 0;
+
+    for (int correction = 0; correction <= kStrictSettleMaxCorrections; ++correction) {
+        NaviPosition fix {};
+        if (!CaptureCleanFix(ctx, &fix)) {
+            StopMotionAndCommitment(ctx);
+            LogWarn << "Strict arrival settle gave up: no locator fix." << VAR(correction);
+            return false;
+        }
+
+        const double travelled = std::hypot(fix.x - step_from.x, fix.y - step_from.y);
+        if (travelled >= kStrictSettleStalledStepWu) {
+            heading = NaviMath::CalcTargetRotation(step_from.x, step_from.y, fix.x, fix.y);
+            stalled_steps = 0;
+            if (step_ms > 0) {
+                wu_per_ms = travelled / static_cast<double>(step_ms);
+            }
+        }
+        else if (step_ms > 0) {
+            ++stalled_steps;
+        }
+
+        const double residual = std::hypot(waypoint.x - fix.x, waypoint.y - fix.y);
+        if (residual <= kStrictSettleAcceptBandWu) {
+            StopMotionAndCommitment(ctx);
+            LogInfo << "Strict arrival verified." << VAR(residual) << VAR(correction) << VAR(fix.x) << VAR(fix.y);
+            return true;
+        }
+
+        const int64_t elapsed_ms =
+            std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - started).count();
+        if (correction == kStrictSettleMaxCorrections || stalled_steps >= kStrictSettleStalledSteps
+            || elapsed_ms >= kStrictSettleBudgetMs) {
+            StopMotionAndCommitment(ctx);
+            LogWarn << "Strict arrival settle gave up, accepting on band." << VAR(residual) << VAR(correction) << VAR(stalled_steps)
+                    << VAR(elapsed_ms) << VAR(fix.x) << VAR(fix.y);
+            return false;
+        }
+
+        const double bearing = NaviMath::CalcTargetRotation(fix.x, fix.y, waypoint.x, waypoint.y);
+        const double from_heading = heading ? *heading : NaviMath::NormalizeHeading(fix.angle);
+        // Sized by what is left, floored at the stationary latch: a shorter step cannot be told apart from not having
+        // moved, so it would also destroy the only test for a step that is being blocked.
+        const double step_wu = std::max(residual, kStrictSettleMinStepWu);
+        const int step_hold_ms =
+            wu_per_ms > 0.0 ? std::clamp(static_cast<int>(std::lround(step_wu / wu_per_ms)), kStrictSettleMinStepMs, kStrictSettleMaxStepMs)
+                            : kStrictSettleStepMs;
+
+        LogInfo << "Strict arrival correcting." << VAR(residual) << VAR(bearing) << VAR(from_heading) << VAR(step_wu) << VAR(step_hold_ms)
+                << VAR(correction);
+        const auto step_started = std::chrono::steady_clock::now();
+        if (!TurnToHeadingOnce(ctx, NaviMath::CalcDeltaRotation(from_heading, bearing))) {
+            StopMotionAndCommitment(ctx);
+            LogWarn << "Strict arrival settle gave up: view delta rejected." << VAR(residual) << VAR(correction);
+            return false;
+        }
+        heading = bearing;
+        utils::SleepFor(step_hold_ms);
+
+        // 转身那阵子人也在走, 所以这一步有多长要按真实经过的时间算, 拿 sleep 的长度会把速度估高
+        step_from = fix;
+        step_ms = static_cast<int>(
+            std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - step_started).count());
+    }
+    StopMotionAndCommitment(ctx);
+    return false;
 }
 
 Result TickSemanticFlow(const Context& ctx, NaviPhase phase)
@@ -592,8 +708,8 @@ Result HandleArrivalSemantic(const Context& ctx, const Waypoint& waypoint, doubl
         StopMotionAndCommitment(ctx);
 
         LogInfo << "Action: INTERACT reached, running the authoritative recognition." << VAR(actual_distance)
-                << VAR(waypoint.interact_text.size()) << VAR(waypoint.interact_scan);
-        RunPromptSubtask(ctx.maa_context, kInteractPromptSpec, &waypoint.interact_text);
+                << VAR(waypoint.interact_text.size()) << VAR(waypoint.interact_scan) << VAR(waypoint.interact_rec);
+        RunPromptSubtask(ctx.maa_context, kInteractPromptSpec, &waypoint.interact_text, waypoint.interact_rec);
 
         ctx.session->NoteCanonicalFinalGoalConsumed(arrived_absolute_node_idx, *ctx.position, "async_interact_completed");
         ctx.session->AdvanceToNextWaypoint(waypoint.action, "async_interact_completed");

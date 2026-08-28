@@ -19,6 +19,7 @@ struct TemplateRecord
     int rarity = 0;
     std::string icon_id;
     std::string fluid_icon_id;
+    bool region_restricted = false;
 };
 
 struct PreparedTemplate
@@ -27,6 +28,7 @@ struct PreparedTemplate
     cv::Mat image;
     cv::Mat mask;
     bool composite = false;
+    bool region_unavailable = false;
 };
 
 cv::Mat DecodeBgra(const std::filesystem::path& path);

@@ -179,6 +179,11 @@ export function getZoneIds() {
   return getJson('/api/zone-ids');
 }
 
+/** World-coordinate calibration used only to display ZIP-local Ziplines.json marks. */
+export function getZiplineFrames() {
+  return getJson('/api/zipline-frames');
+}
+
 /**
  * Request an A* preview route. Resolves the backend payload verbatim, including the
  * `{ok:false, error}` "unreachable" case (see module note).
@@ -266,15 +271,39 @@ export function locateOnce(connection) {
   return sendJson('/api/locate-once', { connection });
 }
 
-// --- import / export (backend keeps json_import.py / maptracker_compat.py) ------------
+// --- import / export (backend keeps json_import.py) -----------------------------------
+
+/**
+ * Importable MapNavigateAction / MapLocateAssertLocation nodes under project assets.
+ * @returns {Promise<{nodes:Array<Object>}>}
+ */
+export function getProjectNodes() {
+  return getJson('/api/project-nodes');
+}
+
+/**
+ * Load one previously discovered project node. The backend revalidates that
+ * `resourcePath` still resolves inside project assets before reading it.
+ * @param {'path'|'assert'} kind import node kind
+ * @param {string} resourcePath project-relative assets path
+ * @param {string} nodeName top-level Pipeline node name
+ * @returns {Promise<Object>}
+ */
+export function loadProjectNode(kind, resourcePath, nodeName) {
+  return sendJson('/api/project-nodes/load', {
+    kind,
+    resource_path: resourcePath,
+    node_name: nodeName,
+  });
+}
 
 /**
  * Analyze an uploaded JSON (phase 1 of import, mirrors the head of tk `import_json`).
  * The backend tries a route import first, falling back to an AssertLocation import.
  * Discriminated by `kind`:
- *   - `{ok:true, kind:'path', needs_assignment:false, points, route_count, converted_count}`
- *   - `{ok:true, kind:'path', needs_assignment:true, raw_points, segments, zone_options, route_count, converted_count}`
- *   - `{ok:true, kind:'assert', zone_id, target, condition_count, converted_from_maptracker}`
+ *   - `{ok:true, kind:'path', needs_assignment:false, points, route_count}`
+ *   - `{ok:true, kind:'path', needs_assignment:true, raw_points, segments, zone_options, route_count}`
+ *   - `{ok:true, kind:'assert', zone_id, target, condition_count}`
  *   - `{ok:false, error}` (verbatim Chinese message)
  * @param {string} text raw file contents
  * @returns {Promise<Object>}
@@ -285,10 +314,10 @@ export function importAnalyze(text) {
 
 /**
  * Finalize a route import after the user assigns a zone per segment (phase 2, mirrors
- * tk `confirm()` + the post-dialog convert/infer/normalize tail).
+ * tk `confirm()` + the post-dialog normalize tail).
  * @param {Array<Object>} rawPoints the `raw_points` from {@link importAnalyze}
  * @param {Array<{start:number, end:number, zone:string}>} zoneAssignments per-segment zone
- * @returns {Promise<{ok:boolean, points?:Array<Object>, converted_count?:number, error?:string}>}
+ * @returns {Promise<{ok:boolean, points?:Array<Object>, error?:string}>}
  */
 export function importFinalize(rawPoints, zoneAssignments) {
   return sendJson('/api/import/finalize', { raw_points: rawPoints, zone_assignments: zoneAssignments });
@@ -359,12 +388,11 @@ export function getAdbDevices(adbPath = '') {
 }
 
 /**
- * Enumerate Wayland sockets under `$XDG_RUNTIME_DIR` (name contains "wayland"),
- * plus the computed default socket path.
- * @returns {Promise<{sockets:string[], default:string}>}
+ * Enumerate running gamescope instances (display no, PipeWire node, EIS socket).
+ * @returns {Promise<{instances:Array<{display_no:number, pw_node_id:number, eis_socket_path:string}>}>}
  */
-export function getWlrootsSockets() {
-  return getJson('/api/wlroots/sockets');
+export function getGamescopeInstances() {
+  return getJson('/api/gamescope/instances');
 }
 
 // --- game sessions (WebSocket) -------------------------------------------------------

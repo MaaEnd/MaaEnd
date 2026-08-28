@@ -11,6 +11,7 @@
 #include <tuple>
 #include <vector>
 
+#include "ForegroundTexture.h"
 #include "GridFeatures.h"
 #include "GridGeometry.h"
 
@@ -47,6 +48,10 @@ constexpr int kLocalPeakNeighborhoodSize = 5;
 constexpr float kLocalPeakEqualityTolerance = 1e-7F;
 // 传输网格候选至少覆盖的槽位比例；调高减少破碎误检，调低可召回遮挡较多的网格。
 constexpr double kTransferHypothesisMinimumOccupancy = 0.42;
+// 稀疏单行候选中非空物品格的最低纹理覆盖率；调高抑制背景伪网格，调低可召回暗淡物品。
+constexpr double kMinimumSparseTransferTextureCoverage = 0.50;
+// 已有多行候选达到该覆盖率时，优先保留多行结构，避免单行局部纹理截断正常背包。
+constexpr double kMinimumStructuredTransferTextureCoverage = 0.60;
 // 宽 ROI 中单侧候选的最大宽度比例；调大可能把左右两侧合并，调小可能截断真实面板。
 constexpr double kTransferLocalizedMaximumWidthRatio = 0.70;
 // 独立局部候选相对最强候选的最低分数；调高只保留强面板，调低可保留弱面板但增加冲突。
@@ -155,7 +160,23 @@ struct TransferHypothesis
     int rows = 0;
     std::vector<int> x_starts;
     std::vector<int> y_starts;
+    double foreground_texture_coverage = 0.0;
 };
+
+double ForegroundTextureCoverage(const cv::Mat& crop, const TransferHypothesis& hypothesis)
+{
+    int textured_cells = 0;
+    int total_cells = 0;
+    for (int y : hypothesis.y_starts) {
+        for (int x : hypothesis.x_starts) {
+            ++total_cells;
+            if (!IsLowTexture(crop, cv::Rect(x, y, kBaseTransferProfile.cell_size, kBaseTransferProfile.cell_size), GridType::Transfer)) {
+                ++textured_cells;
+            }
+        }
+    }
+    return total_cells == 0 ? 0.0 : static_cast<double>(textured_cells) / total_cells;
+}
 
 std::vector<Peak> local_peaks(const cv::Mat& score, int maximum)
 {
@@ -434,7 +455,7 @@ std::vector<cv::Rect> discover_transfer_regions(const cv::Mat& crop)
     return { cv::Rect(0, 0, left_x2, crop.rows), cv::Rect(right_x1, 0, crop.cols - right_x1, crop.rows) };
 }
 
-std::optional<TransferHypothesis> select_grid_hypothesis(const cv::Mat& crop)
+std::optional<TransferHypothesis> select_grid_hypothesis(const cv::Mat& crop, bool require_texture)
 {
     const int maximum_columns = std::max(1, (crop.cols - kBaseTransferProfile.cell_size) / kBaseTransferProfile.pitch_min + 1);
     const int maximum_rows = std::max(1, (crop.rows - kBaseTransferProfile.cell_size) / kBaseTransferProfile.pitch_min + 1);
@@ -451,15 +472,69 @@ std::optional<TransferHypothesis> select_grid_hypothesis(const cv::Mat& crop)
         return filtered;
     };
     auto hypotheses = candidates(3);
+    for (auto& hypothesis : hypotheses) {
+        hypothesis.foreground_texture_coverage = ForegroundTextureCoverage(crop, hypothesis);
+    }
+    const bool has_reliable_multirow = std::ranges::any_of(hypotheses, [](const auto& hypothesis) {
+        return hypothesis.rows >= 2 && hypothesis.foreground_texture_coverage >= kMinimumStructuredTransferTextureCoverage;
+    });
+    const auto sparse_candidates = candidates(1);
+    if (!has_reliable_multirow) {
+        for (auto candidate : sparse_candidates) {
+            if (candidate.rows != 1 || candidate.columns < 3) {
+                continue;
+            }
+            candidate.foreground_texture_coverage = ForegroundTextureCoverage(crop, candidate);
+            if (candidate.foreground_texture_coverage >= kMinimumSparseTransferTextureCoverage) {
+                hypotheses.push_back(std::move(candidate));
+            }
+        }
+    }
     if (hypotheses.empty()) {
-        hypotheses = candidates(1);
+        for (auto candidate : sparse_candidates) {
+            candidate.foreground_texture_coverage = ForegroundTextureCoverage(crop, candidate);
+            if (candidate.foreground_texture_coverage > 0.0) {
+                hypotheses.push_back(std::move(candidate));
+            }
+        }
     }
     if (hypotheses.empty()) {
         return std::nullopt;
     }
-    const auto rank = [](const TransferHypothesis& item) {
-        return std::tuple {
-            item.columns, -item.rect.x, item.columns == 7 ? 0 : item.rows, item.occupancy, item.score, item.rows, -item.rect.y,
+    const bool has_reliable_texture_evidence = std::ranges::any_of(hypotheses, [](const TransferHypothesis& hypothesis) {
+        return hypothesis.foreground_texture_coverage >= kMinimumSparseTransferTextureCoverage;
+    });
+    if (require_texture) {
+        std::erase_if(hypotheses, [has_reliable_texture_evidence](const TransferHypothesis& hypothesis) {
+            return has_reliable_texture_evidence ? hypothesis.foreground_texture_coverage < kMinimumSparseTransferTextureCoverage
+                                                 : hypothesis.foreground_texture_coverage <= 0.0;
+        });
+    }
+    if (hypotheses.empty()) {
+        return std::nullopt;
+    }
+    const auto rank = [require_texture](const TransferHypothesis& item) {
+        if (require_texture) {
+            return std::tuple<double, double, double, double, double, double, double, double> {
+                static_cast<double>(item.columns),
+                item.foreground_texture_coverage,
+                static_cast<double>(item.columns == 7 ? 0 : item.rows),
+                static_cast<double>(-item.rect.x),
+                item.occupancy,
+                item.score,
+                static_cast<double>(item.rows),
+                static_cast<double>(-item.rect.y),
+            };
+        }
+        return std::tuple<double, double, double, double, double, double, double, double> {
+            static_cast<double>(item.columns),
+            static_cast<double>(-item.rect.x),
+            static_cast<double>(item.columns == 7 ? 0 : item.rows),
+            item.occupancy,
+            item.score,
+            static_cast<double>(item.rows),
+            static_cast<double>(-item.rect.y),
+            0.0,
         };
     };
     return *std::ranges::max_element(hypotheses, {}, rank);
@@ -474,6 +549,7 @@ TransferGridHint to_hint(const TransferHypothesis& hypothesis, const cv::Rect& r
         .occupancy = hypothesis.occupancy,
         .x_starts = hypothesis.x_starts,
         .y_starts = hypothesis.y_starts,
+        .foreground_texture_coverage = hypothesis.foreground_texture_coverage,
     };
     for (int& value : hint.x_starts) {
         value += offset_x;
@@ -525,8 +601,8 @@ std::optional<double> GridScaleForControllerType(std::string_view controller_typ
     const auto matches_any = [&](const auto& candidates) {
         return std::ranges::any_of(candidates, equals_ignore_case);
     };
-    // Linux/WlRoots 与 MacOS 暂按标准桌面 profile 处理；这些别名尚无独立截图数据验证。
-    constexpr std::array<std::string_view, 4> kStandardControllerTypes { "Win32", "Linux", "WlRoots", "MacOS" };
+    // Linux 与 MacOS 暂按标准桌面 profile 处理；这些别名尚无独立截图数据验证。
+    constexpr std::array<std::string_view, 4> kStandardControllerTypes { "Win32", "Linux", "MacOS" };
     // CloudADB 的 MaaController type 是 Adb，因此放大 profile 会自然覆盖 CloudADB；PlayCover 暂沿用该 profile。
     constexpr std::array<std::string_view, 2> kAdbControllerTypes { "Adb", "PlayCover" };
     if (matches_any(kAdbControllerTypes)) {
@@ -680,17 +756,23 @@ std::vector<TransferGridHint> DiscoverTransferGridHints(const cv::Mat& crop, boo
         return combined;
     }
     const auto regions = discover_transfer_regions(crop);
-    const auto broad =
-        phase_hypotheses(crop, kTransferDiscoveryPitchRange, kTransferDiscoveryMinimumColumns, kTransferDiscoveryMinimumRows);
+    auto broad = phase_hypotheses(crop, kTransferDiscoveryPitchRange, kTransferDiscoveryMinimumColumns, kTransferDiscoveryMinimumRows);
+    for (auto& hypothesis : broad) {
+        hypothesis.foreground_texture_coverage = ForegroundTextureCoverage(crop, hypothesis);
+    }
+    const bool broad_has_texture_evidence =
+        std::ranges::any_of(broad, [](const TransferHypothesis& hypothesis) { return hypothesis.foreground_texture_coverage > 0.0; });
     std::vector<TransferGridHint> hints;
     for (const auto& raw_region : regions) {
         const cv::Rect region(raw_region.x, 0, raw_region.width, crop.rows);
         std::vector<TransferGridHint> candidates;
-        if (const auto local = select_grid_hypothesis(crop(region))) {
+        if (const auto local = select_grid_hypothesis(crop(region), structural_rank)) {
             candidates.push_back(to_hint(*local, region, region.x));
         }
         for (const auto& hypothesis : broad) {
-            if (hypothesis.rect.x >= region.x && hypothesis.rect.x + hypothesis.rect.width <= region.x + region.width) {
+            if ((!structural_rank || !broad_has_texture_evidence
+                 || hypothesis.foreground_texture_coverage >= kMinimumSparseTransferTextureCoverage)
+                && hypothesis.rect.x >= region.x && hypothesis.rect.x + hypothesis.rect.width <= region.x + region.width) {
                 candidates.push_back(to_hint(hypothesis, region, 0));
             }
         }
@@ -705,8 +787,9 @@ std::vector<TransferGridHint> DiscoverTransferGridHints(const cv::Mat& crop, boo
             }
             const double pitch = spacings.empty() ? kBaseTransferProfile.preferred_pitch : Median(spacings);
             if (structural_rank) {
-                return std::tuple<double, double, double, double, double, double, double> {
+                return std::tuple<double, double, double, double, double, double, double, double> {
                     static_cast<double>(columns),
+                    hint.foreground_texture_coverage,
                     static_cast<double>(columns == 7 ? 0 : hint.y_starts.size()),
                     hint.occupancy,
                     hint.score,
@@ -715,12 +798,13 @@ std::vector<TransferGridHint> DiscoverTransferGridHints(const cv::Mat& crop, boo
                     static_cast<double>(hint.y_starts.size()),
                 };
             }
-            return std::tuple<double, double, double, double, double, double, double> {
+            return std::tuple<double, double, double, double, double, double, double, double> {
                 static_cast<double>(columns),
                 static_cast<double>(-(hint.rect.x - hint.region.x)),
                 static_cast<double>(columns == 7 ? 0 : hint.y_starts.size()),
                 hint.occupancy,
                 hint.score,
+                -std::abs(pitch - kBaseTransferProfile.preferred_pitch),
                 static_cast<double>(hint.y_starts.size()),
                 static_cast<double>(-hint.rect.y),
             };

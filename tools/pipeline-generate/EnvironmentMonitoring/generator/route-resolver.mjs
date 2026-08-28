@@ -214,6 +214,7 @@ export function createRouteResolver(routeConfig, options = {}) {
                 Replace,
                 QuickTeleport,
                 IsDirectPhoto: isAdapted && isDirectPhoto,
+                FightAfterMove: override?.FightAfterMove === true,
                 // NavPath 路线传送后交给 MapNavigateAction 自行接管落点，不再复核起点
                 ShouldAssertAfterTeleport: !isDirectPhoto && !hasNavRoute,
                 ...heading,

@@ -7,7 +7,7 @@
 fastapi
 uvicorn
 websockets
-maafw
+maafw==5.13.0b4
 pynput>=1.7.0
 pyperclip
 numpy

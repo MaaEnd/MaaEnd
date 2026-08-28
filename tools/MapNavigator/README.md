@@ -6,30 +6,36 @@ MapNavigator 是用于 C++ MapNavigator 模块使用的地图路径录制与编�
 
 当前支持：
 
-- 通过统一的录制连接层在 `Win32`、`ADB` 与 `WlRoots`（Linux Wayland）之间切换。
+- 通过统一的录制连接层在 `Win32`、`ADB` 与 `Linux-Gamescope` 之间切换。
 - 录制地图路径并按区域切换浏览。
 - 导入已有 JSON/JSONC，递归搜索可识别的 `path` 数据并显示。
-- 导入 `MapTrackerMove` / `MapTrackerAssertLocation` 时自动按兼容表转换到 `MapNavigator` / `MapLocateAssertLocation` 的 Base 坐标系。
-- 导入时严格校验动作语义；未知动作会被拒绝，而不是静默降级。
 - 在跨区域边界自动将前一区域的最后一个点和后一区域的第一个点标记为 `PORTAL`。
 - GUI 动作编辑主要面向坐标点动作：`RUN / SPRINT / JUMP / FIGHT / INTERACT / PORTAL / TRANSFER / COLLECT / DIG`。
 - `COLLECT / DIG` 是采集/挖掘语义点：精确抵达后由 `MapNavigator` 同步触发 `AutoCollectClickStart` / `AutoCollectDigStart` pipeline 子任务，期间不退出 NaviController，避免每次采集都重建定位/重新 Bootstrap/吃掉起步宽限。
 - 支持为单个点标记 `strict`，用于要求该点必须精确抵达。
+- 支持为单个点标记 `required`。未启用滑索时按作者顺序执行全部节点；启用滑索后，中间的移动和兜底点可被全局规划跳过，`required` 用于标记必须抵达并执行的点。`ZONE`、`HEADING`、`COLLECT`、`DIG` 始终保留。
 - 支持为单个坐标点声明 `target_tier`；它只指定该点的坐标来源层级，不会改变 `ZONE` 或触发区域切换。
 - 默认复制 `MapNavigator` 可直接粘贴的 canonical `path`：有 zone 时写 `ZONE` 无坐标声明节点，没有 zone 时保留纯坐标点数组。
 - 支持独立的 `Assert 模式`：手动选择底图并框选矩形区域，导出 `MapLocateAssertLocation` 节点。
-- 支持 `A* 模式`：加载 BaseNav `.nav` / `.nav.gz` 后选择起点和终点，在 GUI 上显示计算路线。
-- 单次定位与录制期间都会显示 MapLocator 返回的实时坐标、区域和角色朝向；单次定位参考点还会在底图上绘制朝向箭头。
+- 支持 `A* 模式`：加载 BaseNav `.nav` / `.nav.gz` 后选择起点和终点，在 GUI 上显示计算路线；在 X / Y 任一坐标框粘贴 `[x, y]` 数组可自动回填两项，再点击 `标点` 显示目标预览点。
+- 支持只读的 `日志分析` 模式：浏览器本地导入一个或多个 `cpp-algo/debug/maafw*.log`，也可直接选择 MaaEnd 的 `-partNN.zip` 独立分包；工具逐条解压 cpp-algo 日志并读取同组 `record/Ziplines.json`，在对应底图上对照路线决策、实测轨迹、本次选择的滑索架和快照中的候选滑索架。
+- 在单次定位和录制过程中都会显示 MapLocator 返回的实时坐标、区域和角色朝向；单次定位参考点还会在底图上绘制朝向箭头。
+
+页面分为两个顶层工作区：`路线制作` 内含 A* 寻路、断言模式和路径编辑，并统一提供连接、实时位置与实机试跑；`日志分析` 是纯离线只读工作区，进入后隐藏这些实机能力和路线制作页签，同时暂停连接状态探测。切回路线制作时会恢复离开前使用的页签和编辑状态。
+
+三个路线制作页签都可通过 `选择项目节点` 扫描当前项目 `assets`：路径编辑载入 `MapNavigateAction` 继续编辑；A* 将同一底图中的坐标按原顺序作为目标点，导入一个或多个目标后都需要先在地图上单击补充手动起点，随后自动规划“手动起点 → 导入点 1 → 导入点 2…”；断言模式默认选择 `MapLocateAssertLocation`，也可切换到 `参考路线` 查看导航路径。列表支持按资源路径、节点名或区域搜索；每个页签都并列提供 `读取剪贴板` 按钮，可自动识别完整 Pipeline、单个导航或断言节点、`{"path": [...]}` 与纯 `path` 数组。导入时会严格校验动作语义，未知动作会直接拒绝，不会静默降级。
 
 当前需要注意：
 
 - `HEADING` 是无坐标控制节点，不属于 GUI 常规点编辑与导出模型，建议在导出 `path` 后手工补回或维护。
 - 运行时 `sprint_threshold` 的语义是“前方连续可跑段长度阈值”，不是只看当前点距离。
 
-## WlRoots 连接（Linux Wayland）
+## Linux-Gamescope 连接
 
-- 游戏合成器需支持 `wlr-screencopy-unstable-v1` 协议；建议游戏跑在嵌套合成器（如 gamescope）上，**不要连接当前桌面会话的 socket**（连错会截到桌面而不是游戏）。
-- socket 路径是完整路径（如 `/run/user/1000/wayland-0`），不一定是 `$WAYLAND_DISPLAY` 指向的那个；下拉候选来自 `$XDG_RUNTIME_DIR` 下的实际 socket 枚举。
+- 基于 maafw `LinuxController`（PipeWire 截屏 + libei 输入），从当前发现的 gamescope 实例里选一个即可录制，不再需要手填 socket 路径。
+- 需要游戏跑在 gamescope 上；下拉列表展示 `Toolkit.find_gamescope_instances()` 发现的实例（display 编号 + PipeWire 节点 + EIS socket）。
+- 仅录制截图，不投递输入；`screencap_method`/`input_method` 与 `assets/interface.json` 的 `Linux-Gamescope` 控制器条目保持一致。
+- 依赖 `maafw==5.13.0b4`（含 `LinuxController` 绑定；`5.12.x` 没有该控制器类）。
 
 ## 位置与朝向
 
@@ -108,6 +114,7 @@ MapNavigator 是用于 C++ MapNavigator 模块使用的地图路径录制与编�
 - 普通点的坐标来自 tier 底图时，在路点属性中填写 `坐标层级`，导出为 `{ "action": "ACTION", "target": [x, y], "target_tier": "..." }`；留空仍使用旧数组格式。
 - `target_tier` 只解释当前点的坐标系，与负责区域校验上下文的 `ZONE` 相互独立。
 - 严格点会导出为 `[x, y, true]` 或 `[x, y, "ACTION", true]`。
+- 必经点会改用对象格式并导出 `"required": true`；该字段与只控制到点精度的 `strict` 相互独立。
 - `NAVMESH` 点会导出为 `{ "action": "NAVMESH", "target": [x, y] }`，由运行时从当前位置自动寻路到目标。
 - 当前 GUI 导出的 canonical `path` 覆盖坐标点（`NAVMESH` 按对象格式导出）与 `ZONE` 声明，不会直接生成 `HEADING` 这类无坐标控制节点。
 - 复制出来的内容可以直接粘贴到 pipeline 的 `custom_action_param.path`。
@@ -120,7 +127,7 @@ MapNavigator 是用于 C++ MapNavigator 模块使用的地图路径录制与编�
 
 - 进入某段导航前，先判断人物是否已经站在预期区域内。
 - 需要对某个 zone 的局部矩形范围做纯判定。
-- 不希望引入 `MapTracker`，只想复用 `MapLocator` 当前的定位结果。
+- 只想复用 `MapLocator` 当前的定位结果，不额外跑一趟导航。
 
 ### 使用方式
 
@@ -191,7 +198,7 @@ dung01
 
 四个 zone 都会直接落到对应底图：`ValleyIV/Base.png`、`Wuling/Base.png`、`OMVBase/OMVBase01.png`、`Dung/Dung01Base.png`。
 
-在 A\* 模式点击目标点后，可以点击 `复制 JSON 配置` 复制目标式 `MapNavigateAction` 参数。该参数使用语义动作 `NAVMESH`，运行时会从当前定位位置自动寻路到 `target`，不需要手工维护 `path`：
+在 A\* 模式点击目标点后，可以点击 `复制路径` 复制目标式 `MapNavigateAction` 参数。该参数使用语义动作 `NAVMESH`，运行时会从当前定位位置自动寻路到 `target`，不需要手工维护 `path`：
 
 ```json
 {
@@ -207,9 +214,35 @@ dung01
 
 `.nav` 只连接 GLB 自身共享/重叠边，以及同高度的小距离 component bridge；不会为了跨 level 自动补 portal 或 drop link。游戏本身分离的 level 暂保持不可达。
 
+## 日志分析
+
+该模式用于解释运行时为什么选择步行或滑索，不修改路线，也不连接游戏。
+
+1. 切到顶层的 `日志分析` 工作区；该工作区不会显示连接与实机试跑设置。
+2. 直接选择同一 MaaEnd 日志包的全部 `-partNN.zip`，或导入解压后的一个或多个 `cpp-algo/debug/maafw*.log`。ZIP 分包会按去掉 `partNN` 的前缀合并，并检查分包编号是否连续。
+3. 按时间、节点名或文件名筛选并选择一次 `MapNavigateAction`。
+4. 页面会自动切到日志中的 BaseNav 区域并缩放到相关路径；侧栏逐段列出步行成本、滑索成本、节省量和运行时原始 `why=` 原因。
+5. 默认单击地图上的作者路径点、规划点、实测点或滑索架后，地图右上方才会出现点位详情浮动卡，列出来源、序号、坐标与相应运行信息；拖动地图仍是平移。
+6. 需要测量滑索架间距时，先点击地图右上角的测距工具；测距浮动卡会随即出现，再依次选择 A、B 两座滑索架。地图会画出测距虚线，浮动卡按运行时同款占地算法列出可能中心跨度范围、原始锚点距离、水平距离范围、高差、底图像素距离和几何连接判定。再次单击 A 或点击「清除」可取消选择；退出测距工具会隐藏浮动卡但保留已有结果，重新打开即可继续查看。
+
+地图标注含义：
+
+- 白色虚线：请求参数中的作者路径提示。
+- 粉色实线：运行时实际采用的步行规划。
+- 绿色实线：`PositionProvider::Capture` 中 MapLocator 成功且非保持的实测地面轨迹；滑索飞行和定位空窗会切断折线，不会用推测位置补齐。
+- 琥珀色虚线：规划器计算过、但因选择滑索而未采用的步行基线。
+- 青色箭头：日志已记录发射、并由 `ride landed` 确认落地的滑索跳。
+- `索1、索2……` 圆点：运行日志中可定位的本次选择滑索架。青色实心表示实际已经过，琥珀空心表示日志未确认经过；点中后出现的浮动卡同时列出 `[x, y, height]`，高度会优先从同组 ZIP 快照的同位置标记补齐。
+- 紫色菱形：同组 ZIP 的 `record/Ziplines.json` 经仓库标定投影后的候选滑索架。深色描边和白色中心点用于在浅色底图上保持清晰；这里只按地图与滑索模板类型筛选，可能仍包含未供电、楼层不符、不可达或被成本规则排除的架子。
+- 点位十字外圈与标题：默认查看工具当前选中的点位；它与滑索架测距是两套独立状态。
+- A / B 外圈与两点间虚线：开启右上角测距工具后手动选择的测距对象。森空岛记录的是随朝向变化的角格锚点，因此主结果按两端 `footprint` 显示可能中心的世界三维跨度范围（米）；高度差原样参与，不应用占地偏移。与运行时一致，同类型、同 `level_id` 且范围下界不超过该类型 `max_span` 时只标为“几何上可连接”。这不代表供电、可达性、禁用边与成本规划均已通过，实际能否采用仍以运行时决策为准。
+- 青色虚线：接近上索点与离开末端滑索的端点连接估计。当前日志没有记录这两段的完整折线，因此它们不是角色逐帧轨迹。
+
+运行日志不会为分析功能额外输出完整滑索快照：本次选择只使用既有的首尾架、实际发射落点和落地确认，未执行链的中间架可能只能通过候选背景点与架数判断。ZIP 只解压 `cpp-algo/debug/maafw*.log` 和 `record/Ziplines.json`，逐条解析后释放日志文本；其他附件会被跳过。所有日志和滑索快照均由浏览器本地读取，不会上传到后端。日志模式只提供只读点位查看、测距、缩放和平移，也不会向实机试跑装载路线。
+
 ## 实机试跑
 
-左侧「连接状态」下方、页签之上的“实机试跑”面板对三个页签一律可用，跑的永远是**当前页签里那一份**：路径编辑跑编辑器路点，A\* 跑「复制配置」会给出的那串 `NAVMESH` 目标（同一处口径，两者不会漂移），断言模式跑的是画出来的那个框——原样交给 `MapLocateAssertLocation` 认一次，人在框里就提示通过、不在就提示不通过，不加额外判定。改完自动重新装载，不必手动同步。
+`路线制作` 工作区中的“实机试跑”面板对三个制作页签可用，跑的永远是**当前页签里那一份**：路径编辑跑编辑器路点，A\* 跑「复制路径」会给出的那串 `NAVMESH` 目标（同一处口径，两者不会漂移），断言模式跑的是画出来的那个框——原样交给 `MapLocateAssertLocation` 认一次，人在框里就提示通过、不在就提示不通过，不加额外判定。改完自动重新装载，不必手动同步。切到 `日志分析` 工作区后，连接与试跑面板会隐藏且连接状态探测暂停。
 
 - **开始试跑 (F3)**：没有会话时连接游戏（Windows 非管理员会先请求提权），连上立即开跑；会话还在时直接重跑。
 - **终止试跑 (F4)**：正在跑就停下这一轮，人立即松手；已经停着则结束会话、放开游戏。
@@ -262,7 +295,6 @@ uv run main.py
 - `clipboard.py`: 系统剪贴板写入（G 热键复制坐标）。
 - `navmesh_backend.py`: navmesh 查询后端，把 cpp-algo agent 当作常驻查询进程；几何解码、吸附、路线都在 agent 里算。
 - `json_import.py`: JSON/JSONC 导入解析与动作语义校验。
-- `maptracker_compat.py`: `MapTracker*` 节点到 Base 坐标系的兼容转换表。
 - `key_listener.py`: 录制期间的全局按键监听与系统权限检查。
 - `model.py`: 路径数据结构、动作类型与路径规范化工具。
 - `runtime.py`: 项目路径定位与 maafw 运行时加载。

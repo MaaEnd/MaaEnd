@@ -9,7 +9,7 @@
 1. `IconRecognitionRecognition.cpp` 把 MaaFramework 回调参数转换为 `RecognitionRequest`，调用核心识别器，并把 `RecognitionResult` 写回 Maa detail；
 2. `IconRecognizer.cpp` 校验请求、加载候选模板、调用网格检测、逐格匹配并汇总结果；
 3. `detail/GridDetector.cpp` 解析网格比例，必要时用局部临时图归一化网格检测，并返回已经映射到原图的 `GridDetection`；该层不参与 catalog 过滤和图标分类；
-4. `detail/TemplateCatalog.cpp`、`RarityCandidates.cpp` 和 `IconMatcher.cpp` 负责候选准备、稀有度缩减与模板评分；
+4. `detail/CandidateSelector.cpp`、`TemplateCatalog.cpp`、`RarityCandidates.cpp` 和 `IconMatcher.cpp` 负责候选集合运算、模板准备、稀有度缩减与模板评分；
 5. `RecognitionDiagnostics.cpp` 和 `DebugCapture.cpp` 只记录内部诊断，不改变识别结果。
 
 直接调用 C++ API 时会跳过第一层，其余数据流与 Custom 入口相同。
@@ -43,7 +43,7 @@
 `IconRecognizer.cpp` 是识别流程的编排入口，负责：
 
 - 校验阈值、ROI 和候选过滤条件；
-- 按界面选择默认候选集与模板尺寸；
+- 按固定顺序计算基础交集、附加分类和排除 ID，并选择界面默认候选集与模板尺寸；
 - 调用网格定位或构造临时单格；
 - 按网格检测返回的比例直接从原始图标资源生成最终尺寸模板，并在输入原图上执行候选缩减、匹配、门控和诊断记录；
 - 排序、去重并生成稳定的错误结果。
@@ -57,7 +57,8 @@
 ### 模板与匹配层
 
 - `TemplateCatalog` 读取 catalog 并准备图标资源；
-- `TemplateTypes` 和 `CompositeIcon` 处理模板表示与复合图标；
+- `CandidateSelector` 负责候选集合运算和严格输入校验，不参与图像评分；
+- `TemplateTypes` 和 `CompositeIcon` 处理模板表示与复合图标，`DisabledIcon` 负责生成当前地区不可用物品的模板；
 - `MaskPolicy` 生成界面适配的匹配遮罩；
 - `RarityClassifier` 与 `RarityCandidates` 缩小候选集合；
 - `IconMatcher` 和 `SubpixelMatcher` 计算基础分与精细相位分；
@@ -65,12 +66,14 @@
 
 候选过滤只改变参与评分的模板集合，不得改变网格位置。模板评分也不得反向修改已经确定的格子几何。
 
+`TemplateCatalog::load()` 与 `loadRegionUnavailable()` 分别维护普通模板和当前地区不可用模板的缓存；后者只处理 `regionRestricted=true` 的记录。默认请求不读取叠加素材，显式启用的 preload 会在并发识别前完成预热。`IconRecognizer` 对两类模板复用同一个单格评估流程，模板合成与后备顺序见[识别算法](algorithm.md#候选选择与图标匹配)。
+
 ### 诊断层
 
 内部诊断分为网格级与格子级：
 
 - 网格级记录候选比较、规则网格拟合和回退原因；
-- 格子级记录候选模板、分数、稀有度缩减，以及候选为何没有进入公开结果；
+- 格子级记录候选模板、分数、稀有度缩减、是否使用禁用后备，以及候选为何没有进入公开结果；
 - 性能诊断记录各阶段耗时与模板数量。
 
 正常执行到结果汇总阶段时会收集网格级和格子级诊断；提前返回的 `invalid_image` 或 `exception` 可能不包含诊断。这些诊断供内部实现、debug 文件和人工测试使用；性能诊断以及 Custom 入口的 debug 文件由 debug 开关控制。添加诊断字段时，需要同步人工测试输出；除非公开契约确实需要，否则不要修改 `RecognitionResult::to_json()`。

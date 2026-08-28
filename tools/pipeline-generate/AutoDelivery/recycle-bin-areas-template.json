@@ -1,0 +1,47 @@
+{
+    "AutoDeliveryViewRecycleBin${AreaId}Map": {
+        "desc": "当前已追踪${AreaName}资源回收站任务时，打开任务目标地图",
+        "recognition": "And",
+        "all_of": [
+            "TrackedMissionMapButton"
+        ],
+        "box_index": 0,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 500,
+        "next": [
+            "AutoDeliveryRecycleBin${AreaId}InDestinationMap"
+        ]
+    },
+    "AutoDeliveryStartTrackingRecycleBin${AreaId}": {
+        "desc": "开始追踪${AreaName}资源回收站任务并打开任务目标地图",
+        "recognition": "And",
+        "all_of": [
+            "AutoDeliveryStartTrackingButton"
+        ],
+        "box_index": 0,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 500,
+        "next": [
+            "AutoDeliveryRecycleBin${AreaId}InDestinationMap"
+        ]
+    },
+    "AutoDeliveryRecycleBin${AreaId}InDestinationMap": {
+        "desc": "确认已打开${AreaName}资源回收站任务地图，并关闭任务窗口后检查地图图标",
+        "recognition": "And",
+        "all_of": [
+            "CloseButtonType1",
+            "AutoDeliveryTaskDestinationMap"
+        ],
+        "box_index": 0,
+        "action": "Click",
+        "post_wait_freezes": 500,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": "${CandidateNodes}"
+    }
+}

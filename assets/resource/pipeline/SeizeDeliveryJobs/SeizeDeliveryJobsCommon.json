@@ -105,7 +105,7 @@
             "Node.Recognition.Succeeded": "已位于运送委托列表"
         }
     },
-    // ===== 从任意位置进入当前送货任务详情或地图界面的公共节点 =====
+    // ===== 从运送委托列表进入当前送货任务详情 =====
     "SeizeDeliveryJobsEnterCurrentJobDetail": {
         "desc": "从任意位置进入当前送货任务的详情界面",
         "pre_delay": 0,
@@ -115,43 +115,6 @@
         "post_delay": 0,
         "next": [
             "SeizeDeliveryJobsEnterWulingJobList"
-        ]
-    },
-    "SeizeDeliveryJobsEnterDestinationMap": {
-        "desc": "从任意位置进入当前送货任务的地图界面",
-        "pre_delay": 0,
-        "anchor": {
-            "SeizeDeliveryJobsAfterEnterWulingJobList": "__SeizeDeliveryJobsReadyToViewCurrentJob",
-            "SeizeDeliveryJobsAfterEnterCurrentJobDetail": ""
-        },
-        "post_delay": 0,
-        "next": [
-            "SeizeDeliveryJobsEnterWulingJobList"
-        ]
-    },
-    "SeizeDeliveryJobsEnterDestinationMapWithDestinationResolve": {
-        "desc": "进入当前送货任务详情，解析送货终点后再打开目的地地图",
-        "pre_delay": 0,
-        "anchor": {
-            "SeizeDeliveryJobsAfterEnterWulingJobList": "__SeizeDeliveryJobsReadyToViewCurrentJob",
-            "SeizeDeliveryJobsAfterEnterCurrentJobDetail": "SeizeDeliveryJobsResolveDestinationBeforeTeleportEntry",
-            "SeizeDeliveryJobsDepartureOnError": "SeizeDeliveryJobsFatalDeliveryNavigationFailed"
-        },
-        "post_delay": 0,
-        "next": [
-            "SeizeDeliveryJobsEnterWulingJobList"
-        ]
-    },
-    "SeizeDeliveryJobsViewDestinationMapAfterResolve": {
-        "desc": "任务详情检查完成后，点击定位或开始追踪以打开目的地地图",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "__SeizeDeliveryJobsViewDestinationMap",
-            "__SeizeDeliveryJobsStartTrackingTask"
         ]
     },
     "__SeizeDeliveryJobsReadyToViewCurrentJob": {
@@ -200,67 +163,10 @@
         "post_wait_freezes": 500, // 等待任务详情界面弹出
         "rate_limit": 500, // 加速等待任务详情界面弹出
         "next": [
-            "[Anchor]SeizeDeliveryJobsAfterEnterCurrentJobDetail",
-            "__SeizeDeliveryJobsViewDestinationMap",
-            "__SeizeDeliveryJobsStartTrackingTask"
+            "[Anchor]SeizeDeliveryJobsAfterEnterCurrentJobDetail"
         ],
         "focus": {
             "Node.Action.Starting": "打开当前任务详情"
-        }
-    },
-    "__SeizeDeliveryJobsViewDestinationMap": {
-        "desc": "在任务详情页面，点击定位按钮，打开大地图查看目的地",
-        "recognition": "And",
-        "all_of": [
-            "TrackedMissionMapButton"
-        ],
-        "action": "Click",
-        "rate_limit": 500, // 加速等待大地图弹出
-        "next": [
-            "__SeizeDeliveryJobsInDestinationMap"
-        ],
-        "focus": {
-            "Node.Action.Starting": "点击查看任务位置"
-        }
-    },
-    "__SeizeDeliveryJobsStartTrackingTask": {
-        "desc": "在任务详情页面，若没找到定位按钮，则点击开始追踪任务按钮",
-        "recognition": "TemplateMatch",
-        "roi": [
-            1070,
-            570,
-            200,
-            140
-        ],
-        "template": "Common/Button/WhiteConfirmButtonType1.png",
-        "order_by": "Score",
-        "action": "Click",
-        "rate_limit": 500, // 加速等待大地图弹出
-        "next": [
-            // 自游戏 1.4 版本开始，追踪任务按钮会直接打开大地图查看目的地，而非返回大世界
-            "__SeizeDeliveryJobsInDestinationMap"
-        ],
-        "focus": {
-            "Node.Action.Starting": "点击开始追踪任务"
-        }
-    },
-    "__SeizeDeliveryJobsInDestinationMap": {
-        "desc": "确认已打开目的地地图",
-        "recognition": "TemplateMatch",
-        "roi": [
-            900,
-            10,
-            130,
-            140
-        ],
-        "template": "SeizeDeliveryJobs/TrackTaskSuccess.png",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "[Anchor]SeizeDeliveryJobsAfterEnterDestinationMap" // 外部调用者需要覆写此锚点的所指
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "正在查看任务位置"
         }
     },
     // ===== 抢单核心识别（go 链式调用 + 价格下限过滤）=====

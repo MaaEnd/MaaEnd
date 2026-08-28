@@ -158,6 +158,10 @@ constexpr double kHighConfidenceOverride = 0.85;  // 压倒分：远跳但此分
 constexpr const char* kColdStartCollectingMessage = "Cold-start collecting.";
 constexpr double kSeamFallbackMinPeakScore = 0.0;
 
+// 小地图被遮挡时最长拒绝多久，超时放行以免长期被遮挡的点位彻底卡死。
+// 实测遮挡自行消散耗时 2.8~4.2s，取 5s 留余量；上界是导航起步等待定位的 10s 预算。
+constexpr int kOcclusionRejectTimeoutMs = 5000;
+
 // tracking 匹配低于此分时通知上层考虑改走全局搜索
 constexpr double kFastTrackingPassScore = 0.75;
 constexpr double kStableDeadband = 0.15;
@@ -181,8 +185,7 @@ constexpr int kArbiterReclaimStreak = 5;
 constexpr double kArbiterReclaimDriftDistance = 6.0;
 
 // 小地图与底图的像素尺度比，是底图导出时定死的资产属性。tier 图按游戏原生尺度导出，
-// base 图里只有 ValleyIV 被放大过 16/15。量法：拿 tier 图去 parent base 上匹配求峰，
-// 或读 maptracker_coordinate_transforms.json 里该 zone 的 scale_x 乘 65/64。
+// base 图里只有 ValleyIV 被放大过 16/15。量法：拿 tier 图去 parent base 上匹配求峰。
 inline double ZoneTemplateScale(const std::string& zoneId)
 {
     return zoneId == "ValleyIV_Base" ? 15.0 / 16.0 : 1.0;

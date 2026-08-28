@@ -56,6 +56,7 @@ export class NavTestController {
     this.socket = null;
     this.connected = false;
     this.running = false;
+    this.disabled = false;
     this._armTimer = 0;
     this._armSignature = '';
 
@@ -69,6 +70,10 @@ export class NavTestController {
    * @returns {void}
    */
   run() {
+    if (this.disabled) {
+      setStatus('日志分析模式为只读，不会向实机试跑装载路线。', '#f59e0b');
+      return;
+    }
     const route = this.getRoute();
     if (!route.path.length && !route.assert_target) {
       setStatus('当前页签里没有可试跑的东西: 先画出路线或断言框。', '#ef4444');
@@ -144,6 +149,28 @@ export class NavTestController {
     if (!this.socket || !this.connected) return;
     window.clearTimeout(this._armTimer);
     this._armTimer = window.setTimeout(() => this._armNow(), ARM_DEBOUNCE_MS);
+  }
+
+  /**
+   * Disable starting/re-running while the active tab is a read-only view. An idle live
+   * session is immediately armed with the empty route so the backend F3 hotkey cannot
+   * replay a previously selected editor route.
+   * @param {boolean} disabled
+   * @returns {void}
+   */
+  setDisabled(disabled) {
+    const next = !!disabled;
+    if (this.disabled === next) {
+      this._syncUi();
+      return;
+    }
+    this.disabled = next;
+    window.clearTimeout(this._armTimer);
+    if (this.socket && this.connected && !this.running) {
+      this._armSignature = this._signature();
+      this.socket.arm(this.getRoute());
+    }
+    this._syncUi();
   }
 
   /** @returns {void} */
@@ -232,12 +259,14 @@ export class NavTestController {
     const live = !!this.socket;
     const idle = live && !this.running;
     this.btnRun.textContent = live ? '重跑 (F3)' : '开始试跑 (F3)';
-    this.btnRun.disabled = this.running || (live && !this.connected);
+    this.btnRun.disabled = this.disabled || this.running || (live && !this.connected);
     this.btnStop.textContent = idle ? '结束会话 (F4)' : '终止试跑 (F4)';
     this.btnStop.disabled = !live;
     if (!live) {
       const route = this.getRoute();
-      if (route.assert_target) {
+      if (this.disabled) {
+        this.armedLabel.textContent = '日志分析模式为只读，不参与实机试跑';
+      } else if (route.assert_target) {
         this.armedLabel.textContent = '未连接游戏 ·「开始试跑」将连上游戏并检查这个框';
       } else if (route.path.length) {
         this.armedLabel.textContent = '未连接游戏 ·「开始试跑」将连上游戏并直接跑这条线';

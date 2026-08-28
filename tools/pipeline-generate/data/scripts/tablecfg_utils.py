@@ -3,12 +3,15 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from collections.abc import Callable, Sequence
 from pathlib import Path
-from typing import Any, Callable, Sequence
+from typing import Any
 
-
-DEFAULT_TABLE_CFG_DIR = Path.home() / "Downloads" / "TableCfg"
 DATA_DIR = Path(__file__).resolve().parent.parent
+MAAEND_REPO_DIR = DATA_DIR.parents[2]
+ENDFIELD_WORKSPACE_DIR = MAAEND_REPO_DIR.parent
+DEFAULT_TABLE_CFG_DIR = ENDFIELD_WORKSPACE_DIR / "BeyondTableCfg" / "TableCfg"
+DEFAULT_JSON_DATA_DIR = ENDFIELD_WORKSPACE_DIR / "BeyondMemoryPack" / "JsonData"
 
 LOCALE_TABLE_SUFFIXES = {
     "zh_cn": "CN",
@@ -42,14 +45,14 @@ def sorted_entries(record: dict[str, Any]) -> list[tuple[str, Any]]:
     return sorted(record.items(), key=lambda entry: entry[0])
 
 
-def unique_sorted_numbers(values: Any, label: str) -> list[int | float]:
-    numbers = assert_list(values, label)
+def unique_sorted_strings(values: Any, label: str) -> list[str]:
+    items = assert_list(values, label)
     if not all(
-        isinstance(value, (int, float)) and not isinstance(value, bool)
-        for value in numbers
+        isinstance(value, (str, int, float)) and not isinstance(value, bool)
+        for value in items
     ):
-        raise TableCfgError(f"{label} 包含非数值元素")
-    return sorted(set(numbers))
+        raise TableCfgError(f"{label} 包含无法转为字符串的元素")
+    return sorted({str(value) for value in items})
 
 
 def build_locale_tables(tables: dict[str, Any]) -> dict[str, dict[str, Any]]:
@@ -87,20 +90,26 @@ def intersects(left: Sequence[Any], right: Sequence[Any]) -> bool:
     return any(value in right_values for value in left)
 
 
+def resolve_json_paths(
+    directory: Path, file_names: Sequence[str], label: str
+) -> dict[str, Path]:
+    resolved_directory = directory.expanduser().resolve()
+    if not resolved_directory.is_dir():
+        raise TableCfgError(f"{label} 目录不存在：{resolved_directory}")
+
+    paths: dict[str, Path] = {}
+    for file_name in file_names:
+        path = resolved_directory / file_name
+        if not path.is_file():
+            raise TableCfgError(f"缺少 {label} 文件：{path}")
+        paths[file_name] = path
+    return paths
+
+
 def resolve_table_paths(
     table_cfg_dir: Path, table_names: Sequence[str]
 ) -> dict[str, Path]:
-    directory = table_cfg_dir.expanduser().resolve()
-    if not directory.is_dir():
-        raise TableCfgError(f"TableCfg 目录不存在：{directory}")
-
-    paths: dict[str, Path] = {}
-    for table_name in table_names:
-        path = directory / table_name
-        if not path.is_file():
-            raise TableCfgError(f"缺少 TableCfg 文件：{path}")
-        paths[table_name] = path
-    return paths
+    return resolve_json_paths(table_cfg_dir, table_names, "TableCfg")
 
 
 def load_tables(table_paths: dict[str, Path]) -> dict[str, Any]:
@@ -134,7 +143,9 @@ def write_dataset(output_path: Path, data: dict[str, Any]) -> None:
 
 
 def parse_arguments(
-    description: str, args: Sequence[str] | None = None
+    description: str,
+    output_path: Path,
+    args: Sequence[str] | None = None,
 ) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument(
@@ -142,6 +153,12 @@ def parse_arguments(
         type=Path,
         default=DEFAULT_TABLE_CFG_DIR,
         help=f"TableCfg 目录（默认：{DEFAULT_TABLE_CFG_DIR}）",
+    )
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=output_path,
+        help=f"输出文件（默认：{output_path}）",
     )
     parser.add_argument(
         "--force",
@@ -180,12 +197,12 @@ def run_cli(
     build_data: Callable[[dict[str, Any]], dict[str, Any]],
     args: Sequence[str] | None = None,
 ) -> int:
-    options = parse_arguments(description, args)
+    options = parse_arguments(description, output_path, args)
     try:
         sync_dataset(
             label=label,
             table_names=table_names,
-            output_path=output_path,
+            output_path=options.output,
             build_data=build_data,
             table_cfg_dir=options.table_cfg_dir,
             force=options.force,

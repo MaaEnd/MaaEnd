@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <chrono>
+#include <limits>
 #include <optional>
 #include <string>
 #include <vector>
@@ -20,7 +21,7 @@ namespace mapnavigator
 // INTERACT - 到达该点时刹车交互一次。路线给了 interact_text 则升级为异步交互：行进中检测到交互提示就停车
 //            跑一次子任务，到点时再兜底一次；没给文本就保持原语义——到点狂按F键。文字可以直接写，也可以写
 //            { "node": ... } 指一个 OCR 节点，多条路线共用一张表。interact_scan 只换预筛看什么，得配着
-//            interact_text 用。动作恒为交互键，不可换。
+//            interact_text 用。动作恒为交互键，不可换；写 interact_rec 走 rec 模式，只认提示不按键。
 // TRANSFER - 精确抵达该点后停住，等待机关/跳板/回传等把角色转移到下一段可达路径
 // PORTAL   - 跨区过渡节点，触发后进入盲走等待区域切换
 // HEADING  - 无坐标朝向节点，执行时只调整镜头到指定角度，再按下W继续前进
@@ -76,6 +77,17 @@ struct ZiplineRestand
     double y = 0.0;
 };
 
+// 执行侧判死过的一跳。重展开时滑索照常参与规划, 只是这两根架子之间的索不再是候选——
+// 不然重规划会再选中刚失败的链, 无限重试。坐标按规划产出的架子平面位置记; 链首航点站的
+// 是上索走位点而不是架子本身, 所以匹配放宽到 kZiplineHopBanMatchWu。
+struct ZiplineHopBan
+{
+    double from_x = 0.0;
+    double from_y = 0.0;
+    double to_x = 0.0;
+    double to_y = 0.0;
+};
+
 struct Waypoint
 {
     double x;
@@ -83,6 +95,9 @@ struct Waypoint
     ActionType action;
     bool has_position;
     bool strict_arrival;
+    // 线路里明写的那个 strict_arrival, 原样留一份。strict_arrival 本身还被解析器、展开器、bootstrap、
+    // 滑索当精度标志置位, 读它分不出是作者写的还是引擎自己加的
+    bool authored_strict_arrival;
     // 该点处的通道半宽 px, 0 = 未知(非 navmesh 规划的点)
     double corridor_clearance;
     bool heading_uses_target;
@@ -95,6 +110,10 @@ struct Waypoint
     // NAVMESH only: height of the overlapping deck this waypoint sits on. Pins the goal span for the leg
     // ending here and the start span for the leg leaving it. Unset -> full span set, unchanged.
     std::optional<double> target_deck_y;
+    // Authored path only: make this node a hard boundary between globally planned legs. Coordinate-bearing
+    // movement nodes are optional route/action hints by default. HEADING is an explicit control command;
+    // COLLECT and DIG are task-producing markers. Those three are intrinsic boundaries even without this flag.
+    bool route_required;
     // INTERACT 专用: 该点的提示文字, 停车后当 OCR expected 用。留空则不做这次确认, 该点也就不算异步交互
     std::vector<std::string> interact_text;
     // INTERACT 专用: 作者写的是 { "node": ... } 时先落在这里, 开跑前从那个 OCR 节点读出 expected 填进
@@ -103,10 +122,16 @@ struct Waypoint
     // INTERACT 专用: 行进预筛读 roi/template/threshold 的 TemplateMatch 节点, 留给提示长得不一样的业务;
     // 留空用出厂那份
     std::string interact_scan;
+    // INTERACT 专用: rec 模式, 只认提示不按键。判定圈、行进中提示停车都照旧, 按不按、按哪个留给业务侧决定。
+    // 写在路线顶层是整条路线的默认, 点上只能开不能关
+    bool interact_rec;
     // ZIPLINE only: 滑索落点。只由滑索规划写入; 缺这个字段的 ZIPLINE 点是配置写错了, 执行侧拒绝
     std::optional<ZiplineTarget> zipline_target;
     // ZIPLINE only: 备用站位, 只在上索按空一次之后才改瞄它。架子旁边没有供电结构就不写
     std::optional<ZiplineRestand> mount_restand;
+    // 展开路径专用: 这个点由原始作者 path 的哪一组(组首下标)展开而来。滑索链半路失败时按它把
+    // 进度折回作者路线重新展开; 作者原始点和运行时生成的点不带(= max)。
+    size_t authored_group_begin = std::numeric_limits<size_t>::max();
 
     double GetLookahead() const
     {
@@ -144,9 +169,41 @@ struct Waypoint
                || action == ActionType::NAVMESH || action == ActionType::DIG || action == ActionType::ZIPLINE;
     }
 
+    // 末端纠正到位才验收的点, 只认线路明写的 strict_arrival。不写 default: 加动作时漏归类, clang/gcc 会
+    // 报 -Wswitch; 真漏到运行期也按不纠正走, 那是这套东西上线前的行为
+    bool SettlesAtArrival() const
+    {
+        if (!has_position || !authored_strict_arrival) {
+            return false;
+        }
+        switch (action) {
+        // 滑索和传送门各有自己的站位与提交距离, 往圈心收反而站不上去
+        case ActionType::ZIPLINE:
+        case ActionType::PORTAL:
+        // 判出提示就地停车, 再往回走等于离开刚认下的那个目标
+        case ActionType::INTERACT:
+        case ActionType::COLLECT:
+            return false;
+        case ActionType::RUN:
+        case ActionType::SPRINT:
+        case ActionType::JUMP:
+        case ActionType::FIGHT:
+        case ActionType::TRANSFER:
+        case ActionType::HEADING:
+        case ActionType::NAVMESH:
+        case ActionType::ZONE:
+        case ActionType::DIG:
+            return true;
+        }
+        return false;
+    }
+
     // 路线说了停下后认什么才走异步交互。只换预筛不给文本的点走不通: 共用识别节点里的占位文本没被顶掉, 停下来
     // 也认不出东西, 所以那种点退回原语义而不是白停一次。
     bool IsAsyncInteract() const { return action == ActionType::INTERACT && !interact_text.empty(); }
+
+    // 不看有没有文本: 文本没解析出来的点会退回原语义(到点狂按F), 那正是 rec 模式要避开的
+    bool IsRecInteract() const { return action == ActionType::INTERACT && interact_rec; }
 
     // 走到跟前才算数的点: 交互提示得在屏幕上待得住, 所以判定圈、疾跑抑制、切走路都按同一套来
     // 上索点也认提示, 但只有链首那一次要认 —— 收不收得看运行时上没上索, 所以那道收紧在状态机里
@@ -155,6 +212,10 @@ struct Waypoint
     bool HasPosition() const { return has_position; }
 
     bool IsHeadingOnly() const { return action == ActionType::HEADING; }
+
+    bool IsIntrinsicRouteBoundary() const { return IsHeadingOnly() || action == ActionType::COLLECT || action == ActionType::DIG; }
+
+    bool ClosesGlobalRouteGroup() const { return route_required || IsIntrinsicRouteBoundary(); }
 
     bool IsZoneDeclaration() const { return action == ActionType::ZONE; }
 
@@ -166,10 +227,13 @@ struct Waypoint
         , action(ActionType::RUN)
         , has_position(true)
         , strict_arrival(false)
+        , authored_strict_arrival(false)
         , corridor_clearance(0.0)
         , heading_uses_target(false)
         , heading_angle(0.0)
         , zone_id()
+        , route_required(false)
+        , interact_rec(false)
     {
     }
 
@@ -179,10 +243,13 @@ struct Waypoint
         , action(waypoint_action)
         , has_position(true)
         , strict_arrival(false)
+        , authored_strict_arrival(false)
         , corridor_clearance(0.0)
         , heading_uses_target(false)
         , heading_angle(0.0)
         , zone_id()
+        , route_required(false)
+        , interact_rec(false)
     {
     }
 
@@ -226,6 +293,7 @@ struct NaviPosition
     double x = 0.0;
     double y = 0.0;
     double angle = 0.0;
+    double score = 0.0;
     bool valid = false;
     std::string zone_id;
     std::chrono::steady_clock::time_point timestamp;

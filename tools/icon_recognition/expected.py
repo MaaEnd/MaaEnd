@@ -12,10 +12,23 @@ from typing import Any
 
 
 LOCAL_SUFFIX = re.compile(r"\.local\d+(?=\.png$)", re.IGNORECASE)
+NATURAL_SORT_PART = re.compile(r"(\d+)")
 
 
-def _roi_text(roi: dict[str, Any]) -> str:
-    return f'[{roi["x"]},{roi["y"]},{roi["width"]},{roi["height"]}]'
+def _roi_text(roi: Any) -> str:
+    if not isinstance(roi, list) or len(roi) != 4:
+        raise ValueError("report ROI must be [x,y,width,height]")
+    if any(isinstance(value, bool) or not isinstance(value, int) for value in roi):
+        raise ValueError("report ROI values must be integers")
+    return f"[{','.join(str(value) for value in roi)}]"
+
+
+def _natural_sort_key(value: str) -> tuple[tuple[int, str | int], ...]:
+    """把路径中的连续数字按数值比较，避免 10 排在 9 前面。"""
+    return tuple(
+        (1, int(part)) if part.isdigit() else (0, part.casefold())
+        for part in NATURAL_SORT_PART.split(value)
+    )
 
 
 def merge_expected_results(
@@ -57,7 +70,15 @@ def merge_expected_results(
     with output.open("w", encoding="utf-8", newline="") as stream:
         writer = csv.writer(stream, lineterminator="\n")
         writer.writerow(["image", "roi", "item_id", "count"])
-        for (image, roi), counts in sorted(rows.items()):
+        ordered_rows = sorted(
+            rows.items(),
+            key=lambda entry: (
+                _natural_sort_key(entry[0][0]),
+                entry[0][0],
+                entry[0][1],
+            ),
+        )
+        for (image, roi), counts in ordered_rows:
             for item_id, count in sorted(counts.items()):
                 writer.writerow([image, roi, item_id, count])
 

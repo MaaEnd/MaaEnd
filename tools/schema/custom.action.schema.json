@@ -14,6 +14,8 @@
                 "AutoAltSwipeAction",
                 "AutoCtrlClickAction",
                 "AutoFightMainAction",
+                "AutoDeliveryResolveDepotAction",
+                "AutoDeliveryResolveDestinationAction",
                 "AutoSellItemExecuteItemTaskAction",
                 "AutoStockStapleQuantityControlAction",
                 "AutoStockpile.CaptureUid",
@@ -39,6 +41,7 @@
                 "CharacterSearchAction",
                 "CaptureUid",
                 "ClearHitCount",
+                "CloseGameAction",
                 "CreditShoppingScanItemAction",
                 "ERROR",
                 "EssenceFilterAfterBattleSkillDecisionAction",
@@ -47,11 +50,7 @@
                 "EssenceFilterCheckItemLevelAction",
                 "EssenceFilterFinishAction",
                 "EssenceFilterInitAction",
-                "EssenceFilterRowCollectAction",
-                "EssenceFilterRowNextItemAction",
                 "EssenceFilterSkillDecisionAction",
-                "EssenceFilterSwipeCalibrateAction",
-                "EssenceFilterTraceAction",
 				"FailureCollectorFinish",
 				"FailureCollectorRunTask",
 				"FailureCollectorReset",
@@ -67,20 +66,11 @@
                 "ItemTransferFallbackAction",
                 "ItemTransferOCRAction",
                 "MapNavigateAction",
-                "MapTrackerBigMapPick",
-                "MapTrackerBigMapZoom",
-                "MapTrackerGoal",
-                "MapTrackerMove",
-                "MapTrackerMoveCompatible",
-                "MapTrackerToward",
-                "MapTrackerZipline",
-                "OCREssenceInventoryNumberAction",
                 "PipelineOverride",
                 "PipelineOverrideAction",
                 "PostStop",
                 "PullCountCalculatorAction",
                 "PuzzleAction",
-                "SeizeDeliveryJobsResolveDestinationAction",
                 "SeizeDeliveryJobsResetScanStateAction",
                 "SeizeDeliveryJobsScanTargetAction",
                 "SellProductLocationPlan",
@@ -104,6 +94,19 @@
         }
     },
 	"allOf": [
+		{
+			"if": {
+				"properties": {
+					"custom_action": { "const": "AutoDeliveryResolveDestinationAction" }
+				},
+				"required": [ "custom_action" ]
+			},
+			"then": {
+				"properties": {
+					"custom_action_param": { "$ref": "./components/auto_delivery.schema.json#/$defs/ResolveDestinationParam" }
+				}
+			}
+		},
 		{
 			"if": {
 				"properties": {
@@ -290,112 +293,28 @@
     "if": {
         "type": "object",
         "required": [ "custom_action" ],
-        "properties": { "custom_action": { "const": "MapTrackerMove" } }
+        "properties": { "custom_action": { "const": "AutoAltSwipeAction" } }
     },
     "then": {
         "type": "object",
         "required": [ "custom_action_param" ],
         "properties": {
-            "custom_action_param": { "$ref": "./components/map_tracker.schema.json#/$defs/MapTrackerMoveParam" }
+            "custom_action_param": { "$ref": "./components/auto_alt.schema.json#/$defs/AutoAltSwipeParam" }
         }
     },
     "else": {
         "if": {
             "type": "object",
             "required": [ "custom_action" ],
-            "properties": { "custom_action": { "const": "MapTrackerGoal" } }
+            "properties": {
+                "custom_action": { "const": "FailureCollectorRunTask" }
+            }
         },
         "then": {
             "type": "object",
             "required": [ "custom_action_param" ],
             "properties": {
-                "custom_action_param": { "$ref": "./components/map_tracker.schema.json#/$defs/MapTrackerGoalParam" }
-            }
-        },
-        "else": {
-            "if": {
-                "type": "object",
-                "required": [ "custom_action" ],
-                "properties": { "custom_action": { "const": "MapTrackerZipline" } }
-            },
-            "then": {
-                "type": "object",
-                "required": [ "custom_action_param" ],
-                "properties": {
-                    "custom_action_param": { "$ref": "./components/map_tracker.schema.json#/$defs/MapTrackerZiplineParam" }
-                }
-            },
-            "else": {
-                "if": {
-                    "type": "object",
-                    "required": [ "custom_action" ],
-                    "properties": { "custom_action": { "const": "MapTrackerToward" } }
-                },
-                "then": {
-                    "type": "object",
-                    "required": [ "custom_action_param" ],
-                    "properties": {
-                        "custom_action_param": { "$ref": "./components/map_tracker.schema.json#/$defs/MapTrackerTowardParam" }
-                    }
-                },
-                "else": {
-                    "if": {
-                        "type": "object",
-                        "required": [ "custom_action" ],
-                        "properties": { "custom_action": { "const": "MapTrackerBigMapPick" } }
-                    },
-                    "then": {
-                        "type": "object",
-                        "required": [ "custom_action_param" ],
-                        "properties": {
-                            "custom_action_param": { "$ref": "./components/map_tracker.schema.json#/$defs/MapTrackerBigMapPickParam" }
-                        }
-                    },
-                    "else": {
-                        "if": {
-                            "type": "object",
-                            "required": [ "custom_action" ],
-                            "properties": { "custom_action": { "const": "MapTrackerBigMapZoom" } }
-                        },
-                        "then": {
-                            "type": "object",
-                            "required": [ "custom_action_param" ],
-                            "properties": {
-                                "custom_action_param": { "$ref": "./components/map_tracker.schema.json#/$defs/MapTrackerBigMapZoomParam" }
-                            }
-                        },
-                        "else": {
-                            "if": {
-                                "type": "object",
-                                "required": [ "custom_action" ],
-                                "properties": { "custom_action": { "const": "AutoAltSwipeAction" } }
-                            },
-                            "then": {
-                                "type": "object",
-                                "required": [ "custom_action_param" ],
-                                "properties": {
-                                    "custom_action_param": { "$ref": "./components/auto_alt.schema.json#/$defs/AutoAltSwipeParam" }
-                                }
-                            },
-                            "else": {
-                                "if": {
-                                    "type": "object",
-                                    "required": [ "custom_action" ],
-                                    "properties": {
-                                        "custom_action": { "const": "FailureCollectorRunTask" }
-                                    }
-                                },
-                                "then": {
-                                    "type": "object",
-                                    "required": [ "custom_action_param" ],
-                                    "properties": {
-                                        "custom_action_param": { "$ref": "./components/failure_collector.schema.json#/$defs/RunTaskParam" }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+                "custom_action_param": { "$ref": "./components/failure_collector.schema.json#/$defs/RunTaskParam" }
             }
         }
     }

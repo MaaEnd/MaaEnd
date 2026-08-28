@@ -12,9 +12,8 @@ from tablecfg_utils import (
     intersects,
     run_cli,
     sorted_entries,
-    unique_sorted_numbers,
+    unique_sorted_strings,
 )
-
 
 TABLE_NAMES = (
     "DomainDataTable.json",
@@ -48,7 +47,7 @@ def build_delivery_jobs_data(tables: dict[str, Any]) -> dict[str, Any]:
         deliverable_items.append(
             {
                 "id": item_id,
-                "deliver_item_types": unique_sorted_numbers(
+                "deliver_item_types": unique_sorted_strings(
                     deliver_item_type_list,
                     f"物品 {item_id} deliverItemTypeList",
                 ),
@@ -91,7 +90,7 @@ def build_delivery_jobs_data(tables: dict[str, Any]) -> dict[str, Any]:
         ):
             has_level = True
             level = assert_record(level_value, f"仓储节点 {depot_id} 等级")
-            deliver_item_types = unique_sorted_numbers(
+            deliver_item_types = unique_sorted_strings(
                 level.get("deliverItemTypeList"),
                 f"仓储节点 {depot_id} 等级 {level.get('level')} deliverItemTypeList",
             )
@@ -144,7 +143,7 @@ def build_delivery_jobs_data(tables: dict[str, Any]) -> dict[str, Any]:
 def main() -> int:
     return run_cli(
         label="DeliveryJobs",
-        description="从本地 TableCfg 生成转交委托数据",
+        description="从 BeyondTableCfg 仓库生成转交委托数据",
         table_names=TABLE_NAMES,
         output_path=OUTPUT_PATH,
         build_data=build_delivery_jobs_data,

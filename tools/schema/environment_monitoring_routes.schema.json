@@ -151,7 +151,7 @@
                 "description": "传送入口 Pipeline 节点名，不限制名称前缀或字符组合。该节点必须已存在于 assets/resource/pipeline/，并能作为 SubTask 完整执行后正常返回。暂无合适入口时，直接不要在 routes.json 中补路线字段，让生成器走未适配分支。",
                 "examples": [
                     "SceneEnterWorldWulingJingyuValley7",
-                    "SceneEnterWorldWulingMarkerStone_Ship2DestinationThenWalkAndFight"
+                    "SceneEnterWorldWulingMarkerStone3"
                 ]
             },
             "NavZoneId": {
@@ -238,6 +238,10 @@
             "QuickTeleport": {
                 "type": "boolean",
                 "description": "可选，默认 false。启用后通过已追踪任务的地图界面依次点击“前往传送”和“传送”，不再调用 EnterMap 配置的 Pipeline 入口节点；此时 EnterMap 可省略。"
+            },
+            "FightAfterMove": {
+                "type": "boolean",
+                "description": "可选，默认 false。启用后寻路结束时先接一次 AutoFight 清场，再重走一遍 NavPath 归位后拍照。只有沿途稳定遇敌的路线才需要——战斗会把角色推离拍照点，不归位就拍不成。"
             }
         }
     }

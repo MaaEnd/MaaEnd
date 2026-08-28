@@ -51,6 +51,15 @@ type GamepadConfig struct {
 	Screencap   string `json:"screencap,omitempty"`
 }
 
+// LinuxConfig holds Linux controller-specific fields (screencap/input methods,
+// keycode handling and PipeWire source).
+type LinuxConfig struct {
+	Screencap      string `json:"screencap,omitempty"`
+	Input          string `json:"input,omitempty"`
+	UseWin32VKCode bool   `json:"use_win32_vk_code,omitempty"`
+	PipewireSource string `json:"pipewire_source,omitempty"`
+}
+
 // Controller is the parsed PI_CONTROLLER single-line JSON.
 // i18n-capable fields (label, description, icon) are pre-resolved by the Client.
 type Controller struct {
@@ -70,7 +79,7 @@ type Controller struct {
 	MacOS              *MacOSConfig     `json:"macos,omitempty"`
 	PlayCover          *PlayCoverConfig `json:"playcover,omitempty"`
 	Gamepad            *GamepadConfig   `json:"gamepad,omitempty"`
-	WlRoots            json.RawMessage  `json:"wlroots,omitempty"`
+	Linux              *LinuxConfig     `json:"linux,omitempty"`
 }
 
 // Resource is the parsed PI_RESOURCE single-line JSON.

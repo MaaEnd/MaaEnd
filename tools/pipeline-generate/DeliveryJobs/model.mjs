@@ -138,6 +138,7 @@ function buildDepot(regionGameId, regionId, depotGameId) {
         Names: depot.names,
         Expected: buildLocalizedExpected(depot.names, `仓储节点 ${depotGameId}`),
         RegionId: regionId,
+        AutoDeliverySupported: true,
         RegionScene: `SceneEnterMenuRegionalDevelopment${regionId}`,
         DepotScene: `SceneEnterMenuRegionalDevelopment${regionId}DepotNode`,
     };

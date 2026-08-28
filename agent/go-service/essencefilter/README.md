@@ -1,56 +1,72 @@
-# EssenceFilter
+# EssenceFilter Go Service
 
-基质筛选 Go Service：在库存界面中按「目标武器 + 技能组合」识别每个基质格子的词条，匹配则锁定，否则跳过或废弃；并支持扩展规则（未来可期、实用基质）与预刻写方案推荐。
+本包负责基质的技能 OCR 归一化、目标组合匹配、锁定/废弃决策、运行统计和结果展示。它不扫描库存网格，也不直接点击锁定或废弃按钮。
 
-由 Pipeline 通过 CustomAction 调用，流程与分支由 JSON 控制，本包只提供动作实现与领域逻辑。
+完整架构见 [RecoGrid / GridTracker / EssenceGrid 架构指南](../../../docs/zh_cn/developers/components/recogrid-engine.md)。
 
-## 文件与职责（同一 case 放一起）
+## 职责边界
+
+| 层 | 职责 |
+| --- | --- |
+| C++ `RecoGrid` | 单帧网格识别、占用判断和格子特征 |
+| C++ `GridTracker` | 跨帧对齐、顺序、去重和结束确认 |
+| C++ `EssenceGrid` | 品质与缩略图筛选、待处理格子队列 |
+| Go `essencefilter` | OCR 归一化、技能匹配、Lock/Discard/Skip 决策、统计 |
+| Pipeline | 点击、滑动、等待和操作后确认 |
+
+Go 只通过 `ctx.OverrideNext` 选择 Pipeline 分支：
+
+- 库存：`EssenceFilterLockItem` / `EssenceFilterDiscardItem` / `EssenceGridAdvance`；
+- 战后：`EssenceFilterAfterBattleLockItem` / `EssenceFilterAfterBattleDiscardItem` / `EssenceFilterAfterBattleCloseDetail`。
+
+动作入口必须指向实际的 `LockItem` / `DiscardItem`，不能直接指向操作后的 `CheckLocked` / `CheckDiscarded`。
+
+## 文件与职责
 
 | 文件 | 职责 |
-| ------------------ | --------------------------------------------------------------------------------------------------------------------------------- |
-| `types.go` | 数据类型与常量（运行选项、`input_language`、基质颜色等）；匹配所需数据结构由 `matchapi` 提供 |
-| `state.go` | 单次运行状态 `RunState`、`getRunState` / `setRunState`、`Reset()`；持有 `matchapi.Engine` 与统计结果 |
-| `filter.go` | 小工具：`skillCombinationKey`（用于 UI 统计聚合） |
-| `ui.go` | 所有展示：MXU 日志、战利品摘要、技能池/统计日志、预刻写方案推荐（结果来自 `matchapi`） |
-| `plan_export.go` | 预刻写推荐与日志同时写入 `./EssencePlan.html`（`export_calculator_script` 时）；页眉/焦点提示见 `essencefilter.focus.plan.html_*` |
-| `actions.go` | 背包筛选 CustomAction：Init / Trace / CheckItem·CheckItemLevel·SkillDecision / Finish；格子遍历由 C++ `EssenceGridScan` 接管 |
-| `options.go` | 从节点 attach 读取 `EssenceFilterOptions`、 rarity/essence 列表格式化 |
-| `resource_path.go` | 监听资源加载路径，供 Init 解析数据目录 |
-| `register.go` | 注册 ResourceSink 与各 CustomAction，供上层 `go-service` 统一加载 |
-| `matchapi/` | 纯匹配 API：`OCRInput -> MatchResult`，默认加载 `assets/data/EssenceFilter/*`，可供外部 go module 复用 |
+| --- | --- |
+| `actions.go` | 库存 Init、技能 OCR 写入、等级写入、匹配决策和 Finish |
+| `actionsAfterBattle.go` | 战后品质门禁与匹配决策 |
+| `recognitionAfterBattle.go` | 战后按顺序返回识别框 |
+| `integration.go` | 匹配调用、OverrideNext、统计与展示适配 |
+| `state.go` | 单线程 Agent 的当前运行状态 `currentRun` |
+| `options.go` | 从合并后的节点 `attach` 读取运行选项 |
+| `ui.go` | MXU 展示、匹配摘要和预刻写输出 |
+| `plan_export.go` | 可选的 `EssencePlan.html` 导出 |
+| `matchapi/` | 可复用的纯匹配 API：`OCRInput -> MatchResult` |
+| `register.go` | 注册本包 CustomAction / CustomRecognition |
 
-## 数据流概要
+## 运行流程
 
-1. **Init**：读资源路径 → 按 `attach.input_language`（仅 `CN|TC|EN|JP|KR`，非法值回退 CN）创建 `matchapi.NewEngineFromDirWithLocale`（加载 `assets/data/EssenceFilter/*`）→ 读选项 → 按稀有度构建目标组合 → 写 `RunState`（含 `InputLanguage`）并 `setRunState`。
-2. **运行中**：Pipeline 依次调用 C++ `EssenceGridAdvanceRecognition` / `EssenceGridPendingRecognition` 完成格子识别、去重、翻页和已锁/已弃缩略图跳过 → CheckItemSlot1/2/3（OCR 技能）→ CheckItemLevel（OCR 等级）→ SkillDecision（匹配并 OverrideNext 锁定/跳过/废弃）。Go 只保留技能 OCR 缓存、`matchapi` 决策、统计和导出。
-3. **Finish**：输出战利品摘要、扩展规则统计，可选输出预刻写方案（`export_calculator_script`）；开启时会将同内容覆写为工作目录下 `./EssencePlan.html` → `setRunState(nil)`。
+1. `EssenceFilterInitAction` 从 `EssenceFilterInit.attach` 读取选项并加载 `data/EssenceFilter`。
+2. Pipeline 对 C++ 选中的格子依次 OCR 三个技能和等级。
+3. `runUnifiedSkillDecision` 调用 `matchapi.Engine.MatchOCR`。
+4. Go 根据 `MatchResult` 覆盖下一 Pipeline 节点。
+5. Pipeline 识别按钮、点击并确认状态。
+6. `EssenceFilterFinishAction` 输出统计并把 `currentRun` 置空。
 
-所有运行时可变状态集中在 `RunState`，由 Init 分配、Finish 清空；匹配数据由 `matchapi.Engine` 管理与缓存。
+Agent 回调按当前框架模型串行执行，因此 `currentRun` 不加锁。新的任务必须先经过 Init，Finish 后状态不再复用。
 
-## 外部数据（资源目录下 EssenceFilter）
+## 匹配数据
 
-- `matcher_config.json`：相似字映射、停用后缀（按语言），用于技能名规范化与 OCR 匹配。
-- `skill_pools.json`：slot1/2/3 技能池（id、中文名等）。
-- `weapons_output.json`：武器列表（internal_id、weapon_type、rarity、names、skills 等），loader 会转成 `WeaponData` 并解析技能为池 ID。
-- `locations.json`：刷取地点与可选 slot2/slot3 池 ID，用于预刻写方案按地点推荐。
+资源位于 `assets/data/EssenceFilter/`，运行目录下对应 `data/EssenceFilter/`：
 
-基准分辨率为 720p（1280×720），坐标与 ROI 均按此设计。
+- `matcher_config.json`：多语言归一化、相似字和停用后缀；
+- `skill_pools.json`：三槽技能池；
+- `weapons_output.json`：武器、稀有度和技能组合；
+- `locations.json`：预刻写地点数据。
 
-## `EssenceGridAdvance.attach`
+OCR 文本会先按 `input_language` 归一化。中文、繁中、日文和韩文会过滤无关标点；英文会进行小写化和常见缩写归一。
 
-背包网格扫描配置统一放在 `EssenceGridAdvance` 的 `attach` 中。C++ 会读取 MaaFramework 解析、合并后的节点数据，因此控制器资源包可以只覆盖发生差异的字段；`custom_recognition_param` 仅保留为旧调用兼容入口，且同名字段以 `attach` 为准。
+## 运行选项
 
-- `template_path`：网格单元分类模板。
-- `thumb_discard_template_path`：已废弃缩略图模板。
-- `thumb_lock_template_paths`：已锁定缩略图模板列表。
-- `roi`、`normalized_size`：网格扫描区域及其基准分辨率。
-- 其余 `row_threshold_ratio`、`col_threshold_ratio`、`min_score` 等字段用于调整 `RecoGrid`。
-- `flawless_essence`、`pure_essence`、`skip_thumb_lock`、`skip_thumb_discard` 为筛选选项。
+`EssenceFilterOptions` 来自 MaaFramework 已合并的 `EssenceFilterInit.attach`，包括武器稀有度、基质品质、扩展规则、未匹配废弃、导出选项和 OCR 语言。
 
-模板路径应同时适用于安装目录和源码目录。例如桌面资源使用 `resource/image/EssenceFilter/EssenceGeneral.png`；若 ADB 需要独立模板，可在 `resource_adb` 的同名节点中覆盖为 `resource_adb/image/EssenceFilter/EssenceGeneral.png`。
+`skip_thumb_lock` / `skip_thumb_discard` 属于 C++ `EssenceGridAdvance.attach`，不在 Go 状态中重复保存。
 
-## 开发说明
+## 开发约束
 
-- 新增/修改 CustomAction 后需在 `register.go` 中注册。
-- 匹配与过滤逻辑尽量放在 matcher / filter，actions 只做编排与 state/OverrideNext；UI 文案与 HTML 集中在 ui.go。
-- 遵循项目根目录 `AGENTS.md` 中 Go Service 规范：流程由 Pipeline 控制，本包不写大流程，仅提供可复用的动作与领域能力。
+- 流程留在 Pipeline；Go 不直接发点击或滑动。
+- 新增或删除 Custom 组件时同步 `register.go` 和 Custom Schema。
+- 展示集中在 `ui.go`，匹配规则集中在 `matchapi`。
+- 库存与战后共享匹配逻辑，但 UI 几何和 Pipeline 节点保持独立。

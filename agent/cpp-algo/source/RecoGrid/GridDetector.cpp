@@ -1,11 +1,10 @@
 #include "GridDetector.h"
 
-#include <MaaUtils/NoWarningCV.hpp>
-
 #include <algorithm>
 #include <cmath>
 #include <map>
-#include <stdexcept>
+
+#include <MaaUtils/NoWarningCV.hpp>
 
 namespace recogrid
 {
@@ -134,7 +133,7 @@ std::vector<Segment> MergeCloseSegments(const std::vector<Segment>& segments, in
 std::vector<Segment> DetectColsFromDarkSeparators(const cv::Mat& binary, const GridDetectOptions& options)
 {
     std::vector<Segment> cols;
-    if (binary.empty() || options.lockedColWidth <= 0) {
+    if (binary.empty()) {
         return cols;
     }
 
@@ -163,7 +162,7 @@ std::vector<Segment> DetectColsFromDarkSeparators(const cv::Mat& binary, const G
     const int minLength = static_cast<int>(std::round(static_cast<double>(options.lockedColWidth) * options.minKeptSegmentRatio));
     const int maxLength =
         static_cast<int>(std::round(static_cast<double>(options.lockedColWidth) * (1.0 + options.lockedSegmentTolerance)));
-    if (minLength <= 0 || maxLength < minLength) {
+    if (options.lockedColWidth > 0 && (minLength <= 0 || maxLength < minLength)) {
         return cols;
     }
 
@@ -172,7 +171,7 @@ std::vector<Segment> DetectColsFromDarkSeparators(const cv::Mat& binary, const G
         const Segment& right = separators[i + 1];
         const Segment col { left.end, right.start };
         const int length = SegmentLength(col);
-        if (length >= minLength && length <= maxLength) {
+        if (options.lockedColWidth <= 0 || (length >= minLength && length <= maxLength)) {
             cols.push_back(col);
         }
     }
@@ -241,7 +240,7 @@ cv::Mat ToGray(const cv::Mat& image)
         cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
     }
     else {
-        throw std::invalid_argument("Unsupported image channel count for grid detection");
+        return {};
     }
 
     return gray;
@@ -283,11 +282,8 @@ int ModalSegmentLength(const std::vector<Segment>& segments)
 
 cv::Mat NormalizeInputSize(const cv::Mat& src, cv::Size normalizedSize)
 {
-    if (src.empty()) {
-        throw std::invalid_argument("Cannot normalize an empty image");
-    }
-    if (normalizedSize.width <= 0 || normalizedSize.height <= 0) {
-        throw std::invalid_argument("Normalized grid image size must be positive");
+    if (src.empty() || normalizedSize.width <= 0 || normalizedSize.height <= 0) {
+        return {};
     }
 
     if (src.cols == normalizedSize.width && src.rows == normalizedSize.height) {
@@ -302,13 +298,13 @@ cv::Mat NormalizeInputSize(const cv::Mat& src, cv::Size normalizedSize)
 cv::Mat CropRoi(const cv::Mat& src, cv::Rect roi)
 {
     if (src.empty()) {
-        throw std::invalid_argument("Cannot crop ROI from an empty image");
+        return {};
     }
 
     const cv::Rect bounds(0, 0, src.cols, src.rows);
     roi &= bounds;
     if (roi.empty()) {
-        throw std::invalid_argument("Grid ROI is outside image bounds");
+        return {};
     }
 
     return src(roi).clone();
@@ -318,9 +314,18 @@ GridResult DetectGrid(const cv::Mat& image, const GridDetectOptions& options)
 {
     GridResult result;
     const cv::Mat normalized = NormalizeInputSize(image, options.normalizedSize);
+    if (normalized.empty()) {
+        return result;
+    }
     result.roi = CropRoi(normalized, options.roi);
+    if (result.roi.empty()) {
+        return result;
+    }
 
     const cv::Mat gray = ToGray(result.roi);
+    if (gray.empty()) {
+        return result;
+    }
     cv::threshold(gray, result.binary, 0, 255, cv::THRESH_OTSU);
 
     cv::Mat rowSum;
@@ -357,7 +362,7 @@ GridResult DetectGrid(const cv::Mat& image, const GridDetectOptions& options)
         options.lockedSegmentTolerance,
         result.minColWidth);
     std::vector<Segment> darkColSegments = DetectColsFromDarkSeparators(result.binary, options);
-    if (!darkColSegments.empty() && options.lockedColWidth > 0 && darkColSegments.size() >= brightColSegments.size()) {
+    if (!darkColSegments.empty()) {
         colSegments = darkColSegments;
     }
     else {

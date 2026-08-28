@@ -36,8 +36,10 @@ type Match struct {
 	CellBox      maa.Rect `json:"cell_box"`
 	ItemBox      maa.Rect `json:"item_box"`
 	Score        float64  `json:"score"`
-	Row          *int     `json:"row,omitempty"`
-	Column       *int     `json:"column,omitempty"`
+	// RegionUnavailable 仅标记当前地区无法使用的物品；false 没有必要导出。
+	RegionUnavailable bool `json:"region_unavailable,omitempty"`
+	Row               *int `json:"row,omitempty"`
+	Column            *int `json:"column,omitempty"`
 }
 
 // Detail 是 IconRecognition custom recognition 返回的 detail JSON。

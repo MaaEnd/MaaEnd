@@ -28,13 +28,11 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "DeliveryJobsDepotLocked",
             "DeliveryJobs${RegionId}Loop"
         ]
     },
     "DeliveryJobs${RegionId}Loop": {
         "desc": "${RegionName}运送委托主循环",
-        "max_hit": 1,
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
@@ -52,7 +50,6 @@
     },
     "DeliveryJobsSelectPriorityItems${RegionId}": {
         "desc": "${RegionName}未启用指定货物优先级，使用游戏默认填充至满",
-        "recognition": "DirectHit",
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,

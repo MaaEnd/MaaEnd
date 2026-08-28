@@ -1,6 +1,6 @@
 ---
 name: autocollect-add-route
-description: 新增或改写 MaaEnd 的 AutoCollect 自动采集路线说明。默认包含路线文件创建、AutoCollect 主入口接线、任务选项注册和多语言文案补充。适用于“参考现有 AutoCollect 路线新建一条采集线”“给定传送点与路径点位生成 AutoCollectRouteX.json 并注册到任务中”“用户已经写好路线文件，只需要补注册接口”等场景。注意：本 skill 仅适用于参考 `assets/resource/pipeline/AutoCollect/AutoCollectRoute6.json` 的单段 `MapNavigateAction` 路线，不适用于 `MapTrackerMove` 路线，也不再处理多段 `GotoFindN` 路线；定位节点必须使用 `MapLocateAssertLocation`。
+description: 新增或改写 MaaEnd 的 AutoCollect 自动采集路线说明。默认包含路线文件创建、AutoCollect 主入口接线、任务选项注册和多语言文案补充。适用于“参考现有 AutoCollect 路线新建一条采集线”“给定传送点与路径点位生成 AutoCollectRouteX.json 并注册到任务中”“用户已经写好路线文件，只需要补注册接口”等场景。注意：本 skill 仅适用于参考 `assets/resource/pipeline/AutoCollect/AutoCollectRoute6.json` 的单段 `MapNavigateAction` 路线，不再处理多段 `GotoFindN` 路线；定位节点必须使用 `MapLocateAssertLocation`。
 argument-hint: 如果是新建路线，推荐直接提供任务名（如“路线6：四号谷地-轻红柱状菌”）、第一个传送点（如 `SceneEnterWorldValleyIVTheHub2`）、断言点和完整 path 点列，以及“点击采集”或“挖掘类路线”。如果用户已经有路线文件、只需要注册接口，则只提供任务名即可。
 ---
 
@@ -42,7 +42,6 @@ argument-hint: 如果是新建路线，推荐直接提供任务名（如“路�
 - `AutoEssence` 路线
 - `AutoEcoFarm` 路线
 - Go Service 算法扩展
-- 使用 `MapTrackerMove` 的 AutoCollect 路线
 - 任何多段 `GotoFind1/2/3...` 结构的 AutoCollect 路线
 
 ## 开始前先读什么
@@ -196,7 +195,6 @@ argument-hint: 如果是新建路线，推荐直接提供任务名（如“路�
 - 如果用户明确说“参考 Route6”，通常就是本 skill 的目标场景
 - 如果路线使用 `MapNavigateAction + MapLocateAssertLocation + AutoCollectRouteXGoto`，说明符合本 skill 范围
 - 如果用户要求拆成 `GotoFind1/2/3...`，说明这不属于本 skill 的范围，应先澄清
-- 如果路线使用 `MapTrackerMove`，说明这不属于本 skill 的主流程，应先澄清
 
 本 skill 仅处理以下结构：
 
@@ -209,7 +207,6 @@ argument-hint: 如果是新建路线，推荐直接提供任务名（如“路�
 - `AutoCollectRouteXGotoFind1`
 - `AutoCollectRouteXGotoFind2`
 - 任意 `anchor` 串联的多段节点
-- `MapTrackerMove`
 
 ### 3. 传送入口与断言点不要混淆
 
@@ -236,7 +233,7 @@ argument-hint: 如果是新建路线，推荐直接提供任务名（如“路�
 
 - 首个坐标先视为断言点 `[x, y]`，再换算为 `target: [x-10, y-10, 20, 20]`
 - 不要把这个点再塞回 `path` 里
-- 不要写成 `MapTrackerAssertLocation.expected` 结构；这里应直接写 `zone_id` 和 `target`
+- `MapLocateAssertLocation` 直接写 `zone_id` 和 `target`，不要包一层 `expected` 数组
 
 ### 5. 把用户输入的 `true` 转换成动作字符串
 
@@ -513,9 +510,9 @@ argument-hint: 如果是新建路线，推荐直接提供任务名（如“路�
 - [ ] `RouteId` 是从任务名解析得到的
 - [ ] 新路线文件名、节点名、选项名、文案键一致
 - [ ] `Start` 使用了正确的 `[JumpBack]SceneEnterWorldXxx`
-- [ ] 新路线使用的是 `MapNavigateAction`，而不是 `MapTrackerMove`
+- [ ] 新路线使用的是 `MapNavigateAction`
 - [ ] `AssertLocation` 使用了新的断言点，没有误复用旧坐标
-- [ ] `AssertLocation` 使用的是 `MapLocateAssertLocation` 的扁平结构，而不是 `MapTrackerAssertLocation.expected`
+- [ ] `AssertLocation` 使用的是 `MapLocateAssertLocation` 的扁平结构
 - [ ] 若首个点仅用于断言，则没有混入 `path`
 - [ ] 路线只有一个 `AutoCollectRouteXGoto`
 - [ ] 用户给出的 `[x, y, true]` 已按采集类型转换成 `"COLLECT"` 或 `"DIG"`
@@ -588,8 +585,6 @@ argument-hint: 如果是新建路线，推荐直接提供任务名（如“路�
 - 不要对现有 `RouteX` 做无关重构
 - 不要为了“更通用”而提前抽象自动生成器，除非用户明确要求
 - 不要把点击采集路线改成挖掘路线，或反过来
-- 不要把本 skill 的新路线建立流程扩展到 `MapTrackerMove`
-- 不要把定位节点写回 `MapTrackerAssertLocation`
 - 不要省略任务注册与多语言注册，除非用户明确说不需要
 - 不要把内部提示文案写成英文
 - 不要生成任何多段 `GotoFindN` 结构

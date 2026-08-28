@@ -4,6 +4,7 @@
             "name": "Zipline",
             "label": "$option.Zipline.label",
             "description": "$option.Zipline.description",
+            "default_expand": false,
             "option": [
                 "ZiplineRouting"
             ]

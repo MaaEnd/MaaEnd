@@ -37,6 +37,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: read
+      actions: write
     steps:
       - uses: actions/checkout@v6
         with:
@@ -107,12 +108,79 @@ jobs:
           excludes: ${{ (steps.set_tag.outputs.is_release == 'true' && steps.set_tag.outputs.is_prerelease == 'false') && 'prerelease, draft' || 'draft' }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      # 校验 MaaUtils submodule 是否落后/分叉于本次构建所用 maafw 版锁定的 commit，
+      # 不同步则联动触发 sync_maautils 工作流开修复 PR，并终止全部构建
+      # 注意：fork PR 无 bot App secrets，跳过 token 生成（联动触发会自动降级为 GITHUB_TOKEN）
+      - id: maautils-app-token
+        if: github.repository == 'MaaEnd/MaaEnd' && (github.event_name != 'pull_request' || !github.event.pull_request.head.repo.fork)
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ vars.MAAEND_BOT_APP_CLIENT_ID }}
+          private-key: ${{ secrets.MAAEND_BOT_APP_PRIVATE_KEY }}
+          permission-contents: read
+          permission-actions: write
+
+      - id: maautils-sync-check
+        name: Check MaaUtils submodule matches MaaFramework release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          APP_TOKEN: ${{ steps.maautils-app-token.outputs.token }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          # 版本号来自第三方 action 输出，必须经环境变量传递，禁止直接内插进脚本
+          MAAFW_VERSION: ${{ steps.maafw-latest-release.outputs.release }}
+          FAIL_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set +e
+          out=$(python3 tools/check_maautils_sync.py --maafw-ref "$MAAFW_VERSION")
+          rc=$?
+          set -e
+          echo "$out"
+          status=$(sed -n 's/^status=//p' <<<"$out")
+          expected=$(sed -n 's/^expected_sha=//p' <<<"$out")
+          current=$(sed -n 's/^current_sha=//p' <<<"$out")
+
+          # 写入 Run Summary，打开构建页即可看到判定结果，无需翻日志
+          {
+            echo "### MaaUtils Sync Check"
+            echo ""
+            echo "| Item | Value |"
+            echo "| --- | --- |"
+            echo "| MaaFramework | \`$MAAFW_VERSION\` |"
+            echo "| Upstream pinned MaaUtils | \`${expected:-n/a}\` |"
+            echo "| Local MaaUtils | \`${current:-n/a}\` |"
+            echo "| Verdict | \`$status\` (exit=$rc) |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          case "$rc" in
+            0)
+              echo "MaaUtils gate passed: $status"
+              ;;
+            1|2)
+              echo "::error::MaaUtils submodule is '$status' relative to the pin of MaaFramework $MAAFW_VERSION; builds are blocked until it is synced."
+              if [ -n "$APP_TOKEN" ] || [ -n "$GITHUB_TOKEN" ]; then
+                export GH_TOKEN="${APP_TOKEN:-$GITHUB_TOKEN}"
+                gh workflow run sync_maautils.yml --repo "$GITHUB_REPOSITORY" --ref "$DEFAULT_BRANCH" \
+                  -f fail_run_url="$FAIL_RUN_URL" \
+                  || echo "::warning::Failed to dispatch sync_maautils workflow; it also runs on its daily schedule."
+              fi
+              exit 1
+              ;;
+            3)
+              echo "::error::Cannot resolve the MaaUtils pin of MaaFramework $MAAFW_VERSION (tag missing or upstream 'source/MaaUtils' path changed). Manual investigation required, see tools/check_maautils_sync.py"
+              exit 1
+              ;;
+            *)
+              echo "::warning::MaaUtils sync status is UNKNOWN due to transient network/API failures after retries; skipping the gate this run (daily scheduled check still applies)."
+              ;;
+          esac
+
     outputs:
       tag: ${{ steps.set_tag.outputs.tag }}
       is_release: ${{ steps.set_tag.outputs.is_release }}
       is_prerelease: ${{ steps.set_tag.outputs.is_prerelease }}
       maafw_version: ${{ steps.maafw-latest-release.outputs.release }}
       mxu_version: ${{ steps.mxu-latest-release.outputs.release }}
+      maautils_expected_sha: ${{ steps.maautils-sync-check.outputs.expected_sha }}
       commit_sha: ${{ steps.commit.outputs.sha }}
       icon_recognition_changed: ${{ steps.icon-recognition-changes.outputs.icon_recognition }}
 
@@ -483,6 +551,7 @@ jobs:
             commit = "${{ needs.meta.outputs.commit_sha }}"
             maafw_version = "${{ needs.meta.outputs.maafw_version }}"
             mxu_version = "${{ needs.meta.outputs.mxu_version }}"
+            maautils_commit = "${{ needs.meta.outputs.maautils_expected_sha || 'unknown' }}"
             go_service = "unstripped binary with DWARF (Go emits no PDB); resolve with go tool addr2line"
           } | ConvertTo-Json
           Set-Content -Path "$symbols/symbols-manifest.json" -Value $manifest -Encoding utf8NoBOM

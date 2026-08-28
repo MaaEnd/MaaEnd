@@ -435,7 +435,7 @@ Pipeline 组织：把本识别放在滑动节点**之前**；命中走「到底�
 
 `ScrollbarCompleteRecognition` 与 `ScrollbarRecognition` 位于同一个包，并复用相同的内部滑块检测函数。它在基础检测结果之上保存和比较连续两次位置，适合列表内容或背景会变化、无法稳定做整块模板比较的到顶/到底判断。
 
-**命中语义：`true` = 滚动条未移动，列表已到顶或到底；`false` = 尚不能判定完成（应继续滚动）。**
+**命中语义：`true` = 滚动条未移动，或连续两次未检测到滚动条，列表已到顶、到底或不可滚动；`false` = 尚不能判定完成（应继续滚动）。**
 
 参数：
 
@@ -447,7 +447,7 @@ Pipeline 组织：把本识别放在滑动节点**之前**；命中走「到底�
 1. 使用与 `ScrollbarRecognition` 相同的内部算法获取 `[top, bottom]`。
 2. 首次识别或滑块位置变化时，将边界写入当前节点的 `attach.scrollbar_top` / `attach.scrollbar_bottom`，把 `attach.ready` 置 `true`，返回**未命中**。
 3. 后续识别中，上、下边界都在 `position_tolerance` 内时返回**命中**；任一边界超出容差则更新位置并返回**未命中**。
-4. 未找到有效连续白条时返回**未命中**，并保留上一次有效位置，避免高亮短暂消失污染状态。
+4. 首次未找到有效连续白条时记录 `attach.scrollbar_missing = true` 并返回**未命中**，让 Pipeline 做一次确认滚动；连续第二次仍未找到时返回**命中**，将列表视为不可滚动。之后重新检测到有效滑块会清除缺失状态。
 
 Pipeline 布局与 `ListCompleteRecognition` 相同：将本识别放在滚动节点之前；命中走“已到边界”分支，未命中落到滚动节点。滚动节点必须配置 `post_wait_freezes`，保证下一次识别发生在画面静止后。
 
@@ -479,7 +479,7 @@ Pipeline 布局与 `ListCompleteRecognition` 相同：将本识别放在滚动�
 注意事项：
 
 - ROI 应只覆盖滚动条轨道，避免列表中的白色文字或图标形成更长的连续段。
-- 首次调用只记录位置，不能判定完成。每次开始新的列表扫描前，应通过 `PipelineOverride` 将当前节点的 `attach.ready` 重置为 `false`。
+- 首次调用只记录滑块位置或缺失观察，不能判定完成。每次开始新的列表扫描前，应通过 `PipelineOverride` 将当前节点的 `attach.ready` 重置为 `false`；该重置也会开启新的缺失确认周期。
 - 组件不区分“到顶”和“到底”；方向语义由 Pipeline 当前采用的滚动方向决定。
 - 组件只负责判断列表边界，滚动和后续业务流程仍由 Pipeline 组织。
 

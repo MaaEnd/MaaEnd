@@ -37,6 +37,7 @@ struct ManualRunnerOptions
     std::size_t jobs = 1;
     bool automatic_jobs = false;
     bool debug = false;
+    bool recognize_region_unavailable = false;
     TestDataset dataset = TestDataset::Unspecified;
     std::filesystem::path expected_path;
     std::filesystem::path rois_path;

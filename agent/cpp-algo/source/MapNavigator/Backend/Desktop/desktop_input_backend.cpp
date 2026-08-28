@@ -334,7 +334,7 @@ void DesktopInputBackend::EnsureHoverAnchorSync()
     MaaControllerWait(ctrl_, ctrl_id);
 }
 
-// Win32 Virtual-Key codes。WlRoots 控制器启用 use_win32_vk_code 后，
+// Win32 Virtual-Key codes。Linux 控制器启用 use_win32_vk_code 后，
 // MaaFramework 会将这些码翻译为 Linux evdev 码，行为与 Win32 控制器一致。
 DesktopKeyCodes MakeDesktopKeyCodes()
 {

@@ -1,0 +1,94 @@
+{
+    "SeizeDeliveryJobsPostProcessingEntry": {
+        "desc": "抢单成功后或手上已有委托时，进入任务自行编排的后处理流程（默认关闭）",
+        "enabled": false,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "**进入抢单后处理流程**"
+        }
+    },
+    "SeizeDeliveryJobsTeleport": {
+        "desc": "打开当前任务详情；需要取货时仅快速传送到仓储节点附近",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "anchor": {
+            "SeizeDeliveryJobsAfterEnterCurrentJobDetail": "AutoDelivery",
+            "AutoDeliveryAfterRecognizeDestination": "SeizeDeliveryJobsDeliveryCannotTeleport",
+            "AutoDeliveryAfterQuickTeleport": "SeizeDeliveryJobsSuccessTeleportDone"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SeizeDeliveryJobsEnterCurrentJobDetail"
+        ]
+    },
+    "SeizeDeliveryJobsTeleportAndWalk": {
+        "desc": "打开当前任务详情，需要取货时快速传送后走到仓储节点",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "anchor": {
+            "SeizeDeliveryJobsAfterEnterCurrentJobDetail": "AutoDelivery",
+            "AutoDeliveryAfterRecognizeDestination": "SeizeDeliveryJobsDeliveryCannotTeleport",
+            "AutoDeliveryAfterNavigateDepot": "SeizeDeliveryJobsSuccessWalkDone"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SeizeDeliveryJobsEnterCurrentJobDetail"
+        ]
+    },
+    "SeizeDeliveryJobsFullDelivery": {
+        "desc": "打开当前任务详情，自动判断取货或送货并完成当前委托",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "anchor": {
+            "SeizeDeliveryJobsAfterEnterCurrentJobDetail": "AutoDelivery",
+            "AutoDeliveryAfterSubmitGoods": "SeizeDeliveryJobsMain"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SeizeDeliveryJobsEnterCurrentJobDetail"
+        ]
+    },
+    "SeizeDeliveryJobsDeliveryCannotTeleport": {
+        "desc": "当前任务已进入送货阶段，无法使用快速传送",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.deliveryCannotTeleport"
+        }
+    },
+    "SeizeDeliveryJobsSuccessTeleportDone": {
+        "desc": "任务成功，已快速传送到仓储节点附近",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "**传送好了！记得及时送货哟~**"
+        }
+    },
+    "SeizeDeliveryJobsSuccessWalkDone": {
+        "desc": "任务成功，已走到仓储节点",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "**走到位了！记得及时送货哟~**"
+        }
+    }
+}

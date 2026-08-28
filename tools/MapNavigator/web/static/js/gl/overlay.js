@@ -67,7 +67,7 @@ export class Overlay {
    *
    * @param {Camera} camera shared view camera
    * @param {Object} vm view model:
-   *   @param {string} vm.mode 'edit' | 'assert' | 'astar'
+   *   @param {string} vm.mode 'edit' | 'assert' | 'astar' | 'log'
    *   @param {Array<Object>} [vm.points] current-segment points (display-frame coords)
    *   @param {?number} [vm.selectedIdx] primary selection (local index into vm.points)
    *   @param {Set<number>} [vm.selectedIndices] multi-selection (local indices)
@@ -75,6 +75,7 @@ export class Overlay {
    *   @param {?{x:number,y:number,label:string,rot:?number}} [vm.assertLocateHint] game locate marker
    *   @param {?Array<{x:number,y:number,label:string,rot:?number}>} [vm.astarLocateHints] preview markers
    *   @param {Object} [vm.astar] see {@link Overlay#_drawAstarPreview}
+   *   @param {Object} [vm.logAnalysis] parsed MapNavigator log geometry
    *   @param {Array<Object>} [vm.offMeshMarks] points off the walkable mesh — see
    *     {@link Overlay#_drawOffMeshMarks} (drawn in every mode)
    *   @param {?Object} [vm.selectionRect] `{x0,y0,x1,y1}` canvas-px drag box, or null
@@ -105,12 +106,329 @@ export class Overlay {
         this._drawAstarPreview(camera, vm.astar);
       }
     }
+    if (mode === 'log' && vm.logAnalysis) {
+      this._drawLogAnalysis(camera, vm.logAnalysis);
+    }
     // Topmost: a point sitting off the walkable mesh is the one thing that must never be
     // hidden under a route line.
     this._drawOffMeshMarks(camera, vm.offMeshMarks || []);
     if (vm.selectionRect) {
       this._drawSelectionRect(vm.selectionRect);
     }
+  }
+
+  /**
+   * Read-only MapNavigator decision overlay. Planned walks, MapLocator observations,
+   * runtime-confirmed zipline hops, and dashed endpoint estimates remain separate so
+   * inferred geometry never looks like a measured trajectory.
+   * @param {Camera} camera
+   * @param {Object} log
+   * @returns {void}
+   */
+  _drawLogAnalysis(camera, log) {
+    if (log.showRecordedTowers) {
+      for (const tower of log.recordedTowers || []) {
+        this._drawRecordedZiplineTower(camera, tower);
+      }
+    }
+
+    if (log.showAuthored) {
+      this._strokeLogPolyline(camera, log.authored || [], {
+        color: 'rgba(248, 250, 252, 0.9)',
+        width: 2,
+        dash: [7, 5],
+      });
+    }
+
+    if (log.showBaseline) {
+      for (const points of log.baselines || []) {
+        this._strokeLogPolyline(camera, points, {
+          color: 'rgba(245, 158, 11, 0.55)',
+          width: 2.5,
+          dash: [9, 7],
+        });
+      }
+    }
+
+    if (log.showWalk) {
+      for (const points of log.walks || []) {
+        this._strokeLogPolyline(camera, points, {color: '#ff3b9d', width: 3});
+      }
+    }
+
+    if (log.showObserved) {
+      for (const points of log.observed || []) {
+        this._strokeLogPolyline(camera, points, {color: '#22c55e', width: 3.5});
+      }
+    }
+
+    if (log.showEstimates) {
+      for (const segment of log.estimates || []) {
+        this._strokeLogPolyline(camera, [segment.from, segment.to], {
+          color: 'rgba(34, 211, 238, 0.7)',
+          width: 2,
+          dash: [6, 6],
+        });
+        const [ax, ay] = camera.worldToCanvas(segment.from[0], segment.from[1]);
+        const [bx, by] = camera.worldToCanvas(segment.to[0], segment.to[1]);
+        this._drawLogCaption((ax + bx) / 2, (ay + by) / 2 - 10, '端点估计', '#22d3ee');
+      }
+    }
+
+    if (log.showZipline) {
+      for (const segment of log.ziplines || []) {
+        const color = segment.landed ? '#22d3ee' : '#f59e0b';
+        this._strokeLogPolyline(camera, [segment.from, segment.to], {
+          color,
+          width: 4,
+          dash: segment.landed ? [] : [7, 5],
+        });
+        this._drawLogArrow(camera, segment.from, segment.to, color);
+        if (!segment.landed) {
+          const [ax, ay] = camera.worldToCanvas(segment.from[0], segment.from[1]);
+          const [bx, by] = camera.worldToCanvas(segment.to[0], segment.to[1]);
+          this._drawLogCaption((ax + bx) / 2, (ay + by) / 2 - 10, '已发射，未确认落地', color);
+        }
+      }
+    }
+
+    const authored = log.authored || [];
+    if (log.showAuthored && authored.length) {
+      const ctx = this.ctx;
+      ctx.save();
+      ctx.fillStyle = '#f8fafc';
+      for (const point of authored) {
+        const [cx, cy] = camera.worldToCanvas(point[0], point[1]);
+        ctx.beginPath();
+        ctx.arc(cx, cy, 3, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+
+    if (log.showSelectedTowers) {
+      for (const tower of log.selectedTowers || []) {
+        this._drawSelectedZiplineTower(camera, tower);
+      }
+    }
+    this._drawLogInspection(camera, log.inspection);
+    this._drawLogMeasurement(camera, log.measurement);
+  }
+
+  /** Pale background candidate from ZIP record/Ziplines.json. */
+  _drawRecordedZiplineTower(camera, tower) {
+    if (!tower || !Array.isArray(tower.point)) return;
+    const [cx, cy] = camera.worldToCanvas(tower.point[0], tower.point[1]);
+    if (cx < -8 || cy < -8 || cx > this.cssW + 8 || cy > this.cssH + 8) return;
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.beginPath();
+    ctx.moveTo(0, -5.5);
+    ctx.lineTo(5.5, 0);
+    ctx.lineTo(0, 5.5);
+    ctx.lineTo(-5.5, 0);
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(139, 92, 246, 0.58)';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(8, 15, 28, 0.82)';
+    ctx.lineWidth = 3.5;
+    ctx.stroke();
+    ctx.strokeStyle = '#ddd6fe';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(0, 0, 1.5, 0, Math.PI * 2);
+    ctx.fillStyle = '#ffffff';
+    ctx.fill();
+    ctx.restore();
+  }
+
+  /** Selected chain tower: cyan filled when reached, amber hollow when not confirmed. */
+  _drawSelectedZiplineTower(camera, tower) {
+    if (!tower || !Array.isArray(tower.point)) return;
+    const [cx, cy] = camera.worldToCanvas(tower.point[0], tower.point[1]);
+    const color = tower.confirmed ? '#22d3ee' : '#f59e0b';
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.setLineDash([]);
+    ctx.beginPath();
+    ctx.arc(cx, cy, 7, 0, Math.PI * 2);
+    ctx.fillStyle = tower.confirmed ? color : 'rgba(8, 15, 28, 0.9)';
+    ctx.fill();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+    if (tower.confirmed) {
+      ctx.beginPath();
+      ctx.arc(cx, cy, 2, 0, Math.PI * 2);
+      ctx.fillStyle = '#ffffff';
+      ctx.fill();
+    }
+    ctx.restore();
+    this._drawLogCaption(cx, cy - 17, tower.label || '滑索架', color);
+  }
+
+  /** Highlight the point selected by the default log inspection tool. */
+  _drawLogInspection(camera, inspection) {
+    if (!inspection || !Array.isArray(inspection.point)) return;
+    const [cx, cy] = camera.worldToCanvas(inspection.point[0], inspection.point[1]);
+    const color = inspection.color || '#22d3ee';
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.setLineDash([]);
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, 14, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(0, 0, 0, 0.72)';
+    ctx.lineWidth = 6;
+    ctx.stroke();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(cx - 18, cy);
+    ctx.lineTo(cx - 9, cy);
+    ctx.moveTo(cx + 9, cy);
+    ctx.lineTo(cx + 18, cy);
+    ctx.moveTo(cx, cy - 18);
+    ctx.lineTo(cx, cy - 9);
+    ctx.moveTo(cx, cy + 9);
+    ctx.lineTo(cx, cy + 18);
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    ctx.restore();
+
+    this._drawLogCaption(cx, cy + 28, inspection.title || '点位详情', color);
+  }
+
+  /** A/B analysis ruler. It is dashed so it cannot be mistaken for a planned or ridden leg. */
+  _drawLogMeasurement(camera, measurement) {
+    const towers = measurement && Array.isArray(measurement.towers) ? measurement.towers : [];
+    if (!towers.length) return;
+    const result = measurement.result || null;
+    const color =
+      result && result.geometryConnected === true
+        ? '#22c55e'
+        : result && result.geometryConnected === false
+          ? '#ef4444'
+          : '#e2e8f0';
+
+    if (towers.length >= 2) {
+      this._strokeLogPolyline(camera, [towers[0].point, towers[1].point], {
+        color,
+        width: 2.5,
+        dash: [4, 4],
+      });
+      const [ax, ay] = camera.worldToCanvas(towers[0].point[0], towers[0].point[1]);
+      const [bx, by] = camera.worldToCanvas(towers[1].point[0], towers[1].point[1]);
+      const caption = Number.isFinite(result && result.worldDistance)
+        ? `${result.worldDistance.toFixed(2)} m`
+        : Number.isFinite(result && result.baseDistance)
+          ? `${result.baseDistance.toFixed(2)} px`
+          : '距离未知';
+      this._drawLogCaption((ax + bx) / 2, (ay + by) / 2 - 12, caption, color);
+    }
+
+    for (const tower of towers) {
+      const [cx, cy] = camera.worldToCanvas(tower.point[0], tower.point[1]);
+      const markerColor = tower.marker === 'B' ? '#f472b6' : '#60a5fa';
+      const ctx = this.ctx;
+      ctx.save();
+      ctx.setLineDash([]);
+      ctx.beginPath();
+      ctx.arc(cx, cy, 11, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(8, 15, 28, 0.88)';
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(0, 0, 0, 0.65)';
+      ctx.lineWidth = 5;
+      ctx.stroke();
+      ctx.strokeStyle = markerColor;
+      ctx.lineWidth = 3;
+      ctx.stroke();
+      ctx.fillStyle = '#ffffff';
+      ctx.font = `bold 10px ${MONO}`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(tower.marker || '?', cx, cy + 0.5);
+      ctx.restore();
+    }
+  }
+
+  /** @param {Camera} camera @param {number[][]} points @param {Object} style */
+  _strokeLogPolyline(camera, points, style) {
+    const clean = (points || []).filter(
+      (point) => Array.isArray(point) && point.length >= 2 && point.every(Number.isFinite),
+    );
+    if (clean.length < 2) return;
+    const ctx = this.ctx;
+    const trace = () => {
+      ctx.beginPath();
+      clean.forEach((point, index) => {
+        const [cx, cy] = camera.worldToCanvas(point[0], point[1]);
+        if (index === 0) ctx.moveTo(cx, cy);
+        else ctx.lineTo(cx, cy);
+      });
+    };
+
+    ctx.save();
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.setLineDash(style.dash || []);
+    trace();
+    ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)';
+    ctx.lineWidth = (style.width || 2) + 3;
+    ctx.stroke();
+    trace();
+    ctx.strokeStyle = style.color;
+    ctx.lineWidth = style.width || 2;
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  /** @param {Camera} camera @param {number[]} from @param {number[]} to @param {string} color */
+  _drawLogArrow(camera, from, to, color) {
+    const [ax, ay] = camera.worldToCanvas(from[0], from[1]);
+    const [bx, by] = camera.worldToCanvas(to[0], to[1]);
+    const dx = bx - ax;
+    const dy = by - ay;
+    const length = Math.hypot(dx, dy);
+    if (length < 8) return;
+    const ux = dx / length;
+    const uy = dy / length;
+    const cx = ax + dx * 0.58;
+    const cy = ay + dy * 0.58;
+    const size = 8;
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(cx + ux * size, cy + uy * size);
+    ctx.lineTo(cx - ux * size - uy * size * 0.7, cy - uy * size + ux * size * 0.7);
+    ctx.lineTo(cx - ux * size + uy * size * 0.7, cy - uy * size - ux * size * 0.7);
+    ctx.closePath();
+    ctx.fillStyle = color;
+    ctx.strokeStyle = 'rgba(0, 0, 0, 0.55)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.fill();
+    ctx.restore();
+  }
+
+  /** @param {number} cx @param {number} cy @param {string} text @param {string} color */
+  _drawLogCaption(cx, cy, text, color) {
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.font = `10px ${MONO}`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    const width = ctx.measureText(text).width + 10;
+    ctx.fillStyle = 'rgba(8, 15, 28, 0.86)';
+    ctx.fillRect(cx - width / 2, cy - 8, width, 16);
+    ctx.fillStyle = color;
+    ctx.fillText(text, cx, cy);
+    ctx.restore();
   }
 
   /**

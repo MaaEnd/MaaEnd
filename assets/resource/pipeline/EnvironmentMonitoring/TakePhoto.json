@@ -283,7 +283,7 @@
         "rate_limit": 0,
         "next": [
             "EnvironmentMonitoringShutterButtonPhotographyTarget",
-            "[JumpBack]EnvironmentMonitoringCameraScan"
+            "EnvironmentMonitoringCameraScan"
         ]
     },
     "EnvironmentMonitoringCameraScan": {

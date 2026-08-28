@@ -1,6 +1,5 @@
 {
-    //这是一个调用EssenceFilter任务中战斗后识别基质节点的入口，内部节点在EssenceFilter文件夹中，包括以下3个
-    //EssenceFilterAfterBattleMain.json
+    //这是一个调用EssenceFilter任务中战斗后识别基质节点的入口，内部节点在EssenceFilter文件夹中，包括以下2个
     //EssenceFilterAfterBattleCheckItem.json
     //EssenceFilterAfterBattleLockDiscard.json
     //使用说明
@@ -92,12 +91,7 @@
             //是否锁上高等级技能3的实用基质
             "lock_slot3_practical": false,
             //是否丢弃不匹配的基质
-            "discard_unmatched": false,
-            //是否输出基质规划（这个分支任务暂时用不了）
-            "export_calculator_script": false,
-            //是否跳过缩略图锁定/废弃标记（战利品分支暂不按行收集；与库存 attach 字段一致）
-            "skip_thumb_lock": false,
-            "skip_thumb_discard": false
+            "discard_unmatched": false
         }
     },
     //节点出口，如果不加jumpback，那就得把这个出口节点的next接到你想要的下一个节点上

@@ -186,14 +186,6 @@
             }
         }
     },
-    "MapTrackerOpenWorld_GetOffZipline": {
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": 53
-            }
-        }
-    },
     "ProdManualOpenInMain": {
         "action": {
             "type": "KeyDown",
@@ -767,22 +759,6 @@
         }
     },
     "__MapNavigatorObstacleDevice_InteractPre": {
-        "action": {
-            "type": "KeyDown",
-            "param": {
-                "key": 58
-            }
-        }
-    },
-    "__MapTrackerOpenWorld_GetOnZipline_InteractPost": {
-        "action": {
-            "type": "KeyUp",
-            "param": {
-                "key": 58
-            }
-        }
-    },
-    "__MapTrackerOpenWorld_GetOnZipline_InteractPre": {
         "action": {
             "type": "KeyDown",
             "param": {

@@ -72,9 +72,8 @@ func escapeHTML(s string) string {
 // --- 战利品摘要与预刻写方案（同一 case：本次运行的结果展示）---
 
 // logMatchSummary - 输出“战利品 summary”，按技能组合聚合统计
-func logMatchSummary(ctx *maa.Context) {
-	st := getRunState()
-	if st == nil || len(st.MatchedCombinationSummary) == 0 {
+func logMatchSummary(ctx *maa.Context, st *RunState) {
+	if len(st.MatchedCombinationSummary) == 0 {
 		LogMXUSimpleHTML(ctx, i18n.T("essencefilter.no_locked"))
 		return
 	}
@@ -111,7 +110,6 @@ func logMatchSummary(ctx *maa.Context) {
 type calcPlan struct {
 	slot1Names [3]string
 	fixedSlot  int
-	fixedID    int
 	fixedName  string
 	needs      []matchapi.WeaponData
 	matched    []matchapi.WeaponData
@@ -172,11 +170,7 @@ func weaponsToViews(weapons []matchapi.WeaponData) []weaponColorView {
 	return views
 }
 
-func logCalculatorResult(ctx *maa.Context) {
-	st := getRunState()
-	if st == nil {
-		return
-	}
+func logCalculatorResult(ctx *maa.Context, st *RunState) {
 	po := &st.PipelineOpts
 	selectedRarities := make(map[int]bool)
 	if po.Rarity4Weapon {
@@ -263,13 +257,13 @@ func logCalculatorResult(ctx *maa.Context) {
 					for _, s2 := range availSlot2 {
 						matched, needs := lookupWeapons(idx2, s1IDs, s2.ID, feasible)
 						if len(needs) > 0 {
-							plans = append(plans, calcPlan{slot1Names: s1Names, fixedSlot: 2, fixedName: s2.Chinese, fixedID: s2.ID, needs: needs, matched: matched})
+							plans = append(plans, calcPlan{slot1Names: s1Names, fixedSlot: 2, fixedName: s2.Chinese, needs: needs, matched: matched})
 						}
 					}
 					for _, s3 := range availSlot3 {
 						matched, needs := lookupWeapons(idx3, s1IDs, s3.ID, feasible)
 						if len(needs) > 0 {
-							plans = append(plans, calcPlan{slot1Names: s1Names, fixedSlot: 3, fixedName: s3.Chinese, fixedID: s3.ID, needs: needs, matched: matched})
+							plans = append(plans, calcPlan{slot1Names: s1Names, fixedSlot: 3, fixedName: s3.Chinese, needs: needs, matched: matched})
 						}
 					}
 				}
