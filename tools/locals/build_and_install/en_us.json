@@ -41,6 +41,7 @@
     "ccache_status": "ccache cache directory: {path}",
     "ccache_compiler_launcher": "ccache compiler launcher",
     "ccache_not_found": "ccache not found; this build will not use compile caching",
+    "ccache_windows_disabled": "ccache is disabled on Windows (MSVC builds compile directly to avoid launcher overhead)",
     "cmake_configure_preset_candidates": "Configure preset candidates",
     "maadeps_triplet": "MaaDeps triplet",
     "cmake_cache_cleanup_item_failed": "Failed to clean CMake cache: {path}: {error}",

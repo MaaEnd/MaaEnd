@@ -416,12 +416,15 @@ def build_cpp_algo(
     )
     print(f"  {t('maadeps_triplet')}: {maadeps_triplet}")
 
-    ccache_prog = shutil.which("ccache")
+    # Windows 不使用 ccache：MSVC + VS generator 命中率差，且避免空转开销
+    ccache_prog = None if resolved_os == "win" else shutil.which("ccache")
     if ccache_prog:
         os.environ["CCACHE_DIR"] = str(root_dir / ".cache" / "ccache")
         Path(os.environ["CCACHE_DIR"]).mkdir(parents=True, exist_ok=True)
         print(f"  {Console.ok(t('ccache_status', path=os.environ['CCACHE_DIR']))}")
         print(f"  {t('ccache_compiler_launcher')}: {ccache_prog}")
+    elif resolved_os == "win":
+        print(f"  {Console.info(t('ccache_windows_disabled'))}")
     else:
         print(f"  {Console.warn(t('ccache_not_found'))}")
 
