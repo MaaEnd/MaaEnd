@@ -3340,6 +3340,7 @@ class MapNavigatorApp {
         // 先同步清干净(并作废在途探针) —— 调用方随后 _paint() 时就不会再画着上一次的残留徽标,
         // 而点起点时发出的孤点探针也不会在路线算完之后才回来、盖掉路线自己的那行提示。
         this._resetOffMeshOverlays();
+        this.astarDiagnostics = [];
         if (!this.field || this.astarPoints.length < 2) return;
         const displayZoneId = this._astarZoneId();
         const geomId = this.field.geometryZoneId(displayZoneId);
@@ -3349,6 +3350,7 @@ class MapNavigatorApp {
         const basePoints = this.astarPoints.map((p) =>
             tierId !== null ? this.field.tierToBase(tierId, p[0], p[1]) : p,
         );
+        const diagnostics = [];
 
         try {
             const combinedPoints = [];
@@ -3397,7 +3399,7 @@ class MapNavigatorApp {
                 }
 
                 const segmentPts = res.points || [];
-                this.astarDiagnostics.push({
+                diagnostics.push({
                     ...(res.debug || {}),
                     start: legStart,
                     goal: legGoal,
@@ -3417,6 +3419,7 @@ class MapNavigatorApp {
                 segment_breaks: combinedBreaks,
                 cost: totalCost,
             };
+            this.astarDiagnostics = diagnostics;
             const summary = `A* 路线已生成：共 ${this.astarPoints.length} 个关键点，包含 ${this.astarRoute.points.length} 个坐标。`;
             if (this.astarBlindWalks.length > 0) {
                 const worst = Math.max(...this.astarBlindWalks.map((b) => b.distance)).toFixed(1);
@@ -3433,6 +3436,7 @@ class MapNavigatorApp {
         } catch (err) {
             this.astarRoute = null;
             this.astarBlindWalks = [];
+            this.astarDiagnostics = [];
             const msg = err && err.message ? err.message : err;
             setStatus(`A* 寻路失败: ${msg}${this._offMeshHint()}`, "#ef4444");
             this._paint();

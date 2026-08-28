@@ -4,6 +4,7 @@
 #include <cmath>
 #include <cstdint>
 #include <cstring>
+#include <exception>
 #include <filesystem>
 #include <fstream>
 #include <memory>
@@ -394,7 +395,7 @@ json::object BuildRoute(QueryContext& context, const QueryParam& param)
     for (const auto& p : plan.debug.planned_points) debug["planned_points"].as_array().emplace_back(json::array { p.x, p.y });
     for (const auto& warning : plan.debug.warnings) debug["warnings"].as_array().emplace_back(warning);
     const auto ss = context.planner->snap(geom, start, param.snap_radius, floor_y);
-    const auto sg = context.planner->snap(geom, goal, param.snap_radius, FloorOrNone(param.goal_deck_y));
+    const auto sg = context.planner->snap(geom, goal, param.snap_radius, floor_y);
     json::object snap {
         { "start", ss ? json::object { { "point", json::array { ss->point.x, ss->point.y } }, { "triangle", ss->triangle },
                                          { "distance", ss->distance }, { "component", context.planner->componentId(ss->triangle) },
@@ -605,19 +606,41 @@ MaaBool MAA_CALL MapNavmeshQueryRun(
     MaaRect* out_box,
     MaaStringBuffer* out_detail)
 {
-    const auto param = ParseParam(custom_recognition_param);
-    if (!param) {
-        LogWarn << "invalid param" << VAR(custom_recognition_param);
-    }
-    const json::object result = param ? Dispatch(*param) : Fail("param 解析失败");
+    constexpr char kExceptionDetail[] = R"({"ok":false,"error":"navmesh 查询异常"})";
+    try {
+        const auto param = ParseParam(custom_recognition_param);
+        if (!param) {
+            LogWarn << "invalid param" << VAR(custom_recognition_param);
+        }
+        const json::object result = param ? Dispatch(*param) : Fail("param 解析失败");
 
-    if (out_detail != nullptr) {
-        MaaStringBufferSet(out_detail, json::value(result).dumps().c_str());
+        if (out_detail != nullptr) {
+            const std::string detail = json::value(result).dumps();
+            if (MaaStringBufferSet(out_detail, detail.c_str()) == MAA_FALSE) {
+                LogError << "failed to write navmesh query detail";
+                return MAA_FALSE;
+            }
+        }
+        if (out_box != nullptr) {
+            *out_box = { 0, 0, 1, 1 };
+        }
+        // 恒命中：查不出来也要把原因带回调用方，返回 false 会让 detail 一并丢掉。
+        return MAA_TRUE;
+    }
+    catch (const std::exception& error) {
+        LogError << "navmesh query threw an exception" << VAR(error.what());
+    }
+    catch (...) {
+        LogError << "navmesh query threw an unknown exception";
+    }
+
+    if (out_detail != nullptr && MaaStringBufferSet(out_detail, kExceptionDetail) == MAA_FALSE) {
+        LogError << "failed to write navmesh query exception detail";
+        return MAA_FALSE;
     }
     if (out_box != nullptr) {
         *out_box = { 0, 0, 1, 1 };
     }
-    // 恒命中：查不出来也要把原因带回调用方，返回 false 会让 detail 一并丢掉。
     return MAA_TRUE;
 }
 

@@ -1008,7 +1008,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     const LayerOracle* lyo_p = qs.has_value() ? &lyo : nullptr;
     const float lyo_h = qs.has_value() ? st3.sp_h[static_cast<size_t>(qs->front())] : 0.0F;
     if (out.size() > 2) {
-        out = Slim(out, blk_gray, &cfl, lyo_p, lyo_h);
+        out = Slim(out, blk_gray, &cfl, lyo_p, lyo_h, true, kStringPullMaxMergeGap);
     }
     dg.slim_points = out;
     if (out.size() > 2) {

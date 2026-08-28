@@ -43,6 +43,7 @@ class NavTestService:
     """一次试跑会话: 起 Agent、连游戏、监听 F3/F4、按需重复跑同一条路线。"""
 
     RUN_POLL_INTERVAL_SECONDS = 0.2
+    POSITION_OBSERVER_READY_TIMEOUT_SECONDS = 2.0
     # 关会话时等工作线程收尾的上限 (要覆盖一轮 post_task 从 post_stop 中返回的时间)。
     SHUTDOWN_JOIN_TIMEOUT_SECONDS = 20.0
 
@@ -85,6 +86,7 @@ class NavTestService:
         self._resource: Any = None
         self._position_thread: threading.Thread | None = None
         self._position_stop = threading.Event()
+        self._position_ready = threading.Event()
 
     _POSITION_RE = re.compile(
         r"MapLocator \[status=0\].*?\[position\.zoneId=(.*?)\] "
@@ -107,16 +109,27 @@ class NavTestService:
     def _start_position_observer(self) -> None:
         self._stop_position_observer()
         self._position_stop.clear()
+        self._position_ready.clear()
         self._position_thread = threading.Thread(
             target=self._position_observer_loop,
             args=(self._position_log_path(),),
             name="MapNavigatorLivePosition",
             daemon=True,
         )
-        self._position_thread.start()
+        try:
+            self._position_thread.start()
+        except RuntimeError as exc:
+            self._position_thread = None
+            self._position_ready.set()
+            self._on_status(f"实时寻路位置观察启动失败: {exc}", "#f59e0b")
+            return
+        if not self._position_ready.wait(self.POSITION_OBSERVER_READY_TIMEOUT_SECONDS):
+            self._on_status("实时寻路位置观察启动超时, 本轮不显示实时轨迹。", "#f59e0b")
+            self._stop_position_observer()
 
     def _stop_position_observer(self) -> None:
         self._position_stop.set()
+        self._position_ready.set()
         thread = self._position_thread
         if thread is not None and thread.is_alive():
             thread.join(1.0)
@@ -128,6 +141,7 @@ class NavTestService:
             with path.open("r", encoding="utf-8", errors="replace") as stream:
                 stream.seek(0, 2)
                 offset = stream.tell()
+                self._position_ready.set()
                 while not self._position_stop.is_set():
                     stream.seek(offset)
                     line = stream.readline()
@@ -153,6 +167,8 @@ class NavTestService:
                         continue
         except OSError as exc:
             self._on_status(f"实时寻路位置观察不可用: {exc}", "#f59e0b")
+        finally:
+            self._position_ready.set()
 
     @property
     def is_alive(self) -> bool:
