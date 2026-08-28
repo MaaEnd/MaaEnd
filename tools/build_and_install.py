@@ -32,6 +32,50 @@ def _timing(label: str, start: float) -> None:
     print(f"  [timing] {label}: {time.monotonic() - start:.1f}s", flush=True)
 
 
+def _find_ccache(root_dir: Path) -> str | None:
+    """定位可用的 ccache 可执行文件。
+
+    优先使用工作区内官方下载的版本（.cache/ccache-bin/ccache.exe，Windows CI 已部署 4.14），
+    否则回退到 PATH 中的 ccache，但要求版本 >= 4.6（4.6 才支持 MSVC）。
+    返回可执行文件路径；找不到或版本过旧返回 None（调用方视为未启用）。
+    """
+    candidates: list[Path] = []
+    # 1) 工作区官方版本（最可靠，规避 Strawberry Perl 自带的旧 3.x）
+    ws_bin = root_dir / ".cache" / "ccache-bin" / "ccache.exe"
+    if ws_bin.exists():
+        candidates.append(ws_bin)
+    # 2) PATH 中的 ccache
+    found = shutil.which("ccache")
+    if found:
+        candidates.append(Path(found))
+
+    for cand in candidates:
+        try:
+            proc = subprocess.run(
+                [str(cand), "--version"],
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+                timeout=15,
+            )
+            if proc.returncode != 0:
+                continue
+            first = proc.stdout.splitlines()[0] if proc.stdout else ""
+            # 例如 "ccache version 4.14" 或 "ccache version 3.7.12"
+            import re as _re
+
+            m = _re.search(r"ccache version (\d+)\.(\d+)", first)
+            if not m:
+                continue
+            major, minor = int(m.group(1)), int(m.group(2))
+            if major > 4 or (major == 4 and minor >= 6):
+                return str(cand)
+        except (OSError, subprocess.SubprocessError, ValueError):
+            continue
+    return None
+
+
 def create_directory_link(src: Path, dst: Path) -> bool:
     """
     在指定位置创建一个指定目录的链接
@@ -531,7 +575,7 @@ def build_cpp_algo(
     print(f"  {t('maadeps_triplet')}: {maadeps_triplet}")
 
     # ccache：所有平台都尝试启用（Windows x64 走 Ninja Multi-Config + cl.exe，ccache 支持 MSVC）
-    ccache_prog = shutil.which("ccache")
+    ccache_prog = _find_ccache(root_dir)
     if ccache_prog:
         os.environ["CCACHE_DIR"] = str(root_dir / ".cache" / "ccache")
         Path(os.environ["CCACHE_DIR"]).mkdir(parents=True, exist_ok=True)
