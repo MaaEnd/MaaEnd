@@ -1,30 +1,15 @@
-"""
-GitHub Actions 缓存自动清理脚本。
+"""GitHub Actions 缓存自动清理脚本。
 
-背景：仓库 10GB 免费缓存上限。多 PR 并行 + 每次 push 生成新 key，会让缓存
-线性堆积（尤其 maadeps ~0.8GB/平台、ccache ~0.1GB/平台），顶满后被 LRU 逐出，
-逐出的是"最久未访问"的缓存，可能误伤仍被 PR 使用的热缓存。
+规则:
+  - merge ref 中与 v2 同 key 的 maadeps 冗余副本 -> 全删
+  - 已关闭/合并 PR 的 merge ref 缓存 -> 全删
+  - 同 (ref, key 前缀) 保留最新 keep 份(默认2), 其余删除
+  - 删除前检查 last_accessed_at: 最近 access_window 秒内被访问过则跳过(并发保护)
+  - v2 分支 maadeps-* 永不删 (共享依赖库存)
+  - 可选水位保护: 超 watermark 时删到 target
 
-本脚本按"同 ref x 同 key 前缀保留 N 份"的规则清理，配合并发保护：
-
-    - merge ref 中与 v2 同 key 的 maadeps 冗余副本 -> 全删（PR 本就从 v2 恢复）
-    - 已关闭/合并 PR 的 merge ref 缓存 -> 全删
-    - 同一 (ref, key 前缀) 下保留最新的 keep 份（默认 2），其余标记删除
-    - 删除前检查 last_accessed_at：若最近 access_window 秒内被访问过，
-      视为可能正被并发的 restore 使用，跳过（下次再删）
-    - v2 分支的 maadeps-* 缓存永不删（所有 PR 的共享依赖库存）
-    - 可选总量水位保护：处理后仍超 watermark 时按最旧优先删到 target
-
-默认 dry-run：只打印将删除清单，不执行。加 --apply 才真正 DELETE。
-
-用法：
-    python tools/cleanup_caches.py                      # dry-run 全仓
-    python tools/cleanup_caches.py --apply              # 真删
-    python tools/cleanup_caches.py --ref refs/pull/5294/merge   # 仅该 ref
-    python tools/cleanup_caches.py --keep 3 --apply
-    python tools/cleanup_caches.py --watermark-gb 8 --target-gb 7 --apply
-
-环境变量：GITHUB_TOKEN 或 GH_TOKEN（需有 actions: write 权限）。
+默认 dry-run, 加 --apply 才真删。用法: python tools/cleanup_caches.py [--apply] [--ref REF]
+环境变量: GITHUB_TOKEN 或 GH_TOKEN (需 actions: write)。
 """
 
 from __future__ import annotations
@@ -40,10 +25,10 @@ import urllib.request
 API_BASE = "https://api.github.com"
 REPO = os.environ.get("GITHUB_REPOSITORY") or "MaaEnd/MaaEnd"
 CACHE_PREFIX_PART_COUNT = {
-    # key 形如 ccache-v4-win-x86_64-<hash>（win 带 v4 标记）或 ccache-win-x86_64-<hash>
-    "ccache-v4": 4,  # ["ccache", "v4", "win", "x86_64"]
-    "ccache": 3,     # ["ccache", "win", "x86_64"]
-    "maadeps": 3,    # ["maadeps", "win", "x86_64"]
+    # 前缀取前 N 个 "-" 分隔段 (去掉末尾 hash)
+    "ccache-v4": 4,
+    "ccache": 3,
+    "maadeps": 3,
 }
 
 
@@ -78,6 +63,7 @@ def _headers(extra: dict | None = None) -> dict:
 
 
 def request_json(url: str) -> "dict | list":
+    # 5 次指数退避重试 (5xx/429/网络瞬态)
     import random
     import time as _time
     last: Exception | None = None
@@ -134,10 +120,7 @@ def list_all_caches() -> list[dict]:
 
 
 def key_prefix(key: str) -> str | None:
-    """取缓存 key 的前缀（去掉末尾 hash）。
-
-    只处理我们认识的缓存类型（ccache/maadeps），其余返回 None（不参与分组清理）。
-    """
+    """取缓存 key 前缀 (去掉 hash); 只处理 ccache/maadeps, 其余返回 None。"""
     for base, count in CACHE_PREFIX_PART_COUNT.items():
         if key.startswith(base + "-"):
             parts = key.split("-")
@@ -176,9 +159,7 @@ def plan(caches: list[dict], keep: int, access_window_s: int,
         except ValueError:
             return 0.0
 
-    # ---- 规则 0：merge ref 的 maadeps 与 v2 同 key 的冗余副本全删 ----
-    # PR 的 restore 走 v2（maadeps key 固定，primary 命中 v2），merge ref 里
-    # 与 v2 完全同 key 的 maadeps 只是"PR 也 Save"时代的残留，删掉后 PR 仍从 v2 恢复。
+    # ---- 规则 0：merge ref 中与 v2 同 key 的 maadeps 冗余副本全删 (PR 走 v2 恢复) ----
     v2_maadeps_keys = {
         c.get("key")
         for c in caches
@@ -193,8 +174,7 @@ def plan(caches: list[dict], keep: int, access_window_s: int,
             remaining.remove(c)
 
     # ---- 规则 1：已关闭/合并 PR 的 merge ref 全删 ----
-    # 注意遍历 remaining 而非 caches：规则 0 已把"与 v2 同 key 的 maadeps 冗余副本"
-    # 从 remaining 移除（它们已进 to_delete），若这里再对同一对象 remove 会抛 ValueError。
+    # 遍历 remaining: 规则 0 已移除的项不再重复 remove (否则 ValueError)
     pr_cache: dict[str, list[dict]] = {}
     for c in remaining:
         ref = c.get("ref") or ""
@@ -209,7 +189,7 @@ def plan(caches: list[dict], keep: int, access_window_s: int,
                 to_delete.append(c)
                 remaining.remove(c)
 
-    # ---- 规则 2：同 (ref, key 前缀) 保留最新 keep 份 ----
+    # ---- 规则 2：同 (ref, key 前缀) 保留最新 keep 份, 其余删除 ----
     groups: dict[tuple[str, str], list[dict]] = {}
     for c in remaining:
         ref = c.get("ref") or ""
@@ -218,7 +198,6 @@ def plan(caches: list[dict], keep: int, access_window_s: int,
             continue
         groups.setdefault((ref, pref), []).append(c)
     for (ref, pref), entries in groups.items():
-        # 按 created_at 升序
         entries.sort(key=lambda c: (c.get("created_at") or ""))
         for idx, c in enumerate(entries):
             if idx < len(entries) - keep:
@@ -243,9 +222,7 @@ def plan(caches: list[dict], keep: int, access_window_s: int,
             continue
         final_to_delete.append(c)
 
-    # ---- 规则 4：总量水位保护 ----
-    # 从完整 caches 容量出发，只减 final_to_delete：remaining 已被规则 0-2 移除候选，
-    # 若用 remaining_size 再减 deleted_size 会双重扣除，导致水位触发时可能不清理。
+    # ---- 规则 4：总量水位保护 (从完整 caches 容量计, 只减 final_to_delete, 避免双扣) ----
     remaining_size = sum(c.get("size_in_bytes", 0) for c in caches)
     deleted_size = sum(c.get("size_in_bytes", 0) for c in final_to_delete)
     if watermark_gb and remaining_size - deleted_size > watermark_gb * 1024**3:

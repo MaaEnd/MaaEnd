@@ -33,12 +33,7 @@ def _timing(label: str, start: float) -> None:
 
 
 def _find_ccache(root_dir: Path) -> str | None:
-    """定位可用的 ccache 可执行文件。
-
-    优先使用工作区内官方下载的版本（.cache/ccache-bin/ccache.exe，Windows CI 已部署 4.14），
-    否则回退到 PATH 中的 ccache，但要求版本 >= 4.6（4.6 才支持 MSVC）。
-    返回可执行文件路径；找不到或版本过旧返回 None（调用方视为未启用）。
-    """
+    """找可用的 ccache：优先工作区官方版 (.cache/ccache-bin)，退回 PATH；需 >= 4.6 (MSVC 支持)。"""
     candidates: list[Path] = []
     # 1) 工作区官方版本（最可靠，规避 Strawberry Perl 自带的旧 3.x）
     ws_bin = root_dir / ".cache" / "ccache-bin" / "ccache.exe"
@@ -347,13 +342,7 @@ def build_go_agent(
 
 
 def setup_windows_msvc_env(arch: str = "x86_64") -> bool:
-    """在 Windows 上初始化 MSVC 开发环境（Ninja + cl.exe 需要 INCLUDE/LIB/PATH）。
-
-    通过 vswhere 定位 Visual Studio，再调用 vcvarsall.bat <arch> 导出环境变量，
-    注入 os.environ，使后续 cmake/Ninja 能找到 cl.exe 及标准库头文件。
-    arch: "x86_64" 或 "aarch64"，分别对应 vcvarsall x64 / arm64。
-    返回 True 表示成功；失败时返回 False（调用方可回退到 VS generator）。
-    """
+    """初始化 MSVC 环境 (vswhere + vcvarsall)，供 Ninja + cl.exe 使用。失败返回 False。"""
     sys_root = os.environ.get("ProgramFiles(x86)", r"C:\Program Files (x86)")
     vswhere = Path(sys_root) / "Microsoft Visual Studio" / "Installer" / "vswhere.exe"
     if not vswhere.exists():
@@ -389,7 +378,6 @@ def setup_windows_msvc_env(arch: str = "x86_64") -> bool:
         print(f"  {Console.warn(t('warning'))} {t('vswhere_not_found')}")
         return False
 
-    # 用 vcvarsall.bat 按目标架构初始化（x86_64->x64，aarch64->arm64）
     vcvarsall = Path(vs_path) / "VC" / "Auxiliary" / "Build" / "vcvarsall.bat"
     if not vcvarsall.exists():
         print(
@@ -397,14 +385,11 @@ def setup_windows_msvc_env(arch: str = "x86_64") -> bool:
         )
         return False
 
-    # vcvarsall 参数：x86_64 -> x64（x64 host -> x64 target）
-    #              aarch64 -> x64_arm64（x64 host -> arm64 target，交叉编译）
-    # 注意不能用裸 "arm64"：那表示 ARM64 host -> ARM64 target（VsDevCmd 的
-    # -host_arch=arm64），在 x64 runner 上会配置 HostARM64 工具链，而实际
-    # cl/link 由下方 PATH 修正强制指向 Hostx64/arm64，语义不一致。
+    # x86_64 -> x64; aarch64 -> x64_arm64 (x64 host cross-compile to arm64 target).
+    # Bare "arm64" means arm64 host -> arm64 target, which would break the
+    # Hostx64/arm64 toolchain enforced below on x64 runners.
     msvc_arch = "x64_arm64" if arch == "aarch64" else "x64"
-    # 用 shell 执行 vcvarsall.bat <arch> 并导出环境变量（set 命令输出）。
-    # 注意必须用 shell=True：cmd /c 对带空格路径的引号处理有坑，shell 交由 Windows 解析。
+    # vcvarsall 必须在 shell 中执行 (cmd 对带空格路径的引号处理有坑)
     try:
         env_dump = subprocess.run(
             f'call "{vcvarsall}" {msvc_arch} >nul && set',
@@ -642,13 +627,11 @@ def build_cpp_algo(
     )
     print(f"  {t('maadeps_triplet')}: {maadeps_triplet}")
 
-    # ccache：所有平台都尝试启用（Windows x64 走 Ninja Multi-Config + cl.exe，ccache 支持 MSVC）
     ccache_prog = _find_ccache(root_dir)
     if ccache_prog:
         os.environ["CCACHE_DIR"] = str(root_dir / ".cache" / "ccache")
         Path(os.environ["CCACHE_DIR"]).mkdir(parents=True, exist_ok=True)
-        # 把 ccache 所在目录前置到 PATH，确保 CMake 的 find_program(CCACHE_PROG ccache)
-        # 命中官方新版（如 .cache/ccache-bin 的 4.14），而不是 Strawberry 自带的旧 3.x。
+        # 前置到 PATH，确保 CMake 命中官方 4.14 而非 Strawberry 旧 3.x
         ccache_dir = str(Path(ccache_prog).parent)
         old_path = os.environ.get("PATH", "")
         if ccache_dir not in old_path.split(os.pathsep):
@@ -686,14 +669,13 @@ def build_cpp_algo(
             f"-DENABLE_CCACHE={enable_ccache}",
         ]
 
-        # MSVC + ccache：/Zi(ProgramDatabase) 无法缓存，改用 Embedded(/Z7) 才能命中
+        # MSVC + ccache: /Zi 不可缓存, 改用 /Z7 (Embedded)
         if resolved_os == "win" and enable_ccache == "ON":
             configure_cmd.append(
                 "-DCMAKE_MSVC_DEBUG_INFORMATION_FORMAT=Embedded"
             )
 
-        # Windows 交叉编译：显式指定 x64(宿主) rc.exe，避免 CMake 选 arm64 rc 在 x64 runner 上失败。
-        # 注意 CMake 的 -D 值里反斜杠会被当作转义符，必须用正斜杠。
+        # 交叉编译: 显式用 x64(宿主) rc.exe; -D 值里反斜杠是转义符, 必须用正斜杠
         if resolved_os == "win" and os.environ.get("MAAEND_RC_COMPILER"):
             rc_path = os.environ["MAAEND_RC_COMPILER"].replace("\\", "/")
             configure_cmd.append(f"-DCMAKE_RC_COMPILER={rc_path}")
