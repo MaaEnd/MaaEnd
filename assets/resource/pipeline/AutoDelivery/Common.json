@@ -3,10 +3,11 @@
         "desc": "等待当前送货任务详情加载完成，并自动判断需要取货还是送货",
         "recognition": "And",
         "all_of": [
+            "AutoDeliveryCurrentDeliveryMissionDetail",
             "AutoDeliveryAreaOCR",
             "AutoDeliveryCurrentJobActionButton"
         ],
-        "box_index": 0,
+        "box_index": 1,
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
@@ -22,10 +23,11 @@
         "desc": "从当前送货任务详情识别送货目标；同区重复资源回收站转入大地图判定，其余目标直接注入寻路参数",
         "recognition": "And",
         "all_of": [
+            "AutoDeliveryCurrentDeliveryMissionDetail",
             "AutoDeliveryAreaOCR",
             "AutoDeliveryDestinationField"
         ],
-        "box_index": 1,
+        "box_index": 2,
         "pre_wait_freezes": {
             "time": 300,
             "target": [
@@ -49,9 +51,10 @@
         "desc": "从当前送货任务详情识别仓储节点，并注入前往仓储节点的寻路参数",
         "recognition": "And",
         "all_of": [
+            "AutoDeliveryCurrentDeliveryMissionDetail",
             "AutoDeliveryAreaOCR"
         ],
-        "box_index": 0,
+        "box_index": 1,
         "pre_wait_freezes": {
             "time": 300,
             "target": [

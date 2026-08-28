@@ -13,9 +13,10 @@
         "desc": "在任务详情页面点击定位按钮，打开任务目标地图",
         "recognition": "And",
         "all_of": [
+            "AutoDeliveryCurrentDeliveryMissionDetail",
             "TrackedMissionMapButton"
         ],
-        "box_index": 0,
+        "box_index": 1,
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
@@ -31,9 +32,10 @@
         "desc": "在任务详情页面点击开始追踪任务按钮",
         "recognition": "And",
         "all_of": [
+            "AutoDeliveryCurrentDeliveryMissionDetail",
             "AutoDeliveryStartTrackingButton"
         ],
-        "box_index": 0,
+        "box_index": 1,
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
@@ -129,25 +131,34 @@
         ]
     },
     "AutoDeliveryPrepareNavigateDepot": {
-        "desc": "快速传送后进入任务界面取消追踪，再前往仓储节点",
+        "desc": "快速传送后进入任务界面并选中送货任务，取消追踪后再前往仓储节点",
         "recognition": "DirectHit",
         "pre_delay": 0,
-        "action": "DoNothing",
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuMission",
+                "AutoDeliveryEnsureDeliveryMissionSelected"
+            ],
+            "continue": false,
+            "strict": true
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "AutoDeliveryCancelTrackingBeforeNavigateDepot",
-            "AutoDeliveryTrackingAlreadyOffBeforeNavigateDepot",
-            "[JumpBack]SceneEnterMenuMission"
+            "AutoDeliveryTrackingAlreadyOffBeforeNavigateDepot"
         ]
     },
     "AutoDeliveryCancelTrackingBeforeNavigateDepot": {
         "desc": "在任务界面取消当前送货任务追踪，避免追踪图标干扰仓储寻路",
         "recognition": "And",
         "all_of": [
+            "AutoDeliveryCurrentDeliveryMissionDetail",
             "AutoDeliveryCancelCurrentJobTrackingButton"
         ],
-        "box_index": 0,
+        "box_index": 1,
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
@@ -160,9 +171,10 @@
         "desc": "确认前往仓储节点前当前任务已经未追踪",
         "recognition": "And",
         "all_of": [
+            "AutoDeliveryCurrentDeliveryMissionDetail",
             "AutoDeliveryStartTrackingButton"
         ],
-        "box_index": 0,
+        "box_index": 1,
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
@@ -171,20 +183,13 @@
         ]
     },
     "AutoDeliveryTrackingGoneBeforeNavigateDepot": {
-        "desc": "确认前往仓储节点前取消追踪按钮已经消失",
-        "recognition": "TemplateMatch",
-        "roi": [
-            1100,
-            560,
-            170,
-            150
+        "desc": "在送货任务详情中确认前往仓储节点前开始追踪按钮已经出现",
+        "recognition": "And",
+        "all_of": [
+            "AutoDeliveryCurrentDeliveryMissionDetail",
+            "AutoDeliveryStartTrackingButton"
         ],
-        "template": [
-            "Common/Button/CancelButtonType2.png",
-            "Common/Button/CancelButtonType2Hover.png"
-        ],
-        "order_by": "Score",
-        "inverse": true,
+        "box_index": 1,
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
@@ -359,24 +364,27 @@
         ]
     },
     "AutoDeliveryOpenMissionAfterFetchGoods": {
-        "desc": "取货后进入任务界面",
+        "desc": "取货后进入任务界面并确保选中送货任务",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterMenuMission"
-            ]
+                "SceneEnterMenuMission",
+                "AutoDeliveryEnsureDeliveryMissionSelected"
+            ],
+            "continue": false,
+            "strict": true
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoDeliveryFindDeliveryMissionAfterFetchGoods"
+            "AutoDeliveryRecognizeDestination"
         ]
     },
-    "AutoDeliveryFindDeliveryMissionAfterFetchGoods": {
-        "desc": "进入任务界面后切换到送货任务",
+    "AutoDeliveryEnsureDeliveryMissionSelected": {
+        "desc": "在任务界面查找送货任务，并确认右侧详情已经选中该任务",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
@@ -397,7 +405,7 @@
         ]
     },
     "AutoDeliveryDeliveryMissionSelected": {
-        "desc": "确认右侧详情已经切换到送货任务，并直接识别取货后的送货目标",
+        "desc": "确认右侧详情已经切换到送货任务",
         "recognition": "OCR",
         "roi": [
             410,
@@ -415,10 +423,7 @@
         "order_by": "Expected",
         "pre_delay": 0,
         "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoDeliveryRecognizeDestination"
-        ]
+        "rate_limit": 0
     },
     "AutoDeliveryDeliveryMissionListItem": {
         "desc": "在任务列表中识别送货任务",
@@ -442,9 +447,10 @@
         "desc": "点击任务列表中的送货任务",
         "recognition": "And",
         "all_of": [
+            "AutoDeliveryInMissionMenu",
             "AutoDeliveryDeliveryMissionListItem"
         ],
-        "box_index": 0,
+        "box_index": 1,
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
@@ -470,6 +476,15 @@
             "임무"
         ],
         "order_by": "Expected"
+    },
+    "AutoDeliveryCurrentDeliveryMissionDetail": {
+        "desc": "确认当前位于任务界面，且右侧详情选中了送货任务",
+        "recognition": "And",
+        "all_of": [
+            "AutoDeliveryInMissionMenu",
+            "AutoDeliveryDeliveryMissionSelected"
+        ],
+        "box_index": 1
     },
     "AutoDeliveryScrollMissionList": {
         "desc": "任务列表当前页未找到送货任务时向下滑动，最多三次",
@@ -504,13 +519,15 @@
         "rate_limit": 0
     },
     "AutoDeliveryDeliveryMissionNotFound": {
-        "desc": "任务列表滑动三次后仍未找到送货任务，按默认行为结束组件",
+        "desc": "任务列表滑动三次后仍未找到送货任务，返回失败以阻止后续操作",
         "recognition": "And",
         "all_of": [
             "AutoDeliveryInMissionMenu"
         ],
         "box_index": 0,
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FalseAction",
         "post_delay": 0,
         "rate_limit": 0
     }

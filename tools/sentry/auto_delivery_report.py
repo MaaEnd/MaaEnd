@@ -85,6 +85,7 @@ FAILURE_LABELS = {
     "AutoDeliveryRetryNavigateDepot": "仓储站位重试",
     "AutoDeliveryOpenMissionAfterFetchGoods": "取货后返回任务界面",
     "AutoDeliveryFindDeliveryMissionAfterFetchGoods": "查找送货任务",
+    "AutoDeliveryEnsureDeliveryMissionSelected": "查找并确认送货任务",
     "AutoDeliveryDeliveryMissionSelected": "确认已选中送货任务",
     "AutoDeliveryDeliveryMissionListItem": "识别任务列表中的送货任务",
     "AutoDeliverySelectDeliveryMission": "选择送货任务",

@@ -30,9 +30,10 @@
         "desc": "送货前取消当前任务追踪，避免任务追踪图标干扰 MapNavigator 寻路",
         "recognition": "And",
         "all_of": [
+            "AutoDeliveryCurrentDeliveryMissionDetail",
             "AutoDeliveryCancelCurrentJobTrackingButton"
         ],
-        "box_index": 0,
+        "box_index": 1,
         "pre_delay": 0,
         "action": "Click",
         "post_delay": 0,
@@ -45,9 +46,10 @@
         "desc": "确认当前任务已经未追踪",
         "recognition": "And",
         "all_of": [
+            "AutoDeliveryCurrentDeliveryMissionDetail",
             "AutoDeliveryStartTrackingButton"
         ],
-        "box_index": 0,
+        "box_index": 1,
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
@@ -56,20 +58,13 @@
         ]
     },
     "AutoDeliveryCurrentJobTrackingGone": {
-        "desc": "确认取消追踪按钮已经消失",
-        "recognition": "TemplateMatch",
-        "roi": [
-            1100,
-            560,
-            170,
-            150
+        "desc": "在送货任务详情中确认开始追踪按钮已经出现",
+        "recognition": "And",
+        "all_of": [
+            "AutoDeliveryCurrentDeliveryMissionDetail",
+            "AutoDeliveryStartTrackingButton"
         ],
-        "template": [
-            "Common/Button/CancelButtonType2.png",
-            "Common/Button/CancelButtonType2Hover.png"
-        ],
-        "order_by": "Score",
-        "inverse": true,
+        "box_index": 1,
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
@@ -78,14 +73,15 @@
         ]
     },
     "AutoDeliveryPrepareNavigateDestination": {
-        "desc": "通过大地图确认资源回收站后返回任务界面，以便取消追踪再开始寻路",
+        "desc": "通过大地图确认资源回收站后返回任务界面并选中送货任务，以便取消追踪再开始寻路",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterMenuMission"
+                "SceneEnterMenuMission",
+                "AutoDeliveryEnsureDeliveryMissionSelected"
             ],
             "continue": false,
             "strict": true
