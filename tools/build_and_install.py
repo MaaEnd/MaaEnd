@@ -681,11 +681,11 @@ def build_cpp_algo(
                 "-DCMAKE_MSVC_DEBUG_INFORMATION_FORMAT=Embedded"
             )
 
-        # Windows 交叉编译：显式指定 x64(宿主) rc.exe，避免 CMake 选 arm64 rc 在 x64 runner 上失败
+        # Windows 交叉编译：显式指定 x64(宿主) rc.exe，避免 CMake 选 arm64 rc 在 x64 runner 上失败。
+        # 注意 CMake 的 -D 值里反斜杠会被当作转义符，必须用正斜杠。
         if resolved_os == "win" and os.environ.get("MAAEND_RC_COMPILER"):
-            configure_cmd.append(
-                f"-DCMAKE_RC_COMPILER={os.environ['MAAEND_RC_COMPILER']}"
-            )
+            rc_path = os.environ["MAAEND_RC_COMPILER"].replace("\\", "/")
+            configure_cmd.append(f"-DCMAKE_RC_COMPILER={rc_path}")
 
         # macOS 需要额外的参数
         if resolved_os == "macos":
