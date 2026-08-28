@@ -1,8 +1,7 @@
 /**
  * Live test-run controller — the front half of the `/ws/navtest` bridge. Hands whatever
- * the active tab holds to the game without exporting and pasting it into another tool:
- * a route goes to `MapNavigateAction` to be walked, an assert rect to
- * `MapLocateAssertLocation` to be checked once.
+ * the path editor holds to the game without exporting and pasting it into another tool.
+ * The current author route goes to `MapNavigateAction` to be walked.
  *
  * Two buttons, same shape as recording: 开始试跑 connects the game (elevating when
  * needed) and walks the route in one click, 终止试跑 stops it. The session outlives a
@@ -76,7 +75,7 @@ export class NavTestController {
    */
   run() {
     if (this.disabled) {
-      setStatus('日志分析模式为只读，不会向实机试跑装载路线。', '#f59e0b');
+      setStatus('当前模式不提供实机试跑。', '#f59e0b');
       return;
     }
     const route = this.getRoute();
@@ -157,7 +156,7 @@ export class NavTestController {
   }
 
   /**
-   * Disable starting/re-running while the active tab is a read-only view. An idle live
+   * Disable starting/re-running while the active mode has no test runner. An idle live
    * session is immediately armed with the empty route so the backend F3 hotkey cannot
    * replay a previously selected editor route.
    * @param {boolean} disabled
@@ -274,7 +273,7 @@ export class NavTestController {
     if (!live) {
       const route = this.getRoute();
       if (this.disabled) {
-        this.armedLabel.textContent = '日志分析模式为只读，不参与实机试跑';
+        this.armedLabel.textContent = '当前模式不参与实机试跑';
       } else if (route.assert_target) {
         this.armedLabel.textContent = '未连接游戏 ·「开始试跑」将连上游戏并检查这个框';
       } else if (route.path.length) {

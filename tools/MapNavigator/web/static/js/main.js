@@ -4487,30 +4487,12 @@ class MapNavigatorApp {
     }
 
     /**
-     * 试跑要跑的那一份, 取自当前页签: 路径编辑交编辑器原始路点 (导出在服务侧, 只此一处口径),
-     * A* 交已导出的 NAVMESH 节点 —— tier 变换与显示底图只有前端有, 后端换算不出来。
-     * 断言模式没有线, 交那个框, 由后端导成 MapLocateAssertLocation 节点认一次。
+     * 路径编辑试跑直接使用编辑器原始路点；其他模式不向试跑会话装载内容。
      * @returns {{path: Array, exported: boolean, zip: boolean, assert_target: ?Object}}
      */
     _navtestRoute() {
-        if (this.state.mode === Mode.LOG) {
+        if (this.state.mode !== Mode.EDIT) {
             return {path: [], exported: false, zip: false, assert_target: null};
-        }
-        if (this.state.mode === Mode.ASTAR) {
-            const ready = this.field && this._displayZoneId() && this.astarPoints.length >= 2;
-            return {path: ready ? this._navmeshTargets() : [], exported: true, zip: false};
-        }
-        if (this.state.mode === Mode.ASSERT) {
-            const zoneId = this._displayZoneId();
-            const target = this._currentAssertTarget();
-            // 零面积的框 (点一下没拖) 后端会拒, 这里就当作没画: 免得白连一次游戏。
-            const drawn = !!target && target[2] > 0 && target[3] > 0;
-            return {
-                path: [],
-                exported: false,
-                zip: false,
-                assert_target: zoneId && drawn ? { zone_id: zoneId, target } : null,
-            };
         }
         return {path: this.state.points, exported: false, zip: this.els.chkEditZipline.checked};
     }
@@ -5361,8 +5343,8 @@ class MapNavigatorApp {
     _selectModeTab(modeName) {
         const e = this.els;
 
-        if (modeName === "log" && this.navtest && this.navtest.running) {
-            setStatus("请先按 F4 终止当前实机试跑，再进入日志分析模式。", "#f59e0b");
+        if (modeName !== "edit" && this.navtest && this.navtest.running) {
+            setStatus("请先按 F4 终止当前实机试跑，再切换模式。", "#f59e0b");
             return;
         }
 
@@ -5442,12 +5424,13 @@ class MapNavigatorApp {
         e.tabRoute.classList.remove("active");
 
         const logWorkspace = mode === Mode.LOG;
+        const navtestAvailable = mode === Mode.EDIT;
         e.tabLog.classList.toggle("active", logWorkspace);
         e.tabLog.setAttribute("aria-pressed", String(logWorkspace));
         e.tabRoute.classList.toggle("active", !logWorkspace);
         e.tabRoute.setAttribute("aria-pressed", String(!logWorkspace));
         e.panelConnection.hidden = logWorkspace;
-        e.panelNavtest.hidden = logWorkspace;
+        e.panelNavtest.hidden = !navtestAvailable;
         e.routeModeTabs.hidden = logWorkspace;
         e.positionReadout.hidden = logWorkspace;
         e.btnLogMeasure.hidden = !logWorkspace;
@@ -5460,7 +5443,7 @@ class MapNavigatorApp {
         e.panelAssert.hidden = true;
         e.panelLog.hidden = true;
         e.btnDelPointFloat.hidden = mode === Mode.LOG;
-        if (this.navtest) this.navtest.setDisabled(mode === Mode.LOG);
+        if (this.navtest) this.navtest.setDisabled(!navtestAvailable);
 
         if (mode === Mode.ASTAR) {
             e.tabAstar.classList.add("active");
