@@ -431,6 +431,35 @@ json::array PointsToJson(const std::vector<navmesh::WorldPoint>& points)
     return out;
 }
 
+json::object DiagnosticToJson(const mapnavigator::NavmeshRouteDiagnostic& diagnostic)
+{
+    json::array warnings;
+    for (const std::string& warning : diagnostic.warnings) {
+        warnings.emplace_back(warning);
+    }
+    return json::object {
+        { "window",
+          json::object {
+              { "x0", diagnostic.x0 },
+              { "y0", diagnostic.y0 },
+              { "nx", diagnostic.nx },
+              { "ny", diagnostic.ny },
+              { "cell_size", diagnostic.cell_size },
+          } },
+        { "start", json::array { diagnostic.start.x, diagnostic.start.y } },
+        { "goal", json::array { diagnostic.goal.x, diagnostic.goal.y } },
+        { "astar_cells", PointsToJson(diagnostic.astar_cells) },
+        { "rerouted_points", PointsToJson(diagnostic.rerouted_points) },
+        { "string_pull_points", PointsToJson(diagnostic.string_pull_points) },
+        { "assembled_points", PointsToJson(diagnostic.assembled_points) },
+        { "loop_fixed_points", PointsToJson(diagnostic.loop_fixed_points) },
+        { "slim_points", PointsToJson(diagnostic.slim_points) },
+        { "widened_points", PointsToJson(diagnostic.widened_points) },
+        { "planned_points", PointsToJson(diagnostic.planned_points) },
+        { "warnings", std::move(warnings) },
+    };
+}
+
 json::object BuildRoutePreview(const QueryParam& query)
 {
     if (query.position.size() < 2 || query.position_zone.empty()) {
@@ -459,8 +488,29 @@ json::object BuildRoutePreview(const QueryParam& query)
 
     mapnavigator::ResetZiplineOutcome();
     std::vector<mapnavigator::Waypoint> expanded;
-    if (!mapnavigator::ExpandNavmeshWaypoints(param, position, [] { return false; }, expanded)) {
-        return Fail("路线展开失败");
+    std::vector<mapnavigator::NavmeshRouteDiagnostic> diagnostics;
+    if (!mapnavigator::ExpandNavmeshWaypoints(param, position, [] { return false; }, expanded, &diagnostics)) {
+        const mapnavigator::NavmeshExpansionFailure failure = mapnavigator::CurrentNavmeshExpansionFailure();
+        json::object result = Fail(failure.message.empty() ? "路线展开失败" : failure.message);
+        json::object detail {
+            { "code", failure.code },
+            { "message", failure.message },
+            { "zone_id", failure.zone_id },
+            { "target_tier", failure.target_tier },
+            { "route_status", failure.route_status },
+            { "route_error", failure.route_error },
+        };
+        if (failure.authored_index) {
+            detail.emplace("authored_index", *failure.authored_index);
+        }
+        if (failure.target) {
+            detail.emplace("target", json::array { failure.target->x, failure.target->y });
+        }
+        if (failure.target_deck_y) {
+            detail.emplace("target_deck_y", *failure.target_deck_y);
+        }
+        result.emplace("failure", std::move(detail));
+        return result;
     }
 
     std::vector<navmesh::WorldPoint> all_points;
@@ -513,12 +563,18 @@ json::object BuildRoutePreview(const QueryParam& query)
     }
     flush_walk();
 
+    json::array diagnostic_items;
+    for (const mapnavigator::NavmeshRouteDiagnostic& diagnostic : diagnostics) {
+        diagnostic_items.emplace_back(DiagnosticToJson(diagnostic));
+    }
+
     const mapnavigator::ZiplineOutcome outcome = mapnavigator::CurrentZiplineOutcome();
     return json::object {
         { "ok", true },
         { "points", PointsToJson(all_points) },
         { "walk_segments", std::move(walk_segments) },
         { "zipline_segments", std::move(zipline_segments) },
+        { "diagnostics", std::move(diagnostic_items) },
         { "expanded_waypoints", expanded.size() },
         { "zipline",
           json::object {

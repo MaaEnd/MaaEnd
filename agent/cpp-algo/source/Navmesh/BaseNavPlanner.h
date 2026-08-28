@@ -55,6 +55,7 @@ enum class BaseNavRouteStatus
 struct BaseNavRouteResult
 {
     BaseNavRouteStatus status = BaseNavRouteStatus::Unreachable;
+    std::string error;
     WorldPath path;
     double cost = 0.0;
 

@@ -93,8 +93,12 @@ export class Overlay {
     // Real route points in every mode (the caller decides which ones are in frame);
     // assert/A* artifacts are layered on top so they stay readable over a route.
     this._drawPath(camera, vm.points || []);
-    if (mode === 'edit' && vm.editPreview) {
-      this._drawAstarPreview(camera, vm.editPreview);
+    if (mode === 'edit') {
+      if (vm.editPreview) {
+        this._drawAstarPreview(camera, vm.editPreview);
+        this._drawAstarDiagnostics(camera, vm.editPreview.diagnostics, vm.editPreview.debugOptions || {});
+      }
+      this._drawLivePath(camera, vm.livePath);
     }
     this._drawNodes(camera, vm.points || [], vm.selectedIdx, vm.selectedIndices || new Set());
 

@@ -204,7 +204,7 @@ class MapNavigatorApp {
          * @type {Array<Object>}
          */
         this.editOffMeshMarks = [];
-        /** Runtime-expanded preview for the current EDIT zone segment, always in base px. */
+        /** Runtime-expanded preview and selected-leg diagnostics for the current EDIT segment, in base px. */
         this.editRoute = null;
         /** Guards against stale edit previews replacing a newer request or route state. */
         this._editRouteToken = 0;
@@ -500,6 +500,7 @@ class MapNavigatorApp {
                     if (running) {
                         this._clearLivePath();
                         this.positionReadout.setPending("正在获取实时位置与朝向...");
+                        this._paint();
                     }
                 },
             });
@@ -1159,6 +1160,7 @@ class MapNavigatorApp {
         const displayAstarLocateHints = mode === Mode.ASTAR ? this._astarDisplayHints() : [];
         const displayLogAnalysis = mode === Mode.LOG ? this._logAnalysisForDisplay() : null;
         const displayEditPreview = mode === Mode.EDIT ? this._editPreviewForDisplay() : null;
+        const displayLivePath = mode === Mode.EDIT || mode === Mode.ASTAR ? this._livePathForDisplay() : null;
 
         const vm = {
             mode,
@@ -1177,13 +1179,14 @@ class MapNavigatorApp {
                           goalOnly: this.astarGoal && !this.astarRoute ? this.astarGoal : null,
                           waypoints: this.astarPoints,
                           blindWalks: this._blindWalksForDisplay(),
-                          livePath: this._livePathForDisplay(),
-                          diagnostics: this._astarDiagnosticsForDisplay(),
+                          livePath: displayLivePath,
+                          diagnostics: this._diagnosticsForDisplay(this.astarDiagnostics),
                           debugOptions: this.navDebug,
                           showPlannedPath: this.navDebug.planned,
                       }
                     : null,
             selectionRect: this.selectionRect,
+            livePath: mode === Mode.EDIT ? displayLivePath : null,
             editLocateHint: displayEditLocateHint,
             assertLocateHint: displayAssertLocateHint,
             astarLocateHints: displayAstarLocateHints,
@@ -1215,6 +1218,9 @@ class MapNavigatorApp {
             hasRoute: true,
             waypoints: [],
             blindWalks: [],
+            diagnostics: this._diagnosticsForDisplay(this.editRoute.diagnostics || []),
+            debugOptions: this.navDebug,
+            showPlannedPath: this.navDebug.planned,
             walkSegments: (this.editRoute.walk_segments || []).map((segment) => segment.map(project)),
             ziplineSegments: (this.editRoute.zipline_segments || []).map((segment) => ({
                 ...segment,
@@ -1915,11 +1921,12 @@ class MapNavigatorApp {
         if (!this.field || !fix) return;
 
         const zoneId = this._resolveZoneId(fix.zone);
-        const displayZoneId = this._astarZoneId();
+        const editZoneId = this.state.mode === Mode.EDIT ? this._resolveZoneId(this.state.currentZone()) : NaN;
+        const displayZoneId = Number.isNaN(editZoneId) ? this._astarZoneId() : editZoneId;
         if (Number.isNaN(zoneId) || Number.isNaN(displayZoneId)) return;
         if (this.field.geometryZoneId(zoneId) !== this.field.geometryZoneId(displayZoneId)) {
             this._clearLivePath();
-            if (this.state.mode === Mode.ASTAR) this._paint();
+            if (this.state.mode === Mode.ASTAR || this.state.mode === Mode.EDIT) this._paint();
             return;
         }
 
@@ -1930,7 +1937,7 @@ class MapNavigatorApp {
         if (!last || Math.hypot(last.x - x, last.y - y) >= 1) {
             this.livePathBase.push({x, y, rot});
         }
-        if (this.state.mode === Mode.ASTAR) this._paint();
+        if (this.state.mode === Mode.ASTAR || this.state.mode === Mode.EDIT) this._paint();
     }
 
     /** Clear measured live-path state without affecting the planned preview. */
@@ -1939,9 +1946,14 @@ class MapNavigatorApp {
         this.livePositionBase = null;
     }
 
-    /** Project measured base-frame points into the current A* display frame. */
+    /** Project measured base-frame points into the current path-edit/A* display frame. */
     _livePathForDisplay() {
-        if (!this.showLivePath || !this.field || this.state.mode !== Mode.ASTAR) return null;
+        if (
+            !this.showLivePath ||
+            !this.field ||
+            (this.state.mode !== Mode.EDIT && this.state.mode !== Mode.ASTAR)
+        )
+            return null;
         return {
             points: this.livePathBase.map((point) => {
                 const [x, y] = this._baseToDisplay(point.x, point.y);
@@ -1965,9 +1977,9 @@ class MapNavigatorApp {
     }
 
     /** Project the real per-leg navmesh diagnostics into the current display frame. */
-    _astarDiagnosticsForDisplay() {
+    _diagnosticsForDisplay(diagnostics) {
         const project = (points) => (points || []).map(([x, y]) => this._baseToDisplay(x, y));
-        return this.astarDiagnostics.map((diag) => ({
+        return (diagnostics || []).map((diag) => ({
             ...diag,
             astar_cells: project(diag.astar_cells),
             rerouted_points: project(diag.rerouted_points),
@@ -3062,6 +3074,7 @@ class MapNavigatorApp {
                 points: result.points || [],
                 walk_segments: result.walk_segments || [],
                 zipline_segments: result.zipline_segments || [],
+                diagnostics: result.diagnostics || [],
                 zipline: result.zipline || {},
             };
             this.els.btnEditPlanClear.disabled = false;

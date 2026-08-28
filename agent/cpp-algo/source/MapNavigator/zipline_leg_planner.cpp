@@ -296,6 +296,7 @@ struct PlannedLeg
 {
     navmesh::WorldPath path;
     double length = 0.0;
+    NavmeshRouteDiagnostic diagnostic;
 };
 
 // 同一个滑索点会被多个候选对共用，按下标缓存，避免同一段路重复规划。
@@ -358,7 +359,8 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
     const navmesh::WorldPoint& goal,
     const navmesh::WorldPath* walking_path,
     std::optional<double> goal_deck_y,
-    const std::function<bool()>& should_stop)
+    const std::function<bool()>& should_stop,
+    bool capture_diagnostics)
 {
     // 没写 zip 的请求在这里就走完了：不读标定、不读记录、不多跑一条规划。
     if (!param.zipline_enabled) {
@@ -574,11 +576,23 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
     // 上索点的高度是导入数据里带来的逐点真值，直接钉住终点所在的那一层。
     LegCache approach_cache(
         [&](size_t index) -> std::optional<PlannedLeg> {
-            auto route = PlanNavmeshRoute(param, locator_zone, start, ToWorld(nodes[index]), nodes[index].height);
+            NavmeshRouteDiagnostic diagnostic;
+            auto route = PlanNavmeshRoute(
+                param,
+                locator_zone,
+                start,
+                ToWorld(nodes[index]),
+                nodes[index].height,
+                std::nullopt,
+                capture_diagnostics ? &diagnostic : nullptr);
             if (!route || !route->ok()) {
                 return std::nullopt;
             }
-            return PlannedLeg { .path = route->path, .length = PolylineLength(route->path) };
+            return PlannedLeg {
+                .path = route->path,
+                .length = PolylineLength(route->path),
+                .diagnostic = std::move(diagnostic),
+            };
         },
         plan_budget);
 
@@ -586,11 +600,23 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
     // 终点面用调用方给的那个，与纯走路方案完全一致——换走法不换目的地。
     LegCache departure_cache(
         [&](size_t index) -> std::optional<PlannedLeg> {
-            auto route = PlanNavmeshRoute(param, locator_zone, ToWorld(nodes[index]), goal, goal_deck_y, nodes[index].height);
+            NavmeshRouteDiagnostic diagnostic;
+            auto route = PlanNavmeshRoute(
+                param,
+                locator_zone,
+                ToWorld(nodes[index]),
+                goal,
+                goal_deck_y,
+                nodes[index].height,
+                capture_diagnostics ? &diagnostic : nullptr);
             if (!route || !route->ok()) {
                 return std::nullopt;
             }
-            return PlannedLeg { .path = route->path, .length = PolylineLength(route->path) };
+            return PlannedLeg {
+                .path = route->path,
+                .length = PolylineLength(route->path),
+                .diagnostic = std::move(diagnostic),
+            };
         },
         plan_budget);
 
@@ -666,6 +692,16 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
         best->towers.push_back(nodes[at]);
     }
     std::reverse(best->towers.begin(), best->towers.end());
+    if (capture_diagnostics) {
+        const std::optional<PlannedLeg>* approach = approach_cache.get(best_candidate->mount);
+        const std::optional<PlannedLeg>* departure = departure_cache.get(best_candidate->dismount);
+        if (approach != nullptr && approach->has_value()) {
+            best->diagnostics.push_back((*approach)->diagnostic);
+        }
+        if (departure != nullptr && departure->has_value()) {
+            best->diagnostics.push_back((*departure)->diagnostic);
+        }
+    }
     // 只有链首那一根要按提示上索, 中途都是从索上落到下一根架子上的
     best->mount_restand = MountStandPoint(param, locator_zone, best->towers.front(), supply_points);
 

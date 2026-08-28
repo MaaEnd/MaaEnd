@@ -7,6 +7,7 @@
 
 #include "../Navmesh/BaseNavPlanner.h"
 #include "../Zipline/ZiplineFrames.h"
+#include "navmesh_diagnostics.h"
 
 namespace mapnavigator
 {
@@ -39,6 +40,8 @@ struct ZiplineRoute
     // 上索点旁边贴着供电结构时给的备用站位，执行侧认不出上索提示才改瞄它。
     // 接近段仍然走到架子本身：让开量再小也是往外推，把它当常规落脚点会把人推出够得着的那圈。
     std::optional<navmesh::WorldPoint> mount_restand;
+    // 仅 WebUI 预览请求收集；只含最终选中方案的接近段和离索段。
+    std::vector<NavmeshRouteDiagnostic> diagnostics;
 };
 
 // 在本区找一条滑索路线：纯走路可达时只返回显著更省的方案；纯走路不可达时返回能把
@@ -64,6 +67,7 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
     const navmesh::WorldPoint& goal,
     const navmesh::WorldPath* walking_path,
     std::optional<double> goal_deck_y,
-    const std::function<bool()>& should_stop);
+    const std::function<bool()>& should_stop,
+    bool capture_diagnostics = false);
 
 } // namespace mapnavigator

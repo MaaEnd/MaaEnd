@@ -224,7 +224,10 @@ export function postRoute(req) {
  * @param {{position:number[], position_zone:string, custom_action_param:Object}} req
  * @returns {Promise<{ok:boolean, stale?:boolean, points?:number[][],
  *   walk_segments?:number[][][], zipline_segments?:Array<Object>,
- *   expanded_waypoints?:number, zipline?:Object, error?:string}>}
+ *   diagnostics?:Array<Object>, expanded_waypoints?:number, zipline?:Object, error?:string,
+ *   failure?:{code:string, message:string, authored_index?:number, zone_id?:string,
+ *     target?:number[], target_tier?:string, target_deck_y?:number,
+ *     route_status?:string, route_error?:string}}>}
  */
 export function postRoutePreview(req) {
   return sendJson('/api/route-preview', {
