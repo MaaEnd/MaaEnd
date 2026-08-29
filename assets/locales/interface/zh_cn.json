@@ -67,7 +67,7 @@
     "task.DeliveryJobs.WhatToFillWulingPriority4": "武陵 · 优先级 4",
     "task.EnvironmentMonitoring.not_adapted": "当前任务尚未适配，仅接取并追踪",
     "task.RealTimeTask.label": "🤖实时开荒辅助",
-    "task.RealTimeTask.description": "该任务会一直执行，实时监控识别游戏画面，自动按下需要的按键",
+    "task.RealTimeTask.description": "该任务会一直执行，实时监控识别游戏画面，自动按下需要的按键。不支持与其他任务同时运行",
     "option.SklandMap.label": "森空岛地图",
     "option.SklandMap.description": "登录后可开启实时位置同步，需要将游戏切换为窗口化",
     "option.SklandMapRegion.label": "地图区服",

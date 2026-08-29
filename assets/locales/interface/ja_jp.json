@@ -65,7 +65,7 @@
     "task.DeliveryJobs.WhatToFillWulingPriority4": "武陵 · 優先度 4",
     "task.EnvironmentMonitoring.not_adapted": "このタスクはまだ対応していません。受注・追跡のみ行います。",
     "task.RealTimeTask.label": "🤖 リアルタイム支援",
-    "task.RealTimeTask.description": "常時実行し、ゲーム画面をリアルタイム監視して必要なキー操作を自動で行います。",
+    "task.RealTimeTask.description": "常時実行し、ゲーム画面をリアルタイム監視して必要なキー操作を自動で行います。他のタスクとの同時実行には対応していません。",
     "option.SklandMap.label": "スカンドマップ",
     "option.SklandMap.description": "ログイン後、リアルタイム位置同期を利用できます。ゲームをウィンドウモードに切り替える必要があります。",
     "option.SklandMapRegion.label": "マップサーバー",

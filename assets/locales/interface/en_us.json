@@ -67,7 +67,7 @@
     "task.DeliveryJobs.WhatToFillWulingPriority4": "Wuling · Priority 4",
     "task.EnvironmentMonitoring.not_adapted": "This task is not yet supported; it will only accept and track the mission.",
     "task.RealTimeTask.label": "🤖 Real-time Assist",
-    "task.RealTimeTask.description": "Runs continuously, monitors the game screen in real time, and presses required keys automatically.",
+    "task.RealTimeTask.description": "Runs continuously, monitors the game screen in real time, and presses required keys automatically. Cannot run simultaneously with other tasks.",
     "option.SklandMap.label": "Skland Map",
     "option.SklandMap.description": "Real-time location sync is available after you log in. The game must be in windowed mode.",
     "option.SklandMapRegion.label": "Map Region",
