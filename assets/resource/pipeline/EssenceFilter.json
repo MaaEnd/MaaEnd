@@ -1,20 +1,4 @@
 {
-    "EssenceFilterUnavailable": {
-        "desc": "新版本 UI 变动，暂时无法使用",
-        "recognition": {
-            "type": "DirectHit",
-            "param": {}
-        },
-        "pre_delay": 0,
-        "action": {
-            "type": "DoNothing"
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "focus": {
-            "Node.Recognition.Succeeded": "$task.EssenceFilter.description"
-        }
-    },
     "EssenceFilterMain": {
         "desc": "入口点",
         "pre_delay": 0,

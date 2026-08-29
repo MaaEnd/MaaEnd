@@ -3,6 +3,7 @@ package autostockpile
 const (
 	autoStockpileComponent = "autostockpile"
 
+	autoStockpileMainEntryNodeName           = "AutoStockpileMain"
 	autoStockpileSelectItemActionName        = "AutoStockpile.SelectItem"
 	autoStockpileReconcileDecisionActionName = "AutoStockpile.ReconcileDecision"
 	autoStockpileRecognitionName             = "AutoStockpile.Recognition"

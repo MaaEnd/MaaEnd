@@ -76,6 +76,16 @@ export function buildRow(mission) {
         ? `前往${Name}传送点，${AfterTeleportDescription}`
         : `不在${Name}任务开始位置附近，${AfterTeleportDescription}`;
     const MoveDescription = route.IsDirectPhoto ? `在${Name}传送点调整拍照朝向` : `自动寻路前往${Name}`;
+    // 沿途稳定遇敌的线路先清场，再重走一遍路线归位——战斗会把角色推离拍照点。
+    // AutoFight 自带进战识别，没打起来时直接落到归位节点。
+    const MoveNext = route.FightAfterMove
+        ? [
+              "[JumpBack]AutoFight",
+              `GoTo${Id}MoveAfterFight`,
+          ]
+        : [
+              `${Id}TakePhoto`,
+          ];
 
     return {
         Station,
@@ -95,6 +105,7 @@ export function buildRow(mission) {
         GoToNext: rawJson(GoToNext),
         GoToNotAtStartPosDescription,
         MoveDescription,
+        MoveNext: rawJson(MoveNext),
         AfterTeleportDescription,
         AfterTeleportNext: rawJson(AfterTeleportNext),
         RouteAction: route.RouteAction,

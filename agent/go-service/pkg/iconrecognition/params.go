@@ -25,16 +25,19 @@ const (
 const CustomRecognitionName = "IconRecognition"
 
 // Params 是 IconRecognition custom_recognition_param 的公共表示。
-// 候选 ID、首轮过滤器和反查过滤器是否必填由具体调用场景决定。
+// 候选 ID、基础/附加/排除条件和反查过滤器是否必填由具体调用场景决定。
 type Params struct {
-	GridType           GridType     `json:"grid_type"`
-	ItemIDs            []string     `json:"item_ids,omitempty"`
-	ItemFilters        []ItemFilter `json:"item_filters,omitempty"`
-	ItemRecheckFilters []ItemFilter `json:"item_recheck_filters,omitempty"`
-	Threshold          *float64     `json:"threshold,omitempty"`
-	SubpixelThreshold  *float64     `json:"subpixel_threshold,omitempty"`
-	Deduplicate        *bool        `json:"deduplicate,omitempty"`
-	Debug              *bool        `json:"debug,omitempty"`
+	GridType                   GridType     `json:"grid_type"`
+	ItemIDs                    []string     `json:"item_ids,omitempty"`
+	ItemFilters                []ItemFilter `json:"item_filters,omitempty"`
+	AdditionalItemFilters      []ItemFilter `json:"additional_item_filters,omitempty"`
+	ExcludedItemIDs            []string     `json:"excluded_item_ids,omitempty"`
+	ItemRecheckFilters         []ItemFilter `json:"item_recheck_filters,omitempty"`
+	RecognizeRegionUnavailable *bool        `json:"recognize_region_unavailable,omitempty"`
+	Threshold                  *float64     `json:"threshold,omitempty"`
+	SubpixelThreshold          *float64     `json:"subpixel_threshold,omitempty"`
+	Deduplicate                *bool        `json:"deduplicate,omitempty"`
+	Debug                      *bool        `json:"debug,omitempty"`
 }
 
 // Option 配置 NewParams 创建的 IconRecognition 参数。
@@ -58,7 +61,7 @@ func WithGridType(gridType GridType) Option {
 	}
 }
 
-// WithItemIDs 配置候选物品 ID，并清理每个值两端的空白。
+// WithItemIDs 配置候选物品 ID，清理空白并稳定去重。
 func WithItemIDs(itemIDs ...string) Option {
 	values := normalizeStrings(itemIDs)
 	return func(params *Params) {
@@ -66,7 +69,7 @@ func WithItemIDs(itemIDs ...string) Option {
 	}
 }
 
-// WithItemFilters 配置候选过滤器；优先使用 StorageFilter 提供的已知组合。
+// WithItemFilters 配置候选过滤器，清理空白并稳定去重；优先使用 StorageFilter 提供的已知组合。
 func WithItemFilters(itemFilters ...ItemFilter) Option {
 	values := normalizeItemFilters(itemFilters)
 	return func(params *Params) {
@@ -74,11 +77,34 @@ func WithItemFilters(itemFilters ...ItemFilter) Option {
 	}
 }
 
-// WithItemRecheckFilters 配置 item_ids 候选的单格反查过滤器。
+// WithAdditionalItemFilters 配置与基础候选取交集后追加的过滤器，并稳定去重。
+func WithAdditionalItemFilters(itemFilters ...ItemFilter) Option {
+	values := normalizeItemFilters(itemFilters)
+	return func(params *Params) {
+		params.AdditionalItemFilters = slices.Clone(values)
+	}
+}
+
+// WithExcludedItemIDs 配置候选集合完成追加后需要排除的物品 ID，并稳定去重。
+func WithExcludedItemIDs(itemIDs ...string) Option {
+	values := normalizeStrings(itemIDs)
+	return func(params *Params) {
+		params.ExcludedItemIDs = slices.Clone(values)
+	}
+}
+
+// WithItemRecheckFilters 配置 item_ids 候选的单格反查过滤器，并稳定去重。
 func WithItemRecheckFilters(itemFilters ...ItemFilter) Option {
 	values := normalizeItemFilters(itemFilters)
 	return func(params *Params) {
 		params.ItemRecheckFilters = slices.Clone(values)
+	}
+}
+
+// WithRecognizeRegionUnavailable 配置是否在普通识别失败后尝试识别当前地区不可用的物品。
+func WithRecognizeRegionUnavailable(enabled bool) Option {
+	return func(params *Params) {
+		params.RecognizeRegionUnavailable = pointerOf(enabled)
 	}
 }
 
@@ -110,7 +136,7 @@ func WithDebug(debug bool) Option {
 	}
 }
 
-// WithTuningFrom 复制另一组参数的阈值、去重和调试选项，不复制候选条件。
+// WithTuningFrom 复制另一组参数的阈值、去重和调试选项，不复制候选条件或场景行为。
 func WithTuningFrom(source Params) Option {
 	return func(params *Params) {
 		params.Threshold = clonePointer(source.Threshold)
@@ -132,6 +158,8 @@ func ParseParams(raw string) (Params, error) {
 	params.GridType = GridType(strings.TrimSpace(string(params.GridType)))
 	params.ItemIDs = normalizeStrings(params.ItemIDs)
 	params.ItemFilters = normalizeItemFilters(params.ItemFilters)
+	params.AdditionalItemFilters = normalizeItemFilters(params.AdditionalItemFilters)
+	params.ExcludedItemIDs = normalizeStrings(params.ExcludedItemIDs)
 	params.ItemRecheckFilters = normalizeItemFilters(params.ItemRecheckFilters)
 	if params.GridType == "" {
 		return params, fmt.Errorf("IconRecognition grid_type is required")
@@ -140,17 +168,25 @@ func ParseParams(raw string) (Params, error) {
 }
 
 func normalizeStrings(values []string) []string {
-	result := make([]string, len(values))
-	for index, value := range values {
-		result[index] = strings.TrimSpace(value)
-	}
-	return result
+	return normalizeUnique(values, strings.TrimSpace)
 }
 
 func normalizeItemFilters(values []ItemFilter) []ItemFilter {
-	result := make([]ItemFilter, len(values))
-	for index, value := range values {
-		result[index] = ItemFilter(strings.TrimSpace(string(value)))
+	return normalizeUnique(values, func(value ItemFilter) ItemFilter {
+		return ItemFilter(strings.TrimSpace(string(value)))
+	})
+}
+
+func normalizeUnique[T comparable](values []T, normalize func(T) T) []T {
+	result := make([]T, 0, len(values))
+	seen := make(map[T]struct{}, len(values))
+	for _, value := range values {
+		normalized := normalize(value)
+		if _, exists := seen[normalized]; exists {
+			continue
+		}
+		seen[normalized] = struct{}{}
+		result = append(result, normalized)
 	}
 	return result
 }

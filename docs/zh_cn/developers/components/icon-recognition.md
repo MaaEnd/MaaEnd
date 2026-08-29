@@ -134,17 +134,22 @@ Custom 入口会从 `MaaContext` 读取运行时 `type` 并选择对应 profile�
 | 字段 | 类型 | 必选 | 默认值 | 说明 |
 | -------------------- | ------------------- | ------------------------- | ------------------- | ------------------------------------------------------------------------------------------- |
 | `grid_type` | string / `GridType` | Custom 是；C++ 应显式设置 | Custom 无 | 选择当前界面的网格定位策略，合法值见下表；C++ 结构体中的初始值只用于构造占位 |
-| `item_ids` | string[] | 否 | `[]` | 只保留指定物品；多个 ID 取并集，不允许重复 |
+| `item_ids` | string[] | 否 | `[]` | 只保留指定物品；多个 ID 取并集，重复值按一次处理 |
 | `item_filters` | string[] | 否 | 由 `grid_type` 决定 | 按 `storageKind:categoryType` 选择候选；多个条件取并集，`*` 匹配该 `storageKind` 下全部分类 |
+| `additional_item_filters` | string[] | 否 | `[]` | 在基础过滤器与 `item_ids` 取交集后，额外并入这些分类 |
+| `excluded_item_ids` | string[] | 否 | `[]` | 从候选集合中排除指定物品 ID |
 | `item_recheck_filters` | string[] | 否 | `[]` | 与 `item_ids` 均非空时生效；格式与 `item_filters` 相同；用于对已命中的候选格进行单格复核 |
+| `recognize_region_unavailable` | boolean | 否 | `false` | 仅在背包/仓库（`transfer`）和储存站（`port_storager`）场景生效。开启后，格子的常规识别未命中时，会继续尝试识别因当前地区限制而无法使用的物品。帝江号不会出现这种状态，因此无需开启 |
 | `threshold` | number | 否 | `0.85` | 物品命中的最低最终分数，所有网格类型统一按该值判断 |
 | `subpixel_threshold` | number | 否 | `0.60` | 基础分达到该值但低于 `threshold` 时，在图标附近尝试更细的位置偏移 |
 | `deduplicate` | boolean | 否 | `false` | 同一个 `item_id` 命中多个格子时，只保留分数最高的一项 |
 | `debug` | boolean | 否 | `false` | 正常执行到结果汇总阶段时会收集网格和格子诊断；提前返回的 `invalid_image` 或 `exception` 可能不包含诊断。debug 控制性能计时和 Custom debug 文件写入 |
 
 - **`threshold` 与 `subpixel_threshold`**：阈值必须满足 `0 <= subpixel_threshold < threshold <= 1`。基础分低于 `subpixel_threshold` 时，组件认为当前候选明显不可靠，不再尝试更细的位置偏移，也不会把它放入 `matches`。基础分位于两个阈值之间时，组件会继续细化位置；只有最终分达到 `threshold`，并且没有被低纹理检查拒绝，结果才会返回。送货界面的数量条和贵重品库的头像区域会从模板匹配遮罩中排除，但不会绕过统一阈值。调整阈值前应先检查 ROI、画面稳定性和候选分类。
-- **`item_ids` 与 `item_filters`**：`item_ids` 用于指定需要查找的具体物品，`item_filters` 用于按分类限制参与匹配的候选模板。两者同时提供时取交集。ID 不存在、ID 重复、过滤器格式错误、过滤结果为空，或指定 ID 被过滤器排除，都会返回 `exception`。
-- **`item_recheck_filters`**：使用 `item_ids` 查找指定物品时，范围外但外观相似的物品可能被误识别为目标物品。`item_recheck_filters` 对已命中的候选格进行单格复核，仅保留复核结果确实为目标 `item_id` 的候选。相比不传 `item_ids`、仅使用 `item_filters` 识别整个网格，这种方式只复核已命中的格子，通常更快。建议同时设置 `deduplicate: true`，避免重复复核同一物品。
+- **候选集合顺序**：最终候选为 `(((item_filters 或界面默认值) ∩ item_ids) ∪ additional_item_filters) - excluded_item_ids`；未提供 `item_ids` 时跳过交集。`excluded_item_ids` 在候选集合计算的最后一步应用，因此其中的物品最终不会参与识别。各候选数组中的重复值均按一次处理；`item_ids` / `excluded_item_ids` 中的未知 ID、格式错误或无法匹配 catalog 的 filter，以及最终空候选都会返回 `invalid_argument`。
+- **`item_recheck_filters`**：使用 `item_ids` 查找指定物品时，范围外但外观相似的物品可能被误识别为目标物品。`item_recheck_filters` 只复核来自原始 `item_ids` 的命中，不复核 `additional_item_filters` 追加的物品。相比不传 `item_ids`、仅使用 `item_filters` 识别整个网格，这种方式只复核已命中的格子，通常更快。建议同时设置 `deduplicate: true`，避免重复复核同一物品。
+
+当前地区不可用物品的模板合成、mask 与后备匹配流程见[识别算法](/agent/cpp-algo/source/IconRecognition/docs/algorithm.md#候选选择与图标匹配)。
 
 ### grid_type、默认候选和参考 ROI
 
@@ -170,6 +175,7 @@ Custom 入口会从 `MaaContext` 读取运行时 `type` 并选择对应 profile�
 ```json
 {
     "item_copper_ore": {
+        "name": "铜矿",
         "category": "矿物",
         "storageKind": "Normal",
         "categoryType": "Ore",
@@ -179,7 +185,7 @@ Custom 入口会从 `MaaContext` 读取运行时 `type` 并选择对应 profile�
 }
 ```
 
-调用时使用 `item_copper_ore`，不要使用 `iconId`、多语言 key 或显示名称。`iconId` 只用于定位发布图标文件。
+调用时使用 `item_copper_ore`，不要使用 `iconId`、多语言 key 或显示名称。`iconId` 只用于定位发布图标文件。catalog 的 `name` 是下载时写入的中文名称，仅方便阅读；运行时 `matches[].name` 仍由 `item_id` 推导 locale key。仅地区受限物品额外包含 `regionRestricted: true`，普通物品不导出该字段。
 
 ### `item_filters` 分类
 
@@ -220,7 +226,7 @@ Custom 入口会从 `MaaContext` 读取运行时 `type` 并选择对应 profile�
 
 | 字段 | 类型 | 说明 |
 | ---------------- | ------- | ---------------------------------------------- |
-| `detail_version` | integer | detail 契约版本，当前为 `2` |
+| `detail_version` | integer | detail 契约版本，当前为 `3` |
 | `matched` | boolean | 是否至少有一个物品达到阈值并通过界面规则检查 |
 | `grid_type` | string | 本次请求的网格类型；参数解析前失败时可能不存在 |
 | `roi` | integer[4] | 请求 ROI，格式为 `[x,y,width,height]` |
@@ -239,6 +245,7 @@ Custom 入口会从 `MaaContext` 读取运行时 `type` 并选择对应 profile�
 | `cell_box` | integer[4] | 所属格子，格式为 `[x,y,width,height]`；`single_roi` 时等于请求 ROI |
 | `item_box` | integer[4] | 最终模板命中位置，格式为 `[x,y,width,height]` |
 | `score` | number | 最终匹配分数 |
+| `region_unavailable` | boolean | 当前物品是否在当前地区不可用；仅为 `true` 时返回，普通命中省略 |
 | `row` / `column` | integer | 真实网格中的行列；`single_roi` 不返回 |
 
 结果先按 `score` 降序排列；同分时依次比较 `cell_box.y`、`cell_box.x` 和 `item_id`。`deduplicate=true` 时，每个 `item_id` 只保留排序后的第一项。
@@ -329,6 +336,9 @@ detail, err := ctx.RunRecognitionDirect(
             iconrecognition.WithGridType(iconrecognition.GridTypeTransfer),
             iconrecognition.WithItemIDs("item_copper_ore"),
             iconrecognition.WithItemFilters(iconrecognition.StorageFilter().Normal.Ore),
+            iconrecognition.WithAdditionalItemFilters(iconrecognition.StorageFilter().Normal.Product),
+            iconrecognition.WithExcludedItemIDs("item_carbon_mtl"),
+            iconrecognition.WithRecognizeRegionUnavailable(true),
             iconrecognition.WithDeduplicate(true),
         ),
     },
@@ -341,6 +351,7 @@ if err != nil {
 }
 for _, match := range parsed.Matches {
     _ = match.CellBox
+    _ = match.RegionUnavailable
 }
 ```
 
@@ -360,6 +371,9 @@ iconrecognition::RecognitionRequest request;
 request.grid_type = iconrecognition::GridType::Transfer;
 request.roi = cv::Rect(154, 202, 983, 291);
 request.candidates.item_ids = { "item_copper_ore" };
+request.candidates.additional_item_filters = { "Normal:Product" };
+request.candidates.excluded_item_ids = { "item_carbon_mtl" };
+request.recognize_region_unavailable = true;
 request.deduplicate = true;
 
 // 并发识别前可选预热；不调用时会在识别过程中按需准备模板。
@@ -370,7 +384,7 @@ if (!recognizer.preload({ request })) {
 const iconrecognition::RecognitionResult result = recognizer.recognize(image, request);
 ```
 
-`request.candidates.item_ids` / `item_filters` 对应 Pipeline 和 Go 的同名参数。C++ 直接返回 `RecognitionResult`，不包含 MaaFramework 的 JSON 外层包装。
+`request.candidates` 中的 ID 与过滤器字段对应 Pipeline 和 Go 的同名参数；`request.recognize_region_unavailable` 控制当前地区不可用物品后备。C++ 直接返回 `RecognitionResult`，不包含 MaaFramework 的 JSON 外层包装。
 
 ## Debug 输出
 

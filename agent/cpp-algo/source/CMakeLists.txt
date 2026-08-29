@@ -1,7 +1,9 @@
 set(icon_recognition_core_src
     IconRecognition/IconRecognizer.cpp
+    IconRecognition/detail/CandidateSelector.cpp
     IconRecognition/detail/CompositeIcon.cpp
     IconRecognition/detail/DebugCapture.cpp
+    IconRecognition/detail/DisabledIcon.cpp
     IconRecognition/detail/EdgeOcclusion.cpp
     IconRecognition/detail/ForegroundTexture.cpp
     IconRecognition/detail/GridAnchors.cpp

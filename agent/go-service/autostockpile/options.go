@@ -11,6 +11,7 @@ import (
 type serverTimeAttach struct {
 	ServerTime      *int `json:"server_time"`
 	AllowDataUpload bool `json:"allow_data_upload"`
+	MinBuy          bool `json:"min_buy"`
 }
 
 const (

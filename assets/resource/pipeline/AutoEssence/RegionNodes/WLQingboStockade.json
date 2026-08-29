@@ -12,22 +12,18 @@
         }
     },
     "GotoTriggerPointMaybeTeleport_WLQingboStockade": {
+        "desc": "判断是否需要传送到最近锚点",
         "recognition": {
             "type": "Custom",
             "param": {
-                "custom_recognition": "MapTrackerAssertLocation",
+                "custom_recognition": "MapLocateAssertLocation",
                 "custom_recognition_param": {
-                    "expected": [
-                        {
-                            // 淤积点附近（锚点也在这个区域里）
-                            "map_name": "map02_lv003",
-                            "target": [
-                                384.5,
-                                542.0,
-                                28.0,
-                                40.0
-                            ]
-                        }
+                    "zone_id": "Wuling_Base",
+                    "target": [
+                        1242.58,
+                        2357.97,
+                        27.57,
+                        39.41
                     ]
                 }
             }
@@ -53,29 +49,32 @@
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "MapTrackerMove",
+                "custom_action": "MapNavigateAction",
                 "custom_action_param": {
-                    "map_name": "map02_lv003",
                     "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "Wuling_Base"
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                1248.49,
+                                2376.68
+                            ]
+                        },
                         [
-                            402.5,
-                            559.0
-                        ],
-                        [
-                            390.5,
-                            561.0
-                        ],
-                        [
-                            392.4,
-                            570.7
+                            1250.36,
+                            2386.24,
+                            true
                         ]
                     ]
                 }
             }
         },
-        "post_delay": 1500, // 确保彻底停下，规避移动惯性
+        "post_delay": 1500,
         "next": [
-            "AutoEssenceDispatcher"
+            "AutoEssenceInteract"
         ],
         "focus": {
             "Node.Action.Starting": "🚶正在前往激发点",

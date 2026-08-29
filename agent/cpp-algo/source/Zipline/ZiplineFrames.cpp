@@ -1,7 +1,9 @@
 #include "ZiplineFrames.h"
 
 #include <algorithm>
+#include <cmath>
 #include <fstream>
+#include <limits>
 #include <system_error>
 
 #include <meojson/json.hpp>
@@ -19,6 +21,31 @@ namespace
 // 非图像的模块数据统一放 data/<模块>/。标定的消费者是 MapNavigator 的寻路规划，
 // 归在它名下；resource/model 是另一个仓库的子模块，本仓库的配置不能落进去。
 constexpr const char* kFramesRelativePath = "data/MapNavigator/zipline_frames.json";
+
+// 网格供电要用唯一中心格描述覆盖范围，也要用占地半宽界定角格锚点到中心的偏移。
+// 偶数尺寸没有唯一中心格，会产生半格歧义，因此这部分模型只接受两个正奇数。
+bool parse_odd_grid_size(const json::object& obj, const char* key, std::array<int, 2>& out)
+{
+    if (!obj.contains(key) || !obj.at(key).is_array()) {
+        return false;
+    }
+    const auto& values = obj.at(key).as_array();
+    if (values.size() != out.size()) {
+        return false;
+    }
+    for (size_t i = 0; i < out.size(); ++i) {
+        if (!values[i].is_number()) {
+            return false;
+        }
+        const double value = values[i].as_double();
+        if (!std::isfinite(value) || value <= 0.0 || value > static_cast<double>(std::numeric_limits<int>::max())
+            || std::floor(value) != value || static_cast<int>(value) % 2 == 0) {
+            return false;
+        }
+        out[i] = static_cast<int>(value);
+    }
+    return true;
+}
 
 } // namespace
 
@@ -97,6 +124,10 @@ bool ZiplineFrames::load(const std::filesystem::path& path)
             type.template_id = obj.get("template_id", std::string {});
             type.name = obj.get("name", std::string {});
             type.max_span = obj.get("max_span", 0.0);
+            if (obj.contains("footprint") && !parse_odd_grid_size(obj, "footprint", type.footprint)) {
+                LogWarn << "ZiplineFrames: type with an invalid odd-grid footprint, skipped" << VAR(type.name);
+                continue;
+            }
             // 缺 template_id 就无从对号，跨度非正等于这类索一条都配不出来，两者都没有留着的意义。
             if (type.template_id.empty() || type.max_span <= 0.0) {
                 LogWarn << "ZiplineFrames: type without a usable template_id/max_span, skipped" << VAR(type.name);
@@ -118,10 +149,24 @@ bool ZiplineFrames::load(const std::filesystem::path& path)
                 ZiplinePowerSource source;
                 source.template_id = obj.get("template_id", std::string {});
                 source.name = obj.get("name", std::string {});
+                if (obj.contains("footprint") && !parse_odd_grid_size(obj, "footprint", source.footprint)) {
+                    LogWarn << "ZiplineFrames: power source with an invalid odd-grid footprint, skipped" << VAR(source.name);
+                    continue;
+                }
                 source.radius = obj.get("radius", 0.0);
-                // 缺 template_id 就无从对号，半径非正等于这类结构供不了电，两者都没有留着的意义。
-                if (source.template_id.empty() || source.radius <= 0.0) {
-                    LogWarn << "ZiplineFrames: power source without a usable template_id/radius, skipped" << VAR(source.name);
+                const bool has_coverage_size = obj.contains("coverage_size");
+                if (has_coverage_size && !parse_odd_grid_size(obj, "coverage_size", source.coverage_size)) {
+                    LogWarn << "ZiplineFrames: power source with an invalid odd-grid coverage_size, skipped" << VAR(source.name);
+                    continue;
+                }
+                // 两种形状同时出现时无法判断配置作者想用哪一套边界，响亮丢弃，避免静默放宽供电范围。
+                if (source.radius > 0.0 && has_coverage_size) {
+                    LogWarn << "ZiplineFrames: power source mixes radius and coverage_size, skipped" << VAR(source.name);
+                    continue;
+                }
+                // 缺 template_id 就无从对号；圆半径和网格覆盖都没给则供不了电。
+                if (source.template_id.empty() || (source.radius <= 0.0 && !has_coverage_size)) {
+                    LogWarn << "ZiplineFrames: power source without a usable template_id/range, skipped" << VAR(source.name);
                     continue;
                 }
                 power_sources_.push_back(std::move(source));
@@ -199,12 +244,18 @@ double ZiplineFrames::maxSpan(const std::string& template_id) const
     return it == types_.end() ? 0.0 : it->max_span;
 }
 
-double ZiplineFrames::supplyRadius(const std::string& template_id) const
+std::array<int, 2> ZiplineFrames::footprint(const std::string& template_id) const
 {
-    auto it = std::find_if(power_sources_.begin(), power_sources_.end(), [&](const ZiplinePowerSource& s) {
-        return s.template_id == template_id;
+    auto it = std::find_if(types_.begin(), types_.end(), [&](const ZiplineType& type) { return type.template_id == template_id; });
+    return it == types_.end() ? std::array<int, 2> { 1, 1 } : it->footprint;
+}
+
+const ZiplinePowerSource* ZiplineFrames::powerSource(const std::string& template_id) const
+{
+    auto it = std::find_if(power_sources_.begin(), power_sources_.end(), [&](const ZiplinePowerSource& source) {
+        return source.template_id == template_id;
     });
-    return it == power_sources_.end() ? 0.0 : it->radius;
+    return it == power_sources_.end() ? nullptr : &*it;
 }
 
 std::vector<std::string> ZiplineFrames::mapIds() const

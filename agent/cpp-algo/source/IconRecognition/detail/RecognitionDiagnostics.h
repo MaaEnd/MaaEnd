@@ -23,6 +23,7 @@ struct CellRecognitionDiagnostics
     std::optional<double> top2_margin;
     std::size_t candidate_count = 0;
     bool fallback_used = false;
+    bool region_unavailable_fallback_used = false;
     cv::Point2d best_phase;
     std::optional<std::string> rejected_reason;
     std::optional<double> foreground_texture;

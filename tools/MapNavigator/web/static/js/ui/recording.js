@@ -45,9 +45,16 @@ export class RecordingController {
     /** @type {?RecordingSocket} */
     this.socket = null;
     this.recording = false;
+    this.stopping = false;
+    this.connectionReady = false;
 
     this.btnStart.addEventListener('click', () => this.start());
     this.btnStop.addEventListener('click', () => this.stop());
+    this.connection.onStatusChange((connected) => {
+      this.connectionReady = connected;
+      this._syncUi();
+    });
+    this._syncUi();
   }
 
   /** @returns {string} tk `RecordingSessionConfig.display_name()` */
@@ -65,6 +72,10 @@ export class RecordingController {
   /** Begin a recording session (tk `start_recording`). @returns {void} */
   start() {
     if (this.recording) return;
+    if (!this.connectionReady) {
+      setStatus('请先确认游戏连接状态正常。', '#ef4444');
+      return;
+    }
     const session = this.connection.buildSession();
     if (session.kind === 'adb' && !session.adb.address) {
       setStatus('请选择 ADB 设备或手动填写设备序列号/地址。', '#ef4444');
@@ -77,8 +88,8 @@ export class RecordingController {
 
     this.connection.persist();
     this.recording = true;
-    this.btnStart.disabled = true;
-    this.btnStop.disabled = false;
+    this.stopping = false;
+    this._syncUi();
     if (this.appEl) this.appEl.classList.add('recording');
     setStatus(`● 正在启动识别引擎... [${this._sessionDisplayName(session)}]`, '#3b82f6');
     setLocator('Locator: waiting for first result...');
@@ -94,6 +105,7 @@ export class RecordingController {
     socket.onClose = () => {
       if (this.recording) {
         this.recording = false;
+        this.stopping = false;
         this.onPositionUnavailable('录制连接已断开');
         this._resetUi();
       }
@@ -107,7 +119,8 @@ export class RecordingController {
     if (!this.socket) return;
     this.socket.stop();
     setStatus('正在停止录制并整理路径点...', '#f59e0b');
-    this.btnStop.disabled = true;
+    this.stopping = true;
+    this._syncUi();
   }
 
   /**
@@ -139,11 +152,13 @@ export class RecordingController {
       }
       case 'finished':
         this.recording = false;
+        this.stopping = false;
         this.onFinished(Array.isArray(msg.points) ? msg.points : []);
         this._resetUi();
         break;
       case 'error':
         this.recording = false;
+        this.stopping = false;
         setStatus(msg.message || '录制错误', '#ef4444');
         this.onPositionUnavailable('未获取到实时位置与朝向');
         this._resetUi();
@@ -155,8 +170,13 @@ export class RecordingController {
 
   /** Restore idle button + status state (tk `_reset_ui`). @returns {void} */
   _resetUi() {
-    this.btnStart.disabled = false;
-    this.btnStop.disabled = true;
+    this._syncUi();
     if (this.appEl) this.appEl.classList.remove('recording');
+  }
+
+  /** Reflect connection/session state onto the recording buttons. @returns {void} */
+  _syncUi() {
+    this.btnStart.disabled = this.recording || !this.connectionReady;
+    this.btnStop.disabled = !this.recording || this.stopping;
   }
 }

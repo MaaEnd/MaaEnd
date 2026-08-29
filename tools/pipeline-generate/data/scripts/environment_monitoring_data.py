@@ -12,7 +12,6 @@ from tablecfg_utils import (
     sorted_entries,
 )
 
-
 TABLE_NAMES = (
     "KiteStationEntrustTasksTable.json",
     "KiteStationLevelTable.json",
@@ -84,7 +83,7 @@ def build_environment_monitoring_data(tables: dict[str, Any]) -> dict[str, Any]:
 def main() -> int:
     return run_cli(
         label="EnvironmentMonitoring",
-        description="从本地 TableCfg 生成环境监测数据",
+        description="从 BeyondTableCfg 仓库生成环境监测数据",
         table_names=TABLE_NAMES,
         output_path=OUTPUT_PATH,
         build_data=build_environment_monitoring_data,

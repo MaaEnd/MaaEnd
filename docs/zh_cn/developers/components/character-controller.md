@@ -4,7 +4,7 @@
 
 此文档介绍了如何使用 CharacterController 相关的节点。
 
-**CharacterController** 提供了一组用于**控制游戏角色**的自定义 Action，包括视角旋转、前后移动、绕圈微调查找以及朝向目标自动移动等功能。这些节点通常与 MapTracker 配合使用，实现更精确的角色控制。
+**CharacterController** 提供了一组用于**控制游戏角色**的自定义 Action，包括视角旋转、前后移动、绕圈微调查找以及朝向目标自动移动等功能。这些节点通常与 MapNavigator 配合使用，实现更精确的角色控制。
 
 > [!IMPORTANT]
 >

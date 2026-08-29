@@ -12,22 +12,18 @@
         }
     },
     "GotoTriggerPointMaybeTeleport_VFTheHub": {
+        "desc": "判断是否需要传送到最近锚点",
         "recognition": {
             "type": "Custom",
             "param": {
-                "custom_recognition": "MapTrackerAssertLocation",
+                "custom_recognition": "MapLocateAssertLocation",
                 "custom_recognition_param": {
-                    "expected": [
-                        {
-                            // 淤积点附近（锚点也在这个区域里）
-                            "map_name": "map01_lv001",
-                            "target": [
-                                385.0,
-                                496.0,
-                                32.0,
-                                42.0
-                            ]
-                        }
+                    "zone_id": "ValleyIV_Base",
+                    "target": [
+                        445.38,
+                        907.85,
+                        29.54,
+                        38.77
                     ]
                 }
             }
@@ -53,25 +49,32 @@
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "MapTrackerMove",
+                "custom_action": "MapNavigateAction",
                 "custom_action_param": {
-                    "map_name": "map01_lv001",
                     "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "ValleyIV_Base"
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                456.92,
+                                932.86
+                            ]
+                        },
                         [
-                            397.5,
-                            523.1
-                        ],
-                        [
-                            405.5,
-                            530.1
+                            463.41,
+                            938.85,
+                            true
                         ]
                     ]
                 }
             }
         },
-        "post_delay": 1500, // 确保彻底停下，规避移动惯性
+        "post_delay": 1500,
         "next": [
-            "AutoEssenceDispatcher"
+            "AutoEssenceInteract"
         ],
         "focus": {
             "Node.Action.Starting": "🚶正在前往激发点",

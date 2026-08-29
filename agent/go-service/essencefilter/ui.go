@@ -110,7 +110,6 @@ func logMatchSummary(ctx *maa.Context, st *RunState) {
 type calcPlan struct {
 	slot1Names [3]string
 	fixedSlot  int
-	fixedID    int
 	fixedName  string
 	needs      []matchapi.WeaponData
 	matched    []matchapi.WeaponData
@@ -258,13 +257,13 @@ func logCalculatorResult(ctx *maa.Context, st *RunState) {
 					for _, s2 := range availSlot2 {
 						matched, needs := lookupWeapons(idx2, s1IDs, s2.ID, feasible)
 						if len(needs) > 0 {
-							plans = append(plans, calcPlan{slot1Names: s1Names, fixedSlot: 2, fixedName: s2.Chinese, fixedID: s2.ID, needs: needs, matched: matched})
+							plans = append(plans, calcPlan{slot1Names: s1Names, fixedSlot: 2, fixedName: s2.Chinese, needs: needs, matched: matched})
 						}
 					}
 					for _, s3 := range availSlot3 {
 						matched, needs := lookupWeapons(idx3, s1IDs, s3.ID, feasible)
 						if len(needs) > 0 {
-							plans = append(plans, calcPlan{slot1Names: s1Names, fixedSlot: 3, fixedName: s3.Chinese, fixedID: s3.ID, needs: needs, matched: matched})
+							plans = append(plans, calcPlan{slot1Names: s1Names, fixedSlot: 3, fixedName: s3.Chinese, needs: needs, matched: matched})
 						}
 					}
 				}

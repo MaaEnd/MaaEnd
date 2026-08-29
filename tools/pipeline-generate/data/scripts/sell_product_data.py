@@ -14,7 +14,6 @@ from tablecfg_utils import (
     sorted_entries,
 )
 
-
 TABLE_NAMES = (
     "SettlementBasicDataTable.json",
     "SettlementTagTable.json",
@@ -194,7 +193,7 @@ def build_sell_product_data(tables: dict[str, Any]) -> dict[str, Any]:
 def main() -> int:
     return run_cli(
         label="SellProduct",
-        description="从本地 TableCfg 生成售卖产品数据",
+        description="从 BeyondTableCfg 仓库生成售卖产品数据",
         table_names=TABLE_NAMES,
         output_path=OUTPUT_PATH,
         build_data=build_sell_product_data,

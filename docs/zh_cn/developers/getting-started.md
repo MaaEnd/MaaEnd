@@ -43,7 +43,7 @@ pnpm install
 | `--cpp-algo-pr <N>` | 从指定 PR 的最新成功 CI run 下载 cpp-algo（用于快速测试尚未合并的 PR 改动） |
 | `--cpp-algo-run <ID>` | 从指定 workflow run ID 下载 cpp-algo |
 
-> `--cpp-algo-pr` 和 `--cpp-algo-run` 互斥，二选一。不指定时默认从 v2 分支的最新 push 构建下载。
+> `--cpp-algo-pr` 和 `--cpp-algo-run` 互斥，二选一。不指定时会根据当前工作区分支选择对应的成功 CI 构建；在主分支 `v2` 上仅使用最新的 push 构建。非主分支会优先匹配当前提交的构建，避免误用 `v2` 的 cpp-algo。
 
 ### 编辑器（推荐）
 

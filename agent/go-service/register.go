@@ -18,6 +18,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/camerascan"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/charactercontroller"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/clearhitcount"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/closegame"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/expendable"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/expressionrecognition"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/failurecollector"
@@ -35,7 +36,6 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/ims"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/intelarchive"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/itemtransfer"
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/maptracker"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/resource"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pullcount"
 	puzzle "github.com/MaaXYZ/MaaEnd/agent/go-service/puzzle-solver"
@@ -67,6 +67,7 @@ func registerAll() {
 	subtask.Register()
 	failurecollector.Register()
 	clearhitcount.Register()
+	closegame.Register()
 	pipelineoverride.Register()
 	expressionrecognition.Register()
 	focusocr.Register()
@@ -91,7 +92,6 @@ func registerAll() {
 	bettersliding.Register()
 	essencefilter.Register()
 	dijiangrewards.Register()
-	maptracker.Register()
 	batchaddfriends.Register()
 	autoecofarm.Register()
 	autodelivery.Register()

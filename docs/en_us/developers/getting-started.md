@@ -43,7 +43,7 @@ pnpm install
 | `--cpp-algo-pr <N>` | Download cpp-algo from the latest successful CI run of a specified PR (for quick testing of unmerged PR changes) |
 | `--cpp-algo-run <ID>` | Download cpp-algo from a specified workflow run ID |
 
-> `--cpp-algo-pr` and `--cpp-algo-run` are mutually exclusive; choose one. If not specified, defaults to downloading from the latest push build of the `v2` branch.
+> `--cpp-algo-pr` and `--cpp-algo-run` are mutually exclusive; choose one. If neither is specified, the script selects a successful CI build for the current checkout branch. On the protected `v2` branch it only uses the latest push build; on other branches it first matches the current commit so it does not accidentally use `v2`'s cpp-algo.
 
 ### Editor (Recommended)
 

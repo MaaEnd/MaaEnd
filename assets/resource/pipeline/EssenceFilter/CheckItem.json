@@ -231,10 +231,7 @@
         "post_delay": 0,
         "next": [
             "EssenceGridAdvance"
-        ],
-        "focus": {
-            "Node.Action.Failed": "OCR 超时：跳过"
-        }
+        ]
     },
     "EssenceFilterSkillDecision": {
         "desc": "匹配技能并决定是否上锁",

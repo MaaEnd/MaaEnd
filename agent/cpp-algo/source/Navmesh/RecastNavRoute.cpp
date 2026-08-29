@@ -6,6 +6,7 @@
 #include <cmath>
 #include <limits>
 #include <optional>
+#include <set>
 
 namespace navmesh::recast
 {
@@ -39,7 +40,6 @@ struct WindowInfo
     SpanTable st3;
     std::vector<uint8_t> vis3;
     std::vector<int64_t> cidx;
-    std::vector<uint8_t> reach3;
 };
 
 struct RouteDiag
@@ -52,7 +52,232 @@ struct RouteDiag
     bool crossed_barrier = false;
     double snap_start = 0.0;
     double snap_goal = 0.0;
+    double x0 = 0.0;
+    double y0 = 0.0;
+    int64_t nx = 0;
+    int64_t ny = 0;
+    std::vector<WorldPoint> astar_cells;
+    std::vector<WorldPoint> rerouted_points;
+    std::vector<WorldPoint> string_pull_points;
+    std::vector<WorldPoint> assembled_points;
+    std::vector<WorldPoint> loop_fixed_points;
+    std::vector<WorldPoint> slim_points;
+    std::vector<WorldPoint> widened_points;
+    std::vector<WorldPoint> planned_points;
+    std::optional<WorldPoint> gap_start;
+    std::optional<WorldPoint> gap_goal;
+    std::optional<double> gap_distance;
 };
+
+std::vector<uint8_t> topologyReach(
+    const SpanTable& st,
+    const std::vector<uint8_t>& ok,
+    const std::vector<int64_t>& cidx,
+    const Mask& ok2,
+    const std::vector<int64_t>& seeds,
+    const std::unordered_set<int64_t>* forbidden,
+    bool reverse)
+{
+    std::vector<uint8_t> visited(st.sp_h.size(), 0);
+    std::vector<int64_t> frontier;
+    frontier.reserve(seeds.size());
+    for (const int64_t seed : seeds) {
+        if (seed >= 0 && ok[static_cast<size_t>(seed)] != 0 && visited[static_cast<size_t>(seed)] == 0) {
+            visited[static_cast<size_t>(seed)] = 1;
+            frontier.push_back(seed);
+        }
+    }
+
+    struct Step
+    {
+        int64_t dx;
+        int64_t dy;
+        double weight;
+    };
+
+    constexpr double kDiagonalWeight = 1.4142135623730951;
+    constexpr Step kSteps[] = {
+        { -1, -1, kDiagonalWeight }, { 0, -1, 1.0 }, { 1, -1, kDiagonalWeight }, { -1, 0, 1.0 }, { 1, 0, 1.0 },
+        { -1, 1, kDiagonalWeight },  { 0, 1, 1.0 },  { 1, 1, kDiagonalWeight },
+    };
+    const int64_t nx = ok2.nx;
+    const int64_t ny = ok2.ny;
+    const int64_t cell_count = nx * ny;
+    for (size_t cursor = 0; cursor < frontier.size(); ++cursor) {
+        const int64_t current = frontier[cursor];
+        const int64_t current_cell = st.sp_cell[static_cast<size_t>(current)];
+        const int64_t x = current_cell % nx;
+        const int64_t y = current_cell / nx;
+        const float current_height = st.sp_h[static_cast<size_t>(current)];
+        for (const Step& step : kSteps) {
+            const int64_t next_x = x + step.dx;
+            const int64_t next_y = y + step.dy;
+            if (next_x < 0 || next_x >= nx || next_y < 0 || next_y >= ny) {
+                continue;
+            }
+            const int64_t next_cell = next_y * nx + next_x;
+            if (ok2.v[static_cast<size_t>(next_cell)] == 0) {
+                continue;
+            }
+            if (step.dx != 0 && step.dy != 0 && !(ok2.at(y, next_x) && ok2.at(next_y, x))) {
+                continue;
+            }
+            const int64_t column = cidx[static_cast<size_t>(next_cell)];
+            if (column < 0) {
+                continue;
+            }
+            const int64_t edge = reverse ? next_cell * cell_count + current_cell : current_cell * cell_count + next_cell;
+            if (forbidden != nullptr && forbidden->contains(edge)) {
+                continue;
+            }
+            for (int64_t slot = 0; slot < st.K; ++slot) {
+                const int64_t candidate = st.IK[static_cast<size_t>(column * st.K + slot)];
+                if (candidate < 0 || ok[static_cast<size_t>(candidate)] == 0 || visited[static_cast<size_t>(candidate)] != 0) {
+                    continue;
+                }
+                const float candidate_height = st.sp_h[static_cast<size_t>(candidate)];
+                const float dh = reverse ? current_height - candidate_height : candidate_height - current_height;
+                if (static_cast<double>(dh) > kUp * step.weight || dh < -static_cast<float>(kClimb)) {
+                    continue;
+                }
+                visited[static_cast<size_t>(candidate)] = 1;
+                frontier.push_back(candidate);
+            }
+        }
+    }
+    return visited;
+}
+
+struct ReachGap
+{
+    WorldPoint start;
+    WorldPoint goal;
+    double distance = 0.0;
+};
+
+std::optional<ReachGap> closestReachGap(
+    const SpanTable& st,
+    const std::vector<uint8_t>& start_reach,
+    const std::vector<uint8_t>& goal_reach,
+    int64_t nx,
+    int64_t ny,
+    double x0,
+    double y0)
+{
+    std::vector<uint8_t> start_cells(static_cast<size_t>(nx * ny), 0);
+    std::vector<uint8_t> goal_cells(static_cast<size_t>(nx * ny), 0);
+    for (size_t i = 0; i < st.sp_cell.size(); ++i) {
+        const size_t cell = static_cast<size_t>(st.sp_cell[i]);
+        start_cells[cell] |= start_reach[i];
+        goal_cells[cell] |= goal_reach[i];
+    }
+
+    struct TaggedCell
+    {
+        int64_t x;
+        int64_t y;
+        bool from_start;
+    };
+
+    const auto boundary = [&](const std::vector<uint8_t>& cells, int64_t x, int64_t y) {
+        constexpr int64_t kDx[] = { -1, 1, 0, 0 };
+        constexpr int64_t kDy[] = { 0, 0, -1, 1 };
+        for (size_t i = 0; i < std::size(kDx); ++i) {
+            const int64_t ax = x + kDx[i];
+            const int64_t ay = y + kDy[i];
+            if (ax < 0 || ax >= nx || ay < 0 || ay >= ny || cells[static_cast<size_t>(ay * nx + ax)] == 0) {
+                return true;
+            }
+        }
+        return false;
+    };
+
+    std::vector<TaggedCell> points;
+    std::optional<TaggedCell> first_start;
+    std::optional<TaggedCell> first_goal;
+    for (int64_t y = 0; y < ny; ++y) {
+        for (int64_t x = 0; x < nx; ++x) {
+            const size_t cell = static_cast<size_t>(y * nx + x);
+            if (start_cells[cell] != 0 && boundary(start_cells, x, y)) {
+                const TaggedCell point { .x = x, .y = y, .from_start = true };
+                points.push_back(point);
+                if (!first_start) {
+                    first_start = point;
+                }
+            }
+            if (goal_cells[cell] != 0 && boundary(goal_cells, x, y)) {
+                const TaggedCell point { .x = x, .y = y, .from_start = false };
+                points.push_back(point);
+                if (!first_goal) {
+                    first_goal = point;
+                }
+            }
+        }
+    }
+    if (!first_start || !first_goal) {
+        return std::nullopt;
+    }
+
+    std::sort(points.begin(), points.end(), [](const TaggedCell& lhs, const TaggedCell& rhs) {
+        return lhs.x < rhs.x || (lhs.x == rhs.x && (lhs.y < rhs.y || (lhs.y == rhs.y && lhs.from_start < rhs.from_start)));
+    });
+    const auto squaredDistance = [](const TaggedCell& lhs, const TaggedCell& rhs) {
+        const int64_t dx = lhs.x - rhs.x;
+        const int64_t dy = lhs.y - rhs.y;
+        return dx * dx + dy * dy;
+    };
+    int64_t best_squared = squaredDistance(*first_start, *first_goal);
+    TaggedCell best_start = *first_start;
+    TaggedCell best_goal = *first_goal;
+    std::set<std::pair<int64_t, size_t>> active_start;
+    std::set<std::pair<int64_t, size_t>> active_goal;
+    size_t left = 0;
+    for (size_t i = 0; i < points.size(); ++i) {
+        const TaggedCell& point = points[i];
+        while (left < i) {
+            const int64_t dx = point.x - points[left].x;
+            if (dx * dx <= best_squared) {
+                break;
+            }
+            auto& active = points[left].from_start ? active_start : active_goal;
+            active.erase({ points[left].y, left });
+            ++left;
+        }
+        const auto& opposite = point.from_start ? active_goal : active_start;
+        const int64_t radius = static_cast<int64_t>(std::floor(std::sqrt(static_cast<double>(best_squared))));
+        auto it = opposite.lower_bound({ point.y - radius, 0 });
+        const auto end = opposite.upper_bound({ point.y + radius, std::numeric_limits<size_t>::max() });
+        for (; it != end; ++it) {
+            const TaggedCell& candidate = points[it->second];
+            const int64_t distance = squaredDistance(point, candidate);
+            if (distance < best_squared) {
+                best_squared = distance;
+                if (point.from_start) {
+                    best_start = point;
+                    best_goal = candidate;
+                }
+                else {
+                    best_start = candidate;
+                    best_goal = point;
+                }
+            }
+        }
+        auto& active = point.from_start ? active_start : active_goal;
+        active.emplace(point.y, i);
+    }
+
+    const auto toWorld = [&](const TaggedCell& point) {
+        return WorldPoint {
+            .x = x0 + (static_cast<double>(point.x) + 0.5) * kCS,
+            .y = y0 + (static_cast<double>(point.y) + 0.5) * kCS,
+        };
+    };
+    return ReachGap {
+        .start = toWorld(best_start),
+        .goal = toWorld(best_goal),
+        .distance = std::sqrt(static_cast<double>(best_squared)) * kCS,
+    };
+}
 
 // 窗口里从预烘图解出来的记录。格号已换成窗口格号,窗外的与不属于本瓦自有矩形的
 // 都已剔除;一格只归一块瓦,所以同格的记录必然来自同一块瓦、按 (类号, 高) 排好。
@@ -389,8 +614,6 @@ std::optional<WindowInfo> buildWindow(
         err = "起点格没有与终点同类的面";
         return std::nullopt;
     }
-    info.reach3 = SpanReach(seed3, info.st3, info.vis3, nx, ny);
-
     info.segA = info.wP0;
     info.segA.insert(info.segA.end(), info.sev.p0.begin(), info.sev.p0.end());
     info.segB = info.wP1;
@@ -457,6 +680,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     const WorldPoint& g,
     RouteDiag& dg,
     std::optional<double> goal_deck,
+    bool capture_gap,
     const BaseNavPlanner& pl,
     uint16_t zid)
 {
@@ -535,7 +759,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
         c3 = Mask(nx, ny, 0);
         for (size_t i = 0; i < use.size(); ++i) {
             const auto cell = static_cast<size_t>(st3.sp_cell[i]);
-            if (info.reach3[i] != 0 && m2.v[cell] != 0) {
+            if (info.vis3[i] != 0 && m2.v[cell] != 0) {
                 use[i] = 1;
                 c3.v[cell] = 1;
             }
@@ -595,10 +819,47 @@ std::optional<std::vector<WorldPoint>> routeWindow(
         return v >= 0 ? std::vector<int64_t> { v } : std::vector<int64_t> {};
     };
 
+    const auto nearGoal = [&](const std::vector<uint8_t>& use, const Mask& cells) -> std::pair<std::optional<CellPt>, double> {
+        if (!goal_deck.has_value()) {
+            return near(cells, gc);
+        }
+        bool have = false;
+        int64_t best_distance = 0;
+        double best_height = 0.0;
+        CellPt best_cell;
+        for (size_t i = 0; i < use.size(); ++i) {
+            if (use[i] == 0) {
+                continue;
+            }
+            const double height_distance = std::fabs(static_cast<double>(st3.sp_h[i]) - *goal_deck);
+            if (height_distance > kDeckBand) {
+                continue;
+            }
+            const int64_t cell = st3.sp_cell[i];
+            const int64_t x = cell % nx;
+            const int64_t y = cell / nx;
+            const int64_t distance = (x - gc.x) * (x - gc.x) + (y - gc.y) * (y - gc.y);
+            if (!have || distance < best_distance || (distance == best_distance && height_distance < best_height)) {
+                have = true;
+                best_distance = distance;
+                best_height = height_distance;
+                best_cell = { x, y };
+            }
+        }
+        if (!have) {
+            return { std::nullopt, 0.0 };
+        }
+        return { best_cell, std::sqrt(static_cast<double>(best_distance)) * kCS };
+    };
+
     auto [as_, dsa] = near(cw3, sc);
-    auto [ag_, dga] = near(cw3, gc);
+    auto [ag_, dga] = nearGoal(useW, cw3);
     if (!as_.has_value()) {
         dg.err = "walk 掩膜为空";
+        return std::nullopt;
+    }
+    if (!ag_.has_value()) {
+        dg.err = goal_deck.has_value() ? "目标附近没有未封堵的声明面" : "walk 掩膜为空";
         return std::nullopt;
     }
 
@@ -617,43 +878,26 @@ std::optional<std::vector<WorldPoint>> routeWindow(
         }
         return SpanAstar(st3, use, info.cidx, c3, sd, gs, mult, soft, soft_penalty, faces);
     };
-    std::optional<std::vector<int64_t>> qs;
-    if (as_->x == ag_->x && as_->y == ag_->y) {
-        const std::vector<int64_t> vs = pick(*as_, useW);
-        const std::vector<int64_t> gs = goalsOf(vs);
-        if (!goal_deck.has_value()) {
-            qs = std::vector<int64_t> { atSeedLayer(vs) };
+    const auto findGap = [&](const std::vector<uint8_t>& use, const Mask& cells, const CellPt& start_cell, const CellPt& goal_cell) {
+        const int64_t start_span = atSeedLayer(pick(start_cell, use));
+        const std::vector<int64_t> goal_spans = goalsOf(pick(goal_cell, use));
+        if (start_span < 0 || goal_spans.empty()) {
+            return std::optional<ReachGap> {};
         }
-        else if (!gs.empty()) {
-            qs = std::vector<int64_t> { gs.front() };
-        }
-    }
-    else {
-        const std::vector<int64_t> gs = goalsOf(pick(*ag_, useW));
-        if (!goal_deck.has_value() || !gs.empty()) {
-            qs = search(useW, cw3, pick(*as_, useW), gs);
-        }
-    }
+        const std::vector<uint8_t> start_reach = topologyReach(st3, use, info.cidx, cells, { start_span }, faces, false);
+        const std::vector<uint8_t> goal_reach = topologyReach(st3, use, info.cidx, cells, goal_spans, faces, true);
+        return closestReachGap(st3, start_reach, goal_reach, nx, ny, x0, y0);
+    };
+
+    const std::vector<int64_t> walk_goals = goalsOf(pick(*ag_, useW));
+    std::optional<std::vector<int64_t>> qs = search(useW, cw3, pick(*as_, useW), walk_goals);
+    std::optional<ReachGap> failed_gap;
     if (!qs.has_value()) {
         const auto [ac_, dc_] = near(cc3, sc);
-        const auto [ag2, dg2] = near(cc3, gc);
+        const auto [ag2, dg2] = nearGoal(useC, cc3);
         if (ac_.has_value() && ag2.has_value()) {
-            if (ac_->x == ag2->x && ac_->y == ag2->y) {
-                const std::vector<int64_t> vs = pick(*ac_, useC);
-                const std::vector<int64_t> gs = goalsOf(vs);
-                if (!goal_deck.has_value()) {
-                    qs = std::vector<int64_t> { atSeedLayer(vs) };
-                }
-                else if (!gs.empty()) {
-                    qs = std::vector<int64_t> { gs.front() };
-                }
-            }
-            else {
-                const std::vector<int64_t> gs = goalsOf(pick(*ag2, useC));
-                if (!goal_deck.has_value() || !gs.empty()) {
-                    qs = search(useC, cc3, pick(*ac_, useC), gs);
-                }
-            }
+            const std::vector<int64_t> core_goals = goalsOf(pick(*ag2, useC));
+            qs = search(useC, cc3, pick(*ac_, useC), core_goals);
             if (qs.has_value()) {
                 on3 = cc3;
                 as_ = ac_;
@@ -662,7 +906,13 @@ std::optional<std::vector<WorldPoint>> routeWindow(
                 dga = dg2;
                 dg.warn.push_back("walk 断开→退回 core");
             }
+            else if (capture_gap) {
+                failed_gap = findGap(useC, cc3, *ac_, *ag2);
+            }
         }
+    }
+    if (!qs.has_value() && !failed_gap.has_value() && capture_gap) {
+        failed_gap = findGap(useW, cw3, *as_, *ag_);
     }
     std::optional<std::vector<CellPt>> q;
     if (qs.has_value()) {
@@ -677,22 +927,18 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     else {
         // 格级搜索连 span 都不看, 退到这一级等于把选层交回给楼层盲的那一级
         if (goal_deck.has_value()) {
-            const std::vector<int64_t> gv = pick(*ag_, useW);
-            std::vector<float> hs;
-            for (const int64_t v : gv) {
-                hs.push_back(st3.sp_h[static_cast<size_t>(v)]);
-            }
-            std::sort(hs.begin(), hs.end());
-            hs.erase(std::unique(hs.begin(), hs.end()), hs.end());
-            std::string list;
             char buf[32];
-            for (const float h : hs) {
-                std::snprintf(buf, sizeof(buf), "%.2f", static_cast<double>(h));
-                list += (list.empty() ? "" : ", ") + std::string(buf);
+            if (failed_gap.has_value()) {
+                dg.gap_start = failed_gap->start;
+                dg.gap_goal = failed_gap->goal;
+                dg.gap_distance = failed_gap->distance;
+                std::snprintf(buf, sizeof(buf), "%.1f", failed_gap->distance);
+                dg.err = "目标面与起点不连通 (最近断口 " + std::string(buf) + "px)";
             }
-            std::snprintf(buf, sizeof(buf), "%.2f", *goal_deck);
-            dg.err =
-                "目标面不可达 (声明 " + std::string(buf) + ", 终点格里的面 " + (list.empty() ? std::string("无") : "[" + list + "]") + ")";
+            else {
+                std::snprintf(buf, sizeof(buf), "%.2f", *goal_deck);
+                dg.err = "目标面不可达 (声明 " + std::string(buf) + ")";
+            }
             return std::nullopt;
         }
         std::tie(as_, dsa) = near(walk, sc);
@@ -712,10 +958,23 @@ std::optional<std::vector<WorldPoint>> routeWindow(
             }
         }
         if (!q.has_value()) {
+            if (failed_gap.has_value()) {
+                dg.gap_start = failed_gap->start;
+                dg.gap_goal = failed_gap->goal;
+                dg.gap_distance = failed_gap->distance;
+            }
             dg.err = "不连通";
             return std::nullopt;
         }
         dg.warn.push_back("层不连通→退回格级");
+    }
+    dg.x0 = x0;
+    dg.y0 = y0;
+    dg.nx = nx;
+    dg.ny = ny;
+    dg.astar_cells.reserve(q->size());
+    for (const CellPt& c : *q) {
+        dg.astar_cells.push_back({ x0 + (static_cast<double>(c.x) + 0.5) * kCS, y0 + (static_cast<double>(c.y) + 0.5) * kCS });
     }
     dg.snap_start = dsa;
     dg.snap_goal = dga;
@@ -930,6 +1189,12 @@ std::optional<std::vector<WorldPoint>> routeWindow(
                     }
                     if (l2 <= l1 * 1.2 + 2.0 / kCS) {
                         pp = cen(*q2);
+                        for (const auto& p : pp) {
+                            if (dg.rerouted_points.empty()
+                                || std::hypot(p.x - dg.rerouted_points.back().x, p.y - dg.rerouted_points.back().y) > 1e-9) {
+                                dg.rerouted_points.push_back(p);
+                            }
+                        }
                         if (qs.has_value()) {
                             hs = h2;
                         }
@@ -957,6 +1222,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
         }
         taut.insert(taut.end(), pp.begin(), pp.end());
     }
+    dg.string_pull_points = taut;
 
     std::vector<WorldPoint> line;
     line.push_back(s);
@@ -975,15 +1241,19 @@ std::optional<std::vector<WorldPoint>> routeWindow(
             ded.push_back(stripped[i]);
         }
     }
+    dg.assembled_points = ded;
     std::vector<WorldPoint> out = DropLoops(ded);
+    dg.loop_fixed_points = out;
     const LayerOracle* lyo_p = qs.has_value() ? &lyo : nullptr;
     const float lyo_h = qs.has_value() ? st3.sp_h[static_cast<size_t>(qs->front())] : 0.0F;
-    if (kSlimEps > 0 && out.size() > 2) {
-        out = Slim(out, blk_gray, kSlimEps, &cfl, lyo_p, lyo_h);
+    if (out.size() > 2) {
+        out = Slim(out, blk_gray, &cfl, lyo_p, lyo_h, true, kStringPullMaxMergeGap);
     }
+    dg.slim_points = out;
     if (out.size() > 2) {
         out = WidenCorners(out, blk_gray, dist, info.x0, info.y0, kCS, &cfl, lyo_p, lyo_h);
     }
+    dg.widened_points = out;
     dg.clearance.reserve(out.size());
     for (const auto& p : out) {
         const int64_t cx = std::min(std::max(static_cast<int64_t>(std::floor((p.x - info.x0) / kCS)), int64_t { 0 }), nx - 1);
@@ -1013,10 +1283,11 @@ std::optional<std::vector<WorldPoint>> routeWindow(
         }
     }
     PullWaypoints(out, dg, pl, zid, blk_gray, lyo_p != nullptr);
+    dg.planned_points = out;
     return out;
 }
 
-}
+} // namespace
 
 RecastNavEngine::RecastNavEngine(const BaseNavPack& pack, const BaseNavPlanner& planner)
     : pack_(pack)
@@ -1135,8 +1406,28 @@ RecastPlanResult RecastNavEngine::planLocked(
     const double margins[kWidenSteps] = { kMargin, kMargin * 2 };
     const int pass_count = (blocked.empty() && blocked_points.empty()) ? kWidenSteps : 1;
     std::string last_err;
+    const auto storeDebug = [&](RouteDiag& dg) {
+        res.debug.x0 = dg.x0;
+        res.debug.y0 = dg.y0;
+        res.debug.nx = dg.nx;
+        res.debug.ny = dg.ny;
+        res.debug.cell_size = kCS;
+        res.debug.astar_cells = std::move(dg.astar_cells);
+        res.debug.rerouted_points = std::move(dg.rerouted_points);
+        res.debug.string_pull_points = std::move(dg.string_pull_points);
+        res.debug.assembled_points = std::move(dg.assembled_points);
+        res.debug.loop_fixed_points = std::move(dg.loop_fixed_points);
+        res.debug.slim_points = std::move(dg.slim_points);
+        res.debug.widened_points = std::move(dg.widened_points);
+        res.debug.planned_points = std::move(dg.planned_points);
+        res.debug.gap_start = dg.gap_start;
+        res.debug.gap_goal = dg.gap_goal;
+        res.debug.gap_distance = dg.gap_distance;
+        res.debug.warnings = dg.warn;
+    };
     for (int pass = 0; pass < pass_count; ++pass) {
         const bool last_margin = pass + 1 == kWidenSteps;
+        const bool capture_gap = pass + 1 == pass_count;
         // 窗口边界对齐到全局网格。原点直接取 min-margin 时, 起点差 0.06px 就换一套体素相位,
         // 同一段路两次规划得到的格子划分不同; 对齐后相位只由世界坐标决定, 与起终点无关。
         const double x0 = std::floor((std::min(start.x, goal.x) - margins[pass]) / kCS) * kCS;
@@ -1157,7 +1448,7 @@ RecastPlanResult RecastNavEngine::planLocked(
         auto info = buildWindow(wo, grid_, *gz, zc, start, ss->point, goal, h0, gdk, x0, y0, x1, y1, blocked_local, blocked_points, err);
         if (info.has_value()) {
             RouteDiag dg;
-            auto line = routeWindow(*info, start, goal, dg, gdk, planner_, zc.zone_id);
+            auto line = routeWindow(*info, start, goal, dg, gdk, capture_gap, planner_, zc.zone_id);
             if (line.has_value()) {
                 // 锚点远 = 走廊出窗,同触界扩窗,否则末段盲跳穿墙
                 if (std::max(dg.snap_start, dg.snap_goal) > kSnapRadius) {
@@ -1197,6 +1488,7 @@ RecastPlanResult RecastNavEngine::planLocked(
                         res.snap_start = dg.snap_start;
                         res.snap_goal = dg.snap_goal;
                         res.waypoints = std::move(dg.waypoints);
+                        storeDebug(dg);
                         return res;
                     }
                     err = "终线触界,扩窗重跑";
@@ -1204,6 +1496,7 @@ RecastPlanResult RecastNavEngine::planLocked(
             }
             else {
                 err = dg.err.empty() ? "路线失败" : dg.err;
+                storeDebug(dg);
             }
         }
         last_err = err;
@@ -1212,4 +1505,4 @@ RecastPlanResult RecastNavEngine::planLocked(
     return res;
 }
 
-}
+} // namespace navmesh::recast

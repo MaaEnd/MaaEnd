@@ -12,9 +12,17 @@
     "SceneEnterWorldDijiang": {
         "desc": "从任意界面进入帝江号大世界",
         "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ]
+        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "__ScenePrivateAnyEnterWorldDijiangSuccess",
             "__ScenePrivateMapAnyEnterWorldDijiang",
             "[JumpBack]SceneEnterMapAny"
         ]

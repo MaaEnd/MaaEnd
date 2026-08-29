@@ -35,6 +35,10 @@
                         "minLength": 1,
                         "description": "可选的人工维护说明，仅供阅读，不参与路线生成。"
                     },
+                    "walk_only": {
+                        "type": "boolean",
+                        "description": "是否在全局启用滑索时仍强制该仓储主路线仅步行。"
+                    },
                     "path": {
                         "$ref": "#/$defs/path"
                     },
@@ -78,7 +82,14 @@
                         "minLength": 1,
                         "description": "可选的人工维护说明，仅供阅读，不参与路线生成。"
                     },
+                    "walk_only": {
+                        "type": "boolean",
+                        "description": "是否在全局启用滑索时仍强制该终点主路线仅步行。"
+                    },
                     "path": {
+                        "$ref": "#/$defs/path"
+                    },
+                    "retry_path": {
                         "$ref": "#/$defs/path"
                     }
                 }

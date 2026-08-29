@@ -5,7 +5,6 @@
 #include <cmath>
 #include <filesystem>
 #include <memory>
-#include <set>
 #include <stdexcept>
 #include <string_view>
 #include <tuple>
@@ -14,6 +13,7 @@
 
 #include <MaaUtils/Logger.h>
 
+#include "detail/CandidateSelector.h"
 #include "detail/EdgeOcclusion.h"
 #include "detail/ForegroundTexture.h"
 #include "detail/GridDetector.h"
@@ -80,73 +80,6 @@ const std::vector<std::string>& DefaultItemFiltersImpl(GridType type)
         return normal;
     }
     return normal;
-}
-
-std::pair<std::string_view, std::string_view> ParseFilter(std::string_view filter, std::string_view field)
-{
-    const auto separator = filter.find(':');
-    if (separator == std::string_view::npos || filter.find(':', separator + 1) != std::string_view::npos) {
-        throw std::invalid_argument(std::string(field) + " must use storageKind:categoryType");
-    }
-    const std::string_view storage = filter.substr(0, separator);
-    const std::string_view category = filter.substr(separator + 1);
-    if (storage.empty() || category.empty()) {
-        throw std::invalid_argument(std::string(field) + " must use non-empty storageKind:categoryType");
-    }
-    return { storage, category };
-}
-
-bool MatchesFilter(const detail::TemplateRecord& record, std::string_view filter)
-{
-    const auto [storage, category] = ParseFilter(filter, "item_filters");
-    return storage == record.storage_kind && (category == "*" || category == record.category_type);
-}
-
-void ValidateFilters(const std::vector<std::string>& filters, std::string_view field)
-{
-    for (const auto& filter : filters) {
-        static_cast<void>(ParseFilter(filter, field));
-    }
-}
-
-std::vector<detail::PreparedTemplate> SelectTemplates(
-    const std::vector<detail::PreparedTemplate>& all,
-    const CandidateFilter& candidates,
-    const std::vector<std::string>& defaults)
-{
-    const auto& filters = candidates.item_filters.empty() ? defaults : candidates.item_filters;
-    std::vector<detail::PreparedTemplate> filtered;
-    for (const auto& templ : all) {
-        if (std::ranges::any_of(filters, [&](const auto& filter) { return MatchesFilter(templ.record, filter); })) {
-            filtered.push_back(templ);
-        }
-    }
-    if (filtered.empty()) {
-        throw std::invalid_argument("item_filters selected no candidate templates");
-    }
-    if (candidates.item_ids.empty()) {
-        return filtered;
-    }
-
-    const std::set<std::string> unique_ids(candidates.item_ids.begin(), candidates.item_ids.end());
-    if (unique_ids.size() != candidates.item_ids.size()) {
-        throw std::invalid_argument("item_ids must not contain duplicates");
-    }
-    const auto find_by_id = [](const auto& templates, const std::string& item_id) {
-        return std::ranges::find_if(templates, [&](const auto& templ) { return templ.record.item_id == item_id; });
-    };
-    std::vector<detail::PreparedTemplate> result;
-    for (const auto& item_id : candidates.item_ids) {
-        if (find_by_id(all, item_id) == all.end()) {
-            throw std::invalid_argument("recognition catalog does not contain item_id: " + item_id);
-        }
-        const auto selected = find_by_id(filtered, item_id);
-        if (selected == filtered.end()) {
-            throw std::invalid_argument("item_id is excluded by item_filters: " + item_id);
-        }
-        result.push_back(*selected);
-    }
-    return result;
 }
 
 void ValidateThresholds(double accept, double subpixel)
@@ -452,6 +385,171 @@ std::string ActiveMaskKind(
     return "lower_extended";
 }
 
+struct CellEvaluation
+{
+    std::vector<detail::PreparedTemplate> active;
+    std::vector<detail::PreparedTemplate> edge_active;
+    SlotRanking ranking;
+    std::optional<double> foreground_texture;
+    std::optional<detail::EdgeOcclusion> edge_occlusion;
+    std::optional<double> top2_margin;
+    std::optional<std::string> rejected_reason;
+    std::string mask_kind;
+    bool edge_recovery_used = false;
+    bool accepted = false;
+
+    const std::vector<detail::PreparedTemplate>& effectiveTemplates() const { return edge_recovery_used ? edge_active : active; }
+
+    const detail::PreparedTemplate& bestTemplate() const { return effectiveTemplates().at(ranking.best.template_index); }
+};
+
+CellEvaluation EvaluateCellTemplates(
+    const cv::Mat& image,
+    GridType grid_type,
+    const cv::Rect& cell_box,
+    const cv::Rect& slot,
+    const std::vector<detail::PreparedTemplate>& selected,
+    std::optional<int> rarity,
+    bool single_roi,
+    double grid_scale,
+    double threshold,
+    double subpixel_threshold,
+    detail::RecognitionPerformanceDiagnostics* performance)
+{
+    CellEvaluation result;
+    const auto active_started = performance ? PerformanceClock::now() : PerformanceClock::time_point {};
+    result.active = single_roi ? selected : ActiveTemplates(image, grid_type, slot, selected);
+    if (performance) {
+        performance->active_templates_ms += ElapsedMilliseconds(active_started);
+    }
+    result.ranking = RankSlot(
+        image,
+        slot,
+        result.active,
+        rarity,
+        threshold,
+        subpixel_threshold,
+        std::max(1, cvRound(kGridSearchRadius * grid_scale)),
+        performance);
+
+    const auto texture_started = performance ? PerformanceClock::now() : PerformanceClock::time_point {};
+    result.foreground_texture = single_roi ? std::optional<double> {} : detail::ForegroundTextureScore(image, cell_box, grid_type);
+    const bool low_texture = !single_roi && detail::IsLowTexture(image, cell_box, grid_type);
+    if (performance) {
+        performance->foreground_texture_ms += ElapsedMilliseconds(texture_started);
+    }
+
+    if (detail::ShouldAttemptEdgeOcclusionRecovery(
+            grid_type,
+            result.ranking.best.diagnostics.score,
+            threshold,
+            subpixel_threshold,
+            low_texture)) {
+        const auto& original_template = result.active[result.ranking.best.template_index];
+        result.edge_occlusion = detail::DetectEdgeOcclusion(
+            image,
+            cv::Rect(result.ranking.best.diagnostics.position, original_template.image.size()),
+            original_template,
+            result.ranking.best.phase);
+        if (result.edge_occlusion) {
+            result.edge_active = result.active;
+            for (auto& templ : result.edge_active) {
+                templ.mask = templ.mask.clone();
+                detail::ApplyEdgeOcclusionMask(templ.mask, *result.edge_occlusion);
+            }
+            SlotRanking recovered = RankSlot(
+                image,
+                slot,
+                result.edge_active,
+                rarity,
+                threshold,
+                subpixel_threshold,
+                std::max(1, cvRound(kGridSearchRadius * grid_scale)),
+                performance);
+            const std::optional<double> recovered_margin =
+                recovered.ranked.size() > 1
+                    ? std::optional<double>(recovered.best.diagnostics.score - recovered.ranked[1].diagnostics.score)
+                    : std::nullopt;
+            if (detail::ShouldAcceptEdgeOcclusionRecovery(
+                    result.ranking.best.template_index,
+                    recovered.best.template_index,
+                    recovered.best.diagnostics.score,
+                    recovered_margin,
+                    threshold)) {
+                result.ranking = std::move(recovered);
+                result.edge_recovery_used = true;
+            }
+        }
+    }
+
+    const auto& best = result.ranking.best;
+    const auto& templ = result.bestTemplate();
+    result.top2_margin = result.ranking.ranked.size() > 1
+                             ? std::optional<double>(best.diagnostics.score - result.ranking.ranked[1].diagnostics.score)
+                             : std::nullopt;
+    const bool texture_rejected = best.diagnostics.score >= threshold && low_texture;
+    result.accepted = best.diagnostics.score >= threshold && !texture_rejected;
+    if (!result.accepted) {
+        result.rejected_reason =
+            texture_rejected ? "low-foreground-texture"
+                             : (best.diagnostics.score < subpixel_threshold ? "below-subpixel-threshold" : "below-accept-threshold");
+    }
+    result.mask_kind = single_roi
+                           ? (templ.composite ? "composite_union" : "lower_extended")
+                           : ActiveMaskKind(grid_type, selected, result.active)
+                                 + (result.edge_recovery_used
+                                        ? (result.edge_occlusion->side == detail::EdgeOcclusionSide::Top ? "+edge_top" : "+edge_bottom")
+                                        : "");
+    if (templ.region_unavailable) {
+        result.mask_kind += "+region_unavailable_overlay";
+    }
+    return result;
+}
+
+std::vector<detail::PreparedTemplate> SelectRegionUnavailableVariants(
+    const std::vector<detail::PreparedTemplate>& region_unavailable,
+    const std::vector<detail::PreparedTemplate>& selected)
+{
+    std::unordered_set<std::string> selected_restricted_ids;
+    for (const auto& templ : selected) {
+        if (templ.record.region_restricted) {
+            selected_restricted_ids.insert(templ.record.item_id);
+        }
+    }
+    std::vector<detail::PreparedTemplate> result;
+    for (const auto& templ : region_unavailable) {
+        if (selected_restricted_ids.contains(templ.record.item_id)) {
+            result.push_back(templ);
+        }
+    }
+    return result;
+}
+
+std::vector<detail::PreparedTemplate> BuildRegionUnavailableRecheckTemplates(
+    const std::vector<detail::PreparedTemplate>& selected,
+    const std::vector<detail::PreparedTemplate>& region_unavailable)
+{
+    std::unordered_map<std::string, detail::PreparedTemplate> unavailable_by_id;
+    for (const auto& templ : region_unavailable) {
+        unavailable_by_id.emplace(templ.record.item_id, templ);
+    }
+
+    std::vector<detail::PreparedTemplate> result;
+    result.reserve(selected.size());
+    for (const auto& templ : selected) {
+        if (!templ.record.region_restricted) {
+            result.push_back(templ);
+            continue;
+        }
+        const auto unavailable = unavailable_by_id.find(templ.record.item_id);
+        if (unavailable == unavailable_by_id.end()) {
+            throw std::runtime_error("region-unavailable template missing for item: " + templ.record.item_id);
+        }
+        result.push_back(unavailable->second);
+    }
+    return result;
+}
+
 ItemInfo ItemFromTemplate(const detail::PreparedTemplate& templ)
 {
     return {
@@ -521,7 +619,11 @@ public:
                 }
                 else {
                     for (const double grid_scale : detail::kSupportedControllerGridScales) {
-                        static_cast<void>(TemplatesFor(request.grid_type, grid_scale));
+                        const int target_size = TemplateSizeFor(request.grid_type, grid_scale);
+                        static_cast<void>(catalog_.load(target_size));
+                        if (request.recognize_region_unavailable && SupportsRegionUnavailableRecognition(request.grid_type)) {
+                            static_cast<void>(catalog_.loadRegionUnavailable(target_size));
+                        }
                     }
                 }
             }
@@ -567,13 +669,14 @@ public:
             ValidateThresholds(request.threshold, request.subpixel_threshold);
             const bool recheck_enabled = !request.candidates.item_ids.empty() && !request.candidates.item_recheck_filters.empty();
             if (recheck_enabled) {
-                ValidateFilters(request.candidates.item_recheck_filters, "item_recheck_filters");
+                detail::ValidateCandidateFilterList(request.candidates.item_recheck_filters, "item_recheck_filters");
             }
             const bool single_roi = request.grid_type == GridType::SingleRoi;
             std::vector<detail::GridCell> cells;
             std::vector<detail::GridLayout> detected_grids;
             std::vector<detail::PreparedTemplate> selected;
             double grid_scale = detail::kWin32ControllerGridScale;
+            int template_size = 0;
             if (single_roi) {
                 if (request.roi.width <= 0 || request.roi.width != request.roi.height) {
                     throw std::invalid_argument("single_roi must be a positive square");
@@ -583,9 +686,12 @@ public:
                     throw std::invalid_argument("single_roi must be fully inside the image");
                 }
                 cells.push_back(detail::GridCell { .cell_box = request.roi });
+                template_size = request.roi.width;
                 const auto selection_started = performance ? PerformanceClock::now() : PerformanceClock::time_point {};
-                selected =
-                    SelectTemplates(RoiTemplates(request.roi.width), request.candidates, detail::DefaultItemFilters(request.grid_type));
+                selected = detail::SelectCandidateTemplates(
+                    RoiTemplates(request.roi.width),
+                    request.candidates,
+                    detail::DefaultItemFilters(request.grid_type));
                 if (performance) {
                     performance->template_selection_ms += ElapsedMilliseconds(selection_started);
                 }
@@ -604,8 +710,9 @@ public:
                 cells = detection.cells;
                 detected_grids = detection.grids;
                 grid_scale = detection.grid_scale;
+                template_size = TemplateSizeFor(request.grid_type, grid_scale);
                 const auto selection_started = performance ? PerformanceClock::now() : PerformanceClock::time_point {};
-                selected = SelectTemplates(
+                selected = detail::SelectCandidateTemplates(
                     TemplatesFor(request.grid_type, grid_scale),
                     request.candidates,
                     detail::DefaultItemFilters(request.grid_type));
@@ -622,129 +729,91 @@ public:
                     result.diagnostics->grids.push_back(*grid.selection_diagnostics);
                 }
             }
+            const bool has_region_restricted_candidates =
+                std::ranges::any_of(selected, [](const auto& templ) { return templ.record.region_restricted; });
+            const bool region_unavailable_enabled =
+                request.recognize_region_unavailable && SupportsRegionUnavailableRecognition(request.grid_type);
+            std::optional<std::vector<detail::PreparedTemplate>> region_unavailable_selected;
             for (const auto& cell : cells) {
                 const cv::Rect slot = single_roi ? cell.cell_box : SlotFor(request.grid_type, cell, grid_scale);
-                const auto active_started = performance ? PerformanceClock::now() : PerformanceClock::time_point {};
-                const auto active = single_roi ? selected : ActiveTemplates(image, request.grid_type, slot, selected);
-                if (performance) {
-                    performance->active_templates_ms += ElapsedMilliseconds(active_started);
-                }
                 const auto rarity_started = performance ? PerformanceClock::now() : PerformanceClock::time_point {};
                 const auto rarity = single_roi ? detail::RarityResult {} : detail::ClassifyRarity(image, slot, grid_scale);
                 if (performance) {
                     performance->rarity_classification_ms += ElapsedMilliseconds(rarity_started);
                 }
-                SlotRanking ranking = RankSlot(
+                CellEvaluation evaluation = EvaluateCellTemplates(
                     image,
+                    request.grid_type,
+                    cell.cell_box,
                     slot,
-                    active,
+                    selected,
                     rarity.rarity,
+                    single_roi,
+                    grid_scale,
                     request.threshold,
                     request.subpixel_threshold,
-                    std::max(1, cvRound(kGridSearchRadius * grid_scale)),
                     performance_ptr);
-                const auto texture_started = performance ? PerformanceClock::now() : PerformanceClock::time_point {};
-                const auto foreground_texture =
-                    single_roi ? std::optional<double> {} : detail::ForegroundTextureScore(image, cell.cell_box, request.grid_type);
-                if (performance) {
-                    performance->foreground_texture_ms += ElapsedMilliseconds(texture_started);
-                }
-                const bool low_texture = !single_roi && detail::IsLowTexture(image, cell.cell_box, request.grid_type);
-                std::vector<detail::PreparedTemplate> edge_active;
-                std::optional<detail::EdgeOcclusion> edge_occlusion;
-                bool edge_recovery_used = false;
-                if (detail::ShouldAttemptEdgeOcclusionRecovery(
-                        request.grid_type,
-                        ranking.best.diagnostics.score,
-                        request.threshold,
-                        request.subpixel_threshold,
-                        low_texture)) {
-                    const auto& original_template = active[ranking.best.template_index];
-                    edge_occlusion = detail::DetectEdgeOcclusion(
-                        image,
-                        cv::Rect(ranking.best.diagnostics.position, original_template.image.size()),
-                        original_template,
-                        ranking.best.phase);
-                    if (edge_occlusion) {
-                        edge_active = active;
-                        for (auto& templ : edge_active) {
-                            templ.mask = templ.mask.clone();
-                            detail::ApplyEdgeOcclusionMask(templ.mask, *edge_occlusion);
+                bool region_unavailable_fallback_used = false;
+                if (!evaluation.accepted && region_unavailable_enabled && has_region_restricted_candidates) {
+                    if (!region_unavailable_selected) {
+                        const auto selection_started = performance ? PerformanceClock::now() : PerformanceClock::time_point {};
+                        region_unavailable_selected =
+                            SelectRegionUnavailableVariants(catalog_.loadRegionUnavailable(template_size), selected);
+                        if (performance) {
+                            performance->template_selection_ms += ElapsedMilliseconds(selection_started);
                         }
-                        SlotRanking recovered = RankSlot(
+                    }
+                    if (!region_unavailable_selected->empty()) {
+                        CellEvaluation fallback = EvaluateCellTemplates(
                             image,
+                            request.grid_type,
+                            cell.cell_box,
                             slot,
-                            edge_active,
+                            *region_unavailable_selected,
                             rarity.rarity,
+                            single_roi,
+                            grid_scale,
                             request.threshold,
                             request.subpixel_threshold,
-                            std::max(1, cvRound(kGridSearchRadius * grid_scale)),
                             performance_ptr);
-                        const std::optional<double> recovered_margin =
-                            recovered.ranked.size() > 1
-                                ? std::optional<double>(recovered.best.diagnostics.score - recovered.ranked[1].diagnostics.score)
-                                : std::nullopt;
-                        if (detail::ShouldAcceptEdgeOcclusionRecovery(
-                                ranking.best.template_index,
-                                recovered.best.template_index,
-                                recovered.best.diagnostics.score,
-                                recovered_margin,
-                                request.threshold)) {
-                            ranking = std::move(recovered);
-                            edge_recovery_used = true;
+                        if (fallback.accepted) {
+                            evaluation = std::move(fallback);
+                            region_unavailable_fallback_used = true;
                         }
                     }
                 }
-                const auto& effective_active = edge_recovery_used ? edge_active : active;
-                const auto& best = ranking.best;
-                const auto& templ = effective_active[best.template_index];
-                const std::optional<double> top2_margin =
-                    ranking.ranked.size() > 1 ? std::optional<double>(best.diagnostics.score - ranking.ranked[1].diagnostics.score)
-                                              : std::nullopt;
-                const auto low_texture_started = performance ? PerformanceClock::now() : PerformanceClock::time_point {};
-                const bool texture_rejected = best.diagnostics.score >= request.threshold && low_texture;
-                if (performance) {
-                    performance->foreground_texture_ms += ElapsedMilliseconds(low_texture_started);
-                }
+
                 const auto assembly_started = performance ? PerformanceClock::now() : PerformanceClock::time_point {};
-                const bool accepted = best.diagnostics.score >= request.threshold && !texture_rejected;
-                std::optional<std::string> rejected_reason;
-                if (!accepted) {
-                    rejected_reason = texture_rejected ? "low-foreground-texture"
-                                                       : (best.diagnostics.score < request.subpixel_threshold ? "below-subpixel-threshold"
-                                                                                                              : "below-accept-threshold");
-                }
+                const auto& best = evaluation.ranking.best;
+                const auto& templ = evaluation.bestTemplate();
                 result.diagnostics->cells.push_back(detail::CellRecognitionDiagnostics {
                     .cell_box = cell.cell_box,
                     .candidate_box = cv::Rect(best.diagnostics.position, templ.image.size()),
                     .best_candidate_id = templ.record.item_id,
-                    .baseline_score = ranking.baseline_score,
+                    .baseline_score = evaluation.ranking.baseline_score,
                     .score = best.diagnostics.score,
-                    .top2_margin = top2_margin,
-                    .candidate_count = ranking.ranked.size(),
-                    .fallback_used = ranking.fallback_used || edge_recovery_used,
+                    .top2_margin = evaluation.top2_margin,
+                    .candidate_count = evaluation.ranking.ranked.size(),
+                    .fallback_used = evaluation.ranking.fallback_used || evaluation.edge_recovery_used,
+                    .region_unavailable_fallback_used = region_unavailable_fallback_used,
                     .best_phase = cv::Point2d(best.phase.x, best.phase.y),
-                    .rejected_reason = rejected_reason,
-                    .foreground_texture = foreground_texture,
-                    .rarity = single_roi && accepted ? std::optional<int>(templ.record.rarity) : rarity.rarity,
+                    .rejected_reason = evaluation.rejected_reason,
+                    .foreground_texture = evaluation.foreground_texture,
+                    .rarity = single_roi && evaluation.accepted ? std::optional<int>(templ.record.rarity) : rarity.rarity,
                     .rarity_coverage = single_roi ? 0.0 : rarity.coverage,
                     .rarity_row_offset = single_roi ? std::optional<int> {} : rarity.row_offset,
-                    .mask_kind = single_roi
-                                     ? (templ.composite ? "composite_union" : "lower_extended")
-                                     : ActiveMaskKind(request.grid_type, selected, active)
-                                           + (edge_recovery_used
-                                                  ? (edge_occlusion->side == detail::EdgeOcclusionSide::Top ? "+edge_top" : "+edge_bottom")
-                                                  : ""),
-                    .edge_occlusion_side = edge_recovery_used ? std::optional<std::string>(
-                                               edge_occlusion->side == detail::EdgeOcclusionSide::Top ? "top" : "bottom")
-                                                              : std::nullopt,
-                    .edge_occlusion_cutoff = edge_recovery_used ? std::optional<int>(edge_occlusion->cutoff) : std::nullopt,
+                    .mask_kind = evaluation.mask_kind,
+                    .edge_occlusion_side = evaluation.edge_recovery_used ? std::optional<std::string>(
+                                               evaluation.edge_occlusion->side == detail::EdgeOcclusionSide::Top ? "top" : "bottom")
+                                                                         : std::nullopt,
+                    .edge_occlusion_cutoff =
+                        evaluation.edge_recovery_used ? std::optional<int>(evaluation.edge_occlusion->cutoff) : std::nullopt,
                     .edge_occlusion_residual_ratio =
-                        edge_recovery_used ? std::optional<double>(edge_occlusion->residual_ratio) : std::nullopt,
+                        evaluation.edge_recovery_used ? std::optional<double>(evaluation.edge_occlusion->residual_ratio) : std::nullopt,
                     .row = single_roi ? std::optional<int> {} : std::optional<int>(cell.row),
                     .column = single_roi ? std::optional<int> {} : std::optional<int>(cell.column),
                 });
-                if (!accepted) {
+                if (!evaluation.accepted) {
                     if (performance) {
                         performance->result_assembly_ms += ElapsedMilliseconds(assembly_started);
                     }
@@ -755,6 +824,7 @@ public:
                     .cell_box = cell.cell_box,
                     .item_box = cv::Rect(best.diagnostics.position, templ.image.size()),
                     .score = best.diagnostics.score,
+                    .region_unavailable = templ.region_unavailable,
                     .row = single_roi ? std::optional<int> {} : std::optional<int>(cell.row),
                     .column = single_roi ? std::optional<int> {} : std::optional<int>(cell.column),
                 });
@@ -770,25 +840,41 @@ public:
                 CandidateFilter recheck_candidates;
                 recheck_candidates.item_filters = request.candidates.item_recheck_filters;
                 std::unordered_map<int, std::vector<detail::PreparedTemplate>> recheck_templates_by_size;
+                std::unordered_map<int, std::vector<detail::PreparedTemplate>> region_unavailable_recheck_templates_by_size;
+                const std::unordered_set<std::string> original_item_ids(
+                    request.candidates.item_ids.begin(),
+                    request.candidates.item_ids.end());
                 std::unordered_set<std::string> rechecked_item_ids;
                 for (const auto& candidate : candidates) {
                     if (request.deduplicate && rechecked_item_ids.contains(candidate.item.item_id)) {
                         continue;
                     }
-                    auto [templates, inserted] = recheck_templates_by_size.try_emplace(candidate.cell_box.width);
-                    if (inserted) {
-                        templates->second = SelectTemplates(
-                            RoiTemplates(candidate.cell_box.width),
-                            recheck_candidates,
-                            detail::DefaultItemFilters(GridType::SingleRoi));
+                    // 附加类型不属于显式 item_ids，不能被只为原始 ID 配置的反查过滤器误删。
+                    bool valid = true;
+                    if (original_item_ids.contains(candidate.item.item_id)) {
+                        auto& template_cache =
+                            candidate.region_unavailable ? region_unavailable_recheck_templates_by_size : recheck_templates_by_size;
+                        auto [templates, inserted] = template_cache.try_emplace(candidate.cell_box.width);
+                        if (inserted) {
+                            templates->second = detail::SelectCandidateTemplates(
+                                RoiTemplates(candidate.cell_box.width),
+                                recheck_candidates,
+                                detail::DefaultItemFilters(GridType::SingleRoi));
+                            if (candidate.region_unavailable) {
+                                // 当前地区不可用命中必须使用同一界面状态复核，避免普通模板替代受限物品后返回错误状态。
+                                templates->second = BuildRegionUnavailableRecheckTemplates(
+                                    templates->second,
+                                    catalog_.loadRegionUnavailable(candidate.cell_box.width));
+                            }
+                        }
+                        valid = ValidateCandidateCell(
+                            image,
+                            candidate.cell_box,
+                            candidate.item.item_id,
+                            templates->second,
+                            request.threshold,
+                            request.subpixel_threshold);
                     }
-                    const bool valid = ValidateCandidateCell(
-                        image,
-                        candidate.cell_box,
-                        candidate.item.item_id,
-                        templates->second,
-                        request.threshold,
-                        request.subpixel_threshold);
                     if (valid) {
                         result.matches.push_back(candidate);
                         if (request.deduplicate) {

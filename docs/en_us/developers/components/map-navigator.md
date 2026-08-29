@@ -44,6 +44,8 @@ No pre-recording of the route, no intermediate points, and no `zone_id` are need
 
 This form is already used in production routes such as Auto Collect and Environment Monitoring.
 
+In the GUI's A\* tab, paste a JSON coordinate pair such as `[724.98, 1596.8]` into either the X or Y field to fill both values automatically, then click **Mark Point** to show the target preview.
+
 #### Recorded: `path`
 
 When the route itself contains semantics the navigator cannot infer on its own — interacting at a certain point, passing through a map transition point, using a jump platform, or waiting for an external teleport — you need a recorded path. The accompanying GUI tool `/tools/MapNavigator` lets you walk the route once in-game to record it automatically, then fine-tune it, add actions, and copy it with one click.
@@ -100,6 +102,7 @@ Controls the character to move automatically along a given path and execute addi
 - `interact_text`: String or array of strings, empty by default. Route-wide default for the interact prompt text, see [Async Interaction](#async-interaction-interact). The field also supports camelCase `interactText`; text written on a waypoint wins, and the route-wide value only fills in the `INTERACT` points that carry none of their own. An empty string or an empty array is rejected outright (the whole parameter parse fails) rather than treated as absent, because empty text matches anything on the recognition side.
 - `interact_scan`: String, empty by default. Route-wide default for the walking pre-filter node, see [Replacing the Icon Pre-filter](#replacing-the-icon-pre-filter). The field also supports camelCase `interactScan`; a node named on a waypoint wins, and an empty string counts as absent (falling back to the shipped one).
 - `interact_rec`: Boolean, `false` by default. Whether this route's `INTERACT` points recognize the prompt without pressing anything, see [Recognize Only, Never Press](#recognize-only-never-press-rec-mode). The field also supports camelCase `interactRec`. Unlike the two above it does not follow "the waypoint wins": writing `true` here turns the whole route's `INTERACT` points on, and a waypoint cannot turn itself back off — a boolean cannot tell "written `false`" from "not written", so this field only ever switches points on. Leave it off the route root when some points should still press.
+- `enable_bootstrap_navmesh`: Boolean, `true` by default. Whether the run may plan a navmesh route at startup to join the recorded path. Set it to `false` to skip that planning and walk the recorded points directly — the escape hatch for stacked terrain (platforms, catwalks, rooftops) where the startup plan detours badly.
 - Other unknown top-level fields: Currently ignored silently without causing errors.
 
 #### `path` Data Structure
@@ -390,7 +393,7 @@ It supports:
 1. Direct connection to the current game window to record actual movement trajectories.
 2. Automatic addition of `ZONE` / `PORTAL` semantics based on area transitions.
 3. Deleting points, dragging points, changing coordinate point actions, modifying strict arrival, and declaring an optional per-point coordinate tier in the GUI.
-4. Importing existing JSON / JSONC, recursively searching for recognizable `path` data and continuing editing.
+4. Selecting existing project Pipeline nodes from `assets`, or reading JSON from the current clipboard under `More`.
 5. One-click copying of canonical `path` that can be directly pasted into `custom_action_param.path`.
 6. Through an independent `Assert mode` to manually select the base map and frame rectangular areas, exporting `MapLocateAssertLocation` nodes.
 7. Entering BaseNav A\* mode, loading `.nav.gz` / `.nav`, previewing paths on the red triangle face overlay, and copying `NAVMESH` nodes.
@@ -529,11 +532,11 @@ What the tool copies to the clipboard is **only the `path` body**, not the compl
 
 This is also why it is recommended to finish all orchestration in the GUI before copying, because the exported content is already in the canonical format that MapNavigator can directly consume.
 
-### Importing Existing Paths for Editing
+### Importing Project Nodes
 
-If you have already written a path in another Pipeline, or a colleague has given you a piece of JSON / JSONC, you can also click **`Import JSON`**.
+All three route-making modes use **`Select Project Node`** as their primary import entry. The path editor loads `MapNavigateAction` nodes for continued editing. A\* keeps coordinates on the same basemap as ordered targets. Whether one or several targets are imported, click the map once to add a manual start; the tool then plans `manual start -> imported point 1 -> imported point 2 -> ...` automatically. A lone target remains directly copyable before a start is added. Assert mode lists `MapLocateAssertLocation` nodes by default and can switch to reference routes. The selector searches by resource path, node name, or zone, so files containing several Pipeline nodes are not imported ambiguously. Path imports validate action semantics strictly: an unknown action rejects the import and is never silently downgraded.
 
-The tool will recursively scan the file for recognizable `path` data and automatically load the candidate route with the most points. If the source data lacks zone information, the GUI will prompt you to assign areas to each route segment before continuing with editing and exporting.
+Each mode provides a direct **`Read Clipboard`** button. The generic recursive importer recognizes a complete Pipeline, a single `MapNavigateAction` / `MapLocateAssertLocation` node, a `{"path": [...]}` object, or a bare `path` array. If path data lacks zone information, the GUI prompts for a zone assignment before loading it. Clipboard access is initiated by the button click, and the browser may request permission the first time.
 
 This is very suitable for the following scenarios:
 

@@ -642,7 +642,7 @@
         ]
     },
     "__ScenePrivateMapValleyIVTheHubEnterWorldAnchorWithPick": {
-        "desc": "在四号谷地-枢纽区地图界面，进入[锚点]大世界 (MapTracker 模式)",
+        "desc": "在四号谷地-枢纽区地图界面，进入[锚点]大世界",
         "recognition": "And",
         "all_of": [
             "InMapValleyIVTheHub"
@@ -652,8 +652,8 @@
         "next": [
             "__ScenePrivateMapTeleportSuccess",
             "[JumpBack]__ScenePrivateMapLayerSwitchToMain",
-            "[JumpBack]__ScenePrivateMapZoomNonExtreme",
-            "[JumpBack][Anchor]__ScenePrivateMapMapTrackerBigMapPickAnchor"
+            "[JumpBack]__ScenePrivateMapZoomOut",
+            "[JumpBack][Anchor]__ScenePrivateMapTeleportPickAnchor"
         ]
     },
     "__ScenePrivateMapValleyIVPowerPlateauEnterWorldAnchor": {
@@ -729,6 +729,7 @@
         },
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
             "__ScenePrivateMapTeleportConfirm"
         ]
     }

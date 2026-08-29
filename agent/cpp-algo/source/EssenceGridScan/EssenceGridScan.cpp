@@ -285,7 +285,6 @@ json::object to_json_rect(const cv::Rect& rect)
 struct QualityStats
 {
     std::string quality_ = "unknown";
-    int sampled_pixels_ = 0;
     int gold_pixels_ = 0;
     int purple_pixels_ = 0;
 };
@@ -333,7 +332,6 @@ QualityStats classify_cell_quality(const cv::Mat& image, const cv::Rect& screen_
 
     cv::Mat hsv;
     cv::cvtColor(bgr, hsv, cv::COLOR_BGR2HSV);
-    stats.sampled_pixels_ = hsv.rows * hsv.cols;
     for (int row = 0; row < hsv.rows; ++row) {
         for (int col = 0; col < hsv.cols; ++col) {
             const cv::Vec3b pixel = hsv.at<cv::Vec3b>(row, col);
@@ -377,13 +375,11 @@ cv::Mat to_gray_for_template(const cv::Mat& image)
 struct ThumbMatchScore
 {
     double score = 0.0;
-    cv::Point location;
 };
 
 struct ThumbDetection
 {
     std::string state = "none";
-    cv::Rect cell;
     cv::Rect search;
     ThumbMatchScore lock;
     ThumbMatchScore discard;
@@ -405,10 +401,9 @@ ThumbMatchScore match_template_score(const cv::Mat& search, const cv::Mat& templ
     cv::matchTemplate(search_gray, template_gray, result, cv::TM_CCOEFF_NORMED);
 
     ThumbMatchScore score;
-    cv::minMaxLoc(result, nullptr, &score.score, nullptr, &score.location);
+    cv::minMaxLoc(result, nullptr, &score.score);
     if (!std::isfinite(score.score)) {
         score.score = 0.0;
-        score.location = {};
     }
     return score;
 }
@@ -418,7 +413,6 @@ ThumbDetection detect_cell_thumb_state(const EssenceGridState& state, const cv::
     ThumbDetection detection;
     const cv::Rect image_bounds(0, 0, image.cols, image.rows);
     const cv::Rect cell = screen_cell & image_bounds;
-    detection.cell = cell;
     if (cell.empty()) {
         return detection;
     }

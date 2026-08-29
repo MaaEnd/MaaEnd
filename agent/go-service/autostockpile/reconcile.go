@@ -115,6 +115,27 @@ func (a *ReconcileDecisionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 		return stopTaskWithFocus(ctx, mapComputeDecisionErrorToAbortReason(err), err)
 	}
 
+	// 「至少购买一个」：与初次决策保持一致，价格校正后仍无合格商品时降级为最低价商品（数量 1）
+	attach, err := loadAutoStockpileAttach(ctx, attachNodeName)
+	if err != nil {
+		return stopTaskWithFocus(ctx, AbortReasonSelectionConfigInvalidFatal, err)
+	}
+	minBuyEnabled := attach.MinBuy && !bypassThresholdFilter
+	if fallbackSelection, fallbackQuantity, ok := resolveMinBuyFallback(
+		newSelection, updatedData, state.Region, minBuyEnabled, i18n.T("autostockpile.qty_min_buy_fallback"),
+	); ok {
+		newSelection = fallbackSelection
+		newQuantityDecision = fallbackQuantity
+
+		log.Info().
+			Str("component", "autostockpile").
+			Str("fallback_product", newSelection.ProductName).
+			Int("fallback_price", newSelection.CurrentPrice).
+			Int("quantity", newQuantityDecision.Target).
+			Msg("fallback purchase triggered during reconcile")
+		maafocus.Print(ctx, i18n.T("autostockpile.fallback_purchase", newSelection.ProductName, newSelection.CurrentPrice))
+	}
+
 	if priceChanged {
 		maafocus.Print(ctx, i18n.T("autostockpile.reconcile_price_corrected", oldPrice, price))
 	}

@@ -1,6 +1,8 @@
 package autodelivery
 
 import (
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -25,12 +27,13 @@ func (a *AutoDeliveryResolveDepotAction) Run(ctx *maa.Context, arg *maa.CustomAc
 		return false
 	}
 
-	options, err := parseNavigationOptions(arg.CustomActionParam)
+	options, err := loadNavigationOptions(ctx, navigateDepotNode)
 	if err != nil {
 		log.Error().
 			Err(err).
 			Str("component", resolveDepotActionName).
-			Msg("failed to parse action parameters")
+			Str("node", navigateDepotNode).
+			Msg("failed to load navigation options")
 		return false
 	}
 
@@ -94,6 +97,7 @@ func (a *AutoDeliveryResolveDepotAction) Run(ctx *maa.Context, arg *maa.CustomAc
 			Msg("failed to apply depot navigation")
 		return false
 	}
+	maafocus.Print(ctx, i18n.T("autodelivery.focus.depot_resolved", localizedName(route.Names, route.ID)))
 
 	log.Info().
 		Str("component", resolveDepotActionName).

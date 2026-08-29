@@ -71,6 +71,7 @@ tests/MaaEndTestset/<Win32|ADB>/Official_CN/IconRecognition/
 ./agent/cpp-algo/source/IconRecognition/test/run-tests.ps1 -Task manual -Dataset win32 -GridType transfer -Side all -Jobs 16
 ./agent/cpp-algo/source/IconRecognition/test/run-tests.ps1 -Task manual -Dataset adb -Image sample.png
 ./agent/cpp-algo/source/IconRecognition/test/run-tests.ps1 -Task manual -Dataset adb -GridType rewards -UseLocalExpected
+./agent/cpp-algo/source/IconRecognition/test/run-tests.ps1 -Task manual -Dataset win32 -All -RecognizeRegionUnavailable
 ```
 
 Win32 与 ADB manual 默认读取各自子模块中的 `expected.csv`，并始终显式传入各自的 `rois.json`。只有显式传入 `-UseLocalExpected` 时，才改用 `test/input/expected.csv`；本地 CSV 不与 tracked CSV 叠加，也不会被复制进图片输入树。可从所选数据集的当前基线和一次人工运行报告生成候选文件：
@@ -84,7 +85,7 @@ python tools/icon_recognition/expected.py `
 
 生成器按图片替换旧 case，因此更新后的 CSV 可与新增图片一起复制回对应数据集。
 
-`quick` 是干净 checkout 可运行的快速门禁，覆盖类型、参数契约、single ROI、MaaFramework 包装、算法小测试、debug capture，以及 Win32/ADB 每种界面的真实图片回归。典型图由 `dataset-manifest.psd1` 统一维护：
+`quick` 是干净 checkout 可运行的快速门禁，覆盖类型、参数契约、single ROI、MaaFramework 包装、算法小测试、debug capture，以及 Win32/ADB 每种界面的真实图片回归。quick 固定开启当前地区不可用物品后备，以覆盖子模块基线中的地区禁用物品；这不会改变识别接口默认关闭该选项的行为。典型图由 `dataset-manifest.psd1` 统一维护：
 
 | 界面 | Win32 | ADB |
 | --- | --- | --- |
@@ -118,6 +119,8 @@ python tools/icon_recognition/expected.py `
 参数冲突、缺值、未知网格类型或非双侧网格使用 `-Side` 时会打印原因和用法，并返回非零退出码。
 
 `-Jobs` 只并行不同测试 case，不改变单张图片内部的生产识别算法。未显式传入时读取本机配置，仍未配置则为 1；C++ runner 直接调用时还支持 `--jobs auto`，按物理核心数选择并最多使用 16 个 worker。多 worker 模式把 OpenCV 内部线程限制为 1，避免 worker 数与 OpenCV 线程数相乘。
+
+`-RecognizeRegionUnavailable` 显式开启当前地区不可用物品后备；C++ runner 对应 `--recognize-region-unavailable`。该选项默认关闭；帝江号不会出现这种状态，相关测试无需开启。全量审核新增命中时，先保留本轮 `output/`，由维护者核对 annotated/detail，再更新 `expected.csv`，不能为让测试通过而自动接受新增结果。
 
 每个 worker 只写自己的 annotated/detail 文件；主线程按 case 发现顺序生成控制台输出和 `report.json`。报告额外记录 `jobs`、`opencv_threads`、`elapsed_seconds` 和 `cases_per_second`。
 

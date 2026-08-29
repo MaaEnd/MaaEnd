@@ -6,6 +6,7 @@ Agent 叫什么、要不要预置节点不同。热键不在这里: key_listener
 
 from __future__ import annotations
 
+import os
 import subprocess
 import time
 from typing import Any, Protocol
@@ -14,6 +15,13 @@ from runtime import AGENT_DIR, CPP_AGENT_EXE, MAAFW_BIN_DIR, MaaRuntime, get_age
 
 # Agent 起来到能接受连接的等待时间。
 BOOT_WAIT_SECONDS = 2.0
+
+
+def _agent_process_options() -> dict[str, Any]:
+    """让 Agent 不继承启动终端的 Ctrl+C，由会话生命周期负责关闭。"""
+    if os.name == "nt":
+        return {"creationflags": subprocess.CREATE_NEW_PROCESS_GROUP}
+    return {"start_new_session": True}
 
 
 class Connector(Protocol):
@@ -56,7 +64,12 @@ class AgentSession:
             raise FileNotFoundError(f"找不到 Agent 可执行文件: {CPP_AGENT_EXE}")
 
         print(f"Starting Agent process: {CPP_AGENT_EXE} {agent_id}")
-        self._process = subprocess.Popen([str(CPP_AGENT_EXE), agent_id], cwd=str(AGENT_DIR), env=get_agent_env())
+        self._process = subprocess.Popen(
+            [str(CPP_AGENT_EXE), agent_id],
+            cwd=str(AGENT_DIR),
+            env=get_agent_env(),
+            **_agent_process_options(),
+        )
 
         print(f"Waiting {BOOT_WAIT_SECONDS}s for Agent to boot...")
         time.sleep(BOOT_WAIT_SECONDS)

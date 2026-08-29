@@ -131,7 +131,7 @@ func (a *CharacterControllerYawDeltaAction) Run(ctx *maa.Context, arg *maa.Custo
 		return false
 	}
 	delta := params.Delta % 360
-	dx := delta * 2 // mapTracker RotationSpeed默认2
+	dx := delta * 2 // 视角旋转灵敏度：1 度偏航对应 2 像素横向拖动
 	rotateView(ctx, dx, 0)
 	return true
 }
@@ -351,7 +351,7 @@ func (a *CharacterMoveToTargetNotFoundAction) Run(ctx *maa.Context, arg *maa.Cus
 			Msg("target not found, attempting to adjust view to find target")
 	}
 
-	dx := signedDelta * 2 // mapTracker RotationSpeed默认2
+	dx := signedDelta * 2 // 视角旋转灵敏度：1 度偏航对应 2 像素横向拖动
 	rotateView(ctx, dx, 0)
 
 	return true

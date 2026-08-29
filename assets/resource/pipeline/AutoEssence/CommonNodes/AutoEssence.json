@@ -1,4 +1,42 @@
 {
+    "AutoEssenceSchedule": {
+        "desc": "基质刷取计划任务",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AutoEssenceScheduleEnabled",
+            "AutoEssenceScheduleEnd"
+        ]
+    },
+    "AutoEssenceScheduleEnabled": {
+        "desc": "基质刷取计划任务命中",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ScheduleRecognition",
+                "custom_recognition_param": {}
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "AutoEssenceMain"
+        ],
+        "attach": {
+            "monday": false,
+            "tuesday": false,
+            "wednesday": false,
+            "thursday": false,
+            "friday": false,
+            "saturday": false,
+            "sunday": false
+        }
+    },
+    "AutoEssenceScheduleEnd": {
+        "desc": "基质刷取计划任务跳过",
+        "pre_delay": 0,
+        "post_delay": 0
+    },
     "AutoEssenceMain": {
         "desc": "自动基质刷取的主入口",
         "pre_delay": 0,
@@ -6,7 +44,7 @@
         "next": [
             // 在 SetupLocation 节点的 max_hit 未耗尽时，先经过该节点进行初始化步骤
             "AutoEssenceSetupLocation",
-            // 如果 SetupLocation 节点的 max_hit 已耗尽，则会直接进入 Dispatcher 节点
+            // 如果 SetupLocation 节点的 max_hit 已耗尽，则会直接进入交互分发
             "AutoEssenceDispatcher"
         ],
         "focus": {
@@ -57,20 +95,30 @@
             "Node.Action.Starting": "🤔**未选择任何地区**\n请在任务设置中至少勾选一个地区后重试~"
         }
     },
+    "AutoEssenceInteract": {
+        "desc": "淤积点交互分发器：激发 / 开启挑战 / 领取 / 放弃等；未命中则回落到寻路分发",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            // 如果玩家当前已精准处于某个淤积点的交互位置
+            "AutoEssenceClickTriggerButton",
+            // 如果玩家当前已精准处于某个淤积点的交互位置，并且处于奖励待领取的状态
+            "AutoEssenceClickObtainButton",
+            "AutoEssenceClickDiscardButton",
+            "[JumpBack]AutoEssenceInObtain",
+            "[Anchor]AutoEssenceMoveToTriggerPoint"
+        ],
+        "focus": {
+            "Node.Action.Starting": "🧠正在判断交互状态"
+        }
+    },
     "AutoEssenceDispatcher": {
-        "desc": "自动基质刷取的主分发器，识别当前的所有可能状态并决定下一步操作",
+        "desc": "自动基质刷取的寻路分发器，导航到对应淤积点的交互位置",
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
             // 如果玩家已唤起了激发的界面
             "AutoEssenceClickEssenceStartPrepare",
-            // 如果玩家当前已精准处于某个淤积点的交互位置
-            "AutoEssenceClickTriggerButton",
-            // 如果玩家当前已精准处于某个淤积点的交互位置，并且处于奖励待领取的状态
-            "[JumpBack]AutoEssenceClickObtainButton",
-            "[JumpBack]AutoEssenceClickDiscardButton",
-            "[JumpBack]AutoEssenceInObtain",
-            // 如果上述情况都不满足，则根据所选的地区，导航到对应的淤积点的交互位置
             // 下述 Anchor 的指向目标需要由 AutoEssenceSetupLocation 节点来进行赋值
             "[JumpBack]__AutoEssenceBackToWorldOnce",
             "[Anchor]AutoEssenceMoveToTriggerPointMaybeTeleport",
@@ -421,7 +469,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "[Anchor]AutoEssenceMoveToTriggerPoint" // 此 Anchor 最终会走回 AutoEssenceDispatcher 进行后续的奖励领取等操作
+            "[Anchor]AutoEssenceMoveToTriggerPoint" // 此 Anchor 最终会走回 AutoEssenceInteract 进行后续的奖励领取等操作
         ],
         "focus": {
             "Node.Recognition.Starting": "🔍检查挑战是否结束",

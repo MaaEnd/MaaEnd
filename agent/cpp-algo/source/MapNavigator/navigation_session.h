@@ -72,6 +72,9 @@ struct NavigationSession
     void ResetHardProgress();
 
     void ApplyDynamicOverlay(std::vector<Waypoint> generated_prefix, size_t continue_index, const NaviPosition& pos);
+    // 整条换路：旧的展开路径连同 canonical 索引一起作废，终点判定按新路线尾部重算。
+    // 滑索恢复用剩余作者路线重新展开时走这里；新路线仍以作者终点收尾，完成语义不变。
+    void ReplaceRoute(std::vector<Waypoint> path, const NaviPosition& pos, const char* reason);
 
     NaviPhase phase() const;
     void UpdatePhase(NaviPhase next_phase, const char* reason);

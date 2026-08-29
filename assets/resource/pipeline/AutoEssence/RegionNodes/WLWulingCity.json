@@ -3,7 +3,7 @@
         "enabled": false,
         "pre_delay": 0,
         "anchor": {
-            "AutoEssenceMoveToTriggerPoint": "GotoTriggerPointGoal_WLWulingCity",
+            "AutoEssenceMoveToTriggerPoint": "GotoTriggerPointMove_WLWulingCity",
             "AutoEssenceMoveToTriggerPointMaybeTeleport": "GotoTriggerPointMaybeTeleport_WLWulingCity"
         },
         "post_delay": 0,
@@ -12,40 +12,20 @@
         }
     },
     "GotoTriggerPointMaybeTeleport_WLWulingCity": {
+        "desc": "判断是否需要传送到最近锚点",
         "recognition": {
-            "type": "Custom",
+            "type": "Or",
             "param": {
-                "custom_recognition": "MapTrackerAssertLocation",
-                "custom_recognition_param": {
-                    "expected": [
-                        {
-                            // 距离淤积点最近的锚点附近
-                            "map_name": "map02_lv002",
-                            "target": [
-                                620.0,
-                                241.1,
-                                41.4,
-                                37.3
-                            ]
-                        },
-                        {
-                            // 淤积点附近
-                            "map_name": "map02_lv002",
-                            "target": [
-                                659.0,
-                                333.0,
-                                40.0,
-                                40.0
-                            ]
-                        }
-                    ]
-                }
+                "any_of": [
+                    "__GotoTriggerPointNearAnchor_WLWulingCity",
+                    "__GotoTriggerPointNearTrigger_WLWulingCity"
+                ]
             }
         },
         "inverse": true,
         "next": [
             "[JumpBack]__GotoTriggerPointTeleportOnce_WLWulingCity",
-            "GotoTriggerPointGoal_WLWulingCity"
+            "GotoTriggerPointMove_WLWulingCity"
         ],
         "focus": {
             "Node.Action.Starting": "✈️准备传送到最近锚点"
@@ -59,23 +39,230 @@
             "SceneEnterWorldWulingWulingCity0"
         ]
     },
-    "GotoTriggerPointGoal_WLWulingCity": {
+    "__GotoTriggerPointNearAnchor_WLWulingCity": {
+        "desc": "锚点附近",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapLocateAssertLocation",
+                "custom_recognition_param": {
+                    "zone_id": "Wuling_Base",
+                    "target": [
+                        898.81,
+                        1293.5,
+                        40.79,
+                        36.74
+                    ]
+                }
+            }
+        }
+    },
+    "__GotoTriggerPointNearTrigger_WLWulingCity": {
+        "desc": "淤积点附近",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapLocateAssertLocation",
+                "custom_recognition_param": {
+                    "zone_id": "Wuling_Base",
+                    "target": [
+                        937.23,
+                        1384.03,
+                        39.41,
+                        39.4
+                    ]
+                }
+            }
+        }
+    },
+    "__GotoTriggerPointMoveNearTrigger_WLWulingCity": {
+        "desc": "已在淤积点附近，直接导航过去",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "__GotoTriggerPointNearTrigger_WLWulingCity"
+                ]
+            }
+        },
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "MapTrackerGoal",
+                "custom_action": "MapNavigateAction",
                 "custom_action_param": {
-                    "map_name": "map02_lv002",
-                    "target": [
-                        680.9,
-                        350.9
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "Wuling_Base"
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                967.77,
+                                1391.81
+                            ]
+                        }
                     ]
                 }
             }
         },
-        "post_delay": 1500, // 确保彻底停下，规避移动惯性
         "next": [
-            "AutoEssenceDispatcher"
+            "GotoTriggerPointMoveExact_WLWulingCity"
+        ],
+        "focus": {
+            "Node.Action.Starting": "🚶正在前往激发点附近",
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "__GotoTriggerPointMoveFromAnchor_WLWulingCity": {
+        "desc": "从锚点走到淤积点附近",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "Wuling_Base"
+                        },
+                        [
+                            916.84,
+                            1317.73
+                        ],
+                        [
+                            917.92,
+                            1332.51
+                        ],
+                        [
+                            918.12,
+                            1350.14
+                        ],
+                        [
+                            914.67,
+                            1352.7
+                        ],
+                        [
+                            906.3,
+                            1352.9
+                        ],
+                        [
+                            903.54,
+                            1355.17
+                        ],
+                        [
+                            903.54,
+                            1357.73
+                        ],
+                        [
+                            906.0,
+                            1361.37
+                        ],
+                        [
+                            909.75,
+                            1362.65
+                        ],
+                        [
+                            912.21,
+                            1364.92
+                        ],
+                        [
+                            916.84,
+                            1365.21
+                        ],
+                        [
+                            921.86,
+                            1366.5
+                        ],
+                        [
+                            932.9,
+                            1368.96
+                        ],
+                        [
+                            961.66,
+                            1369.75
+                        ],
+                        [
+                            963.73,
+                            1370.14
+                        ],
+                        [
+                            964.03,
+                            1373.69
+                        ],
+                        [
+                            964.82,
+                            1377.43
+                        ],
+                        [
+                            962.75,
+                            1380.98
+                        ],
+                        [
+                            959.2,
+                            1386.99
+                        ],
+                        [
+                            967.77,
+                            1391.81,
+                            true
+                        ]
+                    ]
+                }
+            }
+        },
+        "next": [
+            "GotoTriggerPointMoveExact_WLWulingCity"
+        ],
+        "focus": {
+            "Node.Action.Starting": "🚶正在前往激发点附近",
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "GotoTriggerPointMove_WLWulingCity": {
+        "desc": "前往激发点附近，按当前位置选择走法",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "__GotoTriggerPointMoveNearTrigger_WLWulingCity",
+            "__GotoTriggerPointMoveFromAnchor_WLWulingCity"
+        ]
+    },
+    "GotoTriggerPointMoveExact_WLWulingCity": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "Wuling_Base"
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                957.93,
+                                1401.58
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "post_delay": 1500,
+        "next": [
+            "AutoEssenceInteract"
         ],
         "focus": {
             "Node.Action.Starting": "🚶正在前往激发点",

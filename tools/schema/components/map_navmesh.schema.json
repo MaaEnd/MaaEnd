@@ -1,0 +1,106 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "MapNavmesh Component Schema",
+    "description": "Parameter definitions for the internal MapNavmesh query recognition used by the MapNavigator tool.",
+    "$defs": {
+        "Coordinate2D": {
+            "type": "array",
+            "prefixItems": [
+                { "type": "number" },
+                { "type": "number" }
+            ],
+            "minItems": 2,
+            "maxItems": 2,
+            "items": false
+        },
+        "OptionalHeight": {
+            "type": "array",
+            "items": { "type": "number" },
+            "maxItems": 1
+        },
+        "MapNavmeshQueryParam": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [ "op" ],
+            "properties": {
+                "op": {
+                    "type": "string",
+                    "enum": [
+                        "zones",
+                        "mesh",
+                        "offmesh_probe",
+                        "deck_probe",
+                        "route",
+                        "warm",
+                        "route_preview"
+                    ]
+                },
+                "navmesh_file": { "type": "string" },
+                "zone_id": { "type": "integer" },
+                "points": {
+                    "type": "array",
+                    "items": { "$ref": "#/$defs/Coordinate2D" }
+                },
+                "point": { "$ref": "#/$defs/Coordinate2D" },
+                "start": { "$ref": "#/$defs/Coordinate2D" },
+                "goal": { "$ref": "#/$defs/Coordinate2D" },
+                "snap_radius": {
+                    "type": "number",
+                    "minimum": 0
+                },
+                "floor_y": { "$ref": "#/$defs/OptionalHeight" },
+                "goal_deck_y": { "$ref": "#/$defs/OptionalHeight" },
+                "position": { "$ref": "#/$defs/Coordinate2D" },
+                "position_zone": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "custom_action_param": { "type": "object" },
+                "out_file": {
+                    "type": "string",
+                    "minLength": 1
+                }
+            },
+            "allOf": [
+                {
+                    "if": { "properties": { "op": { "const": "mesh" } } },
+                    "then": { "required": [ "zone_id", "out_file" ] }
+                },
+                {
+                    "if": { "properties": { "op": { "const": "offmesh_probe" } } },
+                    "then": { "required": [ "zone_id", "points" ] }
+                },
+                {
+                    "if": { "properties": { "op": { "const": "deck_probe" } } },
+                    "then": { "required": [ "zone_id", "point" ] }
+                },
+                {
+                    "if": { "properties": { "op": { "const": "route" } } },
+                    "then": { "required": [ "zone_id", "start", "goal" ] }
+                },
+                {
+                    "if": { "properties": { "op": { "const": "warm" } } },
+                    "then": { "required": [ "zone_id" ] }
+                },
+                {
+                    "if": { "properties": { "op": { "const": "route_preview" } } },
+                    "then": {
+                        "required": [ "position", "position_zone", "custom_action_param" ],
+                        "properties": {
+                            "custom_action_param": {
+                                "type": "object",
+                                "required": [ "path" ],
+                                "properties": {
+                                    "path": {
+                                        "type": "array",
+                                        "minItems": 1
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

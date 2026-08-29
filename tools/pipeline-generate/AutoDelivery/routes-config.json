@@ -2,7 +2,7 @@
     "template": "routes-template.json",
     "data": "routes-data.mjs",
     "outputDir": "../../../assets/resource/pipeline/AutoDelivery",
-    "outputFile": "Routes.json",
+    "outputPattern": "Routes/${RouteFileId}.json",
     "format": true,
     "merged": true
 }

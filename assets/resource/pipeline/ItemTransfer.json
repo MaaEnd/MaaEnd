@@ -55,7 +55,7 @@
         "next": [
             "ItemTransferStartInDijiangBackpack",
             "ItemTransferStartOpenRepo",
-            "[JumpBack]SceneEnterWorldDijiang2"
+            "[JumpBack]SceneEnterWorldDijiang"
         ]
     },
     "ItemTransferStartInDijiangBackpack": {
@@ -92,23 +92,7 @@
                             }
                         }
                     },
-                    {
-                        "recognition": {
-                            "type": "TemplateMatch",
-                            "param": {
-                                "roi": [
-                                    0,
-                                    0,
-                                    400,
-                                    80
-                                ],
-                                "template": [
-                                    "SceneManager/WorldDijiangMenu.png"
-                                ],
-                                "green_mask": true
-                            }
-                        }
-                    },
+                    "InDijiangWorld",
                     {
                         "recognition": {
                             "type": "TemplateMatch",

@@ -11,10 +11,10 @@
 #include "IconRecognition/IconRecognitionRecognition.h"
 #include "MapLocator/MapLocateAction.h"
 #include "MapNavigator/MapNavigator.h"
-#include "MapNavigator/MapNavigatorCompatible.h"
 #include "MapNavmesh/MapNavmeshQuery.h"
 #include "RealTimeTask/RealTimeTaskAction.h"
 #include "Test/test.h"
+#include "WorldMap/WorldMapFind.h"
 #include "Zipline/ZiplineImportAction.h"
 #include "my_reco_1/my_reco_1.h"
 #include "utils.h"
@@ -53,10 +53,6 @@ int main(int argc, char** argv)
     MaaAgentServerRegisterCustomRecognition("MyReco1", ChildCustomRecognitionCallback, nullptr);
     MaaAgentServerRegisterCustomRecognition("MapLocateRecognition", maplocator::MapLocateRecognitionRun, nullptr);
     MaaAgentServerRegisterCustomRecognition("MapLocateAssertLocation", maplocator::MapLocateAssertLocationRun, nullptr);
-    MaaAgentServerRegisterCustomRecognition(
-        "MapNavigatorAssertLocationCompatible",
-        mapnavigator::MapNavigatorAssertLocationCompatibleRun,
-        nullptr);
     MaaAgentServerRegisterCustomRecognition("MapNavmeshQuery", mapnavmesh::MapNavmeshQueryRun, nullptr);
     MaaAgentServerRegisterCustomRecognition(
         "EssenceGridAdvanceRecognition",
@@ -67,8 +63,8 @@ int main(int argc, char** argv)
         essencegridscan::EssenceGrid::pendingRecognitionRun,
         &essence_grid);
     MaaAgentServerRegisterCustomRecognition("IconRecognition", iconrecognition::IconRecognitionRun, nullptr);
+    MaaAgentServerRegisterCustomRecognition("MapFind", worldmap::MapFindRun, nullptr);
     MaaAgentServerRegisterCustomAction("MapNavigateAction", mapnavigator::MapNavigateActionRun, nullptr);
-    MaaAgentServerRegisterCustomAction("MapNavigatorCompatible", mapnavigator::MapNavigatorCompatibleRun, nullptr);
     MaaAgentServerRegisterCustomAction("RealTimeTaskAction", realtimetask::RealTimeTaskActionRun, nullptr);
 #ifdef MAAEND_HAVE_WEBVIEW2
     // 导入要开一个内嵌浏览器让用户自己登录, 而这个控件只有 Windows 有实现,

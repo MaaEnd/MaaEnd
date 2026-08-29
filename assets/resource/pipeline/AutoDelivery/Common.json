@@ -3,26 +3,31 @@
         "desc": "等待当前送货任务详情加载完成，并自动判断需要取货还是送货",
         "recognition": "And",
         "all_of": [
+            "AutoDeliveryCurrentDeliveryMissionDetail",
             "AutoDeliveryAreaOCR",
             "AutoDeliveryCurrentJobActionButton"
         ],
-        "box_index": 0,
+        "box_index": 1,
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "AutoDeliveryRecognizeDestination",
             "AutoDeliveryRecognizeDepot"
-        ]
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoDelivery.focus.start"
+        }
     },
     "AutoDeliveryRecognizeDestination": {
-        "desc": "从当前送货任务详情识别送货目标，并注入前往送货目标的寻路参数",
+        "desc": "从当前送货任务详情识别送货目标；同区重复资源回收站转入大地图判定，其余目标直接注入寻路参数",
         "recognition": "And",
         "all_of": [
+            "AutoDeliveryCurrentDeliveryMissionDetail",
             "AutoDeliveryAreaOCR",
             "AutoDeliveryDestinationField"
         ],
-        "box_index": 1,
+        "box_index": 2,
         "pre_wait_freezes": {
             "time": 300,
             "target": [
@@ -35,27 +40,21 @@
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "AutoDeliveryResolveDestinationAction",
-        "custom_action_param": {
-            "zip": false
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "[Anchor]AutoDeliveryAfterRecognizeDestination",
-            "AutoDeliveryCancelCurrentJobTracking",
-            "AutoDeliveryCurrentJobTrackingAlreadyOff"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": "已识别当前送货目标"
-        }
+            "AutoDeliveryAfterResolveDestination"
+        ]
     },
     "AutoDeliveryRecognizeDepot": {
         "desc": "从当前送货任务详情识别仓储节点，并注入前往仓储节点的寻路参数",
         "recognition": "And",
         "all_of": [
+            "AutoDeliveryCurrentDeliveryMissionDetail",
             "AutoDeliveryAreaOCR"
         ],
-        "box_index": 0,
+        "box_index": 1,
         "pre_wait_freezes": {
             "time": 300,
             "target": [
@@ -68,17 +67,11 @@
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "AutoDeliveryResolveDepotAction",
-        "custom_action_param": {
-            "zip": false
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "AutoDeliveryQuickTeleport"
-        ],
-        "focus": {
-            "Node.Action.Succeeded": "已识别当前仓储节点"
-        }
+        ]
     },
     "AutoDeliveryAreaOCR": {
         "desc": "识别任务详情标题下方的当前区域；文本匹配和歧义判断交给 Go",
@@ -99,6 +92,17 @@
             "TrackedMissionMapButton",
             "AutoDeliveryStartTrackingButton"
         ]
+    },
+    "AutoDeliveryTaskDestinationMap": {
+        "desc": "识别已打开的送货任务目标地图",
+        "recognition": "TemplateMatch",
+        "roi": [
+            900,
+            10,
+            130,
+            140
+        ],
+        "template": "AutoDelivery/TrackTaskSuccess.png"
     },
     "AutoDeliveryStartTrackingButton": {
         "desc": "识别当前送货任务详情中的开始追踪按钮",

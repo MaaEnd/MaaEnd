@@ -12,22 +12,18 @@
         }
     },
     "GotoTriggerPointMaybeTeleport_VFOriginiumSciencePark": {
+        "desc": "判断是否需要传送到最近锚点",
         "recognition": {
             "type": "Custom",
             "param": {
-                "custom_recognition": "MapTrackerAssertLocation",
+                "custom_recognition": "MapLocateAssertLocation",
                 "custom_recognition_param": {
-                    "expected": [
-                        {
-                            // 淤积点附近（锚点也在这个区域里）
-                            "map_name": "map01_lv005",
-                            "target": [
-                                359.0,
-                                207.0,
-                                30.0,
-                                55.0
-                            ]
-                        }
+                    "zone_id": "ValleyIV_Base",
+                    "target": [
+                        1141.63,
+                        731.08,
+                        27.71,
+                        50.77
                     ]
                 }
             }
@@ -53,36 +49,39 @@
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "MapTrackerMove",
+                "custom_action": "MapNavigateAction",
                 "custom_action_param": {
-                    "map_name": "map01_lv005",
                     "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "ValleyIV_Base"
+                        },
                         [
-                            361.9,
-                            210.3
+                            1144.31,
+                            734.12
                         ],
                         [
-                            373.1,
-                            210.4
+                            1154.65,
+                            734.22
                         ],
                         [
-                            384.4,
-                            221.5
+                            1165.09,
+                            744.46
                         ],
                         [
-                            385.7,
-                            227.9
+                            1166.29,
+                            750.37
                         ],
                         [
-                            385.5,
-                            241.4
+                            1166.11,
+                            762.83
                         ],
                         [
-                            385.4,
-                            241.7
+                            1166.01,
+                            763.11,
+                            true
                         ]
-                    ],
-                    "path_trim": true
+                    ]
                 }
             }
         },
@@ -103,26 +102,29 @@
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "MapTrackerMove",
+                "custom_action": "MapNavigateAction",
                 "custom_action_param": {
-                    "map_name": "map01_lv005",
                     "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "ValleyIV_Base"
+                        },
                         [
-                            384.9,
-                            239.9
+                            1165.55,
+                            761.45
                         ],
                         [
-                            376.9,
-                            241.9
+                            1158.71,
+                            763.59,
+                            true
                         ]
-                    ],
-                    "no_ensure_initial_movement_state": true
+                    ]
                 }
             }
         },
-        "post_delay": 1500, // 确保彻底停下，规避移动惯性
+        "post_delay": 1500,
         "next": [
-            "AutoEssenceDispatcher"
+            "AutoEssenceInteract"
         ],
         "focus": {
             "Node.Action.Starting": "🚶正在前往激发点",

@@ -1,0 +1,47 @@
+name: Cleanup Actions Cache
+
+# 清理 GitHub Actions 缓存 (规则见 tools/cleanup_caches.py)
+
+on:
+  schedule:
+    - cron: "0 4 * * *" # 每日 UTC 04:00 兜底清理
+  workflow_dispatch: # 手动触发
+  pull_request_target:
+    types: [closed] # PR 关闭/合并时清理该 PR 的 merge ref 缓存
+
+permissions:
+  actions: write # 删除缓存所需
+  contents: read
+
+jobs:
+  pr-closed:
+    if: ${{ github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name == github.repository }}
+    runs-on: ubuntu-latest
+    steps:
+      # 显式检出 base (受审计 v2 代码): 该 job 有写权限, 不能执行 PR head 代码
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+      - name: Cleanup closed PR merge-ref caches
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_REF: refs/pull/${{ github.event.pull_request.number }}/merge
+        run: |
+          echo "Cleaning caches for ${PR_REF}"
+          python tools/cleanup_caches.py --ref "${PR_REF}" --apply
+
+  scheduled:
+    if: ${{ github.event_name != 'pull_request_target' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Dry-run report
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python tools/cleanup_caches.py
+      - name: Apply cleanup
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python tools/cleanup_caches.py --apply

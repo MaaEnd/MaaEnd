@@ -12,35 +12,14 @@
         }
     },
     "GotoTriggerPointMaybeTeleport_WLTestArea": {
+        "desc": "判断是否需要传送到最近锚点",
         "recognition": {
-            "type": "Custom",
+            "type": "Or",
             "param": {
-                "custom_recognition": "MapTrackerAssertLocation",
-                "custom_recognition_param": {
-                    "expected": [
-                        {
-                            // 距离淤积点最近的锚点附近
-                            "map_name": "map02_lv005_tier_322",
-                            "target": [
-                                380.7,
-                                350.3,
-                                20.0,
-                                20.0
-                            ]
-                        },
-                        {
-                            // 淤积点附近
-                            "map_name": "map02_lv005_tier_321",
-                            "target": [
-                                330.9,
-                                347.2,
-                                20.0,
-                                20.0
-                            ]
-                        }
-                    ],
-                    "precision": 1.0
-                }
+                "any_of": [
+                    "__GotoTriggerPointNearAnchor_WLTestArea",
+                    "__GotoTriggerPointNearTrigger_WLTestArea"
+                ]
             }
         },
         "inverse": true,
@@ -64,25 +43,36 @@
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "MapTrackerMove",
+                "custom_action": "MapNavigateAction",
                 "custom_action_param": {
-                    "map_name": "map02_lv005",
+                    "enable_bootstrap_navmesh": false,
                     "path": [
-                        [
-                            389.8,
-                            357.0
-                        ],
-                        [
-                            354.8,
-                            357.8
-                        ],
-                        [
-                            345.7,
-                            359.4
-                        ]
-                    ],
-                    "path_trim": true,
-                    "map_name_match_rule": "^%s_tier_(321)|(322)$" // 特殊处理
+                        {
+                            "action": "RUN",
+                            "target": [
+                                225.66,
+                                94.04
+                            ],
+                            "target_tier": "Wuling_L5_322"
+                        },
+                        {
+                            "action": "RUN",
+                            "target": [
+                                119.26,
+                                95.21
+                            ],
+                            "target_tier": "Wuling_L5_321"
+                        },
+                        {
+                            "action": "RUN",
+                            "target": [
+                                86.12,
+                                95.53
+                            ],
+                            "target_tier": "Wuling_L5_321",
+                            "strict_arrival": true
+                        }
+                    ]
                 }
             }
         },
@@ -103,22 +93,29 @@
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "MapTrackerMove",
+                "custom_action": "MapNavigateAction",
                 "custom_action_param": {
-                    "map_name": "map02_lv005",
                     "path": [
-                        [
-                            340.9,
-                            357.2
-                        ]
-                    ],
-                    "no_ensure_initial_movement_state": true
+                        {
+                            "action": "ZONE",
+                            "zone_id": "Wuling_L5_321"
+                        },
+                        {
+                            "action": "RUN",
+                            "target": [
+                                78.86,
+                                95.64
+                            ],
+                            "target_tier": "Wuling_L5_321",
+                            "strict_arrival": true
+                        }
+                    ]
                 }
             }
         },
-        "post_delay": 1500, // 确保彻底停下，规避移动惯性
+        "post_delay": 1500,
         "next": [
-            "AutoEssenceDispatcher"
+            "AutoEssenceInteract"
         ],
         "focus": {
             "Node.Action.Starting": "🚶正在前往激发点",
@@ -127,6 +124,42 @@
             },
             "Node.Action.Failed": {
                 "trace": true
+            }
+        }
+    },
+    "__GotoTriggerPointNearAnchor_WLTestArea": {
+        "desc": "锚点附近",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapLocateAssertLocation",
+                "custom_recognition_param": {
+                    "zone_id": "Wuling_L5_322",
+                    "target": [
+                        215.43,
+                        89.3,
+                        19.86,
+                        20.0
+                    ]
+                }
+            }
+        }
+    },
+    "__GotoTriggerPointNearTrigger_WLTestArea": {
+        "desc": "淤积点附近",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapLocateAssertLocation",
+                "custom_recognition_param": {
+                    "zone_id": "Wuling_L5_321",
+                    "target": [
+                        69.7,
+                        86.2,
+                        19.9,
+                        20.0
+                    ]
+                }
             }
         }
     }

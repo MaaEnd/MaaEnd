@@ -68,13 +68,14 @@ python tools/icon_recognition/publish.py --fixed-only
 
 | 字段 | 说明 |
 | --- | --- |
-| `name` | 上游名称或名称 key，仅用于资源生成 |
+| `name` | 对应 i18n 的中文名称，仅用于提高 catalog 可读性；运行时名称仍按 `item_id` 查询 locale |
 | `category` | 中文分类标签 |
 | `storageKind` / `categoryType` | 候选过滤分类 |
 | `rarity` | 图标目录与物品稀有度 |
 | `sortId1` / `sortId2` | 上游物品排序字段；仅 mini table 物品包含，武器和固定物品不补默认值 |
 | `iconId` | 原始图标文件名，不等同于 `item_id` |
 | `fluidIconId` | 复合图标的内容物图标；普通图标为空 |
+| `regionRestricted` | 可选 boolean；仅上游明确为 true 时导出，表示物品可能因地区限制显示为禁用态 |
 
 运行时多语言 key 为 `iconRecognition.name.<item_id>`。发布脚本会删除 locale 中已不在 catalog 的旧 key，并要求五语言 key 数与 catalog 完全一致。
 

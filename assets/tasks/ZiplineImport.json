@@ -5,6 +5,9 @@
             "label": "$task.ZiplineImport.label",
             "entry": "ZiplineImportMain",
             "description": "$task.ZiplineImport.description",
+            "option": [
+                "ZiplineImportRegion"
+            ],
             "controller": [
                 "Win32-Front"
             ],
@@ -12,5 +15,45 @@
                 "open_world"
             ]
         }
-    ]
+    ],
+    "option": {
+        "ZiplineImportRegion": {
+            "type": "select",
+            "label": "$option.ZiplineImportRegion.label",
+            "description": "$option.ZiplineImportRegion.description",
+            "default_case": "CN",
+            "cases": [
+                {
+                    "name": "CN",
+                    "label": "$option.ZiplineImportRegion.cases.CN.label",
+                    "pipeline_override": {
+                        "ZiplineImportMain": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "url": "https://game.skland.com/map/endfield"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "Global",
+                    "label": "$option.ZiplineImportRegion.cases.Global.label",
+                    "pipeline_override": {
+                        "ZiplineImportMain": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "url": "https://game.skport.com/map/endfield"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+    }
 }

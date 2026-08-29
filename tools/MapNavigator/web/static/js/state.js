@@ -99,7 +99,6 @@ export class UndoRedoHistory {
     this._redo.length = 0;
   }
 }
-
 // --- zone segments (zone_index.py) ---------------------------------------------------
 
 /** One maximal run of same-zone points: `[startIdx, endIdx)` global. */
@@ -300,7 +299,17 @@ export const PointEditing = {
    * Mutates `points`.
    * @returns {void}
    */
-  insertPoint(points, zoneIndices, currentZone, actionName, strictArrival, worldX, worldY) {
+  insertPoint(
+    points,
+    zoneIndices,
+    currentZone,
+    actionName,
+    strictArrival,
+    routeRequired,
+    worldX,
+    worldY,
+    targetTier = '',
+  ) {
     const actionType = actionNameToType(actionName);
     const newPoint = {
       x: roundCoord(worldX),
@@ -310,6 +319,9 @@ export const PointEditing = {
       zone: currentZone,
       strict: strictArrival,
     };
+    if (routeRequired) newPoint.required = true;
+    const normalizedTargetTier = normalizeZoneId(targetTier);
+    if (normalizedTargetTier) newPoint.target_tier = normalizedTargetTier;
 
     if (zoneIndices.length < 2) {
       points.push(newPoint);
@@ -339,25 +351,32 @@ export const PointEditing = {
   },
 
   /**
-   * Set the selected point's action, strict flag, and optional coordinate frame. Uses `setPointActions` when the chain is
-   * unchanged (preserve auto/suppress flags), else `setManualPointActions`. Mirrors
+   * Set the selected point's action, strict flag, NAVMESH boundary flag, and optional coordinate frame. Uses
+   * `setPointActions` when the chain is unchanged (preserve auto/suppress flags), else `setManualPointActions`. Mirrors
    * `apply_attributes`. Mutates `points`.
    * @returns {boolean} whether it applied
    */
-  applyAttributes(points, zoneIndices, selectedIdx, actionName, strictArrival, targetTier = '') {
+  applyAttributes(points, zoneIndices, selectedIdx, actionName, strictArrival, routeRequired, targetTier = '') {
     if (selectedIdx === null || selectedIdx >= zoneIndices.length) return false;
     const globalIdx = zoneIndices[selectedIdx];
-    const currentActions = getPointActions(points[globalIdx]);
+    const point = points[globalIdx];
+    const currentActions = getPointActions(point);
     const newActions = [actionNameToType(actionName)];
     if (currentActions.length === newActions.length && currentActions[0] === newActions[0]) {
-      setPointActions(points[globalIdx], newActions);
+      setPointActions(point, newActions);
     } else {
-      setManualPointActions(points[globalIdx], newActions);
+      setManualPointActions(point, newActions);
     }
-    points[globalIdx].strict = strictArrival;
+    point.strict = strictArrival;
+    if (routeRequired) point.required = true;
+    else delete point.required;
+    const previousTargetTier = normalizeZoneId(point.target_tier || '');
     const normalizedTargetTier = normalizeZoneId(targetTier);
-    if (normalizedTargetTier) points[globalIdx].target_tier = normalizedTargetTier;
-    else delete points[globalIdx].target_tier;
+    if (normalizedTargetTier) point.target_tier = normalizedTargetTier;
+    else delete point.target_tier;
+    if (!newActions.includes(ActionType.NAVMESH) || previousTargetTier !== normalizedTargetTier) {
+      delete point.target_deck_y;
+    }
     return true;
   },
 
@@ -374,6 +393,7 @@ export const PointEditing = {
     const globalIdx = zoneIndices[selectedIdx];
     points[globalIdx].x = roundCoord(worldX);
     points[globalIdx].y = roundCoord(worldY);
+    delete points[globalIdx].target_deck_y;
     return true;
   },
 };
@@ -387,8 +407,8 @@ function roundCoord(value) {
 
 // --- app state orchestrator (app_tk.py glue) -----------------------------------------
 
-/** Editing modes (three-mode toolbar). */
-export const Mode = Object.freeze({ EDIT: 'edit', ASSERT: 'assert', ASTAR: 'astar' });
+/** Editing and read-only analysis modes. */
+export const Mode = Object.freeze({ EDIT: 'edit', ASSERT: 'assert', ASTAR: 'astar', LOG: 'log' });
 
 /**
  * Top-level editable state: the point list, zone-segment navigation, selection, and
@@ -408,7 +428,7 @@ export class AppState {
     /** @type {Set<number>} multi-selection: local indices into current segment */
     this.selectedIndices = new Set();
     /** @type {string} */
-    this.mode = Mode.ASTAR;
+    this.mode = Mode.EDIT;
   }
 
   /** @returns {number[]} global indices of the current segment's points. */
@@ -576,7 +596,7 @@ export class AppState {
    * Insert a point into the current zone.
    * @returns {void}
    */
-  editInsertPoint(actionName, strictArrival, worldX, worldY) {
+  editInsertPoint(actionName, strictArrival, routeRequired, worldX, worldY) {
     this.snapshot();
     PointEditing.insertPoint(
       this.points,
@@ -584,8 +604,31 @@ export class AppState {
       this.currentZone(),
       actionName,
       strictArrival,
+      routeRequired,
       worldX,
       worldY,
+    );
+    this.reindex();
+  }
+
+  /**
+   * Insert a manually authored navigation target. Recorded tracks bypass this helper
+   * and keep their backend-provided RUN actions.
+   * @param {number} worldX @param {number} worldY @param {string} zone @param {string} [targetTier='']
+   * @returns {void}
+   */
+  editInsertManualNavmeshPoint(worldX, worldY, zone, targetTier = '') {
+    this.snapshot();
+    PointEditing.insertPoint(
+      this.points,
+      this.zonePointGlobalIndices(),
+      normalizeZoneId(zone),
+      ACTION_NAMES[ActionType.NAVMESH],
+      false,
+      false,
+      worldX,
+      worldY,
+      targetTier,
     );
     this.reindex();
   }
@@ -594,7 +637,7 @@ export class AppState {
    * Apply action + strict to the primary selection.
    * @returns {boolean}
    */
-  editApplyAttributes(actionName, strictArrival, targetTier = '') {
+  editApplyAttributes(actionName, strictArrival, routeRequired, targetTier = '') {
     this.snapshot();
     const applied = PointEditing.applyAttributes(
       this.points,
@@ -602,6 +645,7 @@ export class AppState {
       this.selectedIdx,
       actionName,
       strictArrival,
+      routeRequired,
       targetTier,
     );
     if (applied) this.reindex();
@@ -610,21 +654,56 @@ export class AppState {
 
   /**
    * Apply the action, strict flag, and optional coordinate frame to EVERY selected point.
-   * @param {string} actionName @param {boolean} strictArrival @param {string} targetTier
+   * @param {string} actionName @param {boolean} strictArrival @param {boolean} routeRequired @param {string} targetTier
    * @returns {{selectionEmpty:boolean, changed:boolean}}
    */
-  editApplyActionToSelected(actionName, strictArrival, targetTier = '') {
+  editApplyActionToSelected(actionName, strictArrival, routeRequired, targetTier = '') {
     if (!this.selectedIndices.size) return { selectionEmpty: true, changed: false };
     this.snapshot();
     const zoneIndices = this.zonePointGlobalIndices();
     let changed = false;
     for (const localIdx of [...this.selectedIndices].sort((a, b) => a - b)) {
       changed =
-        PointEditing.applyAttributes(this.points, zoneIndices, localIdx, actionName, strictArrival, targetTier) ||
+        PointEditing.applyAttributes(this.points, zoneIndices, localIdx, actionName, strictArrival, routeRequired, targetTier) ||
         changed;
     }
     if (changed) this.reindex();
     return { selectionEmpty: false, changed };
+  }
+
+  /**
+   * Set or clear the selected NAVMESH waypoint's overlapping-surface height.
+   * The field is meaningful only for one concrete NAVMESH target, so multi-selection
+   * and ordinary recorded actions are rejected.
+   * @param {?number} targetDeckY
+   * @returns {{selectionEmpty:boolean, unsupported:boolean, changed:boolean}}
+   */
+  editSetSelectedTargetDeck(targetDeckY) {
+    if (this.selectedIndices.size !== 1) {
+      return { selectionEmpty: !this.selectedIndices.size, unsupported: true, changed: false };
+    }
+    const point = this.selectedPoint();
+    if (!point || !getPointActions(point).includes(ActionType.NAVMESH)) {
+      return { selectionEmpty: false, unsupported: true, changed: false };
+    }
+
+    const normalized = targetDeckY === null ? null : Number(targetDeckY);
+    if (normalized !== null && !Number.isFinite(normalized)) {
+      return { selectionEmpty: false, unsupported: true, changed: false };
+    }
+    const current =
+      typeof point.target_deck_y === 'number' && Number.isFinite(point.target_deck_y)
+        ? point.target_deck_y
+        : null;
+    if (current === normalized) {
+      return { selectionEmpty: false, unsupported: false, changed: false };
+    }
+
+    this.snapshot();
+    if (normalized === null) delete point.target_deck_y;
+    else point.target_deck_y = normalized;
+    this.reindex();
+    return { selectionEmpty: false, unsupported: false, changed: true };
   }
 
   /**
@@ -641,6 +720,7 @@ export class AppState {
     for (const localIdx of [...this.selectedIndices].sort((a, b) => a - b)) {
       const point = this.points[zoneIndices[localIdx]];
       setManualPointActions(point, [...getPointActions(point), actionType]);
+      if (!getPointActions(point).includes(ActionType.NAVMESH)) delete point.target_deck_y;
     }
     this.reindex();
     return { selectionEmpty: false, changed: true };
@@ -659,6 +739,7 @@ export class AppState {
       const actions = getPointActions(point);
       if (actions.length <= 1) setManualPointActions(point, [ActionType.RUN]);
       else setManualPointActions(point, actions.slice(0, -1));
+      if (!getPointActions(point).includes(ActionType.NAVMESH)) delete point.target_deck_y;
     }
     this.reindex();
     return { selectionEmpty: false, changed: true };

@@ -133,7 +133,7 @@ std::vector<Segment> MergeCloseSegments(const std::vector<Segment>& segments, in
 std::vector<Segment> DetectColsFromDarkSeparators(const cv::Mat& binary, const GridDetectOptions& options)
 {
     std::vector<Segment> cols;
-    if (binary.empty() || options.lockedColWidth <= 0) {
+    if (binary.empty()) {
         return cols;
     }
 
@@ -162,7 +162,7 @@ std::vector<Segment> DetectColsFromDarkSeparators(const cv::Mat& binary, const G
     const int minLength = static_cast<int>(std::round(static_cast<double>(options.lockedColWidth) * options.minKeptSegmentRatio));
     const int maxLength =
         static_cast<int>(std::round(static_cast<double>(options.lockedColWidth) * (1.0 + options.lockedSegmentTolerance)));
-    if (minLength <= 0 || maxLength < minLength) {
+    if (options.lockedColWidth > 0 && (minLength <= 0 || maxLength < minLength)) {
         return cols;
     }
 
@@ -171,7 +171,7 @@ std::vector<Segment> DetectColsFromDarkSeparators(const cv::Mat& binary, const G
         const Segment& right = separators[i + 1];
         const Segment col { left.end, right.start };
         const int length = SegmentLength(col);
-        if (length >= minLength && length <= maxLength) {
+        if (options.lockedColWidth <= 0 || (length >= minLength && length <= maxLength)) {
             cols.push_back(col);
         }
     }
@@ -362,7 +362,7 @@ GridResult DetectGrid(const cv::Mat& image, const GridDetectOptions& options)
         options.lockedSegmentTolerance,
         result.minColWidth);
     std::vector<Segment> darkColSegments = DetectColsFromDarkSeparators(result.binary, options);
-    if (!darkColSegments.empty() && options.lockedColWidth > 0 && darkColSegments.size() >= brightColSegments.size()) {
+    if (!darkColSegments.empty()) {
         colSegments = darkColSegments;
     }
     else {

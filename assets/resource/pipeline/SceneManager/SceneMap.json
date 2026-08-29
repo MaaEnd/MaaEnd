@@ -65,6 +65,7 @@
         },
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
             "__ScenePrivateMapTeleportConfirm"
         ]
     },
@@ -79,12 +80,24 @@
                     400,
                     300
                 ],
+                // 候选条目按点位类型显示不同名字：普通的叫「协议传送点」，
+                // 基建那两种分别叫「协议核心」「次级核心」。都是传送点，一并列在这里
                 "expected": [
                     "协议传送点",
                     "協議傳送點",
                     "(?i)TP\\s*Point",
                     "協約転送ポイント",
-                    "프로토콜 전송 지점"
+                    "프로토콜 전송 지점",
+                    "协议核心",
+                    "協議核心",
+                    "協約核心",
+                    "프로토콜 코어",
+                    "(?i)Protocol\\s*Automation.*",
+                    "次级核心",
+                    "次級核心",
+                    "サブ協約核心",
+                    "서브 코어",
+                    "(?i)Sub-?PAC"
                 ]
             }
         },
@@ -345,81 +358,6 @@
             "time": 400
         }
     },
-    "__ScenePrivateMapZoomNonExtreme": {
-        "desc": "在地图界面，将缩放条调到非顶点区域，供bigmapick使用，防止内部处理出错",
-        "recognition": "And",
-        "all_of": [
-            "__ScenePrivateMapZoomOutWhite",
-            "__ScenePrivateMapZoomInWhite"
-        ],
-        "inverse": true,
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "__ScenePrivateMapZoomNonExtremeFromZoomIn",
-            "__ScenePrivateMapZoomNonExtremeFromZoomOut"
-        ]
-    },
-    "__ScenePrivateMapZoomNonExtremeFromZoomIn": {
-        "desc": "上面 + 号识别到白色，点击 + 与 - 中间",
-        "recognition": "And",
-        "all_of": [
-            "__ScenePrivateMapZoomInWhite"
-        ],
-        "action": "Click",
-        "target": [
-            1238,
-            345
-        ],
-        "post_wait_freezes": {
-            "target": [
-                -100,
-                0,
-                100,
-                100
-            ],
-            "time": 400
-        },
-        "next": [
-            "__ScenePrivateMapZoomNonExtremeSuccess"
-        ]
-    },
-    "__ScenePrivateMapZoomNonExtremeFromZoomOut": {
-        "desc": "下面 - 号识别到白色，点击 + 与 - 中间",
-        "recognition": "And",
-        "all_of": [
-            "__ScenePrivateMapZoomOutWhite"
-        ],
-        "action": "Click",
-        "target": [
-            1238,
-            345
-        ],
-        "post_wait_freezes": {
-            "target": [
-                -100,
-                0,
-                100,
-                100
-            ],
-            "time": 400
-        },
-        "next": [
-            "__ScenePrivateMapZoomNonExtremeSuccess"
-        ]
-    },
-    "__ScenePrivateMapZoomNonExtremeSuccess": {
-        "desc": "确认 ZoomIn/ZoomOut 均识别到白色，已在非顶点",
-        "recognition": "And",
-        "all_of": [
-            "__ScenePrivateMapZoomOutWhite",
-            "__ScenePrivateMapZoomInWhite"
-        ],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
-    },
     "__ScenePrivateMapFilterClear": {
         "desc": "在地图界面，清除筛选条件",
         "recognition": "TemplateMatch",
@@ -607,6 +545,33 @@
         "next": [
             "__ScenePrivateAnyEnterMapSuccess"
         ]
+    },
+    "__ScenePrivateMapMarkerPanelClose": {
+        // 点空地会弹出创建标记面板，它的创建按钮和真传送按钮是同一个黄勾、同一个位置，
+        // 传送确认节点分不出来，会照按不误，白建一个标记（自定义标记点有上限）。
+        // 认垃圾桶是因为只有标记面板才删得了标记；右上角那个 X 干净地图上也在，
+        // 无条件点会把地图关掉，所以必须先认出面板再点
+        "desc": "在地图界面，误开创建标记面板时点右上角 X 取消。这个 X 只收面板，不关地图",
+        "recognition": "TemplateMatch",
+        "roi": [
+            -110,
+            570,
+            110,
+            80
+        ],
+        "template": [
+            "SceneManager/MapMarkerPanelDelete.png"
+        ],
+        // 面板上 1.00，干净地图全图最高 0.52。取宽的一档，垃圾桶置灰时也还认得出
+        "threshold": 0.7,
+        "action": "Click",
+        "target": [
+            1218,
+            14,
+            30,
+            30
+        ],
+        "post_wait_freezes": 200
     },
     "__ScenePrivateWorldEnterMapAny": {
         "desc": "在大世界界面，进入地图界面",

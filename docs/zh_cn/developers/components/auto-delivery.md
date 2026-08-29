@@ -31,7 +31,7 @@ AutoDelivery 是任务无关的自动送货组件。调用方打开正确的当�
             -> 识别终点 -> 取消追踪 -> 返回大世界 -> 前往终点 -> 提交货物
 ```
 
-组件按任务详情中的区域、任务条件和操作按钮自行判断阶段。取货后重新打开详情、在任务列表中找到送货任务以及确认详情切换均由组件完成，调用方无需为第二次详情切换配置额外入口或 anchor。
+组件按任务详情中的区域、任务条件和操作按钮自行判断阶段。快速传送后、资源回收站地图判定后以及取货后需要重新打开任务详情时，组件会通过 `SubTask` 依次执行 `SceneEnterMenuMission` 和送货任务选择流程；只有同时确认任务界面与右侧“送货任务”详情后，才会取消追踪或继续识别目的地。调用方无需为详情切换配置额外入口或 anchor。
 
 页面信息无法识别、路线无法解析或操作失败时，组件不转发额外的 `on_error`，而是按 Pipeline 默认行为结束任务。调用方若需要在某个正常阶段返回自身流程，应使用下节的 anchor，不要直接引用内部节点。
 
@@ -95,45 +95,46 @@ AutoDelivery 是任务无关的自动送货组件。调用方打开正确的当�
 | 路径 | 内容 |
 | --- | --- |
 | `tools/pipeline-generate/data/delivery_destinations.json` | zmdmap 数据 CI 自动生成并发布的仓储、终点、五语言文本、坐标和归属关系 |
-| `tools/pipeline-generate/AutoDelivery/routes.json` | 特殊仓储路线、取货站位修正和终点完整路线 |
-| `assets/resource/pipeline/AutoDelivery/Routes.json` | 由上述数据生成、可独立试跑的仓储与终点寻路节点 |
+| `tools/pipeline-generate/AutoDelivery/routes.json` | 自动路线无法适用时的仓储、终点和站位修正路线覆盖 |
+| `assets/resource/pipeline/AutoDelivery/Routes/{RouteFileId}.json` | 由上述数据按仓储节点分组生成、可独立试跑的仓储与终点寻路节点 |
 | `assets/data/AutoDelivery/catalog.json` | 运行时 OCR 匹配目录，仅保留文本、归属关系和生成节点名 |
 | `assets/resource/pipeline/AutoDelivery/Common.json` | 公共入口和任务详情识别 |
 | `assets/resource/pipeline/AutoDelivery/Pickup.json` | 快速传送、仓储导航和取货 |
 | `assets/resource/pipeline/AutoDelivery/Delivery.json` | 取消追踪、终点导航和提交货物 |
 | `agent/go-service/autodelivery/` | OCR 匹配、运行时目录校验和生成路线节点分发 |
 
-普通仓储和终点由 `tools/pipeline-generate/data/scripts/delivery_destinations_data.py` 从游戏数据生成单个 `NAVMESH` 目标。只有断网格、分层、需要分段靠近或需要修正取货站位时，才在 `routes.json` 中维护覆盖。
+普通仓储和资源回收站由 `tools/pipeline-generate/data/scripts/delivery_destinations_data.py` 提供游戏数据坐标与 yaw。路线生成器先在目标 yaw 正方向 8 米处生成一个 `required: true` 的 `NAVMESH` 必经点，再前往原始坐标，从而保证从交互正面接近；普通收货 NPC 仍只生成原始坐标的单个 `NAVMESH` 目标。只有断网格、分层或需要特殊站位时，才在 `routes.json` 中维护覆盖。
 
-运行 `pnpm generate:AutoDelivery` 后，每条主路线会生成普通与允许滑索两个 `AutoDeliveryRoute...` 节点，`retry_path` 则生成一个不继承滑索选项的站位修正节点。固定的 `AutoDeliveryNavigateDepot`、`AutoDeliveryRetryNavigateDepot` 和 `AutoDeliveryNavigateDestination` 是 `SubTask` 分发器：Go Service 只根据 OCR 结果选择生成节点名，不再把坐标或完整 `path` 注入 Pipeline。生成节点是公开的单路线测试入口，`desc` 会注明路线对应的仓储节点；它们不替代完整送货业务的唯一入口 `AutoDelivery`。
+运行 `pnpm generate:AutoDelivery` 后，每条主路线会生成普通与允许滑索两个 `AutoDeliveryRoute...` 节点。所有仓储和送货目标还会用同一条两点接近路线生成一个不启用滑索的 retry 节点；显式 `retry_path` 可以覆盖该路线。固定的 `AutoDeliveryNavigateDepot`、`AutoDeliveryRetryNavigateDepot`、`AutoDeliveryNavigateDestination` 和 `AutoDeliveryRetryNavigateDestination` 是 `SubTask` 分发器：Go Service 只根据 OCR 结果选择生成节点名，不再把坐标或完整 `path` 注入 Pipeline。生成节点是公开的单路线测试入口，`desc` 会注明路线对应的仓储节点；它们不替代完整送货业务的唯一入口 `AutoDelivery`。
 
 覆盖文件只有顶层 `depots` 和 `destinations`：
 
 | 数组 | 字段 | 含义 |
 | --- | --- | --- |
 | `depots` | `path` | 从快速传送落点前往仓储的完整 MapNavigator 路线；未配置时使用自动生成的仓储坐标 |
-| `depots` | `retry_path` | 首次未识别到取货按钮时执行一次的局部站位修正路线 |
+| `depots` | `retry_path` | 覆盖首次未识别到取货按钮时执行的自动两点站位修正路线 |
 | `depots` | `departure_path` | 拼接到该仓储所属终点路线前的公共离场路线 |
 | `destinations` | `path` | 包含最终航点的完整终点路线；未配置时使用自动生成的终点坐标 |
+| `destinations` | `retry_path` | 覆盖首次未识别到提交按钮时执行的自动两点站位修正路线 |
 
 终点目录中的 `area` 取自 `LevelDescTable.showName`，对应任务详情页实际显示的关卡名称，而不是地区建设中的仓储节点名称。普通收货任务按 `buyerName` 匹配终点；`kind` 为 `recycle_bin` 的回收站任务不显示买家名，改为匹配完整 `mission`。同一区域存在多个相同回收站文案时保持歧义失败，不静默选择可能错误的终点。
 
 ### `retry_path`
 
-`retry_path` 使用与 `MapNavigateAction.custom_action_param.path` 相同的格式。它从仓储主路线结束后的实际站位开始执行，应包含独立运行所需的区域声明和路径点。
+`retry_path` 使用与 `MapNavigateAction.custom_action_param.path` 相同的格式。它从主路线结束后的实际站位开始执行，应包含独立运行所需的区域声明和路径点。所有仓储和送货目标未配置时都使用自动生成的“8 米必经接近点 → 原始终点”路线，无需手工复制坐标；这不改变 NPC 主路线仍为单个终点的规则。
 
-只在已经确认以下根因时配置 `retry_path`：仓储主路线可以正确到达，但 MapNavigator 的默认到达范围可能让角色停在取货交互范围外。不要用它掩盖模板不稳定、页面未加载或主路线错误。
+只在已经确认自动两点修正不适用时配置 `retry_path`，例如断网格、分层或目标附近需要绕行。不要用它掩盖模板不稳定、页面未加载或主路线错误。
 
 执行边界如下：
 
 ```text
-前往仓储
-  -> 首次识别到取货按钮：直接取货
-  -> 首次未识别到，且配置了 retry_path：修正站位一次 -> 再识别一次
-  -> 没有 retry_path，或修正后仍未识别到：结束任务
+前往仓储或终点
+  -> 首次识别到交互按钮：继续取货或提交
+  -> 首次未识别到，且目录中存在 retry 节点：修正站位一次 -> 再识别一次
+  -> 没有 retry 节点，或修正后仍未识别到：结束任务
 ```
 
-`retry_path` 不继承仓储主路线的 `zip`，也不暴露为执行入口、anchor 或循环重试节点。一次 AutoDelivery 取货流程最多执行一次站位修正。
+retry 节点不继承主路线的 `zip`，也不形成 anchor 或循环重试。一次取货或交付流程最多执行一次站位修正。
 
 ### 验证
 

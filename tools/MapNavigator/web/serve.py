@@ -18,16 +18,20 @@
   GET  /basemap/{path}        -> assets/resource/image/ 下的底图 PNG (防 .. 穿越)
   GET  /basemap-by-zone       -> 任意 zone 字符串 -> 解析后的底图 PNG (resolve_zone_image)
   GET  /api/zone-ids          -> assert 模式 zone 下拉可选值 (list_available_zone_ids)
+  GET  /api/zipline-frames    -> 滑索世界坐标到 base 底图的只读标定
   GET  /mesh/{zone_id}        -> 某几何区的 NMSH 二进制网格缓冲 (application/octet-stream)
   POST /api/route             -> 栅格路线; 失败时附起终点的离网探针
+  POST /api/route-preview     -> 按 MapNavigateAction 运行时语义展开作者路线与滑索段
   GET  /api/settings          -> 读取 ~/.maaend/mapnavigator.json
   PUT  /api/settings          -> 写入 ~/.maaend/mapnavigator.json
   GET  /api/adb/devices       -> adb devices -l 枚举 (容错)
   GET  /api/gamescope/instances   -> 当前发现到的 gamescope 实例枚举 (供下拉)
   POST /api/connection/check  -> 主动探测当前连接配置是否可达 (win32 窗口 / adb 设备 / playcover 端口 / linux gamescope)
   POST /api/locate-once       -> 单次游戏内定位 (临时连接, 取第 3 个有效帧的位置与朝向)
+  GET  /api/project-nodes      -> 扫描 assets 中可导入的导航 / 断言节点
+  POST /api/project-nodes/load -> 读取所选项目节点
   POST /api/import/analyze    -> 解析上传 JSON (路线/Assert); 缺 zone 时回片段供前端指定
-  POST /api/import/finalize   -> 按片段 zone 指定定稿导入 (convert_maptracker+infer+normalize)
+  POST /api/import/finalize   -> 按片段 zone 指定定稿导入 (归一化 + zone 校验)
   POST /api/export/path       -> 点位 -> path 节点 + JSON 文本 (与 tk 逐字节一致)
   POST /api/export/assert     -> zone_id + target -> AssertLocation 节点 + JSON 文本
   WS   /ws/record             -> 录制桥接 (start/stop; G 复制坐标, X 强制打点)
@@ -101,6 +105,7 @@ from starlette.datastructures import MutableHeaders  # noqa: E402
 NAVMESH_DIR = RESOURCE_DIR / "model" / "map" / "navmesh"
 NAVMESH_GZ = NAVMESH_DIR / "base.nav.gz"
 NAVMESH_RAW = NAVMESH_DIR / "base.nav"
+ZIPLINE_FRAMES = RESOURCE_DIR.parent / "data" / "MapNavigator" / "zipline_frames.json"
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 
 # 只绑 127.0.0.1 —— 后端会 spawn 进程 / 连 ADB / 载 maafw, 绝不暴露到局域网。
@@ -309,7 +314,11 @@ async def lifespan(_app: FastAPI):
     configure_runtime_env()
     STATIC_DIR.mkdir(parents=True, exist_ok=True)
     navmesh_backend.ensure_loading()  # 立即在后台拉起 agent 并让它读 navmesh
-    yield
+    try:
+        yield
+    finally:
+        # Agent 不再继承 Ctrl+C，必须在服务退出时由 owner 明确收回。
+        await navmesh_backend.close()
 
 
 app = FastAPI(title="MapNavigator Web Backend", lifespan=lifespan)
@@ -353,6 +362,12 @@ class RouteRequest(BaseModel):
     floor_y: float | None = None
     # 终点所在重叠面的高度; floor_y 管吸附, 这个管选层
     goal_deck_y: float | None = None
+
+
+class RoutePreviewRequest(BaseModel):
+    position: list[float]
+    position_zone: str
+    custom_action_param: dict[str, Any]
 
 
 def _slot(value: float | None) -> list[float]:
@@ -483,9 +498,29 @@ async def api_route(req: RouteRequest) -> dict[str, Any]:
             "points": result["points"],
             "segment_breaks": [],
             "cost": result["cost"],
+            "debug": result.get("debug"),
             "blind_start": None,
             "blind_target": None,
         }
+
+    return await run_in_threadpool(_compute)
+
+
+@app.post("/api/route-preview")
+async def api_route_preview(req: RoutePreviewRequest) -> dict[str, Any]:
+    """按 MapNavigateAction 运行时语义展开完整作者路线，供编辑器预览步行与滑索段。"""
+
+    def _compute() -> dict[str, Any]:
+        try:
+            return navmesh_backend.query_latest(
+                "route-preview",
+                "route_preview",
+                position=req.position,
+                position_zone=req.position_zone,
+                custom_action_param=req.custom_action_param,
+            )
+        except RuntimeError as exc:
+            return {"ok": False, "error": f"navmesh 尚未就绪: {exc}"}
 
     return await run_in_threadpool(_compute)
 
@@ -534,7 +569,7 @@ async def api_basemap_by_zone(zone_id: str) -> FileResponse:
 async def api_zone_ids() -> dict[str, Any]:
     """assert 模式 zone 下拉的可选值 (json_import.list_available_zone_ids, fs 扫描各图源目录)。
 
-    惰性 import json_import —— 与导入端点一致, 使纯导航/编辑用户即使缺 maptracker 变换文件也能启动。
+    惰性 import json_import —— 与导入端点一致, 使纯导航/编辑用户即使缺图源目录也能启动。
     """
 
     def _list() -> list[str]:
@@ -544,6 +579,14 @@ async def api_zone_ids() -> dict[str, Any]:
 
     zone_ids = await run_in_threadpool(_list)
     return {"zone_ids": zone_ids}
+
+
+@app.get("/api/zipline-frames")
+async def api_zipline_frames() -> FileResponse:
+    """Expose the repository calibration read-only; ZIP records stay in the browser."""
+    if not ZIPLINE_FRAMES.is_file():
+        raise HTTPException(status_code=404, detail="缺少滑索坐标标定 zipline_frames.json")
+    return FileResponse(ZIPLINE_FRAMES, media_type="application/json")
 
 
 @app.get("/api/platform")
@@ -719,11 +762,11 @@ async def api_gamescope_instances() -> dict[str, Any]:
     return {"instances": instances}
 
 
-# --- 导入 / 导出 (Option 1: 复用未改动的 json_import.py + maptracker_compat.py) --------
-# 前端只做收发: POST 文件文本 -> 后端算 -> 拿回归一化点位; POST 点位 -> 拿回 JSON 文本。
-# 大文件 (含 PNG 亮度采样 / 目录遍历) 单一实现在 Python, 与 tk 工具字节一致 (见 DESIGN §5)。
-# 惰性 import: 只在真正导入/导出时才加载 json_import (它会读 maptracker_coordinate_transforms.json),
-# 从而纯导航/编辑用户即使缺该文件也能启动服务。
+# --- 导入 / 导出 (复用 json_import.py) ------------------------------------------------
+# 项目路线由后端扫描并受限读取；通用导入仍是 POST 文件文本 -> 后端算 -> 拿回归一化点位。
+# 导出则是 POST 点位 -> 拿回 JSON 文本。
+# 惰性 import: 只在真正导入/导出时才加载 json_import (它会扫描图源目录),
+# 从而纯导航/编辑用户即使缺这些资源也能启动服务。
 def _write_temp_json(text: str) -> Path:
     """把上传文本写到临时 .json, 以复用 load_*_from_json_file(path) —— json_import.py 零改动。"""
     import tempfile
@@ -732,6 +775,39 @@ def _write_temp_json(text: str) -> Path:
     with os.fdopen(fd, "w", encoding="utf-8") as handle:
         handle.write(text)
     return Path(tmp)
+
+
+@app.get("/api/project-nodes")
+async def api_project_nodes() -> dict[str, Any]:
+    """扫描项目 assets，返回路线制作工具可选择的导航 / 断言节点。"""
+
+    def _run() -> dict[str, Any]:
+        from json_import import scan_project_import_nodes
+
+        return {"nodes": [asdict(node) for node in scan_project_import_nodes()]}
+
+    return await run_in_threadpool(_run)
+
+
+@app.post("/api/project-nodes/load")
+async def api_load_project_node(payload: dict[str, Any] = Body(default_factory=dict)) -> Any:
+    """重新校验 assets 相对路径并读取所选节点，不接受任意本地文件路径。"""
+    kind = str(payload.get("kind", "") or "").strip()
+    resource_path = str(payload.get("resource_path", "") or "").strip()
+    node_name = str(payload.get("node_name", "") or "").strip()
+    if kind not in {"path", "assert"} or not resource_path or not node_name:
+        raise HTTPException(status_code=400, detail="kind / resource_path / node_name 无效")
+
+    def _run() -> dict[str, Any]:
+        from json_import import load_project_import_node
+
+        try:
+            imported = load_project_import_node(kind, resource_path, node_name)
+        except (OSError, ValueError) as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+        return {"ok": True, "resource_path": resource_path, "node_name": node_name, **imported}
+
+    return await run_in_threadpool(_run)
 
 
 # 导入是「分析 -> (可选)区域指定 -> 定稿」两阶段, 逐字节复刻 app_tk.import_json /
@@ -792,7 +868,6 @@ async def api_import_analyze(payload: dict[str, Any] = Body(default_factory=dict
 
     def _run() -> dict[str, Any]:
         from json_import import (
-            infer_missing_zones,
             list_available_zone_ids,
             load_assert_location_from_json_file,
             load_points_from_json_file,
@@ -802,9 +877,9 @@ async def api_import_analyze(payload: dict[str, Any] = Body(default_factory=dict
 
         tmp = _write_temp_json(text)
         try:
-            # 先按路线导入 (apply_zone_inference=False, apply_maptracker_compat 用默认 True —— 与 tk 一致)
+            # 先按路线导入, 失败再退回 Assert
             try:
-                route = load_points_from_json_file(tmp, apply_zone_inference=False)
+                route = load_points_from_json_file(tmp)
             except Exception as route_exc:  # noqa: BLE001 —— tk import_json 捕获全部异常再试 Assert
                 try:
                     location = load_assert_location_from_json_file(tmp)
@@ -819,20 +894,17 @@ async def api_import_analyze(payload: dict[str, Any] = Body(default_factory=dict
                     "zone_id": location.zone_id,
                     "target": [float(x), float(y), float(width), float(height)],
                     "condition_count": int(location.condition_count),
-                    "converted_from_maptracker": bool(location.converted_from_maptracker),
                 }
 
             imported_points = route.points
-            converted_count = route.converted_maptracker_point_count
             if not route.source_has_zone_info:
                 segments = split_route_into_segments(imported_points)
                 zone_options = list_available_zone_ids()
                 if segments and zone_options:
-                    # 需要交互式区域指定 (tk _prompt_zone_assignment_for_import)
-                    suggested_points = infer_missing_zones(imported_points)
+                    # 源文件没带 zone -> 回片段给前端逐段指定
                     seg_infos: list[dict[str, Any]] = []
                     for idx, (start, end) in enumerate(segments):
-                        dominant = _dominant_zone_of(suggested_points[start:end])
+                        dominant = _dominant_zone_of(imported_points[start:end])
                         if dominant not in zone_options:
                             dominant = zone_options[0]
                         seg_infos.append(
@@ -852,11 +924,11 @@ async def api_import_analyze(payload: dict[str, Any] = Body(default_factory=dict
                         "segments": seg_infos,
                         "zone_options": zone_options,
                         "route_count": route.route_count,
-                        "converted_count": converted_count,
+                        "zip_enabled": route.zip_enabled,
                     }
-                # 无片段/无可选区域 -> tk 直接沿用原点位, 进入 infer+normalize
+                # 无片段/无可选区域 -> 沿用原点位直接归一化
 
-            final_points = normalize_path_points(infer_missing_zones(imported_points))
+            final_points = normalize_path_points(imported_points)
             unresolved = _unresolved_zone_ids(final_points)
             if unresolved:
                 return {"ok": False, "error": _unresolved_zone_message(unresolved)}
@@ -866,7 +938,7 @@ async def api_import_analyze(payload: dict[str, Any] = Body(default_factory=dict
                 "needs_assignment": False,
                 "points": final_points,
                 "route_count": route.route_count,
-                "converted_count": converted_count,
+                "zip_enabled": route.zip_enabled,
             }
         finally:
             try:
@@ -879,20 +951,13 @@ async def api_import_analyze(payload: dict[str, Any] = Body(default_factory=dict
 
 @app.post("/api/import/finalize")
 async def api_import_finalize(payload: dict[str, Any] = Body(default_factory=dict)) -> Any:
-    """复刻 confirm() + 其后的转换尾段: 给 raw_points 按片段赋 zone, 再 convert_maptracker
-    -> infer -> normalize -> 校验。converted_count 只是本阶段新增, 前端与 analyze 的相加。
-    """
+    """给 raw_points 按片段赋 zone, 再归一化并校验 zone 可解析。"""
     raw_points = payload.get("raw_points", [])
     assignments = payload.get("zone_assignments", [])
     if not isinstance(raw_points, list) or not isinstance(assignments, list):
         raise HTTPException(status_code=400, detail="raw_points / zone_assignments 需为数组")
 
     def _run() -> dict[str, Any]:
-        from json_import import infer_missing_zones
-        from maptracker_compat import (
-            convert_maptracker_points_to_mapnavigator,
-            maptracker_base_map_name_from_zone,
-        )
         from model import normalize_path_points
 
         assigned_points = [dict(point) for point in raw_points]
@@ -903,7 +968,6 @@ async def api_import_finalize(payload: dict[str, Any] = Body(default_factory=dic
             zone_name = str(assignment.get("zone", "") or "").strip()
             if not zone_name:
                 return {"ok": False, "error": "请先为每个片段选择对应地图。"}
-            zone_name = maptracker_base_map_name_from_zone(zone_name) or zone_name
             selected_zone_names.append(zone_name)
             for point_idx in range(start, end):
                 if 0 <= point_idx < len(assigned_points):
@@ -912,12 +976,11 @@ async def api_import_finalize(payload: dict[str, Any] = Body(default_factory=dic
         if not selected_zone_names:
             return {"ok": False, "error": "当前没有任何可用区域映射。"}
 
-        points, converted_count = convert_maptracker_points_to_mapnavigator(assigned_points)
-        final_points = normalize_path_points(infer_missing_zones(points))
+        final_points = normalize_path_points(assigned_points)
         unresolved = _unresolved_zone_ids(final_points)
         if unresolved:
             return {"ok": False, "error": _unresolved_zone_message(unresolved)}
-        return {"ok": True, "points": final_points, "converted_count": converted_count}
+        return {"ok": True, "points": final_points}
 
     return await run_in_threadpool(_run)
 
@@ -1430,4 +1493,8 @@ if __name__ == "__main__":
         ).start()
 
     # 交出已绑定的 socket (而非让 uvicorn 自己 bind), 端口即为上面宣告给浏览器的那个。
-    uvicorn.Server(uvicorn.Config(app, host=LISTEN_HOST, port=listen_port)).run(sockets=[listen_socket])
+    try:
+        uvicorn.Server(uvicorn.Config(app, host=LISTEN_HOST, port=listen_port)).run(sockets=[listen_socket])
+    except KeyboardInterrupt:
+        # Python 3.14 的 asyncio.run 会在 Uvicorn 完成 shutdown 后重新抛出 KeyboardInterrupt。
+        pass

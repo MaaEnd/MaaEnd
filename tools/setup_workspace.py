@@ -11,8 +11,9 @@ import time
 import traceback
 import urllib.error
 import urllib.request
+from functools import cache
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import quote, urlencode, urlparse
 
 from cli_support import Console, init_localization
 import dep_3rdparty
@@ -23,6 +24,7 @@ PROJECT_BASE: Path = Path(__file__).parent.parent.resolve()
 MFW_REPO: str = "MaaXYZ/MaaFramework"
 MXU_REPO: str = "MistEO/MXU"
 MAAEND_REPO: str = "MaaEnd/MaaEnd"
+MAIN_BRANCH: str = "v2"
 
 
 def create_directory_link(src: Path, dst: Path) -> bool:
@@ -114,9 +116,37 @@ CACHE_DIR: Path = PROJECT_BASE / ".cache"
 VERSION_FILE_NAME: str = "version.json"
 
 
+@cache
+def get_github_token() -> str:
+    """Return a GitHub token from the environment or GitHub CLI."""
+    for variable in ("GITHUB_TOKEN", "GH_TOKEN"):
+        token = os.environ.get(variable, "").strip()
+        if token:
+            return token
+
+    gh_path = shutil.which("gh")
+    if not gh_path:
+        return ""
+
+    try:
+        result = subprocess.run(
+            [gh_path, "auth", "token"],
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=5,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return ""
+
+    if result.returncode != 0:
+        return ""
+    return result.stdout.strip()
+
+
 def configure_token() -> None:
     """配置 GitHub Token，输出检测结果"""
-    token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
+    token = get_github_token()
     if token:
         print(Console.ok(t("inf_github_token_configured")))
     else:
@@ -222,7 +252,7 @@ def get_latest_release_url(
     https://docs.github.com/en/rest/releases/releases?apiVersion=2022-11-28#list-releases
     """
     api_url = f"https://api.github.com/repos/{repo}/releases"
-    token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
+    token = get_github_token()
 
     try:
         print(Console.info(t("inf_get_latest_release", repo=repo)))
@@ -310,6 +340,24 @@ def _retry_on_permission(operation, *, error_key: str = "", **fmt_args) -> bool:
                 return False
 
 
+def _update_versions(install_root: Path, values: dict[str, str | None]) -> None:
+    """更新 version.json 中多个组件的版本号（单次读-改-写）。
+
+    值为非空字符串时写入；值为 None 时删除对应键（用于清除过期记录，如
+    release 回退安装后移除旧的 CI artifact digest）。
+    """
+    if not values:
+        return
+    version_file = install_root / VERSION_FILE_NAME
+    versions = read_versions_file(version_file)
+    for key, value in values.items():
+        if value is None:
+            versions.pop(key, None)
+        elif value:
+            versions[key] = value
+    write_versions_file(version_file, versions)
+
+
 def _update_component_version(
     install_root: Path,
     component_key: str,
@@ -318,10 +366,7 @@ def _update_component_version(
     """更新 version.json 中单个组件的版本号"""
     if not version:
         return
-    version_file = install_root / VERSION_FILE_NAME
-    versions = read_versions_file(version_file)
-    versions[component_key] = version
-    write_versions_file(version_file, versions)
+    _update_versions(install_root, {component_key: version})
 
 
 def parse_semver(version: str) -> tuple[list[int], list[str]]:
@@ -898,8 +943,7 @@ def copy_cpp_algo_binary(src_path: Path, install_root: Path) -> None:
 
 def _github_auth_headers() -> dict[str, str] | None:
     """Return GitHub API auth headers, or None if no token is configured."""
-    token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN") or ""
-    token = token.strip()
+    token = get_github_token()
     if not token:
         return None
     return {
@@ -907,6 +951,32 @@ def _github_auth_headers() -> dict[str, str] | None:
         "Accept": "application/vnd.github+json",
         "X-GitHub-Api-Version": "2022-11-28",
     }
+
+
+def _git_output(*args: str) -> str | None:
+    """Return trimmed output from a git command in the project checkout."""
+    try:
+        result = subprocess.run(
+            ["git", "-C", str(PROJECT_BASE), *args],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+    except OSError:
+        return None
+    if result.returncode != 0:
+        return None
+    output = result.stdout.strip()
+    return output or None
+
+
+def _current_git_branch() -> str | None:
+    """Return the checked-out branch, or ``None`` for a detached checkout."""
+    return _git_output("symbolic-ref", "--quiet", "--short", "HEAD")
+
+
+def _current_git_head_sha() -> str | None:
+    return _git_output("rev-parse", "HEAD")
 
 
 def _is_git_sha(version: str | None) -> bool:
@@ -927,14 +997,35 @@ def _github_api_get(url: str, auth_headers: dict[str, str]) -> dict:
         return json.loads(res.read())
 
 
+def parse_artifact_digest(value: object) -> str | None:
+    """解析 GitHub artifact 的 digest 字段为 64 位小写 hex。
+
+    GitHub 在 artifact 上传时计算并暴露 sha256:<hex>（UI 与 REST API 同一来源）。
+    返回规范化后的 hex；无法解析（缺失 / 非字符串 / 前缀或长度不符）返回 None。
+    """
+    if not isinstance(value, str):
+        return None
+    text = value.strip()
+    if text.lower().startswith('sha256:'):
+        text = text[len('sha256:'):]
+    text = text.strip().lower()
+    if len(text) != 64:
+        return None
+    try:
+        int(text, 16)
+    except ValueError:
+        return None
+    return text
+
+
 def _find_cpp_algo_artifact_in_runs(
     auth_headers: dict[str, str],
     runs: list[dict],
     artifact_name: str,
-) -> tuple[str | None, str | None]:
+) -> tuple[str | None, str | None, str | None]:
     """Iterate *runs* (most-recent-first), fetch their artifacts, and return
-    (download_url, head_sha) for the first run that has a matching non-expired
-    artifact. Returns (None, None) when no match is found.
+    (download_url, head_sha, digest) for the first run that has a matching
+    non-expired artifact. Returns (None, None, None) when no match is found.
     """
     for run in runs:
         run_id = run["id"]
@@ -970,29 +1061,32 @@ def _find_cpp_algo_artifact_in_runs(
                     f"artifacts/{artifact_id}/zip"
                 )
                 print(Console.ok(t("inf_ci_artifact_found", sha=head_sha[:7])))
-                return download_url, head_sha
+                return download_url, head_sha, parse_artifact_digest(artifact.get("digest"))
 
-    return None, None
+    return None, None, None
 
 
 def _find_cpp_algo_in_ci(
     auth_headers: dict[str, str] | None,
     pr_number: int | None = None,
     run_id: int | None = None,
-) -> tuple[str | None, str | None]:
+    branch: str | None = None,
+) -> tuple[str | None, str | None, str | None]:
     """Find a cpp-algo CI artifact from a successful install.yml workflow run.
 
     - When *run_id* is specified, fetches that exact workflow run's artifacts.
     - When *pr_number* is specified, searches for the latest successful
       install.yml run for that pull request.
-    - Otherwise, searches the latest successful push runs on the v2 branch
-      (default behavior for merged code).
+    - Otherwise, searches the current checkout's branch. The protected ``v2``
+      branch is restricted to successful push runs; other branches first try
+      the current HEAD (PR/workflow-dispatch builds), then the latest run for
+      that branch.
 
-    Returns (download_url, version_sha) or (None, None).
+    Returns (download_url, version_sha, digest) or (None, None, None).
     """
     if auth_headers is None:
         print(Console.info(t("inf_ci_artifact_no_token")))
-        return None, None
+        return None, None, None
 
     artifact_name = f"cpp-algo-{OS_KEYWORD}-{ARCH_KEYWORD}"
 
@@ -1012,20 +1106,20 @@ def _find_cpp_algo_in_ci(
                                      run_id=run_id, status="404", conclusion="not found")))
             else:
                 print(Console.warn(t("wrn_ci_artifact_list_runs_failed", error=e)))
-            return None, None
+            return None, None, None
         except urllib.error.URLError as e:
             print(Console.warn(t("wrn_ci_artifact_network_error", error=e.reason)))
-            return None, None
+            return None, None, None
         except Exception as e:
             print(Console.warn(t("wrn_ci_artifact_list_runs_failed", error=e)))
-            return None, None
+            return None, None, None
 
         status = run_data.get("status", "?")
         conclusion = run_data.get("conclusion", "?")
         if status != "completed" or conclusion != "success":
             print(Console.warn(t("wrn_ci_artifact_run_not_successful",
                                  run_id=run_id, status=status, conclusion=conclusion)))
-            return None, None
+            return None, None, None
 
         head_sha = run_data.get("head_sha", "")
         artifacts_url = (
@@ -1039,13 +1133,13 @@ def _find_cpp_algo_in_ci(
                 print(Console.warn(t("wrn_ci_artifact_rate_limited", code=e.code)))
             else:
                 print(Console.warn(t("wrn_ci_artifact_list_artifacts_failed", error=e)))
-            return None, None
+            return None, None, None
         except urllib.error.URLError as e:
             print(Console.warn(t("wrn_ci_artifact_network_error", error=e.reason)))
-            return None, None
+            return None, None, None
         except Exception as e:
             print(Console.warn(t("wrn_ci_artifact_list_artifacts_failed", error=e)))
-            return None, None
+            return None, None, None
 
         for artifact in artifacts_data.get("artifacts", []):
             if artifact.get("name") == artifact_name and not artifact.get("expired", False):
@@ -1055,10 +1149,10 @@ def _find_cpp_algo_in_ci(
                     f"artifacts/{artifact_id}/zip"
                 )
                 print(Console.ok(t("inf_ci_artifact_found", sha=head_sha[:7])))
-                return download_url, head_sha
+                return download_url, head_sha, parse_artifact_digest(artifact.get("digest"))
 
         print(Console.info(t("inf_ci_artifact_not_found")))
-        return None, None
+        return None, None, None
 
     # --- pr_number branch: search runs by PR head SHA ---
     if pr_number is not None:
@@ -1074,13 +1168,13 @@ def _find_cpp_algo_in_ci(
                 print(Console.warn(t("wrn_ci_artifact_rate_limited", code=e.code)))
             else:
                 print(Console.warn(t("wrn_ci_artifact_list_runs_failed", error=e)))
-            return None, None
+            return None, None, None
         except urllib.error.URLError as e:
             print(Console.warn(t("wrn_ci_artifact_network_error", error=e.reason)))
-            return None, None
+            return None, None, None
         except Exception as e:
             print(Console.warn(t("wrn_ci_artifact_list_runs_failed", error=e)))
-            return None, None
+            return None, None, None
 
         pr_title = pr_data.get("title", "?")
         pr_author = pr_data.get("user", {}).get("login", "?")
@@ -1100,16 +1194,16 @@ def _find_cpp_algo_in_ci(
             except urllib.error.HTTPError as e:
                 if e.code in (403, 429):
                     print(Console.warn(t("wrn_ci_artifact_rate_limited", code=e.code)))
-                    return None, None
+                    return None, None, None
                 else:
                     print(Console.warn(t("wrn_ci_artifact_list_runs_failed", error=e)))
-                    return None, None
+                    return None, None, None
             except urllib.error.URLError as e:
                 print(Console.warn(t("wrn_ci_artifact_network_error", error=e.reason)))
-                return None, None
+                return None, None, None
             except Exception as e:
                 print(Console.warn(t("wrn_ci_artifact_list_runs_failed", error=e)))
-                return None, None
+                return None, None, None
 
             sha_runs = data.get("workflow_runs", [])
             if sha_runs:
@@ -1130,16 +1224,16 @@ def _find_cpp_algo_in_ci(
         except urllib.error.HTTPError as e:
             if e.code in (403, 429):
                 print(Console.warn(t("wrn_ci_artifact_rate_limited", code=e.code)))
-                return None, None
+                return None, None, None
             else:
                 print(Console.warn(t("wrn_ci_artifact_list_runs_failed", error=e)))
-                return None, None
+                return None, None, None
         except urllib.error.URLError as e:
             print(Console.warn(t("wrn_ci_artifact_network_error", error=e.reason)))
-            return None, None
+            return None, None, None
         except Exception as e:
             print(Console.warn(t("wrn_ci_artifact_list_runs_failed", error=e)))
-            return None, None
+            return None, None, None
 
         all_runs = data.get("workflow_runs", [])
         pr_runs = [
@@ -1155,41 +1249,74 @@ def _find_cpp_algo_in_ci(
                 return result
 
         print(Console.info(t("inf_ci_artifact_pr_no_runs", pr=pr_number)))
-        return None, None
+        return None, None, None
 
-    # --- default branch: latest successful push runs on v2 ---
-    print(Console.info(t("inf_ci_artifact_search", name=artifact_name)))
+    # --- default branch: use the checkout's branch, with v2 kept as the
+    # protected default when a detached checkout has no branch name. ---
+    checkout_branch = branch if branch is not None else _current_git_branch()
+    branch = checkout_branch or MAIN_BRANCH
+    print(Console.info(t("inf_ci_artifact_search_branch", name=artifact_name, branch=branch)))
+
+    def _search_runs(runs_url: str) -> tuple[str | None, str | None, str | None]:
+        try:
+            data = _github_api_get(runs_url, auth_headers)
+        except urllib.error.HTTPError as e:
+            if e.code in (403, 429):
+                print(Console.warn(t("wrn_ci_artifact_rate_limited", code=e.code)))
+            else:
+                print(Console.warn(t("wrn_ci_artifact_list_runs_failed", error=e)))
+            return None, None, None
+        except urllib.error.URLError as e:
+            print(Console.warn(t("wrn_ci_artifact_network_error", error=e.reason)))
+            return None, None, None
+        except Exception as e:
+            print(Console.warn(t("wrn_ci_artifact_list_runs_failed", error=e)))
+            return None, None, None
+
+        runs = data.get("workflow_runs", [])
+        if not runs:
+            return None, None, None
+        result = _find_cpp_algo_artifact_in_runs(auth_headers, runs, artifact_name)
+        return result
+
+    # Only a normalized non-main branch may use the current HEAD as a precise
+    # match. Detached checkouts normalize to v2 and must stay on its push-only
+    # artifact path.
+    if branch != MAIN_BRANCH:
+        head_sha = _current_git_head_sha()
+        if head_sha:
+            head_query = urlencode({
+                "head_sha": head_sha,
+                "status": "success",
+                "per_page": "20",
+            })
+            result = _search_runs(
+                f"https://api.github.com/repos/{MAAEND_REPO}/actions/workflows/"
+                f"install.yml/runs?{head_query}"
+            )
+            if result[0] is not None:
+                return result
+
+    branch_query = {
+        "branch": branch,
+        "status": "success",
+        "per_page": "20",
+    }
+    # install.yml is only push-triggered on v2. Keep that invariant explicit;
+    # non-main branches are searched across PR/dispatch runs instead.
+    if branch == MAIN_BRANCH:
+        branch_query["event"] = "push"
     runs_url = (
         f"https://api.github.com/repos/{MAAEND_REPO}/actions/workflows/"
-        f"install.yml/runs?branch=v2&status=success&event=push&per_page=10"
+        f"install.yml/runs?{urlencode(branch_query, quote_via=quote)}"
     )
-
-    try:
-        data = _github_api_get(runs_url, auth_headers)
-    except urllib.error.HTTPError as e:
-        if e.code in (403, 429):
-            print(Console.warn(t("wrn_ci_artifact_rate_limited", code=e.code)))
-        else:
-            print(Console.warn(t("wrn_ci_artifact_list_runs_failed", error=e)))
-        return None, None
-    except urllib.error.URLError as e:
-        print(Console.warn(t("wrn_ci_artifact_network_error", error=e.reason)))
-        return None, None
-    except Exception as e:
-        print(Console.warn(t("wrn_ci_artifact_list_runs_failed", error=e)))
-        return None, None
-
-    runs = data.get("workflow_runs", [])
-    if not runs:
-        print(Console.info(t("inf_ci_artifact_no_runs")))
-        return None, None
-
-    result = _find_cpp_algo_artifact_in_runs(auth_headers, runs, artifact_name)
+    result = _search_runs(runs_url)
     if result[0] is not None:
         return result
 
+    print(Console.info(t("inf_ci_artifact_no_runs", branch=branch)))
     print(Console.info(t("inf_ci_artifact_not_found")))
-    return None, None
+    return None, None, None
 
 
 def install_cpp_algo(
@@ -1214,17 +1341,34 @@ def install_cpp_algo(
     # Try to grab just the cpp-algo binary from a recent successful workflow run.
     # Default: latest v2 push. Optionally: from a specific PR or run ID.
     auth_headers = _github_auth_headers()
-    ci_url, ci_version = _find_cpp_algo_in_ci(
+    ci_url, ci_version, ci_digest = _find_cpp_algo_in_ci(
         auth_headers, pr_number=pr_number, run_id=run_id,
     )
 
     # When a specific PR/run was requested but no artifact was found, fall
-    # back to the default CI search (latest v2 push) before trying a release.
+    # back to the current checkout's branch before trying a release.
     if ci_url is None and (pr_number is not None or run_id is not None):
         print(Console.warn(t("wrn_ci_artifact_pr_run_not_found_fallback")))
-        ci_url, ci_version = _find_cpp_algo_in_ci(auth_headers)
+        ci_url, ci_version, ci_digest = _find_cpp_algo_in_ci(auth_headers)
 
     if ci_url:
+        # Fast path: the remote artifact is byte-identical (same GitHub digest)
+        # to the one we last downloaded — no need to re-download.
+        local_versions = read_versions_file(install_root / VERSION_FILE_NAME)
+        local_digest = local_versions.get("cpp_algo_sha256")
+        if (
+            update_mode
+            and cpp_algo_installed
+            and ci_digest is not None
+            and local_digest
+            and ci_digest == local_digest
+        ):
+            print(Console.ok(t("inf_cpp_algo_digest_match", sha=ci_digest[:16])))
+            return True, local_version, False
+
+        if update_mode and cpp_algo_installed and ci_digest is None:
+            print(Console.warn(t("wrn_cpp_algo_digest_unavailable")))
+
         ci_should_skip = (
             update_mode
             and cpp_algo_installed
@@ -1297,8 +1441,10 @@ def install_cpp_algo(
                         print(Console.ok(t("inf_cpp_algo_install_complete")))
                         cleanup_cache_file(ci_download_path)
                         version_to_write = ci_version or local_version
-                        if version_to_write:
-                            _update_component_version(install_root, "cpp_algo", version_to_write)
+                        _update_versions(install_root, {
+                            "cpp_algo": version_to_write,
+                            "cpp_algo_sha256": ci_digest,
+                        })
                         return True, version_to_write, True
                 except PermissionError:
                     # User declined the retry prompt — release fallback would
@@ -1412,8 +1558,11 @@ def install_cpp_algo(
             print(Console.ok(t("inf_cpp_algo_install_complete")))
             cleanup_cache_file(download_path)
             version_to_write = remote_version or local_version
+            # 走 Release 回退安装成功：清除 CI artifact digest 记录，避免旧 digest
+            # 在新一轮 CI 恢复后误判"一致"而跳过下载。
             if version_to_write:
                 _update_component_version(install_root, "cpp_algo", version_to_write)
+            _update_versions(install_root, {"cpp_algo_sha256": None})
             return True, version_to_write, True
         except Exception as e:
             traceback.print_exc()

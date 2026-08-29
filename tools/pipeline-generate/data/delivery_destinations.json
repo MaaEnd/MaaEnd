@@ -3,8 +3,10 @@
         "name": "取自 DomainDepotBuyerTable.buyerName；普通收货任务用作 OCR 目标，回收站任务仅保留为数据标识",
         "mission": "委托目标文案，已剥掉 <@qu.key>…</> 富文本标签；回收站任务用作 OCR 目标，同区域重复时保持歧义失败",
         "area": "任务详情页显示的关卡名，取自 LevelDescTable.showName",
+        "serial_id": "资源回收站在当前区域内显示的序号，取自 RecycleBinTable.serialId",
         "depot_id": "该终点所属仓储节点 ID；没有同层仓储节点时为空字符串",
-        "depots": "仓储节点坐标，按 DomainDepotTable.id 精确关联 LevelMapMark.markInstId"
+        "depots": "仓储节点坐标，按 DomainDepotTable.id 精确关联 LevelMapMark.markInstId；yaw 为朝向（绕 Y 轴欧拉角，度），取自 LevelData 交互实体 rotation.y，缺省为 0",
+        "destinations": "普通收货 NPC 的 yaw 取自 NpcProxyTable.rotation.y；资源回收站的 yaw 取自 LevelData 交互实体 rotation.y 并翻转 180 度，缺省为 0"
     },
     "maps": {
         "map01": {
@@ -48,7 +50,8 @@
             },
             "map": "map01",
             "u": 1043.463,
-            "v": 804.72
+            "v": 804.72,
+            "yaw": 0.0
         },
         {
             "id": "domain_1_lv006_depot_1",
@@ -61,7 +64,8 @@
             },
             "map": "map01",
             "u": 912.255,
-            "v": 263.96
+            "v": 263.96,
+            "yaw": 262.276
         },
         {
             "id": "domain_1_lv007_depot_1",
@@ -74,7 +78,8 @@
             },
             "map": "map01",
             "u": 635.995,
-            "v": 230.292
+            "v": 230.292,
+            "yaw": 180.818
         },
         {
             "id": "domain_2_lv002_depot_1",
@@ -87,7 +92,8 @@
             },
             "map": "map02",
             "u": 950.498,
-            "v": 1832.767
+            "v": 1832.767,
+            "yaw": 80.0
         },
         {
             "id": "domain_2_lv005_depot_1",
@@ -100,7 +106,8 @@
             },
             "map": "map02",
             "u": 1252.425,
-            "v": 1752.923
+            "v": 1752.923,
+            "yaw": 0.0
         }
     ],
     "destinations": [
@@ -131,7 +138,8 @@
             "depot_id": "domain_1_lv005_depot_1",
             "map": "map01",
             "u": 1132.831,
-            "v": 900.497
+            "v": 900.497,
+            "yaw": 208.2103
         },
         {
             "id": "deliver_target_map01_lv005_02",
@@ -160,7 +168,8 @@
             "depot_id": "domain_1_lv005_depot_1",
             "map": "map01",
             "u": 1161.842,
-            "v": 826.062
+            "v": 826.062,
+            "yaw": 166.20575
         },
         {
             "id": "deliver_target_map01_lv005_03",
@@ -189,11 +198,13 @@
             "depot_id": "domain_1_lv005_depot_1",
             "map": "map01",
             "u": 968.209,
-            "v": 824.369
+            "v": 824.369,
+            "yaw": 130.92804
         },
         {
             "id": "deliver_target_map01_lv005_recycle_02",
             "kind": "recycle_bin",
+            "serial_id": 1,
             "name": {
                 "zh_cn": "学术复读羽兽",
                 "zh_tw": "學術重修羽獸",
@@ -218,11 +229,13 @@
             "depot_id": "domain_1_lv005_depot_1",
             "map": "map01",
             "u": 905.299,
-            "v": 764.145
+            "v": 764.145,
+            "yaw": 90.0
         },
         {
             "id": "deliver_target_map01_lv005_recycle_03",
             "kind": "recycle_bin",
+            "serial_id": 2,
             "name": {
                 "zh_cn": "采购-醇化合物工厂模组",
                 "zh_tw": "採購-醇化合物工廠模組",
@@ -247,7 +260,8 @@
             "depot_id": "domain_1_lv005_depot_1",
             "map": "map01",
             "u": 1183.458,
-            "v": 817.116
+            "v": 817.116,
+            "yaw": 315.0
         },
         {
             "id": "deliver_target_map01_lv006_01",
@@ -276,7 +290,8 @@
             "depot_id": "domain_1_lv006_depot_1",
             "map": "map01",
             "u": 1132.593,
-            "v": 471.222
+            "v": 471.222,
+            "yaw": 0.0
         },
         {
             "id": "deliver_target_map01_lv006_02",
@@ -305,7 +320,8 @@
             "depot_id": "domain_1_lv006_depot_1",
             "map": "map01",
             "u": 1192.373,
-            "v": 433.958
+            "v": 433.958,
+            "yaw": 135.913422
         },
         {
             "id": "deliver_target_map01_lv006_03",
@@ -334,11 +350,13 @@
             "depot_id": "domain_1_lv006_depot_1",
             "map": "map01",
             "u": 1172.391,
-            "v": 443.451
+            "v": 443.451,
+            "yaw": 353.3304
         },
         {
             "id": "deliver_target_map01_lv006_recycle_01",
             "kind": "recycle_bin",
+            "serial_id": 1,
             "name": {
                 "zh_cn": "“不是废品佬”",
                 "zh_tw": "「不是資源回收人」",
@@ -363,11 +381,13 @@
             "depot_id": "domain_1_lv006_depot_1",
             "map": "map01",
             "u": 1048.016,
-            "v": 429.484
+            "v": 429.484,
+            "yaw": 319.641
         },
         {
             "id": "deliver_target_map01_lv006_recycle_03",
             "kind": "recycle_bin",
+            "serial_id": 2,
             "name": {
                 "zh_cn": "采购-矿区医疗站模组",
                 "zh_tw": "採購-礦區醫療站模組",
@@ -392,7 +412,8 @@
             "depot_id": "domain_1_lv006_depot_1",
             "map": "map01",
             "u": 1078.905,
-            "v": 504.33
+            "v": 504.33,
+            "yaw": 285.156
         },
         {
             "id": "deliver_target_map01_lv007_01",
@@ -421,7 +442,8 @@
             "depot_id": "domain_1_lv007_depot_1",
             "map": "map01",
             "u": 616.693,
-            "v": 130.125
+            "v": 130.125,
+            "yaw": 89.1596451
         },
         {
             "id": "deliver_target_map01_lv007_02",
@@ -450,7 +472,8 @@
             "depot_id": "domain_1_lv007_depot_1",
             "map": "map01",
             "u": 527.836,
-            "v": 241.566
+            "v": 241.566,
+            "yaw": 179.720016
         },
         {
             "id": "deliver_target_map01_lv007_03",
@@ -479,11 +502,13 @@
             "depot_id": "domain_1_lv007_depot_1",
             "map": "map01",
             "u": 681.185,
-            "v": 390.687
+            "v": 390.687,
+            "yaw": 195.447449
         },
         {
             "id": "deliver_target_map01_lv007_recycle_02",
             "kind": "recycle_bin",
+            "serial_id": 1,
             "name": {
                 "zh_cn": "无畏的工团成员",
                 "zh_tw": "無畏的工團成員",
@@ -508,11 +533,13 @@
             "depot_id": "domain_1_lv007_depot_1",
             "map": "map01",
             "u": 502.664,
-            "v": 251.902
+            "v": 251.902,
+            "yaw": 0.0
         },
         {
             "id": "deliver_target_map01_lv007_recycle_03",
             "kind": "recycle_bin",
+            "serial_id": 2,
             "name": {
                 "zh_cn": "采购-超域试验场物资模组",
                 "zh_tw": "採購-超域實驗場物資模組",
@@ -537,7 +564,8 @@
             "depot_id": "domain_1_lv007_depot_1",
             "map": "map01",
             "u": 615.071,
-            "v": 397.166
+            "v": 397.166,
+            "yaw": 180.0
         },
         {
             "id": "deliver_target_map02_lv002_01",
@@ -566,7 +594,8 @@
             "depot_id": "domain_2_lv002_depot_1",
             "map": "map02",
             "u": 538.031,
-            "v": 1250.27
+            "v": 1250.27,
+            "yaw": 96.23967
         },
         {
             "id": "deliver_target_map02_lv002_02",
@@ -595,7 +624,8 @@
             "depot_id": "domain_2_lv002_depot_1",
             "map": "map02",
             "u": 461.92,
-            "v": 1712.802
+            "v": 1712.802,
+            "yaw": 88.53024
         },
         {
             "id": "deliver_target_map02_lv002_03",
@@ -624,11 +654,13 @@
             "depot_id": "domain_2_lv002_depot_1",
             "map": "map02",
             "u": 894.615,
-            "v": 1408.425
+            "v": 1408.425,
+            "yaw": 178.0259
         },
         {
             "id": "deliver_target_map02_lv002_recycle_01",
             "kind": "recycle_bin",
+            "serial_id": 1,
             "name": {
                 "zh_cn": "火锅探店达人",
                 "zh_tw": "火鍋試吃達人",
@@ -653,7 +685,8 @@
             "depot_id": "domain_2_lv002_depot_1",
             "map": "map02",
             "u": 513.135,
-            "v": 1650.773
+            "v": 1650.773,
+            "yaw": 180.0
         },
         {
             "id": "deliver_target_map02_lv005_01",
@@ -682,7 +715,8 @@
             "depot_id": "domain_2_lv005_depot_1",
             "map": "map02",
             "u": 1383.764,
-            "v": 1633.923
+            "v": 1633.923,
+            "yaw": 262.955322
         },
         {
             "id": "deliver_target_map02_lv005_02",
@@ -711,7 +745,8 @@
             "depot_id": "domain_2_lv005_depot_1",
             "map": "map02",
             "u": 1083.307,
-            "v": 1455.27
+            "v": 1455.27,
+            "yaw": 212.518326
         },
         {
             "id": "deliver_target_map02_lv005_03",
@@ -740,7 +775,8 @@
             "depot_id": "domain_2_lv005_depot_1",
             "map": "map02",
             "u": 1369.873,
-            "v": 1533.922
+            "v": 1533.922,
+            "yaw": 283.525238
         }
     ]
 }

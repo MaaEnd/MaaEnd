@@ -2133,23 +2133,7 @@
                             }
                         }
                     },
-                    {
-                        "recognition": {
-                            "type": "TemplateMatch",
-                            "param": {
-                                "roi": [
-                                    0,
-                                    0,
-                                    400,
-                                    80
-                                ],
-                                "template": [
-                                    "SceneManager/WorldDijiangMenu.png"
-                                ],
-                                "green_mask": true
-                            }
-                        }
-                    },
+                    "InDijiangWorld",
                     {
                         "recognition": {
                             "type": "TemplateMatch",

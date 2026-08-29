@@ -5,6 +5,7 @@ package gamesetting
 import (
 	"errors"
 	"fmt"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -15,6 +16,11 @@ import (
 const (
 	registryPathCN     = `Software\Hypergryph\Endfield`
 	registryPathGlobal = `Software\Gryphline\Endfield`
+
+	userGpuPreferencesPath = `Software\Microsoft\DirectX\UserGpuPreferences`
+	autoHDREnableKey       = "AutoHDREnable"
+	autoHDRDisabledValue   = "2096"
+	autoHDREnabledValue    = "2097"
 )
 
 var registryPath = registryPathCN
@@ -407,4 +413,92 @@ func parseResolution(resolution string) (uint32, uint32, error) {
 		return 0, 0, fmt.Errorf("gamesetting: resolution %q is invalid", resolution)
 	}
 	return uint32(width), uint32(height), nil
+}
+
+// ApplyAutoHDR 按 mode 写入按应用自动 HDR：Unchanged 不改；Disable=2096；Enable=2097。
+func ApplyAutoHDR(mode string) error {
+	var value string
+	switch strings.TrimSpace(mode) {
+	case "", optionUnchanged:
+		return nil
+	case "Disable":
+		value = autoHDRDisabledValue
+	case "Enable":
+		value = autoHDREnabledValue
+	default:
+		return fmt.Errorf("gamesetting: unknown Auto HDR mode %q", mode)
+	}
+
+	k, err := registry.OpenKey(registry.CURRENT_USER, userGpuPreferencesPath, registry.QUERY_VALUE|registry.SET_VALUE)
+	if err != nil {
+		if errors.Is(err, registry.ErrNotExist) {
+			log.Info().
+				Str("component", "gamesetting").
+				Str("mode", mode).
+				Msg("skip Auto HDR: UserGpuPreferences key not found")
+			return nil
+		}
+		return fmt.Errorf("gamesetting: open %q failed: %w", userGpuPreferencesPath, err)
+	}
+	defer k.Close()
+
+	names, err := k.ReadValueNames(-1)
+	if err != nil {
+		return fmt.Errorf("gamesetting: enumerate values under %q failed: %w", userGpuPreferencesPath, err)
+	}
+
+	target := autoHDREnableKey + "=" + value
+	matched := 0
+	for _, name := range names {
+		name = strings.TrimSpace(name)
+		if name == "" || !strings.EqualFold(filepath.Base(name), endfieldProcessName) {
+			continue
+		}
+
+		existing, _, err := k.GetStringValue(name)
+		if err != nil && !errors.Is(err, registry.ErrNotExist) {
+			return fmt.Errorf("gamesetting: read UserGpuPreferences %q failed: %w", name, err)
+		}
+
+		if err := k.SetStringValue(name, mergeAutoHDRValue(existing, target)); err != nil {
+			return fmt.Errorf("gamesetting: write UserGpuPreferences %q failed: %w", name, err)
+		}
+		matched++
+		log.Info().
+			Str("component", "gamesetting").
+			Str("exe_path", name).
+			Str("mode", mode).
+			Str("value", value).
+			Msg("applied Auto HDR for Endfield.exe")
+	}
+	if matched == 0 {
+		log.Info().
+			Str("component", "gamesetting").
+			Str("mode", mode).
+			Msg("skip Auto HDR: no Endfield.exe value under UserGpuPreferences")
+	}
+	return nil
+}
+
+func mergeAutoHDRValue(existing, target string) string {
+	parts := strings.Split(existing, ";")
+	var out []string
+	found := false
+	for _, part := range parts {
+		part = strings.TrimSpace(part)
+		if part == "" {
+			continue
+		}
+		eq := strings.IndexByte(part, '=')
+		if eq > 0 && strings.EqualFold(part[:eq], autoHDREnableKey) {
+			out = append(out, target)
+			found = true
+			continue
+		}
+		out = append(out, part)
+	}
+	if !found {
+		out = append(out, target)
+	}
+	return strings.Join(out, ";") + ";"
 }

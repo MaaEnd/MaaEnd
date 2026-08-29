@@ -23,12 +23,14 @@ const PACK_CARGO_EXPECTED = [
 
 const AUTO_DELIVERY_CONTROLLERS = [
     "Win32-Front",
-    "Linux-Wlroots",
+    "Linux-Gamescope",
+    "Linux-ScreenCast",
+    "Linux-Wlroots"
 ];
 
-const AUTO_DELIVERY_RECOGNIZE_NODES = [
-    "AutoDeliveryRecognizeDepot",
-    "AutoDeliveryRecognizeDestination",
+const AUTO_DELIVERY_NAVIGATE_NODES = [
+    "AutoDeliveryNavigateDepot",
+    "AutoDeliveryNavigateDestination",
 ];
 
 function buildCargoAnchor(
@@ -305,10 +307,10 @@ function buildAutoDeliveryPreferZiplineOption() {
     const buildCase = (name, zip) => ({
         name,
         pipeline_override: Object.fromEntries(
-            AUTO_DELIVERY_RECOGNIZE_NODES.map((node) => [
+            AUTO_DELIVERY_NAVIGATE_NODES.map((node) => [
                 node,
                 {
-                    custom_action_param: {
+                    attach: {
                         zip,
                     },
                 },
@@ -508,7 +510,7 @@ export default function buildDeliveryJobsTask() {
                     "MacOS-Background",
                     "MacOS-Front",
                     "PlayCover",
-                    "Win32-Front"
+                    "Win32-Front",
                 ],
                 group: [
                     "regional_development",

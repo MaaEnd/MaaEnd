@@ -179,6 +179,11 @@ export function getZoneIds() {
   return getJson('/api/zone-ids');
 }
 
+/** World-coordinate calibration used only to display ZIP-local Ziplines.json marks. */
+export function getZiplineFrames() {
+  return getJson('/api/zipline-frames');
+}
+
 /**
  * Request an A* preview route. Resolves the backend payload verbatim, including the
  * `{ok:false, error}` "unreachable" case (see module note).
@@ -196,7 +201,7 @@ export function getZoneIds() {
  *
  * @param {{zone_id:number, start:number[], goal:number[], snap_radius?:number, floor_y?:?number,
  *   goal_deck_y?:?number}} req
- * @returns {Promise<{ok:boolean, points?:number[][], segment_breaks?:number[], cost?:number,
+ * @returns {Promise<{ok:boolean, points?:number[][], segment_breaks?:number[], cost?:number, debug?:Object,
  *   blind_start?:?{entry:number[], distance:number, reason:string},
  *   blind_target?:?{reached:number[], gap:number, reason:string},
  *   off_mesh?:{start:?OffMeshProbe, goal:?OffMeshProbe}, error?:string}>}
@@ -209,6 +214,28 @@ export function postRoute(req) {
     snap_radius: req.snap_radius === undefined ? 5.0 : req.snap_radius,
     floor_y: req.floor_y === undefined ? null : req.floor_y,
     goal_deck_y: req.goal_deck_y === undefined ? null : req.goal_deck_y,
+  });
+}
+
+/**
+ * Expand a complete MapNavigator request with the runtime planner. Unlike
+ * {@link postRoute}, this preserves global route boundaries and zipline semantics.
+ *
+ * @param {{position:number[], position_zone:string, custom_action_param:Object}} req
+ * @returns {Promise<{ok:boolean, stale?:boolean, points?:number[][],
+ *   walk_segments?:number[][][], zipline_segments?:Array<Object>,
+ *   diagnostics?:Array<Object>, expanded_waypoints?:number, zipline?:Object, error?:string,
+ *   failure?:{code:string, message:string, authored_index?:number, zone_id?:string,
+ *     segment_start?:number[], segment_goal?:number[], gap_start?:number[], gap_goal?:number[], gap_distance?:number,
+ *     target?:number[],
+ *     target_tier?:string, target_deck_y?:number,
+ *     route_status?:string, route_error?:string}}>}
+ */
+export function postRoutePreview(req) {
+  return sendJson('/api/route-preview', {
+    position: req.position,
+    position_zone: req.position_zone,
+    custom_action_param: req.custom_action_param,
   });
 }
 
@@ -266,15 +293,39 @@ export function locateOnce(connection) {
   return sendJson('/api/locate-once', { connection });
 }
 
-// --- import / export (backend keeps json_import.py / maptracker_compat.py) ------------
+// --- import / export (backend keeps json_import.py) -----------------------------------
+
+/**
+ * Importable MapNavigateAction / MapLocateAssertLocation nodes under project assets.
+ * @returns {Promise<{nodes:Array<Object>}>}
+ */
+export function getProjectNodes() {
+  return getJson('/api/project-nodes');
+}
+
+/**
+ * Load one previously discovered project node. The backend revalidates that
+ * `resourcePath` still resolves inside project assets before reading it.
+ * @param {'path'|'assert'} kind import node kind
+ * @param {string} resourcePath project-relative assets path
+ * @param {string} nodeName top-level Pipeline node name
+ * @returns {Promise<Object>}
+ */
+export function loadProjectNode(kind, resourcePath, nodeName) {
+  return sendJson('/api/project-nodes/load', {
+    kind,
+    resource_path: resourcePath,
+    node_name: nodeName,
+  });
+}
 
 /**
  * Analyze an uploaded JSON (phase 1 of import, mirrors the head of tk `import_json`).
  * The backend tries a route import first, falling back to an AssertLocation import.
  * Discriminated by `kind`:
- *   - `{ok:true, kind:'path', needs_assignment:false, points, route_count, converted_count}`
- *   - `{ok:true, kind:'path', needs_assignment:true, raw_points, segments, zone_options, route_count, converted_count}`
- *   - `{ok:true, kind:'assert', zone_id, target, condition_count, converted_from_maptracker}`
+ *   - `{ok:true, kind:'path', needs_assignment:false, points, route_count}`
+ *   - `{ok:true, kind:'path', needs_assignment:true, raw_points, segments, zone_options, route_count}`
+ *   - `{ok:true, kind:'assert', zone_id, target, condition_count}`
  *   - `{ok:false, error}` (verbatim Chinese message)
  * @param {string} text raw file contents
  * @returns {Promise<Object>}
@@ -285,10 +336,10 @@ export function importAnalyze(text) {
 
 /**
  * Finalize a route import after the user assigns a zone per segment (phase 2, mirrors
- * tk `confirm()` + the post-dialog convert/infer/normalize tail).
+ * tk `confirm()` + the post-dialog normalize tail).
  * @param {Array<Object>} rawPoints the `raw_points` from {@link importAnalyze}
  * @param {Array<{start:number, end:number, zone:string}>} zoneAssignments per-segment zone
- * @returns {Promise<{ok:boolean, points?:Array<Object>, converted_count?:number, error?:string}>}
+ * @returns {Promise<{ok:boolean, points?:Array<Object>, error?:string}>}
  */
 export function importFinalize(rawPoints, zoneAssignments) {
   return sendJson('/api/import/finalize', { raw_points: rawPoints, zone_assignments: zoneAssignments });
@@ -471,7 +522,7 @@ export class NavTestSocket extends SessionSocket {
   /**
    * Open the session and walk `route` as soon as the game is connected.
    * @param {Object} sessionConfig `{kind:'win32'|'adb'|..., win32?, adb?}`
-   * @param {{path: Array, exported: boolean, assert_target: ?Object}} route see {@link NavTestSocket#arm}
+   * @param {{path: Array, exported: boolean, zip?: boolean, assert_target: ?Object}} route see {@link NavTestSocket#arm}
    * @returns {void}
    */
   start(sessionConfig, route) {
@@ -482,7 +533,7 @@ export class NavTestSocket extends SessionSocket {
    * Load what F3 (and the next `run`) will run. `exported` false means editor waypoints
    * the backend still has to export, true means ready pipeline nodes. `assert_target`
    * `{zone_id, target:[x,y,w,h]}` runs the assert rect instead and wins over `path`.
-   * @param {{path: Array, exported: boolean, assert_target: ?Object}} route
+   * @param {{path: Array, exported: boolean, zip?: boolean, assert_target: ?Object}} route
    * @returns {void}
    */
   arm(route) {
@@ -494,11 +545,12 @@ export class NavTestSocket extends SessionSocket {
     this._send({ type: 'run', ...this._route(route) });
   }
 
-  /** @returns {{path: Array, exported: boolean, assert_target: ?Object}} */
+  /** @returns {{path: Array, exported: boolean, zip: boolean, assert_target: ?Object}} */
   _route(route) {
     return {
       path: (route && route.path) || [],
       exported: !!(route && route.exported),
+      zip: !!(route && route.zip),
       assert_target: (route && route.assert_target) || null,
     };
   }

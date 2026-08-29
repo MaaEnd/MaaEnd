@@ -3,7 +3,7 @@
         {
             "name": "AutoEssence",
             "label": "$task.AutoEssence.label",
-            "entry": "AutoEssenceMain",
+            "entry": "AutoEssenceSchedule",
             "description": "$task.AutoEssence.description",
             "controller": [
                 "ADB",
@@ -14,6 +14,7 @@
                 "Win32-Front"
             ],
             "option": [
+                "AutoEssenceSchedule",
                 "AutoEssenceChooseLocation",
                 "AutoEssenceObtainMode",
                 "AutoEssenceRepeatCount",
@@ -29,6 +30,98 @@
         }
     ],
     "option": {
+        "AutoEssenceSchedule": {
+            "type": "checkbox",
+            "label": "$option.TaskSchedule.label",
+            "default_case": [
+                "AutoEssenceScheduleMonday",
+                "AutoEssenceScheduleTuesday",
+                "AutoEssenceScheduleWednesday",
+                "AutoEssenceScheduleThursday",
+                "AutoEssenceScheduleFriday",
+                "AutoEssenceScheduleSaturday",
+                "AutoEssenceScheduleSunday"
+            ],
+            "cases": [
+                {
+                    "name": "AutoEssenceScheduleMonday",
+                    "label": "$option.TaskScheduleMonday.label",
+                    "pipeline_override": {
+                        "AutoEssenceScheduleEnabled": {
+                            "attach": {
+                                "monday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "AutoEssenceScheduleTuesday",
+                    "label": "$option.TaskScheduleTuesday.label",
+                    "pipeline_override": {
+                        "AutoEssenceScheduleEnabled": {
+                            "attach": {
+                                "tuesday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "AutoEssenceScheduleWednesday",
+                    "label": "$option.TaskScheduleWednesday.label",
+                    "pipeline_override": {
+                        "AutoEssenceScheduleEnabled": {
+                            "attach": {
+                                "wednesday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "AutoEssenceScheduleThursday",
+                    "label": "$option.TaskScheduleThursday.label",
+                    "pipeline_override": {
+                        "AutoEssenceScheduleEnabled": {
+                            "attach": {
+                                "thursday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "AutoEssenceScheduleFriday",
+                    "label": "$option.TaskScheduleFriday.label",
+                    "pipeline_override": {
+                        "AutoEssenceScheduleEnabled": {
+                            "attach": {
+                                "friday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "AutoEssenceScheduleSaturday",
+                    "label": "$option.TaskScheduleSaturday.label",
+                    "pipeline_override": {
+                        "AutoEssenceScheduleEnabled": {
+                            "attach": {
+                                "saturday": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "AutoEssenceScheduleSunday",
+                    "label": "$option.TaskScheduleSunday.label",
+                    "pipeline_override": {
+                        "AutoEssenceScheduleEnabled": {
+                            "attach": {
+                                "sunday": true
+                            }
+                        }
+                    }
+                }
+            ]
+        },
         "AutoEssenceChooseLocation": {
             "type": "checkbox",
             "label": "$option.AutoEssenceChooseLocation.label",

@@ -17,6 +17,8 @@ from typing import Any
 
 from tablecfg_utils import (
     DATA_DIR,
+    DEFAULT_JSON_DATA_DIR,
+    DEFAULT_TABLE_CFG_DIR,
     LOCALE_TABLES,
     TableCfgError,
     assert_list,
@@ -34,11 +36,14 @@ LABEL = "DeliveryDestinations"
 REPO_ROOT = DATA_DIR.parents[2]
 OUTPUT_PATH = DATA_DIR / "delivery_destinations.json"
 USER_AGENT = "MaaEnd-pipeline"
+DEFAULT_GAMEPLAY_CONFIG_DIR = DEFAULT_JSON_DATA_DIR / "GameplayConfig"
+DEFAULT_LEVEL_DATA_DIR = DEFAULT_JSON_DATA_DIR / "LevelData"
 
 TABLE_NAMES = (
     "DomainDepotTable.json",
     "DomainDepotDeliverTargetTable.json",
     "DomainDepotBuyerTable.json",
+    "RecycleBinTable.json",
     "LevelDescTable.json",
     *LOCALE_TABLES,
 )
@@ -67,6 +72,15 @@ NAV_GEO_TAG = b"BGEO"
 NAV_GEO_HEADER = 72
 
 RICH_TEXT_TAG = re.compile(r"<[^<>]*>")
+
+DEPOT_INTERACTIVE_ID = "int_system_domain_depot"
+DEPOT_SYSTEM_COMPONENT = "DomainDepotSystemComponent"
+RECYCLE_INTERACTIVE_ID = "int_doodad_core_recycle"
+RECYCLE_SYSTEM_COMPONENT = "RecycleBinSystemComponent"
+INTERACTIVE_COMPONENTS = {
+    DEPOT_INTERACTIVE_ID: DEPOT_SYSTEM_COMPONENT,
+    RECYCLE_INTERACTIVE_ID: RECYCLE_SYSTEM_COMPONENT,
+}
 
 ENTITY_TYPE_NPC_PROXY = 1
 ENTITY_TYPE_RECYCLE_BIN = 2
@@ -281,17 +295,27 @@ def locate_target(
     npc_positions: dict[str, Any],
     mark_index: dict[str, dict[str, Any]],
     label: str,
-) -> tuple[float, float]:
+) -> tuple[float, float, float]:
     if entity_type == ENTITY_TYPE_NPC_PROXY:
         npc = assert_record(
             npc_positions.get(entity_key), f"{label} 在 NpcProxyTable 中的 {entity_key}"
         )
-        return read_xz(npc.get("position"), f"NpcProxyTable[{entity_key}].position")
+        x, z = read_xz(npc.get("position"), f"NpcProxyTable[{entity_key}].position")
+        rotation = npc.get("rotation")
+        rotation_record = rotation if isinstance(rotation, dict) else {}
+        return (
+            x,
+            z,
+            read_yaw(
+                rotation_record.get("y"), f"NpcProxyTable[{entity_key}].rotation.y"
+            ),
+        )
 
     basic = mark_index.get(entity_key)
     if basic is None:
         raise TableCfgError(f"{label} 在 LevelMapMark 中没有 {entity_key}")
-    return read_xz(basic.get("pos"), f"LevelMapMark[{entity_key}].pos")
+    x, z = read_xz(basic.get("pos"), f"LevelMapMark[{entity_key}].pos")
+    return x, z, 0.0
 
 
 def strip_rich_text(names: dict[str, str], label: str) -> dict[str, str]:
@@ -302,6 +326,143 @@ def strip_rich_text(names: dict[str, str], label: str) -> dict[str, str]:
             raise TableCfgError(f"{label} 在 {locale} 中为空")
         stripped[locale] = value
     return stripped
+
+
+def extract_system_instance_id(entity: dict[str, Any], component: str) -> str | None:
+    component_properties = entity.get("componentProperties")
+    if not isinstance(component_properties, dict):
+        return None
+    properties = component_properties.get(component)
+    if not isinstance(properties, list):
+        return None
+    for property_value in properties:
+        if not isinstance(property_value, dict):
+            continue
+        if property_value.get("key") != "system_inst_key":
+            continue
+        value = property_value.get("value")
+        if not isinstance(value, dict):
+            return None
+        values = value.get("valueArray")
+        if (
+            not isinstance(values, list)
+            or not values
+            or not isinstance(values[0], dict)
+        ):
+            return None
+        instance_id = values[0].get("valueString")
+        return str(instance_id) if instance_id else None
+    return None
+
+
+def read_yaw(value: Any, label: str) -> float:
+    if value is None:
+        return 0.0
+    if not isinstance(value, (int, float)) or isinstance(value, bool):
+        raise TableCfgError(f"{label} 不是数值")
+    return float(value)
+
+
+def reverse_yaw(yaw: float) -> float:
+    """将交互实体朝向翻转为角色正面接近方向。"""
+    return round((yaw + 180.0) % 360.0, 9)
+
+
+def build_required_pose_entities(
+    depot_table: dict[str, Any], deliver_target_table: dict[str, Any]
+) -> dict[str, set[tuple[str, str]]]:
+    required: dict[str, set[tuple[str, str]]] = {}
+    for depot_id, entry_value in sorted_entries(depot_table):
+        entry = assert_record(entry_value, f"仓储节点 {depot_id}")
+        level_id = entry.get("refLevelId")
+        if isinstance(level_id, str) and level_id:
+            required.setdefault(level_id, set()).add((DEPOT_INTERACTIVE_ID, depot_id))
+
+    for target_id, entry_value in sorted_entries(deliver_target_table):
+        entry = assert_record(entry_value, f"送货目的地 {target_id}")
+        if (
+            normalize_entity_type(entry.get("entityType"), f"送货目的地 {target_id}")
+            != ENTITY_TYPE_RECYCLE_BIN
+        ):
+            continue
+        level_id = entry.get("level")
+        entity_key = entry.get("targetId")
+        if (
+            isinstance(level_id, str)
+            and level_id
+            and isinstance(entity_key, str)
+            and entity_key
+        ):
+            required.setdefault(level_id, set()).add(
+                (RECYCLE_INTERACTIVE_ID, entity_key)
+            )
+    return required
+
+
+def load_entity_yaws(
+    level_data_dir: Path,
+    depot_table: dict[str, Any],
+    deliver_target_table: dict[str, Any],
+) -> dict[tuple[str, str], float]:
+    root = level_data_dir.expanduser().resolve()
+    if not root.is_dir():
+        raise TableCfgError(f"LevelData 目录不存在：{root}")
+
+    required_by_level = build_required_pose_entities(depot_table, deliver_target_table)
+    yaws: dict[tuple[str, str], float] = {}
+    for level_id, required in sorted(required_by_level.items()):
+        level_dir = root / level_id
+        if not level_dir.is_dir():
+            print(
+                f"[{LABEL}] 警告：LevelData 目录不存在，朝向按 0 处理：{level_dir}",
+                file=sys.stderr,
+            )
+            continue
+
+        pending = set(required)
+        for json_file in sorted(level_dir.glob("*.json")):
+            try:
+                data = assert_record(
+                    json.loads(json_file.read_text(encoding="utf-8-sig")),
+                    str(json_file),
+                )
+            except (OSError, ValueError) as error:
+                print(
+                    f"[{LABEL}] 警告：读取关卡文件失败，已跳过 {json_file}：{error}",
+                    file=sys.stderr,
+                )
+                continue
+
+            interactives = data.get("interactives", [])
+            if not isinstance(interactives, list):
+                continue
+            for entity_value in interactives:
+                if not isinstance(entity_value, dict):
+                    continue
+                interactive_id = entity_value.get("entityDataIdKey")
+                component = INTERACTIVE_COMPONENTS.get(interactive_id)
+                if component is None:
+                    continue
+                instance_id = extract_system_instance_id(entity_value, component)
+                pose_key = (str(interactive_id), instance_id or "")
+                if pose_key not in pending:
+                    continue
+                rotation = entity_value.get("rotation")
+                rotation_record = rotation if isinstance(rotation, dict) else {}
+                yaws[(level_id, instance_id or "")] = read_yaw(
+                    rotation_record.get("y"),
+                    f"{json_file} 中 {instance_id} 的 rotation.y",
+                )
+                pending.remove(pose_key)
+            if not pending:
+                break
+
+        for _interactive_id, instance_id in sorted(pending):
+            print(
+                f"[{LABEL}] 警告：{instance_id} 在 {level_id} 的 LevelData 中缺少朝向实体，yaw 按 0 处理",
+                file=sys.stderr,
+            )
+    return yaws
 
 
 def build_depots_by_level(
@@ -325,6 +486,7 @@ def build_depots(
     mark_index: dict[str, dict[str, Any]],
     zones: dict[str, dict[str, Any]],
     used_zones: dict[str, dict[str, Any]],
+    entity_yaws: dict[tuple[str, str], float],
 ) -> list[dict[str, Any]]:
     depots: list[dict[str, Any]] = []
     for depot_id, entry_value in sorted_entries(depot_table):
@@ -356,6 +518,7 @@ def build_depots(
                 "map": map_id,
                 "u": u,
                 "v": v,
+                "yaw": entity_yaws.get((level_id, depot_id), 0.0),
             }
         )
     if not depots:
@@ -367,6 +530,7 @@ def build_delivery_destinations_data(
     tables: dict[str, Any],
     gameplay_config: dict[str, Any],
     zones: dict[str, dict[str, Any]],
+    level_data_dir: Path,
 ) -> dict[str, Any]:
     deliver_target_table = assert_record(
         tables["DomainDepotDeliverTargetTable.json"], "DomainDepotDeliverTargetTable"
@@ -375,6 +539,7 @@ def build_delivery_destinations_data(
         tables["DomainDepotBuyerTable.json"], "DomainDepotBuyerTable"
     )
     depot_table = assert_record(tables["DomainDepotTable.json"], "DomainDepotTable")
+    recycle_bin_table = assert_record(tables["RecycleBinTable.json"], "RecycleBinTable")
     level_desc_table = assert_record(tables["LevelDescTable.json"], "LevelDescTable")
     locale_tables = build_locale_tables(tables)
 
@@ -388,9 +553,17 @@ def build_delivery_destinations_data(
         assert_record(gameplay_config["LevelMapMark.json"], "LevelMapMark")
     )
     depot_by_level = build_depots_by_level(depot_table)
+    entity_yaws = load_entity_yaws(level_data_dir, depot_table, deliver_target_table)
 
     used_zones: dict[str, dict[str, Any]] = {}
-    depots = build_depots(depot_table, locale_tables, mark_index, zones, used_zones)
+    depots = build_depots(
+        depot_table,
+        locale_tables,
+        mark_index,
+        zones,
+        used_zones,
+        entity_yaws,
+    )
     destinations: list[dict[str, Any]] = []
     for target_id, entry_value in sorted_entries(deliver_target_table):
         entry = assert_record(entry_value, f"送货目的地 {target_id}")
@@ -406,7 +579,28 @@ def build_delivery_destinations_data(
             raise TableCfgError(f"{label} 缺少 targetId")
 
         entity_type = normalize_entity_type(entry.get("entityType"), label)
-        x, z = locate_target(entity_type, entity_key, npc_positions, mark_index, label)
+        x, z, yaw = locate_target(
+            entity_type, entity_key, npc_positions, mark_index, label
+        )
+
+        serial_id: int | None = None
+        if entity_type == ENTITY_TYPE_RECYCLE_BIN:
+            recycle_bin = assert_record(
+                recycle_bin_table.get(entity_key),
+                f"{label} 对应的资源回收站 {entity_key}",
+            )
+            if recycle_bin.get("levelId") != level_id:
+                raise TableCfgError(
+                    f"资源回收站 {entity_key} 的层级与{label}的层级 {level_id} 不一致"
+                )
+            value = recycle_bin.get("serialId")
+            if not isinstance(value, int) or isinstance(value, bool) or value <= 0:
+                raise TableCfgError(
+                    f"资源回收站 {entity_key} 的 serialId {value!r} 无效"
+                )
+            serial_id = value
+            raw_yaw = entity_yaws.get((level_id, entity_key))
+            yaw = reverse_yaw(raw_yaw) if raw_yaw is not None else 0.0
 
         zone = used_zones.get(map_id)
         if zone is None:
@@ -431,26 +625,27 @@ def build_delivery_destinations_data(
         )
         depot = depot_by_level.get(level_id)
 
-        destinations.append(
-            {
-                "id": target_id,
-                "kind": ENTITY_TYPE_KINDS[entity_type],
-                "name": build_localized_names(
-                    buyer.get("buyerName"), locale_tables, f"收货人 {buyer_id}"
+        destination = {
+            "id": target_id,
+            "kind": ENTITY_TYPE_KINDS[entity_type],
+            **({"serial_id": serial_id} if serial_id is not None else {}),
+            "name": build_localized_names(
+                buyer.get("buyerName"), locale_tables, f"收货人 {buyer_id}"
+            ),
+            "mission": strip_rich_text(
+                build_localized_names(
+                    entry.get("missionObjDesc"), locale_tables, f"{label}任务目标"
                 ),
-                "mission": strip_rich_text(
-                    build_localized_names(
-                        entry.get("missionObjDesc"), locale_tables, f"{label}任务目标"
-                    ),
-                    f"{label}任务目标",
-                ),
-                "area": area,
-                "depot_id": depot["id"] if depot is not None else "",
-                "map": map_id,
-                "u": u,
-                "v": v,
-            }
-        )
+                f"{label}任务目标",
+            ),
+            "area": area,
+            "depot_id": depot["id"] if depot is not None else "",
+            "map": map_id,
+            "u": u,
+            "v": v,
+            "yaw": yaw,
+        }
+        destinations.append(destination)
 
     if not destinations:
         raise TableCfgError("DomainDepotDeliverTargetTable 里一个送货点都没有")
@@ -478,8 +673,16 @@ def build_delivery_destinations_data(
             "name": "取自 DomainDepotBuyerTable.buyerName；普通收货任务用作 OCR 目标，回收站任务仅保留为数据标识",
             "mission": "委托目标文案，已剥掉 <@qu.key>…</> 富文本标签；回收站任务用作 OCR 目标，同区域重复时保持歧义失败",
             "area": "任务详情页显示的关卡名，取自 LevelDescTable.showName",
+            "serial_id": "资源回收站在当前区域内显示的序号，取自 RecycleBinTable.serialId",
             "depot_id": "该终点所属仓储节点 ID；没有同层仓储节点时为空字符串",
-            "depots": "仓储节点坐标，按 DomainDepotTable.id 精确关联 LevelMapMark.markInstId",
+            "depots": (
+                "仓储节点坐标，按 DomainDepotTable.id 精确关联 LevelMapMark.markInstId；"
+                "yaw 为朝向（绕 Y 轴欧拉角，度），取自 LevelData 交互实体 rotation.y，缺省为 0"
+            ),
+            "destinations": (
+                "普通收货 NPC 的 yaw 取自 NpcProxyTable.rotation.y；"
+                "资源回收站的 yaw 取自 LevelData 交互实体 rotation.y 并翻转 180 度，缺省为 0"
+            ),
         },
         "maps": maps,
         "coord": (
@@ -496,12 +699,29 @@ def build_delivery_destinations_data(
 
 
 def parse_arguments(args: Sequence[str] | None = None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="生成送货点数据")
-    parser.add_argument(
-        "--table-cfg-dir", type=Path, default=None, help="TableCfg 目录"
+    parser = argparse.ArgumentParser(
+        description="从 BeyondTableCfg、BeyondMemoryPack 和本地 BaseNav 生成送货点数据"
     )
     parser.add_argument(
-        "--gameplay-config-dir", type=Path, default=None, help="GameplayConfig 目录"
+        "--table-cfg-dir",
+        type=Path,
+        default=DEFAULT_TABLE_CFG_DIR,
+        help=f"BeyondTableCfg 的 TableCfg 目录（默认：{DEFAULT_TABLE_CFG_DIR}）",
+    )
+    parser.add_argument(
+        "--gameplay-config-dir",
+        type=Path,
+        default=DEFAULT_GAMEPLAY_CONFIG_DIR,
+        help=(
+            "BeyondMemoryPack 的 GameplayConfig 目录"
+            f"（默认：{DEFAULT_GAMEPLAY_CONFIG_DIR}）"
+        ),
+    )
+    parser.add_argument(
+        "--level-data-dir",
+        type=Path,
+        default=DEFAULT_LEVEL_DATA_DIR,
+        help=f"BeyondMemoryPack 的 LevelData 目录（默认：{DEFAULT_LEVEL_DATA_DIR}）",
     )
     parser.add_argument("--nav", default=None, help="nav 数据的本地路径或 URL")
     parser.add_argument("--output", type=Path, default=OUTPUT_PATH, help="输出文件")
@@ -527,7 +747,12 @@ def main(args: Sequence[str] | None = None) -> int:
             "--gameplay-config-dir",
         )
         zones = load_nav_zones(options.nav)
-        data = build_delivery_destinations_data(tables, gameplay_config, zones)
+        data = build_delivery_destinations_data(
+            tables,
+            gameplay_config,
+            zones,
+            options.level_data_dir,
+        )
         if should_skip(options.output, data, options.force):
             print(f"[{LABEL}] 生成结果未变化，跳过写入；可使用 --force 强制重写")
             return 0

@@ -454,8 +454,8 @@
         "next": [
             "__ScenePrivateMapTeleportSuccess",
             "[JumpBack]__ScenePrivateMapLayerSwitchToMain",
-            "[JumpBack]__ScenePrivateMapZoomNonExtreme",
-            "[JumpBack][Anchor]__ScenePrivateMapMapTrackerBigMapPickAnchor"
+            "[JumpBack]__ScenePrivateMapZoomOut",
+            "[JumpBack][Anchor]__ScenePrivateMapTeleportPickAnchor"
         ]
     },
     "__ScenePrivateMapWulingWulingCityEnterWorldAnchorWithPick": {
@@ -469,8 +469,8 @@
         "next": [
             "__ScenePrivateMapTeleportSuccess",
             "[JumpBack]__ScenePrivateMapLayerSwitchToMain",
-            "[JumpBack]__ScenePrivateMapZoomNonExtreme",
-            "[JumpBack][Anchor]__ScenePrivateMapMapTrackerBigMapPickAnchor"
+            "[JumpBack]__ScenePrivateMapZoomOut",
+            "[JumpBack][Anchor]__ScenePrivateMapTeleportPickAnchor"
         ]
     },
     "__ScenePrivateMapWulingQingboStockadeEnterWorldAnchorWithPick": {
@@ -484,8 +484,8 @@
         "next": [
             "__ScenePrivateMapTeleportSuccess",
             "[JumpBack]__ScenePrivateMapLayerSwitchToMain",
-            "[JumpBack]__ScenePrivateMapZoomNonExtreme",
-            "[JumpBack][Anchor]__ScenePrivateMapMapTrackerBigMapPickAnchor"
+            "[JumpBack]__ScenePrivateMapZoomOut",
+            "[JumpBack][Anchor]__ScenePrivateMapTeleportPickAnchor"
         ]
     },
     "__ScenePrivateMapWulingMarkerStoneEnterWorldAnchorWithPick": {
@@ -499,8 +499,8 @@
         "next": [
             "__ScenePrivateMapTeleportSuccess",
             "[JumpBack]__ScenePrivateMapLayerSwitchToMain",
-            "[JumpBack]__ScenePrivateMapZoomNonExtreme",
-            "[JumpBack][Anchor]__ScenePrivateMapMapTrackerBigMapPickAnchor"
+            "[JumpBack]__ScenePrivateMapZoomOut",
+            "[JumpBack][Anchor]__ScenePrivateMapTeleportPickAnchor"
         ]
     },
     "__ScenePrivateMapWulingTestAreaEnterWorldAnchorWithPick": {
@@ -514,8 +514,8 @@
         "next": [
             "__ScenePrivateMapTeleportSuccess",
             "[JumpBack]__ScenePrivateMapLayerSwitchToMain",
-            "[JumpBack]__ScenePrivateMapZoomNonExtreme",
-            "[JumpBack][Anchor]__ScenePrivateMapMapTrackerBigMapPickAnchor"
+            "[JumpBack]__ScenePrivateMapZoomOut",
+            "[JumpBack][Anchor]__ScenePrivateMapTeleportPickAnchor"
         ]
     },
     "__ScenePrivateMapWulingSwordVaultDaleEnterWorldAnchorWithPick": {
@@ -529,8 +529,8 @@
         "next": [
             "__ScenePrivateMapTeleportSuccess",
             "[JumpBack]__ScenePrivateMapLayerSwitchToMain",
-            "[JumpBack]__ScenePrivateMapZoomNonExtreme",
-            "[JumpBack][Anchor]__ScenePrivateMapMapTrackerBigMapPickAnchor"
+            "[JumpBack]__ScenePrivateMapZoomOut",
+            "[JumpBack][Anchor]__ScenePrivateMapTeleportPickAnchor"
         ]
     },
     "__ScenePrivateMapAnyEnterMapWulingYinglungPass": {
@@ -600,8 +600,8 @@
         "next": [
             "__ScenePrivateMapTeleportSuccess",
             "[JumpBack]__ScenePrivateMapLayerSwitchToMain",
-            "[JumpBack]__ScenePrivateMapZoomNonExtreme",
-            "[JumpBack][Anchor]__ScenePrivateMapMapTrackerBigMapPickAnchor"
+            "[JumpBack]__ScenePrivateMapZoomOut",
+            "[JumpBack][Anchor]__ScenePrivateMapTeleportPickAnchor"
         ]
     },
     "__ScenePrivateMapAnyEnterMapWulingNorthWulingExclusionZone": {
@@ -671,8 +671,8 @@
         "next": [
             "__ScenePrivateMapTeleportSuccess",
             "[JumpBack]__ScenePrivateMapLayerSwitchToMain",
-            "[JumpBack]__ScenePrivateMapZoomNonExtreme",
-            "[JumpBack][Anchor]__ScenePrivateMapMapTrackerBigMapPickAnchor"
+            "[JumpBack]__ScenePrivateMapZoomOut",
+            "[JumpBack][Anchor]__ScenePrivateMapTeleportPickAnchor"
         ]
     }
 }

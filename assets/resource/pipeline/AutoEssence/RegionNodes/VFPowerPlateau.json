@@ -12,44 +12,14 @@
         }
     },
     "GotoTriggerPointMaybeTeleport_VFPowerPlateau": {
+        "desc": "判断是否需要传送到最近锚点",
         "recognition": {
-            "type": "Custom",
+            "type": "Or",
             "param": {
-                "custom_recognition": "MapTrackerAssertLocation",
-                "custom_recognition_param": {
-                    "expected": [
-                        {
-                            // 距离淤积点最近的锚点附近
-                            "map_name": "map01_lv007",
-                            "target": [
-                                429.2,
-                                233.5,
-                                23.6,
-                                23.6
-                            ]
-                        },
-                        {
-                            // 距离淤积点最近的锚点附近（另一尝试）
-                            "map_name": "map01_lv007_tier_133",
-                            "target": [
-                                429.2,
-                                233.5,
-                                23.6,
-                                23.6
-                            ]
-                        },
-                        {
-                            // 淤积点附近
-                            "map_name": "map01_lv007",
-                            "target": [
-                                341.0,
-                                142.0,
-                                32.0,
-                                24.0
-                            ]
-                        }
-                    ]
-                }
+                "any_of": [
+                    "__GotoTriggerPointNearAnchor_VFPowerPlateau",
+                    "__GotoTriggerPointNearTrigger_VFPowerPlateau"
+                ]
             }
         },
         "inverse": true,
@@ -73,140 +43,26 @@
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "MapTrackerMove",
+                "custom_action": "MapNavigateAction",
                 "custom_action_param": {
-                    "map_name": "map01_lv007",
                     "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "ValleyIV_Base"
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                589.85,
+                                148.25
+                            ]
+                        },
                         [
-                            436.8,
-                            241.3
-                        ],
-                        [
-                            430.2,
-                            234.2
-                        ],
-                        [
-                            427.7,
-                            234.6
-                        ],
-                        [
-                            421.6,
-                            240.4
-                        ],
-                        [
-                            417.4,
-                            249.3
-                        ],
-                        [
-                            412.7,
-                            255.4
-                        ],
-                        [
-                            406.6,
-                            260.4
-                        ],
-                        [
-                            401.6,
-                            263.0
-                        ],
-                        [
-                            393.1,
-                            262.8
-                        ],
-                        [
-                            391.5,
-                            256.8
-                        ],
-                        [
-                            389.0,
-                            253.1
-                        ],
-                        [
-                            377.7,
-                            251.7
-                        ],
-                        [
-                            370.2,
-                            255.4
-                        ],
-                        [
-                            361.5,
-                            258.0
-                        ],
-                        [
-                            357.9,
-                            254.6
-                        ],
-                        [
-                            361.4,
-                            240.6
-                        ],
-                        [
-                            359.0,
-                            228.0
-                        ],
-                        [
-                            351.4,
-                            226.7
-                        ],
-                        [
-                            345.3,
-                            223.1
-                        ],
-                        [
-                            345.3,
-                            219.3
-                        ],
-                        [
-                            347.7,
-                            214.3
-                        ],
-                        [
-                            347.8,
-                            211.7
-                        ],
-                        [
-                            349.1,
-                            205.5
-                        ],
-                        [
-                            350.1,
-                            203.0
-                        ],
-                        [
-                            347.9,
-                            200.5
-                        ],
-                        [
-                            345.3,
-                            193.1
-                        ],
-                        [
-                            345.1,
-                            188.0
-                        ],
-                        [
-                            343.9,
-                            183.1
-                        ],
-                        [
-                            342.8,
-                            175.4
-                        ],
-                        [
-                            344.1,
-                            166.7
-                        ],
-                        [
-                            346.5,
-                            160.6
-                        ],
-                        [
-                            351.1,
-                            154.9
+                            594.09,
+                            142.98,
+                            true
                         ]
-                    ],
-                    "path_trim": true
+                    ]
                 }
             }
         },
@@ -227,22 +83,27 @@
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "MapTrackerMove",
+                "custom_action": "MapNavigateAction",
                 "custom_action_param": {
-                    "map_name": "map01_lv007",
                     "path": [
-                        [
-                            359.1,
-                            154.1
-                        ]
-                    ],
-                    "no_ensure_initial_movement_state": true
+                        {
+                            "action": "ZONE",
+                            "zone_id": "ValleyIV_Base"
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                600.48,
+                                141.36
+                            ]
+                        }
+                    ]
                 }
             }
         },
-        "post_delay": 1500, // 确保彻底停下，规避移动惯性
+        "post_delay": 1500,
         "next": [
-            "AutoEssenceDispatcher"
+            "AutoEssenceInteract"
         ],
         "focus": {
             "Node.Action.Starting": "🚶正在前往激发点",
@@ -251,6 +112,42 @@
             },
             "Node.Action.Failed": {
                 "trace": true
+            }
+        }
+    },
+    "__GotoTriggerPointNearAnchor_VFPowerPlateau": {
+        "desc": "锚点附近",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapLocateAssertLocation",
+                "custom_recognition_param": {
+                    "zone_id": "ValleyIV_Base",
+                    "target": [
+                        666.18,
+                        215.54,
+                        21.78,
+                        21.78
+                    ]
+                }
+            }
+        }
+    },
+    "__GotoTriggerPointNearTrigger_VFPowerPlateau": {
+        "desc": "淤积点附近",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapLocateAssertLocation",
+                "custom_recognition_param": {
+                    "zone_id": "ValleyIV_Base",
+                    "target": [
+                        584.77,
+                        131.08,
+                        29.54,
+                        22.15
+                    ]
+                }
             }
         }
     }

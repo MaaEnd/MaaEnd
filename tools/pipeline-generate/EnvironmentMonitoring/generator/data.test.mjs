@@ -21,10 +21,10 @@ function buildDirectPhotoRow(hasHeading, quickTeleport = false) {
             HasHeading: hasHeading,
             ShouldAssertAfterTeleport: false,
             EnterMap: "SceneEnterWorldTest",
-            MapAssertRecognition: "MapTrackerAssertLocation",
+            MapAssertRecognition: "MapLocateAssertLocation",
             MapAssertParam: {},
             Replace: [],
-            RouteAction: "MapTrackerToward",
+            RouteAction: "MapNavigateAction",
             RouteActionParam: hasHeading ? {angle: 90} : {},
         },
     });
@@ -41,7 +41,7 @@ test("direct-photo routes apply optional Heading before taking a photo", () => {
     const row = buildDirectPhotoRow(true);
 
     assert.deepEqual(row.AfterTeleportNext.value, ["GoToTestMissionMove"]);
-    assert.equal(row.RouteAction, "MapTrackerToward");
+    assert.equal(row.RouteAction, "MapNavigateAction");
     assert.deepEqual(row.RouteActionParam.value, {angle: 90});
     assert.equal(row.MoveDescription, "在测试观察点传送点调整拍照朝向");
 });
