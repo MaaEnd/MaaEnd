@@ -1,4 +1,6 @@
 {
+    // JSONC: 允许注释与尾逗号（测试注释）
+
     "error_load_locale": "[ERROR] Failed to load locale file. Please ensure you have cloned the repository completely. File path: {path}",
     "root_dir": "Project Root Directory",
     "install_dir": "Install Directory",

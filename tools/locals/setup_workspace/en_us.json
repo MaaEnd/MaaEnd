@@ -1,4 +1,6 @@
 {
+    // JSONC: 允许注释与尾逗号（测试注释）
+
     "error_load_locale": "[ERROR] Failed to load locale file. Please ensure you have cloned the repository completely. File path: {path}",
     "inf_github_token_configured": "[INF] GitHub Token configured, will be used for API requests",
     "wrn_github_token_not_configured": "[WRN] GitHub Token not configured, using anonymous API requests (may be rate limited)",
