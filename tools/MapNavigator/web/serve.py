@@ -317,7 +317,7 @@ async def lifespan(_app: FastAPI):
         yield
     finally:
         # Agent 不再继承 Ctrl+C，必须在服务退出时由 owner 明确收回。
-        await navmesh_backend.close()
+        navmesh_backend.close()
 
 
 app = FastAPI(title="MapNavigator Web Backend", lifespan=lifespan)
