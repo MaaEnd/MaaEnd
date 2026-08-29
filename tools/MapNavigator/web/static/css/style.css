@@ -105,6 +105,18 @@ canvas {
   z-index: 2;
 }
 
+#three-canvas {
+  z-index: 3;
+  background: #080d12;
+  touch-action: none;
+}
+
+#canvas-wrap.view-3d .canvas-editor-toolbar,
+#canvas-wrap.view-3d .legend-float,
+#canvas-wrap.view-3d .log-context-panel {
+  display: none !important;
+}
+
 /* ===== 悬浮侧边栏 ===== */
 #sidebar {
   position: absolute;
@@ -1250,6 +1262,41 @@ canvas {
   z-index: 5;
 }
 
+.view-mode-toggle {
+  width: 72px;
+  height: 28px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  flex: 0 0 72px;
+  padding: 2px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.view-mode-btn {
+  min-width: 0;
+  height: 24px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0;
+  cursor: pointer;
+}
+
+.view-mode-btn:hover {
+  color: var(--text-primary);
+}
+
+.view-mode-btn.active {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.24);
+}
+
 .btn-float {
   width: 32px;
   height: 32px;
@@ -1443,6 +1490,29 @@ canvas {
 }
 
 @media (max-width: 920px) {
+  body.mode-edit:not(.view-3d) .canvas-floating-controls {
+    z-index: 20;
+    padding-right: 3px;
+  }
+
+  body.mode-edit:not(.view-3d) .canvas-floating-controls > :not(.view-mode-toggle) {
+    display: none !important;
+  }
+
+  body.view-3d #sidebar {
+    display: none;
+  }
+
+  body.view-3d #footer-status-bar {
+    left: 12px;
+    right: 12px;
+  }
+
+  body.view-3d .canvas-floating-controls {
+    top: 12px;
+    right: 12px;
+  }
+
   .log-context-panel {
     top: 60px;
     right: 12px;

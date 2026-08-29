@@ -230,6 +230,11 @@ class MapNavigatorApp {
         /** @type {?string} `${geomId}:${tierId}` of the uploaded mesh. */
         this._meshKey = null;
         this._meshToken = 0;
+        this.viewMode = "2d";
+        this.threeView = null;
+        this._threeViewPromise = null;
+        /** @type {?{key:string,buffer:ArrayBuffer}} current display-frame NMSH payload. */
+        this._latest3DMesh = null;
 
         this._cssW = 800;
         this._cssH = 600;
@@ -245,7 +250,12 @@ class MapNavigatorApp {
             app: $("app"),
             glCanvas: $("gl-canvas"),
             overlayCanvas: $("overlay-canvas"),
+            threeCanvas: $("three-canvas"),
             canvasWrap: $("canvas-wrap"),
+            viewModeToggle: $("view-mode-toggle"),
+            viewMode2d: $("view-mode-2d"),
+            viewMode3d: $("view-mode-3d"),
+            viewModeDivider: $("view-mode-divider"),
             btnStart: $("btn-start"),
             btnStop: $("btn-stop"),
             btnCopyPath: $("btn-copy-path"),
@@ -347,6 +357,7 @@ class MapNavigatorApp {
             tierPickerCancel: $("tier-picker-cancel"),
             btnFitView: $("btn-fit-view"),
             btnDelPointFloat: $("btn-del-point-float"),
+            editDeleteDivider: $("edit-delete-divider"),
             propertiesEmptyState: $("properties-empty-state"),
             propertiesEditor: $("properties-editor"),
             panelRecording: $("panel-recording"),
@@ -828,6 +839,8 @@ class MapNavigatorApp {
         e.btnNext.addEventListener("click", () => this._nextZone());
         e.btnZoomOut.addEventListener("click", () => this._zoomOut());
         e.btnZoomIn.addEventListener("click", () => this._zoomIn());
+        e.viewMode2d.addEventListener("click", () => this._setViewMode("2d"));
+        e.viewMode3d.addEventListener("click", () => this._setViewMode("3d"));
         e.btnApplyAction.addEventListener("click", () => this._applyAction());
         e.assertZoneCombo.addEventListener("change", () => this._onAssertZoneChanged());
         e.displayZoneCombo.addEventListener("change", () => this._onDisplayZoneChanged());
@@ -1018,6 +1031,7 @@ class MapNavigatorApp {
         this._cssH = cssH;
         this.renderer.resize(cssW, cssH, dpr);
         this.overlay.resize(cssW, cssH, dpr);
+        if (this.threeView) this.threeView.resize(cssW, cssH, dpr);
         this._paint();
     }
 
@@ -2455,7 +2469,11 @@ class MapNavigatorApp {
     /** Upload or hide the navmesh for the edit display zone (keyed, so cheap per paint). */
     _syncNavmesh() {
         if (this.state.mode !== Mode.EDIT || !this.field) {
-            if (this._meshKey !== null) this._meshToken += 1;
+            if (this._meshKey !== null) {
+                this._meshToken += 1;
+                this._latest3DMesh = null;
+                if (this.threeView) this.threeView.clearMesh();
+            }
             this._meshKey = null;
             this.renderer.setMeshVisible(false);
             this.renderer.setDotsVisible(false);
@@ -2463,7 +2481,11 @@ class MapNavigatorApp {
         }
         const displayZoneId = this._resolveZoneId(this._displayZoneId());
         if (Number.isNaN(displayZoneId)) {
-            if (this._meshKey !== null) this._meshToken += 1;
+            if (this._meshKey !== null) {
+                this._meshToken += 1;
+                this._latest3DMesh = null;
+                if (this.threeView) this.threeView.clearMesh();
+            }
             this._meshKey = null;
             this.renderer.setMeshVisible(false);
             this.renderer.setDotsVisible(false);
@@ -2474,6 +2496,8 @@ class MapNavigatorApp {
         const key = `${geomId}:${tierId}`;
         if (key === this._meshKey) return;
         this._meshKey = key;
+        this._latest3DMesh = null;
+        if (this.threeView) this.threeView.clearMesh();
         this.renderer.setMeshVisible(false);
         const token = (this._meshToken += 1);
         const dims = this.field.dims(displayZoneId);
@@ -2487,6 +2511,8 @@ class MapNavigatorApp {
                 }
                 const buf = tierId !== null ? this.field.remapNmshToTier(buffer, tierId) : buffer;
                 this.renderer.setMesh(buf, {width: dims.width, height: dims.height});
+                this._latest3DMesh = {key, buffer: buf};
+                if (this.threeView) this._setThreeViewMesh(buf);
                 this.renderer.setMeshVisible(true);
                 this.renderer.setDotsVisible(false);
                 this.renderer.requestRender(this.camera);
@@ -2496,10 +2522,116 @@ class MapNavigatorApp {
             });
     }
 
+    /** Whether the read-only Three.js surface is the active map view. */
+    _is3DView() {
+        return this.state.mode === Mode.EDIT && this.viewMode === "3d";
+    }
+
+    /** Lazily load Three.js so the established 2D editor remains independent. */
+    async _ensureThreeView() {
+        if (this.threeView) return this.threeView;
+        if (this._threeViewPromise) return this._threeViewPromise;
+        this._threeViewPromise = import("./three_navmesh_view.js")
+            .then(({ThreeNavmeshView}) => {
+                this.threeView = new ThreeNavmeshView({
+                    canvas: this.els.threeCanvas,
+                    onPick: ({u, v, height}) => {
+                        setStatus(
+                            `3D 点位: [${compactNumber(u)}, ${compactNumber(v)}]  高度 ${compactNumber(height)}`,
+                            "#10b981",
+                        );
+                    },
+                });
+                this.threeView.resize(this._cssW, this._cssH, window.devicePixelRatio || 1);
+                if (this._latest3DMesh) this._setThreeViewMesh(this._latest3DMesh.buffer);
+                this.threeView.setVisible(this._is3DView());
+                return this.threeView;
+            })
+            .catch((error) => {
+                console.error("Failed to initialize the 3D navmesh view", error);
+                this.viewMode = "2d";
+                this._syncViewModeUI();
+                this._paint();
+                setStatus(`3D 视图加载失败: ${error && error.message ? error.message : error}`, "#ef4444");
+                return null;
+            })
+            .finally(() => {
+                this._threeViewPromise = null;
+            });
+        return this._threeViewPromise;
+    }
+
+    /** Upload the current NMSH payload without affecting the working 2D renderer. */
+    _setThreeViewMesh(buffer) {
+        try {
+            this.threeView.setMesh(buffer);
+        } catch (error) {
+            console.error("Failed to render the 3D navmesh", error);
+            setStatus(`3D 网格加载失败: ${error && error.message ? error.message : error}`, "#ef4444");
+        }
+    }
+
+    /** Switch between the editable 2D map and the read-only 3D mesh. */
+    _setViewMode(mode, {announce = true} = {}) {
+        const nextMode = mode === "3d" ? "3d" : "2d";
+        if (nextMode === "3d" && this.state.mode !== Mode.EDIT) return;
+
+        if (nextMode === "3d" && this.activeTool === "route-test") {
+            this._activateEditTool("add");
+        }
+        this.viewMode = nextMode;
+        this._syncViewModeUI();
+
+        if (nextMode === "3d") {
+            void this._ensureThreeView();
+            if (announce) setStatus("已切换到 3D 视图。", "#10b981");
+        } else {
+            if (this.threeView) this.threeView.setVisible(false);
+            this._paint();
+            if (announce) setStatus("已切换到 2D 视图。", "#10b981");
+        }
+    }
+
+    /** Synchronize segmented buttons, canvases, and controls that only edit 2D state. */
+    _syncViewModeUI() {
+        const editMode = this.state.mode === Mode.EDIT;
+        const show3D = editMode && this.viewMode === "3d";
+        const e = this.els;
+
+        e.viewModeToggle.hidden = !editMode;
+        e.viewModeDivider.hidden = !editMode;
+        e.viewMode2d.classList.toggle("active", !show3D);
+        e.viewMode3d.classList.toggle("active", show3D);
+        e.viewMode2d.setAttribute("aria-pressed", String(!show3D));
+        e.viewMode3d.setAttribute("aria-pressed", String(show3D));
+        e.canvasWrap.classList.toggle("view-3d", show3D);
+        document.body.classList.toggle("view-3d", show3D);
+        e.glCanvas.hidden = show3D;
+        e.overlayCanvas.hidden = show3D;
+        e.threeCanvas.hidden = !show3D;
+        if (this.threeView) this.threeView.setVisible(show3D);
+
+        e.toolRouteTest.hidden = !editMode || show3D;
+        e.toolEditStart.hidden = !editMode || show3D;
+        e.editStartDivider.hidden = !editMode || show3D;
+        e.btnDelPointFloat.hidden = this.state.mode === Mode.LOG || show3D;
+        e.editDeleteDivider.hidden = this.state.mode === Mode.LOG || show3D;
+        if (editMode) {
+            e.panelRecording.hidden = show3D;
+            e.panelProperties.hidden = show3D;
+            e.panelNavtest.hidden = show3D;
+            if (this.navtest) this.navtest.setDisabled(show3D);
+        }
+    }
+
     // --- fit view ---
 
     /** Fit the current frame to the canvas (tk `fit_view`), deferring if the basemap is loading. */
     _fitView() {
+        if (this._is3DView()) {
+            if (this.threeView) this.threeView.fitView();
+            return;
+        }
         const renderZone = this._renderBackgroundZone();
         if (renderZone === this._bgZone && !this._basemapLoading) {
             this._fitNow();
@@ -4322,6 +4454,19 @@ class MapNavigatorApp {
         ) {
             return;
         }
+        if (this._is3DView()) {
+            if (e.key === "Escape" && this.threeView?.clearSelection()) {
+                setStatus("已清除 3D 点位选择。", "#10b981");
+                e.preventDefault();
+            } else if (e.key === "+" || e.key === "=" || e.code === "NumpadAdd") {
+                this._zoomIn();
+                e.preventDefault();
+            } else if (e.key === "-" || e.key === "_" || e.code === "NumpadSubtract") {
+                this._zoomOut();
+                e.preventDefault();
+            }
+            return;
+        }
         if (e.key === "Escape" && this._cancelCurrentSelection()) {
             e.preventDefault();
             return;
@@ -4494,12 +4639,20 @@ class MapNavigatorApp {
 
     /** Zoom in around the canvas center (button / `+` key). @returns {void} */
     _zoomIn() {
+        if (this._is3DView()) {
+            if (this.threeView) this.threeView.zoomBy(1.25);
+            return;
+        }
         this.camera.zoomAt(this._cssW / 2, this._cssH / 2, 1.25);
         this._paint();
     }
 
     /** Zoom out around the canvas center (button / `-` key). @returns {void} */
     _zoomOut() {
+        if (this._is3DView()) {
+            if (this.threeView) this.threeView.zoomBy(0.8);
+            return;
+        }
         this.camera.zoomAt(this._cssW / 2, this._cssH / 2, 0.8);
         this._paint();
     }
@@ -4910,6 +5063,7 @@ class MapNavigatorApp {
      * @returns {void}
      */
     _importApplyAssert(zoneId, target) {
+        if (this.viewMode !== "2d") this._setViewMode("2d", {announce: false});
         this.state.mode = Mode.ASSERT;
         this._ensureAssertZoneOption(zoneId);
         this.els.assertZoneCombo.value = zoneId;
@@ -4966,6 +5120,9 @@ class MapNavigatorApp {
         if (modeName !== "edit" && this.navtest && this.navtest.running) {
             setStatus("请先按 F4 终止当前实机试跑，再切换模式。", "#f59e0b");
             return;
+        }
+        if (modeName !== "edit" && this.viewMode !== "2d") {
+            this._setViewMode("2d", {announce: false});
         }
 
         this.deckPreview = null;
@@ -5090,6 +5247,7 @@ class MapNavigatorApp {
         }
         e.tabAssert.setAttribute("aria-pressed", String(mode === Mode.ASSERT));
         e.tabEdit.setAttribute("aria-pressed", String(mode === Mode.EDIT));
+        this._syncViewModeUI();
         this._renderEditInspection();
         this._syncLogContextPanel();
     }
