@@ -38,7 +38,6 @@
         <div id="route-mode-tabs" class="mode-segmented-control" role="group" aria-label="路线制作工具">
           <button id="tab-edit" class="mode-tab-btn active" type="button" aria-pressed="true">路径编辑</button>
           <button id="tab-assert" class="mode-tab-btn" type="button" aria-pressed="false">断言模式</button>
-          <button id="tab-astar" type="button" aria-pressed="false" aria-hidden="true" tabindex="-1" hidden>A* 寻路</button>
         </div>
 
         <!-- 连接配置 -->
@@ -126,15 +125,15 @@
           </div>
           <div class="sidebar-row select-tier-row">
             <span class="sidebar-label">当前层级:</span>
-            <span id="astar-selected-tier-label" class="selected-tier-label">未选择</span>
+            <span id="edit-selected-tier-label" class="selected-tier-label">未选择</span>
           </div>
           <div class="sidebar-row">
             <button id="btn-edit-locate" class="btn btn-primary" type="button" style="width: 100%" title="在当前路径底图上标出游戏内当前位置，不新增路点" disabled>标出游戏内当前位置（参考点）</button>
           </div>
 
           <!-- 隐藏取值控件：由层级选择弹窗写入 -->
-          <select id="astar-display-zone-combo" class="combo combo-zone" hidden></select>
-          <select id="astar-zone-combo" class="combo combo-zone" hidden></select>
+          <select id="display-zone-combo" class="combo combo-zone" hidden></select>
+          <select id="display-tier-combo" class="combo combo-zone" hidden></select>
         </div>
 
         <!-- 断言模式：保持独立底图与参考点状态，但复用同一信息架构 -->
@@ -381,41 +380,6 @@
           </div>
         </div>
 
-        <!-- 寻路设置 -->
-        <div class="sidebar-section" id="panel-astar" hidden>
-          <div class="section-header">
-            <span class="section-title">寻路设置</span>
-          </div>
-
-          <div class="sidebar-hint">A* 只需目标点：预览点可直接复制，无需起点</div>
-
-          <div class="sidebar-row border-top" style="margin-top: 4px; padding-top: 12px">
-            <button id="btn-astar-locate" class="btn btn-primary" style="width: 100%; margin-bottom: 8px;" type="button" title="把游戏内当前位置标成预览点" disabled>标出游戏内当前位置（预览点）</button>
-          </div>
-
-          <div class="coord-mark-row">
-            <input id="astar-coord-x" class="entry entry-coord" type="text" inputmode="decimal" placeholder="X" title="底图 X 坐标；可粘贴 [x, y] 同时填入两框" />
-            <input id="astar-coord-y" class="entry entry-coord" type="text" inputmode="decimal" placeholder="Y" title="底图 Y 坐标；可粘贴 [x, y] 同时填入两框" />
-            <button id="btn-astar-mark-coord" class="btn btn-secondary btn-sm" type="button" title="在该坐标标出一个预览点">标点</button>
-          </div>
-          <div class="sidebar-hint">可在任一框粘贴 [x, y]，再按坐标标预览点</div>
-
-          <div id="astar-deck-box" class="sidebar-row deck-box border-top" hidden>
-            <span class="sidebar-label" id="astar-deck-title">重叠面</span>
-            <div id="astar-deck-list" class="deck-list"></div>
-            <div class="sidebar-hint">点一层预览，「选择」把该层高度写进 target_deck_y</div>
-          </div>
-
-          <div class="sidebar-row grid-btns-import">
-            <button id="btn-astar-import" class="btn btn-secondary" type="button" title="选择项目路线；导入坐标后在地图上单击补充起点，再按顺序规划">选择项目节点</button>
-            <button id="btn-astar-read-clipboard" class="btn btn-secondary" type="button" title="读取并自动解析剪贴板中的 JSON">读取剪贴板</button>
-            <button id="btn-copy-navmesh" class="btn btn-secondary" type="button" title="复制最后一个预览点为 NAVMESH 目标（有预览路线时复制整条）">复制路径</button>
-          </div>
-          <div class="sidebar-row">
-            <button id="btn-clear-astar" class="btn btn-danger-outline" style="width: 100%" type="button">清除预览</button>
-          </div>
-        </div>
-
         <!-- 加载进度 -->
         <div id="load-progress" class="load-progress" hidden>
           <progress id="load-progress-bar" max="100" value="0"></progress>
@@ -444,16 +408,6 @@
             <button id="tool-select" class="btn btn-tool group-edit" type="button" title="框选多个路点 (2)">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" stroke-dasharray="3 3"></rect><path d="m11 11 3 8 2-3 3 3 1.5-1.5-3-3 3-2-8.5-1.5Z" fill="currentColor"></path></svg>
               <span>框选工具 (2)</span>
-            </button>
-
-            <!-- Astar Mode 工具 -->
-            <button id="tool-astar-single" class="btn btn-tool group-astar" type="button" title="生成单段 A* 路径 (1)">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"></circle><circle cx="18" cy="18" r="3"></circle><path d="M18 15V9a4 4 0 0 0-4-4H9"></path></svg>
-              <span>单段 A* (1)</span>
-            </button>
-            <button id="tool-astar-multi" class="btn btn-tool group-astar" type="button" title="依次点击多个点生成串联 A* 路径 (2)">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"></circle><circle cx="18" cy="6" r="3"></circle><circle cx="12" cy="18" r="3"></circle><path d="M6 9v6a3 3 0 0 0 3 3h1m5-12h1a3 3 0 0 1 3 3v4"></path></svg>
-              <span>多段 A* (2)</span>
             </button>
 
             <!-- Assert Mode 工具 -->

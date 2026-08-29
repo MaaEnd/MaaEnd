@@ -353,24 +353,6 @@ canvas {
   gap: 8px;
 }
 
-/* 按坐标标预览点：输入框吃掉剩余宽度，按钮定宽 */
-.coord-mark-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-}
-
-.entry-coord {
-  flex: 1 1 auto;
-  min-width: 0;
-  font-family: var(--font-mono, monospace);
-}
-
-.coord-mark-row .btn-sm {
-  flex: 0 0 auto;
-}
-
 .sidebar-hint {
   font-size: 10px;
   color: var(--text-muted);
@@ -1993,11 +1975,6 @@ canvas {
 
 .mode-edit .btn-tool.group-edit,
 #canvas-wrap.mode-edit .btn-tool.group-edit {
-  display: flex !important;
-}
-
-.mode-astar .btn-tool.group-astar,
-#canvas-wrap.mode-astar .btn-tool.group-astar {
   display: flex !important;
 }
 

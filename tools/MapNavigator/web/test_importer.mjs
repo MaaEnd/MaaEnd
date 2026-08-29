@@ -1,13 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import {
-  collectAstarImportBasePoints,
-  completeAstarImportWithStart,
-  filterProjectNodes,
-  normalizeAssertTarget,
-  readClipboardText,
-} from './static/js/ui/importer.js';
+import { filterProjectNodes, normalizeAssertTarget, readClipboardText } from './static/js/ui/importer.js';
 
 const routes = [
   {
@@ -51,68 +45,6 @@ test('blank project route filter keeps the backend order', () => {
 
 test('project node filter separates assertions and searches by zone', () => {
   assert.deepEqual(filterProjectNodes(routes, 'wuling_base', 'assert'), [routes[2]]);
-});
-
-test('A* import resolves target tiers and keeps only the first navmesh geometry', () => {
-  const zoneIds = { Base: 1, Tier: 2, Other: 3 };
-  const result = collectAstarImportBasePoints(
-    [
-      { x: 10, y: 20, zone: 'Base', target_tier: 'Tier', target_deck_y: 111.5 },
-      { x: 30, y: 40, zone: 'Base', target_deck_y: '222.5' },
-      { x: 50, y: 60, zone: 'Other', target_deck_y: 333.5 },
-      { x: 70, y: 80, zone: 'Missing' },
-    ],
-    (zone) => zoneIds[zone] ?? Number.NaN,
-    (zoneId) => (zoneId === 2 ? 1 : zoneId),
-    (zoneId, x, y) => (zoneId === 2 ? [x + 100, y + 200] : [x, y]),
-  );
-
-  assert.deepEqual(result, {
-    firstZoneId: 2,
-    basePoints: [
-      [110, 220],
-      [30, 40],
-    ],
-    decks: [111.5, 222.5],
-    skipped: 2,
-  });
-});
-
-test('A* import prepends a manual start to every pending target', () => {
-  assert.deepEqual(
-    completeAstarImportWithStart(
-      [5, 6],
-      [
-        [10, 20],
-        [30, 40],
-      ],
-      [111.5, 222.5],
-      (x, y) => [x + 100, y + 200],
-    ),
-    {
-      points: [
-        [5, 6],
-        [110, 220],
-        [130, 240],
-      ],
-      decks: [null, 111.5, 222.5],
-    },
-  );
-  assert.equal(completeAstarImportWithStart([5, 6], [], [], (x, y) => [x, y]), null);
-});
-
-test('A* import keeps missing and invalid target decks aligned as null', () => {
-  const result = collectAstarImportBasePoints(
-    [
-      { x: 10, y: 20, zone: 'Base' },
-      { x: 30, y: 40, zone: 'Base', target_deck_y: 'invalid' },
-    ],
-    () => 1,
-    (zoneId) => zoneId,
-    (_zoneId, x, y) => [x, y],
-  );
-
-  assert.deepEqual(result.decks, [null, null]);
 });
 
 test('clipboard reader returns the current JSON text unchanged', async () => {

@@ -10,9 +10,6 @@
  * Convention: read endpoints throw {@link RpcError} on a non-2xx response (the
  * caller surfaces `err.message` — carrying the backend's Chinese `detail` — in
  * the status line).
- * `/api/route` is the deliberate exception — it returns `{ok:false, error}` with
- * a 200 for "no path found", so {@link postRoute} resolves that object instead of
- * throwing (an unreachable goal is a normal result, not an error).
  *
  * @module rpc
  */
@@ -161,7 +158,7 @@ export function basemapUrl(imagePath) {
 /**
  * Same-origin URL that resolves an arbitrary zone STRING to its basemap PNG (backend
  * runs `resolve_zone_image`, the tk `_get_map_pil` path — fs existence checks + dir
- * scan). Used for edit-mode / assert-mode / A*-mode basemaps whose zone is a route
+ * scan). Used for edit-mode / assert-mode / log-mode basemaps whose zone is a route
  * point / assert / tier string, not a `/api/zones` field zone. 404 when unresolved.
  * @param {string} zoneId any zone identifier string
  * @returns {string}
@@ -185,41 +182,8 @@ export function getZiplineFrames() {
 }
 
 /**
- * Request an A* preview route. Resolves the backend payload verbatim, including the
- * `{ok:false, error}` "unreachable" case (see module note).
- *
- * `blind_start` / `blind_target` describe the straight lines the runtime walks with no
- * navmesh under it (they are the actual ladder result, not an estimate). Their `reason` is
- * `'off_mesh'` when the endpoint lies outside the mesh, `'disconnected'` when it stands on
- * mesh the other end simply cannot be reached from — do not report the second as the first.
- *
- * `off_mesh` rides along on the `ok:false` case so a failure can say *why* — an endpoint
- * outside the mesh reads very differently from two endpoints on disconnected pieces.
- *
- * `goal_deck_y` 是终点所在那张可走面的高度:`floor_y` 管吸附,它管在重叠面里选哪一张。
- * 不给时寻路取整格全部面、先够到哪张停哪张(也就是加这个字段之前的行为)。
- *
- * @param {{zone_id:number, start:number[], goal:number[], snap_radius?:number, floor_y?:?number,
- *   goal_deck_y?:?number}} req
- * @returns {Promise<{ok:boolean, points?:number[][], segment_breaks?:number[], cost?:number, debug?:Object,
- *   blind_start?:?{entry:number[], distance:number, reason:string},
- *   blind_target?:?{reached:number[], gap:number, reason:string},
- *   off_mesh?:{start:?OffMeshProbe, goal:?OffMeshProbe}, error?:string}>}
- */
-export function postRoute(req) {
-  return sendJson('/api/route', {
-    zone_id: req.zone_id,
-    start: req.start,
-    goal: req.goal,
-    snap_radius: req.snap_radius === undefined ? 5.0 : req.snap_radius,
-    floor_y: req.floor_y === undefined ? null : req.floor_y,
-    goal_deck_y: req.goal_deck_y === undefined ? null : req.goal_deck_y,
-  });
-}
-
-/**
- * Expand a complete MapNavigator request with the runtime planner. Unlike
- * {@link postRoute}, this preserves global route boundaries and zipline semantics.
+ * Expand a complete MapNavigator request with the runtime planner, preserving global
+ * route boundaries and zipline semantics.
  *
  * @param {{position:number[], position_zone:string, custom_action_param:Object}} req
  * @returns {Promise<{ok:boolean, stale?:boolean, points?:number[][],
@@ -243,8 +207,8 @@ export function postRoutePreview(req) {
  * @typedef {{distance:?number, nearest:?number[], budget:?number}} OffMeshProbe a point off the
  *   walkable mesh: how far the nearest mesh point is and where it lies (both null when there is
  *   no mesh at all within the runtime's blind-walk budget). `budget` is how far the runtime will
- *   blind-walk at that endpoint's role, so only {@link postRoute} fills it in — a bare point does
- *   not say whether it is a start or a goal, and the batch probe below leaves it null.
+ *   blind-walk at that endpoint's role. A bare point does not say whether it is a
+ *   start or a goal, so the batch probe below leaves it null.
  */
 
 /**
@@ -252,8 +216,8 @@ export function postRoutePreview(req) {
  * `null` meaning "on the mesh" (the runtime snaps it silently — nothing to report).
  *
  * Geometry only. How far the runtime actually blind-walks to a *goal* depends on the start
- * (it probes back along the goal→start line), so that number comes from {@link postRoute}
- * alone — never present a `distance` from here as the blind walk.
+ * (it probes back along the goal→start line), so never present a `distance` from here
+ * as the runtime blind walk.
  *
  * @param {{zone_id:number, points:number[][], snap_radius?:number, floor_y?:?number}} req
  * @returns {Promise<{ok:boolean, results?:Array<?OffMeshProbe>, error?:string}>}

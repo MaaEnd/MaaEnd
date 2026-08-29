@@ -5,8 +5,8 @@
  * Python so the result is byte-identical to the tk tool.
  *
  * Primary flow: scan project assets → choose a mode-appropriate Pipeline node → load it.
- * Edit / A* consume MapNavigateAction paths; Assert consumes MapLocateAssertLocation
- * by default and can switch to MapNavigateAction reference routes.
+ * Edit consumes MapNavigateAction paths; Assert consumes MapLocateAssertLocation by
+ * default and can switch to MapNavigateAction reference routes.
  * Every mode can also read JSON from the clipboard and enter at the `importAnalyze` step:
  *   - `assert`                      → hooks.applyAssert(zone_id, target)
  *   - `path`, no assignment needed  → hooks.loadPoints(points)
@@ -35,84 +35,6 @@ export function filterProjectNodes(nodes, query, kind) {
       .toLocaleLowerCase()
       .includes(needle);
   });
-}
-
-/**
- * Resolve imported route coordinates into one navmesh geometry's base frame.
- * `target_tier` describes the coordinate frame of that point and therefore takes
- * precedence over the route's `ZONE` context.
- * @param {Array<Object>} points
- * @param {(zone:string)=>number} resolveZoneId
- * @param {(zoneId:number)=>number} geometryZoneId
- * @param {(zoneId:number, x:number, y:number)=>number[]} pointToBase
- * @returns {{firstZoneId:?number, basePoints:number[][], decks:Array<?number>, skipped:number}}
- */
-export function collectAstarImportBasePoints(points, resolveZoneId, geometryZoneId, pointToBase) {
-  const resolved = points.map((point) => ({
-    point,
-    zoneId: resolveZoneId((point && point.target_tier) || (point && point.zone) || ''),
-  }));
-  const first = resolved.find(({ zoneId }) => Number.isFinite(zoneId));
-  if (!first) return { firstZoneId: null, basePoints: [], decks: [], skipped: points.length };
-
-  const geometryId = geometryZoneId(first.zoneId);
-  const basePoints = [];
-  const decks = [];
-  let skipped = 0;
-  for (const { point, zoneId } of resolved) {
-    if (!Number.isFinite(zoneId) || geometryZoneId(zoneId) !== geometryId) {
-      skipped += 1;
-      continue;
-    }
-    const base = pointToBase(zoneId, point.x, point.y);
-    if (!Array.isArray(base) || base.length < 2 || !base.slice(0, 2).every(Number.isFinite)) {
-      skipped += 1;
-      continue;
-    }
-    basePoints.push(base.slice(0, 2));
-    const rawDeck = point && point.target_deck_y;
-    const deck = Number(rawDeck);
-    decks.push(
-      rawDeck !== null && rawDeck !== '' && typeof rawDeck !== 'boolean' && Number.isFinite(deck) ? deck : null,
-    );
-  }
-  return { firstZoneId: first.zoneId, basePoints, decks, skipped };
-}
-
-/**
- * Prepend one manually clicked start to imported targets waiting in base coordinates.
- * Convert every target back into the active display frame so the regular A* planner can
- * apply its usual base conversion once. Keep each imported target's deck aligned with it.
- * @param {number[]} start display-frame start
- * @param {number[][]} pendingTargets base-frame imported targets
- * @param {Array<?number>} pendingDecks imported targets' `target_deck_y` values
- * @param {(x:number, y:number)=>number[]} baseToDisplay
- * @returns {?{points:number[][], decks:Array<?number>}}
- */
-export function completeAstarImportWithStart(start, pendingTargets, pendingDecks, baseToDisplay) {
-  if (
-    !Array.isArray(start) ||
-    start.length < 2 ||
-    !start.slice(0, 2).every(Number.isFinite) ||
-    !Array.isArray(pendingTargets) ||
-    pendingTargets.length === 0 ||
-    !Array.isArray(pendingDecks) ||
-    pendingDecks.length !== pendingTargets.length
-  ) {
-    return null;
-  }
-  const targets = pendingTargets.map((target) => {
-    if (!Array.isArray(target) || target.length < 2 || !target.slice(0, 2).every(Number.isFinite)) return null;
-    const display = baseToDisplay(target[0], target[1]);
-    return Array.isArray(display) && display.length >= 2 && display.slice(0, 2).every(Number.isFinite)
-      ? display.slice(0, 2)
-      : null;
-  });
-  if (targets.some((target) => target === null)) return null;
-  return {
-    points: [start.slice(0, 2), ...targets],
-    decks: [null, ...pendingDecks.map((deck) => (Number.isFinite(deck) ? deck : null))],
-  };
 }
 
 /**
@@ -249,11 +171,6 @@ export class Importer {
   _syncProjectHint() {
     if (this._projectMode === 'edit') {
       this.els.projectHint.textContent = '选择 MapNavigateAction 节点，载入其 custom_action_param.path 继续编辑。';
-      return;
-    }
-    if (this._projectMode === 'astar') {
-      this.els.projectHint.textContent =
-        '选择 MapNavigateAction 节点；导入坐标后在地图上单击补充起点，再按导入顺序自动规划。';
       return;
     }
     this.els.projectHint.textContent =
@@ -484,8 +401,8 @@ export class Importer {
    * @returns {void}
    */
   _loadPath(points, routeCount, sourceLabel = '', zipEnabled = false) {
-    // The hook may replace the lead-in and its color (A* marks preview points instead of
-    // a route; neither A* nor Assert can draw points whose zone has no navmesh basemap).
+    // The hook may replace the lead-in and its color when the active map cannot draw
+    // imported route points.
     const note = this.hooks.loadPoints(points, {zipEnabled}) || {};
     let status;
     if (note.text) {

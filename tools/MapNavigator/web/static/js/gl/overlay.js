@@ -2,8 +2,7 @@
  * 2D-canvas overlay — the state-coupled vector layer drawn *above* the WebGL
  * canvas (basemap + mesh + dots). Ports the canvas drawing app_tk.py does inline:
  * the editable path (dashed white line + action-colored nodes + labels), the
- * assert rectangle, the locate-hint markers, and the A* preview (layered neon
- * route + flowing particle + S/G/waypoint badges).
+ * assert rectangle, the locate-hint markers, and the runtime route preview.
  *
  * Frame-agnostic: it draws whatever world coordinates it is handed via
  * {@link Camera#worldToCanvas}. The caller (main.js) is responsible for handing it
@@ -68,7 +67,7 @@ export class Overlay {
    *
    * @param {Camera} camera shared view camera
    * @param {Object} vm view model:
-   *   @param {string} vm.mode 'edit' | 'assert' | 'astar' | 'log'
+   *   @param {string} vm.mode 'edit' | 'assert' | 'log'
    *   @param {Array<Object>} [vm.points] current-segment points (display-frame coords)
    *   @param {?number} [vm.selectedIdx] primary selection (local index into vm.points)
    *   @param {Set<number>} [vm.selectedIndices] multi-selection (local indices)
@@ -77,8 +76,6 @@ export class Overlay {
    *   @param {?number[]} [vm.assertTarget] `[x,y,w,h]` display-frame, or null
    *   @param {?{x:number,y:number,label:string,rot:?number}} [vm.editLocateHint] EDIT reference marker
    *   @param {?{x:number,y:number,label:string,rot:?number}} [vm.assertLocateHint] game locate marker
-   *   @param {?Array<{x:number,y:number,label:string,rot:?number}>} [vm.astarLocateHints] preview markers
-   *   @param {Object} [vm.astar] see {@link Overlay#_drawAstarPreview}
    *   @param {Object} [vm.logAnalysis] parsed MapNavigator log geometry
    *   @param {Array<Object>} [vm.offMeshMarks] points off the walkable mesh — see
    *     {@link Overlay#_drawOffMeshMarks} (drawn in every mode)
@@ -93,7 +90,7 @@ export class Overlay {
     const mode = vm.mode || 'edit';
 
     // Real route points in every mode (the caller decides which ones are in frame);
-    // assert/A* artifacts are layered on top so they stay readable over a route.
+    // mode-specific artifacts are layered on top so they stay readable over a route.
     this._drawPath(camera, vm.points || []);
     if (mode === 'edit') {
       if (vm.editPreview) {
@@ -117,16 +114,6 @@ export class Overlay {
       this._drawAssertRect(camera, vm.assertTarget || null);
       const hint = vm.assertLocateHint;
       if (hint) this._drawHintMarker(camera, hint.x, hint.y, hint.label, hint.rot);
-    }
-    if (mode === 'astar') {
-      for (const hint of vm.astarLocateHints || []) {
-        this._drawHintMarker(camera, hint.x, hint.y, hint.label, hint.rot);
-      }
-      if (vm.astar) {
-        this._drawAstarPreview(camera, vm.astar);
-        this._drawAstarDiagnostics(camera, vm.astar.diagnostics, vm.astar.debugOptions || {});
-        this._drawLivePath(camera, vm.astar.livePath);
-      }
     }
     if (mode === 'log' && vm.logAnalysis) {
       this._drawLogAnalysis(camera, vm.logAnalysis);

@@ -408,7 +408,7 @@ function roundCoord(value) {
 // --- app state orchestrator (app_tk.py glue) -----------------------------------------
 
 /** Editing and read-only analysis modes. */
-export const Mode = Object.freeze({ EDIT: 'edit', ASSERT: 'assert', ASTAR: 'astar', LOG: 'log' });
+export const Mode = Object.freeze({ EDIT: 'edit', ASSERT: 'assert', LOG: 'log' });
 
 /**
  * Top-level editable state: the point list, zone-segment navigation, selection, and
