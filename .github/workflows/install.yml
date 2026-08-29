@@ -746,17 +746,6 @@ jobs:
           MAAEND_VERSION: ${{ needs.meta.outputs.tag }}
           MXU_VERSION: ${{ needs.meta.outputs.mxu_version }}
         run: |
-          set -euo pipefail
-
-          if [[ ! "$MAAEND_VERSION" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
-            echo "::error::Invalid MaaEnd release version: $MAAEND_VERSION"
-            exit 1
-          fi
-          if [[ ! "$MXU_VERSION" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
-            echo "::error::Invalid MXU release version: $MXU_VERSION"
-            exit 1
-          fi
-
           release="MXU@${MXU_VERSION#v}+MaaEnd@$MAAEND_VERSION"
           echo "release=$release" | tee -a "$GITHUB_OUTPUT"
 
