@@ -236,6 +236,7 @@ def build_go_agent(
         capture_output=True,
         text=True,
         encoding="utf-8",
+        errors="replace",
         env=env,
     )
     if tidy_result.stdout:
@@ -267,6 +268,7 @@ def build_go_agent(
         capture_output=True,
         text=True,
         encoding="utf-8",
+        errors="replace",
         env=env,
     )
     if vendor_result.stdout:
@@ -324,6 +326,7 @@ def build_go_agent(
         capture_output=True,
         text=True,
         encoding="utf-8",
+        errors="replace",
         env=env,
     )
     if result.stdout:
@@ -368,6 +371,7 @@ def setup_windows_msvc_env(arch: str = "x86_64") -> bool:
             capture_output=True,
             text=True,
             encoding="utf-8",
+            errors="replace",
         )
     except (OSError, subprocess.SubprocessError) as exc:
         print(f"  {Console.warn(t('warning'))} {t('vswhere_query_failed', error=exc)}")
@@ -698,6 +702,7 @@ def build_cpp_algo(
             capture_output=True,
             text=True,
             encoding="utf-8",
+            errors="replace",
         )
 
         if result.stdout:
@@ -742,6 +747,7 @@ def build_cpp_algo(
         capture_output=True,
         text=True,
         encoding="utf-8",
+        errors="replace",
     )
     if result.stdout:
         print(result.stdout)
@@ -773,6 +779,7 @@ def build_cpp_algo(
         capture_output=True,
         text=True,
         encoding="utf-8",
+        errors="replace",
     )
     if result.stdout:
         print(result.stdout)
