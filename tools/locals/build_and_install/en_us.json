@@ -38,6 +38,9 @@
     "cmake_version": "CMake version",
     "cmake_not_found": "CMake environment not detected",
     "cpp_source_not_found": "C++ Algo source directory not found",
+    "ccache_status": "ccache cache directory: {path}",
+    "ccache_compiler_launcher": "ccache compiler launcher",
+    "ccache_not_found": "ccache not found; this build will not use compile caching",
     "cmake_configure_preset_candidates": "Configure preset candidates",
     "maadeps_triplet": "MaaDeps triplet",
     "cmake_cache_cleanup_item_failed": "Failed to clean CMake cache: {path}: {error}",
@@ -71,5 +74,11 @@
     "arg_arch": "Target architecture (x86_64/aarch64)",
     "arg_version": "Version number (written to Go Agent)",
     "arg_cpp_algo": "Also build C++ Algo Agent (not built by default)",
-    "step_skip_cpp": "[3/4] Skipping C++ Algo Agent (--cpp-algo not specified)"
+    "step_skip_cpp": "[3/4] Skipping C++ Algo Agent (--cpp-algo not specified)",
+    "vswhere_not_found": "vswhere not found; cannot locate Visual Studio (falling back to VS generator)",
+    "vswhere_query_failed": "vswhere failed to query Visual Studio: {error}",
+    "vcvars_not_found": "vcvarsall.bat not found: {path}",
+    "vcvars_run_failed": "vcvarsall.bat failed: {error}",
+    "msvc_env_loaded": "MSVC dev environment loaded ({count} env vars)",
+    "msvc_env_fail_fallback": "Failed to init MSVC environment; falling back to Visual Studio generator"
 }

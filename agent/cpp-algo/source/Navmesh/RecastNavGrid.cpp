@@ -1431,14 +1431,14 @@ std::vector<WorldPoint> StringPull(
 
 // 动态规划抽稀: 把输入路径点作为有向无环图的节点, 任意安全直连作为候选边。
 // 首要目标是最大化整条合并路径的最小净空; Slim 可在净空接近时再选择更少的路径点。
-std::vector<WorldPoint>
-    Slim(const std::vector<WorldPoint>& pts,
-         const Blockers& blk,
-         const ClearanceFloor* cfl,
-         const LayerOracle* lyo,
-         float h,
-         bool prefer_fewer_points,
-         size_t max_merge_gap)
+std::vector<WorldPoint> Slim(
+    const std::vector<WorldPoint>& pts,
+    const Blockers& blk,
+    const ClearanceFloor* cfl,
+    const LayerOracle* lyo,
+    float h,
+    bool prefer_fewer_points,
+    size_t max_merge_gap)
 {
     if (pts.size() < 3) {
         return pts;
@@ -1468,6 +1468,7 @@ std::vector<WorldPoint>
         size_t segments = std::numeric_limits<size_t>::max();
         size_t previous = std::numeric_limits<size_t>::max();
     };
+
     std::vector<DpState> dp(P.size());
     dp[0] = { std::numeric_limits<double>::infinity(), 0, 0 };
     for (size_t j = 1; j < P.size(); ++j) {
@@ -1499,8 +1500,8 @@ std::vector<WorldPoint>
             }
             const double bottleneck = std::min(dp[i].bottleneck, direct_clearance);
             const size_t segments = dp[i].segments + 1;
-            const bool better = dp[j].segments == std::numeric_limits<size_t>::max()
-                || bottleneck > dp[j].bottleneck + kClrTol
+            const bool better =
+                dp[j].segments == std::numeric_limits<size_t>::max() || bottleneck > dp[j].bottleneck + kClrTol
                 || (prefer_fewer_points && std::fabs(bottleneck - dp[j].bottleneck) <= kClrTol && segments < dp[j].segments);
             if (better) {
                 dp[j] = { bottleneck, segments, i };

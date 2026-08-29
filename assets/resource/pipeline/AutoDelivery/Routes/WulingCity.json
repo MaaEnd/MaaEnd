@@ -337,8 +337,22 @@
                 {
                     "action": "NAVMESH",
                     "target": [
+                        918.85,
+                        1580.1
+                    ]
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        664.27,
+                        1601.29
+                    ]
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
                         461.92,
-                        1712.802
+                        1712.8
                     ],
                     "target_deck_y": 315.37
                 }
@@ -382,8 +396,22 @@
                 {
                     "action": "NAVMESH",
                     "target": [
+                        918.85,
+                        1580.1
+                    ]
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        664.27,
+                        1601.29
+                    ]
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
                         461.92,
-                        1712.802
+                        1712.8
                     ],
                     "target_deck_y": 315.37
                 }
@@ -609,6 +637,20 @@
                 {
                     "action": "NAVMESH",
                     "target": [
+                        918.85,
+                        1580.1
+                    ]
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        664.27,
+                        1601.29
+                    ]
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
                         512.92,
                         1652.04
                     ],
@@ -651,6 +693,20 @@
                     965.5,
                     1803.38
                 ],
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        918.85,
+                        1580.1
+                    ]
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        664.27,
+                        1601.29
+                    ]
+                },
                 {
                     "action": "NAVMESH",
                     "target": [

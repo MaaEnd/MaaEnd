@@ -12,11 +12,33 @@
 
 #include "../Navmesh/BaseNavPlanner.h"
 #include "navi_domain_types.h"
+#include "navmesh_diagnostics.h"
 
 namespace mapnavigator
 {
 
 struct NaviParam;
+
+// Final reason a complete authored-route expansion failed. The record is scoped to the calling
+// thread and reset by ExpandNavmeshWaypoints, so the WebUI query can read it immediately after a
+// false return without mixing concurrent navigation requests.
+struct NavmeshExpansionFailure
+{
+    std::string code;
+    std::string message;
+    std::optional<size_t> authored_index;
+    std::string zone_id;
+    std::optional<navmesh::WorldPoint> segment_start;
+    std::optional<navmesh::WorldPoint> segment_goal;
+    std::optional<navmesh::WorldPoint> gap_start;
+    std::optional<navmesh::WorldPoint> gap_goal;
+    std::optional<double> gap_distance;
+    std::optional<navmesh::WorldPoint> target;
+    std::string target_tier;
+    std::optional<double> target_deck_y;
+    std::string route_status;
+    std::string route_error;
+};
 
 // How far the runtime will walk with no guidance. Start recovery covers the whole off-mesh band the
 // blind walk out of the base drops us in; the goal extension exists because navmesh omits water, so a
@@ -38,7 +60,9 @@ bool ExpandNavmeshWaypoints(
     const NaviParam& param,
     const NaviPosition& initial_pos,
     const std::function<bool()>& should_stop,
-    std::vector<Waypoint>& out_path);
+    std::vector<Waypoint>& out_path,
+    std::vector<NavmeshRouteDiagnostic>* out_diagnostics = nullptr);
+NavmeshExpansionFailure CurrentNavmeshExpansionFailure();
 // The goal deck pins which overlapping walkable surface the route must stop on; unset keeps the full span
 // set. `start_floor_y` overrides which floor the start snaps onto, for the rare caller that actually knows
 // the height it is standing at (a zipline dismount); unset keeps the zone's dominant floor, unchanged.
@@ -48,7 +72,8 @@ std::optional<navmesh::BaseNavRouteResult> PlanNavmeshRoute(
     const navmesh::WorldPoint& start,
     const navmesh::WorldPoint& goal,
     std::optional<double> goal_deck_y = std::nullopt,
-    std::optional<double> start_floor_y = std::nullopt);
+    std::optional<double> start_floor_y = std::nullopt,
+    NavmeshRouteDiagnostic* out_diagnostic = nullptr);
 
 // Which walkable surface `point` lands on: the planar distance to it, and its height on the same scale
 // as BaseNavRouteRequest::floor_y. Height matters as much as distance — a point directly above or below

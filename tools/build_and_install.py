@@ -4,6 +4,7 @@ import platform
 import shutil
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 from cli_support import Console, init_localization
@@ -25,6 +26,49 @@ def init_local() -> None:
 
 def t(key: str, **kwargs) -> str:
     return _local_t(key, **kwargs)
+
+
+def _timing(label: str, start: float) -> None:
+    print(f"  [timing] {label}: {time.monotonic() - start:.1f}s", flush=True)
+
+
+def _find_ccache(root_dir: Path) -> str | None:
+    """找可用的 ccache: 优先工作区官方版 (.cache/ccache-bin), 退回 PATH; 需 >= 4.6 (MSVC 支持)。"""
+    candidates: list[Path] = []
+    # 1) 工作区官方版本（最可靠，规避 Strawberry Perl 自带的旧 3.x）
+    ws_bin = root_dir / ".cache" / "ccache-bin" / "ccache.exe"
+    if ws_bin.exists():
+        candidates.append(ws_bin)
+    # 2) PATH 中的 ccache
+    found = shutil.which("ccache")
+    if found:
+        candidates.append(Path(found))
+
+    for cand in candidates:
+        try:
+            proc = subprocess.run(
+                [str(cand), "--version"],
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+                timeout=15,
+            )
+            if proc.returncode != 0:
+                continue
+            first = proc.stdout.splitlines()[0] if proc.stdout else ""
+            # 例如 "ccache version 4.14" 或 "ccache version 3.7.12"
+            import re as _re
+
+            m = _re.search(r"ccache version (\d+)\.(\d+)", first)
+            if not m:
+                continue
+            major, minor = int(m.group(1)), int(m.group(2))
+            if major > 4 or (major == 4 and minor >= 6):
+                return str(cand)
+        except (OSError, subprocess.SubprocessError, ValueError):
+            continue
+    return None
 
 
 def create_directory_link(src: Path, dst: Path) -> bool:
@@ -185,6 +229,7 @@ def build_go_agent(
     if ci_mode:
         tidy_cmd.append("-diff")
 
+    t_tidy_start = time.monotonic()
     tidy_result = subprocess.run(
         tidy_cmd,
         cwd=go_service_dir,
@@ -213,7 +258,9 @@ def build_go_agent(
         return False
     if tidy_result.stderr:
         print(tidy_result.stderr)
+    _timing("go mod tidy", t_tidy_start)
 
+    t_vendor_start = time.monotonic()
     vendor_result = subprocess.run(
         ["go", "mod", "vendor"],
         cwd=go_service_dir,
@@ -231,6 +278,7 @@ def build_go_agent(
         return False
     if vendor_result.stderr:
         print(vendor_result.stderr)
+    _timing("go mod vendor", t_vendor_start)
 
     # go build
     # CI 模式：release with debug info（保留 DWARF 调试信息，不使用 -s -w）
@@ -269,6 +317,7 @@ def build_go_agent(
     print(f"  {Console.warn(t('build_mode'))}: {build_mode_text}")
     print(f"  {Console.info(t('build_command'))}: {' '.join(build_cmd)}")
 
+    t_build_start = time.monotonic()
     result = subprocess.run(
         build_cmd,
         cwd=go_service_dir,
@@ -286,8 +335,148 @@ def build_go_agent(
         return False
     if result.stderr:
         print(result.stderr)
+    _timing("go build", t_build_start)
 
     print(f"  {Console.ok('->')} {output_path}")
+    return True
+
+
+def setup_windows_msvc_env(arch: str = "x86_64") -> bool:
+    """初始化 MSVC 环境 (vswhere + vcvarsall), 供 Ninja + cl.exe 使用。失败返回 False。"""
+    sys_root = os.environ.get("ProgramFiles(x86)", r"C:\Program Files (x86)")
+    vswhere = Path(sys_root) / "Microsoft Visual Studio" / "Installer" / "vswhere.exe"
+    if not vswhere.exists():
+        # 兼容 VS 安装到非标准位置：尝试从 vswhere 注册表路径查找
+        vswhere = Path("C:") / "Program Files (x86)" / "Microsoft Visual Studio" / "Installer" / "vswhere.exe"
+
+    if not vswhere.exists():
+        print(f"  {Console.warn(t('warning'))} {t('vswhere_not_found')}")
+        return False
+
+    try:
+        result = subprocess.run(
+            [
+                str(vswhere),
+                "-latest",
+                "-products",
+                "*",
+                "-requires",
+                "Microsoft.VisualStudio.Component.VC.Tools.x86.x64",
+                "-property",
+                "installationPath",
+            ],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+        )
+    except (OSError, subprocess.SubprocessError) as exc:
+        print(f"  {Console.warn(t('warning'))} {t('vswhere_query_failed', error=exc)}")
+        return False
+
+    vs_path = result.stdout.strip()
+    if result.returncode != 0 or not vs_path:
+        print(f"  {Console.warn(t('warning'))} {t('vswhere_not_found')}")
+        return False
+
+    vcvarsall = Path(vs_path) / "VC" / "Auxiliary" / "Build" / "vcvarsall.bat"
+    if not vcvarsall.exists():
+        print(
+            f"  {Console.warn(t('warning'))} {t('vcvars_not_found', path=vcvarsall)}"
+        )
+        return False
+
+    # x86_64 -> x64; aarch64 -> x64_arm64 (x64 host cross-compile to arm64 target).
+    # Bare "arm64" means arm64 host -> arm64 target, which would break the
+    # Hostx64/arm64 toolchain enforced below on x64 runners.
+    msvc_arch = "x64_arm64" if arch == "aarch64" else "x64"
+    # vcvarsall 必须在 shell 中执行 (cmd 对带空格路径的引号处理有坑)
+    try:
+        env_dump = subprocess.run(
+            f'call "{vcvarsall}" {msvc_arch} >nul && set',
+            shell=True,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+        )
+    except (OSError, subprocess.SubprocessError) as exc:
+        print(f"  {Console.warn(t('warning'))} {t('vcvars_run_failed', error=exc)}")
+        return False
+
+    if env_dump.returncode != 0 or not env_dump.stdout:
+        print(f"  {Console.warn(t('warning'))} {t('vcvars_run_failed', error=env_dump.stderr[:200])}")
+        return False
+
+    loaded = 0
+    for line in env_dump.stdout.splitlines():
+        if "=" not in line:
+            continue
+        key, _, value = line.partition("=")
+        key = key.strip()
+        value = value.strip()
+        if not key:
+            continue
+        os.environ[key] = value
+        loaded += 1
+
+    print(f"  {Console.ok(t('msvc_env_loaded', count=loaded))}")
+
+    # 确保 cl.exe 在 PATH 中（vcvarsall 在部分环境可能不把目标架构的 bin 加入 PATH，
+    # 交叉编译时尤为明显）。无论如何，都把"最新版 MSVC 目标架构 bin + Windows Kits
+    # 目标架构 bin"强制放到 PATH 最前，避免旧版本 cl 或 mingw/LLVM 抢占。
+    tgt = "arm64" if arch == "aarch64" else "x64"
+    vc_bin = Path(vs_path) / "VC" / "Tools" / "MSVC"
+    prepend_dirs: list[str] = []
+
+    if vc_bin.exists():
+        msvc_dirs = sorted(vc_bin.iterdir(), key=lambda p: p.name, reverse=True)
+        if msvc_dirs:
+            latest_msvc = msvc_dirs[0]
+            # Hostx64/<tgt> 是 CI 交叉编译的主要形态；HostARM64/<tgt> 供 ARM64 宿主
+            for host in ["Hostx64", "HostARM64"]:
+                cand_dir = latest_msvc / "bin" / host / tgt
+                if (cand_dir / "cl.exe").exists():
+                    prepend_dirs.append(str(cand_dir))
+                    break
+
+    # Windows Kits 的 bin：rc.exe 用宿主架构（x64）——arm64 的 rc.exe 是 ARM64 原生程序，
+    # 在 x64 runner 上无法运行（Exec format error）。交叉编译时 manifest 由 x64 的 rc 处理。
+    # 用 glob 直接找 <SDK bin>/<version>/x64/rc.exe，跨 runner 稳定
+    import glob as _glob
+
+    rc_exe_path = None
+    for probe_root in [
+        Path(os.environ.get("WindowsSdkDir", "")) / "bin",
+        Path(r"C:\Program Files (x86)\Windows Kits\10\bin"),
+    ]:
+        if not probe_root.exists():
+            continue
+        matches = sorted(
+            _glob.glob(str(probe_root / "*" / "x64" / "rc.exe")),
+            reverse=True,
+        )
+        if matches:
+            rc_exe_path = Path(matches[0])
+            break
+    if rc_exe_path is not None:
+        prepend_dirs.append(str(rc_exe_path.parent))
+        # 让 configure 阶段能拿到 x64 rc 的完整路径（CMake 的 Ninja+MSVC 会按目标架构选 arm64 rc，
+        # 必须显式覆盖为宿主 x64 rc）
+        os.environ["MAAEND_RC_COMPILER"] = str(rc_exe_path)
+    else:
+        os.environ.pop("MAAEND_RC_COMPILER", None)
+
+    if prepend_dirs:
+        old_path = os.environ.get("PATH", "")
+        new_path = os.pathsep.join(prepend_dirs) + os.pathsep + old_path
+        os.environ["PATH"] = new_path
+
+    cl_in_path = shutil.which("cl.exe")
+    if cl_in_path:
+        print(f"  [diag] cl.exe in PATH: {cl_in_path}")
+    else:
+        print(f"  [diag] cl.exe STILL not in PATH; prepend_dirs={prepend_dirs}")
+    print(f"  [diag] rc.exe in PATH: {shutil.which('rc.exe')}")
     return True
 
 
@@ -389,10 +578,19 @@ def build_cpp_algo(
     configure_preset_candidates: list[str]
     if resolved_os == "win":
         if resolved_arch == "aarch64":
-            configure_preset_candidates = ["MSVC 2026 ARM", "MSVC 2022 ARM"]
+            # 优先 Ninja Multi-Config（多核并行编译，大幅缩短 MSVC 构建时间），
+            # 失败时回退 VS generator（ARM 交叉编译）
+            configure_preset_candidates = [
+                "NinjaMulti Win32 ARM64",
+                "MSVC 2026 ARM",
+                "MSVC 2022 ARM",
+            ]
         else:
-            # 兼容仅安装 VS2022 的环境：优先尝试 2026，失败时自动回退 2022
-            configure_preset_candidates = ["MSVC 2026", "MSVC 2022"]
+            configure_preset_candidates = [
+                "NinjaMulti Win32",
+                "MSVC 2026",
+                "MSVC 2022",
+            ]
     elif resolved_os == "linux":
         if resolved_arch == "aarch64":
             configure_preset_candidates = ["NinjaMulti Linux arm64"]
@@ -401,6 +599,19 @@ def build_cpp_algo(
     else:
         # macOS
         configure_preset_candidates = ["NinjaMulti"]
+
+    # Windows 走 Ninja 时，需要先初始化 MSVC 开发环境（cl.exe/INCLUDE/LIB）
+    if resolved_os == "win":
+        if configure_preset_candidates[0].startswith("NinjaMulti Win32"):
+            if not setup_windows_msvc_env(resolved_arch):
+                print(
+                    f"  {Console.warn(t('warning'))} {t('msvc_env_fail_fallback')}"
+                )
+                # 回退到 VS generator（CMake 可自动定位 VS，无需环境变量）
+                if resolved_arch == "aarch64":
+                    configure_preset_candidates = ["MSVC 2026 ARM", "MSVC 2022 ARM"]
+                else:
+                    configure_preset_candidates = ["MSVC 2026", "MSVC 2022"]
 
     # 构建 MAADEPS_TRIPLET: maa-{x64|arm64}-{windows|linux|osx}
     arch_part = "x64" if resolved_arch == "x86_64" else "arm64"
@@ -416,6 +627,20 @@ def build_cpp_algo(
     )
     print(f"  {t('maadeps_triplet')}: {maadeps_triplet}")
 
+    ccache_prog = _find_ccache(root_dir)
+    if ccache_prog:
+        os.environ["CCACHE_DIR"] = str(root_dir / ".cache" / "ccache")
+        Path(os.environ["CCACHE_DIR"]).mkdir(parents=True, exist_ok=True)
+        # 前置到 PATH, 确保 CMake 命中官方 4.14 而非 Strawberry 旧 3.x
+        ccache_dir = str(Path(ccache_prog).parent)
+        old_path = os.environ.get("PATH", "")
+        if ccache_dir not in old_path.split(os.pathsep):
+            os.environ["PATH"] = ccache_dir + os.pathsep + old_path
+        print(f"  {Console.ok(t('ccache_status', path=os.environ['CCACHE_DIR']))}")
+        print(f"  {t('ccache_compiler_launcher')}: {ccache_prog}")
+    else:
+        print(f"  {Console.warn(t('ccache_not_found'))}")
+
     # cmake --preset <configure_preset>（按候选列表依次尝试）
     configure_preset = configure_preset_candidates[0]
     build_dir = cpp_algo_dir / "build"
@@ -424,6 +649,7 @@ def build_cpp_algo(
             f"  {Console.warn(t('warning'))} {t('cmake_cache_cleanup_first_try_hint')}"
         )
 
+    t_configure_start = time.monotonic()
     for idx, preset in enumerate(configure_preset_candidates):
         if idx > 0 and not cleanup_cmake_cache(
             build_dir, interactive_retry=not ci_mode
@@ -433,13 +659,26 @@ def build_cpp_algo(
             )
             return False
 
+        enable_ccache = "ON" if ccache_prog else "OFF"
         configure_cmd = [
             "cmake",
             "--preset",
             preset,
             f"-DMAADEPS_TRIPLET={maadeps_triplet}",
             f"-DCMAKE_INSTALL_PREFIX={install_dir}",
+            f"-DENABLE_CCACHE={enable_ccache}",
         ]
+
+        # MSVC + ccache: /Zi 不可缓存, 改用 /Z7 (Embedded)
+        if resolved_os == "win" and enable_ccache == "ON":
+            configure_cmd.append(
+                "-DCMAKE_MSVC_DEBUG_INFORMATION_FORMAT=Embedded"
+            )
+
+        # 交叉编译: 显式用 x64(宿主) rc.exe; -D 值里反斜杠是转义符, 必须用正斜杠
+        if resolved_os == "win" and os.environ.get("MAAEND_RC_COMPILER"):
+            rc_path = os.environ["MAAEND_RC_COMPILER"].replace("\\", "/")
+            configure_cmd.append(f"-DCMAKE_RC_COMPILER={rc_path}")
 
         # macOS 需要额外的参数
         if resolved_os == "macos":
@@ -470,6 +709,7 @@ def build_cpp_algo(
                 print(
                     f"  {Console.warn(t('warning'))} {t('cmake_fallback_preset_used', preset=preset)}"
                 )
+            _timing("cmake configure", t_configure_start)
             break
 
         # 失败时：如果还有下一个候选，继续尝试；否则报错退出
@@ -495,6 +735,7 @@ def build_cpp_algo(
     ]
     print(f"  {t('build_command')}: {' '.join(build_cmd)}")
 
+    t_build_start = time.monotonic()
     result = subprocess.run(
         build_cmd,
         cwd=cpp_algo_dir,
@@ -511,6 +752,7 @@ def build_cpp_algo(
         return False
     if result.stderr:
         print(result.stderr)
+    _timing("cmake build", t_build_start)
 
     # cmake --install build --prefix <install_dir> --config <build_type>
     install_cmd = [
@@ -524,6 +766,7 @@ def build_cpp_algo(
     ]
     print(f"  {t('build_command')}: {' '.join(install_cmd)}")
 
+    t_install_start = time.monotonic()
     result = subprocess.run(
         install_cmd,
         cwd=cpp_algo_dir,
@@ -540,6 +783,7 @@ def build_cpp_algo(
         return False
     if result.stderr:
         print(result.stderr)
+    _timing("cmake install", t_install_start)
 
     agent_dir = install_dir / "agent"
     print(f"  -> {agent_dir}")
@@ -577,6 +821,7 @@ def main():
 
     # 1. 链接/复制 assets 目录内容 和 docs/img 目录
     print(Console.step(t("step_process_assets")))
+    t_step1_start = time.monotonic()
     for item in assets_dir.iterdir():
         dst = install_dir / item.name
         if item.is_dir():
@@ -593,23 +838,28 @@ def main():
             print(f"  {Console.ok('->')} {docs_img_dst}")
         else:
             print(f"  {Console.warn(t('warning'))} {t('docs_copy_failed')}")
+    _timing("step1 copy assets+docs", t_step1_start)
 
     # 2. 构建 Go Agent
     print(Console.step(t("step_build_go")))
+    t_step2_start = time.monotonic()
     if not build_go_agent(
         root_dir, install_dir, args.target_os, args.target_arch, args.version, use_copy
     ):
         print(f"  {Console.err(t('error'))} {t('build_go_failed')}")
         sys.exit(1)
+    _timing("step2 go agent", t_step2_start)
 
     # 3. 构建 C++ Algo Agent（仅在指定 --cpp-algo 时）
     if args.cpp_algo:
         print(Console.step(t("step_build_cpp")))
+        t_step3_start = time.monotonic()
         if not build_cpp_algo(
             root_dir, install_dir, args.target_os, args.target_arch, use_copy
         ):
             print(f"  {t('error')} {t('build_cpp_failed')}")
             sys.exit(1)
+        _timing("step3 cpp agent", t_step3_start)
     else:
         print(Console.step(t("step_skip_cpp")))
 

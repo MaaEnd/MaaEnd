@@ -68,6 +68,8 @@ class NavmeshBackend:
         self._started = False
         self._start_lock = threading.Lock()
         self._query_lock = threading.Lock()
+        self._latest_lock = threading.Lock()
+        self._latest_generation: dict[str, int] = {}
         self._geom_of: dict[int, int] = {}
         self._mesh_cache: dict[int, bytes] = {}
 
@@ -120,6 +122,19 @@ class NavmeshBackend:
         self._await_ready()
         return self._post(op, **params)
 
+    def query_latest(self, key: str, op: str, **params: Any) -> dict[str, Any]:
+        """同一 key 只执行等待队列里的最新查询；已经进入 Agent 的那次仍正常收尾。"""
+        with self._latest_lock:
+            generation = self._latest_generation.get(key, 0) + 1
+            self._latest_generation[key] = generation
+
+        self._await_ready()
+        with self._query_lock:
+            with self._latest_lock:
+                if self._latest_generation.get(key) != generation:
+                    return {"ok": False, "stale": True}
+            return self._post_locked(op, **params)
+
     def _await_ready(self) -> None:
         self.ensure_loading()
         if not self._ready.wait(180.0):
@@ -128,16 +143,20 @@ class NavmeshBackend:
             raise RuntimeError(self._error)
 
     def _post(self, op: str, **params: Any) -> dict[str, Any]:
-        payload = {"op": op, "navmesh_file": str(self._path), **params}
         with self._query_lock:
-            session = self._session
-            if session is None:
-                raise RuntimeError("navmesh agent 未连接")
-            # agent 死掉时框架只会静默给不出结果, 这里先把它认出来。
-            exit_code = session.agent_exit_code
-            if exit_code is not None:
-                raise RuntimeError(f"navmesh agent 已退出 (返回码 {exit_code})")
-            session.resource.override_pipeline({
+            return self._post_locked(op, **params)
+
+    def _post_locked(self, op: str, **params: Any) -> dict[str, Any]:
+        """调用方已经持有 _query_lock；保持所有 Agent 请求严格串行。"""
+        payload = {"op": op, "navmesh_file": str(self._path), **params}
+        session = self._session
+        if session is None:
+            raise RuntimeError("navmesh agent 未连接")
+        # agent 死掉时框架只会静默给不出结果, 这里先把它认出来。
+        exit_code = session.agent_exit_code
+        if exit_code is not None:
+            raise RuntimeError(f"navmesh agent 已退出 (返回码 {exit_code})")
+        session.resource.override_pipeline({
                 _NODE: {
                     "recognition": "Custom",
                     "custom_recognition": _NODE,
@@ -146,12 +165,12 @@ class NavmeshBackend:
                     "post_delay": 0,
                     "rate_limit": 0,
                 },
-            })
-            job = session.tasker.post_task(_NODE)
-            job.wait()
-            detail = session.tasker.get_task_detail(job.job_id)
-            node = detail.nodes[0] if detail and detail.nodes else None
-            raw = node.recognition.best_result.detail if node and node.recognition and node.recognition.best_result else None
+        })
+        job = session.tasker.post_task(_NODE)
+        job.wait()
+        detail = session.tasker.get_task_detail(job.job_id)
+        node = detail.nodes[0] if detail and detail.nodes else None
+        raw = node.recognition.best_result.detail if node and node.recognition and node.recognition.best_result else None
 
         if isinstance(raw, (str, bytes)):
             return json.loads(raw)

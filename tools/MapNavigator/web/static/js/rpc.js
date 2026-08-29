@@ -218,6 +218,28 @@ export function postRoute(req) {
 }
 
 /**
+ * Expand a complete MapNavigator request with the runtime planner. Unlike
+ * {@link postRoute}, this preserves global route boundaries and zipline semantics.
+ *
+ * @param {{position:number[], position_zone:string, custom_action_param:Object}} req
+ * @returns {Promise<{ok:boolean, stale?:boolean, points?:number[][],
+ *   walk_segments?:number[][][], zipline_segments?:Array<Object>,
+ *   diagnostics?:Array<Object>, expanded_waypoints?:number, zipline?:Object, error?:string,
+ *   failure?:{code:string, message:string, authored_index?:number, zone_id?:string,
+ *     segment_start?:number[], segment_goal?:number[], gap_start?:number[], gap_goal?:number[], gap_distance?:number,
+ *     target?:number[],
+ *     target_tier?:string, target_deck_y?:number,
+ *     route_status?:string, route_error?:string}}>}
+ */
+export function postRoutePreview(req) {
+  return sendJson('/api/route-preview', {
+    position: req.position,
+    position_zone: req.position_zone,
+    custom_action_param: req.custom_action_param,
+  });
+}
+
+/**
  * @typedef {{distance:?number, nearest:?number[], budget:?number}} OffMeshProbe a point off the
  *   walkable mesh: how far the nearest mesh point is and where it lies (both null when there is
  *   no mesh at all within the runtime's blind-walk budget). `budget` is how far the runtime will
@@ -500,7 +522,7 @@ export class NavTestSocket extends SessionSocket {
   /**
    * Open the session and walk `route` as soon as the game is connected.
    * @param {Object} sessionConfig `{kind:'win32'|'adb'|..., win32?, adb?}`
-   * @param {{path: Array, exported: boolean, assert_target: ?Object}} route see {@link NavTestSocket#arm}
+   * @param {{path: Array, exported: boolean, zip?: boolean, assert_target: ?Object}} route see {@link NavTestSocket#arm}
    * @returns {void}
    */
   start(sessionConfig, route) {
@@ -511,7 +533,7 @@ export class NavTestSocket extends SessionSocket {
    * Load what F3 (and the next `run`) will run. `exported` false means editor waypoints
    * the backend still has to export, true means ready pipeline nodes. `assert_target`
    * `{zone_id, target:[x,y,w,h]}` runs the assert rect instead and wins over `path`.
-   * @param {{path: Array, exported: boolean, assert_target: ?Object}} route
+   * @param {{path: Array, exported: boolean, zip?: boolean, assert_target: ?Object}} route
    * @returns {void}
    */
   arm(route) {
@@ -523,11 +545,12 @@ export class NavTestSocket extends SessionSocket {
     this._send({ type: 'run', ...this._route(route) });
   }
 
-  /** @returns {{path: Array, exported: boolean, assert_target: ?Object}} */
+  /** @returns {{path: Array, exported: boolean, zip: boolean, assert_target: ?Object}} */
   _route(route) {
     return {
       path: (route && route.path) || [],
       exported: !!(route && route.exported),
+      zip: !!(route && route.zip),
       assert_target: (route && route.assert_target) || null,
     };
   }

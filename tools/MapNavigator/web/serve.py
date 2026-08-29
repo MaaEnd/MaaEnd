@@ -21,6 +21,7 @@
   GET  /api/zipline-frames    -> 滑索世界坐标到 base 底图的只读标定
   GET  /mesh/{zone_id}        -> 某几何区的 NMSH 二进制网格缓冲 (application/octet-stream)
   POST /api/route             -> 栅格路线; 失败时附起终点的离网探针
+  POST /api/route-preview     -> 按 MapNavigateAction 运行时语义展开作者路线与滑索段
   GET  /api/settings          -> 读取 ~/.maaend/mapnavigator.json
   PUT  /api/settings          -> 写入 ~/.maaend/mapnavigator.json
   GET  /api/adb/devices       -> adb devices -l 枚举 (容错)
@@ -313,7 +314,11 @@ async def lifespan(_app: FastAPI):
     configure_runtime_env()
     STATIC_DIR.mkdir(parents=True, exist_ok=True)
     navmesh_backend.ensure_loading()  # 立即在后台拉起 agent 并让它读 navmesh
-    yield
+    try:
+        yield
+    finally:
+        # Agent 不再继承 Ctrl+C，必须在服务退出时由 owner 明确收回。
+        await navmesh_backend.close()
 
 
 app = FastAPI(title="MapNavigator Web Backend", lifespan=lifespan)
@@ -357,6 +362,12 @@ class RouteRequest(BaseModel):
     floor_y: float | None = None
     # 终点所在重叠面的高度; floor_y 管吸附, 这个管选层
     goal_deck_y: float | None = None
+
+
+class RoutePreviewRequest(BaseModel):
+    position: list[float]
+    position_zone: str
+    custom_action_param: dict[str, Any]
 
 
 def _slot(value: float | None) -> list[float]:
@@ -491,6 +502,25 @@ async def api_route(req: RouteRequest) -> dict[str, Any]:
             "blind_start": None,
             "blind_target": None,
         }
+
+    return await run_in_threadpool(_compute)
+
+
+@app.post("/api/route-preview")
+async def api_route_preview(req: RoutePreviewRequest) -> dict[str, Any]:
+    """按 MapNavigateAction 运行时语义展开完整作者路线，供编辑器预览步行与滑索段。"""
+
+    def _compute() -> dict[str, Any]:
+        try:
+            return navmesh_backend.query_latest(
+                "route-preview",
+                "route_preview",
+                position=req.position,
+                position_zone=req.position_zone,
+                custom_action_param=req.custom_action_param,
+            )
+        except RuntimeError as exc:
+            return {"ok": False, "error": f"navmesh 尚未就绪: {exc}"}
 
     return await run_in_threadpool(_compute)
 
@@ -894,6 +924,7 @@ async def api_import_analyze(payload: dict[str, Any] = Body(default_factory=dict
                         "segments": seg_infos,
                         "zone_options": zone_options,
                         "route_count": route.route_count,
+                        "zip_enabled": route.zip_enabled,
                     }
                 # 无片段/无可选区域 -> 沿用原点位直接归一化
 
@@ -907,6 +938,7 @@ async def api_import_analyze(payload: dict[str, Any] = Body(default_factory=dict
                 "needs_assignment": False,
                 "points": final_points,
                 "route_count": route.route_count,
+                "zip_enabled": route.zip_enabled,
             }
         finally:
             try:
@@ -1461,4 +1493,8 @@ if __name__ == "__main__":
         ).start()
 
     # 交出已绑定的 socket (而非让 uvicorn 自己 bind), 端口即为上面宣告给浏览器的那个。
-    uvicorn.Server(uvicorn.Config(app, host=LISTEN_HOST, port=listen_port)).run(sockets=[listen_socket])
+    try:
+        uvicorn.Server(uvicorn.Config(app, host=LISTEN_HOST, port=listen_port)).run(sockets=[listen_socket])
+    except KeyboardInterrupt:
+        # Python 3.14 的 asyncio.run 会在 Uvicorn 完成 shutdown 后重新抛出 KeyboardInterrupt。
+        pass

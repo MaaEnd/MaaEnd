@@ -55,8 +55,13 @@ enum class BaseNavRouteStatus
 struct BaseNavRouteResult
 {
     BaseNavRouteStatus status = BaseNavRouteStatus::Unreachable;
+    std::string error;
     WorldPath path;
     double cost = 0.0;
+    // Planner-confirmed closest boundary pair when start and goal lie on separate cleaned-grid regions.
+    std::optional<WorldPoint> gap_start;
+    std::optional<WorldPoint> gap_goal;
+    std::optional<double> gap_distance;
 
     bool ok() const { return status == BaseNavRouteStatus::Success; }
 };

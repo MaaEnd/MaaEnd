@@ -13,18 +13,21 @@ const routes = [
   {
     resource_path: 'assets/resource/pipeline/AutoCollect/AutoCollectRoute7.json',
     node_name: 'AutoCollectRoute7GotoFindLine4',
+    desc: '自动采集净化玉参考路线',
     kind: 'path',
     zone_ids: ['Wuling_Base'],
   },
   {
     resource_path: 'assets/resource/pipeline/EnvironmentMonitoring/Wuling.json',
     node_name: 'EnvironmentMonitoringGotoTarget',
+    desc: '环境监测观察点导航',
     kind: 'path',
     zone_ids: ['Wuling_Base'],
   },
   {
     resource_path: 'assets/resource/pipeline/AutoCollect/AutoCollectRoute7.json',
     node_name: 'AutoCollectRoute7AssertLocation',
+    desc: '武陵断言位置',
     kind: 'assert',
     zone_id: 'Wuling_Base',
   },
@@ -36,6 +39,10 @@ test('project route filter matches resource paths case-insensitively', () => {
 
 test('project route filter matches Pipeline node names', () => {
   assert.deepEqual(filterProjectNodes(routes, 'gototarget', 'path'), [routes[1]]);
+});
+
+test('project route filter matches node descriptions', () => {
+  assert.deepEqual(filterProjectNodes(routes, '环境监测观察点', 'path'), [routes[1]]);
 });
 
 test('blank project route filter keeps the backend order', () => {

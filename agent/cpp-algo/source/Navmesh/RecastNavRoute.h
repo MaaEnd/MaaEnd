@@ -4,6 +4,7 @@
 #include <functional>
 #include <memory>
 #include <mutex>
+#include <optional>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -29,6 +30,7 @@ struct RecastPlanResult
     // 贪心拉直后的驱动航点下标(points 的下标,不含起点,末位恒为 points.size()-1)。
     // 空 = 该腿没有层预言机,拉直交给调用方。
     std::vector<size_t> waypoints;
+
     struct Debug
     {
         double x0 = 0.0;
@@ -44,6 +46,9 @@ struct RecastPlanResult
         std::vector<WorldPoint> slim_points;
         std::vector<WorldPoint> widened_points;
         std::vector<WorldPoint> planned_points;
+        std::optional<WorldPoint> gap_start;
+        std::optional<WorldPoint> gap_goal;
+        std::optional<double> gap_distance;
         std::vector<std::string> warnings;
     } debug;
 };

@@ -45,7 +45,12 @@ export class ConnectionPanel {
     this._instancesLoadedOnce = false;
     this._persistTimer = 0;
     this._checkTimer = 0;
+    this._checkVersion = 0;
     this._suspended = false;
+    /** @type {boolean} whether the latest connection probe succeeded. */
+    this.connected = false;
+    /** @type {Set<(connected:boolean)=>void>} */
+    this._statusListeners = new Set();
     /** @type {boolean} last observed connected state; drives auto-collapse on the rising edge. */
     this._wasConnected = false;
     /** @type {{platform:string, supported_kinds:string[], default_kind:string}} */
@@ -169,6 +174,30 @@ export class ConnectionPanel {
     return this.els.kindCombo.value || this.platform.default_kind;
   }
 
+  /** @returns {boolean} whether the latest connection probe succeeded. */
+  isConnected() {
+    return this.connected;
+  }
+
+  /**
+   * Observe connection readiness. The current state is delivered immediately.
+   * @param {(connected:boolean)=>void} listener
+   * @returns {()=>void} unsubscribe callback
+   */
+  onStatusChange(listener) {
+    this._statusListeners.add(listener);
+    listener(this.connected);
+    return () => this._statusListeners.delete(listener);
+  }
+
+  /** @param {boolean} connected @returns {void} */
+  _setConnected(connected) {
+    const next = Boolean(connected);
+    if (this.connected === next) return;
+    this.connected = next;
+    for (const listener of this._statusListeners) listener(next);
+  }
+
   /** @returns {string} short display label for the active kind (compact summary). */
   _kindLabel() {
     const k = this.kind();
@@ -189,6 +218,11 @@ export class ConnectionPanel {
 
   /** Update the summary line. @returns {void} */
   refreshSummary() {
+    // Any target edit invalidates the previous probe immediately. The debounced
+    // check will re-enable dependent actions only after this exact config succeeds.
+    this._checkVersion += 1;
+    this._setConnected(false);
+    if (this.statusDot) this.statusDot.classList.remove('connected', 'connecting');
     const k = this.kind();
     if (k === 'adb') {
       const target = this.els.adbTargetInput.value.trim();
@@ -223,6 +257,9 @@ export class ConnectionPanel {
     const next = Boolean(suspended);
     if (this._suspended === next) return;
     this._suspended = next;
+    this._checkVersion += 1;
+    this._setConnected(false);
+    if (this.statusDot) this.statusDot.classList.remove('connected', 'connecting');
     clearTimeout(this._checkTimer);
     if (!this._suspended) this._checkDebounced();
   }
@@ -246,6 +283,8 @@ export class ConnectionPanel {
   async checkConnectionStatus() {
     if (!this.statusDot || this._suspended) return;
 
+    const checkVersion = ++this._checkVersion;
+    this._setConnected(false);
     this.statusDot.classList.remove('connected');
     this.statusDot.classList.add('connecting');
 
@@ -264,9 +303,11 @@ export class ConnectionPanel {
 
     try {
       const res = await checkConnection(payload);
+      if (checkVersion !== this._checkVersion || this._suspended) return;
       this.statusDot.classList.remove('connecting');
       if (res && res.connected) {
         this.statusDot.classList.add('connected');
+        this._setConnected(true);
         // Compact inline summary (the header strip is narrow); full backend message
         // stays in the hover tooltip and the expanded body carries the target detail.
         this.els.summary.textContent = `${this._kindLabel()} 在线`;
@@ -277,14 +318,17 @@ export class ConnectionPanel {
         this._wasConnected = true;
       } else {
         this.statusDot.classList.remove('connected');
+        this._setConnected(false);
         this.els.summary.textContent = res ? (res.message || '连接失败') : '连接错误';
         this.els.summary.title = res ? (res.message || '') : '';
         if (this._wasConnected) this.setCollapsed(false);
         this._wasConnected = false;
       }
     } catch (err) {
+      if (checkVersion !== this._checkVersion || this._suspended) return;
       this.statusDot.classList.remove('connecting');
       this.statusDot.classList.remove('connected');
+      this._setConnected(false);
       this.els.summary.textContent = '无法连接后端服务';
       this.els.summary.title = String(err);
       if (this._wasConnected) this.setCollapsed(false);

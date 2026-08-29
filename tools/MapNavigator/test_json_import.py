@@ -9,6 +9,7 @@ from json_import import (
     discover_assert_locations,
     discover_path_routes,
     export_path_nodes,
+    load_points_from_json_file,
     load_project_import_node,
     scan_project_import_nodes,
 )
@@ -145,6 +146,17 @@ class ExportPathNodesTest(unittest.TestCase):
 
 
 class GenericImportShapesTest(unittest.TestCase):
+    def test_preserves_route_level_zip_option(self) -> None:
+        with tempfile.NamedTemporaryFile("w", suffix=".json", encoding="utf-8", delete=False) as handle:
+            json.dump({"path": [[1, 2], [3, 4]], "zip": True}, handle)
+            path = Path(handle.name)
+        try:
+            route = load_points_from_json_file(path)
+        finally:
+            path.unlink(missing_ok=True)
+
+        self.assertTrue(route.zip_enabled)
+
     def test_discovers_a_bare_path_array(self) -> None:
         routes = discover_path_routes([[1, 2], [3, 4, "SPRINT"]])
 
@@ -218,6 +230,7 @@ class ProjectImportNodesTest(unittest.TestCase):
             json.dumps(
                 {
                     "RouteB": {
+                        "desc": "四号谷地参考路线",
                         "custom_action": "MapNavigateAction",
                         "custom_action_param": {"path": [[5, 6]]},
                     },
@@ -226,6 +239,7 @@ class ProjectImportNodesTest(unittest.TestCase):
                         "custom_action_param": {"path": [[7, 8]]},
                     },
                     "AssertB": {
+                        "desc": "四号谷地位置断言",
                         "recognition": "Custom",
                         "custom_recognition": "MapLocateAssertLocation",
                         "custom_recognition_param": {
@@ -242,6 +256,7 @@ class ProjectImportNodesTest(unittest.TestCase):
             {
                 // 项目路线允许 JSONC 注释与尾逗号
                 "RouteA": {
+                    "desc": "武陵参考路线",
                     "custom_action": "MapNavigateAction",
                     "custom_action_param": {
                         "path": [
@@ -271,6 +286,7 @@ class ProjectImportNodesTest(unittest.TestCase):
                     node.kind,
                     node.resource_path,
                     node.node_name,
+                    node.desc,
                     node.point_count,
                     node.navmesh_count,
                     node.zone_ids,
@@ -284,6 +300,7 @@ class ProjectImportNodesTest(unittest.TestCase):
                     "path",
                     "assets/resource/pipeline/a.jsonc",
                     "RouteA",
+                    "武陵参考路线",
                     2,
                     1,
                     ("Wuling_Base",),
@@ -294,6 +311,7 @@ class ProjectImportNodesTest(unittest.TestCase):
                     "assert",
                     "assets/resource/pipeline/b.json",
                     "AssertB",
+                    "四号谷地位置断言",
                     0,
                     0,
                     (),
@@ -304,6 +322,7 @@ class ProjectImportNodesTest(unittest.TestCase):
                     "path",
                     "assets/resource/pipeline/b.json",
                     "RouteB",
+                    "四号谷地参考路线",
                     1,
                     0,
                     (),
@@ -338,7 +357,36 @@ class ProjectImportNodesTest(unittest.TestCase):
             self.assets_dir,
         )
 
-        self.assertEqual(loaded, {"kind": "path", "path": expected_path})
+        self.assertEqual(
+            loaded,
+            {"kind": "path", "path": expected_path, "zip_enabled": False},
+        )
+
+    def test_preserves_selected_map_navigate_zip_option(self) -> None:
+        expected_path = [[1, 2], [3, 4]]
+        self._write(
+            "resource/pipeline/routes.json",
+            json.dumps(
+                {
+                    "Selected": {
+                        "custom_action": "MapNavigateAction",
+                        "custom_action_param": {"path": expected_path, "zip": True},
+                    }
+                }
+            ),
+        )
+
+        loaded = load_project_import_node(
+            "path",
+            "assets/resource/pipeline/routes.json",
+            "Selected",
+            self.assets_dir,
+        )
+
+        self.assertEqual(
+            loaded,
+            {"kind": "path", "path": expected_path, "zip_enabled": True},
+        )
 
     def test_loads_the_selected_assert_location(self) -> None:
         self._write(

@@ -11,37 +11,37 @@
 namespace navmesh::recast
 {
 
-inline constexpr double kCS = 0.25;                // 体素边长 px
-inline constexpr double kClimb = 3.0;              // 相邻格可连通最大高差 px
-inline constexpr double kSlope = 1.0;              // 可攀爬坡度上限 tanθ, 抬升超过水平位移的这个倍数即立面
-inline constexpr double kUp = kSlope * kCS;        // 正交相邻格允许的抬升 px, 斜向按实际水平位移等比放大
-inline constexpr double kMergeH = kUp;             // 同列 span 合并容差 px, 取 kUp 使同层内处处可一步跨到
-inline constexpr double kQH = 1.0;                 // 体素取样高差容差 px, 需装下斜面单格起伏与格心取样偏差
-inline constexpr double kEdtCap = 12.0;            // 距离场截断 px
-inline constexpr double kR = 1.75;                 // 期望余量上限 px
-inline constexpr double kGeoR = 3.5;               // 几何口径舒适余量上限 px
-inline constexpr double kRel = 0.6;                // 期望余量 = min(R, REL×局部净空)
-inline constexpr double kLam = 4.0;                // 按局部通道目标计亏欠的满亏欠一步加价倍数
-inline constexpr double kLamR = 28.0;              // 按固定余量目标 kR 计亏欠的满亏欠一步加价倍数
-inline constexpr double kRidgeFloor = 0.5;         // 脊线保底余量地板 px
-inline constexpr double kMaxErr = 0.5;             // 轮廓 DP 容差 px
+inline constexpr double kCS = 0.25;                 // 体素边长 px
+inline constexpr double kClimb = 3.0;               // 相邻格可连通最大高差 px
+inline constexpr double kSlope = 1.0;               // 可攀爬坡度上限 tanθ, 抬升超过水平位移的这个倍数即立面
+inline constexpr double kUp = kSlope * kCS;         // 正交相邻格允许的抬升 px, 斜向按实际水平位移等比放大
+inline constexpr double kMergeH = kUp;              // 同列 span 合并容差 px, 取 kUp 使同层内处处可一步跨到
+inline constexpr double kQH = 1.0;                  // 体素取样高差容差 px, 需装下斜面单格起伏与格心取样偏差
+inline constexpr double kEdtCap = 12.0;             // 距离场截断 px
+inline constexpr double kR = 1.75;                  // 期望余量上限 px
+inline constexpr double kGeoR = 3.5;                // 几何口径舒适余量上限 px
+inline constexpr double kRel = 0.6;                 // 期望余量 = min(R, REL×局部净空)
+inline constexpr double kLam = 4.0;                 // 按局部通道目标计亏欠的满亏欠一步加价倍数
+inline constexpr double kLamR = 28.0;               // 按固定余量目标 kR 计亏欠的满亏欠一步加价倍数
+inline constexpr double kRidgeFloor = 0.5;          // 脊线保底余量地板 px
+inline constexpr double kMaxErr = 0.5;              // 轮廓 DP 容差 px
 inline constexpr double kSlimClearanceBypass = 1.0; // 直连净空超过该值时跳过原净空比较 px
-inline constexpr double kClrTol = 0.125;           // 拉直允许的净空退让 px, 取半格即采样步长
+inline constexpr double kClrTol = 0.125;            // 拉直允许的净空退让 px, 取半格即采样步长
 inline constexpr size_t kStringPullMaxMergeGap = 6; // StringPull 最多跨越的输入路径步数
-inline constexpr double kCornerR = 1.75;           // 过角期望余量 px
-inline constexpr double kCornerTurn = 5.0;         // 需要留过角余量的最小转角 度
-inline constexpr double kCornerSeg = 2.0;          // 认定为拐点的最小相邻段长 px
-inline constexpr double kCornerMax = 4.0;          // 拐点外挪上限 px
-inline constexpr double kCornerStep = 0.5;         // 拐点外挪步长 px
-inline constexpr int64_t kCornerDirs = 32;         // 拐点外挪候选方向数
-inline constexpr int64_t kCornerRounds = 3;        // 拐点外挪迭代轮数
-inline constexpr double kCostTol = 1e-9;           // 代价判据相对容差, 容纳共线子路径的浮点求和差
-inline constexpr double kMcHBand = 8.0;            // 层高度带(边界边筛/盖章)px
-inline constexpr double kSnapRadius = 8.0;         // 起终点吸附半径 px
-inline constexpr double kDeckBand = 2.0;           // 声明面高度匹配容差 px, 需远小于相邻面间距
-inline constexpr double kMargin = 25.0;            // 窗口外扩 px
-inline constexpr double kBlockedPointRadius = 1.0; // 封堵点盖章半径 px
-inline constexpr int64_t kHoleMaxCells = 32;       // 封闭小洞填充上限(格 = 2px²)
+inline constexpr double kCornerR = 1.75;            // 过角期望余量 px
+inline constexpr double kCornerTurn = 5.0;          // 需要留过角余量的最小转角 度
+inline constexpr double kCornerSeg = 2.0;           // 认定为拐点的最小相邻段长 px
+inline constexpr double kCornerMax = 4.0;           // 拐点外挪上限 px
+inline constexpr double kCornerStep = 0.5;          // 拐点外挪步长 px
+inline constexpr int64_t kCornerDirs = 32;          // 拐点外挪候选方向数
+inline constexpr int64_t kCornerRounds = 3;         // 拐点外挪迭代轮数
+inline constexpr double kCostTol = 1e-9;            // 代价判据相对容差, 容纳共线子路径的浮点求和差
+inline constexpr double kMcHBand = 8.0;             // 层高度带(边界边筛/盖章)px
+inline constexpr double kSnapRadius = 8.0;          // 起终点吸附半径 px
+inline constexpr double kDeckBand = 2.0;            // 声明面高度匹配容差 px, 需远小于相邻面间距
+inline constexpr double kMargin = 25.0;             // 窗口外扩 px
+inline constexpr double kBlockedPointRadius = 1.0;  // 封堵点盖章半径 px
+inline constexpr int64_t kHoleMaxCells = 32;        // 封闭小洞填充上限(格 = 2px²)
 inline constexpr int64_t kMaxCells = 30'000'000;
 
 template <typename T>

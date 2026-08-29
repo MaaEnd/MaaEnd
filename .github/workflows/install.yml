@@ -192,6 +192,10 @@ jobs:
         arch: [aarch64, x86_64]
       fail-fast: false
     runs-on: ${{ matrix.os == 'win' && 'windows-latest' || (matrix.os == 'macos' && 'macos-latest' || 'ubuntu-latest') }}
+    env:
+      CCACHE_DIR: ${{ github.workspace }}/.cache/ccache
+      CCACHE_MAXSIZE: 1G
+      CCACHE_BASEDIR: ${{ github.workspace }}
 
     steps:
       - uses: actions/checkout@v6
@@ -203,13 +207,14 @@ jobs:
         if: matrix.os == 'linux'
         run: |
           sudo apt-get update -y
-          sudo apt-get install -y ninja-build cmake
+          sudo apt-get install -y ninja-build cmake ccache
 
       - name: Install macOS dependencies
         if: matrix.os == 'macos'
         run: |
           brew list ninja >/dev/null 2>&1 || brew install ninja
           brew list cmake >/dev/null 2>&1 || brew install cmake
+          brew list ccache >/dev/null 2>&1 || brew install ccache
 
       - name: Setup Windows 10 SDK
         if: matrix.os == 'win'
@@ -217,6 +222,20 @@ jobs:
         with:
           sdk-version: 26100
 
+      - name: Install ccache (Windows, official 4.14 supports MSVC)
+        if: matrix.os == 'win'
+        shell: bash
+        run: |
+          # Strawberry Perl 自带的 ccache 是 3.x 不支持 MSVC。直接下载官方 4.14 release。
+          CCACHE_ARCH=x86_64
+          mkdir -p .cache/ccache-bin
+          curl -sSL -o .cache/ccache.zip "https://github.com/ccache/ccache/releases/download/v4.14/ccache-4.14-windows-${CCACHE_ARCH}.zip"
+          unzip -o .cache/ccache.zip -d .cache/ccache-bin
+          find .cache/ccache-bin -name 'ccache.exe' -exec cp -f {} .cache/ccache-bin/ccache.exe \;
+          ./.cache/ccache-bin/ccache.exe --version | head -1
+          # 把官方 4.14 前置到 PATH：CMake 的 find_program(ccache)、ccache -sv 统计
+          # 以及 IconRecognition 测试子工程的 configure 都走这一份，避免命中 Strawberry 自带 3.x。
+          echo "${GITHUB_WORKSPACE}/.cache/ccache-bin" >> "${GITHUB_PATH}"
       - name: Setup Go
         uses: actions/setup-go@v6
         with:
@@ -225,9 +244,10 @@ jobs:
             agent/go-service/go.mod
             agent/go-service/go.sum
 
-      - name: Cache MaaDeps
+      # 缓存策略: restore/save 分离。PR 只恢复 v2 缓存不写入, 非 PR 才 save, 全仓只维护一份 v2 快照。
+      - name: Restore MaaDeps
         id: cache-maadeps
-        uses: actions/cache@v5
+        uses: actions/cache/restore@v5
         with:
           path: |
             ./agent/cpp-algo/MaaUtils/MaaDeps
@@ -239,6 +259,33 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           python3 tools/maadeps-download.py ${{ matrix.arch == 'x86_64' && 'x64' || 'arm64' }}-${{ matrix.os == 'win' && 'windows' || (matrix.os == 'macos' && 'osx' || 'linux') }}
+
+      - name: Save MaaDeps
+        # 仅非 PR 保存: 避免每个 PR 各囤一份快照撑爆 10GB 上限
+        if: ${{ github.event_name != 'pull_request' && steps.cache-maadeps.outputs.cache-hit != 'true' }}
+        uses: actions/cache/save@v5
+        with:
+          path: |
+            ./agent/cpp-algo/MaaUtils/MaaDeps
+          key: maadeps-${{ matrix.os }}-${{ matrix.arch }}-${{ hashFiles('./tools/maadeps-download.py') }}
+
+      # 与 MaaDeps 同策略: restore 所有事件执行, save 仅非 PR
+      - name: Restore ccache
+        id: cache-ccache
+        uses: actions/cache/restore@v5
+        with:
+          path: |
+            ./.cache/ccache
+          # v4 标记作废 ccache 3.x 旧缓存 (与 4.x 不兼容)
+          key: ${{ matrix.os == 'win' && 'ccache-v4' || 'ccache' }}-${{ matrix.os }}-${{ matrix.arch }}-${{ hashFiles('agent/cpp-algo/CMakeLists.txt','agent/cpp-algo/CMakePresets.json','agent/cpp-algo/cmake/**','agent/cpp-algo/source/**','agent/cpp-algo/MaaUtils/cmake/**','agent/cpp-algo/MaaUtils/MaaUtils.cmake') }}
+          restore-keys: |
+            ${{ matrix.os == 'win' && 'ccache-v4' || 'ccache' }}-${{ matrix.os }}-${{ matrix.arch }}-
+
+      # 每次构建前清零 ccache 统计: 否则 Restore 会把上一轮(甚至历史多轮)的累计计数一并带回,
+      # Show ccache stats 显示的命中率会被历史调用数稀释, 无法反映本次构建的真实命中情况
+      - name: Reset ccache stats
+        shell: bash
+        run: ccache -z
 
       - name: Setup WebView2 SDK
         if: matrix.os == 'win'
@@ -271,6 +318,7 @@ jobs:
         shell: bash
         env:
           PYTHONIOENCODING: utf-8
+          PYTHONUNBUFFERED: "1"
         run: |
           # 运行安装脚本（构建 Go Agent + Cpp Agent + 复制资源）
           python tools/build_and_install.py --cpp-algo --ci --os ${{ matrix.os }} --arch ${{ matrix.arch }} --version ${{ needs.meta.outputs.tag }}
@@ -305,6 +353,19 @@ jobs:
             --interface install/interface.json
 
           cat install/interface.json
+
+      - name: Save ccache
+        # Install 之后保存本次构建的新缓存; key 已存在时 save 只 warning 不覆盖; 仅非 PR 保存
+        if: ${{ github.event_name != 'pull_request' && steps.cache-ccache.outputs.cache-hit != 'true' }}
+        uses: actions/cache/save@v5
+        with:
+          path: |
+            ./.cache/ccache
+          key: ${{ matrix.os == 'win' && 'ccache-v4' || 'ccache' }}-${{ matrix.os }}-${{ matrix.arch }}-${{ hashFiles('agent/cpp-algo/CMakeLists.txt','agent/cpp-algo/CMakePresets.json','agent/cpp-algo/cmake/**','agent/cpp-algo/source/**','agent/cpp-algo/MaaUtils/cmake/**','agent/cpp-algo/MaaUtils/MaaUtils.cmake') }}
+
+      - name: Show ccache stats
+        shell: bash
+        run: ccache -sv || true
 
       - name: Run IconRecognition quick tests
         if: matrix.os == 'win' && matrix.arch == 'x86_64' && needs.meta.outputs.icon_recognition_changed == 'true'
@@ -675,3 +736,34 @@ jobs:
         run: |
           gh workflow run --repo $GITHUB_REPOSITORY discord-release-notification.yml \
             -f release_tag="${{ needs.meta.outputs.tag }}"
+
+  sentry_release:
+    if: ${{ needs.meta.outputs.is_release == 'true' && github.repository_owner == 'MaaEnd' }}
+    needs: [meta, release]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Resolve Sentry release
+        id: sentry_release
+        env:
+          MAAEND_VERSION: ${{ needs.meta.outputs.tag }}
+          MXU_VERSION: ${{ needs.meta.outputs.mxu_version }}
+        run: |
+          release="MXU@${MXU_VERSION#v}+MaaEnd@$MAAEND_VERSION"
+          echo "release=$release" | tee -a "$GITHUB_OUTPUT"
+
+      - name: Create Sentry release
+        uses: getsentry/action-release@v3
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: maaend
+          SENTRY_PROJECT: rust
+        with:
+          environment: ${{ needs.meta.outputs.is_prerelease == 'true' && 'beta' || 'stable' }}
+          release: ${{ steps.sentry_release.outputs.release }}
+          set_commits: auto
+          ignore_missing: true
+          ignore_empty: true

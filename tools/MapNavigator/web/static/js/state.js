@@ -99,7 +99,6 @@ export class UndoRedoHistory {
     this._redo.length = 0;
   }
 }
-
 // --- zone segments (zone_index.py) ---------------------------------------------------
 
 /** One maximal run of same-zone points: `[startIdx, endIdx)` global. */
@@ -300,7 +299,17 @@ export const PointEditing = {
    * Mutates `points`.
    * @returns {void}
    */
-  insertPoint(points, zoneIndices, currentZone, actionName, strictArrival, routeRequired, worldX, worldY) {
+  insertPoint(
+    points,
+    zoneIndices,
+    currentZone,
+    actionName,
+    strictArrival,
+    routeRequired,
+    worldX,
+    worldY,
+    targetTier = '',
+  ) {
     const actionType = actionNameToType(actionName);
     const newPoint = {
       x: roundCoord(worldX),
@@ -311,6 +320,8 @@ export const PointEditing = {
       strict: strictArrival,
     };
     if (routeRequired) newPoint.required = true;
+    const normalizedTargetTier = normalizeZoneId(targetTier);
+    if (normalizedTargetTier) newPoint.target_tier = normalizedTargetTier;
 
     if (zoneIndices.length < 2) {
       points.push(newPoint);
@@ -348,19 +359,24 @@ export const PointEditing = {
   applyAttributes(points, zoneIndices, selectedIdx, actionName, strictArrival, routeRequired, targetTier = '') {
     if (selectedIdx === null || selectedIdx >= zoneIndices.length) return false;
     const globalIdx = zoneIndices[selectedIdx];
-    const currentActions = getPointActions(points[globalIdx]);
+    const point = points[globalIdx];
+    const currentActions = getPointActions(point);
     const newActions = [actionNameToType(actionName)];
     if (currentActions.length === newActions.length && currentActions[0] === newActions[0]) {
-      setPointActions(points[globalIdx], newActions);
+      setPointActions(point, newActions);
     } else {
-      setManualPointActions(points[globalIdx], newActions);
+      setManualPointActions(point, newActions);
     }
-    points[globalIdx].strict = strictArrival;
-    if (routeRequired) points[globalIdx].required = true;
-    else delete points[globalIdx].required;
+    point.strict = strictArrival;
+    if (routeRequired) point.required = true;
+    else delete point.required;
+    const previousTargetTier = normalizeZoneId(point.target_tier || '');
     const normalizedTargetTier = normalizeZoneId(targetTier);
-    if (normalizedTargetTier) points[globalIdx].target_tier = normalizedTargetTier;
-    else delete points[globalIdx].target_tier;
+    if (normalizedTargetTier) point.target_tier = normalizedTargetTier;
+    else delete point.target_tier;
+    if (!newActions.includes(ActionType.NAVMESH) || previousTargetTier !== normalizedTargetTier) {
+      delete point.target_deck_y;
+    }
     return true;
   },
 
@@ -377,6 +393,7 @@ export const PointEditing = {
     const globalIdx = zoneIndices[selectedIdx];
     points[globalIdx].x = roundCoord(worldX);
     points[globalIdx].y = roundCoord(worldY);
+    delete points[globalIdx].target_deck_y;
     return true;
   },
 };
@@ -411,7 +428,7 @@ export class AppState {
     /** @type {Set<number>} multi-selection: local indices into current segment */
     this.selectedIndices = new Set();
     /** @type {string} */
-    this.mode = Mode.ASTAR;
+    this.mode = Mode.EDIT;
   }
 
   /** @returns {number[]} global indices of the current segment's points. */
@@ -595,6 +612,28 @@ export class AppState {
   }
 
   /**
+   * Insert a manually authored navigation target. Recorded tracks bypass this helper
+   * and keep their backend-provided RUN actions.
+   * @param {number} worldX @param {number} worldY @param {string} zone @param {string} [targetTier='']
+   * @returns {void}
+   */
+  editInsertManualNavmeshPoint(worldX, worldY, zone, targetTier = '') {
+    this.snapshot();
+    PointEditing.insertPoint(
+      this.points,
+      this.zonePointGlobalIndices(),
+      normalizeZoneId(zone),
+      ACTION_NAMES[ActionType.NAVMESH],
+      false,
+      false,
+      worldX,
+      worldY,
+      targetTier,
+    );
+    this.reindex();
+  }
+
+  /**
    * Apply action + strict to the primary selection.
    * @returns {boolean}
    */
@@ -633,6 +672,41 @@ export class AppState {
   }
 
   /**
+   * Set or clear the selected NAVMESH waypoint's overlapping-surface height.
+   * The field is meaningful only for one concrete NAVMESH target, so multi-selection
+   * and ordinary recorded actions are rejected.
+   * @param {?number} targetDeckY
+   * @returns {{selectionEmpty:boolean, unsupported:boolean, changed:boolean}}
+   */
+  editSetSelectedTargetDeck(targetDeckY) {
+    if (this.selectedIndices.size !== 1) {
+      return { selectionEmpty: !this.selectedIndices.size, unsupported: true, changed: false };
+    }
+    const point = this.selectedPoint();
+    if (!point || !getPointActions(point).includes(ActionType.NAVMESH)) {
+      return { selectionEmpty: false, unsupported: true, changed: false };
+    }
+
+    const normalized = targetDeckY === null ? null : Number(targetDeckY);
+    if (normalized !== null && !Number.isFinite(normalized)) {
+      return { selectionEmpty: false, unsupported: true, changed: false };
+    }
+    const current =
+      typeof point.target_deck_y === 'number' && Number.isFinite(point.target_deck_y)
+        ? point.target_deck_y
+        : null;
+    if (current === normalized) {
+      return { selectionEmpty: false, unsupported: false, changed: false };
+    }
+
+    this.snapshot();
+    if (normalized === null) delete point.target_deck_y;
+    else point.target_deck_y = normalized;
+    this.reindex();
+    return { selectionEmpty: false, unsupported: false, changed: true };
+  }
+
+  /**
    * Append one action to the chain of every selected point (tk `append_action_to_selected`).
    * Always uses the manual setter (preserves the explicit chain).
    * @param {string} actionName
@@ -646,6 +720,7 @@ export class AppState {
     for (const localIdx of [...this.selectedIndices].sort((a, b) => a - b)) {
       const point = this.points[zoneIndices[localIdx]];
       setManualPointActions(point, [...getPointActions(point), actionType]);
+      if (!getPointActions(point).includes(ActionType.NAVMESH)) delete point.target_deck_y;
     }
     this.reindex();
     return { selectionEmpty: false, changed: true };
@@ -664,6 +739,7 @@ export class AppState {
       const actions = getPointActions(point);
       if (actions.length <= 1) setManualPointActions(point, [ActionType.RUN]);
       else setManualPointActions(point, actions.slice(0, -1));
+      if (!getPointActions(point).includes(ActionType.NAVMESH)) delete point.target_deck_y;
     }
     this.reindex();
     return { selectionEmpty: false, changed: true };

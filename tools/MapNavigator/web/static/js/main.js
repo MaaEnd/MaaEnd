@@ -23,6 +23,7 @@ import {Camera} from "./camera.js";
 import {Renderer} from "./gl/renderer.js";
 import {Overlay} from "./gl/overlay.js";
 import {formatHeading, transformHeading} from "./heading.js";
+import {buildEditPreviewPlan} from "./edit_preview.js";
 import {NavmeshField} from "./navmesh_field.js";
 import {AppState, Mode} from "./state.js";
 import {logZiplineGeometry, logZiplineTowers, parseMapNavigatorLog} from "./log_analysis.js";
@@ -39,6 +40,7 @@ import {
     ACTION_COLORS,
     ACTION_MENU_TYPES,
     getPointActions,
+    matchTargetDeckHeight,
     normalizeZoneId,
 } from "./model.js";
 import {compactNumber, roundHalfEven} from "./rounding.js";
@@ -58,6 +60,7 @@ import {
     getZiplineFrames,
     basemapByZoneUrl,
     postRoute,
+    postRoutePreview,
     postOffMeshProbe,
     postDeckProbe,
     exportPath,
@@ -70,8 +73,8 @@ const ASTAR_PREVIEW_SNAP_RADIUS = 5.0; // px (tk ASTAR_PREVIEW_SNAP_RADIUS)
 const LOAD_POLL_MS = 400;
 // CSS px the floating left panel overlays the canvas; fit-view centers in the rest.
 const LEFT_PANEL_FIT_OFFSET = 350;
-// World px kept around the A* preview markers when framing them.
-const ASTAR_HINT_FIT_PADDING = 200;
+// World px kept around locate markers when framing them.
+const LOCATE_HINT_FIT_PADDING = 200;
 const COPY_FORMAT_COORDINATES = "coordinates";
 const LOG_TOWER_HIT_RADIUS = 14;
 const LOG_POINT_HIT_RADIUS = 12;
@@ -89,8 +92,8 @@ class MapNavigatorApp {
         this.renderer = new Renderer(this.els.glCanvas);
         this.overlay = new Overlay(this.els.overlayCanvas);
         this.state = new AppState();
-        /** @type {'astar'|'assert'|'edit'} route tool restored after leaving log analysis. */
-        this._lastRouteMode = "astar";
+        /** @type {'assert'|'edit'} route tool restored after leaving log analysis. */
+        this._lastRouteMode = "edit";
 
         /** @type {?NavmeshField} */
         this.field = null;
@@ -105,6 +108,8 @@ class MapNavigatorApp {
         this.isPanning = false;
         this.isBoxSelecting = false;
         this.isAssertSelecting = false;
+        this.isEditPreviewStartDragCandidate = false;
+        this.isEditPreviewStartDragging = false;
         this.pointerDownX = 0;
         this.pointerDownY = 0;
         this.dragStartX = 0;
@@ -114,9 +119,13 @@ class MapNavigatorApp {
         this.assertStartWorldX = 0;
         this.assertStartWorldY = 0;
 
-        // --- assert / A* view state ---
+        // --- edit / assert / A* view state ---
+        /** @type {?{x:number,y:number,rot:?number,label:string,geometryZoneId:number}} edit locate hint in base px. */
+        this.editLocateHint = null;
         /** @type {?number[]} raw drag rect `[x0,y0,x1,y1]` in display-frame world. */
         this.assertRectWorld = null;
+        /** @type {?number[]} assert rect restored when Escape cancels an in-progress redraw. */
+        this._assertRectBeforeDrag = null;
         /** @type {?{x:number,y:number,rot:?number,label:string}} assert locate hint in base px. */
         this.assertLocateHint = null;
         /**
@@ -147,9 +156,16 @@ class MapNavigatorApp {
         this.hintDeck = null;
         /** @type {?{index:number, decks:Array<{height:number, band:number[], thin:boolean}>}} */
         this.deckProbe = null;
+        /** @type {?{globalIndex:number, decks:Array<{height:number, band:number[], thin:boolean}>}} */
+        this.editDeckProbe = null;
         /** @type {?number} 正在预览的那一层高度。 */
         this.deckPreview = null;
         this._deckToken = 0;
+        this._editDeckToken = 0;
+        /** @type {?string} 当前路径编辑 NAVMESH 路点的重叠面探针签名。 */
+        this._editDeckSig = null;
+        /** @type {?number} 路点拖动时重叠面探针的防抖句柄。 */
+        this._editDeckTimer = null;
         /**
          * Straight lines the runtime walks with no navmesh under it, base px: `off` is the
          * point outside the mesh, `mesh` where the mesh takes over. Taken from the backend's
@@ -193,6 +209,17 @@ class MapNavigatorApp {
          * @type {Array<Object>}
          */
         this.editOffMeshMarks = [];
+        /** Runtime-expanded preview and selected-leg diagnostics for the current EDIT segment, in base px. */
+        this.editRoute = null;
+        /** Runtime-reported failed leg for the current EDIT segment, in base px. */
+        this.editRouteFailure = null;
+        /** @type {?{x:number,y:number,position:number[],positionZone:string,geometryZoneId:number,segmentIndex:number}} */
+        this.editPreviewStart = null;
+        this.editPreviewStartSelected = false;
+        /** @type {?string} tool restored after the one-shot manual-start click. */
+        this._editPreviewStartReturnTool = null;
+        /** Guards against stale edit previews replacing a newer request or route state. */
+        this._editRouteToken = 0;
         /** Guards against a stale probe response overwriting a newer one. @type {number} */
         this._probeToken = 0;
         /** @type {?string} NAVMESH-waypoint signature the edit-mode badges were probed for. */
@@ -273,6 +300,10 @@ class MapNavigatorApp {
             btnStart: $("btn-start"),
             btnStop: $("btn-stop"),
             btnCopyPath: $("btn-copy-path"),
+            btnEditPlan: $("btn-edit-plan"),
+            btnEditPlanClear: $("btn-edit-plan-clear"),
+            editPlanStartLabel: $("edit-plan-start-label"),
+            chkEditZipline: $("chk-edit-zipline"),
             btnCopyAssert: $("btn-copy-assert"),
             assertCopyFormat: $("assert-copy-format"),
             btnImport: $("btn-import"),
@@ -287,12 +318,17 @@ class MapNavigatorApp {
             actionChainLabel: $("action-chain-label"),
             targetTierEntry: $("target-tier-entry"),
             targetTierList: $("target-tier-list"),
+            editDeckBox: $("edit-deck-box"),
+            editDeckTitle: $("edit-deck-title"),
+            editDeckList: $("edit-deck-list"),
             assertZoneCombo: $("assert-zone-combo"),
             chkStrict: $("chk-strict"),
             chkRequired: $("chk-required"),
             toolPan: $("tool-pan"),
             toolAdd: $("tool-add"),
             toolSelect: $("tool-select"),
+            toolEditStart: $("tool-edit-start"),
+            editStartDivider: $("edit-start-divider"),
             toolAstarSingle: $("tool-astar-single"),
             toolAstarMulti: $("tool-astar-multi"),
             toolAssertPan: $("tool-assert-pan"),
@@ -369,6 +405,8 @@ class MapNavigatorApp {
             propertiesEmptyState: $("properties-empty-state"),
             propertiesEditor: $("properties-editor"),
             panelRecording: $("panel-recording"),
+            panelEditMap: $("panel-edit-map"),
+            panelAssertMap: $("panel-assert-map"),
             panelConnection: $("panel-connection"),
             panelNavtest: $("panel-navtest"),
             routeModeTabs: $("route-mode-tabs"),
@@ -396,6 +434,9 @@ class MapNavigatorApp {
             logShowRecordedTowers: $("log-show-recorded-towers"),
             logShowEstimates: $("log-show-estimates"),
             logContextPanel: $("log-context-panel"),
+            editInspectionBox: $("edit-inspection-box"),
+            editPointSummary: $("edit-point-summary"),
+            btnEditSelectionClear: $("btn-edit-selection-clear"),
             logInspectionBox: $("log-inspection-box"),
             btnLogPointClear: $("btn-log-point-clear"),
             logPointSummary: $("log-point-summary"),
@@ -405,6 +446,7 @@ class MapNavigatorApp {
             logDecisionSummary: $("log-decision-summary"),
             btnLogMeasure: $("btn-log-measure"),
             logMeasureDivider: $("log-measure-divider"),
+            btnEditLocate: $("btn-edit-locate"),
             btnAssertLocate: $("btn-assert-locate"),
             btnAstarLocate: $("btn-astar-locate"),
             waypointList: $("waypoint-list"),
@@ -478,9 +520,11 @@ class MapNavigatorApp {
                     if (running) {
                         this._clearLivePath();
                         this.positionReadout.setPending("正在获取实时位置与朝向...");
+                        this._paint();
                     }
                 },
             });
+            this.connection.onStatusChange((connected) => this._syncLocateActions(connected));
             this.importer = new Importer(
                 {
                     btnImport: this.els.btnImport,
@@ -499,7 +543,7 @@ class MapNavigatorApp {
                     projectOk: this.els.projectNodeOk,
                 },
                 {
-                    loadPoints: (points) => this._importLoadPoints(points),
+                    loadPoints: (points, options) => this._importLoadPoints(points, options),
                     applyAssert: (zoneId, target) => this._importApplyAssert(zoneId, target),
                 },
             );
@@ -562,7 +606,7 @@ class MapNavigatorApp {
         this._populateAstarDisplayCombo();
         this._syncAstarControls();
         this._refreshZoneLabel();
-        if (this.state.mode === Mode.ASTAR) {
+        if (this.state.mode === Mode.ASTAR || (this.state.mode === Mode.EDIT && !this.state.points.length)) {
             this._applyDefaultAstarZoneSelection();
             this._onAstarZoneChanged();
         } else if (this.state.mode === Mode.LOG && this.selectedLogRun) {
@@ -817,6 +861,22 @@ class MapNavigatorApp {
     _wireEvents() {
         const e = this.els;
         e.btnCopyPath.addEventListener("click", () => this._copyPath());
+        e.btnEditPlan.addEventListener("click", () => this._calculateEditPreview());
+        e.btnEditPlanClear.addEventListener("click", () => {
+            this._clearEditPreview();
+            setStatus("已清除当前片段的规划预览。", "#10b981");
+            this._paint();
+        });
+        e.toolEditStart.addEventListener("click", () => {
+            this._editPreviewStartReturnTool = this.activeTool === "edit-start" ? "add" : this.activeTool;
+            this._setActiveTool("edit-start");
+            setStatus("请在地图上点击规划起点。", "#3b82f6");
+        });
+        e.chkEditZipline.addEventListener("change", () => {
+            this._syncCopyButtonLabels();
+            if (this.navtest) this.navtest.routeChanged();
+            if (this.editRoute) this._calculateEditPreview();
+        });
         e.btnCopyAssert.addEventListener("click", () => this._copyAssert());
         e.assertCopyFormat.addEventListener("change", () => this._syncCopyButtonLabels());
         e.btnPrev.addEventListener("click", () => this._prevZone());
@@ -851,6 +911,7 @@ class MapNavigatorApp {
         });
         e.btnClearAstar.addEventListener("click", () => this._onClearAstar());
         e.btnCopyNavmesh.addEventListener("click", () => this._copyNavmesh());
+        e.btnEditLocate.addEventListener("click", () => this._onLocateCurrentPosition("edit"));
         e.btnAssertLocate.addEventListener("click", () => this._onLocateCurrentPosition("assert"));
         e.btnAstarLocate.addEventListener("click", () => this._onLocateCurrentPosition("astar"));
         e.btnAstarMarkCoord.addEventListener("click", () => this._onAstarMarkCoord());
@@ -897,9 +958,13 @@ class MapNavigatorApp {
             this._clearLogDistanceSelection();
             setStatus("已清除滑索架测距。", "#10b981");
         });
+        e.btnEditSelectionClear.addEventListener("click", () => {
+            this._clearEditSelection();
+            setStatus("已取消当前选择。", "#10b981");
+        });
         e.btnLogPointClear.addEventListener("click", () => {
             this._clearLogInspection();
-            setStatus("已清除点位详情。", "#10b981");
+            setStatus("已取消点位选择。", "#10b981");
         });
         e.btnLogMeasure.addEventListener("click", () => {
             const measuring = this.activeTool !== "log-measure";
@@ -1031,7 +1096,10 @@ class MapNavigatorApp {
         if (this.state.mode === Mode.ASTAR || this.state.mode === Mode.ASSERT || this.state.mode === Mode.LOG) {
             return normalizeZoneId(this.els.astarDisplayZoneCombo.value, this._defaultAstarDisplayZone());
         }
-        return this.state.currentZone();
+        return normalizeZoneId(
+            this.state.currentZone(),
+            normalizeZoneId(this.els.astarDisplayZoneCombo.value, this._defaultAstarDisplayZone()),
+        );
     }
 
     /** @returns {number} zone id parsed from the tier combo's `"id:name"` value, or NaN. */
@@ -1043,12 +1111,9 @@ class MapNavigatorApp {
 
     /** @returns {?number} zone id of the translated tier backing the canvas, else null. */
     _activeDisplayTierId() {
-        if (
-            (this.state.mode !== Mode.ASTAR && this.state.mode !== Mode.ASSERT && this.state.mode !== Mode.LOG) ||
-            !this.field
-        )
-            return null;
-        const zoneId = this._astarZoneId();
+        if (!this.field) return null;
+        const editZone = this.state.mode === Mode.EDIT ? normalizeZoneId(this.state.currentZone()) : "";
+        const zoneId = editZone ? this._resolveZoneId(editZone) : this._astarZoneId();
         if (Number.isNaN(zoneId)) return null;
         if (!this.field.isTier(zoneId)) return null;
         if (!this.field.isRealTier(zoneId)) return null;
@@ -1091,7 +1156,7 @@ class MapNavigatorApp {
         this._paint();
     }
 
-    /** Draw the current frame — syncs the A* mesh, requests the GL render, draws the overlay. */
+    /** Draw the current frame — syncs the navmesh, requests the GL render, draws the overlay. */
     _paint() {
         this._syncAstarMesh();
 
@@ -1102,8 +1167,12 @@ class MapNavigatorApp {
         if (mode === Mode.EDIT) overlayPoints = this._currentSegmentPoints();
         else if (mode === Mode.ASSERT) overlayPoints = this._displayRealPoints();
 
-        if (mode === Mode.EDIT) this._scheduleEditOffMeshProbe();
+        if (mode === Mode.EDIT) {
+            this._scheduleEditOffMeshProbe();
+            this._scheduleEditDeckProbe();
+        }
 
+        const displayEditLocateHint = mode === Mode.EDIT ? this._editLocateHintForDisplay() : null;
         let displayAssertLocateHint = null;
         if (mode === Mode.ASSERT && this.assertLocateHint) {
             const hint = this.assertLocateHint;
@@ -1120,6 +1189,9 @@ class MapNavigatorApp {
         }
         const displayAstarLocateHints = mode === Mode.ASTAR ? this._astarDisplayHints() : [];
         const displayLogAnalysis = mode === Mode.LOG ? this._logAnalysisForDisplay() : null;
+        const displayEditPreview = mode === Mode.EDIT ? this._editPreviewForDisplay() : null;
+        const displayEditPreviewStart = mode === Mode.EDIT ? this._editPreviewStartForDisplay() : null;
+        const displayLivePath = mode === Mode.EDIT || mode === Mode.ASTAR ? this._livePathForDisplay() : null;
 
         const vm = {
             mode,
@@ -1127,6 +1199,8 @@ class MapNavigatorApp {
             // Selection is local to the EDIT segment.
             selectedIdx: mode === Mode.EDIT ? this.state.selectedIdx : null,
             selectedIndices: mode === Mode.EDIT ? this.state.selectedIndices : new Set(),
+            editPreview: displayEditPreview,
+            editPreviewStart: displayEditPreviewStart,
             assertTarget: mode === Mode.ASSERT ? this._assertTargetForDisplay() : null,
             astar:
                 mode === Mode.ASTAR
@@ -1137,13 +1211,15 @@ class MapNavigatorApp {
                           goalOnly: this.astarGoal && !this.astarRoute ? this.astarGoal : null,
                           waypoints: this.astarPoints,
                           blindWalks: this._blindWalksForDisplay(),
-                          livePath: this._livePathForDisplay(),
-                          diagnostics: this._astarDiagnosticsForDisplay(),
+                          livePath: displayLivePath,
+                          diagnostics: this._diagnosticsForDisplay(this.astarDiagnostics),
                           debugOptions: this.navDebug,
                           showPlannedPath: this.navDebug.planned,
                       }
                     : null,
             selectionRect: this.selectionRect,
+            livePath: mode === Mode.EDIT ? displayLivePath : null,
+            editLocateHint: displayEditLocateHint,
             assertLocateHint: displayAssertLocateHint,
             astarLocateHints: displayAstarLocateHints,
             logAnalysis: displayLogAnalysis,
@@ -1156,6 +1232,56 @@ class MapNavigatorApp {
     /** @returns {Array<Object>} the current zone segment's point objects. */
     _currentSegmentPoints() {
         return this.state.zonePointGlobalIndices().map((idx) => this.state.points[idx]);
+    }
+
+    /** Runtime preview projected from base px into the current EDIT segment's display frame. */
+    _editPreviewForDisplay() {
+        if ((!this.editRoute && !this.editRouteFailure) || !this.field) return null;
+        const zoneId = this._resolveZoneId(this.state.currentZone());
+        const project = (point) => {
+            if (!Number.isNaN(zoneId) && this.field.isTier(zoneId) && this.field.isRealTier(zoneId)) {
+                return this.field.baseToTier(zoneId, point[0], point[1]);
+            }
+            return point;
+        };
+        const route = this.editRoute || {};
+        const failure = this.editRouteFailure;
+        return {
+            previewPoints: (route.points || []).map(project),
+            segmentBreaks: [],
+            hasRoute: !!this.editRoute,
+            waypoints: [],
+            blindWalks: [],
+            diagnostics: this._diagnosticsForDisplay(route.diagnostics || []),
+            debugOptions: this.navDebug,
+            showPlannedPath: this.navDebug.planned,
+            walkSegments: (route.walk_segments || []).map((segment) => segment.map(project)),
+            ziplineSegments: (route.zipline_segments || [])
+                .filter((segment) => Array.isArray(segment?.from) && Array.isArray(segment?.to))
+                .map((segment) => ({
+                    ...segment,
+                    from: project(segment.from),
+                    to: project(segment.to),
+                    mount_restand: Array.isArray(segment.mount_restand) ? project(segment.mount_restand) : null,
+                })),
+            failure: failure
+                ? {
+                      ...failure,
+                      segment_start: failure.segment_start ? project(failure.segment_start) : null,
+                      segment_goal: failure.segment_goal ? project(failure.segment_goal) : null,
+                      gap_start: failure.gap_start ? project(failure.gap_start) : null,
+                      gap_goal: failure.gap_goal ? project(failure.gap_goal) : null,
+                  }
+                : null,
+        };
+    }
+
+    /** The current segment's manual preview start projected from base px into the display frame. */
+    _editPreviewStartForDisplay() {
+        const start = this._activeEditPreviewStart();
+        if (!start) return null;
+        const [x, y] = this._baseToDisplay(start.x, start.y);
+        return {x, y, label: "规划起点", selected: this.editPreviewStartSelected};
     }
 
     /**
@@ -1501,11 +1627,140 @@ class MapNavigatorApp {
         }
     }
 
-    /** Show the floating log result panel only while one of its contextual cards is visible. */
+    /** Show the shared top-right context panel for EDIT selections or LOG inspection cards. */
     _syncLogContextPanel() {
         const e = this.els;
-        e.logContextPanel.hidden =
-            this.state.mode !== Mode.LOG || (e.logInspectionBox.hidden && e.logDistanceBox.hidden);
+        const editVisible = this.state.mode === Mode.EDIT && !e.editInspectionBox.hidden;
+        const logVisible =
+            this.state.mode === Mode.LOG && (!e.logInspectionBox.hidden || !e.logDistanceBox.hidden);
+        e.logContextPanel.hidden = !editVisible && !logVisible;
+    }
+
+    /** Render metadata for the selected author waypoint or manual planning start. */
+    _renderEditInspection() {
+        const e = this.els;
+        const host = e.editPointSummary;
+        host.textContent = "";
+
+        let title = "";
+        let color = "#22d3ee";
+        let details = [];
+        const manualStart = this.editPreviewStartSelected ? this._activeEditPreviewStart() : null;
+        if (manualStart) {
+            title = "规划起点";
+            details = [
+                ["类型", "离线规划起点"],
+                ["坐标", `[${manualStart.position[0].toFixed(2)}, ${manualStart.position[1].toFixed(2)}]`],
+                ["层级", manualStart.positionZone],
+                ["底图坐标", `[${manualStart.x.toFixed(2)}, ${manualStart.y.toFixed(2)}]`],
+                ["片段", String(manualStart.segmentIndex + 1)],
+            ];
+        } else {
+            const selectedIndices = [...this.state.selectedIndices].sort((a, b) => a - b);
+            const zoneIndices = this.state.zonePointGlobalIndices();
+            if (selectedIndices.length === 1) {
+                const localIndex = selectedIndices[0];
+                const point = this.state.points[zoneIndices[localIndex]];
+                if (point) {
+                    title = `作者路点 #${localIndex}`;
+                    color = ACTION_COLORS[point.action] || "#3498db";
+                    const flags = [point.strict ? "严格抵达" : "", point.required ? "路径必经" : ""].filter(Boolean);
+                    details = [
+                        ["动作", this._formatActionChain(point)],
+                        ["坐标", `[${point.x.toFixed(2)}, ${point.y.toFixed(2)}]`],
+                        ["区域", normalizeZoneId(point.zone) || "未声明"],
+                        ["层级", normalizeZoneId(point.target_tier) || "跟随区域"],
+                        ["目标面", Number.isFinite(point.target_deck_y) ? point.target_deck_y.toFixed(2) : "自动"],
+                        ["标志", flags.join(" / ") || "无"],
+                    ];
+                }
+            } else if (selectedIndices.length > 1) {
+                title = `已选择 ${selectedIndices.length} 个作者路点`;
+                details = [
+                    ["序号", selectedIndices.join(", ")],
+                    ["操作", "可批量修改动作或删除"],
+                ];
+            }
+        }
+
+        const visible = this.state.mode === Mode.EDIT && !!title;
+        e.editInspectionBox.hidden = !visible;
+        e.btnEditSelectionClear.disabled = !visible;
+        if (visible) {
+            const selected = document.createElement("div");
+            selected.className = "log-inspection-selected";
+            selected.style.borderLeftColor = color;
+            const heading = document.createElement("div");
+            heading.className = "log-distance-point-title";
+            heading.textContent = title;
+            const list = document.createElement("dl");
+            list.className = "log-point-detail";
+            for (const [label, value] of details) {
+                const term = document.createElement("dt");
+                term.textContent = label;
+                const description = document.createElement("dd");
+                description.textContent = value;
+                list.append(term, description);
+            }
+            selected.append(heading, list);
+            host.appendChild(selected);
+        }
+        this._syncLogContextPanel();
+    }
+
+    /** Clear EDIT object selection and optionally leave the one-shot start-setting tool. */
+    _clearEditSelection({cancelTool = false} = {}) {
+        const wasSettingStart = this.activeTool === "edit-start";
+        const hadTransientGesture =
+            this.isBoxSelecting || this.isEditPreviewStartDragCandidate || this.isEditPreviewStartDragging;
+        const hadSelection = this.state.selectedIndices.size > 0 || this.editPreviewStartSelected;
+        if (!hadSelection && !hadTransientGesture && !(cancelTool && wasSettingStart)) return false;
+
+        this.state.clearSelection();
+        this.editPreviewStartSelected = false;
+        this.isBoxSelecting = false;
+        this.isEditPreviewStartDragCandidate = false;
+        this.isEditPreviewStartDragging = false;
+        this.selectionRect = null;
+        if (cancelTool && wasSettingStart) {
+            const returnTool = this._editPreviewStartReturnTool || "add";
+            this._editPreviewStartReturnTool = null;
+            this._setActiveTool(returnTool);
+        }
+        this._syncActionControls();
+        this._paint();
+        return true;
+    }
+
+    /** Apply Escape consistently to transient selections without deleting authored data. */
+    _cancelCurrentSelection() {
+        if (this.state.mode === Mode.EDIT) {
+            const changed = this._clearEditSelection({cancelTool: true});
+            if (changed) setStatus("已取消当前选择。", "#10b981");
+            return changed;
+        }
+        if (this.state.mode === Mode.ASSERT) {
+            if (!this.isAssertSelecting) return false;
+            this.isAssertSelecting = false;
+            this.assertRectWorld = this._assertRectBeforeDrag;
+            this._assertRectBeforeDrag = null;
+            this._paint();
+            setStatus("已取消本次断言区域绘制。", "#10b981");
+            return true;
+        }
+        if (this.state.mode !== Mode.LOG) return false;
+
+        const wasMeasuring = this.activeTool === "log-measure";
+        const changed = !!this.logInspectedPoint || this.logDistanceSelection.length > 0 || wasMeasuring;
+        if (!changed) return false;
+        this.logInspectedPoint = null;
+        this.logDistanceSelection = [];
+        if (wasMeasuring) this._setActiveTool("log-inspect");
+        this._renderLogInspection();
+        this._renderLogDistance();
+        this._paint();
+        setStatus("已取消当前选择。", "#10b981");
+        return true;
     }
 
     /** Render the selected read-only point metadata. */
@@ -1749,6 +2004,32 @@ class MapNavigatorApp {
         });
     }
 
+    /** EDIT locate marker projected into the current path frame, or null on another basemap. */
+    _editLocateHintForDisplay() {
+        const hint = this.editLocateHint;
+        if (!hint || !this.field) return null;
+        const displayZoneId = this._resolveZoneId(this._displayZoneId());
+        if (Number.isNaN(displayZoneId)) return null;
+        if (this.field.geometryZoneId(displayZoneId) !== hint.geometryZoneId) return null;
+        const [x, y] = this._baseToDisplay(hint.x, hint.y);
+        return {x, y, label: hint.label, rot: this._headingBaseToDisplay(hint.x, hint.y, hint.rot)};
+    }
+
+    /** Frame the EDIT locate marker without changing the author route. */
+    _focusEditLocateHint() {
+        const hint = this._editLocateHintForDisplay();
+        if (!hint) return;
+        const pad = LOCATE_HINT_FIT_PADDING;
+        this.camera.fitView(
+            [hint.x - pad, hint.y - pad, hint.x + pad, hint.y + pad],
+            this._cssW,
+            this._cssH,
+            60,
+            LEFT_PANEL_FIT_OFFSET,
+        );
+        this._paint();
+    }
+
     /** MapLocator zone-frame heading → base-frame heading. @returns {?number} */
     _headingToBase(zoneId, x, y, rot) {
         return transformHeading(rot, (px, py) => this._pointToBase(zoneId, px, py), x, y);
@@ -1769,7 +2050,7 @@ class MapNavigatorApp {
         if (!hints.length) return null;
         const xs = hints.map((hint) => hint.x);
         const ys = hints.map((hint) => hint.y);
-        const pad = ASTAR_HINT_FIT_PADDING;
+        const pad = LOCATE_HINT_FIT_PADDING;
         return [
             Math.min(...xs) - pad,
             Math.min(...ys) - pad,
@@ -1822,11 +2103,12 @@ class MapNavigatorApp {
         if (!this.field || !fix) return;
 
         const zoneId = this._resolveZoneId(fix.zone);
-        const displayZoneId = this._astarZoneId();
+        const editZoneId = this.state.mode === Mode.EDIT ? this._resolveZoneId(this.state.currentZone()) : NaN;
+        const displayZoneId = Number.isNaN(editZoneId) ? this._astarZoneId() : editZoneId;
         if (Number.isNaN(zoneId) || Number.isNaN(displayZoneId)) return;
         if (this.field.geometryZoneId(zoneId) !== this.field.geometryZoneId(displayZoneId)) {
             this._clearLivePath();
-            if (this.state.mode === Mode.ASTAR) this._paint();
+            if (this.state.mode === Mode.ASTAR || this.state.mode === Mode.EDIT) this._paint();
             return;
         }
 
@@ -1837,7 +2119,7 @@ class MapNavigatorApp {
         if (!last || Math.hypot(last.x - x, last.y - y) >= 1) {
             this.livePathBase.push({x, y, rot});
         }
-        if (this.state.mode === Mode.ASTAR) this._paint();
+        if (this.state.mode === Mode.ASTAR || this.state.mode === Mode.EDIT) this._paint();
     }
 
     /** Clear measured live-path state without affecting the planned preview. */
@@ -1846,9 +2128,14 @@ class MapNavigatorApp {
         this.livePositionBase = null;
     }
 
-    /** Project measured base-frame points into the current A* display frame. */
+    /** Project measured base-frame points into the current path-edit/A* display frame. */
     _livePathForDisplay() {
-        if (!this.showLivePath || !this.field || this.state.mode !== Mode.ASTAR) return null;
+        if (
+            !this.showLivePath ||
+            !this.field ||
+            (this.state.mode !== Mode.EDIT && this.state.mode !== Mode.ASTAR)
+        )
+            return null;
         return {
             points: this.livePathBase.map((point) => {
                 const [x, y] = this._baseToDisplay(point.x, point.y);
@@ -1872,9 +2159,9 @@ class MapNavigatorApp {
     }
 
     /** Project the real per-leg navmesh diagnostics into the current display frame. */
-    _astarDiagnosticsForDisplay() {
+    _diagnosticsForDisplay(diagnostics) {
         const project = (points) => (points || []).map(([x, y]) => this._baseToDisplay(x, y));
-        return this.astarDiagnostics.map((diag) => ({
+        return (diagnostics || []).map((diag) => ({
             ...diag,
             astar_cells: project(diag.astar_cells),
             rerouted_points: project(diag.rerouted_points),
@@ -1976,6 +2263,171 @@ class MapNavigatorApp {
             });
         }
         return out;
+    }
+
+    /**
+     * Resolve the single selected EDIT-mode NAVMESH point into the base geometry used by
+     * `/api/deck-probe`. An explicit target_tier owns the coordinate transform; without
+     * one the runtime keeps the legacy target in base pixels even when the route zone is a tier.
+     * @returns {?{globalIndex:number, point:Object, geometryZoneId:number, base:number[], signature:string}}
+     */
+    _selectedEditDeckTarget() {
+        if (this.state.mode !== Mode.EDIT || !this.field || this.state.selectedIndices.size !== 1) return null;
+        const zoneIndices = this.state.zonePointGlobalIndices();
+        const localIndex = [...this.state.selectedIndices][0];
+        const globalIndex = zoneIndices[localIndex];
+        const point = this.state.points[globalIndex];
+        if (!point || !getPointActions(point).includes(ActionType.NAVMESH)) return null;
+
+        const targetTier = normalizeZoneId(point.target_tier || "");
+        const routeZoneId = this._resolveZoneId(point.zone);
+        const frameZoneId = targetTier ? this._resolveZoneId(targetTier) : routeZoneId;
+        if (Number.isNaN(frameZoneId)) return null;
+        const base = targetTier
+            ? this._pointToBase(frameZoneId, point.x, point.y)
+            : [
+                  point.x,
+                  point.y,
+              ];
+        const geometryZoneId = this.field.geometryZoneId(frameZoneId);
+        return {
+            globalIndex,
+            point,
+            geometryZoneId,
+            base,
+            signature: `${globalIndex}:${geometryZoneId}:${base[0]},${base[1]}:${targetTier}`,
+        };
+    }
+
+    /** Query overlapping surfaces whenever the selected NAVMESH target changes. @returns {void} */
+    _scheduleEditDeckProbe() {
+        const target = this._selectedEditDeckTarget();
+        const signature = target ? target.signature : "";
+        if (signature === this._editDeckSig) return;
+        this._editDeckSig = signature;
+        this._editDeckToken += 1;
+        clearTimeout(this._editDeckTimer);
+        this.editDeckProbe = null;
+        this.deckPreview = null;
+        this.renderer.setDeckBand(null);
+        this._renderEditDeckList();
+        if (!target) return;
+        this._editDeckTimer = setTimeout(() => this._probeEditDeckTarget(target), 100);
+    }
+
+    /** @param {{globalIndex:number, geometryZoneId:number, base:number[]}} target @returns {Promise<void>} */
+    async _probeEditDeckTarget(target) {
+        const token = ++this._editDeckToken;
+        let res;
+        try {
+            res = await postDeckProbe({zone_id: target.geometryZoneId, point: target.base});
+        } catch {
+            return; // 探针只辅助选层，失败不能阻断路径编辑
+        }
+        if (token !== this._editDeckToken) return;
+        this.editDeckProbe =
+            res && res.ok && Array.isArray(res.decks)
+                ? {globalIndex: target.globalIndex, decks: res.decks}
+                : null;
+        this._renderEditDeckList();
+    }
+
+    /** Render the selected NAVMESH point's overlapping surfaces in the property panel. @returns {void} */
+    _renderEditDeckList() {
+        const box = this.els.editDeckBox;
+        const list = this.els.editDeckList;
+        if (!box || !list) return;
+        list.replaceChildren();
+
+        const target = this._selectedEditDeckTarget();
+        if (!target) {
+            box.hidden = true;
+            return;
+        }
+        const probe =
+            this.editDeckProbe && this.editDeckProbe.globalIndex === target.globalIndex
+                ? this.editDeckProbe
+                : null;
+        const decks = probe ? probe.decks : [];
+        const filled =
+            typeof target.point.target_deck_y === "number" && Number.isFinite(target.point.target_deck_y)
+                ? target.point.target_deck_y
+                : null;
+        const matchedHeight = matchTargetDeckHeight(decks, filled);
+        if (decks.length < 2 && filled === null) {
+            box.hidden = true;
+            return;
+        }
+
+        box.hidden = false;
+        this.els.editDeckTitle.textContent =
+            decks.length >= 2
+                ? `重叠面：该点底下压着 ${decks.length} 张可走面`
+                : `目标面：当前 target_deck_y = ${filled.toFixed(2)}`;
+
+        decks.forEach((deck, i) => {
+            const row = document.createElement("div");
+            row.className = "deck-item";
+            if (this.deckPreview === deck.height) row.classList.add("is-preview");
+            if (matchedHeight === deck.height) row.classList.add("is-filled");
+
+            const pick = document.createElement("button");
+            pick.type = "button";
+            pick.className = "deck-pick";
+            pick.title = "预览这一层";
+            pick.textContent = deck.height.toFixed(2);
+            const note = document.createElement("small");
+            note.textContent = ` 自上而下第 ${i + 1} 层 / 共 ${decks.length} 层${deck.thin ? "（薄片，多半是墙顶）" : ""}`;
+            pick.appendChild(note);
+            pick.addEventListener("click", () => {
+                this._setDeckPreview(this.deckPreview === deck.height ? null : deck.height, probe);
+                this._renderEditDeckList();
+            });
+            row.appendChild(pick);
+
+            const fill = document.createElement("button");
+            fill.type = "button";
+            fill.className = "btn btn-secondary btn-sm";
+            fill.textContent = matchedHeight === deck.height ? "清除" : "选择";
+            fill.addEventListener("click", () =>
+                this._fillEditDeck(matchedHeight === deck.height ? null : deck.height),
+            );
+            row.appendChild(fill);
+            list.appendChild(row);
+        });
+
+        if (filled !== null && matchedHeight === null) {
+            const row = document.createElement("div");
+            row.className = "deck-item is-filled";
+            const current = document.createElement("span");
+            current.className = "deck-pick";
+            current.textContent = `${filled.toFixed(2)} 当前配置（未在可选重叠面中匹配）`;
+            row.appendChild(current);
+            const clear = document.createElement("button");
+            clear.type = "button";
+            clear.className = "btn btn-secondary btn-sm";
+            clear.textContent = "清除";
+            clear.addEventListener("click", () => this._fillEditDeck(null));
+            row.appendChild(clear);
+            list.appendChild(row);
+        }
+    }
+
+    /** Persist a selected deck on the current NAVMESH waypoint. @param {?number} height @returns {void} */
+    _fillEditDeck(height) {
+        const result = this.state.editSetSelectedTargetDeck(height);
+        if (result.unsupported) {
+            setStatus("请先单独选中一个 NAVMESH 路点。", "#f59e0b");
+            return;
+        }
+        if (!result.changed) return;
+        this._afterStructureChanged();
+        setStatus(
+            height === null
+                ? "已清除该路点的 target_deck_y。"
+                : `该路点 target_deck_y = ${height.toFixed(2)}，规划、复制和试跑都会使用该目标面。`,
+            "#10b981",
+        );
     }
 
     /**
@@ -2135,20 +2587,25 @@ class MapNavigatorApp {
         }
     }
 
-    // --- A* mesh (NMSH over GL) ---
+    // --- navmesh (NMSH over GL) ---
 
-    /** Upload / hide the A* mesh for the current display zone (keyed, so cheap per paint). */
+    /** Upload / hide the navmesh for the A* or EDIT display zone (keyed, so cheap per paint). */
     _syncAstarMesh() {
-        if (this.state.mode !== Mode.ASTAR || !this.field) {
+        const meshMode = this.state.mode === Mode.ASTAR || this.state.mode === Mode.EDIT;
+        if (!meshMode || !this.field) {
+            if (this._meshKey !== null) this._meshToken += 1;
             this._meshKey = null;
             this.renderer.setMeshVisible(false);
             this.renderer.setDotsVisible(false);
             return;
         }
-        const displayZoneId = this._astarZoneId();
+        const displayZoneId =
+            this.state.mode === Mode.EDIT ? this._resolveZoneId(this._displayZoneId()) : this._astarZoneId();
         if (Number.isNaN(displayZoneId)) {
+            if (this._meshKey !== null) this._meshToken += 1;
             this._meshKey = null;
             this.renderer.setMeshVisible(false);
+            this.renderer.setDotsVisible(false);
             return;
         }
         const geomId = this.field.geometryZoneId(displayZoneId);
@@ -2404,6 +2861,7 @@ class MapNavigatorApp {
                     setStatus("请先在 Assert 模式下选择地图。", "#ef4444");
                     return;
                 }
+                this._assertRectBeforeDrag = this.assertRectWorld ? [...this.assertRectWorld] : null;
                 this.isAssertSelecting = true;
                 this.assertLocateHint = null;
                 this.isDragging = false;
@@ -2428,6 +2886,23 @@ class MapNavigatorApp {
         }
 
         if (this.state.mode === Mode.EDIT && (this.activeTool === "add" || this.activeTool === "select")) {
+            if (this._hitEditPreviewStart(x, y)) {
+                this.isEditPreviewStartDragCandidate = true;
+                this.isEditPreviewStartDragging = false;
+                this.isPanCandidate = false;
+                this.isPanning = false;
+                this.isDragging = false;
+                this.isDragCandidate = false;
+                this.isBoxSelecting = false;
+                this.editPreviewStartSelected = true;
+                this.pointerDownX = x;
+                this.pointerDownY = y;
+                this.state.clearSelection();
+                this._syncActionControls();
+                this._paint();
+                return;
+            }
+            this.editPreviewStartSelected = false;
             const isSelectTool = this.activeTool === "select";
             const hitIdx = this.state.hitTest(this._worldToCanvasFn(), x, y);
             if (hitIdx === null) {
@@ -2456,6 +2931,17 @@ class MapNavigatorApp {
                 this.pointerDownX = x;
                 this.pointerDownY = y;
             }
+            return;
+        }
+
+        if (this.state.mode === Mode.EDIT && this.activeTool === "edit-start") {
+            this.isDragging = false;
+            this.isPanCandidate = true;
+            this.isPanning = false;
+            this.isBoxSelecting = false;
+            this.isAssertSelecting = false;
+            this.pointerDownX = x;
+            this.pointerDownY = y;
         }
     }
 
@@ -2506,6 +2992,22 @@ class MapNavigatorApp {
                 wy,
             ];
             this._paint();
+            return;
+        }
+
+        if (this.isEditPreviewStartDragCandidate) {
+            if (!this._movedExceeded(this.pointerDownX, this.pointerDownY, x, y)) return;
+            this.isEditPreviewStartDragCandidate = false;
+            this.isEditPreviewStartDragging = true;
+            this._clearEditPreview();
+        }
+
+        if (this.isEditPreviewStartDragging) {
+            if (this._setEditPreviewStartAtCanvas(x, y, false)) {
+                this._syncEditPreviewStartControls();
+                this._renderEditInspection();
+                this._paint();
+            }
             return;
         }
 
@@ -2586,6 +3088,7 @@ class MapNavigatorApp {
                 wy,
             ];
             this.isAssertSelecting = false;
+            this._assertRectBeforeDrag = null;
             const target = this._currentAssertTarget();
             if (target) {
                 setStatus(
@@ -2596,6 +3099,23 @@ class MapNavigatorApp {
                 );
             }
             if (this.navtest) this.navtest.routeChanged();
+            this._paint();
+            return;
+        }
+
+        if (this.isEditPreviewStartDragCandidate) {
+            this.isEditPreviewStartDragCandidate = false;
+            this._renderEditInspection();
+            this._paint();
+            return;
+        }
+
+        if (this.isEditPreviewStartDragging) {
+            this.isEditPreviewStartDragging = false;
+            this._setEditPreviewStartAtCanvas(x, y, false);
+            this._syncEditPreviewStartControls();
+            this._renderEditInspection();
+            setStatus("规划起点已移动。", "#10b981");
             this._paint();
             return;
         }
@@ -2616,6 +3136,8 @@ class MapNavigatorApp {
                     if (selected.has(hitIdx)) selected.delete(hitIdx);
                     else selected.add(hitIdx);
                     this.state.setSelection([...selected], hitIdx);
+                } else {
+                    this.state.clearSelection();
                 }
             } else {
                 const indices = this.state.collectIndicesInRect(
@@ -2636,6 +3158,10 @@ class MapNavigatorApp {
 
         if (this.isPanCandidate) {
             this.isPanCandidate = false;
+            if (this.state.mode === Mode.EDIT && this.activeTool === "edit-start") {
+                this._handleEditPreviewStartClick(x, y);
+                return;
+            }
             if (this.state.mode === Mode.EDIT && this.activeTool !== "add") {
                 this.state.clearSelection();
                 this._syncActionControls();
@@ -2647,12 +3173,25 @@ class MapNavigatorApp {
                 wx,
                 wy,
             ] = this.camera.canvasToWorld(x, y);
-            this.state.editInsertPoint(this._actionName(), this._strict(), this._required(), wx, wy);
+            const frame = this._manualEditFrame();
+            if (!frame.zone) {
+                setStatus("请先选择路径底图与层级。", "#f59e0b");
+                return;
+            }
+            this.state.editInsertManualNavmeshPoint(wx, wy, frame.zone, frame.targetTier);
             this._resetPropertyControls();
             this._afterStructureChanged();
             return;
         }
 
+        if (this.isDragging) {
+            this.isDragging = false;
+            this._clearEditPreview();
+            if (this.navtest) this.navtest.routeChanged();
+            this._renderEditInspection();
+            this._doRedraw();
+            return;
+        }
         this.isDragging = false;
     }
 
@@ -2738,8 +3277,180 @@ class MapNavigatorApp {
     }
 
     // ==================================================================================
-    //  A* preview
+    //  Runtime route previews
     // ==================================================================================
+
+    /** Drop the runtime preview without changing any authored point. */
+    _clearEditPreview() {
+        this._editRouteToken += 1;
+        this.editRoute = null;
+        this.editRouteFailure = null;
+        this.els.btnEditPlanClear.disabled = true;
+    }
+
+    /** Return the manual preview start only while its original edit segment and geometry are active. */
+    _activeEditPreviewStart() {
+        const start = this.editPreviewStart;
+        if (!start || !this.field || start.segmentIndex !== this.state.zoneState.currentSegmentIdx) return null;
+        const displayZoneId = this._resolveZoneId(this._displayZoneId());
+        if (Number.isNaN(displayZoneId)) return null;
+        return this.field.geometryZoneId(displayZoneId) === start.geometryZoneId ? start : null;
+    }
+
+    /** Whether a canvas position hits the current segment's planning-start badge. */
+    _hitEditPreviewStart(canvasX, canvasY) {
+        const marker = this._editPreviewStartForDisplay();
+        if (!marker) return false;
+        const [x, y] = this.camera.worldToCanvas(marker.x, marker.y);
+        return Math.hypot(x - canvasX, y - canvasY) <= 16;
+    }
+
+    /** Refresh the manual-start status and controls for the current edit segment. */
+    _syncEditPreviewStartControls() {
+        const start = this._activeEditPreviewStart();
+        if (!start) {
+            this.els.editPlanStartLabel.textContent = "规划起点：当前片段第一个路点";
+            return;
+        }
+        const [x, y] = this._baseToDisplay(start.x, start.y);
+        this.els.editPlanStartLabel.textContent = `规划起点：手动 [${x.toFixed(1)}, ${y.toFixed(1)}]`;
+    }
+
+    /** Drop the preview-only manual start without changing any authored point. */
+    _clearEditPreviewStart() {
+        this.editPreviewStart = null;
+        this.editPreviewStartSelected = false;
+        this._syncEditPreviewStartControls();
+        this._renderEditInspection();
+    }
+
+    /** Update the preview start from an EDIT canvas point, preserving its original tier frame. */
+    _setEditPreviewStartAtCanvas(canvasX, canvasY, clearPreview = true) {
+        if (!this.field) {
+            setStatus("navmesh 尚未就绪。", "#ef4444");
+            return false;
+        }
+        const tierId = this._activeDisplayTierId();
+        const coordinateZoneId = tierId === null ? this._resolveZoneId(this._displayZoneId()) : tierId;
+        if (Number.isNaN(coordinateZoneId)) {
+            setStatus("请先选择路径底图与层级。", "#f59e0b");
+            return false;
+        }
+        const geometryZoneId = this.field.geometryZoneId(coordinateZoneId);
+        const geometryZone = this.field.zoneById(geometryZoneId);
+        const coordinateZone = this.field.zoneById(coordinateZoneId);
+        const positionZone = normalizeZoneId(coordinateZone && coordinateZone.name);
+        if (!geometryZone || !positionZone) {
+            setStatus("当前层级缺少坐标定义，无法设置规划起点。", "#ef4444");
+            return false;
+        }
+
+        const [wx, wy] = this.camera.canvasToWorld(canvasX, canvasY);
+        const [x, y] = this._pointToBase(coordinateZoneId, wx, wy);
+        if (clearPreview) this._clearEditPreview();
+        this.editPreviewStart = {
+            x,
+            y,
+            position: [wx, wy],
+            positionZone,
+            geometryZoneId,
+            segmentIndex: this.state.zoneState.currentSegmentIdx,
+        };
+        return true;
+    }
+
+    /** Set a preview-only start, then restore the tool active before the one-shot action. */
+    _handleEditPreviewStartClick(canvasX, canvasY) {
+        if (!this._setEditPreviewStartAtCanvas(canvasX, canvasY)) return;
+        this.editPreviewStartSelected = true;
+        this.state.clearSelection();
+        this._syncEditPreviewStartControls();
+        this._syncActionControls();
+        const returnTool = this._editPreviewStartReturnTool || "add";
+        this._editPreviewStartReturnTool = null;
+        this._setActiveTool(returnTool);
+        const start = this.editPreviewStart;
+        setStatus(
+            `规划起点已设置: [${start.position[0].toFixed(1)}, ${start.position[1].toFixed(1)}]。`,
+            "#10b981",
+        );
+        this._paint();
+    }
+
+    /** Expand the current EDIT zone segment with the same planner used by MapNavigateAction. */
+    async _calculateEditPreview() {
+        const points = this._currentSegmentPoints();
+        const plan = buildEditPreviewPlan(points, this._activeEditPreviewStart());
+        if (!plan.ok) {
+            setStatus(plan.error, "#f59e0b");
+            return;
+        }
+
+        const token = ++this._editRouteToken;
+        this.editRoute = null;
+        this.editRouteFailure = null;
+        this.els.btnEditPlan.disabled = true;
+        this.els.btnEditPlanClear.disabled = true;
+        this._paint();
+        setStatus("正在按运行时语义规划当前片段…", "#3b82f6");
+
+        try {
+            // 默认模式把第一个作者点视作已抵达的起点；手动起点则保留全部作者点为目标。
+            const exported = await exportPath(plan.targets);
+            const customActionParam = {path: exported.nodes || []};
+            if (this.els.chkEditZipline.checked) customActionParam.zip = true;
+            const result = await postRoutePreview({
+                position: plan.position,
+                position_zone: plan.positionZone,
+                custom_action_param: customActionParam,
+            });
+            if (token !== this._editRouteToken || (result && result.stale)) return;
+            if (!result || !result.ok) {
+                this.editRouteFailure = result?.failure || null;
+                throw new Error(result?.error || "路线展开失败");
+            }
+
+            this.editRoute = {
+                points: result.points || [],
+                walk_segments: result.walk_segments || [],
+                zipline_segments: result.zipline_segments || [],
+                diagnostics: result.diagnostics || [],
+                zipline: result.zipline || {},
+            };
+            this.els.btnEditPlanClear.disabled = false;
+            const hops = this.editRoute.zipline_segments.length;
+            const expanded = result.expanded_waypoints || this.editRoute.points.length;
+            if (hops > 0) {
+                setStatus(`当前片段已规划：采用 ${hops} 跳滑索，展开为 ${expanded} 个运行时路点。`, "#10b981");
+            } else if (this.editRoute.zipline.no_data) {
+                setStatus("当前区域没有可用的滑索记录，规划已回退为步行路线。", "#f59e0b");
+            } else if (this.editRoute.zipline.not_chosen) {
+                setStatus("滑索没有显著优于步行，运行时会采用当前步行路线。", "#10b981");
+            } else {
+                setStatus(`当前片段已展开为 ${expanded} 个运行时路点。`, "#10b981");
+            }
+            this._paint();
+        } catch (err) {
+            if (token !== this._editRouteToken) return;
+            const message = err && err.message ? err.message : err;
+            this.editRoute = null;
+            this.els.btnEditPlanClear.disabled = !this.editRouteFailure;
+            setStatus(`规划失败: ${message}`, "#ef4444");
+            const gap = this.editRouteFailure;
+            if (gap?.gap_start && gap?.gap_goal) {
+                const start = this._baseToDisplay(gap.gap_start[0], gap.gap_start[1]);
+                const goal = this._baseToDisplay(gap.gap_goal[0], gap.gap_goal[1]);
+                this._fitDisplayPoints([
+                    {x: start[0], y: start[1]},
+                    {x: goal[0], y: goal[1]},
+                ]);
+            } else {
+                this._paint();
+            }
+        } finally {
+            if (token === this._editRouteToken) this.els.btnEditPlan.disabled = false;
+        }
+    }
 
     /**
      * A* canvas click: astar-single restarts a 2-point start/goal pair; astar-multi
@@ -2930,11 +3641,11 @@ class MapNavigatorApp {
      * 把落在该层高度带里的面点亮、其余压暗,好让开发者一眼看出这是屋顶还是底下那条走廊。
      * @param {?number} height @returns {void}
      */
-    _setDeckPreview(height) {
+    _setDeckPreview(height, probe = this.deckProbe) {
         this.deckPreview = height;
         const band =
-            this.deckProbe && height !== null
-                ? (this.deckProbe.decks.find((d) => d.height === height) || {}).band
+            probe && height !== null
+                ? (probe.decks.find((d) => d.height === height) || {}).band
                 : null;
         this.renderer.setDeckBand(band || null);
         this._paint();
@@ -3024,6 +3735,7 @@ class MapNavigatorApp {
         // 先同步清干净(并作废在途探针) —— 调用方随后 _paint() 时就不会再画着上一次的残留徽标,
         // 而点起点时发出的孤点探针也不会在路线算完之后才回来、盖掉路线自己的那行提示。
         this._resetOffMeshOverlays();
+        this.astarDiagnostics = [];
         if (!this.field || this.astarPoints.length < 2) return;
         const displayZoneId = this._astarZoneId();
         const geomId = this.field.geometryZoneId(displayZoneId);
@@ -3033,6 +3745,7 @@ class MapNavigatorApp {
         const basePoints = this.astarPoints.map((p) =>
             tierId !== null ? this.field.tierToBase(tierId, p[0], p[1]) : p,
         );
+        const diagnostics = [];
 
         try {
             const combinedPoints = [];
@@ -3081,7 +3794,7 @@ class MapNavigatorApp {
                 }
 
                 const segmentPts = res.points || [];
-                this.astarDiagnostics.push({
+                diagnostics.push({
                     ...(res.debug || {}),
                     start: legStart,
                     goal: legGoal,
@@ -3101,6 +3814,7 @@ class MapNavigatorApp {
                 segment_breaks: combinedBreaks,
                 cost: totalCost,
             };
+            this.astarDiagnostics = diagnostics;
             const summary = `A* 路线已生成：共 ${this.astarPoints.length} 个关键点，包含 ${this.astarRoute.points.length} 个坐标。`;
             if (this.astarBlindWalks.length > 0) {
                 const worst = Math.max(...this.astarBlindWalks.map((b) => b.distance)).toFixed(1);
@@ -3117,6 +3831,7 @@ class MapNavigatorApp {
         } catch (err) {
             this.astarRoute = null;
             this.astarBlindWalks = [];
+            this.astarDiagnostics = [];
             const msg = err && err.message ? err.message : err;
             setStatus(`A* 寻路失败: ${msg}${this._offMeshHint()}`, "#ef4444");
             this._paint();
@@ -3235,20 +3950,29 @@ class MapNavigatorApp {
 
     /**
      * "定位当前位置" button: one-shot backend locate (`/api/locate-once`), then feed
-     * the fix into the calling mode's flow — astar: mark a preview hint (switching
-     * the displayed zone if the fix is elsewhere); assert: switch zone and drop the
-     * drag-rect hint; edit: insert a route point after the current selection.
+     * the fix into the calling mode's flow — edit: mark a read-only reference point;
+     * astar: mark a preview hint (switching the displayed zone if the fix is elsewhere);
+     * assert: switch zone and drop the drag-rect hint.
      * @param {'edit'|'assert'|'astar'} mode
      * @returns {Promise<void>}
      */
     async _onLocateCurrentPosition(mode) {
+        if (!this.connection || !this.connection.isConnected()) {
+            setStatus("请先确认游戏连接状态正常。", "#ef4444");
+            return;
+        }
         if (!this.field) {
             setStatus("地图尚未就绪，无法定位。", "#ef4444");
             return;
         }
 
         const connectionPayload = this.connection ? this.connection.buildSession() : null;
-        const locateButton = mode === "assert" ? this.els.btnAssertLocate : this.els.btnAstarLocate;
+        const locateButton =
+            mode === "edit"
+                ? this.els.btnEditLocate
+                : mode === "assert"
+                  ? this.els.btnAssertLocate
+                  : this.els.btnAstarLocate;
         if (locateButton) locateButton.disabled = true;
         setStatus("正在连接游戏并获取位置，请保持游戏前台运行...", "#3b82f6");
         if (this.positionReadout) this.positionReadout.setPending("正在获取位置与朝向...");
@@ -3261,7 +3985,46 @@ class MapNavigatorApp {
                 if (this.positionReadout) this.positionReadout.update({x, y, zone, rot});
                 setStatus(`定位成功: [${x.toFixed(1)}, ${y.toFixed(1)}] · ${headingText} @ ${zone}`, "#10b981");
 
-                if (mode === "astar") {
+                if (mode === "edit") {
+                    const zoneIdNum = this._resolveZoneId(zone);
+                    if (Number.isNaN(zoneIdNum)) {
+                        this.editLocateHint = null;
+                        setStatus(`定位成功，但区域 ${zone} 没有可用的 navmesh 底图。`, "#f59e0b");
+                        this._paint();
+                    } else {
+                        if (!this.state.points.length) {
+                            if (this._selectDisplayZoneById(zoneIdNum)) this._onAstarZoneChanged(false);
+                        }
+                        const displayZoneId = this._resolveZoneId(this._displayZoneId());
+                        const geometryZoneId = this.field.geometryZoneId(zoneIdNum);
+                        if (
+                            Number.isNaN(displayZoneId) ||
+                            this.field.geometryZoneId(displayZoneId) !== geometryZoneId
+                        ) {
+                            this.editLocateHint = null;
+                            setStatus(
+                                `定位成功，但当前位置 ${zone} 不属于当前路径底图；参考点未显示。`,
+                                "#f59e0b",
+                            );
+                            this._paint();
+                        } else {
+                            const [bx, by] = this._pointToBase(zoneIdNum, x, y);
+                            const baseRot = this._headingToBase(zoneIdNum, x, y, rot);
+                            this.editLocateHint = {
+                                x: bx,
+                                y: by,
+                                rot: baseRot,
+                                label: `游戏当前位置 · ${headingText}`,
+                                geometryZoneId,
+                            };
+                            this._focusEditLocateHint();
+                            setStatus(
+                                `已在当前路径底图标出游戏当前位置 [${x.toFixed(1)}, ${y.toFixed(1)}] · ${headingText}；未新增路点。`,
+                                "#10b981",
+                            );
+                        }
+                    }
+                } else if (mode === "astar") {
                     const zoneIdNum = this._resolveZoneId(zone);
                     if (!Number.isNaN(zoneIdNum)) {
                         if (this._astarZoneId() !== zoneIdNum) {
@@ -3320,7 +4083,14 @@ class MapNavigatorApp {
             setStatus(`定位异常: ${err && err.message ? err.message : err}`, "#ef4444");
             if (this.positionReadout) this.positionReadout.setPending("未获取到位置与朝向");
         } finally {
-            if (locateButton) locateButton.disabled = false;
+            if (locateButton) locateButton.disabled = !this.connection.isConnected();
+        }
+    }
+
+    /** Enable live-position actions only after the current connection probe succeeds. */
+    _syncLocateActions(connected) {
+        for (const button of [this.els.btnEditLocate, this.els.btnAssertLocate, this.els.btnAstarLocate]) {
+            if (button) button.disabled = !connected;
         }
     }
 
@@ -3842,6 +4612,7 @@ class MapNavigatorApp {
         this.els.assertZoneCombo.value = zoneId;
         this.assertRectWorld = null;
         this.isAssertSelecting = false;
+        this._assertRectBeforeDrag = null;
         this._refreshZoneLabel();
         if (this.field) {
             const zoneIdNum = parseInt(zoneId, 10);
@@ -3937,6 +4708,8 @@ class MapNavigatorApp {
             this._moveAstarDisplayZone(-1);
             return;
         }
+        this._clearEditPreview();
+        this.editPreviewStartSelected = false;
         this.state.zoneState.prevZone();
         this.state.clearSelection();
         this._syncActionControls();
@@ -3950,6 +4723,8 @@ class MapNavigatorApp {
             this._moveAstarDisplayZone(1);
             return;
         }
+        this._clearEditPreview();
+        this.editPreviewStartSelected = false;
         this.state.zoneState.nextZone();
         this.state.clearSelection();
         this._syncActionControls();
@@ -3997,6 +4772,21 @@ class MapNavigatorApp {
         return normalizeZoneId(this.els.targetTierEntry.value);
     }
 
+    /** Coordinate frame used by a newly hand-authored NAVMESH waypoint. */
+    _manualEditFrame() {
+        if (!this.field) return {zone: normalizeZoneId(this.state.currentZone()), targetTier: ""};
+
+        const currentZone = normalizeZoneId(this.state.currentZone());
+        const zoneId = currentZone ? this._resolveZoneId(currentZone) : this._astarZoneId();
+        if (Number.isNaN(zoneId)) return {zone: currentZone, targetTier: ""};
+        const zone = this.field.zoneById(zoneId);
+        const zoneName = normalizeZoneId(zone && zone.name, currentZone);
+        return {
+            zone: zoneName,
+            targetTier: this.field.isTier(zoneId) && this.field.isRealTier(zoneId) ? zoneName : "",
+        };
+    }
+
     /** "设为该动作" button: apply the dropdown action + strict flag to the selection. @returns {void} */
     _applyAction() {
         const result = this.state.editApplyActionToSelected(
@@ -4031,8 +4821,16 @@ class MapNavigatorApp {
             }
             this.assertRectWorld = null;
             this.isAssertSelecting = false;
+            this._assertRectBeforeDrag = null;
             setStatus("已清除 Assert 区域。", "#10b981");
             if (this.navtest) this.navtest.routeChanged();
+            this._paint();
+            return;
+        }
+        if (this.editPreviewStartSelected && this._activeEditPreviewStart()) {
+            this._clearEditPreview();
+            this._clearEditPreviewStart();
+            setStatus("已删除手动规划起点。", "#10b981");
             this._paint();
             return;
         }
@@ -4047,8 +4845,11 @@ class MapNavigatorApp {
 
     /** tk `_on_points_structure_changed` tail (points already reindexed by the edit helper). */
     _afterStructureChanged() {
+        this._clearEditPreview();
         this._syncActionControls();
+        this._syncAstarControls();
         this._refreshZoneLabel();
+        if (this.navtest) this.navtest.routeChanged();
         this._doRedraw();
     }
 
@@ -4058,6 +4859,7 @@ class MapNavigatorApp {
 
     /** Keep each copy button's label aligned with its selected output format. @returns {void} */
     _syncCopyButtonLabels() {
+        this.els.btnCopyPath.textContent = this.els.chkEditZipline.checked ? "复制完整参数" : "复制路径";
         this.els.btnCopyNavmesh.textContent = "复制路径";
         this.els.btnCopyAssert.textContent =
             this.els.assertCopyFormat.value === COPY_FORMAT_COORDINATES ? "复制坐标" : "复制断言";
@@ -4071,8 +4873,13 @@ class MapNavigatorApp {
         }
         try {
             const result = await exportPath(this.state.points);
-            await this._copyText(result.text);
-            setStatus("MapNavigator path 已复制到剪贴板", "#10b981");
+            if (this.els.chkEditZipline.checked) {
+                await this._copyText(JSON.stringify({path: result.nodes, zip: true}, null, 4));
+                setStatus("MapNavigator 完整参数已复制到剪贴板（已启用滑索）", "#10b981");
+            } else {
+                await this._copyText(result.text);
+                setStatus("MapNavigator path 已复制到剪贴板", "#10b981");
+            }
         } catch (err) {
             const msg = err && err.message ? err.message : err;
             setStatus(`复制失败: ${msg}`, "#ef4444");
@@ -4145,31 +4952,14 @@ class MapNavigatorApp {
     }
 
     /**
-     * 试跑要跑的那一份, 取自当前页签: 路径编辑交编辑器原始路点 (导出在服务侧, 只此一处口径),
-     * A* 交已导出的 NAVMESH 节点 —— tier 变换与显示底图只有前端有, 后端换算不出来。
-     * 断言模式没有线, 交那个框, 由后端导成 MapLocateAssertLocation 节点认一次。
-     * @returns {{path: Array, exported: boolean, assert_target: ?Object}}
+     * 路径编辑试跑直接使用编辑器原始路点；其他模式不向试跑会话装载内容。
+     * @returns {{path: Array, exported: boolean, zip: boolean, assert_target: ?Object}}
      */
     _navtestRoute() {
-        if (this.state.mode === Mode.LOG) {
-            return {path: [], exported: false, assert_target: null};
+        if (this.state.mode !== Mode.EDIT) {
+            return {path: [], exported: false, zip: false, assert_target: null};
         }
-        if (this.state.mode === Mode.ASTAR) {
-            const ready = this.field && this._displayZoneId() && this.astarPoints.length >= 2;
-            return { path: ready ? this._navmeshTargets() : [], exported: true };
-        }
-        if (this.state.mode === Mode.ASSERT) {
-            const zoneId = this._displayZoneId();
-            const target = this._currentAssertTarget();
-            // 零面积的框 (点一下没拖) 后端会拒, 这里就当作没画: 免得白连一次游戏。
-            const drawn = !!target && target[2] > 0 && target[3] > 0;
-            return {
-                path: [],
-                exported: false,
-                assert_target: zoneId && drawn ? { zone_id: zoneId, target } : null,
-            };
-        }
-        return { path: this.state.points, exported: false };
+        return {path: this.state.points, exported: false, zip: this.els.chkEditZipline.checked};
     }
 
     /**
@@ -4289,6 +5079,10 @@ class MapNavigatorApp {
         ) {
             return;
         }
+        if (e.key === "Escape" && this._cancelCurrentSelection()) {
+            e.preventDefault();
+            return;
+        }
         const ctrl = e.ctrlKey || e.metaKey;
         if (ctrl && (e.key === "z" || e.key === "Z")) {
             if (e.shiftKey) this._redo();
@@ -4360,7 +5154,7 @@ class MapNavigatorApp {
 
     /**
      * Switch the active canvas tool, updating toolbar highlight + canvas cursor.
-     * @param {'pan'|'add'|'select'|'astar-single'|'astar-multi'|'astar-pan'|'assert-pan'|'assert-edit'|'log-inspect'|'log-measure'|'log-pan'} tool
+     * @param {'pan'|'add'|'select'|'edit-start'|'astar-single'|'astar-multi'|'astar-pan'|'assert-pan'|'assert-edit'|'log-inspect'|'log-measure'|'log-pan'} tool
      * @returns {void}
      */
     _setActiveTool(tool) {
@@ -4370,6 +5164,11 @@ class MapNavigatorApp {
         if (e.toolPan) e.toolPan.classList.toggle("active", tool === "pan");
         if (e.toolAdd) e.toolAdd.classList.toggle("active", tool === "add");
         if (e.toolSelect) e.toolSelect.classList.toggle("active", tool === "select");
+        if (e.toolEditStart) {
+            const settingEditStart = tool === "edit-start";
+            e.toolEditStart.classList.toggle("active", settingEditStart);
+            e.toolEditStart.setAttribute("aria-pressed", String(settingEditStart));
+        }
         if (e.toolAstarSingle) e.toolAstarSingle.classList.toggle("active", tool === "astar-single");
         if (e.toolAstarMulti) e.toolAstarMulti.classList.toggle("active", tool === "astar-multi");
         if (e.toolAssertPan) e.toolAssertPan.classList.toggle("active", tool === "assert-pan");
@@ -4387,7 +5186,7 @@ class MapNavigatorApp {
             canvas.style.cursor = "crosshair";
         } else if (tool === "log-inspect") {
             canvas.style.cursor = "default";
-        } else if (tool === "add" || tool === "astar-single" || tool === "astar-multi") {
+        } else if (tool === "add" || tool === "edit-start" || tool === "astar-single" || tool === "astar-multi") {
             canvas.style.cursor = "crosshair";
         } else if (tool === "select") {
             canvas.style.cursor = "default";
@@ -4418,8 +5217,11 @@ class MapNavigatorApp {
 
     /** Refresh controls + repaint after an undo/redo restored a snapshot. @returns {void} */
     _afterHistory() {
+        this._clearEditPreview();
         this._syncActionControls();
+        this._syncAstarControls();
         this._refreshZoneLabel();
+        if (this.navtest) this.navtest.routeChanged();
         this._doRedraw();
     }
 
@@ -4505,11 +5307,12 @@ class MapNavigatorApp {
 
     /** Reset the property panel to its no-selection defaults. @returns {void} */
     _resetPropertyControls() {
-        this.els.actionMenu.value = ACTION_NAMES[ActionType.RUN];
+        this.els.actionMenu.value = ACTION_NAMES[ActionType.NAVMESH];
         this.els.chkStrict.checked = false;
         this.els.chkRequired.checked = false;
         this.els.targetTierEntry.value = "";
-        this.els.actionChainLabel.textContent = "Run";
+        this.els.actionChainLabel.textContent = "Navmesh";
+        if (this.els.editDeckBox) this.els.editDeckBox.hidden = true;
         if (this.els.propertiesEmptyState && this.els.propertiesEditor) {
             this.els.propertiesEmptyState.hidden = false;
             this.els.propertiesEditor.hidden = true;
@@ -4529,7 +5332,9 @@ class MapNavigatorApp {
 
     /** Reflect the current selection into the action/strict/chain controls (tk `_sync_action_controls`). */
     _syncActionControls() {
+        this._renderEditInspection();
         this._renderWaypointList();
+        this._renderEditDeckList();
         // 路线可能刚被改过: 重新装载到试跑会话, 让 F3 跑的始终是屏幕上这一条。
         if (this.navtest) this.navtest.routeChanged();
         const zoneIndices = this.state.zonePointGlobalIndices();
@@ -4770,6 +5575,7 @@ class MapNavigatorApp {
 
     /** Update the zone label for the current mode's frame. @returns {void} */
     _refreshZoneLabel() {
+        this._syncEditPreviewStartControls();
         if (this.state.mode === Mode.ASTAR) {
             const zoneId = this._displayZoneId();
             this.els.zoneLabel.textContent = zoneId ? `A*: ${zoneId}` : "A*: 请选择底图";
@@ -4785,6 +5591,11 @@ class MapNavigatorApp {
             this.els.zoneLabel.textContent = run ? `Log: ${run.zone || "未知区域"}` : "Log: 未选择运行记录";
             return;
         }
+        if (!this.state.points.length) {
+            const label = this.els.astarZoneCombo.value || "未选择层级";
+            this.els.zoneLabel.textContent = `新路径: ${label}`;
+            return;
+        }
         this.els.zoneLabel.textContent = this.state.zoneState.labelText();
     }
 
@@ -4796,18 +5607,27 @@ class MapNavigatorApp {
         this.els.assertZoneCombo.disabled = !(assertMode && this._availableZoneIds.length);
     }
 
-    /** Enable/disable A*-mode controls + tier label for the current mode. @returns {void} */
+    /** Enable the shared map picker for an empty edit route or the retained internal preview state. */
     _syncAstarControls() {
         const active = this.state.mode === Mode.ASTAR;
+        const emptyEdit = this.state.mode === Mode.EDIT && !this.state.points.length;
+        const pickerActive = active || emptyEdit;
         this.els.astarZoneCombo.disabled = !(active && this.field);
         this.els.astarDisplayZoneCombo.disabled = !(active && this.field && this.field.displayBaseNames().length);
         if (this.state.mode !== Mode.ASSERT) {
             this.els.btnPrev.disabled = false;
             this.els.btnNext.disabled = false;
         }
-        if (active) {
+        if (pickerActive) {
             this.els.btnSelectTier.disabled = !(this.field && this.field.displayBaseNames().length);
             this.els.astarSelectedTierLabel.textContent = this.els.astarZoneCombo.value || "未选择层级";
+            this.els.astarSelectedTierLabel.style.display = "inline-block";
+        } else if (this.state.mode === Mode.EDIT) {
+            this.els.btnSelectTier.disabled = true;
+            const zone = normalizeZoneId(this.state.currentZone());
+            const zoneId = this._resolveZoneId(zone);
+            this.els.astarSelectedTierLabel.textContent =
+                !Number.isNaN(zoneId) && this.field ? this.field.zoneLabel(zoneId) || zone : zone || "未选择层级";
             this.els.astarSelectedTierLabel.style.display = "inline-block";
         } else {
             this.els.btnSelectTier.disabled = true;
@@ -4825,9 +5645,12 @@ class MapNavigatorApp {
      * @returns {void}
      */
     _onRecordingFinished(rawPoints) {
+        this._clearEditPreview();
+        this._clearEditPreviewStart();
         this.state.setPoints(rawPoints);
         this.state.clearSelection();
         this._syncActionControls();
+        this._syncAstarControls();
         this._refreshZoneLabel();
         setStatus(
             "录制结束。滚轮缩放，右键或 Alt+拖拽平移；添加工具左键点击插点，拖拽路点微调，Ctrl+拖拽框选批量操作，C 键复制选中点坐标。",
@@ -4841,11 +5664,18 @@ class MapNavigatorApp {
      * - EDIT / Assert: the points become the real route (Assert draws them read-only).
      * - A*: imported coordinates wait as targets until a manual start is clicked.
      * @param {object[]} points
+     * @param {{zipEnabled?:boolean}} [options]
      * @returns {{text?:string, color?:string}|void} a status lead-in replacing the importer's default
      */
-    _importLoadPoints(points) {
+    _importLoadPoints(points, options = {}) {
         if (this.state.mode === Mode.ASTAR) return this._importAsAstarRoute(points);
 
+        this._clearEditPreview();
+        this._clearEditPreviewStart();
+        if (this.state.mode === Mode.EDIT) {
+            this.els.chkEditZipline.checked = !!options.zipEnabled;
+            this._syncCopyButtonLabels();
+        }
         this.state.setPoints(points);
         this.state.clearSelection();
         this._resetPropertyControls();
@@ -4958,6 +5788,7 @@ class MapNavigatorApp {
             y + h,
         ];
         this.isAssertSelecting = false;
+        this._assertRectBeforeDrag = null;
         this._syncAssertControls();
         this._syncAstarControls();
         this._refreshZoneLabel();
@@ -4991,17 +5822,24 @@ class MapNavigatorApp {
     _selectModeTab(modeName) {
         const e = this.els;
 
-        if (modeName === "log" && this.navtest && this.navtest.running) {
-            setStatus("请先按 F4 终止当前实机试跑，再进入日志分析模式。", "#f59e0b");
+        if (modeName !== "edit" && this.navtest && this.navtest.running) {
+            setStatus("请先按 F4 终止当前实机试跑，再切换模式。", "#f59e0b");
             return;
         }
+
+        this.deckPreview = null;
+        this.renderer.setDeckBand(null);
 
         if (modeName !== "astar") {
             this._clearAstarPreview();
         }
+        if (modeName !== "edit") {
+            this._clearEditPreview();
+        }
         if (modeName !== "assert") {
             this.assertRectWorld = null;
             this.isAssertSelecting = false;
+            this._assertRectBeforeDrag = null;
         }
 
         if (modeName === "edit") {
@@ -5066,25 +5904,30 @@ class MapNavigatorApp {
         e.tabRoute.classList.remove("active");
 
         const logWorkspace = mode === Mode.LOG;
+        const navtestAvailable = mode === Mode.EDIT;
         e.tabLog.classList.toggle("active", logWorkspace);
         e.tabLog.setAttribute("aria-pressed", String(logWorkspace));
         e.tabRoute.classList.toggle("active", !logWorkspace);
         e.tabRoute.setAttribute("aria-pressed", String(!logWorkspace));
         e.panelConnection.hidden = logWorkspace;
-        e.panelNavtest.hidden = logWorkspace;
+        e.panelNavtest.hidden = !navtestAvailable;
         e.routeModeTabs.hidden = logWorkspace;
         e.positionReadout.hidden = logWorkspace;
+        e.toolEditStart.hidden = mode !== Mode.EDIT;
+        e.editStartDivider.hidden = mode !== Mode.EDIT;
         e.btnLogMeasure.hidden = !logWorkspace;
         e.logMeasureDivider.hidden = !logWorkspace;
         if (this.connection) this.connection.setSuspended(logWorkspace);
 
         e.panelRecording.hidden = true;
+        e.panelEditMap.hidden = true;
+        e.panelAssertMap.hidden = true;
         e.panelProperties.hidden = true;
         e.panelAstar.hidden = true;
         e.panelAssert.hidden = true;
         e.panelLog.hidden = true;
         e.btnDelPointFloat.hidden = mode === Mode.LOG;
-        if (this.navtest) this.navtest.setDisabled(mode === Mode.LOG);
+        if (this.navtest) this.navtest.setDisabled(!navtestAvailable);
 
         if (mode === Mode.ASTAR) {
             e.tabAstar.classList.add("active");
@@ -5096,6 +5939,7 @@ class MapNavigatorApp {
             this._setActiveTool("astar-single");
         } else if (mode === Mode.ASSERT) {
             e.tabAssert.classList.add("active");
+            e.panelAssertMap.hidden = false;
             e.panelAssert.hidden = false;
             e.canvasWrap.classList.remove("mode-edit", "mode-astar", "mode-log");
             e.canvasWrap.classList.add("mode-assert");
@@ -5115,6 +5959,7 @@ class MapNavigatorApp {
             );
         } else {
             e.tabEdit.classList.add("active");
+            e.panelEditMap.hidden = false;
             e.panelRecording.hidden = false;
             e.panelProperties.hidden = false;
             e.canvasWrap.classList.remove("mode-astar", "mode-assert", "mode-log");
@@ -5126,6 +5971,8 @@ class MapNavigatorApp {
         e.tabAstar.setAttribute("aria-pressed", String(mode === Mode.ASTAR));
         e.tabAssert.setAttribute("aria-pressed", String(mode === Mode.ASSERT));
         e.tabEdit.setAttribute("aria-pressed", String(mode === Mode.EDIT));
+        this._renderEditInspection();
+        this._syncLogContextPanel();
     }
 
     /** Open the tier-picker dialog with base buttons + the current base's tier grid. @returns {void} */

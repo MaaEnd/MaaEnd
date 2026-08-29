@@ -422,6 +422,7 @@ canvas {
   pointer-events: auto;
 }
 
+.edit-inspection-box,
 .log-inspection-box,
 .log-distance-box {
   display: flex;
@@ -436,6 +437,7 @@ canvas {
   box-shadow: 0 8px 28px rgba(0, 0, 0, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
+.edit-inspection-box,
 .log-inspection-box {
   border-color: rgba(34, 211, 238, 0.34);
 }
@@ -927,6 +929,12 @@ canvas {
 .combo-action {
   flex: 1;
   min-width: 90px;
+}
+
+.waypoint-option-row {
+  justify-content: flex-end;
+  gap: 16px;
+  margin: 8px 0;
 }
 
 .combo-zone {
@@ -1717,6 +1725,14 @@ canvas {
 .project-node-name {
   font-size: 12px;
   font-weight: 600;
+}
+
+.project-node-desc {
+  color: var(--text-secondary);
+  font-size: 11px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
 }
 
 .project-node-path {
