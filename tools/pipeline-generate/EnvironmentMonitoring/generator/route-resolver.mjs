@@ -37,12 +37,13 @@ export function collectMissingRouteFields(route) {
     const quickTeleport = route.QuickTeleport === true;
     const navFieldsPresent = collectNavRouteFields(route);
     const hasNavRoute = hasCompleteNavRoute(route);
+    const expectsNavRoute = navFieldsPresent.length > 0 || !isFieldMissing(route.FightAfterMove);
     const missingFields = [];
 
     if (!quickTeleport && isFieldMissing(route.EnterMap)) {
         missingFields.push("EnterMap");
     }
-    if (navFieldsPresent.length > 0 && !hasNavRoute) {
+    if (expectsNavRoute && !hasNavRoute) {
         const hasAnyAssertField = NAV_ASSERT_FIELDS.some((field) => !isFieldMissing(route[field]));
         const requiredFields = quickTeleport && !hasAnyAssertField ? NAV_ROUTE_REQUIRED_FIELDS : NAV_ROUTE_FIELDS;
         missingFields.push(`${requiredFields.join("/")} 必须同时配置`);
@@ -223,7 +224,7 @@ export function createRouteResolver(routeConfig, options = {}) {
                 Replace,
                 QuickTeleport,
                 IsDirectPhoto: isAdapted && isDirectPhoto,
-                FightAfterMove: !isFieldMissing(override?.FightAfterMove),
+                FightAfterMove: hasNavRoute && !isFieldMissing(override?.FightAfterMove),
                 // NavPath 路线传送后交给 MapNavigateAction 自行接管落点，不再复核起点
                 ShouldAssertAfterTeleport: !isDirectPhoto && !hasNavRoute,
                 ...heading,

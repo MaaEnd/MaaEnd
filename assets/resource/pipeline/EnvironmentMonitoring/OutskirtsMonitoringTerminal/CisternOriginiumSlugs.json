@@ -377,15 +377,15 @@
         "custom_action_param": {
             "path": [
                 {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
                     "action": "NAVMESH",
                     "target": [
                         788.14,
                         2603.23
                     ]
-                },
-                {
-                    "action": "ZONE",
-                    "zone_id": "Wuling_Base"
                 },
                 [
                     795.02,
@@ -419,15 +419,15 @@
         "custom_action_param": {
             "path": [
                 {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
                     "action": "NAVMESH",
                     "target": [
                         788.14,
                         2603.23
                     ]
-                },
-                {
-                    "action": "ZONE",
-                    "zone_id": "Wuling_Base"
                 },
                 [
                     795.02,

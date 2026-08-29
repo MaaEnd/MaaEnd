@@ -80,9 +80,9 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 
 > 传送后的处理取决于入口和路线类型：传送后直拍不做位置断言或寻路，配置 `Heading` 时只原地调整朝向，随后进入任务专属拍照包装节点。`QuickTeleport` 的固定传送落点可直接开始寻路，因此允许省略 `NavZoneId` / `NavAssert`。普通传送的寻路路线仍会在决定是否调用 `EnterMap` 前用到断言配置，所以不能省略；传送完成后 `NavPath` 直接开始寻路，不再复核起点。
 >
-> 仅含 `NAVMESH` 的 `NavPath` 不需要前置 `ZONE`：导航器会从 MapLocator 当前定位自动确定起点区域。`ZONE` 只为后续手录坐标点声明和校验分区，多分区或过图路径应原样保留录制工具导出的 `ZONE`。
+> `routes.json` 中的 `NavPath` 与 `FightAfterMove` 必须为 WebUI 提供明确的底图上下文：不含 `target_tier` 时以前置 `ZONE` 开头，基础底图使用对应的 `*_Base`；含 `target_tier` 时暂不新增前置 `ZONE`，由节点自己的 `target_tier` 声明层级，但已有 `ZONE` 应原样保留。多分区或过图路径还应原样保留录制工具导出的必要 `ZONE`。
 
-> `FightAfterMove` 直接填写独立的 MapNavigator `path` 数组。字段存在时，首次 `NavPath` 结束后执行一次 `[JumpBack]AutoFight`，再沿 `FightAfterMove` 归位；不要把战斗后的回撤点并入首次前往路线。
+> `FightAfterMove` 仅用于完整寻路路线，直接填写独立的 MapNavigator `path` 数组。字段存在时，首次 `NavPath` 结束后执行一次 `[JumpBack]AutoFight`，再沿 `FightAfterMove` 归位；不要把战斗后的回撤点并入首次前往路线。传送后直拍无需战斗，不得配置该字段。
 
 > 传送入口由 `QuickTeleport` 决定：默认通过 `EnterMap` 调用配置的 Pipeline 节点，不限制节点名称；该节点需能作为 SubTask 完整执行后正常返回。启用快捷传送后，“开始追踪”会直接等待任务地图，“已追踪”会先点击“停止追踪”旁的定位图标打开任务地图，随后依次点击“前往传送”和“传送”，此时 `EnterMap` 可省略。
 

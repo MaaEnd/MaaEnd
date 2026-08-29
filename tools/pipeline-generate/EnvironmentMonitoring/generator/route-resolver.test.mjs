@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
+import {readJson, ROUTES_PATH} from "./common.mjs";
 import {collectMissingRouteFields, createRouteResolver} from "./route-resolver.mjs";
 
 const mission = {
@@ -13,6 +14,31 @@ const mission = {
 function resolve(route) {
     return createRouteResolver([route], {warn() {}}).resolve(mission);
 }
+
+test("configured paths expose one WebUI map context", () => {
+    const routes = readJson(ROUTES_PATH);
+
+    for (const route of routes) {
+        for (const field of [
+            "NavPath",
+            "FightAfterMove",
+        ]) {
+            const path = route[field];
+            if (!Array.isArray(path)) {
+                continue;
+            }
+
+            const targetTiers = new Set(path.map((node) => node?.target_tier).filter(Boolean));
+            if (targetTiers.size > 0) {
+                continue;
+            }
+
+            assert.equal(path[0]?.action, "ZONE", `${route.MissionId}.${field} must start with ZONE`);
+            assert.equal(typeof path[0]?.zone_id, "string", `${route.MissionId}.${field} ZONE must provide zone_id`);
+            assert.notEqual(path[0].zone_id, "", `${route.MissionId}.${field} ZONE must provide zone_id`);
+        }
+    }
+});
 
 test("metadata-only entries remain unadapted", () => {
     const route = {
@@ -238,6 +264,54 @@ test("FightAfterMove uses an independent route and shares the photo heading", ()
             angle: 90,
         },
     ]);
+});
+
+test("direct-photo routes reject FightAfterMove", () => {
+    const result = resolve({
+        MissionId: mission.missionId,
+        Name: "测试观察点",
+        Id: "TestMission",
+        EnterMap: "SceneEnterWorldTest",
+        FightAfterMove: [
+            {
+                action: "ZONE",
+                zone_id: "Wuling_Base",
+            },
+            [
+                5,
+                5,
+            ],
+        ],
+    });
+
+    assert.equal(result.isAdapted, false);
+    assert.equal(result.IsDirectPhoto, false);
+    assert.equal(result.FightAfterMove, false);
+    assert.deepEqual(result.missingFields, ["NavZoneId/NavAssert/NavPath 必须同时配置"]);
+});
+
+test("QuickTeleport routes reject FightAfterMove without NavPath", () => {
+    const result = resolve({
+        MissionId: mission.missionId,
+        Name: "测试观察点",
+        Id: "TestMission",
+        QuickTeleport: true,
+        FightAfterMove: [
+            {
+                action: "ZONE",
+                zone_id: "Wuling_Base",
+            },
+            [
+                5,
+                5,
+            ],
+        ],
+    });
+
+    assert.equal(result.isAdapted, false);
+    assert.equal(result.IsDirectPhoto, false);
+    assert.equal(result.FightAfterMove, false);
+    assert.deepEqual(result.missingFields, ["NavPath 必须同时配置"]);
 });
 
 test("QuickTeleport Nav routes only require NavPath", () => {

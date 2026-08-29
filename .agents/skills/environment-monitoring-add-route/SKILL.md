@@ -62,7 +62,7 @@ argument-hint: "可选：观察点名称，以及录制好的 EnterMap、NavZone
 
 寻路只适合普通可通行路线，不负责战斗、剧情、过图、机关或交互。传送后直拍必须经过游戏实测确认；不能因为缺少路线数据就把未适配条目写成直拍。遇到这些情况不要用更多重试或硬延迟掩盖，应保留未适配状态或重新设计真实可通行路线。
 
-仅含 `NAVMESH` 的 `NavPath` 不需要前置 `ZONE`：运行时会从 MapLocator 当前定位自动确定起点区域。`ZONE` 只为后续手录坐标点声明和校验分区；多分区或过图路径应保留录制工具导出的 `ZONE`，不要擅自删改。
+`routes.json` 中的 `NavPath` 与 `FightAfterMove` 必须为 WebUI 提供明确的底图上下文：不含 `target_tier` 时以前置 `ZONE` 开头，基础底图使用对应的 `*_Base`；含 `target_tier` 时暂不新增前置 `ZONE`，由节点自己的 `target_tier` 声明层级，但已有 `ZONE` 应原样保留。多分区或过图路径还应保留录制工具导出的必要 `ZONE`，不要擅自删改。
 
 ### 可选字段
 
@@ -72,7 +72,7 @@ argument-hint: "可选：观察点名称，以及录制好的 EnterMap、NavZone
 | `Replace`                      | OCR 易混字符替换表 `[["误识别", "正确字符"], ...]`；仅有实际误识别证据时填写                                                                 |
 | `Heading`                      | 可选。进入拍照模式前的角色朝向，范围 `[0, 360)`；直拍路线会在传送后生成只含 `HEADING` 动作的 `MapNavigateAction`                            |
 | `QuickTeleport`                | 可选布尔值，默认 `false`。启用后依次点击任务地图的“前往传送”和“传送”，不调用 `EnterMap`；此时 `EnterMap` 可省略                              |
-| `FightAfterMove`               | 可选的独立 MapNavigator `path` 数组。首次寻路后执行 `AutoFight`，再沿此路径归位；不要复用或改写首次前往的 `NavPath`                         |
+| `FightAfterMove`               | 仅完整寻路路线可选的独立 MapNavigator `path` 数组。首次寻路后执行 `AutoFight`，再沿此路径归位；直拍路线不配置，且不要复用或改写首次前往的 `NavPath` |
 
 所有坐标均使用 720p（1280×720）基准，并与录制工具所用地图体系保持一致。
 
@@ -105,7 +105,7 @@ node .agents/skills/environment-monitoring-add-route/check_missing.mjs
 3. 普通传送寻路时收集 `NavZoneId` / `NavAssert`；`QuickTeleport + NavPath` 跳过二者
 4. `NavPath`（完整保留录制动作；跨 tier 的 `NAVMESH` 动作按实测数据携带 `target_tier`，目标点存在重叠面时携带工具选出的 `target_deck_y`）
 5. `Heading`（可选）
-6. `FightAfterMove`（可选，仅接受实测的独立归位 path）
+6. `FightAfterMove`（仅完整寻路路线可选，只接受实测的独立归位 path；直拍路线跳过）
 7. `Replace`（可选，有 OCR 误识别证据时）
 
 接受字段后检查数组长度、数值类型和取值范围，不要等写入后才发现格式错误。
@@ -132,8 +132,8 @@ node .agents/skills/environment-monitoring-add-route/check_missing.mjs
 - 严格 JSON：双引号、无注释、无尾随逗号、4 空格缩进；
 - `NavPath` 的每个坐标对和动作对象按项目 Prettier 规则展开；
 - 寻路路线配置 `NavPath`；普通传送同时配置 `NavZoneId` / `NavAssert`，快捷传送可省略二者；
-- 沿途稳定遇敌且战斗后需要归位时，直接把独立 path 数组写入 `FightAfterMove`，不要把回撤点并入 `NavPath`；
-- 传送后直拍不增加开关字段，不配置任何地图断言与寻路字段；按实测结果可保留 `Heading`；
+- 完整寻路路线沿途稳定遇敌且战斗后需要归位时，直接把独立 path 数组写入 `FightAfterMove`，不要把回撤点并入 `NavPath`；
+- 传送后直拍不增加开关字段，不配置任何地图断言、寻路或 `FightAfterMove` 字段；按实测结果可保留 `Heading`；
 - 终点落在重叠可走面上时必须在对应 `NAVMESH` 动作标 `target_deck_y`，数值从工具读、不要手估；作者点不得压成单个 NAVMESH 目标，需要逐段；
 - 默认值不写：`QuickTeleport: false`；
 - 不确定的可选值直接省略，不写占位值或 TODO 注释；
