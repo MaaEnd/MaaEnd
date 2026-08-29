@@ -2033,13 +2033,14 @@ bool NavigationStateMachine::TryZiplineMountPrompt(const Waypoint& waypoint, con
     return flagged && route.startup_motion_confirmed && route.waypoint_distance <= kPromptTriggerBandWu;
 }
 
-double NavigationStateMachine::NearestPromptDistanceSq() const
+NavigationStateMachine::PromptDistance NavigationStateMachine::NearestPromptDistance() const
 {
-    double nearest_sq = -1.0;
+    PromptDistance nearest;
     for (const AsyncPromptAction* prompt : { &collect_prompt_, &interact_prompt_ }) {
         const double distance_sq = prompt->NearestDistanceSq();
-        if (distance_sq >= 0.0 && (nearest_sq < 0.0 || distance_sq < nearest_sq)) {
-            nearest_sq = distance_sq;
+        if (distance_sq >= 0.0 && (nearest.distance_sq < 0.0 || distance_sq < nearest.distance_sq)) {
+            nearest.distance_sq = distance_sq;
+            nearest.is_zipline = false;
         }
     }
     // 上索点也算提示点: 同一个图标、同一件事 —— 够不够得着只看身位离架子多远。已经站上去了就不算,
@@ -2054,12 +2055,13 @@ double NavigationStateMachine::NearestPromptDistanceSq() const
             const double dx = waypoint.x - position_->x;
             const double dy = waypoint.y - position_->y;
             const double distance_sq = dx * dx + dy * dy;
-            if (nearest_sq < 0.0 || distance_sq < nearest_sq) {
-                nearest_sq = distance_sq;
+            if (nearest.distance_sq < 0.0 || distance_sq < nearest.distance_sq) {
+                nearest.distance_sq = distance_sq;
+                nearest.is_zipline = true;
             }
         }
     }
-    return nearest_sq;
+    return nearest;
 }
 
 void NavigationStateMachine::UpdatePromptSprintSuppression()
@@ -2068,7 +2070,7 @@ void NavigationStateMachine::UpdatePromptSprintSuppression()
         return;
     }
 
-    const double nearest_sq = NearestPromptDistanceSq();
+    const double nearest_sq = NearestPromptDistance().distance_sq;
     // 这条线上没有提示驱动的点时 nearest_sq < 0, 疾跑行为一点不碰
     const bool approaching_prompt = nearest_sq >= 0.0 && nearest_sq <= kCollectSprintSuppressBandWu * kCollectSprintSuppressBandWu;
     motion_controller_->SetSprintSuppressed(approaching_prompt);
@@ -2078,7 +2080,7 @@ void NavigationStateMachine::UpdatePromptSprintSuppression()
 // stood on, released everywhere else (travel legs, recovery, turn-in-place nodes, before motion is confirmed).
 void NavigationStateMachine::UpdateWalkMode(NaviPhase phase)
 {
-    double nearest_sq = NearestPromptDistanceSq();
+    PromptDistance nearest = NearestPromptDistance();
     const bool recovering = runtime_state_.recovery.active || runtime_state_.cross_tier_escape.active;
     const bool has_waypoint = session_->HasCurrentWaypoint();
     const ActionType action = has_waypoint ? session_->CurrentWaypoint().action : ActionType::HEADING;
@@ -2091,24 +2093,28 @@ void NavigationStateMachine::UpdateWalkMode(NaviPhase phase)
         const double dx = goal.x - position_->x;
         const double dy = goal.y - position_->y;
         const double distance_sq = dx * dx + dy * dy;
-        if (nearest_sq < 0.0 || distance_sq < nearest_sq) {
-            nearest_sq = distance_sq;
+        if (nearest.distance_sq < 0.0 || distance_sq < nearest.distance_sq) {
+            nearest.distance_sq = distance_sq;
+            nearest.is_zipline = goal.action == ActionType::ZIPLINE;
         }
         settling_approach = true;
     }
-    if (phase != NaviPhase::Navigate || nearest_sq < 0.0 || recovering || !(plain_approach || settling_approach)
+    if (phase != NaviPhase::Navigate || nearest.distance_sq < 0.0 || recovering || !(plain_approach || settling_approach)
         || !runtime_state_.route.startup_motion_confirmed) {
         walk_mode_.Request(false);
         return;
     }
 
     const bool was_engaged = walk_mode_.engaged();
-    const double band = was_engaged ? kCollectWalkExitBandWu : kCollectWalkEnterBandWu;
-    walk_mode_.Request(nearest_sq <= band * band);
+    const double enter_band = nearest.is_zipline ? kZiplineWalkEnterBandWu : kCollectWalkEnterBandWu;
+    const double exit_band = nearest.is_zipline ? kZiplineWalkExitBandWu : kCollectWalkExitBandWu;
+    const double band = was_engaged ? exit_band : enter_band;
+    walk_mode_.Request(nearest.distance_sq <= band * band);
     const bool walking = walk_mode_.engaged();
     if (walking != was_engaged) {
-        const double nearest_stop_point = std::sqrt(nearest_sq);
-        LogInfo << "Walk mode boundary crossed." << VAR(walking) << VAR(nearest_stop_point) << VAR(position_->x) << VAR(position_->y);
+        const double nearest_stop_point = std::sqrt(nearest.distance_sq);
+        LogInfo << "Walk mode boundary crossed." << VAR(walking) << VAR(nearest.is_zipline) << VAR(nearest_stop_point) << VAR(position_->x)
+                << VAR(position_->y);
     }
 }
 
