@@ -75,6 +75,39 @@ test("draws the manual planning start only in edit mode", () => {
     assert.deepEqual(markers, [marker]);
 });
 
+test("draws quick-test endpoints only in edit mode", () => {
+    const overlay = Object.create(Overlay.prototype);
+    overlay.dpr = 1;
+    overlay.cssW = 800;
+    overlay.cssH = 600;
+    overlay.ctx = {
+        setTransform() {},
+        clearRect() {},
+    };
+    overlay._drawPath = () => {};
+    overlay._drawAstarPreview = () => {};
+    overlay._drawNodes = () => {};
+    overlay._drawAssertRect = () => {};
+    overlay._drawAstarDiagnostics = () => {};
+    overlay._drawLivePath = () => {};
+    overlay._drawLogAnalysis = () => {};
+    overlay._drawOffMeshMarks = () => {};
+    overlay._drawSelectionRect = () => {};
+    overlay._drawPlanningStartMarker = () => {};
+    overlay._drawHintMarker = () => {};
+
+    const calls = [];
+    overlay._drawQuickRouteTestMarkers = (_camera, routeTest) => calls.push(routeTest);
+    const routeTest = {
+        start: {x: 12, y: 34, label: "测试起点"},
+        goal: {x: 56, y: 78, label: "测试终点"},
+    };
+    overlay.render({}, {mode: "edit", points: [], quickRouteTest: routeTest});
+    overlay.render({}, {mode: "assert", points: [], quickRouteTest: routeTest});
+
+    assert.deepEqual(calls, [routeTest]);
+});
+
 test("draws selected-route diagnostics in edit mode", () => {
     const overlay = Object.create(Overlay.prototype);
     overlay.dpr = 1;
