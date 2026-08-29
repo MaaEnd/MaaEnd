@@ -385,9 +385,6 @@ Result StartZiplineHop(
         if (ctx.maa_context == nullptr) {
             return AbandonZipline(ctx, "zipline_no_context", "no pipeline context to recognize the mount prompt");
         }
-        // 上索预筛可能在角色仍在走路时命中。与采集流程一致：先松开前进键，等待惯性消失，
-        // 再通过 OCR 获取已经稳定的可点击提示框。
-        utils::SleepFor(kStopWaitMs);
         if (!PressMountPrompt(ctx.maa_context)) {
             // 预筛叫停的这一次人还没走到, 认不出就是那个图标不属于滑索架: 当没发生, 接着走
             if (ctx.runtime_state->semantic.zipline_prompt_probe) {
