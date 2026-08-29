@@ -1,0 +1,55 @@
+{
+    "JumpBackOnErrorTestEntry": {
+        "desc": "JumpBack/on_error 层级测试入口：运行后观察是否出现“已返回父层”提示",
+        "recognition": "DirectHit",
+        "action": "DoNothing",
+        "next": [
+            "JumpBackOnErrorTestParent"
+        ]
+    },
+    "JumpBackOnErrorTestParent": {
+        "desc": "JumpBack 测试父节点：A 完成后应返回此节点重新扫描 next",
+        "recognition": "DirectHit",
+        "action": "DoNothing",
+        "next": [
+            "[JumpBack]JumpBackOnErrorTestA",
+            "JumpBackOnErrorTestReturnedToParent"
+        ]
+    },
+    "JumpBackOnErrorTestA": {
+        "desc": "JumpBack 测试节点 A：进入 B；max_hit 防止返回父层后再次进入 A",
+        "recognition": "DirectHit",
+        "action": "DoNothing",
+        "max_hit": 1,
+        "next": [
+            "JumpBackOnErrorTestB"
+        ]
+    },
+    "JumpBackOnErrorTestB": {
+        "desc": "JumpBack 测试节点 B：故意执行失败，验证 on_error 是否丢失 JumpBack 层级",
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "FalseAction",
+        "on_error": [
+            "JumpBackOnErrorTestErrorFinished"
+        ]
+    },
+    "JumpBackOnErrorTestErrorFinished": {
+        "desc": "B 的 on_error 结束节点；若执行后没有父层提示，说明错误路径未 JumpBack",
+        "recognition": "DirectHit",
+        "action": "DoNothing",
+        "focus": {
+            "Node.Action.Starting": "测试结果：B 已进入 on_error，错误路径结束"
+        },
+        "next": []
+    },
+    "JumpBackOnErrorTestReturnedToParent": {
+        "desc": "父层返回标记；理论上不应执行，因为 B 的 on_error 不会触发 JumpBack",
+        "recognition": "DirectHit",
+        "action": "DoNothing",
+        "focus": {
+            "Node.Action.Starting": "测试结果：已返回 JumpBackOnErrorTestParent，说明错误路径发生了 JumpBack"
+        },
+        "next": []
+    }
+}

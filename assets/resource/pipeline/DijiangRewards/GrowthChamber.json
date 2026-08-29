@@ -284,12 +284,32 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]GrowthChamberInitSelectTarget",
             "[JumpBack]GrowthChamberSortBy",
             "[JumpBack]GrowthChamberSortOrder",
             "GrowthChamberFindTarget",
             "[JumpBack]GrowthChamberTargetNotFound",
             "GrowthChamberReturn"
         ]
+    },
+    "GrowthChamberInitSelectTarget": {
+        "desc": "[培养舱·培养] 根据任务选项初始化培养对象白名单",
+        "max_hit": 1,
+        "recognition": {
+            "type": "DirectHit"
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AttachToExpectedRegexAction",
+                "custom_action_param": {
+                    "target": "GrowthChamberSelectTarget"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "GrowthChamberSelectTarget": {
         "desc": "[培养舱·培养] 识别可选择的培养对象",
@@ -304,19 +324,7 @@
                 ],
                 "expected": [
                     // @i18n-skip
-                    "菌$",
-                    "石$",
-                    "叶$",
-                    "葉$",
-                    "stone$",
-                    "site$",
-                    "gela$",
-                    "leaf$",
-                    "garic$",
-                    "cap$",
-                    "nyx$",
-                    "endra$",
-                    "lete$"
+                    "a^"
                 ],
                 "order_by": "Vertical"
             }
