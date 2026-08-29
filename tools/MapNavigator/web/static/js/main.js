@@ -894,6 +894,7 @@ class MapNavigatorApp {
             this.navDebug.live = this.showLivePath;
             localStorage.setItem("maaend.mapnavigator.showLivePath", this.showLivePath ? "1" : "0");
             this._paint();
+            this._syncThreeOverlays();
         });
         e.btnEditLocate.addEventListener("click", () => this._onLocateCurrentPosition("edit"));
         e.btnAssertLocate.addEventListener("click", () => this._onLocateCurrentPosition("assert"));
@@ -2084,6 +2085,8 @@ class MapNavigatorApp {
         if (this.threeView && this._is3DView()) {
             const [u, v] = this._baseToDisplay(x, y);
             this.threeView.setLivePosition({u, v, rot});
+            const live = this._livePathForDisplay();
+            this.threeView.setLivePath((live?.points || []).map((point) => [point.x, point.y]));
         }
     }
 
@@ -2625,17 +2628,12 @@ class MapNavigatorApp {
     _syncThreeOverlays() {
         if (!this.threeView) return;
         const route = this.quickRouteTestRoute || this.editRoute;
-        const projectPoint = (point) => (Array.isArray(point) ? this._baseToDisplay(point[0], point[1]) : point);
-        const routePoints = (route?.points || []).map(projectPoint);
-        const diagnostics = (route?.diagnostics || []).map((diagnostic) => {
-            const copy = {...diagnostic};
-            for (const key of ["astar_cells", "rerouted_points", "string_pull_points", "assembled_points", "loop_fixed_points", "slim_points", "widened_points", "planned_points"]) {
-                copy[key] = (diagnostic[key] || []).map(projectPoint);
-            }
-            return copy;
-        });
+        const routePoints = (route?.points || []).map((point) => this._baseToDisplay(point[0], point[1]));
+        const diagnostics = this._diagnosticsForDisplay(route?.diagnostics || []);
         this.threeView.setRoute(routePoints);
         this.threeView.setDiagnostics(diagnostics, this.navDebug);
+        const live = this._livePathForDisplay();
+        this.threeView.setLivePath((live?.points || []).map((point) => [point.x, point.y]));
         const position = this.livePositionBase || this.editLocateHint;
         if (position) {
             const [u, v] = this._baseToDisplay(position.x, position.y);

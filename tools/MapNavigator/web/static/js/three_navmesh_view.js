@@ -54,6 +54,7 @@ export class ThreeNavmeshView {
         this.liveMarker = null;
         this.liveHeading = null;
         this.routeLine = null;
+        this.livePathLine = null;
         this.diagnosticLines = [];
         this.vertexHeights = null;
         this.heightFocus = null;
@@ -237,6 +238,12 @@ export class ThreeNavmeshView {
             this.routeLine.geometry.dispose();
             this.routeLine.material.dispose();
         }
+        if (this.livePathLine) {
+            this.scene.remove(this.livePathLine);
+            this.livePathLine.geometry.dispose();
+            this.livePathLine.material.dispose();
+            this.livePathLine = null;
+        }
         for (const line of this.diagnosticLines) {
             this.scene.remove(line);
             line.geometry.dispose();
@@ -326,6 +333,42 @@ export class ThreeNavmeshView {
         this.render();
     }
 
+    setLivePath(points = []) {
+        if (this.livePathLine) {
+            this.scene.remove(this.livePathLine);
+            this.livePathLine.geometry.dispose();
+            this.livePathLine.material.dispose();
+            this.livePathLine = null;
+        }
+        if (!this.mesh || !Array.isArray(points) || points.length < 2) {
+            this.render();
+            return;
+        }
+        const vertices = [];
+        for (const point of points) {
+            if (!Array.isArray(point) || point.length < 2) continue;
+            const [u, v] = point;
+            vertices.push(
+                u - this.meshCenter.u,
+                this._heightAt(u, v) - this.meshCenter.height + Math.max(1, this.meshRadius * 0.006),
+                v - this.meshCenter.v,
+            );
+        }
+        if (vertices.length < 6) {
+            this.render();
+            return;
+        }
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute("position", new THREE.Float32BufferAttribute(vertices, 3));
+        this.livePathLine = new THREE.Line(
+            geometry,
+            new THREE.LineBasicMaterial({color: 0x22d3ee, depthTest: false}),
+        );
+        this.livePathLine.renderOrder = 14;
+        this.scene.add(this.livePathLine);
+        this.render();
+    }
+
     setRoute(points = []) {
         if (this.routeLine) {
             this.scene.remove(this.routeLine);
@@ -370,7 +413,7 @@ export class ThreeNavmeshView {
             ["planned_points", "planned", 0xff4fd8, 2.5],
         ];
         for (const [key, optionKey, color, width] of stages) {
-            if (options[optionKey] === false) continue;
+            if (!options[optionKey]) continue;
             for (const diagnostic of diagnostics) {
                 const points = diagnostic?.[key];
                 if (!Array.isArray(points) || points.length < 2) continue;
