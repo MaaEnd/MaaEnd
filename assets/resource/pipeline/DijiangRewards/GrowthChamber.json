@@ -332,7 +332,8 @@
             "param": {
                 "all_of": [
                     "GrowthChamberSelectTarget",
-                    "GrowthChamberCheckTargetNotEmpty" //这个任务只有在选择种植任意+不提取基核时才会启用,其他情况下直接命中
+                    // AutoExtractSeed=Yes 时检查基核或本体；No 时由任务选项覆盖为仅检查基核
+                    "GrowthChamberCheckTargetNotEmpty"
                 ],
                 "box_index": 1
             }

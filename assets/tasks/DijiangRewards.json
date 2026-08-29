@@ -1150,13 +1150,15 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "GrowthChamberCheckTargetNotEmpty": {
+                        "GrowthChamberFindTarget": {
                             "recognition": {
                                 "type": "And",
                                 "param": {
                                     "all_of": [
+                                        "GrowthChamberSelectTarget",
                                         "GrowthChamberCheckSeedNotEmpty"
-                                    ]
+                                    ],
+                                    "box_index": 1
                                 }
                             }
                         },
