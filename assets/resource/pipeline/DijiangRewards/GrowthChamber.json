@@ -286,7 +286,8 @@
         "next": [
             "[JumpBack]GrowthChamberSortBy",
             "[JumpBack]GrowthChamberSortOrder",
-            "GrowthChamberFindTarget",
+            "GrowthChamberFindTargetBySeed",
+            "GrowthChamberFindTargetByPlant",
             "[JumpBack]GrowthChamberTargetNotFound",
             "GrowthChamberReturn"
         ]
@@ -325,15 +326,49 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "GrowthChamberFindTarget": {
-        "desc": "[培养舱·培养] 点击培养对象并进入确认或提取分支",
+    "GrowthChamberFindTargetBySeed": {
+        "desc": "[培养舱·培养] 点击有基核的培养对象（#1313 绕开：与 ByPlant 分步，不用 And 内 Or）",
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
                     "GrowthChamberSelectTarget",
-                    // AutoExtractSeed=Yes 时检查基核或本体；No 时由任务选项覆盖为仅检查基核
-                    "GrowthChamberCheckTargetNotEmpty"
+                    "GrowthChamberCheckSeedNotEmpty"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 150,
+            "target": [
+                826,
+                213,
+                98,
+                92
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]GrowthChamberGrowConfirm",
+            "GrowthChamberSeedExtract",
+            "GrowthChamberGrowExit",
+            "GrowthChamberReturn",
+            "GrowthChamberGrowListEnd"
+        ]
+    },
+    "GrowthChamberFindTargetByPlant": {
+        "desc": "[培养舱·培养] 点击仅有本体的培养对象；AutoExtractSeed=No 时由任务选项禁用",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GrowthChamberSelectTarget",
+                    "GrowthChamberCheckPlantNotEmpty"
                 ],
                 "box_index": 1
             }
@@ -899,5 +934,43 @@
                 "contact": 1
             }
         }
+    },
+    "GrowthChamberTestFindTargetBySeed": {
+        "desc": "[培养舱·培养·测试] 识别有基核的选材行，不点击",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GrowthChamberSelectTarget",
+                    "GrowthChamberCheckSeedNotEmpty"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "DoNothing"
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "GrowthChamberTestFindTargetByPlant": {
+        "desc": "[培养舱·培养·测试] 识别仅有本体的选材行，不点击",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GrowthChamberSelectTarget",
+                    "GrowthChamberCheckPlantNotEmpty"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "DoNothing"
+        },
+        "post_delay": 0,
+        "rate_limit": 0
     }
 }

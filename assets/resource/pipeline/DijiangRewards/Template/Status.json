@@ -250,28 +250,14 @@
         }
     },
     "GrowthChamberCheckTargetNotEmpty": {
-        "desc": "[培养舱·培养] 检查当前培养对象基核数量和本体数量是否足够",
+        "desc": "[培养舱·培养] 已弃用：And 内 Or 受 MaaFramework #1313 影响，请使用 FindTargetBySeed + FindTargetByPlant",
         "recognition": {
-            "type": "OCR",
+            "type": "Or",
             "param": {
-                "roi": "GrowthChamberSelectTarget",
-                "roi_offset": [
-                    -69,
-                    41,
-                    123,
-                    4
-                ],
-                "expected": [
-                    // 基核完整文本示例："4/1 +51:39:10"；本体完整文本示例："拥有 6"、"持有 6"、"Owned 6"、"総在庫 6"
-                    // @i18n-skip
-                    "^[1-9]\\d*\\s*/.*$",
-                    "^拥有\\s*[1-9]\\d*$",
-                    "^持有\\s*[1-9]\\d*$",
-                    "(?i)^Owned\\s*[1-9]\\d*$",
-                    "^総在庫\\s*[1-9]\\d*$"
-                ],
-                "only_rec": true,
-                "order_by": "Vertical"
+                "any_of": [
+                    "GrowthChamberCheckSeedNotEmpty",
+                    "GrowthChamberCheckPlantNotEmpty"
+                ]
             }
         }
     },
@@ -290,6 +276,30 @@
                     // 基核完整文本示例："4/1 +51:39:10"
                     // @i18n-skip
                     "^[1-9]\\d*\\s*/.*$"
+                ],
+                "only_rec": true,
+                "order_by": "Vertical"
+            }
+        }
+    },
+    "GrowthChamberCheckPlantNotEmpty": {
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "GrowthChamberSelectTarget",
+                "roi_offset": [
+                    -69,
+                    43,
+                    28,
+                    2
+                ],
+                "expected": [
+                    // 本体完整文本示例："拥有 6"、"持有 6"、"Owned 6"、"総在庫 6"
+                    // @i18n-skip
+                    "^拥有\\s*[1-9]\\d*$",
+                    "^持有\\s*[1-9]\\d*$",
+                    "(?i)^Owned\\s*[1-9]\\d*$",
+                    "^総在庫\\s*[1-9]\\d*$"
                 ],
                 "only_rec": true,
                 "order_by": "Vertical"

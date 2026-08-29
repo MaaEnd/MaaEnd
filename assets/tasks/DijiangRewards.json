@@ -1150,17 +1150,8 @@
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "GrowthChamberFindTarget": {
-                            "recognition": {
-                                "type": "And",
-                                "param": {
-                                    "all_of": [
-                                        "GrowthChamberSelectTarget",
-                                        "GrowthChamberCheckSeedNotEmpty"
-                                    ],
-                                    "box_index": 1
-                                }
-                            }
+                        "GrowthChamberFindTargetByPlant": {
+                            "enabled": false
                         },
                         "GrowthChamberSeedExtract": {
                             "enabled": false
