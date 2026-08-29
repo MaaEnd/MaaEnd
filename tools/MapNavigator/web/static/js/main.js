@@ -231,6 +231,7 @@ class MapNavigatorApp {
         this._meshKey = null;
         this._meshToken = 0;
         this.viewMode = "2d";
+        this.threeNavigationMode = "free";
         this.threeView = null;
         this._threeViewPromise = null;
         /** @type {?{key:string,buffer:ArrayBuffer}} current display-frame NMSH payload. */
@@ -256,6 +257,8 @@ class MapNavigatorApp {
             viewMode2d: $("view-mode-2d"),
             viewMode3d: $("view-mode-3d"),
             viewModeDivider: $("view-mode-divider"),
+            threeNavigationRow: $("three-navigation-row"),
+            threeNavigationMode: $("three-navigation-mode"),
             btnStart: $("btn-start"),
             btnStop: $("btn-stop"),
             btnCopyPath: $("btn-copy-path"),
@@ -841,6 +844,9 @@ class MapNavigatorApp {
         e.btnZoomIn.addEventListener("click", () => this._zoomIn());
         e.viewMode2d.addEventListener("click", () => this._setViewMode("2d"));
         e.viewMode3d.addEventListener("click", () => this._setViewMode("3d"));
+        e.threeNavigationMode.addEventListener("change", () =>
+            this._setThreeNavigationMode(e.threeNavigationMode.value),
+        );
         e.btnApplyAction.addEventListener("click", () => this._applyAction());
         e.assertZoneCombo.addEventListener("change", () => this._onAssertZoneChanged());
         e.displayZoneCombo.addEventListener("change", () => this._onDisplayZoneChanged());
@@ -1002,7 +1008,7 @@ class MapNavigatorApp {
         });
 
         window.addEventListener("keyup", (e) => {
-            if (this.threeView?.setMovementKey(e.code, false)) {
+            if (this.threeView?.setMovementKey(e.code, false, {ctrlKey: e.ctrlKey})) {
                 e.preventDefault();
             }
             if (e.key === "Alt" && this._altSavedTool) {
@@ -2545,6 +2551,7 @@ class MapNavigatorApp {
                         );
                     },
                 });
+                this.threeView.setNavigationMode(this.threeNavigationMode);
                 this.threeView.resize(this._cssW, this._cssH, window.devicePixelRatio || 1);
                 if (this._latest3DMesh) this._setThreeViewMesh(this._latest3DMesh.buffer);
                 this.threeView.setVisible(this._is3DView());
@@ -2595,6 +2602,19 @@ class MapNavigatorApp {
         }
     }
 
+    /** Select how mouse and WASD input navigate the active 3D view. */
+    _setThreeNavigationMode(mode, {announce = true} = {}) {
+        const nextMode = mode === "orbit" ? "orbit" : "free";
+        this.threeNavigationMode = nextMode;
+        this.els.threeNavigationMode.value = nextMode;
+        if (this.threeView) this.threeView.setNavigationMode(nextMode);
+        else if (this._is3DView()) void this._ensureThreeView();
+
+        if (announce) {
+            setStatus(`3D 视角导航已切换为${nextMode === "orbit" ? "轨道环绕" : "自由飞行"}。`, "#10b981");
+        }
+    }
+
     /** Synchronize segmented buttons, canvases, and controls that only edit 2D state. */
     _syncViewModeUI() {
         const editMode = this.state.mode === Mode.EDIT;
@@ -2607,6 +2627,8 @@ class MapNavigatorApp {
         e.viewMode3d.classList.toggle("active", show3D);
         e.viewMode2d.setAttribute("aria-pressed", String(!show3D));
         e.viewMode3d.setAttribute("aria-pressed", String(show3D));
+        e.threeNavigationRow.hidden = !show3D;
+        e.threeNavigationMode.value = this.threeNavigationMode;
         e.canvasWrap.classList.toggle("view-3d", show3D);
         document.body.classList.toggle("view-3d", show3D);
         e.glCanvas.hidden = show3D;
@@ -4468,10 +4490,9 @@ class MapNavigatorApp {
                 this._zoomOut();
                 e.preventDefault();
             } else if (
-                !e.ctrlKey &&
                 !e.metaKey &&
                 !e.altKey &&
-                this.threeView?.setMovementKey(e.code, true)
+                this.threeView?.setMovementKey(e.code, true, {ctrlKey: e.ctrlKey})
             ) {
                 e.preventDefault();
             }

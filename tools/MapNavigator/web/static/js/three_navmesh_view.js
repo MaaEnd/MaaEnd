@@ -7,6 +7,9 @@ const LOW_COLOR = [0.01, 0.06, 0.18];
 const MID_COLOR = [0.0, 0.36, 0.26];
 const HIGH_COLOR = [0.85, 0.28, 0.02];
 const MOVEMENT_CODES = new Set(["KeyW", "KeyA", "KeyS", "KeyD"]);
+const CONTROL_CODES = new Set(["ControlLeft", "ControlRight"]);
+const FREE_LOOK_SENSITIVITY = 0.003;
+const MAX_FREE_LOOK_PITCH = Math.PI / 2 - 0.01;
 
 function writeHeightColor(target, offset, value) {
     const t = Math.max(0, Math.min(1, value));
@@ -36,8 +39,12 @@ export class ThreeNavmeshView {
         this.controls = new OrbitControls(this.camera, canvas);
         this.controls.enableDamping = false;
         this.controls.screenSpacePanning = true;
+        this.controls.mouseButtons.LEFT = null;
+        this.controls.mouseButtons.MIDDLE = THREE.MOUSE.PAN;
+        this.controls.mouseButtons.RIGHT = null;
         this.controls.addEventListener("change", () => this.render());
 
+        this.navigationMode = "free";
         this.mesh = null;
         this.wireMesh = null;
         this.grid = null;
@@ -47,9 +54,13 @@ export class ThreeNavmeshView {
         this.meshRadius = 1;
         this.visible = false;
         this.pointerDown = null;
+        this.freeLookPointer = null;
         this.raycaster = new THREE.Raycaster();
         this.pointer = new THREE.Vector2();
+        this.lookEuler = new THREE.Euler(0, 0, 0, "YXZ");
+        this.lookForward = new THREE.Vector3();
         this.movementKeys = new Set();
+        this.spacePressed = false;
         this.movementFrame = 0;
         this.lastMovementTime = null;
         this.movementForward = new THREE.Vector3();
@@ -59,12 +70,18 @@ export class ThreeNavmeshView {
         this._movementFrameBound = (timestamp) => this._onMovementFrame(timestamp);
 
         canvas.addEventListener("pointerdown", (event) => this._onPointerDown(event));
+        canvas.addEventListener("pointermove", (event) => this._onPointerMove(event));
+        canvas.addEventListener("pointerup", (event) => this._onPointerUp(event));
         canvas.addEventListener("click", (event) => this._onClick(event));
-        canvas.addEventListener("pointercancel", () => {
+        canvas.addEventListener("pointercancel", (event) => {
             this.pointerDown = null;
+            this._endFreeLook(event.pointerId);
         });
         canvas.addEventListener("contextmenu", (event) => event.preventDefault());
-        window.addEventListener("blur", () => this._stopMovement());
+        window.addEventListener("blur", () => {
+            this._stopMovement();
+            this._endFreeLook();
+        });
     }
 
     /** @param {ArrayBuffer} buffer */
@@ -195,38 +212,84 @@ export class ThreeNavmeshView {
         return true;
     }
 
+    /** @param {"free"|"orbit"} mode */
+    setNavigationMode(mode) {
+        const nextMode = mode === "orbit" ? "orbit" : "free";
+        this._stopMovement();
+        this._endFreeLook();
+        this.navigationMode = nextMode;
+        this.controls.mouseButtons.RIGHT = nextMode === "orbit" ? THREE.MOUSE.ROTATE : null;
+    }
+
     /** @param {boolean} visible */
     setVisible(visible) {
         this.visible = visible;
         this.canvas.hidden = !visible;
         this.controls.enabled = visible;
         if (visible) this.render();
-        else this._stopMovement();
+        else {
+            this._stopMovement();
+            this._endFreeLook();
+        }
     }
 
     /**
-     * Update one WASD key and start or stop continuous camera movement.
+     * Update one 3D movement key and start or stop continuous camera movement.
      * @param {string} code
      * @param {boolean} pressed
+     * @param {{ctrlKey?:boolean}} modifiers
      * @returns {boolean} whether this view consumed the key transition
      */
-    setMovementKey(code, pressed) {
+    setMovementKey(code, pressed, {ctrlKey = false} = {}) {
+        if (code === "Space") {
+            if (!pressed) {
+                const consumed = this.spacePressed;
+                this.spacePressed = false;
+                this.movementKeys.delete("SpaceUp");
+                this.movementKeys.delete("SpaceDown");
+                if (this.movementKeys.size === 0) this._stopMovement();
+                return consumed;
+            }
+            if (!this.visible || !this.mesh || this.navigationMode !== "free") return false;
+            this.spacePressed = true;
+            if (this._setVerticalMovement(ctrlKey)) this._moveCamera(1 / 60);
+            this._startMovement();
+            return true;
+        }
+        if (CONTROL_CODES.has(code)) {
+            if (!this.spacePressed || this.navigationMode !== "free") return false;
+            if (this._setVerticalMovement(ctrlKey)) this._moveCamera(1 / 60);
+            return true;
+        }
         if (!MOVEMENT_CODES.has(code)) return false;
         if (!pressed) {
             const consumed = this.movementKeys.delete(code);
             if (this.movementKeys.size === 0) this._stopMovement();
             return consumed;
         }
+        if (ctrlKey) return false;
         if (!this.visible || !this.mesh) return false;
 
         const added = !this.movementKeys.has(code);
         this.movementKeys.add(code);
         if (added) this._moveCamera(1 / 60);
+        this._startMovement();
+        return true;
+    }
+
+    _startMovement() {
         if (!this.movementFrame) {
             this.lastMovementTime = performance.now();
             this.movementFrame = requestAnimationFrame(this._movementFrameBound);
         }
-        return true;
+    }
+
+    _setVerticalMovement(descending) {
+        const nextKey = descending ? "SpaceDown" : "SpaceUp";
+        const changed = !this.movementKeys.has(nextKey);
+        this.movementKeys.delete(descending ? "SpaceUp" : "SpaceDown");
+        this.movementKeys.add(nextKey);
+        return changed;
     }
 
     /** @param {number} width @param {number} height @param {number} dpr */
@@ -292,27 +355,34 @@ export class ThreeNavmeshView {
     _moveCamera(deltaSeconds) {
         const forwardAxis = Number(this.movementKeys.has("KeyW")) - Number(this.movementKeys.has("KeyS"));
         const rightAxis = Number(this.movementKeys.has("KeyD")) - Number(this.movementKeys.has("KeyA"));
-        if (forwardAxis === 0 && rightAxis === 0) return;
+        const verticalAxis = Number(this.movementKeys.has("SpaceUp")) - Number(this.movementKeys.has("SpaceDown"));
+        if (forwardAxis === 0 && rightAxis === 0 && verticalAxis === 0) return;
 
         this.camera.getWorldDirection(this.movementForward);
-        this.movementForward.y = 0;
-        if (this.movementForward.lengthSq() < 1e-8) {
-            this.movementRight.setFromMatrixColumn(this.camera.matrixWorld, 0);
-            this.movementRight.y = 0;
-            this.movementRight.normalize();
-            this.movementForward.crossVectors(this.worldUp, this.movementRight);
+        if (this.navigationMode === "orbit") {
+            this.movementForward.y = 0;
+            if (this.movementForward.lengthSq() < 1e-8) {
+                this.movementRight.setFromMatrixColumn(this.camera.matrixWorld, 0);
+                this.movementRight.y = 0;
+                this.movementRight.normalize();
+                this.movementForward.crossVectors(this.worldUp, this.movementRight);
+            } else {
+                this.movementForward.normalize();
+                this.movementRight.crossVectors(this.movementForward, this.worldUp).normalize();
+            }
         } else {
             this.movementForward.normalize();
-            this.movementRight.crossVectors(this.movementForward, this.worldUp).normalize();
+            this.movementRight.set(1, 0, 0).applyQuaternion(this.camera.quaternion).normalize();
         }
 
         this.movementDelta
             .copy(this.movementForward)
             .multiplyScalar(forwardAxis)
             .addScaledVector(this.movementRight, rightAxis)
+            .addScaledVector(this.worldUp, verticalAxis)
             .normalize();
         const cameraDistance = this.camera.position.distanceTo(this.controls.target);
-        const speed = THREE.MathUtils.clamp(cameraDistance * 0.4, this.meshRadius * 0.08, this.meshRadius * 1.2);
+        const speed = THREE.MathUtils.clamp(cameraDistance * 0.4, this.meshRadius * 0.01, this.meshRadius * 1.2);
         this.movementDelta.multiplyScalar(speed * deltaSeconds);
         this.camera.position.add(this.movementDelta);
         this.controls.target.add(this.movementDelta);
@@ -322,14 +392,63 @@ export class ThreeNavmeshView {
 
     _stopMovement() {
         this.movementKeys.clear();
+        this.spacePressed = false;
         this.lastMovementTime = null;
         if (this.movementFrame) cancelAnimationFrame(this.movementFrame);
         this.movementFrame = 0;
     }
 
     _onPointerDown(event) {
-        if (!this.visible || event.button !== 0) return;
-        this.pointerDown = {x: event.clientX, y: event.clientY};
+        if (!this.visible) return;
+        if (event.button === 0) {
+            this.pointerDown = {x: event.clientX, y: event.clientY};
+        } else if (event.button === 2 && this.navigationMode === "free") {
+            this.freeLookPointer = {
+                pointerId: event.pointerId,
+                x: event.clientX,
+                y: event.clientY,
+            };
+            this.canvas.style.cursor = "grabbing";
+        }
+    }
+
+    _onPointerMove(event) {
+        if (!this.visible || !this.freeLookPointer || event.pointerId !== this.freeLookPointer.pointerId) return;
+        if ((event.buttons & 2) === 0) {
+            this._endFreeLook(event.pointerId);
+            return;
+        }
+
+        const deltaX = event.clientX - this.freeLookPointer.x;
+        const deltaY = event.clientY - this.freeLookPointer.y;
+        this.freeLookPointer.x = event.clientX;
+        this.freeLookPointer.y = event.clientY;
+        if (deltaX === 0 && deltaY === 0) return;
+
+        const targetDistance = Math.max(this.camera.position.distanceTo(this.controls.target), 1e-6);
+        this.lookEuler.setFromQuaternion(this.camera.quaternion, "YXZ");
+        this.lookEuler.y -= deltaX * FREE_LOOK_SENSITIVITY;
+        this.lookEuler.x = THREE.MathUtils.clamp(
+            this.lookEuler.x - deltaY * FREE_LOOK_SENSITIVITY,
+            -MAX_FREE_LOOK_PITCH,
+            MAX_FREE_LOOK_PITCH,
+        );
+        this.lookEuler.z = 0;
+        this.camera.quaternion.setFromEuler(this.lookEuler);
+        this.lookForward.set(0, 0, -1).applyQuaternion(this.camera.quaternion);
+        this.controls.target.copy(this.camera.position).addScaledVector(this.lookForward, targetDistance);
+        this.controls.update();
+        this.render();
+    }
+
+    _onPointerUp(event) {
+        if (event.button === 2) this._endFreeLook(event.pointerId);
+    }
+
+    _endFreeLook(pointerId = null) {
+        if (!this.freeLookPointer || (pointerId !== null && pointerId !== this.freeLookPointer.pointerId)) return;
+        this.freeLookPointer = null;
+        this.canvas.style.cursor = "";
     }
 
     _onClick(event) {
