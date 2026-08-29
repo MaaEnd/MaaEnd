@@ -1478,6 +1478,31 @@ canvas {
   background: rgba(255, 255, 255, 0.14);
 }
 
+.position-live-btn {
+  margin-left: auto;
+  padding: 2px 7px;
+  color: #a5f3fc;
+  background: rgba(8, 145, 178, 0.18);
+  border: 1px solid rgba(103, 232, 249, 0.28);
+  border-radius: 4px;
+  font: inherit;
+  font-size: 9px;
+  line-height: 14px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.position-live-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.position-live-btn.btn-danger {
+  color: #fecaca;
+  background: rgba(220, 38, 38, 0.2);
+  border-color: rgba(248, 113, 113, 0.4);
+}
+
 .position-readout-zone {
   max-width: 260px;
   color: var(--text-muted);

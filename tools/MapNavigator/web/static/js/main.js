@@ -64,6 +64,7 @@ import {
     exportPath,
     exportAssert,
     locateOnce,
+    RecordingSocket,
 } from "./rpc.js";
 
 const DRAG_ACTIVATION_DISTANCE = 4; // px (tk RouteEditorApp.DRAG_ACTIVATION_DISTANCE)
@@ -159,6 +160,7 @@ class MapNavigatorApp {
         this.livePathBase = [];
         /** @type {?{x:number,y:number,rot:?number}} latest measured position in base px. */
         this.livePositionBase = null;
+        this._initialLiveHeightColored = false;
         /**
          * EDIT-mode off-mesh badges, in the points' own zone frame. Same shape as
          * {@link offMeshMarks} but always `exact:false` — a waypoint is a *goal*, and the
@@ -259,6 +261,11 @@ class MapNavigatorApp {
             viewModeDivider: $("view-mode-divider"),
             threeNavigationRow: $("three-navigation-row"),
             threeNavigationMode: $("three-navigation-mode"),
+            threeSpeedRow: $("three-speed-row"),
+            threeFlightSpeed: $("three-flight-speed"),
+            threeFlightSpeedValue: $("three-flight-speed-value"),
+            threeRecolorRow: $("three-recolor-row"),
+            btnThreeRecolor: $("btn-three-recolor"),
             btnStart: $("btn-start"),
             btnStop: $("btn-stop"),
             btnCopyPath: $("btn-copy-path"),
@@ -405,6 +412,7 @@ class MapNavigatorApp {
             btnLogMeasure: $("btn-log-measure"),
             logMeasureDivider: $("log-measure-divider"),
             btnEditLocate: $("btn-edit-locate"),
+            btnLiveLocate: $("btn-live-locate"),
             btnAssertLocate: $("btn-assert-locate"),
             waypointList: $("waypoint-list"),
             btnAssertImport: $("btn-assert-import"),
@@ -465,15 +473,26 @@ class MapNavigatorApp {
                 connection: this.connection,
                 getRoute: () => this._navtestRoute(),
                 onPosition: (fix) => this._onLivePosition(fix),
+                onBeforeOpen: () => this._stopLiveLocate(),
                 onRunState: (running) => {
                     if (running) {
                         this._clearLivePath();
+                        this.showLivePath = true;
                         this.positionReadout.setPending("正在获取实时位置与朝向...");
                         this._paint();
                     }
                 },
             });
-            this.connection.onStatusChange((connected) => this._syncLocateActions(connected));
+        this.connection.onStatusChange((connected) => this._syncLocateActions(connected));
+        this.liveLocateSocket = null;
+        this._liveLocateAutoStarted = false;
+        this.els.btnLiveLocate.addEventListener("click", () => this._toggleLiveLocate());
+        this.connection.onStatusChange((connected) => {
+            if (connected && !this._liveLocateAutoStarted && !this.liveLocateSocket) {
+                this._liveLocateAutoStarted = true;
+                this._toggleLiveLocate();
+            }
+        });
             this.importer = new Importer(
                 {
                     btnImport: this.els.btnImport,
@@ -847,6 +866,8 @@ class MapNavigatorApp {
         e.threeNavigationMode.addEventListener("change", () =>
             this._setThreeNavigationMode(e.threeNavigationMode.value),
         );
+        e.threeFlightSpeed.addEventListener("input", () => this._setThreeFlightSpeed(e.threeFlightSpeed.value));
+        e.btnThreeRecolor.addEventListener("click", () => this._recolorThreeByLiveHeight());
         e.btnApplyAction.addEventListener("click", () => this._applyAction());
         e.assertZoneCombo.addEventListener("change", () => this._onAssertZoneChanged());
         e.displayZoneCombo.addEventListener("change", () => this._onDisplayZoneChanged());
@@ -865,6 +886,7 @@ class MapNavigatorApp {
                 this.navDebug[key] = entry.checked;
                 localStorage.setItem(`maaend.mapnavigator.debug${key[0].toUpperCase()}${key.slice(1)}`, entry.checked ? "1" : "0");
                 this._paint();
+                this._syncThreeOverlays();
             });
         }
         e.chkNavDebugLivePath.addEventListener("change", () => {
@@ -2031,9 +2053,20 @@ class MapNavigatorApp {
         if (!this.field || !fix) return;
 
         const zoneId = this._resolveZoneId(fix.zone);
+        if (Number.isNaN(zoneId)) return;
+
+        // Continuous locate follows the game across maps/tiers, just like the one-shot
+        // locate action: point the editor at the live zone before projecting the marker.
+        if (this.state.mode === Mode.EDIT && this.liveLocateSocket) {
+            const displayZoneId = this._displayTierZoneId();
+            if (Number.isNaN(displayZoneId) || this.field.geometryZoneId(zoneId) !== this.field.geometryZoneId(displayZoneId) || String(displayZoneId) !== String(zoneId)) {
+                if (this._selectDisplayZoneById(zoneId)) this._onDisplayTierChanged(false);
+            }
+        }
+
         const editZoneId = this.state.mode === Mode.EDIT ? this._resolveZoneId(this.state.currentZone()) : NaN;
         const displayZoneId = Number.isNaN(editZoneId) ? this._displayTierZoneId() : editZoneId;
-        if (Number.isNaN(zoneId) || Number.isNaN(displayZoneId)) return;
+        if (Number.isNaN(displayZoneId)) return;
         if (this.field.geometryZoneId(zoneId) !== this.field.geometryZoneId(displayZoneId)) {
             this._clearLivePath();
             if (this.state.mode === Mode.EDIT) this._paint();
@@ -2048,6 +2081,10 @@ class MapNavigatorApp {
             this.livePathBase.push({x, y, rot});
         }
         if (this.state.mode === Mode.EDIT) this._paint();
+        if (this.threeView && this._is3DView()) {
+            const [u, v] = this._baseToDisplay(x, y);
+            this.threeView.setLivePosition({u, v, rot});
+        }
     }
 
     /** Clear measured live-path state without affecting the planned preview. */
@@ -2552,6 +2589,7 @@ class MapNavigatorApp {
                     },
                 });
                 this.threeView.setNavigationMode(this.threeNavigationMode);
+                this.threeView.setMovementSpeed(Number(this.els.threeFlightSpeed.value));
                 this.threeView.resize(this._cssW, this._cssH, window.devicePixelRatio || 1);
                 if (this._latest3DMesh) this._setThreeViewMesh(this._latest3DMesh.buffer);
                 this.threeView.setVisible(this._is3DView());
@@ -2574,11 +2612,43 @@ class MapNavigatorApp {
     /** Upload the current NMSH payload without affecting the working 2D renderer. */
     _setThreeViewMesh(buffer) {
         try {
+            this._initialLiveHeightColored = false;
             this.threeView.setMesh(buffer);
+            this._syncThreeOverlays();
         } catch (error) {
             console.error("Failed to render the 3D navmesh", error);
             setStatus(`3D 网格加载失败: ${error && error.message ? error.message : error}`, "#ef4444");
         }
+    }
+
+    /** Keep the read-only 3D scene in sync with 2D planning and live location state. */
+    _syncThreeOverlays() {
+        if (!this.threeView) return;
+        const route = this.quickRouteTestRoute || this.editRoute;
+        const projectPoint = (point) => (Array.isArray(point) ? this._baseToDisplay(point[0], point[1]) : point);
+        const routePoints = (route?.points || []).map(projectPoint);
+        const diagnostics = (route?.diagnostics || []).map((diagnostic) => {
+            const copy = {...diagnostic};
+            for (const key of ["astar_cells", "rerouted_points", "string_pull_points", "assembled_points", "loop_fixed_points", "slim_points", "widened_points", "planned_points"]) {
+                copy[key] = (diagnostic[key] || []).map(projectPoint);
+            }
+            return copy;
+        });
+        this.threeView.setRoute(routePoints);
+        this.threeView.setDiagnostics(diagnostics, this.navDebug);
+        const position = this.livePositionBase || this.editLocateHint;
+        if (position) {
+            const [u, v] = this._baseToDisplay(position.x, position.y);
+            this.threeView.setLivePosition({u, v, rot: position.rot});
+            if (this.livePositionBase && !this._initialLiveHeightColored) {
+                const height = this.threeView.getHeightAt(u, v);
+                if (Number.isFinite(height)) {
+                    this.threeView.setHeightFocus(height);
+                    this._initialLiveHeightColored = true;
+                }
+            }
+        }
+        else this.threeView.clearLivePosition();
     }
 
     /** Switch between the editable 2D map and the read-only 3D mesh. */
@@ -2586,9 +2656,6 @@ class MapNavigatorApp {
         const nextMode = mode === "3d" ? "3d" : "2d";
         if (nextMode === "3d" && this.state.mode !== Mode.EDIT) return;
 
-        if (nextMode === "3d" && this.activeTool === "route-test") {
-            this._activateEditTool("add");
-        }
         this.viewMode = nextMode;
         this._syncViewModeUI();
 
@@ -2615,6 +2682,13 @@ class MapNavigatorApp {
         }
     }
 
+    _setThreeFlightSpeed(value) {
+        const speed = Math.max(0.1, Math.min(3, Number(value) || 1));
+        this.els.threeFlightSpeed.value = String(speed);
+        this.els.threeFlightSpeedValue.textContent = `${speed.toFixed(1)}x`;
+        if (this.threeView) this.threeView.setMovementSpeed(speed);
+    }
+
     /** Synchronize segmented buttons, canvases, and controls that only edit 2D state. */
     _syncViewModeUI() {
         const editMode = this.state.mode === Mode.EDIT;
@@ -2628,6 +2702,8 @@ class MapNavigatorApp {
         e.viewMode2d.setAttribute("aria-pressed", String(!show3D));
         e.viewMode3d.setAttribute("aria-pressed", String(show3D));
         e.threeNavigationRow.hidden = !show3D;
+        e.threeSpeedRow.hidden = !show3D;
+        e.threeRecolorRow.hidden = !show3D;
         e.threeNavigationMode.value = this.threeNavigationMode;
         e.canvasWrap.classList.toggle("view-3d", show3D);
         document.body.classList.toggle("view-3d", show3D);
@@ -3498,6 +3574,7 @@ class MapNavigatorApp {
             }
 
             this.quickRouteTestRoute = this._routePreviewData(result);
+            this._syncThreeOverlays();
             this._syncEditPlanControls();
             setStatus(...this._routePreviewStatus(this.quickRouteTestRoute, result, "快速测试完成"));
             this._paint();
@@ -3553,6 +3630,7 @@ class MapNavigatorApp {
             }
 
             this.editRoute = this._routePreviewData(result);
+            this._syncThreeOverlays();
             this._syncEditPlanControls();
             setStatus(...this._routePreviewStatus(this.editRoute, result, "当前片段已规划"));
             this._paint();
@@ -3688,6 +3766,66 @@ class MapNavigatorApp {
         for (const button of [this.els.btnEditLocate, this.els.btnAssertLocate]) {
             if (button) button.disabled = !connected;
         }
+        if (this.els.btnLiveLocate && !this.liveLocateSocket) this.els.btnLiveLocate.disabled = !connected;
+    }
+
+    _toggleLiveLocate() {
+        if (this.liveLocateSocket) {
+            this._stopLiveLocate();
+            return;
+        }
+        if (!this.connection?.isConnected()) return;
+        const socket = new RecordingSocket();
+        this.liveLocateSocket = socket;
+        socket.onMessage = (msg) => {
+            if (msg?.type === "position") this._onLivePosition({x: msg.x, y: msg.y, zone: msg.zone, rot: msg.rot});
+        };
+        socket.onClose = () => {
+            if (this.liveLocateSocket === socket) {
+                this.liveLocateSocket = null;
+                this.showLivePath = false;
+                this.els.btnLiveLocate.textContent = "开启实时定位";
+                this.els.btnLiveLocate.classList.remove("btn-danger");
+                this.els.btnLiveLocate.classList.add("btn-secondary");
+            }
+        };
+        socket.start(this.connection.buildSession());
+        this._clearLivePath();
+        this._initialLiveHeightColored = false;
+        this.showLivePath = true;
+        this.els.btnLiveLocate.textContent = "关闭实时定位";
+        this.els.btnLiveLocate.classList.remove("btn-secondary");
+        this.els.btnLiveLocate.classList.add("btn-danger");
+        setStatus("实时定位已开启。", "#10b981");
+    }
+
+    /** Keep standalone locating and route running mutually exclusive. */
+    _stopLiveLocate() {
+        const socket = this.liveLocateSocket;
+        if (socket) socket.stop();
+        this.liveLocateSocket = null;
+        this.showLivePath = false;
+        this._clearLivePath();
+        this.els.btnLiveLocate.textContent = "开启实时定位";
+        this.els.btnLiveLocate.classList.remove("btn-danger");
+        this.els.btnLiveLocate.classList.add("btn-secondary");
+        this._syncThreeOverlays();
+    }
+
+    _recolorThreeByLiveHeight() {
+        if (!this.threeView || !this.livePositionBase) {
+            setStatus("尚未获取到实时位置，暂时无法重着色。", "#f59e0b");
+            return;
+        }
+        const [u, v] = this._baseToDisplay(this.livePositionBase.x, this.livePositionBase.y);
+        const height = this.threeView.getHeightAt(u, v);
+        if (!Number.isFinite(height)) {
+            setStatus("当前 3D 网格尚未加载，无法重着色。", "#f59e0b");
+            return;
+        }
+        this.threeView.setHeightFocus(height);
+        this._initialLiveHeightColored = true;
+        setStatus(`已按当前位置高度 ${height.toFixed(1)} m 固定重着色。`, "#10b981");
     }
 
     /**

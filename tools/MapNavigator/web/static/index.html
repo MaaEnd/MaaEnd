@@ -134,6 +134,14 @@
               <option value="orbit">轨道环绕</option>
             </select>
           </div>
+          <div id="three-speed-row" class="sidebar-row" hidden>
+            <label class="sidebar-label" for="three-flight-speed">飞行速度</label>
+            <input id="three-flight-speed" type="range" min="0.1" max="3" step="0.1" value="1" />
+            <span id="three-flight-speed-value" class="selected-tier-label">1.0x</span>
+          </div>
+          <div id="three-recolor-row" class="sidebar-row" hidden>
+            <button id="btn-three-recolor" class="btn btn-secondary" type="button" style="width: 100%" title="按当前实时位置高度重新着色等高面">重着色</button>
+          </div>
           <div class="sidebar-row">
             <button id="btn-edit-locate" class="btn btn-primary" type="button" style="width: 100%" title="在当前路径底图上标出游戏内当前位置，不新增路点" disabled>标出游戏内当前位置（参考点）</button>
           </div>
@@ -511,6 +519,7 @@
                 <span id="position-coordinates">位置 —</span>
                 <span class="position-readout-separator" aria-hidden="true"></span>
                 <span id="position-heading">朝向 —</span>
+                <button id="btn-live-locate" class="position-live-btn" type="button" title="持续获取并显示游戏内实时位置" disabled>开启实时定位</button>
               </div>
               <div id="position-zone" class="position-readout-zone">等待游戏定位</div>
             </div>

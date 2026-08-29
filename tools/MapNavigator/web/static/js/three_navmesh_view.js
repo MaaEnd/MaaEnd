@@ -10,6 +10,7 @@ const MOVEMENT_CODES = new Set(["KeyW", "KeyA", "KeyS", "KeyD"]);
 const CONTROL_CODES = new Set(["ControlLeft", "ControlRight"]);
 const FREE_LOOK_SENSITIVITY = 0.003;
 const MAX_FREE_LOOK_PITCH = Math.PI / 2 - 0.01;
+const HEIGHT_CONTRAST = 3.2;
 
 function writeHeightColor(target, offset, value) {
     const t = Math.max(0, Math.min(1, value));
@@ -45,10 +46,18 @@ export class ThreeNavmeshView {
         this.controls.addEventListener("change", () => this.render());
 
         this.navigationMode = "free";
+        this.movementSpeedMultiplier = 1;
         this.mesh = null;
         this.wireMesh = null;
         this.grid = null;
         this.marker = null;
+        this.liveMarker = null;
+        this.liveHeading = null;
+        this.routeLine = null;
+        this.diagnosticLines = [];
+        this.vertexHeights = null;
+        this.heightFocus = null;
+        this.lastHeightColorUpdate = 0;
         this.meshCenter = {u: 0, v: 0, height: 0};
         this.focusTarget = new THREE.Vector3();
         this.meshRadius = 1;
@@ -98,13 +107,17 @@ export class ThreeNavmeshView {
 
         const positions = new Float32Array(parsed.vertices.length);
         const colors = new Float32Array(parsed.vertices.length);
+        this.vertexHeights = new Float32Array(parsed.vertexCount);
         const heightSpan = Math.max(1e-6, maxHeight - minHeight);
+        const heightMid = (minHeight + maxHeight) / 2;
         for (let i = 0; i < parsed.vertexCount; i += 1) {
             const offset = i * 3;
             positions[offset] = parsed.vertices[offset] - this.meshCenter.u;
             positions[offset + 1] = parsed.vertices[offset + 2] - this.meshCenter.height;
             positions[offset + 2] = parsed.vertices[offset + 1] - this.meshCenter.v;
-            writeHeightColor(colors, offset, (parsed.vertices[offset + 2] - minHeight) / heightSpan);
+            this.vertexHeights[i] = parsed.vertices[offset + 2];
+            const contrasted = 0.5 + ((parsed.vertices[offset + 2] - heightMid) / heightSpan) * HEIGHT_CONTRAST;
+            writeHeightColor(colors, offset, contrasted);
         }
 
         let nearestTriangleDistance = Infinity;
@@ -166,12 +179,23 @@ export class ThreeNavmeshView {
         this.grid.position.y = minHeight - this.meshCenter.height - Math.max(0.5, this.meshRadius * 0.001);
         this.scene.add(this.grid);
 
-        const markerGeometry = new THREE.SphereGeometry(Math.max(0.6, this.meshRadius * 0.004), 20, 12);
+        const markerGeometry = new THREE.SphereGeometry(Math.max(0.18, this.meshRadius * 0.0012), 16, 10);
         const markerMaterial = new THREE.MeshBasicMaterial({color: 0xffbd4a, depthTest: false});
         this.marker = new THREE.Mesh(markerGeometry, markerMaterial);
         this.marker.visible = false;
         this.marker.renderOrder = 10;
         this.scene.add(this.marker);
+        const liveMaterial = new THREE.MeshBasicMaterial({color: 0x38bdf8, depthTest: false});
+        this.liveMarker = new THREE.Mesh(markerGeometry.clone(), liveMaterial);
+        this.liveMarker.visible = false;
+        this.liveMarker.renderOrder = 11;
+        this.scene.add(this.liveMarker);
+        const headingGeometry = new THREE.BufferGeometry();
+        headingGeometry.setAttribute("position", new THREE.Float32BufferAttribute([0, 0, 0, 0, 0, 0], 3));
+        this.liveHeading = new THREE.Line(headingGeometry, new THREE.LineBasicMaterial({color: 0xffffff, depthTest: false}));
+        this.liveHeading.visible = false;
+        this.liveHeading.renderOrder = 12;
+        this.scene.add(this.liveHeading);
 
         this.fitView();
     }
@@ -198,10 +222,36 @@ export class ThreeNavmeshView {
             this.marker.geometry.dispose();
             this.marker.material.dispose();
         }
+        if (this.liveMarker) {
+            this.scene.remove(this.liveMarker);
+            this.liveMarker.geometry.dispose();
+            this.liveMarker.material.dispose();
+        }
+        if (this.liveHeading) {
+            this.scene.remove(this.liveHeading);
+            this.liveHeading.geometry.dispose();
+            this.liveHeading.material.dispose();
+        }
+        if (this.routeLine) {
+            this.scene.remove(this.routeLine);
+            this.routeLine.geometry.dispose();
+            this.routeLine.material.dispose();
+        }
+        for (const line of this.diagnosticLines) {
+            this.scene.remove(line);
+            line.geometry.dispose();
+            line.material.dispose();
+        }
+        this.diagnosticLines = [];
         this.mesh = null;
         this.wireMesh = null;
         this.grid = null;
         this.marker = null;
+        this.liveMarker = null;
+        this.liveHeading = null;
+        this.routeLine = null;
+        this.vertexHeights = null;
+        this.heightFocus = null;
         this.render();
     }
 
@@ -219,6 +269,127 @@ export class ThreeNavmeshView {
         this._endFreeLook();
         this.navigationMode = nextMode;
         this.controls.mouseButtons.RIGHT = nextMode === "orbit" ? THREE.MOUSE.ROTATE : null;
+    }
+
+    setMovementSpeed(multiplier) {
+        this.movementSpeedMultiplier = THREE.MathUtils.clamp(Number(multiplier) || 1, 0.1, 3);
+    }
+
+    _heightAt(u, v) {
+        if (!this.mesh) return this.meshCenter.height;
+        const origin = new THREE.Vector3(u - this.meshCenter.u, this.meshRadius * 2, v - this.meshCenter.v);
+        const ray = new THREE.Raycaster(origin, new THREE.Vector3(0, -1, 0));
+        const hit = ray.intersectObject(this.mesh, false)[0];
+        return hit ? hit.point.y + this.meshCenter.height : this.meshCenter.height;
+    }
+
+    getHeightAt(u, v) {
+        return Number.isFinite(u) && Number.isFinite(v) ? this._heightAt(u, v) : null;
+    }
+
+    setLivePosition({u, v, height = null, rot = null} = {}) {
+        if (!this.liveMarker || !Number.isFinite(u) || !Number.isFinite(v)) return;
+        const y = Number.isFinite(height) ? height : this._heightAt(u, v);
+        this.liveMarker.position.set(u - this.meshCenter.u, y - this.meshCenter.height, v - this.meshCenter.v);
+        this.liveMarker.visible = true;
+        if (this.liveHeading) {
+            const length = Math.max(this.meshRadius * 0.018, 2);
+            const angle = Number.isFinite(rot) ? (rot * Math.PI) / 180 : 0;
+            const endX = this.liveMarker.position.x + Math.sin(angle) * length;
+            const endZ = this.liveMarker.position.z - Math.cos(angle) * length;
+            const attr = this.liveHeading.geometry.getAttribute("position");
+            attr.setXYZ(0, this.liveMarker.position.x, this.liveMarker.position.y, this.liveMarker.position.z);
+            attr.setXYZ(1, endX, this.liveMarker.position.y, endZ);
+            attr.needsUpdate = true;
+            this.liveHeading.visible = Number.isFinite(rot);
+        }
+        this.render();
+    }
+
+    setHeightFocus(height) {
+        if (!this.mesh || !this.vertexHeights || !Number.isFinite(height)) return;
+        const now = performance.now();
+        if (this.heightFocus !== null && Math.abs(this.heightFocus - height) < 0.5 && now - this.lastHeightColorUpdate < 300) return;
+        this.heightFocus = height;
+        this.lastHeightColorUpdate = now;
+        const attr = this.mesh.geometry.getAttribute("color");
+        const span = Math.max(3, this.meshRadius * 0.02);
+        for (let i = 0; i < this.vertexHeights.length; i += 1) {
+            const t = 0.5 + ((this.vertexHeights[i] - height) / span) * 0.5;
+            writeHeightColor(attr.array, i * 3, t);
+        }
+        attr.needsUpdate = true;
+    }
+
+    clearLivePosition() {
+        if (this.liveMarker) this.liveMarker.visible = false;
+        this.render();
+    }
+
+    setRoute(points = []) {
+        if (this.routeLine) {
+            this.scene.remove(this.routeLine);
+            this.routeLine.geometry.dispose();
+            this.routeLine.material.dispose();
+            this.routeLine = null;
+        }
+        if (!this.mesh || !Array.isArray(points) || points.length < 2) return;
+        const vertices = [];
+        for (const point of points) {
+            if (!Array.isArray(point) || point.length < 2) continue;
+            const [u, v] = point;
+            vertices.push(u - this.meshCenter.u, this._heightAt(u, v) - this.meshCenter.height + Math.max(1, this.meshRadius * 0.004), v - this.meshCenter.v);
+        }
+        if (vertices.length < 6) return;
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute("position", new THREE.Float32BufferAttribute(vertices, 3));
+        this.routeLine = new THREE.Line(geometry, new THREE.LineBasicMaterial({color: 0xff4fd8, depthTest: false}));
+        this.routeLine.renderOrder = 12;
+        this.scene.add(this.routeLine);
+        this.render();
+    }
+
+    setDiagnostics(diagnostics = [], options = {}) {
+        if (this.diagnosticLines) {
+            for (const line of this.diagnosticLines) {
+                this.scene.remove(line);
+                line.geometry.dispose();
+                line.material.dispose();
+            }
+        }
+        this.diagnosticLines = [];
+        if (!this.mesh || !Array.isArray(diagnostics)) return;
+        const stages = [
+            ["astar_cells", "search", 0x64748b, 1],
+            ["rerouted_points", "rerouted", 0x22c55e, 1.5],
+            ["string_pull_points", "stringPull", 0xf59e0b, 1.5],
+            ["assembled_points", "assembled", 0xa78bfa, 1.5],
+            ["loop_fixed_points", "loopFixed", 0xfb7185, 1.5],
+            ["slim_points", "slim", 0x38bdf8, 1.5],
+            ["widened_points", "widenCorners", 0xf97316, 1.5],
+            ["planned_points", "planned", 0xff4fd8, 2.5],
+        ];
+        for (const [key, optionKey, color, width] of stages) {
+            if (options[optionKey] === false) continue;
+            for (const diagnostic of diagnostics) {
+                const points = diagnostic?.[key];
+                if (!Array.isArray(points) || points.length < 2) continue;
+                const vertices = [];
+                for (const point of points) {
+                    if (!Array.isArray(point) || point.length < 2) continue;
+                    const [u, v] = point;
+                    vertices.push(u - this.meshCenter.u, this._heightAt(u, v) - this.meshCenter.height + Math.max(1, this.meshRadius * 0.005), v - this.meshCenter.v);
+                }
+                if (vertices.length < 6) continue;
+                const geometry = new THREE.BufferGeometry();
+                geometry.setAttribute("position", new THREE.Float32BufferAttribute(vertices, 3));
+                const line = new THREE.Line(geometry, new THREE.LineBasicMaterial({color, linewidth: width, depthTest: false}));
+                line.renderOrder = 13;
+                this.scene.add(line);
+                this.diagnosticLines.push(line);
+            }
+        }
+        this.render();
     }
 
     /** @param {boolean} visible */
@@ -306,7 +477,7 @@ export class ThreeNavmeshView {
         const verticalFov = THREE.MathUtils.degToRad(this.camera.fov);
         const horizontalFov = 2 * Math.atan(Math.tan(verticalFov / 2) * this.camera.aspect);
         const limitingFov = Math.min(verticalFov, horizontalFov);
-        const distance = (this.meshRadius / Math.max(Math.sin(limitingFov / 2), 0.1)) * 1.12;
+        const distance = (this.meshRadius / Math.max(Math.sin(limitingFov / 2), 0.1)) * 0.82;
         const direction = new THREE.Vector3(1, 0.72, 1).normalize();
         this.controls.target.copy(this.focusTarget);
         this.camera.position.copy(direction.multiplyScalar(distance));
@@ -314,7 +485,7 @@ export class ThreeNavmeshView {
         this.camera.far = Math.max(1000, distance + this.meshRadius * 8);
         this.camera.updateProjectionMatrix();
         this.controls.minDistance = this.meshRadius * 0.03;
-        this.controls.maxDistance = this.meshRadius * 10;
+        this.controls.maxDistance = this.meshRadius * 5;
         this.controls.update();
         this.render();
     }
@@ -382,7 +553,7 @@ export class ThreeNavmeshView {
             .addScaledVector(this.worldUp, verticalAxis)
             .normalize();
         const cameraDistance = this.camera.position.distanceTo(this.controls.target);
-        const speed = THREE.MathUtils.clamp(cameraDistance * 0.4, this.meshRadius * 0.01, this.meshRadius * 1.2);
+        const speed = THREE.MathUtils.clamp(cameraDistance * 0.4, this.meshRadius * 0.01, this.meshRadius * 1.2) * this.movementSpeedMultiplier;
         this.movementDelta.multiplyScalar(speed * deltaSeconds);
         this.camera.position.add(this.movementDelta);
         this.controls.target.add(this.movementDelta);
