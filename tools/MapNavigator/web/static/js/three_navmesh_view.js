@@ -11,6 +11,9 @@ const CONTROL_CODES = new Set(["ControlLeft", "ControlRight"]);
 const FREE_LOOK_SENSITIVITY = 0.003;
 const MAX_FREE_LOOK_PITCH = Math.PI / 2 - 0.01;
 const HEIGHT_CONTRAST = 3.2;
+const PATH_RADIUS = 0.1;
+const PATH_LIFT = 0.02;
+const PATH_COLOR = 0xff4fd8;
 
 function writeHeightColor(target, offset, value) {
     const t = Math.max(0, Math.min(1, value));
@@ -210,55 +213,45 @@ export class ThreeNavmeshView {
         this._stopMovement();
         if (this.mesh) {
             this.scene.remove(this.mesh);
-            this.mesh.geometry.dispose();
-            this.mesh.material.dispose();
+            this._disposeObject(this.mesh);
         }
         if (this.wireMesh) {
             this.scene.remove(this.wireMesh);
-            this.wireMesh.geometry.dispose();
-            this.wireMesh.material.dispose();
+            this._disposeObject(this.wireMesh);
         }
         if (this.grid) {
             this.scene.remove(this.grid);
-            this.grid.geometry.dispose();
-            this.grid.material.dispose();
+            this._disposeObject(this.grid);
         }
         if (this.marker) {
             this.scene.remove(this.marker);
-            this.marker.geometry.dispose();
-            this.marker.material.dispose();
+            this._disposeObject(this.marker);
         }
         if (this.liveMarker) {
             this.scene.remove(this.liveMarker);
-            this.liveMarker.geometry.dispose();
-            this.liveMarker.material.dispose();
+            this._disposeObject(this.liveMarker);
         }
         if (this.liveHeading) {
             this.scene.remove(this.liveHeading);
-            this.liveHeading.geometry.dispose();
-            this.liveHeading.material.dispose();
+            this._disposeObject(this.liveHeading);
         }
         if (this.routeLine) {
             this.scene.remove(this.routeLine);
-            this.routeLine.geometry.dispose();
-            this.routeLine.material.dispose();
+            this._disposeObject(this.routeLine);
         }
         if (this.livePathLine) {
             this.scene.remove(this.livePathLine);
-            this.livePathLine.geometry.dispose();
-            this.livePathLine.material.dispose();
+            this._disposeObject(this.livePathLine);
             this.livePathLine = null;
         }
         for (const line of this.diagnosticLines) {
             this.scene.remove(line);
-            line.geometry.dispose();
-            line.material.dispose();
+            this._disposeObject(line);
         }
         this.diagnosticLines = [];
         for (const marker of this.diagnosticMarkers) {
             this.scene.remove(marker);
-            marker.geometry.dispose();
-            marker.material.dispose();
+            this._disposeObject(marker);
         }
         this.diagnosticMarkers = [];
         this.mesh = null;
@@ -273,6 +266,32 @@ export class ThreeNavmeshView {
         this.meshMaxHeight = 0;
         this.heightFocus = null;
         this.render();
+    }
+
+    _disposeObject(object) {
+        object.traverse((child) => {
+            if (child.geometry) child.geometry.dispose();
+            if (child.material) {
+                const materials = Array.isArray(child.material) ? child.material : [child.material];
+                for (const material of materials) material.dispose();
+            }
+        });
+    }
+
+    _createPathObject(vertices, color = PATH_COLOR, radius = PATH_RADIUS) {
+        if (vertices.length < 6) return null;
+        const curve = new THREE.CurvePath();
+        for (let i = 0; i + 5 < vertices.length; i += 3) {
+            const start = new THREE.Vector3(vertices[i], vertices[i + 1], vertices[i + 2]);
+            const end = new THREE.Vector3(vertices[i + 3], vertices[i + 4], vertices[i + 5]);
+            if (start.distanceToSquared(end) > 1e-8) curve.add(new THREE.LineCurve3(start, end));
+        }
+        if (curve.curves.length === 0) return null;
+        const geometry = new THREE.TubeGeometry(curve, Math.max(1, curve.curves.length), radius, 6, false);
+        const material = new THREE.MeshBasicMaterial({color, depthTest: false});
+        const path = new THREE.Mesh(geometry, material);
+        path.renderOrder = 13;
+        return path;
     }
 
     clearSelection() {
@@ -325,7 +344,7 @@ export class ThreeNavmeshView {
         this.liveMarker.position.set(u - this.meshCenter.u, y - this.meshCenter.height, v - this.meshCenter.v);
         this.liveMarker.visible = true;
         if (this.liveHeading) {
-            const length = Math.max(this.meshRadius * 0.018, 2);
+            const length = Math.max(this.meshRadius * 0.0045, 0.5);
             const angle = Number.isFinite(rot) ? (rot * Math.PI) / 180 : 0;
             const endX = this.liveMarker.position.x + Math.sin(angle) * length;
             const endZ = this.liveMarker.position.z - Math.cos(angle) * length;
@@ -361,8 +380,7 @@ export class ThreeNavmeshView {
     setLivePath(points = []) {
         if (this.livePathLine) {
             this.scene.remove(this.livePathLine);
-            this.livePathLine.geometry.dispose();
-            this.livePathLine.material.dispose();
+            this._disposeObject(this.livePathLine);
             this.livePathLine = null;
         }
         if (!this.mesh || !Array.isArray(points) || points.length < 2) {
@@ -375,7 +393,7 @@ export class ThreeNavmeshView {
             const [u, v] = point;
             vertices.push(
                 u - this.meshCenter.u,
-                this._heightAt(u, v) - this.meshCenter.height + Math.max(1, this.meshRadius * 0.006),
+                this._heightAt(u, v) - this.meshCenter.height + PATH_LIFT,
                 v - this.meshCenter.v,
             );
         }
@@ -383,12 +401,8 @@ export class ThreeNavmeshView {
             this.render();
             return;
         }
-        const geometry = new THREE.BufferGeometry();
-        geometry.setAttribute("position", new THREE.Float32BufferAttribute(vertices, 3));
-        this.livePathLine = new THREE.Line(
-            geometry,
-            new THREE.LineBasicMaterial({color: 0x22d3ee, depthTest: false}),
-        );
+        this.livePathLine = this._createPathObject(vertices, 0x22d3ee);
+        if (!this.livePathLine) return;
         this.livePathLine.renderOrder = 14;
         this.scene.add(this.livePathLine);
         this.render();
@@ -397,8 +411,7 @@ export class ThreeNavmeshView {
     setRoute(points = []) {
         if (this.routeLine) {
             this.scene.remove(this.routeLine);
-            this.routeLine.geometry.dispose();
-            this.routeLine.material.dispose();
+            this._disposeObject(this.routeLine);
             this.routeLine = null;
         }
         if (!this.mesh || !Array.isArray(points) || points.length < 2) return;
@@ -407,12 +420,11 @@ export class ThreeNavmeshView {
             if (!Array.isArray(point) || point.length < 2) continue;
             const [u, v] = point;
             const height = Number.isFinite(point[2]) ? point[2] : this._heightAt(u, v);
-            vertices.push(u - this.meshCenter.u, height - this.meshCenter.height + Math.max(1, this.meshRadius * 0.004), v - this.meshCenter.v);
+            vertices.push(u - this.meshCenter.u, height - this.meshCenter.height + PATH_LIFT, v - this.meshCenter.v);
         }
         if (vertices.length < 6) return;
-        const geometry = new THREE.BufferGeometry();
-        geometry.setAttribute("position", new THREE.Float32BufferAttribute(vertices, 3));
-        this.routeLine = new THREE.Line(geometry, new THREE.LineBasicMaterial({color: 0xff4fd8, depthTest: false}));
+        this.routeLine = this._createPathObject(vertices, PATH_COLOR);
+        if (!this.routeLine) return;
         this.routeLine.renderOrder = 12;
         this.scene.add(this.routeLine);
         this.render();
@@ -422,8 +434,7 @@ export class ThreeNavmeshView {
         if (this.diagnosticLines) {
             for (const line of this.diagnosticLines) {
                 this.scene.remove(line);
-                line.geometry.dispose();
-                line.material.dispose();
+                this._disposeObject(line);
             }
         }
         this.diagnosticLines = [];
@@ -435,7 +446,7 @@ export class ThreeNavmeshView {
         this.diagnosticMarkers = [];
         if (!this.mesh || !Array.isArray(diagnostics)) return;
         const stages = [
-            ["astar_cells", "search", 0x64748b, 1],
+            ["astar_cells", "search", 0x22d3ee, 1],
             ["rerouted_points", "rerouted", 0x22c55e, 1.5],
             ["string_pull_points", "stringPull", 0xf59e0b, 1.5],
             ["assembled_points", "assembled", 0xa78bfa, 1.5],
@@ -453,7 +464,7 @@ export class ThreeNavmeshView {
                     if (!Array.isArray(point) || point.length < 2) continue;
                     const [u, v] = point;
                     const height = Number.isFinite(point[2]) ? point[2] : this._heightAt(u, v);
-                    vertices.push(u - this.meshCenter.u, height - this.meshCenter.height + Math.max(1, this.meshRadius * 0.005), v - this.meshCenter.v);
+                    vertices.push(u - this.meshCenter.u, height - this.meshCenter.height + PATH_LIFT, v - this.meshCenter.v);
                 }
                 if (vertices.length < 3) continue;
                 const markerGeometry = new THREE.BufferGeometry();
@@ -473,12 +484,12 @@ export class ThreeNavmeshView {
                 this.scene.add(marker);
                 this.diagnosticMarkers.push(marker);
                 if (vertices.length >= 6) {
-                    const geometry = new THREE.BufferGeometry();
-                    geometry.setAttribute("position", new THREE.Float32BufferAttribute(vertices, 3));
-                    const line = new THREE.Line(geometry, new THREE.LineBasicMaterial({color, linewidth: width, depthTest: false}));
-                    line.renderOrder = 13;
-                    this.scene.add(line);
-                    this.diagnosticLines.push(line);
+                    const line = this._createPathObject(vertices, color, PATH_RADIUS);
+                    if (line) {
+                        line.renderOrder = 13;
+                        this.scene.add(line);
+                        this.diagnosticLines.push(line);
+                    }
                 }
             }
         }
