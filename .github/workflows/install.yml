@@ -730,3 +730,45 @@ jobs:
         run: |
           gh workflow run --repo $GITHUB_REPOSITORY discord-release-notification.yml \
             -f release_tag="${{ needs.meta.outputs.tag }}"
+
+  sentry_release:
+    if: ${{ needs.meta.outputs.is_release == 'true' && github.repository_owner == 'MaaEnd' }}
+    needs: [meta, release]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Resolve Sentry release
+        id: sentry_release
+        env:
+          MAAEND_VERSION: ${{ needs.meta.outputs.tag }}
+          MXU_VERSION: ${{ needs.meta.outputs.mxu_version }}
+        run: |
+          set -euo pipefail
+
+          if [[ ! "$MAAEND_VERSION" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+            echo "::error::Invalid MaaEnd release version: $MAAEND_VERSION"
+            exit 1
+          fi
+          if [[ ! "$MXU_VERSION" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+            echo "::error::Invalid MXU release version: $MXU_VERSION"
+            exit 1
+          fi
+
+          release="MXU@${MXU_VERSION#v}+MaaEnd@$MAAEND_VERSION"
+          echo "release=$release" | tee -a "$GITHUB_OUTPUT"
+
+      - name: Create Sentry release
+        uses: getsentry/action-release@v3
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: maaend
+          SENTRY_PROJECT: rust
+        with:
+          environment: ${{ needs.meta.outputs.is_prerelease == 'true' && 'beta' || 'stable' }}
+          release: ${{ steps.sentry_release.outputs.release }}
+          set_commits: auto
+          ignore_missing: true
+          ignore_empty: true

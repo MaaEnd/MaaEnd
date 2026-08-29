@@ -1,6 +1,6 @@
 """根据 Sentry spans 生成自动送货任务分析报告。
 
-默认分析 beta 环境最新 MaaEnd beta release 最近 24 小时的 DeliveryJobs 与
+默认分析 beta 环境最新 MaaEnd Beta / RC 版本最近 24 小时的 DeliveryJobs 与
 SeizeDeliveryJobs。报告分别展示导航阶段失败率、失败节点分布和路线内部错误率。
 路线内部错误可能已被上层重试恢复，因此不等同于整次自动送货任务失败。
 """
@@ -22,7 +22,8 @@ try:
         DEFAULT_SENTRY_TIMEOUT_SECONDS,
         explore,
         format_rate,
-        resolve_latest_maaend_beta_release,
+        normalize_sentry_environment,
+        resolve_latest_maaend_release,
         resolve_sentry_command,
         show_progress,
         write_console_table,
@@ -32,7 +33,8 @@ except ImportError:
         DEFAULT_SENTRY_TIMEOUT_SECONDS,
         explore,
         format_rate,
-        resolve_latest_maaend_beta_release,
+        normalize_sentry_environment,
+        resolve_latest_maaend_release,
         resolve_sentry_command,
         show_progress,
         write_console_table,
@@ -360,12 +362,14 @@ def collect_report(
     quiet: bool,
 ) -> tuple[Report, set[str]]:
     route_definitions = load_route_definitions(catalog_path)
+    release_was_selected = release is None
     if release is None:
+        environment = normalize_sentry_environment(environment)
         show_progress(
-            f"[0/3] 自动选择 {environment} 环境的最新 MaaEnd beta release",
+            f"[0/3] 自动选择 {environment} 环境的最新 MaaEnd release",
             quiet=quiet,
         )
-        release = resolve_latest_maaend_beta_release(
+        release = resolve_latest_maaend_release(
             sentry_command,
             target=target,
             environment=environment,
@@ -375,6 +379,9 @@ def collect_report(
         show_progress(f"使用 Sentry release：{release}", quiet=quiet)
     escaped_release = release.replace('"', '\\"')
     scope_filter = f'release:"{escaped_release}"'
+    if release_was_selected:
+        escaped_environment = environment.replace('"', '\\"')
+        scope_filter = f'{scope_filter} environment:"{escaped_environment}"'
     task_filter = f"task:[{','.join(tasks)}]"
     scope_filter = f"{scope_filter} {task_filter}"
 
@@ -520,12 +527,18 @@ def create_argument_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--release",
-        help="精确的 Sentry release 名称；未指定时自动选择最新 MaaEnd beta release",
+        help=(
+            "精确的 Sentry release 名称；未指定时优先选择发布流程上报的版本，"
+            "否则按 environment 从用户样本回退"
+        ),
     )
     parser.add_argument(
         "--environment",
         default="beta",
-        help="自动选择 release 时使用的 Sentry environment（默认：beta）",
+        help=(
+            "自动选择 release 时使用；beta 选择 Beta / RC，"
+            "prod（等同 stable）/ production / stable 选择稳定版（默认：beta）"
+        ),
     )
     parser.add_argument("--target", default="maaend/rust", help="<org>/<project>")
     parser.add_argument(
