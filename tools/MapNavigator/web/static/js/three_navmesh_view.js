@@ -12,6 +12,7 @@ const FREE_LOOK_SENSITIVITY = 0.003;
 const MAX_FREE_LOOK_PITCH = Math.PI / 2 - 0.01;
 const HEIGHT_CONTRAST = 3.2;
 const PATH_RADIUS = 0.1;
+const DIAGNOSTIC_RADIUS = 0.045;
 const PATH_LIFT = 0.02;
 const PATH_COLOR = 0xff4fd8;
 
@@ -287,9 +288,15 @@ export class ThreeNavmeshView {
             if (start.distanceToSquared(end) > 1e-8) curve.add(new THREE.LineCurve3(start, end));
         }
         if (curve.curves.length === 0) return null;
-        const geometry = new THREE.TubeGeometry(curve, Math.max(1, curve.curves.length), radius, 6, false);
-        const material = new THREE.MeshBasicMaterial({color, depthTest: false});
-        const path = new THREE.Mesh(geometry, material);
+        let path;
+        if (radius <= 0) {
+            const geometry = new THREE.BufferGeometry();
+            geometry.setAttribute("position", new THREE.Float32BufferAttribute(vertices, 3));
+            path = new THREE.Line(geometry, new THREE.LineBasicMaterial({color, depthTest: false}));
+        } else {
+            const geometry = new THREE.TubeGeometry(curve, Math.max(1, curve.curves.length), radius, 8, false);
+            path = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color, depthTest: false}));
+        }
         path.renderOrder = 13;
         return path;
     }
@@ -446,13 +453,13 @@ export class ThreeNavmeshView {
         this.diagnosticMarkers = [];
         if (!this.mesh || !Array.isArray(diagnostics)) return;
         const stages = [
-            ["astar_cells", "search", 0x22d3ee, 1],
-            ["rerouted_points", "rerouted", 0x22c55e, 1.5],
-            ["string_pull_points", "stringPull", 0xf59e0b, 1.5],
-            ["assembled_points", "assembled", 0xa78bfa, 1.5],
-            ["loop_fixed_points", "loopFixed", 0xfb7185, 1.5],
-            ["slim_points", "slim", 0x38bdf8, 1.5],
-            ["widened_points", "widenCorners", 0xf97316, 1.5],
+            ["astar_cells", "search", 0x38bdf8, 0],
+            ["rerouted_points", "rerouted", 0x22c55e, DIAGNOSTIC_RADIUS],
+            ["string_pull_points", "stringPull", 0xf59e0b, DIAGNOSTIC_RADIUS],
+            ["assembled_points", "assembled", 0xa78bfa, DIAGNOSTIC_RADIUS],
+            ["loop_fixed_points", "loopFixed", 0xfb7185, DIAGNOSTIC_RADIUS],
+            ["slim_points", "slim", 0x38bdf8, DIAGNOSTIC_RADIUS],
+            ["widened_points", "widenCorners", 0xf97316, DIAGNOSTIC_RADIUS],
         ];
         for (const [key, optionKey, color, width] of stages) {
             if (!options[optionKey]) continue;
@@ -473,7 +480,7 @@ export class ThreeNavmeshView {
                     markerGeometry,
                     new THREE.PointsMaterial({
                         color,
-                        size: Math.max(0.35, this.meshRadius * 0.003),
+                        size: key === "astar_cells" ? Math.max(0.12, this.meshRadius * 0.001) : Math.max(0.2, this.meshRadius * 0.0015),
                         sizeAttenuation: true,
                         depthTest: false,
                         transparent: true,
@@ -484,7 +491,7 @@ export class ThreeNavmeshView {
                 this.scene.add(marker);
                 this.diagnosticMarkers.push(marker);
                 if (vertices.length >= 6) {
-                    const line = this._createPathObject(vertices, color, PATH_RADIUS);
+                    const line = this._createPathObject(vertices, color, width);
                     if (line) {
                         line.renderOrder = 13;
                         this.scene.add(line);

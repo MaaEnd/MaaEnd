@@ -266,6 +266,16 @@ class MapNavigatorApp {
             threeFlightSpeedValue: $("three-flight-speed-value"),
             threeRecolorRow: $("three-recolor-row"),
             btnThreeRecolor: $("btn-three-recolor"),
+            threeNavDebugOptions: $("three-nav-debug-options"),
+            threeChkNavDebugSearch: $("three-chk-nav-debug-search"),
+            threeChkNavDebugRerouted: $("three-chk-nav-debug-rerouted"),
+            threeChkNavDebugStringPull: $("three-chk-nav-debug-string-pull"),
+            threeChkNavDebugAssembled: $("three-chk-nav-debug-assembled"),
+            threeChkNavDebugLoopFixed: $("three-chk-nav-debug-loop-fixed"),
+            threeChkNavDebugSlim: $("three-chk-nav-debug-slim"),
+            threeChkNavDebugWidenCorners: $("three-chk-nav-debug-widen-corners"),
+            threeChkNavDebugPlanned: $("three-chk-nav-debug-planned"),
+            threeChkNavDebugLivePath: $("three-chk-nav-debug-live-path"),
             btnStart: $("btn-start"),
             btnStop: $("btn-stop"),
             btnCopyPath: $("btn-copy-path"),
@@ -809,7 +819,7 @@ class MapNavigatorApp {
 
     /** Keep every diagnostic checkbox aligned with the persisted rendering state. */
     _syncNavDebugControls() {
-        for (const [entry, key] of [
+        const controls = [
             [this.els.chkNavDebugSearch, "search"],
             [this.els.chkNavDebugRerouted, "rerouted"],
             [this.els.chkNavDebugStringPull, "stringPull"],
@@ -819,9 +829,22 @@ class MapNavigatorApp {
             [this.els.chkNavDebugWidenCorners, "widenCorners"],
             [this.els.chkNavDebugPlanned, "planned"],
             [this.els.chkNavDebugLivePath, "live"],
-        ]) {
+        ];
+        for (const [entry, key] of controls) {
             entry.checked = Boolean(this.navDebug[key]);
         }
+        const threeControls = [
+            [this.els.threeChkNavDebugSearch, "search"],
+            [this.els.threeChkNavDebugRerouted, "rerouted"],
+            [this.els.threeChkNavDebugStringPull, "stringPull"],
+            [this.els.threeChkNavDebugAssembled, "assembled"],
+            [this.els.threeChkNavDebugLoopFixed, "loopFixed"],
+            [this.els.threeChkNavDebugSlim, "slim"],
+            [this.els.threeChkNavDebugWidenCorners, "widenCorners"],
+            [this.els.threeChkNavDebugPlanned, "planned"],
+            [this.els.threeChkNavDebugLivePath, "live"],
+        ];
+        for (const [entry, key] of threeControls) entry.checked = Boolean(this.navDebug[key]);
         this.showLivePath = this.navDebug.live;
     }
 
@@ -893,6 +916,32 @@ class MapNavigatorApp {
             this.showLivePath = e.chkNavDebugLivePath.checked;
             this.navDebug.live = this.showLivePath;
             localStorage.setItem("maaend.mapnavigator.showLivePath", this.showLivePath ? "1" : "0");
+            this._paint();
+            this._syncThreeOverlays();
+        });
+        for (const [entry, key] of [
+            [e.threeChkNavDebugSearch, "search"],
+            [e.threeChkNavDebugRerouted, "rerouted"],
+            [e.threeChkNavDebugStringPull, "stringPull"],
+            [e.threeChkNavDebugAssembled, "assembled"],
+            [e.threeChkNavDebugLoopFixed, "loopFixed"],
+            [e.threeChkNavDebugSlim, "slim"],
+            [e.threeChkNavDebugWidenCorners, "widenCorners"],
+            [e.threeChkNavDebugPlanned, "planned"],
+        ]) {
+            entry.addEventListener("change", () => {
+                this.navDebug[key] = entry.checked;
+                localStorage.setItem(`maaend.mapnavigator.debug${key[0].toUpperCase()}${key.slice(1)}`, entry.checked ? "1" : "0");
+                this._syncNavDebugControls();
+                this._paint();
+                this._syncThreeOverlays();
+            });
+        }
+        e.threeChkNavDebugLivePath.addEventListener("change", () => {
+            this.showLivePath = e.threeChkNavDebugLivePath.checked;
+            this.navDebug.live = this.showLivePath;
+            localStorage.setItem("maaend.mapnavigator.showLivePath", this.showLivePath ? "1" : "0");
+            this._syncNavDebugControls();
             this._paint();
             this._syncThreeOverlays();
         });
@@ -2734,6 +2783,7 @@ class MapNavigatorApp {
         e.threeNavigationRow.hidden = !show3D;
         e.threeSpeedRow.hidden = !show3D;
         e.threeRecolorRow.hidden = !show3D;
+        e.threeNavDebugOptions.hidden = !show3D;
         e.threeNavigationMode.value = this.threeNavigationMode;
         e.canvasWrap.classList.toggle("view-3d", show3D);
         document.body.classList.toggle("view-3d", show3D);
