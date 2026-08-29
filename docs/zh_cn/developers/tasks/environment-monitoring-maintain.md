@@ -336,7 +336,7 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 如果传送点不能直接拍照，参考 [map-navigator.md](../components/map-navigator.md) 用 GUI 工具录制路线，把录出来的起点矩形填入 `NavAssert`、整条 path 原样复制进 `NavPath`。`QuickTeleport` 路线不执行起点断言，不需要录制 `NavZoneId` / `NavAssert`。若 `NAVMESH` 终点存在上下重叠可走面，在工具中选定目标面，让导出的航点携带 `target_deck_y`。随后在游戏中确认：
 
 - `NavZoneId` 填 MapLocate 的 `zone_id`（如 `Wuling_Base`），它决定 `NavAssert` 坐标按哪个分区解释；终点落在分层平台上时，`NavPath` 里的 `NAVMESH` 动作按 tier 坐标写并带上 `target_tier`；目标点存在上下重叠面时带上工具选出的 `target_deck_y`。
-- `routes.json` 中的 `NavPath` 与 `FightAfterMove` 必须为 WebUI 提供明确的底图上下文：不含 `target_tier` 时以前置 `ZONE` 开头，基础底图使用对应的 `*_Base`；含 `target_tier` 时暂不新增前置 `ZONE`，由节点自己的 `target_tier` 声明层级，但已有 `ZONE` 应原样保留。多分区或过图路径还应保留录制工具导出的必要 `ZONE`。
+- `routes.json` 中 `NavPath` 与 `FightAfterMove` 的前置 `ZONE` 表示传送落地后角色所在的地图，供 WebUI 选择初始地图；必须按实测落地地图填写，不能从终点坐标推断。`target_tier` 只解释目标点坐标系，不代表传送落地地图；含 `target_tier` 的路线暂不新增 `ZONE`，但已有声明应原样保留。多分区或过图路径还应保留录制工具导出的必要 `ZONE`。
 
 - 站位是否能让 `EnvironmentMonitoringTakePhoto` 正常进入拍照模式。目标未命中时会自动执行公共九宫格 + fallback 镜头扫描，无需记录单向滑屏配置。
 
@@ -376,7 +376,7 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 
 1. `tools/pipeline-generate/EnvironmentMonitoring/routes.json` 中新增/修改条目是否字段齐全。
 2. `routes.json` 中新增条目的 `MissionId` 是否能匹配 `environment_monitoring.json` 的 `mission_id`；`Id` 由生成器自动刷新。
-3. 已适配条目的传送入口已在真实 `EnterMap` 与 `QuickTeleport: true` 中至少选择一种；直拍路线没有任何地图、寻路或 `FightAfterMove` 字段，新增寻路路线配置为 WebUI 提供 `ZONE` 或 `target_tier` 上下文的 `NavPath`，且普通传送路线补齐真实 `NavZoneId` / `NavAssert`；配置 `FightAfterMove` 时确认它是具备相同底图上下文的实测独立归位 path。
+3. 已适配条目的传送入口已在真实 `EnterMap` 与 `QuickTeleport: true` 中至少选择一种；直拍路线没有任何地图、寻路或 `FightAfterMove` 字段，新增寻路路线的 `ZONE` 按实测传送落地地图填写，不能从 `target_tier` 推断，且普通传送路线补齐真实 `NavZoneId` / `NavAssert`；配置 `FightAfterMove` 时确认它是具备相同落地地图上下文的实测独立归位 path。
 4. 重生成的 `Terminals.json` 中各 `{Station}MonitoringTerminalLoop.next` 包含全部新 `[JumpBack]{Id}Job`，并以 `EnvironmentMonitoringTerminalFinish` 收尾。
 5. 若填写了 `EnterMap`，其引用的节点确实存在于 `assets/resource/pipeline/`，并能作为 SubTask 完整执行后正常返回。
 6. **没有手改** `assets/resource/pipeline/EnvironmentMonitoring/{Station}/*.json` 或 `Terminals.json`（手改会被下次生成覆盖；如确需特殊节点，应在 `template.json` / `terminals-template.json` 中扩展）。

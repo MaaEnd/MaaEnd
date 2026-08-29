@@ -182,7 +182,7 @@
             },
             "NavPath": {
                 "type": "array",
-                "description": "MapNavigateAction 的 path 数组（不含 HEADING；朝向仍由 Heading 字段在生成时追加）。必须为 WebUI 提供明确的底图上下文：不含 target_tier 时以前置 ZONE 开头；含 target_tier 时暂不新增前置 ZONE，但已有 ZONE 应原样保留。其余元素为坐标点 [x, y] / [x, y, \"COLLECT\"|\"DIG\"|\"PORTAL\"]，或 {\"action\": \"ZONE\"|\"NAVMESH\", ...} 声明，格式详见 docs/zh_cn/developers/components/map-navigator.md。",
+                "description": "MapNavigateAction 的 path 数组（不含 HEADING；朝向仍由 Heading 字段在生成时追加）。前置 ZONE 表示传送落地后角色所在的地图，供 WebUI 选择初始地图，必须按实测填写，不能从只解释目标点坐标系的 target_tier 推断；含 target_tier 的路线暂不新增 ZONE，但已有声明应原样保留。其余元素为坐标点 [x, y] / [x, y, \"COLLECT\"|\"DIG\"|\"PORTAL\"]，或 {\"action\": \"ZONE\"|\"NAVMESH\", ...} 声明，格式详见 docs/zh_cn/developers/components/map-navigator.md。",
                 "minItems": 1,
                 "items": {
                     "oneOf": [

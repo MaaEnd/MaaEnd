@@ -15,7 +15,7 @@ function resolve(route) {
     return createRouteResolver([route], {warn() {}}).resolve(mission);
 }
 
-test("configured paths expose one WebUI map context", () => {
+test("configured base paths expose the post-teleport map to WebUI", () => {
     const routes = readJson(ROUTES_PATH);
 
     for (const route of routes) {
@@ -30,10 +30,11 @@ test("configured paths expose one WebUI map context", () => {
 
             const targetTiers = new Set(path.map((node) => node?.target_tier).filter(Boolean));
             if (targetTiers.size > 0) {
+                // target_tier describes the destination coordinate system, not the post-teleport map.
                 continue;
             }
 
-            assert.equal(path[0]?.action, "ZONE", `${route.MissionId}.${field} must start with ZONE`);
+            assert.equal(path[0]?.action, "ZONE", `${route.MissionId}.${field} must start with post-teleport ZONE`);
             assert.equal(typeof path[0]?.zone_id, "string", `${route.MissionId}.${field} ZONE must provide zone_id`);
             assert.notEqual(path[0].zone_id, "", `${route.MissionId}.${field} ZONE must provide zone_id`);
         }

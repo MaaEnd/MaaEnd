@@ -80,7 +80,7 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 
 > 传送后的处理取决于入口和路线类型：传送后直拍不做位置断言或寻路，配置 `Heading` 时只原地调整朝向，随后进入任务专属拍照包装节点。`QuickTeleport` 的固定传送落点可直接开始寻路，因此允许省略 `NavZoneId` / `NavAssert`。普通传送的寻路路线仍会在决定是否调用 `EnterMap` 前用到断言配置，所以不能省略；传送完成后 `NavPath` 直接开始寻路，不再复核起点。
 >
-> `routes.json` 中的 `NavPath` 与 `FightAfterMove` 必须为 WebUI 提供明确的底图上下文：不含 `target_tier` 时以前置 `ZONE` 开头，基础底图使用对应的 `*_Base`；含 `target_tier` 时暂不新增前置 `ZONE`，由节点自己的 `target_tier` 声明层级，但已有 `ZONE` 应原样保留。多分区或过图路径还应原样保留录制工具导出的必要 `ZONE`。
+> `routes.json` 中 `NavPath` 与 `FightAfterMove` 的前置 `ZONE` 表示传送落地后角色所在的地图，供 WebUI 选择初始地图；必须按实测落地地图填写，不能从终点坐标推断。`target_tier` 只解释目标点坐标系，不代表传送落地地图；含 `target_tier` 的路线暂不新增 `ZONE`，但已有声明应原样保留。多分区或过图路径还应原样保留录制工具导出的必要 `ZONE`。
 
 > `FightAfterMove` 仅用于完整寻路路线，直接填写独立的 MapNavigator `path` 数组。字段存在时，首次 `NavPath` 结束后执行一次 `[JumpBack]AutoFight`，再沿 `FightAfterMove` 归位；不要把战斗后的回撤点并入首次前往路线。传送后直拍无需战斗，不得配置该字段。
 

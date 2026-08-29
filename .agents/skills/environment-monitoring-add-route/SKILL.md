@@ -62,7 +62,7 @@ argument-hint: "可选：观察点名称，以及录制好的 EnterMap、NavZone
 
 寻路只适合普通可通行路线，不负责战斗、剧情、过图、机关或交互。传送后直拍必须经过游戏实测确认；不能因为缺少路线数据就把未适配条目写成直拍。遇到这些情况不要用更多重试或硬延迟掩盖，应保留未适配状态或重新设计真实可通行路线。
 
-`routes.json` 中的 `NavPath` 与 `FightAfterMove` 必须为 WebUI 提供明确的底图上下文：不含 `target_tier` 时以前置 `ZONE` 开头，基础底图使用对应的 `*_Base`；含 `target_tier` 时暂不新增前置 `ZONE`，由节点自己的 `target_tier` 声明层级，但已有 `ZONE` 应原样保留。多分区或过图路径还应保留录制工具导出的必要 `ZONE`，不要擅自删改。
+`routes.json` 中 `NavPath` 与 `FightAfterMove` 的前置 `ZONE` 表示传送落地后角色所在的地图，供 WebUI 选择初始地图；必须按实测落地地图填写，不能从终点坐标推断。`target_tier` 只解释目标点坐标系，不代表传送落地地图；含 `target_tier` 的路线暂不新增 `ZONE`，但已有声明应原样保留。多分区或过图路径还应保留录制工具导出的必要 `ZONE`，不要擅自删改。
 
 ### 可选字段
 
