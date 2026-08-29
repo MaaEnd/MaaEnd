@@ -23,6 +23,9 @@ func Clean(raw []byte) []byte {
 	// State: 0 = normal, 1 = inside string, 2 = inside block comment.
 	state := 0
 	escaped := false
+	// 未闭合块注释的原始起点（raw 与 out 两个坐标），用于循环结束时回滚。
+	blockStartRaw := -1
+	blockStartOut := -1
 
 	i := 0
 	for i < len(raw) {
@@ -49,6 +52,8 @@ func Clean(raw []byte) []byte {
 					}
 					continue
 				case '*':
+					blockStartRaw = i
+					blockStartOut = len(out)
 					state = 2
 					i += 2
 					continue
@@ -85,6 +90,8 @@ func Clean(raw []byte) []byte {
 		case 2: // inside block comment
 			if c == '*' && i+1 < len(raw) && raw[i+1] == '/' {
 				state = 0
+				blockStartRaw = -1
+				blockStartOut = -1
 				i += 2
 				continue
 			}
@@ -93,6 +100,12 @@ func Clean(raw []byte) []byte {
 			}
 			i++
 		}
+	}
+
+	// 未闭合块注释：回滚已剥离的内容，原样保留 "/*" 及之后文本，
+	// 让后续严格 JSON 解析失败（避免格式错误被静默接受）。
+	if state == 2 && blockStartRaw >= 0 {
+		out = append(out[:blockStartOut], raw[blockStartRaw:]...)
 	}
 
 	// Tolerate a stray trailing comma at the very end of input (e.g. "[1,2,]").

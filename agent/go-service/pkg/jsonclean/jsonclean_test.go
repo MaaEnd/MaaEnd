@@ -2,6 +2,7 @@ package jsonclean
 
 import (
 	"encoding/json"
+	"strings"
 	"testing"
 )
 
@@ -99,5 +100,30 @@ func TestCleanSlashNotComment(t *testing.T) {
 	cleaned := string(Clean([]byte(in)))
 	if cleaned != in {
 		t.Fatalf("cleaned=%q want %q", cleaned, in)
+	}
+}
+func TestCleanUnterminatedBlockCommentNotSwallowed(t *testing.T) {
+	in := `{"a": 1} /* unterminated`
+	cleaned := string(Clean([]byte(in)))
+	// 未闭合的 /* 不应被静默吞掉；要么原样保留触发后续解析失败，要么显式报错。
+	if !strings.Contains(cleaned, "/*") {
+		t.Fatalf("unterminated block comment was swallowed: cleaned=%q", cleaned)
+	}
+	// 且清理结果不应能通过严格 JSON 解析
+	var v any
+	if err := json.Unmarshal([]byte(cleaned), &v); err == nil {
+		t.Fatalf("unterminated block comment accepted as valid JSON: cleaned=%q", cleaned)
+	}
+}
+
+func TestCleanClosedBlockCommentStripped(t *testing.T) {
+	in := `{"a": 1} /* closed */`
+	cleaned := string(Clean([]byte(in)))
+	if strings.Contains(cleaned, "/*") || strings.Contains(cleaned, "closed") {
+		t.Fatalf("closed block comment not stripped: cleaned=%q", cleaned)
+	}
+	var v any
+	if err := json.Unmarshal([]byte(cleaned), &v); err != nil {
+		t.Fatalf("closed block comment broke parsing: %v; cleaned=%q", err, cleaned)
 	}
 }
