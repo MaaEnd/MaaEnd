@@ -3,8 +3,6 @@
 #include <cctype>
 #include <cstdlib>
 #include <filesystem>
-#include <fstream>
-#include <sstream>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -13,6 +11,7 @@
 #include <meojson/json.hpp>
 
 #include "../utils.h"
+#include "JsoncFile.h"
 
 namespace common::notice
 {
@@ -55,15 +54,8 @@ std::string ResolveLanguage()
 bool LoadInto(const std::filesystem::path& dir, const std::string& lang, std::unordered_map<std::string, std::string>& out)
 {
     const std::filesystem::path path = dir / (lang + ".json");
-    std::ifstream file(path);
-    if (!file.is_open()) {
-        LogWarn << "Notice locale file not found." << VAR(path);
-        return false;
-    }
-
-    std::ostringstream text;
-    text << file.rdbuf();
-    const auto parsed = json::parse(text.str());
+    // 仓库内 JSONC 允许注释、尾逗号与 BOM，用公共 OpenJsoncFile 读取。
+    const auto parsed = common::OpenJsoncFile(path);
     if (!parsed || !parsed->is_object()) {
         LogWarn << "Failed to parse notice locale file." << VAR(path);
         return false;

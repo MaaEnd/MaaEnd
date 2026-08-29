@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/jsonclean"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/resource"
 )
 
@@ -96,7 +97,7 @@ func loadMatcherConfig(dataDir string, locale string) (MatcherConfig, error) {
 		SuffixStopwordsMap map[string][]string
 	}
 
-	if err := json.Unmarshal(b, &withRaw); err != nil {
+	if err := json.Unmarshal(jsonclean.Clean(b), &withRaw); err != nil {
 		// matcher_config.json uses suffixStopwords as an object/map.
 		return MatcherConfig{}, err
 	}

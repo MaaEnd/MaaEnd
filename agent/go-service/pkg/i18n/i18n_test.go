@@ -31,3 +31,17 @@ func TestSiblingLocaleDir(t *testing.T) {
 		t.Fatal("expected empty for missing sibling")
 	}
 }
+
+func TestLoadMessagesAcceptsJsonc(t *testing.T) {
+	root := t.TempDir()
+	// JSONC locale: line comment + trailing comma + BOM.
+	body := "\xEF\xBB\xBF{\n  // comment\n  \"a\": \"1\",\n}"
+	if err := os.WriteFile(filepath.Join(root, DefaultLang+".json"), []byte(body), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	msgs := loadMessages(root, DefaultLang)
+	if got := msgs["a"]; got != "1" {
+		t.Fatalf("a=%q want %q", got, "1")
+	}
+}
