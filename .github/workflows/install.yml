@@ -281,6 +281,12 @@ jobs:
           restore-keys: |
             ${{ matrix.os == 'win' && 'ccache-v4' || 'ccache' }}-${{ matrix.os }}-${{ matrix.arch }}-
 
+      # 每次构建前清零 ccache 统计: 否则 Restore 会把上一轮(甚至历史多轮)的累计计数一并带回,
+      # Show ccache stats 显示的命中率会被历史调用数稀释, 无法反映本次构建的真实命中情况
+      - name: Reset ccache stats
+        shell: bash
+        run: ccache -z
+
       - name: Setup WebView2 SDK
         if: matrix.os == 'win'
         shell: bash
