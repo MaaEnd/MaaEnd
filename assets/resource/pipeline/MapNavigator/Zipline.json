@@ -8,7 +8,7 @@
         ]
     },
     "MapNavigatorZiplineMount": {
-        "desc": "上索：认出架子的交互提示才按交互键",
+        "desc": "上索：认出架子的交互提示后按住 Alt 点击该提示",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -24,8 +24,8 @@
             }
         },
         "pre_delay": 0,
-        "action": "ClickKey",
-        "key": 70, // F 交互；可通过全局设置 KeymapInteract 改绑
+        "action": "Custom",
+        "custom_action": "AutoAltClickAction",
         "post_delay": 0,
         "next": [
             "MapNavigatorZiplineMountEnd"

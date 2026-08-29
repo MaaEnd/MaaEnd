@@ -178,14 +178,6 @@
             }
         }
     },
-    "MapNavigatorZiplineMount": {
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": 3
-            }
-        }
-    },
     "ProdManualOpenInMain": {
         "action": {
             "type": "KeyDown",
