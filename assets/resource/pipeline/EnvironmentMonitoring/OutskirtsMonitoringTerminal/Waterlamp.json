@@ -403,6 +403,40 @@
             }
         }
     },
+    "GoToWaterlampMoveAfterFight": {
+        "desc": "可能的战斗结束后，恢复性地走回水灯虫拍照点",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        710.94,
+                        1887.4
+                    ]
+                },
+                {
+                    "action": "HEADING",
+                    "angle": 30
+                }
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "WaterlampTakePhoto"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
     "WaterlampTakePhoto": {
         "desc": "在水灯虫任务拍照点开始拍照",
         "pre_delay": 0,

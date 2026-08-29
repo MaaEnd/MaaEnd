@@ -403,6 +403,40 @@
             }
         }
     },
+    "GoToIndoorCropsMoveAfterFight": {
+        "desc": "可能的战斗结束后，恢复性地走回室内作物拍照点",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        474.12,
+                        1772.18
+                    ]
+                },
+                {
+                    "action": "HEADING",
+                    "angle": 180
+                }
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "IndoorCropsTakePhoto"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
     "IndoorCropsTakePhoto": {
         "desc": "在室内作物任务拍照点开始拍照",
         "pre_delay": 0,

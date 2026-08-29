@@ -396,6 +396,33 @@
             }
         }
     },
+    "GoToFeranmutHeartMoveAfterFight": {
+        "desc": "可能的战斗结束后，恢复性地走回巨兽心脏拍照点",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "HEADING",
+                    "angle": 270
+                }
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "FeranmutHeartTakePhoto"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
     "FeranmutHeartTakePhoto": {
         "desc": "在巨兽心脏任务拍照点开始拍照",
         "pre_delay": 0,

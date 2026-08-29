@@ -409,10 +409,10 @@
         "EnterMap": "SceneEnterWorldWulingMarkerStoneCoreIcon",
         "NavZoneId": "Wuling_Base",
         "NavAssert": [
-            598.0,
-            2336.0,
-            60.0,
-            48.0
+            598,
+            2336,
+            60,
+            48
         ],
         "NavPath": [
             {

@@ -404,6 +404,41 @@
             }
         }
     },
+    "GoToWaterTemperatureControllerMoveAfterFight": {
+        "desc": "可能的战斗结束后，恢复性地走回净水温控装置拍照点",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        333.71,
+                        2155.67
+                    ],
+                    "target_deck_y": 265.55
+                },
+                {
+                    "action": "HEADING",
+                    "angle": 255
+                }
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "WaterTemperatureControllerTakePhoto"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
     "WaterTemperatureControllerTakePhoto": {
         "desc": "在净水温控装置任务拍照点开始拍照",
         "pre_delay": 0,
