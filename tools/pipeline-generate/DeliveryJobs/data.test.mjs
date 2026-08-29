@@ -25,6 +25,8 @@ function readGeneratedPipeline(...segments) {
 
 test("DeliveryJobs JSONC reader accepts comments and rejects malformed input", () => {
     assert.deepEqual(parseJsonc('{\n  // comment\n  "value": 1,\n}', "inline fixture"), {value: 1});
+    assert.deepEqual(parseJsonc('\uFEFF{"ok": true}', "BOM fixture"), {ok: true});
+    assert.throws(() => parseJsonc('{\uFEFF"ok": true}', "misplaced BOM fixture"), /InvalidSymbol at offset 1/);
     assert.throws(() => parseJsonc('{"value": }', "invalid fixture"), /无法解析 JSONC invalid fixture/);
 });
 
