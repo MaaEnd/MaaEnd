@@ -56,7 +56,10 @@ export class ThreeNavmeshView {
         this.routeLine = null;
         this.livePathLine = null;
         this.diagnosticLines = [];
+        this.diagnosticMarkers = [];
         this.vertexHeights = null;
+        this.meshMinHeight = 0;
+        this.meshMaxHeight = 0;
         this.heightFocus = null;
         this.lastHeightColorUpdate = 0;
         this.meshCenter = {u: 0, v: 0, height: 0};
@@ -100,6 +103,8 @@ export class ThreeNavmeshView {
         this.clearMesh();
 
         const {minU, maxU, minV, maxV, minHeight, maxHeight} = parsed.bounds;
+        this.meshMinHeight = minHeight;
+        this.meshMaxHeight = maxHeight;
         this.meshCenter = {
             u: (minU + maxU) / 2,
             v: (minV + maxV) / 2,
@@ -250,6 +255,12 @@ export class ThreeNavmeshView {
             line.material.dispose();
         }
         this.diagnosticLines = [];
+        for (const marker of this.diagnosticMarkers) {
+            this.scene.remove(marker);
+            marker.geometry.dispose();
+            marker.material.dispose();
+        }
+        this.diagnosticMarkers = [];
         this.mesh = null;
         this.wireMesh = null;
         this.grid = null;
@@ -258,6 +269,8 @@ export class ThreeNavmeshView {
         this.liveHeading = null;
         this.routeLine = null;
         this.vertexHeights = null;
+        this.meshMinHeight = 0;
+        this.meshMaxHeight = 0;
         this.heightFocus = null;
         this.render();
     }
@@ -284,9 +297,21 @@ export class ThreeNavmeshView {
 
     _heightAt(u, v) {
         if (!this.mesh) return this.meshCenter.height;
-        const origin = new THREE.Vector3(u - this.meshCenter.u, this.meshRadius * 2, v - this.meshCenter.v);
+        const top = this.meshMaxHeight - this.meshCenter.height;
+        const origin = new THREE.Vector3(
+            u - this.meshCenter.u,
+            Math.max(top + Math.max(1, this.meshRadius * 0.02), this.meshRadius * 0.5),
+            v - this.meshCenter.v,
+        );
         const ray = new THREE.Raycaster(origin, new THREE.Vector3(0, -1, 0));
-        const hit = ray.intersectObject(this.mesh, false)[0];
+        const hits = ray.intersectObject(this.mesh, false);
+        const targetHeight = this.heightFocus === null ? this.meshCenter.height : this.heightFocus;
+        const hit = hits.reduce((best, candidate) => {
+            if (!best) return candidate;
+            const bestDistance = Math.abs(best.point.y + this.meshCenter.height - targetHeight);
+            const candidateDistance = Math.abs(candidate.point.y + this.meshCenter.height - targetHeight);
+            return candidateDistance < bestDistance ? candidate : best;
+        }, null);
         return hit ? hit.point.y + this.meshCenter.height : this.meshCenter.height;
     }
 
@@ -320,7 +345,7 @@ export class ThreeNavmeshView {
         this.heightFocus = height;
         this.lastHeightColorUpdate = now;
         const attr = this.mesh.geometry.getAttribute("color");
-        const span = Math.max(3, this.meshRadius * 0.02);
+        const span = 3;
         for (let i = 0; i < this.vertexHeights.length; i += 1) {
             const t = 0.5 + ((this.vertexHeights[i] - height) / span) * 0.5;
             writeHeightColor(attr.array, i * 3, t);
@@ -381,7 +406,8 @@ export class ThreeNavmeshView {
         for (const point of points) {
             if (!Array.isArray(point) || point.length < 2) continue;
             const [u, v] = point;
-            vertices.push(u - this.meshCenter.u, this._heightAt(u, v) - this.meshCenter.height + Math.max(1, this.meshRadius * 0.004), v - this.meshCenter.v);
+            const height = Number.isFinite(point[2]) ? point[2] : this._heightAt(u, v);
+            vertices.push(u - this.meshCenter.u, height - this.meshCenter.height + Math.max(1, this.meshRadius * 0.004), v - this.meshCenter.v);
         }
         if (vertices.length < 6) return;
         const geometry = new THREE.BufferGeometry();
@@ -401,6 +427,12 @@ export class ThreeNavmeshView {
             }
         }
         this.diagnosticLines = [];
+        for (const marker of this.diagnosticMarkers) {
+            this.scene.remove(marker);
+            marker.geometry.dispose();
+            marker.material.dispose();
+        }
+        this.diagnosticMarkers = [];
         if (!this.mesh || !Array.isArray(diagnostics)) return;
         const stages = [
             ["astar_cells", "search", 0x64748b, 1],
@@ -410,26 +442,44 @@ export class ThreeNavmeshView {
             ["loop_fixed_points", "loopFixed", 0xfb7185, 1.5],
             ["slim_points", "slim", 0x38bdf8, 1.5],
             ["widened_points", "widenCorners", 0xf97316, 1.5],
-            ["planned_points", "planned", 0xff4fd8, 2.5],
         ];
         for (const [key, optionKey, color, width] of stages) {
             if (!options[optionKey]) continue;
             for (const diagnostic of diagnostics) {
                 const points = diagnostic?.[key];
-                if (!Array.isArray(points) || points.length < 2) continue;
+                if (!Array.isArray(points) || points.length < 1) continue;
                 const vertices = [];
                 for (const point of points) {
                     if (!Array.isArray(point) || point.length < 2) continue;
                     const [u, v] = point;
-                    vertices.push(u - this.meshCenter.u, this._heightAt(u, v) - this.meshCenter.height + Math.max(1, this.meshRadius * 0.005), v - this.meshCenter.v);
+                    const height = Number.isFinite(point[2]) ? point[2] : this._heightAt(u, v);
+                    vertices.push(u - this.meshCenter.u, height - this.meshCenter.height + Math.max(1, this.meshRadius * 0.005), v - this.meshCenter.v);
                 }
-                if (vertices.length < 6) continue;
-                const geometry = new THREE.BufferGeometry();
-                geometry.setAttribute("position", new THREE.Float32BufferAttribute(vertices, 3));
-                const line = new THREE.Line(geometry, new THREE.LineBasicMaterial({color, linewidth: width, depthTest: false}));
-                line.renderOrder = 13;
-                this.scene.add(line);
-                this.diagnosticLines.push(line);
+                if (vertices.length < 3) continue;
+                const markerGeometry = new THREE.BufferGeometry();
+                markerGeometry.setAttribute("position", new THREE.Float32BufferAttribute(vertices, 3));
+                const marker = new THREE.Points(
+                    markerGeometry,
+                    new THREE.PointsMaterial({
+                        color,
+                        size: Math.max(0.35, this.meshRadius * 0.003),
+                        sizeAttenuation: true,
+                        depthTest: false,
+                        transparent: true,
+                        opacity: 0.95,
+                    }),
+                );
+                marker.renderOrder = 15;
+                this.scene.add(marker);
+                this.diagnosticMarkers.push(marker);
+                if (vertices.length >= 6) {
+                    const geometry = new THREE.BufferGeometry();
+                    geometry.setAttribute("position", new THREE.Float32BufferAttribute(vertices, 3));
+                    const line = new THREE.Line(geometry, new THREE.LineBasicMaterial({color, linewidth: width, depthTest: false}));
+                    line.renderOrder = 13;
+                    this.scene.add(line);
+                    this.diagnosticLines.push(line);
+                }
             }
         }
         this.render();

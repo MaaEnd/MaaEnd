@@ -21,6 +21,7 @@ struct NavmeshRouteDiagnostic
     int64_t ny = 0;
     double cell_size = 0.0;
     std::vector<navmesh::WorldPoint> astar_cells;
+    std::vector<double> astar_heights;
     std::vector<navmesh::WorldPoint> rerouted_points;
     std::vector<navmesh::WorldPoint> string_pull_points;
     std::vector<navmesh::WorldPoint> assembled_points;

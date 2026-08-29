@@ -2084,9 +2084,17 @@ class MapNavigatorApp {
         if (this.state.mode === Mode.EDIT) this._paint();
         if (this.threeView && this._is3DView()) {
             const [u, v] = this._baseToDisplay(x, y);
-            this.threeView.setLivePosition({u, v, rot});
+            this.threeView.setLivePosition({u, v, rot: this._headingBaseToDisplay(x, y, rot)});
             const live = this._livePathForDisplay();
             this.threeView.setLivePath((live?.points || []).map((point) => [point.x, point.y]));
+            if (!this._initialLiveHeightColored) {
+                const height = this.threeView.getHeightAt(u, v);
+                if (Number.isFinite(height)) {
+                    this.threeView.setHeightFocus(height);
+                    this._initialLiveHeightColored = true;
+                    this._syncThreeOverlays();
+                }
+            }
         }
     }
 
@@ -2123,7 +2131,12 @@ class MapNavigatorApp {
 
     /** Project the real per-leg navmesh diagnostics into the current display frame. */
     _diagnosticsForDisplay(diagnostics) {
-        const project = (points) => (points || []).map(([x, y]) => this._baseToDisplay(x, y));
+        const project = (points) =>
+            (points || []).map((point) => {
+                if (!Array.isArray(point) || point.length < 2) return point;
+                const [x, y] = this._baseToDisplay(point[0], point[1]);
+                return Number.isFinite(point[2]) ? [x, y, point[2]] : [x, y];
+            });
         return (diagnostics || []).map((diag) => ({
             ...diag,
             astar_cells: project(diag.astar_cells),
@@ -2628,16 +2641,15 @@ class MapNavigatorApp {
     _syncThreeOverlays() {
         if (!this.threeView) return;
         const route = this.quickRouteTestRoute || this.editRoute;
-        const routePoints = (route?.points || []).map((point) => this._baseToDisplay(point[0], point[1]));
-        const diagnostics = this._diagnosticsForDisplay(route?.diagnostics || []);
-        this.threeView.setRoute(routePoints);
-        this.threeView.setDiagnostics(diagnostics, this.navDebug);
         const live = this._livePathForDisplay();
-        this.threeView.setLivePath((live?.points || []).map((point) => [point.x, point.y]));
         const position = this.livePositionBase || this.editLocateHint;
         if (position) {
             const [u, v] = this._baseToDisplay(position.x, position.y);
-            this.threeView.setLivePosition({u, v, rot: position.rot});
+            this.threeView.setLivePosition({
+                u,
+                v,
+                rot: this._headingBaseToDisplay(position.x, position.y, position.rot),
+            });
             if (this.livePositionBase && !this._initialLiveHeightColored) {
                 const height = this.threeView.getHeightAt(u, v);
                 if (Number.isFinite(height)) {
@@ -2645,8 +2657,28 @@ class MapNavigatorApp {
                     this._initialLiveHeightColored = true;
                 }
             }
+        } else {
+            this.threeView.clearLivePosition();
         }
-        else this.threeView.clearLivePosition();
+        this.threeView.setLivePath((live?.points || []).map((point) => [point.x, point.y]));
+        const diagnostics = this._diagnosticsForDisplay(route?.diagnostics || []);
+        const plannedPoints = diagnostics.flatMap((diagnostic) => diagnostic.planned_points || []);
+        const routePoints = (route?.points || []).map((point) => {
+            const [u, v] = this._baseToDisplay(point[0], point[1]);
+            let best = null;
+            let bestDistance = Infinity;
+            for (const candidate of plannedPoints) {
+                if (!Array.isArray(candidate) || candidate.length < 3 || !Number.isFinite(candidate[2])) continue;
+                const distance = Math.hypot(candidate[0] - u, candidate[1] - v);
+                if (distance < bestDistance) {
+                    bestDistance = distance;
+                    best = candidate[2];
+                }
+            }
+            return Number.isFinite(best) ? [u, v, best] : [u, v];
+        });
+        this.threeView.setRoute(this.navDebug.planned ? routePoints : []);
+        this.threeView.setDiagnostics(diagnostics, this.navDebug);
     }
 
     /** Switch between the editable 2D map and the read-only 3D mesh. */
@@ -3823,6 +3855,7 @@ class MapNavigatorApp {
         }
         this.threeView.setHeightFocus(height);
         this._initialLiveHeightColored = true;
+        this._syncThreeOverlays();
         setStatus(`已按当前位置高度 ${height.toFixed(1)} m 固定重着色。`, "#10b981");
     }
 

@@ -590,6 +590,7 @@ navmesh::BaseNavRouteResult PlanCorridorRoute(
         out_diagnostic->ny = plan.debug.ny;
         out_diagnostic->cell_size = plan.debug.cell_size;
         out_diagnostic->astar_cells = std::move(plan.debug.astar_cells);
+        out_diagnostic->astar_heights = std::move(plan.debug.astar_heights);
         out_diagnostic->rerouted_points = std::move(plan.debug.rerouted_points);
         out_diagnostic->string_pull_points = std::move(plan.debug.string_pull_points);
         out_diagnostic->assembled_points = std::move(plan.debug.assembled_points);

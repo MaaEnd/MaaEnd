@@ -39,6 +39,7 @@ struct RecastPlanResult
         int64_t ny = 0;
         double cell_size = 0.0;
         std::vector<WorldPoint> astar_cells;
+        std::vector<double> astar_heights;
         std::vector<WorldPoint> rerouted_points;
         std::vector<WorldPoint> string_pull_points;
         std::vector<WorldPoint> assembled_points;

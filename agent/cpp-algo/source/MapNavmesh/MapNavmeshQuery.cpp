@@ -392,6 +392,9 @@ json::object BuildRoute(QueryContext& context, const QueryParam& param)
     for (const auto& p : plan.debug.astar_cells) {
         debug["astar_cells"].as_array().emplace_back(json::array { p.x, p.y });
     }
+    for (const double height : plan.debug.astar_heights) {
+        debug["astar_heights"].as_array().emplace_back(height);
+    }
     for (const auto& p : plan.debug.rerouted_points) {
         debug["rerouted_points"].as_array().emplace_back(json::array { p.x, p.y });
     }
@@ -463,6 +466,35 @@ json::array PointsToJson(const std::vector<navmesh::WorldPoint>& points)
     return out;
 }
 
+json::array DiagnosticPointsToJson(
+    const std::vector<navmesh::WorldPoint>& points,
+    const std::vector<navmesh::WorldPoint>& astar_cells,
+    const std::vector<double>& astar_heights)
+{
+    json::array out;
+    for (const navmesh::WorldPoint& point : points) {
+        double height = 0.0;
+        bool have_height = false;
+        const size_t count = std::min(astar_cells.size(), astar_heights.size());
+        double best_distance = 0.0;
+        for (size_t i = 0; i < count; ++i) {
+            const double distance = std::hypot(point.x - astar_cells[i].x, point.y - astar_cells[i].y);
+            if (!have_height || distance < best_distance) {
+                have_height = true;
+                best_distance = distance;
+                height = astar_heights[i];
+            }
+        }
+        if (have_height) {
+            out.emplace_back(json::array { point.x, point.y, height });
+        }
+        else {
+            out.emplace_back(json::array { point.x, point.y });
+        }
+    }
+    return out;
+}
+
 json::object DiagnosticToJson(const mapnavigator::NavmeshRouteDiagnostic& diagnostic)
 {
     json::array warnings;
@@ -480,14 +512,14 @@ json::object DiagnosticToJson(const mapnavigator::NavmeshRouteDiagnostic& diagno
           } },
         { "start", json::array { diagnostic.start.x, diagnostic.start.y } },
         { "goal", json::array { diagnostic.goal.x, diagnostic.goal.y } },
-        { "astar_cells", PointsToJson(diagnostic.astar_cells) },
-        { "rerouted_points", PointsToJson(diagnostic.rerouted_points) },
-        { "string_pull_points", PointsToJson(diagnostic.string_pull_points) },
-        { "assembled_points", PointsToJson(diagnostic.assembled_points) },
-        { "loop_fixed_points", PointsToJson(diagnostic.loop_fixed_points) },
-        { "slim_points", PointsToJson(diagnostic.slim_points) },
-        { "widened_points", PointsToJson(diagnostic.widened_points) },
-        { "planned_points", PointsToJson(diagnostic.planned_points) },
+        { "astar_cells", DiagnosticPointsToJson(diagnostic.astar_cells, diagnostic.astar_cells, diagnostic.astar_heights) },
+        { "rerouted_points", DiagnosticPointsToJson(diagnostic.rerouted_points, diagnostic.astar_cells, diagnostic.astar_heights) },
+        { "string_pull_points", DiagnosticPointsToJson(diagnostic.string_pull_points, diagnostic.astar_cells, diagnostic.astar_heights) },
+        { "assembled_points", DiagnosticPointsToJson(diagnostic.assembled_points, diagnostic.astar_cells, diagnostic.astar_heights) },
+        { "loop_fixed_points", DiagnosticPointsToJson(diagnostic.loop_fixed_points, diagnostic.astar_cells, diagnostic.astar_heights) },
+        { "slim_points", DiagnosticPointsToJson(diagnostic.slim_points, diagnostic.astar_cells, diagnostic.astar_heights) },
+        { "widened_points", DiagnosticPointsToJson(diagnostic.widened_points, diagnostic.astar_cells, diagnostic.astar_heights) },
+        { "planned_points", DiagnosticPointsToJson(diagnostic.planned_points, diagnostic.astar_cells, diagnostic.astar_heights) },
         { "warnings", std::move(warnings) },
     };
 }

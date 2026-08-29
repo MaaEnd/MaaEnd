@@ -57,6 +57,7 @@ struct RouteDiag
     int64_t nx = 0;
     int64_t ny = 0;
     std::vector<WorldPoint> astar_cells;
+    std::vector<double> astar_heights;
     std::vector<WorldPoint> rerouted_points;
     std::vector<WorldPoint> string_pull_points;
     std::vector<WorldPoint> assembled_points;
@@ -973,8 +974,16 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     dg.nx = nx;
     dg.ny = ny;
     dg.astar_cells.reserve(q->size());
-    for (const CellPt& c : *q) {
+    dg.astar_heights.reserve(q->size());
+    for (size_t i = 0; i < q->size(); ++i) {
+        const CellPt& c = (*q)[i];
         dg.astar_cells.push_back({ x0 + (static_cast<double>(c.x) + 0.5) * kCS, y0 + (static_cast<double>(c.y) + 0.5) * kCS });
+        if (qs.has_value()) {
+            dg.astar_heights.push_back(static_cast<double>(st3.sp_h[static_cast<size_t>((*qs)[i])]));
+        }
+        else {
+            dg.astar_heights.push_back(static_cast<double>(info.lh.at(c.y, c.x)));
+        }
     }
     dg.snap_start = dsa;
     dg.snap_goal = dga;
@@ -1413,6 +1422,7 @@ RecastPlanResult RecastNavEngine::planLocked(
         res.debug.ny = dg.ny;
         res.debug.cell_size = kCS;
         res.debug.astar_cells = std::move(dg.astar_cells);
+        res.debug.astar_heights = std::move(dg.astar_heights);
         res.debug.rerouted_points = std::move(dg.rerouted_points);
         res.debug.string_pull_points = std::move(dg.string_pull_points);
         res.debug.assembled_points = std::move(dg.assembled_points);
