@@ -1002,6 +1002,9 @@ class MapNavigatorApp {
         });
 
         window.addEventListener("keyup", (e) => {
+            if (this.threeView?.setMovementKey(e.code, false)) {
+                e.preventDefault();
+            }
             if (e.key === "Alt" && this._altSavedTool) {
                 e.preventDefault();
                 const saved = this._altSavedTool;
@@ -4463,6 +4466,13 @@ class MapNavigatorApp {
                 e.preventDefault();
             } else if (e.key === "-" || e.key === "_" || e.code === "NumpadSubtract") {
                 this._zoomOut();
+                e.preventDefault();
+            } else if (
+                !e.ctrlKey &&
+                !e.metaKey &&
+                !e.altKey &&
+                this.threeView?.setMovementKey(e.code, true)
+            ) {
                 e.preventDefault();
             }
             return;

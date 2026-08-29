@@ -6,6 +6,7 @@ import {buildBoundaryEdgeIndices, parseNmsh} from "./navmesh_3d_data.js";
 const LOW_COLOR = [0.01, 0.06, 0.18];
 const MID_COLOR = [0.0, 0.36, 0.26];
 const HIGH_COLOR = [0.85, 0.28, 0.02];
+const MOVEMENT_CODES = new Set(["KeyW", "KeyA", "KeyS", "KeyD"]);
 
 function writeHeightColor(target, offset, value) {
     const t = Math.max(0, Math.min(1, value));
@@ -48,6 +49,14 @@ export class ThreeNavmeshView {
         this.pointerDown = null;
         this.raycaster = new THREE.Raycaster();
         this.pointer = new THREE.Vector2();
+        this.movementKeys = new Set();
+        this.movementFrame = 0;
+        this.lastMovementTime = null;
+        this.movementForward = new THREE.Vector3();
+        this.movementRight = new THREE.Vector3();
+        this.movementDelta = new THREE.Vector3();
+        this.worldUp = new THREE.Vector3(0, 1, 0);
+        this._movementFrameBound = (timestamp) => this._onMovementFrame(timestamp);
 
         canvas.addEventListener("pointerdown", (event) => this._onPointerDown(event));
         canvas.addEventListener("click", (event) => this._onClick(event));
@@ -55,6 +64,7 @@ export class ThreeNavmeshView {
             this.pointerDown = null;
         });
         canvas.addEventListener("contextmenu", (event) => event.preventDefault());
+        window.addEventListener("blur", () => this._stopMovement());
     }
 
     /** @param {ArrayBuffer} buffer */
@@ -150,6 +160,7 @@ export class ThreeNavmeshView {
     }
 
     clearMesh() {
+        this._stopMovement();
         if (this.mesh) {
             this.scene.remove(this.mesh);
             this.mesh.geometry.dispose();
@@ -190,6 +201,32 @@ export class ThreeNavmeshView {
         this.canvas.hidden = !visible;
         this.controls.enabled = visible;
         if (visible) this.render();
+        else this._stopMovement();
+    }
+
+    /**
+     * Update one WASD key and start or stop continuous camera movement.
+     * @param {string} code
+     * @param {boolean} pressed
+     * @returns {boolean} whether this view consumed the key transition
+     */
+    setMovementKey(code, pressed) {
+        if (!MOVEMENT_CODES.has(code)) return false;
+        if (!pressed) {
+            const consumed = this.movementKeys.delete(code);
+            if (this.movementKeys.size === 0) this._stopMovement();
+            return consumed;
+        }
+        if (!this.visible || !this.mesh) return false;
+
+        const added = !this.movementKeys.has(code);
+        this.movementKeys.add(code);
+        if (added) this._moveCamera(1 / 60);
+        if (!this.movementFrame) {
+            this.lastMovementTime = performance.now();
+            this.movementFrame = requestAnimationFrame(this._movementFrameBound);
+        }
+        return true;
     }
 
     /** @param {number} width @param {number} height @param {number} dpr */
@@ -237,6 +274,57 @@ export class ThreeNavmeshView {
     render() {
         if (!this.visible) return;
         this.renderer.render(this.scene, this.camera);
+    }
+
+    _onMovementFrame(timestamp) {
+        this.movementFrame = 0;
+        if (!this.visible || !this.mesh || this.movementKeys.size === 0) {
+            this.lastMovementTime = null;
+            return;
+        }
+
+        const deltaSeconds = Math.min(Math.max((timestamp - this.lastMovementTime) / 1000, 0), 0.05);
+        this.lastMovementTime = timestamp;
+        if (deltaSeconds > 0) this._moveCamera(deltaSeconds);
+        this.movementFrame = requestAnimationFrame(this._movementFrameBound);
+    }
+
+    _moveCamera(deltaSeconds) {
+        const forwardAxis = Number(this.movementKeys.has("KeyW")) - Number(this.movementKeys.has("KeyS"));
+        const rightAxis = Number(this.movementKeys.has("KeyD")) - Number(this.movementKeys.has("KeyA"));
+        if (forwardAxis === 0 && rightAxis === 0) return;
+
+        this.camera.getWorldDirection(this.movementForward);
+        this.movementForward.y = 0;
+        if (this.movementForward.lengthSq() < 1e-8) {
+            this.movementRight.setFromMatrixColumn(this.camera.matrixWorld, 0);
+            this.movementRight.y = 0;
+            this.movementRight.normalize();
+            this.movementForward.crossVectors(this.worldUp, this.movementRight);
+        } else {
+            this.movementForward.normalize();
+            this.movementRight.crossVectors(this.movementForward, this.worldUp).normalize();
+        }
+
+        this.movementDelta
+            .copy(this.movementForward)
+            .multiplyScalar(forwardAxis)
+            .addScaledVector(this.movementRight, rightAxis)
+            .normalize();
+        const cameraDistance = this.camera.position.distanceTo(this.controls.target);
+        const speed = THREE.MathUtils.clamp(cameraDistance * 0.4, this.meshRadius * 0.08, this.meshRadius * 1.2);
+        this.movementDelta.multiplyScalar(speed * deltaSeconds);
+        this.camera.position.add(this.movementDelta);
+        this.controls.target.add(this.movementDelta);
+        this.controls.update();
+        this.render();
+    }
+
+    _stopMovement() {
+        this.movementKeys.clear();
+        this.lastMovementTime = null;
+        if (this.movementFrame) cancelAnimationFrame(this.movementFrame);
+        this.movementFrame = 0;
     }
 
     _onPointerDown(event) {
