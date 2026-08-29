@@ -499,11 +499,9 @@ def create_argument_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--environment",
+        choices=("stable", "beta"),
         default="beta",
-        help=(
-            "自动选择 release 时使用；beta 选择 Beta / RC，"
-            "prod（等同 stable）/ production / stable 选择稳定版（默认：beta）"
-        ),
+        help="自动选择 release 时使用；stable 选择正式版，beta 选择 Beta / RC（默认：beta）",
     )
     parser.add_argument("--target", default="maaend/rust", help="<org>/<project>")
     parser.add_argument(

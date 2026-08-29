@@ -19,7 +19,7 @@ DEFAULT_SENTRY_TIMEOUT_SECONDS = 120.0
 DEFAULT_RELEASE_DISCOVERY_PERIOD = "90d"
 MIN_RELEASE_UNIQUE_USERS = 10
 SENTRY_RELEASE_API_LIMIT = 100
-PRODUCTION_ENVIRONMENTS = frozenset(("prod", "production", "stable"))
+SUPPORTED_SENTRY_ENVIRONMENTS = frozenset(("beta", "stable"))
 MAAEND_RELEASE_PATTERN = re.compile(
     r"(?:^|\+)MaaEnd@v(\d+)\.(\d+)\.(\d+)(?:-(beta|rc)\.(\d+))?$"
 )
@@ -28,13 +28,11 @@ MAAEND_RELEASE_PATTERN = re.compile(
 def normalize_sentry_environment(environment: str) -> str:
     """规范化报告支持的 Sentry environment 名称。"""
     normalized = environment.strip().lower()
-    if normalized == "prod":
-        return "stable"
-    if normalized == "beta" or normalized in PRODUCTION_ENVIRONMENTS:
+    if normalized in SUPPORTED_SENTRY_ENVIRONMENTS:
         return normalized
     raise ValueError(
         f"不支持的 Sentry environment：{environment!r}，"
-        "应为 beta、prod、production 或 stable。"
+        "应为 beta 或 stable。"
     )
 
 
@@ -180,13 +178,13 @@ def maaend_release_version_key(
 ) -> tuple[int, int, int, int, int] | None:
     """解析与 environment 发布通道相符的 MaaEnd 版本排序键。"""
     environment = normalize_sentry_environment(environment)
-    is_production = environment in PRODUCTION_ENVIRONMENTS
+    is_stable = environment == "stable"
     match = MAAEND_RELEASE_PATTERN.search(release)
     if match is None:
         return None
 
     major, minor, patch, prerelease, prerelease_number = match.groups()
-    if is_production:
+    if is_stable:
         if prerelease is not None:
             return None
         prerelease_rank = 2
@@ -267,7 +265,7 @@ def select_latest_maaend_release(
     if not candidates:
         expected = (
             "MaaEnd@vX.Y.Z"
-            if environment in PRODUCTION_ENVIRONMENTS
+            if environment == "stable"
             else "MaaEnd@vX.Y.Z-beta.N 或 MaaEnd@vX.Y.Z-rc.N"
         )
         raise RuntimeError(
