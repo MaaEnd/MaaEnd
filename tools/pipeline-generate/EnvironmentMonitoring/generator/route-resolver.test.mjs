@@ -163,6 +163,83 @@ test("Nav route fields render MapLocateAssertLocation + MapNavigateAction", () =
     });
 });
 
+test("FightAfterMove uses an independent route and shares the photo heading", () => {
+    const result = resolve({
+        MissionId: mission.missionId,
+        Name: "测试观察点",
+        Id: "TestMission",
+        EnterMap: "SceneEnterWorldTest",
+        NavZoneId: "Wuling_Base",
+        NavAssert: [
+            0,
+            0,
+            10,
+            10,
+        ],
+        NavPath: [
+            {
+                action: "NAVMESH",
+                target: [
+                    10,
+                    10,
+                ],
+            },
+        ],
+        Heading: 90,
+        FightAfterMove: [
+            {
+                action: "NAVMESH",
+                target: [
+                    20,
+                    20,
+                ],
+            },
+            {
+                action: "NAVMESH",
+                target: [
+                    10,
+                    10,
+                ],
+            },
+        ],
+    });
+
+    assert.equal(result.FightAfterMove, true);
+    assert.deepEqual(result.RouteActionParam.path, [
+        {
+            action: "NAVMESH",
+            target: [
+                10,
+                10,
+            ],
+        },
+        {
+            action: "HEADING",
+            angle: 90,
+        },
+    ]);
+    assert.deepEqual(result.FightAfterMoveRouteActionParam.path, [
+        {
+            action: "NAVMESH",
+            target: [
+                20,
+                20,
+            ],
+        },
+        {
+            action: "NAVMESH",
+            target: [
+                10,
+                10,
+            ],
+        },
+        {
+            action: "HEADING",
+            angle: 90,
+        },
+    ]);
+});
+
 test("QuickTeleport Nav routes only require NavPath", () => {
     const result = resolve({
         MissionId: mission.missionId,

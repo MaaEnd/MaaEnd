@@ -406,7 +406,7 @@
         "MissionId": "m1m64",
         "Name": "栖云生态点",
         "Id": "CloudrestEcoSite",
-        "EnterMap": "SceneEnterWorldWulingMarkerStoneCoreIcon",
+        "EnterMap": "SceneEnterWorldWulingMarkerStone3",
         "NavZoneId": "Wuling_Base",
         "NavAssert": [
             598,
@@ -416,15 +416,46 @@
         ],
         "NavPath": [
             {
+                "action": "ZONE",
+                "zone_id": "Wuling_Base"
+            },
+            {
                 "action": "NAVMESH",
                 "target": [
-                    431.11,
-                    2407.17
+                    590.94,
+                    2346.75
+                ]
+            },
+            [
+                559.59,
+                2347.2
+            ],
+            [
+                535.65,
+                2353.48
+            ],
+            {
+                "action": "NAVMESH",
+                "target": [
+                    430.6,
+                    2398.33
                 ]
             }
         ],
         "Heading": 177,
-        "FightAfterMove": true
+        "FightAfterMove": [
+            {
+                "action": "ZONE",
+                "zone_id": "Wuling_Base"
+            },
+            {
+                "action": "NAVMESH",
+                "target": [
+                    430.6,
+                    2398.33
+                ]
+            }
+        ]
     },
     {
         "MissionId": "m1m65",

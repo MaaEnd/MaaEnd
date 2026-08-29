@@ -59,6 +59,9 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
         // 普通传送必须有 NavZoneId / NavAssert 用来判断是否调用 EnterMap；
         // 快捷传送不执行起点断言，可同时省略二者。
         // 如果传送点可以直接拍照，则整组字段一起省略。
+    "FightAfterMove": [{ "action": "ZONE", "zone_id": "..." }, [x3, y3], [x4, y4]],
+        // 可选；沿途稳定遇敌时，首次寻路后执行 AutoFight，再沿这条独立 path 归位。
+        // 不复用 NavPath；Heading 仍会追加在这条路径末尾。
     "Replace": [
         [
             "売",
@@ -79,6 +82,8 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 >
 > 仅含 `NAVMESH` 的 `NavPath` 不需要前置 `ZONE`：导航器会从 MapLocator 当前定位自动确定起点区域。`ZONE` 只为后续手录坐标点声明和校验分区，多分区或过图路径应原样保留录制工具导出的 `ZONE`。
 
+> `FightAfterMove` 直接填写独立的 MapNavigator `path` 数组。字段存在时，首次 `NavPath` 结束后执行一次 `[JumpBack]AutoFight`，再沿 `FightAfterMove` 归位；不要把战斗后的回撤点并入首次前往路线。
+
 > 传送入口由 `QuickTeleport` 决定：默认通过 `EnterMap` 调用配置的 Pipeline 节点，不限制节点名称；该节点需能作为 SubTask 完整执行后正常返回。启用快捷传送后，“开始追踪”会直接等待任务地图，“已追踪”会先点击“停止追踪”旁的定位图标打开任务地图，随后依次点击“前往传送”和“传送”，此时 `EnterMap` 可省略。
 
 > 重新生成 EnvironmentMonitoring 时，生成器会自动同步 `MissionId` / `Name` / `Id` 并按 `MissionId` 排序。手动新增条目时必须填写 `MissionId`；如果环境监测数据中存在新任务但 `routes.json` 没有对应条目，生成器会自动追加仅含 `MissionId` / `Name` / `Id` 的未适配占位条目，方便维护者看到待补路线。
@@ -93,7 +98,7 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 | ----------------------------- | --------------------------------------------------------------- | --------------------------- | -------------------------------------------- |
 | metadata-only | 仅 `MissionId` / `Name` / `Id` | 不填 | 仅接取并追踪，不传送或拍照 |
 | 传送后直拍 | 不填任何地图和寻路字段；`Heading` 可选 | 不填 | 传送 →（可选原地调整朝向）→ 拍照 |
-| 寻路 | `NavPath`；普通传送再加 `NavZoneId`，可选 `Heading` | `NavAssert`，快捷传送可省略 | `MapNavigateAction` 按 `NavPath` 寻路 → 拍照 |
+| 寻路 | `NavPath`；普通传送再加 `NavZoneId`，可选 `Heading` / `FightAfterMove` | `NavAssert`，快捷传送可省略 | `MapNavigateAction` 按 `NavPath` 寻路 →（可选清场并沿独立路径归位）→ 拍照 |
 
 `Replace` 可用于所有已适配路线，不改变路线类型。直拍必须经过游戏实测确认，不能用来代替尚未录制的路线数据。寻路路线一律用 `NavPath`，普通传送再补 `NavZoneId` / `NavAssert`。拍照目标未命中时由公共 `CameraScanAction` 自动执行九宫格与 fallback 镜头扫描，不需要路线级镜头方向配置。
 

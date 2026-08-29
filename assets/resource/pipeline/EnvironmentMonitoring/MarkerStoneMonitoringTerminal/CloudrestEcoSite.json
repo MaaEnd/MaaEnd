@@ -360,7 +360,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterWorldWulingMarkerStoneCoreIcon"
+                "SceneEnterWorldWulingMarkerStone3"
             ]
         },
         "post_delay": 0,
@@ -377,10 +377,29 @@
         "custom_action_param": {
             "path": [
                 {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
                     "action": "NAVMESH",
                     "target": [
-                        431.11,
-                        2407.17
+                        590.94,
+                        2346.75
+                    ]
+                },
+                [
+                    559.59,
+                    2347.2
+                ],
+                [
+                    535.65,
+                    2353.48
+                ],
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        430.6,
+                        2398.33
                     ]
                 },
                 {
@@ -412,10 +431,14 @@
         "custom_action_param": {
             "path": [
                 {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
                     "action": "NAVMESH",
                     "target": [
-                        431.11,
-                        2407.17
+                        430.6,
+                        2398.33
                     ]
                 },
                 {
