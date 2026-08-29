@@ -4354,14 +4354,6 @@ class MapNavigatorApp {
             e.preventDefault();
             return;
         }
-        if (e.key === "3") {
-            if (this.state.mode === Mode.EDIT) {
-                this._setActiveTool("route-test");
-                setStatus("请在地图上依次单击测试起点和终点。", "#3b82f6");
-            }
-            e.preventDefault();
-            return;
-        }
         if (e.key === "+" || e.key === "=" || e.code === "NumpadAdd") {
             this._zoomIn();
             e.preventDefault();
@@ -4400,7 +4392,11 @@ class MapNavigatorApp {
         if (e.toolPan) e.toolPan.classList.toggle("active", tool === "pan");
         if (e.toolAdd) e.toolAdd.classList.toggle("active", tool === "add");
         if (e.toolSelect) e.toolSelect.classList.toggle("active", tool === "select");
-        if (e.toolRouteTest) e.toolRouteTest.classList.toggle("active", tool === "route-test");
+        if (e.toolRouteTest) {
+            const testingRoute = tool === "route-test";
+            e.toolRouteTest.classList.toggle("active", testingRoute);
+            e.toolRouteTest.setAttribute("aria-pressed", String(testingRoute));
+        }
         if (e.toolEditStart) {
             const settingEditStart = tool === "edit-start";
             e.toolEditStart.classList.toggle("active", settingEditStart);
@@ -5045,6 +5041,7 @@ class MapNavigatorApp {
         e.panelNavtest.hidden = !navtestAvailable;
         e.routeModeTabs.hidden = logWorkspace;
         e.positionReadout.hidden = logWorkspace;
+        e.toolRouteTest.hidden = mode !== Mode.EDIT;
         e.toolEditStart.hidden = mode !== Mode.EDIT;
         e.editStartDivider.hidden = mode !== Mode.EDIT;
         e.btnLogMeasure.hidden = !logWorkspace;
