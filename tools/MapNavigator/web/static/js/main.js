@@ -808,9 +808,12 @@ class MapNavigatorApp {
             this._paint();
         });
         e.toolEditStart.addEventListener("click", () => {
+            const returnTool =
+                this.activeTool === "edit-start" || this.activeTool === "route-test" ? "add" : this.activeTool;
             this._clearQuickRouteTest();
-            this._editPreviewStartReturnTool = this.activeTool === "edit-start" ? "add" : this.activeTool;
+            this._editPreviewStartReturnTool = returnTool;
             this._setActiveTool("edit-start");
+            this._paint();
             setStatus("请在地图上点击规划起点。", "#3b82f6");
         });
         e.chkEditZipline.addEventListener("change", () => {
@@ -933,9 +936,9 @@ class MapNavigatorApp {
         });
         e.btnFitView.addEventListener("click", () => this._fitView());
         e.btnDelPointFloat.addEventListener("click", () => this._deleteSelectedPoint());
-        e.toolPan.addEventListener("click", () => this._setActiveTool("pan"));
-        e.toolAdd.addEventListener("click", () => this._setActiveTool("add"));
-        e.toolSelect.addEventListener("click", () => this._setActiveTool("select"));
+        e.toolPan.addEventListener("click", () => this._activateEditTool("pan"));
+        e.toolAdd.addEventListener("click", () => this._activateEditTool("add"));
+        e.toolSelect.addEventListener("click", () => this._activateEditTool("select"));
         e.toolRouteTest.addEventListener("click", () => {
             this._setActiveTool("route-test");
             setStatus(
@@ -3358,7 +3361,9 @@ class MapNavigatorApp {
 
     /** Expand the current EDIT zone segment with the same planner used by MapNavigateAction. */
     async _calculateEditPreview() {
+        const clearedQuickTest = this._hasQuickRouteTest();
         this._clearQuickRouteTest();
+        if (clearedQuickTest) this._paint();
         const points = this._currentSegmentPoints();
         const plan = buildEditPreviewPlan(points, this._activeEditPreviewStart());
         if (!plan.ok) {
@@ -4339,13 +4344,13 @@ class MapNavigatorApp {
             return;
         }
         if (e.key === "1") {
-            if (this.state.mode === Mode.EDIT) this._setActiveTool("add");
+            if (this.state.mode === Mode.EDIT) this._activateEditTool("add");
             else if (this.state.mode === Mode.ASSERT) this._setActiveTool("assert-edit");
             e.preventDefault();
             return;
         }
         if (e.key === "2") {
-            if (this.state.mode === Mode.EDIT) this._setActiveTool("select");
+            if (this.state.mode === Mode.EDIT) this._activateEditTool("select");
             e.preventDefault();
             return;
         }
@@ -4369,6 +4374,17 @@ class MapNavigatorApp {
         }
         if (e.key === "c" || e.key === "C") {
             this._copyCoordKey();
+        }
+    }
+
+    /** Switch EDIT tools and discard temporary S/G state when explicitly leaving quick test. */
+    _activateEditTool(tool) {
+        const clearedQuickTest = this.activeTool === "route-test" && this._hasQuickRouteTest();
+        if (clearedQuickTest) this._clearQuickRouteTest();
+        this._setActiveTool(tool);
+        if (clearedQuickTest) {
+            this._paint();
+            setStatus("已离开快速测试并清除临时点。", "#10b981");
         }
     }
 
