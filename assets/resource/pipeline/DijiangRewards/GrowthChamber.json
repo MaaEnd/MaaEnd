@@ -934,43 +934,5 @@
                 "contact": 1
             }
         }
-    },
-    "GrowthChamberTestFindTargetBySeed": {
-        "desc": "[培养舱·培养·测试] 识别有基核的选材行，不点击",
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "GrowthChamberSelectTarget",
-                    "GrowthChamberCheckSeedNotEmpty"
-                ],
-                "box_index": 1
-            }
-        },
-        "pre_delay": 0,
-        "action": {
-            "type": "DoNothing"
-        },
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "GrowthChamberTestFindTargetByPlant": {
-        "desc": "[培养舱·培养·测试] 识别仅有本体的选材行，不点击",
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "GrowthChamberSelectTarget",
-                    "GrowthChamberCheckPlantNotEmpty"
-                ],
-                "box_index": 1
-            }
-        },
-        "pre_delay": 0,
-        "action": {
-            "type": "DoNothing"
-        },
-        "post_delay": 0,
-        "rate_limit": 0
     }
 }
