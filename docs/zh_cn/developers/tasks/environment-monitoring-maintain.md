@@ -336,7 +336,7 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 如果传送点不能直接拍照，参考 [map-navigator.md](../components/map-navigator.md) 用 GUI 工具录制路线，把录出来的起点矩形填入 `NavAssert`、整条 path 原样复制进 `NavPath`。`QuickTeleport` 路线不执行起点断言，不需要录制 `NavZoneId` / `NavAssert`。若 `NAVMESH` 终点存在上下重叠可走面，在工具中选定目标面，让导出的航点携带 `target_deck_y`。随后在游戏中确认：
 
 - `NavZoneId` 填 MapLocate 的 `zone_id`（如 `Wuling_Base`），它决定 `NavAssert` 坐标按哪个分区解释；终点落在分层平台上时，`NavPath` 里的 `NAVMESH` 动作按 tier 坐标写并带上 `target_tier`；目标点存在上下重叠面时带上工具选出的 `target_deck_y`。
-- `routes.json` 中 `NavPath` 与 `FightAfterMove` 的前置 `ZONE` 表示传送落地后角色所在的地图，供 WebUI 选择初始地图；必须按实测落地地图填写，不能从终点坐标推断。`target_tier` 只解释目标点坐标系，不代表传送落地地图；含 `target_tier` 的路线暂不新增 `ZONE`，但已有声明应原样保留。多分区或过图路径还应保留录制工具导出的必要 `ZONE`。
+- `routes.json` 中 `NavPath` 与 `FightAfterMove` 的前置 `ZONE` 表示传送落地后角色所在的地图，供 WebUI 选择初始地图；必须按实测落地地图填写，不能从终点坐标推断。`target_tier` 只解释目标点坐标系，不代表传送落地地图。多分区或过图路径还应保留录制工具导出的必要 `ZONE`。
 
 - 站位是否能让 `EnvironmentMonitoringTakePhoto` 正常进入拍照模式。目标未命中时会自动执行公共九宫格 + fallback 镜头扫描，无需记录单向滑屏配置。
 
