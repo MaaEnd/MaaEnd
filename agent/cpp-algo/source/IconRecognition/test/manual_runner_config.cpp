@@ -10,6 +10,8 @@
 
 #include <meojson/json.hpp>
 
+#include "Common/JsoncFile.h"
+
 namespace iconrecognition::test
 {
 
@@ -137,7 +139,7 @@ CandidateFilter ReadImageCandidates(const std::filesystem::path& image_path)
     if (!std::filesystem::is_regular_file(config_path)) {
         return {};
     }
-    const auto parsed = json::open(config_path.string());
+    const auto parsed = common::OpenJsoncFile(config_path);
     if (!parsed || !parsed->is_object()) {
         throw std::runtime_error("image sidecar must be a JSON object: " + config_path.string());
     }
@@ -446,7 +448,7 @@ std::vector<ManualRunnerCase> DiscoverManualRunnerCases(
     if (!std::filesystem::is_directory(input_root)) {
         throw std::runtime_error("input directory does not exist: " + input_root.string());
     }
-    const auto parsed_rois = json::open(rois_path.string());
+    const auto parsed_rois = common::OpenJsoncFile(rois_path);
     if (!parsed_rois || !parsed_rois->is_object()) {
         throw std::runtime_error("unable to read rois.json: " + rois_path.string());
     }

@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import test from "node:test";
 
+import {readJsonc} from "../jsonc.mjs";
 import {
     sellProductLocations,
     sellProductLocationsNewestFirst,
@@ -17,7 +18,7 @@ import {sellProductTaskRows} from "./task-data.mjs";
 const root = sellProductTaskRows[0];
 
 function readPipeline(url) {
-    return JSON.parse(readFileSync(url, "utf8").replace(/^\s*\/\/.*$/gm, ""));
+    return readJsonc(url);
 }
 
 test("SellProduct 保留按星期执行入口与任务选项", () => {

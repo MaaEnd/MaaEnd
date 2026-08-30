@@ -46,6 +46,12 @@ public:
     ~NavigationStateMachine();
 
 private:
+    struct PromptDistance
+    {
+        double distance_sq = -1.0;
+        bool is_zipline = false;
+    };
+
     bool Bootstrap();
     bool TickNavigate();
     bool TickPhase(NaviPhase phase);
@@ -92,8 +98,8 @@ private:
     // 架子的交互提示出现就算够得着了。预筛看错时返回 false, 这一拍照常往前走
     bool TryZiplineMountPrompt(const Waypoint& waypoint, const RouteTrackingState& route);
     void UpdatePromptSprintSuppression();
-    // Squared distance to the nearest prompt-driven point; -1 when the route has none or the agent is unlocalized.
-    double NearestPromptDistanceSq() const;
+    // Distance and kind of the nearest prompt-driven point; distance_sq is -1 when the route has none.
+    PromptDistance NearestPromptDistance() const;
     void UpdateWalkMode(NaviPhase phase);
 
     const NaviParam& param_;

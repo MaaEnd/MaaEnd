@@ -20,7 +20,6 @@
   GET  /api/zone-ids          -> assert 模式 zone 下拉可选值 (list_available_zone_ids)
   GET  /api/zipline-frames    -> 滑索世界坐标到 base 底图的只读标定
   GET  /mesh/{zone_id}        -> 某几何区的 NMSH 二进制网格缓冲 (application/octet-stream)
-  POST /api/route             -> 栅格路线; 失败时附起终点的离网探针
   POST /api/route-preview     -> 按 MapNavigateAction 运行时语义展开作者路线与滑索段
   GET  /api/settings          -> 读取 ~/.maaend/mapnavigator.json
   PUT  /api/settings          -> 写入 ~/.maaend/mapnavigator.json
@@ -318,7 +317,7 @@ async def lifespan(_app: FastAPI):
         yield
     finally:
         # Agent 不再继承 Ctrl+C，必须在服务退出时由 owner 明确收回。
-        await navmesh_backend.close()
+        navmesh_backend.close()
 
 
 app = FastAPI(title="MapNavigator Web Backend", lifespan=lifespan)
@@ -352,16 +351,6 @@ class NoStoreMiddleware:
 
 
 app.add_middleware(NoStoreMiddleware)
-
-
-class RouteRequest(BaseModel):
-    zone_id: int
-    start: list[float]
-    goal: list[float]
-    snap_radius: float = 5.0
-    floor_y: float | None = None
-    # 终点所在重叠面的高度; floor_y 管吸附, 这个管选层
-    goal_deck_y: float | None = None
 
 
 class RoutePreviewRequest(BaseModel):
@@ -429,7 +418,7 @@ async def api_offmesh_probe(req: OffMeshProbeRequest) -> dict[str, Any]:
     """批量问:这些点在可走网格上吗? 给没有起终点上下文的点用(编辑模式的路径点、刚点下的孤点)。
 
     只答几何事实(在/不在、最近网格多远)。盲走究竟走多远是跟起点有关的(终点盲走要朝起点回探),
-    那个数只有 /api/route 给得出,别拿这里的距离冒充。
+    这个接口没有起终点上下文，别把它返回的几何距离冒充运行时盲走距离。
     """
 
     def _compute() -> dict[str, Any]:
@@ -474,38 +463,6 @@ async def api_deck_probe(req: DeckProbeRequest) -> dict[str, Any]:
     return await run_in_threadpool(_compute)
 
 
-@app.post("/api/route")
-async def api_route(req: RouteRequest) -> dict[str, Any]:
-    """栅格路线; snap_radius 只用在失败时的离网探针上 (规划自己定死 8.0), blind_* 恒 null。"""
-
-    def _compute() -> dict[str, Any]:
-        try:
-            result = navmesh_backend.query(
-                "route",
-                zone_id=req.zone_id,
-                start=req.start,
-                goal=req.goal,
-                snap_radius=req.snap_radius,
-                floor_y=_slot(req.floor_y),
-                goal_deck_y=_slot(req.goal_deck_y),
-            )
-        except RuntimeError as exc:
-            return {"ok": False, "error": f"navmesh 尚未就绪: {exc}"}
-        if not result.get("ok"):
-            return result  # 已带 error 与起终点各自的离网探针
-        return {
-            "ok": True,
-            "points": result["points"],
-            "segment_breaks": [],
-            "cost": result["cost"],
-            "debug": result.get("debug"),
-            "blind_start": None,
-            "blind_target": None,
-        }
-
-    return await run_in_threadpool(_compute)
-
-
 @app.post("/api/route-preview")
 async def api_route_preview(req: RoutePreviewRequest) -> dict[str, Any]:
     """按 MapNavigateAction 运行时语义展开完整作者路线，供编辑器预览步行与滑索段。"""
@@ -541,9 +498,10 @@ async def api_basemap(path: str) -> FileResponse:
 async def api_basemap_by_zone(zone_id: str) -> FileResponse:
     """把任意 zone 字符串解析成底图 PNG —— tk `renderer._get_map_pil(zone_id)` 的等价物。
 
-    编辑模式底图 = 路点 zone 字符串 (MapLocator zone id), assert 模式 = assert zone,
-    astar 模式 = tier 名或 base 显示名; 三者都经 resolve_zone_image (含 fs 存在性检查 +
-    目录扫描) 解析, 故统一走此端点。解析不到回 404; 前端从加载后的 <img> 读尺寸供 fit_view。
+    编辑模式底图 = 路点 zone 字符串 (MapLocator zone id), assert 模式 = assert zone;
+    空路径层级选择和日志分析还会传入 tier 名或 base 显示名。它们都经 resolve_zone_image
+    (含 fs 存在性检查 + 目录扫描) 解析, 故统一走此端点。解析不到回 404;
+    前端从加载后的 <img> 读尺寸供 fit_view。
     """
 
     def _resolve() -> Path | None:

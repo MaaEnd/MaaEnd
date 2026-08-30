@@ -37,12 +37,13 @@ export function collectMissingRouteFields(route) {
     const quickTeleport = route.QuickTeleport === true;
     const navFieldsPresent = collectNavRouteFields(route);
     const hasNavRoute = hasCompleteNavRoute(route);
+    const expectsNavRoute = navFieldsPresent.length > 0 || !isFieldMissing(route.FightAfterMove);
     const missingFields = [];
 
     if (!quickTeleport && isFieldMissing(route.EnterMap)) {
         missingFields.push("EnterMap");
     }
-    if (navFieldsPresent.length > 0 && !hasNavRoute) {
+    if (expectsNavRoute && !hasNavRoute) {
         const hasAnyAssertField = NAV_ASSERT_FIELDS.some((field) => !isFieldMissing(route[field]));
         const requiredFields = quickTeleport && !hasAnyAssertField ? NAV_ROUTE_REQUIRED_FIELDS : NAV_ROUTE_FIELDS;
         missingFields.push(`${requiredFields.join("/")} 必须同时配置`);
@@ -116,7 +117,34 @@ function normalizeHeading(headingRaw, mission, missionName, warn) {
     };
 }
 
-function buildNavigationParams({NavZoneId, NavAssert, NavPath, hasNavRoute, heading}) {
+function buildRouteActionParam(routeNodes, heading) {
+    const headingNodes = heading.HasHeading
+        ? [
+              {
+                  action: "HEADING",
+                  angle: heading.Heading,
+              },
+          ]
+        : [];
+    const path = [
+        ...routeNodes,
+        ...headingNodes,
+    ];
+
+    return {
+        path:
+            path.length > 0
+                ? path
+                : [
+                      {
+                          action: "HEADING",
+                          angle: 0,
+                      },
+                  ],
+    };
+}
+
+function buildNavigationParams({NavZoneId, NavAssert, NavPath, FightAfterMove, hasNavRoute, heading}) {
     // 1. 构建位置断言识别节点
     // 没有路线时用占位值，渲染出的节点本来就走不到。
     const MapAssertRecognition = "MapLocateAssertLocation";
@@ -128,36 +156,18 @@ function buildNavigationParams({NavZoneId, NavAssert, NavPath, hasNavRoute, head
     // 2. 构建导航动作节点
     const RouteAction = "MapNavigateAction";
     const routeNodes = hasNavRoute ? NavPath : [];
-    const headingNodes = heading.HasHeading
-        ? [
-              {
-                  action: "HEADING",
-                  angle: heading.Heading,
-              },
-          ]
-        : [];
     // 传送后直拍只有朝向节点；一个节点都没有时补零度朝向，让不可达节点的参数保持合法。
-    const path = [
-        ...routeNodes,
-        ...headingNodes,
-    ];
-    const RouteActionParam = {
-        path:
-            path.length > 0
-                ? path
-                : [
-                      {
-                          action: "HEADING",
-                          angle: 0,
-                      },
-                  ],
-    };
+    const RouteActionParam = buildRouteActionParam(routeNodes, heading);
+    const FightAfterMoveRouteActionParam = isFieldMissing(FightAfterMove)
+        ? RouteActionParam
+        : buildRouteActionParam(FightAfterMove, heading);
 
     return {
         MapAssertRecognition,
         MapAssertParam,
         RouteAction,
         RouteActionParam,
+        FightAfterMoveRouteActionParam,
     };
 }
 
@@ -214,7 +224,7 @@ export function createRouteResolver(routeConfig, options = {}) {
                 Replace,
                 QuickTeleport,
                 IsDirectPhoto: isAdapted && isDirectPhoto,
-                FightAfterMove: override?.FightAfterMove === true,
+                FightAfterMove: hasNavRoute && !isFieldMissing(override?.FightAfterMove),
                 // NavPath 路线传送后交给 MapNavigateAction 自行接管落点，不再复核起点
                 ShouldAssertAfterTeleport: !isDirectPhoto && !hasNavRoute,
                 ...heading,
@@ -226,6 +236,7 @@ export function createRouteResolver(routeConfig, options = {}) {
                         ? UNREACHABLE_ROUTE_PLACEHOLDER.NavAssert
                         : override.NavAssert,
                     NavPath: override?.NavPath,
+                    FightAfterMove: override?.FightAfterMove,
                     hasNavRoute,
                     heading,
                 }),

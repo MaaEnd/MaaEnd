@@ -2,7 +2,7 @@
 
 This document explains the file distribution and execution flow of `DijiangRewards`.
 The core design is "central hub dispatching + sub-stage callback": each sub-stage is independent, and options only modify stage entry points or branches without altering the main flow skeleton.
-This document was updated on June 9, 2026 (synchronized with the recovery of the mood-based operator selection logic adjustment).
+This document was updated on August 29, 2026 (synchronized with the multi-select growth material and dynamic OCR whitelist design).
 
 ## File Paths
 
@@ -21,6 +21,7 @@ This document was updated on June 9, 2026 (synchronized with the recovery of the
 | `assets/resource/pipeline/DijiangRewards/Template/Location.json` | Chamber interface positioning |
 | `assets/resource/pipeline/DijiangRewards/Template/TextTemplate.json` | Button and state OCR templates |
 | `assets/resource/pipeline/DijiangRewards/Template/Status.json` | Auxiliary recognition for red dots, quantities, inventory, etc. |
+| `agent/go-service/common/attachregex/action.go` | Dynamically generates OCR whitelists from node `attach` data |
 | `assets/locales/interface/*.json` | Task, option, and focus copy |
 
 ## Execution Flow
@@ -88,14 +89,19 @@ Implemented in `GrowthChamber.json` + `pipeline_override` of `DijiangRewards.jso
 
 | Mode | Actual Behavior |
 | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| No Growth | Only claim mature rewards, do not enter material selection |
-| Replant | Disable normal growth; after reward claiming closes, attempt "replant" and confirm ([#2003](https://github.com/MaaEnd/MaaEnd/pull/2003) triggered after reward claiming closes, not directly from detail page) |
-| Any Material | Whitelist includes all materials; expand sorting and base core extraction sub-options; sort first then pick the first available target in the list |
-| Specific Material | Whitelist narrowed to the multilingual name of that material; only expand base core extraction; row recognition bound to the entire target row, reducing quantity OCR jitter |
+| `DoNothing` (No Growth) | Only claim mature rewards, do not enter material selection |
+| `GrowAgain` (Replant) | Disable normal growth; after reward claiming closes, attempt "replant" and confirm ([#2003](https://github.com/MaaEnd/MaaEnd/pull/2003) triggered after reward claiming closes, not directly from detail page) |
+| `Any` (displayed as "Specific Materials") | Expands material multi-select, base core extraction, and sorting sub-options, then finds an available target among the selected materials |
+
+#### `SelectToGrowItems`: Select Growth Materials
+
+`SelectToGrowItems` is a checkbox option that supports selecting any combination of 18 materials. All materials are selected by default.
+
+Each material case writes its aliases in all five supported languages to `GrowthChamberSelectTarget.attach` through `pipeline_override`. After entering the material list, `GrowthChamberInitSelectTarget` calls `AttachToExpectedRegexAction` to merge aliases from the selected cases and generate an exact OCR whitelist in the form `^(alias1|alias2|...)$` for `GrowthChamberSelectTarget.expected` at runtime. If no material is selected, the whitelist is empty and the action generates the never-matching regex `a^`, preventing other materials from being selected accidentally.
 
 #### `AutoExtractSeed`: What to Do When Base Core is Missing
 
-Only appears in "Any Material" or "Specific Material" modes.
+This is a separate switch under the "Specific Materials" mode and is independent of the material checkbox selection.
 
 | Configuration | Actual Behavior |
 | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -104,9 +110,9 @@ Only appears in "Any Material" or "Specific Material" modes.
 
 #### `SortBy` / `SortOrder`
 
-Only appear in "Any Material" mode, only affect candidate list order, do not change the semantics of "who to find".
+Only apply to the "Specific Materials" mode. They affect candidate list order but do not change the selected material set.
 
-When maintaining cultivation chamber issues, first confirm three things: current `SelectToGrow` mode, whether sorting is enabled, and whether `AutoExtractSeed` has changed the acceptable target range.
+When maintaining cultivation chamber issues, first confirm the current `SelectToGrow` mode, the `SelectToGrowItems` selection, the runtime whitelist, sorting settings, and whether `AutoExtractSeed` has changed the acceptable target range.
 
 ### Option Hierarchy
 
@@ -121,15 +127,22 @@ DijiangRewards
 │   └── GrowthChamberStage
 ├── ClueSetting                # Expand clue gifting attempts / inventory thresholds
 └── SelectToGrow               # Cultivation chamber main mode
-    ├── Any → AutoExtractSeed, SortBy, SortOrder
-└── Specific Material → AutoExtractSeed
+    ├── DoNothing
+    ├── GrowAgain
+    └── Any (displayed as "Specific Materials")
+        ├── SelectToGrowItems   # Multi-select 18 materials; all selected by default
+        ├── AutoExtractSeed
+        ├── SortBy
+        └── SortOrder
 ```
 
 ## Paths to Modify When Adding New Cultivation Materials
 
-1. `assets/tasks/DijiangRewards.json` — `SelectToGrow` add new case: `GrowthChamberSelectTarget.expected` + row recognition override
-2. `assets/locales/interface/*.json` — Material name copy
+1. `assets/tasks/DijiangRewards.json` — Add the material name to `SelectToGrowItems.default_case`, then add a checkbox case under `SelectToGrowItems.cases`; the case must write Simplified Chinese, English, Japanese, Traditional Chinese, and Korean aliases to `GrowthChamberSelectTarget.attach`
+2. `assets/locales/interface/{zh_cn,en_us,ja_jp,zh_tw,ko_kr}.json` — Add the material's `$item.*` display text
 3. If game button/chamber copy changes — synchronize `Template/TextTemplate.json`, `Template/Location.json`
+
+Do not modify `GrowthChamber.json` or add per-material `ColorMatch` or row-recognition overrides for a new material; the shared OCR whitelist flow reads the aliases from `attach`.
 
 ## Maintenance Tips
 
@@ -139,8 +152,10 @@ DijiangRewards
 | A stage not executing | Corresponding stage switch under `StageTaskSetting` |
 | Reception room not gifting clues | Whether `ClueSetting=No` default override matches advanced items |
 | No replant after claiming reward | `SelectToGrow=GrowAgain`; next chain after reward claiming closes |
-| Wrong material selected for growth | `SelectToGrow` whitelist; `SortBy`/`SortOrder` (Any mode) |
-| Has base core but not extracting | `AutoExtractSeed` and `CheckTargetNotEmpty` linkage override |
-| OCR recognition drift | Multilingual `expected` in three files under `Template/` |
+| Wrong material selected for growth | `SelectToGrowItems` selection, five-language `attach` values in each case, and the exact whitelist generated by `GrowthChamberInitSelectTarget` |
+| No material is ever matched | Whether no material is selected and `a^` was generated; whether target aliases are complete; whether the initialization action succeeded |
+| Material body exists but no base core is extracted | `AutoExtractSeed` and `GrowthChamberCheckTargetNotEmpty` linkage override |
+| Unexpected sorting | `SortBy` / `SortOrder`; both apply only in "Specific Materials" mode |
+| Other OCR recognition drift | Multilingual `expected` values in the three files under `Template/` |
 
 Maintenance is divided into three layers: main flow layer (which chamber to go to) → stage business layer (what to do in the chamber) → interface configuration layer (which branches options modify).

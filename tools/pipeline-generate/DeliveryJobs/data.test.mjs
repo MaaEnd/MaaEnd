@@ -4,8 +4,7 @@ import {join, relative} from "node:path";
 import test from "node:test";
 import {fileURLToPath} from "node:url";
 
-import {parse} from "jsonc-parser";
-
+import {parseJsonc, readJsonc} from "../jsonc.mjs";
 import {DELIVERY_JOB_FILL_ITEM_PRIORITY_COUNT, deliveryJobDepots, deliveryJobRegions} from "./model.mjs";
 
 const AUTO_DELIVERY_CONTROLLERS = [
@@ -20,13 +19,16 @@ const AUTO_DELIVERY_NAVIGATE_NODES = [
     "AutoDeliveryNavigateDestination",
 ];
 
-function readJsonc(path) {
-    return parse(readFileSync(path, "utf8"));
-}
-
 function readGeneratedPipeline(...segments) {
     return readJsonc(new URL(`../../../assets/resource/pipeline/${segments.join("/")}`, import.meta.url));
 }
+
+test("DeliveryJobs JSONC reader accepts comments and rejects malformed input", () => {
+    assert.deepEqual(parseJsonc('{\n  // comment\n  "value": 1,\n}', "inline fixture"), {value: 1});
+    assert.deepEqual(parseJsonc('\uFEFF{"ok": true}', "BOM fixture"), {ok: true});
+    assert.throws(() => parseJsonc('{\uFEFF"ok": true}', "misplaced BOM fixture"), /InvalidSymbol at offset 1/);
+    assert.throws(() => parseJsonc('{"value": }', "invalid fixture"), /无法解析 JSONC invalid fixture/);
+});
 
 function readAdbPipeline(...segments) {
     return readJsonc(new URL(`../../../assets/resource_adb/pipeline/${segments.join("/")}`, import.meta.url));

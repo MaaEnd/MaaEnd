@@ -1,4 +1,4 @@
-import {readFileSync} from "node:fs";
+import {readJsonc} from "../jsonc.mjs";
 
 const INTERFACE_LOCALES = [
     "zh_cn",
@@ -8,9 +8,9 @@ const INTERFACE_LOCALES = [
     "ko_kr",
 ];
 
-const deliveryJobsData = JSON.parse(readFileSync(new URL("../data/delivery_jobs.json", import.meta.url), "utf8"));
-const iconRecognitionItems = JSON.parse(
-    readFileSync(new URL("../../../assets/data/IconRecognition/recognition_items.json", import.meta.url), "utf8"),
+const deliveryJobsData = readJsonc(new URL("../data/delivery_jobs.json", import.meta.url));
+const iconRecognitionItems = readJsonc(
+    new URL("../../../assets/data/IconRecognition/recognition_items.json", import.meta.url),
 );
 // 装箱物品选项的默认物品（砂叶粉末），各地区均需可装箱
 const DEFAULT_FILL_ITEM_ID = "item_plant_moss_powder_3";

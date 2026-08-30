@@ -1,4 +1,6 @@
 {
+    // JSONC: 允许注释与尾逗号（测试注释）
+
     "error_load_locale": "[ERROR] 加载语言文件失败，请完整地克隆仓库。文件路径: {path}",
     "description": "MaaEnd 3rdparty 二进制依赖下载工具，统一安装到 agent/cpp-algo/3rdparty/ 目录",
     "arg_webview2": "下载 WebView2 SDK（仅 Windows 上有效；其它平台为 no-op）",

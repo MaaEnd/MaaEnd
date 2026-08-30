@@ -3,12 +3,12 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "MapNavigatorZiplineMount",
+            "MapNavigatorZiplineMountWaitFreezes",
             "MapNavigatorZiplineMountEnd"
         ]
     },
-    "MapNavigatorZiplineMount": {
-        "desc": "上索：认出架子的交互提示才按交互键",
+    "MapNavigatorZiplineMountWaitFreezes": {
+        "desc": "上索：识别滑索架交互提示，并等待提示区域稳定",
         "recognition": {
             "type": "OCR",
             "param": {
@@ -23,9 +23,30 @@
                 ]
             }
         },
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                755,
+                330,
+                297,
+                312
+            ]
+        },
         "pre_delay": 0,
-        "action": "ClickKey",
-        "key": 70, // F 交互；可通过全局设置 KeymapInteract 改绑
+        "post_delay": 0,
+        "next": [
+            "MapNavigatorZiplineMount"
+        ]
+    },
+    "MapNavigatorZiplineMount": {
+        "desc": "上索：重新识别滑索架交互提示后按住 Alt 点击该提示",
+        "recognition": "And",
+        "all_of": [
+            "MapNavigatorZiplineMountWaitFreezes"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "AutoAltClickAction",
         "post_delay": 0,
         "next": [
             "MapNavigatorZiplineMountEnd"

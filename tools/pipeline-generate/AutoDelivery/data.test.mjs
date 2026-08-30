@@ -2,8 +2,7 @@ import assert from "node:assert/strict";
 import {existsSync, readdirSync, readFileSync} from "node:fs";
 import test from "node:test";
 
-import {parse as parseJsonc} from "jsonc-parser";
-
+import {parseJsonc, readJsonc} from "../jsonc.mjs";
 import routeRows, {buildRows} from "./routes-data.mjs";
 import {buildNavmeshPath, buildYawApproachTarget, depots, destinations, runtimeCatalog} from "./model.mjs";
 import {
@@ -612,9 +611,7 @@ test("AutoDelivery focus 文案统一使用完整 i18n 键", () => {
         "ja_jp",
         "ko_kr",
     ]) {
-        const locale = JSON.parse(
-            readFileSync(new URL(`../../../assets/locales/interface/${lang}.json`, import.meta.url), "utf8"),
-        );
+        const locale = readJsonc(new URL(`../../../assets/locales/interface/${lang}.json`, import.meta.url));
         const localeKeys = Object.keys(locale)
             .filter((key) => key.startsWith("task.AutoDelivery.focus."))
             .sort();
@@ -626,9 +623,7 @@ test("AutoDelivery focus 文案统一使用完整 i18n 键", () => {
             }
         }
 
-        const goServiceLocale = JSON.parse(
-            readFileSync(new URL(`../../../assets/locales/go-service/${lang}.json`, import.meta.url), "utf8"),
-        );
+        const goServiceLocale = readJsonc(new URL(`../../../assets/locales/go-service/${lang}.json`, import.meta.url));
         const goServiceLocaleKeys = Object.keys(goServiceLocale)
             .filter((key) => key.startsWith("autodelivery."))
             .sort();

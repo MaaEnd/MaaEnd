@@ -387,14 +387,20 @@ constexpr double kCollectSprintSuppressBandWu = 8.0;
 constexpr int32_t kSprintCancelReleaseMs = 60;
 
 // Walk near these points so the interact prompt stays up long enough to act on. Enter/exit differ for
-// hysteresis (each press flips game state); the enter band stays inside the sprint-suppress band.
+// hysteresis (each press flips game state). Ziplines need a longer walking approach than ordinary prompts,
+// otherwise the mount prompt can appear on the first frame after walking is toggled and stop motion immediately.
 constexpr double kCollectWalkEnterBandWu = 3.0;
 constexpr double kCollectWalkExitBandWu = 4.5;
-static_assert(kCollectWalkEnterBandWu < kCollectSprintSuppressBandWu, "walk band must sit inside the sprint-suppress band");
+constexpr double kZiplineWalkEnterBandWu = 5.0;
+constexpr double kZiplineWalkExitBandWu = 7.5;
+static_assert(kCollectWalkEnterBandWu < kCollectWalkExitBandWu, "collect walk enter band must be smaller than its exit band");
+static_assert(kZiplineWalkEnterBandWu < kZiplineWalkExitBandWu, "zipline walk enter band must be smaller than its exit band");
+static_assert(kZiplineWalkExitBandWu < kCollectSprintSuppressBandWu, "walk bands must sit inside the sprint-suppress band");
 
-// Acting on a prompt is gated on the same band that engages walking: the prompt icon fires for every interactable
-// on screen, so without this a route carrying one such point would stop at strangers all the way along.
-constexpr double kPromptTriggerBandWu = kCollectWalkEnterBandWu;
+// The prompt icon fires for every interactable on screen, so triggering stays in the tight band even when a
+// zipline starts walking earlier. Otherwise a route carrying one such point could stop at strangers along the way.
+constexpr double kPromptTriggerBandWu = 3.0;
+static_assert(kPromptTriggerBandWu < kZiplineWalkEnterBandWu, "zipline walking must start before prompt triggering");
 
 // Walking halves both speed and turn rate, so jogging-sized windows are doubled while engaged.
 constexpr int32_t kWalkModeSlowFactor = 2;

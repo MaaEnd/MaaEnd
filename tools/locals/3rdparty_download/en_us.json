@@ -1,4 +1,6 @@
 {
+    // JSONC: 允许注释与尾逗号（测试注释）
+
     "error_load_locale": "[ERROR] Failed to load locale file. Please ensure you have cloned the repository completely. File path: {path}",
     "description": "MaaEnd 3rdparty binary dependency downloader; installs everything under agent/cpp-algo/3rdparty/",
     "arg_webview2": "Download the WebView2 SDK (Windows only; no-op on other platforms)",

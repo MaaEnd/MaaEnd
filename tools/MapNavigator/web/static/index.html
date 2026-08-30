@@ -38,7 +38,6 @@
         <div id="route-mode-tabs" class="mode-segmented-control" role="group" aria-label="路线制作工具">
           <button id="tab-edit" class="mode-tab-btn active" type="button" aria-pressed="true">路径编辑</button>
           <button id="tab-assert" class="mode-tab-btn" type="button" aria-pressed="false">断言模式</button>
-          <button id="tab-astar" type="button" aria-pressed="false" aria-hidden="true" tabindex="-1" hidden>A* 寻路</button>
         </div>
 
         <!-- 连接配置 -->
@@ -126,15 +125,47 @@
           </div>
           <div class="sidebar-row select-tier-row">
             <span class="sidebar-label">当前层级:</span>
-            <span id="astar-selected-tier-label" class="selected-tier-label">未选择</span>
+            <span id="edit-selected-tier-label" class="selected-tier-label">未选择</span>
           </div>
+          <div id="three-navigation-row" class="sidebar-row select-row" hidden>
+            <label class="sidebar-label" for="three-navigation-mode">3D 视角导航</label>
+            <select id="three-navigation-mode" class="combo combo-action">
+              <option value="free">自由飞行</option>
+              <option value="orbit">轨道环绕</option>
+            </select>
+          </div>
+          <div id="three-speed-row" class="sidebar-row" hidden>
+            <label class="sidebar-label" for="three-flight-speed">飞行速度</label>
+            <input id="three-flight-speed" type="range" min="0.1" max="3" step="0.1" value="1" />
+            <span id="three-flight-speed-value" class="selected-tier-label">1.0x</span>
+          </div>
+          <div id="three-recolor-row" class="sidebar-row" hidden>
+            <button id="btn-three-recolor" class="btn btn-secondary" type="button" style="width: 100%" title="按当前实时位置高度重新着色等高面">重着色</button>
+          </div>
+          <details id="three-nav-debug-options" class="sidebar-row border-top nav-debug-options" hidden>
+            <summary class="nav-debug-summary">
+              <span class="sidebar-label">寻路诊断</span>
+              <span class="nav-debug-chevron" aria-hidden="true"></span>
+            </summary>
+            <div class="nav-debug-options-body">
+              <label class="chk"><input id="three-chk-nav-debug-search" type="checkbox" /> A* 选择格点</label>
+              <label class="chk"><input id="three-chk-nav-debug-rerouted" type="checkbox" /> 绿色段二次重寻</label>
+              <label class="chk"><input id="three-chk-nav-debug-string-pull" type="checkbox" /> StringPull 连续拉直</label>
+              <label class="chk"><input id="three-chk-nav-debug-assembled" type="checkbox" /> 端点拼接与去重</label>
+              <label class="chk"><input id="three-chk-nav-debug-loop-fixed" type="checkbox" /> 交叉点处理</label>
+              <label class="chk"><input id="three-chk-nav-debug-slim" type="checkbox" /> Slim 抽稀</label>
+              <label class="chk"><input id="three-chk-nav-debug-widen-corners" type="checkbox" /> WidenCorners 拐角外移</label>
+              <label class="chk"><input id="three-chk-nav-debug-planned" type="checkbox" /> 最终计划路径</label>
+              <label class="chk"><input id="three-chk-nav-debug-live-path" type="checkbox" /> 实时实际路径</label>
+            </div>
+          </details>
           <div class="sidebar-row">
             <button id="btn-edit-locate" class="btn btn-primary" type="button" style="width: 100%" title="在当前路径底图上标出游戏内当前位置，不新增路点" disabled>标出游戏内当前位置（参考点）</button>
           </div>
 
           <!-- 隐藏取值控件：由层级选择弹窗写入 -->
-          <select id="astar-display-zone-combo" class="combo combo-zone" hidden></select>
-          <select id="astar-zone-combo" class="combo combo-zone" hidden></select>
+          <select id="display-zone-combo" class="combo combo-zone" hidden></select>
+          <select id="display-tier-combo" class="combo combo-zone" hidden></select>
         </div>
 
         <!-- 断言模式：保持独立底图与参考点状态，但复用同一信息架构 -->
@@ -381,41 +412,6 @@
           </div>
         </div>
 
-        <!-- 寻路设置 -->
-        <div class="sidebar-section" id="panel-astar" hidden>
-          <div class="section-header">
-            <span class="section-title">寻路设置</span>
-          </div>
-
-          <div class="sidebar-hint">A* 只需目标点：预览点可直接复制，无需起点</div>
-
-          <div class="sidebar-row border-top" style="margin-top: 4px; padding-top: 12px">
-            <button id="btn-astar-locate" class="btn btn-primary" style="width: 100%; margin-bottom: 8px;" type="button" title="把游戏内当前位置标成预览点" disabled>标出游戏内当前位置（预览点）</button>
-          </div>
-
-          <div class="coord-mark-row">
-            <input id="astar-coord-x" class="entry entry-coord" type="text" inputmode="decimal" placeholder="X" title="底图 X 坐标；可粘贴 [x, y] 同时填入两框" />
-            <input id="astar-coord-y" class="entry entry-coord" type="text" inputmode="decimal" placeholder="Y" title="底图 Y 坐标；可粘贴 [x, y] 同时填入两框" />
-            <button id="btn-astar-mark-coord" class="btn btn-secondary btn-sm" type="button" title="在该坐标标出一个预览点">标点</button>
-          </div>
-          <div class="sidebar-hint">可在任一框粘贴 [x, y]，再按坐标标预览点</div>
-
-          <div id="astar-deck-box" class="sidebar-row deck-box border-top" hidden>
-            <span class="sidebar-label" id="astar-deck-title">重叠面</span>
-            <div id="astar-deck-list" class="deck-list"></div>
-            <div class="sidebar-hint">点一层预览，「选择」把该层高度写进 target_deck_y</div>
-          </div>
-
-          <div class="sidebar-row grid-btns-import">
-            <button id="btn-astar-import" class="btn btn-secondary" type="button" title="选择项目路线；导入坐标后在地图上单击补充起点，再按顺序规划">选择项目节点</button>
-            <button id="btn-astar-read-clipboard" class="btn btn-secondary" type="button" title="读取并自动解析剪贴板中的 JSON">读取剪贴板</button>
-            <button id="btn-copy-navmesh" class="btn btn-secondary" type="button" title="复制最后一个预览点为 NAVMESH 目标（有预览路线时复制整条）">复制路径</button>
-          </div>
-          <div class="sidebar-row">
-            <button id="btn-clear-astar" class="btn btn-danger-outline" style="width: 100%" type="button">清除预览</button>
-          </div>
-        </div>
-
         <!-- 加载进度 -->
         <div id="load-progress" class="load-progress" hidden>
           <progress id="load-progress-bar" max="100" value="0"></progress>
@@ -429,33 +425,23 @@
         <div id="canvas-wrap">
           <canvas id="gl-canvas"></canvas>
           <canvas id="overlay-canvas"></canvas>
+          <canvas id="three-canvas" aria-label="三维 NAVMESH 视图" hidden></canvas>
 
-          <!-- 右上角悬浮编辑工具条 -->
+          <!-- 左上角编辑工具条 -->
           <div class="canvas-editor-toolbar">
             <!-- Edit Mode 工具 -->
             <button id="tool-pan" class="btn btn-tool group-edit active" type="button" title="临时按住 Alt 键也可以平移视角">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0M6 14V9a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v5c0 4.4 3.6 8 8 8h3a8 8 0 0 0 8-8v-3M22 13a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"></path></svg>
               <span>视角平移 (Alt)</span>
             </button>
-            <button id="tool-add" class="btn btn-tool group-edit" type="button" title="增加 NAVMESH 路点与选择/移动路点 (1)">
+            <button id="tool-add" class="btn btn-tool group-edit" type="button" title="新增 NAVMESH、选择或拖动路点 (1)">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>
-              <span>加 NAVMESH/选择 (1)</span>
+              <span>添加/选择 (1)</span>
             </button>
             <button id="tool-select" class="btn btn-tool group-edit" type="button" title="框选多个路点 (2)">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" stroke-dasharray="3 3"></rect><path d="m11 11 3 8 2-3 3 3 1.5-1.5-3-3 3-2-8.5-1.5Z" fill="currentColor"></path></svg>
               <span>框选工具 (2)</span>
             </button>
-
-            <!-- Astar Mode 工具 -->
-            <button id="tool-astar-single" class="btn btn-tool group-astar" type="button" title="生成单段 A* 路径 (1)">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"></circle><circle cx="18" cy="18" r="3"></circle><path d="M18 15V9a4 4 0 0 0-4-4H9"></path></svg>
-              <span>单段 A* (1)</span>
-            </button>
-            <button id="tool-astar-multi" class="btn btn-tool group-astar" type="button" title="依次点击多个点生成串联 A* 路径 (2)">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"></circle><circle cx="18" cy="6" r="3"></circle><circle cx="12" cy="18" r="3"></circle><path d="M6 9v6a3 3 0 0 0 3 3h1m5-12h1a3 3 0 0 1 3 3v4"></path></svg>
-              <span>多段 A* (2)</span>
-            </button>
-
             <!-- Assert Mode 工具 -->
             <button id="tool-assert-pan" class="btn btn-tool group-assert" type="button" title="临时按住 Alt 键也可以平移视角">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0M6 14V9a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v5c0 4.4 3.6 8 8 8h3a8 8 0 0 0 8-8v-3M22 13a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"></path></svg>
@@ -468,6 +454,14 @@
           </div>
 
           <div class="canvas-floating-controls">
+            <div id="view-mode-toggle" class="view-mode-toggle" role="group" aria-label="地图视图" hidden>
+              <button id="view-mode-2d" class="view-mode-btn active" type="button" title="二维编辑视图" aria-pressed="true">2D</button>
+              <button id="view-mode-3d" class="view-mode-btn" type="button" title="三维网格视图" aria-pressed="false">3D</button>
+            </div>
+            <div id="view-mode-divider" class="controls-divider" hidden></div>
+            <button id="tool-route-test" class="btn btn-float" type="button" title="快速测试：依次单击起点和终点" aria-label="快速测试" aria-pressed="false" hidden>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="18" r="2"></circle><circle cx="18" cy="6" r="2"></circle><path d="M7.5 16.5 16.5 7.5"></path><path d="m12 7 4.5.5.5 4.5"></path></svg>
+            </button>
             <button id="tool-edit-start" class="btn btn-float" type="button" title="设置规划起点" aria-label="设置规划起点" aria-pressed="false" hidden>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s6-4.35 6-11a6 6 0 1 0-12 0c0 6.65 6 11 6 11Z"></path><circle cx="12" cy="10" r="2.2"></circle></svg>
             </button>
@@ -485,7 +479,7 @@
             <button id="btn-fit-view" class="btn btn-float" type="button" title="自适应大小">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 15v6h-6M3 9V3h6M21 3l-7 7M3 21l7-7"></path></svg>
             </button>
-            <div class="controls-divider"></div>
+            <div id="edit-delete-divider" class="controls-divider"></div>
             <button id="btn-del-point-float" class="btn btn-float btn-float-danger" type="button" title="删除选中对象">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
             </button>
@@ -542,6 +536,7 @@
                 <span id="position-coordinates">位置 —</span>
                 <span class="position-readout-separator" aria-hidden="true"></span>
                 <span id="position-heading">朝向 —</span>
+                <button id="btn-live-locate" class="position-live-btn" type="button" title="持续获取并显示游戏内实时位置" disabled>开启实时定位</button>
               </div>
               <div id="position-zone" class="position-readout-zone">等待游戏定位</div>
             </div>
@@ -597,6 +592,14 @@
       </div>
     </div>
 
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "./vendor/three/three.module.min.js",
+          "three/addons/": "./vendor/three/addons/"
+        }
+      }
+    </script>
     <script type="module" src="./js/main.js"></script>
   </body>
 </html>

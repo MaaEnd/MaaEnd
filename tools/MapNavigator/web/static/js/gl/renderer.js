@@ -23,6 +23,8 @@
 
 /** @typedef {import('../camera.js').Camera} Camera */
 
+import {buildBoundaryEdgeIndices, parseNmsh} from "../navmesh_3d_data.js";
+
 /**
  * Per-zone metadata the renderer needs.
  * @typedef {Object} ZoneMeta
@@ -98,15 +100,6 @@ void main() {
 const CLEAR_R = 0.0;
 const CLEAR_G = 0.0;
 const CLEAR_B = 0.0;
-
-// NMSH mesh-buffer layout (DESIGN.md §2.4), little-endian:
-//   [0]  magic "NMSH"        (4 bytes)
-//   [4]  u32 version (=1)
-//   [8]  u32 vertexCount
-//   [12] u32 triangleCount
-//   [16] f32[vertexCount*3]  vertices (u, v, height) base px
-//   [16 + vertexCount*12] u32[triangleCount*3] indices
-const NMSH_HEADER_BYTES = 16;
 
 // Matches the tk `max_points` walkable-dot stride cap (§2.4 / §4).
 const DOT_STRIDE_CAP = 60000;
@@ -275,72 +268,15 @@ export class Renderer {
    */
   setMesh(arrayBuffer, zoneMeta) {
     const gl = this.gl;
-    const dv = new DataView(arrayBuffer);
+    const parsed = parseNmsh(arrayBuffer);
+    const {vertexCount, triangleCount, vertices, indices} = parsed;
+    const indexFloatLen = indices.length;
+    this._meshMinHeight = parsed.bounds.minHeight;
+    this._meshMaxHeight = parsed.bounds.maxHeight;
 
-    const magic = String.fromCharCode(dv.getUint8(0), dv.getUint8(1), dv.getUint8(2), dv.getUint8(3));
-    if (magic !== 'NMSH') throw new Error('setMesh: bad magic ' + JSON.stringify(magic) + ' (expected "NMSH")');
-    const version = dv.getUint32(4, true);
-    if (version !== 1) throw new Error('setMesh: unsupported NMSH version ' + version);
-    const vertexCount = dv.getUint32(8, true);
-    const triangleCount = dv.getUint32(12, true);
-
-    const vertsFloatLen = vertexCount * 3;
-    const indexFloatLen = triangleCount * 3;
-    const indexByteOffset = NMSH_HEADER_BYTES + vertsFloatLen * 4; // 4-aligned: 16 + 12*vc
-    const needBytes = indexByteOffset + indexFloatLen * 4;
-    if (arrayBuffer.byteLength < needBytes) {
-      throw new Error(
-        'setMesh: truncated buffer, need ' + needBytes + ' bytes, got ' + arrayBuffer.byteLength,
-      );
-    }
-
-    // Zero-copy views over the buffer. Offsets 16 and 16+12*vc are 4-aligned, so both
-    // typed-array views are valid. Assumes little-endian (universal on WebGL targets).
-    const vertices = new Float32Array(arrayBuffer, NMSH_HEADER_BYTES, vertsFloatLen);
-    const indices = new Uint32Array(arrayBuffer, indexByteOffset, indexFloatLen);
-
-    let minH = Infinity;
-    let maxH = -Infinity;
-    for (let i = 0; i < vertexCount; i += 1) {
-      const h = vertices[i * 3 + 2];
-      if (h < minH) minH = h;
-      if (h > maxH) maxH = h;
-    }
-    this._meshMinHeight = minH === Infinity ? 0 : minH;
-    this._meshMaxHeight = maxH === -Infinity ? 0 : maxH;
-
-    // Boundary edges only: an edge owned by exactly one triangle is a real
-    // walkable-area outline (outer contour, hole ring, plate seam). Interior
-    // shared edges are skipped — the pack's plate re-triangulation covers big
-    // areas with sliver fans whose interior edges render as solid noise.
-    const V = vertexCount;
-    /** @type {Map<number, number>} undirected edge key (min*V+max) -> min endpoint */
-    const once = new Map();
-    /** @type {Set<number>} keys seen at least twice (incl. non-manifold repeats) */
-    const shared = new Set();
-    const addEdge = (a, b) => {
-      const key = a < b ? a * V + b : b * V + a;
-      if (shared.has(key)) return;
-      if (once.has(key)) {
-        once.delete(key);
-        shared.add(key);
-      } else {
-        once.set(key, a < b ? a : b);
-      }
-    };
-    for (let i = 0; i < triangleCount; i += 1) {
-      const b = i * 3;
-      addEdge(indices[b], indices[b + 1]);
-      addEdge(indices[b + 1], indices[b + 2]);
-      addEdge(indices[b + 2], indices[b]);
-    }
-    const lines = new Uint32Array(once.size * 2);
-    let li = 0;
-    for (const [key, mn] of once) {
-      lines[li] = mn;
-      lines[li + 1] = key - mn * V;
-      li += 2;
-    }
+    // Interior fan edges make large navmesh plates unreadable, so both renderers
+    // share the same true-boundary extraction.
+    const lines = buildBoundaryEdgeIndices(indices, vertexCount);
 
     this._deleteMesh();
 

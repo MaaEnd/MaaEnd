@@ -20,6 +20,7 @@ from download import (
     prepare_item_map,
     prepare_weapon_map,
 )
+from fixed_items import load_fixed_items
 from localization import (
     FIXED_NAME_KEYS,
     LOCALE_MAP,
@@ -722,6 +723,76 @@ class IconRecognitionToolsTest(unittest.TestCase):
                 "iconRecognition.name.current": "Current",
             },
         )
+
+    def test_locale_update_accepts_jsonc_comments(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "locale.json"
+            path.write_text(
+                """{
+    // 语言文件允许保留业务说明注释。
+    "unrelated": "keep",
+    "iconRecognition.name.stale": "remove",
+}
+""",
+                encoding="utf-8",
+            )
+
+            update_interface_locale(
+                path,
+                {"iconRecognition.name.current": "Current"},
+            )
+
+            result = json.loads(path.read_text(encoding="utf-8"))
+        self.assertEqual(
+            result,
+            {
+                "unrelated": "keep",
+                "iconRecognition.name.current": "Current",
+            },
+        )
+
+    def test_locale_update_preserves_jsonc_when_values_are_unchanged(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "locale.json"
+            original = """{
+    // 语义未变化时保留注释和原始格式。
+    "iconRecognition.name.current": "Current",
+}
+"""
+            path.write_text(original, encoding="utf-8")
+
+            update_interface_locale(
+                path,
+                {"iconRecognition.name.current": "Current"},
+            )
+
+            result = path.read_text(encoding="utf-8")
+
+        self.assertEqual(result, original)
+
+    def test_fixed_items_accept_jsonc_comments(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "fixed_items.json"
+            path.write_text(
+                """{
+    // 上游表未收录的固定物品。
+    "item_test": {
+        "name": "测试物品",
+        "iconId": "item_test",
+        "i18nKey": "item_test_name",
+        "rarity": 3,
+        "storageKind": "Normal",
+        "categoryType": "Product",
+        "category": "产物",
+    },
+}
+""",
+                encoding="utf-8",
+            )
+
+            result = load_fixed_items(path)
+
+        self.assertEqual(result["item_test"]["iconId"], "item_test")
 
     def test_locale_update_keeps_item_keys_in_one_stable_group(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

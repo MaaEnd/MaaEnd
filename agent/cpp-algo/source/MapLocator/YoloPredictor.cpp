@@ -7,6 +7,7 @@
 #include <boost/regex.hpp>
 #include <meojson/json.hpp>
 
+#include "../Common/JsoncFile.h"
 #include "YoloPredictor.h"
 
 using Json = json::value;
@@ -32,7 +33,7 @@ YoloPredictor::YoloPredictor(const std::string& yoloModelPath, double confThresh
         fs::path jsonPath = modelPath;
         jsonPath.replace_extension(".json");
 
-        auto j_opt = json::open(jsonPath);
+        auto j_opt = common::OpenJsoncFile(jsonPath);
         if (j_opt) {
             Json j = *j_opt;
 
@@ -59,7 +60,7 @@ YoloPredictor::YoloPredictor(const std::string& yoloModelPath, double confThresh
 
         fs::path tileMappingPath = modelPath;
         tileMappingPath.replace_filename(MAA_NS::path("tile_mapping.json"));
-        auto tileMappingOpt = json::open(tileMappingPath);
+        auto tileMappingOpt = common::OpenJsoncFile(tileMappingPath);
         if (tileMappingOpt) {
             const Json& tileMapping = *tileMappingOpt;
             for (auto& [key, val] : tileMapping.as_object()) {

@@ -396,6 +396,33 @@
             }
         }
     },
+    "GoToObservantSableChestedFowlbeastMoveAfterFight": {
+        "desc": "可能的战斗结束后，恢复性地走回东张西望的黑腹雉羽兽拍照点",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "HEADING",
+                    "angle": 0
+                }
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ObservantSableChestedFowlbeastTakePhoto"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
     "ObservantSableChestedFowlbeastTakePhoto": {
         "desc": "在东张西望的黑腹雉羽兽任务拍照点开始拍照",
         "pre_delay": 0,

@@ -404,6 +404,41 @@
             }
         }
     },
+    "GoToTreeOfTheOldCourtyardMoveAfterFight": {
+        "desc": "可能的战斗结束后，恢复性地走回旧庭树拍照点",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        98.4,
+                        111
+                    ],
+                    "target_tier": "Wuling_L4_330"
+                },
+                {
+                    "action": "HEADING",
+                    "angle": 180
+                }
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "TreeOfTheOldCourtyardTakePhoto"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
     "TreeOfTheOldCourtyardTakePhoto": {
         "desc": "在旧庭树任务拍照点开始拍照",
         "pre_delay": 0,

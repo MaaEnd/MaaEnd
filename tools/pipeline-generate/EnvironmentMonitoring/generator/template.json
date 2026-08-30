@@ -358,7 +358,7 @@
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "${RouteAction}",
-        "custom_action_param": "${RouteActionParam}",
+        "custom_action_param": "${FightAfterMoveRouteActionParam}",
         "post_delay": 0,
         "rate_limit": 0,
         "focus": {

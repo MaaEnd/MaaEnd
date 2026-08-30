@@ -16,6 +16,9 @@
             "NavAssert": [
                 "NavZoneId",
                 "NavPath"
+            ],
+            "FightAfterMove": [
+                "NavPath"
             ]
         },
         "required": [
@@ -50,6 +53,11 @@
                         {
                             "required": [
                                 "QuickTeleport"
+                            ]
+                        },
+                        {
+                            "required": [
+                                "FightAfterMove"
                             ]
                         }
                     ]
@@ -174,7 +182,7 @@
             },
             "NavPath": {
                 "type": "array",
-                "description": "MapNavigateAction 的 path 数组（不含 HEADING；朝向仍由 Heading 字段在生成时追加）。元素为坐标点 [x, y] / [x, y, \"COLLECT\"|\"DIG\"|\"PORTAL\"]，或 {\"action\": \"ZONE\"|\"NAVMESH\", ...} 声明，格式详见 docs/zh_cn/developers/components/map-navigator.md。",
+                "description": "MapNavigateAction 的 path 数组（不含 HEADING；朝向仍由 Heading 字段在生成时追加）。前置 ZONE 表示传送落地后角色所在的地图，供 WebUI 选择初始地图，必须按实测填写，不能从只解释目标点坐标系的 target_tier 推断。其余元素为坐标点 [x, y] / [x, y, \"COLLECT\"|\"DIG\"|\"PORTAL\"]，或 {\"action\": \"ZONE\"|\"NAVMESH\", ...} 声明，格式详见 docs/zh_cn/developers/components/map-navigator.md。",
                 "minItems": 1,
                 "items": {
                     "oneOf": [
@@ -240,8 +248,12 @@
                 "description": "可选，默认 false。启用后通过已追踪任务的地图界面依次点击“前往传送”和“传送”，不再调用 EnterMap 配置的 Pipeline 入口节点；此时 EnterMap 可省略。"
             },
             "FightAfterMove": {
-                "type": "boolean",
-                "description": "可选，默认 false。启用后寻路结束时先接一次 AutoFight 清场，再重走一遍 NavPath 归位后拍照。只有沿途稳定遇敌的路线才需要——战斗会把角色推离拍照点，不归位就拍不成。"
+                "description": "仅完整寻路路线可选。战斗结束后的独立归位 path；配置后寻路结束时先接一次 AutoFight 清场，再沿此路径归位后拍照。生成时同样在末尾追加路线级 Heading。传送后直拍无需战斗，不得配置。",
+                "allOf": [
+                    {
+                        "$ref": "#/items/properties/NavPath"
+                    }
+                ]
             }
         }
     }

@@ -5,6 +5,7 @@
 
 #include <meojson/json.hpp>
 
+#include "Common/JsoncFile.h"
 #include "CompositeIcon.h"
 #include "DisabledIcon.h"
 
@@ -60,7 +61,7 @@ bool TemplateCatalog::InitializeUnlocked()
     region_unavailable_cache_.clear();
     region_unavailable_background_.release();
     region_unavailable_mark_.release();
-    const auto parsed = json::open((data_root_ / "recognition_items.json").string());
+    const auto parsed = common::OpenJsoncFile(data_root_ / "recognition_items.json");
     if (!parsed || !parsed->is_object()) {
         throw std::runtime_error("recognition_items.json must be an object");
     }

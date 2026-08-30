@@ -11,6 +11,7 @@ import (
 	"sync"
 	"text/template"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/jsonclean"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/pienv"
 	"github.com/rs/zerolog/log"
 )
@@ -120,7 +121,7 @@ func loadMessages(dir, lang string) map[string]string {
 		}
 
 		var loaded map[string]string
-		if err := json.Unmarshal(data, &loaded); err != nil {
+		if err := json.Unmarshal(jsonclean.Clean(data), &loaded); err != nil {
 			log.Warn().Err(err).Str("lang", targetLang).Str("dir", dir).Msg("failed to parse i18n messages")
 			return false
 		}

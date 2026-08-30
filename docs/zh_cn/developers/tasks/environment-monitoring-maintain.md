@@ -88,7 +88,11 @@ EnvironmentMonitoringMain
                                                     ├─ 无 Heading → {Id}TakePhoto
                                                     └─ 有 Heading → GoTo{Id}Move
 GoTo{Id}Move                         （寻路动作；直拍有 Heading 时只原地调整朝向）
-  └─ {Id}TakePhoto
+  ├─ 直拍（仅 Heading）→ {Id}TakePhoto
+  └─ 寻路
+       ├─ 无 FightAfterMove → {Id}TakePhoto
+       └─ 有 FightAfterMove → [JumpBack]AutoFight → GoTo{Id}MoveAfterFight
+                                                   └─ {Id}TakePhoto
        ├─ anchor: EnvironmentMonitoringBackToTerminal → ${GoToMonitoringTerminal}
        └─ next: EnvironmentMonitoringTakePhoto
 EnvironmentMonitoringTakePhoto       （进入拍照模式 → 朝向 → 拍照）
@@ -173,6 +177,7 @@ MysteriousCryptidGraffiti         → 谜之生物的涂鸦
 | `EnterMap` | `routes.json[*].EnterMap`，默认传送入口；可填写任意已定义、能作为 SubTask 正常返回的 Pipeline 节点名，不限制名称前缀；启用 `QuickTeleport` 时不会使用，可省略 |
 | `QuickTeleport` | `routes.json[*].QuickTeleport`，可选布尔值，默认 `false`；启用后从追踪任务地图依次点击“前往传送”和“传送”，不调用 `EnterMap` |
 | `NavZoneId` / `NavAssert` / `NavPath` | `routes.json[*]`，寻路路线的写法；`NavPath` 必填，普通传送还需 `NavZoneId` / `NavAssert`，生成 `MapLocateAssertLocation` + `MapNavigateAction`（`Heading` 会追加 `HEADING` 动作）；路线自己接管传送落点，传送后不再复核起点 |
+| `FightAfterMove` | 仅完整寻路路线可选的独立 MapNavigator `path` 数组；存在时首次寻路后执行一次 `AutoFight`，再沿此路径归位。路线级 `Heading` 同样追加在末尾；直拍路线不得配置 |
 | `CameraScanAction` | 公共镜头扫描动作；参数与扫描顺序固定在 `TakePhoto.json` 和 Go Service 中，不需要路线配置 |
 | `OcrReplace` | 由 `routes.json[*].Replace` 透传到 `Check${Id}Text.replace` 与 `In${Id}Mission.replace`；用于按任务配置任务列表和任务详情页 OCR 的易混字符替换，不影响路线是否已适配的判断 |
 | `ExpectedText` | 由 `environment_monitoring.json` 的 `mission.names` 自动展开（5 语言，英文转柔性正则） |
@@ -228,6 +233,7 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 
 - `MapLocateAssertLocation`（识别）：根据当前小地图判断是否在 `NavAssert` 矩形内，普通传送路线用它决定要不要调用 `EnterMap`；`QuickTeleport` 从固定传送落点直接开始寻路，不进入该节点，可省略 `NavZoneId` / `NavAssert`。
 - `MapNavigateAction`（动作）：`NavPath` 原样作为它的 path，其中 `NAVMESH` 航点可按需携带 `target_tier` / `target_deck_y`；断言坐标取 `NavZoneId` 分区。传送后直接进入寻路动作，不再复核起点。
+- `FightAfterMove`（仅完整寻路路线可选）：直接填写与 `NavPath` 相同格式的独立 path。首次寻路后先执行 `AutoFight`，再由第二个 `MapNavigateAction` 沿此路径归位；不要复用首次前往路线。直拍路线无需战斗，不配置该字段。
 - `${Id}TakePhoto`（包装节点）：为寻路和直拍路线统一设置 `EnvironmentMonitoringBackToTerminal` anchor，再进入公共拍照流程。
 - 传送后直拍不执行寻路，配置 `Heading` 时生成一条只含 `HEADING` 动作的 `MapNavigateAction`，原地调整角色朝向再拍照。
 
@@ -247,7 +253,7 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 | ----------------------------- | --------------------------------------------------------------- | --------------------------- | ------------------------------------------ |
 | metadata-only | 仅 `MissionId` / `Name` / `Id` | 不填 | 仅接取并追踪，不传送或拍照 |
 | 传送后直拍 | 不填任何地图和寻路字段；可选 `Heading` | 不填 | 传送 →（可选原地调整朝向）→ 拍照 |
-| 寻路 | `NavPath`；普通传送再加 `NavZoneId`，可选 `Heading` | `NavAssert`，快捷传送可省略 | `MapNavigateAction` 寻路 → 拍照 |
+| 寻路 | `NavPath`；普通传送再加 `NavZoneId`，可选 `Heading` / `FightAfterMove` | `NavAssert`，快捷传送可省略 | `MapNavigateAction` 寻路 →（可选清场并沿独立路径归位）→ 拍照 |
 
 `Replace` 适用于所有已适配路线，不改变路线类型。直拍配置只能用于已经游戏实测确认的传送落点；缺少路线数据时继续保留 metadata-only 状态。寻路路线一律用 `NavPath`，普通传送再补 `NavZoneId` / `NavAssert`。
 
@@ -293,6 +299,10 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
         [x1, y1],
         [x2, y2]
     ],
+    // "FightAfterMove": [
+    //     [x3, y3],
+    //     [x4, y4]
+    // ], // 可选；清场后使用的独立归位 path
     // "Replace": [["売", "壳"]] // 可选；任务列表和任务详情页 OCR 易混字符替换
     // "Heading": 90       // 可选；在路线末尾追加一个 HEADING 动作，把角色朝向转到该角度
 }
@@ -326,7 +336,7 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 如果传送点不能直接拍照，参考 [map-navigator.md](../components/map-navigator.md) 用 GUI 工具录制路线，把录出来的起点矩形填入 `NavAssert`、整条 path 原样复制进 `NavPath`。`QuickTeleport` 路线不执行起点断言，不需要录制 `NavZoneId` / `NavAssert`。若 `NAVMESH` 终点存在上下重叠可走面，在工具中选定目标面，让导出的航点携带 `target_deck_y`。随后在游戏中确认：
 
 - `NavZoneId` 填 MapLocate 的 `zone_id`（如 `Wuling_Base`），它决定 `NavAssert` 坐标按哪个分区解释；终点落在分层平台上时，`NavPath` 里的 `NAVMESH` 动作按 tier 坐标写并带上 `target_tier`；目标点存在上下重叠面时带上工具选出的 `target_deck_y`。
-- 仅含 `NAVMESH` 的 `NavPath` 不需要在开头添加 `ZONE`；`NAVMESH` 会从 MapLocator 当前定位自动确定起点区域。`ZONE` 只为后续手录坐标点声明和校验分区，多分区或过图路径应保留录制工具导出的 `ZONE`。
+- `routes.json` 中 `NavPath` 与 `FightAfterMove` 的前置 `ZONE` 表示传送落地后角色所在的地图，供 WebUI 选择初始地图；必须按实测落地地图填写，不能从终点坐标推断。`target_tier` 只解释目标点坐标系，不代表传送落地地图。多分区或过图路径还应保留录制工具导出的必要 `ZONE`。
 
 - 站位是否能让 `EnvironmentMonitoringTakePhoto` 正常进入拍照模式。目标未命中时会自动执行公共九宫格 + fallback 镜头扫描，无需记录单向滑屏配置。
 
@@ -366,7 +376,7 @@ pnpm exec maa-pipeline-generate --config terminals-config.json
 
 1. `tools/pipeline-generate/EnvironmentMonitoring/routes.json` 中新增/修改条目是否字段齐全。
 2. `routes.json` 中新增条目的 `MissionId` 是否能匹配 `environment_monitoring.json` 的 `mission_id`；`Id` 由生成器自动刷新。
-3. 已适配条目的传送入口已在真实 `EnterMap` 与 `QuickTeleport: true` 中至少选择一种；直拍路线没有任何地图与寻路字段，新增寻路路线配置 `NavPath`，且普通传送路线补齐真实 `NavZoneId` / `NavAssert`。
+3. 已适配条目的传送入口已在真实 `EnterMap` 与 `QuickTeleport: true` 中至少选择一种；直拍路线没有任何地图、寻路或 `FightAfterMove` 字段，新增寻路路线的 `ZONE` 按实测传送落地地图填写，不能从 `target_tier` 推断，且普通传送路线补齐真实 `NavZoneId` / `NavAssert`；配置 `FightAfterMove` 时确认它是具备相同落地地图上下文的实测独立归位 path。
 4. 重生成的 `Terminals.json` 中各 `{Station}MonitoringTerminalLoop.next` 包含全部新 `[JumpBack]{Id}Job`，并以 `EnvironmentMonitoringTerminalFinish` 收尾。
 5. 若填写了 `EnterMap`，其引用的节点确实存在于 `assets/resource/pipeline/`，并能作为 SubTask 完整执行后正常返回。
 6. **没有手改** `assets/resource/pipeline/EnvironmentMonitoring/{Station}/*.json` 或 `Terminals.json`（手改会被下次生成覆盖；如确需特殊节点，应在 `template.json` / `terminals-template.json` 中扩展）。

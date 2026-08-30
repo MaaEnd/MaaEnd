@@ -2,16 +2,17 @@
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
 from typing import Any
+
+import json5
 
 
 FIXED_ITEMS_PATH = Path(__file__).with_name("fixed_items.json")
 
 
 def load_fixed_items(path: str | Path = FIXED_ITEMS_PATH) -> dict[str, dict[str, Any]]:
-    source = json.loads(Path(path).read_text(encoding="utf-8"))
+    source = json5.loads(Path(path).read_text(encoding="utf-8"))
     if not isinstance(source, dict):
         raise ValueError("fixed_items.json 顶层必须是对象")
     result: dict[str, dict[str, Any]] = {}

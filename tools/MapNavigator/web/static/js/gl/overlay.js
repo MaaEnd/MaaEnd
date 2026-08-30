@@ -2,8 +2,7 @@
  * 2D-canvas overlay — the state-coupled vector layer drawn *above* the WebGL
  * canvas (basemap + mesh + dots). Ports the canvas drawing app_tk.py does inline:
  * the editable path (dashed white line + action-colored nodes + labels), the
- * assert rectangle, the locate-hint markers, and the A* preview (layered neon
- * route + flowing particle + S/G/waypoint badges).
+ * assert rectangle, the locate-hint markers, and the runtime route preview.
  *
  * Frame-agnostic: it draws whatever world coordinates it is handed via
  * {@link Camera#worldToCanvas}. The caller (main.js) is responsible for handing it
@@ -68,17 +67,16 @@ export class Overlay {
    *
    * @param {Camera} camera shared view camera
    * @param {Object} vm view model:
-   *   @param {string} vm.mode 'edit' | 'assert' | 'astar' | 'log'
+   *   @param {string} vm.mode 'edit' | 'assert' | 'log'
    *   @param {Array<Object>} [vm.points] current-segment points (display-frame coords)
    *   @param {?number} [vm.selectedIdx] primary selection (local index into vm.points)
    *   @param {Set<number>} [vm.selectedIndices] multi-selection (local indices)
    *   @param {?Object} [vm.editPreview] runtime preview for the current edit segment
    *   @param {?{x:number,y:number,label:string,selected:boolean}} [vm.editPreviewStart] manual EDIT planning start
+   *   @param {?{start:Object,goal:?Object}} [vm.quickRouteTest] temporary quick-test endpoints
    *   @param {?number[]} [vm.assertTarget] `[x,y,w,h]` display-frame, or null
    *   @param {?{x:number,y:number,label:string,rot:?number}} [vm.editLocateHint] EDIT reference marker
    *   @param {?{x:number,y:number,label:string,rot:?number}} [vm.assertLocateHint] game locate marker
-   *   @param {?Array<{x:number,y:number,label:string,rot:?number}>} [vm.astarLocateHints] preview markers
-   *   @param {Object} [vm.astar] see {@link Overlay#_drawAstarPreview}
    *   @param {Object} [vm.logAnalysis] parsed MapNavigator log geometry
    *   @param {Array<Object>} [vm.offMeshMarks] points off the walkable mesh — see
    *     {@link Overlay#_drawOffMeshMarks} (drawn in every mode)
@@ -93,7 +91,7 @@ export class Overlay {
     const mode = vm.mode || 'edit';
 
     // Real route points in every mode (the caller decides which ones are in frame);
-    // assert/A* artifacts are layered on top so they stay readable over a route.
+    // mode-specific artifacts are layered on top so they stay readable over a route.
     this._drawPath(camera, vm.points || []);
     if (mode === 'edit') {
       if (vm.editPreview) {
@@ -108,6 +106,9 @@ export class Overlay {
     if (mode === 'edit' && vm.editPreviewStart) {
       this._drawPlanningStartMarker(camera, vm.editPreviewStart);
     }
+    if (mode === 'edit' && vm.quickRouteTest) {
+      this._drawQuickRouteTestMarkers(camera, vm.quickRouteTest);
+    }
 
     if (mode === 'edit' && vm.editLocateHint) {
       const hint = vm.editLocateHint;
@@ -117,16 +118,6 @@ export class Overlay {
       this._drawAssertRect(camera, vm.assertTarget || null);
       const hint = vm.assertLocateHint;
       if (hint) this._drawHintMarker(camera, hint.x, hint.y, hint.label, hint.rot);
-    }
-    if (mode === 'astar') {
-      for (const hint of vm.astarLocateHints || []) {
-        this._drawHintMarker(camera, hint.x, hint.y, hint.label, hint.rot);
-      }
-      if (vm.astar) {
-        this._drawAstarPreview(camera, vm.astar);
-        this._drawAstarDiagnostics(camera, vm.astar.diagnostics, vm.astar.debugOptions || {});
-        this._drawLivePath(camera, vm.astar.livePath);
-      }
     }
     if (mode === 'log' && vm.logAnalysis) {
       this._drawLogAnalysis(camera, vm.logAnalysis);
@@ -198,6 +189,36 @@ export class Overlay {
 
   /** Cyan S badge for the preview-only planning start. */
   _drawPlanningStartMarker(camera, marker) {
+    this._drawRouteEndpointMarker(camera, marker, {
+      token: 'S',
+      color: '#00b8d4',
+      halo: 'rgba(0, 225, 255, 0.45)',
+      caption: '#67e8f9',
+    });
+  }
+
+  /** Draw the isolated S/G markers used by the two-click route test. */
+  _drawQuickRouteTestMarkers(camera, test) {
+    if (test.start) {
+      this._drawRouteEndpointMarker(camera, test.start, {
+        token: 'S',
+        color: '#00b8d4',
+        halo: 'rgba(0, 225, 255, 0.45)',
+        caption: '#67e8f9',
+      });
+    }
+    if (test.goal) {
+      this._drawRouteEndpointMarker(camera, test.goal, {
+        token: 'G',
+        color: '#e11d48',
+        halo: 'rgba(251, 113, 133, 0.5)',
+        caption: '#fda4af',
+      });
+    }
+  }
+
+  /** Shared route-endpoint badge with a stable footprint for S and G. */
+  _drawRouteEndpointMarker(camera, marker, style) {
     if (!marker || !Number.isFinite(marker.x) || !Number.isFinite(marker.y)) return;
     const [cx, cy] = camera.worldToCanvas(marker.x, marker.y);
     const ctx = this.ctx;
@@ -214,13 +235,13 @@ export class Overlay {
 
     ctx.beginPath();
     ctx.arc(cx, cy, 13, 0, Math.PI * 2);
-    ctx.strokeStyle = 'rgba(0, 225, 255, 0.45)';
+    ctx.strokeStyle = style.halo;
     ctx.lineWidth = 3;
     ctx.stroke();
 
     ctx.beginPath();
     ctx.arc(cx, cy, 9, 0, Math.PI * 2);
-    ctx.fillStyle = '#00b8d4';
+    ctx.fillStyle = style.color;
     ctx.fill();
     ctx.strokeStyle = '#ffffff';
     ctx.lineWidth = 1.5;
@@ -230,9 +251,9 @@ export class Overlay {
     ctx.font = `bold 10px ${MONO}`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText('S', cx, cy + 0.5);
+    ctx.fillText(style.token, cx, cy + 0.5);
     ctx.restore();
-    this._drawCaption(cx, cy + 25, marker.label || '规划起点', '#67e8f9');
+    this._drawCaption(cx, cy + 25, marker.label || style.token, style.caption);
   }
 
   /**

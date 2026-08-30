@@ -1,4 +1,6 @@
 {
+    // JSONC: 允许注释与尾逗号（测试注释）
+
     "error_load_locale": "[ERROR] 加载语言文件失败，请完整地克隆仓库。文件路径: {path}",
     "inf_github_token_configured": "[INF] 已配置 GitHub Token，将用于 API 请求",
     "wrn_github_token_not_configured": "[WRN] 未配置 GitHub Token，将使用匿名 API 请求（可能限流）",

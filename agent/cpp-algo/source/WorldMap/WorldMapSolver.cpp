@@ -2,8 +2,6 @@
 
 #include <algorithm>
 #include <cmath>
-#include <fstream>
-#include <sstream>
 #include <vector>
 
 #include <MaaUtils/ImageIo.h>
@@ -11,6 +9,7 @@
 #include <MaaUtils/Platform.h>
 #include <meojson/json.hpp>
 
+#include "../Common/JsoncFile.h"
 #include "MapLocator/MatchStrategy.h"
 #include "MapNavigator/controller_type_utils.h"
 #include "utils.h"
@@ -327,15 +326,8 @@ void WorldMapSolver::LoadIconTable()
         return;
     }
 
-    std::ifstream stream(*file);
-    if (!stream.is_open()) {
-        LogError << "WorldMap: cannot open icon table" << VAR(MAA_NS::path_to_utf8_string(*file));
-        return;
-    }
-    std::ostringstream text;
-    text << stream.rdbuf();
-
-    const auto parsed = json::parse(text.str());
+    // 仓库内 JSONC 允许注释、尾逗号与 BOM，用公共 OpenJsoncFile 读取。
+    const auto parsed = common::OpenJsoncFile(*file);
     if (!parsed || !parsed->is_object()) {
         LogError << "WorldMap: icon table is not a JSON object" << VAR(MAA_NS::path_to_utf8_string(*file));
         return;

@@ -62,7 +62,7 @@ test('suspending connection probes clears stale status-dot styles', () => {
 
 test('live-position buttons start disabled and use the primary blue style', () => {
   const html = readFileSync(new URL('./static/index.html', import.meta.url), 'utf8');
-  for (const id of ['btn-edit-locate', 'btn-assert-locate', 'btn-astar-locate']) {
+  for (const id of ['btn-edit-locate', 'btn-assert-locate']) {
     const tag = html.match(new RegExp(`<button[^>]*id="${id}"[^>]*>`))?.[0] || '';
     assert.match(tag, /class="[^"]*btn-primary[^"]*"/);
     assert.match(tag, /\bdisabled\b/);
@@ -71,6 +71,7 @@ test('live-position buttons start disabled and use the primary blue style', () =
     const tag = html.match(new RegExp(`<button[^>]*id="${id}"[^>]*>`))?.[0] || '';
     assert.match(tag, /\bdisabled\b/);
   }
+  assert.doesNotMatch(html, /id="(?:tab|panel|btn|tool)-astar/);
 });
 
 test('edit and assert use separate but matching map and location cards', () => {
@@ -81,13 +82,13 @@ test('edit and assert use separate but matching map and location cards', () => {
   const recordingStart = html.indexOf('id="panel-recording"');
   const propertiesStart = html.indexOf('id="panel-properties"');
   const assertStart = html.indexOf('id="panel-assert"');
-  const astarStart = html.indexOf('id="panel-astar"');
+  const loadProgressStart = html.indexOf('id="load-progress"');
 
   assert.ok(editMapStart > 0 && assertMapStart > editMapStart && navtestStart > assertMapStart);
   const editMap = html.slice(editMapStart, assertMapStart);
   const assertMap = html.slice(assertMapStart, navtestStart);
   const recording = html.slice(recordingStart, propertiesStart);
-  const assertPanel = html.slice(assertStart, astarStart);
+  const assertPanel = html.slice(assertStart, loadProgressStart);
 
   for (const card of [editMap, assertMap]) {
     assert.match(card, /<span class="section-title">地图与定位<\/span>/);

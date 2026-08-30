@@ -244,6 +244,12 @@ jobs:
             agent/go-service/go.mod
             agent/go-service/go.sum
 
+      # Python 依赖下载: cli_support.py（dep_3rdparty/build_and_install 共用）顶层 import json5，
+      # 必须先于任何 import cli_support 的脚本装好（Setup WebView2 SDK 的 dep_3rdparty 即会触发）
+      - name: Install Python JSONC dependency
+        shell: bash
+        run: python -m pip install json5
+
       # 缓存策略: restore/save 分离。PR 只恢复 v2 缓存不写入, 非 PR 才 save, 全仓只维护一份 v2 快照。
       - name: Restore MaaDeps
         id: cache-maadeps
@@ -340,9 +346,8 @@ jobs:
             fi
           fi
 
-          # 合并各 resource 的 pipeline JSON 文件
+          # 合并各 resource 的 pipeline JSON 文件（json5 已在依赖下载区安装）
           echo "Merge pipeline JSON"
-          python -m pip install json5
           python tools/merge_pipeline.py install
 
           # 更新 interface.json（版本号 + 资源 hash）
@@ -368,7 +373,7 @@ jobs:
         run: ccache -sv || true
 
       - name: Run IconRecognition quick tests
-        if: matrix.os == 'win' && matrix.arch == 'x86_64' && needs.meta.outputs.icon_recognition_changed == 'true'
+        if: matrix.os == 'win' && matrix.arch == 'x86_64' && (needs.meta.outputs.is_release == 'true' || needs.meta.outputs.icon_recognition_changed == 'true')
         shell: powershell
         run: |
           $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer\vswhere.exe'

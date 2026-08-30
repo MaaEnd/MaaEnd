@@ -58,9 +58,6 @@
                 },
                 "AutoPickInteractive": {
                     "key": "{KeymapInteract.primary}"
-                },
-                "MapNavigatorZiplineMount": {
-                    "key": "{KeymapInteract.primary}"
                 }
             }
         },

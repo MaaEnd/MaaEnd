@@ -41,6 +41,7 @@ export class NavTestController {
    *   @param {()=>{path: Array, exported: boolean, assert_target: ?Object}} opts.getRoute
    *     what the active editor tab would run
    *   @param {(fix:{x:number,y:number,zone:string,rot:?number})=>void} opts.onPosition
+   *   @param {()=>void} opts.onBeforeOpen
    *   @param {(running:boolean)=>void} opts.onRunState
    */
   constructor(opts) {
@@ -52,6 +53,7 @@ export class NavTestController {
     this.connection = opts.connection;
     this.getRoute = opts.getRoute || (() => ({ path: [], exported: false, assert_target: null }));
     this.onPosition = opts.onPosition || (() => {});
+    this.onBeforeOpen = opts.onBeforeOpen || (() => {});
     this.onRunState = opts.onRunState || (() => {});
     // 存 innerHTML: 提示行里的 <kbd> 按键芯片被降级警告覆盖后, 还要能原样还原。
     this._hotkeyNoteHtml = this.hotkeyNote.innerHTML;
@@ -103,6 +105,7 @@ export class NavTestController {
         return;
       }
       this.connection.persist();
+      this.onBeforeOpen();
       this._open(session, route);
       return;
     }

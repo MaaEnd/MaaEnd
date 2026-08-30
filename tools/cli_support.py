@@ -1,4 +1,5 @@
 import json
+import json5
 import locale
 import os
 import platform
@@ -191,14 +192,14 @@ def init_localization(
     load_error_path: str | None = None
 
     try:
-        with open(locale_file, "r", encoding="utf-8") as f:
-            data = json.load(f)
+        with open(locale_file, "r", encoding="utf-8-sig") as f:
+            data = json5.load(f)
         if isinstance(data, dict):
             lang_res = {str(k): str(v) for k, v in data.items()}
     except FileNotFoundError:
         load_error_path = str(locale_file)
         print(Console.err(f"[localization] locale file not found: {locale_file}"))
-    except json.JSONDecodeError as e:
+    except (json.JSONDecodeError, ValueError) as e:
         load_error_path = str(locale_file)
         print(Console.err(f"[localization] failed to decode locale json: {locale_file}: {e}"))
     except OSError as e:
