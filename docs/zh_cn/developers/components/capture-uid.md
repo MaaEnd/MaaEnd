@@ -15,8 +15,8 @@
 | `capture.go` | 核心逻辑：截屏、OCR、哈希、缓存 |
 | `register.go` | 向 MaaFramework 注册 `CaptureUid` 自定义动作 |
 
-每次运行的场景初始化会捕获一次 UID，并把默认的伪匿名哈希写入隐藏节点
-`MapNavigatorAccountIdentity.attach.account_id`。该节点使用 Resource 级覆盖，使 Go Service 与 cpp-algo
+每次运行的场景初始化会捕获一次 UID，并把默认的伪匿名哈希写入通用状态节点
+`CurrentAccountIdentity.attach.account_id`。该节点使用 Resource 级覆盖，使 Go Service 与 cpp-algo
 可以共享当前账号身份；跨进程传递的只有哈希，原始 UID 仍只存在 Go 进程内存中。
 
 ## 在 Pipeline 中调用
@@ -107,7 +107,7 @@ captureuid.ClearCache()
 5. **数字校验** — 验证提取的数字位数为 8–12 位。不在此范围则按 `allow_unknown` 决定返回 `"unknown"` 或报错。
 6. **输出格式化** — 按 `output_type` 转换：`hashed` 读取（或首次生成）随机盐 `debug/record/random_salt.txt` 并计算 `SHA-256(数字UID + 盐)` 前 16 位十六进制；`masked` 保留首尾各 3 位、中间以 `*` 打码；`raw` 原样返回。
 7. **缓存** — 将原始 UID 数字存入内存缓存，供后续调用按任意 `output_type` 转换使用。
-8. **发布账号身份** — Custom Action 将哈希写入 `MapNavigatorAccountIdentity`，供滑索规划按当前账号筛选数据；捕获结果为 `"unknown"` 时发布空值，规划器改为步行。
+8. **发布账号身份** — Custom Action 将哈希写入通用状态节点 `CurrentAccountIdentity`，供滑索规划等跨 Agent 消费方识别当前账号；捕获结果为 `"unknown"` 时发布空值，规划器改为步行。
 
 ## 隐私设计
 
@@ -123,6 +123,6 @@ captureuid.ClearCache()
 | AutoStockpile selector | `agent/go-service/autostockpile/selector.go` | Go API（`GetCachedUID`） | 关联物价数据与伪匿名身份 |
 | CreditShopping | `agent/go-service/creditshopping/action_record.go` | Go API（`Capture`） | 记录货架快照时关联 UID |
 | AccountSwitch | `assets/resource/pipeline/AccountSwitch.json`（`__AccountSwitchClearUidCache` 节点） | Pipeline（`clear_cache`） | 切换账号后清空缓存 |
-| MapNavigator | `assets/resource/pipeline/MapNavigator/AccountIdentity.json` | Resource 隐藏节点 | 运行时自动选择当前账号的滑索记录 |
+| MapNavigator | `assets/resource/pipeline/Common/AccountIdentity.json` | Resource 通用状态节点 | 运行时自动选择当前账号的滑索记录 |
 
 `AccountSwitch` 成功后还会把场景图像检查状态重置为未完成，使同一次任务队列中的下一个场景任务重新执行 UID 捕获；不会沿用切号前的账号身份。

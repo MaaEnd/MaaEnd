@@ -22,7 +22,7 @@ namespace
 
 // 设置项把三态写进这个节点的 attach。节点只用来存值,不会被执行,也不在任何 next 里。
 constexpr const char* kPreferenceNode = "MapNavigatorZiplinePreference";
-constexpr const char* kAccountIdentityNode = "MapNavigatorAccountIdentity";
+constexpr const char* kAccountIdentityNode = "CurrentAccountIdentity";
 constexpr size_t kAccountIdLength = 16;
 
 bool ReadPreference(MaaContext* context, bool requested)

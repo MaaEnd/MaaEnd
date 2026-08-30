@@ -21,9 +21,9 @@ type CaptureUidAction struct{}
 
 var _ maa.CustomActionRunner = &CaptureUidAction{}
 
-const accountIdentityNode = "MapNavigatorAccountIdentity"
+const accountIdentityNode = "CurrentAccountIdentity"
 
-// publishAccountIdentity 将当前账号的伪匿名标识写入 Resource 级隐藏节点，供独立的
+// publishAccountIdentity 将当前账号的伪匿名标识写入 Resource 级通用状态节点，供独立的
 // cpp-algo 进程读取。原始 UID 仍只留在本进程内存中，跨进程传递的只有加盐哈希。
 func publishAccountIdentity(ctx *maa.Context, accountID string) error {
 	if ctx == nil || ctx.GetTasker() == nil {
