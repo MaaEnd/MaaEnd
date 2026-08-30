@@ -346,6 +346,23 @@
         "post_delay": 0,
         "rate_limit": 0
     },
+    "CheckMenuListText2": {
+        "desc": "检查菜单列表界面 权限等阶 探索等级 文字",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            -300,
+            500,
+            300
+        ],
+        "expected": [
+            "权限等阶",
+            "探索等级"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
     "CheckMenuListColor": {
         "desc": "检查菜单列表界面左上角颜色",
         "recognition": "ColorMatch",
@@ -375,6 +392,7 @@
         "recognition": "And",
         "all_of": [
             "CheckMenuListText",
+            "CheckMenuListText2",
             "CheckMenuListColor"
         ]
     },
