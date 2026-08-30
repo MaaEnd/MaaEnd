@@ -92,6 +92,22 @@ SceneManager 使用 MaaFramework 的 `[JumpBack]` 机制，将场景接口组织
 
 ### 物品分类
 
+地区无关分类接口会从任意界面进入帝江号仓库并选择目标分类，不改变进入仓库后的当前地区。
+
+#### 地区无关分类
+
+| 分类 | 跳转接口 | 验证接口 |
+| -------- | ---------------------------------------------------- | -------------------------------- |
+| 全部 | `SceneEnterMenuBackpackWithDepotAll` | `InDijiangDepotAll` |
+| 矿物 | `SceneEnterMenuBackpackWithDepotOre` | `InDijiangDepotOre` |
+| 植物 | `SceneEnterMenuBackpackWithDepotPlant` | `InDijiangDepotPlant` |
+| 产物 | `SceneEnterMenuBackpackWithDepotProduct` | `InDijiangDepotProduct` |
+| 采集材料 | `SceneEnterMenuBackpackWithDepotDoodad` | `InDijiangDepotDoodad` |
+| 培养素材 | `SceneEnterMenuBackpackWithDepotNurturance` | `InDijiangDepotNurturance` |
+| 可用道具 | `SceneEnterMenuBackpackWithDepotUsable` | `InDijiangDepotUsable` |
+| 生产工具 | `SceneEnterMenuBackpackWithDepotProducer` | `InDijiangDepotProducer` |
+| 随身装置 | `SceneEnterMenuBackpackWithDepotPortableDevice` | `InDijiangDepotPortableDevice` |
+
 #### 四号谷地
 
 | 分类 | 跳转接口 | 验证接口 |

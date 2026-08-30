@@ -95,6 +95,22 @@ The Dijiang Depot public Pipeline provides depot screen recognition, navigation,
 
 ### Item Categories
 
+The region-independent category interfaces enter the Dijiang Depot from any screen and select the target category without changing the region active after entering the depot.
+
+#### Region-Independent Categories
+
+| Category | Navigation Interface | Validation Interface |
+| ---------------- | ---------------------------------------------------- | -------------------------------- |
+| All | `SceneEnterMenuBackpackWithDepotAll` | `InDijiangDepotAll` |
+| Ore | `SceneEnterMenuBackpackWithDepotOre` | `InDijiangDepotOre` |
+| Plant | `SceneEnterMenuBackpackWithDepotPlant` | `InDijiangDepotPlant` |
+| Product | `SceneEnterMenuBackpackWithDepotProduct` | `InDijiangDepotProduct` |
+| Doodad | `SceneEnterMenuBackpackWithDepotDoodad` | `InDijiangDepotDoodad` |
+| Nurturance | `SceneEnterMenuBackpackWithDepotNurturance` | `InDijiangDepotNurturance` |
+| Usable | `SceneEnterMenuBackpackWithDepotUsable` | `InDijiangDepotUsable` |
+| Producer | `SceneEnterMenuBackpackWithDepotProducer` | `InDijiangDepotProducer` |
+| Portable Device | `SceneEnterMenuBackpackWithDepotPortableDevice` | `InDijiangDepotPortableDevice` |
+
 #### Valley IV
 
 | Category | Navigation Interface | Validation Interface |
