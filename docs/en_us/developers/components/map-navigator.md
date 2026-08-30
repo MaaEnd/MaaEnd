@@ -238,8 +238,9 @@ The operational flow of `NAVMESH` is:
 
 1. At runtime, prioritize loading `assets/resource/model/map/navmesh/base.nav.gz`; fall back to `base.nav` if it doesn't exist.
 2. Infer the BaseNav zone based on the current localization area.
-3. Snap the landing point according to the current floor height, then execute A\* on the `.nav` triangle graph, only traversing BaseNav's own edges.
-4. Expand the planning result into ordinary `RUN` waypoints, which are then handed over to the movement execution chain.
+3. When ziplines are enabled, read the pseudonymous account identity captured during this run's initialization and load only that account's zipline records. If the identity is unavailable, or only legacy unscoped records exist, fall back to walking.
+4. Snap the landing point according to the current floor height, then execute A\* on the `.nav` triangle graph, only traversing BaseNav's own edges.
+5. Expand the planning result into ordinary `RUN` waypoints, which are then handed over to the movement execution chain.
 
 Step 3's floor snapping is worth calling out separately: on multi-floor maps, triangle faces from several floors are stacked at the same planar coordinate. Without distinguishing height, the start or end point may be snapped to the wrong floor, which shows up as the character clipping through walls or the path being unreachable. BaseNav bakes the floor height for each zone into the data pack and filters candidate faces by height band during planning, so the landing point in multi-floor areas is deterministic.
 
@@ -397,6 +398,8 @@ It supports:
 5. One-click copying of canonical `path` that can be directly pasted into `custom_action_param.path`.
 6. Through an independent `Assert mode` to manually select the base map and frame rectangular areas, exporting `MapLocateAssertLocation` nodes.
 7. Entering BaseNav A\* mode, loading `.nav.gz` / `.nav`, previewing paths on the red triangle face overlay, and copying `NAVMESH` nodes.
+
+Official-map imports derive a pseudonymous account identity from the `/map/mark/list` `roleId`; game runs derive the same identity from the UID captured once during scene initialization. Runtime planning filters by account before map. Legacy records without an account are never assigned automatically and must be imported again. Offline route preview cannot read the in-game UID, so it previews only the most recently imported account; log analysis filters snapshots by the account identity recorded in the matching run.
 
 An additional note is that the current GUI editor round-trips coordinate path points, their optional `target_tier`, and `ZONE` declarations derived from area information. Untagged points keep the legacy array export, while tagged points use the `target` object form.
 Non-coordinate control nodes like `HEADING` and semantic pathfinding nodes like `NAVMESH` are not regular point editing objects in the GUI. It is recommended to manually add back or maintain `HEADING` after exporting the `path`, while `NAVMESH` can be directly generated using `Copy NAVMESH`.

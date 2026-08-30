@@ -31,6 +31,9 @@ struct NaviParam
     bool zipline_enabled = false;
     // 使用全候选动态规划 Slim，追求精确最短距离；默认使用生产用的稀疏近似。
     bool exact_slim = false;
+    // Scene 初始化时由 CaptureUid 写入隐藏 Pipeline 节点的伪匿名账号标识。滑索记录必须先按
+    // 此字段隔离，再按地图筛选；空值时宁可步行，也不能猜一个账号的数据。
+    std::string zipline_account_id;
     // 展开前的原始作者路线。执行侧拿到的 path 是全局展开后的；滑索链半路失败时要靠它重新展开
     // 剩余路线，而不是沿着按链尾落点规划的旧展开走。
     std::vector<Waypoint> authored_path;

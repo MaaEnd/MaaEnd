@@ -386,6 +386,21 @@
             "clear_cache": true
         },
         "next": [
+            "__AccountSwitchResetSceneImageCheck"
+        ]
+    },
+    "__AccountSwitchResetSceneImageCheck": {
+        "desc": "账号切换后重置场景初始化状态，使下一个任务重新捕获当前账号 UID",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "ImageCheckSetResultAction",
+        "custom_action_param": {
+            "result": false
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
             "__AccountSwitchResetImsFirstScan"
         ]
     },

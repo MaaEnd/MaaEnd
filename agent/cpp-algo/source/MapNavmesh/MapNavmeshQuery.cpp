@@ -27,6 +27,7 @@
 #include "../Navmesh/BaseNavReader.h"
 #include "../Navmesh/RecastNavGrid.h"
 #include "../Navmesh/RecastNavRoute.h"
+#include "../Zipline/ZiplineStore.h"
 
 #ifndef MAA_TRUE
 #define MAA_TRUE 1
@@ -61,7 +62,7 @@ struct QueryParam
     std::vector<double> goal_deck_y;
     std::vector<double> position;
     std::string position_zone;
-    json::value custom_action_param = json::object {};
+    json::value custom_action_param = json::object { };
     std::string out_file;
 
     MEO_JSONIZATION(
@@ -114,7 +115,7 @@ QueryContext* AcquireContext(const std::string& configured_path, std::string& er
         return found->second.get();
     }
 
-    auto loaded = navmesh::LoadBaseNavPack(key, {});
+    auto loaded = navmesh::LoadBaseNavPack(key, { });
     if (!loaded.ok()) {
         error = loaded.message.empty() ? navmesh::ToString(loaded.status) : loaded.message;
         LogError << "load navmesh failed" << VAR(key) << VAR(error);
@@ -240,7 +241,7 @@ json::value ProbeOffMesh(
     const json::value& budget)
 {
     if (planner.snap(geom_zone_id, point, snap_radius, floor_y).has_value()) {
-        return {};
+        return { };
     }
     const auto nearest = planner.snap(geom_zone_id, point, kOffMeshSearchRadius, floor_y);
     if (!nearest) {
@@ -553,6 +554,14 @@ json::object BuildRoutePreview(const QueryParam& query)
     }
     param.navmesh_file = query.navmesh_file;
     param.normalize_position_via_navmesh = true;
+    if (param.zipline_enabled) {
+        // 离线路线预览没有游戏画面可读 UID。只在这个开发工具入口按最近一次导入账号预览，
+        // 保持多账号记录隔离；正式 MapNavigateAction 仍只认当前游戏 UID，绝不走该兜底。
+        zipline::ZiplineStore store;
+        if (store.load(zipline::ZiplineStore::DefaultPath())) {
+            param.zipline_account_id = store.latestAccountId();
+        }
+    }
 
     mapnavigator::NaviPosition position {
         .x = query.position[0],
@@ -564,12 +573,7 @@ json::object BuildRoutePreview(const QueryParam& query)
     mapnavigator::ResetZiplineOutcome();
     std::vector<mapnavigator::Waypoint> expanded;
     std::vector<mapnavigator::NavmeshRouteDiagnostic> diagnostics;
-    if (!mapnavigator::ExpandNavmeshWaypoints(
-            param,
-            position,
-            [] { return false; },
-            expanded,
-            &diagnostics)) {
+    if (!mapnavigator::ExpandNavmeshWaypoints(param, position, [] { return false; }, expanded, &diagnostics)) {
         const mapnavigator::NavmeshExpansionFailure failure = mapnavigator::CurrentNavmeshExpansionFailure();
         json::object result = Fail(failure.message.empty() ? "路线展开失败" : failure.message);
         json::object detail {
@@ -674,7 +678,9 @@ json::object BuildRoutePreview(const QueryParam& query)
         { "zipline",
           json::object {
               { "requested", param.zipline_enabled },
+              { "account_id", param.zipline_account_id },
               { "used", outcome.used },
+              { "account_unknown", outcome.account_unknown },
               { "no_data", outcome.no_data },
               { "not_chosen", outcome.not_chosen },
           } },
@@ -735,7 +741,7 @@ std::optional<QueryParam> ParseParam(const char* custom_recognition_param)
     if (!parsed) {
         return std::nullopt;
     }
-    QueryParam value {};
+    QueryParam value { };
     if (!value.from_json(*parsed)) {
         // from_json 中途失败会留下写了一半的字段，整个丢掉。
         return std::nullopt;

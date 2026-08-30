@@ -12,15 +12,28 @@ function matchingFrame(config, zoneName) {
   );
 }
 
+/** Latest imported pseudonymous account for offline map inspection. @param {Object} records @returns {string} */
+export function latestZiplineAccountId(records) {
+  let latest = null;
+  for (const map of records && Array.isArray(records.maps) ? records.maps : []) {
+    const accountId = String((map && map.account_id) || "");
+    if (!accountId) continue;
+    const fetchedAt = String((map && map.fetched_at) || "");
+    if (!latest || fetchedAt > latest.fetchedAt) latest = {accountId, fetchedAt};
+  }
+  return latest ? latest.accountId : "";
+}
+
 /**
  * Apply the same world→base calibration as ZiplineFrame::project. This intentionally
  * does not reproduce power, reachability, floor, connectivity, or cost planning.
  * @param {Object} records parsed record/Ziplines.json
  * @param {Object} frameConfig parsed zipline_frames.json
  * @param {string} zoneName geometry/base zone name such as map02base
+ * @param {string} accountId pseudonymous account selected by the matching runtime log
  * @returns {Array<Object>}
  */
-export function projectZiplineRecords(records, frameConfig, zoneName) {
+export function projectZiplineRecords(records, frameConfig, zoneName, accountId = "") {
   const frame = matchingFrame(frameConfig, zoneName);
   if (!frame || !Array.isArray(frame.plane) || frame.plane.length !== 6) return [];
   const plane = frame.plane.map(finiteNumber);
@@ -29,9 +42,18 @@ export function projectZiplineRecords(records, frameConfig, zoneName) {
   if (plane.some((value) => value === null) || heightScale === null || heightOffset === null) return [];
   const accepted = new Set(Array.isArray(frame.template_ids) ? frame.template_ids.map(String) : []);
 
+  const maps = records && Array.isArray(records.maps) ? records.maps : [];
+  const wantedAccount = String(accountId || "");
+  // 旧日志配旧快照时仍可显示旧格式；新快照已有账号维度而日志没有账号时宁可不画，
+  // 也不能把多个账号的候选混在同一张图上。
+  const hasScopedRecords = maps.some((map) => String((map && map.account_id) || ""));
+  if (!wantedAccount && hasScopedRecords) return [];
+
   const result = [];
   let recordIndex = 0;
-  for (const map of records && Array.isArray(records.maps) ? records.maps : []) {
+  for (const map of maps) {
+    const recordAccount = String((map && map.account_id) || "");
+    if (wantedAccount && recordAccount !== wantedAccount) continue;
     const mapId = String((map && map.map_id) || "");
     if (frame.map_id && mapId !== String(frame.map_id)) continue;
     for (const mark of map && Array.isArray(map.marks) ? map.marks : []) {

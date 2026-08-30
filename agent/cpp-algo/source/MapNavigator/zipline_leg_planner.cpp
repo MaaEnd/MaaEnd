@@ -27,6 +27,7 @@ namespace
 // 只留最后一条腿的结论会把前面用上滑索的那些说没。清零、规划、取用同在寻路入口那一次
 // 调用里跑完，thread_local 就把并发请求各自的账分开了。
 thread_local bool g_zipline_used = false;
+thread_local bool g_zipline_account_unknown = false;
 thread_local bool g_zipline_no_data = false;
 thread_local bool g_zipline_not_chosen = false;
 
@@ -55,7 +56,7 @@ std::filesystem::file_time_type FileStamp(const std::filesystem::path& path)
 {
     std::error_code ec;
     const auto stamp = std::filesystem::last_write_time(path, ec);
-    return ec ? std::filesystem::file_time_type {} : stamp;
+    return ec ? std::filesystem::file_time_type { } : stamp;
 }
 
 // 标定与滑索记录都是只读的，但导入动作会在同一次运行里改写它们，所以按 mtime 决定重不重读：
@@ -65,8 +66,8 @@ std::shared_ptr<const ZiplineData> SharedData()
 {
     static std::mutex mutex;
     static std::shared_ptr<const ZiplineData> cached;
-    static std::filesystem::file_time_type frames_stamp {};
-    static std::filesystem::file_time_type store_stamp {};
+    static std::filesystem::file_time_type frames_stamp { };
+    static std::filesystem::file_time_type store_stamp { };
 
     const std::filesystem::path frames_path = zipline::ZiplineFrames::DefaultPath();
     const std::filesystem::path store_path = zipline::ZiplineStore::DefaultPath();
@@ -338,6 +339,7 @@ private:
 void ResetZiplineOutcome()
 {
     g_zipline_used = false;
+    g_zipline_account_unknown = false;
     g_zipline_no_data = false;
     g_zipline_not_chosen = false;
 }
@@ -346,6 +348,7 @@ ZiplineOutcome CurrentZiplineOutcome()
 {
     return ZiplineOutcome {
         .used = g_zipline_used,
+        .account_unknown = g_zipline_account_unknown,
         .no_data = g_zipline_no_data,
         .not_chosen = g_zipline_not_chosen,
     };
@@ -364,6 +367,10 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
 {
     // 没写 zip 的请求在这里就走完了：不读标定、不读记录、不多跑一条规划。
     if (!param.zipline_enabled) {
+        return std::nullopt;
+    }
+    if (param.zipline_account_id.empty()) {
+        g_zipline_account_unknown = true;
         return std::nullopt;
     }
 
@@ -407,6 +414,9 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
     std::vector<navmesh::WorldPoint> supply_points;
     size_t unpowered = 0;
     for (const auto& record : data->store.maps()) {
+        if (record.account_id != param.zipline_account_id) {
+            continue;
+        }
         if (!frame->map_id.empty() && record.map_id != frame->map_id) {
             continue;
         }
@@ -416,13 +426,14 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
         for (const auto& mark : record.marks) {
             const zipline::ZiplinePowerSource* source = data->frames.powerSource(mark.template_id);
             if (source != nullptr) {
-                supplies.push_back(SupplyPoint {
-                    .x = mark.x,
-                    .z = mark.z,
-                    .radius = source->radius,
-                    .footprint = source->footprint,
-                    .coverage_size = source->coverage_size,
-                });
+                supplies.push_back(
+                    SupplyPoint {
+                        .x = mark.x,
+                        .z = mark.z,
+                        .radius = source->radius,
+                        .footprint = source->footprint,
+                        .coverage_size = source->coverage_size,
+                    });
                 supply_points.push_back(ToWorld(frame->project(mark)));
             }
         }

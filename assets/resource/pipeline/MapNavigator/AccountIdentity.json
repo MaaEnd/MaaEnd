@@ -1,0 +1,8 @@
+{
+    "MapNavigatorAccountIdentity": {
+        "desc": "当前游戏账号的伪匿名标识。Scene 初始化时由 CaptureUid 写入，只承载跨 Agent 共享状态，不会被执行",
+        "attach": {
+            "account_id": ""
+        }
+    }
+}

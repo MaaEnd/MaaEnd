@@ -23,6 +23,9 @@ struct ZiplineMark
 // 是两套互不相干的编号，对应关系由 ZiplineFrames 给出。
 struct ZiplineMapRecord
 {
+    // 与 CaptureUid 相同盐和算法生成的伪匿名账号标识。空值表示旧版本遗留记录；遗留记录
+    // 不能自动归到当前账号，否则换号时仍会静默使用错误坐标。
+    std::string account_id;
     std::string map_id;
     std::string fetched_at;
     std::vector<ZiplineMark> marks;
@@ -39,9 +42,13 @@ public:
     bool load(const std::filesystem::path& path);
     bool save(const std::filesystem::path& path) const;
 
-    // 按 map_id 整张替换，不做逐条合并。拆掉的滑索必须随之消失，否则会在图里留下一条
-    // 走不通的边——那比缺这条滑索更糟，规划会反复选中它再失败。
+    // 按 (account_id, map_id) 整张替换，不做逐条合并。拆掉的滑索必须随之消失，否则会在图里
+    // 留下一条走不通的边——那比缺这条滑索更糟，规划会反复选中它再失败。
     void replaceMap(ZiplineMapRecord record);
+
+    // 离线 MapNavigator 预览没有游戏上下文，使用最近一次导入的账号保持预览可用；运行时绝不调用
+    // 这个兜底，而是只认 CaptureUid 发布的当前游戏账号。
+    std::string latestAccountId() const;
 
     const std::vector<ZiplineMapRecord>& maps() const { return maps_; }
 

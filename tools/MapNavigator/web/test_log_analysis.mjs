@@ -90,6 +90,14 @@ test("parses one selected zipline chain and its actual launches", () => {
   ]);
 });
 
+test("associates the pseudonymous zipline account with a runtime log", () => {
+  const accountLine =
+    "[2026-08-26 11:42:20.500][INF][zipline_preference.cpp] ZiplineAccount: current game account selected [account_id=0123456789abcdef]";
+  const [run] = parseMapNavigatorLog([lines[0], accountLine, ...lines.slice(1)].join("\n"));
+
+  assert.equal(run.accountId, "0123456789abcdef");
+});
+
 test("marks only reached towers as confirmed when a selected chain stops partway", () => {
   const partial = [
     lines[0],

@@ -497,7 +497,7 @@
     "option.CreditShoppingRefreshCheckPrice.label": "直购前检查价格",
     "option.CreditShoppingRefreshCheckPrice.description": "开启后，刷新用尽直购或稳健改直购时，会按「持有信用点 − 物品价格」判断是否会买穿保留阈值，不足则取消并停止；关闭则先购买，买完后再用「保留信用点」判断是否停止。",
     "task.ZiplineImport.label": "🛝导入/更新滑索坐标",
-    "task.ZiplineImport.description": "从官方地图页导入滑索坐标，供寻路规划滑索使用；国服用森空岛，国际服用 SKPORT，在「区服」里选。\n首次使用请在弹出的窗口内登录对应站点，抓到数据后窗口会自动关闭。\n等待登录最多 5 分钟；一直没登录就关窗报失败，已导入的数据不受影响。\n之后再执行本任务即可更新数据，通常不用重新登录。\n登录信息由内嵌浏览器保管，任务只保存滑索坐标，不会读取账号密码。",
+    "task.ZiplineImport.description": "从官方地图页导入当前网页登录角色的滑索坐标；国服用森空岛，国际服用 SKPORT，在「区服」里选。\n不同角色的数据会分开保存，寻路时按本次运行初始化获取的游戏 UID 自动选择，无需手工切换。\n首次使用请在弹出的窗口内登录对应站点，抓到数据后窗口会自动关闭；网页角色应与准备使用这些滑索的游戏角色一致。\n等待登录最多 5 分钟；一直没登录就关窗报失败，已导入的数据不受影响。\n登录信息由内嵌浏览器保管；任务不会读取账号密码，也不会保存原始 UID。",
     "task.ImportBluePrints.label": "📐一键导入蓝图",
     "task.ImportBluePrints.description": "一键批量导入蓝图，支持智能解析",
     "option.ImportBluePrints.label": "导入蓝图",

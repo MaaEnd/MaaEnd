@@ -30,7 +30,12 @@ import {NavmeshField} from "./navmesh_field.js";
 import {AppState, Mode} from "./state.js";
 import {logZiplineGeometry, logZiplineTowers, parseMapNavigatorLog} from "./log_analysis.js";
 import {groupLogInputFiles, openZipArchive, selectMaaEndArchiveEntries} from "./log_archive.js";
-import {measureZiplinePair, nextZiplineMeasurementSelection, projectZiplineRecords} from "./zipline_records.js";
+import {
+  latestZiplineAccountId,
+  measureZiplinePair,
+  nextZiplineMeasurementSelection,
+  projectZiplineRecords,
+} from "./zipline_records.js";
 import {
   ACTION_NAMES,
   ActionType,
@@ -1493,9 +1498,10 @@ class MapNavigatorApp {
     const zoneName = this._geometryZoneName(this._displayZoneId());
     if (!zoneName) return [];
     if (!this._mapZiplineBaseByZone.has(zoneName)) {
+      const accountId = latestZiplineAccountId(this.mapZiplineRecords);
       this._mapZiplineBaseByZone.set(
         zoneName,
-        projectZiplineRecords(this.mapZiplineRecords, this.ziplineFrameConfig, zoneName),
+        projectZiplineRecords(this.mapZiplineRecords, this.ziplineFrameConfig, zoneName, accountId),
       );
     }
     return this._mapZiplineBaseByZone.get(zoneName);
@@ -1591,6 +1597,7 @@ class MapNavigatorApp {
       archiveGroup && archiveGroup.records,
       this.ziplineFrameConfig,
       this._logGeometryZoneName(run),
+      run.accountId,
     );
     const selected = [];
     let labelIndex = 1;

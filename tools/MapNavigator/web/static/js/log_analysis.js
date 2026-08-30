@@ -194,6 +194,7 @@ function newRun(parsed, line, sourceName, index) {
     endTimestamp: "",
     nodeName: String(request.node_name || "MapNavigateAction"),
     taskId: request.task_id ?? null,
+    accountId: "",
     zone: "",
     _fallbackZone: String(param.map_name || (path.find((entry) => entry.zone) || {}).zone || ""),
     zipRequested: param.zip === true,
@@ -497,6 +498,10 @@ export function parseMapNavigatorLog(text, sourceName = "maafw.log") {
       continue;
     }
     if (!current) continue;
+
+    if (line.includes("ZiplineAccount: current game account selected")) {
+      current.accountId = valueOf(line, "account_id") || "";
+    }
 
     if (line.includes("PositionProvider::Capture") && line.includes("MapLocator")) {
       addObservedPosition(current, line);

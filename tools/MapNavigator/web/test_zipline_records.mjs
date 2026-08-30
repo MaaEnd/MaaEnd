@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  latestZiplineAccountId,
   measureZiplinePair,
   nextZiplineMeasurementSelection,
   projectZiplineRecords,
@@ -50,6 +51,57 @@ test("projects only matching map and template marks into base coordinates", () =
     },
   ]);
   assert.deepEqual(projectZiplineRecords(records, frames, "map01base"), []);
+});
+
+test("filters account-scoped snapshots without mixing legacy or other accounts", () => {
+  const records = {
+    maps: [
+      {
+        account_id: "account-a",
+        map_id: "map02",
+        marks: [{level_id: "map02_lv002", template_id: "zipline", x: -1511, y: 322, z: -541}],
+      },
+      {
+        account_id: "account-b",
+        map_id: "map02",
+        marks: [{level_id: "map02_lv002", template_id: "zipline", x: -1500, y: 320, z: -530}],
+      },
+      {
+        map_id: "map02",
+        marks: [{level_id: "map02_lv002", template_id: "zipline", x: -1400, y: 300, z: -500}],
+      },
+    ],
+  };
+
+  assert.equal(projectZiplineRecords(records, frames, "map02base").length, 0);
+  const projected = projectZiplineRecords(records, frames, "map02base", "account-a");
+  assert.equal(projected.length, 1);
+  assert.deepEqual(projected[0].world, [-1511, 322, -541]);
+});
+
+test("selects the latest imported account only for offline map inspection", () => {
+  const records = {
+    maps: [
+      {
+        account_id: "account-a",
+        map_id: "map02",
+        fetched_at: "2026-08-30T08:00:00Z",
+        marks: [{level_id: "map02_lv002", template_id: "zipline", x: -1511, y: 322, z: -541}],
+      },
+      {
+        account_id: "account-b",
+        map_id: "map02",
+        fetched_at: "2026-08-30T09:00:00Z",
+        marks: [{level_id: "map02_lv002", template_id: "zipline", x: -1500, y: 320, z: -530}],
+      },
+    ],
+  };
+
+  const accountId = latestZiplineAccountId(records);
+  assert.equal(accountId, "account-b");
+  const projected = projectZiplineRecords(records, frames, "map02base", accountId);
+  assert.equal(projected.length, 1);
+  assert.deepEqual(projected[0].world, [-1500, 320, -530]);
 });
 
 test("measures the possible center span range and reports its components", () => {
