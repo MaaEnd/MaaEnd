@@ -33,7 +33,6 @@ namespace
 
 constexpr size_t kMinUidDigits = 8;
 constexpr size_t kMaxUidDigits = 12;
-constexpr size_t kSaltBytes = 16;
 constexpr size_t kSha256Bytes = 32;
 constexpr size_t kAccountIdHexLength = 16;
 constexpr char kHexDigits[] = "0123456789abcdef";
@@ -81,6 +80,7 @@ std::optional<std::string> load_or_create_salt()
     }
 
 #ifdef _WIN32
+    constexpr size_t kSaltBytes = 16;
     std::array<unsigned char, kSaltBytes> bytes { };
     if (BCryptGenRandom(nullptr, bytes.data(), static_cast<ULONG>(bytes.size()), BCRYPT_USE_SYSTEM_PREFERRED_RNG) < 0) {
         LogError << "ZiplineAccount: failed to generate random salt";
