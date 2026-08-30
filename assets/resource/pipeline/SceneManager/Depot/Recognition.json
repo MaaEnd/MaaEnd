@@ -10,7 +10,7 @@
                     25,
                     25
                 ],
-                "template": "Common/Depot/Main/RegionValleyIV.png",
+                "template": "SceneManager/Depot/Main/RegionValleyIV.png",
                 "threshold": 0.8,
                 "order_by": "Score"
             }
@@ -30,7 +30,7 @@
                     25,
                     25
                 ],
-                "template": "Common/Depot/Main/RegionWuling.png",
+                "template": "SceneManager/Depot/Main/RegionWuling.png",
                 "threshold": 0.8,
                 "order_by": "Score"
             }
@@ -65,7 +65,7 @@
                     25,
                     25
                 ],
-                "template": "Common/Depot/Main/SwitchButton.png",
+                "template": "SceneManager/Depot/Main/SwitchButton.png",
                 "threshold": 0.8,
                 "order_by": "Score"
             }
@@ -161,7 +161,7 @@
                     92,
                     375
                 ],
-                "template": "Common/Depot/Switch/RegionValleyIV.png",
+                "template": "SceneManager/Depot/Switch/RegionValleyIV.png",
                 "threshold": 0.8,
                 "order_by": "Score"
             }
@@ -181,7 +181,7 @@
                     92,
                     375
                 ],
-                "template": "Common/Depot/Switch/RegionWuling.png",
+                "template": "SceneManager/Depot/Switch/RegionWuling.png",
                 "threshold": 0.8,
                 "order_by": "Score"
             }
@@ -216,7 +216,7 @@
                     545,
                     47
                 ],
-                "template": "Common/Depot/Main/ItemCategory/Normal/All.png",
+                "template": "SceneManager/Depot/Main/ItemCategory/Normal/All.png",
                 "threshold": 0.8,
                 "order_by": "Score"
             }
@@ -236,7 +236,7 @@
                     545,
                     47
                 ],
-                "template": "Common/Depot/Main/ItemCategory/Selected/All.png",
+                "template": "SceneManager/Depot/Main/ItemCategory/Selected/All.png",
                 "threshold": 0.8,
                 "order_by": "Score"
             }
@@ -256,7 +256,7 @@
                     545,
                     47
                 ],
-                "template": "Common/Depot/Main/ItemCategory/Normal/Ore.png",
+                "template": "SceneManager/Depot/Main/ItemCategory/Normal/Ore.png",
                 "threshold": 0.8,
                 "order_by": "Score"
             }
@@ -276,7 +276,7 @@
                     545,
                     47
                 ],
-                "template": "Common/Depot/Main/ItemCategory/Selected/Ore.png",
+                "template": "SceneManager/Depot/Main/ItemCategory/Selected/Ore.png",
                 "threshold": 0.8,
                 "order_by": "Score"
             }
@@ -296,7 +296,7 @@
                     545,
                     47
                 ],
-                "template": "Common/Depot/Main/ItemCategory/Normal/Plant.png",
+                "template": "SceneManager/Depot/Main/ItemCategory/Normal/Plant.png",
                 "threshold": 0.8,
                 "order_by": "Score"
             }
@@ -316,7 +316,7 @@
                     545,
                     47
                 ],
-                "template": "Common/Depot/Main/ItemCategory/Selected/Plant.png",
+                "template": "SceneManager/Depot/Main/ItemCategory/Selected/Plant.png",
                 "threshold": 0.8,
                 "order_by": "Score"
             }
@@ -336,7 +336,7 @@
                     545,
                     47
                 ],
-                "template": "Common/Depot/Main/ItemCategory/Normal/Product.png",
+                "template": "SceneManager/Depot/Main/ItemCategory/Normal/Product.png",
                 "threshold": 0.8,
                 "order_by": "Score"
             }
@@ -356,7 +356,7 @@
                     545,
                     47
                 ],
-                "template": "Common/Depot/Main/ItemCategory/Selected/Product.png",
+                "template": "SceneManager/Depot/Main/ItemCategory/Selected/Product.png",
                 "threshold": 0.8,
                 "order_by": "Score"
             }
@@ -376,7 +376,7 @@
                     545,
                     47
                 ],
-                "template": "Common/Depot/Main/ItemCategory/Normal/Doodad.png",
+                "template": "SceneManager/Depot/Main/ItemCategory/Normal/Doodad.png",
                 "threshold": 0.8,
                 "order_by": "Score"
             }
@@ -396,7 +396,7 @@
                     545,
                     47
                 ],
-                "template": "Common/Depot/Main/ItemCategory/Selected/Doodad.png",
+                "template": "SceneManager/Depot/Main/ItemCategory/Selected/Doodad.png",
                 "threshold": 0.8,
                 "order_by": "Score"
             }
@@ -416,7 +416,7 @@
                     545,
                     47
                 ],
-                "template": "Common/Depot/Main/ItemCategory/Normal/Nurturance.png",
+                "template": "SceneManager/Depot/Main/ItemCategory/Normal/Nurturance.png",
                 "threshold": 0.8,
                 "order_by": "Score"
             }
@@ -436,7 +436,7 @@
                     545,
                     47
                 ],
-                "template": "Common/Depot/Main/ItemCategory/Selected/Nurturance.png",
+                "template": "SceneManager/Depot/Main/ItemCategory/Selected/Nurturance.png",
                 "threshold": 0.8,
                 "order_by": "Score"
             }
@@ -456,7 +456,7 @@
                     545,
                     47
                 ],
-                "template": "Common/Depot/Main/ItemCategory/Normal/Usable.png",
+                "template": "SceneManager/Depot/Main/ItemCategory/Normal/Usable.png",
                 "threshold": 0.8,
                 "order_by": "Score"
             }
@@ -476,7 +476,7 @@
                     545,
                     47
                 ],
-                "template": "Common/Depot/Main/ItemCategory/Selected/Usable.png",
+                "template": "SceneManager/Depot/Main/ItemCategory/Selected/Usable.png",
                 "threshold": 0.8,
                 "order_by": "Score"
             }
@@ -496,7 +496,7 @@
                     545,
                     47
                 ],
-                "template": "Common/Depot/Main/ItemCategory/Normal/Producer.png",
+                "template": "SceneManager/Depot/Main/ItemCategory/Normal/Producer.png",
                 "threshold": 0.8,
                 "order_by": "Score"
             }
@@ -516,7 +516,7 @@
                     545,
                     47
                 ],
-                "template": "Common/Depot/Main/ItemCategory/Selected/Producer.png",
+                "template": "SceneManager/Depot/Main/ItemCategory/Selected/Producer.png",
                 "threshold": 0.8,
                 "order_by": "Score"
             }
@@ -536,7 +536,7 @@
                     545,
                     47
                 ],
-                "template": "Common/Depot/Main/ItemCategory/Normal/PortableDevice.png",
+                "template": "SceneManager/Depot/Main/ItemCategory/Normal/PortableDevice.png",
                 "threshold": 0.8,
                 "order_by": "Score"
             }
@@ -556,7 +556,7 @@
                     545,
                     47
                 ],
-                "template": "Common/Depot/Main/ItemCategory/Selected/PortableDevice.png",
+                "template": "SceneManager/Depot/Main/ItemCategory/Selected/PortableDevice.png",
                 "threshold": 0.8,
                 "order_by": "Score"
             }
