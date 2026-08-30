@@ -4,7 +4,7 @@
         "post_delay": 0,
         "next": [
             "MapNavigatorZiplineMountWaitFreezes",
-            "MapNavigatorZiplineMountEnd"
+            "MapNavigatorZiplineMountRetryWaitFreezes"
         ]
     },
     "MapNavigatorZiplineMountWaitFreezes": {
@@ -36,6 +36,25 @@
         "post_delay": 0,
         "next": [
             "MapNavigatorZiplineMount"
+        ]
+    },
+    "MapNavigatorZiplineMountRetryWaitFreezes": {
+        "desc": "上索：首次 OCR 未命中时等待提示区域稳定，随后复核一次",
+        "recognition": "DirectHit",
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                755,
+                330,
+                297,
+                312
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            "MapNavigatorZiplineMount",
+            "MapNavigatorZiplineMountEnd"
         ]
     },
     "MapNavigatorZiplineMount": {
