@@ -1,6 +1,14 @@
 {
-    "DijiangDepotSwitchToValleyIV": {
-        "desc": "将帝江号仓库切换到四号谷地",
+    "__DijiangDepotSwitchToValleyIV": {
+        "desc": "在帝江号仓库内切换到四号谷地",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InDijiangDepot"
+                ]
+            }
+        },
         "pre_delay": 0,
         "anchor": {
             "__DijiangDepotTargetMain": "__DijiangDepotInValleyIV",
@@ -12,8 +20,16 @@
             "__DijiangDepotSwitchToRegion"
         ]
     },
-    "DijiangDepotSwitchToWuling": {
-        "desc": "将帝江号仓库切换到武陵",
+    "__DijiangDepotSwitchToWuling": {
+        "desc": "在帝江号仓库内切换到武陵",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InDijiangDepot"
+                ]
+            }
+        },
         "pre_delay": 0,
         "anchor": {
             "__DijiangDepotTargetMain": "__DijiangDepotInWuling",
@@ -26,7 +42,7 @@
         ]
     },
     "__DijiangDepotSwitchToRegion": {
-        "desc": "切换到公开入口通过锚点指定的帝江号仓库",
+        "desc": "切换到调用方通过锚点指定的帝江号仓库",
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
@@ -257,7 +273,7 @@
             "[Anchor]__DijiangDepotTargetMain"
         ]
     },
-    "DijiangDepotSelectItemCategoryAll": {
+    "__DijiangDepotSelectItemCategoryAll": {
         "desc": "将帝江号仓库切换到全部分类",
         "recognition": {
             "type": "And",
@@ -278,7 +294,7 @@
             "__DijiangDepotSelectItemCategory"
         ]
     },
-    "DijiangDepotSelectItemCategoryOre": {
+    "__DijiangDepotSelectItemCategoryOre": {
         "desc": "将帝江号仓库切换到矿物分类",
         "recognition": {
             "type": "And",
@@ -299,7 +315,7 @@
             "__DijiangDepotSelectItemCategory"
         ]
     },
-    "DijiangDepotSelectItemCategoryPlant": {
+    "__DijiangDepotSelectItemCategoryPlant": {
         "desc": "将帝江号仓库切换到植物分类",
         "recognition": {
             "type": "And",
@@ -320,7 +336,7 @@
             "__DijiangDepotSelectItemCategory"
         ]
     },
-    "DijiangDepotSelectItemCategoryProduct": {
+    "__DijiangDepotSelectItemCategoryProduct": {
         "desc": "将帝江号仓库切换到产物分类",
         "recognition": {
             "type": "And",
@@ -341,7 +357,7 @@
             "__DijiangDepotSelectItemCategory"
         ]
     },
-    "DijiangDepotSelectItemCategoryDoodad": {
+    "__DijiangDepotSelectItemCategoryDoodad": {
         "desc": "将帝江号仓库切换到采集材料分类",
         "recognition": {
             "type": "And",
@@ -362,7 +378,7 @@
             "__DijiangDepotSelectItemCategory"
         ]
     },
-    "DijiangDepotSelectItemCategoryNurturance": {
+    "__DijiangDepotSelectItemCategoryNurturance": {
         "desc": "将帝江号仓库切换到培养素材分类",
         "recognition": {
             "type": "And",
@@ -383,7 +399,7 @@
             "__DijiangDepotSelectItemCategory"
         ]
     },
-    "DijiangDepotSelectItemCategoryUsable": {
+    "__DijiangDepotSelectItemCategoryUsable": {
         "desc": "将帝江号仓库切换到可用道具分类",
         "recognition": {
             "type": "And",
@@ -404,7 +420,7 @@
             "__DijiangDepotSelectItemCategory"
         ]
     },
-    "DijiangDepotSelectItemCategoryProducer": {
+    "__DijiangDepotSelectItemCategoryProducer": {
         "desc": "将帝江号仓库切换到生产工具分类",
         "recognition": {
             "type": "And",
@@ -425,7 +441,7 @@
             "__DijiangDepotSelectItemCategory"
         ]
     },
-    "DijiangDepotSelectItemCategoryPortableDevice": {
+    "__DijiangDepotSelectItemCategoryPortableDevice": {
         "desc": "将帝江号仓库切换到随身装置分类",
         "recognition": {
             "type": "And",
@@ -447,7 +463,7 @@
         ]
     },
     "__DijiangDepotSelectItemCategory": {
-        "desc": "切换到公开入口通过锚点指定的仓库物品分类",
+        "desc": "切换到调用方通过锚点指定的仓库物品分类",
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,

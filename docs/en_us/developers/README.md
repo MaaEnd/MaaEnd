@@ -80,7 +80,6 @@ Consult as needed. Only required when using the corresponding component.
 | [AutoFight](./components/auto-fight.md) | In-battle automation module, automatically performs normal attacks, skills, chain skills, etc. |
 | [CharacterController](./components/character-controller.md) | Character view rotation, movement, and automatic movement towards target |
 | [BetterSliding](./components/better-sliding.md) | Common custom action for adjusting discrete quantity sliders by target value |
-| [Dijiang Depot](./components/dijiang-depot.md) | Opens the depot and switches its region or item category |
 | [RecoGrid / GridTracker / EssenceGrid](./components/recogrid-engine.md) | Layered single-frame recognition, cross-frame tracking, and Essence business integration |
 | [MapLocator](./components/map-locator.md) | AI + CV based minimap positioning system, outputs region, coordinates, and orientation |
 | [MapNavigator](./components/map-navigator.md) | Path navigation Action, supports record-free target-based pathfinding and GUI recording |

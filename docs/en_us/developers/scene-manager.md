@@ -81,6 +81,33 @@ These node names **do not start with `__ScenePrivate`**.
 | Helper | `SceneNoticeRewardsConfirm` | Click confirm button on rewards screens. |
 | Helper | `SceneWaitLoadingExit` | Wait for loading screen to disappear. |
 
+## Dijiang Depot Interfaces
+
+The Dijiang Depot public Pipeline provides depot screen recognition, navigation, region switching, and item category selection.
+
+### Public Nodes
+
+| Node | Description | Required State |
+| ------------------------------------------------ | --------------------------------------------------------- | -------------- |
+| `InDijiangDepot` | Checks whether the Dijiang Depot main screen is open | None |
+| `SceneEnterMenuBackpackWithDepot` | Opens the Dijiang Depot main screen from any screen | None |
+| `SceneEnterMenuBackpackWithDepotValleyIV` | Opens the Dijiang Depot and switches to Valley IV from any screen | None |
+| `SceneEnterMenuBackpackWithDepotWuling` | Opens the Dijiang Depot and switches to Wuling from any screen | None |
+
+### Item Categories
+
+| Category | Valley IV | Wuling |
+| ---------------- | ---------------------------------------------------------- | -------------------------------------------------------- |
+| All | `SceneEnterMenuBackpackWithDepotValleyIVAll` | `SceneEnterMenuBackpackWithDepotWulingAll` |
+| Ore | `SceneEnterMenuBackpackWithDepotValleyIVOre` | `SceneEnterMenuBackpackWithDepotWulingOre` |
+| Plant | `SceneEnterMenuBackpackWithDepotValleyIVPlant` | `SceneEnterMenuBackpackWithDepotWulingPlant` |
+| Product | `SceneEnterMenuBackpackWithDepotValleyIVProduct` | `SceneEnterMenuBackpackWithDepotWulingProduct` |
+| Doodad | `SceneEnterMenuBackpackWithDepotValleyIVDoodad` | `SceneEnterMenuBackpackWithDepotWulingDoodad` |
+| Nurturance | `SceneEnterMenuBackpackWithDepotValleyIVNurturance` | `SceneEnterMenuBackpackWithDepotWulingNurturance` |
+| Usable | `SceneEnterMenuBackpackWithDepotValleyIVUsable` | `SceneEnterMenuBackpackWithDepotWulingUsable` |
+| Producer | `SceneEnterMenuBackpackWithDepotValleyIVProducer` | `SceneEnterMenuBackpackWithDepotWulingProducer` |
+| Portable Device | `SceneEnterMenuBackpackWithDepotValleyIVPortableDevice` | `SceneEnterMenuBackpackWithDepotWulingPortableDevice` |
+
 ## Protocol Teleport Point Interfaces
 
 ### Valley IV

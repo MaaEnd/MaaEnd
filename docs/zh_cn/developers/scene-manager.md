@@ -78,6 +78,33 @@ SceneManager 使用 MaaFramework 的 `[JumpBack]` 机制，将场景接口组织
 | 辅助 | `SceneNoticeRewardsConfirm` | 点击奖励界面确认按钮 |
 | 辅助 | `SceneWaitLoadingExit` | 等待加载界面消失 |
 
+## 帝江号仓库接口
+
+帝江号仓库公共 Pipeline 提供仓库主界面识别、界面进入、地区切换和物品分类切换能力。
+
+### 公开节点
+
+| 节点 | 说明 | 前置状态 |
+| ------------------------------------------------ | ---------------------------------------------------- | -------- |
+| `InDijiangDepot` | 判断当前是否位于帝江号仓库主界面 | 无 |
+| `SceneEnterMenuBackpackWithDepot` | 从任意界面进入帝江号仓库主界面 | 无 |
+| `SceneEnterMenuBackpackWithDepotValleyIV` | 从任意界面进入帝江号仓库并切换至四号谷地 | 无 |
+| `SceneEnterMenuBackpackWithDepotWuling` | 从任意界面进入帝江号仓库并切换至武陵 | 无 |
+
+### 物品分类
+
+| 分类 | 四号谷地 | 武陵 |
+| -------- | ---------------------------------------------------------- | -------------------------------------------------------- |
+| 全部 | `SceneEnterMenuBackpackWithDepotValleyIVAll` | `SceneEnterMenuBackpackWithDepotWulingAll` |
+| 矿物 | `SceneEnterMenuBackpackWithDepotValleyIVOre` | `SceneEnterMenuBackpackWithDepotWulingOre` |
+| 植物 | `SceneEnterMenuBackpackWithDepotValleyIVPlant` | `SceneEnterMenuBackpackWithDepotWulingPlant` |
+| 产物 | `SceneEnterMenuBackpackWithDepotValleyIVProduct` | `SceneEnterMenuBackpackWithDepotWulingProduct` |
+| 采集材料 | `SceneEnterMenuBackpackWithDepotValleyIVDoodad` | `SceneEnterMenuBackpackWithDepotWulingDoodad` |
+| 培养素材 | `SceneEnterMenuBackpackWithDepotValleyIVNurturance` | `SceneEnterMenuBackpackWithDepotWulingNurturance` |
+| 可用道具 | `SceneEnterMenuBackpackWithDepotValleyIVUsable` | `SceneEnterMenuBackpackWithDepotWulingUsable` |
+| 生产工具 | `SceneEnterMenuBackpackWithDepotValleyIVProducer` | `SceneEnterMenuBackpackWithDepotWulingProducer` |
+| 随身装置 | `SceneEnterMenuBackpackWithDepotValleyIVPortableDevice` | `SceneEnterMenuBackpackWithDepotWulingPortableDevice` |
+
 ## 协议传送点接口
 
 ### 四号谷地
