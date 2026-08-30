@@ -113,7 +113,7 @@ bool MountTextVisible(MaaContext* context)
     return RunNodeAndReportHit(context, kZiplineMountEntryNode, kZiplineMountRecognitionNode, BuildMountProbeOverride());
 }
 
-// 右键下索。链尾和每一条异常出口都得先走这一步, 否则后面的移动指令全被架子吃掉。
+// 右键下索。链尾和需要改走路的异常出口走这一步；能从当前架子改滑另一根时继续留在上面。
 void LeaveTower(const Context& ctx)
 {
     if (!ctx.runtime_state->semantic.zipline_mounted) {
@@ -301,11 +301,15 @@ void FireLaunch(const Context& ctx)
 
 // 滑索的每一条异常出口都从这里走。索是捷径不是必经之路，捷径走不成就丢掉剩余链并重新接回
 // 后续路线；不能在人挂在索上或者卡在架子边上时直接结束，否则角色只会原地不动到超时。
-Result AbandonZipline(const Context& ctx, const char* reason, const char* detail)
+Result AbandonZipline(const Context& ctx, const char* reason, const char* detail, ZiplineAbandonMode mode)
 {
     Result result;
     StopMotionAndCommitment(ctx);
-    LeaveTower(ctx);
+    const bool replan_while_mounted =
+        mode == ZiplineAbandonMode::ReplanWhileMounted && ctx.runtime_state->semantic.zipline_mounted;
+    if (!replan_while_mounted) {
+        LeaveTower(ctx);
+    }
 
     // 还没走完的接近段全是走廊上的普通点，链的头一跳就跟在它们后面。先碰到别的语义点就说明
     // 前面根本没有链——最后一跳出事时就是这样，剩下的路本来就是走路，一个点都不该丢。
@@ -344,7 +348,7 @@ Result AbandonZipline(const Context& ctx, const char* reason, const char* detail
     ++ctx.runtime_state->zipline_abandon_count;
 
     LogWarn << "Action: ZIPLINE given up, recovering from a fresh position." << VAR(reason) << VAR(detail) << VAR(dropped)
-            << VAR(ctx.position->x) << VAR(ctx.position->y);
+            << VAR(replan_while_mounted) << VAR(ctx.position->x) << VAR(ctx.position->y);
 
     ClearRideState(ctx);
     ctx.runtime_state->zipline_approach.Reset();
@@ -352,16 +356,23 @@ Result AbandonZipline(const Context& ctx, const char* reason, const char* detail
     ctx.runtime_state->route.Reset();
     ctx.position_provider->ResetTracking();
     ctx.session->ResetProgress();
-    // 剩下的路是照着「从落点出发」规划的，人却可能仍在索这一头。先丢掉滑行期间的跟踪状态，
-    // 等连续新定位重新贴回 navmesh，再从剩余路线里找第一个实际可达的接入点。OnWaypointAdvance
-    // 会清掉恢复状态和重规划标志，所以两者只能压在它后面。
-    ctx.runtime_state->zipline_recovery.Begin(std::chrono::steady_clock::now());
+    // 剩下的路是照着「从落点出发」规划的，人却可能仍在索这一头。确认起滑耗尽时先用当前架子
+    // 重展开；其他异常或新路线需要步行时，再等连续新定位贴回 navmesh 后找实际可达的接入点。
+    // OnWaypointAdvance 会清掉恢复状态和重规划标志，所以两者只能压在它后面。
+    ctx.runtime_state->zipline_recovery.Begin(std::chrono::steady_clock::now(), replan_while_mounted);
     ctx.runtime_state->dynamic_replan_requested = true;
 
     SelectPhaseForCurrentWaypoint(ctx, reason);
     result.consumed = true;
     result.stay_in_current_tick = true;
     return result;
+}
+
+void DismountZipline(const Context& ctx)
+{
+    LeaveTower(ctx);
+    ctx.runtime_state->semantic.zipline_pitch_deg = 0.0;
+    ctx.position_provider->ResetTracking();
 }
 
 Result StartZiplineHop(
@@ -526,10 +537,14 @@ Result TickZiplineRide(const Context& ctx)
         // 不必在架子上干等满整个滑行超时。
         const double moved = std::hypot(ctx.position->x - mount.x, ctx.position->y - mount.y);
         if (mount.valid && waited_ms > kZiplineMountConfirmMs && moved < kZiplineMountMinMoveWu) {
-            // 人还在架子上。俯仰是开环发的, 所以先按下一档抬头角重瞄重按, 试满次数还起不来就
-            // 当这根索用不了, 退索走路
+            // 人还在架子上。俯仰是开环发的, 所以先按下一档抬头角重瞄重按；试满次数还起不来就
+            // 封禁这一跳并从当前架子重规划, 新路线不能直接起滑时才下索
             if (ctx.runtime_state->semantic.zipline_launch_attempts >= kZiplineLaunchAttempts) {
-                return AbandonZipline(ctx, "zipline_launch_exhausted", "still standing on the tower after every aim attempt");
+                return AbandonZipline(
+                    ctx,
+                    "zipline_launch_exhausted",
+                    "still standing on the tower after every aim attempt",
+                    ZiplineAbandonMode::ReplanWhileMounted);
             }
             const int attempt = ctx.runtime_state->semantic.zipline_launch_attempts;
             if (!AimAtLanding(ctx, landing, attempt, false)) {

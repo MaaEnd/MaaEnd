@@ -294,10 +294,11 @@ constexpr int32_t kZiplineSettleFixes = 4;
 constexpr double kZiplineOutlierFixConfidence = 0.70;
 constexpr double kZiplineOutlierSpanFactorSquared = 9.0;
 constexpr double kZiplineOutlierDistanceSlackWu = 12.0;
-// 下索是一次右键。站在架子上时移动指令会被架子的选点状态吃掉, 所以走路之前必须先下来
+// 下索是一次右键。站在架子上时移动指令会被架子的选点状态吃掉, 所以重规划选中走路后必须先下来
 constexpr int32_t kZiplineDismountHoldMs = 80;
 // 索没通电、两端根本没挂索时起滑是空响, 人还站在架子上。滑一趟是大位移, 所以「过了确认时间
-// 还在原地」与「滑起来了但没到落点」分得开, 不必耗满整个滑行超时。两个值待实机核准
+// 还在原地」与「滑起来了但没到落点」分得开, 不必耗满整个滑行超时；随后先在架子上规划替代跳。
+// 两个值待实机核准
 constexpr int32_t kZiplineMountConfirmMs = 5000;
 constexpr double kZiplineMountMinMoveWu = 3.0;
 // 同一个上索点最多让重规划试这么多次, 再要重规划就当这根架子够不着, 退索改走路。楔死看门狗

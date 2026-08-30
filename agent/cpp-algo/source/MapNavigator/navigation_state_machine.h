@@ -69,6 +69,7 @@ private:
     // 走不到的上索点在这里让路: 判成够不着就丢掉这条链改走路, 返回 true 表示这一拍已经处理完。
     bool GiveUpUnreachableZipline(const char* reason);
     bool HandleZiplineRecoveryReplan();
+    bool canContinueMountedZipline() const;
     // 滑索恢复的下一级回退: 剩余展开路径全够不着时, 切出剩余作者路线重新展开并整条换路。
     // 滑索照常参与重展开, 只有判死过的跳被封禁; 弃索次数太多才整段退回纯走路。
     bool TryReplanRemainingAuthoredRoute(const char* reason);
