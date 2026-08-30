@@ -85,28 +85,43 @@ These node names **do not start with `__ScenePrivate`**.
 
 The Dijiang Depot public Pipeline provides depot screen recognition, navigation, region switching, and item category selection.
 
-### Public Nodes
+### Base and Region Interfaces
 
-| Node | Description | Required State |
-| ------------------------------------------------ | --------------------------------------------------------- | -------------- |
-| `InDijiangDepot` | Checks whether the Dijiang Depot main screen is open | None |
-| `SceneEnterMenuBackpackWithDepot` | Opens the Dijiang Depot main screen from any screen | None |
-| `SceneEnterMenuBackpackWithDepotValleyIV` | Opens the Dijiang Depot and switches to Valley IV from any screen | None |
-| `SceneEnterMenuBackpackWithDepotWuling` | Opens the Dijiang Depot and switches to Wuling from any screen | None |
+| Target State | Navigation Interface | Validation Interface |
+| ------------------ | ----------------------------------------------- | ------------------------------ |
+| Any supported region | `SceneEnterMenuBackpackWithDepot` | `InDijiangDepot` |
+| Valley IV | `SceneEnterMenuBackpackWithDepotValleyIV` | `InDijiangDepotValleyIV` |
+| Wuling | `SceneEnterMenuBackpackWithDepotWuling` | `InDijiangDepotWuling` |
 
 ### Item Categories
 
-| Category | Valley IV | Wuling |
-| ---------------- | ---------------------------------------------------------- | -------------------------------------------------------- |
-| All | `SceneEnterMenuBackpackWithDepotValleyIVAll` | `SceneEnterMenuBackpackWithDepotWulingAll` |
-| Ore | `SceneEnterMenuBackpackWithDepotValleyIVOre` | `SceneEnterMenuBackpackWithDepotWulingOre` |
-| Plant | `SceneEnterMenuBackpackWithDepotValleyIVPlant` | `SceneEnterMenuBackpackWithDepotWulingPlant` |
-| Product | `SceneEnterMenuBackpackWithDepotValleyIVProduct` | `SceneEnterMenuBackpackWithDepotWulingProduct` |
-| Doodad | `SceneEnterMenuBackpackWithDepotValleyIVDoodad` | `SceneEnterMenuBackpackWithDepotWulingDoodad` |
-| Nurturance | `SceneEnterMenuBackpackWithDepotValleyIVNurturance` | `SceneEnterMenuBackpackWithDepotWulingNurturance` |
-| Usable | `SceneEnterMenuBackpackWithDepotValleyIVUsable` | `SceneEnterMenuBackpackWithDepotWulingUsable` |
-| Producer | `SceneEnterMenuBackpackWithDepotValleyIVProducer` | `SceneEnterMenuBackpackWithDepotWulingProducer` |
-| Portable Device | `SceneEnterMenuBackpackWithDepotValleyIVPortableDevice` | `SceneEnterMenuBackpackWithDepotWulingPortableDevice` |
+#### Valley IV
+
+| Category | Navigation Interface | Validation Interface |
+| ---------------- | ---------------------------------------------------------- | ------------------------------------------- |
+| All | `SceneEnterMenuBackpackWithDepotValleyIVAll` | `InDijiangDepotValleyIVAll` |
+| Ore | `SceneEnterMenuBackpackWithDepotValleyIVOre` | `InDijiangDepotValleyIVOre` |
+| Plant | `SceneEnterMenuBackpackWithDepotValleyIVPlant` | `InDijiangDepotValleyIVPlant` |
+| Product | `SceneEnterMenuBackpackWithDepotValleyIVProduct` | `InDijiangDepotValleyIVProduct` |
+| Doodad | `SceneEnterMenuBackpackWithDepotValleyIVDoodad` | `InDijiangDepotValleyIVDoodad` |
+| Nurturance | `SceneEnterMenuBackpackWithDepotValleyIVNurturance` | `InDijiangDepotValleyIVNurturance` |
+| Usable | `SceneEnterMenuBackpackWithDepotValleyIVUsable` | `InDijiangDepotValleyIVUsable` |
+| Producer | `SceneEnterMenuBackpackWithDepotValleyIVProducer` | `InDijiangDepotValleyIVProducer` |
+| Portable Device | `SceneEnterMenuBackpackWithDepotValleyIVPortableDevice` | `InDijiangDepotValleyIVPortableDevice` |
+
+#### Wuling
+
+| Category | Navigation Interface | Validation Interface |
+| ---------------- | -------------------------------------------------------- | ----------------------------------------- |
+| All | `SceneEnterMenuBackpackWithDepotWulingAll` | `InDijiangDepotWulingAll` |
+| Ore | `SceneEnterMenuBackpackWithDepotWulingOre` | `InDijiangDepotWulingOre` |
+| Plant | `SceneEnterMenuBackpackWithDepotWulingPlant` | `InDijiangDepotWulingPlant` |
+| Product | `SceneEnterMenuBackpackWithDepotWulingProduct` | `InDijiangDepotWulingProduct` |
+| Doodad | `SceneEnterMenuBackpackWithDepotWulingDoodad` | `InDijiangDepotWulingDoodad` |
+| Nurturance | `SceneEnterMenuBackpackWithDepotWulingNurturance` | `InDijiangDepotWulingNurturance` |
+| Usable | `SceneEnterMenuBackpackWithDepotWulingUsable` | `InDijiangDepotWulingUsable` |
+| Producer | `SceneEnterMenuBackpackWithDepotWulingProducer` | `InDijiangDepotWulingProducer` |
+| Portable Device | `SceneEnterMenuBackpackWithDepotWulingPortableDevice` | `InDijiangDepotWulingPortableDevice` |
 
 ## Protocol Teleport Point Interfaces
 
