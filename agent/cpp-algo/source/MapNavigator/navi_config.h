@@ -391,7 +391,7 @@ constexpr int32_t kSprintCancelReleaseMs = 60;
 // otherwise the mount prompt can appear on the first frame after walking is toggled and stop motion immediately.
 constexpr double kCollectWalkEnterBandWu = 3.0;
 constexpr double kCollectWalkExitBandWu = 4.5;
-constexpr double kZiplineWalkEnterBandWu = 6.0;
+constexpr double kZiplineWalkEnterBandWu = 5.0;
 constexpr double kZiplineWalkExitBandWu = 7.5;
 static_assert(kCollectWalkEnterBandWu < kCollectWalkExitBandWu, "collect walk enter band must be smaller than its exit band");
 static_assert(kZiplineWalkEnterBandWu < kZiplineWalkExitBandWu, "zipline walk enter band must be smaller than its exit band");
