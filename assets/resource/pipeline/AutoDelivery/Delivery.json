@@ -112,22 +112,20 @@
         "order_by": "Score"
     },
     "AutoDeliveryCheckSubmitGoodsButton": {
-        "desc": "在送货目标附近识别交货按钮，并等待交互提示区域稳定",
-        "recognition": "OCR",
+        "desc": "在送货目标附近识别交货图标，并等待交互提示区域稳定",
+        "recognition": "TemplateMatch",
         "roi": [
-            755,
-            330,
-            297,
-            312
+            760,
+            350,
+            200,
+            270
         ],
-        "expected": [
-            "交货",
-            "交貨",
-            "Deliver",
-            "引き渡す",
-            "화물 제출"
+        "template": [
+            "AutoDelivery/SubmitGoods.png", // NPC 交货图标
+            "AutoDelivery/SubmitGoods2.png" // 非 NPC 交货图标
         ],
-        "order_by": "Expected",
+        "threshold": 0.8,
+        "order_by": "Score",
         "pre_wait_freezes": {
             "time": 300,
             "target": [

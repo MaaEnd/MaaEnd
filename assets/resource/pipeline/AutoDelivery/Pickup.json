@@ -42,22 +42,16 @@
         ]
     },
     "AutoDeliveryCheckFetchGoodsButton": {
-        "desc": "在仓储节点前识别取货按钮，并等待交互提示区域稳定",
-        "recognition": "OCR",
+        "desc": "在仓储节点前识别取货图标，并等待交互提示区域稳定",
+        "recognition": "TemplateMatch",
         "roi": [
-            755,
-            330,
-            297,
-            312
+            763,
+            349,
+            195,
+            270
         ],
-        "expected": [
-            "取货",
-            "取貨",
-            "Pick Up Goods",
-            "受け取る",
-            "화물 수령"
-        ],
-        "order_by": "Expected",
+        "template": "AutoDelivery/FetchGoods.png",
+        "order_by": "Score",
         "pre_wait_freezes": {
             "time": 300,
             "target": [
