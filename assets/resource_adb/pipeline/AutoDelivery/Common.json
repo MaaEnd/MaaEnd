@@ -7,6 +7,22 @@
             40
         ]
     },
+    "AutoDeliveryCheckDeliveryMissionListItem": {
+        "roi": [
+            105,
+            85,
+            450,
+            590
+        ]
+    },
+    "AutoDeliveryCheckDeliveryMissionSelected": {
+        "roi": [
+            570,
+            70,
+            260,
+            60
+        ]
+    },
     "AutoDeliveryCheckDestinationText": {
         "roi": [
             621,
@@ -22,5 +38,16 @@
             610,
             43
         ]
+    },
+    "AutoDeliveryScrollMissionList": {
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                105,
+                85,
+                450,
+                590
+            ]
+        }
     }
 }
