@@ -169,7 +169,7 @@ wheels = [
 [[package]]
 name = "maaend"
 version = "0.0.0"
-source = { virtual = "." }
+source = { editable = "." }
 
 [package.dev-dependencies]
 images = [
