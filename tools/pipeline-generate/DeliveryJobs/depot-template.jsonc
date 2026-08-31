@@ -115,7 +115,7 @@
         ]
     },
     "DeliveryJobsAutoDelivery${DepotId}": {
-        "desc": "从${DepotName}当前任务详情开始全自动送货",
+        "desc": "为${DepotName}当前送货任务调用全自动送货",
         "pre_delay": 0,
         "anchor": {
             "AutoDeliveryAfterSubmitGoods": "DeliveryJobs${RegionId}Loop"

@@ -115,7 +115,7 @@
         ]
     },
     "DeliveryJobsAutoDeliveryOriginLodespring": {
-        "desc": "从矿脉源区当前任务详情开始全自动送货",
+        "desc": "为矿脉源区当前送货任务调用全自动送货",
         "pre_delay": 0,
         "anchor": {
             "AutoDeliveryAfterSubmitGoods": "DeliveryJobsValleyIVLoop"

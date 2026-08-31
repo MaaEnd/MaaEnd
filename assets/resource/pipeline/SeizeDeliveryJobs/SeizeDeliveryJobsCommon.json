@@ -105,27 +105,7 @@
             "Node.Recognition.Succeeded": "已位于运送委托列表"
         }
     },
-    // ===== 从运送委托列表进入当前送货任务详情 =====
-    "SeizeDeliveryJobsEnterCurrentJobDetail": {
-        "desc": "从任意位置进入当前送货任务的详情界面",
-        "pre_delay": 0,
-        "anchor": {
-            "SeizeDeliveryJobsAfterEnterWulingJobList": "__SeizeDeliveryJobsReadyToViewCurrentJob"
-        },
-        "post_delay": 0,
-        "next": [
-            "SeizeDeliveryJobsEnterWulingJobList"
-        ]
-    },
-    "__SeizeDeliveryJobsReadyToViewCurrentJob": {
-        "desc": "在运送委托列表，准备查看当前任务详情",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "timeout": 5000, // 断言在较短时间内可找到当前任务详情（没找到就是没接任务）
-        "next": [
-            "__SeizeDeliveryJobsViewCurrentJob"
-        ]
-    },
+    // ===== 当前送货任务识别 =====
     "__SeizeDeliveryJobsRecoViewCurrentJob": {
         "desc": "寻找查看当前任务详情按钮（仅识别）",
         "recognition": "TemplateMatch",
@@ -137,37 +117,6 @@
         ],
         "template": "SeizeDeliveryJobs/DepotNodePage/JobViewButton.png",
         "order_by": "Score"
-    },
-    "__SeizeDeliveryJobsViewCurrentJob": {
-        "desc": "在运送委托列表，点击查看当前任务详情",
-        "recognition": "TemplateMatch",
-        "roi": [
-            1170,
-            160,
-            100,
-            210
-        ], // 由于 And 模式不能正确处理 target_offset，此处直接拷贝原始识别参数
-        "template": "SeizeDeliveryJobs/DepotNodePage/JobViewButton.png",
-        // "recognition": "And",
-        // "all_of": [
-        //     "__SeizeDeliveryJobsRecoViewCurrentJob"
-        // ],
-        "order_by": "Score",
-        "action": "Click",
-        "target_offset": [
-            -50,
-            0,
-            0,
-            -10
-        ], // 点击识别位置稍左位置，并压缩点击高度，防止点到按钮外面
-        "post_wait_freezes": 500, // 等待任务详情界面弹出
-        "rate_limit": 500, // 加速等待任务详情界面弹出
-        "next": [
-            "[Anchor]SeizeDeliveryJobsAfterEnterCurrentJobDetail"
-        ],
-        "focus": {
-            "Node.Action.Starting": "打开当前任务详情"
-        }
     },
     // ===== 抢单核心识别（go 链式调用 + 价格下限过滤）=====
     "__SeizeDeliveryJobsRecoWulingToken": {

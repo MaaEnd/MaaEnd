@@ -189,6 +189,7 @@ function buildQuoteThresholdOption(depot) {
 
 function buildQuoteActionOption(depot, {comparison, label, description, defaultCase}) {
     const comparisonNode = `DeliveryJobs${depot.Id}Quote${comparison}`;
+    const autoDelivery = `DeliveryJobsAutoDelivery${depot.Id}`;
     return {
         type: "select",
         label,
@@ -215,7 +216,7 @@ function buildQuoteActionOption(depot, {comparison, label, description, defaultC
                               [comparisonNode]: {
                                   anchor: {
                                       DeliveryJobsQuoteAction: "DeliveryJobsQuoteAcceptJobOnly",
-                                      DeliveryJobsGoToDepot: `DeliveryJobsOpenOngoingAutoDelivery${depot.Id}`,
+                                      DeliveryJobsGoToDepot: autoDelivery,
                                   },
                               },
                           },
@@ -263,7 +264,7 @@ function buildAutoDeliveryOverride(depot, {bidAction}) {
         },
         [cargoNode]: {
             enabled: true,
-            anchor: buildCargoAnchor(depot, bidAction, openOngoingAutoDelivery, openOngoingAutoDelivery),
+            anchor: buildCargoAnchor(depot, bidAction, openOngoingAutoDelivery, autoDelivery),
         },
     };
 }

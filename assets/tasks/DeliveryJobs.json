@@ -111,7 +111,7 @@
                                 "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
                                 "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsOpenOngoingAutoDeliveryOriginiumSciencePark",
                                 "DeliveryJobsAfterAcceptJob": "DeliveryJobsDeliverQuickly",
-                                "DeliveryJobsGoToDepot": "DeliveryJobsOpenOngoingAutoDeliveryOriginiumSciencePark"
+                                "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryOriginiumSciencePark"
                             }
                         }
                     }
@@ -282,7 +282,7 @@
                         "DeliveryJobsOriginiumScienceParkQuoteAtLeastMinimum": {
                             "anchor": {
                                 "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
-                                "DeliveryJobsGoToDepot": "DeliveryJobsOpenOngoingAutoDeliveryOriginiumSciencePark"
+                                "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryOriginiumSciencePark"
                             }
                         }
                     }
@@ -338,7 +338,7 @@
                         "DeliveryJobsOriginiumScienceParkQuoteBelowMinimum": {
                             "anchor": {
                                 "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
-                                "DeliveryJobsGoToDepot": "DeliveryJobsOpenOngoingAutoDeliveryOriginiumSciencePark"
+                                "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryOriginiumSciencePark"
                             }
                         }
                     }
@@ -424,7 +424,7 @@
                                 "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
                                 "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsOpenOngoingAutoDeliveryOriginLodespring",
                                 "DeliveryJobsAfterAcceptJob": "DeliveryJobsDeliverQuickly",
-                                "DeliveryJobsGoToDepot": "DeliveryJobsOpenOngoingAutoDeliveryOriginLodespring"
+                                "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryOriginLodespring"
                             }
                         }
                     }
@@ -595,7 +595,7 @@
                         "DeliveryJobsOriginLodespringQuoteAtLeastMinimum": {
                             "anchor": {
                                 "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
-                                "DeliveryJobsGoToDepot": "DeliveryJobsOpenOngoingAutoDeliveryOriginLodespring"
+                                "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryOriginLodespring"
                             }
                         }
                     }
@@ -651,7 +651,7 @@
                         "DeliveryJobsOriginLodespringQuoteBelowMinimum": {
                             "anchor": {
                                 "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
-                                "DeliveryJobsGoToDepot": "DeliveryJobsOpenOngoingAutoDeliveryOriginLodespring"
+                                "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryOriginLodespring"
                             }
                         }
                     }
@@ -737,7 +737,7 @@
                                 "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
                                 "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsOpenOngoingAutoDeliveryPowerPlateau",
                                 "DeliveryJobsAfterAcceptJob": "DeliveryJobsDeliverQuickly",
-                                "DeliveryJobsGoToDepot": "DeliveryJobsOpenOngoingAutoDeliveryPowerPlateau"
+                                "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryPowerPlateau"
                             }
                         }
                     }
@@ -908,7 +908,7 @@
                         "DeliveryJobsPowerPlateauQuoteAtLeastMinimum": {
                             "anchor": {
                                 "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
-                                "DeliveryJobsGoToDepot": "DeliveryJobsOpenOngoingAutoDeliveryPowerPlateau"
+                                "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryPowerPlateau"
                             }
                         }
                     }
@@ -964,7 +964,7 @@
                         "DeliveryJobsPowerPlateauQuoteBelowMinimum": {
                             "anchor": {
                                 "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
-                                "DeliveryJobsGoToDepot": "DeliveryJobsOpenOngoingAutoDeliveryPowerPlateau"
+                                "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryPowerPlateau"
                             }
                         }
                     }
@@ -1077,7 +1077,7 @@
                                 "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
                                 "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsOpenOngoingAutoDeliveryWulingCity",
                                 "DeliveryJobsAfterAcceptJob": "DeliveryJobsDeliverQuickly",
-                                "DeliveryJobsGoToDepot": "DeliveryJobsOpenOngoingAutoDeliveryWulingCity"
+                                "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryWulingCity"
                             }
                         }
                     }
@@ -1248,7 +1248,7 @@
                         "DeliveryJobsWulingCityQuoteAtLeastMinimum": {
                             "anchor": {
                                 "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
-                                "DeliveryJobsGoToDepot": "DeliveryJobsOpenOngoingAutoDeliveryWulingCity"
+                                "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryWulingCity"
                             }
                         }
                     }
@@ -1304,7 +1304,7 @@
                         "DeliveryJobsWulingCityQuoteBelowMinimum": {
                             "anchor": {
                                 "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
-                                "DeliveryJobsGoToDepot": "DeliveryJobsOpenOngoingAutoDeliveryWulingCity"
+                                "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryWulingCity"
                             }
                         }
                     }
@@ -1390,7 +1390,7 @@
                                 "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
                                 "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsOpenOngoingAutoDeliveryTestArea",
                                 "DeliveryJobsAfterAcceptJob": "DeliveryJobsDeliverQuickly",
-                                "DeliveryJobsGoToDepot": "DeliveryJobsOpenOngoingAutoDeliveryTestArea"
+                                "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryTestArea"
                             }
                         }
                     }
@@ -1561,7 +1561,7 @@
                         "DeliveryJobsTestAreaQuoteAtLeastMinimum": {
                             "anchor": {
                                 "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
-                                "DeliveryJobsGoToDepot": "DeliveryJobsOpenOngoingAutoDeliveryTestArea"
+                                "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryTestArea"
                             }
                         }
                     }
@@ -1617,7 +1617,7 @@
                         "DeliveryJobsTestAreaQuoteBelowMinimum": {
                             "anchor": {
                                 "DeliveryJobsQuoteAction": "DeliveryJobsQuoteAcceptJobOnly",
-                                "DeliveryJobsGoToDepot": "DeliveryJobsOpenOngoingAutoDeliveryTestArea"
+                                "DeliveryJobsGoToDepot": "DeliveryJobsAutoDeliveryTestArea"
                             }
                         }
                     }

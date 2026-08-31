@@ -115,7 +115,7 @@
         ]
     },
     "DeliveryJobsAutoDeliveryPowerPlateau": {
-        "desc": "从供能高地当前任务详情开始全自动送货",
+        "desc": "为供能高地当前送货任务调用全自动送货",
         "pre_delay": 0,
         "anchor": {
             "AutoDeliveryAfterSubmitGoods": "DeliveryJobsValleyIVLoop"
