@@ -196,9 +196,9 @@
         "desc": "识别已打开的送货任务目标地图",
         "recognition": "TemplateMatch",
         "roi": [
-            900,
+            860,
             10,
-            130,
+            170,
             140
         ],
         "template": "AutoDelivery/TrackTaskSuccess.png"

@@ -41,36 +41,23 @@
             "AutoDeliveryCheckTrackingGoneBeforeNavigateDepot"
         ]
     },
-    "AutoDeliveryCheckCarryingGoods": {
-        "desc": "确认已携带货物",
-        "recognition": "TemplateMatch",
-        "roi": [
-            130,
-            30,
-            170,
-            90
-        ],
-        "template": "AutoDelivery/CarryingGoods.png",
-        "green_mask": true,
-        "order_by": "Score",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoDeliveryOpenMissionAfterFetchGoods"
-        ]
-    },
     "AutoDeliveryCheckFetchGoodsButton": {
-        "desc": "在仓储节点前识别接取货物按钮，并等待交互按钮稳定",
-        "recognition": "TemplateMatch",
+        "desc": "在仓储节点前识别取货按钮，并等待交互提示区域稳定",
+        "recognition": "OCR",
         "roi": [
-            763,
-            349,
-            195,
-            270
+            755,
+            330,
+            297,
+            312
         ],
-        "template": "AutoDelivery/FetchGoods.png",
-        "order_by": "Score",
+        "expected": [
+            "取货",
+            "取貨",
+            "Pick Up Goods",
+            "受け取る",
+            "화물 수령"
+        ],
+        "order_by": "Expected",
         "pre_wait_freezes": {
             "time": 300,
             "target": [
@@ -139,7 +126,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoDeliveryCheckCarryingGoods"
+            "AutoDeliveryOpenMissionAfterFetchGoods"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoDelivery.focus.fetch_goods"

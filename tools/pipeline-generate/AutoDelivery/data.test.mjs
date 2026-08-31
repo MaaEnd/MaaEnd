@@ -375,9 +375,9 @@ test("AutoDelivery 任务目标地图识别由公共节点复用", () => {
         desc: "识别已打开的送货任务目标地图",
         recognition: "TemplateMatch",
         roi: [
-            900,
+            860,
             10,
-            130,
+            170,
             140,
         ],
         template: "AutoDelivery/TrackTaskSuccess.png",

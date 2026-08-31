@@ -1061,6 +1061,25 @@ test("AutoDelivery ensures the delivery mission detail before branching", () => 
     assert.deepEqual(pickup.AutoDeliveryRetryNavigateDepot.next, [
         "AutoDeliveryCheckFetchGoodsButton",
     ]);
+    assert.equal(pickup.AutoDeliveryCheckFetchGoodsButton.recognition, "OCR");
+    assert.deepEqual(
+        pickup.AutoDeliveryCheckFetchGoodsButton.roi,
+        [
+            755,
+            330,
+            297,
+            312,
+        ],
+    );
+    assert.deepEqual(pickup.AutoDeliveryCheckFetchGoodsButton.expected, [
+        "取货",
+        "取貨",
+        "Pick Up Goods",
+        "受け取る",
+        "화물 수령",
+    ]);
+    assert.equal(pickup.AutoDeliveryCheckFetchGoodsButton.order_by, "Expected");
+    assert.equal(pickup.AutoDeliveryCheckFetchGoodsButton.template, undefined);
     assert.deepEqual(pickup.AutoDeliveryCheckFetchGoodsButton.pre_wait_freezes, {
         time: 300,
         target: [
@@ -1073,9 +1092,10 @@ test("AutoDelivery ensures the delivery mission detail before branching", () => 
     assert.deepEqual(pickup.AutoDeliveryFetchGoodsButton.all_of, [
         "AutoDeliveryCheckFetchGoodsButton",
     ]);
-    assert.deepEqual(pickup.AutoDeliveryCheckCarryingGoods.next, [
+    assert.deepEqual(pickup.AutoDeliveryFetchGoodsButton.next, [
         "AutoDeliveryOpenMissionAfterFetchGoods",
     ]);
+    assert.equal(pickup.AutoDeliveryCheckCarryingGoods, undefined);
     assert.deepEqual(pickup.AutoDeliveryOpenMissionAfterFetchGoods.next, [
         "AutoDeliveryRecognizeDestination",
     ]);
@@ -1316,12 +1336,31 @@ test("AutoDelivery ensures the delivery mission detail before branching", () => 
     assert.deepEqual(delivery.AutoDeliveryRetryNavigateDestination.next, [
         "AutoDeliveryCheckSubmitGoodsButton",
     ]);
+    assert.equal(delivery.AutoDeliveryCheckSubmitGoodsButton.recognition, "OCR");
+    assert.deepEqual(
+        delivery.AutoDeliveryCheckSubmitGoodsButton.roi,
+        [
+            755,
+            330,
+            297,
+            312,
+        ],
+    );
+    assert.deepEqual(delivery.AutoDeliveryCheckSubmitGoodsButton.expected, [
+        "交货",
+        "交貨",
+        "Deliver",
+        "引き渡す",
+        "화물 제출",
+    ]);
+    assert.equal(delivery.AutoDeliveryCheckSubmitGoodsButton.order_by, "Expected");
+    assert.equal(delivery.AutoDeliveryCheckSubmitGoodsButton.template, undefined);
     assert.deepEqual(delivery.AutoDeliveryCheckSubmitGoodsButton.pre_wait_freezes, {
         time: 300,
         target: [
-            760,
-            350,
-            200,
+            763,
+            349,
+            195,
             270,
         ],
     });
