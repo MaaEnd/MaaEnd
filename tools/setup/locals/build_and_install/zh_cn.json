@@ -23,7 +23,7 @@
     "target_platform": "目标平台",
     "output_path": "输出路径",
     "go_mod_tidy_failed": "go mod tidy 失败",
-    "go_mod_files_out_of_sync": "go.sum 或 go.mod 未同步。请先在本地执行 go mod tidy，或运行一次 build_and_install.py 触发同步，并提交 go.mod / go.sum 变更。",
+    "go_mod_files_out_of_sync": "go.sum 或 go.mod 未同步。请先在本地执行 go mod tidy，或运行一次 build-and-install 触发同步，并提交 go.mod / go.sum 变更。",
     "go_mod_tidy_stderr": "go mod tidy 错误输出",
     "go_mod_vendor_failed": "go mod vendor 失败",
     "build_mode": "构建模式",

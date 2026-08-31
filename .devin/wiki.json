@@ -191,7 +191,7 @@
         },
         {
             "title": "辅助工具与脚本",
-            "purpose": "文档化 tools/ 目录下的辅助工具：Pipeline 生成与校验（pipeline-generate/、schema/、parser/、merge_pipeline.py、validate_schema.py）、地图导航录制工具（MapNavigator/）、基质筛选工具（essence_filter/）、国际化工具（i18n/）、图标识别工具（icon_recognition/）、工作区初始化脚本（setup_workspace.py）等。"
+            "purpose": "文档化 tools/ 目录下的辅助工具：Pipeline 生成与校验（pipeline-generate/、schema/、parser/、merge_pipeline.py、validate_schema.py）、地图导航录制工具（MapNavigator/）、基质筛选工具（essence_filter/）、国际化工具（i18n/）、图标识别工具（icon_recognition/）、工作区初始化工具（setup/）等。"
         },
         {
             "title": "开发指南",

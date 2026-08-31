@@ -25,15 +25,15 @@ go version
 ```bash
 git clone --recursive https://github.com/MaaEnd/MaaEnd.git
 cd MaaEnd
-uv run tools/setup_workspace.py
+uv run setup-workspace
 pnpm install
 ```
 
 > [!NOTE]
 >
-> 如果 `setup_workspace.py` 出错，参考下方[手动配置指南](#手动配置指南)。
+> 如果 `setup-workspace` 出错，参考下方[手动配置指南](#手动配置指南)。
 
-**`setup_workspace.py` 常用参数：**
+**`setup-workspace` 常用参数：**
 
 | 参数 | 说明 |
 | --------------------- | --------------------------------------------------------------------------- |
@@ -296,7 +296,7 @@ Pipeline 的核心逻辑是类似**有限状态机（FSM）/决策树（Decision
 - 每改一次 Pipeline，在工具里**重新加载资源**即可，无需重编译。
 - 注意不同帧率（12 fps vs 60 fps）下动画过渡速度不同，可能导致识别时机偏差。
 
-> 如果改了 Go Service，必须先运行 `uv run tools/build_and_install.py`，重新编译。
+> 如果改了 Go Service，必须先运行 `uv run build-and-install`，重新编译。
 
 当前示例使用 **Maa Pipeline Support**（VS Code 插件）：在控制面板打开管理员模式并连接窗口。
 
@@ -408,13 +408,13 @@ git push origin feat/auto-sell-items
 4. 编译 go-service、配置路径。
 
     ```bash
-    uv run tools/build_and_install.py
+    uv run build-and-install
     ```
 
     > 如需同时编译 cpp-algo，请加上 `--cpp-algo` 参数：
     >
     > ```bash
-    > uv run tools/build_and_install.py --cpp-algo
+    > uv run build-and-install --cpp-algo
     > ```
 
 5. 将步骤 2 中解压的 `deps/bin` 内容复制到 `install/maafw/`。

@@ -10,9 +10,9 @@
   --webview2  Microsoft.Web.WebView2 NuGet SDK（仅 Windows，cpp-algo 链接所需）
 
 调用约定：
-  - setup_workspace.py 在 main flow 中直接 `from dep_3rdparty import ...` 调用，
+  - `tools.setup.setup_workspace` 在 main flow 中直接调用本模块，
     跳过情形下不再启动子进程
-  - .github/workflows/install.yml 在 CI 中以 CLI 形式调用 `python tools/dep_3rdparty.py --webview2`
+  - .github/workflows/install.yml 在 CI 中以模块形式调用 `python -m tools.setup.dep_3rdparty --webview2`
 
 布局：
   agent/cpp-algo/3rdparty/webview2/                          -- 解压后的 NuGet 包根目录
@@ -30,10 +30,9 @@ import urllib.request
 import zipfile
 from pathlib import Path
 
-from cli_support import Console, init_localization
+from .cli_support import Console, init_localization
 
-PROJECT_BASE: Path = Path(__file__).parent.parent.resolve()
-# locale 资源仍沿用原目录名 3rdparty_download，避免迁徙文件；目录名只在本模块内部引用一次。
+PROJECT_BASE: Path = Path(__file__).resolve().parents[2]
 LOCALS_DIR: Path = Path(__file__).parent / "locals" / "3rdparty_download"
 THIRDPARTY_DIR: Path = PROJECT_BASE / "agent" / "cpp-algo" / "3rdparty"
 TIMEOUT: int = 30
@@ -274,7 +273,7 @@ def download_webview2(skip_if_exist: bool = True) -> bool:
 def download_all(skip_if_exist: bool = True) -> bool:
     """下载所有支持的 3rdparty 依赖。
 
-    供 setup_workspace.py 等其它脚本以 in-process 方式直接调用，
+    供 `tools.setup.setup_workspace` 等其它脚本以 in-process 方式直接调用，
     避免每次都启动一个 Python 子进程；CLI `--all` 走的也是同一个入口。
     各依赖内部各自做"已存在则跳过"判断，因此重复调用代价很小。
     """
@@ -287,7 +286,9 @@ def download_all(skip_if_exist: bool = True) -> bool:
 def main() -> None:
     init_local()
 
-    parser = argparse.ArgumentParser(description=t("description"))
+    parser = argparse.ArgumentParser(
+        prog="python -m tools.setup.dep_3rdparty", description=t("description")
+    )
     parser.add_argument("--webview2", action="store_true", help=t("arg_webview2"))
     parser.add_argument("--all", action="store_true", help=t("arg_all"))
     parser.add_argument("--update", action="store_true", help=t("arg_update"))
@@ -298,7 +299,7 @@ def main() -> None:
         sys.exit(1)
 
     skip_if_exist = not args.update
-    # --all 与 --webview2 在目前只有 WebView2 一个依赖时等价，留 --webview2 以兼容旧脚本。
+    # --all 与 --webview2 在目前只有 WebView2 一个依赖时等价；后者用于显式选择依赖。
     if args.all:
         ok = download_all(skip_if_exist=skip_if_exist)
     else:

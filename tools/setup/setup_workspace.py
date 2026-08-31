@@ -15,12 +15,12 @@ from functools import cache
 from pathlib import Path
 from urllib.parse import quote, urlencode, urlparse
 
-from cli_support import Console, init_localization
-import dep_3rdparty
-from path_utils import is_directory_link, remove_directory_or_link
+from . import dep_3rdparty
+from .cli_support import Console, init_localization
+from .path_utils import is_directory_link, remove_directory_or_link
 
 
-PROJECT_BASE: Path = Path(__file__).parent.parent.resolve()
+PROJECT_BASE: Path = Path(__file__).resolve().parents[2]
 MFW_REPO: str = "MaaXYZ/MaaFramework"
 MXU_REPO: str = "MistEO/MXU"
 MAAEND_REPO: str = "MaaEnd/MaaEnd"
@@ -209,11 +209,11 @@ _dep_3rdparty_inited = False
 
 
 def bootstrap_3rdparty(update: bool = False) -> bool:
-    """委托给 tools/dep_3rdparty.py，统一拉取 3rdparty 二进制 SDK（目前仅 WebView2）。
+    """委托给 tools.setup.dep_3rdparty，统一拉取 3rdparty 二进制 SDK（目前仅 WebView2）。
 
     直接 in-process 调用，跳过情形下不再启动 Python 子进程；当依赖已经齐备时只产出
     一行日志，体感上对齐 maafw/mxu 那条路径。具体下载逻辑、缓存策略、平台判断仍在
-    dep_3rdparty.py 内部，本函数只做编排。
+    dep_3rdparty 模块内部，本函数只做编排。
     """
     global _dep_3rdparty_inited
     try:
@@ -239,8 +239,7 @@ def bootstrap_3rdparty(update: bool = False) -> bool:
 
 def run_build_script() -> bool:
     print(Console.hdr(t("inf_run_build_script")))
-    script_path = PROJECT_BASE / "tools" / "build_and_install.py"
-    return run_command([sys.executable, str(script_path)])
+    return run_command([sys.executable, "-m", "tools.setup.build_and_install"])
 
 
 def get_latest_release_url(
@@ -1591,7 +1590,7 @@ def main() -> None:
         )
         print("-" * 60)
 
-    parser = argparse.ArgumentParser(description=t("description"))
+    parser = argparse.ArgumentParser(prog="setup-workspace", description=t("description"))
     parser.add_argument("--update", action="store_true", help=t("arg_update"))
     parser.add_argument("--clean-cache", action="store_true", help=t("arg_clean_cache"))
     group = parser.add_mutually_exclusive_group()

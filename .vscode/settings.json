@@ -58,7 +58,7 @@
     "files.associations": {
         "**/assets/**/*.json": "jsonc",
         "**/tests/**/*.json": "jsonc",
-        "**/tools/locals/**/*.json": "jsonc",
+        "**/tools/setup/locals/**/*.json": "jsonc",
         "**/tools/icon_recognition/**/*.json": "jsonc",
         "**/tools/pipeline-generate/**/*.json": "jsonc",
         "**/tools/i18n/**/*.json": "jsonc",

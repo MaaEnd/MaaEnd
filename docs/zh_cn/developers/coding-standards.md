@@ -146,12 +146,12 @@ MaaEnd 里一个功能改动常常不只改一个地方。
 
 - 在对应子包 `register.go` 中新增、更新或移除注册
 - 新增或删除子包时，在 `agent/go-service/register.go` 的 `registerAll()` 中接入或移除
-- 修改完成后重新执行 `uv run tools/build_and_install.py`
+- 修改完成后重新执行 `uv run build-and-install`
 
 ### 维护 Cpp Algo Custom 组件
 
 - 在 `agent/cpp-algo/source/main.cpp` 中通过 `MaaAgentServerRegisterCustomAction` 或 `MaaAgentServerRegisterCustomRecognition` 新增、更新或移除注册
-- 修改完成后重新执行 `uv run tools/build_and_install.py --cpp-algo`
+- 修改完成后重新执行 `uv run build-and-install --cpp-algo`
 
 ### 维护 Custom Schema
 
@@ -178,7 +178,7 @@ MaaEnd 里一个功能改动常常不只改一个地方。
 修改 `agent/go-service/` 后，必须重新编译：
 
 ```bash
-uv run tools/build_and_install.py
+uv run build-and-install
 ```
 
 可在 VS Code 终端的运行任务中使用 `build` 任务快捷运行，也可对 go-service 挂断点或 attach 调试。
@@ -188,7 +188,7 @@ uv run tools/build_and_install.py
 `assets/interface.json` 是源码主文件。修改后执行：
 
 ```bash
-uv run tools/build_and_install.py
+uv run build-and-install
 ```
 
 若通过工具修改了 `install/interface.json`，需手动同步回 `assets/interface.json`。
@@ -198,7 +198,7 @@ uv run tools/build_and_install.py
 需要 VC 生成器和 cmake，一般开发者无需更改：
 
 ```bash
-uv run tools/build_and_install.py --cpp-algo
+uv run build-and-install --cpp-algo
 ```
 
 ## 资源规范
@@ -213,7 +213,7 @@ uv run tools/build_and_install.py --cpp-algo
 
 ### 资源文件夹链接
 
-资源文件夹是链接状态，修改 `assets` 等同于修改 `install` 中的内容，无需额外复制。**但 `interface.json` 是复制的**，修改需手动同步或运行 `build_and_install.py`。
+资源文件夹是链接状态，修改 `assets` 等同于修改 `install` 中的内容，无需额外复制。**但 `interface.json` 是复制的**，修改需手动同步或运行 `build-and-install`。
 
 ### 文件夹命名
 
@@ -267,8 +267,8 @@ MaaEnd 使用 maa-tools 进行节点测试，详见[节点测试文档](./node-t
 | 坑 | 处理 |
 | ----------------------------------- | --------------------------------------------------------------------------------------- |
 | `pnpm check` / `pnpm test` 跑不起来 | `pnpm install` |
-| 模型或 C++ 依赖目录缺失 | `git submodule update --init --recursive` 或 `uv run tools/setup_workspace.py --update` |
-| 改了 Go 却没生效 | 忘了 `uv run tools/build_and_install.py` |
+| 模型或 C++ 依赖目录缺失 | `git submodule update --init --recursive` 或 `uv run setup-workspace --update` |
+| 改了 Go 却没生效 | 忘了 `uv run build-and-install` |
 | 直接引用了 `__ScenePrivate*` 节点 | 应引用 `Interface` 目录暴露的场景接口节点 |
 | 只顾主线，不处理弹窗/加载 | 把弹窗、加载、中间态视为正常情况 |
 | 改了任务但没补文案 | 文案放到 `assets/locales/` |

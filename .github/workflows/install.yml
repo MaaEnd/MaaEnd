@@ -57,7 +57,7 @@ jobs:
               - 'assets/data/IconRecognition/**'
               - 'assets/resource/image/IconRecognition/**'
               - 'tests/MaaEndTestset'
-              - 'tools/dep_3rdparty.py'
+              - 'tools/setup/dep_3rdparty.py'
               - 'tools/maadeps-download.py'
       - id: set_tag
         run: |
@@ -244,8 +244,8 @@ jobs:
             agent/go-service/go.mod
             agent/go-service/go.sum
 
-      # Python 依赖下载: cli_support.py（dep_3rdparty/build_and_install 共用）顶层 import json5，
-      # 必须先于任何 import cli_support 的脚本装好（Setup WebView2 SDK 的 dep_3rdparty 即会触发）
+      # Python 依赖下载: tools.setup.cli_support（dep_3rdparty/build_and_install 共用）顶层 import json5，
+      # 必须先于任何 import cli_support 的模块装好（Setup WebView2 SDK 的 dep_3rdparty 即会触发）
       - name: Install Python JSONC dependency
         shell: bash
         run: python -m pip install json5
@@ -297,7 +297,7 @@ jobs:
         if: matrix.os == 'win'
         shell: bash
         run: |
-          python tools/dep_3rdparty.py --webview2
+          python -m tools.setup.dep_3rdparty --webview2
 
       - name: Download MaaFramework
         uses: robinraju/release-downloader@v1
@@ -327,7 +327,7 @@ jobs:
           PYTHONUNBUFFERED: "1"
         run: |
           # 运行安装脚本（构建 Go Agent + Cpp Agent + 复制资源）
-          python tools/build_and_install.py --cpp-algo --ci --os ${{ matrix.os }} --arch ${{ matrix.arch }} --version ${{ needs.meta.outputs.tag }}
+          python -m tools.setup.build_and_install --cpp-algo --ci --os ${{ matrix.os }} --arch ${{ matrix.arch }} --version ${{ needs.meta.outputs.tag }}
 
           # 安装 MaaFramework
           echo "Install MaaFramework"

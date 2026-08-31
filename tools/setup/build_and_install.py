@@ -7,8 +7,8 @@ import sys
 import time
 from pathlib import Path
 
-from cli_support import Console, init_localization
-from path_utils import remove_directory_or_link
+from .cli_support import Console, init_localization
+from .path_utils import remove_directory_or_link
 
 LOCALS_DIR = Path(__file__).parent / "locals" / "build_and_install"
 
@@ -797,10 +797,10 @@ def build_cpp_algo(
     return True
 
 
-def main():
+def main() -> None:
     init_local()
 
-    parser = argparse.ArgumentParser(description=t("description"))
+    parser = argparse.ArgumentParser(prog="build-and-install", description=t("description"))
     parser.add_argument("--ci", action="store_true", help=t("arg_ci"))
     parser.add_argument("--os", dest="target_os", help=t("arg_os"))
     parser.add_argument("--arch", dest="target_arch", help=t("arg_arch"))
@@ -810,7 +810,7 @@ def main():
 
     use_copy = args.ci
 
-    root_dir = Path(__file__).parent.parent.resolve()
+    root_dir = Path(__file__).resolve().parents[2]
     assets_dir = root_dir / "assets"
     install_dir = root_dir / "install"
 

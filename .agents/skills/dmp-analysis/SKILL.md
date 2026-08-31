@@ -133,7 +133,7 @@ curl -sL -H "Authorization: Bearer $GH_TOKEN" \
 unzip -joq "$WORK/maaend-pdb.zip" -d "$WORK/maaend-pdb/"
 ```
 
-> artifact 过期后无法再下载，需在对应版本提交上本地构建生成符号（`python tools/build_and_install.py --cpp-algo`）。注意：本地构建的 PDB GUID 与用户崩溃时的二进制不一致，只能近似符号化（函数级）；且该命令只构建 cpp-algo，go-service 需另行执行 Go 构建。
+> artifact 过期后无法再下载，需在对应版本提交上本地构建生成符号（`uv run build-and-install --cpp-algo`）。注意：本地构建的 PDB GUID 与用户崩溃时的二进制不一致，只能近似符号化（函数级）；且该命令只构建 cpp-algo，go-service 需另行执行 Go 构建。
 
 包内内容：
 
