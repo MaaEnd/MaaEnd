@@ -28,6 +28,25 @@
                 "AutoDeliverySelectDeliveryMission",
                 "AutoDeliveryCheckDeliveryMissionSelected"
             ]
+        },
+        {
+            "name": "仓储节点可取货",
+            "image": "送货任务_大世界_仓储节点_可取货.png",
+            "hits": [
+                "AutoDeliveryCheckFetchGoodsButton"
+            ]
+        },
+        {
+            "name": "仓储节点已取货",
+            "image": "送货任务_大世界_仓储节点_已取货.png",
+            "hits": []
+        },
+        {
+            "name": "资源回收站可交货",
+            "image": "送货任务_大世界_资源回收站_可交货.png",
+            "hits": [
+                "AutoDeliveryCheckSubmitGoodsButton"
+            ]
         }
     ]
 }
