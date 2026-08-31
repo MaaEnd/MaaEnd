@@ -174,24 +174,29 @@ def explore(
 
 
 def maaend_release_version_key(
-    release: str, *, environment: str
+    release: str, *, environment: str | None = None
 ) -> tuple[int, int, int, int, int] | None:
-    """解析与 environment 发布通道相符的 MaaEnd 版本排序键。"""
-    environment = normalize_sentry_environment(environment)
-    is_stable = environment == "stable"
+    """解析 MaaEnd 版本排序键，并按需限制发布通道。"""
+    if environment is not None:
+        environment = normalize_sentry_environment(environment)
     match = MAAEND_RELEASE_PATTERN.search(release)
     if match is None:
         return None
 
     major, minor, patch, prerelease, prerelease_number = match.groups()
-    if is_stable:
+    if environment == "stable":
         if prerelease is not None:
             return None
         prerelease_rank = 2
         prerelease_number = "0"
-    else:
+    elif environment == "beta":
         if prerelease is None or prerelease_number is None:
             return None
+        prerelease_rank = {"beta": 0, "rc": 1}[prerelease]
+    elif prerelease is None:
+        prerelease_rank = 2
+        prerelease_number = "0"
+    else:
         prerelease_rank = {"beta": 0, "rc": 1}[prerelease]
 
     return (
@@ -204,12 +209,13 @@ def maaend_release_version_key(
 
 
 def select_latest_reported_maaend_release(
-    rows: Sequence[dict[str, Any]], *, environment: str
+    rows: Sequence[dict[str, Any]], *, environment: str | None = None
 ) -> str | None:
     """选择发布流程已 finalize 并记录 deploy 的最新 MaaEnd release。"""
-    environment = normalize_sentry_environment(environment)
+    if environment is not None:
+        environment = normalize_sentry_environment(environment)
     candidates: list[
-        tuple[tuple[int, int, int, int, int], datetime, str]
+        tuple[datetime, tuple[int, int, int, int, int], str]
     ] = []
     for row in rows:
         release = row.get("version")
@@ -232,16 +238,17 @@ def select_latest_reported_maaend_release(
             )
         except ValueError:
             continue
-        candidates.append((version, release_time, release))
+        candidates.append((release_time, version, release))
 
     return max(candidates)[2] if candidates else None
 
 
 def select_latest_maaend_release(
-    rows: Sequence[dict[str, Any]], *, environment: str
+    rows: Sequence[dict[str, Any]], *, environment: str | None = None
 ) -> str:
     """从 spans 中选择用户数达标的最新 MaaEnd release。"""
-    environment = normalize_sentry_environment(environment)
+    if environment is not None:
+        environment = normalize_sentry_environment(environment)
     candidates: list[
         tuple[tuple[int, int, int, int, int], int, int, str]
     ] = []
@@ -266,10 +273,19 @@ def select_latest_maaend_release(
         expected = (
             "MaaEnd@vX.Y.Z"
             if environment == "stable"
-            else "MaaEnd@vX.Y.Z-beta.N 或 MaaEnd@vX.Y.Z-rc.N"
+            else (
+                "MaaEnd@vX.Y.Z-beta.N 或 MaaEnd@vX.Y.Z-rc.N"
+                if environment == "beta"
+                else "MaaEnd@vX.Y.Z、MaaEnd@vX.Y.Z-beta.N 或 MaaEnd@vX.Y.Z-rc.N"
+            )
+        )
+        selection_scope = (
+            f"Sentry 的 {environment} 环境"
+            if environment is not None
+            else "Sentry"
         )
         raise RuntimeError(
-            f"Sentry 的 {environment} 环境中找不到格式为 {expected}、"
+            f"{selection_scope} 中找不到格式为 {expected}、"
             f"且至少有 {MIN_RELEASE_UNIQUE_USERS} 位独立用户的 release，"
             "请通过 --release 显式指定。"
         )
@@ -309,12 +325,13 @@ def resolve_latest_maaend_release(
     sentry_command: str,
     *,
     target: str,
-    environment: str,
+    environment: str | None = None,
     verbose: bool = False,
     timeout_seconds: float = DEFAULT_SENTRY_TIMEOUT_SECONDS,
 ) -> str:
     """优先使用发布流程上报的 release，旧版本回退到 spans 样本。"""
-    environment = normalize_sentry_environment(environment)
+    if environment is not None:
+        environment = normalize_sentry_environment(environment)
     release_rows = query_sentry_releases(
         sentry_command,
         target=target,
@@ -328,13 +345,16 @@ def resolve_latest_maaend_release(
     if reported_release is not None:
         return reported_release
 
-    escaped_environment = environment.replace('"', '\\"')
+    query = ""
+    if environment is not None:
+        escaped_environment = environment.replace('"', '\\"')
+        query = f'environment:"{escaped_environment}"'
     rows = explore(
         sentry_command,
         target=target,
         period=DEFAULT_RELEASE_DISCOVERY_PERIOD,
         fields=("release", "count_unique(user)", "count_unique(trace)"),
-        query=f'environment:"{escaped_environment}"',
+        query=query,
         sort="-count_unique(user)",
         verbose=verbose,
         timeout_seconds=timeout_seconds,

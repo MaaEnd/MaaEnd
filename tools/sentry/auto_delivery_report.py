@@ -1,6 +1,6 @@
 """根据 Sentry spans 生成自动送货任务分析报告。
 
-默认分析 beta 环境最新 MaaEnd Beta / RC 版本最近 24 小时的 DeliveryJobs 与
+默认分析 Sentry 最新发布的 MaaEnd release 最近 24 小时的 DeliveryJobs 与
 SeizeDeliveryJobs。报告分别展示导航阶段失败率、失败节点分布和路线内部失败率，
 并在同一条逻辑路线中对比开启和关闭滑索的失败率。路线内部失败可能已被上层
 重试恢复，因此不等同于整次自动送货任务失败。
@@ -378,7 +378,7 @@ def collect_report(
     *,
     sentry_command: str,
     release: str | None,
-    environment: str,
+    environment: str | None,
     target: str,
     period: str,
     tasks: Sequence[str],
@@ -388,11 +388,16 @@ def collect_report(
     quiet: bool,
 ) -> tuple[Report, set[str]]:
     route_definitions = load_route_definitions(catalog_path)
-    release_was_selected = release is None
-    if release is None:
+    if environment is not None:
         environment = normalize_sentry_environment(environment)
+    if release is None:
+        release_description = (
+            f"{environment} 环境的最新 MaaEnd release"
+            if environment is not None
+            else "最新发布的 MaaEnd release"
+        )
         show_progress(
-            f"[0/3] 自动选择 {environment} 环境的最新 MaaEnd release",
+            f"[0/3] 自动选择 {release_description}",
             quiet=quiet,
         )
         release = resolve_latest_maaend_release(
@@ -405,7 +410,7 @@ def collect_report(
         show_progress(f"使用 Sentry release：{release}", quiet=quiet)
     escaped_release = release.replace('"', '\\"')
     scope_filter = f'release:"{escaped_release}"'
-    if release_was_selected:
+    if environment is not None:
         escaped_environment = environment.replace('"', '\\"')
         scope_filter = f'{scope_filter} environment:"{escaped_environment}"'
     task_filter = f"task:[{','.join(tasks)}]"
@@ -581,15 +586,14 @@ def create_argument_parser(prog: str | None = None) -> argparse.ArgumentParser:
     parser.add_argument(
         "--release",
         help=(
-            "精确的 Sentry release 名称；未指定时优先选择发布流程上报的版本，"
-            "否则按 environment 从用户样本回退"
+            "精确的 Sentry release 名称；未指定时选择最新发布版本，"
+            "找不到发布记录时从用户样本回退"
         ),
     )
     parser.add_argument(
         "--environment",
         choices=("stable", "beta"),
-        default="beta",
-        help="自动选择 release 时使用；stable 选择正式版，beta 选择 Beta / RC（默认：beta）",
+        help="可选的 environment 过滤；stable 选择正式版，beta 选择 Beta / RC",
     )
     parser.add_argument("--target", default="maaend/rust", help="<org>/<project>")
     parser.add_argument(
