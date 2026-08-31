@@ -39,7 +39,14 @@
             "(?i)Index",
             "協約空間"
         ],
-        "action": "Click",
+        "action": "Custom",
+        "custom_action": "RepeatUntilFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "wait_nodes": [
+                "ProtocolSpaceOperationalManualSwitchProtocolSpaceTab"
+            ]
+        },
         "next": [
             "ProtocolSpaceOperationalManualSwitchProtocolSpaceTab"
         ]
