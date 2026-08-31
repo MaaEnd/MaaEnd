@@ -100,6 +100,7 @@ Only required when maintaining the corresponding task.
 | [OutpostTrading](./tasks/outpost-trading-maintain.md) | Main flow, zmdmap compact game data sync, automatic operators, and dynamic selling-loop maintenance |
 | [SeizeDeliveryJobs](./tasks/seize-delivery-jobs-maintain.md) | Data-driven endpoint generation, landmark-name maintenance, fallback text, and locale synchronization |
 | [GiftOperator](./tasks/gift-operator-maintain.md) | Navigation pathfinding, contact operator selection, gift giving/receiving branches, and operator extension maintenance |
+| [StashBackpack](./tasks/stash-backpack-maintain.md) | Snapshot lifecycle, embedded stashing, paged search, and category extension maintenance |
 
 ### Third-Party Protocol Documents (`protocol/`)
 
