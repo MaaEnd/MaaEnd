@@ -24,6 +24,8 @@ import {Overlay} from "./gl/overlay.js";
 import {formatHeading, transformHeading} from "./heading.js";
 import {buildEditPreviewPlan} from "./edit_preview.js";
 import {advanceQuickRouteTest, buildQuickRouteTestRequest} from "./quick_route_test.js";
+import {applyAssertRectDrag, assertRectCursor, hitTestAssertRect, normalizeAssertRect} from "./assert_rect.js";
+import {EscapeAction, resolveEscapeAction} from "./escape_action.js";
 import {NavmeshField} from "./navmesh_field.js";
 import {AppState, Mode} from "./state.js";
 import {logZiplineGeometry, logZiplineTowers, parseMapNavigatorLog} from "./log_analysis.js";
@@ -120,8 +122,14 @@ class MapNavigatorApp {
     this.editLocateHint = null;
     /** @type {?number[]} raw drag rect `[x0,y0,x1,y1]` in display-frame world. */
     this.assertRectWorld = null;
+    /** Whether the completed Assert frame is the active editable object. */
+    this.assertRectSelected = false;
     /** @type {?number[]} assert rect restored when Escape cancels an in-progress redraw. */
     this._assertRectBeforeDrag = null;
+    this._assertRectSelectedBeforeDrag = false;
+    /** @type {?('draw'|'move'|'n'|'ne'|'e'|'se'|'s'|'sw'|'w'|'nw')} active Assert gesture. */
+    this._assertDragKind = null;
+    this._assertDragStarted = false;
     /** @type {?{x:number,y:number,rot:?number,label:string}} assert locate hint in base px. */
     this.assertLocateHint = null;
     /** @type {?{x0:number,y0:number,x1:number,y1:number}} canvas-px selection box. */
@@ -1046,12 +1054,14 @@ class MapNavigatorApp {
       const measuring = this.activeTool !== "zipline-measure";
       const fallbackTool =
         this.state.mode === Mode.LOG ? "log-inspect" : this.state.mode === Mode.ASSERT ? "assert-edit" : "add";
+      if (measuring && this.state.mode === Mode.ASSERT) this.assertRectSelected = false;
       this._setActiveTool(measuring ? "zipline-measure" : fallbackTool);
       this._renderZiplineDistance();
       setStatus(
         measuring ? "滑索架测距已启用：请依次选择 A、B 两座滑索架。" : "已退出滑索架测距；单击地图点位可查看具体信息。",
         measuring ? "#3b82f6" : "#10b981",
       );
+      this._paint();
     });
     for (const [control, key] of [
       [e.logShowAuthored, "showAuthored"],
@@ -1076,7 +1086,7 @@ class MapNavigatorApp {
         this._paint();
       });
     }
-    e.btnClearAssert.addEventListener("click", () => this._deleteSelectedPoint());
+    e.btnClearAssert.addEventListener("click", () => this._clearAssertRect());
     e.btnSelectTier.addEventListener("click", () => this._openTierPicker());
     e.btnSelectAssertTier.addEventListener("click", () => this._openTierPicker());
     e.tierPickerCancel.addEventListener("click", () => {
@@ -1292,6 +1302,7 @@ class MapNavigatorApp {
       editPreviewStart: displayEditPreviewStart,
       quickRouteTest: displayQuickRouteTest,
       assertTarget: mode === Mode.ASSERT ? this._assertTargetForDisplay() : null,
+      assertSelected: mode === Mode.ASSERT && this.assertRectSelected,
       selectionRect: this.selectionRect,
       livePath: displayLivePath,
       mapZiplines: displayMapZiplines,
@@ -1884,8 +1895,13 @@ class MapNavigatorApp {
       const hit = this._hitBasePoint(this._mapZiplineInspectionCandidates(), canvasX, canvasY);
       canvas.style.cursor = hit ? "pointer" : this.activeTool === "add" ? "crosshair" : "default";
     } else if (this.state.mode === Mode.ASSERT && this.activeTool === "assert-edit") {
-      const hit = this._hitBasePoint(this._mapZiplineInspectionCandidates(), canvasX, canvasY);
-      canvas.style.cursor = hit ? "pointer" : "cell";
+      const rectHit = this._hitAssertRect(canvasX, canvasY);
+      if (rectHit) {
+        canvas.style.cursor = this.assertRectSelected ? assertRectCursor(rectHit) || "pointer" : "pointer";
+      } else {
+        const towerHit = this._hitBasePoint(this._mapZiplineInspectionCandidates(), canvasX, canvasY);
+        canvas.style.cursor = towerHit ? "pointer" : "crosshair";
+      }
     }
   }
 
@@ -1994,69 +2010,84 @@ class MapNavigatorApp {
     return true;
   }
 
+  /** Whether path editing currently has an object, gesture, or one-shot tool to cancel. */
+  _hasEditContext() {
+    return (
+      this.state.selectedIndices.size > 0 ||
+      this.editPreviewStartSelected ||
+      this.isBoxSelecting ||
+      this.isEditPreviewStartDragCandidate ||
+      this.isEditPreviewStartDragging ||
+      this.activeTool === "edit-start"
+    );
+  }
+
+  /** Whether a point detail, A/B measurement, or measurement tool is active. */
+  _hasMapInspection() {
+    return !!this.inspectedPoint || this.ziplineDistanceSelection.length > 0 || this.activeTool === "zipline-measure";
+  }
+
+  /** Clear the shared point-detail and zipline-measurement context. */
+  _clearMapInspection(fallbackTool) {
+    if (!this._hasMapInspection()) return false;
+    const wasMeasuring = this.activeTool === "zipline-measure";
+    this.inspectedPoint = null;
+    this.ziplineDistanceSelection = [];
+    if (wasMeasuring && fallbackTool) this._setActiveTool(fallbackTool);
+    this._renderPointInspection();
+    this._renderZiplineDistance();
+    return true;
+  }
+
   /** Apply Escape consistently to transient selections without deleting authored data. */
   _cancelCurrentSelection() {
-    if (this.state.mode === Mode.EDIT) {
-      if (this._hasQuickRouteTest()) {
-        this._clearQuickRouteTest();
-        this._paint();
-        setStatus("已清除快速测试。", "#10b981");
-        return true;
-      }
-      const wasMeasuring = this.activeTool === "zipline-measure";
-      const hadZiplineSelection =
-        (this.inspectedPoint && this.inspectedPoint.context === "map-zipline") ||
-        this.ziplineDistanceSelection.length > 0 ||
-        wasMeasuring;
-      const changed = this._clearEditSelection({cancelTool: true}) || hadZiplineSelection;
-      if (hadZiplineSelection) {
-        this.inspectedPoint = null;
-        this.ziplineDistanceSelection = [];
-        if (wasMeasuring) this._setActiveTool("add");
-        this._renderPointInspection();
-        this._renderZiplineDistance();
-        this._paint();
-      }
-      if (changed) setStatus("已取消当前选择。", "#10b981");
-      return changed;
+    const action = resolveEscapeAction({
+      mode: this.state.mode,
+      hasQuickRouteTest: this._hasQuickRouteTest(),
+      hasEditContext: this._hasEditContext(),
+      hasMapInspection: this._hasMapInspection(),
+      isAssertGesture: this.isAssertSelecting,
+      assertRectSelected: this.assertRectSelected,
+    });
+
+    if (action === EscapeAction.CLEAR_QUICK_TEST) {
+      this._clearQuickRouteTest();
+      this._paint();
+      setStatus("已清除快速测试。", "#10b981");
+      return true;
     }
-    if (this.state.mode === Mode.ASSERT) {
-      const wasMeasuring = this.activeTool === "zipline-measure";
-      const hadZiplineSelection =
-        (this.inspectedPoint && this.inspectedPoint.context === "map-zipline") ||
-        this.ziplineDistanceSelection.length > 0 ||
-        wasMeasuring;
-      const changed = this.isAssertSelecting || hadZiplineSelection;
-      if (!changed) return false;
-      if (this.isAssertSelecting) {
-        this.isAssertSelecting = false;
-        this.assertRectWorld = this._assertRectBeforeDrag;
-        this._assertRectBeforeDrag = null;
-      }
-      if (hadZiplineSelection) {
-        this.inspectedPoint = null;
-        this.ziplineDistanceSelection = [];
-        if (wasMeasuring) this._setActiveTool("assert-edit");
-        this._renderPointInspection();
-        this._renderZiplineDistance();
-      }
+
+    if (action === EscapeAction.CLEAR_EDIT_CONTEXT) {
+      this._clearEditSelection({cancelTool: true});
+      this._clearMapInspection("add");
       this._paint();
       setStatus("已取消当前选择。", "#10b981");
       return true;
     }
-    if (this.state.mode !== Mode.LOG) return false;
 
-    const wasMeasuring = this.activeTool === "zipline-measure";
-    const changed = !!this.inspectedPoint || this.ziplineDistanceSelection.length > 0 || wasMeasuring;
-    if (!changed) return false;
-    this.inspectedPoint = null;
-    this.ziplineDistanceSelection = [];
-    if (wasMeasuring) this._setActiveTool("log-inspect");
-    this._renderPointInspection();
-    this._renderZiplineDistance();
-    this._paint();
-    setStatus("已取消当前选择。", "#10b981");
-    return true;
+    if (action === EscapeAction.CANCEL_ASSERT_GESTURE) {
+      this._resetAssertGesture({restore: true});
+      this._paint();
+      setStatus("已撤销本次断言框调整。", "#10b981");
+      return true;
+    }
+
+    if (action === EscapeAction.CLEAR_ASSERT_CONTEXT) {
+      this.assertRectSelected = false;
+      this._clearMapInspection("assert-edit");
+      this._paint();
+      setStatus("已取消断言框或地图点位选择；断言区域已保留。", "#10b981");
+      return true;
+    }
+
+    if (action === EscapeAction.CLEAR_LOG_CONTEXT) {
+      this._clearMapInspection("log-inspect");
+      this._paint();
+      setStatus("已取消日志点位或测距选择。", "#10b981");
+      return true;
+    }
+
+    return false;
   }
 
   /** Render the selected read-only point metadata in the active 2D mode. */
@@ -2767,11 +2798,10 @@ class MapNavigatorApp {
 
   /** Sorted-rect `[x,y,w,h]` in display-frame world for the assert overlay (unrounded). */
   _assertTargetForDisplay() {
-    if (!this.assertRectWorld) return null;
-    const [x0, y0, x1, y1] = this.assertRectWorld;
-    const left = Math.min(x0, x1);
-    const top = Math.min(y0, y1);
-    return [left, top, Math.abs(x1 - x0), Math.abs(y1 - y0)];
+    const rect = normalizeAssertRect(this.assertRectWorld);
+    if (!rect) return null;
+    const [left, top, right, bottom] = rect;
+    return [left, top, right - left, bottom - top];
   }
 
   /** Rounded assert target for status/export (tk `_current_assert_target`). @returns {?number[]} */
@@ -2779,6 +2809,70 @@ class MapNavigatorApp {
     const display = this._assertTargetForDisplay();
     if (!display) return null;
     return [bankerRound2(display[0]), bankerRound2(display[1]), bankerRound2(display[2]), bankerRound2(display[3])];
+  }
+
+  /** Hit-test the editable Assert frame in canvas CSS pixels. */
+  _hitAssertRect(canvasX, canvasY) {
+    return hitTestAssertRect(this.assertRectWorld, this._worldToCanvasFn(), canvasX, canvasY);
+  }
+
+  /** Start drawing a new Assert frame or moving/resizing the existing one. */
+  _beginAssertGesture(canvasX, canvasY) {
+    this._assertRectBeforeDrag = this.assertRectWorld ? [...this.assertRectWorld] : null;
+    this._assertRectSelectedBeforeDrag = this.assertRectSelected;
+    const rectHit = this._hitAssertRect(canvasX, canvasY);
+    this._assertDragKind = rectHit || "draw";
+    if (rectHit) {
+      this.assertRectSelected = true;
+      this._clearMapInspection("assert-edit");
+    }
+    this._assertDragStarted = false;
+    this.isAssertSelecting = true;
+    this.isDragging = false;
+    this.isPanCandidate = false;
+    this.isPanning = false;
+    this.isBoxSelecting = false;
+    this.pointerDownX = canvasX;
+    this.pointerDownY = canvasY;
+    [this.assertStartWorldX, this.assertStartWorldY] = this.camera.canvasToWorld(canvasX, canvasY);
+    if (rectHit) this._paint();
+  }
+
+  /** Update the active Assert gesture once it crosses the normal drag threshold. */
+  _updateAssertGesture(canvasX, canvasY) {
+    if (!this.isAssertSelecting || !this._assertDragKind) return false;
+    if (!this._assertDragStarted && !this._movedExceeded(this.pointerDownX, this.pointerDownY, canvasX, canvasY)) {
+      return false;
+    }
+
+    const currentWorld = this.camera.canvasToWorld(canvasX, canvasY);
+    const nextRect = applyAssertRectDrag(
+      this._assertRectBeforeDrag,
+      this._assertDragKind,
+      [this.assertStartWorldX, this.assertStartWorldY],
+      currentWorld,
+    );
+    if (!nextRect) return false;
+    if (!this._assertDragStarted) this._clearMapInspection("assert-edit");
+    this._assertDragStarted = true;
+    this.assertRectSelected = true;
+    this.assertLocateHint = null;
+    this.assertRectWorld = nextRect;
+    this._paint();
+    return true;
+  }
+
+  /** Clear Assert gesture state, optionally restoring the pointer-down rectangle. */
+  _resetAssertGesture({restore = false} = {}) {
+    if (restore && this.isAssertSelecting) {
+      this.assertRectWorld = this._assertRectBeforeDrag;
+      this.assertRectSelected = this._assertRectSelectedBeforeDrag;
+    }
+    this.isAssertSelecting = false;
+    this._assertRectBeforeDrag = null;
+    this._assertRectSelectedBeforeDrag = false;
+    this._assertDragKind = null;
+    this._assertDragStarted = false;
   }
 
   // --- basemap texture (async <img>) ---
@@ -3223,7 +3317,7 @@ class MapNavigatorApp {
       this.isPanCandidate = true;
       this.isPanning = false;
       this.isBoxSelecting = false;
-      this.isAssertSelecting = false;
+      this._resetAssertGesture({restore: true});
       this.pointerDownX = x;
       this.pointerDownY = y;
       return;
@@ -3244,19 +3338,7 @@ class MapNavigatorApp {
           setStatus("请先在 Assert 模式下选择地图。", "#ef4444");
           return;
         }
-        this._assertRectBeforeDrag = this.assertRectWorld ? [...this.assertRectWorld] : null;
-        this.isAssertSelecting = true;
-        this.isDragging = false;
-        this.isPanCandidate = false;
-        this.isPanning = false;
-        this.isBoxSelecting = false;
-        this.pointerDownX = x;
-        this.pointerDownY = y;
-        const [wx, wy] = this.camera.canvasToWorld(x, y);
-        this.assertStartWorldX = wx;
-        this.assertStartWorldY = wy;
-        this.assertRectWorld = [wx, wy, wx, wy];
-        this._paint();
+        this._beginAssertGesture(x, y);
         return;
       }
     }
@@ -3315,7 +3397,7 @@ class MapNavigatorApp {
       this.isPanCandidate = true;
       this.isPanning = false;
       this.isBoxSelecting = false;
-      this.isAssertSelecting = false;
+      this._resetAssertGesture({restore: true});
       this.pointerDownX = x;
       this.pointerDownY = y;
     }
@@ -3359,10 +3441,7 @@ class MapNavigatorApp {
       return;
     }
     if (this.state.mode === Mode.ASSERT) {
-      if (!this.isAssertSelecting) return;
-      const [wx, wy] = this.camera.canvasToWorld(x, y);
-      this.assertRectWorld = [this.assertStartWorldX, this.assertStartWorldY, wx, wy];
-      this._paint();
+      this._updateAssertGesture(x, y);
       return;
     }
 
@@ -3442,19 +3521,24 @@ class MapNavigatorApp {
 
     if (this.state.mode === Mode.ASSERT) {
       if (!this.isAssertSelecting) return;
-      if (!this._movedExceeded(this.pointerDownX, this.pointerDownY, x, y)) {
-        this.isAssertSelecting = false;
-        this.assertRectWorld = this._assertRectBeforeDrag;
-        this._assertRectBeforeDrag = null;
+      this._updateAssertGesture(x, y);
+      if (!this._assertDragStarted) {
+        const clickedRect = this._assertDragKind !== "draw";
+        this._resetAssertGesture({restore: true});
+        this.assertRectSelected = clickedRect;
+        if (clickedRect) {
+          this._updatePointHoverCursor(x, y);
+          this._paint();
+          return;
+        }
         if (this._handleMapZiplineInspectClick(x, y)) return;
-        this._assertRectBeforeDrag = this.assertRectWorld ? [...this.assertRectWorld] : null;
-        this.isAssertSelecting = true;
+        this._updatePointHoverCursor(x, y);
+        this._paint();
+        return;
       }
-      this.assertLocateHint = null;
-      const [wx, wy] = this.camera.canvasToWorld(x, y);
-      this.assertRectWorld = [this.assertStartWorldX, this.assertStartWorldY, wx, wy];
-      this.isAssertSelecting = false;
-      this._assertRectBeforeDrag = null;
+
+      this.assertRectWorld = normalizeAssertRect(this.assertRectWorld);
+      this._resetAssertGesture();
       const target = this._currentAssertTarget();
       if (target) {
         setStatus(
@@ -3465,6 +3549,7 @@ class MapNavigatorApp {
         );
       }
       if (this.navtest) this.navtest.routeChanged();
+      this._updatePointHoverCursor(x, y);
       this._paint();
       return;
     }
@@ -3588,6 +3673,7 @@ class MapNavigatorApp {
     if (!hit) return false;
     this.inspectedPoint = hit;
     if (this.state.mode === Mode.EDIT) this.editPreviewStartSelected = false;
+    if (this.state.mode === Mode.ASSERT) this.assertRectSelected = false;
     this.state.clearSelection();
     this._syncActionControls();
     if (this.state.mode === Mode.EDIT) this._renderEditInspection();
@@ -3640,6 +3726,7 @@ class MapNavigatorApp {
     }
 
     this.ziplineDistanceSelection = nextZiplineMeasurementSelection(this.ziplineDistanceSelection, hit.measureKey);
+    if (this.state.mode === Mode.ASSERT) this.assertRectSelected = false;
     const measurement = this._ziplineDistanceMeasurement(towers);
     if (!measurement.towers.length) {
       setStatus("已清除滑索架测距。", "#10b981");
@@ -4593,8 +4680,8 @@ class MapNavigatorApp {
     if (!zoneId) return;
     this.els.assertZoneCombo.value = zoneId;
     this.assertRectWorld = null;
-    this.isAssertSelecting = false;
-    this._assertRectBeforeDrag = null;
+    this.assertRectSelected = false;
+    this._resetAssertGesture();
     this._refreshZoneLabel();
     if (this.field) {
       const zoneIdNum = parseInt(zoneId, 10);
@@ -4755,7 +4842,21 @@ class MapNavigatorApp {
     if (result.changed) this._afterStructureChanged();
   }
 
-  /** Delete the assert rect or selected route points. @returns {void} */
+  /** Clear the authored Assert frame regardless of its selection state. */
+  _clearAssertRect() {
+    if (!this.assertRectWorld) {
+      setStatus("当前没有可清除的 Assert 区域", "#f59e0b");
+      return;
+    }
+    this.assertRectWorld = null;
+    this.assertRectSelected = false;
+    this._resetAssertGesture();
+    setStatus("已清除 Assert 区域。", "#10b981");
+    if (this.navtest) this.navtest.routeChanged();
+    this._paint();
+  }
+
+  /** Delete the selected assert rect or route points. @returns {void} */
   _deleteSelectedPoint() {
     if (this.state.mode === Mode.LOG) {
       setStatus("日志分析模式为只读；请用“清除”移除导入的日志。", "#f59e0b");
@@ -4766,12 +4867,11 @@ class MapNavigatorApp {
         setStatus("当前没有可删除的 Assert 区域", "#f59e0b");
         return;
       }
-      this.assertRectWorld = null;
-      this.isAssertSelecting = false;
-      this._assertRectBeforeDrag = null;
-      setStatus("已清除 Assert 区域。", "#10b981");
-      if (this.navtest) this.navtest.routeChanged();
-      this._paint();
+      if (!this.assertRectSelected) {
+        setStatus("请先点击选中 Assert 区域；Esc 只取消选择。", "#f59e0b");
+        return;
+      }
+      this._clearAssertRect();
       return;
     }
     if (this._hasQuickRouteTest()) {
@@ -5052,7 +5152,7 @@ class MapNavigatorApp {
     } else if (tool === "select") {
       canvas.style.cursor = "default";
     } else if (tool === "assert-edit") {
-      canvas.style.cursor = "cell";
+      canvas.style.cursor = "crosshair";
     } else {
       canvas.style.cursor = "default";
     }
@@ -5558,8 +5658,8 @@ class MapNavigatorApp {
     this._onAssertZoneChanged();
     const [x, y, w, h] = target;
     this.assertRectWorld = [x, y, x + w, y + h];
-    this.isAssertSelecting = false;
-    this._assertRectBeforeDrag = null;
+    this.assertRectSelected = true;
+    this._resetAssertGesture();
     this._syncAssertControls();
     this._syncMapControls();
     this._refreshZoneLabel();
@@ -5610,8 +5710,8 @@ class MapNavigatorApp {
     }
     if (modeName !== "assert") {
       this.assertRectWorld = null;
-      this.isAssertSelecting = false;
-      this._assertRectBeforeDrag = null;
+      this.assertRectSelected = false;
+      this._resetAssertGesture();
     }
 
     if (modeName === "edit") {
@@ -5629,7 +5729,7 @@ class MapNavigatorApp {
         e.assertZoneCombo.value = this._defaultAssertZone();
       }
       this._lastRouteMode = "assert";
-      setStatus("断言模式：先选地图，再用左键拖拽框出断言区域；Delete 或清除按钮可清除。", "#3b82f6");
+      setStatus("断言模式：拖拽空白处绘制，拖动框体移动，拖动边角控制点调整大小。", "#3b82f6");
     } else if (modeName === "log") {
       this.state.mode = Mode.LOG;
       this._showSelectedLogRun({fit: true});

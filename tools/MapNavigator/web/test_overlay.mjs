@@ -40,6 +40,31 @@ test("draws the game-position reference marker in edit mode", () => {
   assert.deepEqual(renderWithMarker("edit", "editLocateHint"), [{x: 12, y: 34, label: "游戏当前位置", rot: 90}]);
 });
 
+test("shows assert resize handles only while the assert frame is selected", () => {
+  const overlay = Object.create(Overlay.prototype);
+  overlay.dpr = 1;
+  overlay.cssW = 800;
+  overlay.cssH = 600;
+  overlay.ctx = {setTransform() {}, clearRect() {}};
+  overlay._drawMapZiplines = () => {};
+  overlay._drawPath = () => {};
+  overlay._drawNodes = () => {};
+  overlay._drawPointInspection = () => {};
+  overlay._drawZiplineMeasurement = () => {};
+  overlay._drawOffMeshMarks = () => {};
+
+  const calls = [];
+  overlay._drawAssertRect = (_camera, target, selected) => calls.push({target, selected});
+  const target = [10, 20, 30, 40];
+  overlay.render({}, {mode: "assert", points: [], assertTarget: target, assertSelected: true});
+  overlay.render({}, {mode: "assert", points: [], assertTarget: target, assertSelected: false});
+
+  assert.deepEqual(calls, [
+    {target, selected: true},
+    {target, selected: false},
+  ]);
+});
+
 test("draws the recorded zipline layer in edit and assert modes", () => {
   const overlay = Object.create(Overlay.prototype);
   overlay.dpr = 1;

@@ -24,6 +24,8 @@ const NODE_DEFAULT_FILL = "#3498db";
 const ASSERT_STROKE = "#f43f5e";
 const ASSERT_FILL = "rgba(244, 63, 94, 0.25)"; // tk stipple gray25 ≈ 25% alpha
 const ASSERT_LABEL_FILL = "#fff1f2";
+const ASSERT_HANDLE_FILL = "#ffffff";
+const ASSERT_HANDLE_SIZE = 8;
 
 const SELECTION_RECT_STROKE = "#38bdf8";
 
@@ -76,6 +78,7 @@ export class Overlay {
    *   @param {?{start:Object,goal:?Object}} [vm.quickRouteTest] temporary quick-test endpoints
    *   @param {Array<Object>} [vm.mapZiplines] current installation's recorded zipline towers
    *   @param {?number[]} [vm.assertTarget] `[x,y,w,h]` display-frame, or null
+   *   @param {boolean} [vm.assertSelected] show selection handles on the Assert frame
    *   @param {?{x:number,y:number,label:string,rot:?number}} [vm.editLocateHint] EDIT reference marker
    *   @param {?{x:number,y:number,label:string,rot:?number}} [vm.assertLocateHint] game locate marker
    *   @param {Object} [vm.logAnalysis] parsed MapNavigator log geometry
@@ -120,7 +123,7 @@ export class Overlay {
       this._drawHintMarker(camera, hint.x, hint.y, hint.label, hint.rot);
     }
     if (mode === "assert") {
-      this._drawAssertRect(camera, vm.assertTarget || null);
+      this._drawAssertRect(camera, vm.assertTarget || null, !!vm.assertSelected);
       const hint = vm.assertLocateHint;
       if (hint) this._drawHintMarker(camera, hint.x, hint.y, hint.label, hint.rot);
     }
@@ -841,9 +844,10 @@ export class Overlay {
   /**
    * Rose translucent assert rect + its `Assert [x, y, w, h]` label.
    * @param {Camera} camera @param {?number[]} target `[x,y,w,h]` display-frame world
+   * @param {boolean} [selected] whether to draw edge/corner selection handles
    * @returns {void}
    */
-  _drawAssertRect(camera, target) {
+  _drawAssertRect(camera, target, selected = false) {
     if (!target || target.length < 4) return;
     const ctx = this.ctx;
     const [tx, ty, tw, th] = target;
@@ -868,6 +872,28 @@ export class Overlay {
     ctx.textAlign = "left";
     ctx.textBaseline = "top";
     ctx.fillText(label, left + 8, top + 8);
+
+    if (selected) {
+      const half = ASSERT_HANDLE_SIZE / 2;
+      const centerX = left + w / 2;
+      const centerY = top + h / 2;
+      ctx.fillStyle = ASSERT_HANDLE_FILL;
+      ctx.strokeStyle = ASSERT_STROKE;
+      ctx.lineWidth = 2;
+      for (const [x, y] of [
+        [left, top],
+        [centerX, top],
+        [left + w, top],
+        [left + w, centerY],
+        [left + w, top + h],
+        [centerX, top + h],
+        [left, top + h],
+        [left, centerY],
+      ]) {
+        ctx.fillRect(x - half, y - half, ASSERT_HANDLE_SIZE, ASSERT_HANDLE_SIZE);
+        ctx.strokeRect(x - half, y - half, ASSERT_HANDLE_SIZE, ASSERT_HANDLE_SIZE);
+      }
+    }
     ctx.restore();
   }
 
