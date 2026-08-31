@@ -34,7 +34,11 @@ struct FindParam
     std::string state;
     int max_attempts = 4;
 
-    MEO_JSONIZATION(zone, at, MEO_OPT icon, MEO_OPT state, MEO_OPT max_attempts);
+    // 整窗解不出来时用几乘几的分块投票再解一次。置 1 关掉这条回退路径：
+    // 单个点位要是被它坑了可以就地关掉，不必等下一版
+    int vote_grid = ViewportConfig {}.voteGrid;
+
+    MEO_JSONIZATION(zone, at, MEO_OPT icon, MEO_OPT state, MEO_OPT max_attempts, MEO_OPT vote_grid);
 };
 
 // 大地图铺满全屏，UI 只是浮在四角的几块。图标要认要点，只需躲开这几块，
@@ -360,7 +364,8 @@ MaaBool MAA_CALL MapFindRun(
     }
 
     WorldMapSolver& solver = GetSolver(ControllerType(controller));
-    const ViewportConfig viewportCfg {};
+    ViewportConfig viewportCfg {};
+    viewportCfg.voteGrid = param.vote_grid;
 
     // 图标名给了就必须在表里查得到：查不到照样跑下去等于把认图标这一步悄悄跳过
     std::optional<IconSpec> spec;
@@ -488,6 +493,7 @@ MaaBool MAA_CALL MapFindRun(
             { "at", json::array { target.x, target.y } },
             { "screen", json::array { expected.x, expected.y } },
             { "viewport_scale", viewport->scale },
+            { "viewport_vote", viewport->voteGrid },
         };
 
         // 图标名没给就只把坐标解出来，认不认得出图标由调用方自己接着判
@@ -543,7 +549,8 @@ MaaBool MAA_CALL MapFindRun(
             }
         }
 
-        LogWarn << "WorldMap: icon not confirmed at expected position" << VAR(attempt) << VAR(expected.x) << VAR(expected.y);
+        LogWarn << "WorldMap: icon not confirmed at expected position" << VAR(attempt) << VAR(expected.x) << VAR(expected.y)
+                << VAR(viewport->voteGrid);
         screen.release();
         std::this_thread::sleep_for(std::chrono::milliseconds(kRetryMillis));
     }

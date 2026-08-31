@@ -39,6 +39,15 @@ struct ViewportConfig
     // 求解不出可信视口就不给坐标，宁可让上层重来
     double minScore = 0.50;
     double minDelta = 0.02;
+
+    // 整窗判失败后改用分块投票再解一次：模板切成 voteGrid×voteGrid 块各自匹配，
+    // 逐像素取中位数。归一化相关整窗只出一个数，搜索窗里有未探索迷雾这类局部遮挡
+    // 就整帧塌掉；分块之后被污染的块只是少数票。置 1 关掉这条回退路径
+    int voteGrid = 3;
+
+    // 每块的最小边长。整模板那道 kMinTemplateSide 卡的是别的事，
+    // 拿来卡每块会要求尺度不低于 0.60，把低倍率档整档筛掉——实测工作档低到 0.4317
+    int voteMinBlockSide = 16;
 };
 
 // 地图上一类图标的认法：认它的模板图，加上只对这张图成立的那几个阈值。
@@ -109,6 +118,9 @@ struct Viewport
     double score = 0.0;
     double delta = 0.0;
     double psr = 0.0;
+
+    // 这个解是哪条路径给的：1 是整窗匹配，大于 1 是分块投票用的网格边长
+    int voteGrid = 1;
 
     cv::Point2d toBase(const cv::Point2d& screen) const
     {

@@ -26,6 +26,11 @@ constexpr int kMinTemplateSide = 24;
 constexpr int kMinAnchorSide = 6;
 constexpr const char* kIconDir = "SceneManager";
 
+// 分块投票：块内像素几乎不起伏就给不出定位信息，归一化相关在这种块上只会放大噪声，
+// 让它弃权。投票的块太少则中位数不再有多数可言，整档作废改由别的档说话
+constexpr double kVoteBlockMinStdDev = 1.0;
+constexpr size_t kVoteMinBlocks = 4;
+
 // 图标表与它认的那些模板同目录，一起走资源层次：某一端的图标画得不一样时，
 // 那一层放自己的模板和自己的阈值即可
 constexpr const char* kIconTableName = "MapIcons.json";
@@ -210,9 +215,91 @@ std::vector<double> LinearLadder(double lo, double hi, int steps)
     return out;
 }
 
+// 把模板切成 grid×grid 块各自匹配，按块在模板内的偏移把各自的分数面平移到同一个窗口原点，
+// 再逐像素取中位数。整窗匹配只出一个数，搜索窗里进了未探索迷雾这类局部遮挡就整帧塌掉；
+// 分块之后被污染的块只是少数票，投不过其余的块
+std::optional<maplocator::MatchResultRaw> VoteMatchPrepared(const cv::Mat& haystack, const cv::Mat& templ, int grid, int minBlockSide)
+{
+    if (haystack.cols < templ.cols || haystack.rows < templ.rows) {
+        return std::nullopt;
+    }
+    if (templ.cols / grid < minBlockSide || templ.rows / grid < minBlockSide) {
+        return std::nullopt;
+    }
+
+    const int spanX = haystack.cols - templ.cols + 1;
+    const int spanY = haystack.rows - templ.rows + 1;
+
+    std::vector<cv::Mat> votes;
+    votes.reserve(static_cast<size_t>(grid) * grid);
+    for (int iy = 0; iy < grid; ++iy) {
+        for (int ix = 0; ix < grid; ++ix) {
+            const int x0 = ix * templ.cols / grid;
+            const int y0 = iy * templ.rows / grid;
+            const cv::Rect cell(x0, y0, (ix + 1) * templ.cols / grid - x0, (iy + 1) * templ.rows / grid - y0);
+
+            cv::Scalar mean, stddev;
+            cv::meanStdDev(templ(cell), mean, stddev);
+            if (stddev[0] < kVoteBlockMinStdDev) {
+                continue;
+            }
+
+            cv::Mat scores;
+            cv::matchTemplate(haystack, templ(cell), scores, cv::TM_CCOEFF_NORMED);
+            cv::patchNaNs(scores, -1.0);
+            // 块在模板里的偏移就是它的分数面要往回平移的量，平移完各块说的都是同一个窗口原点
+            votes.push_back(scores(cv::Rect(x0, y0, spanX, spanY)).clone());
+        }
+    }
+
+    if (votes.size() < kVoteMinBlocks) {
+        return std::nullopt;
+    }
+
+    cv::Mat combined(spanY, spanX, CV_32FC1);
+    std::vector<const float*> rows(votes.size());
+    std::vector<float> bucket(votes.size());
+    const size_t mid = bucket.size() / 2;
+    for (int y = 0; y < spanY; ++y) {
+        for (size_t i = 0; i < votes.size(); ++i) {
+            rows[i] = votes[i].ptr<float>(y);
+        }
+        float* out = combined.ptr<float>(y);
+        for (int x = 0; x < spanX; ++x) {
+            for (size_t i = 0; i < rows.size(); ++i) {
+                bucket[i] = rows[i][x];
+            }
+            std::nth_element(bucket.begin(), bucket.begin() + mid, bucket.end());
+            // 块数为偶数时取中间两个的平均，与离线验证时的口径一致
+            out[x] = bucket.size() % 2 != 0 ? bucket[mid] : (bucket[mid] + *std::max_element(bucket.begin(), bucket.begin() + mid)) / 2.0f;
+        }
+    }
+
+    double peak = 0.0;
+    cv::Point peakLoc;
+    cv::minMaxLoc(combined, nullptr, &peak, nullptr, &peakLoc);
+
+    // 峰值旁瓣比与整窗那条路径同口径：屏蔽主峰后拿剩下的均值方差算
+    const int ex = std::max(3, std::min(templ.cols, templ.rows) / 10);
+    cv::Rect peakRect(peakLoc.x - ex, peakLoc.y - ex, ex * 2 + 1, ex * 2 + 1);
+    peakRect &= cv::Rect(0, 0, combined.cols, combined.rows);
+    cv::Mat sidelobe(combined.size(), CV_8UC1, cv::Scalar(1));
+    sidelobe(peakRect).setTo(0);
+    cv::Scalar mean, stddev;
+    cv::meanStdDev(combined, mean, stddev, sidelobe);
+
+    maplocator::MatchResultRaw out;
+    out.score = peak;
+    // 中位数面不是相关面，抛物线外插那套在它上面没有依据。整像素落点最多差半个底图像素，
+    // 而认图标那道判定圈按底图算有 10 像素，够用
+    out.loc = cv::Point2d(peakLoc.x, peakLoc.y);
+    out.psr = (peak - mean[0]) / (stddev[0] + 1e-6);
+    return out;
+}
+
 // 在 haystack 上按给定尺度逐档缩放 needle 匹配，取分最高的一档。
 // slack 是模板与搜索图的最小尺寸差：贴得太满时可落位置太少，分数会虚高。
-// needleMask 空则整块模板等权
+// needleMask 空则整块模板等权。voteGrid 大于 1 时改走分块投票，那条路径不吃 needleMask
 std::optional<ScanHit> ScanScales(
     const cv::Mat& haystack,
     const cv::Mat& needle,
@@ -221,6 +308,8 @@ std::optional<ScanHit> ScanScales(
     int minSide,
     int slack,
     maplocator::PeakRefineMode refineMode,
+    int voteGrid = 1,
+    int voteMinBlockSide = 0,
     std::vector<ScanRung>* rungs = nullptr)
 {
     if (haystack.empty() || needle.empty() || scales.empty()) {
@@ -240,13 +329,18 @@ std::optional<ScanHit> ScanScales(
         cv::Mat scaled;
         cv::resize(needle, scaled, cv::Size(w, h), 0.0, 0.0, scale < 1.0 ? cv::INTER_AREA : cv::INTER_LINEAR);
 
-        cv::Mat mask(scaled.size(), CV_8UC1, cv::Scalar(255));
-        if (!needleMask.empty()) {
-            // 掩膜是二值的，插值会在边界上造出中间值，只能用最近邻
-            cv::resize(needleMask, mask, scaled.size(), 0.0, 0.0, cv::INTER_NEAREST);
+        std::optional<maplocator::MatchResultRaw> hit;
+        if (voteGrid > 1) {
+            hit = VoteMatchPrepared(prepared.image, scaled, voteGrid, voteMinBlockSide);
         }
-
-        const auto hit = maplocator::CoreMatchPrepared(prepared, scaled, mask, refineMode);
+        else {
+            cv::Mat mask(scaled.size(), CV_8UC1, cv::Scalar(255));
+            if (!needleMask.empty()) {
+                // 掩膜是二值的，插值会在边界上造出中间值，只能用最近邻
+                cv::resize(needleMask, mask, scaled.size(), 0.0, 0.0, cv::INTER_NEAREST);
+            }
+            hit = maplocator::CoreMatchPrepared(prepared, scaled, mask, refineMode);
+        }
         if (!hit) {
             continue;
         }
@@ -266,6 +360,101 @@ std::optional<ScanHit> ScanScales(
     }
 
     return best;
+}
+
+// 粗解在降采样图上定位置，细解回到原尺度定尺度，再拿粗解各档判这个解唯不唯一。
+// voteGrid 为 1 走整窗匹配，大于 1 则两级都改用分块投票
+std::optional<Viewport> ScanViewport(
+    const cv::Mat& base,
+    const cv::Mat& baseSmall,
+    const cv::Mat& roi,
+    const cv::Mat& roiSmall,
+    const cv::Rect& roiRect,
+    const ViewportConfig& cfg,
+    int voteGrid,
+    const std::string& zone)
+{
+    const int down = std::max(1, cfg.coarseDownscale);
+
+    std::vector<ScanRung> coarseRungs;
+    const auto coarse = ScanScales(
+        baseSmall,
+        roiSmall,
+        cv::Mat(),
+        GeometricLadder(cfg.scaleMin, cfg.scaleMax, cfg.coarseRatio),
+        kMinTemplateSide,
+        std::max(1, static_cast<int>(std::lround(cfg.scanSlack / static_cast<double>(down)))),
+        maplocator::PeakRefineMode::Parabola,
+        voteGrid,
+        // 粗解在降采样图上跑，块的边长下界也得跟着折算，否则低倍率档会被整档筛掉
+        std::max(1, static_cast<int>(std::lround(cfg.voteMinBlockSide / static_cast<double>(down)))),
+        &coarseRungs);
+    if (!coarse) {
+        LogWarn << "WorldMap: coarse viewport scan found nothing" << VAR(zone) << VAR(voteGrid);
+        return std::nullopt;
+    }
+
+    // 细解：回到原尺度，搜索窗只覆盖粗解落点附近，两侧各留一个降采样格的不确定度。
+    // 尺度只需覆盖到相邻两档粗解之间，再宽就是白扫
+    const int pad = down * 3;
+    const double span = coarse->scale * (cfg.coarseRatio - 1.0) * 1.2;
+    const int windowX = std::max(0, static_cast<int>(std::lround(coarse->loc.x * down)) - pad);
+    const int windowY = std::max(0, static_cast<int>(std::lround(coarse->loc.y * down)) - pad);
+    const cv::Rect window(
+        windowX,
+        windowY,
+        std::min(static_cast<int>(std::lround(roi.cols * (coarse->scale + span))) + pad * 2, base.cols - windowX),
+        std::min(static_cast<int>(std::lround(roi.rows * (coarse->scale + span))) + pad * 2, base.rows - windowY));
+    if (window.width < kMinTemplateSide || window.height < kMinTemplateSide) {
+        LogWarn << "WorldMap: fine window degenerated" << VAR(window.width) << VAR(window.height) << VAR(voteGrid);
+        return std::nullopt;
+    }
+
+    // 细解窗口是照模板尺寸开的，本来就贴边，可落位置已由粗解锚定，不需要再留余量
+    const auto fine = ScanScales(
+        base(window),
+        roi,
+        cv::Mat(),
+        LinearLadder(std::max(cfg.scaleMin, coarse->scale - span), coarse->scale + span, cfg.fineSteps),
+        kMinTemplateSide,
+        0,
+        maplocator::PeakRefineMode::Continuous,
+        voteGrid,
+        cfg.voteMinBlockSide);
+    if (!fine) {
+        LogWarn << "WorldMap: fine viewport scan found nothing" << VAR(zone) << VAR(voteGrid);
+        return std::nullopt;
+    }
+
+    // 可信度只能拿粗解档来算：细解各档彼此相差不到一成，分数几乎一样高，
+    // 互为次高分毫无意义。与尺度差 6% 以上的粗解档比，才说明这个解真的唯一
+    double rivalBest = 0.0;
+    for (const ScanRung& rung : coarseRungs) {
+        if (std::abs(rung.scale - fine->scale) > 0.06 * fine->scale) {
+            rivalBest = std::max(rivalBest, rung.score);
+        }
+    }
+    const double delta = fine->score - rivalBest;
+
+    if (fine->score < cfg.minScore || delta < cfg.minDelta) {
+        LogWarn << "WorldMap: viewport rejected" << VAR(zone) << VAR(fine->score) << VAR(delta) << VAR(fine->psr) << VAR(fine->scale)
+                << VAR(cfg.minScore) << VAR(cfg.minDelta) << VAR(voteGrid);
+        return std::nullopt;
+    }
+
+    Viewport vp;
+    vp.scale = fine->scale;
+    vp.roiOrigin = cv::Point2d(roiRect.x, roiRect.y);
+    vp.baseOrigin = cv::Point2d(window.x + fine->loc.x, window.y + fine->loc.y);
+    vp.roiSize = roiRect.size();
+    vp.score = fine->score;
+    vp.delta = delta;
+    vp.psr = fine->psr;
+    vp.voteGrid = voteGrid;
+
+    LogInfo << "WorldMap: viewport solved" << VAR(zone) << VAR(vp.scale) << VAR(vp.baseOrigin.x) << VAR(vp.baseOrigin.y) << VAR(vp.score)
+            << VAR(vp.delta) << VAR(vp.psr) << VAR(vp.voteGrid);
+    return vp;
 }
 
 // 模板哪些像素是金的，就到实拍的同一批像素上看还金不金。没解锁的整块褪成灰，比例会塌下去
@@ -662,79 +851,18 @@ std::optional<Viewport> WorldMapSolver::SolveViewport(const cv::Mat& screen, con
     cv::resize(*base, baseSmall, cv::Size(base->cols / down, base->rows / down), 0.0, 0.0, cv::INTER_AREA);
     cv::resize(roi, roiSmall, cv::Size(roi.cols / down, roi.rows / down), 0.0, 0.0, cv::INTER_AREA);
 
-    std::vector<ScanRung> coarseRungs;
-    const auto coarse = ScanScales(
-        baseSmall,
-        roiSmall,
-        cv::Mat(),
-        GeometricLadder(cfg.scaleMin, cfg.scaleMax, cfg.coarseRatio),
-        kMinTemplateSide,
-        std::max(1, static_cast<int>(std::lround(cfg.scanSlack / static_cast<double>(down)))),
-        maplocator::PeakRefineMode::Parabola,
-        &coarseRungs);
-    if (!coarse) {
-        LogWarn << "WorldMap: coarse viewport scan found nothing" << VAR(zone);
+    if (auto vp = ScanViewport(*base, baseSmall, roi, roiSmall, roiRect, cfg, 1, zone)) {
+        return vp;
+    }
+
+    if (cfg.voteGrid <= 1) {
         return std::nullopt;
     }
 
-    // 细解：回到原尺度，搜索窗只覆盖粗解落点附近，两侧各留一个降采样格的不确定度。
-    // 尺度只需覆盖到相邻两档粗解之间，再宽就是白扫
-    const int pad = down * 3;
-    const double span = coarse->scale * (cfg.coarseRatio - 1.0) * 1.2;
-    const int windowX = std::max(0, static_cast<int>(std::lround(coarse->loc.x * down)) - pad);
-    const int windowY = std::max(0, static_cast<int>(std::lround(coarse->loc.y * down)) - pad);
-    const cv::Rect window(
-        windowX,
-        windowY,
-        std::min(static_cast<int>(std::lround(roi.cols * (coarse->scale + span))) + pad * 2, base->cols - windowX),
-        std::min(static_cast<int>(std::lround(roi.rows * (coarse->scale + span))) + pad * 2, base->rows - windowY));
-    if (window.width < kMinTemplateSide || window.height < kMinTemplateSide) {
-        LogWarn << "WorldMap: fine window degenerated" << VAR(window.width) << VAR(window.height);
-        return std::nullopt;
-    }
-
-    // 细解窗口是照模板尺寸开的，本来就贴边，可落位置已由粗解锚定，不需要再留余量
-    const auto fine = ScanScales(
-        (*base)(window),
-        roi,
-        cv::Mat(),
-        LinearLadder(std::max(cfg.scaleMin, coarse->scale - span), coarse->scale + span, cfg.fineSteps),
-        kMinTemplateSide,
-        0,
-        maplocator::PeakRefineMode::Continuous);
-    if (!fine) {
-        LogWarn << "WorldMap: fine viewport scan found nothing" << VAR(zone);
-        return std::nullopt;
-    }
-
-    // 可信度只能拿粗解档来算：细解各档彼此相差不到一成，分数几乎一样高，
-    // 互为次高分毫无意义。与尺度差 6% 以上的粗解档比，才说明这个解真的唯一
-    double rivalBest = 0.0;
-    for (const ScanRung& rung : coarseRungs) {
-        if (std::abs(rung.scale - fine->scale) > 0.06 * fine->scale) {
-            rivalBest = std::max(rivalBest, rung.score);
-        }
-    }
-    const double delta = fine->score - rivalBest;
-
-    if (fine->score < cfg.minScore || delta < cfg.minDelta) {
-        LogWarn << "WorldMap: viewport rejected" << VAR(zone) << VAR(fine->score) << VAR(delta) << VAR(fine->psr) << VAR(cfg.minScore)
-                << VAR(cfg.minDelta);
-        return std::nullopt;
-    }
-
-    Viewport vp;
-    vp.scale = fine->scale;
-    vp.roiOrigin = cv::Point2d(roiRect.x, roiRect.y);
-    vp.baseOrigin = cv::Point2d(window.x + fine->loc.x, window.y + fine->loc.y);
-    vp.roiSize = roiRect.size();
-    vp.score = fine->score;
-    vp.delta = delta;
-    vp.psr = fine->psr;
-
-    LogInfo << "WorldMap: viewport solved" << VAR(zone) << VAR(vp.scale) << VAR(vp.baseOrigin.x) << VAR(vp.baseOrigin.y) << VAR(vp.score)
-            << VAR(vp.delta) << VAR(vp.psr);
-    return vp;
+    // 整窗匹配只出一个数，搜索窗里进了未探索迷雾这类局部遮挡就整帧塌掉。分块投票能把
+    // 被污染的块变成少数票，代价是多跑一遍，所以只在整窗已经判失败时才付这笔钱
+    LogInfo << "WorldMap: retrying the viewport with block voting" << VAR(zone) << VAR(cfg.voteGrid);
+    return ScanViewport(*base, baseSmall, roi, roiSmall, roiRect, cfg, cfg.voteGrid, zone);
 }
 
 WorldMapSolver& GetSolver(std::string_view controller_type)

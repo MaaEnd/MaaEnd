@@ -49,6 +49,13 @@
                     "type": "integer",
                     "minimum": 1,
                     "default": 4
+                },
+                "vote_grid": {
+                    "title": "Vote Grid",
+                    "description": "Fallback for when matching the whole search window at once cannot solve the viewport. The window is split into vote_grid x vote_grid blocks matched separately and combined by a per-pixel median, so a locally occluded block gets outvoted instead of dragging the whole frame's score down. It only runs after the whole-window attempt has already been rejected, so a frame that solves normally is unaffected. Set to 1 to turn the fallback off for this node. Optional, defaults to 3.",
+                    "type": "integer",
+                    "minimum": 1,
+                    "default": 3
                 }
             }
         }

@@ -39,6 +39,7 @@ Optional (`custom_recognition_param`):
 | `icon` | none | An icon name from the [icon table](#icon-table). Omit it to only solve the coordinate, confirming no icon at all |
 | `state` | `"unlocked"` | Which unlock state counts as a hit. Requires an icon carrying `gold_ratio` in the table, since nothing else tells the two states apart |
 | `max_attempts` | `4` | Recognition attempts. Panning the map is not charged against it |
+| `vote_grid` | `3` | When matching the whole window at once cannot solve the viewport, solve again with [block voting](#block-voting) at this grid size. Set to `1` to turn the fallback off |
 
 Thresholds, templates and calibrated scales never appear in the node: they belong to the icon and live in the icon table. A new kind of icon is one table entry, not a fistful of node parameters.
 
@@ -174,3 +175,15 @@ The unlock check runs on its own track. Locked and unlocked icons differ only in
 > [!IMPORTANT]
 >
 > Once `icon` is given, icon confirmation is the sole basis for acting. A solved viewport is **not** enough to click on — however accurate the transform, it only says "if an icon is there, it should be at this position", not that one is. Missing an icon costs a retry; hitting the wrong one costs a click on another teleport point or on bare terrain, and the two are not equivalent. Without `icon` the node hands back a coordinate and makes no promise about it; wiring that to `Click` is clicking blind, so know what you are doing.
+
+### Block voting
+
+The viewport solve treats the whole search window as one template by default, and normalised correlation gives a single number for the whole window. When something covers part of it locally — the fog over unexplored ground, for instance — that one-tenth of the area drags the whole frame's score down, and the correct rung falls below the threshold with it.
+
+Rather than give up there, the window is split into `vote_grid` × `vote_grid` blocks matched separately; each block's score surface is shifted back by that block's offset inside the window so they all agree on one window origin, then combined by a per-pixel median before taking the maximum. An occluded block is only a minority vote and gets outvoted by the rest — and this path never has to know what the occlusion looks like, so fog, weather, overlays and map markers all go through it alike.
+
+It only runs after the whole-window attempt has already been rejected; a frame that solves normally never reaches it. The cost is one extra pass of matching, on a frame that was already going to pay for another pan and capture. Block side length has a floor, since a block too small carries no positioning information; a rung with fewer than four voting blocks is discarded entirely and left to the other scale rungs.
+
+The position block voting reports is integer-pixel, with no sub-pixel extrapolation — a median surface is not a correlation surface, so extrapolating on it has no basis. The maximum is taken over the base map, so that caps the error at half a base-map pixel, against the 10 base-pixel window that icon confirmation allows.
+
+Block voting only changes how the viewport is solved; whatever it solves still has to pass icon confirmation, so the note above applies to it unchanged.
