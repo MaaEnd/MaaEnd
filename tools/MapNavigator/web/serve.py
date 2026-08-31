@@ -1,13 +1,15 @@
 # /// script
 # requires-python = ">=3.10"
 # dependencies = [
-#   "fastapi",
-#   "uvicorn",
-#   "websockets",
-#   "maafw==5.13.0b4",
-#   "pynput",
-#   "pyperclip",
+#   "fastapi>=0.129,<1.0",
+#   "maafw>=5.13.0b4,<6.0",
 #   "numpy",
+#   "pydantic",
+#   "pynput>=1.7.0",
+#   "pyperclip",
+#   "starlette",
+#   "uvicorn>=0.41,<1.0",
+#   "websockets",
 # ]
 # ///
 """MapNavigator Web 后端 (FastAPI, 仅监听 127.0.0.1)。

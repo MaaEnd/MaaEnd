@@ -19,7 +19,7 @@ MapNavigator 是 MaaEnd 的寻路组件：给定目标位置，自动规划路�
 
 让角色走到指定位置共五步：
 
-1. **启动工具**：`cd tools\MapNavigator`，执行 `uv run main.py`。浏览器自动打开，默认进入 `路径编辑` 模式。
+1. **启动工具**：在项目根目录执行 `uv run map-navigator`。浏览器自动打开，默认进入 `路径编辑` 模式。
 2. **选择层级**：在左侧“地图与定位”卡片中点击 `选择底图与层级`，选中目标所在的底图 / tier。
 3. **标记目标**：选择 `添加/选择`，在地图上点击目标位置。手工新增的路点默认使用 `NAVMESH`；只有实机轨迹录制产生的点默认使用 `RUN`。
 4. **复制**：点击 `复制路径`。
@@ -59,8 +59,7 @@ MapNavigator 是 MaaEnd 的寻路组件：给定目标位置，自动规划路�
 启动方式：
 
 ```powershell
-cd tools\MapNavigator
-uv run main.py
+uv run map-navigator
 ```
 
 页面顶部先区分两个工作区：`路线制作` 与只读的 `日志分析`。路线制作内部有两个工具：
@@ -166,7 +165,7 @@ uv run main.py
 ### 录制准备
 
 1. 项目开发环境已配置完成，尤其是 `install/agent/cpp-algo.exe` 与 `install/maafw` 可正常使用。
-2. 已安装 uv；运行 `uv run main.py` 时会根据 PEP 723 声明自动准备 Python 与依赖。
+2. 已安装 uv；在项目根目录运行 `uv run map-navigator` 时会根据 `pyproject.toml` 自动准备 Python 与依赖。
 3. **Windows** 需**以管理员身份运行**，否则游戏（管理员进程）在前台时 `G` / `X` 热键无法接收。`main.py` 启动时会自动检测并弹出 UAC。
 4. **macOS** 首次运行需在 **系统设置 → 隐私与安全性 → 输入监控** 中授权当前终端或 uv 管理的 Python 解释器，否则全局热键不生效。
 5. 使用 `Win32` 连接时，游戏已启动且窗口**未最小化**；使用 `ADB` 连接时，`adb` 可用且设备已出现在列表中（`检测并刷新设备`）。

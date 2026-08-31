@@ -6,6 +6,7 @@ requires-python = ">=3.10"
 dependencies = []
 
 [project.scripts]
+map-navigator = "tools.MapNavigator.main:main"
 sentry-report = "tools.sentry.cli:main"
 
 [build-system]
@@ -28,7 +29,7 @@ images = [
 ]
 map-navigator = [
     "fastapi>=0.129,<1.0",
-    "maafw>=5.12,<6.0",
+    "maafw>=5.13.0b4,<6.0",
     "numpy",
     "pydantic",
     "pynput>=1.7.0",
@@ -49,5 +50,5 @@ default-groups = ["scripts"]
 package = true
 
 [tool.uv.build-backend]
-module-name = "tools.sentry"
+module-name = ["tools.MapNavigator", "tools.sentry"]
 module-root = ""

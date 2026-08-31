@@ -1,13 +1,15 @@
-# Runtime dependencies for standard Python usage (mirrors the PEP 723 headers
-# in main.py / web/serve.py — keep the three in sync):
+# Runtime dependencies for standard Python usage (mirrors pyproject.toml and
+# the PEP 723 headers in main.py / web/serve.py — keep all four in sync):
 #   python -m venv .venv
 #   .venv\Scripts\activate
 #   pip install -r requirements.txt
 
-fastapi
-uvicorn
-websockets
-maafw==5.13.0b4
+fastapi>=0.129,<1.0
+maafw>=5.13.0b4,<6.0
+numpy
+pydantic
 pynput>=1.7.0
 pyperclip
-numpy
+starlette
+uvicorn>=0.41,<1.0
+websockets

@@ -1,6 +1,6 @@
 # MapNavigator Tool
 
-MapNavigator 是用于 C++ MapNavigator 模块使用的地图路径录制与编辑工具，采用 Web 架构：本地 FastAPI 后端（仅监听 `127.0.0.1`）+ 浏览器前端（原生 JS + WebGL，无构建步骤）。入口为 `main.py`，运行后自动打开浏览器页面。
+MapNavigator 是用于 C++ MapNavigator 模块使用的地图路径录制与编辑工具，采用 Web 架构：本地 FastAPI 后端（仅监听 `127.0.0.1`）+ 浏览器前端（原生 JS + WebGL，无构建步骤）。从项目根目录运行 `uv run map-navigator` 即可启动，随后会自动打开浏览器页面。
 
 本工具与 MapNavigator 组件配套使用：工具负责产出坐标，组件负责执行移动。**导出的配置如何接入 Pipeline，见[开发手册 - MapNavigator 寻路系统](../../docs/zh_cn/developers/components/map-navigator.md)。**
 
@@ -36,7 +36,7 @@ MapNavigator 是用于 C++ MapNavigator 模块使用的地图路径录制与编�
 - 基于 maafw `LinuxController`（PipeWire 截屏 + libei 输入），从当前发现的 gamescope 实例里选一个即可录制，不再需要手填 socket 路径。
 - 需要游戏跑在 gamescope 上；下拉列表展示 `Toolkit.find_gamescope_instances()` 发现的实例（display 编号 + PipeWire 节点 + EIS socket）。
 - 仅录制截图，不投递输入；`screencap_method`/`input_method` 与 `assets/interface.json` 的 `Linux-Gamescope` 控制器条目保持一致。
-- 依赖 `maafw==5.13.0b4`（含 `LinuxController` 绑定；`5.12.x` 没有该控制器类）。
+- 依赖 `maafw>=5.13.0b4,<6.0`（从 `5.13.0b4` 起包含 `LinuxController` 绑定；`5.12.x` 没有该控制器类）。
 
 ## 位置与朝向
 
@@ -271,14 +271,13 @@ dung01
 
 ## 运行方式
 
-依赖声明在 `main.py` / `web/serve.py` 的 PEP 723 头里，uv 会自动准备对应环境：
+项目依赖已在 `pyproject.toml` 中统一声明。从项目根目录运行：
 
 ```powershell
-cd tools/MapNavigator
-uv run main.py
+uv run map-navigator
 ```
 
-启动后服务监听 `http://127.0.0.1:8770`（仅本机，不暴露局域网）并自动打开浏览器。**端口被占用时会自动顺延到下一个可用端口**（最多试 20 个，仍全占用则由系统分配），控制台会打印 `[Backend] 服务地址: ...`，浏览器也会打开实际地址。环境变量：`MAPNAV_PORT` 指定首选端口（被占用时同样顺延）；`MAPNAV_NO_BROWSER=1` 只起服务不开浏览器。也可以直接 `uv run web/serve.py`（完全等价）。
+启动后服务监听 `http://127.0.0.1:8770`（仅本机，不暴露局域网）并自动打开浏览器。**端口被占用时会自动顺延到下一个可用端口**（最多试 20 个，仍全占用则由系统分配），控制台会打印 `[Backend] 服务地址: ...`，浏览器也会打开实际地址。环境变量：`MAPNAV_PORT` 指定首选端口（被占用时同样顺延）；`MAPNAV_NO_BROWSER=1` 只起服务不开浏览器。旧的 `cd tools\MapNavigator; uv run main.py` 方式继续兼容，并通过 `main.py` 的 PEP 723 声明准备依赖。
 
 ## 连接方式
 

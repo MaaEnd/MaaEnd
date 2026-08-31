@@ -1,20 +1,25 @@
 # /// script
 # requires-python = ">=3.10"
 # dependencies = [
-#   "fastapi",
-#   "uvicorn",
-#   "websockets",
-#   "maafw==5.13.0b4",
-#   "pynput",
-#   "pyperclip",
+#   "fastapi>=0.129,<1.0",
+#   "maafw>=5.13.0b4,<6.0",
 #   "numpy",
+#   "pydantic",
+#   "pynput>=1.7.0",
+#   "pyperclip",
+#   "starlette",
+#   "uvicorn>=0.41,<1.0",
+#   "websockets",
 # ]
 # ///
-"""MapNavigator 入口: 拉起 web 后端 (web/serve.py)。
+"""MapNavigator 入口：拉起 Web 后端（web/serve.py）。
 
-依赖声明须与 web/serve.py 的 PEP 723 头保持一致 —— `uv run main.py` 只读取本文件的头。
+从项目根目录运行 `uv run map-navigator` 时使用 pyproject.toml 中的依赖；兼容的
+`uv run main.py` 脚本模式只读取本文件的 PEP 723 声明。两处依赖须与
+web/serve.py 保持一致。
 
-端口选取与浏览器打开都在 serve.py: 端口被占用会顺延, 只有绑定方知道最终端口, 这里不能再猜。
+端口选取与浏览器打开都在 serve.py：端口被占用会顺延，只有绑定方知道最终端口，
+这里不能再猜。
 """
 
 from __future__ import annotations

@@ -404,8 +404,7 @@ Non-coordinate control nodes like `HEADING` and semantic pathfinding nodes like 
 ### Running Method
 
 ```powershell
-cd tools\MapNavigator
-uv run main.py
+uv run map-navigator
 ```
 
 ### Pre-run Preparation
@@ -413,7 +412,7 @@ uv run main.py
 Before starting to record, please confirm:
 
 1. The project development environment has been configured according to the development manual, especially that `install/agent/cpp-algo.exe` and `install/maafw` are usable.
-2. uv is installed; `uv run main.py` prepares Python and dependencies automatically from the PEP 723 metadata.
+2. uv is installed; from the project root, `uv run map-navigator` prepares Python and dependencies automatically from `pyproject.toml`.
 3. **Windows**: The tool needs to be run with **administrator privileges**; otherwise, the G/X hotkeys may not be captured by the system when the game (an administrator process) is in the foreground. `main.py` will automatically detect this and prompt a UAC elevation request at startup.
 4. **macOS**: On the first run, authorize the current terminal or the uv-managed Python interpreter in **System Settings → Privacy & Security → Input Monitoring**; otherwise, global hotkeys will not work.
 5. If using `Win32` connection, the game is already started, and the window is **not minimized**.
