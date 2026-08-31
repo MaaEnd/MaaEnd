@@ -12,25 +12,25 @@
  * @module gl/overlay
  */
 
-import { ACTION_COLORS, getPointActions } from '../model.js';
+import {ACTION_COLORS, getPointActions} from "../model.js";
 
 /** @typedef {import('../camera.js').Camera} Camera */
 
 const MONO = '"Consolas", "SFMono-Regular", ui-monospace, monospace';
 
-const PATH_COLOR = '#f8fafc';
-const NODE_DEFAULT_FILL = '#3498db';
+const PATH_COLOR = "#f8fafc";
+const NODE_DEFAULT_FILL = "#3498db";
 
-const ASSERT_STROKE = '#f43f5e';
-const ASSERT_FILL = 'rgba(244, 63, 94, 0.25)'; // tk stipple gray25 ≈ 25% alpha
-const ASSERT_LABEL_FILL = '#fff1f2';
+const ASSERT_STROKE = "#f43f5e";
+const ASSERT_FILL = "rgba(244, 63, 94, 0.25)"; // tk stipple gray25 ≈ 25% alpha
+const ASSERT_LABEL_FILL = "#fff1f2";
 
-const SELECTION_RECT_STROKE = '#38bdf8';
+const SELECTION_RECT_STROKE = "#38bdf8";
 
 // Off-mesh warnings share the amber of the hint marker — "look here", never "blocked".
-const OFFMESH_COLOR = '#ffaa00';
-const OFFMESH_DIM = 'rgba(255, 170, 0, 0.55)';
-const ROUTE_FAILURE_COLOR = '#ef4444';
+const OFFMESH_COLOR = "#ffaa00";
+const OFFMESH_DIM = "rgba(255, 170, 0, 0.55)";
+const ROUTE_FAILURE_COLOR = "#ef4444";
 
 export class Overlay {
   /**
@@ -40,7 +40,7 @@ export class Overlay {
     /** @type {HTMLCanvasElement} */
     this.canvas = canvas;
     /** @type {CanvasRenderingContext2D} */
-    this.ctx = /** @type {CanvasRenderingContext2D} */ (canvas.getContext('2d'));
+    this.ctx = /** @type {CanvasRenderingContext2D} */ (canvas.getContext("2d"));
     this.cssW = 1;
     this.cssH = 1;
     this.dpr = 1;
@@ -88,12 +88,12 @@ export class Overlay {
     ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
     ctx.clearRect(0, 0, this.cssW, this.cssH);
 
-    const mode = vm.mode || 'edit';
+    const mode = vm.mode || "edit";
 
     // Real route points in every mode (the caller decides which ones are in frame);
     // mode-specific artifacts are layered on top so they stay readable over a route.
     this._drawPath(camera, vm.points || []);
-    if (mode === 'edit') {
+    if (mode === "edit") {
       if (vm.editPreview) {
         this._drawAstarPreview(camera, vm.editPreview);
         this._drawAstarDiagnostics(camera, vm.editPreview.diagnostics, vm.editPreview.debugOptions || {});
@@ -103,23 +103,23 @@ export class Overlay {
     }
     this._drawNodes(camera, vm.points || [], vm.selectedIdx, vm.selectedIndices || new Set());
 
-    if (mode === 'edit' && vm.editPreviewStart) {
+    if (mode === "edit" && vm.editPreviewStart) {
       this._drawPlanningStartMarker(camera, vm.editPreviewStart);
     }
-    if (mode === 'edit' && vm.quickRouteTest) {
+    if (mode === "edit" && vm.quickRouteTest) {
       this._drawQuickRouteTestMarkers(camera, vm.quickRouteTest);
     }
 
-    if (mode === 'edit' && vm.editLocateHint) {
+    if (mode === "edit" && vm.editLocateHint) {
       const hint = vm.editLocateHint;
       this._drawHintMarker(camera, hint.x, hint.y, hint.label, hint.rot);
     }
-    if (mode === 'assert') {
+    if (mode === "assert") {
       this._drawAssertRect(camera, vm.assertTarget || null);
       const hint = vm.assertLocateHint;
       if (hint) this._drawHintMarker(camera, hint.x, hint.y, hint.label, hint.rot);
     }
-    if (mode === 'log' && vm.logAnalysis) {
+    if (mode === "log" && vm.logAnalysis) {
       this._drawLogAnalysis(camera, vm.logAnalysis);
     }
     // Topmost: a point sitting off the walkable mesh is the one thing that must never be
@@ -149,9 +149,9 @@ export class Overlay {
 
     const ctx = this.ctx;
     ctx.save();
-    ctx.lineCap = 'round';
+    ctx.lineCap = "round";
     ctx.setLineDash([9, 6]);
-    ctx.strokeStyle = 'rgba(0, 0, 0, 0.65)';
+    ctx.strokeStyle = "rgba(0, 0, 0, 0.65)";
     ctx.lineWidth = 6;
     ctx.beginPath();
     ctx.moveTo(x1, y1);
@@ -172,17 +172,17 @@ export class Overlay {
     ]) {
       ctx.beginPath();
       ctx.arc(x, y, 8, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(11, 18, 32, 0.9)';
+      ctx.fillStyle = "rgba(11, 18, 32, 0.9)";
       ctx.fill();
       ctx.strokeStyle = ROUTE_FAILURE_COLOR;
       ctx.lineWidth = 2.5;
       ctx.stroke();
     }
 
-    this._drawCaption(x1, y1 - 24, precise ? '起点侧边界' : '失败段起点', ROUTE_FAILURE_COLOR);
-    this._drawCaption(x2, y2 - 24, precise ? '目标侧边界' : '失败目标', ROUTE_FAILURE_COLOR);
+    this._drawCaption(x1, y1 - 24, precise ? "起点侧边界" : "失败段起点", ROUTE_FAILURE_COLOR);
+    this._drawCaption(x2, y2 - 24, precise ? "目标侧边界" : "失败目标", ROUTE_FAILURE_COLOR);
     const distance = Number(failure.gap_distance);
-    const gapLabel = precise && Number.isFinite(distance) ? `断口 ${distance.toFixed(1)} px` : '未连通段';
+    const gapLabel = precise && Number.isFinite(distance) ? `断口 ${distance.toFixed(1)} px` : "未连通段";
     this._drawCaption((x1 + x2) / 2, (y1 + y2) / 2, gapLabel, ROUTE_FAILURE_COLOR);
     ctx.restore();
   }
@@ -190,10 +190,10 @@ export class Overlay {
   /** Cyan S badge for the preview-only planning start. */
   _drawPlanningStartMarker(camera, marker) {
     this._drawRouteEndpointMarker(camera, marker, {
-      token: 'S',
-      color: '#00b8d4',
-      halo: 'rgba(0, 225, 255, 0.45)',
-      caption: '#67e8f9',
+      token: "S",
+      color: "#00b8d4",
+      halo: "rgba(0, 225, 255, 0.45)",
+      caption: "#67e8f9",
     });
   }
 
@@ -201,18 +201,18 @@ export class Overlay {
   _drawQuickRouteTestMarkers(camera, test) {
     if (test.start) {
       this._drawRouteEndpointMarker(camera, test.start, {
-        token: 'S',
-        color: '#00b8d4',
-        halo: 'rgba(0, 225, 255, 0.45)',
-        caption: '#67e8f9',
+        token: "S",
+        color: "#00b8d4",
+        halo: "rgba(0, 225, 255, 0.45)",
+        caption: "#67e8f9",
       });
     }
     if (test.goal) {
       this._drawRouteEndpointMarker(camera, test.goal, {
-        token: 'G',
-        color: '#e11d48',
-        halo: 'rgba(251, 113, 133, 0.5)',
-        caption: '#fda4af',
+        token: "G",
+        color: "#e11d48",
+        halo: "rgba(251, 113, 133, 0.5)",
+        caption: "#fda4af",
       });
     }
   }
@@ -228,7 +228,7 @@ export class Overlay {
     if (marker.selected) {
       ctx.beginPath();
       ctx.arc(cx, cy, 17, 0, Math.PI * 2);
-      ctx.strokeStyle = '#f43f5e';
+      ctx.strokeStyle = "#f43f5e";
       ctx.lineWidth = 2;
       ctx.stroke();
     }
@@ -243,14 +243,14 @@ export class Overlay {
     ctx.arc(cx, cy, 9, 0, Math.PI * 2);
     ctx.fillStyle = style.color;
     ctx.fill();
-    ctx.strokeStyle = '#ffffff';
+    ctx.strokeStyle = "#ffffff";
     ctx.lineWidth = 1.5;
     ctx.stroke();
 
-    ctx.fillStyle = '#ffffff';
+    ctx.fillStyle = "#ffffff";
     ctx.font = `bold 10px ${MONO}`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
     ctx.fillText(style.token, cx, cy + 0.5);
     ctx.restore();
     this._drawCaption(cx, cy + 25, marker.label || style.token, style.caption);
@@ -273,7 +273,7 @@ export class Overlay {
 
     if (log.showAuthored) {
       this._strokeLogPolyline(camera, log.authored || [], {
-        color: 'rgba(248, 250, 252, 0.9)',
+        color: "rgba(248, 250, 252, 0.9)",
         width: 2,
         dash: [7, 5],
       });
@@ -282,7 +282,7 @@ export class Overlay {
     if (log.showBaseline) {
       for (const points of log.baselines || []) {
         this._strokeLogPolyline(camera, points, {
-          color: 'rgba(245, 158, 11, 0.55)',
+          color: "rgba(245, 158, 11, 0.55)",
           width: 2.5,
           dash: [9, 7],
         });
@@ -291,32 +291,32 @@ export class Overlay {
 
     if (log.showWalk) {
       for (const points of log.walks || []) {
-        this._strokeLogPolyline(camera, points, {color: '#ff3b9d', width: 3});
+        this._strokeLogPolyline(camera, points, {color: "#ff3b9d", width: 3});
       }
     }
 
     if (log.showObserved) {
       for (const points of log.observed || []) {
-        this._strokeLogPolyline(camera, points, {color: '#22c55e', width: 3.5});
+        this._strokeLogPolyline(camera, points, {color: "#22c55e", width: 3.5});
       }
     }
 
     if (log.showEstimates) {
       for (const segment of log.estimates || []) {
         this._strokeLogPolyline(camera, [segment.from, segment.to], {
-          color: 'rgba(34, 211, 238, 0.7)',
+          color: "rgba(34, 211, 238, 0.7)",
           width: 2,
           dash: [6, 6],
         });
         const [ax, ay] = camera.worldToCanvas(segment.from[0], segment.from[1]);
         const [bx, by] = camera.worldToCanvas(segment.to[0], segment.to[1]);
-        this._drawLogCaption((ax + bx) / 2, (ay + by) / 2 - 10, '端点估计', '#22d3ee');
+        this._drawLogCaption((ax + bx) / 2, (ay + by) / 2 - 10, "端点估计", "#22d3ee");
       }
     }
 
     if (log.showZipline) {
       for (const segment of log.ziplines || []) {
-        const color = segment.landed ? '#22d3ee' : '#f59e0b';
+        const color = segment.landed ? "#22d3ee" : "#f59e0b";
         this._strokeLogPolyline(camera, [segment.from, segment.to], {
           color,
           width: 4,
@@ -326,7 +326,7 @@ export class Overlay {
         if (!segment.landed) {
           const [ax, ay] = camera.worldToCanvas(segment.from[0], segment.from[1]);
           const [bx, by] = camera.worldToCanvas(segment.to[0], segment.to[1]);
-          this._drawLogCaption((ax + bx) / 2, (ay + by) / 2 - 10, '已发射，未确认落地', color);
+          this._drawLogCaption((ax + bx) / 2, (ay + by) / 2 - 10, "已发射，未确认落地", color);
         }
       }
     }
@@ -335,7 +335,7 @@ export class Overlay {
     if (log.showAuthored && authored.length) {
       const ctx = this.ctx;
       ctx.save();
-      ctx.fillStyle = '#f8fafc';
+      ctx.fillStyle = "#f8fafc";
       for (const point of authored) {
         const [cx, cy] = camera.worldToCanvas(point[0], point[1]);
         ctx.beginPath();
@@ -368,17 +368,17 @@ export class Overlay {
     ctx.lineTo(0, 5.5);
     ctx.lineTo(-5.5, 0);
     ctx.closePath();
-    ctx.fillStyle = 'rgba(139, 92, 246, 0.58)';
+    ctx.fillStyle = "rgba(139, 92, 246, 0.58)";
     ctx.fill();
-    ctx.strokeStyle = 'rgba(8, 15, 28, 0.82)';
+    ctx.strokeStyle = "rgba(8, 15, 28, 0.82)";
     ctx.lineWidth = 3.5;
     ctx.stroke();
-    ctx.strokeStyle = '#ddd6fe';
+    ctx.strokeStyle = "#ddd6fe";
     ctx.lineWidth = 1.5;
     ctx.stroke();
     ctx.beginPath();
     ctx.arc(0, 0, 1.5, 0, Math.PI * 2);
-    ctx.fillStyle = '#ffffff';
+    ctx.fillStyle = "#ffffff";
     ctx.fill();
     ctx.restore();
   }
@@ -387,13 +387,13 @@ export class Overlay {
   _drawSelectedZiplineTower(camera, tower) {
     if (!tower || !Array.isArray(tower.point)) return;
     const [cx, cy] = camera.worldToCanvas(tower.point[0], tower.point[1]);
-    const color = tower.confirmed ? '#22d3ee' : '#f59e0b';
+    const color = tower.confirmed ? "#22d3ee" : "#f59e0b";
     const ctx = this.ctx;
     ctx.save();
     ctx.setLineDash([]);
     ctx.beginPath();
     ctx.arc(cx, cy, 7, 0, Math.PI * 2);
-    ctx.fillStyle = tower.confirmed ? color : 'rgba(8, 15, 28, 0.9)';
+    ctx.fillStyle = tower.confirmed ? color : "rgba(8, 15, 28, 0.9)";
     ctx.fill();
     ctx.strokeStyle = color;
     ctx.lineWidth = 2.5;
@@ -401,25 +401,25 @@ export class Overlay {
     if (tower.confirmed) {
       ctx.beginPath();
       ctx.arc(cx, cy, 2, 0, Math.PI * 2);
-      ctx.fillStyle = '#ffffff';
+      ctx.fillStyle = "#ffffff";
       ctx.fill();
     }
     ctx.restore();
-    this._drawLogCaption(cx, cy - 17, tower.label || '滑索架', color);
+    this._drawLogCaption(cx, cy - 17, tower.label || "滑索架", color);
   }
 
   /** Highlight the point selected by the default log inspection tool. */
   _drawLogInspection(camera, inspection) {
     if (!inspection || !Array.isArray(inspection.point)) return;
     const [cx, cy] = camera.worldToCanvas(inspection.point[0], inspection.point[1]);
-    const color = inspection.color || '#22d3ee';
+    const color = inspection.color || "#22d3ee";
     const ctx = this.ctx;
     ctx.save();
     ctx.setLineDash([]);
 
     ctx.beginPath();
     ctx.arc(cx, cy, 14, 0, Math.PI * 2);
-    ctx.strokeStyle = 'rgba(0, 0, 0, 0.72)';
+    ctx.strokeStyle = "rgba(0, 0, 0, 0.72)";
     ctx.lineWidth = 6;
     ctx.stroke();
     ctx.strokeStyle = color;
@@ -435,12 +435,12 @@ export class Overlay {
     ctx.lineTo(cx, cy - 9);
     ctx.moveTo(cx, cy + 9);
     ctx.lineTo(cx, cy + 18);
-    ctx.strokeStyle = '#ffffff';
+    ctx.strokeStyle = "#ffffff";
     ctx.lineWidth = 1.5;
     ctx.stroke();
     ctx.restore();
 
-    this._drawLogCaption(cx, cy + 28, inspection.title || '点位详情', color);
+    this._drawLogCaption(cx, cy + 28, inspection.title || "点位详情", color);
   }
 
   /** A/B analysis ruler. It is dashed so it cannot be mistaken for a planned or ridden leg. */
@@ -450,10 +450,10 @@ export class Overlay {
     const result = measurement.result || null;
     const color =
       result && result.geometryConnected === true
-        ? '#22c55e'
+        ? "#22c55e"
         : result && result.geometryConnected === false
-          ? '#ef4444'
-          : '#e2e8f0';
+          ? "#ef4444"
+          : "#e2e8f0";
 
     if (towers.length >= 2) {
       this._strokeLogPolyline(camera, [towers[0].point, towers[1].point], {
@@ -467,31 +467,31 @@ export class Overlay {
         ? `${result.worldDistance.toFixed(2)} m`
         : Number.isFinite(result && result.baseDistance)
           ? `${result.baseDistance.toFixed(2)} px`
-          : '距离未知';
+          : "距离未知";
       this._drawLogCaption((ax + bx) / 2, (ay + by) / 2 - 12, caption, color);
     }
 
     for (const tower of towers) {
       const [cx, cy] = camera.worldToCanvas(tower.point[0], tower.point[1]);
-      const markerColor = tower.marker === 'B' ? '#f472b6' : '#60a5fa';
+      const markerColor = tower.marker === "B" ? "#f472b6" : "#60a5fa";
       const ctx = this.ctx;
       ctx.save();
       ctx.setLineDash([]);
       ctx.beginPath();
       ctx.arc(cx, cy, 11, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(8, 15, 28, 0.88)';
+      ctx.fillStyle = "rgba(8, 15, 28, 0.88)";
       ctx.fill();
-      ctx.strokeStyle = 'rgba(0, 0, 0, 0.65)';
+      ctx.strokeStyle = "rgba(0, 0, 0, 0.65)";
       ctx.lineWidth = 5;
       ctx.stroke();
       ctx.strokeStyle = markerColor;
       ctx.lineWidth = 3;
       ctx.stroke();
-      ctx.fillStyle = '#ffffff';
+      ctx.fillStyle = "#ffffff";
       ctx.font = `bold 10px ${MONO}`;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(tower.marker || '?', cx, cy + 0.5);
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(tower.marker || "?", cx, cy + 0.5);
       ctx.restore();
     }
   }
@@ -513,11 +513,11 @@ export class Overlay {
     };
 
     ctx.save();
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
     ctx.setLineDash(style.dash || []);
     trace();
-    ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)';
+    ctx.strokeStyle = "rgba(0, 0, 0, 0.5)";
     ctx.lineWidth = (style.width || 2) + 3;
     ctx.stroke();
     trace();
@@ -548,7 +548,7 @@ export class Overlay {
     ctx.lineTo(cx - ux * size + uy * size * 0.7, cy - uy * size - ux * size * 0.7);
     ctx.closePath();
     ctx.fillStyle = color;
-    ctx.strokeStyle = 'rgba(0, 0, 0, 0.55)';
+    ctx.strokeStyle = "rgba(0, 0, 0, 0.55)";
     ctx.lineWidth = 2;
     ctx.stroke();
     ctx.fill();
@@ -560,10 +560,10 @@ export class Overlay {
     const ctx = this.ctx;
     ctx.save();
     ctx.font = `10px ${MONO}`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
     const width = ctx.measureText(text).width + 10;
-    ctx.fillStyle = 'rgba(8, 15, 28, 0.86)';
+    ctx.fillStyle = "rgba(8, 15, 28, 0.86)";
     ctx.fillRect(cx - width / 2, cy - 8, width, 16);
     ctx.fillStyle = color;
     ctx.fillText(text, cx, cy);
@@ -582,7 +582,7 @@ export class Overlay {
     if (!walks.length) return;
     const ctx = this.ctx;
     ctx.save();
-    ctx.lineCap = 'round';
+    ctx.lineCap = "round";
 
     for (const walk of walks) {
       const [ox, oy] = camera.worldToCanvas(walk.off[0], walk.off[1]);
@@ -592,7 +592,7 @@ export class Overlay {
       ctx.moveTo(ox, oy);
       ctx.lineTo(mx, my);
       ctx.setLineDash([]);
-      ctx.strokeStyle = 'rgba(0, 0, 0, 0.45)';
+      ctx.strokeStyle = "rgba(0, 0, 0, 0.45)";
       ctx.lineWidth = 6.0;
       ctx.stroke();
 
@@ -607,7 +607,7 @@ export class Overlay {
       ctx.beginPath();
       ctx.arc(mx, my, 4.5, 0, Math.PI * 2);
       ctx.setLineDash([]);
-      ctx.fillStyle = '#0b1220';
+      ctx.fillStyle = "#0b1220";
       ctx.fill();
       ctx.strokeStyle = OFFMESH_COLOR;
       ctx.lineWidth = 2;
@@ -681,13 +681,13 @@ export class Overlay {
    * @param {Object} mark @returns {string}
    */
   _offMeshCaption(mark) {
-    const where = mark.reason === 'disconnected' ? '网格不连通' : '不在网格上';
+    const where = mark.reason === "disconnected" ? "网格不连通" : "不在网格上";
     if (mark.distance === null || mark.distance === undefined) {
       return `${where} · 附近无网格`;
     }
     const d = mark.distance.toFixed(1);
     if (mark.exact) return `${where} · 盲走 ${d} 格`;
-    const over = mark.budget && mark.distance > mark.budget ? `（超上限 ${mark.budget}）` : '';
+    const over = mark.budget && mark.distance > mark.budget ? `（超上限 ${mark.budget}）` : "";
     return `${where} · 最近网格 ${d} 格${over}`;
   }
 
@@ -704,15 +704,15 @@ export class Overlay {
     ctx.closePath();
     ctx.fillStyle = OFFMESH_COLOR;
     ctx.fill();
-    ctx.strokeStyle = 'rgba(0, 0, 0, 0.55)';
+    ctx.strokeStyle = "rgba(0, 0, 0, 0.55)";
     ctx.lineWidth = 1;
     ctx.stroke();
 
-    ctx.fillStyle = '#1a1200';
+    ctx.fillStyle = "#1a1200";
     ctx.font = `bold 9px ${MONO}`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('!', cx, cy + r * 0.1);
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("!", cx, cy + r * 0.1);
     ctx.restore();
   }
 
@@ -722,13 +722,13 @@ export class Overlay {
     ctx.save();
     ctx.setLineDash([]);
     ctx.font = `bold 10px ${MONO}`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
 
     const padX = 5;
     const w = ctx.measureText(text).width + padX * 2;
     const h = 15;
-    ctx.fillStyle = 'rgba(11, 18, 32, 0.85)';
+    ctx.fillStyle = "rgba(11, 18, 32, 0.85)";
     ctx.strokeStyle = color;
     ctx.lineWidth = 1;
     ctx.beginPath();
@@ -789,7 +789,7 @@ export class Overlay {
         ctx.beginPath();
         ctx.arc(cx, cy, baseRadius + 3.0, 0, Math.PI * 2);
         ctx.lineWidth = 1.5;
-        ctx.strokeStyle = isPrimary ? '#f43f5e' : '#f59e0b';
+        ctx.strokeStyle = isPrimary ? "#f43f5e" : "#f59e0b";
         ctx.stroke();
       }
 
@@ -802,26 +802,26 @@ export class Overlay {
       ctx.arc(cx, cy, baseRadius, 0, Math.PI * 2);
       if (isStrict) {
         const rainbowGrad = ctx.createConicGradient(0, cx, cy);
-        rainbowGrad.addColorStop(0.0, '#ff0000');
-        rainbowGrad.addColorStop(0.17, '#f97316');
-        rainbowGrad.addColorStop(0.33, '#eab308');
-        rainbowGrad.addColorStop(0.5, '#10b981');
-        rainbowGrad.addColorStop(0.67, '#00ffff');
-        rainbowGrad.addColorStop(0.83, '#a855f7');
-        rainbowGrad.addColorStop(1.0, '#ff0000');
+        rainbowGrad.addColorStop(0.0, "#ff0000");
+        rainbowGrad.addColorStop(0.17, "#f97316");
+        rainbowGrad.addColorStop(0.33, "#eab308");
+        rainbowGrad.addColorStop(0.5, "#10b981");
+        rainbowGrad.addColorStop(0.67, "#00ffff");
+        rainbowGrad.addColorStop(0.83, "#a855f7");
+        rainbowGrad.addColorStop(1.0, "#ff0000");
         ctx.lineWidth = 2.0;
         ctx.strokeStyle = rainbowGrad;
       } else {
         ctx.lineWidth = 1.0;
-        ctx.strokeStyle = '#0f172a';
+        ctx.strokeStyle = "#0f172a";
       }
       ctx.stroke();
 
       const label = actionCount > 1 ? `${idx}*` : String(idx);
       ctx.font = `bold 8px ${MONO}`;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillStyle = '#ffffff';
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillStyle = "#ffffff";
       ctx.fillText(label, cx, cy);
 
       ctx.restore();
@@ -855,8 +855,8 @@ export class Overlay {
     const label = `Assert [${tx.toFixed(1)}, ${ty.toFixed(1)}, ${tw.toFixed(1)}, ${th.toFixed(1)}]`;
     ctx.fillStyle = ASSERT_LABEL_FILL;
     ctx.font = `bold 9px ${MONO}`;
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'top';
+    ctx.textAlign = "left";
+    ctx.textBaseline = "top";
     ctx.fillText(label, left + 8, top + 8);
     ctx.restore();
   }
@@ -871,7 +871,7 @@ export class Overlay {
    * @param {?number} [rot=null] north-up clockwise heading in the display frame
    * @returns {void}
    */
-  _drawHintMarker(camera, wx, wy, label = '游戏当前位置', rot = null) {
+  _drawHintMarker(camera, wx, wy, label = "游戏当前位置", rot = null) {
     if (!Number.isFinite(wx) || !Number.isFinite(wy)) return;
     const ctx = this.ctx;
     const [cx, cy] = camera.worldToCanvas(wx, wy);
@@ -879,14 +879,14 @@ export class Overlay {
 
     ctx.beginPath();
     ctx.arc(cx, cy, 24, 0, Math.PI * 2);
-    ctx.strokeStyle = '#ffaa00';
+    ctx.strokeStyle = "#ffaa00";
     ctx.lineWidth = 1.5;
     ctx.setLineDash([4, 4]);
     ctx.stroke();
 
     ctx.beginPath();
     ctx.arc(cx, cy, 12, 0, Math.PI * 2);
-    ctx.strokeStyle = 'rgba(255, 170, 0, 0.4)';
+    ctx.strokeStyle = "rgba(255, 170, 0, 0.4)";
     ctx.lineWidth = 3;
     ctx.setLineDash([]);
     ctx.stroke();
@@ -895,12 +895,12 @@ export class Overlay {
       ctx.save();
       ctx.translate(cx, cy);
       ctx.rotate((rot * Math.PI) / 180);
-      ctx.shadowColor = 'rgba(103, 232, 249, 0.75)';
+      ctx.shadowColor = "rgba(103, 232, 249, 0.75)";
       ctx.shadowBlur = 8;
-      ctx.strokeStyle = '#67e8f9';
-      ctx.fillStyle = '#67e8f9';
+      ctx.strokeStyle = "#67e8f9";
+      ctx.fillStyle = "#67e8f9";
       ctx.lineWidth = 2.5;
-      ctx.lineCap = 'round';
+      ctx.lineCap = "round";
       ctx.beginPath();
       ctx.moveTo(0, -7);
       ctx.lineTo(0, -26);
@@ -916,17 +916,17 @@ export class Overlay {
 
     ctx.beginPath();
     ctx.arc(cx, cy, 6, 0, Math.PI * 2);
-    ctx.fillStyle = '#ffaa00';
+    ctx.fillStyle = "#ffaa00";
     ctx.fill();
     ctx.lineWidth = 1;
-    ctx.strokeStyle = '#ffffff';
+    ctx.strokeStyle = "#ffffff";
     ctx.stroke();
 
-    ctx.fillStyle = '#ffaa00';
+    ctx.fillStyle = "#ffaa00";
     ctx.font = `bold 10px ${MONO}`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'top';
-    ctx.fillText(label || '', cx, cy + 28);
+    ctx.textAlign = "center";
+    ctx.textBaseline = "top";
+    ctx.fillText(label || "", cx, cy + 28);
     ctx.restore();
   }
 
@@ -961,22 +961,22 @@ export class Overlay {
         ? walkSegments
         : this._astarSegments(previewPoints, astar.segmentBreaks, astar.hasRoute);
 
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
       ctx.setLineDash([]);
-      ctx.strokeStyle = 'rgba(0, 0, 0, 0.35)';
+      ctx.strokeStyle = "rgba(0, 0, 0, 0.35)";
       ctx.lineWidth = 6.0;
       this._strokeSegments(camera, segments);
 
-      ctx.strokeStyle = 'rgba(255, 0, 127, 0.2)';
+      ctx.strokeStyle = "rgba(255, 0, 127, 0.2)";
       ctx.lineWidth = 5.0;
       this._strokeSegments(camera, segments);
 
-      ctx.strokeStyle = '#ff007f';
+      ctx.strokeStyle = "#ff007f";
       ctx.lineWidth = 3.0;
       this._strokeSegments(camera, segments);
 
-      ctx.strokeStyle = '#ffffff';
+      ctx.strokeStyle = "#ffffff";
       ctx.lineWidth = 1.0;
       this._strokeSegments(camera, segments);
 
@@ -987,22 +987,17 @@ export class Overlay {
 
     this._drawBlindWalks(camera, astar.blindWalks || []);
 
-    if (
-      astar.showPlannedPath !== false &&
-      !usesRuntimeSegments &&
-      astar.segmentBreaks &&
-      astar.segmentBreaks.length
-    ) {
+    if (astar.showPlannedPath !== false && !usesRuntimeSegments && astar.segmentBreaks && astar.segmentBreaks.length) {
       const breakRadius = Math.max(1.5, Math.min(4, 2 * camera.viewScale));
       for (const idx of astar.segmentBreaks) {
         if (idx <= 0 || idx >= previewPoints.length - 1) continue;
         const [cx, cy] = camera.worldToCanvas(previewPoints[idx][0], previewPoints[idx][1]);
         ctx.beginPath();
         ctx.arc(cx, cy, breakRadius, 0, Math.PI * 2);
-        ctx.fillStyle = '#ffffff';
+        ctx.fillStyle = "#ffffff";
         ctx.fill();
         ctx.lineWidth = 1.0;
-        ctx.strokeStyle = '#ff007f';
+        ctx.strokeStyle = "#ff007f";
         ctx.stroke();
       }
     }
@@ -1023,13 +1018,13 @@ export class Overlay {
       ctx.fillStyle = colorHex;
       ctx.fill();
       ctx.lineWidth = 1.5;
-      ctx.strokeStyle = '#ffffff';
+      ctx.strokeStyle = "#ffffff";
       ctx.stroke();
 
-      ctx.fillStyle = '#ffffff';
+      ctx.fillStyle = "#ffffff";
       ctx.font = `bold 10px ${MONO}`;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
       ctx.fillText(label, cx, cy);
 
       ctx.restore();
@@ -1040,24 +1035,24 @@ export class Overlay {
       for (let i = 0; i < waypoints.length; i += 1) {
         const pt = waypoints[i];
         if (i === 0) {
-          drawBadge(pt, 'S', '#00e1ff', 'rgba(0, 225, 255, 0.4)');
+          drawBadge(pt, "S", "#00e1ff", "rgba(0, 225, 255, 0.4)");
         } else if (i === waypoints.length - 1) {
-          drawBadge(pt, 'G', '#ff007f', 'rgba(255, 0, 127, 0.4)');
+          drawBadge(pt, "G", "#ff007f", "rgba(255, 0, 127, 0.4)");
         } else {
-          drawBadge(pt, String(i + 1), '#ffaa00', 'rgba(255, 170, 0, 0.4)');
+          drawBadge(pt, String(i + 1), "#ffaa00", "rgba(255, 170, 0, 0.4)");
         }
       }
     } else {
       if (previewPoints.length > 0) {
-        drawBadge(previewPoints[0], 'S', '#00e1ff', 'rgba(0, 225, 255, 0.4)');
+        drawBadge(previewPoints[0], "S", "#00e1ff", "rgba(0, 225, 255, 0.4)");
       }
       if (previewPoints.length > 1) {
-        drawBadge(previewPoints[previewPoints.length - 1], 'G', '#ff007f', 'rgba(255, 0, 127, 0.4)');
+        drawBadge(previewPoints[previewPoints.length - 1], "G", "#ff007f", "rgba(255, 0, 127, 0.4)");
       }
     }
 
     if (astar.goalOnly && !astar.hasRoute) {
-      drawBadge(astar.goalOnly, 'G', '#ff007f', 'rgba(255, 0, 127, 0.4)');
+      drawBadge(astar.goalOnly, "G", "#ff007f", "rgba(255, 0, 127, 0.4)");
     }
   }
 
@@ -1065,8 +1060,8 @@ export class Overlay {
   _drawZiplineSegments(camera, segments) {
     const ctx = this.ctx;
     ctx.save();
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
     ctx.setLineDash([]);
 
     for (const segment of segments) {
@@ -1081,9 +1076,9 @@ export class Overlay {
         ctx.lineWidth = width;
         ctx.stroke();
       };
-      stroke('rgba(0, 0, 0, 0.45)', 7);
-      stroke('rgba(0, 225, 255, 0.35)', 5);
-      stroke('#00d9ff', 3);
+      stroke("rgba(0, 0, 0, 0.45)", 7);
+      stroke("rgba(0, 225, 255, 0.35)", 5);
+      stroke("#00d9ff", 3);
 
       const angle = Math.atan2(y2 - y1, x2 - x1);
       const arrowX = x1 + (x2 - x1) * 0.65;
@@ -1094,7 +1089,7 @@ export class Overlay {
       ctx.lineTo(arrowX + Math.cos(angle + 2.5) * arrowSize, arrowY + Math.sin(angle + 2.5) * arrowSize);
       ctx.lineTo(arrowX + Math.cos(angle - 2.5) * arrowSize, arrowY + Math.sin(angle - 2.5) * arrowSize);
       ctx.closePath();
-      ctx.fillStyle = '#ffffff';
+      ctx.fillStyle = "#ffffff";
       ctx.fill();
     }
     ctx.restore();
@@ -1135,10 +1130,10 @@ export class Overlay {
     };
     for (const diag of diagnostics) {
       if (options.search) {
-        drawDots(diag.astar_cells, '#38bdf8', 2.1, 0.9);
+        drawDots(diag.astar_cells, "#38bdf8", 2.1, 0.9);
         if (diag.astar_cells && diag.astar_cells.length > 1) {
           ctx.save();
-          ctx.strokeStyle = '#38bdf8';
+          ctx.strokeStyle = "#38bdf8";
           ctx.lineWidth = 1.1;
           ctx.setLineDash([2, 2]);
           this._strokeSegments(camera, [diag.astar_cells]);
@@ -1146,28 +1141,28 @@ export class Overlay {
         }
       }
       if (options.rerouted) {
-        drawDots(diag.rerouted_points, '#22c55e', 2.8, 0.95);
-        drawLine(diag.rerouted_points, '#22c55e', 1.8);
+        drawDots(diag.rerouted_points, "#22c55e", 2.8, 0.95);
+        drawLine(diag.rerouted_points, "#22c55e", 1.8);
       }
       if (options.stringPull) {
-        drawDots(diag.string_pull_points, '#a78bfa', 2.8, 0.95);
-        drawLine(diag.string_pull_points, '#a78bfa', 2);
+        drawDots(diag.string_pull_points, "#a78bfa", 2.8, 0.95);
+        drawLine(diag.string_pull_points, "#a78bfa", 2);
       }
       if (options.assembled) {
-        drawDots(diag.assembled_points, '#22d3ee', 3, 0.95);
-        drawLine(diag.assembled_points, '#22d3ee', 1.8);
+        drawDots(diag.assembled_points, "#22d3ee", 3, 0.95);
+        drawLine(diag.assembled_points, "#22d3ee", 1.8);
       }
       if (options.loopFixed) {
-        drawDots(diag.loop_fixed_points, '#60a5fa', 3, 0.95);
-        drawLine(diag.loop_fixed_points, '#60a5fa', 1.8);
+        drawDots(diag.loop_fixed_points, "#60a5fa", 3, 0.95);
+        drawLine(diag.loop_fixed_points, "#60a5fa", 1.8);
       }
       if (options.slim) {
-        drawDots(diag.slim_points, '#f59e0b', 3.1, 0.95);
-        drawLine(diag.slim_points, '#f59e0b', 2);
+        drawDots(diag.slim_points, "#f59e0b", 3.1, 0.95);
+        drawLine(diag.slim_points, "#f59e0b", 2);
       }
       if (options.widenCorners) {
-        drawDots(diag.widened_points, '#fb7185', 3.4, 0.95);
-        drawLine(diag.widened_points, '#fb7185', 2.2);
+        drawDots(diag.widened_points, "#fb7185", 3.4, 0.95);
+        drawLine(diag.widened_points, "#fb7185", 2.2);
       }
     }
   }
@@ -1202,8 +1197,8 @@ export class Overlay {
 
     if (points.length >= 2) {
       ctx.save();
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
       ctx.setLineDash([]);
       ctx.beginPath();
       points.forEach((point, index) => {
@@ -1211,10 +1206,10 @@ export class Overlay {
         if (index === 0) ctx.moveTo(x, y);
         else ctx.lineTo(x, y);
       });
-      ctx.strokeStyle = 'rgba(0, 0, 0, 0.65)';
+      ctx.strokeStyle = "rgba(0, 0, 0, 0.65)";
       ctx.lineWidth = 6;
       ctx.stroke();
-      ctx.strokeStyle = '#22d3ee';
+      ctx.strokeStyle = "#22d3ee";
       ctx.lineWidth = 3;
       ctx.stroke();
       ctx.restore();
@@ -1226,9 +1221,9 @@ export class Overlay {
     ctx.setLineDash([]);
     ctx.beginPath();
     ctx.arc(cx, cy, 10, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(8, 15, 28, 0.9)';
+    ctx.fillStyle = "rgba(8, 15, 28, 0.9)";
     ctx.fill();
-    ctx.strokeStyle = '#22d3ee';
+    ctx.strokeStyle = "#22d3ee";
     ctx.lineWidth = 2.5;
     ctx.stroke();
     if (Number.isFinite(current.rot)) {
@@ -1238,7 +1233,7 @@ export class Overlay {
       ctx.beginPath();
       ctx.moveTo(cx, cy);
       ctx.lineTo(tipX, tipY);
-      ctx.strokeStyle = '#ffffff';
+      ctx.strokeStyle = "#ffffff";
       ctx.lineWidth = 2;
       ctx.stroke();
     }

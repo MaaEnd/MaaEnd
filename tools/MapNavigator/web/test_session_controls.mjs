@@ -1,15 +1,15 @@
-import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
-import test from 'node:test';
+import assert from "node:assert/strict";
+import {readFileSync} from "node:fs";
+import test from "node:test";
 
-import { ConnectionPanel } from './static/js/ui/connection.js';
-import { NavTestController } from './static/js/ui/navtest.js';
-import { RecordingController } from './static/js/ui/recording.js';
+import {ConnectionPanel} from "./static/js/ui/connection.js";
+import {NavTestController} from "./static/js/ui/navtest.js";
+import {RecordingController} from "./static/js/ui/recording.js";
 
 class FakeButton {
   constructor() {
     this.disabled = false;
-    this.textContent = '';
+    this.textContent = "";
   }
 
   addEventListener() {}
@@ -32,10 +32,10 @@ class FakeConnection {
   }
 }
 
-const fakeClassList = () => ({ add() {}, remove() {} });
+const fakeClassList = () => ({add() {}, remove() {}});
 
-test('connection panel publishes readiness changes', () => {
-  globalThis.document = { getElementById: () => null };
+test("connection panel publishes readiness changes", () => {
+  globalThis.document = {getElementById: () => null};
   const panel = new ConnectionPanel({});
   const observed = [];
 
@@ -48,34 +48,34 @@ test('connection panel publishes readiness changes', () => {
   assert.equal(panel.isConnected(), false);
 });
 
-test('suspending connection probes clears stale status-dot styles', () => {
+test("suspending connection probes clears stale status-dot styles", () => {
   const removed = [];
-  const statusDot = { classList: { remove: (...classes) => removed.push(classes) } };
-  globalThis.document = { getElementById: (id) => (id === 'status-dot' ? statusDot : null) };
+  const statusDot = {classList: {remove: (...classes) => removed.push(classes)}};
+  globalThis.document = {getElementById: (id) => (id === "status-dot" ? statusDot : null)};
   const panel = new ConnectionPanel({});
 
   panel.setSuspended(true);
 
-  assert.deepEqual(removed, [['connected', 'connecting']]);
+  assert.deepEqual(removed, [["connected", "connecting"]]);
   assert.equal(panel.isConnected(), false);
 });
 
-test('live-position buttons start disabled and use the primary blue style', () => {
-  const html = readFileSync(new URL('./static/index.html', import.meta.url), 'utf8');
-  for (const id of ['btn-edit-locate', 'btn-assert-locate']) {
-    const tag = html.match(new RegExp(`<button[^>]*id="${id}"[^>]*>`))?.[0] || '';
+test("live-position buttons start disabled and use the primary blue style", () => {
+  const html = readFileSync(new URL("./static/index.html", import.meta.url), "utf8");
+  for (const id of ["btn-edit-locate", "btn-assert-locate"]) {
+    const tag = html.match(new RegExp(`<button[^>]*id="${id}"[^>]*>`))?.[0] || "";
     assert.match(tag, /class="[^"]*btn-primary[^"]*"/);
     assert.match(tag, /\bdisabled\b/);
   }
-  for (const id of ['btn-start', 'btn-navtest-run']) {
-    const tag = html.match(new RegExp(`<button[^>]*id="${id}"[^>]*>`))?.[0] || '';
+  for (const id of ["btn-start", "btn-navtest-run"]) {
+    const tag = html.match(new RegExp(`<button[^>]*id="${id}"[^>]*>`))?.[0] || "";
     assert.match(tag, /\bdisabled\b/);
   }
   assert.doesNotMatch(html, /id="(?:tab|panel|btn|tool)-astar/);
 });
 
-test('edit and assert use separate but matching map and location cards', () => {
-  const html = readFileSync(new URL('./static/index.html', import.meta.url), 'utf8');
+test("edit and assert use separate but matching map and location cards", () => {
+  const html = readFileSync(new URL("./static/index.html", import.meta.url), "utf8");
   const editMapStart = html.indexOf('id="panel-edit-map"');
   const assertMapStart = html.indexOf('id="panel-assert-map"');
   const navtestStart = html.indexOf('id="panel-navtest"');
@@ -92,8 +92,8 @@ test('edit and assert use separate but matching map and location cards', () => {
 
   for (const card of [editMap, assertMap]) {
     assert.match(card, /<span class="section-title">地图与定位<\/span>/);
-    assert.match(card, />选择底图与层级<\/button>/);
-    assert.match(card, />标出游戏内当前位置（参考点）<\/button>/);
+    assert.match(card, />\s*选择底图与层级\s*<\/button>/);
+    assert.match(card, />\s*标出游戏内当前位置（参考点）\s*<\/button>/);
     assert.match(card, />当前层级:<\/span>/);
   }
   assert.match(editMap, /id="btn-select-tier"/);
@@ -104,8 +104,8 @@ test('edit and assert use separate but matching map and location cards', () => {
   assert.doesNotMatch(assertPanel, /id="btn-select-assert-tier"|id="btn-assert-locate"/);
 });
 
-test('edit planning exposes a preview-only manual start control', () => {
-  const html = readFileSync(new URL('./static/index.html', import.meta.url), 'utf8');
+test("edit planning exposes a preview-only manual start control", () => {
+  const html = readFileSync(new URL("./static/index.html", import.meta.url), "utf8");
   const recordingStart = html.indexOf('id="panel-recording"');
   const propertiesStart = html.indexOf('id="panel-properties"');
   const editorToolbarStart = html.indexOf('class="canvas-editor-toolbar"');
@@ -116,21 +116,21 @@ test('edit planning exposes a preview-only manual start control', () => {
   const floatingToolbar = html.slice(floatingToolbarStart, floatingToolbarEnd);
 
   assert.doesNotMatch(editorToolbar, /id="tool-edit-start"/);
-  assert.match(floatingToolbar, /id="tool-edit-start" class="btn btn-float"/);
+  assert.match(floatingToolbar, /id="tool-edit-start"\s+class="btn btn-float"/);
   assert.match(floatingToolbar, /id="edit-start-divider"[^>]*hidden/);
   assert.doesNotMatch(recording, /id="tool-edit-start"|id="btn-edit-start"/);
   assert.match(recording, /手动起点只用于规划预览，不会写入作者路径/);
   assert.match(html, /id="edit-inspection-box"[^>]*hidden/);
 });
 
-test('edit and log point details expose matching cancel-selection controls', () => {
-  const html = readFileSync(new URL('./static/index.html', import.meta.url), 'utf8');
+test("edit and log point details expose matching cancel-selection controls", () => {
+  const html = readFileSync(new URL("./static/index.html", import.meta.url), "utf8");
 
   assert.match(html, /id="btn-edit-selection-clear"[^>]*>取消选择<\/button>/);
   assert.match(html, /id="btn-log-point-clear"[^>]*>取消选择<\/button>/);
 });
 
-test('recording start follows the probed connection state', () => {
+test("recording start follows the probed connection state", () => {
   const connection = new FakeConnection();
   const btnStart = new FakeButton();
   const btnStop = new FakeButton();
@@ -151,20 +151,20 @@ test('recording start follows the probed connection state', () => {
   assert.equal(btnStart.disabled, true);
 });
 
-test('first navtest run follows the probe while a live session keeps its own state', () => {
+test("first navtest run follows the probe while a live session keeps its own state", () => {
   const connection = new FakeConnection();
   const btnRun = new FakeButton();
   const btnStop = new FakeButton();
-  const armedLabel = { textContent: '' };
-  const hotkeyNote = { innerHTML: 'hotkeys', textContent: '', classList: fakeClassList() };
+  const armedLabel = {textContent: ""};
+  const hotkeyNote = {innerHTML: "hotkeys", textContent: "", classList: fakeClassList()};
   const controller = new NavTestController({
     btnRun,
     btnStop,
     armedLabel,
-    overlay: { hidden: true },
+    overlay: {hidden: true},
     hotkeyNote,
     connection,
-    getRoute: () => ({ path: [[1, 2]], exported: false, assert_target: null }),
+    getRoute: () => ({path: [[1, 2]], exported: false, assert_target: null}),
   });
 
   assert.equal(btnRun.disabled, true);

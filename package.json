@@ -3,6 +3,7 @@
     "private": true,
     "scripts": {
         "format": "prettier --write \"**/*.{json,jsonc,yml,yaml}\"",
+        "format:web": "prettier --write \"tools/MapNavigator/web/static/*.{html,css,js}\" \"tools/MapNavigator/web/static/css/**/*.css\" \"tools/MapNavigator/web/static/js/**/*.js\" \"tools/MapNavigator/web/*.mjs\"",
         "format:aggressive": "prettier --print-width 20 --write \"assets/resource/pipeline/**/*.json\" && prettier --write \"assets/resource/pipeline/**/*.json\"",
         "format:check": "prettier --check \"**/*.{json,jsonc,yml,yaml}\"",
         "format:md": "markdownlint --fix . || true",

@@ -12,9 +12,9 @@
  * @module navmesh_field
  */
 
-import { BASE_NAV_DISPLAY_ZONE_IDS } from './model.js';
+import {BASE_NAV_DISPLAY_ZONE_IDS} from "./model.js";
 
-const NMSH_MAGIC = 'NMSH';
+const NMSH_MAGIC = "NMSH";
 const NMSH_HEADER_BYTES = 16;
 
 /**
@@ -86,7 +86,7 @@ export class NavmeshField {
   /** @param {number} id @returns {{width:number, height:number}} image dims in this zone's px */
   dims(id) {
     const zone = this.zoneById(id);
-    return zone ? { width: zone.width, height: zone.height } : { width: 0, height: 0 };
+    return zone ? {width: zone.width, height: zone.height} : {width: 0, height: 0};
   }
 
   /** @param {number} id @returns {?string} basemap path relative to MAP_IMAGE_DIR */
@@ -182,7 +182,7 @@ export class NavmeshField {
     const ids = tierIds.length ? tierIds : [base.zone_id];
     return ids.map((id) => {
       const zone = this.zoneById(id);
-      return { id, name: zone ? zone.name : '', label: this.zoneLabel(id) };
+      return {id, name: zone ? zone.name : "", label: this.zoneLabel(id)};
     });
   }
 

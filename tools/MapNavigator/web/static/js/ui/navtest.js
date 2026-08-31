@@ -24,8 +24,8 @@
  * @module ui/navtest
  */
 
-import { NavTestSocket } from '../rpc.js';
-import { setStatus } from './toast.js';
+import {NavTestSocket} from "../rpc.js";
+import {setStatus} from "./toast.js";
 
 const ARM_DEBOUNCE_MS = 300;
 
@@ -51,7 +51,7 @@ export class NavTestController {
     this.overlay = opts.overlay;
     this.hotkeyNote = opts.hotkeyNote;
     this.connection = opts.connection;
-    this.getRoute = opts.getRoute || (() => ({ path: [], exported: false, assert_target: null }));
+    this.getRoute = opts.getRoute || (() => ({path: [], exported: false, assert_target: null}));
     this.onPosition = opts.onPosition || (() => {});
     this.onBeforeOpen = opts.onBeforeOpen || (() => {});
     this.onRunState = opts.onRunState || (() => {});
@@ -65,10 +65,10 @@ export class NavTestController {
     this.running = false;
     this.disabled = false;
     this._armTimer = 0;
-    this._armSignature = '';
+    this._armSignature = "";
 
-    this.btnRun.addEventListener('click', () => this.run());
-    this.btnStop.addEventListener('click', () => this.stop());
+    this.btnRun.addEventListener("click", () => this.run());
+    this.btnStop.addEventListener("click", () => this.stop());
     this.connection.onStatusChange((connected) => {
       this.connectionReady = connected;
       this._syncUi();
@@ -82,26 +82,26 @@ export class NavTestController {
    */
   run() {
     if (this.disabled) {
-      setStatus('当前模式不提供实机试跑。', '#f59e0b');
+      setStatus("当前模式不提供实机试跑。", "#f59e0b");
       return;
     }
     const route = this.getRoute();
     if (!route.path.length && !route.assert_target) {
-      setStatus('当前页签里没有可试跑的东西: 先画出路线或断言框。', '#ef4444');
+      setStatus("当前页签里没有可试跑的东西: 先画出路线或断言框。", "#ef4444");
       return;
     }
     if (!this.socket) {
       if (!this.connectionReady) {
-        setStatus('请先确认游戏连接状态正常。', '#ef4444');
+        setStatus("请先确认游戏连接状态正常。", "#ef4444");
         return;
       }
       const session = this.connection.buildSession();
-      if (session.kind === 'adb' && !session.adb.address) {
-        setStatus('请选择 ADB 设备或手动填写设备序列号/地址。', '#ef4444');
+      if (session.kind === "adb" && !session.adb.address) {
+        setStatus("请选择 ADB 设备或手动填写设备序列号/地址。", "#ef4444");
         return;
       }
-      if (session.kind === 'playcover' && !session.playcover.address) {
-        setStatus('请填写 PlayCover 服务地址 (PlayTools 端口)。', '#ef4444');
+      if (session.kind === "playcover" && !session.playcover.address) {
+        setStatus("请填写 PlayCover 服务地址 (PlayTools 端口)。", "#ef4444");
         return;
       }
       this.connection.persist();
@@ -128,7 +128,7 @@ export class NavTestController {
     this.socket.close();
     this.socket = null;
     this.connected = false;
-    setStatus('试跑会话已结束。', '#64748b');
+    setStatus("试跑会话已结束。", "#64748b");
     this._syncUi();
   }
 
@@ -143,7 +143,7 @@ export class NavTestController {
     this.connected = false;
     this._armSignature = this._signature();
     socket.onMessage = (msg) => this._handleMessage(msg);
-    socket.onError = () => setStatus('试跑连接出现错误。', '#ef4444');
+    socket.onError = () => setStatus("试跑连接出现错误。", "#ef4444");
     socket.onClose = () => {
       this.socket = null;
       this.connected = false;
@@ -151,7 +151,7 @@ export class NavTestController {
       this._syncUi();
     };
     socket.start(session, route);
-    setStatus('● 正在连接游戏, 连上后立即开跑…', '#3b82f6');
+    setStatus("● 正在连接游戏, 连上后立即开跑…", "#3b82f6");
     this._syncUi();
   }
 
@@ -209,64 +209,64 @@ export class NavTestController {
    * @returns {void}
    */
   _handleMessage(msg) {
-    if (!msg || typeof msg !== 'object') return;
+    if (!msg || typeof msg !== "object") return;
     switch (msg.type) {
-      case 'status':
-        setStatus(msg.text || '', msg.color || '#64748b');
+      case "status":
+        setStatus(msg.text || "", msg.color || "#64748b");
         break;
-      case 'ready':
+      case "ready":
         this.connected = true;
         this._syncUi();
         break;
-      case 'armed':
+      case "armed":
         if (!msg.count) {
-          this.armedLabel.textContent = '未装载 · 先在编辑器里画出路线或断言框';
-        } else if (msg.kind === 'assert') {
-          this.armedLabel.textContent = '已装载断言框 · F3 检查的就是这一份';
+          this.armedLabel.textContent = "未装载 · 先在编辑器里画出路线或断言框";
+        } else if (msg.kind === "assert") {
+          this.armedLabel.textContent = "已装载断言框 · F3 检查的就是这一份";
         } else {
           this.armedLabel.textContent = `已装载 ${msg.count} 个节点 · F3 跑的就是这一份`;
         }
         break;
-      case 'run_state':
+      case "run_state":
         this.running = !!msg.running;
         this.onRunState(this.running);
         this._syncUi();
         break;
-      case 'position':
+      case "position":
         this.onPosition({x: msg.x, y: msg.y, zone: msg.zone, rot: msg.rot});
         break;
-      case 'finished': {
+      case "finished": {
         this.running = false;
         this._syncUi();
         // 措辞按后端回报的 kind 走: 中途切页签也不会把结论说反。
-        const isAssert = msg.kind === 'assert';
-        if (msg.reason === 'aborted') {
-          setStatus('⏹ 试跑已终止 (F4)。会话还在, 按 F3 可直接重跑。', '#f59e0b');
+        const isAssert = msg.kind === "assert";
+        if (msg.reason === "aborted") {
+          setStatus("⏹ 试跑已终止 (F4)。会话还在, 按 F3 可直接重跑。", "#f59e0b");
         } else if (msg.ok) {
-          setStatus(isAssert ? '✅ 断言通过: 人在框里。' : '✅ 试跑走完了整条路线。', '#10b981');
+          setStatus(isAssert ? "✅ 断言通过: 人在框里。" : "✅ 试跑走完了整条路线。", "#10b981");
         } else {
           setStatus(
             isAssert
-              ? '❌ 断言不通过: 人不在框里 (或没定位到), 详见终端日志。'
-              : '❌ 试跑未走完 (寻路失败或超时), 详见终端日志。',
-            '#ef4444'
+              ? "❌ 断言不通过: 人不在框里 (或没定位到), 详见终端日志。"
+              : "❌ 试跑未走完 (寻路失败或超时), 详见终端日志。",
+            "#ef4444",
           );
         }
         break;
       }
-      case 'hotkey_degraded':
-        this.hotkeyNote.classList.add('hotkey-degraded');
-        this.hotkeyNote.textContent = `⚠ ${msg.message || 'F3/F4 热键可能收不到, 请用面板按钮终止。'}`;
+      case "hotkey_degraded":
+        this.hotkeyNote.classList.add("hotkey-degraded");
+        this.hotkeyNote.textContent = `⚠ ${msg.message || "F3/F4 热键可能收不到, 请用面板按钮终止。"}`;
         break;
-      case 'session_over':
+      case "session_over":
         this.connected = false;
         this.running = false;
         this._syncUi();
         break;
-      case 'error':
+      case "error":
         this.connected = false;
         this.running = false;
-        setStatus(msg.message || '试跑错误', '#ef4444');
+        setStatus(msg.message || "试跑错误", "#ef4444");
         this._syncUi();
         break;
       default:
@@ -278,24 +278,24 @@ export class NavTestController {
   _syncUi() {
     const live = !!this.socket;
     const idle = live && !this.running;
-    this.btnRun.textContent = live ? '重跑 (F3)' : '开始试跑 (F3)';
+    this.btnRun.textContent = live ? "重跑 (F3)" : "开始试跑 (F3)";
     this.btnRun.disabled = this.disabled || this.running || (live ? !this.connected : !this.connectionReady);
-    this.btnStop.textContent = idle ? '结束会话 (F4)' : '终止试跑 (F4)';
+    this.btnStop.textContent = idle ? "结束会话 (F4)" : "终止试跑 (F4)";
     this.btnStop.disabled = !live;
     if (!live) {
       const route = this.getRoute();
       if (this.disabled) {
-        this.armedLabel.textContent = '当前模式不参与实机试跑';
+        this.armedLabel.textContent = "当前模式不参与实机试跑";
       } else if (!this.connectionReady) {
-        this.armedLabel.textContent = '连接状态未就绪 · 请先检查游戏连接';
+        this.armedLabel.textContent = "连接状态未就绪 · 请先检查游戏连接";
       } else if (route.assert_target) {
-        this.armedLabel.textContent = '连接状态正常 ·「开始试跑」将检查这个框';
+        this.armedLabel.textContent = "连接状态正常 ·「开始试跑」将检查这个框";
       } else if (route.path.length) {
-        this.armedLabel.textContent = '连接状态正常 ·「开始试跑」将直接跑这条线';
+        this.armedLabel.textContent = "连接状态正常 ·「开始试跑」将直接跑这条线";
       } else {
-        this.armedLabel.textContent = '当前页签里没有可试跑的东西';
+        this.armedLabel.textContent = "当前页签里没有可试跑的东西";
       }
-      this.hotkeyNote.classList.remove('hotkey-degraded');
+      this.hotkeyNote.classList.remove("hotkey-degraded");
       this.hotkeyNote.innerHTML = this._hotkeyNoteHtml;
     }
     this.overlay.hidden = !this.running;

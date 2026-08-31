@@ -17,9 +17,9 @@
  * @module ui/recording
  */
 
-import { RecordingSocket } from '../rpc.js';
-import { compactNumber } from '../rounding.js';
-import { setStatus, setLocator } from './toast.js';
+import {RecordingSocket} from "../rpc.js";
+import {compactNumber} from "../rounding.js";
+import {setStatus, setLocator} from "./toast.js";
 
 export class RecordingController {
   /**
@@ -48,8 +48,8 @@ export class RecordingController {
     this.stopping = false;
     this.connectionReady = false;
 
-    this.btnStart.addEventListener('click', () => this.start());
-    this.btnStop.addEventListener('click', () => this.stop());
+    this.btnStart.addEventListener("click", () => this.start());
+    this.btnStop.addEventListener("click", () => this.stop());
     this.connection.onStatusChange((connected) => {
       this.connectionReady = connected;
       this._syncUi();
@@ -59,11 +59,11 @@ export class RecordingController {
 
   /** @returns {string} tk `RecordingSessionConfig.display_name()` */
   _sessionDisplayName(session) {
-    if (session.kind === 'adb') {
-      const target = session.adb.address || '未选择设备';
+    if (session.kind === "adb") {
+      const target = session.adb.address || "未选择设备";
       return `ADB / ${target}`;
     }
-    if (session.kind === 'playcover') {
+    if (session.kind === "playcover") {
       return `PlayCover / ${session.playcover.uuid}`;
     }
     return `Win32 / ${session.win32.window_title}`;
@@ -73,16 +73,16 @@ export class RecordingController {
   start() {
     if (this.recording) return;
     if (!this.connectionReady) {
-      setStatus('请先确认游戏连接状态正常。', '#ef4444');
+      setStatus("请先确认游戏连接状态正常。", "#ef4444");
       return;
     }
     const session = this.connection.buildSession();
-    if (session.kind === 'adb' && !session.adb.address) {
-      setStatus('请选择 ADB 设备或手动填写设备序列号/地址。', '#ef4444');
+    if (session.kind === "adb" && !session.adb.address) {
+      setStatus("请选择 ADB 设备或手动填写设备序列号/地址。", "#ef4444");
       return;
     }
-    if (session.kind === 'playcover' && !session.playcover.address) {
-      setStatus('请填写 PlayCover 服务地址 (PlayTools 端口)。', '#ef4444');
+    if (session.kind === "playcover" && !session.playcover.address) {
+      setStatus("请填写 PlayCover 服务地址 (PlayTools 端口)。", "#ef4444");
       return;
     }
 
@@ -90,9 +90,9 @@ export class RecordingController {
     this.recording = true;
     this.stopping = false;
     this._syncUi();
-    if (this.appEl) this.appEl.classList.add('recording');
-    setStatus(`● 正在启动识别引擎... [${this._sessionDisplayName(session)}]`, '#3b82f6');
-    setLocator('Locator: waiting for first result...');
+    if (this.appEl) this.appEl.classList.add("recording");
+    setStatus(`● 正在启动识别引擎... [${this._sessionDisplayName(session)}]`, "#3b82f6");
+    setLocator("Locator: waiting for first result...");
     this.onPositionPending();
 
     const socket = new RecordingSocket();
@@ -100,13 +100,13 @@ export class RecordingController {
     socket.onMessage = (msg) => this._handleMessage(msg);
     socket.onError = () => {
       // transport error — surface, then let onClose reset
-      setStatus('录制连接出现错误。', '#ef4444');
+      setStatus("录制连接出现错误。", "#ef4444");
     };
     socket.onClose = () => {
       if (this.recording) {
         this.recording = false;
         this.stopping = false;
-        this.onPositionUnavailable('录制连接已断开');
+        this.onPositionUnavailable("录制连接已断开");
         this._resetUi();
       }
       this.socket = null;
@@ -118,7 +118,7 @@ export class RecordingController {
   stop() {
     if (!this.socket) return;
     this.socket.stop();
-    setStatus('正在停止录制并整理路径点...', '#f59e0b');
+    setStatus("正在停止录制并整理路径点...", "#f59e0b");
     this.stopping = true;
     this._syncUi();
   }
@@ -129,38 +129,38 @@ export class RecordingController {
    * @returns {void}
    */
   _handleMessage(msg) {
-    if (!msg || typeof msg !== 'object') return;
+    if (!msg || typeof msg !== "object") return;
     switch (msg.type) {
-      case 'status':
-        setStatus(msg.text || '', msg.color || '#64748b');
+      case "status":
+        setStatus(msg.text || "", msg.color || "#64748b");
         break;
-      case 'locator':
-        setLocator(msg.text || '');
+      case "locator":
+        setLocator(msg.text || "");
         break;
-      case 'position':
-        this.onPosition({ x: msg.x, y: msg.y, zone: msg.zone, rot: msg.rot });
+      case "position":
+        this.onPosition({x: msg.x, y: msg.y, zone: msg.zone, rot: msg.rot});
         break;
-      case 'toast':
+      case "toast":
         // G hotkey: backend already wrote the OS clipboard; mirror onto the status line.
-        setStatus(msg.status || '', '#10b981');
+        setStatus(msg.status || "", "#10b981");
         break;
-      case 'force_waypoint': {
+      case "force_waypoint": {
         // X hotkey: status-only; the strict point is already in the backend recorded path.
         const coord = `[${compactNumber(msg.x)}, ${compactNumber(msg.y)}]`;
-        setStatus(`📌 已在当前位置强制打点: ${coord}  (zone: ${msg.zone})`, '#10b981');
+        setStatus(`📌 已在当前位置强制打点: ${coord}  (zone: ${msg.zone})`, "#10b981");
         break;
       }
-      case 'finished':
+      case "finished":
         this.recording = false;
         this.stopping = false;
         this.onFinished(Array.isArray(msg.points) ? msg.points : []);
         this._resetUi();
         break;
-      case 'error':
+      case "error":
         this.recording = false;
         this.stopping = false;
-        setStatus(msg.message || '录制错误', '#ef4444');
-        this.onPositionUnavailable('未获取到实时位置与朝向');
+        setStatus(msg.message || "录制错误", "#ef4444");
+        this.onPositionUnavailable("未获取到实时位置与朝向");
         this._resetUi();
         break;
       default:
@@ -171,7 +171,7 @@ export class RecordingController {
   /** Restore idle button + status state (tk `_reset_ui`). @returns {void} */
   _resetUi() {
     this._syncUi();
-    if (this.appEl) this.appEl.classList.remove('recording');
+    if (this.appEl) this.appEl.classList.remove("recording");
   }
 
   /** Reflect connection/session state onto the recording buttons. @returns {void} */

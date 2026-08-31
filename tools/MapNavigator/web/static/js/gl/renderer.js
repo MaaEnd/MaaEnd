@@ -113,40 +113,40 @@ export class Renderer {
     this.canvas = canvas;
 
     const gl = /** @type {WebGL2RenderingContext|WebGLRenderingContext|null} */ (
-      canvas.getContext('webgl2') || canvas.getContext('webgl') || canvas.getContext('experimental-webgl')
+      canvas.getContext("webgl2") || canvas.getContext("webgl") || canvas.getContext("experimental-webgl")
     );
-    if (!gl) throw new Error('Renderer: WebGL not available (webgl2/webgl both null)');
+    if (!gl) throw new Error("Renderer: WebGL not available (webgl2/webgl both null)");
     /** @type {WebGL2RenderingContext|WebGLRenderingContext} */
     this.gl = gl;
     /** @type {boolean} true if a WebGL2 context was obtained */
-    this.isWebGL2 = typeof WebGL2RenderingContext !== 'undefined' && gl instanceof WebGL2RenderingContext;
+    this.isWebGL2 = typeof WebGL2RenderingContext !== "undefined" && gl instanceof WebGL2RenderingContext;
 
     // 32-bit indices: core in WebGL2, an extension in WebGL1. Meshes exceed 65k verts.
     if (!this.isWebGL2) {
-      this._uintIndexExt = gl.getExtension('OES_element_index_uint') || null;
+      this._uintIndexExt = gl.getExtension("OES_element_index_uint") || null;
     }
 
     // --- programs ---------------------------------------------------------
-    const texProgram = this._createProgram(TEX_VS, TEX_FS, { a_pos: 0, a_uv: 1 });
+    const texProgram = this._createProgram(TEX_VS, TEX_FS, {a_pos: 0, a_uv: 1});
     this._texProg = {
       program: texProgram,
-      u_scale: gl.getUniformLocation(texProgram, 'u_scale'),
-      u_offset: gl.getUniformLocation(texProgram, 'u_offset'),
-      u_tex: gl.getUniformLocation(texProgram, 'u_tex'),
+      u_scale: gl.getUniformLocation(texProgram, "u_scale"),
+      u_offset: gl.getUniformLocation(texProgram, "u_offset"),
+      u_tex: gl.getUniformLocation(texProgram, "u_tex"),
     };
-    const flatProgram = this._createProgram(FLAT_VS, FLAT_FS, { a_pos: 0 });
+    const flatProgram = this._createProgram(FLAT_VS, FLAT_FS, {a_pos: 0});
     this._flatProg = {
       program: flatProgram,
-      u_scale: gl.getUniformLocation(flatProgram, 'u_scale'),
-      u_offset: gl.getUniformLocation(flatProgram, 'u_offset'),
-      u_color: gl.getUniformLocation(flatProgram, 'u_color'),
-      u_pointSize: gl.getUniformLocation(flatProgram, 'u_pointSize'),
-      u_min_height: gl.getUniformLocation(flatProgram, 'u_min_height'),
-      u_max_height: gl.getUniformLocation(flatProgram, 'u_max_height'),
-      u_use_height: gl.getUniformLocation(flatProgram, 'u_use_height'),
-      u_opacity: gl.getUniformLocation(flatProgram, 'u_opacity'),
-      u_band_on: gl.getUniformLocation(flatProgram, 'u_band_on'),
-      u_band: gl.getUniformLocation(flatProgram, 'u_band'),
+      u_scale: gl.getUniformLocation(flatProgram, "u_scale"),
+      u_offset: gl.getUniformLocation(flatProgram, "u_offset"),
+      u_color: gl.getUniformLocation(flatProgram, "u_color"),
+      u_pointSize: gl.getUniformLocation(flatProgram, "u_pointSize"),
+      u_min_height: gl.getUniformLocation(flatProgram, "u_min_height"),
+      u_max_height: gl.getUniformLocation(flatProgram, "u_max_height"),
+      u_use_height: gl.getUniformLocation(flatProgram, "u_use_height"),
+      u_opacity: gl.getUniformLocation(flatProgram, "u_opacity"),
+      u_band_on: gl.getUniformLocation(flatProgram, "u_band_on"),
+      u_band: gl.getUniformLocation(flatProgram, "u_band"),
     };
 
     /** @type {[number, number]|null} 预览高亮的高度带 [lo, hi] */
@@ -208,7 +208,7 @@ export class Renderer {
     // Best-effort initial sizing so a render before the first resize() isn't degenerate.
     const w0 = canvas.clientWidth || canvas.width || 300;
     const h0 = canvas.clientHeight || canvas.height || 150;
-    const dpr0 = (typeof window !== 'undefined' && window.devicePixelRatio) || 1;
+    const dpr0 = (typeof window !== "undefined" && window.devicePixelRatio) || 1;
     this.resize(w0, h0, dpr0);
   }
 
@@ -244,14 +244,26 @@ export class Renderer {
 
     const w = (zoneMeta && zoneMeta.width) || image.width || /** @type {any} */ (image).naturalWidth || 1;
     const h = (zoneMeta && zoneMeta.height) || image.height || /** @type {any} */ (image).naturalHeight || 1;
-    this._basemapMeta = { width: w, height: h, transform: (zoneMeta && zoneMeta.transform) || undefined };
+    this._basemapMeta = {width: w, height: h, transform: (zoneMeta && zoneMeta.transform) || undefined};
 
     // TRIANGLE_STRIP quad, interleaved [posX, posY, u, v]; uv = pos / (w,h).
     const quad = new Float32Array([
-      0, 0, 0, 0,
-      w, 0, 1, 0,
-      0, h, 0, 1,
-      w, h, 1, 1,
+      0,
+      0,
+      0,
+      0,
+      w,
+      0,
+      1,
+      0,
+      0,
+      h,
+      0,
+      1,
+      w,
+      h,
+      1,
+      1,
     ]);
     gl.bindBuffer(gl.ARRAY_BUFFER, this._quadVbo);
     gl.bufferData(gl.ARRAY_BUFFER, quad, gl.STATIC_DRAW);
@@ -408,7 +420,7 @@ export class Renderer {
     this._pendingCamera = camera;
     if (this._rafHandle) return;
     const raf =
-      typeof requestAnimationFrame === 'function'
+      typeof requestAnimationFrame === "function"
         ? requestAnimationFrame
         : /** @param {FrameRequestCallback} cb */ (cb) => setTimeout(() => cb(Date.now()), 16);
     this._rafHandle = raf(() => {
@@ -425,7 +437,7 @@ export class Renderer {
    */
   cancelRender() {
     if (!this._rafHandle) return;
-    if (typeof cancelAnimationFrame === 'function') cancelAnimationFrame(this._rafHandle);
+    if (typeof cancelAnimationFrame === "function") cancelAnimationFrame(this._rafHandle);
     else clearTimeout(this._rafHandle);
     this._rafHandle = 0;
     this._pendingCamera = null;
@@ -704,7 +716,7 @@ export class Renderer {
     if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
       const info = gl.getProgramInfoLog(prog);
       gl.deleteProgram(prog);
-      throw new Error('Renderer: program link failed: ' + info);
+      throw new Error("Renderer: program link failed: " + info);
     }
     return prog;
   }
@@ -723,7 +735,7 @@ export class Renderer {
     if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) {
       const info = gl.getShaderInfoLog(sh);
       gl.deleteShader(sh);
-      throw new Error('Renderer: shader compile failed: ' + info);
+      throw new Error("Renderer: shader compile failed: " + info);
     }
     return sh;
   }

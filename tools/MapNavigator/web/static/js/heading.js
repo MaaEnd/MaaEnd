@@ -8,11 +8,11 @@
  * @module heading
  */
 
-const CARDINAL_LABELS = ['北', '东北', '东', '东南', '南', '西南', '西', '西北'];
+const CARDINAL_LABELS = ["北", "东北", "东", "东南", "南", "西南", "西", "西北"];
 
 /** @param {*} value @returns {?number} heading normalized to [0, 360), or null */
 export function normalizeHeading(value) {
-  if (value === null || value === undefined || value === '' || typeof value === 'boolean') return null;
+  if (value === null || value === undefined || value === "" || typeof value === "boolean") return null;
   const numeric = Number(value);
   if (!Number.isFinite(numeric)) return null;
   const wrapped = numeric % 360;
@@ -23,14 +23,14 @@ export function normalizeHeading(value) {
 /** @param {*} value @returns {string} eight-way Chinese compass label */
 export function cardinalHeading(value) {
   const heading = normalizeHeading(value);
-  if (heading === null) return '未知';
+  if (heading === null) return "未知";
   return CARDINAL_LABELS[Math.round(heading / 45) % CARDINAL_LABELS.length];
 }
 
 /** @param {*} value @param {number} [digits=1] @returns {string} */
 export function formatHeading(value, digits = 1) {
   const heading = normalizeHeading(value);
-  if (heading === null) return '朝向不可用';
+  if (heading === null) return "朝向不可用";
   return `${cardinalHeading(heading)} ${heading.toFixed(digits)}°`;
 }
 

@@ -58,5 +58,14 @@ export default {
                 multilineArraysWrapThreshold: -1,
             },
         },
+        {
+            files: [
+                "tools/MapNavigator/web/**/*.{html,css,js,mjs}",
+            ],
+            options: {
+                tabWidth: 2,
+                multilineArraysWrapThreshold: -1,
+            },
+        },
     ],
 };

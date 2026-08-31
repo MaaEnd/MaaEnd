@@ -22,7 +22,7 @@ export class RpcError extends Error {
    */
   constructor(message, status) {
     super(message);
-    this.name = 'RpcError';
+    this.name = "RpcError";
     /** @type {number} */
     this.status = status;
   }
@@ -35,18 +35,18 @@ export class RpcError extends Error {
  * @returns {Promise<string>}
  */
 async function errorMessage(res) {
-  let bodyText = '';
+  let bodyText = "";
   try {
     bodyText = await res.text();
   } catch {
-    bodyText = '';
+    bodyText = "";
   }
   if (bodyText) {
     try {
       const parsed = JSON.parse(bodyText);
-      if (parsed && typeof parsed === 'object') {
-        if (typeof parsed.detail === 'string' && parsed.detail) return parsed.detail;
-        if (typeof parsed.error === 'string' && parsed.error) return parsed.error;
+      if (parsed && typeof parsed === "object") {
+        if (typeof parsed.detail === "string" && parsed.detail) return parsed.detail;
+        if (typeof parsed.error === "string" && parsed.error) return parsed.error;
       }
     } catch {
       // non-JSON body — use it verbatim below
@@ -64,7 +64,7 @@ async function errorMessage(res) {
 async function getJson(url) {
   let res;
   try {
-    res = await fetch(url, { headers: { Accept: 'application/json' } });
+    res = await fetch(url, {headers: {Accept: "application/json"}});
   } catch (err) {
     throw new RpcError(`网络请求失败: ${url} (${err && err.message ? err.message : err})`, 0);
   }
@@ -79,12 +79,12 @@ async function getJson(url) {
  * @param {string} [method='POST']
  * @returns {Promise<any>}
  */
-async function sendJson(url, body, method = 'POST') {
+async function sendJson(url, body, method = "POST") {
   let res;
   try {
     res = await fetch(url, {
       method,
-      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      headers: {"Content-Type": "application/json", Accept: "application/json"},
       body: JSON.stringify(body),
     });
   } catch (err) {
@@ -101,7 +101,7 @@ async function sendJson(url, body, method = 'POST') {
  * @returns {Promise<{zones: Array<Object>}>}
  */
 export function getZones() {
-  return getJson('/api/zones');
+  return getJson("/api/zones");
 }
 
 /**
@@ -109,7 +109,7 @@ export function getZones() {
  * @returns {Promise<{ready:boolean, loading:boolean, progress:number, error:?string, path:string}>}
  */
 export function getLoadStatus() {
-  return getJson('/api/load-status');
+  return getJson("/api/load-status");
 }
 
 /**
@@ -122,7 +122,7 @@ export function getLoadStatus() {
 export async function getMesh(zoneId) {
   let res;
   try {
-    res = await fetch(`/mesh/${encodeURIComponent(String(zoneId))}`, { cache: 'no-store' });
+    res = await fetch(`/mesh/${encodeURIComponent(String(zoneId))}`, {cache: "no-store"});
   } catch (err) {
     throw new RpcError(`网络请求失败: /mesh/${zoneId} (${err && err.message ? err.message : err})`, 0);
   }
@@ -139,7 +139,7 @@ export async function getMesh(zoneId) {
  * @returns {string}
  */
 function withCacheBust(url) {
-  return `${url}${url.includes('?') ? '&' : '?'}_=${Date.now()}`;
+  return `${url}${url.includes("?") ? "&" : "?"}_=${Date.now()}`;
 }
 
 /**
@@ -150,9 +150,9 @@ function withCacheBust(url) {
  */
 export function basemapUrl(imagePath) {
   const parts = String(imagePath)
-    .split('/')
+    .split("/")
     .map((seg) => encodeURIComponent(seg));
-  return withCacheBust(`/basemap/${parts.join('/')}`);
+  return withCacheBust(`/basemap/${parts.join("/")}`);
 }
 
 /**
@@ -173,12 +173,12 @@ export function basemapByZoneUrl(zoneId) {
  * @returns {Promise<{zone_ids: string[]}>}
  */
 export function getZoneIds() {
-  return getJson('/api/zone-ids');
+  return getJson("/api/zone-ids");
 }
 
 /** World-coordinate calibration used only to display ZIP-local Ziplines.json marks. */
 export function getZiplineFrames() {
-  return getJson('/api/zipline-frames');
+  return getJson("/api/zipline-frames");
 }
 
 /**
@@ -196,7 +196,7 @@ export function getZiplineFrames() {
  *     route_status?:string, route_error?:string}}>}
  */
 export function postRoutePreview(req) {
-  return sendJson('/api/route-preview', {
+  return sendJson("/api/route-preview", {
     position: req.position,
     position_zone: req.position_zone,
     custom_action_param: req.custom_action_param,
@@ -223,7 +223,7 @@ export function postRoutePreview(req) {
  * @returns {Promise<{ok:boolean, results?:Array<?OffMeshProbe>, error?:string}>}
  */
 export function postOffMeshProbe(req) {
-  return sendJson('/api/offmesh-probe', {
+  return sendJson("/api/offmesh-probe", {
     zone_id: req.zone_id,
     points: req.points,
     snap_radius: req.snap_radius === undefined ? 5.0 : req.snap_radius,
@@ -244,7 +244,7 @@ export function postOffMeshProbe(req) {
  * @returns {Promise<{ok:boolean, decks?:Deck[], error?:string}>}
  */
 export function postDeckProbe(req) {
-  return sendJson('/api/deck-probe', { zone_id: req.zone_id, point: req.point });
+  return sendJson("/api/deck-probe", {zone_id: req.zone_id, point: req.point});
 }
 
 /**
@@ -254,7 +254,7 @@ export function postDeckProbe(req) {
  * @returns {Promise<{ok: boolean, x: number, y: number, zone: string, rot: ?number}>}
  */
 export function locateOnce(connection) {
-  return sendJson('/api/locate-once', { connection });
+  return sendJson("/api/locate-once", {connection});
 }
 
 // --- import / export (backend keeps json_import.py) -----------------------------------
@@ -264,7 +264,7 @@ export function locateOnce(connection) {
  * @returns {Promise<{nodes:Array<Object>}>}
  */
 export function getProjectNodes() {
-  return getJson('/api/project-nodes');
+  return getJson("/api/project-nodes");
 }
 
 /**
@@ -276,7 +276,7 @@ export function getProjectNodes() {
  * @returns {Promise<Object>}
  */
 export function loadProjectNode(kind, resourcePath, nodeName) {
-  return sendJson('/api/project-nodes/load', {
+  return sendJson("/api/project-nodes/load", {
     kind,
     resource_path: resourcePath,
     node_name: nodeName,
@@ -295,7 +295,7 @@ export function loadProjectNode(kind, resourcePath, nodeName) {
  * @returns {Promise<Object>}
  */
 export function importAnalyze(text) {
-  return sendJson('/api/import/analyze', { text });
+  return sendJson("/api/import/analyze", {text});
 }
 
 /**
@@ -306,7 +306,7 @@ export function importAnalyze(text) {
  * @returns {Promise<{ok:boolean, points?:Array<Object>, error?:string}>}
  */
 export function importFinalize(rawPoints, zoneAssignments) {
-  return sendJson('/api/import/finalize', { raw_points: rawPoints, zone_assignments: zoneAssignments });
+  return sendJson("/api/import/finalize", {raw_points: rawPoints, zone_assignments: zoneAssignments});
 }
 
 /**
@@ -316,7 +316,7 @@ export function importFinalize(rawPoints, zoneAssignments) {
  * @returns {Promise<{nodes:Array<any>, text:string}>}
  */
 export function exportPath(points) {
-  return sendJson('/api/export/path', { points });
+  return sendJson("/api/export/path", {points});
 }
 
 /**
@@ -326,7 +326,7 @@ export function exportPath(points) {
  * @returns {Promise<{node:Object, text:string}>}
  */
 export function exportAssert(zoneId, target) {
-  return sendJson('/api/export/assert', { zone_id: zoneId, target });
+  return sendJson("/api/export/assert", {zone_id: zoneId, target});
 }
 
 // --- settings + adb ------------------------------------------------------------------
@@ -337,12 +337,12 @@ export function exportAssert(zoneId, target) {
  * @returns {Promise<{platform:string, supported_kinds:string[], default_kind:string}>}
  */
 export function getPlatform() {
-  return getJson('/api/platform');
+  return getJson("/api/platform");
 }
 
 /** @returns {Promise<Object>} persisted settings */
 export function getSettings() {
-  return getJson('/api/settings');
+  return getJson("/api/settings");
 }
 
 /**
@@ -350,7 +350,7 @@ export function getSettings() {
  * @returns {Promise<Object>} the saved settings
  */
 export function putSettings(payload) {
-  return sendJson('/api/settings', payload, 'PUT');
+  return sendJson("/api/settings", payload, "PUT");
 }
 
 /**
@@ -359,7 +359,7 @@ export function putSettings(payload) {
  * @returns {Promise<{connected:boolean, message:string}>}
  */
 export function checkConnection(payload) {
-  return sendJson('/api/connection/check', payload);
+  return sendJson("/api/connection/check", payload);
 }
 
 /**
@@ -368,8 +368,8 @@ export function checkConnection(payload) {
  * @param {string} [adbPath] override adb binary path
  * @returns {Promise<{devices:Array<Object>, error?:string}>}
  */
-export function getAdbDevices(adbPath = '') {
-  const q = adbPath ? `?adb_path=${encodeURIComponent(adbPath)}` : '';
+export function getAdbDevices(adbPath = "") {
+  const q = adbPath ? `?adb_path=${encodeURIComponent(adbPath)}` : "";
   return getJson(`/api/adb/devices${q}`);
 }
 
@@ -378,7 +378,7 @@ export function getAdbDevices(adbPath = '') {
  * @returns {Promise<{instances:Array<{display_no:number, pw_node_id:number, eis_socket_path:string}>}>}
  */
 export function getGamescopeInstances() {
-  return getJson('/api/gamescope/instances');
+  return getJson("/api/gamescope/instances");
 }
 
 // --- game sessions (WebSocket) -------------------------------------------------------
@@ -406,14 +406,14 @@ class SessionSocket {
 
   /** @param {Object} firstPayload sent as soon as the socket opens @returns {void} */
   _open(firstPayload) {
-    const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const proto = location.protocol === "https:" ? "wss:" : "ws:";
     const ws = new WebSocket(`${proto}//${location.host}${this._path}`);
     this._ws = ws;
-    ws.addEventListener('open', () => {
+    ws.addEventListener("open", () => {
       this._send(firstPayload);
       this.onOpen();
     });
-    ws.addEventListener('message', (ev) => {
+    ws.addEventListener("message", (ev) => {
       let msg;
       try {
         msg = JSON.parse(ev.data);
@@ -422,8 +422,8 @@ class SessionSocket {
       }
       this.onMessage(msg);
     });
-    ws.addEventListener('close', (ev) => this.onClose(ev));
-    ws.addEventListener('error', (ev) => this.onError(ev));
+    ws.addEventListener("close", (ev) => this.onClose(ev));
+    ws.addEventListener("error", (ev) => this.onError(ev));
   }
 
   /** @param {Object} payload @returns {void} */
@@ -456,7 +456,7 @@ class SessionSocket {
  */
 export class RecordingSocket extends SessionSocket {
   constructor() {
-    super('/ws/record');
+    super("/ws/record");
   }
 
   /**
@@ -469,7 +469,7 @@ export class RecordingSocket extends SessionSocket {
 
   /** Ask the backend to stop recording. @returns {void} */
   stop() {
-    this._send({ type: 'stop' });
+    this._send({type: "stop"});
   }
 }
 
@@ -480,7 +480,7 @@ export class RecordingSocket extends SessionSocket {
  */
 export class NavTestSocket extends SessionSocket {
   constructor() {
-    super('/ws/navtest');
+    super("/ws/navtest");
   }
 
   /**
@@ -490,7 +490,7 @@ export class NavTestSocket extends SessionSocket {
    * @returns {void}
    */
   start(sessionConfig, route) {
-    this._open({ start: sessionConfig || {}, ...this._route(route) });
+    this._open({start: sessionConfig || {}, ...this._route(route)});
   }
 
   /**
@@ -501,12 +501,12 @@ export class NavTestSocket extends SessionSocket {
    * @returns {void}
    */
   arm(route) {
-    this._send({ type: 'arm', ...this._route(route) });
+    this._send({type: "arm", ...this._route(route)});
   }
 
   /** Re-arm with `route` and run it once. @returns {void} */
   run(route) {
-    this._send({ type: 'run', ...this._route(route) });
+    this._send({type: "run", ...this._route(route)});
   }
 
   /** @returns {{path: Array, exported: boolean, zip: boolean, assert_target: ?Object}} */
@@ -522,11 +522,11 @@ export class NavTestSocket extends SessionSocket {
 
   /** Stop the run in flight (same effect as F4). @returns {void} */
   abort() {
-    this._send({ type: 'abort' });
+    this._send({type: "abort"});
   }
 
   /** End the session; the backend tears down the agent. @returns {void} */
   stop() {
-    this._send({ type: 'stop' });
+    this._send({type: "stop"});
   }
 }

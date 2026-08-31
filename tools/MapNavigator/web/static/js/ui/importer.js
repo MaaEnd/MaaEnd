@@ -15,8 +15,8 @@
  * @module ui/importer
  */
 
-import { getProjectNodes, importAnalyze, importFinalize, loadProjectNode } from '../rpc.js';
-import { setStatus } from './toast.js';
+import {getProjectNodes, importAnalyze, importFinalize, loadProjectNode} from "../rpc.js";
+import {setStatus} from "./toast.js";
 
 /**
  * Match one kind of project node by resource path, Pipeline node name, description, or zone.
@@ -24,14 +24,14 @@ import { setStatus } from './toast.js';
  * @returns {Array<Object>}
  */
 export function filterProjectNodes(nodes, query, kind) {
-  const needle = String(query || '')
+  const needle = String(query || "")
     .trim()
     .toLocaleLowerCase();
   return nodes.filter((node) => {
     if (node.kind !== kind) return false;
     if (!needle) return true;
-    const zones = Array.isArray(node.zone_ids) ? node.zone_ids.join('\n') : '';
-    return `${node.resource_path || ''}\n${node.node_name || ''}\n${node.desc || ''}\n${node.zone_id || ''}\n${zones}`
+    const zones = Array.isArray(node.zone_ids) ? node.zone_ids.join("\n") : "";
+    return `${node.resource_path || ""}\n${node.node_name || ""}\n${node.desc || ""}\n${node.zone_id || ""}\n${zones}`
       .toLocaleLowerCase()
       .includes(needle);
   });
@@ -45,12 +45,12 @@ export function filterProjectNodes(nodes, query, kind) {
  * @returns {Promise<string>}
  */
 export async function readClipboardText(clipboard) {
-  if (!clipboard || typeof clipboard.readText !== 'function') {
-    throw new Error('当前浏览器不支持读取剪贴板');
+  if (!clipboard || typeof clipboard.readText !== "function") {
+    throw new Error("当前浏览器不支持读取剪贴板");
   }
   const text = await clipboard.readText();
-  if (typeof text !== 'string' || !text.trim()) {
-    throw new Error('剪贴板中没有可导入的 JSON 内容');
+  if (typeof text !== "string" || !text.trim()) {
+    throw new Error("剪贴板中没有可导入的 JSON 内容");
   }
   return text;
 }
@@ -63,7 +63,7 @@ export async function readClipboardText(clipboard) {
 export function normalizeAssertTarget(target) {
   if (!Array.isArray(target) || target.length < 4) return null;
   const values = target.slice(0, 4);
-  if (values.some((value) => value === null || typeof value === 'boolean' || String(value).trim() === '')) {
+  if (values.some((value) => value === null || typeof value === "boolean" || String(value).trim() === "")) {
     return null;
   }
   const normalized = values.map(Number);
@@ -89,24 +89,24 @@ export class Importer {
     /** @type {?Object} */
     this._selectedProjectNode = null;
     this._projectNodesLoading = false;
-    this._projectNodesError = '';
-    this._projectMode = 'edit';
-    this._projectKind = 'path';
+    this._projectNodesError = "";
+    this._projectMode = "edit";
+    this._projectKind = "path";
     this._projectRequestId = 0;
   }
 
   /** Wire the project import button and dialogs. @returns {void} */
   init() {
-    this.els.btnImport.addEventListener('click', () => this.openProjectPicker('edit'));
-    this.els.dialogCancel.addEventListener('click', () => this._closeDialog(null));
-    this.els.dialogOk.addEventListener('click', () => this._confirmDialog());
-    this.els.projectCancel.addEventListener('click', () => this._closeProjectPicker());
-    this.els.projectOk.addEventListener('click', () => this._loadSelectedProjectNode());
-    this.els.projectSearch.addEventListener('input', () => this._renderProjectNodes());
-    this.els.projectKindAssert.addEventListener('click', () => this._selectProjectKind('assert'));
-    this.els.projectKindPath.addEventListener('click', () => this._selectProjectKind('path'));
-    this.els.projectSearch.addEventListener('keydown', (event) => {
-      if (event.key === 'Enter' && this._selectedProjectNode) {
+    this.els.btnImport.addEventListener("click", () => this.openProjectPicker("edit"));
+    this.els.dialogCancel.addEventListener("click", () => this._closeDialog(null));
+    this.els.dialogOk.addEventListener("click", () => this._confirmDialog());
+    this.els.projectCancel.addEventListener("click", () => this._closeProjectPicker());
+    this.els.projectOk.addEventListener("click", () => this._loadSelectedProjectNode());
+    this.els.projectSearch.addEventListener("input", () => this._renderProjectNodes());
+    this.els.projectKindAssert.addEventListener("click", () => this._selectProjectKind("assert"));
+    this.els.projectKindPath.addEventListener("click", () => this._selectProjectKind("path"));
+    this.els.projectSearch.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" && this._selectedProjectNode) {
         event.preventDefault();
         this._loadSelectedProjectNode();
       }
@@ -117,16 +117,16 @@ export class Importer {
   async openProjectPicker(mode) {
     const requestId = ++this._projectRequestId;
     this._projectMode = mode;
-    this._projectKind = mode === 'assert' ? 'assert' : 'path';
+    this._projectKind = mode === "assert" ? "assert" : "path";
     this.els.projectDialog.hidden = false;
-    this.els.projectKinds.hidden = mode !== 'assert';
+    this.els.projectKinds.hidden = mode !== "assert";
     this._syncProjectKindTabs();
     this._syncProjectHint();
-    this.els.projectSearch.value = '';
+    this.els.projectSearch.value = "";
     this.els.projectSearch.disabled = true;
     this._selectedProjectNode = null;
     this._projectNodesLoading = true;
-    this._projectNodesError = '';
+    this._projectNodesError = "";
     this._renderProjectNodes();
 
     try {
@@ -137,7 +137,7 @@ export class Importer {
       if (requestId !== this._projectRequestId) return;
       this._projectNodes = [];
       this._projectNodesError = `扫描项目节点失败: ${err && err.message ? err.message : err}`;
-      setStatus(this._projectNodesError, '#ef4444');
+      setStatus(this._projectNodesError, "#ef4444");
     } finally {
       if (requestId !== this._projectRequestId) return;
       this._projectNodesLoading = false;
@@ -149,7 +149,7 @@ export class Importer {
 
   /** Switch Assert between real assertion nodes and MapNavigateAction reference routes. */
   _selectProjectKind(kind) {
-    if (this._projectMode !== 'assert' || this._projectKind === kind) return;
+    if (this._projectMode !== "assert" || this._projectKind === kind) return;
     this._projectKind = kind;
     this._selectedProjectNode = null;
     this._syncProjectKindTabs();
@@ -159,34 +159,34 @@ export class Importer {
 
   _syncProjectKindTabs() {
     for (const [button, kind] of [
-      [this.els.projectKindAssert, 'assert'],
-      [this.els.projectKindPath, 'path'],
+      [this.els.projectKindAssert, "assert"],
+      [this.els.projectKindPath, "path"],
     ]) {
       const active = this._projectKind === kind;
-      button.classList.toggle('active', active);
-      button.setAttribute('aria-pressed', active ? 'true' : 'false');
+      button.classList.toggle("active", active);
+      button.setAttribute("aria-pressed", active ? "true" : "false");
     }
   }
 
   _syncProjectHint() {
-    if (this._projectMode === 'edit') {
-      this.els.projectHint.textContent = '选择 MapNavigateAction 节点，载入其 custom_action_param.path 继续编辑。';
+    if (this._projectMode === "edit") {
+      this.els.projectHint.textContent = "选择 MapNavigateAction 节点，载入其 custom_action_param.path 继续编辑。";
       return;
     }
     this.els.projectHint.textContent =
-      this._projectKind === 'assert'
-        ? '选择 MapLocateAssertLocation 节点，载入其 zone_id 与 target 矩形。'
-        : '选择 MapNavigateAction 作为参考路线，在断言底图上显示其路径点。';
+      this._projectKind === "assert"
+        ? "选择 MapLocateAssertLocation 节点，载入其 zone_id 与 target 矩形。"
+        : "选择 MapNavigateAction 作为参考路线，在断言底图上显示其路径点。";
   }
 
   /** Render the searchable project-node list and keep selection state explicit. */
   _renderProjectNodes() {
     const host = this.els.projectList;
-    host.textContent = '';
+    host.textContent = "";
     this.els.projectOk.disabled = !this._selectedProjectNode || this._projectNodesLoading;
 
     if (this._projectNodesLoading) {
-      this._appendProjectNodeMessage('正在扫描 assets 中的导航与断言节点...');
+      this._appendProjectNodeMessage("正在扫描 assets 中的导航与断言节点...");
       return;
     }
     if (this._projectNodesError) {
@@ -204,55 +204,55 @@ export class Importer {
     }
     if (!visible.length) {
       this._appendProjectNodeMessage(
-        this._projectNodes.length ? '没有匹配的资源路径、节点名、描述或区域。' : 'assets 中没有可导入的节点。',
+        this._projectNodes.length ? "没有匹配的资源路径、节点名、描述或区域。" : "assets 中没有可导入的节点。",
       );
       return;
     }
 
     for (const node of visible) {
-      const item = document.createElement('button');
-      item.type = 'button';
-      item.className = 'project-node-item';
-      item.setAttribute('role', 'option');
+      const item = document.createElement("button");
+      item.type = "button";
+      item.className = "project-node-item";
+      item.setAttribute("role", "option");
       const selected =
         this._selectedProjectNode && this._projectNodeKey(node) === this._projectNodeKey(this._selectedProjectNode);
-      item.classList.toggle('selected', !!selected);
-      item.setAttribute('aria-selected', selected ? 'true' : 'false');
+      item.classList.toggle("selected", !!selected);
+      item.setAttribute("aria-selected", selected ? "true" : "false");
 
-      const name = document.createElement('span');
-      name.className = 'project-node-name';
+      const name = document.createElement("span");
+      name.className = "project-node-name";
       name.textContent = node.node_name;
       item.appendChild(name);
 
-      const description = String(node.desc || '').trim();
+      const description = String(node.desc || "").trim();
       if (description) {
-        const desc = document.createElement('span');
-        desc.className = 'project-node-desc';
+        const desc = document.createElement("span");
+        desc.className = "project-node-desc";
         desc.textContent = description;
         item.appendChild(desc);
       }
 
-      const path = document.createElement('span');
-      path.className = 'project-node-path';
+      const path = document.createElement("span");
+      path.className = "project-node-path";
       path.textContent = node.resource_path;
       item.appendChild(path);
 
-      const meta = document.createElement('span');
-      meta.className = 'project-node-meta';
+      const meta = document.createElement("span");
+      meta.className = "project-node-meta";
       meta.textContent = this._projectNodeMeta(node);
       item.appendChild(meta);
 
-      item.addEventListener('click', () => {
+      item.addEventListener("click", () => {
         this._selectedProjectNode = node;
-        for (const candidate of host.querySelectorAll('.project-node-item')) {
-          candidate.classList.remove('selected');
-          candidate.setAttribute('aria-selected', 'false');
+        for (const candidate of host.querySelectorAll(".project-node-item")) {
+          candidate.classList.remove("selected");
+          candidate.setAttribute("aria-selected", "false");
         }
-        item.classList.add('selected');
-        item.setAttribute('aria-selected', 'true');
+        item.classList.add("selected");
+        item.setAttribute("aria-selected", "true");
         this.els.projectOk.disabled = false;
       });
-      item.addEventListener('dblclick', () => {
+      item.addEventListener("dblclick", () => {
         this._selectedProjectNode = node;
         this._loadSelectedProjectNode();
       });
@@ -262,25 +262,25 @@ export class Importer {
 
   /** @param {string} message @param {boolean} [isError] */
   _appendProjectNodeMessage(message, isError = false) {
-    const row = document.createElement('div');
-    row.className = `project-node-message${isError ? ' error' : ''}`;
+    const row = document.createElement("div");
+    row.className = `project-node-message${isError ? " error" : ""}`;
     row.textContent = message;
     this.els.projectList.appendChild(row);
   }
 
   /** @param {Object} node @returns {string} */
   _projectNodeKey(node) {
-    return `${node.kind || ''}\u0000${node.resource_path || ''}\u0000${node.node_name || ''}`;
+    return `${node.kind || ""}\u0000${node.resource_path || ""}\u0000${node.node_name || ""}`;
   }
 
   _projectNodeMeta(node) {
-    if (node.kind === 'assert') {
-      const target = Array.isArray(node.target) ? node.target.map((value) => Number(value).toFixed(1)).join(', ') : '';
-      const count = Number(node.condition_count) > 1 ? ` · ${node.condition_count} 个断言条件` : '';
-      return `MapLocateAssertLocation · ${node.zone_id || '未知区域'} · [${target}]${count}`;
+    if (node.kind === "assert") {
+      const target = Array.isArray(node.target) ? node.target.map((value) => Number(value).toFixed(1)).join(", ") : "";
+      const count = Number(node.condition_count) > 1 ? ` · ${node.condition_count} 个断言条件` : "";
+      return `MapLocateAssertLocation · ${node.zone_id || "未知区域"} · [${target}]${count}`;
     }
-    const zones = Array.isArray(node.zone_ids) && node.zone_ids.length ? ` · ${node.zone_ids.join('、')}` : '';
-    const zipline = node.zip_enabled ? ' · 已启用滑索' : '';
+    const zones = Array.isArray(node.zone_ids) && node.zone_ids.length ? ` · ${node.zone_ids.join("、")}` : "";
+    const zipline = node.zip_enabled ? " · 已启用滑索" : "";
     return `${Number(node.point_count) || 0} 个路径点 · ${Number(node.navmesh_count) || 0} 个 NAVMESH${zones}${zipline}`;
   }
 
@@ -294,15 +294,15 @@ export class Importer {
     try {
       const result = await loadProjectNode(selected.kind, selected.resource_path, selected.node_name);
       if (!result || result.ok === false) {
-        throw new Error((result && result.error) || '所选项目节点无法载入');
+        throw new Error((result && result.error) || "所选项目节点无法载入");
       }
       const sourceLabel = `${selected.node_name}（${selected.resource_path}）`;
-      if (result.kind === 'assert') {
+      if (result.kind === "assert") {
         const target = normalizeAssertTarget(result.target);
-        if (!target) throw new Error('所选断言节点缺少有效 target');
-        this._applyAssert({ ...result, target, source_label: sourceLabel });
+        if (!target) throw new Error("所选断言节点缺少有效 target");
+        this._applyAssert({...result, target, source_label: sourceLabel});
       } else {
-        if (!Array.isArray(result.path)) throw new Error('所选导航节点缺少有效 path');
+        if (!Array.isArray(result.path)) throw new Error("所选导航节点缺少有效 path");
         await this.analyzeText(
           JSON.stringify({path: result.path, ...(result.zip_enabled ? {zip: true} : {})}),
           sourceLabel,
@@ -311,7 +311,7 @@ export class Importer {
       this._closeProjectPicker();
     } catch (err) {
       this._projectNodesError = `读取项目节点失败: ${err && err.message ? err.message : err}`;
-      setStatus(this._projectNodesError, '#ef4444');
+      setStatus(this._projectNodesError, "#ef4444");
     } finally {
       this._projectNodesLoading = false;
       this.els.projectSearch.disabled = false;
@@ -333,18 +333,18 @@ export class Importer {
       text = await readClipboardText(globalThis.navigator && globalThis.navigator.clipboard);
     } catch (err) {
       const detail = err && err.message ? err.message : String(err);
-      if (err && err.name === 'NotAllowedError') {
-        setStatus('无法读取剪贴板：请允许浏览器访问剪贴板后重试。', '#ef4444');
-      } else if (detail === '当前浏览器不支持读取剪贴板') {
-        setStatus('当前浏览器不支持读取剪贴板，请通过本地 MapNavigator 页面打开后重试。', '#ef4444');
-      } else if (detail === '剪贴板中没有可导入的 JSON 内容') {
-        setStatus(`${detail}，请先复制节点或 path。`, '#ef4444');
+      if (err && err.name === "NotAllowedError") {
+        setStatus("无法读取剪贴板：请允许浏览器访问剪贴板后重试。", "#ef4444");
+      } else if (detail === "当前浏览器不支持读取剪贴板") {
+        setStatus("当前浏览器不支持读取剪贴板，请通过本地 MapNavigator 页面打开后重试。", "#ef4444");
+      } else if (detail === "剪贴板中没有可导入的 JSON 内容") {
+        setStatus(`${detail}，请先复制节点或 path。`, "#ef4444");
       } else {
-        setStatus(`读取剪贴板失败: ${detail}`, '#ef4444');
+        setStatus(`读取剪贴板失败: ${detail}`, "#ef4444");
       }
       return;
     }
-    await this.analyzeText(text, '剪贴板');
+    await this.analyzeText(text, "剪贴板");
   }
 
   /**
@@ -353,27 +353,27 @@ export class Importer {
    * @param {string} [sourceLabel] selected project node shown in the success status
    * @returns {Promise<void>}
    */
-  async analyzeText(text, sourceLabel = '') {
+  async analyzeText(text, sourceLabel = "") {
     let result;
     try {
       result = await importAnalyze(text);
     } catch (err) {
-      setStatus(`导入失败: ${err && err.message ? err.message : err}`, '#ef4444');
+      setStatus(`导入失败: ${err && err.message ? err.message : err}`, "#ef4444");
       return;
     }
 
     if (!result || result.ok === false) {
-      setStatus((result && result.error) || '导入失败', '#ef4444');
+      setStatus((result && result.error) || "导入失败", "#ef4444");
       return;
     }
 
-    if (result.kind === 'assert') {
+    if (result.kind === "assert") {
       const target = normalizeAssertTarget(result.target);
       if (!target) {
-        setStatus('导入失败: 断言节点缺少有效 target', '#ef4444');
+        setStatus("导入失败: 断言节点缺少有效 target", "#ef4444");
         return;
       }
-      this._applyAssert({ ...result, target, source_label: sourceLabel });
+      this._applyAssert({...result, target, source_label: sourceLabel});
       return;
     }
 
@@ -400,7 +400,7 @@ export class Importer {
    * @param {boolean} [zipEnabled]
    * @returns {void}
    */
-  _loadPath(points, routeCount, sourceLabel = '', zipEnabled = false) {
+  _loadPath(points, routeCount, sourceLabel = "", zipEnabled = false) {
     // The hook may replace the lead-in and its color when the active map cannot draw
     // imported route points.
     const note = this.hooks.loadPoints(points, {zipEnabled}) || {};
@@ -411,7 +411,7 @@ export class Importer {
       status = sourceLabel ? `已从${sourceLabel}导入 ${points.length} 个路径点` : `已导入 ${points.length} 个路径点`;
     }
     if (routeCount > 1) status += `（共找到 ${routeCount} 条候选路径，已加载点数最多的一条）`;
-    setStatus(status, note.color || '#10b981');
+    setStatus(status, note.color || "#10b981");
   }
 
   /**
@@ -422,10 +422,10 @@ export class Importer {
   _applyAssert(r) {
     const [x, y, w, h] = r.target;
     this.hooks.applyAssert(r.zone_id, r.target);
-    const source = r.source_label ? `已从${r.source_label}载入断言` : '已导入 Assert';
+    const source = r.source_label ? `已从${r.source_label}载入断言` : "已导入 Assert";
     let status = `${source}: zone=${r.zone_id} target=[${x.toFixed(1)}, ${y.toFixed(1)}, ${w.toFixed(1)}, ${h.toFixed(1)}]`;
     if (r.condition_count > 1) status += `（共找到 ${r.condition_count} 个条件，已加载第一个）`;
-    setStatus(status, '#10b981');
+    setStatus(status, "#10b981");
   }
 
   /**
@@ -434,16 +434,16 @@ export class Importer {
    * @param {string} [sourceLabel] @param {boolean} [zipEnabled]
    * @returns {Promise<void>}
    */
-  async _finalize(rawPoints, assignments, routeCount, sourceLabel = '', zipEnabled = false) {
+  async _finalize(rawPoints, assignments, routeCount, sourceLabel = "", zipEnabled = false) {
     let result;
     try {
       result = await importFinalize(rawPoints, assignments);
     } catch (err) {
-      setStatus(`导入失败: ${err && err.message ? err.message : err}`, '#ef4444');
+      setStatus(`导入失败: ${err && err.message ? err.message : err}`, "#ef4444");
       return;
     }
     if (!result || result.ok === false) {
-      setStatus((result && result.error) || '导入失败', '#ef4444');
+      setStatus((result && result.error) || "导入失败", "#ef4444");
       return;
     }
     this._loadPath(result.points || [], routeCount, sourceLabel, zipEnabled);
@@ -461,22 +461,22 @@ export class Importer {
       this._resolveDialog = resolve;
       this._dialogSegments = segments;
       const rows = this.els.dialogRows;
-      rows.textContent = '';
+      rows.textContent = "";
       for (const seg of segments) {
-        const row = document.createElement('div');
-        row.className = 'modal-row';
+        const row = document.createElement("div");
+        row.className = "modal-row";
 
-        const label = document.createElement('span');
-        label.className = 'modal-row-label';
+        const label = document.createElement("span");
+        label.className = "modal-row-label";
         label.textContent = `片段 ${seg.index + 1}: ${seg.summary}`;
         row.appendChild(label);
 
-        const select = document.createElement('select');
-        select.className = 'combo';
+        const select = document.createElement("select");
+        select.className = "combo";
         select.dataset.start = String(seg.start);
         select.dataset.end = String(seg.end);
         for (const zone of zoneOptions) {
-          const opt = document.createElement('option');
+          const opt = document.createElement("option");
           opt.value = zone;
           opt.textContent = zone;
           select.appendChild(opt);
@@ -491,15 +491,15 @@ export class Importer {
 
   /** Collect the dialog selections and resolve (tk `confirm`). @returns {void} */
   _confirmDialog() {
-    const selects = this.els.dialogRows.querySelectorAll('select');
+    const selects = this.els.dialogRows.querySelectorAll("select");
     const assignments = [];
     for (const select of selects) {
       const zone = select.value.trim();
       if (!zone) {
-        setStatus('请先为每个片段选择对应地图。', '#ef4444');
+        setStatus("请先为每个片段选择对应地图。", "#ef4444");
         return;
       }
-      assignments.push({ start: Number(select.dataset.start), end: Number(select.dataset.end), zone });
+      assignments.push({start: Number(select.dataset.start), end: Number(select.dataset.end), zone});
     }
     this._closeDialog(assignments);
   }
