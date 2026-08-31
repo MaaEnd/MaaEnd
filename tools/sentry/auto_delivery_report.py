@@ -1,8 +1,9 @@
 """根据 Sentry spans 生成自动送货任务分析报告。
 
 默认分析 beta 环境最新 MaaEnd Beta / RC 版本最近 24 小时的 DeliveryJobs 与
-SeizeDeliveryJobs。报告分别展示导航阶段失败率、失败节点分布和路线内部错误率。
-路线内部错误可能已被上层重试恢复，因此不等同于整次自动送货任务失败。
+SeizeDeliveryJobs。报告分别展示导航阶段失败率、失败节点分布和路线内部失败率，
+并在同一条逻辑路线中对比开启和关闭滑索的失败率。路线内部失败可能已被上层
+重试恢复，因此不等同于整次自动送货任务失败。
 """
 
 from __future__ import annotations
@@ -149,8 +150,10 @@ class RouteRow:
     area: str
     route_id: str
     traces: int
-    internal_error_traces: int
-    internal_error_rate: float
+    failure_traces: int
+    failure_rate: float
+    without_zipline_failure_rate: float | None
+    with_zipline_failure_rate: float | None
 
 
 @dataclass(frozen=True)
@@ -307,6 +310,8 @@ def build_route_rows(
 ) -> tuple[list[RouteRow], set[str]]:
     traces_by_route: dict[str, set[str]] = defaultdict(set)
     failures_by_route: dict[str, set[str]] = defaultdict(set)
+    traces_by_mode: dict[tuple[str, bool], set[str]] = defaultdict(set)
+    failures_by_mode: dict[tuple[str, bool], set[str]] = defaultdict(set)
     definitions_by_id: dict[str, RouteDefinition] = {}
     unknown_nodes: set[str] = set()
 
@@ -316,16 +321,23 @@ def build_route_rows(
         if definition is None:
             unknown_nodes.add(node)
             continue
-        definitions_by_id[definition.route_id] = definition
+        zipline_requested = node.endswith("WithZipline")
+        route_id = definition.route_id
+        mode_key = (route_id, zipline_requested)
+        definitions_by_id[route_id] = definition
         trace = str(row["trace"])
-        traces_by_route[definition.route_id].add(trace)
+        traces_by_route[route_id].add(trace)
+        traces_by_mode[mode_key].add(trace)
         if row["span.status"] == INTERNAL_ERROR:
-            failures_by_route[definition.route_id].add(trace)
+            failures_by_route[route_id].add(trace)
+            failures_by_mode[mode_key].add(trace)
 
     report = []
     for route_id, traces in traces_by_route.items():
         definition = definitions_by_id[route_id]
         failures = len(failures_by_route[route_id])
+        without_zipline_traces = traces_by_mode[(route_id, False)]
+        with_zipline_traces = traces_by_mode[(route_id, True)]
         report.append(
             RouteRow(
                 route_type=definition.route_type,
@@ -333,15 +345,26 @@ def build_route_rows(
                 area=definition.area,
                 route_id=route_id,
                 traces=len(traces),
-                internal_error_traces=failures,
-                internal_error_rate=failures / len(traces),
+                failure_traces=failures,
+                failure_rate=failures / len(traces),
+                without_zipline_failure_rate=(
+                    len(failures_by_mode[(route_id, False)])
+                    / len(without_zipline_traces)
+                    if without_zipline_traces
+                    else None
+                ),
+                with_zipline_failure_rate=(
+                    len(failures_by_mode[(route_id, True)]) / len(with_zipline_traces)
+                    if with_zipline_traces
+                    else None
+                ),
             )
         )
     return (
         sorted(
             report,
             key=lambda row: (
-                -row.internal_error_rate,
+                -row.failure_rate,
                 -row.traces,
                 row.route_type,
                 row.name,
@@ -408,15 +431,14 @@ def collect_report(
         period=period,
         fields=("span.description", "count_unique(trace)"),
         query=(
-            f"{scope_filter} span.description:AutoDelivery* "
-            "span.status:internal_error"
+            f"{scope_filter} span.description:AutoDelivery* span.status:internal_error"
         ),
         sort="-count_unique(trace)",
         verbose=verbose,
         timeout_seconds=timeout_seconds,
     )
 
-    show_progress("[3/3] 查询送货路线内部错误", quiet=quiet)
+    show_progress("[3/3] 查询送货路线内部失败", quiet=quiet)
     route_rows = explore(
         sentry_command,
         target=target,
@@ -443,8 +465,9 @@ def collect_report(
 
 def write_console(report: Report, output: TextIO) -> None:
     print("自动送货导航阶段", file=output)
+    print("报告内所有次数均按 trace 去重。", file=output)
     write_console_table(
-        ("阶段", "执行 trace", "失败 trace", "失败率"),
+        ("阶段", "次数", "失败次数", "失败率"),
         [
             (
                 row.stage,
@@ -458,9 +481,10 @@ def write_console(report: Report, output: TextIO) -> None:
         right_aligned={1, 2, 3},
     )
 
-    print("\n失败节点（仅统计失败 trace，不推算缺少成功 span 的阶段失败率）", file=output)
+    print("\n失败节点", file=output)
+    print("失败节点表仅统计失败次数，不计算失败率。", file=output)
     write_console_table(
-        ("阶段", "失败 trace", "节点"),
+        ("阶段", "失败次数", "节点"),
         [
             (row.stage, str(row.failure_traces), row.node)
             for row in report.failure_nodes
@@ -469,28 +493,44 @@ def write_console(report: Report, output: TextIO) -> None:
         right_aligned={1},
     )
 
-    print("\n路线内部错误（可能已被上层重试恢复）", file=output)
+    print("\n路线内部失败（可能已被上层重试恢复）", file=output)
+    print(
+        "滑索开启表示选择了 WithZipline 路线分支，不代表运行时一定乘坐滑索。",
+        file=output,
+    )
     write_console_table(
-        ("类型", "目标", "区域", "涉及 trace", "错误 trace", "错误率"),
+        (
+            "类型",
+            "目标",
+            "区域",
+            "次数",
+            "失败次数",
+            "总失败率",
+            "关闭滑索失败率",
+            "开启滑索失败率",
+        ),
         [
             (
                 row.route_type,
                 row.name,
                 row.area,
                 str(row.traces),
-                str(row.internal_error_traces),
-                format_rate(row.internal_error_rate),
+                str(row.failure_traces),
+                format_rate(row.failure_rate),
+                format_rate(row.without_zipline_failure_rate),
+                format_rate(row.with_zipline_failure_rate),
             )
             for row in report.routes
         ],
         output,
-        right_aligned={3, 4, 5},
+        right_aligned={3, 4, 5, 6, 7},
     )
 
 
 def write_markdown(report: Report, output: TextIO) -> None:
     print("## 自动送货导航阶段\n", file=output)
-    print("| 阶段 | 执行 trace | 失败 trace | 失败率 |", file=output)
+    print("> 报告内所有次数均按 trace 去重。\n", file=output)
+    print("| 阶段 | 次数 | 失败次数 | 失败率 |", file=output)
     print("|---|---:|---:|---:|", file=output)
     for row in report.stages:
         print(
@@ -501,22 +541,32 @@ def write_markdown(report: Report, output: TextIO) -> None:
 
     print("\n## 失败节点\n", file=output)
     print(
-        "> 仅统计失败 trace，不推算缺少成功 span 的阶段失败率。\n",
+        "> 失败节点表仅统计失败次数，不计算失败率。\n",
         file=output,
     )
-    print("| 阶段 | 失败 trace | 节点 |", file=output)
+    print("| 阶段 | 失败次数 | 节点 |", file=output)
     print("|---|---:|---|", file=output)
     for row in report.failure_nodes:
         print(f"| {row.stage} | {row.failure_traces} | `{row.node}` |", file=output)
 
-    print("\n## 路线内部错误\n", file=output)
-    print("> 路线内部错误可能已被上层重试恢复。\n", file=output)
-    print("| 类型 | 目标 | 区域 | 涉及 trace | 错误 trace | 错误率 |", file=output)
-    print("|---|---|---|---:|---:|---:|", file=output)
+    print("\n## 路线内部失败\n", file=output)
+    print(
+        "> 路线内部失败可能已被上层重试恢复。滑索开启表示选择了 "
+        "`WithZipline` 路线分支，不代表运行时一定乘坐滑索。\n",
+        file=output,
+    )
+    print(
+        "| 类型 | 目标 | 区域 | 次数 | 失败次数 | 总失败率 | "
+        "关闭滑索失败率 | 开启滑索失败率 |",
+        file=output,
+    )
+    print("|---|---|---|---:|---:|---:|---:|---:|", file=output)
     for row in report.routes:
         print(
             f"| {row.route_type} | {row.name} | {row.area} | {row.traces} | "
-            f"{row.internal_error_traces} | {format_rate(row.internal_error_rate)} |",
+            f"{row.failure_traces} | {format_rate(row.failure_rate)} | "
+            f"{format_rate(row.without_zipline_failure_rate)} | "
+            f"{format_rate(row.with_zipline_failure_rate)} |",
             file=output,
         )
 
