@@ -10,9 +10,16 @@
             1
         ],
         "anchor": {
-            "MouseMoveResetAnchor": ""
+            "MouseMoveResetAnchor": "__MouseMoveResetCompleted"
         },
         "post_delay": 200,
+        "rate_limit": 0
+    },
+    "__MouseMoveResetCompleted": {
+        "desc": "鼠标重置已完成的一次性禁用哨兵",
+        "enabled": false,
+        "pre_delay": 0,
+        "post_delay": 0,
         "rate_limit": 0
     }
 }

@@ -5,43 +5,83 @@
             "label": "$task.StashBackpack.label",
             "entry": "StashBackpackMain",
             "controller": [
-                "Linux-Gamescope",
-                "Linux-ScreenCast",
-                "Linux-Wlroots",
-                "MacOS-Background",
-                "MacOS-Front",
                 "Win32-Front"
             ],
             "group": [
                 "backpack"
             ],
             "option": [
-                "StashBackpackType"
+                "StashBackpackDepot",
+                "StashBackpackType",
+                "StashBackpackManual"
+            ]
+        },
+        {
+            "name": "RetrieveBackpack",
+            "label": "$task.RetrieveBackpack.label",
+            "entry": "RetrieveBackpackMain",
+            "controller": [
+                "Win32-Front"
+            ],
+            "group": [
+                "backpack"
+            ],
+            "option": [
+                "RetrieveBackpackCategories",
+                "RetrieveBackpackStoreNewItems"
             ]
         }
     ],
     "option": {
-        "StashBackpackSubTask": {
+        "StoreNewItemsWithStashBackpack": {
             "type": "switch",
-            "label": "$task.StashBackpack.option.StashBackpackSubTask.label",
+            "label": "$option.StoreNewItemsWithStashBackpack.label",
             "default_case": "Yes",
             "cases": [
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "StashBackpackMain": {
+                        "StoreNewItemsWithStashBackpackEnabled": {
                             "enabled": true
                         }
-                    },
-                    "option": [
-                        "StashBackpackType"
-                    ]
+                    }
                 },
                 {
                     "name": "No",
                     "pipeline_override": {
-                        "StashBackpackMain": {
+                        "StoreNewItemsWithStashBackpackEnabled": {
                             "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "StashBackpackDepot": {
+            "type": "select",
+            "label": "$option.StashBackpackDepot.label",
+            "default_case": "ValleyIV",
+            "cases": [
+                {
+                    "name": "ValleyIV",
+                    "label": "$option.StashBackpackDepot.cases.ValleyIV.label",
+                    "pipeline_override": {
+                        "StashBackpackEnterDepotValleyIV": {
+                            "enabled": true
+                        },
+                        "StashBackpackEnterDepotWuling": {
+                            "enabled": false
+                        }
+                    }
+                },
+                {
+                    "name": "Wuling",
+                    "label": "$option.StashBackpackDepot.cases.Wuling.label",
+                    "pipeline_override": {
+                        "StashBackpackEnterDepotValleyIV": {
+                            "enabled": false
+                        },
+                        "StashBackpackEnterDepotWuling": {
+                            "enabled": true
                         }
                     }
                 }
@@ -51,8 +91,7 @@
             "type": "checkbox",
             "label": "$option.StashBackpackType.label",
             "default_case": [
-                "StashBackpackQuick",
-                "StashBackpackUsableItemsLimited"
+                "StashBackpackQuick"
             ],
             "cases": [
                 {
@@ -63,13 +102,271 @@
                             "enabled": true
                         }
                     }
+                }
+            ]
+        },
+        "StashBackpackManual": {
+            "type": "switch",
+            "label": "$option.StashBackpackManual.label",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "StashBackpackPrepareManualTargets": {
+                            "enabled": false
+                        }
+                    },
+                    "option": [
+                        "StashBackpackReplenishUsable"
+                    ]
                 },
                 {
-                    "name": "StashBackpackUsableItemsLimited",
-                    "label": "$option.StashBackpackUsableItemsLimited.label",
+                    "name": "Yes",
                     "pipeline_override": {
-                        "StashBackpackUsableItemsLimited": {
+                        "StashBackpackPrepareManualTargets": {
                             "enabled": true
+                        }
+                    },
+                    "option": [
+                        "StashBackpackManualCategories",
+                        "StashBackpackManualUsable"
+                    ]
+                }
+            ]
+        },
+        "StashBackpackManualCategories": {
+            "type": "checkbox",
+            "label": "$option.StashBackpackManualCategories.label",
+            "default_case": [
+                "Ore",
+                "Plant",
+                "Product",
+                "Doodad",
+                "Nurturance",
+                "Producer",
+                "PortableDevice"
+            ],
+            "cases": [
+                {
+                    "name": "Ore",
+                    "label": "$option.StashBackpackCategory.Ore.label",
+                    "pipeline_override": {
+                        "StashBackpackManualCategoryOre": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "Plant",
+                    "label": "$option.StashBackpackCategory.Plant.label",
+                    "pipeline_override": {
+                        "StashBackpackManualCategoryPlant": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "Product",
+                    "label": "$option.StashBackpackCategory.Product.label",
+                    "pipeline_override": {
+                        "StashBackpackManualCategoryProduct": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "Doodad",
+                    "label": "$option.StashBackpackCategory.Doodad.label",
+                    "pipeline_override": {
+                        "StashBackpackManualCategoryDoodad": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "Nurturance",
+                    "label": "$option.StashBackpackCategory.Nurturance.label",
+                    "pipeline_override": {
+                        "StashBackpackManualCategoryNurturance": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "Producer",
+                    "label": "$option.StashBackpackCategory.Producer.label",
+                    "pipeline_override": {
+                        "StashBackpackManualCategoryProducer": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "PortableDevice",
+                    "label": "$option.StashBackpackCategory.PortableDevice.label",
+                    "pipeline_override": {
+                        "StashBackpackManualCategoryPortableDevice": {
+                            "enabled": true
+                        }
+                    }
+                }
+            ]
+        },
+        "StashBackpackManualUsable": {
+            "type": "switch",
+            "label": "$option.StashBackpackManualUsable.label",
+            "description": "$option.StashBackpackManualUsable.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "StashBackpackManualCategoryUsable": {
+                            "enabled": false
+                        }
+                    },
+                    "option": [
+                        "StashBackpackReplenishUsable"
+                    ]
+                },
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "StashBackpackManualCategoryUsable": {
+                            "enabled": true
+                        },
+                        "StashBackpackPrepareReplenishTargets": {
+                            "enabled": false
+                        }
+                    }
+                }
+            ]
+        },
+        "StashBackpackReplenishUsable": {
+            "type": "switch",
+            "label": "$option.StashBackpackReplenishUsable.label",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "StashBackpackPrepareReplenishTargets": {
+                            "enabled": false
+                        }
+                    }
+                },
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "StashBackpackPrepareReplenishTargets": {
+                            "enabled": true
+                        }
+                    }
+                }
+            ]
+        },
+        "RetrieveBackpackCategories": {
+            "type": "checkbox",
+            "label": "$option.RetrieveBackpackCategories.label",
+            "default_case": [
+                "Producer",
+                "PortableDevice"
+            ],
+            "cases": [
+                {
+                    "name": "Ore",
+                    "label": "$option.StashBackpackCategory.Ore.label",
+                    "pipeline_override": {
+                        "RetrieveBackpackCategoryOre": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "Plant",
+                    "label": "$option.StashBackpackCategory.Plant.label",
+                    "pipeline_override": {
+                        "RetrieveBackpackCategoryPlant": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "Product",
+                    "label": "$option.StashBackpackCategory.Product.label",
+                    "pipeline_override": {
+                        "RetrieveBackpackCategoryProduct": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "Doodad",
+                    "label": "$option.StashBackpackCategory.Doodad.label",
+                    "pipeline_override": {
+                        "RetrieveBackpackCategoryDoodad": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "Nurturance",
+                    "label": "$option.StashBackpackCategory.Nurturance.label",
+                    "pipeline_override": {
+                        "RetrieveBackpackCategoryNurturance": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "Usable",
+                    "label": "$option.StashBackpackCategory.Usable.label",
+                    "pipeline_override": {
+                        "RetrieveBackpackCategoryUsable": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "Producer",
+                    "label": "$option.StashBackpackCategory.Producer.label",
+                    "pipeline_override": {
+                        "RetrieveBackpackCategoryProducer": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "PortableDevice",
+                    "label": "$option.StashBackpackCategory.PortableDevice.label",
+                    "pipeline_override": {
+                        "RetrieveBackpackCategoryPortableDevice": {
+                            "enabled": true
+                        }
+                    }
+                }
+            ]
+        },
+        "RetrieveBackpackStoreNewItems": {
+            "type": "switch",
+            "label": "$option.RetrieveBackpackStoreNewItems.label",
+            "description": "$option.RetrieveBackpackStoreNewItems.description",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "RetrieveBackpackPrepareNewItems": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "pipeline_override": {
+                        "RetrieveBackpackPrepareNewItems": {
+                            "enabled": false
                         }
                     }
                 }
