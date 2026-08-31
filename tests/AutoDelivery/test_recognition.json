@@ -47,6 +47,13 @@
             "hits": [
                 "AutoDeliveryCheckSubmitGoodsButton"
             ]
+        },
+        {
+            "name": "NPC可交货",
+            "image": "送货任务_大世界_NPC可交货.png",
+            "hits": [
+                "AutoDeliveryCheckSubmitGoodsButton"
+            ]
         }
     ]
 }
