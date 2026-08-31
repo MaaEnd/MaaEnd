@@ -151,7 +151,11 @@ class MapNavigatorApp {
       live: readDebugFlag("maaend.mapnavigator.showLivePath", true),
     };
     this.showLivePath = this.navDebug.live;
-    this.showMapZiplines = readDebugFlag("maaend.mapnavigator.showZiplines", false);
+    this.mapLayers = {
+      showBasemap: readDebugFlag("maaend.mapnavigator.showBasemap", true),
+      showNavmesh: readDebugFlag("maaend.mapnavigator.showNavmesh", true),
+      showZiplines: readDebugFlag("maaend.mapnavigator.showZiplines", false),
+    };
     /** @type {?Object} current installation's parsed debug/record/Ziplines.json. */
     this.mapZiplineRecords = null;
     /** @type {Map<string,Array<Object>>} projected base-frame towers keyed by geometry zone name. */
@@ -221,7 +225,6 @@ class MapNavigatorApp {
       showBaseline: true,
       showZipline: true,
       showSelectedTowers: true,
-      showRecordedTowers: true,
       showEstimates: true,
     };
 
@@ -316,8 +319,13 @@ class MapNavigatorApp {
       toolRouteTest: $("tool-route-test"),
       toolEditStart: $("tool-edit-start"),
       editStartDivider: $("edit-start-divider"),
-      btnToggleZiplines: $("btn-toggle-ziplines"),
-      ziplineLayerDivider: $("zipline-layer-divider"),
+      btnMapLayers: $("btn-map-layers"),
+      mapLayerPanel: $("map-layer-panel"),
+      btnMapLayersClose: $("btn-map-layers-close"),
+      mapShowBasemap: $("map-show-basemap"),
+      mapShowNavmesh: $("map-show-navmesh"),
+      mapShowZiplines: $("map-show-ziplines"),
+      mapLogLayerGroup: $("map-log-layer-group"),
       toolAssertPan: $("tool-assert-pan"),
       toolAssertEdit: $("tool-assert-edit"),
       kindCombo: $("connection-kind-combo"),
@@ -415,7 +423,6 @@ class MapNavigatorApp {
       logShowBaseline: $("log-show-baseline"),
       logShowZipline: $("log-show-zipline"),
       logShowSelectedTowers: $("log-show-selected-towers"),
-      logShowRecordedTowers: $("log-show-recorded-towers"),
       logShowEstimates: $("log-show-estimates"),
       contextPanel: $("context-panel"),
       editInspectionBox: $("edit-inspection-box"),
@@ -543,11 +550,12 @@ class MapNavigatorApp {
       this._syncMapControls();
       this._refreshZoneLabel();
       this._syncModeTabUI();
+      this._syncMapLayerUI();
       this._doRedraw();
 
       this._loadZoneIds();
       this._pollLoadStatus();
-      if (this.showMapZiplines) void this._loadMapZiplines({announce: false});
+      if (this.mapLayers.showZiplines) void this._loadMapZiplines({announce: false});
     } catch (err) {
       alert("BOOT ERROR: " + err.message + "\nStack: " + err.stack);
     }
@@ -908,7 +916,20 @@ class MapNavigatorApp {
       if (this.quickRouteTest?.goal) this._calculateQuickRouteTest();
       else if (this.editRoute) this._calculateEditPreview();
     });
-    e.btnToggleZiplines.addEventListener("click", () => this._toggleMapZiplines());
+    e.btnMapLayers.addEventListener("click", (event) => {
+      event.stopPropagation();
+      this._setMapLayerPanelOpen(e.mapLayerPanel.hidden);
+    });
+    e.btnMapLayersClose.addEventListener("click", () => this._setMapLayerPanelOpen(false));
+    e.mapLayerPanel.addEventListener("click", (event) => event.stopPropagation());
+    document.addEventListener("click", () => this._setMapLayerPanelOpen(false));
+    e.mapShowBasemap.addEventListener("change", () =>
+      this._setMapLayerVisible("showBasemap", e.mapShowBasemap.checked),
+    );
+    e.mapShowNavmesh.addEventListener("change", () =>
+      this._setMapLayerVisible("showNavmesh", e.mapShowNavmesh.checked),
+    );
+    e.mapShowZiplines.addEventListener("change", () => void this._setMapZiplinesVisible(e.mapShowZiplines.checked));
     e.btnCopyAssert.addEventListener("click", () => this._copyAssert());
     e.assertCopyFormat.addEventListener("change", () => this._syncCopyButtonLabels());
     e.btnPrev.addEventListener("click", () => this._prevZone());
@@ -1023,7 +1044,8 @@ class MapNavigatorApp {
     });
     e.btnZiplineMeasure.addEventListener("click", () => {
       const measuring = this.activeTool !== "zipline-measure";
-      const fallbackTool = this.state.mode === Mode.LOG ? "log-inspect" : "add";
+      const fallbackTool =
+        this.state.mode === Mode.LOG ? "log-inspect" : this.state.mode === Mode.ASSERT ? "assert-edit" : "add";
       this._setActiveTool(measuring ? "zipline-measure" : fallbackTool);
       this._renderZiplineDistance();
       setStatus(
@@ -1038,7 +1060,6 @@ class MapNavigatorApp {
       [e.logShowBaseline, "showBaseline"],
       [e.logShowZipline, "showZipline"],
       [e.logShowSelectedTowers, "showSelectedTowers"],
-      [e.logShowRecordedTowers, "showRecordedTowers"],
       [e.logShowEstimates, "showEstimates"],
     ]) {
       control.addEventListener("change", () => {
@@ -1259,7 +1280,7 @@ class MapNavigatorApp {
     const displayEditPreviewStart =
       mode === Mode.EDIT && !displayQuickRouteTest ? this._editPreviewStartForDisplay() : null;
     const displayLivePath = mode === Mode.EDIT ? this._livePathForDisplay() : null;
-    const displayMapZiplines = mode === Mode.EDIT ? this._mapZiplinesForDisplay() : [];
+    const displayMapZiplines = mode === Mode.EDIT || mode === Mode.ASSERT ? this._mapZiplinesForDisplay() : [];
 
     const vm = {
       mode,
@@ -1418,9 +1439,53 @@ class MapNavigatorApp {
     return base ? base.name : "";
   }
 
-  /** Recorded towers for the current edit map in geometry/base coordinates. */
+  /** Open or close the shared map-layer panel. */
+  _setMapLayerPanelOpen(open) {
+    const expanded = !!open;
+    this.els.mapLayerPanel.hidden = !expanded;
+    this.els.btnMapLayers.classList.toggle("active", expanded);
+    this.els.btnMapLayers.setAttribute("aria-expanded", String(expanded));
+  }
+
+  /** Synchronize shared and log-only layer controls without changing their state. */
+  _syncMapLayerUI() {
+    const e = this.els;
+    e.mapShowBasemap.checked = this.mapLayers.showBasemap;
+    e.mapShowNavmesh.checked = this.mapLayers.showNavmesh;
+    e.mapShowZiplines.checked = this.mapLayers.showZiplines;
+    e.mapLogLayerGroup.hidden = this.state.mode !== Mode.LOG;
+    for (const [control, key] of [
+      [e.logShowAuthored, "showAuthored"],
+      [e.logShowWalk, "showWalk"],
+      [e.logShowObserved, "showObserved"],
+      [e.logShowBaseline, "showBaseline"],
+      [e.logShowZipline, "showZipline"],
+      [e.logShowSelectedTowers, "showSelectedTowers"],
+      [e.logShowEstimates, "showEstimates"],
+    ]) {
+      control.checked = this.logLayers[key];
+    }
+  }
+
+  /** Update one persistent non-zipline map layer. */
+  _setMapLayerVisible(key, visible) {
+    if (key !== "showBasemap" && key !== "showNavmesh") return;
+    this.mapLayers[key] = !!visible;
+    const storageKey = key === "showBasemap" ? "showBasemap" : "showNavmesh";
+    localStorage.setItem(`maaend.mapnavigator.${storageKey}`, visible ? "1" : "0");
+    if (key === "showBasemap") {
+      this.renderer.setBasemapVisible(this.mapLayers.showBasemap && !!this._basemapDims);
+    } else {
+      this.renderer.setMeshVisible(this.mapLayers.showNavmesh && this._meshKey !== null);
+      if (this.threeView) this.threeView.setMeshVisible(this.mapLayers.showNavmesh);
+    }
+    this._syncMapLayerUI();
+    this._paint();
+  }
+
+  /** Recorded towers for the current map in geometry/base coordinates. */
   _mapZiplineTowers() {
-    if (!this.showMapZiplines || !this.mapZiplineRecords || !this.ziplineFrameConfig || !this.field) return [];
+    if (!this.mapLayers.showZiplines || !this.mapZiplineRecords || !this.ziplineFrameConfig || !this.field) return [];
     const zoneName = this._geometryZoneName(this._displayZoneId());
     if (!zoneName) return [];
     if (!this._mapZiplineBaseByZone.has(zoneName)) {
@@ -1432,7 +1497,7 @@ class MapNavigatorApp {
     return this._mapZiplineBaseByZone.get(zoneName);
   }
 
-  /** Recorded towers for the current edit map, projected into the active base/tier display frame. */
+  /** Recorded towers for the current map, projected into the active base/tier display frame. */
   _mapZiplinesForDisplay() {
     return this._mapZiplineTowers().map((tower) => ({
       ...tower,
@@ -1440,15 +1505,20 @@ class MapNavigatorApp {
     }));
   }
 
-  /** Toggle the read-only tower layer without changing route-level zipline planning. */
-  async _toggleMapZiplines() {
-    if (this.showMapZiplines) {
-      this.showMapZiplines = false;
+  /** Toggle the shared read-only tower layer without changing route-level zipline planning. */
+  async _setMapZiplinesVisible(visible) {
+    if (!visible) {
+      this.mapLayers.showZiplines = false;
       this._mapZiplineLoadToken += 1;
       this.ziplineDistanceSelection = [];
-      if (this.inspectedPoint && this.inspectedPoint.context === "edit-zipline") this.inspectedPoint = null;
-      if (this.activeTool === "zipline-measure") this._setActiveTool("add");
+      if (this.inspectedPoint?.kind === "tower") this.inspectedPoint = null;
+      if (this.activeTool === "zipline-measure") {
+        const fallbackTool =
+          this.state.mode === Mode.LOG ? "log-inspect" : this.state.mode === Mode.ASSERT ? "assert-edit" : "add";
+        this._setActiveTool(fallbackTool);
+      }
       localStorage.setItem("maaend.mapnavigator.showZiplines", "0");
+      this._syncMapLayerUI();
       this._syncViewModeUI();
       this._renderPointInspection();
       this._renderZiplineDistance();
@@ -1457,8 +1527,9 @@ class MapNavigatorApp {
       return;
     }
 
-    this.showMapZiplines = true;
+    this.mapLayers.showZiplines = true;
     localStorage.setItem("maaend.mapnavigator.showZiplines", "1");
+    this._syncMapLayerUI();
     this._syncViewModeUI();
     await this._loadMapZiplines();
   }
@@ -1466,34 +1537,42 @@ class MapNavigatorApp {
   /** Refresh the current installation's records when the user enables the layer. */
   async _loadMapZiplines({announce = true} = {}) {
     const token = (this._mapZiplineLoadToken += 1);
-    this.els.btnToggleZiplines.disabled = true;
+    this.els.mapShowZiplines.disabled = true;
     if (announce) setStatus("正在读取当前安装目录的滑索记录…", "#3b82f6");
     try {
       const [records, frames] = await Promise.all([getZiplineRecords(), getZiplineFrames()]);
-      if (token !== this._mapZiplineLoadToken || !this.showMapZiplines) return;
+      if (token !== this._mapZiplineLoadToken || !this.mapLayers.showZiplines) return;
       this.mapZiplineRecords = records;
       this.ziplineFrameConfig = frames;
       this._mapZiplineBaseByZone.clear();
       this._paint();
       if (announce) {
-        const count = this._mapZiplinesForDisplay().length;
-        setStatus(
-          count
-            ? `已显示当前底图的 ${count} 座已记录滑索架；不会改变滑索规划。`
-            : "滑索架图层已开启，但当前底图没有可显示的记录。",
-          count ? "#10b981" : "#f59e0b",
-        );
+        if (this.state.mode === Mode.LOG) {
+          setStatus("已开启滑索架图层；日志模式显示本次选择与 ZIP 快照中的滑索架。", "#10b981");
+        } else {
+          const count = this._mapZiplinesForDisplay().length;
+          setStatus(
+            count
+              ? `已显示当前底图的 ${count} 座已记录滑索架；不会改变滑索规划。`
+              : "滑索架图层已开启，但当前底图没有可显示的记录。",
+            count ? "#10b981" : "#f59e0b",
+          );
+        }
       }
     } catch (error) {
       if (token !== this._mapZiplineLoadToken) return;
-      this.showMapZiplines = false;
-      localStorage.setItem("maaend.mapnavigator.showZiplines", "0");
+      this.mapZiplineRecords = null;
+      this._mapZiplineBaseByZone.clear();
       if (announce) {
-        setStatus(`滑索架图层加载失败: ${error && error.message ? error.message : error}`, "#ef4444");
+        setStatus(
+          `当前安装的滑索架记录加载失败: ${error && error.message ? error.message : error}；日志 ZIP 快照不受影响。`,
+          "#f59e0b",
+        );
       }
     } finally {
       if (token === this._mapZiplineLoadToken) {
-        this.els.btnToggleZiplines.disabled = false;
+        this.els.mapShowZiplines.disabled = false;
+        this._syncMapLayerUI();
         this._syncViewModeUI();
         this._paint();
       }
@@ -1552,25 +1631,30 @@ class MapNavigatorApp {
 
   /** Towers available to the shared inspection / measurement interaction in the current mode. */
   _ziplineTowerData() {
-    if (this.state.mode === Mode.EDIT) return {selected: [], recorded: this._mapZiplineTowers()};
+    if (this.state.mode === Mode.EDIT || this.state.mode === Mode.ASSERT) {
+      return {selected: [], recorded: this._mapZiplineTowers()};
+    }
     if (this.state.mode === Mode.LOG) return this._logTowerData();
     return {selected: [], recorded: []};
   }
 
   /** Stable identity for the map or log run owning inspection and A/B selection. */
   _ziplineContextKey() {
-    if (this.state.mode === Mode.EDIT) return `edit:${this._geometryZoneName(this._displayZoneId())}`;
+    if (this.state.mode === Mode.EDIT || this.state.mode === Mode.ASSERT) {
+      return `map:${this._geometryZoneName(this._displayZoneId())}`;
+    }
     if (this.state.mode === Mode.LOG) return `log:${this.selectedLogRun?._uiKey || ""}`;
     return "";
   }
 
   /** Towers currently visible and therefore eligible for inspection or measurement. */
   _visibleZiplineTowers(towerData = this._ziplineTowerData()) {
-    if (this.state.mode === Mode.EDIT) return this.showMapZiplines ? towerData.recorded || [] : [];
+    if (!this.mapLayers.showZiplines) return [];
+    if (this.state.mode === Mode.EDIT || this.state.mode === Mode.ASSERT) return towerData.recorded || [];
     if (this.state.mode !== Mode.LOG) return [];
     return [
       ...(this.logLayers.showSelectedTowers ? towerData.selected || [] : []),
-      ...(this.logLayers.showRecordedTowers ? towerData.recorded || [] : []),
+      ...(towerData.recorded || []),
     ];
   }
 
@@ -1600,11 +1684,11 @@ class MapNavigatorApp {
   /** Build one shared tower detail card from either the editor records or a log run. */
   _ziplineInspectionCandidate(tower, source) {
     const selected = source === "selected";
-    const editorRecord = source === "edit-recorded";
+    const mapRecord = source === "map-recorded";
     const pointText = (point) => `[${point[0].toFixed(2)}, ${point[1].toFixed(2)}]`;
     const numberText = (value) => (Number.isFinite(value) ? value.toFixed(2) : "未知");
     const details = [
-      ["来源", selected ? "本次运行选择" : editorRecord ? "当前安装记录" : "ZIP 快照候选"],
+      ["来源", selected ? "本次运行选择" : mapRecord ? "当前安装记录" : "ZIP 快照候选"],
       ["底图坐标", pointText(tower.point)],
       ["导航高度", numberText(tower.height)],
     ];
@@ -1626,10 +1710,10 @@ class MapNavigatorApp {
     return {
       key: `tower:${tower.measureKey}`,
       kind: "tower",
-      context: editorRecord ? "edit-zipline" : "log",
+      context: mapRecord ? "map-zipline" : "log",
       contextKey: this._ziplineContextKey(),
       point: tower.point,
-      title: selected ? `${tower.label || "滑索架"} · 本次选择` : editorRecord ? "已记录滑索架" : "ZIP 候选滑索架",
+      title: selected ? `${tower.label || "滑索架"} · 本次选择` : mapRecord ? "已记录滑索架" : "ZIP 候选滑索架",
       color: selected ? (tower.confirmed ? "#22d3ee" : "#f59e0b") : "#a78bfa",
       details,
     };
@@ -1637,7 +1721,7 @@ class MapNavigatorApp {
 
   /** Current editor-record towers as shared inspection candidates. */
   _mapZiplineInspectionCandidates() {
-    return this._mapZiplineTowers().map((tower) => this._ziplineInspectionCandidate(tower, "edit-recorded"));
+    return this._mapZiplineTowers().map((tower) => this._ziplineInspectionCandidate(tower, "map-recorded"));
   }
 
   /** Visible log points that the default inspection tool can select. */
@@ -1651,7 +1735,7 @@ class MapNavigatorApp {
       this.logLayers.showBaseline,
       this.logLayers.showZipline,
       this.logLayers.showSelectedTowers,
-      this.logLayers.showRecordedTowers,
+      this.mapLayers.showZiplines,
     ].join(":");
     const cached = this._logInspectionCandidateCache;
     if (cached && cached.run === run && cached.field === this.field && cached.visibilityKey === visibilityKey) {
@@ -1671,10 +1755,10 @@ class MapNavigatorApp {
       }
     };
     const towers = this._logTowerData(run);
-    if (this.logLayers.showSelectedTowers) {
+    if (this.mapLayers.showZiplines && this.logLayers.showSelectedTowers) {
       for (const tower of towers.selected) add(this._ziplineInspectionCandidate(tower, "selected"));
     }
-    if (this.logLayers.showRecordedTowers) {
+    if (this.mapLayers.showZiplines) {
       for (const tower of towers.recorded) add(this._ziplineInspectionCandidate(tower, "recorded"));
     }
 
@@ -1786,7 +1870,7 @@ class MapNavigatorApp {
     return hit;
   }
 
-  /** Show a hand when the current EDIT / LOG tool can act on the hovered point. */
+  /** Show a hand when the current tool can act on the hovered point. */
   _updatePointHoverCursor(canvasX, canvasY) {
     if (this.isPanning) return;
     const canvas = this.els.overlayCanvas;
@@ -1799,6 +1883,9 @@ class MapNavigatorApp {
     } else if (this.state.mode === Mode.EDIT && (this.activeTool === "add" || this.activeTool === "select")) {
       const hit = this._hitBasePoint(this._mapZiplineInspectionCandidates(), canvasX, canvasY);
       canvas.style.cursor = hit ? "pointer" : this.activeTool === "add" ? "crosshair" : "default";
+    } else if (this.state.mode === Mode.ASSERT && this.activeTool === "assert-edit") {
+      const hit = this._hitBasePoint(this._mapZiplineInspectionCandidates(), canvasX, canvasY);
+      canvas.style.cursor = hit ? "pointer" : "cell";
     }
   }
 
@@ -1918,7 +2005,7 @@ class MapNavigatorApp {
       }
       const wasMeasuring = this.activeTool === "zipline-measure";
       const hadZiplineSelection =
-        (this.inspectedPoint && this.inspectedPoint.context === "edit-zipline") ||
+        (this.inspectedPoint && this.inspectedPoint.context === "map-zipline") ||
         this.ziplineDistanceSelection.length > 0 ||
         wasMeasuring;
       const changed = this._clearEditSelection({cancelTool: true}) || hadZiplineSelection;
@@ -1934,12 +2021,27 @@ class MapNavigatorApp {
       return changed;
     }
     if (this.state.mode === Mode.ASSERT) {
-      if (!this.isAssertSelecting) return false;
-      this.isAssertSelecting = false;
-      this.assertRectWorld = this._assertRectBeforeDrag;
-      this._assertRectBeforeDrag = null;
+      const wasMeasuring = this.activeTool === "zipline-measure";
+      const hadZiplineSelection =
+        (this.inspectedPoint && this.inspectedPoint.context === "map-zipline") ||
+        this.ziplineDistanceSelection.length > 0 ||
+        wasMeasuring;
+      const changed = this.isAssertSelecting || hadZiplineSelection;
+      if (!changed) return false;
+      if (this.isAssertSelecting) {
+        this.isAssertSelecting = false;
+        this.assertRectWorld = this._assertRectBeforeDrag;
+        this._assertRectBeforeDrag = null;
+      }
+      if (hadZiplineSelection) {
+        this.inspectedPoint = null;
+        this.ziplineDistanceSelection = [];
+        if (wasMeasuring) this._setActiveTool("assert-edit");
+        this._renderPointInspection();
+        this._renderZiplineDistance();
+      }
       this._paint();
-      setStatus("已取消本次断言区域绘制。", "#10b981");
+      setStatus("已取消当前选择。", "#10b981");
       return true;
     }
     if (this.state.mode !== Mode.LOG) return false;
@@ -1957,15 +2059,17 @@ class MapNavigatorApp {
     return true;
   }
 
-  /** Render the selected read-only point metadata in EDIT or LOG mode. */
+  /** Render the selected read-only point metadata in the active 2D mode. */
   _renderPointInspection() {
     const e = this.els;
     const host = e.pointSummary;
     host.textContent = "";
-    const modeSupportsInspection = this.state.mode === Mode.EDIT || this.state.mode === Mode.LOG;
+    const modeSupportsInspection =
+      this.state.mode === Mode.EDIT || this.state.mode === Mode.ASSERT || this.state.mode === Mode.LOG;
     const hasRequiredSource = this.state.mode !== Mode.LOG || !!this.selectedLogRun;
     const contextMatchesMode =
-      (this.state.mode === Mode.EDIT && this.inspectedPoint?.context === "edit-zipline") ||
+      ((this.state.mode === Mode.EDIT || this.state.mode === Mode.ASSERT) &&
+        this.inspectedPoint?.context === "map-zipline") ||
       (this.state.mode === Mode.LOG && this.inspectedPoint?.context === "log");
     const visible =
       modeSupportsInspection &&
@@ -2014,7 +2118,8 @@ class MapNavigatorApp {
     const measurement = this._ziplineDistanceMeasurement();
     const visible =
       this.activeTool === "zipline-measure" ||
-      ((this.activeTool === "pan" || this.activeTool === "log-pan") && this._altSavedTool === "zipline-measure");
+      ((this.activeTool === "pan" || this.activeTool === "assert-pan" || this.activeTool === "log-pan") &&
+        this._altSavedTool === "zipline-measure");
     e.ziplineDistanceBox.hidden = !visible;
     e.btnZiplineDistanceClear.disabled = measurement.towers.length === 0;
     this._syncContextPanel();
@@ -2025,11 +2130,11 @@ class MapNavigatorApp {
         : "导入日志后，可点击地图右上角的测距工具选择两座滑索架。";
       return;
     }
-    if (this.state.mode === Mode.EDIT && !this.showMapZiplines) {
-      host.textContent = "请先开启右上角的滑索架图层。";
+    if (this.state.mode !== Mode.LOG && !this.mapLayers.showZiplines) {
+      host.textContent = "请先在地图图层面板中开启滑索架。";
       return;
     }
-    if (this.state.mode === Mode.EDIT && !this._visibleZiplineTowers().length) {
+    if (this.state.mode !== Mode.LOG && !this._visibleZiplineTowers().length) {
       host.textContent = "当前底图没有可测量的滑索架记录。";
       return;
     }
@@ -2052,7 +2157,7 @@ class MapNavigatorApp {
       const source =
         tower.label ||
         (String(tower.measureKey || "").startsWith("record:")
-          ? this.state.mode === Mode.EDIT
+          ? this.state.mode !== Mode.LOG
             ? "已记录滑索架"
             : "ZIP 候选架"
           : "滑索架");
@@ -2160,6 +2265,8 @@ class MapNavigatorApp {
     const towers = this._logTowerData(run);
     return {
       ...this.logLayers,
+      showSelectedTowers: this.mapLayers.showZiplines && this.logLayers.showSelectedTowers,
+      showRecordedTowers: this.mapLayers.showZiplines,
       authored: displayPolyline(this._logAuthoredBasePoints()),
       walks: (run.walks || []).filter((walk) => walk.decision === "walk").map((walk) => displayPolyline(walk.points)),
       observed: (run.observedWalks || []).map(displayPolyline),
@@ -2179,10 +2286,15 @@ class MapNavigatorApp {
     };
   }
 
-  /** Shared EDIT / LOG point inspection projected into the active display frame. */
+  /** Shared point inspection projected into the active display frame. */
   _pointInspectionForDisplay() {
-    if (!this.inspectedPoint || this.state.mode === Mode.ASSERT) return null;
-    if (this.state.mode === Mode.EDIT && this.inspectedPoint.context !== "edit-zipline") return null;
+    if (!this.inspectedPoint) return null;
+    if (
+      (this.state.mode === Mode.EDIT || this.state.mode === Mode.ASSERT) &&
+      this.inspectedPoint.context !== "map-zipline"
+    ) {
+      return null;
+    }
     if (this.state.mode === Mode.LOG && this.inspectedPoint.context !== "log") return null;
     if (this.inspectedPoint.contextKey !== this._ziplineContextKey()) return null;
     return {
@@ -2191,9 +2303,8 @@ class MapNavigatorApp {
     };
   }
 
-  /** Shared EDIT / LOG A/B ruler projected into the active display frame. */
+  /** Shared A/B ruler projected into the active display frame. */
   _ziplineMeasurementForDisplay() {
-    if (this.state.mode === Mode.ASSERT) return null;
     const measurement = this._ziplineDistanceMeasurement();
     return {
       towers: measurement.towers.map((tower, index) => ({
@@ -2695,7 +2806,7 @@ class MapNavigatorApp {
       if (token !== this._basemapToken) return;
       this._basemapLoading = false;
       this.renderer.setBasemap(img, {width: img.naturalWidth, height: img.naturalHeight});
-      this.renderer.setBasemapVisible(true);
+      this.renderer.setBasemapVisible(this.mapLayers.showBasemap);
       this._basemapDims = {width: img.naturalWidth, height: img.naturalHeight};
       this._afterBasemapSettled(token);
     };
@@ -2726,9 +2837,9 @@ class MapNavigatorApp {
 
   // --- navmesh (NMSH over GL) ---
 
-  /** Upload or hide the navmesh for the edit display zone (keyed, so cheap per paint). */
+  /** Upload or hide the navmesh for the active display zone (keyed, so cheap per paint). */
   _syncNavmesh() {
-    if (this.state.mode !== Mode.EDIT || !this.field) {
+    if (!this.field) {
       if (this._meshKey !== null) {
         this._meshToken += 1;
         this._latest3DMesh = null;
@@ -2754,7 +2865,11 @@ class MapNavigatorApp {
     const geomId = this.field.geometryZoneId(displayZoneId);
     const tierId = this._activeDisplayTierId();
     const key = `${geomId}:${tierId}`;
-    if (key === this._meshKey) return;
+    if (key === this._meshKey) {
+      this.renderer.setMeshVisible(this.mapLayers.showNavmesh);
+      if (this.threeView) this.threeView.setMeshVisible(this.mapLayers.showNavmesh);
+      return;
+    }
     this._meshKey = key;
     this._latest3DMesh = null;
     if (this.threeView) this.threeView.clearMesh();
@@ -2772,8 +2887,11 @@ class MapNavigatorApp {
         const buf = tierId !== null ? this.field.remapNmshToTier(buffer, tierId) : buffer;
         this.renderer.setMesh(buf, {width: dims.width, height: dims.height});
         this._latest3DMesh = {key, buffer: buf};
-        if (this.threeView) this._setThreeViewMesh(buf);
-        this.renderer.setMeshVisible(true);
+        if (this.threeView) {
+          this._setThreeViewMesh(buf);
+          this.threeView.setMeshVisible(this.mapLayers.showNavmesh);
+        }
+        this.renderer.setMeshVisible(this.mapLayers.showNavmesh);
         this.renderer.setDotsVisible(false);
         this.renderer.requestRender(this.camera);
       })
@@ -2825,6 +2943,7 @@ class MapNavigatorApp {
     try {
       this._initialLiveHeightColored = false;
       this.threeView.setMesh(buffer);
+      this.threeView.setMeshVisible(this.mapLayers.showNavmesh);
       this._syncThreeOverlays();
     } catch (error) {
       console.error("Failed to render the 3D navmesh", error);
@@ -2942,17 +3061,12 @@ class MapNavigatorApp {
     e.toolRouteTest.hidden = !editMode || show3D;
     e.toolEditStart.hidden = !editMode || show3D;
     e.editStartDivider.hidden = !editMode || show3D;
-    e.btnToggleZiplines.hidden = !editMode || show3D;
-    e.ziplineLayerDivider.hidden = !editMode || show3D;
-    e.btnToggleZiplines.classList.toggle("active", this.showMapZiplines);
-    e.btnToggleZiplines.setAttribute("aria-pressed", String(this.showMapZiplines));
-    e.btnToggleZiplines.title = this.showMapZiplines ? "隐藏已记录滑索架" : "显示已记录滑索架";
-    e.btnToggleZiplines.setAttribute("aria-label", e.btnToggleZiplines.title);
-    const showZiplineMeasurement = (editMode && !show3D) || this.state.mode === Mode.LOG;
+    const showZiplineMeasurement = !show3D;
     e.btnZiplineMeasure.hidden = !showZiplineMeasurement;
     e.ziplineMeasureDivider.hidden = !showZiplineMeasurement;
-    e.btnZiplineMeasure.disabled = editMode && (!this.showMapZiplines || !this.mapZiplineRecords);
-    e.btnZiplineMeasure.title = editMode && !this.showMapZiplines ? "请先显示已记录滑索架" : "滑索架测距";
+    const localMapMode = this.state.mode === Mode.EDIT || this.state.mode === Mode.ASSERT;
+    e.btnZiplineMeasure.disabled = !this.mapLayers.showZiplines || (localMapMode && !this.mapZiplineRecords);
+    e.btnZiplineMeasure.title = !this.mapLayers.showZiplines ? "请先在地图图层中显示滑索架" : "滑索架测距";
     e.btnZiplineMeasure.setAttribute("aria-label", e.btnZiplineMeasure.title);
     e.btnDelPointFloat.hidden = this.state.mode === Mode.LOG || show3D;
     e.editDeleteDivider.hidden = this.state.mode === Mode.LOG || show3D;
@@ -2962,6 +3076,7 @@ class MapNavigatorApp {
       e.panelNavtest.hidden = show3D;
       if (this.navtest) this.navtest.setDisabled(show3D);
     }
+    this._syncMapLayerUI();
   }
 
   // --- fit view ---
@@ -3102,7 +3217,7 @@ class MapNavigatorApp {
 
     const sharedReadOnlyTool =
       (this.state.mode === Mode.LOG && ["log-inspect", "zipline-measure", "log-pan"].includes(this.activeTool)) ||
-      (this.state.mode === Mode.EDIT && this.activeTool === "zipline-measure");
+      ((this.state.mode === Mode.EDIT || this.state.mode === Mode.ASSERT) && this.activeTool === "zipline-measure");
     if (sharedReadOnlyTool) {
       this.isDragging = false;
       this.isPanCandidate = true;
@@ -3131,11 +3246,12 @@ class MapNavigatorApp {
         }
         this._assertRectBeforeDrag = this.assertRectWorld ? [...this.assertRectWorld] : null;
         this.isAssertSelecting = true;
-        this.assertLocateHint = null;
         this.isDragging = false;
         this.isPanCandidate = false;
         this.isPanning = false;
         this.isBoxSelecting = false;
+        this.pointerDownX = x;
+        this.pointerDownY = y;
         const [wx, wy] = this.camera.canvasToWorld(x, y);
         this.assertStartWorldX = wx;
         this.assertStartWorldY = wy;
@@ -3215,12 +3331,13 @@ class MapNavigatorApp {
     const [x, y] = this._evtXY(e);
 
     if (
-      (this.state.mode === Mode.LOG || this.state.mode === Mode.EDIT) &&
+      (this.state.mode === Mode.LOG || this.state.mode === Mode.EDIT || this.state.mode === Mode.ASSERT) &&
       !this.isPanning &&
       !this.isPanCandidate &&
       !this.isDragging &&
       !this.isDragCandidate &&
-      !this.isBoxSelecting
+      !this.isBoxSelecting &&
+      !this.isAssertSelecting
     ) {
       this._updatePointHoverCursor(x, y);
     }
@@ -3299,12 +3416,14 @@ class MapNavigatorApp {
     if (this.isPanning) {
       this.isPanning = false;
       this._setActiveTool(this.activeTool);
-      if (this.state.mode === Mode.LOG || this.state.mode === Mode.EDIT) this._updatePointHoverCursor(x, y);
+      if (this.state.mode === Mode.LOG || this.state.mode === Mode.EDIT || this.state.mode === Mode.ASSERT) {
+        this._updatePointHoverCursor(x, y);
+      }
       this._paint();
       return;
     }
 
-    if (this.state.mode === Mode.EDIT && this.activeTool === "zipline-measure") {
+    if ((this.state.mode === Mode.EDIT || this.state.mode === Mode.ASSERT) && this.activeTool === "zipline-measure") {
       if (this.isPanCandidate) {
         this.isPanCandidate = false;
         this._handleZiplineMeasureClick(x, y);
@@ -3323,6 +3442,15 @@ class MapNavigatorApp {
 
     if (this.state.mode === Mode.ASSERT) {
       if (!this.isAssertSelecting) return;
+      if (!this._movedExceeded(this.pointerDownX, this.pointerDownY, x, y)) {
+        this.isAssertSelecting = false;
+        this.assertRectWorld = this._assertRectBeforeDrag;
+        this._assertRectBeforeDrag = null;
+        if (this._handleMapZiplineInspectClick(x, y)) return;
+        this._assertRectBeforeDrag = this.assertRectWorld ? [...this.assertRectWorld] : null;
+        this.isAssertSelecting = true;
+      }
+      this.assertLocateHint = null;
       const [wx, wy] = this.camera.canvasToWorld(x, y);
       this.assertRectWorld = [this.assertStartWorldX, this.assertStartWorldY, wx, wy];
       this.isAssertSelecting = false;
@@ -3360,7 +3488,7 @@ class MapNavigatorApp {
 
     if (this.isDragCandidate) {
       this.isDragCandidate = false;
-      if (this.inspectedPoint && this.inspectedPoint.context === "edit-zipline") {
+      if (this.inspectedPoint && this.inspectedPoint.context === "map-zipline") {
         this.inspectedPoint = null;
         this._renderPointInspection();
       }
@@ -3378,7 +3506,7 @@ class MapNavigatorApp {
           if (selected.has(hitIdx)) selected.delete(hitIdx);
           else selected.add(hitIdx);
           this.state.setSelection([...selected], hitIdx);
-          if (this.inspectedPoint && this.inspectedPoint.context === "edit-zipline") {
+          if (this.inspectedPoint && this.inspectedPoint.context === "map-zipline") {
             this.inspectedPoint = null;
             this._renderPointInspection();
           }
@@ -3388,7 +3516,7 @@ class MapNavigatorApp {
           return;
         } else {
           this.state.clearSelection();
-          if (this.inspectedPoint && this.inspectedPoint.context === "edit-zipline") {
+          if (this.inspectedPoint && this.inspectedPoint.context === "map-zipline") {
             this.inspectedPoint = null;
             this._renderPointInspection();
           }
@@ -3417,7 +3545,7 @@ class MapNavigatorApp {
       if (this.state.mode === Mode.EDIT && this._handleMapZiplineInspectClick(x, y)) return;
       if (this.state.mode === Mode.EDIT && this.activeTool !== "add") {
         this.state.clearSelection();
-        if (this.inspectedPoint && this.inspectedPoint.context === "edit-zipline") {
+        if (this.inspectedPoint && this.inspectedPoint.context === "map-zipline") {
           this.inspectedPoint = null;
           this._renderPointInspection();
         }
@@ -3426,7 +3554,7 @@ class MapNavigatorApp {
         return;
       }
       this.state.clearSelection();
-      if (this.inspectedPoint && this.inspectedPoint.context === "edit-zipline") {
+      if (this.inspectedPoint && this.inspectedPoint.context === "map-zipline") {
         this.inspectedPoint = null;
         this._renderPointInspection();
       }
@@ -3453,16 +3581,16 @@ class MapNavigatorApp {
     this.isDragging = false;
   }
 
-  /** Inspect one recorded tower in EDIT without changing the A/B measurement. */
+  /** Inspect one recorded tower in a map-based mode without changing the A/B measurement. */
   _handleMapZiplineInspectClick(canvasX, canvasY) {
-    if (!this.showMapZiplines) return false;
+    if (!this.mapLayers.showZiplines) return false;
     const hit = this._hitBasePoint(this._mapZiplineInspectionCandidates(), canvasX, canvasY);
     if (!hit) return false;
     this.inspectedPoint = hit;
-    this.editPreviewStartSelected = false;
+    if (this.state.mode === Mode.EDIT) this.editPreviewStartSelected = false;
     this.state.clearSelection();
     this._syncActionControls();
-    this._renderEditInspection();
+    if (this.state.mode === Mode.EDIT) this._renderEditInspection();
     this._renderPointInspection();
     this._paint();
     setStatus(`正在查看：${hit.title}。`, hit.color || "#3b82f6");
@@ -3495,7 +3623,7 @@ class MapNavigatorApp {
       setStatus("请先导入并选择一条导航运行记录。", "#f59e0b");
       return;
     }
-    if (this.state.mode === Mode.EDIT && !this.showMapZiplines) {
+    if (this.state.mode !== Mode.LOG && !this.mapLayers.showZiplines) {
       setStatus("请先开启滑索架图层。", "#f59e0b");
       return;
     }
@@ -4794,6 +4922,11 @@ class MapNavigatorApp {
    * @returns {void}
    */
   _onKeyDown(e) {
+    if (e.key === "Escape" && !this.els.mapLayerPanel.hidden) {
+      this._setMapLayerPanelOpen(false);
+      e.preventDefault();
+      return;
+    }
     const target = e.target;
     if (
       target &&
@@ -4926,7 +5059,7 @@ class MapNavigatorApp {
     if (e.ziplineDistanceBox) {
       const showMeasurement =
         tool === "zipline-measure" ||
-        ((tool === "pan" || tool === "log-pan") && this._altSavedTool === "zipline-measure");
+        ((tool === "pan" || tool === "assert-pan" || tool === "log-pan") && this._altSavedTool === "zipline-measure");
       e.ziplineDistanceBox.hidden = !showMeasurement;
       this._syncContextPanel();
     }

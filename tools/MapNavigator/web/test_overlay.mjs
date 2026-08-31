@@ -40,7 +40,7 @@ test("draws the game-position reference marker in edit mode", () => {
   assert.deepEqual(renderWithMarker("edit", "editLocateHint"), [{x: 12, y: 34, label: "游戏当前位置", rot: 90}]);
 });
 
-test("draws the recorded zipline layer only in edit mode", () => {
+test("draws the recorded zipline layer in edit and assert modes", () => {
   const overlay = Object.create(Overlay.prototype);
   overlay.dpr = 1;
   overlay.cssW = 800;
@@ -61,11 +61,12 @@ test("draws the recorded zipline layer only in edit mode", () => {
   ];
   overlay.render({}, {mode: "edit", points: [], mapZiplines: towers});
   overlay.render({}, {mode: "assert", points: [], mapZiplines: towers});
+  overlay.render({}, {mode: "log", points: [], mapZiplines: towers});
 
-  assert.deepEqual(calls, [towers]);
+  assert.deepEqual(calls, [towers, towers]);
 });
 
-test("shares zipline inspection and measurement overlays between edit and log modes", () => {
+test("shares zipline inspection and measurement overlays across all 2D modes", () => {
   const overlay = Object.create(Overlay.prototype);
   overlay.dpr = 1;
   overlay.cssW = 800;
@@ -92,8 +93,8 @@ test("shares zipline inspection and measurement overlays between edit and log mo
   );
   overlay.render({}, {mode: "assert", points: [], pointInspection: inspection, ziplineMeasurement: measurement});
 
-  assert.deepEqual(inspections, [inspection, inspection]);
-  assert.deepEqual(measurements, [measurement, measurement]);
+  assert.deepEqual(inspections, [inspection, inspection, inspection]);
+  assert.deepEqual(measurements, [measurement, measurement, measurement]);
 });
 
 test("does not leak the edit reference marker into assert mode", () => {

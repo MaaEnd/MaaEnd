@@ -70,6 +70,7 @@ export class ThreeNavmeshView {
     this.focusTarget = new THREE.Vector3();
     this.meshRadius = 1;
     this.visible = false;
+    this.meshLayerVisible = true;
     this.pointerDown = null;
     this.freeLookPointer = null;
     this.raycaster = new THREE.Raycaster();
@@ -208,6 +209,7 @@ export class ThreeNavmeshView {
     this.liveHeading.renderOrder = 12;
     this.scene.add(this.liveHeading);
 
+    this.setMeshVisible(this.meshLayerVisible);
     this.fitView();
   }
 
@@ -522,6 +524,16 @@ export class ThreeNavmeshView {
     }
   }
 
+  /** Toggle the navmesh surface and boundary wire without discarding loaded geometry. @param {boolean} visible */
+  setMeshVisible(visible) {
+    this.meshLayerVisible = !!visible;
+    if (this.mesh) this.mesh.visible = this.meshLayerVisible;
+    if (this.wireMesh) this.wireMesh.visible = this.meshLayerVisible;
+    if (this.grid) this.grid.visible = this.meshLayerVisible;
+    if (!this.meshLayerVisible && this.marker) this.marker.visible = false;
+    if (this.visible) this.render();
+  }
+
   /**
    * Update one 3D movement key and start or stop continuous camera movement.
    * @param {string} code
@@ -743,7 +755,7 @@ export class ThreeNavmeshView {
   }
 
   _onClick(event) {
-    if (!this.visible || event.button !== 0 || !this.mesh) return;
+    if (!this.visible || event.button !== 0 || !this.mesh || !this.meshLayerVisible) return;
     const distance = this.pointerDown
       ? Math.hypot(event.clientX - this.pointerDown.x, event.clientY - this.pointerDown.y)
       : 0;

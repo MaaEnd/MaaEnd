@@ -310,41 +310,6 @@
             <option value="">请先导入日志</option>
           </select>
 
-          <div class="log-layer-title">地图标注</div>
-          <div class="log-layer-grid">
-            <label class="chk log-layer-option">
-              <input id="log-show-authored" type="checkbox" checked />
-              <span class="log-line-swatch authored"></span>作者路径提示
-            </label>
-            <label class="chk log-layer-option">
-              <input id="log-show-walk" type="checkbox" checked />
-              <span class="log-line-swatch walk"></span>采用的步行规划
-            </label>
-            <label class="chk log-layer-option">
-              <input id="log-show-observed" type="checkbox" checked />
-              <span class="log-line-swatch observed"></span>实测地面轨迹
-            </label>
-            <label class="chk log-layer-option">
-              <input id="log-show-baseline" type="checkbox" checked />
-              <span class="log-line-swatch baseline"></span>未采用步行基线
-            </label>
-            <label class="chk log-layer-option">
-              <input id="log-show-zipline" type="checkbox" checked />
-              <span class="log-line-swatch zipline"></span>实际滑索段
-            </label>
-            <label class="chk log-layer-option">
-              <input id="log-show-selected-towers" type="checkbox" checked />
-              <span class="log-point-swatch selected-tower"></span>本次选择的滑索架
-            </label>
-            <label class="chk log-layer-option">
-              <input id="log-show-recorded-towers" type="checkbox" checked />
-              <span class="log-point-swatch recorded-tower"></span>ZIP 记录的滑索架
-            </label>
-            <label class="chk log-layer-option">
-              <input id="log-show-estimates" type="checkbox" checked />
-              <span class="log-line-swatch estimate"></span>接近/离索端点估计
-            </label>
-          </div>
           <div class="sidebar-hint">
             绿色轨迹来自 MapLocator 成功且非保持的定位；滑索飞行和定位空窗不会连线。虚线“端点估计”不是实测轨迹
           </div>
@@ -735,13 +700,13 @@
             </button>
             <div id="edit-start-divider" class="controls-divider" hidden></div>
             <button
-              id="btn-toggle-ziplines"
+              id="btn-map-layers"
               class="btn btn-float"
               type="button"
-              title="显示已记录滑索架"
-              aria-label="显示已记录滑索架"
-              aria-pressed="false"
-              hidden>
+              title="地图图层"
+              aria-label="地图图层"
+              aria-controls="map-layer-panel"
+              aria-expanded="false">
               <svg
                 width="18"
                 height="18"
@@ -751,13 +716,12 @@
                 stroke-width="1.5"
                 stroke-linecap="round"
                 stroke-linejoin="round">
-                <path d="M5 19V9M19 19V9M3 19h4M17 19h4M5 9l3-4M19 9l-3-4M8 5h8"></path>
-                <path d="M8 5c2.2 3.2 5.8 3.2 8 0"></path>
-                <circle cx="5" cy="9" r="1.5"></circle>
-                <circle cx="19" cy="9" r="1.5"></circle>
+                <path d="m12 3 8 4.5-8 4.5-8-4.5L12 3Z"></path>
+                <path d="m4 12 8 4.5 8-4.5"></path>
+                <path d="m4 16.5 8 4.5 8-4.5"></path>
               </svg>
             </button>
-            <div id="zipline-layer-divider" class="controls-divider" hidden></div>
+            <div class="controls-divider"></div>
             <button
               id="btn-zipline-measure"
               class="btn btn-float"
@@ -840,29 +804,89 @@
             </button>
           </div>
 
-          <div id="context-panel" class="context-panel" hidden>
-            <div id="edit-inspection-box" class="edit-inspection-box" hidden>
-              <div class="log-distance-header">
-                <span class="log-distance-title">选中对象</span>
-                <button id="btn-edit-selection-clear" class="btn btn-secondary btn-sm" type="button">取消选择</button>
+          <div class="canvas-right-panels">
+            <div id="map-layer-panel" class="map-layer-panel" role="dialog" aria-label="地图图层" hidden>
+              <div class="map-layer-header">
+                <span class="map-layer-title">地图图层</span>
+                <button id="btn-map-layers-close" class="btn btn-secondary btn-sm" type="button">关闭</button>
               </div>
-              <div id="edit-point-summary" class="log-distance-summary" aria-live="polite"></div>
+              <div class="map-layer-group">
+                <div class="map-layer-group-title">通用图层</div>
+                <div class="map-layer-grid">
+                  <label class="chk map-layer-option">
+                    <input id="map-show-basemap" type="checkbox" checked />
+                    <span class="map-layer-swatch basemap"></span>底图
+                  </label>
+                  <label class="chk map-layer-option">
+                    <input id="map-show-navmesh" type="checkbox" checked />
+                    <span class="map-layer-swatch navmesh"></span>NAVMESH 网格
+                  </label>
+                  <label class="chk map-layer-option">
+                    <input id="map-show-ziplines" type="checkbox" />
+                    <span class="log-point-swatch recorded-tower"></span>滑索架
+                  </label>
+                </div>
+                <div class="map-layer-hint">三种模式共享；只控制地图显示，不会改变路线的滑索规划设置。</div>
+              </div>
+              <div id="map-log-layer-group" class="map-layer-group" hidden>
+                <div class="map-layer-group-title">日志标注</div>
+                <div class="map-layer-grid">
+                  <label class="chk map-layer-option">
+                    <input id="log-show-authored" type="checkbox" checked />
+                    <span class="log-line-swatch authored"></span>作者路径提示
+                  </label>
+                  <label class="chk map-layer-option">
+                    <input id="log-show-walk" type="checkbox" checked />
+                    <span class="log-line-swatch walk"></span>采用的步行规划
+                  </label>
+                  <label class="chk map-layer-option">
+                    <input id="log-show-observed" type="checkbox" checked />
+                    <span class="log-line-swatch observed"></span>实测地面轨迹
+                  </label>
+                  <label class="chk map-layer-option">
+                    <input id="log-show-baseline" type="checkbox" checked />
+                    <span class="log-line-swatch baseline"></span>未采用步行基线
+                  </label>
+                  <label class="chk map-layer-option">
+                    <input id="log-show-zipline" type="checkbox" checked />
+                    <span class="log-line-swatch zipline"></span>实际滑索段
+                  </label>
+                  <label class="chk map-layer-option">
+                    <input id="log-show-selected-towers" type="checkbox" checked />
+                    <span class="log-point-swatch selected-tower"></span>本次选择的滑索架
+                  </label>
+                  <label class="chk map-layer-option">
+                    <input id="log-show-estimates" type="checkbox" checked />
+                    <span class="log-line-swatch estimate"></span>接近/离索端点估计
+                  </label>
+                </div>
+              </div>
             </div>
-            <div id="point-inspection-box" class="point-inspection-box" hidden>
-              <div class="log-distance-header">
-                <span class="log-distance-title">点位详情</span>
-                <button id="btn-point-clear" class="btn btn-secondary btn-sm" type="button">取消选择</button>
+
+            <div id="context-panel" class="context-panel" hidden>
+              <div id="edit-inspection-box" class="edit-inspection-box" hidden>
+                <div class="log-distance-header">
+                  <span class="log-distance-title">选中对象</span>
+                  <button id="btn-edit-selection-clear" class="btn btn-secondary btn-sm" type="button">取消选择</button>
+                </div>
+                <div id="edit-point-summary" class="log-distance-summary" aria-live="polite"></div>
               </div>
-              <div id="point-summary" class="log-distance-summary" aria-live="polite"></div>
-            </div>
-            <div id="zipline-distance-box" class="log-distance-box" hidden>
-              <div class="log-distance-header">
-                <span class="log-distance-title">滑索架测距</span>
-                <button id="btn-zipline-distance-clear" class="btn btn-secondary btn-sm" type="button" disabled>
-                  清除
-                </button>
+              <div id="point-inspection-box" class="point-inspection-box" hidden>
+                <div class="log-distance-header">
+                  <span class="log-distance-title">点位详情</span>
+                  <button id="btn-point-clear" class="btn btn-secondary btn-sm" type="button">取消选择</button>
+                </div>
+                <div id="point-summary" class="log-distance-summary" aria-live="polite"></div>
               </div>
-              <div id="zipline-distance-summary" class="log-distance-summary" aria-live="polite"></div>
+              <div id="zipline-distance-box" class="log-distance-box" hidden>
+                <div class="log-distance-header">
+                  <span class="log-distance-title">滑索架测距</span>
+                  <button id="btn-zipline-distance-clear" class="btn btn-secondary btn-sm" type="button" disabled>
+                    清除
+                  </button>
+                </div>
+                <div id="zipline-distance-summary" class="log-distance-summary" aria-live="polite"></div>
+              </div>
             </div>
           </div>
 

@@ -123,16 +123,36 @@ test("edit planning exposes a preview-only manual start control", () => {
   assert.match(html, /id="edit-inspection-box"[^>]*hidden/);
 });
 
-test("the map-layer toggle stays separate from route zipline planning", () => {
+test("all 2D modes share one map-layer panel separate from route zipline planning", () => {
   const html = readFileSync(new URL("./static/index.html", import.meta.url), "utf8");
   const floatingToolbarStart = html.indexOf('class="canvas-floating-controls"');
-  const floatingToolbarEnd = html.indexOf('id="context-panel"');
+  const floatingToolbarEnd = html.indexOf('class="canvas-right-panels"');
   const floatingToolbar = html.slice(floatingToolbarStart, floatingToolbarEnd);
+  const layerPanelStart = html.indexOf('id="map-layer-panel"');
+  const layerPanelEnd = html.indexOf('id="context-panel"');
+  const layerPanel = html.slice(layerPanelStart, layerPanelEnd);
+  const logPanelStart = html.indexOf('id="panel-log"');
+  const logSidebar = html.slice(logPanelStart, floatingToolbarStart);
 
-  assert.match(floatingToolbar, /id="btn-toggle-ziplines"[^>]*aria-pressed="false"[^>]*hidden/);
-  assert.match(floatingToolbar, /id="zipline-layer-divider"[^>]*hidden/);
+  assert.match(floatingToolbar, /id="btn-map-layers"[^>]*aria-controls="map-layer-panel"[^>]*aria-expanded="false"/);
   assert.match(floatingToolbar, /id="btn-zipline-measure"[^>]*aria-pressed="false"[^>]*hidden/);
   assert.match(floatingToolbar, /id="zipline-measure-divider"[^>]*hidden/);
+  for (const id of ["map-show-basemap", "map-show-navmesh", "map-show-ziplines"]) {
+    assert.match(layerPanel, new RegExp(`id="${id}"`));
+  }
+  for (const id of [
+    "log-show-authored",
+    "log-show-walk",
+    "log-show-observed",
+    "log-show-baseline",
+    "log-show-zipline",
+    "log-show-selected-towers",
+    "log-show-estimates",
+  ]) {
+    assert.match(layerPanel, new RegExp(`id="${id}"`));
+    assert.doesNotMatch(logSidebar, new RegExp(`id="${id}"`));
+  }
+  assert.doesNotMatch(html, /id="btn-toggle-ziplines"|id="log-show-recorded-towers"/);
   assert.doesNotMatch(floatingToolbar, /id="chk-edit-zipline"/);
   assert.match(html, /id="chk-edit-zipline" type="checkbox" \/> 启用滑索规划/);
 });

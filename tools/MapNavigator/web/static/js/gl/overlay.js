@@ -79,8 +79,8 @@ export class Overlay {
    *   @param {?{x:number,y:number,label:string,rot:?number}} [vm.editLocateHint] EDIT reference marker
    *   @param {?{x:number,y:number,label:string,rot:?number}} [vm.assertLocateHint] game locate marker
    *   @param {Object} [vm.logAnalysis] parsed MapNavigator log geometry
-   *   @param {?Object} [vm.pointInspection] shared EDIT / LOG point highlight
-   *   @param {?Object} [vm.ziplineMeasurement] shared EDIT / LOG A/B tower ruler
+   *   @param {?Object} [vm.pointInspection] shared point highlight
+   *   @param {?Object} [vm.ziplineMeasurement] shared A/B tower ruler
    *   @param {Array<Object>} [vm.offMeshMarks] points off the walkable mesh — see
    *     {@link Overlay#_drawOffMeshMarks} (drawn in every mode)
    *   @param {?Object} [vm.selectionRect] `{x0,y0,x1,y1}` canvas-px drag box, or null
@@ -93,7 +93,7 @@ export class Overlay {
 
     const mode = vm.mode || "edit";
 
-    if (mode === "edit") this._drawMapZiplines(camera, vm.mapZiplines || []);
+    if (mode === "edit" || mode === "assert") this._drawMapZiplines(camera, vm.mapZiplines || []);
 
     // Real route points in every mode (the caller decides which ones are in frame);
     // mode-specific artifacts are layered on top so they stay readable over a route.
@@ -127,10 +127,8 @@ export class Overlay {
     if (mode === "log" && vm.logAnalysis) {
       this._drawLogAnalysis(camera, vm.logAnalysis);
     }
-    if (mode !== "assert") {
-      this._drawPointInspection(camera, vm.pointInspection);
-      this._drawZiplineMeasurement(camera, vm.ziplineMeasurement);
-    }
+    this._drawPointInspection(camera, vm.pointInspection);
+    this._drawZiplineMeasurement(camera, vm.ziplineMeasurement);
     // Topmost: a point sitting off the walkable mesh is the one thing that must never be
     // hidden under a route line.
     this._drawOffMeshMarks(camera, vm.offMeshMarks || []);
