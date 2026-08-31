@@ -584,6 +584,14 @@ navmesh::BaseNavRouteResult PlanCorridorRoute(
     if (out_diagnostic != nullptr) {
         out_diagnostic->start = request.start;
         out_diagnostic->goal = request.goal;
+        out_diagnostic->timing.astar_ms = plan.debug.timing.astar_ms;
+        out_diagnostic->timing.rerouted_ms = plan.debug.timing.rerouted_ms;
+        out_diagnostic->timing.string_pull_ms = plan.debug.timing.string_pull_ms;
+        out_diagnostic->timing.assembled_ms = plan.debug.timing.assembled_ms;
+        out_diagnostic->timing.loop_fixed_ms = plan.debug.timing.loop_fixed_ms;
+        out_diagnostic->timing.slim_ms = plan.debug.timing.slim_ms;
+        out_diagnostic->timing.widened_ms = plan.debug.timing.widened_ms;
+        out_diagnostic->timing.final_ms = plan.debug.timing.final_ms;
         out_diagnostic->x0 = plan.debug.x0;
         out_diagnostic->y0 = plan.debug.y0;
         out_diagnostic->nx = plan.debug.nx;

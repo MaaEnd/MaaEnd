@@ -3,6 +3,7 @@
 #include "RecastNavBake.h"
 
 #include <algorithm>
+#include <chrono>
 #include <cmath>
 #include <limits>
 #include <optional>
@@ -44,6 +45,7 @@ struct WindowInfo
 
 struct RouteDiag
 {
+    RecastPlanResult::Debug::Timing timing;
     std::string err;
     std::vector<std::string> warn;
     std::vector<double> clearance;
@@ -69,6 +71,11 @@ struct RouteDiag
     std::optional<WorldPoint> gap_goal;
     std::optional<double> gap_distance;
 };
+
+double ElapsedMs(const std::chrono::steady_clock::time_point started_at)
+{
+    return std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - started_at).count();
+}
 
 std::vector<uint8_t> topologyReach(
     const SpanTable& st,
@@ -890,6 +897,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
         return closestReachGap(st3, start_reach, goal_reach, nx, ny, x0, y0);
     };
 
+    const auto astar_started_at = std::chrono::steady_clock::now();
     const std::vector<int64_t> walk_goals = goalsOf(pick(*ag_, useW));
     std::optional<std::vector<int64_t>> qs = search(useW, cw3, pick(*as_, useW), walk_goals);
     std::optional<ReachGap> failed_gap;
@@ -916,6 +924,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
         failed_gap = findGap(useW, cw3, *as_, *ag_);
     }
     std::optional<std::vector<CellPt>> q;
+    dg.timing.astar_ms = ElapsedMs(astar_started_at);
     if (qs.has_value()) {
         std::vector<CellPt> cellq;
         cellq.reserve(qs->size());
@@ -1073,6 +1082,8 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     }
     const std::vector<Run> mg = merge(runs);
 
+    double rerouted_ms = 0.0;
+    double string_pull_ms = 0.0;
     std::vector<WorldPoint> taut;
     for (const auto& run : mg) {
         const int64_t iend = std::min(run.i1 + 1, static_cast<int64_t>(q->size()) - 1);
@@ -1090,6 +1101,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
         if (cells.size() >= 2) {
             std::optional<Blockers> blk_green;
             if (run.green) {
+                const auto rerouted_started_at = std::chrono::steady_clock::now();
                 // 绿段:er = 腐蚀掩膜(脊线保底限路径走廊±kR),重寻守卫 l2≤l1×1.2+2px
                 Mask pm(nx, ny, 0);
                 for (const auto& c : cells) {
@@ -1218,21 +1230,27 @@ std::optional<std::vector<WorldPoint>> routeWindow(
                 auto lw = toWorld(lp);
                 lw.insert(lw.end(), loops_core.begin(), loops_core.end());
                 blk_green.emplace(lw, &info.segA, &info.segB, onm);
+                rerouted_ms += ElapsedMs(rerouted_started_at);
             }
+            const auto string_pull_started_at = std::chrono::steady_clock::now();
             pp = StringPull(
                 pp,
                 blk_green.has_value() ? *blk_green : blk_gray,
                 &cfl,
                 hs.empty() ? nullptr : &lyo,
                 hs.empty() ? nullptr : &hs);
+            string_pull_ms += ElapsedMs(string_pull_started_at);
         }
         if (!taut.empty() && !pp.empty() && std::hypot(pp.front().x - taut.back().x, pp.front().y - taut.back().y) < 1e-9) {
             pp.erase(pp.begin());
         }
         taut.insert(taut.end(), pp.begin(), pp.end());
     }
+    dg.timing.rerouted_ms = rerouted_ms;
     dg.string_pull_points = taut;
+    dg.timing.string_pull_ms = string_pull_ms;
 
+    const auto assembled_started_at = std::chrono::steady_clock::now();
     std::vector<WorldPoint> line;
     line.push_back(s);
     line.insert(line.end(), taut.begin(), taut.end());
@@ -1251,18 +1269,26 @@ std::optional<std::vector<WorldPoint>> routeWindow(
         }
     }
     dg.assembled_points = ded;
+    dg.timing.assembled_ms = ElapsedMs(assembled_started_at);
+    const auto loop_fixed_started_at = std::chrono::steady_clock::now();
     std::vector<WorldPoint> out = DropLoops(ded);
     dg.loop_fixed_points = out;
+    dg.timing.loop_fixed_ms = ElapsedMs(loop_fixed_started_at);
     const LayerOracle* lyo_p = qs.has_value() ? &lyo : nullptr;
     const float lyo_h = qs.has_value() ? st3.sp_h[static_cast<size_t>(qs->front())] : 0.0F;
+    const auto slim_started_at = std::chrono::steady_clock::now();
     if (out.size() > 2) {
-        out = Slim(out, blk_gray, &cfl, lyo_p, lyo_h, true, kStringPullMaxMergeGap);
+        out = Slim(out, blk_gray, &cfl, lyo_p, lyo_h, true);
     }
     dg.slim_points = out;
+    dg.timing.slim_ms = ElapsedMs(slim_started_at);
+    const auto widened_started_at = std::chrono::steady_clock::now();
     if (out.size() > 2) {
         out = WidenCorners(out, blk_gray, dist, info.x0, info.y0, kCS, &cfl, lyo_p, lyo_h);
     }
     dg.widened_points = out;
+    dg.timing.widened_ms = ElapsedMs(widened_started_at);
+    const auto final_started_at = std::chrono::steady_clock::now();
     dg.clearance.reserve(out.size());
     for (const auto& p : out) {
         const int64_t cx = std::min(std::max(static_cast<int64_t>(std::floor((p.x - info.x0) / kCS)), int64_t { 0 }), nx - 1);
@@ -1293,6 +1319,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     }
     PullWaypoints(out, dg, pl, zid, blk_gray, lyo_p != nullptr);
     dg.planned_points = out;
+    dg.timing.final_ms = ElapsedMs(final_started_at);
     return out;
 }
 
@@ -1421,6 +1448,7 @@ RecastPlanResult RecastNavEngine::planLocked(
         res.debug.nx = dg.nx;
         res.debug.ny = dg.ny;
         res.debug.cell_size = kCS;
+        res.debug.timing = dg.timing;
         res.debug.astar_cells = std::move(dg.astar_cells);
         res.debug.astar_heights = std::move(dg.astar_heights);
         res.debug.rerouted_points = std::move(dg.rerouted_points);

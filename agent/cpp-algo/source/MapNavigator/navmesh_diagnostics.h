@@ -13,6 +13,18 @@ namespace mapnavigator
 // collecting these records; normal navigation leaves the sink unset and does not retain the arrays.
 struct NavmeshRouteDiagnostic
 {
+    struct Timing
+    {
+        double astar_ms = 0.0;
+        double rerouted_ms = 0.0;
+        double string_pull_ms = 0.0;
+        double assembled_ms = 0.0;
+        double loop_fixed_ms = 0.0;
+        double slim_ms = 0.0;
+        double widened_ms = 0.0;
+        double final_ms = 0.0;
+    } timing;
+
     navmesh::WorldPoint start;
     navmesh::WorldPoint goal;
     double x0 = 0.0;

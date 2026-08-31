@@ -2120,6 +2120,13 @@ canvas {
   margin-top: 6px;
 }
 
+.nav-timing {
+  margin-left: auto;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
 .mode-assert .btn-tool.group-assert,
 #canvas-wrap.mode-assert .btn-tool.group-assert {
   display: flex !important;

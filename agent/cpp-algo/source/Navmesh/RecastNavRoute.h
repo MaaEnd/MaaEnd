@@ -33,6 +33,18 @@ struct RecastPlanResult
 
     struct Debug
     {
+        struct Timing
+        {
+            double astar_ms = 0.0;
+            double rerouted_ms = 0.0;
+            double string_pull_ms = 0.0;
+            double assembled_ms = 0.0;
+            double loop_fixed_ms = 0.0;
+            double slim_ms = 0.0;
+            double widened_ms = 0.0;
+            double final_ms = 0.0;
+        } timing;
+
         double x0 = 0.0;
         double y0 = 0.0;
         int64_t nx = 0;

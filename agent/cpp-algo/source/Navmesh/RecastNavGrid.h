@@ -28,6 +28,7 @@ inline constexpr double kMaxErr = 0.5;              // 轮廓 DP 容差 px
 inline constexpr double kSlimClearanceBypass = 1.0; // 直连净空超过该值时跳过原净空比较 px
 inline constexpr double kClrTol = 0.125;            // 拉直允许的净空退让 px, 取半格即采样步长
 inline constexpr size_t kStringPullMaxMergeGap = 6; // StringPull 最多跨越的输入路径步数
+inline constexpr size_t kSlimLocalWindow = 4;       // Slim 局部完整搜索窗口
 inline constexpr double kCornerR = 1.75;            // 过角期望余量 px
 inline constexpr double kCornerTurn = 5.0;          // 需要留过角余量的最小转角 度
 inline constexpr double kCornerSeg = 2.0;           // 认定为拐点的最小相邻段长 px

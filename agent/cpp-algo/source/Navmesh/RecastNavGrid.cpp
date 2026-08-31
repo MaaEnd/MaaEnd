@@ -1430,7 +1430,7 @@ std::vector<WorldPoint> StringPull(
 }
 
 // 动态规划抽稀: 把输入路径点作为有向无环图的节点, 任意安全直连作为候选边。
-// 首要目标是最大化整条合并路径的最小净空; Slim 可在净空接近时再选择更少的路径点。
+// 首要目标是最短总长度; 净空仅作为合并约束。等长时 Slim 可再选择更少的路径点。
 std::vector<WorldPoint> Slim(
     const std::vector<WorldPoint>& pts,
     const Blockers& blk,
@@ -1464,26 +1464,90 @@ std::vector<WorldPoint> Slim(
 
     struct DpState
     {
-        double bottleneck = -std::numeric_limits<double>::infinity();
+        double length = std::numeric_limits<double>::infinity();
         size_t segments = std::numeric_limits<size_t>::max();
         size_t previous = std::numeric_limits<size_t>::max();
     };
 
     std::vector<DpState> dp(P.size());
-    dp[0] = { std::numeric_limits<double>::infinity(), 0, 0 };
-    for (size_t j = 1; j < P.size(); ++j) {
-        double previous_min = std::numeric_limits<double>::infinity();
-        const size_t first = max_merge_gap > 0 && j > max_merge_gap ? j - max_merge_gap : 0;
-        for (size_t i = j; i > first;) {
-            --i;
-            if (cfl != nullptr) {
-                previous_min = std::min(previous_min, original_clearance[i + 1]);
+    dp[0] = { 0.0, 0, 0 };
+    const bool sparse_global = max_merge_gap == 0;
+    std::vector<std::vector<double>> clearance_rmq;
+    std::vector<size_t> clearance_log;
+    if (cfl != nullptr && sparse_global) {
+        clearance_log.resize(P.size() + 1, 0);
+        for (size_t i = 2; i <= P.size(); ++i) {
+            clearance_log[i] = clearance_log[i / 2] + 1;
+        }
+        clearance_rmq.push_back(original_clearance);
+        for (size_t level = 1; (size_t { 1 } << level) <= P.size(); ++level) {
+            const size_t span = size_t { 1 } << level;
+            const size_t half = span >> 1;
+            std::vector<double> row(P.size() - span + 1);
+            for (size_t i = 0; i + span <= P.size(); ++i) {
+                row[i] = std::min(clearance_rmq[level - 1][i], clearance_rmq[level - 1][i + half]);
             }
+            clearance_rmq.push_back(std::move(row));
+        }
+    }
+    const auto swallowed_clearance = [&](size_t first_edge, size_t last_edge) {
+        if (cfl == nullptr) {
+            return std::numeric_limits<double>::infinity();
+        }
+        if (!sparse_global) {
+            double result = std::numeric_limits<double>::infinity();
+            for (size_t edge = first_edge; edge <= last_edge; ++edge) {
+                result = std::min(result, original_clearance[edge]);
+            }
+            return result;
+        }
+        const size_t length = last_edge - first_edge + 1;
+        const size_t level = clearance_log[length];
+        const size_t span = size_t { 1 } << level;
+        return std::min(clearance_rmq[level][first_edge], clearance_rmq[level][last_edge - span + 1]);
+    };
+    for (size_t j = 1; j < P.size(); ++j) {
+        std::vector<size_t> candidates;
+        if (max_merge_gap > 0) {
+            const size_t first = j > max_merge_gap ? j - max_merge_gap : 0;
+            candidates.reserve(j - first);
+            for (size_t i = j; i > first;) {
+                candidates.push_back(--i);
+            }
+        }
+        else {
+            candidates.reserve(kSlimLocalWindow + 1 + 8);
+            const size_t first = j > kSlimLocalWindow ? j - kSlimLocalWindow : 0;
+            for (size_t i = j; i > first;) {
+                candidates.push_back(--i);
+            }
+            for (size_t gap = kSlimLocalWindow; gap < j;) {
+                const size_t candidate = j - gap;
+                candidates.push_back(candidate);
+                if (candidate > 0) {
+                    candidates.push_back(candidate - 1);
+                }
+                const double local_clearance = swallowed_clearance(candidate + 1, j);
+                const double growth = cfl == nullptr || local_clearance >= 2.0
+                                          ? 1.5
+                                          : local_clearance >= 1.0 ? 1.2 : local_clearance >= 0.5 ? 1.1 : 1.05;
+                const size_t next_gap = static_cast<size_t>(std::ceil(static_cast<double>(gap) * growth));
+                if (next_gap <= gap) {
+                    break;
+                }
+                gap = next_gap;
+            }
+            candidates.push_back(0);
+            std::sort(candidates.begin(), candidates.end(), std::greater<>());
+            candidates.erase(std::unique(candidates.begin(), candidates.end()), candidates.end());
+        }
+        for (const size_t i : candidates) {
             if (dp[i].segments == std::numeric_limits<size_t>::max()) {
                 continue;
             }
             const bool adjacent = j == i + 1;
             const double direct_clearance = cfl == nullptr ? std::numeric_limits<double>::infinity() : cfl->seg(P[i], P[j]);
+            const double previous_min = swallowed_clearance(i + 1, j);
             const bool clearance_ok = cfl == nullptr || direct_clearance > kSlimClearanceBypass || direct_clearance >= previous_min;
             // 原始相邻边是保底路径,即使当前抽稀判据无法复核它也不能丢掉;
             // 只有跨越中间点的候选边才需要通过合并安全性检查。
@@ -1498,13 +1562,14 @@ std::vector<WorldPoint> Slim(
                     continue;
                 }
             }
-            const double bottleneck = std::min(dp[i].bottleneck, direct_clearance);
+            const double length = dp[i].length + std::hypot(P[j].x - P[i].x, P[j].y - P[i].y);
             const size_t segments = dp[i].segments + 1;
+            const double length_tol = kCostTol * std::max({ 1.0, length, dp[j].length });
             const bool better =
-                dp[j].segments == std::numeric_limits<size_t>::max() || bottleneck > dp[j].bottleneck + kClrTol
-                || (prefer_fewer_points && std::fabs(bottleneck - dp[j].bottleneck) <= kClrTol && segments < dp[j].segments);
+                dp[j].segments == std::numeric_limits<size_t>::max() || length < dp[j].length - length_tol
+                || (prefer_fewer_points && std::fabs(length - dp[j].length) <= length_tol && segments < dp[j].segments);
             if (better) {
-                dp[j] = { bottleneck, segments, i };
+                dp[j] = { length, segments, i };
             }
         }
     }
