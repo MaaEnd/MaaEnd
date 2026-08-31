@@ -21,13 +21,6 @@ const PACK_CARGO_EXPECTED = [
     "화물 포장",
 ];
 
-const AUTO_DELIVERY_CONTROLLERS = [
-    "Win32-Front",
-    "Linux-Gamescope",
-    "Linux-ScreenCast",
-    "Linux-Wlroots"
-];
-
 const AUTO_DELIVERY_NAVIGATE_NODES = [
     "AutoDeliveryNavigateDepot",
     "AutoDeliveryNavigateDestination",
@@ -278,7 +271,6 @@ function buildAutoDeliveryOverride(depot, {bidAction}) {
 function buildAutoDeliveryRiskAcknowledgementOption() {
     return {
         type: "switch",
-        controller: AUTO_DELIVERY_CONTROLLERS,
         label: "$task.AutoDeliveryRiskAcknowledgement.label",
         description: "$task.AutoDeliveryRiskAcknowledgement.description",
         default_case: "No",
@@ -320,7 +312,6 @@ function buildAutoDeliveryPreferZiplineOption() {
 
     return {
         type: "switch",
-        controller: AUTO_DELIVERY_CONTROLLERS,
         label: "$task.AutoDeliveryPreferZipline.label",
         description: "$task.AutoDeliveryPreferZipline.description",
         default_case: "No",

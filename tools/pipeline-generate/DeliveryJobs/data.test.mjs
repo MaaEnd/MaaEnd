@@ -7,13 +7,6 @@ import {fileURLToPath} from "node:url";
 import {parseJsonc, readJsonc} from "../jsonc.mjs";
 import {DELIVERY_JOB_FILL_ITEM_PRIORITY_COUNT, deliveryJobDepots, deliveryJobRegions} from "./model.mjs";
 
-const AUTO_DELIVERY_CONTROLLERS = [
-    "Win32-Front",
-    "Linux-Gamescope",
-    "Linux-ScreenCast",
-    "Linux-Wlroots",
-];
-
 const AUTO_DELIVERY_NAVIGATE_NODES = [
     "AutoDeliveryNavigateDepot",
     "AutoDeliveryNavigateDestination",
@@ -423,7 +416,7 @@ test("DeliveryJobs ordinary depot modes override delivery and cargo behavior", (
     }
 });
 
-test("DeliveryJobs exposes automatic delivery for supported depots with controller-scoped safety options", () => {
+test("DeliveryJobs exposes automatic delivery for supported depots with shared safety options", () => {
     const task = readGeneratedTask();
 
     for (const depot of deliveryJobDepots) {
@@ -473,7 +466,7 @@ test("DeliveryJobs exposes automatic delivery for supported depots with controll
         }
     }
 
-    assert.deepEqual(task.option.DeliveryJobsAutoDeliveryRiskAcknowledgement.controller, AUTO_DELIVERY_CONTROLLERS);
+    assert.equal(task.option.DeliveryJobsAutoDeliveryRiskAcknowledgement.controller, undefined);
     assert.equal(task.option.DeliveryJobsAutoDeliveryRiskAcknowledgement.default_case, "No");
     assert.deepEqual(
         task.option.DeliveryJobsAutoDeliveryRiskAcknowledgement.cases.map((item) => item.pipeline_override),
@@ -490,7 +483,7 @@ test("DeliveryJobs exposes automatic delivery for supported depots with controll
             },
         ],
     );
-    assert.deepEqual(task.option.DeliveryJobsAutoDeliveryPreferZipline.controller, AUTO_DELIVERY_CONTROLLERS);
+    assert.equal(task.option.DeliveryJobsAutoDeliveryPreferZipline.controller, undefined);
     assert.equal(task.option.DeliveryJobsAutoDeliveryPreferZipline.default_case, "No");
     for (const [
         index,
