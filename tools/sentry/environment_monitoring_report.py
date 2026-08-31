@@ -488,8 +488,8 @@ def write_json(rows: Sequence[ReportRow], output: TextIO) -> None:
     output.write("\n")
 
 
-def create_argument_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description=__doc__)
+def create_argument_parser(prog: str | None = None) -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(prog=prog, description=__doc__)
     parser.add_argument(
         "--release",
         help=(
@@ -538,12 +538,12 @@ def create_argument_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def main(argv: Sequence[str] | None = None) -> int:
+def main(argv: Sequence[str] | None = None, prog: str | None = None) -> int:
     for stream in (sys.stdout, sys.stderr):
         if hasattr(stream, "reconfigure"):
             stream.reconfigure(encoding="utf-8")
 
-    arguments = create_argument_parser().parse_args(argv)
+    arguments = create_argument_parser(prog).parse_args(argv)
     if arguments.trace_batch_size < 1:
         raise ValueError("--trace-batch-size 必须大于 0。")
     if not math.isfinite(arguments.timeout) or arguments.timeout <= 0:

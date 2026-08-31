@@ -6,7 +6,7 @@ requires-python = ">=3.10"
 dependencies = []
 
 [project.scripts]
-sentry-report = "tools.sentry.auto_delivery_report:main"
+sentry-report = "tools.sentry.cli:main"
 
 [build-system]
 requires = ["setuptools"]
