@@ -190,7 +190,16 @@
             "InMenuMission",
             "AutoDeliveryCheckDeliveryMissionSelected"
         ],
-        "box_index": 1
+        "box_index": 1,
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                417,
+                51,
+                547,
+                279
+            ]
+        }
     },
     "AutoDeliveryInTaskDestinationMap": {
         "desc": "识别已打开的送货任务目标地图",
@@ -263,7 +272,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoDeliveryCheckDeliveryMissionSelected"
+            "AutoDeliveryInDeliveryMissionDetail"
         ]
     },
     "AutoDeliverySelectDeliveryMissionFromList": {
@@ -283,7 +292,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoDeliveryCheckDeliveryMissionSelected",
+            "AutoDeliveryInDeliveryMissionDetail",
             "AutoDeliverySelectDeliveryMission",
             "AutoDeliveryCheckDeliveryMissionListComplete",
             "[JumpBack]AutoDeliveryScrollMissionList"
