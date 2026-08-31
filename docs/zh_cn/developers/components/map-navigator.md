@@ -62,6 +62,14 @@ MapNavigator 是 MaaEnd 的寻路组件：给定目标位置，自动规划路�
 uv run map-navigator
 ```
 
+可通过 `--port PORT` 指定首选端口，通过 `--no-browser` 禁止自动打开浏览器：
+
+```powershell
+uv run map-navigator --port 9000 --no-browser
+```
+
+服务始终只监听 `127.0.0.1`；`uv run map-navigator --help` 可查看完整启动参数。
+
 页面顶部先区分两个工作区：`路线制作` 与只读的 `日志分析`。路线制作内部有两个工具：
 
 | 工作区 | 工具 | 操作 | 导出内容 |

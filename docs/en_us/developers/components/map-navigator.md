@@ -407,6 +407,14 @@ Non-coordinate control nodes like `HEADING` and semantic pathfinding nodes like 
 uv run map-navigator
 ```
 
+Use `--port PORT` to select the preferred port and `--no-browser` to suppress opening the browser:
+
+```powershell
+uv run map-navigator --port 9000 --no-browser
+```
+
+The service always listens on `127.0.0.1`. Run `uv run map-navigator --help` for the complete startup options.
+
 ### Pre-run Preparation
 
 Before starting to record, please confirm:
@@ -425,7 +433,7 @@ The following flow is the complete usage for recorded paths. If the target point
 
 #### Step 1: Open the Tool and Start Recording
 
-After running `tools/MapNavigator/main.py`, first select the controller to be used for this recording in the top `Connection` area, then click **`Start Recording`** in the upper-left corner of the GUI.
+After running `uv run map-navigator`, first select the controller to be used for this recording in the top `Connection` area, then click **`Start Recording`** in the upper-left corner of the GUI.
 
 - When recording the PC version, select `Win32 Window`, modifying the window title if necessary.
 - When recording an emulator/real device, select `ADB Device`, configure the `adb` path, refresh the device list, and select the target.
