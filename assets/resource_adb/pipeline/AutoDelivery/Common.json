@@ -7,6 +7,14 @@
             40
         ]
     },
+    "AutoDeliveryCheckDeliveryMissionListComplete": {
+        "roi": [
+            105,
+            85,
+            450,
+            590
+        ]
+    },
     "AutoDeliveryCheckDeliveryMissionListItem": {
         "roi": [
             105,

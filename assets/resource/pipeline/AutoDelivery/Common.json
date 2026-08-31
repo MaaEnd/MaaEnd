@@ -33,6 +33,29 @@
         "only_rec": false,
         "order_by": "Horizontal"
     },
+    "AutoDeliveryCheckDeliveryMissionListComplete": {
+        "desc": "比较任务列表向下滑动前后的静止画面，确认列表已经到底",
+        "recognition": "Custom",
+        "custom_recognition": "ListCompleteRecognition",
+        "custom_recognition_param": {
+            "threshold": 0.98
+        },
+        "roi": [
+            42,
+            70,
+            360,
+            590
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDeliveryDeliveryMissionNotFound"
+        ],
+        "attach": {
+            "ready": false
+        }
+    },
     "AutoDeliveryCheckDeliveryMissionListItem": {
         "desc": "在任务列表中识别送货任务",
         "recognition": "OCR",
@@ -132,7 +155,7 @@
         "order_by": "Score"
     },
     "AutoDeliveryDeliveryMissionNotFound": {
-        "desc": "任务列表滑动三次后仍未找到送货任务，返回失败以阻止后续操作",
+        "desc": "任务列表已经滑到底部但仍未找到送货任务，返回失败以阻止后续操作",
         "recognition": "And",
         "all_of": [
             "InMenuMission"
@@ -197,8 +220,7 @@
         "rate_limit": 0
     },
     "AutoDeliveryScrollMissionList": {
-        "desc": "任务列表当前页未找到送货任务时向下滑动，最多三次",
-        "max_hit": 3,
+        "desc": "任务列表当前页未找到送货任务且尚未到底时向下滑动",
         "recognition": "And",
         "all_of": [
             "InMenuMission"
@@ -248,20 +270,23 @@
         "desc": "在任务列表中查找送货任务，并确认右侧详情已经选中该任务",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "ClearHitCount",
+        "custom_action": "PipelineOverrideAction",
         "custom_action_param": {
-            "nodes": [
-                "AutoDeliveryScrollMissionList"
-            ],
-            "strict": true
+            "patch": {
+                "AutoDeliveryCheckDeliveryMissionListComplete": {
+                    "attach": {
+                        "ready": false
+                    }
+                }
+            }
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "AutoDeliveryCheckDeliveryMissionSelected",
             "AutoDeliverySelectDeliveryMission",
-            "[JumpBack]AutoDeliveryScrollMissionList",
-            "AutoDeliveryDeliveryMissionNotFound"
+            "AutoDeliveryCheckDeliveryMissionListComplete",
+            "[JumpBack]AutoDeliveryScrollMissionList"
         ]
     }
 }

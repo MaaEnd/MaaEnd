@@ -91,6 +91,7 @@ FAILURE_LABELS = {
     "AutoDeliveryOpenDeliveryMission": "打开并选择送货任务",
     "AutoDeliveryEnsureDeliveryMissionSelected": "查找并确认送货任务",
     "AutoDeliveryCheckDeliveryMissionSelected": "确认已选中送货任务",
+    "AutoDeliveryCheckDeliveryMissionListComplete": "确认任务列表已到底",
     "AutoDeliveryCheckDeliveryMissionListItem": "识别任务列表中的送货任务",
     "AutoDeliverySelectDeliveryMission": "选择送货任务",
     "AutoDeliverySelectDeliveryMissionFromList": "查找送货任务",

@@ -1104,16 +1104,38 @@ test("AutoDelivery ensures the delivery mission detail before branching", () => 
     assert.deepEqual(common.AutoDeliverySelectDeliveryMissionFromList.next, [
         "AutoDeliveryCheckDeliveryMissionSelected",
         "AutoDeliverySelectDeliveryMission",
+        "AutoDeliveryCheckDeliveryMissionListComplete",
         "[JumpBack]AutoDeliveryScrollMissionList",
+    ]);
+    assert.equal(common.AutoDeliverySelectDeliveryMissionFromList.custom_action, "PipelineOverrideAction");
+    assert.deepEqual(common.AutoDeliverySelectDeliveryMissionFromList.custom_action_param, {
+        patch: {
+            AutoDeliveryCheckDeliveryMissionListComplete: {
+                attach: {
+                    ready: false,
+                },
+            },
+        },
+    });
+    assert.equal(common.AutoDeliveryCheckDeliveryMissionListComplete.custom_recognition, "ListCompleteRecognition");
+    assert.deepEqual(common.AutoDeliveryCheckDeliveryMissionListComplete.custom_recognition_param, {
+        threshold: 0.98,
+    });
+    assert.deepEqual(
+        common.AutoDeliveryCheckDeliveryMissionListComplete.roi,
+        [
+            42,
+            70,
+            360,
+            590,
+        ],
+    );
+    assert.deepEqual(common.AutoDeliveryCheckDeliveryMissionListComplete.attach, {
+        ready: false,
+    });
+    assert.deepEqual(common.AutoDeliveryCheckDeliveryMissionListComplete.next, [
         "AutoDeliveryDeliveryMissionNotFound",
     ]);
-    assert.equal(common.AutoDeliverySelectDeliveryMissionFromList.custom_action, "ClearHitCount");
-    assert.deepEqual(common.AutoDeliverySelectDeliveryMissionFromList.custom_action_param, {
-        nodes: [
-            "AutoDeliveryScrollMissionList",
-        ],
-        strict: true,
-    });
     assert.deepEqual(
         common.AutoDeliveryCheckDeliveryMissionListItem.roi,
         [
@@ -1138,7 +1160,7 @@ test("AutoDelivery ensures the delivery mission detail before branching", () => 
     assert.deepEqual(common.AutoDeliverySelectDeliveryMission.next, [
         "AutoDeliveryCheckDeliveryMissionSelected",
     ]);
-    assert.equal(common.AutoDeliveryScrollMissionList.max_hit, 3);
+    assert.equal(common.AutoDeliveryScrollMissionList.max_hit, undefined);
     assert.deepEqual(common.AutoDeliveryScrollMissionList.all_of, [
         "InMenuMission",
     ]);
@@ -1167,6 +1189,15 @@ test("AutoDelivery ensures the delivery mission detail before branching", () => 
         "AutoDeliveryCheckDeliveryMissionSelected",
     ]);
     assert.deepEqual(
+        commonAdb.AutoDeliveryCheckDeliveryMissionListComplete.roi,
+        [
+            105,
+            85,
+            450,
+            590,
+        ],
+    );
+    assert.deepEqual(
         commonAdb.AutoDeliveryCheckDeliveryMissionListItem.roi,
         [
             105,
@@ -1194,6 +1225,7 @@ test("AutoDelivery ensures the delivery mission detail before branching", () => 
         ],
     });
     for (const node of [
+        "AutoDeliveryCheckDeliveryMissionListComplete",
         "AutoDeliveryCheckDeliveryMissionListItem",
         "AutoDeliveryCheckDeliveryMissionSelected",
         "AutoDeliveryDeliveryMissionNotFound",
