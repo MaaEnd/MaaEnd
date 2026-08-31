@@ -2,13 +2,6 @@
     "AutoEcoFarmTask": {
         "desc": "自动生态农场任务入口",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "StashBackpackSubTask"
-            ]
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
@@ -21,6 +14,22 @@
             //"AutoEcoFarmExitErr",
             "_AutoEcoFarmInitStartValleyIV",
             "_AutoEcoFarmInitStartWulin",
+            "AutoEcoFarmStoreNewItemsWithStashBackpack"
+        ]
+    },
+    "AutoEcoFarmStoreNewItemsWithStashBackpack": {
+        "desc": "全部生态农场节点完成后存放新获得物品",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "StoreNewItemsWithStashBackpackSubTask"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
             "AutoEcoFarmExit"
         ]
     },

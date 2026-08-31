@@ -40,21 +40,6 @@
             "key": "AutoCollect"
         },
         "next": [
-            "AutoCollectBeforeStashBackpack"
-        ]
-    },
-    "AutoCollectBeforeStashBackpack": {
-        "desc": "自动采集前存放背包",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "StashBackpackSubTask"
-            ]
-        },
-        "post_delay": 0,
-        "next": [
             "AutoCollectInventoryResetSnapshot",
             "AutoCollectLoop"
         ]
@@ -456,7 +441,7 @@
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "StashBackpackSubTask"
+                "StoreNewItemsWithStashBackpackSubTask"
             ]
         },
         "next": [

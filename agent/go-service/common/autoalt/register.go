@@ -6,4 +6,5 @@ func Register() {
 	maa.AgentServerRegisterCustomAction("AutoAltClickAction", &AutoAltClickAction{})
 	maa.AgentServerRegisterCustomAction("AutoAltSwipeAction", &AutoAltSwipeAction{})
 	maa.AgentServerRegisterCustomAction("AutoCtrlClickAction", &AutoCtrlClickAction{})
+	maa.AgentServerRegisterCustomAction("AutoShiftClickAction", &AutoShiftClickAction{})
 }
