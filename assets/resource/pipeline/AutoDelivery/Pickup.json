@@ -1,154 +1,28 @@
 {
-    "AutoDeliveryQuickTeleport": {
-        "desc": "从当前送货任务详情追踪任务，并快速传送到任务目标附近",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoDeliveryViewDestinationMap",
-            "AutoDeliveryStartTrackingTask"
-        ]
-    },
-    "AutoDeliveryViewDestinationMap": {
-        "desc": "在任务详情页面点击定位按钮，打开任务目标地图",
+    "AutoDeliveryRecognizeDepot": {
+        "desc": "从当前送货任务详情识别仓储节点，并注入前往仓储节点的寻路参数",
         "recognition": "And",
         "all_of": [
             "AutoDeliveryInDeliveryMissionDetail",
-            "TrackedMissionMapButton"
+            "AutoDeliveryCheckAreaText"
         ],
         "box_index": 1,
-        "pre_delay": 0,
-        "action": "Click",
-        "post_delay": 0,
-        "rate_limit": 500,
-        "next": [
-            "AutoDeliveryInDestinationMap"
-        ],
-        "focus": {
-            "Node.Action.Starting": "$task.AutoDelivery.focus.open_destination_map"
-        }
-    },
-    "AutoDeliveryStartTrackingTask": {
-        "desc": "在任务详情页面点击开始追踪任务按钮",
-        "recognition": "And",
-        "all_of": [
-            "AutoDeliveryInDeliveryMissionDetail",
-            "AutoDeliveryCheckStartTrackingButton"
-        ],
-        "box_index": 1,
-        "pre_delay": 0,
-        "action": "Click",
-        "post_delay": 0,
-        "rate_limit": 500,
-        "next": [
-            "AutoDeliveryInDestinationMap"
-        ],
-        "focus": {
-            "Node.Action.Starting": "$task.AutoDelivery.focus.start_tracking"
-        }
-    },
-    "AutoDeliveryInDestinationMap": {
-        "desc": "确认已打开任务目标地图",
-        "recognition": "And",
-        "all_of": [
-            "AutoDeliveryInTaskDestinationMap"
-        ],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoDeliveryQuickTeleportSelect"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "$task.AutoDelivery.focus.destination_map_opened"
-        }
-    },
-    "AutoDeliveryQuickTeleportSelect": {
-        "desc": "使用游戏自带的前往传送功能选中任务目标附近的传送点",
-        "recognition": "TemplateMatch",
-        "roi": [
-            950,
-            540,
-            210,
-            160
-        ],
-        "template": [
-            "Common/Button/WhiteConfirmButtonType1.png",
-            "Common/Button/WhiteConfirmButtonType1Hover.png"
-        ],
-        "order_by": "Score",
-        "pre_delay": 0,
-        "action": "Click",
-        "post_wait_freezes": 500, // 等待地图视窗移动到传送点
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoDeliveryQuickTeleportClick"
-        ],
-        "focus": {
-            "Node.Action.Starting": "$task.AutoDelivery.focus.select_quick_teleport"
-        }
-    },
-    "AutoDeliveryQuickTeleportClick": {
-        "desc": "选中传送点后点击传送",
-        "recognition": "TemplateMatch",
-        "roi": [
-            1110,
-            540,
-            150,
-            160
-        ],
-        "template": [
-            "Common/Button/WhiteConfirmButtonType1.png",
-            "Common/Button/WhiteConfirmButtonType1Hover.png"
-        ],
-        "order_by": "Score",
-        "pre_delay": 0,
-        "action": "Click",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoDeliveryInWorldAfterQuickTeleport",
-            "[JumpBack]SceneAnyEnterWorld"
-        ],
-        "focus": {
-            "Node.Action.Starting": "$task.AutoDelivery.focus.quick_teleport"
-        }
-    },
-    "AutoDeliveryInWorldAfterQuickTeleport": {
-        "desc": "确认快速传送后已返回大世界",
-        "recognition": "And",
-        "all_of": [
-            "InWorld"
-        ],
-        "box_index": 0,
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "[Anchor]AutoDeliveryAfterQuickTeleport",
-            "AutoDeliveryPrepareNavigateDepot"
-        ]
-    },
-    "AutoDeliveryPrepareNavigateDepot": {
-        "desc": "快速传送后进入任务界面并选中送货任务，取消追踪后再前往仓储节点",
-        "recognition": "DirectHit",
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                455,
+                88,
+                250,
+                28
+            ]
+        },
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "SceneEnterMenuMission",
-                "AutoDeliveryEnsureDeliveryMissionSelected"
-            ],
-            "continue": false,
-            "strict": true
-        },
+        "custom_action": "AutoDeliveryResolveDepotAction",
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoDeliveryCancelTrackingBeforeNavigateDepot",
-            "AutoDeliveryCheckTrackingAlreadyOffBeforeNavigateDepot"
+            "AutoDeliveryQuickTeleport"
         ]
     },
     "AutoDeliveryCancelTrackingBeforeNavigateDepot": {
@@ -165,6 +39,91 @@
         "rate_limit": 0,
         "next": [
             "AutoDeliveryCheckTrackingGoneBeforeNavigateDepot"
+        ]
+    },
+    "AutoDeliveryCheckCarryingGoods": {
+        "desc": "确认已携带货物",
+        "recognition": "TemplateMatch",
+        "roi": [
+            130,
+            30,
+            170,
+            90
+        ],
+        "template": "AutoDelivery/CarryingGoods.png",
+        "green_mask": true,
+        "order_by": "Score",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDeliveryOpenMissionAfterFetchGoods"
+        ]
+    },
+    "AutoDeliveryCheckDeliveryMissionListItem": {
+        "desc": "在任务列表中识别送货任务",
+        "recognition": "OCR",
+        "roi": [
+            42,
+            70,
+            360,
+            590
+        ],
+        "expected": [
+            "送货任务",
+            "送貨任務",
+            "(?i)Delivery\\s*Job",
+            "配達任務",
+            "배송 임무"
+        ],
+        "order_by": "Expected"
+    },
+    "AutoDeliveryCheckDeliveryMissionSelected": {
+        "desc": "确认右侧详情已经切换到送货任务",
+        "recognition": "OCR",
+        "roi": [
+            410,
+            55,
+            250,
+            60
+        ],
+        "expected": [
+            "送货任务",
+            "送貨任務",
+            "(?i)Delivery\\s*Job",
+            "配達任務",
+            "배송 임무"
+        ],
+        "order_by": "Expected",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoDeliveryCheckFetchGoodsButton": {
+        "desc": "在仓储节点前识别接取货物按钮，并等待交互按钮稳定",
+        "recognition": "TemplateMatch",
+        "roi": [
+            763,
+            349,
+            195,
+            270
+        ],
+        "template": "AutoDelivery/FetchGoods.png",
+        "order_by": "Score",
+        "pre_wait_freezes": {
+            "time": 300,
+            "target": [
+                763,
+                349,
+                195,
+                270
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDeliveryFetchGoodsButton"
         ]
     },
     "AutoDeliveryCheckTrackingAlreadyOffBeforeNavigateDepot": {
@@ -197,22 +156,123 @@
             "AutoDeliveryReturnWorldAndNavigateDepot"
         ]
     },
-    "AutoDeliveryReturnWorldAndNavigateDepot": {
-        "desc": "确认任务未追踪后返回大世界并前往已识别的仓储节点",
+    "AutoDeliveryDeliveryMissionNotFound": {
+        "desc": "任务列表滑动三次后仍未找到送货任务，返回失败以阻止后续操作",
+        "recognition": "And",
+        "all_of": [
+            "AutoDeliveryInMissionMenu"
+        ],
+        "box_index": 0,
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "SubTask",
+        "custom_action": "FalseAction",
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoDeliveryEnsureDeliveryMissionSelected": {
+        "desc": "在任务界面查找送货任务，并确认右侧详情已经选中该任务",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "ClearHitCount",
         "custom_action_param": {
-            "sub": [
-                "SceneAnyEnterWorld"
+            "nodes": [
+                "AutoDeliveryScrollMissionList"
             ],
-            "continue": false,
             "strict": true
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoDeliveryNavigateDepot"
+            "AutoDeliveryCheckDeliveryMissionSelected",
+            "AutoDeliverySelectDeliveryMission",
+            "[JumpBack]AutoDeliveryScrollMissionList",
+            "AutoDeliveryDeliveryMissionNotFound"
+        ]
+    },
+    "AutoDeliveryFetchGoods": {
+        "desc": "识别并接取货物；按钮未出现时先环绕搜索，再允许执行一次仓储私有重试路线",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDeliveryCheckFetchGoodsButton",
+            "AutoDeliverySearchFetchGoodsButton"
+        ]
+    },
+    "AutoDeliveryFetchGoodsButton": {
+        "desc": "在仓储节点前重新识别接取货物按钮并取货",
+        "recognition": "And",
+        "all_of": [
+            "AutoDeliveryCheckFetchGoodsButton"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "AutoAltClickAction",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDeliveryCheckCarryingGoods"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoDelivery.focus.fetch_goods"
+        }
+    },
+    "AutoDeliveryInDeliveryMissionDetail": {
+        "desc": "确认当前位于任务界面，且右侧详情选中了送货任务",
+        "recognition": "And",
+        "all_of": [
+            "AutoDeliveryInMissionMenu",
+            "AutoDeliveryCheckDeliveryMissionSelected"
+        ],
+        "box_index": 1
+    },
+    "AutoDeliveryInDestinationMap": {
+        "desc": "确认已打开任务目标地图",
+        "recognition": "And",
+        "all_of": [
+            "AutoDeliveryInTaskDestinationMap"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDeliveryQuickTeleportSelect"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoDelivery.focus.destination_map_opened"
+        }
+    },
+    "AutoDeliveryInMissionMenu": {
+        "desc": "确认当前位于任务界面",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            0,
+            150,
+            70
+        ],
+        "expected": [
+            "任务",
+            "任務",
+            "(?i)Missions",
+            "任務",
+            "임무"
+        ],
+        "order_by": "Expected"
+    },
+    "AutoDeliveryInWorldAfterQuickTeleport": {
+        "desc": "确认快速传送后已返回大世界",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "box_index": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]AutoDeliveryAfterQuickTeleport",
+            "AutoDeliveryPrepareNavigateDepot"
         ]
     },
     "AutoDeliveryNavigateDepot": {
@@ -248,99 +308,106 @@
             "zip": false
         }
     },
-    "AutoDeliveryFetchGoods": {
-        "desc": "识别并接取货物；按钮未出现时先环绕搜索，再允许执行一次仓储私有重试路线",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoDeliveryCheckFetchGoodsButton",
-            "AutoDeliverySearchFetchGoodsButton"
-        ]
-    },
-    "AutoDeliverySearchFetchGoodsButton": {
-        "desc": "仓储节点到达后未找到接取货物按钮时，环绕微调站位并持续查找按钮",
-        "recognition": "DirectHit",
+    "AutoDeliveryOpenMissionAfterFetchGoods": {
+        "desc": "取货后进入任务界面并确保选中送货任务",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "CharacterSearchAction",
+        "custom_action": "SubTask",
         "custom_action_param": {
-            "wait_nodes": [
-                "AutoDeliveryCheckFetchGoodsButton"
-            ]
+            "sub": [
+                "SceneEnterMenuMission",
+                "AutoDeliveryEnsureDeliveryMissionSelected"
+            ],
+            "continue": false,
+            "strict": true
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoDeliveryCheckFetchGoodsButton"
-        ],
-        "on_error": [
-            "AutoDeliveryRetryNavigateDepot"
+            "AutoDeliveryRecognizeDestination"
         ]
     },
-    "AutoDeliveryCheckFetchGoodsButton": {
-        "desc": "在仓储节点前识别接取货物按钮，并等待交互按钮稳定",
+    "AutoDeliveryPrepareNavigateDepot": {
+        "desc": "快速传送后进入任务界面并选中送货任务，取消追踪后再前往仓储节点",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuMission",
+                "AutoDeliveryEnsureDeliveryMissionSelected"
+            ],
+            "continue": false,
+            "strict": true
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDeliveryCancelTrackingBeforeNavigateDepot",
+            "AutoDeliveryCheckTrackingAlreadyOffBeforeNavigateDepot"
+        ]
+    },
+    "AutoDeliveryQuickTeleport": {
+        "desc": "从当前送货任务详情追踪任务，并快速传送到任务目标附近",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDeliveryViewDestinationMap",
+            "AutoDeliveryStartTrackingTask"
+        ]
+    },
+    "AutoDeliveryQuickTeleportClick": {
+        "desc": "选中传送点后点击传送",
         "recognition": "TemplateMatch",
         "roi": [
-            763,
-            349,
-            195,
-            270
+            1110,
+            540,
+            150,
+            160
         ],
-        "template": "AutoDelivery/FetchGoods.png",
+        "template": [
+            "Common/Button/WhiteConfirmButtonType1.png",
+            "Common/Button/WhiteConfirmButtonType1Hover.png"
+        ],
         "order_by": "Score",
-        "pre_wait_freezes": {
-            "time": 300,
-            "target": [
-                763,
-                349,
-                195,
-                270
-            ]
-        },
         "pre_delay": 0,
+        "action": "Click",
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoDeliveryFetchGoodsButton"
-        ]
-    },
-    "AutoDeliveryFetchGoodsButton": {
-        "desc": "在仓储节点前重新识别接取货物按钮并取货",
-        "recognition": "And",
-        "all_of": [
-            "AutoDeliveryCheckFetchGoodsButton"
-        ],
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "AutoAltClickAction",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoDeliveryCheckCarryingGoods"
+            "AutoDeliveryInWorldAfterQuickTeleport",
+            "[JumpBack]SceneAnyEnterWorld"
         ],
         "focus": {
-            "Node.Action.Starting": "$task.AutoDelivery.focus.fetch_goods"
+            "Node.Action.Starting": "$task.AutoDelivery.focus.quick_teleport"
         }
     },
-    "AutoDeliveryCheckCarryingGoods": {
-        "desc": "确认已携带货物",
+    "AutoDeliveryQuickTeleportSelect": {
+        "desc": "使用游戏自带的前往传送功能选中任务目标附近的传送点",
         "recognition": "TemplateMatch",
         "roi": [
-            130,
-            30,
-            170,
-            90
+            950,
+            540,
+            210,
+            160
         ],
-        "template": "AutoDelivery/CarryingGoods.png",
-        "green_mask": true,
+        "template": [
+            "Common/Button/WhiteConfirmButtonType1.png",
+            "Common/Button/WhiteConfirmButtonType1Hover.png"
+        ],
         "order_by": "Score",
         "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": 500, // 等待地图视窗移动到传送点
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoDeliveryOpenMissionAfterFetchGoods"
-        ]
+            "AutoDeliveryQuickTeleportClick"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoDelivery.focus.select_quick_teleport"
+        }
     },
     "AutoDeliveryRetryNavigateDepot": {
         "desc": "动态调用仓储配置的一次性站位修正路线；无重试路线时不启用",
@@ -363,16 +430,14 @@
             "AutoDeliveryCheckFetchGoodsButton"
         ]
     },
-    "AutoDeliveryOpenMissionAfterFetchGoods": {
-        "desc": "取货后进入任务界面并确保选中送货任务",
-        "recognition": "DirectHit",
+    "AutoDeliveryReturnWorldAndNavigateDepot": {
+        "desc": "确认任务未追踪后返回大世界并前往已识别的仓储节点",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "SceneEnterMenuMission",
-                "AutoDeliveryEnsureDeliveryMissionSelected"
+                "SceneAnyEnterWorld"
             ],
             "continue": false,
             "strict": true
@@ -380,111 +445,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoDeliveryRecognizeDestination"
+            "AutoDeliveryNavigateDepot"
         ]
-    },
-    "AutoDeliveryEnsureDeliveryMissionSelected": {
-        "desc": "在任务界面查找送货任务，并确认右侧详情已经选中该任务",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "ClearHitCount",
-        "custom_action_param": {
-            "nodes": [
-                "AutoDeliveryScrollMissionList"
-            ],
-            "strict": true
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoDeliveryCheckDeliveryMissionSelected",
-            "AutoDeliverySelectDeliveryMission",
-            "[JumpBack]AutoDeliveryScrollMissionList",
-            "AutoDeliveryDeliveryMissionNotFound"
-        ]
-    },
-    "AutoDeliveryCheckDeliveryMissionSelected": {
-        "desc": "确认右侧详情已经切换到送货任务",
-        "recognition": "OCR",
-        "roi": [
-            410,
-            55,
-            250,
-            60
-        ],
-        "expected": [
-            "送货任务",
-            "送貨任務",
-            "(?i)Delivery\\s*Job",
-            "配達任務",
-            "배송 임무"
-        ],
-        "order_by": "Expected",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0
-    },
-    "AutoDeliveryCheckDeliveryMissionListItem": {
-        "desc": "在任务列表中识别送货任务",
-        "recognition": "OCR",
-        "roi": [
-            42,
-            70,
-            360,
-            590
-        ],
-        "expected": [
-            "送货任务",
-            "送貨任務",
-            "(?i)Delivery\\s*Job",
-            "配達任務",
-            "배송 임무"
-        ],
-        "order_by": "Expected"
-    },
-    "AutoDeliverySelectDeliveryMission": {
-        "desc": "点击任务列表中的送货任务",
-        "recognition": "And",
-        "all_of": [
-            "AutoDeliveryInMissionMenu",
-            "AutoDeliveryCheckDeliveryMissionListItem"
-        ],
-        "box_index": 1,
-        "pre_delay": 0,
-        "action": "Click",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AutoDeliveryCheckDeliveryMissionSelected"
-        ]
-    },
-    "AutoDeliveryInMissionMenu": {
-        "desc": "确认当前位于任务界面",
-        "recognition": "OCR",
-        "roi": [
-            0,
-            0,
-            150,
-            70
-        ],
-        "expected": [
-            "任务",
-            "任務",
-            "(?i)Missions",
-            "任務",
-            "임무"
-        ],
-        "order_by": "Expected"
-    },
-    "AutoDeliveryInDeliveryMissionDetail": {
-        "desc": "确认当前位于任务界面，且右侧详情选中了送货任务",
-        "recognition": "And",
-        "all_of": [
-            "AutoDeliveryInMissionMenu",
-            "AutoDeliveryCheckDeliveryMissionSelected"
-        ],
-        "box_index": 1
     },
     "AutoDeliveryScrollMissionList": {
         "desc": "任务列表当前页未找到送货任务时向下滑动，最多三次",
@@ -518,17 +480,77 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "AutoDeliveryDeliveryMissionNotFound": {
-        "desc": "任务列表滑动三次后仍未找到送货任务，返回失败以阻止后续操作",
-        "recognition": "And",
-        "all_of": [
-            "AutoDeliveryInMissionMenu"
-        ],
-        "box_index": 0,
+    "AutoDeliverySearchFetchGoodsButton": {
+        "desc": "仓储节点到达后未找到接取货物按钮时，环绕微调站位并持续查找按钮",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "FalseAction",
+        "custom_action": "CharacterSearchAction",
+        "custom_action_param": {
+            "wait_nodes": [
+                "AutoDeliveryCheckFetchGoodsButton"
+            ]
+        },
         "post_delay": 0,
-        "rate_limit": 0
+        "rate_limit": 0,
+        "next": [
+            "AutoDeliveryCheckFetchGoodsButton"
+        ],
+        "on_error": [
+            "AutoDeliveryRetryNavigateDepot"
+        ]
+    },
+    "AutoDeliverySelectDeliveryMission": {
+        "desc": "点击任务列表中的送货任务",
+        "recognition": "And",
+        "all_of": [
+            "AutoDeliveryInMissionMenu",
+            "AutoDeliveryCheckDeliveryMissionListItem"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDeliveryCheckDeliveryMissionSelected"
+        ]
+    },
+    "AutoDeliveryStartTrackingTask": {
+        "desc": "在任务详情页面点击开始追踪任务按钮",
+        "recognition": "And",
+        "all_of": [
+            "AutoDeliveryInDeliveryMissionDetail",
+            "AutoDeliveryCheckStartTrackingButton"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 500,
+        "next": [
+            "AutoDeliveryInDestinationMap"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoDelivery.focus.start_tracking"
+        }
+    },
+    "AutoDeliveryViewDestinationMap": {
+        "desc": "在任务详情页面点击定位按钮，打开任务目标地图",
+        "recognition": "And",
+        "all_of": [
+            "AutoDeliveryInDeliveryMissionDetail",
+            "TrackedMissionMapButton"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 500,
+        "next": [
+            "AutoDeliveryInDestinationMap"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoDelivery.focus.open_destination_map"
+        }
     }
 }

@@ -437,6 +437,31 @@ test("AutoDelivery 纯识别节点统一使用 Check 或 In 命名", () => {
     assert.deepEqual(invalidNames, []);
 });
 
+test("AutoDelivery 省略默认 DirectHit 识别和 DoNothing 动作", () => {
+    const routeDirectory = new URL("../../../assets/resource/pipeline/AutoDelivery/Routes/", import.meta.url);
+    const pipelineFiles = [
+        new URL("./routes-template.json", import.meta.url),
+        new URL("../../../assets/resource/pipeline/AutoDelivery/Common.json", import.meta.url),
+        new URL("../../../assets/resource/pipeline/AutoDelivery/Pickup.json", import.meta.url),
+        new URL("../../../assets/resource/pipeline/AutoDelivery/Delivery.json", import.meta.url),
+        new URL("../../../assets/resource/pipeline/AutoDelivery/RecycleBinAreas.json", import.meta.url),
+        new URL("../../../assets/resource/pipeline/AutoDelivery/RecycleBinCandidates.json", import.meta.url),
+        ...readdirSync(routeDirectory)
+            .filter((file) => file.endsWith(".json"))
+            .map((file) => new URL(file, routeDirectory)),
+    ];
+
+    for (const file of pipelineFiles) {
+        for (const [
+            name,
+            node,
+        ] of Object.entries(readJsonc(file))) {
+            assert.notEqual(node.recognition, "DirectHit", `${name} 不应显式设置默认 DirectHit 识别`);
+            assert.notEqual(node.action, "DoNothing", `${name} 不应显式设置默认 DoNothing 动作`);
+        }
+    }
+});
+
 test("AutoDelivery 仅合并同一地图同一区域的多个资源回收站", () => {
     const groups = groupAmbiguousRecycleBins([
         {id: "map01-only", kind: "recycle_bin", map: "map01", areaId: "SharedArea"},

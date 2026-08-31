@@ -911,6 +911,11 @@ test("AutoDelivery keeps its task-detail entry and default branch flow explicit"
         ...delivery,
     };
     assert.ok(pipeline.AutoDelivery);
+    assert.equal(Object.keys(common)[0], "AutoDelivery");
+    assert.equal(Object.keys(pickup)[0], "AutoDeliveryRecognizeDepot");
+    assert.equal(Object.keys(delivery)[0], "AutoDeliveryRecognizeDestination");
+    assert.equal(common.AutoDeliveryRecognizeDepot, undefined);
+    assert.equal(common.AutoDeliveryRecognizeDestination, undefined);
     assert.equal(
         Object.keys(pipeline).some((node) => node.startsWith("__")),
         false,
@@ -936,23 +941,23 @@ test("AutoDelivery keeps its task-detail entry and default branch flow explicit"
         "AutoDeliveryRecognizeDestination",
         "AutoDeliveryRecognizeDepot",
     ]);
-    assert.deepEqual(common.AutoDeliveryRecognizeDepot.all_of, [
+    assert.deepEqual(pickup.AutoDeliveryRecognizeDepot.all_of, [
         "AutoDeliveryInDeliveryMissionDetail",
         "AutoDeliveryCheckAreaText",
     ]);
-    assert.equal(common.AutoDeliveryRecognizeDepot.custom_action, "AutoDeliveryResolveDepotAction");
-    assert.equal(common.AutoDeliveryRecognizeDepot.custom_action_param, undefined);
-    assert.deepEqual(common.AutoDeliveryRecognizeDepot.next, [
+    assert.equal(pickup.AutoDeliveryRecognizeDepot.custom_action, "AutoDeliveryResolveDepotAction");
+    assert.equal(pickup.AutoDeliveryRecognizeDepot.custom_action_param, undefined);
+    assert.deepEqual(pickup.AutoDeliveryRecognizeDepot.next, [
         "AutoDeliveryQuickTeleport",
     ]);
-    assert.deepEqual(common.AutoDeliveryRecognizeDestination.all_of, [
+    assert.deepEqual(delivery.AutoDeliveryRecognizeDestination.all_of, [
         "AutoDeliveryInDeliveryMissionDetail",
         "AutoDeliveryCheckAreaText",
         "AutoDeliveryCheckDestinationField",
     ]);
-    assert.equal(common.AutoDeliveryRecognizeDestination.custom_action, "AutoDeliveryResolveDestinationAction");
-    assert.equal(common.AutoDeliveryRecognizeDestination.custom_action_param, undefined);
-    assert.deepEqual(common.AutoDeliveryRecognizeDestination.next, [
+    assert.equal(delivery.AutoDeliveryRecognizeDestination.custom_action, "AutoDeliveryResolveDestinationAction");
+    assert.equal(delivery.AutoDeliveryRecognizeDestination.custom_action_param, undefined);
+    assert.deepEqual(delivery.AutoDeliveryRecognizeDestination.next, [
         "[Anchor]AutoDeliveryAfterRecognizeDestination",
         "AutoDeliveryAfterResolveDestination",
     ]);

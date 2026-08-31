@@ -1,7 +1,6 @@
 {
     "AutoDeliveryRouteDepotDomain2Lv005Depot1": {
         "desc": "AutoDelivery 仓储路线：前往试验园区仓储节点（domain_2_lv005_depot_1）",
-        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -103,7 +102,6 @@
     },
     "AutoDeliveryRouteDepotDomain2Lv005Depot1WithZipline": {
         "desc": "AutoDelivery 仓储路线：前往试验园区仓储节点，仅允许步行（domain_2_lv005_depot_1）",
-        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -205,7 +203,6 @@
     },
     "AutoDeliveryRouteDepotRetryDomain2Lv005Depot1": {
         "desc": "AutoDelivery 仓储站位修正路线：试验园区仓储节点（domain_2_lv005_depot_1）",
-        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -241,7 +238,6 @@
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap02Lv00501": {
         "desc": "AutoDelivery 终点路线：从试验园区仓储节点前往赵昭（deliver_target_map02_lv005_01）",
-        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -278,7 +274,6 @@
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap02Lv00501WithZipline": {
         "desc": "AutoDelivery 终点路线：从试验园区仓储节点前往赵昭，允许使用滑索（deliver_target_map02_lv005_01）",
-        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -315,7 +310,6 @@
     },
     "AutoDeliveryRouteDestinationRetryDeliverTargetMap02Lv00501": {
         "desc": "AutoDelivery 终点站位修正路线：赵昭（deliver_target_map02_lv005_01）",
-        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -351,7 +345,6 @@
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap02Lv00502": {
         "desc": "AutoDelivery 终点路线：从试验园区仓储节点前往裴令容（deliver_target_map02_lv005_02）",
-        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -388,7 +381,6 @@
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap02Lv00502WithZipline": {
         "desc": "AutoDelivery 终点路线：从试验园区仓储节点前往裴令容，允许使用滑索（deliver_target_map02_lv005_02）",
-        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -425,7 +417,6 @@
     },
     "AutoDeliveryRouteDestinationRetryDeliverTargetMap02Lv00502": {
         "desc": "AutoDelivery 终点站位修正路线：裴令容（deliver_target_map02_lv005_02）",
-        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -461,7 +452,6 @@
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap02Lv00503": {
         "desc": "AutoDelivery 终点路线：从试验园区仓储节点前往阿禾（deliver_target_map02_lv005_03）",
-        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -506,7 +496,6 @@
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap02Lv00503WithZipline": {
         "desc": "AutoDelivery 终点路线：从试验园区仓储节点前往阿禾，允许使用滑索（deliver_target_map02_lv005_03）",
-        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -551,7 +540,6 @@
     },
     "AutoDeliveryRouteDestinationRetryDeliverTargetMap02Lv00503": {
         "desc": "AutoDelivery 终点站位修正路线：阿禾（deliver_target_map02_lv005_03）",
-        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",

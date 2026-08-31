@@ -1,7 +1,6 @@
 {
     "${Node}": {
         "desc": "${Description}",
-        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",

@@ -7,7 +7,7 @@
             40
         ]
     },
-    "AutoDeliveryCheckDestinationYellowText": {
+    "AutoDeliveryCheckDestinationText": {
         "roi": [
             621,
             247,
@@ -15,7 +15,7 @@
             43
         ]
     },
-    "AutoDeliveryCheckDestinationText": {
+    "AutoDeliveryCheckDestinationYellowText": {
         "roi": [
             621,
             247,

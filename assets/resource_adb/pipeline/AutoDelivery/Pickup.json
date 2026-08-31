@@ -7,6 +7,14 @@
             590
         ]
     },
+    "AutoDeliveryCheckDeliveryMissionSelected": {
+        "roi": [
+            570,
+            70,
+            260,
+            60
+        ]
+    },
     "AutoDeliveryScrollMissionList": {
         "post_wait_freezes": {
             "time": 300,
@@ -17,13 +25,5 @@
                 590
             ]
         }
-    },
-    "AutoDeliveryCheckDeliveryMissionSelected": {
-        "roi": [
-            570,
-            70,
-            260,
-            60
-        ]
     }
 }
