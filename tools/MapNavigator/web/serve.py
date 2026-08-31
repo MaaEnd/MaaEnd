@@ -21,6 +21,7 @@
   GET  /basemap-by-zone       -> 任意 zone 字符串 -> 解析后的底图 PNG (resolve_zone_image)
   GET  /api/zone-ids          -> assert 模式 zone 下拉可选值 (list_available_zone_ids)
   GET  /api/zipline-frames    -> 滑索世界坐标到 base 底图的只读标定
+  GET  /api/zipline-records   -> 当前安装目录的只读滑索记录
   GET  /mesh/{zone_id}        -> 某几何区的 NMSH 二进制网格缓冲 (application/octet-stream)
   POST /api/route-preview     -> 按 MapNavigateAction 运行时语义展开作者路线与滑索段
   GET  /api/settings          -> 读取 ~/.maaend/mapnavigator.json
@@ -81,6 +82,7 @@ from navmesh_backend import NavmeshBackend  # noqa: E402
 from recording_service import parse_live_position  # noqa: E402
 from session_modes import MODES, SessionMode  # noqa: E402
 from runtime import (  # noqa: E402
+    INSTALL_DIR,
     MAP_IMAGE_DIR,
     RESOURCE_DIR,
     configure_runtime_env,
@@ -107,6 +109,7 @@ NAVMESH_DIR = RESOURCE_DIR / "model" / "map" / "navmesh"
 NAVMESH_GZ = NAVMESH_DIR / "base.nav.gz"
 NAVMESH_RAW = NAVMESH_DIR / "base.nav"
 ZIPLINE_FRAMES = RESOURCE_DIR.parent / "data" / "MapNavigator" / "zipline_frames.json"
+ZIPLINE_RECORDS = INSTALL_DIR / "debug" / "record" / "Ziplines.json"
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 
 # 只绑 127.0.0.1 —— 后端会 spawn 进程 / 连 ADB / 载 maafw, 绝不暴露到局域网。
@@ -547,6 +550,14 @@ async def api_zipline_frames() -> FileResponse:
     if not ZIPLINE_FRAMES.is_file():
         raise HTTPException(status_code=404, detail="缺少滑索坐标标定 zipline_frames.json")
     return FileResponse(ZIPLINE_FRAMES, media_type="application/json")
+
+
+@app.get("/api/zipline-records")
+async def api_zipline_records() -> FileResponse:
+    """Expose the current installation's records for the local 2D map layer."""
+    if not ZIPLINE_RECORDS.is_file():
+        raise HTTPException(status_code=404, detail="当前安装目录没有滑索记录 Ziplines.json")
+    return FileResponse(ZIPLINE_RECORDS, media_type="application/json")
 
 
 @app.get("/api/platform")

@@ -116,7 +116,7 @@ canvas {
 
 #canvas-wrap.view-3d .canvas-editor-toolbar,
 #canvas-wrap.view-3d .legend-float,
-#canvas-wrap.view-3d .log-context-panel {
+#canvas-wrap.view-3d .context-panel {
   display: none !important;
 }
 
@@ -410,7 +410,7 @@ canvas {
   margin: 0;
 }
 
-.log-context-panel {
+.context-panel {
   position: absolute;
   top: 64px;
   right: 16px;
@@ -425,7 +425,7 @@ canvas {
 }
 
 .edit-inspection-box,
-.log-inspection-box,
+.point-inspection-box,
 .log-distance-box {
   display: flex;
   flex-direction: column;
@@ -442,7 +442,7 @@ canvas {
 }
 
 .edit-inspection-box,
-.log-inspection-box {
+.point-inspection-box {
   border-color: rgba(34, 211, 238, 0.34);
 }
 
@@ -1553,7 +1553,7 @@ canvas {
     right: 12px;
   }
 
-  .log-context-panel {
+  .context-panel {
     top: 60px;
     right: 12px;
     width: min(320px, calc(100% - 24px));

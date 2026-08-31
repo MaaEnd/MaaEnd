@@ -110,7 +110,7 @@ test("edit planning exposes a preview-only manual start control", () => {
   const propertiesStart = html.indexOf('id="panel-properties"');
   const editorToolbarStart = html.indexOf('class="canvas-editor-toolbar"');
   const floatingToolbarStart = html.indexOf('class="canvas-floating-controls"');
-  const floatingToolbarEnd = html.indexOf('id="log-context-panel"');
+  const floatingToolbarEnd = html.indexOf('id="context-panel"');
   const recording = html.slice(recordingStart, propertiesStart);
   const editorToolbar = html.slice(editorToolbarStart, floatingToolbarStart);
   const floatingToolbar = html.slice(floatingToolbarStart, floatingToolbarEnd);
@@ -123,11 +123,27 @@ test("edit planning exposes a preview-only manual start control", () => {
   assert.match(html, /id="edit-inspection-box"[^>]*hidden/);
 });
 
-test("edit and log point details expose matching cancel-selection controls", () => {
+test("the map-layer toggle stays separate from route zipline planning", () => {
+  const html = readFileSync(new URL("./static/index.html", import.meta.url), "utf8");
+  const floatingToolbarStart = html.indexOf('class="canvas-floating-controls"');
+  const floatingToolbarEnd = html.indexOf('id="context-panel"');
+  const floatingToolbar = html.slice(floatingToolbarStart, floatingToolbarEnd);
+
+  assert.match(floatingToolbar, /id="btn-toggle-ziplines"[^>]*aria-pressed="false"[^>]*hidden/);
+  assert.match(floatingToolbar, /id="zipline-layer-divider"[^>]*hidden/);
+  assert.match(floatingToolbar, /id="btn-zipline-measure"[^>]*aria-pressed="false"[^>]*hidden/);
+  assert.match(floatingToolbar, /id="zipline-measure-divider"[^>]*hidden/);
+  assert.doesNotMatch(floatingToolbar, /id="chk-edit-zipline"/);
+  assert.match(html, /id="chk-edit-zipline" type="checkbox" \/> 启用滑索规划/);
+});
+
+test("edit objects and shared point details expose matching cancel-selection controls", () => {
   const html = readFileSync(new URL("./static/index.html", import.meta.url), "utf8");
 
   assert.match(html, /id="btn-edit-selection-clear"[^>]*>取消选择<\/button>/);
-  assert.match(html, /id="btn-log-point-clear"[^>]*>取消选择<\/button>/);
+  assert.match(html, /id="btn-point-clear"[^>]*>取消选择<\/button>/);
+  assert.match(html, /id="point-inspection-box"[^>]*hidden/);
+  assert.match(html, /id="zipline-distance-box"[^>]*hidden/);
 });
 
 test("recording start follows the probed connection state", () => {
@@ -164,7 +180,11 @@ test("first navtest run follows the probe while a live session keeps its own sta
     overlay: {hidden: true},
     hotkeyNote,
     connection,
-    getRoute: () => ({path: [[1, 2]], exported: false, assert_target: null}),
+    getRoute: () => ({
+      path: [[1, 2]],
+      exported: false,
+      assert_target: null,
+    }),
   });
 
   assert.equal(btnRun.disabled, true);

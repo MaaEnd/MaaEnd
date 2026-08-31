@@ -181,6 +181,11 @@ export function getZiplineFrames() {
   return getJson("/api/zipline-frames");
 }
 
+/** Current installation's read-only debug/record/Ziplines.json snapshot. */
+export function getZiplineRecords() {
+  return getJson("/api/zipline-records");
+}
+
 /**
  * Expand a complete MapNavigator request with the runtime planner, preserving global
  * route boundaries and zipline semantics.

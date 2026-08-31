@@ -37,9 +37,63 @@ function renderWithMarker(mode, markerKey) {
 }
 
 test("draws the game-position reference marker in edit mode", () => {
-  assert.deepEqual(renderWithMarker("edit", "editLocateHint"), [
-    {x: 12, y: 34, label: "游戏当前位置", rot: 90},
-  ]);
+  assert.deepEqual(renderWithMarker("edit", "editLocateHint"), [{x: 12, y: 34, label: "游戏当前位置", rot: 90}]);
+});
+
+test("draws the recorded zipline layer only in edit mode", () => {
+  const overlay = Object.create(Overlay.prototype);
+  overlay.dpr = 1;
+  overlay.cssW = 800;
+  overlay.cssH = 600;
+  overlay.ctx = {setTransform() {}, clearRect() {}};
+  overlay._drawPath = () => {};
+  overlay._drawNodes = () => {};
+  overlay._drawAssertRect = () => {};
+  overlay._drawOffMeshMarks = () => {};
+  overlay._drawSelectionRect = () => {};
+
+  const calls = [];
+  overlay._drawMapZiplines = (_camera, towers) => calls.push(towers);
+  const towers = [
+    {
+      point: [12, 34],
+    },
+  ];
+  overlay.render({}, {mode: "edit", points: [], mapZiplines: towers});
+  overlay.render({}, {mode: "assert", points: [], mapZiplines: towers});
+
+  assert.deepEqual(calls, [towers]);
+});
+
+test("shares zipline inspection and measurement overlays between edit and log modes", () => {
+  const overlay = Object.create(Overlay.prototype);
+  overlay.dpr = 1;
+  overlay.cssW = 800;
+  overlay.cssH = 600;
+  overlay.ctx = {setTransform() {}, clearRect() {}};
+  overlay._drawPath = () => {};
+  overlay._drawNodes = () => {};
+  overlay._drawAssertRect = () => {};
+  overlay._drawLogAnalysis = () => {};
+  overlay._drawOffMeshMarks = () => {};
+  overlay._drawSelectionRect = () => {};
+
+  const inspections = [];
+  const measurements = [];
+  overlay._drawPointInspection = (_camera, inspection) => inspections.push(inspection);
+  overlay._drawZiplineMeasurement = (_camera, measurement) => measurements.push(measurement);
+  const inspection = {point: [12, 34], title: "滑索架"};
+  const measurement = {towers: [{point: [12, 34], marker: "A"}]};
+
+  overlay.render({}, {mode: "edit", points: [], pointInspection: inspection, ziplineMeasurement: measurement});
+  overlay.render(
+    {},
+    {mode: "log", points: [], logAnalysis: {}, pointInspection: inspection, ziplineMeasurement: measurement},
+  );
+  overlay.render({}, {mode: "assert", points: [], pointInspection: inspection, ziplineMeasurement: measurement});
+
+  assert.deepEqual(inspections, [inspection, inspection]);
+  assert.deepEqual(measurements, [measurement, measurement]);
 });
 
 test("does not leak the edit reference marker into assert mode", () => {
@@ -129,7 +183,11 @@ test("draws selected-route diagnostics in edit mode", () => {
 
   const calls = [];
   overlay._drawAstarDiagnostics = (_camera, diagnostics, options) => calls.push({diagnostics, options});
-  const diagnostics = [{astar_cells: [[1, 2]]}];
+  const diagnostics = [
+    {
+      astar_cells: [[1, 2]],
+    },
+  ];
   const debugOptions = {search: true};
   overlay.render(
     {},
@@ -162,7 +220,10 @@ test("draws the runtime-reported failed leg in edit mode", () => {
 
   const calls = [];
   overlay._drawRouteFailure = (_camera, failure) => calls.push(failure);
-  const failure = {segment_start: [10, 20], segment_goal: [30, 40]};
+  const failure = {
+    segment_start: [10, 20],
+    segment_goal: [30, 40],
+  };
   overlay.render({}, {mode: "edit", points: [], editPreview: {failure}});
 
   assert.deepEqual(calls, [failure]);
@@ -187,7 +248,9 @@ test("prefers the closest runtime gap over the whole failed leg", () => {
     fill() {},
   };
   overlay._drawCaption = () => {};
-  const camera = {worldToCanvas: (x, y) => [x, y]};
+  const camera = {
+    worldToCanvas: (x, y) => [x, y],
+  };
 
   overlay._drawRouteFailure(camera, {
     segment_start: [10, 20],
@@ -224,7 +287,10 @@ test("draws a live test path in edit mode without a planned preview", () => {
 
   const calls = [];
   overlay._drawLivePath = (_camera, livePath) => calls.push(livePath);
-  const livePath = {points: [{x: 1, y: 2}], current: {x: 1, y: 2}};
+  const livePath = {
+    points: [{x: 1, y: 2}],
+    current: {x: 1, y: 2},
+  };
   overlay.render({}, {mode: "edit", points: [], livePath});
 
   assert.deepEqual(calls, [livePath]);

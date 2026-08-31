@@ -74,10 +74,13 @@ export class Overlay {
    *   @param {?Object} [vm.editPreview] runtime preview for the current edit segment
    *   @param {?{x:number,y:number,label:string,selected:boolean}} [vm.editPreviewStart] manual EDIT planning start
    *   @param {?{start:Object,goal:?Object}} [vm.quickRouteTest] temporary quick-test endpoints
+   *   @param {Array<Object>} [vm.mapZiplines] current installation's recorded zipline towers
    *   @param {?number[]} [vm.assertTarget] `[x,y,w,h]` display-frame, or null
    *   @param {?{x:number,y:number,label:string,rot:?number}} [vm.editLocateHint] EDIT reference marker
    *   @param {?{x:number,y:number,label:string,rot:?number}} [vm.assertLocateHint] game locate marker
    *   @param {Object} [vm.logAnalysis] parsed MapNavigator log geometry
+   *   @param {?Object} [vm.pointInspection] shared EDIT / LOG point highlight
+   *   @param {?Object} [vm.ziplineMeasurement] shared EDIT / LOG A/B tower ruler
    *   @param {Array<Object>} [vm.offMeshMarks] points off the walkable mesh — see
    *     {@link Overlay#_drawOffMeshMarks} (drawn in every mode)
    *   @param {?Object} [vm.selectionRect] `{x0,y0,x1,y1}` canvas-px drag box, or null
@@ -89,6 +92,8 @@ export class Overlay {
     ctx.clearRect(0, 0, this.cssW, this.cssH);
 
     const mode = vm.mode || "edit";
+
+    if (mode === "edit") this._drawMapZiplines(camera, vm.mapZiplines || []);
 
     // Real route points in every mode (the caller decides which ones are in frame);
     // mode-specific artifacts are layered on top so they stay readable over a route.
@@ -122,12 +127,21 @@ export class Overlay {
     if (mode === "log" && vm.logAnalysis) {
       this._drawLogAnalysis(camera, vm.logAnalysis);
     }
+    if (mode !== "assert") {
+      this._drawPointInspection(camera, vm.pointInspection);
+      this._drawZiplineMeasurement(camera, vm.ziplineMeasurement);
+    }
     // Topmost: a point sitting off the walkable mesh is the one thing that must never be
     // hidden under a route line.
     this._drawOffMeshMarks(camera, vm.offMeshMarks || []);
     if (vm.selectionRect) {
       this._drawSelectionRect(vm.selectionRect);
     }
+  }
+
+  /** Draw recorded towers as a quiet background layer beneath authored and planned paths. */
+  _drawMapZiplines(camera, towers) {
+    for (const tower of towers) this._drawRecordedZiplineTower(camera, tower);
   }
 
   /**
@@ -350,8 +364,6 @@ export class Overlay {
         this._drawSelectedZiplineTower(camera, tower);
       }
     }
-    this._drawLogInspection(camera, log.inspection);
-    this._drawLogMeasurement(camera, log.measurement);
   }
 
   /** Pale background candidate from ZIP record/Ziplines.json. */
@@ -408,8 +420,8 @@ export class Overlay {
     this._drawLogCaption(cx, cy - 17, tower.label || "滑索架", color);
   }
 
-  /** Highlight the point selected by the default log inspection tool. */
-  _drawLogInspection(camera, inspection) {
+  /** Highlight the point selected by the shared EDIT / LOG inspection interaction. */
+  _drawPointInspection(camera, inspection) {
     if (!inspection || !Array.isArray(inspection.point)) return;
     const [cx, cy] = camera.worldToCanvas(inspection.point[0], inspection.point[1]);
     const color = inspection.color || "#22d3ee";
@@ -444,7 +456,7 @@ export class Overlay {
   }
 
   /** A/B analysis ruler. It is dashed so it cannot be mistaken for a planned or ridden leg. */
-  _drawLogMeasurement(camera, measurement) {
+  _drawZiplineMeasurement(camera, measurement) {
     const towers = measurement && Array.isArray(measurement.towers) ? measurement.towers : [];
     if (!towers.length) return;
     const result = measurement.result || null;
