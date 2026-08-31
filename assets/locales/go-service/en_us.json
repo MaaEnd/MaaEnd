@@ -219,5 +219,8 @@
     "ims.add_item_found": "Gained %s ×%d",
     "ims.expression_ok": "expression matched: %s",
     "ims.expression_short": "expression not matched: %s",
-    "ims.item_current": "Current %s: %d"
+    "ims.item_current": "Current %s: %d",
+    "stashbackpack.warning.duplicate_full": "<span style=\"color: red; font-weight: bold;\">Stash Backpack has already completed in this task queue. This duplicate run was skipped to preserve the snapshots required by later tasks.</span>",
+    "stashbackpack.warning.missing_full_snapshot": "<span style=\"color: red; font-weight: bold;\">No preceding Stash Backpack task was detected, so newly acquired items cannot be determined and stashing was skipped. Add Stash Backpack to the beginning of the task queue.</span>",
+    "stashbackpack.warning.unsupported_platform": "<span style=\"color: red; font-weight: bold;\">Stashing newly acquired items is not supported on the current platform and was skipped. The current task will continue.</span>"
 }

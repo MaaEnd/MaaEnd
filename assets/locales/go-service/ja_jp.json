@@ -218,5 +218,8 @@
     "ims.add_item_found": "%s を獲得 ×%d",
     "ims.expression_ok": "式が成立：%s",
     "ims.expression_short": "式が不成立：%s",
-    "ims.item_current": "現在 %s：%d"
+    "ims.item_current": "現在 %s：%d",
+    "stashbackpack.warning.duplicate_full": "<span style=\"color: red; font-weight: bold;\">同じタスクキューですでに「バックパック収納」が完了しています。後続タスクに必要なスナップショットを保持するため、重複実行をスキップしました。</span>",
+    "stashbackpack.warning.missing_full_snapshot": "<span style=\"color: red; font-weight: bold;\">前提となる「バックパック収納」タスクが検出されなかったため、新しく獲得したアイテムを判定できず、収納をスキップしました。「バックパック収納」をタスクキューの先頭に追加してください。</span>",
+    "stashbackpack.warning.unsupported_platform": "<span style=\"color: red; font-weight: bold;\">現在のプラットフォームでは「新しく獲得したアイテムを収納」は未対応のため、自動的にスキップしました。現在のタスクはそのまま続行します。</span>"
 }

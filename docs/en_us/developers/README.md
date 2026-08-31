@@ -99,6 +99,7 @@ Only required when maintaining the corresponding task.
 | [EnvironmentMonitoring](./tasks/environment-monitoring-maintain.md) | Observation point route data, `pipeline-generate` automatic generation and new point integration process |
 | [OutpostTrading](./tasks/outpost-trading-maintain.md) | Main flow, zmdmap compact game data sync, automatic operators, and dynamic selling-loop maintenance |
 | [GiftOperator](./tasks/gift-operator-maintain.md) | Navigation pathfinding, contact operator selection, gift giving/receiving branches, and operator extension maintenance |
+| [StashBackpack](./tasks/stash-backpack-maintain.md) | Snapshot lifecycle, embedded stashing, paged search, and category extension maintenance |
 
 ### Third-Party Protocol Documents (`protocol/`)
 

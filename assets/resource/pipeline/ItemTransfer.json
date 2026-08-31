@@ -196,11 +196,15 @@
     },
     "ItemTransferStashBackpackMain": {
         "desc": "保留整理背包功能，不复用通用整理背包传送兜底",
+        "recognition": "And",
+        "all_of": [
+            "InDijiangDepot"
+        ],
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "StashBackpackEnterSuccess"
+            "StashBackpackStashQuickSubTask"
         ]
     },
     "ItemTransferRepoSwitchButton": {

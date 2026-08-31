@@ -219,5 +219,8 @@
     "ims.add_item_found": "获得 %s ×%d",
     "ims.expression_ok": "表达式成立：%s",
     "ims.expression_short": "表达式不成立：%s",
-    "ims.item_current": "当前 %s：%d"
+    "ims.item_current": "当前 %s：%d",
+    "stashbackpack.warning.duplicate_full": "<span style=\"color: red; font-weight: bold;\">同一任务队列中已经完成过“存放背包”，为避免覆盖后续任务所需的快照，已跳过本次重复任务。</span>",
+    "stashbackpack.warning.missing_full_snapshot": "<span style=\"color: red; font-weight: bold;\">没有检测到前置的“存放背包”任务，无法判断哪些物品是本次新获得的，已跳过存放。请将“存放背包”添加到任务队列开头。</span>",
+    "stashbackpack.warning.unsupported_platform": "<span style=\"color: red; font-weight: bold;\">当前平台暂不支持“存放新获得物品”，已自动跳过，不影响当前任务继续执行。</span>"
 }

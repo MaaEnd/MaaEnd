@@ -1,0 +1,201 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Stash Backpack Component Schema",
+    "description": "Parameter definitions for StashBackpack state and queue components.",
+    "$defs": {
+        "Category": {
+            "type": "string",
+            "enum": [
+                "Ore",
+                "Plant",
+                "Product",
+                "Doodad",
+                "Nurturance",
+                "Usable",
+                "Producer",
+                "PortableDevice"
+            ]
+        },
+        "Depot": {
+            "type": "string",
+            "enum": [
+                "ValleyIV",
+                "Wuling"
+            ]
+        },
+        "NodeNames": {
+            "type": "array",
+            "items": {
+                "type": "string",
+                "minLength": 1
+            },
+            "minItems": 1,
+            "uniqueItems": true
+        },
+        "StateActionParam": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "operation"
+            ],
+            "properties": {
+                "operation": {
+                    "type": "string",
+                    "enum": [
+                        "reset",
+                        "begin_snapshot",
+                        "append_snapshot_page",
+                        "complete_full",
+                        "prepare_snapshot",
+                        "prepare_difference",
+                        "prepare_restore",
+                        "advance_restore_page",
+                        "consume_target",
+                        "set_depot"
+                    ]
+                },
+                "snapshot": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "minuend_snapshot": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "subtrahend_snapshot": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "categories": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/$defs/Category"
+                    },
+                    "uniqueItems": true
+                },
+                "reason": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "depot": {
+                    "$ref": "#/$defs/Depot"
+                }
+            },
+            "allOf": [
+                {
+                    "if": {
+                        "properties": {
+                            "operation": {
+                                "enum": [
+                                    "begin_snapshot",
+                                    "append_snapshot_page",
+                                    "prepare_snapshot",
+                                    "prepare_restore"
+                                ]
+                            }
+                        }
+                    },
+                    "then": {
+                        "required": [
+                            "snapshot"
+                        ]
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "operation": {
+                                "const": "prepare_difference"
+                            }
+                        }
+                    },
+                    "then": {
+                        "required": [
+                            "minuend_snapshot",
+                            "subtrahend_snapshot"
+                        ]
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "operation": {
+                                "const": "set_depot"
+                            }
+                        }
+                    },
+                    "then": {
+                        "required": [
+                            "depot"
+                        ]
+                    }
+                }
+            ]
+        },
+        "NextItemParam": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "bag_nodes": {
+                    "$ref": "#/$defs/NodeNames"
+                },
+                "repo_nodes": {
+                    "$ref": "#/$defs/NodeNames"
+                }
+            },
+            "anyOf": [
+                {
+                    "required": [
+                        "bag_nodes"
+                    ]
+                },
+                {
+                    "required": [
+                        "repo_nodes"
+                    ]
+                }
+            ]
+        },
+        "TargetCategoryParam": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "category"
+            ],
+            "properties": {
+                "category": {
+                    "$ref": "#/$defs/Category"
+                }
+            }
+        },
+        "DepotRecognitionParam": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "depot"
+            ],
+            "properties": {
+                "depot": {
+                    "$ref": "#/$defs/Depot"
+                }
+            }
+        },
+        "WarningActionParam": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "reason"
+            ],
+            "properties": {
+                "reason": {
+                    "type": "string",
+                    "enum": [
+                        "duplicate_full",
+                        "missing_full_snapshot",
+                        "unsupported_platform"
+                    ]
+                }
+            }
+        }
+    }
+}
