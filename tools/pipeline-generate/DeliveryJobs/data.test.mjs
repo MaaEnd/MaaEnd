@@ -904,6 +904,7 @@ test("AutoDelivery ensures the delivery mission detail before branching", () => 
     const pickup = readGeneratedPipeline("AutoDelivery", "Pickup.json");
     const delivery = readGeneratedPipeline("AutoDelivery", "Delivery.json");
     const sceneMenu = readGeneratedPipeline("SceneManager", "SceneMenu.json");
+    const missionScene = readGeneratedPipeline("Interface", "InScene", "Mission.json");
 
     const pipeline = {
         ...common,
@@ -1130,7 +1131,7 @@ test("AutoDelivery ensures the delivery mission detail before branching", () => 
         "배송 임무",
     ]);
     assert.deepEqual(common.AutoDeliverySelectDeliveryMission.all_of, [
-        "AutoDeliveryInMissionMenu",
+        "InMenuMission",
         "AutoDeliveryCheckDeliveryMissionListItem",
     ]);
     assert.equal(common.AutoDeliverySelectDeliveryMission.action, "Click");
@@ -1139,7 +1140,7 @@ test("AutoDelivery ensures the delivery mission detail before branching", () => 
     ]);
     assert.equal(common.AutoDeliveryScrollMissionList.max_hit, 3);
     assert.deepEqual(common.AutoDeliveryScrollMissionList.all_of, [
-        "AutoDeliveryInMissionMenu",
+        "InMenuMission",
     ]);
     assert.equal(common.AutoDeliveryScrollMissionList.action, "Swipe");
     assert.deepEqual(
@@ -1157,12 +1158,12 @@ test("AutoDelivery ensures the delivery mission detail before branching", () => 
         ],
     );
     assert.deepEqual(common.AutoDeliveryDeliveryMissionNotFound.all_of, [
-        "AutoDeliveryInMissionMenu",
+        "InMenuMission",
     ]);
     assert.equal(common.AutoDeliveryDeliveryMissionNotFound.custom_action, "FalseAction");
     assert.equal(common.AutoDeliveryCheckDeliveryMissionSelected.next, undefined);
     assert.deepEqual(common.AutoDeliveryInDeliveryMissionDetail.all_of, [
-        "AutoDeliveryInMissionMenu",
+        "InMenuMission",
         "AutoDeliveryCheckDeliveryMissionSelected",
     ]);
     assert.deepEqual(
@@ -1198,7 +1199,6 @@ test("AutoDelivery ensures the delivery mission detail before branching", () => 
         "AutoDeliveryDeliveryMissionNotFound",
         "AutoDeliveryEnsureDeliveryMissionSelected",
         "AutoDeliveryInDeliveryMissionDetail",
-        "AutoDeliveryInMissionMenu",
         "AutoDeliveryOpenDeliveryMission",
         "AutoDeliveryScrollMissionList",
         "AutoDeliverySelectDeliveryMission",
@@ -1207,6 +1207,26 @@ test("AutoDelivery ensures the delivery mission detail before branching", () => 
         assert.ok(common[node], `${node} should be defined in Common.json`);
         assert.equal(pickup[node], undefined, `${node} should not be defined in Pickup.json`);
     }
+    assert.equal(common.AutoDeliveryInMissionMenu, undefined);
+    assert.deepEqual(
+        missionScene.InMenuMission.recognition.param.roi,
+        [
+            0,
+            0,
+            150,
+            70,
+        ],
+    );
+    assert.deepEqual(missionScene.InMenuMission.recognition.param.expected, [
+        "任务",
+        "任務",
+        "(?i)Missions",
+        "任務",
+        "임무",
+    ]);
+    assert.deepEqual(sceneMenu.__ScenePrivateAnyEnterMenuMissionSuccess.all_of, [
+        "InMenuMission",
+    ]);
     assert.equal(sceneMenu.__ScenePrivateMenuListScrollToMission.max_hit, 3);
     assert.equal(sceneMenu.__ScenePrivateWorldEnterMenuMission.action.param.custom_action, "ClearHitCount");
     assert.deepEqual(sceneMenu.__ScenePrivateWorldEnterMenuMission.action.param.custom_action_param, {

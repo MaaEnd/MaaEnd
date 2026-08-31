@@ -247,24 +247,10 @@
     },
     "__ScenePrivateAnyEnterMenuMissionSuccess": {
         "desc": "成功进入任务界面",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    0,
-                    0,
-                    150,
-                    70
-                ],
-                "expected": [
-                    "任务",
-                    "任務",
-                    "(?i)Missions",
-                    "任務",
-                    "임무"
-                ]
-            }
-        },
+        "recognition": "And",
+        "all_of": [
+            "InMenuMission"
+        ],
         "pre_wait_freezes": {
             "time": 100,
             "target": [

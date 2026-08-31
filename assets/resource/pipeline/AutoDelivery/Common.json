@@ -135,7 +135,7 @@
         "desc": "任务列表滑动三次后仍未找到送货任务，返回失败以阻止后续操作",
         "recognition": "And",
         "all_of": [
-            "AutoDeliveryInMissionMenu"
+            "InMenuMission"
         ],
         "box_index": 0,
         "pre_delay": 0,
@@ -164,28 +164,10 @@
         "desc": "确认当前位于任务界面，且右侧详情选中了送货任务",
         "recognition": "And",
         "all_of": [
-            "AutoDeliveryInMissionMenu",
+            "InMenuMission",
             "AutoDeliveryCheckDeliveryMissionSelected"
         ],
         "box_index": 1
-    },
-    "AutoDeliveryInMissionMenu": {
-        "desc": "确认当前位于任务界面",
-        "recognition": "OCR",
-        "roi": [
-            0,
-            0,
-            150,
-            70
-        ],
-        "expected": [
-            "任务",
-            "任務",
-            "(?i)Missions",
-            "任務",
-            "임무"
-        ],
-        "order_by": "Expected"
     },
     "AutoDeliveryInTaskDestinationMap": {
         "desc": "识别已打开的送货任务目标地图",
@@ -219,7 +201,7 @@
         "max_hit": 3,
         "recognition": "And",
         "all_of": [
-            "AutoDeliveryInMissionMenu"
+            "InMenuMission"
         ],
         "box_index": 0,
         "pre_delay": 0,
@@ -250,7 +232,7 @@
         "desc": "点击任务列表中的送货任务",
         "recognition": "And",
         "all_of": [
-            "AutoDeliveryInMissionMenu",
+            "InMenuMission",
             "AutoDeliveryCheckDeliveryMissionListItem"
         ],
         "box_index": 1,
