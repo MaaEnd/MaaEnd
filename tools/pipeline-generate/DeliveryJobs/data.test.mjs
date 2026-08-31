@@ -861,10 +861,53 @@ test("DeliveryJobs and SeizeDeliveryJobs compose AutoDelivery through continuati
     ]);
     assert.deepEqual(seize.SeizeDeliveryJobsTeleportAndWalk.anchor, {
         AutoDeliveryAfterRecognizeDestination: "SeizeDeliveryJobsDeliveryCannotTeleport",
-        AutoDeliveryAfterNavigateDepot: "SeizeDeliveryJobsSuccessWalkDone",
+        AutoDeliveryAfterNavigateDepot: "SeizeDeliveryJobsRestoreTrackingAfterWalk",
     });
     assert.deepEqual(seize.SeizeDeliveryJobsTeleportAndWalk.next, [
         "AutoDelivery",
+    ]);
+    assert.equal(seize.SeizeDeliveryJobsRestoreTrackingAfterWalk.custom_action, "SubTask");
+    assert.deepEqual(seize.SeizeDeliveryJobsRestoreTrackingAfterWalk.custom_action_param, {
+        sub: [
+            "AutoDeliveryEnsureDeliveryMissionSelected",
+        ],
+        continue: false,
+        strict: true,
+    });
+    assert.deepEqual(seize.SeizeDeliveryJobsRestoreTrackingAfterWalk.next, [
+        "SeizeDeliveryJobsCheckDeliveryMissionTrackedAfterWalk",
+        "SeizeDeliveryJobsStartTrackingAfterWalk",
+    ]);
+    assert.deepEqual(seize.SeizeDeliveryJobsCheckDeliveryMissionTrackedAfterWalk.all_of, [
+        "AutoDeliveryInDeliveryMissionDetail",
+        "AutoDeliveryCheckCancelCurrentJobTrackingButton",
+    ]);
+    assert.deepEqual(seize.SeizeDeliveryJobsCheckDeliveryMissionTrackedAfterWalk.next, [
+        "SeizeDeliveryJobsReturnWorldAfterTracking",
+    ]);
+    assert.deepEqual(seize.SeizeDeliveryJobsStartTrackingAfterWalk.all_of, [
+        "AutoDeliveryInDeliveryMissionDetail",
+        "AutoDeliveryCheckStartTrackingButton",
+    ]);
+    assert.equal(seize.SeizeDeliveryJobsStartTrackingAfterWalk.action, "Click");
+    assert.deepEqual(seize.SeizeDeliveryJobsStartTrackingAfterWalk.next, [
+        "SeizeDeliveryJobsInDestinationMapAfterTracking",
+    ]);
+    assert.deepEqual(seize.SeizeDeliveryJobsInDestinationMapAfterTracking.all_of, [
+        "AutoDeliveryInTaskDestinationMap",
+    ]);
+    assert.deepEqual(seize.SeizeDeliveryJobsInDestinationMapAfterTracking.next, [
+        "SeizeDeliveryJobsReturnWorldAfterTracking",
+    ]);
+    assert.deepEqual(seize.SeizeDeliveryJobsReturnWorldAfterTracking.custom_action_param, {
+        sub: [
+            "SceneAnyEnterWorld",
+        ],
+        continue: false,
+        strict: true,
+    });
+    assert.deepEqual(seize.SeizeDeliveryJobsReturnWorldAfterTracking.next, [
+        "SeizeDeliveryJobsSuccessWalkDone",
     ]);
     assert.deepEqual(seize.SeizeDeliveryJobsFullDelivery.anchor, {
         AutoDeliveryAfterSubmitGoods: "SeizeDeliveryJobsMain",

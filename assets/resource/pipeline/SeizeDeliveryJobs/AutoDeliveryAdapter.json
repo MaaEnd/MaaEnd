@@ -33,7 +33,7 @@
         "action": "DoNothing",
         "anchor": {
             "AutoDeliveryAfterRecognizeDestination": "SeizeDeliveryJobsDeliveryCannotTeleport",
-            "AutoDeliveryAfterNavigateDepot": "SeizeDeliveryJobsSuccessWalkDone"
+            "AutoDeliveryAfterNavigateDepot": "SeizeDeliveryJobsRestoreTrackingAfterWalk"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -64,6 +64,91 @@
         "rate_limit": 0,
         "focus": {
             "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.deliveryCannotTeleport"
+        }
+    },
+    "SeizeDeliveryJobsCheckDeliveryMissionTrackedAfterWalk": {
+        "desc": "确认到达仓储节点后送货任务已经处于追踪状态",
+        "recognition": "And",
+        "all_of": [
+            "AutoDeliveryInDeliveryMissionDetail",
+            "AutoDeliveryCheckCancelCurrentJobTrackingButton"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SeizeDeliveryJobsReturnWorldAfterTracking"
+        ]
+    },
+    "SeizeDeliveryJobsInDestinationMapAfterTracking": {
+        "desc": "确认到达仓储节点后重新追踪任务已打开目的地地图",
+        "recognition": "And",
+        "all_of": [
+            "AutoDeliveryInTaskDestinationMap"
+        ],
+        "box_index": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SeizeDeliveryJobsReturnWorldAfterTracking"
+        ]
+    },
+    "SeizeDeliveryJobsRestoreTrackingAfterWalk": {
+        "desc": "到达仓储节点后重新进入送货任务详情并恢复追踪",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoDeliveryEnsureDeliveryMissionSelected"
+            ],
+            "continue": false,
+            "strict": true
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SeizeDeliveryJobsCheckDeliveryMissionTrackedAfterWalk",
+            "SeizeDeliveryJobsStartTrackingAfterWalk"
+        ]
+    },
+    "SeizeDeliveryJobsReturnWorldAfterTracking": {
+        "desc": "确认送货任务已经追踪后返回仓储节点所在的大世界",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ],
+            "continue": false,
+            "strict": true
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SeizeDeliveryJobsSuccessWalkDone"
+        ]
+    },
+    "SeizeDeliveryJobsStartTrackingAfterWalk": {
+        "desc": "到达仓储节点后点击开始追踪送货任务",
+        "recognition": "And",
+        "all_of": [
+            "AutoDeliveryInDeliveryMissionDetail",
+            "AutoDeliveryCheckStartTrackingButton"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 500,
+        "next": [
+            "SeizeDeliveryJobsInDestinationMapAfterTracking"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoDelivery.focus.start_tracking"
         }
     },
     "SeizeDeliveryJobsSuccessTeleportDone": {
