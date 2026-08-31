@@ -18,7 +18,7 @@
         "desc": "开始追踪${AreaName}资源回收站任务并打开任务目标地图",
         "recognition": "And",
         "all_of": [
-            "AutoDeliveryStartTrackingButton"
+            "AutoDeliveryCheckStartTrackingButton"
         ],
         "box_index": 0,
         "pre_delay": 0,
@@ -34,7 +34,7 @@
         "recognition": "And",
         "all_of": [
             "CloseButtonType1",
-            "AutoDeliveryTaskDestinationMap"
+            "AutoDeliveryInTaskDestinationMap"
         ],
         "box_index": 0,
         "action": "Click",

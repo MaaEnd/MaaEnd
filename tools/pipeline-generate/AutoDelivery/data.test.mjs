@@ -369,7 +369,7 @@ test("AutoDelivery 任务目标地图识别由公共节点复用", () => {
             "utf8",
         ),
     );
-    const recognitionNode = "AutoDeliveryTaskDestinationMap";
+    const recognitionNode = "AutoDeliveryInTaskDestinationMap";
 
     assert.deepEqual(commonPipeline[recognitionNode], {
         desc: "识别已打开的送货任务目标地图",
@@ -402,6 +402,39 @@ test("AutoDelivery 任务目标地图识别由公共节点复用", () => {
         areaPipeline,
     ]).match(/AutoDelivery\/TrackTaskSuccess\.png/g);
     assert.equal(templateOccurrences?.length, 1);
+});
+
+test("AutoDelivery 纯识别节点统一使用 Check 或 In 命名", () => {
+    const pipeline = Object.assign(
+        {},
+        ...[
+            "Common.json",
+            "Pickup.json",
+            "Delivery.json",
+        ].map((file) =>
+            parseJsonc(
+                readFileSync(
+                    new URL(`../../../assets/resource/pipeline/AutoDelivery/${file}`, import.meta.url),
+                    "utf8",
+                ),
+            ),
+        ),
+    );
+    const invalidNames = Object.entries(pipeline)
+        .filter(
+            ([
+                name,
+                node,
+            ]) =>
+                name !== "AutoDelivery" &&
+                node.recognition &&
+                node.recognition !== "DirectHit" &&
+                !node.action &&
+                !/^AutoDelivery(?:Check|In)/.test(name),
+        )
+        .map(([name]) => name);
+
+    assert.deepEqual(invalidNames, []);
 });
 
 test("AutoDelivery 仅合并同一地图同一区域的多个资源回收站", () => {

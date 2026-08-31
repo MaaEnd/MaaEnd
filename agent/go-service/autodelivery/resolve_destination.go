@@ -14,8 +14,8 @@ const (
 	navigateDestinationNode      = "AutoDeliveryNavigateDestination"
 	retryNavigateDestinationNode = "AutoDeliveryRetryNavigateDestination"
 	afterResolveDestinationNode  = "AutoDeliveryAfterResolveDestination"
-	areaOCRNode                  = "AutoDeliveryAreaOCR"
-	destinationOCRNode           = "AutoDeliveryDestinationOCR"
+	areaTextNode                 = "AutoDeliveryCheckAreaText"
+	destinationTextNode          = "AutoDeliveryCheckDestinationText"
 )
 
 // AutoDeliveryResolveDestinationAction 根据 Pipeline OCR 文本或已确认的终点 ID 选择对应的生成路线节点。
@@ -191,6 +191,6 @@ func buildRecycleBinResolutionOverride(areaID string) map[string]any {
 func defaultDestinationFlow() []string {
 	return []string{
 		"AutoDeliveryCancelCurrentJobTracking",
-		"AutoDeliveryCurrentJobTrackingAlreadyOff",
+		"AutoDeliveryCheckCurrentJobTrackingAlreadyOff",
 	}
 }

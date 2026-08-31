@@ -37,7 +37,7 @@ func (a *AutoDeliveryResolveDepotAction) Run(ctx *maa.Context, arg *maa.CustomAc
 		return false
 	}
 
-	areaDetail := findRecognitionDetail(arg.RecognitionDetail, areaOCRNode)
+	areaDetail := findRecognitionDetail(arg.RecognitionDetail, areaTextNode)
 	if areaDetail == nil {
 		log.Error().
 			Str("component", resolveDepotActionName).

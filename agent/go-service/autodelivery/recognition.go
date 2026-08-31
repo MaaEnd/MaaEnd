@@ -8,8 +8,8 @@ import (
 )
 
 func destinationOCRFields(detail *maa.RecognitionDetail) (areaText, destinationText string, ok bool) {
-	areaDetail := findRecognitionDetail(detail, areaOCRNode)
-	destinationDetail := findRecognitionDetail(detail, destinationOCRNode)
+	areaDetail := findRecognitionDetail(detail, areaTextNode)
+	destinationDetail := findRecognitionDetail(detail, destinationTextNode)
 	if areaDetail == nil || destinationDetail == nil {
 		return "", "", false
 	}

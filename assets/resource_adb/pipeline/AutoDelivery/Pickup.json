@@ -1,5 +1,5 @@
 {
-    "AutoDeliveryDeliveryMissionListItem": {
+    "AutoDeliveryCheckDeliveryMissionListItem": {
         "roi": [
             105,
             85,
@@ -18,7 +18,7 @@
             ]
         }
     },
-    "AutoDeliveryDeliveryMissionSelected": {
+    "AutoDeliveryCheckDeliveryMissionSelected": {
         "roi": [
             570,
             70,

@@ -13,7 +13,7 @@
         "desc": "在任务详情页面点击定位按钮，打开任务目标地图",
         "recognition": "And",
         "all_of": [
-            "AutoDeliveryCurrentDeliveryMissionDetail",
+            "AutoDeliveryInDeliveryMissionDetail",
             "TrackedMissionMapButton"
         ],
         "box_index": 1,
@@ -32,8 +32,8 @@
         "desc": "在任务详情页面点击开始追踪任务按钮",
         "recognition": "And",
         "all_of": [
-            "AutoDeliveryCurrentDeliveryMissionDetail",
-            "AutoDeliveryStartTrackingButton"
+            "AutoDeliveryInDeliveryMissionDetail",
+            "AutoDeliveryCheckStartTrackingButton"
         ],
         "box_index": 1,
         "pre_delay": 0,
@@ -51,7 +51,7 @@
         "desc": "确认已打开任务目标地图",
         "recognition": "And",
         "all_of": [
-            "AutoDeliveryTaskDestinationMap"
+            "AutoDeliveryInTaskDestinationMap"
         ],
         "pre_delay": 0,
         "post_delay": 0,
@@ -108,14 +108,14 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoDeliveryQuickTeleportDone",
+            "AutoDeliveryInWorldAfterQuickTeleport",
             "[JumpBack]SceneAnyEnterWorld"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoDelivery.focus.quick_teleport"
         }
     },
-    "AutoDeliveryQuickTeleportDone": {
+    "AutoDeliveryInWorldAfterQuickTeleport": {
         "desc": "确认快速传送后已返回大世界",
         "recognition": "And",
         "all_of": [
@@ -148,15 +148,15 @@
         "rate_limit": 0,
         "next": [
             "AutoDeliveryCancelTrackingBeforeNavigateDepot",
-            "AutoDeliveryTrackingAlreadyOffBeforeNavigateDepot"
+            "AutoDeliveryCheckTrackingAlreadyOffBeforeNavigateDepot"
         ]
     },
     "AutoDeliveryCancelTrackingBeforeNavigateDepot": {
         "desc": "在任务界面取消当前送货任务追踪，避免追踪图标干扰仓储寻路",
         "recognition": "And",
         "all_of": [
-            "AutoDeliveryCurrentDeliveryMissionDetail",
-            "AutoDeliveryCancelCurrentJobTrackingButton"
+            "AutoDeliveryInDeliveryMissionDetail",
+            "AutoDeliveryCheckCancelCurrentJobTrackingButton"
         ],
         "box_index": 1,
         "pre_delay": 0,
@@ -164,15 +164,15 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoDeliveryTrackingGoneBeforeNavigateDepot"
+            "AutoDeliveryCheckTrackingGoneBeforeNavigateDepot"
         ]
     },
-    "AutoDeliveryTrackingAlreadyOffBeforeNavigateDepot": {
+    "AutoDeliveryCheckTrackingAlreadyOffBeforeNavigateDepot": {
         "desc": "确认前往仓储节点前当前任务已经未追踪",
         "recognition": "And",
         "all_of": [
-            "AutoDeliveryCurrentDeliveryMissionDetail",
-            "AutoDeliveryStartTrackingButton"
+            "AutoDeliveryInDeliveryMissionDetail",
+            "AutoDeliveryCheckStartTrackingButton"
         ],
         "box_index": 1,
         "pre_delay": 0,
@@ -182,12 +182,12 @@
             "AutoDeliveryReturnWorldAndNavigateDepot"
         ]
     },
-    "AutoDeliveryTrackingGoneBeforeNavigateDepot": {
+    "AutoDeliveryCheckTrackingGoneBeforeNavigateDepot": {
         "desc": "在送货任务详情中确认前往仓储节点前开始追踪按钮已经出现",
         "recognition": "And",
         "all_of": [
-            "AutoDeliveryCurrentDeliveryMissionDetail",
-            "AutoDeliveryStartTrackingButton"
+            "AutoDeliveryInDeliveryMissionDetail",
+            "AutoDeliveryCheckStartTrackingButton"
         ],
         "box_index": 1,
         "pre_delay": 0,
@@ -254,7 +254,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoDeliveryFetchGoodsButtonWaitFreezes",
+            "AutoDeliveryCheckFetchGoodsButton",
             "AutoDeliverySearchFetchGoodsButton"
         ]
     },
@@ -266,19 +266,19 @@
         "custom_action": "CharacterSearchAction",
         "custom_action_param": {
             "wait_nodes": [
-                "AutoDeliveryFetchGoodsButtonWaitFreezes"
+                "AutoDeliveryCheckFetchGoodsButton"
             ]
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoDeliveryFetchGoodsButtonWaitFreezes"
+            "AutoDeliveryCheckFetchGoodsButton"
         ],
         "on_error": [
             "AutoDeliveryRetryNavigateDepot"
         ]
     },
-    "AutoDeliveryFetchGoodsButtonWaitFreezes": {
+    "AutoDeliveryCheckFetchGoodsButton": {
         "desc": "在仓储节点前识别接取货物按钮，并等待交互按钮稳定",
         "recognition": "TemplateMatch",
         "roi": [
@@ -309,7 +309,7 @@
         "desc": "在仓储节点前重新识别接取货物按钮并取货",
         "recognition": "And",
         "all_of": [
-            "AutoDeliveryFetchGoodsButtonWaitFreezes"
+            "AutoDeliveryCheckFetchGoodsButton"
         ],
         "pre_delay": 0,
         "action": "Custom",
@@ -317,13 +317,13 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoDeliveryFetchGoodsDone"
+            "AutoDeliveryCheckCarryingGoods"
         ],
         "focus": {
             "Node.Action.Starting": "$task.AutoDelivery.focus.fetch_goods"
         }
     },
-    "AutoDeliveryFetchGoodsDone": {
+    "AutoDeliveryCheckCarryingGoods": {
         "desc": "确认已携带货物",
         "recognition": "TemplateMatch",
         "roi": [
@@ -360,7 +360,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoDeliveryFetchGoodsButtonWaitFreezes"
+            "AutoDeliveryCheckFetchGoodsButton"
         ]
     },
     "AutoDeliveryOpenMissionAfterFetchGoods": {
@@ -398,13 +398,13 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoDeliveryDeliveryMissionSelected",
+            "AutoDeliveryCheckDeliveryMissionSelected",
             "AutoDeliverySelectDeliveryMission",
             "[JumpBack]AutoDeliveryScrollMissionList",
             "AutoDeliveryDeliveryMissionNotFound"
         ]
     },
-    "AutoDeliveryDeliveryMissionSelected": {
+    "AutoDeliveryCheckDeliveryMissionSelected": {
         "desc": "确认右侧详情已经切换到送货任务",
         "recognition": "OCR",
         "roi": [
@@ -425,7 +425,7 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "AutoDeliveryDeliveryMissionListItem": {
+    "AutoDeliveryCheckDeliveryMissionListItem": {
         "desc": "在任务列表中识别送货任务",
         "recognition": "OCR",
         "roi": [
@@ -448,7 +448,7 @@
         "recognition": "And",
         "all_of": [
             "AutoDeliveryInMissionMenu",
-            "AutoDeliveryDeliveryMissionListItem"
+            "AutoDeliveryCheckDeliveryMissionListItem"
         ],
         "box_index": 1,
         "pre_delay": 0,
@@ -456,7 +456,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoDeliveryDeliveryMissionSelected"
+            "AutoDeliveryCheckDeliveryMissionSelected"
         ]
     },
     "AutoDeliveryInMissionMenu": {
@@ -477,12 +477,12 @@
         ],
         "order_by": "Expected"
     },
-    "AutoDeliveryCurrentDeliveryMissionDetail": {
+    "AutoDeliveryInDeliveryMissionDetail": {
         "desc": "确认当前位于任务界面，且右侧详情选中了送货任务",
         "recognition": "And",
         "all_of": [
             "AutoDeliveryInMissionMenu",
-            "AutoDeliveryDeliveryMissionSelected"
+            "AutoDeliveryCheckDeliveryMissionSelected"
         ],
         "box_index": 1
     },

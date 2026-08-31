@@ -273,8 +273,8 @@ func TestParseDestinationSelection(t *testing.T) {
 func TestFindDeliveryRecognitionDetailUsesAutoDeliveryNodes(t *testing.T) {
 	t.Parallel()
 
-	area := &maa.RecognitionDetail{Name: areaOCRNode}
-	destination := &maa.RecognitionDetail{Name: destinationOCRNode}
+	area := &maa.RecognitionDetail{Name: areaTextNode}
+	destination := &maa.RecognitionDetail{Name: destinationTextNode}
 	root := &maa.RecognitionDetail{
 		CombinedResult: []*maa.RecognitionDetail{
 			area,
@@ -284,10 +284,10 @@ func TestFindDeliveryRecognitionDetailUsesAutoDeliveryNodes(t *testing.T) {
 		},
 	}
 
-	if got := findRecognitionDetail(root, areaOCRNode); got != area {
+	if got := findRecognitionDetail(root, areaTextNode); got != area {
 		t.Fatalf("area detail mismatch: got %p want %p", got, area)
 	}
-	if got := findRecognitionDetail(root, destinationOCRNode); got != destination {
+	if got := findRecognitionDetail(root, destinationTextNode); got != destination {
 		t.Fatalf("destination detail mismatch: got %p want %p", got, destination)
 	}
 }

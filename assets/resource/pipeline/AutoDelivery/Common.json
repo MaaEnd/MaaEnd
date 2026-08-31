@@ -3,9 +3,9 @@
         "desc": "等待当前送货任务详情加载完成，并自动判断需要取货还是送货",
         "recognition": "And",
         "all_of": [
-            "AutoDeliveryCurrentDeliveryMissionDetail",
-            "AutoDeliveryAreaOCR",
-            "AutoDeliveryCurrentJobActionButton"
+            "AutoDeliveryInDeliveryMissionDetail",
+            "AutoDeliveryCheckAreaText",
+            "AutoDeliveryCheckCurrentJobActionButton"
         ],
         "box_index": 1,
         "pre_delay": 0,
@@ -23,9 +23,9 @@
         "desc": "从当前送货任务详情识别送货目标；同区重复资源回收站转入大地图判定，其余目标直接注入寻路参数",
         "recognition": "And",
         "all_of": [
-            "AutoDeliveryCurrentDeliveryMissionDetail",
-            "AutoDeliveryAreaOCR",
-            "AutoDeliveryDestinationField"
+            "AutoDeliveryInDeliveryMissionDetail",
+            "AutoDeliveryCheckAreaText",
+            "AutoDeliveryCheckDestinationField"
         ],
         "box_index": 2,
         "pre_wait_freezes": {
@@ -51,8 +51,8 @@
         "desc": "从当前送货任务详情识别仓储节点，并注入前往仓储节点的寻路参数",
         "recognition": "And",
         "all_of": [
-            "AutoDeliveryCurrentDeliveryMissionDetail",
-            "AutoDeliveryAreaOCR"
+            "AutoDeliveryInDeliveryMissionDetail",
+            "AutoDeliveryCheckAreaText"
         ],
         "box_index": 1,
         "pre_wait_freezes": {
@@ -73,7 +73,7 @@
             "AutoDeliveryQuickTeleport"
         ]
     },
-    "AutoDeliveryAreaOCR": {
+    "AutoDeliveryCheckAreaText": {
         "desc": "识别任务详情标题下方的当前区域；文本匹配和歧义判断交给 Go",
         "recognition": "OCR",
         "roi": [
@@ -85,15 +85,15 @@
         "only_rec": false,
         "order_by": "Horizontal"
     },
-    "AutoDeliveryCurrentJobActionButton": {
+    "AutoDeliveryCheckCurrentJobActionButton": {
         "desc": "确认当前送货任务详情已显示定位或开始追踪按钮",
         "recognition": "Or",
         "any_of": [
             "TrackedMissionMapButton",
-            "AutoDeliveryStartTrackingButton"
+            "AutoDeliveryCheckStartTrackingButton"
         ]
     },
-    "AutoDeliveryTaskDestinationMap": {
+    "AutoDeliveryInTaskDestinationMap": {
         "desc": "识别已打开的送货任务目标地图",
         "recognition": "TemplateMatch",
         "roi": [
@@ -104,7 +104,7 @@
         ],
         "template": "AutoDelivery/TrackTaskSuccess.png"
     },
-    "AutoDeliveryStartTrackingButton": {
+    "AutoDeliveryCheckStartTrackingButton": {
         "desc": "识别当前送货任务详情中的开始追踪按钮",
         "recognition": "TemplateMatch",
         "roi": [
@@ -119,16 +119,16 @@
         ],
         "order_by": "Score"
     },
-    "AutoDeliveryDestinationField": {
+    "AutoDeliveryCheckDestinationField": {
         "desc": "确认任务条件区域包含黄色文本，并保留送货目标 OCR 结果",
         "recognition": "And",
         "all_of": [
-            "AutoDeliveryDestinationYellow",
-            "AutoDeliveryDestinationOCR"
+            "AutoDeliveryCheckDestinationYellowText",
+            "AutoDeliveryCheckDestinationText"
         ],
         "box_index": 1
     },
-    "AutoDeliveryDestinationYellow": {
+    "AutoDeliveryCheckDestinationYellowText": {
         "desc": "确认任务条件区域存在黄色文本，避免把白色任务说明当作终点",
         "recognition": "ColorMatch",
         "roi": [
@@ -150,7 +150,7 @@
         ],
         "count": 20
     },
-    "AutoDeliveryDestinationOCR": {
+    "AutoDeliveryCheckDestinationText": {
         "desc": "识别第一条送货条件；多语言排版可能带入相邻条件，Go 会做子串容错匹配",
         "recognition": "OCR",
         "roi": [

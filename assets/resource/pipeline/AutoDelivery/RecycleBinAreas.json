@@ -18,7 +18,7 @@
         "desc": "开始追踪源石研究园资源回收站任务并打开任务目标地图",
         "recognition": "And",
         "all_of": [
-            "AutoDeliveryStartTrackingButton"
+            "AutoDeliveryCheckStartTrackingButton"
         ],
         "box_index": 0,
         "pre_delay": 0,
@@ -34,7 +34,7 @@
         "recognition": "And",
         "all_of": [
             "CloseButtonType1",
-            "AutoDeliveryTaskDestinationMap"
+            "AutoDeliveryInTaskDestinationMap"
         ],
         "box_index": 0,
         "pre_delay": 0,
@@ -66,7 +66,7 @@
         "desc": "开始追踪矿脉源区资源回收站任务并打开任务目标地图",
         "recognition": "And",
         "all_of": [
-            "AutoDeliveryStartTrackingButton"
+            "AutoDeliveryCheckStartTrackingButton"
         ],
         "box_index": 0,
         "pre_delay": 0,
@@ -82,7 +82,7 @@
         "recognition": "And",
         "all_of": [
             "CloseButtonType1",
-            "AutoDeliveryTaskDestinationMap"
+            "AutoDeliveryInTaskDestinationMap"
         ],
         "box_index": 0,
         "pre_delay": 0,
@@ -114,7 +114,7 @@
         "desc": "开始追踪供能高地资源回收站任务并打开任务目标地图",
         "recognition": "And",
         "all_of": [
-            "AutoDeliveryStartTrackingButton"
+            "AutoDeliveryCheckStartTrackingButton"
         ],
         "box_index": 0,
         "pre_delay": 0,
@@ -130,7 +130,7 @@
         "recognition": "And",
         "all_of": [
             "CloseButtonType1",
-            "AutoDeliveryTaskDestinationMap"
+            "AutoDeliveryInTaskDestinationMap"
         ],
         "box_index": 0,
         "pre_delay": 0,

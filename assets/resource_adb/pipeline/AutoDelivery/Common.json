@@ -1,5 +1,5 @@
 {
-    "AutoDeliveryAreaOCR": {
+    "AutoDeliveryCheckAreaText": {
         "roi": [
             615,
             111,
@@ -7,7 +7,7 @@
             40
         ]
     },
-    "AutoDeliveryDestinationYellow": {
+    "AutoDeliveryCheckDestinationYellowText": {
         "roi": [
             621,
             247,
@@ -15,7 +15,7 @@
             43
         ]
     },
-    "AutoDeliveryDestinationOCR": {
+    "AutoDeliveryCheckDestinationText": {
         "roi": [
             621,
             247,

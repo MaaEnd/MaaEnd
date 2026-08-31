@@ -8,10 +8,10 @@
         "rate_limit": 0,
         "next": [
             "AutoDeliveryCancelCurrentJobTracking",
-            "AutoDeliveryCurrentJobTrackingAlreadyOff"
+            "AutoDeliveryCheckCurrentJobTrackingAlreadyOff"
         ]
     },
-    "AutoDeliveryCancelCurrentJobTrackingButton": {
+    "AutoDeliveryCheckCancelCurrentJobTrackingButton": {
         "desc": "识别当前送货任务详情中的取消追踪按钮",
         "recognition": "TemplateMatch",
         "roi": [
@@ -30,8 +30,8 @@
         "desc": "送货前取消当前任务追踪，避免任务追踪图标干扰 MapNavigator 寻路",
         "recognition": "And",
         "all_of": [
-            "AutoDeliveryCurrentDeliveryMissionDetail",
-            "AutoDeliveryCancelCurrentJobTrackingButton"
+            "AutoDeliveryInDeliveryMissionDetail",
+            "AutoDeliveryCheckCancelCurrentJobTrackingButton"
         ],
         "box_index": 1,
         "pre_delay": 0,
@@ -39,15 +39,15 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoDeliveryCurrentJobTrackingGone"
+            "AutoDeliveryCheckCurrentJobTrackingGone"
         ]
     },
-    "AutoDeliveryCurrentJobTrackingAlreadyOff": {
+    "AutoDeliveryCheckCurrentJobTrackingAlreadyOff": {
         "desc": "确认当前任务已经未追踪",
         "recognition": "And",
         "all_of": [
-            "AutoDeliveryCurrentDeliveryMissionDetail",
-            "AutoDeliveryStartTrackingButton"
+            "AutoDeliveryInDeliveryMissionDetail",
+            "AutoDeliveryCheckStartTrackingButton"
         ],
         "box_index": 1,
         "pre_delay": 0,
@@ -57,12 +57,12 @@
             "AutoDeliveryReturnWorldAndNavigateDestination"
         ]
     },
-    "AutoDeliveryCurrentJobTrackingGone": {
+    "AutoDeliveryCheckCurrentJobTrackingGone": {
         "desc": "在送货任务详情中确认开始追踪按钮已经出现",
         "recognition": "And",
         "all_of": [
-            "AutoDeliveryCurrentDeliveryMissionDetail",
-            "AutoDeliveryStartTrackingButton"
+            "AutoDeliveryInDeliveryMissionDetail",
+            "AutoDeliveryCheckStartTrackingButton"
         ],
         "box_index": 1,
         "pre_delay": 0,
@@ -90,7 +90,7 @@
         "rate_limit": 0,
         "next": [
             "AutoDeliveryCancelCurrentJobTracking",
-            "AutoDeliveryCurrentJobTrackingAlreadyOff"
+            "AutoDeliveryCheckCurrentJobTrackingAlreadyOff"
         ]
     },
     "AutoDeliveryReturnWorldAndNavigateDestination": {
@@ -128,7 +128,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoDeliverySubmitGoodsWaitFreezes",
+            "AutoDeliveryCheckSubmitGoodsButton",
             "AutoDeliverySearchSubmitGoodsButton"
         ],
         "focus": {
@@ -152,13 +152,13 @@
         "custom_action": "CharacterSearchAction",
         "custom_action_param": {
             "wait_nodes": [
-                "AutoDeliverySubmitGoodsWaitFreezes"
+                "AutoDeliveryCheckSubmitGoodsButton"
             ]
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoDeliverySubmitGoodsWaitFreezes"
+            "AutoDeliveryCheckSubmitGoodsButton"
         ],
         "on_error": [
             "AutoDeliveryRetryNavigateDestination"
@@ -182,10 +182,10 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoDeliverySubmitGoodsWaitFreezes"
+            "AutoDeliveryCheckSubmitGoodsButton"
         ]
     },
-    "AutoDeliverySubmitGoodsWaitFreezes": {
+    "AutoDeliveryCheckSubmitGoodsButton": {
         "desc": "在送货目标附近识别交互按钮，并等待交互按钮稳定",
         "recognition": "TemplateMatch",
         "roi": [
@@ -220,7 +220,7 @@
         "desc": "在送货目标附近识别交互按钮并提交货物",
         "recognition": "And",
         "all_of": [
-            "AutoDeliverySubmitGoodsWaitFreezes"
+            "AutoDeliveryCheckSubmitGoodsButton"
         ],
         "pre_delay": 0,
         "action": "Custom",
@@ -235,7 +235,7 @@
             "Node.Action.Starting": "$task.AutoDelivery.focus.submit_goods"
         }
     },
-    "AutoDeliveryIsInChatDialog": {
+    "AutoDeliveryInChatDialog": {
         "recognition": "TemplateMatch",
         "roi": [
             20,
@@ -248,7 +248,7 @@
         "threshold": 0.6,
         "order_by": "Score"
     },
-    "AutoDeliveryIsSkipChatButton": {
+    "AutoDeliveryCheckSkipChatButton": {
         "recognition": "TemplateMatch",
         "roi": [
             1190,
@@ -265,8 +265,8 @@
         "desc": "送货交互进入对话时跳过对话",
         "recognition": "And",
         "all_of": [
-            "AutoDeliveryIsInChatDialog",
-            "AutoDeliveryIsSkipChatButton"
+            "AutoDeliveryInChatDialog",
+            "AutoDeliveryCheckSkipChatButton"
         ],
         "box_index": 1,
         "pre_delay": 0,
