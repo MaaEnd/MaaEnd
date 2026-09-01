@@ -22,16 +22,12 @@
             }
         }
     },
-    "GearAssemblyCheckIfReachedScrollEnd": {
-        "recognition": {
-            "param": {
-                "roi": [
-                    430,
-                    590,
-                    15,
-                    15
-                ]
-            }
-        }
+    "GearAssemblyGearListScrollEnd": {
+        "roi": [
+            35,
+            100,
+            400,
+            520
+        ]
     }
 }
