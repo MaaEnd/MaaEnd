@@ -10,7 +10,7 @@
 namespace navmesh
 {
 
-inline constexpr unsigned kNavWorkerLimit = 4;      // 再多就落到能效核上, 这几个环是访存绑死的, 量不出加速
+inline constexpr unsigned kNavWorkerLimit = 4;      // 这几个环是访存绑死的, 线程再多也量不出加速
 inline constexpr int64_t kNavSerialFloor = 1 << 16; // 元素数低于此值, 起线程比算还贵
 
 inline std::atomic<unsigned>& NavWorkerOverride()
