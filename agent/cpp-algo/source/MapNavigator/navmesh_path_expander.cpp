@@ -1505,6 +1505,22 @@ std::optional<NavmeshSnap> NavmeshSnapAt(
     return NavmeshSnap { .distance = entry->distance, .height = navmesh->planner.triangleHeight(entry->triangle) };
 }
 
+std::vector<std::vector<uint32_t>> NavmeshRegionsNear(
+    const NaviParam& param,
+    const std::string& locator_zone,
+    const std::vector<navmesh::WorldPoint>& points)
+{
+    const std::string navmesh_zone = InferBaseNavZone(locator_zone, param.map_name);
+    if (navmesh_zone.empty()) {
+        return std::vector<std::vector<uint32_t>>(points.size());
+    }
+    const auto navmesh = LoadCachedNavmesh(ResolveNavmeshFile(param.navmesh_file), navmesh_zone);
+    if (!navmesh) {
+        return std::vector<std::vector<uint32_t>>(points.size());
+    }
+    return navmesh->engine.regionsNear(navmesh_zone, points);
+}
+
 double NavmeshOffMeshFraction(
     const NaviParam& param,
     const std::string& locator_zone,

@@ -95,6 +95,30 @@ struct BaseNavLink
     uint32_t target = 0;
 };
 
+struct BaseNavSurface
+{
+    uint8_t area = 0;
+    uint8_t poly_type = 0;
+    uint32_t flags = 0;
+};
+
+inline constexpr uint8_t kBaseNavOffMeshRegular = 0;
+inline constexpr uint8_t kBaseNavOffMeshExtended = 1;
+
+struct BaseNavOffMeshLink
+{
+    uint16_t zone_id = 0;
+    uint8_t kind = kBaseNavOffMeshRegular;
+    int32_t is_ext = 0;
+    int32_t bidirectional = 0;
+    int32_t area = 0;
+    uint16_t link_type = 0;
+    uint8_t direction = 0;
+    float radius = 0.0F;
+    float cost_modifier = 0.0F;
+    std::array<BaseNavVertex, 4> points;
+};
+
 // v4 起包尾可以挂若干独立数据段,靠头里的段目录定位。四段原有数据一个字节不动,
 // 认不出某个 tag 的读取器跳过它即可。
 struct BaseNavSection
@@ -115,6 +139,8 @@ BaseNavPack MakeBaseNavPack(
     std::vector<BaseNavVertex> vertices,
     std::vector<BaseNavTriangle> triangles,
     std::vector<BaseNavLink> links,
+    std::vector<BaseNavSurface> surfaces,
+    std::vector<BaseNavOffMeshLink> off_mesh_links,
     std::vector<BaseNavSection> sections);
 
 }
@@ -128,6 +154,8 @@ public:
     const std::vector<BaseNavVertex>& vertices() const;
     const std::vector<BaseNavTriangle>& triangles() const;
     const std::vector<BaseNavLink>& links() const;
+    const std::vector<BaseNavSurface>& surfaces() const;
+    const std::vector<BaseNavOffMeshLink>& offMeshLinks() const;
     const BaseNavZone* findZone(uint16_t zone_id) const;
     const BaseNavZone* findZoneByName(const std::string& name) const;
 
@@ -155,6 +183,8 @@ private:
         std::vector<BaseNavVertex> vertices,
         std::vector<BaseNavTriangle> triangles,
         std::vector<BaseNavLink> links,
+        std::vector<BaseNavSurface> surfaces,
+        std::vector<BaseNavOffMeshLink> off_mesh_links,
         std::vector<BaseNavSection> sections);
 
     std::filesystem::path path_;
@@ -162,6 +192,8 @@ private:
     std::vector<BaseNavVertex> vertices_;
     std::vector<BaseNavTriangle> triangles_;
     std::vector<BaseNavLink> links_;
+    std::vector<BaseNavSurface> surfaces_;
+    std::vector<BaseNavOffMeshLink> off_mesh_links_;
     std::vector<BaseNavSection> sections_;
 };
 

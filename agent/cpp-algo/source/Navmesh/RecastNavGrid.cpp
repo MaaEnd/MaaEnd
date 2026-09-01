@@ -43,15 +43,99 @@ int64_t sampleSteps(double len, double sub)
     return std::max<int64_t>(static_cast<int64_t>(std::ceil(len / (kCS * sub))), 1) + 1;
 }
 
-int64_t occFind(const std::vector<int64_t>& occ, int64_t cid)
+int64_t occFind(const SpanTable& st, int64_t cid)
 {
-    auto it = std::lower_bound(occ.begin(), occ.end(), cid);
-    if (it == occ.end() || *it != cid) {
+    if (cid < 0 || cid >= static_cast<int64_t>(st.c2j.size())) {
         return -1;
     }
-    return it - occ.begin();
+    return st.c2j[static_cast<size_t>(cid)];
 }
 
+// cid 沿 (dx,dy) 走 s 格处是否有落在 h±kStepUp 的 span。s 可为负,即朝反方向探。
+bool levelAt(const SpanTable& st, int64_t nx, int64_t ny, int64_t cid, int64_t dx, int64_t dy, int64_t s, float h)
+{
+    const int64_t ax = cid % nx + dx * s;
+    const int64_t ay = cid / nx + dy * s;
+    if (ax < 0 || ax >= nx || ay < 0 || ay >= ny) {
+        return false;
+    }
+    const int64_t j = occFind(st, ay * nx + ax);
+    if (j < 0) {
+        return false;
+    }
+    const int64_t b = st.cstart[static_cast<size_t>(j)];
+    const int64_t n = st.ccnt[static_cast<size_t>(j)];
+    for (int64_t k = 0; k < n; ++k) {
+        if (std::fabs(static_cast<double>(st.sp_h[static_cast<size_t>(b + k)] - h)) <= kStepUp) {
+            return true;
+        }
+    }
+    return false;
+}
+
+// cid 沿 (dx,dy) 走 s 格那一列是否是被栅格化的立面: 面摞起来够得上一堵墙, 且不止两张。
+// 恰好两张是地面上方顶着一层盖 —— 柱廊、桥下、挑檐都是这个形状, 中间隔的是层高不是墙。
+bool rasterFace(const SpanTable& st, int64_t nx, int64_t ny, int64_t cid, int64_t dx, int64_t dy, int64_t s)
+{
+    const int64_t ax = cid % nx + dx * s;
+    const int64_t ay = cid / nx + dy * s;
+    if (ax < 0 || ax >= nx || ay < 0 || ay >= ny) {
+        return false;
+    }
+    const int64_t j = occFind(st, ay * nx + ax);
+    return j >= 0 && st.face[static_cast<size_t>(j)] != 0;
+}
+
+}
+
+// 抬升超出可迈台阶高时的补充放行。往前几格就回到出发高度 = 落脚处只是路面上一处窄凸起;
+// 身后几格就有目标高度 = 出发处只是路面上一处浅坑。台阶与立面的落差会一直延续下去,
+// 前后都够不着,所以这里放行不了它们。
+bool RiseOk(const SpanTable& st, int64_t nx, int64_t ny, int64_t cid, int64_t dx, int64_t dy, float h0, float h1)
+{
+    const double dh = static_cast<double>(h1) - static_cast<double>(h0);
+    if (dh < -kClimb) {
+        return false;
+    }
+    // 坡度口径以内两条支路结论一样: 立面按坡度放行, 平地按 UpAllow 放行而 UpAllow 恒不小于
+    // 坡度口径。于是这一档不必去问是不是立面 —— 绝大多数边是平的, 省下的正是那两次叠层扫描。
+    // 格步至少一维非零 ⇒ 模长不小于 1 ⇒ 一格坡高是坡度口径的下界, 先用它筛掉平边。
+    if (dh <= kSlope * kCS) {
+        return true;
+    }
+    const double w = std::hypot(static_cast<double>(dx), static_cast<double>(dy));
+    if (dh <= kSlope * w * kCS) {
+        return true;
+    }
+    // 被栅格化的立面上只按坡度放行, 可迈台阶高与凸起/浅坑这些路面口径一概不给, 否则从旁边
+    // 迈上立面、顺着叠层逐格爬升、再迈回地面, 整堵墙就被爬上去了。坡度口径与不认台阶时是
+    // 同一个值, 所以这里放行的永远是原有的子集。
+    if (rasterFace(st, nx, ny, cid, dx, dy, 0) || rasterFace(st, nx, ny, cid, dx, dy, 1)) {
+        return false;
+    }
+    // 走到这里坡度口径已经不放行, UpAllow 取的那两项里就只剩可迈台阶高。
+    if (dh <= kStepUp) {
+        return true;
+    }
+    if (dh > kBumpUp) {
+        return false;
+    }
+    for (int64_t s = 2; s <= kBumpCells; ++s) {
+        // 往前几格回到出发高度而没有目标高度: 落脚处是路面上一处窄凸起。两个高度都在说明
+        // 那里是上下两层叠着, 立面被栅格化成一列叠层时正是如此, 于是不算凸起 —— 少了这一条,
+        // 台阶侧面与地面就被连起来, 直线会从楼梯旁边爬上去而不是从台阶口走上去。
+        if (levelAt(st, nx, ny, cid, dx, dy, s, h0) && !levelAt(st, nx, ny, cid, dx, dy, s, h1)) {
+            return true;
+        }
+    }
+    for (int64_t s = 1; s <= kDipCells; ++s) {
+        // 身后有目标高度而没有出发高度: 出发处是路面上一处浅坑。两个高度都在说明身后是上下
+        // 两层叠着, 一级级往上的台阶正是如此; 挡住这一类, 才不会顺着台阶把立面爬上去。
+        if (levelAt(st, nx, ny, cid, dx, dy, -s, h1) && !levelAt(st, nx, ny, cid, dx, dy, -s, h0)) {
+            return true;
+        }
+    }
+    return false;
 }
 
 RasterCells Rasterize(
@@ -61,13 +145,17 @@ RasterCells Rasterize(
     double ox,
     double oy,
     int64_t nx,
-    int64_t ny)
+    int64_t ny,
+    const std::vector<uint8_t>* walkable)
 {
     RasterCells out;
     const double hcs = kCS * 0.5;
     std::vector<int64_t> kept;
     kept.reserve(T.size());
     for (int64_t ti = 0; ti < static_cast<int64_t>(T.size()); ++ti) {
+        if (walkable != nullptr && (*walkable)[static_cast<size_t>(ti)] == 0) {
+            continue; // 掩码外的三角不进体素:水面、禁区不再铺出可走格
+        }
         const WorldPoint& A = V[T[ti][0]];
         const WorldPoint& B = V[T[ti][1]];
         const WorldPoint& C = V[T[ti][2]];
@@ -189,11 +277,36 @@ SpanTable PackSpans(std::vector<int64_t> cell, std::vector<float> h, std::vector
     if (n_span == 0) {
         return st;
     }
+    // 主键 cell 是格号, 计数排序按升序装桶且桶内保持原次序; 副键 h 在桶内插入排序, 严格大于
+    // 才挪位同样保序。两步都稳定 ⇒ 与按 (cell, h) 稳定排序同序, 而一格的 span 只有几条。
+    const int64_t nc = *std::max_element(cell.begin(), cell.end()) + 1;
     std::vector<int64_t> ord(static_cast<size_t>(n_span));
-    std::iota(ord.begin(), ord.end(), 0);
-    std::stable_sort(ord.begin(), ord.end(), [&](int64_t a, int64_t b) {
-        return cell[a] < cell[b] || (cell[a] == cell[b] && h[a] < h[b]);
-    });
+    std::vector<int32_t> cstart(static_cast<size_t>(nc + 1), 0);
+    for (const int64_t c : cell) {
+        ++cstart[static_cast<size_t>(c) + 1];
+    }
+    for (size_t k = 1; k < cstart.size(); ++k) {
+        cstart[k] += cstart[k - 1];
+    }
+    {
+        std::vector<int32_t> fill(cstart.begin(), cstart.end() - 1);
+        for (int64_t i = 0; i < n_span; ++i) {
+            ord[static_cast<size_t>(fill[static_cast<size_t>(cell[static_cast<size_t>(i)])]++)] = i;
+        }
+    }
+    for (int64_t c = 0; c < nc; ++c) {
+        const int64_t b = cstart[static_cast<size_t>(c)], e = cstart[static_cast<size_t>(c) + 1];
+        for (int64_t i = b + 1; i < e; ++i) {
+            const int64_t v = ord[static_cast<size_t>(i)];
+            const float hv = h[static_cast<size_t>(v)];
+            int64_t j = i;
+            while (j > b && h[static_cast<size_t>(ord[static_cast<size_t>(j - 1)])] > hv) {
+                ord[static_cast<size_t>(j)] = ord[static_cast<size_t>(j - 1)];
+                --j;
+            }
+            ord[static_cast<size_t>(j)] = v;
+        }
+    }
     st.sp_cell.resize(static_cast<size_t>(n_span));
     st.sp_h.resize(static_cast<size_t>(n_span));
     for (int64_t i = 0; i < n_span; ++i) {
@@ -216,16 +329,23 @@ SpanTable PackSpans(std::vector<int64_t> cell, std::vector<float> h, std::vector
         ++st.ccnt.back();
     }
     st.K = *std::max_element(st.ccnt.begin(), st.ccnt.end());
+    st.c2j.assign(static_cast<size_t>(st.occ.back() + 1), -1);
+    for (size_t ci = 0; ci < st.occ.size(); ++ci) {
+        st.c2j[static_cast<size_t>(st.occ[ci])] = static_cast<int32_t>(ci);
+    }
     const int64_t n_occ = static_cast<int64_t>(st.occ.size());
-    st.HK.assign(static_cast<size_t>(n_occ * st.K), std::numeric_limits<float>::infinity());
-    st.IK.assign(static_cast<size_t>(n_occ * st.K), -1);
     st.sp_ci.resize(static_cast<size_t>(n_span));
+    st.face.assign(static_cast<size_t>(n_occ), 0);
     for (int64_t ci = 0, si = 0; ci < n_occ; ++ci) {
         for (int64_t r = 0; r < st.ccnt[ci]; ++r, ++si) {
-            st.HK[ci * st.K + r] = st.sp_h[si];
-            st.IK[ci * st.K + r] = si;
             st.sp_ci[si] = ci;
         }
+        // 同一格的 span 已按高排好, 首末就是这一列的最低最高。
+        const int64_t b = st.cstart[static_cast<size_t>(ci)];
+        const int64_t c = st.ccnt[static_cast<size_t>(ci)];
+        const double lo = st.sp_h[static_cast<size_t>(b)];
+        const double hi = st.sp_h[static_cast<size_t>(b + c - 1)];
+        st.face[static_cast<size_t>(ci)] = static_cast<uint8_t>(c != 2 && hi - lo > kClimb);
     }
     return st;
 }
@@ -237,7 +357,6 @@ void AppendSeamBridge(RasterCells& rc, int64_t nx, int64_t ny)
         return;
     }
     const SpanTable st = BuildSpans(rc.cell, rc.h);
-    const int64_t K = st.K;
     std::vector<uint8_t> O2(static_cast<size_t>(nx * ny), 0);
     for (const int64_t c : st.occ) {
         O2[static_cast<size_t>(c)] = 1;
@@ -268,17 +387,16 @@ void AppendSeamBridge(RasterCells& rc, int64_t nx, int64_t ny)
                             continue;
                         }
                         const int64_t cid = y * nx + x;
-                        const int64_t ja = occFind(st.occ, cid + dl * (dy * nx + dx));
-                        const int64_t jb = occFind(st.occ, cid - dr * (dy * nx + dx));
-                        // 空槽 inf-inf=nan 会毒化 argmin,两侧用相反哨兵
+                        const int64_t ja = occFind(st, cid + dl * (dy * nx + dx));
+                        const int64_t jb = occFind(st, cid - dr * (dy * nx + dx));
                         float best_dh = std::numeric_limits<float>::infinity();
                         float best_ha = 0.0f, best_hb = 0.0f;
-                        for (int64_t p = 0; p < K; ++p) {
-                            const float hka = st.HK[ja * K + p];
-                            const float ha = std::isfinite(hka) ? hka : 1e9f;
-                            for (int64_t q = 0; q < K; ++q) {
-                                const float hkb = st.HK[jb * K + q];
-                                const float hb = std::isfinite(hkb) ? hkb : -1e9f;
+                        const int64_t ba = st.cstart[static_cast<size_t>(ja)], na = st.ccnt[static_cast<size_t>(ja)];
+                        const int64_t bb = st.cstart[static_cast<size_t>(jb)], nb = st.ccnt[static_cast<size_t>(jb)];
+                        for (int64_t p = 0; p < na; ++p) {
+                            const float ha = st.sp_h[static_cast<size_t>(ba + p)];
+                            for (int64_t q = 0; q < nb; ++q) {
+                                const float hb = st.sp_h[static_cast<size_t>(bb + q)];
                                 const float dh = std::fabs(ha - hb);
                                 if (dh < best_dh) {
                                     best_dh = dh;
@@ -315,16 +433,17 @@ std::vector<uint8_t> Flood(int64_t seed, const SpanTable& st, int64_t nx)
                 if (dx != 0 && (gx + dx < 0 || gx + dx >= nx)) {
                     continue;
                 }
-                const int64_t j = occFind(st.occ, cid + dy * nx + dx);
+                const int64_t j = occFind(st, cid + dy * nx + dx);
                 if (j < 0) {
                     continue;
                 }
-                for (int64_t slot = 0; slot < st.K; ++slot) {
-                    if (!(std::fabs(st.HK[j * st.K + slot] - st.sp_h[f]) <= 3.0f)) {
+                const int64_t b = st.cstart[static_cast<size_t>(j)], n = st.ccnt[static_cast<size_t>(j)];
+                for (int64_t slot = 0; slot < n; ++slot) {
+                    const int64_t cand = b + slot;
+                    if (!(std::fabs(st.sp_h[static_cast<size_t>(cand)] - st.sp_h[f]) <= 3.0f)) {
                         continue;
                     }
-                    const int64_t cand = st.IK[j * st.K + slot];
-                    if (cand >= 0 && !vis[static_cast<size_t>(cand)]) {
+                    if (!vis[static_cast<size_t>(cand)]) {
                         vis[static_cast<size_t>(cand)] = 1;
                         next.push_back(cand);
                     }
@@ -357,18 +476,20 @@ std::vector<int32_t> LabelRegions(const SpanTable& st, int64_t nx)
             if (d[0] != 0 && gx + d[0] >= nx) {
                 continue;
             }
-            const int64_t j = occFind(st.occ, cid + d[1] * nx + d[0]);
+            const int64_t j = occFind(st, cid + d[1] * nx + d[0]);
             if (j < 0) {
                 continue;
             }
+            const int64_t jb = st.cstart[static_cast<size_t>(j)], jn = st.ccnt[static_cast<size_t>(j)];
             for (int64_t r = 0; r < st.ccnt[static_cast<size_t>(ci)]; ++r) {
                 const int64_t u = st.cstart[static_cast<size_t>(ci)] + r;
-                for (int64_t slot = 0; slot < st.K; ++slot) {
-                    if (!(std::fabs(st.HK[j * st.K + slot] - st.sp_h[static_cast<size_t>(u)]) <= 3.0f)) {
+                for (int64_t slot = 0; slot < jn; ++slot) {
+                    const int64_t v = jb + slot;
+                    if (!(std::fabs(st.sp_h[static_cast<size_t>(v)] - st.sp_h[static_cast<size_t>(u)]) <= 3.0f)) {
                         continue;
                     }
                     const int32_t a = find(static_cast<int32_t>(u));
-                    const int32_t b = find(static_cast<int32_t>(st.IK[j * st.K + slot]));
+                    const int32_t b = find(static_cast<int32_t>(v));
                     if (a != b) {
                         parent[static_cast<size_t>(a)] = b;
                     }
@@ -400,20 +521,23 @@ std::vector<uint8_t> SpanReach(int64_t seed, const SpanTable& st, const std::vec
                 if (ax < 0 || ax >= nx || ay < 0 || ay >= ny) {
                     continue;
                 }
-                const int64_t j = occFind(st.occ, ay * nx + ax);
+                const int64_t j = occFind(st, ay * nx + ax);
                 if (j < 0) {
                     continue;
                 }
-                for (int64_t slot = 0; slot < st.K; ++slot) {
-                    const float dh = st.HK[j * st.K + slot] - st.sp_h[f];
-                    if (!(static_cast<double>(dh) <= kUp * d.w) || !(dh >= -static_cast<float>(kClimb))) {
+                const int64_t b = st.cstart[static_cast<size_t>(j)], n = st.ccnt[static_cast<size_t>(j)];
+                for (int64_t slot = 0; slot < n; ++slot) {
+                    // 先问候选走没走过。垂直可达判据没有副作用, 挪到这一问之后逐位同答,
+                    // 而广度优先里绝大多数邻接探到的是已访问的 span。
+                    const int64_t cand = b + slot;
+                    if (ok[static_cast<size_t>(cand)] == 0 || vis[static_cast<size_t>(cand)]) {
                         continue;
                     }
-                    const int64_t cand = st.IK[j * st.K + slot];
-                    if (cand >= 0 && ok[static_cast<size_t>(cand)] != 0 && !vis[static_cast<size_t>(cand)]) {
-                        vis[static_cast<size_t>(cand)] = 1;
-                        next.push_back(cand);
+                    if (!RiseOk(st, nx, ny, cid, d.dx, d.dy, st.sp_h[f], st.sp_h[static_cast<size_t>(cand)])) {
+                        continue;
                     }
+                    vis[static_cast<size_t>(cand)] = 1;
+                    next.push_back(cand);
                 }
             }
         }
@@ -495,16 +619,15 @@ std::vector<uint8_t> StampWalls(
             if (gx < 0 || gx >= nx || gy < 0 || gy >= ny) {
                 continue;
             }
-            const int64_t j = occFind(st.occ, gy * nx + gx);
+            const int64_t j = occFind(st, gy * nx + gx);
             if (j < 0) {
                 continue;
             }
-            for (int64_t slot = 0; slot < st.K; ++slot) {
-                if (std::abs(static_cast<double>(st.HK[j * st.K + slot]) - hh[i]) <= kMcHBand) {
-                    const int64_t sid = st.IK[j * st.K + slot];
-                    if (sid >= 0) {
-                        blocked[static_cast<size_t>(sid)] = 1;
-                    }
+            const int64_t b = st.cstart[static_cast<size_t>(j)], n = st.ccnt[static_cast<size_t>(j)];
+            for (int64_t slot = 0; slot < n; ++slot) {
+                const int64_t sid = b + slot;
+                if (std::abs(static_cast<double>(st.sp_h[static_cast<size_t>(sid)]) - hh[i]) <= kMcHBand) {
+                    blocked[static_cast<size_t>(sid)] = 1;
                 }
             }
         }
@@ -577,6 +700,7 @@ StepBarrier StepBreaks(const SpanTable& st, const std::vector<uint8_t>& vis, con
 {
     StepBarrier out;
     const int64_t nx = lay.nx, ny = lay.ny, NC = nx * ny, K = st.K;
+    out.steps.resize(nx, ny);
     if (K <= 0) {
         return out;
     }
@@ -585,9 +709,10 @@ StepBarrier StepBreaks(const SpanTable& st, const std::vector<uint8_t>& vis, con
     for (size_t j = 0; j < st.occ.size(); ++j) {
         float* row = &T[static_cast<size_t>(st.occ[j] * K)];
         int64_t n = 0;
-        for (int64_t k = 0; k < K; ++k) {
-            const int64_t sid = st.IK[j * static_cast<size_t>(K) + static_cast<size_t>(k)];
-            if (sid >= 0 && vis[static_cast<size_t>(sid)] != 0) {
+        const int64_t b = st.cstart[j], cn = st.ccnt[j];
+        for (int64_t k = 0; k < cn; ++k) {
+            const int64_t sid = b + k;
+            if (vis[static_cast<size_t>(sid)] != 0) {
                 row[n++] = st.sp_h[static_cast<size_t>(sid)];
             }
         }
@@ -676,11 +801,16 @@ StepBarrier StepBreaks(const SpanTable& st, const std::vector<uint8_t>& vis, con
                     }
                 }
             }
-            if (!(static_cast<double>(best) > kSlope * std::hypot(static_cast<double>(dx), static_cast<double>(dy)) * kCS)) {
+            if (!(static_cast<double>(best) > UpAllow(std::hypot(static_cast<double>(dx), static_cast<double>(dy))))) {
                 continue;
             }
             const bool up = T[static_cast<size_t>(b * K + bkb)] > T[static_cast<size_t>(c * K + bka)];
-            out.steps.insert(up ? c * NC + b : b * NC + c);
+            if (up) {
+                out.steps.set(c, b);
+            }
+            else {
+                out.steps.set(b, c);
+            }
             if (dx != 0 && dy != 0) {
                 continue;
             }
@@ -824,15 +954,14 @@ std::optional<std::vector<CellPt>> CostAstar(
     CellPt s,
     CellPt g,
     const Grid<float>& mult,
-    const std::unordered_set<int64_t>* banned,
+    const EdgeBits* banned,
     const double* bnp,
-    const std::unordered_set<int64_t>* forbidden)
+    const EdgeBits* forbidden)
 {
     const int64_t ny = mask.ny, nx = mask.nx;
     if (!mask.at(s.y, s.x) || !mask.at(g.y, g.x)) {
         return std::nullopt;
     }
-    const int64_t NC = nx * ny;
     Grid<double> dist(nx, ny, std::numeric_limits<double>::infinity());
     Grid<int64_t> prev(nx, ny, -1);
     dist.at(s.y, s.x) = 0.0;
@@ -858,12 +987,13 @@ std::optional<std::vector<CellPt>> CostAstar(
             if (d.dx != 0 && d.dy != 0 && !(mask.at(y, a) && mask.at(b, x))) {
                 continue;
             }
-            const int64_t eid = (y * nx + x) * NC + (b * nx + a);
-            if (forbidden != nullptr && forbidden->contains(eid)) {
+            const int64_t cu = y * nx + x;
+            const int64_t cv = b * nx + a;
+            if (forbidden != nullptr && forbidden->has(cu, cv)) {
                 continue;
             }
             double pen = 0.0;
-            if (banned != nullptr && banned->contains(eid)) {
+            if (banned != nullptr && banned->has(cu, cv)) {
                 if (bnp == nullptr) {
                     continue;
                 }
@@ -894,6 +1024,51 @@ std::optional<std::vector<CellPt>> CostAstar(
     return out;
 }
 
+bool Visibility::crossesStep(const WorldPoint& p, const WorldPoint& q) const
+{
+    const bool hs = steps_ != nullptr && !steps_->empty();
+    const bool hf = faces_ != nullptr && !faces_->empty();
+    if (!hs && !hf) {
+        return false;
+    }
+    // 取样与层走查同一套整数插值, 于是"弦经过哪些格"这件事在两处判据里是同一个答案
+    const int64_t ax = static_cast<int64_t>((p.x - x0_) / kCS);
+    const int64_t ay = static_cast<int64_t>((p.y - y0_) / kCS);
+    const int64_t bx = static_cast<int64_t>((q.x - x0_) / kCS);
+    const int64_t by = static_cast<int64_t>((q.y - y0_) / kCS);
+    const int64_t n = std::max<int64_t>(std::max(std::abs(bx - ax), std::abs(by - ay)), 1);
+    int64_t px = ax;
+    int64_t py = ay;
+    for (int64_t k = 1; k <= n; ++k) {
+        const int64_t cx = ax + static_cast<int64_t>(std::nearbyint(static_cast<double>(bx - ax) * static_cast<double>(k) / static_cast<double>(n)));
+        const int64_t cy = ay + static_cast<int64_t>(std::nearbyint(static_cast<double>(by - ay) * static_cast<double>(k) / static_cast<double>(n)));
+        if (cx == px && cy == py) {
+            continue;
+        }
+        if (px >= 0 && py >= 0 && px < nx_ && py < ny_ && cx >= 0 && cy >= 0 && cx < nx_ && cy < ny_) {
+            const int64_t ca = py * nx_ + px;
+            const int64_t cb = cy * nx_ + cx;
+            if ((hs && steps_->has(ca, cb)) || (hf && faces_->has(ca, cb))) {
+                return true;
+            }
+        }
+        px = cx;
+        py = cy;
+    }
+    return false;
+}
+
+bool Visibility::ok(const WorldPoint& p, const WorldPoint& q, float hp, float hq) const
+{
+    if (blk_ != nullptr && blk_->blocked(p, q)) {
+        return false;
+    }
+    if (crossesStep(p, q)) {
+        return false;
+    }
+    return lyo_ == nullptr || lyo_->ok(p, q, hp, hq);
+}
+
 std::optional<std::vector<int64_t>> SpanAstar(
     const SpanTable& st,
     const std::vector<uint8_t>& ok,
@@ -902,14 +1077,16 @@ std::optional<std::vector<int64_t>> SpanAstar(
     int64_t s,
     const std::vector<int64_t>& gset,
     const Grid<float>& mult,
-    const std::unordered_set<int64_t>* banned,
+    const EdgeBits* banned,
     const double* bnp,
-    const std::unordered_set<int64_t>* forbidden)
+    const EdgeBits* forbidden,
+    const Visibility* vis,
+    std::vector<int64_t>* corners)
 {
     if (s < 0 || ok[static_cast<size_t>(s)] == 0 || gset.empty()) {
         return std::nullopt;
     }
-    const int64_t nx = ok2.nx, ny = ok2.ny, NC = nx * ny, K = st.K;
+    const int64_t nx = ok2.nx, ny = ok2.ny;
     const int64_t gc = st.occ[st.sp_ci[static_cast<size_t>(gset.front())]];
     const int64_t gxx = gc % nx, gyy = gc / nx;
     std::vector<double> dist(st.sp_h.size(), std::numeric_limits<double>::infinity());
@@ -919,14 +1096,89 @@ std::optional<std::vector<int64_t>> SpanAstar(
     std::priority_queue<Node, std::vector<Node>, std::greater<Node>> pq;
     pq.emplace(0.0, s);
     int64_t hit = -1;
+    // Lazy Theta* 的 SetVertex: 祖父直连验不过时, 从已展开的邻格里挑最便宜的那个当父亲。
+    // 视线全失效则整条路逐格退化成 A*, 所以弦无权把一条走得通的腿变成走不通。
+    std::vector<uint8_t> closed;
+    if (vis != nullptr) {
+        closed.assign(st.sp_h.size(), 0);
+    }
+    const auto reparent = [&](int64_t u, int64_t cu) {
+        const int64_t x = cu % nx, y = cu / nx;
+        const float hu = st.sp_h[static_cast<size_t>(u)];
+        double bd = std::numeric_limits<double>::infinity();
+        int64_t bp = -1;
+        for (const auto& d : kNb8) {
+            const int64_t a = x + d.dx, b = y + d.dy;
+            if (a < 0 || a >= nx || b < 0 || b >= ny) {
+                continue;
+            }
+            const int64_t cw = b * nx + a;
+            if (ok2.v[static_cast<size_t>(cw)] == 0) {
+                continue;
+            }
+            if (d.dx != 0 && d.dy != 0 && !(ok2.at(y, a) && ok2.at(b, x))) {
+                continue;
+            }
+            const int64_t j = cidx[static_cast<size_t>(cw)];
+            if (j < 0) {
+                continue;
+            }
+            if (forbidden != nullptr && forbidden->has(cw, cu)) {
+                continue;
+            }
+            double pen = 0.0;
+            if (banned != nullptr && banned->has(cw, cu)) {
+                if (bnp == nullptr) {
+                    continue;
+                }
+                pen = *bnp;
+            }
+            const double stp = d.w * 0.5 * static_cast<double>(mult.v[static_cast<size_t>(cw)] + mult.v[static_cast<size_t>(cu)]);
+            const int64_t jb = st.cstart[static_cast<size_t>(j)], jn = st.ccnt[static_cast<size_t>(j)];
+            for (int64_t k = 0; k < jn; ++k) {
+                const int64_t w = jb + k;
+                if (ok[static_cast<size_t>(w)] == 0 || closed[static_cast<size_t>(w)] == 0) {
+                    continue;
+                }
+                if (!RiseOk(st, nx, ny, cw, -d.dx, -d.dy, st.sp_h[static_cast<size_t>(w)], hu)) {
+                    continue;
+                }
+                const double nd = dist[static_cast<size_t>(w)] + stp + pen;
+                if (nd < bd - 1e-12) {
+                    bd = nd;
+                    bp = w;
+                }
+            }
+        }
+        if (bp >= 0) {
+            dist[static_cast<size_t>(u)] = bd;
+            prev[static_cast<size_t>(u)] = bp;
+        }
+    };
     while (!pq.empty()) {
         const auto [f, u] = pq.top();
         pq.pop();
-        const double d0 = dist[static_cast<size_t>(u)];
+        double d0 = dist[static_cast<size_t>(u)];
         const int64_t cu = st.occ[st.sp_ci[static_cast<size_t>(u)]];
         const int64_t x = cu % nx, y = cu / nx;
         if (f > d0 + std::hypot(static_cast<double>(gxx - x), static_cast<double>(gyy - y)) + 1e-9) {
             continue;
+        }
+        if (vis != nullptr) {
+            if (closed[static_cast<size_t>(u)] != 0) {
+                continue;
+            }
+            const int64_t p = prev[static_cast<size_t>(u)];
+            if (p >= 0
+                && !vis->ok(
+                    vis->at(st.occ[st.sp_ci[static_cast<size_t>(p)]]),
+                    vis->at(cu),
+                    st.sp_h[static_cast<size_t>(p)],
+                    st.sp_h[static_cast<size_t>(u)])) {
+                reparent(u, cu);
+            }
+            closed[static_cast<size_t>(u)] = 1;
+            d0 = dist[static_cast<size_t>(u)];
         }
         if (std::find(gset.begin(), gset.end(), u) != gset.end()) {
             hit = u;
@@ -950,12 +1202,11 @@ std::optional<std::vector<int64_t>> SpanAstar(
             if (j < 0) {
                 continue;
             }
-            const int64_t eid = cu * NC + cv;
-            if (forbidden != nullptr && forbidden->contains(eid)) {
+            if (forbidden != nullptr && forbidden->has(cu, cv)) {
                 continue;
             }
             double pen = 0.0;
-            if (banned != nullptr && banned->contains(eid)) {
+            if (banned != nullptr && banned->has(cu, cv)) {
                 if (bnp == nullptr) {
                     continue;
                 }
@@ -963,19 +1214,39 @@ std::optional<std::vector<int64_t>> SpanAstar(
             }
             const float step = static_cast<float>(d.w * 0.5) * (m0 + mult.v[static_cast<size_t>(cv)]);
             const double nd = d0 + static_cast<double>(step) + pen;
-            for (int64_t k = 0; k < K; ++k) {
-                const int64_t v = st.IK[j * K + k];
-                if (v < 0 || ok[static_cast<size_t>(v)] == 0) {
+            // Theta* 松弛: 先按祖父直连计价, 视线留到弹出时验。弦按欧氏长度计价, 只有单价恒为一
+            // 的实心区里这笔账才精确; 中脊带单价随净空抬到七倍, 放弦进去等于免掉那笔税, 搜索会
+            // 转头挑窄道。两端都在实心区才许走弦, 整段是否落在实心区由弹出时的视线判据兜底。
+            int64_t np = u;
+            double ndp = nd;
+            if (vis != nullptr) {
+                const int64_t p = prev[static_cast<size_t>(u)];
+                if (p >= 0 && mult.v[static_cast<size_t>(cv)] <= 1.0F) {
+                    const int64_t cp = st.occ[st.sp_ci[static_cast<size_t>(p)]];
+                    if (mult.v[static_cast<size_t>(cp)] <= 1.0F) {
+                        const double cd = dist[static_cast<size_t>(p)]
+                            + std::hypot(static_cast<double>(a - cp % nx), static_cast<double>(b - cp / nx));
+                        if (cd < ndp - 1e-12) {
+                            np = p;
+                            ndp = cd;
+                        }
+                    }
+                }
+            }
+            const int64_t sb = st.cstart[static_cast<size_t>(j)], sn = st.ccnt[static_cast<size_t>(j)];
+            for (int64_t k = 0; k < sn; ++k) {
+                const int64_t v = sb + k;
+                if (ok[static_cast<size_t>(v)] == 0) {
                     continue;
                 }
-                const float dh = st.HK[j * K + k] - hu;
-                if (static_cast<double>(dh) > kUp * d.w || dh < -static_cast<float>(kClimb)) {
+                const float hv = st.sp_h[static_cast<size_t>(v)];
+                if (!RiseOk(st, nx, ny, cu, d.dx, d.dy, hu, hv)) {
                     continue;
                 }
-                if (nd < dist[static_cast<size_t>(v)] - 1e-12) {
-                    dist[static_cast<size_t>(v)] = nd;
-                    prev[static_cast<size_t>(v)] = u;
-                    pq.emplace(nd + std::hypot(static_cast<double>(gxx - a), static_cast<double>(gyy - b)), v);
+                if (ndp < dist[static_cast<size_t>(v)] - 1e-12) {
+                    dist[static_cast<size_t>(v)] = ndp;
+                    prev[static_cast<size_t>(v)] = np;
+                    pq.emplace(ndp + std::hypot(static_cast<double>(gxx - a), static_cast<double>(gyy - b)), v);
                 }
             }
         }
@@ -988,84 +1259,221 @@ std::optional<std::vector<int64_t>> SpanAstar(
         out.push_back(prev[static_cast<size_t>(out.back())]);
     }
     std::reverse(out.begin(), out.end());
+    if (corners != nullptr) {
+        *corners = out;
+    }
+    if (vis == nullptr) {
+        return out;
+    }
+    // 父链是拐点序列, 下游按逐格路径读, 因此把每条弦铺回格上再交出去。中间格的 span 按弦两端
+    // 线性插值取最近高度 —— 视线判据已经验过整条弦的高度链, 这里只是给链上的落点具名。
+    const std::vector<int64_t> corn = out;
+    out.assign(1, corn.front());
+    for (size_t i = 1; i < corn.size(); ++i) {
+        const int64_t ca = st.occ[st.sp_ci[static_cast<size_t>(corn[i - 1])]];
+        const int64_t cb = st.occ[st.sp_ci[static_cast<size_t>(corn[i])]];
+        const int64_t axx = ca % nx, ayy = ca / nx, bxx = cb % nx, byy = cb / nx;
+        const int64_t n = std::max<int64_t>(std::max(std::abs(bxx - axx), std::abs(byy - ayy)), 1);
+        const float ha = st.sp_h[static_cast<size_t>(corn[i - 1])];
+        const float hb = st.sp_h[static_cast<size_t>(corn[i])];
+        for (int64_t k = 1; k < n; ++k) {
+            const int64_t cx = axx + static_cast<int64_t>(std::nearbyint(static_cast<double>(bxx - axx) * static_cast<double>(k) / static_cast<double>(n)));
+            const int64_t cy = ayy + static_cast<int64_t>(std::nearbyint(static_cast<double>(byy - ayy) * static_cast<double>(k) / static_cast<double>(n)));
+            const int64_t cc = cy * nx + cx;
+            if (cc == st.occ[st.sp_ci[static_cast<size_t>(out.back())]]) {
+                continue;
+            }
+            const int64_t j = cidx[static_cast<size_t>(cc)];
+            if (j < 0) {
+                continue;
+            }
+            const float ht = ha + (hb - ha) * static_cast<float>(k) / static_cast<float>(n);
+            int64_t bv = -1;
+            float bdh = 0.0F;
+            const int64_t sb = st.cstart[static_cast<size_t>(j)], sn = st.ccnt[static_cast<size_t>(j)];
+            for (int64_t kk = 0; kk < sn; ++kk) {
+                const int64_t v = sb + kk;
+                if (ok[static_cast<size_t>(v)] == 0) {
+                    continue;
+                }
+                const float dh = std::fabs(st.sp_h[static_cast<size_t>(v)] - ht);
+                if (bv < 0 || dh < bdh) {
+                    bv = v;
+                    bdh = dh;
+                }
+            }
+            if (bv >= 0) {
+                out.push_back(bv);
+            }
+        }
+        if (out.back() != corn[i]) {
+            out.push_back(corn[i]);
+        }
+    }
     return out;
 }
 
 namespace
 {
 
-Grid<float> LocalMax(const Grid<float>& a, int64_t k)
+// 最近源点两遍扫描: 每格从已定好的邻格里接过离自己最近的那个源点。前一遍铺左上半个邻域,
+// 后一遍反向铺右下半个, 两遍合起来每格的八个方向都问过。没有源点的格留 -1。
+void NearestSource(
+    const std::vector<uint8_t>& src, int64_t nx, int64_t ny,
+    std::vector<int32_t>& fx, std::vector<int32_t>& fy)
 {
-    Grid<float> m = a;
-    for (int ax = 0; ax < 2; ++ax) {
-        Grid<float> acc = m;
-        for (int64_t y = 0; y < m.ny; ++y) {
-            for (int64_t x = 0; x < m.nx; ++x) {
-                float v = acc.at(y, x);
-                for (int64_t s = 1; s <= k; ++s) {
-                    for (int sgn = 0; sgn < 2; ++sgn) {
-                        const int64_t yy = ax == 0 ? y + (sgn == 0 ? -s : s) : y;
-                        const int64_t xx = ax == 1 ? x + (sgn == 0 ? -s : s) : x;
-                        if (yy >= 0 && yy < m.ny && xx >= 0 && xx < m.nx) {
-                            v = std::max(v, m.at(yy, xx));
-                        }
-                    }
-                }
-                acc.at(y, x) = v;
+    const int64_t n = nx * ny;
+    fx.assign(static_cast<size_t>(n), -1);
+    fy.assign(static_cast<size_t>(n), -1);
+    for (int64_t i = 0; i < n; ++i) {
+        if (src[static_cast<size_t>(i)] != 0) {
+            fx[static_cast<size_t>(i)] = static_cast<int32_t>(i % nx);
+            fy[static_cast<size_t>(i)] = static_cast<int32_t>(i / nx);
+        }
+    }
+    const auto take = [&](int64_t c, int64_t x, int64_t y, int64_t o) {
+        const int64_t ox = fx[static_cast<size_t>(o)];
+        if (ox < 0) {
+            return;
+        }
+        const int64_t oy = fy[static_cast<size_t>(o)];
+        const int64_t od = (ox - x) * (ox - x) + (oy - y) * (oy - y);
+        const int64_t cx = fx[static_cast<size_t>(c)];
+        if (cx >= 0) {
+            const int64_t cy = fy[static_cast<size_t>(c)];
+            if ((cx - x) * (cx - x) + (cy - y) * (cy - y) <= od) {
+                return;
             }
         }
-        m = std::move(acc);
-    }
-    return m;
-}
-
-}
-
-Grid<float> PrefField(const Grid<float>& dist, bool ridge)
-{
-    const Grid<float> locw = LocalMax(dist, static_cast<int64_t>(std::ceil(kR / kCS)));
-    const int64_t ny = dist.ny, nx = dist.nx;
-    Grid<float> pref(nx, ny, 0.0f);
-    for (size_t i = 0; i < pref.v.size(); ++i) {
-        pref.v[i] = std::max(std::min(1.75f, 0.6f * locw.v[i]), 0.25f);
-    }
-    if (!ridge) {
-        return pref;
-    }
-    const float ninf = -std::numeric_limits<float>::infinity();
-    const auto at = [&](int64_t y, int64_t x) {
-        return y >= 0 && y < ny && x >= 0 && x < nx ? dist.at(y, x) : ninf;
+        fx[static_cast<size_t>(c)] = static_cast<int32_t>(ox);
+        fy[static_cast<size_t>(c)] = static_cast<int32_t>(oy);
     };
-    const int64_t dirs[4][2] = { { 0, 1 }, { 1, 0 }, { 1, 1 }, { 1, -1 } }; // (dy,dx)
-    Grid<float> out = pref;
     for (int64_t y = 0; y < ny; ++y) {
         for (int64_t x = 0; x < nx; ++x) {
-            const float dv = dist.at(y, x);
-            bool rg = false;
-            for (const auto& d : dirs) {
-                const float a = at(y + d[0], x + d[1]);
-                const float b = at(y - d[0], x - d[1]);
-                if (dv >= std::max(a, b) && dv > std::min(a, b)) {
-                    rg = true;
-                    break;
+            const int64_t c = y * nx + x;
+            if (y > 0) {
+                take(c, x, y, c - nx);
+                if (x > 0) {
+                    take(c, x, y, c - nx - 1);
+                }
+                if (x + 1 < nx) {
+                    take(c, x, y, c - nx + 1);
                 }
             }
-            if (rg && dv >= 0.5f) {
-                out.at(y, x) = std::min(pref.at(y, x), dv);
+            if (x > 0) {
+                take(c, x, y, c - 1);
+            }
+        }
+        for (int64_t x = nx - 2; x >= 0; --x) {
+            take(y * nx + x, x, y, y * nx + x + 1);
+        }
+    }
+    for (int64_t y = ny - 1; y >= 0; --y) {
+        for (int64_t x = nx - 1; x >= 0; --x) {
+            const int64_t c = y * nx + x;
+            if (y + 1 < ny) {
+                take(c, x, y, c + nx);
+                if (x > 0) {
+                    take(c, x, y, c + nx - 1);
+                }
+                if (x + 1 < nx) {
+                    take(c, x, y, c + nx + 1);
+                }
+            }
+            if (x + 1 < nx) {
+                take(c, x, y, c + 1);
+            }
+        }
+        for (int64_t x = 1; x < nx; ++x) {
+            take(y * nx + x, x, y, y * nx + x - 1);
+        }
+    }
+}
+
+} // namespace
+
+// λ 中轴: 一格与某个邻格的最近障碍点相隔 λ 以上, 这一格就在中轴上。地形边界从来不是标准
+// 几何体, 按净空取局部最大会把每一道锯齿都读成中轴; 而毛刺两侧的最近障碍点本来就挨着,
+// 隔不开 λ, 两堵墙之间的格最近点则分列两侧, 至少隔着整个走廊宽。
+Mask MedialAxis(const Grid<float>& dist, double lam)
+{
+    const int64_t ny = dist.ny;
+    const int64_t nx = dist.nx;
+    const int64_t n = nx * ny;
+    std::vector<uint8_t> solid(static_cast<size_t>(n), 0);
+    for (int64_t i = 0; i < n; ++i) {
+        solid[static_cast<size_t>(i)] = static_cast<uint8_t>(dist.v[static_cast<size_t>(i)] <= 0.0F);
+    }
+    std::vector<int32_t> fx;
+    std::vector<int32_t> fy;
+    NearestSource(solid, nx, ny, fx, fy);
+    const double step = lam / kCS;
+    const int64_t thr = static_cast<int64_t>(std::ceil(step * step));
+    Mask out(nx, ny, 0);
+    for (int64_t y = 0; y < ny; ++y) {
+        for (int64_t x = 0; x < nx; ++x) {
+            const int64_t c = y * nx + x;
+            const int64_t cx = fx[static_cast<size_t>(c)];
+            if (dist.v[static_cast<size_t>(c)] <= 0.0F || cx < 0) {
+                continue;
+            }
+            const int64_t cy = fy[static_cast<size_t>(c)];
+            for (const auto& d : kNb8) {
+                const int64_t a = x + d.dx;
+                const int64_t b = y + d.dy;
+                if (a < 0 || a >= nx || b < 0 || b >= ny) {
+                    continue;
+                }
+                const int64_t o = b * nx + a;
+                const int64_t ox = fx[static_cast<size_t>(o)];
+                if (ox < 0) {
+                    continue;
+                }
+                const int64_t oy = fy[static_cast<size_t>(o)];
+                if ((ox - cx) * (ox - cx) + (oy - cy) * (oy - cy) >= thr) {
+                    out.at(y, x) = 1;
+                    break;
+                }
             }
         }
     }
     return out;
 }
 
-Grid<float> TargetField(const Grid<float>& dist)
+// 走廊半宽: 每格取最近那个种子格的净空, 也就是它所在这条走廊有多宽。弦的容许净空照它按比例
+// 定 —— 取全局常数两头都顾不上, 收紧会把窄段的弦整段否掉逐格走成锯齿, 放开则宽处一路贴角切。
+// band 是走廊本身: 种子每格张一个半径等于自身净空的球, 并起来即是。球与最近的障碍相切, 并集
+// 因此越不过任何一堵墙 —— 隔壁那条平行道进不来, 半宽也就不会认到墙那边的窄缝上去。
+Grid<float> CorridorWidth(const Grid<float>& dist, const Mask& seed, Mask* band)
 {
-    const Grid<float> locw = LocalMax(dist, static_cast<int64_t>(std::ceil(kR / kCS)));
-    Grid<float> tgt(dist.nx, dist.ny, 0.0f);
-    for (size_t i = 0; i < tgt.v.size(); ++i) {
-        tgt.v[i] = std::max(std::min(static_cast<float>(kGeoR), locw.v[i]), 0.25f);
+    const int64_t ny = dist.ny;
+    const int64_t nx = dist.nx;
+    std::vector<int32_t> fx;
+    std::vector<int32_t> fy;
+    NearestSource(seed.v, nx, ny, fx, fy);
+    Grid<float> out(nx, ny, 0.0F);
+    if (band != nullptr) {
+        *band = Mask(nx, ny, 0);
     }
-    return tgt;
+    for (int64_t y = 0; y < ny; ++y) {
+        for (int64_t x = 0; x < nx; ++x) {
+            const int64_t i = y * nx + x;
+            const int64_t ax = fx[static_cast<size_t>(i)];
+            if (ax < 0) {
+                continue;
+            }
+            const int64_t ay = fy[static_cast<size_t>(i)];
+            const float w = dist.v[static_cast<size_t>(ay * nx + ax)];
+            out.v[static_cast<size_t>(i)] = w;
+            if (band != nullptr) {
+                const double dx = static_cast<double>(ax - x) * kCS;
+                const double dy = static_cast<double>(ay - y) * kCS;
+                const bool in = dx * dx + dy * dy <= static_cast<double>(w) * static_cast<double>(w);
+                band->at(y, x) = static_cast<uint8_t>(in || seed.at(y, x) != 0);
+            }
+        }
+    }
+    return out;
 }
 
 namespace
@@ -1266,13 +1674,94 @@ Blockers::Blockers(
     }
 }
 
+void Blockers::buildIndex() const
+{
+    built_ = true;
+    if (a_.empty()) {
+        return;
+    }
+    double mnx = lo_[0].x, mny = lo_[0].y, mxx = hi_[0].x, mxy = hi_[0].y;
+    for (size_t i = 1; i < a_.size(); ++i) {
+        mnx = std::min(mnx, lo_[i].x);
+        mny = std::min(mny, lo_[i].y);
+        mxx = std::max(mxx, hi_[i].x);
+        mxy = std::max(mxy, hi_[i].y);
+    }
+    bx0_ = mnx - kBkt;
+    by0_ = mny - kBkt;
+    bnx_ = static_cast<int64_t>((mxx + kBkt - bx0_) / kBkt) + 1;
+    bny_ = static_cast<int64_t>((mxy + kBkt - by0_) / kBkt) + 1;
+    bstart_.assign(static_cast<size_t>(bnx_ * bny_ + 1), 0);
+    // 段按包围盒入桶, 盒放量 kBktPad 盖住相交判据留给两端的那点余量。挡线都是轮廓折线段,
+    // 盒里的桶数与段长同阶, 数一趟填一趟就够。
+    const auto span = [&](size_t i, int64_t* g) {
+        g[0] = static_cast<int64_t>((lo_[i].x - kBktPad - bx0_) / kBkt);
+        g[1] = static_cast<int64_t>((hi_[i].x + kBktPad - bx0_) / kBkt);
+        g[2] = static_cast<int64_t>((lo_[i].y - kBktPad - by0_) / kBkt);
+        g[3] = static_cast<int64_t>((hi_[i].y + kBktPad - by0_) / kBkt);
+    };
+    int64_t g[4];
+    for (size_t i = 0; i < a_.size(); ++i) {
+        span(i, g);
+        for (int64_t gy = g[2]; gy <= g[3]; ++gy) {
+            for (int64_t gx = g[0]; gx <= g[1]; ++gx) {
+                ++bstart_[static_cast<size_t>(gy * bnx_ + gx) + 1];
+            }
+        }
+    }
+    for (size_t k = 1; k < bstart_.size(); ++k) {
+        bstart_[k] += bstart_[k - 1];
+    }
+    bitem_.resize(static_cast<size_t>(bstart_.back()));
+    std::vector<int32_t> fill(bstart_.begin(), bstart_.end() - 1);
+    for (size_t i = 0; i < a_.size(); ++i) {
+        span(i, g);
+        for (int64_t gy = g[2]; gy <= g[3]; ++gy) {
+            for (int64_t gx = g[0]; gx <= g[1]; ++gx) {
+                bitem_[static_cast<size_t>(fill[static_cast<size_t>(gy * bnx_ + gx)]++)] = static_cast<int32_t>(i);
+            }
+        }
+    }
+    seen_.assign(a_.size(), 0);
+}
+
 bool Blockers::blocked(const WorldPoint& p, const WorldPoint& q) const
 {
     constexpr double eps = 1e-7;
     const double lox = std::min(p.x, q.x) - eps, hix = std::max(p.x, q.x) + eps;
     const double loy = std::min(p.y, q.y) - eps, hiy = std::max(p.y, q.y) + eps;
     const double rx = q.x - p.x, ry = q.y - p.y;
-    for (size_t i = 0; i < a_.size(); ++i) {
+    // 弦上取样间隔半个桶, 每点连同八邻一起取: 弦上任何一点离某个取样点不超过半个桶, 于是它
+    // 所在的桶必在某个取样点的三乘三邻域里, 待测集因此不漏。
+    if (!built_) {
+        buildIndex();
+    }
+    if (++epoch_ == 0) {
+        std::fill(seen_.begin(), seen_.end(), 0);
+        ++epoch_;
+    }
+    const int64_t ns = static_cast<int64_t>(std::hypot(rx, ry) / (kBkt * 0.5)) + 1;
+    cand_.clear();
+    for (int64_t k = 0; k <= ns && bnx_ > 0; ++k) {
+        const double t = static_cast<double>(k) / static_cast<double>(ns);
+        const int64_t sx0 = static_cast<int64_t>((p.x + rx * t - bx0_) / kBkt);
+        const int64_t sy0 = static_cast<int64_t>((p.y + ry * t - by0_) / kBkt);
+        for (int64_t gy = std::max<int64_t>(sy0 - 1, 0); gy <= std::min(sy0 + 1, bny_ - 1); ++gy) {
+            for (int64_t gx = std::max<int64_t>(sx0 - 1, 0); gx <= std::min(sx0 + 1, bnx_ - 1); ++gx) {
+                const size_t bk = static_cast<size_t>(gy * bnx_ + gx);
+                for (int32_t e = bstart_[bk]; e < bstart_[bk + 1]; ++e) {
+                    const int32_t id = bitem_[static_cast<size_t>(e)];
+                    if (seen_[static_cast<size_t>(id)] == epoch_) {
+                        continue;
+                    }
+                    seen_[static_cast<size_t>(id)] = epoch_;
+                    cand_.push_back(id);
+                }
+            }
+        }
+    }
+    for (const int32_t ii : cand_) {
+        const size_t i = static_cast<size_t>(ii);
         if (hi_[i].x < lox || lo_[i].x > hix || hi_[i].y < loy || lo_[i].y > hiy) {
             continue;
         }
@@ -1284,7 +1773,9 @@ bool Blockers::blocked(const WorldPoint& p, const WorldPoint& q) const
         const double ux = a_[i].x - p.x, uy = a_[i].y - p.y;
         const double t = (ux * sy - uy * sx) / den;
         const double w = (ux * ry - uy * rx) / den;
-        if (t > eps && t < 1 - eps && w > eps && w < 1 - eps) {
+        // 挡线一侧取闭区间: 挡线段是格边, 精确 45° 的弦每次都正好交在端点上, 开区间会让它
+        // 从每道轴对齐挡线的顶点缝里溜过去。弦一侧仍开区间, 端点搭在挡线上是贴墙走不算穿墙。
+        if (t > eps && t < 1 - eps && w > -eps && w < 1 + eps) {
             return true;
         }
     }
@@ -1309,39 +1800,6 @@ bool Blockers::offMask(const WorldPoint& p, const WorldPoint& q) const
         }
     }
     return false;
-}
-
-float ClearanceFloor::seg(const WorldPoint& p, const WorldPoint& q) const
-{
-    const double L = std::hypot(q.x - p.x, q.y - p.y);
-    const int64_t n = static_cast<int64_t>(L / (cs_ * 0.5)) + 2;
-    const double step = 1.0 / static_cast<double>(n - 1);
-    float m = std::numeric_limits<float>::infinity();
-    for (int64_t i = 0; i < n; ++i) {
-        const double t = i == n - 1 ? 1.0 : static_cast<double>(i) * step;
-        int64_t gx = static_cast<int64_t>((p.x + (q.x - p.x) * t - x0_) / cs_);
-        int64_t gy = static_cast<int64_t>((p.y + (q.y - p.y) * t - y0_) / cs_);
-        gx = std::max<int64_t>(0, std::min<int64_t>(cf_->nx - 1, gx));
-        gy = std::max<int64_t>(0, std::min<int64_t>(cf_->ny - 1, gy));
-        m = std::min(m, cf_->at(gy, gx));
-    }
-    return m;
-}
-
-double ClearanceFloor::cost(const WorldPoint& p, const WorldPoint& q) const
-{
-    const double L = std::hypot(q.x - p.x, q.y - p.y);
-    const int64_t n = std::max<int64_t>(static_cast<int64_t>(std::ceil(L / (cs_ * 0.5))), 1);
-    double acc = 0.0;
-    for (int64_t i = 0; i < n; ++i) {
-        const double t = (static_cast<double>(i) + 0.5) / static_cast<double>(n);
-        int64_t gx = static_cast<int64_t>((p.x + (q.x - p.x) * t - x0_) / cs_);
-        int64_t gy = static_cast<int64_t>((p.y + (q.y - p.y) * t - y0_) / cs_);
-        gx = std::max<int64_t>(0, std::min<int64_t>(mg_->nx - 1, gx));
-        gy = std::max<int64_t>(0, std::min<int64_t>(mg_->ny - 1, gy));
-        acc += static_cast<double>(mg_->at(gy, gx));
-    }
-    return L * (acc / static_cast<double>(n));
 }
 
 std::optional<std::vector<float>> LayerOracle::walk(const std::vector<WorldPoint>& pts, float h) const
@@ -1379,16 +1837,15 @@ std::optional<std::vector<float>> LayerOracle::walk(const std::vector<WorldPoint
             continue;
         }
         nb.clear();
-        for (int64_t k = 0; k < st_->K; ++k) {
-            if (st_->IK[j * st_->K + k] >= 0) {
-                nb.push_back(st_->HK[j * st_->K + k]);
-            }
+        const int64_t sb = st_->cstart[static_cast<size_t>(j)], sn = st_->ccnt[static_cast<size_t>(j)];
+        for (int64_t k = 0; k < sn; ++k) {
+            nb.push_back(st_->sp_h[static_cast<size_t>(sb + k)]);
         }
         if (nb.empty()) {
             continue;
         }
         nxt.clear();
-        const double up = kSlope * std::hypot(static_cast<double>(cells[i].x - pc.x), static_cast<double>(cells[i].y - pc.y)) * kCS + kQH;
+        const double up = UpAllow(std::hypot(static_cast<double>(cells[i].x - pc.x), static_cast<double>(cells[i].y - pc.y))) + kQH;
         for (const float t : nb) {
             for (const float c : cur) {
                 const float dh = t - c;
@@ -1419,338 +1876,43 @@ bool LayerOracle::ok(const WorldPoint& p, const WorldPoint& q, float h, float hq
 std::vector<WorldPoint> StringPull(
     const std::vector<WorldPoint>& pts,
     const Blockers& blk,
-    const ClearanceFloor* cfl,
     const LayerOracle* lyo,
-    const std::vector<float>* hs)
+    const std::vector<float>* hs,
+    const Visibility* vis)
 {
-    if (lyo != nullptr && (hs == nullptr || hs->empty())) {
-        return pts;
+    std::vector<WorldPoint> P = pts;
+    std::vector<size_t> idx(P.size());
+    for (size_t k = 0; k < idx.size(); ++k) {
+        idx[k] = k;
     }
-    return Slim(pts, blk, cfl, lyo, hs == nullptr ? 0.0F : hs->front(), false, kStringPullMaxMergeGap);
-}
-
-// 动态规划抽稀: 把输入路径点作为有向无环图的节点, 任意安全直连作为候选边。
-// 首要目标是最短总长度; 净空仅作为合并约束。等长时 Slim 可再选择更少的路径点。
-std::vector<WorldPoint> Slim(
-    const std::vector<WorldPoint>& pts,
-    const Blockers& blk,
-    const ClearanceFloor* cfl,
-    const LayerOracle* lyo,
-    float h,
-    bool prefer_fewer_points,
-    size_t max_merge_gap)
-{
-    if (pts.size() < 3) {
-        return pts;
-    }
-    const std::vector<WorldPoint>& P = pts;
-    std::vector<std::optional<std::vector<float>>> hv;
-    const auto chain = [&](size_t k) {
-        for (size_t i = k; i < P.size(); ++i) {
-            hv[i] = hv[i - 1].has_value() ? lyo->walk({ P[i - 1], P[i] }, *hv[i - 1]) : std::nullopt;
-        }
-    };
-    if (lyo != nullptr && !P.empty()) {
-        hv.assign(P.size(), std::nullopt);
-        hv[0] = std::vector<float> { h };
-        chain(1);
-    }
-    std::vector<double> original_clearance(P.size(), std::numeric_limits<double>::infinity());
-    if (cfl != nullptr) {
-        for (size_t i = 1; i < P.size(); ++i) {
-            original_clearance[i] = cfl->seg(P[i - 1], P[i]);
-        }
-    }
-
-    struct DpState
-    {
-        double length = std::numeric_limits<double>::infinity();
-        size_t segments = std::numeric_limits<size_t>::max();
-        size_t previous = std::numeric_limits<size_t>::max();
-    };
-
-    std::vector<DpState> dp(P.size());
-    dp[0] = { 0.0, 0, 0 };
-    const bool sparse_global = max_merge_gap == 0;
-    std::vector<std::vector<double>> clearance_rmq;
-    std::vector<size_t> clearance_log;
-    if (cfl != nullptr && sparse_global) {
-        clearance_log.resize(P.size() + 1, 0);
-        for (size_t i = 2; i <= P.size(); ++i) {
-            clearance_log[i] = clearance_log[i / 2] + 1;
-        }
-        clearance_rmq.push_back(original_clearance);
-        for (size_t level = 1; (size_t { 1 } << level) <= P.size(); ++level) {
-            const size_t span = size_t { 1 } << level;
-            const size_t half = span >> 1;
-            std::vector<double> row(P.size() - span + 1);
-            for (size_t i = 0; i + span <= P.size(); ++i) {
-                row[i] = std::min(clearance_rmq[level - 1][i], clearance_rmq[level - 1][i + half]);
-            }
-            clearance_rmq.push_back(std::move(row));
-        }
-    }
-    const auto swallowed_clearance = [&](size_t first_edge, size_t last_edge) {
-        if (cfl == nullptr) {
-            return std::numeric_limits<double>::infinity();
-        }
-        if (!sparse_global) {
-            double result = std::numeric_limits<double>::infinity();
-            for (size_t edge = first_edge; edge <= last_edge; ++edge) {
-                result = std::min(result, original_clearance[edge]);
-            }
-            return result;
-        }
-        const size_t length = last_edge - first_edge + 1;
-        const size_t level = clearance_log[length];
-        const size_t span = size_t { 1 } << level;
-        return std::min(clearance_rmq[level][first_edge], clearance_rmq[level][last_edge - span + 1]);
-    };
-    for (size_t j = 1; j < P.size(); ++j) {
-        std::vector<size_t> candidates;
-        if (max_merge_gap > 0) {
-            const size_t first = j > max_merge_gap ? j - max_merge_gap : 0;
-            candidates.reserve(j - first);
-            for (size_t i = j; i > first;) {
-                candidates.push_back(--i);
-            }
-        }
-        else {
-            candidates.reserve(kSlimLocalWindow + 1 + 8);
-            const size_t first = j > kSlimLocalWindow ? j - kSlimLocalWindow : 0;
-            for (size_t i = j; i > first;) {
-                candidates.push_back(--i);
-            }
-            for (size_t gap = kSlimLocalWindow; gap < j;) {
-                const size_t candidate = j - gap;
-                candidates.push_back(candidate);
-                if (candidate > 0) {
-                    candidates.push_back(candidate - 1);
-                }
-                const double local_clearance = swallowed_clearance(candidate + 1, j);
-                const double growth = cfl == nullptr || local_clearance >= 2.0 ? 1.5
-                                      : local_clearance >= 1.0                 ? 1.2
-                                      : local_clearance >= 0.5                 ? 1.1
-                                                                               : 1.05;
-                const size_t next_gap = static_cast<size_t>(std::ceil(static_cast<double>(gap) * growth));
-                if (next_gap <= gap) {
-                    break;
-                }
-                gap = next_gap;
-            }
-            candidates.push_back(0);
-            std::sort(candidates.begin(), candidates.end(), std::greater<>());
-            candidates.erase(std::unique(candidates.begin(), candidates.end()), candidates.end());
-        }
-        for (const size_t i : candidates) {
-            if (dp[i].segments == std::numeric_limits<size_t>::max()) {
-                continue;
-            }
-            const bool adjacent = j == i + 1;
-            const double direct_clearance = cfl == nullptr ? std::numeric_limits<double>::infinity() : cfl->seg(P[i], P[j]);
-            const double previous_min = swallowed_clearance(i + 1, j);
-            const bool clearance_ok = cfl == nullptr || direct_clearance > kSlimClearanceBypass || direct_clearance >= previous_min;
-            // 原始相邻边是保底路径,即使当前抽稀判据无法复核它也不能丢掉;
-            // 只有跨越中间点的候选边才需要通过合并安全性检查。
-            if (!adjacent && (!clearance_ok || blk.blocked(P[i], P[j]))) {
-                continue;
-            }
-            if (!adjacent && lyo != nullptr) {
-                const auto nh = hv[i].has_value() ? lyo->walk({ P[i], P[j] }, *hv[i]) : std::nullopt;
-                if (!nh.has_value() || !hv[j].has_value() || !std::all_of(hv[j]->begin(), hv[j]->end(), [&](float v) {
-                        return std::find(nh->begin(), nh->end(), v) != nh->end();
-                    })) {
-                    continue;
-                }
-            }
-            const double length = dp[i].length + std::hypot(P[j].x - P[i].x, P[j].y - P[i].y);
-            const size_t segments = dp[i].segments + 1;
-            const double length_tol = kCostTol * std::max({ 1.0, length, dp[j].length });
-            const bool better = dp[j].segments == std::numeric_limits<size_t>::max() || length < dp[j].length - length_tol
-                                || (prefer_fewer_points && std::fabs(length - dp[j].length) <= length_tol && segments < dp[j].segments);
-            if (better) {
-                dp[j] = { length, segments, i };
-            }
-        }
-    }
-    if (dp.back().segments == std::numeric_limits<size_t>::max()) {
-        return pts;
-    }
-
-    std::vector<size_t> keep;
-    for (size_t i = P.size() - 1; i != std::numeric_limits<size_t>::max(); i = dp[i].previous) {
-        keep.push_back(i);
-        if (i == 0) {
-            break;
-        }
-    }
-    std::reverse(keep.begin(), keep.end());
-    std::vector<WorldPoint> out;
-    out.reserve(keep.size());
-    for (const size_t i : keep) {
-        out.push_back(P[i]);
-    }
-    return out;
-}
-
-namespace
-{
-
-double CellValue(const Grid<float>& F, double x0, double y0, double cs, const WorldPoint& p)
-{
-    const int64_t cy = std::min(std::max(static_cast<int64_t>((p.y - y0) / cs), int64_t { 0 }), F.ny - 1);
-    const int64_t cx = std::min(std::max(static_cast<int64_t>((p.x - x0) / cs), int64_t { 0 }), F.nx - 1);
-    return static_cast<double>(F.at(cy, cx));
-}
-
-double TurnCos(const WorldPoint& a, const WorldPoint& b, const WorldPoint& c)
-{
-    const double ux = b.x - a.x, uy = b.y - a.y;
-    const double vx = c.x - b.x, vy = c.y - b.y;
-    const double nu = std::hypot(ux, uy), nv = std::hypot(vx, vy);
-    if (nu < 1e-12 || nv < 1e-12) {
-        return -1.0;
-    }
-    return (ux * vx + uy * vy) / (nu * nv);
-}
-
-}
-
-// 拉直把拐点钉在轮廓角上, 过角即贴角切线, 实机绕不过去。沿转弯外侧扫方向把
-// 拐点外挪到留够过角余量; 只挪拐点不插点, 两段仍是直线, 直角不抹圆。
-// 判据取拐点自身净空: 用整弦会被两侧远处的窄段钉死, 角上的亏欠被掩盖。
-// 相邻段短于 kCornerSeg 的不算拐点, 亚像素锯齿挪动只会把线推向墙。
-// 候选按偏离转弯外侧的角度排序, 达标即停; 绝大多数方向被挡线否决, 少试方向
-// 会整体空转。两段弦净空各自允许半格退让, 挡线与层高各自否决。
-// 候选不得把转角掰得更尖: 外挪是给转弯让余量, 掰尖等于就地折返。
-std::vector<WorldPoint> WidenCorners(
-    const std::vector<WorldPoint>& pts,
-    const Blockers& blk,
-    const Grid<float>& dist,
-    double x0,
-    double y0,
-    double cs,
-    const ClearanceFloor* cfl,
-    const LayerOracle* lyo,
-    float h)
-{
-    std::vector<WorldPoint> Q = pts;
-    if (Q.size() < 3) {
-        return Q;
-    }
-    const double cosmin = std::cos(kCornerTurn * (std::numbers::pi / 180.0));
-    const int64_t nstep = std::max(int64_t { 1 }, static_cast<int64_t>(std::lround(kCornerMax / kCornerStep)));
-    std::vector<double> ang(static_cast<size_t>(kCornerDirs));
-    for (int64_t t = 0; t < kCornerDirs; ++t) {
-        ang[static_cast<size_t>(t)] = 2.0 * std::numbers::pi * static_cast<double>(t) / static_cast<double>(kCornerDirs);
-    }
-    for (int64_t r = 0; r < kCornerRounds; ++r) {
-        bool moved = false;
-        for (size_t k = 1; k + 1 < Q.size(); ++k) {
-            const WorldPoint &a = Q[k - 1], &b = Q[k], &c = Q[k + 1];
-            double ux = b.x - a.x, uy = b.y - a.y;
-            double vx = c.x - b.x, vy = c.y - b.y;
-            const double nu = std::hypot(ux, uy), nv = std::hypot(vx, vy);
-            if (nu < kCornerSeg || nv < kCornerSeg) {
-                continue;
-            }
-            ux /= nu;
-            uy /= nu;
-            vx /= nv;
-            vy /= nv;
-            if (ux * vx + uy * vy > cosmin) {
-                continue;
-            }
-            double best = CellValue(dist, x0, y0, cs, b);
-            if (best >= kCornerR) {
-                continue;
-            }
-            const double out = std::atan2(uy - vy, ux - vx);
-            const double fa = cfl != nullptr ? static_cast<double>(cfl->seg(a, b)) - kClrTol : -1.0;
-            const double fc = cfl != nullptr ? static_cast<double>(cfl->seg(b, c)) - kClrTol : -1.0;
-            const auto dev = [&](double t) {
-                return std::abs(std::remainder(t - out, 2.0 * std::numbers::pi));
-            };
-            std::vector<double> order = ang;
-            std::stable_sort(order.begin(), order.end(), [&](double p, double q) { return dev(p) < dev(q); });
-            const double turn = ux * vx + uy * vy;
-            bool have = false;
-            WorldPoint pick {};
-            for (const double t : order) {
-                const double dx = std::cos(t), dy = std::sin(t);
-                for (int64_t i = 1; i <= nstep; ++i) {
-                    const WorldPoint q { .x = b.x + dx * static_cast<double>(i) * kCornerStep,
-                                         .y = b.y + dy * static_cast<double>(i) * kCornerStep };
-                    if (blk.blocked(a, q) || blk.blocked(q, c)) {
+    for (int round = 0; round < 6; ++round) {
+        std::vector<WorldPoint> out { P[0] };
+        std::vector<size_t> oid { idx[0] };
+        size_t i = 0;
+        while (i < P.size() - 1) {
+            size_t j = P.size() - 1;
+            while (j > i + 1) {
+                if (vis != nullptr) {
+                    if (vis->ok(P[i], P[j], (*hs)[idx[i]], (*hs)[idx[j]])) {
                         break;
                     }
-                    if (TurnCos(a, q, c) < turn - 1e-9) {
-                        continue;
-                    }
-                    const double v = CellValue(dist, x0, y0, cs, q);
-                    if (v > best + 1e-9
-                        && (cfl == nullptr || (static_cast<double>(cfl->seg(a, q)) >= fa && static_cast<double>(cfl->seg(q, c)) >= fc))) {
-                        best = v;
-                        pick = q;
-                        have = true;
-                        if (best >= kCornerR) {
-                            break;
-                        }
-                    }
+                    --j;
+                    continue;
                 }
-                if (best >= kCornerR) {
+                if (!blk.blocked(P[i], P[j]) && (lyo == nullptr || lyo->ok(P[i], P[j], (*hs)[idx[i]], (*hs)[idx[j]]))) {
                     break;
                 }
+                --j;
             }
-            if (!have) {
-                continue;
-            }
-            if (lyo != nullptr) {
-                std::vector<WorldPoint> probe = Q;
-                probe[k] = pick;
-                if (!lyo->walk(probe, h).has_value()) {
-                    continue;
-                }
-            }
-            Q[k] = pick;
-            moved = true;
+            out.push_back(P[j]);
+            oid.push_back(idx[j]);
+            i = j;
         }
-        if (!moved) {
+        const bool changed = out.size() != P.size();
+        P = std::move(out);
+        idx = std::move(oid);
+        if (!changed) {
             break;
-        }
-    }
-    return Q;
-}
-
-std::vector<WorldPoint> DropLoops(const std::vector<WorldPoint>& pts)
-{
-    constexpr double eps = 1e-9;
-    std::vector<WorldPoint> P = pts;
-    bool changed = true;
-    while (changed && P.size() > 3) {
-        changed = false;
-        for (size_t i = 0; i + 1 < P.size() && !changed; ++i) {
-            for (size_t j = i + 2; j + 1 < P.size(); ++j) {
-                const WorldPoint &a = P[i], &b = P[i + 1], &c = P[j], &d = P[j + 1];
-                const double rx = b.x - a.x, ry = b.y - a.y;
-                const double sx = d.x - c.x, sy = d.y - c.y;
-                const double den = rx * sy - ry * sx;
-                if (std::abs(den) < eps) {
-                    continue;
-                }
-                const double t = ((c.x - a.x) * sy - (c.y - a.y) * sx) / den;
-                const double u = ((c.x - a.x) * ry - (c.y - a.y) * rx) / den;
-                if (!(eps < t && t < 1 - eps && eps < u && u < 1 - eps)) {
-                    continue;
-                }
-                const WorldPoint x { a.x + rx * t, a.y + ry * t };
-                std::vector<WorldPoint> np(P.begin(), P.begin() + static_cast<int64_t>(i) + 1);
-                np.push_back(x);
-                np.insert(np.end(), P.begin() + static_cast<int64_t>(j) + 1, P.end());
-                P = std::move(np);
-                changed = true;
-                break;
-            }
         }
     }
     return P;

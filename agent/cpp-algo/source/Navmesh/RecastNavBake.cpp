@@ -31,7 +31,8 @@ BakedCells BakeCells(const ZoneClean& zc, WallOracle& wo, double x0, double y0, 
     out.y0 = y0;
     out.nx = nx;
     out.ny = ny;
-    out.rcs = Rasterize(zc.mesh.V, zc.mesh.H, zc.mesh.T, x0, y0, nx, ny);
+    // 掩码随网格一起送进体素化 —— 烘焙期与运行期共用这一处判据,两边的可走面必然一致
+    out.rcs = Rasterize(zc.mesh.V, zc.mesh.H, zc.mesh.T, x0, y0, nx, ny, &zc.walkable);
     AppendSeamBridge(out.rcs, nx, ny);
     out.st = BuildSpans(out.rcs.cell, out.rcs.h);
 

@@ -91,6 +91,15 @@ public:
     // 把该区的清洗网格与墙 oracle 提前建好,让首条路线不必冷吃这份开销。
     void warm(const std::string& zone_name);
 
+    // 改可走面掩码(源 surface flags 的收取位)。运行端必须与烘格图时用的是同一个值,
+    // 否则格图铺出来的可走面与规划器认的可走面对不上。改值会丢掉已建好的区缓存。
+    void setWalkableFlags(uint32_t flags);
+
+    // 逐点给出附近的全区类号。一次规划只在单一类号内找路,所以两点的类号集合不相交
+    // 时这条腿必败,不必真去规划。半径取 kSnapRadius:选类只发生在点所在格或吸附后
+    // 那一格,都不出这个圈。空集表示无从判断(无格图、未知区、点周围无体素)。
+    std::vector<std::vector<uint32_t>> regionsNear(const std::string& zone_name, const std::vector<WorldPoint>& points);
+
 private:
     struct ZoneEntry
     {
@@ -117,6 +126,7 @@ private:
     std::unordered_map<std::string, ZoneEntry> zones_;
     GridPack grid_; // 包里的预烘格图,没有它就没法规划
     std::string grid_error_;
+    uint32_t walkable_flags_ = kWalkableFlagsDefault;
 };
 
 }

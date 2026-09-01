@@ -379,10 +379,10 @@ std::optional<BaseNavSnapResult> BaseNavPlanner::snap(uint16_t zone_id, const Wo
         return best_floor;
     }
 
-    // Floor-blind path: rank by (non-island first, then snap distance, then smallest index). With no island
-    // in play this is exactly the legacy order — containing surfaces (distance 0) win, ties by smallest index —
-    // so the golden-hash parity holds; it only diverges to skip a micro-component when a real surface competes.
-    std::optional<std::tuple<int, double, uint32_t>> best_key;
+    // Floor-blind path: rank by (non-island first, then snap distance, then highest surface, then smallest
+    // index). Containing surfaces (distance 0) still win; it only diverges to skip a micro-component when a
+    // real surface competes, and to pick the top layer when several floors stack on the same (u,v).
+    std::optional<std::tuple<int, double, double, uint32_t>> best_key;
     std::optional<BaseNavSnapResult> best;
     for (const uint32_t triangle_index : candidates) {
         if (triangle_zones_[triangle_index] != zone_id) {
@@ -405,7 +405,13 @@ std::optional<BaseNavSnapResult> BaseNavPlanner::snap(uint16_t zone_id, const Wo
                 continue;
             }
         }
-        const std::tuple<int, double, uint32_t> key { is_small_island(triangle_index) ? 1 : 0, distance, triangle_index };
+        // 距离打平只会发生在同一 (u,v) 上摞着好几层地面时(都含点 ⇒ 都是 0)。此时按高度降序:
+        // 底图像素是俯视图上的一点,那点看得见的就是最上面那层。原来的「取最小三角号」在这里
+        // 是任意的 —— 重烘一次三角顺序一换,起点就可能吸到桥下/水下那层,与终点分属两个分量,
+        // A* 直接报不连通。非打平的候选不受影响,distance 仍排在高度前面。
+        const std::tuple<int, double, double, uint32_t> key {
+            is_small_island(triangle_index) ? 1 : 0, distance, -triangle_heights_[triangle_index], triangle_index
+        };
         if (!best_key || key < *best_key) {
             best_key = key;
             best = BaseNavSnapResult { .triangle = triangle_index, .point = snapped, .distance = distance };

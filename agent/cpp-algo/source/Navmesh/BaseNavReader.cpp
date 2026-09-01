@@ -41,7 +41,15 @@ constexpr uint16_t kGeometrySectionSince = 5;
 constexpr size_t kGzipReadChunkSize = 4 << 20;
 // BGEO 段:四块几何按定长块存,块内自足解码,按区加载只解用得着的块。
 constexpr char kGeometrySectionTag[5] = "BGEO";
+constexpr char kOffMeshSectionTag[5] = "BOML";
+constexpr char kSurfaceSectionTag[5] = "BSRF";
 constexpr uint32_t kGeometrySectionVersion = 1;
+constexpr uint16_t kOffMeshSectionVersion = 1;
+constexpr uint16_t kOffMeshRecordSize = 80;
+constexpr size_t kOffMeshHeaderSize = 16;
+constexpr uint16_t kSurfaceSectionVersion = 1;
+constexpr uint16_t kSurfaceRecordSize = 8;
+constexpr size_t kSurfaceHeaderSize = 16;
 constexpr size_t kGeoHeaderSize = 72;
 constexpr size_t kGeoChunkEntrySize = 16;
 constexpr size_t kInflateChunkSize = 1U << 16U;
@@ -119,6 +127,75 @@ BaseNavLink ReadLinkRecord(const uint8_t*& cursor)
     link.source = ReadU32(cursor);
     link.target = ReadU32(cursor);
     return link;
+}
+
+bool ParseOffMeshSection(const BaseNavSection& section, std::vector<BaseNavOffMeshLink>* links)
+{
+    links->clear();
+    if (section.bytes.size() < kOffMeshHeaderSize || std::memcmp(section.bytes.data(), kOffMeshSectionTag, 4) != 0) {
+        return false;
+    }
+    const uint8_t* cursor = section.bytes.data() + 4;
+    const uint16_t version = ReadU16(cursor);
+    const uint16_t record_size = ReadU16(cursor);
+    const uint32_t count = ReadU32(cursor);
+    (void)ReadU32(cursor);
+    if (version != kOffMeshSectionVersion || record_size != kOffMeshRecordSize
+        || count != (section.bytes.size() - kOffMeshHeaderSize) / kOffMeshRecordSize
+        || section.bytes.size() != kOffMeshHeaderSize + static_cast<size_t>(count) * kOffMeshRecordSize) {
+        return false;
+    }
+    links->reserve(count);
+    for (uint32_t index = 0; index < count; ++index) {
+        BaseNavOffMeshLink link;
+        link.zone_id = ReadU16(cursor);
+        link.kind = *cursor++;
+        ++cursor;
+        link.is_ext = ReadI32(cursor);
+        link.bidirectional = ReadI32(cursor);
+        link.area = ReadI32(cursor);
+        link.link_type = ReadU16(cursor);
+        link.direction = *cursor++;
+        ++cursor;
+        link.radius = ReadF32(cursor);
+        link.cost_modifier = ReadF32(cursor);
+        for (BaseNavVertex& point : link.points) {
+            point.u = ReadF32(cursor);
+            point.v = ReadF32(cursor);
+            point.height = ReadF32(cursor);
+        }
+        (void)ReadU32(cursor);
+        links->push_back(link);
+    }
+    return cursor == section.bytes.data() + section.bytes.size();
+}
+
+bool ParseSurfaceSection(const BaseNavSection& section, std::vector<BaseNavSurface>* surfaces)
+{
+    surfaces->clear();
+    if (section.bytes.size() < kSurfaceHeaderSize || std::memcmp(section.bytes.data(), kSurfaceSectionTag, 4) != 0) {
+        return false;
+    }
+    const uint8_t* cursor = section.bytes.data() + 4;
+    const uint16_t version = ReadU16(cursor);
+    const uint16_t record_size = ReadU16(cursor);
+    const uint32_t count = ReadU32(cursor);
+    (void)ReadU32(cursor);
+    if (version != kSurfaceSectionVersion || record_size != kSurfaceRecordSize
+        || count != (section.bytes.size() - kSurfaceHeaderSize) / kSurfaceRecordSize
+        || section.bytes.size() != kSurfaceHeaderSize + static_cast<size_t>(count) * kSurfaceRecordSize) {
+        return false;
+    }
+    surfaces->reserve(count);
+    for (uint32_t index = 0; index < count; ++index) {
+        BaseNavSurface surface;
+        surface.area = *cursor++;
+        surface.poly_type = *cursor++;
+        (void)ReadU16(cursor);
+        surface.flags = ReadU32(cursor);
+        surfaces->push_back(surface);
+    }
+    return cursor == section.bytes.data() + section.bytes.size();
 }
 
 uint64_t Fnv64Update(uint64_t hash, const uint8_t* bytes, size_t size)
@@ -914,9 +991,48 @@ BaseNavLoadResult LoadBaseNavPack(const std::filesystem::path& path, std::string
         links.push_back(link);
     }
 
+    std::vector<BaseNavOffMeshLink> off_mesh_links;
+    for (const BaseNavSection& section : sections) {
+        if (std::memcmp(section.tag.data(), kOffMeshSectionTag, 4) == 0
+            && !ParseOffMeshSection(section, &off_mesh_links)) {
+            return Fail(BaseNavLoadStatus::InvalidSize, "nav off-mesh section is malformed");
+        }
+    }
+    std::vector<BaseNavSurface> surfaces;
+    for (const BaseNavSection& section : sections) {
+        if (std::memcmp(section.tag.data(), kSurfaceSectionTag, 4) == 0) {
+            if (!ParseSurfaceSection(section, &surfaces) || surfaces.size() != triangle_count) {
+                return Fail(BaseNavLoadStatus::InvalidSize, "nav surface section is malformed");
+            }
+        }
+    }
+    if (zone_scoped && !surfaces.empty()) {
+        std::vector<BaseNavSurface> scoped(
+            surfaces.begin() + selected_first_triangle,
+            surfaces.begin() + selected_triangle_end);
+        surfaces = std::move(scoped);
+    }
+    if (zone_scoped) {
+        std::erase_if(off_mesh_links, [&](const BaseNavOffMeshLink& link) { return link.zone_id != selected_zone->zone_id; });
+    }
+    for (const BaseNavOffMeshLink& link : off_mesh_links) {
+        const bool known_zone = std::any_of(
+            zones.begin(), zones.end(), [&](const BaseNavZone& zone) { return zone.zone_id == link.zone_id; });
+        if (!known_zone) {
+            return Fail(BaseNavLoadStatus::InvalidSize, "nav off-mesh link refers to an unknown zone");
+        }
+    }
+
     BaseNavLoadResult result;
-    result.pack =
-        detail::MakeBaseNavPack(path, std::move(zones), std::move(vertices), std::move(triangles), std::move(links), std::move(sections));
+    result.pack = detail::MakeBaseNavPack(
+        path,
+        std::move(zones),
+        std::move(vertices),
+        std::move(triangles),
+        std::move(links),
+        std::move(surfaces),
+        std::move(off_mesh_links),
+        std::move(sections));
     return result;
 }
 
