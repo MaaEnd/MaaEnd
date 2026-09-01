@@ -7,7 +7,7 @@
 #include <thread>
 #include <vector>
 
-namespace navmesh::recast
+namespace navmesh
 {
 
 inline constexpr unsigned kNavWorkerLimit = 4;      // 再多就落到能效核上, 这几个环是访存绑死的, 量不出加速

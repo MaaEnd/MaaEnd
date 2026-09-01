@@ -5,10 +5,12 @@
 #include <cstdint>
 #include <limits>
 #include <numeric>
+#include <thread>
 #include <tuple>
 
 #include "BaseNavGeometry.h"
 #include "BaseNavPlanner.h"
+#include "NavParallel.h"
 
 namespace navmesh
 {
@@ -74,19 +76,29 @@ BaseNavPlanner::BaseNavPlanner(const BaseNavPack& pack)
     , adjacency_offsets_(pack.triangles().size() + 1, 0)
     , triangle_heights_(pack.triangles().size(), 0.0)
 {
-    buildIndex();
-    buildSpatialIndex();
-    computeTriangleHeights();
-}
-
-void BaseNavPlanner::buildIndex()
-{
     for (const auto& zone : pack_.zones()) {
         const uint32_t end = zone.first_triangle + zone.triangle_count;
         for (uint32_t index = zone.first_triangle; index < end && index < triangle_zones_.size(); ++index) {
             triangle_zones_[index] = zone.zone_id;
         }
     }
+    // 三段各写各的成员(连通分量与邻接表 / 空间桶 / 三角高度), 读的只有 pack_ 与刚填好的分区表,
+    // 谁都看不见另外两段的产物, 于是并起来跑与顺着跑逐位相同。
+    if (NavWorkerCount(static_cast<int64_t>(pack_.triangles().size())) <= 1) {
+        buildIndex();
+        buildSpatialIndex();
+        computeTriangleHeights();
+        return;
+    }
+    std::thread bins([this] { buildSpatialIndex(); });
+    std::thread heights([this] { computeTriangleHeights(); });
+    buildIndex();
+    bins.join();
+    heights.join();
+}
+
+void BaseNavPlanner::buildIndex()
+{
     buildNaturalComponents();
 
     // 计数趟与填充趟之间只做了前缀和与 resize, 谓词读的分区、自然连通分量、三角几何一份都没动,
