@@ -1,0 +1,727 @@
+{
+    "__DijiangDepotSwitchToValleyIV": {
+        "desc": "在帝江号仓库内切换到四号谷地",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InDijiangDepot"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "anchor": {
+            "__DijiangDepotTargetMain": "__DijiangDepotInValleyIV",
+            "__DijiangDepotTargetRegion": "__DijiangDepotSelectSwitchRegionValleyIV"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__DijiangDepotSwitchToRegion"
+        ]
+    },
+    "__DijiangDepotSwitchToWuling": {
+        "desc": "在帝江号仓库内切换到武陵",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InDijiangDepot"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "anchor": {
+            "__DijiangDepotTargetMain": "__DijiangDepotInWuling",
+            "__DijiangDepotTargetRegion": "__DijiangDepotSelectSwitchRegionWuling"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__DijiangDepotSwitchToRegion"
+        ]
+    },
+    "__DijiangDepotSwitchToRegion": {
+        "desc": "切换到调用方通过锚点指定的帝江号仓库",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]__DijiangDepotTargetMain",
+            "[JumpBack]__DijiangDepotCloseSwitch",
+            "__DijiangDepotOpenSwitch"
+        ]
+    },
+    "__DijiangDepotSwitchCloseButton": {
+        "desc": "识别帝江号仓库切换页面右上角的关闭按钮",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__DijiangDepotInSwitch",
+                    "CloseButtonType1"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__DijiangDepotCloseSwitch": {
+        "desc": "关闭帝江号仓库切换页面并返回仓库主界面",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__DijiangDepotSwitchCloseButton"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 3000,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__DijiangDepotOpenSwitch": {
+        "desc": "从帝江号仓库主界面打开仓库切换页面",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InDijiangDepot",
+                    "__DijiangDepotMainSwitchIcon"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 3000,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__DijiangDepotSwitchOpened"
+        ]
+    },
+    "__DijiangDepotSwitchOpened": {
+        "desc": "确认帝江号仓库切换页面已经打开",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__DijiangDepotInSwitch"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]__DijiangDepotTargetRegion"
+        ]
+    },
+    "__DijiangDepotSelectSwitchRegionValleyIV": {
+        "desc": "在帝江号仓库切换页面选择四号谷地",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__DijiangDepotSwitchRegionValleyIV"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 3000,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__DijiangDepotSwitchYellowConfirm"
+        ]
+    },
+    "__DijiangDepotSelectSwitchRegionWuling": {
+        "desc": "在帝江号仓库切换页面选择武陵",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__DijiangDepotSwitchRegionWuling"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 3000,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__DijiangDepotSwitchYellowConfirm"
+        ]
+    },
+    "__DijiangDepotSwitchYellowConfirm": {
+        "desc": "确认目标仓库已选中并点击黄色连接按钮",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__DijiangDepotInSwitch",
+                    "YellowConfirmButtonType1"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 400,
+            "timeout": 3000,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__DijiangDepotSwitchConnected"
+        ]
+    },
+    "__DijiangDepotSwitchConnected": {
+        "desc": "确认目标仓库连接完成并出现白色已连接按钮",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__DijiangDepotInSwitch",
+                    "WhiteConfirmButtonType1"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__DijiangDepotCloseConnectedSwitch"
+        ]
+    },
+    "__DijiangDepotCloseConnectedSwitch": {
+        "desc": "连接完成后关闭帝江号仓库切换页面",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__DijiangDepotSwitchCloseButton"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 3000,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]__DijiangDepotTargetMain"
+        ]
+    },
+    "__DijiangDepotSelectItemCategoryAll": {
+        "desc": "将帝江号仓库切换到全部分类",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InDijiangDepot"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "anchor": {
+            "__DijiangDepotTargetCategorySelected": "__DijiangDepotItemCategoryAllSelected",
+            "__DijiangDepotTargetCategoryNormal": "__DijiangDepotClickItemCategoryAll"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__DijiangDepotSelectItemCategory"
+        ]
+    },
+    "__DijiangDepotSelectItemCategoryOre": {
+        "desc": "将帝江号仓库切换到矿物分类",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InDijiangDepot"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "anchor": {
+            "__DijiangDepotTargetCategorySelected": "__DijiangDepotItemCategoryOreSelected",
+            "__DijiangDepotTargetCategoryNormal": "__DijiangDepotClickItemCategoryOre"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__DijiangDepotSelectItemCategory"
+        ]
+    },
+    "__DijiangDepotSelectItemCategoryPlant": {
+        "desc": "将帝江号仓库切换到植物分类",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InDijiangDepot"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "anchor": {
+            "__DijiangDepotTargetCategorySelected": "__DijiangDepotItemCategoryPlantSelected",
+            "__DijiangDepotTargetCategoryNormal": "__DijiangDepotClickItemCategoryPlant"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__DijiangDepotSelectItemCategory"
+        ]
+    },
+    "__DijiangDepotSelectItemCategoryProduct": {
+        "desc": "将帝江号仓库切换到产物分类",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InDijiangDepot"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "anchor": {
+            "__DijiangDepotTargetCategorySelected": "__DijiangDepotItemCategoryProductSelected",
+            "__DijiangDepotTargetCategoryNormal": "__DijiangDepotClickItemCategoryProduct"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__DijiangDepotSelectItemCategory"
+        ]
+    },
+    "__DijiangDepotSelectItemCategoryDoodad": {
+        "desc": "将帝江号仓库切换到采集材料分类",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InDijiangDepot"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "anchor": {
+            "__DijiangDepotTargetCategorySelected": "__DijiangDepotItemCategoryDoodadSelected",
+            "__DijiangDepotTargetCategoryNormal": "__DijiangDepotClickItemCategoryDoodad"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__DijiangDepotSelectItemCategory"
+        ]
+    },
+    "__DijiangDepotSelectItemCategoryNurturance": {
+        "desc": "将帝江号仓库切换到培养素材分类",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InDijiangDepot"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "anchor": {
+            "__DijiangDepotTargetCategorySelected": "__DijiangDepotItemCategoryNurturanceSelected",
+            "__DijiangDepotTargetCategoryNormal": "__DijiangDepotClickItemCategoryNurturance"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__DijiangDepotSelectItemCategory"
+        ]
+    },
+    "__DijiangDepotSelectItemCategoryUsable": {
+        "desc": "将帝江号仓库切换到可用道具分类",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InDijiangDepot"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "anchor": {
+            "__DijiangDepotTargetCategorySelected": "__DijiangDepotItemCategoryUsableSelected",
+            "__DijiangDepotTargetCategoryNormal": "__DijiangDepotClickItemCategoryUsable"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__DijiangDepotSelectItemCategory"
+        ]
+    },
+    "__DijiangDepotSelectItemCategoryProducer": {
+        "desc": "将帝江号仓库切换到生产工具分类",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InDijiangDepot"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "anchor": {
+            "__DijiangDepotTargetCategorySelected": "__DijiangDepotItemCategoryProducerSelected",
+            "__DijiangDepotTargetCategoryNormal": "__DijiangDepotClickItemCategoryProducer"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__DijiangDepotSelectItemCategory"
+        ]
+    },
+    "__DijiangDepotSelectItemCategoryPortableDevice": {
+        "desc": "将帝江号仓库切换到随身装置分类",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InDijiangDepot"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "anchor": {
+            "__DijiangDepotTargetCategorySelected": "__DijiangDepotItemCategoryPortableDeviceSelected",
+            "__DijiangDepotTargetCategoryNormal": "__DijiangDepotClickItemCategoryPortableDevice"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__DijiangDepotSelectItemCategory"
+        ]
+    },
+    "__DijiangDepotSelectItemCategory": {
+        "desc": "切换到调用方通过锚点指定的仓库物品分类",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]__DijiangDepotTargetCategorySelected",
+            "[Anchor]__DijiangDepotTargetCategoryNormal"
+        ]
+    },
+    "__DijiangDepotClickItemCategoryAll": {
+        "desc": "点击帝江号仓库的全部分类普通态图标",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__DijiangDepotItemCategoryAllNormal"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 3000,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]__DijiangDepotTargetCategorySelected"
+        ]
+    },
+    "__DijiangDepotClickItemCategoryOre": {
+        "desc": "点击帝江号仓库的矿物分类普通态图标",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__DijiangDepotItemCategoryOreNormal"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 3000,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]__DijiangDepotTargetCategorySelected"
+        ]
+    },
+    "__DijiangDepotClickItemCategoryPlant": {
+        "desc": "点击帝江号仓库的植物分类普通态图标",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__DijiangDepotItemCategoryPlantNormal"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 3000,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]__DijiangDepotTargetCategorySelected"
+        ]
+    },
+    "__DijiangDepotClickItemCategoryProduct": {
+        "desc": "点击帝江号仓库的产物分类普通态图标",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__DijiangDepotItemCategoryProductNormal"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 3000,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]__DijiangDepotTargetCategorySelected"
+        ]
+    },
+    "__DijiangDepotClickItemCategoryDoodad": {
+        "desc": "点击帝江号仓库的采集材料分类普通态图标",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__DijiangDepotItemCategoryDoodadNormal"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 3000,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]__DijiangDepotTargetCategorySelected"
+        ]
+    },
+    "__DijiangDepotClickItemCategoryNurturance": {
+        "desc": "点击帝江号仓库的培养素材分类普通态图标",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__DijiangDepotItemCategoryNurturanceNormal"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 3000,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]__DijiangDepotTargetCategorySelected"
+        ]
+    },
+    "__DijiangDepotClickItemCategoryUsable": {
+        "desc": "点击帝江号仓库的可用道具分类普通态图标",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__DijiangDepotItemCategoryUsableNormal"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 3000,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]__DijiangDepotTargetCategorySelected"
+        ]
+    },
+    "__DijiangDepotClickItemCategoryProducer": {
+        "desc": "点击帝江号仓库的生产工具分类普通态图标",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__DijiangDepotItemCategoryProducerNormal"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 3000,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]__DijiangDepotTargetCategorySelected"
+        ]
+    },
+    "__DijiangDepotClickItemCategoryPortableDevice": {
+        "desc": "点击帝江号仓库的随身装置分类普通态图标",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__DijiangDepotItemCategoryPortableDeviceNormal"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 3000,
+            "target": [
+                0,
+                0,
+                0,
+                0
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]__DijiangDepotTargetCategorySelected"
+        ]
+    }
+}

@@ -1,0 +1,290 @@
+{
+    "__DijiangDepotMainRegionValleyIV": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    569,
+                    69,
+                    33,
+                    33
+                ]
+            }
+        }
+    },
+    "__DijiangDepotMainRegionWuling": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    569,
+                    69,
+                    33,
+                    33
+                ]
+            }
+        }
+    },
+    "__DijiangDepotMainSwitchIcon": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    688,
+                    69,
+                    33,
+                    33
+                ]
+            }
+        }
+    },
+    "__DijiangDepotMainSwitchVisible": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    688,
+                    69,
+                    33,
+                    33
+                ]
+            }
+        }
+    },
+    "__DijiangDepotSwitchRegionValleyIV": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    486,
+                    113,
+                    126,
+                    478
+                ]
+            }
+        }
+    },
+    "__DijiangDepotSwitchRegionWuling": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    486,
+                    113,
+                    126,
+                    478
+                ]
+            }
+        }
+    },
+    "__DijiangDepotItemCategoryAllNormal": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    41,
+                    121,
+                    688,
+                    50
+                ]
+            }
+        }
+    },
+    "__DijiangDepotItemCategoryAllSelected": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    41,
+                    121,
+                    688,
+                    50
+                ]
+            }
+        }
+    },
+    "__DijiangDepotItemCategoryOreNormal": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    41,
+                    121,
+                    688,
+                    50
+                ]
+            }
+        }
+    },
+    "__DijiangDepotItemCategoryOreSelected": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    41,
+                    121,
+                    688,
+                    50
+                ]
+            }
+        }
+    },
+    "__DijiangDepotItemCategoryPlantNormal": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    41,
+                    121,
+                    688,
+                    50
+                ]
+            }
+        }
+    },
+    "__DijiangDepotItemCategoryPlantSelected": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    41,
+                    121,
+                    688,
+                    50
+                ]
+            }
+        }
+    },
+    "__DijiangDepotItemCategoryProductNormal": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    41,
+                    121,
+                    688,
+                    50
+                ]
+            }
+        }
+    },
+    "__DijiangDepotItemCategoryProductSelected": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    41,
+                    121,
+                    688,
+                    50
+                ]
+            }
+        }
+    },
+    "__DijiangDepotItemCategoryDoodadNormal": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    41,
+                    121,
+                    688,
+                    50
+                ]
+            }
+        }
+    },
+    "__DijiangDepotItemCategoryDoodadSelected": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    41,
+                    121,
+                    688,
+                    50
+                ]
+            }
+        }
+    },
+    "__DijiangDepotItemCategoryNurturanceNormal": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    41,
+                    121,
+                    688,
+                    50
+                ]
+            }
+        }
+    },
+    "__DijiangDepotItemCategoryNurturanceSelected": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    41,
+                    121,
+                    688,
+                    50
+                ]
+            }
+        }
+    },
+    "__DijiangDepotItemCategoryUsableNormal": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    41,
+                    121,
+                    688,
+                    50
+                ]
+            }
+        }
+    },
+    "__DijiangDepotItemCategoryUsableSelected": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    41,
+                    121,
+                    688,
+                    50
+                ]
+            }
+        }
+    },
+    "__DijiangDepotItemCategoryProducerNormal": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    41,
+                    121,
+                    688,
+                    50
+                ]
+            }
+        }
+    },
+    "__DijiangDepotItemCategoryProducerSelected": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    41,
+                    121,
+                    688,
+                    50
+                ]
+            }
+        }
+    },
+    "__DijiangDepotItemCategoryPortableDeviceNormal": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    41,
+                    121,
+                    688,
+                    50
+                ]
+            }
+        }
+    },
+    "__DijiangDepotItemCategoryPortableDeviceSelected": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    41,
+                    121,
+                    688,
+                    50
+                ]
+            }
+        }
+    }
+}

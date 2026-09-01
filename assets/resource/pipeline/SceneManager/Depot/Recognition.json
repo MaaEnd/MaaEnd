@@ -1,0 +1,568 @@
+{
+    "__DijiangDepotMainRegionValleyIV": {
+        "desc": "识别帝江号仓库主界面的四号谷地地区图标",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    583,
+                    128,
+                    25,
+                    25
+                ],
+                "template": "SceneManager/Depot/Main/RegionValleyIV.png",
+                "threshold": 0.8,
+                "order_by": "Score"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__DijiangDepotMainRegionWuling": {
+        "desc": "识别帝江号仓库主界面的武陵地区图标",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    583,
+                    128,
+                    25,
+                    25
+                ],
+                "template": "SceneManager/Depot/Main/RegionWuling.png",
+                "threshold": 0.8,
+                "order_by": "Score"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__DijiangDepotMainAnyRegion": {
+        "desc": "识别帝江号仓库主界面的任一已适配地区图标",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "__DijiangDepotMainRegionValleyIV",
+                    "__DijiangDepotMainRegionWuling"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__DijiangDepotMainSwitchIcon": {
+        "desc": "识别帝江号仓库主界面的仓库切换图标",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    679,
+                    128,
+                    25,
+                    25
+                ],
+                "template": "SceneManager/Depot/Main/SwitchButton.png",
+                "threshold": 0.8,
+                "order_by": "Score"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__DijiangDepotMainSwitchVisible": {
+        "desc": "确认帝江号仓库主界面的仓库切换按钮未被深色界面遮挡",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    679,
+                    128,
+                    25,
+                    25
+                ],
+                "method": 6,
+                "lower": [
+                    128
+                ],
+                "upper": [
+                    255
+                ],
+                "count": 100
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InDijiangDepot": {
+        "desc": "当前位于任一已适配地区的帝江号仓库主界面",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__DijiangDepotMainAnyRegion",
+                    "__DijiangDepotMainSwitchIcon",
+                    "__DijiangDepotMainSwitchVisible"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__DijiangDepotInValleyIV": {
+        "desc": "当前位于四号谷地的帝江号仓库主界面",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__DijiangDepotMainRegionValleyIV",
+                    "__DijiangDepotMainSwitchIcon",
+                    "__DijiangDepotMainSwitchVisible"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__DijiangDepotInWuling": {
+        "desc": "当前位于武陵的帝江号仓库主界面",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__DijiangDepotMainRegionWuling",
+                    "__DijiangDepotMainSwitchIcon",
+                    "__DijiangDepotMainSwitchVisible"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__DijiangDepotSwitchRegionValleyIV": {
+        "desc": "识别帝江号仓库切换页面的四号谷地地区图标",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    529,
+                    171,
+                    92,
+                    375
+                ],
+                "template": "SceneManager/Depot/Switch/RegionValleyIV.png",
+                "threshold": 0.8,
+                "order_by": "Score"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__DijiangDepotSwitchRegionWuling": {
+        "desc": "识别帝江号仓库切换页面的武陵地区图标",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    529,
+                    171,
+                    92,
+                    375
+                ],
+                "template": "SceneManager/Depot/Switch/RegionWuling.png",
+                "threshold": 0.8,
+                "order_by": "Score"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__DijiangDepotInSwitch": {
+        "desc": "当前位于帝江号仓库切换页面",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "__DijiangDepotSwitchRegionValleyIV",
+                    "__DijiangDepotSwitchRegionWuling"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__DijiangDepotItemCategoryAllNormal": {
+        "desc": "识别帝江号仓库的全部分类普通态",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    161,
+                    168,
+                    545,
+                    47
+                ],
+                "template": "SceneManager/Depot/Main/ItemCategory/Normal/All.png",
+                "threshold": 0.8,
+                "order_by": "Score"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__DijiangDepotItemCategoryAllSelected": {
+        "desc": "识别帝江号仓库的全部分类选中态",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    161,
+                    168,
+                    545,
+                    47
+                ],
+                "template": "SceneManager/Depot/Main/ItemCategory/Selected/All.png",
+                "threshold": 0.8,
+                "order_by": "Score"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__DijiangDepotItemCategoryOreNormal": {
+        "desc": "识别帝江号仓库的矿物分类普通态",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    161,
+                    168,
+                    545,
+                    47
+                ],
+                "template": "SceneManager/Depot/Main/ItemCategory/Normal/Ore.png",
+                "threshold": 0.8,
+                "order_by": "Score"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__DijiangDepotItemCategoryOreSelected": {
+        "desc": "识别帝江号仓库的矿物分类选中态",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    161,
+                    168,
+                    545,
+                    47
+                ],
+                "template": "SceneManager/Depot/Main/ItemCategory/Selected/Ore.png",
+                "threshold": 0.8,
+                "order_by": "Score"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__DijiangDepotItemCategoryPlantNormal": {
+        "desc": "识别帝江号仓库的植物分类普通态",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    161,
+                    168,
+                    545,
+                    47
+                ],
+                "template": "SceneManager/Depot/Main/ItemCategory/Normal/Plant.png",
+                "threshold": 0.8,
+                "order_by": "Score"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__DijiangDepotItemCategoryPlantSelected": {
+        "desc": "识别帝江号仓库的植物分类选中态",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    161,
+                    168,
+                    545,
+                    47
+                ],
+                "template": "SceneManager/Depot/Main/ItemCategory/Selected/Plant.png",
+                "threshold": 0.8,
+                "order_by": "Score"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__DijiangDepotItemCategoryProductNormal": {
+        "desc": "识别帝江号仓库的产物分类普通态",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    161,
+                    168,
+                    545,
+                    47
+                ],
+                "template": "SceneManager/Depot/Main/ItemCategory/Normal/Product.png",
+                "threshold": 0.8,
+                "order_by": "Score"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__DijiangDepotItemCategoryProductSelected": {
+        "desc": "识别帝江号仓库的产物分类选中态",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    161,
+                    168,
+                    545,
+                    47
+                ],
+                "template": "SceneManager/Depot/Main/ItemCategory/Selected/Product.png",
+                "threshold": 0.8,
+                "order_by": "Score"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__DijiangDepotItemCategoryDoodadNormal": {
+        "desc": "识别帝江号仓库的采集材料分类普通态",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    161,
+                    168,
+                    545,
+                    47
+                ],
+                "template": "SceneManager/Depot/Main/ItemCategory/Normal/Doodad.png",
+                "threshold": 0.8,
+                "order_by": "Score"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__DijiangDepotItemCategoryDoodadSelected": {
+        "desc": "识别帝江号仓库的采集材料分类选中态",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    161,
+                    168,
+                    545,
+                    47
+                ],
+                "template": "SceneManager/Depot/Main/ItemCategory/Selected/Doodad.png",
+                "threshold": 0.8,
+                "order_by": "Score"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__DijiangDepotItemCategoryNurturanceNormal": {
+        "desc": "识别帝江号仓库的培养素材分类普通态",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    161,
+                    168,
+                    545,
+                    47
+                ],
+                "template": "SceneManager/Depot/Main/ItemCategory/Normal/Nurturance.png",
+                "threshold": 0.8,
+                "order_by": "Score"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__DijiangDepotItemCategoryNurturanceSelected": {
+        "desc": "识别帝江号仓库的培养素材分类选中态",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    161,
+                    168,
+                    545,
+                    47
+                ],
+                "template": "SceneManager/Depot/Main/ItemCategory/Selected/Nurturance.png",
+                "threshold": 0.8,
+                "order_by": "Score"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__DijiangDepotItemCategoryUsableNormal": {
+        "desc": "识别帝江号仓库的可用道具分类普通态",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    161,
+                    168,
+                    545,
+                    47
+                ],
+                "template": "SceneManager/Depot/Main/ItemCategory/Normal/Usable.png",
+                "threshold": 0.8,
+                "order_by": "Score"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__DijiangDepotItemCategoryUsableSelected": {
+        "desc": "识别帝江号仓库的可用道具分类选中态",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    161,
+                    168,
+                    545,
+                    47
+                ],
+                "template": "SceneManager/Depot/Main/ItemCategory/Selected/Usable.png",
+                "threshold": 0.8,
+                "order_by": "Score"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__DijiangDepotItemCategoryProducerNormal": {
+        "desc": "识别帝江号仓库的生产工具分类普通态",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    161,
+                    168,
+                    545,
+                    47
+                ],
+                "template": "SceneManager/Depot/Main/ItemCategory/Normal/Producer.png",
+                "threshold": 0.8,
+                "order_by": "Score"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__DijiangDepotItemCategoryProducerSelected": {
+        "desc": "识别帝江号仓库的生产工具分类选中态",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    161,
+                    168,
+                    545,
+                    47
+                ],
+                "template": "SceneManager/Depot/Main/ItemCategory/Selected/Producer.png",
+                "threshold": 0.8,
+                "order_by": "Score"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__DijiangDepotItemCategoryPortableDeviceNormal": {
+        "desc": "识别帝江号仓库的随身装置分类普通态",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    161,
+                    168,
+                    545,
+                    47
+                ],
+                "template": "SceneManager/Depot/Main/ItemCategory/Normal/PortableDevice.png",
+                "threshold": 0.8,
+                "order_by": "Score"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__DijiangDepotItemCategoryPortableDeviceSelected": {
+        "desc": "识别帝江号仓库的随身装置分类选中态",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    161,
+                    168,
+                    545,
+                    47
+                ],
+                "template": "SceneManager/Depot/Main/ItemCategory/Selected/PortableDevice.png",
+                "threshold": 0.8,
+                "order_by": "Score"
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

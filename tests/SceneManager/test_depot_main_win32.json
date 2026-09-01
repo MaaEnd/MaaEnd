@@ -1,0 +1,165 @@
+{
+    "configs": {
+        "name": "帝江号仓库，测试 Win32 主界面识别",
+        "resource": "官服",
+        "controller": "Win32"
+    },
+    "cases": [
+        {
+            "name": "四号谷地仓库，全部分类选中",
+            "image": "帝江号仓库_四号谷地_物品分类_全部.png",
+            "hits": [
+                "InDijiangDepot",
+                "__DijiangDepotInValleyIV",
+                "__DijiangDepotItemCategoryAllSelected",
+                "__DijiangDepotItemCategoryOreNormal",
+                "__DijiangDepotItemCategoryPlantNormal",
+                "__DijiangDepotItemCategoryProductNormal",
+                "__DijiangDepotItemCategoryDoodadNormal",
+                "__DijiangDepotItemCategoryNurturanceNormal",
+                "__DijiangDepotItemCategoryUsableNormal",
+                "__DijiangDepotItemCategoryProducerNormal",
+                "__DijiangDepotItemCategoryPortableDeviceNormal"
+            ]
+        },
+        {
+            "name": "武陵仓库，全部分类选中",
+            "image": "帝江号仓库_武陵_物品分类_全部.png",
+            "hits": [
+                "InDijiangDepot",
+                "__DijiangDepotInWuling",
+                "__DijiangDepotItemCategoryAllSelected",
+                "__DijiangDepotItemCategoryOreNormal",
+                "__DijiangDepotItemCategoryPlantNormal",
+                "__DijiangDepotItemCategoryProductNormal",
+                "__DijiangDepotItemCategoryDoodadNormal",
+                "__DijiangDepotItemCategoryNurturanceNormal",
+                "__DijiangDepotItemCategoryUsableNormal",
+                "__DijiangDepotItemCategoryProducerNormal",
+                "__DijiangDepotItemCategoryPortableDeviceNormal"
+            ]
+        },
+        {
+            "name": "武陵仓库，矿物分类选中",
+            "image": "帝江号仓库_武陵_物品分类_矿物.png",
+            "hits": [
+                "__DijiangDepotItemCategoryOreSelected",
+                "__DijiangDepotItemCategoryAllNormal",
+                "__DijiangDepotItemCategoryPlantNormal",
+                "__DijiangDepotItemCategoryProductNormal",
+                "__DijiangDepotItemCategoryDoodadNormal",
+                "__DijiangDepotItemCategoryNurturanceNormal",
+                "__DijiangDepotItemCategoryUsableNormal",
+                "__DijiangDepotItemCategoryProducerNormal",
+                "__DijiangDepotItemCategoryPortableDeviceNormal"
+            ]
+        },
+        {
+            "name": "武陵仓库，植物分类选中",
+            "image": "帝江号仓库_武陵_物品分类_植物.png",
+            "hits": [
+                "__DijiangDepotItemCategoryPlantSelected",
+                "__DijiangDepotItemCategoryAllNormal",
+                "__DijiangDepotItemCategoryOreNormal",
+                "__DijiangDepotItemCategoryProductNormal",
+                "__DijiangDepotItemCategoryDoodadNormal",
+                "__DijiangDepotItemCategoryNurturanceNormal",
+                "__DijiangDepotItemCategoryUsableNormal",
+                "__DijiangDepotItemCategoryProducerNormal",
+                "__DijiangDepotItemCategoryPortableDeviceNormal"
+            ]
+        },
+        {
+            "name": "武陵仓库，产物分类选中",
+            "image": "帝江号仓库_武陵_物品分类_产物.png",
+            "hits": [
+                "InDijiangDepot",
+                "__DijiangDepotInWuling",
+                "__DijiangDepotItemCategoryProductSelected",
+                "__DijiangDepotItemCategoryAllNormal",
+                "__DijiangDepotItemCategoryOreNormal",
+                "__DijiangDepotItemCategoryPlantNormal",
+                "__DijiangDepotItemCategoryDoodadNormal",
+                "__DijiangDepotItemCategoryNurturanceNormal",
+                "__DijiangDepotItemCategoryUsableNormal",
+                "__DijiangDepotItemCategoryProducerNormal",
+                "__DijiangDepotItemCategoryPortableDeviceNormal"
+            ]
+        },
+        {
+            "name": "武陵仓库，采集材料分类选中",
+            "image": "帝江号仓库_武陵_物品分类_采集材料.png",
+            "hits": [
+                "__DijiangDepotItemCategoryDoodadSelected",
+                "__DijiangDepotItemCategoryAllNormal",
+                "__DijiangDepotItemCategoryOreNormal",
+                "__DijiangDepotItemCategoryPlantNormal",
+                "__DijiangDepotItemCategoryProductNormal",
+                "__DijiangDepotItemCategoryNurturanceNormal",
+                "__DijiangDepotItemCategoryUsableNormal",
+                "__DijiangDepotItemCategoryProducerNormal",
+                "__DijiangDepotItemCategoryPortableDeviceNormal"
+            ]
+        },
+        {
+            "name": "武陵仓库，培养素材分类选中",
+            "image": "帝江号仓库_武陵_物品分类_培养素材.png",
+            "hits": [
+                "__DijiangDepotItemCategoryNurturanceSelected",
+                "__DijiangDepotItemCategoryAllNormal",
+                "__DijiangDepotItemCategoryOreNormal",
+                "__DijiangDepotItemCategoryPlantNormal",
+                "__DijiangDepotItemCategoryProductNormal",
+                "__DijiangDepotItemCategoryDoodadNormal",
+                "__DijiangDepotItemCategoryUsableNormal",
+                "__DijiangDepotItemCategoryProducerNormal",
+                "__DijiangDepotItemCategoryPortableDeviceNormal"
+            ]
+        },
+        {
+            "name": "武陵仓库，可用道具分类选中",
+            "image": "帝江号仓库_武陵_物品分类_可用道具.png",
+            "hits": [
+                "__DijiangDepotItemCategoryUsableSelected",
+                "__DijiangDepotItemCategoryAllNormal",
+                "__DijiangDepotItemCategoryOreNormal",
+                "__DijiangDepotItemCategoryPlantNormal",
+                "__DijiangDepotItemCategoryProductNormal",
+                "__DijiangDepotItemCategoryDoodadNormal",
+                "__DijiangDepotItemCategoryNurturanceNormal",
+                "__DijiangDepotItemCategoryProducerNormal",
+                "__DijiangDepotItemCategoryPortableDeviceNormal"
+            ]
+        },
+        {
+            "name": "武陵仓库，生产工具分类选中",
+            "image": "帝江号仓库_武陵_物品分类_生产工具.png",
+            "hits": [
+                "__DijiangDepotItemCategoryProducerSelected",
+                "__DijiangDepotItemCategoryAllNormal",
+                "__DijiangDepotItemCategoryOreNormal",
+                "__DijiangDepotItemCategoryPlantNormal",
+                "__DijiangDepotItemCategoryProductNormal",
+                "__DijiangDepotItemCategoryDoodadNormal",
+                "__DijiangDepotItemCategoryNurturanceNormal",
+                "__DijiangDepotItemCategoryUsableNormal",
+                "__DijiangDepotItemCategoryPortableDeviceNormal"
+            ]
+        },
+        {
+            "name": "武陵仓库，随身装置分类选中",
+            "image": "帝江号仓库_武陵_物品分类_随身装置.png",
+            "hits": [
+                "__DijiangDepotItemCategoryPortableDeviceSelected",
+                "__DijiangDepotItemCategoryAllNormal",
+                "__DijiangDepotItemCategoryOreNormal",
+                "__DijiangDepotItemCategoryPlantNormal",
+                "__DijiangDepotItemCategoryProductNormal",
+                "__DijiangDepotItemCategoryDoodadNormal",
+                "__DijiangDepotItemCategoryNurturanceNormal",
+                "__DijiangDepotItemCategoryUsableNormal",
+                "__DijiangDepotItemCategoryProducerNormal"
+            ]
+        }
+    ]
+}

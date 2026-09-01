@@ -1,0 +1,435 @@
+{
+    "InDijiangDepotValleyIV": {
+        "desc": "当前位于帝江号仓库主界面，地区为四号谷地",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__DijiangDepotInValleyIV"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InDijiangDepotWuling": {
+        "desc": "当前位于帝江号仓库主界面，地区为武陵",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__DijiangDepotInWuling"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InDijiangDepotAll": {
+        "desc": "当前位于任一已适配地区的帝江号仓库主界面，物品分类为全部",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InDijiangDepot",
+                    "__DijiangDepotItemCategoryAllSelected"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InDijiangDepotOre": {
+        "desc": "当前位于任一已适配地区的帝江号仓库主界面，物品分类为矿物",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InDijiangDepot",
+                    "__DijiangDepotItemCategoryOreSelected"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InDijiangDepotPlant": {
+        "desc": "当前位于任一已适配地区的帝江号仓库主界面，物品分类为植物",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InDijiangDepot",
+                    "__DijiangDepotItemCategoryPlantSelected"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InDijiangDepotProduct": {
+        "desc": "当前位于任一已适配地区的帝江号仓库主界面，物品分类为产物",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InDijiangDepot",
+                    "__DijiangDepotItemCategoryProductSelected"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InDijiangDepotDoodad": {
+        "desc": "当前位于任一已适配地区的帝江号仓库主界面，物品分类为采集材料",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InDijiangDepot",
+                    "__DijiangDepotItemCategoryDoodadSelected"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InDijiangDepotNurturance": {
+        "desc": "当前位于任一已适配地区的帝江号仓库主界面，物品分类为培养素材",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InDijiangDepot",
+                    "__DijiangDepotItemCategoryNurturanceSelected"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InDijiangDepotUsable": {
+        "desc": "当前位于任一已适配地区的帝江号仓库主界面，物品分类为可用道具",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InDijiangDepot",
+                    "__DijiangDepotItemCategoryUsableSelected"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InDijiangDepotProducer": {
+        "desc": "当前位于任一已适配地区的帝江号仓库主界面，物品分类为生产工具",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InDijiangDepot",
+                    "__DijiangDepotItemCategoryProducerSelected"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InDijiangDepotPortableDevice": {
+        "desc": "当前位于任一已适配地区的帝江号仓库主界面，物品分类为随身装置",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InDijiangDepot",
+                    "__DijiangDepotItemCategoryPortableDeviceSelected"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InDijiangDepotValleyIVAll": {
+        "desc": "当前位于帝江号仓库主界面，地区为四号谷地，物品分类为全部",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InDijiangDepotValleyIV",
+                    "__DijiangDepotItemCategoryAllSelected"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InDijiangDepotValleyIVOre": {
+        "desc": "当前位于帝江号仓库主界面，地区为四号谷地，物品分类为矿物",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InDijiangDepotValleyIV",
+                    "__DijiangDepotItemCategoryOreSelected"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InDijiangDepotValleyIVPlant": {
+        "desc": "当前位于帝江号仓库主界面，地区为四号谷地，物品分类为植物",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InDijiangDepotValleyIV",
+                    "__DijiangDepotItemCategoryPlantSelected"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InDijiangDepotValleyIVProduct": {
+        "desc": "当前位于帝江号仓库主界面，地区为四号谷地，物品分类为产物",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InDijiangDepotValleyIV",
+                    "__DijiangDepotItemCategoryProductSelected"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InDijiangDepotValleyIVDoodad": {
+        "desc": "当前位于帝江号仓库主界面，地区为四号谷地，物品分类为采集材料",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InDijiangDepotValleyIV",
+                    "__DijiangDepotItemCategoryDoodadSelected"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InDijiangDepotValleyIVNurturance": {
+        "desc": "当前位于帝江号仓库主界面，地区为四号谷地，物品分类为培养素材",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InDijiangDepotValleyIV",
+                    "__DijiangDepotItemCategoryNurturanceSelected"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InDijiangDepotValleyIVUsable": {
+        "desc": "当前位于帝江号仓库主界面，地区为四号谷地，物品分类为可用道具",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InDijiangDepotValleyIV",
+                    "__DijiangDepotItemCategoryUsableSelected"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InDijiangDepotValleyIVProducer": {
+        "desc": "当前位于帝江号仓库主界面，地区为四号谷地，物品分类为生产工具",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InDijiangDepotValleyIV",
+                    "__DijiangDepotItemCategoryProducerSelected"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InDijiangDepotValleyIVPortableDevice": {
+        "desc": "当前位于帝江号仓库主界面，地区为四号谷地，物品分类为随身装置",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InDijiangDepotValleyIV",
+                    "__DijiangDepotItemCategoryPortableDeviceSelected"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InDijiangDepotWulingAll": {
+        "desc": "当前位于帝江号仓库主界面，地区为武陵，物品分类为全部",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InDijiangDepotWuling",
+                    "__DijiangDepotItemCategoryAllSelected"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InDijiangDepotWulingOre": {
+        "desc": "当前位于帝江号仓库主界面，地区为武陵，物品分类为矿物",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InDijiangDepotWuling",
+                    "__DijiangDepotItemCategoryOreSelected"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InDijiangDepotWulingPlant": {
+        "desc": "当前位于帝江号仓库主界面，地区为武陵，物品分类为植物",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InDijiangDepotWuling",
+                    "__DijiangDepotItemCategoryPlantSelected"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InDijiangDepotWulingProduct": {
+        "desc": "当前位于帝江号仓库主界面，地区为武陵，物品分类为产物",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InDijiangDepotWuling",
+                    "__DijiangDepotItemCategoryProductSelected"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InDijiangDepotWulingDoodad": {
+        "desc": "当前位于帝江号仓库主界面，地区为武陵，物品分类为采集材料",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InDijiangDepotWuling",
+                    "__DijiangDepotItemCategoryDoodadSelected"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InDijiangDepotWulingNurturance": {
+        "desc": "当前位于帝江号仓库主界面，地区为武陵，物品分类为培养素材",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InDijiangDepotWuling",
+                    "__DijiangDepotItemCategoryNurturanceSelected"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InDijiangDepotWulingUsable": {
+        "desc": "当前位于帝江号仓库主界面，地区为武陵，物品分类为可用道具",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InDijiangDepotWuling",
+                    "__DijiangDepotItemCategoryUsableSelected"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InDijiangDepotWulingProducer": {
+        "desc": "当前位于帝江号仓库主界面，地区为武陵，物品分类为生产工具",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InDijiangDepotWuling",
+                    "__DijiangDepotItemCategoryProducerSelected"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "InDijiangDepotWulingPortableDevice": {
+        "desc": "当前位于帝江号仓库主界面，地区为武陵，物品分类为随身装置",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InDijiangDepotWuling",
+                    "__DijiangDepotItemCategoryPortableDeviceSelected"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}
