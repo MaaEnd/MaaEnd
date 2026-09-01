@@ -35,6 +35,7 @@
         "post_delay": 1500, // 3D动画菜单会一直动无法用wait_freeze
         "rate_limit": 0,
         "next": [
+            "[JumpBack]SceneNoticeRewardsUpgrade",
             "__ScenePrivateAnyEnterWorldSuccess"
         ]
     },

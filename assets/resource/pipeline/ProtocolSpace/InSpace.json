@@ -843,6 +843,7 @@
         ],
         "action": "Click",
         "next": [
+            "[JumpBack]SceneNoticeRewardsUpgrade",
             "[JumpBack]SceneWaitBlackScreenLoadingExit",
             "ProtocolSpaceEnterSpaceSuccess",
             "ProtocolSpaceRewardClaimSuccessSanityLowDialog"
