@@ -302,6 +302,7 @@ func normalizeTitle(s string) string {
 		"–", "-",
 		"―", "-",
 		"－", "-",
+		"梦魔", "梦魇",
 	).Replace(s)
 	for strings.Contains(s, "--") {
 		s = strings.ReplaceAll(s, "--", "-")
