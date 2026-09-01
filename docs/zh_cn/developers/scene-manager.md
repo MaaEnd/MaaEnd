@@ -76,6 +76,7 @@ SceneManager 使用 MaaFramework 的 `[JumpBack]` 机制，将场景接口组织
 | 辅助 | `SceneDialogConfirm` | 点击对话框确认按钮 |
 | 辅助 | `SceneDialogCancel` | 点击对话框取消按钮 |
 | 辅助 | `SceneNoticeRewardsConfirm` | 点击奖励界面确认按钮 |
+| 辅助 | `SceneNoticeRewardsUpgrade` | 权限等阶升级界面，点击空白处关闭 |
 | 辅助 | `SceneWaitLoadingExit` | 等待加载界面消失 |
 
 ## 帝江号仓库接口

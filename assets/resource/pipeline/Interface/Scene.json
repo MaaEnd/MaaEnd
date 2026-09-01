@@ -12,7 +12,7 @@
             "__ScenePrivateTrialOfSwordmancyEnterWorld",
             "__ScenePrivateAnyEnterWorldSuccess",
             "[JumpBack]__ScenePrivateLogin",
-            "[JumpBack]__ScenePrivateNoticeRewardsUpgrade",
+            "[JumpBack]SceneNoticeRewardsUpgrade",
             "[JumpBack]__ScenePrivateWorldSpaceExit",
             "[JumpBack]__ScenePrivateWorldStorySkip",
             "[JumpBack]__ScenePrivateLoggedOutConfirm",
@@ -141,7 +141,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[JumpBack]__ScenePrivateNoticeRewardsUpgrade",
+            "[JumpBack]SceneNoticeRewardsUpgrade",
             "__ScenePrivateNextTrue"
         ]
     },
@@ -211,8 +211,25 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[JumpBack]__ScenePrivateNoticeRewardsUpgrade",
+            "[JumpBack]SceneNoticeRewardsUpgrade",
             "[Anchor]SceneNoticeRewardsConfirmNextAnchor"
+        ]
+    },
+    "SceneNoticeRewardsUpgrade": {
+        "desc": "权限等阶升级界面，点击空白处关闭",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__ScenePrivateNoticeRewardsUpgrade"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateNoticeRewardsUpgradeConfirm"
         ]
     },
     "SceneWaitLoadingExit": {

@@ -79,6 +79,7 @@ These node names **do not start with `__ScenePrivate`**.
 | Helper | `SceneDialogConfirm` | Click confirm button in dialogs. |
 | Helper | `SceneDialogCancel` | Click cancel button in dialogs. |
 | Helper | `SceneNoticeRewardsConfirm` | Click confirm button on rewards screens. |
+| Helper | `SceneNoticeRewardsUpgrade` | Close the Authority Level-up overlay by clicking the blank area. |
 | Helper | `SceneWaitLoadingExit` | Wait for loading screen to disappear. |
 
 ## Dijiang Depot Interfaces
