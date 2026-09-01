@@ -29,6 +29,7 @@ $buildRoot = Join-Path $cppAlgoRoot "build"
 $testBuildRoot = Join-Path $buildRoot "source/IconRecognition/test"
 $mergedInputRoot = Join-Path $testBuildRoot "merged-input"
 $datasetManifestPath = Join-Path $testRoot "dataset-manifest.psd1"
+$localInputRoot = Join-Path $testRoot "input"
 $localExpectedPath = Join-Path $testRoot "input/expected.csv"
 $gridTypes = @(
     "trade",
@@ -61,8 +62,18 @@ function Show-Usage {
   trade, transfer, port_storager, valuables, shipment, credit_trade, rewards, single_roi
 
 Side 仅用于 transfer 和 port_storager；默认使用 full。
+显式选择 test/input 中的本地图片时必须同时指定 GridType。
 Jobs 的命令行参数优先于本机配置；未配置时使用 1。
 "@
+}
+
+function Exit-NativeCommandFailure {
+    param(
+        [Parameter(Mandatory)] [string]$Message,
+        [Parameter(Mandatory)] [int]$ExitCode
+    )
+    [Console]::Error.WriteLine("$Message，退出码: $ExitCode")
+    exit $ExitCode
 }
 
 if ($Help -or $PSBoundParameters.Count -eq 0) {
@@ -122,8 +133,9 @@ if ($VsDevShellPath) {
 function Invoke-CMake {
     param([string[]]$Arguments)
     & $CMakePath @Arguments
-    if ($LASTEXITCODE -ne 0) {
-        throw "CMake 执行失败，退出码: $LASTEXITCODE"
+    $exitCode = $LASTEXITCODE
+    if ($exitCode -ne 0) {
+        Exit-NativeCommandFailure -Message "CMake 执行失败" -ExitCode $exitCode
     }
 }
 
@@ -147,11 +159,14 @@ function Build-Targets {
 function Copy-InputTree {
     param(
         [Parameter(Mandatory)] [string]$SourceRoot,
-        [Parameter(Mandatory)] [string]$DestinationRoot
+        [Parameter(Mandatory)] [string]$DestinationRoot,
+        [switch]$PreferLocalConflicts,
+        [switch]$MarkAsLocal
     )
     if (-not (Test-Path -LiteralPath $SourceRoot -PathType Container)) {
         return
     }
+    $overwritten = [System.Collections.Generic.List[string]]::new()
     foreach ($file in Get-ChildItem -LiteralPath $SourceRoot -Recurse -File) {
         $relative = $file.FullName.Substring($SourceRoot.Length).TrimStart('\', '/')
         # expected.csv 是独立校验基线，只能通过显式 --expected 参数选择，不能混入图片输入树。
@@ -161,7 +176,39 @@ function Copy-InputTree {
         $destination = Join-Path $DestinationRoot $relative
         $destinationDirectory = Split-Path -Parent $destination
         New-Item -ItemType Directory -Path $destinationDirectory -Force | Out-Null
+        if ($MarkAsLocal) {
+            $base = [System.IO.Path]::GetFileNameWithoutExtension($destination)
+            $extension = [System.IO.Path]::GetExtension($destination)
+            $directory = Split-Path -Parent $destination
+            $suffix = 1
+            do {
+                $candidate = Join-Path $directory "$base.local$suffix$extension"
+                $suffix++
+            } while (Test-Path -LiteralPath $candidate -PathType Leaf)
+            $destination = $candidate
+        }
+        elseif (Test-Path -LiteralPath $destination -PathType Leaf) {
+            if ($PreferLocalConflicts) {
+                $overwritten.Add($relative)
+            }
+            else {
+                $base = [System.IO.Path]::GetFileNameWithoutExtension($destination)
+                $extension = [System.IO.Path]::GetExtension($destination)
+                $directory = Split-Path -Parent $destination
+                $suffix = 1
+                do {
+                    $candidate = Join-Path $directory "$base.local$suffix$extension"
+                    $suffix++
+                } while (Test-Path -LiteralPath $candidate -PathType Leaf)
+                $destination = $candidate
+            }
+        }
         Copy-Item -LiteralPath $file.FullName -Destination $destination -Force
+    }
+    if ($overwritten.Count -gt 0) {
+        $examples = @($overwritten | Select-Object -First 5) -join ", "
+        $suffix = if ($overwritten.Count -gt 5) { " 等" } else { "" }
+        Write-Warning "本地测试素材覆盖了 $($overwritten.Count) 个数据集同名文件: $examples$suffix"
     }
 }
 
@@ -193,6 +240,46 @@ function Prepare-DatasetInput {
     New-Item -ItemType Directory -Path $mergedInputRoot -Force | Out-Null
     Copy-InputTree -SourceRoot $paths.Root -DestinationRoot $mergedInputRoot
     return $paths
+}
+
+function Copy-LocalInputTrees {
+    param([switch]$PreferLocalConflicts)
+    foreach ($gridType in $gridTypes) {
+        Copy-InputTree `
+            -SourceRoot (Join-Path $localInputRoot $gridType) `
+            -DestinationRoot (Join-Path $mergedInputRoot $gridType) `
+            -PreferLocalConflicts:$PreferLocalConflicts `
+            -MarkAsLocal:$(-not $PreferLocalConflicts)
+    }
+}
+
+function Prepare-ManualInput {
+    param(
+        [Parameter(Mandatory)] [ValidateSet("win32", "adb")] [string]$Name,
+        [switch]$PreferLocalConflicts
+    )
+    $paths = Prepare-DatasetInput -Name $Name
+    Copy-LocalInputTrees -PreferLocalConflicts:$PreferLocalConflicts
+    return $paths
+}
+
+function Test-LocalImageSelection {
+    param(
+        [Parameter(Mandatory)] [string]$ImageName,
+        [string]$SelectedGridType
+    )
+    $selectedGridTypes = if ($SelectedGridType) { @($SelectedGridType) } else { $gridTypes }
+    foreach ($gridType in $selectedGridTypes) {
+        $localGridRoot = Join-Path $localInputRoot $gridType
+        if (-not (Test-Path -LiteralPath $localGridRoot -PathType Container)) {
+            continue
+        }
+        $match = Get-ChildItem -LiteralPath $localGridRoot -Recurse -File | Where-Object { $_.Name -eq $ImageName } | Select-Object -First 1
+        if ($null -ne $match) {
+            return $true
+        }
+    }
+    return $false
 }
 
 function Prepare-QuickDatasetInput {
@@ -252,8 +339,9 @@ function Invoke-QuickDataset {
         --recognize-region-unavailable `
         --expected $DatasetPaths.ExpectedPath `
         --rois $DatasetPaths.RoisPath
-    if ($LASTEXITCODE -ne 0) {
-        throw "quick 数据集回归失败: $($DatasetPaths.Name)，退出码: $LASTEXITCODE"
+    $exitCode = $LASTEXITCODE
+    if ($exitCode -ne 0) {
+        Exit-NativeCommandFailure -Message "quick 数据集回归失败: $($DatasetPaths.Name)" -ExitCode $exitCode
     }
 }
 
@@ -301,8 +389,9 @@ switch ($Task) {
             "icon-recognition-expected-tests"
         )) {
             & (Find-TestExecutable -Name $name)
-            if ($LASTEXITCODE -ne 0) {
-                throw "$name 执行失败，退出码: $LASTEXITCODE"
+            $exitCode = $LASTEXITCODE
+            if ($exitCode -ne 0) {
+                Exit-NativeCommandFailure -Message "$name 执行失败" -ExitCode $exitCode
             }
         }
         foreach ($datasetName in @("win32", "adb")) {
@@ -322,7 +411,15 @@ switch ($Task) {
             Show-Usage
             throw "manual 任务必须指定 -All、-GridType 或 -Image。"
         }
-        $datasetPaths = Prepare-DatasetInput -Name $Dataset
+        $usesLocalImage = $PSBoundParameters.ContainsKey("Image") -and `
+            (Test-LocalImageSelection -ImageName $Image -SelectedGridType $GridType)
+        if ($usesLocalImage -and -not $GridType) {
+            throw "显式选择 test/input 中的本地图片时必须同时指定 -GridType。"
+        }
+        $datasetPaths = Prepare-ManualInput -Name $Dataset -PreferLocalConflicts:($usesLocalImage -or $UseLocalExpected)
+        if ($usesLocalImage) {
+            Write-Warning "显式 -Image 命中本地 input 素材，本次优先使用本地同名图片: $Image"
+        }
         Build-Targets -Targets @("icon-recognition-manual-runner")
         Set-TestRuntimePath
         $arguments = @()
@@ -350,17 +447,23 @@ switch ($Task) {
         }
         $arguments += @("--rois", $datasetPaths.RoisPath)
         if ($Side -eq "full") {
-            $arguments += @(
-                "--expected",
-                (Resolve-ExpectedResultsPath -DatasetPaths $datasetPaths -UseLocal:$UseLocalExpected)
-            )
+            if ($UseLocalExpected -or -not $usesLocalImage) {
+                $arguments += @(
+                    "--expected",
+                    (Resolve-ExpectedResultsPath -DatasetPaths $datasetPaths -UseLocal:$UseLocalExpected)
+                )
+            }
+            else {
+                Write-Warning "显式本地图片未启用 expected 校验，本次仅作人工审核: $Image"
+            }
         }
-        elseif ($Side -ne "full") {
+        else {
             Write-Warning "expected.csv 仅维护 full 基线，显式分侧运行仅作人工审计: $Side"
         }
         & (Find-TestExecutable -Name "icon-recognition-manual-runner") @arguments
-        if ($LASTEXITCODE -ne 0) {
-            throw "icon-recognition-manual-runner 执行失败，退出码: $LASTEXITCODE"
+        $exitCode = $LASTEXITCODE
+        if ($exitCode -ne 0) {
+            Exit-NativeCommandFailure -Message "icon-recognition-manual-runner 执行失败" -ExitCode $exitCode
         }
     }
 }

@@ -822,6 +822,55 @@ void TestTransferGridDetectsSparseVisiblePhase()
         "transfer recognition must keep the target at its detected cell position");
 }
 
+void TestTransferGridRejectsBroadOvercapacityPhase()
+{
+    constexpr int kCellSize = 64;
+    constexpr int kFormalPitch = 69;
+    constexpr int kFormalColumns = 5;
+    constexpr int kBroadPitch = 66;
+    constexpr int kBroadColumns = 6;
+    constexpr int kRows = 4;
+    constexpr int kFormalPhaseX = 33;
+    constexpr int kBroadPhaseX = 2;
+    constexpr int kPhaseY = 7;
+    cv::Mat image(291, 398, CV_8UC3, cv::Scalar(24, 24, 24));
+
+    const auto draw_cell = [&](int x, int y, const cv::Scalar& border) {
+        image.colRange(x, x + 2).rowRange(y, y + kCellSize + 1).setTo(border);
+        image.colRange(x + kCellSize, x + kCellSize + 2).rowRange(y, y + kCellSize + 1).setTo(border);
+        image.rowRange(y, y + 2).colRange(x, x + kCellSize + 1).setTo(border);
+        image.rowRange(y + kCellSize, y + kCellSize + 2).colRange(x, x + kCellSize + 1).setTo(border);
+    };
+    // 真实五列格子提供稳定结构和前景纹理；错相位格会跨过这些纹理，因此单看纹理覆盖仍无法消歧。
+    for (int row = 0; row < kRows; ++row) {
+        for (int column = 0; column < kFormalColumns; ++column) {
+            const int x = kFormalPhaseX + column * kFormalPitch;
+            const int y = kPhaseY + row * kFormalPitch;
+            draw_cell(x, y, cv::Scalar(90, 90, 90));
+            for (int local_y = 6; local_y < kCellSize - 8; ++local_y) {
+                for (int local_x = 6; local_x < kCellSize - 6; ++local_x) {
+                    const unsigned char value =
+                        static_cast<unsigned char>(40 + ((local_x * 7 + local_y * 11 + row * 17 + column * 13) % 180));
+                    image.at<cv::Vec3b>(y + local_y, x + local_x) = cv::Vec3b(value, value, value);
+                }
+            }
+        }
+    }
+    // 粗搜索允许 66px pitch；该错相位能在 398px ROI 内塞入六列，但无法形成正式 69px 晶格。
+    for (int row = 0; row < kRows; ++row) {
+        for (int column = 0; column < kBroadColumns; ++column) {
+            draw_cell(kBroadPhaseX + column * kBroadPitch, kPhaseY + row * kFormalPitch, cv::Scalar(160, 160, 160));
+        }
+    }
+
+    const auto hints = iconrecognition::detail::DiscoverTransferGridHints(image, true);
+    Check(hints.size() == 1, "single transfer panel must produce one grid hint");
+    Check(hints.front().x_starts.size() == kFormalColumns, "broad search must not add a column that cannot fit the formal pitch");
+    Check(
+        std::abs(hints.front().x_starts.front() - kFormalPhaseX) <= 1,
+        "transfer hint must preserve the five-column formal phase");
+}
+
 void TestPortStoragerWideRoiUsesStablePanelPartitions()
 {
     const auto win32 = iconrecognition::detail::PartitionPortStoragerRegions(cv::Size(880, 350));
@@ -1036,6 +1085,22 @@ void TestTrustedRarityRejectsSameColorBackground()
     Check(trusted[0].trusted && trusted[1].trusted, "real narrow bars must pass local contrast and shape constraints");
 }
 
+void TestTrustedRarityIgnoresConnectedSpecks()
+{
+    cv::Mat image(120, 140, CV_8UC3, cv::Scalar(35, 40, 46));
+    const cv::Scalar rarity = RarityBgr(5);
+    image(cv::Rect(20, 70, 64, 2)).setTo(rarity);
+    // 模拟数量文字等动态同色杂点：它们会与色带连成超过固定高度的组件，
+    // 但自身宽度不足一个色带，不能成为稀有度条的核心证据。
+    image(cv::Rect(20, 60, 20, 11)).setTo(rarity);
+    image(cv::Rect(20, 72, 8, 1)).setTo(rarity);
+
+    const auto strips = iconrecognition::detail::DetectTrustedRarityStrips(image, 64);
+    Check(strips.size() == 1, "connected narrow specks must not create extra rarity strips");
+    Check(strips.front().box == cv::Rect(20, 70, 64, 2), "trusted rarity must keep the full-width strip core");
+    Check(strips.front().color_coverage >= 0.95, "connected specks must not dilute strip color coverage");
+}
+
 void TestGrayRarityCannotSeedLattice()
 {
     cv::Mat image(100, 100, CV_8UC3, cv::Scalar(25, 30, 35));
@@ -1060,6 +1125,20 @@ void TestRegularLatticeUsesOneGlobalFloatingPitch()
             starts[index] == cvRound(fit->origin + static_cast<double>(index + fit->minimum_index) * fit->pitch),
             "every integer start must project directly from one global model");
     }
+}
+
+void TestRegularLatticeUsesObservedPitchTolerance()
+{
+    const std::vector<iconrecognition::detail::LatticeObservation> quantized {
+        { 618.0, 1.0, true }, { 687.0, 1.0, true }, { 755.0, 1.0, true }, { 824.0, 1.0, true }, { 893.0, 1.0, true },
+    };
+    Check(
+        !iconrecognition::detail::FitRegularAxis(quantized, 5, { 69.0, 69.0 }, 69.0),
+        "fixed pitch must reject quantized observations when no tolerance is supplied");
+    const auto fit = iconrecognition::detail::FitRegularAxis(quantized, 5, { 69.0, 69.0 }, 69.0, 1.0);
+    Check(fit.has_value(), "fixed pitch must accept one-pixel quantization with observed tolerance");
+    Check(std::abs(fit->pitch - 69.0) <= 1e-9, "observed tolerance must not change the formal output pitch");
+    Check(iconrecognition::detail::ProjectRegularAxis(*fit) == std::vector<int> { 617, 686, 755, 824, 893 }, "fixed pitch projection must remain regular");
 }
 
 void TestRegularLatticeRejectsAccumulatingResiduals()
@@ -1585,14 +1664,17 @@ int main()
         TestRewardsGridRenumbersColumnsAfterRoiFiltering();
         TestTransferRegionPartitionKeepsUndetectedOuterColumns();
         TestTransferGridDetectsSparseVisiblePhase();
+        TestTransferGridRejectsBroadOvercapacityPhase();
         TestPortStoragerWideRoiUsesStablePanelPartitions();
         TestCreditTradeGridUsesDimCardStructures();
         TestCreditTradeGridUsesSixColumnsWhenRoiCannotContainSeven();
         TestValuablesGridKeepsSixColumnsAtAdbDensity();
         TestRarityRowEvidenceKeepsAllSixChannels();
         TestTrustedRarityRejectsSameColorBackground();
+        TestTrustedRarityIgnoresConnectedSpecks();
         TestGrayRarityCannotSeedLattice();
         TestRegularLatticeUsesOneGlobalFloatingPitch();
+        TestRegularLatticeUsesObservedPitchTolerance();
         TestRegularLatticeRejectsAccumulatingResiduals();
         TestRarityBandsRecoverGridFromGlobalEvidence();
         TestRarityUsesBottomEdgeRows();

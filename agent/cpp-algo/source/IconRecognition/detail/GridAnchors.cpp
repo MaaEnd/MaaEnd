@@ -297,7 +297,8 @@ std::optional<RegularAxisFit>
                 consistent,
                 maximum_count,
                 { static_cast<double>(profile.pitch_min), static_cast<double>(profile.pitch_max) },
-                profile.preferred_pitch);
+                profile.preferred_pitch,
+                profile.observed_pitch_tolerance);
             if (!fit) {
                 continue;
             }

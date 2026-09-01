@@ -2,6 +2,7 @@
 
 公开测试入口位于 `agent/cpp-algo/source/IconRecognition/test/`。CMake、C++ 测试、`run-tests.ps1`、`dataset-manifest.psd1` 和 `run-tests.local.example.psd1` 随 Git 提交；以下内容只用于本机测试并被忽略：
 
+- `input/<网格类型>/*.png`：叠加到所选 Win32/ADB 数据集的临时人工测试截图；
 - `input/expected.csv`：显式传入 `-UseLocalExpected` 时使用的候选校验基线；
 - `output/`：标注图、detail JSON 和报告；
 - `build/`：CMake 构建目录；
@@ -12,11 +13,20 @@
 - `win32`：读取子模块 `tests/MaaEndTestset/Win32/Official_CN/IconRecognition`；
 - `adb`：读取子模块 `tests/MaaEndTestset/ADB/Official_CN/IconRecognition`。
 
-每套目录分别维护截图、`rois.json` 和 `expected.csv`。`manual` 必须显式指定 `-Dataset win32` 或 `-Dataset adb`，两套资源不会混入同一次运行。`quick` 是干净 checkout 可运行的仓库门禁：它先校验 `dataset-manifest.psd1`，再分别运行两套数据集的典型图片，不叠加本地 fixture。数据集资源或典型图片缺失会直接失败。
+每套目录分别维护截图、`rois.json` 和 `expected.csv`。`manual` 必须显式指定 `-Dataset win32` 或 `-Dataset adb`，两套正式资源不会混入同一次运行；`test/input/` 中的临时图片只在 `manual` 中叠加，并使用所选数据集的 ROI 与控制器基准。`quick` 是干净 checkout 可运行的仓库门禁：它先校验 `dataset-manifest.psd1`，再分别运行两套数据集的典型图片，不叠加本地 fixture。数据集资源或典型图片缺失会直接失败。
 
 ## 准备图片
 
-1. 把 1280x720 测试截图放入对应数据集的 IconRecognition 网格目录：
+临时人工测试时，把 1280x720 截图放入本地忽略目录：
+
+```text
+agent/cpp-algo/source/IconRecognition/test/input/
+└── transfer/sample.png
+```
+
+然后通过 `-Dataset win32` 或 `-Dataset adb` 选择与截图匹配的 ROI 和控制器基准，并通过 `-GridType` 指定本地图片所属的网格类型。显式 `-Image sample.png` 命中本地图时，本地图优先于数据集中的同名图片，且默认不校验正式 `expected.csv`。
+
+需要纳入正式回归时，再把截图放入对应数据集的 IconRecognition 网格目录：
 
 ```text
 tests/MaaEndTestset/<Win32|ADB>/Official_CN/IconRecognition/
@@ -67,6 +77,7 @@ tests/MaaEndTestset/<Win32|ADB>/Official_CN/IconRecognition/
 ./agent/cpp-algo/source/IconRecognition/test/run-tests.ps1 -Task manual -Dataset win32 -All
 ./agent/cpp-algo/source/IconRecognition/test/run-tests.ps1 -Task manual -Dataset adb -All
 ./agent/cpp-algo/source/IconRecognition/test/run-tests.ps1 -Task manual -Dataset adb -GridType transfer
+./agent/cpp-algo/source/IconRecognition/test/run-tests.ps1 -Task manual -Dataset win32 -GridType transfer -Image sample.png -Side full
 ./agent/cpp-algo/source/IconRecognition/test/run-tests.ps1 -Task manual -Dataset adb -GridType transfer -Image sample.png -Side all
 ./agent/cpp-algo/source/IconRecognition/test/run-tests.ps1 -Task manual -Dataset win32 -GridType transfer -Side all -Jobs 16
 ./agent/cpp-algo/source/IconRecognition/test/run-tests.ps1 -Task manual -Dataset adb -Image sample.png
@@ -74,7 +85,7 @@ tests/MaaEndTestset/<Win32|ADB>/Official_CN/IconRecognition/
 ./agent/cpp-algo/source/IconRecognition/test/run-tests.ps1 -Task manual -Dataset win32 -All -RecognizeRegionUnavailable
 ```
 
-Win32 与 ADB manual 默认读取各自子模块中的 `expected.csv`，并始终显式传入各自的 `rois.json`。只有显式传入 `-UseLocalExpected` 时，才改用 `test/input/expected.csv`；本地 CSV 不与 tracked CSV 叠加，也不会被复制进图片输入树。可从所选数据集的当前基线和一次人工运行报告生成候选文件：
+Win32 与 ADB manual 始终显式传入各自的 `rois.json`。正式数据集图片默认读取对应子模块中的 `expected.csv`；显式 `-Image` 命中 `test/input/` 本地图片时默认仅作人工审核，不传 expected。只有显式传入 `-UseLocalExpected` 时，才使用 `test/input/expected.csv`；本地 CSV 不与 tracked CSV 叠加，也不会被复制进图片输入树。可从所选数据集的当前基线和一次人工运行报告生成候选文件：
 
 ```powershell
 python tools/icon_recognition/expected.py `
@@ -153,7 +164,7 @@ python tools/icon_recognition/expected.py `
 
 ## 图像回归门槛
 
-截图回归通过 `manual` runner 执行。runner 只扫描所选数据集中的 `<网格类型>/` 图片，文件名只是输入标识，不参与生产判断，也不对应隐藏的 C++ 固定断言。需要复核某个算法场景时，应在报告或 PR 说明中记录数据集、图片相对路径、ROI、预期现象和实际结果；quick 只保留上面列出的少量典型样本，不要把本地任意图片编号写入测试代码。
+截图回归通过 `manual` runner 执行。runner 扫描所选数据集与本地 `input/` 合并后的 `<网格类型>/` 图片；本地图片不会进入 `quick`。文件名只是输入标识，不参与生产判断，也不对应隐藏的 C++ 固定断言。需要复核某个算法场景时，应在报告或 PR 说明中记录数据集、图片相对路径、ROI、预期现象和实际结果；quick 只保留上面列出的少量典型样本，不要把本地任意图片编号写入测试代码。
 
 回归审核至少覆盖：
 

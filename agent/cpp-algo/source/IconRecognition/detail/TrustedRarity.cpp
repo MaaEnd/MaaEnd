@@ -2,7 +2,9 @@
 
 #include <algorithm>
 #include <cmath>
+#include <limits>
 #include <numeric>
+#include <optional>
 #include <tuple>
 
 #include "RarityClassifier.h"
@@ -72,18 +74,35 @@ cv::Vec3d MeanLab(const cv::Mat& lab, const cv::Rect& box, const cv::Mat& mask =
     return { mean[0], mean[1], mean[2] };
 }
 
+struct HorizontalRun
+{
+    int x = 0;
+    int width = 0;
+};
+
+std::optional<HorizontalRun> LongestHorizontalRun(const cv::Mat& mask, int y, int x_begin, int x_end)
+{
+    std::optional<HorizontalRun> best;
+    int run_begin = x_begin;
+    for (int x = x_begin; x <= x_end; ++x) {
+        const bool covered = x < x_end && mask.at<unsigned char>(y, x) != 0;
+        if (covered) {
+            continue;
+        }
+        if (x > run_begin && (!best || x - run_begin > best->width)) {
+            best = HorizontalRun { .x = run_begin, .width = x - run_begin };
+        }
+        run_begin = x + 1;
+    }
+    return best;
+}
+
 double LongestRunRatio(const cv::Mat& mask, const cv::Rect& box)
 {
     int longest = 0;
     for (int y = box.y; y < box.y + box.height; ++y) {
-        int current = 0;
-        for (int x = box.x; x < box.x + box.width; ++x) {
-            if (mask.at<unsigned char>(y, x) != 0) {
-                longest = std::max(longest, ++current);
-            }
-            else {
-                current = 0;
-            }
+        if (const auto run = LongestHorizontalRun(mask, y, box.x, box.x + box.width)) {
+            longest = std::max(longest, run->width);
         }
     }
     return static_cast<double>(longest) / box.width;
@@ -138,53 +157,91 @@ std::vector<TrustedRarityStrip> DetectTrustedRarityStrips(const cv::Mat& image, 
         cv::Mat centroids;
         const int components = cv::connectedComponentsWithStats(connected, labels, stats, centroids, 8, CV_32S);
         for (int component = 1; component < components; ++component) {
-            const cv::Rect box(
+            const cv::Rect component_box(
                 stats.at<int>(component, cv::CC_STAT_LEFT),
                 stats.at<int>(component, cv::CC_STAT_TOP),
                 stats.at<int>(component, cv::CC_STAT_WIDTH),
                 stats.at<int>(component, cv::CC_STAT_HEIGHT));
-            if (box.width < minimum_width || box.width > maximum_width || box.height < kMinimumThickness
-                || box.height > kMaximumThickness) {
+            // 组件可能被同色数字向上或向下粘连，先只按宽度排除不可能的短横线；
+            // 高度和上限在提取水平核心后再判断，避免杂点把真实色带提前过滤掉。
+            if (component_box.width < minimum_width) {
                 continue;
             }
-            const double coverage = static_cast<double>(cv::countNonZero(mask(box))) / box.area();
-            const double continuity = LongestRunRatio(mask, box);
-            const auto backgrounds = BackgroundBoxes(box, lab.size());
-            if (backgrounds.empty()) {
-                continue;
+
+            // 数字等同色杂点可能与色带连成一个组件；只保留达到单格宽度的水平核心行，
+            // 再用核心行重建色带框，避免杂点扩大高度并稀释颜色覆盖率。
+            struct CoreRun
+            {
+                int y = 0;
+                HorizontalRun run;
+            };
+            std::vector<CoreRun> core_runs;
+            for (int y = component_box.y; y < component_box.y + component_box.height; ++y) {
+                if (const auto run = LongestHorizontalRun(mask, y, component_box.x, component_box.x + component_box.width)) {
+                    if (run->width >= minimum_width) {
+                        core_runs.push_back({ y, *run });
+                    }
+                }
             }
-            const cv::Vec3d strip_mean = MeanLab(lab, box, mask);
-            std::vector<double> deltas;
-            for (const cv::Rect& background : backgrounds) {
-                deltas.push_back(cv::norm(strip_mean - MeanLab(lab, background)));
+            for (std::size_t begin = 0; begin < core_runs.size();) {
+                std::size_t end = begin + 1;
+                const int first_y = core_runs[begin].y;
+                while (end < core_runs.size() && core_runs[end].y == core_runs[end - 1].y + 1) {
+                    ++end;
+                }
+                const int top = first_y;
+                const int bottom = core_runs[end - 1].y + 1;
+                int left = std::numeric_limits<int>::max();
+                int right = std::numeric_limits<int>::min();
+                for (std::size_t index = begin; index < end; ++index) {
+                    left = std::min(left, core_runs[index].run.x);
+                    right = std::max(right, core_runs[index].run.x + core_runs[index].run.width);
+                }
+                const cv::Rect box(left, top, right - left, bottom - top);
+                if (box.width > maximum_width || box.height < kMinimumThickness || box.height > kMaximumThickness) {
+                    begin = end;
+                    continue;
+                }
+                const double coverage = static_cast<double>(cv::countNonZero(mask(box))) / box.area();
+                const double continuity = LongestRunRatio(mask, box);
+                const auto backgrounds = BackgroundBoxes(box, lab.size());
+                if (backgrounds.empty()) {
+                    begin = end;
+                    continue;
+                }
+                const cv::Vec3d strip_mean = MeanLab(lab, box, mask);
+                std::vector<double> deltas;
+                for (const cv::Rect& background : backgrounds) {
+                    deltas.push_back(cv::norm(strip_mean - MeanLab(lab, background)));
+                }
+                const double background_delta = std::accumulate(deltas.begin(), deltas.end(), 0.0) / static_cast<double>(deltas.size());
+                const double edge_response = *std::ranges::min_element(deltas);
+                const bool trusted = coverage >= kMinimumCoverage && continuity >= kMinimumContinuity
+                                     && background_delta >= kMinimumBackgroundDelta && edge_response >= kMinimumEdgeResponse;
+                if (trusted) {
+                    double confidence =
+                        kCoverageConfidenceWeight * coverage + kContinuityConfidenceWeight * continuity
+                        + kBackgroundConfidenceWeight * Clamp01(background_delta / kBackgroundDeltaScale)
+                        + kEdgeConfidenceWeight * Clamp01(edge_response / kEdgeResponseScale)
+                        + kThicknessConfidenceWeight * Clamp01(1.0 - std::abs(box.height - kExpectedThickness) / kThicknessDeviationScale);
+                    if (backgrounds.size() == 1) {
+                        confidence *= kSingleBackgroundPenalty;
+                    }
+                    candidates.push_back(TrustedRarityStrip {
+                        .box = box,
+                        .rarity = static_cast<int>(prototype_index + 1),
+                        .color_coverage = coverage,
+                        .continuity = continuity,
+                        .background_delta = background_delta,
+                        .edge_response = edge_response,
+                        .thickness = box.height,
+                        .confidence = confidence,
+                        .trusted = true,
+                        .can_seed_lattice = prototype_index != 0,
+                    });
+                }
+                begin = end;
             }
-            const double background_delta = std::accumulate(deltas.begin(), deltas.end(), 0.0) / static_cast<double>(deltas.size());
-            const double edge_response = *std::ranges::min_element(deltas);
-            const bool trusted = coverage >= kMinimumCoverage && continuity >= kMinimumContinuity
-                                 && background_delta >= kMinimumBackgroundDelta && edge_response >= kMinimumEdgeResponse;
-            if (!trusted) {
-                continue;
-            }
-            double confidence =
-                kCoverageConfidenceWeight * coverage + kContinuityConfidenceWeight * continuity
-                + kBackgroundConfidenceWeight * Clamp01(background_delta / kBackgroundDeltaScale)
-                + kEdgeConfidenceWeight * Clamp01(edge_response / kEdgeResponseScale)
-                + kThicknessConfidenceWeight * Clamp01(1.0 - std::abs(box.height - kExpectedThickness) / kThicknessDeviationScale);
-            if (backgrounds.size() == 1) {
-                confidence *= kSingleBackgroundPenalty;
-            }
-            candidates.push_back(TrustedRarityStrip {
-                .box = box,
-                .rarity = static_cast<int>(prototype_index + 1),
-                .color_coverage = coverage,
-                .continuity = continuity,
-                .background_delta = background_delta,
-                .edge_response = edge_response,
-                .thickness = box.height,
-                .confidence = confidence,
-                .trusted = true,
-                .can_seed_lattice = prototype_index != 0,
-            });
         }
     }
 

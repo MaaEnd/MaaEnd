@@ -38,7 +38,8 @@ std::optional<RegularAxisFit> FitRegularAxis(
     const std::vector<LatticeObservation>& observations,
     int maximum_count,
     std::pair<double, double> pitch_range,
-    double preferred_pitch);
+    double preferred_pitch,
+    double observed_pitch_tolerance = 0.0);
 std::vector<int> ProjectRegularAxis(const RegularAxisFit& fit);
 
 } // namespace iconrecognition::detail

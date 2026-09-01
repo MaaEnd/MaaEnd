@@ -59,7 +59,8 @@ std::optional<RegularAxisFit> FitCandidate(
     double coarse_pitch,
     int maximum_count,
     std::pair<double, double> pitch_range,
-    double preferred_pitch)
+    double preferred_pitch,
+    double observed_pitch_tolerance)
 {
     std::vector<int> indices;
     indices.reserve(observations.size());
@@ -103,10 +104,13 @@ std::optional<RegularAxisFit> FitCandidate(
     if (denominator <= std::numeric_limits<double>::epsilon()) {
         return std::nullopt;
     }
-    const double pitch = numerator / denominator;
-    if (pitch < pitch_range.first || pitch > pitch_range.second) {
+    const double observed_pitch = numerator / denominator;
+    if (observed_pitch < pitch_range.first - observed_pitch_tolerance
+        || observed_pitch > pitch_range.second + observed_pitch_tolerance) {
         return std::nullopt;
     }
+    // 观测间距允许像素量化误差，但输出轴必须保持在正式 pitch 范围内。
+    const double pitch = std::clamp(observed_pitch, pitch_range.first, pitch_range.second);
     const double origin = mean_position - mean_index * pitch;
 
     double weighted_residual = 0.0;
@@ -165,7 +169,8 @@ std::optional<RegularAxisFit> FitRegularAxis(
     const std::vector<LatticeObservation>& source,
     int maximum_count,
     std::pair<double, double> pitch_range,
-    double preferred_pitch)
+    double preferred_pitch,
+    double observed_pitch_tolerance)
 {
     const auto observations = NormalizeObservations(source);
     if (observations.empty() || maximum_count <= 0 || pitch_range.first <= 0.0 || pitch_range.second < pitch_range.first) {
@@ -195,7 +200,8 @@ std::optional<RegularAxisFit> FitRegularAxis(
     };
     for (double pitch = pitch_range.first; pitch <= pitch_range.second + kPitchLoopEpsilon; pitch += kPitchStep) {
         for (const auto& seed : observations) {
-            const auto candidate = FitCandidate(observations, seed.position, pitch, maximum_count, pitch_range, preferred_pitch);
+            const auto candidate =
+                FitCandidate(observations, seed.position, pitch, maximum_count, pitch_range, preferred_pitch, observed_pitch_tolerance);
             if (!candidate) {
                 continue;
             }

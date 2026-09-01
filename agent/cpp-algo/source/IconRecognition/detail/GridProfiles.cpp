@@ -178,6 +178,11 @@ double ForegroundTextureCoverage(const cv::Mat& crop, const TransferHypothesis& 
     return total_cells == 0 ? 0.0 : static_cast<double>(textured_cells) / total_cells;
 }
 
+int formal_axis_capacity(int length)
+{
+    return std::max(1, (length - kBaseTransferProfile.cell_size) / kBaseTransferProfile.pitch_min + 1);
+}
+
 std::vector<Peak> local_peaks(const cv::Mat& score, int maximum)
 {
     if (score.empty()) {
@@ -457,8 +462,8 @@ std::vector<cv::Rect> discover_transfer_regions(const cv::Mat& crop)
 
 std::optional<TransferHypothesis> select_grid_hypothesis(const cv::Mat& crop, bool require_texture)
 {
-    const int maximum_columns = std::max(1, (crop.cols - kBaseTransferProfile.cell_size) / kBaseTransferProfile.pitch_min + 1);
-    const int maximum_rows = std::max(1, (crop.rows - kBaseTransferProfile.cell_size) / kBaseTransferProfile.pitch_min + 1);
+    const int maximum_columns = formal_axis_capacity(crop.cols);
+    const int maximum_rows = formal_axis_capacity(crop.rows);
     const auto candidates = [&](int minimum) {
         std::vector<TransferHypothesis> filtered;
         for (const auto& item :
@@ -765,13 +770,18 @@ std::vector<TransferGridHint> DiscoverTransferGridHints(const cv::Mat& crop, boo
     std::vector<TransferGridHint> hints;
     for (const auto& raw_region : regions) {
         const cv::Rect region(raw_region.x, 0, raw_region.width, crop.rows);
+        const int maximum_columns = formal_axis_capacity(region.width);
+        const int maximum_rows = formal_axis_capacity(region.height);
         std::vector<TransferGridHint> candidates;
         if (const auto local = select_grid_hypothesis(crop(region), structural_rank)) {
             candidates.push_back(to_hint(*local, region, region.x));
         }
         for (const auto& hypothesis : broad) {
+            // broad 的宽 pitch 范围只负责召回；候选数量仍须能按正式 pitch 落入当前单侧区域。
             if ((!structural_rank || !broad_has_texture_evidence
-                 || hypothesis.foreground_texture_coverage >= kMinimumSparseTransferTextureCoverage)
+                  || hypothesis.foreground_texture_coverage >= kMinimumSparseTransferTextureCoverage)
+                && hypothesis.columns <= std::min(kTransferMaximumColumns, maximum_columns)
+                && hypothesis.rows <= std::min(kBaseTransferProfile.maximum_rows, maximum_rows)
                 && hypothesis.rect.x >= region.x && hypothesis.rect.x + hypothesis.rect.width <= region.x + region.width) {
                 candidates.push_back(to_hint(hypothesis, region, 0));
             }
