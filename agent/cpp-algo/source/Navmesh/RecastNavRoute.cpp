@@ -690,7 +690,8 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     std::optional<double> goal_deck,
     bool capture_gap,
     const BaseNavPlanner& pl,
-    uint16_t zid)
+    uint16_t zid,
+    bool exact_slim)
 {
     const int64_t nx = info.nx;
     const int64_t ny = info.ny;
@@ -1278,7 +1279,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     const float lyo_h = qs.has_value() ? st3.sp_h[static_cast<size_t>(qs->front())] : 0.0F;
     const auto slim_started_at = std::chrono::steady_clock::now();
     if (out.size() > 2) {
-        out = Slim(out, blk_gray, &cfl, lyo_p, lyo_h, true);
+        out = Slim(out, blk_gray, &cfl, lyo_p, lyo_h, true, exact_slim ? out.size() : 0);
     }
     dg.slim_points = out;
     dg.timing.slim_ms = ElapsedMs(slim_started_at);
@@ -1362,10 +1363,11 @@ RecastPlanResult RecastNavEngine::plan(
     float goal_deck_y,
     const std::vector<uint32_t>& blocked,
     const std::vector<WorldPoint>& blocked_points,
-    const std::function<bool()>& should_stop)
+    const std::function<bool()>& should_stop,
+    bool exact_slim)
 {
     const std::lock_guard<std::mutex> lock(mutex_);
-    return planLocked(zone_name, start, goal, start_floor_y, goal_floor_y, goal_deck_y, blocked, blocked_points, should_stop);
+    return planLocked(zone_name, start, goal, start_floor_y, goal_floor_y, goal_deck_y, blocked, blocked_points, should_stop, exact_slim);
 }
 
 void RecastNavEngine::warm(const std::string& zone_name)
@@ -1383,7 +1385,8 @@ RecastPlanResult RecastNavEngine::planLocked(
     float goal_deck_y,
     const std::vector<uint32_t>& blocked,
     const std::vector<WorldPoint>& blocked_points,
-    const std::function<bool()>& should_stop)
+    const std::function<bool()>& should_stop,
+    bool exact_slim)
 {
     RecastPlanResult res;
     if (!grid_.valid()) {
@@ -1486,7 +1489,7 @@ RecastPlanResult RecastNavEngine::planLocked(
         auto info = buildWindow(wo, grid_, *gz, zc, start, ss->point, goal, h0, gdk, x0, y0, x1, y1, blocked_local, blocked_points, err);
         if (info.has_value()) {
             RouteDiag dg;
-            auto line = routeWindow(*info, start, goal, dg, gdk, capture_gap, planner_, zc.zone_id);
+            auto line = routeWindow(*info, start, goal, dg, gdk, capture_gap, planner_, zc.zone_id, exact_slim);
             if (line.has_value()) {
                 // 锚点远 = 走廊出窗,同触界扩窗,否则末段盲跳穿墙
                 if (std::max(dg.snap_start, dg.snap_goal) > kSnapRadius) {

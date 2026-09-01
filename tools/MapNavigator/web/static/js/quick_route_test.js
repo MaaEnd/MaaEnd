@@ -53,10 +53,10 @@ export function advanceQuickRouteTest(current, endpoint) {
  * temporary NAVMESH target that never enters the editor's route state.
  *
  * @param {?{start:Object,goal:?Object}} state
- * @param {{zip?:boolean}} [options]
+ * @param {{zip?:boolean,exact_slim?:boolean}} [options]
  * @returns {{ok:true,request:Object}|{ok:false,error:string}}
  */
-export function buildQuickRouteTestRequest(state, {zip = false} = {}) {
+export function buildQuickRouteTestRequest(state, {zip = false, exact_slim = false} = {}) {
     const start = state?.start;
     const goal = state?.goal;
     if (!isValidEndpoint(start) || !isValidEndpoint(goal)) {
@@ -74,6 +74,7 @@ export function buildQuickRouteTestRequest(state, {zip = false} = {}) {
 
     const customActionParam = {path: [target]};
     if (zip) customActionParam.zip = true;
+    if (exact_slim) customActionParam.exact_slim = true;
     return {
         ok: true,
         request: {

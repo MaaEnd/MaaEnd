@@ -82,6 +82,7 @@ class NavTestService:
         self._armed_path: list[Any] = []
         self._armed_kind = "route"
         self._armed_zip = False
+        self._armed_exact_slim = False
         self._tasker: Any = None
         self._resource: Any = None
         self._position_thread: threading.Thread | None = None
@@ -190,6 +191,7 @@ class NavTestService:
         *,
         exported: bool = False,
         zip_enabled: bool = False,
+        exact_slim: bool = False,
         assert_target: dict | None = None,
     ) -> None:
         """装载待跑的东西: 有断言框就装框, 否则装线。F3 跑的就是这一份。
@@ -216,6 +218,7 @@ class NavTestService:
             self._armed_path = nodes
             self._armed_kind = kind
             self._armed_zip = bool(zip_enabled and kind == "route")
+            self._armed_exact_slim = bool(exact_slim and kind == "route")
         self._on_armed(len(nodes), kind)
 
     def _export_assert(self, assert_target: dict) -> list[Any] | None:
@@ -245,6 +248,7 @@ class NavTestService:
                     points,
                     exported=bool(msg.get("exported")),
                     zip_enabled=bool(msg.get("zip")),
+                    exact_slim=bool(msg.get("exact_slim")),
                 )
             if kind == "run":
                 self.trigger_run()
@@ -368,6 +372,7 @@ class NavTestService:
             path = list(self._armed_path)
             kind = self._armed_kind
             zip_enabled = self._armed_zip
+            exact_slim = self._armed_exact_slim
         if not path:
             return
         if tasker.stopping or tasker.running:
@@ -389,6 +394,8 @@ class NavTestService:
             custom_action_param: dict[str, Any] = {"path": path}
             if zip_enabled:
                 custom_action_param["zip"] = True
+            if exact_slim:
+                custom_action_param["exact_slim"] = True
             override = {
                 node_name: {
                     "recognition": "DirectHit",

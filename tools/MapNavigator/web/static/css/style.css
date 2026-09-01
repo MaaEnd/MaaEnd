@@ -347,6 +347,11 @@ canvas {
   width: 100%;
 }
 
+.edit-planning-options {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
 .grid-btns-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;

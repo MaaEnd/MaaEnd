@@ -294,9 +294,12 @@
             <button id="btn-copy-path" class="btn btn-secondary" type="button">复制路径</button>
           </div>
 
-          <div class="sidebar-row border-top" style="margin-top: 10px; padding-top: 10px">
+          <div class="sidebar-row border-top edit-planning-options" style="margin-top: 10px; padding-top: 10px">
             <label class="chk" title="按 MapNavigator 运行时语义规划当前区域片段；触屏控制器不会执行滑索">
               <input id="chk-edit-zipline" type="checkbox" /> 启用滑索规划（桌面端）
+            </label>
+            <label class="chk" title="使用全候选动态规划优化路径，结果更精确但耗时较长">
+              <input id="chk-edit-exact-slim" type="checkbox" /> 精确优化路径（耗时较长）
             </label>
           </div>
           <div id="edit-plan-start-label" class="sidebar-hint">规划起点：当前片段第一个路点</div>

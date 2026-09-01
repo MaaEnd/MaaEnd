@@ -284,6 +284,7 @@ class MapNavigatorApp {
             btnEditPlanClear: $("btn-edit-plan-clear"),
             editPlanStartLabel: $("edit-plan-start-label"),
             chkEditZipline: $("chk-edit-zipline"),
+            chkEditExactSlim: $("chk-edit-exact-slim"),
             btnCopyAssert: $("btn-copy-assert"),
             assertCopyFormat: $("assert-copy-format"),
             btnImport: $("btn-import"),
@@ -892,6 +893,11 @@ class MapNavigatorApp {
         });
         e.chkEditZipline.addEventListener("change", () => {
             this._syncCopyButtonLabels();
+            if (this.navtest) this.navtest.routeChanged();
+            if (this.quickRouteTest?.goal) this._calculateQuickRouteTest();
+            else if (this.editRoute) this._calculateEditPreview();
+        });
+        e.chkEditExactSlim.addEventListener("change", () => {
             if (this.navtest) this.navtest.routeChanged();
             if (this.quickRouteTest?.goal) this._calculateQuickRouteTest();
             else if (this.editRoute) this._calculateEditPreview();
@@ -3650,6 +3656,7 @@ class MapNavigatorApp {
     async _calculateQuickRouteTest() {
         const built = buildQuickRouteTestRequest(this.quickRouteTest, {
             zip: this.els.chkEditZipline.checked,
+            exact_slim: this.els.chkEditExactSlim.checked,
         });
         if (!built.ok) {
             setStatus(built.error, "#f59e0b");
@@ -3717,6 +3724,7 @@ class MapNavigatorApp {
             const exported = await exportPath(plan.targets);
             const customActionParam = {path: exported.nodes || []};
             if (this.els.chkEditZipline.checked) customActionParam.zip = true;
+            if (this.els.chkEditExactSlim.checked) customActionParam.exact_slim = true;
             const result = await postRoutePreview({
                 position: plan.position,
                 position_zone: plan.positionZone,
@@ -4604,7 +4612,7 @@ class MapNavigatorApp {
 
     /** Keep each copy button's label aligned with its selected output format. @returns {void} */
     _syncCopyButtonLabels() {
-        this.els.btnCopyPath.textContent = this.els.chkEditZipline.checked ? "复制完整参数" : "复制路径";
+        this.els.btnCopyPath.textContent = this.els.chkEditZipline.checked || this.els.chkEditExactSlim.checked ? "复制完整参数" : "复制路径";
         this.els.btnCopyAssert.textContent =
             this.els.assertCopyFormat.value === COPY_FORMAT_COORDINATES ? "复制坐标" : "复制断言";
     }
@@ -4617,9 +4625,12 @@ class MapNavigatorApp {
         }
         try {
             const result = await exportPath(this.state.points);
-            if (this.els.chkEditZipline.checked) {
-                await this._copyText(JSON.stringify({path: result.nodes, zip: true}, null, 4));
-                setStatus("MapNavigator 完整参数已复制到剪贴板（已启用滑索）", "#10b981");
+            if (this.els.chkEditZipline.checked || this.els.chkEditExactSlim.checked) {
+                const param = {path: result.nodes};
+                if (this.els.chkEditZipline.checked) param.zip = true;
+                if (this.els.chkEditExactSlim.checked) param.exact_slim = true;
+                await this._copyText(JSON.stringify(param, null, 4));
+                setStatus("MapNavigator 完整参数已复制到剪贴板", "#10b981");
             } else {
                 await this._copyText(result.text);
                 setStatus("MapNavigator path 已复制到剪贴板", "#10b981");
@@ -4666,7 +4677,12 @@ class MapNavigatorApp {
         if (this.state.mode !== Mode.EDIT) {
             return {path: [], exported: false, zip: false, assert_target: null};
         }
-        return {path: this.state.points, exported: false, zip: this.els.chkEditZipline.checked};
+        return {
+            path: this.state.points,
+            exported: false,
+            zip: this.els.chkEditZipline.checked,
+            exact_slim: this.els.chkEditExactSlim.checked,
+        };
     }
 
 
