@@ -4,7 +4,6 @@
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
-#include <deque>
 #include <numeric>
 #include <utility>
 
@@ -552,35 +551,42 @@ ZoneClean::ZoneClean(
         cent[static_cast<size_t>(i)] = { (mesh.V[tri[0]].x + mesh.V[tri[1]].x + mesh.V[tri[2]].x) / 3.0,
                                          (mesh.V[tri[0]].y + mesh.V[tri[1]].y + mesh.V[tri[2]].y) / 3.0 };
     }
+    // 逐对局部泛洪都要一套访问标记, 每对新建散列集与双端队列的话分配与哈希就是这段的全部开销。
+    // 整段共用一组世代戳和一个当队列使的数组: 队列仍是先进先出、标记语义不变, 访问序逐位相同。
+    std::vector<uint32_t> vis(static_cast<size_t>(m), 0);
+    std::vector<int32_t> dq;
+    uint32_t vis_epoch = 0;
     for (size_t r = 0; r < ia.size(); ++r) {
         const int32_t ta = ia[r];
         const int32_t tb = ib[r];
         if (comp[static_cast<size_t>(ta)] != comp[static_cast<size_t>(tb)]) {
             continue;
         }
-        bool near = false;
-        for (int k1 = 0; k1 < 3 && !near; ++k1) {
+        bool adjacent = false;
+        for (int k1 = 0; k1 < 3 && !adjacent; ++k1) {
             const int32_t n1 = NB[static_cast<size_t>(ta)][k1];
             if (n1 < 0) {
                 continue;
             }
             const auto& row = NB[static_cast<size_t>(n1)];
-            near = row[0] == tb || row[1] == tb || row[2] == tb;
+            adjacent = row[0] == tb || row[1] == tb || row[2] == tb;
         }
-        if (near) {
+        if (adjacent) {
             continue;
         }
         const WorldPoint mx { (cent[static_cast<size_t>(ta)].x + cent[static_cast<size_t>(tb)].x) * 0.5,
                               (cent[static_cast<size_t>(ta)].y + cent[static_cast<size_t>(tb)].y) * 0.5 };
-        std::unordered_set<int32_t> seen { ta };
-        std::deque<int32_t> dq { ta };
+        ++vis_epoch;
+        vis[static_cast<size_t>(ta)] = vis_epoch;
+        dq.clear();
+        dq.push_back(ta);
+        size_t head = 0;
         bool hit = false;
-        while (!dq.empty() && !hit) {
-            const int32_t t2 = dq.front();
-            dq.pop_front();
+        while (head < dq.size() && !hit) {
+            const int32_t t2 = dq[head++];
             for (int k = 0; k < 3; ++k) {
                 const int32_t nb2 = NB[static_cast<size_t>(t2)][k];
-                if (nb2 < 0 || seen.contains(nb2)) {
+                if (nb2 < 0 || vis[static_cast<size_t>(nb2)] == vis_epoch) {
                     continue;
                 }
                 if (nb2 == tb) { // 目标判定先于出框判定
@@ -591,7 +597,7 @@ ZoneClean::ZoneClean(
                     || std::fabs(cent[static_cast<size_t>(nb2)].y - mx.y) > kSrcadjLocalR) {
                     continue;
                 }
-                seen.insert(nb2);
+                vis[static_cast<size_t>(nb2)] = vis_epoch;
                 dq.push_back(nb2);
             }
         }

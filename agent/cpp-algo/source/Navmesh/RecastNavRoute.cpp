@@ -175,7 +175,7 @@ int64_t pickDeckRec(const GridWindow& gw, int64_t nx, int64_t ny, int64_t gcx, i
     return best;
 }
 
-// 点到最近核心格的格距 × kCS,与窗口里的 near() 同口径,只是在全区图上量。
+// 点到最近核心格的格距 × kCS,与窗口里的 nearestCell() 同口径,只是在全区图上量。
 // 搜索半径取判据的两倍,够不着的点只报这个下界,反正它已经在闸外了。
 double coreAnchorPx(const GridPack& gp, const GridZoneDir& gz, const WorldPoint& p)
 {
@@ -880,7 +880,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     const CellPt sc { static_cast<int64_t>((s.x - x0) / kCS), static_cast<int64_t>((s.y - y0) / kCS) };
     const CellPt gc { static_cast<int64_t>((g.x - x0) / kCS), static_cast<int64_t>((g.y - y0) / kCS) };
 
-    const auto near = [&](const Mask& mask, const CellPt& p) -> std::pair<std::optional<CellPt>, double> {
+    const auto nearestCell = [&](const Mask& mask, const CellPt& p) -> std::pair<std::optional<CellPt>, double> {
         bool have = false;
         int64_t bd = 0;
         CellPt bc;
@@ -971,7 +971,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     // 高度差, 让吸附结果跟 atDeck 选的那张 span 一致。
     const auto nearGoal = [&](const std::vector<uint8_t>& use, const Mask& cells) -> std::pair<std::optional<CellPt>, double> {
         if (!goal_deck.has_value()) {
-            return near(cells, gc);
+            return nearestCell(cells, gc);
         }
         bool have = false;
         int64_t bd = 0;
@@ -1002,7 +1002,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
         return { bc, std::sqrt(static_cast<double>(bd)) * kCS };
     };
 
-    const auto snap0 = near(cw3, sc);
+    const auto snap0 = nearestCell(cw3, sc);
     const auto snap1 = nearGoal(useW, cw3);
     if (!snap0.first.has_value()) {
         dg.err = "walk 掩膜为空";
@@ -1217,8 +1217,8 @@ std::optional<std::vector<WorldPoint>> routeWindow(
         if (!resnap) {
             return std::nullopt;
         }
-        std::tie(as_, dsa) = near(wl, sc);
-        std::tie(ag_, dga) = near(wl, gc);
+        std::tie(as_, dsa) = nearestCell(wl, sc);
+        std::tie(ag_, dga) = nearestCell(wl, gc);
         if (!as_.has_value() || !ag_.has_value()) {
             return std::nullopt;
         }
