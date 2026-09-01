@@ -8,6 +8,7 @@
 #include <utility>
 
 #include "BaseNavGeometry.h"
+#include "NavParallel.h"
 
 namespace navmesh::recast
 {
@@ -39,16 +40,20 @@ PolyMesh::PolyMesh(std::vector<WorldPoint> v, std::vector<std::array<int32_t, 3>
     , H(std::move(h))
     , T(std::move(t))
 {
-    for (auto& tri : T) {
-        const WorldPoint& a = V[tri[0]];
-        const double abx = V[tri[1]].x - a.x;
-        const double aby = V[tri[1]].y - a.y;
-        const double acx = V[tri[2]].x - a.x;
-        const double acy = V[tri[2]].y - a.y;
-        if (abx * acy - aby * acx < 0.0) {
-            std::swap(tri[1], tri[2]);
+    const int64_t nt = static_cast<int64_t>(T.size());
+    ParallelChunks(nt, NavWorkerCount(nt), [&](size_t, int64_t b, int64_t e) {
+        for (int64_t i = b; i < e; ++i) {
+            auto& tri = T[static_cast<size_t>(i)];
+            const WorldPoint& a = V[tri[0]];
+            const double abx = V[tri[1]].x - a.x;
+            const double aby = V[tri[1]].y - a.y;
+            const double acx = V[tri[2]].x - a.x;
+            const double acy = V[tri[2]].y - a.y;
+            if (abx * acy - aby * acx < 0.0) {
+                std::swap(tri[1], tri[2]);
+            }
         }
-    }
+    });
     buildNb();
     buildGrid();
 }
@@ -84,18 +89,20 @@ void PolyMesh::buildNb()
             slot[w] = static_cast<int32_t>(i * 3 + k);
         }
     }
-    for (int64_t i = 0; i < m; ++i) {
-        for (int64_t k = 0; k < 3; ++k) {
-            const int32_t a = T[static_cast<size_t>(i)][k];
-            const int32_t b = T[static_cast<size_t>(i)][(k + 1) % 3];
-            for (int32_t p = at[static_cast<size_t>(b)]; p < at[static_cast<size_t>(b) + 1]; ++p) {
-                if (dst[static_cast<size_t>(p)] == a) {
-                    NB[static_cast<size_t>(i)][k] = slot[static_cast<size_t>(p)] / 3;
-                    break;
+    ParallelChunks(m, NavWorkerCount(m), [&](size_t, int64_t lo_i, int64_t hi_i) {
+        for (int64_t i = lo_i; i < hi_i; ++i) {
+            for (int64_t k = 0; k < 3; ++k) {
+                const int32_t a = T[static_cast<size_t>(i)][k];
+                const int32_t b = T[static_cast<size_t>(i)][(k + 1) % 3];
+                for (int32_t p = at[static_cast<size_t>(b)]; p < at[static_cast<size_t>(b) + 1]; ++p) {
+                    if (dst[static_cast<size_t>(p)] == a) {
+                        NB[static_cast<size_t>(i)][k] = slot[static_cast<size_t>(p)] / 3;
+                        break;
+                    }
                 }
             }
         }
-    }
+    });
 }
 
 void PolyMesh::buildGrid()
@@ -351,15 +358,22 @@ ZoneClean::ZoneClean(
         ++n_dup;
     }
     std::vector<int64_t> kills;
-    for (int64_t slot = 0; slot < 3 * m; ++slot) {
-        const int32_t j = NB[static_cast<size_t>(slot / 3)][slot % 3];
-        if (j < 0) {
-            continue;
-        }
-        const auto& back = NB[static_cast<size_t>(j)];
-        if (back[0] != slot / 3 && back[1] != slot / 3 && back[2] != slot / 3) {
-            kills.push_back(slot);
-        }
+    {
+        const size_t nw = NavWorkerCount(3 * m);
+        std::vector<std::vector<int64_t>> bins(nw);
+        ParallelChunks(3 * m, nw, [&](size_t w, int64_t lo_s, int64_t hi_s) {
+            for (int64_t slot = lo_s; slot < hi_s; ++slot) {
+                const int32_t j = NB[static_cast<size_t>(slot / 3)][slot % 3];
+                if (j < 0) {
+                    continue;
+                }
+                const auto& back = NB[static_cast<size_t>(j)];
+                if (back[0] != slot / 3 && back[1] != slot / 3 && back[2] != slot / 3) {
+                    bins[w].push_back(slot);
+                }
+            }
+        });
+        ConcatBins(bins, kills);
     }
     for (const int64_t slot : kills) {
         NB[static_cast<size_t>(slot / 3)][slot % 3] = -1;
@@ -369,13 +383,20 @@ ZoneClean::ZoneClean(
     const auto& offs = planner.adjacencyOffsets();
     const auto& lnks = planner.adjacencyLinks();
     std::vector<std::pair<int32_t, int32_t>> lab;
-    for (int64_t src = lo; src < hi; ++src) {
-        for (uint32_t li = offs[static_cast<size_t>(src)]; li < offs[static_cast<size_t>(src) + 1]; ++li) {
-            const int64_t tgt = lnks[li];
-            if (tgt >= lo && tgt < hi && src < tgt) {
-                lab.emplace_back(static_cast<int32_t>(src - lo), static_cast<int32_t>(tgt - lo));
+    {
+        const size_t nw = NavWorkerCount(hi - lo);
+        std::vector<std::vector<std::pair<int32_t, int32_t>>> bins(nw);
+        ParallelChunks(hi - lo, nw, [&](size_t w, int64_t b, int64_t e) {
+            for (int64_t src = lo + b; src < lo + e; ++src) {
+                for (uint32_t li = offs[static_cast<size_t>(src)]; li < offs[static_cast<size_t>(src) + 1]; ++li) {
+                    const int64_t tgt = lnks[li];
+                    if (tgt >= lo && tgt < hi && src < tgt) {
+                        bins[w].emplace_back(static_cast<int32_t>(src - lo), static_cast<int32_t>(tgt - lo));
+                    }
+                }
             }
-        }
+        });
+        ConcatBins(bins, lab);
     }
     // 有背书的三角对按小号一端分桶。一个三角挂不了几条链接, 桶内直查比散列表快,
     // 而且查的是同一个集合, 结果与散列表一致。
@@ -393,27 +414,38 @@ ZoneClean::ZoneClean(
     }
     std::vector<int64_t> cand;
     int64_t n_mask_cut = 0;
-    for (int64_t slot = 0; slot < 3 * m; ++slot) {
-        const int64_t i = slot / 3;
-        const int32_t j = NB[static_cast<size_t>(i)][slot % 3];
-        if (j < 0) {
-            continue;
-        }
-        // 掩码外的三角一条缝都不接:它跟谁都断,自己落成孤立分量。割在并查集之前,
-        // 分量因此天然把水体、禁区与可走面分开。
-        if (walkable[static_cast<size_t>(i)] == 0 || walkable[static_cast<size_t>(j)] == 0) {
-            cand.push_back(slot);
-            ++n_mask_cut;
-            continue;
-        }
-        const auto a = static_cast<int32_t>(std::min<int64_t>(i, j));
-        const auto b = static_cast<int32_t>(std::max<int64_t>(i, j));
-        bool hit = false;
-        for (int32_t p = lat[static_cast<size_t>(a)]; p < lat[static_cast<size_t>(a) + 1] && !hit; ++p) {
-            hit = lhi[static_cast<size_t>(p)] == b;
-        }
-        if (!hit) {
-            cand.push_back(slot);
+    {
+        const size_t nw = NavWorkerCount(3 * m);
+        std::vector<std::vector<int64_t>> bins(nw);
+        std::vector<int64_t> masked(nw, 0);
+        ParallelChunks(3 * m, nw, [&](size_t w, int64_t lo_s, int64_t hi_s) {
+            for (int64_t slot = lo_s; slot < hi_s; ++slot) {
+                const int64_t i = slot / 3;
+                const int32_t j = NB[static_cast<size_t>(i)][slot % 3];
+                if (j < 0) {
+                    continue;
+                }
+                // 掩码外的三角一条缝都不接:它跟谁都断,自己落成孤立分量。割在并查集之前,
+                // 分量因此天然把水体、禁区与可走面分开。
+                if (walkable[static_cast<size_t>(i)] == 0 || walkable[static_cast<size_t>(j)] == 0) {
+                    bins[w].push_back(slot);
+                    ++masked[w];
+                    continue;
+                }
+                const auto a = static_cast<int32_t>(std::min<int64_t>(i, j));
+                const auto b = static_cast<int32_t>(std::max<int64_t>(i, j));
+                bool hit = false;
+                for (int32_t p = lat[static_cast<size_t>(a)]; p < lat[static_cast<size_t>(a) + 1] && !hit; ++p) {
+                    hit = lhi[static_cast<size_t>(p)] == b;
+                }
+                if (!hit) {
+                    bins[w].push_back(slot);
+                }
+            }
+        });
+        ConcatBins(bins, cand);
+        for (const int64_t c : masked) {
+            n_mask_cut += c;
         }
     }
     int64_t n_cut = 0;
@@ -477,17 +509,28 @@ ZoneClean::ZoneClean(
     // 同分量共焊边且非近连通 → srcadj 窄通道
     std::vector<int32_t> ia;
     std::vector<int32_t> ib;
-    for (const auto& [la, lb] : lab) {
-        // 掩码外的三角不接 hop。下面两个消费循环(跨分量门户、同分量 srcadj 窄通道)
-        // 都从 ia/ib 取料,滤在这里就是两处一起滤。
-        if (walkable[static_cast<size_t>(la)] == 0 || walkable[static_cast<size_t>(lb)] == 0) {
-            continue;
-        }
-        const auto& row = NB[static_cast<size_t>(la)];
-        if (row[0] != lb && row[1] != lb && row[2] != lb) {
-            ia.push_back(la);
-            ib.push_back(lb);
-        }
+    {
+        const auto nlab = static_cast<int64_t>(lab.size());
+        const size_t nw = NavWorkerCount(nlab);
+        std::vector<std::vector<int32_t>> bins_a(nw);
+        std::vector<std::vector<int32_t>> bins_b(nw);
+        ParallelChunks(nlab, nw, [&](size_t w, int64_t b, int64_t e) {
+            for (int64_t p = b; p < e; ++p) {
+                const auto& [la, lb] = lab[static_cast<size_t>(p)];
+                // 掩码外的三角不接 hop。下面两个消费循环(跨分量门户、同分量 srcadj 窄通道)
+                // 都从 ia/ib 取料,滤在这里就是两处一起滤。
+                if (walkable[static_cast<size_t>(la)] == 0 || walkable[static_cast<size_t>(lb)] == 0) {
+                    continue;
+                }
+                const auto& row = NB[static_cast<size_t>(la)];
+                if (row[0] != lb && row[1] != lb && row[2] != lb) {
+                    bins_a[w].push_back(la);
+                    bins_b[w].push_back(lb);
+                }
+            }
+        });
+        ConcatBins(bins_a, ia);
+        ConcatBins(bins_b, ib);
     }
     const auto nshared = [&](int32_t a, int32_t b) {
         int n = 0;
