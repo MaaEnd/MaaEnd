@@ -1,0 +1,64 @@
+{
+    "task": [
+        {
+            "name": "GiftOperatorReceive",
+            "label": "$task.GiftOperatorReceive.label",
+            "entry": "GiftOperatorReceiveMain",
+            "description": "$task.GiftOperatorReceive.description",
+            "option": [
+                "SelectOperator"
+            ],
+            "group": [
+                "dijiang_ship"
+            ],
+            "controller": [
+                "ADB",
+                "Linux-Gamescope",
+                "Linux-ScreenCast",
+                "Linux-Wlroots",
+                "PlayCover",
+                "Win32-Front"
+            ],
+            "pipeline_override": {
+                "GiftOperatorContacSortOrder": {
+                    "enabled": false
+                },
+                "GiftOperatorContacSortBy": {
+                    "enabled": false
+                },
+                "GiftOperatorSelectOp1": {
+                    "enabled": false
+                },
+                "GiftOperatorSelectGiftOp": {
+                    "enabled": true
+                },
+                "GiftOperatorSelectSpecifiedOp": {
+                    "enabled": false
+                },
+                "GiftOperatorName": {
+                    "expected": [
+                        ".*"
+                    ]
+                },
+                "GiftOperatorBranchReceive": {
+                    "next": [
+                        "GiftOperatorReceiveDialogLoop",
+                        "GiftOperatorBagFull"
+                    ]
+                },
+                "GiftOperatorSkipDialog": {
+                    "next": [
+                        "GiftOperatorBranchReceive",
+                        "GiftOperatorLeave"
+                    ]
+                },
+                "GiftOperatorNoGiftOperatorSpecified": {
+                    "enabled": true
+                },
+                "GiftOperatorSwipe": {
+                    "enabled": false
+                }
+            }
+        }
+    ]
+}

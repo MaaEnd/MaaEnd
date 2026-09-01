@@ -33,8 +33,105 @@
             "GiftOperatorSelectOp1",
             "GiftOperatorSelectSpecifiedOp",
             "GiftOperatorSelectGiftOp",
+            "GiftOperatorSelectSpecifiedGiftOp_Akekuri",
+            "GiftOperatorSelectSpecifiedGiftOp_Alesh",
+            "GiftOperatorSelectSpecifiedGiftOp_Antal",
+            "GiftOperatorSelectSpecifiedGiftOp_Arclight",
+            "GiftOperatorSelectSpecifiedGiftOp_Ardelia",
+            "GiftOperatorSelectSpecifiedGiftOp_Avywenna",
+            "GiftOperatorSelectSpecifiedGiftOp_Camille",
+            "GiftOperatorSelectSpecifiedGiftOp_Catcher",
+            "GiftOperatorSelectSpecifiedGiftOp_ChenQianyu",
+            "GiftOperatorSelectSpecifiedGiftOp_DaPan",
+            "GiftOperatorSelectSpecifiedGiftOp_Ember",
+            "GiftOperatorSelectSpecifiedGiftOp_Estella",
+            "GiftOperatorSelectSpecifiedGiftOp_Fluorite",
+            "GiftOperatorSelectSpecifiedGiftOp_Gilberta",
+            "GiftOperatorSelectSpecifiedGiftOp_Jue",
+            "GiftOperatorSelectSpecifiedGiftOp_Laevatain",
+            "GiftOperatorSelectSpecifiedGiftOp_LastRite",
+            "GiftOperatorSelectSpecifiedGiftOp_Lifeng",
+            "GiftOperatorSelectSpecifiedGiftOp_Liino",
+            "GiftOperatorSelectSpecifiedGiftOp_MiFu",
+            "GiftOperatorSelectSpecifiedGiftOp_Perlica",
+            "GiftOperatorSelectSpecifiedGiftOp_Pogranichnik",
+            "GiftOperatorSelectSpecifiedGiftOp_Rossi",
+            "GiftOperatorSelectSpecifiedGiftOp_Snowshine",
+            "GiftOperatorSelectSpecifiedGiftOp_Tangtang",
+            "GiftOperatorSelectSpecifiedGiftOp_Wulfgard",
+            "GiftOperatorSelectSpecifiedGiftOp_Xaihi",
+            "GiftOperatorSelectSpecifiedGiftOp_Yvonne",
+            "GiftOperatorSelectSpecifiedGiftOp_ZhuangFangyi",
             "[JumpBack]GiftOperatorSwipe", //滑动两次后会关闭
+            "GiftOperatorNoGiftOperatorSpecified", //只收礼物：连续3次无任何礼物图标则结束
             "GiftOperatorNoOperatorCanSelect" //落入无可选干员界面
+        ]
+    },
+    "GiftOperatorNoGiftOperatorSpecified": {
+        "desc": "只收礼物+指定干员：联络界面找不到带礼物的指定干员，刷新地图（谷地→帝江）后重新扫描，直到领取完每天的礼物量（领满由 Remain0/PostStop 停止）",
+        "enabled": false,
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    310,
+                    187
+                ],
+                "expected": [
+                    "干员联络",
+                    "幹員聯絡",
+                    "Operator Contact",
+                    "オペレーターの呼び出し"
+                ]
+            }
+        },
+        "next": [
+            "GiftOperatorRefreshMap"
+        ]
+    },
+    "GiftOperatorRefreshMap": {
+        "desc": "只收礼物+指定干员：刷新地图，先进入谷地大世界触发加载",
+        "next": [
+            "GiftOperatorRefreshMapInValley",
+            "[JumpBack]SceneEnterWorldValleyIVTheHub"
+        ]
+    },
+    "GiftOperatorRefreshMapInValley": {
+        "desc": "只收礼物+指定干员：已进入谷地大世界，准备重新进入帝江号舰桥",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InWorld"
+                ]
+            }
+        },
+        "next": [
+            "GiftOperatorRefreshMapInDijiang",
+            "[JumpBack]GiftOperatorGoToDijiang"
+        ]
+    },
+    "GiftOperatorRefreshMapInDijiang": {
+        "desc": "只收礼物+指定干员：刷新完成，已回到帝江号舰桥，重新扫描联络界面",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapLocateAssertLocation",
+                "custom_recognition_param": {
+                    "zone_id": "OMVBase01",
+                    "target": [
+                        155.86,
+                        186.98,
+                        10.14,
+                        9.06
+                    ]
+                }
+            }
+        },
+        "next": [
+            "GiftOperatorMainLoop"
         ]
     },
     "GiftOperatorNoOperatorCanSelect": {
@@ -160,6 +257,2026 @@
             "GiftOperatorSelect_ZhuangFangyi"
         ]
     },
+    "GiftOperatorSpecifiedGiftIcon": {
+        "desc": "只收礼物+指定干员：礼物图标定位，作为头像二次匹配的锚点",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    546,
+                    181,
+                    550,
+                    309
+                ],
+                "template": [
+                    "GiftOperator/Gift.png",
+                    "GiftOperator/Gift_2.png"
+                ],
+                "green_mask": true
+            }
+        }
+    },
+    "GiftOperatorSpecifiedGiftAvatar_Akekuri": {
+        "desc": "只收礼物+指定干员：礼物行旁的Akekuri头像",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "GiftOperatorSpecifiedGiftIcon",
+                "roi_offset": [
+                    -48,
+                    -36,
+                    165,
+                    128
+                ],
+                "template": [
+                    "GiftOperator/Operators/Akekuri.png"
+                ],
+                "green_mask": true
+            }
+        }
+    },
+    "GiftOperatorSelectSpecifiedGiftOp_Akekuri": {
+        "desc": "只收礼物+指定干员：点击带礼物的Akekuri行（max_hit=1，已领取后不再触发）",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorSpecifiedGiftIcon",
+                    "GiftOperatorSpecifiedGiftAvatar_Akekuri"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "GiftOperatorNamePatch_Akekuri"
+        ]
+    },
+    "GiftOperatorNamePatch_Akekuri": {
+        "desc": "只收礼物+指定干员：设置Akekuri的对话阶段名称白名单",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorName": {
+                            "expected": [
+                    "秋栗",
+                    "秋栗",
+                    "Akekuri",
+                    "アケクリ",
+                    "아케쿠리"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+                "focus": {
+            "Node.Recognition.Succeeded": "🎁 已领取 秋栗 的礼物"
+        },
+"next": [
+            "GiftOperatorSelectSpecifiedOpSuccess"
+        ]
+    },
+    "GiftOperatorSpecifiedGiftAvatar_Alesh": {
+        "desc": "只收礼物+指定干员：礼物行旁的Alesh头像",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "GiftOperatorSpecifiedGiftIcon",
+                "roi_offset": [
+                    -48,
+                    -36,
+                    165,
+                    128
+                ],
+                "template": [
+                    "GiftOperator/Operators/Alesh.png"
+                ],
+                "green_mask": true
+            }
+        }
+    },
+    "GiftOperatorSelectSpecifiedGiftOp_Alesh": {
+        "desc": "只收礼物+指定干员：点击带礼物的Alesh行（max_hit=1，已领取后不再触发）",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorSpecifiedGiftIcon",
+                    "GiftOperatorSpecifiedGiftAvatar_Alesh"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "GiftOperatorNamePatch_Alesh"
+        ]
+    },
+    "GiftOperatorNamePatch_Alesh": {
+        "desc": "只收礼物+指定干员：设置Alesh的对话阶段名称白名单",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorName": {
+                            "expected": [
+                    "阿列什",
+                    "阿列什",
+                    "Alesh",
+                    "アレッシュ",
+                    "알레쉬"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+                "focus": {
+            "Node.Recognition.Succeeded": "🎁 已领取 阿列什 的礼物"
+        },
+"next": [
+            "GiftOperatorSelectSpecifiedOpSuccess"
+        ]
+    },
+    "GiftOperatorSpecifiedGiftAvatar_Antal": {
+        "desc": "只收礼物+指定干员：礼物行旁的Antal头像",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "GiftOperatorSpecifiedGiftIcon",
+                "roi_offset": [
+                    -48,
+                    -36,
+                    165,
+                    128
+                ],
+                "template": [
+                    "GiftOperator/Operators/Antal.png"
+                ],
+                "green_mask": true
+            }
+        }
+    },
+    "GiftOperatorSelectSpecifiedGiftOp_Antal": {
+        "desc": "只收礼物+指定干员：点击带礼物的Antal行（max_hit=1，已领取后不再触发）",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorSpecifiedGiftIcon",
+                    "GiftOperatorSpecifiedGiftAvatar_Antal"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "GiftOperatorNamePatch_Antal"
+        ]
+    },
+    "GiftOperatorNamePatch_Antal": {
+        "desc": "只收礼物+指定干员：设置Antal的对话阶段名称白名单",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorName": {
+                            "expected": [
+                    "安塔尔",
+                    "安塔爾",
+                    "Antal",
+                    "アンタル",
+                    "안탈"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+                "focus": {
+            "Node.Recognition.Succeeded": "🎁 已领取 安塔尔 的礼物"
+        },
+"next": [
+            "GiftOperatorSelectSpecifiedOpSuccess"
+        ]
+    },
+    "GiftOperatorSpecifiedGiftAvatar_Arclight": {
+        "desc": "只收礼物+指定干员：礼物行旁的Arclight头像",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "GiftOperatorSpecifiedGiftIcon",
+                "roi_offset": [
+                    -48,
+                    -36,
+                    165,
+                    128
+                ],
+                "template": [
+                    "GiftOperator/Operators/Arclight.png"
+                ],
+                "green_mask": true
+            }
+        }
+    },
+    "GiftOperatorSelectSpecifiedGiftOp_Arclight": {
+        "desc": "只收礼物+指定干员：点击带礼物的Arclight行（max_hit=1，已领取后不再触发）",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorSpecifiedGiftIcon",
+                    "GiftOperatorSpecifiedGiftAvatar_Arclight"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "GiftOperatorNamePatch_Arclight"
+        ]
+    },
+    "GiftOperatorNamePatch_Arclight": {
+        "desc": "只收礼物+指定干员：设置Arclight的对话阶段名称白名单",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorName": {
+                            "expected": [
+                    "弧光",
+                    "弧光",
+                    "Arclight",
+                    "アークライト",
+                    "아크라이트"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+                "focus": {
+            "Node.Recognition.Succeeded": "🎁 已领取 弧光 的礼物"
+        },
+"next": [
+            "GiftOperatorSelectSpecifiedOpSuccess"
+        ]
+    },
+    "GiftOperatorSpecifiedGiftAvatar_Ardelia": {
+        "desc": "只收礼物+指定干员：礼物行旁的Ardelia头像",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "GiftOperatorSpecifiedGiftIcon",
+                "roi_offset": [
+                    -48,
+                    -36,
+                    165,
+                    128
+                ],
+                "template": [
+                    "GiftOperator/Operators/Ardelia.png"
+                ],
+                "green_mask": true
+            }
+        }
+    },
+    "GiftOperatorSelectSpecifiedGiftOp_Ardelia": {
+        "desc": "只收礼物+指定干员：点击带礼物的Ardelia行（max_hit=1，已领取后不再触发）",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorSpecifiedGiftIcon",
+                    "GiftOperatorSpecifiedGiftAvatar_Ardelia"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "GiftOperatorNamePatch_Ardelia"
+        ]
+    },
+    "GiftOperatorNamePatch_Ardelia": {
+        "desc": "只收礼物+指定干员：设置Ardelia的对话阶段名称白名单",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorName": {
+                            "expected": [
+                    "艾尔黛拉",
+                    "艾爾黛拉",
+                    "Ardelia",
+                    "アルデリア",
+                    "아델리아"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+                "focus": {
+            "Node.Recognition.Succeeded": "🎁 已领取 艾尔黛拉 的礼物"
+        },
+"next": [
+            "GiftOperatorSelectSpecifiedOpSuccess"
+        ]
+    },
+    "GiftOperatorSpecifiedGiftAvatar_Avywenna": {
+        "desc": "只收礼物+指定干员：礼物行旁的Avywenna头像",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "GiftOperatorSpecifiedGiftIcon",
+                "roi_offset": [
+                    -48,
+                    -36,
+                    165,
+                    128
+                ],
+                "template": [
+                    "GiftOperator/Operators/Avywenna.png"
+                ],
+                "green_mask": true
+            }
+        }
+    },
+    "GiftOperatorSelectSpecifiedGiftOp_Avywenna": {
+        "desc": "只收礼物+指定干员：点击带礼物的Avywenna行（max_hit=1，已领取后不再触发）",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorSpecifiedGiftIcon",
+                    "GiftOperatorSpecifiedGiftAvatar_Avywenna"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "GiftOperatorNamePatch_Avywenna"
+        ]
+    },
+    "GiftOperatorNamePatch_Avywenna": {
+        "desc": "只收礼物+指定干员：设置Avywenna的对话阶段名称白名单",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorName": {
+                            "expected": [
+                    "艾维文娜",
+                    "艾維文娜",
+                    "Avywenna",
+                    "アイビーエナ",
+                    "아비웨나"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+                "focus": {
+            "Node.Recognition.Succeeded": "🎁 已领取 艾维文娜 的礼物"
+        },
+"next": [
+            "GiftOperatorSelectSpecifiedOpSuccess"
+        ]
+    },
+    "GiftOperatorSpecifiedGiftAvatar_Camille": {
+        "desc": "只收礼物+指定干员：礼物行旁的Camille头像",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "GiftOperatorSpecifiedGiftIcon",
+                "roi_offset": [
+                    -48,
+                    -36,
+                    165,
+                    128
+                ],
+                "template": [
+                    "GiftOperator/Operators/Camille.png"
+                ],
+                "green_mask": true
+            }
+        }
+    },
+    "GiftOperatorSelectSpecifiedGiftOp_Camille": {
+        "desc": "只收礼物+指定干员：点击带礼物的Camille行（max_hit=1，已领取后不再触发）",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorSpecifiedGiftIcon",
+                    "GiftOperatorSpecifiedGiftAvatar_Camille"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "GiftOperatorNamePatch_Camille"
+        ]
+    },
+    "GiftOperatorNamePatch_Camille": {
+        "desc": "只收礼物+指定干员：设置Camille的对话阶段名称白名单",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorName": {
+                            "expected": [
+                    "卡缪",
+                    "卡繆",
+                    "Camille",
+                    "カミーユ",
+                    "카뮤"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+                "focus": {
+            "Node.Recognition.Succeeded": "🎁 已领取 卡缪 的礼物"
+        },
+"next": [
+            "GiftOperatorSelectSpecifiedOpSuccess"
+        ]
+    },
+    "GiftOperatorSpecifiedGiftAvatar_Catcher": {
+        "desc": "只收礼物+指定干员：礼物行旁的Catcher头像",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "GiftOperatorSpecifiedGiftIcon",
+                "roi_offset": [
+                    -48,
+                    -36,
+                    165,
+                    128
+                ],
+                "template": [
+                    "GiftOperator/Operators/Catcher.png"
+                ],
+                "green_mask": true
+            }
+        }
+    },
+    "GiftOperatorSelectSpecifiedGiftOp_Catcher": {
+        "desc": "只收礼物+指定干员：点击带礼物的Catcher行（max_hit=1，已领取后不再触发）",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorSpecifiedGiftIcon",
+                    "GiftOperatorSpecifiedGiftAvatar_Catcher"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "GiftOperatorNamePatch_Catcher"
+        ]
+    },
+    "GiftOperatorNamePatch_Catcher": {
+        "desc": "只收礼物+指定干员：设置Catcher的对话阶段名称白名单",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorName": {
+                            "expected": [
+                    "卡契尔",
+                    "卡契爾",
+                    "Catcher",
+                    "キャッチャー",
+                    "카치르"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+                "focus": {
+            "Node.Recognition.Succeeded": "🎁 已领取 卡契尔 的礼物"
+        },
+"next": [
+            "GiftOperatorSelectSpecifiedOpSuccess"
+        ]
+    },
+    "GiftOperatorSpecifiedGiftAvatar_ChenQianyu": {
+        "desc": "只收礼物+指定干员：礼物行旁的ChenQianyu头像",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "GiftOperatorSpecifiedGiftIcon",
+                "roi_offset": [
+                    -48,
+                    -36,
+                    165,
+                    128
+                ],
+                "template": [
+                    "GiftOperator/Operators/ChenQianyu.png"
+                ],
+                "green_mask": true
+            }
+        }
+    },
+    "GiftOperatorSelectSpecifiedGiftOp_ChenQianyu": {
+        "desc": "只收礼物+指定干员：点击带礼物的ChenQianyu行（max_hit=1，已领取后不再触发）",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorSpecifiedGiftIcon",
+                    "GiftOperatorSpecifiedGiftAvatar_ChenQianyu"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "GiftOperatorNamePatch_ChenQianyu"
+        ]
+    },
+    "GiftOperatorNamePatch_ChenQianyu": {
+        "desc": "只收礼物+指定干员：设置ChenQianyu的对话阶段名称白名单",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorName": {
+                            "expected": [
+                    "陈千语",
+                    "陳千語",
+                    "Chen Qianyu",
+                    "チェン・センユー",
+                    "진천우"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+                "focus": {
+            "Node.Recognition.Succeeded": "🎁 已领取 陈千语 的礼物"
+        },
+"next": [
+            "GiftOperatorSelectSpecifiedOpSuccess"
+        ]
+    },
+    "GiftOperatorSpecifiedGiftAvatar_DaPan": {
+        "desc": "只收礼物+指定干员：礼物行旁的DaPan头像",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "GiftOperatorSpecifiedGiftIcon",
+                "roi_offset": [
+                    -48,
+                    -36,
+                    165,
+                    128
+                ],
+                "template": [
+                    "GiftOperator/Operators/DaPan.png"
+                ],
+                "green_mask": true
+            }
+        }
+    },
+    "GiftOperatorSelectSpecifiedGiftOp_DaPan": {
+        "desc": "只收礼物+指定干员：点击带礼物的DaPan行（max_hit=1，已领取后不再触发）",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorSpecifiedGiftIcon",
+                    "GiftOperatorSpecifiedGiftAvatar_DaPan"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "GiftOperatorNamePatch_DaPan"
+        ]
+    },
+    "GiftOperatorNamePatch_DaPan": {
+        "desc": "只收礼物+指定干员：设置DaPan的对话阶段名称白名单",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorName": {
+                            "expected": [
+                    "大潘",
+                    "大潘",
+                    "Da Pan",
+                    "ダパン",
+                    "판"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+                "focus": {
+            "Node.Recognition.Succeeded": "🎁 已领取 大潘 的礼物"
+        },
+"next": [
+            "GiftOperatorSelectSpecifiedOpSuccess"
+        ]
+    },
+    "GiftOperatorSpecifiedGiftAvatar_Ember": {
+        "desc": "只收礼物+指定干员：礼物行旁的Ember头像",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "GiftOperatorSpecifiedGiftIcon",
+                "roi_offset": [
+                    -48,
+                    -36,
+                    165,
+                    128
+                ],
+                "template": [
+                    "GiftOperator/Operators/Ember.png"
+                ],
+                "green_mask": true
+            }
+        }
+    },
+    "GiftOperatorSelectSpecifiedGiftOp_Ember": {
+        "desc": "只收礼物+指定干员：点击带礼物的Ember行（max_hit=1，已领取后不再触发）",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorSpecifiedGiftIcon",
+                    "GiftOperatorSpecifiedGiftAvatar_Ember"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "GiftOperatorNamePatch_Ember"
+        ]
+    },
+    "GiftOperatorNamePatch_Ember": {
+        "desc": "只收礼物+指定干员：设置Ember的对话阶段名称白名单",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorName": {
+                            "expected": [
+                    "余烬",
+                    "餘燼",
+                    "Ember",
+                    "エンバー",
+                    "엠버"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+                "focus": {
+            "Node.Recognition.Succeeded": "🎁 已领取 余烬 的礼物"
+        },
+"next": [
+            "GiftOperatorSelectSpecifiedOpSuccess"
+        ]
+    },
+    "GiftOperatorSpecifiedGiftAvatar_Estella": {
+        "desc": "只收礼物+指定干员：礼物行旁的Estella头像",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "GiftOperatorSpecifiedGiftIcon",
+                "roi_offset": [
+                    -48,
+                    -36,
+                    165,
+                    128
+                ],
+                "template": [
+                    "GiftOperator/Operators/Estella.png"
+                ],
+                "green_mask": true
+            }
+        }
+    },
+    "GiftOperatorSelectSpecifiedGiftOp_Estella": {
+        "desc": "只收礼物+指定干员：点击带礼物的Estella行（max_hit=1，已领取后不再触发）",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorSpecifiedGiftIcon",
+                    "GiftOperatorSpecifiedGiftAvatar_Estella"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "GiftOperatorNamePatch_Estella"
+        ]
+    },
+    "GiftOperatorNamePatch_Estella": {
+        "desc": "只收礼物+指定干员：设置Estella的对话阶段名称白名单",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorName": {
+                            "expected": [
+                    "埃特拉",
+                    "埃特拉",
+                    "Estella",
+                    "エステーラ",
+                    "에스텔라"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+                "focus": {
+            "Node.Recognition.Succeeded": "🎁 已领取 埃特拉 的礼物"
+        },
+"next": [
+            "GiftOperatorSelectSpecifiedOpSuccess"
+        ]
+    },
+    "GiftOperatorSpecifiedGiftAvatar_Fluorite": {
+        "desc": "只收礼物+指定干员：礼物行旁的Fluorite头像",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "GiftOperatorSpecifiedGiftIcon",
+                "roi_offset": [
+                    -48,
+                    -36,
+                    165,
+                    128
+                ],
+                "template": [
+                    "GiftOperator/Operators/Fluorite.png"
+                ],
+                "green_mask": true
+            }
+        }
+    },
+    "GiftOperatorSelectSpecifiedGiftOp_Fluorite": {
+        "desc": "只收礼物+指定干员：点击带礼物的Fluorite行（max_hit=1，已领取后不再触发）",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorSpecifiedGiftIcon",
+                    "GiftOperatorSpecifiedGiftAvatar_Fluorite"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "GiftOperatorNamePatch_Fluorite"
+        ]
+    },
+    "GiftOperatorNamePatch_Fluorite": {
+        "desc": "只收礼物+指定干员：设置Fluorite的对话阶段名称白名单",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorName": {
+                            "expected": [
+                    "萤石",
+                    "螢石",
+                    "Fluorite",
+                    "フローライト",
+                    "플루라이트"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+                "focus": {
+            "Node.Recognition.Succeeded": "🎁 已领取 萤石 的礼物"
+        },
+"next": [
+            "GiftOperatorSelectSpecifiedOpSuccess"
+        ]
+    },
+    "GiftOperatorSpecifiedGiftAvatar_Gilberta": {
+        "desc": "只收礼物+指定干员：礼物行旁的Gilberta头像",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "GiftOperatorSpecifiedGiftIcon",
+                "roi_offset": [
+                    -48,
+                    -36,
+                    165,
+                    128
+                ],
+                "template": [
+                    "GiftOperator/Operators/Gilberta.png"
+                ],
+                "green_mask": true
+            }
+        }
+    },
+    "GiftOperatorSelectSpecifiedGiftOp_Gilberta": {
+        "desc": "只收礼物+指定干员：点击带礼物的Gilberta行（max_hit=1，已领取后不再触发）",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorSpecifiedGiftIcon",
+                    "GiftOperatorSpecifiedGiftAvatar_Gilberta"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "GiftOperatorNamePatch_Gilberta"
+        ]
+    },
+    "GiftOperatorNamePatch_Gilberta": {
+        "desc": "只收礼物+指定干员：设置Gilberta的对话阶段名称白名单",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorName": {
+                            "expected": [
+                    "洁尔佩塔",
+                    "潔爾佩塔",
+                    "Gilberta",
+                    "ギルベルタ",
+                    "질베르타"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+                "focus": {
+            "Node.Recognition.Succeeded": "🎁 已领取 洁尔佩塔 的礼物"
+        },
+"next": [
+            "GiftOperatorSelectSpecifiedOpSuccess"
+        ]
+    },
+    "GiftOperatorSpecifiedGiftAvatar_Jue": {
+        "desc": "只收礼物+指定干员：礼物行旁的Jue头像",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "GiftOperatorSpecifiedGiftIcon",
+                "roi_offset": [
+                    -48,
+                    -36,
+                    165,
+                    128
+                ],
+                "template": [
+                    "GiftOperator/Operators/Arcane.png"
+                ],
+                "green_mask": true
+            }
+        }
+    },
+    "GiftOperatorSelectSpecifiedGiftOp_Jue": {
+        "desc": "只收礼物+指定干员：点击带礼物的Jue行（max_hit=1，已领取后不再触发）",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorSpecifiedGiftIcon",
+                    "GiftOperatorSpecifiedGiftAvatar_Jue"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "GiftOperatorNamePatch_Jue"
+        ]
+    },
+    "GiftOperatorNamePatch_Jue": {
+        "desc": "只收礼物+指定干员：设置Jue的对话阶段名称白名单",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorName": {
+                            "expected": [
+                    "诀",
+                    "訣",
+                    "Arcane",
+                    "オクギ",
+                    "결"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+                "focus": {
+            "Node.Recognition.Succeeded": "🎁 已领取 诀 的礼物"
+        },
+"next": [
+            "GiftOperatorSelectSpecifiedOpSuccess"
+        ]
+    },
+    "GiftOperatorSpecifiedGiftAvatar_Laevatain": {
+        "desc": "只收礼物+指定干员：礼物行旁的Laevatain头像",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "GiftOperatorSpecifiedGiftIcon",
+                "roi_offset": [
+                    -48,
+                    -36,
+                    165,
+                    128
+                ],
+                "template": [
+                    "GiftOperator/Operators/Laevatain.png"
+                ],
+                "green_mask": true
+            }
+        }
+    },
+    "GiftOperatorSelectSpecifiedGiftOp_Laevatain": {
+        "desc": "只收礼物+指定干员：点击带礼物的Laevatain行（max_hit=1，已领取后不再触发）",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorSpecifiedGiftIcon",
+                    "GiftOperatorSpecifiedGiftAvatar_Laevatain"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "GiftOperatorNamePatch_Laevatain"
+        ]
+    },
+    "GiftOperatorNamePatch_Laevatain": {
+        "desc": "只收礼物+指定干员：设置Laevatain的对话阶段名称白名单",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorName": {
+                            "expected": [
+                    "莱万汀",
+                    "萊萬汀",
+                    "Laevatain",
+                    "レーヴァテイン",
+                    "레바테인"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+                "focus": {
+            "Node.Recognition.Succeeded": "🎁 已领取 莱万汀 的礼物"
+        },
+"next": [
+            "GiftOperatorSelectSpecifiedOpSuccess"
+        ]
+    },
+    "GiftOperatorSpecifiedGiftAvatar_LastRite": {
+        "desc": "只收礼物+指定干员：礼物行旁的LastRite头像",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "GiftOperatorSpecifiedGiftIcon",
+                "roi_offset": [
+                    -48,
+                    -36,
+                    165,
+                    128
+                ],
+                "template": [
+                    "GiftOperator/Operators/LastRite.png"
+                ],
+                "green_mask": true
+            }
+        }
+    },
+    "GiftOperatorSelectSpecifiedGiftOp_LastRite": {
+        "desc": "只收礼物+指定干员：点击带礼物的LastRite行（max_hit=1，已领取后不再触发）",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorSpecifiedGiftIcon",
+                    "GiftOperatorSpecifiedGiftAvatar_LastRite"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "GiftOperatorNamePatch_LastRite"
+        ]
+    },
+    "GiftOperatorNamePatch_LastRite": {
+        "desc": "只收礼物+指定干员：设置LastRite的对话阶段名称白名单",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorName": {
+                            "expected": [
+                    "别礼",
+                    "別禮",
+                    "Last Rite",
+                    "ラストライト",
+                    "라스트 라이트"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+                "focus": {
+            "Node.Recognition.Succeeded": "🎁 已领取 别礼 的礼物"
+        },
+"next": [
+            "GiftOperatorSelectSpecifiedOpSuccess"
+        ]
+    },
+    "GiftOperatorSpecifiedGiftAvatar_Lifeng": {
+        "desc": "只收礼物+指定干员：礼物行旁的Lifeng头像",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "GiftOperatorSpecifiedGiftIcon",
+                "roi_offset": [
+                    -48,
+                    -36,
+                    165,
+                    128
+                ],
+                "template": [
+                    "GiftOperator/Operators/Lifeng.png"
+                ],
+                "green_mask": true
+            }
+        }
+    },
+    "GiftOperatorSelectSpecifiedGiftOp_Lifeng": {
+        "desc": "只收礼物+指定干员：点击带礼物的Lifeng行（max_hit=1，已领取后不再触发）",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorSpecifiedGiftIcon",
+                    "GiftOperatorSpecifiedGiftAvatar_Lifeng"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "GiftOperatorNamePatch_Lifeng"
+        ]
+    },
+    "GiftOperatorNamePatch_Lifeng": {
+        "desc": "只收礼物+指定干员：设置Lifeng的对话阶段名称白名单",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorName": {
+                            "expected": [
+                    "黎风",
+                    "黎風",
+                    "Lifeng",
+                    "リーフォン",
+                    "여풍"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+                "focus": {
+            "Node.Recognition.Succeeded": "🎁 已领取 黎风 的礼物"
+        },
+"next": [
+            "GiftOperatorSelectSpecifiedOpSuccess"
+        ]
+    },
+    "GiftOperatorSpecifiedGiftAvatar_Liino": {
+        "desc": "只收礼物+指定干员：礼物行旁的Liino头像",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "GiftOperatorSpecifiedGiftIcon",
+                "roi_offset": [
+                    -48,
+                    -36,
+                    165,
+                    128
+                ],
+                "template": [
+                    "GiftOperator/Operators/Liino.png"
+                ],
+                "green_mask": true
+            }
+        }
+    },
+    "GiftOperatorSelectSpecifiedGiftOp_Liino": {
+        "desc": "只收礼物+指定干员：点击带礼物的Liino行（max_hit=1，已领取后不再触发）",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorSpecifiedGiftIcon",
+                    "GiftOperatorSpecifiedGiftAvatar_Liino"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "GiftOperatorNamePatch_Liino"
+        ]
+    },
+    "GiftOperatorNamePatch_Liino": {
+        "desc": "只收礼物+指定干员：设置Liino的对话阶段名称白名单",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorName": {
+                            "expected": [
+                    "梨诺",
+                    "梨諾",
+                    "Liino",
+                    "リーノ",
+                    "리노"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+                "focus": {
+            "Node.Recognition.Succeeded": "🎁 已领取 梨诺 的礼物"
+        },
+"next": [
+            "GiftOperatorSelectSpecifiedOpSuccess"
+        ]
+    },
+    "GiftOperatorSpecifiedGiftAvatar_MiFu": {
+        "desc": "只收礼物+指定干员：礼物行旁的MiFu头像",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "GiftOperatorSpecifiedGiftIcon",
+                "roi_offset": [
+                    -48,
+                    -36,
+                    165,
+                    128
+                ],
+                "template": [
+                    "GiftOperator/Operators/MiFu.png"
+                ],
+                "green_mask": true
+            }
+        }
+    },
+    "GiftOperatorSelectSpecifiedGiftOp_MiFu": {
+        "desc": "只收礼物+指定干员：点击带礼物的MiFu行（max_hit=1，已领取后不再触发）",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorSpecifiedGiftIcon",
+                    "GiftOperatorSpecifiedGiftAvatar_MiFu"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "GiftOperatorNamePatch_MiFu"
+        ]
+    },
+    "GiftOperatorNamePatch_MiFu": {
+        "desc": "只收礼物+指定干员：设置MiFu的对话阶段名称白名单",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorName": {
+                            "expected": [
+                    "弭弗",
+                    "弭弗",
+                    "Mi Fu",
+                    "ミ・フ",
+                    "미푸"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+                "focus": {
+            "Node.Recognition.Succeeded": "🎁 已领取 弭弗 的礼物"
+        },
+"next": [
+            "GiftOperatorSelectSpecifiedOpSuccess"
+        ]
+    },
+    "GiftOperatorSpecifiedGiftAvatar_Perlica": {
+        "desc": "只收礼物+指定干员：礼物行旁的Perlica头像",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "GiftOperatorSpecifiedGiftIcon",
+                "roi_offset": [
+                    -48,
+                    -36,
+                    165,
+                    128
+                ],
+                "template": [
+                    "GiftOperator/Operators/Perlica.png"
+                ],
+                "green_mask": true
+            }
+        }
+    },
+    "GiftOperatorSelectSpecifiedGiftOp_Perlica": {
+        "desc": "只收礼物+指定干员：点击带礼物的Perlica行（max_hit=1，已领取后不再触发）",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorSpecifiedGiftIcon",
+                    "GiftOperatorSpecifiedGiftAvatar_Perlica"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "GiftOperatorNamePatch_Perlica"
+        ]
+    },
+    "GiftOperatorNamePatch_Perlica": {
+        "desc": "只收礼物+指定干员：设置Perlica的对话阶段名称白名单",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorName": {
+                            "expected": [
+                    "佩丽卡",
+                    "佩麗卡",
+                    "Perlica",
+                    "ペリカ",
+                    "펠리카"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+                "focus": {
+            "Node.Recognition.Succeeded": "🎁 已领取 佩丽卡 的礼物"
+        },
+"next": [
+            "GiftOperatorSelectSpecifiedOpSuccess"
+        ]
+    },
+    "GiftOperatorSpecifiedGiftAvatar_Pogranichnik": {
+        "desc": "只收礼物+指定干员：礼物行旁的Pogranichnik头像",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "GiftOperatorSpecifiedGiftIcon",
+                "roi_offset": [
+                    -48,
+                    -36,
+                    165,
+                    128
+                ],
+                "template": [
+                    "GiftOperator/Operators/Pogranichnik.png"
+                ],
+                "green_mask": true
+            }
+        }
+    },
+    "GiftOperatorSelectSpecifiedGiftOp_Pogranichnik": {
+        "desc": "只收礼物+指定干员：点击带礼物的Pogranichnik行（max_hit=1，已领取后不再触发）",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorSpecifiedGiftIcon",
+                    "GiftOperatorSpecifiedGiftAvatar_Pogranichnik"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "GiftOperatorNamePatch_Pogranichnik"
+        ]
+    },
+    "GiftOperatorNamePatch_Pogranichnik": {
+        "desc": "只收礼物+指定干员：设置Pogranichnik的对话阶段名称白名单",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorName": {
+                            "expected": [
+                    "骏卫",
+                    "駿衛",
+                    "Pogranichnik",
+                    "ポグラニチニク",
+                    "포그라니치니크"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+                "focus": {
+            "Node.Recognition.Succeeded": "🎁 已领取 骏卫 的礼物"
+        },
+"next": [
+            "GiftOperatorSelectSpecifiedOpSuccess"
+        ]
+    },
+    "GiftOperatorSpecifiedGiftAvatar_Rossi": {
+        "desc": "只收礼物+指定干员：礼物行旁的Rossi头像",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "GiftOperatorSpecifiedGiftIcon",
+                "roi_offset": [
+                    -48,
+                    -36,
+                    165,
+                    128
+                ],
+                "template": [
+                    "GiftOperator/Operators/Rossi.png"
+                ],
+                "green_mask": true
+            }
+        }
+    },
+    "GiftOperatorSelectSpecifiedGiftOp_Rossi": {
+        "desc": "只收礼物+指定干员：点击带礼物的Rossi行（max_hit=1，已领取后不再触发）",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorSpecifiedGiftIcon",
+                    "GiftOperatorSpecifiedGiftAvatar_Rossi"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "GiftOperatorNamePatch_Rossi"
+        ]
+    },
+    "GiftOperatorNamePatch_Rossi": {
+        "desc": "只收礼物+指定干员：设置Rossi的对话阶段名称白名单",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorName": {
+                            "expected": [
+                    "洛茜",
+                    "洛西",
+                    "Rossi",
+                    "ロッシ",
+                    "로시"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+                "focus": {
+            "Node.Recognition.Succeeded": "🎁 已领取 洛茜 的礼物"
+        },
+"next": [
+            "GiftOperatorSelectSpecifiedOpSuccess"
+        ]
+    },
+    "GiftOperatorSpecifiedGiftAvatar_Snowshine": {
+        "desc": "只收礼物+指定干员：礼物行旁的Snowshine头像",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "GiftOperatorSpecifiedGiftIcon",
+                "roi_offset": [
+                    -48,
+                    -36,
+                    165,
+                    128
+                ],
+                "template": [
+                    "GiftOperator/Operators/Snowshine.png"
+                ],
+                "green_mask": true
+            }
+        }
+    },
+    "GiftOperatorSelectSpecifiedGiftOp_Snowshine": {
+        "desc": "只收礼物+指定干员：点击带礼物的Snowshine行（max_hit=1，已领取后不再触发）",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorSpecifiedGiftIcon",
+                    "GiftOperatorSpecifiedGiftAvatar_Snowshine"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "GiftOperatorNamePatch_Snowshine"
+        ]
+    },
+    "GiftOperatorNamePatch_Snowshine": {
+        "desc": "只收礼物+指定干员：设置Snowshine的对话阶段名称白名单",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorName": {
+                            "expected": [
+                    "昼雪",
+                    "晝雪",
+                    "Snowshine",
+                    "スノーシャイン",
+                    "스노우샤인"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+                "focus": {
+            "Node.Recognition.Succeeded": "🎁 已领取 昼雪 的礼物"
+        },
+"next": [
+            "GiftOperatorSelectSpecifiedOpSuccess"
+        ]
+    },
+    "GiftOperatorSpecifiedGiftAvatar_Tangtang": {
+        "desc": "只收礼物+指定干员：礼物行旁的Tangtang头像",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "GiftOperatorSpecifiedGiftIcon",
+                "roi_offset": [
+                    -48,
+                    -36,
+                    165,
+                    128
+                ],
+                "template": [
+                    "GiftOperator/Operators/Tangtang.png"
+                ],
+                "green_mask": true
+            }
+        }
+    },
+    "GiftOperatorSelectSpecifiedGiftOp_Tangtang": {
+        "desc": "只收礼物+指定干员：点击带礼物的Tangtang行（max_hit=1，已领取后不再触发）",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorSpecifiedGiftIcon",
+                    "GiftOperatorSpecifiedGiftAvatar_Tangtang"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "GiftOperatorNamePatch_Tangtang"
+        ]
+    },
+    "GiftOperatorNamePatch_Tangtang": {
+        "desc": "只收礼物+指定干员：设置Tangtang的对话阶段名称白名单",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorName": {
+                            "expected": [
+                    "汤汤",
+                    "湯湯",
+                    "Tangtang",
+                    "タンタン",
+                    "탕탕"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+                "focus": {
+            "Node.Recognition.Succeeded": "🎁 已领取 汤汤 的礼物"
+        },
+"next": [
+            "GiftOperatorSelectSpecifiedOpSuccess"
+        ]
+    },
+    "GiftOperatorSpecifiedGiftAvatar_Wulfgard": {
+        "desc": "只收礼物+指定干员：礼物行旁的Wulfgard头像",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "GiftOperatorSpecifiedGiftIcon",
+                "roi_offset": [
+                    -48,
+                    -36,
+                    165,
+                    128
+                ],
+                "template": [
+                    "GiftOperator/Operators/Wulfgard.png"
+                ],
+                "green_mask": true
+            }
+        }
+    },
+    "GiftOperatorSelectSpecifiedGiftOp_Wulfgard": {
+        "desc": "只收礼物+指定干员：点击带礼物的Wulfgard行（max_hit=1，已领取后不再触发）",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorSpecifiedGiftIcon",
+                    "GiftOperatorSpecifiedGiftAvatar_Wulfgard"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "GiftOperatorNamePatch_Wulfgard"
+        ]
+    },
+    "GiftOperatorNamePatch_Wulfgard": {
+        "desc": "只收礼物+指定干员：设置Wulfgard的对话阶段名称白名单",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorName": {
+                            "expected": [
+                    "狼卫",
+                    "狼衛",
+                    "Wulfgard",
+                    "ウルフガード",
+                    "울프가드"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+                "focus": {
+            "Node.Recognition.Succeeded": "🎁 已领取 狼卫 的礼物"
+        },
+"next": [
+            "GiftOperatorSelectSpecifiedOpSuccess"
+        ]
+    },
+    "GiftOperatorSpecifiedGiftAvatar_Xaihi": {
+        "desc": "只收礼物+指定干员：礼物行旁的Xaihi头像",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "GiftOperatorSpecifiedGiftIcon",
+                "roi_offset": [
+                    -48,
+                    -36,
+                    165,
+                    128
+                ],
+                "template": [
+                    "GiftOperator/Operators/Xaihi.png"
+                ],
+                "green_mask": true
+            }
+        }
+    },
+    "GiftOperatorSelectSpecifiedGiftOp_Xaihi": {
+        "desc": "只收礼物+指定干员：点击带礼物的Xaihi行（max_hit=1，已领取后不再触发）",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorSpecifiedGiftIcon",
+                    "GiftOperatorSpecifiedGiftAvatar_Xaihi"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "GiftOperatorNamePatch_Xaihi"
+        ]
+    },
+    "GiftOperatorNamePatch_Xaihi": {
+        "desc": "只收礼物+指定干员：设置Xaihi的对话阶段名称白名单",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorName": {
+                            "expected": [
+                    "赛希",
+                    "賽希",
+                    "Xaihi",
+                    "ザイヒ",
+                    "자이히"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+                "focus": {
+            "Node.Recognition.Succeeded": "🎁 已领取 赛希 的礼物"
+        },
+"next": [
+            "GiftOperatorSelectSpecifiedOpSuccess"
+        ]
+    },
+    "GiftOperatorSpecifiedGiftAvatar_Yvonne": {
+        "desc": "只收礼物+指定干员：礼物行旁的Yvonne头像",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "GiftOperatorSpecifiedGiftIcon",
+                "roi_offset": [
+                    -48,
+                    -36,
+                    165,
+                    128
+                ],
+                "template": [
+                    "GiftOperator/Operators/Yvonne.png"
+                ],
+                "green_mask": true
+            }
+        }
+    },
+    "GiftOperatorSelectSpecifiedGiftOp_Yvonne": {
+        "desc": "只收礼物+指定干员：点击带礼物的Yvonne行（max_hit=1，已领取后不再触发）",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorSpecifiedGiftIcon",
+                    "GiftOperatorSpecifiedGiftAvatar_Yvonne"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "GiftOperatorNamePatch_Yvonne"
+        ]
+    },
+    "GiftOperatorNamePatch_Yvonne": {
+        "desc": "只收礼物+指定干员：设置Yvonne的对话阶段名称白名单",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorName": {
+                            "expected": [
+                    "伊冯",
+                    "伊馮",
+                    "Yvonne",
+                    "イヴォンヌ",
+                    "이본"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+                "focus": {
+            "Node.Recognition.Succeeded": "🎁 已领取 伊冯 的礼物"
+        },
+"next": [
+            "GiftOperatorSelectSpecifiedOpSuccess"
+        ]
+    },
+    "GiftOperatorSpecifiedGiftAvatar_ZhuangFangyi": {
+        "desc": "只收礼物+指定干员：礼物行旁的ZhuangFangyi头像",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": "GiftOperatorSpecifiedGiftIcon",
+                "roi_offset": [
+                    -48,
+                    -36,
+                    165,
+                    128
+                ],
+                "template": [
+                    "GiftOperator/Operators/ZhuangFangyi.png"
+                ],
+                "green_mask": true
+            }
+        }
+    },
+    "GiftOperatorSelectSpecifiedGiftOp_ZhuangFangyi": {
+        "desc": "只收礼物+指定干员：点击带礼物的ZhuangFangyi行（max_hit=1，已领取后不再触发）",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GiftOperatorSpecifiedGiftIcon",
+                    "GiftOperatorSpecifiedGiftAvatar_ZhuangFangyi"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "GiftOperatorNamePatch_ZhuangFangyi"
+        ]
+    },
+    "GiftOperatorNamePatch_ZhuangFangyi": {
+        "desc": "只收礼物+指定干员：设置ZhuangFangyi的对话阶段名称白名单",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "PipelineOverrideAction",
+                "custom_action_param": {
+                    "patch": {
+                        "GiftOperatorName": {
+                            "expected": [
+                    "庄方宜",
+                    "莊方宜",
+                    "Zhuang Fangyi",
+                    "ゾアン・ファンイ",
+                    "장방이"
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+                "focus": {
+            "Node.Recognition.Succeeded": "🎁 已领取 庄方宜 的礼物"
+        },
+"next": [
+            "GiftOperatorSelectSpecifiedOpSuccess"
+        ]
+    },
     "GiftOperatorSelectSpecifiedOp": {
         "desc": "选择指定干员",
         "enabled": false,
@@ -194,7 +2311,7 @@
         ]
     },
     "GiftOperatorSelectSpecifiedOpSuccess": {
-        "desc": "选择指定干员成功",
+        "desc": "选择指定干员成功（校验失败时刷新地图恢复，避免误点无安排卡片卡死）",
         "recognition": {
             "type": "And",
             "param": {
@@ -205,6 +2322,9 @@
                 ]
             }
         },
+        "on_error": [
+            "GiftOperatorRefreshMap"
+        ],
         "next": [
             "GiftOperatorConfirmSelect"
         ]
@@ -753,5 +2873,79 @@
                 "key": 83
             }
         }
+    },
+
+    "GiftOperatorRemainReport": {
+        "desc": "只收礼物：领取成功后报告剩余指定干员",
+        "recognition": "DirectHit",
+        "next": [
+            "GiftOperatorRemain4",
+            "GiftOperatorRemain3",
+            "GiftOperatorRemain2",
+            "GiftOperatorRemain1",
+            "GiftOperatorRemain0",
+            "GiftOperatorReceiveMain"
+        ]
+    },
+    "GiftOperatorRemain4": {
+        "desc": "已领取 1/5，剩余 4 名",
+        "recognition": "DirectHit",
+        "max_hit": 1,
+        "focus": {
+            "Node.Recognition.Succeeded": "🎁 已领取 1/5 名，剩余指定干员 4 名"
+        },
+        "next": [
+            "GiftOperatorReceiveMain"
+        ]
+    },
+    "GiftOperatorRemain3": {
+        "desc": "已领取 2/5，剩余 3 名",
+        "recognition": "DirectHit",
+        "max_hit": 1,
+        "focus": {
+            "Node.Recognition.Succeeded": "🎁 已领取 2/5 名，剩余指定干员 3 名"
+        },
+        "next": [
+            "GiftOperatorReceiveMain"
+        ]
+    },
+    "GiftOperatorRemain2": {
+        "desc": "已领取 3/5，剩余 2 名",
+        "recognition": "DirectHit",
+        "max_hit": 1,
+        "focus": {
+            "Node.Recognition.Succeeded": "🎁 已领取 3/5 名，剩余指定干员 2 名"
+        },
+        "next": [
+            "GiftOperatorReceiveMain"
+        ]
+    },
+    "GiftOperatorRemain1": {
+        "desc": "已领取 4/5，剩余 1 名",
+        "recognition": "DirectHit",
+        "max_hit": 1,
+        "focus": {
+            "Node.Recognition.Succeeded": "🎁 已领取 4/5 名，剩余指定干员 1 名"
+        },
+        "next": [
+            "GiftOperatorReceiveMain"
+        ]
+    },
+    "GiftOperatorRemain0": {
+        "desc": "全部领取完成，停止任务",
+        "recognition": "DirectHit",
+        "max_hit": 1,
+        "focus": {
+            "Node.Recognition.Succeeded": "🎁 已领取 5/5 名，全部指定干员礼物领取完成"
+        },
+        "next": [
+            "GiftOperatorPostStop"
+        ]
+    },
+    "GiftOperatorPostStop": {
+        "desc": "任务完成，主动停止",
+        "action": "Custom",
+        "custom_action": "PostStop",
+        "next": []
     }
 }

@@ -470,6 +470,39 @@
             "GiftOperatorLeave"
         ]
     },
+    "GiftOperatorReceiveDialogLoop": {
+        "desc": "只收礼物循环专用：领取成功后跳过对话，直接回到免背包入口。不叫 GiftOperatorReceiveDialog，避免被干员选项 case 的 next 覆盖回 GiftOperatorMain（那会存放背包）",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    603,
+                    646,
+                    75,
+                    74
+                ],
+                "template": [
+                    "RealTimeTask/AutoSkipNext2.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 1000,
+            "timeout": 2000,
+            "target": [
+                831,
+                403,
+                161,
+                176
+            ]
+        },
+        "next": [
+            "GiftOperatorRemainReport"
+        ]
+    },
     "GiftOperatorSkipDialog": {
         "desc": "跳过对话，然后判断三种分支。next 含自身以便未跳转时重试一次点击",
         "recognition": {
