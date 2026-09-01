@@ -37,11 +37,12 @@ type restoreState struct {
 }
 
 type sessionState struct {
-	Snapshots    map[string]snapshotData
-	Targets      []snapshotItem
-	Restore      restoreState
-	FullComplete bool
-	Depot        string
+	Snapshots       map[string]snapshotData
+	Targets         []snapshotItem
+	Restore         restoreState
+	SnapshotChanged bool
+	FullComplete    bool
+	Depot           string
 }
 
 type stateStore struct {
@@ -72,7 +73,45 @@ func (s *stateStore) beginSnapshot(name string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.session.Snapshots[name] = snapshotData{}
+	s.session.SnapshotChanged = false
 	return nil
+}
+
+func (s *stateStore) copySnapshot(sourceName, targetName string) error {
+	if sourceName == "" {
+		return fmt.Errorf("source snapshot name is empty")
+	}
+	if targetName == "" {
+		return fmt.Errorf("target snapshot name is empty")
+	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	source, ok := s.session.Snapshots[sourceName]
+	if !ok {
+		return fmt.Errorf("snapshot %q does not exist", sourceName)
+	}
+	copied := snapshotData{
+		Items:       append([]snapshotItem(nil), source.Items...),
+		ColumnCount: source.ColumnCount,
+		Pages:       make([][]snapshotItemWithPosition, len(source.Pages)),
+	}
+	for index, page := range source.Pages {
+		copied.Pages[index] = clonePositionedItems(page)
+	}
+	s.session.Snapshots[targetName] = copied
+	return nil
+}
+
+func (s *stateStore) markSnapshotChanged() {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.session.SnapshotChanged = true
+}
+
+func (s *stateStore) snapshotChanged() bool {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return s.session.SnapshotChanged
 }
 
 func (s *stateStore) appendSnapshotPage(name string, page []snapshotItemWithPosition) (int, error) {

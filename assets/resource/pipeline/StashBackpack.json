@@ -130,6 +130,12 @@
                         "operation": "append_snapshot_page",
                         "snapshot": "s0"
                     }
+                },
+                "StashBackpackSnapshotNextPage": {
+                    "custom_action_param": {
+                        "operation": "append_snapshot_page",
+                        "snapshot": "s0"
+                    }
                 }
             }
         },
@@ -493,6 +499,12 @@
                         "operation": "append_snapshot_page",
                         "snapshot": "working"
                     }
+                },
+                "StashBackpackSnapshotNextPage": {
+                    "custom_action_param": {
+                        "operation": "append_snapshot_page",
+                        "snapshot": "working"
+                    }
                 }
             }
         },
@@ -667,33 +679,19 @@
         ]
     },
     "StashBackpackCaptureStored": {
-        "desc": "配置存放任务最终真实快照",
+        "desc": "补充只改变已有物品数量，直接复用基础存放后的格子快照",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "PipelineOverrideAction",
+        "custom_action": "StashBackpackStateAction",
         "custom_action_param": {
-            "patch": {
-                "StashBackpackSnapshotBegin": {
-                    "custom_action_param": {
-                        "operation": "begin_snapshot",
-                        "snapshot": "s1"
-                    }
-                },
-                "StashBackpackSnapshotPage": {
-                    "custom_action_param": {
-                        "operation": "append_snapshot_page",
-                        "snapshot": "s1"
-                    }
-                }
-            }
-        },
-        "anchor": {
-            "StashBackpackAfterSnapshot": "StashBackpackCompleteFull"
+            "operation": "copy_snapshot",
+            "source_snapshot": "working",
+            "snapshot": "s1"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "StashBackpackSnapshotBegin"
+            "StashBackpackCompleteFull"
         ]
     },
     "StashBackpackCompleteFull": {
@@ -845,6 +843,12 @@
                     }
                 },
                 "StashBackpackSnapshotPage": {
+                    "custom_action_param": {
+                        "operation": "append_snapshot_page",
+                        "snapshot": "temporary"
+                    }
+                },
+                "StashBackpackSnapshotNextPage": {
                     "custom_action_param": {
                         "operation": "append_snapshot_page",
                         "snapshot": "temporary"
