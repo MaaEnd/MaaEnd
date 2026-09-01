@@ -340,9 +340,10 @@ private:
     mutable int64_t bny_ = 0;
     mutable std::vector<int32_t> bstart_;
     mutable std::vector<int32_t> bitem_;
-    // 同一段会落进多个桶, 用一组世代戳去重, 逐腿不清零。
+    // 同一段会落进多个桶、同一个桶又会被相邻取样点重复扫到, 段与桶各挂一组世代戳去重,
+    // 逐腿不清零。相交测试就地做, 命中即返回: 返回值是候选集上的或, 短路不改变它。
     mutable std::vector<uint32_t> seen_;
-    mutable std::vector<int32_t> cand_;
+    mutable std::vector<uint32_t> bseen_;
     mutable uint32_t epoch_ = 0;
 };
 

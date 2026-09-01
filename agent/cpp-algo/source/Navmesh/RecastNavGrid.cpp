@@ -1723,6 +1723,7 @@ void Blockers::buildIndex() const
         }
     }
     seen_.assign(a_.size(), 0);
+    bseen_.assign(bstart_.size() - 1, 0);
 }
 
 bool Blockers::blocked(const WorldPoint& p, const WorldPoint& q) const
@@ -1738,10 +1739,10 @@ bool Blockers::blocked(const WorldPoint& p, const WorldPoint& q) const
     }
     if (++epoch_ == 0) {
         std::fill(seen_.begin(), seen_.end(), 0);
+        std::fill(bseen_.begin(), bseen_.end(), 0);
         ++epoch_;
     }
     const int64_t ns = static_cast<int64_t>(std::hypot(rx, ry) / (kBkt * 0.5)) + 1;
-    cand_.clear();
     for (int64_t k = 0; k <= ns && bnx_ > 0; ++k) {
         const double t = static_cast<double>(k) / static_cast<double>(ns);
         const int64_t sx0 = static_cast<int64_t>((p.x + rx * t - bx0_) / kBkt);
@@ -1749,34 +1750,37 @@ bool Blockers::blocked(const WorldPoint& p, const WorldPoint& q) const
         for (int64_t gy = std::max<int64_t>(sy0 - 1, 0); gy <= std::min(sy0 + 1, bny_ - 1); ++gy) {
             for (int64_t gx = std::max<int64_t>(sx0 - 1, 0); gx <= std::min(sx0 + 1, bnx_ - 1); ++gx) {
                 const size_t bk = static_cast<size_t>(gy * bnx_ + gx);
+                // 取样间隔半桶而邻域取三乘三, 同一个桶要被相邻取样点各扫一遍; 桶也挂世代戳,
+                // 二次访问时桶里每段都已标过, 本来就一段都不产, 整桶跳过待测集不变。
+                if (bseen_[bk] == epoch_) {
+                    continue;
+                }
+                bseen_[bk] = epoch_;
                 for (int32_t e = bstart_[bk]; e < bstart_[bk + 1]; ++e) {
                     const int32_t id = bitem_[static_cast<size_t>(e)];
                     if (seen_[static_cast<size_t>(id)] == epoch_) {
                         continue;
                     }
                     seen_[static_cast<size_t>(id)] = epoch_;
-                    cand_.push_back(id);
+                    const size_t i = static_cast<size_t>(id);
+                    if (hi_[i].x < lox || lo_[i].x > hix || hi_[i].y < loy || lo_[i].y > hiy) {
+                        continue;
+                    }
+                    const double sx = b_[i].x - a_[i].x, sy = b_[i].y - a_[i].y;
+                    const double den = rx * sy - ry * sx;
+                    if (!(std::abs(den) > 1e-12)) {
+                        continue;
+                    }
+                    const double ux = a_[i].x - p.x, uy = a_[i].y - p.y;
+                    const double tt = (ux * sy - uy * sx) / den;
+                    const double w = (ux * ry - uy * rx) / den;
+                    // 挡线一侧取闭区间: 挡线段是格边, 精确 45° 的弦每次都正好交在端点上, 开区间会让它
+                    // 从每道轴对齐挡线的顶点缝里溜过去。弦一侧仍开区间, 端点搭在挡线上是贴墙走不算穿墙。
+                    if (tt > eps && tt < 1 - eps && w > -eps && w < 1 + eps) {
+                        return true;
+                    }
                 }
             }
-        }
-    }
-    for (const int32_t ii : cand_) {
-        const size_t i = static_cast<size_t>(ii);
-        if (hi_[i].x < lox || lo_[i].x > hix || hi_[i].y < loy || lo_[i].y > hiy) {
-            continue;
-        }
-        const double sx = b_[i].x - a_[i].x, sy = b_[i].y - a_[i].y;
-        const double den = rx * sy - ry * sx;
-        if (!(std::abs(den) > 1e-12)) {
-            continue;
-        }
-        const double ux = a_[i].x - p.x, uy = a_[i].y - p.y;
-        const double t = (ux * sy - uy * sx) / den;
-        const double w = (ux * ry - uy * rx) / den;
-        // 挡线一侧取闭区间: 挡线段是格边, 精确 45° 的弦每次都正好交在端点上, 开区间会让它
-        // 从每道轴对齐挡线的顶点缝里溜过去。弦一侧仍开区间, 端点搭在挡线上是贴墙走不算穿墙。
-        if (t > eps && t < 1 - eps && w > -eps && w < 1 + eps) {
-            return true;
         }
     }
     return offMask(p, q);
