@@ -74,6 +74,19 @@ test("live-position buttons start disabled and use the primary blue style", () =
   assert.doesNotMatch(html, /id="(?:tab|panel|btn|tool)-astar/);
 });
 
+test("live location stays off until the user enables it", () => {
+  const html = readFileSync(new URL("./static/index.html", import.meta.url), "utf8");
+  const source = readFileSync(new URL("./static/js/main.js", import.meta.url), "utf8");
+  const button = html.match(/<button[^>]*id="btn-live-locate"[^>]*>[\s\S]*?<\/button>/)?.[0] || "";
+
+  assert.match(button, /class="[^"]*position-live-btn[^"]*"/);
+  assert.doesNotMatch(button, /class="[^"]*btn-danger[^"]*"/);
+  assert.match(button, /\bdisabled\b/);
+  assert.match(button, /开启实时定位/);
+  assert.doesNotMatch(source, /_liveLocateAutoStarted/);
+  assert.equal(source.match(/this\._toggleLiveLocate\(\)/g)?.length, 1);
+});
+
 test("edit and assert use separate but matching map and location cards", () => {
   const html = readFileSync(new URL("./static/index.html", import.meta.url), "utf8");
   const editMapStart = html.indexOf('id="panel-edit-map"');

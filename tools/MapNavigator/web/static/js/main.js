@@ -519,14 +519,7 @@ class MapNavigatorApp {
       });
       this.connection.onStatusChange((connected) => this._syncLocateActions(connected));
       this.liveLocateSocket = null;
-      this._liveLocateAutoStarted = false;
       this.els.btnLiveLocate.addEventListener("click", () => this._toggleLiveLocate());
-      this.connection.onStatusChange((connected) => {
-        if (connected && !this._liveLocateAutoStarted && !this.liveLocateSocket) {
-          this._liveLocateAutoStarted = true;
-          this._toggleLiveLocate();
-        }
-      });
       this.importer = new Importer(
         {
           btnImport: this.els.btnImport,
