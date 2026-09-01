@@ -89,9 +89,15 @@ void BaseNavPlanner::buildIndex()
     }
     buildNaturalComponents();
 
+    // 计数趟与填充趟之间只做了前缀和与 resize, 谓词读的分区、自然连通分量、三角几何一份都没动,
+    // 第二趟必然复现第一趟的答案。判完存一位, 位图按每条边一比特, 换掉整串重算。
+    const auto& links = pack_.links();
+    std::vector<uint64_t> passed(links.size() / 64 + 1, 0);
     size_t valid_link_count = 0;
-    for (const BaseNavLink& link : pack_.links()) {
+    for (size_t index = 0; index < links.size(); ++index) {
+        const BaseNavLink& link = links[index];
         if (isTraversableLink(link.source, link.target)) {
+            passed[index >> 6] |= uint64_t { 1 } << (index & 63);
             ++adjacency_offsets_[link.source + 1];
             ++valid_link_count;
         }
@@ -102,8 +108,9 @@ void BaseNavPlanner::buildIndex()
 
     adjacency_links_.resize(valid_link_count);
     std::vector<uint32_t> next_offsets = adjacency_offsets_;
-    for (const BaseNavLink& link : pack_.links()) {
-        if (isTraversableLink(link.source, link.target)) {
+    for (size_t index = 0; index < links.size(); ++index) {
+        if (((passed[index >> 6] >> (index & 63)) & 1) != 0) {
+            const BaseNavLink& link = links[index];
             adjacency_links_[next_offsets[link.source]++] = link.target;
         }
     }
