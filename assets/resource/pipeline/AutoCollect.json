@@ -55,11 +55,13 @@
         },
         "post_delay": 0,
         "next": [
+            "AutoCollectInventoryResetSnapshot",
             "AutoCollectLoop"
         ]
     },
     "AutoCollectInventoryResetSnapshot": {
         "desc": "目标库存模式开始：强制恢复仓库同步入口并清除上一轮完整标记",
+        "enabled": false,
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": {
@@ -143,7 +145,7 @@
         }
     },
     "AutoCollectInventoryFallback": {
-        "desc": "仓库同步失败：任务级开启库存旁路，所有已勾选路线按原逻辑执行，不使用旧缓存",
+        "desc": "仓库同步失败：任务级放回各线路的常规调度节点，所有已勾选路线按原逻辑执行，不使用旧缓存",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": {
@@ -152,16 +154,212 @@
                 "custom_action": "PipelineOverride",
                 "custom_action_param": {
                     "patch": {
-                        "AutoCollectInventoryBypass": {
-                            "recognition": {
-                                "type": "Custom",
-                                "param": {
-                                    "custom_recognition": "ExpressionRecognition",
-                                    "custom_recognition_param": {
-                                        "expression": "1>0"
-                                    }
-                                }
-                            }
+                        "AutoCollectRoute1Sub": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute1SubGated": {
+                            "enabled": false
+                        },
+                        "AutoCollectRoute1SubSkipped": {
+                            "enabled": false
+                        },
+                        "AutoCollectRoute2Sub": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute2SubGated": {
+                            "enabled": false
+                        },
+                        "AutoCollectRoute2SubSkipped": {
+                            "enabled": false
+                        },
+                        "AutoCollectRoute3Sub": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute3SubGated": {
+                            "enabled": false
+                        },
+                        "AutoCollectRoute3SubSkipped": {
+                            "enabled": false
+                        },
+                        "AutoCollectRoute4Sub": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute4SubGated": {
+                            "enabled": false
+                        },
+                        "AutoCollectRoute4SubSkipped": {
+                            "enabled": false
+                        },
+                        "AutoCollectRoute5Sub": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute5SubGated": {
+                            "enabled": false
+                        },
+                        "AutoCollectRoute5SubSkipped": {
+                            "enabled": false
+                        },
+                        "AutoCollectRoute6Sub": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute6SubGated": {
+                            "enabled": false
+                        },
+                        "AutoCollectRoute6SubSkipped": {
+                            "enabled": false
+                        },
+                        "AutoCollectRoute7Sub": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute7SubGated": {
+                            "enabled": false
+                        },
+                        "AutoCollectRoute7SubSkipped": {
+                            "enabled": false
+                        },
+                        "AutoCollectRoute8Sub": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute8SubGated": {
+                            "enabled": false
+                        },
+                        "AutoCollectRoute8SubSkipped": {
+                            "enabled": false
+                        },
+                        "AutoCollectRoute9Sub": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute9SubGated": {
+                            "enabled": false
+                        },
+                        "AutoCollectRoute9SubSkipped": {
+                            "enabled": false
+                        },
+                        "AutoCollectRoute10Sub": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute10SubGated": {
+                            "enabled": false
+                        },
+                        "AutoCollectRoute10SubSkipped": {
+                            "enabled": false
+                        },
+                        "AutoCollectRoute11Sub": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute11SubGated": {
+                            "enabled": false
+                        },
+                        "AutoCollectRoute11SubSkipped": {
+                            "enabled": false
+                        },
+                        "AutoCollectRoute12Sub": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute12SubGated": {
+                            "enabled": false
+                        },
+                        "AutoCollectRoute12SubSkipped": {
+                            "enabled": false
+                        },
+                        "AutoCollectRoute13Sub": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute13SubGated": {
+                            "enabled": false
+                        },
+                        "AutoCollectRoute13SubSkipped": {
+                            "enabled": false
+                        },
+                        "AutoCollectRoute14Sub": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute14SubGated": {
+                            "enabled": false
+                        },
+                        "AutoCollectRoute14SubSkipped": {
+                            "enabled": false
+                        },
+                        "AutoCollectRoute15Sub": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute15SubGated": {
+                            "enabled": false
+                        },
+                        "AutoCollectRoute15SubSkipped": {
+                            "enabled": false
+                        },
+                        "AutoCollectCommonRoute1Sub": {
+                            "enabled": true
+                        },
+                        "AutoCollectCommonRoute1SubGated": {
+                            "enabled": false
+                        },
+                        "AutoCollectCommonRoute1SubSkipped": {
+                            "enabled": false
+                        },
+                        "AutoCollectCommonRoute2Sub": {
+                            "enabled": true
+                        },
+                        "AutoCollectCommonRoute2SubGated": {
+                            "enabled": false
+                        },
+                        "AutoCollectCommonRoute2SubSkipped": {
+                            "enabled": false
+                        },
+                        "AutoCollectCommonRoute3Sub": {
+                            "enabled": true
+                        },
+                        "AutoCollectCommonRoute3SubGated": {
+                            "enabled": false
+                        },
+                        "AutoCollectCommonRoute3SubSkipped": {
+                            "enabled": false
+                        },
+                        "AutoCollectCommonRoute4Sub": {
+                            "enabled": true
+                        },
+                        "AutoCollectCommonRoute4SubGated": {
+                            "enabled": false
+                        },
+                        "AutoCollectCommonRoute4SubSkipped": {
+                            "enabled": false
+                        },
+                        "AutoCollectCommonRoute5Sub": {
+                            "enabled": true
+                        },
+                        "AutoCollectCommonRoute5SubGated": {
+                            "enabled": false
+                        },
+                        "AutoCollectCommonRoute5SubSkipped": {
+                            "enabled": false
+                        },
+                        "AutoCollectCommonRoute6Sub": {
+                            "enabled": true
+                        },
+                        "AutoCollectCommonRoute6SubGated": {
+                            "enabled": false
+                        },
+                        "AutoCollectCommonRoute6SubSkipped": {
+                            "enabled": false
+                        },
+                        "AutoCollectCommonRoute7Sub": {
+                            "enabled": true
+                        },
+                        "AutoCollectCommonRoute7SubGated": {
+                            "enabled": false
+                        },
+                        "AutoCollectCommonRoute7SubSkipped": {
+                            "enabled": false
+                        },
+                        "AutoCollectCommonRoute8Sub": {
+                            "enabled": true
+                        },
+                        "AutoCollectCommonRoute8SubGated": {
+                            "enabled": false
+                        },
+                        "AutoCollectCommonRoute8SubSkipped": {
+                            "enabled": false
                         }
                     }
                 }
@@ -203,47 +401,77 @@
             "AutoCollectLoop"
         ]
     },
-    "AutoCollectInventoryBypass": {
-        "desc": "目标库存识别旁路：默认恒不命中，仅仓库同步失败后由任务级覆盖切换为恒命中",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "ExpressionRecognition",
-                "custom_recognition_param": {
-                    "expression": "0>1"
-                }
-            }
-        },
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0
-    },
     "AutoCollectLoop": {
         "desc": "依次执行已启用的自动采集路线",
         "next": [
+            "[JumpBack]AutoCollectRoute1SubSkipped",
+            "[JumpBack]AutoCollectRoute1SubGated",
             "[JumpBack]AutoCollectRoute1Sub",
+            "[JumpBack]AutoCollectRoute2SubSkipped",
+            "[JumpBack]AutoCollectRoute2SubGated",
             "[JumpBack]AutoCollectRoute2Sub",
+            "[JumpBack]AutoCollectRoute3SubSkipped",
+            "[JumpBack]AutoCollectRoute3SubGated",
             "[JumpBack]AutoCollectRoute3Sub",
+            "[JumpBack]AutoCollectRoute4SubSkipped",
+            "[JumpBack]AutoCollectRoute4SubGated",
             "[JumpBack]AutoCollectRoute4Sub",
+            "[JumpBack]AutoCollectRoute5SubSkipped",
+            "[JumpBack]AutoCollectRoute5SubGated",
             "[JumpBack]AutoCollectRoute5Sub",
+            "[JumpBack]AutoCollectRoute6SubSkipped",
+            "[JumpBack]AutoCollectRoute6SubGated",
             "[JumpBack]AutoCollectRoute6Sub",
+            "[JumpBack]AutoCollectRoute7SubSkipped",
+            "[JumpBack]AutoCollectRoute7SubGated",
             "[JumpBack]AutoCollectRoute7Sub",
+            "[JumpBack]AutoCollectRoute8SubSkipped",
+            "[JumpBack]AutoCollectRoute8SubGated",
             "[JumpBack]AutoCollectRoute8Sub",
+            "[JumpBack]AutoCollectRoute9SubSkipped",
+            "[JumpBack]AutoCollectRoute9SubGated",
             "[JumpBack]AutoCollectRoute9Sub",
+            "[JumpBack]AutoCollectRoute10SubSkipped",
+            "[JumpBack]AutoCollectRoute10SubGated",
             "[JumpBack]AutoCollectRoute10Sub",
+            "[JumpBack]AutoCollectRoute11SubSkipped",
+            "[JumpBack]AutoCollectRoute11SubGated",
             "[JumpBack]AutoCollectRoute11Sub",
+            "[JumpBack]AutoCollectRoute12SubSkipped",
+            "[JumpBack]AutoCollectRoute12SubGated",
             "[JumpBack]AutoCollectRoute12Sub",
+            "[JumpBack]AutoCollectRoute13SubSkipped",
+            "[JumpBack]AutoCollectRoute13SubGated",
             "[JumpBack]AutoCollectRoute13Sub",
+            "[JumpBack]AutoCollectRoute14SubSkipped",
+            "[JumpBack]AutoCollectRoute14SubGated",
             "[JumpBack]AutoCollectRoute14Sub",
+            "[JumpBack]AutoCollectRoute15SubSkipped",
+            "[JumpBack]AutoCollectRoute15SubGated",
             "[JumpBack]AutoCollectRoute15Sub",
+            "[JumpBack]AutoCollectCommonRoute1SubSkipped",
+            "[JumpBack]AutoCollectCommonRoute1SubGated",
             "[JumpBack]AutoCollectCommonRoute1Sub",
+            "[JumpBack]AutoCollectCommonRoute2SubSkipped",
+            "[JumpBack]AutoCollectCommonRoute2SubGated",
             "[JumpBack]AutoCollectCommonRoute2Sub",
+            "[JumpBack]AutoCollectCommonRoute3SubSkipped",
+            "[JumpBack]AutoCollectCommonRoute3SubGated",
             "[JumpBack]AutoCollectCommonRoute3Sub",
+            "[JumpBack]AutoCollectCommonRoute4SubSkipped",
+            "[JumpBack]AutoCollectCommonRoute4SubGated",
             "[JumpBack]AutoCollectCommonRoute4Sub",
+            "[JumpBack]AutoCollectCommonRoute5SubSkipped",
+            "[JumpBack]AutoCollectCommonRoute5SubGated",
             "[JumpBack]AutoCollectCommonRoute5Sub",
+            "[JumpBack]AutoCollectCommonRoute6SubSkipped",
+            "[JumpBack]AutoCollectCommonRoute6SubGated",
             "[JumpBack]AutoCollectCommonRoute6Sub",
+            "[JumpBack]AutoCollectCommonRoute7SubSkipped",
+            "[JumpBack]AutoCollectCommonRoute7SubGated",
             "[JumpBack]AutoCollectCommonRoute7Sub",
+            "[JumpBack]AutoCollectCommonRoute8SubSkipped",
+            "[JumpBack]AutoCollectCommonRoute8SubGated",
             "[JumpBack]AutoCollectCommonRoute8Sub",
             "AutoCollectAfterStashBackpack"
         ]
@@ -277,7 +505,10 @@
         "post_delay": 0
     },
     "AutoCollectRoute1Sub": {
+        "desc": "AutoCollectRoute1常规调度：Always 模式启用；目标库存模式关闭，改由 AutoCollectRoute1SubGated 按库存决定",
+        "enabled": true,
         "max_hit": 1,
+        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "FailureCollectorRunTask",
@@ -286,10 +517,61 @@
             "task": "AutoCollectRoute1Start",
             "failure_task": "AutoCollectRoute1Failed"
         },
-        "post_delay": 0
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoCollectRoute1SubSkipped": {
+        "desc": "AutoCollectRoute1目标库存已达标播报：仅目标库存模式启用，默认不命中，任务输入覆盖实际阈值",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "!({item_plant_crylplant_2_1}>=0)",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute1.skipped"
+        }
+    },
+    "AutoCollectRoute1SubGated": {
+        "desc": "AutoCollectRoute1目标库存调度：仅目标库存模式启用，库存低于阈值才放行；默认放行，任务输入覆盖实际阈值",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{item_plant_crylplant_2_1}>=0",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "task": "AutoCollectRoute1Start",
+            "failure_task": "AutoCollectRoute1Failed"
+        },
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "AutoCollectRoute2Sub": {
+        "desc": "AutoCollectRoute2常规调度：Always 模式启用；目标库存模式关闭，改由 AutoCollectRoute2SubGated 按库存决定",
+        "enabled": true,
         "max_hit": 1,
+        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "FailureCollectorRunTask",
@@ -298,10 +580,61 @@
             "task": "AutoCollectRoute2Start",
             "failure_task": "AutoCollectRoute2Failed"
         },
-        "post_delay": 0
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoCollectRoute2SubSkipped": {
+        "desc": "AutoCollectRoute2目标库存已达标播报：仅目标库存模式启用，默认不命中，任务输入覆盖实际阈值",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "!({item_plant_crylplant_2_2}>=0)",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute2.skipped"
+        }
+    },
+    "AutoCollectRoute2SubGated": {
+        "desc": "AutoCollectRoute2目标库存调度：仅目标库存模式启用，库存低于阈值才放行；默认放行，任务输入覆盖实际阈值",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{item_plant_crylplant_2_2}>=0",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "task": "AutoCollectRoute2Start",
+            "failure_task": "AutoCollectRoute2Failed"
+        },
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "AutoCollectRoute3Sub": {
+        "desc": "AutoCollectRoute3常规调度：Always 模式启用；目标库存模式关闭，改由 AutoCollectRoute3SubGated 按库存决定",
+        "enabled": true,
         "max_hit": 1,
+        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "FailureCollectorRunTask",
@@ -310,10 +643,61 @@
             "task": "AutoCollectRoute3Start",
             "failure_task": "AutoCollectRoute3Failed"
         },
-        "post_delay": 0
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoCollectRoute3SubSkipped": {
+        "desc": "AutoCollectRoute3目标库存已达标播报：仅目标库存模式启用，默认不命中，任务输入覆盖实际阈值",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "!({item_plant_crylplant_1_3}>=0)",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute3.skipped"
+        }
+    },
+    "AutoCollectRoute3SubGated": {
+        "desc": "AutoCollectRoute3目标库存调度：仅目标库存模式启用，库存低于阈值才放行；默认放行，任务输入覆盖实际阈值",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{item_plant_crylplant_1_3}>=0",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "task": "AutoCollectRoute3Start",
+            "failure_task": "AutoCollectRoute3Failed"
+        },
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "AutoCollectRoute4Sub": {
+        "desc": "AutoCollectRoute4常规调度：Always 模式启用；目标库存模式关闭，改由 AutoCollectRoute4SubGated 按库存决定",
+        "enabled": true,
         "max_hit": 1,
+        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "FailureCollectorRunTask",
@@ -322,10 +706,61 @@
             "task": "AutoCollectRoute4Start",
             "failure_task": "AutoCollectRoute4Failed"
         },
-        "post_delay": 0
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoCollectRoute4SubSkipped": {
+        "desc": "AutoCollectRoute4目标库存已达标播报：仅目标库存模式启用，默认不命中，任务输入覆盖实际阈值",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "!({item_plant_crylplant_1_2}>=0)",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute4.skipped"
+        }
+    },
+    "AutoCollectRoute4SubGated": {
+        "desc": "AutoCollectRoute4目标库存调度：仅目标库存模式启用，库存低于阈值才放行；默认放行，任务输入覆盖实际阈值",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{item_plant_crylplant_1_2}>=0",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "task": "AutoCollectRoute4Start",
+            "failure_task": "AutoCollectRoute4Failed"
+        },
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "AutoCollectRoute5Sub": {
+        "desc": "AutoCollectRoute5常规调度：Always 模式启用；目标库存模式关闭，改由 AutoCollectRoute5SubGated 按库存决定",
+        "enabled": true,
         "max_hit": 1,
+        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "FailureCollectorRunTask",
@@ -334,10 +769,61 @@
             "task": "AutoCollectRoute5Start",
             "failure_task": "AutoCollectRoute5Failed"
         },
-        "post_delay": 0
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoCollectRoute5SubSkipped": {
+        "desc": "AutoCollectRoute5目标库存已达标播报：仅目标库存模式启用，默认不命中，任务输入覆盖实际阈值",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "!({item_plant_spcstone_1_1}>=0)",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute5.skipped"
+        }
+    },
+    "AutoCollectRoute5SubGated": {
+        "desc": "AutoCollectRoute5目标库存调度：仅目标库存模式启用，库存低于阈值才放行；默认放行，任务输入覆盖实际阈值",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{item_plant_spcstone_1_1}>=0",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "task": "AutoCollectRoute5Start",
+            "failure_task": "AutoCollectRoute5Failed"
+        },
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "AutoCollectRoute6Sub": {
+        "desc": "AutoCollectRoute6常规调度：Always 模式启用；目标库存模式关闭，改由 AutoCollectRoute6SubGated 按库存决定",
+        "enabled": true,
         "max_hit": 1,
+        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "FailureCollectorRunTask",
@@ -346,10 +832,61 @@
             "task": "AutoCollectRoute6Start",
             "failure_task": "AutoCollectRoute6Failed"
         },
-        "post_delay": 0
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoCollectRoute6SubSkipped": {
+        "desc": "AutoCollectRoute6目标库存已达标播报：仅目标库存模式启用，默认不命中，任务输入覆盖实际阈值",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "!({item_plant_mushroom_1_1}>=0)",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute6.skipped"
+        }
+    },
+    "AutoCollectRoute6SubGated": {
+        "desc": "AutoCollectRoute6目标库存调度：仅目标库存模式启用，库存低于阈值才放行；默认放行，任务输入覆盖实际阈值",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{item_plant_mushroom_1_1}>=0",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "task": "AutoCollectRoute6Start",
+            "failure_task": "AutoCollectRoute6Failed"
+        },
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "AutoCollectRoute7Sub": {
+        "desc": "AutoCollectRoute7常规调度：Always 模式启用；目标库存模式关闭，改由 AutoCollectRoute7SubGated 按库存决定",
+        "enabled": true,
         "max_hit": 1,
+        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "FailureCollectorRunTask",
@@ -358,10 +895,61 @@
             "task": "AutoCollectRoute7Start",
             "failure_task": "AutoCollectRoute7Failed"
         },
-        "post_delay": 0
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoCollectRoute7SubSkipped": {
+        "desc": "AutoCollectRoute7目标库存已达标播报：仅目标库存模式启用，默认不命中，任务输入覆盖实际阈值",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "!({item_plant_mushroom_2_1}>=0 || {item_plant_spcstone_2_2}>=0)",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute7.skipped"
+        }
+    },
+    "AutoCollectRoute7SubGated": {
+        "desc": "AutoCollectRoute7目标库存调度：仅目标库存模式启用，库存低于阈值才放行；默认放行，任务输入覆盖实际阈值",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{item_plant_mushroom_2_1}>=0 || {item_plant_spcstone_2_2}>=0",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "task": "AutoCollectRoute7Start",
+            "failure_task": "AutoCollectRoute7Failed"
+        },
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "AutoCollectRoute8Sub": {
+        "desc": "AutoCollectRoute8常规调度：Always 模式启用；目标库存模式关闭，改由 AutoCollectRoute8SubGated 按库存决定",
+        "enabled": true,
         "max_hit": 1,
+        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "FailureCollectorRunTask",
@@ -370,10 +958,61 @@
             "task": "AutoCollectRoute8Start",
             "failure_task": "AutoCollectRoute8Failed"
         },
-        "post_delay": 0
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoCollectRoute8SubSkipped": {
+        "desc": "AutoCollectRoute8目标库存已达标播报：仅目标库存模式启用，默认不命中，任务输入覆盖实际阈值",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "!({item_plant_mushroom_2_2}>=0)",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute8.skipped"
+        }
+    },
+    "AutoCollectRoute8SubGated": {
+        "desc": "AutoCollectRoute8目标库存调度：仅目标库存模式启用，库存低于阈值才放行；默认放行，任务输入覆盖实际阈值",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{item_plant_mushroom_2_2}>=0",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "task": "AutoCollectRoute8Start",
+            "failure_task": "AutoCollectRoute8Failed"
+        },
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "AutoCollectRoute9Sub": {
+        "desc": "AutoCollectRoute9常规调度：Always 模式启用；目标库存模式关闭，改由 AutoCollectRoute9SubGated 按库存决定",
+        "enabled": true,
         "max_hit": 1,
+        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "FailureCollectorRunTask",
@@ -382,10 +1021,61 @@
             "task": "AutoCollectRoute9Start",
             "failure_task": "AutoCollectRoute9Failed"
         },
-        "post_delay": 0
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoCollectRoute9SubSkipped": {
+        "desc": "AutoCollectRoute9目标库存已达标播报：仅目标库存模式启用，默认不命中，任务输入覆盖实际阈值",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "!({item_plant_spcstone_2_1}>=0)",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute9.skipped"
+        }
+    },
+    "AutoCollectRoute9SubGated": {
+        "desc": "AutoCollectRoute9目标库存调度：仅目标库存模式启用，库存低于阈值才放行；默认放行，任务输入覆盖实际阈值",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{item_plant_spcstone_2_1}>=0",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "task": "AutoCollectRoute9Start",
+            "failure_task": "AutoCollectRoute9Failed"
+        },
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "AutoCollectRoute10Sub": {
+        "desc": "AutoCollectRoute10常规调度：Always 模式启用；目标库存模式关闭，改由 AutoCollectRoute10SubGated 按库存决定",
+        "enabled": true,
         "max_hit": 1,
+        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "FailureCollectorRunTask",
@@ -394,10 +1084,61 @@
             "task": "AutoCollectRoute10Start",
             "failure_task": "AutoCollectRoute10Failed"
         },
-        "post_delay": 0
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoCollectRoute10SubSkipped": {
+        "desc": "AutoCollectRoute10目标库存已达标播报：仅目标库存模式启用，默认不命中，任务输入覆盖实际阈值",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "!({item_plant_mushroom_1_3}>=0)",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute10.skipped"
+        }
+    },
+    "AutoCollectRoute10SubGated": {
+        "desc": "AutoCollectRoute10目标库存调度：仅目标库存模式启用，库存低于阈值才放行；默认放行，任务输入覆盖实际阈值",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{item_plant_mushroom_1_3}>=0",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "task": "AutoCollectRoute10Start",
+            "failure_task": "AutoCollectRoute10Failed"
+        },
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "AutoCollectRoute11Sub": {
+        "desc": "AutoCollectRoute11常规调度：Always 模式启用；目标库存模式关闭，改由 AutoCollectRoute11SubGated 按库存决定",
+        "enabled": true,
         "max_hit": 1,
+        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "FailureCollectorRunTask",
@@ -406,10 +1147,61 @@
             "task": "AutoCollectRoute11Start",
             "failure_task": "AutoCollectRoute11Failed"
         },
-        "post_delay": 0
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoCollectRoute11SubSkipped": {
+        "desc": "AutoCollectRoute11目标库存已达标播报：仅目标库存模式启用，默认不命中，任务输入覆盖实际阈值",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "!({item_plant_spcstone_1_3}>=0)",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute11.skipped"
+        }
+    },
+    "AutoCollectRoute11SubGated": {
+        "desc": "AutoCollectRoute11目标库存调度：仅目标库存模式启用，库存低于阈值才放行；默认放行，任务输入覆盖实际阈值",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{item_plant_spcstone_1_3}>=0",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "task": "AutoCollectRoute11Start",
+            "failure_task": "AutoCollectRoute11Failed"
+        },
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "AutoCollectRoute12Sub": {
+        "desc": "AutoCollectRoute12常规调度：Always 模式启用；目标库存模式关闭，改由 AutoCollectRoute12SubGated 按库存决定",
+        "enabled": true,
         "max_hit": 1,
+        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "FailureCollectorRunTask",
@@ -418,10 +1210,61 @@
             "task": "AutoCollectRoute12Start",
             "failure_task": "AutoCollectRoute12Failed"
         },
-        "post_delay": 0
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoCollectRoute12SubSkipped": {
+        "desc": "AutoCollectRoute12目标库存已达标播报：仅目标库存模式启用，默认不命中，任务输入覆盖实际阈值",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "!({item_plant_mushroom_1_2}>=0)",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute12.skipped"
+        }
+    },
+    "AutoCollectRoute12SubGated": {
+        "desc": "AutoCollectRoute12目标库存调度：仅目标库存模式启用，库存低于阈值才放行；默认放行，任务输入覆盖实际阈值",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{item_plant_mushroom_1_2}>=0",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "task": "AutoCollectRoute12Start",
+            "failure_task": "AutoCollectRoute12Failed"
+        },
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "AutoCollectRoute13Sub": {
+        "desc": "AutoCollectRoute13常规调度：Always 模式启用；目标库存模式关闭，改由 AutoCollectRoute13SubGated 按库存决定",
+        "enabled": true,
         "max_hit": 1,
+        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "FailureCollectorRunTask",
@@ -430,10 +1273,61 @@
             "task": "AutoCollectRoute13Start",
             "failure_task": "AutoCollectRoute13Failed"
         },
-        "post_delay": 0
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoCollectRoute13SubSkipped": {
+        "desc": "AutoCollectRoute13目标库存已达标播报：仅目标库存模式启用，默认不命中，任务输入覆盖实际阈值",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "!({item_plant_spcstone_1_2}>=0)",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute13.skipped"
+        }
+    },
+    "AutoCollectRoute13SubGated": {
+        "desc": "AutoCollectRoute13目标库存调度：仅目标库存模式启用，库存低于阈值才放行；默认放行，任务输入覆盖实际阈值",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{item_plant_spcstone_1_2}>=0",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "task": "AutoCollectRoute13Start",
+            "failure_task": "AutoCollectRoute13Failed"
+        },
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "AutoCollectRoute14Sub": {
+        "desc": "AutoCollectRoute14常规调度：Always 模式启用；目标库存模式关闭，改由 AutoCollectRoute14SubGated 按库存决定",
+        "enabled": true,
         "max_hit": 1,
+        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "FailureCollectorRunTask",
@@ -442,10 +1336,61 @@
             "task": "AutoCollectRoute14Start",
             "failure_task": "AutoCollectRoute14Failed"
         },
-        "post_delay": 0
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoCollectRoute14SubSkipped": {
+        "desc": "AutoCollectRoute14目标库存已达标播报：仅目标库存模式启用，默认不命中，任务输入覆盖实际阈值",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "!({item_plant_crylplant_1_1}>=0)",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute14.skipped"
+        }
+    },
+    "AutoCollectRoute14SubGated": {
+        "desc": "AutoCollectRoute14目标库存调度：仅目标库存模式启用，库存低于阈值才放行；默认放行，任务输入覆盖实际阈值",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{item_plant_crylplant_1_1}>=0",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "task": "AutoCollectRoute14Start",
+            "failure_task": "AutoCollectRoute14Failed"
+        },
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "AutoCollectRoute15Sub": {
+        "desc": "AutoCollectRoute15常规调度：Always 模式启用；目标库存模式关闭，改由 AutoCollectRoute15SubGated 按库存决定",
+        "enabled": true,
         "max_hit": 1,
+        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "FailureCollectorRunTask",
@@ -454,10 +1399,61 @@
             "task": "AutoCollectRoute15Start",
             "failure_task": "AutoCollectRoute15Failed"
         },
-        "post_delay": 0
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoCollectRoute15SubSkipped": {
+        "desc": "AutoCollectRoute15目标库存已达标播报：仅目标库存模式启用，默认不命中，任务输入覆盖实际阈值",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "!({item_plant_crylplant_2_3}>=0)",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute15.skipped"
+        }
+    },
+    "AutoCollectRoute15SubGated": {
+        "desc": "AutoCollectRoute15目标库存调度：仅目标库存模式启用，库存低于阈值才放行；默认放行，任务输入覆盖实际阈值",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{item_plant_crylplant_2_3}>=0",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "task": "AutoCollectRoute15Start",
+            "failure_task": "AutoCollectRoute15Failed"
+        },
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "AutoCollectCommonRoute1Sub": {
+        "desc": "AutoCollectCommonRoute1常规调度：Always 模式启用；目标库存模式关闭，改由 AutoCollectCommonRoute1SubGated 按库存决定",
+        "enabled": true,
         "max_hit": 1,
+        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "FailureCollectorRunTask",
@@ -466,10 +1462,61 @@
             "task": "AutoCollectCommonRoute1Start",
             "failure_task": "AutoCollectCommonRoute1Failed"
         },
-        "post_delay": 0
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoCollectCommonRoute1SubSkipped": {
+        "desc": "AutoCollectCommonRoute1目标库存已达标播报：仅目标库存模式启用，默认不命中，任务输入覆盖实际阈值",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "!({item_plant_moss_spc_1}>=0)",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectCommonRoute1.skipped"
+        }
+    },
+    "AutoCollectCommonRoute1SubGated": {
+        "desc": "AutoCollectCommonRoute1目标库存调度：仅目标库存模式启用，库存低于阈值才放行；默认放行，任务输入覆盖实际阈值",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{item_plant_moss_spc_1}>=0",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "task": "AutoCollectCommonRoute1Start",
+            "failure_task": "AutoCollectCommonRoute1Failed"
+        },
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "AutoCollectCommonRoute2Sub": {
+        "desc": "AutoCollectCommonRoute2常规调度：Always 模式启用；目标库存模式关闭，改由 AutoCollectCommonRoute2SubGated 按库存决定",
+        "enabled": true,
         "max_hit": 1,
+        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "FailureCollectorRunTask",
@@ -478,10 +1525,61 @@
             "task": "AutoCollectCommonRoute2Start",
             "failure_task": "AutoCollectCommonRoute2Failed"
         },
-        "post_delay": 0
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoCollectCommonRoute2SubSkipped": {
+        "desc": "AutoCollectCommonRoute2目标库存已达标播报：仅目标库存模式启用，默认不命中，任务输入覆盖实际阈值",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "!({item_plant_moss_spc_2}>=0)",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectCommonRoute2.skipped"
+        }
+    },
+    "AutoCollectCommonRoute2SubGated": {
+        "desc": "AutoCollectCommonRoute2目标库存调度：仅目标库存模式启用，库存低于阈值才放行；默认放行，任务输入覆盖实际阈值",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{item_plant_moss_spc_2}>=0",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "task": "AutoCollectCommonRoute2Start",
+            "failure_task": "AutoCollectCommonRoute2Failed"
+        },
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "AutoCollectCommonRoute3Sub": {
+        "desc": "AutoCollectCommonRoute3常规调度：Always 模式启用；目标库存模式关闭，改由 AutoCollectCommonRoute3SubGated 按库存决定",
+        "enabled": true,
         "max_hit": 1,
+        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "FailureCollectorRunTask",
@@ -490,10 +1588,61 @@
             "task": "AutoCollectCommonRoute3Start",
             "failure_task": "AutoCollectCommonRoute3Failed"
         },
-        "post_delay": 0
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoCollectCommonRoute3SubSkipped": {
+        "desc": "AutoCollectCommonRoute3目标库存已达标播报：仅目标库存模式启用，默认不命中，任务输入覆盖实际阈值",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "!({item_plant_tundra_insect_2}>=0)",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectCommonRoute3.skipped"
+        }
+    },
+    "AutoCollectCommonRoute3SubGated": {
+        "desc": "AutoCollectCommonRoute3目标库存调度：仅目标库存模式启用，库存低于阈值才放行；默认放行，任务输入覆盖实际阈值",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{item_plant_tundra_insect_2}>=0",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "task": "AutoCollectCommonRoute3Start",
+            "failure_task": "AutoCollectCommonRoute3Failed"
+        },
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "AutoCollectCommonRoute4Sub": {
+        "desc": "AutoCollectCommonRoute4常规调度：Always 模式启用；目标库存模式关闭，改由 AutoCollectCommonRoute4SubGated 按库存决定",
+        "enabled": true,
         "max_hit": 1,
+        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "FailureCollectorRunTask",
@@ -502,10 +1651,61 @@
             "task": "AutoCollectCommonRoute4Start",
             "failure_task": "AutoCollectCommonRoute4Failed"
         },
-        "post_delay": 0
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoCollectCommonRoute4SubSkipped": {
+        "desc": "AutoCollectCommonRoute4目标库存已达标播报：仅目标库存模式启用，默认不命中，任务输入覆盖实际阈值",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "!({item_plant_tundra_insect_1}>=0)",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectCommonRoute4.skipped"
+        }
+    },
+    "AutoCollectCommonRoute4SubGated": {
+        "desc": "AutoCollectCommonRoute4目标库存调度：仅目标库存模式启用，库存低于阈值才放行；默认放行，任务输入覆盖实际阈值",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{item_plant_tundra_insect_1}>=0",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "task": "AutoCollectCommonRoute4Start",
+            "failure_task": "AutoCollectCommonRoute4Failed"
+        },
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "AutoCollectCommonRoute5Sub": {
+        "desc": "AutoCollectCommonRoute5常规调度：Always 模式启用；目标库存模式关闭，改由 AutoCollectCommonRoute5SubGated 按库存决定",
+        "enabled": true,
         "max_hit": 1,
+        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "FailureCollectorRunTask",
@@ -514,10 +1714,61 @@
             "task": "AutoCollectCommonRoute5Start",
             "failure_task": "AutoCollectCommonRoute5Failed"
         },
-        "post_delay": 0
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoCollectCommonRoute5SubSkipped": {
+        "desc": "AutoCollectCommonRoute5目标库存已达标播报：仅目标库存模式启用，默认不命中，任务输入覆盖实际阈值",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "!({item_plant_grass_spc_1}>=0)",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectCommonRoute5.skipped"
+        }
+    },
+    "AutoCollectCommonRoute5SubGated": {
+        "desc": "AutoCollectCommonRoute5目标库存调度：仅目标库存模式启用，库存低于阈值才放行；默认放行，任务输入覆盖实际阈值",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{item_plant_grass_spc_1}>=0",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "task": "AutoCollectCommonRoute5Start",
+            "failure_task": "AutoCollectCommonRoute5Failed"
+        },
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "AutoCollectCommonRoute6Sub": {
+        "desc": "AutoCollectCommonRoute6常规调度：Always 模式启用；目标库存模式关闭，改由 AutoCollectCommonRoute6SubGated 按库存决定",
+        "enabled": true,
         "max_hit": 1,
+        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "FailureCollectorRunTask",
@@ -526,10 +1777,61 @@
             "task": "AutoCollectCommonRoute6Start",
             "failure_task": "AutoCollectCommonRoute6Failed"
         },
-        "post_delay": 0
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoCollectCommonRoute6SubSkipped": {
+        "desc": "AutoCollectCommonRoute6目标库存已达标播报：仅目标库存模式启用，默认不命中，任务输入覆盖实际阈值",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "!({item_plant_sp_3}>=0)",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectCommonRoute6.skipped"
+        }
+    },
+    "AutoCollectCommonRoute6SubGated": {
+        "desc": "AutoCollectCommonRoute6目标库存调度：仅目标库存模式启用，库存低于阈值才放行；默认放行，任务输入覆盖实际阈值",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{item_plant_sp_3}>=0",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "task": "AutoCollectCommonRoute6Start",
+            "failure_task": "AutoCollectCommonRoute6Failed"
+        },
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "AutoCollectCommonRoute7Sub": {
+        "desc": "AutoCollectCommonRoute7常规调度：Always 模式启用；目标库存模式关闭，改由 AutoCollectCommonRoute7SubGated 按库存决定",
+        "enabled": true,
         "max_hit": 1,
+        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "FailureCollectorRunTask",
@@ -538,10 +1840,61 @@
             "task": "AutoCollectCommonRoute7Start",
             "failure_task": "AutoCollectCommonRoute7Failed"
         },
-        "post_delay": 0
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoCollectCommonRoute7SubSkipped": {
+        "desc": "AutoCollectCommonRoute7目标库存已达标播报：仅目标库存模式启用，默认不命中，任务输入覆盖实际阈值",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "!({item_plant_grass_spc_2}>=0)",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectCommonRoute7.skipped"
+        }
+    },
+    "AutoCollectCommonRoute7SubGated": {
+        "desc": "AutoCollectCommonRoute7目标库存调度：仅目标库存模式启用，库存低于阈值才放行；默认放行，任务输入覆盖实际阈值",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{item_plant_grass_spc_2}>=0",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "task": "AutoCollectCommonRoute7Start",
+            "failure_task": "AutoCollectCommonRoute7Failed"
+        },
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "AutoCollectCommonRoute8Sub": {
+        "desc": "AutoCollectCommonRoute8常规调度：Always 模式启用；目标库存模式关闭，改由 AutoCollectCommonRoute8SubGated 按库存决定",
+        "enabled": true,
         "max_hit": 1,
+        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "FailureCollectorRunTask",
@@ -550,7 +1903,55 @@
             "task": "AutoCollectCommonRoute8Start",
             "failure_task": "AutoCollectCommonRoute8Failed"
         },
-        "post_delay": 0
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoCollectCommonRoute8SubSkipped": {
+        "desc": "AutoCollectCommonRoute8目标库存已达标播报：仅目标库存模式启用，默认不命中，任务输入覆盖实际阈值",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "!({item_plant_sp_4}>=0)",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectCommonRoute8.skipped"
+        }
+    },
+    "AutoCollectCommonRoute8SubGated": {
+        "desc": "AutoCollectCommonRoute8目标库存调度：仅目标库存模式启用，库存低于阈值才放行；默认放行，任务输入覆盖实际阈值",
+        "enabled": false,
+        "max_hit": 1,
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ItemQuantitySatisfied",
+                "custom_recognition_param": {
+                    "expression": "{item_plant_sp_4}>=0",
+                    "notify_ui": false
+                }
+            }
+        },
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "task": "AutoCollectCommonRoute8Start",
+            "failure_task": "AutoCollectCommonRoute8Failed"
+        },
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "AutoCollectRoute1Failed": {
         "desc": "AutoCollectRoute1执行失败提示",

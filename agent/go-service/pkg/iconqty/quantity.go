@@ -86,6 +86,11 @@ func QuantityROIFromCellBox(gridType string, cell maa.Rect) (maa.Rect, error) {
 // RecognizeQuantities runs one IconRecognition pass, then OCRs quantity from
 // each match cell_box. Returns one hit per match (no ID aggregation) so
 // callers can add multiple stacks (A3) or overwrite by ID (A2).
+//
+// Failures are graded. A grid_type with no calibrated quantity band is a
+// config error and fails the whole call. A single unusable cell only skips
+// that cell: one malformed cell must not abort a depot sync (A2) or block
+// closing the rewards UI (A3, see ims.AddItemData).
 func RecognizeQuantities(ctx *maa.Context, img image.Image, req Request) ([]QuantityHit, error) {
 	matches, err := recognizeIcons(ctx, img, req)
 	if err != nil {
@@ -95,7 +100,15 @@ func RecognizeQuantities(ctx *maa.Context, img image.Image, req Request) ([]Quan
 		return nil, nil
 	}
 
+	// Checked after the empty-match return so that "screen has no cards" stays
+	// a success for A3 (TolerateEmptyGrid), and before the loop because an
+	// uncalibrated grid can never yield a band for any cell.
+	if _, ok := quantityBaseCellHeight(req.GridType); !ok {
+		return nil, fmt.Errorf("unsupported quantity grid_type %q", strings.TrimSpace(req.GridType))
+	}
+
 	out := make([]QuantityHit, 0, len(matches))
+	roiSkipped, ocrMissed := 0, 0
 	for _, m := range matches {
 		itemID := strings.TrimSpace(m.ItemID)
 		if itemID == "" {
@@ -104,15 +117,26 @@ func RecognizeQuantities(ctx *maa.Context, img image.Image, req Request) ([]Quan
 		if m.CellBox[2] <= 0 || m.CellBox[3] <= 0 {
 			return nil, fmt.Errorf("IconRecognition match missing cell_box for %s", itemID)
 		}
+		// grid_type is already validated, so a failure here is a degenerate
+		// cell: skip it instead of losing every other item on the page.
 		qtyROI, err := QuantityROIFromCellBox(req.GridType, m.CellBox)
 		if err != nil {
-			return nil, fmt.Errorf("quantity roi for %s: %w", itemID, err)
+			roiSkipped++
+			log.Info().
+				Err(err).
+				Str("component", "iconqty").
+				Str("item_id", itemID).
+				Str("grid_type", req.GridType).
+				Interface("cell_box", m.CellBox).
+				Msg("quantity roi unavailable for cell, skip")
+			continue
 		}
 		qty, hit, err := RecognizeQuantityInROI(ctx, img, qtyROI)
 		if err != nil {
 			return nil, fmt.Errorf("quantity ocr for %s: %w", itemID, err)
 		}
 		if !hit {
+			ocrMissed++
 			log.Info().
 				Str("component", "iconqty").
 				Str("item_id", itemID).
@@ -121,6 +145,14 @@ func RecognizeQuantities(ctx *maa.Context, img image.Image, req Request) ([]Quan
 		}
 		out = append(out, QuantityHit{ItemID: itemID, Qty: qty})
 	}
+	log.Info().
+		Str("component", "iconqty").
+		Str("grid_type", req.GridType).
+		Int("matched", len(matches)).
+		Int("quantity_hits", len(out)).
+		Int("roi_skipped", roiSkipped).
+		Int("ocr_missed", ocrMissed).
+		Msg("quantity recognition finished")
 	return out, nil
 }
 
