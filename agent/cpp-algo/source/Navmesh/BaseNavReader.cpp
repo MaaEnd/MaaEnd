@@ -43,6 +43,7 @@ constexpr size_t kGzipReadChunkSize = 4 << 20;
 constexpr char kGeometrySectionTag[5] = "BGEO";
 constexpr char kOffMeshSectionTag[5] = "BOML";
 constexpr char kSurfaceSectionTag[5] = "BSRF";
+constexpr char kGridSectionTag[5] = "BGRD";
 constexpr uint32_t kGeometrySectionVersion = 1;
 constexpr uint16_t kOffMeshSectionVersion = 1;
 constexpr uint16_t kOffMeshRecordSize = 80;
@@ -130,20 +131,20 @@ BaseNavLink ReadLinkRecord(const uint8_t*& cursor)
     return link;
 }
 
-bool ParseOffMeshSection(const BaseNavSection& section, std::vector<BaseNavOffMeshLink>* links)
+bool ParseOffMeshSection(const uint8_t* data, size_t size, std::vector<BaseNavOffMeshLink>* links)
 {
     links->clear();
-    if (section.bytes.size() < kOffMeshHeaderSize || std::memcmp(section.bytes.data(), kOffMeshSectionTag, 4) != 0) {
+    if (size < kOffMeshHeaderSize || std::memcmp(data, kOffMeshSectionTag, 4) != 0) {
         return false;
     }
-    const uint8_t* cursor = section.bytes.data() + 4;
+    const uint8_t* cursor = data + 4;
     const uint16_t version = ReadU16(cursor);
     const uint16_t record_size = ReadU16(cursor);
     const uint32_t count = ReadU32(cursor);
     (void)ReadU32(cursor);
     if (version != kOffMeshSectionVersion || record_size != kOffMeshRecordSize
-        || count != (section.bytes.size() - kOffMeshHeaderSize) / kOffMeshRecordSize
-        || section.bytes.size() != kOffMeshHeaderSize + static_cast<size_t>(count) * kOffMeshRecordSize) {
+        || count != (size - kOffMeshHeaderSize) / kOffMeshRecordSize
+        || size != kOffMeshHeaderSize + static_cast<size_t>(count) * kOffMeshRecordSize) {
         return false;
     }
     links->reserve(count);
@@ -168,23 +169,23 @@ bool ParseOffMeshSection(const BaseNavSection& section, std::vector<BaseNavOffMe
         (void)ReadU32(cursor);
         links->push_back(link);
     }
-    return cursor == section.bytes.data() + section.bytes.size();
+    return cursor == data + size;
 }
 
-bool ParseSurfaceSection(const BaseNavSection& section, std::vector<BaseNavSurface>* surfaces)
+bool ParseSurfaceSection(const uint8_t* data, size_t size, std::vector<BaseNavSurface>* surfaces)
 {
     surfaces->clear();
-    if (section.bytes.size() < kSurfaceHeaderSize || std::memcmp(section.bytes.data(), kSurfaceSectionTag, 4) != 0) {
+    if (size < kSurfaceHeaderSize || std::memcmp(data, kSurfaceSectionTag, 4) != 0) {
         return false;
     }
-    const uint8_t* cursor = section.bytes.data() + 4;
+    const uint8_t* cursor = data + 4;
     const uint16_t version = ReadU16(cursor);
     const uint16_t record_size = ReadU16(cursor);
     const uint32_t count = ReadU32(cursor);
     (void)ReadU32(cursor);
     if (version != kSurfaceSectionVersion || record_size != kSurfaceRecordSize
-        || count != (section.bytes.size() - kSurfaceHeaderSize) / kSurfaceRecordSize
-        || section.bytes.size() != kSurfaceHeaderSize + static_cast<size_t>(count) * kSurfaceRecordSize) {
+        || count != (size - kSurfaceHeaderSize) / kSurfaceRecordSize
+        || size != kSurfaceHeaderSize + static_cast<size_t>(count) * kSurfaceRecordSize) {
         return false;
     }
     surfaces->reserve(count);
@@ -196,7 +197,7 @@ bool ParseSurfaceSection(const BaseNavSection& section, std::vector<BaseNavSurfa
         surface.flags = ReadU32(cursor);
         surfaces->push_back(surface);
     }
-    return cursor == section.bytes.data() + section.bytes.size();
+    return cursor == data + size;
 }
 
 uint64_t Fnv64Update(uint64_t hash, const uint8_t* bytes, size_t size)
@@ -694,8 +695,12 @@ BaseNavLoadResult LoadBaseNavPack(const std::filesystem::path& path, std::string
     }
 
     // 段目录先读:v5 起四块几何连同区表都在 BGEO 段里,头里那四个偏移作废。
+    // 只有 BGRD 的字节要活过本函数(规划时才按瓦解码),其余段就地解析,段条目留空壳 ——
+    // 下游只拿 section(tag) != nullptr 认包的世代。
     std::vector<BaseNavSection> sections;
+    std::vector<std::pair<const uint8_t*, size_t>> section_raw;
     sections.reserve(section_count);
+    section_raw.reserve(section_count);
     const uint8_t* dir_cursor = file_bytes.data() + section_dir_offset;
     for (uint32_t index = 0; index < section_count; ++index) {
         BaseNavSection sec;
@@ -707,7 +712,11 @@ BaseNavLoadResult LoadBaseNavPack(const std::filesystem::path& path, std::string
         if (!OffsetRangeValid(offset, size, file_size)) {
             return Fail(BaseNavLoadStatus::InvalidOffset, "nav section is outside file bounds");
         }
-        sec.bytes.assign(file_bytes.data() + offset, file_bytes.data() + offset + size);
+        const uint8_t* at = file_bytes.data() + offset;
+        section_raw.emplace_back(at, static_cast<size_t>(size));
+        if (std::memcmp(sec.tag.data(), kGridSectionTag, 4) == 0) {
+            sec.bytes.assign(at, at + size);
+        }
         sections.push_back(std::move(sec));
     }
 
@@ -719,13 +728,13 @@ BaseNavLoadResult LoadBaseNavPack(const std::filesystem::path& path, std::string
     const uint8_t* triangle_bytes = nullptr;
     const uint8_t* link_bytes = nullptr;
     if (sectioned) {
-        const BaseNavSection* found = nullptr;
-        for (const BaseNavSection& sec : sections) {
-            if (std::memcmp(sec.tag.data(), kGeometrySectionTag, 4) == 0) {
-                found = &sec;
+        const std::pair<const uint8_t*, size_t>* found = nullptr;
+        for (size_t i = 0; i < sections.size(); ++i) {
+            if (std::memcmp(sections[i].tag.data(), kGeometrySectionTag, 4) == 0) {
+                found = &section_raw[i];
             }
         }
-        if (found == nullptr || !ParseGeometrySection(found->bytes.data(), found->bytes.size(), &geometry)) {
+        if (found == nullptr || !ParseGeometrySection(found->first, found->second, &geometry)) {
             return Fail(BaseNavLoadStatus::InvalidOffset, "nav geometry section is missing or malformed");
         }
         if (geometry.vertices.total != vertex_count || geometry.triangles.total != triangle_count || geometry.links.total != link_count) {
@@ -993,16 +1002,17 @@ BaseNavLoadResult LoadBaseNavPack(const std::filesystem::path& path, std::string
     }
 
     std::vector<BaseNavOffMeshLink> off_mesh_links;
-    for (const BaseNavSection& section : sections) {
-        if (std::memcmp(section.tag.data(), kOffMeshSectionTag, 4) == 0
-            && !ParseOffMeshSection(section, &off_mesh_links)) {
+    for (size_t i = 0; i < sections.size(); ++i) {
+        if (std::memcmp(sections[i].tag.data(), kOffMeshSectionTag, 4) == 0
+            && !ParseOffMeshSection(section_raw[i].first, section_raw[i].second, &off_mesh_links)) {
             return Fail(BaseNavLoadStatus::InvalidSize, "nav off-mesh section is malformed");
         }
     }
     std::vector<BaseNavSurface> surfaces;
-    for (const BaseNavSection& section : sections) {
-        if (std::memcmp(section.tag.data(), kSurfaceSectionTag, 4) == 0) {
-            if (!ParseSurfaceSection(section, &surfaces) || surfaces.size() != triangle_count) {
+    for (size_t i = 0; i < sections.size(); ++i) {
+        if (std::memcmp(sections[i].tag.data(), kSurfaceSectionTag, 4) == 0) {
+            if (!ParseSurfaceSection(section_raw[i].first, section_raw[i].second, &surfaces)
+                || surfaces.size() != triangle_count) {
                 return Fail(BaseNavLoadStatus::InvalidSize, "nav surface section is malformed");
             }
         }
