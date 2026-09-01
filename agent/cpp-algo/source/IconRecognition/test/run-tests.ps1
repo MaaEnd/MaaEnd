@@ -168,6 +168,13 @@ function Copy-InputTree {
     }
     $overwritten = [System.Collections.Generic.List[string]]::new()
     foreach ($file in Get-ChildItem -LiteralPath $SourceRoot -Recurse -File) {
+        # MarkAsLocal 下由 PNG 统一复制同 stem JSON，确保两者始终使用相同的 .localN。
+        if ($MarkAsLocal -and $file.Extension -ieq ".json") {
+            $sourceImage = [System.IO.Path]::ChangeExtension($file.FullName, ".png")
+            if (Test-Path -LiteralPath $sourceImage -PathType Leaf) {
+                continue
+            }
+        }
         $relative = $file.FullName.Substring($SourceRoot.Length).TrimStart('\', '/')
         # expected.csv 是独立校验基线，只能通过显式 --expected 参数选择，不能混入图片输入树。
         if ($relative -eq "expected.csv") {
@@ -180,11 +187,22 @@ function Copy-InputTree {
             $base = [System.IO.Path]::GetFileNameWithoutExtension($destination)
             $extension = [System.IO.Path]::GetExtension($destination)
             $directory = Split-Path -Parent $destination
+            $sourceSidecar = if ($file.Extension -ieq ".png") {
+                [System.IO.Path]::ChangeExtension($file.FullName, ".json")
+            }
+            else {
+                $null
+            }
+            $hasSourceSidecar = $null -ne $sourceSidecar -and (Test-Path -LiteralPath $sourceSidecar -PathType Leaf)
             $suffix = 1
             do {
                 $candidate = Join-Path $directory "$base.local$suffix$extension"
+                $candidateSidecar = [System.IO.Path]::ChangeExtension($candidate, ".json")
                 $suffix++
-            } while (Test-Path -LiteralPath $candidate -PathType Leaf)
+            } while (
+                (Test-Path -LiteralPath $candidate -PathType Leaf) -or
+                ($hasSourceSidecar -and (Test-Path -LiteralPath $candidateSidecar -PathType Leaf))
+            )
             $destination = $candidate
         }
         elseif (Test-Path -LiteralPath $destination -PathType Leaf) {
@@ -204,6 +222,9 @@ function Copy-InputTree {
             }
         }
         Copy-Item -LiteralPath $file.FullName -Destination $destination -Force
+        if ($MarkAsLocal -and $hasSourceSidecar) {
+            Copy-Item -LiteralPath $sourceSidecar -Destination $candidateSidecar -Force
+        }
     }
     if ($overwritten.Count -gt 0) {
         $examples = @($overwritten | Select-Object -First 5) -join ", "

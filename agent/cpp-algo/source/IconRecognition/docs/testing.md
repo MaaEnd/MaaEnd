@@ -80,7 +80,7 @@ tests/MaaEndTestset/<Win32|ADB>/Official_CN/IconRecognition/
 ./agent/cpp-algo/source/IconRecognition/test/run-tests.ps1 -Task manual -Dataset win32 -GridType transfer -Image sample.png -Side full
 ./agent/cpp-algo/source/IconRecognition/test/run-tests.ps1 -Task manual -Dataset adb -GridType transfer -Image sample.png -Side all
 ./agent/cpp-algo/source/IconRecognition/test/run-tests.ps1 -Task manual -Dataset win32 -GridType transfer -Side all -Jobs 16
-./agent/cpp-algo/source/IconRecognition/test/run-tests.ps1 -Task manual -Dataset adb -Image sample.png
+./agent/cpp-algo/source/IconRecognition/test/run-tests.ps1 -Task manual -Dataset adb -GridType transfer -Image sample.png
 ./agent/cpp-algo/source/IconRecognition/test/run-tests.ps1 -Task manual -Dataset adb -GridType rewards -UseLocalExpected
 ./agent/cpp-algo/source/IconRecognition/test/run-tests.ps1 -Task manual -Dataset win32 -All -RecognizeRegionUnavailable
 ```
