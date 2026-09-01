@@ -622,6 +622,9 @@ ZoneClean::ZoneClean(
         }
         ++n_srcadj;
     }
+    // 泛洪用完就还, 别让这两块一路压到墙判据建索引那一段的峰值上。swap 空容器才还得掉容量。
+    std::vector<uint32_t>().swap(vis);
+    std::vector<int32_t>().swap(dq);
 
     int64_t ncomps = 0;
     for (int64_t i = 0; i < m; ++i) {

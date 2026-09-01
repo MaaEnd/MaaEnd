@@ -1884,42 +1884,30 @@ std::vector<WorldPoint> StringPull(
     const std::vector<float>* hs,
     const Visibility* vis)
 {
-    std::vector<WorldPoint> P = pts;
-    std::vector<size_t> idx(P.size());
-    for (size_t k = 0; k < idx.size(); ++k) {
-        idx[k] = k;
-    }
-    for (int round = 0; round < 6; ++round) {
-        std::vector<WorldPoint> out { P[0] };
-        std::vector<size_t> oid { idx[0] };
-        size_t i = 0;
-        while (i < P.size() - 1) {
-            size_t j = P.size() - 1;
-            while (j > i + 1) {
-                if (vis != nullptr) {
-                    if (vis->ok(P[i], P[j], (*hs)[idx[i]], (*hs)[idx[j]])) {
-                        break;
-                    }
-                    --j;
-                    continue;
-                }
-                if (!blk.blocked(P[i], P[j]) && (lyo == nullptr || lyo->ok(P[i], P[j], (*hs)[idx[i]], (*hs)[idx[j]]))) {
+    // 一趟就到不动点。第二趟从锚点 c 出发时, 候选是链上 c 之后第二个起的点, 而链严格递增,
+    // 它们全落在第一趟从 c 往下扫时已经判死的那段下标里, 于是原地找回同一个 j, 输出与输入
+    // 相同。谓词只看两个端点(挡线索引的世代戳只管去重, 不进返回值), 故这个复现是必然的。
+    std::vector<WorldPoint> out { pts[0] };
+    size_t i = 0;
+    while (i < pts.size() - 1) {
+        size_t j = pts.size() - 1;
+        while (j > i + 1) {
+            if (vis != nullptr) {
+                if (vis->ok(pts[i], pts[j], (*hs)[i], (*hs)[j])) {
                     break;
                 }
                 --j;
+                continue;
             }
-            out.push_back(P[j]);
-            oid.push_back(idx[j]);
-            i = j;
+            if (!blk.blocked(pts[i], pts[j]) && (lyo == nullptr || lyo->ok(pts[i], pts[j], (*hs)[i], (*hs)[j]))) {
+                break;
+            }
+            --j;
         }
-        const bool changed = out.size() != P.size();
-        P = std::move(out);
-        idx = std::move(oid);
-        if (!changed) {
-            break;
-        }
+        out.push_back(pts[j]);
+        i = j;
     }
-    return P;
+    return out;
 }
 
 } // namespace navmesh::recast
