@@ -174,6 +174,10 @@ public:
     // v4 附加段的原始字节;认不出的 tag 直接留着不解析。没有该段返回 nullptr。
     const BaseNavSection* section(const char (&tag)[5]) const;
 
+    // 连接表只被 BaseNavPlanner 的 CSR 邻接读一遍,之后全仓无读者。持有方在 planner
+    // 建完后调这个把它还给系统 —— 单区 map02base 有 1050 万条,占 80MB。
+    void releaseLinks();
+
 private:
     friend BaseNavPack detail::MakeBaseNavPack(
         std::filesystem::path path,

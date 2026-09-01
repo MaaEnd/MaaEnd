@@ -125,6 +125,7 @@ QueryContext* AcquireContext(const std::string& configured_path, std::string& er
     context->pack = std::move(*loaded.pack);
     context->planner.emplace(context->pack);
     context->engine.emplace(context->pack, *context->planner);
+    context->pack.releaseLinks();
     QueryContext* raw = context.get();
     g_contexts.emplace(key, std::move(context));
     LogInfo << "navmesh loaded" << VAR(key);

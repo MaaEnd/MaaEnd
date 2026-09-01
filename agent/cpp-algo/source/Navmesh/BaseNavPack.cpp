@@ -144,6 +144,12 @@ const char* ToString(BaseNavLoadStatus status)
     return "unknown";
 }
 
+void BaseNavPack::releaseLinks()
+{
+    // swap 空容器才还得掉容量: `= {}` 会挑上 initializer_list 赋值, 只把 size 清零。
+    std::vector<BaseNavLink>().swap(links_);
+}
+
 const BaseNavSection* BaseNavPack::section(const char (&tag)[5]) const
 {
     for (const BaseNavSection& s : sections_) {

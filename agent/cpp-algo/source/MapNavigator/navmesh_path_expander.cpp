@@ -50,6 +50,7 @@ struct CachedNavmesh
         , planner(pack)
         , engine(pack, planner)
     {
+        pack.releaseLinks();
     }
 };
 
