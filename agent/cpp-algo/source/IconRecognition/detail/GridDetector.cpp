@@ -1651,7 +1651,8 @@ GridLayout BuildTransferLayout(const cv::Mat& image, const cv::Rect& roi, const 
             observations,
             maximum_count,
             { static_cast<double>(profile.pitch_min), static_cast<double>(profile.pitch_max) },
-            profile.preferred_pitch);
+            profile.preferred_pitch,
+            profile.observed_pitch_tolerance);
     };
     const auto final_x_axis = fit_final_axis(local_x, std::max(1, static_cast<int>(local_x.size())));
     const auto final_y_axis = fit_final_axis(local_y, profile.maximum_rows);
