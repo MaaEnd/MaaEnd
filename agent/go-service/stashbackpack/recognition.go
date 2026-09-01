@@ -215,3 +215,16 @@ func (r *PlatformSupportedRecognition) Run(_ *maa.Context, arg *maa.CustomRecogn
 func isSupportedControllerType(controllerType string) bool {
 	return strings.EqualFold(strings.TrimSpace(controllerType), "Win32")
 }
+
+// SnapshotChangedRecognition matches after the current physical snapshot has been changed by a successful item move.
+type SnapshotChangedRecognition struct{}
+
+var _ maa.CustomRecognitionRunner = &SnapshotChangedRecognition{}
+
+// Run lets Pipeline skip a second full scan when no new item was stored.
+func (r *SnapshotChangedRecognition) Run(_ *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
+	if arg == nil || !globalState.snapshotChanged() {
+		return nil, false
+	}
+	return &maa.CustomRecognitionResult{Box: arg.Roi}, true
+}

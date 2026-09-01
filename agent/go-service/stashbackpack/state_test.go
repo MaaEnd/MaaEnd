@@ -134,3 +134,37 @@ func TestPrepareDifferenceTargetsFiltersCategories(t *testing.T) {
 		t.Fatalf("targets = %#v, want %#v", targets, want)
 	}
 }
+
+func TestCopySnapshotIsIndependentAndBeginResetsChangedMarker(t *testing.T) {
+	t.Parallel()
+	store := newStateStore()
+	if err := store.beginSnapshot("source"); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := store.appendSnapshotPage("source", []snapshotItemWithPosition{
+		testPositionedItem("ore", "Ore", 0, 0),
+	}); err != nil {
+		t.Fatal(err)
+	}
+	store.markSnapshotChanged()
+	if !store.snapshotChanged() {
+		t.Fatal("snapshot change marker was not recorded")
+	}
+	if err := store.copySnapshot("source", "copied"); err != nil {
+		t.Fatal(err)
+	}
+	if err := store.beginSnapshot("source"); err != nil {
+		t.Fatal(err)
+	}
+	if store.snapshotChanged() {
+		t.Fatal("beginSnapshot() retained the snapshot change marker")
+	}
+	got, ok := store.snapshot("copied")
+	if !ok {
+		t.Fatal("copied snapshot does not exist")
+	}
+	want := []snapshotItem{{ItemID: "ore", CategoryType: "Ore", Row: 0, Column: 0}}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("copied snapshot = %#v, want %#v", got, want)
+	}
+}
