@@ -85,8 +85,6 @@ struct BaseNavTriangle
     std::array<uint32_t, 3> vertices { 0, 0, 0 };
     std::array<int32_t, 3> neighbors { -1, -1, -1 };
     uint32_t component_id = 0;
-    float center_u = 0.0F;
-    float center_v = 0.0F;
 };
 
 struct BaseNavLink

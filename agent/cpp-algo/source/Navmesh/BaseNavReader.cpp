@@ -116,8 +116,9 @@ BaseNavTriangle ReadTriangleRecord(const uint8_t*& cursor)
         value = ReadI32(cursor);
     }
     triangle.component_id = ReadU32(cursor);
-    triangle.center_u = ReadF32(cursor);
-    triangle.center_v = ReadF32(cursor);
+    // 记录尾部两个 float 是重心, 全仓无读者, 跳过不落盘。哈希仍按整条记录算,
+    // 所以按区加载时补重心的那段不能省。
+    cursor += 8;
     return triangle;
 }
 
