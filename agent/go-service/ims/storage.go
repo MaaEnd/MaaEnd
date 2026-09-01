@@ -33,17 +33,21 @@ func defaultRecordPath() string {
 	return filepath.Join("debug", "record", recordFileName)
 }
 
+func emptyRecord() recordFile {
+	return recordFile{Items: map[string]int{}}
+}
+
 func loadRecord() (recordFile, error) {
 	path := recordPathFunc()
 	raw, err := os.ReadFile(path)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return recordFile{Items: map[string]int{}}, nil
+			return emptyRecord(), nil
 		}
 		return recordFile{}, fmt.Errorf("read ims record: %w", err)
 	}
 	if len(raw) == 0 {
-		return recordFile{Items: map[string]int{}}, nil
+		return emptyRecord(), nil
 	}
 	var rec recordFile
 	if err := json.Unmarshal(raw, &rec); err != nil {
@@ -53,6 +57,22 @@ func loadRecord() (recordFile, error) {
 		rec.Items = map[string]int{}
 	}
 	return rec, nil
+}
+
+// resetCorruptRecord overwrites a damaged IMS.json with an empty valid snapshot.
+// Save failure is logged only: callers continue with empty in-memory cache.
+func resetCorruptRecord(cause error) {
+	path := recordPathFunc()
+	log.Warn().
+		Err(cause).
+		Str("path", path).
+		Msg("ims record corrupt, resetting file")
+	if err := saveRecord(emptyRecord()); err != nil {
+		log.Error().
+			Err(err).
+			Str("path", path).
+			Msg("failed to reset corrupt ims record, continuing with empty memory")
+	}
 }
 
 func saveRecord(rec recordFile) error {
@@ -95,6 +115,8 @@ func saveRecord(rec recordFile) error {
 
 // ensureHydrated loads debug/record/IMS.json into memory at most once per process
 // (until ClearCache). Hot-path reads stay in memory afterwards.
+// A missing or empty file is treated as an empty cache. A corrupt file is reset
+// to empty JSON so every IMS component can continue instead of failing the task.
 func ensureHydrated() error {
 	recordMu.Lock()
 	defer recordMu.Unlock()
@@ -104,7 +126,10 @@ func ensureHydrated() error {
 
 	rec, err := loadRecord()
 	if err != nil {
-		return err
+		resetCorruptRecord(err)
+		globalCache.clear()
+		hydrated = true
+		return nil
 	}
 	if !rec.UpdatedAt.IsZero() {
 		globalCache.markSynced(rec.UpdatedAt, rec.Items)

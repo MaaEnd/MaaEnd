@@ -45,9 +45,9 @@ type addItemDataParam struct {
 // init / summary Focus is printed in either case.
 //
 // Finding no reward cards (IconRecognition no_match / grid_detection_failed)
-// is also success. A failed disk hydrate is treated like an uninitialized
-// cache: recognize and Focus, skip write, still return true. A3 must not
-// block the close-rewards next node.
+// is also success. Corrupt IMS.json is reset by ensureHydrated. Any remaining
+// hydrate error is treated like an uninitialized cache: recognize and Focus,
+// skip write, still return true. A3 must not block the close-rewards next node.
 //
 // Best practice: run as the action of a node that recognizes CloseRewardsButton,
 // then next to a Click node that closes the rewards UI.
@@ -78,8 +78,8 @@ func (a *AddItemData) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 
 	cacheReady := false
 	if err := ensureHydrated(); err != nil {
-		// A3 does not require a usable cache; a corrupt IMS.json must not
-		// block closing the rewards UI.
+		// Remaining hydrate errors (not corrupt-file, which ensureHydrated resets)
+		// must not block closing the rewards UI.
 		log.Warn().
 			Err(err).
 			Str("component", componentAddItemData).
