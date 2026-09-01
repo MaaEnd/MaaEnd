@@ -119,7 +119,60 @@
         "rate_limit": 0,
         "next": [
             "StashBackpackSnapshotBottomReached",
-            "[JumpBack]StashBackpackSnapshotScrollDownward"
+            "StashBackpackSnapshotScrollDownward"
+        ]
+    },
+    "StashBackpackSnapshotAfterScroll": {
+        "desc": "滚动后先确认列表是否实际移动，避免重复记录末页",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackSnapshotBottomReached",
+            "StashBackpackSnapshotNextPage"
+        ]
+    },
+    "StashBackpackSnapshotNextPage": {
+        "desc": "识别滚动后的背包页并合并进有序快照",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "IconRecognition",
+                "custom_recognition_param": {
+                    "grid_type": "transfer",
+                    "item_filters": [
+                        "Normal:*"
+                    ]
+                },
+                "roi": [
+                    739,
+                    202,
+                    398,
+                    291
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 400,
+            "timeout": 3000,
+            "target": [
+                739,
+                202,
+                398,
+                291
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "StashBackpackStateAction",
+        "custom_action_param": {
+            "operation": "append_snapshot_page",
+            "snapshot": "s0"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackSnapshotScrollDownward"
         ]
     },
     "StashBackpackSnapshotBottomReached": {
@@ -153,6 +206,9 @@
             350
         ],
         "dy": -180,
+        "anchor": {
+            "MouseMoveResetAnchor": "MouseMoveReset"
+        },
         "post_wait_freezes": {
             "time": 400,
             "timeout": 3000,
@@ -166,7 +222,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "MouseMoveReset"
+            "[JumpBack][Anchor]MouseMoveResetAnchor",
+            "StashBackpackSnapshotAfterScroll"
         ]
     },
     "StashBackpackSnapshotScrollUpward": {

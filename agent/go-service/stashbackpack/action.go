@@ -14,6 +14,7 @@ const (
 	operationReset             = "reset"
 	operationBeginSnapshot     = "begin_snapshot"
 	operationAppendSnapshot    = "append_snapshot_page"
+	operationCopySnapshot      = "copy_snapshot"
 	operationCompleteFull      = "complete_full"
 	operationPrepareSnapshot   = "prepare_snapshot"
 	operationPrepareDifference = "prepare_difference"
@@ -31,10 +32,12 @@ var shiftClickTargetOffset = maa.Rect{26, 25, -52, -50}
 type stateActionParam struct {
 	Operation       string   `json:"operation"`
 	Snapshot        string   `json:"snapshot,omitempty"`
+	SourceSnapshot  string   `json:"source_snapshot,omitempty"`
 	MinuendSnapshot string   `json:"minuend_snapshot,omitempty"`
 	Subtrahend      string   `json:"subtrahend_snapshot,omitempty"`
 	Categories      []string `json:"categories,omitempty"`
 	Reason          string   `json:"reason,omitempty"`
+	ChangesSnapshot bool     `json:"changes_snapshot,omitempty"`
 	Depot           string   `json:"depot,omitempty"`
 }
 
@@ -62,6 +65,8 @@ func (a *StateAction) Run(_ *maa.Context, arg *maa.CustomActionArg) bool {
 		err = globalState.beginSnapshot(param.Snapshot)
 	case operationAppendSnapshot:
 		err = appendRecognitionPage(arg, param)
+	case operationCopySnapshot:
+		err = globalState.copySnapshot(param.SourceSnapshot, param.Snapshot)
 	case operationCompleteFull:
 		err = globalState.completeFull()
 	case operationPrepareSnapshot:
@@ -91,6 +96,9 @@ func (a *StateAction) Run(_ *maa.Context, arg *maa.CustomActionArg) bool {
 			err = fmt.Errorf("no current target")
 		}
 		if err == nil {
+			if param.ChangesSnapshot {
+				globalState.markSnapshotChanged()
+			}
 			event := log.Info().Str("component", componentName).
 				Str("item_id", item.ItemID).Str("category_type", item.CategoryType)
 			if param.Reason != "" {

@@ -108,6 +108,12 @@
                         "operation": "append_snapshot_page",
                         "snapshot": "temporary"
                     }
+                },
+                "StashBackpackSnapshotNextPage": {
+                    "custom_action_param": {
+                        "operation": "append_snapshot_page",
+                        "snapshot": "temporary"
+                    }
                 }
             }
         },
@@ -126,7 +132,8 @@
         "rate_limit": 0,
         "next": [
             "RetrieveBackpackPrepareNewItems",
-            "RetrieveBackpackCaptureCurrent"
+            "RetrieveBackpackCaptureCurrent",
+            "RetrieveBackpackReuseTemporary"
         ]
     },
     "RetrieveBackpackPrepareNewItems": {
@@ -152,7 +159,8 @@
         "rate_limit": 0,
         "next": [
             "RetrieveBackpackStoreNewNextItem",
-            "RetrieveBackpackCaptureCurrent"
+            "RetrieveBackpackCaptureCurrent",
+            "RetrieveBackpackReuseTemporary"
         ]
     },
     "RetrieveBackpackStoreNewNextItem": {
@@ -221,7 +229,8 @@
         "custom_action": "StashBackpackStateAction",
         "custom_action_param": {
             "operation": "consume_target",
-            "reason": "retrieve_new_item_stored"
+            "reason": "retrieve_new_item_stored",
+            "changes_snapshot": true
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -245,6 +254,8 @@
     },
     "RetrieveBackpackCaptureCurrent": {
         "desc": "存放新增物品后重新生成真实快照",
+        "recognition": "Custom",
+        "custom_recognition": "StashBackpackSnapshotChangedRecognition",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "PipelineOverrideAction",
@@ -261,6 +272,12 @@
                         "operation": "append_snapshot_page",
                         "snapshot": "retrieve_current"
                     }
+                },
+                "StashBackpackSnapshotNextPage": {
+                    "custom_action_param": {
+                        "operation": "append_snapshot_page",
+                        "snapshot": "retrieve_current"
+                    }
                 }
             }
         },
@@ -271,6 +288,22 @@
         "rate_limit": 0,
         "next": [
             "StashBackpackSnapshotBegin"
+        ]
+    },
+    "RetrieveBackpackReuseTemporary": {
+        "desc": "背包未发生变更时复用取回开始快照",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "StashBackpackStateAction",
+        "custom_action_param": {
+            "operation": "copy_snapshot",
+            "source_snapshot": "temporary",
+            "snapshot": "retrieve_current"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RetrieveBackpackPrepareMissingItems"
         ]
     },
     "RetrieveBackpackPrepareMissingItems": {

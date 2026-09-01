@@ -45,6 +45,7 @@
                         "reset",
                         "begin_snapshot",
                         "append_snapshot_page",
+                        "copy_snapshot",
                         "complete_full",
                         "prepare_snapshot",
                         "prepare_difference",
@@ -55,6 +56,10 @@
                     ]
                 },
                 "snapshot": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "source_snapshot": {
                     "type": "string",
                     "minLength": 1
                 },
@@ -77,11 +82,29 @@
                     "type": "string",
                     "minLength": 1
                 },
+                "changes_snapshot": {
+                    "type": "boolean"
+                },
                 "depot": {
                     "$ref": "#/$defs/Depot"
                 }
             },
             "allOf": [
+                {
+                    "if": {
+                        "properties": {
+                            "operation": {
+                                "const": "copy_snapshot"
+                            }
+                        }
+                    },
+                    "then": {
+                        "required": [
+                            "source_snapshot",
+                            "snapshot"
+                        ]
+                    }
+                },
                 {
                     "if": {
                         "properties": {

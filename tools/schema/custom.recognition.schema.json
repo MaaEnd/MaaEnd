@@ -52,6 +52,7 @@
                 "StashBackpackNextItemRecognition",
                 "StashBackpackPlatformSupportedRecognition",
                 "StashBackpackRetrievedItemRecognition",
+                "StashBackpackSnapshotChangedRecognition",
                 "StashBackpackTargetCategoryRecognition",
                 "TrialOfSwordmancy.Recognize",
                 "TrialOfSwordmancy.RecognizeAband",
