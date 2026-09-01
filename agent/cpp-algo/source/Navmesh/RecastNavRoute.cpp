@@ -59,7 +59,24 @@ struct RouteDiag
     bool hop_barrier = false; // 端点接线的那一跳跨了禁行边
     double snap_start = 0.0;
     double snap_goal = 0.0;
+
+    // 诊断埋点。只读各阶段的出口, 不参与任何判据, 摘掉它们路线逐点不变。
+    RecastPlanResult::Debug::Timing timing;
+    std::vector<WorldPoint> topology_cells;
+    std::vector<double> topology_heights;
+    std::vector<WorldPoint> taut_points;
+    std::vector<WorldPoint> pulled_points;
+    std::vector<WorldPoint> assembled_points;
+    std::optional<WorldPoint> gap_start;
+    std::optional<WorldPoint> gap_goal;
+    std::optional<double> gap_distance;
 };
+
+// 单调钟读数, 单位毫秒
+double nowMs()
+{
+    return std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now().time_since_epoch()).count();
+}
 
 // 窗口里从预烘图解出来的记录。格号已换成窗口格号,窗外的与不属于本瓦自有矩形的
 // 都已剔除;一格只归一块瓦,所以同格的记录必然来自同一块瓦、按 (类号, 高) 排好。
@@ -787,6 +804,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     const BaseNavPlanner& pl,
     uint16_t zid)
 {
+    const double t_topo0 = nowMs();
     const int64_t nx = info.nx;
     const int64_t ny = info.ny;
     const double x0 = info.x0;
@@ -1227,6 +1245,142 @@ std::optional<std::vector<WorldPoint>> routeWindow(
         return t;
     };
 
+    // 一端的可达 span 集。展开判据与 SpanAstar 逐字相同: 格掩膜、对角切角、立面禁步、RiseOk。
+    // backward 那一路走的是 v→u 这个方向 —— 禁行边与抬升判据都是有向的, 拿正向去问会把单向的
+    // 台阶说成两边都能过。
+    const auto reachFrom = [&](const std::vector<int64_t>& seeds, const std::vector<uint8_t>& use, const Mask& ok2,
+                               bool backward) {
+        std::vector<uint8_t> seen(st3.sp_h.size(), 0);
+        std::vector<int64_t> frontier;
+        for (const int64_t v : seeds) {
+            if (v >= 0 && use[static_cast<size_t>(v)] != 0 && seen[static_cast<size_t>(v)] == 0) {
+                seen[static_cast<size_t>(v)] = 1;
+                frontier.push_back(v);
+            }
+        }
+        while (!frontier.empty()) {
+            std::vector<int64_t> next;
+            for (const int64_t u : frontier) {
+                const int64_t cu = st3.sp_cell[static_cast<size_t>(u)];
+                const int64_t ux = cu % nx;
+                const int64_t uy = cu / nx;
+                const float hu = st3.sp_h[static_cast<size_t>(u)];
+                for (int64_t dy = -1; dy <= 1; ++dy) {
+                    for (int64_t dx = -1; dx <= 1; ++dx) {
+                        const int64_t vx = ux + dx;
+                        const int64_t vy = uy + dy;
+                        if ((dx == 0 && dy == 0) || vx < 0 || vy < 0 || vx >= nx || vy >= ny) {
+                            continue;
+                        }
+                        const int64_t cv = vy * nx + vx;
+                        if (ok2.v[static_cast<size_t>(cv)] == 0) {
+                            continue;
+                        }
+                        if (dx != 0 && dy != 0 && !(ok2.at(uy, vx) && ok2.at(vy, ux))) {
+                            continue;
+                        }
+                        if (info.cidx[static_cast<size_t>(cv)] < 0) {
+                            continue;
+                        }
+                        if (faces->has(backward ? cv : cu, backward ? cu : cv)) {
+                            continue;
+                        }
+                        const int64_t j = info.cidx[static_cast<size_t>(cv)];
+                        const int64_t jb = st3.cstart[static_cast<size_t>(j)];
+                        for (int64_t k = 0, kn = st3.ccnt[static_cast<size_t>(j)]; k < kn; ++k) {
+                            const int64_t v = jb + k;
+                            if (use[static_cast<size_t>(v)] == 0 || seen[static_cast<size_t>(v)] != 0) {
+                                continue;
+                            }
+                            const float hv = st3.sp_h[static_cast<size_t>(v)];
+                            if (!(backward ? RiseOk(st3, nx, ny, cv, -dx, -dy, hv, hu)
+                                           : RiseOk(st3, nx, ny, cu, dx, dy, hu, hv))) {
+                                continue;
+                            }
+                            seen[static_cast<size_t>(v)] = 1;
+                            next.push_back(v);
+                        }
+                    }
+                }
+            }
+            frontier = std::move(next);
+        }
+        return seen;
+    };
+    // 断开时报缝: 两端各自泛洪, 取两片可达集之间最近的一对格。倒角距离场从终点侧铺开、起点侧
+    // 扫一遍取最小, 与逐对比较同解而只花一遍网格。判在最宽松的 core 上, 缝因此是真的缝。
+    const auto reportGap = [&] {
+        if (!as_.has_value() || !ag_.has_value()) {
+            return;
+        }
+        std::vector<uint8_t> useC;
+        Mask cc3;
+        mk(info.core, useC, cc3);
+        const int64_t sd = atSeedLayer(pick(*as_, useC));
+        const std::vector<int64_t> gs = goalsOf(pick(*ag_, useC));
+        if (sd < 0 || gs.empty()) {
+            return;
+        }
+        const std::vector<uint8_t> ra = reachFrom({ sd }, useC, cc3, false);
+        const std::vector<uint8_t> rb = reachFrom(gs, useC, cc3, true);
+        const size_t n = static_cast<size_t>(nx * ny);
+        constexpr int32_t kBig = std::numeric_limits<int32_t>::max() / 4;
+        std::vector<int32_t> dc(n, kBig);
+        std::vector<int64_t> src(n, -1);
+        std::vector<uint8_t> ina(n, 0);
+        for (size_t i = 0; i < ra.size(); ++i) {
+            const auto c = static_cast<size_t>(st3.sp_cell[i]);
+            ina[c] = static_cast<uint8_t>(ina[c] | ra[i]);
+            if (rb[i] != 0) {
+                dc[c] = 0;
+                src[c] = static_cast<int64_t>(c);
+            }
+        }
+        const auto relax = [&](size_t c, int64_t bx, int64_t by, int32_t w) {
+            if (bx < 0 || by < 0 || bx >= nx || by >= ny) {
+                return;
+            }
+            const auto b = static_cast<size_t>(by * nx + bx);
+            if (dc[b] < kBig && dc[b] + w < dc[c]) {
+                dc[c] = dc[b] + w;
+                src[c] = src[b];
+            }
+        };
+        for (int64_t y = 0; y < ny; ++y) {
+            for (int64_t x = 0; x < nx; ++x) {
+                const auto c = static_cast<size_t>(y * nx + x);
+                relax(c, x - 1, y - 1, 141);
+                relax(c, x, y - 1, 100);
+                relax(c, x + 1, y - 1, 141);
+                relax(c, x - 1, y, 100);
+            }
+        }
+        for (int64_t y = ny - 1; y >= 0; --y) {
+            for (int64_t x = nx - 1; x >= 0; --x) {
+                const auto c = static_cast<size_t>(y * nx + x);
+                relax(c, x + 1, y + 1, 141);
+                relax(c, x, y + 1, 100);
+                relax(c, x - 1, y + 1, 141);
+                relax(c, x + 1, y, 100);
+            }
+        }
+        int64_t best = -1;
+        for (size_t c = 0; c < n; ++c) {
+            if (ina[c] != 0 && src[c] >= 0 && (best < 0 || dc[c] < dc[static_cast<size_t>(best)])) {
+                best = static_cast<int64_t>(c);
+            }
+        }
+        if (best < 0) {
+            return;
+        }
+        const int64_t peer = src[static_cast<size_t>(best)];
+        const WorldPoint a { x0 + (static_cast<double>(best % nx) + 0.5) * kCS, y0 + (static_cast<double>(best / nx) + 0.5) * kCS };
+        const WorldPoint b { x0 + (static_cast<double>(peer % nx) + 0.5) * kCS, y0 + (static_cast<double>(peer / nx) + 0.5) * kCS };
+        dg.gap_start = a;
+        dg.gap_goal = b;
+        dg.gap_distance = std::hypot(a.x - b.x, a.y - b.y);
+    };
+
     // 硬约束基线: 原始硬图上的纯长度最短路。硬图可达它就一定存在, 于是舒适选路永远不会把一条
     // 走得通的腿判成不可达。它同时是端点的回缩通道 —— 起终点天然贴墙时, 搜索沿这条按亏欠计价
     // 的线走几格就自然汇入 VV 图, 端点附近不需要任何放宽半径。
@@ -1234,6 +1388,8 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     const Grid<float> unit(nx, ny, 1.0F);
     const std::optional<Topo> base = solve(all, unit, nullptr, nullptr, true);
     if (!base.has_value()) {
+        reportGap();
+        dg.timing.topology_ms = nowMs() - t_topo0;
         if (goal_deck.has_value()) {
             const std::vector<int64_t> gv = pick(*ag_, useW);
             std::vector<float> hv;
@@ -1365,6 +1521,21 @@ std::optional<std::vector<WorldPoint>> routeWindow(
         vv = solve(limw, multw, bn, bpw, false);
         dg.warn.emplace_back("通道未接通, 退到全图亏欠计价");
     }
+    {
+        const Topo& tp = vv.has_value() ? *vv : *base;
+        dg.topology_cells.reserve(tp.q.size());
+        for (const CellPt& c : tp.q) {
+            dg.topology_cells.push_back({ x0 + (static_cast<double>(c.x) + 0.5) * kCS, y0 + (static_cast<double>(c.y) + 0.5) * kCS });
+        }
+        if (tp.qs.has_value()) {
+            dg.topology_heights.reserve(tp.qs->size());
+            for (const int64_t v : *tp.qs) {
+                dg.topology_heights.push_back(static_cast<double>(st3.sp_h[static_cast<size_t>(v)]));
+            }
+        }
+    }
+    dg.timing.topology_ms = nowMs() - t_topo0;
+    const double t_geo0 = nowMs();
     // 通道定了才铺几何: 同一张中标掩膜上再解一次, 这次带视线判据, 出来的父链已经是紧绷折线。
     // 弦只许落在 cpref 的实心区内 —— 中脊是净空极大线, 对它取直等于把线拽向墙, 那一段照旧逐格走;
     // 实心区里单价恒为一, 弦的欧氏长度因此就是精确代价。拐角余量往上收窄这个自由集: 弦贴着障碍角
@@ -1403,6 +1574,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
             vv = std::move(tt);
         }
     }
+    dg.timing.geometry_ms = nowMs() - t_geo0;
     const Topo& win = vv.has_value() ? *vv : *base;
     for (const std::string& w : win.warn) {
         dg.warn.push_back(w);
@@ -1493,12 +1665,17 @@ std::optional<std::vector<WorldPoint>> routeWindow(
             gq.push_back({ c % nx, c / nx });
         }
     }
+    const double t_pull0 = nowMs();
     std::vector<WorldPoint> taut = cen(by_corn ? gq : *q);
+    dg.taut_points = taut;
     if (taut.size() >= 2) {
         taut = StringPull(taut, blk_gray, hs.empty() ? nullptr : &lyo, hs.empty() ? nullptr : &hs,
             by_corn ? &vis_geo : nullptr);
     }
+    dg.pulled_points = taut;
+    dg.timing.pull_ms = nowMs() - t_pull0;
 
+    const double t_asm0 = nowMs();
     std::vector<WorldPoint> line;
     line.push_back(s);
     line.insert(line.end(), taut.begin(), taut.end());
@@ -1540,6 +1717,10 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     else {
         out = ded;
     }
+    dg.assembled_points = out;
+    dg.timing.assemble_ms = nowMs() - t_asm0;
+
+    const double t_lift0 = nowMs();
     // 抬升放在取直之后: 放前面的话抬起来的拐点让两侧更容易连通, 取直一刀就把它跳过去了。
     // 判据换成硬墙那一套 —— 通道掩膜只比路径宽一格, 拿它判等于禁止拐点离开原路径。
     if (lyo_p != nullptr && out.size() >= 3) {
@@ -1547,6 +1728,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
         const Visibility vis_hard(&blk_hard, &lyo, faces, bn, nx, ny, x0, y0);
         LiftCorners(out, dist, x0, y0, vis_hard, lyo, lyo_h, kLiftMax);
     }
+    dg.timing.lift_ms = nowMs() - t_lift0;
     dg.clearance.reserve(out.size());
     for (const auto& p : out) {
         const int64_t cx = std::min(std::max(static_cast<int64_t>(std::floor((p.x - info.x0) / kCS)), int64_t { 0 }), nx - 1);
@@ -1618,11 +1800,10 @@ RecastPlanResult RecastNavEngine::plan(
     float goal_deck_y,
     const std::vector<uint32_t>& blocked,
     const std::vector<WorldPoint>& blocked_points,
-    const std::function<bool()>& should_stop,
-    bool exact_slim)
+    const std::function<bool()>& should_stop)
 {
     const std::lock_guard<std::mutex> lock(mutex_);
-    return planLocked(zone_name, start, goal, start_floor_y, goal_floor_y, goal_deck_y, blocked, blocked_points, should_stop, exact_slim);
+    return planLocked(zone_name, start, goal, start_floor_y, goal_floor_y, goal_deck_y, blocked, blocked_points, should_stop);
 }
 
 void RecastNavEngine::warm(const std::string& zone_name)
@@ -1704,9 +1885,9 @@ RecastPlanResult RecastNavEngine::planLocked(
     float goal_deck_y,
     const std::vector<uint32_t>& blocked,
     const std::vector<WorldPoint>& blocked_points,
-    const std::function<bool()>& should_stop,
-    bool /*exact_slim*/)
+    const std::function<bool()>& should_stop)
 {
+    const double t_all0 = nowMs();
     RecastPlanResult res;
     if (!grid_.valid()) {
         res.error = grid_error_;
@@ -1816,15 +1997,38 @@ RecastPlanResult RecastNavEngine::planLocked(
     const double x1 = static_cast<double>(zb.x1 + 1 + kFieldHalo) * kCS;
     const double y1 = static_cast<double>(zb.y1 + 1 + kFieldHalo) * kCS;
 
+    const double t_win0 = nowMs();
     auto info = buildWindow(wo, grid_, *gz, zc, start, ss->point, goal, h0, region, x0, y0, x1, y1, blocked_local, blocked_points, err);
+    const double window_ms = nowMs() - t_win0;
     if (!info.has_value()) {
         res.error = err.empty() ? "路线失败" : err;
         return res;
     }
     RouteDiag dg;
     auto line = routeWindow(*info, start, goal, dg, gdk, planner_, zc.zone_id);
+    // 失败的腿才最需要诊断: 断开时的缝、窗口范围、各阶段耗时全在这里, 两条出口都得带上。
+    const auto dump = [&] {
+        res.debug.timing = dg.timing;
+        res.debug.timing.window_ms = window_ms;
+        res.debug.timing.total_ms = nowMs() - t_all0;
+        res.debug.x0 = x0;
+        res.debug.y0 = y0;
+        res.debug.nx = nx;
+        res.debug.ny = ny;
+        res.debug.cell_size = kCS;
+        res.debug.topology_cells = std::move(dg.topology_cells);
+        res.debug.topology_heights = std::move(dg.topology_heights);
+        res.debug.taut_points = std::move(dg.taut_points);
+        res.debug.pulled_points = std::move(dg.pulled_points);
+        res.debug.assembled_points = std::move(dg.assembled_points);
+        res.debug.gap_start = dg.gap_start;
+        res.debug.gap_goal = dg.gap_goal;
+        res.debug.gap_distance = dg.gap_distance;
+        res.debug.warnings = dg.warn;
+    };
     if (!line.has_value()) {
         res.error = dg.err.empty() ? "路线失败" : dg.err;
+        dump();
         return res;
     }
     if (std::max(dg.snap_start, dg.snap_goal) > kSnapRadius || dg.hop_barrier) {
@@ -1839,6 +2043,7 @@ RecastPlanResult RecastNavEngine::planLocked(
             dg.snap_start,
             dg.snap_goal);
         res.error = buf;
+        dump();
         return res;
     }
     res.ok = true;
@@ -1851,13 +2056,8 @@ RecastPlanResult RecastNavEngine::planLocked(
     res.snap_start = dg.snap_start;
     res.snap_goal = dg.snap_goal;
     res.waypoints = std::move(dg.waypoints);
-    res.debug.x0 = x0;
-    res.debug.y0 = y0;
-    res.debug.nx = nx;
-    res.debug.ny = ny;
-    res.debug.cell_size = kCS;
+    dump();
     res.debug.planned_points = res.points;
-    res.debug.warnings = res.warnings;
     return res;
 }
 

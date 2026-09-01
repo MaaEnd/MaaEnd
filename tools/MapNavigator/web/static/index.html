@@ -192,35 +192,30 @@
             </summary>
             <div class="nav-debug-options-body">
               <label class="chk"
-                ><input id="three-chk-nav-debug-search" type="checkbox" /> A* 选择格点
-                <span class="nav-timing" data-nav-timing="astar">—</span></label
+                ><input id="three-chk-nav-debug-topology" type="checkbox" /> 拓扑逐格路径
+                <span class="nav-timing" data-nav-timing="topology">—</span></label
               >
               <label class="chk"
-                ><input id="three-chk-nav-debug-rerouted" type="checkbox" /> 绿色段二次重寻
-                <span class="nav-timing" data-nav-timing="rerouted">—</span></label
+                ><input id="three-chk-nav-debug-taut" type="checkbox" /> 几何紧绷折线
+                <span class="nav-timing" data-nav-timing="geometry">—</span></label
               >
               <label class="chk"
-                ><input id="three-chk-nav-debug-string-pull" type="checkbox" /> StringPull 连续拉直
-                <span class="nav-timing" data-nav-timing="string_pull">—</span></label
+                ><input id="three-chk-nav-debug-pulled" type="checkbox" /> 取直后折线
+                <span class="nav-timing" data-nav-timing="pull">—</span></label
               >
               <label class="chk"
-                ><input id="three-chk-nav-debug-assembled" type="checkbox" /> 端点拼接与去重
-                <span class="nav-timing" data-nav-timing="assembled">—</span></label
+                ><input id="three-chk-nav-debug-assembled" type="checkbox" /> 端点拼接与去冗
+                <span class="nav-timing" data-nav-timing="assemble">—</span></label
               >
               <label class="chk"
-                ><input id="three-chk-nav-debug-loop-fixed" type="checkbox" /> 交叉点处理
-                <span class="nav-timing" data-nav-timing="loop_fixed">—</span></label
+                ><input id="three-chk-nav-debug-planned" type="checkbox" /> 最终计划路径
+                <span class="nav-timing" data-nav-timing="lift">—</span></label
               >
-              <label class="chk"
-                ><input id="three-chk-nav-debug-slim" type="checkbox" /> Slim 抽稀
-                <span class="nav-timing" data-nav-timing="slim">—</span></label
-              >
-              <label class="chk"
-                ><input id="three-chk-nav-debug-widen-corners" type="checkbox" /> WidenCorners 拐角外移
-                <span class="nav-timing" data-nav-timing="widened">—</span></label
-              >
-              <label class="chk"><input id="three-chk-nav-debug-planned" type="checkbox" /> 最终计划路径</label>
               <label class="chk"><input id="three-chk-nav-debug-live-path" type="checkbox" /> 实时实际路径</label>
+              <div class="chk">
+                建窗 <span class="nav-timing" data-nav-timing="window">—</span> · 合计
+                <span class="nav-timing" data-nav-timing="total">—</span>
+              </div>
             </div>
           </details>
           <div class="sidebar-row">
@@ -356,9 +351,6 @@
             <label class="chk" title="按 MapNavigator 运行时语义规划当前区域片段；触屏控制器不会执行滑索">
               <input id="chk-edit-zipline" type="checkbox" /> 启用滑索规划（桌面端）
             </label>
-            <label class="chk" title="使用全候选动态规划优化路径，结果更精确但耗时较长">
-              <input id="chk-edit-exact-slim" type="checkbox" /> 精确优化路径（耗时较长）
-            </label>
           </div>
           <div id="edit-plan-start-label" class="sidebar-hint">规划起点：当前片段第一个路点</div>
           <div class="sidebar-hint">手动起点只用于规划预览，不会写入作者路径</div>
@@ -374,37 +366,32 @@
             </summary>
             <div class="nav-debug-options-body">
               <label class="chk"
-                ><input id="chk-nav-debug-search" type="checkbox" /> A* 选择格点
-                <span class="nav-timing" data-nav-timing="astar">—</span></label
+                ><input id="chk-nav-debug-topology" type="checkbox" /> 拓扑逐格路径
+                <span class="nav-timing" data-nav-timing="topology">—</span></label
               >
               <label class="chk"
-                ><input id="chk-nav-debug-rerouted" type="checkbox" /> 绿色段二次重寻
-                <span class="nav-timing" data-nav-timing="rerouted">—</span></label
+                ><input id="chk-nav-debug-taut" type="checkbox" /> 几何紧绷折线
+                <span class="nav-timing" data-nav-timing="geometry">—</span></label
               >
               <label class="chk"
-                ><input id="chk-nav-debug-string-pull" type="checkbox" /> StringPull 连续拉直
-                <span class="nav-timing" data-nav-timing="string_pull">—</span></label
+                ><input id="chk-nav-debug-pulled" type="checkbox" /> 取直后折线
+                <span class="nav-timing" data-nav-timing="pull">—</span></label
               >
               <label class="chk"
-                ><input id="chk-nav-debug-assembled" type="checkbox" /> 端点拼接与去重
-                <span class="nav-timing" data-nav-timing="assembled">—</span></label
+                ><input id="chk-nav-debug-assembled" type="checkbox" /> 端点拼接与去冗
+                <span class="nav-timing" data-nav-timing="assemble">—</span></label
               >
               <label class="chk"
-                ><input id="chk-nav-debug-loop-fixed" type="checkbox" /> 交叉点处理
-                <span class="nav-timing" data-nav-timing="loop_fixed">—</span></label
+                ><input id="chk-nav-debug-planned" type="checkbox" /> 最终计划路径
+                <span class="nav-timing" data-nav-timing="lift">—</span></label
               >
-              <label class="chk"
-                ><input id="chk-nav-debug-slim" type="checkbox" /> Slim 抽稀
-                <span class="nav-timing" data-nav-timing="slim">—</span></label
-              >
-              <label class="chk"
-                ><input id="chk-nav-debug-widen-corners" type="checkbox" /> WidenCorners 拐角外移
-                <span class="nav-timing" data-nav-timing="widened">—</span></label
-              >
-              <label class="chk"><input id="chk-nav-debug-planned" type="checkbox" /> 最终计划路径</label>
               <label class="chk" title="实机试跑时在地图上绘制游戏实际走过的轨迹"
                 ><input id="chk-nav-debug-live-path" type="checkbox" /> 实时实际路径</label
               >
+              <div class="chk">
+                建窗 <span class="nav-timing" data-nav-timing="window">—</span> · 合计
+                <span class="nav-timing" data-nav-timing="total">—</span>
+              </div>
             </div>
           </details>
         </div>
