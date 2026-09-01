@@ -25,6 +25,24 @@ func withTempRecord(t *testing.T) string {
 	return path
 }
 
+func mustCorruptBackup(t *testing.T, recordPath string, want []byte) {
+	t.Helper()
+	matches, err := filepath.Glob(filepath.Join(filepath.Dir(recordPath), "IMS.json.corrupt-*"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(matches) != 1 {
+		t.Fatalf("corrupt backups=%v, want 1", matches)
+	}
+	got, err := os.ReadFile(matches[0])
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Equal(got, want) {
+		t.Fatalf("backup %s bytes mismatch, len=%d want=%d", matches[0], len(got), len(want))
+	}
+}
+
 func TestEnsureHydratedResetsNULFile(t *testing.T) {
 	path := withTempRecord(t)
 	if err := os.WriteFile(path, make([]byte, 3354), 0o644); err != nil {
@@ -54,6 +72,7 @@ func TestEnsureHydratedResetsNULFile(t *testing.T) {
 	if err := json.Unmarshal(raw, &rec); err != nil {
 		t.Fatalf("reset file is not JSON: %v", err)
 	}
+	mustCorruptBackup(t, path, make([]byte, 3354))
 }
 
 func TestEnsureHydratedResetsInvalidJSON(t *testing.T) {
@@ -74,6 +93,7 @@ func TestEnsureHydratedResetsInvalidJSON(t *testing.T) {
 	if err := json.Unmarshal(raw, &rec); err != nil {
 		t.Fatalf("reset file is not JSON: %v", err)
 	}
+	mustCorruptBackup(t, path, []byte("{not-json"))
 }
 
 func TestEnsureHydratedKeepsValidRecord(t *testing.T) {
@@ -161,4 +181,5 @@ func TestIMSComponentsContinueAfterCorruptReset(t *testing.T) {
 	if rec.Items["item_diamond"] != 4 || rec.Items["item_originium_recharge"] != 8 {
 		t.Fatalf("rebuilt items=%v", rec.Items)
 	}
+	mustCorruptBackup(t, path, []byte("\x00\x00\x00"))
 }
