@@ -290,8 +290,8 @@ std::optional<maplocator::MatchResultRaw> VoteMatchPrepared(const cv::Mat& hayst
 
     maplocator::MatchResultRaw out;
     out.score = peak;
-    // 中位数面不是相关面，抛物线外插那套在它上面没有依据。整像素落点最多差半个底图像素，
-    // 而认图标那道判定圈按底图算有 10 像素，够用
+    // 中位数面不是相关面，抛物线外插那套在它上面没有依据。取整这一项不到半个底图像素，
+    // 匹配本身偏多少另算，最终由认图标那道 10 像素的判定圈把关
     out.loc = cv::Point2d(peakLoc.x, peakLoc.y);
     out.psr = (peak - mean[0]) / (stddev[0] + 1e-6);
     return out;

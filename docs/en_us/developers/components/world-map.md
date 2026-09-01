@@ -184,6 +184,6 @@ Rather than give up there, the window is split into `vote_grid` × `vote_grid` b
 
 It only runs after the whole-window attempt has already been rejected; a frame that solves normally never reaches it. The cost is one extra pass of matching, on a frame that was already going to pay for another pan and capture. Block side length has a floor, since a block too small carries no positioning information; a rung with fewer than four voting blocks is discarded entirely and left to the other scale rungs.
 
-The position block voting reports is integer-pixel, with no sub-pixel extrapolation — a median surface is not a correlation surface, so extrapolating on it has no basis. The maximum is taken over the base map, so that caps the error at half a base-map pixel, against the 10 base-pixel window that icon confirmation allows.
+The position block voting reports is integer-pixel, with no sub-pixel extrapolation — a median surface is not a correlation surface, so extrapolating on it has no basis. The maximum is taken over the base map, so rounding costs under half a base-map pixel; that is one term of the total error, and whatever the match itself is off by comes on top of it. What ultimately bounds the position is icon confirmation, whose window is 10 base pixels.
 
 Block voting only changes how the viewport is solved; whatever it solves still has to pass icon confirmation, so the note above applies to it unchanged.
