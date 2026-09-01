@@ -143,10 +143,6 @@ retry 节点不继承主路线的 `zip`，也不形成 anchor 或循环重试。
 ```powershell
 pnpm generate:AutoDelivery
 
-cd agent/go-service
-go test ./autodelivery
-
-cd ../..
 node --test tools/pipeline-generate/AutoDelivery/*.test.mjs tools/pipeline-generate/DeliveryJobs/*.test.mjs
 pnpm check
 pnpm test

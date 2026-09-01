@@ -183,9 +183,6 @@ node tools/pipeline-generate/run-all.mjs SellProduct
 
 ```shell
 node --test tools/pipeline-generate/SellProduct/data.test.mjs tools/pipeline-generate/SellProduct/selection-data.test.mjs tools/pipeline-generate/SellProduct/sync-locales.test.mjs
-# 在 agent/go-service/ 目录运行
-go test ./sellproduct
-# 回到仓库根目录运行
 pnpm check
 pnpm test
 git diff --check

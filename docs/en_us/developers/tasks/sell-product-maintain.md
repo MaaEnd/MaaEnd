@@ -184,9 +184,6 @@ Before submitting, run at least:
 
 ```shell
 node --test tools/pipeline-generate/SellProduct/data.test.mjs tools/pipeline-generate/SellProduct/selection-data.test.mjs tools/pipeline-generate/SellProduct/sync-locales.test.mjs
-# inside agent/go-service/
-go test ./sellproduct
-# back at the repo root
 pnpm check
 pnpm test
 git diff --check
