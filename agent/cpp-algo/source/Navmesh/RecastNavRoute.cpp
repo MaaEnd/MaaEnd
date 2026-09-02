@@ -1046,7 +1046,8 @@ std::optional<std::vector<WorldPoint>> routeWindow(
         }
         std::vector<int32_t> cs(n, std::numeric_limits<int32_t>::max());
         std::vector<float> bw(n, -1.0F);
-        std::vector<int64_t> pv(n, -1);
+        // 父链存的是格号, 上界 kMaxCells 装得进 32 位; 比较里它会提回 64 位, 全序照旧。
+        std::vector<int32_t> pv(n, -1);
         std::priority_queue<std::tuple<int32_t, float, int64_t>> pq;
         cs[s0] = 0;
         bw[s0] = dist.v[s0];
@@ -1082,7 +1083,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
                     if (kc < cs[k] || (kc == cs[k] && (kb > bw[k] || (kb == bw[k] && c < pv[k])))) {
                         cs[k] = kc;
                         bw[k] = kb;
-                        pv[k] = c;
+                        pv[k] = static_cast<int32_t>(c);
                         pq.emplace(-kc, kb, -static_cast<int64_t>(k));
                     }
                 }
@@ -1339,14 +1340,14 @@ std::optional<std::vector<WorldPoint>> routeWindow(
         const size_t n = static_cast<size_t>(nx * ny);
         constexpr int32_t kBig = std::numeric_limits<int32_t>::max() / 4;
         std::vector<int32_t> dc(n, kBig);
-        std::vector<int64_t> src(n, -1);
+        std::vector<int32_t> src(n, -1);
         std::vector<uint8_t> ina(n, 0);
         for (size_t i = 0; i < ra.size(); ++i) {
             const auto c = static_cast<size_t>(st3.sp_cell[i]);
             ina[c] = static_cast<uint8_t>(ina[c] | ra[i]);
             if (rb[i] != 0) {
                 dc[c] = 0;
-                src[c] = static_cast<int64_t>(c);
+                src[c] = static_cast<int32_t>(c);
             }
         }
         const auto relax = [&](size_t c, int64_t bx, int64_t by, int32_t w) {
