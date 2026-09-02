@@ -296,7 +296,7 @@
             "type": "ColorMatch",
             "param": {
                 "roi": [
-                    20,
+                    100,
                     606,
                     108,
                     83
