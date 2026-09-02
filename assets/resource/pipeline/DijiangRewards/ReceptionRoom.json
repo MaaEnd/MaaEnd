@@ -185,7 +185,8 @@
         "next": [
             "[JumpBack]ReceptionRoomCollectClues",
             "[JumpBack]ReceptionRoomReceiveClues",
-            "[JumpBack]ReceptionRoomSetClues",
+            "[JumpBack]ReceptionRoomSetCluesQuickAdd",
+            //"[JumpBack]ReceptionRoomSetClues",
             "[JumpBack]ReceptionRoomStartExchange",
             "ReceptionRoomWaitExchangeBeforeStart",
             "[JumpBack]ReceptionRoomSendCluesDirect",
@@ -1715,10 +1716,10 @@
         },
         "post_delay": 0,
         "rate_limit": 0,
-        "next": [
-            "ReceptionRoomClueExchangeWait",
-            "ReceptionRoomSetCluesChooseClues"
-        ]
+         "next": [
+             "ReceptionRoomClueExchangeWait",
+             "ReceptionRoomSetCluesChooseClues"
+         ]
     },
     "ReceptionRoomSetCluesChooseClues": {
         "desc": "[会客室·线索] 识别到会客室内的线索界面和线索红点，点击进入放置",
@@ -1734,9 +1735,9 @@
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
-        "next": [
-            "ReceptionRoomSetCluesItem"
-        ]
+         "next": [
+             "ReceptionRoomSetCluesItem"
+         ]
     },
     "ReceptionRoomSetCluesItem": {
         "desc": "[会客室·线索] 识别「线索」区域，区分已填入与待放置",
@@ -1894,9 +1895,72 @@
         },
         "post_delay": 0,
         "rate_limit": 0,
-        "next": [
-            "InReceptionRoom"
-        ]
+         "next": [
+             "InReceptionRoom"
+         ]
+    },
+    "ReceptionRoomSetCluesQuickAdd": {
+        "desc": "[会客室·线索] 识别「快速填入」黄色按钮并点击",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InReceptionRoom",
+                    {
+                        "recognition": {
+                            "type": "ColorMatch",
+                            "param": {
+                                "roi": [
+                                    982,
+                                    468,
+                                    384,
+                                    300
+                                ],
+                                "method": 40,
+                                "lower": [
+                                    28,
+                                    100,
+                                    100
+                                ],
+                                "upper": [
+                                    29,
+                                    255,
+                                    255
+                                ],
+                                "connected": true,
+                                "count": 3000
+                            }
+                        }
+                    },
+                    {
+                        "recognition": {
+                            "type": "OCR",
+                            "param": {
+                                "roi": [
+                                    982,
+                                    468,
+                                    384,
+                                    300
+                                ],
+                                "expected": [
+                                    "快速填入",
+                                    "Quick Add",
+                                    "一括配置",
+                                    "빠른 입력"
+                                ]
+                            }
+                        }
+                    }
+                ],
+                "box_index": 2
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "ReceptionRoomExit": {
         "desc": "[会客室·退出] 识别会客室界面，点击返回退出",
