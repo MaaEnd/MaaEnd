@@ -1508,12 +1508,10 @@ std::vector<WorldPoint> SimplifyLoop(const std::vector<WorldPoint>& P, double ma
     return out;
 }
 
-Blockers::Blockers(
+BlockerSegments::BlockerSegments(
     const std::vector<std::vector<WorldPoint>>& loops,
     const std::vector<WorldPoint>* extra_a,
-    const std::vector<WorldPoint>* extra_b,
-    std::optional<OnMask> on)
-    : on_(on)
+    const std::vector<WorldPoint>* extra_b)
 {
     for (const auto& P : loops) {
         for (size_t i = 0; i < P.size(); ++i) {
@@ -1525,26 +1523,21 @@ Blockers::Blockers(
         a_.insert(a_.end(), extra_a->begin(), extra_a->end());
         b_.insert(b_.end(), extra_b->begin(), extra_b->end());
     }
-    lo_.reserve(a_.size());
-    hi_.reserve(a_.size());
-    for (size_t i = 0; i < a_.size(); ++i) {
-        lo_.push_back({ std::min(a_[i].x, b_[i].x), std::min(a_[i].y, b_[i].y) });
-        hi_.push_back({ std::max(a_[i].x, b_[i].x), std::max(a_[i].y, b_[i].y) });
-    }
 }
 
-void Blockers::buildIndex() const
+void BlockerSegments::buildIndex() const
 {
     built_ = true;
     if (a_.empty()) {
         return;
     }
-    double mnx = lo_[0].x, mny = lo_[0].y, mxx = hi_[0].x, mxy = hi_[0].y;
+    double mnx = lo(0).x, mny = lo(0).y, mxx = hi(0).x, mxy = hi(0).y;
     for (size_t i = 1; i < a_.size(); ++i) {
-        mnx = std::min(mnx, lo_[i].x);
-        mny = std::min(mny, lo_[i].y);
-        mxx = std::max(mxx, hi_[i].x);
-        mxy = std::max(mxy, hi_[i].y);
+        const WorldPoint l = lo(i), h = hi(i);
+        mnx = std::min(mnx, l.x);
+        mny = std::min(mny, l.y);
+        mxx = std::max(mxx, h.x);
+        mxy = std::max(mxy, h.y);
     }
     bx0_ = mnx - kBkt;
     by0_ = mny - kBkt;
@@ -1554,10 +1547,11 @@ void Blockers::buildIndex() const
     // 段按包围盒入桶, 盒放量 kBktPad 盖住相交判据留给两端的那点余量。挡线都是轮廓折线段,
     // 盒里的桶数与段长同阶, 数一趟填一趟就够。
     const auto span = [&](size_t i, int64_t* g) {
-        g[0] = static_cast<int64_t>((lo_[i].x - kBktPad - bx0_) / kBkt);
-        g[1] = static_cast<int64_t>((hi_[i].x + kBktPad - bx0_) / kBkt);
-        g[2] = static_cast<int64_t>((lo_[i].y - kBktPad - by0_) / kBkt);
-        g[3] = static_cast<int64_t>((hi_[i].y + kBktPad - by0_) / kBkt);
+        const WorldPoint l = lo(i), h = hi(i);
+        g[0] = static_cast<int64_t>((l.x - kBktPad - bx0_) / kBkt);
+        g[1] = static_cast<int64_t>((h.x + kBktPad - bx0_) / kBkt);
+        g[2] = static_cast<int64_t>((l.y - kBktPad - by0_) / kBkt);
+        g[3] = static_cast<int64_t>((h.y + kBktPad - by0_) / kBkt);
     };
     int64_t g[4];
     for (size_t i = 0; i < a_.size(); ++i) {
@@ -1593,44 +1587,46 @@ bool Blockers::blocked(const WorldPoint& p, const WorldPoint& q) const
     const double rx = q.x - p.x, ry = q.y - p.y;
     // 弦上取样间隔半个桶, 每点连同八邻一起取: 弦上任何一点离某个取样点不超过半个桶, 于是它
     // 所在的桶必在某个取样点的三乘三邻域里, 待测集因此不漏。
-    if (!built_) {
-        buildIndex();
+    const BlockerSegments& sg = *segs_;
+    if (!sg.built_) {
+        sg.buildIndex();
     }
-    if (++epoch_ == 0) {
-        std::fill(seen_.begin(), seen_.end(), 0);
-        std::fill(bseen_.begin(), bseen_.end(), 0);
-        ++epoch_;
+    if (++sg.epoch_ == 0) {
+        std::fill(sg.seen_.begin(), sg.seen_.end(), 0);
+        std::fill(sg.bseen_.begin(), sg.bseen_.end(), 0);
+        ++sg.epoch_;
     }
     const int64_t ns = static_cast<int64_t>(std::hypot(rx, ry) / (kBkt * 0.5)) + 1;
-    for (int64_t k = 0; k <= ns && bnx_ > 0; ++k) {
+    for (int64_t k = 0; k <= ns && sg.bnx_ > 0; ++k) {
         const double t = static_cast<double>(k) / static_cast<double>(ns);
-        const int64_t sx0 = static_cast<int64_t>((p.x + rx * t - bx0_) / kBkt);
-        const int64_t sy0 = static_cast<int64_t>((p.y + ry * t - by0_) / kBkt);
-        for (int64_t gy = std::max<int64_t>(sy0 - 1, 0); gy <= std::min(sy0 + 1, bny_ - 1); ++gy) {
-            for (int64_t gx = std::max<int64_t>(sx0 - 1, 0); gx <= std::min(sx0 + 1, bnx_ - 1); ++gx) {
-                const size_t bk = static_cast<size_t>(gy * bnx_ + gx);
+        const int64_t sx0 = static_cast<int64_t>((p.x + rx * t - sg.bx0_) / kBkt);
+        const int64_t sy0 = static_cast<int64_t>((p.y + ry * t - sg.by0_) / kBkt);
+        for (int64_t gy = std::max<int64_t>(sy0 - 1, 0); gy <= std::min(sy0 + 1, sg.bny_ - 1); ++gy) {
+            for (int64_t gx = std::max<int64_t>(sx0 - 1, 0); gx <= std::min(sx0 + 1, sg.bnx_ - 1); ++gx) {
+                const size_t bk = static_cast<size_t>(gy * sg.bnx_ + gx);
                 // 取样间隔半桶而邻域取三乘三, 同一个桶要被相邻取样点各扫一遍; 桶也挂世代戳,
                 // 二次访问时桶里每段都已标过, 本来就一段都不产, 整桶跳过待测集不变。
-                if (bseen_[bk] == epoch_) {
+                if (sg.bseen_[bk] == sg.epoch_) {
                     continue;
                 }
-                bseen_[bk] = epoch_;
-                for (int32_t e = bstart_[bk]; e < bstart_[bk + 1]; ++e) {
-                    const int32_t id = bitem_[static_cast<size_t>(e)];
-                    if (seen_[static_cast<size_t>(id)] == epoch_) {
+                sg.bseen_[bk] = sg.epoch_;
+                for (int32_t e = sg.bstart_[bk]; e < sg.bstart_[bk + 1]; ++e) {
+                    const int32_t id = sg.bitem_[static_cast<size_t>(e)];
+                    if (sg.seen_[static_cast<size_t>(id)] == sg.epoch_) {
                         continue;
                     }
-                    seen_[static_cast<size_t>(id)] = epoch_;
+                    sg.seen_[static_cast<size_t>(id)] = sg.epoch_;
                     const size_t i = static_cast<size_t>(id);
-                    if (hi_[i].x < lox || lo_[i].x > hix || hi_[i].y < loy || lo_[i].y > hiy) {
+                    const WorldPoint sl = sg.lo(i), sh = sg.hi(i);
+                    if (sh.x < lox || sl.x > hix || sh.y < loy || sl.y > hiy) {
                         continue;
                     }
-                    const double sx = b_[i].x - a_[i].x, sy = b_[i].y - a_[i].y;
+                    const double sx = sg.b_[i].x - sg.a_[i].x, sy = sg.b_[i].y - sg.a_[i].y;
                     const double den = rx * sy - ry * sx;
                     if (!(std::abs(den) > 1e-12)) {
                         continue;
                     }
-                    const double ux = a_[i].x - p.x, uy = a_[i].y - p.y;
+                    const double ux = sg.a_[i].x - p.x, uy = sg.a_[i].y - p.y;
                     const double tt = (ux * sy - uy * sx) / den;
                     const double w = (ux * ry - uy * rx) / den;
                     // 挡线一侧取闭区间: 挡线段是格边, 精确 45° 的弦每次都正好交在端点上, 开区间会让它

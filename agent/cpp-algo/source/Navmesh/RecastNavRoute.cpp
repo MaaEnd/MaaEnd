@@ -1549,7 +1549,9 @@ std::optional<std::vector<WorldPoint>> routeWindow(
         solidc.v[i] = static_cast<uint8_t>(static_cast<double>(dist.v[i]) >= need);
     }
     const Blockers::OnMask onv { &solidc, x0, y0, kCS };
-    const Blockers blk_vis({}, nullptr, nullptr, onv);
+    // 搜索期的视线只靠 on 掩膜兜底, 不带轮廓挡线。
+    const BlockerSegments no_segs;
+    const Blockers blk_vis(no_segs, onv);
     const Visibility vis(&blk_vis, &lyo, faces, bn, nx, ny, x0, y0);
     if (vv.has_value()) {
         // 几何这一次锁在走廊里。放开的话它按恒一的单价重解一遍, 又会挑回拓扑刚花钱绕开的那条
@@ -1630,7 +1632,9 @@ std::optional<std::vector<WorldPoint>> routeWindow(
         }
     }
     const Blockers::OnMask onm { &tm, x0, y0, kCS };
-    const Blockers blk_gray(loops_core, &info.segA, &info.segB, onm);
+    // 灰、硬两个视图的挡线几何逐字相同, 段表与桶索引共享一份, 两遍构建省成一遍。
+    const BlockerSegments core_segs(loops_core, &info.segA, &info.segB);
+    const Blockers blk_gray(core_segs, onm);
     // 几何用的视线判据: 跨步禁行、立面、层判据与搜索那一个逐字相同, 只把自由区从计价用的实心区
     // 换成这条路自己的管道。实心区那道限制是为让弦的欧氏长度等于代价, 只约束搜索; 终线取直不计价,
     // 该由能不能走过去决定。管道只比路径宽一格, 拉直因此仍出不了这条通道。
@@ -1718,7 +1722,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     // 抬升放在取直之后: 放前面的话抬起来的拐点让两侧更容易连通, 取直一刀就把它跳过去了。
     // 判据换成硬墙那一套 —— 通道掩膜只比路径宽一格, 拿它判等于禁止拐点离开原路径。
     if (lyo_p != nullptr && out.size() >= 3) {
-        const Blockers blk_hard(loops_core, &info.segA, &info.segB, std::nullopt);
+        const Blockers blk_hard(core_segs, std::nullopt);
         const Visibility vis_hard(&blk_hard, &lyo, faces, bn, nx, ny, x0, y0);
         LiftCorners(out, dist, x0, y0, vis_hard, lyo, lyo_h, kLiftMax);
     }

@@ -326,38 +326,30 @@ std::vector<std::vector<WorldPoint>> TraceContours(const Mask& mask);
 
 std::vector<WorldPoint> SimplifyLoop(const std::vector<WorldPoint>& P, double max_err);
 
-// on 掩膜密采样兜底:精确 45° 弦会从轮廓顶点缝溜走
-class Blockers
+// 挡线段表与它的桶索引。一条腿里几个视图的段几何逐字相同、只有 on 掩膜不同, 段表因此拆出来
+// 共享: 世代戳每次查询开头先自增再比较, 多个视图共用一套仍只在单次查询内去重。
+class BlockerSegments
 {
 public:
-    struct OnMask
-    {
-        const Mask* mask = nullptr;
-        double x0 = 0.0;
-        double y0 = 0.0;
-        double cs = kCS;
-    };
-
-    Blockers(
+    BlockerSegments() = default;
+    BlockerSegments(
         const std::vector<std::vector<WorldPoint>>& loops,
         const std::vector<WorldPoint>* extra_a,
-        const std::vector<WorldPoint>* extra_b,
-        std::optional<OnMask> on);
-
-    bool blocked(const WorldPoint& p, const WorldPoint& q) const;
+        const std::vector<WorldPoint>* extra_b);
 
 private:
-    bool offMask(const WorldPoint& p, const WorldPoint& q) const;
+    friend class Blockers;
+
     void buildIndex() const;
+    // 段包围盒是两端点的逐分量 min/max, 存成表只是把同一个数再摊一份内存。
+    WorldPoint lo(size_t i) const { return { std::min(a_[i].x, b_[i].x), std::min(a_[i].y, b_[i].y) }; }
+    WorldPoint hi(size_t i) const { return { std::max(a_[i].x, b_[i].x), std::max(a_[i].y, b_[i].y) }; }
 
     std::vector<WorldPoint> a_;
     std::vector<WorldPoint> b_;
-    std::vector<WorldPoint> lo_;
-    std::vector<WorldPoint> hi_;
-    std::optional<OnMask> on_;
     // 挡线按均匀桶建 CSR 索引。弦与某段相交必然共有一点: 那点在段的包围盒里 ⇒ 段登记在它所在
     // 的桶, 那点又在弦上 ⇒ 弦的取样覆盖到它所在的桶, 于是只测弦扫过的桶与全表扫描同答。
-    // 索引首次查询时才建: 一条腿里要造好几个 Blockers, 其中几个一次都不查。
+    // 索引首次查询时才建: 一条腿里要造好几个视图, 其中几个一次都不查。
     mutable bool built_ = false;
     mutable double bx0_ = 0.0;
     mutable double by0_ = 0.0;
@@ -370,6 +362,33 @@ private:
     mutable std::vector<uint32_t> seen_;
     mutable std::vector<uint32_t> bseen_;
     mutable uint32_t epoch_ = 0;
+};
+
+// on 掩膜密采样兜底:精确 45° 弦会从轮廓顶点缝溜走
+class Blockers
+{
+public:
+    struct OnMask
+    {
+        const Mask* mask = nullptr;
+        double x0 = 0.0;
+        double y0 = 0.0;
+        double cs = kCS;
+    };
+
+    Blockers(const BlockerSegments& segs, std::optional<OnMask> on)
+        : segs_(&segs)
+        , on_(on)
+    {
+    }
+
+    bool blocked(const WorldPoint& p, const WorldPoint& q) const;
+
+private:
+    bool offMask(const WorldPoint& p, const WorldPoint& q) const;
+
+    const BlockerSegments* segs_ = nullptr;
+    std::optional<OnMask> on_;
 };
 
 // 走查只用来跟住弦所在的层, 立面本身由挡线集与拓扑禁步管住, 故抬升按体素取样
