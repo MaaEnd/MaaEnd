@@ -326,7 +326,7 @@
     "resource/image/MapLocator/OMVBase/OMVBase01": "cac13346c6c51c5c195f75c57e872de9bccef5c99cfa4aafd2fb1b7f96cd2c1c",
     "resource/image/MapLocator/Wuling/Lv002Tier259": "7cecd77eb7c8480ccbe2030045ab57f6487d8ad11a0d7af713a2c91d45f2be2f",
     "resource/image/MapLocator/Wuling/Lv002Tier275": "8c3ed9b2f8e5e9e986caf2666b0fa57e14ffc7d437325f38331a91822507d345",
-    "resource/image/MapLocator/Wuling/Base": "8f1af7f0b8304a12894da246468e9db654a78e52551f49c58ce3c9d4a9638ec4",
+    "resource/image/MapLocator/Wuling/Base": "5616aaa22d451e5705eee966c2a6cee0e5d26ef6ae9f8bc1e3aab8cf12fcac8a",
     "resource/image/MapLocator/Wuling/Lv002Tier257": "3709085b2fb760669e0f58155bc405082e0f9dc0cfe4d850d30bd4793d24f795",
     "resource/image/MapLocator/Wuling/Lv002Tier258": "73ddbe42e785450a6763854a0e8a2fcbabce7219bf9f0e4bf9e0fce53fa542a3",
     "resource/image/MapLocator/Wuling/Lv002Tier276": "f18698220a7cfadc9b08a2e934d158d37dce970915f3a023a2013b9bdf54fe8a",
@@ -839,8 +839,8 @@
     "resource/image/MapLocator/Wuling/Lv008Tier382": "788d798f1a390dc67714a369f66c0f51d579f7d85aa9db3f241f53ac4229e8d7",
     "resource/image/MapLocator/Wuling/Lv008Tier379": "a0bed7b96faf254579a37c30328631e8ed4fd9f12d6a4f7bd8b4f0eb18595f49",
     "resource/image/MapLocator/Wuling/Lv008Tier388": "e3eb4da19ef34551fe6145d6399b586e5c4cc9b3f26b1a12c1e6a4541b6cd41b",
-    "resource/image/MapLocator/Wuling/Lv007Tier393": "e20874efd9e152a0403cc8b101b134f1c376d00390cee9f7f4929a58ed598b60",
-    "resource/image/MapLocator/Wuling/Lv007Tier392": "d96501ddd6b54dc353fc939b33e991b5d1f27b988c0b43f6893c8a5cf437869d",
+    "resource/image/MapLocator/Wuling/Lv007Tier393": "a52d68a95becc9e065e80ab3306e80507660572e4f0fd3375507b578e34ecbcd",
+    "resource/image/MapLocator/Wuling/Lv007Tier392": "545eff32f664bd601dbb31604958c87afb24fa3b0fb2f8cf8a8b8523576a19a8",
     "resource/image/SellProduct/OutpostProsperity": "1137c772c0abb607d0dee90195c98d6c8b5b5fae7a2afa82cb96e5f62390e911",
     "resource/image/AeroSalvage/PlacementSite3": "28663f1338deebbb58962337d66fab227bffcdf657c10e6a553da4970d47b142",
     "resource/image/AeroSalvage/Reset": "8417162310f12cd213d7da8aad2f621da67547dc888d5ccb8472c19de276abf4",
@@ -1678,11 +1678,5 @@
     "resource/image/IconRecognition/3/item_activity_copper_xiranite_tool": "d11f55f283ccd37b8737cb2503b59bbcfeb7320633aeb1357efca7557a558e10",
     "resource/image/IconRecognition/3/item_activity_xiranite_box": "19688593a57431fd30c35cc369a39ab28879234764d5199f556dbf5771a8f12b",
     "resource/image/IconRecognition/3/item_activity_xiranite_nugget": "06d17e49b4a1eb38e967a435fd8b03b1b134ea7d24b7b7b9cff407748d809386",
-    "resource/image/IconRecognition/3/item_device_buff_snow_1": "7f49e1d1da6b689101534356cac952b5ad0802cbeb8c1b276d9353f1b82e8b19",
-    "resource/image/MapLocator/Wuling/Lv009Tier402": "0f2439b9f51c6d9ce535b40471d62ac3392ef8a7a7e27341d6a75065c2869b12",
-    "resource/image/MapLocator/Wuling/Lv009Tier403": "a0e655af25130fb8dbdf19d97d5a17387702846d2554e4a9245e16376615ae19",
-    "resource/image/MapLocator/Wuling/Lv009Tier401": "3bbfddce9c9212d8be64ce8d644546b7fc1712cd604bfb40b8edaf88bdb8a47c",
-    "resource/image/MapLocator/Wuling/Lv009Tier405": "5f5d56ef28701d6319cdd12544e2a743ee6d303ed3e42ef5af5954a43a39c44a",
-    "resource/image/MapLocator/Wuling/Lv009Tier397": "35e63505f63c70e70edc660fad3cfcb4338cba88c1a7b1a6b202fcc239ab24d5",
-    "resource/image/MapLocator/Wuling/Lv009Tier395": "ef770f0b1de05ee9fc04da449d3e106855e294464869408d44091443e9ae0d66"
+    "resource/image/IconRecognition/3/item_device_buff_snow_1": "7f49e1d1da6b689101534356cac952b5ad0802cbeb8c1b276d9353f1b82e8b19"
 }
