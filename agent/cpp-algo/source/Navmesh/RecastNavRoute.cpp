@@ -414,6 +414,21 @@ std::optional<WindowInfo> buildWindow(
     // 窗口原点是对齐过的,所以它落在全局格线上,窗口格与烘焙格一一对上
     const int64_t wgx0 = std::llround(x0 / kCS);
     const int64_t wgy0 = std::llround(y0 / kCS);
+
+    // 区网格只有取墙与盖封堵面两个读者, 两者都只认窗口矩形, 与格图无关。放在开图之前算,
+    // 它就能在建窗最吃内存的那一段开始前整个交还, 不必一直挂到用完。
+    BakedWalls walls = BakeWalls(zc, x0, y0, nx, ny);
+    RasterCells brc;
+    if (!blocked_local.empty()) {
+        std::vector<std::array<int32_t, 3>> bt;
+        bt.reserve(blocked_local.size());
+        for (const int32_t t : blocked_local) {
+            bt.push_back(zc.mesh.T[static_cast<size_t>(t)]);
+        }
+        brc = Rasterize(zc.mesh.V, zc.mesh.H, bt, x0, y0, nx, ny);
+    }
+    zc.release();
+
     GridPatch pw;
     pw.x0 = x0;
     pw.y0 = y0;
@@ -486,7 +501,6 @@ std::optional<WindowInfo> buildWindow(
     std::vector<WorldPoint> wP0;
     std::vector<WorldPoint> wP1;
     {
-        const BakedWalls walls = BakeWalls(zc, x0, y0, nx, ny);
         const std::vector<uint8_t> keep = WallsAtLayer(walls.p0, walls.p1, walls.hh, lh, x0, y0);
         for (size_t i = 0; i < keep.size(); ++i) {
             if (keep[i] != 0) {
@@ -495,29 +509,20 @@ std::optional<WindowInfo> buildWindow(
             }
         }
     }
+    walls = BakedWalls();
     info.whit = WallHits(wP0, wP1, x0, y0, nx, ny);
 
-    if (!blocked_local.empty()) {
-        std::vector<std::array<int32_t, 3>> bt;
-        bt.reserve(blocked_local.size());
-        for (const int32_t t : blocked_local) {
-            bt.push_back(zc.mesh.T[static_cast<size_t>(t)]);
-        }
-        const RasterCells brc = Rasterize(zc.mesh.V, zc.mesh.H, bt, x0, y0, nx, ny);
-        for (size_t ci = 0; ci < brc.cell.size(); ++ci) {
-            const auto cell = static_cast<size_t>(brc.cell[ci]);
-            const float lf = lh.v[cell];
-            // 层高带内才盖掉,免得误伤其他楼层的格
-            if (!std::isnan(lf) && std::fabs(brc.h[ci] - lf) <= static_cast<float>(kClimb)) {
-                info.core.v[cell] = 0;
-                info.lay.v[cell] = 0;
-            }
+    for (size_t ci = 0; ci < brc.cell.size(); ++ci) {
+        const auto cell = static_cast<size_t>(brc.cell[ci]);
+        const float lf = lh.v[cell];
+        // 层高带内才盖掉,免得误伤其他楼层的格
+        if (!std::isnan(lf) && std::fabs(brc.h[ci] - lf) <= static_cast<float>(kClimb)) {
+            info.core.v[cell] = 0;
+            info.lay.v[cell] = 0;
         }
     }
+    brc = RasterCells();
     lh = Grid<float>();
-    // 区网格的最后一个读者到此为止。往下是 span 表与各场, 建窗最吃内存的一段,
-    // 让它挂到那时就是白抬一份峰值。
-    zc.release();
 
     // 封堵点无自带高度;窗口层已按起点层高筛过,直接按平面距离盖格即可
     if (!blocked_points.empty()) {
