@@ -381,8 +381,8 @@
             }
         },
         "next": [
-            "GiftOperatorClickGift",
-            "GiftOperatorClickGiftFull"
+            "GiftOperatorClickGift"
+            //"GiftOperatorClickGiftFull"
         ]
     },
     "GiftOperatorClickGiftFull": {
