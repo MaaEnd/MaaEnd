@@ -200,7 +200,8 @@
         },
         "next": [
             "DailyEmailReceiveTSACannotClaim",
-            "DailyEmailReceiveTSA"
+            "DailyEmailReceiveTSAYellow",
+            "DailyEmailReceiveTSAWhite"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "收取暂存区物资"
@@ -318,7 +319,8 @@
             }
         }
     },
-    "DailyEmailReceiveTSA": {
+    "DailyEmailReceiveTSAYellow": {
+        "desc": "暂存区全部领取（黄色按钮）",
         "recognition": {
             "type": "And",
             "param": {
@@ -344,6 +346,48 @@
             "type": "OCR",
             "param": {
                 "roi": "YellowConfirmButtonType1",
+                "roi_offset": [
+                    -106,
+                    -2,
+                    75,
+                    3
+                ],
+                "expected": [
+                    "全部领取",
+                    "全部領取",
+                    "(?i)Claim\\s*All",
+                    "一括受取"
+                ]
+            }
+        }
+    },
+    "DailyEmailReceiveTSAWhite": {
+        "desc": "暂存区全部领取（白色按钮）",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "WhiteConfirmButtonType1",
+                    "DailyEmailReceiveTSAWhiteText"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_wait_freezes": 200,
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "DailyEmailConfirmTSA"
+        ]
+    },
+    "DailyEmailReceiveTSAWhiteText": {
+        "desc": "暂存区全部领取白色按钮文本",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "WhiteConfirmButtonType1",
                 "roi_offset": [
                     -106,
                     -2,
