@@ -2085,12 +2085,16 @@ RecastPlanResult RecastNavEngine::planLocked(
     const double t_win0 = nowMs();
     auto info = buildWindow(grid_, *gz, zc, start, ss->point, goal, h0, region, x0, y0, x1, y1, blocked_local, blocked_points, err);
     const double window_ms = nowMs() - t_win0;
+    // 区网格的读者到建窗为止, 往下只剩一个区号。它比一整套窗口图还大, 挂着不放就是白抬一份
+    // 峰值。下一条腿重建它: 峰值是用户量得到的东西, 常驻不是。
+    const uint16_t zone_id = zc.zone_id;
+    zones_.erase(zone_name);
     if (!info.has_value()) {
         res.error = err.empty() ? "路线失败" : err;
         return res;
     }
     RouteDiag dg;
-    auto line = routeWindow(*info, start, goal, dg, gdk, planner_, zc.zone_id);
+    auto line = routeWindow(*info, start, goal, dg, gdk, planner_, zone_id);
     // 失败的腿才最需要诊断: 断开时的缝、窗口范围、各阶段耗时全在这里, 两条出口都得带上。
     const auto dump = [&] {
         res.debug.timing = dg.timing;
