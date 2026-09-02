@@ -234,7 +234,17 @@
     },
     "SceneMapZoomOut": {
         "desc": "在地图界面缩小地图（供 MapFind 等子任务调用）",
-        "recognition": "DirectHit",
+        "recognition": "TemplateMatch",
+        "roi": [
+            -350,
+            0,
+            350,
+            60
+        ],
+        "template": [
+            "SceneManager/MapMind.png"
+        ],
+        "method": 10001, // 默认5时，当弹出右侧面板，此图片依然能匹配上
         "pre_delay": 0,
         "action": "DoNothing",
         "post_delay": 0,
