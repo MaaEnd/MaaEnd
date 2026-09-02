@@ -1450,8 +1450,16 @@ test("AutoDelivery ensures the delivery mission detail before branching", () => 
         "AutoDeliveryCheckSubmitGoodsButton",
     ]);
     assert.deepEqual(delivery.AutoDeliverySubmitGoods.next, [
-        "AutoDeliverySkipChat",
+        "AutoDeliveryCheckSkipChatReady",
         "AutoDeliveryCloseRewardDialog",
+    ]);
+    assert.deepEqual(delivery.AutoDeliveryCheckSkipChatReady.all_of, [
+        "AutoDeliveryInChatDialog",
+        "AutoDeliveryCheckSkipChatButton",
+    ]);
+    assert.equal(delivery.AutoDeliveryCheckSkipChatReady.pre_wait_freezes, 200);
+    assert.deepEqual(delivery.AutoDeliveryCheckSkipChatReady.next, [
+        "AutoDeliverySkipChat",
     ]);
     assert.deepEqual(delivery.AutoDeliverySkipChat.next, [
         "AutoDeliverySkipChatConfirm",

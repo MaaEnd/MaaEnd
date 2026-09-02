@@ -312,6 +312,21 @@
             "AutoDeliveryRetryNavigateDestination"
         ]
     },
+    "AutoDeliveryCheckSkipChatReady": {
+        "desc": "送货交互进入对话后等待跳过按钮稳定",
+        "recognition": "And",
+        "all_of": [
+            "AutoDeliveryInChatDialog",
+            "AutoDeliveryCheckSkipChatButton"
+        ],
+        "pre_wait_freezes": 200,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDeliverySkipChat"
+        ]
+    },
     "AutoDeliverySkipChat": {
         "desc": "送货交互进入对话时跳过对话",
         "recognition": "And",
@@ -373,7 +388,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoDeliverySkipChat",
+            "AutoDeliveryCheckSkipChatReady",
             "AutoDeliveryCloseRewardDialog"
         ],
         "focus": {
