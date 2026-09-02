@@ -1081,6 +1081,8 @@
     "option.AutoCollectRoute14.failed": "<span style=\"color: red; font-weight: bold;\">採集ルート14：四号谷地-結晶鋭葉：採集失敗</span>",
     "option.AutoCollectRoute15.label": "採集ルート15：武陵-赤槍葉",
     "option.AutoCollectRoute15.failed": "<span style=\"color: red; font-weight: bold;\">採集ルート15：武陵-赤槍葉：採集失敗</span>",
+    "option.AutoCollectRoute17.label": "採集ルート17：武陵-タロス茸",
+    "option.AutoCollectRoute17.failed": "<span style=\"color: red; font-weight: bold;\">採集ルート17：武陵-タロス茸：採集失敗</span>",
     "option.AutoCollectCommonRoutes.label": "一般採取物回路",
     "option.AutoCollectCommonRoute1.label": "採集ルート1：火映蕎花",
     "option.AutoCollectCommonRoute1.failed": "<span style=\"color: red; font-weight: bold;\">採集ルート1：火映蕎花：採集失敗</span>",

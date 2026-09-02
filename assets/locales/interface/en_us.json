@@ -1081,6 +1081,8 @@
     "option.AutoCollectRoute14.failed": "<span style=\"color: red; font-weight: bold;\">Collect Route 14: Valley IV - Kalkodendra collection failed</span>",
     "option.AutoCollectRoute15.label": "Collect Route 15: Wuling - Crimson Spearleaf",
     "option.AutoCollectRoute15.failed": "<span style=\"color: red; font-weight: bold;\">Collect Route 15: Wuling - Crimson Spearleaf collection failed</span>",
+    "option.AutoCollectRoute17.label": "Collect Route 17: Wuling - Talos Cap",
+    "option.AutoCollectRoute17.failed": "<span style=\"color: red; font-weight: bold;\">Collect Route 17: Wuling - Talos Cap collection failed</span>",
     "option.AutoCollectCommonRoutes.label": "General sampling circuit",
     "option.AutoCollectCommonRoute1.label": "Collect Route 1: Firebuckle",
     "option.AutoCollectCommonRoute1.failed": "<span style=\"color: red; font-weight: bold;\">Collect Route 1: Firebuckle collection failed</span>",

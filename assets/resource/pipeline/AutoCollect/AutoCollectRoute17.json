@@ -1,0 +1,128 @@
+{
+    "AutoCollectRoute17Start": {
+        "enabled": false,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingSnowyForest6"
+            ]
+        },
+        "next": [
+            "AutoCollectRoute17AssertLocation"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute17.label"
+        }
+    },
+    "AutoCollectRoute17End": {
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "AutoCollectRoute17AssertLocation": {
+        "desc": "传送到采集点",
+        "recognition": "Custom",
+        "custom_recognition": "MapLocateAssertLocation",
+        "custom_recognition_param": {
+            "zone_id": "Wuling_Base",
+            "target": [
+                1707.92,
+                986.89,
+                16.29,
+                16.67
+            ]
+        },
+        "action": "DoNothing",
+        "next": [
+            "AutoCollectRoute17Goto"
+        ]
+    },
+    "AutoCollectRoute17Goto": {
+        "desc": "前往采集点",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "Wuling_Base"
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                1666.32,
+                                1016.35
+                            ],
+                            "target_deck_y": 126.37
+                        },
+                        [
+                            1665.65,
+                            1013.94,
+                            "COLLECT",
+                            true
+                        ],
+                        [
+                            1666.77,
+                            1011.79,
+                            "COLLECT",
+                            true
+                        ],
+                        [
+                            1668.19,
+                            1009.74,
+                            "COLLECT",
+                            true
+                        ],
+                        [
+                            1665.96,
+                            1006.28,
+                            "COLLECT",
+                            true
+                        ],
+                        [
+                            1662.2,
+                            1006.48,
+                            "COLLECT",
+                            true
+                        ],
+                        [
+                            1659.43,
+                            1008.51,
+                            "COLLECT",
+                            true
+                        ],
+                        [
+                            1659.24,
+                            1013.1,
+                            "COLLECT",
+                            true
+                        ],
+                        [
+                            1662.11,
+                            1014.23,
+                            "COLLECT",
+                            true
+                        ],
+                        [
+                            1664.07,
+                            1014.54
+                        ]
+                    ]
+                }
+            }
+        },
+        "next": [
+            "AutoCollectRoute17End"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    }
+}

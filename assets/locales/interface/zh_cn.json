@@ -1081,6 +1081,8 @@
     "option.AutoCollectRoute14.failed": "<span style=\"color: red; font-weight: bold;\">路线14：四号谷地-晶化多齿叶采集失败</span>",
     "option.AutoCollectRoute15.label": "路线15：武陵-红矛叶",
     "option.AutoCollectRoute15.failed": "<span style=\"color: red; font-weight: bold;\">路线15：武陵-红矛叶采集失败</span>",
+    "option.AutoCollectRoute17.label": "路线17：武陵-塔罗斯菌",
+    "option.AutoCollectRoute17.failed": "<span style=\"color: red; font-weight: bold;\">路线17：武陵-塔罗斯菌采集失败</span>",
     "option.AutoCollectCommonRoutes.label": "一般采集物线路",
     "option.AutoCollectCommonRoute1.label": "线路1：映火荞花",
     "option.AutoCollectCommonRoute1.failed": "<span style=\"color: red; font-weight: bold;\">线路1：映火荞花采集失败</span>",
