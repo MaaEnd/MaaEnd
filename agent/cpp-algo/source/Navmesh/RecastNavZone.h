@@ -16,8 +16,6 @@ namespace navmesh::recast
 
 inline constexpr double kWeldDh = 3.0;              // 顶点焊接同柱高差容差 px
 inline constexpr double kSnapFallbackRadius = 16.0; // 吸附兜底半径 px
-inline constexpr double kSrcadjMaxGap = 8.0;
-inline constexpr double kSrcadjLocalR = 12.0;
 
 // 源 surface 表(BSRF 段)那 32 位 flags 的收取掩码:第 n 位为 1 表示 area n 算可走面。
 // 导出端把 flags 写成 1<<area,所以这个掩码与一张 area 白名单等价。
@@ -57,13 +55,6 @@ private:
     void buildGrid();
 };
 
-struct HopPt
-{
-    WorldPoint exit_pt;
-    WorldPoint entry_pt;
-    int32_t to_tri = -1;
-};
-
 class ZoneClean
 {
 public:
@@ -95,7 +86,6 @@ public:
     // 绝不能压缩重排。
     std::vector<uint8_t> walkable;
     uint32_t walkable_flags = kWalkableFlagsDefault;
-    std::vector<HopPt> hops;
     std::string stats;
 
 private:

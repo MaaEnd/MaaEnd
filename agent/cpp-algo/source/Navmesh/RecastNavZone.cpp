@@ -16,8 +16,6 @@ namespace navmesh::recast
 namespace
 {
 
-constexpr double kPortalSamples[5] = { 0.5, 0.25, 0.75, 0.1, 0.9 }; // 共边 hop 的门户采样位
-
 double triHeight(const PolyMesh& mesh, int32_t t)
 {
     const auto& tri = mesh.T[static_cast<size_t>(t)];
@@ -510,178 +508,6 @@ ZoneClean::ZoneClean(
             (n_tot[static_cast<size_t>(c)] == 0 || n_isl[static_cast<size_t>(c)] * 2 > n_tot[static_cast<size_t>(c)]) ? 1 : 0;
     }
 
-    // link 层 hop:NB 已邻接跳过;跨分量共焊边 → 门户采样,否则 touch/bridge;
-    // 同分量共焊边且非近连通 → srcadj 窄通道
-    std::vector<int32_t> ia;
-    std::vector<int32_t> ib;
-    {
-        const auto nlab = static_cast<int64_t>(lab.size());
-        const size_t nw = NavWorkerCount(nlab);
-        std::vector<std::vector<int32_t>> bins_a(nw);
-        std::vector<std::vector<int32_t>> bins_b(nw);
-        ParallelChunks(nlab, nw, [&](size_t w, int64_t b, int64_t e) {
-            for (int64_t p = b; p < e; ++p) {
-                const auto& [la, lb] = lab[static_cast<size_t>(p)];
-                // 掩码外的三角不接 hop。下面两个消费循环(跨分量门户、同分量 srcadj 窄通道)
-                // 都从 ia/ib 取料,滤在这里就是两处一起滤。
-                if (walkable[static_cast<size_t>(la)] == 0 || walkable[static_cast<size_t>(lb)] == 0) {
-                    continue;
-                }
-                const auto& row = NB[static_cast<size_t>(la)];
-                if (row[0] != lb && row[1] != lb && row[2] != lb) {
-                    bins_a[w].push_back(la);
-                    bins_b[w].push_back(lb);
-                }
-            }
-        });
-        ConcatBins(bins_a, ia);
-        ConcatBins(bins_b, ib);
-    }
-    const auto nshared = [&](int32_t a, int32_t b) {
-        int n = 0;
-        for (int ka = 0; ka < 3; ++ka) {
-            for (int kb = 0; kb < 3; ++kb) {
-                if (T[static_cast<size_t>(a)][ka] == T[static_cast<size_t>(b)][kb]) {
-                    ++n;
-                    break;
-                }
-            }
-        }
-        return n;
-    };
-    const auto pushPortals = [&](int32_t ti, int32_t tj, std::vector<HopPt>& out) {
-        int32_t sh[2] = { -1, -1 };
-        int ns = 0;
-        for (int ka = 0; ka < 3 && ns < 2; ++ka) {
-            const int32_t v = T[static_cast<size_t>(ti)][ka];
-            if (v == T[static_cast<size_t>(tj)][0] || v == T[static_cast<size_t>(tj)][1] || v == T[static_cast<size_t>(tj)][2]) {
-                sh[ns++] = v;
-            }
-        }
-        const WorldPoint p0 = mesh.V[sh[0]];
-        const WorldPoint p1 = mesh.V[sh[1]];
-        for (const double t : kPortalSamples) {
-            const WorldPoint pt { p0.x + (p1.x - p0.x) * t, p0.y + (p1.y - p0.y) * t };
-            out.push_back({ pt, pt, tj });
-            out.push_back({ pt, pt, ti });
-        }
-    };
-    int64_t n_edge = 0;
-    int64_t n_touch = 0;
-    int64_t n_bridge = 0;
-    int64_t n_srcadj = 0;
-    for (size_t r = 0; r < ia.size(); ++r) {
-        const int32_t i = ia[r];
-        const int32_t j = ib[r];
-        if (comp[static_cast<size_t>(i)] == comp[static_cast<size_t>(j)]) {
-            continue;
-        }
-        if (nshared(i, j) == 2) {
-            pushPortals(i, j, hops);
-            ++n_edge;
-        }
-        else {
-            const auto br = planner.closestEdgeBridgePoints(static_cast<uint32_t>(lo + i), static_cast<uint32_t>(lo + j));
-            if (!br) {
-                continue;
-            }
-            const WorldPoint ex = (*br)[0];
-            const WorldPoint en = (*br)[1];
-            hops.push_back({ ex, en, j });
-            hops.push_back({ en, ex, i });
-            (std::hypot(ex.x - en.x, ex.y - en.y) > 1e-7 ? ++n_bridge : ++n_touch);
-        }
-    }
-
-    std::vector<WorldPoint> cent(static_cast<size_t>(m));
-    for (int64_t i = 0; i < m; ++i) {
-        const auto& tri = T[static_cast<size_t>(i)];
-        cent[static_cast<size_t>(i)] = { (mesh.V[tri[0]].x + mesh.V[tri[1]].x + mesh.V[tri[2]].x) / 3.0,
-                                         (mesh.V[tri[0]].y + mesh.V[tri[1]].y + mesh.V[tri[2]].y) / 3.0 };
-    }
-    // 逐对局部泛洪都要一套访问标记, 每对新建散列集与双端队列的话分配与哈希就是这段的全部开销。
-    // 每块一组世代戳和一个当队列使的数组: 戳只在本块内比对, 队列仍是先进先出, 访问序逐位相同。
-    const auto n_pair = static_cast<int64_t>(ia.size());
-    const size_t nw_src = NavWorkerCount(n_pair);
-    std::vector<std::vector<HopPt>> bins_src(nw_src);
-    std::vector<int64_t> cnt_src(nw_src, 0);
-    ParallelChunks(n_pair, nw_src, [&](size_t w, int64_t pair_lo, int64_t pair_hi) {
-        std::vector<uint32_t> vis(static_cast<size_t>(m), 0);
-        std::vector<int32_t> dq;
-        uint32_t vis_epoch = 0;
-        for (int64_t r = pair_lo; r < pair_hi; ++r) {
-            const int32_t ta = ia[static_cast<size_t>(r)];
-            const int32_t tb = ib[static_cast<size_t>(r)];
-            if (comp[static_cast<size_t>(ta)] != comp[static_cast<size_t>(tb)]) {
-                continue;
-            }
-            bool adjacent = false;
-            for (int k1 = 0; k1 < 3 && !adjacent; ++k1) {
-                const int32_t n1 = NB[static_cast<size_t>(ta)][k1];
-                if (n1 < 0) {
-                    continue;
-                }
-                const auto& row = NB[static_cast<size_t>(n1)];
-                adjacent = row[0] == tb || row[1] == tb || row[2] == tb;
-            }
-            if (adjacent) {
-                continue;
-            }
-            const WorldPoint mx { (cent[static_cast<size_t>(ta)].x + cent[static_cast<size_t>(tb)].x) * 0.5,
-                                  (cent[static_cast<size_t>(ta)].y + cent[static_cast<size_t>(tb)].y) * 0.5 };
-            ++vis_epoch;
-            vis[static_cast<size_t>(ta)] = vis_epoch;
-            dq.clear();
-            dq.push_back(ta);
-            size_t head = 0;
-            bool hit = false;
-            while (head < dq.size() && !hit) {
-                const int32_t t2 = dq[head++];
-                for (int k = 0; k < 3; ++k) {
-                    const int32_t nb2 = NB[static_cast<size_t>(t2)][k];
-                    if (nb2 < 0 || vis[static_cast<size_t>(nb2)] == vis_epoch) {
-                        continue;
-                    }
-                    if (nb2 == tb) { // 目标判定先于出框判定
-                        hit = true;
-                        break;
-                    }
-                    if (std::fabs(cent[static_cast<size_t>(nb2)].x - mx.x) > kSrcadjLocalR
-                        || std::fabs(cent[static_cast<size_t>(nb2)].y - mx.y) > kSrcadjLocalR) {
-                        continue;
-                    }
-                    vis[static_cast<size_t>(nb2)] = vis_epoch;
-                    dq.push_back(nb2);
-                }
-            }
-            if (hit) {
-                continue;
-            }
-            if (nshared(ta, tb) == 2) {
-                pushPortals(ta, tb, bins_src[w]);
-            }
-            else {
-                const auto br =
-                    planner.closestEdgeBridgePoints(static_cast<uint32_t>(lo + ta), static_cast<uint32_t>(lo + tb));
-                if (!br) {
-                    continue;
-                }
-                const WorldPoint ex = (*br)[0];
-                const WorldPoint en = (*br)[1];
-                if (std::hypot(ex.x - en.x, ex.y - en.y) > kSrcadjMaxGap) {
-                    continue;
-                }
-                bins_src[w].push_back({ ex, en, tb });
-                bins_src[w].push_back({ en, ex, ta });
-            }
-            ++cnt_src[w];
-        }
-    });
-    ConcatBins(bins_src, hops);
-    for (const int64_t c : cnt_src) {
-        n_srcadj += c;
-    }
-
     int64_t ncomps = 0;
     for (int64_t i = 0; i < m; ++i) {
         if (comp[static_cast<size_t>(i)] == i) {
@@ -692,8 +518,7 @@ ZoneClean::ZoneClean(
     stats += "mask " + std::to_string(walkable_flags) + " masked " + std::to_string(n_masked) + " cut "
              + std::to_string(n_mask_cut) + ", ";
     stats += "dup-sever " + std::to_string(n_dup) + ", link-mask cut " + std::to_string(n_cut) + ", comps "
-             + std::to_string(ncomps) + ", hops edge " + std::to_string(n_edge) + " touch " + std::to_string(n_touch) + " bridge "
-             + std::to_string(n_bridge) + " srcadj " + std::to_string(n_srcadj);
+             + std::to_string(ncomps);
 }
 
 std::optional<ZoneClean::SnapHit> ZoneClean::snap(const WorldPoint& p, double radius, std::optional<double> floor_y) const
