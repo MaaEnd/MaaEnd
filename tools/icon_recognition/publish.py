@@ -49,20 +49,37 @@ def default_publish_paths(repo_root: str | Path | None = None) -> PublishPaths:
     )
 
 
-def sync_published_images(image_root: Path, asset_image_root: Path) -> None:
-    """将缺失图标补充到运行时资源目录，不覆盖 CI 处理过的既有图标。"""
-    source_images = {
-        path.relative_to(image_root)
-        for path in image_root.rglob("*.png")
-        if path.is_file()
+def sync_published_images(
+    image_root: Path,
+    asset_image_root: Path,
+    catalog: dict[str, dict[str, object]],
+) -> None:
+    """按 catalog 同步图标, 迁移稀有度变更路径且不覆盖既有目标文件"""
+    expected_images = {
+        Path(str(record["rarity"])) / f"{record['iconId']}.png"
+        for record in catalog.values()
     }
     asset_image_root.mkdir(parents=True, exist_ok=True)
-    for relative_path in source_images:
-        source = image_root / relative_path
+    for relative_path in expected_images:
         destination = asset_image_root / relative_path
+        stale_paths = [
+            path
+            for path in asset_image_root.glob(f"*/{relative_path.name}")
+            if path.is_file() and path != destination
+        ]
+        if destination.exists():
+            for stale in stale_paths:
+                stale.unlink()
+            continue
+        if len(stale_paths) == 1:
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            stale_paths[0].replace(destination)
+            continue
+        source = image_root / relative_path
+        if not source.is_file():
+            continue
         destination.parent.mkdir(parents=True, exist_ok=True)
-        if not destination.exists():
-            shutil.copy2(source, destination)
+        shutil.copy2(source, destination)
 
 
 def publish(paths: PublishPaths) -> tuple[int, dict[str, int]]:
@@ -82,7 +99,7 @@ def publish(paths: PublishPaths) -> tuple[int, dict[str, int]]:
     )
     for item_id, record in catalog.items():
         record["name"] = zh_cn_values[f"iconRecognition.name.{item_id}"]
-    sync_published_images(paths.image_root, paths.asset_image_root)
+    sync_published_images(paths.image_root, paths.asset_image_root, catalog)
     paths.catalog_output.parent.mkdir(parents=True, exist_ok=True)
     write_catalog(catalog, paths.catalog_output)
     locale_counts = generate_locales(

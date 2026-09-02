@@ -9,6 +9,7 @@ from pathlib import Path
 from catalog import build_catalog, write_catalog
 from download import (
     DEFAULT_CACHE_ROOT,
+    DownloadJob,
     IMAGE_BASE_URL,
     ITEM_TABLE_URL,
     LANG_URL,
@@ -19,6 +20,7 @@ from download import (
     merge_item_sources,
     prepare_item_map,
     prepare_weapon_map,
+    relocate_rarity_changed_icons,
 )
 from fixed_items import load_fixed_items
 from localization import (
@@ -27,7 +29,12 @@ from localization import (
     build_locale_values,
     update_interface_locale,
 )
-from publish import default_publish_paths, publish, publish_fixed_items
+from publish import (
+    default_publish_paths,
+    publish,
+    publish_fixed_items,
+    sync_published_images,
+)
 from expected import merge_expected_results
 from text import clean_text, validate_identifier
 
@@ -59,6 +66,26 @@ class IconRecognitionToolsTest(unittest.TestCase):
         self.assertEqual(paths.catalog_output, Path("repo/assets/data/IconRecognition/recognition_items.json"))
         self.assertEqual(paths.asset_image_root, Path("repo/assets/resource/image/IconRecognition"))
         self.assertEqual(paths.locale_root, Path("repo/assets/locales/interface"))
+
+    def test_relocate_rarity_changed_icon_preserves_metadata(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            image_root = Path(directory) / "images"
+            source = image_root / "5" / "item_diamond.png"
+            destination = image_root / "6" / "item_diamond.png"
+            source.parent.mkdir(parents=True)
+            source.write_bytes(self._png_header(128, 128))
+            source.with_suffix(".png.meta.json").write_text(
+                "metadata", encoding="utf-8"
+            )
+
+            moved = relocate_rarity_changed_icons(
+                [DownloadJob("item_diamond", 6, "url", destination)], image_root
+            )
+
+            self.assertEqual(moved, 1)
+            self.assertFalse(source.exists())
+            self.assertTrue(destination.exists())
+            self.assertTrue(destination.with_suffix(".png.meta.json").exists())
 
     def test_fixed_publish_updates_only_fixed_catalog_and_locale_entries(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -494,9 +521,9 @@ class IconRecognitionToolsTest(unittest.TestCase):
             icon = paths.image_root / "3" / "item_test.png"
             icon.parent.mkdir(parents=True, exist_ok=True)
             icon.write_bytes(b"png")
-            stale = paths.asset_image_root / "2" / "stale.png"
-            stale.parent.mkdir(parents=True, exist_ok=True)
-            stale.write_bytes(b"stale")
+            destination = paths.asset_image_root / "3" / "item_test.png"
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            destination.write_bytes(b"stale")
             for locale, (_, language) in LOCALE_MAP.items():
                 translations = (
                     {}
@@ -524,9 +551,30 @@ class IconRecognitionToolsTest(unittest.TestCase):
                 (paths.locale_root / "en_us.json").read_text(encoding="utf-8")
             )
             self.assertTrue((paths.asset_image_root / "3" / "item_test.png").is_file())
-            self.assertTrue(stale.exists())
+            self.assertEqual(
+                (paths.asset_image_root / "3" / "item_test.png").read_bytes(),
+                b"stale",
+            )
         self.assertEqual(catalog["item_test"]["name"], "测试物品")
         self.assertEqual(en_us["iconRecognition.name.item_test"], "item_name_hash")
+
+    def test_sync_published_images_copies_missing_target(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            image_root = root / "images"
+            asset_image_root = root / "assets"
+            source = image_root / "3" / "item_test.png"
+            source.parent.mkdir(parents=True)
+            source.write_bytes(b"source")
+
+            sync_published_images(
+                image_root,
+                asset_image_root,
+                {"item_test": {"rarity": 3, "iconId": "item_test"}},
+            )
+
+            destination = asset_image_root / "3" / "item_test.png"
+            self.assertEqual(destination.read_bytes(), b"source")
 
     def test_prepare_item_map_accepts_isolate_category_types(self) -> None:
         items, removals = prepare_item_map(
