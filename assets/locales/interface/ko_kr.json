@@ -1081,6 +1081,8 @@
     "option.AutoCollectRoute14.failed": "<span style=\"color: red; font-weight: bold;\">채집 경로 14: 4호 계곡 바닥-칼코덴드라 채집 실패</span>",
     "option.AutoCollectRoute15.label": "채집 경로 15: 무릉-붉은 창 잎",
     "option.AutoCollectRoute15.failed": "<span style=\"color: red; font-weight: bold;\">채집 경로 15: 무릉-붉은 창 잎 채집 실패</span>",
+    "option.AutoCollectRoute16.label": "채집 경로 16: 무릉-프로토콜 문양석",
+    "option.AutoCollectRoute16.failed": "<span style=\"color: red; font-weight: bold;\">채집 경로 16: 무릉-프로토콜 문양석 채집 실패</span>",
     "option.AutoCollectRoute17.label": "채집 경로 17: 무릉-탈로스 버섯",
     "option.AutoCollectRoute17.failed": "<span style=\"color: red; font-weight: bold;\">채집 경로 17: 무릉-탈로스 버섯 채집 실패</span>",
     "option.AutoCollectCommonRoutes.label": "일반 수집물 회로",

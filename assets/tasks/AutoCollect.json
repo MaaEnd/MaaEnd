@@ -162,6 +162,7 @@
                 "Route13",
                 "Route14",
                 "Route15",
+                "Route16",
                 "Route17"
             ],
             "cases": [
@@ -296,6 +297,15 @@
                     "label": "$option.AutoCollectRoute15.label",
                     "pipeline_override": {
                         "AutoCollectRoute15Start": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "Route16",
+                    "label": "$option.AutoCollectRoute16.label",
+                    "pipeline_override": {
+                        "AutoCollectRoute16Start": {
                             "enabled": true
                         }
                     }

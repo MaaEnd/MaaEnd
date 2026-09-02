@@ -76,6 +76,7 @@
             "[JumpBack]AutoCollectRoute13Sub",
             "[JumpBack]AutoCollectRoute14Sub",
             "[JumpBack]AutoCollectRoute15Sub",
+            "[JumpBack]AutoCollectRoute16Sub",
             "[JumpBack]AutoCollectRoute17Sub",
             "[JumpBack]AutoCollectCommonRoute1Sub",
             "[JumpBack]AutoCollectCommonRoute2Sub",
@@ -296,6 +297,18 @@
         },
         "post_delay": 0
     },
+    "AutoCollectRoute16Sub": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FailureCollectorRunTask",
+        "custom_action_param": {
+            "key": "AutoCollect",
+            "task": "AutoCollectRoute16Start",
+            "failure_task": "AutoCollectRoute16Failed"
+        },
+        "post_delay": 0
+    },
     "AutoCollectRoute17Sub": {
         "max_hit": 1,
         "pre_delay": 0,
@@ -492,6 +505,12 @@
         "desc": "AutoCollectRoute15执行失败提示",
         "focus": {
             "Node.Recognition.Succeeded": "$option.AutoCollectRoute15.failed"
+        }
+    },
+    "AutoCollectRoute16Failed": {
+        "desc": "AutoCollectRoute16执行失败提示",
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute16.failed"
         }
     },
     "AutoCollectRoute17Failed": {
