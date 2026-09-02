@@ -268,11 +268,34 @@ Mask FillHoles(const Mask& mask, int64_t max_cells, const Mask* protect);
 
 Mask CloseCracks(const Mask& core, const Mask& lay, const Mask* protect);
 
+// 逐格单价: 净空夹进 [lo, hi] 后按亏欠比例上浮, 最宽处恒为一; dist 为空表示处处一价。
+// 它是净空场的逐元素函数, 每次取值现算 —— 单独铺一张全窗口的 float 表, 存的是同一份
+// 数据的第二个副本。
+struct PriceField
+{
+    const Grid<float>* dist = nullptr;
+    double lo = 0.0;
+    double hi = 0.0;
+
+    float v(size_t i) const
+    {
+        if (dist == nullptr) {
+            return 1.0F;
+        }
+        return static_cast<float>(hi / std::min(std::max(static_cast<double>(dist->v[i]), lo), hi));
+    }
+
+    float at(int64_t y, int64_t x) const
+    {
+        return dist == nullptr ? 1.0F : v(static_cast<size_t>(y * dist->nx + x));
+    }
+};
+
 std::optional<std::vector<CellPt>> CostAstar(
     const Mask& mask,
     CellPt s,
     CellPt g,
-    const Grid<float>& mult,
+    const PriceField& mult,
     const EdgeBits* banned,
     const double* bnp,
     const EdgeBits* forbidden = nullptr);
@@ -288,7 +311,7 @@ std::optional<std::vector<int64_t>> SpanAstar(
     const Mask& ok2,
     int64_t s,
     const std::vector<int64_t>& gset,
-    const Grid<float>& mult,
+    const PriceField& mult,
     const EdgeBits* banned,
     const double* bnp,
     const EdgeBits* forbidden = nullptr,

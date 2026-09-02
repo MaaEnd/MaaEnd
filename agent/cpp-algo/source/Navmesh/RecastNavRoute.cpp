@@ -864,20 +864,12 @@ std::optional<std::vector<WorldPoint>> routeWindow(
         return w;
     };
     // 中脊单价按净空亏欠比例上浮, 可见图一侧恒为一。这道价只在几条窄缝之间做取舍。
-    Grid<float> mult(nx, ny, 1.0F);
-    for (size_t i = 0; i < mult.v.size(); ++i) {
-        const double d = std::min(std::max(static_cast<double>(dist.v[i]), kCS), cpref);
-        mult.v[i] = static_cast<float>(cpref / d);
-    }
+    const PriceField mult { .dist = &dist, .lo = kCS, .hi = cpref };
     // 定通道那一层的单价同式, 但取值区间换成 [kClrNarrow, kClrWide]。封在 cpref 的话中轴上处处
     // 够宽的格单价一律为一, 平行分支里最短的那条必然中标 —— 而窄缝总比宽道短, 线于是钻缝。
     // 基准取在最宽处, 单价因此恒不低于一, 搜索拿欧氏距离当下界才成立; 基准落在窄处则它高估
     // 剩余代价, 反复重开已定好的节点。整体抬价保持逐格相对贵贱不变, 最优路径集合照旧。
-    Grid<float> multw(nx, ny, 1.0F);
-    for (size_t i = 0; i < multw.v.size(); ++i) {
-        const double d = std::min(std::max(static_cast<double>(dist.v[i]), kClrNarrow), kClrWide);
-        multw.v[i] = static_cast<float>(kClrWide / d);
-    }
+    const PriceField multw { .dist = &dist, .lo = kClrNarrow, .hi = kClrWide };
 
     const CellPt sc { static_cast<int64_t>((s.x - x0) / kCS), static_cast<int64_t>((s.y - y0) / kCS) };
     const CellPt gc { static_cast<int64_t>((g.x - x0) / kCS), static_cast<int64_t>((g.y - y0) / kCS) };
@@ -1151,7 +1143,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     // 目标面声明与 LayerOracle 全部原样。lim 只做减法, 无权放宽其中任何一条, 舒适选路因此造不出
     // unreachable。
     const auto solve = [&](const Mask& lim,
-                           const Grid<float>& price,
+                           const PriceField& price,
                            const EdgeBits* banned,
                            const double* bnp,
                            bool resnap,
@@ -1387,7 +1379,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     // 走得通的腿判成不可达。它同时是端点的回缩通道 —— 起终点天然贴墙时, 搜索沿这条按亏欠计价
     // 的线走几格就自然汇入 VV 图, 端点附近不需要任何放宽半径。
     const Mask all(nx, ny, 1);
-    const Grid<float> unit(nx, ny, 1.0F);
+    const PriceField unit {};
     const std::optional<Topo> base = solve(all, unit, nullptr, nullptr, true);
     if (!base.has_value()) {
         reportGap();

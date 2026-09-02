@@ -812,7 +812,7 @@ std::optional<std::vector<CellPt>> CostAstar(
     const Mask& mask,
     CellPt s,
     CellPt g,
-    const Grid<float>& mult,
+    const PriceField& mult,
     const EdgeBits* banned,
     const double* bnp,
     const EdgeBits* forbidden)
@@ -934,7 +934,7 @@ std::optional<std::vector<int64_t>> SpanAstar(
     const Mask& ok2,
     int64_t s,
     const std::vector<int64_t>& gset,
-    const Grid<float>& mult,
+    const PriceField& mult,
     const EdgeBits* banned,
     const double* bnp,
     const EdgeBits* forbidden,
@@ -991,7 +991,7 @@ std::optional<std::vector<int64_t>> SpanAstar(
                 }
                 pen = *bnp;
             }
-            const double stp = d.w * 0.5 * static_cast<double>(mult.v[static_cast<size_t>(cw)] + mult.v[static_cast<size_t>(cu)]);
+            const double stp = d.w * 0.5 * static_cast<double>(mult.v(static_cast<size_t>(cw)) + mult.v(static_cast<size_t>(cu)));
             const int64_t jb = st.cstart(j), jn = st.ccnt(j);
             for (int64_t k = 0; k < jn; ++k) {
                 const int64_t w = jb + k;
@@ -1043,7 +1043,7 @@ std::optional<std::vector<int64_t>> SpanAstar(
             break;
         }
         const float hu = st.sp_h[static_cast<size_t>(u)];
-        const float m0 = mult.v[static_cast<size_t>(cu)];
+        const float m0 = mult.v(static_cast<size_t>(cu));
         for (const auto& d : kNb8) {
             const int64_t a = x + d.dx, b = y + d.dy;
             if (a < 0 || a >= nx || b < 0 || b >= ny) {
@@ -1070,7 +1070,7 @@ std::optional<std::vector<int64_t>> SpanAstar(
                 }
                 pen = *bnp;
             }
-            const float step = static_cast<float>(d.w * 0.5) * (m0 + mult.v[static_cast<size_t>(cv)]);
+            const float step = static_cast<float>(d.w * 0.5) * (m0 + mult.v(static_cast<size_t>(cv)));
             const double nd = d0 + static_cast<double>(step) + pen;
             // Theta* 松弛: 先按祖父直连计价, 视线留到弹出时验。弦按欧氏长度计价, 只有单价恒为一
             // 的实心区里这笔账才精确; 中脊带单价随净空抬到七倍, 放弦进去等于免掉那笔税, 搜索会
@@ -1079,9 +1079,9 @@ std::optional<std::vector<int64_t>> SpanAstar(
             double ndp = nd;
             if (vis != nullptr) {
                 const int64_t p = prev[static_cast<size_t>(u)];
-                if (p >= 0 && mult.v[static_cast<size_t>(cv)] <= 1.0F) {
+                if (p >= 0 && mult.v(static_cast<size_t>(cv)) <= 1.0F) {
                     const int64_t cp = st.sp_cell[static_cast<size_t>(p)];
-                    if (mult.v[static_cast<size_t>(cp)] <= 1.0F) {
+                    if (mult.v(static_cast<size_t>(cp)) <= 1.0F) {
                         const double cd = dist[static_cast<size_t>(p)]
                             + std::hypot(static_cast<double>(a - cp % nx), static_cast<double>(b - cp / nx));
                         if (cd < ndp - 1e-12) {
