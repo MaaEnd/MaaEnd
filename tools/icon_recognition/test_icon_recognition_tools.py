@@ -494,6 +494,9 @@ class IconRecognitionToolsTest(unittest.TestCase):
             icon = paths.image_root / "3" / "item_test.png"
             icon.parent.mkdir(parents=True, exist_ok=True)
             icon.write_bytes(b"png")
+            stale = paths.asset_image_root / "2" / "stale.png"
+            stale.parent.mkdir(parents=True, exist_ok=True)
+            stale.write_bytes(b"stale")
             for locale, (_, language) in LOCALE_MAP.items():
                 translations = (
                     {}
@@ -520,6 +523,8 @@ class IconRecognitionToolsTest(unittest.TestCase):
             en_us = json.loads(
                 (paths.locale_root / "en_us.json").read_text(encoding="utf-8")
             )
+            self.assertTrue((paths.asset_image_root / "3" / "item_test.png").is_file())
+            self.assertTrue(stale.exists())
         self.assertEqual(catalog["item_test"]["name"], "测试物品")
         self.assertEqual(en_us["iconRecognition.name.item_test"], "item_name_hash")
 

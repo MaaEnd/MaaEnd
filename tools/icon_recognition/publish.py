@@ -49,6 +49,22 @@ def default_publish_paths(repo_root: str | Path | None = None) -> PublishPaths:
     )
 
 
+def sync_published_images(image_root: Path, asset_image_root: Path) -> None:
+    """将缺失图标补充到运行时资源目录，不覆盖 CI 处理过的既有图标。"""
+    source_images = {
+        path.relative_to(image_root)
+        for path in image_root.rglob("*.png")
+        if path.is_file()
+    }
+    asset_image_root.mkdir(parents=True, exist_ok=True)
+    for relative_path in source_images:
+        source = image_root / relative_path
+        destination = asset_image_root / relative_path
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        if not destination.exists():
+            shutil.copy2(source, destination)
+
+
 def publish(paths: PublishPaths) -> tuple[int, dict[str, int]]:
     source = json.loads(paths.item_source.read_text(encoding="utf-8-sig"), object_pairs_hook=OrderedDict)
     if not isinstance(source, dict):
@@ -66,6 +82,7 @@ def publish(paths: PublishPaths) -> tuple[int, dict[str, int]]:
     )
     for item_id, record in catalog.items():
         record["name"] = zh_cn_values[f"iconRecognition.name.{item_id}"]
+    sync_published_images(paths.image_root, paths.asset_image_root)
     paths.catalog_output.parent.mkdir(parents=True, exist_ok=True)
     write_catalog(catalog, paths.catalog_output)
     locale_counts = generate_locales(
