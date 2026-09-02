@@ -658,7 +658,7 @@
         ]
     },
     "__ScenePrivateMenuRegionalDevelopmentUnlockClose": {
-        "desc": "关闭地区建设解锁弹窗",
+        "desc": "关闭版本更新地区建设解锁弹窗",
         "recognition": "And",
         "all_of": [
             "CheckRegionalDevelopmentText",
@@ -678,7 +678,16 @@
                     "해제"
                 ]
             },
-            "CloseButtonType1"
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    950,
+                    150,
+                    270,
+                    180
+                ],
+                "template": "Common/Button/CloseButtonType4.png"
+            }
         ],
         "box_index": 2,
         "pre_wait_freezes": {
