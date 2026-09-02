@@ -544,7 +544,7 @@ ZoneClean::ZoneClean(
         }
         return n;
     };
-    const auto pushPortals = [&](int32_t ti, int32_t tj) {
+    const auto pushPortals = [&](int32_t ti, int32_t tj, std::vector<HopPt>& out) {
         int32_t sh[2] = { -1, -1 };
         int ns = 0;
         for (int ka = 0; ka < 3 && ns < 2; ++ka) {
@@ -557,8 +557,8 @@ ZoneClean::ZoneClean(
         const WorldPoint p1 = mesh.V[sh[1]];
         for (const double t : kPortalSamples) {
             const WorldPoint pt { p0.x + (p1.x - p0.x) * t, p0.y + (p1.y - p0.y) * t };
-            hops.push_back({ pt, pt, tj });
-            hops.push_back({ pt, pt, ti });
+            out.push_back({ pt, pt, tj });
+            out.push_back({ pt, pt, ti });
         }
     };
     int64_t n_edge = 0;
@@ -572,7 +572,7 @@ ZoneClean::ZoneClean(
             continue;
         }
         if (nshared(i, j) == 2) {
-            pushPortals(i, j);
+            pushPortals(i, j, hops);
             ++n_edge;
         }
         else {
@@ -595,79 +595,87 @@ ZoneClean::ZoneClean(
                                          (mesh.V[tri[0]].y + mesh.V[tri[1]].y + mesh.V[tri[2]].y) / 3.0 };
     }
     // 逐对局部泛洪都要一套访问标记, 每对新建散列集与双端队列的话分配与哈希就是这段的全部开销。
-    // 整段共用一组世代戳和一个当队列使的数组: 队列仍是先进先出、标记语义不变, 访问序逐位相同。
-    std::vector<uint32_t> vis(static_cast<size_t>(m), 0);
-    std::vector<int32_t> dq;
-    uint32_t vis_epoch = 0;
-    for (size_t r = 0; r < ia.size(); ++r) {
-        const int32_t ta = ia[r];
-        const int32_t tb = ib[r];
-        if (comp[static_cast<size_t>(ta)] != comp[static_cast<size_t>(tb)]) {
-            continue;
-        }
-        bool adjacent = false;
-        for (int k1 = 0; k1 < 3 && !adjacent; ++k1) {
-            const int32_t n1 = NB[static_cast<size_t>(ta)][k1];
-            if (n1 < 0) {
+    // 每块一组世代戳和一个当队列使的数组: 戳只在本块内比对, 队列仍是先进先出, 访问序逐位相同。
+    const auto n_pair = static_cast<int64_t>(ia.size());
+    const size_t nw_src = NavWorkerCount(n_pair);
+    std::vector<std::vector<HopPt>> bins_src(nw_src);
+    std::vector<int64_t> cnt_src(nw_src, 0);
+    ParallelChunks(n_pair, nw_src, [&](size_t w, int64_t pair_lo, int64_t pair_hi) {
+        std::vector<uint32_t> vis(static_cast<size_t>(m), 0);
+        std::vector<int32_t> dq;
+        uint32_t vis_epoch = 0;
+        for (int64_t r = pair_lo; r < pair_hi; ++r) {
+            const int32_t ta = ia[static_cast<size_t>(r)];
+            const int32_t tb = ib[static_cast<size_t>(r)];
+            if (comp[static_cast<size_t>(ta)] != comp[static_cast<size_t>(tb)]) {
                 continue;
             }
-            const auto& row = NB[static_cast<size_t>(n1)];
-            adjacent = row[0] == tb || row[1] == tb || row[2] == tb;
-        }
-        if (adjacent) {
-            continue;
-        }
-        const WorldPoint mx { (cent[static_cast<size_t>(ta)].x + cent[static_cast<size_t>(tb)].x) * 0.5,
-                              (cent[static_cast<size_t>(ta)].y + cent[static_cast<size_t>(tb)].y) * 0.5 };
-        ++vis_epoch;
-        vis[static_cast<size_t>(ta)] = vis_epoch;
-        dq.clear();
-        dq.push_back(ta);
-        size_t head = 0;
-        bool hit = false;
-        while (head < dq.size() && !hit) {
-            const int32_t t2 = dq[head++];
-            for (int k = 0; k < 3; ++k) {
-                const int32_t nb2 = NB[static_cast<size_t>(t2)][k];
-                if (nb2 < 0 || vis[static_cast<size_t>(nb2)] == vis_epoch) {
+            bool adjacent = false;
+            for (int k1 = 0; k1 < 3 && !adjacent; ++k1) {
+                const int32_t n1 = NB[static_cast<size_t>(ta)][k1];
+                if (n1 < 0) {
                     continue;
                 }
-                if (nb2 == tb) { // 目标判定先于出框判定
-                    hit = true;
-                    break;
+                const auto& row = NB[static_cast<size_t>(n1)];
+                adjacent = row[0] == tb || row[1] == tb || row[2] == tb;
+            }
+            if (adjacent) {
+                continue;
+            }
+            const WorldPoint mx { (cent[static_cast<size_t>(ta)].x + cent[static_cast<size_t>(tb)].x) * 0.5,
+                                  (cent[static_cast<size_t>(ta)].y + cent[static_cast<size_t>(tb)].y) * 0.5 };
+            ++vis_epoch;
+            vis[static_cast<size_t>(ta)] = vis_epoch;
+            dq.clear();
+            dq.push_back(ta);
+            size_t head = 0;
+            bool hit = false;
+            while (head < dq.size() && !hit) {
+                const int32_t t2 = dq[head++];
+                for (int k = 0; k < 3; ++k) {
+                    const int32_t nb2 = NB[static_cast<size_t>(t2)][k];
+                    if (nb2 < 0 || vis[static_cast<size_t>(nb2)] == vis_epoch) {
+                        continue;
+                    }
+                    if (nb2 == tb) { // 目标判定先于出框判定
+                        hit = true;
+                        break;
+                    }
+                    if (std::fabs(cent[static_cast<size_t>(nb2)].x - mx.x) > kSrcadjLocalR
+                        || std::fabs(cent[static_cast<size_t>(nb2)].y - mx.y) > kSrcadjLocalR) {
+                        continue;
+                    }
+                    vis[static_cast<size_t>(nb2)] = vis_epoch;
+                    dq.push_back(nb2);
                 }
-                if (std::fabs(cent[static_cast<size_t>(nb2)].x - mx.x) > kSrcadjLocalR
-                    || std::fabs(cent[static_cast<size_t>(nb2)].y - mx.y) > kSrcadjLocalR) {
+            }
+            if (hit) {
+                continue;
+            }
+            if (nshared(ta, tb) == 2) {
+                pushPortals(ta, tb, bins_src[w]);
+            }
+            else {
+                const auto br =
+                    planner.closestEdgeBridgePoints(static_cast<uint32_t>(lo + ta), static_cast<uint32_t>(lo + tb));
+                if (!br) {
                     continue;
                 }
-                vis[static_cast<size_t>(nb2)] = vis_epoch;
-                dq.push_back(nb2);
+                const WorldPoint ex = (*br)[0];
+                const WorldPoint en = (*br)[1];
+                if (std::hypot(ex.x - en.x, ex.y - en.y) > kSrcadjMaxGap) {
+                    continue;
+                }
+                bins_src[w].push_back({ ex, en, tb });
+                bins_src[w].push_back({ en, ex, ta });
             }
+            ++cnt_src[w];
         }
-        if (hit) {
-            continue;
-        }
-        if (nshared(ta, tb) == 2) {
-            pushPortals(ta, tb);
-        }
-        else {
-            const auto br = planner.closestEdgeBridgePoints(static_cast<uint32_t>(lo + ta), static_cast<uint32_t>(lo + tb));
-            if (!br) {
-                continue;
-            }
-            const WorldPoint ex = (*br)[0];
-            const WorldPoint en = (*br)[1];
-            if (std::hypot(ex.x - en.x, ex.y - en.y) > kSrcadjMaxGap) {
-                continue;
-            }
-            hops.push_back({ ex, en, tb });
-            hops.push_back({ en, ex, ta });
-        }
-        ++n_srcadj;
+    });
+    ConcatBins(bins_src, hops);
+    for (const int64_t c : cnt_src) {
+        n_srcadj += c;
     }
-    // 泛洪用完就还, 别让这两块一路压到墙判据建索引那一段的峰值上。swap 空容器才还得掉容量。
-    std::vector<uint32_t>().swap(vis);
-    std::vector<int32_t>().swap(dq);
 
     int64_t ncomps = 0;
     for (int64_t i = 0; i < m; ++i) {
