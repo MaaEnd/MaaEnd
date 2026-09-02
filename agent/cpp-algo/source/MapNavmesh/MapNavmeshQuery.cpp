@@ -63,6 +63,7 @@ struct QueryParam
     std::vector<double> position;
     std::string position_zone;
     json::value custom_action_param = json::object { };
+    std::string zipline_account_id;
     std::string out_file;
 
     MEO_JSONIZATION(
@@ -79,6 +80,7 @@ struct QueryParam
         MEO_OPT position,
         MEO_OPT position_zone,
         MEO_OPT custom_action_param,
+        MEO_OPT zipline_account_id,
         MEO_OPT out_file)
 };
 
@@ -555,11 +557,13 @@ json::object BuildRoutePreview(const QueryParam& query)
     param.navmesh_file = query.navmesh_file;
     param.normalize_position_via_navmesh = true;
     if (param.zipline_enabled) {
-        // 离线路线预览没有游戏画面可读 UID。只在这个开发工具入口按最近一次导入账号预览，
-        // 保持多账号记录隔离；正式 MapNavigateAction 仍只认当前游戏 UID，绝不走该兜底。
-        zipline::ZiplineStore store;
-        if (store.load(zipline::ZiplineStore::DefaultPath())) {
-            param.zipline_account_id = store.latestAccountId();
+        // 这是开发工具的顶层查询字段，不属于 MapNavigateAction 参数。正式运行仍只认当前游戏 UID。
+        param.zipline_account_id = query.zipline_account_id;
+        if (param.zipline_account_id.empty()) {
+            zipline::ZiplineStore store;
+            if (store.load(zipline::ZiplineStore::DefaultPath())) {
+                param.zipline_account_id = store.latestAccountId();
+            }
         }
     }
 

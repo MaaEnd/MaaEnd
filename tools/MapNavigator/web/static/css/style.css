@@ -355,6 +355,19 @@ canvas {
   align-items: flex-start;
 }
 
+.planning-account-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.planning-account-combo {
+  min-width: 0;
+  width: 100%;
+}
+
 .grid-btns-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;

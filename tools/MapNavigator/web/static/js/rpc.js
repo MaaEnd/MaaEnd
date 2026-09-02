@@ -190,7 +190,7 @@ export function getZiplineRecords() {
  * Expand a complete MapNavigator request with the runtime planner, preserving global
  * route boundaries and zipline semantics.
  *
- * @param {{position:number[], position_zone:string, custom_action_param:Object}} req
+ * @param {{position:number[], position_zone:string, custom_action_param:Object, zipline_account_id?:string}} req
  * @returns {Promise<{ok:boolean, stale?:boolean, points?:number[][],
  *   walk_segments?:number[][][], zipline_segments?:Array<Object>,
  *   diagnostics?:Array<Object>, expanded_waypoints?:number, zipline?:Object, error?:string,
@@ -205,6 +205,7 @@ export function postRoutePreview(req) {
     position: req.position,
     position_zone: req.position_zone,
     custom_action_param: req.custom_action_param,
+    zipline_account_id: req.zipline_account_id || "",
   });
 }
 

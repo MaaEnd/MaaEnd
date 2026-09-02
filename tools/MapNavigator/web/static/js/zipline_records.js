@@ -12,16 +12,37 @@ function matchingFrame(config, zoneName) {
   );
 }
 
-/** Latest imported pseudonymous account for offline map inspection. @param {Object} records @returns {string} */
-export function latestZiplineAccountId(records) {
-  let latest = null;
+/**
+ * Unique pseudonymous accounts ordered by their latest import time.
+ * @param {Object} records parsed record/Ziplines.json
+ * @returns {Array<{accountId:string,fetchedAt:string}>}
+ */
+export function listZiplineAccounts(records) {
+  const accounts = new Map();
   for (const map of records && Array.isArray(records.maps) ? records.maps : []) {
     const accountId = String((map && map.account_id) || "");
     if (!accountId) continue;
     const fetchedAt = String((map && map.fetched_at) || "");
-    if (!latest || fetchedAt > latest.fetchedAt) latest = {accountId, fetchedAt};
+    const previous = accounts.get(accountId);
+    if (!previous || fetchedAt > previous.fetchedAt) accounts.set(accountId, {accountId, fetchedAt});
   }
-  return latest ? latest.accountId : "";
+  return [...accounts.values()].sort(
+    (left, right) => right.fetchedAt.localeCompare(left.fetchedAt) || left.accountId.localeCompare(right.accountId),
+  );
+}
+
+/** Latest imported pseudonymous account for offline map inspection. @param {Object} records @returns {string} */
+export function latestZiplineAccountId(records) {
+  return listZiplineAccounts(records)[0]?.accountId || "";
+}
+
+/** Compact account label suitable for the planning dropdown. */
+export function ziplineAccountLabel(account) {
+  const accountId = String((account && account.accountId) || "");
+  const shortId = accountId.length > 10 ? `${accountId.slice(0, 6)}…${accountId.slice(-4)}` : accountId;
+  const fetchedAt = String((account && account.fetchedAt) || "");
+  const importedDate = /^\d{4}-\d{2}-\d{2}/.exec(fetchedAt)?.[0] || "";
+  return `账号 ${shortId}${importedDate ? ` · ${importedDate}` : ""}`;
 }
 
 /**
