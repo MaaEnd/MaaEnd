@@ -19,7 +19,7 @@ WorldMap 属于识别层，只负责在已经打开的大地图上把坐标解�
 
 节点执行时会先把地图缩到最小，再自行截图、求解视口、必要时拖动地图，直到目标进入可用区域为止。**给了 `icon` 时，确认不到图标就不给坐标**——算得出位置不等于那里有东西，宁可返回失败让上层重试或走别的候选，也不交一个算出来的空位置。不给 `icon` 时只把坐标解出来交回，不作这层担保。
 
-缩放档位是视口求解要在尺度带里扫出来的那个未知量，所以节点进来第一件事就是把它钉死：反复跑 pipeline 的 `__ScenePrivateMapZoomOut`，认到减号就接着按，一路按到底。减号已经灰了（缩不动了）时那个节点认不中，一次触控都不会发出去。但**认不到不等于已经到底**——那一帧可能只是动画没画完，而「以为最小、其实没缩到」会让后面的视口求解必然失败，所以要隔开几帧连着确认几次才收手；判不出来的时候一律当作还能缩。因此 pipeline 里写不写 `__ScenePrivateMapZoomOut` 都行：写了是提前缩好，不写这里也会缩。按钮坐标各端不同，它跟着资源层走，节点自己不带坐标。
+缩放档位是视口求解要在尺度带里扫出来的那个未知量，所以节点进来第一件事就是把它钉死：调用一次 pipeline 的 `SceneMapZoomOut`，子任务返回时地图应已缩到最小。按钮坐标各端不同，它跟着资源层走，节点自己不带坐标。因此 pipeline 里写不写 `[JumpBack]__ScenePrivateMapZoomOut` 都行：写了是提前缩好，不写 `MapFind` 也会调 `SceneMapZoomOut`。
 
 ### 节点参数
 
@@ -143,7 +143,7 @@ WorldMap 属于识别层，只负责在已经打开的大地图上把坐标解�
 
 传送点节点写在 `assets/resource/pipeline/SceneManager/SceneTeleport<区域>.json`，填进 `__ScenePrivateMapTeleportPickAnchor` 槽位；入口节点写在 `Interface/Scene<区域>.json`，绑定该槽位并经由 `__ScenePrivateMap<子区域>EnterWorldAnchorWithPick` 进入——后者负责把地图切到主图层，并用 `all_of` 确认当前确实在该子区域的地图界面，顺带先往最小缩一把。
 
-入口里那条 `__ScenePrivateMapZoomOut` 是提前量、不是必需品：`MapFind` 自己会缩。新接的点照着现有入口抄一份就行，漏了也不会因此认不出来。
+入口里那条 `[JumpBack]__ScenePrivateMapZoomOut` 是提前量、不是必需品：`MapFind` 自己会调 `SceneMapZoomOut`。新接的点照着现有入口抄一份就行，漏了也不会因此认不出来。
 
 子区域的确认闸在 `...EnterWorldAnchorWithPick` 上，`MapFind` 节点自己不再重复一遍——`recognition` 槽位让给了 `MapFind`，而视口求解本身就是更强的「在不在这张图上」判据。
 

@@ -19,7 +19,7 @@ Find the given coordinate on the current map, and confirm the icon sitting there
 
 The node zooms the map all the way out first, then captures the screen itself, solves the viewport, and pans the map when needed, until the target is inside the usable area. **Once `icon` is given, no confirmation means no coordinate** — being able to compute a position does not mean anything is there. It would rather fail and let the caller retry or take another candidate than hand back a computed empty spot. Without an `icon` it just solves the coordinate and hands it back, making no such promise.
 
-The zoom level is the unknown the viewport solve has to sweep its scale band for, so pinning it down is the first thing the node does: it keeps running the Pipeline's `__ScenePrivateMapZoomOut`, pressing again for as long as the minus button is recognised. Once the minus button has greyed out — nothing left to zoom — that node no longer recognises and not a single touch goes out. But **failing to recognise it is not proof of having bottomed out**: that one frame may just be mid-animation, and believing the map is at its minimum when it is not makes the viewport solve fail every time. So it takes several spaced-out confirmations before it stops, and anything it cannot judge counts as "still zoomable". Writing `__ScenePrivateMapZoomOut` into the Pipeline is therefore optional: with it the zoom is already done, without it the node does it. The button sits at different coordinates on each client, so it follows the resource layers; the node itself carries no coordinates.
+The zoom level is the unknown the viewport solve has to sweep its scale band for, so pinning it down is the first thing the node does: it runs the Pipeline's `SceneMapZoomOut` once; when that subtask returns, the map should already be at minimum zoom. The button sits at different coordinates on each client, so it follows the resource layers; the node itself carries no coordinates. Writing `[JumpBack]__ScenePrivateMapZoomOut` into the Pipeline is therefore optional: with it the zoom is already done, without it `MapFind` still calls `SceneMapZoomOut`.
 
 ### Node parameters
 
@@ -143,7 +143,7 @@ Three entries exist today:
 
 Teleport nodes live in `assets/resource/pipeline/SceneManager/SceneTeleport<Zone>.json` and fill the `__ScenePrivateMapTeleportPickAnchor` slot; entry nodes live in `Interface/Scene<Zone>.json`, bind that slot and route through `__ScenePrivateMap<SubArea>EnterWorldAnchorWithPick`, which switches the map to its main layer, uses `all_of` to confirm that this really is that sub-area's map screen, and gives the zoom a head start on the way.
 
-The `__ScenePrivateMapZoomOut` in the entry node is a head start, not a requirement: `MapFind` zooms out on its own. Copy an existing entry when wiring up a new point; leaving it out costs nothing in recognition.
+The `[JumpBack]__ScenePrivateMapZoomOut` in the entry node is a head start, not a requirement: `MapFind` calls `SceneMapZoomOut` on its own. Copy an existing entry when wiring up a new point; leaving it out costs nothing in recognition.
 
 The sub-area check lives on `...EnterWorldAnchorWithPick`; the `MapFind` node no longer repeats it — the `recognition` slot went to `MapFind`, and solving the viewport is itself the stronger test of "are we on this map at all".
 

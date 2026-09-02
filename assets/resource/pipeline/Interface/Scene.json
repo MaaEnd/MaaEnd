@@ -232,6 +232,17 @@
             "__ScenePrivateNoticeRewardsUpgradeConfirm"
         ]
     },
+    "SceneMapZoomOut": {
+        "desc": "在地图界面缩小地图（供 MapFind 等子任务调用）",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMapZoomOut",
+            "__ScenePrivateNextTrue"
+        ]
+    },
     "SceneWaitLoadingExit": {
         "desc": "判断当前场景在加载界面，什么都不做，用于等待加载界面消失",
         "recognition": {
