@@ -662,11 +662,9 @@ std::vector<uint8_t> WallsAtLayer(
     return keep;
 }
 
-WallCsr BuildWallIndex(const std::vector<WorldPoint>& p0, const std::vector<WorldPoint>& p1, double ox, double oy, int64_t nx, int64_t ny)
+Mask WallHits(const std::vector<WorldPoint>& p0, const std::vector<WorldPoint>& p1, double ox, double oy, int64_t nx, int64_t ny)
 {
-    WallCsr csr;
-    csr.start.assign(static_cast<size_t>(nx * ny + 1), 0);
-    std::vector<std::pair<int64_t, int64_t>> entries;
+    Mask hit(nx, ny, 0);
     for (size_t i = 0; i < p0.size(); ++i) {
         const double L = std::hypot(p1[i].x - p0[i].x, p1[i].y - p0[i].y);
         const int64_t steps = sampleSteps(L, 0.2);
@@ -677,20 +675,11 @@ WallCsr BuildWallIndex(const std::vector<WorldPoint>& p0, const std::vector<Worl
             const int64_t gx = static_cast<int64_t>(std::floor((sx - ox) / kCS));
             const int64_t gy = static_cast<int64_t>(std::floor((sy - oy) / kCS));
             if (gx >= 0 && gx < nx && gy >= 0 && gy < ny) {
-                entries.emplace_back(gy * nx + gx, static_cast<int64_t>(i));
+                hit.at(gy, gx) = 1;
             }
         }
     }
-    std::sort(entries.begin(), entries.end());
-    entries.erase(std::unique(entries.begin(), entries.end()), entries.end());
-    for (const auto& [cid, wid] : entries) {
-        ++csr.start[static_cast<size_t>(cid + 1)];
-        csr.wid.push_back(wid);
-    }
-    for (size_t i = 1; i < csr.start.size(); ++i) {
-        csr.start[i] += csr.start[i - 1];
-    }
-    return csr;
+    return hit;
 }
 
 std::vector<int64_t> Comps4(const Mask& mask)

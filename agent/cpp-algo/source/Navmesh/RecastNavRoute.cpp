@@ -37,7 +37,7 @@ struct WindowInfo
     Grid<float> dist;
     std::vector<WorldPoint> wP0;
     std::vector<WorldPoint> wP1;
-    WallCsr wcsr;
+    Mask whit;
     StepBarrier sev;
     std::vector<WorldPoint> segA;
     std::vector<WorldPoint> segB;
@@ -409,7 +409,7 @@ std::optional<WindowInfo> buildWindow(
             info.wP1.push_back(walls.p1[i]);
         }
     }
-    info.wcsr = BuildWallIndex(info.wP0, info.wP1, x0, y0, nx, ny);
+    info.whit = WallHits(info.wP0, info.wP1, x0, y0, nx, ny);
 
     if (!blocked_local.empty()) {
         std::vector<std::array<int32_t, 3>> bt;
@@ -813,7 +813,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     // 掩膜距离场对跨越边界边无感, 取到边界的距离的下确界补上
     Mask wfree(nx, ny, 0);
     for (size_t i = 0; i < wfree.v.size(); ++i) {
-        wfree.v[i] = info.wcsr.start[i + 1] > info.wcsr.start[i] ? 0 : 1;
+        wfree.v[i] = info.whit.v[i] != 0 ? 0 : 1;
     }
     // 共面重叠片各自留着自己的边界, 落到格上是间距约 1px 的栅格, 开阔广场因此与窄巷读出同样的
     // 宽度, 按宽度定价的拓扑层于是分辨不出宽路。摘法只放不加: 四邻全可走、且这四步都没被禁的

@@ -137,12 +137,6 @@ struct SpanTable
 // 相邻格垂直可达判据: cid 格上高 h0 的 span 能否迈到 (dx,dy) 邻格上高 h1 的 span。
 bool RiseOk(const SpanTable& st, int64_t nx, int64_t ny, int64_t cid, int64_t dx, int64_t dy, float h0, float h1);
 
-struct WallCsr
-{
-    std::vector<int64_t> wid;
-    std::vector<int64_t> start;
-};
-
 // walkable 非空时按三角下标逐个过滤:标 0 的不体素化。掩码须与 T 同长同序;
 // 调用方自己压缩过的子集三角表留 nullptr。
 RasterCells Rasterize(
@@ -189,7 +183,8 @@ std::vector<uint8_t> WallsAtLayer(
     double ox,
     double oy);
 
-WallCsr BuildWallIndex(const std::vector<WorldPoint>& p0, const std::vector<WorldPoint>& p1, double ox, double oy, int64_t nx, int64_t ny);
+// 逐格一位: 这一格里落过边界边的采样点。距离场对跨边界无感, 用它把边所在的格从自由集里扣掉。
+Mask WallHits(const std::vector<WorldPoint>& p0, const std::vector<WorldPoint>& p1, double ox, double oy, int64_t nx, int64_t ny);
 
 // (dy+1)*3+(dx+1) → 位号 |(位存在终点格 ? 8 : 0), -1 表示这个位移不是八邻。
 // 表由 kGridStepDx/Dy 现推, 于是与包里 stepbits 的位序同一份定义。
