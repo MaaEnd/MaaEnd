@@ -125,6 +125,7 @@ QueryContext* AcquireContext(const std::string& configured_path, std::string& er
     context->pack = std::move(*loaded.pack);
     context->planner.emplace(context->pack);
     context->engine.emplace(context->pack, *context->planner);
+    context->pack.releaseLinks();
     QueryContext* raw = context.get();
     g_contexts.emplace(key, std::move(context));
     LogInfo << "navmesh loaded" << VAR(key);
@@ -339,7 +340,7 @@ json::object BuildRoute(QueryContext& context, const QueryParam& param)
     const navmesh::WorldPoint start { .x = param.start[0], .y = param.start[1] };
     const navmesh::WorldPoint goal { .x = param.goal[0], .y = param.goal[1] };
     const float floor_y = FloorOrNone(param.floor_y);
-    const auto plan = context.engine->plan(zone->name, start, goal, floor_y, floor_y, FloorOrNone(param.goal_deck_y), {}, {}, {}, false);
+    const auto plan = context.engine->plan(zone->name, start, goal, floor_y, floor_y, FloorOrNone(param.goal_deck_y), {}, {}, {});
 
     if (!plan.ok) {
         // 失败时带上两端的离网探针，调用方才能标出是哪个点掉在网格外。
@@ -379,39 +380,28 @@ json::object BuildRoute(QueryContext& context, const QueryParam& param)
                          { "nx", plan.debug.nx },
                          { "ny", plan.debug.ny },
                          { "cell_size", plan.debug.cell_size } } },
-        { "astar_cells", json::array() },
-        { "rerouted_points", json::array() },
-        { "string_pull_points", json::array() },
+        { "topology_cells", json::array() },
+        { "topology_heights", json::array() },
+        { "taut_points", json::array() },
+        { "pulled_points", json::array() },
         { "assembled_points", json::array() },
-        { "loop_fixed_points", json::array() },
-        { "slim_points", json::array() },
-        { "widened_points", json::array() },
         { "planned_points", json::array() },
         { "warnings", json::array() },
     };
-    for (const auto& p : plan.debug.astar_cells) {
-        debug["astar_cells"].as_array().emplace_back(json::array { p.x, p.y });
+    for (const auto& p : plan.debug.topology_cells) {
+        debug["topology_cells"].as_array().emplace_back(json::array { p.x, p.y });
     }
-    for (const double height : plan.debug.astar_heights) {
-        debug["astar_heights"].as_array().emplace_back(height);
+    for (const double height : plan.debug.topology_heights) {
+        debug["topology_heights"].as_array().emplace_back(height);
     }
-    for (const auto& p : plan.debug.rerouted_points) {
-        debug["rerouted_points"].as_array().emplace_back(json::array { p.x, p.y });
+    for (const auto& p : plan.debug.taut_points) {
+        debug["taut_points"].as_array().emplace_back(json::array { p.x, p.y });
     }
-    for (const auto& p : plan.debug.string_pull_points) {
-        debug["string_pull_points"].as_array().emplace_back(json::array { p.x, p.y });
+    for (const auto& p : plan.debug.pulled_points) {
+        debug["pulled_points"].as_array().emplace_back(json::array { p.x, p.y });
     }
     for (const auto& p : plan.debug.assembled_points) {
         debug["assembled_points"].as_array().emplace_back(json::array { p.x, p.y });
-    }
-    for (const auto& p : plan.debug.loop_fixed_points) {
-        debug["loop_fixed_points"].as_array().emplace_back(json::array { p.x, p.y });
-    }
-    for (const auto& p : plan.debug.slim_points) {
-        debug["slim_points"].as_array().emplace_back(json::array { p.x, p.y });
-    }
-    for (const auto& p : plan.debug.widened_points) {
-        debug["widened_points"].as_array().emplace_back(json::array { p.x, p.y });
     }
     for (const auto& p : plan.debug.planned_points) {
         debug["planned_points"].as_array().emplace_back(json::array { p.x, p.y });
@@ -468,21 +458,21 @@ json::array PointsToJson(const std::vector<navmesh::WorldPoint>& points)
 
 json::array DiagnosticPointsToJson(
     const std::vector<navmesh::WorldPoint>& points,
-    const std::vector<navmesh::WorldPoint>& astar_cells,
-    const std::vector<double>& astar_heights)
+    const std::vector<navmesh::WorldPoint>& cells,
+    const std::vector<double>& heights)
 {
     json::array out;
     for (const navmesh::WorldPoint& point : points) {
         double height = 0.0;
         bool have_height = false;
-        const size_t count = std::min(astar_cells.size(), astar_heights.size());
+        const size_t count = std::min(cells.size(), heights.size());
         double best_distance = 0.0;
         for (size_t i = 0; i < count; ++i) {
-            const double distance = std::hypot(point.x - astar_cells[i].x, point.y - astar_cells[i].y);
+            const double distance = std::hypot(point.x - cells[i].x, point.y - cells[i].y);
             if (!have_height || distance < best_distance) {
                 have_height = true;
                 best_distance = distance;
-                height = astar_heights[i];
+                height = heights[i];
             }
         }
         if (have_height) {
@@ -514,23 +504,20 @@ json::object DiagnosticToJson(const mapnavigator::NavmeshRouteDiagnostic& diagno
         { "goal", json::array { diagnostic.goal.x, diagnostic.goal.y } },
         { "timing_ms",
           json::object {
-              { "astar", diagnostic.timing.astar_ms },
-              { "rerouted", diagnostic.timing.rerouted_ms },
-              { "string_pull", diagnostic.timing.string_pull_ms },
-              { "assembled", diagnostic.timing.assembled_ms },
-              { "loop_fixed", diagnostic.timing.loop_fixed_ms },
-              { "slim", diagnostic.timing.slim_ms },
-              { "widened", diagnostic.timing.widened_ms },
-              { "final", diagnostic.timing.final_ms },
+              { "window", diagnostic.timing.window_ms },
+              { "topology", diagnostic.timing.topology_ms },
+              { "geometry", diagnostic.timing.geometry_ms },
+              { "pull", diagnostic.timing.pull_ms },
+              { "assemble", diagnostic.timing.assemble_ms },
+              { "lift", diagnostic.timing.lift_ms },
+              { "total", diagnostic.timing.total_ms },
           } },
-        { "astar_cells", DiagnosticPointsToJson(diagnostic.astar_cells, diagnostic.astar_cells, diagnostic.astar_heights) },
-        { "rerouted_points", DiagnosticPointsToJson(diagnostic.rerouted_points, diagnostic.astar_cells, diagnostic.astar_heights) },
-        { "string_pull_points", DiagnosticPointsToJson(diagnostic.string_pull_points, diagnostic.astar_cells, diagnostic.astar_heights) },
-        { "assembled_points", DiagnosticPointsToJson(diagnostic.assembled_points, diagnostic.astar_cells, diagnostic.astar_heights) },
-        { "loop_fixed_points", DiagnosticPointsToJson(diagnostic.loop_fixed_points, diagnostic.astar_cells, diagnostic.astar_heights) },
-        { "slim_points", DiagnosticPointsToJson(diagnostic.slim_points, diagnostic.astar_cells, diagnostic.astar_heights) },
-        { "widened_points", DiagnosticPointsToJson(diagnostic.widened_points, diagnostic.astar_cells, diagnostic.astar_heights) },
-        { "planned_points", DiagnosticPointsToJson(diagnostic.planned_points, diagnostic.astar_cells, diagnostic.astar_heights) },
+        { "topology_cells", DiagnosticPointsToJson(diagnostic.topology_cells, diagnostic.topology_cells, diagnostic.topology_heights) },
+        { "taut_points", DiagnosticPointsToJson(diagnostic.taut_points, diagnostic.topology_cells, diagnostic.topology_heights) },
+        { "pulled_points", DiagnosticPointsToJson(diagnostic.pulled_points, diagnostic.topology_cells, diagnostic.topology_heights) },
+        { "assembled_points",
+          DiagnosticPointsToJson(diagnostic.assembled_points, diagnostic.topology_cells, diagnostic.topology_heights) },
+        { "planned_points", DiagnosticPointsToJson(diagnostic.planned_points, diagnostic.topology_cells, diagnostic.topology_heights) },
         { "warnings", std::move(warnings) },
     };
 }

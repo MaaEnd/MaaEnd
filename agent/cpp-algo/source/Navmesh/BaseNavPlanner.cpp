@@ -5,10 +5,12 @@
 #include <cstdint>
 #include <limits>
 #include <numeric>
+#include <thread>
 #include <tuple>
 
 #include "BaseNavGeometry.h"
 #include "BaseNavPlanner.h"
+#include "NavParallel.h"
 
 namespace navmesh
 {
@@ -74,25 +76,60 @@ BaseNavPlanner::BaseNavPlanner(const BaseNavPack& pack)
     , adjacency_offsets_(pack.triangles().size() + 1, 0)
     , triangle_heights_(pack.triangles().size(), 0.0)
 {
-    buildIndex();
-    buildSpatialIndex();
-    computeTriangleHeights();
-}
-
-void BaseNavPlanner::buildIndex()
-{
     for (const auto& zone : pack_.zones()) {
         const uint32_t end = zone.first_triangle + zone.triangle_count;
         for (uint32_t index = zone.first_triangle; index < end && index < triangle_zones_.size(); ++index) {
             triangle_zones_[index] = zone.zone_id;
         }
     }
+    // 三段各写各的成员(连通分量与邻接表 / 空间桶 / 三角高度), 读的只有 pack_ 与刚填好的分区表,
+    // 谁都看不见另外两段的产物, 于是并起来跑与顺着跑逐位相同。
+    if (NavWorkerCount(static_cast<int64_t>(pack_.triangles().size())) <= 1) {
+        buildIndex();
+        buildSpatialIndex();
+        computeTriangleHeights();
+        return;
+    }
+    // jthread: buildIndex 抛出时(分配失败是唯一的来路)这两个还在跑, 析构自己接回来。
+    std::jthread bins([this] { buildSpatialIndex(); });
+    std::jthread heights([this] { computeTriangleHeights(); });
+    buildIndex();
+    bins.join();
+    heights.join();
+}
+
+void BaseNavPlanner::buildIndex()
+{
     buildNaturalComponents();
 
+    // 位图按每条边一比特存下通行判据, 换掉填充趟的整串重算: 两趟之间只做了前缀和与 resize,
+    // 谓词读的分区表、自然连通分量与三角几何一个字都没写, 第二趟必然复现第一趟的答案。
+    // 按字切块并行, 相邻块碰不到同一个 uint64_t, 于是位图与线程数无关。
+    const auto& links = pack_.links();
+    const size_t word_count = links.size() / 64 + 1;
+    std::vector<uint64_t> passed(word_count, 0);
+    ParallelChunks(
+        static_cast<int64_t>(word_count),
+        NavWorkerCount(static_cast<int64_t>(links.size())),
+        [&](size_t, int64_t begin, int64_t end) {
+            for (int64_t word = begin; word < end; ++word) {
+                const size_t first = static_cast<size_t>(word) << 6;
+                const size_t last = std::min(first + 64, links.size());
+                uint64_t bits = 0;
+                for (size_t index = first; index < last; ++index) {
+                    const BaseNavLink& link = links[index];
+                    if (isTraversableLink(link.source, link.target)) {
+                        bits |= uint64_t { 1 } << (index & 63);
+                    }
+                }
+                passed[static_cast<size_t>(word)] = bits;
+            }
+        });
+
     size_t valid_link_count = 0;
-    for (const BaseNavLink& link : pack_.links()) {
-        if (isTraversableLink(link.source, link.target)) {
-            ++adjacency_offsets_[link.source + 1];
+    for (size_t index = 0; index < links.size(); ++index) {
+        if (((passed[index >> 6] >> (index & 63)) & 1) != 0) {
+            ++adjacency_offsets_[links[index].source + 1];
             ++valid_link_count;
         }
     }
@@ -102,8 +139,9 @@ void BaseNavPlanner::buildIndex()
 
     adjacency_links_.resize(valid_link_count);
     std::vector<uint32_t> next_offsets = adjacency_offsets_;
-    for (const BaseNavLink& link : pack_.links()) {
-        if (isTraversableLink(link.source, link.target)) {
+    for (size_t index = 0; index < links.size(); ++index) {
+        if (((passed[index >> 6] >> (index & 63)) & 1) != 0) {
+            const BaseNavLink& link = links[index];
             adjacency_links_[next_offsets[link.source]++] = link.target;
         }
     }
@@ -379,10 +417,10 @@ std::optional<BaseNavSnapResult> BaseNavPlanner::snap(uint16_t zone_id, const Wo
         return best_floor;
     }
 
-    // Floor-blind path: rank by (non-island first, then snap distance, then smallest index). With no island
-    // in play this is exactly the legacy order — containing surfaces (distance 0) win, ties by smallest index —
-    // so the golden-hash parity holds; it only diverges to skip a micro-component when a real surface competes.
-    std::optional<std::tuple<int, double, uint32_t>> best_key;
+    // Floor-blind path: rank by (non-island first, then snap distance, then highest surface, then smallest
+    // index). Containing surfaces (distance 0) still win; it only diverges to skip a micro-component when a
+    // real surface competes, and to pick the top layer when several floors stack on the same (u,v).
+    std::optional<std::tuple<int, double, double, uint32_t>> best_key;
     std::optional<BaseNavSnapResult> best;
     for (const uint32_t triangle_index : candidates) {
         if (triangle_zones_[triangle_index] != zone_id) {
@@ -405,7 +443,13 @@ std::optional<BaseNavSnapResult> BaseNavPlanner::snap(uint16_t zone_id, const Wo
                 continue;
             }
         }
-        const std::tuple<int, double, uint32_t> key { is_small_island(triangle_index) ? 1 : 0, distance, triangle_index };
+        // 距离打平只会发生在同一 (u,v) 上摞着好几层地面时(都含点 ⇒ 都是 0)。此时按高度降序:
+        // 底图像素是俯视图上的一点,那点看得见的就是最上面那层。原来的「取最小三角号」在这里
+        // 是任意的 —— 重烘一次三角顺序一换,起点就可能吸到桥下/水下那层,与终点分属两个分量,
+        // A* 直接报不连通。非打平的候选不受影响,distance 仍排在高度前面。
+        const std::tuple<int, double, double, uint32_t> key {
+            is_small_island(triangle_index) ? 1 : 0, distance, -triangle_heights_[triangle_index], triangle_index
+        };
         if (!best_key || key < *best_key) {
             best_key = key;
             best = BaseNavSnapResult { .triangle = triangle_index, .point = snapped, .distance = distance };

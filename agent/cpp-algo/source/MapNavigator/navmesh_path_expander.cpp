@@ -50,6 +50,7 @@ struct CachedNavmesh
         , planner(pack)
         , engine(pack, planner)
     {
+        pack.releaseLinks();
     }
 };
 
@@ -558,8 +559,7 @@ navmesh::BaseNavRouteResult PlanCorridorRoute(
         request.goal_deck_y,
         request.blocked_triangles,
         request.blocked_points,
-        should_stop,
-        request.exact_slim);
+        should_stop);
     result.gap_start = plan.debug.gap_start;
     result.gap_goal = plan.debug.gap_goal;
     result.gap_distance = plan.debug.gap_distance;
@@ -585,27 +585,23 @@ navmesh::BaseNavRouteResult PlanCorridorRoute(
     if (out_diagnostic != nullptr) {
         out_diagnostic->start = request.start;
         out_diagnostic->goal = request.goal;
-        out_diagnostic->timing.astar_ms = plan.debug.timing.astar_ms;
-        out_diagnostic->timing.rerouted_ms = plan.debug.timing.rerouted_ms;
-        out_diagnostic->timing.string_pull_ms = plan.debug.timing.string_pull_ms;
-        out_diagnostic->timing.assembled_ms = plan.debug.timing.assembled_ms;
-        out_diagnostic->timing.loop_fixed_ms = plan.debug.timing.loop_fixed_ms;
-        out_diagnostic->timing.slim_ms = plan.debug.timing.slim_ms;
-        out_diagnostic->timing.widened_ms = plan.debug.timing.widened_ms;
-        out_diagnostic->timing.final_ms = plan.debug.timing.final_ms;
+        out_diagnostic->timing.window_ms = plan.debug.timing.window_ms;
+        out_diagnostic->timing.topology_ms = plan.debug.timing.topology_ms;
+        out_diagnostic->timing.geometry_ms = plan.debug.timing.geometry_ms;
+        out_diagnostic->timing.pull_ms = plan.debug.timing.pull_ms;
+        out_diagnostic->timing.assemble_ms = plan.debug.timing.assemble_ms;
+        out_diagnostic->timing.lift_ms = plan.debug.timing.lift_ms;
+        out_diagnostic->timing.total_ms = plan.debug.timing.total_ms;
         out_diagnostic->x0 = plan.debug.x0;
         out_diagnostic->y0 = plan.debug.y0;
         out_diagnostic->nx = plan.debug.nx;
         out_diagnostic->ny = plan.debug.ny;
         out_diagnostic->cell_size = plan.debug.cell_size;
-        out_diagnostic->astar_cells = std::move(plan.debug.astar_cells);
-        out_diagnostic->astar_heights = std::move(plan.debug.astar_heights);
-        out_diagnostic->rerouted_points = std::move(plan.debug.rerouted_points);
-        out_diagnostic->string_pull_points = std::move(plan.debug.string_pull_points);
+        out_diagnostic->topology_cells = std::move(plan.debug.topology_cells);
+        out_diagnostic->topology_heights = std::move(plan.debug.topology_heights);
+        out_diagnostic->taut_points = std::move(plan.debug.taut_points);
+        out_diagnostic->pulled_points = std::move(plan.debug.pulled_points);
         out_diagnostic->assembled_points = std::move(plan.debug.assembled_points);
-        out_diagnostic->loop_fixed_points = std::move(plan.debug.loop_fixed_points);
-        out_diagnostic->slim_points = std::move(plan.debug.slim_points);
-        out_diagnostic->widened_points = std::move(plan.debug.widened_points);
         out_diagnostic->planned_points = std::move(plan.debug.planned_points);
         out_diagnostic->warnings = std::move(plan.debug.warnings);
     }
@@ -649,9 +645,7 @@ std::optional<navmesh::BaseNavRouteResult> PlanNavmeshRouteImpl(
         blocked_points,
         navmesh::kBaseNavFloorYNone,
         goal_deck_y,
-        start_floor_y);
-    request.exact_slim = param.exact_slim;
-    const auto plan_started_at = std::chrono::steady_clock::now();
+        start_floor_y);    const auto plan_started_at = std::chrono::steady_clock::now();
     const auto route_result = PlanCorridorRoute(*navmesh, request, {}, out_diagnostic);
     const int64_t plan_ms =
         std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - plan_started_at).count();
@@ -750,7 +744,6 @@ bool AppendBlindTargetFallback(
             continue;
         }
         auto request = BuildRouteRequest(navmesh.pack, state.current_zone, state.navmesh_zone, start, entry->point, {}, {}, goal_floor_y);
-        request.exact_slim = param.exact_slim;
         NavmeshRouteDiagnostic diagnostic;
         const auto route = PlanCorridorRoute(navmesh, request, should_stop, out_diagnostics == nullptr ? nullptr : &diagnostic);
         if (!route.ok() || route.path.points.empty()) {
@@ -931,9 +924,7 @@ bool AppendNavmeshWaypoint(
         {},
         {},
         target.floor_y,
-        target.deck_y);
-    request.exact_slim = param.exact_slim;
-    const auto plan_started_at = std::chrono::steady_clock::now();
+        target.deck_y);    const auto plan_started_at = std::chrono::steady_clock::now();
     NavmeshRouteDiagnostic route_diagnostic;
     auto route_result = PlanCorridorRoute(navmesh, request, should_stop, out_diagnostics == nullptr ? nullptr : &route_diagnostic);
     bool start_recovered = false;
@@ -1503,6 +1494,22 @@ std::optional<NavmeshSnap> NavmeshSnapAt(
         return std::nullopt;
     }
     return NavmeshSnap { .distance = entry->distance, .height = navmesh->planner.triangleHeight(entry->triangle) };
+}
+
+std::vector<std::vector<uint32_t>> NavmeshRegionsNear(
+    const NaviParam& param,
+    const std::string& locator_zone,
+    const std::vector<navmesh::WorldPoint>& points)
+{
+    const std::string navmesh_zone = InferBaseNavZone(locator_zone, param.map_name);
+    if (navmesh_zone.empty()) {
+        return std::vector<std::vector<uint32_t>>(points.size());
+    }
+    const auto navmesh = LoadCachedNavmesh(ResolveNavmeshFile(param.navmesh_file), navmesh_zone);
+    if (!navmesh) {
+        return std::vector<std::vector<uint32_t>>(points.size());
+    }
+    return navmesh->engine.regionsNear(navmesh_zone, points);
 }
 
 double NavmeshOffMeshFraction(

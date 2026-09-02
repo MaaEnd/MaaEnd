@@ -520,7 +520,6 @@ export class NavTestSocket extends SessionSocket {
       path: (route && route.path) || [],
       exported: !!(route && route.exported),
       zip: !!(route && route.zip),
-      exact_slim: !!(route && route.exact_slim),
       assert_target: (route && route.assert_target) || null,
     };
   }

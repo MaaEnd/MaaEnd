@@ -31,18 +31,18 @@ struct RecastPlanResult
     // 空 = 该腿没有层预言机,拉直交给调用方。
     std::vector<size_t> waypoints;
 
+    // 规划各阶段的中间产物。每个数组恰好对应一段算法的出口, 看哪一段把线拐坏了就开哪一层。
     struct Debug
     {
         struct Timing
         {
-            double astar_ms = 0.0;
-            double rerouted_ms = 0.0;
-            double string_pull_ms = 0.0;
-            double assembled_ms = 0.0;
-            double loop_fixed_ms = 0.0;
-            double slim_ms = 0.0;
-            double widened_ms = 0.0;
-            double final_ms = 0.0;
+            double window_ms = 0.0; // 建窗
+            double topology_ms = 0.0; // 硬约束基线 + 通道拓扑
+            double geometry_ms = 0.0; // 走廊内带视线重解
+            double pull_ms = 0.0; // 取直
+            double assemble_ms = 0.0; // 端点拼接、去重、共线去冗
+            double lift_ms = 0.0; // 拐角抬升
+            double total_ms = 0.0;
         } timing;
 
         double x0 = 0.0;
@@ -50,15 +50,12 @@ struct RecastPlanResult
         int64_t nx = 0;
         int64_t ny = 0;
         double cell_size = 0.0;
-        std::vector<WorldPoint> astar_cells;
-        std::vector<double> astar_heights;
-        std::vector<WorldPoint> rerouted_points;
-        std::vector<WorldPoint> string_pull_points;
-        std::vector<WorldPoint> assembled_points;
-        std::vector<WorldPoint> loop_fixed_points;
-        std::vector<WorldPoint> slim_points;
-        std::vector<WorldPoint> widened_points;
-        std::vector<WorldPoint> planned_points;
+        std::vector<WorldPoint> topology_cells; // 拓扑那一层的逐格路径
+        std::vector<double> topology_heights; // 与 topology_cells 同长的所在面高度
+        std::vector<WorldPoint> taut_points; // 几何搜索交出的父链折线, 取直之前
+        std::vector<WorldPoint> pulled_points; // 取直之后
+        std::vector<WorldPoint> assembled_points; // 拼上端点并去冗之后, 抬升之前
+        std::vector<WorldPoint> planned_points; // 终线
         std::optional<WorldPoint> gap_start;
         std::optional<WorldPoint> gap_goal;
         std::optional<double> gap_distance;
@@ -85,17 +82,24 @@ public:
         float goal_deck_y = kBaseNavFloorYNone,
         const std::vector<uint32_t>& blocked = {},
         const std::vector<WorldPoint>& blocked_points = {},
-        const std::function<bool()>& should_stop = {},
-        bool exact_slim = false);
+        const std::function<bool()>& should_stop = {});
 
     // 把该区的清洗网格与墙 oracle 提前建好,让首条路线不必冷吃这份开销。
     void warm(const std::string& zone_name);
+
+    // 改可走面掩码(源 surface flags 的收取位)。运行端必须与烘格图时用的是同一个值,
+    // 否则格图铺出来的可走面与规划器认的可走面对不上。改值会丢掉已建好的区缓存。
+    void setWalkableFlags(uint32_t flags);
+
+    // 逐点给出附近的全区类号。一次规划只在单一类号内找路,所以两点的类号集合不相交
+    // 时这条腿必败,不必真去规划。半径取 kSnapRadius:选类只发生在点所在格或吸附后
+    // 那一格,都不出这个圈。空集表示无从判断(无格图、未知区、点周围无体素)。
+    std::vector<std::vector<uint32_t>> regionsNear(const std::string& zone_name, const std::vector<WorldPoint>& points);
 
 private:
     struct ZoneEntry
     {
         std::unique_ptr<ZoneClean> zc;
-        std::unique_ptr<WallOracle> wo;
     };
 
     ZoneEntry& zoneEntry(const std::string& name);
@@ -108,8 +112,7 @@ private:
         float goal_deck_y,
         const std::vector<uint32_t>& blocked,
         const std::vector<WorldPoint>& blocked_points,
-        const std::function<bool()>& should_stop,
-        bool exact_slim);
+        const std::function<bool()>& should_stop);
 
     const BaseNavPack& pack_;
     const BaseNavPlanner& planner_;
@@ -117,6 +120,7 @@ private:
     std::unordered_map<std::string, ZoneEntry> zones_;
     GridPack grid_; // 包里的预烘格图,没有它就没法规划
     std::string grid_error_;
+    uint32_t walkable_flags_ = kWalkableFlagsDefault;
 };
 
 }

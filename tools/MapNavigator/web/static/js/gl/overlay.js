@@ -1136,7 +1136,7 @@ export class Overlay {
    * planner, not a guessed heatmap of the priority queue.
    * @param {Camera} camera
    * @param {Array<Object>} diagnostics
-   * @param {{search?:boolean,rerouted?:boolean,stringPull?:boolean,assembled?:boolean,loopFixed?:boolean,slim?:boolean,widenCorners?:boolean}} options
+   * @param {{topology?:boolean,taut?:boolean,pulled?:boolean,assembled?:boolean}} options
    * @returns {void}
    */
   _drawAstarDiagnostics(camera, diagnostics, options) {
@@ -1165,40 +1165,28 @@ export class Overlay {
       ctx.restore();
     };
     for (const diag of diagnostics) {
-      if (options.search) {
-        drawDots(diag.astar_cells, "#38bdf8", 2.1, 0.9);
-        if (diag.astar_cells && diag.astar_cells.length > 1) {
+      if (options.topology) {
+        drawDots(diag.topology_cells, "#38bdf8", 2.1, 0.9);
+        if (diag.topology_cells && diag.topology_cells.length > 1) {
           ctx.save();
           ctx.strokeStyle = "#38bdf8";
           ctx.lineWidth = 1.1;
           ctx.setLineDash([2, 2]);
-          this._strokeSegments(camera, [diag.astar_cells]);
+          this._strokeSegments(camera, [diag.topology_cells]);
           ctx.restore();
         }
       }
-      if (options.rerouted) {
-        drawDots(diag.rerouted_points, "#22c55e", 2.8, 0.95);
-        drawLine(diag.rerouted_points, "#22c55e", 1.8);
+      if (options.taut) {
+        drawDots(diag.taut_points, "#22c55e", 2.8, 0.95);
+        drawLine(diag.taut_points, "#22c55e", 1.8);
       }
-      if (options.stringPull) {
-        drawDots(diag.string_pull_points, "#a78bfa", 2.8, 0.95);
-        drawLine(diag.string_pull_points, "#a78bfa", 2);
+      if (options.pulled) {
+        drawDots(diag.pulled_points, "#a78bfa", 2.8, 0.95);
+        drawLine(diag.pulled_points, "#a78bfa", 2);
       }
       if (options.assembled) {
         drawDots(diag.assembled_points, "#22d3ee", 3, 0.95);
         drawLine(diag.assembled_points, "#22d3ee", 1.8);
-      }
-      if (options.loopFixed) {
-        drawDots(diag.loop_fixed_points, "#60a5fa", 3, 0.95);
-        drawLine(diag.loop_fixed_points, "#60a5fa", 1.8);
-      }
-      if (options.slim) {
-        drawDots(diag.slim_points, "#f59e0b", 3.1, 0.95);
-        drawLine(diag.slim_points, "#f59e0b", 2);
-      }
-      if (options.widenCorners) {
-        drawDots(diag.widened_points, "#fb7185", 3.4, 0.95);
-        drawLine(diag.widened_points, "#fb7185", 2.2);
       }
     }
   }
