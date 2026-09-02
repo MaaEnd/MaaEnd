@@ -571,10 +571,55 @@ class IconRecognitionToolsTest(unittest.TestCase):
                 image_root,
                 asset_image_root,
                 {"item_test": {"rarity": 3, "iconId": "item_test"}},
+                {"item_test": {"rarity": 3, "iconId": "item_test"}},
             )
 
             destination = asset_image_root / "3" / "item_test.png"
             self.assertEqual(destination.read_bytes(), b"source")
+
+    def test_sync_published_images_copies_fluid_icon_for_composite_catalog(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            image_root = root / "images"
+            asset_image_root = root / "assets"
+            container_source = image_root / "3" / "item_test.png"
+            fluid_source = image_root / "1" / "item_liquid_acid.png"
+            wrong_rarity_fluid_source = image_root / "3" / "item_liquid_acid.png"
+            container_source.parent.mkdir(parents=True)
+            fluid_source.parent.mkdir(parents=True)
+            container_source.write_bytes(b"container")
+            fluid_source.write_bytes(b"fluid")
+            wrong_rarity_fluid_source.write_bytes(b"wrong rarity")
+
+            sync_published_images(
+                image_root,
+                asset_image_root,
+                {
+                    "item_test": {
+                        "rarity": 3,
+                        "iconId": "item_test",
+                        "fluidIconId": "item_liquid_acid",
+                    }
+                },
+                {
+                    "fluid_item": {
+                        "rarity": 1,
+                        "iconId": "item_liquid_acid",
+                    }
+                },
+            )
+
+            self.assertEqual(
+                (asset_image_root / "3" / "item_test.png").read_bytes(),
+                b"container",
+            )
+            self.assertEqual(
+                (asset_image_root / "1" / "item_liquid_acid.png").read_bytes(),
+                b"fluid",
+            )
+            self.assertFalse(
+                (asset_image_root / "3" / "item_liquid_acid.png").exists()
+            )
 
     def test_prepare_item_map_accepts_isolate_category_types(self) -> None:
         items, removals = prepare_item_map(

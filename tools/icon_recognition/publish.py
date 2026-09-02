@@ -6,6 +6,7 @@ import argparse
 import json
 import shutil
 from collections import OrderedDict
+from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -53,12 +54,29 @@ def sync_published_images(
     image_root: Path,
     asset_image_root: Path,
     catalog: dict[str, dict[str, object]],
+    item_source: Mapping[str, object],
 ) -> None:
     """按 catalog 同步图标, 迁移稀有度变更路径且不覆盖既有目标文件"""
     expected_images = {
         Path(str(record["rarity"])) / f"{record['iconId']}.png"
         for record in catalog.values()
     }
+    # 流体物品本身不进入 catalog，稀有度必须以 item.json 的源记录为准。
+    source_by_icon_id = {
+        record.get("iconId"): record
+        for record in item_source.values()
+        if isinstance(record, Mapping) and isinstance(record.get("iconId"), str)
+    }
+    for record in catalog.values():
+        fluid_icon_id = record.get("fluidIconId")
+        if not fluid_icon_id:
+            continue
+        fluid_source = source_by_icon_id.get(fluid_icon_id)
+        if fluid_source is None:
+            raise ValueError(f"item.json 找不到流体图标对应物品: {fluid_icon_id}")
+        expected_images.add(
+            Path(str(fluid_source["rarity"])) / f"{fluid_icon_id}.png"
+        )
     asset_image_root.mkdir(parents=True, exist_ok=True)
     for relative_path in expected_images:
         destination = asset_image_root / relative_path
@@ -99,7 +117,7 @@ def publish(paths: PublishPaths) -> tuple[int, dict[str, int]]:
     )
     for item_id, record in catalog.items():
         record["name"] = zh_cn_values[f"iconRecognition.name.{item_id}"]
-    sync_published_images(paths.image_root, paths.asset_image_root, catalog)
+    sync_published_images(paths.image_root, paths.asset_image_root, catalog, source)
     paths.catalog_output.parent.mkdir(parents=True, exist_ok=True)
     write_catalog(catalog, paths.catalog_output)
     locale_counts = generate_locales(
