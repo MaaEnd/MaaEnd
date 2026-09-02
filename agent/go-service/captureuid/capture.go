@@ -51,7 +51,8 @@ var (
 func Capture(ctx *maa.Context, ctrl *maa.Controller, useCache, stayOnCurrentScreen, allowUnknown bool, outputType OutputType) (string, error) {
 	if useCache {
 		if uid := GetCachedUID(outputType); uid != "" {
-			log.Debug().Str("component", component).Str("uid", uid).Str("output_type", string(outputType)).Msg("returning cached uid")
+			log.Debug().Str("component", component).Str("uid", safeUIDForLog(uid, outputType)).
+				Str("output_type", string(outputType)).Msg("returning cached uid")
 			return uid, nil
 		}
 	}
@@ -82,7 +83,7 @@ func Capture(ctx *maa.Context, ctrl *maa.Controller, useCache, stayOnCurrentScre
 	text := bestOCRText(detail)
 	digits := extractAllDigits(text)
 	if len(digits) < 8 || len(digits) > 12 {
-		return captureErr(allowUnknown, "uid digit count %d not in [8,12], text=%q", len(digits), text)
+		return captureErr(allowUnknown, "uid digit count %d not in [8,12]", len(digits))
 	}
 
 	capturedUidMu.Lock()
@@ -94,7 +95,7 @@ func Capture(ctx *maa.Context, ctrl *maa.Controller, useCache, stayOnCurrentScre
 		return captureErr(allowUnknown, "format uid: %w", err)
 	}
 
-	log.Info().Str("component", component).Str("uid", uid).Str("output_type", string(outputType)).Msg("captured uid")
+	log.Info().Str("component", component).Str("uid", safeUIDForLog(uid, outputType)).Str("output_type", string(outputType)).Msg("captured uid")
 	return uid, nil
 }
 
@@ -152,6 +153,13 @@ func maskUID(uid string) string {
 		return uid
 	}
 	return uid[:3] + strings.Repeat("*", len(uid)-6) + uid[len(uid)-3:]
+}
+
+func safeUIDForLog(uid string, outputType OutputType) string {
+	if outputType == OutputTypeRaw {
+		return maskUID(uid)
+	}
+	return uid
 }
 
 // normalizeOutputType 校验并规范化 output_type 参数；空字符串按 hashed 处理。

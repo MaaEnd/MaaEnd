@@ -24,14 +24,14 @@ constexpr const char* kRecordFileName = "Ziplines.json";
 std::string CurrentTimestamp()
 {
     const std::time_t now = std::time(nullptr);
-    std::tm tm {};
+    std::tm tm { };
 #ifdef _WIN32
     gmtime_s(&tm, &now);
 #else
     gmtime_r(&now, &tm);
 #endif
 
-    char buf[32] = {};
+    char buf[32] = { };
     std::strftime(buf, sizeof(buf), "%Y-%m-%dT%H:%M:%SZ", &tm);
     return buf;
 }
@@ -82,8 +82,9 @@ bool ZiplineStore::load(const std::filesystem::path& path)
         const auto& obj = entry.as_object();
 
         ZiplineMapRecord record;
-        record.map_id = obj.get("map_id", std::string {});
-        record.fetched_at = obj.get("fetched_at", std::string {});
+        record.account_id = obj.get("account_id", std::string { });
+        record.map_id = obj.get("map_id", std::string { });
+        record.fetched_at = obj.get("fetched_at", std::string { });
         if (record.map_id.empty()) {
             continue;
         }
@@ -95,8 +96,8 @@ bool ZiplineStore::load(const std::filesystem::path& path)
                 }
                 const auto& mark_obj = mark_value.as_object();
                 ZiplineMark mark;
-                mark.template_id = mark_obj.get("template_id", std::string {});
-                mark.level_id = mark_obj.get("level_id", std::string {});
+                mark.template_id = mark_obj.get("template_id", std::string { });
+                mark.level_id = mark_obj.get("level_id", std::string { });
                 mark.x = mark_obj.get("x", 0.0);
                 mark.y = mark_obj.get("y", 0.0);
                 mark.z = mark_obj.get("z", 0.0);
@@ -134,6 +135,9 @@ bool ZiplineStore::save(const std::filesystem::path& path) const
         }
 
         json::object map_obj;
+        if (!record.account_id.empty()) {
+            map_obj["account_id"] = record.account_id;
+        }
         map_obj["map_id"] = record.map_id;
         map_obj["fetched_at"] = record.fetched_at;
         map_obj["marks"] = std::move(marks);
@@ -171,12 +175,28 @@ bool ZiplineStore::save(const std::filesystem::path& path) const
 
 void ZiplineStore::replaceMap(ZiplineMapRecord record)
 {
-    auto it = std::find_if(maps_.begin(), maps_.end(), [&](const ZiplineMapRecord& e) { return e.map_id == record.map_id; });
+    auto it = std::find_if(maps_.begin(), maps_.end(), [&](const ZiplineMapRecord& e) {
+        return e.account_id == record.account_id && e.map_id == record.map_id;
+    });
     if (it == maps_.end()) {
         maps_.push_back(std::move(record));
         return;
     }
     *it = std::move(record);
+}
+
+std::string ZiplineStore::latestAccountId() const
+{
+    const ZiplineMapRecord* latest = nullptr;
+    for (const auto& record : maps_) {
+        if (record.account_id.empty()) {
+            continue;
+        }
+        if (latest == nullptr || record.fetched_at > latest->fetched_at) {
+            latest = &record;
+        }
+    }
+    return latest == nullptr ? std::string { } : latest->account_id;
 }
 
 } // namespace zipline

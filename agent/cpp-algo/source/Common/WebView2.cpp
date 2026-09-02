@@ -134,6 +134,15 @@ void WebView2::SetURL(std::string url)
     initial_url_ = std::move(url);
 }
 
+void WebView2::setClearSiteDataBeforeNavigation(bool enabled)
+{
+    if (isOpened()) {
+        LogWarn << "WebView2::setClearSiteDataBeforeNavigation: ignored, must be called before Open()" << VAR(enabled);
+        return;
+    }
+    clear_site_data_before_navigation_ = enabled;
+}
+
 void WebView2::SetTouchEmulation(bool enabled)
 {
     if (isOpened()) {
@@ -354,10 +363,73 @@ void WebView2::onControllerCreated(HRESULT result, ICoreWebView2Controller* cont
         }
     }
 
+    if (clear_site_data_before_navigation_) {
+        clearSiteData([this](bool ok) {
+            if (!ok) {
+                LogError << "WebView2: failed to clear site data before navigation";
+                signalInitDone(false);
+                return;
+            }
+            navigateInitialUrl();
+        });
+        return;
+    }
+
+    navigateInitialUrl();
+}
+
+void WebView2::clearSiteData(std::function<void(bool ok)> on_done)
+{
+    Microsoft::WRL::ComPtr<ICoreWebView2_13> webview13;
+    HRESULT hr = webview_.As(&webview13);
+    if (FAILED(hr) || !webview13) {
+        LogError << "WebView2: ICoreWebView2_13 unavailable for site data clearing" << VAR(hr);
+        on_done(false);
+        return;
+    }
+
+    Microsoft::WRL::ComPtr<ICoreWebView2Profile> profile;
+    hr = webview13->get_Profile(&profile);
+    if (FAILED(hr) || !profile) {
+        LogError << "WebView2: get_Profile failed" << VAR(hr);
+        on_done(false);
+        return;
+    }
+
+    Microsoft::WRL::ComPtr<ICoreWebView2Profile2> profile2;
+    hr = profile.As(&profile2);
+    if (FAILED(hr) || !profile2) {
+        LogError << "WebView2: ICoreWebView2Profile2 unavailable for site data clearing" << VAR(hr);
+        on_done(false);
+        return;
+    }
+
+    using Microsoft::WRL::Callback;
+    using ClearHandler = ICoreWebView2ClearBrowsingDataCompletedHandler;
+    hr = profile2->ClearBrowsingData(
+        COREWEBVIEW2_BROWSING_DATA_KINDS_ALL_SITE,
+        Callback<ClearHandler>([on_done](HRESULT error_code) -> HRESULT {
+            if (FAILED(error_code)) {
+                LogError << "WebView2: profile site data clearing failed" << VAR(error_code);
+            }
+            else {
+                LogInfo << "WebView2: profile site data cleared";
+            }
+            on_done(SUCCEEDED(error_code));
+            return S_OK;
+        }).Get());
+    if (FAILED(hr)) {
+        LogError << "WebView2: ClearBrowsingData dispatch failed" << VAR(hr);
+        on_done(false);
+    }
+}
+
+void WebView2::navigateInitialUrl()
+{
     // 应用 Open() 之前由 SetURL 配置的初始地址。空 URL 表示开发者不需要导航，留空白页即可。
     if (!initial_url_.empty()) {
-        std::wstring wurl = utf8ToWide(initial_url_);
-        HRESULT navigate_hr = webview_->Navigate(wurl.c_str());
+        const std::wstring wide_url = utf8ToWide(initial_url_);
+        const HRESULT navigate_hr = webview_->Navigate(wide_url.c_str());
         if (FAILED(navigate_hr)) {
             LogError << "WebView2: Navigate failed" << VAR(navigate_hr) << VAR(initial_url_);
         }
@@ -596,6 +668,13 @@ void WebView2::SetURL(std::string url)
     if (isOpened()) {
         LogWarn << "WebView2::SetURL: ignored, must be called before Open()" << VAR(url);
         return;
+    }
+}
+
+void WebView2::setClearSiteDataBeforeNavigation(bool enabled)
+{
+    if (isOpened()) {
+        LogWarn << "WebView2::setClearSiteDataBeforeNavigation: ignored, must be called before Open()" << VAR(enabled);
     }
 }
 

@@ -362,6 +362,7 @@ class RoutePreviewRequest(BaseModel):
     position: list[float]
     position_zone: str
     custom_action_param: dict[str, Any]
+    zipline_account_id: str = ""
 
 
 def _slot(value: float | None) -> list[float]:
@@ -480,6 +481,7 @@ async def api_route_preview(req: RoutePreviewRequest) -> dict[str, Any]:
                 position=req.position,
                 position_zone=req.position_zone,
                 custom_action_param=req.custom_action_param,
+                zipline_account_id=req.zipline_account_id,
             )
         except RuntimeError as exc:
             return {"ok": False, "error": f"navmesh 尚未就绪: {exc}"}

@@ -18,9 +18,10 @@ struct NaviParam;
 // 两者分开记才说得清。
 struct ZiplineOutcome
 {
-    bool used = false;       // 至少有一条腿走了滑索
-    bool no_data = false;    // 有标定但没导入坐标，或这个区一根通电的都没记到
-    bool not_chosen = false; // 有候选，但没有一条比走路划算
+    bool used = false;            // 至少有一条腿走了滑索
+    bool account_unknown = false; // 本次初始化没有取得当前账号 UID；不能安全选择任何账号记录
+    bool no_data = false;         // 有标定但没导入坐标，或这个区一根通电的都没记到
+    bool not_chosen = false;      // 有候选，但没有一条比走路划算
 };
 
 // 由寻路入口在请求开始时清零、结束时取用。账记在调用线程上，并发请求各算各的。

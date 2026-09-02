@@ -356,6 +356,16 @@
             <label class="chk" title="按 MapNavigator 运行时语义规划当前区域片段；触屏控制器不会执行滑索">
               <input id="chk-edit-zipline" type="checkbox" /> 启用滑索规划（桌面端）
             </label>
+            <div class="planning-account-row">
+              <label class="sidebar-label" for="edit-zipline-account">规划账号</label>
+              <select
+                id="edit-zipline-account"
+                class="combo planning-account-combo"
+                title="只影响离线路线预览与当前安装目录的滑索架图层"
+                disabled>
+                <option value="">正在读取账号…</option>
+              </select>
+            </div>
             <label class="chk" title="使用全候选动态规划优化路径，结果更精确但耗时较长">
               <input id="chk-edit-exact-slim" type="checkbox" /> 精确优化路径（耗时较长）
             </label>

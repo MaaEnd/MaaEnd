@@ -6,7 +6,8 @@
             "entry": "ZiplineImportMain",
             "description": "$task.ZiplineImport.description",
             "option": [
-                "ZiplineImportRegion"
+                "ZiplineImportRegion",
+                "ZiplineImportClearLogin"
             ],
             "controller": [
                 "Win32-Front"
@@ -52,6 +53,31 @@
                             }
                         }
                     }
+                }
+            ]
+        },
+        "ZiplineImportClearLogin": {
+            "type": "switch",
+            "label": "$option.ZiplineImportClearLogin.label",
+            "description": "$option.ZiplineImportClearLogin.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "ZiplineImportMain": {
+                            "action": {
+                                "param": {
+                                    "custom_action_param": {
+                                        "clear_login": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "No"
                 }
             ]
         }

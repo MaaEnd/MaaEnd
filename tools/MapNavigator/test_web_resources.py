@@ -33,6 +33,30 @@ class WebResourceTest(unittest.TestCase):
         self.assertEqual(context.exception.status_code, 404)
         self.assertIn("没有滑索记录", str(context.exception.detail))
 
+    def test_route_preview_forwards_the_selected_zipline_account(self) -> None:
+        request = serve.RoutePreviewRequest(
+            position=[100.0, 200.0],
+            position_zone="map02base",
+            custom_action_param={"zip": True, "path": []},
+            zipline_account_id="account-a",
+        )
+        with patch.object(
+            serve.navmesh_backend,
+            "query_latest",
+            return_value={"ok": True},
+        ) as query_latest:
+            response = asyncio.run(serve.api_route_preview(request))
+
+        self.assertEqual(response, {"ok": True})
+        query_latest.assert_called_once_with(
+            "route-preview",
+            "route_preview",
+            position=[100.0, 200.0],
+            position_zone="map02base",
+            custom_action_param={"zip": True, "path": []},
+            zipline_account_id="account-a",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
