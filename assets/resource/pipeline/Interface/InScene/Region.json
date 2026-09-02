@@ -204,6 +204,27 @@
             }
         ]
     },
+    "InMapWulingSnowyForest": {
+        "desc": "在武陵-雪松林地图界面",
+        "recognition": "And",
+        "all_of": [
+            "InMapAny",
+            {
+                "recognition": "OCR",
+                "roi": [
+                    0,
+                    0,
+                    250,
+                    60
+                ],
+                "expected": [
+                    "雪松林",
+                    "Snowy Forest",
+                    "눈 덮인 소나무 숲"
+                ]
+            }
+        ]
+    },
     "InMapDijiang": {
         "desc": "在帝江号地图界面",
         "recognition": "And",

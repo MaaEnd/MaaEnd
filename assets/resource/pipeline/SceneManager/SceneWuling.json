@@ -878,5 +878,86 @@
             "[JumpBack]__ScenePrivateMapZoomOut",
             "[JumpBack][Anchor]__ScenePrivateMapTeleportPickAnchor"
         ]
+    },
+    "__ScenePrivateMapAnyEnterMapWulingSnowyForest": {
+        "desc": "在任意地图界面，进入武陵-雪松林地图",
+        "recognition": "And",
+        "all_of": [
+            "InMapAny"
+        ],
+        "next": [
+            "__ScenePrivateMapAnyEnterMapWulingSnowyForestSuccess",
+            "__ScenePrivateMapOverviewEnterMapWulingSnowyForest",
+            "[JumpBack]__ScenePrivateMapAnyEnterMapOverview"
+        ]
+    },
+    "__ScenePrivateMapAnyEnterMapWulingSnowyForestSuccess": {
+        "desc": "在地图界面，成功进入武陵-雪松林地图",
+        "recognition": "And",
+        "all_of": [
+            "InMapWulingSnowyForest"
+        ],
+        "pre_wait_freezes": 100,
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "__ScenePrivateMapOverviewEnterMapWulingSnowyForest": {
+        "desc": "在地图总览界面，进入武陵-雪松林地图",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    -450,
+                    -150,
+                    350,
+                    150
+                ],
+                "template": [
+                    "SceneManager/MapOverviewWulingChoose.png",
+                    "SceneManager/MapOverviewWulingNotChoose.png"
+                ],
+                "threshold": 0.9
+            }
+        },
+        "next": [
+            "[JumpBack]__ScenePrivateMapOverviewSwitchMapOverviewWuling",
+            "__ScenePrivateMapOverviewWulingRecognizeEnterMapWulingSnowyForest",
+            "__ScenePrivateMapOverviewWulingEnterMapWulingSnowyForest"
+        ]
+    },
+    "__ScenePrivateMapOverviewWulingRecognizeEnterMapWulingSnowyForest": {
+        "desc": "在武陵总览界面，识别并进入武陵-雪松林地图",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    0,
+                    0,
+                    1280,
+                    720
+                ],
+                "expected": [
+                    "雪松林",
+                    "Snowy Forest",
+                    "눈 덮인 소나무 숲"
+                ]
+            }
+        },
+        "action": "Click",
+        "next": [
+            "__ScenePrivateMapAnyEnterMapWulingSnowyForestSuccess"
+        ]
+    },
+    "__ScenePrivateMapOverviewWulingEnterMapWulingSnowyForest": {
+        "desc": "在武陵总览界面，直接点击进入武陵-雪松林地图",
+        "recognition": "DirectHit",
+        "action": "Click",
+        "target": [
+            865,
+            276
+        ],
+        "next": [
+            "__ScenePrivateMapAnyEnterMapWulingSnowyForestSuccess"
+        ]
     }
 }
