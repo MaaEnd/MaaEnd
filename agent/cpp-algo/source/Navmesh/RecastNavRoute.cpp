@@ -1,8 +1,10 @@
 #include "RecastNavRoute.h"
 
+#include "NavParallel.h"
 #include "RecastNavBake.h"
 
 #include <algorithm>
+#include <atomic>
 #include <chrono>
 #include <cmath>
 #include <limits>
@@ -87,37 +89,68 @@ struct GridWindow
 
 bool loadGridWindow(const GridPack& gp, const GridZoneDir& gz, int64_t wgx0, int64_t wgy0, int64_t nx, int64_t ny, GridWindow& out)
 {
-    GridTile tile;
     const std::vector<const GridTileRef*> tiles = GridTilesInRect(gz, wgx0, wgy0, wgx0 + nx - 1, wgy0 + ny - 1);
-    // 先按瓦目录里的记录数开够。边 push 边按二的幂扩容, 满窗口上要白占近一倍,
-    // 而这份表是建窗最大的一块。窗外与非自有矩形的记录会被滤掉, 所以这是个上界。
+    // 先按瓦目录里的记录数开够。窗外与非自有矩形的记录会被滤掉, 所以这是个上界。
+    // 解瓦是纯读: 每块领一段瓦, 按同一个上界给它划一段互不相交的写区直写, 收工按块序压紧。
+    // 写区起点与压紧次序都只由瓦下标定, 于是 rec 的次序与线程数无关, 表也始终只有一份。
+    const auto nt = static_cast<int64_t>(tiles.size());
+    const size_t nw = NavWorkerCountForBlocks(nt);
     size_t cap = 0;
     for (const GridTileRef* t : tiles) {
         cap += t->records;
     }
-    out.rec.reserve(cap);
-    for (const GridTileRef* t : tiles) {
-        if (t->records == 0) {
-            continue;
+    out.rec.assign(cap, GridSpanRec {});
+    std::vector<size_t> beg(nw, 0);
+    std::vector<size_t> cnt(nw, 0);
+    std::atomic<bool> ok { true };
+    ParallelChunks(nt, nw, [&](size_t w, int64_t lo, int64_t hi) {
+        size_t at = 0;
+        for (int64_t i = 0; i < lo; ++i) {
+            at += tiles[static_cast<size_t>(i)]->records;
         }
-        if (!gp.decodeTile(*t, tile)) {
-            return false;
-        }
-        for (GridSpanRec& r : tile.rec) {
-            const int64_t ix = r.cell % t->nx;
-            const int64_t iy = r.cell / t->nx;
-            if (ix < t->px0 || ix > t->px1 || iy < t->py0 || iy > t->py1) {
+        beg[w] = at;
+        GridTile tile;
+        for (int64_t i = lo; i < hi; ++i) {
+            const GridTileRef* t = tiles[static_cast<size_t>(i)];
+            if (t->records == 0) {
                 continue;
             }
-            const int64_t wx = t->gx0 + ix - wgx0;
-            const int64_t wy = t->gy0 + iy - wgy0;
-            if (wx < 0 || wx >= nx || wy < 0 || wy >= ny) {
-                continue;
+            if (!gp.decodeTile(*t, tile)) {
+                ok.store(false);
+                return;
             }
-            r.cell = static_cast<int32_t>(wy * nx + wx);
-            out.rec.push_back(r);
+            for (GridSpanRec& r : tile.rec) {
+                const int64_t ix = r.cell % t->nx;
+                const int64_t iy = r.cell / t->nx;
+                if (ix < t->px0 || ix > t->px1 || iy < t->py0 || iy > t->py1) {
+                    continue;
+                }
+                const int64_t wx = t->gx0 + ix - wgx0;
+                const int64_t wy = t->gy0 + iy - wgy0;
+                if (wx < 0 || wx >= nx || wy < 0 || wy >= ny) {
+                    continue;
+                }
+                r.cell = static_cast<int32_t>(wy * nx + wx);
+                out.rec[at++] = r;
+            }
         }
+        cnt[w] = at - beg[w];
+    });
+    if (!ok.load()) {
+        out.rec.clear();
+        return false;
     }
+    size_t kept = cnt[0];
+    for (size_t w = 1; w < nw; ++w) {
+        if (cnt[w] != 0 && beg[w] != kept) {
+            std::move(
+                out.rec.begin() + static_cast<int64_t>(beg[w]),
+                out.rec.begin() + static_cast<int64_t>(beg[w] + cnt[w]),
+                out.rec.begin() + static_cast<int64_t>(kept));
+        }
+        kept += cnt[w];
+    }
+    out.rec.resize(kept);
     out.head.assign(static_cast<size_t>(nx * ny), -1);
     out.next.assign(out.rec.size(), -1);
     for (size_t i = out.rec.size(); i-- > 0;) {
@@ -297,33 +330,64 @@ ZoneBoundsPx regionBounds(const GridPack& gp, const GridZoneDir& gz, uint32_t re
     b.y0 = std::numeric_limits<int64_t>::max();
     b.x1 = std::numeric_limits<int64_t>::min();
     b.y1 = std::numeric_limits<int64_t>::min();
-    GridTile tile;
-    std::vector<uint32_t> rids;
-    for (const GridTileRef& t : gz.tiles) {
-        if (t.records == 0) {
-            continue;
+    // 先看每块瓦的类号字典。一个类只落在少数几块瓦里, 其余的整块跳过, 不用解开。
+    // 挑完再并行解剩下的, 静态分块才不会有人整块领到空活。
+    std::vector<const GridTileRef*> hits;
+    {
+        const auto ntl = static_cast<int64_t>(gz.tiles.size());
+        // 每块只写自己那几个下标位, 收工再按下标序把中标的挑出来。
+        std::vector<uint8_t> hit(static_cast<size_t>(ntl), 0);
+        ParallelChunks(ntl, NavWorkerCountForBlocks(ntl), [&](size_t, int64_t lo, int64_t hi) {
+            std::vector<uint32_t> rids;
+            for (int64_t i = lo; i < hi; ++i) {
+                const GridTileRef& t = gz.tiles[static_cast<size_t>(i)];
+                if (t.records == 0) {
+                    continue;
+                }
+                if (gp.tileRegions(t, rids) && std::find(rids.begin(), rids.end(), region) != rids.end()) {
+                    hit[static_cast<size_t>(i)] = 1;
+                }
+            }
+        });
+        for (int64_t i = 0; i < ntl; ++i) {
+            if (hit[static_cast<size_t>(i)] != 0) {
+                hits.push_back(&gz.tiles[static_cast<size_t>(i)]);
+            }
         }
-        // 先看这块瓦的类号字典。一个类只落在少数几块瓦里, 其余的整块跳过, 不用解开。
-        if (!gp.tileRegions(t, rids) || std::find(rids.begin(), rids.end(), region) == rids.end()) {
-            continue;
-        }
-        if (!gp.decodeTile(t, tile)) {
-            continue;
-        }
-        for (const GridSpanRec& r : tile.rec) {
-            if (r.rid != region) {
+    }
+    // 每块自己收一个包围盒, 收工再取并。取极值与次序无关, 于是与线程数无关。
+    const auto nh = static_cast<int64_t>(hits.size());
+    const size_t nw = NavWorkerCountForBlocks(nh);
+    std::vector<ZoneBoundsPx> part(nw, b);
+    ParallelChunks(nh, nw, [&](size_t w, int64_t lo, int64_t hi) {
+        ZoneBoundsPx& p = part[w];
+        GridTile tile;
+        for (int64_t i = lo; i < hi; ++i) {
+            const GridTileRef& t = *hits[static_cast<size_t>(i)];
+            if (!gp.decodeTile(t, tile)) {
                 continue;
             }
-            const int64_t ix = r.cell % t.nx;
-            const int64_t iy = r.cell / t.nx;
-            if (ix < t.px0 || ix > t.px1 || iy < t.py0 || iy > t.py1) {
-                continue;
+            for (const GridSpanRec& r : tile.rec) {
+                if (r.rid != region) {
+                    continue;
+                }
+                const int64_t ix = r.cell % t.nx;
+                const int64_t iy = r.cell / t.nx;
+                if (ix < t.px0 || ix > t.px1 || iy < t.py0 || iy > t.py1) {
+                    continue;
+                }
+                p.x0 = std::min<int64_t>(p.x0, t.gx0 + ix);
+                p.y0 = std::min<int64_t>(p.y0, t.gy0 + iy);
+                p.x1 = std::max<int64_t>(p.x1, t.gx0 + ix);
+                p.y1 = std::max<int64_t>(p.y1, t.gy0 + iy);
             }
-            b.x0 = std::min<int64_t>(b.x0, t.gx0 + ix);
-            b.y0 = std::min<int64_t>(b.y0, t.gy0 + iy);
-            b.x1 = std::max<int64_t>(b.x1, t.gx0 + ix);
-            b.y1 = std::max<int64_t>(b.y1, t.gy0 + iy);
         }
+    });
+    for (const ZoneBoundsPx& p : part) {
+        b.x0 = std::min(b.x0, p.x0);
+        b.y0 = std::min(b.y0, p.y0);
+        b.x1 = std::max(b.x1, p.x1);
+        b.y1 = std::max(b.y1, p.y1);
     }
     return b;
 }

@@ -37,6 +37,19 @@ inline size_t NavWorkerCount(int64_t n)
     return static_cast<size_t>(avail);
 }
 
+// 一个元素就是一整块瓦这种循环, 元素数只有几百, 拿它比 kNavSerialFloor 会一路退回单线程。
+// 这里只按块数封顶。
+inline size_t NavWorkerCountForBlocks(int64_t n)
+{
+    const unsigned forced = NavWorkerOverride().load();
+    const unsigned avail =
+        forced != 0 ? forced : std::min(kNavWorkerLimit, std::max(1U, std::thread::hardware_concurrency()));
+    if (n <= 1 || avail <= 1) {
+        return 1;
+    }
+    return static_cast<size_t>(std::min<int64_t>(n, avail));
+}
+
 // fn(w, begin, end) 跑第 w 块 [begin, end)。调用线程自己领第 0 块, 因此只多起 workers-1 个。
 template <class F>
 void ParallelChunks(int64_t n, size_t workers, F&& fn)
