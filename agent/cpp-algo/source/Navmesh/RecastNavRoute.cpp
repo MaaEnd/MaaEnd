@@ -432,6 +432,9 @@ std::optional<WindowInfo> buildWindow(
     if (!pickRegion(pw, pw, s, s_snap, g, h0, std::nullopt, seed_region, cell0, err)) {
         return std::nullopt;
     }
+    // 逐格链表只服务于起点格查询, 到这里就没有读者了; 下面是顺着记录表走一遍。
+    gw.head = std::vector<int32_t>();
+    gw.next = std::vector<int32_t>();
 
     WindowInfo info;
     info.x0 = x0;
@@ -443,8 +446,13 @@ std::optional<WindowInfo> buildWindow(
     info.dist = Grid<float>(nx, ny, 0.0F);
     Grid<float> lh(nx, ny, std::numeric_limits<float>::quiet_NaN());
     std::vector<uint8_t> stepbits(static_cast<size_t>(nx * ny), 0);
+    // 记录数就是 span 表的上界。让它自己长的话, 扩容那一刻新旧两份缓冲同时活着,
+    // 而这一刻正是建窗内存最高的时候。
     std::vector<int32_t> sp_cell;
     std::vector<float> sp_h;
+    sp_cell.reserve(gw.rec.size());
+    sp_h.reserve(gw.rec.size());
+    info.vis3.reserve(gw.rec.size());
     // 表里留着别的类的 span:层判据要看整列,少一层就会从楼板底下穿过去
     for (const GridSpanRec& r : gw.rec) {
         const bool ghost = (r.flags & kGridFlagGhost) != 0;
