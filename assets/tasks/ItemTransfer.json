@@ -1343,6 +1343,457 @@
                     }
                 },
                 {
+                    "name": "重息壤龙泡泡",
+                    "label": "$iconRecognition.name.item_activity_xiranite_enr_lung",
+                    "pipeline_override": {
+                        "ItemTransferClickForwardItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindForwardItemInRepo": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_activity_xiranite_enr_lung"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "ItemTransferFindForwardItemInBag": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_activity_xiranite_enr_lung"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "息壤龙泡泡",
+                    "label": "$iconRecognition.name.item_activity_xiranite_lung",
+                    "pipeline_override": {
+                        "ItemTransferClickForwardItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindForwardItemInRepo": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_activity_xiranite_lung"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "ItemTransferFindForwardItemInBag": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_activity_xiranite_lung"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "实验息壤铜骨骼",
+                    "label": "$iconRecognition.name.item_activity_copper_poly_tool",
+                    "pipeline_override": {
+                        "ItemTransferClickForwardItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindForwardItemInRepo": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_activity_copper_poly_tool"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "ItemTransferFindForwardItemInBag": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_activity_copper_poly_tool"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "实验息壤铜零件",
+                    "label": "$iconRecognition.name.item_activity_copper_poly_cmpt",
+                    "pipeline_override": {
+                        "ItemTransferClickForwardItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindForwardItemInRepo": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_activity_copper_poly_cmpt"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "ItemTransferFindForwardItemInBag": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_activity_copper_poly_cmpt"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "实验息壤铜锭",
+                    "label": "$iconRecognition.name.item_activity_copper_poly",
+                    "pipeline_override": {
+                        "ItemTransferClickForwardItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindForwardItemInRepo": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_activity_copper_poly"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "ItemTransferFindForwardItemInBag": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_activity_copper_poly"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "实验息壤铜气",
+                    "label": "$iconRecognition.name.item_activity_copper_poly_gas",
+                    "pipeline_override": {
+                        "ItemTransferClickForwardItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindForwardItemInRepo": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_activity_copper_poly_gas"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "ItemTransferFindForwardItemInBag": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_activity_copper_poly_gas"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "实验龙泡泡重壳",
+                    "label": "$iconRecognition.name.item_activity_xiranite_enr_box",
+                    "pipeline_override": {
+                        "ItemTransferClickForwardItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindForwardItemInRepo": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_activity_xiranite_enr_box"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "ItemTransferFindForwardItemInBag": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_activity_xiranite_enr_box"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "实验重息壤块",
+                    "label": "$iconRecognition.name.item_activity_xiranite_enr_nugget",
+                    "pipeline_override": {
+                        "ItemTransferClickForwardItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindForwardItemInRepo": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_activity_xiranite_enr_nugget"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "ItemTransferFindForwardItemInBag": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_activity_xiranite_enr_nugget"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "实验铜骨骼",
+                    "label": "$iconRecognition.name.item_activity_copper_xiranite_tool",
+                    "pipeline_override": {
+                        "ItemTransferClickForwardItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindForwardItemInRepo": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_activity_copper_xiranite_tool"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "ItemTransferFindForwardItemInBag": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_activity_copper_xiranite_tool"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "实验龙泡泡外壳",
+                    "label": "$iconRecognition.name.item_activity_xiranite_box",
+                    "pipeline_override": {
+                        "ItemTransferClickForwardItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindForwardItemInRepo": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_activity_xiranite_box"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "ItemTransferFindForwardItemInBag": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_activity_xiranite_box"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "实验息壤块",
+                    "label": "$iconRecognition.name.item_activity_xiranite_nugget",
+                    "pipeline_override": {
+                        "ItemTransferClickForwardItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindForwardItemInRepo": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_activity_xiranite_nugget"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "ItemTransferFindForwardItemInBag": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_activity_xiranite_nugget"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "分离芯",
                     "label": "$iconRecognition.name.item_filter_core",
                     "pipeline_override": {
@@ -1577,334 +2028,6 @@
                                         "grid_type": "transfer",
                                         "item_ids": [
                                             "item_xiranite_powder"
-                                        ],
-                                        "item_recheck_filters": [
-                                            "Normal:Product"
-                                        ],
-                                        "deduplicate": true
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "赤铜耐压罐(重息壤气)",
-                    "label": "$iconRecognition.name.item_gasjar_copper_gas_xiranite_enr",
-                    "pipeline_override": {
-                        "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Product.png"
-                        },
-                        "ItemTransferFindForwardItemInRepo": {
-                            "recognition": {
-                                "param": {
-                                    "custom_recognition_param": {
-                                        "grid_type": "transfer",
-                                        "item_ids": [
-                                            "item_gasjar_copper_gas_xiranite_enr"
-                                        ],
-                                        "item_recheck_filters": [
-                                            "Normal:Product"
-                                        ],
-                                        "deduplicate": true
-                                    }
-                                }
-                            }
-                        },
-                        "ItemTransferFindForwardItemInBag": {
-                            "recognition": {
-                                "param": {
-                                    "custom_recognition_param": {
-                                        "grid_type": "transfer",
-                                        "item_ids": [
-                                            "item_gasjar_copper_gas_xiranite_enr"
-                                        ],
-                                        "item_recheck_filters": [
-                                            "Normal:Product"
-                                        ],
-                                        "deduplicate": true
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "赤铜耐压罐(息壤气)",
-                    "label": "$iconRecognition.name.item_gasjar_copper_gas_xiranite",
-                    "pipeline_override": {
-                        "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Product.png"
-                        },
-                        "ItemTransferFindForwardItemInRepo": {
-                            "recognition": {
-                                "param": {
-                                    "custom_recognition_param": {
-                                        "grid_type": "transfer",
-                                        "item_ids": [
-                                            "item_gasjar_copper_gas_xiranite"
-                                        ],
-                                        "item_recheck_filters": [
-                                            "Normal:Product"
-                                        ],
-                                        "deduplicate": true
-                                    }
-                                }
-                            }
-                        },
-                        "ItemTransferFindForwardItemInBag": {
-                            "recognition": {
-                                "param": {
-                                    "custom_recognition_param": {
-                                        "grid_type": "transfer",
-                                        "item_ids": [
-                                            "item_gasjar_copper_gas_xiranite"
-                                        ],
-                                        "item_recheck_filters": [
-                                            "Normal:Product"
-                                        ],
-                                        "deduplicate": true
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "赤铜耐压罐(水蒸气)",
-                    "label": "$iconRecognition.name.item_gasjar_copper_gas_water",
-                    "pipeline_override": {
-                        "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Product.png"
-                        },
-                        "ItemTransferFindForwardItemInRepo": {
-                            "recognition": {
-                                "param": {
-                                    "custom_recognition_param": {
-                                        "grid_type": "transfer",
-                                        "item_ids": [
-                                            "item_gasjar_copper_gas_water"
-                                        ],
-                                        "item_recheck_filters": [
-                                            "Normal:Product"
-                                        ],
-                                        "deduplicate": true
-                                    }
-                                }
-                            }
-                        },
-                        "ItemTransferFindForwardItemInBag": {
-                            "recognition": {
-                                "param": {
-                                    "custom_recognition_param": {
-                                        "grid_type": "transfer",
-                                        "item_ids": [
-                                            "item_gasjar_copper_gas_water"
-                                        ],
-                                        "item_recheck_filters": [
-                                            "Normal:Product"
-                                        ],
-                                        "deduplicate": true
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "赤铜耐压罐(惰气)",
-                    "label": "$iconRecognition.name.item_gasjar_copper_gas_inert",
-                    "pipeline_override": {
-                        "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Product.png"
-                        },
-                        "ItemTransferFindForwardItemInRepo": {
-                            "recognition": {
-                                "param": {
-                                    "custom_recognition_param": {
-                                        "grid_type": "transfer",
-                                        "item_ids": [
-                                            "item_gasjar_copper_gas_inert"
-                                        ],
-                                        "item_recheck_filters": [
-                                            "Normal:Product"
-                                        ],
-                                        "deduplicate": true
-                                    }
-                                }
-                            }
-                        },
-                        "ItemTransferFindForwardItemInBag": {
-                            "recognition": {
-                                "param": {
-                                    "custom_recognition_param": {
-                                        "grid_type": "transfer",
-                                        "item_ids": [
-                                            "item_gasjar_copper_gas_inert"
-                                        ],
-                                        "item_recheck_filters": [
-                                            "Normal:Product"
-                                        ],
-                                        "deduplicate": true
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "赤铜耐压罐(气态灼铜)",
-                    "label": "$iconRecognition.name.item_gasjar_copper_gas_copper_enr2",
-                    "pipeline_override": {
-                        "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Product.png"
-                        },
-                        "ItemTransferFindForwardItemInRepo": {
-                            "recognition": {
-                                "param": {
-                                    "custom_recognition_param": {
-                                        "grid_type": "transfer",
-                                        "item_ids": [
-                                            "item_gasjar_copper_gas_copper_enr2"
-                                        ],
-                                        "item_recheck_filters": [
-                                            "Normal:Product"
-                                        ],
-                                        "deduplicate": true
-                                    }
-                                }
-                            }
-                        },
-                        "ItemTransferFindForwardItemInBag": {
-                            "recognition": {
-                                "param": {
-                                    "custom_recognition_param": {
-                                        "grid_type": "transfer",
-                                        "item_ids": [
-                                            "item_gasjar_copper_gas_copper_enr2"
-                                        ],
-                                        "item_recheck_filters": [
-                                            "Normal:Product"
-                                        ],
-                                        "deduplicate": true
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "赤铜耐压罐(气态赫铜)",
-                    "label": "$iconRecognition.name.item_gasjar_copper_gas_copper_enr",
-                    "pipeline_override": {
-                        "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Product.png"
-                        },
-                        "ItemTransferFindForwardItemInRepo": {
-                            "recognition": {
-                                "param": {
-                                    "custom_recognition_param": {
-                                        "grid_type": "transfer",
-                                        "item_ids": [
-                                            "item_gasjar_copper_gas_copper_enr"
-                                        ],
-                                        "item_recheck_filters": [
-                                            "Normal:Product"
-                                        ],
-                                        "deduplicate": true
-                                    }
-                                }
-                            }
-                        },
-                        "ItemTransferFindForwardItemInBag": {
-                            "recognition": {
-                                "param": {
-                                    "custom_recognition_param": {
-                                        "grid_type": "transfer",
-                                        "item_ids": [
-                                            "item_gasjar_copper_gas_copper_enr"
-                                        ],
-                                        "item_recheck_filters": [
-                                            "Normal:Product"
-                                        ],
-                                        "deduplicate": true
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "赤铜耐压罐(气态赤铜)",
-                    "label": "$iconRecognition.name.item_gasjar_copper_gas_copper",
-                    "pipeline_override": {
-                        "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Product.png"
-                        },
-                        "ItemTransferFindForwardItemInRepo": {
-                            "recognition": {
-                                "param": {
-                                    "custom_recognition_param": {
-                                        "grid_type": "transfer",
-                                        "item_ids": [
-                                            "item_gasjar_copper_gas_copper"
-                                        ],
-                                        "item_recheck_filters": [
-                                            "Normal:Product"
-                                        ],
-                                        "deduplicate": true
-                                    }
-                                }
-                            }
-                        },
-                        "ItemTransferFindForwardItemInBag": {
-                            "recognition": {
-                                "param": {
-                                    "custom_recognition_param": {
-                                        "grid_type": "transfer",
-                                        "item_ids": [
-                                            "item_gasjar_copper_gas_copper"
-                                        ],
-                                        "item_recheck_filters": [
-                                            "Normal:Product"
-                                        ],
-                                        "deduplicate": true
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "赤铜耐压罐(酸气)",
-                    "label": "$iconRecognition.name.item_gasjar_copper_gas_acid",
-                    "pipeline_override": {
-                        "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Product.png"
-                        },
-                        "ItemTransferFindForwardItemInRepo": {
-                            "recognition": {
-                                "param": {
-                                    "custom_recognition_param": {
-                                        "grid_type": "transfer",
-                                        "item_ids": [
-                                            "item_gasjar_copper_gas_acid"
-                                        ],
-                                        "item_recheck_filters": [
-                                            "Normal:Product"
-                                        ],
-                                        "deduplicate": true
-                                    }
-                                }
-                            }
-                        },
-                        "ItemTransferFindForwardItemInBag": {
-                            "recognition": {
-                                "param": {
-                                    "custom_recognition_param": {
-                                        "grid_type": "transfer",
-                                        "item_ids": [
-                                            "item_gasjar_copper_gas_acid"
                                         ],
                                         "item_recheck_filters": [
                                             "Normal:Product"
@@ -2368,47 +2491,6 @@
                     }
                 },
                 {
-                    "name": "赤铜耐压罐",
-                    "label": "$iconRecognition.name.item_copper_jar",
-                    "pipeline_override": {
-                        "ItemTransferClickForwardItemCategory": {
-                            "template": "ItemTransfer/Product.png"
-                        },
-                        "ItemTransferFindForwardItemInRepo": {
-                            "recognition": {
-                                "param": {
-                                    "custom_recognition_param": {
-                                        "grid_type": "transfer",
-                                        "item_ids": [
-                                            "item_copper_jar"
-                                        ],
-                                        "item_recheck_filters": [
-                                            "Normal:Product"
-                                        ],
-                                        "deduplicate": true
-                                    }
-                                }
-                            }
-                        },
-                        "ItemTransferFindForwardItemInBag": {
-                            "recognition": {
-                                "param": {
-                                    "custom_recognition_param": {
-                                        "grid_type": "transfer",
-                                        "item_ids": [
-                                            "item_copper_jar"
-                                        ],
-                                        "item_recheck_filters": [
-                                            "Normal:Product"
-                                        ],
-                                        "deduplicate": true
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                {
                     "name": "赫铜瓶",
                     "label": "$iconRecognition.name.item_copper_enr_bottle",
                     "pipeline_override": {
@@ -2438,6 +2520,375 @@
                                         "grid_type": "transfer",
                                         "item_ids": [
                                             "item_copper_enr_bottle"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜耐压罐(重息壤气)",
+                    "label": "$iconRecognition.name.item_gasjar_copper_gas_xiranite_enr",
+                    "pipeline_override": {
+                        "ItemTransferClickForwardItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindForwardItemInRepo": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_gasjar_copper_gas_xiranite_enr"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "ItemTransferFindForwardItemInBag": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_gasjar_copper_gas_xiranite_enr"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜耐压罐(息壤气)",
+                    "label": "$iconRecognition.name.item_gasjar_copper_gas_xiranite",
+                    "pipeline_override": {
+                        "ItemTransferClickForwardItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindForwardItemInRepo": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_gasjar_copper_gas_xiranite"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "ItemTransferFindForwardItemInBag": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_gasjar_copper_gas_xiranite"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜耐压罐(水蒸气)",
+                    "label": "$iconRecognition.name.item_gasjar_copper_gas_water",
+                    "pipeline_override": {
+                        "ItemTransferClickForwardItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindForwardItemInRepo": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_gasjar_copper_gas_water"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "ItemTransferFindForwardItemInBag": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_gasjar_copper_gas_water"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜耐压罐(惰气)",
+                    "label": "$iconRecognition.name.item_gasjar_copper_gas_inert",
+                    "pipeline_override": {
+                        "ItemTransferClickForwardItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindForwardItemInRepo": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_gasjar_copper_gas_inert"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "ItemTransferFindForwardItemInBag": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_gasjar_copper_gas_inert"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜耐压罐(气态灼铜)",
+                    "label": "$iconRecognition.name.item_gasjar_copper_gas_copper_enr2",
+                    "pipeline_override": {
+                        "ItemTransferClickForwardItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindForwardItemInRepo": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_gasjar_copper_gas_copper_enr2"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "ItemTransferFindForwardItemInBag": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_gasjar_copper_gas_copper_enr2"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜耐压罐(气态赫铜)",
+                    "label": "$iconRecognition.name.item_gasjar_copper_gas_copper_enr",
+                    "pipeline_override": {
+                        "ItemTransferClickForwardItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindForwardItemInRepo": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_gasjar_copper_gas_copper_enr"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "ItemTransferFindForwardItemInBag": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_gasjar_copper_gas_copper_enr"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜耐压罐(气态赤铜)",
+                    "label": "$iconRecognition.name.item_gasjar_copper_gas_copper",
+                    "pipeline_override": {
+                        "ItemTransferClickForwardItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindForwardItemInRepo": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_gasjar_copper_gas_copper"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "ItemTransferFindForwardItemInBag": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_gasjar_copper_gas_copper"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜耐压罐(酸气)",
+                    "label": "$iconRecognition.name.item_gasjar_copper_gas_acid",
+                    "pipeline_override": {
+                        "ItemTransferClickForwardItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindForwardItemInRepo": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_gasjar_copper_gas_acid"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "ItemTransferFindForwardItemInBag": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_gasjar_copper_gas_acid"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜耐压罐",
+                    "label": "$iconRecognition.name.item_copper_jar",
+                    "pipeline_override": {
+                        "ItemTransferClickForwardItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindForwardItemInRepo": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_copper_jar"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "ItemTransferFindForwardItemInBag": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_copper_jar"
                                         ],
                                         "item_recheck_filters": [
                                             "Normal:Product"
@@ -7932,6 +8383,47 @@
                                         "grid_type": "transfer",
                                         "item_ids": [
                                             "item_proc_bomb_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "香焗兽肝",
+                    "label": "$iconRecognition.name.item_slwood_1_hshog_1_1",
+                    "pipeline_override": {
+                        "ItemTransferClickForwardItemCategory": {
+                            "template": "ItemTransfer/Usable.png"
+                        },
+                        "ItemTransferFindForwardItemInRepo": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_slwood_1_hshog_1_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "ItemTransferFindForwardItemInBag": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_slwood_1_hshog_1_1"
                                         ],
                                         "item_recheck_filters": [
                                             "Normal:Usable"
@@ -11969,6 +12461,457 @@
                     }
                 },
                 {
+                    "name": "重息壤龙泡泡",
+                    "label": "$iconRecognition.name.item_activity_xiranite_enr_lung",
+                    "pipeline_override": {
+                        "ItemTransferClickReturnItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindReturnItemInRepo": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_activity_xiranite_enr_lung"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "ItemTransferFindReturnItemInBag": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_activity_xiranite_enr_lung"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "息壤龙泡泡",
+                    "label": "$iconRecognition.name.item_activity_xiranite_lung",
+                    "pipeline_override": {
+                        "ItemTransferClickReturnItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindReturnItemInRepo": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_activity_xiranite_lung"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "ItemTransferFindReturnItemInBag": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_activity_xiranite_lung"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "实验息壤铜骨骼",
+                    "label": "$iconRecognition.name.item_activity_copper_poly_tool",
+                    "pipeline_override": {
+                        "ItemTransferClickReturnItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindReturnItemInRepo": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_activity_copper_poly_tool"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "ItemTransferFindReturnItemInBag": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_activity_copper_poly_tool"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "实验息壤铜零件",
+                    "label": "$iconRecognition.name.item_activity_copper_poly_cmpt",
+                    "pipeline_override": {
+                        "ItemTransferClickReturnItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindReturnItemInRepo": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_activity_copper_poly_cmpt"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "ItemTransferFindReturnItemInBag": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_activity_copper_poly_cmpt"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "实验息壤铜锭",
+                    "label": "$iconRecognition.name.item_activity_copper_poly",
+                    "pipeline_override": {
+                        "ItemTransferClickReturnItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindReturnItemInRepo": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_activity_copper_poly"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "ItemTransferFindReturnItemInBag": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_activity_copper_poly"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "实验息壤铜气",
+                    "label": "$iconRecognition.name.item_activity_copper_poly_gas",
+                    "pipeline_override": {
+                        "ItemTransferClickReturnItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindReturnItemInRepo": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_activity_copper_poly_gas"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "ItemTransferFindReturnItemInBag": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_activity_copper_poly_gas"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "实验龙泡泡重壳",
+                    "label": "$iconRecognition.name.item_activity_xiranite_enr_box",
+                    "pipeline_override": {
+                        "ItemTransferClickReturnItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindReturnItemInRepo": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_activity_xiranite_enr_box"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "ItemTransferFindReturnItemInBag": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_activity_xiranite_enr_box"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "实验重息壤块",
+                    "label": "$iconRecognition.name.item_activity_xiranite_enr_nugget",
+                    "pipeline_override": {
+                        "ItemTransferClickReturnItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindReturnItemInRepo": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_activity_xiranite_enr_nugget"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "ItemTransferFindReturnItemInBag": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_activity_xiranite_enr_nugget"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "实验铜骨骼",
+                    "label": "$iconRecognition.name.item_activity_copper_xiranite_tool",
+                    "pipeline_override": {
+                        "ItemTransferClickReturnItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindReturnItemInRepo": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_activity_copper_xiranite_tool"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "ItemTransferFindReturnItemInBag": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_activity_copper_xiranite_tool"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "实验龙泡泡外壳",
+                    "label": "$iconRecognition.name.item_activity_xiranite_box",
+                    "pipeline_override": {
+                        "ItemTransferClickReturnItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindReturnItemInRepo": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_activity_xiranite_box"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "ItemTransferFindReturnItemInBag": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_activity_xiranite_box"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "实验息壤块",
+                    "label": "$iconRecognition.name.item_activity_xiranite_nugget",
+                    "pipeline_override": {
+                        "ItemTransferClickReturnItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindReturnItemInRepo": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_activity_xiranite_nugget"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "ItemTransferFindReturnItemInBag": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_activity_xiranite_nugget"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "分离芯",
                     "label": "$iconRecognition.name.item_filter_core",
                     "pipeline_override": {
@@ -12203,334 +13146,6 @@
                                         "grid_type": "transfer",
                                         "item_ids": [
                                             "item_xiranite_powder"
-                                        ],
-                                        "item_recheck_filters": [
-                                            "Normal:Product"
-                                        ],
-                                        "deduplicate": true
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "赤铜耐压罐(重息壤气)",
-                    "label": "$iconRecognition.name.item_gasjar_copper_gas_xiranite_enr",
-                    "pipeline_override": {
-                        "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Product.png"
-                        },
-                        "ItemTransferFindReturnItemInRepo": {
-                            "recognition": {
-                                "param": {
-                                    "custom_recognition_param": {
-                                        "grid_type": "transfer",
-                                        "item_ids": [
-                                            "item_gasjar_copper_gas_xiranite_enr"
-                                        ],
-                                        "item_recheck_filters": [
-                                            "Normal:Product"
-                                        ],
-                                        "deduplicate": true
-                                    }
-                                }
-                            }
-                        },
-                        "ItemTransferFindReturnItemInBag": {
-                            "recognition": {
-                                "param": {
-                                    "custom_recognition_param": {
-                                        "grid_type": "transfer",
-                                        "item_ids": [
-                                            "item_gasjar_copper_gas_xiranite_enr"
-                                        ],
-                                        "item_recheck_filters": [
-                                            "Normal:Product"
-                                        ],
-                                        "deduplicate": true
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "赤铜耐压罐(息壤气)",
-                    "label": "$iconRecognition.name.item_gasjar_copper_gas_xiranite",
-                    "pipeline_override": {
-                        "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Product.png"
-                        },
-                        "ItemTransferFindReturnItemInRepo": {
-                            "recognition": {
-                                "param": {
-                                    "custom_recognition_param": {
-                                        "grid_type": "transfer",
-                                        "item_ids": [
-                                            "item_gasjar_copper_gas_xiranite"
-                                        ],
-                                        "item_recheck_filters": [
-                                            "Normal:Product"
-                                        ],
-                                        "deduplicate": true
-                                    }
-                                }
-                            }
-                        },
-                        "ItemTransferFindReturnItemInBag": {
-                            "recognition": {
-                                "param": {
-                                    "custom_recognition_param": {
-                                        "grid_type": "transfer",
-                                        "item_ids": [
-                                            "item_gasjar_copper_gas_xiranite"
-                                        ],
-                                        "item_recheck_filters": [
-                                            "Normal:Product"
-                                        ],
-                                        "deduplicate": true
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "赤铜耐压罐(水蒸气)",
-                    "label": "$iconRecognition.name.item_gasjar_copper_gas_water",
-                    "pipeline_override": {
-                        "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Product.png"
-                        },
-                        "ItemTransferFindReturnItemInRepo": {
-                            "recognition": {
-                                "param": {
-                                    "custom_recognition_param": {
-                                        "grid_type": "transfer",
-                                        "item_ids": [
-                                            "item_gasjar_copper_gas_water"
-                                        ],
-                                        "item_recheck_filters": [
-                                            "Normal:Product"
-                                        ],
-                                        "deduplicate": true
-                                    }
-                                }
-                            }
-                        },
-                        "ItemTransferFindReturnItemInBag": {
-                            "recognition": {
-                                "param": {
-                                    "custom_recognition_param": {
-                                        "grid_type": "transfer",
-                                        "item_ids": [
-                                            "item_gasjar_copper_gas_water"
-                                        ],
-                                        "item_recheck_filters": [
-                                            "Normal:Product"
-                                        ],
-                                        "deduplicate": true
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "赤铜耐压罐(惰气)",
-                    "label": "$iconRecognition.name.item_gasjar_copper_gas_inert",
-                    "pipeline_override": {
-                        "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Product.png"
-                        },
-                        "ItemTransferFindReturnItemInRepo": {
-                            "recognition": {
-                                "param": {
-                                    "custom_recognition_param": {
-                                        "grid_type": "transfer",
-                                        "item_ids": [
-                                            "item_gasjar_copper_gas_inert"
-                                        ],
-                                        "item_recheck_filters": [
-                                            "Normal:Product"
-                                        ],
-                                        "deduplicate": true
-                                    }
-                                }
-                            }
-                        },
-                        "ItemTransferFindReturnItemInBag": {
-                            "recognition": {
-                                "param": {
-                                    "custom_recognition_param": {
-                                        "grid_type": "transfer",
-                                        "item_ids": [
-                                            "item_gasjar_copper_gas_inert"
-                                        ],
-                                        "item_recheck_filters": [
-                                            "Normal:Product"
-                                        ],
-                                        "deduplicate": true
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "赤铜耐压罐(气态灼铜)",
-                    "label": "$iconRecognition.name.item_gasjar_copper_gas_copper_enr2",
-                    "pipeline_override": {
-                        "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Product.png"
-                        },
-                        "ItemTransferFindReturnItemInRepo": {
-                            "recognition": {
-                                "param": {
-                                    "custom_recognition_param": {
-                                        "grid_type": "transfer",
-                                        "item_ids": [
-                                            "item_gasjar_copper_gas_copper_enr2"
-                                        ],
-                                        "item_recheck_filters": [
-                                            "Normal:Product"
-                                        ],
-                                        "deduplicate": true
-                                    }
-                                }
-                            }
-                        },
-                        "ItemTransferFindReturnItemInBag": {
-                            "recognition": {
-                                "param": {
-                                    "custom_recognition_param": {
-                                        "grid_type": "transfer",
-                                        "item_ids": [
-                                            "item_gasjar_copper_gas_copper_enr2"
-                                        ],
-                                        "item_recheck_filters": [
-                                            "Normal:Product"
-                                        ],
-                                        "deduplicate": true
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "赤铜耐压罐(气态赫铜)",
-                    "label": "$iconRecognition.name.item_gasjar_copper_gas_copper_enr",
-                    "pipeline_override": {
-                        "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Product.png"
-                        },
-                        "ItemTransferFindReturnItemInRepo": {
-                            "recognition": {
-                                "param": {
-                                    "custom_recognition_param": {
-                                        "grid_type": "transfer",
-                                        "item_ids": [
-                                            "item_gasjar_copper_gas_copper_enr"
-                                        ],
-                                        "item_recheck_filters": [
-                                            "Normal:Product"
-                                        ],
-                                        "deduplicate": true
-                                    }
-                                }
-                            }
-                        },
-                        "ItemTransferFindReturnItemInBag": {
-                            "recognition": {
-                                "param": {
-                                    "custom_recognition_param": {
-                                        "grid_type": "transfer",
-                                        "item_ids": [
-                                            "item_gasjar_copper_gas_copper_enr"
-                                        ],
-                                        "item_recheck_filters": [
-                                            "Normal:Product"
-                                        ],
-                                        "deduplicate": true
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "赤铜耐压罐(气态赤铜)",
-                    "label": "$iconRecognition.name.item_gasjar_copper_gas_copper",
-                    "pipeline_override": {
-                        "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Product.png"
-                        },
-                        "ItemTransferFindReturnItemInRepo": {
-                            "recognition": {
-                                "param": {
-                                    "custom_recognition_param": {
-                                        "grid_type": "transfer",
-                                        "item_ids": [
-                                            "item_gasjar_copper_gas_copper"
-                                        ],
-                                        "item_recheck_filters": [
-                                            "Normal:Product"
-                                        ],
-                                        "deduplicate": true
-                                    }
-                                }
-                            }
-                        },
-                        "ItemTransferFindReturnItemInBag": {
-                            "recognition": {
-                                "param": {
-                                    "custom_recognition_param": {
-                                        "grid_type": "transfer",
-                                        "item_ids": [
-                                            "item_gasjar_copper_gas_copper"
-                                        ],
-                                        "item_recheck_filters": [
-                                            "Normal:Product"
-                                        ],
-                                        "deduplicate": true
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "赤铜耐压罐(酸气)",
-                    "label": "$iconRecognition.name.item_gasjar_copper_gas_acid",
-                    "pipeline_override": {
-                        "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Product.png"
-                        },
-                        "ItemTransferFindReturnItemInRepo": {
-                            "recognition": {
-                                "param": {
-                                    "custom_recognition_param": {
-                                        "grid_type": "transfer",
-                                        "item_ids": [
-                                            "item_gasjar_copper_gas_acid"
-                                        ],
-                                        "item_recheck_filters": [
-                                            "Normal:Product"
-                                        ],
-                                        "deduplicate": true
-                                    }
-                                }
-                            }
-                        },
-                        "ItemTransferFindReturnItemInBag": {
-                            "recognition": {
-                                "param": {
-                                    "custom_recognition_param": {
-                                        "grid_type": "transfer",
-                                        "item_ids": [
-                                            "item_gasjar_copper_gas_acid"
                                         ],
                                         "item_recheck_filters": [
                                             "Normal:Product"
@@ -12994,47 +13609,6 @@
                     }
                 },
                 {
-                    "name": "赤铜耐压罐",
-                    "label": "$iconRecognition.name.item_copper_jar",
-                    "pipeline_override": {
-                        "ItemTransferClickReturnItemCategory": {
-                            "template": "ItemTransfer/Product.png"
-                        },
-                        "ItemTransferFindReturnItemInRepo": {
-                            "recognition": {
-                                "param": {
-                                    "custom_recognition_param": {
-                                        "grid_type": "transfer",
-                                        "item_ids": [
-                                            "item_copper_jar"
-                                        ],
-                                        "item_recheck_filters": [
-                                            "Normal:Product"
-                                        ],
-                                        "deduplicate": true
-                                    }
-                                }
-                            }
-                        },
-                        "ItemTransferFindReturnItemInBag": {
-                            "recognition": {
-                                "param": {
-                                    "custom_recognition_param": {
-                                        "grid_type": "transfer",
-                                        "item_ids": [
-                                            "item_copper_jar"
-                                        ],
-                                        "item_recheck_filters": [
-                                            "Normal:Product"
-                                        ],
-                                        "deduplicate": true
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                {
                     "name": "赫铜瓶",
                     "label": "$iconRecognition.name.item_copper_enr_bottle",
                     "pipeline_override": {
@@ -13064,6 +13638,375 @@
                                         "grid_type": "transfer",
                                         "item_ids": [
                                             "item_copper_enr_bottle"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜耐压罐(重息壤气)",
+                    "label": "$iconRecognition.name.item_gasjar_copper_gas_xiranite_enr",
+                    "pipeline_override": {
+                        "ItemTransferClickReturnItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindReturnItemInRepo": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_gasjar_copper_gas_xiranite_enr"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "ItemTransferFindReturnItemInBag": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_gasjar_copper_gas_xiranite_enr"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜耐压罐(息壤气)",
+                    "label": "$iconRecognition.name.item_gasjar_copper_gas_xiranite",
+                    "pipeline_override": {
+                        "ItemTransferClickReturnItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindReturnItemInRepo": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_gasjar_copper_gas_xiranite"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "ItemTransferFindReturnItemInBag": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_gasjar_copper_gas_xiranite"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜耐压罐(水蒸气)",
+                    "label": "$iconRecognition.name.item_gasjar_copper_gas_water",
+                    "pipeline_override": {
+                        "ItemTransferClickReturnItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindReturnItemInRepo": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_gasjar_copper_gas_water"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "ItemTransferFindReturnItemInBag": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_gasjar_copper_gas_water"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜耐压罐(惰气)",
+                    "label": "$iconRecognition.name.item_gasjar_copper_gas_inert",
+                    "pipeline_override": {
+                        "ItemTransferClickReturnItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindReturnItemInRepo": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_gasjar_copper_gas_inert"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "ItemTransferFindReturnItemInBag": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_gasjar_copper_gas_inert"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜耐压罐(气态灼铜)",
+                    "label": "$iconRecognition.name.item_gasjar_copper_gas_copper_enr2",
+                    "pipeline_override": {
+                        "ItemTransferClickReturnItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindReturnItemInRepo": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_gasjar_copper_gas_copper_enr2"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "ItemTransferFindReturnItemInBag": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_gasjar_copper_gas_copper_enr2"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜耐压罐(气态赫铜)",
+                    "label": "$iconRecognition.name.item_gasjar_copper_gas_copper_enr",
+                    "pipeline_override": {
+                        "ItemTransferClickReturnItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindReturnItemInRepo": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_gasjar_copper_gas_copper_enr"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "ItemTransferFindReturnItemInBag": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_gasjar_copper_gas_copper_enr"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜耐压罐(气态赤铜)",
+                    "label": "$iconRecognition.name.item_gasjar_copper_gas_copper",
+                    "pipeline_override": {
+                        "ItemTransferClickReturnItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindReturnItemInRepo": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_gasjar_copper_gas_copper"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "ItemTransferFindReturnItemInBag": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_gasjar_copper_gas_copper"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜耐压罐(酸气)",
+                    "label": "$iconRecognition.name.item_gasjar_copper_gas_acid",
+                    "pipeline_override": {
+                        "ItemTransferClickReturnItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindReturnItemInRepo": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_gasjar_copper_gas_acid"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "ItemTransferFindReturnItemInBag": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_gasjar_copper_gas_acid"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "赤铜耐压罐",
+                    "label": "$iconRecognition.name.item_copper_jar",
+                    "pipeline_override": {
+                        "ItemTransferClickReturnItemCategory": {
+                            "template": "ItemTransfer/Product.png"
+                        },
+                        "ItemTransferFindReturnItemInRepo": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_copper_jar"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Product"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "ItemTransferFindReturnItemInBag": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_copper_jar"
                                         ],
                                         "item_recheck_filters": [
                                             "Normal:Product"
@@ -18558,6 +19501,47 @@
                                         "grid_type": "transfer",
                                         "item_ids": [
                                             "item_proc_bomb_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "香焗兽肝",
+                    "label": "$iconRecognition.name.item_slwood_1_hshog_1_1",
+                    "pipeline_override": {
+                        "ItemTransferClickReturnItemCategory": {
+                            "template": "ItemTransfer/Usable.png"
+                        },
+                        "ItemTransferFindReturnItemInRepo": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_slwood_1_hshog_1_1"
+                                        ],
+                                        "item_recheck_filters": [
+                                            "Normal:Usable"
+                                        ],
+                                        "deduplicate": true
+                                    }
+                                }
+                            }
+                        },
+                        "ItemTransferFindReturnItemInBag": {
+                            "recognition": {
+                                "param": {
+                                    "custom_recognition_param": {
+                                        "grid_type": "transfer",
+                                        "item_ids": [
+                                            "item_slwood_1_hshog_1_1"
                                         ],
                                         "item_recheck_filters": [
                                             "Normal:Usable"
