@@ -5,6 +5,7 @@ import (
 	"image"
 	"math"
 	"regexp"
+	"slices"
 	"sort"
 	"strconv"
 
@@ -23,10 +24,22 @@ type gridPosition struct {
 	Y int `json:"y"`
 }
 
-var placementSitePositions []gridPosition
-var balloonConfigs map[int]balloonConfig
-var balloonPlacements []balloonPlacement
-var balloonPlacementIndex int
+var (
+	placementSitePositions []gridPosition
+	balloonConfigs         map[int]balloonConfig
+	balloonPlacements      []balloonPlacement
+	// balloonPlanSlots 方案涉及的气球槽位（CountNode 升序），BalloonStateRecognition 按此序观测。
+	balloonPlanSlots []string
+	// balloonPathStates 方案进度与 balloon state 的一一映射：第 k 项为按方案顺序执行完
+	// 前 k 个条目后的剩余数量元组，ConfigureSwipeAction 以此校验观测状态。
+	balloonPathStates [][]int
+	// balloonObservedState 最近一次观测的 balloon state，与 balloonPlanSlots 对齐。
+	balloonObservedState []int
+	balloonStateIndex    int
+	// balloonStateSignature / balloonStateRepeatCount 熔断计数：同一 balloon state 累计出现次数。
+	balloonStateSignature   string
+	balloonStateRepeatCount int
+)
 
 type balloonConfig struct {
 	Value     int
@@ -35,8 +48,8 @@ type balloonConfig struct {
 }
 
 type balloonPlacement struct {
-	NodeName  string       `json:"node_name"`
-	TargetPos gridPosition `json:"target_pos"`
+	Config    balloonConfig `json:"config"`
+	TargetPos gridPosition  `json:"target_pos"`
 }
 
 // InitialStateRecognition recognizes and caches the Aerial Salvage initial state.
@@ -47,7 +60,13 @@ func (r *InitialStateRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogniti
 	placementSitePositions = nil
 	balloonConfigs = nil
 	balloonPlacements = nil
-	balloonPlacementIndex = 0
+	balloonPlanSlots = nil
+	balloonPathStates = nil
+	balloonObservedState = nil
+	gridPointsCache = nil
+	balloonStateIndex = 0
+	balloonStateSignature = ""
+	balloonStateRepeatCount = 0
 	if arg == nil || arg.Img == nil {
 		log.Error().Str("component", "AeroSalvageInitialStateRecognition").Msg("custom recognition arg or image is nil")
 		return nil, false
@@ -85,14 +104,21 @@ func (r *InitialStateRecognition) Run(ctx *maa.Context, arg *maa.CustomRecogniti
 	if err != nil {
 		return initialStateRecognitionError("solve balloon placements", err)
 	}
+	slots, pathStates, err := buildPathStates(placements, configs)
+	if err != nil {
+		return initialStateRecognitionError("build path states", err)
+	}
 	placementSitePositions = positions
 	balloonConfigs = configs
 	balloonPlacements = placements
+	balloonPlanSlots = slots
+	balloonPathStates = pathStates
 	log.Debug().
 		Str("component", "AeroSalvageInitialStateRecognition").
 		Int("placement_sites", len(positions)).
 		Int("balloon_configs", len(configs)).
 		Int("balloon_placements", len(placements)).
+		Strs("balloon_plan_slots", slots).
 		Interface("placement_site_positions", positions).
 		Interface("balloon_configs", sortedBalloonConfigs(configs)).
 		Interface("balloon_placements", placements).
@@ -283,7 +309,7 @@ func solveBalloonPlacements(positions []gridPosition, configs map[int]balloonCon
 				continue
 			}
 			remaining[configIndex]--
-			placements = append(placements, balloonPlacement{NodeName: config.CountNode, TargetPos: site})
+			placements = append(placements, balloonPlacement{Config: config, TargetPos: site})
 			if search(siteIndex+1, remaining, sumX+site.X*config.Value, sumY+site.Y*config.Value) {
 				return true
 			}
@@ -307,6 +333,34 @@ func solveBalloonPlacements(positions []gridPosition, configs map[int]balloonCon
 		return placements[i].TargetPos.X < placements[j].TargetPos.X
 	})
 	return placements, nil
+}
+
+// buildPathStates 推导方案进度与 balloon state 的一一映射：slots 为方案槽位序
+// （CountNode 升序），states 第 k 项为按方案顺序执行完前 k 个条目后的剩余数量元组。
+func buildPathStates(placements []balloonPlacement, configs map[int]balloonConfig) ([]string, [][]int, error) {
+	ordered := sortedBalloonConfigs(configs)
+	slots := make([]string, len(ordered))
+	slotIndexes := make(map[string]int, len(ordered))
+	state := make([]int, len(ordered))
+	for i, config := range ordered {
+		slots[i] = config.CountNode
+		slotIndexes[config.CountNode] = i
+		state[i] = config.Count
+	}
+	states := make([][]int, 0, len(placements)+1)
+	states = append(states, slices.Clone(state))
+	for _, placement := range placements {
+		index, ok := slotIndexes[placement.Config.CountNode]
+		if !ok {
+			return nil, nil, fmt.Errorf("placement targets unknown balloon count node %s", placement.Config.CountNode)
+		}
+		if state[index] <= 0 {
+			return nil, nil, fmt.Errorf("balloon %s has no remaining count for placement", placement.Config.CountNode)
+		}
+		state[index]--
+		states = append(states, slices.Clone(state))
+	}
+	return slots, states, nil
 }
 
 func abs(value int) int {

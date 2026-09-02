@@ -6,6 +6,7 @@
         "custom_recognition": {
             "enum": [
                 "AutoFightEntryRecognition",
+                "AeroSalvageBalloonStateRecognition",
                 "AeroSalvageGridRecognition",
                 "AeroSalvageInitialStateRecognition",
                 "AutoSellPriceCompareRecognition",
