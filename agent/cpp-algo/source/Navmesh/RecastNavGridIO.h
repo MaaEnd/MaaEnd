@@ -16,7 +16,7 @@ inline constexpr char kGridSectionTag[5] = "BGRD";
 // 补出来的格没有实体 span 时挂一条 ghost 或 fill。
 struct GridSpanRec
 {
-    int64_t cell = 0;  // 瓦内格号 y * nx + x
+    int32_t cell = 0;  // 瓦内格号 y * nx + x
     uint32_t rid = 0;  // 全区类号
     float h = 0.0F;
     uint16_t clr = 0;  // 净空的平方格距,还原用 GridClearance

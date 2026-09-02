@@ -177,7 +177,7 @@ bool DecodeGridTile(const uint8_t* data, size_t len, GridTile& out)
                 return false;
             }
             GridSpanRec r {};
-            r.cell = cell;
+            r.cell = static_cast<int32_t>(cell);
             r.rid = static_cast<uint32_t>(rid);
             r.clr = static_cast<uint16_t>(clr);
             r.flags = *col[3]++;
@@ -360,7 +360,7 @@ bool DecodeGridTileV3(const uint8_t* data, size_t len, int32_t nx, GridTile& out
     out.rec.assign(static_cast<size_t>(n), GridSpanRec {});
     for (size_t i = 0; i < static_cast<size_t>(ncell); ++i) {
         for (uint64_t j = 0; j < depth[i]; ++j) {
-            out.rec[base[i] + static_cast<size_t>(j)].cell = cell[i];
+            out.rec[base[i] + static_cast<size_t>(j)].cell = static_cast<int32_t>(cell[i]);
         }
     }
 

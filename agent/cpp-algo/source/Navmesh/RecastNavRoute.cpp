@@ -82,14 +82,22 @@ double nowMs()
 struct GridWindow
 {
     std::vector<GridSpanRec> rec;
-    std::vector<int64_t> head; // 逐格: 记录链表头,无记录为 -1
-    std::vector<int64_t> next; // 逐记录: 同格的下一条
+    std::vector<int32_t> head; // 逐格: 记录链表头,无记录为 -1
+    std::vector<int32_t> next; // 逐记录: 同格的下一条
 };
 
 bool loadGridWindow(const GridPack& gp, const GridZoneDir& gz, int64_t wgx0, int64_t wgy0, int64_t nx, int64_t ny, GridWindow& out)
 {
     GridTile tile;
-    for (const GridTileRef* t : GridTilesInRect(gz, wgx0, wgy0, wgx0 + nx - 1, wgy0 + ny - 1)) {
+    const std::vector<const GridTileRef*> tiles = GridTilesInRect(gz, wgx0, wgy0, wgx0 + nx - 1, wgy0 + ny - 1);
+    // 先按瓦目录里的记录数开够。边 push 边按二的幂扩容, 满窗口上要白占近一倍,
+    // 而这份表是建窗最大的一块。窗外与非自有矩形的记录会被滤掉, 所以这是个上界。
+    size_t cap = 0;
+    for (const GridTileRef* t : tiles) {
+        cap += t->records;
+    }
+    out.rec.reserve(cap);
+    for (const GridTileRef* t : tiles) {
         if (t->records == 0) {
             continue;
         }
@@ -107,7 +115,7 @@ bool loadGridWindow(const GridPack& gp, const GridZoneDir& gz, int64_t wgx0, int
             if (wx < 0 || wx >= nx || wy < 0 || wy >= ny) {
                 continue;
             }
-            r.cell = wy * nx + wx;
+            r.cell = static_cast<int32_t>(wy * nx + wx);
             out.rec.push_back(r);
         }
     }
@@ -116,7 +124,7 @@ bool loadGridWindow(const GridPack& gp, const GridZoneDir& gz, int64_t wgx0, int
     for (size_t i = out.rec.size(); i-- > 0;) {
         const auto c = static_cast<size_t>(out.rec[i].cell);
         out.next[i] = out.head[c];
-        out.head[c] = static_cast<int64_t>(i);
+        out.head[c] = static_cast<int32_t>(i);
     }
     return true;
 }
