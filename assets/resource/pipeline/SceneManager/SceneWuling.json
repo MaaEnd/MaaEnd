@@ -959,20 +959,5 @@
         "next": [
             "__ScenePrivateMapAnyEnterMapWulingSnowyForestSuccess"
         ]
-    },
-    "__ScenePrivateMapWulingSnowyForestEnterWorldAnchorWithPick": {
-        "desc": "在武陵-雪松林地图界面，进入[锚点]大世界",
-        "recognition": "And",
-        "all_of": [
-            "InMapWulingSnowyForest"
-        ],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "next": [
-            "__ScenePrivateMapTeleportSuccess",
-            "[JumpBack]__ScenePrivateMapLayerSwitchToMain",
-            "[JumpBack]__ScenePrivateMapZoomOut",
-            "[JumpBack][Anchor]__ScenePrivateMapTeleportPickAnchor"
-        ]
     }
 }
