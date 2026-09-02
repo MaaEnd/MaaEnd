@@ -1352,10 +1352,13 @@ std::vector<std::vector<WorldPoint>> TraceContours(const Mask& mask)
 {
     const int64_t ny = mask.ny, nx = mask.nx;
     const int64_t W = nx + 1;
-    const int64_t KK = W * (ny + 1);
-    std::unordered_map<int64_t, std::vector<int64_t>> nxt;
+    // 每个格角一字节: 低四位记这四个侧上有没有出边, 高四位记走过没有。给定角与侧, 出边的落点唯一
+    // (角号之差就是 kStep), 侧号本身即出边, 邻接表与走过集都不必再散列。
+    const int64_t kStep[4] = { W, -1, -W, 1 };
+    std::vector<uint8_t> bits(static_cast<size_t>(W * (ny + 1)), 0);
     std::vector<int64_t> order;
-    for (const auto& sd : kSides) {
+    for (int s = 0; s < 4; ++s) {
+        const int64_t* sd = kSides[s];
         const int64_t dx = sd[0], dy = sd[1];
         for (int64_t y = 0; y < ny; ++y) {
             for (int64_t x = 0; x < nx; ++x) {
@@ -1367,40 +1370,47 @@ std::vector<std::vector<WorldPoint>> TraceContours(const Mask& mask)
                     continue;
                 }
                 const int64_t u = (y + sd[3]) * W + (x + sd[2]);
-                const int64_t v = (y + sd[5]) * W + (x + sd[4]);
-                auto [it, fresh] = nxt.try_emplace(u);
-                if (fresh) {
+                uint8_t& b = bits[static_cast<size_t>(u)];
+                if ((b & 0x0FU) == 0) {
                     order.push_back(u);
                 }
-                it->second.push_back(v);
+                b |= static_cast<uint8_t>(1U << s);
             }
         }
     }
     std::vector<std::vector<WorldPoint>> loops;
-    std::unordered_set<int64_t> used;
     for (const int64_t u0 : order) {
-        for (const int64_t v0 : nxt[u0]) {
-            if (used.contains(u0 * KK + v0)) {
+        for (int s0 = 0; s0 < 4; ++s0) {
+            const uint8_t m0 = static_cast<uint8_t>(1U << s0);
+            const uint8_t b0 = bits[static_cast<size_t>(u0)];
+            if ((b0 & m0) == 0 || (b0 & static_cast<uint8_t>(m0 << 4)) != 0) {
                 continue;
             }
             std::vector<int64_t> loop;
-            int64_t u = u0, v = v0;
+            int64_t u = u0, v = u0 + kStep[s0];
+            int su = s0;
             while (true) {
-                used.insert(u * KK + v);
+                bits[static_cast<size_t>(u)] |= static_cast<uint8_t>(1U << (su + 4));
                 loop.push_back(u);
-                const auto it = nxt.find(v);
-                if (it == nxt.end() || it->second.empty()) {
+                const uint8_t out = static_cast<uint8_t>(bits[static_cast<size_t>(v)] & 0x0FU);
+                if (out == 0) {
                     break;
                 }
-                int64_t w = 0;
-                if (it->second.size() == 1) {
-                    w = it->second[0];
+                int sw = 0;
+                if ((out & static_cast<uint8_t>(out - 1)) == 0) {
+                    while ((out & static_cast<uint8_t>(1U << sw)) == 0) {
+                        ++sw;
+                    }
                 }
                 else {
                     // 岔口优先右转,与 A* 禁切角一致
                     const int64_t d0 = v % W - u % W, d1 = v / W - u / W;
                     int best = 10;
-                    for (const int64_t z : it->second) {
+                    for (int s = 0; s < 4; ++s) {
+                        if ((out & static_cast<uint8_t>(1U << s)) == 0) {
+                            continue;
+                        }
+                        const int64_t z = v + kStep[s];
                         const int64_t e0 = z % W - v % W, e1 = z / W - v / W;
                         int rank = 9;
                         if (e0 == d1 && e1 == -d0) {
@@ -1417,15 +1427,17 @@ std::vector<std::vector<WorldPoint>> TraceContours(const Mask& mask)
                         }
                         if (rank < best) {
                             best = rank;
-                            w = z;
+                            sw = s;
                         }
                     }
                 }
-                if (used.contains(v * KK + w)) {
+                if ((bits[static_cast<size_t>(v)] & static_cast<uint8_t>(1U << (sw + 4))) != 0) {
                     break;
                 }
+                const int64_t w = v + kStep[sw];
                 u = v;
                 v = w;
+                su = sw;
             }
             if (loop.size() >= 4) {
                 std::vector<WorldPoint> pts;
