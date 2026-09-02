@@ -40,6 +40,7 @@ jobs:
 
       - name: Generate pipeline data
         run: |
+          pnpm generate:AutoDelivery
           pnpm generate:DeliveryJobs
           pnpm generate:EnvironmentMonitoring
           pnpm generate:SellProduct
@@ -69,6 +70,7 @@ jobs:
             Please review the changes before merging it.
 
             **Generated Tasks:**
+            - AutoDelivery
             - DeliveryJobs
             - EnvironmentMonitoring
             - SellProduct
