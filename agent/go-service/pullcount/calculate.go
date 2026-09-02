@@ -84,10 +84,10 @@ func formatResultFocus(values resourceValues, result calculationResult) string {
 	)
 }
 
-func logCalculation(session *runSession, values resourceValues, summary voucherSummary, result calculationResult) {
+func logCalculation(recognized map[string]int, values resourceValues, summary voucherSummary, result calculationResult) {
 	log.Info().
 		Str("component", componentName).
-		Interface("items", session.Items).
+		Interface("recognized", recognized).
 		Interface("values", values).
 		Interface("summary", summary).
 		Interface("result", result).

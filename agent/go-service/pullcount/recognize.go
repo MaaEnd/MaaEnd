@@ -20,8 +20,9 @@ const (
 	itemSpecialTen = "item_ticketgacha_special_ten"
 )
 
-// voucherPulls maps IMS / catalog item IDs to recruitment pulls.
-// Pipeline record stages should use these IDs as items keys.
+// voucherPulls maps catalog item IDs to recruitment pulls.
+// Pipeline items keys should use these IDs.
+// item_diamond / item_originium_recharge are IMS-only.
 var voucherPulls = map[string]int{
 	itemSpecial:    1,
 	itemSpecialLT:  1,

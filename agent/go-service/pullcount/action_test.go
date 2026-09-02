@@ -8,43 +8,31 @@ import (
 )
 
 func TestParseActionParam(t *testing.T) {
-	if _, err := parseActionParam(""); err == nil {
-		t.Fatal("expected error for empty param")
+	empty, err := parseActionParam("")
+	if err != nil || len(empty.Items) != 0 {
+		t.Fatalf("empty param should be ok, got %+v err=%v", empty, err)
 	}
-	if _, err := parseActionParam(`{"items":{"item_diamond":"item_diamond_NUMBER"}}`); err == nil {
-		t.Fatal("expected error for missing stage")
-	}
-	if _, err := parseActionParam(`{"stage":"record"}`); err == nil {
-		t.Fatal("expected error for record without items")
-	}
-	if _, err := parseActionParam(`{"stage":"record","items":{"":"node"}}`); err == nil {
+	if _, err := parseActionParam(`{"items":{"":"node"}}`); err == nil {
 		t.Fatal("expected error for empty item id")
 	}
 
 	params, err := parseActionParam(`{
-		"stage": "record",
 		"items": {
-			"  item_diamond  ": "  item_diamond_NUMBER  ",
-			"item_originium_recharge": "ORIGEOMETRY_NUMBER"
+			"  item_ticketgacha_special_single  ": "  VoucherNode  "
 		},
-		"optional": true
+		"optional": false
 	}`)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if params.Stage != stageRecord || !params.Optional {
-		t.Fatalf("got %+v", params)
+	if resolveOptional(params.Optional) {
+		t.Fatal("expected optional false")
 	}
-	if params.Items["item_diamond"] != "item_diamond_NUMBER" {
+	if params.Items["item_ticketgacha_special_single"] != "VoucherNode" {
 		t.Fatalf("items=%v", params.Items)
 	}
-
-	finish, err := parseActionParam(`{"stage":"finish"}`)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if finish.Stage != stageFinish || len(finish.Items) != 0 {
-		t.Fatalf("finish=%+v", finish)
+	if !resolveOptional(nil) {
+		t.Fatal("omitted optional should default true")
 	}
 }
 
@@ -110,30 +98,33 @@ func TestSumVoucherPulls(t *testing.T) {
 	}
 }
 
-func TestSessionQuantityFallsBackToIMS(t *testing.T) {
+func TestQuantityOfPrefersRecognizedVouchersAndIMSCurrencies(t *testing.T) {
 	ims.ClearCache()
 	t.Cleanup(ims.ClearCache)
 
-	session := newRunSession()
-	session.Items[itemDiamond] = 40
-	if got := session.quantity(itemDiamond); got != 40 {
-		t.Fatalf("session diamond=%d, want 40", got)
+	recognized := map[string]int{
+		itemDiamond: 40,
+		itemSpecial: 3,
 	}
-	if got := session.quantity(itemOriginium); got != 0 {
-		t.Fatalf("missing originium=%d, want 0", got)
+	if got := quantityOf(recognized, itemDiamond); got != 0 {
+		t.Fatalf("diamond without ims=%d, want 0", got)
+	}
+	if got := quantityOf(recognized, itemSpecial); got != 3 {
+		t.Fatalf("voucher recognized=%d, want 3", got)
 	}
 
 	ims.MarkSynced(time.Date(2026, 9, 2, 0, 0, 0, 0, time.UTC), map[string]int{
+		itemDiamond:   20770,
 		itemOriginium: 39,
 		itemSpecial:   2,
 	})
-	if got := session.quantity(itemOriginium); got != 39 {
-		t.Fatalf("ims originium=%d, want 39", got)
+	if got := quantityOf(recognized, itemDiamond); got != 20770 {
+		t.Fatalf("diamond ims=%d, want 20770", got)
 	}
-	if got := session.quantity(itemDiamond); got != 40 {
-		t.Fatalf("recorded diamond should win over ims, got=%d", got)
+	if got := quantityOf(recognized, itemOriginium); got != 39 {
+		t.Fatalf("originium ims=%d, want 39", got)
 	}
-	if got := sumVoucherPulls(session.quantity); got != 2 {
-		t.Fatalf("voucher pulls=%d, want 2", got)
+	if got := quantityOf(recognized, itemSpecial); got != 3 {
+		t.Fatalf("recognized voucher should win over ims, got=%d", got)
 	}
 }

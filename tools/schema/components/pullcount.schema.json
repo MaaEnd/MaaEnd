@@ -7,25 +7,12 @@
         "PullCountCalculatorActionParam": {
             "type": "object",
             "title": "PullCountCalculatorAction Param",
-            "description": "Pipeline stages for pull-count: init session, record And-recognizer quantities (box_index → OCR digit), then finish and calculate. item_originium_recharge is the raw 衍质源石 count.",
+            "description": "Run on the 珍贵物品 page. Reads 嵌晶玉 / 衍质源石 from IMS, optionally recognizes voucher And nodes on the current screen, then calculates pulls. Do not pass item_diamond or item_originium_recharge in items.",
             "additionalProperties": false,
-            "required": [
-                "stage"
-            ],
             "properties": {
-                "stage": {
-                    "title": "Stage",
-                    "description": "init: start session. record: run items nodes and store quantities. finish: calculate current / next-pool pulls (session first, IMS fallback).",
-                    "type": "string",
-                    "enum": [
-                        "init",
-                        "record",
-                        "finish"
-                    ]
-                },
                 "items": {
                     "title": "Items",
-                    "description": "Required for record. Map of catalog / IMS item ID → Pipeline And recognition node name. Keys such as item_diamond, item_originium_recharge, item_ticketgacha_special_single.",
+                    "description": "Optional. Map of voucher catalog ID → Pipeline And recognition node (box_index → OCR digit).",
                     "type": "object",
                     "minProperties": 1,
                     "additionalProperties": {
@@ -35,9 +22,9 @@
                 },
                 "optional": {
                     "title": "Optional",
-                    "description": "When true, a recognizer miss stores 0 instead of failing. Use for 珍贵物品 vouchers. Default false (currencies must hit).",
+                    "description": "When true, a recognizer miss stores 0 instead of failing. Omit to default true.",
                     "type": "boolean",
-                    "default": false
+                    "default": true
                 }
             }
         }
