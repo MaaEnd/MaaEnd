@@ -31,12 +31,11 @@ struct WindowInfo
     double y0 = 0.0;
     int64_t nx = 0;
     int64_t ny = 0;
+    // 只留跨过 buildWindow 边界还有读者的表。层高图与挑剩的墙段都是建窗内部量, 留在结构里
+    // 就是让两张全窗口的图白白活过整个 routeWindow。
     Mask lay;
-    Grid<float> lh;
     Mask core;
     Grid<float> dist;
-    std::vector<WorldPoint> wP0;
-    std::vector<WorldPoint> wP1;
     Mask whit;
     StepBarrier sev;
     std::vector<WorldPoint> segA;
@@ -378,7 +377,7 @@ std::optional<WindowInfo> buildWindow(
     info.lay = Mask(nx, ny, 0);
     info.core = Mask(nx, ny, 0);
     info.dist = Grid<float>(nx, ny, 0.0F);
-    info.lh = Grid<float>(nx, ny, std::numeric_limits<float>::quiet_NaN());
+    Grid<float> lh(nx, ny, std::numeric_limits<float>::quiet_NaN());
     std::vector<uint8_t> stepbits(static_cast<size_t>(nx * ny), 0);
     std::vector<int32_t> sp_cell;
     std::vector<float> sp_h;
@@ -397,8 +396,8 @@ std::optional<WindowInfo> buildWindow(
             }
             info.dist.v[cell] = GridClearance(r.clr);
             stepbits[cell] |= r.steps;
-            if (!ghost && !fill && (std::isnan(info.lh.v[cell]) || r.h > info.lh.v[cell])) {
-                info.lh.v[cell] = r.h;
+            if (!ghost && !fill && (std::isnan(lh.v[cell]) || r.h > lh.v[cell])) {
+                lh.v[cell] = r.h;
             }
         }
         if (fill || (ghost && r.rid != region)) {
@@ -410,14 +409,16 @@ std::optional<WindowInfo> buildWindow(
     }
 
     const BakedWalls walls = BakeWalls(zc, x0, y0, nx, ny);
-    const std::vector<uint8_t> keep = WallsAtLayer(walls.p0, walls.p1, walls.hh, info.lh, x0, y0);
+    const std::vector<uint8_t> keep = WallsAtLayer(walls.p0, walls.p1, walls.hh, lh, x0, y0);
+    std::vector<WorldPoint> wP0;
+    std::vector<WorldPoint> wP1;
     for (size_t i = 0; i < keep.size(); ++i) {
         if (keep[i] != 0) {
-            info.wP0.push_back(walls.p0[i]);
-            info.wP1.push_back(walls.p1[i]);
+            wP0.push_back(walls.p0[i]);
+            wP1.push_back(walls.p1[i]);
         }
     }
-    info.whit = WallHits(info.wP0, info.wP1, x0, y0, nx, ny);
+    info.whit = WallHits(wP0, wP1, x0, y0, nx, ny);
 
     if (!blocked_local.empty()) {
         std::vector<std::array<int32_t, 3>> bt;
@@ -428,7 +429,7 @@ std::optional<WindowInfo> buildWindow(
         const RasterCells brc = Rasterize(zc.mesh.V, zc.mesh.H, bt, x0, y0, nx, ny);
         for (size_t ci = 0; ci < brc.cell.size(); ++ci) {
             const auto cell = static_cast<size_t>(brc.cell[ci]);
-            const float lf = info.lh.v[cell];
+            const float lf = lh.v[cell];
             // 层高带内才盖掉,免得误伤其他楼层的格
             if (!std::isnan(lf) && std::fabs(brc.h[ci] - lf) <= static_cast<float>(kClimb)) {
                 info.core.v[cell] = 0;
@@ -607,10 +608,13 @@ std::optional<WindowInfo> buildWindow(
     }
     info.reach3 = SpanReach(seed3, info.st3, info.vis3, nx, ny);
 
-    info.segA = info.wP0;
+    // 段表就此定型。挑剩的墙段与立面禁步段都整份进了 segA/segB, 源表留着只是同一批点的第二份。
+    info.segA = std::move(wP0);
     info.segA.insert(info.segA.end(), info.sev.p0.begin(), info.sev.p0.end());
-    info.segB = info.wP1;
+    info.segB = std::move(wP1);
     info.segB.insert(info.segB.end(), info.sev.p1.begin(), info.sev.p1.end());
+    info.sev.p0 = {};
+    info.sev.p1 = {};
     // 烘出来的净空是没封堵时的;盖掉格子会让通道变窄,代价场得按盖过的核心重算
     if (!blocked_local.empty() || !blocked_points.empty()) {
         info.dist = Clearance(info.core);
@@ -798,7 +802,7 @@ void LiftCorners(
 
 // goal_deck: 终点所在面的高度。不声明时终点集是该格全部 span,先够到哪张停哪张
 std::optional<std::vector<WorldPoint>> routeWindow(
-    const WindowInfo& info,
+    WindowInfo& info,
     const WorldPoint& s,
     const WorldPoint& g,
     RouteDiag& dg,
@@ -811,51 +815,59 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     const int64_t ny = info.ny;
     const double x0 = info.x0;
     const double y0 = info.y0;
+    // 全窗口的图按最后一个读者就地释放: 早就没人读的表不该陪着活到最耗内存的那一刻。释放后再
+    // 取值是越界而不是错值, 逐腿比对因此能当场抓住漏算的读者 —— lambda 的调用点才算读者。
     Mask walk(nx, ny, 0);
     for (size_t i = 0; i < walk.v.size(); ++i) {
         walk.v[i] = static_cast<uint8_t>(info.core.v[i] != 0 && info.lay.v[i] != 0);
     }
+    info.lay = Mask();
     // 边界边只用来算余量, 不用来禁步: 补洞封缝那一步已经判定这些细缝可以跨,
     // 回头再拿同一批边禁掉跨缝的一步, 等于在每道接缝上凭空立一堵墙
     const EdgeBits& blocked_steps = info.sev.steps;
     // 掩膜距离场对跨越边界边无感, 取到边界的距离的下确界补上
-    Mask wfree(nx, ny, 0);
-    for (size_t i = 0; i < wfree.v.size(); ++i) {
-        wfree.v[i] = info.whit.v[i] != 0 ? 0 : 1;
-    }
-    // 共面重叠片各自留着自己的边界, 落到格上是间距约 1px 的栅格, 开阔广场因此与窄巷读出同样的
-    // 宽度, 按宽度定价的拓扑层于是分辨不出宽路。摘法只放不加: 四邻全可走、且这四步都没被禁的
-    // 格子才回自由集, 建筑外轮廓恒有一侧没有面, 一根真墙边都摘不掉。
-    for (int64_t y = 1; y + 1 < ny; ++y) {
-        for (int64_t x = 1; x + 1 < nx; ++x) {
-            const int64_t c = y * nx + x;
-            if (wfree.v[static_cast<size_t>(c)] != 0 || walk.v[static_cast<size_t>(c)] == 0) {
-                continue;
-            }
-            bool seam = true;
-            for (const int64_t d : { int64_t { 1 }, int64_t { -1 }, nx, -nx }) {
-                const int64_t b = c + d;
-                if (walk.v[static_cast<size_t>(b)] == 0 || blocked_steps.has(c, b) || blocked_steps.has(b, c)) {
-                    seam = false;
-                    break;
+    Grid<float> wdist;
+    {
+        Mask wfree(nx, ny, 0);
+        for (size_t i = 0; i < wfree.v.size(); ++i) {
+            wfree.v[i] = info.whit.v[i] != 0 ? 0 : 1;
+        }
+        info.whit = Mask();
+        // 共面重叠片各自留着自己的边界, 落到格上是间距约 1px 的栅格, 开阔广场因此与窄巷读出同样的
+        // 宽度, 按宽度定价的拓扑层于是分辨不出宽路。摘法只放不加: 四邻全可走、且这四步都没被禁的
+        // 格子才回自由集, 建筑外轮廓恒有一侧没有面, 一根真墙边都摘不掉。
+        for (int64_t y = 1; y + 1 < ny; ++y) {
+            for (int64_t x = 1; x + 1 < nx; ++x) {
+                const int64_t c = y * nx + x;
+                if (wfree.v[static_cast<size_t>(c)] != 0 || walk.v[static_cast<size_t>(c)] == 0) {
+                    continue;
+                }
+                bool seam = true;
+                for (const int64_t d : { int64_t { 1 }, int64_t { -1 }, nx, -nx }) {
+                    const int64_t b = c + d;
+                    if (walk.v[static_cast<size_t>(b)] == 0 || blocked_steps.has(c, b) || blocked_steps.has(b, c)) {
+                        seam = false;
+                        break;
+                    }
+                }
+                if (seam) {
+                    wfree.v[static_cast<size_t>(c)] = 1;
                 }
             }
-            if (seam) {
-                wfree.v[static_cast<size_t>(c)] = 1;
-            }
         }
+        wdist = Clearance(wfree);
     }
     // 取小就地写回接缝净空那张表: 另开一张同尺寸的只是让两张 36MB 的图在整个 routeWindow 里同时活着。
-    Grid<float> wdist = Clearance(wfree);
     for (size_t i = 0; i < wdist.v.size(); ++i) {
         wdist.v[i] = std::min(info.dist.v[i], wdist.v[i]);
     }
+    info.dist = Grid<float>();
     const Grid<float> dist = std::move(wdist);
     // VV(c): 障碍按期望净空 c 膨胀后仍自由的格走可见图那一侧, 膨胀后被吃掉的窄处只留中脊,
     // 对应论文里 V∩M(c) 的那段 Voronoi 弧。净空在这一层是掩膜: 开阔地没有贴墙这个选项, 窄缝
     // 里没有偏一侧这个选项, 中途钻的一小段窄缝也就无法被整条路长平均掉。
     const double cpref = kClrPref;
-    const Mask rdg = MedialAxis(dist, kClrLambda);
+    Mask rdg = MedialAxis(dist, kClrLambda);
     // 通道 = 障碍按 c 膨胀后仍自由的格, 并上中轴带。
     const auto chan = [&](double cc, const Mask& band) {
         Mask w(nx, ny, 0);
@@ -1408,6 +1420,8 @@ std::optional<std::vector<WorldPoint>> routeWindow(
         dg.err = "不连通";
         return std::nullopt;
     }
+    // 走通了就再没人查这张逐 span 的可用表, 上面那两条出口都直接返回。
+    useW = std::vector<uint8_t>();
 
     // 突变抬升逐次计税: 跨越两侧找不到任何一对高差在坡度内的面时才算一次台阶, 连续缓坡不计。
     // 它不参与硬连通性, 只在同样走得通的两条线之间偏向不必迈的那条, 封不死唯一的楼梯。
@@ -1478,11 +1492,12 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     // 否则同一道立面在拓扑层变便宜, 花两格路就能买过去。
     const double taxw = tax * kClrWide / cpref;
     const double* bpw = tax > 0.0 ? &taxw : nullptr;
-    const Mask chan0 = chan(cpref, Mask(nx, ny, 0));
     // 接入链只算一次: 目标取实心通道 chan0, 它是自由集的子集, 接到它就等于接进了自由集。
     // 两端各自对着 chan0 算, 谁先算不影响结果。够不到 chan0 的那一端才对着自由集重算。
+    Mask chan0 = chan(cpref, Mask(nx, ny, 0));
     const std::optional<std::vector<int64_t>> ac_s = access(chan0, as_);
     const std::optional<std::vector<int64_t>> ac_g = access(chan0, ag_);
+    chan0 = Mask();
     const auto join = [&](Mask& lim) {
         const std::optional<std::vector<int64_t>> s = ac_s.has_value() ? ac_s : access(lim, as_);
         const std::optional<std::vector<int64_t>> g = ac_g.has_value() ? ac_g : access(lim, ag_);
@@ -1509,6 +1524,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     const auto loops_core = toWorld(TraceContours(info.core));
 
     Mask limw = chan(cpref, rdg);
+    rdg = Mask();
     join(limw);
     std::optional<Topo> vv = solve(limw, multw, bn, bpw, false);
     if (!vv.has_value()) {
@@ -1538,16 +1554,18 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     const double solid_c = cpref + kGeoMargin;
     // 走廊以中标的那条逐格路径为骨干张开, 半宽照它自己的净空取。按全局中轴取则会隔墙认到旁边
     // 那条窄缝上去: 宽处的半宽被压回地板, 该收紧的地方一点没收紧。
-    Mask bb(nx, ny, 0);
-    for (const CellPt& c : (vv.has_value() ? vv->q : base->q)) {
-        bb.at(c.y, c.x) = 1;
-    }
     Mask band;
-    const Grid<float> cw = CorridorWidth(dist, bb, &band);
     Mask solidc(nx, ny, 0);
-    for (size_t i = 0; i < solidc.v.size(); ++i) {
-        const double need = std::max(solid_c, kChordFrac * static_cast<double>(cw.v[i]));
-        solidc.v[i] = static_cast<uint8_t>(static_cast<double>(dist.v[i]) >= need);
+    {
+        Mask bb(nx, ny, 0);
+        for (const CellPt& c : (vv.has_value() ? vv->q : base->q)) {
+            bb.at(c.y, c.x) = 1;
+        }
+        const Grid<float> cw = CorridorWidth(dist, bb, &band);
+        for (size_t i = 0; i < solidc.v.size(); ++i) {
+            const double need = std::max(solid_c, kChordFrac * static_cast<double>(cw.v[i]));
+            solidc.v[i] = static_cast<uint8_t>(static_cast<double>(dist.v[i]) >= need);
+        }
     }
     const Blockers::OnMask onv { &solidc, x0, y0, kCS };
     // 搜索期的视线只靠 on 掩膜兜底, 不带轮廓挡线。
@@ -1561,6 +1579,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
         for (size_t i = 0; i < limg.v.size(); ++i) {
             limg.v[i] = static_cast<uint8_t>(limg.v[i] != 0 && band.v[i] != 0);
         }
+        band = Mask();
         std::optional<Topo> tt = solve(limg, mult, bn, bp, false, &vis);
         if (!tt.has_value()) {
             // 走廊是偏好, 接通性不是。二维骨干必在走廊里, 层间接不通才会走到这里; 放开重解, 拿回
