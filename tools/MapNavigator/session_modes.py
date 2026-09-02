@@ -75,6 +75,7 @@ def _build_navtest(runtime: Any, emit: Emit, log: Log, start: dict) -> Any:
         start.get("path") or [],
         exported=bool(start.get("exported")),
         zip_enabled=bool(start.get("zip")),
+        exact_slim=bool(start.get("exact_slim")),
         assert_target=start.get("assert_target"),
     )
     service.start(session_config_from_payload(start.get("config") or {}))

@@ -1175,6 +1175,7 @@ async def _ws_session(websocket: WebSocket, mode: SessionMode) -> None:
             "path": path if isinstance(path, list) else [],
             # 白名单构造: 不显式搬过来的键在这里就没了, 提权子进程也拿不到。
             "exported": bool(first.get("exported")),
+            "exact_slim": bool(first.get("exact_slim")),
             "assert_target": assert_target if isinstance(assert_target, dict) else None,
         }
 

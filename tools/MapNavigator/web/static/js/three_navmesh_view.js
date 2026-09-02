@@ -461,10 +461,13 @@ export class ThreeNavmeshView {
     this.diagnosticMarkers = [];
     if (!this.mesh || !Array.isArray(diagnostics)) return;
     const stages = [
-      ["topology_cells", "topology", 0x38bdf8, 0],
-      ["taut_points", "taut", 0x22c55e, DIAGNOSTIC_RADIUS],
-      ["pulled_points", "pulled", 0xf59e0b, DIAGNOSTIC_RADIUS],
+      ["astar_cells", "search", 0x38bdf8, 0],
+      ["rerouted_points", "rerouted", 0x22c55e, DIAGNOSTIC_RADIUS],
+      ["string_pull_points", "stringPull", 0xf59e0b, DIAGNOSTIC_RADIUS],
       ["assembled_points", "assembled", 0xa78bfa, DIAGNOSTIC_RADIUS],
+      ["loop_fixed_points", "loopFixed", 0xfb7185, DIAGNOSTIC_RADIUS],
+      ["slim_points", "slim", 0x38bdf8, DIAGNOSTIC_RADIUS],
+      ["widened_points", "widenCorners", 0xf97316, DIAGNOSTIC_RADIUS],
     ];
     for (const [key, optionKey, color, width] of stages) {
       if (!options[optionKey]) continue;
@@ -486,9 +489,7 @@ export class ThreeNavmeshView {
           new THREE.PointsMaterial({
             color,
             size:
-              key === "topology_cells"
-                ? Math.max(0.12, this.meshRadius * 0.001)
-                : Math.max(0.2, this.meshRadius * 0.0015),
+              key === "astar_cells" ? Math.max(0.12, this.meshRadius * 0.001) : Math.max(0.2, this.meshRadius * 0.0015),
             sizeAttenuation: true,
             depthTest: false,
             transparent: true,

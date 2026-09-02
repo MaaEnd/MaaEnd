@@ -93,27 +93,6 @@ double Distance(const navmesh::WorldPoint& a, const navmesh::WorldPoint& b)
     return std::hypot(b.x - a.x, b.y - a.y);
 }
 
-// 两点之间还有没有可能连通。类号集合都是有序的，扫一遍就够。任一边空着是「问不出来」
-// 而不是「不连通」，这种时候一律当作可能连通，让规划自己去判。
-bool MayConnect(const std::vector<uint32_t>& a, const std::vector<uint32_t>& b)
-{
-    if (a.empty() || b.empty()) {
-        return true;
-    }
-    for (size_t i = 0, j = 0; i < a.size() && j < b.size();) {
-        if (a[i] == b[j]) {
-            return true;
-        }
-        if (a[i] < b[j]) {
-            ++i;
-        }
-        else {
-            ++j;
-        }
-    }
-    return false;
-}
-
 // 一个供电结构的供电范围。规则按 templateId 查一次就够，别放进逐根架子的内层循环。
 struct SupplyPoint
 {
@@ -509,39 +488,6 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
         return no_zipline("not one zipline here can be walked up to", &g_zipline_not_chosen);
     }
 
-    // 脚下有面不等于走得到。一条路线只在单一连通类里搜，所以上索点得跟角色同类、下索点
-    // 得跟送货点同类；不同类的架子规划必败，却照样按直线距离排在前头，把预算烧个精光。
-    // 判据只排除已知必败的组合：类号问不出来时按可能连通处理，宁可白跑一条也不误杀。
-    std::vector<navmesh::WorldPoint> probes;
-    probes.reserve(nodes.size() + 2);
-    for (const zipline::ZiplineNode& node : nodes) {
-        probes.push_back(ToWorld(node));
-    }
-    probes.push_back(start);
-    probes.push_back(goal);
-    const std::vector<std::vector<uint32_t>> regions = NavmeshRegionsNear(param, locator_zone, probes);
-    std::vector<bool> can_board(nodes.size(), false);
-    std::vector<bool> can_land(nodes.size(), false);
-    size_t cut_off = 0;
-    for (size_t i = 0; i < nodes.size(); ++i) {
-        if (!reachable[i]) {
-            continue;
-        }
-        can_board[i] = MayConnect(regions[i], regions[nodes.size()]);
-        can_land[i] = MayConnect(regions[i], regions[nodes.size() + 1]);
-        if (!can_board[i] && !can_land[i]) {
-            ++cut_off;
-        }
-    }
-    if (cut_off != 0) {
-        LogDebug << "ZiplineRoute: these ziplines share no walkable ground with either end" << VAR(cut_off) << VAR(nodes.size());
-    }
-    // 一头都接不上时后面配对必然是空的。链中间的架子仍然全留着，那些是从索上落下去的。
-    if (std::none_of(can_board.begin(), can_board.end(), [](bool v) { return v; })
-        || std::none_of(can_land.begin(), can_land.end(), [](bool v) { return v; })) {
-        return no_zipline("no zipline can be boarded from here, or none of them lands near the destination", &g_zipline_not_chosen);
-    }
-
     // 索长上限逐点查一次就够：配对是 O(n²) 的，放进内层循环等于把字符串查表也乘上 n²。
     // 查不到的类型上限为 0，下面直接跳过——没登记过物理属性的架子不参与配对。
     std::vector<double> span_limit(nodes.size());
@@ -601,13 +547,13 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
     std::vector<size_t> chain_prev;
     for (size_t i = 0; i < nodes.size(); ++i) {
         // 这根架子连白送一整段滑行都够不着收益门槛，从它起头的所有链就都不必算了。
-        if (!can_board[i] || links[i].empty() || lb_from_start[i] + cost.mount_penalty >= gain_threshold) {
+        if (!reachable[i] || links[i].empty() || lb_from_start[i] + cost.mount_penalty >= gain_threshold) {
             continue;
         }
 
         SolveZipChains(nodes, links, cost, i, &chain_cost, &chain_prev);
         for (size_t j = 0; j < nodes.size(); ++j) {
-            if (j == i || !can_land[j] || !std::isfinite(chain_cost[j])) {
+            if (j == i || !reachable[j] || !std::isfinite(chain_cost[j])) {
                 continue;
             }
             const double zip_cost = cost.mount_penalty - cost.transfer_penalty + chain_cost[j];

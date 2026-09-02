@@ -177,7 +177,7 @@ bool DecodeGridTile(const uint8_t* data, size_t len, GridTile& out)
                 return false;
             }
             GridSpanRec r {};
-            r.cell = static_cast<int32_t>(cell);
+            r.cell = cell;
             r.rid = static_cast<uint32_t>(rid);
             r.clr = static_cast<uint16_t>(clr);
             r.flags = *col[3]++;
@@ -195,70 +195,6 @@ bool DecodeGridTile(const uint8_t* data, size_t len, GridTile& out)
         }
     }
     return true;
-}
-
-// 头部与 DecodeGridTileV3 逐字段相同, 差别只在后面: 前两条流读掉长度就跳过, 第三条才解开。
-bool DecodeGridTileRegionsV3(const uint8_t* data, size_t len, std::vector<uint32_t>& out)
-{
-    out.clear();
-    if (data == nullptr) {
-        return false;
-    }
-    const uint8_t* p = data;
-    const uint8_t* const end = data + len;
-
-    uint64_t n = 0;
-    if (!GetVarint(p, end, n)) {
-        return false;
-    }
-    if (n == 0) {
-        return p == end;
-    }
-    if (static_cast<size_t>(end - p) < sizeof(float)) {
-        return false;
-    }
-    p += sizeof(float);
-
-    uint64_t regions = 0;
-    uint64_t ncell = 0;
-    uint64_t kmax = 0;
-    if (!GetVarint(p, end, regions) || !GetVarint(p, end, ncell) || !GetVarint(p, end, kmax)) {
-        return false;
-    }
-    if (ncell == 0 || ncell > n || kmax == 0 || kmax > n || regions == 0 || regions > n || n > UINT32_MAX) {
-        return false;
-    }
-    const size_t select_size = static_cast<size_t>(kmax) * kGridFieldCount;
-    if (static_cast<size_t>(end - p) < select_size) {
-        return false;
-    }
-    p += select_size;
-
-    std::vector<uint8_t> dict;
-    for (int i = 0; i < 3; ++i) {
-        uint64_t packed = 0;
-        if (!GetVarint(p, end, packed) || static_cast<uint64_t>(end - p) < packed) {
-            return false;
-        }
-        if (i == 2 && !Inflate(p, static_cast<size_t>(packed), dict)) {
-            return false;
-        }
-        p += packed;
-    }
-    if (regions > dict.size()) {
-        return false;
-    }
-    out.resize(static_cast<size_t>(regions));
-    const uint8_t* pd = dict.data();
-    const uint8_t* const pd_end = pd + dict.size();
-    for (uint32_t& id : out) {
-        uint64_t value = 0;
-        if (!GetVarint(pd, pd_end, value) || value > UINT32_MAX) {
-            return false;
-        }
-        id = static_cast<uint32_t>(value);
-    }
-    return pd == pd_end;
 }
 
 bool DecodeGridTileV3(const uint8_t* data, size_t len, int32_t nx, GridTile& out)
@@ -360,7 +296,7 @@ bool DecodeGridTileV3(const uint8_t* data, size_t len, int32_t nx, GridTile& out
     out.rec.assign(static_cast<size_t>(n), GridSpanRec {});
     for (size_t i = 0; i < static_cast<size_t>(ncell); ++i) {
         for (uint64_t j = 0; j < depth[i]; ++j) {
-            out.rec[base[i] + static_cast<size_t>(j)].cell = static_cast<int32_t>(cell[i]);
+            out.rec[base[i] + static_cast<size_t>(j)].cell = cell[i];
         }
     }
 
@@ -585,31 +521,6 @@ bool GridPack::decodeTile(const GridTileRef& t, GridTile& out) const
         return false;
     }
     return DecodeGridTile(raw.data(), raw.size(), out) && out.rec.size() == t.records;
-}
-
-bool GridPack::tileRegions(const GridTileRef& t, std::vector<uint32_t>& out) const
-{
-    out.clear();
-    if (base_ == nullptr) {
-        return false;
-    }
-    if (t.records == 0) {
-        return true;
-    }
-    if (version_ == kGridSectionVersion) {
-        return DecodeGridTileRegionsV3(base_ + t.offset, t.len, out);
-    }
-    // v2 的载荷没有独立的字典流,只能整块解开再收。
-    GridTile tile;
-    if (!decodeTile(t, tile)) {
-        return false;
-    }
-    for (const GridSpanRec& r : tile.rec) {
-        out.push_back(r.rid);
-    }
-    std::sort(out.begin(), out.end());
-    out.erase(std::unique(out.begin(), out.end()), out.end());
-    return true;
 }
 
 std::vector<const GridTileRef*> GridTilesInRect(const GridZoneDir& zone, int64_t gx0, int64_t gy0, int64_t gx1, int64_t gy1)

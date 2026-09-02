@@ -148,10 +148,13 @@ class MapNavigatorApp {
       return stored === null ? defaultValue : stored === "1";
     };
     this.navDebug = {
-      topology: readDebugFlag("maaend.mapnavigator.debugTopology", false),
-      taut: readDebugFlag("maaend.mapnavigator.debugTaut", false),
-      pulled: readDebugFlag("maaend.mapnavigator.debugPulled", false),
+      search: readDebugFlag("maaend.mapnavigator.debugSearch", false),
+      rerouted: readDebugFlag("maaend.mapnavigator.debugRerouted", false),
+      stringPull: readDebugFlag("maaend.mapnavigator.debugStringPull", false),
       assembled: readDebugFlag("maaend.mapnavigator.debugAssembled", false),
+      loopFixed: readDebugFlag("maaend.mapnavigator.debugLoopFixed", false),
+      slim: readDebugFlag("maaend.mapnavigator.debugSlim", false),
+      widenCorners: readDebugFlag("maaend.mapnavigator.debugWidenCorners", false),
       planned: readDebugFlag("maaend.mapnavigator.debugPlanned", true),
       live: readDebugFlag("maaend.mapnavigator.showLivePath", true),
     };
@@ -281,10 +284,13 @@ class MapNavigatorApp {
       threeRecolorRow: $("three-recolor-row"),
       btnThreeRecolor: $("btn-three-recolor"),
       threeNavDebugOptions: $("three-nav-debug-options"),
-      threeChkNavDebugTopology: $("three-chk-nav-debug-topology"),
-      threeChkNavDebugTaut: $("three-chk-nav-debug-taut"),
-      threeChkNavDebugPulled: $("three-chk-nav-debug-pulled"),
+      threeChkNavDebugSearch: $("three-chk-nav-debug-search"),
+      threeChkNavDebugRerouted: $("three-chk-nav-debug-rerouted"),
+      threeChkNavDebugStringPull: $("three-chk-nav-debug-string-pull"),
       threeChkNavDebugAssembled: $("three-chk-nav-debug-assembled"),
+      threeChkNavDebugLoopFixed: $("three-chk-nav-debug-loop-fixed"),
+      threeChkNavDebugSlim: $("three-chk-nav-debug-slim"),
+      threeChkNavDebugWidenCorners: $("three-chk-nav-debug-widen-corners"),
       threeChkNavDebugPlanned: $("three-chk-nav-debug-planned"),
       threeChkNavDebugLivePath: $("three-chk-nav-debug-live-path"),
       btnStart: $("btn-start"),
@@ -294,6 +300,7 @@ class MapNavigatorApp {
       btnEditPlanClear: $("btn-edit-plan-clear"),
       editPlanStartLabel: $("edit-plan-start-label"),
       chkEditZipline: $("chk-edit-zipline"),
+      chkEditExactSlim: $("chk-edit-exact-slim"),
       btnCopyAssert: $("btn-copy-assert"),
       assertCopyFormat: $("assert-copy-format"),
       btnImport: $("btn-import"),
@@ -347,10 +354,13 @@ class MapNavigatorApp {
       displayZoneCombo: $("display-zone-combo"),
       displayTierCombo: $("display-tier-combo"),
       navDebugOptions: $("nav-debug-options"),
-      chkNavDebugTopology: $("chk-nav-debug-topology"),
-      chkNavDebugTaut: $("chk-nav-debug-taut"),
-      chkNavDebugPulled: $("chk-nav-debug-pulled"),
+      chkNavDebugSearch: $("chk-nav-debug-search"),
+      chkNavDebugRerouted: $("chk-nav-debug-rerouted"),
+      chkNavDebugStringPull: $("chk-nav-debug-string-pull"),
       chkNavDebugAssembled: $("chk-nav-debug-assembled"),
+      chkNavDebugLoopFixed: $("chk-nav-debug-loop-fixed"),
+      chkNavDebugSlim: $("chk-nav-debug-slim"),
+      chkNavDebugWidenCorners: $("chk-nav-debug-widen-corners"),
       chkNavDebugPlanned: $("chk-nav-debug-planned"),
       chkNavDebugLivePath: $("chk-nav-debug-live-path"),
       loadProgress: $("load-progress"),
@@ -828,10 +838,13 @@ class MapNavigatorApp {
   /** Keep every diagnostic checkbox aligned with the persisted rendering state. */
   _syncNavDebugControls() {
     const controls = [
-      [this.els.chkNavDebugTopology, "topology"],
-      [this.els.chkNavDebugTaut, "taut"],
-      [this.els.chkNavDebugPulled, "pulled"],
+      [this.els.chkNavDebugSearch, "search"],
+      [this.els.chkNavDebugRerouted, "rerouted"],
+      [this.els.chkNavDebugStringPull, "stringPull"],
       [this.els.chkNavDebugAssembled, "assembled"],
+      [this.els.chkNavDebugLoopFixed, "loopFixed"],
+      [this.els.chkNavDebugSlim, "slim"],
+      [this.els.chkNavDebugWidenCorners, "widenCorners"],
       [this.els.chkNavDebugPlanned, "planned"],
       [this.els.chkNavDebugLivePath, "live"],
     ];
@@ -839,10 +852,13 @@ class MapNavigatorApp {
       entry.checked = Boolean(this.navDebug[key]);
     }
     const threeControls = [
-      [this.els.threeChkNavDebugTopology, "topology"],
-      [this.els.threeChkNavDebugTaut, "taut"],
-      [this.els.threeChkNavDebugPulled, "pulled"],
+      [this.els.threeChkNavDebugSearch, "search"],
+      [this.els.threeChkNavDebugRerouted, "rerouted"],
+      [this.els.threeChkNavDebugStringPull, "stringPull"],
       [this.els.threeChkNavDebugAssembled, "assembled"],
+      [this.els.threeChkNavDebugLoopFixed, "loopFixed"],
+      [this.els.threeChkNavDebugSlim, "slim"],
+      [this.els.threeChkNavDebugWidenCorners, "widenCorners"],
       [this.els.threeChkNavDebugPlanned, "planned"],
       [this.els.threeChkNavDebugLivePath, "live"],
     ];
@@ -896,6 +912,11 @@ class MapNavigatorApp {
       if (this.quickRouteTest?.goal) this._calculateQuickRouteTest();
       else if (this.editRoute) this._calculateEditPreview();
     });
+    e.chkEditExactSlim.addEventListener("change", () => {
+      if (this.navtest) this.navtest.routeChanged();
+      if (this.quickRouteTest?.goal) this._calculateQuickRouteTest();
+      else if (this.editRoute) this._calculateEditPreview();
+    });
     e.btnMapLayers.addEventListener("click", (event) => {
       event.stopPropagation();
       this._setMapLayerPanelOpen(e.mapLayerPanel.hidden);
@@ -926,10 +947,13 @@ class MapNavigatorApp {
     e.displayZoneCombo.addEventListener("change", () => this._onDisplayZoneChanged());
     e.displayTierCombo.addEventListener("change", () => this._onDisplayTierChanged());
     for (const [entry, key] of [
-      [e.chkNavDebugTopology, "topology"],
-      [e.chkNavDebugTaut, "taut"],
-      [e.chkNavDebugPulled, "pulled"],
+      [e.chkNavDebugSearch, "search"],
+      [e.chkNavDebugRerouted, "rerouted"],
+      [e.chkNavDebugStringPull, "stringPull"],
       [e.chkNavDebugAssembled, "assembled"],
+      [e.chkNavDebugLoopFixed, "loopFixed"],
+      [e.chkNavDebugSlim, "slim"],
+      [e.chkNavDebugWidenCorners, "widenCorners"],
       [e.chkNavDebugPlanned, "planned"],
     ]) {
       entry.addEventListener("change", () => {
@@ -950,10 +974,13 @@ class MapNavigatorApp {
       this._syncThreeOverlays();
     });
     for (const [entry, key] of [
-      [e.threeChkNavDebugTopology, "topology"],
-      [e.threeChkNavDebugTaut, "taut"],
-      [e.threeChkNavDebugPulled, "pulled"],
+      [e.threeChkNavDebugSearch, "search"],
+      [e.threeChkNavDebugRerouted, "rerouted"],
+      [e.threeChkNavDebugStringPull, "stringPull"],
       [e.threeChkNavDebugAssembled, "assembled"],
+      [e.threeChkNavDebugLoopFixed, "loopFixed"],
+      [e.threeChkNavDebugSlim, "slim"],
+      [e.threeChkNavDebugWidenCorners, "widenCorners"],
       [e.threeChkNavDebugPlanned, "planned"],
     ]) {
       entry.addEventListener("change", () => {
@@ -2479,10 +2506,13 @@ class MapNavigatorApp {
       });
     return (diagnostics || []).map((diag) => ({
       ...diag,
-      topology_cells: project(diag.topology_cells),
-      taut_points: project(diag.taut_points),
-      pulled_points: project(diag.pulled_points),
+      astar_cells: project(diag.astar_cells),
+      rerouted_points: project(diag.rerouted_points),
+      string_pull_points: project(diag.string_pull_points),
       assembled_points: project(diag.assembled_points),
+      loop_fixed_points: project(diag.loop_fixed_points),
+      slim_points: project(diag.slim_points),
+      widened_points: project(diag.widened_points),
       planned_points: project(diag.planned_points),
       start: project([diag.start])[0],
       goal: project([diag.goal])[0],
@@ -3926,7 +3956,10 @@ class MapNavigatorApp {
 
   /** Plan the temporary S/G pair through the runtime MapNavigateAction preview. */
   async _calculateQuickRouteTest() {
-    const built = buildQuickRouteTestRequest(this.quickRouteTest, {zip: this.els.chkEditZipline.checked});
+    const built = buildQuickRouteTestRequest(this.quickRouteTest, {
+      zip: this.els.chkEditZipline.checked,
+      exact_slim: this.els.chkEditExactSlim.checked,
+    });
     if (!built.ok) {
       setStatus(built.error, "#f59e0b");
       return;
@@ -3993,6 +4026,7 @@ class MapNavigatorApp {
       const exported = await exportPath(plan.targets);
       const customActionParam = {path: exported.nodes || []};
       if (this.els.chkEditZipline.checked) customActionParam.zip = true;
+      if (this.els.chkEditExactSlim.checked) customActionParam.exact_slim = true;
       const result = await postRoutePreview({
         position: plan.position,
         position_zone: plan.positionZone,
@@ -4871,7 +4905,8 @@ class MapNavigatorApp {
 
   /** Keep each copy button's label aligned with its selected output format. @returns {void} */
   _syncCopyButtonLabels() {
-    this.els.btnCopyPath.textContent = this.els.chkEditZipline.checked ? "复制完整参数" : "复制路径";
+    this.els.btnCopyPath.textContent =
+      this.els.chkEditZipline.checked || this.els.chkEditExactSlim.checked ? "复制完整参数" : "复制路径";
     this.els.btnCopyAssert.textContent =
       this.els.assertCopyFormat.value === COPY_FORMAT_COORDINATES ? "复制坐标" : "复制断言";
   }
@@ -4884,8 +4919,10 @@ class MapNavigatorApp {
     }
     try {
       const result = await exportPath(this.state.points);
-      if (this.els.chkEditZipline.checked) {
-        const param = {path: result.nodes, zip: true};
+      if (this.els.chkEditZipline.checked || this.els.chkEditExactSlim.checked) {
+        const param = {path: result.nodes};
+        if (this.els.chkEditZipline.checked) param.zip = true;
+        if (this.els.chkEditExactSlim.checked) param.exact_slim = true;
         await this._copyText(JSON.stringify(param, null, 4));
         setStatus("MapNavigator 完整参数已复制到剪贴板", "#10b981");
       } else {
@@ -4937,6 +4974,7 @@ class MapNavigatorApp {
       path: this.state.points,
       exported: false,
       zip: this.els.chkEditZipline.checked,
+      exact_slim: this.els.chkEditExactSlim.checked,
     };
   }
 

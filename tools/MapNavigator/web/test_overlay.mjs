@@ -211,10 +211,10 @@ test("draws selected-route diagnostics in edit mode", () => {
   overlay._drawAstarDiagnostics = (_camera, diagnostics, options) => calls.push({diagnostics, options});
   const diagnostics = [
     {
-      topology_cells: [[1, 2]],
+      astar_cells: [[1, 2]],
     },
   ];
-  const debugOptions = {topology: true};
+  const debugOptions = {search: true};
   overlay.render(
     {},
     {

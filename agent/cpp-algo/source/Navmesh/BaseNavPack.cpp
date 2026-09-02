@@ -18,8 +18,6 @@ BaseNavPack MakeBaseNavPack(
     std::vector<BaseNavVertex> vertices,
     std::vector<BaseNavTriangle> triangles,
     std::vector<BaseNavLink> links,
-    std::vector<BaseNavSurface> surfaces,
-    std::vector<BaseNavOffMeshLink> off_mesh_links,
     std::vector<BaseNavSection> sections)
 {
     BaseNavPack pack;
@@ -28,8 +26,6 @@ BaseNavPack MakeBaseNavPack(
     pack.vertices_ = std::move(vertices);
     pack.triangles_ = std::move(triangles);
     pack.links_ = std::move(links);
-    pack.surfaces_ = std::move(surfaces);
-    pack.off_mesh_links_ = std::move(off_mesh_links);
     pack.sections_ = std::move(sections);
     return pack;
 }
@@ -54,16 +50,6 @@ const std::vector<BaseNavTriangle>& BaseNavPack::triangles() const
 const std::vector<BaseNavLink>& BaseNavPack::links() const
 {
     return links_;
-}
-
-const std::vector<BaseNavSurface>& BaseNavPack::surfaces() const
-{
-    return surfaces_;
-}
-
-const std::vector<BaseNavOffMeshLink>& BaseNavPack::offMeshLinks() const
-{
-    return off_mesh_links_;
 }
 
 const BaseNavZone* BaseNavPack::findZone(uint16_t zone_id) const
@@ -142,12 +128,6 @@ const char* ToString(BaseNavLoadStatus status)
         return "zone_not_found";
     }
     return "unknown";
-}
-
-void BaseNavPack::releaseLinks()
-{
-    // swap 空容器才还得掉容量: `= {}` 会挑上 initializer_list 赋值, 只把 size 清零。
-    std::vector<BaseNavLink>().swap(links_);
 }
 
 const BaseNavSection* BaseNavPack::section(const char (&tag)[5]) const

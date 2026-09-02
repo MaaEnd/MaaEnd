@@ -16,7 +16,7 @@ inline constexpr char kGridSectionTag[5] = "BGRD";
 // 补出来的格没有实体 span 时挂一条 ghost 或 fill。
 struct GridSpanRec
 {
-    int32_t cell = 0;  // 瓦内格号 y * nx + x
+    int64_t cell = 0;  // 瓦内格号 y * nx + x
     uint32_t rid = 0;  // 全区类号
     float h = 0.0F;
     uint16_t clr = 0;  // 净空的平方格距,还原用 GridClearance
@@ -58,9 +58,6 @@ bool DecodeGridTile(const uint8_t* data, size_t len, GridTile& out);
 
 // 解一块 v3 瓦。段里的原始字节直接进,内部逐流 inflate;差分要瓦宽 nx。
 bool DecodeGridTileV3(const uint8_t* data, size_t len, int32_t nx, GridTile& out);
-
-// 只取一块 v3 瓦的类号字典。前两条流带长度前缀,跳过就行,所以不必解开整块瓦。
-bool DecodeGridTileRegionsV3(const uint8_t* data, size_t len, std::vector<uint32_t>& out);
 
 // 段目录里的一块瓦。格号全是全局的(gx0 = llround(ox / kCS)),自有矩形
 // [px0,px1]×[py0,py1] 是瓦内格号闭区间,各瓦互不重叠且拼起来覆盖全区。
@@ -108,9 +105,6 @@ public:
     const GridZoneDir* findZone(const std::string& name) const;
     // 解一块瓦:按需 inflate 再解码,不缓存。空瓦返回空 GridTile。
     bool decodeTile(const GridTileRef& t, GridTile& out) const;
-    // 一块瓦里出现过的类号。只解类号字典那一条流,比整块解开便宜得多,
-    // 用来在解瓦之前就把不含目标类的瓦筛掉。
-    bool tileRegions(const GridTileRef& t, std::vector<uint32_t>& out) const;
 
 private:
     const uint8_t* base_ = nullptr;
