@@ -166,11 +166,16 @@ void PolyMesh::buildGrid()
 
 std::vector<int32_t> PolyMesh::trisNear(const WorldPoint& p, double r) const
 {
+    return trisInBox(p.x - r, p.y - r, p.x + r, p.y + r);
+}
+
+std::vector<int32_t> PolyMesh::trisInBox(double x0, double y0, double x1, double y1) const
+{
     std::vector<int32_t> out;
-    const int64_t qx0 = std::max(gox, static_cast<int64_t>(std::floor((p.x - r) / kGridCell)));
-    const int64_t qx1 = std::min(gox + gnx - 1, static_cast<int64_t>(std::floor((p.x + r) / kGridCell)));
-    const int64_t qy0 = std::max(goy, static_cast<int64_t>(std::floor((p.y - r) / kGridCell)));
-    const int64_t qy1 = std::min(goy + gny - 1, static_cast<int64_t>(std::floor((p.y + r) / kGridCell)));
+    const int64_t qx0 = std::max(gox, static_cast<int64_t>(std::floor(x0 / kGridCell)));
+    const int64_t qx1 = std::min(gox + gnx - 1, static_cast<int64_t>(std::floor(x1 / kGridCell)));
+    const int64_t qy0 = std::max(goy, static_cast<int64_t>(std::floor(y0 / kGridCell)));
+    const int64_t qy1 = std::min(goy + gny - 1, static_cast<int64_t>(std::floor(y1 / kGridCell)));
     for (int64_t gx = qx0; gx <= qx1; ++gx) {
         for (int64_t gy = qy0; gy <= qy1; ++gy) {
             const auto c = static_cast<size_t>((gx - gox) * gny + (gy - goy));
@@ -733,48 +738,6 @@ std::optional<ZoneClean::SnapHit> ZoneClean::snap(const WorldPoint& p, double ra
         }
     }
     return std::nullopt;
-}
-
-// 收齐网格的边界边。这份数据只说哪里能走, 不带墙面/断崖之类的信息,
-// 再去分辨某条边是墙还是接缝等于凭空造数据, 所以这里只收边、不分类
-WallOracle::WallOracle(const ZoneClean& zc)
-{
-    const auto& mesh = zc.mesh;
-    for (size_t i = 0; i < mesh.T.size(); ++i) {
-        if (zc.walkable[i] == 0) {
-            // 掩码外的三角不出边。它与可走面之间那条缝已在 ZoneClean 里割断,
-            // 所以那条边会由可走面这一侧收成边界边 —— 水岸因此成墙,而不是消失。
-            continue;
-        }
-        for (int k = 0; k < 3; ++k) {
-            if (mesh.NB[i][k] >= 0) {
-                continue;
-            }
-            const int32_t a = mesh.T[i][k];
-            const int32_t b = mesh.T[i][(k + 1) % 3];
-            const WorldPoint p0 = mesh.V[a];
-            const WorldPoint p1 = mesh.V[b];
-            P0.push_back(p0);
-            P1.push_back(p1);
-            H0.push_back(mesh.H[a]);
-            H1.push_back(mesh.H[b]);
-            HH.push_back((mesh.H[a] + mesh.H[b]) / 2.0);
-            lo_.push_back({ std::min(p0.x, p1.x), std::min(p0.y, p1.y) });
-            hi_.push_back({ std::max(p0.x, p1.x), std::max(p0.y, p1.y) });
-        }
-    }
-}
-
-std::vector<int64_t> WallOracle::wallsInBbox(double x0, double y0, double x1, double y1) const
-{
-    std::vector<int64_t> idx;
-    for (int64_t i = 0; i < static_cast<int64_t>(P0.size()); ++i) {
-        if (hi_[static_cast<size_t>(i)].x >= x0 && lo_[static_cast<size_t>(i)].x <= x1 && hi_[static_cast<size_t>(i)].y >= y0
-            && lo_[static_cast<size_t>(i)].y <= y1) {
-            idx.push_back(i);
-        }
-    }
-    return idx;
 }
 
 }

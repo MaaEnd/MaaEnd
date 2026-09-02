@@ -41,7 +41,8 @@ struct PolyMesh
     PolyMesh(std::vector<WorldPoint> v, std::vector<std::array<int32_t, 3>> t, std::vector<double> h);
 
     void buildNb();
-    std::vector<int32_t> trisNear(const WorldPoint& p, double r) const; // 升序去重
+    std::vector<int32_t> trisNear(const WorldPoint& p, double r) const;                // 升序去重
+    std::vector<int32_t> trisInBox(double x0, double y0, double x1, double y1) const;  // 升序去重
 
     // 三角按 24px 方格分桶。桶号在包围盒内连续, 所以只存一张偏移表, 查询按下标直接落桶。
     static constexpr double kGridCell = 24.0;
@@ -99,25 +100,6 @@ public:
 
 private:
     std::string error_;
-};
-
-// 网格的边界边索引: 可走面到此为止, 边的另一侧是什么一概不问
-class WallOracle
-{
-public:
-    explicit WallOracle(const ZoneClean& zc);
-
-    std::vector<int64_t> wallsInBbox(double x0, double y0, double x1, double y1) const;
-
-    std::vector<WorldPoint> P0;
-    std::vector<WorldPoint> P1;
-    std::vector<double> H0;
-    std::vector<double> H1;
-    std::vector<double> HH;
-
-private:
-    std::vector<WorldPoint> lo_;
-    std::vector<WorldPoint> hi_;
 };
 
 }

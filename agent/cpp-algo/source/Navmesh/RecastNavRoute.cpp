@@ -323,7 +323,6 @@ ZoneBoundsPx regionBounds(const GridPack& gp, const GridZoneDir& gz, uint32_t re
 }
 
 std::optional<WindowInfo> buildWindow(
-    WallOracle& wo,
     const GridPack& gp,
     const GridZoneDir& gz,
     const ZoneClean& zc,
@@ -403,7 +402,7 @@ std::optional<WindowInfo> buildWindow(
         info.vis3.push_back(static_cast<uint8_t>(r.rid == region));
     }
 
-    const BakedWalls walls = BakeWalls(wo, x0, y0, nx, ny);
+    const BakedWalls walls = BakeWalls(zc, x0, y0, nx, ny);
     const std::vector<uint8_t> keep = WallsAtLayer(walls.p0, walls.p1, walls.hh, info.lh, x0, y0);
     for (size_t i = 0; i < keep.size(); ++i) {
         if (keep[i] != 0) {
@@ -1783,9 +1782,6 @@ RecastNavEngine::ZoneEntry& RecastNavEngine::zoneEntry(const std::string& name)
     if (it == zones_.end()) {
         ZoneEntry e;
         e.zc = std::make_unique<ZoneClean>(pack_, planner_, name, walkable_flags_);
-        if (e.zc->valid()) {
-            e.wo = std::make_unique<WallOracle>(*e.zc);
-        }
         it = zones_.emplace(name, std::move(e)).first;
     }
     return it->second;
@@ -1904,7 +1900,6 @@ RecastPlanResult RecastNavEngine::planLocked(
         return res;
     }
     const ZoneClean& zc = *ze.zc;
-    WallOracle& wo = *ze.wo;
     std::vector<int32_t> blocked_local;
     for (const uint32_t t : blocked) {
         const int64_t local = static_cast<int64_t>(t) - zc.lo;
@@ -1998,7 +1993,7 @@ RecastPlanResult RecastNavEngine::planLocked(
     const double y1 = static_cast<double>(zb.y1 + 1 + kFieldHalo) * kCS;
 
     const double t_win0 = nowMs();
-    auto info = buildWindow(wo, grid_, *gz, zc, start, ss->point, goal, h0, region, x0, y0, x1, y1, blocked_local, blocked_points, err);
+    auto info = buildWindow(grid_, *gz, zc, start, ss->point, goal, h0, region, x0, y0, x1, y1, blocked_local, blocked_points, err);
     const double window_ms = nowMs() - t_win0;
     if (!info.has_value()) {
         res.error = err.empty() ? "路线失败" : err;

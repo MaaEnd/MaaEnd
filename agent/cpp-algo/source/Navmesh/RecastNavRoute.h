@@ -100,7 +100,6 @@ private:
     struct ZoneEntry
     {
         std::unique_ptr<ZoneClean> zc;
-        std::unique_ptr<WallOracle> wo;
     };
 
     ZoneEntry& zoneEntry(const std::string& name);
