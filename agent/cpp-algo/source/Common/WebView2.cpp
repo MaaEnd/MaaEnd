@@ -4,15 +4,11 @@
 
 #include <algorithm>
 #include <filesystem>
-#include <optional>
 #include <system_error>
 
-#include <Shlwapi.h>
 #include <objbase.h>
 
 #include <wrl.h>
-
-#include <meojson/json.hpp>
 
 #include <MaaUtils/Logger.h>
 #include <MaaUtils/Platform.h>
@@ -50,39 +46,6 @@ std::wstring utf8ToWide(const std::string& src)
     std::wstring out(static_cast<size_t>(needed), L'\0');
     MultiByteToWideChar(CP_UTF8, 0, src.data(), static_cast<int>(src.size()), out.data(), needed);
     return out;
-}
-
-std::optional<std::string> url_origin(const std::string& url)
-{
-    const std::wstring wide_url = utf8ToWide(url);
-    if (wide_url.empty()) {
-        return std::nullopt;
-    }
-
-    const auto get_part = [&wide_url](URL_PART part) -> std::optional<std::wstring> {
-        // URL 的任一组成部分都不会比原始 URL 更长，多留一个字符给结尾的 NUL。
-        std::vector<wchar_t> buffer(wide_url.size() + 1, L'\0');
-        DWORD size = static_cast<DWORD>(buffer.size());
-        const HRESULT hr = UrlGetPartW(wide_url.c_str(), buffer.data(), &size, part, 0);
-        if (FAILED(hr)) {
-            return std::nullopt;
-        }
-        return std::wstring(buffer.data());
-    };
-
-    const auto scheme = get_part(URL_PART_SCHEME);
-    const auto host = get_part(URL_PART_HOSTNAME);
-    const std::wstring port = get_part(URL_PART_PORT).value_or(L"");
-    if (!scheme || scheme->empty() || !host || host->empty()) {
-        return std::nullopt;
-    }
-
-    std::wstring origin = *scheme + L"://" + *host;
-    const bool is_default_port = (*scheme == L"http" && port == L"80") || (*scheme == L"https" && port == L"443");
-    if (!port.empty() && !is_default_port) {
-        origin += L":" + port;
-    }
-    return wideToUtf8(origin);
 }
 
 // 计算 cpp-algo 专属的 WebView2 user data folder，并把它同步写到环境变量。
@@ -401,12 +364,7 @@ void WebView2::onControllerCreated(HRESULT result, ICoreWebView2Controller* cont
     }
 
     if (clear_site_data_before_navigation_) {
-        if (initial_url_.empty()) {
-            LogError << "WebView2: cannot clear site data without an initial URL";
-            signalInitDone(false);
-            return;
-        }
-        clearSiteData(initial_url_, [this](bool ok) {
+        clearSiteData([this](bool ok) {
             if (!ok) {
                 LogError << "WebView2: failed to clear site data before navigation";
                 signalInitDone(false);
@@ -420,95 +378,48 @@ void WebView2::onControllerCreated(HRESULT result, ICoreWebView2Controller* cont
     navigateInitialUrl();
 }
 
-void WebView2::clearSiteData(const std::string& url, std::function<void(bool ok)> on_done)
+void WebView2::clearSiteData(std::function<void(bool ok)> on_done)
 {
-    const auto origin = url_origin(url);
-    if (!origin) {
-        LogError << "WebView2: invalid URL for site data clearing" << VAR(url);
+    Microsoft::WRL::ComPtr<ICoreWebView2_13> webview13;
+    HRESULT hr = webview_.As(&webview13);
+    if (FAILED(hr) || !webview13) {
+        LogError << "WebView2: ICoreWebView2_13 unavailable for site data clearing" << VAR(hr);
         on_done(false);
         return;
     }
 
-    Microsoft::WRL::ComPtr<ICoreWebView2_2> webview2;
-    HRESULT hr = webview_.As(&webview2);
-    if (FAILED(hr) || !webview2) {
-        LogError << "WebView2: ICoreWebView2_2 unavailable for cookie clearing" << VAR(hr);
+    Microsoft::WRL::ComPtr<ICoreWebView2Profile> profile;
+    hr = webview13->get_Profile(&profile);
+    if (FAILED(hr) || !profile) {
+        LogError << "WebView2: get_Profile failed" << VAR(hr);
         on_done(false);
         return;
     }
 
-    Microsoft::WRL::ComPtr<ICoreWebView2CookieManager> cookie_manager;
-    hr = webview2->get_CookieManager(&cookie_manager);
-    if (FAILED(hr) || !cookie_manager) {
-        LogError << "WebView2: get_CookieManager failed" << VAR(hr);
+    Microsoft::WRL::ComPtr<ICoreWebView2Profile2> profile2;
+    hr = profile.As(&profile2);
+    if (FAILED(hr) || !profile2) {
+        LogError << "WebView2: ICoreWebView2Profile2 unavailable for site data clearing" << VAR(hr);
         on_done(false);
         return;
     }
 
     using Microsoft::WRL::Callback;
-    using CookiesHandler = ICoreWebView2GetCookiesCompletedHandler;
-    const std::wstring wide_url = utf8ToWide(url);
-    hr = cookie_manager->GetCookies(
-        wide_url.c_str(),
-        Callback<CookiesHandler>(
-            [this, cookie_manager, origin = *origin, on_done](HRESULT result, ICoreWebView2CookieList* cookie_list) -> HRESULT {
-                if (FAILED(result) || !cookie_list) {
-                    LogError << "WebView2: GetCookies failed" << VAR(result);
-                    on_done(false);
-                    return S_OK;
-                }
-
-                UINT count = 0;
-                const HRESULT count_hr = cookie_list->get_Count(&count);
-                bool cookies_cleared = SUCCEEDED(count_hr);
-                if (!cookies_cleared) {
-                    LogError << "WebView2: cookie list get_Count failed" << VAR(count_hr);
-                }
-                for (UINT index = 0; cookies_cleared && index < count; ++index) {
-                    Microsoft::WRL::ComPtr<ICoreWebView2Cookie> cookie;
-                    const HRESULT get_hr = cookie_list->GetValueAtIndex(index, &cookie);
-                    if (FAILED(get_hr) || !cookie) {
-                        LogError << "WebView2: GetValueAtIndex failed while clearing cookies" << VAR(get_hr) << VAR(index);
-                        cookies_cleared = false;
-                        break;
-                    }
-                    const HRESULT delete_hr = cookie_manager->DeleteCookie(cookie.Get());
-                    if (FAILED(delete_hr)) {
-                        LogError << "WebView2: DeleteCookie failed" << VAR(delete_hr) << VAR(index);
-                        cookies_cleared = false;
-                        break;
-                    }
-                }
-
-                json::object params;
-                params["origin"] = origin;
-                params["storageTypes"] = "all";
-                const std::wstring method = L"Storage.clearDataForOrigin";
-                const std::wstring wide_params = utf8ToWide(json::value(std::move(params)).dumps());
-                using DevToolsHandler = ICoreWebView2CallDevToolsProtocolMethodCompletedHandler;
-                const HRESULT cdp_hr = webview_->CallDevToolsProtocolMethod(
-                    method.c_str(),
-                    wide_params.c_str(),
-                    Callback<DevToolsHandler>([cookies_cleared, count, origin, on_done](HRESULT err, LPCWSTR) -> HRESULT {
-                        if (FAILED(err)) {
-                            LogError << "WebView2: Storage.clearDataForOrigin failed" << VAR(err) << VAR(origin);
-                        }
-                        const bool ok = cookies_cleared && SUCCEEDED(err);
-                        if (ok) {
-                            LogInfo << "WebView2: site login data cleared" << VAR(origin) << VAR(count);
-                        }
-                        on_done(ok);
-                        return S_OK;
-                    }).Get());
-                if (FAILED(cdp_hr)) {
-                    LogError << "WebView2: Storage.clearDataForOrigin dispatch failed" << VAR(cdp_hr) << VAR(origin);
-                    on_done(false);
-                }
-                return S_OK;
-            })
-            .Get());
+    using ClearHandler = ICoreWebView2ClearBrowsingDataCompletedHandler;
+    hr = profile2->ClearBrowsingData(
+        COREWEBVIEW2_BROWSING_DATA_KINDS_ALL_SITE,
+        Callback<ClearHandler>([on_done](HRESULT error_code) -> HRESULT {
+            if (FAILED(error_code)) {
+                LogError << "WebView2: profile site data clearing failed" << VAR(error_code);
+            }
+            else {
+                LogInfo << "WebView2: profile site data cleared";
+            }
+            on_done(SUCCEEDED(error_code));
+            return S_OK;
+        }).Get());
     if (FAILED(hr)) {
-        LogError << "WebView2: GetCookies dispatch failed" << VAR(hr);
+        LogError << "WebView2: ClearBrowsingData dispatch failed" << VAR(hr);
         on_done(false);
     }
 }

@@ -143,7 +143,7 @@
     "option.ZiplineImportRegion.cases.CN.label": "國服",
     "option.ZiplineImportRegion.cases.Global.label": "國際服",
     "option.ZiplineImportClearLogin.label": "清除帳號資訊",
-    "option.ZiplineImportClearLogin.description": "啟用後，會在開啟頁面前清除所選地圖網站對目前網址生效的 Cookie 與網站儲存空間，用於切換網頁登入帳號；不會清除其他網站的登入資訊。",
+    "option.ZiplineImportClearLogin.description": "啟用後，會在開啟頁面前清除內建地圖視窗儲存的全部 Cookie 與網站儲存空間，用於切換網頁登入帳號；不會影響系統瀏覽器或 MaaEnd 主介面的登入狀態。",
     "option.AutoFightAxis.label": "使用排軸",
     "option.AutoFightAxisData.label": "排軸資料",
     "option.AutoFightAxisData.description": "- 打開 www.end-axis.com 建立排軸，或在 www.end-axis.com/shares 排軸分享廣場使用他人分享的排軸。\n- 在排軸中添加幹員、添加戰技、終結技釋放時機即可，多餘元素不會讀取。\n- 建議在網站中點擊左上角 + 至少添加一個無終結技方案以保證可循環。\n- 內部將依終結技狀態自動選擇其中一個排軸方案。",

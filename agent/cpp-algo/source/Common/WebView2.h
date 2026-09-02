@@ -54,7 +54,7 @@ public:
     // 设置初始要打开的 URL。仅在 Open() 之前调用有效；之后调用会被忽略。
     void SetURL(std::string url);
 
-    // 在首次导航前清除 initial_url 对应站点的 Cookie 与 origin 存储。
+    // 在首次导航前清除 cpp-algo 专属 WebView2 Profile 的全部 Cookie 与站点存储。
     // 仅在 Open() 之前调用有效；清理失败时 Open() 返回 false，避免继续使用旧登录态。
     void setClearSiteDataBeforeNavigation(bool enabled);
 
@@ -102,7 +102,7 @@ private:
     void initializeWebView();
     void onEnvironmentCreated(HRESULT result, ICoreWebView2Environment* env);
     void onControllerCreated(HRESULT result, ICoreWebView2Controller* controller);
-    void clearSiteData(const std::string& url, std::function<void(bool ok)> on_done);
+    void clearSiteData(std::function<void(bool ok)> on_done);
     void navigateInitialUrl();
     void resizeToClientRect();
 

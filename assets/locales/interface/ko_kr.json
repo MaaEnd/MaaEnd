@@ -141,7 +141,7 @@
     "option.ZiplineImportRegion.cases.CN.label": "중국 서버",
     "option.ZiplineImportRegion.cases.Global.label": "글로벌 서버",
     "option.ZiplineImportClearLogin.label": "계정 정보 지우기",
-    "option.ZiplineImportClearLogin.description": "페이지를 열기 전에 선택한 지도 URL에 적용되는 쿠키와 사이트 저장소를 지워 다른 계정으로 로그인할 수 있게 합니다. 다른 웹사이트의 로그인 정보는 지우지 않습니다.",
+    "option.ZiplineImportClearLogin.description": "페이지를 열기 전에 내장 지도 창에 저장된 모든 쿠키와 사이트 저장소를 지워 다른 계정으로 로그인할 수 있게 합니다. 시스템 브라우저와 MaaEnd 기본 창의 로그인 상태에는 영향을 주지 않습니다.",
     "option.AutoFightAxis.label": "타임라인 전투 사용",
     "option.AutoFightAxisData.label": "타임라인 데이터",
     "option.AutoFightAxisData.description": "- www.end-axis.com 에서 타임라인을 만들거나, www.end-axis.com/shares 공유 광장에서 다른 사람이 공유한 타임라인을 사용하세요.\n- 타임라인에 오퍼레이터, 전술 스킬, 필살기 사용 시점을 추가하면 됩니다. 불필요한 요소는 읽지 않습니다.\n- 사이트 좌측 상단 + 를 눌러 종결기 없는 방안을 최소 1개 추가해 순환 가능하도록 하는 것을 권장합니다.\n- 내부에서 필살기 충전 상태에 따라 타임라인 방안 중 하나를 자동으로 선택합니다.",

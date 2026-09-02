@@ -237,9 +237,11 @@ size_t PersistCaptured(const std::vector<CapturedResponse>& captured, const std:
 
         const std::string role_id = QueryValue(response.url, "roleId");
         if (!IsValidRawUid(role_id)) {
-            LogError << "ZiplineImport: mark response carries no valid roleId; refuse to persist" << VAR(role_id.size())
+            // 页面初始化期间可能先返回一份带旧登录态标记、但尚未绑定当前角色的响应。
+            // 它无法安全归属账号，忽略并等待同一列表后续带 roleId 的正式响应。
+            LogDebug << "ZiplineImport: ignore mark response without valid roleId" << VAR(role_id.size())
                      << VAR(RedactAccountQuery(response.url));
-            return 0;
+            continue;
         }
         role_ids.insert(role_id);
 
@@ -452,7 +454,7 @@ MaaBool MAA_CALL ZiplineImportActionRun(
 
     std::vector<CapturedResponse> captured;
     std::unordered_set<std::string> covered;
-    // 没登录时页面照样发标记请求、响应体照样有，只是 saveMarks 是空数组。这行提示只打一次。
+    // 没有可归属账号的标记时继续等用户登录或选择角色。这行提示只打一次。
     bool signin_hint_logged = false;
     // 已登录判定：主地图列表「先空后非空」＝窗口里刚完成登录；首条就非空＝本来就登录着。
     // 关卡/基地子列表对多数用户恒为空，永远进不了非空集合，不会干扰判定。
@@ -483,16 +485,20 @@ MaaBool MAA_CALL ZiplineImportActionRun(
             }
 
             const bool non_empty = !by_map.empty();
-            // 空/非空转换只看 mapId/levelId；roleId 在最终落盘前另做整批唯一性校验。
+            const bool account_ready = non_empty && IsValidRawUid(QueryValue(response.url, "roleId"));
+            // 没有有效 roleId 的非空响应仍处在账号上下文初始化阶段，不能据此关窗或落盘。
             const std::string list_key = QueryValue(response.url, "mapId") + "|" + QueryValue(response.url, "levelId");
-            const auto [it, inserted] = list_first_parse_empty.try_emplace(list_key, !non_empty);
-            if (non_empty) {
+            const auto [it, inserted] = list_first_parse_empty.try_emplace(list_key, !account_ready);
+            if (account_ready) {
                 for (const auto& entry : by_map) {
                     covered.insert(entry.first);
                 }
                 if (!inserted && it->second) {
                     login_transition_seen = true;
                 }
+            }
+            else if (non_empty) {
+                LogDebug << "ZiplineImport: marks arrived before account identity, keep waiting" << VAR(RedactAccountQuery(response.url));
             }
             captured.push_back(std::move(response));
         }
@@ -531,7 +537,7 @@ MaaBool MAA_CALL ZiplineImportActionRun(
         }
         else if (!captured.empty() && !inflight && !signin_hint_logged && now - last_event >= std::chrono::milliseconds(kIdleCloseMs)) {
             signin_hint_logged = true;
-            LogInfo << "ZiplineImport: mark lists carry no saved marks, waiting for the user to sign in" << VAR(captured.size());
+            LogInfo << "ZiplineImport: no account-scoped marks yet, waiting for sign-in or role selection" << VAR(captured.size());
         }
         if (now >= deadline) {
             LogWarn << "ZiplineImport: timed out waiting for the mark list";
@@ -551,8 +557,8 @@ MaaBool MAA_CALL ZiplineImportActionRun(
     webview->Close();
 
     if (covered.empty()) {
-        // 一条标记都没抓到。最常见的原因就是自始至终没登录：接口回的是公开图标，saveMarks 是空的。
-        LogWarn << "ZiplineImport: no saved marks captured, was the page signed in?" << VAR(captured.size());
+        // 没抓到同时具有标记和账号身份的响应，不能安全归属后落盘。
+        LogWarn << "ZiplineImport: no account-scoped marks captured, was the page signed in with a role selected?" << VAR(captured.size());
         return false;
     }
 
