@@ -54,6 +54,10 @@ public:
     // 设置初始要打开的 URL。仅在 Open() 之前调用有效；之后调用会被忽略。
     void SetURL(std::string url);
 
+    // 在首次导航前清除 initial_url 对应站点的 Cookie 与 origin 存储。
+    // 仅在 Open() 之前调用有效；清理失败时 Open() 返回 false，避免继续使用旧登录态。
+    void setClearSiteDataBeforeNavigation(bool enabled);
+
     // 启用 Chromium 触屏仿真（通过 CDP 的 Emulation.setTouchEmulationEnabled）。
     // 启用后 navigator/document 会上报具备触屏，document.createEvent("TouchEvent") 不再抛异常。
     // 主要用途：让那些通过 TouchEvent 探测来判定 isPC/isMobile 的网站把窗口认作移动端，
@@ -98,6 +102,8 @@ private:
     void initializeWebView();
     void onEnvironmentCreated(HRESULT result, ICoreWebView2Environment* env);
     void onControllerCreated(HRESULT result, ICoreWebView2Controller* controller);
+    void clearSiteData(const std::string& url, std::function<void(bool ok)> on_done);
+    void navigateInitialUrl();
     void resizeToClientRect();
 
     // 通知等在 Open() 上的业务线程：WebView2 初始化已完成（成功或失败）。幂等。
@@ -128,6 +134,7 @@ private:
     // 配置字段：仅在 Open() 之前由业务线程写入，UI 线程在 onControllerCreated 中读取一次。
     std::string initial_url_;
     std::string user_agent_;
+    bool clear_site_data_before_navigation_ = false;
     bool touch_emulation_ = false;
     bool context_menu_enabled_ = true;
 
@@ -163,6 +170,7 @@ public:
     bool Open() override;
 
     void SetURL(std::string url);
+    void setClearSiteDataBeforeNavigation(bool enabled);
     void SetTouchEmulation(bool enabled);
     void SetContextMenuEnabled(bool enabled);
     void SetUserAgent(std::string user_agent);

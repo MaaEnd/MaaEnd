@@ -1,0 +1,46 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Zipline Component Schema",
+    "description": "Zipline custom action parameter definitions. Referenced by custom.action.schema.json.",
+    "$defs": {
+        "ImportParam": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "url": {
+                    "type": "string",
+                    "format": "uri",
+                    "minLength": 1
+                },
+                "mark_list_path": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "clear_login": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "timeout": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "width": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "height": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "template_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "uniqueItems": true
+                }
+            }
+        }
+    }
+}

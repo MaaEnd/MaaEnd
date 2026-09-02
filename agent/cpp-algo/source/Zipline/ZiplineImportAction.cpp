@@ -50,6 +50,7 @@ struct ImportParam
     int64_t timeout = kDefaultTimeoutMs;
     int width = kDefaultWindowWidth;
     int height = kDefaultWindowHeight;
+    bool clear_login = false;
     std::vector<std::string> template_ids;
 };
 
@@ -97,6 +98,7 @@ bool ParseParam(const char* raw, ImportParam& out)
     out.timeout = obj.get("timeout", out.timeout);
     out.width = obj.get("width", out.width);
     out.height = obj.get("height", out.height);
+    out.clear_login = obj.get("clear_login", out.clear_login);
 
     if (obj.contains("template_ids") && obj.at("template_ids").is_array()) {
         for (const auto& item : obj.at("template_ids").as_array()) {
@@ -415,6 +417,7 @@ MaaBool MAA_CALL ZiplineImportActionRun(
     webview->SetTouchEmulation(true);
     webview->SetSize(param.width, param.height);
     webview->SetURL(param.url);
+    webview->setClearSiteDataBeforeNavigation(param.clear_login);
     if (!webview->Open()) {
         LogError << "ZiplineImport: webview open failed" << VAR(param.url);
         return false;
