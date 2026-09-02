@@ -781,7 +781,7 @@
         ]
     },
     "SceneEnterWorldWulingSnowyForest0": {
-        "desc": "从任意界面进入武陵-雪松林-协议传送点1大世界",
+        "desc": "从任意界面进入武陵-雪松林-落雪山道大世界",
         "pre_delay": 0,
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": "__ScenePrivateMapWulingSnowyForestEnterWorldWulingSnowyForest0"
@@ -793,7 +793,7 @@
         ]
     },
     "SceneEnterWorldWulingSnowyForest1": {
-        "desc": "从任意界面进入武陵-雪松林-协议传送点2大世界",
+        "desc": "从任意界面进入武陵-雪松林-寒雾松林大世界",
         "pre_delay": 0,
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": "__ScenePrivateMapWulingSnowyForestEnterWorldWulingSnowyForest1"
@@ -805,7 +805,7 @@
         ]
     },
     "SceneEnterWorldWulingSnowyForest2": {
-        "desc": "从任意界面进入武陵-雪松林-协议传送点3大世界",
+        "desc": "从任意界面进入武陵-雪松林-雪祀木屋左侧大世界",
         "pre_delay": 0,
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": "__ScenePrivateMapWulingSnowyForestEnterWorldWulingSnowyForest2"
@@ -817,7 +817,7 @@
         ]
     },
     "SceneEnterWorldWulingSnowyForest3": {
-        "desc": "从任意界面进入武陵-雪松林-协议传送点4大世界",
+        "desc": "从任意界面进入武陵-雪松林-仪式祭坛大世界",
         "pre_delay": 0,
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": "__ScenePrivateMapWulingSnowyForestEnterWorldWulingSnowyForest3"
@@ -829,7 +829,7 @@
         ]
     },
     "SceneEnterWorldWulingSnowyForest4": {
-        "desc": "从任意界面进入武陵-雪松林-协议传送点5大世界",
+        "desc": "从任意界面进入武陵-雪松林-雾凇山谷左上角大世界",
         "pre_delay": 0,
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": "__ScenePrivateMapWulingSnowyForestEnterWorldWulingSnowyForest4"
@@ -841,7 +841,7 @@
         ]
     },
     "SceneEnterWorldWulingSnowyForest5": {
-        "desc": "从任意界面进入武陵-雪松林-协议传送点6大世界",
+        "desc": "从任意界面进入武陵-雪松林-雪祀木屋右侧大世界",
         "pre_delay": 0,
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": "__ScenePrivateMapWulingSnowyForestEnterWorldWulingSnowyForest5"
@@ -853,7 +853,7 @@
         ]
     },
     "SceneEnterWorldWulingSnowyForest6": {
-        "desc": "从任意界面进入武陵-雪松林-协议传送点7大世界",
+        "desc": "从任意界面进入武陵-雪松林-雾凇山谷右上角大世界",
         "pre_delay": 0,
         "anchor": {
             "__ScenePrivateMapTeleportPickAnchor": "__ScenePrivateMapWulingSnowyForestEnterWorldWulingSnowyForest6"

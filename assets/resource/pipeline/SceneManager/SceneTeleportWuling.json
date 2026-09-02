@@ -2532,7 +2532,7 @@
         }
     },
     "__ScenePrivateMapWulingSnowyForestEnterWorldWulingSnowyForest0": {
-        "desc": "在地图界面找锚点 (雪松林-协议传送点1)",
+        "desc": "在地图界面找锚点 (雪松林-落雪山道)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
         "custom_recognition_param": {
@@ -2566,7 +2566,7 @@
         }
     },
     "__ScenePrivateMapWulingSnowyForestEnterWorldWulingSnowyForest1": {
-        "desc": "在地图界面找锚点 (雪松林-协议传送点2)",
+        "desc": "在地图界面找锚点 (雪松林-寒雾松林)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
         "custom_recognition_param": {
@@ -2600,7 +2600,7 @@
         }
     },
     "__ScenePrivateMapWulingSnowyForestEnterWorldWulingSnowyForest2": {
-        "desc": "在地图界面找锚点 (雪松林-协议传送点3)",
+        "desc": "在地图界面找锚点 (雪松林-雪祀木屋左侧)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
         "custom_recognition_param": {
@@ -2634,7 +2634,7 @@
         }
     },
     "__ScenePrivateMapWulingSnowyForestEnterWorldWulingSnowyForest3": {
-        "desc": "在地图界面找锚点 (雪松林-协议传送点4)",
+        "desc": "在地图界面找锚点 (雪松林-仪式祭坛)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
         "custom_recognition_param": {
@@ -2668,7 +2668,7 @@
         }
     },
     "__ScenePrivateMapWulingSnowyForestEnterWorldWulingSnowyForest4": {
-        "desc": "在地图界面找锚点 (雪松林-协议传送点5)",
+        "desc": "在地图界面找锚点 (雪松林-雾凇山谷左上角)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
         "custom_recognition_param": {
@@ -2702,7 +2702,7 @@
         }
     },
     "__ScenePrivateMapWulingSnowyForestEnterWorldWulingSnowyForest5": {
-        "desc": "在地图界面找锚点 (雪松林-协议传送点6)",
+        "desc": "在地图界面找锚点 (雪松林-雪祀木屋右侧)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
         "custom_recognition_param": {
@@ -2736,7 +2736,7 @@
         }
     },
     "__ScenePrivateMapWulingSnowyForestEnterWorldWulingSnowyForest6": {
-        "desc": "在地图界面找锚点 (雪松林-协议传送点7)",
+        "desc": "在地图界面找锚点 (雪松林-雾凇山谷右上角)",
         "recognition": "Custom",
         "custom_recognition": "MapFind",
         "custom_recognition_param": {
