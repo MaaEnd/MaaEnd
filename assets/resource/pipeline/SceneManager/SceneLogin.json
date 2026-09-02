@@ -104,7 +104,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "__ScenePrivateLoginMaintenanceRetry"
+            "__ScenePrivateLoginMaintenanceRetry",
+            "__ScenePrivateLoginMaintenanceTitleDisappeared"
         ]
     },
     "__ScenePrivateLoginMaintenanceText": {
@@ -165,9 +166,12 @@
         },
         "post_delay": 0,
         "rate_limit": 0,
+        // 点确认/进入后会重新校验资源，网络波动时经常超过默认 20s timeout。
+        // 登录页还在就继续按 10s 间隔轮询，登录页消失则走 TitleDisappeared。
         "next": [
             "__ScenePrivateLoginMaintenance",
-            "__ScenePrivateLoginMaintenanceTitleDisappeared"
+            "__ScenePrivateLoginMaintenanceTitleDisappeared",
+            "__ScenePrivateLoginMaintenanceRetry"
         ]
     },
     "__ScenePrivateLoginMaintenanceTitleDisappeared": {
