@@ -33,7 +33,7 @@ A2 负责「看一眼当前界面，把物品数量记下来」。业务侧**不
 
 ### 帝江号仓库入口
 
-`SyncDepotItemData` 进入帝江号仓库背包界面后，复用 ItemTransfer 的仓库切换流程，固定依次连接四号谷地与武陵，并调用既有 A2 `SyncItemData` 扫描每次连接后的左侧仓库。该入口固定使用 `grid_type: transfer`，候选范围为 `Normal:Plant`、`Normal:Nurturance`、`Normal:Doodad`，覆盖普通植物、特殊路线采集物和虫类采集物。最终缓存口径是**四号谷地仓库 + 武陵仓库**；右侧背包数量不计入。
+`SyncDepotItemData` 依次调用 SceneManager 的[帝江号仓库公共接口](../scene-manager.md#帝江号仓库接口) `SceneEnterMenuBackpackWithDepotValleyIVAll` 与 `SceneEnterMenuBackpackWithDepotWulingAll`，进入两座仓库的全部分类，并调用既有 A2 `SyncItemData` 扫描每次进入后的左侧仓库。进入仓库、地区切换与分类选择的正确性（含 ADB 素材覆盖）统一由 SceneManager 维护，IMS 侧不再自建切仓流程。该入口固定使用 `grid_type: transfer`，候选范围为 `Normal:Plant`、`Normal:Nurturance`、`Normal:Doodad`，覆盖普通植物、特殊路线采集物和虫类采集物。最终缓存口径是**四号谷地仓库 + 武陵仓库**；右侧背包数量不计入。
 
 每座仓库都会先判断列表是否存在滚动条：单页列表只扫描一次；多页列表会先滚动到顶部，再逐页扫描到底部。每次实际扫描前都会将鼠标移出物品格区，避免稳定显示的悬浮提示遮挡图标或数量。四号谷地使用默认 `merge_mode: replace`：第一页以 `page_dedup: false` 重建候选区域，后续页以 `page_dedup: true` 覆写当页命中。武陵使用 `merge_mode: sum`：第一页保存不可变的四号谷地基准，后续每页都按「四号谷地基准 + 当前武陵绝对数量」覆写两仓总量；相邻页面即使重叠，也不会重复累加同一物品。
 

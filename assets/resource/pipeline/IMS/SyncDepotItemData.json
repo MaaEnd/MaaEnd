@@ -34,8 +34,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SyncDepotItemDataInBackpack",
-            "[JumpBack]SceneEnterMenuBackpackWithDepot"
+            "SyncDepotItemDataSwitchToValleyIV"
         ]
     },
     "SyncDepotItemDataSkipped": {
@@ -59,88 +58,28 @@
             "[Anchor]SyncDepotItemDataCompletedNext"
         ]
     },
-    "SyncDepotItemDataInBackpack": {
-        "desc": "确认已在帝江号仓库背包界面且仓库切换按钮可用，准备固定扫描四号谷地与武陵",
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "InBackpack",
-                    "ItemTransferRepoSwitchButton"
-                ]
-            }
-        },
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SyncDepotItemDataConfigureRegions"
-        ]
-    },
-    "SyncDepotItemDataConfigureRegions": {
-        "desc": "复用 ItemTransfer 仓库切换流程：固定四号谷地为首仓、武陵为第二仓",
-        "recognition": "DirectHit",
-        "pre_delay": 0,
-        "action": {
-            "type": "Custom",
-            "param": {
-                "custom_action": "PipelineOverride",
-                "custom_action_param": {
-                    "patch": {
-                        "ItemTransferClickOrigin": {
-                            "expected": [
-                                "四号谷地",
-                                "四號谷地",
-                                "Valley IV"
-                            ]
-                        },
-                        "ItemTransferClickOriginClicked": {
-                            "expected": [
-                                "四号谷地",
-                                "四號谷地",
-                                "Valley IV"
-                            ]
-                        },
-                        "ItemTransferClickDestination": {
-                            "expected": [
-                                "武陵",
-                                "Wuling"
-                            ]
-                        },
-                        "ItemTransferClickDestinationClicked": {
-                            "expected": [
-                                "武陵",
-                                "Wuling"
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SyncDepotItemDataSwitchToValleyIV"
-        ]
-    },
     "SyncDepotItemDataSwitchToValleyIV": {
-        "desc": "复用 ItemTransferSwitchRepoToOrigin 连接四号谷地仓库",
+        "desc": "走 SceneManager 帝江号仓库公共接口，进入四号谷地仓库的全部分类",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "DoNothing",
-        "anchor": {
-            "ItemTransferOriginArrivedNext": "SyncDepotItemDataScanValleyIV"
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "ItemTransferSwitchRepoToOrigin"
+            "SyncDepotItemDataScanValleyIV",
+            "[JumpBack]SceneEnterMenuBackpackWithDepotValleyIVAll"
         ]
     },
     "SyncDepotItemDataScanValleyIV": {
         "desc": "四号谷地作为首仓，用 A2 replace 执行地区重建",
-        "recognition": "DirectHit",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InDijiangDepotValleyIVAll"
+                ]
+            }
+        },
         "pre_delay": 0,
         "action": {
             "type": "Custom",
@@ -230,27 +169,31 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "SyncDepotItemDataAllSelected",
-            "SyncDepotItemDataSelectAll"
+            "SyncDepotItemDataResetScrollState"
         ]
     },
     "SyncDepotItemDataSwitchToWuling": {
-        "desc": "复用 ItemTransferSwitchRepoToDestination 连接武陵仓库",
+        "desc": "走 SceneManager 帝江号仓库公共接口，切换到武陵仓库的全部分类",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "DoNothing",
-        "anchor": {
-            "ItemTransferDestinationArrivedNext": "SyncDepotItemDataScanWuling"
-        },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "ItemTransferSwitchRepoToDestination"
+            "SyncDepotItemDataScanWuling",
+            "[JumpBack]SceneEnterMenuBackpackWithDepotWulingAll"
         ]
     },
     "SyncDepotItemDataScanWuling": {
         "desc": "武陵作为第二仓，用 A2 sum 在四号谷地基准上幂等求和",
-        "recognition": "DirectHit",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InDijiangDepotWulingAll"
+                ]
+            }
+        },
         "pre_delay": 0,
         "action": {
             "type": "Custom",
@@ -336,68 +279,6 @@
         },
         "anchor": {
             "SyncDepotItemDataScanComplete": "SyncDepotItemDataCommit"
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SyncDepotItemDataAllSelected",
-            "SyncDepotItemDataSelectAll"
-        ]
-    },
-    "SyncDepotItemDataAllSelected": {
-        "desc": "OCR 识别到全部文字，代表仓库当前已处于全部分类",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    245,
-                    168,
-                    90,
-                    44
-                ],
-                "expected": [
-                    "全部",
-                    "(?i)All",
-                    "すべて",
-                    "전체"
-                ]
-            }
-        },
-        "pre_delay": 0,
-        "action": "DoNothing",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "SyncDepotItemDataResetScrollState"
-        ]
-    },
-    "SyncDepotItemDataSelectAll": {
-        "desc": "未处于全部分类时，点击未选中的全部分类图标",
-        "recognition": {
-            "type": "TemplateMatch",
-            "param": {
-                "roi": [
-                    168,
-                    171,
-                    531,
-                    35
-                ],
-                "template": "ItemTransfer/All.png",
-                "threshold": 0.8,
-                "order_by": "Score"
-            }
-        },
-        "pre_delay": 0,
-        "action": "Click",
-        "post_wait_freezes": {
-            "target": [
-                154,
-                202,
-                585,
-                291
-            ],
-            "time": 400,
-            "timeout": 3000
         },
         "post_delay": 0,
         "rate_limit": 0,
