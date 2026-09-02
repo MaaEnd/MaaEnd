@@ -44,7 +44,6 @@ struct WindowInfo
     double h0 = 0.0;
     SpanTable st3;
     std::vector<uint8_t> vis3;
-    std::vector<int64_t> cidx;
     std::vector<uint8_t> reach3;
 };
 
@@ -373,7 +372,7 @@ std::optional<WindowInfo> buildWindow(
     info.dist = Grid<float>(nx, ny, 0.0F);
     info.lh = Grid<float>(nx, ny, std::numeric_limits<float>::quiet_NaN());
     std::vector<uint8_t> stepbits(static_cast<size_t>(nx * ny), 0);
-    std::vector<int64_t> sp_cell;
+    std::vector<int32_t> sp_cell;
     std::vector<float> sp_h;
     // 表里留着别的类的 span:层判据要看整列,少一层就会从楼板底下穿过去
     for (const GridSpanRec& r : gw.rec) {
@@ -397,7 +396,7 @@ std::optional<WindowInfo> buildWindow(
         if (fill || (ghost && r.rid != region)) {
             continue;
         }
-        sp_cell.push_back(r.cell);
+        sp_cell.push_back(static_cast<int32_t>(r.cell));
         sp_h.push_back(r.h);
         info.vis3.push_back(static_cast<uint8_t>(r.rid == region));
     }
@@ -455,27 +454,23 @@ std::optional<WindowInfo> buildWindow(
     info.h0 = h0;
     info.sev.steps.resize(nx, ny);
     info.st3 = PackSpans(std::move(sp_cell), std::move(sp_h), &info.vis3);
-    info.cidx.assign(static_cast<size_t>(nc), -1);
-    for (size_t ci = 0; ci < info.st3.occ.size(); ++ci) {
-        info.cidx[static_cast<size_t>(info.st3.occ[ci])] = static_cast<int64_t>(ci);
-    }
 
     // 窗口里 c 沿 (dx,dy) 到 b 这一向是否还走得通:任一对区内 span 满足垂直可达即通。
     // 任一格在窗口里没有区内 span 就判不通,让这条边保持禁行。
     const auto passable = [&](int64_t c, int64_t b, int64_t dx, int64_t dy) {
-        const int64_t jc = info.cidx[static_cast<size_t>(c)];
-        const int64_t jb = info.cidx[static_cast<size_t>(b)];
+        const int64_t jc = info.st3.j(c);
+        const int64_t jb = info.st3.j(b);
         if (jc < 0 || jb < 0) {
             return false;
         }
         const SpanTable& st = info.st3;
-        for (int64_t ka = 0; ka < st.ccnt[static_cast<size_t>(jc)]; ++ka) {
-            const int64_t sa = st.cstart[static_cast<size_t>(jc)] + ka;
+        for (int64_t ka = 0; ka < st.ccnt(jc); ++ka) {
+            const int64_t sa = st.cstart(jc) + ka;
             if (info.vis3[static_cast<size_t>(sa)] == 0) {
                 continue;
             }
-            for (int64_t kb = 0; kb < st.ccnt[static_cast<size_t>(jb)]; ++kb) {
-                const int64_t sb = st.cstart[static_cast<size_t>(jb)] + kb;
+            for (int64_t kb = 0; kb < st.ccnt(jb); ++kb) {
+                const int64_t sb = st.cstart(jb) + kb;
                 if (info.vis3[static_cast<size_t>(sb)] == 0) {
                     continue;
                 }
@@ -490,7 +485,7 @@ std::optional<WindowInfo> buildWindow(
     // 一格里可见面的最高与最低之差。栅格化的立面被挤进一列, 这个跨度就够得上一堵墙,
     // 护岸那一列六个面从 270.92 到 276.83 即是。
     const auto stackSpan = [&](int64_t c) {
-        const int64_t j = info.cidx[static_cast<size_t>(c)];
+        const int64_t j = info.st3.j(c);
         if (j < 0) {
             return 0.0;
         }
@@ -498,8 +493,8 @@ std::optional<WindowInfo> buildWindow(
         double lo = 0.0;
         double hi = 0.0;
         bool have = false;
-        for (int64_t k = 0; k < st.ccnt[static_cast<size_t>(j)]; ++k) {
-            const int64_t s = st.cstart[static_cast<size_t>(j)] + k;
+        for (int64_t k = 0; k < st.ccnt(j); ++k) {
+            const int64_t s = st.cstart(j) + k;
             if (info.vis3[static_cast<size_t>(s)] == 0) {
                 continue;
             }
@@ -513,20 +508,20 @@ std::optional<WindowInfo> buildWindow(
 
     // c 与 b 两格之间落差最小的那一对面。任一格没有区内面时取无穷大。
     const auto minGap = [&](int64_t c, int64_t b) {
-        const int64_t jc = info.cidx[static_cast<size_t>(c)];
-        const int64_t jb = info.cidx[static_cast<size_t>(b)];
+        const int64_t jc = info.st3.j(c);
+        const int64_t jb = info.st3.j(b);
         if (jc < 0 || jb < 0) {
             return std::numeric_limits<double>::infinity();
         }
         const SpanTable& st = info.st3;
         double g = std::numeric_limits<double>::infinity();
-        for (int64_t ka = 0; ka < st.ccnt[static_cast<size_t>(jc)]; ++ka) {
-            const int64_t sa = st.cstart[static_cast<size_t>(jc)] + ka;
+        for (int64_t ka = 0; ka < st.ccnt(jc); ++ka) {
+            const int64_t sa = st.cstart(jc) + ka;
             if (info.vis3[static_cast<size_t>(sa)] == 0) {
                 continue;
             }
-            for (int64_t kb = 0; kb < st.ccnt[static_cast<size_t>(jb)]; ++kb) {
-                const int64_t sb = st.cstart[static_cast<size_t>(jb)] + kb;
+            for (int64_t kb = 0; kb < st.ccnt(jb); ++kb) {
+                const int64_t sb = st.cstart(jb) + kb;
                 if (info.vis3[static_cast<size_t>(sb)] == 0) {
                     continue;
                 }
@@ -583,11 +578,11 @@ std::optional<WindowInfo> buildWindow(
             info.sev.p1.push_back({ px + static_cast<double>(dy) * kCS, py + static_cast<double>(dx) * kCS });
         }
     }
-    const int64_t sj = info.cidx[static_cast<size_t>(cell0)];
+    const int64_t sj = info.st3.j(cell0);
     int64_t seed3 = -1;
     float best3 = 0.0F;
-    const int64_t sjb = info.st3.cstart[static_cast<size_t>(sj)];
-    for (int64_t k = 0, kn = info.st3.ccnt[static_cast<size_t>(sj)]; k < kn; ++k) {
+    const int64_t sjb = info.st3.cstart(sj);
+    for (int64_t k = 0, kn = info.st3.ccnt(sj); k < kn; ++k) {
         const int64_t sid = sjb + k;
         if (info.vis3[static_cast<size_t>(sid)] == 0) {
             continue;
@@ -902,7 +897,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
         return { bc, std::sqrt(static_cast<double>(bd)) * kCS };
     };
     const SpanTable& st3 = info.st3;
-    const LayerOracle lyo(&st3, &info.cidx, nx, ny, x0, y0);
+    const LayerOracle lyo(&st3, nx, ny, x0, y0);
     const auto mk = [&](const Mask& m2, std::vector<uint8_t>& use, Mask& c3) {
         use.assign(st3.sp_h.size(), 0);
         c3 = Mask(nx, ny, 0);
@@ -919,12 +914,12 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     mk(walk, useW, cw3);
     const auto pick = [&](const CellPt& c, const std::vector<uint8_t>& use) {
         std::vector<int64_t> out;
-        const int64_t j = info.cidx[static_cast<size_t>(c.y * nx + c.x)];
+        const int64_t j = info.st3.j(c.y * nx + c.x);
         if (j < 0) {
             return out;
         }
-        const int64_t jb = st3.cstart[static_cast<size_t>(j)];
-        for (int64_t k = 0, kn = st3.ccnt[static_cast<size_t>(j)]; k < kn; ++k) {
+        const int64_t jb = st3.cstart(j);
+        for (int64_t k = 0, kn = st3.ccnt(j); k < kn; ++k) {
             const int64_t v = jb + k;
             if (use[static_cast<size_t>(v)] != 0) {
                 out.push_back(v);
@@ -1186,7 +1181,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
             if (sd < 0 || (goal_deck.has_value() && gs.empty())) {
                 return std::nullopt;
             }
-            return SpanAstar(st3, use, info.cidx, m3, sd, gs, price, banned, bnp, faces, vis, vis != nullptr ? &corn : nullptr);
+            return SpanAstar(st3, use, m3, sd, gs, price, banned, bnp, faces, vis, vis != nullptr ? &corn : nullptr);
         };
         Topo t;
         t.on3 = w3;
@@ -1278,15 +1273,15 @@ std::optional<std::vector<WorldPoint>> routeWindow(
                         if (dx != 0 && dy != 0 && !(ok2.at(uy, vx) && ok2.at(vy, ux))) {
                             continue;
                         }
-                        if (info.cidx[static_cast<size_t>(cv)] < 0) {
+                        if (info.st3.j(cv) < 0) {
                             continue;
                         }
                         if (faces->has(backward ? cv : cu, backward ? cu : cv)) {
                             continue;
                         }
-                        const int64_t j = info.cidx[static_cast<size_t>(cv)];
-                        const int64_t jb = st3.cstart[static_cast<size_t>(j)];
-                        for (int64_t k = 0, kn = st3.ccnt[static_cast<size_t>(j)]; k < kn; ++k) {
+                        const int64_t j = info.st3.j(cv);
+                        const int64_t jb = st3.cstart(j);
+                        for (int64_t k = 0, kn = st3.ccnt(j); k < kn; ++k) {
                             const int64_t v = jb + k;
                             if (use[static_cast<size_t>(v)] == 0 || seen[static_cast<size_t>(v)] != 0) {
                                 continue;
@@ -1422,7 +1417,7 @@ std::optional<std::vector<WorldPoint>> routeWindow(
         for (int64_t y = 0; y < ny; ++y) {
             for (int64_t x = 0; x < nx; ++x) {
                 const int64_t c = y * nx + x;
-                const int64_t jc = info.cidx[static_cast<size_t>(c)];
+                const int64_t jc = info.st3.j(c);
                 if (jc < 0) {
                     continue;
                 }
@@ -1436,20 +1431,20 @@ std::optional<std::vector<WorldPoint>> routeWindow(
                             continue;
                         }
                         const int64_t b = by * nx + bx;
-                        const int64_t jb = info.cidx[static_cast<size_t>(b)];
+                        const int64_t jb = info.st3.j(b);
                         if (jb < 0) {
                             continue;
                         }
                         const double up = kSlope * std::hypot(static_cast<double>(dx), static_cast<double>(dy)) * kCS;
                         bool any = false;
                         bool flat = false;
-                        for (int64_t ka = 0; ka < st3.ccnt[static_cast<size_t>(jc)] && !flat; ++ka) {
-                            const int64_t sa = st3.cstart[static_cast<size_t>(jc)] + ka;
+                        for (int64_t ka = 0; ka < st3.ccnt(jc) && !flat; ++ka) {
+                            const int64_t sa = st3.cstart(jc) + ka;
                             if (info.vis3[static_cast<size_t>(sa)] == 0) {
                                 continue;
                             }
-                            for (int64_t kb = 0; kb < st3.ccnt[static_cast<size_t>(jb)]; ++kb) {
-                                const int64_t sb = st3.cstart[static_cast<size_t>(jb)] + kb;
+                            for (int64_t kb = 0; kb < st3.ccnt(jb); ++kb) {
+                                const int64_t sb = st3.cstart(jb) + kb;
                                 if (info.vis3[static_cast<size_t>(sb)] == 0) {
                                     continue;
                                 }

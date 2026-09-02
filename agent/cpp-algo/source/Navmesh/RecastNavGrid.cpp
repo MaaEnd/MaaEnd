@@ -45,10 +45,7 @@ int64_t sampleSteps(double len, double sub)
 
 int64_t occFind(const SpanTable& st, int64_t cid)
 {
-    if (cid < 0 || cid >= static_cast<int64_t>(st.c2j.size())) {
-        return -1;
-    }
-    return st.c2j[static_cast<size_t>(cid)];
+    return st.j(cid);
 }
 
 // cid 沿 (dx,dy) 走 s 格处是否有落在 h±kStepUp 的 span。s 可为负,即朝反方向探。
@@ -63,8 +60,8 @@ bool levelAt(const SpanTable& st, int64_t nx, int64_t ny, int64_t cid, int64_t d
     if (j < 0) {
         return false;
     }
-    const int64_t b = st.cstart[static_cast<size_t>(j)];
-    const int64_t n = st.ccnt[static_cast<size_t>(j)];
+    const int64_t b = st.cstart(j);
+    const int64_t n = st.ccnt(j);
     for (int64_t k = 0; k < n; ++k) {
         if (std::fabs(static_cast<double>(st.sp_h[static_cast<size_t>(b + k)] - h)) <= kStepUp) {
             return true;
@@ -258,7 +255,7 @@ SpanTable BuildSpans(const std::vector<int64_t>& cell, const std::vector<float>&
             if (cnt) {
                 st.sp_h.push_back(static_cast<float>(acc / static_cast<double>(cnt)));
             }
-            st.sp_cell.push_back(c);
+            st.sp_cell.push_back(static_cast<int32_t>(c));
             acc = 0.0;
             cnt = 0;
             anchor = hv;
@@ -270,7 +267,7 @@ SpanTable BuildSpans(const std::vector<int64_t>& cell, const std::vector<float>&
     return PackSpans(std::move(st.sp_cell), std::move(st.sp_h));
 }
 
-SpanTable PackSpans(std::vector<int64_t> cell, std::vector<float> h, std::vector<uint8_t>* flags)
+SpanTable PackSpans(std::vector<int32_t> cell, std::vector<float> h, std::vector<uint8_t>* flags)
 {
     SpanTable st;
     const int64_t n_span = static_cast<int64_t>(cell.size());
@@ -280,9 +277,9 @@ SpanTable PackSpans(std::vector<int64_t> cell, std::vector<float> h, std::vector
     // 主键 cell 是格号, 计数排序按升序装桶且桶内保持原次序; 副键 h 在桶内插入排序, 严格大于
     // 才挪位同样保序。两步都稳定 ⇒ 与按 (cell, h) 稳定排序同序, 而一格的 span 只有几条。
     const int64_t nc = *std::max_element(cell.begin(), cell.end()) + 1;
-    std::vector<int64_t> ord(static_cast<size_t>(n_span));
+    std::vector<int32_t> ord(static_cast<size_t>(n_span));
     std::vector<int32_t> cstart(static_cast<size_t>(nc + 1), 0);
-    for (const int64_t c : cell) {
+    for (const int32_t c : cell) {
         ++cstart[static_cast<size_t>(c) + 1];
     }
     for (size_t k = 1; k < cstart.size(); ++k) {
@@ -291,13 +288,13 @@ SpanTable PackSpans(std::vector<int64_t> cell, std::vector<float> h, std::vector
     {
         std::vector<int32_t> fill(cstart.begin(), cstart.end() - 1);
         for (int64_t i = 0; i < n_span; ++i) {
-            ord[static_cast<size_t>(fill[static_cast<size_t>(cell[static_cast<size_t>(i)])]++)] = i;
+            ord[static_cast<size_t>(fill[static_cast<size_t>(cell[static_cast<size_t>(i)])]++)] = static_cast<int32_t>(i);
         }
     }
     for (int64_t c = 0; c < nc; ++c) {
         const int64_t b = cstart[static_cast<size_t>(c)], e = cstart[static_cast<size_t>(c) + 1];
         for (int64_t i = b + 1; i < e; ++i) {
-            const int64_t v = ord[static_cast<size_t>(i)];
+            const int32_t v = ord[static_cast<size_t>(i)];
             const float hv = h[static_cast<size_t>(v)];
             int64_t j = i;
             while (j > b && h[static_cast<size_t>(ord[static_cast<size_t>(j - 1)])] > hv) {
@@ -320,29 +317,29 @@ SpanTable PackSpans(std::vector<int64_t> cell, std::vector<float> h, std::vector
         }
         flags->swap(fo);
     }
+    // 先数一遍占用格再一次分配。边数边 push 会按二的幂扩容, 逐格数组在满窗口上要白占近一倍。
+    int64_t n_occ = 0;
     for (int64_t i = 0; i < n_span; ++i) {
-        if (i == 0 || st.sp_cell[i] != st.sp_cell[i - 1]) {
-            st.occ.push_back(st.sp_cell[i]);
-            st.cstart.push_back(i);
-            st.ccnt.push_back(0);
+        if (i == 0 || st.sp_cell[static_cast<size_t>(i)] != st.sp_cell[static_cast<size_t>(i - 1)]) {
+            ++n_occ;
         }
-        ++st.ccnt.back();
     }
-    st.K = *std::max_element(st.ccnt.begin(), st.ccnt.end());
-    st.c2j.assign(static_cast<size_t>(st.occ.back() + 1), -1);
-    for (size_t ci = 0; ci < st.occ.size(); ++ci) {
-        st.c2j[static_cast<size_t>(st.occ[ci])] = static_cast<int32_t>(ci);
+    st.cs.resize(static_cast<size_t>(n_occ) + 1);
+    st.cs[static_cast<size_t>(n_occ)] = static_cast<int32_t>(n_span);
+    for (int64_t i = 0, ci = 0; i < n_span; ++i) {
+        if (i == 0 || st.sp_cell[static_cast<size_t>(i)] != st.sp_cell[static_cast<size_t>(i - 1)]) {
+            st.cs[static_cast<size_t>(ci++)] = static_cast<int32_t>(i);
+        }
     }
-    const int64_t n_occ = static_cast<int64_t>(st.occ.size());
-    st.sp_ci.resize(static_cast<size_t>(n_span));
+    st.c2j.assign(static_cast<size_t>(st.sp_cell.back()) + 1, -1);
+    for (int64_t ci = 0; ci < n_occ; ++ci) {
+        st.c2j[static_cast<size_t>(st.occ(ci))] = static_cast<int32_t>(ci);
+    }
     st.face.assign(static_cast<size_t>(n_occ), 0);
-    for (int64_t ci = 0, si = 0; ci < n_occ; ++ci) {
-        for (int64_t r = 0; r < st.ccnt[ci]; ++r, ++si) {
-            st.sp_ci[si] = ci;
-        }
+    for (int64_t ci = 0; ci < n_occ; ++ci) {
         // 同一格的 span 已按高排好, 首末就是这一列的最低最高。
-        const int64_t b = st.cstart[static_cast<size_t>(ci)];
-        const int64_t c = st.ccnt[static_cast<size_t>(ci)];
+        const int64_t b = st.cstart(ci);
+        const int64_t c = st.ccnt(ci);
         const double lo = st.sp_h[static_cast<size_t>(b)];
         const double hi = st.sp_h[static_cast<size_t>(b + c - 1)];
         st.face[static_cast<size_t>(ci)] = static_cast<uint8_t>(c != 2 && hi - lo > kClimb);
@@ -358,8 +355,8 @@ void AppendSeamBridge(RasterCells& rc, int64_t nx, int64_t ny)
     }
     const SpanTable st = BuildSpans(rc.cell, rc.h);
     std::vector<uint8_t> O2(static_cast<size_t>(nx * ny), 0);
-    for (const int64_t c : st.occ) {
-        O2[static_cast<size_t>(c)] = 1;
+    for (int64_t ci = 0, cn = st.nOcc(); ci < cn; ++ci) {
+        O2[static_cast<size_t>(st.occ(ci))] = 1;
     }
     const auto occAt = [&](int64_t y, int64_t x) {
         return y >= 0 && y < ny && x >= 0 && x < nx && O2[static_cast<size_t>(y * nx + x)] != 0;
@@ -391,8 +388,8 @@ void AppendSeamBridge(RasterCells& rc, int64_t nx, int64_t ny)
                         const int64_t jb = occFind(st, cid - dr * (dy * nx + dx));
                         float best_dh = std::numeric_limits<float>::infinity();
                         float best_ha = 0.0f, best_hb = 0.0f;
-                        const int64_t ba = st.cstart[static_cast<size_t>(ja)], na = st.ccnt[static_cast<size_t>(ja)];
-                        const int64_t bb = st.cstart[static_cast<size_t>(jb)], nb = st.ccnt[static_cast<size_t>(jb)];
+                        const int64_t ba = st.cstart(ja), na = st.ccnt(ja);
+                        const int64_t bb = st.cstart(jb), nb = st.ccnt(jb);
                         for (int64_t p = 0; p < na; ++p) {
                             const float ha = st.sp_h[static_cast<size_t>(ba + p)];
                             for (int64_t q = 0; q < nb; ++q) {
@@ -426,7 +423,7 @@ std::vector<uint8_t> Flood(int64_t seed, const SpanTable& st, int64_t nx)
     while (!frontier.empty()) {
         std::vector<int64_t> next;
         for (const int64_t f : frontier) {
-            const int64_t cid = st.occ[st.sp_ci[f]];
+            const int64_t cid = st.sp_cell[f];
             const int64_t gx = cid % nx;
             for (const auto& d : dirs) {
                 const int64_t dx = d[0], dy = d[1];
@@ -437,7 +434,7 @@ std::vector<uint8_t> Flood(int64_t seed, const SpanTable& st, int64_t nx)
                 if (j < 0) {
                     continue;
                 }
-                const int64_t b = st.cstart[static_cast<size_t>(j)], n = st.ccnt[static_cast<size_t>(j)];
+                const int64_t b = st.cstart(j), n = st.ccnt(j);
                 for (int64_t slot = 0; slot < n; ++slot) {
                     const int64_t cand = b + slot;
                     if (!(std::fabs(st.sp_h[static_cast<size_t>(cand)] - st.sp_h[f]) <= 3.0f)) {
@@ -469,8 +466,8 @@ std::vector<int32_t> LabelRegions(const SpanTable& st, int64_t nx)
     };
     // Flood 的邻接是对称的,所以只朝 +x/+y 合并一遍就够
     const int64_t dirs[2][2] = { { 1, 0 }, { 0, 1 } };
-    for (int64_t ci = 0; ci < static_cast<int64_t>(st.occ.size()); ++ci) {
-        const int64_t cid = st.occ[static_cast<size_t>(ci)];
+    for (int64_t ci = 0, cn = st.nOcc(); ci < cn; ++ci) {
+        const int64_t cid = st.occ(ci);
         const int64_t gx = cid % nx;
         for (const auto& d : dirs) {
             if (d[0] != 0 && gx + d[0] >= nx) {
@@ -480,9 +477,9 @@ std::vector<int32_t> LabelRegions(const SpanTable& st, int64_t nx)
             if (j < 0) {
                 continue;
             }
-            const int64_t jb = st.cstart[static_cast<size_t>(j)], jn = st.ccnt[static_cast<size_t>(j)];
-            for (int64_t r = 0; r < st.ccnt[static_cast<size_t>(ci)]; ++r) {
-                const int64_t u = st.cstart[static_cast<size_t>(ci)] + r;
+            const int64_t jb = st.cstart(j), jn = st.ccnt(j);
+            for (int64_t r = 0; r < st.ccnt(ci); ++r) {
+                const int64_t u = st.cstart(ci) + r;
                 for (int64_t slot = 0; slot < jn; ++slot) {
                     const int64_t v = jb + slot;
                     if (!(std::fabs(st.sp_h[static_cast<size_t>(v)] - st.sp_h[static_cast<size_t>(u)]) <= 3.0f)) {
@@ -514,7 +511,7 @@ std::vector<uint8_t> SpanReach(int64_t seed, const SpanTable& st, const std::vec
     while (!frontier.empty()) {
         std::vector<int64_t> next;
         for (const int64_t f : frontier) {
-            const int64_t cid = st.occ[st.sp_ci[f]];
+            const int64_t cid = st.sp_cell[f];
             const int64_t gx = cid % nx, gy = cid / nx;
             for (const auto& d : kNb8) {
                 const int64_t ax = gx + d.dx, ay = gy + d.dy;
@@ -525,7 +522,7 @@ std::vector<uint8_t> SpanReach(int64_t seed, const SpanTable& st, const std::vec
                 if (j < 0) {
                     continue;
                 }
-                const int64_t b = st.cstart[static_cast<size_t>(j)], n = st.ccnt[static_cast<size_t>(j)];
+                const int64_t b = st.cstart(j), n = st.ccnt(j);
                 for (int64_t slot = 0; slot < n; ++slot) {
                     // 先问候选走没走过。垂直可达判据没有副作用, 挪到这一问之后逐位同答,
                     // 而广度优先里绝大多数邻接探到的是已访问的 span。
@@ -623,7 +620,7 @@ std::vector<uint8_t> StampWalls(
             if (j < 0) {
                 continue;
             }
-            const int64_t b = st.cstart[static_cast<size_t>(j)], n = st.ccnt[static_cast<size_t>(j)];
+            const int64_t b = st.cstart(j), n = st.ccnt(j);
             for (int64_t slot = 0; slot < n; ++slot) {
                 const int64_t sid = b + slot;
                 if (std::abs(static_cast<double>(st.sp_h[static_cast<size_t>(sid)]) - hh[i]) <= kMcHBand) {
@@ -694,133 +691,6 @@ WallCsr BuildWallIndex(const std::vector<WorldPoint>& p0, const std::vector<Worl
         csr.start[i] += csr.start[i - 1];
     }
     return csr;
-}
-
-StepBarrier StepBreaks(const SpanTable& st, const std::vector<uint8_t>& vis, const Mask& lay, double ox, double oy)
-{
-    StepBarrier out;
-    const int64_t nx = lay.nx, ny = lay.ny, NC = nx * ny, K = st.K;
-    out.steps.resize(nx, ny);
-    if (K <= 0) {
-        return out;
-    }
-    constexpr float kInf = std::numeric_limits<float>::infinity();
-    std::vector<float> T(static_cast<size_t>(NC * K), kInf);
-    for (size_t j = 0; j < st.occ.size(); ++j) {
-        float* row = &T[static_cast<size_t>(st.occ[j] * K)];
-        int64_t n = 0;
-        const int64_t b = st.cstart[j], cn = st.ccnt[j];
-        for (int64_t k = 0; k < cn; ++k) {
-            const int64_t sid = b + k;
-            if (vis[static_cast<size_t>(sid)] != 0) {
-                row[n++] = st.sp_h[static_cast<size_t>(sid)];
-            }
-        }
-    }
-
-    std::vector<uint8_t> ghost(static_cast<size_t>(NC), 0);
-    bool any_ghost = false;
-    for (int64_t c = 0; c < NC; ++c) {
-        if (lay.v[static_cast<size_t>(c)] != 0 && !std::isfinite(T[static_cast<size_t>(c * K)])) {
-            ghost[static_cast<size_t>(c)] = 1;
-            any_ghost = true;
-        }
-    }
-    if (any_ghost) {
-        std::vector<float> g(static_cast<size_t>(NC));
-        for (int64_t c = 0; c < NC; ++c) {
-            g[static_cast<size_t>(c)] = T[static_cast<size_t>(c * K)];
-        }
-        const int64_t rounds = static_cast<int64_t>(std::ceil(std::sqrt(static_cast<double>(kHoleMaxCells)))) + 1;
-        for (int64_t it = 0; it < rounds; ++it) {
-            std::vector<float> nv = g;
-            for (int64_t y = 0; y < ny; ++y) {
-                for (int64_t x = 0; x < nx; ++x) {
-                    const size_t c = static_cast<size_t>(y * nx + x);
-                    if (ghost[c] == 0) {
-                        continue;
-                    }
-                    float m = g[c];
-                    if (x + 1 < nx) {
-                        m = std::min(m, g[c + 1]);
-                    }
-                    if (x > 0) {
-                        m = std::min(m, g[c - 1]);
-                    }
-                    if (y + 1 < ny) {
-                        m = std::min(m, g[c + static_cast<size_t>(nx)]);
-                    }
-                    if (y > 0) {
-                        m = std::min(m, g[c - static_cast<size_t>(nx)]);
-                    }
-                    nv[c] = m;
-                }
-            }
-            const bool same = nv == g;
-            g.swap(nv);
-            if (same) {
-                break;
-            }
-        }
-        for (int64_t c = 0; c < NC; ++c) {
-            if (ghost[static_cast<size_t>(c)] != 0) {
-                T[static_cast<size_t>(c * K)] = g[static_cast<size_t>(c)];
-            }
-        }
-    }
-    out.t0.resize(static_cast<size_t>(NC));
-    for (int64_t c = 0; c < NC; ++c) {
-        out.t0[static_cast<size_t>(c)] = T[static_cast<size_t>(c * K)];
-    }
-
-    static constexpr std::array<std::array<int64_t, 2>, 4> kDirs { { { 1, 0 }, { 0, 1 }, { 1, 1 }, { 1, -1 } } };
-    for (const auto& d : kDirs) {
-        const int64_t dx = d[0], dy = d[1];
-        for (int64_t c = 0; c < NC; ++c) {
-            if (lay.v[static_cast<size_t>(c)] == 0 || !std::isfinite(T[static_cast<size_t>(c * K)])) {
-                continue;
-            }
-            const int64_t ax = c % nx + dx, ay = c / nx + dy;
-            if (ax < 0 || ax >= nx || ay < 0 || ay >= ny) {
-                continue;
-            }
-            const int64_t b = ay * nx + ax;
-            if (!std::isfinite(T[static_cast<size_t>(b * K)])) {
-                continue;
-            }
-            float best = kInf;
-            int64_t bka = 0, bkb = 0;
-            for (int64_t ka = 0; ka < K; ++ka) {
-                for (int64_t kb = 0; kb < K; ++kb) {
-                    const float raw = std::fabs(T[static_cast<size_t>(c * K + ka)] - T[static_cast<size_t>(b * K + kb)]);
-                    const float dd = std::isfinite(raw) ? raw : kInf;
-                    if (dd < best) {
-                        best = dd;
-                        bka = ka;
-                        bkb = kb;
-                    }
-                }
-            }
-            if (!(static_cast<double>(best) > UpAllow(std::hypot(static_cast<double>(dx), static_cast<double>(dy))))) {
-                continue;
-            }
-            const bool up = T[static_cast<size_t>(b * K + bkb)] > T[static_cast<size_t>(c * K + bka)];
-            if (up) {
-                out.steps.set(c, b);
-            }
-            else {
-                out.steps.set(b, c);
-            }
-            if (dx != 0 && dy != 0) {
-                continue;
-            }
-            const double px = ox + static_cast<double>(c % nx + dx) * kCS;
-            const double py = oy + static_cast<double>(c / nx + dy) * kCS;
-            out.p0.push_back({ px, py });
-            out.p1.push_back({ px + static_cast<double>(dy) * kCS, py + static_cast<double>(dx) * kCS });
-        }
-    }
-    return out;
 }
 
 std::vector<int64_t> Comps4(const Mask& mask)
@@ -1072,7 +942,6 @@ bool Visibility::ok(const WorldPoint& p, const WorldPoint& q, float hp, float hq
 std::optional<std::vector<int64_t>> SpanAstar(
     const SpanTable& st,
     const std::vector<uint8_t>& ok,
-    const std::vector<int64_t>& cidx,
     const Mask& ok2,
     int64_t s,
     const std::vector<int64_t>& gset,
@@ -1087,7 +956,7 @@ std::optional<std::vector<int64_t>> SpanAstar(
         return std::nullopt;
     }
     const int64_t nx = ok2.nx, ny = ok2.ny;
-    const int64_t gc = st.occ[st.sp_ci[static_cast<size_t>(gset.front())]];
+    const int64_t gc = st.sp_cell[static_cast<size_t>(gset.front())];
     const int64_t gxx = gc % nx, gyy = gc / nx;
     std::vector<double> dist(st.sp_h.size(), std::numeric_limits<double>::infinity());
     std::vector<int64_t> prev(st.sp_h.size(), -1);
@@ -1119,7 +988,7 @@ std::optional<std::vector<int64_t>> SpanAstar(
             if (d.dx != 0 && d.dy != 0 && !(ok2.at(y, a) && ok2.at(b, x))) {
                 continue;
             }
-            const int64_t j = cidx[static_cast<size_t>(cw)];
+            const int64_t j = st.j(cw);
             if (j < 0) {
                 continue;
             }
@@ -1134,7 +1003,7 @@ std::optional<std::vector<int64_t>> SpanAstar(
                 pen = *bnp;
             }
             const double stp = d.w * 0.5 * static_cast<double>(mult.v[static_cast<size_t>(cw)] + mult.v[static_cast<size_t>(cu)]);
-            const int64_t jb = st.cstart[static_cast<size_t>(j)], jn = st.ccnt[static_cast<size_t>(j)];
+            const int64_t jb = st.cstart(j), jn = st.ccnt(j);
             for (int64_t k = 0; k < jn; ++k) {
                 const int64_t w = jb + k;
                 if (ok[static_cast<size_t>(w)] == 0 || closed[static_cast<size_t>(w)] == 0) {
@@ -1159,7 +1028,7 @@ std::optional<std::vector<int64_t>> SpanAstar(
         const auto [f, u] = pq.top();
         pq.pop();
         double d0 = dist[static_cast<size_t>(u)];
-        const int64_t cu = st.occ[st.sp_ci[static_cast<size_t>(u)]];
+        const int64_t cu = st.sp_cell[static_cast<size_t>(u)];
         const int64_t x = cu % nx, y = cu / nx;
         if (f > d0 + std::hypot(static_cast<double>(gxx - x), static_cast<double>(gyy - y)) + 1e-9) {
             continue;
@@ -1171,7 +1040,7 @@ std::optional<std::vector<int64_t>> SpanAstar(
             const int64_t p = prev[static_cast<size_t>(u)];
             if (p >= 0
                 && !vis->ok(
-                    vis->at(st.occ[st.sp_ci[static_cast<size_t>(p)]]),
+                    vis->at(st.sp_cell[static_cast<size_t>(p)]),
                     vis->at(cu),
                     st.sp_h[static_cast<size_t>(p)],
                     st.sp_h[static_cast<size_t>(u)])) {
@@ -1198,7 +1067,7 @@ std::optional<std::vector<int64_t>> SpanAstar(
             if (d.dx != 0 && d.dy != 0 && !(ok2.at(y, a) && ok2.at(b, x))) {
                 continue;
             }
-            const int64_t j = cidx[static_cast<size_t>(cv)];
+            const int64_t j = st.j(cv);
             if (j < 0) {
                 continue;
             }
@@ -1222,7 +1091,7 @@ std::optional<std::vector<int64_t>> SpanAstar(
             if (vis != nullptr) {
                 const int64_t p = prev[static_cast<size_t>(u)];
                 if (p >= 0 && mult.v[static_cast<size_t>(cv)] <= 1.0F) {
-                    const int64_t cp = st.occ[st.sp_ci[static_cast<size_t>(p)]];
+                    const int64_t cp = st.sp_cell[static_cast<size_t>(p)];
                     if (mult.v[static_cast<size_t>(cp)] <= 1.0F) {
                         const double cd = dist[static_cast<size_t>(p)]
                             + std::hypot(static_cast<double>(a - cp % nx), static_cast<double>(b - cp / nx));
@@ -1233,7 +1102,7 @@ std::optional<std::vector<int64_t>> SpanAstar(
                     }
                 }
             }
-            const int64_t sb = st.cstart[static_cast<size_t>(j)], sn = st.ccnt[static_cast<size_t>(j)];
+            const int64_t sb = st.cstart(j), sn = st.ccnt(j);
             for (int64_t k = 0; k < sn; ++k) {
                 const int64_t v = sb + k;
                 if (ok[static_cast<size_t>(v)] == 0) {
@@ -1270,8 +1139,8 @@ std::optional<std::vector<int64_t>> SpanAstar(
     const std::vector<int64_t> corn = out;
     out.assign(1, corn.front());
     for (size_t i = 1; i < corn.size(); ++i) {
-        const int64_t ca = st.occ[st.sp_ci[static_cast<size_t>(corn[i - 1])]];
-        const int64_t cb = st.occ[st.sp_ci[static_cast<size_t>(corn[i])]];
+        const int64_t ca = st.sp_cell[static_cast<size_t>(corn[i - 1])];
+        const int64_t cb = st.sp_cell[static_cast<size_t>(corn[i])];
         const int64_t axx = ca % nx, ayy = ca / nx, bxx = cb % nx, byy = cb / nx;
         const int64_t n = std::max<int64_t>(std::max(std::abs(bxx - axx), std::abs(byy - ayy)), 1);
         const float ha = st.sp_h[static_cast<size_t>(corn[i - 1])];
@@ -1280,17 +1149,17 @@ std::optional<std::vector<int64_t>> SpanAstar(
             const int64_t cx = axx + static_cast<int64_t>(std::nearbyint(static_cast<double>(bxx - axx) * static_cast<double>(k) / static_cast<double>(n)));
             const int64_t cy = ayy + static_cast<int64_t>(std::nearbyint(static_cast<double>(byy - ayy) * static_cast<double>(k) / static_cast<double>(n)));
             const int64_t cc = cy * nx + cx;
-            if (cc == st.occ[st.sp_ci[static_cast<size_t>(out.back())]]) {
+            if (cc == st.sp_cell[static_cast<size_t>(out.back())]) {
                 continue;
             }
-            const int64_t j = cidx[static_cast<size_t>(cc)];
+            const int64_t j = st.j(cc);
             if (j < 0) {
                 continue;
             }
             const float ht = ha + (hb - ha) * static_cast<float>(k) / static_cast<float>(n);
             int64_t bv = -1;
             float bdh = 0.0F;
-            const int64_t sb = st.cstart[static_cast<size_t>(j)], sn = st.ccnt[static_cast<size_t>(j)];
+            const int64_t sb = st.cstart(j), sn = st.ccnt(j);
             for (int64_t kk = 0; kk < sn; ++kk) {
                 const int64_t v = sb + kk;
                 if (ok[static_cast<size_t>(v)] == 0) {
@@ -1836,12 +1705,12 @@ std::optional<std::vector<float>> LayerOracle::walk(const std::vector<WorldPoint
     std::vector<float> nxt;
     CellPt pc = cells.empty() ? CellPt {} : cells[0];
     for (size_t i = 1; i < cells.size(); ++i) {
-        const int64_t j = (*cidx_)[static_cast<size_t>(cells[i].y * nx_ + cells[i].x)];
+        const int64_t j = st_->j(cells[i].y * nx_ + cells[i].x);
         if (j < 0) {
             continue;
         }
         nb.clear();
-        const int64_t sb = st_->cstart[static_cast<size_t>(j)], sn = st_->ccnt[static_cast<size_t>(j)];
+        const int64_t sb = st_->cstart(j), sn = st_->ccnt(j);
         for (int64_t k = 0; k < sn; ++k) {
             nb.push_back(st_->sp_h[static_cast<size_t>(sb + k)]);
         }

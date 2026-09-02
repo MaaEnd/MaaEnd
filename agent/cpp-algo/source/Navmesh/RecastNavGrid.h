@@ -105,22 +105,33 @@ struct RasterCells
     std::vector<uint8_t> ins;
 };
 
-// 同一格的 span 在 sp_h 里是连续一段: 下标 [cstart[j], cstart[j]+ccnt[j])。逐格取这一段,
-// 不必按全窗口最大叠层数 K 逐槽扫 —— K 取最大值, 而绝大多数格只有一张面。
+// 同一格的 span 在 sp_h 里是连续一段: 下标 [cstart(j), cstart(j)+ccnt(j))。逐格取这一段,
+// 不必按全窗口最大叠层数逐槽扫 —— 那个上限取全窗最大值, 而绝大多数格只有一张面。
 struct SpanTable
 {
-    std::vector<int64_t> sp_cell;
+    std::vector<int32_t> sp_cell;
     std::vector<float> sp_h;
-    std::vector<int64_t> occ;
-    std::vector<int64_t> cstart;
-    std::vector<int64_t> ccnt;
-    int64_t K = 0;
-    std::vector<int64_t> sp_ci;
+    // CSR 边界, 长度 = 占用格数 + 1, 末位是 span 总数。每格的起点、条数、所在格号都由它
+    // 与 sp_cell 现推, 各存一份逐格数组是同一份信息的三个副本。
+    std::vector<int32_t> cs;
     // 逐占用格一位: 这一列是不是被栅格化的立面。判据只看该格自己的叠层, 建表时算一次。
     std::vector<uint8_t> face;
-    // 格号 → occ 下标的直查表, 空格填 -1。邻格查询在 BFS 与垂直可达判据里是最内层的一步,
-    // 建表时摊掉一次, 就不必每次在 occ 上二分。长度只到最大占用格, 表外一律当空格。
+    // 格号 → 占用格下标的直查表, 空格填 -1。邻格查询在 BFS 与垂直可达判据里是最内层的一步,
+    // 建表时摊掉一次, 就不必每次二分。长度只到最大占用格, 表外一律当空格。
     std::vector<int32_t> c2j;
+
+    int64_t nOcc() const { return cs.empty() ? 0 : static_cast<int64_t>(cs.size()) - 1; }
+
+    int64_t cstart(int64_t ci) const { return cs[static_cast<size_t>(ci)]; }
+
+    int64_t ccnt(int64_t ci) const { return cs[static_cast<size_t>(ci) + 1] - cs[static_cast<size_t>(ci)]; }
+
+    int64_t occ(int64_t ci) const { return sp_cell[static_cast<size_t>(cs[static_cast<size_t>(ci)])]; }
+
+    int64_t j(int64_t cid) const
+    {
+        return cid >= 0 && cid < static_cast<int64_t>(c2j.size()) ? c2j[static_cast<size_t>(cid)] : -1;
+    }
 };
 
 // 相邻格垂直可达判据: cid 格上高 h0 的 span 能否迈到 (dx,dy) 邻格上高 h1 的 span。
@@ -148,7 +159,7 @@ void AppendSeamBridge(RasterCells& rc, int64_t nx, int64_t ny);
 
 SpanTable BuildSpans(const std::vector<int64_t>& cell, const std::vector<float>& h);
 
-SpanTable PackSpans(std::vector<int64_t> cell, std::vector<float> h, std::vector<uint8_t>* flags = nullptr);
+SpanTable PackSpans(std::vector<int32_t> cell, std::vector<float> h, std::vector<uint8_t>* flags = nullptr);
 
 std::vector<uint8_t> Flood(int64_t seed, const SpanTable& st, int64_t nx);
 
@@ -254,10 +265,7 @@ struct StepBarrier
     EdgeBits steps;
     std::vector<WorldPoint> p0;
     std::vector<WorldPoint> p1;
-    std::vector<float> t0;
 };
-
-StepBarrier StepBreaks(const SpanTable& st, const std::vector<uint8_t>& vis, const Mask& lay, double ox, double oy);
 
 std::vector<int64_t> Comps4(const Mask& mask);
 
@@ -282,7 +290,6 @@ class Visibility;
 std::optional<std::vector<int64_t>> SpanAstar(
     const SpanTable& st,
     const std::vector<uint8_t>& ok,
-    const std::vector<int64_t>& cidx,
     const Mask& ok2,
     int64_t s,
     const std::vector<int64_t>& gset,
@@ -353,9 +360,8 @@ private:
 class LayerOracle
 {
 public:
-    LayerOracle(const SpanTable* st, const std::vector<int64_t>* cidx, int64_t nx, int64_t ny, double x0, double y0)
+    LayerOracle(const SpanTable* st, int64_t nx, int64_t ny, double x0, double y0)
         : st_(st)
-        , cidx_(cidx)
         , nx_(nx)
         , ny_(ny)
         , x0_(x0)
@@ -372,7 +378,6 @@ public:
 
 private:
     const SpanTable* st_ = nullptr;
-    const std::vector<int64_t>* cidx_ = nullptr;
     int64_t nx_ = 0;
     int64_t ny_ = 0;
     double x0_ = 0.0;
