@@ -117,10 +117,9 @@ BaseNavTriangle ReadTriangleRecord(const uint8_t*& cursor)
     for (int32_t& value : triangle.neighbors) {
         value = ReadI32(cursor);
     }
-    triangle.component_id = ReadU32(cursor);
-    // 记录尾部两个 float 是重心, 全仓无读者, 跳过不落盘。哈希仍按整条记录算,
-    // 所以按区加载时补重心的那段不能省。
-    cursor += 8;
+    // 分量号与尾部两个 float 重心都全仓无读者, 跳过不落盘 —— 分量号由 planner 从
+    // neighbors 自己重算。哈希仍按整条记录算, 所以按区加载时补重心的那段不能省。
+    cursor += 12;
     return triangle;
 }
 

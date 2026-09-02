@@ -948,7 +948,8 @@ std::optional<std::vector<int64_t>> SpanAstar(
     const int64_t gc = st.sp_cell[static_cast<size_t>(gset.front())];
     const int64_t gxx = gc % nx, gyy = gc / nx;
     std::vector<double> dist(st.sp_h.size(), std::numeric_limits<double>::infinity());
-    std::vector<int64_t> prev(st.sp_h.size(), -1);
+    // 存的是 span 下标, 一个区的 span 数远在 int32 之内, 窄一半省下的是每次规划的瞬时峰值。
+    std::vector<int32_t> prev(st.sp_h.size(), -1);
     dist[static_cast<size_t>(s)] = 0.0;
     using Node = std::tuple<double, int64_t>;
     std::priority_queue<Node, std::vector<Node>, std::greater<Node>> pq;
@@ -1010,7 +1011,7 @@ std::optional<std::vector<int64_t>> SpanAstar(
         }
         if (bp >= 0) {
             dist[static_cast<size_t>(u)] = bd;
-            prev[static_cast<size_t>(u)] = bp;
+            prev[static_cast<size_t>(u)] = static_cast<int32_t>(bp);
         }
     };
     while (!pq.empty()) {
@@ -1103,7 +1104,7 @@ std::optional<std::vector<int64_t>> SpanAstar(
                 }
                 if (ndp < dist[static_cast<size_t>(v)] - 1e-12) {
                     dist[static_cast<size_t>(v)] = ndp;
-                    prev[static_cast<size_t>(v)] = np;
+                    prev[static_cast<size_t>(v)] = static_cast<int32_t>(np);
                     pq.emplace(ndp + std::hypot(static_cast<double>(gxx - a), static_cast<double>(gyy - b)), v);
                 }
             }
