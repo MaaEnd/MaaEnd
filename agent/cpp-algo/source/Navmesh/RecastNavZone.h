@@ -74,6 +74,9 @@ public:
 
     std::optional<SnapHit> snap(const WorldPoint& p, double radius, std::optional<double> floor_y) const;
 
+    // 交还几何与逐三角的表。调用方保证之后不再读它们, 区号一类的标量照旧可用。
+    void release();
+
     std::string name;
     uint16_t zone_id = 0;
     int64_t lo = 0;

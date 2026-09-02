@@ -521,6 +521,14 @@ ZoneClean::ZoneClean(
              + std::to_string(ncomps);
 }
 
+void ZoneClean::release()
+{
+    mesh = PolyMesh();
+    comp = std::vector<int32_t>();
+    comp_island = std::vector<uint8_t>();
+    walkable = std::vector<uint8_t>();
+}
+
 std::optional<ZoneClean::SnapHit> ZoneClean::snap(const WorldPoint& p, double radius, std::optional<double> floor_y) const
 {
     const double r = std::max(0.0, radius);

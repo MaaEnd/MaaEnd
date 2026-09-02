@@ -395,7 +395,7 @@ ZoneBoundsPx regionBounds(const GridPack& gp, const GridZoneDir& gz, uint32_t re
 std::optional<WindowInfo> buildWindow(
     const GridPack& gp,
     const GridZoneDir& gz,
-    const ZoneClean& zc,
+    ZoneClean& zc,
     const WorldPoint& s,
     const WorldPoint& s_snap,
     const WorldPoint& g,
@@ -515,6 +515,9 @@ std::optional<WindowInfo> buildWindow(
         }
     }
     lh = Grid<float>();
+    // 区网格的最后一个读者到此为止。往下是 span 表与各场, 建窗最吃内存的一段,
+    // 让它挂到那时就是白抬一份峰值。
+    zc.release();
 
     // 封堵点无自带高度;窗口层已按起点层高筛过,直接按平面距离盖格即可
     if (!blocked_points.empty()) {
@@ -1997,7 +2000,7 @@ RecastPlanResult RecastNavEngine::planLocked(
         res.error = ze.zc->error();
         return res;
     }
-    const ZoneClean& zc = *ze.zc;
+    ZoneClean& zc = *ze.zc;
     std::vector<int32_t> blocked_local;
     for (const uint32_t t : blocked) {
         const int64_t local = static_cast<int64_t>(t) - zc.lo;
