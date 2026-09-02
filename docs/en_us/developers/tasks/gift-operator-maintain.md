@@ -41,14 +41,13 @@ Corresponds to the "Receive Only" option being disabled. Configurable gift recip
 1. Store bag before starting the task, then enter the Di Jiang ship bridge world.
 2. Navigate to the operator contact point and open the contact interface.
 3. Select operators (must pass [Selection State Verification](#selection-state-verification) after clicking; implementation in `GiftOperatorContact.json`):
-    - **Any**: Switch to trust ascending order, select three consecutive operators with incomplete trust; verify sequence number 1 → 2 → 3 for each click, confirm the call only after all three are selected.
+    - **Any**: Switch to trust ascending order, select three consecutive operators (including those at max trust); verify sequence number 1 → 2 → 3 for each click, confirm the call only after all three are selected.
     - **Specific Operator**: Match the target operator in the list using the avatar template, then verify the selection state before calling.
 4. Confirm the call; if the operator is not in position, use [Preset Orientation and Coordinate Movement Fallback](#after-calling-operator-what-to-do-if-dialogue-button-not-found) (implementation in `GiftOperatorNavigation.json`).
 5. Wait for the operator to appear, enter dialogue.
 6. Handle dialogue based on priority:
-    - Can give gift → Select gift (also pass [Selection State Verification](#selection-state-verification) after selection; implementation in `GiftOperatorGiftFlow.json`), confirm giving, skip dialogue, leave.
+    - Can give gift → Select gift (also pass [Selection State Verification](#selection-state-verification) after selection; implementation in `GiftOperatorGiftFlow.json`), confirm giving, skip dialogue, leave. Operators at max trust can still receive gifts.
     - Can receive gift → Collect gift, skip dialogue, leave.
-    - Affection is full → Leave directly.
 7. Number of gifts given is controlled by the "Gift Quantity" option, default allows multiple consecutive gifts.
 
 ## Route 2: Receive Only
@@ -137,9 +136,9 @@ If all three groups are tried and still not found, the task ends with an error a
 Two other similar retries handle click offsets caused by the operator walking over:
 
 - Dialogue button found but no dialogue entered after clicking → Retry click once in place.
-- Dialogue entered but right-side action buttons not yet appeared → The skip button also self-retries once, then waits for give/receive/affection full buttons to appear.
+- Dialogue entered but right-side action buttons not yet appeared → The skip button also self-retries once, then waits for give/receive buttons to appear.
 
 ### Differences in Default Mode Operator Selection (Compared to Receive)
 
-The "Any" route doesn't rely on avatars, but instead: switches to trust ascending order → from top to bottom, finds rows with **incomplete trust and not selected**, and clicks three consecutively.  
+The "Any" route doesn't rely on avatars, but instead: switches to trust ascending order → from top to bottom, finds **unselected** rows, and clicks three consecutively.  
 The "Specific Operator" route is similar to receive mode's second step, directly matching in the list using the avatar template, but without needing to first find the gift icon.
