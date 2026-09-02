@@ -37,9 +37,9 @@
         "desc": "大世界剧情跳过",
         "recognition": "TemplateMatch",
         "roi": [
-            1140,
+            -150,
             0,
-            120,
+            150,
             90
         ],
         "template": "RealTimeTask/AutoSkipEsc.png",
@@ -48,7 +48,8 @@
         "action": "Click",
         "post_delay": 0,
         "next": [
-            "__ScenePrivateWorldStorySkipConfirm"
+            "__ScenePrivateWorldStorySkipConfirm",
+            "__ScenePrivateAnyEnterWorldSuccess"
         ]
     },
     "__ScenePrivateWorldStorySkipConfirm": {
