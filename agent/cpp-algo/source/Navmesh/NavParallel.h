@@ -51,6 +51,8 @@ inline size_t NavWorkerCountForBlocks(int64_t n)
 }
 
 // fn(w, begin, end) 跑第 w 块 [begin, end)。调用线程自己领第 0 块, 因此只多起 workers-1 个。
+// 池子用 jthread: 调用线程这块抛出时(分配失败是唯一的来路), 析构自己把工人接回来。裸 thread
+// 在那条路上还是 joinable, 析构即 terminate, 连崩溃点都留不下。
 template <class F>
 void ParallelChunks(int64_t n, size_t workers, F&& fn)
 {
@@ -59,7 +61,7 @@ void ParallelChunks(int64_t n, size_t workers, F&& fn)
     }
     const size_t nw = std::max<size_t>(1, workers);
     const int64_t step = (n + static_cast<int64_t>(nw) - 1) / static_cast<int64_t>(nw);
-    std::vector<std::thread> pool;
+    std::vector<std::jthread> pool;
     pool.reserve(nw - 1);
     for (size_t w = 1; w < nw; ++w) {
         const int64_t b = std::min(n, step * static_cast<int64_t>(w));
@@ -70,7 +72,7 @@ void ParallelChunks(int64_t n, size_t workers, F&& fn)
         pool.emplace_back([&fn, w, b, e] { fn(w, b, e); });
     }
     fn(size_t { 0 }, int64_t { 0 }, std::min(n, step));
-    for (std::thread& th : pool) {
+    for (std::jthread& th : pool) {
         th.join();
     }
 }

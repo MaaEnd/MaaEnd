@@ -90,8 +90,9 @@ BaseNavPlanner::BaseNavPlanner(const BaseNavPack& pack)
         computeTriangleHeights();
         return;
     }
-    std::thread bins([this] { buildSpatialIndex(); });
-    std::thread heights([this] { computeTriangleHeights(); });
+    // jthread: buildIndex 抛出时(分配失败是唯一的来路)这两个还在跑, 析构自己接回来。
+    std::jthread bins([this] { buildSpatialIndex(); });
+    std::jthread heights([this] { computeTriangleHeights(); });
     buildIndex();
     bins.join();
     heights.join();
