@@ -407,15 +407,20 @@ std::optional<WindowInfo> buildWindow(
         sp_h.push_back(r.h);
         info.vis3.push_back(static_cast<uint8_t>(r.rid == region));
     }
+    // 记录表到此已经摊进上面这几张图, 后面再没人读它。建 span 表是建窗最耗内存的一步,
+    // 这份表是其中最大的一块, 不该一直占到那时。
+    pw.gw = GridWindow();
 
-    const BakedWalls walls = BakeWalls(zc, x0, y0, nx, ny);
-    const std::vector<uint8_t> keep = WallsAtLayer(walls.p0, walls.p1, walls.hh, lh, x0, y0);
     std::vector<WorldPoint> wP0;
     std::vector<WorldPoint> wP1;
-    for (size_t i = 0; i < keep.size(); ++i) {
-        if (keep[i] != 0) {
-            wP0.push_back(walls.p0[i]);
-            wP1.push_back(walls.p1[i]);
+    {
+        const BakedWalls walls = BakeWalls(zc, x0, y0, nx, ny);
+        const std::vector<uint8_t> keep = WallsAtLayer(walls.p0, walls.p1, walls.hh, lh, x0, y0);
+        for (size_t i = 0; i < keep.size(); ++i) {
+            if (keep[i] != 0) {
+                wP0.push_back(walls.p0[i]);
+                wP1.push_back(walls.p1[i]);
+            }
         }
     }
     info.whit = WallHits(wP0, wP1, x0, y0, nx, ny);
@@ -437,6 +442,7 @@ std::optional<WindowInfo> buildWindow(
             }
         }
     }
+    lh = Grid<float>();
 
     // 封堵点无自带高度;窗口层已按起点层高筛过,直接按平面距离盖格即可
     if (!blocked_points.empty()) {
