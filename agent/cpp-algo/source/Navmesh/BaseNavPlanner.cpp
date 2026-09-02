@@ -101,16 +101,34 @@ void BaseNavPlanner::buildIndex()
 {
     buildNaturalComponents();
 
-    // 计数趟与填充趟之间只做了前缀和与 resize, 谓词读的分区、自然连通分量、三角几何一份都没动,
-    // 第二趟必然复现第一趟的答案。判完存一位, 位图按每条边一比特, 换掉整串重算。
+    // 位图按每条边一比特存下通行判据, 换掉填充趟的整串重算: 两趟之间只做了前缀和与 resize,
+    // 谓词读的分区表、自然连通分量与三角几何一个字都没写, 第二趟必然复现第一趟的答案。
+    // 按字切块并行, 相邻块碰不到同一个 uint64_t, 于是位图与线程数无关。
     const auto& links = pack_.links();
-    std::vector<uint64_t> passed(links.size() / 64 + 1, 0);
+    const size_t word_count = links.size() / 64 + 1;
+    std::vector<uint64_t> passed(word_count, 0);
+    ParallelChunks(
+        static_cast<int64_t>(word_count),
+        NavWorkerCount(static_cast<int64_t>(links.size())),
+        [&](size_t, int64_t begin, int64_t end) {
+            for (int64_t word = begin; word < end; ++word) {
+                const size_t first = static_cast<size_t>(word) << 6;
+                const size_t last = std::min(first + 64, links.size());
+                uint64_t bits = 0;
+                for (size_t index = first; index < last; ++index) {
+                    const BaseNavLink& link = links[index];
+                    if (isTraversableLink(link.source, link.target)) {
+                        bits |= uint64_t { 1 } << (index & 63);
+                    }
+                }
+                passed[static_cast<size_t>(word)] = bits;
+            }
+        });
+
     size_t valid_link_count = 0;
     for (size_t index = 0; index < links.size(); ++index) {
-        const BaseNavLink& link = links[index];
-        if (isTraversableLink(link.source, link.target)) {
-            passed[index >> 6] |= uint64_t { 1 } << (index & 63);
-            ++adjacency_offsets_[link.source + 1];
+        if (((passed[index >> 6] >> (index & 63)) & 1) != 0) {
+            ++adjacency_offsets_[links[index].source + 1];
             ++valid_link_count;
         }
     }
