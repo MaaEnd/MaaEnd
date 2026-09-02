@@ -116,17 +116,10 @@
     "__ScenePrivateWorldEnterMenuControlNexus": {
         "desc": "从主界面按 I 键打开帝江号总控中枢入口",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "And",
             "param": {
-                "roi": [
-                    247,
-                    0,
-                    172,
-                    77
-                ],
-                "template": [
-                    "SceneManager/ControlNexus.png",
-                    "SceneManager/ControlNexusWithTips.png"
+                "all_of": [
+                    "ControlNexusButton"
                 ]
             }
         },

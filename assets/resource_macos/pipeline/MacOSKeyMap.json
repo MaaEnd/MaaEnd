@@ -2,22 +2,6 @@
 // DO NOT EDIT MANUALLY.
 // Temporary compatibility layer until MaaFramework MacOS supports use_win32_vk_code.
 {
-    "AltClickControlNexusButtonKeyDown": {
-        "action": {
-            "type": "KeyDown",
-            "param": {
-                "key": 58
-            }
-        }
-    },
-    "AltClickControlNexusButtonKeyUp": {
-        "action": {
-            "type": "KeyUp",
-            "param": {
-                "key": 58
-            }
-        }
-    },
     "AltClickProtosyncMenuButtonKeyDown": {
         "action": {
             "type": "KeyDown",

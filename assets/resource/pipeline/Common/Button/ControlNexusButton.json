@@ -1,58 +1,19 @@
 {
     "ControlNexusButton": {
-        "desc": "帝江号大世界中的控制枢纽按钮",
+        "desc": "帝江号大世界中的控制枢纽按钮，注意大世界左上角三个按钮顺序会随机换",
         "recognition": "TemplateMatch",
         "roi": [
-            185,
-            3,
-            209,
-            96
+            100,
+            0,
+            300,
+            100
         ],
-        "template": "Common/Button/ControlNexusButton.png",
+        "template": [
+            "SceneManager/ControlNexus.png",
+            "SceneManager/ControlNexusWithTips.png"
+        ],
         "threshold": 0.8,
         "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AltClickControlNexusButtonKeyDown"
-        ]
-    },
-    "AltClickControlNexusButtonKeyDown": {
-        "desc": "使用 Alt + 点击帝江号大世界中的控制枢纽按钮（按住 Alt 键）",
-        "pre_delay": 0,
-        "action": "KeyDown",
-        "key": 164, // 0xA4	Left Alt key
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AltClickControlNexusButtonClick"
-        ]
-    },
-    "AltClickControlNexusButtonClick": {
-        "desc": "使用 Alt + 点击帝江号大世界中的控制枢纽按钮（单击）",
-        "pre_delay": 0,
-        "action": "Click",
-        "target": "ControlNexusButton",
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "AltClickControlNexusButtonKeyUp"
-        ]
-    },
-    "AltClickControlNexusButtonKeyUp": {
-        "desc": "使用 Alt + 点击帝江号大世界中的控制枢纽按钮（释放 Alt 键）",
-        "pre_delay": 0,
-        "action": "KeyUp",
-        "key": 164, // 0xA4	Left Alt key
-        "post_wait_freezes": {
-            "time": 80,
-            "target": [
-                0,
-                0,
-                0,
-                0
-            ]
-        },
         "post_delay": 0,
         "rate_limit": 0
     }
