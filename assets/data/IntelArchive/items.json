@@ -133,61 +133,6 @@
                 }
             ]
         },
-        "research_WulingBussiness": {
-            "id": "research_WulingBussiness",
-            "names": {
-                "zh_cn": "方兴衢",
-                "zh_tw": "方興衢"
-            },
-            "page": "investigate",
-            "fileCategory": "investigate",
-            "tagIds": [
-                "investigate"
-            ],
-            "relatedItemIds": [
-                "paper_map02_27",
-                "paper_map02_29",
-                "paper_map02_32",
-                "paper_map02_60"
-            ],
-            "order": 2,
-            "groups": [
-                {
-                    "id": "research_WulingBussiness_1",
-                    "names": {
-                        "zh_cn": "悠久与新潮",
-                        "zh_tw": "悠久與新潮"
-                    },
-                    "entries": [
-                        {
-                            "itemId": "paper_map02_27",
-                            "pageId": "nar_paper_map02_27_1"
-                        },
-                        {
-                            "itemId": "paper_map02_29",
-                            "pageId": "nar_paper_map02_29_1"
-                        }
-                    ]
-                },
-                {
-                    "id": "research_WulingBussiness_2",
-                    "names": {
-                        "zh_cn": "城内与城外",
-                        "zh_tw": "城內與城外"
-                    },
-                    "entries": [
-                        {
-                            "itemId": "paper_map02_32",
-                            "pageId": "nar_paper_map02_32_1"
-                        },
-                        {
-                            "itemId": "paper_map02_60",
-                            "pageId": "nar_paper_map02_60_1"
-                        }
-                    ]
-                }
-            ]
-        },
         "research_f1m9d1": {
             "id": "research_f1m9d1",
             "names": {
@@ -256,6 +201,61 @@
                         {
                             "itemId": "report_map01_research2_4",
                             "pageId": "nar_report_map01_research2_4_1"
+                        }
+                    ]
+                }
+            ]
+        },
+        "research_WulingBussiness": {
+            "id": "research_WulingBussiness",
+            "names": {
+                "zh_cn": "方兴衢",
+                "zh_tw": "方興衢"
+            },
+            "page": "investigate",
+            "fileCategory": "investigate",
+            "tagIds": [
+                "investigate"
+            ],
+            "relatedItemIds": [
+                "paper_map02_27",
+                "paper_map02_29",
+                "paper_map02_32",
+                "paper_map02_60"
+            ],
+            "order": 2,
+            "groups": [
+                {
+                    "id": "research_WulingBussiness_1",
+                    "names": {
+                        "zh_cn": "悠久与新潮",
+                        "zh_tw": "悠久與新潮"
+                    },
+                    "entries": [
+                        {
+                            "itemId": "paper_map02_27",
+                            "pageId": "nar_paper_map02_27_1"
+                        },
+                        {
+                            "itemId": "paper_map02_29",
+                            "pageId": "nar_paper_map02_29_1"
+                        }
+                    ]
+                },
+                {
+                    "id": "research_WulingBussiness_2",
+                    "names": {
+                        "zh_cn": "城内与城外",
+                        "zh_tw": "城內與城外"
+                    },
+                    "entries": [
+                        {
+                            "itemId": "paper_map02_32",
+                            "pageId": "nar_paper_map02_32_1"
+                        },
+                        {
+                            "itemId": "paper_map02_60",
+                            "pageId": "nar_paper_map02_60_1"
                         }
                     ]
                 }
@@ -366,61 +366,6 @@
                 }
             ]
         },
-        "research_003prts": {
-            "id": "research_003prts",
-            "names": {
-                "zh_cn": "清波寨",
-                "zh_tw": "清波寨"
-            },
-            "page": "investigate",
-            "fileCategory": "investigate",
-            "tagIds": [
-                "investigate"
-            ],
-            "relatedItemIds": [
-                "paper_map02_79",
-                "paper_map02_81",
-                "paper_map02_77",
-                "paper_map02_123"
-            ],
-            "order": 4,
-            "groups": [
-                {
-                    "id": "research_003prts_1",
-                    "names": {
-                        "zh_cn": "驯兽技巧",
-                        "zh_tw": "馴獸技巧"
-                    },
-                    "entries": [
-                        {
-                            "itemId": "paper_map02_79",
-                            "pageId": "nar_paper_map02_79_1"
-                        },
-                        {
-                            "itemId": "paper_map02_81",
-                            "pageId": "nar_paper_map02_81_1"
-                        }
-                    ]
-                },
-                {
-                    "id": "research_003prts_2",
-                    "names": {
-                        "zh_cn": "整体格局",
-                        "zh_tw": "整體格局"
-                    },
-                    "entries": [
-                        {
-                            "itemId": "paper_map02_77",
-                            "pageId": "nar_paper_map02_77_1"
-                        },
-                        {
-                            "itemId": "paper_map02_123",
-                            "pageId": "nar_paper_map02_123_1"
-                        }
-                    ]
-                }
-            ]
-        },
         "research_006": {
             "id": "research_006",
             "names": {
@@ -471,6 +416,61 @@
                         {
                             "itemId": "digital_map01_35",
                             "pageId": "nar_digital_map01_35_1"
+                        }
+                    ]
+                }
+            ]
+        },
+        "research_003prts": {
+            "id": "research_003prts",
+            "names": {
+                "zh_cn": "清波寨",
+                "zh_tw": "清波寨"
+            },
+            "page": "investigate",
+            "fileCategory": "investigate",
+            "tagIds": [
+                "investigate"
+            ],
+            "relatedItemIds": [
+                "paper_map02_79",
+                "paper_map02_81",
+                "paper_map02_77",
+                "paper_map02_123"
+            ],
+            "order": 4,
+            "groups": [
+                {
+                    "id": "research_003prts_1",
+                    "names": {
+                        "zh_cn": "驯兽技巧",
+                        "zh_tw": "馴獸技巧"
+                    },
+                    "entries": [
+                        {
+                            "itemId": "paper_map02_79",
+                            "pageId": "nar_paper_map02_79_1"
+                        },
+                        {
+                            "itemId": "paper_map02_81",
+                            "pageId": "nar_paper_map02_81_1"
+                        }
+                    ]
+                },
+                {
+                    "id": "research_003prts_2",
+                    "names": {
+                        "zh_cn": "整体格局",
+                        "zh_tw": "整體格局"
+                    },
+                    "entries": [
+                        {
+                            "itemId": "paper_map02_77",
+                            "pageId": "nar_paper_map02_77_1"
+                        },
+                        {
+                            "itemId": "paper_map02_123",
+                            "pageId": "nar_paper_map02_123_1"
                         }
                     ]
                 }
@@ -585,6 +585,61 @@
                 }
             ]
         },
+        "research_007": {
+            "id": "research_007",
+            "names": {
+                "zh_cn": "超域试验场的起源",
+                "zh_tw": "超域實驗場的起源"
+            },
+            "page": "investigate",
+            "fileCategory": "investigate",
+            "tagIds": [
+                "investigate"
+            ],
+            "relatedItemIds": [
+                "digital_map01_26",
+                "digital_map01_64",
+                "paper_map01_75",
+                "paper_map01_70"
+            ],
+            "order": 6,
+            "groups": [
+                {
+                    "id": "research_007_1",
+                    "names": {
+                        "zh_cn": "试验场静静屹立",
+                        "zh_tw": "實驗場靜靜屹立"
+                    },
+                    "entries": [
+                        {
+                            "itemId": "digital_map01_26",
+                            "pageId": "nar_digital_map01_26_1"
+                        },
+                        {
+                            "itemId": "digital_map01_64",
+                            "pageId": "nar_digital_map01_64_1"
+                        }
+                    ]
+                },
+                {
+                    "id": "research_007_2",
+                    "names": {
+                        "zh_cn": "研究者们议论纷纷",
+                        "zh_tw": "研究者們議論紛紛"
+                    },
+                    "entries": [
+                        {
+                            "itemId": "paper_map01_75",
+                            "pageId": "nar_paper_map01_75_1"
+                        },
+                        {
+                            "itemId": "paper_map01_70",
+                            "pageId": "nar_paper_map01_70_1"
+                        }
+                    ]
+                }
+            ]
+        },
         "research_006prts": {
             "id": "research_006prts",
             "names": {
@@ -638,61 +693,6 @@
                         {
                             "itemId": "digital_map02_13003",
                             "pageId": "nar_digital_map02_13003_1"
-                        }
-                    ]
-                }
-            ]
-        },
-        "research_007": {
-            "id": "research_007",
-            "names": {
-                "zh_cn": "超域试验场的起源",
-                "zh_tw": "超域實驗場的起源"
-            },
-            "page": "investigate",
-            "fileCategory": "investigate",
-            "tagIds": [
-                "investigate"
-            ],
-            "relatedItemIds": [
-                "digital_map01_26",
-                "digital_map01_64",
-                "paper_map01_75",
-                "paper_map01_70"
-            ],
-            "order": 6,
-            "groups": [
-                {
-                    "id": "research_007_1",
-                    "names": {
-                        "zh_cn": "试验场静静屹立",
-                        "zh_tw": "實驗場靜靜屹立"
-                    },
-                    "entries": [
-                        {
-                            "itemId": "digital_map01_26",
-                            "pageId": "nar_digital_map01_26_1"
-                        },
-                        {
-                            "itemId": "digital_map01_64",
-                            "pageId": "nar_digital_map01_64_1"
-                        }
-                    ]
-                },
-                {
-                    "id": "research_007_2",
-                    "names": {
-                        "zh_cn": "研究者们议论纷纷",
-                        "zh_tw": "研究者們議論紛紛"
-                    },
-                    "entries": [
-                        {
-                            "itemId": "paper_map01_75",
-                            "pageId": "nar_paper_map01_75_1"
-                        },
-                        {
-                            "itemId": "paper_map01_70",
-                            "pageId": "nar_paper_map01_70_1"
                         }
                     ]
                 }
@@ -890,6 +890,60 @@
                         {
                             "itemId": "paper_map02_14028",
                             "pageId": "nar_paper_map02_14028_1"
+                        }
+                    ]
+                }
+            ]
+        },
+        "research_009prts": {
+            "id": "research_009prts",
+            "names": {
+                "zh_cn": "雪松林的运作模式",
+                "zh_tw": "雪松林的運作模式"
+            },
+            "page": "investigate",
+            "fileCategory": "investigate",
+            "tagIds": [
+                "investigate"
+            ],
+            "relatedItemIds": [
+                "paper_map02_15006",
+                "paper_map02_15009",
+                "paper_map02_15011"
+            ],
+            "order": 13,
+            "groups": [
+                {
+                    "id": "research_009prts_1",
+                    "names": {
+                        "zh_cn": "环境",
+                        "zh_tw": "環境"
+                    },
+                    "entries": [
+                        {
+                            "itemId": "paper_map02_15006",
+                            "pageId": "nar_paper_map02_15006_1"
+                        },
+                        {
+                            "itemId": "paper_map02_15009",
+                            "pageId": "nar_paper_map02_15009_2"
+                        }
+                    ]
+                },
+                {
+                    "id": "research_009prts_2",
+                    "names": {
+                        "zh_cn": "变化",
+                        "zh_tw": "變化"
+                    },
+                    "entries": [
+                        {
+                            "itemId": "paper_map02_15011",
+                            "pageId": "nar_paper_map02_15011_1"
+                        },
+                        {
+                            "itemId": "paper_map02_15009",
+                            "pageId": "nar_paper_map02_15009_1"
                         }
                     ]
                 }
@@ -1455,6 +1509,29 @@
             ],
             "order": 201040029
         },
+        "media_map02_15012": {
+            "id": "media_map02_15012",
+            "names": {
+                "zh_cn": "与雪祀的谈话",
+                "zh_tw": "與雪祀的談話"
+            },
+            "page": "multi_media",
+            "fileCategory": "media",
+            "tagIds": [
+                "multi_media"
+            ],
+            "pages": [
+                {
+                    "id": "nar_media_map02_15012_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "与雪祀的谈话",
+                        "zh_tw": "與雪祀的談話"
+                    }
+                }
+            ],
+            "order": 201050012
+        },
         "paper_sm1l5m1_1": {
             "id": "paper_sm1l5m1_1",
             "names": {
@@ -1615,20 +1692,6 @@
                 }
             ],
             "order": 128
-        },
-        "paper_c16m2_1": {
-            "id": "paper_c16m2_1",
-            "names": {
-                "zh_cn": "一份潦草的笔记",
-                "zh_tw": "一份潦草的筆記"
-            },
-            "page": "text",
-            "fileCategory": "paper",
-            "tagIds": [
-                "text"
-            ],
-            "pages": [],
-            "order": 150
         },
         "paper_map01_1": {
             "id": "paper_map01_1",
@@ -6709,6 +6772,544 @@
             ],
             "order": 201042207
         },
+        "paper_map02_15001": {
+            "id": "paper_map02_15001",
+            "names": {
+                "zh_cn": "字迹扭曲的留言",
+                "zh_tw": "字跡扭曲的留言"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_15001_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "字迹扭曲的留言",
+                        "zh_tw": "字跡扭曲的留言"
+                    }
+                }
+            ],
+            "order": 201050001
+        },
+        "paper_map02_15002": {
+            "id": "paper_map02_15002",
+            "names": {
+                "zh_cn": "某人的记录",
+                "zh_tw": "某人的紀錄"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_15002_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "某人的记录",
+                        "zh_tw": "某人的紀錄"
+                    }
+                }
+            ],
+            "order": 201050002
+        },
+        "paper_map02_15003": {
+            "id": "paper_map02_15003",
+            "names": {
+                "zh_cn": "安德烈的潦草留言",
+                "zh_tw": "安德烈的潦草留言"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_15003_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "安德烈的潦草留言",
+                        "zh_tw": "安德烈的潦草留言"
+                    }
+                }
+            ],
+            "order": 201050003
+        },
+        "paper_map02_15004": {
+            "id": "paper_map02_15004",
+            "names": {
+                "zh_cn": "《大炎鬼怪志异·补》",
+                "zh_tw": "《大炎鬼怪志異·補》"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_15004_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "《大炎鬼怪志异》",
+                        "zh_tw": "《大炎鬼怪志異》"
+                    }
+                },
+                {
+                    "id": "nar_paper_map02_15004_2",
+                    "order": 2,
+                    "names": {
+                        "zh_cn": "《大炎鬼怪志异·补》（一）",
+                        "zh_tw": "《大炎鬼怪志異·補》（一）"
+                    }
+                },
+                {
+                    "id": "nar_paper_map02_15004_3",
+                    "order": 3,
+                    "names": {
+                        "zh_cn": "《大炎鬼怪志异·补》（二）",
+                        "zh_tw": "《大炎鬼怪志異·補》（二）"
+                    }
+                }
+            ],
+            "order": 201050004
+        },
+        "paper_map02_15005": {
+            "id": "paper_map02_15005",
+            "names": {
+                "zh_cn": "字迹工整的留言",
+                "zh_tw": "字跡工整的留言"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_15005_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "字迹工整的留言",
+                        "zh_tw": "字跡工整的留言"
+                    }
+                }
+            ],
+            "order": 201050005
+        },
+        "paper_map02_15006": {
+            "id": "paper_map02_15006",
+            "names": {
+                "zh_cn": "陈旧的留言",
+                "zh_tw": "陳舊的留言"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_15006_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "陈旧的留言",
+                        "zh_tw": "陳舊的留言"
+                    }
+                }
+            ],
+            "order": 201050006
+        },
+        "paper_map02_15007": {
+            "id": "paper_map02_15007",
+            "names": {
+                "zh_cn": "笔记残页",
+                "zh_tw": "筆記殘頁"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_15007_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "笔记残页",
+                        "zh_tw": "筆記殘頁"
+                    }
+                }
+            ],
+            "order": 201050007
+        },
+        "paper_map02_15008": {
+            "id": "paper_map02_15008",
+            "names": {
+                "zh_cn": "写生者的惊叹",
+                "zh_tw": "寫生者的驚嘆"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_15008_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "写生者的惊叹",
+                        "zh_tw": "寫生者的驚嘆"
+                    }
+                }
+            ],
+            "order": 201050008
+        },
+        "paper_map02_15009": {
+            "id": "paper_map02_15009",
+            "names": {
+                "zh_cn": "检查者的留言",
+                "zh_tw": "檢查者的留言"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_15009_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "检查者的留言（一）",
+                        "zh_tw": "檢查者的留言（一）"
+                    }
+                },
+                {
+                    "id": "nar_paper_map02_15009_2",
+                    "order": 2,
+                    "names": {
+                        "zh_cn": "检查者的留言（二）",
+                        "zh_tw": "檢查者的留言（二）"
+                    }
+                },
+                {
+                    "id": "nar_paper_map02_15009_3",
+                    "order": 3,
+                    "names": {
+                        "zh_cn": "检查者的留言（三）",
+                        "zh_tw": "檢查者的留言（三）"
+                    }
+                }
+            ],
+            "order": 201050009
+        },
+        "paper_map02_15010": {
+            "id": "paper_map02_15010",
+            "names": {
+                "zh_cn": "绝望的笔记",
+                "zh_tw": "絕望的筆記"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_15010_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "绝望的笔记",
+                        "zh_tw": "絕望的筆記"
+                    }
+                }
+            ],
+            "order": 201050010
+        },
+        "paper_map02_15011": {
+            "id": "paper_map02_15011",
+            "names": {
+                "zh_cn": "应龙队员的留言",
+                "zh_tw": "應龍隊員的留言"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_15011_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "应龙队员的留言",
+                        "zh_tw": "應龍隊員的留言"
+                    }
+                }
+            ],
+            "order": 201050011
+        },
+        "paper_map02_15013": {
+            "id": "paper_map02_15013",
+            "names": {
+                "zh_cn": "遗落在树枝下的纸条",
+                "zh_tw": "遺落在樹枝下的紙條"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_15013_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "遗落在树枝下的纸条",
+                        "zh_tw": "遺落在樹枝下的紙條"
+                    }
+                }
+            ],
+            "order": 201050013
+        },
+        "paper_map02_15014": {
+            "id": "paper_map02_15014",
+            "names": {
+                "zh_cn": "雪祀的信件草稿",
+                "zh_tw": "雪祀的信件草稿"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_15014_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "雪祀的信件草稿",
+                        "zh_tw": "雪祀的信件草稿"
+                    }
+                }
+            ],
+            "order": 201050014
+        },
+        "paper_map02_15015": {
+            "id": "paper_map02_15015",
+            "names": {
+                "zh_cn": "雪祀的记梦手稿",
+                "zh_tw": "雪祀的記夢手稿"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_15015_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "雪祀的记梦手稿",
+                        "zh_tw": "雪祀的記夢手稿"
+                    }
+                }
+            ],
+            "order": 201050015
+        },
+        "paper_map02_15016": {
+            "id": "paper_map02_15016",
+            "names": {
+                "zh_cn": "老雪祀的研究笔记",
+                "zh_tw": "老雪祀的研究筆記"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_15016_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "老雪祀的研究笔记",
+                        "zh_tw": "老雪祀的研究筆記"
+                    }
+                }
+            ],
+            "order": 201050016
+        },
+        "paper_map02_15017": {
+            "id": "paper_map02_15017",
+            "names": {
+                "zh_cn": "记录心得的纸",
+                "zh_tw": "記錄心得的紙"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_15017_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "记录心得的纸",
+                        "zh_tw": "記錄心得的紙"
+                    }
+                }
+            ],
+            "order": 201050017
+        },
+        "paper_map02_15018": {
+            "id": "paper_map02_15018",
+            "names": {
+                "zh_cn": "安德烈的研究笔记",
+                "zh_tw": "安德烈的研究筆記"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_15018_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "安德烈的研究笔记",
+                        "zh_tw": "安德烈的研究筆記"
+                    }
+                }
+            ],
+            "order": 201050018
+        },
+        "paper_map02_15021": {
+            "id": "paper_map02_15021",
+            "names": {
+                "zh_cn": "经过提弗洛斯翻译的手稿",
+                "zh_tw": "經過提弗洛斯翻譯的手稿"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_15021_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "经过提弗洛斯翻译的手稿",
+                        "zh_tw": "經過提弗洛斯翻譯的手稿"
+                    }
+                }
+            ],
+            "order": 201050021
+        },
+        "paper_map02_15022": {
+            "id": "paper_map02_15022",
+            "names": {
+                "zh_cn": "最后的笔记",
+                "zh_tw": "最後的筆記"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_15022_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "最后的笔记",
+                        "zh_tw": "最後的筆記"
+                    }
+                }
+            ],
+            "order": 201050022
+        },
+        "paper_map02_15023": {
+            "id": "paper_map02_15023",
+            "names": {
+                "zh_cn": "最后的日志",
+                "zh_tw": "最後的日誌"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_15023_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "最后的日志",
+                        "zh_tw": "最後的日誌"
+                    }
+                }
+            ],
+            "order": 201050023
+        },
+        "paper_map02_15024": {
+            "id": "paper_map02_15024",
+            "names": {
+                "zh_cn": "另一份经过提弗洛斯翻译的手稿",
+                "zh_tw": "另一份經過提弗洛斯翻譯的手稿"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_15024_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "另一份经过提弗洛斯翻译的手稿",
+                        "zh_tw": "另一份經過提弗洛斯翻譯的手稿"
+                    }
+                }
+            ],
+            "order": 201050024
+        },
+        "paper_map02_15025": {
+            "id": "paper_map02_15025",
+            "names": {
+                "zh_cn": "字迹潦草的纸条",
+                "zh_tw": "字跡潦草的紙條"
+            },
+            "page": "text",
+            "fileCategory": "paper",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_paper_map02_15025_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "字迹潦草的纸条",
+                        "zh_tw": "字跡潦草的紙條"
+                    }
+                }
+            ],
+            "order": 201050025
+        },
         "digital_sm1l1m4_1": {
             "id": "digital_sm1l1m4_1",
             "names": {
@@ -6778,52 +7379,6 @@
             ],
             "order": 31
         },
-        "digital_sm1l1m4_hatman_2": {
-            "id": "digital_sm1l1m4_hatman_2",
-            "names": {
-                "zh_cn": "哈特曼记录-其一",
-                "zh_tw": "哈特曼紀錄·其一"
-            },
-            "page": "text",
-            "fileCategory": "digital",
-            "tagIds": [
-                "text"
-            ],
-            "pages": [
-                {
-                    "id": "nar_sm1l1m4_hatman_2",
-                    "order": 1,
-                    "names": {
-                        "zh_cn": "哈特曼记录·其一",
-                        "zh_tw": "哈特曼紀錄·其一"
-                    }
-                }
-            ],
-            "order": 32
-        },
-        "digital_sm1l1m4_hatman_3": {
-            "id": "digital_sm1l1m4_hatman_3",
-            "names": {
-                "zh_cn": "哈特曼记录-其一",
-                "zh_tw": "哈特曼紀錄·其一"
-            },
-            "page": "text",
-            "fileCategory": "digital",
-            "tagIds": [
-                "text"
-            ],
-            "pages": [
-                {
-                    "id": "nar_sm1l1m4_hatman_3",
-                    "order": 1,
-                    "names": {
-                        "zh_cn": "哈特曼记录·其一",
-                        "zh_tw": "哈特曼紀錄·其一"
-                    }
-                }
-            ],
-            "order": 33
-        },
         "digital_sm1l1m5_hatman_1": {
             "id": "digital_sm1l1m5_hatman_1",
             "names": {
@@ -6846,52 +7401,6 @@
                 }
             ],
             "order": 34
-        },
-        "digital_sm1l1m5_hatman_2": {
-            "id": "digital_sm1l1m5_hatman_2",
-            "names": {
-                "zh_cn": "哈特曼记录-其二",
-                "zh_tw": "哈特曼紀錄·其二"
-            },
-            "page": "text",
-            "fileCategory": "digital",
-            "tagIds": [
-                "text"
-            ],
-            "pages": [
-                {
-                    "id": "nar_sm1l1m5_hatman_2",
-                    "order": 1,
-                    "names": {
-                        "zh_cn": "哈特曼记录·其二",
-                        "zh_tw": "哈特曼紀錄·其二"
-                    }
-                }
-            ],
-            "order": 35
-        },
-        "digital_sm1l1m5_hatman_3": {
-            "id": "digital_sm1l1m5_hatman_3",
-            "names": {
-                "zh_cn": "哈特曼记录-其二",
-                "zh_tw": "哈特曼紀錄·其二"
-            },
-            "page": "text",
-            "fileCategory": "digital",
-            "tagIds": [
-                "text"
-            ],
-            "pages": [
-                {
-                    "id": "nar_sm1l1m5_hatman_3",
-                    "order": 1,
-                    "names": {
-                        "zh_cn": "哈特曼记录·其二",
-                        "zh_tw": "哈特曼紀錄·其二"
-                    }
-                }
-            ],
-            "order": 36
         },
         "digital_sm1l1m5_Alexander_1": {
             "id": "digital_sm1l1m5_Alexander_1",
@@ -6916,52 +7425,6 @@
             ],
             "order": 37
         },
-        "digital_sm1l1m5_Alexander_2": {
-            "id": "digital_sm1l1m5_Alexander_2",
-            "names": {
-                "zh_cn": "亚历山大记录-其一",
-                "zh_tw": "亞歷山大紀錄·其一"
-            },
-            "page": "text",
-            "fileCategory": "digital",
-            "tagIds": [
-                "text"
-            ],
-            "pages": [
-                {
-                    "id": "nar_sm1l1m5_Alexander_2",
-                    "order": 1,
-                    "names": {
-                        "zh_cn": "亚历山大记录·其一",
-                        "zh_tw": "亞歷山大紀錄·其一"
-                    }
-                }
-            ],
-            "order": 38
-        },
-        "digital_sm1l1m5_Alexander_3": {
-            "id": "digital_sm1l1m5_Alexander_3",
-            "names": {
-                "zh_cn": "亚历山大记录-其一",
-                "zh_tw": "亞歷山大紀錄·其一"
-            },
-            "page": "text",
-            "fileCategory": "digital",
-            "tagIds": [
-                "text"
-            ],
-            "pages": [
-                {
-                    "id": "nar_sm1l1m5_Alexander_3",
-                    "order": 1,
-                    "names": {
-                        "zh_cn": "亚历山大记录·其一",
-                        "zh_tw": "亞歷山大紀錄·其一"
-                    }
-                }
-            ],
-            "order": 39
-        },
         "digital_sm1l1m5_Hans_1": {
             "id": "digital_sm1l1m5_Hans_1",
             "names": {
@@ -6984,52 +7447,6 @@
                 }
             ],
             "order": 40
-        },
-        "digital_sm1l1m5_Hans_2": {
-            "id": "digital_sm1l1m5_Hans_2",
-            "names": {
-                "zh_cn": "老汉斯记录-其一",
-                "zh_tw": "老漢斯紀錄·其一"
-            },
-            "page": "text",
-            "fileCategory": "digital",
-            "tagIds": [
-                "text"
-            ],
-            "pages": [
-                {
-                    "id": "nar_sm1l1m5_Hans_2",
-                    "order": 1,
-                    "names": {
-                        "zh_cn": "老汉斯记录·其一",
-                        "zh_tw": "老漢斯紀錄·其一"
-                    }
-                }
-            ],
-            "order": 41
-        },
-        "digital_sm1l1m5_Hans_3": {
-            "id": "digital_sm1l1m5_Hans_3",
-            "names": {
-                "zh_cn": "老汉斯记录-其一",
-                "zh_tw": "老漢斯紀錄·其一"
-            },
-            "page": "text",
-            "fileCategory": "digital",
-            "tagIds": [
-                "text"
-            ],
-            "pages": [
-                {
-                    "id": "nar_sm1l1m5_Hans_3",
-                    "order": 1,
-                    "names": {
-                        "zh_cn": "老汉斯记录·其一",
-                        "zh_tw": "老漢斯紀錄·其一"
-                    }
-                }
-            ],
-            "order": 42
         },
         "digital_sm1l1m6_Hans_doc": {
             "id": "digital_sm1l1m6_Hans_doc",
@@ -8645,6 +9062,29 @@
             ],
             "order": 201040021
         },
+        "digital_map02_15019": {
+            "id": "digital_map02_15019",
+            "names": {
+                "zh_cn": "一份计划书",
+                "zh_tw": "一份計劃書"
+            },
+            "page": "text",
+            "fileCategory": "digital",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_digital_map02_15019_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "一份计划书",
+                        "zh_tw": "一份計劃書"
+                    }
+                }
+            ],
+            "order": 201050019
+        },
         "collection_gm01m17": {
             "id": "collection_gm01m17",
             "names": {
@@ -8783,20 +9223,6 @@
             ],
             "order": 28
         },
-        "collection_1": {
-            "id": "collection_1",
-            "names": {
-                "zh_cn": "高威力爆炸物套组兑换券",
-                "zh_tw": "高威力爆炸物組合兌換券"
-            },
-            "page": "text",
-            "fileCategory": "collection",
-            "tagIds": [
-                "text"
-            ],
-            "pages": [],
-            "order": 94
-        },
         "collection_c13m3_2": {
             "id": "collection_c13m3_2",
             "names": {
@@ -8842,20 +9268,6 @@
                 }
             ],
             "order": 115
-        },
-        "collection_sm1l5m4_1": {
-            "id": "collection_sm1l5m4_1",
-            "names": {
-                "zh_cn": "桂花糕",
-                "zh_tw": "桂花糕"
-            },
-            "page": "text",
-            "fileCategory": "collection",
-            "tagIds": [
-                "text"
-            ],
-            "pages": [],
-            "order": 116
         },
         "collection_f1m4d3_1": {
             "id": "collection_f1m4d3_1",
@@ -9224,6 +9636,29 @@
                 }
             ],
             "order": 201030007
+        },
+        "collection_map02_15020": {
+            "id": "collection_map02_15020",
+            "names": {
+                "zh_cn": "绘在墙壁上的林地地图",
+                "zh_tw": "繪在牆壁上的林地地圖"
+            },
+            "page": "text",
+            "fileCategory": "collection",
+            "tagIds": [
+                "text"
+            ],
+            "pages": [
+                {
+                    "id": "nar_collection_map02_15020_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "绘在墙壁上的林地地图",
+                        "zh_tw": "繪在牆壁上的林地地圖"
+                    }
+                }
+            ],
+            "order": 201050020
         },
         "document_v0d8_1": {
             "id": "document_v0d8_1",
@@ -10513,6 +10948,75 @@
             ],
             "order": 1040004
         },
+        "document_v1d5_1": {
+            "id": "document_v1d5_1",
+            "names": {
+                "zh_cn": "萨米维格",
+                "zh_tw": "薩米維格"
+            },
+            "page": "document",
+            "fileCategory": "document",
+            "tagIds": [
+                "document"
+            ],
+            "pages": [
+                {
+                    "id": "nar_document_v1d5_1_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "萨米维格",
+                        "zh_tw": "薩米維格"
+                    }
+                }
+            ],
+            "order": 1050001
+        },
+        "document_v1d5_2": {
+            "id": "document_v1d5_2",
+            "names": {
+                "zh_cn": "巨兽",
+                "zh_tw": "巨獸"
+            },
+            "page": "document",
+            "fileCategory": "document",
+            "tagIds": [
+                "document"
+            ],
+            "pages": [
+                {
+                    "id": "nar_document_v1d5_2_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "巨兽",
+                        "zh_tw": "巨獸"
+                    }
+                }
+            ],
+            "order": 1050002
+        },
+        "document_v1d5_3": {
+            "id": "document_v1d5_3",
+            "names": {
+                "zh_cn": "兽主",
+                "zh_tw": "獸主"
+            },
+            "page": "document",
+            "fileCategory": "document",
+            "tagIds": [
+                "document"
+            ],
+            "pages": [
+                {
+                    "id": "nar_document_v1d5_3_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "兽主",
+                        "zh_tw": "獸主"
+                    }
+                }
+            ],
+            "order": 1050003
+        },
         "report_map01_research1_17": {
             "id": "report_map01_research1_17",
             "names": {
@@ -10857,6 +11361,29 @@
                 }
             ],
             "order": 201043201
+        },
+        "report_map02_research13_1": {
+            "id": "report_map02_research13_1",
+            "names": {
+                "zh_cn": "有关雪松林运作模式的调查报告",
+                "zh_tw": "有關雪松林運作模式的調查報告"
+            },
+            "page": "document",
+            "fileCategory": "report",
+            "tagIds": [
+                "document"
+            ],
+            "pages": [
+                {
+                    "id": "nar_report_map02_research13_1_1",
+                    "order": 1,
+                    "names": {
+                        "zh_cn": "有关雪松林运作模式的调查报告",
+                        "zh_tw": "有關雪松林運作模式的調查報告"
+                    }
+                }
+            ],
+            "order": 201053401
         }
     }
 }
