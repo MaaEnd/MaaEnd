@@ -96,11 +96,6 @@ func MarkSynced(at time.Time, items map[string]int) {
 	globalCache.markSynced(at, items)
 }
 
-// ItemsSnapshot returns a copy of cached item quantities.
-func ItemsSnapshot() map[string]int {
-	return globalCache.itemsCopy()
-}
-
 // ClearCache clears IMS cache state (tests / account switch).
 // Marks hydrate complete so the empty state is intentional and disk is not reloaded.
 func ClearCache() {

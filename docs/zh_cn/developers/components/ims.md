@@ -1,6 +1,6 @@
 # IMS（物品管理系统）
 
-IMS（Item Management System）在 go-service 进程内维护培养道具的数量缓存，供任务做「够不够」「要不要刷」等判断。流程编排仍由 Pipeline 负责；IMS 只提供识别与动作。
+IMS（Item Management System）在 go-service 进程内维护培养道具的数量缓存，供任务做「够不够」「要不要刷」等判断。流程编排仍由 Pipeline 负责；IMS 提供识别、动作，以及其他 go-service 包可读的数量 API。
 
 整套能力一共 **2 个识别器 + 3 个动作**：
 
@@ -263,6 +263,34 @@ A2 落盘时会写下 `updated_at`。R2 用「现在 − 同步时间」是否�
 
 ---
 
+## Go 包 API
+
+其他 go-service 包可以直接读进程内缓存，不必再包一层 Pipeline 识别器。**扫库仍由 A2 负责**；本接口只读数量。
+
+```go
+if err := ims.EnsureHydrated(); err != nil {
+    return err
+}
+if !ims.HasData() {
+    // 还没有成功做过 A2
+}
+n := ims.ItemQuantity("item_diamond") // 缺失为 0
+all := ims.ItemsSnapshot()
+```
+
+| 函数 | 说明 |
+| --- | --- |
+| `ims.EnsureHydrated()` | 进程内最多从 `IMS.json` 灌一次；之后热路径只读内存。Pipeline 已跑过 IMS 时可省略 |
+| `ims.ItemQuantity(id)` | 单物品数量；缺失为 `0`；首次访问会 hydrate |
+| `ims.HasData()` | 是否有过成功 A2。用来区分「从没同步」和「同步了但该物品是 0」 |
+| `ims.ItemsSnapshot()` | 整表 `map[string]int` 副本；首次访问会 hydrate |
+| `ims.MarkSynced(at, items)` | 测试里灌一份已同步缓存 |
+| `ims.ClearCache()` | 清空内存（测试 / 切号），且**不会**再从磁盘灌回 |
+
+过期 / `refresh_days` 仍由 Pipeline R2 `ItemDataReady` 判断，Go API 不实现 TTL。
+
+---
+
 ## 推荐用法（怎么串起来）
 
 ```text
@@ -273,6 +301,7 @@ A2 落盘时会写下 `updated_at`。R2 用「现在 − 同步时间」是否�
             ├─ R1 ItemQuantitySatisfied  （够不够）
             ├─ A1 UpdateItemQuantity     （已知消耗/获得时微调）
             └─ A3 AddItemData            （领奖界面累加 / 播报）
+       或 Go 包：ims.ItemQuantity / ims.HasData
 ```
 
 需要「就绪且数量满足」时：
@@ -317,14 +346,6 @@ A2 落盘时会写下 `updated_at`。R2 用「现在 − 同步时间」是否�
 - A2 / A1 / A3（在 `hasData` 时）成功写入会同步落盘，供下次冷启动恢复。
 - `ClearCache`（测试 / 账号切换）清空内存，且**不会**再从磁盘灌回。
 - 缓存允许小幅偏差，靠周期 A2 纠偏。
-
-### Go 辅助 API（测试）
-
-| 函数 | 说明 |
-| --- | --- |
-| `ims.MarkSynced(at, items)` | 标记一次成功同步 |
-| `ims.ClearCache()` | 清空缓存（不从磁盘重载） |
-| `ims.ItemsSnapshot()` | 返回缓存物品数量副本 |
 
 ### 落盘格式示例
 

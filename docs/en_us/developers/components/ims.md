@@ -1,6 +1,6 @@
 # IMS (Item Management System)
 
-IMS keeps an in-process cache of cultivation-item counts so tasks can answer “is it enough?” and “should we farm?”. Pipeline still owns flow control; IMS only provides recognitions and actions.
+IMS keeps an in-process cache of cultivation-item counts so tasks can answer “is it enough?” and “should we farm?”. Pipeline still owns flow control; IMS provides recognitions, actions, and a package API so other go-service code can read cached quantities.
 
 There are **2 recognitions + 3 actions**:
 
@@ -177,6 +177,34 @@ Prints `Current T-Creds: 40` (`ims.item_current`), always returns a recognition 
 ## R2: `ItemDataReady`
 
 Ready when (1) at least one successful A2 exists (`hasData=true`) and (2) `updated_at` is within `refresh_days` (default `7`; `0` means never expire by age).
+
+---
+
+## Go package API
+
+Other go-service packages can read the in-process cache directly. **Scanning is still A2**; this API only returns counts.
+
+```go
+if err := ims.EnsureHydrated(); err != nil {
+    return err
+}
+if !ims.HasData() {
+    // no successful A2 yet
+}
+n := ims.ItemQuantity("item_diamond") // missing IDs are 0
+all := ims.ItemsSnapshot()
+```
+
+| Function | Notes |
+| --- | --- |
+| `ims.EnsureHydrated()` | Loads `IMS.json` at most once per process; later reads stay in memory. Optional if Pipeline already ran an IMS component |
+| `ims.ItemQuantity(id)` | One item count; missing IDs are `0`; hydrates on first access |
+| `ims.HasData()` | Whether a successful A2 has been recorded. Distinguishes “never synced” from “synced but this item is 0” |
+| `ims.ItemsSnapshot()` | Copy of the full `map[string]int`; hydrates on first access |
+| `ims.MarkSynced(at, items)` | Test helper: seed a synced cache |
+| `ims.ClearCache()` | Clears memory (tests / account switch) and does **not** reload disk |
+
+TTL / `refresh_days` stay on Pipeline R2 `ItemDataReady`. This API does not implement expiry.
 
 ---
 
