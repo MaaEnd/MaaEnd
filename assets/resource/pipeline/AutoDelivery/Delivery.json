@@ -319,6 +319,7 @@
             "AutoDeliveryInChatDialog",
             "AutoDeliveryCheckSkipChatButton"
         ],
+        "box_index": 1,
         "pre_wait_freezes": 200,
         "pre_delay": 0,
         "post_delay": 0,
@@ -336,7 +337,8 @@
         ],
         "box_index": 1,
         "pre_delay": 0,
-        "action": "Click",
+        "action": "Custom",
+        "custom_action": "AutoAltClickAction",
         "post_wait_freezes": {
             "target": [
                 520,
