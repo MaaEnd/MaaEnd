@@ -1,0 +1,54 @@
+{
+    "configs": {
+        "name": "登录界面服务器维护识别",
+        "resource": "官服",
+        "controller": "Win32"
+    },
+    "cases": [
+        {
+            "name": "简体中文",
+            "image": "登录界面_服务器维护_简体中文.png",
+            "hits": [
+                "__ScenePrivateLoginMaintenanceText",
+                "__ScenePrivateLoginMaintenance",
+                "__ScenePrivateLoginMaintenanceRetry"
+            ]
+        },
+        {
+            "name": "繁体中文",
+            "image": "登录界面_服务器维护_繁体中文.png",
+            "hits": [
+                "__ScenePrivateLoginMaintenanceText",
+                "__ScenePrivateLoginMaintenance",
+                "__ScenePrivateLoginMaintenanceRetry"
+            ]
+        },
+        {
+            "name": "英文",
+            "image": "登录界面_服务器维护_英文.png",
+            "hits": [
+                "__ScenePrivateLoginMaintenanceText",
+                "__ScenePrivateLoginMaintenance",
+                "__ScenePrivateLoginMaintenanceRetry"
+            ]
+        },
+        {
+            "name": "日文",
+            "image": "登录界面_服务器维护_日文.png",
+            "hits": [
+                "__ScenePrivateLoginMaintenanceText",
+                "__ScenePrivateLoginMaintenance",
+                "__ScenePrivateLoginMaintenanceRetry"
+            ]
+        },
+        {
+            "name": "韩文",
+            "image": "登录界面_服务器维护_韩文.png",
+            "hits": [
+                "__ScenePrivateLoginMaintenanceText",
+                "__ScenePrivateLoginMaintenance",
+                "__ScenePrivateLoginMaintenanceRetry"
+            ]
+        }
+    ]
+}
