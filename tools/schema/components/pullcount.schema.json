@@ -1,0 +1,45 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://github.com/MaaEnd/MaaEnd/tools/schema/components/pullcount.schema.json",
+    "title": "PullCount Calculator Schema",
+    "description": "Parameter definitions for PullCountCalculatorAction.",
+    "$defs": {
+        "PullCountCalculatorActionParam": {
+            "type": "object",
+            "title": "PullCountCalculatorAction Param",
+            "description": "Pipeline stages for pull-count: init session, record And-recognizer quantities (box_index → OCR digit), then finish and calculate. item_originium_recharge is the raw 衍质源石 count.",
+            "additionalProperties": false,
+            "required": [
+                "stage"
+            ],
+            "properties": {
+                "stage": {
+                    "title": "Stage",
+                    "description": "init: start session. record: run items nodes and store quantities. finish: calculate current / next-pool pulls (session first, IMS fallback).",
+                    "type": "string",
+                    "enum": [
+                        "init",
+                        "record",
+                        "finish"
+                    ]
+                },
+                "items": {
+                    "title": "Items",
+                    "description": "Required for record. Map of catalog / IMS item ID → Pipeline And recognition node name. Keys such as item_diamond, item_originium_recharge, item_ticketgacha_special_single.",
+                    "type": "object",
+                    "minProperties": 1,
+                    "additionalProperties": {
+                        "type": "string",
+                        "minLength": 1
+                    }
+                },
+                "optional": {
+                    "title": "Optional",
+                    "description": "When true, a recognizer miss stores 0 instead of failing. Use for 珍贵物品 vouchers. Default false (currencies must hit).",
+                    "type": "boolean",
+                    "default": false
+                }
+            }
+        }
+    }
+}

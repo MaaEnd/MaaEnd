@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/ims"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/iconqty"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
-
-// --- Session State --- //
 
 var (
 	sessionMu      sync.Mutex
@@ -18,35 +18,21 @@ var (
 )
 
 type runSession struct {
-	Values      resourceValues
-	Vouchers    voucherSummary
-	VoucherHits map[string]struct{}
-
-	HasConvertedOriginium bool
-	HasOroberyl           bool
+	Items map[string]int
 }
 
-type voucherSummary struct {
-	CarryToNextPulls int
-}
-
-// --- Resource And Finish Stages --- //
-
-// handleInit starts a fresh scan session.
 func handleInit(ctx *maa.Context) bool {
 	currentSession = newRunSession()
 	log.Info().Str("component", componentName).Msg("pull count session initialized")
 	return true
 }
 
-// newRunSession builds the mutable state used by Pipeline stages.
 func newRunSession() *runSession {
 	return &runSession{
-		VoucherHits: make(map[string]struct{}),
+		Items: make(map[string]int),
 	}
 }
 
-// requireSession returns the active run session or reports a user-facing error.
 func requireSession(ctx *maa.Context) (*runSession, bool) {
 	if currentSession != nil {
 		return currentSession, true
@@ -56,38 +42,83 @@ func requireSession(ctx *maa.Context) (*runSession, bool) {
 	return nil, false
 }
 
-// handleRecordResource stores one resource counter from the current Pipeline OCR result.
-func handleRecordResource(ctx *maa.Context, arg *maa.CustomActionArg, convertedOriginium bool) bool {
+func (s *runSession) quantity(itemID string) int {
+	if s != nil {
+		if qty, ok := s.Items[itemID]; ok {
+			return qty
+		}
+	}
+	return ims.ItemQuantity(itemID)
+}
+
+func (s *runSession) hasRecorded(itemID string) bool {
+	if s == nil {
+		return false
+	}
+	_, ok := s.Items[itemID]
+	return ok
+}
+
+// handleRecord runs each items node (And + box_index → OCR digit) and stores quantities.
+func handleRecord(ctx *maa.Context, params actionParam) bool {
 	session, ok := requireSession(ctx)
 	if !ok {
 		return false
 	}
 
-	value, err := readIntegerFromRecognition(arg.RecognitionDetail)
-	label := i18n.T("pullcount.resource.oroberyl")
-	if convertedOriginium {
-		label = i18n.T("pullcount.resource.originium")
-	}
+	img, err := cacheScreenImage(ctx)
 	if err != nil {
-		log.Warn().Err(err).Str("component", componentName).Str("resource", label).Msg("failed to read resource OCR")
-		maafocus.Print(ctx, i18n.T("pullcount.error.recognition_failed", fmt.Sprintf("%s: %s", label, err.Error())))
+		log.Error().
+			Err(err).
+			Str("component", componentName).
+			Msg("failed to cache screen image")
+		maafocus.Print(ctx, i18n.T("pullcount.error.recognition_failed", err.Error()))
 		return false
 	}
 
-	if convertedOriginium {
-		session.Values.ConvertedOriginiumOroberyl = value
-		session.HasConvertedOriginium = true
-	} else {
-		session.Values.Oroberyl = value
-		session.HasOroberyl = true
+	for _, itemID := range sortedItemIDs(params.Items) {
+		node := params.Items[itemID]
+		displayName := iconqty.ItemDisplayName(itemID)
+		qty, hit, err := readQuantityFromNode(ctx, img, node)
+		if err != nil {
+			log.Warn().
+				Err(err).
+				Str("component", componentName).
+				Str("item_id", itemID).
+				Str("node", node).
+				Msg("failed to read quantity")
+			maafocus.Print(ctx, i18n.T("pullcount.error.recognition_failed", fmt.Sprintf("%s: %s", displayName, err.Error())))
+			return false
+		}
+		if !hit {
+			if !params.Optional {
+				log.Warn().
+					Str("component", componentName).
+					Str("item_id", itemID).
+					Str("node", node).
+					Msg("required recognizer not hit")
+				maafocus.Print(ctx, i18n.T("pullcount.error.recognition_failed", displayName))
+				return false
+			}
+			qty = 0
+		}
+		session.Items[itemID] = qty
+		log.Info().
+			Str("component", componentName).
+			Str("item_id", itemID).
+			Str("item_name", displayName).
+			Str("node", node).
+			Int("quantity", qty).
+			Bool("hit", hit).
+			Bool("optional", params.Optional).
+			Msg("item quantity recorded")
+		if hit {
+			maafocus.Print(ctx, i18n.T("pullcount.resource_read_success", displayName, qty))
+		}
 	}
-
-	log.Info().Str("component", componentName).Str("resource", label).Int("value", value).Msg("resource recorded")
-	maafocus.Print(ctx, i18n.T("pullcount.resource_read_success", label, value))
 	return true
 }
 
-// handleFinish summarizes the session and prints the user-visible pull count result.
 func handleFinish(ctx *maa.Context) bool {
 	session, ok := requireSession(ctx)
 	if !ok {
@@ -97,52 +128,46 @@ func handleFinish(ctx *maa.Context) bool {
 		currentSession = nil
 	}()
 
-	if !session.HasConvertedOriginium || !session.HasOroberyl {
-		err := fmt.Errorf("resource OCR values are incomplete")
-		log.Warn().Err(err).Str("component", componentName).Msg("cannot finish pull count")
+	if err := ims.EnsureHydrated(); err != nil {
+		log.Error().
+			Err(err).
+			Str("component", componentName).
+			Msg("failed to hydrate ims cache")
 		maafocus.Print(ctx, i18n.T("pullcount.error.recognition_failed", err.Error()))
 		return false
 	}
 
-	result := calculatePullCount(session.Values, session.Vouchers)
-	maafocus.Print(ctx, formatResultFocus(session.Values, result))
-	logCalculation(session, result)
-	return true
-}
-
-// --- Warehouse Scan Stages --- //
-
-// handleRecordVoucher stores one Pipeline-classified voucher for the selected template hit.
-func handleRecordVoucher(ctx *maa.Context, arg *maa.CustomActionArg) bool {
-	session, ok := requireSession(ctx)
-	if !ok {
+	hasDiamond := session.hasRecorded(itemDiamond) || ims.HasData()
+	hasOriginium := session.hasRecorded(itemOriginium) || ims.HasData()
+	if !hasDiamond || !hasOriginium {
+		err := fmt.Errorf("resource quantities are incomplete")
+		log.Warn().
+			Err(err).
+			Str("component", componentName).
+			Bool("has_diamond", hasDiamond).
+			Bool("has_originium", hasOriginium).
+			Msg("cannot finish pull count")
+		maafocus.Print(ctx, i18n.T("pullcount.error.recognition_failed", err.Error()))
 		return false
 	}
 
-	added := recordCarryToNextVoucher(session, voucherKey(arg))
-	log.Info().
-		Str("component", componentName).
-		Bool("added", added).
-		Int("carry_to_next_pulls", session.Vouchers.CarryToNextPulls).
-		Msg("warehouse voucher recorded")
+	values := resourceValues{
+		Originium: session.quantity(itemOriginium),
+		Oroberyl:  session.quantity(itemDiamond),
+	}
+	summary := voucherSummary{
+		CarryToNextPulls: sumVoucherPulls(session.quantity),
+	}
+	result := calculatePullCount(values, summary)
+	maafocus.Print(ctx, formatResultFocus(values, result))
+	logCalculation(session, values, summary, result)
 	return true
 }
 
-// voucherKey builds a stable duplicate key from the template hit box passed by Pipeline.
-func voucherKey(arg *maa.CustomActionArg) string {
-	if arg == nil {
-		return "carry_to_next"
+func sumVoucherPulls(quantity func(string) int) int {
+	total := 0
+	for itemID, pulls := range voucherPulls {
+		total += quantity(itemID) * pulls
 	}
-	box := arg.Box
-	return fmt.Sprintf("%d:%d:%d:%d", box.X(), box.Y(), box.Width(), box.Height())
-}
-
-// recordCarryToNextVoucher adds one confirmed carry-over voucher unless the hit box was already counted.
-func recordCarryToNextVoucher(session *runSession, key string) bool {
-	if _, exists := session.VoucherHits[key]; exists {
-		return false
-	}
-	session.VoucherHits[key] = struct{}{}
-	session.Vouchers.CarryToNextPulls++
-	return true
+	return total
 }

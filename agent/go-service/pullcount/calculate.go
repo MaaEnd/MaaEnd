@@ -5,31 +5,40 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// --- Calculation And Display --- //
-
 type resourceValues struct {
-	ConvertedOriginiumOroberyl int
-	Oroberyl                   int
+	Originium int
+	Oroberyl  int
+}
+
+type voucherSummary struct {
+	CarryToNextPulls int
 }
 
 type calculationResult struct {
-	ReservedOriginium         int
-	ReservedOriginiumOroberyl int
-	UsableOriginiumOroberyl   int
-	OroberylPulls             int
-	UsableOriginiumPulls      int
-	ResourcePulls             int
-	CarryToNextPulls          int
-	NextPoolShopPulls         int
-	NextPoolSigninPulls       int
-	CurrentPoolTotal          int
-	NextPoolTotal             int
+	ReservedOriginium          int
+	ReservedOriginiumOroberyl  int
+	ConvertedOriginiumOroberyl int
+	UsableOriginiumOroberyl    int
+	OroberylPulls              int
+	UsableOriginiumPulls       int
+	ResourcePulls              int
+	CarryToNextPulls           int
+	NextPoolShopPulls          int
+	NextPoolSigninPulls        int
+	CurrentPoolTotal           int
+	NextPoolTotal              int
 }
 
-// calculatePullCount converts resources and classified vouchers into current and next-pool totals.
+func (v resourceValues) convertedOriginiumOroberyl() int {
+	return v.Originium * originiumToOroberyl
+}
+
+// calculatePullCount converts raw originium, oroberyl, and classified vouchers
+// into current and next-pool totals. Originium is the raw 衍质源石 count.
 func calculatePullCount(values resourceValues, summary voucherSummary) calculationResult {
+	converted := values.convertedOriginiumOroberyl()
 	reservedOriginiumOroberyl := reservedOriginium * originiumToOroberyl
-	usableOriginiumOroberyl := values.ConvertedOriginiumOroberyl - reservedOriginiumOroberyl
+	usableOriginiumOroberyl := converted - reservedOriginiumOroberyl
 	if usableOriginiumOroberyl < 0 {
 		usableOriginiumOroberyl = 0
 	}
@@ -41,28 +50,28 @@ func calculatePullCount(values resourceValues, summary voucherSummary) calculati
 	nextPoolTotal := resourcePulls + summary.CarryToNextPulls + nextPoolShopPulls + nextPoolSigninPulls
 
 	return calculationResult{
-		ReservedOriginium:         reservedOriginium,
-		ReservedOriginiumOroberyl: reservedOriginiumOroberyl,
-		UsableOriginiumOroberyl:   usableOriginiumOroberyl,
-		OroberylPulls:             oroberylPulls,
-		UsableOriginiumPulls:      usableOriginiumPulls,
-		ResourcePulls:             resourcePulls,
-		CarryToNextPulls:          summary.CarryToNextPulls,
-		NextPoolShopPulls:         nextPoolShopPulls,
-		NextPoolSigninPulls:       nextPoolSigninPulls,
-		CurrentPoolTotal:          currentPoolTotal,
-		NextPoolTotal:             nextPoolTotal,
+		ReservedOriginium:          reservedOriginium,
+		ReservedOriginiumOroberyl:  reservedOriginiumOroberyl,
+		ConvertedOriginiumOroberyl: converted,
+		UsableOriginiumOroberyl:    usableOriginiumOroberyl,
+		OroberylPulls:              oroberylPulls,
+		UsableOriginiumPulls:       usableOriginiumPulls,
+		ResourcePulls:              resourcePulls,
+		CarryToNextPulls:           summary.CarryToNextPulls,
+		NextPoolShopPulls:          nextPoolShopPulls,
+		NextPoolSigninPulls:        nextPoolSigninPulls,
+		CurrentPoolTotal:           currentPoolTotal,
+		NextPoolTotal:              nextPoolTotal,
 	}
 }
 
-// formatResultFocus builds the user-visible calculation summary.
 func formatResultFocus(values resourceValues, result calculationResult) string {
 	return i18n.T(
 		"pullcount.result",
 		result.ResourcePulls,
 		values.Oroberyl,
 		result.OroberylPulls,
-		values.ConvertedOriginiumOroberyl,
+		result.ConvertedOriginiumOroberyl,
 		result.ReservedOriginium,
 		result.ReservedOriginiumOroberyl,
 		result.UsableOriginiumOroberyl,
@@ -75,13 +84,12 @@ func formatResultFocus(values resourceValues, result calculationResult) string {
 	)
 }
 
-// logCalculation writes structured details for troubleshooting pull-count results.
-func logCalculation(session *runSession, result calculationResult) {
+func logCalculation(session *runSession, values resourceValues, summary voucherSummary, result calculationResult) {
 	log.Info().
 		Str("component", componentName).
-		Interface("values", session.Values).
-		Interface("summary", session.Vouchers).
+		Interface("items", session.Items).
+		Interface("values", values).
+		Interface("summary", summary).
 		Interface("result", result).
-		Int("recorded_voucher_hits", len(session.VoucherHits)).
 		Msg("pull count calculated")
 }

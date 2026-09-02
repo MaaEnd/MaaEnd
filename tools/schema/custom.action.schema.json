@@ -152,6 +152,20 @@
 		{
 			"if": {
 				"properties": {
+					"custom_action": { "const": "PullCountCalculatorAction" }
+				},
+				"required": [ "custom_action" ]
+			},
+			"then": {
+				"properties": {
+					"custom_action_param": { "$ref": "./components/pullcount.schema.json#/$defs/PullCountCalculatorActionParam" }
+				},
+				"required": [ "custom_action_param" ]
+			}
+		},
+		{
+			"if": {
+				"properties": {
 					"custom_action": { "const": "FailureCollectorReset" }
 				},
 				"required": [ "custom_action" ]
