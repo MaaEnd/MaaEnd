@@ -1381,6 +1381,34 @@
                     "label": "$task.SellProduct.ReserveNone"
                 },
                 {
+                    "name": "重息壤龙泡泡",
+                    "label": "$item.ActivityXiraniteEnrLung",
+                    "option": [
+                        "SellProductReserveItem1Mode"
+                    ],
+                    "pipeline_override": {
+                        "SellProductRegisterReserveRule1": {
+                            "attach": {
+                                "item_id": "item_activity_xiranite_enr_lung"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "息壤龙泡泡",
+                    "label": "$item.ActivityXiraniteLung",
+                    "option": [
+                        "SellProductReserveItem1Mode"
+                    ],
+                    "pipeline_override": {
+                        "SellProductRegisterReserveRule1": {
+                            "attach": {
+                                "item_id": "item_activity_xiranite_lung"
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "灼铜零件",
                     "label": "$item.CopperEnr2Cmpt",
                     "option": [
@@ -1802,6 +1830,34 @@
                 {
                     "name": "None",
                     "label": "$task.SellProduct.ReserveNone"
+                },
+                {
+                    "name": "重息壤龙泡泡",
+                    "label": "$item.ActivityXiraniteEnrLung",
+                    "option": [
+                        "SellProductReserveItem2Mode"
+                    ],
+                    "pipeline_override": {
+                        "SellProductRegisterReserveRule2": {
+                            "attach": {
+                                "item_id": "item_activity_xiranite_enr_lung"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "息壤龙泡泡",
+                    "label": "$item.ActivityXiraniteLung",
+                    "option": [
+                        "SellProductReserveItem2Mode"
+                    ],
+                    "pipeline_override": {
+                        "SellProductRegisterReserveRule2": {
+                            "attach": {
+                                "item_id": "item_activity_xiranite_lung"
+                            }
+                        }
+                    }
                 },
                 {
                     "name": "灼铜零件",
@@ -2227,6 +2283,34 @@
                     "label": "$task.SellProduct.ReserveNone"
                 },
                 {
+                    "name": "重息壤龙泡泡",
+                    "label": "$item.ActivityXiraniteEnrLung",
+                    "option": [
+                        "SellProductReserveItem3Mode"
+                    ],
+                    "pipeline_override": {
+                        "SellProductRegisterReserveRule3": {
+                            "attach": {
+                                "item_id": "item_activity_xiranite_enr_lung"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "息壤龙泡泡",
+                    "label": "$item.ActivityXiraniteLung",
+                    "option": [
+                        "SellProductReserveItem3Mode"
+                    ],
+                    "pipeline_override": {
+                        "SellProductRegisterReserveRule3": {
+                            "attach": {
+                                "item_id": "item_activity_xiranite_lung"
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "灼铜零件",
                     "label": "$item.CopperEnr2Cmpt",
                     "option": [
@@ -2648,6 +2732,34 @@
                 {
                     "name": "None",
                     "label": "$task.SellProduct.ReserveNone"
+                },
+                {
+                    "name": "重息壤龙泡泡",
+                    "label": "$item.ActivityXiraniteEnrLung",
+                    "option": [
+                        "SellProductReserveItem4Mode"
+                    ],
+                    "pipeline_override": {
+                        "SellProductRegisterReserveRule4": {
+                            "attach": {
+                                "item_id": "item_activity_xiranite_enr_lung"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "息壤龙泡泡",
+                    "label": "$item.ActivityXiraniteLung",
+                    "option": [
+                        "SellProductReserveItem4Mode"
+                    ],
+                    "pipeline_override": {
+                        "SellProductRegisterReserveRule4": {
+                            "attach": {
+                                "item_id": "item_activity_xiranite_lung"
+                            }
+                        }
+                    }
                 },
                 {
                     "name": "灼铜零件",
@@ -3073,6 +3185,34 @@
                     "label": "$task.SellProduct.ReserveNone"
                 },
                 {
+                    "name": "重息壤龙泡泡",
+                    "label": "$item.ActivityXiraniteEnrLung",
+                    "option": [
+                        "SellProductReserveItem5Mode"
+                    ],
+                    "pipeline_override": {
+                        "SellProductRegisterReserveRule5": {
+                            "attach": {
+                                "item_id": "item_activity_xiranite_enr_lung"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "息壤龙泡泡",
+                    "label": "$item.ActivityXiraniteLung",
+                    "option": [
+                        "SellProductReserveItem5Mode"
+                    ],
+                    "pipeline_override": {
+                        "SellProductRegisterReserveRule5": {
+                            "attach": {
+                                "item_id": "item_activity_xiranite_lung"
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "灼铜零件",
                     "label": "$item.CopperEnr2Cmpt",
                     "option": [
@@ -3494,6 +3634,34 @@
                 {
                     "name": "None",
                     "label": "$task.SellProduct.ReserveNone"
+                },
+                {
+                    "name": "重息壤龙泡泡",
+                    "label": "$item.ActivityXiraniteEnrLung",
+                    "option": [
+                        "SellProductReserveItem6Mode"
+                    ],
+                    "pipeline_override": {
+                        "SellProductRegisterReserveRule6": {
+                            "attach": {
+                                "item_id": "item_activity_xiranite_enr_lung"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "息壤龙泡泡",
+                    "label": "$item.ActivityXiraniteLung",
+                    "option": [
+                        "SellProductReserveItem6Mode"
+                    ],
+                    "pipeline_override": {
+                        "SellProductRegisterReserveRule6": {
+                            "attach": {
+                                "item_id": "item_activity_xiranite_lung"
+                            }
+                        }
+                    }
                 },
                 {
                     "name": "灼铜零件",
@@ -4821,6 +4989,30 @@
                     "label": "$task.SellProduct.PriorityNone"
                 },
                 {
+                    "name": "重息壤龙泡泡",
+                    "label": "$item.ActivityXiraniteEnrLung",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem1": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_activity_xiranite_enr_lung"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "息壤龙泡泡",
+                    "label": "$item.ActivityXiraniteLung",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem1": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_activity_xiranite_lung"
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "灼铜零件",
                     "label": "$item.CopperEnr2Cmpt",
                     "pipeline_override": {
@@ -4974,6 +5166,30 @@
                 {
                     "name": "None",
                     "label": "$task.SellProduct.PriorityNone"
+                },
+                {
+                    "name": "重息壤龙泡泡",
+                    "label": "$item.ActivityXiraniteEnrLung",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem2": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_activity_xiranite_enr_lung"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "息壤龙泡泡",
+                    "label": "$item.ActivityXiraniteLung",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem2": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_activity_xiranite_lung"
+                            }
+                        }
+                    }
                 },
                 {
                     "name": "灼铜零件",
@@ -5131,6 +5347,30 @@
                     "label": "$task.SellProduct.PriorityNone"
                 },
                 {
+                    "name": "重息壤龙泡泡",
+                    "label": "$item.ActivityXiraniteEnrLung",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem3": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_activity_xiranite_enr_lung"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "息壤龙泡泡",
+                    "label": "$item.ActivityXiraniteLung",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem3": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_activity_xiranite_lung"
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "灼铜零件",
                     "label": "$item.CopperEnr2Cmpt",
                     "pipeline_override": {
@@ -5284,6 +5524,30 @@
                 {
                     "name": "None",
                     "label": "$task.SellProduct.PriorityNone"
+                },
+                {
+                    "name": "重息壤龙泡泡",
+                    "label": "$item.ActivityXiraniteEnrLung",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem4": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_activity_xiranite_enr_lung"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "息壤龙泡泡",
+                    "label": "$item.ActivityXiraniteLung",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem4": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_activity_xiranite_lung"
+                            }
+                        }
+                    }
                 },
                 {
                     "name": "灼铜零件",
@@ -5441,6 +5705,30 @@
                     "label": "$task.SellProduct.PriorityNone"
                 },
                 {
+                    "name": "重息壤龙泡泡",
+                    "label": "$item.ActivityXiraniteEnrLung",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem5": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_activity_xiranite_enr_lung"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "息壤龙泡泡",
+                    "label": "$item.ActivityXiraniteLung",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem5": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_activity_xiranite_lung"
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "灼铜零件",
                     "label": "$item.CopperEnr2Cmpt",
                     "pipeline_override": {
@@ -5594,6 +5882,30 @@
                 {
                     "name": "None",
                     "label": "$task.SellProduct.PriorityNone"
+                },
+                {
+                    "name": "重息壤龙泡泡",
+                    "label": "$item.ActivityXiraniteEnrLung",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem6": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_activity_xiranite_enr_lung"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "息壤龙泡泡",
+                    "label": "$item.ActivityXiraniteLung",
+                    "pipeline_override": {
+                        "SellProductWulingRegisterPriorityItem6": {
+                            "custom_action_param": {
+                                "operation": "register",
+                                "item_id": "item_activity_xiranite_lung"
+                            }
+                        }
+                    }
                 },
                 {
                     "name": "灼铜零件",

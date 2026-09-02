@@ -11,6 +11,17 @@
             },
             "rarity": 5
         },
+        "item_activity_xiranite_enr_lung": {
+            "id": "item_activity_xiranite_enr_lung",
+            "names": {
+                "zh_cn": "重息壤龙泡泡",
+                "zh_tw": "重息壤龍泡泡",
+                "en_us": "Heavy Xiranite Chubby Lung",
+                "ja_jp": "重息壌龍泡泡",
+                "ko_kr": "중식양 드래곤 버블"
+            },
+            "rarity": 5
+        },
         "item_activity_xiranite_hulu": {
             "id": "item_activity_xiranite_hulu",
             "names": {
@@ -19,6 +30,17 @@
                 "en_us": "Xiranite Gourd",
                 "ja_jp": "息壌ひょうたん",
                 "ko_kr": "식양 호리병"
+            },
+            "rarity": 4
+        },
+        "item_activity_xiranite_lung": {
+            "id": "item_activity_xiranite_lung",
+            "names": {
+                "zh_cn": "息壤龙泡泡",
+                "zh_tw": "息壤龍泡泡",
+                "en_us": "Xiranite Chubby Lung",
+                "ja_jp": "息壌龍泡泡",
+                "ko_kr": "식양 드래곤 버블"
             },
             "rarity": 4
         },
@@ -610,6 +632,16 @@
                 "ko_kr": "카뮤"
             }
         },
+        "chr_0034_typhoea": {
+            "id": "chr_0034_typhoea",
+            "names": {
+                "zh_cn": "提弗洛斯",
+                "zh_tw": "提弗洛斯",
+                "en_us": "Typhoeus",
+                "ja_jp": "ティフォロス",
+                "ko_kr": "티프로스"
+            }
+        },
         "chr_0035_liino": {
             "id": "chr_0035_liino",
             "names": {
@@ -637,8 +669,16 @@
                     "level": 1,
                     "trade_items": [
                         {
+                            "item_id": "item_activity_xiranite_enr_lung",
+                            "unit_price": 200
+                        },
+                        {
                             "item_id": "item_activity_xiranite_enr_hulu",
                             "unit_price": 120
+                        },
+                        {
+                            "item_id": "item_activity_xiranite_lung",
+                            "unit_price": 100
                         },
                         {
                             "item_id": "item_activity_xiranite_hulu",
@@ -662,8 +702,16 @@
                     "level": 2,
                     "trade_items": [
                         {
+                            "item_id": "item_activity_xiranite_enr_lung",
+                            "unit_price": 200
+                        },
+                        {
                             "item_id": "item_activity_xiranite_enr_hulu",
                             "unit_price": 120
+                        },
+                        {
+                            "item_id": "item_activity_xiranite_lung",
+                            "unit_price": 100
                         },
                         {
                             "item_id": "item_activity_xiranite_hulu",
@@ -674,11 +722,11 @@
                             "unit_price": 25
                         },
                         {
-                            "item_id": "item_bottled_food_4",
+                            "item_id": "item_bottled_rec_hp_4",
                             "unit_price": 16
                         },
                         {
-                            "item_id": "item_bottled_rec_hp_4",
+                            "item_id": "item_bottled_food_4",
                             "unit_price": 16
                         },
                         {
@@ -695,8 +743,16 @@
                     "level": 3,
                     "trade_items": [
                         {
+                            "item_id": "item_activity_xiranite_enr_lung",
+                            "unit_price": 200
+                        },
+                        {
                             "item_id": "item_activity_xiranite_enr_hulu",
                             "unit_price": 120
+                        },
+                        {
+                            "item_id": "item_activity_xiranite_lung",
+                            "unit_price": 100
                         },
                         {
                             "item_id": "item_proc_battery_5",
@@ -727,11 +783,11 @@
                             "unit_price": 16
                         },
                         {
-                            "item_id": "item_xiranite_powder",
+                            "item_id": "item_copper_cmpt",
                             "unit_price": 1
                         },
                         {
-                            "item_id": "item_copper_cmpt",
+                            "item_id": "item_xiranite_powder",
                             "unit_price": 1
                         }
                     ]
@@ -740,8 +796,16 @@
                     "level": 4,
                     "trade_items": [
                         {
+                            "item_id": "item_activity_xiranite_enr_lung",
+                            "unit_price": 200
+                        },
+                        {
                             "item_id": "item_activity_xiranite_enr_hulu",
                             "unit_price": 120
+                        },
+                        {
+                            "item_id": "item_activity_xiranite_lung",
+                            "unit_price": 100
                         },
                         {
                             "item_id": "item_proc_battery_5",
@@ -814,7 +878,8 @@
                         "chr_0025_ardelia",
                         "chr_0027_tangtang",
                         "chr_0028_wulfa",
-                        "chr_0032_lizhiyan"
+                        "chr_0032_lizhiyan",
+                        "chr_0034_typhoea"
                     ]
                 },
                 {
@@ -847,8 +912,16 @@
                     "level": 1,
                     "trade_items": [
                         {
+                            "item_id": "item_activity_xiranite_enr_lung",
+                            "unit_price": 200
+                        },
+                        {
                             "item_id": "item_activity_xiranite_enr_hulu",
                             "unit_price": 120
+                        },
+                        {
+                            "item_id": "item_activity_xiranite_lung",
+                            "unit_price": 100
                         },
                         {
                             "item_id": "item_activity_xiranite_hulu",
@@ -880,8 +953,16 @@
                     "level": 2,
                     "trade_items": [
                         {
+                            "item_id": "item_activity_xiranite_enr_lung",
+                            "unit_price": 200
+                        },
+                        {
                             "item_id": "item_activity_xiranite_enr_hulu",
                             "unit_price": 120
+                        },
+                        {
+                            "item_id": "item_activity_xiranite_lung",
+                            "unit_price": 100
                         },
                         {
                             "item_id": "item_proc_battery_5",
@@ -917,8 +998,16 @@
                     "level": 3,
                     "trade_items": [
                         {
+                            "item_id": "item_activity_xiranite_enr_lung",
+                            "unit_price": 200
+                        },
+                        {
                             "item_id": "item_activity_xiranite_enr_hulu",
                             "unit_price": 120
+                        },
+                        {
+                            "item_id": "item_activity_xiranite_lung",
+                            "unit_price": 100
                         },
                         {
                             "item_id": "item_proc_battery_5",
@@ -958,8 +1047,16 @@
                     "level": 4,
                     "trade_items": [
                         {
+                            "item_id": "item_activity_xiranite_enr_lung",
+                            "unit_price": 200
+                        },
+                        {
                             "item_id": "item_activity_xiranite_enr_hulu",
                             "unit_price": 120
+                        },
+                        {
+                            "item_id": "item_activity_xiranite_lung",
+                            "unit_price": 100
                         },
                         {
                             "item_id": "item_copper_enr2_cmpt",
@@ -1057,6 +1154,14 @@
                     "level": 1,
                     "trade_items": [
                         {
+                            "item_id": "item_activity_xiranite_enr_lung",
+                            "unit_price": 200
+                        },
+                        {
+                            "item_id": "item_activity_xiranite_lung",
+                            "unit_price": 100
+                        },
+                        {
                             "item_id": "item_copper_enr2_cmpt",
                             "unit_price": 70
                         },
@@ -1090,6 +1195,14 @@
                     "level": 2,
                     "trade_items": [
                         {
+                            "item_id": "item_activity_xiranite_enr_lung",
+                            "unit_price": 200
+                        },
+                        {
+                            "item_id": "item_activity_xiranite_lung",
+                            "unit_price": 100
+                        },
+                        {
                             "item_id": "item_copper_enr2_cmpt",
                             "unit_price": 70
                         },
@@ -1122,6 +1235,55 @@
                 {
                     "level": 3,
                     "trade_items": [
+                        {
+                            "item_id": "item_activity_xiranite_enr_lung",
+                            "unit_price": 200
+                        },
+                        {
+                            "item_id": "item_activity_xiranite_lung",
+                            "unit_price": 100
+                        },
+                        {
+                            "item_id": "item_copper_enr2_cmpt",
+                            "unit_price": 70
+                        },
+                        {
+                            "item_id": "item_proc_battery_5",
+                            "unit_price": 54
+                        },
+                        {
+                            "item_id": "item_xiranite_enr_powder",
+                            "unit_price": 27
+                        },
+                        {
+                            "item_id": "item_bottled_food_5",
+                            "unit_price": 22
+                        },
+                        {
+                            "item_id": "item_bottled_rec_hp_5",
+                            "unit_price": 22
+                        },
+                        {
+                            "item_id": "item_filter_core",
+                            "unit_price": 1
+                        },
+                        {
+                            "item_id": "item_xiranite_powder",
+                            "unit_price": 1
+                        }
+                    ]
+                },
+                {
+                    "level": 4,
+                    "trade_items": [
+                        {
+                            "item_id": "item_activity_xiranite_enr_lung",
+                            "unit_price": 200
+                        },
+                        {
+                            "item_id": "item_activity_xiranite_lung",
+                            "unit_price": 100
+                        },
                         {
                             "item_id": "item_copper_enr2_cmpt",
                             "unit_price": 70
@@ -1179,7 +1341,8 @@
                         "chr_0025_ardelia",
                         "chr_0027_tangtang",
                         "chr_0028_wulfa",
-                        "chr_0032_lizhiyan"
+                        "chr_0032_lizhiyan",
+                        "chr_0034_typhoea"
                     ]
                 },
                 {
@@ -1368,7 +1531,8 @@
                         "chr_0014_aurora",
                         "chr_0016_laevat",
                         "chr_0025_ardelia",
-                        "chr_0029_pograni"
+                        "chr_0029_pograni",
+                        "chr_0034_typhoea"
                     ]
                 },
                 {
@@ -1697,7 +1861,8 @@
                         "chr_0014_aurora",
                         "chr_0016_laevat",
                         "chr_0025_ardelia",
-                        "chr_0029_pograni"
+                        "chr_0029_pograni",
+                        "chr_0034_typhoea"
                     ]
                 },
                 {

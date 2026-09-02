@@ -469,7 +469,7 @@
         },
         {
             "source_id": "domain_2_lv002_depot_1",
-            "name": "武陵城区",
+            "name": "武陵城",
             "description": "武陵城区；仓储节点与传送落点之间的桥面未铺入网格",
             "path": [
                 {

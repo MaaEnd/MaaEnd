@@ -1,6 +1,6 @@
 {
     "AutoDeliveryRouteDepotDomain2Lv002Depot1": {
-        "desc": "AutoDelivery 仓储路线：前往武陵城区仓储节点（domain_2_lv002_depot_1）",
+        "desc": "AutoDelivery 仓储路线：前往武陵城仓储节点（domain_2_lv002_depot_1）",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -50,7 +50,7 @@
         }
     },
     "AutoDeliveryRouteDepotDomain2Lv002Depot1WithZipline": {
-        "desc": "AutoDelivery 仓储路线：前往武陵城区仓储节点，允许使用滑索（domain_2_lv002_depot_1）",
+        "desc": "AutoDelivery 仓储路线：前往武陵城仓储节点，允许使用滑索（domain_2_lv002_depot_1）",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -100,7 +100,7 @@
         }
     },
     "AutoDeliveryRouteDepotRetryDomain2Lv002Depot1": {
-        "desc": "AutoDelivery 仓储站位修正路线：武陵城区仓储节点（domain_2_lv002_depot_1）",
+        "desc": "AutoDelivery 仓储站位修正路线：武陵城仓储节点（domain_2_lv002_depot_1）",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -135,7 +135,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap02Lv00201": {
-        "desc": "AutoDelivery 终点路线：从武陵城区仓储节点前往苏白易（deliver_target_map02_lv002_01）",
+        "desc": "AutoDelivery 终点路线：从武陵城仓储节点前往苏白易（deliver_target_map02_lv002_01）",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -203,7 +203,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap02Lv00201WithZipline": {
-        "desc": "AutoDelivery 终点路线：从武陵城区仓储节点前往苏白易，允许使用滑索（deliver_target_map02_lv002_01）",
+        "desc": "AutoDelivery 终点路线：从武陵城仓储节点前往苏白易，允许使用滑索（deliver_target_map02_lv002_01）",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -306,7 +306,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap02Lv00202": {
-        "desc": "AutoDelivery 终点路线：从武陵城区仓储节点前往普里莫·林德（deliver_target_map02_lv002_02）",
+        "desc": "AutoDelivery 终点路线：从武陵城仓储节点前往普里莫·林德（deliver_target_map02_lv002_02）",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -364,7 +364,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap02Lv00202WithZipline": {
-        "desc": "AutoDelivery 终点路线：从武陵城区仓储节点前往普里莫·林德，允许使用滑索（deliver_target_map02_lv002_02）",
+        "desc": "AutoDelivery 终点路线：从武陵城仓储节点前往普里莫·林德，允许使用滑索（deliver_target_map02_lv002_02）",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -457,7 +457,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap02Lv00203": {
-        "desc": "AutoDelivery 终点路线：从武陵城区仓储节点前往于施（deliver_target_map02_lv002_03）",
+        "desc": "AutoDelivery 终点路线：从武陵城仓储节点前往于施（deliver_target_map02_lv002_03）",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -511,7 +511,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap02Lv00203WithZipline": {
-        "desc": "AutoDelivery 终点路线：从武陵城区仓储节点前往于施，允许使用滑索（deliver_target_map02_lv002_03）",
+        "desc": "AutoDelivery 终点路线：从武陵城仓储节点前往于施，允许使用滑索（deliver_target_map02_lv002_03）",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -600,7 +600,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap02Lv002Recycle01": {
-        "desc": "AutoDelivery 终点路线：从武陵城区仓储节点前往火锅探店达人（deliver_target_map02_lv002_recycle_01）",
+        "desc": "AutoDelivery 终点路线：从武陵城仓储节点前往火锅探店达人（deliver_target_map02_lv002_recycle_01）",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",
@@ -658,7 +658,7 @@
         }
     },
     "AutoDeliveryRouteDestinationDeliverTargetMap02Lv002Recycle01WithZipline": {
-        "desc": "AutoDelivery 终点路线：从武陵城区仓储节点前往火锅探店达人，允许使用滑索（deliver_target_map02_lv002_recycle_01）",
+        "desc": "AutoDelivery 终点路线：从武陵城仓储节点前往火锅探店达人，允许使用滑索（deliver_target_map02_lv002_recycle_01）",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "MapNavigateAction",

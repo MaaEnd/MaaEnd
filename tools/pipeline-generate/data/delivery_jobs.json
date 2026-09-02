@@ -261,6 +261,7 @@
                 "item_quartz_sand",
                 "item_slimeml_1_agrange_1_moss_2_1",
                 "item_slimeml_1_erhound_1_agfly_1_1",
+                "item_slwood_1_hshog_1_1",
                 "item_sp_1_moss_1_agmelee_1_1",
                 "item_sp_2_moss_2_agrange_1_1",
                 "item_wgshoal_1_grass_1_grass_2_1",
@@ -514,6 +515,7 @@
                 "item_quartz_sand",
                 "item_slimeml_1_agrange_1_moss_2_1",
                 "item_slimeml_1_erhound_1_agfly_1_1",
+                "item_slwood_1_hshog_1_1",
                 "item_sp_1_moss_1_agmelee_1_1",
                 "item_sp_2_moss_2_agrange_1_1",
                 "item_wgshoal_1_grass_1_grass_2_1",
@@ -767,6 +769,7 @@
                 "item_quartz_sand",
                 "item_slimeml_1_agrange_1_moss_2_1",
                 "item_slimeml_1_erhound_1_agfly_1_1",
+                "item_slwood_1_hshog_1_1",
                 "item_sp_1_moss_1_agmelee_1_1",
                 "item_sp_2_moss_2_agrange_1_1",
                 "item_wgshoal_1_grass_1_grass_2_1",
@@ -782,11 +785,11 @@
         "domain_2_lv002_depot_1": {
             "region_id": "domain_2",
             "names": {
-                "zh_cn": "武陵城区",
-                "zh_tw": "武陵城區",
+                "zh_cn": "武陵城",
+                "zh_tw": "武陵城",
                 "en_us": "Wuling City",
-                "ja_jp": "武陵城内",
-                "ko_kr": "무릉성 구역"
+                "ja_jp": "武陵城",
+                "ko_kr": "무릉성"
             },
             "fillable_items": [
                 "item_agfly_1_agmelee_1_moss_2_1",
@@ -1020,6 +1023,7 @@
                 "item_quartz_sand",
                 "item_slimeml_1_agrange_1_moss_2_1",
                 "item_slimeml_1_erhound_1_agfly_1_1",
+                "item_slwood_1_hshog_1_1",
                 "item_sp_1_moss_1_agmelee_1_1",
                 "item_sp_2_moss_2_agrange_1_1",
                 "item_wgshoal_1_grass_1_grass_2_1",
@@ -1273,6 +1277,7 @@
                 "item_quartz_sand",
                 "item_slimeml_1_agrange_1_moss_2_1",
                 "item_slimeml_1_erhound_1_agfly_1_1",
+                "item_slwood_1_hshog_1_1",
                 "item_sp_1_moss_1_agmelee_1_1",
                 "item_sp_2_moss_2_agrange_1_1",
                 "item_wgshoal_1_grass_1_grass_2_1",
@@ -2823,7 +2828,7 @@
                 "zh_tw": "約翰老爹漢堡",
                 "en_us": "Old Man John's Burger",
                 "ja_jp": "ダディ・ジョンズバーガー",
-                "ko_kr": "존 어르신의 햄버거"
+                "ko_kr": "빠빠존스 햄버거"
             }
         },
         "item_mimicw_1_moss_1_moss_2_1": {
@@ -2956,7 +2961,7 @@
             "names": {
                 "zh_cn": "芽针种子",
                 "zh_tw": "芽針種子",
-                "en_us": "Yazhen Seed",
+                "en_us": "Yazhen Seeds",
                 "ja_jp": "芽針の種",
                 "ko_kr": "야침 씨앗"
             }
@@ -3172,7 +3177,7 @@
             "names": {
                 "zh_cn": "灰芦麦种子",
                 "zh_tw": "灰蘆麥種子",
-                "en_us": "Reed Rye Seed",
+                "en_us": "Reed Rye Seeds",
                 "ja_jp": "灰麦の種",
                 "ko_kr": "회보리 씨앗"
             }
@@ -3181,7 +3186,7 @@
             "names": {
                 "zh_cn": "苦叶椒种子",
                 "zh_tw": "苦葉椒種子",
-                "en_us": "Tartpepper Seed",
+                "en_us": "Tartpepper Seeds",
                 "ja_jp": "苦葉椒の種",
                 "ko_kr": "쓴맛 나는 고추 씨앗"
             }
@@ -3190,7 +3195,7 @@
             "names": {
                 "zh_cn": "琼叶参种子",
                 "zh_tw": "瓊葉蔘種子",
-                "en_us": "Redjade Ginseng Seed",
+                "en_us": "Redjade Ginseng Seeds",
                 "ja_jp": "玉葉人参の種",
                 "ko_kr": "홍옥 인삼 씨앗"
             }
@@ -3199,7 +3204,7 @@
             "names": {
                 "zh_cn": "金石稻种子",
                 "zh_tw": "金石稻種子",
-                "en_us": "Amber Rice Seed",
+                "en_us": "Amber Rice Seeds",
                 "ja_jp": "金石稲の種",
                 "ko_kr": "금석벼 씨앗"
             }
@@ -3364,6 +3369,15 @@
                 "en_us": "Pulled Slug Meat",
                 "ja_jp": "虫肉ジャーキー",
                 "ko_kr": "손으로 찢은 벌레 고기"
+            }
+        },
+        "item_slwood_1_hshog_1_1": {
+            "names": {
+                "zh_cn": "香焗兽肝",
+                "zh_tw": "香焗獸肝",
+                "en_us": "Sear-Toasted Liver",
+                "ja_jp": "レバーの塩蒸し焼き",
+                "ko_kr": "향신료로 구운 비스트의 간"
             }
         },
         "item_sp_1_moss_1_agmelee_1_1": {

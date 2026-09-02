@@ -84,11 +84,11 @@
         {
             "id": "domain_2_lv002_depot_1",
             "name": {
-                "zh_cn": "武陵城区",
-                "zh_tw": "武陵城區",
+                "zh_cn": "武陵城",
+                "zh_tw": "武陵城",
                 "en_us": "Wuling City",
-                "ja_jp": "武陵城内",
-                "ko_kr": "무릉성 구역"
+                "ja_jp": "武陵城",
+                "ko_kr": "무릉성"
             },
             "map": "map02",
             "u": 950.498,
