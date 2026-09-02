@@ -845,11 +845,12 @@ std::optional<std::vector<WorldPoint>> routeWindow(
             }
         }
     }
-    const Grid<float> wdist = Clearance(wfree);
-    Grid<float> dist(nx, ny, 0.0F);
-    for (size_t i = 0; i < dist.v.size(); ++i) {
-        dist.v[i] = std::min(info.dist.v[i], wdist.v[i]);
+    // 取小就地写回接缝净空那张表: 另开一张同尺寸的只是让两张 36MB 的图在整个 routeWindow 里同时活着。
+    Grid<float> wdist = Clearance(wfree);
+    for (size_t i = 0; i < wdist.v.size(); ++i) {
+        wdist.v[i] = std::min(info.dist.v[i], wdist.v[i]);
     }
+    const Grid<float> dist = std::move(wdist);
     // VV(c): 障碍按期望净空 c 膨胀后仍自由的格走可见图那一侧, 膨胀后被吃掉的窄处只留中脊,
     // 对应论文里 V∩M(c) 的那段 Voronoi 弧。净空在这一层是掩膜: 开阔地没有贴墙这个选项, 窄缝
     // 里没有偏一侧这个选项, 中途钻的一小段窄缝也就无法被整条路长平均掉。
