@@ -2615,7 +2615,12 @@ class MapNavigatorApp {
           }
         }),
       ).then((results) => {
-        if (token !== this._waypointDeckToken || this.state.mode !== Mode.EDIT) return;
+        if (token !== this._waypointDeckToken) return;
+        if (this.state.mode !== Mode.EDIT) {
+          // 结果丢在编辑模式外就得把签名一起丢掉, 否则回来时签名照旧, 这批路点再也探不出层。
+          this._waypointDeckSig = null;
+          return;
+        }
         for (const result of results) {
           if (result) this.waypointDecks.set(result[0], result[1]);
         }
