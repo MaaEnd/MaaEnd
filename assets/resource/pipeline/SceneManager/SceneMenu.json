@@ -1176,6 +1176,7 @@
                 "template": "SceneManager/ProgressionTabNotChoose.png"
             }
         },
+        "pre_wait_freezes": 100,
         "action": {
             "type": "Click"
         },
