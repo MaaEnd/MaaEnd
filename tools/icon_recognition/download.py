@@ -248,44 +248,54 @@ def _normalize_item(item_id: str, raw_source: Any) -> dict[str, Any]:
     return result
 
 
-def prepare_item_map(
-    item_table: Mapping[str, Any],
+def apply_item_blacklist(
+    item_map: Mapping[str, Any],
     *,
     blacklist: Sequence[ItemBlacklistRule] | None = None,
 ) -> tuple[dict[str, dict[str, Any]], list[dict[str, Any]]]:
-    """规范化 mini table，并按黑名单和引用感知规则去除条目。"""
+    """应用显式黑名单，并清理因此失去所有容器引用的流体条目。"""
 
-    if not isinstance(item_table, Mapping):
-        raise ValueError("item_mini_table.json 顶层必须是对象")
-    normalized = {
-        item_id: _normalize_item(item_id, raw_source)
-        for item_id, raw_source in item_table.items()
-    }
+    if not isinstance(item_map, Mapping):
+        raise ValueError("item map 顶层必须是对象")
+    items: dict[str, dict[str, Any]] = {}
+    for item_id, raw_payload in item_map.items():
+        if not isinstance(raw_payload, Mapping):
+            raise ValueError(f"item map 项必须是对象: {item_id}")
+        payload = dict(raw_payload)
+        full_containers = payload.get("fullContainers", [])
+        if not isinstance(full_containers, list) or not all(
+            isinstance(container_id, str) and container_id
+            for container_id in full_containers
+        ):
+            raise ValueError(f"{item_id}.fullContainers 必须是非空字符串数组")
+        payload["fullContainers"] = list(full_containers)
+        items[item_id] = payload
+
     active_blacklist = (
         load_item_blacklist() if blacklist is None else tuple(blacklist)
     )
     removed_ids: set[str] = set()
     removals: list[dict[str, Any]] = []
-    for item_id, payload in normalized.items():
+    for item_id, payload in items.items():
         # 分类条件用于约束黑名单作用域，避免上游复用 ID 后误删其他类型物品。
         if any(
             item_id in ids
-            and payload["storageKind"] == storage_kind
-            and payload["categoryType"] == category_type
+            and payload.get("storageKind") == storage_kind
+            and payload.get("categoryType") == category_type
             for storage_kind, category_type, ids in active_blacklist
         ):
             removed_ids.add(item_id)
             removals.append(
                 {
                     "removedId": item_id,
-                    "name": payload["name"],
-                    "iconId": payload["iconId"],
+                    "name": payload.get("name", ""),
+                    "iconId": payload.get("iconId", ""),
                     "reason": "blacklist",
                 }
             )
     while True:
         orphaned = []
-        for item_id, payload in normalized.items():
+        for item_id, payload in items.items():
             if item_id in removed_ids:
                 continue
             remaining_containers = [
@@ -302,55 +312,48 @@ def prepare_item_map(
             break
         for item_id in orphaned:
             removed_ids.add(item_id)
-            payload = normalized[item_id]
+            payload = items[item_id]
             removals.append(
                 {
                     "removedId": item_id,
-                    "name": payload["name"],
-                    "iconId": payload["iconId"],
+                    "name": payload.get("name", ""),
+                    "iconId": payload.get("iconId", ""),
                     "reason": "blacklist-orphan",
                 }
             )
 
+    removals.sort(key=lambda row: row["removedId"])
+    return {
+        item_id: payload
+        for item_id, payload in items.items()
+        if item_id not in removed_ids
+    }, removals
+
+
+def prepare_item_map(
+    item_table: Mapping[str, Any],
+    *,
+    blacklist: Sequence[ItemBlacklistRule] | None = None,
+) -> tuple[dict[str, dict[str, Any]], list[dict[str, Any]]]:
+    """规范化 mini table，并按黑名单和引用感知规则去除条目。"""
+
+    if not isinstance(item_table, Mapping):
+        raise ValueError("item_mini_table.json 顶层必须是对象")
+    normalized = {
+        item_id: _normalize_item(item_id, raw_source)
+        for item_id, raw_source in item_table.items()
+    }
+    filtered, removals = apply_item_blacklist(normalized, blacklist=blacklist)
+    removed_ids: set[str] = set()
     referenced_ids = {
         container_id
-        for item_id, payload in normalized.items()
-        if item_id not in removed_ids
+        for payload in filtered.values()
         for container_id in payload["fullContainers"]
     }
-    icon_groups: dict[str, list[str]] = defaultdict(list)
-    for item_id, payload in normalized.items():
-        if item_id not in removed_ids and payload["iconId"]:
-            icon_groups[payload["iconId"]].append(item_id)
-    for icon_id, member_ids in icon_groups.items():
-        if len(member_ids) < 2:
-            continue
-        regular_ids = [
-            item_id
-            for item_id in member_ids
-            if not normalized[item_id]["name"].startswith("模拟")
-        ]
-        if not regular_ids:
-            continue
-        kept_id = min(regular_ids, key=lambda item_id: (len(item_id), item_id))
-        for item_id in member_ids:
-            if not normalized[item_id]["name"].startswith("模拟"):
-                continue
-            removed_ids.add(item_id)
-            removals.append(
-                {
-                    "removedId": item_id,
-                    "keptId": kept_id,
-                    "name": normalized[item_id]["name"],
-                    "iconId": icon_id,
-                    "reason": "simulated-duplicate-icon",
-                }
-            )
 
     duplicate_groups: dict[tuple[str, str], list[str]] = defaultdict(list)
-    for item_id, payload in normalized.items():
-        if item_id not in removed_ids:
-            duplicate_groups[(payload["name"], payload["iconId"])].append(item_id)
+    for item_id, payload in filtered.items():
+        duplicate_groups[(payload["name"], payload["iconId"])].append(item_id)
     for (name, icon_id), member_ids in duplicate_groups.items():
         if len(member_ids) < 2:
             continue
@@ -377,7 +380,7 @@ def prepare_item_map(
 
     items = {
         item_id: payload
-        for item_id, payload in normalized.items()
+        for item_id, payload in filtered.items()
         if item_id not in removed_ids
     }
     removals.sort(key=lambda row: row["removedId"])

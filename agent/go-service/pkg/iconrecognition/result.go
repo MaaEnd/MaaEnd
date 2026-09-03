@@ -25,6 +25,12 @@ type DetailError struct {
 	Message string    `json:"message"`
 }
 
+// Alias 是与代表物品共用同一组图标的候选物品。
+type Alias struct {
+	ItemID string `json:"item_id"`
+	Name   string `json:"name"`
+}
+
 // Match 是 IconRecognition 单个候选物品的识别结果。
 type Match struct {
 	ItemID       string   `json:"item_id"`
@@ -33,6 +39,7 @@ type Match struct {
 	StorageKind  string   `json:"storage_kind"`
 	CategoryType string   `json:"category_type"`
 	Rarity       int      `json:"rarity"`
+	Aliases      []Alias  `json:"aliases,omitempty"`
 	CellBox      maa.Rect `json:"cell_box"`
 	ItemBox      maa.Rect `json:"item_box"`
 	Score        float64  `json:"score"`

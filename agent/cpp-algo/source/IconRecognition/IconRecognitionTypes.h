@@ -111,16 +111,31 @@ inline bool RectFromJson(const json::value& value, cv::Rect& rect)
 
 struct ItemInfo
 {
+    struct Alias
+    {
+        std::string item_id;
+        std::string name;
+
+        json::value to_json() const
+        {
+            return json::object {
+                { "item_id", item_id },
+                { "name", name },
+            };
+        }
+    };
+
     std::string item_id;
     std::string name;
     std::string category;
     std::string storage_kind;
     std::string category_type;
     int rarity = 0;
+    std::vector<Alias> aliases;
 
     json::value to_json() const
     {
-        return json::object {
+        json::object object {
             { "item_id", item_id },
             { "name", name },
             { "category", category },
@@ -128,6 +143,14 @@ struct ItemInfo
             { "category_type", category_type },
             { "rarity", rarity },
         };
+        if (!aliases.empty()) {
+            json::array aliases_json;
+            for (const auto& alias : aliases) {
+                aliases_json.emplace_back(alias.to_json());
+            }
+            object["aliases"] = std::move(aliases_json);
+        }
+        return object;
     }
 };
 
@@ -157,6 +180,13 @@ struct ItemMatch
         if (region_unavailable) {
             // false 没有必要导出，普通识别结果保持紧凑。
             object["region_unavailable"] = true;
+        }
+        if (!item.aliases.empty()) {
+            json::array aliases_json;
+            for (const auto& alias : item.aliases) {
+                aliases_json.emplace_back(alias.to_json());
+            }
+            object["aliases"] = std::move(aliases_json);
         }
         if (row) {
             object["row"] = *row;

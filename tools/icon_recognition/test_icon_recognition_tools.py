@@ -14,6 +14,7 @@ from download import (
     ITEM_TABLE_URL,
     LANG_URL,
     WEAPON_TABLE_URL,
+    apply_item_blacklist,
     build_download_jobs,
     download_sources,
     validate_icon_png_bytes,
@@ -510,11 +511,31 @@ class IconRecognitionToolsTest(unittest.TestCase):
             item = self._mini_item(name="item_name_hash")
             paths.item_source.parent.mkdir(parents=True, exist_ok=True)
             paths.item_source.write_text(
-                json.dumps({"item_test": item}),
+                json.dumps(
+                    {
+                        "item_test": item,
+                        "item_port_soil_grass_fast_1": self._mini_item(
+                            name="simulated_name_hash",
+                            category="生产工具",
+                            categoryType="Producer",
+                            iconId="item_port_soil_grass_1",
+                        ),
+                    }
+                ),
                 encoding="utf-8",
             )
             paths.localization_item_source.write_text(
-                json.dumps({"item_test": item}),
+                json.dumps(
+                    {
+                        "item_test": item,
+                        "item_port_soil_grass_fast_1": self._mini_item(
+                            name="simulated_name_hash",
+                            category="生产工具",
+                            categoryType="Producer",
+                            iconId="item_port_soil_grass_1",
+                        ),
+                    }
+                ),
                 encoding="utf-8",
             )
             paths.weapon_source.write_text("{}", encoding="utf-8")
@@ -533,7 +554,8 @@ class IconRecognitionToolsTest(unittest.TestCase):
                             "测试物品"
                             if locale == "zh_cn"
                             else f"{language}:item_test"
-                        )
+                        ),
+                        "simulated_name_hash": f"{language}:simulated",
                     }
                 )
                 (paths.language_root / f"lang_{language}.json").write_text(
@@ -542,7 +564,14 @@ class IconRecognitionToolsTest(unittest.TestCase):
                 )
                 locale_path = paths.locale_root / f"{locale}.json"
                 locale_path.parent.mkdir(parents=True, exist_ok=True)
-                locale_path.write_text("{}", encoding="utf-8")
+                locale_path.write_text(
+                    json.dumps(
+                        {
+                            "iconRecognition.name.item_port_soil_grass_fast_1": "stale"
+                        }
+                    ),
+                    encoding="utf-8",
+                )
 
             publish(paths)
 
@@ -556,7 +585,12 @@ class IconRecognitionToolsTest(unittest.TestCase):
                 b"stale",
             )
         self.assertEqual(catalog["item_test"]["name"], "测试物品")
+        self.assertNotIn("item_port_soil_grass_fast_1", catalog)
         self.assertEqual(en_us["iconRecognition.name.item_test"], "item_name_hash")
+        self.assertNotIn(
+            "iconRecognition.name.item_port_soil_grass_fast_1",
+            en_us,
+        )
 
     def test_sync_published_images_copies_missing_target(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -679,6 +713,50 @@ class IconRecognitionToolsTest(unittest.TestCase):
         )
         self.assertIn("item_activity_xiranite_enr_hulu", mismatched)
         self.assertEqual(mismatched_removals, [])
+
+    def test_item_blacklist_filters_simulated_producers_from_cached_map(self) -> None:
+        blacklisted_ids = {
+            "item_port_soil_grass_fast_1",
+            "item_port_soil_grass_fast_2",
+            "item_port_soil_sp_fast_3",
+            "item_port_soil_sp_fast_4",
+        }
+        source = {
+            item_id: self._mini_item(
+                name=f"hash_{item_id}",
+                category="生产工具",
+                categoryType="Producer",
+                iconId=item_id,
+            )
+            for item_id in blacklisted_ids
+        }
+        source["item_kept"] = self._mini_item(iconId="item_kept")
+
+        items, removals = apply_item_blacklist(source)
+
+        self.assertEqual(set(items), {"item_kept"})
+        self.assertEqual(
+            {row["removedId"] for row in removals},
+            blacklisted_ids,
+        )
+
+    def test_prepare_item_map_does_not_filter_by_localized_name_prefix(self) -> None:
+        items, removals = prepare_item_map(
+            {
+                "item_regular": self._mini_item(
+                    name="普通田块",
+                    iconId="shared_soil",
+                ),
+                "item_simulated": self._mini_item(
+                    name="模拟田块",
+                    iconId="shared_soil",
+                ),
+            },
+            blacklist=(),
+        )
+
+        self.assertEqual(set(items), {"item_regular", "item_simulated"})
+        self.assertEqual(removals, [])
 
     def test_fixed_translation_hashes_are_not_catalog_item_ids(self) -> None:
         self.assertEqual(

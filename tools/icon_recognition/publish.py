@@ -11,7 +11,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from catalog import build_catalog, write_catalog
-from download import validate_icon_png_bytes
+from download import apply_item_blacklist, validate_icon_png_bytes
 from fixed_items import FIXED_ITEMS
 from localization import (
     LOCALE_MAP,
@@ -104,6 +104,7 @@ def publish(paths: PublishPaths) -> tuple[int, dict[str, int]]:
     source = json.loads(paths.item_source.read_text(encoding="utf-8-sig"), object_pairs_hook=OrderedDict)
     if not isinstance(source, dict):
         raise ValueError(f"JSON 顶层必须是对象: {paths.item_source}")
+    source, _ = apply_item_blacklist(source)
     catalog = build_catalog(source, paths.image_root)
     localization_source = build_source_index(
         load_json_object(paths.localization_item_source),

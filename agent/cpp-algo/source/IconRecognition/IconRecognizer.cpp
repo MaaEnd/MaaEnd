@@ -118,39 +118,42 @@ cv::Rect SlotFor(GridType type, const detail::GridCell& cell, double grid_scale)
     return cv::Rect(cell.cell_box.x, cell.cell_box.y, template_size, template_size);
 }
 
-std::vector<detail::PreparedTemplate>
+struct ActiveTemplateSelection
+{
+    std::vector<detail::PreparedTemplate> templates;
+    detail::MaskKind mask_kind = detail::MaskKind::LowerExtended;
+};
+
+ActiveTemplateSelection
     ActiveTemplates(const cv::Mat& image, GridType type, const cv::Rect& slot, const std::vector<detail::PreparedTemplate>& templates)
 {
     if (type != GridType::Shipment && type != GridType::Valuables) {
-        return templates;
+        return { .templates = templates };
     }
     const cv::Rect bounds(0, 0, image.cols, image.rows);
     if ((slot & bounds) != slot) {
-        return templates;
+        return { .templates = templates };
     }
     const cv::Mat slot_image = image(slot);
     std::vector<detail::PreparedTemplate> active = templates;
     if (type == GridType::Shipment) {
         if (!detail::HasShipmentTopBar(slot_image)) {
-            return templates;
+            return { .templates = templates };
         }
         for (auto& templ : active) {
             templ.mask = templ.mask.clone();
             detail::ApplyShipmentTopBarMask(templ.mask);
         }
-        return active;
+        return { .templates = std::move(active), .mask_kind = detail::MaskKind::ShipmentTopBar };
     }
-    cv::Mat probe = active.front().mask.clone();
-    const int before = cv::countNonZero(probe);
-    detail::ClearValuablesWeaponPortrait(probe, slot_image);
-    if (cv::countNonZero(probe) == before) {
-        return templates;
+    if (!detail::HasValuablesWeaponPortrait(slot_image)) {
+        return { .templates = templates };
     }
     for (auto& templ : active) {
         templ.mask = templ.mask.clone();
         detail::ApplyValuablesWeaponPortraitMask(templ.mask);
     }
-    return active;
+    return { .templates = std::move(active), .mask_kind = detail::MaskKind::ValuablesWeapon };
 }
 
 struct RankedCandidate
@@ -352,37 +355,16 @@ SlotRanking RankSlot(
 bool ValidateCandidateCell(
     const cv::Mat& image,
     const cv::Rect& cell_box,
-    std::string_view expected_item_id,
+    const detail::TemplateRecord& expected,
     const std::vector<detail::PreparedTemplate>& templates,
     double threshold,
     double subpixel_threshold)
 {
     const SlotRanking ranking =
         RankSlot(image, cell_box, templates, std::nullopt, threshold, subpixel_threshold, kGridSearchRadius, nullptr);
-    return ranking.best.diagnostics.score >= threshold && templates[ranking.best.template_index].record.item_id == expected_item_id;
-}
-
-std::string ActiveMaskKind(
-    GridType type,
-    const std::vector<detail::PreparedTemplate>& selected,
-    const std::vector<detail::PreparedTemplate>& active)
-{
-    if (!active.empty() && active.front().composite) {
-        return "composite_union";
-    }
-    if (selected.empty() || active.empty()) {
-        return "lower_extended";
-    }
-    if (cv::norm(selected.front().mask, active.front().mask, cv::NORM_INF) == 0.0) {
-        return "lower_extended";
-    }
-    if (type == GridType::Shipment) {
-        return "shipment_top_bar";
-    }
-    if (type == GridType::Valuables) {
-        return "valuables_weapon";
-    }
-    return "lower_extended";
+    const auto& actual = templates[ranking.best.template_index].record;
+    return ranking.best.diagnostics.score >= threshold && actual.icon_id == expected.icon_id
+           && actual.fluid_icon_id == expected.fluid_icon_id;
 }
 
 struct CellEvaluation
@@ -418,7 +400,15 @@ CellEvaluation EvaluateCellTemplates(
 {
     CellEvaluation result;
     const auto active_started = performance ? PerformanceClock::now() : PerformanceClock::time_point {};
-    result.active = single_roi ? selected : ActiveTemplates(image, grid_type, slot, selected);
+    detail::MaskKind active_mask_kind = detail::MaskKind::LowerExtended;
+    if (single_roi) {
+        result.active = selected;
+    }
+    else {
+        auto active_selection = ActiveTemplates(image, grid_type, slot, selected);
+        result.active = std::move(active_selection.templates);
+        active_mask_kind = active_selection.mask_kind;
+    }
     if (performance) {
         performance->active_templates_ms += ElapsedMilliseconds(active_started);
     }
@@ -494,12 +484,10 @@ CellEvaluation EvaluateCellTemplates(
             texture_rejected ? "low-foreground-texture"
                              : (best.diagnostics.score < subpixel_threshold ? "below-subpixel-threshold" : "below-accept-threshold");
     }
-    result.mask_kind = single_roi
-                           ? (templ.composite ? "composite_union" : "lower_extended")
-                           : ActiveMaskKind(grid_type, selected, result.active)
-                                 + (result.edge_recovery_used
-                                        ? (result.edge_occlusion->side == detail::EdgeOcclusionSide::Top ? "+edge_top" : "+edge_bottom")
-                                        : "");
+    result.mask_kind = detail::DescribeMaskKind(active_mask_kind, templ.composite);
+    if (!single_roi && result.edge_recovery_used) {
+        result.mask_kind += result.edge_occlusion->side == detail::EdgeOcclusionSide::Top ? "+edge_top" : "+edge_bottom";
+    }
     if (templ.region_unavailable) {
         result.mask_kind += "+region_unavailable_overlay";
     }
@@ -510,16 +498,20 @@ std::vector<detail::PreparedTemplate> SelectRegionUnavailableVariants(
     const std::vector<detail::PreparedTemplate>& region_unavailable,
     const std::vector<detail::PreparedTemplate>& selected)
 {
-    std::unordered_set<std::string> selected_restricted_ids;
+    std::unordered_map<std::string, const detail::PreparedTemplate*> selected_restricted;
     for (const auto& templ : selected) {
         if (templ.record.region_restricted) {
-            selected_restricted_ids.insert(templ.record.item_id);
+            selected_restricted.emplace(templ.record.item_id, &templ);
         }
     }
     std::vector<detail::PreparedTemplate> result;
     for (const auto& templ : region_unavailable) {
-        if (selected_restricted_ids.contains(templ.record.item_id)) {
-            result.push_back(templ);
+        const auto selected_templ = selected_restricted.find(templ.record.item_id);
+        if (selected_templ != selected_restricted.end()) {
+            auto variant = templ;
+            // 后备模板只替换图像状态，候选筛选阶段聚合的别名仍属于同一代表物品。
+            variant.record.aliases = selected_templ->second->record.aliases;
+            result.push_back(std::move(variant));
         }
     }
     return result;
@@ -552,10 +544,25 @@ std::vector<detail::PreparedTemplate> BuildRegionUnavailableRecheckTemplates(
 
 ItemInfo ItemFromTemplate(const detail::PreparedTemplate& templ)
 {
-    return {
-        templ.record.item_id,      templ.record.name_key,      templ.record.category,
-        templ.record.storage_kind, templ.record.category_type, templ.record.rarity,
+    ItemInfo result {
+        .item_id = templ.record.item_id,
+        .name = templ.record.name_key,
+        .category = templ.record.category,
+        .storage_kind = templ.record.storage_kind,
+        .category_type = templ.record.category_type,
+        .rarity = templ.record.rarity,
     };
+    result.aliases.reserve(templ.record.aliases.size());
+    std::ranges::transform(templ.record.aliases, std::back_inserter(result.aliases), [](const auto& alias) {
+        return ItemInfo::Alias { .item_id = alias.item_id, .name = alias.name_key };
+    });
+    return result;
+}
+
+bool ContainsRequestedItem(const ItemInfo& item, const std::unordered_set<std::string>& requested_ids)
+{
+    return requested_ids.contains(item.item_id)
+           || std::ranges::any_of(item.aliases, [&](const auto& alias) { return requested_ids.contains(alias.item_id); });
 }
 
 void ValidateRecognitionRoi(const cv::Mat& image, const cv::Rect& roi)
@@ -851,7 +858,7 @@ public:
                     }
                     // 附加类型不属于显式 item_ids，不能被只为原始 ID 配置的反查过滤器误删。
                     bool valid = true;
-                    if (original_item_ids.contains(candidate.item.item_id)) {
+                    if (ContainsRequestedItem(candidate.item, original_item_ids)) {
                         auto& template_cache =
                             candidate.region_unavailable ? region_unavailable_recheck_templates_by_size : recheck_templates_by_size;
                         auto [templates, inserted] = template_cache.try_emplace(candidate.cell_box.width);
@@ -859,7 +866,8 @@ public:
                             templates->second = detail::SelectCandidateTemplates(
                                 RoiTemplates(candidate.cell_box.width),
                                 recheck_candidates,
-                                detail::DefaultItemFilters(GridType::SingleRoi));
+                                detail::DefaultItemFilters(GridType::SingleRoi),
+                                false);
                             if (candidate.region_unavailable) {
                                 // 当前地区不可用命中必须使用同一界面状态复核，避免普通模板替代受限物品后返回错误状态。
                                 templates->second = BuildRegionUnavailableRecheckTemplates(
@@ -867,10 +875,16 @@ public:
                                     catalog_.loadRegionUnavailable(candidate.cell_box.width));
                             }
                         }
+                        const auto expected = std::ranges::find_if(
+                            selected,
+                            [&](const auto& templ) { return templ.record.item_id == candidate.item.item_id; });
+                        if (expected == selected.end()) {
+                            throw std::runtime_error("selected template missing for recheck item: " + candidate.item.item_id);
+                        }
                         valid = ValidateCandidateCell(
                             image,
                             candidate.cell_box,
-                            candidate.item.item_id,
+                            expected->record,
                             templates->second,
                             request.threshold,
                             request.subpixel_threshold);
