@@ -64,13 +64,13 @@
 - **职责分离**：Go Service 仅用于处理 Pipeline 难以实现的复杂图像算法或特殊交互逻辑。
 - **流程控制**：禁止在 Go 中编写大规模的业务流程，流程控制应交由 Pipeline JSON 负责。
 - **注册机制**：新增、重命名或删除自定义动作/识别时，需同步修改对应子包 `register.go`；新增或删除子包时，还需在 `registerAll()` 中接入或移除。
-- **参数极简**：新增或修改 Custom Recognition / Action 时，`custom_recognition_param` / `custom_action_param` 应尽可能简单——只传入算法真正需要的最小信息集，避免把 Pipeline 侧可处理的逻辑或冗余配置塞进参数。
+- **参数极简**：新增或修改 Custom Recognition / Action 时，`custom_recognition_param` / `custom_action_param` 应尽可能简单——只声明确有调用方需要的参数，未使用的字段不要预留。
 
 ### 3. Cpp Algo 规范
 
 - **职责分离**：Cpp Algo 支持原生 OpenCV 和 ONNX Runtime，优先用于实现单个复杂识别算法；操作及业务流程优先由 Go Service 与 Pipeline 负责。
 - **注册机制**：新增、重命名或删除自定义动作/识别时，需同步修改 `agent/cpp-algo/source/main.cpp` 中的注册。
-- **参数极简**：新增或修改 Custom Recognition / Action 时，`custom_recognition_param` / `custom_action_param` 应尽可能简单——只传入算法真正需要的最小信息集，避免把 Pipeline 侧可处理的逻辑或冗余配置塞进参数。
+- **参数极简**：新增或修改 Custom Recognition / Action 时，`custom_recognition_param` / `custom_action_param` 应尽可能简单——只声明确有调用方需要的参数，未使用的字段不要预留。
 
 ### 4. Custom Schema 规范
 
