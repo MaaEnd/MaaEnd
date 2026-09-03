@@ -22,6 +22,7 @@ from runtime import MaaRuntime
 
 
 StatusCallback = Callable[[str, str], None]
+PhaseCallback = Callable[[str, str], None]
 ReadyCallback = Callable[[], None]
 ArmedCallback = Callable[[int, str], None]
 RunStateCallback = Callable[[bool], None]
@@ -51,6 +52,7 @@ class NavTestService:
         self,
         runtime: MaaRuntime,
         on_status: StatusCallback,
+        on_phase: PhaseCallback,
         on_ready: ReadyCallback,
         on_armed: ArmedCallback,
         on_run_state: RunStateCallback,
@@ -60,6 +62,7 @@ class NavTestService:
         on_closed: ClosedCallback,
     ) -> None:
         self._on_status = on_status
+        self._on_phase = on_phase
         self._on_ready = on_ready
         self._on_armed = on_armed
         self._on_run_state = on_run_state
@@ -87,12 +90,17 @@ class NavTestService:
         self._position_thread: threading.Thread | None = None
         self._position_stop = threading.Event()
         self._position_ready = threading.Event()
+        self._navigation_phase_reported = False
 
     _POSITION_RE = re.compile(
         r"MapLocator \[status=0\].*?\[position\.zoneId=(.*?)\] "
         r"\[position\.x=([-+0-9.eE]+)\] \[position\.y=([-+0-9.eE]+)\].*?"
         r"\[position\.angle=([-+0-9.eE]+)\]"
     )
+    _NAVMESH_PLANNED_RE = re.compile(r"NAVMESH (?:route planned|generated path)\.")
+    _WAITING_FOR_GPS_RE = re.compile(r"Waiting for first valid GPS signal\.\.\.")
+    _INITIAL_FIX_RE = re.compile(r"Initial Pos fixed:")
+    _AGENT_ABORT_RE = re.compile(r"Process aborted\.")
 
     @staticmethod
     def _position_log_path() -> Path:
@@ -149,6 +157,17 @@ class NavTestService:
                         time.sleep(0.04)
                         continue
                     offset = stream.tell()
+                    if self._WAITING_FOR_GPS_RE.search(line):
+                        self._on_phase("locating", "正在定位起点…")
+                    elif self._INITIAL_FIX_RE.search(line):
+                        self._on_phase("planning", "已定位起点，正在规划路线…")
+                    elif self._AGENT_ABORT_RE.search(line):
+                        self._abort_requested = True
+                        self._on_phase("error", "导航服务异常退出，本轮试跑已中断")
+                        self._on_status("导航服务在规划过程中异常退出，请查看导航日志。", "#ef4444")
+                    if not self._navigation_phase_reported and self._NAVMESH_PLANNED_RE.search(line):
+                        self._navigation_phase_reported = True
+                        self._on_phase("navigating", "规划完成，正在执行路线…")
                     match = self._POSITION_RE.search(line)
                     if not match:
                         continue
@@ -278,6 +297,7 @@ class NavTestService:
             self._on_status("当前没有正在进行的试跑。", "#64748b")
             return
         self._abort_requested = True
+        self._on_phase("stopping", "正在终止试跑…")
         self._on_status("⏹ 正在终止试跑…", "#f59e0b")
         with self._state_lock:
             tasker = self._tasker
@@ -316,6 +336,7 @@ class NavTestService:
             if self._session_config is None:
                 raise RuntimeError("试跑会话配置缺失。")
 
+            self._on_phase("connecting", "正在启动导航服务并连接游戏…")
             self._session.open(
                 build_recording_connector(self._runtime, self._session_config),
                 agent_name="MapNavigateAgent",
@@ -331,6 +352,7 @@ class NavTestService:
             key_listener.start()
 
             self._on_ready()
+            self._on_phase("ready", "已连接游戏，正在装载试跑路线…")
             self._on_status(
                 f"● 已连接游戏, 按 F3 重跑 / F4 立即终止 [{self._session_config.display_name()}]",
                 "#3b82f6",
@@ -354,6 +376,7 @@ class NavTestService:
             import traceback
 
             traceback.print_exc()
+            self._on_phase("error", "试跑会话启动失败")
             self._on_error(str(exc))
         finally:
             self._alive.clear()
@@ -377,13 +400,16 @@ class NavTestService:
 
         self._abort_requested = False
         self._running.set()
+        self._navigation_phase_reported = False
         self._on_run_state(True)
         if kind == "assert":
             # 跑的就是导出的那个节点原样: 识别命中即通过, 不另加判定。
+            self._on_phase("preparing", "正在准备定位断言…")
             self._on_status("● 断言中 —— 按 F4 立即终止", "#ef4444")
             node_name = ASSERT_NODE_NAME
             override = {node_name: path[0]}
         else:
+            self._on_phase("preparing", "正在准备路线试跑…")
             self._on_status("● 试跑中 —— 按 F4 立即终止", "#ef4444")
             node_name = NODE_NAME
             custom_action_param: dict[str, Any] = {"path": path}
@@ -405,17 +431,29 @@ class NavTestService:
 
         if kind == "route":
             self._start_position_observer()
+            self._on_phase("starting", "正在启动导航器…")
+        else:
+            self._on_phase("locating", "正在定位并检查断言区域…")
         try:
             job = tasker.post_task(node_name).wait()
             succeeded = bool(job.succeeded)
         finally:
             self._stop_position_observer()
+        self._on_phase("finishing", "正在收尾本轮试跑…")
         self._running.clear()
         self._on_run_state(False)
 
         if self._abort_requested:
+            self._on_phase("idle", "本轮试跑已终止，可按 F3 重新开始")
             self._on_finished(False, "aborted", kind)
             return
+        completed_text = (
+            "断言检查完成" if kind == "assert" and succeeded else
+            "断言检查未通过" if kind == "assert" else
+            "路线试跑完成" if succeeded else
+            "路线试跑失败"
+        )
+        self._on_phase("finished" if succeeded else "failed", completed_text)
         self._on_finished(succeeded, "ok" if succeeded else "failed", kind)
 
     def _register_hotkeys(self) -> None:

@@ -22,6 +22,7 @@ class NavTestServiceTest(unittest.TestCase):
         return NavTestService(
             runtime=SimpleNamespace(),
             on_status=lambda _text, _color: None,
+            on_phase=lambda _phase, _text: None,
             on_ready=lambda: None,
             on_armed=lambda _count, _kind: None,
             on_run_state=lambda _running: None,
