@@ -85,7 +85,7 @@ def sync_published_images(
         )
     asset_image_root.mkdir(parents=True, exist_ok=True)
 
-    # 黑名单物品可能与正常物品共用图标；只有当前 catalog 完全不再引用时才能删除。
+    # 黑名单物品可能与正常物品共用图标;只有当前 catalog 完全不再引用时才能删除。
     for removal in removed_items:
         icon_id = removal.get("iconId")
         if not isinstance(icon_id, str) or not icon_id:
