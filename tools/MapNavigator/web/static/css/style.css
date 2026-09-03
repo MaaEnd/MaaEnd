@@ -1203,6 +1203,13 @@ canvas {
   flex: 0 0 auto;
 }
 
+.wp-height {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-muted);
+  flex: 0 0 auto;
+}
+
 .wp-strict {
   font-size: 10px;
   font-weight: 600;

@@ -143,6 +143,13 @@ class MapNavigatorApp {
     this._editDeckSig = null;
     /** @type {?number} 路点拖动时重叠面探针的防抖句柄。 */
     this._editDeckTimer = null;
+    /** @type {Map<number, Array<{height:number, band:number[], thin:boolean}>>} 路点列表逐行显示的重叠面。 */
+    this.waypointDecks = new Map();
+    /** @type {?string} 当前片段全部 NAVMESH 路点的批量探针签名。 */
+    this._waypointDeckSig = null;
+    this._waypointDeckToken = 0;
+    /** @type {?number} 批量重叠面探针的防抖句柄。 */
+    this._waypointDeckTimer = null;
     const readDebugFlag = (key, defaultValue) => {
       const stored = localStorage.getItem(key);
       return stored === null ? defaultValue : stored === "1";
@@ -1235,6 +1242,7 @@ class MapNavigatorApp {
     if (mode === Mode.EDIT) {
       this._scheduleEditOffMeshProbe();
       this._scheduleEditDeckProbe();
+      this._scheduleWaypointDeckProbes();
     }
 
     const displayEditLocateHint = mode === Mode.EDIT ? this._editLocateHintForDisplay() : null;
@@ -2541,8 +2549,14 @@ class MapNavigatorApp {
     const zoneIndices = this.state.zonePointGlobalIndices();
     const localIndex = [...this.state.selectedIndices][0];
     const globalIndex = zoneIndices[localIndex];
-    const point = this.state.points[globalIndex];
-    if (!point || !getPointActions(point).includes(ActionType.NAVMESH)) return null;
+    return this._editDeckTarget(globalIndex, this.state.points[globalIndex]);
+  }
+
+  /** Resolve one author NAVMESH point to the base geometry used by `/api/deck-probe`. */
+  _editDeckTarget(globalIndex, point) {
+    if (this.state.mode !== Mode.EDIT || !this.field || !point || !getPointActions(point).includes(ActionType.NAVMESH)) {
+      return null;
+    }
 
     const targetTier = normalizeZoneId(point.target_tier || "");
     const routeZoneId = this._resolveZoneId(point.zone);
@@ -2573,6 +2587,41 @@ class MapNavigatorApp {
     this._renderEditDeckList();
     if (!target) return;
     this._editDeckTimer = setTimeout(() => this._probeEditDeckTarget(target), 100);
+  }
+
+  /** Refresh all current-segment NAVMESH waypoint heights for the sidebar list. @returns {void} */
+  _scheduleWaypointDeckProbes() {
+    if (this.state.mode !== Mode.EDIT || !this.field) return;
+    const targets = this.state
+      .zonePointGlobalIndices()
+      .map((globalIndex) => this._editDeckTarget(globalIndex, this.state.points[globalIndex]))
+      .filter(Boolean);
+    const signature = targets.map((target) => target.signature).join("|");
+    if (signature === this._waypointDeckSig) return;
+    this._waypointDeckSig = signature;
+    this.waypointDecks.clear();
+    this._renderWaypointList();
+    const token = ++this._waypointDeckToken;
+    clearTimeout(this._waypointDeckTimer);
+    if (!targets.length) return;
+    this._waypointDeckTimer = setTimeout(() => {
+      void Promise.all(
+        targets.map(async (target) => {
+          try {
+            const result = await postDeckProbe({zone_id: target.geometryZoneId, point: target.base});
+            return result && result.ok && Array.isArray(result.decks) ? [target.globalIndex, result.decks] : null;
+          } catch {
+            return null; // 探针只辅助选层，失败不能阻断路径编辑
+          }
+        }),
+      ).then((results) => {
+        if (token !== this._waypointDeckToken || this.state.mode !== Mode.EDIT) return;
+        for (const result of results) {
+          if (result) this.waypointDecks.set(result[0], result[1]);
+        }
+        this._renderWaypointList();
+      });
+    }, 120);
   }
 
   /** @param {{globalIndex:number, geometryZoneId:number, base:number[]}} target @returns {Promise<void>} */
@@ -5268,6 +5317,7 @@ class MapNavigatorApp {
   _syncActionControls() {
     this._renderEditInspection();
     this._renderWaypointList();
+    this._scheduleWaypointDeckProbes();
     this._renderEditDeckList();
     // 路线可能刚被改过: 重新装载到试跑会话, 让 F3 跑的始终是屏幕上这一条。
     if (this.navtest) this.navtest.routeChanged();
@@ -5370,6 +5420,20 @@ class MapNavigatorApp {
       coord.textContent = `${compactNumber(point.x)}, ${compactNumber(point.y)}`;
 
       row.append(handle, num, dot, name, coord);
+
+      const height = document.createElement("span");
+      height.className = "wp-height";
+      const decks = actions.includes(ActionType.NAVMESH) ? this.waypointDecks.get(zoneIndices[idx]) : null;
+      const selectedHeight = Number.isFinite(point.target_deck_y) ? point.target_deck_y : null;
+      // 只有一层时那层就是答案；多层时没选层就说不准站哪，等作者挑完再显示。
+      const selectedDeck =
+        decks && decks.length > 1 && selectedHeight !== null
+          ? decks.find((deck) => Math.abs(selectedHeight - deck.height) <= 2)
+          : null;
+      const displayHeight = decks && decks.length === 1 ? decks[0].height : selectedDeck?.height;
+      height.textContent = Number.isFinite(displayHeight) ? `[${displayHeight.toFixed(2)}]` : "[ - ]";
+      row.appendChild(height);
+
       if (point.strict) {
         const strict = document.createElement("span");
         strict.className = "wp-strict";
