@@ -545,6 +545,10 @@ class IconRecognitionToolsTest(unittest.TestCase):
             destination = paths.asset_image_root / "3" / "item_test.png"
             destination.parent.mkdir(parents=True, exist_ok=True)
             destination.write_bytes(b"stale")
+            removed_destination = (
+                paths.asset_image_root / "3" / "item_port_soil_grass_1.png"
+            )
+            removed_destination.write_bytes(b"blacklisted")
             for locale, (_, language) in LOCALE_MAP.items():
                 translations = (
                     {}
@@ -584,6 +588,7 @@ class IconRecognitionToolsTest(unittest.TestCase):
                 (paths.asset_image_root / "3" / "item_test.png").read_bytes(),
                 b"stale",
             )
+            self.assertFalse(removed_destination.exists())
         self.assertEqual(catalog["item_test"]["name"], "测试物品")
         self.assertNotIn("item_port_soil_grass_fast_1", catalog)
         self.assertEqual(en_us["iconRecognition.name.item_test"], "item_name_hash")
@@ -610,6 +615,53 @@ class IconRecognitionToolsTest(unittest.TestCase):
 
             destination = asset_image_root / "3" / "item_test.png"
             self.assertEqual(destination.read_bytes(), b"source")
+
+    def test_sync_published_images_preserves_removed_icon_used_by_catalog(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            asset_image_root = root / "assets"
+            destination = asset_image_root / "2" / "shared_icon.png"
+            destination.parent.mkdir(parents=True)
+            destination.write_bytes(b"keep")
+
+            sync_published_images(
+                root / "images",
+                asset_image_root,
+                {"item_current": {"rarity": 2, "iconId": "shared_icon"}},
+                {},
+                [{"removedId": "item_removed", "iconId": "shared_icon"}],
+            )
+
+            self.assertEqual(destination.read_bytes(), b"keep")
+
+    def test_sync_published_images_preserves_removed_icon_used_by_fluid_catalog(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            asset_image_root = root / "assets"
+            destination = asset_image_root / "1" / "shared_fluid.png"
+            destination.parent.mkdir(parents=True)
+            destination.write_bytes(b"keep")
+
+            sync_published_images(
+                root / "images",
+                asset_image_root,
+                {
+                    "item_container": {
+                        "rarity": 3,
+                        "iconId": "item_container",
+                        "fluidIconId": "shared_fluid",
+                    }
+                },
+                {
+                    "item_fluid": {
+                        "rarity": 1,
+                        "iconId": "shared_fluid",
+                    }
+                },
+                [{"removedId": "item_removed", "iconId": "shared_fluid"}],
+            )
+
+            self.assertEqual(destination.read_bytes(), b"keep")
 
     def test_sync_published_images_copies_fluid_icon_for_composite_catalog(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

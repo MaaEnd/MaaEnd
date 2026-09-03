@@ -39,6 +39,7 @@ type Match struct {
 	StorageKind  string   `json:"storage_kind"`
 	CategoryType string   `json:"category_type"`
 	Rarity       int      `json:"rarity"`
+	// Aliases 仅包含与代表物品共享图标身份的候选物品。
 	Aliases      []Alias  `json:"aliases,omitempty"`
 	CellBox      maa.Rect `json:"cell_box"`
 	ItemBox      maa.Rect `json:"item_box"`
