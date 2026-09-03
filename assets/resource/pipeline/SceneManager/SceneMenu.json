@@ -1398,8 +1398,7 @@
                 200
             ]
         },
-        "pre_delay": 0,
-        "post_delay": 0
+        "post_delay": 500 // 不规则方块闪烁动画无法局部wait_freeze
     },
     "__ScenePrivateWorldEnterMenuProtocolPass": {
         "desc": "从大世界进入通行证菜单",
