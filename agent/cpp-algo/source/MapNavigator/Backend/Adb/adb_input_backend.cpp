@@ -1,12 +1,10 @@
 #include <algorithm>
 #include <chrono>
-#include <string_view>
 #include <thread>
 #include <utility>
 
 #include <MaaUtils/Logger.h>
 
-#include "../../controller_type_utils.h"
 #include "../../navi_config.h"
 #include "adb_input_backend.h"
 
@@ -37,44 +35,13 @@ private:
     MaaImageBuffer* buffer_ = nullptr;
 };
 
-AdbCameraSwipeDriverConfig MakeDefaultCameraSwipeDriverConfig(std::string_view controller_type)
+AdbCameraSwipeDriverConfig MakeDefaultCameraSwipeDriverConfig()
 {
     AdbCameraSwipeDriverConfig config;
-    config.contact_id = IsPlayCoverControllerType(controller_type) ? 0 : config.contact_id;
     config.pressure = 0;
     config.turn_swipe_duration_ms = kAdbTouchTurnProfile.swipe_duration_ms;
     config.post_swipe_settle_ms = kAdbTouchTurnProfile.post_swipe_settle_ms;
     return config;
-}
-
-AdbVirtualJoystickDriverConfig MakeDefaultJoystickDriverConfig(std::string_view controller_type)
-{
-    AdbVirtualJoystickDriverConfig config;
-    if (!IsPlayCoverControllerType(controller_type)) {
-        return config;
-    }
-
-    config.contact_id = 0;
-    return config;
-}
-
-AdbActionButtonLayout MakeDefaultActionButtonLayout(std::string_view controller_type)
-{
-    AdbActionButtonLayout layout;
-    if (!IsPlayCoverControllerType(controller_type)) {
-        return layout;
-    }
-
-    layout.sprint_button.contact_id = 0;
-    layout.jump_button.contact_id = 0;
-    layout.attack_button.contact_id = 0;
-    layout.interact_button.contact_id = 0;
-    return layout;
-}
-
-bool RequiresSingleTouchSerialization(std::string_view controller_type)
-{
-    return IsPlayCoverControllerType(controller_type);
 }
 
 double ComputeDefaultTurnUnitsPerDegree([[maybe_unused]] MaaController* ctrl)
@@ -95,10 +62,9 @@ AdbInputBackend::AdbInputBackend(MaaController* ctrl, std::string controller_typ
     , controller_type_(std::move(controller_type))
     , default_turn_units_per_degree_(ComputeDefaultTurnUnitsPerDegree(ctrl))
     , has_locator_(locator != nullptr)
-    , camera_swipe_driver_(ctrl, MakeDefaultCameraSwipeDriverConfig(controller_type_))
+    , camera_swipe_driver_(ctrl, MakeDefaultCameraSwipeDriverConfig())
     , zone_guard_(locator)
-    , joystick_driver_(ctrl, locator, MakeDefaultJoystickDriverConfig(controller_type_))
-    , action_buttons_(MakeDefaultActionButtonLayout(controller_type_))
+    , joystick_driver_(ctrl, locator, AdbVirtualJoystickDriverConfig {})
 {
     if (ctrl_ == nullptr) {
         unsupported_reason_ = "controller handle is null";
@@ -145,16 +111,6 @@ double AdbInputBackend::default_turn_units_per_degree() const
 
 SteeringTransportProfile AdbInputBackend::steering_transport_profile() const
 {
-    if (RequiresSingleTouchSerialization(controller_type_)) {
-        return SteeringTransportProfile {
-            .supports_concurrent_move_and_look = false,
-            .min_send_interval_ms = 120,
-            .min_emit_delta_deg = 4.0,
-            .max_batch_delta_deg = 14.0,
-            .action_quiet_period_ms = 180,
-        };
-    }
-
     return SteeringTransportProfile {
         .supports_concurrent_move_and_look = true,
         .min_send_interval_ms = 0,
@@ -166,7 +122,7 @@ SteeringTransportProfile AdbInputBackend::steering_transport_profile() const
 
 bool AdbInputBackend::supports_sprint() const
 {
-    return !IsPlayCoverControllerType(controller_type_);
+    return true;
 }
 
 void AdbInputBackend::SetMovementStateSync(bool forward, bool left, bool backward, bool right, int delay_millis)
@@ -253,20 +209,7 @@ bool AdbInputBackend::SendViewDeltaSync(int dx, int dy)
         return ctrl_ != nullptr;
     }
 
-    const bool single_touch_mode = RequiresSingleTouchSerialization(controller_type_);
-    const bool has_active_movement = single_touch_mode && (forward_down_ || left_down_ || backward_down_ || right_down_);
-    if (has_active_movement && !joystick_driver_.Release(0)) {
-        LogWarn << "AdbInputBackend: failed to release joystick before single-touch camera swipe.";
-    }
-
     const bool applied = camera_swipe_driver_.SwipeByPixels(dx, dy);
-    if (has_active_movement) {
-        const bool restored = joystick_driver_.SetMovementState(forward_down_, left_down_, backward_down_, right_down_, 0);
-        if (!restored) {
-            LogWarn << "AdbInputBackend: failed to restore joystick after single-touch camera swipe.";
-        }
-    }
-
     if (!applied) {
         LogWarn << "AdbInputBackend: failed to apply camera swipe." << VAR(dx) << VAR(dy);
         return false;
