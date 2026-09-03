@@ -628,4 +628,9 @@ std::vector<const GridTileRef*> GridTilesInRect(const GridZoneDir& zone, int64_t
     return hit;
 }
 
+bool InflateBytes(const uint8_t* data, size_t len, std::vector<uint8_t>& out)
+{
+    return Inflate(data, len, out);
+}
+
 }

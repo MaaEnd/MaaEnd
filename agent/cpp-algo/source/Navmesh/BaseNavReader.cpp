@@ -638,6 +638,8 @@ BaseNavLoadResult ReadGzipFile(const std::filesystem::path& path, std::vector<ui
     return {};
 }
 
+}
+
 BaseNavLoadResult ReadNavFileBytes(const std::filesystem::path& path, std::vector<uint8_t>* output)
 {
     if (HasGzipSuffix(path)) {
@@ -661,8 +663,6 @@ BaseNavLoadResult ReadNavFileBytes(const std::filesystem::path& path, std::vecto
     return {};
 }
 
-}
-
 BaseNavLoadResult LoadBaseNavPack(const std::filesystem::path& path, std::string_view zone_name)
 {
     std::vector<uint8_t> file_bytes;
@@ -675,6 +675,8 @@ BaseNavLoadResult LoadBaseNavPack(const std::filesystem::path& path, std::string
     if (file_size < kHeaderSize) {
         return Fail(BaseNavLoadStatus::InvalidSize, "nav file is smaller than header");
     }
+    // 整份解压字节的指纹,旁包靠它认主包;按区裁剪也算整份,两种载入口径得出同一个值
+    const uint64_t file_fnv = Fnv64Update(kFnvOffset, file_bytes.data(), file_bytes.size());
 
     if (std::memcmp(file_bytes.data(), "BNAV", 4) != 0) {
         return Fail(BaseNavLoadStatus::InvalidMagic, "invalid nav magic");
@@ -1146,7 +1148,9 @@ BaseNavLoadResult LoadBaseNavPack(const std::filesystem::path& path, std::string
         std::move(links),
         std::move(surfaces),
         std::move(off_mesh_links),
-        std::move(sections));
+        std::move(sections),
+        build_hash,
+        file_fnv);
     return result;
 }
 

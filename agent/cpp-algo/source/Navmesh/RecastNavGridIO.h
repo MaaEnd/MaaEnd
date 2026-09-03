@@ -125,4 +125,7 @@ private:
 // 自有矩形与全局格矩形 [gx0,gx1]×[gy0,gy1] 相交的瓦。
 std::vector<const GridTileRef*> GridTilesInRect(const GridZoneDir& zone, int64_t gx0, int64_t gy0, int64_t gx1, int64_t gy1);
 
+// 解一段 zlib 流到 out(覆盖)。瓦载荷与旁包的各条流都是这种不带原长的流。
+bool InflateBytes(const uint8_t* data, size_t len, std::vector<uint8_t>& out);
+
 }

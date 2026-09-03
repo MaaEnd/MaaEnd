@@ -268,7 +268,7 @@ SpanTable BuildSpans(const std::vector<int64_t>& cell, const std::vector<float>&
     return PackSpans(std::move(st.sp_cell), std::move(st.sp_h));
 }
 
-SpanTable PackSpans(std::vector<int32_t> cell, std::vector<float> h, std::vector<uint8_t>* flags)
+SpanTable PackSpans(std::vector<int32_t> cell, std::vector<float> h, std::vector<uint8_t>* flags, std::vector<uint32_t>* aux)
 {
     SpanTable st;
     const int64_t n_span = static_cast<int64_t>(cell.size());
@@ -354,6 +354,13 @@ SpanTable PackSpans(std::vector<int32_t> cell, std::vector<float> h, std::vector
             fo[i] = (*flags)[static_cast<size_t>(ord[i])];
         }
         flags->swap(fo);
+    }
+    if (aux != nullptr) {
+        std::vector<uint32_t> ao(n);
+        for (size_t i = 0; i < n; ++i) {
+            ao[i] = (*aux)[static_cast<size_t>(ord[i])];
+        }
+        aux->swap(ao);
     }
     ord = std::vector<int32_t>();
     // 先数一遍占用格再一次分配。边数边 push 会按二的幂扩容, 逐格数组在满窗口上要白占近一倍。
@@ -684,8 +691,7 @@ std::vector<uint8_t> WallsAtLayer(
     const std::vector<double>& hh,
     const Grid<float>& lh,
     double ox,
-    double oy,
-    const OutsideLayerFn* outside)
+    double oy)
 {
     std::vector<uint8_t> keep(p0.size(), 0);
     for (size_t i = 0; i < p0.size(); ++i) {
@@ -697,11 +703,10 @@ std::vector<uint8_t> WallsAtLayer(
             const double sy = p0[i].y + (p1[i].y - p0[i].y) * t;
             const int64_t gx = static_cast<int64_t>(std::floor((sx - ox) / kCS));
             const int64_t gy = static_cast<int64_t>(std::floor((sy - oy) / kCS));
-            const bool in = gx >= 0 && gx < lh.nx && gy >= 0 && gy < lh.ny;
-            if (!in && outside == nullptr) {
+            if (gx < 0 || gx >= lh.nx || gy < 0 || gy >= lh.ny) {
                 continue;
             }
-            const float h = in ? lh.at(gy, gx) : (*outside)(i, gx, gy);
+            const float h = lh.at(gy, gx);
             if (!std::isnan(h) && std::abs(static_cast<double>(h) - hh[i]) <= kMcHBand) {
                 keep[i] = 1;
             }

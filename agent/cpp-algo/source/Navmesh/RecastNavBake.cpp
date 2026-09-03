@@ -40,6 +40,8 @@ BakedWalls BakeWalls(const ZoneClean& zc, double x0, double y0, int64_t nx, int6
                 out.h0.push_back(mesh.h(a));
                 out.h1.push_back(mesh.h(b));
                 out.hh.push_back((mesh.h(a) + mesh.h(b)) / 2.0);
+                out.tri.push_back(t);
+                out.k.push_back(static_cast<uint8_t>(k));
             }
         }
     }

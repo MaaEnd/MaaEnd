@@ -36,6 +36,9 @@ inline constexpr double kSnapRadius = 8.0;         // 起终点吸附半径 px
 inline constexpr double kDeckBand = 2.0;           // 声明面高度匹配容差 px, 需远小于相邻面间距
 inline constexpr double kBlockedPointRadius = 1.0; // 封堵点盖章半径 px
 inline constexpr int64_t kHoleMaxCells = 32;       // 封闭小洞填充上限(格 = 2px²)
+// 整类窗口在类范围外留的圈(格)。场都是局部算子, 依赖半径合起来不到这一圈, 留出它,
+// 类边缘那几格算出来的场就与在整区图上算的逐位相同。旁包按同一个值烘。
+inline constexpr int64_t kFieldHalo = 32;
 // 单区格数上限。规划铺满整区, 这道闸只用来挡烘出来就不正常的区, 正常区离它很远。
 inline constexpr int64_t kMaxCells = 400'000'000;
 
@@ -166,7 +169,9 @@ void AppendSeamBridge(RasterCells& rc, int64_t nx, int64_t ny);
 
 SpanTable BuildSpans(const std::vector<int64_t>& cell, const std::vector<float>& h);
 
-SpanTable PackSpans(std::vector<int32_t> cell, std::vector<float> h, std::vector<uint8_t>* flags = nullptr);
+// flags / aux 是与 cell 同长的随行列, 按同一置换重排后写回原处。
+SpanTable PackSpans(
+    std::vector<int32_t> cell, std::vector<float> h, std::vector<uint8_t>* flags = nullptr, std::vector<uint32_t>* aux = nullptr);
 
 std::vector<uint8_t> Flood(int64_t seed, const SpanTable& st, int64_t nx);
 
@@ -188,17 +193,15 @@ std::vector<uint8_t> StampWalls(
     int64_t ny,
     const SpanTable& st);
 
-// 落在 lh 外的采样交给 outside(墙号, 格x, 格y) 取层高, 不给就跳过。采样集只由端点定,
-// 所以窗内窗外两路的判据逐样本同口径。
-using OutsideLayerFn = std::function<float(size_t, int64_t, int64_t)>;
+// 逐墙一位: 沿墙采样, 任一样本落在层高图 lh 的带内即留下。落在 lh 外的采样跳过。
+// 运行期不再调它(留墙已烘进旁包), 留作烘焙口径的参考实现与旁包校验。
 std::vector<uint8_t> WallsAtLayer(
     const std::vector<WorldPoint>& p0,
     const std::vector<WorldPoint>& p1,
     const std::vector<double>& hh,
     const Grid<float>& lh,
     double ox,
-    double oy,
-    const OutsideLayerFn* outside = nullptr);
+    double oy);
 
 // 逐格一位: 这一格里落过边界边的采样点。距离场对跨边界无感, 用它把边所在的格从自由集里扣掉。
 Mask WallHits(const std::vector<WorldPoint>& p0, const std::vector<WorldPoint>& p1, double ox, double oy, int64_t nx, int64_t ny);
