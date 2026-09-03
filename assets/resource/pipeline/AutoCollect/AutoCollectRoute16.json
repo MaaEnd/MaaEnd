@@ -45,8 +45,8 @@
                 "AutoCollectRoute16GotoInteract",
                 "AutoCollectRoute16FindButtonUsing"
             ],
-            "continue": true,
-            "strict": false
+            "continue": false,
+            "strict": true
         },
         "next": [
             "AutoCollectRoute16Goto"
