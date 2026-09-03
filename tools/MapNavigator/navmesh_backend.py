@@ -135,9 +135,15 @@ class NavmeshBackend:
         self._session = session
 
     def close(self) -> None:
-        session, self._session = self._session, None
-        if session is not None:
-            session.close()
+        # 关会话得跟查询串行, 否则 _post_locked() 正拿着它用; 但关服务器不能被在途的长规划卡死。
+        acquired = self._query_lock.acquire(timeout=10.0)
+        try:
+            session, self._session = self._session, None
+            if session is not None:
+                session.close()
+        finally:
+            if acquired:
+                self._query_lock.release()
 
     def status(self) -> dict[str, Any]:
         self._restart_dead_session()
