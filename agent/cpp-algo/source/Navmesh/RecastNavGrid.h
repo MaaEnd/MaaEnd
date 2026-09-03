@@ -2,11 +2,14 @@
 
 #include <algorithm>
 #include <array>
+#include <bit>
 #include <cstdint>
+#include <functional>
 #include <optional>
 #include <unordered_set>
 #include <vector>
 
+#include "BaseNavPack.h"
 #include "NavmeshTypes.h"
 #include "RecastNavGridIO.h"
 
@@ -116,9 +119,11 @@ struct SpanTable
     std::vector<int32_t> cs;
     // 逐占用格一位: 这一列是不是被栅格化的立面。判据只看该格自己的叠层, 建表时算一次。
     std::vector<uint8_t> face;
-    // 格号 → 占用格下标的直查表, 空格填 -1。邻格查询在 BFS 与垂直可达判据里是最内层的一步,
-    // 建表时摊掉一次, 就不必每次二分。长度只到最大占用格, 表外一律当空格。
-    std::vector<int32_t> c2j;
+    // 格号 → 占用格下标: 逐格一位的占用图加每 64 格的前缀占用数, 查一次是一位测试加一个
+    // popcount。邻格查询在 BFS 与垂直可达判据里是最内层的一步, 建表时摊掉一次, 就不必每次
+    // 二分; 比逐格 4 字节的直查表小 30 倍。长度只到最大占用格, 表外一律当空格。
+    std::vector<uint64_t> occ_bits;
+    std::vector<int32_t> occ_rank;
 
     int64_t nOcc() const { return cs.empty() ? 0 : static_cast<int64_t>(cs.size()) - 1; }
 
@@ -130,7 +135,16 @@ struct SpanTable
 
     int64_t j(int64_t cid) const
     {
-        return cid >= 0 && cid < static_cast<int64_t>(c2j.size()) ? c2j[static_cast<size_t>(cid)] : -1;
+        const auto w = static_cast<size_t>(cid >> 6);
+        if (cid < 0 || w >= occ_bits.size()) {
+            return -1;
+        }
+        const uint64_t bits = occ_bits[w];
+        const int b = static_cast<int>(cid & 63);
+        if (((bits >> b) & 1U) == 0) {
+            return -1;
+        }
+        return occ_rank[w] + std::popcount(bits & ((uint64_t { 1 } << b) - 1));
     }
 };
 
@@ -140,8 +154,7 @@ bool RiseOk(const SpanTable& st, int64_t nx, int64_t ny, int64_t cid, int64_t dx
 // walkable 非空时按三角下标逐个过滤:标 0 的不体素化。掩码须与 T 同长同序;
 // 调用方自己压缩过的子集三角表留 nullptr。
 RasterCells Rasterize(
-    const std::vector<WorldPoint>& V,
-    const std::vector<double>& H,
+    const BaseNavVertex* V,
     const std::vector<std::array<int32_t, 3>>& T,
     double ox,
     double oy,
@@ -175,13 +188,17 @@ std::vector<uint8_t> StampWalls(
     int64_t ny,
     const SpanTable& st);
 
+// 落在 lh 外的采样交给 outside(墙号, 格x, 格y) 取层高, 不给就跳过。采样集只由端点定,
+// 所以窗内窗外两路的判据逐样本同口径。
+using OutsideLayerFn = std::function<float(size_t, int64_t, int64_t)>;
 std::vector<uint8_t> WallsAtLayer(
     const std::vector<WorldPoint>& p0,
     const std::vector<WorldPoint>& p1,
     const std::vector<double>& hh,
     const Grid<float>& lh,
     double ox,
-    double oy);
+    double oy,
+    const OutsideLayerFn* outside = nullptr);
 
 // 逐格一位: 这一格里落过边界边的采样点。距离场对跨边界无感, 用它把边所在的格从自由集里扣掉。
 Mask WallHits(const std::vector<WorldPoint>& p0, const std::vector<WorldPoint>& p1, double ox, double oy, int64_t nx, int64_t ny);
@@ -298,13 +315,15 @@ std::optional<std::vector<CellPt>> CostAstar(
     const PriceField& mult,
     const EdgeBits* banned,
     const double* bnp,
-    const EdgeBits* forbidden = nullptr);
+    const EdgeBits* forbidden = nullptr,
+    double* out_cost = nullptr);
 
 class Visibility;
 
 // vis 非空则按 Lazy Theta* 展开: 松弛先把父指针接到祖父, 弹出时才验一次视线, 验不过退回格步。
 // 于是路径由父链上的直线段构成, 紧绷这件事在搜索里完成, 不再靠事后拉直。
 // 返回值恒为逐格路径, 拓扑判据按格读。corners 非空则另交出父链本身, 那才是几何要走的折线。
+// out_cost 非空则交出终点的累计代价; 单价恒 ≥1, 它就是路径格长的上界, 小窗验收拿它判搜索有没有碰边。
 std::optional<std::vector<int64_t>> SpanAstar(
     const SpanTable& st,
     const std::vector<uint8_t>& ok,
@@ -316,7 +335,8 @@ std::optional<std::vector<int64_t>> SpanAstar(
     const double* bnp,
     const EdgeBits* forbidden = nullptr,
     const Visibility* vis = nullptr,
-    std::vector<int64_t>* corners = nullptr);
+    std::vector<int64_t>* corners = nullptr,
+    double* out_cost = nullptr);
 
 Mask MedialAxis(const Grid<float>& dist, double lam);
 

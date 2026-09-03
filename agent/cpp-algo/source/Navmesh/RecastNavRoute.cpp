@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <atomic>
+#include <bit>
 #include <chrono>
 #include <cmath>
 #include <limits>
@@ -24,8 +25,11 @@ namespace
 double triHeightOf(const PolyMesh& mesh, int32_t t)
 {
     const auto& tri = mesh.T[static_cast<size_t>(t)];
-    return (mesh.H[tri[0]] + mesh.H[tri[1]] + mesh.H[tri[2]]) / 3.0;
+    return (mesh.h(tri[0]) + mesh.h(tri[1]) + mesh.h(tri[2])) / 3.0;
 }
+
+// 净空截断的格数(含取整余量), 与 Clearance 的扫描半径同式。小窗档的可信余量要盖过它。
+constexpr int64_t kEdtCells = static_cast<int64_t>(kEdtCap / kCS) + 1;
 
 struct WindowInfo
 {
@@ -46,6 +50,9 @@ struct WindowInfo
     SpanTable st3;
     std::vector<uint8_t> vis3;
     std::vector<uint8_t> reach3;
+    // 可达域种子所在格的全局格号, 整类可达域按同一颗种子洪水
+    int64_t seed_gx = 0;
+    int64_t seed_gy = 0;
 };
 
 struct RouteDiag
@@ -59,6 +66,17 @@ struct RouteDiag
     bool hop_barrier = false; // 端点接线的那一跳跨了禁行边
     double snap_start = 0.0;
     double snap_goal = 0.0;
+
+    // 小窗档的验收。margin > 0 时窗口只是端点附近的一块, 凡是结果可能被窗口边切过的判据
+    // (搜索碰边、吸附受可达域限制、任何退档分支) 都置 escalate 立即返回, 由调用方换大窗重算。
+    // margin = 0 是整类窗口, 所有验收关掉, 逐字走原路。
+    int64_t margin = 0;
+    // 可达域已按整类洪水映射, 与整类窗口逐位相同; 只与可达域有关的验收(口袋、吸附受限)关掉
+    bool exact_reach = false;
+    // 封顶档: 没有更大的小窗可升, 只与窗口大小有关的验收(碰边类)关掉, 结果照采
+    bool final = false;
+    bool escalate = false;
+    std::string escalate_why;
 
     // 诊断埋点。只读各阶段的出口, 不参与任何判据, 摘掉它们路线逐点不变。
     RecastPlanResult::Debug::Timing timing;
@@ -392,6 +410,227 @@ ZoneBoundsPx regionBounds(const GridPack& gp, const GridZoneDir& gz, uint32_t re
     return b;
 }
 
+// 起点格里离 h0 最近的本类面, 它是 span 可达域的种子。
+int64_t seedSpan(const SpanTable& st, const std::vector<uint8_t>& vis, int64_t cell, double h0)
+{
+    const int64_t sj = st.j(cell);
+    if (sj < 0) {
+        return -1;
+    }
+    int64_t seed = -1;
+    float best = 0.0F;
+    const int64_t b = st.cstart(sj);
+    for (int64_t k = 0, kn = st.ccnt(sj); k < kn; ++k) {
+        const int64_t sid = b + k;
+        if (vis[static_cast<size_t>(sid)] == 0) {
+            continue;
+        }
+        const float d = std::fabs(st.sp_h[static_cast<size_t>(sid)] - static_cast<float>(h0));
+        if (seed < 0 || d < best) {
+            seed = sid;
+            best = d;
+        }
+    }
+    return seed;
+}
+
+// 整类可达域: 只加载整类格图、建 span 表、从起点面洪水, 不算任何场。小窗按格与层序把它映射进
+// 自己的 reach3, 可达域便与整类窗口逐位相同, 绕窗外接上的口袋因此不再是差异。窗口矩形、记录
+// 筛选与种子规则都必须与 buildWindow 的整类档一字不差。
+struct RegionReach
+{
+    int64_t gx0 = 0;
+    int64_t gy0 = 0;
+    int64_t nx = 0;
+    int64_t ny = 0;
+    // 洪水完只留映射要查的: 逐格一位的占用图加每 64 格的前缀数(顶替逐格 4 字节的直查表),
+    // CSR 起点、逐 span 的高与可达位。整区的 span 表本体不留, 它比这几列大三倍多。
+    std::vector<uint64_t> occ_bits;
+    std::vector<int32_t> occ_rank;
+    std::vector<int32_t> cs;
+    std::vector<float> sp_h;
+    std::vector<uint8_t> reach;
+
+    int64_t j(int64_t cid) const
+    {
+        const auto w = static_cast<size_t>(cid >> 6);
+        if (cid < 0 || w >= occ_bits.size()) {
+            return -1;
+        }
+        const uint64_t bits = occ_bits[w];
+        const int b = static_cast<int>(cid & 63);
+        if (((bits >> b) & 1U) == 0) {
+            return -1;
+        }
+        return occ_rank[w] + std::popcount(bits & ((uint64_t { 1 } << b) - 1));
+    }
+
+    int64_t cstart(int64_t ci) const { return cs[static_cast<size_t>(ci)]; }
+
+    int64_t ccnt(int64_t ci) const { return cs[static_cast<size_t>(ci) + 1] - cs[static_cast<size_t>(ci)]; }
+};
+
+// 整类的 span 三列直接从瓦解出来, 不经 GridWindow 的记录与链表; 填充记录和别类的幽灵记录当场
+// 丢掉, 与 buildWindow 整类档的筛法一字不差。分块与压紧同 loadGridWindow, 次序与线程数无关。
+bool loadRegionSpans(
+    const GridPack& gp,
+    const GridZoneDir& gz,
+    uint32_t region,
+    int64_t wgx0,
+    int64_t wgy0,
+    int64_t nx,
+    int64_t ny,
+    std::vector<int32_t>& sp_cell,
+    std::vector<float>& sp_h,
+    std::vector<uint8_t>& vis)
+{
+    const std::vector<const GridTileRef*> tiles = GridTilesInRect(gz, wgx0, wgy0, wgx0 + nx - 1, wgy0 + ny - 1);
+    const auto nt = static_cast<int64_t>(tiles.size());
+    const size_t nw = NavWorkerCountForBlocks(nt);
+    size_t cap = 0;
+    for (const GridTileRef* t : tiles) {
+        cap += t->records;
+    }
+    sp_cell.assign(cap, 0);
+    sp_h.assign(cap, 0.0F);
+    vis.assign(cap, 0);
+    std::vector<size_t> beg(nw, 0);
+    std::vector<size_t> cnt(nw, 0);
+    std::atomic<bool> ok { true };
+    ParallelChunks(nt, nw, [&](size_t w, int64_t lo, int64_t hi) {
+        size_t at = 0;
+        for (int64_t i = 0; i < lo; ++i) {
+            at += tiles[static_cast<size_t>(i)]->records;
+        }
+        beg[w] = at;
+        GridTile tile;
+        for (int64_t i = lo; i < hi; ++i) {
+            const GridTileRef* t = tiles[static_cast<size_t>(i)];
+            if (t->records == 0) {
+                continue;
+            }
+            if (!gp.decodeTile(*t, tile)) {
+                ok.store(false);
+                return;
+            }
+            for (const GridSpanRec& r : tile.rec) {
+                const int64_t ix = r.cell % t->nx;
+                const int64_t iy = r.cell / t->nx;
+                if (ix < t->px0 || ix > t->px1 || iy < t->py0 || iy > t->py1) {
+                    continue;
+                }
+                const int64_t wx = t->gx0 + ix - wgx0;
+                const int64_t wy = t->gy0 + iy - wgy0;
+                if (wx < 0 || wx >= nx || wy < 0 || wy >= ny) {
+                    continue;
+                }
+                const bool ghost = (r.flags & kGridFlagGhost) != 0;
+                const bool fill = (r.flags & kGridFlagFill) != 0;
+                if (fill || (ghost && r.rid != region)) {
+                    continue;
+                }
+                sp_cell[at] = static_cast<int32_t>(wy * nx + wx);
+                sp_h[at] = r.h;
+                vis[at] = static_cast<uint8_t>(r.rid == region);
+                ++at;
+            }
+        }
+        cnt[w] = at - beg[w];
+    });
+    if (!ok.load()) {
+        sp_cell.clear();
+        sp_h.clear();
+        vis.clear();
+        return false;
+    }
+    size_t kept = cnt[0];
+    for (size_t w = 1; w < nw; ++w) {
+        if (cnt[w] != 0 && beg[w] != kept) {
+            const auto b = static_cast<int64_t>(beg[w]);
+            const auto e = static_cast<int64_t>(beg[w] + cnt[w]);
+            const auto k = static_cast<int64_t>(kept);
+            std::move(sp_cell.begin() + b, sp_cell.begin() + e, sp_cell.begin() + k);
+            std::move(sp_h.begin() + b, sp_h.begin() + e, sp_h.begin() + k);
+            std::move(vis.begin() + b, vis.begin() + e, vis.begin() + k);
+        }
+        kept += cnt[w];
+    }
+    sp_cell.resize(kept);
+    sp_h.resize(kept);
+    vis.resize(kept);
+    return true;
+}
+
+std::optional<RegionReach> buildRegionReach(
+    const GridPack& gp,
+    const GridZoneDir& gz,
+    uint32_t region,
+    int64_t gx0,
+    int64_t gy0,
+    int64_t nx,
+    int64_t ny,
+    int64_t seed_gx,
+    int64_t seed_gy,
+    double h0,
+    std::string& err)
+{
+    RegionReach rr;
+    rr.gx0 = gx0;
+    rr.gy0 = gy0;
+    rr.nx = nx;
+    rr.ny = ny;
+    std::vector<int32_t> sp_cell;
+    std::vector<float> sp_h;
+    std::vector<uint8_t> vis3;
+    if (!loadRegionSpans(gp, gz, region, gx0, gy0, nx, ny, sp_cell, sp_h, vis3)) {
+        err = "预烘格图解不开";
+        return std::nullopt;
+    }
+    SpanTable st = PackSpans(std::move(sp_cell), std::move(sp_h), &vis3);
+    const int64_t sx = seed_gx - gx0;
+    const int64_t sy = seed_gy - gy0;
+    const int64_t seed = sx >= 0 && sy >= 0 && sx < nx && sy < ny ? seedSpan(st, vis3, sy * nx + sx, h0) : -1;
+    if (seed < 0) {
+        err = "起点格没有与终点同类的面";
+        return std::nullopt;
+    }
+    rr.reach = SpanReach(seed, st, vis3, nx, ny);
+    vis3 = std::vector<uint8_t>();
+    rr.occ_bits = std::move(st.occ_bits);
+    rr.occ_rank = std::move(st.occ_rank);
+    rr.cs = std::move(st.cs);
+    rr.sp_h = std::move(st.sp_h);
+    return rr;
+}
+
+// 把整类可达域按 (全局格, 槽位) 映射进窗口的 reach3。两边同一格的 span 由同一批记录按同一规则排,
+// 层序一一对应; 不在整类表里的只会是别类的 span, 本来就不可达。
+bool mapRegionReach(WindowInfo& info, const RegionReach& rr, std::string& err)
+{
+    const int64_t nx = info.nx;
+    const int64_t wgx0 = std::llround(info.x0 / kCS);
+    const int64_t wgy0 = std::llround(info.y0 / kCS);
+    info.reach3.assign(info.vis3.size(), 0);
+    for (int64_t ci = 0, cn = info.st3.nOcc(); ci < cn; ++ci) {
+        const int64_t c = info.st3.occ(ci);
+        const int64_t gx = wgx0 + c % nx - rr.gx0;
+        const int64_t gy = wgy0 + c / nx - rr.gy0;
+        const int64_t rj = gx >= 0 && gy >= 0 && gx < rr.nx && gy < rr.ny ? rr.j(gy * rr.nx + gx) : -1;
+        const int64_t b = info.st3.cstart(ci), n = info.st3.ccnt(ci);
+        for (int64_t k = 0; k < n; ++k) {
+            if (info.vis3[static_cast<size_t>(b + k)] == 0) {
+                continue;
+            }
+            if (rj < 0 || rr.ccnt(rj) != n || rr.sp_h[static_cast<size_t>(rr.cstart(rj) + k)] != info.st3.sp_h[static_cast<size_t>(b + k)]) {
+                err = "整类可达域与窗口 span 表对不上";
+                return false;
+            }
+            info.reach3[static_cast<size_t>(b + k)] = rr.reach[static_cast<size_t>(rr.cstart(rj) + k)];
+        }
+    }
+    return true;
+}
+
 std::optional<WindowInfo> buildWindow(
     const GridPack& gp,
     const GridZoneDir& gz,
@@ -407,6 +646,8 @@ std::optional<WindowInfo> buildWindow(
     double y1,
     const std::vector<int32_t>& blocked_local,
     const std::vector<WorldPoint>& blocked_points,
+    int64_t margin,
+    const RegionReach* rr,
     std::string& err)
 {
     const int64_t nx = static_cast<int64_t>(std::ceil((x1 - x0) / kCS));
@@ -415,8 +656,8 @@ std::optional<WindowInfo> buildWindow(
     const int64_t wgx0 = std::llround(x0 / kCS);
     const int64_t wgy0 = std::llround(y0 / kCS);
 
-    // 区网格只有取墙与盖封堵面两个读者, 两者都只认窗口矩形, 与格图无关。放在开图之前算,
-    // 它就能在建窗最吃内存的那一段开始前整个交还, 不必一直挂到用完。
+    // 区网格只有取墙与盖封堵面两个读者, 两者都只认窗口矩形, 与格图无关。它在小窗档之间本就
+    // 常驻(最大的区约 70 MB), 整类档也留着, 只多抬那一刻的峰值, 省下下一条腿 1.5 s 的重建。
     BakedWalls walls = BakeWalls(zc, x0, y0, nx, ny);
     RasterCells brc;
     if (!blocked_local.empty()) {
@@ -425,10 +666,8 @@ std::optional<WindowInfo> buildWindow(
         for (const int32_t t : blocked_local) {
             bt.push_back(zc.mesh.T[static_cast<size_t>(t)]);
         }
-        brc = Rasterize(zc.mesh.V, zc.mesh.H, bt, x0, y0, nx, ny);
+        brc = Rasterize(zc.mesh.verts(), bt, x0, y0, nx, ny);
     }
-    zc.release();
-
     GridPatch pw;
     pw.x0 = x0;
     pw.y0 = y0;
@@ -501,11 +740,105 @@ std::optional<WindowInfo> buildWindow(
     std::vector<WorldPoint> wP0;
     std::vector<WorldPoint> wP1;
     {
-        const std::vector<uint8_t> keep = WallsAtLayer(walls.p0, walls.p1, walls.hh, lh, x0, y0);
+        // 挑墙按整条墙判, 窗外的采样看不见。小窗档里一条伸出窗外又被丢掉的墙, 整类窗口可能
+        // 留下它; 它离可信区不到净空半径就会改写可信区里的净空。lh 是全局量(本类非幽灵非填充
+        // 记录的最高 h), 所以这种墙的窗外采样直接查预烘格图, 逐瓦解、逐瓦缓存 lh, 判据与整类
+        // 窗口逐样本同口径; 只有解瓦超预算才升档。
+        const double wx1 = x0 + static_cast<double>(nx) * kCS;
+        const double wy1 = y0 + static_cast<double>(ny) * kCS;
+        const double shrink = static_cast<double>(margin - kEdtCells - 1) * kCS;
+        const auto inWindow = [&](const WorldPoint& p) { return p.x >= x0 && p.x < wx1 && p.y >= y0 && p.y < wy1; };
+        const auto hitsTrusted = [&](const WorldPoint& a, const WorldPoint& b) {
+            // Liang–Barsky 线段裁剪: 与内缩矩形有交即命中。
+            const double rx0 = x0 + shrink, ry0 = y0 + shrink, rx1 = wx1 - shrink, ry1 = wy1 - shrink;
+            double t0 = 0.0, t1 = 1.0;
+            const double dx = b.x - a.x, dy = b.y - a.y;
+            const double p[4] = { -dx, dx, -dy, dy };
+            const double q[4] = { a.x - rx0, rx1 - a.x, a.y - ry0, ry1 - a.y };
+            for (int k = 0; k < 4; ++k) {
+                if (p[k] == 0.0) {
+                    if (q[k] < 0.0) {
+                        return false;
+                    }
+                    continue;
+                }
+                const double t = q[k] / p[k];
+                if (p[k] < 0.0) {
+                    t0 = std::max(t0, t);
+                }
+                else {
+                    t1 = std::min(t1, t);
+                }
+            }
+            return t0 <= t1;
+        };
+        std::vector<uint8_t> cross(walls.p0.size(), 0);
+        if (margin > 0) {
+            for (size_t i = 0; i < cross.size(); ++i) {
+                cross[i] = static_cast<uint8_t>(
+                    !(inWindow(walls.p0[i]) && inWindow(walls.p1[i])) && hitsTrusted(walls.p0[i], walls.p1[i]));
+            }
+        }
+        constexpr size_t kOutsideTileBudget = 64;
+        bool over_budget = false;
+        std::vector<std::pair<const GridTileRef*, Grid<float>>> tiles;
+        GridTile tile;
+        const auto tileLayer = [&](const GridTileRef* t) -> const Grid<float>* {
+            for (const auto& [ref, g] : tiles) {
+                if (ref == t) {
+                    return &g;
+                }
+            }
+            if (tiles.size() >= kOutsideTileBudget || !gp.decodeTile(*t, tile)) {
+                over_budget = true;
+                return nullptr;
+            }
+            Grid<float> g(t->nx, t->ny, std::numeric_limits<float>::quiet_NaN());
+            for (const GridSpanRec& r : tile.rec) {
+                const int64_t ix = r.cell % t->nx;
+                const int64_t iy = r.cell / t->nx;
+                if (ix < t->px0 || ix > t->px1 || iy < t->py0 || iy > t->py1 || r.rid != region
+                    || (r.flags & (kGridFlagGhost | kGridFlagFill)) != 0) {
+                    continue;
+                }
+                float& v = g.v[static_cast<size_t>(r.cell)];
+                if (std::isnan(v) || r.h > v) {
+                    v = r.h;
+                }
+            }
+            tiles.emplace_back(t, std::move(g));
+            return &tiles.back().second;
+        };
+        const OutsideLayerFn outside = [&](size_t i, int64_t gx, int64_t gy) -> float {
+            constexpr float nan = std::numeric_limits<float>::quiet_NaN();
+            if (cross[i] == 0 || over_budget) {
+                return nan;
+            }
+            const int64_t cx = wgx0 + gx;
+            const int64_t cy = wgy0 + gy;
+            // 瓦的自有矩形互不重叠, 一格至多落在一块瓦里; 先看已解的
+            for (const auto& [t, g] : tiles) {
+                if (cx >= t->gx0 + t->px0 && cx <= t->gx0 + t->px1 && cy >= t->gy0 + t->py0 && cy <= t->gy0 + t->py1) {
+                    return g.at(cy - t->gy0, cx - t->gx0);
+                }
+            }
+            const std::vector<const GridTileRef*> hit = GridTilesInRect(gz, cx, cy, cx, cy);
+            if (hit.empty() || hit.front()->records == 0) {
+                return nan;
+            }
+            const GridTileRef* t = hit.front();
+            const Grid<float>* g = tileLayer(t);
+            return g == nullptr ? nan : g->at(cy - t->gy0, cx - t->gx0);
+        };
+        const std::vector<uint8_t> keep = WallsAtLayer(walls.p0, walls.p1, walls.hh, lh, x0, y0, margin > 0 ? &outside : nullptr);
         for (size_t i = 0; i < keep.size(); ++i) {
             if (keep[i] != 0) {
                 wP0.push_back(walls.p0[i]);
                 wP1.push_back(walls.p1[i]);
+            }
+            else if (over_budget && cross[i] != 0) {
+                err = "escalate: 跨窗墙的层判据不完整";
+                return std::nullopt;
             }
         }
     }
@@ -673,26 +1006,19 @@ std::optional<WindowInfo> buildWindow(
             info.sev.p1.push_back({ px + static_cast<double>(dy) * kCS, py + static_cast<double>(dx) * kCS });
         }
     }
-    const int64_t sj = info.st3.j(cell0);
-    int64_t seed3 = -1;
-    float best3 = 0.0F;
-    const int64_t sjb = info.st3.cstart(sj);
-    for (int64_t k = 0, kn = info.st3.ccnt(sj); k < kn; ++k) {
-        const int64_t sid = sjb + k;
-        if (info.vis3[static_cast<size_t>(sid)] == 0) {
-            continue;
-        }
-        const float d = std::fabs(info.st3.sp_h[static_cast<size_t>(sid)] - static_cast<float>(h0));
-        if (seed3 < 0 || d < best3) {
-            seed3 = sid;
-            best3 = d;
-        }
-    }
+    const int64_t seed3 = seedSpan(info.st3, info.vis3, cell0, h0);
     if (seed3 < 0) {
         err = "起点格没有与终点同类的面";
         return std::nullopt;
     }
-    info.reach3 = SpanReach(seed3, info.st3, info.vis3, nx, ny);
+    info.seed_gx = wgx0 + cell0 % nx;
+    info.seed_gy = wgy0 + cell0 / nx;
+    if (rr == nullptr) {
+        info.reach3 = SpanReach(seed3, info.st3, info.vis3, nx, ny);
+    }
+    else if (!mapRegionReach(info, *rr, err)) {
+        return std::nullopt;
+    }
 
     // 段表就此定型。挑剩的墙段与立面禁步段都整份进了 segA/segB, 源表留着只是同一批点的第二份。
     info.segA = std::move(wP0);
@@ -973,6 +1299,62 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     const CellPt sc { static_cast<int64_t>((s.x - x0) / kCS), static_cast<int64_t>((s.y - y0) / kCS) };
     const CellPt gc { static_cast<int64_t>((g.x - x0) / kCS), static_cast<int64_t>((g.y - y0) / kCS) };
 
+    // 小窗验收的尺子: 端点离窗边最近的格数减去可信余量。单价恒 ≥1, 所以累计代价是走过格数的
+    // 上界; 代价小于这把尺子的搜索碰不到可信区外的格, 弹出序列与整类窗口里的逐步相同。
+    // 带启发式的搜索更紧: 弹出的格满足 g+h ≤ 终代价, 而 g ≥ 到起点格数、h = 到终点欧氏格数,
+    // 于是只在两端为焦点、和为终代价的椭圆里; limit2 取可信区外的格两距之和的下界。
+    const bool tentative = dg.margin > 0;
+    const bool bounded = tentative && !dg.final; // 只与窗口大小有关的验收
+    // 不通类的验收: 封顶档且可达域已补齐时没有更大的窗可换, 按整类窗口的规则就地退档或报断
+    const bool strict = tentative && !(dg.final && dg.exact_reach);
+    const int64_t edge_s = std::min({ sc.x, sc.y, nx - 1 - sc.x, ny - 1 - sc.y });
+    const int64_t edge_g = std::min({ gc.x, gc.y, nx - 1 - gc.x, ny - 1 - gc.y });
+    const int64_t edge = std::min(edge_s, edge_g);
+    const double limit = static_cast<double>(edge - dg.margin);
+    // 两距之和是凸函数且最小值在可信区里, 区外任一点连向最小点的线段穿过可信区边界, 凸性
+    // 使穿越点不比它大; 所以下界就是边界四条边上的最小值, 每条边上三分求。可信区外的格落在
+    // x ≤ margin-1 或 x ≥ nx-margin 那圈上, 矩形按这两条取; 再让一格给取整。
+    const auto ellipseFloor = [&]() {
+        const auto sum2 = [&](double x, double y) {
+            return std::hypot(x - static_cast<double>(sc.x), y - static_cast<double>(sc.y))
+                   + std::hypot(x - static_cast<double>(gc.x), y - static_cast<double>(gc.y));
+        };
+        const auto onSeg = [&](double ax, double ay, double bx, double by) {
+            double lo = 0.0;
+            double hi = 1.0;
+            for (int i = 0; i < 100; ++i) {
+                const double m1 = lo + (hi - lo) / 3.0;
+                const double m2 = hi - (hi - lo) / 3.0;
+                if (sum2(ax + (bx - ax) * m1, ay + (by - ay) * m1) < sum2(ax + (bx - ax) * m2, ay + (by - ay) * m2)) {
+                    hi = m2;
+                }
+                else {
+                    lo = m1;
+                }
+            }
+            return sum2(ax + (bx - ax) * lo, ay + (by - ay) * lo);
+        };
+        const double rx0 = static_cast<double>(dg.margin - 1);
+        const double ry0 = static_cast<double>(dg.margin - 1);
+        const double rx1 = static_cast<double>(nx - dg.margin);
+        const double ry1 = static_cast<double>(ny - dg.margin);
+        return std::min({ onSeg(rx0, ry0, rx1, ry0), onSeg(rx1, ry0, rx1, ry1), onSeg(rx1, ry1, rx0, ry1), onSeg(rx0, ry1, rx0, ry0) })
+               - 1.0;
+    };
+    const double limit2 = tentative ? ellipseFloor() : 0.0;
+    const auto esc = [&](const char* why) {
+        if (!dg.escalate) {
+            dg.escalate = true;
+            dg.escalate_why = why;
+        }
+    };
+    if (tentative && limit <= 0.0) {
+        esc("端点离窗边不足");
+        return std::nullopt;
+    }
+    double cost_far = 0.0; // 各次搜索交出的最大代价(格), 口袋检查的半径由它定
+    double access_far = 0.0;
+
     const auto nearestCell = [&](const Mask& mask, const CellPt& p) -> std::pair<std::optional<CellPt>, double> {
         bool have = false;
         int64_t bd = 0;
@@ -1011,6 +1393,21 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     std::vector<uint8_t> useW;
     Mask cw3;
     mk(walk, useW, cw3);
+    // 不限可达域的同款。可达域是从起点泛洪的, 小窗里绕到窗外才够得着的面在这里不可达;
+    // 吸附与口袋检查都要拿它对照, 差一张面就说明答案被窗口切过。
+    std::vector<uint8_t> useA;
+    Mask cwA;
+    if (tentative) {
+        useA.assign(st3.sp_h.size(), 0);
+        cwA = Mask(nx, ny, 0);
+        for (size_t i = 0; i < useA.size(); ++i) {
+            const auto cell = static_cast<size_t>(st3.sp_cell[i]);
+            if (info.vis3[i] != 0 && walk.v[cell] != 0) {
+                useA[i] = 1;
+                cwA.v[cell] = 1;
+            }
+        }
+    }
     const auto pick = [&](const CellPt& c, const std::vector<uint8_t>& use) {
         std::vector<int64_t> out;
         const int64_t j = info.st3.j(c.y * nx + c.x);
@@ -1109,6 +1506,26 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     std::optional<CellPt> ag_ = snap1.first;
     double dsa = snap0.second;
     double dga = snap1.second;
+    if (tentative) {
+        if (bounded && (dsa / kCS >= limit || dga / kCS >= limit)) {
+            esc("吸附距离碰边");
+            return std::nullopt;
+        }
+        if (!dg.exact_reach) {
+            const auto a0 = nearestCell(cwA, sc);
+            const auto a1 = nearGoal(useA, cwA);
+            if (!a0.first.has_value() || a0.first->x != as_->x || a0.first->y != as_->y || !a1.first.has_value()
+                || a1.first->x != ag_->x || a1.first->y != ag_->y) {
+                esc("吸附受可达域限制");
+                return std::nullopt;
+            }
+            if (atSeedLayer(pick(*as_, useW)) != atSeedLayer(pick(*as_, useA))
+                || goalsOf(pick(*ag_, useW)).size() != goalsOf(pick(*ag_, useA)).size()) {
+                esc("端点格的面受可达域限制");
+                return std::nullopt;
+            }
+        }
+    }
 
     // VV(c) 的端点接入。作者点位常贴着墙放, 净空低于 c 又不在中脊上, 于是根本不在通道里。
     // 论文里起终点是单独接进图的: 这里在可走面上求端点到通道的最短接入链, 只放开这一条。接入
@@ -1170,6 +1587,15 @@ std::optional<std::vector<WorldPoint>> routeWindow(
             }
         }
         if (hit < 0) {
+            if (strict) {
+                esc("接入链接不通");
+            }
+            return std::nullopt;
+        }
+        const double chain_len = static_cast<double>(cs[static_cast<size_t>(hit)]) / 100.0;
+        access_far = std::max(access_far, chain_len);
+        if (bounded && chain_len >= limit) {
+            esc("接入链碰边");
             return std::nullopt;
         }
         std::vector<int64_t> ch;
@@ -1250,6 +1676,9 @@ std::optional<std::vector<WorldPoint>> routeWindow(
                            const Visibility* vis = nullptr) -> std::optional<Topo> {
         // 接不通的掩膜不必建图。resnap 那一路会重挑吸附锚点, 判据里的两端就不再成立, 因此不查。
         if (!resnap && !linked(lim)) {
+            if (strict) {
+                esc("掩膜内两端不连通");
+            }
             return std::nullopt;
         }
         Mask wl(nx, ny, 0);
@@ -1265,8 +1694,10 @@ std::optional<std::vector<WorldPoint>> routeWindow(
         mk(wl, uw, w3);
         mk(cr, uc, c3);
         std::vector<int64_t> corn;
+        double cost = 0.0;
         const auto run = [&](const std::vector<uint8_t>& use, const Mask& m3) -> std::optional<std::vector<int64_t>> {
             corn.clear();
+            cost = 0.0;
             if (m3.at(as_->y, as_->x) == 0 || m3.at(ag_->y, ag_->x) == 0) {
                 return std::nullopt;
             }
@@ -1281,12 +1712,17 @@ std::optional<std::vector<WorldPoint>> routeWindow(
             if (sd < 0 || (goal_deck.has_value() && gs.empty())) {
                 return std::nullopt;
             }
-            return SpanAstar(st3, use, m3, sd, gs, price, banned, bnp, faces, vis, vis != nullptr ? &corn : nullptr);
+            return SpanAstar(st3, use, m3, sd, gs, price, banned, bnp, faces, vis, vis != nullptr ? &corn : nullptr, &cost);
         };
         Topo t;
         t.on3 = w3;
         std::optional<std::vector<int64_t>> sq = run(uw, w3);
         if (!sq.has_value()) {
+            // 小窗里的任何退档都可能是被窗口切出来的假失败, 不采信。
+            if (strict) {
+                esc("walk 断开");
+                return std::nullopt;
+            }
             sq = run(uc, c3);
             if (sq.has_value()) {
                 t.on3 = c3;
@@ -1294,6 +1730,12 @@ std::optional<std::vector<WorldPoint>> routeWindow(
             }
         }
         if (sq.has_value()) {
+            cost_far = std::max(cost_far, cost);
+            // 搜索从吸附锚点出发, 焦点却取端点格, 两段吸附偏移并入代价
+            if (bounded && cost + (dsa + dga) / kCS >= limit2) {
+                esc("搜索碰边");
+                return std::nullopt;
+            }
             t.q.reserve(sq->size());
             for (const int64_t v : *sq) {
                 const int64_t c = st3.sp_cell[static_cast<size_t>(v)];
@@ -1309,6 +1751,10 @@ std::optional<std::vector<WorldPoint>> routeWindow(
         }
         // 吸附锚点是硬可达的判定, 舒适选路无权改它: 够不着就报断开, 让基线并集那一轮接手
         if (!resnap) {
+            return std::nullopt;
+        }
+        if (strict) {
+            esc("层不连通");
             return std::nullopt;
         }
         std::tie(as_, dsa) = nearestCell(wl, sc);
@@ -1481,6 +1927,10 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     const Mask all(nx, ny, 1);
     const PriceField unit {};
     const std::optional<Topo> base = solve(all, unit, nullptr, nullptr, true);
+    if (strict && !base.has_value()) {
+        esc("基线不通");
+        return std::nullopt;
+    }
     if (!base.has_value()) {
         reportGap();
         dg.timing.topology_ms = nowMs() - t_topo0;
@@ -1585,6 +2035,9 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     const std::optional<std::vector<int64_t>> ac_s = access(chan0, as_);
     const std::optional<std::vector<int64_t>> ac_g = access(chan0, ag_);
     chan0 = Mask();
+    if (dg.escalate) {
+        return std::nullopt;
+    }
     const auto join = [&](Mask& lim) {
         const std::optional<std::vector<int64_t>> s = ac_s.has_value() ? ac_s : access(lim, as_);
         const std::optional<std::vector<int64_t>> g = ac_g.has_value() ? ac_g : access(lim, ag_);
@@ -1613,7 +2066,14 @@ std::optional<std::vector<WorldPoint>> routeWindow(
     Mask limw = chan(cpref, rdg);
     rdg = Mask();
     join(limw);
+    if (dg.escalate) {
+        return std::nullopt;
+    }
     std::optional<Topo> vv = solve(limw, multw, bn, bpw, false);
+    if (strict && !vv.has_value()) {
+        esc("通道未接通");
+        return std::nullopt;
+    }
     if (!vv.has_value()) {
         limw = Mask(nx, ny, 1);
         vv = solve(limw, multw, bn, bpw, false);
@@ -1653,6 +2113,18 @@ std::optional<std::vector<WorldPoint>> routeWindow(
             const double need = std::max(solid_c, kChordFrac * static_cast<double>(cw.v[i]));
             solidc.v[i] = static_cast<uint8_t>(static_cast<double>(dist.v[i]) >= need);
         }
+        // 走廊读的是净空场, 它只在可信区里与整类窗口相同。
+        if (bounded) {
+            const int64_t m = dg.margin;
+            for (int64_t y = 0; y < ny; ++y) {
+                for (int64_t x = 0; x < nx; ++x) {
+                    if (band.at(y, x) != 0 && (x < m || y < m || x >= nx - m || y >= ny - m)) {
+                        esc("走廊碰边");
+                        return std::nullopt;
+                    }
+                }
+            }
+        }
     }
     const Blockers::OnMask onv { &solidc, x0, y0, kCS };
     // 搜索期的视线只靠 on 掩膜兜底, 不带轮廓挡线。
@@ -1668,6 +2140,10 @@ std::optional<std::vector<WorldPoint>> routeWindow(
         }
         band = Mask();
         std::optional<Topo> tt = solve(limg, mult, bn, bp, false, &vis);
+        if (strict && !tt.has_value()) {
+            esc("走廊内几何不通");
+            return std::nullopt;
+        }
         if (!tt.has_value()) {
             // 走廊是偏好, 接通性不是。二维骨干必在走廊里, 层间接不通才会走到这里; 放开重解, 拿回
             // 的仍是紧绷折线, 只是不再受宽度约束。
@@ -1675,6 +2151,34 @@ std::optional<std::vector<WorldPoint>> routeWindow(
         }
         if (tt.has_value()) {
             vv = std::move(tt);
+        }
+    }
+    // 口袋: 可信区里有面却不在窗内可达域里的可走格。整类窗口里它可能绕窗外接上, 于是可达掩膜
+    // 不同; 只有搜索与取直够得着的那个椭圆里的口袋才影响答案, 椭圆之外的差异谁也读不到。
+    // 搜索弹出的格都在两端为焦点的椭圆里, 取直的弦落在路径点的凸包里, 椭圆是凸的所以也盖住;
+    // 接入链两头各算一次, 再放一圈给弦的栅格化与挡线的膨胀。
+    if (tentative && !dg.exact_reach) {
+        const double sum = cost_far + (dsa + dga) / kCS + 2.0 * access_far + 8.0;
+        if (bounded && sum >= limit2) {
+            esc("搜索椭圆碰边");
+            return std::nullopt;
+        }
+        const auto r = static_cast<int64_t>(std::ceil(sum / 2.0));
+        const auto far2 = [&](int64_t x, int64_t y) {
+            return std::hypot(static_cast<double>(x - sc.x), static_cast<double>(y - sc.y))
+                   + std::hypot(static_cast<double>(x - gc.x), static_cast<double>(y - gc.y));
+        };
+        const int64_t ex0 = std::max<int64_t>(std::min(sc.x, gc.x) - r, 0);
+        const int64_t ex1 = std::min<int64_t>(std::max(sc.x, gc.x) + r, nx - 1);
+        const int64_t ey0 = std::max<int64_t>(std::min(sc.y, gc.y) - r, 0);
+        const int64_t ey1 = std::min<int64_t>(std::max(sc.y, gc.y) + r, ny - 1);
+        for (int64_t y = ey0; y <= ey1; ++y) {
+            for (int64_t x = ex0; x <= ex1; ++x) {
+                if (cwA.at(y, x) != 0 && cw3.at(y, x) == 0 && far2(x, y) <= sum) {
+                    esc("可达域内有口袋");
+                    return std::nullopt;
+                }
+            }
         }
     }
     dg.timing.geometry_ms = nowMs() - t_geo0;
@@ -1693,6 +2197,10 @@ std::optional<std::vector<WorldPoint>> routeWindow(
         // 判据是硬可达集: on3 现在是舒适通道, 终点天然贴墙就不在里面, 拿它判等于把贴墙的
         // 终点一律说成被禁行边隔开
         dg.hop_barrier = walk.at(gc.y, gc.x) != 0 && base->on3.at(gc.y, gc.x) == 0;
+    }
+    if (tentative && !dg.exact_reach && (dg.hop_barrier || std::max(dsa, dga) > kSnapRadius)) {
+        esc("端点在可达域外");
+        return std::nullopt;
     }
     std::vector<size_t> bad;
     for (size_t k = 1; k < q->size(); ++k) {
@@ -1884,12 +2392,28 @@ RecastNavEngine::RecastNavEngine(const BaseNavPack& pack, const BaseNavPlanner& 
 
 RecastNavEngine::ZoneEntry& RecastNavEngine::zoneEntry(const std::string& name)
 {
+    // 返回的引用在下一次 zoneEntry/warm 之后失效(会淘汰), 调用方不得跨调用持有。
     auto it = zones_.find(name);
     if (it == zones_.end()) {
+        // 先腾位再建: 建的过程本身还要一份临时内存, 别让新旧两个大区叠在一起。
+        // 包里没有的区只会得到一条错误串, 不占位; 淘汰时也先淘汰这种空条目。
+        const BaseNavZone* zone = pack_.findZoneByName(name);
+        const bool real = zone != nullptr && zone->triangle_count > 0;
+        auto rank = [](const ZoneEntry& e) { return e.zc->valid() ? e.used_at : 0; };
+        while (real && zones_.size() >= kZoneCacheMax) {
+            auto victim = zones_.begin();
+            for (auto z = zones_.begin(); z != zones_.end(); ++z) {
+                if (rank(z->second) < rank(victim->second)) {
+                    victim = z;
+                }
+            }
+            zones_.erase(victim);
+        }
         ZoneEntry e;
         e.zc = std::make_unique<ZoneClean>(pack_, planner_, name, walkable_flags_);
         it = zones_.emplace(name, std::move(e)).first;
     }
+    it->second.used_at = ++zone_clock_;
     return it->second;
 }
 
@@ -2075,95 +2599,286 @@ RecastPlanResult RecastNavEngine::planLocked(
     }
     ps = GridPatch {};
     pg = GridPatch {};
+
+    // 窗口分档。整类窗口是精确答案, 但它的代价与腿长无关; 先按搜索椭圆开小窗, 小窗只在证明了
+    // 答案与整类逐位相同时才采信: 场是局部算子, 可信余量盖过它们的依赖半径; 搜索单价恒 ≥1,
+    // 弹出的格都在两端为焦点、和为终代价的椭圆里, 椭圆没碰可信区边就碰不到窗外; 吸附与可达域
+    // 另与不限可达域的版本对照。任一条不成立就把允许的代价翻倍, 椭圆随之长大。
+    // 面积到上限那一档是最后一档: 与窗口大小有关的验收不再做, 结果照采; 可达域相关的差异用
+    // 整类洪水补齐; 只有"窗内不通而整类可达"才退到整类窗口。最坏耗时与内存由上限定住。
+    constexpr int64_t kTrustMargin = 64; // 可信余量(格), 须盖过净空截断 kEdtCells 与中轴邻域
+    constexpr int64_t kLocalMaxCells = 3'000'000;
+    constexpr double kRatio0 = 2.0; // 首档允许的 代价/直线 比; 语料里过半的腿一档就过
+    constexpr double kRatioStep = 2.0;
+    constexpr double kCostSlack = 200.0; // 短腿的固定余裕(格): 吸附偏移、接入链、栅格化
+    static_assert(kTrustMargin > kEdtCells + 8);
+    const auto cellOf = [](double v) { return static_cast<int64_t>(std::floor(v / kCS)); };
+    const int64_t bx0 = std::min({ cellOf(start.x), cellOf(ss->point.x), cellOf(goal.x) });
+    const int64_t bx1 = std::max({ cellOf(start.x), cellOf(ss->point.x), cellOf(goal.x) });
+    const int64_t by0 = std::min({ cellOf(start.y), cellOf(ss->point.y), cellOf(goal.y) });
+    const int64_t by1 = std::max({ cellOf(start.y), cellOf(ss->point.y), cellOf(goal.y) });
+    // 整类窗口矩形。场都是局部算子, 依赖半径合起来不到 kFieldHalo 这一圈; 留出它, 类边缘
+    // 那几格算出来的场就与在整区图上算的逐位相同。整类可达域也按这个矩形洪水。
     const ZoneBoundsPx zb = regionBounds(grid_, *gz, region);
     if (zb.empty()) {
         res.error = "类内没有格图";
         return res;
     }
-    // 场都是局部算子, 依赖半径合起来不到这一圈。留出它, 类边缘那几格算出来的场
-    // 就与在整区图上算的逐位相同。
     constexpr int64_t kFieldHalo = 32;
-    const int64_t nx = zb.x1 - zb.x0 + 1 + 2 * kFieldHalo;
-    const int64_t ny = zb.y1 - zb.y0 + 1 + 2 * kFieldHalo;
-    if (nx * ny > kMaxCells) {
-        res.error = "类过大 (" + std::to_string(nx) + "×" + std::to_string(ny) + " 格)";
-        return res;
-    }
-    if (should_stop && should_stop()) {
-        res.error = "规划已取消";
-        return res;
-    }
-    const double x0 = static_cast<double>(zb.x0 - kFieldHalo) * kCS;
-    const double y0 = static_cast<double>(zb.y0 - kFieldHalo) * kCS;
-    const double x1 = static_cast<double>(zb.x1 + 1 + kFieldHalo) * kCS;
-    const double y1 = static_cast<double>(zb.y1 + 1 + kFieldHalo) * kCS;
-
-    const double t_win0 = nowMs();
-    auto info = buildWindow(grid_, *gz, zc, start, ss->point, goal, h0, region, x0, y0, x1, y1, blocked_local, blocked_points, err);
-    const double window_ms = nowMs() - t_win0;
-    // 区网格的读者到建窗为止, 往下只剩一个区号。它比一整套窗口图还大, 挂着不放就是白抬一份
-    // 峰值。下一条腿重建它: 峰值是用户量得到的东西, 常驻不是。
-    const uint16_t zone_id = zc.zone_id;
-    zones_.erase(zone_name);
-    if (!info.has_value()) {
-        res.error = err.empty() ? "路线失败" : err;
-        return res;
-    }
-    RouteDiag dg;
-    auto line = routeWindow(*info, start, goal, dg, gdk, planner_, zone_id);
-    // 失败的腿才最需要诊断: 断开时的缝、窗口范围、各阶段耗时全在这里, 两条出口都得带上。
-    const auto dump = [&] {
-        res.debug.timing = dg.timing;
-        res.debug.timing.window_ms = window_ms;
-        res.debug.timing.total_ms = nowMs() - t_all0;
-        res.debug.x0 = x0;
-        res.debug.y0 = y0;
-        res.debug.nx = nx;
-        res.debug.ny = ny;
-        res.debug.cell_size = kCS;
-        res.debug.topology_cells = std::move(dg.topology_cells);
-        res.debug.topology_heights = std::move(dg.topology_heights);
-        res.debug.taut_points = std::move(dg.taut_points);
-        res.debug.pulled_points = std::move(dg.pulled_points);
-        res.debug.assembled_points = std::move(dg.assembled_points);
-        res.debug.gap_start = dg.gap_start;
-        res.debug.gap_goal = dg.gap_goal;
-        res.debug.gap_distance = dg.gap_distance;
-        res.debug.warnings = dg.warn;
+    const int64_t rgx0 = zb.x0 - kFieldHalo;
+    const int64_t rgy0 = zb.y0 - kFieldHalo;
+    const int64_t rnx = zb.x1 - zb.x0 + 1 + 2 * kFieldHalo;
+    const int64_t rny = zb.y1 - zb.y0 + 1 + 2 * kFieldHalo;
+    // 搜索椭圆的外接矩形: 焦点取起终点, 半长轴 C/2, 半短轴 sqrt(C²-L²)/2, 按腿的方向投影到两轴;
+    // 再并上端点包围盒, 外加可信余量。直腿的椭圆是细长条, 窗口跟着细, 不再按腿长开正方形。
+    const double fsx = start.x / kCS;
+    const double fsy = start.y / kCS;
+    const double fgx = goal.x / kCS;
+    const double fgy = goal.y / kCS;
+    const double leg = std::hypot(fgx - fsx, fgy - fsy);
+    const double ang = std::atan2(fgy - fsy, fgx - fsx);
+    struct Rect
+    {
+        int64_t x0 = 0, y0 = 0, nx = 0, ny = 0;
+        int64_t cells() const { return nx * ny; }
     };
-    if (!line.has_value()) {
-        res.error = dg.err.empty() ? "路线失败" : dg.err;
+    const auto rectFor = [&](double cost) {
+        const double a = cost / 2.0;
+        const double b = std::sqrt(std::max(cost * cost - leg * leg, 0.0)) / 2.0;
+        const double c = std::cos(ang);
+        const double s = std::sin(ang);
+        const double ex = std::sqrt(a * a * c * c + b * b * s * s);
+        const double ey = std::sqrt(a * a * s * s + b * b * c * c);
+        const double cx = (fsx + fgx) / 2.0;
+        const double cy = (fsy + fgy) / 2.0;
+        constexpr int64_t halo = kTrustMargin + 8;
+        const int64_t x0 = std::min(bx0, static_cast<int64_t>(std::floor(cx - ex))) - halo;
+        const int64_t x1 = std::max(bx1, static_cast<int64_t>(std::ceil(cx + ex))) + halo;
+        const int64_t y0 = std::min(by0, static_cast<int64_t>(std::floor(cy - ey))) - halo;
+        const int64_t y1 = std::max(by1, static_cast<int64_t>(std::ceil(cy + ey))) + halo;
+        return Rect { x0, y0, x1 - x0 + 1, y1 - y0 + 1 };
+    };
+    enum class Kind
+    {
+        Tentative, // 小窗, 全套验收
+        Capped, // 封顶档: 面积到上限, 窗口大小相关的验收关掉
+        Full // 整类窗口, 不做验收
+    };
+    const Rect region_rect { rgx0, rgy0, rnx, rny };
+    const auto tierRect = [&](int tier) -> std::pair<Rect, Kind> {
+        const double cost = leg * kRatio0 * std::pow(kRatioStep, tier) + kCostSlack;
+        Rect r = rectFor(cost);
+        const bool covers = r.x0 <= rgx0 && r.y0 <= rgy0 && r.x0 + r.nx >= rgx0 + rnx && r.y0 + r.ny >= rgy0 + rny;
+        // 小类: 椭圆盖住整类, 或差不到两成, 直接走整类那一档, 精确且不比小窗贵
+        if (region_rect.cells() <= kLocalMaxCells && (covers || r.cells() * 5 >= region_rect.cells() * 4)) {
+            return { region_rect, Kind::Full };
+        }
+        if (r.cells() <= kLocalMaxCells) {
+            return { r, Kind::Tentative };
+        }
+        // 超上限: 在 [直线, cost] 里二分出面积刚好不超的椭圆; 连直线的外接矩形都超就只能用它
+        double lo = leg;
+        double hi = cost;
+        if (rectFor(lo).cells() > kLocalMaxCells) {
+            return { rectFor(lo), Kind::Capped };
+        }
+        for (int i = 0; i < 40; ++i) {
+            const double mid = (lo + hi) / 2.0;
+            (rectFor(mid).cells() <= kLocalMaxCells ? lo : hi) = mid;
+        }
+        return { rectFor(lo), Kind::Capped };
+    };
+    // 小窗的可达域被窗口切过时, 有两条路: 扩窗一档, 或按整类洪水一次换成逐位相同的可达域后
+    // 同一档重跑。整类洪水只建 span 表不算场, 每格约为窗口档的 1/5; 按估出的代价选便宜的那条。
+    // 与窗口本身有关的升档(搜索碰边、walk 断开)只能扩窗。
+    std::optional<RegionReach> rr;
+    const auto reachBound = [](const std::string& why) {
+        return why == "可达域内有口袋" || why == "搜索椭圆碰边" || why == "吸附受可达域限制"
+               || why == "端点格的面受可达域限制" || why == "端点在可达域外";
+    };
+    constexpr int64_t kReachCostDiv = 5;
+    // 换可达域重跑的是同一个窗口: 建窗的产物只有 reach3 与可达域有关, 留着不重建。routeWindow 会
+    // 就地释放三张全窗口的表, 试探档先留副本, 重跑前放回去。
+    std::optional<WindowInfo> info;
+    Mask keep_lay;
+    Mask keep_whit;
+    Grid<float> keep_dist;
+    bool reuse = false;
+    int level = 0; // 椭圆档位; 换可达域重跑同一窗口时不升
+    bool last_resort = false;
+    Rect cur;
+    Kind kind = Kind::Tentative;
+    for (int tier = 0;; ++tier) {
+        if (!reuse) {
+            if (last_resort) {
+                cur = region_rect;
+                kind = Kind::Full;
+            }
+            else {
+                std::tie(cur, kind) = tierRect(level);
+            }
+        }
+        const bool local = kind != Kind::Full;
+        const bool capped = kind == Kind::Capped;
+        if (!local && region_rect.cells() > kMaxCells) {
+            res.error = "类过大 (" + std::to_string(rnx) + "×" + std::to_string(rny) + " 格)";
+            return res;
+        }
+        const int64_t gx0 = cur.x0;
+        const int64_t gy0 = cur.y0;
+        const int64_t nx = cur.nx;
+        const int64_t ny = cur.ny;
+        if (should_stop && should_stop()) {
+            res.error = "规划已取消";
+            return res;
+        }
+        const double x0 = static_cast<double>(gx0) * kCS;
+        const double y0 = static_cast<double>(gy0) * kCS;
+        const double x1 = static_cast<double>(gx0 + nx) * kCS;
+        const double y1 = static_cast<double>(gy0 + ny) * kCS;
+        const int64_t margin = local ? kTrustMargin : 0;
+
+        const double t_win0 = nowMs();
+        if (reuse) {
+            reuse = false;
+            info->lay = std::move(keep_lay);
+            info->whit = std::move(keep_whit);
+            info->dist = std::move(keep_dist);
+            if (!mapRegionReach(*info, *rr, err)) {
+                info.reset();
+            }
+        }
+        else {
+            info = buildWindow(grid_, *gz, zc, start, ss->point, goal, h0, region, x0, y0, x1, y1, blocked_local,
+                blocked_points, margin, local && rr.has_value() ? &*rr : nullptr, err);
+        }
+        const double window_ms = nowMs() - t_win0;
+        const uint16_t zone_id = zc.zone_id;
+        if (!info.has_value()) {
+            if (local && !capped) {
+                res.debug.tier_notes.push_back(err);
+                ++level;
+                continue;
+            }
+            if (local) {
+                res.debug.tier_notes.push_back(err + "→整类窗口");
+                last_resort = true;
+                continue;
+            }
+            res.error = err.empty() ? "路线失败" : err;
+            return res;
+        }
+        const int64_t seed_gx = info->seed_gx;
+        const int64_t seed_gy = info->seed_gy;
+        const bool tentative = local && !rr.has_value();
+        if (tentative) {
+            keep_lay = info->lay;
+            keep_whit = info->whit;
+            keep_dist = info->dist;
+        }
+        RouteDiag dg;
+        dg.margin = margin;
+        dg.final = capped;
+        dg.exact_reach = local && rr.has_value();
+        auto line = routeWindow(*info, start, goal, dg, gdk, planner_, zone_id);
+        // 封顶档补齐可达域之后就是最终答案, 与整类窗口同一套出口
+        if (local && !(capped && dg.exact_reach)) {
+            std::string why;
+            if (dg.escalate) {
+                why = dg.escalate_why;
+            }
+            else if (!line.has_value()) {
+                why = dg.err.empty() ? "路线失败" : dg.err;
+            }
+            else if (!dg.exact_reach && (std::max(dg.snap_start, dg.snap_goal) > kSnapRadius || dg.hop_barrier)) {
+                why = "端点在可达域外";
+            }
+            if (!why.empty()) {
+                // 整类洪水按格约为一档的 1/5, 重跑省掉建窗只剩约 2/3; 与扩一档整档比, 走便宜的。
+                // 封顶档没有更大的小窗: 可达域没补过就先补, 补过还不通才退整类。
+                const int64_t next_cells = tierRect(level + 1).first.cells();
+                const bool reach_cheaper = capped || rnx * rny / kReachCostDiv + nx * ny * 2 / 3 < next_cells;
+                if (tentative && (reachBound(why) || capped) && reach_cheaper) {
+                    rr = buildRegionReach(grid_, *gz, region, rgx0, rgy0, rnx, rny, seed_gx, seed_gy, h0, err);
+                    if (rr.has_value()) {
+                        res.debug.tier_notes.push_back(why + "→整类可达域");
+                        reuse = true;
+                        continue;
+                    }
+                }
+                info.reset();
+                keep_lay = Mask();
+                keep_whit = Mask();
+                keep_dist = Grid<float>();
+                if (capped) {
+                    res.debug.tier_notes.push_back(why + "→整类窗口");
+                    last_resort = true;
+                }
+                else {
+                    res.debug.tier_notes.push_back(why);
+                    ++level;
+                }
+                continue;
+            }
+        }
+        keep_lay = Mask();
+        keep_whit = Mask();
+        keep_dist = Grid<float>();
+        // 失败的腿才最需要诊断: 断开时的缝、窗口范围、各阶段耗时全在这里, 两条出口都得带上。
+        const auto dump = [&] {
+            res.debug.timing = dg.timing;
+            res.debug.timing.window_ms = window_ms;
+            res.debug.timing.total_ms = nowMs() - t_all0;
+            res.debug.x0 = x0;
+            res.debug.y0 = y0;
+            res.debug.nx = nx;
+            res.debug.ny = ny;
+            res.debug.cell_size = kCS;
+            res.debug.tier = tier;
+            res.debug.topology_cells = std::move(dg.topology_cells);
+            res.debug.topology_heights = std::move(dg.topology_heights);
+            res.debug.taut_points = std::move(dg.taut_points);
+            res.debug.pulled_points = std::move(dg.pulled_points);
+            res.debug.assembled_points = std::move(dg.assembled_points);
+            res.debug.gap_start = dg.gap_start;
+            res.debug.gap_goal = dg.gap_goal;
+            res.debug.gap_distance = dg.gap_distance;
+            res.debug.warnings = dg.warn;
+        };
+        if (!line.has_value()) {
+            res.error = dg.err.empty() ? "路线失败" : dg.err;
+            dump();
+            return res;
+        }
+        if (std::max(dg.snap_start, dg.snap_goal) > kSnapRadius || dg.hop_barrier) {
+            // 两端都已过全区核心闸, 端点确实在可走面上, 差的是从起点出发的可达域够不着它。图铺满了
+            // 整区, 这就是最终结论。
+            char buf[160];
+            std::snprintf(
+                buf,
+                sizeof(buf),
+                "从起点走不到终点 (端点%s, 可达区距 起 %.1fpx / 终 %.1fpx)",
+                dg.hop_barrier ? "被禁行边隔开" : "在可走面上",
+                dg.snap_start,
+                dg.snap_goal);
+            res.error = buf;
+            dump();
+            return res;
+        }
+        res.ok = true;
+        res.points = *line;
+        for (size_t i = 1; i < line->size(); ++i) {
+            res.length += std::hypot((*line)[i].x - (*line)[i - 1].x, (*line)[i].y - (*line)[i - 1].y);
+        }
+        res.warnings = dg.warn;
+        res.clearance = dg.clearance;
+        res.snap_start = dg.snap_start;
+        res.snap_goal = dg.snap_goal;
+        res.waypoints = std::move(dg.waypoints);
         dump();
+        res.debug.planned_points = res.points;
         return res;
     }
-    if (std::max(dg.snap_start, dg.snap_goal) > kSnapRadius || dg.hop_barrier) {
-        // 两端都已过全区核心闸, 端点确实在可走面上, 差的是从起点出发的可达域够不着它。图铺满了
-        // 整区, 这就是最终结论。
-        char buf[160];
-        std::snprintf(
-            buf,
-            sizeof(buf),
-            "从起点走不到终点 (端点%s, 可达区距 起 %.1fpx / 终 %.1fpx)",
-            dg.hop_barrier ? "被禁行边隔开" : "在可走面上",
-            dg.snap_start,
-            dg.snap_goal);
-        res.error = buf;
-        dump();
-        return res;
-    }
-    res.ok = true;
-    res.points = *line;
-    for (size_t i = 1; i < line->size(); ++i) {
-        res.length += std::hypot((*line)[i].x - (*line)[i - 1].x, (*line)[i].y - (*line)[i - 1].y);
-    }
-    res.warnings = dg.warn;
-    res.clearance = dg.clearance;
-    res.snap_start = dg.snap_start;
-    res.snap_goal = dg.snap_goal;
-    res.waypoints = std::move(dg.waypoints);
-    dump();
-    res.debug.planned_points = res.points;
-    return res;
 }
 
 }

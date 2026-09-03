@@ -19,7 +19,7 @@ namespace
 double triHeight(const PolyMesh& mesh, int32_t t)
 {
     const auto& tri = mesh.T[static_cast<size_t>(t)];
-    return (mesh.H[tri[0]] + mesh.H[tri[1]] + mesh.H[tri[2]]) / 3.0;
+    return (mesh.h(tri[0]) + mesh.h(tri[1]) + mesh.h(tri[2])) / 3.0;
 }
 
 std::pair<WorldPoint, double> closestOnTri(const WorldPoint& p, const std::array<WorldPoint, 3>& tri)
@@ -33,40 +33,64 @@ std::pair<WorldPoint, double> closestOnTri(const WorldPoint& p, const std::array
 
 }
 
-PolyMesh::PolyMesh(std::vector<WorldPoint> v, std::vector<std::array<int32_t, 3>> t, std::vector<double> h)
-    : V(std::move(v))
-    , H(std::move(h))
+PolyMesh::PolyMesh(const BaseNavVertex* vb_in, int64_t nv_in, std::vector<std::array<int32_t, 3>> t, std::vector<uint8_t>* dup)
+    : vb(vb_in)
+    , nv(nv_in)
     , T(std::move(t))
 {
     const int64_t nt = static_cast<int64_t>(T.size());
     ParallelChunks(nt, NavWorkerCount(nt), [&](size_t, int64_t b, int64_t e) {
         for (int64_t i = b; i < e; ++i) {
             auto& tri = T[static_cast<size_t>(i)];
-            const WorldPoint& a = V[tri[0]];
-            const double abx = V[tri[1]].x - a.x;
-            const double aby = V[tri[1]].y - a.y;
-            const double acx = V[tri[2]].x - a.x;
-            const double acy = V[tri[2]].y - a.y;
+            const WorldPoint a = v(tri[0]);
+            const WorldPoint bb = v(tri[1]);
+            const WorldPoint c = v(tri[2]);
+            const double abx = bb.x - a.x;
+            const double aby = bb.y - a.y;
+            const double acx = c.x - a.x;
+            const double acy = c.y - a.y;
             if (abx * acy - aby * acx < 0.0) {
                 std::swap(tri[1], tri[2]);
             }
         }
     });
-    buildNb();
+    buildNb(dup);
     buildGrid();
 }
 
+PolyMesh::PolyMesh(std::vector<BaseNavVertex> own, std::vector<std::array<int32_t, 3>> t, std::vector<uint8_t>* dup)
+    : PolyMesh(own.data(), static_cast<int64_t>(own.size()), std::move(t), dup)
+{
+    vown = std::move(own); // 堆块随 move 原样搬走, verts() 之后改走 vown
+}
+
+void PolyMesh::foldNb()
+{
+    bnd.assign(T.size(), 0);
+    for (size_t i = 0; i < NB.size(); ++i) {
+        for (int k = 0; k < 3; ++k) {
+            if (NB[i][k] < 0) {
+                bnd[i] |= static_cast<uint8_t>(1U << k);
+            }
+        }
+    }
+    std::vector<std::array<int32_t, 3>>().swap(NB);
+}
+
 // 重 key 取稳定序首槽
-void PolyMesh::buildNb()
+void PolyMesh::buildNb(std::vector<uint8_t>* dup)
 {
     const int64_t m = static_cast<int64_t>(T.size());
     NB.assign(T.size(), { -1, -1, -1 });
+    if (dup != nullptr) {
+        dup->assign(static_cast<size_t>(3 * m), 0);
+    }
     if (m == 0) {
         return;
     }
     // 有向边按起点分桶: 每个顶点平均只挂六条边, 找反向边扫本桶即可。桶内按槽号递增填,
     // 所以首个命中就是稳定序里的首槽, 与把三倍三角数的边整体排一遍再取首个逐位相同。
-    const int64_t n = static_cast<int64_t>(V.size());
+    const int64_t n = nv;
     std::vector<int32_t> at(static_cast<size_t>(n) + 1, 0);
     for (const auto& tri : T) {
         for (const int32_t a : tri) {
@@ -76,25 +100,37 @@ void PolyMesh::buildNb()
     for (int64_t i = 0; i < n; ++i) {
         at[static_cast<size_t>(i) + 1] += at[static_cast<size_t>(i)];
     }
-    std::vector<int32_t> wr = at;
-    std::vector<int32_t> dst(static_cast<size_t>(3 * m));
+    // 桶里只存槽号, 边的终点从 T 现算: 少一张三倍三角数的 int32 表(最大区 47 MB)。
     std::vector<int32_t> slot(static_cast<size_t>(3 * m));
-    for (int64_t i = 0; i < m; ++i) {
-        for (int64_t k = 0; k < 3; ++k) {
-            const int32_t a = T[static_cast<size_t>(i)][k];
-            const auto w = static_cast<size_t>(wr[static_cast<size_t>(a)]++);
-            dst[w] = T[static_cast<size_t>(i)][(k + 1) % 3];
-            slot[w] = static_cast<int32_t>(i * 3 + k);
+    {
+        std::vector<int32_t> wr = at;
+        for (int64_t i = 0; i < m; ++i) {
+            for (int64_t k = 0; k < 3; ++k) {
+                const int32_t a = T[static_cast<size_t>(i)][k];
+                slot[static_cast<size_t>(wr[static_cast<size_t>(a)]++)] = static_cast<int32_t>(i * 3 + k);
+            }
         }
     }
+    const auto dst = [&](int32_t s) { return T[static_cast<size_t>(s / 3)][(s % 3 + 1) % 3]; };
     ParallelChunks(m, NavWorkerCount(m), [&](size_t, int64_t lo_i, int64_t hi_i) {
         for (int64_t i = lo_i; i < hi_i; ++i) {
             for (int64_t k = 0; k < 3; ++k) {
                 const int32_t a = T[static_cast<size_t>(i)][k];
                 const int32_t b = T[static_cast<size_t>(i)][(k + 1) % 3];
                 for (int32_t p = at[static_cast<size_t>(b)]; p < at[static_cast<size_t>(b) + 1]; ++p) {
-                    if (dst[static_cast<size_t>(p)] == a) {
+                    if (dst(slot[static_cast<size_t>(p)]) == a) {
                         NB[static_cast<size_t>(i)][k] = slot[static_cast<size_t>(p)] / 3;
+                        break;
+                    }
+                }
+                if (dup == nullptr) {
+                    continue;
+                }
+                // 本槽的有向边 a→b 在 a 桶里还有别的槽也是 a→b, 即重边。每个线程只写自己的槽。
+                const auto self = static_cast<int32_t>(i * 3 + k);
+                for (int32_t p = at[static_cast<size_t>(a)]; p < at[static_cast<size_t>(a) + 1]; ++p) {
+                    if (slot[static_cast<size_t>(p)] != self && dst(slot[static_cast<size_t>(p)]) == b) {
+                        (*dup)[static_cast<size_t>(self)] = 1;
                         break;
                     }
                 }
@@ -110,9 +146,9 @@ void PolyMesh::buildGrid()
         int64_t x0, y0, x1, y1;
     };
     const auto box = [&](size_t i) {
-        const WorldPoint& a = V[T[i][0]];
-        const WorldPoint& b = V[T[i][1]];
-        const WorldPoint& c = V[T[i][2]];
+        const WorldPoint a = v(T[i][0]);
+        const WorldPoint b = v(T[i][1]);
+        const WorldPoint c = v(T[i][2]);
         return Box { static_cast<int64_t>(std::floor(std::min({ a.x, b.x, c.x }) / kGridCell)),
                      static_cast<int64_t>(std::floor(std::min({ a.y, b.y, c.y }) / kGridCell)),
                      static_cast<int64_t>(std::floor(std::max({ a.x, b.x, c.x }) / kGridCell)),
@@ -240,30 +276,32 @@ ZoneClean::ZoneClean(
         }
     }
     const int64_t nv = static_cast<int64_t>(vmax) - vmin + 1;
-    std::vector<WorldPoint> CV(static_cast<size_t>(nv));
-    std::vector<double> CH(static_cast<size_t>(nv));
-    for (int64_t i = 0; i < nv; ++i) {
-        const auto& vt = pverts[vmin + static_cast<size_t>(i)];
-        CV[static_cast<size_t>(i)] = source_exact
-            ? WorldPoint { static_cast<double>(vt.u), static_cast<double>(vt.v) }
-            : WorldPoint { std::nearbyint(static_cast<double>(vt.u) * 20.0) / 20.0,
-                           std::nearbyint(static_cast<double>(vt.v) * 20.0) / 20.0 };
-        CH[static_cast<size_t>(i)] = static_cast<double>(vt.height);
-    }
-
-    std::vector<int32_t> MAP(static_cast<size_t>(nv));
-    std::iota(MAP.begin(), MAP.end(), 0);
+    // 源精确包: 顶点就是包里那段 float, 三角只换成区内局部顶点号, 不复制、不焊接。
+    // 旧包: 取整到 0.05 后按 (x,y) 同柱、高差 ≤ kWeldDh 焊接; 取整值以 float 存, 与历史
+    // 的 double 差在 1e-6 px 量级, 远小于取整步长本身。
+    std::vector<BaseNavVertex> CV;
+    std::vector<int32_t> MAP;
     int64_t n_weld = 0;
     if (!source_exact) {
+        CV.resize(static_cast<size_t>(nv));
+        for (int64_t i = 0; i < nv; ++i) {
+            const auto& vt = pverts[vmin + static_cast<size_t>(i)];
+            CV[static_cast<size_t>(i)].u = static_cast<float>(std::nearbyint(static_cast<double>(vt.u) * 20.0) / 20.0);
+            CV[static_cast<size_t>(i)].v = static_cast<float>(std::nearbyint(static_cast<double>(vt.v) * 20.0) / 20.0);
+            CV[static_cast<size_t>(i)].height = vt.height;
+        }
+        MAP.resize(static_cast<size_t>(nv));
+        std::iota(MAP.begin(), MAP.end(), 0);
         std::vector<int64_t> kk(static_cast<size_t>(nv));
         for (int64_t i = 0; i < nv; ++i) {
-            const int64_t kx = static_cast<int64_t>(std::nearbyint(CV[static_cast<size_t>(i)].x * 1e4));
-            const int64_t ky = static_cast<int64_t>(std::nearbyint(CV[static_cast<size_t>(i)].y * 1e4));
+            const int64_t kx = static_cast<int64_t>(std::nearbyint(static_cast<double>(CV[static_cast<size_t>(i)].u) * 1e4));
+            const int64_t ky = static_cast<int64_t>(std::nearbyint(static_cast<double>(CV[static_cast<size_t>(i)].v) * 1e4));
             kk[static_cast<size_t>(i)] = kx * (int64_t(1) << 40) + ky;
         }
         std::vector<int32_t> order(static_cast<size_t>(nv));
         std::iota(order.begin(), order.end(), 0);
         std::stable_sort(order.begin(), order.end(), [&](int32_t a, int32_t b) { return kk[a] < kk[b]; });
+        const auto CH = [&](int32_t i) { return static_cast<double>(CV[static_cast<size_t>(i)].height); };
         for (size_t s0 = 0; s0 < order.size();) {
             size_t e0 = s0 + 1;
             while (e0 < order.size() && kk[order[e0]] == kk[order[s0]]) {
@@ -271,10 +309,10 @@ ZoneClean::ZoneClean(
             }
             if (e0 - s0 >= 2) {
                 std::vector<int32_t> ids(order.begin() + s0, order.begin() + e0);
-                std::stable_sort(ids.begin(), ids.end(), [&](int32_t a, int32_t b) { return CH[a] < CH[b]; });
+                std::stable_sort(ids.begin(), ids.end(), [&](int32_t a, int32_t b) { return CH(a) < CH(b); });
                 int32_t rep = ids[0];
                 for (size_t t = 1; t < ids.size(); ++t) {
-                    if (CH[ids[t]] - CH[ids[t - 1]] <= kWeldDh) {
+                    if (CH(ids[t]) - CH(ids[t - 1]) <= kWeldDh) {
                         MAP[ids[t]] = rep;
                         ++n_weld;
                     }
@@ -291,7 +329,8 @@ ZoneClean::ZoneClean(
     for (int64_t i = 0; i < hi - lo; ++i) {
         auto& row = CT2[static_cast<size_t>(i)];
         for (int k = 0; k < 3; ++k) {
-            row[k] = MAP[ptris[static_cast<size_t>(lo + i)].vertices[k] - vmin];
+            const auto local = static_cast<int32_t>(ptris[static_cast<size_t>(lo + i)].vertices[k] - vmin);
+            row[k] = MAP.empty() ? local : MAP[static_cast<size_t>(local)];
         }
         if (row[0] == row[1] || row[1] == row[2] || row[2] == row[0]) {
             ++degen;
@@ -301,47 +340,15 @@ ZoneClean::ZoneClean(
         error_ = zone_name + ": weld produced " + std::to_string(degen) + " degenerate tris";
         return;
     }
+    std::vector<int32_t>().swap(MAP);
 
-    mesh = PolyMesh(std::move(CV), std::move(CT2), std::move(CH));
+    // 同一条有向边出现两次以上的槽, 与邻接一趟分桶顺带标出
+    std::vector<uint8_t> dup;
+    mesh = source_exact ? PolyMesh(pverts.data() + vmin, nv, std::move(CT2), &dup)
+                        : PolyMesh(std::move(CV), std::move(CT2), &dup);
     const auto& T = mesh.T;
     auto& NB = mesh.NB;
     const int64_t m = static_cast<int64_t>(T.size());
-    const int64_t nvv = static_cast<int64_t>(mesh.V.size());
-
-    // 同一条有向边出现两次以上的槽。按起点分桶后同一条边必落在同一桶里, 桶内平均六项,
-    // 就地数一遍即可, 不必给三倍三角数的边各算一次键再查散列。
-    std::vector<uint8_t> dup(static_cast<size_t>(3 * m), 0);
-    {
-        std::vector<int32_t> at(static_cast<size_t>(nvv) + 1, 0);
-        for (const auto& tri : T) {
-            for (const int32_t a : tri) {
-                ++at[static_cast<size_t>(a) + 1];
-            }
-        }
-        for (int64_t i = 0; i < nvv; ++i) {
-            at[static_cast<size_t>(i) + 1] += at[static_cast<size_t>(i)];
-        }
-        std::vector<int32_t> wr = at;
-        std::vector<int32_t> dst(static_cast<size_t>(3 * m));
-        std::vector<int32_t> slt(static_cast<size_t>(3 * m));
-        for (int64_t i = 0; i < m; ++i) {
-            for (int64_t k = 0; k < 3; ++k) {
-                const auto w = static_cast<size_t>(wr[static_cast<size_t>(T[static_cast<size_t>(i)][k])]++);
-                dst[w] = T[static_cast<size_t>(i)][(k + 1) % 3];
-                slt[w] = static_cast<int32_t>(i * 3 + k);
-            }
-        }
-        for (int64_t v = 0; v < nvv; ++v) {
-            for (int32_t p = at[static_cast<size_t>(v)]; p < at[static_cast<size_t>(v) + 1]; ++p) {
-                for (int32_t q = p + 1; q < at[static_cast<size_t>(v) + 1]; ++q) {
-                    if (dst[static_cast<size_t>(p)] == dst[static_cast<size_t>(q)]) {
-                        dup[static_cast<size_t>(slt[static_cast<size_t>(p)])] = 1;
-                        dup[static_cast<size_t>(slt[static_cast<size_t>(q)])] = 1;
-                    }
-                }
-            }
-        }
-    }
     int64_t n_dup = 0;
     for (int64_t slot = 0; slot < 3 * m; ++slot) {
         if (dup[static_cast<size_t>(slot)] == 0) {
@@ -382,39 +389,11 @@ ZoneClean::ZoneClean(
         NB[static_cast<size_t>(slot / 3)][slot % 3] = -1;
     }
 
-    // NB 掩码:焊接邻接必须在 pack link 表有背书,无背书的缝一律割掉
-    const auto& offs = planner.adjacencyOffsets();
-    const auto& lnks = planner.adjacencyLinks();
-    std::vector<std::pair<int32_t, int32_t>> lab;
-    {
-        const size_t nw = NavWorkerCount(hi - lo);
-        std::vector<std::vector<std::pair<int32_t, int32_t>>> bins(nw);
-        ParallelChunks(hi - lo, nw, [&](size_t w, int64_t b, int64_t e) {
-            for (int64_t src = lo + b; src < lo + e; ++src) {
-                for (uint32_t li = offs[static_cast<size_t>(src)]; li < offs[static_cast<size_t>(src) + 1]; ++li) {
-                    const int64_t tgt = lnks[li];
-                    if (tgt >= lo && tgt < hi && src < tgt) {
-                        bins[w].emplace_back(static_cast<int32_t>(src - lo), static_cast<int32_t>(tgt - lo));
-                    }
-                }
-            }
-        });
-        ConcatBins(bins, lab);
-    }
-    // 有背书的三角对按小号一端分桶。一个三角挂不了几条链接, 桶内直查比散列表快,
-    // 而且查的是同一个集合, 结果与散列表一致。
-    std::vector<int32_t> lat(static_cast<size_t>(m) + 1, 0);
-    for (const auto& e : lab) {
-        ++lat[static_cast<size_t>(e.first) + 1];
-    }
-    for (int64_t i = 0; i < m; ++i) {
-        lat[static_cast<size_t>(i) + 1] += lat[static_cast<size_t>(i)];
-    }
-    std::vector<int32_t> lwr = lat;
-    std::vector<int32_t> lhi(lab.size());
-    for (const auto& e : lab) {
-        lhi[static_cast<size_t>(lwr[static_cast<size_t>(e.first)]++)] = e.second;
-    }
+    // NB 掩码:焊接邻接必须在 pack link 表有背书,无背书的缝一律割掉。
+    // 背书直接问规划器: 小号一端有没有指向大号那端的链接, 不必把整区链接再抄成一份分桶表。
+    const auto endorsed = [&](int32_t a, int32_t b) {
+        return planner.hasLink(static_cast<uint32_t>(lo + a), static_cast<uint32_t>(lo + b));
+    };
     std::vector<int64_t> cand;
     int64_t n_mask_cut = 0;
     {
@@ -437,11 +416,7 @@ ZoneClean::ZoneClean(
                 }
                 const auto a = static_cast<int32_t>(std::min<int64_t>(i, j));
                 const auto b = static_cast<int32_t>(std::max<int64_t>(i, j));
-                bool hit = false;
-                for (int32_t p = lat[static_cast<size_t>(a)]; p < lat[static_cast<size_t>(a) + 1] && !hit; ++p) {
-                    hit = lhi[static_cast<size_t>(p)] == b;
-                }
-                if (!hit) {
+                if (!endorsed(a, b)) {
                     bins[w].push_back(slot);
                 }
             }
@@ -488,29 +463,30 @@ ZoneClean::ZoneClean(
             }
         }
     }
-    comp.resize(static_cast<size_t>(m));
+    // 邻接到此用完, 压成边界位。分量号(par)只用来算孤岛位, 算完随作用域释放。
+    mesh.foldNb();
     for (int64_t i = 0; i < m; ++i) {
-        comp[static_cast<size_t>(i)] = find(static_cast<int32_t>(i));
+        par[static_cast<size_t>(i)] = find(static_cast<int32_t>(i));
     }
 
     // 岛 = 天然分量(pack n 字段)不超过阈值的三角占多数的 comp
-    std::vector<int64_t> n_tot(static_cast<size_t>(m), 0);
-    std::vector<int64_t> n_isl(static_cast<size_t>(m), 0);
+    std::vector<int32_t> n_tot(static_cast<size_t>(m), 0);
+    std::vector<int32_t> n_isl(static_cast<size_t>(m), 0);
     for (int64_t i = 0; i < m; ++i) {
-        ++n_tot[comp[static_cast<size_t>(i)]];
+        ++n_tot[par[static_cast<size_t>(i)]];
         if (planner.isSmallIslandTriangle(static_cast<uint32_t>(lo + i))) {
-            ++n_isl[comp[static_cast<size_t>(i)]];
+            ++n_isl[par[static_cast<size_t>(i)]];
         }
     }
-    comp_island.resize(static_cast<size_t>(m));
-    for (int64_t c = 0; c < m; ++c) {
-        comp_island[static_cast<size_t>(c)] =
-            (n_tot[static_cast<size_t>(c)] == 0 || n_isl[static_cast<size_t>(c)] * 2 > n_tot[static_cast<size_t>(c)]) ? 1 : 0;
+    island.resize(static_cast<size_t>(m));
+    for (int64_t i = 0; i < m; ++i) {
+        const auto c = static_cast<size_t>(par[static_cast<size_t>(i)]);
+        island[static_cast<size_t>(i)] = (n_tot[c] == 0 || n_isl[c] * 2 > n_tot[c]) ? 1 : 0;
     }
 
     int64_t ncomps = 0;
     for (int64_t i = 0; i < m; ++i) {
-        if (comp[static_cast<size_t>(i)] == i) {
+        if (par[static_cast<size_t>(i)] == i) {
             ++ncomps;
         }
     }
@@ -524,8 +500,7 @@ ZoneClean::ZoneClean(
 void ZoneClean::release()
 {
     mesh = PolyMesh();
-    comp = std::vector<int32_t>();
-    comp_island = std::vector<uint8_t>();
+    island = std::vector<uint8_t>();
     walkable = std::vector<uint8_t>();
 }
 
@@ -543,11 +518,11 @@ std::optional<ZoneClean::SnapHit> ZoneClean::snap(const WorldPoint& p, double ra
                 continue; // 掩码外的面不接受吸附;这一关两轮半径都要过
             }
             const auto& tri = mesh.T[static_cast<size_t>(t)];
-            const auto [sp, dist] = closestOnTri(p, { mesh.V[tri[0]], mesh.V[tri[1]], mesh.V[tri[2]] });
+            const auto [sp, dist] = closestOnTri(p, { mesh.v(tri[0]), mesh.v(tri[1]), mesh.v(tri[2]) });
             if (dist > rr) {
                 continue;
             }
-            const double isl = comp_island[comp[static_cast<size_t>(t)]] != 0 ? 1.0 : 0.0;
+            const double isl = island[static_cast<size_t>(t)] != 0 ? 1.0 : 0.0;
             // floor 盲键 (isl, dist, -高度, t) 全序;floor 感知键 (带外, isl, dist, delta)
             // dist 打平只发生在同一 (u,v) 上摞着好几层地面(都含点 ⇒ 都是 0)。此时取最高那层:
             // 底图像素是俯视图上的一点,那点看得见的就是最上面那层。拿三角号破平是任意的 ——

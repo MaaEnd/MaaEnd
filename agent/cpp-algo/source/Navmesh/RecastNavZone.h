@@ -30,15 +30,35 @@ inline constexpr uint32_t kWalkableFlagsDefault = 0x00020CDDU;
 
 struct PolyMesh
 {
-    std::vector<WorldPoint> V;
-    std::vector<double> H;
+    // 顶点不复制: 源精确包直接指向包里的 float 数组(vb), 旧包要先取整焊接才自留一份(vown)。
+    // 最大的区有 247 万顶点, 按 double 抄一遍要 59 MB, 而下游算的本来就是这些 float 值。
+    const BaseNavVertex* vb = nullptr;
+    std::vector<BaseNavVertex> vown;
+    int64_t nv = 0;
     std::vector<std::array<int32_t, 3>> T;
+    // 邻接只在 ZoneClean 构造期存在, 分量算完就压成 bnd(第 k 位 = 第 k 条边无邻居)并释放:
+    // 运行期唯一的读者 BakeWalls 只问"这条边是不是边界", 12 字节/三角换 1 字节。
     std::vector<std::array<int32_t, 3>> NB;
+    std::vector<uint8_t> bnd;
 
     PolyMesh() = default;
-    PolyMesh(std::vector<WorldPoint> v, std::vector<std::array<int32_t, 3>> t, std::vector<double> h);
+    // dup 非空时顺便标出"同一条有向边出现两次以上"的槽(3*三角数, 按 i*3+k 索引):
+    // 它和邻接用同一套按起点分桶的边表, 单独再建一遍要多占三倍三角数的两张 int32 表。
+    PolyMesh(const BaseNavVertex* vb, int64_t nv, std::vector<std::array<int32_t, 3>> t, std::vector<uint8_t>* dup = nullptr);
+    PolyMesh(std::vector<BaseNavVertex> own, std::vector<std::array<int32_t, 3>> t, std::vector<uint8_t>* dup = nullptr);
 
-    void buildNb();
+    const BaseNavVertex* verts() const { return vown.empty() ? vb : vown.data(); }
+
+    WorldPoint v(int32_t i) const
+    {
+        const BaseNavVertex& p = verts()[i];
+        return { static_cast<double>(p.u), static_cast<double>(p.v) };
+    }
+
+    double h(int32_t i) const { return static_cast<double>(verts()[i].height); }
+
+    void buildNb(std::vector<uint8_t>* dup);
+    void foldNb(); // NB → bnd, 然后释放 NB
     std::vector<int32_t> trisNear(const WorldPoint& p, double r) const;                // 升序去重
     std::vector<int32_t> trisInBox(double x0, double y0, double x1, double y1) const;  // 升序去重
 
@@ -82,8 +102,7 @@ public:
     int64_t lo = 0;
     int64_t hi = 0;
     PolyMesh mesh;
-    std::vector<int32_t> comp;        // 三角 → 分量代表(区内最小三角号)
-    std::vector<uint8_t> comp_island; // 按分量代表值索引
+    std::vector<uint8_t> island; // 逐三角: 所在分量以小岛三角为主。分量号本身没人读, 不留
     // 逐三角可走标记,与 mesh.T 同长同序。掩码外的三角照样占着自己那一行 ——
     // RecastNavRoute 拿 (全局三角号 - lo) 直接索引 mesh,下标身份是硬约束,只能就地打标,
     // 绝不能压缩重排。

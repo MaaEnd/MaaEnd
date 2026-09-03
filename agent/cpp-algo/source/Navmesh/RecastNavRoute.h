@@ -50,6 +50,9 @@ struct RecastPlanResult
         int64_t nx = 0;
         int64_t ny = 0;
         double cell_size = 0.0;
+        // 采信的是第几档窗口 (0 = 端点包围盒外扩的最小一档), 以及前面各档被否掉的原因。
+        int tier = 0;
+        std::vector<std::string> tier_notes;
         std::vector<WorldPoint> topology_cells; // 拓扑那一层的逐格路径
         std::vector<double> topology_heights; // 与 topology_cells 同长的所在面高度
         std::vector<WorldPoint> taut_points; // 几何搜索交出的父链折线, 取直之前
@@ -100,7 +103,10 @@ private:
     struct ZoneEntry
     {
         std::unique_ptr<ZoneClean> zc;
+        uint64_t used_at = 0; // zoneEntry 的调用序号, 淘汰最久没用的
     };
+    // 每个 ZoneClean 常驻几十到两百 MB, 只留最近用过的两个(通常是一层 base 加一层 tier)
+    static constexpr size_t kZoneCacheMax = 2;
 
     ZoneEntry& zoneEntry(const std::string& name);
     RecastPlanResult planLocked(
@@ -118,6 +124,7 @@ private:
     const BaseNavPlanner& planner_;
     std::mutex mutex_;
     std::unordered_map<std::string, ZoneEntry> zones_;
+    uint64_t zone_clock_ = 0;
     GridPack grid_; // 包里的预烘格图,没有它就没法规划
     std::string grid_error_;
     uint32_t walkable_flags_ = kWalkableFlagsDefault;

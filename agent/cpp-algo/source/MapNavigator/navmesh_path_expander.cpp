@@ -574,6 +574,14 @@ navmesh::BaseNavRouteResult PlanCorridorRoute(
         for (const std::string& warning : plan.warnings) {
             LogWarn << "RECAST plan warning." << VAR(request.zone_name) << VAR(warning);
         }
+        // 采信的窗口档与分段耗时: 实机上分辨"小窗一档过"与"升到整类"只有这一行。
+        std::string tier_notes;
+        for (const std::string& note : plan.debug.tier_notes) {
+            tier_notes += (tier_notes.empty() ? "" : " | ") + note;
+        }
+        LogInfo << "RECAST plan window." << VAR(request.zone_name) << VAR(plan.debug.tier) << VAR(plan.debug.nx) << VAR(plan.debug.ny)
+                << VAR(plan.debug.timing.window_ms) << VAR(plan.debug.timing.topology_ms) << VAR(plan.debug.timing.geometry_ms)
+                << VAR(plan.debug.timing.total_ms) << VAR(tier_notes);
     }
     result.status = navmesh::BaseNavRouteStatus::Success;
     result.path.zone_id = zone->zone_id;

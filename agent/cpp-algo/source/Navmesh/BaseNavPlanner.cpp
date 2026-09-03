@@ -58,14 +58,6 @@ constexpr double kIndexBinSize = 4.0; // 空间分箱的格边长(px),与 Python
 // tier 细分后三角形极小,8px 每桶堆 ~200 个 → 每次 pointOnMesh 候选遍历是后处理热点;4px 每桶 ~12 个,查询 ~4x 快
 // (空间索引仅加速查询、不改判定结果)。建索引略增但 C++ 编译版快,可忽略。
 
-uint64_t PackBinKey(uint16_t zone_id, int32_t bin_x, int32_t bin_y)
-{
-    const uint64_t zone = static_cast<uint64_t>(zone_id);
-    const uint64_t packed_x = static_cast<uint64_t>(static_cast<uint32_t>(bin_x)) & 0xFFFFFFu;
-    const uint64_t packed_y = static_cast<uint64_t>(static_cast<uint32_t>(bin_y)) & 0xFFFFFFu;
-    return (zone << 48) | (packed_x << 24) | packed_y;
-}
-
 constexpr double kSegmentWalkSnapRadius = 1.0; // 点查询(pointOnMesh/groundHeightNearIndexed)取候选三角形的邻域半径(px)
 
 }
@@ -73,8 +65,7 @@ constexpr double kSegmentWalkSnapRadius = 1.0; // 点查询(pointOnMesh/groundHe
 BaseNavPlanner::BaseNavPlanner(const BaseNavPack& pack)
     : pack_(pack)
     , triangle_zones_(pack.triangles().size(), 0)
-    , adjacency_offsets_(pack.triangles().size() + 1, 0)
-    , triangle_heights_(pack.triangles().size(), 0.0)
+    , neighbor_link_bits_(pack.triangles().size(), 0)
 {
     for (const auto& zone : pack_.zones()) {
         const uint32_t end = zone.first_triangle + zone.triangle_count;
@@ -82,20 +73,17 @@ BaseNavPlanner::BaseNavPlanner(const BaseNavPack& pack)
             triangle_zones_[index] = zone.zone_id;
         }
     }
-    // 三段各写各的成员(连通分量与邻接表 / 空间桶 / 三角高度), 读的只有 pack_ 与刚填好的分区表,
-    // 谁都看不见另外两段的产物, 于是并起来跑与顺着跑逐位相同。
+    // 两段各写各的成员(连通分量与邻接表 / 空间桶), 读的只有 pack_ 与刚填好的分区表,
+    // 谁都看不见另一段的产物, 于是并起来跑与顺着跑逐位相同。
     if (NavWorkerCount(static_cast<int64_t>(pack_.triangles().size())) <= 1) {
         buildIndex();
         buildSpatialIndex();
-        computeTriangleHeights();
         return;
     }
-    // jthread: buildIndex 抛出时(分配失败是唯一的来路)这两个还在跑, 析构自己接回来。
+    // jthread: buildIndex 抛出时(分配失败是唯一的来路)另一个还在跑, 析构自己接回来。
     std::jthread bins([this] { buildSpatialIndex(); });
-    std::jthread heights([this] { computeTriangleHeights(); });
     buildIndex();
     bins.join();
-    heights.join();
 }
 
 void BaseNavPlanner::buildIndex()
@@ -126,25 +114,41 @@ void BaseNavPlanner::buildIndex()
             }
         });
 
-    size_t valid_link_count = 0;
+    // 过筛的链接按落点分两处: 目标是自带邻居的置槽位比特, 其余进桥接表; 置位与排序都不依赖遍历顺序。
+    const auto& triangles = pack_.triangles();
     for (size_t index = 0; index < links.size(); ++index) {
-        if (((passed[index >> 6] >> (index & 63)) & 1) != 0) {
-            ++adjacency_offsets_[links[index].source + 1];
-            ++valid_link_count;
+        if (((passed[index >> 6] >> (index & 63)) & 1) == 0) {
+            continue;
+        }
+        const BaseNavLink& link = links[index];
+        const auto& neighbors = triangles[link.source].neighbors;
+        bool slotted = false;
+        for (size_t slot = 0; slot < neighbors.size(); ++slot) {
+            if (neighbors[slot] >= 0 && static_cast<uint32_t>(neighbors[slot]) == link.target) {
+                neighbor_link_bits_[link.source] |= static_cast<uint8_t>(1U << slot);
+                slotted = true;
+            }
+        }
+        if (!slotted) {
+            bridge_links_.push_back((static_cast<uint64_t>(link.source) << 32U) | link.target);
         }
     }
-    for (size_t index = 1; index < adjacency_offsets_.size(); ++index) {
-        adjacency_offsets_[index] += adjacency_offsets_[index - 1];
-    }
+    std::sort(bridge_links_.begin(), bridge_links_.end());
+    bridge_links_.shrink_to_fit();
+}
 
-    adjacency_links_.resize(valid_link_count);
-    std::vector<uint32_t> next_offsets = adjacency_offsets_;
-    for (size_t index = 0; index < links.size(); ++index) {
-        if (((passed[index >> 6] >> (index & 63)) & 1) != 0) {
-            const BaseNavLink& link = links[index];
-            adjacency_links_[next_offsets[link.source]++] = link.target;
+bool BaseNavPlanner::hasLink(uint32_t source, uint32_t target) const
+{
+    if (source >= neighbor_link_bits_.size()) {
+        return false;
+    }
+    const auto& neighbors = pack_.triangles()[source].neighbors;
+    for (size_t slot = 0; slot < neighbors.size(); ++slot) {
+        if (neighbors[slot] >= 0 && static_cast<uint32_t>(neighbors[slot]) == target) {
+            return ((neighbor_link_bits_[source] >> slot) & 1U) != 0;
         }
     }
+    return std::binary_search(bridge_links_.begin(), bridge_links_.end(), (static_cast<uint64_t>(source) << 32U) | target);
 }
 
 void BaseNavPlanner::buildNaturalComponents()
@@ -182,26 +186,118 @@ void BaseNavPlanner::buildNaturalComponents()
 void BaseNavPlanner::buildSpatialIndex()
 {
     const auto& triangles = pack_.triangles();
-    for (uint32_t triangle_index = 0; triangle_index < triangles.size(); ++triangle_index) {
-        const uint16_t zone_id = triangle_index < triangle_zones_.size() ? triangle_zones_[triangle_index] : 0;
-        if (zone_id == 0) {
-            continue; // 区外三角形不入索引(与 Python _build_index 一致)
-        }
+    // 三趟同一套遍历: 量各区格包围盒 → 数每格三角数 → 按三角升序回填。三角按区连续, 区槽缓存着查。
+    struct BinRect
+    {
+        int32_t x0, x1, y0, y1;
+    };
+    const auto bin_rect = [this](uint32_t triangle_index) -> BinRect {
         const auto points = trianglePoints(triangle_index);
         const double left = std::min({ points[0].x, points[1].x, points[2].x });
         const double right = std::max({ points[0].x, points[1].x, points[2].x });
         const double top = std::min({ points[0].y, points[1].y, points[2].y });
         const double bottom = std::max({ points[0].y, points[1].y, points[2].y });
-        const int32_t bin_x0 = static_cast<int32_t>(std::floor(left / kIndexBinSize));
-        const int32_t bin_x1 = static_cast<int32_t>(std::floor(right / kIndexBinSize));
-        const int32_t bin_y0 = static_cast<int32_t>(std::floor(top / kIndexBinSize));
-        const int32_t bin_y1 = static_cast<int32_t>(std::floor(bottom / kIndexBinSize));
-        for (int32_t bin_x = bin_x0; bin_x <= bin_x1; ++bin_x) {
-            for (int32_t bin_y = bin_y0; bin_y <= bin_y1; ++bin_y) {
-                spatial_bins_[PackBinKey(zone_id, bin_x, bin_y)].push_back(triangle_index);
-            }
+        return { static_cast<int32_t>(std::floor(left / kIndexBinSize)), static_cast<int32_t>(std::floor(right / kIndexBinSize)),
+                 static_cast<int32_t>(std::floor(top / kIndexBinSize)), static_cast<int32_t>(std::floor(bottom / kIndexBinSize)) };
+    };
+    // 区号 → 区槽。区外三角形(区号 0)不入索引, 与 Python _build_index 一致。
+    bin_grids_.clear();
+    std::vector<int32_t> zone_slot(size_t { 1 } << 16, -1);
+    for (const BaseNavZone& zone : pack_.zones()) {
+        if (zone.zone_id != 0 && zone.triangle_count != 0 && zone_slot[zone.zone_id] < 0) {
+            zone_slot[zone.zone_id] = static_cast<int32_t>(bin_grids_.size());
+            bin_grids_.push_back(BinGrid { .zone_id = zone.zone_id });
         }
     }
+    const size_t nslots = bin_grids_.size();
+    const int64_t n = static_cast<int64_t>(triangles.size());
+    const size_t workers = NavWorkerCount(n);
+    // 三趟按三角分块并行: 量各区格包围盒 → 每块数每格三角数 → 每块往自己那段区间回填。
+    // 块序即三角序, 块内也按三角序, 于是格内三角升序, 与线程数无关。
+    const auto for_each_tri = [&](auto&& fn) {
+        ParallelChunks(n, workers, [&](size_t w, int64_t begin, int64_t end) {
+            for (int64_t t = begin; t < end; ++t) {
+                const uint16_t zone_id = static_cast<size_t>(t) < triangle_zones_.size() ? triangle_zones_[static_cast<size_t>(t)] : 0;
+                const int32_t slot = zone_slot[zone_id];
+                if (slot < 0) {
+                    continue;
+                }
+                fn(w, static_cast<size_t>(slot), bin_rect(static_cast<uint32_t>(t)), static_cast<uint32_t>(t));
+            }
+        });
+    };
+    std::vector<std::vector<BinRect>> bounds(
+        workers, std::vector<BinRect>(nslots, { std::numeric_limits<int32_t>::max(), std::numeric_limits<int32_t>::min(),
+                                              std::numeric_limits<int32_t>::max(), std::numeric_limits<int32_t>::min() }));
+    for_each_tri([&bounds](size_t w, size_t slot, const BinRect& r, uint32_t) {
+        BinRect& b = bounds[w][slot];
+        b.x0 = std::min(b.x0, r.x0);
+        b.x1 = std::max(b.x1, r.x1);
+        b.y0 = std::min(b.y0, r.y0);
+        b.y1 = std::max(b.y1, r.y1);
+    });
+    for (size_t slot = 0; slot < nslots; ++slot) {
+        BinRect b = bounds[0][slot];
+        for (size_t w = 1; w < workers; ++w) {
+            b.x0 = std::min(b.x0, bounds[w][slot].x0);
+            b.x1 = std::max(b.x1, bounds[w][slot].x1);
+            b.y0 = std::min(b.y0, bounds[w][slot].y0);
+            b.y1 = std::max(b.y1, bounds[w][slot].y1);
+        }
+        BinGrid& grid = bin_grids_[slot];
+        if (b.x0 > b.x1) {
+            continue; // 该区没有入索引的三角
+        }
+        grid.bx0 = b.x0;
+        grid.by0 = b.y0;
+        grid.nx = b.x1 - b.x0 + 1;
+        grid.ny = b.y1 - b.y0 + 1;
+        grid.offsets.assign(static_cast<size_t>(grid.nx) * static_cast<size_t>(grid.ny) + 1, 0);
+    }
+    const auto cell = [](const BinGrid& grid, int32_t bin_x, int32_t bin_y) -> size_t {
+        return static_cast<size_t>(bin_x - grid.bx0) * static_cast<size_t>(grid.ny) + static_cast<size_t>(bin_y - grid.by0);
+    };
+    // counts[w][slot][c]: 第 w 块落进格 c 的三角数; 前缀后原地变成第 w 块在格 c 的写入游标。
+    std::vector<std::vector<std::vector<uint32_t>>> counts(workers, std::vector<std::vector<uint32_t>>(nslots));
+    for (size_t w = 0; w < workers; ++w) {
+        for (size_t slot = 0; slot < nslots; ++slot) {
+            counts[w][slot].assign(bin_grids_[slot].offsets.empty() ? 0 : bin_grids_[slot].offsets.size() - 1, 0);
+        }
+    }
+    for_each_tri([&](size_t w, size_t slot, const BinRect& r, uint32_t) {
+        const BinGrid& grid = bin_grids_[slot];
+        std::vector<uint32_t>& cnt = counts[w][slot];
+        for (int32_t bin_x = r.x0; bin_x <= r.x1; ++bin_x) {
+            for (int32_t bin_y = r.y0; bin_y <= r.y1; ++bin_y) {
+                ++cnt[cell(grid, bin_x, bin_y)];
+            }
+        }
+    });
+    for (size_t slot = 0; slot < nslots; ++slot) {
+        BinGrid& grid = bin_grids_[slot];
+        uint32_t running = 0;
+        for (size_t c = 0; c + 1 < grid.offsets.size(); ++c) {
+            grid.offsets[c] = running;
+            for (size_t w = 0; w < workers; ++w) {
+                const uint32_t here = counts[w][slot][c];
+                counts[w][slot][c] = running;
+                running += here;
+            }
+        }
+        if (!grid.offsets.empty()) {
+            grid.offsets.back() = running;
+        }
+        grid.triangles.assign(running, 0);
+    }
+    for_each_tri([&](size_t w, size_t slot, const BinRect& r, uint32_t triangle_index) {
+        BinGrid& grid = bin_grids_[slot];
+        std::vector<uint32_t>& next = counts[w][slot];
+        for (int32_t bin_x = r.x0; bin_x <= r.x1; ++bin_x) {
+            for (int32_t bin_y = r.y0; bin_y <= r.y1; ++bin_y) {
+                grid.triangles[next[cell(grid, bin_x, bin_y)]++] = triangle_index;
+            }
+        }
+    });
 }
 
 std::vector<uint32_t> BaseNavPlanner::candidateTriangles(uint16_t zone_id, const WorldPoint& point, double radius) const
@@ -212,13 +308,20 @@ std::vector<uint32_t> BaseNavPlanner::candidateTriangles(uint16_t zone_id, const
     const int32_t bin_x1 = static_cast<int32_t>(std::floor((point.x + query_radius) / kIndexBinSize));
     const int32_t bin_y0 = static_cast<int32_t>(std::floor((point.y - query_radius) / kIndexBinSize));
     const int32_t bin_y1 = static_cast<int32_t>(std::floor((point.y + query_radius) / kIndexBinSize));
-    for (int32_t bin_x = bin_x0; bin_x <= bin_x1; ++bin_x) {
-        for (int32_t bin_y = bin_y0; bin_y <= bin_y1; ++bin_y) {
-            const auto found = spatial_bins_.find(PackBinKey(zone_id, bin_x, bin_y));
-            if (found == spatial_bins_.end()) {
-                continue;
-            }
-            result.insert(result.end(), found->second.begin(), found->second.end());
+    const BinGrid* grid = nullptr;
+    for (const BinGrid& g : bin_grids_) {
+        if (g.zone_id == zone_id) {
+            grid = &g;
+            break;
+        }
+    }
+    if (grid == nullptr || grid->offsets.empty()) {
+        return result;
+    }
+    for (int32_t bin_x = std::max(bin_x0, grid->bx0); bin_x <= std::min(bin_x1, grid->bx0 + grid->nx - 1); ++bin_x) {
+        for (int32_t bin_y = std::max(bin_y0, grid->by0); bin_y <= std::min(bin_y1, grid->by0 + grid->ny - 1); ++bin_y) {
+            const size_t c = static_cast<size_t>(bin_x - grid->bx0) * static_cast<size_t>(grid->ny) + static_cast<size_t>(bin_y - grid->by0);
+            result.insert(result.end(), grid->triangles.begin() + grid->offsets[c], grid->triangles.begin() + grid->offsets[c + 1]);
         }
     }
     return result;
@@ -240,19 +343,6 @@ bool BaseNavPlanner::pointOnMesh(uint16_t zone_id, const WorldPoint& point) cons
     return false;
 }
 
-void BaseNavPlanner::computeTriangleHeights()
-{
-    const auto& triangles = pack_.triangles();
-    const auto& vertices = pack_.vertices();
-    for (size_t index = 0; index < triangles.size(); ++index) {
-        const auto& triangle = triangles[index];
-        triangle_heights_[index] =
-            (static_cast<double>(vertices[triangle.vertices[0]].height) + static_cast<double>(vertices[triangle.vertices[1]].height)
-             + static_cast<double>(vertices[triangle.vertices[2]].height))
-            / 3.0;
-    }
-}
-
 std::optional<double> BaseNavPlanner::groundHeightNearIndexed(
     uint16_t zone_id,
     const WorldPoint& point,
@@ -268,7 +358,7 @@ std::optional<double> BaseNavPlanner::groundHeightNearIndexed(
         if (!detail::PointInTriangle(point, trianglePoints(triangle_index))) {
             continue;
         }
-        const double height = triangle_heights_[triangle_index];
+        const double height = triangleHeight(triangle_index);
         if (!best) {
             best = height;
             out_triangle = triangle_index;
@@ -404,7 +494,7 @@ std::optional<BaseNavSnapResult> BaseNavPlanner::snap(uint16_t zone_id, const Wo
                     continue;
                 }
             }
-            const double delta = std::abs(triangle_heights_[triangle_index] - static_cast<double>(floor_y));
+            const double delta = std::abs(triangleHeight(triangle_index) - static_cast<double>(floor_y));
             const std::tuple<int, int, double, double> key { delta <= static_cast<double>(kBaseNavFloorBand) ? 0 : 1,
                                                              is_small_island(triangle_index) ? 1 : 0,
                                                              distance,
@@ -448,7 +538,7 @@ std::optional<BaseNavSnapResult> BaseNavPlanner::snap(uint16_t zone_id, const Wo
         // 是任意的 —— 重烘一次三角顺序一换,起点就可能吸到桥下/水下那层,与终点分属两个分量,
         // A* 直接报不连通。非打平的候选不受影响,distance 仍排在高度前面。
         const std::tuple<int, double, double, uint32_t> key {
-            is_small_island(triangle_index) ? 1 : 0, distance, -triangle_heights_[triangle_index], triangle_index
+            is_small_island(triangle_index) ? 1 : 0, distance, -triangleHeight(triangle_index), triangle_index
         };
         if (!best_key || key < *best_key) {
             best_key = key;
@@ -508,9 +598,14 @@ std::array<WorldPoint, 3> BaseNavPlanner::trianglePoints(uint32_t triangle_index
     };
 }
 
+// 按需从三个顶点算, 不留 553 万条 double 的表(44 MB); 表达式与原来逐位相同。
 double BaseNavPlanner::triangleHeight(uint32_t triangle_index) const
 {
-    return triangle_heights_[triangle_index];
+    const auto& triangle = pack_.triangles()[triangle_index];
+    const auto& vertices = pack_.vertices();
+    return (static_cast<double>(vertices[triangle.vertices[0]].height) + static_cast<double>(vertices[triangle.vertices[1]].height)
+            + static_cast<double>(vertices[triangle.vertices[2]].height))
+        / 3.0;
 }
 
 uint32_t BaseNavPlanner::componentId(uint32_t triangle_index) const

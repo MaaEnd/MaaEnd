@@ -5,7 +5,6 @@
 #include <cstdint>
 #include <optional>
 #include <string>
-#include <unordered_map>
 #include <vector>
 
 #include "BaseNavPack.h"
@@ -94,10 +93,8 @@ public:
         double half_width = 0.0,
         std::optional<double> seed_height = std::nullopt) const;
 
-    // RecastNav 复用
-    const std::vector<uint32_t>& adjacencyOffsets() const { return adjacency_offsets_; }
-
-    const std::vector<uint32_t>& adjacencyLinks() const { return adjacency_links_; }
+    // RecastNav 复用: pack 链接表里有没有 source→target 这条(且过了通行判据)。
+    bool hasLink(uint32_t source, uint32_t target) const;
 
     bool isSmallIslandTriangle(uint32_t triangle_index) const;
     std::optional<std::array<WorldPoint, 2>> closestEdgeBridgePoints(uint32_t lhs, uint32_t rhs) const;
@@ -112,19 +109,31 @@ public:
 private:
     const BaseNavPack& pack_;
     std::vector<uint16_t> triangle_zones_;
-    std::vector<uint32_t> adjacency_offsets_;
-    std::vector<uint32_t> adjacency_links_;
-    std::vector<double> triangle_heights_;
+    // 链接表 97% 都落在三角自带的三个邻居槽上, 按槽存一比特; 剩下的跨分量桥接单独排一张
+    // (source<<32|target) 小表。整包 1500 万条链接原先展成 CSR 要 83 MB, 这样不到 10 MB。
+    std::vector<uint8_t> neighbor_link_bits_;
+    std::vector<uint64_t> bridge_links_;
     std::vector<uint32_t> natural_component_ids_;
     std::vector<uint32_t> natural_component_sizes_;
     // 空间分箱索引:(zone_id, bin_x, bin_y) → 该格覆盖的三角形下标。使 snap/pointOnMesh 从全区线性
     // 扫描降为 O(邻近候选);剔除条件不变,结果与线性扫描完全一致。对齐 Python basenav_lib 的 bins。
-    std::unordered_map<uint64_t, std::vector<uint32_t>> spatial_bins_;
+    // 存法是每区一张按包围盒铺满的格偏移表(格内三角按下标升序), 格外即空格。整包不到 50 万格,
+    // 建表不用排序也不用哈希; 原来的哈希表光节点就要几十 MB。
+    struct BinGrid
+    {
+        uint16_t zone_id = 0;
+        int32_t bx0 = 0;
+        int32_t by0 = 0;
+        int32_t nx = 0;
+        int32_t ny = 0;
+        std::vector<uint32_t> offsets; // nx*ny+1, 行主序 (bin_x - bx0) * ny + (bin_y - by0)
+        std::vector<uint32_t> triangles;
+    };
+    std::vector<BinGrid> bin_grids_;
 
     void buildIndex();
     void buildNaturalComponents();
     void buildSpatialIndex();
-    void computeTriangleHeights();
     bool isNaturalNeighbor(uint32_t lhs, uint32_t rhs) const;
     bool isTraversableLink(uint32_t lhs, uint32_t rhs) const;
     // point 处的地面高度:取包含 point 的候选三角形中高度与 reference 最接近者(高度连续性,跨重叠缝
