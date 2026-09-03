@@ -188,3 +188,8 @@ func Apply(region, displayType, resolution string) bool {
 		Msg("apply is only supported on windows")
 	return false
 }
+
+// ApplyAutoHDR 在非 Windows 平台不可用。
+func ApplyAutoHDR(_ string) error {
+	return ErrUnsupported
+}

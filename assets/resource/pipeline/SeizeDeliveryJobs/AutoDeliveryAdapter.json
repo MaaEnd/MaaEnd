@@ -1,0 +1,176 @@
+{
+    "SeizeDeliveryJobsPostProcessingEntry": {
+        "desc": "抢单成功后或手上已有委托时，进入任务自行编排的后处理流程（默认关闭）",
+        "enabled": false,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "**进入抢单后处理流程**"
+        }
+    },
+    "SeizeDeliveryJobsTeleport": {
+        "desc": "调用全自动送货；需要取货时仅快速传送到仓储节点附近",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "anchor": {
+            "AutoDeliveryAfterRecognizeDestination": "SeizeDeliveryJobsDeliveryCannotTeleport",
+            "AutoDeliveryAfterQuickTeleport": "SeizeDeliveryJobsSuccessTeleportDone"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDelivery"
+        ]
+    },
+    "SeizeDeliveryJobsTeleportAndWalk": {
+        "desc": "调用全自动送货，需要取货时快速传送后走到仓储节点",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "anchor": {
+            "AutoDeliveryAfterRecognizeDestination": "SeizeDeliveryJobsDeliveryCannotTeleport",
+            "AutoDeliveryAfterNavigateDepot": "SeizeDeliveryJobsRestoreTrackingAfterWalk"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDelivery"
+        ]
+    },
+    "SeizeDeliveryJobsFullDelivery": {
+        "desc": "调用全自动送货，自动判断取货或送货并完成当前委托",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "anchor": {
+            "AutoDeliveryAfterSubmitGoods": "SeizeDeliveryJobsMain"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDelivery"
+        ]
+    },
+    "SeizeDeliveryJobsDeliveryCannotTeleport": {
+        "desc": "当前任务已进入送货阶段，无法使用快速传送",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.SeizeDeliveryJobs.focus.deliveryCannotTeleport"
+        }
+    },
+    "SeizeDeliveryJobsCheckDeliveryMissionTrackedAfterWalk": {
+        "desc": "确认到达仓储节点后送货任务已经处于追踪状态",
+        "recognition": "And",
+        "all_of": [
+            "AutoDeliveryInDeliveryMissionDetail",
+            "AutoDeliveryCheckCancelCurrentJobTrackingButton"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SeizeDeliveryJobsReturnWorldAfterTracking"
+        ]
+    },
+    "SeizeDeliveryJobsInDestinationMapAfterTracking": {
+        "desc": "确认到达仓储节点后重新追踪任务已打开目的地地图",
+        "recognition": "And",
+        "all_of": [
+            "AutoDeliveryInTaskDestinationMap"
+        ],
+        "box_index": 0,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SeizeDeliveryJobsReturnWorldAfterTracking"
+        ]
+    },
+    "SeizeDeliveryJobsRestoreTrackingAfterWalk": {
+        "desc": "到达仓储节点后重新进入送货任务详情并恢复追踪",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoDeliveryEnsureDeliveryMissionSelected"
+            ],
+            "continue": false,
+            "strict": true
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SeizeDeliveryJobsCheckDeliveryMissionTrackedAfterWalk",
+            "SeizeDeliveryJobsStartTrackingAfterWalk"
+        ]
+    },
+    "SeizeDeliveryJobsReturnWorldAfterTracking": {
+        "desc": "确认送货任务已经追踪后返回仓储节点所在的大世界",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneAnyEnterWorld"
+            ],
+            "continue": false,
+            "strict": true
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SeizeDeliveryJobsSuccessWalkDone"
+        ]
+    },
+    "SeizeDeliveryJobsStartTrackingAfterWalk": {
+        "desc": "到达仓储节点后点击开始追踪送货任务",
+        "recognition": "And",
+        "all_of": [
+            "AutoDeliveryInDeliveryMissionDetail",
+            "AutoDeliveryCheckStartTrackingButton"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 500,
+        "next": [
+            "SeizeDeliveryJobsInDestinationMapAfterTracking"
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.AutoDelivery.focus.start_tracking"
+        }
+    },
+    "SeizeDeliveryJobsSuccessTeleportDone": {
+        "desc": "任务成功，已快速传送到仓储节点附近",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "**传送好了！记得及时送货哟~**"
+        }
+    },
+    "SeizeDeliveryJobsSuccessWalkDone": {
+        "desc": "任务成功，已走到仓储节点",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "**走到位了！记得及时送货哟~**"
+        }
+    }
+}

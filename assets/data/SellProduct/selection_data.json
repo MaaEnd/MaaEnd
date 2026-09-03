@@ -126,6 +126,15 @@
                 "ko_kr": "강철 부품"
             }
         },
+        "item_activity_xiranite_enr_lung": {
+            "names": {
+                "zh_cn": "重息壤龙泡泡",
+                "zh_tw": "重息壤龍泡泡",
+                "en_us": "Heavy Xiranite Chubby Lung",
+                "ja_jp": "重息壌龍泡泡",
+                "ko_kr": "중식양 드래곤 버블"
+            }
+        },
         "item_activity_xiranite_enr_hulu": {
             "names": {
                 "zh_cn": "息壤玉葫芦",
@@ -133,6 +142,15 @@
                 "en_us": "Xiranite Jade Gourd",
                 "ja_jp": "息壌玉ひょうたん",
                 "ko_kr": "식양 옥 호리병"
+            }
+        },
+        "item_activity_xiranite_lung": {
+            "names": {
+                "zh_cn": "息壤龙泡泡",
+                "zh_tw": "息壤龍泡泡",
+                "en_us": "Xiranite Chubby Lung",
+                "ja_jp": "息壌龍泡泡",
+                "ko_kr": "식양 드래곤 버블"
             }
         },
         "item_activity_xiranite_hulu": {
@@ -506,6 +524,15 @@
                 "ko_kr": "카뮤"
             }
         },
+        "Typhoeus": {
+            "names": {
+                "zh_cn": "提弗洛斯",
+                "zh_tw": "提弗洛斯",
+                "en_us": "Typhoeus",
+                "ja_jp": "ティフォロス",
+                "ko_kr": "티프로스"
+            }
+        },
         "Liino": {
             "names": {
                 "zh_cn": "梨诺",
@@ -595,6 +622,11 @@
                     "name": "Laevatain",
                     "bonus_tier": 0,
                     "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
+                    "name": "Typhoeus",
+                    "bonus_tier": 1,
+                    "outpost_prosperity_max_bonus_tier": 1
                 },
                 {
                     "name": "Pogranichnik",
@@ -859,6 +891,11 @@
                     "outpost_prosperity_max_bonus_tier": 1
                 },
                 {
+                    "name": "Typhoeus",
+                    "bonus_tier": 1,
+                    "outpost_prosperity_max_bonus_tier": 1
+                },
+                {
                     "name": "Ardelia",
                     "bonus_tier": 1,
                     "outpost_prosperity_max_bonus_tier": 1
@@ -899,6 +936,16 @@
                 "ko_kr": "천왕 평지 건설 지원소"
             },
             "items": [
+                {
+                    "item_id": "item_activity_xiranite_enr_lung",
+                    "rarity": 5,
+                    "unit_price": 200
+                },
+                {
+                    "item_id": "item_activity_xiranite_lung",
+                    "rarity": 4,
+                    "unit_price": 100
+                },
                 {
                     "item_id": "item_proc_battery_4",
                     "rarity": 4,
@@ -982,6 +1029,11 @@
                     "outpost_prosperity_max_bonus_tier": 0
                 },
                 {
+                    "name": "Typhoeus",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
+                },
+                {
                     "name": "Rossi",
                     "bonus_tier": 2,
                     "outpost_prosperity_max_bonus_tier": 0
@@ -1020,6 +1072,16 @@
                 "ko_kr": "심장 수복실"
             },
             "items": [
+                {
+                    "item_id": "item_activity_xiranite_enr_lung",
+                    "rarity": 5,
+                    "unit_price": 200
+                },
+                {
+                    "item_id": "item_activity_xiranite_lung",
+                    "rarity": 4,
+                    "unit_price": 100
+                },
                 {
                     "item_id": "item_xiranite_enr_powder",
                     "rarity": 3,
@@ -1131,6 +1193,16 @@
             },
             "items": [
                 {
+                    "item_id": "item_activity_xiranite_enr_lung",
+                    "rarity": 5,
+                    "unit_price": 200
+                },
+                {
+                    "item_id": "item_activity_xiranite_lung",
+                    "rarity": 4,
+                    "unit_price": 100
+                },
+                {
                     "item_id": "item_copper_enr2_cmpt",
                     "rarity": 4,
                     "unit_price": 70
@@ -1196,6 +1268,11 @@
                     "name": "Xaihi",
                     "bonus_tier": 1,
                     "outpost_prosperity_max_bonus_tier": 1
+                },
+                {
+                    "name": "Typhoeus",
+                    "bonus_tier": 2,
+                    "outpost_prosperity_max_bonus_tier": 0
                 },
                 {
                     "name": "Rossi",

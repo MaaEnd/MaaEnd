@@ -17,6 +17,7 @@
             }
         },
         "next": [
+            "__ScenePrivateLoginMaintenance",
             "[JumpBack]__ScenePrivateCloseErrorDialog",
             "[JumpBack]__ScenePrivateCloseLoginAnnouncement",
             "__ScenePrivateLoginContinue",
@@ -48,6 +49,7 @@
             "type": "Click"
         },
         "next": [
+            "__ScenePrivateLoginMaintenance",
             "[JumpBack]__ScenePrivateCloseErrorDialog",
             "__ScenePrivateLoginContinueDisappeared",
             "__ScenePrivateLoginContinue"
@@ -81,6 +83,113 @@
             "[JumpBack]__ScenePrivateLoginCompanionGiftConfirm",
             "__ScenePrivateLoginSuccess",
             "[JumpBack]__ScenePrivateLoginCloseDialog"
+        ]
+    },
+    "__ScenePrivateLoginMaintenance": {
+        "desc": "服务器维护中，点击确认后定时重试进入游戏",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__ScenePrivateLoginMaintenanceText",
+                    "__ScenePrivateCloseErrorDialog"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateLoginMaintenanceRetry",
+            "__ScenePrivateLoginMaintenanceTitleDisappeared"
+        ]
+    },
+    "__ScenePrivateLoginMaintenanceText": {
+        "desc": "识别服务器维护提示",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    450,
+                    300,
+                    380,
+                    100
+                ],
+                "expected": [
+                    // "服务器正在维护中，本次维护预计将于2026/09/02 12:00 (UTC+8)结束。详情请关注官方公告。"
+                    // "伺服器正在維護中，本次維護預計將於2026/09/02 12:00 (UTC+8)結束。詳情請關注官方公告。"
+                    // "Server is under maintenance, which is expected to end at 2026-09-02 12:00 (UTC+8). Refer to official announcements for details."
+                    // "サーバーは現在メンテナンス中です。終了予定時刻：2026/09/02 12:00 (UTC+8)。詳細は公式のお知らせをご確認ください。"
+                    // "서버가 점검 중입니다. 이번 점검은 2026. 09. 02 12:00 (UTC+8)에 종료될 예정입니다. 자세한 내용은 공식 공지를 확인해 주세요."
+                    // 维护时间动态变化且长文本会被 OCR 分行，使用各语言首句稳定部分匹配
+                    // @i18n-skip
+                    "服务器正在维护中",
+                    "伺服器正在維護中",
+                    "(?i)Server\\s*is\\s*under\\s*maintenance",
+                    "サーバーは現在メンテナンス中です",
+                    "서버가\\s*점검\\s*중입니다",
+                    // 当前 OCR 模型不支持韩文，韩文维护弹窗使用动态日期时间格式兜底
+                    "\\d{4}\\s*\\.\\s*\\d{2}\\s*\\.\\s*\\d{2}\\s*\\d{1,2}:\\d{2}"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "__ScenePrivateLoginMaintenanceRetry": {
+        "desc": "服务器维护中，等待后重新点击进入游戏",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__ScenePrivateLogin"
+                ]
+            }
+        },
+        // 这是维护轮询间隔，不用于等待界面动画或掩盖识别问题
+        "pre_delay": 10000,
+        "action": {
+            "type": "Click",
+            "param": {
+                "target": [
+                    1095,
+                    350,
+                    185,
+                    55
+                ]
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        // 点确认/进入后会重新校验资源，网络波动时经常超过默认 20s timeout。
+        // 登录页还在就继续按 10s 间隔轮询，登录页消失则走 TitleDisappeared。
+        "next": [
+            "__ScenePrivateLoginMaintenance",
+            "__ScenePrivateLoginMaintenanceTitleDisappeared",
+            "__ScenePrivateLoginMaintenanceRetry"
+        ]
+    },
+    "__ScenePrivateLoginMaintenanceTitleDisappeared": {
+        "desc": "服务器维护重试后，等待登录界面消失",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__ScenePrivateLogin"
+                ]
+            }
+        },
+        "inverse": true,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateLoginContinueDisappeared"
         ]
     },
     "__ScenePrivateCloseErrorDialog": {

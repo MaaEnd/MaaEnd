@@ -13,10 +13,12 @@
                 "dijiang_ship"
             ],
             "controller": [
-                "Win32-Front",
-                "Wlroots",
                 "ADB",
-                "PlayCover"
+                "Linux-Gamescope",
+                "Linux-ScreenCast",
+                "Linux-Wlroots",
+                "PlayCover",
+                "Win32-Front"
             ]
         }
     ],
@@ -969,7 +971,7 @@
                     "name": "No",
                     "option": [
                         "SelectOperator",
-                        "SendWrongGift"
+                        "GiftCount"
                     ],
                     "pipeline_override": {}
                 }
@@ -1017,36 +1019,6 @@
                     "repeat_delay": 100
                 }
             }
-        },
-        "SendWrongGift": {
-            "type": "switch",
-            "label": "$option.SendWrongGift.label",
-            "description": "$option.SendWrongGift.description",
-            "default_case": "No",
-            "cases": [
-                {
-                    "name": "Yes",
-                    "pipeline_override": {
-                        "GiftOperatorClickGift": {
-                            "repeat": 1
-                        },
-                        "GiftOperatorClickGiftColorNumber": {
-                            "recognition": {
-                                "param": {
-                                    "index": -1
-                                }
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "No",
-                    "option": [
-                        "GiftCount"
-                    ],
-                    "pipeline_override": {}
-                }
-            ]
         }
     }
 }

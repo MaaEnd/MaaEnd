@@ -103,7 +103,7 @@ class ItemTransferGeneratorTest(unittest.TestCase):
 
     def test_ctrl_click_custom_action_is_registered_as_common_component(self) -> None:
         repo_root = Path(__file__).resolve().parents[3]
-        schema = json.loads(
+        schema = json5.loads(
             (repo_root / "tools/schema/custom.action.schema.json").read_text(
                 encoding="utf-8"
             )
@@ -161,6 +161,26 @@ class ItemTransferGeneratorTest(unittest.TestCase):
                 "item_usable",
             ],
         )
+
+    def test_transfer_case_order_does_not_depend_on_catalog_order(self) -> None:
+        items = {
+            "item_a": make_item("Product", -81, 1),
+            "item_b": make_item("Product", -60, 1),
+            "item_c": make_item("Nurturance", 90, 1),
+        }
+        zh_cn = {
+            f"iconRecognition.name.{item_id}": item_id
+            for item_id in items
+        }
+
+        forward = build_transfer_cases(items, zh_cn, FORWARD_NODES)
+        reversed_forward = build_transfer_cases(
+            dict(reversed(list(items.items()))),
+            zh_cn,
+            FORWARD_NODES,
+        )
+
+        self.assertEqual(reversed_forward, forward)
 
     def test_build_transfer_cases_uses_direction_specific_nodes(self) -> None:
         catalog = {
@@ -258,15 +278,18 @@ class ItemTransferGeneratorTest(unittest.TestCase):
             locale_path = root / "zh_cn.json"
             task_path = root / "ItemTransfer.json"
             catalog_path.write_text(
-                json.dumps({"item_product": make_item("Product", -81, 1)}),
+                "// catalog JSONC\n"
+                + json.dumps({"item_product": make_item("Product", -81, 1)}),
                 encoding="utf-8",
             )
             locale_path.write_text(
-                json.dumps({"iconRecognition.name.item_product": "测试产物"}, ensure_ascii=False),
+                "// locale JSONC\n"
+                + json.dumps({"iconRecognition.name.item_product": "测试产物"}, ensure_ascii=False),
                 encoding="utf-8",
             )
             task_path.write_text(
-                json.dumps(
+                "// task JSONC\n"
+                + json.dumps(
                     {
                         "task": {"name": "ItemTransfer"},
                         "option": {
@@ -305,7 +328,7 @@ class ItemTransferGeneratorTest(unittest.TestCase):
 
             self.assertEqual(
                 json.loads(generated_task_path.read_text(encoding="utf-8")),
-                json.loads(tracked_task_path.read_text(encoding="utf-8")),
+                json5.loads(tracked_task_path.read_text(encoding="utf-8")),
             )
 
     def test_generated_resources_pass_maa_tools_check(self) -> None:

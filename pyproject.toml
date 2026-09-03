@@ -5,6 +5,16 @@ description = "Python dependencies for MaaEnd development scripts"
 requires-python = ">=3.10"
 dependencies = []
 
+[project.scripts]
+build-and-install = "tools.setup.build_and_install:main"
+map-navigator = "tools.MapNavigator.main:main"
+sentry-report = "tools.sentry.cli:main"
+setup-workspace = "tools.setup.setup_workspace:main"
+
+[build-system]
+requires = ["uv_build>=0.12.1,<0.13"]
+build-backend = "uv_build"
+
 [dependency-groups]
 schema = [
     "jsonschema==4.26.0",
@@ -21,7 +31,7 @@ images = [
 ]
 map-navigator = [
     "fastapi>=0.129,<1.0",
-    "maafw>=5.12,<6.0",
+    "maafw>=5.13.0b4,<6.0",
     "numpy",
     "pydantic",
     "pynput>=1.7.0",
@@ -39,4 +49,8 @@ scripts = [
 
 [tool.uv]
 default-groups = ["scripts"]
-package = false
+package = true
+
+[tool.uv.build-backend]
+module-name = ["tools.MapNavigator", "tools.sentry", "tools.setup"]
+module-root = ""

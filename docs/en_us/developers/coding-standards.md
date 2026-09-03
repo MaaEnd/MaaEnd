@@ -135,11 +135,28 @@ A functional change in MaaEnd often involves more than one place.
 - `assets/interface.json`
 - `tests/**/*.json`
 
-### Adding Go Custom Components
+### Maintaining Go Custom Components
 
-- Register in the corresponding sub-package `register.go`
-- Integrate in `agent/go-service/register.go`'s `registerAll()`
-- Re-run `uv run tools/build_and_install.py`
+- Add, update, or remove registrations in the corresponding sub-package `register.go`
+- When adding or removing a sub-package, integrate it into or remove it from `registerAll()` in `agent/go-service/register.go`
+- After making changes, re-run `uv run build-and-install`
+
+### Maintaining Cpp Algo Custom Components
+
+- Add, update, or remove registrations in `agent/cpp-algo/source/main.cpp` with `MaaAgentServerRegisterCustomAction` or `MaaAgentServerRegisterCustomRecognition`
+- After making changes, re-run `uv run build-and-install --cpp-algo`
+
+### Maintaining Custom Schemas
+
+When adding, modifying, renaming, or removing either type of Custom component described above:
+
+- Actions use `tools/schema/custom.action.schema.json`; Recognitions use `tools/schema/custom.recognition.schema.json`
+- When a registration name changes, update the `enum` in the corresponding Custom Schema. Update its Pipeline usages before renaming or removing it
+- When parameters change, update the parameter Schema, including names, types, required fields, and allowed values
+- When removing a component or parameter, also remove unused Schema rules and `$ref` entries
+- Complex parameter definitions may be placed under `tools/schema/components/` and referenced from there
+- Do not create an empty parameter Schema for a component with no parameters or one that intentionally accepts arbitrary values
+- Do not modify `tools/schema/pipeline.schema.json`; it already references both Custom Schemas
 
 > MXU is a GUI for end-users and is not recommended for daily development and debugging. The above development tools can greatly improve development efficiency.
 
@@ -154,7 +171,7 @@ After modifying `assets/resource/pipeline/**/*.json`, just reload the resource i
 After modifying `agent/go-service/`, you must recompile:
 
 ```bash
-uv run tools/build_and_install.py
+uv run build-and-install
 ```
 
 You can use the `build` task in VS Code's terminal run tasks for quick execution, or set breakpoints or attach debugging to go-service.
@@ -164,7 +181,7 @@ You can use the `build` task in VS Code's terminal run tasks for quick execution
 `assets/interface.json` is the main source file. After modification, run:
 
 ```bash
-uv run tools/build_and_install.py
+uv run build-and-install
 ```
 
 If `install/interface.json` is modified through a tool, it needs to be manually synced back to `assets/interface.json`.
@@ -174,7 +191,7 @@ If `install/interface.json` is modified through a tool, it needs to be manually 
 Requires a VC generator and cmake; generally, developers do not need to change it:
 
 ```bash
-uv run tools/build_and_install.py --cpp-algo
+uv run build-and-install --cpp-algo
 ```
 
 ## Resource Standards
@@ -189,7 +206,7 @@ All images and coordinates (`roi`, `target`, `box`) are based on **1280x720**. M
 
 ### Resource Folder Link
 
-The resource folder is in a linked state. Modifying `assets` is equivalent to modifying the content in `install`; no additional copying is needed. **However, `interface.json` is a copy**; modification requires manual sync or running `build_and_install.py`.
+The resource folder is in a linked state. Modifying `assets` is equivalent to modifying the content in `install`; no additional copying is needed. **However, `interface.json` is a copy**; modification requires manual sync or running `build-and-install`.
 
 ### Folder Naming
 
@@ -243,8 +260,8 @@ MaaEnd uses maa-tools for node testing. See [Node Testing Documentation](./node-
 | Pitfall | Handling |
 | ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------- |
 | `pnpm check` / `pnpm test` fails to run | `pnpm install` |
-| Model or C++ dependency directory missing | `git submodule update --init --recursive` or `uv run tools/setup_workspace.py --update` |
-| Go changes not taking effect | Forgot `uv run tools/build_and_install.py` |
+| Model or C++ dependency directory missing | `git submodule update --init --recursive` or `uv run setup-workspace --update` |
+| Go changes not taking effect | Forgot `uv run build-and-install` |
 | Directly referenced `__ScenePrivate*` nodes | Should reference scene interface nodes exposed in the `Interface` directory |
 | Only focusing on the main flow, not handling pop-ups/loading | Treat pop-ups, loading, and intermediate states as normal scenarios |
 | Changed tasks but didn't add text | Text goes in `assets/locales/` |

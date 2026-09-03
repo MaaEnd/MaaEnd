@@ -25,6 +25,7 @@
         "pre_delay": 0,
         "anchor": {
             "SellProductZeroMoneyHandler": "SellProductZeroMoneyWithTip",
+            "SellProductCurrentGoodsReady": "SellProductReconstructionHQCurrentGoodsReady",
             "SellProductSelectPriorityItem": "SellProductReconstructionHQSelectPriorityItem",
             "SellProductPriorityItemsExhausted": "SellProductReconstructionHQPriorityItemsExhausted",
             "SellProductCommitPriorityItem": "SellProductReconstructionHQCommitPriorityItem",
@@ -1115,6 +1116,32 @@
         "rate_limit": 0
     },
     // ===== 动态优先级售卖循环 =====
+    "SellProductReconstructionHQCurrentGoodsReady": {
+        "desc": "重建指挥部当前选中货品符合当前选品规则，沿用并跳过更换货品",
+        "recognition": "Custom",
+        "custom_recognition": "SellProductCurrentGoods",
+        "custom_recognition_param": {
+            "location": "ReconstructionHQ",
+            "roi": [
+                1177,
+                450,
+                54,
+                54
+            ]
+        },
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SellProductPrioritySession",
+        "custom_action_param": {
+            "operation": "adopt",
+            "location": "ReconstructionHQ"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "SellProductAtSell"
+        ]
+    },
     "SellProductReconstructionHQSelectPriorityItem": {
         "desc": "重建指挥部按当前策略选择下一个未尝试货品",
         "recognition": "Custom",

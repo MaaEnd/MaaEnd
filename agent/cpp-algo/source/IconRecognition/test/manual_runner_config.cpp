@@ -10,6 +10,8 @@
 
 #include <meojson/json.hpp>
 
+#include "Common/JsoncFile.h"
+
 namespace iconrecognition::test
 {
 
@@ -137,7 +139,7 @@ CandidateFilter ReadImageCandidates(const std::filesystem::path& image_path)
     if (!std::filesystem::is_regular_file(config_path)) {
         return {};
     }
-    const auto parsed = json::open(config_path.string());
+    const auto parsed = common::OpenJsoncFile(config_path);
     if (!parsed || !parsed->is_object()) {
         throw std::runtime_error("image sidecar must be a JSON object: " + config_path.string());
     }
@@ -256,9 +258,9 @@ const std::string& RequireValue(const std::vector<std::string>& arguments, std::
 std::string ManualRunnerUsage()
 {
     return R"(Usage:
-  icon-recognition-manual-runner --all [--dataset win32|adb] [--side full|left|right|split|all] [--jobs <N|auto>] [--debug] [--expected <path>] [--rois <path>]
-  icon-recognition-manual-runner --grid-type <type> [--image <basename>] [--dataset win32|adb] [--side full|left|right|split|all] [--jobs <N|auto>] [--debug] [--expected <path>] [--rois <path>]
-  icon-recognition-manual-runner --image <basename> [--dataset win32|adb] [--jobs <N|auto>] [--debug] [--expected <path>] [--rois <path>]
+  icon-recognition-manual-runner --all [--dataset win32|adb] [--side full|left|right|split|all] [--jobs <N|auto>] [--debug] [--recognize-region-unavailable] [--expected <path>] [--rois <path>]
+  icon-recognition-manual-runner --grid-type <type> [--image <basename>] [--dataset win32|adb] [--side full|left|right|split|all] [--jobs <N|auto>] [--debug] [--recognize-region-unavailable] [--expected <path>] [--rois <path>]
+  icon-recognition-manual-runner --image <basename> [--dataset win32|adb] [--jobs <N|auto>] [--debug] [--recognize-region-unavailable] [--expected <path>] [--rois <path>]
   icon-recognition-manual-runner -h|--help|-?
 
 Grid types:
@@ -281,6 +283,7 @@ ManualRunnerOptions ParseManualRunnerOptions(const std::vector<std::string>& arg
     bool side_specified = false;
     bool jobs_specified = false;
     bool debug_specified = false;
+    bool region_restricted_specified = false;
     bool dataset_specified = false;
     bool expected_specified = false;
     bool rois_specified = false;
@@ -348,6 +351,14 @@ ManualRunnerOptions ParseManualRunnerOptions(const std::vector<std::string>& arg
             }
             options.debug = true;
             debug_specified = true;
+            continue;
+        }
+        if (argument == "--recognize-region-unavailable") {
+            if (region_restricted_specified) {
+                throw std::invalid_argument("duplicate option: --recognize-region-unavailable");
+            }
+            options.recognize_region_unavailable = true;
+            region_restricted_specified = true;
             continue;
         }
         if (argument == "--dataset") {
@@ -437,7 +448,7 @@ std::vector<ManualRunnerCase> DiscoverManualRunnerCases(
     if (!std::filesystem::is_directory(input_root)) {
         throw std::runtime_error("input directory does not exist: " + input_root.string());
     }
-    const auto parsed_rois = json::open(rois_path.string());
+    const auto parsed_rois = common::OpenJsoncFile(rois_path);
     if (!parsed_rois || !parsed_rois->is_object()) {
         throw std::runtime_error("unable to read rois.json: " + rois_path.string());
     }

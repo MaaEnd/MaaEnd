@@ -1,0 +1,16 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+        "ResolveDestinationParam": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "destination_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Exact AutoDelivery catalog destination id selected by an upstream recognition"
+                }
+            }
+        }
+    }
+}

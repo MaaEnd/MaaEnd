@@ -3,6 +3,7 @@
     "private": true,
     "scripts": {
         "format": "prettier --write \"**/*.{json,jsonc,yml,yaml}\"",
+        "format:web": "prettier --write \"tools/MapNavigator/web/static/*.{html,css,js}\" \"tools/MapNavigator/web/static/css/**/*.css\" \"tools/MapNavigator/web/static/js/**/*.js\" \"tools/MapNavigator/web/*.mjs\"",
         "format:aggressive": "prettier --print-width 20 --write \"assets/resource/pipeline/**/*.json\" && prettier --write \"assets/resource/pipeline/**/*.json\"",
         "format:check": "prettier --check \"**/*.{json,jsonc,yml,yaml}\"",
         "format:md": "markdownlint --fix . || true",
@@ -14,12 +15,13 @@
         "fetch:zmdmap": "node tools/pipeline-generate/fetch-data.mjs",
         "generate:MacOS": "node tools/pipeline-generate/macos-keymap.mjs",
         "generate:BatchUseDetector": "node tools/pipeline-generate/run-all.mjs BatchUseDetector",
-        "generate:DeliveryJobs": "pnpm fetch:zmdmap && node tools/pipeline-generate/DeliveryJobs/prepare.mjs && node tools/pipeline-generate/run-all.mjs DeliveryJobs",
+        "generate:AutoDelivery": "pnpm fetch:zmdmap && node tools/pipeline-generate/AutoDelivery/sync-routes.mjs && node tools/pipeline-generate/AutoDelivery/sync-catalog.mjs && node tools/pipeline-generate/run-all.mjs AutoDelivery",
+        "generate:DeliveryJobs": "pnpm generate:AutoDelivery && node tools/pipeline-generate/DeliveryJobs/sync-locales.mjs && node tools/pipeline-generate/DeliveryJobs/prepare.mjs && node tools/pipeline-generate/run-all.mjs DeliveryJobs",
         "generate:EnvironmentMonitoring": "pnpm fetch:zmdmap && node tools/pipeline-generate/EnvironmentMonitoring/generator/sync-routes.mjs && node tools/pipeline-generate/run-all.mjs EnvironmentMonitoring",
         "generate:SellProduct": "pnpm fetch:zmdmap && node tools/pipeline-generate/SellProduct/sync-locales.mjs && node tools/pipeline-generate/SellProduct/selection-data.mjs && node tools/pipeline-generate/run-all.mjs SellProduct"
     },
     "devDependencies": {
-        "@joebao/maa-pipeline-generate": "^1.2.3",
+        "@joebao/maa-pipeline-generate": "^1.3.0",
         "@nekosu/maa-tools": "1.0.22",
         "@nekosu/prettier-plugin-maafw-sort": "1.0.4",
         "@types/node": "^24.11.0",

@@ -1,0 +1,209 @@
+name: Sync MaaUtils Submodule
+
+# 校验 agent/cpp-algo/MaaUtils 是否落后于最新 MaaFramework 发布版锁定的 MaaUtils commit：
+# - behind / diverged -> 自动更新 submodule 并开 PR（CI 会在 PR 上验证编译）
+# - synced / ahead -> 无需处理；unknown -> 静默跳过等待下次巡检
+#
+# 触发方式：每日定时兜底 + install.yml 版本校验门禁失败时联动 + 手动 dispatch。
+
+on:
+  schedule:
+    - cron: "0 23 * * *" # UTC+8 07:00
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Only check and report, do not create/update PR
+        type: boolean
+        default: false
+      fail_run_url:
+        description: URL of the blocked install run (set automatically when dispatched by the install gate)
+        type: string
+        default: ""
+
+permissions:
+  contents: write
+  pull-requests: write
+
+# cron / install 联动 / 手动 dispatch 可能并发竞争固定的 bot/sync-maautils 分支，
+# 排队执行（不取消），后跑的会基于最新状态重新判定
+concurrency:
+  group: sync-maautils
+  cancel-in-progress: false
+
+jobs:
+  check-repository:
+    runs-on: ubuntu-latest
+    outputs:
+      should_run: ${{ steps.check.outputs.should_run }}
+    steps:
+      - id: check
+        run: |
+          if [[ "${{ github.repository }}" == "MaaEnd/MaaEnd" ]]; then
+            echo "Repository is MaaEnd/MaaEnd, proceeding with sync"
+            echo "should_run=true" >> $GITHUB_OUTPUT
+          else
+            echo "Repository is not MaaEnd/MaaEnd, skipping sync"
+            echo "should_run=false" >> $GITHUB_OUTPUT
+          fi
+
+  sync-maautils:
+    needs: check-repository
+    if: needs.check-repository.outputs.should_run == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      # checkout 用默认 GITHUB_TOKEN 即可；App token 延迟到确认要开 PR 时才生成，
+      # 避免 secrets 缺失/失效时连每日巡检和 dry-run 都跑不了
+      - name: Check Out Repository
+        uses: actions/checkout@v6
+
+      # 只初始化需要移动指针的 submodule，避免拉取体积较大的测试集等
+      - name: Init MaaUtils submodule
+        run: git submodule update --init agent/cpp-algo/MaaUtils
+
+      - name: Check MaaUtils sync status
+        id: check
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set +e
+          out=$(python3 tools/check_maautils_sync.py --resolve-latest)
+          rc=$?
+          set -e
+          echo "$out"
+          status=$(sed -n 's/^status=//p' <<<"$out")
+          maafw_ref=$(sed -n 's/^maafw_ref=//p' <<<"$out")
+          expected_sha=$(sed -n 's/^expected_sha=//p' <<<"$out")
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+          echo "maafw_ref=$maafw_ref" >> "$GITHUB_OUTPUT"
+          echo "expected_sha=$expected_sha" >> "$GITHUB_OUTPUT"
+
+          # 写入 Run Summary，打开构建页即可看到巡检结论，无需翻日志
+          {
+            echo "### MaaUtils Sync Check"
+            echo ""
+            echo "| Item | Value |"
+            echo "| --- | --- |"
+            echo "| Latest MaaFramework | \`${maafw_ref:-n/a}\` |"
+            echo "| Upstream pinned MaaUtils | \`${expected_sha:-n/a}\` |"
+            echo "| Verdict | \`${status:-unknown}\` (exit=$rc) |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          case "$rc" in
+            0)
+              echo "::notice::MaaUtils is up to date ('$status') against latest MaaFramework release."
+              exit 0
+              ;;
+            1|2)
+              echo "should_fix=true" >> "$GITHUB_OUTPUT"
+              ;;
+            3)
+              echo "::error::Upstream layout problem while resolving the latest MaaFramework release pin; manual investigation required."
+              exit 1
+              ;;
+            *)
+              echo "::notice::Transient network/API failure, status unknown; skipping this run (retry on next schedule or dispatch)."
+              exit 0
+              ;;
+          esac
+
+      # 只有真正要开 PR 时才需要写权限凭据
+      - name: Generate MaaEndBot GitHub App token
+        id: app-token
+        if: steps.check.outputs.should_fix == 'true' && inputs.dry_run != true
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ vars.MAAEND_BOT_APP_CLIENT_ID }}
+          private-key: ${{ secrets.MAAEND_BOT_APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+
+      - name: Move MaaUtils submodule to expected commit
+        if: steps.check.outputs.should_fix == 'true'
+        env:
+          EXPECTED_SHA: ${{ steps.check.outputs.expected_sha }}
+        run: |
+          git -C agent/cpp-algo/MaaUtils fetch --no-tags origin "$EXPECTED_SHA"
+          git -C agent/cpp-algo/MaaUtils checkout --detach "$EXPECTED_SHA"
+          echo "Submodule now points at $(git -C agent/cpp-algo/MaaUtils rev-parse HEAD)"
+          git status --porcelain agent/cpp-algo/MaaUtils
+
+      - name: Prepare PR title and body
+        id: pr-texts
+        if: steps.check.outputs.should_fix == 'true'
+        env:
+          STATUS: ${{ steps.check.outputs.status }}
+          MAAFW_REF: ${{ steps.check.outputs.maafw_ref }}
+          EXPECTED_SHA: ${{ steps.check.outputs.expected_sha }}
+          TRIGGER: ${{ github.event_name }}
+          MAAFW_REPO: MaaXYZ/MaaFramework
+          FAIL_RUN_URL: ${{ inputs.fail_run_url }}
+        run: |
+          body_file=$(mktemp)
+          {
+            echo "Update \`agent/cpp-algo/MaaUtils\` to the commit pinned by [MaaFramework ${MAAFW_REF}](https://github.com/${MAAFW_REPO}/releases/tag/${MAAFW_REF})."
+            echo ""
+            echo "| Item | Value |"
+            echo "| --- | --- |"
+            echo "| Status | \`${STATUS}\` |"
+            echo "| Target MaaUtils commit | \`${EXPECTED_SHA}\` |"
+            echo "| Trigger | ${TRIGGER} |"
+            # 仅接受本仓库域名的链接，防止 dispatch 入参向 PR 正文注入任意内容
+            case "$FAIL_RUN_URL" in
+              https://github.com/*) echo "| Blocked install run | [view](${FAIL_RUN_URL}) |" ;;
+            esac
+          } > "$body_file"
+
+          {
+            echo ""
+            echo "Auto-generated by \`sync_maautils.yml\`; CI validates the build on this PR."
+            echo ""
+            echo "[skip changelog]"
+          } >> "$body_file"
+
+          {
+            echo "title=chore: update MaaUtils submodule to match MaaFramework ${MAAFW_REF}"
+            echo "labels<<LABELS_EOF"
+            echo "submodule"
+            echo "dependencies"
+            echo "LABELS_EOF"
+            echo "body<<BODY_EOF"
+            cat "$body_file"
+            echo "BODY_EOF"
+          } >> "$GITHUB_OUTPUT"
+          rm -f "$body_file"
+
+      - name: Create or update sync PR
+        if: steps.check.outputs.should_fix == 'true' && inputs.dry_run != true
+        id: create-pr
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          add-paths: agent/cpp-algo/MaaUtils
+          branch: bot/sync-maautils
+          title: ${{ steps.pr-texts.outputs.title }}
+          body: ${{ steps.pr-texts.outputs.body }}
+          labels: ${{ steps.pr-texts.outputs.labels }}
+          author: maaendbotapp[bot] <305547419+maaendbotapp[bot]@users.noreply.github.com>
+          committer: maaendbotapp[bot] <305547419+maaendbotapp[bot]@users.noreply.github.com>
+          commit-message: |-
+            ${{ steps.pr-texts.outputs.title }}
+
+            [skip changelog]
+
+      - name: Report sync PR
+        if: steps.create-pr.outputs.pull-request-url != ''
+        env:
+          STATUS: ${{ steps.check.outputs.status }}
+          PR_URL: ${{ steps.create-pr.outputs.pull-request-url }}
+        run: |
+          echo "::notice::Sync PR ($STATUS): $PR_URL"
+
+      - name: Report dry run result
+        if: steps.check.outputs.should_fix == 'true' && inputs.dry_run == true
+        env:
+          TITLE: ${{ steps.pr-texts.outputs.title }}
+          EXPECTED_SHA: ${{ steps.check.outputs.expected_sha }}
+          MAAFW_REF: ${{ steps.check.outputs.maafw_ref }}
+        run: |
+          echo "::notice::Dry run: would open/update PR '$TITLE' moving agent/cpp-algo/MaaUtils to $EXPECTED_SHA (MaaFramework $MAAFW_REF)"

@@ -1,7 +1,7 @@
 """系统剪贴板写入 (G 热键用)。
 
 录制中游戏持有焦点, 前端拿不到 `navigator.clipboard` 权限, 只能由后端直接写。
-serve.py 与提权录制子进程 record_worker.py 共用本模块。
+serve.py 与提权会话子进程 session_worker.py 共用本模块。
 """
 
 from __future__ import annotations

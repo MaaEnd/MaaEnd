@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
   <head>
     <meta charset="utf-8" />
@@ -7,6 +7,11 @@
     <link rel="stylesheet" href="./css/style.css" />
   </head>
   <body>
+    <!-- 试跑进行中的全局横幅：角色正在游戏里走，终止键必须一眼可见 -->
+    <div id="navtest-overlay" class="navtest-overlay" hidden>
+      <span class="navtest-overlay-dot" aria-hidden="true"></span>
+      <span>试跑中 —— 按 <kbd>F4</kbd> 立即终止</span>
+    </div>
     <div id="app" class="modern-app">
       <!-- 侧边栏面板 -->
       <div id="sidebar">
@@ -17,94 +22,310 @@
           </div>
         </div>
 
+        <!-- 顶层工作区：路线制作提供连接能力，日志分析保持纯离线 -->
+        <div class="workspace-segmented-control" role="group" aria-label="工作区">
+          <button id="tab-route" class="workspace-tab-btn active" type="button" aria-pressed="true">
+            <span>路线制作</span>
+            <small>编辑与试跑</small>
+          </button>
+          <button id="tab-log" class="workspace-tab-btn" type="button" aria-pressed="false">
+            <span>日志分析</span>
+            <small>本地离线复盘</small>
+          </button>
+        </div>
+
+        <!-- 路线制作内部模式切换 -->
+        <div id="route-mode-tabs" class="mode-segmented-control" role="group" aria-label="路线制作工具">
+          <button id="tab-edit" class="mode-tab-btn active" type="button" aria-pressed="true">路径编辑</button>
+          <button id="tab-assert" class="mode-tab-btn" type="button" aria-pressed="false">断言模式</button>
+        </div>
+
         <!-- 连接配置 -->
         <div class="sidebar-section" id="panel-connection">
-          <div class="section-header" style="display: flex; align-items: center; justify-content: space-between;">
+          <div class="section-header" style="display: flex; align-items: center; justify-content: space-between">
             <div id="connection-header-toggle" class="conn-header-toggle" title="点击展开/折叠连接设置">
               <span class="status-dot" id="status-dot"></span>
               <span class="section-title" id="connection-status-title">连接状态</span>
-              <svg class="conn-chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M6 9l6 6 6-6"/>
+              <svg
+                class="conn-chevron"
+                width="10"
+                height="10"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="M6 9l6 6 6-6" />
               </svg>
             </div>
             <span id="connection-summary" class="status-text">未连接</span>
             <button id="btn-refresh-connection" class="btn-ghost" type="button" title="重试连接">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
               </svg>
             </button>
           </div>
           <div id="connection-body" class="conn-body">
-          <div class="sidebar-row select-row">
-            <label class="sidebar-label" for="connection-kind-combo">连接方式</label>
-            <select id="connection-kind-combo" class="combo">
-              <option value="win32">Windows 窗口句柄</option>
-              <option value="adb">Android ADB 桥接</option>
-              <option value="wlroots">WlRoots (Linux Wayland)</option>
-              <option value="playcover">PlayCover (macOS)</option>
+            <div class="sidebar-row select-row">
+              <label class="sidebar-label" for="connection-kind-combo">连接方式</label>
+              <select id="connection-kind-combo" class="combo">
+                <option value="win32">Windows 窗口句柄</option>
+                <option value="adb">Android ADB 桥接</option>
+                <option value="linux">Linux-Gamescope</option>
+                <option value="playcover">PlayCover (macOS)</option>
+              </select>
+            </div>
+
+            <div id="win32-group" class="conn-group">
+              <div class="sidebar-row select-row">
+                <label class="sidebar-label" for="win32-entry">窗口标题</label>
+                <input id="win32-entry" class="entry entry-win32" type="text" value="Endfield" />
+              </div>
+            </div>
+
+            <div id="playcover-group" class="conn-group" hidden>
+              <div class="sidebar-row select-row">
+                <label class="sidebar-label" for="playcover-addr-entry">服务地址</label>
+                <input
+                  id="playcover-addr-entry"
+                  class="entry entry-playcover"
+                  type="text"
+                  placeholder="例如 127.0.0.1:1717" />
+              </div>
+              <div class="sidebar-row select-row">
+                <label class="sidebar-label" for="playcover-uuid-entry">应用 UUID</label>
+                <input
+                  id="playcover-uuid-entry"
+                  class="entry entry-playcover"
+                  type="text"
+                  placeholder="默认使用 maa.playcover" />
+              </div>
+            </div>
+
+            <div id="adb-group" class="conn-group" hidden>
+              <div class="sidebar-row select-row">
+                <label class="sidebar-label" for="adb-path-entry">ADB 路径</label>
+                <input id="adb-path-entry" class="entry entry-adb" type="text" placeholder="默认使用环境变量" />
+              </div>
+              <div class="sidebar-row select-row">
+                <label class="sidebar-label" for="adb-target-combo">设备序列号</label>
+                <input
+                  id="adb-target-combo"
+                  class="entry combo-adb"
+                  type="text"
+                  list="adb-target-list"
+                  placeholder="检测到的设备地址/ID" />
+                <datalist id="adb-target-list"></datalist>
+              </div>
+              <div class="sidebar-row" style="margin-top: 4px">
+                <button id="btn-refresh-adb" class="btn btn-secondary btn-sm" type="button" style="width: 100%">
+                  检测并刷新设备
+                </button>
+              </div>
+            </div>
+
+            <div id="linux-group" class="conn-group" hidden>
+              <div class="sidebar-row select-row">
+                <label class="sidebar-label" for="linux-instance-combo">gamescope 实例</label>
+                <select id="linux-instance-combo" class="combo">
+                  <option value="">未检测到 gamescope 实例</option>
+                </select>
+              </div>
+              <div class="sidebar-row" style="margin-top: 4px">
+                <button id="btn-refresh-linux" class="btn btn-secondary btn-sm" type="button" style="width: 100%">
+                  检测并刷新实例
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 路径编辑：底图与实时定位状态独立于路径录制和规划 -->
+        <div class="sidebar-section" id="panel-edit-map" hidden>
+          <div class="section-header">
+            <span class="section-title">地图与定位</span>
+          </div>
+          <div class="sidebar-row">
+            <button id="btn-select-tier" class="btn btn-primary" type="button" style="width: 100%">
+              选择底图与层级
+            </button>
+          </div>
+          <div class="sidebar-row select-tier-row">
+            <span class="sidebar-label">当前层级:</span>
+            <span id="edit-selected-tier-label" class="selected-tier-label">未选择</span>
+          </div>
+          <div id="three-navigation-row" class="sidebar-row select-row" hidden>
+            <label class="sidebar-label" for="three-navigation-mode">3D 视角导航</label>
+            <select id="three-navigation-mode" class="combo combo-action">
+              <option value="free">自由飞行</option>
+              <option value="orbit">轨道环绕</option>
             </select>
           </div>
-
-          <div id="win32-group" class="conn-group">
-            <div class="sidebar-row select-row">
-              <label class="sidebar-label" for="win32-entry">窗口标题</label>
-              <input id="win32-entry" class="entry entry-win32" type="text" value="Endfield" />
+          <div id="three-speed-row" class="sidebar-row" hidden>
+            <label class="sidebar-label" for="three-flight-speed">飞行速度</label>
+            <input id="three-flight-speed" type="range" min="0.1" max="3" step="0.1" value="1" />
+            <span id="three-flight-speed-value" class="selected-tier-label">1.0x</span>
+          </div>
+          <div id="three-recolor-row" class="sidebar-row" hidden>
+            <button
+              id="btn-three-recolor"
+              class="btn btn-secondary"
+              type="button"
+              style="width: 100%"
+              title="按当前实时位置高度重新着色等高面">
+              重着色
+            </button>
+          </div>
+          <details id="three-nav-debug-options" class="sidebar-row border-top nav-debug-options" hidden>
+            <summary class="nav-debug-summary">
+              <span class="sidebar-label">寻路诊断</span>
+              <span class="nav-debug-chevron" aria-hidden="true"></span>
+            </summary>
+            <div class="nav-debug-options-body">
+              <label class="chk"
+                ><input id="three-chk-nav-debug-topology" type="checkbox" /> 拓扑逐格路径
+                <span class="nav-timing" data-nav-timing="topology">—</span></label
+              >
+              <label class="chk"
+                ><input id="three-chk-nav-debug-taut" type="checkbox" /> 几何紧绷折线
+                <span class="nav-timing" data-nav-timing="geometry">—</span></label
+              >
+              <label class="chk"
+                ><input id="three-chk-nav-debug-pulled" type="checkbox" /> 取直后折线
+                <span class="nav-timing" data-nav-timing="pull">—</span></label
+              >
+              <label class="chk"
+                ><input id="three-chk-nav-debug-assembled" type="checkbox" /> 端点拼接与去冗
+                <span class="nav-timing" data-nav-timing="assemble">—</span></label
+              >
+              <label class="chk"
+                ><input id="three-chk-nav-debug-planned" type="checkbox" /> 最终计划路径
+                <span class="nav-timing" data-nav-timing="lift">—</span></label
+              >
+              <label class="chk"><input id="three-chk-nav-debug-live-path" type="checkbox" /> 实时实际路径</label>
+              <div class="chk">
+                建窗 <span class="nav-timing" data-nav-timing="window">—</span> · 合计
+                <span class="nav-timing" data-nav-timing="total">—</span>
+              </div>
             </div>
+          </details>
+          <div class="sidebar-row">
+            <button
+              id="btn-edit-locate"
+              class="btn btn-primary"
+              type="button"
+              style="width: 100%"
+              title="在当前路径底图上标出游戏内当前位置，不新增路点"
+              disabled>
+              标出游戏内当前位置（参考点）
+            </button>
           </div>
 
-          <div id="playcover-group" class="conn-group" hidden>
-            <div class="sidebar-row select-row">
-              <label class="sidebar-label" for="playcover-addr-entry">服务地址</label>
-              <input id="playcover-addr-entry" class="entry entry-playcover" type="text" placeholder="例如 127.0.0.1:1717" />
-            </div>
-            <div class="sidebar-row select-row">
-              <label class="sidebar-label" for="playcover-uuid-entry">应用 UUID</label>
-              <input id="playcover-uuid-entry" class="entry entry-playcover" type="text" placeholder="默认使用 maa.playcover" />
-            </div>
-          </div>
-
-          <div id="adb-group" class="conn-group" hidden>
-            <div class="sidebar-row select-row">
-              <label class="sidebar-label" for="adb-path-entry">ADB 路径</label>
-              <input id="adb-path-entry" class="entry entry-adb" type="text" placeholder="默认使用环境变量" />
-            </div>
-            <div class="sidebar-row select-row">
-              <label class="sidebar-label" for="adb-target-combo">设备序列号</label>
-              <input id="adb-target-combo" class="entry combo-adb" type="text" list="adb-target-list" placeholder="检测到的设备地址/ID" />
-              <datalist id="adb-target-list"></datalist>
-            </div>
-            <div class="sidebar-row" style="margin-top: 4px">
-              <button id="btn-refresh-adb" class="btn btn-secondary btn-sm" type="button" style="width: 100%">检测并刷新设备</button>
-            </div>
-          </div>
-
-          <div id="wlroots-group" class="conn-group" hidden>
-            <div class="sidebar-row select-row">
-              <label class="sidebar-label" for="wlroots-socket-entry">Wayland socket</label>
-              <input id="wlroots-socket-entry" class="entry entry-wlroots" type="text" list="wlroots-socket-list" placeholder="例如 /run/user/1000/wayland-0" />
-              <datalist id="wlroots-socket-list"></datalist>
-            </div>
-            <div class="sidebar-row" style="margin-top: 4px">
-              <button id="btn-refresh-wlroots" class="btn btn-secondary btn-sm" type="button" style="width: 100%">检测并刷新 socket</button>
-            </div>
-          </div>
-          </div>
+          <!-- 隐藏取值控件：由层级选择弹窗写入 -->
+          <select id="display-zone-combo" class="combo combo-zone" hidden></select>
+          <select id="display-tier-combo" class="combo combo-zone" hidden></select>
         </div>
 
-        <!-- 主模式切换页签 -->
-        <div class="mode-segmented-control">
-          <button id="tab-astar" class="mode-tab-btn active" type="button">A* 寻路</button>
-          <button id="tab-assert" class="mode-tab-btn" type="button">断言模式</button>
-          <button id="tab-edit" class="mode-tab-btn" type="button">路径编辑</button>
-        </div>
-
-        <!-- 轨迹与录制 -->
-        <div class="sidebar-section" id="panel-recording" hidden>
+        <!-- 断言模式：保持独立底图与参考点状态，但复用同一信息架构 -->
+        <div class="sidebar-section" id="panel-assert-map" hidden>
           <div class="section-header">
-            <span class="section-title">轨迹与录制</span>
+            <span class="section-title">地图与定位</span>
+          </div>
+          <div class="sidebar-row">
+            <button id="btn-select-assert-tier" class="btn btn-primary" type="button" style="width: 100%">
+              选择底图与层级
+            </button>
+          </div>
+          <div class="sidebar-row select-tier-row">
+            <span class="sidebar-label">当前层级:</span>
+            <span id="assert-selected-tier-label" class="selected-tier-label">未选择</span>
+          </div>
+          <div class="sidebar-row">
+            <button
+              id="btn-assert-locate"
+              class="btn btn-primary"
+              style="width: 100%"
+              type="button"
+              title="定位后在该参考点周围拖拽画出断言矩形"
+              disabled>
+              标出游戏内当前位置（参考点）
+            </button>
+          </div>
+
+          <!-- 隐藏取值控件：由层级选择弹窗/定位写入 -->
+          <select id="assert-zone-combo" class="combo combo-zone" hidden></select>
+        </div>
+
+        <!-- 实机试跑：仅路径编辑使用，跑的永远是当前作者路线 -->
+        <div class="sidebar-section" id="panel-navtest">
+          <div class="section-header">
+            <span class="section-title">实机试跑</span>
+          </div>
+          <div id="navtest-hotkey-note" class="hotkey-banner">
+            <kbd>F3</kbd> 重跑 &nbsp;·&nbsp; <kbd>F4</kbd> 终止 &nbsp;·&nbsp; 游戏在前台也能按
           </div>
           <div class="sidebar-row grid-btns-2">
-            <button id="btn-start" class="btn btn-primary" type="button">开始录制</button>
+            <button id="btn-navtest-run" class="btn btn-primary" type="button" disabled>开始试跑 (F3)</button>
+            <button id="btn-navtest-stop" class="btn btn-danger" type="button" disabled>终止试跑 (F4)</button>
+          </div>
+          <div id="navtest-armed" class="navtest-armed">未装载路线</div>
+        </div>
+
+        <!-- MapNavigator 日志分析（文件只在浏览器本地读取） -->
+        <div class="sidebar-section" id="panel-log" hidden>
+          <div class="section-header">
+            <span class="section-title">导航日志分析</span>
+          </div>
+          <div class="sidebar-hint">直接选择 MaaEnd ZIP 分包或解压后的 cpp-algo/debug/maafw*.log；文件不会上传</div>
+          <div class="sidebar-row grid-btns-2">
+            <button id="btn-log-import" class="btn btn-primary" type="button">导入日志或 ZIP</button>
+            <button id="btn-log-clear" class="btn btn-danger-outline" type="button">清除</button>
+          </div>
+          <input id="log-file-input" type="file" accept=".log,.txt,.zip,text/plain,application/zip" multiple hidden />
+          <div id="log-import-meta" class="log-import-meta">尚未导入日志</div>
+
+          <label class="sidebar-label" for="log-run-filter">按时间、节点、文件或原因筛选</label>
+          <input
+            id="log-run-filter"
+            class="entry"
+            type="search"
+            placeholder="例如 11:42、AutoDelivery 或 timeout"
+            disabled />
+          <label class="sidebar-label" for="log-run-select">导航运行记录</label>
+          <select id="log-run-select" class="combo log-run-select" title="悬停后可使用鼠标滚轮切换" disabled>
+            <option value="">请先导入日志</option>
+          </select>
+
+          <div class="sidebar-hint">
+            绿色轨迹来自 MapLocator 成功且非保持的定位；滑索飞行和定位空窗不会连线。虚线“端点估计”不是实测轨迹
+          </div>
+          <div class="sidebar-hint">
+            ZIP 中的滑索架只作候选背景，可能包含未供电或运行时排除项；本次选择仍以运行日志为准
+          </div>
+          <div id="log-decision-summary" class="log-decision-summary" aria-live="polite">
+            导入日志后，这里会列出每段的成本计算和选择原因。
+          </div>
+        </div>
+
+        <!-- 路径与录制 -->
+        <div class="sidebar-section" id="panel-recording" hidden>
+          <div class="section-header">
+            <span class="section-title">路径与录制</span>
+          </div>
+
+          <div class="sidebar-hint">手工点击新增 NAVMESH 目标；轨迹录制产生 RUN 路点</div>
+
+          <div class="sidebar-row grid-btns-2">
+            <button id="btn-start" class="btn btn-primary" type="button" disabled>开始录制</button>
             <button id="btn-stop" class="btn btn-danger" type="button" disabled>停止录制</button>
           </div>
 
@@ -114,11 +335,65 @@
             <button id="btn-next" class="btn btn-secondary btn-icon" type="button" title="下一个片段">&gt;</button>
           </div>
 
-          <div class="sidebar-row grid-btns-2">
-            <button id="btn-import" class="btn btn-secondary" type="button">导入 JSON</button>
+          <div class="sidebar-row grid-btns-import">
+            <button id="btn-import" class="btn btn-secondary" type="button">选择项目节点</button>
+            <button
+              id="btn-edit-read-clipboard"
+              class="btn btn-secondary"
+              type="button"
+              title="读取并自动解析剪贴板中的 JSON">
+              读取剪贴板
+            </button>
             <button id="btn-copy-path" class="btn btn-secondary" type="button">复制路径</button>
           </div>
-          <input id="file-input" type="file" accept=".json,.jsonc,application/json" hidden />
+
+          <div class="sidebar-row border-top edit-planning-options" style="margin-top: 10px; padding-top: 10px">
+            <label class="chk" title="按 MapNavigator 运行时语义规划当前区域片段；触屏控制器不会执行滑索">
+              <input id="chk-edit-zipline" type="checkbox" /> 启用滑索规划（桌面端）
+            </label>
+          </div>
+          <div id="edit-plan-start-label" class="sidebar-hint">规划起点：当前片段第一个路点</div>
+          <div class="sidebar-hint">手动起点只用于规划预览，不会写入作者路径</div>
+          <div class="sidebar-row grid-btns-2">
+            <button id="btn-edit-plan" class="btn btn-primary" type="button">规划当前片段</button>
+            <button id="btn-edit-plan-clear" class="btn btn-danger-outline" type="button" disabled>清除规划</button>
+          </div>
+
+          <details id="nav-debug-options" class="sidebar-row border-top nav-debug-options">
+            <summary class="nav-debug-summary">
+              <span class="sidebar-label">寻路诊断</span>
+              <span class="nav-debug-chevron" aria-hidden="true"></span>
+            </summary>
+            <div class="nav-debug-options-body">
+              <label class="chk"
+                ><input id="chk-nav-debug-topology" type="checkbox" /> 拓扑逐格路径
+                <span class="nav-timing" data-nav-timing="topology">—</span></label
+              >
+              <label class="chk"
+                ><input id="chk-nav-debug-taut" type="checkbox" /> 几何紧绷折线
+                <span class="nav-timing" data-nav-timing="geometry">—</span></label
+              >
+              <label class="chk"
+                ><input id="chk-nav-debug-pulled" type="checkbox" /> 取直后折线
+                <span class="nav-timing" data-nav-timing="pull">—</span></label
+              >
+              <label class="chk"
+                ><input id="chk-nav-debug-assembled" type="checkbox" /> 端点拼接与去冗
+                <span class="nav-timing" data-nav-timing="assemble">—</span></label
+              >
+              <label class="chk"
+                ><input id="chk-nav-debug-planned" type="checkbox" /> 最终计划路径
+                <span class="nav-timing" data-nav-timing="lift">—</span></label
+              >
+              <label class="chk" title="实机试跑时在地图上绘制游戏实际走过的轨迹"
+                ><input id="chk-nav-debug-live-path" type="checkbox" /> 实时实际路径</label
+              >
+              <div class="chk">
+                建窗 <span class="nav-timing" data-nav-timing="window">—</span> · 合计
+                <span class="nav-timing" data-nav-timing="total">—</span>
+              </div>
+            </div>
+          </details>
         </div>
 
         <!-- 路点属性 -->
@@ -131,69 +406,80 @@
             <span class="waypoint-list-hint">点击定位 · 拖拽排序</span>
           </div>
           <div id="waypoint-list" class="waypoint-list"></div>
-           <div id="properties-empty-state" class="sidebar-empty-state">
-             <div class="empty-icon">
-               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.45; color: #94a3b8; margin-bottom: 12px;">
-                 <circle cx="4" cy="18" r="2" fill="currentColor"></circle>
-                 <circle cx="12" cy="6" r="2" fill="currentColor"></circle>
-                 <circle cx="20" cy="14" r="2" fill="currentColor"></circle>
-                 <line x1="5.8" y1="16.3" x2="10.2" y2="7.7"></line>
-                 <line x1="13.8" y1="7.7" x2="18.2" y2="12.3"></line>
-               </svg>
-             </div>
-             <div class="empty-title">未选中路点</div>
+          <div id="properties-empty-state" class="sidebar-empty-state">
+            <div class="empty-icon">
+              <svg
+                width="32"
+                height="32"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                style="opacity: 0.45; color: #94a3b8; margin-bottom: 12px">
+                <circle cx="4" cy="18" r="2" fill="currentColor"></circle>
+                <circle cx="12" cy="6" r="2" fill="currentColor"></circle>
+                <circle cx="20" cy="14" r="2" fill="currentColor"></circle>
+                <line x1="5.8" y1="16.3" x2="10.2" y2="7.7"></line>
+                <line x1="13.8" y1="7.7" x2="18.2" y2="12.3"></line>
+              </svg>
+            </div>
+            <div class="empty-title">未选中路点</div>
             <div class="empty-desc">请在右侧地图中点击或框选路点来编辑其属性</div>
           </div>
           <div id="properties-editor" hidden>
             <div class="sidebar-row select-row">
               <label class="sidebar-label" for="action-menu">动作类型</label>
               <select id="action-menu" class="combo combo-action"></select>
-              <label class="chk">
-                <input id="chk-strict" type="checkbox" /> 严格模式
+            </div>
+            <div class="sidebar-row waypoint-option-row">
+              <label class="chk"> <input id="chk-strict" type="checkbox" /> 严格模式 </label>
+              <label class="chk" title="强制把该点及其动作作为全局规划的必经边界">
+                <input id="chk-required" type="checkbox" /> 路径必经
               </label>
             </div>
 
             <div class="sidebar-row select-row">
               <label class="sidebar-label" for="target-tier-entry">坐标层级</label>
-              <input id="target-tier-entry" class="entry entry-target-tier" type="text" list="target-tier-list" placeholder="留空使用旧坐标" />
+              <input
+                id="target-tier-entry"
+                class="entry entry-target-tier"
+                type="text"
+                list="target-tier-list"
+                placeholder="留空使用旧坐标" />
               <datalist id="target-tier-list"></datalist>
             </div>
             <div class="sidebar-hint">只声明当前点的坐标系，不改变 ZONE</div>
 
-            <div class="sidebar-row" style="margin: 12px 0 8px 0;">
-              <button id="btn-apply-action" class="btn btn-primary btn-block" style="width: 100%;" type="button">应用属性</button>
+            <div class="sidebar-row" style="margin: 12px 0 8px 0">
+              <button id="btn-apply-action" class="btn btn-primary btn-block" style="width: 100%" type="button">
+                应用属性
+              </button>
+            </div>
+
+            <div id="edit-deck-box" class="sidebar-row deck-box border-top" hidden>
+              <span class="sidebar-label" id="edit-deck-title">重叠面</span>
+              <div id="edit-deck-list" class="deck-list"></div>
+              <div class="sidebar-hint">仅适用于单个 NAVMESH 路点；点一层预览，「选择」写入 target_deck_y</div>
             </div>
 
             <div class="sidebar-row">
               <span id="action-chain-label" class="chain-label"></span>
             </div>
-
           </div>
         </div>
 
-        <!-- 断言区域设置 -->
+        <!-- 断言区域 -->
         <div class="sidebar-section" id="panel-assert" hidden>
           <div class="section-header">
-            <span class="section-title">断言区域设置</span>
+            <span class="section-title">断言区域</span>
           </div>
 
-          <div class="sidebar-hint">断言是一个矩形：在地图上拖拽画框，定位只给参考点</div>
-
-          <div class="sidebar-row">
-            <button id="btn-select-assert-tier" class="btn btn-primary" type="button" style="width: 100%">选择断言底图与层级</button>
+          <div class="sidebar-hint">
+            断言是一个可编辑矩形：空白处拖拽绘制，拖动框体或控制点调整；Esc 取消选择，Delete 删除
           </div>
 
-          <div class="sidebar-row select-tier-row">
-            <span class="sidebar-label">已选层级:</span>
-            <span id="assert-selected-tier-label" class="selected-tier-label">未选择</span>
-          </div>
-
-          <!-- 隐藏取值控件：由层级选择弹窗/定位写入 -->
-          <select id="assert-zone-combo" class="combo combo-zone" hidden></select>
-
-          <div class="sidebar-row border-top" style="margin-top: 4px; padding-top: 12px">
-            <button id="btn-assert-locate" class="btn btn-primary" style="width: 100%; margin-bottom: 8px;" type="button" title="定位后在该参考点周围拖拽画出断言矩形">标出游戏内当前位置（参考点）</button>
-          </div>
           <div class="sidebar-row copy-format-row">
             <label class="sidebar-label" for="assert-copy-format">复制内容</label>
             <select id="assert-copy-format" class="combo copy-format-combo">
@@ -201,59 +487,33 @@
               <option value="coordinates">仅坐标（NavAssert）</option>
             </select>
           </div>
-          <div class="sidebar-row grid-btns-2">
-            <button id="btn-assert-import" class="btn btn-secondary" type="button" title="导入路线（画出真实点）或 AssertLocation（画出断言矩形）">导入 JSON</button>
-            <button id="btn-copy-assert" class="btn btn-secondary" type="button" title="复制当前断言矩形，需先在地图上拖拽画框">复制断言 JSON</button>
+          <div class="sidebar-row grid-btns-import">
+            <button
+              id="btn-assert-import"
+              class="btn btn-secondary"
+              type="button"
+              title="选择断言节点，或切换到参考路线">
+              选择项目节点
+            </button>
+            <button
+              id="btn-assert-read-clipboard"
+              class="btn btn-secondary"
+              type="button"
+              title="读取并自动解析剪贴板中的 JSON">
+              读取剪贴板
+            </button>
+            <button
+              id="btn-copy-assert"
+              class="btn btn-secondary"
+              type="button"
+              title="复制当前断言矩形，需先在地图上拖拽画框">
+              复制断言
+            </button>
           </div>
           <div class="sidebar-row">
-            <button id="btn-clear-assert" class="btn btn-danger-outline" style="width: 100%" type="button">清除断言</button>
-          </div>
-        </div>
-
-        <!-- 寻路设置 -->
-        <div class="sidebar-section" id="panel-astar">
-          <div class="section-header">
-            <span class="section-title">寻路设置</span>
-          </div>
-
-          <div class="sidebar-hint">A* 只需目标点：预览点可直接复制，无需起点</div>
-
-          <div class="sidebar-row">
-            <button id="btn-select-tier" class="btn btn-primary" type="button" style="width: 100%">选择底图与层级</button>
-          </div>
-
-          <div class="sidebar-row select-tier-row">
-            <span class="sidebar-label">已选层级:</span>
-            <span id="astar-selected-tier-label" class="selected-tier-label">未选择</span>
-          </div>
-
-          <!-- 隐藏取值控件：由层级选择弹窗/定位写入 -->
-          <select id="astar-display-zone-combo" class="combo combo-zone" hidden></select>
-          <select id="astar-zone-combo" class="combo combo-zone" hidden></select>
-
-          <div class="sidebar-row border-top" style="margin-top: 4px; padding-top: 12px">
-            <button id="btn-astar-locate" class="btn btn-primary" style="width: 100%; margin-bottom: 8px;" type="button" title="把游戏内当前位置标成预览点">标出游戏内当前位置（预览点）</button>
-          </div>
-
-          <div class="coord-mark-row">
-            <input id="astar-coord-x" class="entry entry-coord" type="text" inputmode="decimal" placeholder="X" title="底图 X 坐标，与 JSON 中的 target 一致" />
-            <input id="astar-coord-y" class="entry entry-coord" type="text" inputmode="decimal" placeholder="Y" title="底图 Y 坐标，与 JSON 中的 target 一致" />
-            <button id="btn-astar-mark-coord" class="btn btn-secondary btn-sm" type="button" title="在该坐标标出一个预览点">标点</button>
-          </div>
-          <div class="sidebar-hint">按坐标标预览点</div>
-
-          <div id="astar-deck-box" class="sidebar-row deck-box border-top" hidden>
-            <span class="sidebar-label" id="astar-deck-title">重叠面</span>
-            <div id="astar-deck-list" class="deck-list"></div>
-            <div class="sidebar-hint">点一层预览，「选择」把该层高度写进 target_deck_y</div>
-          </div>
-
-          <div class="sidebar-row grid-btns-2">
-            <button id="btn-astar-import" class="btn btn-secondary" type="button" title="把 JSON 里的点标成预览点（不写入路线）">导入 JSON</button>
-            <button id="btn-copy-navmesh" class="btn btn-secondary" type="button" title="复制最后一个预览点为 NAVMESH 目标（有预览路线时复制整条）">复制 JSON 配置</button>
-          </div>
-          <div class="sidebar-row">
-            <button id="btn-clear-astar" class="btn btn-danger-outline" style="width: 100%" type="button">清除预览</button>
+            <button id="btn-clear-assert" class="btn btn-danger-outline" style="width: 100%" type="button">
+              清除断言
+            </button>
           </div>
         </div>
 
@@ -270,58 +530,353 @@
         <div id="canvas-wrap">
           <canvas id="gl-canvas"></canvas>
           <canvas id="overlay-canvas"></canvas>
+          <canvas id="three-canvas" aria-label="三维 NAVMESH 视图" hidden></canvas>
 
-          <!-- 右上角悬浮编辑工具条 -->
+          <!-- 左上角编辑工具条 -->
           <div class="canvas-editor-toolbar">
             <!-- Edit Mode 工具 -->
-            <button id="tool-pan" class="btn btn-tool group-edit active" type="button" title="临时按住 Alt 键也可以平移视角">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0M6 14V9a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v5c0 4.4 3.6 8 8 8h3a8 8 0 0 0 8-8v-3M22 13a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"></path></svg>
+            <button
+              id="tool-pan"
+              class="btn btn-tool group-edit active"
+              type="button"
+              title="临时按住 Alt 键也可以平移视角">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round">
+                <path
+                  d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0M6 14V9a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v5c0 4.4 3.6 8 8 8h3a8 8 0 0 0 8-8v-3M22 13a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"></path>
+              </svg>
               <span>视角平移 (Alt)</span>
             </button>
-            <button id="tool-add" class="btn btn-tool group-edit" type="button" title="增加路点与选择/移动路点 (1)">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>
-              <span>加路点/选择 (1)</span>
+            <button
+              id="tool-add"
+              class="btn btn-tool group-edit"
+              type="button"
+              title="新增 NAVMESH、选择或拖动路点 (1)">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
+              </svg>
+              <span>添加/选择 (1)</span>
             </button>
             <button id="tool-select" class="btn btn-tool group-edit" type="button" title="框选多个路点 (2)">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" stroke-dasharray="3 3"></rect><path d="m11 11 3 8 2-3 3 3 1.5-1.5-3-3 3-2-8.5-1.5Z" fill="currentColor"></path></svg>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" stroke-dasharray="3 3"></rect>
+                <path d="m11 11 3 8 2-3 3 3 1.5-1.5-3-3 3-2-8.5-1.5Z" fill="currentColor"></path>
+              </svg>
               <span>框选工具 (2)</span>
             </button>
-
-            <!-- Astar Mode 工具 -->
-            <button id="tool-astar-single" class="btn btn-tool group-astar" type="button" title="生成单段 A* 路径 (1)">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"></circle><circle cx="18" cy="18" r="3"></circle><path d="M18 15V9a4 4 0 0 0-4-4H9"></path></svg>
-              <span>单段 A* (1)</span>
-            </button>
-            <button id="tool-astar-multi" class="btn btn-tool group-astar" type="button" title="依次点击多个点生成串联 A* 路径 (2)">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"></circle><circle cx="18" cy="6" r="3"></circle><circle cx="12" cy="18" r="3"></circle><path d="M6 9v6a3 3 0 0 0 3 3h1m5-12h1a3 3 0 0 1 3 3v4"></path></svg>
-              <span>多段 A* (2)</span>
-            </button>
-
             <!-- Assert Mode 工具 -->
-            <button id="tool-assert-pan" class="btn btn-tool group-assert" type="button" title="临时按住 Alt 键也可以平移视角">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0M6 14V9a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v5c0 4.4 3.6 8 8 8h3a8 8 0 0 0 8-8v-3M22 13a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"></path></svg>
+            <button
+              id="tool-assert-pan"
+              class="btn btn-tool group-assert"
+              type="button"
+              title="临时按住 Alt 键也可以平移视角">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round">
+                <path
+                  d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0M6 14V9a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v5c0 4.4 3.6 8 8 8h3a8 8 0 0 0 8-8v-3M22 13a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"></path>
+              </svg>
               <span>视角平移 (Alt)</span>
             </button>
-            <button id="tool-assert-edit" class="btn btn-tool group-assert" type="button" title="在地图上画框设定识别断言区域 (1)">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-dasharray="2 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"></rect></svg>
-              <span>画断言区 (1)</span>
+            <button
+              id="tool-assert-edit"
+              class="btn btn-tool group-assert"
+              type="button"
+              title="拖拽空白处绘制断言区，拖动框体或控制点调整 (1)">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke-dasharray="2 2"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+              </svg>
+              <span>绘制/调整 (1)</span>
             </button>
           </div>
 
           <div class="canvas-floating-controls">
-            <button id="btn-zoom-in" class="btn btn-float" type="button" title="放大">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+            <div id="view-mode-toggle" class="view-mode-toggle" role="group" aria-label="地图视图" hidden>
+              <button
+                id="view-mode-2d"
+                class="view-mode-btn active"
+                type="button"
+                title="二维编辑视图"
+                aria-pressed="true">
+                2D
+              </button>
+              <button id="view-mode-3d" class="view-mode-btn" type="button" title="三维网格视图" aria-pressed="false">
+                3D
+              </button>
+            </div>
+            <div id="view-mode-divider" class="controls-divider" hidden></div>
+            <button
+              id="tool-route-test"
+              class="btn btn-float"
+              type="button"
+              title="快速测试：依次单击起点和终点"
+              aria-label="快速测试"
+              aria-pressed="false"
+              hidden>
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round">
+                <circle cx="6" cy="18" r="2"></circle>
+                <circle cx="18" cy="6" r="2"></circle>
+                <path d="M7.5 16.5 16.5 7.5"></path>
+                <path d="m12 7 4.5.5.5 4.5"></path>
+              </svg>
             </button>
-            <button id="btn-zoom-out" class="btn btn-float" type="button" title="缩小">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+            <button
+              id="tool-edit-start"
+              class="btn btn-float"
+              type="button"
+              title="设置规划起点"
+              aria-label="设置规划起点"
+              aria-pressed="false"
+              hidden>
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="M12 21s6-4.35 6-11a6 6 0 1 0-12 0c0 6.65 6 11 6 11Z"></path>
+                <circle cx="12" cy="10" r="2.2"></circle>
+              </svg>
             </button>
-            <button id="btn-fit-view" class="btn btn-float" type="button" title="自适应大小">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 15v6h-6M3 9V3h6M21 3l-7 7M3 21l7-7"></path></svg>
+            <div id="edit-start-divider" class="controls-divider" hidden></div>
+            <button
+              id="btn-map-layers"
+              class="btn btn-float"
+              type="button"
+              title="地图图层"
+              aria-label="地图图层"
+              aria-controls="map-layer-panel"
+              aria-expanded="false">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="m12 3 8 4.5-8 4.5-8-4.5L12 3Z"></path>
+                <path d="m4 12 8 4.5 8-4.5"></path>
+                <path d="m4 16.5 8 4.5 8-4.5"></path>
+              </svg>
             </button>
             <div class="controls-divider"></div>
-            <button id="btn-del-point-float" class="btn btn-float btn-float-danger" type="button" title="删除选中路点">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
+            <button
+              id="btn-zipline-measure"
+              class="btn btn-float"
+              type="button"
+              title="滑索架测距"
+              aria-label="滑索架测距"
+              aria-pressed="false"
+              hidden>
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="M3 17.5 17.5 3 21 6.5 6.5 21 3 17.5Z"></path>
+                <path d="m14 6.5 3.5 3.5M10.5 10l2 2M7 13.5l3.5 3.5"></path>
+              </svg>
             </button>
+            <div id="zipline-measure-divider" class="controls-divider" hidden></div>
+            <button id="btn-zoom-in" class="btn btn-float" type="button" title="放大">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                <line x1="11" y1="8" x2="11" y2="14"></line>
+                <line x1="8" y1="11" x2="14" y2="11"></line>
+              </svg>
+            </button>
+            <button id="btn-zoom-out" class="btn btn-float" type="button" title="缩小">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                <line x1="8" y1="11" x2="14" y2="11"></line>
+              </svg>
+            </button>
+            <button id="btn-fit-view" class="btn btn-float" type="button" title="自适应大小">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="M15 3h6v6M9 21H3v-6M21 15v6h-6M3 9V3h6M21 3l-7 7M3 21l7-7"></path>
+              </svg>
+            </button>
+            <div id="edit-delete-divider" class="controls-divider"></div>
+            <button id="btn-del-point-float" class="btn btn-float btn-float-danger" type="button" title="删除选中对象">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+              </svg>
+            </button>
+          </div>
+
+          <div class="canvas-right-panels">
+            <div id="map-layer-panel" class="map-layer-panel" role="dialog" aria-label="地图图层" hidden>
+              <div class="map-layer-header">
+                <span class="map-layer-title">地图图层</span>
+                <button id="btn-map-layers-close" class="btn btn-secondary btn-sm" type="button">关闭</button>
+              </div>
+              <div class="map-layer-group">
+                <div class="map-layer-group-title">通用图层</div>
+                <div class="map-layer-grid">
+                  <label class="chk map-layer-option">
+                    <input id="map-show-basemap" type="checkbox" checked />
+                    <span class="map-layer-swatch basemap"></span>底图
+                  </label>
+                  <label class="chk map-layer-option">
+                    <input id="map-show-navmesh" type="checkbox" checked />
+                    <span class="map-layer-swatch navmesh"></span>NAVMESH 网格
+                  </label>
+                  <label class="chk map-layer-option">
+                    <input id="map-show-ziplines" type="checkbox" />
+                    <span class="log-point-swatch recorded-tower"></span>滑索架
+                  </label>
+                </div>
+                <div class="map-layer-hint">三种模式共享；只控制地图显示，不会改变路线的滑索规划设置。</div>
+              </div>
+              <div id="map-log-layer-group" class="map-layer-group" hidden>
+                <div class="map-layer-group-title">日志标注</div>
+                <div class="map-layer-grid">
+                  <label class="chk map-layer-option">
+                    <input id="log-show-authored" type="checkbox" checked />
+                    <span class="log-line-swatch authored"></span>作者路径提示
+                  </label>
+                  <label class="chk map-layer-option">
+                    <input id="log-show-walk" type="checkbox" checked />
+                    <span class="log-line-swatch walk"></span>采用的步行规划
+                  </label>
+                  <label class="chk map-layer-option">
+                    <input id="log-show-observed" type="checkbox" checked />
+                    <span class="log-line-swatch observed"></span>实测地面轨迹
+                  </label>
+                  <label class="chk map-layer-option">
+                    <input id="log-show-baseline" type="checkbox" checked />
+                    <span class="log-line-swatch baseline"></span>未采用步行基线
+                  </label>
+                  <label class="chk map-layer-option">
+                    <input id="log-show-zipline" type="checkbox" checked />
+                    <span class="log-line-swatch zipline"></span>实际滑索段
+                  </label>
+                  <label class="chk map-layer-option">
+                    <input id="log-show-selected-towers" type="checkbox" checked />
+                    <span class="log-point-swatch selected-tower"></span>本次选择的滑索架
+                  </label>
+                  <label class="chk map-layer-option">
+                    <input id="log-show-estimates" type="checkbox" checked />
+                    <span class="log-line-swatch estimate"></span>接近/离索端点估计
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div id="context-panel" class="context-panel" hidden>
+              <div id="edit-inspection-box" class="edit-inspection-box" hidden>
+                <div class="log-distance-header">
+                  <span class="log-distance-title">选中对象</span>
+                  <button id="btn-edit-selection-clear" class="btn btn-secondary btn-sm" type="button">取消选择</button>
+                </div>
+                <div id="edit-point-summary" class="log-distance-summary" aria-live="polite"></div>
+              </div>
+              <div id="point-inspection-box" class="point-inspection-box" hidden>
+                <div class="log-distance-header">
+                  <span class="log-distance-title">点位详情</span>
+                  <button id="btn-point-clear" class="btn btn-secondary btn-sm" type="button">取消选择</button>
+                </div>
+                <div id="point-summary" class="log-distance-summary" aria-live="polite"></div>
+              </div>
+              <div id="zipline-distance-box" class="log-distance-box" hidden>
+                <div class="log-distance-header">
+                  <span class="log-distance-title">滑索架测距</span>
+                  <button id="btn-zipline-distance-clear" class="btn btn-secondary btn-sm" type="button" disabled>
+                    清除
+                  </button>
+                </div>
+                <div id="zipline-distance-summary" class="log-distance-summary" aria-live="polite"></div>
+              </div>
+            </div>
           </div>
 
           <!-- 路点动作图例（浮层，JS 依据动作色表动态生成，仅路径编辑模式显示） -->
@@ -334,11 +889,19 @@
             <div id="status-label" class="status-line">系统就绪</div>
             <div id="locator-label" class="locator-line"></div>
           </div>
-          <div id="position-readout" class="position-readout heading-unavailable" data-state="pending" aria-label="等待游戏定位">
+          <div
+            id="position-readout"
+            class="position-readout heading-unavailable"
+            data-state="pending"
+            aria-label="等待游戏定位">
             <div class="position-compass" aria-hidden="true">
               <svg width="34" height="34" viewBox="0 0 34 34">
                 <circle cx="17" cy="17" r="15.5" fill="none" stroke="currentColor" stroke-opacity="0.28" />
-                <path d="M17 3.5v3M30.5 17h-3M17 30.5v-3M3.5 17h3" fill="none" stroke="currentColor" stroke-linecap="round" />
+                <path
+                  d="M17 3.5v3M30.5 17h-3M17 30.5v-3M3.5 17h3"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-linecap="round" />
                 <g id="position-heading-arrow" class="position-heading-arrow">
                   <path d="M17 5.5 21 18l-4-2-4 2 4-12.5Z" fill="currentColor" />
                   <circle cx="17" cy="17" r="2.25" fill="#111318" stroke="currentColor" stroke-width="1.25" />
@@ -351,10 +914,44 @@
                 <span id="position-coordinates">位置 —</span>
                 <span class="position-readout-separator" aria-hidden="true"></span>
                 <span id="position-heading">朝向 —</span>
+                <button
+                  id="btn-live-locate"
+                  class="position-live-btn"
+                  type="button"
+                  title="持续获取并显示游戏内实时位置"
+                  disabled>
+                  开启实时定位
+                </button>
               </div>
               <div id="position-zone" class="position-readout-zone">等待游戏定位</div>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 从当前项目 assets 选择 MapNavigateAction / MapLocateAssertLocation 节点 -->
+    <div id="project-node-dialog" class="modal" hidden>
+      <div class="modal-panel project-node-panel">
+        <h2 class="modal-title">选择项目节点</h2>
+        <p id="project-node-hint" class="modal-hint"></p>
+        <div id="project-node-kinds" class="project-node-kinds" role="group" aria-label="断言导入类型" hidden>
+          <button id="project-node-kind-assert" class="project-node-kind active" type="button" aria-pressed="true">
+            断言节点
+          </button>
+          <button id="project-node-kind-path" class="project-node-kind" type="button" aria-pressed="false">
+            参考路线
+          </button>
+        </div>
+        <input
+          id="project-node-search"
+          class="entry project-node-search"
+          type="search"
+          placeholder="搜索资源路径、节点名、描述或区域" />
+        <div id="project-node-list" class="project-node-list" role="listbox" aria-label="项目节点"></div>
+        <div class="modal-actions">
+          <button id="project-node-cancel" class="btn btn-secondary" type="button">取消</button>
+          <button id="project-node-ok" class="btn btn-primary" type="button" disabled>载入所选节点</button>
         </div>
       </div>
     </div>
@@ -388,6 +985,14 @@
       </div>
     </div>
 
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "./vendor/three/three.module.min.js",
+          "three/addons/": "./vendor/three/addons/"
+        }
+      }
+    </script>
     <script type="module" src="./js/main.js"></script>
   </body>
 </html>

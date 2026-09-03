@@ -23,6 +23,8 @@
 
 /** @typedef {import('../camera.js').Camera} Camera */
 
+import {buildBoundaryEdgeIndices, parseNmsh} from "../navmesh_3d_data.js";
+
 /**
  * Per-zone metadata the renderer needs.
  * @typedef {Object} ZoneMeta
@@ -99,15 +101,6 @@ const CLEAR_R = 0.0;
 const CLEAR_G = 0.0;
 const CLEAR_B = 0.0;
 
-// NMSH mesh-buffer layout (DESIGN.md §2.4), little-endian:
-//   [0]  magic "NMSH"        (4 bytes)
-//   [4]  u32 version (=1)
-//   [8]  u32 vertexCount
-//   [12] u32 triangleCount
-//   [16] f32[vertexCount*3]  vertices (u, v, height) base px
-//   [16 + vertexCount*12] u32[triangleCount*3] indices
-const NMSH_HEADER_BYTES = 16;
-
 // Matches the tk `max_points` walkable-dot stride cap (§2.4 / §4).
 const DOT_STRIDE_CAP = 60000;
 
@@ -120,40 +113,40 @@ export class Renderer {
     this.canvas = canvas;
 
     const gl = /** @type {WebGL2RenderingContext|WebGLRenderingContext|null} */ (
-      canvas.getContext('webgl2') || canvas.getContext('webgl') || canvas.getContext('experimental-webgl')
+      canvas.getContext("webgl2") || canvas.getContext("webgl") || canvas.getContext("experimental-webgl")
     );
-    if (!gl) throw new Error('Renderer: WebGL not available (webgl2/webgl both null)');
+    if (!gl) throw new Error("Renderer: WebGL not available (webgl2/webgl both null)");
     /** @type {WebGL2RenderingContext|WebGLRenderingContext} */
     this.gl = gl;
     /** @type {boolean} true if a WebGL2 context was obtained */
-    this.isWebGL2 = typeof WebGL2RenderingContext !== 'undefined' && gl instanceof WebGL2RenderingContext;
+    this.isWebGL2 = typeof WebGL2RenderingContext !== "undefined" && gl instanceof WebGL2RenderingContext;
 
     // 32-bit indices: core in WebGL2, an extension in WebGL1. Meshes exceed 65k verts.
     if (!this.isWebGL2) {
-      this._uintIndexExt = gl.getExtension('OES_element_index_uint') || null;
+      this._uintIndexExt = gl.getExtension("OES_element_index_uint") || null;
     }
 
     // --- programs ---------------------------------------------------------
-    const texProgram = this._createProgram(TEX_VS, TEX_FS, { a_pos: 0, a_uv: 1 });
+    const texProgram = this._createProgram(TEX_VS, TEX_FS, {a_pos: 0, a_uv: 1});
     this._texProg = {
       program: texProgram,
-      u_scale: gl.getUniformLocation(texProgram, 'u_scale'),
-      u_offset: gl.getUniformLocation(texProgram, 'u_offset'),
-      u_tex: gl.getUniformLocation(texProgram, 'u_tex'),
+      u_scale: gl.getUniformLocation(texProgram, "u_scale"),
+      u_offset: gl.getUniformLocation(texProgram, "u_offset"),
+      u_tex: gl.getUniformLocation(texProgram, "u_tex"),
     };
-    const flatProgram = this._createProgram(FLAT_VS, FLAT_FS, { a_pos: 0 });
+    const flatProgram = this._createProgram(FLAT_VS, FLAT_FS, {a_pos: 0});
     this._flatProg = {
       program: flatProgram,
-      u_scale: gl.getUniformLocation(flatProgram, 'u_scale'),
-      u_offset: gl.getUniformLocation(flatProgram, 'u_offset'),
-      u_color: gl.getUniformLocation(flatProgram, 'u_color'),
-      u_pointSize: gl.getUniformLocation(flatProgram, 'u_pointSize'),
-      u_min_height: gl.getUniformLocation(flatProgram, 'u_min_height'),
-      u_max_height: gl.getUniformLocation(flatProgram, 'u_max_height'),
-      u_use_height: gl.getUniformLocation(flatProgram, 'u_use_height'),
-      u_opacity: gl.getUniformLocation(flatProgram, 'u_opacity'),
-      u_band_on: gl.getUniformLocation(flatProgram, 'u_band_on'),
-      u_band: gl.getUniformLocation(flatProgram, 'u_band'),
+      u_scale: gl.getUniformLocation(flatProgram, "u_scale"),
+      u_offset: gl.getUniformLocation(flatProgram, "u_offset"),
+      u_color: gl.getUniformLocation(flatProgram, "u_color"),
+      u_pointSize: gl.getUniformLocation(flatProgram, "u_pointSize"),
+      u_min_height: gl.getUniformLocation(flatProgram, "u_min_height"),
+      u_max_height: gl.getUniformLocation(flatProgram, "u_max_height"),
+      u_use_height: gl.getUniformLocation(flatProgram, "u_use_height"),
+      u_opacity: gl.getUniformLocation(flatProgram, "u_opacity"),
+      u_band_on: gl.getUniformLocation(flatProgram, "u_band_on"),
+      u_band: gl.getUniformLocation(flatProgram, "u_band"),
     };
 
     /** @type {[number, number]|null} 预览高亮的高度带 [lo, hi] */
@@ -215,7 +208,7 @@ export class Renderer {
     // Best-effort initial sizing so a render before the first resize() isn't degenerate.
     const w0 = canvas.clientWidth || canvas.width || 300;
     const h0 = canvas.clientHeight || canvas.height || 150;
-    const dpr0 = (typeof window !== 'undefined' && window.devicePixelRatio) || 1;
+    const dpr0 = (typeof window !== "undefined" && window.devicePixelRatio) || 1;
     this.resize(w0, h0, dpr0);
   }
 
@@ -251,14 +244,26 @@ export class Renderer {
 
     const w = (zoneMeta && zoneMeta.width) || image.width || /** @type {any} */ (image).naturalWidth || 1;
     const h = (zoneMeta && zoneMeta.height) || image.height || /** @type {any} */ (image).naturalHeight || 1;
-    this._basemapMeta = { width: w, height: h, transform: (zoneMeta && zoneMeta.transform) || undefined };
+    this._basemapMeta = {width: w, height: h, transform: (zoneMeta && zoneMeta.transform) || undefined};
 
     // TRIANGLE_STRIP quad, interleaved [posX, posY, u, v]; uv = pos / (w,h).
     const quad = new Float32Array([
-      0, 0, 0, 0,
-      w, 0, 1, 0,
-      0, h, 0, 1,
-      w, h, 1, 1,
+      0,
+      0,
+      0,
+      0,
+      w,
+      0,
+      1,
+      0,
+      0,
+      h,
+      0,
+      1,
+      w,
+      h,
+      1,
+      1,
     ]);
     gl.bindBuffer(gl.ARRAY_BUFFER, this._quadVbo);
     gl.bufferData(gl.ARRAY_BUFFER, quad, gl.STATIC_DRAW);
@@ -275,72 +280,15 @@ export class Renderer {
    */
   setMesh(arrayBuffer, zoneMeta) {
     const gl = this.gl;
-    const dv = new DataView(arrayBuffer);
+    const parsed = parseNmsh(arrayBuffer);
+    const {vertexCount, triangleCount, vertices, indices} = parsed;
+    const indexFloatLen = indices.length;
+    this._meshMinHeight = parsed.bounds.minHeight;
+    this._meshMaxHeight = parsed.bounds.maxHeight;
 
-    const magic = String.fromCharCode(dv.getUint8(0), dv.getUint8(1), dv.getUint8(2), dv.getUint8(3));
-    if (magic !== 'NMSH') throw new Error('setMesh: bad magic ' + JSON.stringify(magic) + ' (expected "NMSH")');
-    const version = dv.getUint32(4, true);
-    if (version !== 1) throw new Error('setMesh: unsupported NMSH version ' + version);
-    const vertexCount = dv.getUint32(8, true);
-    const triangleCount = dv.getUint32(12, true);
-
-    const vertsFloatLen = vertexCount * 3;
-    const indexFloatLen = triangleCount * 3;
-    const indexByteOffset = NMSH_HEADER_BYTES + vertsFloatLen * 4; // 4-aligned: 16 + 12*vc
-    const needBytes = indexByteOffset + indexFloatLen * 4;
-    if (arrayBuffer.byteLength < needBytes) {
-      throw new Error(
-        'setMesh: truncated buffer, need ' + needBytes + ' bytes, got ' + arrayBuffer.byteLength,
-      );
-    }
-
-    // Zero-copy views over the buffer. Offsets 16 and 16+12*vc are 4-aligned, so both
-    // typed-array views are valid. Assumes little-endian (universal on WebGL targets).
-    const vertices = new Float32Array(arrayBuffer, NMSH_HEADER_BYTES, vertsFloatLen);
-    const indices = new Uint32Array(arrayBuffer, indexByteOffset, indexFloatLen);
-
-    let minH = Infinity;
-    let maxH = -Infinity;
-    for (let i = 0; i < vertexCount; i += 1) {
-      const h = vertices[i * 3 + 2];
-      if (h < minH) minH = h;
-      if (h > maxH) maxH = h;
-    }
-    this._meshMinHeight = minH === Infinity ? 0 : minH;
-    this._meshMaxHeight = maxH === -Infinity ? 0 : maxH;
-
-    // Boundary edges only: an edge owned by exactly one triangle is a real
-    // walkable-area outline (outer contour, hole ring, plate seam). Interior
-    // shared edges are skipped — the pack's plate re-triangulation covers big
-    // areas with sliver fans whose interior edges render as solid noise.
-    const V = vertexCount;
-    /** @type {Map<number, number>} undirected edge key (min*V+max) -> min endpoint */
-    const once = new Map();
-    /** @type {Set<number>} keys seen at least twice (incl. non-manifold repeats) */
-    const shared = new Set();
-    const addEdge = (a, b) => {
-      const key = a < b ? a * V + b : b * V + a;
-      if (shared.has(key)) return;
-      if (once.has(key)) {
-        once.delete(key);
-        shared.add(key);
-      } else {
-        once.set(key, a < b ? a : b);
-      }
-    };
-    for (let i = 0; i < triangleCount; i += 1) {
-      const b = i * 3;
-      addEdge(indices[b], indices[b + 1]);
-      addEdge(indices[b + 1], indices[b + 2]);
-      addEdge(indices[b + 2], indices[b]);
-    }
-    const lines = new Uint32Array(once.size * 2);
-    let li = 0;
-    for (const [key, mn] of once) {
-      lines[li] = mn;
-      lines[li + 1] = key - mn * V;
-      li += 2;
-    }
+    // Interior fan edges make large navmesh plates unreadable, so both renderers
+    // share the same true-boundary extraction.
+    const lines = buildBoundaryEdgeIndices(indices, vertexCount);
 
     this._deleteMesh();
 
@@ -472,7 +420,7 @@ export class Renderer {
     this._pendingCamera = camera;
     if (this._rafHandle) return;
     const raf =
-      typeof requestAnimationFrame === 'function'
+      typeof requestAnimationFrame === "function"
         ? requestAnimationFrame
         : /** @param {FrameRequestCallback} cb */ (cb) => setTimeout(() => cb(Date.now()), 16);
     this._rafHandle = raf(() => {
@@ -489,7 +437,7 @@ export class Renderer {
    */
   cancelRender() {
     if (!this._rafHandle) return;
-    if (typeof cancelAnimationFrame === 'function') cancelAnimationFrame(this._rafHandle);
+    if (typeof cancelAnimationFrame === "function") cancelAnimationFrame(this._rafHandle);
     else clearTimeout(this._rafHandle);
     this._rafHandle = 0;
     this._pendingCamera = null;
@@ -768,7 +716,7 @@ export class Renderer {
     if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
       const info = gl.getProgramInfoLog(prog);
       gl.deleteProgram(prog);
-      throw new Error('Renderer: program link failed: ' + info);
+      throw new Error("Renderer: program link failed: " + info);
     }
     return prog;
   }
@@ -787,7 +735,7 @@ export class Renderer {
     if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) {
       const info = gl.getShaderInfoLog(sh);
       gl.deleteShader(sh);
-      throw new Error('Renderer: shader compile failed: ' + info);
+      throw new Error("Renderer: shader compile failed: " + info);
     }
     return sh;
   }

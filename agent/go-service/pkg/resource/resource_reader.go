@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/jsonclean"
 	"github.com/rs/zerolog/log"
 )
 
@@ -35,7 +36,7 @@ func ReadJsonResource(relativePath string, out any) error {
 	if err != nil {
 		return err
 	}
-	if err := json.Unmarshal(content, out); err != nil {
+	if err := json.Unmarshal(jsonclean.Clean(content), out); err != nil {
 		log.Error().Err(err).Str("relativePath", relativePath).Int("contentLength", len(content)).Msg("Resource JSON cannot be parsed")
 		return err
 	}

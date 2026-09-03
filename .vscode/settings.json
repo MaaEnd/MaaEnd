@@ -47,12 +47,23 @@
                 "/tools/pipeline-generate/EnvironmentMonitoring/routes.json"
             ],
             "url": "/tools/schema/environment_monitoring_routes.schema.json"
+        },
+        {
+            "fileMatch": [
+                "/tools/pipeline-generate/AutoDelivery/routes.json"
+            ],
+            "url": "/tools/schema/auto_delivery_routes.schema.json"
         }
     ],
     "files.associations": {
         "**/assets/**/*.json": "jsonc",
         "**/tests/**/*.json": "jsonc",
-        "*.mtnm": "ini"
+        "**/tools/setup/locals/**/*.json": "jsonc",
+        "**/tools/icon_recognition/**/*.json": "jsonc",
+        "**/tools/pipeline-generate/**/*.json": "jsonc",
+        "**/tools/i18n/**/*.json": "jsonc",
+        "**/tools/essence_filter/**/*.json": "jsonc",
+        "**/tools/optimize_templates/**/*.json": "jsonc"
     },
     "[json][jsonc]": {
         "editor.formatOnSave": true,
@@ -72,5 +83,6 @@
         "editor.codeActionsOnSave": {
             "source.organizeImports": "explicit"
         }
-    }
+    },
+    "cmake.ignoreCMakeListsMissing": true
 }

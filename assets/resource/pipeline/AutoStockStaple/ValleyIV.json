@@ -66,9 +66,9 @@
             "type": "Click",
             "param": {
                 "target_offset": [
-                    -35,
+                    -45,
                     85,
-                    0,
+                    -30,
                     0
                 ]
             }

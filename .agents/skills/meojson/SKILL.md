@@ -29,7 +29,22 @@ auto opt = json::open("/path/to/file.json");
 
 // JSONC (with comments)
 auto opt = json::parsec(str);
+
+// JSONC file: check UTF-8 BOM and allow comments
+auto opt = json::open("/path/to/file.json", true, true);
 ```
+
+`json::open(path, check_bom, with_comments)` 的两个布尔参数分别控制 UTF-8 BOM 检查和注释解析；默认调用 `json::open(path)` 是严格 JSON，既不检查 BOM，也不接受注释。
+
+在 MaaEnd cpp-algo 中读取仓库维护、允许注释的 JSON/JSONC 文件时，优先复用公共能力：
+
+```cpp
+#include "Common/JsoncFile.h"
+
+auto opt = common::OpenJsoncFile(path);
+```
+
+运行时接口参数（如 `custom_recognition_param`）、识别结果 detail 和生成报告仍保持严格 JSON，除非对应契约明确允许 JSONC。不要为解决仓库配置文件的注释问题而放宽运行时输入边界。
 
 **cpp-algo 推荐模式** — 安全解析自定义识别参数：
 

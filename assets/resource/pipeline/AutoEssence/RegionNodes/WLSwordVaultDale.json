@@ -12,34 +12,14 @@
         }
     },
     "GotoTriggerPointMaybeTeleport_WLSwordVaultDale": {
+        "desc": "判断是否需要传送到最近锚点",
         "recognition": {
-            "type": "Custom",
+            "type": "Or",
             "param": {
-                "custom_recognition": "MapTrackerAssertLocation",
-                "custom_recognition_param": {
-                    "expected": [
-                        {
-                            // 距离淤积点最近的锚点附近
-                            "map_name": "map02_lv006",
-                            "target": [
-                                352.0,
-                                290.4,
-                                12.0,
-                                12.6
-                            ]
-                        },
-                        {
-                            // 淤积点附近
-                            "map_name": "map02_lv006",
-                            "target": [
-                                386.7,
-                                294.8,
-                                21.4,
-                                20.7
-                            ]
-                        }
-                    ]
-                }
+                "any_of": [
+                    "__GotoTriggerPointNearAnchor_WLSwordVaultDale",
+                    "__GotoTriggerPointNearTrigger_WLSwordVaultDale"
+                ]
             }
         },
         "inverse": true,
@@ -63,20 +43,21 @@
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "MapTrackerMove",
+                "custom_action": "MapNavigateAction",
                 "custom_action_param": {
-                    "map_name": "map02_lv006",
                     "path": [
-                        [
-                            365.6,
-                            298.1
-                        ],
-                        [
-                            394.9,
-                            305.1
-                        ]
-                    ],
-                    "path_trim": true
+                        {
+                            "action": "ZONE",
+                            "zone_id": "Wuling_Base"
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                1632.11,
+                                2703.9
+                            ]
+                        }
+                    ]
                 }
             }
         },
@@ -97,22 +78,25 @@
         "action": {
             "type": "Custom",
             "param": {
-                "custom_action": "MapTrackerMove",
+                "custom_action": "MapNavigateAction",
                 "custom_action_param": {
-                    "map_name": "map02_lv006",
                     "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "Wuling_Base"
+                        },
                         [
-                            399.5,
-                            306.8
+                            1641.94,
+                            2702.1,
+                            true
                         ]
-                    ],
-                    "no_ensure_initial_movement_state": true
+                    ]
                 }
             }
         },
-        "post_delay": 1500, // 确保彻底停下，规避移动惯性
+        "post_delay": 1500,
         "next": [
-            "AutoEssenceDispatcher"
+            "AutoEssenceInteract"
         ],
         "focus": {
             "Node.Action.Starting": "🚶正在前往激发点",
@@ -121,6 +105,42 @@
             },
             "Node.Action.Failed": {
                 "trace": true
+            }
+        }
+    },
+    "__GotoTriggerPointNearAnchor_WLSwordVaultDale": {
+        "desc": "锚点附近",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapLocateAssertLocation",
+                "custom_recognition_param": {
+                    "zone_id": "Wuling_Base",
+                    "target": [
+                        1594.58,
+                        2685.93,
+                        11.82,
+                        12.41
+                    ]
+                }
+            }
+        }
+    },
+    "__GotoTriggerPointNearTrigger_WLSwordVaultDale": {
+        "desc": "淤积点附近",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapLocateAssertLocation",
+                "custom_recognition_param": {
+                    "zone_id": "Wuling_Base",
+                    "target": [
+                        1628.75,
+                        2690.26,
+                        21.07,
+                        20.38
+                    ]
+                }
             }
         }
     }

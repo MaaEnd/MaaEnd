@@ -4,13 +4,14 @@
  *
  * A `PathPoint` is a plain object:
  *   { x:number, y:number, action:number, actions:number[], zone:string, strict:boolean,
- *     target_tier?:string, auto_portal?:true, suppress_auto_portal?:true }
+ *     required?:true, target_tier?:string, target_deck_y?:number,
+ *     auto_portal?:true, suppress_auto_portal?:true }
  * Invariant on `actions`: either `[RUN]` or a list of non-RUN/NONE actions; `action`
  * always mirrors the last element of the normalised chain.
  * @module model
  */
 
-import { roundHalfEven } from './rounding.js';
+import {roundHalfEven} from "./rounding.js";
 
 /** Action-type enum (parallels `model.ActionType`). Plain numbers — no TS enum. */
 export const ActionType = Object.freeze({
@@ -31,46 +32,46 @@ const VALID_ACTION_INTS = new Set(Object.values(ActionType));
 
 /** @type {Object<number,string>} node fill colour per action. */
 export const ACTION_COLORS = {
-  [ActionType.NONE]: '#64748b',
-  [ActionType.RUN]: '#2563eb',
-  [ActionType.SPRINT]: '#f97316',
-  [ActionType.JUMP]: '#00ffff',
-  [ActionType.FIGHT]: '#a855f7',
-  [ActionType.INTERACT]: '#10b981',
-  [ActionType.PORTAL]: '#eab308',
-  [ActionType.TRANSFER]: '#ff00ff',
-  [ActionType.COLLECT]: '#ff0000',
-  [ActionType.DIG]: '#7c2d12',
-  [ActionType.NAVMESH]: '#ffffff',
+  [ActionType.NONE]: "#64748b",
+  [ActionType.RUN]: "#2563eb",
+  [ActionType.SPRINT]: "#f97316",
+  [ActionType.JUMP]: "#00ffff",
+  [ActionType.FIGHT]: "#a855f7",
+  [ActionType.INTERACT]: "#10b981",
+  [ActionType.PORTAL]: "#eab308",
+  [ActionType.TRANSFER]: "#ff00ff",
+  [ActionType.COLLECT]: "#ff0000",
+  [ActionType.DIG]: "#7c2d12",
+  [ActionType.NAVMESH]: "#ffffff",
 };
 
 /** @type {Object<number,string>} display name per action. */
 export const ACTION_NAMES = {
-  [ActionType.NONE]: 'None',
-  [ActionType.RUN]: 'Run',
-  [ActionType.SPRINT]: 'Sprint',
-  [ActionType.JUMP]: 'Jump',
-  [ActionType.FIGHT]: 'Fight',
-  [ActionType.INTERACT]: 'Interact',
-  [ActionType.PORTAL]: 'Portal',
-  [ActionType.TRANSFER]: 'Transfer',
-  [ActionType.COLLECT]: 'Collect',
-  [ActionType.DIG]: 'Dig',
-  [ActionType.NAVMESH]: 'Navmesh',
+  [ActionType.NONE]: "None",
+  [ActionType.RUN]: "Run",
+  [ActionType.SPRINT]: "Sprint",
+  [ActionType.JUMP]: "Jump",
+  [ActionType.FIGHT]: "Fight",
+  [ActionType.INTERACT]: "Interact",
+  [ActionType.PORTAL]: "Portal",
+  [ActionType.TRANSFER]: "Transfer",
+  [ActionType.COLLECT]: "Collect",
+  [ActionType.DIG]: "Dig",
+  [ActionType.NAVMESH]: "Navmesh",
 };
 
 /** @type {Object<number,string>} export token per action (RUN..NAVMESH; NONE has none). */
 export const ACTION_TOKENS = {
-  [ActionType.RUN]: 'RUN',
-  [ActionType.SPRINT]: 'SPRINT',
-  [ActionType.JUMP]: 'JUMP',
-  [ActionType.FIGHT]: 'FIGHT',
-  [ActionType.INTERACT]: 'INTERACT',
-  [ActionType.PORTAL]: 'PORTAL',
-  [ActionType.TRANSFER]: 'TRANSFER',
-  [ActionType.COLLECT]: 'COLLECT',
-  [ActionType.DIG]: 'DIG',
-  [ActionType.NAVMESH]: 'NAVMESH',
+  [ActionType.RUN]: "RUN",
+  [ActionType.SPRINT]: "SPRINT",
+  [ActionType.JUMP]: "JUMP",
+  [ActionType.FIGHT]: "FIGHT",
+  [ActionType.INTERACT]: "INTERACT",
+  [ActionType.PORTAL]: "PORTAL",
+  [ActionType.TRANSFER]: "TRANSFER",
+  [ActionType.COLLECT]: "COLLECT",
+  [ActionType.DIG]: "DIG",
+  [ActionType.NAVMESH]: "NAVMESH",
 };
 
 /** @type {Object<string,number>} upper-case token → action int. */
@@ -107,18 +108,18 @@ export const ACTION_MENU_NAMES = ACTION_MENU_TYPES.map((t) => ACTION_NAMES[t]);
 
 /** Base-nav display zone → (dir, region, file) under assets/resource/image. */
 export const BASE_NAV_ZONE_IMAGE_PARTS = {
-  map01base: ['MapLocator', 'ValleyIV', 'Base.png'],
-  map02base: ['MapLocator', 'Wuling', 'Base.png'],
-  base01: ['MapLocator', 'OMVBase', 'OMVBase01.png'],
-  dung01: ['MapLocator', 'Dung', 'Dung01Base.png'],
-  indie_dg005: ['MapLocator', 'IndieDg005', 'IndieDg005Base.png'],
-  indie_dg007: ['MapLocator', 'IndieDg007', 'IndieDg007Base.png'],
+  map01base: ["MapLocator", "ValleyIV", "Base.png"],
+  map02base: ["MapLocator", "Wuling", "Base.png"],
+  base01: ["MapLocator", "OMVBase", "OMVBase01.png"],
+  dung01: ["MapLocator", "Dung", "Dung01Base.png"],
+  indie_dg005: ["MapLocator", "IndieDg005", "IndieDg005Base.png"],
+  indie_dg007: ["MapLocator", "IndieDg007", "IndieDg007Base.png"],
 };
 
 /** @type {string[]} */
 export const BASE_NAV_DISPLAY_ZONE_IDS = Object.keys(BASE_NAV_ZONE_IMAGE_PARTS);
 
-const INVALID_ZONE_IDS = new Set(['NONE', 'NULL', 'N/A']);
+const INVALID_ZONE_IDS = new Set(["NONE", "NULL", "N/A"]);
 
 /**
  * @param {number[]} a
@@ -148,12 +149,12 @@ function normalizeActionChain(actions) {
  * @returns {number|null}
  */
 export function tryParseActionType(value) {
-  if (typeof value === 'boolean') return null;
-  if (typeof value === 'number') {
+  if (typeof value === "boolean") return null;
+  if (typeof value === "number") {
     if (Number.isInteger(value)) return VALID_ACTION_INTS.has(value) ? value : null;
     return null; // non-integer float → no match (Python falls through to None)
   }
-  if (typeof value !== 'string') return null;
+  if (typeof value !== "string") return null;
 
   const text = value.trim();
   if (!text) return null;
@@ -200,12 +201,36 @@ export function coerceActionChain(value, def = ActionType.RUN) {
  * @param {string} [def='']
  * @returns {string}
  */
-export function normalizeZoneId(value, def = '') {
-  if (typeof value !== 'string') return def;
+export function normalizeZoneId(value, def = "") {
+  if (typeof value !== "string") return def;
   const zoneId = value.trim();
   if (!zoneId) return def;
   if (INVALID_ZONE_IDS.has(zoneId.toUpperCase())) return def;
   return zoneId;
+}
+
+/**
+ * Match an authored target_deck_y to the nearest probed surface using the runtime's
+ * 2 px deck band. Returns that surface's canonical height, or null when none match.
+ * @param {Array<{height:number}>} decks
+ * @param {unknown} targetDeckY
+ * @param {number} [tolerance=2.0]
+ * @returns {?number}
+ */
+export function matchTargetDeckHeight(decks, targetDeckY, tolerance = 2.0) {
+  if (typeof targetDeckY !== "number" || !Number.isFinite(targetDeckY)) return null;
+  let matched = null;
+  let bestDistance = Infinity;
+  for (const deck of decks) {
+    const height = Number(deck && deck.height);
+    if (!Number.isFinite(height)) continue;
+    const distance = Math.abs(height - targetDeckY);
+    if (distance < bestDistance) {
+      matched = height;
+      bestDistance = distance;
+    }
+  }
+  return bestDistance <= tolerance ? matched : null;
 }
 
 /**
@@ -260,19 +285,19 @@ export function setManualPointActions(point, actions) {
  * @returns {boolean}
  */
 export function coerceStrictArrival(value, def = false) {
-  if (typeof value === 'boolean') return value;
-  if (typeof value === 'number') {
+  if (typeof value === "boolean") return value;
+  if (typeof value === "number") {
     if (Number.isInteger(value)) {
       if (value === 0 || value === 1) return Boolean(value);
       return def;
     }
     return def;
   }
-  if (typeof value !== 'string') return def;
+  if (typeof value !== "string") return def;
 
   const text = value.trim().toLowerCase();
-  if (['true', '1', 'yes', 'y', 'on'].includes(text)) return true;
-  if (['false', '0', 'no', 'n', 'off'].includes(text)) return false;
+  if (["true", "1", "yes", "y", "on"].includes(text)) return true;
+  if (["false", "0", "no", "n", "off"].includes(text)) return false;
   return def;
 }
 
@@ -282,7 +307,7 @@ export function coerceStrictArrival(value, def = false) {
  */
 export function exportActionToken(value) {
   const token = ACTION_TOKENS[coerceActionType(value)];
-  return token === undefined ? 'RUN' : token;
+  return token === undefined ? "RUN" : token;
 }
 
 /**
@@ -316,21 +341,29 @@ export function normalizePathPoints(points) {
   /** @type {PathPoint[]} */
   const normalized = [];
   for (const point of points) {
-    const actionChain = coerceActionChain(
-      point.actions,
-      coerceActionType(point.action, ActionType.RUN),
-    );
+    const actionChain = coerceActionChain(point.actions, coerceActionType(point.action, ActionType.RUN));
     /** @type {PathPoint} */
     const np = {
       x: roundHalfEven(Number(point.x), 2),
       y: roundHalfEven(Number(point.y), 2),
       action: getDisplayAction(actionChain),
       actions: actionChain,
-      zone: normalizeZoneId(point.zone === undefined ? '' : point.zone),
+      zone: normalizeZoneId(point.zone === undefined ? "" : point.zone),
       strict: coerceStrictArrival(point.strict, false),
     };
-    const targetTier = normalizeZoneId(point.target_tier === undefined ? '' : point.target_tier);
+    const targetTier = normalizeZoneId(point.target_tier === undefined ? "" : point.target_tier);
     if (targetTier) np.target_tier = targetTier;
+    const rawTargetDeckY = point.target_deck_y;
+    if (
+      typeof rawTargetDeckY !== "boolean" &&
+      rawTargetDeckY !== null &&
+      rawTargetDeckY !== undefined &&
+      (typeof rawTargetDeckY !== "string" || rawTargetDeckY.trim())
+    ) {
+      const targetDeckY = Number(rawTargetDeckY);
+      if (Number.isFinite(targetDeckY)) np.target_deck_y = targetDeckY;
+    }
+    if (Boolean(point.required)) np.required = true;
     if (Boolean(point.auto_portal)) np.auto_portal = true;
     if (Boolean(point.suppress_auto_portal)) np.suppress_auto_portal = true;
     syncPortalFlags(np);
@@ -384,7 +417,9 @@ export function normalizePathPoints(points) {
       last.y === point.y &&
       last.zone === point.zone &&
       last.strict === point.strict &&
-      (last.target_tier || '') === (point.target_tier || '')
+      Boolean(last.required) === Boolean(point.required) &&
+      (last.target_tier || "") === (point.target_tier || "") &&
+      last.target_deck_y === point.target_deck_y
     ) {
       const mergedAutoPortal = Boolean(last.auto_portal) || Boolean(point.auto_portal);
       const mergedSuppressed = Boolean(last.suppress_auto_portal) || Boolean(point.suppress_auto_portal);

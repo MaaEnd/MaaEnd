@@ -1,0 +1,301 @@
+{
+    "AutoDelivery": {
+        "desc": "确保已选中送货任务详情，并自动判断需要取货还是送货",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoDeliveryEnsureDeliveryMissionSelected"
+            ],
+            "continue": false,
+            "strict": true
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDeliveryRecognizeDestination",
+            "AutoDeliveryRecognizeDepot"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.AutoDelivery.focus.start"
+        }
+    },
+    "AutoDeliveryCheckAreaText": {
+        "desc": "识别任务详情标题下方的当前区域；文本匹配和歧义判断交给 Go",
+        "recognition": "OCR",
+        "roi": [
+            455,
+            88,
+            250,
+            28
+        ],
+        "only_rec": false,
+        "order_by": "Horizontal"
+    },
+    "AutoDeliveryCheckDeliveryMissionListComplete": {
+        "desc": "比较任务列表向下滑动前后的静止画面，确认列表已经到底",
+        "recognition": "Custom",
+        "custom_recognition": "ListCompleteRecognition",
+        "custom_recognition_param": {
+            "threshold": 0.98
+        },
+        "roi": [
+            42,
+            70,
+            360,
+            590
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDeliveryDeliveryMissionNotFound"
+        ],
+        "attach": {
+            "ready": false
+        }
+    },
+    "AutoDeliveryCheckDeliveryMissionListItem": {
+        "desc": "在任务列表中识别送货任务",
+        "recognition": "OCR",
+        "roi": [
+            42,
+            70,
+            360,
+            590
+        ],
+        "expected": [
+            "送货任务",
+            "送貨任務",
+            "(?i)Delivery\\s*Job",
+            "配達任務",
+            "배송 임무"
+        ],
+        "order_by": "Expected"
+    },
+    "AutoDeliveryCheckDeliveryMissionSelected": {
+        "desc": "确认右侧详情已经切换到送货任务",
+        "recognition": "OCR",
+        "roi": [
+            410,
+            55,
+            250,
+            60
+        ],
+        "expected": [
+            "送货任务",
+            "送貨任務",
+            "(?i)Delivery\\s*Job",
+            "配達任務",
+            "배송 임무"
+        ],
+        "order_by": "Expected",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoDeliveryCheckDestinationField": {
+        "desc": "确认任务条件区域包含黄色文本，并保留送货目标 OCR 结果",
+        "recognition": "And",
+        "all_of": [
+            "AutoDeliveryCheckDestinationYellowText",
+            "AutoDeliveryCheckDestinationText"
+        ],
+        "box_index": 1
+    },
+    "AutoDeliveryCheckDestinationText": {
+        "desc": "识别第一条送货条件；多语言排版可能带入相邻条件，Go 会做子串容错匹配",
+        "recognition": "OCR",
+        "roi": [
+            455,
+            180,
+            790,
+            43
+        ],
+        // 目标文案是动态的五语言文本，因此不设置 expected
+        "only_rec": false,
+        "order_by": "Horizontal"
+    },
+    "AutoDeliveryCheckDestinationYellowText": {
+        "desc": "确认任务条件区域存在黄色文本，避免把白色任务说明当作终点",
+        "recognition": "ColorMatch",
+        "roi": [
+            455,
+            180,
+            790,
+            43
+        ],
+        "method": 40,
+        "lower": [
+            20,
+            120,
+            120
+        ],
+        "upper": [
+            30,
+            255,
+            255
+        ],
+        "count": 20
+    },
+    "AutoDeliveryCheckStartTrackingButton": {
+        "desc": "识别当前送货任务详情中的开始追踪按钮",
+        "recognition": "TemplateMatch",
+        "roi": [
+            1070,
+            570,
+            200,
+            140
+        ],
+        "template": [
+            "Common/Button/WhiteConfirmButtonType1.png",
+            "Common/Button/WhiteConfirmButtonType1Hover.png"
+        ],
+        "order_by": "Score"
+    },
+    "AutoDeliveryDeliveryMissionNotFound": {
+        "desc": "任务列表已经滑到底部但仍未找到送货任务，返回失败以阻止后续操作",
+        "recognition": "And",
+        "all_of": [
+            "InMenuMission"
+        ],
+        "box_index": 0,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FalseAction",
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoDeliveryEnd": {
+        "desc": "当前自动送货阶段完成后正常结束组件",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoDeliveryEnsureDeliveryMissionSelected": {
+        "desc": "确保当前位于任务界面，且右侧详情已经选中送货任务",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDeliveryInDeliveryMissionDetail",
+            "AutoDeliveryOpenDeliveryMission"
+        ]
+    },
+    "AutoDeliveryInDeliveryMissionDetail": {
+        "desc": "确认当前位于任务界面，且右侧详情选中了送货任务",
+        "recognition": "And",
+        "all_of": [
+            "InMenuMission",
+            "AutoDeliveryCheckDeliveryMissionSelected"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                417,
+                51,
+                547,
+                279
+            ]
+        }
+    },
+    "AutoDeliveryInTaskDestinationMap": {
+        "desc": "识别已打开的送货任务目标地图",
+        "recognition": "TemplateMatch",
+        "roi": [
+            860,
+            10,
+            170,
+            140
+        ],
+        "template": "AutoDelivery/TrackTaskSuccess.png"
+    },
+    "AutoDeliveryOpenDeliveryMission": {
+        "desc": "进入任务界面并选中送货任务",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuMission",
+                "AutoDeliverySelectDeliveryMissionFromList"
+            ],
+            "continue": false,
+            "strict": true
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoDeliveryScrollMissionList": {
+        "desc": "任务列表当前页未找到送货任务且尚未到底时向下滑动",
+        "recognition": "And",
+        "all_of": [
+            "InMenuMission"
+        ],
+        "box_index": 0,
+        "pre_delay": 0,
+        "action": "Swipe",
+        "begin": [
+            220,
+            580
+        ],
+        "end": [
+            220,
+            250
+        ],
+        "end_hold": 400,
+        "duration": 200,
+        "post_wait_freezes": {
+            "time": 300,
+            "target": [
+                42,
+                70,
+                360,
+                590
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoDeliverySelectDeliveryMission": {
+        "desc": "点击任务列表中的送货任务",
+        "recognition": "And",
+        "all_of": [
+            "InMenuMission",
+            "AutoDeliveryCheckDeliveryMissionListItem"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDeliveryInDeliveryMissionDetail"
+        ]
+    },
+    "AutoDeliverySelectDeliveryMissionFromList": {
+        "desc": "在任务列表中查找送货任务，并确认右侧详情已经选中该任务",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "patch": {
+                "AutoDeliveryCheckDeliveryMissionListComplete": {
+                    "attach": {
+                        "ready": false
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoDeliveryInDeliveryMissionDetail",
+            "AutoDeliverySelectDeliveryMission",
+            "AutoDeliveryCheckDeliveryMissionListComplete",
+            "[JumpBack]AutoDeliveryScrollMissionList"
+        ]
+    }
+}

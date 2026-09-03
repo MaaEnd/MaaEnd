@@ -59,6 +59,7 @@ If you run into any issues, feel free to open an [ISSUE](https://github.com/MaaE
 - 🤝 **Visit friends**: Automatically visits friends and handles production assistance plus intel exchange as part of the routine.
 - 👥 **Batch friend requests**: Send friend requests in bulk, either to specific UIDs or to strangers, without entering them one by one.
 - 💬 **Baker message cleanup**: Clears Baker conversation messages automatically so those chat prompts do not pile up.
+- 📁 **Intel Archives**: Scans owned archive entries, records them, and can import the result into Open Endfieldmap to check what's missing.
 - 📅 **Daily automation**: Daily rewards, Simulation Space rewards, encyclopedia red dots, production manual rewards, and more can all be cleaned up in one sweep. ✅
 - 💊 **Emergency sanity medication**: One-click emergency sanity medication use saves you a step. 💊
 - 💻 **Multi-platform support**: Supports PC (`Win32` foreground) and Android (`ADB`), so MaaEnd can tag along wherever you play. 🐟
@@ -81,7 +82,7 @@ With your support, MaaEnd continues to grow and improve. ❤️
 
 Come hang out and chat with everyone:
 
-- 💬 **User QQ Group**: [1078075580](https://qm.qq.com/q/Rz8HYYvCMY)  
+- 💬 **User QQ Group**: [1062010346](https://qm.qq.com/q/Ui2ufchIIe)  
   For usage questions, feature requests, and casual chatting.
 - 👨‍💻 **Developer QQ Group**: [1072587329](https://qm.qq.com/q/EyirQpBiW4)  
   Dedicated to development discussion. (For general usage questions, please go to the user group above.)

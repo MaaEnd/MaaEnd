@@ -407,6 +407,44 @@
             }
         }
     },
+    "GoToXiraniteNexusMoveAfterFight": {
+        "desc": "可能的战斗结束后，恢复性地走回枢壤仪拍照点",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "MapNavigateAction",
+        "custom_action_param": {
+            "path": [
+                {
+                    "action": "ZONE",
+                    "zone_id": "Wuling_Base"
+                },
+                {
+                    "action": "NAVMESH",
+                    "target": [
+                        457.25,
+                        1720.53
+                    ]
+                },
+                {
+                    "action": "HEADING",
+                    "angle": 270
+                }
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "XiraniteNexusTakePhoto"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
     "XiraniteNexusTakePhoto": {
         "desc": "在枢壤仪任务拍照点开始拍照",
         "pre_delay": 0,

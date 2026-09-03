@@ -147,7 +147,9 @@
                     // @i18n-skip
                     ".*[*\\d]\\s*\\d{4}\\s*(?:最近)?.*",
                     ".*\\d{4}\\s*(?:最近)?.*",
-                    "\\d{4}"
+                    "\\d{4}",
+                    // 国际服脱敏邮箱，如 zm*****18@hotmail.com
+                    "(?i).*\\*{5}\\S*@\\S+.*"
                 ]
             }
         },
@@ -192,18 +194,37 @@
         },
         "post_delay": 0,
         "next": [
+            "__AccountSwitchConfigureEmailPattern",
+            "__AccountSwitchOCRSelectAccount"
+        ]
+    },
+    "__AccountSwitchConfigureEmailPattern": {
+        "desc": "初始化国际服脱敏邮箱匹配规则",
+        "enabled": false,
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "AttachToExpectedRegexAction",
+        "custom_action_param": {
+            "targets": [
+                "__AccountSwitchOCRSelectAccount",
+                "__AccountSwitchVerifySelected"
+            ],
+            "substring": true
+        },
+        "next": [
             "__AccountSwitchOCRSelectAccount"
         ]
     },
     "__AccountSwitchOCRSelectAccount": {
-        "desc": "OCR识别账号后四位并点击",
+        "desc": "OCR识别目标账号并点击",
         "recognition": {
             "type": "OCR",
             "param": {
-                "roi": [
-                    475,
-                    364,
-                    300,
+                "roi": "__AccountSwitchClickDropdown",
+                "roi_offset": [
+                    -30,
+                    30,
+                    150,
                     300
                 ],
                 "expected": [
@@ -220,7 +241,6 @@
             "op": "click",
             "window": "combo"
         },
-        "post_wait_freezes": 300,
         "next": [
             "__AccountSwitchCloseCombo"
         ]
@@ -259,18 +279,21 @@
         "recognition": {
             "type": "OCR",
             "param": {
-                "roi": [
-                    470,
-                    311,
-                    300,
-                    300
+                "roi": "__AccountSwitchClickDropdown",
+                "roi_offset": [
+                    -15,
+                    -15,
+                    60,
+                    30
                 ],
                 "expected": [
                     // @i18n-skip
                     ".*[*\\d]\\s*\\d{4}\\s*(?:最近)?.*",
                     ".*\\d{4}\\s*(?:最近)?.*",
                     "\\d{4}",
-                    "\\d{4}$"
+                    "\\d{4}$",
+                    // 国际服脱敏邮箱，如 zm*****18@hotmail.com
+                    "(?i).*\\*{5}\\S*@\\S+.*"
                 ]
             }
         },
@@ -284,11 +307,12 @@
         "recognition": {
             "type": "OCR",
             "param": {
-                "roi": [
-                    470,
-                    311,
-                    300,
-                    300
+                "roi": "__AccountSwitchClickDropdown",
+                "roi_offset": [
+                    -15,
+                    -15,
+                    60,
+                    30
                 ],
                 "expected": [
                     // @i18n-skip

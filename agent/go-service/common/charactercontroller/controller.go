@@ -2,6 +2,7 @@ package charactercontroller
 
 import (
 	"encoding/json"
+	"time"
 
 	"github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
@@ -40,7 +41,7 @@ func rotateView(ctx *maa.Context, dx, dy int) {
 		"__CharacterControllerDeltaSwipeAction": map[string]any{
 			"begin": maa.Rect{fromX, fromY, 1, 1},
 			"end":   maa.Rect{fromX + dx, fromY + dy, 1, 1},
-			// wlroots resource remaps this node to RelativeMove; keep dx/dy for that path.
+			// linux resource remaps this node to RelativeMove; keep dx/dy for that path.
 			"custom_action_param": map[string]any{
 				"dx": dx,
 				"dy": dy,
@@ -113,6 +114,12 @@ func moveAxis(ctx *maa.Context, duration int) {
 	}
 }
 
+// sprintForward taps Shift once to sprint.
+func sprintForward(ctx *maa.Context) {
+	ctx.RunAction("__CharacterControllerShiftClickAction",
+		maa.Rect{0, 0, 0, 0}, "", nil)
+}
+
 type CharacterControllerYawDeltaAction struct{}
 
 func (a *CharacterControllerYawDeltaAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
@@ -124,7 +131,7 @@ func (a *CharacterControllerYawDeltaAction) Run(ctx *maa.Context, arg *maa.Custo
 		return false
 	}
 	delta := params.Delta % 360
-	dx := delta * 2 // mapTracker RotationSpeed默认2
+	dx := delta * 2 // 视角旋转灵敏度：1 度偏航对应 2 像素横向拖动
 	rotateView(ctx, dx, 0)
 	return true
 }
@@ -169,11 +176,16 @@ func moveToTarget(ctx *maa.Context, arg *maa.CustomActionArg, alignThreshold int
 	rememberLastTarget(box, farTargetWidth)
 
 	if farTargetWidth != nil && box.Width() < *farTargetWidth {
+		// Keep original single W press, then Shift-sprint three times with gaps.
 		moveAxis(ctx, 200)
+		for i := 0; i < 3; i++ {
+			time.Sleep(300 * time.Millisecond)
+			sprintForward(ctx)
+		}
 		log.Debug().
 			Int("width", box.Width()).
 			Int("far_target_width", *farTargetWidth).
-			Msg("target too far — moving forward")
+			Msg("target too far — walk, then shift-sprint x3")
 		return true
 	}
 
@@ -339,7 +351,7 @@ func (a *CharacterMoveToTargetNotFoundAction) Run(ctx *maa.Context, arg *maa.Cus
 			Msg("target not found, attempting to adjust view to find target")
 	}
 
-	dx := signedDelta * 2 // mapTracker RotationSpeed默认2
+	dx := signedDelta * 2 // 视角旋转灵敏度：1 度偏航对应 2 像素横向拖动
 	rotateView(ctx, dx, 0)
 
 	return true

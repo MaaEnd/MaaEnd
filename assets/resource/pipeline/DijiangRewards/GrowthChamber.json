@@ -284,12 +284,33 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]GrowthChamberInitSelectTarget",
             "[JumpBack]GrowthChamberSortBy",
             "[JumpBack]GrowthChamberSortOrder",
-            "GrowthChamberFindTarget",
+            "GrowthChamberFindTargetBySeed",
+            "GrowthChamberFindTargetByPlant",
             "[JumpBack]GrowthChamberTargetNotFound",
             "GrowthChamberReturn"
         ]
+    },
+    "GrowthChamberInitSelectTarget": {
+        "desc": "[培养舱·培养] 根据任务选项初始化培养对象白名单",
+        "max_hit": 1,
+        "recognition": {
+            "type": "DirectHit"
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AttachToExpectedRegexAction",
+                "custom_action_param": {
+                    "target": "GrowthChamberSelectTarget"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "GrowthChamberSelectTarget": {
         "desc": "[培养舱·培养] 识别可选择的培养对象",
@@ -304,19 +325,7 @@
                 ],
                 "expected": [
                     // @i18n-skip
-                    "菌$",
-                    "石$",
-                    "叶$",
-                    "葉$",
-                    "stone$",
-                    "site$",
-                    "gela$",
-                    "leaf$",
-                    "garic$",
-                    "cap$",
-                    "nyx$",
-                    "endra$",
-                    "lete$"
+                    "a^"
                 ],
                 "order_by": "Vertical"
             }
@@ -325,14 +334,49 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "GrowthChamberFindTarget": {
-        "desc": "[培养舱·培养] 点击培养对象并进入确认或提取分支",
+    "GrowthChamberFindTargetBySeed": {
+        "desc": "[培养舱·培养] 点击有基核的培养对象（#1313 绕开：与 ByPlant 分步，不用 And 内 Or）",
         "recognition": {
             "type": "And",
             "param": {
                 "all_of": [
                     "GrowthChamberSelectTarget",
-                    "GrowthChamberCheckTargetNotEmpty" //这个任务只有在选择种植任意+不提取基核时才会启用,其他情况下直接命中
+                    "GrowthChamberCheckSeedNotEmpty"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 150,
+            "target": [
+                826,
+                213,
+                98,
+                92
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]GrowthChamberGrowConfirm",
+            "GrowthChamberSeedExtract",
+            "GrowthChamberGrowExit",
+            "GrowthChamberReturn",
+            "GrowthChamberGrowListEnd"
+        ]
+    },
+    "GrowthChamberFindTargetByPlant": {
+        "desc": "[培养舱·培养] 点击仅有本体的培养对象；AutoExtractSeed=No 时由任务选项禁用",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "GrowthChamberSelectTarget",
+                    "GrowthChamberCheckPlantNotEmpty"
                 ],
                 "box_index": 1
             }

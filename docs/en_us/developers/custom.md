@@ -433,7 +433,7 @@ Both scrollbar recognizers share the same detector: search each ROI row for a pi
 
 `ScrollbarCompleteRecognition` lives in the same package as `ScrollbarRecognition` and reuses the same internal thumb detector. It stores and compares consecutive positions on top of that basic result, making it suitable for top/bottom detection when list content or backgrounds change and a full-region template comparison is not stable.
 
-**Hit semantics: `true` = the scrollbar did not move, so the list is at the top or bottom; `false` = completion cannot be determined yet (keep scrolling).**
+**Hit semantics: `true` = the scrollbar did not move, or no scrollbar was detected twice consecutively, so the list is at the top, bottom, or is not scrollable; `false` = completion cannot be determined yet (keep scrolling).**
 
 Parameters:
 
@@ -445,7 +445,7 @@ Behavior:
 1. Use the same internal detector as `ScrollbarRecognition` to obtain `[top, bottom]`.
 2. On the first recognition or after the thumb moves, write the boundaries to `attach.scrollbar_top` / `attach.scrollbar_bottom` on the current node, set `attach.ready` to `true`, and return **no match**.
 3. On later recognitions, return a **match** only when both boundaries are within `position_tolerance`; otherwise update the stored position and return **no match**.
-4. If no valid continuous white segment is found, return **no match** and preserve the previous valid position so a temporary missing highlight does not corrupt state.
+4. The first missing valid white segment records `attach.scrollbar_missing = true` and returns **no match**, allowing the Pipeline to perform one confirmation scroll. If the next observation is also missing, return a **match** and treat the list as not scrollable. Detecting a valid thumb later clears the missing state.
 
 The Pipeline layout is the same as for `ListCompleteRecognition`: put this recognition before the scroll node; a hit takes the "boundary reached" branch, while a miss falls through to scrolling. The scroll node must set `post_wait_freezes` so the next recognition runs only after the frame is still.
 
@@ -477,7 +477,7 @@ The Pipeline layout is the same as for `ListCompleteRecognition`: put this recog
 Notes:
 
 - The ROI should cover only the scrollbar track. White text or icons in the list may otherwise form a longer continuous segment.
-- The first call only records a position and cannot determine completion. Before a fresh list scan, reset `attach.ready` on the current node to `false` through `PipelineOverride`.
+- The first call only records a thumb position or missing observation and cannot determine completion. Before a fresh list scan, reset `attach.ready` on the current node to `false` through `PipelineOverride`; this also starts a new missing-confirmation cycle.
 - The component does not distinguish "top" from "bottom"; that meaning comes from the Pipeline's current scroll direction.
 - The component only detects the list boundary. Scrolling and subsequent business flow still belong in Pipeline.
 

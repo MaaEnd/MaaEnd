@@ -8,7 +8,10 @@
             1280,
             720
         ],
-        "template": "IntelArchive/ItemIcon.png",
+        "template": [
+            // "IntelArchive/ItemIcon.png",
+            "IntelArchive/ItemIcon2.png" // 带NEW能匹配到不带NEW的
+        ],
         "green_mask": true
     },
     "IntelArchiveRecognitionItemLine": {
@@ -27,9 +30,9 @@
             0
         ],
         "upper": [
-            20,
-            20,
-            20
+            60,
+            60,
+            60
         ],
         "count": 30
     },

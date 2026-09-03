@@ -2,7 +2,7 @@
 
 本文说明 `DijiangRewards` 的文件分布与执行流程。  
 设计核心是「总控中枢分发 + 子阶段回跳」：各子阶段彼此独立，选项只改阶段入口或分支，不动主流程骨架。  
-该文档更新于 2026 年 6 月 9 日（已同步恢复心情选干员逻辑调整）。
+该文档更新于 2026 年 8 月 29 日（已同步培养材料多选与动态 OCR 白名单设计）。
 
 ## 文件路径
 
@@ -21,6 +21,7 @@
 | `assets/resource/pipeline/DijiangRewards/Template/Location.json` | 各舱室界面定位 |
 | `assets/resource/pipeline/DijiangRewards/Template/TextTemplate.json` | 按钮与状态 OCR 模板 |
 | `assets/resource/pipeline/DijiangRewards/Template/Status.json` | 红点、数量、库存等辅助识别 |
+| `agent/go-service/common/attachregex/action.go` | 根据节点 `attach` 动态生成 OCR 白名单 |
 | `assets/locales/interface/*.json` | 任务、选项与 focus 文案 |
 
 ## 执行流程
@@ -88,14 +89,19 @@
 
 | 模式 | 实际行为 |
 | -------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| 不培养 | 只收成熟奖励，不进选材 |
-| 再次种植 | 关闭普通培养；领奖关闭后尝试「再次种植」并确认（[#2003](https://github.com/MaaEnd/MaaEnd/pull/2003) 后由领奖关闭触发，非详情页直接点） |
-| 任意材料 | 白名单为全材料；展开排序与提取基核子选项；先排序再挑列表中第一个可用目标 |
-| 具体材料 | 白名单收窄到该材料多语言名；只展开提取基核；行识别绑定到目标整行，降低数量 OCR 抖动 |
+| `DoNothing`（不培养） | 只收成熟奖励，不进选材 |
+| `GrowAgain`（再次种植） | 关闭普通培养；领奖关闭后尝试「再次种植」并确认（[#2003](https://github.com/MaaEnd/MaaEnd/pull/2003) 后由领奖关闭触发，非详情页直接点） |
+| `Any`（界面显示「指定材料」） | 展开材料多选、提取基核和排序子选项，再从勾选材料中寻找可用目标 |
+
+#### `SelectToGrowItems`：指定培养材料
+
+`SelectToGrowItems` 是 checkbox，可在 18 种材料中多选，默认全选。
+
+每个材料 case 通过 `pipeline_override` 将该材料的五语言别名写入 `GrowthChamberSelectTarget.attach`。进入选材列表后，`GrowthChamberInitSelectTarget` 调用 `AttachToExpectedRegexAction`，合并已勾选 case 的别名，并在运行时为 `GrowthChamberSelectTarget.expected` 生成 `^(别名1|别名2|...)$` 形式的 OCR 精确白名单。若未勾选任何材料，白名单为空，生成恒不匹配的 `a^`，因此不会误选其他材料。
 
 #### `AutoExtractSeed`：缺基核时怎么办
 
-仅在「任意材料」或「具体材料」时出现。
+这是「指定材料」模式下独立于材料多选的开关。
 
 | 配置 | 实际行为 |
 | ---- | ------------------------------------------------------------------------------------- |
@@ -104,9 +110,9 @@
 
 #### `SortBy` / `SortOrder`
 
-仅在「任意材料」时出现，只影响候选列表顺序，不改变「找谁」的语义。
+仅适用于「指定材料」模式，只影响候选列表顺序，不改变勾选的材料范围。
 
-维护培养舱问题时先确认三件事：当前 `SelectToGrow` 模式、是否开了排序、 `AutoExtractSeed` 是否改变了可接受目标范围。
+维护培养舱问题时先确认：当前 `SelectToGrow` 模式、`SelectToGrowItems` 勾选范围、运行时白名单、排序设置，以及 `AutoExtractSeed` 是否改变了可接受目标范围。
 
 ### 选项层级
 
@@ -121,15 +127,22 @@ DijiangRewards
 │   └── GrowthChamberStage
 ├── ClueSetting                # 展开线索赠送次数 / 库存阈值
 └── SelectToGrow               # 培养舱主模式
-    ├── Any → AutoExtractSeed, SortBy, SortOrder
-    └── 具体材料 → AutoExtractSeed
+    ├── DoNothing
+    ├── GrowAgain
+    └── Any（界面显示「指定材料」）
+        ├── SelectToGrowItems   # 18 种材料多选，默认全选
+        ├── AutoExtractSeed
+        ├── SortBy
+        └── SortOrder
 ```
 
 ## 新增培养材料时需改的路径
 
-1. `assets/tasks/DijiangRewards.json` — `SelectToGrow` 新增 case：`GrowthChamberSelectTarget.expected` + 行识别覆盖
-2. `assets/locales/interface/*.json` — 材料名称文案
+1. `assets/tasks/DijiangRewards.json` — 在 `SelectToGrowItems.default_case` 加入材料名，并在 `SelectToGrowItems.cases` 新增 checkbox case；该 case 须向 `GrowthChamberSelectTarget.attach` 写入简中、英文、日文、繁中、韩文五语言别名
+2. `assets/locales/interface/{zh_cn,en_us,ja_jp,zh_tw,ko_kr}.json` — 补充该材料的 `$item.*` 显示文案
 3. 若游戏按钮/舱室文案变化 — 同步 `Template/TextTemplate.json`、`Template/Location.json`
+
+无需为新材料修改 `GrowthChamber.json`，也无需新增逐材料的 `ColorMatch` 或行识别覆盖；通用 OCR 白名单流程会读取 `attach`。
 
 ## 维护要点
 
@@ -139,8 +152,10 @@ DijiangRewards
 | 某阶段不执行 | `StageTaskSetting` 下对应阶段开关 |
 | 会客室不赠线索 | `ClueSetting=No` 默认覆盖是否与高级项一致 |
 | 领奖后没再次种植 | `SelectToGrow=GrowAgain`；领奖关闭后的 next 链 |
-| 培养点错材料 | `SelectToGrow` 白名单；`SortBy`/`SortOrder`（任意模式） |
-| 有本体却不提取 | `AutoExtractSeed` 与 `CheckTargetNotEmpty` 联动覆盖 |
-| OCR 识别漂移 | `Template/` 下三文件的多语言 `expected` |
+| 培养点错材料 | `SelectToGrowItems` 勾选范围、各 case 的五语言 `attach`、`GrowthChamberInitSelectTarget` 生成的精确白名单 |
+| 所有材料都不命中 | 是否未勾选材料而生成 `a^`；目标别名是否完整；初始化动作是否成功执行 |
+| 有本体却不提取 | `AutoExtractSeed` 与 `GrowthChamberCheckTargetNotEmpty` 联动覆盖 |
+| 排序不符合预期 | `SortBy` / `SortOrder`；两者仅在「指定材料」模式生效 |
+| 其他 OCR 识别漂移 | `Template/` 下三文件的多语言 `expected` |
 
 维护时分三层：主流程层（去哪一舱）→ 阶段业务层（舱内做什么）→ 界面配置层（选项改哪些分支）。

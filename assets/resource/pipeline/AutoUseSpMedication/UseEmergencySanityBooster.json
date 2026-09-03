@@ -38,7 +38,7 @@
         ]
     },
     "AutoUseSpMedicationCheckSanityEnough": {
-        "desc": "检查理智大于用户输入,停止",
+        "desc": "检查理智大于用户输入,关闭使用页后停止",
         "recognition": {
             "type": "Custom",
             "param": {
@@ -50,11 +50,12 @@
             }
         },
         "pre_delay": 0,
-        "action": {
-            "type": "StopTask"
-        },
         "post_delay": 0,
         "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoUseSpMedicationCloseUsePage",
+            "StopNode"
+        ],
         "focus": {
             "Node.Recognition.Succeeded": "$task.AutoUseSpMedication.focus.check_sanity_sufficient"
         }
@@ -211,5 +212,42 @@
         "focus": {
             "Node.Action.Succeeded": "$task.AutoUseSpMedication.focus.quick_use_unavailable"
         }
+    },
+    "AutoUseSpMedicationCloseUsePage": {
+        "desc": "关闭吃理智药界面",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CloseButtonType1"
+                ],
+                "box_index": 0
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoUseSpMedicationUsePageClosed",
+            "AutoUseSpMedicationCloseUsePage"
+        ]
+    },
+    "AutoUseSpMedicationUsePageClosed": {
+        "desc": "确认吃理智药界面已关闭",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "CloseButtonType1"
+                ]
+            }
+        },
+        "inverse": true,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     }
 }

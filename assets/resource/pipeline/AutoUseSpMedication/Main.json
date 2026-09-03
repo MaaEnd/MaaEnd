@@ -23,6 +23,7 @@
         },
         "next": [
             "[JumpBack]AutoUseSpMedicationLoop",
+            "[JumpBack]AutoUseSpMedicationCloseUsePage",
             "EmptyNode"
         ]
     },
@@ -47,7 +48,10 @@
                 ]
             }
         },
-        "action": "StopTask",
+        "next": [
+            "[JumpBack]AutoUseSpMedicationCloseUsePage",
+            "StopNode"
+        ],
         "focus": {
             "Node.Recognition.Succeeded": "$task.AutoUseSpMedication.focus.no_booster_available"
         }

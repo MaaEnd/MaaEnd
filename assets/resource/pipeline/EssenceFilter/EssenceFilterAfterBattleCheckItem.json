@@ -571,10 +571,7 @@
         "post_delay": 0,
         "next": [
             "EssenceFilterAfterBattleRowNextItem"
-        ],
-        "focus": {
-            "Node.Action.Failed": "OCR 超时：跳过"
-        }
+        ]
     },
     "EssenceFilterAfterBattleSkillDecision": {
         "desc": "匹配技能并决定是否上锁",

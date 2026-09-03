@@ -106,10 +106,12 @@
                     250,
                     60
                 ],
+                //避免将“首墩内部”视为首墩地图
                 "expected": [
-                    "首墩",
-                    "Marker Stone",
-                    "首礎"
+                    // @i18n-skip
+                    "^.*首墩\\s*$",
+                    "(?i)^.*Marker\\s*Stone\\s*$",
+                    "^.*首礎\\s*$"
                 ]
             }
         ]
@@ -198,6 +200,27 @@
                     "北部禁區",
                     "北部封鎖区域",
                     "북쪽 금지 구역"
+                ]
+            }
+        ]
+    },
+    "InMapWulingSnowyForest": {
+        "desc": "在武陵-雪松林地图界面",
+        "recognition": "And",
+        "all_of": [
+            "InMapAny",
+            {
+                "recognition": "OCR",
+                "roi": [
+                    0,
+                    0,
+                    250,
+                    60
+                ],
+                "expected": [
+                    "雪松林",
+                    "Snowy Forest",
+                    "눈 덮인 소나무 숲"
                 ]
             }
         ]
@@ -346,6 +369,23 @@
         "post_delay": 0,
         "rate_limit": 0
     },
+    "CheckMenuListText2": {
+        "desc": "检查菜单列表界面 权限等阶 探索等级 文字",
+        "recognition": "OCR",
+        "roi": [
+            0,
+            -300,
+            500,
+            300
+        ],
+        "expected": [
+            "权限等阶",
+            "探索等级"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
     "CheckMenuListColor": {
         "desc": "检查菜单列表界面左上角颜色",
         "recognition": "ColorMatch",
@@ -375,6 +415,7 @@
         "recognition": "And",
         "all_of": [
             "CheckMenuListText",
+            "CheckMenuListText2",
             "CheckMenuListColor"
         ]
     },

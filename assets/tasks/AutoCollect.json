@@ -7,9 +7,11 @@
             "description": "$task.AutoCollect.description",
             "controller": [
                 "ADB",
+                "Linux-Gamescope",
+                "Linux-ScreenCast",
+                "Linux-Wlroots",
                 "PlayCover",
-                "Win32-Front",
-                "Wlroots"
+                "Win32-Front"
             ],
             "option": [
                 "AutoCollectSchedule",
@@ -119,8 +121,10 @@
         "AutoCollectMode": {
             "type": "select",
             "controller": [
-                "Win32-Front",
-                "Wlroots"
+                "Linux-Gamescope",
+                "Linux-ScreenCast",
+                "Linux-Wlroots",
+                "Win32-Front"
             ],
             "label": "$option.AutoCollectMode.label",
             "description": "$option.AutoCollectMode.description",
@@ -354,8 +358,10 @@
         "AutoCollectTargetInventory": {
             "type": "input",
             "controller": [
-                "Win32-Front",
-                "Wlroots"
+                "Linux-Gamescope",
+                "Linux-ScreenCast",
+                "Linux-Wlroots",
+                "Win32-Front"
             ],
             "label": "$option.AutoCollectTargetInventory.label",
             "description": "$option.AutoCollectTargetInventory.description",

@@ -21,10 +21,10 @@ function buildDirectPhotoRow(hasHeading, quickTeleport = false) {
             HasHeading: hasHeading,
             ShouldAssertAfterTeleport: false,
             EnterMap: "SceneEnterWorldTest",
-            MapAssertRecognition: "MapTrackerAssertLocation",
+            MapAssertRecognition: "MapLocateAssertLocation",
             MapAssertParam: {},
             Replace: [],
-            RouteAction: "MapTrackerToward",
+            RouteAction: "MapNavigateAction",
             RouteActionParam: hasHeading ? {angle: 90} : {},
         },
     });
@@ -41,7 +41,7 @@ test("direct-photo routes apply optional Heading before taking a photo", () => {
     const row = buildDirectPhotoRow(true);
 
     assert.deepEqual(row.AfterTeleportNext.value, ["GoToTestMissionMove"]);
-    assert.equal(row.RouteAction, "MapTrackerToward");
+    assert.equal(row.RouteAction, "MapNavigateAction");
     assert.deepEqual(row.RouteActionParam.value, {angle: 90});
     assert.equal(row.MoveDescription, "在测试观察点传送点调整拍照朝向");
 });
@@ -55,4 +55,39 @@ test("QuickTeleport direct-photo routes preserve the unused GoTo branch", () => 
     ]);
     assert.deepEqual(row.AfterTrackNext.value, ["TestMissionInQuickTeleportMap"]);
     assert.deepEqual(row.AfterTeleportNext.value, ["GoToTestMissionMove"]);
+});
+
+test("FightAfterMove renders the independent recovery route", () => {
+    const routeActionParam = {
+        path: ["outbound"],
+    };
+    const fightAfterMoveRouteActionParam = {
+        path: ["recovery"],
+    };
+    const row = buildRow({
+        Station: "TestMonitoringTerminal",
+        Id: "TestMission",
+        Name: "测试观察点",
+        LocalizedName: {
+            zh_cn: "测试观察点",
+        },
+        ShotTargetName: {
+            zh_cn: "测试目标",
+        },
+        route: {
+            isAdapted: true,
+            FightAfterMove: true,
+            RouteAction: "MapNavigateAction",
+            RouteActionParam: routeActionParam,
+            FightAfterMoveRouteActionParam: fightAfterMoveRouteActionParam,
+            Replace: [],
+        },
+    });
+
+    assert.deepEqual(row.MoveNext.value, [
+        "[JumpBack]AutoFight",
+        "GoToTestMissionMoveAfterFight",
+    ]);
+    assert.deepEqual(row.RouteActionParam.value, routeActionParam);
+    assert.deepEqual(row.FightAfterMoveRouteActionParam.value, fightAfterMoveRouteActionParam);
 });

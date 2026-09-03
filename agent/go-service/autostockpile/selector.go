@@ -125,10 +125,39 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 			Msg("allow all goods mode enabled")
 	}
 
+	// 第一轮：正常选品
+	// 「至少购买一个」：锁定本次运行首个访问的地区，选品失败时降级为最低价商品（数量 1）
+	minBuyEnabled := attach.MinBuy && !bypassThresholdFilter
+	if minBuyEnabled {
+		log.Info().
+			Str("component", "autostockpile").
+			Str("region", region).
+			Str("min_buy_region", syncMinBuyRegion(region)).
+			Msg("min buy region resolved")
+	}
+
 	selection, quantityDecision, err := computeDecision(*data, cfg, bypassThresholdFilter)
 	if err != nil {
 		return stopTaskWithFocus(ctx, mapComputeDecisionErrorToAbortReason(err), err)
 	}
+
+	if !selection.Selected {
+		if fallbackSelection, fallbackQuantity, ok := resolveMinBuyFallback(
+			selection, *data, region, minBuyEnabled, i18n.T("autostockpile.qty_min_buy_fallback"),
+		); ok {
+			selection = fallbackSelection
+			quantityDecision = fallbackQuantity
+
+			log.Info().
+				Str("component", "autostockpile").
+				Str("fallback_product", selection.ProductName).
+				Int("fallback_price", selection.CurrentPrice).
+				Int("quantity", quantityDecision.Target).
+				Msg("fallback purchase triggered")
+			maafocus.Print(ctx, i18n.T("autostockpile.fallback_purchase", selection.ProductName, selection.CurrentPrice))
+		}
+	}
+
 	if !selection.Selected {
 		log.Info().
 			Str("component", "autostockpile").
@@ -376,6 +405,7 @@ func stopTaskWithFocus(ctx *maa.Context, reason AbortReason, err error) bool {
 	return false
 }
 
+// formatSelectionMode 返回当前选择模式的本地化描述。
 func formatSelectionMode(selection SelectionResult, data RecognitionData) string {
 	if selection.CurrentPrice < selection.Threshold {
 		return i18n.T("autostockpile.mode_low_price")

@@ -39,13 +39,13 @@ export function roundHalfEven(x, ndigits = 0) {
   // fractional places cover the entire coordinate domain without toFixed itself
   // rounding, so the only rounding is the ties-to-even step we do below.
   const expansion = Math.abs(x).toFixed(100);
-  const dot = expansion.indexOf('.');
+  const dot = expansion.indexOf(".");
   const intPart = dot < 0 ? expansion : expansion.slice(0, dot);
-  const fracPart = dot < 0 ? '' : expansion.slice(dot + 1);
+  const fracPart = dot < 0 ? "" : expansion.slice(dot + 1);
 
   const kept = fracPart.slice(0, ndigits);
   const dropped = fracPart.slice(ndigits);
-  const digits = (intPart + kept).split('').map(Number);
+  const digits = (intPart + kept).split("").map(Number);
 
   // Direction from the dropped tail: >½ up, <½ down, exactly ½ → toward even.
   let roundUp = false;
@@ -73,8 +73,8 @@ export function roundHalfEven(x, ndigits = 0) {
   }
 
   const splitAt = digits.length - ndigits;
-  const outInt = digits.slice(0, splitAt).join('') || '0';
-  const outFrac = ndigits > 0 ? digits.slice(splitAt).join('') : '';
+  const outInt = digits.slice(0, splitAt).join("") || "0";
+  const outFrac = ndigits > 0 ? digits.slice(splitAt).join("") : "";
   const magnitude = Number(outFrac ? `${outInt}.${outFrac}` : outInt);
   const result = negative ? -magnitude : magnitude;
   return Object.is(result, -0) ? 0 : result;

@@ -99,67 +99,27 @@
         },
         "next": [
             "[JumpBack]__ScenePrivateMapTeleportChoose",
+            "[JumpBack]__ScenePrivateMapMarkerPanelClose",
             "__ScenePrivateMapTeleportConfirm"
         ]
     },
     "__ScenePrivateAnyEnterWorldDijiangSuccess": {
         "desc": "在任意界面，成功进入帝江号大世界",
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    {
-                        "recognition": {
-                            "type": "TemplateMatch",
-                            "param": {
-                                "roi": [
-                                    0,
-                                    0,
-                                    400,
-                                    80
-                                ],
-                                "template": [
-                                    "SceneManager/WorldDijiangMenu.png"
-                                ],
-                                "green_mask": true
-                            }
-                        }
-                    },
-                    {
-                        "recognition": {
-                            "type": "TemplateMatch",
-                            "param": {
-                                "roi": [
-                                    -200,
-                                    0,
-                                    200,
-                                    200
-                                ],
-                                "template": [
-                                    "SceneManager/WorldMenu.png"
-                                ],
-                                "green_mask": true
-                            }
-                        }
-                    }
-                ]
-            }
-        }
+        "recognition": "And",
+        "all_of": [
+            "InDijiangWorld"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "__ScenePrivateWorldEnterMenuControlNexus": {
         "desc": "从主界面按 I 键打开帝江号总控中枢入口",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "And",
             "param": {
-                "roi": [
-                    247,
-                    0,
-                    172,
-                    77
-                ],
-                "template": [
-                    "SceneManager/ControlNexus.png",
-                    "SceneManager/ControlNexusWithTips.png"
+                "all_of": [
+                    "ControlNexusButton"
                 ]
             }
         },

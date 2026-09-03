@@ -1,4 +1,20 @@
 {
+    "DeliveryJobsItemListAtTop": {
+        "roi": [
+            43,
+            169,
+            480,
+            408
+        ]
+    },
+    "DeliveryJobsItemListAtBottom": {
+        "roi": [
+            43,
+            169,
+            480,
+            408
+        ]
+    },
     "DeliveryJobsFillCorrespondingGoods": {
         "target_offset": [
             -90,

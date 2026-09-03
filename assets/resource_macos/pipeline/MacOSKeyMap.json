@@ -2,22 +2,6 @@
 // DO NOT EDIT MANUALLY.
 // Temporary compatibility layer until MaaFramework MacOS supports use_win32_vk_code.
 {
-    "AltClickControlNexusButtonKeyDown": {
-        "action": {
-            "type": "KeyDown",
-            "param": {
-                "key": 58
-            }
-        }
-    },
-    "AltClickControlNexusButtonKeyUp": {
-        "action": {
-            "type": "KeyUp",
-            "param": {
-                "key": 58
-            }
-        }
-    },
     "AltClickProtosyncMenuButtonKeyDown": {
         "action": {
             "type": "KeyDown",
@@ -178,14 +162,6 @@
             }
         }
     },
-    "MapTrackerOpenWorld_GetOffZipline": {
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": 53
-            }
-        }
-    },
     "ProdManualOpenInMain": {
         "action": {
             "type": "KeyDown",
@@ -231,14 +207,6 @@
             "type": "ClickKey",
             "param": {
                 "key": 53
-            }
-        }
-    },
-    "VisitFriendsEnterShipSuccess": {
-        "action": {
-            "type": "ClickKey",
-            "param": {
-                "key": 16
             }
         }
     },
@@ -742,6 +710,14 @@
             }
         }
     },
+    "__CharacterControllerShiftClickAction": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 56
+            }
+        }
+    },
     "__MapNavigatorObstacleDevice_CancelMove": {
         "action": {
             "type": "ClickKey",
@@ -759,22 +735,6 @@
         }
     },
     "__MapNavigatorObstacleDevice_InteractPre": {
-        "action": {
-            "type": "KeyDown",
-            "param": {
-                "key": 58
-            }
-        }
-    },
-    "__MapTrackerOpenWorld_GetOnZipline_InteractPost": {
-        "action": {
-            "type": "KeyUp",
-            "param": {
-                "key": 58
-            }
-        }
-    },
-    "__MapTrackerOpenWorld_GetOnZipline_InteractPre": {
         "action": {
             "type": "KeyDown",
             "param": {

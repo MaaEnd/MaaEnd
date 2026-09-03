@@ -12,7 +12,7 @@
             "__ScenePrivateTrialOfSwordmancyEnterWorld",
             "__ScenePrivateAnyEnterWorldSuccess",
             "[JumpBack]__ScenePrivateLogin",
-            "[JumpBack]__ScenePrivateNoticeRewardsUpgrade",
+            "[JumpBack]SceneNoticeRewardsUpgrade",
             "[JumpBack]__ScenePrivateWorldSpaceExit",
             "[JumpBack]__ScenePrivateWorldStorySkip",
             "[JumpBack]__ScenePrivateLoggedOutConfirm",
@@ -141,7 +141,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[JumpBack]__ScenePrivateNoticeRewardsUpgrade",
+            "[JumpBack]SceneNoticeRewardsUpgrade",
             "__ScenePrivateNextTrue"
         ]
     },
@@ -211,8 +211,46 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "[JumpBack]__ScenePrivateNoticeRewardsUpgrade",
+            "[JumpBack]SceneNoticeRewardsUpgrade",
             "[Anchor]SceneNoticeRewardsConfirmNextAnchor"
+        ]
+    },
+    "SceneNoticeRewardsUpgrade": {
+        "desc": "权限等阶升级界面，点击空白处关闭",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__ScenePrivateNoticeRewardsUpgrade"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateNoticeRewardsUpgradeConfirm"
+        ]
+    },
+    "SceneMapZoomOut": {
+        "desc": "在地图界面缩小地图（供 MapFind 等子任务调用）",
+        "recognition": "TemplateMatch",
+        "roi": [
+            -350,
+            0,
+            350,
+            60
+        ],
+        "template": [
+            "SceneManager/MapMind.png"
+        ],
+        "method": 10001, // 默认5时，当弹出右侧面板，此图片依然能匹配上
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "next": [
+            "__ScenePrivateMapZoomOut",
+            "__ScenePrivateNextTrue"
         ]
     },
     "SceneWaitLoadingExit": {

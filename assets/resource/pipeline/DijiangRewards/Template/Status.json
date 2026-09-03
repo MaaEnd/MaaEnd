@@ -107,6 +107,33 @@
             }
         }
     },
+    "ReceptionRoomSetCluesQuickAddColor": {
+        "desc": "[会客室·线索] 识别「快速填入」黄色按钮颜色",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    982,
+                    468,
+                    384,
+                    300
+                ],
+                "method": 40,
+                "lower": [
+                    28,
+                    100,
+                    100
+                ],
+                "upper": [
+                    29,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 3000
+            }
+        }
+    },
     "MFGCabinTips": {
         "desc": "[制造舱·入口] 识别制造舱入口的红点",
         "recognition": {
@@ -250,7 +277,7 @@
         }
     },
     "GrowthChamberCheckTargetNotEmpty": {
-        "desc": "[培养舱·培养] 检查当前培养对象基核数量和本体数量是否足够",
+        "desc": "[培养舱·培养] 已弃用：And 内 Or 受 MaaFramework #1313 影响，请使用 FindTargetBySeed + FindTargetByPlant",
         "recognition": {
             "type": "Or",
             "param": {
@@ -273,7 +300,9 @@
                     0
                 ],
                 "expected": [
-                    "^[^0].*$"
+                    // 基核完整文本示例："4/1 +51:39:10"
+                    // @i18n-skip
+                    "^[1-9]\\d*\\s*/.*$"
                 ],
                 "only_rec": true,
                 "order_by": "Vertical"
@@ -292,6 +321,7 @@
                     2
                 ],
                 "expected": [
+                    // 本体完整文本示例："拥有 6"、"持有 6"、"Owned 6"、"総在庫 6"
                     // @i18n-skip
                     "^拥有\\s*[1-9]\\d*$",
                     "^持有\\s*[1-9]\\d*$",

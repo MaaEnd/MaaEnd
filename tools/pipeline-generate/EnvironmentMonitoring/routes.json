@@ -34,15 +34,15 @@
         "QuickTeleport": true,
         "NavPath": [
             {
+                "action": "ZONE",
+                "zone_id": "Wuling_Base"
+            },
+            {
                 "action": "NAVMESH",
                 "target": [
                     788.14,
                     2603.23
                 ]
-            },
-            {
-                "action": "ZONE",
-                "zone_id": "Wuling_Base"
             },
             [
                 795.02,
@@ -55,14 +55,7 @@
         "MissionId": "m1m28",
         "Name": "七彩鳞",
         "Id": "RainbowFin",
-        "EnterMap": "SceneEnterWorldWulingJingyuValley10",
-        "NavZoneId": "Wuling_Base",
-        "NavAssert": [
-            603.08,
-            2818.92,
-            14.77,
-            14.78
-        ],
+        "QuickTeleport": true,
         "NavPath": [
             {
                 "action": "ZONE",
@@ -71,12 +64,12 @@
             {
                 "action": "NAVMESH",
                 "target": [
-                    681.85,
-                    2759.81
+                    707.48,
+                    2665.23
                 ]
             }
         ],
-        "Heading": 45
+        "Heading": 140
     },
     {
         "MissionId": "m1m29",
@@ -84,6 +77,10 @@
         "Id": "IndoorCrops",
         "QuickTeleport": true,
         "NavPath": [
+            {
+                "action": "ZONE",
+                "zone_id": "Wuling_Base"
+            },
             {
                 "action": "NAVMESH",
                 "target": [
@@ -101,6 +98,10 @@
         "QuickTeleport": true,
         "NavPath": [
             {
+                "action": "ZONE",
+                "zone_id": "Wuling_Base"
+            },
+            {
                 "action": "NAVMESH",
                 "target": [
                     829.41,
@@ -116,6 +117,10 @@
         "Id": "CollapsedTianshiPillar",
         "QuickTeleport": true,
         "NavPath": [
+            {
+                "action": "ZONE",
+                "zone_id": "Wuling_Base"
+            },
             {
                 "action": "NAVMESH",
                 "target": [
@@ -133,21 +138,25 @@
         "EnterMap": "SceneEnterWorldWulingJingyuValley2",
         "NavZoneId": "Wuling_Base",
         "NavAssert": [
-            790.15,
-            2316.48,
-            14.77,
-            14.78
+            783.72,
+            2303.61,
+            51.61,
+            43.01
         ],
         "NavPath": [
             {
+                "action": "ZONE",
+                "zone_id": "Wuling_Base"
+            },
+            {
                 "action": "NAVMESH",
                 "target": [
-                    820.03,
-                    2310.06
+                    820.47,
+                    2324.7
                 ]
             }
         ],
-        "Heading": 60
+        "Heading": 43
     },
     {
         "MissionId": "m1m33",
@@ -180,6 +189,10 @@
         ],
         "NavPath": [
             {
+                "action": "ZONE",
+                "zone_id": "Wuling_Base"
+            },
+            {
                 "action": "NAVMESH",
                 "target": [
                     691.16,
@@ -195,6 +208,10 @@
         "Id": "InflatedAndGlowingBugspittingLankybeast",
         "QuickTeleport": true,
         "NavPath": [
+            {
+                "action": "ZONE",
+                "zone_id": "Wuling_Base"
+            },
             {
                 "action": "NAVMESH",
                 "target": [
@@ -226,6 +243,10 @@
         ],
         "NavPath": [
             {
+                "action": "ZONE",
+                "zone_id": "Wuling_Base"
+            },
+            {
                 "action": "NAVMESH",
                 "target": [
                     909.81,
@@ -241,6 +262,10 @@
         "Id": "Waterlamp",
         "QuickTeleport": true,
         "NavPath": [
+            {
+                "action": "ZONE",
+                "zone_id": "Wuling_Base"
+            },
             {
                 "action": "NAVMESH",
                 "target": [
@@ -281,14 +306,7 @@
         "MissionId": "m1m56",
         "Name": "小壳兽",
         "Id": "MiniShellbeast",
-        "EnterMap": "SceneEnterWorldWulingWulingCity4",
-        "NavZoneId": "Wuling_Base",
-        "NavAssert": [
-            523.06,
-            1739.74,
-            14.98,
-            14.38
-        ],
+        "QuickTeleport": true,
         "NavPath": [
             {
                 "action": "ZONE",
@@ -297,8 +315,8 @@
             {
                 "action": "NAVMESH",
                 "target": [
-                    501.88,
-                    1748.21
+                    467.7,
+                    1751.95
                 ]
             }
         ],
@@ -308,7 +326,7 @@
                 "壳"
             ]
         ],
-        "Heading": 15
+        "Heading": 182
     },
     {
         "MissionId": "m1m57",
@@ -316,6 +334,10 @@
         "Id": "AnnularWaterfall",
         "QuickTeleport": true,
         "NavPath": [
+            {
+                "action": "ZONE",
+                "zone_id": "Wuling_Base"
+            },
             {
                 "action": "NAVMESH",
                 "target": [
@@ -357,6 +379,10 @@
         "QuickTeleport": true,
         "NavPath": [
             {
+                "action": "ZONE",
+                "zone_id": "Wuling_Base"
+            },
+            {
                 "action": "NAVMESH",
                 "target": [
                     1298.93,
@@ -387,18 +413,25 @@
         "MissionId": "m1m62",
         "Name": "垂藤",
         "Id": "HangingVines",
-        "QuickTeleport": true,
+        "EnterMap": "SceneEnterWorldWulingMarkerStone3",
+        "NavZoneId": "Wuling_Base",
+        "NavAssert": [
+            556.4,
+            2209.45,
+            82.62,
+            59.95
+        ],
         "NavPath": [
             {
                 "action": "NAVMESH",
                 "target": [
-                    69.1,
-                    129.69
+                    79.73,
+                    198.88
                 ],
                 "target_tier": "Wuling_L4_330"
             }
         ],
-        "Heading": 173
+        "Heading": 0
     },
     {
         "MissionId": "m1m63",
@@ -421,24 +454,56 @@
         "MissionId": "m1m64",
         "Name": "栖云生态点",
         "Id": "CloudrestEcoSite",
-        "EnterMap": "SceneEnterWorldWulingMarkerStone_Ship2DestinationThenWalkAndFight",
+        "EnterMap": "SceneEnterWorldWulingMarkerStone3",
         "NavZoneId": "Wuling_Base",
         "NavAssert": [
-            378.56,
-            2345.75,
-            120.17,
-            97.03
+            598,
+            2336,
+            60,
+            48
         ],
         "NavPath": [
             {
+                "action": "ZONE",
+                "zone_id": "Wuling_Base"
+            },
+            {
                 "action": "NAVMESH",
                 "target": [
-                    431.11,
-                    2407.17
+                    590.94,
+                    2346.75
+                ]
+            },
+            [
+                559.59,
+                2347.2
+            ],
+            [
+                535.65,
+                2353.48
+            ],
+            {
+                "action": "NAVMESH",
+                "target": [
+                    430.6,
+                    2398.33
                 ]
             }
         ],
-        "Heading": 177
+        "Heading": 177,
+        "FightAfterMove": [
+            {
+                "action": "ZONE",
+                "zone_id": "Wuling_Base"
+            },
+            {
+                "action": "NAVMESH",
+                "target": [
+                    430.6,
+                    2398.33
+                ]
+            }
+        ]
     },
     {
         "MissionId": "m1m65",
@@ -482,7 +547,17 @@
         "Name": "念念家的桃树",
         "Id": "PeachTreeAtBabblesSHome",
         "QuickTeleport": true,
-        "Heading": 66
+        "NavPath": [
+            {
+                "action": "NAVMESH",
+                "target": [
+                    258.16,
+                    207.3
+                ],
+                "target_tier": "Wuling_L4_328"
+            }
+        ],
+        "Heading": 92
     },
     {
         "MissionId": "m1m67",
@@ -490,6 +565,10 @@
         "Id": "WaterTemperatureController",
         "QuickTeleport": true,
         "NavPath": [
+            {
+                "action": "ZONE",
+                "zone_id": "Wuling_Base"
+            },
             {
                 "action": "NAVMESH",
                 "target": [
@@ -507,6 +586,10 @@
         "Id": "SerenityGardenTianshiPillar",
         "QuickTeleport": true,
         "NavPath": [
+            {
+                "action": "ZONE",
+                "zone_id": "Wuling_Base"
+            },
             {
                 "action": "NAVMESH",
                 "target": [
@@ -530,6 +613,10 @@
         "QuickTeleport": true,
         "NavPath": [
             {
+                "action": "ZONE",
+                "zone_id": "Wuling_Base"
+            },
+            {
                 "action": "NAVMESH",
                 "target": [
                     573.36,
@@ -545,6 +632,10 @@
         "Id": "AutumnGold",
         "QuickTeleport": true,
         "NavPath": [
+            {
+                "action": "ZONE",
+                "zone_id": "Wuling_Base"
+            },
             {
                 "action": "NAVMESH",
                 "target": [

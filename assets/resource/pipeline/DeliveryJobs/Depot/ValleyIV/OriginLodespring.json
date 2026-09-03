@@ -39,7 +39,6 @@
     },
     "DeliveryJobsReturnAndTransferOriginLodespring": {
         "desc": "返回矿脉源区并转交达到报价阈值的任务",
-        "recognition": "DirectHit",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
@@ -69,6 +68,63 @@
         "rate_limit": 0,
         "next": [
             "DeliveryJobsClickTransferJob"
+        ]
+    },
+    "DeliveryJobsOpenOngoingAutoDeliveryOriginLodespring": {
+        "desc": "检测到已有送货任务，返回矿脉源区打开任务详情继续全自动送货",
+        "pre_delay": 0,
+        "anchor": {
+            "DeliveryJobsAfterViewCurrentJob": "DeliveryJobsAutoDeliveryOriginLodespring"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsReturnAndViewOriginLodespringCurrentJob"
+        ]
+    },
+    "DeliveryJobsReturnAndViewOriginLodespringCurrentJob": {
+        "desc": "返回矿脉源区本地仓储节点查看当前送货任务",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsViewOriginLodespringCurrentJob"
+        ]
+    },
+    "DeliveryJobsViewOriginLodespringCurrentJob": {
+        "desc": "矿脉源区：从本地仓储节点查看当前送货任务",
+        "recognition": "And",
+        "all_of": [
+            "DeliveryJobsCheckLocalDepotNodeOriginLodespringText",
+            "DeliveryJobsCheckOriginLodespringDeliveryJob"
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]DeliveryJobsAfterViewCurrentJob"
+        ]
+    },
+    "DeliveryJobsAutoDeliveryOriginLodespring": {
+        "desc": "为矿脉源区当前送货任务调用全自动送货",
+        "pre_delay": 0,
+        "anchor": {
+            "AutoDeliveryAfterSubmitGoods": "DeliveryJobsValleyIVLoop"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "DeliveryJobsAutoDeliveryGuard",
+            "AutoDelivery"
         ]
     },
     "DeliveryJobsCheckLocalDepotNodeOriginLodespringText": {
@@ -129,9 +185,10 @@
         "pre_delay": 0,
         "action": "Click",
         "anchor": {
-            "DeliveryJobsSelectItemToFill": "DeliveryJobsSelectItemToFillValleyIV",
+            "DeliveryJobsSelectPriorityItems": "DeliveryJobsSelectPriorityItemsValleyIV",
             "DeliveryJobsRedistributionBidAction": "DeliveryJobsRedistributionBidNextStep",
             "DeliveryJobsOngoingDeliveryAction": "DeliveryJobsStopForOngoingDelivery",
+            "DeliveryJobsAfterAcceptJob": "DeliveryJobsDeliverQuickly",
             "DeliveryJobsGoToDepot": "SceneEnterMenuRegionalDevelopmentValleyIVDepotNode"
         },
         "post_delay": 0,
@@ -142,7 +199,6 @@
     },
     "DeliveryJobsDecideOriginLodespringQuote": {
         "desc": "按报价决定如何处理矿脉源区的货物",
-        "recognition": "DirectHit",
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,

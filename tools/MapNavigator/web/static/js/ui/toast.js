@@ -27,8 +27,8 @@ export function initFeedback(els) {
  */
 export function setStatus(text, color) {
   if (!statusEl) return;
-  statusEl.textContent = text == null ? '' : String(text);
-  statusEl.style.color = color || '#64748b';
+  statusEl.textContent = text == null ? "" : String(text);
+  statusEl.style.color = color || "#64748b";
 }
 
 /**
@@ -38,5 +38,5 @@ export function setStatus(text, color) {
  */
 export function setLocator(text) {
   if (!locatorEl) return;
-  locatorEl.textContent = text == null ? '' : String(text);
+  locatorEl.textContent = text == null ? "" : String(text);
 }

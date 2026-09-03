@@ -8,6 +8,8 @@ from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
 
+import json5
+
 from fixed_items import FIXED_NAME_KEYS
 from text import clean_text
 
@@ -19,6 +21,8 @@ LOCALE_MAP = {
     "ja_jp": ("JP", "ja-JP"),
     "ko_kr": ("KR", "ko-KR"),
 }
+ICON_NAME_PREFIX = "iconRecognition.name."
+
 
 def _name(
     payload: Mapping[str, Any],
@@ -54,7 +58,7 @@ def build_locale_values(
         if isinstance(payload, Mapping) and isinstance(payload.get("iconId"), str)
     }
     values: dict[str, str] = {}
-    for item_id in catalog:
+    for item_id in sorted(catalog):
         payload = source.get(item_id, {})
         if not isinstance(payload, Mapping):
             raise ValueError(f"{item_id} source must be an object")
@@ -71,25 +75,54 @@ def build_locale_values(
     return values
 
 
-def update_interface_locale(path: str | Path, values: Mapping[str, str]) -> None:
+def update_interface_locale(
+    path: str | Path,
+    values: Mapping[str, str],
+    *,
+    remove_stale: bool = True,
+) -> None:
     target = Path(path)
-    interface = json.loads(target.read_text(encoding="utf-8"))
+    interface = json5.loads(target.read_text(encoding="utf-8"))
     if not isinstance(interface, dict):
         raise ValueError(f"locale must be an object: {target}")
-    stale = [
-        key
-        for key in interface
-        if key.startswith("iconRecognition.name.") and key not in values
-    ]
-    for key in stale:
-        del interface[key]
-    interface.update(values)
-    target.write_text(json.dumps(interface, ensure_ascii=False, indent=4) + "\n", encoding="utf-8")
+
+    existing_keys = [key for key in interface if key.startswith(ICON_NAME_PREFIX)]
+    retained_keys = (
+        [key for key in existing_keys if key in values]
+        if remove_stale
+        else existing_keys
+    )
+    retained_set = set(retained_keys)
+    item_keys = retained_keys + sorted(key for key in values if key not in retained_set)
+
+    # 以首个既有物品键为锚集中重建分组，避免新增键散落到文件末尾。
+    updated: dict[str, Any] = {}
+    item_group_written = False
+    for key, value in interface.items():
+        if key.startswith(ICON_NAME_PREFIX):
+            if item_group_written:
+                continue
+            for item_key in item_keys:
+                updated[item_key] = (
+                    values[item_key]
+                    if item_key in values
+                    else interface[item_key]
+                )
+            item_group_written = True
+            continue
+        updated[key] = value
+    if not item_group_written:
+        for item_key in item_keys:
+            updated[item_key] = values[item_key]
+
+    if updated == interface:
+        return
+    target.write_text(json.dumps(updated, ensure_ascii=False, indent=4) + "\n", encoding="utf-8")
 
 
 def load_json_object(path: str | Path) -> dict[str, Any]:
     source = Path(path)
-    payload = json.loads(source.read_text(encoding="utf-8-sig"))
+    payload = json5.loads(source.read_text(encoding="utf-8-sig"))
     if not isinstance(payload, dict):
         raise ValueError(f"JSON 顶层必须是对象: {source}")
     return payload

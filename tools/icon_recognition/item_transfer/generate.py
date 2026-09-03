@@ -5,6 +5,8 @@ from copy import deepcopy
 from dataclasses import dataclass
 from pathlib import Path
 
+import json5
+
 
 CATEGORY_TYPE_ORDER = (
     "Ore",
@@ -127,17 +129,18 @@ def update_item_transfer_task(
 
 
 def generate_item_transfer_task(catalog_path: Path, locale_path: Path, task_path: Path) -> int:
-    catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
-    zh_cn = json.loads(locale_path.read_text(encoding="utf-8"))
-    task = json.loads(task_path.read_text(encoding="utf-8"))
+    catalog = json5.loads(catalog_path.read_text(encoding="utf-8"))
+    zh_cn = json5.loads(locale_path.read_text(encoding="utf-8"))
+    task = json5.loads(task_path.read_text(encoding="utf-8"))
 
     forward_cases = build_transfer_cases(catalog, zh_cn, FORWARD_NODES)
     return_cases = build_transfer_cases(catalog, zh_cn, RETURN_NODES)
     updated = update_item_transfer_task(task, forward_cases, return_cases)
-    task_path.write_text(
-        json.dumps(updated, ensure_ascii=False, indent=4) + "\n",
-        encoding="utf-8",
-    )
+    if updated != task:
+        task_path.write_text(
+            json.dumps(updated, ensure_ascii=False, indent=4) + "\n",
+            encoding="utf-8",
+        )
     return len(forward_cases)
 
 

@@ -1,4 +1,15 @@
 {
+    "SellProductInfraStationCurrentGoodsReady": {
+        "custom_recognition_param": {
+            "location": "InfraStation",
+            "roi": [
+                1151,
+                393,
+                66,
+                66
+            ]
+        }
+    },
     "SellProductInfraStationSelectPriorityItem": {
         "custom_recognition_param": {
             "location": "InfraStation",

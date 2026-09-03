@@ -1,5 +1,20 @@
 # EssenceFilter 工具
 
+## sync_zmdmap.py
+
+从 zmdmap 当前版本下载 `energy_point_gems.json` 与 `weapons.json`，校验两份数据后分别写入
+`assets/data/EssenceFilter/energy_point_gems.json` 与 `weapons_output.json`。任一请求失败、返回非 JSON、空数据或结构无效时，整次同步不修改本地文件。
+
+```bash
+uv run tools/essence_filter/sync_zmdmap.py
+```
+
+仅验证指定版本且不写入文件：
+
+```bash
+uv run tools/essence_filter/sync_zmdmap.py --check-version 1.3.3
+```
+
 ## extract_skill_pools.py
 
 从 `weapons_output.json` 提取技能池（skill_pools），五语（cn/tc/en/jp/kr）直接取自同文件的 skills 数组，无需 i18n。

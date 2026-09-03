@@ -1,4 +1,4 @@
-import {deliveryJobDepots, deliveryJobRegions} from "./model.mjs";
+import {DELIVERY_JOB_FILL_ITEM_PRIORITY_COUNT, deliveryJobDepots, deliveryJobRegions} from "./model.mjs";
 
 const ALL_CARGO_EXPECTED = [
     "查看报价",
@@ -21,12 +21,24 @@ const PACK_CARGO_EXPECTED = [
     "화물 포장",
 ];
 
-function buildCargoAnchor(depot, bidAction, ongoingDeliveryAction = "DeliveryJobsStopForOngoingDelivery") {
+const AUTO_DELIVERY_NAVIGATE_NODES = [
+    "AutoDeliveryNavigateDepot",
+    "AutoDeliveryNavigateDestination",
+];
+
+function buildCargoAnchor(
+    depot,
+    bidAction,
+    ongoingDeliveryAction = "DeliveryJobsStopForOngoingDelivery",
+    goToDepot = depot.DepotScene,
+    afterAcceptJob = "DeliveryJobsDeliverQuickly",
+) {
     return {
-        DeliveryJobsSelectItemToFill: `DeliveryJobsSelectItemToFill${depot.RegionId}`,
+        DeliveryJobsSelectPriorityItems: `DeliveryJobsSelectPriorityItems${depot.RegionId}`,
         DeliveryJobsRedistributionBidAction: bidAction,
         DeliveryJobsOngoingDeliveryAction: ongoingDeliveryAction,
-        DeliveryJobsGoToDepot: depot.DepotScene,
+        DeliveryJobsAfterAcceptJob: afterAcceptJob,
+        DeliveryJobsGoToDepot: goToDepot,
     };
 }
 
@@ -68,6 +80,17 @@ function buildDepotOption(depot) {
                     bidAction: "DeliveryJobsRedistributionBidNextStep",
                 }),
             },
+            ...(depot.AutoDeliverySupported
+                ? [
+                      {
+                          name: "AutoDelivery",
+                          label: "$task.DeliveryJobs.DepotAction.AutoDelivery",
+                          pipeline_override: buildAutoDeliveryOverride(depot, {
+                              bidAction: "DeliveryJobsRedistributionBidNextStep",
+                          }),
+                      },
+                  ]
+                : []),
             {
                 name: "ByQuote",
                 label: "$task.DeliveryJobs.DepotAction.ByQuote",
@@ -166,6 +189,7 @@ function buildQuoteThresholdOption(depot) {
 
 function buildQuoteActionOption(depot, {comparison, label, description, defaultCase}) {
     const comparisonNode = `DeliveryJobs${depot.Id}Quote${comparison}`;
+    const autoDelivery = `DeliveryJobsAutoDelivery${depot.Id}`;
     return {
         type: "select",
         label,
@@ -183,6 +207,22 @@ function buildQuoteActionOption(depot, {comparison, label, description, defaultC
                     },
                 },
             },
+            ...(depot.AutoDeliverySupported
+                ? [
+                      {
+                          name: "AutoDelivery",
+                          label: "$task.DeliveryJobs.QuoteAction.AutoDelivery",
+                          pipeline_override: {
+                              [comparisonNode]: {
+                                  anchor: {
+                                      DeliveryJobsQuoteAction: "DeliveryJobsQuoteAcceptJobOnly",
+                                      DeliveryJobsGoToDepot: autoDelivery,
+                                  },
+                              },
+                          },
+                      },
+                  ]
+                : []),
             {
                 name: "AcceptJobOnly",
                 label: "$task.DeliveryJobs.QuoteAction.AcceptJobOnly",
@@ -209,6 +249,77 @@ function buildQuoteActionOption(depot, {comparison, label, description, defaultC
             },
         ],
         default_case: defaultCase,
+    };
+}
+
+function buildAutoDeliveryOverride(depot, {bidAction}) {
+    const deliveryNode = `DeliveryJobsEnter${depot.Id}DeliveryJob`;
+    const cargoNode = `DeliveryJobsEnter${depot.Id}Cargo`;
+    const openOngoingAutoDelivery = `DeliveryJobsOpenOngoingAutoDelivery${depot.Id}`;
+    const autoDelivery = `DeliveryJobsAutoDelivery${depot.Id}`;
+    return {
+        [deliveryNode]: {
+            enabled: true,
+            next: [autoDelivery],
+        },
+        [cargoNode]: {
+            enabled: true,
+            anchor: buildCargoAnchor(depot, bidAction, openOngoingAutoDelivery, autoDelivery),
+        },
+    };
+}
+
+function buildAutoDeliveryRiskAcknowledgementOption() {
+    return {
+        type: "switch",
+        label: "$task.AutoDeliveryRiskAcknowledgement.label",
+        description: "$task.AutoDeliveryRiskAcknowledgement.description",
+        default_case: "No",
+        cases: [
+            {
+                name: "No",
+                pipeline_override: {
+                    DeliveryJobsAutoDeliveryGuard: {
+                        enabled: true,
+                    },
+                },
+            },
+            {
+                name: "Yes",
+                pipeline_override: {
+                    DeliveryJobsAutoDeliveryGuard: {
+                        enabled: false,
+                    },
+                },
+            },
+        ],
+    };
+}
+
+function buildAutoDeliveryPreferZiplineOption() {
+    const buildCase = (name, zip) => ({
+        name,
+        pipeline_override: Object.fromEntries(
+            AUTO_DELIVERY_NAVIGATE_NODES.map((node) => [
+                node,
+                {
+                    attach: {
+                        zip,
+                    },
+                },
+            ]),
+        ),
+    });
+
+    return {
+        type: "switch",
+        label: "$task.AutoDeliveryPreferZipline.label",
+        description: "$task.AutoDeliveryPreferZipline.description",
+        default_case: "No",
+        cases: [
+            buildCase("No", false),
+            buildCase("Yes", true),
+        ],
     };
 }
 
@@ -239,16 +350,71 @@ function buildRegionOption(region) {
     };
 }
 
-function buildFillItemCases(region) {
-    return region.FillItems.map((item) => ({
-        name: item.Name,
+function priorityOptionName(regionId, priority) {
+    return `WhatToFill${regionId}Priority${priority}`;
+}
+
+function priorityOptionNames(regionId) {
+    return Array.from({length: DELIVERY_JOB_FILL_ITEM_PRIORITY_COUNT}, (_, index) =>
+        priorityOptionName(regionId, index + 1),
+    );
+}
+
+function buildFillItemPriorityRegionOption(region) {
+    return {
+        type: "switch",
+        label: `$global.region.${region.Id}`,
+        description: "$task.DeliveryJobs.FillItemPriorityRegionDescription",
+        cases: [
+            {
+                name: "Yes",
+                option: priorityOptionNames(region.Id),
+                pipeline_override: {
+                    [`DeliveryJobsSelectPriorityItems${region.Id}`]: {
+                        next: [
+                            `DeliveryJobsStartFill${region.Id}Priority1`,
+                        ],
+                    },
+                },
+            },
+            {
+                name: "No",
+            },
+        ],
+        default_case: "Yes",
+    };
+}
+
+function buildFillItemCases(region, priority) {
+    const cases = region.FillItems.map((item) => ({
+        name: item.Id,
         label: item.Label,
         pipeline_override: {
-            [`DeliveryJobsSelectItemToFill${region.Id}`]: {
-                template: item.Template,
+            [`DeliveryJobsStartFill${region.Id}Priority${priority}`]: {
+                enabled: true,
+            },
+            [`DeliveryJobsSelectItemToFill${region.Id}Priority${priority}`]: {
+                enabled: true,
+                custom_recognition_param: {
+                    grid_type: "shipment",
+                    item_ids: [
+                        item.ItemId,
+                    ],
+                    item_recheck_filters: [
+                        item.RecheckFilter,
+                    ],
+                    deduplicate: true,
+                },
             },
         },
     }));
+    if (priority > 1) {
+        cases.unshift({
+            name: "None",
+            label: "$task.DeliveryJobs.FillItemPriorityNone",
+        });
+    }
+    return cases;
 }
 
 function buildTaskOptions() {
@@ -274,6 +440,8 @@ function buildTaskOptions() {
         }
     }
 
+    options.DeliveryJobsAutoDeliveryRiskAcknowledgement = buildAutoDeliveryRiskAcknowledgementOption();
+    options.DeliveryJobsAutoDeliveryPreferZipline = buildAutoDeliveryPreferZiplineOption();
     options.PackCargoSelectItem = {
         type: "switch",
         label: "$task.DeliveryJobs.PackCargoSelectItem.label",
@@ -284,11 +452,11 @@ function buildTaskOptions() {
                 pipeline_override: {
                     DeliveryJobsSelectTypeOfGoodsToPackNextStep: {
                         next: [
-                            "DeliveryJobsSelectItemLoop",
+                            "[Anchor]DeliveryJobsSelectPriorityItems",
                         ],
                     },
                 },
-                option: deliveryJobRegions.map((region) => `WhatToFill${region.Id}`),
+                option: deliveryJobRegions.map((region) => `FillItemPriorities${region.Id}`),
             },
             {
                 name: "No",
@@ -298,12 +466,15 @@ function buildTaskOptions() {
     };
 
     for (const region of deliveryJobRegions) {
-        options[`WhatToFill${region.Id}`] = {
-            type: "select",
-            label: `$task.DeliveryJobs.WhatToFill${region.Id}`,
-            cases: buildFillItemCases(region),
-            default_case: region.FillItems.find((item) => item.Id === region.DefaultFillItem).Name,
-        };
+        options[`FillItemPriorities${region.Id}`] = buildFillItemPriorityRegionOption(region);
+        for (let priority = 1; priority <= DELIVERY_JOB_FILL_ITEM_PRIORITY_COUNT; priority += 1) {
+            options[priorityOptionName(region.Id, priority)] = {
+                type: "select",
+                label: `$task.DeliveryJobs.WhatToFill${region.Id}Priority${priority}`,
+                cases: buildFillItemCases(region, priority),
+                default_case: priority === 1 ? region.DefaultFillItem : "None",
+            };
+        }
     }
     return options;
 }
@@ -319,15 +490,19 @@ export default function buildDeliveryJobsTask() {
                 option: [
                     ...deliveryJobRegions.map((region) => region.Id),
                     "PackCargoSelectItem",
+                    "DeliveryJobsAutoDeliveryRiskAcknowledgement",
+                    "DeliveryJobsAutoDeliveryPreferZipline",
                 ],
                 controller: [
                     "ADB",
                     "CloudADB",
+                    "Linux-Gamescope",
+                    "Linux-ScreenCast",
+                    "Linux-Wlroots",
                     "MacOS-Background",
                     "MacOS-Front",
                     "PlayCover",
                     "Win32-Front",
-                    "Wlroots",
                 ],
                 group: [
                     "regional_development",

@@ -94,13 +94,20 @@ func NewControlAdaptor(ctx *maa.Context, ctrl *maa.Controller, w, h int) (Contro
 		return newDefaultDesktopControlAdaptor(ctx, ctrl, w, h), nil
 	case CONTROL_TYPE_MACOS:
 		return newMacOSControlAdaptor(ctx, ctrl, w, h), nil
-	case CONTROL_TYPE_WLROOTS:
-		return newWlrootsControlAdaptor(ctx, ctrl, w, h), nil
+	case CONTROL_TYPE_LINUX:
+		return newLinuxControlAdaptor(ctx, ctrl, w, h)
 	case CONTROL_TYPE_ADB:
 		return newADBControlAdaptor(ctx, ctrl, w, h), nil
 	default:
 		return nil, fmt.Errorf("unsupported control type: %s", controlType)
 	}
+}
+
+// newLinuxControlAdaptor is the factory for CONTROL_TYPE_LINUX.
+// On non-Linux builds it stays as the default stub below; on Linux builds
+// it is replaced by the real implementation in adaptor_linux.go via init().
+var newLinuxControlAdaptor = func(ctx *maa.Context, ctrl *maa.Controller, w, h int) (ControlAdaptor, error) {
+	return nil, fmt.Errorf("Linux controller is only supported on Linux")
 }
 
 /* ******** Player Movement Enumeration ******** */

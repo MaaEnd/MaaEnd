@@ -268,35 +268,28 @@
             "Node.Action.Succeeded": "背包已满"
         }
     },
-    "GearAssemblyCheckIfReachedScrollEnd": {
-        "desc": "检查是否滑动到底部",
-        "recognition": {
-            "type": "ColorMatch",
-            "param": {
-                "roi": [
-                    445,
-                    615,
-                    15,
-                    20
-                ],
-                "lower": [
-                    220,
-                    220,
-                    220
-                ],
-                "upper": [
-                    255,
-                    255,
-                    255
-                ]
-            }
+    "GearAssemblyGearListScrollEnd": {
+        "desc": "装备列表已到底：ListComplete 命中表示无法继续下滑。滑动后须 post_wait_freezes 静止再识别",
+        "recognition": "Custom",
+        "custom_recognition": "ListCompleteRecognition",
+        "custom_recognition_param": {
+            "threshold": 0.98
         },
+        "roi": [
+            35,
+            100,
+            400,
+            520
+        ],
         "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
             "GearAssemblyCheckFailedAndFinish"
-        ]
+        ],
+        "attach": {
+            "ready": false
+        }
     },
     "GearAssemblySwipeToNextRow": {
         "desc": "滑动到下一行",
@@ -327,12 +320,12 @@
             }
         },
         "post_wait_freezes": {
-            "time": 80,
+            "time": 200,
             "target": [
-                0,
-                0,
+                35,
+                100,
                 400,
-                200
+                520
             ]
         },
         "post_delay": 0,
@@ -415,7 +408,7 @@
         "rate_limit": 0,
         "next": [
             "GearAssemblyClickProduceBtn",
-            "GearAssemblyCheckIfReachedScrollEnd",
+            "GearAssemblyGearListScrollEnd",
             "GearAssemblySwipeToNextRow"
         ]
     },
@@ -454,7 +447,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "GearAssemblyCheckIfReachedScrollEnd",
+            "GearAssemblyGearListScrollEnd",
             "GearAssemblySwipeToNextRow"
         ],
         "focus": {

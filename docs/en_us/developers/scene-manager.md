@@ -64,6 +64,7 @@ These node names **do not start with `__ScenePrivate`**.
 | Map | `SceneEnterMapDijiang` | Enter Dijiang map screen. |
 | Map | `SceneEnterMapValleyIVTheHub` | Enter Valley IV - The Hub map screen. |
 | Menu | `SceneEnterMenuList` | Enter main menu list. |
+| Menu | `SceneEnterMenuMission` | Enter the Missions screen. |
 | Menu | `SceneEnterMenuRegionalDevelopment` | Enter Regional Development menu. |
 | Menu | `SceneEnterMenuEvent` | Enter Event menu. |
 | Menu | `SceneEnterMenuProtocolPass` | Enter Protocol Pass menu. |
@@ -78,6 +79,7 @@ These node names **do not start with `__ScenePrivate`**.
 | Helper | `SceneDialogConfirm` | Click confirm button in dialogs. |
 | Helper | `SceneDialogCancel` | Click cancel button in dialogs. |
 | Helper | `SceneNoticeRewardsConfirm` | Click confirm button on rewards screens. |
+| Helper | `SceneNoticeRewardsUpgrade` | Close the Authority Level-up overlay by clicking the blank area. |
 | Helper | `SceneWaitLoadingExit` | Wait for loading screen to disappear. |
 
 ## Dijiang Depot Interfaces

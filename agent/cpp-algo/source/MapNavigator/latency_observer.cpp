@@ -5,7 +5,7 @@
 
 #include <MaaUtils/Logger.h>
 
-#include "notice.h"
+#include "../Common/notice.h"
 
 namespace mapnavigator
 {
@@ -37,9 +37,9 @@ void Emit(MaaContext* context, const Verdict& verdict)
     LogInfo << "Navigation tick latency looks abnormal." << VAR(tick_median_ms) << VAR(screencap_ms) << VAR(image_prep_ms) << VAR(locate_ms)
             << VAR(steer_ms) << VAR(other_ms) << VAR(slow_percent) << VAR(sample_count);
 
-    notice::Publish(
+    common::notice::Publish(
         context,
-        notice::Text("navigation.latency_slow", { tick_median_ms, screencap_ms, image_prep_ms, locate_ms, steer_ms, other_ms }));
+        common::notice::Text("navigation.latency_slow", { tick_median_ms, screencap_ms, image_prep_ms, locate_ms, steer_ms, other_ms }));
 }
 
 } // namespace

@@ -5,9 +5,11 @@
             "label": "$task.AutoSell.label",
             "entry": "AutoSellMain",
             "controller": [
-                "Win32-Front",
                 "ADB",
-                "Wlroots"
+                "Linux-Gamescope",
+                "Linux-ScreenCast",
+                "Linux-Wlroots",
+                "Win32-Front"
             ],
             "option": [
                 "AutoSellValleyIV",

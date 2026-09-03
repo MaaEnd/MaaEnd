@@ -21,7 +21,7 @@ var (
 )
 
 func (a *EssenceFilterAfterBattleTierGateAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
-	st := getRunState()
+	st := currentRun
 	if st == nil {
 		return false
 	}
@@ -64,9 +64,9 @@ func (a *EssenceFilterAfterBattleTierGateAction) Run(ctx *maa.Context, arg *maa.
 
 func (a *EssenceFilterAfterBattleSkillDecisionAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	// 获取当前运行状态，如果状态为空则无法继续，直接返回
-	st := getRunState()
+	st := currentRun
 	if st == nil {
-		reportFocusByKey(ctx, nil, "focus.error.no_run_state")
+		reportFocusByKey(ctx, "focus.error.no_run_state")
 		return false
 	}
 
@@ -77,12 +77,12 @@ func (a *EssenceFilterAfterBattleSkillDecisionAction) Run(ctx *maa.Context, arg 
 	}
 
 	if st.MatchEngine == nil {
-		reportFocusByKey(ctx, st, "focus.error.no_match_engine")
+		reportFocusByKey(ctx, "focus.error.no_match_engine")
 		return false
 	}
 	return runUnifiedSkillDecision(ctx, arg, st, st.MatchEngine, ocr, decisionNextNodes{
-		Lock:    "EssenceFilterAfterBattleLockItemLog",
-		Discard: "EssenceFilterAfterBattleDiscardItemLog",
+		Lock:    "EssenceFilterAfterBattleLockItem",
+		Discard: "EssenceFilterAfterBattleDiscardItem",
 		Skip:    "EssenceFilterAfterBattleCloseDetail",
 	})
 }

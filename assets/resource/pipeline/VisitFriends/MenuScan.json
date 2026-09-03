@@ -260,25 +260,58 @@
         ]
     },
     "VisitFriendsCheckAssistControlNexus": {
-        "desc": "检查总控中枢可助力；默认 OCR a^ 永不命中，由 ProductionAssistControl 选项覆盖为模板识别",
-        "recognition": "OCR",
-        "expected": [
-            "a^"
-        ]
+        "desc": "检查总控中枢可助力；默认 1x1 ColorMatch/count=2 永不命中，由 ProductionAssistControl 选项覆盖为模板识别",
+        "recognition": "ColorMatch",
+        "roi": [
+            0,
+            0,
+            1,
+            1
+        ],
+        "method": 6,
+        "lower": [
+            0
+        ],
+        "upper": [
+            255
+        ],
+        "count": 2
     },
     "VisitFriendsCheckAssistMFGCabin": {
-        "desc": "检查制造舱可助力；默认 OCR a^ 永不命中，由 ProductionAssistControl 选项覆盖为模板识别",
-        "recognition": "OCR",
-        "expected": [
-            "a^"
-        ]
+        "desc": "检查制造舱可助力；默认 1x1 ColorMatch/count=2 永不命中，由 ProductionAssistControl 选项覆盖为模板识别",
+        "recognition": "ColorMatch",
+        "roi": [
+            0,
+            0,
+            1,
+            1
+        ],
+        "method": 6,
+        "lower": [
+            0
+        ],
+        "upper": [
+            255
+        ],
+        "count": 2
     },
     "VisitFriendsCheckAssistGrowthChamber": {
-        "desc": "检查培养舱可助力；默认 OCR a^ 永不命中，由 ProductionAssistControl 选项覆盖为模板识别",
-        "recognition": "OCR",
-        "expected": [
-            "a^"
-        ]
+        "desc": "检查培养舱可助力；默认 1x1 ColorMatch/count=2 永不命中，由 ProductionAssistControl 选项覆盖为模板识别",
+        "recognition": "ColorMatch",
+        "roi": [
+            0,
+            0,
+            1,
+            1
+        ],
+        "method": 6,
+        "lower": [
+            0
+        ],
+        "upper": [
+            255
+        ],
+        "count": 2
     },
     "VisitFriendsMenuScanDetailClose": {
         "desc": "关闭好友船详情",

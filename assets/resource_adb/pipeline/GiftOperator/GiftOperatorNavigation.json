@@ -1,5 +1,5 @@
 {
-    // MapTracker ADB 摇杆：中心 (195, 551)，步行偏移 15
+    // ADB 摇杆：中心 (195, 551)，步行偏移 15
     // 后退 (195, 566) / 前进 (195, 536)
     "GiftOperatorMoveResetBackward": {
         "desc": "向后走一步（ADB 虚拟摇杆下推），再向前重置视角",

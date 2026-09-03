@@ -7,41 +7,54 @@
  * round-trip (GET/PUT via {@link module:rpc}). Exposes {@link ConnectionPanel#buildSession}
  * so the recording controller can start a session with the current target.
  *
+ * Linux (Gamescope) connection: the user picks one of the discovered gamescope
+ * instances from a dropdown; the chosen instance's PipeWire node id + EIS socket
+ * path feed the LinuxController config.
+ *
  * @module ui/connection
  */
 
-import { getPlatform, getSettings, putSettings, getAdbDevices, getWlrootsSockets, checkConnection } from '../rpc.js';
-import { setStatus } from './toast.js';
+import {getPlatform, getSettings, putSettings, getAdbDevices, getGamescopeInstances, checkConnection} from "../rpc.js";
+import {setStatus} from "./toast.js";
 
 export class ConnectionPanel {
   /**
    * @param {Object} els bound DOM elements:
    *   {kindCombo, win32Group, win32Entry, playcoverGroup, playcoverAddrEntry, playcoverUuidEntry,
    *    adbGroup, adbPathEntry, adbTargetInput, adbTargetList, btnRefreshAdb,
-   *    wlrootsGroup, wlrootsSocketEntry, wlrootsSocketList, btnRefreshWlroots, summary}
+   *    linuxGroup, linuxInstanceCombo, btnRefreshLinux, summary}
    */
   constructor(els) {
     this.els = els;
-    this.statusDot = document.getElementById('status-dot');
-    /** @type {{connection_kind:string, adb_path:string, adb_address:string, win32_window_title:string, playcover_address:string, playcover_uuid:string, wlroots_socket_path:string, recent_adb_targets:string[]}} */
+    this.statusDot = document.getElementById("status-dot");
+    /** @type {{connection_kind:string, adb_path:string, adb_address:string, win32_window_title:string, playcover_address:string, playcover_uuid:string, linux_pw_node_id:number, linux_eis_socket_path:string, recent_adb_targets:string[]}} */
     this.settings = {
-      connection_kind: '',
-      adb_path: '',
-      adb_address: '',
-      win32_window_title: 'Endfield',
-      playcover_address: '127.0.0.1:1717',
-      playcover_uuid: 'maa.playcover',
-      wlroots_socket_path: '',
+      connection_kind: "",
+      adb_path: "",
+      adb_address: "",
+      win32_window_title: "Endfield",
+      playcover_address: "127.0.0.1:1717",
+      playcover_uuid: "maa.playcover",
+      linux_pw_node_id: 0,
+      linux_eis_socket_path: "",
       recent_adb_targets: [],
     };
+    /** @type {Array<{display_no:number, pw_node_id:number, eis_socket_path:string}>} the last discovered gamescope instances */
+    this._instances = [];
     this._devicesLoadedOnce = false;
-    this._socketsLoadedOnce = false;
+    this._instancesLoadedOnce = false;
     this._persistTimer = 0;
     this._checkTimer = 0;
+    this._checkVersion = 0;
+    this._suspended = false;
+    /** @type {boolean} whether the latest connection probe succeeded. */
+    this.connected = false;
+    /** @type {Set<(connected:boolean)=>void>} */
+    this._statusListeners = new Set();
     /** @type {boolean} last observed connected state; drives auto-collapse on the rising edge. */
     this._wasConnected = false;
     /** @type {{platform:string, supported_kinds:string[], default_kind:string}} */
-    this.platform = { platform: '', supported_kinds: ['win32', 'adb', 'playcover', 'wlroots'], default_kind: 'win32' };
+    this.platform = {platform: "", supported_kinds: ["win32", "adb", "playcover", "linux"], default_kind: "win32"};
   }
 
   /**
@@ -61,83 +74,79 @@ export class ConnectionPanel {
 
     try {
       const loaded = await getSettings();
-      if (loaded && typeof loaded === 'object') this.settings = { ...this.settings, ...loaded };
+      if (loaded && typeof loaded === "object") this.settings = {...this.settings, ...loaded};
     } catch {
       // fall back to defaults; a missing settings file is not an error
     }
 
     this.els.kindCombo.value = this.settings.connection_kind || this.platform.default_kind;
     this._applyPlatform();
-    this.els.win32Entry.value = this.settings.win32_window_title || 'Endfield';
-    this.els.playcoverAddrEntry.value = this.settings.playcover_address || '127.0.0.1:1717';
-    this.els.playcoverUuidEntry.value = this.settings.playcover_uuid || 'maa.playcover';
-    this.els.adbPathEntry.value = this.settings.adb_path || '';
-    this.els.adbTargetInput.value = this.settings.adb_address || '';
-    this.els.wlrootsSocketEntry.value = this.settings.wlroots_socket_path || '';
+    this.els.win32Entry.value = this.settings.win32_window_title || "Endfield";
+    this.els.playcoverAddrEntry.value = this.settings.playcover_address || "127.0.0.1:1717";
+    this.els.playcoverUuidEntry.value = this.settings.playcover_uuid || "maa.playcover";
+    this.els.adbPathEntry.value = this.settings.adb_path || "";
+    this.els.adbTargetInput.value = this.settings.adb_address || "";
 
     this._wire();
     this.syncControls();
     this.refreshSummary();
 
-    if (this.kind() === 'adb' && !this._devicesLoadedOnce) {
+    if (this.kind() === "adb" && !this._devicesLoadedOnce) {
       await this.refreshDevices();
     }
-    if (this.kind() === 'wlroots' && !this._socketsLoadedOnce) {
-      await this.refreshWlrootsSockets();
+    if (this.kind() === "linux" && !this._instancesLoadedOnce) {
+      await this.refreshLinuxInstances();
     }
   }
 
   /** @returns {void} */
   _wire() {
-    const btnRefresh = document.getElementById('btn-refresh-connection');
+    const btnRefresh = document.getElementById("btn-refresh-connection");
     if (btnRefresh) {
-      btnRefresh.addEventListener('click', () => this.checkConnectionStatus());
+      btnRefresh.addEventListener("click", () => this.checkConnectionStatus());
     }
-    const headerToggle = document.getElementById('connection-header-toggle');
+    const headerToggle = document.getElementById("connection-header-toggle");
     if (headerToggle) {
-      headerToggle.addEventListener('click', () => this.toggleCollapsed());
+      headerToggle.addEventListener("click", () => this.toggleCollapsed());
     }
-    this.els.kindCombo.addEventListener('change', () => {
+    this.els.kindCombo.addEventListener("change", () => {
       this.syncControls();
       this.refreshSummary();
       this.persist();
-      if (this.kind() === 'adb' && !this._devicesLoadedOnce) this.refreshDevices();
-      if (this.kind() === 'wlroots' && !this._socketsLoadedOnce) this.refreshWlrootsSockets();
+      if (this.kind() === "adb" && !this._devicesLoadedOnce) this.refreshDevices();
+      if (this.kind() === "linux" && !this._instancesLoadedOnce) this.refreshLinuxInstances();
     });
-    this.els.win32Entry.addEventListener('input', () => {
+    this.els.win32Entry.addEventListener("input", () => {
       this.refreshSummary();
       this._persistDebounced();
     });
-    this.els.playcoverAddrEntry.addEventListener('input', () => {
+    this.els.playcoverAddrEntry.addEventListener("input", () => {
       this.refreshSummary();
       this._persistDebounced();
     });
-    this.els.playcoverUuidEntry.addEventListener('input', () => {
+    this.els.playcoverUuidEntry.addEventListener("input", () => {
       this.refreshSummary();
       this._persistDebounced();
     });
-    this.els.adbPathEntry.addEventListener('input', () => {
+    this.els.adbPathEntry.addEventListener("input", () => {
       this.refreshSummary();
       this._persistDebounced();
     });
-    this.els.adbTargetInput.addEventListener('input', () => {
+    this.els.adbTargetInput.addEventListener("input", () => {
       this.refreshSummary();
       this._persistDebounced();
     });
-    this.els.adbTargetInput.addEventListener('change', () => {
+    this.els.adbTargetInput.addEventListener("change", () => {
       this.refreshSummary();
       this.persist();
     });
-    this.els.btnRefreshAdb.addEventListener('click', () => this.refreshDevices());
-    this.els.wlrootsSocketEntry.addEventListener('input', () => {
-      this.refreshSummary();
-      this._persistDebounced();
-    });
-    this.els.wlrootsSocketEntry.addEventListener('change', () => {
+    this.els.btnRefreshAdb.addEventListener("click", () => this.refreshDevices());
+    this.els.linuxInstanceCombo.addEventListener("change", () => {
+      this._applySelectedInstance();
       this.refreshSummary();
       this.persist();
     });
-    this.els.btnRefreshWlroots.addEventListener('click', () => this.refreshWlrootsSockets());
+    this.els.btnRefreshLinux.addEventListener("click", () => this.refreshLinuxInstances());
   }
 
   /**
@@ -156,48 +165,77 @@ export class ConnectionPanel {
 
     const unsupported = this._kindLabel();
     this.els.kindCombo.value = this.platform.default_kind;
-    setStatus(`当前系统不支持 ${unsupported} 连接，已切换为 ${this._kindLabel()}`, '#f59e0b');
+    setStatus(`当前系统不支持 ${unsupported} 连接，已切换为 ${this._kindLabel()}`, "#f59e0b");
     this.persist();
   }
 
-  /** @returns {'win32'|'adb'|'playcover'|'wlroots'} the active connection kind */
+  /** @returns {'win32'|'adb'|'playcover'|'linux'} the active connection kind */
   kind() {
     return this.els.kindCombo.value || this.platform.default_kind;
+  }
+
+  /** @returns {boolean} whether the latest connection probe succeeded. */
+  isConnected() {
+    return this.connected;
+  }
+
+  /**
+   * Observe connection readiness. The current state is delivered immediately.
+   * @param {(connected:boolean)=>void} listener
+   * @returns {()=>void} unsubscribe callback
+   */
+  onStatusChange(listener) {
+    this._statusListeners.add(listener);
+    listener(this.connected);
+    return () => this._statusListeners.delete(listener);
+  }
+
+  /** @param {boolean} connected @returns {void} */
+  _setConnected(connected) {
+    const next = Boolean(connected);
+    if (this.connected === next) return;
+    this.connected = next;
+    for (const listener of this._statusListeners) listener(next);
   }
 
   /** @returns {string} short display label for the active kind (compact summary). */
   _kindLabel() {
     const k = this.kind();
-    if (k === 'adb') return 'ADB';
-    if (k === 'playcover') return 'PlayCover';
-    if (k === 'wlroots') return 'WlRoots';
-    return 'Win32';
+    if (k === "adb") return "ADB";
+    if (k === "playcover") return "PlayCover";
+    if (k === "linux") return "Linux-Gamescope";
+    return "Win32";
   }
 
   /** Show the control group for the active kind, hide the others. @returns {void} */
   syncControls() {
     const k = this.kind();
-    this.els.win32Group.hidden = (k !== 'win32');
-    this.els.playcoverGroup.hidden = (k !== 'playcover');
-    this.els.adbGroup.hidden = (k !== 'adb');
-    this.els.wlrootsGroup.hidden = (k !== 'wlroots');
+    this.els.win32Group.hidden = k !== "win32";
+    this.els.playcoverGroup.hidden = k !== "playcover";
+    this.els.adbGroup.hidden = k !== "adb";
+    this.els.linuxGroup.hidden = k !== "linux";
   }
 
   /** Update the summary line. @returns {void} */
   refreshSummary() {
+    // Any target edit invalidates the previous probe immediately. The debounced
+    // check will re-enable dependent actions only after this exact config succeeds.
+    this._checkVersion += 1;
+    this._setConnected(false);
+    if (this.statusDot) this.statusDot.classList.remove("connected", "connecting");
     const k = this.kind();
-    if (k === 'adb') {
+    if (k === "adb") {
       const target = this.els.adbTargetInput.value.trim();
-      this.els.summary.textContent = target ? `ADB: ${target}` : 'ADB: 未选择设备';
-    } else if (k === 'playcover') {
-      const addr = this.els.playcoverAddrEntry.value.trim() || '127.0.0.1:1717';
+      this.els.summary.textContent = target ? `ADB: ${target}` : "ADB: 未选择设备";
+    } else if (k === "playcover") {
+      const addr = this.els.playcoverAddrEntry.value.trim() || "127.0.0.1:1717";
       this.els.summary.textContent = `PlayCover: ${addr}`;
-    } else if (k === 'wlroots') {
-      const socketPath = this.els.wlrootsSocketEntry.value.trim();
-      this.els.summary.textContent = socketPath ? `WlRoots: ${socketPath}` : 'WlRoots: 未指定 socket';
+    } else if (k === "linux") {
+      const inst = this._selectedInstance();
+      this.els.summary.textContent = inst ? `Linux-Gamescope: 节点 ${inst.pw_node_id}` : "Linux-Gamescope: 未选择实例";
     } else {
       const title = this.els.win32Entry.value.trim();
-      this.els.summary.textContent = `Win32: ${title || 'Endfield'}`;
+      this.els.summary.textContent = `Win32: ${title || "Endfield"}`;
     }
 
     this._checkDebounced();
@@ -206,21 +244,34 @@ export class ConnectionPanel {
   /** @private */
   _checkDebounced() {
     clearTimeout(this._checkTimer);
+    if (this._suspended) return;
     this._checkTimer = setTimeout(() => {
       this.checkConnectionStatus();
     }, 500);
   }
 
+  /** Pause/resume automatic status probes while the offline log workspace is active. */
+  setSuspended(suspended) {
+    const next = Boolean(suspended);
+    if (this._suspended === next) return;
+    this._suspended = next;
+    this._checkVersion += 1;
+    this._setConnected(false);
+    if (this.statusDot) this.statusDot.classList.remove("connected", "connecting");
+    clearTimeout(this._checkTimer);
+    if (!this._suspended) this._checkDebounced();
+  }
+
   /** Collapse/expand the connection card body. @param {boolean} collapsed @returns {void} */
   setCollapsed(collapsed) {
-    const panel = document.getElementById('panel-connection');
-    if (panel) panel.classList.toggle('collapsed', collapsed);
+    const panel = document.getElementById("panel-connection");
+    if (panel) panel.classList.toggle("collapsed", collapsed);
   }
 
   /** Toggle the connection card body (header click). @returns {void} */
   toggleCollapsed() {
-    const panel = document.getElementById('panel-connection');
-    if (panel) panel.classList.toggle('collapsed');
+    const panel = document.getElementById("panel-connection");
+    if (panel) panel.classList.toggle("collapsed");
   }
 
   /**
@@ -228,12 +279,15 @@ export class ConnectionPanel {
    * @returns {Promise<void>}
    */
   async checkConnectionStatus() {
-    if (!this.statusDot) return;
+    if (!this.statusDot || this._suspended) return;
 
-    this.statusDot.classList.remove('connected');
-    this.statusDot.classList.add('connecting');
+    const checkVersion = ++this._checkVersion;
+    this._setConnected(false);
+    this.statusDot.classList.remove("connected");
+    this.statusDot.classList.add("connecting");
 
     const k = this.kind();
+    const inst = this._selectedInstance();
     const payload = {
       connection_kind: k,
       win32_window_title: this.els.win32Entry.value.trim(),
@@ -241,33 +295,39 @@ export class ConnectionPanel {
       playcover_address: this.els.playcoverAddrEntry.value.trim(),
       adb_path: this.els.adbPathEntry.value.trim(),
       adb_address: this.els.adbTargetInput.value.trim(),
-      wlroots_socket_path: this.els.wlrootsSocketEntry.value.trim(),
+      linux_pw_node_id: inst ? inst.pw_node_id : 0,
+      linux_eis_socket_path: inst ? inst.eis_socket_path : "",
     };
 
     try {
       const res = await checkConnection(payload);
-      this.statusDot.classList.remove('connecting');
+      if (checkVersion !== this._checkVersion || this._suspended) return;
+      this.statusDot.classList.remove("connecting");
       if (res && res.connected) {
-        this.statusDot.classList.add('connected');
+        this.statusDot.classList.add("connected");
+        this._setConnected(true);
         // Compact inline summary (the header strip is narrow); full backend message
         // stays in the hover tooltip and the expanded body carries the target detail.
         this.els.summary.textContent = `${this._kindLabel()} 在线`;
-        this.els.summary.title = res.message || '';
+        this.els.summary.title = res.message || "";
         // Auto-collapse on the rising edge only, so a manual re-expand while still
         // connected isn't fought by the next debounced re-check.
         if (!this._wasConnected) this.setCollapsed(true);
         this._wasConnected = true;
       } else {
-        this.statusDot.classList.remove('connected');
-        this.els.summary.textContent = res ? (res.message || '连接失败') : '连接错误';
-        this.els.summary.title = res ? (res.message || '') : '';
+        this.statusDot.classList.remove("connected");
+        this._setConnected(false);
+        this.els.summary.textContent = res ? res.message || "连接失败" : "连接错误";
+        this.els.summary.title = res ? res.message || "" : "";
         if (this._wasConnected) this.setCollapsed(false);
         this._wasConnected = false;
       }
     } catch (err) {
-      this.statusDot.classList.remove('connecting');
-      this.statusDot.classList.remove('connected');
-      this.els.summary.textContent = '无法连接后端服务';
+      if (checkVersion !== this._checkVersion || this._suspended) return;
+      this.statusDot.classList.remove("connecting");
+      this.statusDot.classList.remove("connected");
+      this._setConnected(false);
+      this.els.summary.textContent = "无法连接后端服务";
       this.els.summary.title = String(err);
       if (this._wasConnected) this.setCollapsed(false);
       this._wasConnected = false;
@@ -301,7 +361,7 @@ export class ConnectionPanel {
     try {
       result = await getAdbDevices(adbPath);
     } catch (err) {
-      setStatus(`刷新 ADB 设备失败: ${err && err.message ? err.message : err}`, '#ef4444');
+      setStatus(`刷新 ADB 设备失败: ${err && err.message ? err.message : err}`, "#ef4444");
       return;
     }
     this._devicesLoadedOnce = true;
@@ -313,7 +373,7 @@ export class ConnectionPanel {
 
     const current = this.els.adbTargetInput.value.trim();
     if (!current) {
-      const online = devices.find((d) => d.state === 'device' && d.address);
+      const online = devices.find((d) => d.state === "device" && d.address);
       if (online) {
         this.els.adbTargetInput.value = online.address;
         this.refreshSummary();
@@ -323,9 +383,9 @@ export class ConnectionPanel {
     await this.persist();
 
     if (result.error) {
-      setStatus('未找到 adb，可手动指定 adb 路径。', '#f59e0b');
+      setStatus("未找到 adb，可手动指定 adb 路径。", "#f59e0b");
     } else {
-      setStatus(`已刷新 ADB 设备，共 ${devices.length} 个。`, '#10b981');
+      setStatus(`已刷新 ADB 设备，共 ${devices.length} 个。`, "#10b981");
     }
   }
 
@@ -339,12 +399,12 @@ export class ConnectionPanel {
   _fillDatalist(devices, recent) {
     const list = this.els.adbTargetList;
     if (!list) return;
-    list.textContent = '';
+    list.textContent = "";
     const seen = new Set();
     for (const device of devices) {
       if (!device.address || seen.has(device.address)) continue;
       seen.add(device.address);
-      const opt = document.createElement('option');
+      const opt = document.createElement("option");
       opt.value = device.address;
       if (device.display_name && device.display_name !== device.address) opt.label = device.display_name;
       list.appendChild(opt);
@@ -352,46 +412,85 @@ export class ConnectionPanel {
     for (const address of recent) {
       if (!address || seen.has(address)) continue;
       seen.add(address);
-      const opt = document.createElement('option');
+      const opt = document.createElement("option");
       opt.value = address;
       list.appendChild(opt);
     }
   }
 
   /**
-   * Enumerate Wayland sockets from the backend, refill the datalist, auto-select
-   * the default when the target is empty, and persist. Never throws to the caller.
+   * Enumerate gamescope instances from the backend and refill the dropdown,
+   * preserving the currently selected node when it is still present. Never throws.
    * @returns {Promise<void>}
    */
-  async refreshWlrootsSockets() {
+  async refreshLinuxInstances() {
     let result;
     try {
-      result = await getWlrootsSockets();
+      result = await getGamescopeInstances();
     } catch (err) {
-      setStatus(`刷新 Wayland socket 失败: ${err && err.message ? err.message : err}`, '#ef4444');
+      setStatus(`刷新 gamescope 实例失败: ${err && err.message ? err.message : err}`, "#ef4444");
       return;
     }
-    this._socketsLoadedOnce = true;
-    const sockets = Array.isArray(result.sockets) ? result.sockets : [];
+    this._instancesLoadedOnce = true;
+    this._instances = (Array.isArray(result.instances) ? result.instances : []).filter(
+      (inst) => inst && inst.pw_node_id,
+    );
 
-    const list = this.els.wlrootsSocketList;
-    if (list) {
-      list.textContent = '';
-      for (const socketPath of sockets) {
-        const opt = document.createElement('option');
-        opt.value = socketPath;
-        list.appendChild(opt);
+    if (result.instances && Array.isArray(result.instances)) {
+      const errItem = result.instances.find((i) => i && i.error);
+      if (errItem && errItem.error) {
+        setStatus(`gamescope 实例发现失败: ${errItem.error}`, "#ef4444");
       }
     }
 
-    const current = this.els.wlrootsSocketEntry.value.trim();
-    if (!current) {
-      this.els.wlrootsSocketEntry.value = result.default || '';
-      this.refreshSummary();
+    const combo = this.els.linuxInstanceCombo;
+    const prevNode = this._selectedInstance()?.pw_node_id ?? this.settings.linux_pw_node_id;
+    combo.textContent = "";
+    if (!this._instances.length) {
+      const opt = document.createElement("option");
+      opt.value = "";
+      opt.textContent = "未检测到 gamescope 实例";
+      combo.appendChild(opt);
+    } else {
+      for (const inst of this._instances) {
+        const opt = document.createElement("option");
+        opt.value = String(inst.display_no);
+        opt.textContent = `gamescope-${inst.display_no}（节点 ${inst.pw_node_id}）`;
+        combo.appendChild(opt);
+      }
+      const match = this._instances.find((inst) => inst.pw_node_id === prevNode);
+      if (match) {
+        combo.value = String(match.display_no);
+      } else {
+        combo.value = String(this._instances[0].display_no);
+        this._applySelectedInstance();
+      }
     }
 
     await this.persist();
-    setStatus(`已刷新 Wayland socket，共 ${sockets.length} 个。`, '#10b981');
+
+    const count = this._instances.length;
+    setStatus(
+      count ? `已刷新 gamescope 实例，共 ${count} 个。` : "未检测到 gamescope 实例（gamescope 可能未运行）。",
+      count ? "#10b981" : "#f59e0b",
+    );
+  }
+
+  /**
+   * The gamescope instance currently shown in the dropdown, or null.
+   * @returns {{display_no:number, pw_node_id:number, eis_socket_path:string}|null}
+   */
+  _selectedInstance() {
+    const combo = this.els.linuxInstanceCombo;
+    if (!combo || combo.value === "") return null;
+    return this._instances.find((inst) => String(inst.display_no) === String(combo.value)) || null;
+  }
+
+  /** Persist the currently selected gamescope instance into `this.settings`. @returns {void} */
+  _applySelectedInstance() {
+    const inst = this._selectedInstance();
+    this.settings.linux_pw_node_id = inst ? inst.pw_node_id : 0;
+    this.settings.linux_eis_socket_path = inst ? inst.eis_socket_path : "";
   }
 
   /** Debounced settings persist for high-frequency text input. @returns {void} */
@@ -410,19 +509,21 @@ export class ConnectionPanel {
    */
   async persist() {
     const target = this.els.adbTargetInput.value.trim();
+    const inst = this._selectedInstance();
     const payload = {
       connection_kind: this.kind(),
       adb_path: this.els.adbPathEntry.value.trim(),
       adb_address: target,
-      win32_window_title: this.els.win32Entry.value.trim() || 'Endfield',
-      playcover_address: this.els.playcoverAddrEntry.value.trim() || '127.0.0.1:1717',
-      playcover_uuid: this.els.playcoverUuidEntry.value.trim() || 'maa.playcover',
-      wlroots_socket_path: this.els.wlrootsSocketEntry.value.trim(),
+      win32_window_title: this.els.win32Entry.value.trim() || "Endfield",
+      playcover_address: this.els.playcoverAddrEntry.value.trim() || "127.0.0.1:1717",
+      playcover_uuid: this.els.playcoverUuidEntry.value.trim() || "maa.playcover",
+      linux_pw_node_id: inst ? inst.pw_node_id : 0,
+      linux_eis_socket_path: inst ? inst.eis_socket_path : "",
       recent_adb_targets: this._mergeRecent([target]),
     };
     try {
       const saved = await putSettings(payload);
-      if (saved && typeof saved === 'object') this.settings = { ...this.settings, ...saved };
+      if (saved && typeof saved === "object") this.settings = {...this.settings, ...saved};
     } catch {
       // ignore — persistence is best-effort (tk swallows save errors)
     }
@@ -430,22 +531,24 @@ export class ConnectionPanel {
 
   /**
    * The recording session config for the current target (tk `_build_recording_session`).
-   * @returns {{kind:'win32'|'adb'|'playcover'|'wlroots', win32:{window_title:string}, adb:{adb_path:string, address:string}, playcover:{uuid:string}, wlroots:{wlr_socket_path:string}}}
+   * @returns {{kind:'win32'|'adb'|'playcover'|'linux', win32:{window_title:string}, adb:{adb_path:string, address:string}, playcover:{uuid:string}, linux:{pw_node_id:number, eis_socket_path:string}}}
    */
   buildSession() {
+    const inst = this._selectedInstance();
     return {
       kind: this.kind(),
-      win32: { window_title: this.els.win32Entry.value.trim() || 'Endfield' },
+      win32: {window_title: this.els.win32Entry.value.trim() || "Endfield"},
       adb: {
         adb_path: this.els.adbPathEntry.value.trim(),
         address: this.els.adbTargetInput.value.trim(),
       },
       playcover: {
         address: this.els.playcoverAddrEntry.value.trim(),
-        uuid: this.els.playcoverUuidEntry.value.trim() || 'maa.playcover',
+        uuid: this.els.playcoverUuidEntry.value.trim() || "maa.playcover",
       },
-      wlroots: {
-        wlr_socket_path: this.els.wlrootsSocketEntry.value.trim(),
+      linux: {
+        pw_node_id: inst ? inst.pw_node_id : 0,
+        eis_socket_path: inst ? inst.eis_socket_path : "",
       },
     };
   }

@@ -34,7 +34,9 @@ class PathPoint(TypedDict):
     actions: list[int]
     zone: str
     strict: bool
+    required: NotRequired[bool]
     target_tier: NotRequired[str]
+    target_deck_y: NotRequired[float]
     auto_portal: NotRequired[bool]
     suppress_auto_portal: NotRequired[bool]
 
@@ -273,6 +275,17 @@ def normalize_path_points(points: list[PathPoint]) -> list[PathPoint]:
         target_tier = normalize_zone_id(point.get("target_tier", ""))
         if target_tier:
             normalized_point["target_tier"] = target_tier
+        target_deck_y = point.get("target_deck_y")
+        if not isinstance(target_deck_y, bool):
+            try:
+                normalized_deck_y = float(target_deck_y)
+            except (TypeError, ValueError):
+                pass
+            else:
+                if math.isfinite(normalized_deck_y):
+                    normalized_point["target_deck_y"] = normalized_deck_y
+        if bool(point.get("required")):
+            normalized_point["required"] = True
         if bool(point.get("auto_portal")):
             normalized_point["auto_portal"] = True
         if bool(point.get("suppress_auto_portal")):
@@ -317,7 +330,9 @@ def normalize_path_points(points: list[PathPoint]) -> list[PathPoint]:
             and merged[-1]["y"] == point["y"]
             and merged[-1]["zone"] == point["zone"]
             and merged[-1]["strict"] == point["strict"]
+            and bool(merged[-1].get("required")) == bool(point.get("required"))
             and merged[-1].get("target_tier", "") == point.get("target_tier", "")
+            and merged[-1].get("target_deck_y") == point.get("target_deck_y")
         ):
             merged_auto_portal = bool(merged[-1].get("auto_portal")) or bool(point.get("auto_portal"))
             merged_suppressed = bool(merged[-1].get("suppress_auto_portal")) or bool(point.get("suppress_auto_portal"))
@@ -380,7 +395,6 @@ def resolve_zone_image(zone_id: str, map_image_dir: Path) -> Path | None:
     支持以下命名模式：
     - MapLocator: Region_L{level}_{tier} -> MapLocator/Region/Lv{level:03d}Tier{tier}.png
     - MapLocator: Region_Base -> MapLocator/Region/Base.png
-    - MapTracker: map01_lv001(_tier_114).png
     - 回退扫描：MapLocator 任意子目录下 `{zone_id}.png`
     """
     normalized_zone_id = normalize_zone_id(zone_id)
@@ -398,15 +412,6 @@ def resolve_zone_image(zone_id: str, map_image_dir: Path) -> Path | None:
         map_locator_dir = map_image_dir
     else:
         map_locator_dir = map_image_dir / "MapLocator"
-
-    if map_image_dir.name.lower() == "map" and map_image_dir.parent.name.lower() == "maptracker":
-        map_tracker_dir = map_image_dir
-    else:
-        map_tracker_dir = map_image_dir / "MapTracker" / "map"
-
-    tracker_candidate = map_tracker_dir / f"{normalized_zone_id}.png"
-    if tracker_candidate.exists():
-        return tracker_candidate
 
     level_match = re.match(r"^(\w+?)_L(\d+)_(\d+)$", normalized_zone_id)
     if level_match:

@@ -11,6 +11,7 @@ import (
 	"sync"
 	"text/template"
 
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/jsonclean"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/pienv"
 	"github.com/rs/zerolog/log"
 )
@@ -32,9 +33,6 @@ var htmlTemplates = map[string]string{
 	"tasker.task_failed_feedback_hint":        "HTML/task-failed-feedback.html",
 	"tasker.hdr_warning":                      "HTML/hdr-warning.html",
 	"tasker.aspect_ratio_warning":             "HTML/aspect-ratio-warning.html",
-	"maptracker.emergency_stop":               "HTML/emergency-stop.html",
-	"maptracker.navigation_moving":            "HTML/navigation-moving.html",
-	"maptracker.navigation_finished":          "HTML/navigation-finished.html",
 	"essencefilter.loot_summary":              "HTML/essencefilter-loot-summary.html",
 	"essencefilter.init_weapons":              "HTML/essencefilter-init-weapons.html",
 	"essencefilter.init_skills":               "HTML/essencefilter-init-skills.html",
@@ -123,7 +121,7 @@ func loadMessages(dir, lang string) map[string]string {
 		}
 
 		var loaded map[string]string
-		if err := json.Unmarshal(data, &loaded); err != nil {
+		if err := json.Unmarshal(jsonclean.Clean(data), &loaded); err != nil {
 			log.Warn().Err(err).Str("lang", targetLang).Str("dir", dir).Msg("failed to parse i18n messages")
 			return false
 		}

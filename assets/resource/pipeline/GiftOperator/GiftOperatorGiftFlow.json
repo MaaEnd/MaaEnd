@@ -25,32 +25,6 @@
             "GiftOperatorGiftUI"
         ]
     },
-    "GiftOperatorBranchMaxAffinity": {
-        "desc": "分支3：好感度已满",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": [
-                    900,
-                    334,
-                    350,
-                    318
-                ],
-                "expected": [
-                    "查看赠礼记录",
-                    "查看贈禮紀錄",
-                    "(?i)Gifting\\s*records",
-                    "プレゼント履歴を確認する"
-                ]
-            }
-        },
-        "next": [
-            "GiftOperatorLeave"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "$task.GiftOperator.focus.max_affinity"
-        }
-    },
     "GiftOperatorBranchReceive": {
         "desc": "分支2：干员给你送礼，点击领取",
         "recognition": {
@@ -173,9 +147,30 @@
             "timeout": 3000
         },
         "next": [
+            "[JumpBack]GiftOperatorConfirmDialog",
             "[JumpBack]GiftOperatorGiftDialog",
             "GiftOperatorLeave"
         ]
+    },
+    "GiftOperatorConfirmDialog": {
+        "desc": "赠送后二次确认弹窗：黄底圆环确认按钮，文字为确认",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "YellowConfirmButtonType1",
+                    "YellowButtonConfirmText"
+                ],
+                "box_index": 1
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 3000
+        }
     },
     "GiftOperatorConfirmGiftText": {
         "desc": "确认赠送按钮上有文字，避免误点",
@@ -301,7 +296,7 @@
             "type": "ColorMatch",
             "param": {
                 "roi": [
-                    20,
+                    100,
                     606,
                     108,
                     83
@@ -359,7 +354,6 @@
                     "(?i)Default",
                     "デフォルト"
                 ],
-                "only_rec": true,
                 "replace": [
                     [
                         "数",
@@ -369,7 +363,8 @@
                         "以",
                         "认"
                     ]
-                ]
+                ],
+                "only_rec": true
             }
         }
     },
@@ -386,8 +381,8 @@
             }
         },
         "next": [
-            "GiftOperatorClickGift",
-            "GiftOperatorClickGiftFull"
+            "GiftOperatorClickGift"
+            //"GiftOperatorClickGiftFull"
         ]
     },
     "GiftOperatorClickGiftFull": {
@@ -466,12 +461,11 @@
             "[JumpBack]GiftOperatorMoveAhead",
             "GiftOperatorSkipDialog",
             "GiftOperatorBranchGift",
-            "GiftOperatorBranchMaxAffinity",
             "GiftOperatorLeave"
         ]
     },
     "GiftOperatorSkipDialog": {
-        "desc": "跳过对话，然后判断三种分支。next 含自身以便未跳转时重试一次点击",
+        "desc": "跳过对话，然后判断赠送 / 收礼分支。next 含自身以便未跳转时重试一次点击",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -512,7 +506,6 @@
         "next": [
             "GiftOperatorBranchGift",
             "GiftOperatorBranchReceive",
-            "GiftOperatorBranchMaxAffinity",
             "GiftOperatorSkipDialog"
         ]
     }

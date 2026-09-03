@@ -1,6 +1,6 @@
-import {readFileSync} from "node:fs";
 import {dirname, resolve} from "node:path";
 import {fileURLToPath} from "node:url";
+import {readJsonc} from "../../jsonc.mjs";
 import {dataDir} from "../../utils/paths.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -18,7 +18,7 @@ export const LOCALES = [
 ];
 
 export function readJson(path) {
-    return JSON.parse(readFileSync(path, "utf8"));
+    return readJsonc(path);
 }
 
 export function readEnvironmentMonitoringData() {

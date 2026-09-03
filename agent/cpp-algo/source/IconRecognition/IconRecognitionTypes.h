@@ -82,6 +82,12 @@ inline std::optional<GridType> ParseGridType(std::string_view name)
     return std::nullopt;
 }
 
+// 地区禁用图标只存在于背包/储存站的物品格；交易、奖励等卡片界面不能套用该后备模板。
+inline constexpr bool SupportsRegionUnavailableRecognition(GridType type)
+{
+    return type == GridType::Transfer || type == GridType::PortStorager;
+}
+
 inline json::value RectToJson(const cv::Rect& rect)
 {
     return json::array { rect.x, rect.y, rect.width, rect.height };
@@ -131,6 +137,7 @@ struct ItemMatch
     cv::Rect cell_box;
     cv::Rect item_box;
     double score = 0.0;
+    bool region_unavailable = false;
     std::optional<int> row;
     std::optional<int> column;
 
@@ -147,6 +154,10 @@ struct ItemMatch
             { "item_box", RectToJson(item_box) },
             { "score", score },
         };
+        if (region_unavailable) {
+            // false 没有必要导出，普通识别结果保持紧凑。
+            object["region_unavailable"] = true;
+        }
         if (row) {
             object["row"] = *row;
         }
@@ -161,6 +172,8 @@ struct CandidateFilter
 {
     std::vector<std::string> item_ids;
     std::vector<std::string> item_filters;
+    std::vector<std::string> additional_item_filters;
+    std::vector<std::string> excluded_item_ids;
     std::vector<std::string> item_recheck_filters;
 };
 
@@ -178,6 +191,8 @@ struct RecognitionRequest
     double subpixel_threshold = 0.60;
     // 默认保留同一 item 的所有格子命中，由调用方决定是否按 item 去重。
     bool deduplicate = false;
+    // 地区禁用模板只作为普通识别失败后的按需后备，默认不加载也不参与识别。
+    bool recognize_region_unavailable = false;
     // 默认不采集内部诊断和耗时，避免正常识别承担额外观测开销。
     bool debug = false;
 };
@@ -185,7 +200,7 @@ struct RecognitionRequest
 struct RecognitionResult
 {
     // 公开 detail JSON 的结构版本，字段发生不兼容变化时递增。
-    int detail_version = 2;
+    int detail_version = 3;
     bool matched = false;
     // 结果对象的构造占位值；has_grid_type=false 时不会序列化该字段。
     GridType grid_type = GridType::Transfer;

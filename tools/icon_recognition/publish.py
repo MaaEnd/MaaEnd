@@ -6,13 +6,21 @@ import argparse
 import json
 import shutil
 from collections import OrderedDict
+from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
 
 from catalog import build_catalog, write_catalog
 from download import validate_icon_png_bytes
 from fixed_items import FIXED_ITEMS
-from localization import LOCALE_MAP, build_locale_values, generate_locales, load_json_object
+from localization import (
+    LOCALE_MAP,
+    build_locale_values,
+    build_source_index,
+    generate_locales,
+    load_json_object,
+    update_interface_locale,
+)
 
 
 @dataclass(frozen=True)
@@ -42,11 +50,74 @@ def default_publish_paths(repo_root: str | Path | None = None) -> PublishPaths:
     )
 
 
+def sync_published_images(
+    image_root: Path,
+    asset_image_root: Path,
+    catalog: dict[str, dict[str, object]],
+    item_source: Mapping[str, object],
+) -> None:
+    """按 catalog 同步图标, 迁移稀有度变更路径且不覆盖既有目标文件"""
+    expected_images = {
+        Path(str(record["rarity"])) / f"{record['iconId']}.png"
+        for record in catalog.values()
+    }
+    # 流体物品本身不进入 catalog，稀有度必须以 item.json 的源记录为准。
+    source_by_icon_id = {
+        record.get("iconId"): record
+        for record in item_source.values()
+        if isinstance(record, Mapping) and isinstance(record.get("iconId"), str)
+    }
+    for record in catalog.values():
+        fluid_icon_id = record.get("fluidIconId")
+        if not fluid_icon_id:
+            continue
+        fluid_source = source_by_icon_id.get(fluid_icon_id)
+        if fluid_source is None:
+            raise ValueError(f"item.json 找不到流体图标对应物品: {fluid_icon_id}")
+        expected_images.add(
+            Path(str(fluid_source["rarity"])) / f"{fluid_icon_id}.png"
+        )
+    asset_image_root.mkdir(parents=True, exist_ok=True)
+    for relative_path in expected_images:
+        destination = asset_image_root / relative_path
+        stale_paths = [
+            path
+            for path in asset_image_root.glob(f"*/{relative_path.name}")
+            if path.is_file() and path != destination
+        ]
+        if destination.exists():
+            for stale in stale_paths:
+                stale.unlink()
+            continue
+        if len(stale_paths) == 1:
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            stale_paths[0].replace(destination)
+            continue
+        source = image_root / relative_path
+        if not source.is_file():
+            continue
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source, destination)
+
+
 def publish(paths: PublishPaths) -> tuple[int, dict[str, int]]:
     source = json.loads(paths.item_source.read_text(encoding="utf-8-sig"), object_pairs_hook=OrderedDict)
     if not isinstance(source, dict):
         raise ValueError(f"JSON 顶层必须是对象: {paths.item_source}")
     catalog = build_catalog(source, paths.image_root)
+    localization_source = build_source_index(
+        load_json_object(paths.localization_item_source),
+        load_json_object(paths.weapon_source),
+    )
+    zh_cn_values = build_locale_values(
+        catalog,
+        localization_source,
+        "CN",
+        load_json_object(paths.language_root / "lang_zh-CN.json"),
+    )
+    for item_id, record in catalog.items():
+        record["name"] = zh_cn_values[f"iconRecognition.name.{item_id}"]
+    sync_published_images(paths.image_root, paths.asset_image_root, catalog, source)
     paths.catalog_output.parent.mkdir(parents=True, exist_ok=True)
     write_catalog(catalog, paths.catalog_output)
     locale_counts = generate_locales(
@@ -92,20 +163,23 @@ def publish_fixed_items(paths: PublishPaths) -> int:
     fixed_catalog = build_catalog(fixed_source, paths.asset_image_root)
     if len(fixed_catalog) != len(FIXED_ITEMS):
         raise ValueError("固定物品图标未完整生成 catalog")
-    catalog = load_json_object(paths.catalog_output)
-    catalog.update(fixed_catalog)
-    write_catalog(OrderedDict(sorted(catalog.items())), paths.catalog_output)
-
+    zh_cn_values = build_locale_values(
+        fixed_catalog,
+        {},
+        "CN",
+        load_json_object(paths.language_root / "lang_zh-CN.json"),
+    )
     for locale, (weapon_language, path_language) in LOCALE_MAP.items():
         translations = load_json_object(paths.language_root / f"lang_{path_language}.json")
         values = build_locale_values(fixed_catalog, {}, weapon_language, translations)
         locale_path = paths.locale_root / f"{locale}.json"
-        interface = load_json_object(locale_path)
-        interface.update(values)
-        locale_path.write_text(
-            json.dumps(interface, ensure_ascii=False, indent=4) + "\n",
-            encoding="utf-8",
-        )
+        update_interface_locale(locale_path, values, remove_stale=False)
+
+    for item_id, record in fixed_catalog.items():
+        record["name"] = zh_cn_values[f"iconRecognition.name.{item_id}"]
+    catalog = load_json_object(paths.catalog_output)
+    catalog.update(fixed_catalog)
+    write_catalog(OrderedDict(sorted(catalog.items())), paths.catalog_output)
     return len(fixed_catalog)
 
 

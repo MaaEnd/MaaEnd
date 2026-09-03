@@ -8,13 +8,17 @@
 # SDK 路径按以下顺序解析：
 #   1. CMake cache 变量 WEBVIEW2_SDK_DIR
 #   2. 同名环境变量 WEBVIEW2_SDK_DIR
-#   3. 默认位置 <repo>/agent/cpp-algo/3rdparty/webview2（由 tools/setup_workspace.py 准备）
+#   3. 默认位置 <repo>/agent/cpp-algo/3rdparty/webview2（由 setup-workspace 准备）
 #
 # 期望的目录结构（NuGet 包解压后的根目录）：
 #   <root>/build/native/include/WebView2.h
 #   <root>/build/native/<arch>/WebView2Loader.dll
 #   <root>/build/native/<arch>/WebView2Loader.dll.lib
-# 其中 <arch> 取自 VS 生成器平台名：x64 / arm64 / x86
+# 其中 <arch> 的判定优先级：
+#   1. MAADEPS_TRIPLET（maa-<x64|arm64>-...，maadeps.cmake 保证已设置，最可靠）
+#   2. VS 生成器平台名 CMAKE_VS_PLATFORM_NAME / CMAKE_GENERATOR_PLATFORM
+#   3. CMAKE_SYSTEM_PROCESSOR（Ninja + MSVC 时也可能为空）
+#   4. 指针位宽兜底（x64/arm64 都是 8，只能区分 32/64）
 #
 # 使用方式：
 #   if(TARGET WebView2::WebView2)
@@ -26,7 +30,7 @@
 # 平台行为：
 #   - 非 Windows：no-op，不创建任何目标
 #   - Windows + 能定位到 SDK：创建 WebView2::WebView2 IMPORTED 目标
-#   - Windows + 三种来源全部失败：FATAL_ERROR 并提示运行 setup_workspace.py
+#   - Windows + 三种来源全部失败：FATAL_ERROR 并提示运行 setup-workspace
 
 if(NOT WIN32)
     return()
@@ -41,7 +45,7 @@ if(NOT WEBVIEW2_SDK_DIR)
 endif()
 
 if(NOT WEBVIEW2_SDK_DIR)
-    # 默认位置：cpp-algo 自己的 3rdparty/webview2 子目录，由 tools/setup_workspace.py
+    # 默认位置：cpp-algo 自己的 3rdparty/webview2 子目录，由 setup-workspace
     # 在工作区初始化阶段一次性下载并解压。
     # 当前文件位于 <repo>/agent/cpp-algo/cmake/，所以 ../3rdparty 指向 <repo>/agent/cpp-algo/3rdparty。
     set(_webview2_default_dir "${CMAKE_CURRENT_LIST_DIR}/../3rdparty/webview2")
@@ -56,34 +60,44 @@ if(NOT WEBVIEW2_SDK_DIR)
     message(FATAL_ERROR
         "WebView2 SDK is required for the Windows build but cannot be located.\n"
         "Choose one of the following:\n"
-        "  - Run `python tools/setup_workspace.py` (downloads SDK to agent/cpp-algo/3rdparty/webview2/)\n"
-        "  - Run `python tools/dep_3rdparty.py --webview2` to only fetch the SDK\n"
+        "  - Run `uv run setup-workspace` (downloads SDK to agent/cpp-algo/3rdparty/webview2/)\n"
+        "  - Run `python -m tools.setup.dep_3rdparty --webview2` to only fetch the SDK\n"
         "  - Pass -DWEBVIEW2_SDK_DIR=<extracted NuGet root> to cmake configure\n"
         "  - Set WEBVIEW2_SDK_DIR environment variable to point at an extracted SDK")
 endif()
 
 # Visual Studio 生成器优先使用 CMAKE_VS_PLATFORM_NAME / CMAKE_GENERATOR_PLATFORM；
 # 其它生成器（理论上不会进到这里，因为 WIN32 + 其它生成器较少见）回退到指针位宽。
-if(CMAKE_VS_PLATFORM_NAME)
+# 架构判定：优先解析 MAADEPS_TRIPLET（maa-<arch>-<os>），它由 maadeps.cmake
+# 设置并被 build-and-install / CI 显式传入，包含准确的目标架构（x64/arm64）。
+if(MAADEPS_TRIPLET MATCHES "maa-(x64|arm64|x86)-")
+    set(_webview2_arch "${CMAKE_MATCH_1}")
+elseif(CMAKE_VS_PLATFORM_NAME)
     set(_webview2_vs_platform "${CMAKE_VS_PLATFORM_NAME}")
 elseif(CMAKE_GENERATOR_PLATFORM)
     set(_webview2_vs_platform "${CMAKE_GENERATOR_PLATFORM}")
+elseif(CMAKE_SYSTEM_PROCESSOR)
+    set(_webview2_vs_platform "${CMAKE_SYSTEM_PROCESSOR}")
 else()
     set(_webview2_vs_platform "")
 endif()
 
-string(TOLOWER "${_webview2_vs_platform}" _webview2_vs_platform_lower)
-
-if(_webview2_vs_platform_lower STREQUAL "arm64")
-    set(_webview2_arch "arm64")
-elseif(_webview2_vs_platform_lower STREQUAL "x64")
-    set(_webview2_arch "x64")
-elseif(_webview2_vs_platform_lower STREQUAL "win32")
-    set(_webview2_arch "x86")
-elseif(CMAKE_SIZEOF_VOID_P EQUAL 8)
-    set(_webview2_arch "x64")
-else()
-    set(_webview2_arch "x86")
+if(NOT _webview2_arch)
+    string(TOLOWER "${_webview2_vs_platform}" _webview2_vs_platform_lower)
+    if(_webview2_vs_platform_lower STREQUAL "arm64")
+        set(_webview2_arch "arm64")
+    elseif(_webview2_vs_platform_lower STREQUAL "x64"
+           OR _webview2_vs_platform_lower STREQUAL "amd64"
+           OR _webview2_vs_platform_lower STREQUAL "x86_64")
+        set(_webview2_arch "x64")
+    elseif(_webview2_vs_platform_lower STREQUAL "win32"
+           OR _webview2_vs_platform_lower STREQUAL "x86")
+        set(_webview2_arch "x86")
+    elseif(CMAKE_SIZEOF_VOID_P EQUAL 8)
+        set(_webview2_arch "x64")
+    else()
+        set(_webview2_arch "x86")
+    endif()
 endif()
 
 set(_webview2_native_dir "${WEBVIEW2_SDK_DIR}/build/native")

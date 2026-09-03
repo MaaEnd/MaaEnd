@@ -37,7 +37,8 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "AutoSellEnterStockRedistribution"
+            "AutoSellEnterStockRedistribution",
+            "AutoSellSearchStockRedistribution"
         ],
         "focus": {
             "Node.Action.Starting": "正在走向物资调度终端",
@@ -48,6 +49,23 @@
                 "trace": true
             }
         }
+    },
+    "AutoSellSearchStockRedistribution": {
+        "desc": "导航结束后未找到物资调度终端时，环绕微调站位并持续查找终端",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "CharacterSearchAction",
+        "custom_action_param": {
+            "wait_nodes": [
+                "AutoSellEnterStockRedistribution"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoSellEnterStockRedistribution"
+        ]
     },
     "AutoSellEnterStockRedistribution": {
         "desc": "进入物资调度页面",

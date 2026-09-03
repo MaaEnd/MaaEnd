@@ -13,6 +13,16 @@
                 "item_activity_xiranite_cmpt",
                 "item_activity_xiranite_bottle"
             ]
+        },
+        {
+            "storageKind": "Normal",
+            "categoryType": "Producer",
+            "ids": [
+                "item_port_rainbow_1",
+                "item_port_dream_bubble_1",
+                "item_port_crystal_ball_1",
+                "item_port_barbecue_1"
+            ]
         }
     ]
 }

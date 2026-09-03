@@ -13,11 +13,10 @@ import (
 /* ******** Controller Type ******** */
 
 const (
-	CONTROL_TYPE_WIN32   = "win32"
-	CONTROL_TYPE_MACOS   = "macos"
-	CONTROL_TYPE_WLROOTS = "wlroots"
-	CONTROL_TYPE_LINUX   = "linux"
-	CONTROL_TYPE_ADB     = "adb"
+	CONTROL_TYPE_WIN32 = "win32"
+	CONTROL_TYPE_MACOS = "macos"
+	CONTROL_TYPE_LINUX = "linux"
+	CONTROL_TYPE_ADB   = "adb"
 )
 
 type maaControllerInfoDto struct {
@@ -48,8 +47,8 @@ func GetControlType(ctrl *maa.Controller) (string, error) {
 		if strings.Contains(infoStr, CONTROL_TYPE_MACOS) {
 			return CONTROL_TYPE_MACOS, nil
 		}
-		if strings.Contains(infoStr, CONTROL_TYPE_LINUX) || strings.Contains(infoStr, CONTROL_TYPE_WLROOTS) {
-			return CONTROL_TYPE_WLROOTS, nil
+		if strings.Contains(infoStr, CONTROL_TYPE_LINUX) {
+			return CONTROL_TYPE_LINUX, nil
 		}
 		if strings.Contains(infoStr, CONTROL_TYPE_ADB) {
 			return CONTROL_TYPE_ADB, nil
@@ -66,8 +65,8 @@ func GetControlType(ctrl *maa.Controller) (string, error) {
 	if info.Type == CONTROL_TYPE_MACOS {
 		return CONTROL_TYPE_MACOS, nil
 	}
-	if info.Type == CONTROL_TYPE_LINUX || info.Type == CONTROL_TYPE_WLROOTS {
-		return CONTROL_TYPE_WLROOTS, nil
+	if info.Type == CONTROL_TYPE_LINUX {
+		return CONTROL_TYPE_LINUX, nil
 	}
 	if info.Type == CONTROL_TYPE_ADB {
 		return CONTROL_TYPE_ADB, nil

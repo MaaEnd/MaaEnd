@@ -1,7 +1,0 @@
-node_modules/
-*.tsbuildinfo
-vite.config.d.ts
-vite.config.js
-src/**/*.js
-dist/*
-!dist/static_files.zip

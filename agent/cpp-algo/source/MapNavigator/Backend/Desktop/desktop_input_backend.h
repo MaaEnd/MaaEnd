@@ -31,6 +31,7 @@ public:
     bool is_supported() const override;
     const std::string& unsupported_reason() const override;
     double default_turn_units_per_degree() const override;
+    double default_pitch_units_per_degree() const override;
     SteeringTransportProfile steering_transport_profile() const override;
 
     bool supports_sprint() const override { return true; }
@@ -66,6 +67,7 @@ private:
     std::string unsupported_reason_;
     DesktopKeyCodes key_codes_ {};
     double default_turn_units_per_degree_ = 0.0;
+    double default_pitch_units_per_degree_ = 0.0;
     bool mouse_lock_follow_enabled_ = false;
     bool background_managed_keys_enabled_ = false;
     int hover_x_ = 0;
@@ -77,13 +79,8 @@ private:
     bool right_down_ = false;
 };
 
-// 返回终末地默认绑定下的 Win32 Virtual-Key 键码表。
-// Win32 控制器原生使用 VK 码；WlRoots 控制器在 interface.json 中开启
-// use_win32_vk_code，MaaFramework 会将这些码翻译为 Linux evdev 码。
 DesktopKeyCodes MakeDesktopKeyCodes();
 
-// 构造以 VK 码为语义的桌面端（Win32 / WlRoots）输入后端。
-// backend_name 仅用于日志区分（"win32" / "wlroots"）。
 std::unique_ptr<IInputBackend> CreateDesktopInputBackend(MaaController* ctrl, std::string controller_type, std::string backend_name);
 
 } // namespace mapnavigator::backend::desktop

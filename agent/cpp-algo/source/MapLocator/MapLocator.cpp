@@ -807,6 +807,10 @@ private:
     std::uint64_t frameId = 0;
     std::uint64_t activeFrameId = 0;
 
+    // 小地图被遮挡的起始时刻，未遮挡时为默认值；超时放行后置位以免重复打日志
+    TimePoint occludedSince {};
+    bool occlusionTimedOut = false;
+
     std::vector<MapPosition> coldStartBuffer;
     std::optional<MapPosition> stablePosition;
 
@@ -1801,6 +1805,27 @@ LocateResult MapLocator::Impl::locate(const cv::Mat& minimap, const LocateOption
         return *resolvedAngle;
     };
 
+    // 角色箭头画在小地图最上层，正常一定看得见；看不见只能是有东西整个盖住了小地图。
+    // 这种帧的匹配分数面已被遮挡重塑，最高峰可能落在别处，所以整帧作废让上层原地等它散开
+    // （拿不到位置时导航本来就会停步重试），超时后改为放行，避免长期遮挡处彻底卡死。
+    if (resolveAngle() < 0.0) {
+        if (occludedSince == TimePoint {}) {
+            occludedSince = now;
+            occlusionTimedOut = false;
+            LogWarn << "Minimap occluded: character arrow not visible; holding until it clears.";
+        }
+        if (now - occludedSince < std::chrono::milliseconds(kOcclusionRejectTimeoutMs)) {
+            return LocateResult { .status = LocateStatus::ScreenBlocked, .debugMessage = "Minimap occluded: arrow not visible." };
+        }
+        if (!occlusionTimedOut) {
+            occlusionTimedOut = true;
+            LogWarn << "Minimap occlusion outlasted the reject timeout; locating on occluded frames again.";
+        }
+    }
+    else {
+        occludedSince = {};
+    }
+
     std::optional<YoloCoarseResult> angleGuardCoarse;
     FrameTemplateFeatureCache featureCache;
     std::optional<AsyncYoloHandle> sameFrameYolo;
@@ -2058,6 +2083,7 @@ void MapLocator::Impl::resetTrackingState()
         motionTracker->clearVelocity();
     }
     currentZoneId = "";
+    occludedSince = {};
     coldStartBuffer.clear();
     stablePosition.reset();
     arbiterRejectedPrimary.reset();

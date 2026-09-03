@@ -2,7 +2,6 @@ package essencefilter
 
 import (
 	"fmt"
-	"path/filepath"
 	"sort"
 	"strings"
 
@@ -12,30 +11,21 @@ import (
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 )
 
-func dataDirFromResourceBase() string {
-	base := getResourceBase()
-	if base == "" {
-		base = "data"
-	}
-	return filepath.Join(base, "EssenceFilter")
-}
+const essenceFilterDataDir = "data/EssenceFilter"
 
-func reportFocusByKey(ctx *maa.Context, _ *RunState, key string, args ...any) {
+func reportFocusByKey(ctx *maa.Context, key string, args ...any) {
 	maafocus.Print(ctx, i18n.T("essencefilter."+key, args...))
 }
 
-func reportSimpleByKey(ctx *maa.Context, _ *RunState, key string, args ...any) {
+func reportSimpleByKey(ctx *maa.Context, key string, args ...any) {
 	LogMXUSimpleHTML(ctx, i18n.T("essencefilter."+key, args...))
 }
 
-func reportColoredByKey(ctx *maa.Context, _ *RunState, color string, key string, args ...any) {
+func reportColoredByKey(ctx *maa.Context, color string, key string, args ...any) {
 	LogMXUSimpleHTMLWithColor(ctx, i18n.T("essencefilter."+key, args...), color)
 }
 
 func buildMatchOptions(st *RunState) matchapi.EssenceFilterOptions {
-	if st == nil {
-		return matchapi.EssenceFilterOptions{}
-	}
 	return matchOptsFromPipeline(&st.PipelineOpts)
 }
 
@@ -117,22 +107,22 @@ func buildInitViewModel(st *RunState) InitViewModel {
 	return vm
 }
 
-func reportInitSelection(ctx *maa.Context, st *RunState, weaponRarity []int, essenceTypes []EssenceMeta) {
+func reportInitSelection(ctx *maa.Context, weaponRarity []int, essenceTypes []string) {
 	if len(weaponRarity) == 0 {
-		reportSimpleByKey(ctx, st, "focus.init.no_weapon_rarity")
+		reportSimpleByKey(ctx, "focus.init.no_weapon_rarity")
 	} else {
-		reportSimpleByKey(ctx, st, "focus.init.selected_rarity", rarityListToString(weaponRarity))
+		reportSimpleByKey(ctx, "focus.init.selected_rarity", rarityListToString(weaponRarity))
 	}
-	reportSimpleByKey(ctx, st, "focus.init.selected_essence", essenceListToString(essenceTypes))
+	reportSimpleByKey(ctx, "focus.init.selected_essence", essenceListToString(essenceTypes))
 }
 
-func reportInitWeapons(ctx *maa.Context, st *RunState, weapons []matchapi.WeaponData) {
+func reportInitWeapons(ctx *maa.Context, weapons []matchapi.WeaponData) {
 	if len(weapons) == 0 {
-		reportSimpleByKey(ctx, st, "focus.init.filtered_count_ext_only")
-		reportSimpleByKey(ctx, st, "focus.init.no_weapon_list")
+		reportSimpleByKey(ctx, "focus.init.filtered_count_ext_only")
+		reportSimpleByKey(ctx, "focus.init.no_weapon_list")
 		return
 	}
-	reportSimpleByKey(ctx, st, "focus.init.filtered_count", len(weapons))
+	reportSimpleByKey(ctx, "focus.init.filtered_count", len(weapons))
 	const columns = 3
 	var rows [][]weaponColorView
 	var row []weaponColorView
@@ -148,10 +138,10 @@ func reportInitWeapons(ctx *maa.Context, st *RunState, weapons []matchapi.Weapon
 	}))
 }
 
-func reportInitSkillList(ctx *maa.Context, st *RunState, slotSkills [3][]string) {
+func reportInitSkillList(ctx *maa.Context, slotSkills [3][]string) {
 	total := len(slotSkills[0]) + len(slotSkills[1]) + len(slotSkills[2])
 	if total == 0 {
-		reportSimpleByKey(ctx, st, "focus.init.no_skill_list")
+		reportSimpleByKey(ctx, "focus.init.no_skill_list")
 		return
 	}
 
@@ -209,10 +199,10 @@ func reportFinishExtRuleStats(ctx *maa.Context, st *RunState) {
 	}
 	po := &st.PipelineOpts
 	if po.KeepFuturePromising {
-		reportColoredByKey(ctx, st, "#064d7c", "focus.finish.ext_future", st.ExtFuturePromisingCount)
+		reportColoredByKey(ctx, "#064d7c", "focus.finish.ext_future", st.ExtFuturePromisingCount)
 	}
 	if po.KeepSlot3Level3Practical {
-		reportColoredByKey(ctx, st, "#064d7c", "focus.finish.ext_practical", st.ExtSlot3PracticalCount)
+		reportColoredByKey(ctx, "#064d7c", "focus.finish.ext_practical", st.ExtSlot3PracticalCount)
 	}
 }
 
@@ -220,9 +210,9 @@ func reportFinishArtifacts(ctx *maa.Context, st *RunState) {
 	if st == nil {
 		return
 	}
-	logMatchSummary(ctx)
+	logMatchSummary(ctx, st)
 	if st.PipelineOpts.ExportCalculatorScript {
-		logCalculatorResult(ctx)
+		logCalculatorResult(ctx, st)
 	}
 }
 
@@ -245,9 +235,9 @@ func runUnifiedSkillDecision(
 	matchResult, err := engine.MatchOCR(ocr, buildMatchOptions(st))
 	if err != nil || matchResult == nil {
 		if err != nil {
-			reportFocusByKey(ctx, st, "focus.error.match_failed", err.Error())
+			reportFocusByKey(ctx, "focus.error.match_failed", err.Error())
 		} else {
-			reportFocusByKey(ctx, st, "focus.error.match_failed", "nil match result")
+			reportFocusByKey(ctx, "focus.error.match_failed", "nil match result")
 		}
 		return false
 	}
@@ -331,30 +321,16 @@ func runUnifiedSkillDecision(
 	return true
 }
 
-// EnsureMatchEngine centralizes engine initialization and reuse logic.
-// If run state already has an engine, it is reused directly.
-// Otherwise, options + locale are read from node attach and an engine is loaded.
-func EnsureMatchEngine(ctx *maa.Context, st *RunState, nodeName string) (*matchapi.Engine, *EssenceFilterOptions, error) {
-	if st != nil && st.MatchEngine != nil {
-		opts := st.PipelineOpts
-		return st.MatchEngine, &opts, nil
-	}
-
+func loadMatchEngine(ctx *maa.Context, nodeName string) (*matchapi.Engine, *EssenceFilterOptions, error) {
 	opts, err := getOptionsFromAttach(ctx, nodeName)
 	if err != nil {
 		return nil, nil, fmt.Errorf("load options from %s: %w", nodeName, err)
 	}
 
 	locale := matchapi.NormalizeInputLocale(opts.InputLanguage)
-	engine, err := matchapi.NewEngineFromDirWithLocale(dataDirFromResourceBase(), locale)
+	engine, err := matchapi.NewEngineFromDirWithLocale(essenceFilterDataDir, locale)
 	if err != nil {
 		return nil, nil, fmt.Errorf("load match engine: %w", err)
-	}
-
-	if st != nil {
-		st.PipelineOpts = *opts
-		st.InputLanguage = locale
-		st.MatchEngine = engine
 	}
 	return engine, opts, nil
 }

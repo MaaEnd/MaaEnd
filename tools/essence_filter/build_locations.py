@@ -12,10 +12,13 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 import unicodedata
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List
+
+import json5
 
 DEFAULT_ENERGY_POINTS = Path("assets/data/EssenceFilter/energy_point_gems.json")
 DEFAULT_SKILL_POOLS = Path("assets/data/EssenceFilter/skill_pools.json")
@@ -69,13 +72,16 @@ def _update_data_version(config_path: Path) -> None:
     """将 matcher_config 的 data_version 更新为当天日期（d/m/yyyy）。"""
     if not config_path.exists():
         return
-    with config_path.open("r", encoding="utf-8") as f:
-        data = json.load(f)
+    with config_path.open("r", encoding="utf-8-sig") as f:
+        data = json5.load(f)
     if not isinstance(data, dict):
         return
 
     now = datetime.now()
-    data["data_version"] = f"{now.day}/{now.month}/{now.year}"
+    new_version = f"{now.day}/{now.month}/{now.year}"
+    if data.get("data_version") == new_version:
+        return  # 无变化不重写，避免用 json.dump 抹掉手写注释
+    data["data_version"] = new_version
     with config_path.open("w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=4)
         f.write("\n")

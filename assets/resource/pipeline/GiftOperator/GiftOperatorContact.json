@@ -395,8 +395,7 @@
             }
         },
         "next": [
-            "GiftOperatorSelectOp2",
-            "GiftOperatorSelectTrustFull"
+            "GiftOperatorSelectOp2"
         ]
     },
     "GiftOperatorCheckSelected2": {
@@ -412,8 +411,7 @@
             }
         },
         "next": [
-            "GiftOperatorSelectOp3",
-            "GiftOperatorSelectTrustFull"
+            "GiftOperatorSelectOp3"
         ]
     },
     "GiftOperatorCheckSelected3": {
@@ -490,15 +488,6 @@
             "[JumpBack]GiftOperatorMoveAhead"
         ]
     },
-    "GiftOperatorSelectTrustFull": {
-        "desc": "选择干员阶段信赖已满",
-        "next": [
-            "GiftOperatorConfirmSelect"
-        ],
-        "focus": {
-            "Node.Recognition.Succeeded": "$task.GiftOperator.focus.select_trust_full"
-        }
-    },
     "GiftOperatorTrustIcon": {
         "desc": "干员信赖度图标",
         "recognition": {
@@ -573,45 +562,13 @@
                     -8
                 ],
                 "expected": [
-                    "^((?!200).)*$"
+                    // 信赖度数值，含满信赖 200
+                    // @i18n-skip
+                    "\\d+"
                 ],
                 "only_rec": true,
                 "order_by": "Vertical"
             }
-        }
-    },
-    "GiftOperatorTrustValueFull": {
-        "desc": "干员信赖已满",
-        "recognition": {
-            "type": "OCR",
-            "param": {
-                "roi": "GiftOperatorTrustIcon",
-                "roi_offset": [
-                    14,
-                    1,
-                    19,
-                    -2
-                ],
-                "expected": [
-                    "^200"
-                ],
-                "only_rec": true
-            }
-        }
-    },
-    "GiftOperatorTrustFull": {
-        "desc": "干员信赖已满",
-        "recognition": {
-            "type": "And",
-            "param": {
-                "all_of": [
-                    "GiftOperatorTrustIcon",
-                    "GiftOperatorTrustValueFull"
-                ]
-            }
-        },
-        "focus": {
-            "focus.Node.Recognition.Succeeded": "$task.GiftOperator.focus.all_full"
         }
     },
     "GiftOperatorSelectOp1": {
@@ -633,10 +590,7 @@
         "timeout": 7000,
         "next": [
             "GiftOperatorCheckSelected1"
-        ],
-        "focus": {
-            "Tasker.Task.Failed": "$task.GiftOperator.focus.select_op1"
-        }
+        ]
     },
     "GiftOperatorSelectOp2": {
         "desc": "选择第二个干员",

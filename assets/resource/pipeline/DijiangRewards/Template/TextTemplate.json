@@ -180,6 +180,21 @@
             }
         }
     },
+    "ReceptionRoomSetCluesQuickAddText": {
+        "desc": "[会客室·线索] 识别「快速填入」按钮文本",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "ReceptionRoomSetCluesQuickAddColor",
+                "expected": [
+                    "快速填入",
+                    "Quick Add",
+                    "一括配置",
+                    "빠른 입력"
+                ]
+            }
+        }
+    },
     "ClueItemCount": {
         "recognition": {
             "type": "OCR",

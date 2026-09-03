@@ -9,6 +9,10 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// gridPointsCache 缓存最近一次识别的格点屏幕坐标（键为相对中心的格位），
+// 供 ConfigureSwipeAction 查询拖拽终点。
+var gridPointsCache map[gridPosition]gridCoordinate
+
 var _ maa.CustomRecognitionRunner = &GridRecognition{}
 
 type gridCoordinate struct {
@@ -48,6 +52,18 @@ func (r *GridRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (
 		log.Warn().Str("component", "AeroSalvageGridRecognition").Int("grid_points", len(points)).Msg("unexpected grid point count")
 		return nil, false
 	}
+
+	cache := make(map[gridPosition]gridCoordinate, len(points))
+	for _, point := range points {
+		position := gridPosition{X: point.Column - 2, Y: point.Row - 2}
+		if _, exists := cache[position]; exists {
+			return recognitionError("build grid cache", fmt.Errorf("duplicate grid position %+v", position))
+		}
+		cache[position] = gridCoordinate{
+			Row: point.Row, Column: point.Column, X: point.Center.X, Y: point.Center.Y,
+		}
+	}
+	gridPointsCache = cache
 
 	detail := recognitionDetail{
 		GridPoints: make([]gridCoordinate, 0, len(points)),

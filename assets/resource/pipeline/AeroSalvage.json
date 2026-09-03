@@ -123,27 +123,36 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
-            "AeroSalvageGridRecognition"
+            "AeroSalvageConfigureSwipe"
         ]
     },
-    "AeroSalvageGridRecognition": {
-        "desc": "识别格点",
-        "recognition": "Custom",
-        "custom_recognition": "AeroSalvageGridRecognition",
-        "custom_recognition_param": {
-            "grid_roi": [
-                482,
-                167,
-                313,
-                336
-            ],
-            "center_roi": [
-                634,
-                335,
-                11,
-                11
-            ]
-        },
+    "AeroSalvageConfigureSwipe": {
+        "desc": "识别格点与气球状态并配置下一次拖拽",
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "Custom",
+                "custom_recognition": "AeroSalvageGridRecognition",
+                "custom_recognition_param": {
+                    "grid_roi": [
+                        482,
+                        167,
+                        313,
+                        336
+                    ],
+                    "center_roi": [
+                        634,
+                        335,
+                        11,
+                        11
+                    ]
+                }
+            },
+            {
+                "recognition": "Custom",
+                "custom_recognition": "AeroSalvageBalloonStateRecognition"
+            }
+        ],
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "AeroSalvageConfigureSwipeAction",
@@ -179,10 +188,9 @@
                 316
             ]
         },
-        "post_delay": 800, // 真得写这么长
         "next": [
             "AeroSalvageComplete",
-            "AeroSalvageGridRecognition"
+            "AeroSalvageConfigureSwipe"
         ]
     },
     "AeroSalvageComplete": {

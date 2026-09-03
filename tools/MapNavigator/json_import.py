@@ -1,16 +1,13 @@
 from __future__ import annotations
 
-import copy
 import json
 import math
 import re
-import struct
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
-from maptracker_compat import convert_maptracker_points_to_mapnavigator, convert_maptracker_rect
 from model import (
     ACTION_NAME_LOOKUP,
     ActionType,
@@ -31,10 +28,10 @@ ZONE_HINT_KEYS = ("map_name", "mapName", "zone", "zone_id", "zoneId")
 ACTION_KEYS = ("action", "action_type", "actionType", "type")
 STRICT_KEYS = ("strict", "strict_arrival", "strictArrival")
 TARGET_TIER_KEYS = ("target_tier", "targetTier")
+TARGET_DECK_Y_KEYS = ("target_deck_y", "targetDeckY")
 CONTROL_ACTION_NAMES = {"HEADING", "ZONE"}
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-MAP_TRACKER_MAP_DIR = PROJECT_ROOT / "assets" / "resource" / "image" / "MapTracker" / "map"
-MAP_TRACKER_BBOX_PATH = MAP_TRACKER_MAP_DIR / "map_bbox.json"
+ASSETS_DIR = PROJECT_ROOT / "assets"
 MAP_LOCATOR_DIR = PROJECT_ROOT / "assets" / "resource" / "image" / "MapLocator"
 
 
@@ -43,7 +40,7 @@ class ImportedRoute:
     points: list[PathPoint]
     route_count: int
     source_has_zone_info: bool
-    converted_maptracker_point_count: int = 0
+    zip_enabled: bool = False
 
 
 @dataclass(frozen=True)
@@ -51,31 +48,194 @@ class ImportedAssertLocation:
     zone_id: str
     target: tuple[float, float, float, float]
     condition_count: int
-    converted_from_maptracker: bool = False
 
 
-def load_points_from_json_file(
-    file_path: str | Path,
-    apply_zone_inference: bool = True,
-    apply_maptracker_compat: bool = True,
-) -> ImportedRoute:
+@dataclass(frozen=True)
+class ProjectImportNode:
+    kind: str
+    resource_path: str
+    node_name: str
+    desc: str = ""
+    point_count: int = 0
+    navmesh_count: int = 0
+    zone_ids: tuple[str, ...] = ()
+    zone_id: str = ""
+    target: tuple[float, float, float, float] | None = None
+    condition_count: int = 0
+    zip_enabled: bool = False
+
+
+def scan_project_import_nodes(
+    assets_dir: str | Path = ASSETS_DIR,
+) -> list[ProjectImportNode]:
+    """列出 assets 中可导入的 MapNavigateAction 与 MapLocateAssertLocation 节点。"""
+    root = Path(assets_dir).resolve()
+    if not root.is_dir():
+        return []
+
+    nodes: list[ProjectImportNode] = []
+    candidates = sorted(
+        (path for path in root.rglob("*") if path.suffix.lower() in {".json", ".jsonc"}),
+        key=lambda path: path.as_posix().casefold(),
+    )
+    for file_path in candidates:
+        try:
+            resolved_file = file_path.resolve()
+            resolved_file.relative_to(root)
+            text = resolved_file.read_text(encoding="utf-8")
+            if '"MapNavigateAction"' not in text and '"MapLocateAssertLocation"' not in text:
+                continue
+            data = _load_jsonc_text(text)
+        except (OSError, ValueError):
+            # assets 中的单个无效文件不应阻断其他可用节点的发现。
+            continue
+        if not isinstance(data, dict):
+            continue
+
+        resource_path = resolved_file.relative_to(root.parent).as_posix()
+        for node_name, node in data.items():
+            raw_desc = node.get("desc", "") if isinstance(node, dict) else ""
+            desc = raw_desc.strip() if isinstance(raw_desc, str) else ""
+            try:
+                route = _project_map_navigate_route(node)
+                assert_locations = discover_assert_locations(node)
+            except (TypeError, ValueError):
+                route = None
+                assert_locations = []
+            if route is not None:
+                zone_ids = tuple(
+                    sorted(
+                        {
+                            zone_id
+                            for point in route
+                            if (zone_id := normalize_zone_id(point.get("zone", "")))
+                        }
+                    )
+                )
+                nodes.append(
+                    ProjectImportNode(
+                        kind="path",
+                        resource_path=resource_path,
+                        node_name=str(node_name),
+                        desc=desc,
+                        point_count=len(route),
+                        navmesh_count=sum(
+                            int(ActionType.NAVMESH) in get_point_actions(point) for point in route
+                        ),
+                        zone_ids=zone_ids,
+                        zip_enabled=node["custom_action_param"].get("zip") is True,
+                    )
+                )
+
+            if assert_locations:
+                location = assert_locations[0]
+                nodes.append(
+                    ProjectImportNode(
+                        kind="assert",
+                        resource_path=resource_path,
+                        node_name=str(node_name),
+                        desc=desc,
+                        zone_id=location.zone_id,
+                        target=location.target,
+                        condition_count=len(assert_locations),
+                    )
+                )
+
+    return sorted(
+        nodes,
+        key=lambda node: (
+            node.resource_path.casefold(),
+            node.node_name.casefold(),
+            node.kind,
+            node.resource_path,
+            node.node_name,
+        ),
+    )
+
+
+def load_project_import_node(
+    kind: str,
+    resource_path: str,
+    node_name: str,
+    assets_dir: str | Path = ASSETS_DIR,
+) -> dict[str, Any]:
+    """从受限的 assets 相对路径重新读取指定的项目导入节点。"""
+    file_path = _resolve_project_resource_file(resource_path, assets_dir)
     data = load_jsonc(file_path)
-    routes = discover_path_routes(data)
-    if not routes:
+    if not isinstance(data, dict):
+        raise ValueError("所选资源文件不是 Pipeline 节点对象")
+    node = data.get(node_name)
+
+    if kind == "path":
+        route = _project_map_navigate_route(node)
+        if route is None:
+            raise ValueError("所选节点不是带有效 path 的 MapNavigateAction")
+        param = node["custom_action_param"]
+        return {
+            "kind": "path",
+            "path": param["path"],
+            "zip_enabled": param.get("zip") is True,
+        }
+
+    if kind == "assert":
+        assert_locations = discover_assert_locations(node)
+        if not assert_locations:
+            raise ValueError("所选节点不包含有效的 MapLocateAssertLocation")
+        location = assert_locations[0]
+        return {
+            "kind": "assert",
+            "zone_id": location.zone_id,
+            "target": list(location.target),
+            "condition_count": len(assert_locations),
+        }
+
+    raise ValueError("不支持的项目节点类型")
+
+
+def _resolve_project_resource_file(
+    resource_path: str,
+    assets_dir: str | Path,
+) -> Path:
+    root = Path(assets_dir).resolve()
+    requested = Path(str(resource_path).replace("\\", "/"))
+    if requested.is_absolute():
+        raise ValueError("资源路径必须是 assets 下的相对路径")
+
+    file_path = (root.parent / requested).resolve()
+    try:
+        file_path.relative_to(root)
+    except ValueError as exc:
+        raise ValueError("资源路径不在项目 assets 目录内") from exc
+    if file_path.suffix.lower() not in {".json", ".jsonc"}:
+        raise ValueError("只支持读取 assets 下的 JSON / JSONC 文件")
+    if not file_path.is_file():
+        raise ValueError("所选资源文件不存在")
+    return file_path
+
+
+def _project_map_navigate_route(node: Any) -> list[PathPoint] | None:
+    if not isinstance(node, dict) or node.get("custom_action") != "MapNavigateAction":
+        return None
+    param = node.get("custom_action_param")
+    if not isinstance(param, dict):
+        return None
+    path = param.get("path")
+    return _parse_route(path, "")
+
+
+def load_points_from_json_file(file_path: str | Path) -> ImportedRoute:
+    data = load_jsonc(file_path)
+    route_requests = _discover_route_requests(data)
+    if not route_requests:
         raise ValueError("未找到可识别的 path 数据")
 
-    selected_route = max(routes, key=len)
+    selected_route, zip_enabled = max(route_requests, key=lambda item: len(item[0]))
     source_has_zone_info = any(normalize_zone_id(point.get("zone", "")) for point in selected_route)
-    converted_count = 0
-    if apply_maptracker_compat:
-        selected_route, converted_count = convert_maptracker_points_to_mapnavigator(selected_route)
-    if apply_zone_inference:
-        selected_route = infer_missing_zones(selected_route)
     return ImportedRoute(
         points=normalize_path_points(selected_route),
-        route_count=len(routes),
+        route_count=len(route_requests),
         source_has_zone_info=source_has_zone_info,
-        converted_maptracker_point_count=converted_count,
+        zip_enabled=zip_enabled,
     )
 
 
@@ -98,7 +258,9 @@ def export_path_nodes(points: list[PathPoint]) -> list[dict[str, Any] | list[int
             current_zone = zone_id
 
         strict_arrival = coerce_strict_arrival(point.get("strict"), default=False)
+        required = coerce_strict_arrival(point.get("required"), default=False)
         target_tier = normalize_zone_id(point.get("target_tier", ""))
+        target_deck_y = point.get("target_deck_y")
         for action in get_point_actions(point):
             target = [_compact_number(point["x"]), _compact_number(point["y"])]
             if action == int(ActionType.NAVMESH):
@@ -106,17 +268,24 @@ def export_path_nodes(points: list[PathPoint]) -> list[dict[str, Any] | list[int
                 navmesh_node: dict[str, Any] = {"action": "NAVMESH", "target": target}
                 if target_tier:
                     navmesh_node["target_tier"] = target_tier
+                if target_deck_y is not None:
+                    navmesh_node["target_deck_y"] = _compact_number(target_deck_y)
+                if required:
+                    navmesh_node["required"] = True
                 exported_nodes.append(navmesh_node)
                 continue
 
-            if target_tier:
+            if target_tier or required:
                 positioned_node: dict[str, Any] = {
                     "action": export_action_token(action),
                     "target": target,
-                    "target_tier": target_tier,
                 }
+                if target_tier:
+                    positioned_node["target_tier"] = target_tier
                 if strict_arrival:
                     positioned_node["strict"] = True
+                if required:
+                    positioned_node["required"] = True
                 exported_nodes.append(positioned_node)
                 continue
 
@@ -160,6 +329,10 @@ def export_assert_location_node(zone_id: str, target: tuple[float, float, float,
 
 def load_jsonc(file_path: str | Path) -> Any:
     text = Path(file_path).read_text(encoding="utf-8")
+    return _load_jsonc_text(text)
+
+
+def _load_jsonc_text(text: str) -> Any:
     sanitized = strip_json_comments(text)
     sanitized = strip_trailing_commas(sanitized)
     try:
@@ -169,7 +342,11 @@ def load_jsonc(file_path: str | Path) -> Any:
 
 
 def discover_path_routes(data: Any) -> list[list[PathPoint]]:
-    routes: list[list[PathPoint]] = []
+    return [route for route, _zip_enabled in _discover_route_requests(data)]
+
+
+def _discover_route_requests(data: Any) -> list[tuple[list[PathPoint], bool]]:
+    routes: list[tuple[list[PathPoint], bool]] = []
     _walk_json_node(data, routes, zone_hint="")
     return routes
 
@@ -178,57 +355,6 @@ def discover_assert_locations(data: Any) -> list[ImportedAssertLocation]:
     assert_locations: list[ImportedAssertLocation] = []
     _walk_assert_location_node(data, assert_locations)
     return assert_locations
-
-
-def infer_missing_zones(points: list[PathPoint]) -> list[PathPoint]:
-    if not points:
-        return points
-    if all(point.get("zone") for point in points):
-        return points
-
-    candidates = _load_map_candidates()
-    if not candidates:
-        return points
-
-    inferred = [copy.deepcopy(point) for point in points]
-    point_matches: list[list[str]] = []
-    route_scores: dict[str, int] = {}
-
-    for point in inferred:
-        explicit_zone = normalize_zone_id(point.get("zone", ""))
-        if explicit_zone:
-            route_scores[explicit_zone] = route_scores.get(explicit_zone, 0) + 100
-            point_matches.append([explicit_zone])
-            continue
-
-        matches = _match_point_to_zones(point["x"], point["y"], candidates)
-        point_matches.append(matches)
-        for rank, zone_name in enumerate(matches[:5]):
-            route_scores[zone_name] = route_scores.get(zone_name, 0) + max(1, 5 - rank)
-
-    primary_zone = max(route_scores.items(), key=lambda item: item[1])[0] if route_scores else ""
-    primary_hits = sum(1 for matches in point_matches if primary_zone and primary_zone in matches)
-
-    if primary_zone and primary_hits >= max(2, len(inferred) // 2):
-        for idx, point in enumerate(inferred):
-            if point.get("zone"):
-                continue
-            if not point_matches[idx] or primary_zone in point_matches[idx]:
-                point["zone"] = primary_zone
-
-    for idx, point in enumerate(inferred):
-        if point.get("zone"):
-            continue
-        matches = point_matches[idx]
-        if not matches:
-            continue
-        if primary_zone and primary_zone in matches and primary_hits >= max(2, len(inferred) // 2):
-            point["zone"] = primary_zone
-        else:
-            point["zone"] = matches[0]
-
-    _fill_unknown_zones(inferred, fallback_zone=primary_zone)
-    return inferred
 
 
 def split_route_into_segments(points: list[PathPoint]) -> list[tuple[int, int]]:
@@ -278,7 +404,11 @@ def list_available_zone_ids() -> list[str]:
     return sorted(_load_available_zone_ids())
 
 
-def _walk_json_node(node: Any, routes: list[list[PathPoint]], zone_hint: str) -> None:
+def _walk_json_node(
+    node: Any,
+    routes: list[tuple[list[PathPoint], bool]],
+    zone_hint: str,
+) -> None:
     if isinstance(node, dict):
         local_zone = _resolve_zone_hint(node, zone_hint)
 
@@ -286,7 +416,7 @@ def _walk_json_node(node: Any, routes: list[list[PathPoint]], zone_hint: str) ->
         if path_value is not None:
             route = _parse_route(path_value, local_zone)
             if route:
-                routes.append(route)
+                routes.append((route, node.get("zip") is True))
 
         for key, value in node.items():
             if key == "path" and path_value is not None:
@@ -297,7 +427,7 @@ def _walk_json_node(node: Any, routes: list[list[PathPoint]], zone_hint: str) ->
     if isinstance(node, list):
         route = _parse_route(node, zone_hint)
         if route:
-            routes.append(route)
+            routes.append((route, False))
             return
 
         for item in node:
@@ -320,47 +450,13 @@ def _walk_assert_location_node(node: Any, assert_locations: list[ImportedAssertL
 
 
 def _parse_assert_location_node(node: dict[str, Any]) -> ImportedAssertLocation | None:
-    custom_recognition = node.get("custom_recognition")
-    if custom_recognition == "MapTrackerAssertLocation":
-        param = node.get("custom_recognition_param")
-        if not isinstance(param, dict):
-            return None
-        return _parse_maptracker_assert_param(param)
-
-    if custom_recognition == "MapLocateAssertLocation":
-        param = node.get("custom_recognition_param")
-        if not isinstance(param, dict):
-            return None
-        return _parse_maplocate_assert_param(param)
-
-    if node.get("recognition") == "Custom":
+    if node.get("custom_recognition") != "MapLocateAssertLocation":
         return None
 
-    return _parse_maptracker_assert_param(node)
-
-
-def _parse_maptracker_assert_param(param: dict[str, Any]) -> ImportedAssertLocation | None:
-    expected = param.get("expected")
-    if not isinstance(expected, list) or not expected:
+    param = node.get("custom_recognition_param")
+    if not isinstance(param, dict):
         return None
-
-    for condition in expected:
-        if not isinstance(condition, dict):
-            continue
-
-        map_name = normalize_zone_id(condition.get("map_name", ""))
-        target = _parse_rect(condition.get("target"))
-        if not map_name or target is None:
-            continue
-
-        converted = convert_maptracker_rect(map_name, target)
-        if converted is None:
-            return ImportedAssertLocation(map_name, target, len(expected), converted_from_maptracker=False)
-
-        zone_id, converted_target = converted
-        return ImportedAssertLocation(zone_id, converted_target, len(expected), converted_from_maptracker=True)
-
-    return None
+    return _parse_maplocate_assert_param(param)
 
 
 def _parse_maplocate_assert_param(param: dict[str, Any]) -> ImportedAssertLocation | None:
@@ -368,7 +464,7 @@ def _parse_maplocate_assert_param(param: dict[str, Any]) -> ImportedAssertLocati
     target = _parse_rect(param.get("target"))
     if not zone_id or target is None:
         return None
-    return ImportedAssertLocation(zone_id, target, 1, converted_from_maptracker=False)
+    return ImportedAssertLocation(zone_id, target, 1)
 
 
 def _parse_rect(value: Any) -> tuple[float, float, float, float] | None:
@@ -410,56 +506,8 @@ def _parse_route(node: Any, zone_hint: str) -> list[PathPoint] | None:
 
 
 @lru_cache(maxsize=1)
-def _load_map_candidates() -> list[dict[str, float | str]]:
-    bbox_data: dict[str, list[float]] = {}
-    if MAP_TRACKER_BBOX_PATH.exists():
-        try:
-            raw = json.loads(MAP_TRACKER_BBOX_PATH.read_text(encoding="utf-8"))
-            if isinstance(raw, dict):
-                bbox_data = raw
-        except Exception as exc:
-            print(f"Failed to load bbox data from {MAP_TRACKER_BBOX_PATH}: {exc}")
-            bbox_data = {}
-
-    candidates: list[dict[str, float | str]] = []
-    if not MAP_TRACKER_MAP_DIR.exists():
-        return candidates
-
-    for image_path in MAP_TRACKER_MAP_DIR.glob("*.png"):
-        size = _read_png_size(image_path)
-        if size is None:
-            continue
-
-        width, height = size
-        zone_name = image_path.stem
-        rect = bbox_data.get(zone_name, [0, 0, width, height])
-        if not isinstance(rect, list) or len(rect) != 4:
-            rect = [0, 0, width, height]
-
-        x1, y1, x2, y2 = [float(value) for value in rect]
-        if x2 <= x1 or y2 <= y1:
-            x1, y1, x2, y2 = 0.0, 0.0, float(width), float(height)
-
-        candidates.append(
-            {
-                "zone": zone_name,
-                "bbox_x1": x1,
-                "bbox_y1": y1,
-                "bbox_x2": x2,
-                "bbox_y2": y2,
-                "bbox_area": (x2 - x1) * (y2 - y1),
-                "img_width": float(width),
-                "img_height": float(height),
-                "img_area": float(width * height),
-            }
-        )
-
-    return candidates
-
-
-@lru_cache(maxsize=1)
 def _load_available_zone_ids() -> tuple[str, ...]:
-    zone_ids: set[str] = {str(candidate["zone"]) for candidate in _load_map_candidates()}
+    zone_ids: set[str] = set()
 
     if MAP_LOCATOR_DIR.exists():
         for image_path in MAP_LOCATOR_DIR.rglob("*.png"):
@@ -481,82 +529,6 @@ def _map_locator_zone_ids(image_path: Path) -> tuple[str, ...]:
         return (f"{parent_name}_L{int(level_match.group(1))}_{level_match.group(2)}",)
 
     return (stem,)
-
-
-def _read_png_size(image_path: Path) -> tuple[int, int] | None:
-    try:
-        with image_path.open("rb") as file:
-            header = file.read(24)
-        if len(header) < 24 or header[:8] != b"\x89PNG\r\n\x1a\n":
-            return None
-        width, height = struct.unpack(">II", header[16:24])
-        return width, height
-    except Exception as exc:
-        print(f"Failed to read PNG size for {image_path}: {exc}")
-        return None
-
-
-def _match_point_to_zones(point_x: float, point_y: float, candidates: list[dict[str, float | str]]) -> list[str]:
-    bbox_matches: list[tuple[float, str]] = []
-    image_matches: list[tuple[float, str]] = []
-
-    for candidate in candidates:
-        zone_name = str(candidate["zone"])
-        if (
-            float(candidate["bbox_x1"]) <= point_x <= float(candidate["bbox_x2"])
-            and float(candidate["bbox_y1"]) <= point_y <= float(candidate["bbox_y2"])
-        ):
-            bbox_matches.append((float(candidate["bbox_area"]), zone_name))
-            continue
-
-        if 0.0 <= point_x <= float(candidate["img_width"]) and 0.0 <= point_y <= float(candidate["img_height"]):
-            image_matches.append((float(candidate["img_area"]), zone_name))
-
-    if bbox_matches:
-        return [zone_name for _area, zone_name in sorted(bbox_matches, key=lambda item: item[0])]
-    if image_matches:
-        return [zone_name for _area, zone_name in sorted(image_matches, key=lambda item: item[0])]
-    return []
-
-
-def _fill_unknown_zones(points: list[PathPoint], fallback_zone: str) -> None:
-    if not points:
-        return
-
-    known_indices = [idx for idx, point in enumerate(points) if normalize_zone_id(point.get("zone", ""))]
-    if not known_indices:
-        if fallback_zone:
-            for point in points:
-                point["zone"] = fallback_zone
-        return
-
-    for idx, point in enumerate(points):
-        if normalize_zone_id(point.get("zone", "")):
-            continue
-
-        prev_zone = ""
-        next_zone = ""
-
-        for prev_idx in range(idx - 1, -1, -1):
-            zone_name = normalize_zone_id(points[prev_idx].get("zone", ""))
-            if zone_name:
-                prev_zone = zone_name
-                break
-
-        for next_idx in range(idx + 1, len(points)):
-            zone_name = normalize_zone_id(points[next_idx].get("zone", ""))
-            if zone_name:
-                next_zone = zone_name
-                break
-
-        if prev_zone and prev_zone == next_zone:
-            point["zone"] = prev_zone
-        elif prev_zone:
-            point["zone"] = prev_zone
-        elif next_zone:
-            point["zone"] = next_zone
-        elif fallback_zone:
-            point["zone"] = fallback_zone
 
 
 def _parse_point(node: Any, zone_hint: str) -> PathPoint | None:
@@ -625,7 +597,7 @@ def _parse_point_dict(node: dict[str, Any], zone_hint: str) -> PathPoint | None:
     x = _as_float(node.get("x"))
     y = _as_float(node.get("y"))
     if x is None or y is None:
-        # NAVMESH 路点写作 target: [x, y] (工具「复制 JSON 配置」的导出格式)。
+        # NAVMESH 路点写作 target: [x, y] (工具「复制路径」的导出格式)。
         # 长度必须是 2：断言的 target 是 [x, y, w, h] 矩形，不是路点。
         target = node.get("target")
         if isinstance(target, list) and len(target) == 2:
@@ -659,9 +631,14 @@ def _parse_point_dict(node: dict[str, Any], zone_hint: str) -> PathPoint | None:
         "zone": zone,
         "strict": _resolve_strict_hint(node, False),
     }
+    if coerce_strict_arrival(node.get("required"), default=False):
+        point["required"] = True
     target_tier = _resolve_target_tier(node)
     if target_tier:
         point["target_tier"] = target_tier
+    target_deck_y = _resolve_target_deck_y(node)
+    if target_deck_y is not None:
+        point["target_deck_y"] = target_deck_y
     return point
 
 
@@ -746,6 +723,16 @@ def _resolve_target_tier(node: dict[str, Any]) -> str:
         if target_tier:
             return target_tier
     return ""
+
+
+def _resolve_target_deck_y(node: dict[str, Any]) -> float | None:
+    for key in TARGET_DECK_Y_KEYS:
+        if key not in node:
+            continue
+        target_deck_y = _as_float(node.get(key))
+        if target_deck_y is not None and math.isfinite(target_deck_y):
+            return target_deck_y
+    return None
 
 
 def _as_float(value: Any) -> float | None:

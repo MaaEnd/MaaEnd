@@ -18,6 +18,7 @@
 #include <MaaUtils/Logger.h>
 
 #include "BaseNavReader.h"
+#include "NavParallel.h"
 
 namespace navmesh
 {
@@ -41,7 +42,16 @@ constexpr uint16_t kGeometrySectionSince = 5;
 constexpr size_t kGzipReadChunkSize = 4 << 20;
 // BGEO 段:四块几何按定长块存,块内自足解码,按区加载只解用得着的块。
 constexpr char kGeometrySectionTag[5] = "BGEO";
+constexpr char kOffMeshSectionTag[5] = "BOML";
+constexpr char kSurfaceSectionTag[5] = "BSRF";
+constexpr char kGridSectionTag[5] = "BGRD";
 constexpr uint32_t kGeometrySectionVersion = 1;
+constexpr uint16_t kOffMeshSectionVersion = 1;
+constexpr uint16_t kOffMeshRecordSize = 80;
+constexpr size_t kOffMeshHeaderSize = 16;
+constexpr uint16_t kSurfaceSectionVersion = 1;
+constexpr uint16_t kSurfaceRecordSize = 8;
+constexpr size_t kSurfaceHeaderSize = 16;
 constexpr size_t kGeoHeaderSize = 72;
 constexpr size_t kGeoChunkEntrySize = 16;
 constexpr size_t kInflateChunkSize = 1U << 16U;
@@ -107,9 +117,9 @@ BaseNavTriangle ReadTriangleRecord(const uint8_t*& cursor)
     for (int32_t& value : triangle.neighbors) {
         value = ReadI32(cursor);
     }
-    triangle.component_id = ReadU32(cursor);
-    triangle.center_u = ReadF32(cursor);
-    triangle.center_v = ReadF32(cursor);
+    // 分量号与尾部两个 float 重心都全仓无读者, 跳过不落盘 —— 分量号由 planner 从
+    // neighbors 自己重算。哈希仍按整条记录算, 所以按区加载时补重心的那段不能省。
+    cursor += 12;
     return triangle;
 }
 
@@ -119,6 +129,75 @@ BaseNavLink ReadLinkRecord(const uint8_t*& cursor)
     link.source = ReadU32(cursor);
     link.target = ReadU32(cursor);
     return link;
+}
+
+bool ParseOffMeshSection(const uint8_t* data, size_t size, std::vector<BaseNavOffMeshLink>* links)
+{
+    links->clear();
+    if (size < kOffMeshHeaderSize || std::memcmp(data, kOffMeshSectionTag, 4) != 0) {
+        return false;
+    }
+    const uint8_t* cursor = data + 4;
+    const uint16_t version = ReadU16(cursor);
+    const uint16_t record_size = ReadU16(cursor);
+    const uint32_t count = ReadU32(cursor);
+    (void)ReadU32(cursor);
+    if (version != kOffMeshSectionVersion || record_size != kOffMeshRecordSize
+        || count != (size - kOffMeshHeaderSize) / kOffMeshRecordSize
+        || size != kOffMeshHeaderSize + static_cast<size_t>(count) * kOffMeshRecordSize) {
+        return false;
+    }
+    links->reserve(count);
+    for (uint32_t index = 0; index < count; ++index) {
+        BaseNavOffMeshLink link;
+        link.zone_id = ReadU16(cursor);
+        link.kind = *cursor++;
+        ++cursor;
+        link.is_ext = ReadI32(cursor);
+        link.bidirectional = ReadI32(cursor);
+        link.area = ReadI32(cursor);
+        link.link_type = ReadU16(cursor);
+        link.direction = *cursor++;
+        ++cursor;
+        link.radius = ReadF32(cursor);
+        link.cost_modifier = ReadF32(cursor);
+        for (BaseNavVertex& point : link.points) {
+            point.u = ReadF32(cursor);
+            point.v = ReadF32(cursor);
+            point.height = ReadF32(cursor);
+        }
+        (void)ReadU32(cursor);
+        links->push_back(link);
+    }
+    return cursor == data + size;
+}
+
+bool ParseSurfaceSection(const uint8_t* data, size_t size, std::vector<BaseNavSurface>* surfaces)
+{
+    surfaces->clear();
+    if (size < kSurfaceHeaderSize || std::memcmp(data, kSurfaceSectionTag, 4) != 0) {
+        return false;
+    }
+    const uint8_t* cursor = data + 4;
+    const uint16_t version = ReadU16(cursor);
+    const uint16_t record_size = ReadU16(cursor);
+    const uint32_t count = ReadU32(cursor);
+    (void)ReadU32(cursor);
+    if (version != kSurfaceSectionVersion || record_size != kSurfaceRecordSize
+        || count != (size - kSurfaceHeaderSize) / kSurfaceRecordSize
+        || size != kSurfaceHeaderSize + static_cast<size_t>(count) * kSurfaceRecordSize) {
+        return false;
+    }
+    surfaces->reserve(count);
+    for (uint32_t index = 0; index < count; ++index) {
+        BaseNavSurface surface;
+        surface.area = *cursor++;
+        surface.poly_type = *cursor++;
+        (void)ReadU16(cursor);
+        surface.flags = ReadU32(cursor);
+        surfaces->push_back(surface);
+    }
+    return cursor == data + size;
 }
 
 uint64_t Fnv64Update(uint64_t hash, const uint8_t* bytes, size_t size)
@@ -285,24 +364,22 @@ bool ParseGeometrySection(const uint8_t* data, uint64_t size, GeometrySection* o
 }
 
 // 顶点是 12 字节记录做的字节平面:n × 12 的字节矩阵转置成 12 × n。
-bool DecodeVertexChunk(const uint8_t* data, size_t size, uint32_t count, std::vector<uint8_t>* out)
+bool DecodeVertexChunk(const uint8_t* data, size_t size, uint32_t count, uint8_t* out)
 {
     std::vector<std::vector<uint8_t>> stream;
     if (!SplitChunkStreams(data, size, 1, &stream) || stream[0].size() != static_cast<size_t>(count) * kVertexSize) {
         return false;
     }
-    const size_t at = out->size();
-    out->resize(at + stream[0].size());
     for (size_t i = 0; i < count; ++i) {
         for (size_t j = 0; j < kVertexSize; ++j) {
-            (*out)[at + i * kVertexSize + j] = stream[0][j * count + i];
+            out[i * kVertexSize + j] = stream[0][j * count + i];
         }
     }
     return true;
 }
 
 // 三角的重心不存,这里先留空,顶点到位后按 ((a+b)+c)/3.0f 重算。
-bool DecodeTriangleChunk(const uint8_t* data, size_t size, uint32_t count, uint32_t first, std::vector<uint8_t>* out)
+bool DecodeTriangleChunk(const uint8_t* data, size_t size, uint32_t count, uint32_t first, uint8_t* out)
 {
     std::vector<std::vector<uint8_t>> stream;
     if (!SplitChunkStreams(data, size, 7, &stream) || stream[3].size() != (static_cast<size_t>(count) * 3 + 7) / 8) {
@@ -316,8 +393,6 @@ bool DecodeTriangleChunk(const uint8_t* data, size_t size, uint32_t count, uint3
     const uint8_t* neighbor_cursor = stream[4].data();
     const uint8_t* const neighbor_end = neighbor_cursor + stream[4].size();
 
-    const size_t at = out->size();
-    out->resize(at + static_cast<size_t>(count) * kTriangleSize);
     int64_t running = 0;
     for (uint32_t t = 0; t < count; ++t) {
         uint64_t packed[3] = {};
@@ -328,7 +403,7 @@ bool DecodeTriangleChunk(const uint8_t* data, size_t size, uint32_t count, uint3
         }
         running += UnZigzag(packed[0]);
         const int64_t vertex[3] = { running, running + UnZigzag(packed[1]), running + UnZigzag(packed[2]) };
-        uint8_t* record = out->data() + at + static_cast<size_t>(t) * kTriangleSize;
+        uint8_t* record = out + static_cast<size_t>(t) * kTriangleSize;
         for (int i = 0; i < 3; ++i) {
             if (vertex[i] < 0 || vertex[i] > UINT32_MAX) {
                 return false;
@@ -373,7 +448,7 @@ bool DecodeTriangleChunk(const uint8_t* data, size_t size, uint32_t count, uint3
         }
         const uint32_t value = static_cast<uint32_t>(component);
         for (uint64_t i = 0; i < run; ++i) {
-            std::memcpy(out->data() + at + static_cast<size_t>(filled + i) * kTriangleSize + 24, &value, 4);
+            std::memcpy(out + static_cast<size_t>(filled + i) * kTriangleSize + 24, &value, 4);
         }
         filled += static_cast<uint32_t>(run);
     }
@@ -385,7 +460,7 @@ bool DecodeTriangleChunk(const uint8_t* data, size_t size, uint32_t count, uint3
     return neighbor_cursor == neighbor_end && value_cursor == value_end && length_cursor == length_end;
 }
 
-bool DecodeLinkChunk(const uint8_t* data, size_t size, uint32_t count, std::vector<uint8_t>* out)
+bool DecodeLinkChunk(const uint8_t* data, size_t size, uint32_t count, uint8_t* out)
 {
     std::vector<std::vector<uint8_t>> stream;
     if (!SplitChunkStreams(data, size, 2, &stream)) {
@@ -395,8 +470,6 @@ bool DecodeLinkChunk(const uint8_t* data, size_t size, uint32_t count, std::vect
     const uint8_t* const source_end = source_cursor + stream[0].size();
     const uint8_t* target_cursor = stream[1].data();
     const uint8_t* const target_end = target_cursor + stream[1].size();
-    const size_t at = out->size();
-    out->resize(at + static_cast<size_t>(count) * kLinkSize);
     int64_t source = 0;
     for (uint32_t i = 0; i < count; ++i) {
         uint64_t step = 0;
@@ -410,9 +483,40 @@ bool DecodeLinkChunk(const uint8_t* data, size_t size, uint32_t count, std::vect
             return false;
         }
         const uint32_t pair[2] = { static_cast<uint32_t>(source), static_cast<uint32_t>(target) };
-        std::memcpy(out->data() + at + static_cast<size_t>(i) * kLinkSize, pair, sizeof(pair));
+        std::memcpy(out + static_cast<size_t>(i) * kLinkSize, pair, sizeof(pair));
     }
     return source_cursor == source_end && target_cursor == target_end;
+}
+
+// 解第 [low, high] 块, 接在 out 尾上。块定长, 每块的输出长度只由自己的 span 定,
+// 所以先按总长开好再让各块写各自那段 —— 与一块块接着写逐字节相同, 于是能并起来解。
+bool DecodeChunkSpan(
+    const GeoChunkTable& table,
+    const uint8_t* base,
+    uint32_t low,
+    uint32_t high,
+    size_t record_size,
+    std::vector<uint8_t>* out,
+    const std::function<bool(const uint8_t*, size_t, uint32_t, uint32_t, uint8_t*)>& decode)
+{
+    const uint32_t base_record = table.first(low);
+    const size_t records = static_cast<size_t>(table.first(high)) + table.span(high) - base_record;
+    const size_t at = out->size();
+    out->resize(at + records * record_size);
+    const auto chunks = static_cast<int64_t>(high - low + 1);
+    std::vector<uint8_t> ok(static_cast<size_t>(chunks), 1);
+    ParallelChunks(chunks, NavWorkerCount(static_cast<int64_t>(records)), [&](size_t, int64_t b, int64_t e) {
+        for (int64_t c = b; c < e; ++c) {
+            const uint32_t i = low + static_cast<uint32_t>(c);
+            uint32_t size = 0;
+            const uint8_t* src = table.bytes(base, i, size);
+            uint8_t* dst = out->data() + at + (static_cast<size_t>(table.first(i)) - base_record) * record_size;
+            if (!decode(src, size, table.span(i), table.first(i), dst)) {
+                ok[static_cast<size_t>(c)] = 0;
+            }
+        }
+    });
+    return std::find(ok.begin(), ok.end(), 0) == ok.end();
 }
 
 // 解出覆盖 [from, to) 的整块,返回块首记录的全局下标。
@@ -421,8 +525,10 @@ bool DecodeChunkRange(
     const uint8_t* base,
     uint32_t from,
     uint32_t to,
+    size_t record_size,
+    std::vector<uint8_t>* out,
     uint32_t* out_first,
-    const std::function<bool(const uint8_t*, size_t, uint32_t, uint32_t)>& decode)
+    const std::function<bool(const uint8_t*, size_t, uint32_t, uint32_t, uint8_t*)>& decode)
 {
     if (from >= to) {
         *out_first = from;
@@ -434,14 +540,7 @@ bool DecodeChunkRange(
         return false;
     }
     *out_first = table.first(low);
-    for (uint32_t i = low; i <= high; ++i) {
-        uint32_t size = 0;
-        const uint8_t* at = table.bytes(base, i, size);
-        if (!decode(at, size, table.span(i), table.first(i))) {
-            return false;
-        }
-    }
-    return true;
+    return DecodeChunkSpan(table, base, low, high, record_size, out, decode);
 }
 
 BaseNavLoadResult Fail(BaseNavLoadStatus status, std::string message)
@@ -616,8 +715,12 @@ BaseNavLoadResult LoadBaseNavPack(const std::filesystem::path& path, std::string
     }
 
     // 段目录先读:v5 起四块几何连同区表都在 BGEO 段里,头里那四个偏移作废。
+    // 只有 BGRD 的字节要活过本函数(规划时才按瓦解码),其余段就地解析,段条目留空壳 ——
+    // 下游只拿 section(tag) != nullptr 认包的世代。
     std::vector<BaseNavSection> sections;
+    std::vector<std::pair<const uint8_t*, size_t>> section_raw;
     sections.reserve(section_count);
+    section_raw.reserve(section_count);
     const uint8_t* dir_cursor = file_bytes.data() + section_dir_offset;
     for (uint32_t index = 0; index < section_count; ++index) {
         BaseNavSection sec;
@@ -629,7 +732,11 @@ BaseNavLoadResult LoadBaseNavPack(const std::filesystem::path& path, std::string
         if (!OffsetRangeValid(offset, size, file_size)) {
             return Fail(BaseNavLoadStatus::InvalidOffset, "nav section is outside file bounds");
         }
-        sec.bytes.assign(file_bytes.data() + offset, file_bytes.data() + offset + size);
+        const uint8_t* at = file_bytes.data() + offset;
+        section_raw.emplace_back(at, static_cast<size_t>(size));
+        if (std::memcmp(sec.tag.data(), kGridSectionTag, 4) == 0) {
+            sec.bytes.assign(at, at + size);
+        }
         sections.push_back(std::move(sec));
     }
 
@@ -641,13 +748,13 @@ BaseNavLoadResult LoadBaseNavPack(const std::filesystem::path& path, std::string
     const uint8_t* triangle_bytes = nullptr;
     const uint8_t* link_bytes = nullptr;
     if (sectioned) {
-        const BaseNavSection* found = nullptr;
-        for (const BaseNavSection& sec : sections) {
-            if (std::memcmp(sec.tag.data(), kGeometrySectionTag, 4) == 0) {
-                found = &sec;
+        const std::pair<const uint8_t*, size_t>* found = nullptr;
+        for (size_t i = 0; i < sections.size(); ++i) {
+            if (std::memcmp(sections[i].tag.data(), kGeometrySectionTag, 4) == 0) {
+                found = &section_raw[i];
             }
         }
-        if (found == nullptr || !ParseGeometrySection(found->bytes.data(), found->bytes.size(), &geometry)) {
+        if (found == nullptr || !ParseGeometrySection(found->first, found->second, &geometry)) {
             return Fail(BaseNavLoadStatus::InvalidOffset, "nav geometry section is missing or malformed");
         }
         if (geometry.vertices.total != vertex_count || geometry.triangles.total != triangle_count || geometry.links.total != link_count) {
@@ -740,9 +847,11 @@ BaseNavLoadResult LoadBaseNavPack(const std::filesystem::path& path, std::string
                 geometry.base,
                 selected_first_triangle,
                 selected_triangle_end,
+                kTriangleSize,
+                &triangle_storage,
                 &triangle_base,
-                [&](const uint8_t* at, size_t size, uint32_t span, uint32_t first) {
-                    return DecodeTriangleChunk(at, size, span, first, &triangle_storage);
+                [](const uint8_t* at, size_t size, uint32_t span, uint32_t first, uint8_t* dst) {
+                    return DecodeTriangleChunk(at, size, span, first, dst);
                 })) {
             return Fail(BaseNavLoadStatus::InvalidSize, "nav triangle chunk is malformed");
         }
@@ -770,9 +879,11 @@ BaseNavLoadResult LoadBaseNavPack(const std::filesystem::path& path, std::string
                 geometry.base,
                 want_low,
                 want_high,
+                kVertexSize,
+                &vertex_storage,
                 &vertex_base,
-                [&](const uint8_t* at, size_t size, uint32_t span, uint32_t) {
-                    return DecodeVertexChunk(at, size, span, &vertex_storage);
+                [](const uint8_t* at, size_t size, uint32_t span, uint32_t, uint8_t* dst) {
+                    return DecodeVertexChunk(at, size, span, dst);
                 })) {
             return Fail(BaseNavLoadStatus::InvalidSize, "nav vertex chunk is malformed");
         }
@@ -795,10 +906,18 @@ BaseNavLoadResult LoadBaseNavPack(const std::filesystem::path& path, std::string
         const uint32_t link_chunks = geometry.links.count();
         const uint32_t low_chunk = zone_scoped ? GeoLinkChunkFor(geometry.links, selected_first_triangle) : 0;
         const uint32_t high_chunk = zone_scoped ? GeoLinkChunkFor(geometry.links, selected_triangle_end) : link_chunks;
-        for (uint32_t i = low_chunk; i < link_chunks && i <= high_chunk; ++i) {
-            uint32_t size = 0;
-            const uint8_t* at = geometry.links.bytes(geometry.base, i, size);
-            if (!DecodeLinkChunk(at, size, geometry.links.span(i), &link_storage)) {
+        if (low_chunk < link_chunks && low_chunk <= high_chunk) {
+            const uint32_t last_chunk = std::min(high_chunk, link_chunks - 1);
+            if (!DecodeChunkSpan(
+                    geometry.links,
+                    geometry.base,
+                    low_chunk,
+                    last_chunk,
+                    kLinkSize,
+                    &link_storage,
+                    [](const uint8_t* at, size_t size, uint32_t span, uint32_t, uint8_t* dst) {
+                        return DecodeLinkChunk(at, size, span, dst);
+                    })) {
                 return Fail(BaseNavLoadStatus::InvalidSize, "nav link chunk is malformed");
             }
         }
@@ -914,9 +1033,49 @@ BaseNavLoadResult LoadBaseNavPack(const std::filesystem::path& path, std::string
         links.push_back(link);
     }
 
+    std::vector<BaseNavOffMeshLink> off_mesh_links;
+    for (size_t i = 0; i < sections.size(); ++i) {
+        if (std::memcmp(sections[i].tag.data(), kOffMeshSectionTag, 4) == 0
+            && !ParseOffMeshSection(section_raw[i].first, section_raw[i].second, &off_mesh_links)) {
+            return Fail(BaseNavLoadStatus::InvalidSize, "nav off-mesh section is malformed");
+        }
+    }
+    std::vector<BaseNavSurface> surfaces;
+    for (size_t i = 0; i < sections.size(); ++i) {
+        if (std::memcmp(sections[i].tag.data(), kSurfaceSectionTag, 4) == 0) {
+            if (!ParseSurfaceSection(section_raw[i].first, section_raw[i].second, &surfaces)
+                || surfaces.size() != triangle_count) {
+                return Fail(BaseNavLoadStatus::InvalidSize, "nav surface section is malformed");
+            }
+        }
+    }
+    if (zone_scoped && !surfaces.empty()) {
+        std::vector<BaseNavSurface> scoped(
+            surfaces.begin() + selected_first_triangle,
+            surfaces.begin() + selected_triangle_end);
+        surfaces = std::move(scoped);
+    }
+    if (zone_scoped) {
+        std::erase_if(off_mesh_links, [&](const BaseNavOffMeshLink& link) { return link.zone_id != selected_zone->zone_id; });
+    }
+    for (const BaseNavOffMeshLink& link : off_mesh_links) {
+        const bool known_zone = std::any_of(
+            zones.begin(), zones.end(), [&](const BaseNavZone& zone) { return zone.zone_id == link.zone_id; });
+        if (!known_zone) {
+            return Fail(BaseNavLoadStatus::InvalidSize, "nav off-mesh link refers to an unknown zone");
+        }
+    }
+
     BaseNavLoadResult result;
-    result.pack =
-        detail::MakeBaseNavPack(path, std::move(zones), std::move(vertices), std::move(triangles), std::move(links), std::move(sections));
+    result.pack = detail::MakeBaseNavPack(
+        path,
+        std::move(zones),
+        std::move(vertices),
+        std::move(triangles),
+        std::move(links),
+        std::move(surfaces),
+        std::move(off_mesh_links),
+        std::move(sections));
     return result;
 }
 

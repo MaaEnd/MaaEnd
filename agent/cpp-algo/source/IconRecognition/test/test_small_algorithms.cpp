@@ -1,6 +1,8 @@
 #ifdef ICON_RECOGNITION_TEST_MAIN
 
 #include "../IconRecognizer.h"
+#include "../detail/CandidateSelector.h"
+#include "../detail/DisabledIcon.h"
 #include "../detail/EdgeOcclusion.h"
 #include "../detail/ForegroundTexture.h"
 #include "../detail/GridAnchors.h"
@@ -51,6 +53,120 @@ void Check(bool condition, const std::string& message)
 }
 
 cv::Scalar RarityBgr(int rarity);
+
+iconrecognition::detail::PreparedTemplate CandidateTemplate(std::string item_id, std::string storage_kind, std::string category_type)
+{
+    return iconrecognition::detail::PreparedTemplate {
+        .record =
+            iconrecognition::detail::TemplateRecord {
+                .item_id = std::move(item_id),
+                .storage_kind = std::move(storage_kind),
+                .category_type = std::move(category_type),
+            },
+    };
+}
+
+std::vector<std::string> CandidateIDs(const std::vector<iconrecognition::detail::PreparedTemplate>& templates)
+{
+    std::vector<std::string> result;
+    result.reserve(templates.size());
+    std::ranges::transform(templates, std::back_inserter(result), [](const auto& templ) { return templ.record.item_id; });
+    return result;
+}
+
+void TestCandidateSelectionUsesDocumentedSetOrder()
+{
+    const std::vector all {
+        CandidateTemplate("ore", "Normal", "Ore"),
+        CandidateTemplate("product", "Normal", "Product"),
+        CandidateTemplate("special", "Isolate", "SpecialItem"),
+    };
+    iconrecognition::CandidateFilter candidates;
+    candidates.item_ids = { "ore", "special" };
+    candidates.item_filters = { "Normal:*" };
+    candidates.additional_item_filters = { "Isolate:*" };
+    candidates.excluded_item_ids = { "ore" };
+
+    Check(
+        CandidateIDs(iconrecognition::detail::SelectCandidateTemplates(all, candidates, { "Normal:*" }))
+            == std::vector<std::string> { "special" },
+        "candidate selection must intersect ids, append filters, then apply exclusions");
+}
+
+void TestCandidateSelectionWithoutIdsSkipsIntersection()
+{
+    const std::vector all {
+        CandidateTemplate("ore", "Normal", "Ore"),
+        CandidateTemplate("product", "Normal", "Product"),
+        CandidateTemplate("special", "Isolate", "SpecialItem"),
+    };
+    iconrecognition::CandidateFilter candidates;
+    candidates.item_filters = { "Normal:*" };
+    candidates.additional_item_filters = { "Isolate:*" };
+    candidates.excluded_item_ids = { "product" };
+
+    Check(
+        CandidateIDs(iconrecognition::detail::SelectCandidateTemplates(all, candidates, { "ValuableDepot:*" }))
+            == std::vector<std::string>({ "ore", "special" }),
+        "candidate selection without ids must retain every base-filter match before append and exclusion");
+}
+
+void TestCandidateSelectionTreatsDuplicateValuesAsOne()
+{
+    const std::vector all {
+        CandidateTemplate("ore", "Normal", "Ore"),
+        CandidateTemplate("special", "Isolate", "SpecialItem"),
+    };
+    iconrecognition::CandidateFilter candidates;
+    candidates.item_ids = { "ore", "ore" };
+    candidates.item_filters = { "Normal:*", "Normal:*" };
+    candidates.additional_item_filters = { "Isolate:*", "Isolate:*" };
+    candidates.excluded_item_ids = { "ore", "ore" };
+
+    Check(
+        CandidateIDs(iconrecognition::detail::SelectCandidateTemplates(all, candidates, { "Normal:*" }))
+            == std::vector<std::string> { "special" },
+        "duplicate candidate values must behave as if each value was provided once");
+
+    iconrecognition::detail::ValidateCandidateFilterList({ "Isolate:*", "Isolate:*" }, "item_recheck_filters");
+}
+
+void TestCandidateSelectionRejectsInvalidRequests()
+{
+    const std::vector all {
+        CandidateTemplate("ore", "Normal", "Ore"),
+        CandidateTemplate("special", "Isolate", "SpecialItem"),
+    };
+    const auto require_invalid = [&](iconrecognition::CandidateFilter candidates, std::string_view expected) {
+        try {
+            static_cast<void>(iconrecognition::detail::SelectCandidateTemplates(all, candidates, { "Normal:*" }));
+        }
+        catch (const std::invalid_argument& error) {
+            Check(
+                std::string_view(error.what()).find(expected) != std::string_view::npos,
+                "candidate validation error must identify the invalid field or value");
+            return;
+        }
+        throw std::runtime_error("invalid candidate request must be rejected");
+    };
+
+    iconrecognition::CandidateFilter unknown_id;
+    unknown_id.item_ids = { "missing" };
+    require_invalid(std::move(unknown_id), "missing");
+
+    iconrecognition::CandidateFilter unknown_excluded;
+    unknown_excluded.excluded_item_ids = { "missing" };
+    require_invalid(std::move(unknown_excluded), "missing");
+
+    iconrecognition::CandidateFilter malformed_filter;
+    malformed_filter.additional_item_filters = { "invalid" };
+    require_invalid(std::move(malformed_filter), "additional_item_filters");
+
+    iconrecognition::CandidateFilter empty_result;
+    empty_result.item_ids = { "special" };
+    empty_result.item_filters = { "Normal:*" };
+    require_invalid(std::move(empty_result), "no candidate templates");
+}
 
 void TestLowerExtendedMaskSnapshots()
 {
@@ -319,9 +435,6 @@ void TestControllerTypeSelectsKnownGridScale()
 
     const auto linux_scale = iconrecognition::detail::GridScaleForControllerType("linux");
     Check(linux_scale && std::abs(*linux_scale - 1.0) <= 1e-6, "Linux controller must use the standard grid scale");
-
-    const auto wlroots = iconrecognition::detail::GridScaleForControllerType("WlRoots");
-    Check(wlroots && std::abs(*wlroots - 1.0) <= 1e-6, "WlRoots controller must use the standard grid scale");
 
     const auto macos = iconrecognition::detail::GridScaleForControllerType("MacOS");
     Check(macos && std::abs(*macos - 1.0) <= 1e-6, "MacOS controller must use the standard grid scale");
@@ -627,6 +740,135 @@ void TestTransferRegionPartitionKeepsUndetectedOuterColumns()
     Check(regions[0].width >= detected_left.x + 4 * 69, "left transfer search region must retain room for a weak outer column");
 }
 
+void TestTransferGridDetectsSparseVisiblePhase()
+{
+    constexpr int kCellSize = 64;
+    constexpr int kPitch = 69;
+    constexpr int kColumns = 4;
+    constexpr int kVisiblePhaseX = 7;
+    constexpr int kBackgroundPhaseX = 36;
+    constexpr int kPhaseY = 15;
+    constexpr int kTargetColumn = 1;
+    const cv::Rect target_box(kVisiblePhaseX + kTargetColumn * kPitch, kPhaseY, kCellSize, kCellSize);
+    cv::Mat image(291, 330, CV_8UC3, cv::Scalar(24, 24, 24));
+
+    const auto draw_cell = [&](int x, int y, const cv::Scalar& border) {
+        image.colRange(x, x + 2).rowRange(y, y + kCellSize + 1).setTo(border);
+        image.colRange(x + kCellSize, x + kCellSize + 2).rowRange(y, y + kCellSize + 1).setTo(border);
+        image.rowRange(y, y + 2).colRange(x, x + kCellSize + 1).setTo(border);
+        image.rowRange(y + kCellSize, y + kCellSize + 2).colRange(x, x + kCellSize + 1).setTo(border);
+    };
+    // 模拟物品行下方的重复背景纹理，使结构检测稳定落在错误的半格相位。
+    for (int row = 0; row < 4; ++row) {
+        for (int column = 0; column < kColumns; ++column) {
+            draw_cell(kBackgroundPhaseX + column * kPitch, kPhaseY + row * kPitch, cv::Scalar(130, 130, 130));
+        }
+    }
+    // 可见物品行包含高纹理内容，避免测试只依赖单个模板图标。
+    for (int column = 0; column < kColumns; ++column) {
+        const int x = kVisiblePhaseX + column * kPitch;
+        draw_cell(x, kPhaseY, cv::Scalar(90, 90, 90));
+        for (int y = kPhaseY + 6; y < kPhaseY + kCellSize - 8; ++y) {
+            for (int local_x = 6; local_x < kCellSize - 6; ++local_x) {
+                const unsigned char value = static_cast<unsigned char>(40 + ((local_x * 7 + y * 11 + column * 13) % 180));
+                image.at<cv::Vec3b>(y, x + local_x) = cv::Vec3b(value, value, value);
+            }
+        }
+    }
+
+    const auto grid =
+        iconrecognition::detail::DetectGrid(image, iconrecognition::GridType::Transfer, cv::Rect(0, 0, image.cols, image.rows), 1.0);
+    const auto target_cell = std::ranges::find_if(grid.cells, [&](const auto& cell) {
+        return std::abs(cell.cell_box.x - target_box.x) <= 1 && std::abs(cell.cell_box.y - target_box.y) <= 2;
+    });
+    std::string grid_summary = "sparse transfer grid must preserve the visible item phase";
+    if (!grid.grids.empty() && grid.grids.front().selection_diagnostics) {
+        const auto& layout = grid.grids.front();
+        const auto& diagnostics = *layout.selection_diagnostics;
+        grid_summary += "; origin=" + std::to_string(static_cast<int>(diagnostics.origin.x)) + ","
+                        + std::to_string(static_cast<int>(diagnostics.origin.y))
+                        + "; pitch=" + std::to_string(static_cast<int>(diagnostics.pitch.x)) + ","
+                        + std::to_string(static_cast<int>(diagnostics.pitch.y));
+        if (!layout.cells.empty()) {
+            grid_summary +=
+                "; first=" + std::to_string(layout.cells.front().cell_box.x) + "," + std::to_string(layout.cells.front().cell_box.y);
+        }
+    }
+    Check(target_cell != grid.cells.end(), grid_summary);
+
+    iconrecognition::detail::TemplateCatalog catalog("assets/data/IconRecognition", "assets/resource/image/IconRecognition");
+    Check(catalog.initialize(), "transfer recovery fixture catalog must initialize");
+    const auto& templates = catalog.load(kCellSize);
+    const auto target = std::ranges::find_if(templates, [](const auto& templ) { return templ.record.item_id == "item_iron_ore"; });
+    Check(target != templates.end(), "sparse transfer fixture must contain item_iron_ore");
+    target->image.copyTo(image(target_box));
+
+    iconrecognition::IconRecognizer recognizer("assets/data/IconRecognition");
+    Check(recognizer.initialize(), "sparse transfer recognizer must initialize");
+    iconrecognition::RecognitionRequest request;
+    request.grid_type = iconrecognition::GridType::Transfer;
+    request.roi = cv::Rect(0, 0, image.cols, image.rows);
+    request.candidates.item_ids = { "item_iron_ore" };
+    request.candidates.item_filters = { "Normal:Ore" };
+    request.candidates.item_recheck_filters = { "Normal:Ore" };
+    request.grid_scale_hint = 1.0;
+    request.deduplicate = true;
+    const auto result = recognizer.recognize(image, request);
+
+    Check(result.matched && result.matches.size() == 1, "sparse transfer target must be found from the detected grid");
+    Check(result.matches.front().item.item_id == "item_iron_ore", "sparse transfer detection must preserve the target id");
+    Check(
+        std::abs(result.matches.front().cell_box.x - target_box.x) <= 1 && std::abs(result.matches.front().cell_box.y - target_box.y) <= 2,
+        "transfer recognition must keep the target at its detected cell position");
+}
+
+void TestTransferGridRejectsBroadOvercapacityPhase()
+{
+    constexpr int kCellSize = 64;
+    constexpr int kFormalPitch = 69;
+    constexpr int kFormalColumns = 5;
+    constexpr int kBroadPitch = 66;
+    constexpr int kBroadColumns = 6;
+    constexpr int kRows = 4;
+    constexpr int kFormalPhaseX = 33;
+    constexpr int kBroadPhaseX = 2;
+    constexpr int kPhaseY = 7;
+    cv::Mat image(291, 398, CV_8UC3, cv::Scalar(24, 24, 24));
+
+    const auto draw_cell = [&](int x, int y, const cv::Scalar& border) {
+        image.colRange(x, x + 2).rowRange(y, y + kCellSize + 1).setTo(border);
+        image.colRange(x + kCellSize, x + kCellSize + 2).rowRange(y, y + kCellSize + 1).setTo(border);
+        image.rowRange(y, y + 2).colRange(x, x + kCellSize + 1).setTo(border);
+        image.rowRange(y + kCellSize, y + kCellSize + 2).colRange(x, x + kCellSize + 1).setTo(border);
+    };
+    // 真实五列格子提供稳定结构和前景纹理；错相位格会跨过这些纹理，因此单看纹理覆盖仍无法消歧。
+    for (int row = 0; row < kRows; ++row) {
+        for (int column = 0; column < kFormalColumns; ++column) {
+            const int x = kFormalPhaseX + column * kFormalPitch;
+            const int y = kPhaseY + row * kFormalPitch;
+            draw_cell(x, y, cv::Scalar(90, 90, 90));
+            for (int local_y = 6; local_y < kCellSize - 8; ++local_y) {
+                for (int local_x = 6; local_x < kCellSize - 6; ++local_x) {
+                    const unsigned char value =
+                        static_cast<unsigned char>(40 + ((local_x * 7 + local_y * 11 + row * 17 + column * 13) % 180));
+                    image.at<cv::Vec3b>(y + local_y, x + local_x) = cv::Vec3b(value, value, value);
+                }
+            }
+        }
+    }
+    // 粗搜索允许 66px pitch；该错相位能在 398px ROI 内塞入六列，但无法形成正式 69px 晶格。
+    for (int row = 0; row < kRows; ++row) {
+        for (int column = 0; column < kBroadColumns; ++column) {
+            draw_cell(kBroadPhaseX + column * kBroadPitch, kPhaseY + row * kFormalPitch, cv::Scalar(160, 160, 160));
+        }
+    }
+
+    const auto hints = iconrecognition::detail::DiscoverTransferGridHints(image, true);
+    Check(hints.size() == 1, "single transfer panel must produce one grid hint");
+    Check(hints.front().x_starts.size() == kFormalColumns, "broad search must not add a column that cannot fit the formal pitch");
+    Check(std::abs(hints.front().x_starts.front() - kFormalPhaseX) <= 1, "transfer hint must preserve the five-column formal phase");
+}
+
 void TestPortStoragerWideRoiUsesStablePanelPartitions()
 {
     const auto win32 = iconrecognition::detail::PartitionPortStoragerRegions(cv::Size(880, 350));
@@ -841,6 +1083,22 @@ void TestTrustedRarityRejectsSameColorBackground()
     Check(trusted[0].trusted && trusted[1].trusted, "real narrow bars must pass local contrast and shape constraints");
 }
 
+void TestTrustedRarityIgnoresConnectedSpecks()
+{
+    cv::Mat image(120, 140, CV_8UC3, cv::Scalar(35, 40, 46));
+    const cv::Scalar rarity = RarityBgr(5);
+    image(cv::Rect(20, 70, 64, 2)).setTo(rarity);
+    // 模拟数量文字等动态同色杂点：它们会与色带连成超过固定高度的组件，
+    // 但自身宽度不足一个色带，不能成为稀有度条的核心证据。
+    image(cv::Rect(20, 60, 20, 11)).setTo(rarity);
+    image(cv::Rect(20, 72, 8, 1)).setTo(rarity);
+
+    const auto strips = iconrecognition::detail::DetectTrustedRarityStrips(image, 64);
+    Check(strips.size() == 1, "connected narrow specks must not create extra rarity strips");
+    Check(strips.front().box == cv::Rect(20, 70, 64, 2), "trusted rarity must keep the full-width strip core");
+    Check(strips.front().color_coverage >= 0.95, "connected specks must not dilute strip color coverage");
+}
+
 void TestGrayRarityCannotSeedLattice()
 {
     cv::Mat image(100, 100, CV_8UC3, cv::Scalar(25, 30, 35));
@@ -865,6 +1123,22 @@ void TestRegularLatticeUsesOneGlobalFloatingPitch()
             starts[index] == cvRound(fit->origin + static_cast<double>(index + fit->minimum_index) * fit->pitch),
             "every integer start must project directly from one global model");
     }
+}
+
+void TestRegularLatticeUsesObservedPitchTolerance()
+{
+    const std::vector<iconrecognition::detail::LatticeObservation> quantized {
+        { 618.0, 1.0, true }, { 687.0, 1.0, true }, { 755.0, 1.0, true }, { 824.0, 1.0, true }, { 893.0, 1.0, true },
+    };
+    Check(
+        !iconrecognition::detail::FitRegularAxis(quantized, 5, { 69.0, 69.0 }, 69.0),
+        "fixed pitch must reject quantized observations when no tolerance is supplied");
+    const auto fit = iconrecognition::detail::FitRegularAxis(quantized, 5, { 69.0, 69.0 }, 69.0, 1.0);
+    Check(fit.has_value(), "fixed pitch must accept one-pixel quantization with observed tolerance");
+    Check(std::abs(fit->pitch - 69.0) <= 1e-9, "observed tolerance must not change the formal output pitch");
+    Check(
+        iconrecognition::detail::ProjectRegularAxis(*fit) == std::vector<int> { 617, 686, 755, 824, 893 },
+        "fixed pitch projection must remain regular");
 }
 
 void TestRegularLatticeRejectsAccumulatingResiduals()
@@ -1068,6 +1342,67 @@ void TestTemplatePreparationUsesExpectedMasks()
     Check(composite.mask.at<unsigned char>(45, 32) == 255, "overlay alpha must extend beyond the base polygon mask");
 }
 
+void TestDisabledTemplateScalesCenteredOverlaysFrom128PixelReference()
+{
+    const cv::Mat dark_band(28, 120, CV_8UC4, cv::Scalar(0, 0, 0, 255));
+    const cv::Mat white_mark(24, 24, CV_8UC4, cv::Scalar(255, 255, 255, 255));
+    const std::array cases {
+        std::tuple { 64, cv::Rect(2, 25, 30, 14), cv::Rect(26, 26, 12, 12) },
+        std::tuple { 80, cv::Rect(2, 31, 38, 18), cv::Rect(32, 32, 15, 15) },
+        std::tuple { 96, cv::Rect(3, 37, 45, 21), cv::Rect(39, 39, 18, 18) },
+        std::tuple { 128, cv::Rect(4, 50, 60, 28), cv::Rect(52, 52, 24, 24) },
+    };
+    const auto WithinOnePixel = [](const cv::Rect actual, const cv::Rect expected) {
+        return std::abs(actual.x - expected.x) <= 1 && std::abs(actual.y - expected.y) <= 1 && std::abs(actual.width - expected.width) <= 1
+               && std::abs(actual.height - expected.height) <= 1;
+    };
+
+    for (const auto& [target_size, expected_band, expected_mark] : cases) {
+        iconrecognition::detail::PreparedTemplate base {
+            .record = iconrecognition::detail::TemplateRecord { .item_id = "restricted" },
+            .image = cv::Mat(target_size, target_size, CV_8UC3, cv::Scalar(100, 120, 140)),
+            .mask = cv::Mat::zeros(target_size, target_size, CV_8UC1),
+            .composite = true,
+        };
+        base.mask.colRange(0, target_size / 2).setTo(cv::Scalar(255));
+
+        const auto disabled = iconrecognition::detail::BuildRegionUnavailableTemplate(base, dark_band, white_mark, 230);
+        Check(disabled.region_unavailable, "region-unavailable template must retain its variant state");
+        Check(disabled.composite, "disabled template must preserve the base composite state");
+        Check(disabled.record.item_id == "restricted", "disabled template must preserve item metadata");
+        Check(disabled.image.size() == cv::Size(target_size, target_size), "disabled template must preserve target size");
+
+        const cv::Point band_center {
+            expected_band.x + expected_band.width / 2,
+            expected_band.y + expected_band.height / 2,
+        };
+        Check(
+            disabled.mask.at<unsigned char>(band_center.y, 0) == 0,
+            "the disabled band row must be excluded across the full template width");
+
+        cv::Mat white_pixels;
+        cv::inRange(disabled.image, cv::Scalar(255, 255, 255), cv::Scalar(255, 255, 255), white_pixels);
+        Check(
+            WithinOnePixel(cv::boundingRect(white_pixels), expected_mark),
+            "disabled white mark must use S/128 scaling and full-canvas centering");
+
+        const cv::Vec3b band_pixel = disabled.image.at<cv::Vec3b>(band_center);
+        Check(
+            band_pixel[0] < 20 && band_pixel[1] < 20 && band_pixel[2] < 20,
+            "disabled dark band must use S/128 scaling and full-canvas centering");
+        Check(
+            disabled.image.at<cv::Vec3b>(target_size / 2, target_size - 1) == cv::Vec3b(100, 120, 140),
+            "dark band must not alter pixels outside the base template mask");
+        Check(
+            disabled.mask.at<unsigned char>(expected_mark.y, expected_mark.x) == 0,
+            "disabled white mark must be excluded from the template mask");
+        Check(disabled.mask.at<unsigned char>(band_center) == 0, "disabled dark band must be excluded from the template mask");
+        Check(
+            disabled.mask.at<unsigned char>(target_size / 2, target_size - 1) == 0,
+            "dark band must not extend the disabled template mask");
+    }
+}
+
 void TestCatalogBuildsFinalSizeDirectlyFromSourceAssets()
 {
     iconrecognition::detail::TemplateCatalog catalog("assets/data/IconRecognition", "assets/resource/image/IconRecognition");
@@ -1090,6 +1425,85 @@ void TestCatalogBuildsFinalSizeDirectlyFromSourceAssets()
         Check(cv::norm(prepared->image, expected.image, cv::NORM_INF) == 0.0, "template image must be generated directly at final size");
         Check(cv::norm(prepared->mask, expected.mask, cv::NORM_INF) == 0.0, "template mask must be generated directly at final size");
     }
+}
+
+void TestCatalogLoadsOnlyRegionRestrictedDisabledVariantsOnDemand()
+{
+    const std::filesystem::path fixture = "agent/cpp-algo/source/IconRecognition/test/build/generated-disabled-catalog";
+    std::filesystem::remove_all(fixture);
+    const auto data_root = fixture / "data";
+    const auto image_root = fixture / "images";
+    std::filesystem::create_directories(data_root);
+    std::filesystem::create_directories(image_root / "1");
+    std::ofstream(data_root / "recognition_items.json", std::ios::binary | std::ios::trunc)
+        << R"({"restricted":{"name":"受限物品","category":"test","storageKind":"Normal","categoryType":"Product","rarity":1,"iconId":"restricted","fluidIconId":"","regionRestricted":true},"normal":{"name":"普通物品","category":"test","storageKind":"Normal","categoryType":"Product","rarity":1,"iconId":"normal","fluidIconId":""},"explicit_false":{"name":"普通物品二","category":"test","storageKind":"Normal","categoryType":"Product","rarity":1,"iconId":"explicit_false","fluidIconId":"","regionRestricted":false}})";
+    for (const std::string_view item_id : { "restricted", "normal", "explicit_false" }) {
+        Check(
+            cv::imwrite(
+                (image_root / "1" / (std::string(item_id) + ".png")).string(),
+                cv::Mat(32, 32, CV_8UC4, cv::Scalar(10, 20, 30, 255))),
+            "unable to write disabled catalog icon fixture");
+    }
+
+    iconrecognition::detail::TemplateCatalog catalog(data_root, image_root);
+    Check(catalog.initialize(), "disabled catalog fixture must initialize");
+    const auto restricted = std::ranges::find_if(catalog.records(), [](const auto& record) { return record.item_id == "restricted"; });
+    Check(restricted != catalog.records().end() && restricted->region_restricted, "catalog must retain regionRestricted=true");
+    Check(
+        std::ranges::count_if(catalog.records(), [](const auto& record) { return record.region_restricted; }) == 1,
+        "missing and false regionRestricted values must remain ordinary records");
+
+    const auto& normal_templates = catalog.load(64);
+    Check(normal_templates.size() == 3, "normal catalog load must not depend on disabled overlays");
+    Check(
+        std::ranges::none_of(normal_templates, [](const auto& templ) { return templ.region_unavailable; }),
+        "normal catalog load must not generate disabled variants");
+
+    bool missing_overlay_rejected = false;
+    try {
+        static_cast<void>(catalog.loadRegionUnavailable(64));
+    }
+    catch (const std::runtime_error&) {
+        missing_overlay_rejected = true;
+    }
+    Check(missing_overlay_rejected, "disabled catalog load must read overlays lazily");
+
+    std::filesystem::create_directories(image_root / "Overlay");
+    Check(
+        cv::imwrite(
+            (image_root / "Overlay" / "icon_placement_disabled_bg.png").string(),
+            cv::Mat(28, 120, CV_8UC4, cv::Scalar(0, 0, 0, 255))),
+        "unable to write disabled background fixture");
+    Check(
+        cv::imwrite(
+            (image_root / "Overlay" / "icon_placement_disabled.png").string(),
+            cv::Mat(24, 24, CV_8UC4, cv::Scalar(255, 255, 255, 255))),
+        "unable to write disabled mark fixture");
+    const auto& disabled_templates = catalog.loadRegionUnavailable(64);
+    Check(disabled_templates.size() == 1, "disabled catalog must contain only region-restricted items");
+    Check(
+        disabled_templates.front().record.item_id == "restricted" && disabled_templates.front().region_unavailable,
+        "disabled catalog must preserve the original item id and mark the variant");
+}
+
+void TestCatalogRejectsNonBooleanRegionRestricted()
+{
+    const std::filesystem::path fixture = "agent/cpp-algo/source/IconRecognition/test/build/generated-invalid-region-restricted";
+    std::filesystem::remove_all(fixture);
+    const auto data_root = fixture / "data";
+    std::filesystem::create_directories(data_root);
+    std::ofstream(data_root / "recognition_items.json", std::ios::binary | std::ios::trunc)
+        << R"({"invalid":{"name":"非法物品","category":"test","storageKind":"Normal","categoryType":"Product","rarity":1,"iconId":"invalid","fluidIconId":"","regionRestricted":1}})";
+
+    bool rejected = false;
+    try {
+        iconrecognition::detail::TemplateCatalog catalog(data_root, fixture / "images");
+        static_cast<void>(catalog.initialize());
+    }
+    catch (const std::runtime_error& error) {
+        rejected = std::string_view(error.what()).find("regionRestricted") != std::string_view::npos;
+    }
+    Check(rejected, "catalog must reject non-boolean regionRestricted with a field-specific error");
 }
 
 void TestIconPathResolutionDoesNotAssumeCatalogRarity()
@@ -1217,6 +1631,10 @@ void TestArbitrarySquareRoiUsesItsFinalSize()
 int main()
 {
     try {
+        TestCandidateSelectionUsesDocumentedSetOrder();
+        TestCandidateSelectionWithoutIdsSkipsIntersection();
+        TestCandidateSelectionTreatsDuplicateValuesAsOne();
+        TestCandidateSelectionRejectsInvalidRequests();
         TestLowerExtendedMaskSnapshots();
         TestShipmentQuantityBarThreshold();
         TestShipmentQuantityBarThresholdScalesWithCellArea();
@@ -1245,14 +1663,18 @@ int main()
         TestRewardsAdbGridUsesSixColumnSharedOrigin();
         TestRewardsGridRenumbersColumnsAfterRoiFiltering();
         TestTransferRegionPartitionKeepsUndetectedOuterColumns();
+        TestTransferGridDetectsSparseVisiblePhase();
+        TestTransferGridRejectsBroadOvercapacityPhase();
         TestPortStoragerWideRoiUsesStablePanelPartitions();
         TestCreditTradeGridUsesDimCardStructures();
         TestCreditTradeGridUsesSixColumnsWhenRoiCannotContainSeven();
         TestValuablesGridKeepsSixColumnsAtAdbDensity();
         TestRarityRowEvidenceKeepsAllSixChannels();
         TestTrustedRarityRejectsSameColorBackground();
+        TestTrustedRarityIgnoresConnectedSpecks();
         TestGrayRarityCannotSeedLattice();
         TestRegularLatticeUsesOneGlobalFloatingPitch();
+        TestRegularLatticeUsesObservedPitchTolerance();
         TestRegularLatticeRejectsAccumulatingResiduals();
         TestRarityBandsRecoverGridFromGlobalEvidence();
         TestRarityUsesBottomEdgeRows();
@@ -1265,7 +1687,10 @@ int main()
         TestEdgeOcclusionSkipsRewardsAndSingleRoi();
         TestEdgeOcclusionRecoveryPolicyIsConservative();
         TestTemplatePreparationUsesExpectedMasks();
+        TestDisabledTemplateScalesCenteredOverlaysFrom128PixelReference();
         TestCatalogBuildsFinalSizeDirectlyFromSourceAssets();
+        TestCatalogLoadsOnlyRegionRestrictedDisabledVariantsOnDemand();
+        TestCatalogRejectsNonBooleanRegionRestricted();
         TestIconPathResolutionDoesNotAssumeCatalogRarity();
         TestCatalogConcurrentLoadIsStable();
         TestCatalogFailedLoadDoesNotPoisonCache();

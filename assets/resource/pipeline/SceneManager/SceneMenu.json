@@ -35,6 +35,7 @@
         "post_delay": 1500, // 3D动画菜单会一直动无法用wait_freeze
         "rate_limit": 0,
         "next": [
+            "[JumpBack]SceneNoticeRewardsUpgrade",
             "__ScenePrivateAnyEnterWorldSuccess"
         ]
     },
@@ -131,6 +132,138 @@
         ],
         "pre_delay": 0,
         "post_delay": 1500 // 3D动画菜单会一直动无法用wait_freeze
+    },
+    "__ScenePrivateWorldEnterMenuMission": {
+        "desc": "从大世界进入任务界面",
+        "recognition": "And",
+        "all_of": [
+            "InWorld"
+        ],
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClearHitCount",
+                "custom_action_param": {
+                    "nodes": [
+                        "__ScenePrivateMenuListScrollToMission"
+                    ],
+                    "strict": true
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMenuListEnterMenuMission",
+            "[JumpBack]__ScenePrivateWorldEnterMenuList"
+        ]
+    },
+    "__ScenePrivateMenuListEnterMenuMission": {
+        "desc": "从菜单列表进入任务界面；优先识别当前页，未找到时再滑动列表",
+        "recognition": "And",
+        "all_of": [
+            "InMenuList"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMenuListClickMenuMission",
+            "__ScenePrivateMenuListScrollToMission"
+        ]
+    },
+    "__ScenePrivateMenuListClickMenuMission": {
+        "desc": "从菜单列表点击任务入口",
+        "recognition": "And",
+        "all_of": [
+            "InMenuList",
+            {
+                "recognition": {
+                    "type": "OCR",
+                    "param": {
+                        "roi": [
+                            -400,
+                            0,
+                            400,
+                            720
+                        ],
+                        "expected": [
+                            "任务",
+                            "任務",
+                            "(?i)Missions",
+                            "任務",
+                            "임무"
+                        ]
+                    }
+                }
+            }
+        ],
+        "box_index": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "SceneManagerMenuListClickItemAction"
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateAnyEnterMenuMissionSuccess"
+        ]
+    },
+    "__ScenePrivateMenuListScrollToMission": {
+        "desc": "菜单列表滑动到任务入口，最多三次",
+        "max_hit": 3,
+        "recognition": "And",
+        "all_of": [
+            "InMenuList"
+        ],
+        "pre_delay": 0,
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    1118,
+                    565,
+                    10,
+                    10
+                ],
+                "end": [
+                    1118,
+                    233,
+                    10,
+                    10
+                ],
+                "end_hold": 500
+            }
+        },
+        "post_wait_freezes": 500,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "__ScenePrivateMenuListClickMenuMission"
+        ]
+    },
+    "__ScenePrivateAnyEnterMenuMissionSuccess": {
+        "desc": "成功进入任务界面",
+        "recognition": "And",
+        "all_of": [
+            "InMenuMission"
+        ],
+        "pre_wait_freezes": {
+            "time": 100,
+            "target": [
+                0,
+                0,
+                200,
+                100
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "__ScenePrivateWorldMenuLeftExpand": {
         "desc": "打开大世界界面左侧展开的菜单",
@@ -525,7 +658,7 @@
         ]
     },
     "__ScenePrivateMenuRegionalDevelopmentUnlockClose": {
-        "desc": "关闭地区建设解锁弹窗",
+        "desc": "关闭版本更新地区建设解锁弹窗",
         "recognition": "And",
         "all_of": [
             "CheckRegionalDevelopmentText",
@@ -545,7 +678,16 @@
                     "해제"
                 ]
             },
-            "CloseButtonType1"
+            {
+                "recognition": "TemplateMatch",
+                "roi": [
+                    950,
+                    150,
+                    270,
+                    180
+                ],
+                "template": "Common/Button/CloseButtonType4.png"
+            }
         ],
         "box_index": 2,
         "pre_wait_freezes": {
@@ -1773,6 +1915,33 @@
             }
         },
         "next": [
+            "__ScenePrivateAnyEnterMenuGearAssemblyUnlock",
+            "__ScenePrivateAnyEnterMenuGearAssemblySuccess"
+        ]
+    },
+    "__ScenePrivateAnyEnterMenuGearAssemblyUnlock": {
+        "desc": "有新的装备模版解锁",
+        "recognition": "And",
+        "all_of": [
+            {
+                "recognition": "OCR",
+                "roi": [
+                    400,
+                    250,
+                    550,
+                    150
+                ],
+                "expected": [
+                    "已解锁获得",
+                    "已解鎖獲得"
+                ]
+            },
+            "YellowConfirmButtonType1"
+        ],
+        "box_index": 1,
+        "pre_wait_freezes": 100,
+        "action": "Click",
+        "next": [
             "__ScenePrivateAnyEnterMenuGearAssemblySuccess"
         ]
     },
@@ -2038,23 +2207,7 @@
                             }
                         }
                     },
-                    {
-                        "recognition": {
-                            "type": "TemplateMatch",
-                            "param": {
-                                "roi": [
-                                    0,
-                                    0,
-                                    400,
-                                    80
-                                ],
-                                "template": [
-                                    "SceneManager/WorldDijiangMenu.png"
-                                ],
-                                "green_mask": true
-                            }
-                        }
-                    },
+                    "InDijiangWorld",
                     {
                         "recognition": {
                             "type": "TemplateMatch",

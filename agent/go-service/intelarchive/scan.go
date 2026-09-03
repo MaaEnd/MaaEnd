@@ -2,10 +2,8 @@ package intelarchive
 
 import (
 	"encoding/json"
-	"fmt"
 	"strings"
 
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/captureuid"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/i18n"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/maafocus"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
@@ -288,11 +286,7 @@ func unlockByNames(ctx *maa.Context, names []string, fileCategory string) error 
 }
 
 func unlockKnown(ctx *maa.Context, ids []string, idToName map[string]string) error {
-	uid, err := accountUID(ctx)
-	if err != nil {
-		return err
-	}
-	added, err := unlockItems(uid, ids)
+	added, err := unlockItems(ids)
 	if err != nil {
 		return err
 	}
@@ -304,22 +298,4 @@ func unlockKnown(ctx *maa.Context, ids []string, idToName map[string]string) err
 		maafocus.Print(ctx, i18n.T("intelarchive.item_unlocked", name))
 	}
 	return nil
-}
-
-func accountUID(ctx *maa.Context) (string, error) {
-	if ctx == nil || ctx.GetTasker() == nil {
-		return "", fmt.Errorf("nil context or tasker")
-	}
-	ctrl := ctx.GetTasker().GetController()
-	if ctrl == nil {
-		return "", fmt.Errorf("nil controller")
-	}
-	uid, err := captureuid.Capture(ctx, ctrl, true, true, true, captureuid.OutputTypeMasked)
-	if err != nil {
-		return "", fmt.Errorf("capture uid: %w", err)
-	}
-	if uid == "" {
-		return "", fmt.Errorf("captured uid is empty")
-	}
-	return uid, nil
 }

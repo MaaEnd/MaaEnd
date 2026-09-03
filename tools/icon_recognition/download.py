@@ -145,6 +145,17 @@ def _require_optional_string(
     return value
 
 
+def _require_optional_boolean(
+    source: Mapping[str, Any], field: str, context: str
+) -> bool:
+    if field not in source:
+        return False
+    value = source[field]
+    if not isinstance(value, bool):
+        raise ValueError(f"{context}.{field} 必须是布尔值")
+    return value
+
+
 def _require_string_list(
     source: Mapping[str, Any], field: str, context: str
 ) -> list[str]:
@@ -212,7 +223,7 @@ def _normalize_item(item_id: str, raw_source: Any) -> dict[str, Any]:
 
     storage_kind = _require_string(raw_source, "storageKind", item_id)
     category_type = _require_string(raw_source, "categoryType", item_id)
-    return {
+    result = {
         "name": clean_text(raw_source.get("name"), field=f"{item_id}.name"),
         "category": _category_name(storage_kind, category_type),
         "storageKind": storage_kind,
@@ -232,6 +243,9 @@ def _normalize_item(item_id: str, raw_source: Any) -> dict[str, Any]:
             raw_source, "emptyContainers", item_id
         ),
     }
+    if _require_optional_boolean(raw_source, "regionRestricted", item_id):
+        result["regionRestricted"] = True
+    return result
 
 
 def prepare_item_map(
@@ -493,6 +507,47 @@ def build_download_jobs(
     return jobs, missing_icons
 
 
+def relocate_rarity_changed_icons(
+    jobs: Sequence[DownloadJob], image_root: Path
+) -> int:
+    """在下载前迁移稀有度变更的缓存图标，避免重复下载并留下旧路径。"""
+    destinations: dict[str, Path] = {}
+    for job in jobs:
+        previous = destinations.get(job.icon_id)
+        if previous is not None and previous != job.destination:
+            raise ValueError(f"同一 iconId 对应多个稀有度: {job.icon_id}")
+        destinations[job.icon_id] = job.destination
+
+    moved = 0
+    for icon_id, destination in destinations.items():
+        candidates = [
+            path
+            for path in image_root.glob(f"*/{icon_id}.png")
+            if path.is_file() and path != destination
+        ]
+        if len(candidates) > 1:
+            raise ValueError(f"同一 iconId 存在多个旧稀有度图标: {icon_id}")
+        if not candidates:
+            continue
+
+        source = candidates[0]
+        source_metadata = _metadata_path(source)
+        destination_metadata = _metadata_path(destination)
+        if destination.is_file():
+            # 目标已存在时保留它，避免覆盖可能经过 CI 处理的图片。
+            source.unlink()
+            source_metadata.unlink(missing_ok=True)
+            continue
+        if not is_valid_png(source):
+            continue
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        source.replace(destination)
+        if source_metadata.is_file():
+            source_metadata.replace(destination_metadata)
+        moved += 1
+    return moved
+
+
 def is_valid_png(path: Path) -> bool:
     if not path.is_file():
         return False
@@ -699,6 +754,7 @@ def run(
     merged = merge_item_sources(items, weapons)
     _write_json(root / "item.json", merged)
     jobs, missing_icons = build_download_jobs(merged, root / "images")
+    relocated = relocate_rarity_changed_icons(jobs, root / "images")
     report = download_images(jobs, workers=workers, timeout=timeout)
     blacklist_removals = [
         row for row in removals if row["reason"] == "blacklist"
@@ -723,6 +779,7 @@ def run(
             "duplicateRemovals": duplicate_removals,
             "missingIconCount": len(missing_icons),
             "missingIconItems": missing_icons,
+            "relocatedCount": relocated,
         }
     )
     _write_json(root / "download_report.json", report)

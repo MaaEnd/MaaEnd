@@ -11,8 +11,10 @@
                 "SeizeDeliveryJobsPostProcessing"
             ],
             "controller": [
-                "Win32-Front",
-                "Wlroots"
+                "Linux-Gamescope",
+                "Linux-ScreenCast",
+                "Linux-Wlroots",
+                "Win32-Front"
             ],
             "group": [
                 "regional_development"
@@ -277,22 +279,25 @@
                     "label": "$task.SeizeDeliveryJobsPostProcessing.cases.Tele.label",
                     "pipeline_override": {
                         "SeizeDeliveryJobsPostProcessingEntry": {
-                            "enabled": true
-                        },
-                        "SeizeDeliveryJobsSuccessTeleportDone": {
-                            "enabled": true
+                            "enabled": true,
+                            "next": [
+                                "SeizeDeliveryJobsTeleport"
+                            ]
                         }
                     }
                 },
                 {
                     "name": "TeleWalk",
                     "label": "$task.SeizeDeliveryJobsPostProcessing.cases.TeleWalk.label",
+                    "option": [
+                        "SeizeDeliveryJobsPostDeparturePreferZipline"
+                    ],
                     "pipeline_override": {
                         "SeizeDeliveryJobsPostProcessingEntry": {
-                            "enabled": true
-                        },
-                        "SeizeDeliveryJobsSuccessWalkDone": {
-                            "enabled": true
+                            "enabled": true,
+                            "next": [
+                                "SeizeDeliveryJobsTeleportAndWalk"
+                            ]
                         }
                     }
                 },
@@ -306,13 +311,10 @@
                     ],
                     "pipeline_override": {
                         "SeizeDeliveryJobsPostProcessingEntry": {
-                            "enabled": true
-                        },
-                        "SeizeDeliveryJobsPrepareFetchGoods": {
-                            "enabled": true
-                        },
-                        "SeizeDeliveryJobsPostDepartureEntry": {
-                            "enabled": true
+                            "enabled": true,
+                            "next": [
+                                "SeizeDeliveryJobsFullDelivery"
+                            ]
                         }
                     }
                 }
@@ -320,8 +322,8 @@
         },
         "SeizeDeliveryJobsPostDepartureRiskAcknowledgement": {
             "type": "switch",
-            "label": "$task.SeizeDeliveryJobsPostDepartureRiskAcknowledgement.label",
-            "description": "$task.SeizeDeliveryJobsPostDepartureRiskAcknowledgement.description",
+            "label": "$task.AutoDeliveryRiskAcknowledgement.label",
+            "description": "$task.AutoDeliveryRiskAcknowledgement.description",
             "default_case": "No",
             "cases": [
                 {
@@ -339,22 +341,36 @@
         },
         "SeizeDeliveryJobsPostDeparturePreferZipline": {
             "type": "switch",
-            "label": "$task.SeizeDeliveryJobsPostDeparturePreferZipline.label",
-            "description": "$task.SeizeDeliveryJobsPostDeparturePreferZipline.description",
+            "label": "$task.AutoDeliveryPreferZipline.label",
+            "description": "$task.AutoDeliveryPreferZipline.description",
             "default_case": "No",
             "cases": [
                 {
-                    "name": "No"
+                    "name": "No",
+                    "pipeline_override": {
+                        "AutoDeliveryNavigateDepot": {
+                            "attach": {
+                                "zip": false
+                            }
+                        },
+                        "AutoDeliveryNavigateDestination": {
+                            "attach": {
+                                "zip": false
+                            }
+                        }
+                    }
                 },
                 {
                     "name": "Yes",
                     "pipeline_override": {
-                        "SeizeDeliveryJobsRunDeparture": {
-                            "custom_action_param": {
-                                "map_name_regex": "^(map02_lv002|map02_lv005)$", // 所有可用的送货地图名称（后续增加新地区需要更新此值）
-                                // 更新此值需要同时更新 assets\resource\pipeline\SeizeDeliveryJobs\SeizeDeliveryJobsPostDeparture.json 中对应的值
-                                "zipline_policy": "Active",
-                                "is_retry": false
+                        "AutoDeliveryNavigateDepot": {
+                            "attach": {
+                                "zip": true
+                            }
+                        },
+                        "AutoDeliveryNavigateDestination": {
+                            "attach": {
+                                "zip": true
                             }
                         }
                     }

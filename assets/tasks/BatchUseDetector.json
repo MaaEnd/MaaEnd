@@ -11,10 +11,12 @@
                 "BatchUseDetectorTimes"
             ],
             "controller": [
+                "Linux-Gamescope",
+                "Linux-ScreenCast",
+                "Linux-Wlroots",
                 "MacOS-Background",
                 "MacOS-Front",
-                "Win32-Front",
-                "Wlroots"
+                "Win32-Front"
             ],
             "group": [
                 "valuables_vault"

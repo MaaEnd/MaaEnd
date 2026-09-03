@@ -12,11 +12,33 @@
 
 #include "../Navmesh/BaseNavPlanner.h"
 #include "navi_domain_types.h"
+#include "navmesh_diagnostics.h"
 
 namespace mapnavigator
 {
 
 struct NaviParam;
+
+// Final reason a complete authored-route expansion failed. The record is scoped to the calling
+// thread and reset by ExpandNavmeshWaypoints, so the WebUI query can read it immediately after a
+// false return without mixing concurrent navigation requests.
+struct NavmeshExpansionFailure
+{
+    std::string code;
+    std::string message;
+    std::optional<size_t> authored_index;
+    std::string zone_id;
+    std::optional<navmesh::WorldPoint> segment_start;
+    std::optional<navmesh::WorldPoint> segment_goal;
+    std::optional<navmesh::WorldPoint> gap_start;
+    std::optional<navmesh::WorldPoint> gap_goal;
+    std::optional<double> gap_distance;
+    std::optional<navmesh::WorldPoint> target;
+    std::string target_tier;
+    std::optional<double> target_deck_y;
+    std::string route_status;
+    std::string route_error;
+};
 
 // How far the runtime will walk with no guidance. Start recovery covers the whole off-mesh band the
 // blind walk out of the base drops us in; the goal extension exists because navmesh omits water, so a
@@ -29,7 +51,7 @@ std::string InitialExpectedZone(const NaviParam& param);
 // Maps a live locator fix onto the navmesh base-pixel frame using the navmesh's OWN baked tier affine
 // (the same is_tier / base = s*tier + t the python tool uses), in place. A geometry / base-matched /
 // unknown zone projects to identity, so this is a no-op there — only a tier-template-pixel fix is
-// rewritten. Never consults the external MapTracker transforms.
+// rewritten.
 void NormalizeLivePositionToBase(const NaviParam& param, NaviPosition& pos);
 void PreloadNavmeshWaypoints(const NaviParam& param);
 // `should_stop` is polled between waypoints and between fallback probes: expansion runs before the
@@ -38,15 +60,47 @@ bool ExpandNavmeshWaypoints(
     const NaviParam& param,
     const NaviPosition& initial_pos,
     const std::function<bool()>& should_stop,
-    std::vector<Waypoint>& out_path);
+    std::vector<Waypoint>& out_path,
+    std::vector<NavmeshRouteDiagnostic>* out_diagnostics = nullptr);
+NavmeshExpansionFailure CurrentNavmeshExpansionFailure();
 // The goal deck pins which overlapping walkable surface the route must stop on; unset keeps the full span
-// set. The start has no deck argument — where it stands is read off its own height, not off the goal.
+// set. `start_floor_y` overrides which floor the start snaps onto, for the rare caller that actually knows
+// the height it is standing at (a zipline dismount); unset keeps the zone's dominant floor, unchanged.
 std::optional<navmesh::BaseNavRouteResult> PlanNavmeshRoute(
     const NaviParam& param,
     const std::string& locator_zone,
     const navmesh::WorldPoint& start,
     const navmesh::WorldPoint& goal,
-    std::optional<double> goal_deck_y = std::nullopt);
+    std::optional<double> goal_deck_y = std::nullopt,
+    std::optional<double> start_floor_y = std::nullopt,
+    NavmeshRouteDiagnostic* out_diagnostic = nullptr);
+
+// Which walkable surface `point` lands on: the planar distance to it, and its height on the same scale
+// as BaseNavRouteRequest::floor_y. Height matters as much as distance — a point directly above or below
+// a floor is a plane away from it and no distance test will say so.
+struct NavmeshSnap
+{
+    double distance = 0.0;
+    double height = 0.0;
+};
+
+// Nullopt when the zone can't resolve. The returned distance is the answer, not whether it returned:
+// snap falls back to a wider search on a small radius, so a hit can still be far outside `radius`, and
+// `floor_y` only ranks the candidates. Resolves the zone like PlanNavmeshRoute.
+std::optional<NavmeshSnap> NavmeshSnapAt(
+    const NaviParam& param,
+    const std::string& locator_zone,
+    const navmesh::WorldPoint& point,
+    double radius,
+    std::optional<double> floor_y = std::nullopt);
+// The bake-time connectivity classes each point sits in. A route is searched inside one class only, so
+// two points whose sets are disjoint cannot be connected by any plan — a cheap way to drop legs that are
+// bound to fail. An empty set means "no answer" (no baked grid, unknown zone, no voxel nearby), never
+// "not connected"; callers must read it as permission to try.
+std::vector<std::vector<uint32_t>> NavmeshRegionsNear(
+    const NaviParam& param,
+    const std::string& locator_zone,
+    const std::vector<navmesh::WorldPoint>& points);
 float NavmeshFloorYForZone(const NaviParam& param, const std::string& locator_zone);
 bool NavmeshZonesShareGeometry(const NaviParam& param, const std::string& zone_a, const std::string& zone_b);
 

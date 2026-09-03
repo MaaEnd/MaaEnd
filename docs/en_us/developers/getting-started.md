@@ -25,15 +25,15 @@ go version
 ```bash
 git clone --recursive https://github.com/MaaEnd/MaaEnd.git
 cd MaaEnd
-uv run tools/setup_workspace.py
+uv run setup-workspace
 pnpm install
 ```
 
 > [!NOTE]
 >
-> If `setup_workspace.py` fails, refer to the [Manual Configuration Guide](#manual-configuration-guide) below.
+> If `setup-workspace` fails, refer to the [Manual Configuration Guide](#manual-configuration-guide) below.
 
-**Common parameters for `setup_workspace.py`:**
+**Common parameters for `setup-workspace`:**
 
 | Parameter | Description |
 | --------------------- | ---------------------------------------------------------------------------------------------------------------- |
@@ -43,7 +43,7 @@ pnpm install
 | `--cpp-algo-pr <N>` | Download cpp-algo from the latest successful CI run of a specified PR (for quick testing of unmerged PR changes) |
 | `--cpp-algo-run <ID>` | Download cpp-algo from a specified workflow run ID |
 
-> `--cpp-algo-pr` and `--cpp-algo-run` are mutually exclusive; choose one. If not specified, defaults to downloading from the latest push build of the `v2` branch.
+> `--cpp-algo-pr` and `--cpp-algo-run` are mutually exclusive; choose one. If neither is specified, the script selects a successful CI build for the current checkout branch. On the protected `v2` branch it only uses the latest push build; on other branches it first matches the current commit so it does not accidentally use `v2`'s cpp-algo.
 
 ### Editor (Recommended)
 
@@ -296,7 +296,7 @@ Load resources with the development tool, connect to the emulator or PC client, 
 - Every time you modify the Pipeline, simply **reload the resources** in the tool; no recompilation is needed.
 - Be aware that animation transition speeds differ at different frame rates (e.g., 12 fps vs 60 fps), which may cause recognition timing discrepancies.
 
-> If you modified the Go Service, you must first run `uv run tools/build_and_install.py` to recompile.
+> If you modified the Go Service, you must first run `uv run build-and-install` to recompile.
 
 The current example uses **Maa Pipeline Support** (VS Code plugin): enable Admin Mode on the control panel and connect to the window.
 
@@ -408,13 +408,13 @@ Congratulations, you've completed your first task!
 4. Compile go-service and configure paths.
 
     ```bash
-    uv run tools/build_and_install.py
+    uv run build-and-install
     ```
 
     > If you also need to compile cpp-algo, add the `--cpp-algo` parameter:
     >
     > ```bash
-    > uv run tools/build_and_install.py --cpp-algo
+    > uv run build-and-install --cpp-algo
     > ```
 
 5. Copy the contents of `deps/bin` extracted in Step 2 to `install/maafw/`.

@@ -40,6 +40,8 @@ const char* NaviPhaseName(NaviPhase phase)
         return "Navigate";
     case NaviPhase::WaitTransfer:
         return "WaitTransfer";
+    case NaviPhase::WaitZipline:
+        return "WaitZipline";
     case NaviPhase::Finished:
         return "Finished";
     case NaviPhase::Failed:
@@ -276,6 +278,23 @@ void NavigationSession::SkipPastWaypoint(size_t waypoint_idx, const char* reason
     ResetHardProgress();
 }
 
+bool NavigationSession::RetargetCurrentWaypoint(double x, double y, const char* reason)
+{
+    if (!RequireCurrentWaypoint("RetargetCurrentWaypoint")) {
+        return false;
+    }
+    Waypoint& waypoint = current_path_[current_node_idx_];
+    if (!waypoint.HasPosition()) {
+        return false;
+    }
+    LogInfo << "Waypoint retargeted." << VAR(reason) << VAR(current_node_idx_) << VAR(waypoint.x) << VAR(waypoint.y) << VAR(x) << VAR(y);
+    waypoint.x = x;
+    waypoint.y = y;
+    // 到点判据是按新落脚点重算的, 旧点上攒的最好成绩会让无进展判据以为人在倒退
+    ResetProgress();
+    return true;
+}
+
 void NavigationSession::ResetProgress()
 {
     progress_waypoint_idx_ = std::numeric_limits<size_t>::max();
@@ -369,6 +388,22 @@ void NavigationSession::ApplyDynamicOverlay(std::vector<Waypoint> generated_pref
         ResetHardProgress();
     }
     LogInfo << "Dynamic route overlay applied." << VAR(generated_count) << VAR(continue_index) << VAR(current_path_.size()) << VAR(pos.x)
+            << VAR(pos.y) << VAR(pos.zone_id);
+}
+
+void NavigationSession::ReplaceRoute(std::vector<Waypoint> path, const NaviPosition& pos, const char* reason)
+{
+    original_path_ = std::move(path);
+    current_path_ = original_path_;
+    path_origin_index_ = 0;
+    generated_prefix_size_ = 0;
+    current_node_idx_ = 0;
+    current_zone_id_ = pos.zone_id;
+    canonical_final_goal_index_ = ResolveCanonicalFinalGoalIndex(original_path_);
+    route_tail_consumed_ = false;
+    ResetProgress();
+    ResetHardProgress();
+    LogInfo << "Navigation route replaced." << VAR(reason) << VAR(original_path_.size()) << VAR(canonical_final_goal_index_) << VAR(pos.x)
             << VAR(pos.y) << VAR(pos.zone_id);
 }
 

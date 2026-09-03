@@ -1,0 +1,59 @@
+{
+    "configs": {
+        "name": "自动送货，测试任务选择、仓储节点与送货目标识别",
+        "resource": "官服",
+        "controller": [
+            "Win32",
+            "ADB"
+        ]
+    },
+    "cases": [
+        {
+            "name": "等待前往仓储节点接取货物",
+            "image": "武陵_任务_送货任务_前往仓储节点接取货物.png",
+            "hits": [
+                "AutoDeliveryRecognizeDepot",
+                "InMenuMission",
+                "AutoDeliverySelectDeliveryMission",
+                "AutoDeliveryCheckDeliveryMissionSelected"
+            ]
+        },
+        {
+            "name": "运送货物至资源回收站",
+            "image": "武陵_任务_送货任务_运送至资源回收站.png",
+            "hits": [
+                "AutoDeliveryRecognizeDestination",
+                "AutoDeliveryRecognizeDepot",
+                "InMenuMission",
+                "AutoDeliverySelectDeliveryMission",
+                "AutoDeliveryCheckDeliveryMissionSelected"
+            ]
+        },
+        {
+            "name": "仓储节点可取货",
+            "image": "送货任务_大世界_仓储节点_可取货.png",
+            "hits": [
+                "AutoDeliveryCheckFetchGoodsButton"
+            ]
+        },
+        {
+            "name": "仓储节点已取货",
+            "image": "送货任务_大世界_仓储节点_已取货.png",
+            "hits": []
+        },
+        {
+            "name": "资源回收站可交货",
+            "image": "送货任务_大世界_资源回收站_可交货.png",
+            "hits": [
+                "AutoDeliveryCheckSubmitGoodsButton"
+            ]
+        },
+        {
+            "name": "NPC可交货",
+            "image": "送货任务_大世界_NPC可交货.png",
+            "hits": [
+                "AutoDeliveryCheckSubmitGoodsButton"
+            ]
+        }
+    ]
+}

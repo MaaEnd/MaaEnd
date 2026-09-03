@@ -199,7 +199,9 @@
             "param": {}
         },
         "next": [
-            "DailyEmailReceiveTSA"
+            "DailyEmailReceiveTSACannotClaim",
+            "DailyEmailReceiveTSAYellow",
+            "DailyEmailReceiveTSAWhite"
         ],
         "focus": {
             "Node.Recognition.Succeeded": "收取暂存区物资"
@@ -260,9 +262,41 @@
             "DailyEmailConfirmEmail"
         ]
     },
-    "DailyEmailReceiveTSA": {
+    "DailyEmailReceiveTSACannotClaim": {
+        "desc": "暂存区无法领取（灰色按钮）",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "DailyEmailReceiveTSAGrayButton",
+                    "DailyEmailReceiveTSACannotClaimText"
+                ],
+                "box_index": 1
+            }
+        },
+        "focus": {
+            "Node.Recognition.Succeeded": "无法领取"
+        }
+    },
+    "DailyEmailReceiveTSACannotClaimText": {
+        "desc": "暂存区无法领取时的按钮文本",
         "recognition": {
             "type": "OCR",
+            "param": {
+                "roi": "DailyEmailReceiveTSAGrayButton",
+                "expected": [
+                    "全部领取",
+                    "全部領取",
+                    "(?i)Claim\\s*All",
+                    "一括受取"
+                ]
+            }
+        }
+    },
+    "DailyEmailReceiveTSAGrayButton": {
+        "desc": "暂存区无法领取时的灰色按钮",
+        "recognition": {
+            "type": "ColorMatch",
             "param": {
                 "roi": [
                     497,
@@ -270,12 +304,31 @@
                     342,
                     128
                 ],
-                "expected": [
-                    "全部领取",
-                    "全部領取",
-                    "(?i)Claim\\s*All",
-                    "一括受取"
-                ]
+                "lower": [
+                    97,
+                    97,
+                    97
+                ],
+                "upper": [
+                    123,
+                    123,
+                    123
+                ],
+                "connected": true,
+                "count": 1000
+            }
+        }
+    },
+    "DailyEmailReceiveTSAYellow": {
+        "desc": "暂存区全部领取（黄色按钮）",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "YellowConfirmButtonType1",
+                    "DailyEmailReceiveTSAText"
+                ],
+                "box_index": 1
             }
         },
         "pre_wait_freezes": 200,
@@ -286,6 +339,69 @@
         "next": [
             "DailyEmailConfirmTSA"
         ]
+    },
+    "DailyEmailReceiveTSAText": {
+        "desc": "暂存区全部领取按钮文本",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "YellowConfirmButtonType1",
+                "roi_offset": [
+                    -106,
+                    -2,
+                    75,
+                    3
+                ],
+                "expected": [
+                    "全部领取",
+                    "全部領取",
+                    "(?i)Claim\\s*All",
+                    "一括受取"
+                ]
+            }
+        }
+    },
+    "DailyEmailReceiveTSAWhite": {
+        "desc": "暂存区全部领取（白色按钮）",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "WhiteConfirmButtonType1",
+                    "DailyEmailReceiveTSAWhiteText"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_wait_freezes": 200,
+        "action": {
+            "type": "Click",
+            "param": {}
+        },
+        "next": [
+            "DailyEmailConfirmTSA"
+        ]
+    },
+    "DailyEmailReceiveTSAWhiteText": {
+        "desc": "暂存区全部领取白色按钮文本",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "WhiteConfirmButtonType1",
+                "roi_offset": [
+                    -106,
+                    -2,
+                    75,
+                    3
+                ],
+                "expected": [
+                    "全部领取",
+                    "全部領取",
+                    "(?i)Claim\\s*All",
+                    "一括受取"
+                ]
+            }
+        }
     },
     "DailyEmailFinish": {}
 }

@@ -98,9 +98,11 @@ func persistItemsPreserveSync(items map[string]int, lastSync time.Time, hasData 
 	if !hasData || updatedAt.IsZero() {
 		rec, err := loadRecord()
 		if err != nil {
-			return err
-		}
-		if !rec.UpdatedAt.IsZero() {
+			log.Warn().
+				Err(err).
+				Str("component", componentUpdateItemQuantity).
+				Msg("ims record corrupt while preserving sync timestamp, ignoring old timestamp")
+		} else if !rec.UpdatedAt.IsZero() {
 			updatedAt = rec.UpdatedAt
 		}
 	}

@@ -1,11 +1,10 @@
 // SellProduct Task 模板数据
 
-import {createRequire} from "node:module";
+import {readJsonc} from "../jsonc.mjs";
 import {sellProductLocations, toPascalCase} from "./model.mjs";
 import {sellProductSelectableItems, sellProductSelectionData} from "./selection-data.mjs";
 
-const require = createRequire(import.meta.url);
-const zhCNLocale = require("../../../assets/locales/interface/zh_cn.json");
+const zhCNLocale = readJsonc(new URL("../../../assets/locales/interface/zh_cn.json", import.meta.url));
 
 // 建立中文物品名到 interface locale key 的反查表。
 function buildItemLocaleKeyByCNName() {

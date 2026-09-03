@@ -185,7 +185,8 @@
         "next": [
             "[JumpBack]ReceptionRoomCollectClues",
             "[JumpBack]ReceptionRoomReceiveClues",
-            "[JumpBack]ReceptionRoomSetClues",
+            "[JumpBack]ReceptionRoomSetCluesQuickAdd",
+            //"[JumpBack]ReceptionRoomSetClues",
             "[JumpBack]ReceptionRoomStartExchange",
             "ReceptionRoomWaitExchangeBeforeStart",
             "[JumpBack]ReceptionRoomSendCluesDirect",
@@ -1634,10 +1635,149 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "[JumpBack]ReceptionRoomSendCluesQuickGiveDuplicates",
             "[JumpBack]ReceptionRoomSendCluesSelectClues",
             "[JumpBack]ReceptionRoomSendCluesSwipe",
             "ReceptionRoomSendExit"
         ]
+    },
+    "ReceptionRoomSendCluesQuickGiveDuplicates": {
+        "desc": "[会客室·赠予] 识别并点击「快速赠予重复线索」",
+        "max_hit": 1,
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "ReceptionRoomSendCluesQuickGiveDuplicatesBackground",
+                    "ReceptionRoomSendCluesQuickGiveDuplicatesText"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ReceptionRoomSendCluesQuickGiveClose"
+        ]
+    },
+    "ReceptionRoomSendCluesQuickGiveDuplicatesBackground": {
+        "desc": "[会客室·赠予] 快速赠予重复线索按钮黄色背景",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    0,
+                    532,
+                    468,
+                    236
+                ],
+                "method": 40,
+                "lower": [
+                    28,
+                    100,
+                    100
+                ],
+                "upper": [
+                    29,
+                    255,
+                    255
+                ],
+                "connected": true,
+                "count": 3000
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "ReceptionRoomSendCluesQuickGiveDuplicatesText": {
+        "desc": "[会客室·赠予] 快速赠予重复线索按钮文字",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "ReceptionRoomSendCluesQuickGiveDuplicatesBackground",
+                "expected": [
+                    "快速赠予重复线索",
+                    "快速贈予重複線索",
+                    "Give Away All Duplicates",
+                    "重複分を一括譲渡",
+                    "중복 단서 빠른 증정"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "ReceptionRoomSendCluesQuickGiveClose": {
+        "desc": "[会客室·赠予] 快速赠予完成后 IMS A3 累加奖励",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InNoticeRewards",
+                    "CloseRewardsButton"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_wait_freezes": {
+            "time": 300,
+            "threshold": 0.97,
+            "timeout": 1500,
+            "target": [
+                528,
+                299,
+                222,
+                131
+            ]
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AddItemData",
+                "custom_action_param": {}
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "ReceptionRoomSendCluesQuickGiveCloseClick"
+        ]
+    },
+    "ReceptionRoomSendCluesQuickGiveCloseClick": {
+        "desc": "[会客室·赠予] 快速赠予完成后点击关闭奖励界面",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InNoticeRewards",
+                    "CloseRewardsButton"
+                ],
+                "box_index": 1
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_wait_freezes": {
+            "time": 400,
+            "timeout": 2000,
+            "target": [
+                500,
+                0,
+                280,
+                200
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "ReceptionRoomCollectCluesCollect": {
         "desc": "[会客室·领奖] 点击黄按钮领取会客室收集奖励",
@@ -1897,6 +2037,26 @@
         "next": [
             "InReceptionRoom"
         ]
+    },
+    "ReceptionRoomSetCluesQuickAdd": {
+        "desc": "[会客室·线索] 识别「快速填入」黄色按钮并点击",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "InReceptionRoom",
+                    "ReceptionRoomSetCluesQuickAddColor",
+                    "ReceptionRoomSetCluesQuickAddText"
+                ],
+                "box_index": 2
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "ReceptionRoomExit": {
         "desc": "[会客室·退出] 识别会客室界面，点击返回退出",
