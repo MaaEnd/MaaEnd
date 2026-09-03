@@ -2321,6 +2321,7 @@ RecastPlanResult RecastNavEngine::planLocked(
     int level = 0; // 椭圆档位
     bool last_resort = false;
     Rect cur;
+    Rect prev { 0, 0, 0, 0 };
     Kind kind = Kind::Tentative;
     for (int tier = 0;; ++tier) {
         if (last_resort) {
@@ -2329,7 +2330,20 @@ RecastPlanResult RecastNavEngine::planLocked(
         }
         else {
             std::tie(cur, kind) = tierRect(level);
+            // 极短腿的椭圆一档长不出一格, 腿长为 0 时永远不长: 同一窗口不重跑, 跳到变大的那一档, 跳不动就整类
+            constexpr int kMaxLevel = 64;
+            while (kind == Kind::Tentative && tier > 0 && cur.x0 == prev.x0 && cur.y0 == prev.y0 && cur.nx == prev.nx
+                   && cur.ny == prev.ny) {
+                if (++level > kMaxLevel) {
+                    cur = region_rect;
+                    kind = Kind::Full;
+                    last_resort = true;
+                    break;
+                }
+                std::tie(cur, kind) = tierRect(level);
+            }
         }
+        prev = cur;
         const bool local = kind != Kind::Full;
         const bool capped = kind == Kind::Capped;
         if (!local && region_rect.cells() > kMaxCells) {
@@ -2388,6 +2402,13 @@ RecastPlanResult RecastNavEngine::planLocked(
                 ++level;
                 continue;
             }
+        }
+        // 封顶档关掉了碰边验收, 窗内走不通分不清是真不通还是绕路出了窗: 整类窗口买得起就退整类再下结论
+        if (local && capped && !line.has_value() && region_rect.cells() <= kMaxCells) {
+            info.reset();
+            res.debug.tier_notes.push_back((dg.err.empty() ? std::string("路线失败") : dg.err) + "→整类窗口");
+            last_resort = true;
+            continue;
         }
         // 失败的腿才最需要诊断: 断开时的缝、窗口范围、各阶段耗时全在这里, 两条出口都得带上。
         const auto dump = [&] {

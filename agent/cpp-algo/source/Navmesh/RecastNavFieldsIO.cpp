@@ -449,6 +449,11 @@ bool FieldsPack::loadZone(const FieldsZoneDir& z, FieldsZone& out, std::string& 
                 err = "旁包区 " + z.name + " 的分量图解不开";
                 return false;
             }
+            // 每条边至少 2 字节 varint, 先按流长卡住 n_edges 再分配
+            if (st.size() < 2ULL * n_edges) {
+                err = "旁包区 " + z.name + " 的分量图残缺";
+                return false;
+            }
             Reader es { st.data(), st.data() + st.size() };
             src.assign(n_edges, 0);
             dst.assign(n_edges, 0);
