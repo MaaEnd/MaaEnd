@@ -466,10 +466,11 @@ export class RecordingSocket extends SessionSocket {
 
   /**
    * @param {Object} sessionConfig `{kind:'win32'|'adb', win32?, adb?}`
+   * @param {{liveOnly?: boolean}} [options] `liveOnly` avoids registering recording hotkeys
    * @returns {void}
    */
-  start(sessionConfig) {
-    this._open(sessionConfig || {});
+  start(sessionConfig, options = {}) {
+    this._open({ ...(sessionConfig || {}), live_only: !!options.liveOnly });
   }
 
   /** Ask the backend to stop recording. @returns {void} */

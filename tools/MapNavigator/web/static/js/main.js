@@ -404,8 +404,10 @@ class MapNavigatorApp {
       btnNavtestRun: $("btn-navtest-run"),
       btnNavtestStop: $("btn-navtest-stop"),
       navtestArmed: $("navtest-armed"),
+      navtestPhase: $("navtest-phase"),
       navtestHotkeyNote: $("navtest-hotkey-note"),
       navtestOverlay: $("navtest-overlay"),
+      navtestOverlayText: $("navtest-overlay-text"),
       panelProperties: $("panel-properties"),
       panelAssert: $("panel-assert"),
       panelLog: $("panel-log"),
@@ -493,6 +495,8 @@ class MapNavigatorApp {
         btnStop: this.els.btnNavtestStop,
         armedLabel: this.els.navtestArmed,
         overlay: this.els.navtestOverlay,
+        overlayText: this.els.navtestOverlayText,
+        phaseLabel: this.els.navtestPhase,
         hotkeyNote: this.els.navtestHotkeyNote,
         connection: this.connection,
         getRoute: () => this._navtestRoute(),
@@ -4132,7 +4136,12 @@ class MapNavigatorApp {
 
   _toggleLiveLocate() {
     if (this.liveLocateSocket) {
-      this._stopLiveLocate();
+      void this._stopLiveLocate();
+      return;
+    }
+    // 实时定位和试跑抢同一个游戏会话, 试跑还没交还就不让开。
+    if (this.navtest?.busy) {
+      setStatus("试跑会话尚未结束, 请等待其释放游戏连接。", "#f59e0b");
       return;
     }
     if (!this.connection?.isConnected()) return;
@@ -4148,9 +4157,12 @@ class MapNavigatorApp {
         this.els.btnLiveLocate.textContent = "开启实时定位";
         this.els.btnLiveLocate.classList.remove("btn-danger");
         this.els.btnLiveLocate.classList.add("btn-secondary");
+        this.els.btnLiveLocate.disabled = !this.connection.isConnected();
       }
+      // 会话真的关掉了, 等着开试跑的那一方可以往下走了。
+      if (this._liveLocateStopResolve) this._liveLocateStopResolve(true);
     };
-    socket.start(this.connection.buildSession());
+    socket.start(this.connection.buildSession(), {liveOnly: true});
     this._clearLivePath();
     this._initialLiveHeightColored = false;
     this.showLivePath = true;
@@ -4160,17 +4172,41 @@ class MapNavigatorApp {
     setStatus("实时定位已开启。", "#10b981");
   }
 
-  /** Keep standalone locating and route running mutually exclusive. */
+  /**
+   * 关掉实时定位, 并等到后端真的交还游戏会话为止。试跑要抢的就是这把锁,
+   * 提前返回会让它开在旧会话还占着的时候。
+   * @returns {Promise<boolean>} 会话是否已确认关闭
+   */
   _stopLiveLocate() {
     const socket = this.liveLocateSocket;
-    if (socket) socket.stop();
-    this.liveLocateSocket = null;
+    if (!socket) return Promise.resolve(true);
+    if (this._liveLocateStopPromise) return this._liveLocateStopPromise;
+
+    this.els.btnLiveLocate.disabled = true;
+    this.els.btnLiveLocate.textContent = "正在关闭实时定位…";
+    this._liveLocateStopPromise = new Promise((resolve) => {
+      const timeout = window.setTimeout(() => {
+        if (this._liveLocateStopPromise) {
+          this._liveLocateStopPromise = null;
+          this._liveLocateStopResolve = null;
+          this.els.btnLiveLocate.disabled = false;
+          setStatus("实时定位未能及时结束, 暂时无法启动试跑。", "#ef4444");
+          resolve(false);
+        }
+      }, 30000);
+      this._liveLocateStopResolve = (closed) => {
+        window.clearTimeout(timeout);
+        this._liveLocateStopResolve = null;
+        this._liveLocateStopPromise = null;
+        resolve(closed);
+      };
+    });
+    socket.stop();
     this.showLivePath = false;
     this._clearLivePath();
-    this.els.btnLiveLocate.textContent = "开启实时定位";
-    this.els.btnLiveLocate.classList.remove("btn-danger");
-    this.els.btnLiveLocate.classList.add("btn-secondary");
     this._syncThreeOverlays();
+    setStatus("正在停止实时定位, 等待游戏会话释放…", "#3b82f6");
+    return this._liveLocateStopPromise;
   }
 
   _recolorThreeByLiveHeight() {

@@ -2294,6 +2294,12 @@ canvas {
   font-size: 12px;
 }
 
+.navtest-phase {
+  margin-top: 4px;
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
 /* 跑起来之后铺满整幅页面顶部：无论滚到哪、焦点在哪，终止键都在视野里。 */
 .navtest-overlay {
   position: fixed;
