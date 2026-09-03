@@ -4000,6 +4000,7 @@ class MapNavigatorApp {
       const result = await postRoutePreview({
         position: plan.position,
         position_zone: plan.positionZone,
+        floor_y: plan.startDeckY,
         custom_action_param: customActionParam,
       });
       if (token !== this._editRouteToken || (result && result.stale)) return;

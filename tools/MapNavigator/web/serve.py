@@ -361,6 +361,7 @@ app.add_middleware(NoStoreMiddleware)
 class RoutePreviewRequest(BaseModel):
     position: list[float]
     position_zone: str
+    floor_y: float | None = None
     custom_action_param: dict[str, Any]
 
 
@@ -479,6 +480,7 @@ async def api_route_preview(req: RoutePreviewRequest) -> dict[str, Any]:
                 "route_preview",
                 position=req.position,
                 position_zone=req.position_zone,
+                floor_y=_slot(req.floor_y),
                 custom_action_param=req.custom_action_param,
             )
         except RuntimeError as exc:

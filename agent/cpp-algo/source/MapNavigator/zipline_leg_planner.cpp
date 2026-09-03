@@ -380,6 +380,7 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
     const navmesh::WorldPoint& goal,
     const navmesh::WorldPath* walking_path,
     std::optional<double> goal_deck_y,
+    std::optional<double> start_floor_y,
     const std::function<bool()>& should_stop,
     bool capture_diagnostics)
 {
@@ -637,7 +638,7 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
                 start,
                 ToWorld(nodes[index]),
                 nodes[index].height,
-                std::nullopt,
+                start_floor_y,
                 capture_diagnostics ? &diagnostic : nullptr);
             if (!route || !route->ok()) {
                 return std::nullopt;

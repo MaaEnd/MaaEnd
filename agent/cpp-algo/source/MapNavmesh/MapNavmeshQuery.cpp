@@ -544,6 +544,8 @@ json::object BuildRoutePreview(const QueryParam& query)
     mapnavigator::NaviPosition position {
         .x = query.position[0],
         .y = query.position[1],
+        // 预览里点了哪一层就按哪一层吸起点；空槽等同实机，落回区的主层。
+        .floor_y = query.floor_y.empty() ? std::optional<double> {} : std::optional<double> { query.floor_y.front() },
         .zone_id = query.position_zone,
     };
     mapnavigator::NormalizeLivePositionToBase(param, position);
