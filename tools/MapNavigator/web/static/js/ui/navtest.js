@@ -120,7 +120,11 @@ export class NavTestController {
       this._syncUi();
       try {
         const ready = await this.onBeforeOpen();
-        if (ready === false) return;
+        if (ready === false) {
+          // 实时定位没交还会话, 相位停在 switching 会跟已经弹出的失败提示对不上。
+          this._setPhase("error", "无法停止实时定位, 试跑未启动");
+          return;
+        }
         this._opening = false;
         this._open(session, route);
       } catch (err) {
