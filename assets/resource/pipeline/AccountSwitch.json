@@ -38,7 +38,8 @@
             495
         ],
         "template": [
-            "AccountSwitch/LoginClose.png"
+            "AccountSwitch/LoginClose.png",
+            "AccountSwitch/LoginClose1080p.png"
         ],
         "pre_delay": 0,
         "post_delay": 0,
