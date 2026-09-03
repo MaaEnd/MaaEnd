@@ -476,6 +476,11 @@ export class RecordingSocket extends SessionSocket {
 
   /** Ask the backend to stop recording. @returns {void} */
   stop() {
+    // A stop asked before the socket opens is dropped by `_send`; closing is what cancels the startup.
+    if (this._ws && this._ws.readyState === WebSocket.CONNECTING) {
+      this.close();
+      return;
+    }
     this._send({type: "stop"});
   }
 }
