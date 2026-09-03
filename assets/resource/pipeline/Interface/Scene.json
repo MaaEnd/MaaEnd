@@ -226,9 +226,10 @@
             }
         },
         "pre_delay": 0,
-        "post_delay": 0,
+        "post_delay": 5000, //权限等阶显示后3s消失，或者显示升级弹窗(仍包含权限等阶四个字)
         "rate_limit": 0,
         "next": [
+            "__ScenePrivateNoticeRewardsUpgradeDisappear",
             "__ScenePrivateNoticeRewardsUpgradeConfirm"
         ]
     },
