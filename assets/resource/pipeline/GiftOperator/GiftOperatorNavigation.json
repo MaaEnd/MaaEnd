@@ -61,7 +61,10 @@
     "GiftOperatorMoveRetry": {
         "desc": "寻路失败重试",
         "max_hit": 5,
+        "pre_delay": 0,
         "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GiftOperatorEntry"
         ],

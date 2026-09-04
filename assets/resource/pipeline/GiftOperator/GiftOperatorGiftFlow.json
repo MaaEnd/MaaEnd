@@ -396,6 +396,7 @@
                     130
                 ],
                 "expected": [
+                    // @i18n-skip
                     "明天",
                     "tomorrow",
                     "明日",
@@ -455,7 +456,10 @@
     "GiftOperatorGiftFullRetry": {
         "desc": "赠送已满离开送礼界面后跳过对话，准备重试",
         "max_hit": 5,
+        "pre_delay": 0,
         "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
             "GiftOperatorEntry"
         ]
