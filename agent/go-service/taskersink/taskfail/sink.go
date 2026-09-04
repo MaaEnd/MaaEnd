@@ -31,7 +31,7 @@ var feedbackHintEntries = map[string]struct{}{
 	"RealTimeTaskMain":            {},
 	"ProdManualStart":             {},
 	"ResourceRecycleStationStart": {},
-	"SellProductSchedule":         {},
+	"OutpostTradingSchedule":      {},
 	"StashBackpackMain":           {},
 	"SwitchTeamMain":              {},
 	"VisitFriendsMain":            {},

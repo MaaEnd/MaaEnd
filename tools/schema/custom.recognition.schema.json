@@ -28,6 +28,15 @@
                 "MapFind",
                 "MapLocateAssertLocation",
                 "MapNavmeshQuery",
+                "OutpostTradingCurrentBestOperator",
+                "OutpostTradingCurrentGoods",
+                "OutpostTradingCurrentOperatorUncached",
+                "OutpostTradingOperatorCacheReady",
+                "OutpostTradingOperatorConflict",
+                "OutpostTradingOperatorListBottom",
+                "OutpostTradingOperatorScanOutcome",
+                "OutpostTradingPriorityItem",
+                "OutpostTradingSelectBestOperator",
                 "PuzzleRecognition",
                 "ReceptionRoomExchangeCountdownWithinThresholdRecognition",
                 "ReceptionRoomWaitExchangeKeepAliveDueRecognition",
@@ -35,14 +44,6 @@
                 "ScreenshotStableRecognition",
                 "ScrollbarRecognition",
                 "ScrollbarCompleteRecognition",
-                "SellProductCurrentBestOperator",
-                "SellProductCurrentGoods",
-                "SellProductCurrentOperatorUncached",
-                "SellProductOperatorCacheReady",
-                "SellProductOperatorListBottom",
-                "SellProductOperatorScanOutcome",
-                "SellProductPriorityItem",
-                "SellProductSelectBestOperator",
                 "TrialOfSwordmancy.Recognize",
                 "TrialOfSwordmancy.RecognizeAband",
                 "TrialOfSwordmancy.RecognizeDeck",
@@ -521,13 +522,13 @@
             "if": {
                 "type": "object",
                 "required": [ "custom_recognition" ],
-                "properties": { "custom_recognition": { "const": "SellProductCurrentGoods" } }
+                "properties": { "custom_recognition": { "const": "OutpostTradingCurrentGoods" } }
             },
             "then": {
                 "type": "object",
                 "required": [ "custom_recognition_param" ],
                 "properties": {
-                    "custom_recognition_param": { "$ref": "./components/sell_product.schema.json#/$defs/CurrentGoodsRecognitionParam" }
+                    "custom_recognition_param": { "$ref": "./components/outpost_trading.schema.json#/$defs/CurrentGoodsRecognitionParam" }
                 }
             }
         },
@@ -535,13 +536,13 @@
             "if": {
                 "type": "object",
                 "required": [ "custom_recognition" ],
-                "properties": { "custom_recognition": { "const": "SellProductPriorityItem" } }
+                "properties": { "custom_recognition": { "const": "OutpostTradingPriorityItem" } }
             },
             "then": {
                 "type": "object",
                 "required": [ "custom_recognition_param" ],
                 "properties": {
-                    "custom_recognition_param": { "$ref": "./components/sell_product.schema.json#/$defs/PriorityItemRecognitionParam" }
+                    "custom_recognition_param": { "$ref": "./components/outpost_trading.schema.json#/$defs/PriorityItemRecognitionParam" }
                 }
             }
         }

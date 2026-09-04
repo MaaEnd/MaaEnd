@@ -66,6 +66,10 @@
                 "ItemTransferFallbackAction",
                 "ItemTransferOCRAction",
                 "MapNavigateAction",
+                "OutpostTradingLocationPlan",
+                "OutpostTradingOperatorSession",
+                "OutpostTradingPrioritySession",
+                "OutpostTradingReserveSession",
                 "PipelineOverride",
                 "PipelineOverrideAction",
                 "PostStop",
@@ -73,10 +77,6 @@
                 "PuzzleAction",
                 "SeizeDeliveryJobsResetScanStateAction",
                 "SeizeDeliveryJobsScanTargetAction",
-                "SellProductLocationPlan",
-                "SellProductOperatorSession",
-                "SellProductPrioritySession",
-                "SellProductReserveSession",
                 "RealTimeTaskAction",
                 "RepeatUntilFoundAction",
                 "RepeatUntilNotFoundAction",
@@ -222,13 +222,13 @@
 		{
 			"if": {
 				"properties": {
-					"custom_action": { "const": "SellProductLocationPlan" }
+					"custom_action": { "const": "OutpostTradingLocationPlan" }
 				},
 				"required": [ "custom_action" ]
 			},
 			"then": {
 				"properties": {
-					"custom_action_param": { "$ref": "./components/sell_product.schema.json#/$defs/LocationPlanParam" }
+					"custom_action_param": { "$ref": "./components/outpost_trading.schema.json#/$defs/LocationPlanParam" }
 				},
 				"required": [ "custom_action_param" ]
 			}
@@ -236,13 +236,13 @@
 		{
 			"if": {
 				"properties": {
-					"custom_action": { "const": "SellProductPrioritySession" }
+					"custom_action": { "const": "OutpostTradingPrioritySession" }
 				},
 				"required": [ "custom_action" ]
 			},
 			"then": {
 				"properties": {
-					"custom_action_param": { "$ref": "./components/sell_product.schema.json#/$defs/PrioritySessionParam" }
+					"custom_action_param": { "$ref": "./components/outpost_trading.schema.json#/$defs/PrioritySessionParam" }
 				},
 				"required": [ "custom_action_param" ]
 			}

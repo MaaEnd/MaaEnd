@@ -36,12 +36,12 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/ims"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/intelarchive"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/itemtransfer"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/outposttrading"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/resource"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pullcount"
 	puzzle "github.com/MaaXYZ/MaaEnd/agent/go-service/puzzle-solver"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/scenemanager"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/seizedeliveryjobs"
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/sellproduct"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/taskersink/aspectratio"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/taskersink/cursormove"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/taskersink/hdrcheck"
@@ -103,7 +103,7 @@ func registerAll() {
 	ims.Register()
 	intelarchive.Register()
 	itemtransfer.Register()
-	sellproduct.Register()
+	outposttrading.Register()
 	creditshopping.Register()
 	webevent202605.Register()
 	pullcount.Register()

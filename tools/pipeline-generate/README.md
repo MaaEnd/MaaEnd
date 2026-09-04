@@ -31,7 +31,7 @@ node tools/pipeline-generate/fetch-data.mjs --cache-bust
 pnpm generate:AutoDelivery
 pnpm generate:DeliveryJobs
 pnpm generate:EnvironmentMonitoring
-pnpm generate:SellProduct
+pnpm generate:OutpostTrading
 ```
 
 ## 精简游戏数据生成脚本
