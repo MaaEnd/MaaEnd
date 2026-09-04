@@ -3,6 +3,7 @@ package gamesetting
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/rs/zerolog/log"
@@ -18,16 +19,21 @@ const (
 	regionCN     = "CN"
 	regionGlobal = "Global"
 
-	optionUnchanged = "Unchanged"
+	optionUnchanged          = "Unchanged"
+	defaultCameraSensitivity = "0"
+	minimumCameraSensitivity = -5
+	maximumCameraSensitivity = 5
 )
 
 type gameSettingOptions struct {
-	Region          string `json:"GameSettingRegion"`
-	DisplayType     string `json:"GameSettingDisplayType"`
-	Resolution      string `json:"GameSettingResolution"`
-	GraphicsQuality string `json:"GameSettingGraphicsQuality"`
-	FrameRate       string `json:"GameSettingFrameRate"`
-	AutoHDR         string `json:"GameSettingAutoHDR"`
+	Region             string `json:"GameSettingRegion"`
+	DisplayType        string `json:"GameSettingDisplayType"`
+	Resolution         string `json:"GameSettingResolution"`
+	GraphicsQuality    string `json:"GameSettingGraphicsQuality"`
+	FrameRate          string `json:"GameSettingFrameRate"`
+	CameraSensitivityX string `json:"GameSettingCameraSensitivityX"`
+	CameraSensitivityY string `json:"GameSettingCameraSensitivityY"`
+	AutoHDR            string `json:"GameSettingAutoHDR"`
 }
 
 // Run 对应 assets/tasks/pretasks/GameSetting.json 的 pretask 入口。
@@ -40,6 +46,25 @@ func Run(args []string) bool {
 			Str("component", "gamesetting").
 			Strs("args", args).
 			Msg("failed to parse GameSetting options")
+		return false
+	}
+
+	cameraSensitivityX, err := parseCameraSensitivity(opts.CameraSensitivityX)
+	if err != nil {
+		log.Error().
+			Err(err).
+			Str("component", "gamesetting").
+			Str("camera_sensitivity_x", opts.CameraSensitivityX).
+			Msg("invalid horizontal camera sensitivity")
+		return false
+	}
+	cameraSensitivityY, err := parseCameraSensitivity(opts.CameraSensitivityY)
+	if err != nil {
+		log.Error().
+			Err(err).
+			Str("component", "gamesetting").
+			Str("camera_sensitivity_y", opts.CameraSensitivityY).
+			Msg("invalid vertical camera sensitivity")
 		return false
 	}
 
@@ -57,6 +82,8 @@ func Run(args []string) bool {
 		Str("resolution", opts.Resolution).
 		Str("graphics_quality", opts.GraphicsQuality).
 		Str("frame_rate", opts.FrameRate).
+		Int("camera_sensitivity_x", cameraSensitivityX).
+		Int("camera_sensitivity_y", cameraSensitivityY).
 		Str("auto_hdr", opts.AutoHDR).
 		Msg("applying game settings")
 
@@ -108,6 +135,38 @@ func Run(args []string) bool {
 			Msg("applied frame rate")
 	}
 
+	cameraSensitivityApplied := true
+	if err := SetControllerCameraSpeedX(cameraSensitivityX); err != nil {
+		log.Error().
+			Err(err).
+			Str("component", "gamesetting").
+			Int("camera_sensitivity_x", cameraSensitivityX).
+			Msg("failed to set horizontal camera sensitivity")
+		cameraSensitivityApplied = false
+	} else {
+		log.Info().
+			Str("component", "gamesetting").
+			Int("camera_sensitivity_x", cameraSensitivityX).
+			Msg("applied horizontal camera sensitivity")
+	}
+
+	if err := SetControllerCameraSpeedY(cameraSensitivityY); err != nil {
+		log.Error().
+			Err(err).
+			Str("component", "gamesetting").
+			Int("camera_sensitivity_y", cameraSensitivityY).
+			Msg("failed to set vertical camera sensitivity")
+		cameraSensitivityApplied = false
+	} else {
+		log.Info().
+			Str("component", "gamesetting").
+			Int("camera_sensitivity_y", cameraSensitivityY).
+			Msg("applied vertical camera sensitivity")
+	}
+	if !cameraSensitivityApplied {
+		return false
+	}
+
 	if err := ApplyAutoHDR(opts.AutoHDR); err != nil {
 		log.Error().
 			Err(err).
@@ -122,12 +181,14 @@ func Run(args []string) bool {
 
 func parseGameSettingOptions(args []string) (gameSettingOptions, error) {
 	opts := gameSettingOptions{
-		Region:          regionCN,
-		DisplayType:     displayTypeWindow,
-		Resolution:      defaultResolution,
-		GraphicsQuality: optionUnchanged,
-		FrameRate:       optionUnchanged,
-		AutoHDR:         optionUnchanged,
+		Region:             regionCN,
+		DisplayType:        displayTypeWindow,
+		Resolution:         defaultResolution,
+		GraphicsQuality:    optionUnchanged,
+		FrameRate:          optionUnchanged,
+		CameraSensitivityX: defaultCameraSensitivity,
+		CameraSensitivityY: defaultCameraSensitivity,
+		AutoHDR:            optionUnchanged,
 	}
 	if len(args) == 0 {
 		return opts, nil
@@ -156,10 +217,47 @@ func parseGameSettingOptions(args []string) (gameSettingOptions, error) {
 	if opts.FrameRate == "" {
 		opts.FrameRate = optionUnchanged
 	}
+	if opts.CameraSensitivityX == "" {
+		opts.CameraSensitivityX = defaultCameraSensitivity
+	}
+	if opts.CameraSensitivityY == "" {
+		opts.CameraSensitivityY = defaultCameraSensitivity
+	}
 	if opts.AutoHDR == "" {
 		opts.AutoHDR = optionUnchanged
 	}
 	return opts, nil
+}
+
+// ValidateCameraSensitivity checks whether a camera sensitivity value is supported by Endfield.
+func ValidateCameraSensitivity(value int) error {
+	if value < minimumCameraSensitivity || value > maximumCameraSensitivity {
+		return fmt.Errorf(
+			"gamesetting: camera sensitivity %d must be between %d and %d",
+			value,
+			minimumCameraSensitivity,
+			maximumCameraSensitivity,
+		)
+	}
+	return nil
+}
+
+func parseCameraSensitivity(raw string) (int, error) {
+	value, err := strconv.Atoi(strings.TrimSpace(raw))
+	if err != nil {
+		return 0, fmt.Errorf("gamesetting: parse camera sensitivity %q: %w", raw, err)
+	}
+	if err := ValidateCameraSensitivity(value); err != nil {
+		return 0, err
+	}
+	return value, nil
+}
+
+func cameraSensitivityDWORD(value int) (uint32, error) {
+	if err := ValidateCameraSensitivity(value); err != nil {
+		return 0, err
+	}
+	return uint32(int32(value)), nil
 }
 
 func mapGraphicsQuality(name string) (uint32, bool, error) {

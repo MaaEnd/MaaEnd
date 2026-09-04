@@ -837,6 +837,8 @@
     "option.GameSettingFrameRate.cases.Fps30.label": "30",
     "option.GameSettingFrameRate.cases.Fps60.label": "60",
     "option.GameSettingFrameRate.cases.Fps120.label": "120",
+    "option.GameSettingCameraSensitivityX.label": "カメラ水平感度",
+    "option.GameSettingCameraSensitivityY.label": "カメラ垂直感度",
     "option.GameSettingAutoHDR.label": "自動 HDR",
     "option.GameSettingAutoHDR.description": "設定項目：設定 → システム → ディスプレイ → グラフィックス → Endfield.exe → 自動 HDR",
     "option.GameSettingAutoHDR.cases.Unchanged.label": "変更しない",

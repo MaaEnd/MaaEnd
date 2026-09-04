@@ -66,6 +66,16 @@ func SetScreenmanagerWindowPositionY(_ uint32) error {
 	return ErrUnsupported
 }
 
+// SetControllerCameraSpeedX is unavailable on non-Windows platforms.
+func SetControllerCameraSpeedX(_ int) error {
+	return ErrUnsupported
+}
+
+// SetControllerCameraSpeedY is unavailable on non-Windows platforms.
+func SetControllerCameraSpeedY(_ int) error {
+	return ErrUnsupported
+}
+
 func GetVideoCustomQuality() (uint32, error) {
 	return 0, ErrUnsupported
 }

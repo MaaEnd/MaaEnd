@@ -862,6 +862,8 @@
     "option.GameSettingFrameRate.cases.Fps30.label": "30",
     "option.GameSettingFrameRate.cases.Fps60.label": "60",
     "option.GameSettingFrameRate.cases.Fps120.label": "120",
+    "option.GameSettingCameraSensitivityX.label": "카메라 수평 감도",
+    "option.GameSettingCameraSensitivityY.label": "카메라 수직 감도",
     "option.GameSettingAutoHDR.label": "자동 HDR",
     "option.GameSettingAutoHDR.description": "설정 항목: 설정 → 시스템 → 디스플레이 → 그래픽 → Endfield.exe → 자동 HDR",
     "option.GameSettingAutoHDR.cases.Unchanged.label": "변경 안 함",

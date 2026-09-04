@@ -29,6 +29,8 @@
                         "CloseGamePCGameSettingDisplayType",
                         "CloseGamePCGameSettingGraphicsQuality",
                         "CloseGamePCGameSettingFrameRate",
+                        "CloseGamePCGameSettingCameraSensitivityX",
+                        "CloseGamePCGameSettingCameraSensitivityY",
                         "CloseGamePCAutoHDR"
                     ],
                     "pipeline_override": {
@@ -261,6 +263,240 @@
                         "CloseGamePC": {
                             "attach": {
                                 "FrameRate": 1000
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "CloseGamePCGameSettingCameraSensitivityX": {
+            "type": "select",
+            "label": "$option.GameSettingCameraSensitivityX.label",
+            "default_case": "0",
+            "cases": [
+                {
+                    "name": "-5",
+                    "pipeline_override": {
+                        "CloseGamePC": {
+                            "attach": {
+                                "CameraSensitivityX": -5
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "-4",
+                    "pipeline_override": {
+                        "CloseGamePC": {
+                            "attach": {
+                                "CameraSensitivityX": -4
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "-3",
+                    "pipeline_override": {
+                        "CloseGamePC": {
+                            "attach": {
+                                "CameraSensitivityX": -3
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "-2",
+                    "pipeline_override": {
+                        "CloseGamePC": {
+                            "attach": {
+                                "CameraSensitivityX": -2
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "-1",
+                    "pipeline_override": {
+                        "CloseGamePC": {
+                            "attach": {
+                                "CameraSensitivityX": -1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "0",
+                    "pipeline_override": {
+                        "CloseGamePC": {
+                            "attach": {
+                                "CameraSensitivityX": 0
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "1",
+                    "pipeline_override": {
+                        "CloseGamePC": {
+                            "attach": {
+                                "CameraSensitivityX": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "2",
+                    "pipeline_override": {
+                        "CloseGamePC": {
+                            "attach": {
+                                "CameraSensitivityX": 2
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "3",
+                    "pipeline_override": {
+                        "CloseGamePC": {
+                            "attach": {
+                                "CameraSensitivityX": 3
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "4",
+                    "pipeline_override": {
+                        "CloseGamePC": {
+                            "attach": {
+                                "CameraSensitivityX": 4
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "5",
+                    "pipeline_override": {
+                        "CloseGamePC": {
+                            "attach": {
+                                "CameraSensitivityX": 5
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "CloseGamePCGameSettingCameraSensitivityY": {
+            "type": "select",
+            "label": "$option.GameSettingCameraSensitivityY.label",
+            "default_case": "0",
+            "cases": [
+                {
+                    "name": "-5",
+                    "pipeline_override": {
+                        "CloseGamePC": {
+                            "attach": {
+                                "CameraSensitivityY": -5
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "-4",
+                    "pipeline_override": {
+                        "CloseGamePC": {
+                            "attach": {
+                                "CameraSensitivityY": -4
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "-3",
+                    "pipeline_override": {
+                        "CloseGamePC": {
+                            "attach": {
+                                "CameraSensitivityY": -3
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "-2",
+                    "pipeline_override": {
+                        "CloseGamePC": {
+                            "attach": {
+                                "CameraSensitivityY": -2
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "-1",
+                    "pipeline_override": {
+                        "CloseGamePC": {
+                            "attach": {
+                                "CameraSensitivityY": -1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "0",
+                    "pipeline_override": {
+                        "CloseGamePC": {
+                            "attach": {
+                                "CameraSensitivityY": 0
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "1",
+                    "pipeline_override": {
+                        "CloseGamePC": {
+                            "attach": {
+                                "CameraSensitivityY": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "2",
+                    "pipeline_override": {
+                        "CloseGamePC": {
+                            "attach": {
+                                "CameraSensitivityY": 2
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "3",
+                    "pipeline_override": {
+                        "CloseGamePC": {
+                            "attach": {
+                                "CameraSensitivityY": 3
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "4",
+                    "pipeline_override": {
+                        "CloseGamePC": {
+                            "attach": {
+                                "CameraSensitivityY": 4
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "5",
+                    "pipeline_override": {
+                        "CloseGamePC": {
+                            "attach": {
+                                "CameraSensitivityY": 5
                             }
                         }
                     }
