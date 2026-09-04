@@ -1684,5 +1684,6 @@
     "resource/image/MapLocator/Wuling/Lv009Tier401": "3bbfddce9c9212d8be64ce8d644546b7fc1712cd604bfb40b8edaf88bdb8a47c",
     "resource/image/MapLocator/Wuling/Lv009Tier405": "5f5d56ef28701d6319cdd12544e2a743ee6d303ed3e42ef5af5954a43a39c44a",
     "resource/image/MapLocator/Wuling/Lv009Tier397": "35e63505f63c70e70edc660fad3cfcb4338cba88c1a7b1a6b202fcc239ab24d5",
-    "resource/image/MapLocator/Wuling/Lv009Tier395": "ef770f0b1de05ee9fc04da449d3e106855e294464869408d44091443e9ae0d66"
+    "resource/image/MapLocator/Wuling/Lv009Tier395": "ef770f0b1de05ee9fc04da449d3e106855e294464869408d44091443e9ae0d66",
+    "resource/image/AutoStockpile/Goods/Wuling/MarkerStoneLock.Tier2": "16d8c8f395261f96b3aa99d5fcc779f1dba6fe7395efb838222c95f6e403935c"
 }
