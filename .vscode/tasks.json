@@ -6,7 +6,7 @@
         {
             "label": "Prepare Workspace",
             "type": "shell",
-            "command": "python tools/setup_workspace.py",
+            "command": "uv run setup-workspace",
             "runOptions": {
                 "instanceLimit": 1
             },
@@ -15,7 +15,7 @@
         {
             "label": "Prepare Workspace (Update)",
             "type": "shell",
-            "command": "python tools/setup_workspace.py --update",
+            "command": "uv run setup-workspace --update",
             "runOptions": {
                 "instanceLimit": 1
             },
@@ -24,7 +24,7 @@
         {
             "label": "Build",
             "type": "shell",
-            "command": "python tools/build_and_install.py",
+            "command": "uv run build-and-install",
             "runOptions": {
                 "instanceLimit": 1
             },
@@ -33,7 +33,7 @@
         {
             "label": "Build --cpp-algo",
             "type": "shell",
-            "command": "python tools/build_and_install.py --cpp-algo",
+            "command": "uv run build-and-install --cpp-algo",
             "runOptions": {
                 "instanceLimit": 1
             },
