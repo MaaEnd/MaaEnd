@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cstring>
+#include <tuple>
 #include <unordered_map>
 
 #include "BaseNavReader.h"
@@ -42,6 +43,164 @@ uint64_t peekU64(const uint8_t* p)
     uint64_t v = 0;
     std::memcpy(&v, p, sizeof v);
     return v;
+}
+
+int32_t peekI32(const uint8_t* p)
+{
+    int32_t v = 0;
+    std::memcpy(&v, p, sizeof v);
+    return v;
+}
+
+float peekF32(const uint8_t* p)
+{
+    float v = 0.0F;
+    std::memcpy(&v, p, sizeof v);
+    return v;
+}
+
+// FLNK 段: 头 16 B, 区索引 zone_count × 12 B, 记录 count × 80 B。段存在时须整段合规, 不做降级。
+constexpr size_t kLinkHeaderSize = 16;
+constexpr size_t kLinkZoneSize = 12;
+constexpr size_t kLinkRecSize = 80;
+constexpr uint16_t kLinkRecVersion = 1;
+
+FieldsLinkSide peekLinkSide(const uint8_t* p)
+{
+    FieldsLinkSide s;
+    s.gx = peekI32(p);
+    s.gy = peekI32(p + 4);
+    s.h = peekF32(p + 8);
+    s.decl_h = peekF32(p + 12);
+    s.rid = peekU32(p + 16);
+    s.clr = peekU16(p + 20);
+    s.flags = p[22];
+    s.why = p[23];
+    return s;
+}
+
+bool parseLinks(const uint8_t* p, size_t len, std::vector<FieldsLinkRec>& recs, std::vector<FieldsLinkZone>& zones, std::string& err)
+{
+    if (len < kLinkHeaderSize) {
+        err = "旁包离网连接段残缺";
+        return false;
+    }
+    const uint32_t count = peekU32(p);
+    const uint16_t ver = peekU16(p + 4);
+    const uint32_t zone_count = peekU32(p + 8);
+    if (ver != kLinkRecVersion) {
+        err = "旁包离网连接记录版本不符 (" + std::to_string(ver) + " ≠ " + std::to_string(kLinkRecVersion) + ")";
+        return false;
+    }
+    const uint64_t want = kLinkHeaderSize + static_cast<uint64_t>(zone_count) * kLinkZoneSize + static_cast<uint64_t>(count) * kLinkRecSize;
+    if (want != len) {
+        err = "旁包离网连接段长度与条数不符";
+        return false;
+    }
+    const uint8_t* zp = p + kLinkHeaderSize;
+    const uint8_t* rp = zp + static_cast<size_t>(zone_count) * kLinkZoneSize;
+    zones.resize(zone_count);
+    for (uint32_t i = 0; i < zone_count; ++i) {
+        const uint8_t* e = zp + static_cast<size_t>(i) * kLinkZoneSize;
+        FieldsLinkZone& z = zones[i];
+        z.zone_id = peekU16(e);
+        z.first = peekU32(e + 4);
+        z.len = peekU32(e + 8);
+        if (z.first > count || z.len > count - z.first) {
+            err = "旁包离网连接区索引越界";
+            return false;
+        }
+    }
+    recs.resize(count);
+    for (uint32_t i = 0; i < count; ++i) {
+        const uint8_t* e = rp + static_cast<size_t>(i) * kLinkRecSize;
+        FieldsLinkRec& r = recs[i];
+        r.boml_index = peekU32(e);
+        r.zone_id = peekU16(e + 4);
+        r.kind = e[6];
+        r.valid = e[7];
+        r.is_ext = peekI32(e + 8);
+        r.bidirectional = peekI32(e + 12);
+        r.area = peekI32(e + 16);
+        r.link_type = peekU16(e + 20);
+        r.direction = e[22];
+        r.radius = peekF32(e + 24);
+        r.cost_modifier = peekF32(e + 28);
+        r.lo = peekLinkSide(e + 32);
+        r.hi = peekLinkSide(e + 56);
+    }
+    return true;
+}
+
+// FOPN 段: 头 16 B, 区索引 zone_count × 12 B, 记录 count × 16 B, 区内按 (gy, gx, h 位模式) 升序。
+constexpr size_t kOpenHeaderSize = 16;
+constexpr size_t kOpenZoneSize = 12;
+constexpr size_t kOpenRecSize = 16;
+constexpr uint16_t kOpenRecVersion = 1;
+
+uint32_t hBits(float h)
+{
+    uint32_t b = 0;
+    std::memcpy(&b, &h, sizeof b);
+    return b;
+}
+
+bool openLess(const FieldsOpenRec& a, const FieldsOpenRec& b)
+{
+    return std::tie(a.gy, a.gx) != std::tie(b.gy, b.gx) ? std::tie(a.gy, a.gx) < std::tie(b.gy, b.gx) : hBits(a.h) < hBits(b.h);
+}
+
+bool parseOpens(const uint8_t* p, size_t len, std::vector<FieldsOpenRec>& recs, std::vector<FieldsLinkZone>& zones, std::string& err)
+{
+    if (len < kOpenHeaderSize) {
+        err = "旁包打通表残缺";
+        return false;
+    }
+    const uint32_t count = peekU32(p);
+    const uint16_t ver = peekU16(p + 4);
+    const uint32_t zone_count = peekU32(p + 8);
+    if (ver != kOpenRecVersion) {
+        err = "旁包打通表记录版本不符 (" + std::to_string(ver) + " ≠ " + std::to_string(kOpenRecVersion) + ")";
+        return false;
+    }
+    const uint64_t want = kOpenHeaderSize + static_cast<uint64_t>(zone_count) * kOpenZoneSize + static_cast<uint64_t>(count) * kOpenRecSize;
+    if (want != len) {
+        err = "旁包打通表长度与条数不符";
+        return false;
+    }
+    const uint8_t* zp = p + kOpenHeaderSize;
+    const uint8_t* rp = zp + static_cast<size_t>(zone_count) * kOpenZoneSize;
+    zones.resize(zone_count);
+    for (uint32_t i = 0; i < zone_count; ++i) {
+        const uint8_t* e = zp + static_cast<size_t>(i) * kOpenZoneSize;
+        FieldsLinkZone& z = zones[i];
+        z.zone_id = peekU16(e);
+        z.first = peekU32(e + 4);
+        z.len = peekU32(e + 8);
+        if (z.first > count || z.len > count - z.first) {
+            err = "旁包打通表区索引越界";
+            return false;
+        }
+    }
+    recs.resize(count);
+    for (uint32_t i = 0; i < count; ++i) {
+        const uint8_t* e = rp + static_cast<size_t>(i) * kOpenRecSize;
+        FieldsOpenRec& r = recs[i];
+        r.gx = peekI32(e);
+        r.gy = peekI32(e + 4);
+        r.h = peekF32(e + 8);
+        r.clr = peekU16(e + 12);
+        r.flags = e[14];
+        r.src = e[15];
+    }
+    // 查找依赖区内升序二分; 顺序不符视为烘焙错误, 直接报错
+    for (const FieldsLinkZone& z : zones) {
+        if (!std::is_sorted(recs.begin() + z.first, recs.begin() + z.first + z.len, openLess)) {
+            err = "旁包打通表未按格序排列";
+            return false;
+        }
+    }
+    return true;
 }
 
 // 运行期判据常数排成旁包 FCON 段的样子, 整段逐字节比对。
@@ -259,6 +418,22 @@ bool FieldsPack::load(const std::filesystem::path& path, const BaseNavPack& main
             return false;
         }
     }
+    // 离网连接段可选: 缺失则无跳边, 存在则须合规。
+    links_.clear();
+    link_zones_.clear();
+    if (const auto it = secs.find("FLNK"); it != secs.end()) {
+        if (!parseLinks(it->second.p, it->second.len, links_, link_zones_, err)) {
+            return false;
+        }
+    }
+    // 打通表同样可选: 缺失则不修改任何格。
+    opens_.clear();
+    open_zones_.clear();
+    if (const auto it = secs.find("FOPN"); it != secs.end()) {
+        if (!parseOpens(it->second.p, it->second.len, opens_, open_zones_, err)) {
+            return false;
+        }
+    }
     const Sec con = secs["FCON"];
     const std::vector<uint8_t> want = expectedConst();
     if (con.len != kConstSize || std::memcmp(con.p, want.data(), kConstSize) != 0) {
@@ -363,6 +538,43 @@ const FieldsZoneDir* FieldsPack::findZone(const std::string& name) const
         }
     }
     return nullptr;
+}
+
+const FieldsLinkRec* FieldsPack::linksOfZone(uint16_t zone_id, size_t& n) const
+{
+    for (const FieldsLinkZone& z : link_zones_) {
+        if (z.zone_id == zone_id) {
+            n = z.len;
+            return z.len == 0 ? nullptr : links_.data() + z.first;
+        }
+    }
+    n = 0;
+    return nullptr;
+}
+
+const FieldsOpenRec* FieldsPack::opensOfZone(uint16_t zone_id, size_t& n) const
+{
+    for (const FieldsLinkZone& z : open_zones_) {
+        if (z.zone_id == zone_id) {
+            n = z.len;
+            return z.len == 0 ? nullptr : opens_.data() + z.first;
+        }
+    }
+    n = 0;
+    return nullptr;
+}
+
+const FieldsOpenRec* FindOpen(const FieldsOpenRec* p, size_t n, int32_t gx, int32_t gy, float h)
+{
+    FieldsOpenRec key;
+    key.gx = gx;
+    key.gy = gy;
+    key.h = h;
+    const FieldsOpenRec* it = std::lower_bound(p, p + n, key, openLess);
+    if (it == p + n || it->gx != gx || it->gy != gy || hBits(it->h) != hBits(h)) {
+        return nullptr;
+    }
+    return it;
 }
 
 bool FieldsPack::decodeTile(const FieldsTileRef& t, FieldsTile& out) const
