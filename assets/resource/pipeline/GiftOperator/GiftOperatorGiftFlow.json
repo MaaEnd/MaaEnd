@@ -465,7 +465,7 @@
         ]
     },
     "GiftOperatorGiftFullFail": {
-        "desc": "重试三次也只能找到送满的干员，正常失败",
+        "desc": "重试五次也只能找到送满的干员，正常失败",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "FalseAction", // 已经确定是没找到，不是 Bug 不需要大爆炸

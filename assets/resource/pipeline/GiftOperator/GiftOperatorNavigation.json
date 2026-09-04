@@ -472,6 +472,10 @@
         "next": [
             "GiftOperatorMoveSC"
         ],
+        "on_error": [
+            "GiftOperatorMoveRetry",
+            "GiftOperatorMoveFail"
+        ],
         "focus": {
             "Node.Action.Succeeded": {
                 "trace": true
