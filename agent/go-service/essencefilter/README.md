@@ -33,19 +33,29 @@ Go 只通过 `ctx.OverrideNext` 选择 Pipeline 分支：
 | `options.go` | 从合并后的节点 `attach` 读取运行选项 |
 | `ui.go` | MXU 展示、匹配摘要和预刻写输出 |
 | `plan_export.go` | 可选的 `EssencePlan.html` 导出 |
+| `inventory_snapshot.go` | 库存筛选播报快照（`debug/record/EssenceFilterInventory.json`） |
 | `matchapi/` | 可复用的纯匹配 API：`OCRInput -> MatchResult` |
 | `register.go` | 注册本包 CustomAction / CustomRecognition |
 
 ## 运行流程
 
-1. `EssenceFilterInitAction` 从 `EssenceFilterInit.attach` 读取选项并加载 `data/EssenceFilter`。
+1. `EssenceFilterInitAction` 从 `EssenceFilterInit.attach` 读取选项并加载 `data/EssenceFilter`；库存任务会先清空库存快照。
 2. Pipeline 对 C++ 选中的格子依次 OCR 三个技能和等级。
 3. `runUnifiedSkillDecision` 调用 `matchapi.Engine.MatchOCR`。
 4. Go 根据 `MatchResult` 覆盖下一 Pipeline 节点。
 5. Pipeline 识别按钮、点击并确认状态。
-6. `EssenceFilterFinishAction` 输出统计并把 `currentRun` 置空。
+6. `EssenceFilterFinishAction` 输出统计；库存任务在播报后写入完整快照，然后把 `currentRun` 置空。
 
 Agent 回调按当前框架模型串行执行，因此 `currentRun` 不加锁。新的任务必须先经过 Init，Finish 后状态不再复用。
+
+## 库存快照
+
+`debug/record/EssenceFilterInventory.json` 保存库存筛选播报里的锁定基质，供后续任务读取。
+
+- 仅库存任务 `EssenceFilterInit` / `EssenceFilterFinish` 读写；战后筛选不碰这个文件。
+- Init 时写成空快照（`complete: false`），避免其他任务读到上一轮或半成品。
+- Finish 播报后覆盖为完整快照（`complete: true`）。武器写入游戏内部 ID（如 `wpn_claym_0003`），重复词条用 `count` 表示。
+- 写入失败只记日志，不影响筛选。
 
 ## 匹配数据
 
