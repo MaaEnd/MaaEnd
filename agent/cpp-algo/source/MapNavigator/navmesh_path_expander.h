@@ -97,10 +97,8 @@ std::optional<NavmeshSnap> NavmeshSnapAt(
 // two points whose sets are disjoint cannot be connected by any plan — a cheap way to drop legs that are
 // bound to fail. An empty set means "no answer" (no baked grid, unknown zone, no voxel nearby), never
 // "not connected"; callers must read it as permission to try.
-std::vector<std::vector<uint32_t>> NavmeshRegionsNear(
-    const NaviParam& param,
-    const std::string& locator_zone,
-    const std::vector<navmesh::WorldPoint>& points);
+std::vector<std::vector<uint32_t>>
+    NavmeshRegionsNear(const NaviParam& param, const std::string& locator_zone, const std::vector<navmesh::WorldPoint>& points);
 float NavmeshFloorYForZone(const NaviParam& param, const std::string& locator_zone);
 bool NavmeshZonesShareGeometry(const NaviParam& param, const std::string& zone_a, const std::string& zone_b);
 

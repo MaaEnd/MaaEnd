@@ -21,7 +21,11 @@
                 "item_port_rainbow_1",
                 "item_port_dream_bubble_1",
                 "item_port_crystal_ball_1",
-                "item_port_barbecue_1"
+                "item_port_barbecue_1",
+                "item_port_soil_grass_fast_1",
+                "item_port_soil_grass_fast_2",
+                "item_port_soil_sp_fast_3",
+                "item_port_soil_sp_fast_4"
             ]
         }
     ]

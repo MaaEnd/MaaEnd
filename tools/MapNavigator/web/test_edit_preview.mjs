@@ -18,6 +18,7 @@ test("manual preview start keeps every authored point as a planning target", () 
     ok: true,
     position: [10, 20],
     positionZone: "map02_2f",
+    startDeckY: null,
     targets: points,
     explicit: true,
   });
@@ -34,7 +35,7 @@ test("manual preview start supports planning to one authored target", () => {
 
 test("default preview start preserves the first-point compatibility behavior", () => {
   const points = [
-    {x: 10, y: 20, zone: "map02base"},
+    {x: 10, y: 20, zone: "map02base", target_deck_y: 325.79},
     {x: 30, y: 40, zone: "map02base"},
   ];
 
@@ -42,6 +43,7 @@ test("default preview start preserves the first-point compatibility behavior", (
     ok: true,
     position: [10, 20],
     positionZone: "map02base",
+    startDeckY: 325.79,
     targets: [points[1]],
     explicit: false,
   });

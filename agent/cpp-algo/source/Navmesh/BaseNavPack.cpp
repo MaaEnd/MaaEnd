@@ -20,10 +20,14 @@ BaseNavPack MakeBaseNavPack(
     std::vector<BaseNavLink> links,
     std::vector<BaseNavSurface> surfaces,
     std::vector<BaseNavOffMeshLink> off_mesh_links,
-    std::vector<BaseNavSection> sections)
+    std::vector<BaseNavSection> sections,
+    uint64_t build_hash,
+    uint64_t file_fnv)
 {
     BaseNavPack pack;
     pack.path_ = std::move(path);
+    pack.build_hash_ = build_hash;
+    pack.file_fnv_ = file_fnv;
     pack.zones_ = std::move(zones);
     pack.vertices_ = std::move(vertices);
     pack.triangles_ = std::move(triangles);

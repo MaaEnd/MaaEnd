@@ -276,6 +276,24 @@
                         "AutoCollectRoute15SubSkipped": {
                             "enabled": true
                         },
+                        "AutoCollectRoute16Sub": {
+                            "enabled": false
+                        },
+                        "AutoCollectRoute16SubGated": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute16SubSkipped": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute17Sub": {
+                            "enabled": false
+                        },
+                        "AutoCollectRoute17SubGated": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute17SubSkipped": {
+                            "enabled": true
+                        },
                         "AutoCollectCommonRoute1Sub": {
                             "enabled": false
                         },
@@ -489,6 +507,22 @@
                 {
                     "name": "AutoCollectLimit_Route15",
                     "label": "$iconRecognition.name.item_plant_crylplant_2_3",
+                    "pipeline_type": "int",
+                    "default": "0",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.AutoCollectTargetInventory.pattern_msg"
+                },
+                {
+                    "name": "AutoCollectLimit_Route16",
+                    "label": "$iconRecognition.name.item_plant_spcstone_2_3",
+                    "pipeline_type": "int",
+                    "default": "0",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.AutoCollectTargetInventory.pattern_msg"
+                },
+                {
+                    "name": "AutoCollectLimit_Route17",
+                    "label": "$iconRecognition.name.item_plant_mushroom_2_3",
                     "pipeline_type": "int",
                     "default": "0",
                     "verify": "^\\d+$",
@@ -830,6 +864,42 @@
                         }
                     }
                 },
+                "AutoCollectRoute16SubGated": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{AutoCollectLimit_Route16}==0 || {item_plant_spcstone_2_3}<{AutoCollectLimit_Route16}"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectRoute16SubSkipped": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "!({AutoCollectLimit_Route16}==0 || {item_plant_spcstone_2_3}<{AutoCollectLimit_Route16})"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectRoute17SubGated": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{AutoCollectLimit_Route17}==0 || {item_plant_mushroom_2_3}<{AutoCollectLimit_Route17}"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectRoute17SubSkipped": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "!({AutoCollectLimit_Route17}==0 || {item_plant_mushroom_2_3}<{AutoCollectLimit_Route17})"
+                            }
+                        }
+                    }
+                },
                 "AutoCollectCommonRoute1SubGated": {
                     "recognition": {
                         "param": {
@@ -1020,7 +1090,9 @@
                 "Route12",
                 "Route13",
                 "Route14",
-                "Route15"
+                "Route15",
+                "Route16",
+                "Route17"
             ],
             "cases": [
                 {
@@ -1154,6 +1226,24 @@
                     "label": "$option.AutoCollectRoute15.label",
                     "pipeline_override": {
                         "AutoCollectRoute15Start": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "Route16",
+                    "label": "$option.AutoCollectRoute16.label",
+                    "pipeline_override": {
+                        "AutoCollectRoute16Start": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "Route17",
+                    "label": "$option.AutoCollectRoute17.label",
+                    "pipeline_override": {
+                        "AutoCollectRoute17Start": {
                             "enabled": true
                         }
                     }

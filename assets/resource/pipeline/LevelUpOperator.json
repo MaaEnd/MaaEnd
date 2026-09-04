@@ -83,10 +83,10 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    314,
+                    300,
                     620,
-                    76,
-                    57
+                    100,
+                    100
                 ],
                 "template": [
                     "LevelUpOperator/FilterDesc.png",
@@ -158,10 +158,10 @@
             "type": "TemplateMatch",
             "param": {
                 "roi": [
-                    314,
+                    300,
                     620,
-                    76,
-                    57
+                    100,
+                    100
                 ],
                 "template": [
                     "LevelUpOperator/FilterAsce.png",

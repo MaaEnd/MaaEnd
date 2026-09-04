@@ -213,10 +213,11 @@ BaseNav 用于直接从 GLB 三角面生成寻路数据。它不是展示图，�
 
 ```text
 assets/resource/model/map/navmesh/base.nav.gz
+assets/resource/model/map/navmesh/base.fields.nav.gz   # 与主包配对的预烘场旁包
 assets/resource/model/map/navmesh/base.nav      # optional local fallback
 ```
 
-寻路要求包内带预烘格图段（`BGRD`，见 BaseNav 版本 4）；没有这一段的包仍可显示网格与底图，但点不出线路。
+当前 BaseNav 格式版本为 5（v4 起带段目录，v5 起几何分段存放）；寻路要求包内带预烘格图段 `BGRD`，没有这一段的包仍可显示网格与底图，但点不出线路。运行时还会从主包同目录读取同名的 `*.fields.nav.gz` 旁包（magic `BNVF`），里面是按类烘好的可达域分量图、禁步重判位、留墙表、台阶税边、封缝净空与中轴（BNVF v2）；旁包缺失、或其记录的主包哈希与当前主包不符时，规划直接报错而不会退回运行期重建，换主包必须连旁包一起换。
 
 可选 zone：
 

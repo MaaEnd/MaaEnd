@@ -12,6 +12,7 @@
  *
  * Message protocol (backend → us), see serve.py `ws_navtest`:
  *   - `{type:'status', text, color}`      → status line
+ *   - `{type:'phase', phase, text}`       → current connection/planning/navigation phase
  *   - `{type:'ready'}`                    → session connected, F3 is live
  *   - `{type:'armed', count, kind}`       → what the backend will run ('route' | 'assert')
  *   - `{type:'run_state', running}`       → drives the abort overlay
@@ -36,12 +37,14 @@ export class NavTestController {
    *   @param {HTMLButtonElement} opts.btnStop
    *   @param {HTMLElement} opts.armedLabel
    *   @param {HTMLElement} opts.overlay full-width running banner
+   *   @param {HTMLElement} opts.overlayText text inside the running banner
+   *   @param {HTMLElement} opts.phaseLabel persistent phase feedback in the trial panel
    *   @param {HTMLElement} opts.hotkeyNote panel hotkey line (turns into a warning when degraded)
    *   @param {import('./connection.js').ConnectionPanel} opts.connection
    *   @param {()=>{path: Array, exported: boolean, assert_target: ?Object}} opts.getRoute
    *     what the active editor tab would run
    *   @param {(fix:{x:number,y:number,zone:string,rot:?number})=>void} opts.onPosition
-   *   @param {()=>void} opts.onBeforeOpen
+   *   @param {()=>Promise<boolean>|boolean|void} opts.onBeforeOpen
    *   @param {(running:boolean)=>void} opts.onRunState
    */
   constructor(opts) {
@@ -49,6 +52,8 @@ export class NavTestController {
     this.btnStop = opts.btnStop;
     this.armedLabel = opts.armedLabel;
     this.overlay = opts.overlay;
+    this.overlayText = opts.overlayText;
+    this.phaseLabel = opts.phaseLabel;
     this.hotkeyNote = opts.hotkeyNote;
     this.connection = opts.connection;
     this.getRoute = opts.getRoute || (() => ({path: [], exported: false, assert_target: null}));
@@ -63,11 +68,15 @@ export class NavTestController {
     this.connected = false;
     this.connectionReady = false;
     this.running = false;
+    // 会话正在建立 / 正在等后端交还游戏会话: 两段都不能再接受新的开跑或终止点击。
+    this._opening = false;
+    this._closing = false;
+    this._phase = "";
     this.disabled = false;
     this._armTimer = 0;
     this._armSignature = "";
 
-    this.btnRun.addEventListener("click", () => this.run());
+    this.btnRun.addEventListener("click", () => void this.run());
     this.btnStop.addEventListener("click", () => this.stop());
     this.connection.onStatusChange((connected) => {
       this.connectionReady = connected;
@@ -78,9 +87,9 @@ export class NavTestController {
 
   /**
    * 开始试跑 / F3: 连接探测成功后才能创建会话 (按需提权), 连上即跑; 已连上就直接重跑。
-   * @returns {void}
+   * @returns {Promise<void>}
    */
-  run() {
+  async run() {
     if (this.disabled) {
       setStatus("当前模式不提供实机试跑。", "#f59e0b");
       return;
@@ -105,11 +114,31 @@ export class NavTestController {
         return;
       }
       this.connection.persist();
-      this.onBeforeOpen();
-      this._open(session, route);
+      // 实时定位占着同一个游戏会话, 得等它真的交还了才能开试跑。
+      this._opening = true;
+      this._setPhase("switching", "正在停止实时定位, 准备试跑…");
+      this._syncUi();
+      try {
+        const ready = await this.onBeforeOpen();
+        if (ready === false) {
+          // 实时定位没交还会话, 相位停在 switching 会跟已经弹出的失败提示对不上。
+          this._setPhase("error", "无法停止实时定位, 试跑未启动");
+          return;
+        }
+        this._opening = false;
+        this._open(session, route);
+      } catch (err) {
+        this._setPhase("error", "无法停止实时定位, 试跑未启动");
+        setStatus(`试跑准备失败: ${err && err.message ? err.message : err}`, "#ef4444");
+      } finally {
+        if (!this.socket) {
+          this._opening = false;
+          this._syncUi();
+        }
+      }
       return;
     }
-    if (!this.connected || this.running) return;
+    if (!this.connected || this.running || this._closing) return;
     this._armSignature = this._signature();
     this.socket.run(route);
   }
@@ -124,11 +153,11 @@ export class NavTestController {
       this.socket.abort();
       return;
     }
+    // 先只发停止指令: 会话要等后端真的放开游戏再断, 立刻 close 会让下一次开跑抢不到锁。
     this.socket.stop();
-    this.socket.close();
-    this.socket = null;
-    this.connected = false;
-    setStatus("试跑会话已结束。", "#64748b");
+    this._closing = true;
+    this._setPhase("stopping", "正在关闭试跑会话, 等待游戏会话释放…");
+    setStatus("正在关闭试跑会话, 等待游戏会话释放…", "#3b82f6");
     this._syncUi();
   }
 
@@ -148,9 +177,14 @@ export class NavTestController {
       this.socket = null;
       this.connected = false;
       this.running = false;
+      this._closing = false;
+      if (this._phase !== "finished" && this._phase !== "failed") {
+        this._setPhase("idle", "试跑会话已结束");
+      }
       this._syncUi();
     };
     socket.start(session, route);
+    this._setPhase("connecting", "正在连接游戏…");
     setStatus("● 正在连接游戏, 连上后立即开跑…", "#3b82f6");
     this._syncUi();
   }
@@ -214,6 +248,9 @@ export class NavTestController {
       case "status":
         setStatus(msg.text || "", msg.color || "#64748b");
         break;
+      case "phase":
+        this._setPhase(msg.phase || "", msg.text || "正在处理…");
+        break;
       case "ready":
         this.connected = true;
         this._syncUi();
@@ -241,10 +278,13 @@ export class NavTestController {
         // 措辞按后端回报的 kind 走: 中途切页签也不会把结论说反。
         const isAssert = msg.kind === "assert";
         if (msg.reason === "aborted") {
+          this._setPhase("idle", "本轮试跑已终止, 可按 F3 重新开始");
           setStatus("⏹ 试跑已终止 (F4)。会话还在, 按 F3 可直接重跑。", "#f59e0b");
         } else if (msg.ok) {
+          this._setPhase("finished", isAssert ? "断言检查完成" : "路线试跑完成");
           setStatus(isAssert ? "✅ 断言通过: 人在框里。" : "✅ 试跑走完了整条路线。", "#10b981");
         } else {
+          this._setPhase("failed", isAssert ? "断言检查未通过" : "路线试跑失败");
           setStatus(
             isAssert
               ? "❌ 断言不通过: 人不在框里 (或没定位到), 详见终端日志。"
@@ -261,11 +301,13 @@ export class NavTestController {
       case "session_over":
         this.connected = false;
         this.running = false;
+        this._setPhase("idle", "试跑会话已结束");
         this._syncUi();
         break;
       case "error":
         this.connected = false;
         this.running = false;
+        this._setPhase("error", msg.message || "试跑发生错误");
         setStatus(msg.message || "试跑错误", "#ef4444");
         this._syncUi();
         break;
@@ -274,14 +316,30 @@ export class NavTestController {
     }
   }
 
+  /** @returns {boolean} whether this controller owns or is acquiring the game session. */
+  get busy() {
+    return this._opening || !!this.socket;
+  }
+
+  /** @param {string} phase @param {string} text @returns {void} */
+  _setPhase(phase, text) {
+    this._phase = phase;
+    if (this.phaseLabel) this.phaseLabel.textContent = text;
+    if (this.overlayText && this.running) {
+      this.overlayText.innerHTML = `${text} —— 按 <kbd>F4</kbd> 立即终止`;
+    }
+  }
+
   /** Reflect session/run state onto the buttons and the running overlay. @returns {void} */
   _syncUi() {
     const live = !!this.socket;
     const idle = live && !this.running;
-    this.btnRun.textContent = live ? "重跑 (F3)" : "开始试跑 (F3)";
-    this.btnRun.disabled = this.disabled || this.running || (live ? !this.connected : !this.connectionReady);
+    this.btnRun.textContent =
+      this._opening ? "正在准备…" : this._closing ? "正在关闭…" : live ? "重跑 (F3)" : "开始试跑 (F3)";
+    this.btnRun.disabled =
+      this.disabled || this._opening || this._closing || this.running || (live ? !this.connected : !this.connectionReady);
     this.btnStop.textContent = idle ? "结束会话 (F4)" : "终止试跑 (F4)";
-    this.btnStop.disabled = !live;
+    this.btnStop.disabled = !live || this._opening || this._closing;
     if (!live) {
       const route = this.getRoute();
       if (this.disabled) {
@@ -299,5 +357,8 @@ export class NavTestController {
       this.hotkeyNote.innerHTML = this._hotkeyNoteHtml;
     }
     this.overlay.hidden = !this.running;
+    if (!this.running && this.overlayText) {
+      this.overlayText.innerHTML = "试跑中 —— 按 <kbd>F4</kbd> 立即终止";
+    }
   }
 }

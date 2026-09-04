@@ -48,6 +48,7 @@ def _build_record(runtime: Any, emit: Emit, log: Log, start: dict) -> Any:
             {"type": "force_waypoint", "x": x, "y": y, "zone": zone}
         ),
         on_live_position=on_live_position,
+        enable_hotkeys=not bool(start.get("live_only")),
     )
     service.start(session_config_from_payload(start.get("config") or {}))
     return service
@@ -60,6 +61,7 @@ def _build_navtest(runtime: Any, emit: Emit, log: Log, start: dict) -> Any:
     service = NavTestService(
         runtime=runtime,
         on_status=lambda text, color: emit({"type": "status", "text": text, "color": color}),
+        on_phase=lambda phase, text: emit({"type": "phase", "phase": phase, "text": text}),
         on_ready=lambda: emit({"type": "ready"}),
         on_armed=lambda count, kind: emit({"type": "armed", "count": count, "kind": kind}),
         on_run_state=lambda running: emit({"type": "run_state", "running": running}),

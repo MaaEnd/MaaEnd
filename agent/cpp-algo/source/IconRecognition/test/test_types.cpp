@@ -73,6 +73,12 @@ int RunIconRecognitionTypesTest()
                 .storage_kind = "Normal",
                 .category_type = "Product",
                 .rarity = 3,
+                .aliases = {
+                    ItemInfo::Alias {
+                        .item_id = "item_b_alias",
+                        .name = "iconRecognition.name.item_b_alias",
+                    },
+                },
             },
         .cell_box = cv::Rect(30, 40, 64, 64),
         .item_box = cv::Rect(38, 48, 48, 48),
@@ -103,6 +109,10 @@ int RunIconRecognitionTypesTest()
     Check(match.at("cell_box").is_array() && match.at("cell_box").as_array().size() == 4, "serialized cell_box must use Maa array format");
     Check(match.at("item_box").is_array() && match.at("item_box").as_array().size() == 4, "serialized item_box must use Maa array format");
     Check(match.contains("score"), "serialized match must contain score");
+    Check(match.contains("aliases") && match.at("aliases").is_array(), "serialized aliases must use an array");
+    const auto& alias = match.at("aliases").as_array().at(0).as_object();
+    Check(alias.at("item_id").as_string() == "item_b_alias", "serialized alias item_id mismatch");
+    Check(alias.at("name").as_string() == "iconRecognition.name.item_b_alias", "serialized alias name mismatch");
     Check(!match.contains("region_unavailable"), "normal serialized match must omit region_unavailable");
     Check(!match.contains("disabled"), "serialized match must not expose the ambiguous disabled field");
     Check(match.contains("row"), "serialized match must contain row");
@@ -117,6 +127,7 @@ int RunIconRecognitionTypesTest()
         disabled_object.contains("region_unavailable") && disabled_object.at("region_unavailable").as_boolean(),
         "region-unavailable match must serialize region_unavailable=true");
     Check(!disabled_object.contains("disabled"), "region-unavailable match must not serialize disabled");
+    Check(!disabled_object.contains("aliases"), "matches without duplicate icons must omit aliases");
 
     result.matches.push_back(ItemMatch {
         .item = ItemInfo { .item_id = "item_a" },

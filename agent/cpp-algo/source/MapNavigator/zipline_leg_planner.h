@@ -59,6 +59,8 @@ struct ZiplineRoute
 //
 // 两个区名不是一回事，不能互相顶替：navmesh_zone 是标定的键（标定产出的是 base 像素，
 // 所以只能按 base 区名索引），locator_zone 是角色当下所在的区，决定起点吸到哪一层。
+//
+// start_floor_y 是调用方确知的角色所在面，只影响上索那一段的起点吸附；不传就按区的主层走。
 std::optional<ZiplineRoute> PlanZiplineRoute(
     const NaviParam& param,
     const std::string& locator_zone,
@@ -67,6 +69,7 @@ std::optional<ZiplineRoute> PlanZiplineRoute(
     const navmesh::WorldPoint& goal,
     const navmesh::WorldPath* walking_path,
     std::optional<double> goal_deck_y,
+    std::optional<double> start_floor_y,
     const std::function<bool()>& should_stop,
     bool capture_diagnostics = false);
 

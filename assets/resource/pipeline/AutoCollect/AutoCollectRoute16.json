@@ -1,0 +1,232 @@
+{
+    "AutoCollectRoute16Start": {
+        "enabled": false,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterWorldWulingNorthWulingExclusionZone7"
+            ]
+        },
+        "next": [
+            "AutoCollectRoute16AssertLocation"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$option.AutoCollectRoute16.label"
+        }
+    },
+    "AutoCollectRoute16End": {
+        "pre_delay": 0,
+        "post_delay": 0
+    },
+    "AutoCollectRoute16AssertLocation": {
+        "desc": "传送到采集点",
+        "recognition": "Custom",
+        "custom_recognition": "MapLocateAssertLocation",
+        "custom_recognition_param": {
+            "zone_id": "Wuling_L8_382",
+            "target": [
+                137.19,
+                266.39,
+                11.29,
+                11
+            ]
+        },
+        "action": "DoNothing",
+        "next": [
+            "AutoCollectRoute16GotoInteractSub"
+        ]
+    },
+    "AutoCollectRoute16GotoInteractSub": {
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "AutoCollectRoute16GotoInteract",
+                "AutoCollectRoute16FindButtonUsing"
+            ],
+            "continue": false,
+            "strict": true
+        },
+        "next": [
+            "AutoCollectRoute16Goto"
+        ]
+    },
+    "AutoCollectRoute16GotoInteract": {
+        "desc": "前往交互点",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "Wuling_L8_382"
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                1502,
+                                538.13
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "AutoCollectRoute16FindButtonUsing": {
+        "desc": "点击使用按钮",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    850,
+                    455,
+                    144,
+                    54
+                ],
+                "expected": [
+                    "使用",
+                    "Interact"
+                ]
+            }
+        },
+        "pre_wait_freezes": 300,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoAltClickAction"
+            }
+        },
+        "timeout": 3000,
+        "focus": {
+            "Node.Recognition.Succeeded": "使用交互设施"
+        }
+    },
+    "AutoCollectRoute16Goto": {
+        "desc": "前往采集点",
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "Wuling_L8_382"
+                        },
+                        {
+                            "action": "RUN",
+                            "target": [
+                                189.72,
+                                282.57
+                            ],
+                            "target_tier": "Wuling_L8_382"
+                        },
+                        {
+                            "action": "DIG",
+                            "target": [
+                                187.73,
+                                280.38
+                            ],
+                            "target_tier": "Wuling_L8_382",
+                            "strict": true
+                        },
+                        {
+                            "action": "DIG",
+                            "target": [
+                                188.32,
+                                279.6
+                            ],
+                            "target_tier": "Wuling_L8_382",
+                            "strict": true
+                        },
+                        {
+                            "action": "DIG",
+                            "target": [
+                                187.82,
+                                278.79
+                            ],
+                            "target_tier": "Wuling_L8_382",
+                            "strict": true
+                        },
+                        {
+                            "action": "DIG",
+                            "target": [
+                                188.09,
+                                276.89
+                            ],
+                            "target_tier": "Wuling_L8_382",
+                            "strict": true
+                        },
+                        {
+                            "action": "DIG",
+                            "target": [
+                                187.54,
+                                275.75
+                            ],
+                            "target_tier": "Wuling_L8_382",
+                            "strict": true
+                        },
+                        {
+                            "action": "DIG",
+                            "target": [
+                                185.75,
+                                275.27
+                            ],
+                            "target_tier": "Wuling_L8_382",
+                            "strict": true
+                        },
+                        {
+                            "action": "DIG",
+                            "target": [
+                                183.83,
+                                274.43
+                            ],
+                            "target_tier": "Wuling_L8_382",
+                            "strict": true
+                        },
+                        {
+                            "action": "DIG",
+                            "target": [
+                                182.35,
+                                274.52
+                            ],
+                            "target_tier": "Wuling_L8_382",
+                            "strict": true
+                        },
+                        {
+                            "action": "RUN",
+                            "target": [
+                                184.81,
+                                273.29
+                            ],
+                            "target_tier": "Wuling_L8_382"
+                        }
+                    ]
+                }
+            }
+        },
+        "next": [
+            "AutoCollectRoute16End"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    }
+}

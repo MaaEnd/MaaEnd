@@ -143,6 +143,13 @@ class MapNavigatorApp {
     this._editDeckSig = null;
     /** @type {?number} 路点拖动时重叠面探针的防抖句柄。 */
     this._editDeckTimer = null;
+    /** @type {Map<number, Array<{height:number, band:number[], thin:boolean}>>} 路点列表逐行显示的重叠面。 */
+    this.waypointDecks = new Map();
+    /** @type {?string} 当前片段全部 NAVMESH 路点的批量探针签名。 */
+    this._waypointDeckSig = null;
+    this._waypointDeckToken = 0;
+    /** @type {?number} 批量重叠面探针的防抖句柄。 */
+    this._waypointDeckTimer = null;
     const readDebugFlag = (key, defaultValue) => {
       const stored = localStorage.getItem(key);
       return stored === null ? defaultValue : stored === "1";
@@ -404,8 +411,10 @@ class MapNavigatorApp {
       btnNavtestRun: $("btn-navtest-run"),
       btnNavtestStop: $("btn-navtest-stop"),
       navtestArmed: $("navtest-armed"),
+      navtestPhase: $("navtest-phase"),
       navtestHotkeyNote: $("navtest-hotkey-note"),
       navtestOverlay: $("navtest-overlay"),
+      navtestOverlayText: $("navtest-overlay-text"),
       panelProperties: $("panel-properties"),
       panelAssert: $("panel-assert"),
       panelLog: $("panel-log"),
@@ -493,6 +502,8 @@ class MapNavigatorApp {
         btnStop: this.els.btnNavtestStop,
         armedLabel: this.els.navtestArmed,
         overlay: this.els.navtestOverlay,
+        overlayText: this.els.navtestOverlayText,
+        phaseLabel: this.els.navtestPhase,
         hotkeyNote: this.els.navtestHotkeyNote,
         connection: this.connection,
         getRoute: () => this._navtestRoute(),
@@ -1231,6 +1242,7 @@ class MapNavigatorApp {
     if (mode === Mode.EDIT) {
       this._scheduleEditOffMeshProbe();
       this._scheduleEditDeckProbe();
+      this._scheduleWaypointDeckProbes();
     }
 
     const displayEditLocateHint = mode === Mode.EDIT ? this._editLocateHintForDisplay() : null;
@@ -2537,8 +2549,14 @@ class MapNavigatorApp {
     const zoneIndices = this.state.zonePointGlobalIndices();
     const localIndex = [...this.state.selectedIndices][0];
     const globalIndex = zoneIndices[localIndex];
-    const point = this.state.points[globalIndex];
-    if (!point || !getPointActions(point).includes(ActionType.NAVMESH)) return null;
+    return this._editDeckTarget(globalIndex, this.state.points[globalIndex]);
+  }
+
+  /** Resolve one author NAVMESH point to the base geometry used by `/api/deck-probe`. */
+  _editDeckTarget(globalIndex, point) {
+    if (this.state.mode !== Mode.EDIT || !this.field || !point || !getPointActions(point).includes(ActionType.NAVMESH)) {
+      return null;
+    }
 
     const targetTier = normalizeZoneId(point.target_tier || "");
     const routeZoneId = this._resolveZoneId(point.zone);
@@ -2569,6 +2587,46 @@ class MapNavigatorApp {
     this._renderEditDeckList();
     if (!target) return;
     this._editDeckTimer = setTimeout(() => this._probeEditDeckTarget(target), 100);
+  }
+
+  /** Refresh all current-segment NAVMESH waypoint heights for the sidebar list. @returns {void} */
+  _scheduleWaypointDeckProbes() {
+    if (this.state.mode !== Mode.EDIT || !this.field) return;
+    const targets = this.state
+      .zonePointGlobalIndices()
+      .map((globalIndex) => this._editDeckTarget(globalIndex, this.state.points[globalIndex]))
+      .filter(Boolean);
+    const signature = targets.map((target) => target.signature).join("|");
+    if (signature === this._waypointDeckSig) return;
+    this._waypointDeckSig = signature;
+    this.waypointDecks.clear();
+    this._renderWaypointList();
+    const token = ++this._waypointDeckToken;
+    clearTimeout(this._waypointDeckTimer);
+    if (!targets.length) return;
+    this._waypointDeckTimer = setTimeout(() => {
+      void Promise.all(
+        targets.map(async (target) => {
+          try {
+            const result = await postDeckProbe({zone_id: target.geometryZoneId, point: target.base});
+            return result && result.ok && Array.isArray(result.decks) ? [target.globalIndex, result.decks] : null;
+          } catch {
+            return null; // 探针只辅助选层，失败不能阻断路径编辑
+          }
+        }),
+      ).then((results) => {
+        if (token !== this._waypointDeckToken) return;
+        if (this.state.mode !== Mode.EDIT) {
+          // 结果丢在编辑模式外就得把签名一起丢掉, 否则回来时签名照旧, 这批路点再也探不出层。
+          this._waypointDeckSig = null;
+          return;
+        }
+        for (const result of results) {
+          if (result) this.waypointDecks.set(result[0], result[1]);
+        }
+        this._renderWaypointList();
+      });
+    }, 120);
   }
 
   /** @param {{globalIndex:number, geometryZoneId:number, base:number[]}} target @returns {Promise<void>} */
@@ -3996,6 +4054,7 @@ class MapNavigatorApp {
       const result = await postRoutePreview({
         position: plan.position,
         position_zone: plan.positionZone,
+        floor_y: plan.startDeckY,
         custom_action_param: customActionParam,
       });
       if (token !== this._editRouteToken || (result && result.stale)) return;
@@ -4132,7 +4191,12 @@ class MapNavigatorApp {
 
   _toggleLiveLocate() {
     if (this.liveLocateSocket) {
-      this._stopLiveLocate();
+      void this._stopLiveLocate();
+      return;
+    }
+    // 实时定位和试跑抢同一个游戏会话, 试跑还没交还就不让开。
+    if (this.navtest?.busy) {
+      setStatus("试跑会话尚未结束, 请等待其释放游戏连接。", "#f59e0b");
       return;
     }
     if (!this.connection?.isConnected()) return;
@@ -4148,9 +4212,12 @@ class MapNavigatorApp {
         this.els.btnLiveLocate.textContent = "开启实时定位";
         this.els.btnLiveLocate.classList.remove("btn-danger");
         this.els.btnLiveLocate.classList.add("btn-secondary");
+        this.els.btnLiveLocate.disabled = !this.connection.isConnected();
       }
+      // 会话真的关掉了, 等着开试跑的那一方可以往下走了。
+      if (this._liveLocateStopResolve) this._liveLocateStopResolve(true);
     };
-    socket.start(this.connection.buildSession());
+    socket.start(this.connection.buildSession(), {liveOnly: true});
     this._clearLivePath();
     this._initialLiveHeightColored = false;
     this.showLivePath = true;
@@ -4160,17 +4227,41 @@ class MapNavigatorApp {
     setStatus("实时定位已开启。", "#10b981");
   }
 
-  /** Keep standalone locating and route running mutually exclusive. */
+  /**
+   * 关掉实时定位, 并等到后端真的交还游戏会话为止。试跑要抢的就是这把锁,
+   * 提前返回会让它开在旧会话还占着的时候。
+   * @returns {Promise<boolean>} 会话是否已确认关闭
+   */
   _stopLiveLocate() {
     const socket = this.liveLocateSocket;
-    if (socket) socket.stop();
-    this.liveLocateSocket = null;
+    if (!socket) return Promise.resolve(true);
+    if (this._liveLocateStopPromise) return this._liveLocateStopPromise;
+
+    this.els.btnLiveLocate.disabled = true;
+    this.els.btnLiveLocate.textContent = "正在关闭实时定位…";
+    this._liveLocateStopPromise = new Promise((resolve) => {
+      const timeout = window.setTimeout(() => {
+        if (this._liveLocateStopPromise) {
+          this._liveLocateStopPromise = null;
+          this._liveLocateStopResolve = null;
+          this.els.btnLiveLocate.disabled = false;
+          setStatus("实时定位未能及时结束, 暂时无法启动试跑。", "#ef4444");
+          resolve(false);
+        }
+      }, 30000);
+      this._liveLocateStopResolve = (closed) => {
+        window.clearTimeout(timeout);
+        this._liveLocateStopResolve = null;
+        this._liveLocateStopPromise = null;
+        resolve(closed);
+      };
+    });
+    socket.stop();
     this.showLivePath = false;
     this._clearLivePath();
-    this.els.btnLiveLocate.textContent = "开启实时定位";
-    this.els.btnLiveLocate.classList.remove("btn-danger");
-    this.els.btnLiveLocate.classList.add("btn-secondary");
     this._syncThreeOverlays();
+    setStatus("正在停止实时定位, 等待游戏会话释放…", "#3b82f6");
+    return this._liveLocateStopPromise;
   }
 
   _recolorThreeByLiveHeight() {
@@ -5231,6 +5322,7 @@ class MapNavigatorApp {
   _syncActionControls() {
     this._renderEditInspection();
     this._renderWaypointList();
+    this._scheduleWaypointDeckProbes();
     this._renderEditDeckList();
     // 路线可能刚被改过: 重新装载到试跑会话, 让 F3 跑的始终是屏幕上这一条。
     if (this.navtest) this.navtest.routeChanged();
@@ -5333,6 +5425,20 @@ class MapNavigatorApp {
       coord.textContent = `${compactNumber(point.x)}, ${compactNumber(point.y)}`;
 
       row.append(handle, num, dot, name, coord);
+
+      const height = document.createElement("span");
+      height.className = "wp-height";
+      const decks = actions.includes(ActionType.NAVMESH) ? this.waypointDecks.get(zoneIndices[idx]) : null;
+      const selectedHeight = Number.isFinite(point.target_deck_y) ? point.target_deck_y : null;
+      // 只有一层时那层就是答案；多层时没选层就说不准站哪，等作者挑完再显示。
+      const selectedDeck =
+        decks && decks.length > 1 && selectedHeight !== null
+          ? decks.find((deck) => Math.abs(selectedHeight - deck.height) <= 2)
+          : null;
+      const displayHeight = decks && decks.length === 1 ? decks[0].height : selectedDeck?.height;
+      height.textContent = Number.isFinite(displayHeight) ? `[${displayHeight.toFixed(2)}]` : "[ - ]";
+      row.appendChild(height);
+
       if (point.strict) {
         const strict = document.createElement("span");
         strict.className = "wp-strict";

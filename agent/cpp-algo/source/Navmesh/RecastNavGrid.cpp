@@ -136,8 +136,7 @@ bool RiseOk(const SpanTable& st, int64_t nx, int64_t ny, int64_t cid, int64_t dx
 }
 
 RasterCells Rasterize(
-    const std::vector<WorldPoint>& V,
-    const std::vector<double>& H,
+    const BaseNavVertex* V,
     const std::vector<std::array<int32_t, 3>>& T,
     double ox,
     double oy,
@@ -147,15 +146,21 @@ RasterCells Rasterize(
 {
     RasterCells out;
     const double hcs = kCS * 0.5;
+    const auto P = [V](int32_t i) {
+        return WorldPoint { static_cast<double>(V[i].u), static_cast<double>(V[i].v) };
+    };
+    const auto H = [V](int32_t i) {
+        return static_cast<double>(V[i].height);
+    };
     std::vector<int64_t> kept;
     kept.reserve(T.size());
     for (int64_t ti = 0; ti < static_cast<int64_t>(T.size()); ++ti) {
         if (walkable != nullptr && (*walkable)[static_cast<size_t>(ti)] == 0) {
             continue; // 掩码外的三角不进体素:水面、禁区不再铺出可走格
         }
-        const WorldPoint& A = V[T[ti][0]];
-        const WorldPoint& B = V[T[ti][1]];
-        const WorldPoint& C = V[T[ti][2]];
+        const WorldPoint A = P(T[ti][0]);
+        const WorldPoint B = P(T[ti][1]);
+        const WorldPoint C = P(T[ti][2]);
         const double minx = std::min({ A.x, B.x, C.x });
         const double maxx = std::max({ A.x, B.x, C.x });
         const double miny = std::min({ A.y, B.y, C.y });
@@ -172,9 +177,9 @@ RasterCells Rasterize(
         ix1 = std::clamp<int64_t>(ix1, 0, nx - 1);
         iy0 = std::clamp<int64_t>(iy0, 0, ny - 1);
         iy1 = std::clamp<int64_t>(iy1, 0, ny - 1);
-        const double HA = H[T[ti][0]];
-        const double HB = H[T[ti][1]];
-        const double HC = H[T[ti][2]];
+        const double HA = H(T[ti][0]);
+        const double HB = H(T[ti][1]);
+        const double HC = H(T[ti][2]);
         for (int64_t gy = iy0; gy <= iy1; ++gy) {
             for (int64_t gx = ix0; gx <= ix1; ++gx) {
                 const double px = ox + (static_cast<double>(gx) + 0.5) * kCS;
@@ -215,9 +220,9 @@ RasterCells Rasterize(
         }
     }
     for (const int64_t ti : kept) {
-        const WorldPoint& A = V[T[ti][0]];
-        const WorldPoint& B = V[T[ti][1]];
-        const WorldPoint& C = V[T[ti][2]];
+        const WorldPoint A = P(T[ti][0]);
+        const WorldPoint B = P(T[ti][1]);
+        const WorldPoint C = P(T[ti][2]);
         const double cx = (A.x + B.x + C.x) / 3.0;
         const double cy = (A.y + B.y + C.y) / 3.0;
         if (!(cx >= ox && cx < ox + static_cast<double>(nx) * kCS && cy >= oy && cy < oy + static_cast<double>(ny) * kCS)) {
@@ -226,7 +231,7 @@ RasterCells Rasterize(
         const int64_t gx = std::clamp<int64_t>(static_cast<int64_t>((cx - ox) / kCS), 0, nx - 1);
         const int64_t gy = std::clamp<int64_t>(static_cast<int64_t>((cy - oy) / kCS), 0, ny - 1);
         out.cell.push_back(gy * nx + gx);
-        out.h.push_back(static_cast<float>((H[T[ti][0]] + H[T[ti][1]] + H[T[ti][2]]) / 3.0));
+        out.h.push_back(static_cast<float>((H(T[ti][0]) + H(T[ti][1]) + H(T[ti][2])) / 3.0));
         out.ins.push_back(0);
     }
     return out;
@@ -267,56 +272,101 @@ SpanTable BuildSpans(const std::vector<int64_t>& cell, const std::vector<float>&
     return PackSpans(std::move(st.sp_cell), std::move(st.sp_h));
 }
 
-SpanTable PackSpans(std::vector<int32_t> cell, std::vector<float> h, std::vector<uint8_t>* flags)
+SpanTable PackSpans(std::vector<int32_t> cell, std::vector<float> h, std::vector<uint8_t>* flags, std::vector<uint32_t>* aux)
 {
     SpanTable st;
     const int64_t n_span = static_cast<int64_t>(cell.size());
     if (n_span == 0) {
         return st;
     }
-    // 主键 cell 是格号, 计数排序按升序装桶且桶内保持原次序; 副键 h 在桶内插入排序, 严格大于
-    // 才挪位同样保序。两步都稳定 ⇒ 与按 (cell, h) 稳定排序同序, 而一格的 span 只有几条。
-    const int64_t nc = *std::max_element(cell.begin(), cell.end()) + 1;
-    std::vector<int32_t> ord(static_cast<size_t>(n_span));
-    std::vector<int32_t> cstart(static_cast<size_t>(nc + 1), 0);
+    // 主键 cell 是格号, 两级计数排序: 先按高 16 位分桶, 再逐桶按低 16 位装, 两级都保持原次序
+    // ⇒ 与按 cell 稳定排序同序; 副键 h 在同格内插入排序, 严格大于才挪位同样保序。
+    // 逐格的桶起点表在整区上要几千万格(几十 MB), 两级计数只要 65537 个计数和一个最大桶大小的临时表。
+    const size_t n = static_cast<size_t>(n_span);
+    const int32_t c_max = *std::max_element(cell.begin(), cell.end());
+    const size_t n_hi = (static_cast<size_t>(c_max) >> 16U) + 1;
+    std::vector<int32_t> ord(n);
+    std::vector<int32_t> hi_start(n_hi + 1, 0);
     for (const int32_t c : cell) {
-        ++cstart[static_cast<size_t>(c) + 1];
+        ++hi_start[(static_cast<size_t>(c) >> 16U) + 1];
     }
-    for (size_t k = 1; k < cstart.size(); ++k) {
-        cstart[k] += cstart[k - 1];
+    size_t bucket_max = 0;
+    for (size_t k = 1; k <= n_hi; ++k) {
+        bucket_max = std::max(bucket_max, static_cast<size_t>(hi_start[k]));
+        hi_start[k] += hi_start[k - 1];
     }
     {
-        std::vector<int32_t> fill(cstart.begin(), cstart.end() - 1);
-        for (int64_t i = 0; i < n_span; ++i) {
-            ord[static_cast<size_t>(fill[static_cast<size_t>(cell[static_cast<size_t>(i)])]++)] = static_cast<int32_t>(i);
+        std::vector<int32_t> cursor(hi_start.begin(), hi_start.end() - 1);
+        for (size_t i = 0; i < n; ++i) {
+            ord[static_cast<size_t>(cursor[static_cast<size_t>(cell[i]) >> 16U]++)] = static_cast<int32_t>(i);
         }
     }
-    for (int64_t c = 0; c < nc; ++c) {
-        const int64_t b = cstart[static_cast<size_t>(c)], e = cstart[static_cast<size_t>(c) + 1];
-        for (int64_t i = b + 1; i < e; ++i) {
-            const int32_t v = ord[static_cast<size_t>(i)];
+    {
+        std::vector<int32_t> lo_start(65537, 0);
+        std::vector<int32_t> tmp(bucket_max);
+        for (size_t k = 0; k < n_hi; ++k) {
+            const size_t b = static_cast<size_t>(hi_start[k]), e = static_cast<size_t>(hi_start[k + 1]);
+            if (e - b < 2) {
+                continue;
+            }
+            std::fill(lo_start.begin(), lo_start.end(), 0);
+            for (size_t i = b; i < e; ++i) {
+                ++lo_start[(static_cast<size_t>(cell[static_cast<size_t>(ord[i])]) & 0xFFFFU) + 1];
+            }
+            for (size_t d = 1; d < lo_start.size(); ++d) {
+                lo_start[d] += lo_start[d - 1];
+            }
+            for (size_t i = b; i < e; ++i) {
+                const int32_t v = ord[i];
+                tmp[static_cast<size_t>(lo_start[static_cast<size_t>(cell[static_cast<size_t>(v)]) & 0xFFFFU]++)] = v;
+            }
+            std::copy(tmp.begin(), tmp.begin() + static_cast<std::ptrdiff_t>(e - b), ord.begin() + static_cast<std::ptrdiff_t>(b));
+        }
+    }
+    // 逐列搬、搬完一列就放一列, 入参与出参不整份同时在。格号列先搬, 同格段就能顺序扫出来;
+    // 同格内按高插入排序只动 ord, 格号列不受影响。(按环原地搬是串行随机访存, 实测每段慢 0.4 s。)
+    st.sp_cell.resize(n);
+    for (size_t i = 0; i < n; ++i) {
+        st.sp_cell[i] = cell[static_cast<size_t>(ord[i])];
+    }
+    cell = std::vector<int32_t>();
+    for (size_t b = 0; b < n;) {
+        size_t e = b + 1;
+        while (e < n && st.sp_cell[e] == st.sp_cell[b]) {
+            ++e;
+        }
+        for (size_t i = b + 1; i < e; ++i) {
+            const int32_t v = ord[i];
             const float hv = h[static_cast<size_t>(v)];
-            int64_t j = i;
-            while (j > b && h[static_cast<size_t>(ord[static_cast<size_t>(j - 1)])] > hv) {
-                ord[static_cast<size_t>(j)] = ord[static_cast<size_t>(j - 1)];
+            size_t j = i;
+            while (j > b && h[static_cast<size_t>(ord[j - 1])] > hv) {
+                ord[j] = ord[j - 1];
                 --j;
             }
-            ord[static_cast<size_t>(j)] = v;
+            ord[j] = v;
         }
+        b = e;
     }
-    st.sp_cell.resize(static_cast<size_t>(n_span));
-    st.sp_h.resize(static_cast<size_t>(n_span));
-    for (int64_t i = 0; i < n_span; ++i) {
-        st.sp_cell[i] = cell[ord[i]];
-        st.sp_h[i] = h[ord[i]];
+    st.sp_h.resize(n);
+    for (size_t i = 0; i < n; ++i) {
+        st.sp_h[i] = h[static_cast<size_t>(ord[i])];
     }
+    h = std::vector<float>();
     if (flags != nullptr) {
-        std::vector<uint8_t> fo(static_cast<size_t>(n_span));
-        for (int64_t i = 0; i < n_span; ++i) {
-            fo[i] = (*flags)[ord[i]];
+        std::vector<uint8_t> fo(n);
+        for (size_t i = 0; i < n; ++i) {
+            fo[i] = (*flags)[static_cast<size_t>(ord[i])];
         }
         flags->swap(fo);
     }
+    if (aux != nullptr) {
+        std::vector<uint32_t> ao(n);
+        for (size_t i = 0; i < n; ++i) {
+            ao[i] = (*aux)[static_cast<size_t>(ord[i])];
+        }
+        aux->swap(ao);
+    }
+    ord = std::vector<int32_t>();
     // 先数一遍占用格再一次分配。边数边 push 会按二的幂扩容, 逐格数组在满窗口上要白占近一倍。
     int64_t n_occ = 0;
     for (int64_t i = 0; i < n_span; ++i) {
@@ -331,9 +381,16 @@ SpanTable PackSpans(std::vector<int32_t> cell, std::vector<float> h, std::vector
             st.cs[static_cast<size_t>(ci++)] = static_cast<int32_t>(i);
         }
     }
-    st.c2j.assign(static_cast<size_t>(st.sp_cell.back()) + 1, -1);
+    const size_t words = static_cast<size_t>(st.sp_cell.back() >> 6) + 1;
+    st.occ_bits.assign(words, 0);
+    st.occ_rank.assign(words, 0);
     for (int64_t ci = 0; ci < n_occ; ++ci) {
-        st.c2j[static_cast<size_t>(st.occ(ci))] = static_cast<int32_t>(ci);
+        const int64_t cid = st.occ(ci);
+        st.occ_bits[static_cast<size_t>(cid >> 6)] |= uint64_t { 1 } << (cid & 63);
+    }
+    for (size_t w = 0, acc = 0; w < words; ++w) {
+        st.occ_rank[w] = static_cast<int32_t>(acc);
+        acc += static_cast<size_t>(std::popcount(st.occ_bits[w]));
     }
     st.face.assign(static_cast<size_t>(n_occ), 0);
     for (int64_t ci = 0; ci < n_occ; ++ci) {
@@ -815,7 +872,8 @@ std::optional<std::vector<CellPt>> CostAstar(
     const PriceField& mult,
     const EdgeBits* banned,
     const double* bnp,
-    const EdgeBits* forbidden)
+    const EdgeBits* forbidden,
+    double* out_cost)
 {
     const int64_t ny = mask.ny, nx = mask.nx;
     if (!mask.at(s.y, s.x) || !mask.at(g.y, g.x)) {
@@ -871,6 +929,9 @@ std::optional<std::vector<CellPt>> CostAstar(
     if (!std::isfinite(dist.at(g.y, g.x))) {
         return std::nullopt;
     }
+    if (out_cost != nullptr) {
+        *out_cost = dist.at(g.y, g.x);
+    }
     std::vector<CellPt> out { g };
     int64_t x = g.x, y = g.y;
     while (!(x == s.x && y == s.y)) {
@@ -899,8 +960,10 @@ bool Visibility::crossesStep(const WorldPoint& p, const WorldPoint& q) const
     int64_t px = ax;
     int64_t py = ay;
     for (int64_t k = 1; k <= n; ++k) {
-        const int64_t cx = ax + static_cast<int64_t>(std::nearbyint(static_cast<double>(bx - ax) * static_cast<double>(k) / static_cast<double>(n)));
-        const int64_t cy = ay + static_cast<int64_t>(std::nearbyint(static_cast<double>(by - ay) * static_cast<double>(k) / static_cast<double>(n)));
+        const int64_t cx =
+            ax + static_cast<int64_t>(std::nearbyint(static_cast<double>(bx - ax) * static_cast<double>(k) / static_cast<double>(n)));
+        const int64_t cy =
+            ay + static_cast<int64_t>(std::nearbyint(static_cast<double>(by - ay) * static_cast<double>(k) / static_cast<double>(n)));
         if (cx == px && cy == py) {
             continue;
         }
@@ -939,7 +1002,8 @@ std::optional<std::vector<int64_t>> SpanAstar(
     const double* bnp,
     const EdgeBits* forbidden,
     const Visibility* vis,
-    std::vector<int64_t>* corners)
+    std::vector<int64_t>* corners,
+    double* out_cost)
 {
     if (s < 0 || ok[static_cast<size_t>(s)] == 0 || gset.empty()) {
         return std::nullopt;
@@ -1083,8 +1147,8 @@ std::optional<std::vector<int64_t>> SpanAstar(
                 if (p >= 0 && mult.v(static_cast<size_t>(cv)) <= 1.0F) {
                     const int64_t cp = st.sp_cell[static_cast<size_t>(p)];
                     if (mult.v(static_cast<size_t>(cp)) <= 1.0F) {
-                        const double cd = dist[static_cast<size_t>(p)]
-                            + std::hypot(static_cast<double>(a - cp % nx), static_cast<double>(b - cp / nx));
+                        const double cd =
+                            dist[static_cast<size_t>(p)] + std::hypot(static_cast<double>(a - cp % nx), static_cast<double>(b - cp / nx));
                         if (cd < ndp - 1e-12) {
                             np = p;
                             ndp = cd;
@@ -1113,6 +1177,9 @@ std::optional<std::vector<int64_t>> SpanAstar(
     if (hit < 0) {
         return std::nullopt;
     }
+    if (out_cost != nullptr) {
+        *out_cost = dist[static_cast<size_t>(hit)];
+    }
     std::vector<int64_t> out { hit };
     while (out.back() != s) {
         out.push_back(prev[static_cast<size_t>(out.back())]);
@@ -1136,8 +1203,12 @@ std::optional<std::vector<int64_t>> SpanAstar(
         const float ha = st.sp_h[static_cast<size_t>(corn[i - 1])];
         const float hb = st.sp_h[static_cast<size_t>(corn[i])];
         for (int64_t k = 1; k < n; ++k) {
-            const int64_t cx = axx + static_cast<int64_t>(std::nearbyint(static_cast<double>(bxx - axx) * static_cast<double>(k) / static_cast<double>(n)));
-            const int64_t cy = ayy + static_cast<int64_t>(std::nearbyint(static_cast<double>(byy - ayy) * static_cast<double>(k) / static_cast<double>(n)));
+            const int64_t cx =
+                axx
+                + static_cast<int64_t>(std::nearbyint(static_cast<double>(bxx - axx) * static_cast<double>(k) / static_cast<double>(n)));
+            const int64_t cy =
+                ayy
+                + static_cast<int64_t>(std::nearbyint(static_cast<double>(byy - ayy) * static_cast<double>(k) / static_cast<double>(n)));
             const int64_t cc = cy * nx + cx;
             if (cc == st.sp_cell[static_cast<size_t>(out.back())]) {
                 continue;
@@ -1177,9 +1248,7 @@ namespace
 
 // 最近源点两遍扫描: 每格从已定好的邻格里接过离自己最近的那个源点。前一遍铺左上半个邻域,
 // 后一遍反向铺右下半个, 两遍合起来每格的八个方向都问过。没有源点的格留 -1。
-void NearestSource(
-    const std::vector<uint8_t>& src, int64_t nx, int64_t ny,
-    std::vector<int32_t>& fx, std::vector<int32_t>& fy)
+void NearestSource(const std::vector<uint8_t>& src, int64_t nx, int64_t ny, std::vector<int32_t>& fx, std::vector<int32_t>& fy)
 {
     const int64_t n = nx * ny;
     fx.assign(static_cast<size_t>(n), -1);

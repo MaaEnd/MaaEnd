@@ -763,36 +763,26 @@ func drainActionQueue(ctx *maa.Context) {
 		case ActionAttack:
 			ctx.RunAction("__AutoFightActionAttackClick", maa.Rect{600, 320, 80, 80}, "", nil)
 		case ActionCombo:
-			maafocus.Print(ctx, i18n.T("autofight.combo"))
 			ctx.RunAction("__AutoFightActionComboClick", maa.Rect{600, 320, 80, 80}, "", nil)
 		case ActionSkill1:
-			maafocus.Print(ctx, i18n.T("autofight.skill", 1))
 			ctx.RunAction("__AutoFightActionSkillOperators1", maa.Rect{600, 320, 80, 80}, "", nil)
 		case ActionSkill2:
-			maafocus.Print(ctx, i18n.T("autofight.skill", 2))
 			ctx.RunAction("__AutoFightActionSkillOperators2", maa.Rect{600, 320, 80, 80}, "", nil)
 		case ActionSkill3:
-			maafocus.Print(ctx, i18n.T("autofight.skill", 3))
 			ctx.RunAction("__AutoFightActionSkillOperators3", maa.Rect{600, 320, 80, 80}, "", nil)
 		case ActionSkill4:
-			maafocus.Print(ctx, i18n.T("autofight.skill", 4))
 			ctx.RunAction("__AutoFightActionSkillOperators4", maa.Rect{600, 320, 80, 80}, "", nil)
 		case ActionEndSkill1:
-			maafocus.Print(ctx, i18n.T("autofight.end_skill", 1))
 			ctx.RunAction("__AutoFightActionEndSkillOperators1", maa.Rect{600, 320, 80, 80}, "", nil)
 		case ActionEndSkill2:
-			maafocus.Print(ctx, i18n.T("autofight.end_skill", 2))
 			ctx.RunAction("__AutoFightActionEndSkillOperators2", maa.Rect{600, 320, 80, 80}, "", nil)
 		case ActionEndSkill3:
-			maafocus.Print(ctx, i18n.T("autofight.end_skill", 3))
 			ctx.RunAction("__AutoFightActionEndSkillOperators3", maa.Rect{600, 320, 80, 80}, "", nil)
 		case ActionEndSkill4:
-			maafocus.Print(ctx, i18n.T("autofight.end_skill", 4))
 			ctx.RunAction("__AutoFightActionEndSkillOperators4", maa.Rect{600, 320, 80, 80}, "", nil)
 		case ActionLockTarget:
 			ctx.RunAction("__AutoFightActionLockTarget", maa.Rect{600, 320, 80, 80}, "", nil)
 		case ActionDodge:
-			maafocus.Print(ctx, i18n.T("autofight.dodge"))
 			ctx.RunAction("__AutoFightActionDodge", maa.Rect{600, 320, 80, 80}, "", nil)
 		case ActionSleepSecond:
 			time.Sleep(1000 * time.Millisecond)

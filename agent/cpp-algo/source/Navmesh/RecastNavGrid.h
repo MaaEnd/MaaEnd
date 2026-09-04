@@ -2,37 +2,43 @@
 
 #include <algorithm>
 #include <array>
+#include <bit>
 #include <cstdint>
+#include <functional>
 #include <optional>
 #include <unordered_set>
 #include <vector>
 
+#include "BaseNavPack.h"
 #include "NavmeshTypes.h"
 #include "RecastNavGridIO.h"
 
 namespace navmesh::recast
 {
 
-inline constexpr double kCS = 0.25;                // 体素边长 px
-inline constexpr double kClimb = 3.0;              // 相邻格可连通最大高差 px
-inline constexpr double kSlope = 1.0;              // 可攀爬坡度上限 tanθ, 抬升超过水平位移的这个倍数即立面
-inline constexpr double kStepUp = 0.5;             // 可直接迈上的台阶高 px, 是角色属性所以不跟体素边长挂钩
-inline constexpr double kBumpUp = 1.25;            // 跨过路面窄凸起/浅坑允许的抬升 px, 仅在落差不延伸时生效
-inline constexpr int64_t kBumpCells = 3;           // 前探格数: 抬升在这么多格内回到出发高度即窄凸起
-inline constexpr int64_t kDipCells = 2;            // 后探格数: 目标高度在身后这么多格内出现即浅坑
-inline constexpr double kWallH = 1.25;             // 禁步边同时挡住拉直视线所需的落差 px, 取路面起伏上限
-inline constexpr double kMergeH = kSlope * kCS;    // 同列 span 合并容差 px, 取一格坡面起伏
-inline constexpr double kQH = 1.0;                 // 体素取样高差容差 px, 需装下斜面单格起伏与格心取样偏差
-inline constexpr double kEdtCap = 12.0;            // 距离场截断 px
-inline constexpr double kR = 1.75;                 // 期望余量上限 px
-inline constexpr double kMaxErr = 0.5;             // 轮廓 DP 容差 px
-inline constexpr double kMcHBand = 8.0;            // 层高度带(边界边筛/盖章)px
-inline constexpr double kBkt = 4.0;                // 挡线索引桶边长 px
-inline constexpr double kBktPad = 1e-6;            // 入桶时给挡线包围盒的放量 px, 需盖过相交判据放给挡线两端的余量
-inline constexpr double kSnapRadius = 8.0;         // 起终点吸附半径 px
-inline constexpr double kDeckBand = 2.0;           // 声明面高度匹配容差 px, 需远小于相邻面间距
+inline constexpr double kCS = 0.25;             // 体素边长 px
+inline constexpr double kClimb = 3.0;           // 相邻格可连通最大高差 px
+inline constexpr double kSlope = 1.0;           // 可攀爬坡度上限 tanθ, 抬升超过水平位移的这个倍数即立面
+inline constexpr double kStepUp = 0.5;          // 可直接迈上的台阶高 px, 是角色属性所以不跟体素边长挂钩
+inline constexpr double kBumpUp = 1.25;         // 跨过路面窄凸起/浅坑允许的抬升 px, 仅在落差不延伸时生效
+inline constexpr int64_t kBumpCells = 3;        // 前探格数: 抬升在这么多格内回到出发高度即窄凸起
+inline constexpr int64_t kDipCells = 2;         // 后探格数: 目标高度在身后这么多格内出现即浅坑
+inline constexpr double kWallH = 1.25;          // 禁步边同时挡住拉直视线所需的落差 px, 取路面起伏上限
+inline constexpr double kMergeH = kSlope * kCS; // 同列 span 合并容差 px, 取一格坡面起伏
+inline constexpr double kQH = 1.0;              // 体素取样高差容差 px, 需装下斜面单格起伏与格心取样偏差
+inline constexpr double kEdtCap = 12.0;         // 距离场截断 px
+inline constexpr double kR = 1.75;              // 期望余量上限 px
+inline constexpr double kMaxErr = 0.5;          // 轮廓 DP 容差 px
+inline constexpr double kMcHBand = 8.0;         // 层高度带(边界边筛/盖章)px
+inline constexpr double kBkt = 4.0;             // 挡线索引桶边长 px
+inline constexpr double kBktPad = 1e-6;         // 入桶时给挡线包围盒的放量 px, 需盖过相交判据放给挡线两端的余量
+inline constexpr double kSnapRadius = 8.0;      // 起终点吸附半径 px
+inline constexpr double kDeckBand = 2.0;        // 声明面高度匹配容差 px, 需远小于相邻面间距
 inline constexpr double kBlockedPointRadius = 1.0; // 封堵点盖章半径 px
 inline constexpr int64_t kHoleMaxCells = 32;       // 封闭小洞填充上限(格 = 2px²)
+// 整类窗口在类范围外留的圈(格)。场都是局部算子, 依赖半径合起来不到这一圈, 留出它,
+// 类边缘那几格算出来的场就与在整区图上算的逐位相同。旁包按同一个值烘。
+inline constexpr int64_t kFieldHalo = 32;
 // 单区格数上限。规划铺满整区, 这道闸只用来挡烘出来就不正常的区, 正常区离它很远。
 inline constexpr int64_t kMaxCells = 400'000'000;
 
@@ -116,9 +122,11 @@ struct SpanTable
     std::vector<int32_t> cs;
     // 逐占用格一位: 这一列是不是被栅格化的立面。判据只看该格自己的叠层, 建表时算一次。
     std::vector<uint8_t> face;
-    // 格号 → 占用格下标的直查表, 空格填 -1。邻格查询在 BFS 与垂直可达判据里是最内层的一步,
-    // 建表时摊掉一次, 就不必每次二分。长度只到最大占用格, 表外一律当空格。
-    std::vector<int32_t> c2j;
+    // 格号 → 占用格下标: 逐格一位的占用图加每 64 格的前缀占用数, 查一次是一位测试加一个
+    // popcount。邻格查询在 BFS 与垂直可达判据里是最内层的一步, 建表时摊掉一次, 就不必每次
+    // 二分; 比逐格 4 字节的直查表小 30 倍。长度只到最大占用格, 表外一律当空格。
+    std::vector<uint64_t> occ_bits;
+    std::vector<int32_t> occ_rank;
 
     int64_t nOcc() const { return cs.empty() ? 0 : static_cast<int64_t>(cs.size()) - 1; }
 
@@ -130,7 +138,16 @@ struct SpanTable
 
     int64_t j(int64_t cid) const
     {
-        return cid >= 0 && cid < static_cast<int64_t>(c2j.size()) ? c2j[static_cast<size_t>(cid)] : -1;
+        const auto w = static_cast<size_t>(cid >> 6);
+        if (cid < 0 || w >= occ_bits.size()) {
+            return -1;
+        }
+        const uint64_t bits = occ_bits[w];
+        const int b = static_cast<int>(cid & 63);
+        if (((bits >> b) & 1U) == 0) {
+            return -1;
+        }
+        return occ_rank[w] + std::popcount(bits & ((uint64_t { 1 } << b) - 1));
     }
 };
 
@@ -140,8 +157,7 @@ bool RiseOk(const SpanTable& st, int64_t nx, int64_t ny, int64_t cid, int64_t dx
 // walkable 非空时按三角下标逐个过滤:标 0 的不体素化。掩码须与 T 同长同序;
 // 调用方自己压缩过的子集三角表留 nullptr。
 RasterCells Rasterize(
-    const std::vector<WorldPoint>& V,
-    const std::vector<double>& H,
+    const BaseNavVertex* V,
     const std::vector<std::array<int32_t, 3>>& T,
     double ox,
     double oy,
@@ -153,7 +169,9 @@ void AppendSeamBridge(RasterCells& rc, int64_t nx, int64_t ny);
 
 SpanTable BuildSpans(const std::vector<int64_t>& cell, const std::vector<float>& h);
 
-SpanTable PackSpans(std::vector<int32_t> cell, std::vector<float> h, std::vector<uint8_t>* flags = nullptr);
+// flags / aux 是与 cell 同长的随行列, 按同一置换重排后写回原处。
+SpanTable
+    PackSpans(std::vector<int32_t> cell, std::vector<float> h, std::vector<uint8_t>* flags = nullptr, std::vector<uint32_t>* aux = nullptr);
 
 std::vector<uint8_t> Flood(int64_t seed, const SpanTable& st, int64_t nx);
 
@@ -175,6 +193,8 @@ std::vector<uint8_t> StampWalls(
     int64_t ny,
     const SpanTable& st);
 
+// 逐墙一位: 沿墙采样, 任一样本落在层高图 lh 的带内即留下。落在 lh 外的采样跳过。
+// 运行期不再调它(留墙已烘进旁包), 留作烘焙口径的参考实现与旁包校验。
 std::vector<uint8_t> WallsAtLayer(
     const std::vector<WorldPoint>& p0,
     const std::vector<WorldPoint>& p1,
@@ -285,10 +305,7 @@ struct PriceField
         return static_cast<float>(hi / std::min(std::max(static_cast<double>(dist->v[i]), lo), hi));
     }
 
-    float at(int64_t y, int64_t x) const
-    {
-        return dist == nullptr ? 1.0F : v(static_cast<size_t>(y * dist->nx + x));
-    }
+    float at(int64_t y, int64_t x) const { return dist == nullptr ? 1.0F : v(static_cast<size_t>(y * dist->nx + x)); }
 };
 
 std::optional<std::vector<CellPt>> CostAstar(
@@ -298,13 +315,15 @@ std::optional<std::vector<CellPt>> CostAstar(
     const PriceField& mult,
     const EdgeBits* banned,
     const double* bnp,
-    const EdgeBits* forbidden = nullptr);
+    const EdgeBits* forbidden = nullptr,
+    double* out_cost = nullptr);
 
 class Visibility;
 
 // vis 非空则按 Lazy Theta* 展开: 松弛先把父指针接到祖父, 弹出时才验一次视线, 验不过退回格步。
 // 于是路径由父链上的直线段构成, 紧绷这件事在搜索里完成, 不再靠事后拉直。
 // 返回值恒为逐格路径, 拓扑判据按格读。corners 非空则另交出父链本身, 那才是几何要走的折线。
+// out_cost 非空则交出终点的累计代价; 单价恒 ≥1, 它就是路径格长的上界, 小窗验收拿它判搜索有没有碰边。
 std::optional<std::vector<int64_t>> SpanAstar(
     const SpanTable& st,
     const std::vector<uint8_t>& ok,
@@ -316,7 +335,8 @@ std::optional<std::vector<int64_t>> SpanAstar(
     const double* bnp,
     const EdgeBits* forbidden = nullptr,
     const Visibility* vis = nullptr,
-    std::vector<int64_t>* corners = nullptr);
+    std::vector<int64_t>* corners = nullptr,
+    double* out_cost = nullptr);
 
 Mask MedialAxis(const Grid<float>& dist, double lam);
 
@@ -341,8 +361,10 @@ private:
     friend class Blockers;
 
     void buildIndex() const;
+
     // 段包围盒是两端点的逐分量 min/max, 存成表只是把同一个数再摊一份内存。
     WorldPoint lo(size_t i) const { return { std::min(a_[i].x, b_[i].x), std::min(a_[i].y, b_[i].y) }; }
+
     WorldPoint hi(size_t i) const { return { std::max(a_[i].x, b_[i].x), std::max(a_[i].y, b_[i].y) }; }
 
     std::vector<WorldPoint> a_;

@@ -361,6 +361,7 @@ app.add_middleware(NoStoreMiddleware)
 class RoutePreviewRequest(BaseModel):
     position: list[float]
     position_zone: str
+    floor_y: float | None = None
     custom_action_param: dict[str, Any]
 
 
@@ -479,6 +480,7 @@ async def api_route_preview(req: RoutePreviewRequest) -> dict[str, Any]:
                 "route_preview",
                 position=req.position,
                 position_zone=req.position_zone,
+                floor_y=_slot(req.floor_y),
                 custom_action_param=req.custom_action_param,
             )
         except RuntimeError as exc:
@@ -1081,6 +1083,10 @@ async def _try_worker_session(
     已跑完 -> 端点直接返回; 失败原因非空 -> 回退进程内, 由调用方发降级提示。两者皆假即
     本机不需要提权, 直接走进程内。
     """
+    # 纯实时定位不注册全局热键, 既不需要提权也不该为它拉起一次临时 worker。
+    if mode.name == "record" and bool(start_msg.get("live_only")):
+        return False, None
+
     # 权限判定仅在开始会话时做 (绝不在服务启动时, 以免顶掉纯编辑用户)。
     worker_mode = _hotkey_worker_mode()
     if worker_mode == "inline":
@@ -1176,6 +1182,7 @@ async def _ws_session(websocket: WebSocket, mode: SessionMode) -> None:
             # 白名单构造: 不显式搬过来的键在这里就没了, 提权子进程也拿不到。
             "exported": bool(first.get("exported")),
             "assert_target": assert_target if isinstance(assert_target, dict) else None,
+            "live_only": bool(first.get("live_only")),
         }
 
         if not _game_session_lock.acquire(blocking=False):

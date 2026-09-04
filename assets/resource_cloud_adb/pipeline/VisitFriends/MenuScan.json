@@ -1,11 +1,4 @@
 {
-    "VisitFriendsEnterFriendsListSuccess": {
-        "all_of": [
-            "InFriendsList",
-            "VisitFriendsRecognitionItemEnterButton"
-        ],
-        "box_index": 0
-    },
     "VisitFriendsMenuScanDetailClose": {
         "recognition": {
             "type": "TemplateMatch",

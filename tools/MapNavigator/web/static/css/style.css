@@ -1203,6 +1203,13 @@ canvas {
   flex: 0 0 auto;
 }
 
+.wp-height {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-muted);
+  flex: 0 0 auto;
+}
+
 .wp-strict {
   font-size: 10px;
   font-weight: 600;
@@ -2291,6 +2298,12 @@ canvas {
 .navtest-armed {
   margin-top: 8px;
   color: var(--text-muted);
+  font-size: 12px;
+}
+
+.navtest-phase {
+  margin-top: 4px;
+  color: var(--text-secondary);
   font-size: 12px;
 }
 

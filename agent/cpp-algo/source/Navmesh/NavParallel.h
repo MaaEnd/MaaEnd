@@ -29,8 +29,7 @@ inline void SetNavWorkerLimit(unsigned limit)
 inline size_t NavWorkerCount(int64_t n)
 {
     const unsigned forced = NavWorkerOverride().load();
-    const unsigned avail =
-        forced != 0 ? forced : std::min(kNavWorkerLimit, std::max(1U, std::thread::hardware_concurrency()));
+    const unsigned avail = forced != 0 ? forced : std::min(kNavWorkerLimit, std::max(1U, std::thread::hardware_concurrency()));
     if (n < kNavSerialFloor || avail <= 1) {
         return 1;
     }
@@ -42,8 +41,7 @@ inline size_t NavWorkerCount(int64_t n)
 inline size_t NavWorkerCountForBlocks(int64_t n)
 {
     const unsigned forced = NavWorkerOverride().load();
-    const unsigned avail =
-        forced != 0 ? forced : std::min(kNavWorkerLimit, std::max(1U, std::thread::hardware_concurrency()));
+    const unsigned avail = forced != 0 ? forced : std::min(kNavWorkerLimit, std::max(1U, std::thread::hardware_concurrency()));
     if (n <= 1 || avail <= 1) {
         return 1;
     }

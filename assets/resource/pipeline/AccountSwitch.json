@@ -30,15 +30,15 @@
     },
     "__AccountSwitchAtLoginScreenDialogShow": {
         "desc": "在登陆界面，显示对话框",
-        "recognition": "TemplateMatch",
+        "recognition": "OCR",
         "roi": [
-            651,
+            150,
             130,
-            466,
-            495
+            900,
+            500
         ],
-        "template": [
-            "AccountSwitch/LoginClose.png"
+        "expected": [
+            "登录"
         ],
         "pre_delay": 0,
         "post_delay": 0,

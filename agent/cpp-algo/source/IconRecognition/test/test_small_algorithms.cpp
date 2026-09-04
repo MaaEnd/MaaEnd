@@ -54,14 +54,26 @@ void Check(bool condition, const std::string& message)
 
 cv::Scalar RarityBgr(int rarity);
 
-iconrecognition::detail::PreparedTemplate CandidateTemplate(std::string item_id, std::string storage_kind, std::string category_type)
+iconrecognition::detail::PreparedTemplate CandidateTemplate(
+    std::string item_id,
+    std::string storage_kind,
+    std::string category_type,
+    std::string icon_id = {},
+    std::string fluid_icon_id = {})
 {
+    if (icon_id.empty()) {
+        icon_id = item_id;
+    }
+    const std::string name_key = "iconRecognition.name." + item_id;
     return iconrecognition::detail::PreparedTemplate {
         .record =
             iconrecognition::detail::TemplateRecord {
                 .item_id = std::move(item_id),
+                .name_key = name_key,
                 .storage_kind = std::move(storage_kind),
                 .category_type = std::move(category_type),
+                .icon_id = std::move(icon_id),
+                .fluid_icon_id = std::move(fluid_icon_id),
             },
     };
 }
@@ -129,6 +141,66 @@ void TestCandidateSelectionTreatsDuplicateValuesAsOne()
         "duplicate candidate values must behave as if each value was provided once");
 
     iconrecognition::detail::ValidateCandidateFilterList({ "Isolate:*", "Isolate:*" }, "item_recheck_filters");
+}
+
+void TestCandidateSelectionDeduplicatesCompositeIconIdentity()
+{
+    const std::vector all {
+        CandidateTemplate("representative", "Normal", "Product", "shared", "fluid_a"),
+        CandidateTemplate("alias", "Normal", "Product", "shared", "fluid_a"),
+        CandidateTemplate("other_fluid", "Normal", "Product", "shared", "fluid_b"),
+    };
+    const iconrecognition::CandidateFilter candidates;
+
+    const auto selected = iconrecognition::detail::SelectCandidateTemplates(all, candidates, { "Normal:*" });
+    Check(
+        CandidateIDs(selected) == std::vector<std::string>({ "representative", "other_fluid" }),
+        "candidate selection must deduplicate by iconId and fluidIconId after filtering");
+    Check(selected.front().record.aliases.size() == 1, "shared composite icon must retain one alias");
+    Check(selected.front().record.aliases.front().item_id == "alias", "shared composite icon alias id mismatch");
+    Check(
+        selected.front().record.aliases.front().name_key == "iconRecognition.name.alias",
+        "shared composite icon alias name mismatch");
+
+    const auto recheck = iconrecognition::detail::SelectCandidateTemplates(all, candidates, { "Normal:*" }, false);
+    Check(recheck.size() == 2, "recheck candidate selection must use the same icon identity deduplication");
+    Check(recheck.front().record.aliases.empty(), "recheck candidate selection must not retain aliases");
+}
+
+void TestCandidateSelectionExactIdRetainsFilteredAliases()
+{
+    const std::vector all {
+        CandidateTemplate("base_alias", "Normal", "Product", "shared"),
+        CandidateTemplate("additional_alias", "Isolate", "SpecialItem", "shared"),
+        CandidateTemplate("outside_filters", "ValuableDepot", "CommercialItem", "shared"),
+        CandidateTemplate("excluded_alias", "Normal", "Product", "shared"),
+        CandidateTemplate("requested", "Normal", "Product", "shared"),
+    };
+    iconrecognition::CandidateFilter candidates;
+    candidates.item_ids = { "requested" };
+    candidates.item_filters = { "Normal:*" };
+    candidates.additional_item_filters = { "Isolate:*" };
+    candidates.excluded_item_ids = { "excluded_alias" };
+
+    const auto requested = iconrecognition::detail::SelectCandidateTemplates(all, candidates, { "ValuableDepot:*" });
+    Check(requested.size() == 1, "exact item selection must keep one shared-icon representative");
+    Check(requested.front().record.item_id == "requested", "exact item selection must return the requested item id");
+    const auto& requested_aliases = requested.front().record.aliases;
+    Check(
+        requested_aliases.size() == 2 && requested_aliases.front().item_id == "base_alias"
+            && requested_aliases.front().name_key == "iconRecognition.name.base_alias"
+            && requested_aliases.back().item_id == "additional_alias"
+            && requested_aliases.back().name_key == "iconRecognition.name.additional_alias",
+        "exact item aliases must come from item_filters and additional_item_filters after exclusions");
+
+    candidates.item_ids = { "base_alias" };
+    const auto alias_requested = iconrecognition::detail::SelectCandidateTemplates(all, candidates, { "ValuableDepot:*" });
+    Check(alias_requested.front().record.item_id == "base_alias", "requesting the alias id must make it the representative");
+    Check(
+        alias_requested.front().record.aliases.size() == 2
+            && alias_requested.front().record.aliases.front().item_id == "additional_alias"
+            && alias_requested.front().record.aliases.back().item_id == "requested",
+        "requesting either shared-icon id must return the other filtered ids as aliases");
 }
 
 void TestCandidateSelectionRejectsInvalidRequests()
@@ -246,6 +318,39 @@ void TestValuablesPortraitMaskScalesWithCellSize()
     iconrecognition::detail::ApplyValuablesWeaponPortraitMask(mask);
     Check(mask.at<unsigned char>(19, 101) == 0, "scaled valuables portrait center must be excluded");
     Check(mask.at<unsigned char>(19, 118) == 0, "scaled valuables portrait radius must exclude the right edge");
+}
+
+void TestMaskDiagnosticsDescribeComposedPolicies()
+{
+    using iconrecognition::detail::DescribeMaskKind;
+    using iconrecognition::detail::MaskKind;
+    Check(DescribeMaskKind(MaskKind::LowerExtended, false) == "lower_extended", "standard mask diagnostic mismatch");
+    Check(DescribeMaskKind(MaskKind::LowerExtended, true) == "composite_union", "composite mask diagnostic mismatch");
+    Check(
+        DescribeMaskKind(MaskKind::ShipmentTopBar, true) == "composite_union+shipment_top_bar",
+        "composite shipment diagnostic must retain both applied masks");
+    Check(
+        DescribeMaskKind(MaskKind::ValuablesWeapon, true) == "composite_union+valuables_weapon",
+        "composite valuables diagnostic must retain both applied masks");
+}
+
+void TestValuablesPortraitDetectionDoesNotDependOnTemplateMask()
+{
+    cv::Mat slot = cv::Mat::zeros(96, 96, CV_8UC3);
+    cv::circle(slot, cv::Point(81, 15), 18, cv::Scalar(255, 255, 255), 2, cv::LINE_AA);
+    Check(
+        iconrecognition::detail::HasValuablesWeaponPortrait(slot),
+        "valuables portrait detection must depend only on the slot image");
+
+    slot.setTo(cv::Scalar(0, 0, 0));
+    Check(
+        !iconrecognition::detail::HasValuablesWeaponPortrait(slot),
+        "valuables portrait detection must reject slots without a portrait circle");
+
+    const cv::Mat tiny_slot = cv::Mat::zeros(1, 1, CV_8UC3);
+    Check(
+        !iconrecognition::detail::HasValuablesWeaponPortrait(tiny_slot),
+        "valuables portrait detection must reject a slot whose scaled detection rectangle is empty");
 }
 
 void TestForegroundTextureUsesContentInsets()
@@ -1427,6 +1532,24 @@ void TestCatalogBuildsFinalSizeDirectlyFromSourceAssets()
     }
 }
 
+void TestCatalogUsesGameSortOrderBeforeItemId()
+{
+    const std::filesystem::path fixture = "agent/cpp-algo/source/IconRecognition/test/build/generated-sorted-catalog";
+    std::filesystem::remove_all(fixture);
+    const auto data_root = fixture / "data";
+    std::filesystem::create_directories(data_root);
+    std::ofstream(data_root / "recognition_items.json", std::ios::binary | std::ios::trunc)
+        << R"({"unsorted":{"name":"无排序","category":"test","storageKind":"Normal","categoryType":"Product","rarity":1,"iconId":"unsorted","fluidIconId":""},"lower":{"name":"低排序","category":"test","storageKind":"Normal","categoryType":"Product","rarity":1,"iconId":"lower","fluidIconId":"","sortId1":-100,"sortId2":5},"same_a":{"name":"同序甲","category":"test","storageKind":"Normal","categoryType":"Product","rarity":1,"iconId":"same_a","fluidIconId":"","sortId1":-80,"sortId2":4},"same_b":{"name":"同序乙","category":"test","storageKind":"Normal","categoryType":"Product","rarity":1,"iconId":"same_b","fluidIconId":"","sortId1":-80,"sortId2":4},"higher":{"name":"高排序","category":"test","storageKind":"Normal","categoryType":"Product","rarity":1,"iconId":"higher","fluidIconId":"","sortId1":-80,"sortId2":6}})";
+
+    iconrecognition::detail::TemplateCatalog catalog(data_root, fixture / "images");
+    Check(catalog.initialize(), "sorted catalog fixture must initialize");
+    std::vector<std::string> item_ids;
+    std::ranges::transform(catalog.records(), std::back_inserter(item_ids), [](const auto& record) { return record.item_id; });
+    Check(
+        item_ids == std::vector<std::string>({ "higher", "same_b", "same_a", "lower", "unsorted" }),
+        "catalog must order sortId1, sortId2 and item_id descending before unsorted records");
+}
+
 void TestCatalogLoadsOnlyRegionRestrictedDisabledVariantsOnDemand()
 {
     const std::filesystem::path fixture = "agent/cpp-algo/source/IconRecognition/test/build/generated-disabled-catalog";
@@ -1634,12 +1757,16 @@ int main()
         TestCandidateSelectionUsesDocumentedSetOrder();
         TestCandidateSelectionWithoutIdsSkipsIntersection();
         TestCandidateSelectionTreatsDuplicateValuesAsOne();
+        TestCandidateSelectionDeduplicatesCompositeIconIdentity();
+        TestCandidateSelectionExactIdRetainsFilteredAliases();
         TestCandidateSelectionRejectsInvalidRequests();
         TestLowerExtendedMaskSnapshots();
         TestShipmentQuantityBarThreshold();
         TestShipmentQuantityBarThresholdScalesWithCellArea();
         TestShipmentTopBarMaskScalesWithCellHeight();
         TestValuablesPortraitMaskScalesWithCellSize();
+        TestMaskDiagnosticsDescribeComposedPolicies();
+        TestValuablesPortraitDetectionDoesNotDependOnTemplateMask();
         TestForegroundTextureUsesContentInsets();
         TestForegroundTextureUsesNativeLargerCell();
         TestStructureFeatureModuleContract();
@@ -1689,6 +1816,7 @@ int main()
         TestTemplatePreparationUsesExpectedMasks();
         TestDisabledTemplateScalesCenteredOverlaysFrom128PixelReference();
         TestCatalogBuildsFinalSizeDirectlyFromSourceAssets();
+        TestCatalogUsesGameSortOrderBeforeItemId();
         TestCatalogLoadsOnlyRegionRestrictedDisabledVariantsOnDemand();
         TestCatalogRejectsNonBooleanRegionRestricted();
         TestIconPathResolutionDoesNotAssumeCatalogRarity();

@@ -178,6 +178,22 @@
             }
         }
     },
+    "ProtocolSpaceTouchExitTouch": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 3
+            }
+        }
+    },
+    "ProtocolSpaceTouchExitTouchRetry": {
+        "action": {
+            "type": "ClickKey",
+            "param": {
+                "key": 3
+            }
+        }
+    },
     "RealTimeAutoPat": {
         "action": {
             "type": "ClickKey",

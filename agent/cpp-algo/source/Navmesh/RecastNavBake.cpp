@@ -26,20 +26,21 @@ BakedWalls BakeWalls(const ZoneClean& zc, double x0, double y0, int64_t nx, int6
             continue;
         }
         for (int k = 0; k < 3; ++k) {
-            if (mesh.NB[i][k] >= 0) {
-                continue;
+            if ((mesh.bnd[i] >> k & 1U) == 0U) {
+                continue; // 有邻居的边不是墙
             }
             const int32_t a = mesh.T[i][k];
             const int32_t b = mesh.T[i][(k + 1) % 3];
-            const WorldPoint p0 = mesh.V[a];
-            const WorldPoint p1 = mesh.V[b];
-            if (std::max(p0.x, p1.x) >= bx0 && std::min(p0.x, p1.x) <= bx1 && std::max(p0.y, p1.y) >= by0
-                && std::min(p0.y, p1.y) <= by1) {
+            const WorldPoint p0 = mesh.v(a);
+            const WorldPoint p1 = mesh.v(b);
+            if (std::max(p0.x, p1.x) >= bx0 && std::min(p0.x, p1.x) <= bx1 && std::max(p0.y, p1.y) >= by0 && std::min(p0.y, p1.y) <= by1) {
                 out.p0.push_back(p0);
                 out.p1.push_back(p1);
-                out.h0.push_back(mesh.H[a]);
-                out.h1.push_back(mesh.H[b]);
-                out.hh.push_back((mesh.H[a] + mesh.H[b]) / 2.0);
+                out.h0.push_back(mesh.h(a));
+                out.h1.push_back(mesh.h(b));
+                out.hh.push_back((mesh.h(a) + mesh.h(b)) / 2.0);
+                out.tri.push_back(t);
+                out.k.push_back(static_cast<uint8_t>(k));
             }
         }
     }
@@ -54,7 +55,7 @@ BakedCells BakeCells(const ZoneClean& zc, double x0, double y0, int64_t nx, int6
     out.nx = nx;
     out.ny = ny;
     // 掩码随网格一起送进体素化 —— 烘焙期与运行期共用这一处判据,两边的可走面必然一致
-    out.rcs = Rasterize(zc.mesh.V, zc.mesh.H, zc.mesh.T, x0, y0, nx, ny, &zc.walkable);
+    out.rcs = Rasterize(zc.mesh.verts(), zc.mesh.T, x0, y0, nx, ny, &zc.walkable);
     AppendSeamBridge(out.rcs, nx, ny);
     out.st = BuildSpans(out.rcs.cell, out.rcs.h);
 

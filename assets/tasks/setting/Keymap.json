@@ -58,6 +58,12 @@
                 },
                 "AutoPickInteractive": {
                     "key": "{KeymapInteract.primary}"
+                },
+                "ProtocolSpaceTouchExitTouch": {
+                    "key": "{KeymapInteract.primary}"
+                },
+                "ProtocolSpaceTouchExitTouchRetry": {
+                    "key": "{KeymapInteract.primary}"
                 }
             }
         },

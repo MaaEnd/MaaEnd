@@ -1,6 +1,7 @@
 #include "CandidateSelector.h"
 
 #include <algorithm>
+#include <map>
 #include <stdexcept>
 #include <unordered_set>
 
@@ -71,7 +72,8 @@ void ValidateCandidateFilterList(const std::vector<std::string>& filters, std::s
 std::vector<PreparedTemplate> SelectCandidateTemplates(
     const std::vector<PreparedTemplate>& all,
     const CandidateFilter& candidates,
-    const std::vector<std::string>& defaults)
+    const std::vector<std::string>& defaults,
+    bool preserve_aliases)
 {
     const auto& base_filters = candidates.item_filters.empty() ? defaults : candidates.item_filters;
     ValidateKnownFilters(all, base_filters, "item_filters");
@@ -83,12 +85,45 @@ std::vector<PreparedTemplate> SelectCandidateTemplates(
     const std::unordered_set<std::string> excluded_ids(candidates.excluded_item_ids.begin(), candidates.excluded_item_ids.end());
     std::vector<PreparedTemplate> result;
     result.reserve(all.size());
+    using IconIdentity = std::pair<std::string, std::string>;
+    std::map<IconIdentity, std::vector<const PreparedTemplate*>> alias_candidates;
+    std::map<IconIdentity, std::size_t> representatives;
+    std::map<IconIdentity, bool> representative_requested;
     for (const auto& templ : all) {
-        const bool base_match = MatchesAnyFilter(templ.record, base_filters, "item_filters")
-                                && (requested_ids.empty() || requested_ids.contains(templ.record.item_id));
+        const bool base_filter_match = MatchesAnyFilter(templ.record, base_filters, "item_filters");
         const bool additional_match = MatchesAnyFilter(templ.record, candidates.additional_item_filters, "additional_item_filters");
-        if ((base_match || additional_match) && !excluded_ids.contains(templ.record.item_id)) {
+        if ((!base_filter_match && !additional_match) || excluded_ids.contains(templ.record.item_id)) {
+            continue;
+        }
+        const IconIdentity key { templ.record.icon_id, templ.record.fluid_icon_id };
+        alias_candidates[key].push_back(&templ);
+
+        const bool explicitly_requested = requested_ids.contains(templ.record.item_id);
+        const bool base_match = base_filter_match && (requested_ids.empty() || explicitly_requested);
+        if (!base_match && !additional_match) {
+            continue;
+        }
+        const auto [representative, inserted] = representatives.try_emplace(key, result.size());
+        if (inserted) {
             result.push_back(templ);
+            representative_requested.emplace(key, explicitly_requested);
+        }
+        else if (explicitly_requested && !representative_requested.at(key)) {
+            // 精准请求优先作为同图标组的代表，避免 additional_item_filters 中的物品抢占返回 ID。
+            result[representative->second] = templ;
+            representative_requested.at(key) = true;
+        }
+    }
+    for (auto& templ : result) {
+        templ.record.aliases.clear();
+        if (preserve_aliases) {
+            const IconIdentity key { templ.record.icon_id, templ.record.fluid_icon_id };
+            for (const auto* alias : alias_candidates.at(key)) {
+                if (alias->record.item_id != templ.record.item_id) {
+                    templ.record.aliases.push_back(
+                        TemplateAlias { .item_id = alias->record.item_id, .name_key = alias->record.name_key });
+                }
+            }
         }
     }
     if (result.empty()) {

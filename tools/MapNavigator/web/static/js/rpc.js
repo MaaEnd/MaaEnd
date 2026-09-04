@@ -190,7 +190,7 @@ export function getZiplineRecords() {
  * Expand a complete MapNavigator request with the runtime planner, preserving global
  * route boundaries and zipline semantics.
  *
- * @param {{position:number[], position_zone:string, custom_action_param:Object}} req
+ * @param {{position:number[], position_zone:string, floor_y?:?number, custom_action_param:Object}} req
  * @returns {Promise<{ok:boolean, stale?:boolean, points?:number[][],
  *   walk_segments?:number[][][], zipline_segments?:Array<Object>,
  *   diagnostics?:Array<Object>, expanded_waypoints?:number, zipline?:Object, error?:string,
@@ -204,6 +204,7 @@ export function postRoutePreview(req) {
   return sendJson("/api/route-preview", {
     position: req.position,
     position_zone: req.position_zone,
+    floor_y: req.floor_y === undefined ? null : req.floor_y,
     custom_action_param: req.custom_action_param,
   });
 }
@@ -466,14 +467,20 @@ export class RecordingSocket extends SessionSocket {
 
   /**
    * @param {Object} sessionConfig `{kind:'win32'|'adb', win32?, adb?}`
+   * @param {{liveOnly?: boolean}} [options] `liveOnly` avoids registering recording hotkeys
    * @returns {void}
    */
-  start(sessionConfig) {
-    this._open(sessionConfig || {});
+  start(sessionConfig, options = {}) {
+    this._open({ ...(sessionConfig || {}), live_only: !!options.liveOnly });
   }
 
   /** Ask the backend to stop recording. @returns {void} */
   stop() {
+    // A stop asked before the socket opens is dropped by `_send`; closing is what cancels the startup.
+    if (this._ws && this._ws.readyState === WebSocket.CONNECTING) {
+      this.close();
+      return;
+    }
     this._send({type: "stop"});
   }
 }

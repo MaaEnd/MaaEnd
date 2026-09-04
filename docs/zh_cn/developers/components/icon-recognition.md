@@ -39,7 +39,7 @@ Pipeline 使用 `Custom` 识别，注册名固定为 `IconRecognition`。原生 
 }
 ```
 
-默认返回该物品在每个命中格子中的位置。设置 `deduplicate: true` 后，同一个 `item_id` 只保留分数最高的格子；不同物品仍各自保留结果。
+默认返回该物品在每个命中格子中的位置。设置 `deduplicate: true` 后，同一个 `item_id` 只保留分数最高的格子。共用同一 `(iconId, fluidIconId)` 的物品无法从画面上区分，组件只匹配一次，并通过代表项的 `aliases` 保留其它可能身份。
 
 ### 识别网格内所有物品
 
@@ -147,6 +147,7 @@ Custom 入口会从 `MaaContext` 读取运行时 `type` 并选择对应 profile�
 
 - **`threshold` 与 `subpixel_threshold`**：阈值必须满足 `0 <= subpixel_threshold < threshold <= 1`。基础分低于 `subpixel_threshold` 时，组件认为当前候选明显不可靠，不再尝试更细的位置偏移，也不会把它放入 `matches`。基础分位于两个阈值之间时，组件会继续细化位置；只有最终分达到 `threshold`，并且没有被低纹理检查拒绝，结果才会返回。送货界面的数量条和贵重品库的头像区域会从模板匹配遮罩中排除，但不会绕过统一阈值。调整阈值前应先检查 ROI、画面稳定性和候选分类。
 - **候选集合顺序**：最终候选为 `(((item_filters 或界面默认值) ∩ item_ids) ∪ additional_item_filters) - excluded_item_ids`；未提供 `item_ids` 时跳过交集。`excluded_item_ids` 在候选集合计算的最后一步应用，因此其中的物品最终不会参与识别。各候选数组中的重复值均按一次处理；`item_ids` / `excluded_item_ids` 中的未知 ID、格式错误或无法匹配 catalog 的 filter，以及最终空候选都会返回 `invalid_argument`。
+- **共享图标与代表项**：筛选后按 `(iconId, fluidIconId)` 去重，同一图标身份只参与一次评分。alias 范围只取 `(item_filters 或界面默认值) ∪ additional_item_filters`，再排除 `excluded_item_ids`，不会从完整 catalog 补充。未精准请求时，代表项按 catalog 的 `sortId1`、`sortId2`、`item_id` 降序选择；缺少成对 sort 字段的物品排在后面。精准请求同组中的某个 ID 时，该 ID 优先作为代表：请求 `a` 返回 `a` 并把 `b` 放入 `aliases`，请求 `b` 则返回 `b` 并把 `a` 放入 `aliases`，前提是两者都在上述 alias 范围内且未被排除。若一次请求包含同组多个 ID，按 catalog 顺序选择代表。
 - **`item_recheck_filters`**：使用 `item_ids` 查找指定物品时，范围外但外观相似的物品可能被误识别为目标物品。`item_recheck_filters` 只复核来自原始 `item_ids` 的命中，不复核 `additional_item_filters` 追加的物品。相比不传 `item_ids`、仅使用 `item_filters` 识别整个网格，这种方式只复核已命中的格子，通常更快。建议同时设置 `deduplicate: true`，避免重复复核同一物品。
 
 当前地区不可用物品的模板合成、mask 与后备匹配流程见[识别算法](/agent/cpp-algo/source/IconRecognition/docs/algorithm.md#候选选择与图标匹配)。
@@ -242,6 +243,7 @@ Custom 入口会从 `MaaContext` 读取运行时 `type` 并选择对应 profile�
 | `category` | string | catalog 中文分类标签 |
 | `storage_kind` / `category_type` | string | 可用于后续过滤和业务判断的分类字段 |
 | `rarity` | integer | catalog 稀有度 |
+| `aliases` | object[] | 可选；与代表项共用 `(iconId, fluidIconId)` 的其它过滤后物品，每项包含 `item_id` 和多语言 key `name`；没有别名时省略 |
 | `cell_box` | integer[4] | 所属格子，格式为 `[x,y,width,height]`；`single_roi` 时等于请求 ROI |
 | `item_box` | integer[4] | 最终模板命中位置，格式为 `[x,y,width,height]` |
 | `score` | number | 最终匹配分数 |

@@ -178,10 +178,11 @@ struct SingleRoiFixture
     MaaRect roi { kSyntheticRoiX, kSyntheticRoiY, kSyntheticRoiSize, kSyntheticRoiSize };
 };
 
-SingleRoiFixture MakeSingleRoiFixture()
+SingleRoiFixture MakeSingleRoiFixture(std::string_view icon_id = "item_copper_ore", int rarity = 1)
 {
-    const auto template_path = get_exe_dir() / ".." / "resource" / "image" / "IconRecognition" / "1" / "item_copper_ore.png";
-    const iconrecognition::detail::TemplateRecord record { .item_id = "item_copper_ore" };
+    const auto template_path = get_exe_dir() / ".." / "resource" / "image" / "IconRecognition" / std::to_string(rarity)
+                               / (std::string(icon_id) + ".png");
+    const iconrecognition::detail::TemplateRecord record { .item_id = std::string(icon_id) };
     const auto prepared = iconrecognition::detail::PrepareStandardTemplate(
         record,
         iconrecognition::detail::DecodeBgra(template_path),
@@ -216,7 +217,7 @@ RegionRestrictedFixture MakeRegionRestrictedFixture(std::string_view fixture_nam
     std::filesystem::create_directories(data_root);
     std::filesystem::create_directories(image_root / "1");
     std::ofstream(data_root / "recognition_items.json", std::ios::binary | std::ios::trunc)
-        << R"({"restricted":{"name":"受限物品","category":"test","storageKind":"Normal","categoryType":"Ore","rarity":1,"iconId":"restricted","fluidIconId":"","regionRestricted":true}})";
+        << R"({"restricted":{"name":"受限物品","category":"test","storageKind":"Normal","categoryType":"Ore","rarity":1,"iconId":"restricted","fluidIconId":"","sortId1":-80,"sortId2":2,"regionRestricted":true},"restricted_alias":{"name":"受限物品别名","category":"test","storageKind":"Normal","categoryType":"Ore","rarity":1,"iconId":"restricted","fluidIconId":"","sortId1":-80,"sortId2":1,"regionRestricted":true}})";
 
     const cv::Mat source =
         iconrecognition::detail::DecodeBgra(get_exe_dir() / ".." / "resource" / "image" / "IconRecognition" / "1" / "item_copper_ore.png");
@@ -532,6 +533,26 @@ void TestItemRecheckFiltersValidateCandidates()
     RequireUntouched(out_box);
 }
 
+void TestItemRecheckAcceptsAliasWithSameIconIdentity()
+{
+    const auto fixture = MakeSingleRoiFixture("item_weekraid_collection_1_1", 2);
+    iconrecognition::IconRecognizer recognizer(get_exe_dir() / ".." / "data" / "IconRecognition");
+    Require(recognizer.initialize(), "alias recheck recognizer must initialize");
+
+    iconrecognition::RecognitionRequest request;
+    request.grid_type = iconrecognition::GridType::SingleRoi;
+    request.roi = cv::Rect(fixture.roi.x, fixture.roi.y, fixture.roi.width, fixture.roi.height);
+    request.candidates.item_ids = { "item_weekraid_collection_1_1" };
+    request.candidates.item_filters = { "Normal:Ore" };
+    request.candidates.item_recheck_filters = { "ValuableDepot:CommercialItem" };
+
+    const auto result = recognizer.recognize(fixture.pixels, request);
+    Require(result.matched && result.matches.size() == 1, "recheck alias with the same icon identity must match");
+    Require(
+        result.matches.front().item.item_id == "item_weekraid_collection_1_1",
+        "alias recheck must preserve the originally requested item id");
+}
+
 void TestItemRecheckFiltersRespectDeduplication()
 {
     const auto fixture = MakeRecheckDeduplicateFixture();
@@ -630,8 +651,22 @@ void TestRegionRestrictedFallbackRunsOnlyAfterNormalRejection()
         !normal_result.matches.front().region_unavailable,
         "normal template match must not be marked unavailable in the current region");
     Require(
+        normal_result.matches.front().item.aliases.size() == 1
+            && normal_result.matches.front().item.aliases.front().item_id == "restricted_alias",
+        "normal representative must retain its shared-icon alias");
+    Require(
         normal_result.diagnostics && !normal_result.diagnostics->cells.front().region_unavailable_fallback_used,
         "accepted normal match must not run disabled fallback");
+
+    auto alias_request = request;
+    alias_request.candidates.item_ids = { "restricted_alias" };
+    const auto alias_result = normal_recognizer.recognize(normal_fixture.normal_pixels, alias_request);
+    Require(alias_result.matched && alias_result.matches.size() == 1, "exact alias request must recognize one item");
+    Require(alias_result.matches.front().item.item_id == "restricted_alias", "exact alias request must return its requested id");
+    Require(
+        alias_result.matches.front().item.aliases.size() == 1
+            && alias_result.matches.front().item.aliases.front().item_id == "restricted",
+        "exact alias request must retain the other shared-icon item as an alias");
 
     const auto disabled_fixture = MakeRegionRestrictedFixture("generated-region-restricted-disabled", true);
     iconrecognition::IconRecognizer disabled_recognizer(disabled_fixture.data_root);
@@ -646,6 +681,10 @@ void TestRegionRestrictedFallbackRunsOnlyAfterNormalRejection()
     Require(disabled_result.matched && disabled_result.matches.size() == 1, "enabled fallback must recognize the disabled template");
     Require(disabled_result.matches.front().item.item_id == "restricted", "disabled fallback must preserve the original item id");
     Require(disabled_result.matches.front().region_unavailable, "region-unavailable fallback match must preserve its state");
+    Require(
+        disabled_result.matches.front().item.aliases.size() == 1
+            && disabled_result.matches.front().item.aliases.front().item_id == "restricted_alias",
+        "region-unavailable fallback must retain the representative aliases");
     Require(
         disabled_result.diagnostics && disabled_result.diagnostics->cells.front().region_unavailable_fallback_used,
         "disabled fallback diagnostics must record that the fallback was used");
@@ -859,6 +898,7 @@ int main()
         TestGridDetectionFailureIsStructured();
         TestSuccessfulSingleRoiUsesPrimaryCellBox();
         TestItemRecheckFiltersValidateCandidates();
+        TestItemRecheckAcceptsAliasWithSameIconIdentity();
         TestItemRecheckFiltersRespectDeduplication();
         TestItemRecheckFiltersIgnoreAdditionalFilterMatches();
         TestRecognizerPreservesInternalDiagnostics();

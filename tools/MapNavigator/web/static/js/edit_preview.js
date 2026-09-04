@@ -7,7 +7,7 @@ import {normalizeZoneId} from "./model.js";
  *
  * @param {Object[]} points current authored segment
  * @param {?{position:number[],positionZone:string}} explicitStart preview start in its original zone frame
- * @returns {{ok:true,position:number[],positionZone:string,targets:Object[],explicit:boolean}|{ok:false,error:string}}
+ * @returns {{ok:true,position:number[],positionZone:string,startDeckY:?number,targets:Object[],explicit:boolean}|{ok:false,error:string}}
  */
 export function buildEditPreviewPlan(points, explicitStart = null) {
   const authored = Array.isArray(points) ? points : [];
@@ -24,6 +24,7 @@ export function buildEditPreviewPlan(points, explicitStart = null) {
       ok: true,
       position,
       positionZone,
+      startDeckY: null,
       targets: authored.slice(),
       explicit: true,
     };
@@ -41,6 +42,9 @@ export function buildEditPreviewPlan(points, explicitStart = null) {
     ok: true,
     position: [start.x, start.y],
     positionZone,
+    // The first authored point is already reached in the compatibility preview mode,
+    // so its chosen deck belongs to the preview start rather than a removed target.
+    startDeckY: Number.isFinite(start.target_deck_y) ? start.target_deck_y : null,
     targets: authored.slice(1),
     explicit: false,
   };

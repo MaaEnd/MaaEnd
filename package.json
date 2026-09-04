@@ -22,7 +22,7 @@
     },
     "devDependencies": {
         "@joebao/maa-pipeline-generate": "^1.3.0",
-        "@nekosu/maa-tools": "1.0.22",
+        "@nekosu/maa-tools": "1.1.2",
         "@nekosu/prettier-plugin-maafw-sort": "1.0.4",
         "@types/node": "^24.11.0",
         "jsonc-parser": "^3.3.1",

@@ -10,7 +10,7 @@
     <!-- 试跑进行中的全局横幅：角色正在游戏里走，终止键必须一眼可见 -->
     <div id="navtest-overlay" class="navtest-overlay" hidden>
       <span class="navtest-overlay-dot" aria-hidden="true"></span>
-      <span>试跑中 —— 按 <kbd>F4</kbd> 立即终止</span>
+      <span id="navtest-overlay-text">试跑中 —— 按 <kbd>F4</kbd> 立即终止</span>
     </div>
     <div id="app" class="modern-app">
       <!-- 侧边栏面板 -->
@@ -278,6 +278,7 @@
             <button id="btn-navtest-stop" class="btn btn-danger" type="button" disabled>终止试跑 (F4)</button>
           </div>
           <div id="navtest-armed" class="navtest-armed">未装载路线</div>
+          <div id="navtest-phase" class="navtest-phase" aria-live="polite">等待开始试跑</div>
         </div>
 
         <!-- MapNavigator 日志分析（文件只在浏览器本地读取） -->

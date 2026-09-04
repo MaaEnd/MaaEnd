@@ -11,6 +11,7 @@ namespace navmesh::recast
 {
 
 // 一块矩形范围内的立面。取窗口外扩 4px 内的,与盖章口径一致。
+// tri/k 是这条边在区网格里的身份(区内三角号, 边内序), 旁包的留墙表按它索引。
 struct BakedWalls
 {
     std::vector<WorldPoint> p0;
@@ -18,6 +19,8 @@ struct BakedWalls
     std::vector<double> h0;
     std::vector<double> h1;
     std::vector<double> hh;
+    std::vector<int32_t> tri;
+    std::vector<uint8_t> k;
 };
 
 BakedWalls BakeWalls(const ZoneClean& zc, double x0, double y0, int64_t nx, int64_t ny);

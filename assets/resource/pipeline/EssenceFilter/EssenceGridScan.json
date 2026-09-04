@@ -59,7 +59,16 @@
         },
         "pre_delay": 0,
         "action": {
-            "type": "Click"
+            // target_offset 为 [dx, dy, dw, dh]：96x96 格子向中心收束为 48x48，避免落点偏散
+            "type": "Click",
+            "param": {
+                "target_offset": [
+                    24,
+                    24,
+                    -48,
+                    -48
+                ]
+            }
         },
         "post_wait_freezes": {
             "time": 50,

@@ -6,12 +6,12 @@ import argparse
 import json
 import shutil
 from collections import OrderedDict
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
 from catalog import build_catalog, write_catalog
-from download import validate_icon_png_bytes
+from download import apply_item_blacklist, validate_icon_png_bytes
 from fixed_items import FIXED_ITEMS
 from localization import (
     LOCALE_MAP,
@@ -21,6 +21,7 @@ from localization import (
     load_json_object,
     update_interface_locale,
 )
+from text import validate_identifier
 
 
 @dataclass(frozen=True)
@@ -55,12 +56,16 @@ def sync_published_images(
     asset_image_root: Path,
     catalog: dict[str, dict[str, object]],
     item_source: Mapping[str, object],
+    removed_items: Sequence[Mapping[str, object]] = (),
 ) -> None:
-    """按 catalog 同步图标, 迁移稀有度变更路径且不覆盖既有目标文件"""
-    expected_images = {
-        Path(str(record["rarity"])) / f"{record['iconId']}.png"
-        for record in catalog.values()
-    }
+    """按 catalog 同步图标并清理不再使用的已发布图标。"""
+    expected_images: set[Path] = set()
+    referenced_icon_ids: set[str] = set()
+    for record in catalog.values():
+        icon_id = str(record["iconId"])
+        expected_images.add(Path(str(record["rarity"])) / f"{icon_id}.png")
+        referenced_icon_ids.add(icon_id)
+
     # 流体物品本身不进入 catalog，稀有度必须以 item.json 的源记录为准。
     source_by_icon_id = {
         record.get("iconId"): record
@@ -69,15 +74,32 @@ def sync_published_images(
     }
     for record in catalog.values():
         fluid_icon_id = record.get("fluidIconId")
-        if not fluid_icon_id:
+        if not isinstance(fluid_icon_id, str) or not fluid_icon_id:
             continue
         fluid_source = source_by_icon_id.get(fluid_icon_id)
         if fluid_source is None:
             raise ValueError(f"item.json 找不到流体图标对应物品: {fluid_icon_id}")
+        referenced_icon_ids.add(fluid_icon_id)
         expected_images.add(
             Path(str(fluid_source["rarity"])) / f"{fluid_icon_id}.png"
         )
     asset_image_root.mkdir(parents=True, exist_ok=True)
+
+    # 黑名单物品可能与正常物品共用图标;只有当前 catalog 完全不再引用时才能删除。
+    for removal in removed_items:
+        icon_id = removal.get("iconId")
+        if not isinstance(icon_id, str) or not icon_id:
+            continue
+        icon_id = validate_identifier(icon_id, field="黑名单移除项.iconId")
+        if icon_id in referenced_icon_ids:
+            continue
+        for rarity_directory in asset_image_root.iterdir():
+            if not rarity_directory.is_dir():
+                continue
+            stale = rarity_directory / f"{icon_id}.png"
+            if stale.is_file():
+                stale.unlink()
+
     for relative_path in expected_images:
         destination = asset_image_root / relative_path
         stale_paths = [
@@ -104,6 +126,7 @@ def publish(paths: PublishPaths) -> tuple[int, dict[str, int]]:
     source = json.loads(paths.item_source.read_text(encoding="utf-8-sig"), object_pairs_hook=OrderedDict)
     if not isinstance(source, dict):
         raise ValueError(f"JSON 顶层必须是对象: {paths.item_source}")
+    source, removals = apply_item_blacklist(source)
     catalog = build_catalog(source, paths.image_root)
     localization_source = build_source_index(
         load_json_object(paths.localization_item_source),
@@ -117,7 +140,13 @@ def publish(paths: PublishPaths) -> tuple[int, dict[str, int]]:
     )
     for item_id, record in catalog.items():
         record["name"] = zh_cn_values[f"iconRecognition.name.{item_id}"]
-    sync_published_images(paths.image_root, paths.asset_image_root, catalog, source)
+    sync_published_images(
+        paths.image_root,
+        paths.asset_image_root,
+        catalog,
+        source,
+        removals,
+    )
     paths.catalog_output.parent.mkdir(parents=True, exist_ok=True)
     write_catalog(catalog, paths.catalog_output)
     locale_counts = generate_locales(

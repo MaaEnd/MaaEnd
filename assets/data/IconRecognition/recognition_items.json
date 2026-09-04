@@ -6066,30 +6066,6 @@
         "sortId2": 20,
         "regionRestricted": true
     },
-    "item_port_soil_grass_fast_1": {
-        "name": "模拟锦草田块",
-        "category": "生产工具",
-        "storageKind": "Normal",
-        "categoryType": "Producer",
-        "rarity": 2,
-        "iconId": "item_port_soil_grass_1",
-        "fluidIconId": "",
-        "sortId1": -110,
-        "sortId2": 25,
-        "regionRestricted": true
-    },
-    "item_port_soil_grass_fast_2": {
-        "name": "模拟芽针田块",
-        "category": "生产工具",
-        "storageKind": "Normal",
-        "categoryType": "Producer",
-        "rarity": 2,
-        "iconId": "item_port_soil_grass_2",
-        "fluidIconId": "",
-        "sortId1": -110,
-        "sortId2": 26,
-        "regionRestricted": true
-    },
     "item_port_soil_moss_1": {
         "name": "荞花田块",
         "category": "生产工具",
@@ -6167,30 +6143,6 @@
         "fluidIconId": "",
         "sortId1": -110,
         "sortId2": 24,
-        "regionRestricted": true
-    },
-    "item_port_soil_sp_fast_3": {
-        "name": "模拟琼叶参田块",
-        "category": "生产工具",
-        "storageKind": "Normal",
-        "categoryType": "Producer",
-        "rarity": 3,
-        "iconId": "item_port_soil_sp_3",
-        "fluidIconId": "",
-        "sortId1": -110,
-        "sortId2": 27,
-        "regionRestricted": true
-    },
-    "item_port_soil_sp_fast_4": {
-        "name": "模拟金石稻田块",
-        "category": "生产工具",
-        "storageKind": "Normal",
-        "categoryType": "Producer",
-        "rarity": 3,
-        "iconId": "item_port_soil_sp_4",
-        "fluidIconId": "",
-        "sortId1": -110,
-        "sortId2": 28,
         "regionRestricted": true
     },
     "item_port_sp_hub_1": {

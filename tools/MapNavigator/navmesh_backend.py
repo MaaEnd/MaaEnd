@@ -79,9 +79,10 @@ class NavmeshBackend:
             if self._started:
                 return
             self._started = True
-        threading.Thread(target=self._boot, name="navmesh-agent", daemon=True).start()
+            ready = self._ready
+        threading.Thread(target=self._boot, args=(ready,), name="navmesh-agent", daemon=True).start()
 
-    def _boot(self) -> None:
+    def _boot(self, ready: threading.Event) -> None:
         try:
             self._connect()
             # 顺带把 pack 读进 agent, 并留下 tier -> 几何区的映射供 mesh 缓存用。
@@ -92,21 +93,60 @@ class NavmeshBackend:
         except Exception as exc:  # noqa: BLE001
             self._error = str(exc)
         finally:
-            self._ready.set()
+            ready.set()
+
+    def _restart_dead_session(self) -> bool:
+        """agent 退出后冷启一个新会话; 返回是否值得让调用方重试。"""
+        # 先做一次无锁探查: 会话还活着就别去抢 _query_lock, 否则 status() 会被在途的长查询拖住。
+        session = self._session
+        if self._ready.is_set() and session is not None and session.agent_exit_code is None:
+            return False
+
+        # 关旧会话必须与查询串行, 否则 _post_locked() 正拿着它用。
+        with self._query_lock:
+            with self._start_lock:
+                if not self._ready.is_set():
+                    # 已经有人在重启了, 调用方等同一个 ready 即可。
+                    return True
+                session = self._session
+                if session is not None and session.agent_exit_code is None:
+                    return False
+                self._session = None
+                self._error = None
+                self._ready = threading.Event()
+                self._started = True
+                ready = self._ready
+            if session is not None:
+                session.close()
+        threading.Thread(target=self._boot, args=(ready,), name="navmesh-agent", daemon=True).start()
+        return True
 
     def _connect(self) -> None:
         runtime = load_maa_runtime()
         if runtime is None:
             raise RuntimeError("maafw 不可用")
-        self._session = AgentSession(runtime)
-        self._session.open(_NullConnector(), agent_name="MapNavmeshAgent")
+        session = AgentSession(runtime)
+        try:
+            session.open(_NullConnector(), agent_name="MapNavmeshAgent")
+        except Exception:
+            session.close()
+            raise
+        # open() 成功之后才发布: 半成品会话被查询看见时 resource/tasker 还是 None。
+        self._session = session
 
     def close(self) -> None:
-        session, self._session = self._session, None
-        if session is not None:
-            session.close()
+        # 关会话得跟查询串行, 否则 _post_locked() 正拿着它用; 但关服务器不能被在途的长规划卡死。
+        acquired = self._query_lock.acquire(timeout=10.0)
+        try:
+            session, self._session = self._session, None
+            if session is not None:
+                session.close()
+        finally:
+            if acquired:
+                self._query_lock.release()
 
     def status(self) -> dict[str, Any]:
+        self._restart_dead_session()
         ready = self._ready.is_set() and self._error is None
         return {
             "ready": ready,
@@ -120,6 +160,13 @@ class NavmeshBackend:
     def query(self, op: str, **params: Any) -> dict[str, Any]:
         """发一次查询并返回 agent 的原始结果。仅在工作线程 (threadpool) 中调用。"""
         self._await_ready()
+        try:
+            return self._post(op, **params)
+        except RuntimeError:
+            # agent 死了才重来一次; 会话还活着说明是查询本身的错, 原样抛给调用方。
+            if not self._restart_dead_session():
+                raise
+        self._await_ready()
         return self._post(op, **params)
 
     def query_latest(self, key: str, op: str, **params: Any) -> dict[str, Any]:
@@ -128,6 +175,16 @@ class NavmeshBackend:
             generation = self._latest_generation.get(key, 0) + 1
             self._latest_generation[key] = generation
 
+        self._await_ready()
+        try:
+            with self._query_lock:
+                with self._latest_lock:
+                    if self._latest_generation.get(key) != generation:
+                        return {"ok": False, "stale": True}
+                return self._post_locked(op, **params)
+        except RuntimeError:
+            if not self._restart_dead_session():
+                raise
         self._await_ready()
         with self._query_lock:
             with self._latest_lock:

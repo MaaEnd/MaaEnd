@@ -138,7 +138,9 @@ BaseNavPack MakeBaseNavPack(
     std::vector<BaseNavLink> links,
     std::vector<BaseNavSurface> surfaces,
     std::vector<BaseNavOffMeshLink> off_mesh_links,
-    std::vector<BaseNavSection> sections);
+    std::vector<BaseNavSection> sections,
+    uint64_t build_hash,
+    uint64_t file_fnv);
 
 }
 
@@ -177,6 +179,14 @@ public:
     // 建完后调这个把它还给系统 —— 单区 map02base 有 1050 万条,占 80MB。
     void releaseLinks();
 
+    // 包的身份:载入路径、头里的 build_hash、解压后整份字节的 FNV-1a。
+    // 旁包(预烘场)靠后两者认主包,按区裁剪载入也照样算整份文件。
+    const std::filesystem::path& path() const { return path_; }
+
+    uint64_t buildHash() const { return build_hash_; }
+
+    uint64_t fileFnv() const { return file_fnv_; }
+
 private:
     friend BaseNavPack detail::MakeBaseNavPack(
         std::filesystem::path path,
@@ -186,9 +196,13 @@ private:
         std::vector<BaseNavLink> links,
         std::vector<BaseNavSurface> surfaces,
         std::vector<BaseNavOffMeshLink> off_mesh_links,
-        std::vector<BaseNavSection> sections);
+        std::vector<BaseNavSection> sections,
+        uint64_t build_hash,
+        uint64_t file_fnv);
 
     std::filesystem::path path_;
+    uint64_t build_hash_ = 0;
+    uint64_t file_fnv_ = 0;
     std::vector<BaseNavZone> zones_;
     std::vector<BaseNavVertex> vertices_;
     std::vector<BaseNavTriangle> triangles_;
