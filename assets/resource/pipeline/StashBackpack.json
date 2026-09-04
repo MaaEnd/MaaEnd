@@ -96,7 +96,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "StashBackpackCaptureInitial"
+            "StashBackpackQuickBeforeSnapshot"
         ]
     },
     "StashBackpackEnterWulingSuccess": {
@@ -109,11 +109,27 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "StashBackpackQuickBeforeSnapshot"
+        ]
+    },
+    "StashBackpackQuickBeforeSnapshot": {
+        "desc": "先执行一键存放，再建立手动存放所需的初始快照",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "StashBackpackStashQuickSubTask"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
             "StashBackpackCaptureInitial"
         ]
     },
     "StashBackpackCaptureInitial": {
-        "desc": "配置任务开始前真实快照",
+        "desc": "配置一键存放后的真实快照",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "PipelineOverrideAction",
@@ -163,13 +179,12 @@
         ]
     },
     "StashBackpackWorkflow": {
-        "desc": "按设置依次执行一键存放和手动分类存放",
+        "desc": "按设置执行手动分类存放",
         "pre_delay": 0,
         "action": "Custom",
         "custom_action": "SubTask",
         "custom_action_param": {
             "sub": [
-                "StashBackpackStashQuickSubTask",
                 "StashBackpackManualSubTask"
             ]
         },
