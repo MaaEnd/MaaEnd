@@ -43,14 +43,15 @@
                     "type": "string",
                     "enum": [
                         "reset",
-                        "begin_snapshot",
-                        "append_snapshot_page",
                         "copy_snapshot",
                         "complete_full",
                         "prepare_snapshot",
                         "prepare_difference",
                         "prepare_restore",
+                        "advance_bag_page",
                         "advance_restore_page",
+                        "mark_bag_item_clicked",
+                        "discard_bag_targets",
                         "consume_target",
                         "set_depot"
                     ]
@@ -110,8 +111,6 @@
                         "properties": {
                             "operation": {
                                 "enum": [
-                                    "begin_snapshot",
-                                    "append_snapshot_page",
                                     "prepare_snapshot",
                                     "prepare_restore"
                                 ]
@@ -154,6 +153,19 @@
                     }
                 }
             ]
+        },
+        "SnapshotActionParam": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "snapshot"
+            ],
+            "properties": {
+                "snapshot": {
+                    "type": "string",
+                    "minLength": 1
+                }
+            }
         },
         "NextItemParam": {
             "type": "object",
@@ -215,6 +227,7 @@
                     "enum": [
                         "duplicate_full",
                         "missing_full_snapshot",
+                        "missing_retrieve_snapshot",
                         "unsupported_platform"
                     ]
                 }

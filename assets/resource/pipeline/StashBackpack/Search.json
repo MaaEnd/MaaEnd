@@ -724,5 +724,221 @@
         },
         "post_delay": 0,
         "rate_limit": 0
+    },
+    "StashBackpackPrepareBagBatch": {
+        "desc": "页级批量存放开始前仅将背包回顶一次",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "PipelineOverrideAction",
+        "custom_action_param": {
+            "patch": {
+                "StashBackpackBagBatchTopReached": {
+                    "attach": {
+                        "ready": false
+                    }
+                },
+                "StashBackpackBagBatchBottomReached": {
+                    "attach": {
+                        "ready": false
+                    }
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackResetBagBatchHitCount"
+        ]
+    },
+    "StashBackpackResetBagBatchHitCount": {
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "ClearHitCount",
+        "custom_action_param": {
+            "nodes": [
+                "StashBackpackBagBatchScrollUpward",
+                "StashBackpackBagBatchScrollDownward"
+            ],
+            "strict": true
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackBagBatchScrollToTop"
+        ]
+    },
+    "StashBackpackBagBatchScrollToTop": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackBagBatchTopReached",
+            "[JumpBack]StashBackpackBagBatchScrollUpward"
+        ]
+    },
+    "StashBackpackBagBatchTopReached": {
+        "recognition": "Custom",
+        "custom_recognition": "ScrollbarCompleteRecognition",
+        "custom_recognition_param": {
+            "position_tolerance": 2
+        },
+        "roi": [
+            1119,
+            220,
+            5,
+            255
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackBagBatchLoop"
+        ],
+        "attach": {
+            "ready": false
+        }
+    },
+    "StashBackpackBagBatchLoop": {
+        "pre_delay": 0,
+        "anchor": {
+            "MouseMoveResetAnchor": "MouseMoveReset"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack][Anchor]MouseMoveResetAnchor",
+            "StashBackpackBagPageItem",
+            "StashBackpackBagPageFailed",
+            "StashBackpackBagTargetsExhausted",
+            "StashBackpackBagBatchBottomReached",
+            "[JumpBack]StashBackpackBagBatchScrollDownward"
+        ]
+    },
+    "StashBackpackBagPageItem": {
+        "recognition": "Custom",
+        "custom_recognition": "StashBackpackBagPageRecognition",
+        "roi": [
+            739,
+            202,
+            398,
+            291
+        ],
+        "pre_wait_freezes": {
+            "time": 400,
+            "timeout": 3000,
+            "target": [
+                739,
+                202,
+                398,
+                291
+            ]
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]StashBackpackAfterBagBatchItemFound"
+        ]
+    },
+    "StashBackpackBagPageFailed": {
+        "recognition": "Custom",
+        "custom_recognition": "StashBackpackBagPageFailedRecognition",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FalseAction",
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "StashBackpackBagTargetsExhausted": {
+        "recognition": "Custom",
+        "custom_recognition": "StashBackpackBagTargetsExhaustedRecognition",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]StashBackpackAfterBagBatchFinished"
+        ]
+    },
+    "StashBackpackBagBatchBottomReached": {
+        "recognition": "Custom",
+        "custom_recognition": "ScrollbarCompleteRecognition",
+        "custom_recognition_param": {
+            "position_tolerance": 2
+        },
+        "roi": [
+            1119,
+            220,
+            5,
+            255
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]StashBackpackAfterBagBatchBottomReached"
+        ],
+        "attach": {
+            "ready": false
+        }
+    },
+    "StashBackpackBagBatchScrollDownward": {
+        "max_hit": 20,
+        "pre_delay": 0,
+        "action": "Scroll",
+        "target": [
+            837,
+            350
+        ],
+        "dy": -180,
+        "post_wait_freezes": {
+            "time": 400,
+            "timeout": 3000,
+            "target": [
+                739,
+                202,
+                398,
+                291
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackAdvanceBagBatchPage"
+        ]
+    },
+    "StashBackpackAdvanceBagBatchPage": {
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "StashBackpackStateAction",
+        "custom_action_param": {
+            "operation": "advance_bag_page"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackBagBatchLoop"
+        ]
+    },
+    "StashBackpackBagBatchScrollUpward": {
+        "max_hit": 20,
+        "pre_delay": 0,
+        "action": "Scroll",
+        "target": [
+            837,
+            350
+        ],
+        "dy": 180,
+        "post_wait_freezes": {
+            "time": 400,
+            "timeout": 3000,
+            "target": [
+                739,
+                202,
+                398,
+                291
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0
     }
 }
