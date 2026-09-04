@@ -1,0 +1,8 @@
+{
+    "template": "loop-template.jsonc",
+    "data": "loop-data.mjs",
+    "outputDir": "../../../assets/resource/pipeline/OutpostTrading",
+    "outputPattern": "Loop.json",
+    "format": true,
+    "merged": false
+}

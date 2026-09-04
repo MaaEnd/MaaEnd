@@ -1,0 +1,130 @@
+{
+    "OutpostTradingInitializeReserveSession": {
+        "desc": "初始化独立物品保留规则会话",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "OutpostTradingReserveSession",
+        "custom_action_param": {
+            "operation": "reset"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OutpostTradingRegisterReserveRule1"
+        ]
+    },
+    "OutpostTradingRegisterReserveRule1": {
+        "desc": "注册第1条独立物品保留规则",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "OutpostTradingReserveSession",
+        "custom_action_param": {
+            "operation": "register",
+            "item_id": "",
+            "quantity": 0
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OutpostTradingRegisterReserveRule2"
+        ]
+    },
+    "OutpostTradingRegisterReserveRule2": {
+        "desc": "注册第2条独立物品保留规则",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "OutpostTradingReserveSession",
+        "custom_action_param": {
+            "operation": "register",
+            "item_id": "",
+            "quantity": 0
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OutpostTradingRegisterReserveRule3"
+        ]
+    },
+    "OutpostTradingRegisterReserveRule3": {
+        "desc": "注册第3条独立物品保留规则",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "OutpostTradingReserveSession",
+        "custom_action_param": {
+            "operation": "register",
+            "item_id": "",
+            "quantity": 0
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OutpostTradingRegisterReserveRule4"
+        ]
+    },
+    "OutpostTradingRegisterReserveRule4": {
+        "desc": "注册第4条独立物品保留规则",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "OutpostTradingReserveSession",
+        "custom_action_param": {
+            "operation": "register",
+            "item_id": "",
+            "quantity": 0
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OutpostTradingRegisterReserveRule5"
+        ]
+    },
+    "OutpostTradingRegisterReserveRule5": {
+        "desc": "注册第5条独立物品保留规则",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "OutpostTradingReserveSession",
+        "custom_action_param": {
+            "operation": "register",
+            "item_id": "",
+            "quantity": 0
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OutpostTradingRegisterReserveRule6"
+        ]
+    },
+    "OutpostTradingRegisterReserveRule6": {
+        "desc": "注册第6条独立物品保留规则",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "OutpostTradingReserveSession",
+        "custom_action_param": {
+            "operation": "register",
+            "item_id": "",
+            "quantity": 0
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "OutpostTradingConfigurePrioritySession": {
+        "desc": "配置是否启用优先售卖",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "OutpostTradingPrioritySession",
+        "custom_action_param": {
+            "operation": "configure",
+            "enabled": false,
+            "only_preferred": false
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    }
+}

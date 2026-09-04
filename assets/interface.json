@@ -223,7 +223,7 @@
         // pretask
         "tasks/pretasks/GameSetting.json",
         // group: regional_development
-        "tasks/SellProduct.json",
+        "tasks/OutpostTrading.json",
         "tasks/SeizeDeliveryJobs.json",
         "tasks/DeliveryJobs.json",
         "tasks/AutoStockpile.json",

@@ -1,0 +1,126 @@
+{
+    "OutpostTradingSchedule": {
+        "desc": "据点交易计划任务",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OutpostTradingScheduleEnabled",
+            "OutpostTradingScheduleEnd"
+        ]
+    },
+    "OutpostTradingScheduleEnabled": {
+        "desc": "据点交易计划任务命中",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "ScheduleRecognition",
+                "custom_recognition_param": {}
+            }
+        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OutpostTradingMain"
+        ],
+        "attach": {
+            "monday": false,
+            "tuesday": false,
+            "wednesday": false,
+            "thursday": false,
+            "friday": false,
+            "saturday": false,
+            "sunday": false
+        }
+    },
+    "OutpostTradingScheduleEnd": {
+        "desc": "据点交易计划任务跳过",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "OutpostTradingMain": {
+        "desc": "脚本入口",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OutpostTradingEnterRegionalDevelopment"
+        ]
+    },
+    "OutpostTradingEnterRegionalDevelopment": {
+        "desc": "进入地区建设界面并准备捕获 UID",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuRegionalDevelopment"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OutpostTradingCaptureUid"
+        ]
+    },
+    "OutpostTradingCaptureUid": {
+        "desc": "捕获当前账号 UID，用于隔离自动干员缓存",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "CaptureUid",
+        "custom_action_param": {
+            "use_cache": true,
+            "stay_on_current_screen": true,
+            "allow_unknown": true
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OutpostTradingPrepareSession"
+        ]
+    },
+    "OutpostTradingPrepareSession": {
+        "desc": "初始化保留规则、优先售卖与干员会话",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            // Reserve reset 会清空货品配置；先重置货品与干员会话，再应用优先售卖和选品策略。
+            "sub": [
+                "OutpostTradingInitializeReserveSession",
+                "OutpostTradingInitializeOperatorSession",
+                "OutpostTradingConfigurePrioritySession",
+                "OutpostTradingConfigureSelectionStrategy"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OutpostTradingLoop"
+        ]
+    },
+    "OutpostTradingConfigureSelectionStrategy": {
+        "desc": "配置选品策略",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "OutpostTradingPrioritySession",
+        "custom_action_param": {
+            "operation": "configure_strategy",
+            "strategy": "rarity"
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "OutpostTradingTaskEnd": {
+        "desc": "任务结束",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.OutpostTrading.TaskEnd"
+        }
+    }
+}

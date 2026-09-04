@@ -1,0 +1,463 @@
+{
+    "OutpostTradingSellMain": {
+        "desc": "进入当前据点的通用售卖流程",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OutpostTradingBeforeSellOperator"
+        ]
+    },
+    "OutpostTradingBeforeSellOperator": {
+        "desc": "进入当前据点的售卖前联络干员切换流程",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]OutpostTradingBeforeSellOperatorTarget"
+        ]
+    },
+    "OutpostTradingOutpostProsperityAvailable": {
+        "desc": "识别交易可获得的据点发展值图标",
+        "recognition": "TemplateMatch",
+        "roi": [
+            900,
+            550,
+            350,
+            80
+        ],
+        "template": "OutpostTrading/OutpostProsperity.png",
+        "green_mask": true,
+        "threshold": 0.8,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "OutpostTradingSellLoop": {
+        "desc": "售卖循环，先检查调度券再按当前选品策略选择下一个可售物品",
+        "recognition": "And",
+        "all_of": [
+            "OutpostTradingInOutpost"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]OutpostTradingZeroMoneyHandler",
+            "[Anchor]OutpostTradingCurrentGoodsReady",
+            "OutpostTradingChangeGoods"
+        ]
+    },
+    "OutpostTradingAtSell": {
+        "desc": "货品已换好，检查货物库存并尝试售卖",
+        "recognition": "And",
+        "all_of": [
+            "OutpostTradingInOutpost"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]OutpostTradingZeroMoneyHandler",
+            "OutpostTradingZeroProductAfterChangeStillEmpty",
+            "OutpostTradingNeedSelectGoodsTryChangeGoods",
+            "[Anchor]OutpostTradingBetterSliding"
+        ]
+    },
+    "OutpostTradingZeroProductColorMatch": {
+        "desc": "识别红色文字判断是否有货",
+        "recognition": "ColorMatch",
+        "roi": [
+            1083,
+            327,
+            109,
+            24
+        ],
+        "method": 40,
+        "lower": [
+            0,
+            30,
+            80
+        ],
+        "upper": [
+            5,
+            150,
+            200
+        ],
+        "count": 10,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "OutpostTradingWhiteTextPosition": {
+        "desc": "识别白色文字位置，判断是否有货",
+        "recognition": "ColorMatch",
+        "roi": [
+            1083,
+            327,
+            109,
+            24
+        ],
+        "method": 4,
+        "lower": [
+            190,
+            190,
+            190
+        ],
+        "upper": [
+            255,
+            255,
+            255
+        ],
+        "count": 10,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "OutpostTradingZeroProduct": {
+        "desc": "货物数量不足",
+        "recognition": "Or",
+        "any_of": [
+            "OutpostTradingZeroProductColorMatch",
+            {
+                "recognition": "And",
+                "all_of": [
+                    "OutpostTradingWhiteTextPosition",
+                    {
+                        "recognition": "OCR",
+                        "roi": "OutpostTradingWhiteTextPosition",
+                        // 售卖后据点可能立即生产少量同类货品，1～3 位白色库存故意作为本轮停止信号，
+                        // 避免刚生产的货品被售卖循环重复处理；这也意味着切换后仅剩 1～999 件时会跳过本轮。
+                        "expected": [
+                            // @i18n-skip
+                            "^[0-9]{1,3}$"
+                        ],
+                        "only_rec": true
+                    }
+                ]
+            }
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "OutpostTradingZeroProductAfterChangeStillEmpty": {
+        "desc": "换货后货物仍不足，继续选择下一个优先物品",
+        "recognition": "And",
+        "all_of": [
+            "OutpostTradingZeroProduct"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]OutpostTradingMarkOutOfStock"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.OutpostTrading.product_out_of_stock"
+        }
+    },
+    "OutpostTradingNeedSelectGoodsTryChangeGoods": {
+        "desc": "提示需要选择交易货品时，尝试更换一次货品",
+        "recognition": "OCR",
+        "roi": [
+            900,
+            611,
+            350,
+            77
+        ],
+        "expected": [
+            "请选择用于交易的货品",
+            "請選擇用於交易的貨品",
+            "(?i)Select\\s*Goods\\s*to\\s*Trade",
+            "取引用の商品を選択してください",
+            "거래할 상품 선택 필요"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OutpostTradingChangeGoods"
+        ]
+    },
+    "OutpostTradingZeroMoney": {
+        "desc": "调度券余量为0",
+        "recognition": "OCR",
+        "roi": [
+            900,
+            611,
+            350,
+            77
+        ],
+        // 完整文案：当前据点调度券储量不足 / 目前據點調度券存量不足 / Insufficient stock bills in current outpost / 拠点取引券が不足しています / 거점 관리권 보유량 부족
+        "expected": [
+            // @i18n-skip
+            "当前据点调度券储量不足",
+            "目前據點調度券存量不足",
+            "Insufficient stock bills in current outpost",
+            "(?i)Insufficient",
+            "拠点取引券が不足しています",
+            "거점 관리권 보유량 부족",
+            "不足"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OutpostTradingSellLoopEnd"
+        ]
+    },
+    "OutpostTradingZeroMoneyWithTip": {
+        "desc": "调度券不足（仅未成交时提示）",
+        "recognition": "And",
+        "all_of": [
+            "OutpostTradingZeroMoney"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OutpostTradingSellLoopEnd"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.OutpostTrading.vouchers_exhausted"
+        }
+    },
+    "OutpostTradingSell": {
+        "desc": "交易",
+        "recognition": "OCR",
+        "roi": [
+            975,
+            615,
+            300,
+            105
+        ],
+        "expected": [
+            "交易",
+            "(?i)Trade",
+            "取引",
+            "거래"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OutpostTradingAidQuotaExceededStop",
+            "OutpostTradingSellCheck"
+        ]
+    },
+    "OutpostTradingCheckAidQuotaExceededDialogText": {
+        "desc": "检查援助超出调度券上限确认弹窗文案",
+        "recognition": "OCR",
+        "roi": [
+            40,
+            130,
+            1200,
+            434
+        ],
+        "expected": [
+            "当前提交给据点的援助物品超出据点可兑换调度券上限，部分物品仅能兑换援助成果券，是否确认交易？",
+            "目前提交給據點的援助物品超出據點可兌換調度券上限，部分物品僅能兌換援助成果券，是否確定要交易？",
+            "Amount of support goods to be traded has exceeded the stock bill reserves of the outpost. Some of the goods are only exchangeable for Fruits of Altruism Certs. Trade them anyway?",
+            "拠点へ提出予定の支援物資は交換可能な取引券の上限を超えているため、一部のアイテムは支援成果券にのみ交換可能です。続行しますか？",
+            "当前提交给据点的援助物品超出据点可兑换调度券上限",
+            "超出据点可兑换调度券上限",
+            "目前提交給據點的援助物品超出據點可兌換調度券上限",
+            "超出據點可兌換調度券上限",
+            "(?i)stock bill reserves",
+            "(?i)Fruits of Altruism Certs",
+            "取引券の上限を超えている",
+            "支援成果券にのみ交換可能"
+        ],
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "OutpostTradingAidQuotaExceededStop": {
+        "desc": "援助提交量超出据点可兑换调度券上限的确认弹窗，终止任务",
+        "recognition": "And",
+        "all_of": [
+            "OutpostTradingCheckAidQuotaExceededDialogText"
+        ],
+        "pre_wait_freezes": {
+            "time": 200,
+            "target": [
+                0,
+                0,
+                1280,
+                720
+            ]
+        },
+        "pre_delay": 0,
+        "action": "StopTask",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.OutpostTrading.aid_quota_exceeded"
+        }
+    },
+    "OutpostTradingCheckHeader": {
+        "desc": "交易完成后的获得物品界面页头",
+        "recognition": "TemplateMatch",
+        "roi": [
+            577,
+            10,
+            138,
+            479
+        ],
+        "template": [
+            "OutpostTrading/OutpostTradingCheckHeader.png"
+        ],
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "OutpostTradingSellCheck": {
+        "desc": "交易后确认",
+        "recognition": "And",
+        "all_of": [
+            "OutpostTradingCheckHeader"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "wait_node": "OutpostTradingCheckHeader",
+            "repeat_count": 10,
+            "interval_ms": 200
+        },
+        "target": [
+            35,
+            611,
+            58,
+            57
+        ],
+        "anchor": {
+            "OutpostTradingZeroMoneyHandler": "OutpostTradingZeroMoney"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OutpostTradingAtSell"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$task.OutpostTrading.trade_completed"
+        }
+    },
+    // OutpostTradingReserveSession 通过 Pipeline override 动态引用以下按保留数量交易的节点。
+    "OutpostTradingSellThenLoop": {
+        "desc": "按保留数量交易，完成后继续检查当前物品的剩余库存",
+        "recognition": "OCR",
+        "roi": [
+            975,
+            615,
+            300,
+            105
+        ],
+        "expected": [
+            "交易",
+            "(?i)Trade",
+            "取引",
+            "거래"
+        ],
+        "pre_delay": 0,
+        "action": "Click",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OutpostTradingAidQuotaExceededStop",
+            "OutpostTradingSellCheckThenLoop"
+        ]
+    },
+    "OutpostTradingSellCheckThenLoop": {
+        "desc": "交易后确认，继续应用当前物品的保留规则",
+        "recognition": "And",
+        "all_of": [
+            "OutpostTradingCheckHeader"
+        ],
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "RepeatUntilNotFoundAction",
+        "custom_action_param": {
+            "action": "Click",
+            "wait_node": "OutpostTradingCheckHeader",
+            "repeat_count": 10,
+            "interval_ms": 200
+        },
+        "target": [
+            35,
+            611,
+            58,
+            57
+        ],
+        "anchor": {
+            "OutpostTradingZeroMoneyHandler": "OutpostTradingZeroMoney"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]OutpostTradingZeroMoneyHandler",
+            "OutpostTradingReserveQuantityReached",
+            "[Anchor]OutpostTradingBetterSliding"
+        ],
+        "focus": {
+            "Node.Action.Succeeded": "$task.OutpostTrading.trade_completed"
+        }
+    },
+    "OutpostTradingReserveQuantityReached": {
+        "desc": "本次交易已达到保留数量，将当前物品标记为本次任务无需再次处理",
+        "enabled": false,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "OutpostTradingReserveSession",
+        "custom_action_param": {
+            "operation": "satisfy"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OutpostTradingSellLoop"
+        ]
+    },
+    "OutpostTradingReserveAlreadySatisfied": {
+        "desc": "保留数量大于等于当前库存，继续选择下一个优先物品",
+        "enabled": false,
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "OutpostTradingReserveSession",
+        "custom_action_param": {
+            "operation": "satisfy"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OutpostTradingSellLoop"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "$task.OutpostTrading.reserve_skip"
+        }
+    },
+    "OutpostTradingSellLoopEnd": {
+        "desc": "售卖循环结束，据点券耗尽或没有剩余可售物品",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OutpostTradingAfterSellOperator"
+        ]
+    },
+    "OutpostTradingAfterSellOperator": {
+        "desc": "进入当前据点的售后生产干员派驻流程",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[Anchor]OutpostTradingAfterSellOperatorTarget"
+        ]
+    }
+}

@@ -1,0 +1,182 @@
+{
+    // ===== 地区据点锚点（锚定该地区第一个据点的标签页文本） =====
+    "OutpostTradingInValleyIVOutpost": {
+        "desc": "在四号谷地据点",
+        "recognition": "And",
+        "all_of": [
+            "OutpostTradingInOutpost",
+            "OutpostTradingCheckRefugeeCampTabText"
+        ],
+        "pre_wait_freezes": 80,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "OutpostTradingValleyIV": {
+        "desc": "四号谷地售卖流程入口",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuRegionalDevelopmentValleyIV"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OutpostTradingValleyIVSell"
+        ]
+    },
+    "OutpostTradingValleyIVSell": {
+        "desc": "在四号谷地售卖",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "SceneEnterMenuRegionalDevelopmentValleyIVOutpostManagement"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OutpostTradingValleyIVInitializePrioritySession"
+        ]
+    },
+    "OutpostTradingValleyIVInitializePrioritySession": {
+        "desc": "切换四号谷地优先售卖配置",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "OutpostTradingPrioritySession",
+        "custom_action_param": {
+            "operation": "reset_preferred",
+            "enabled": false
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OutpostTradingValleyIVRegisterPriorityItem1"
+        ]
+    },
+    "OutpostTradingValleyIVRegisterPriorityItem1": {
+        "desc": "注册四号谷地第1个优先售卖物品",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "OutpostTradingPrioritySession",
+        "custom_action_param": {
+            "operation": "register",
+            "item_id": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OutpostTradingValleyIVRegisterPriorityItem2"
+        ]
+    },
+    "OutpostTradingValleyIVRegisterPriorityItem2": {
+        "desc": "注册四号谷地第2个优先售卖物品",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "OutpostTradingPrioritySession",
+        "custom_action_param": {
+            "operation": "register",
+            "item_id": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OutpostTradingValleyIVRegisterPriorityItem3"
+        ]
+    },
+    "OutpostTradingValleyIVRegisterPriorityItem3": {
+        "desc": "注册四号谷地第3个优先售卖物品",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "OutpostTradingPrioritySession",
+        "custom_action_param": {
+            "operation": "register",
+            "item_id": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OutpostTradingValleyIVRegisterPriorityItem4"
+        ]
+    },
+    "OutpostTradingValleyIVRegisterPriorityItem4": {
+        "desc": "注册四号谷地第4个优先售卖物品",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "OutpostTradingPrioritySession",
+        "custom_action_param": {
+            "operation": "register",
+            "item_id": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OutpostTradingValleyIVRegisterPriorityItem5"
+        ]
+    },
+    "OutpostTradingValleyIVRegisterPriorityItem5": {
+        "desc": "注册四号谷地第5个优先售卖物品",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "OutpostTradingPrioritySession",
+        "custom_action_param": {
+            "operation": "register",
+            "item_id": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OutpostTradingValleyIVRegisterPriorityItem6"
+        ]
+    },
+    "OutpostTradingValleyIVRegisterPriorityItem6": {
+        "desc": "注册四号谷地第6个优先售卖物品",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "OutpostTradingPrioritySession",
+        "custom_action_param": {
+            "operation": "register",
+            "item_id": ""
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "OutpostTradingValleyIVPrepareOperatorCache"
+        ]
+    },
+    "OutpostTradingValleyIVPrepareOperatorCache": {
+        "desc": "四号谷地售卖前准备联络干员缓存",
+        "recognition": "DirectHit",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "OutpostTradingScanOperatorList"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]OutpostTradingRefugeeCamp",
+            "[JumpBack]OutpostTradingInfraStation",
+            "[JumpBack]OutpostTradingReconstructionHQ",
+            "OutpostTradingLoop",
+            "[JumpBack]SceneEnterMenuRegionalDevelopment"
+        ]
+    }
+}

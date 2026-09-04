@@ -288,7 +288,7 @@
         "desc": "在武陵地区建设界面，进入据点管理界面",
         "recognition": "And",
         "all_of": [
-            "SellProductCheckOutpostManagementText",
+            "OutpostTradingCheckOutpostManagementText",
             "InRegionalDevelopmentWuling"
         ],
         "pre_delay": 0,
@@ -303,8 +303,8 @@
         "desc": "在武陵地区建设界面，进入据点管理界面成功",
         "recognition": "And",
         "all_of": [
-            "SellProductInOutpost",
-            "SellProductCheckSkyKingFlatsConstructionSiteTabText"
+            "OutpostTradingInOutpost",
+            "OutpostTradingCheckSkyKingFlatsConstructionSiteTabText"
         ],
         "pre_wait_freezes": 80,
         "pre_delay": 0,
@@ -315,7 +315,7 @@
         "desc": "在四号谷地地区建设界面，进入据点管理界面",
         "recognition": "And",
         "all_of": [
-            "SellProductCheckOutpostManagementText",
+            "OutpostTradingCheckOutpostManagementText",
             "InRegionalDevelopmentValleyIV"
         ],
         "pre_delay": 0,
@@ -330,8 +330,8 @@
         "desc": "在四号谷地地区建设界面，进入据点管理界面成功",
         "recognition": "And",
         "all_of": [
-            "SellProductInOutpost",
-            "SellProductCheckRefugeeCampTabText"
+            "OutpostTradingInOutpost",
+            "OutpostTradingCheckRefugeeCampTabText"
         ],
         "pre_wait_freezes": 80,
         "pre_delay": 0,

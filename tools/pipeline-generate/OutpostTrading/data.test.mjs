@@ -1,0 +1,938 @@
+import assert from "node:assert/strict";
+import {readFileSync} from "node:fs";
+import test from "node:test";
+
+import {readJsonc} from "../jsonc.mjs";
+import {
+    outpostTradingLocations,
+    outpostTradingLocationsNewestFirst,
+    outpostTradingRegions,
+    outpostTradingRegionsNewestFirst,
+    settlementData,
+    toPascalCase,
+} from "./model.mjs";
+import outpostTradingSellRows from "./sell-data.mjs";
+import {outpostTradingSelectionData} from "./selection-data.mjs";
+import {outpostTradingTaskRows} from "./task-data.mjs";
+
+const root = outpostTradingTaskRows[0];
+
+function readPipeline(url) {
+    return readJsonc(url);
+}
+
+test("OutpostTrading 保留按星期执行入口与任务选项", () => {
+    const task = readPipeline(new URL("../../../assets/tasks/OutpostTrading.json", import.meta.url));
+    const pipeline = readPipeline(new URL("../../../assets/resource/pipeline/OutpostTrading.json", import.meta.url));
+
+    assert.equal(task.task[0].entry, "OutpostTradingSchedule");
+    assert.deepEqual(task.task[0].option, [
+        "SellProductSchedule",
+        "SellProductOperatorAutoSwitch",
+        "SellProductSelectionStrategy",
+        "SellProductPriorityRules",
+        "SellProductItemReserveRules",
+        ...outpostTradingRegions.map((region) => `${region.RegionPrefix}Sell`),
+    ]);
+    assert.equal(task.option.SellProductSchedule.type, "checkbox");
+    assert.equal(task.option.SellProductSchedule.cases.length, 7);
+    assert.equal(pipeline.OutpostTradingScheduleEnabled.recognition.param.custom_recognition, "ScheduleRecognition");
+    assert.deepEqual(Object.keys(pipeline.OutpostTradingScheduleEnabled.attach), [
+        "monday",
+        "tuesday",
+        "wednesday",
+        "thursday",
+        "friday",
+        "saturday",
+        "sunday",
+    ]);
+    // Reserve reset 会清空货品配置；先重置货品与干员会话，再应用优先售卖和选品策略。
+    assert.deepEqual(pipeline.OutpostTradingPrepareSession.custom_action_param.sub, [
+        "OutpostTradingInitializeReserveSession",
+        "OutpostTradingInitializeOperatorSession",
+        "OutpostTradingConfigurePrioritySession",
+        "OutpostTradingConfigureSelectionStrategy",
+    ]);
+});
+
+test("OutpostTrading 选品策略支持稀有度、单价和库存优先", () => {
+    const task = readPipeline(new URL("../../../assets/tasks/OutpostTrading.json", import.meta.url));
+    const selectionStrategy = task.option.SellProductSelectionStrategy;
+    assert.equal(selectionStrategy.type, "select");
+    assert.equal(selectionStrategy.default_case, "Rarity");
+    assert.deepEqual(
+        selectionStrategy.cases.map((itemCase) => itemCase.name),
+        [
+            "Rarity",
+            "Price",
+            "Stock",
+        ],
+    );
+    const rarity = selectionStrategy.cases.find((itemCase) => itemCase.name === "Rarity");
+    assert.deepEqual(rarity.pipeline_override.OutpostTradingConfigureSelectionStrategy.custom_action_param, {
+        operation: "configure_strategy",
+        strategy: "rarity",
+    });
+    const price = selectionStrategy.cases.find((itemCase) => itemCase.name === "Price");
+    assert.deepEqual(price.pipeline_override.OutpostTradingConfigureSelectionStrategy.custom_action_param, {
+        operation: "configure_strategy",
+        strategy: "price",
+    });
+    const stock = selectionStrategy.cases.find((itemCase) => itemCase.name === "Stock");
+    assert.deepEqual(stock.option, ["SellProductStockMinimumUnitPrice"]);
+    assert.deepEqual(stock.pipeline_override.OutpostTradingConfigureSelectionStrategy.custom_action_param, {
+        operation: "configure_strategy",
+        strategy: "stock",
+        minimum_unit_price: 10,
+    });
+    assert.equal(root.StockMinimumUnitPriceDefault, "10");
+    assert.equal(task.option.SellProductStockMinimumUnitPrice.inputs[0].default, "10");
+    assert.deepEqual(
+        task.option.SellProductStockMinimumUnitPrice.pipeline_override.OutpostTradingConfigureSelectionStrategy
+            .custom_action_param,
+        {
+            operation: "configure_strategy",
+            strategy: "stock",
+            minimum_unit_price: "{SellProductStockMinimumUnitPrice}",
+        },
+    );
+});
+
+test("OutpostTrading 按固定地区顺序售卖且不再使用自动起始地区", () => {
+    const loop = readPipeline(new URL("../../../assets/resource/pipeline/OutpostTrading/Loop.json", import.meta.url));
+    const entry = readPipeline(new URL("../../../assets/resource/pipeline/OutpostTrading.json", import.meta.url));
+
+    assert.deepEqual(loop.OutpostTradingLoop.next, [
+        ...outpostTradingRegionsNewestFirst.map((region) => `OutpostTrading${region.RegionPrefix}`),
+        "OutpostTradingTaskEnd",
+    ]);
+    assert.equal(entry.OutpostTradingLoop, undefined);
+    assert.deepEqual(
+        Object.keys(entry).filter((nodeName) => nodeName.startsWith("OutpostTradingAuto")),
+        [],
+    );
+});
+
+test("OutpostTrading 优先售卖新地区且地区内保持游戏顺序", () => {
+    assert.deepEqual(outpostTradingRegionsNewestFirst, [...outpostTradingRegions].reverse());
+    for (const region of outpostTradingRegionsNewestFirst) {
+        assert.deepEqual(
+            outpostTradingLocationsNewestFirst
+                .filter((location) => location.RegionPrefix === region.RegionPrefix)
+                .map((location) => location.LocationId),
+            region.LocationIds,
+        );
+    }
+
+    const regionOrder = outpostTradingRegionsNewestFirst.map((region) => region.RegionPrefix);
+    assert.ok(regionOrder.indexOf("Wuling") < regionOrder.indexOf("ValleyIV"));
+});
+
+test("OutpostTrading 强制刷新选项为 PC 与 ADB 使用相同的当前干员 ROI", () => {
+    const enabledCase = root.OperatorRefreshModeCases.find((itemCase) => itemCase.name === "Yes");
+    assert.ok(enabledCase);
+    for (const location of outpostTradingLocations) {
+        assert.equal(
+            enabledCase.pipeline_override[`OutpostTrading${location.LocationId}CurrentTargetOperator`],
+            undefined,
+        );
+        assert.equal(
+            enabledCase.pipeline_override[`OutpostTrading${location.LocationId}CurrentRestoreOperator`],
+            undefined,
+        );
+    }
+    const adbTemplate = readFileSync(new URL("./pipeline-adb-template.jsonc", import.meta.url), "utf8");
+    assert.doesNotMatch(adbTemplate, /CurrentOperatorROI/);
+});
+
+test("OutpostTrading region entry rows contain every generated location", () => {
+    assert.deepEqual(
+        outpostTradingSellRows.map((row) => row.RegionPrefix),
+        outpostTradingRegions.map((region) => region.RegionPrefix),
+    );
+
+    for (const row of outpostTradingSellRows) {
+        const region = outpostTradingRegions.find((entry) => entry.RegionPrefix === row.RegionPrefix);
+        const outpostNext = region.LocationIds.map((locationId) => `[JumpBack]OutpostTrading${locationId}`).concat(
+            "OutpostTradingLoop",
+            "[JumpBack]SceneEnterMenuRegionalDevelopment",
+        );
+        assert.deepEqual(row.SellNext, [`OutpostTrading${region.RegionPrefix}InitializePrioritySession`]);
+        assert.deepEqual(row.PrepareNext, outpostNext);
+    }
+});
+
+test("OutpostTrading location IDs are derived from the current upstream English names", () => {
+    for (const location of outpostTradingLocations) {
+        const settlement = settlementData.settlements[location.SettlementId];
+        assert.equal(location.LocationId, toPascalCase(settlement.names.en_us || location.SettlementId));
+    }
+});
+
+test("OutpostTrading reserve rules only expand independent item slots", () => {
+    const enabledCase = root.ReserveRuleSwitchCases.find((itemCase) => itemCase.name === "Yes");
+    assert.deepEqual(enabledCase.option, [
+        "SellProductReserveItem1",
+        "SellProductReserveItem2",
+        "SellProductReserveItem3",
+        "SellProductReserveItem4",
+        "SellProductReserveItem5",
+        "SellProductReserveItem6",
+    ]);
+    assert.equal(enabledCase.pipeline_override, undefined);
+});
+
+test("OutpostTrading 优先总开关展开地区配置且不耦合地区售卖开关", () => {
+    const enabledCase = root.PriorityRuleSwitchCases.find((itemCase) => itemCase.name === "Yes");
+    assert.deepEqual(enabledCase.option, [
+        "SellProductOnlyPreferredItems",
+        ...outpostTradingRegions.map((region) => `SellProduct${region.RegionPrefix}PriorityRules`),
+    ]);
+    assert.deepEqual(enabledCase.pipeline_override.OutpostTradingConfigurePrioritySession.custom_action_param, {
+        operation: "configure",
+        enabled: true,
+    });
+    const disabledCase = root.PriorityRuleSwitchCases.find((itemCase) => itemCase.name === "No");
+    assert.equal(disabledCase.option, undefined);
+
+    const onlyPreferredCase = root.OnlyPreferredSwitchCases.find((itemCase) => itemCase.name === "Yes");
+    assert.deepEqual(onlyPreferredCase.pipeline_override.OutpostTradingConfigurePrioritySession.custom_action_param, {
+        operation: "configure",
+        enabled: true,
+        only_preferred: true,
+    });
+
+    for (const region of outpostTradingRegions) {
+        const regionPrefix = region.RegionPrefix;
+        const regionRoot = outpostTradingTaskRows.find((row) => row.RegionPrefix === regionPrefix);
+        assert.ok(regionRoot, `missing task row for region ${regionPrefix}`);
+        const regionEnabledCase = regionRoot.RegionPriorityRuleSwitchCases.find((itemCase) => itemCase.name === "Yes");
+        assert.deepEqual(
+            regionEnabledCase.option,
+            [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+            ].map((slot) => `SellProduct${regionPrefix}PriorityItem${slot}`),
+        );
+        assert.deepEqual(
+            regionEnabledCase.pipeline_override[`OutpostTrading${regionPrefix}InitializePrioritySession`]
+                .custom_action_param,
+            {
+                operation: "reset_preferred",
+                enabled: true,
+            },
+        );
+
+        const regionItems = outpostTradingLocations
+            .filter((location) => location.RegionPrefix === regionPrefix)
+            .flatMap((location) => outpostTradingSelectionData.locations[location.LocationId].items);
+        const regionItemIDs = new Set(regionItems.map((item) => item.item_id));
+        const priceByItemID = new Map();
+        for (const item of regionItems) {
+            priceByItemID.set(item.item_id, Math.max(priceByItemID.get(item.item_id) ?? 0, item.unit_price));
+        }
+        for (const slot of [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+        ]) {
+            const cases = regionRoot[`PriorityItemCases${slot}`];
+            const noneCase = cases.find((entry) => entry.name === "None");
+            assert.ok(noneCase, `${regionPrefix} slot ${slot} missing None case`);
+            assert.equal(noneCase.pipeline_override, undefined);
+
+            const itemCases = cases.filter((entry) => entry.name !== "None");
+            assert.ok(itemCases.length > 0, `${regionPrefix} slot ${slot} has no selectable items`);
+            const itemPrices = itemCases.map((itemCase) => {
+                const registration =
+                    itemCase.pipeline_override[`OutpostTrading${regionPrefix}RegisterPriorityItem${slot}`];
+                return priceByItemID.get(registration.custom_action_param.item_id);
+            });
+            assert.deepEqual(
+                itemPrices,
+                [...itemPrices].sort((left, right) => right - left),
+                `${regionPrefix} slot ${slot} items are not sorted by unit price descending`,
+            );
+            for (const itemCase of itemCases) {
+                const registration =
+                    itemCase.pipeline_override[`OutpostTrading${regionPrefix}RegisterPriorityItem${slot}`];
+                assert.equal(registration.enabled, undefined);
+                assert.equal(registration.custom_action_param.operation, "register");
+                assert.ok(registration.custom_action_param.item_id.startsWith("item_"));
+                assert.ok(regionItemIDs.has(registration.custom_action_param.item_id));
+            }
+        }
+    }
+});
+
+test("OutpostTrading 武陵优先物品顺序与游戏货架一致", () => {
+    const regionPrefix = "Wuling";
+    const regionRoot = outpostTradingTaskRows.find((row) => row.RegionPrefix === regionPrefix);
+    const itemIDs = regionRoot.PriorityItemCases1.filter((entry) => entry.name !== "None").map(
+        (entry) => entry.pipeline_override.OutpostTradingWulingRegisterPriorityItem1.custom_action_param.item_id,
+    );
+    const observedSkyKingOrder = [
+        "item_proc_battery_5",
+        "item_copper_enr_cmpt",
+        "item_xiranite_enr_powder",
+        "item_proc_battery_4",
+        "item_bottled_rec_hp_5",
+        "item_bottled_food_5",
+        "item_bottled_food_4",
+    ];
+    const observedItems = new Set(observedSkyKingOrder);
+    assert.deepEqual(
+        itemIDs.filter((itemID) => observedItems.has(itemID)),
+        observedSkyKingOrder,
+    );
+});
+
+test("OutpostTrading 四号谷地同价优先物品保留游戏货架顺序", () => {
+    const regionRoot = outpostTradingTaskRows.find((row) => row.RegionPrefix === "ValleyIV");
+    const itemIDs = regionRoot.PriorityItemCases1.filter((entry) => entry.name !== "None").map(
+        (entry) => entry.pipeline_override.OutpostTradingValleyIVRegisterPriorityItem1.custom_action_param.item_id,
+    );
+    const expectedOrder = [
+        "item_bottled_rec_hp_1",
+        "item_bottled_food_1",
+        "item_crystal_shell",
+        "item_glass_cmpt",
+        "item_iron_cmpt",
+    ];
+    const expectedItems = new Set(expectedOrder);
+    assert.deepEqual(
+        itemIDs.filter((itemID) => expectedItems.has(itemID)),
+        expectedOrder,
+    );
+});
+
+test("OutpostTrading 保留物品按游戏货架单价降序排列", () => {
+    const priceByItemID = new Map();
+    for (const location of Object.values(outpostTradingSelectionData.locations)) {
+        for (const item of location.items) {
+            priceByItemID.set(item.item_id, Math.max(priceByItemID.get(item.item_id) ?? 0, item.unit_price));
+        }
+    }
+    for (const slot of [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+    ]) {
+        const itemCases = root[`ReserveItemCases${slot}`].filter((entry) => entry.name !== "None");
+        const itemPrices = itemCases.map((itemCase) => {
+            const registration = itemCase.pipeline_override[`OutpostTradingRegisterReserveRule${slot}`];
+            return priceByItemID.get(registration.attach.item_id);
+        });
+        assert.deepEqual(
+            itemPrices,
+            [...itemPrices].sort((left, right) => right - left),
+            `reserve slot ${slot} items are not sorted by unit price descending`,
+        );
+    }
+
+    const itemIDs = root.ReserveItemCases1.filter((entry) => entry.name !== "None").map(
+        (entry) => entry.pipeline_override.OutpostTradingRegisterReserveRule1.attach.item_id,
+    );
+    for (const expectedOrder of [
+        [
+            "item_copper_enr2_cmpt",
+            "item_bottled_rec_hp_3",
+            "item_proc_battery_3",
+            "item_bottled_food_3",
+        ],
+        [
+            "item_bottled_rec_hp_1",
+            "item_bottled_food_1",
+        ],
+        [
+            "item_filter_core",
+            "item_crystal_shell",
+            "item_glass_cmpt",
+            "item_iron_cmpt",
+        ],
+    ]) {
+        const expectedItems = new Set(expectedOrder);
+        assert.deepEqual(
+            itemIDs.filter((itemID) => expectedItems.has(itemID)),
+            expectedOrder,
+        );
+    }
+});
+
+test("OutpostTrading concrete reserve rule separates itemId attach from handling mode", () => {
+    const itemCase = root.ReserveItemCases1.find((entry) => entry.name !== "None");
+    assert.ok(itemCase);
+    assert.deepEqual(itemCase.option, ["SellProductReserveItem1Mode"]);
+    const registration = itemCase.pipeline_override.OutpostTradingRegisterReserveRule1;
+    assert.equal(registration.enabled, undefined);
+    assert.ok(registration.attach.item_id.startsWith("item_"));
+    assert.equal(registration.custom_action_param, undefined);
+
+    const quantityCase = root.ReserveModeCases1.find((entry) => entry.name === "Quantity");
+    assert.deepEqual(quantityCase.option, ["SellProductReserveItem1Value"]);
+    assert.equal(quantityCase.pipeline_override, undefined);
+    const neverSellCase = root.ReserveModeCases1.find((entry) => entry.name === "NeverSell");
+    assert.deepEqual(neverSellCase.pipeline_override.OutpostTradingRegisterReserveRule1.custom_action_param, {
+        operation: "register",
+        quantity: -1,
+    });
+});
+
+test("OutpostTrading reserve None case does not register a rule", () => {
+    const noneCase = root.ReserveItemCases1.find((entry) => entry.name === "None");
+    assert.ok(noneCase);
+    assert.equal(noneCase.pipeline_override, undefined);
+});
+
+test("OutpostTrading registration slots form an always-enabled no-op chain", () => {
+    const pipeline = readPipeline(
+        new URL("../../../assets/resource/pipeline/OutpostTrading/ReserveSession.json", import.meta.url),
+    );
+    const chain = [
+        "OutpostTradingInitializeReserveSession",
+        "OutpostTradingRegisterReserveRule1",
+        "OutpostTradingRegisterReserveRule2",
+        "OutpostTradingRegisterReserveRule3",
+        "OutpostTradingRegisterReserveRule4",
+        "OutpostTradingRegisterReserveRule5",
+        "OutpostTradingRegisterReserveRule6",
+    ];
+
+    for (let index = 0; index < chain.length - 1; index += 1) {
+        const node = pipeline[chain[index]];
+        assert.ok(node, `missing registration node ${chain[index]}`);
+        assert.equal(node.enabled, undefined);
+        assert.deepEqual(node.next, [chain[index + 1]]);
+    }
+
+    // 保留规则链终止于 Rule6；其余初始化阶段由 OutpostTradingPrepareSession 按依赖顺序调度。
+    assert.equal(pipeline.OutpostTradingRegisterReserveRule6.next, undefined);
+    assert.equal(pipeline.OutpostTradingConfigurePrioritySession.enabled, undefined);
+    assert.equal(pipeline.OutpostTradingConfigurePrioritySession.next, undefined);
+
+    const entry = readPipeline(new URL("../../../assets/resource/pipeline/OutpostTrading.json", import.meta.url));
+    assert.deepEqual(entry.OutpostTradingPrepareSession.custom_action_param.sub, [
+        "OutpostTradingInitializeReserveSession",
+        "OutpostTradingInitializeOperatorSession",
+        "OutpostTradingConfigurePrioritySession",
+        "OutpostTradingConfigureSelectionStrategy",
+    ]);
+});
+
+test("OutpostTrading 每次进入地区都会切换对应的优先售卖表", () => {
+    for (const region of outpostTradingRegions) {
+        const pipeline = readPipeline(
+            new URL(
+                `../../../assets/resource/pipeline/OutpostTrading/${region.RegionPrefix}/OutpostTrading${region.RegionPrefix}.json`,
+                import.meta.url,
+            ),
+        );
+        const chain = [
+            `OutpostTrading${region.RegionPrefix}InitializePrioritySession`,
+            ...[
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+            ].map((slot) => `OutpostTrading${region.RegionPrefix}RegisterPriorityItem${slot}`),
+            `OutpostTrading${region.RegionPrefix}PrepareOperatorCache`,
+        ];
+        assert.deepEqual(pipeline[`OutpostTrading${region.RegionPrefix}Sell`].next, [chain[0]]);
+        assert.equal(pipeline[chain[0]].custom_action_param.operation, "reset_preferred");
+        assert.equal(pipeline[chain[0]].custom_action_param.enabled, false);
+        for (let index = 0; index < chain.length - 1; index += 1) {
+            assert.deepEqual(pipeline[chain[index]].next, [chain[index + 1]]);
+        }
+    }
+});
+
+test("OutpostTrading operator locations form an always-enabled active-flag chain", () => {
+    const scan = readPipeline(
+        new URL("../../../assets/resource/pipeline/OutpostTrading/OperatorScan.json", import.meta.url),
+    );
+    const session = readPipeline(
+        new URL("../../../assets/resource/pipeline/OutpostTrading/OperatorSession.json", import.meta.url),
+    );
+    const pipeline = {...scan, ...session};
+    const registrationNodes = outpostTradingLocations.map(
+        (location) => `OutpostTradingRegisterLocation${location.LocationId}`,
+    );
+    const chain = [
+        "OutpostTradingInitializeOperatorSession",
+        ...registrationNodes,
+        "OutpostTradingOperatorSessionReady",
+    ];
+
+    for (let index = 0; index < chain.length - 1; index += 1) {
+        const node = pipeline[chain[index]];
+        assert.ok(node, `missing operator registration node ${chain[index]}`);
+        assert.equal(node.enabled, undefined);
+        assert.deepEqual(node.next, [chain[index + 1]]);
+    }
+    for (const nodeName of registrationNodes) {
+        assert.equal(pipeline[nodeName].custom_action_param.active, false);
+    }
+
+    const task = readPipeline(new URL("../../../assets/tasks/OutpostTrading.json", import.meta.url));
+    for (const location of outpostTradingLocations) {
+        const option = task.option[`${location.RegionPrefix}${location.LocationId}`];
+        const enabledCase = option.cases.find((itemCase) => itemCase.name === "Yes");
+        const disabledCase = option.cases.find((itemCase) => itemCase.name === "No");
+        const nodeName = `OutpostTradingRegisterLocation${location.LocationId}`;
+        assert.deepEqual(enabledCase.pipeline_override[nodeName].custom_action_param, {
+            operation: "register",
+            location: location.LocationId,
+            active: true,
+        });
+        assert.equal(disabledCase.pipeline_override[nodeName], undefined);
+    }
+});
+
+test("OutpostTrading operator switching uses shared core dispatch nodes", () => {
+    const core = readPipeline(new URL("../../../assets/resource/pipeline/OutpostTrading/SellCore.json", import.meta.url));
+    assert.deepEqual(core.OutpostTradingSellMain.next, ["OutpostTradingBeforeSellOperator"]);
+    assert.deepEqual(core.OutpostTradingBeforeSellOperator.next, [
+        "[Anchor]OutpostTradingBeforeSellOperatorTarget",
+    ]);
+    assert.deepEqual(core.OutpostTradingSellLoopEnd.next, ["OutpostTradingAfterSellOperator"]);
+    assert.deepEqual(core.OutpostTradingAfterSellOperator.next, [
+        "[Anchor]OutpostTradingAfterSellOperatorTarget",
+    ]);
+
+    for (const location of outpostTradingLocations) {
+        const pipeline = readPipeline(
+            new URL(
+                `../../../assets/resource/pipeline/OutpostTrading/${location.RegionPrefix}/${location.LocationId}.json`,
+                import.meta.url,
+            ),
+        );
+        const prefix = `OutpostTrading${location.LocationId}`;
+        assert.deepEqual(pipeline[`${prefix}Sell`].next, [
+            `${prefix}OutpostProsperityAvailable`,
+            `${prefix}OutpostProsperityMax`,
+        ]);
+        assert.deepEqual(pipeline[`${prefix}OutpostProsperityAvailable`].next, [
+            `${prefix}ReportLocationPlan`,
+        ]);
+        assert.deepEqual(pipeline[`${prefix}OutpostProsperityMax`].next, [
+            `${prefix}ReportLocationPlan`,
+        ]);
+        assert.deepEqual(pipeline[`${prefix}ReportLocationPlan`].next, [
+            `${prefix}SetOperatorAnchors`,
+        ]);
+        assert.deepEqual(pipeline[`${prefix}SelectPriorityItem`].next, [
+            "OutpostTradingSelectNewGoodConfirm",
+        ]);
+        assert.deepEqual(pipeline[`${prefix}PriorityItemsExhausted`].next, [
+            "OutpostTradingCloseGoodsAfterExhausted",
+        ]);
+        assert.deepEqual(pipeline[`${prefix}SetOperatorAnchors`].anchor, {
+            OutpostTradingBeforeSellOperatorTarget: `${prefix}BeforeSellOperator`,
+            OutpostTradingAfterSellOperatorTarget: `${prefix}AfterSellOperator`,
+        });
+        assert.deepEqual(pipeline[`${prefix}SetOperatorAnchors`].next, [
+            "OutpostTradingSellMain",
+        ]);
+        assert.equal(pipeline[`${prefix}SetBeforeSellOperatorAnchor`], undefined);
+        assert.equal(pipeline[`${prefix}SetAfterSellOperatorAnchor`], undefined);
+    }
+
+    const task = readPipeline(new URL("../../../assets/tasks/OutpostTrading.json", import.meta.url));
+    const disabledCase = task.option.SellProductOperatorAutoSwitch.cases.find((itemCase) => itemCase.name === "No");
+    assert.deepEqual(disabledCase.pipeline_override.OutpostTradingSellMain, {
+        next: ["OutpostTradingSellLoop"],
+    });
+    assert.deepEqual(disabledCase.pipeline_override.OutpostTradingSellLoopEnd, {next: []});
+    assert.deepEqual(disabledCase.pipeline_override.OutpostTradingScanOperatorList, {next: []});
+    assert.deepEqual(Object.keys(disabledCase.pipeline_override).sort(), [
+        "OutpostTradingScanOperatorList",
+        "OutpostTradingSellLoopEnd",
+        "OutpostTradingSellMain",
+    ]);
+});
+
+test("OutpostTrading 选品库存识别只扫描第一页且不滑动货品列表", () => {
+    const changeGoods = readPipeline(
+        new URL("../../../assets/resource/pipeline/OutpostTrading/ChangeGoods.json", import.meta.url),
+    );
+
+    assert.deepEqual(changeGoods.OutpostTradingChangeGoodsRelay.next, [
+        "[Anchor]OutpostTradingSelectPriorityItem",
+        "[Anchor]OutpostTradingPriorityItemsExhausted",
+    ]);
+    assert.equal(changeGoods.OutpostTradingCheckGoodsCellAnchor.recognition, "TemplateMatch");
+});
+
+test("OutpostTrading 各平台通过 Pipeline 配置货品名称、库存和点击区域", () => {
+    const win32 = readPipeline(
+        new URL("../../../assets/resource/pipeline/OutpostTrading/ValleyIV/RefugeeCamp.json", import.meta.url),
+    ).OutpostTradingRefugeeCampSelectPriorityItem.custom_recognition_param;
+    const adb = readPipeline(
+        new URL("../../../assets/resource_adb/pipeline/OutpostTrading/ValleyIV/RefugeeCamp.json", import.meta.url),
+    ).OutpostTradingRefugeeCampSelectPriorityItem.custom_recognition_param;
+
+    for (const [
+        platform,
+        params,
+    ] of [
+        [
+            "Win32",
+            win32,
+        ],
+        [
+            "ADB",
+            adb,
+        ],
+    ]) {
+        assert.equal(params.location, "RefugeeCamp");
+        assert.equal(params.result, "select");
+
+        for (const name of [
+            "stock_name_offset",
+            "stock_quantity_offset",
+            "stock_click_offset",
+        ]) {
+            const offset = params[name];
+            assert.ok(Array.isArray(offset), `${platform} ${name} 应为数组`);
+            assert.equal(offset.length, 4, `${platform} ${name} 应包含 4 个坐标值`);
+            assert.ok(offset.every(Number.isInteger), `${platform} ${name} 应只包含整数`);
+            assert.ok(offset[2] > 0, `${platform} ${name} 宽度应大于 0`);
+            assert.ok(offset[3] > 0, `${platform} ${name} 高度应大于 0`);
+        }
+    }
+});
+
+test("OutpostTrading 全部据点的当前货品 ROI 由各平台 Pipeline 提供", () => {
+    const platforms = [
+        {
+            name: "Win32",
+            resourceDir: "resource",
+            roi: [
+                1177,
+                450,
+                54,
+                54,
+            ],
+        },
+        {
+            name: "ADB",
+            resourceDir: "resource_adb",
+            roi: [
+                1151,
+                393,
+                66,
+                66,
+            ],
+        },
+    ];
+
+    for (const platform of platforms) {
+        for (const location of outpostTradingLocations) {
+            const pipeline = readPipeline(
+                new URL(
+                    `../../../assets/${platform.resourceDir}/pipeline/OutpostTrading/${location.RegionPrefix}/${location.LocationId}.json`,
+                    import.meta.url,
+                ),
+            );
+            const prefix = `OutpostTrading${location.LocationId}`;
+            const node = pipeline[`${prefix}CurrentGoodsReady`];
+
+            assert.ok(node, `${platform.name} ${location.LocationId} 缺少 CurrentGoodsReady 节点`);
+            assert.equal(node.custom_recognition_param.location, location.LocationId);
+            assert.deepEqual(node.custom_recognition_param.roi, platform.roi);
+            assert.ok(
+                node.custom_recognition_param.roi.every(Number.isInteger),
+                `${platform.name} ${location.LocationId} roi 应只包含整数`,
+            );
+            assert.equal(
+                node.custom_recognition_param.roi[2],
+                node.custom_recognition_param.roi[3],
+                `${platform.name} ${location.LocationId} roi 应为正方形`,
+            );
+
+            if (platform.name === "Win32") {
+                assert.equal(
+                    pipeline[`${prefix}Sell`].anchor.OutpostTradingCurrentGoodsReady,
+                    `${prefix}CurrentGoodsReady`,
+                );
+            }
+        }
+    }
+});
+
+test("OutpostTrading 每轮选货及保留交易后优先检查调度券不足", () => {
+    const pipeline = readPipeline(
+        new URL("../../../assets/resource/pipeline/OutpostTrading/SellCore.json", import.meta.url),
+    );
+
+    assert.deepEqual(pipeline.OutpostTradingSellLoop.next, [
+        "[Anchor]OutpostTradingZeroMoneyHandler",
+        "[Anchor]OutpostTradingCurrentGoodsReady",
+        "OutpostTradingChangeGoods",
+    ]);
+    assert.deepEqual(pipeline.OutpostTradingAtSell.next.slice(0, 2), [
+        "[Anchor]OutpostTradingZeroMoneyHandler",
+        "OutpostTradingZeroProductAfterChangeStillEmpty",
+    ]);
+    assert.equal(pipeline.OutpostTradingSellCheckThenLoop.anchor.OutpostTradingZeroMoneyHandler, "OutpostTradingZeroMoney");
+    assert.deepEqual(pipeline.OutpostTradingSellCheckThenLoop.next, [
+        "[Anchor]OutpostTradingZeroMoneyHandler",
+        "OutpostTradingReserveQuantityReached",
+        "[Anchor]OutpostTradingBetterSliding",
+    ]);
+    assert.deepEqual(pipeline.OutpostTradingZeroProductAfterChangeStillEmpty.next, [
+        "[Anchor]OutpostTradingMarkOutOfStock",
+    ]);
+});
+
+test("OutpostTrading 调度券不足使用完整多语言文案并保留关键词兜底", () => {
+    const pipeline = readPipeline(
+        new URL("../../../assets/resource/pipeline/OutpostTrading/SellCore.json", import.meta.url),
+    );
+
+    assert.deepEqual(pipeline.OutpostTradingZeroMoney.expected, [
+        "当前据点调度券储量不足",
+        "目前據點調度券存量不足",
+        "Insufficient stock bills in current outpost",
+        "(?i)Insufficient",
+        "拠点取引券が不足しています",
+        "거점 관리권 보유량 부족",
+        "不足",
+    ]);
+});
+
+test("OutpostTrading 交易完成后重复点击直到获得物品界面消失", () => {
+    const pipeline = readPipeline(
+        new URL("../../../assets/resource/pipeline/OutpostTrading/SellCore.json", import.meta.url),
+    );
+
+    assert.equal(pipeline.OutpostTradingCheckHeader.recognition, "TemplateMatch");
+    assert.deepEqual(pipeline.OutpostTradingCheckHeader.template, [
+        "OutpostTrading/OutpostTradingCheckHeader.png",
+    ]);
+    assert.deepEqual(
+        pipeline.OutpostTradingCheckHeader.roi,
+        [
+            577,
+            10,
+            138,
+            479,
+        ],
+    );
+
+    for (const nodeName of [
+        "OutpostTradingSellCheck",
+        "OutpostTradingSellCheckThenLoop",
+    ]) {
+        const node = pipeline[nodeName];
+        assert.deepEqual(node.all_of, ["OutpostTradingCheckHeader"]);
+        assert.equal(node.pre_wait_freezes, undefined);
+        assert.equal(node.custom_action, "RepeatUntilNotFoundAction");
+        assert.deepEqual(node.custom_action_param, {
+            action: "Click",
+            wait_node: "OutpostTradingCheckHeader",
+            repeat_count: 10,
+            interval_ms: 200,
+        });
+        assert.deepEqual(
+            node.target,
+            [
+                35,
+                611,
+                58,
+                57,
+            ],
+        );
+    }
+});
+
+test("OutpostTrading 缺货物品通过据点锚点标记并在本次任务内共享", () => {
+    for (const location of outpostTradingLocations) {
+        const pipeline = readPipeline(
+            new URL(
+                `../../../assets/resource/pipeline/OutpostTrading/${location.RegionPrefix}/${location.LocationId}.json`,
+                import.meta.url,
+            ),
+        );
+        const prefix = `OutpostTrading${location.LocationId}`;
+        assert.equal(pipeline[`${prefix}Sell`].anchor.OutpostTradingMarkOutOfStock, `${prefix}MarkOutOfStock`);
+        assert.deepEqual(pipeline[`${prefix}MarkOutOfStock`].custom_action_param, {
+            operation: "out_of_stock",
+            location: location.LocationId,
+        });
+        assert.deepEqual(pipeline[`${prefix}MarkOutOfStock`].next, ["OutpostTradingSellLoop"]);
+    }
+});
+
+test("OutpostTrading 持续售卖到保留量后再进入下一轮选货", () => {
+    const pipeline = readPipeline(
+        new URL("../../../assets/resource/pipeline/OutpostTrading/SellCore.json", import.meta.url),
+    );
+
+    assert.deepEqual(pipeline.OutpostTradingSellCheckThenLoop.next, [
+        "[Anchor]OutpostTradingZeroMoneyHandler",
+        "OutpostTradingReserveQuantityReached",
+        "[Anchor]OutpostTradingBetterSliding",
+    ]);
+    assert.equal(pipeline.OutpostTradingReserveQuantityReached.enabled, false);
+    assert.equal(pipeline.OutpostTradingReserveQuantityReached.custom_action, "OutpostTradingReserveSession");
+    assert.deepEqual(pipeline.OutpostTradingReserveQuantityReached.custom_action_param, {
+        operation: "satisfy",
+    });
+    assert.deepEqual(pipeline.OutpostTradingReserveQuantityReached.next, ["OutpostTradingSellLoop"]);
+    assert.equal(pipeline.OutpostTradingReserveAlreadySatisfied.recognition, "DirectHit");
+    assert.equal(pipeline.OutpostTradingReserveAlreadySatisfied.custom_action, "OutpostTradingReserveSession");
+    assert.deepEqual(pipeline.OutpostTradingReserveAlreadySatisfied.custom_action_param, {
+        operation: "satisfy",
+    });
+    assert.deepEqual(pipeline.OutpostTradingReserveAlreadySatisfied.next, ["OutpostTradingSellLoop"]);
+
+    for (const location of outpostTradingLocations) {
+        const outpost = readPipeline(
+            new URL(
+                `../../../assets/resource/pipeline/OutpostTrading/${location.RegionPrefix}/${location.LocationId}.json`,
+                import.meta.url,
+            ),
+        );
+        assert.equal(
+            outpost[`OutpostTrading${location.LocationId}BetterSliding`].custom_action_param.TargetReachableOverrideEnable,
+            "OutpostTradingReserveQuantityReached",
+        );
+    }
+});
+
+test("OutpostTrading 按启用据点边界处理已派驻干员冲突", () => {
+    for (const location of outpostTradingLocations) {
+        const pipeline = readPipeline(
+            new URL(
+                `../../../assets/resource/pipeline/OutpostTrading/${location.RegionPrefix}/${location.LocationId}.json`,
+                import.meta.url,
+            ),
+        );
+        const prefix = `OutpostTrading${location.LocationId}`;
+        for (const [
+            usageName,
+            usage,
+        ] of [
+            [
+                "Target",
+                "target",
+            ],
+            [
+                "Restore",
+                "restore",
+            ],
+        ]) {
+            const managed = pipeline[`${prefix}${usageName}OperatorManagedConflict`];
+            const protectedConflict = pipeline[`${prefix}${usageName}OperatorProtectedConflict`];
+            const expectedParam = {
+                usage,
+                location: location.LocationId,
+            };
+
+            assert.equal(managed.recognition, "And");
+            assert.equal(managed.all_of[0], "OutpostTradingOperatorAlreadyAssignedPrompt");
+            assert.deepEqual(managed.all_of[1], {
+                recognition: "Custom",
+                roi: [
+                    240,
+                    260,
+                    800,
+                    90,
+                ],
+                custom_recognition: "OutpostTradingOperatorConflict",
+                custom_recognition_param: {result: "managed", ...expectedParam},
+            });
+            assert.equal(managed.all_of[2], "YellowConfirmButtonType1");
+            assert.equal(managed.box_index, 2);
+
+            assert.equal(protectedConflict.recognition, "And");
+            assert.equal(protectedConflict.all_of[0], "OutpostTradingOperatorAlreadyAssignedPrompt");
+            assert.deepEqual(protectedConflict.all_of[1], {
+                recognition: "Custom",
+                roi: [
+                    240,
+                    260,
+                    800,
+                    90,
+                ],
+                custom_recognition: "OutpostTradingOperatorConflict",
+                custom_recognition_param: {result: "protected", ...expectedParam},
+            });
+            assert.equal(protectedConflict.all_of[2], "CancelButton");
+
+            const close = pipeline[`${prefix}Close${usageName}OperatorLiaison`];
+            assert.deepEqual(close.all_of, [
+                "OutpostTradingInOperatorLiaison",
+                "OutpostTradingCheckWithdrawText",
+                "CloseButtonType1",
+            ]);
+            assert.equal(close.box_index, 2);
+
+            const confirm = pipeline[`${prefix}Confirm${usageName}Operator`];
+            assert.equal(confirm.recognition, "And");
+            assert.equal(confirm.all_of[0], "OutpostTradingCheckAssignText");
+            assert.equal(confirm.all_of[1], "WhiteConfirmButtonType1");
+            assert.equal(confirm.box_index, 1);
+            assert.equal(confirm.target_offset, undefined);
+        }
+    }
+});
+
+test("OutpostTrading generated outpost nodes report task-level runtime state changes", () => {
+    for (const location of outpostTradingLocations) {
+        const pipeline = readPipeline(
+            new URL(
+                `../../../assets/resource/pipeline/OutpostTrading/${location.RegionPrefix}/${location.LocationId}.json`,
+                import.meta.url,
+            ),
+        );
+        const prefix = `OutpostTrading${location.LocationId}`;
+
+        assert.deepEqual(pipeline[`${prefix}OutpostProsperityAvailable`].custom_action_param, {
+            operation: "enter_location",
+            location: location.LocationId,
+            outpost_prosperity_max: false,
+        });
+        assert.deepEqual(pipeline[`${prefix}OutpostProsperityMax`].custom_action_param, {
+            operation: "enter_location",
+            location: location.LocationId,
+            outpost_prosperity_max: true,
+        });
+        assert.deepEqual(pipeline[`${prefix}ReportLocationPlan`].custom_action_param, {
+            location: location.LocationId,
+        });
+        assert.deepEqual(pipeline[`${prefix}CurrentTargetOperator`].custom_action_param, {
+            operation: "complete_target",
+            location: location.LocationId,
+            changed: false,
+        });
+        assert.deepEqual(pipeline[`${prefix}TargetOperatorDone`].custom_action_param, {
+            operation: "complete_target",
+            location: location.LocationId,
+            changed: true,
+        });
+        assert.deepEqual(pipeline[`${prefix}CurrentRestoreOperator`].custom_action_param, {
+            operation: "complete_restore",
+            location: location.LocationId,
+            changed: false,
+        });
+        assert.deepEqual(pipeline[`${prefix}RestoreOperatorDone`].custom_action_param, {
+            operation: "complete_restore",
+            location: location.LocationId,
+            changed: true,
+        });
+    }
+});

@@ -1,8 +1,0 @@
-{
-    "task": true,
-    "template": "task-template.jsonc",
-    "data": "task-data.mjs",
-    "outputDir": "../../../assets/tasks/",
-    "outputFile": "SellProduct.json",
-    "format": true
-}
