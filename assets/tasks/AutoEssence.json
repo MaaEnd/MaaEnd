@@ -137,7 +137,8 @@
                 "WLTestArea",
                 "WLSwordVaultDale",
                 "WLYinglungPass",
-                "WLNorthWulingExclusionZone"
+                "WLNorthWulingExclusionZone",
+                "WLSnowyForest"
             ],
             "cases": [
                 {
@@ -235,6 +236,15 @@
                     "label": "$global.region.NorthWulingExclusionZone",
                     "pipeline_override": {
                         "GotoTriggerPointSetAnchor_WLNorthWulingExclusionZone": {
+                            "enabled": true
+                        }
+                    }
+                },
+                {
+                    "name": "WLSnowyForest",
+                    "label": "$global.region.SnowyForest",
+                    "pipeline_override": {
+                        "GotoTriggerPointSetAnchor_WLSnowyForest": {
                             "enabled": true
                         }
                     }

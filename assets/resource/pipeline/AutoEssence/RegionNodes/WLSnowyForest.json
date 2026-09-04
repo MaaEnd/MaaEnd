@@ -1,0 +1,148 @@
+{
+    "GotoTriggerPointSetAnchor_WLSnowyForest": {
+        "enabled": false,
+        "pre_delay": 0,
+        "anchor": {
+            "AutoEssenceMoveToTriggerPoint": "GotoTriggerPointMove_WLSnowyForest",
+            "AutoEssenceMoveToTriggerPointMaybeTeleport": "GotoTriggerPointMaybeTeleport_WLSnowyForest"
+        },
+        "post_delay": 0,
+        "focus": {
+            "Node.Action.Starting": "📌目标地点：雪松林"
+        }
+    },
+    "GotoTriggerPointMaybeTeleport_WLSnowyForest": {
+        "desc": "判断是否需要传送到最近锚点",
+        "recognition": {
+            "type": "Or",
+            "param": {
+                "any_of": [
+                    "__GotoTriggerPointNearAnchor_WLSnowyForest",
+                    "__GotoTriggerPointNearTrigger_WLSnowyForest"
+                ]
+            }
+        },
+        "inverse": true,
+        "next": [
+            "[JumpBack]__GotoTriggerPointTeleportOnce_WLSnowyForest",
+            "GotoTriggerPointMove_WLSnowyForest"
+        ],
+        "focus": {
+            "Node.Action.Starting": "✈️准备传送到最近锚点"
+        }
+    },
+    "__GotoTriggerPointTeleportOnce_WLSnowyForest": {
+        "max_hit": 1,
+        "pre_delay": 0,
+        "post_delay": 0,
+        "next": [
+            // 距离淤积点最近的锚点：寒雾松林（锚点编号按 X 从左到右递增）
+            "SceneEnterWorldWulingSnowyForest1"
+        ]
+    },
+    "__GotoTriggerPointNearAnchor_WLSnowyForest": {
+        "desc": "锚点附近",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapLocateAssertLocation",
+                "custom_recognition_param": {
+                    "zone_id": "Wuling_Base",
+                    "target": [
+                        1408.68,
+                        986.93,
+                        15.66,
+                        16.44
+                    ]
+                }
+            }
+        }
+    },
+    "__GotoTriggerPointNearTrigger_WLSnowyForest": {
+        "desc": "淤积点附近",
+        "recognition": {
+            "type": "Custom",
+            "param": {
+                "custom_recognition": "MapLocateAssertLocation",
+                "custom_recognition_param": {
+                    "zone_id": "Wuling_Base",
+                    "target": [
+                        1458.88,
+                        1097.57,
+                        25.01,
+                        25.01
+                    ]
+                }
+            }
+        }
+    },
+    "GotoTriggerPointMove_WLSnowyForest": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "Wuling_Base"
+                        },
+                        {
+                            "action": "NAVMESH",
+                            "target": [
+                                1455.0,
+                                1092.0
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "next": [
+            "GotoTriggerPointMoveExact_WLSnowyForest"
+        ],
+        "focus": {
+            "Node.Action.Starting": "🚶正在前往激发点附近",
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    },
+    "GotoTriggerPointMoveExact_WLSnowyForest": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "MapNavigateAction",
+                "custom_action_param": {
+                    "path": [
+                        {
+                            "action": "ZONE",
+                            "zone_id": "Wuling_Base"
+                        },
+                        [
+                            1458.88,
+                            1097.57,
+                            true
+                        ]
+                    ]
+                }
+            }
+        },
+        "post_delay": 1500,
+        "next": [
+            "AutoEssenceInteract"
+        ],
+        "focus": {
+            "Node.Action.Starting": "🚶正在前往激发点",
+            "Node.Action.Succeeded": {
+                "trace": true
+            },
+            "Node.Action.Failed": {
+                "trace": true
+            }
+        }
+    }
+}

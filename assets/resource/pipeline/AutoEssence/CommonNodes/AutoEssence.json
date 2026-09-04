@@ -72,7 +72,8 @@
                         "GotoTriggerPointSetAnchor_WLTestArea",
                         "GotoTriggerPointSetAnchor_WLSwordVaultDale",
                         "GotoTriggerPointSetAnchor_WLYinglungPass",
-                        "GotoTriggerPointSetAnchor_WLNorthWulingExclusionZone"
+                        "GotoTriggerPointSetAnchor_WLNorthWulingExclusionZone",
+                        "GotoTriggerPointSetAnchor_WLSnowyForest"
                     ],
                     "continue": false,
                     "strict": true,
