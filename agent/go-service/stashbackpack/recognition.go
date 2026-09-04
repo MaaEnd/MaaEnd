@@ -2,6 +2,7 @@ package stashbackpack
 
 import (
 	"encoding/json"
+	"sort"
 	"strings"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/iconrecognition"
@@ -56,15 +57,154 @@ func (r *NextItemRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionAr
 	return &maa.CustomRecognitionResult{Box: arg.Roi, Detail: string(detail)}, true
 }
 
+// BagPageRecognition 一次识别当前页全部剩余目标，并按网格顺序逐个返回缓存结果。
+type BagPageRecognition struct{}
+
+var _ maa.CustomRecognitionRunner = &BagPageRecognition{}
+
+func (r *BagPageRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
+	if ctx == nil || arg == nil || arg.Img == nil {
+		log.Error().Str("component", componentName).Msg("bag page recognition received nil context, arg, or image")
+		return nil, false
+	}
+	if match, ok := globalState.nextBagPageMatch(); ok {
+		return bagPageRecognitionResult(match)
+	}
+
+	itemIDs := globalState.bagRecognitionItemIDs()
+	if len(itemIDs) == 0 {
+		return nil, false
+	}
+	detail, err := ctx.RunRecognitionDirect(
+		maa.RecognitionTypeCustom,
+		&maa.CustomRecognitionParam{
+			ROI:               maa.NewTargetRect(arg.Roi),
+			CustomRecognition: iconrecognition.CustomRecognitionName,
+			CustomRecognitionParam: iconrecognition.NewParams(
+				iconrecognition.WithGridType(iconrecognition.GridTypeTransfer),
+				iconrecognition.WithItemIDs(itemIDs...),
+				iconrecognition.WithItemRecheckFilters(iconrecognition.ItemFilter("Normal:*")),
+				iconrecognition.WithDeduplicate(false),
+			),
+		},
+		arg.Img,
+	)
+	if err != nil {
+		globalState.markBagPageRecognitionFailed()
+		log.Error().Err(err).Str("component", componentName).Int("item_id_count", len(itemIDs)).
+			Msg("failed to recognize remaining backpack targets on current page")
+		return nil, false
+	}
+	parsed, _, err := iconrecognition.ParseRecognitionDetail(detail)
+	if err != nil {
+		globalState.markBagPageRecognitionFailed()
+		log.Error().Err(err).Str("component", componentName).Msg("failed to parse backpack page recognition")
+		return nil, false
+	}
+
+	matches := make([]bagPageMatch, 0, len(parsed.Matches))
+	if parsed.Error != nil {
+		if parsed.Error.Code != iconrecognition.ErrorCodeNoMatch &&
+			!(parsed.Error.Code == iconrecognition.ErrorCodeGridDetectionFailed &&
+				parsed.Error.Message == emptyGridDetectionErrorMessage) {
+			globalState.markBagPageRecognitionFailed()
+			log.Error().Str("component", componentName).Str("error_code", string(parsed.Error.Code)).
+				Str("error_message", parsed.Error.Message).Msg("backpack page recognition failed")
+			return nil, false
+		}
+	} else {
+		for _, item := range parsed.Matches {
+			row := item.CellBox.Y()
+			column := item.CellBox.X()
+			if item.Row != nil {
+				row = *item.Row
+			}
+			if item.Column != nil {
+				column = *item.Column
+			}
+			matches = append(matches, bagPageMatch{
+				ItemID:       item.ItemID,
+				CategoryType: item.CategoryType,
+				Row:          row,
+				Column:       column,
+				CellBox:      item.CellBox,
+			})
+		}
+	}
+	sort.SliceStable(matches, func(i, j int) bool {
+		if matches[i].Row != matches[j].Row {
+			return matches[i].Row < matches[j].Row
+		}
+		return matches[i].Column < matches[j].Column
+	})
+
+	confirmed, failed := globalState.updateBagPageMatches(matches)
+	for _, clicked := range confirmed {
+		event := log.Info().Str("component", componentName).
+			Str("item_id", clicked.Item.ItemID).Str("category_type", clicked.Item.CategoryType)
+		if clicked.Reason != "" {
+			event = event.Str("reason", clicked.Reason)
+		}
+		event.Msg("verified stored backpack item by current-page count")
+	}
+	for _, clicked := range failed {
+		log.Warn().Str("component", componentName).Str("item_id", clicked.Item.ItemID).
+			Str("category_type", clicked.Item.CategoryType).
+			Msg("backpack item count did not decrease after Shift+Click; queued the item again")
+	}
+	log.Info().Str("component", componentName).Int("item_id_count", len(itemIDs)).
+		Int("match_count", len(matches)).Int("confirmed_count", len(confirmed)).Int("retry_count", len(failed)).
+		Msg("recognized remaining backpack targets on current page")
+
+	match, ok := globalState.nextBagPageMatch()
+	if !ok {
+		return nil, false
+	}
+	return bagPageRecognitionResult(match)
+}
+
+func bagPageRecognitionResult(match bagPageMatch) (*maa.CustomRecognitionResult, bool) {
+	detail, err := json.Marshal(match)
+	if err != nil {
+		log.Error().Err(err).Str("component", componentName).Str("item_id", match.ItemID).
+			Msg("failed to serialize backpack page match")
+		return nil, false
+	}
+	return &maa.CustomRecognitionResult{Box: match.CellBox, Detail: string(detail)}, true
+}
+
+// BagTargetsExhaustedRecognition 仅在页缓存、待验证点击和目标队列均为空时命中。
+type BagTargetsExhaustedRecognition struct{}
+
+var _ maa.CustomRecognitionRunner = &BagTargetsExhaustedRecognition{}
+
+func (r *BagTargetsExhaustedRecognition) Run(_ *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
+	if arg == nil || !globalState.bagTargetsExhausted() {
+		return nil, false
+	}
+	return &maa.CustomRecognitionResult{Box: arg.Roi}, true
+}
+
+// BagPageFailedRecognition 将页级识别的真实错误导向 Pipeline 失败节点。
+type BagPageFailedRecognition struct{}
+
+var _ maa.CustomRecognitionRunner = &BagPageFailedRecognition{}
+
+func (r *BagPageFailedRecognition) Run(_ *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
+	if arg == nil || !globalState.bagPageRecognitionFailed() {
+		return nil, false
+	}
+	return &maa.CustomRecognitionResult{Box: arg.Roi}, true
+}
+
 func buildFinderOverride(item snapshotItem, param nextItemParam) map[string]any {
 	override := make(map[string]any, len(param.BagNodes)+len(param.RepoNodes))
-	filters := iconrecognition.StorageFilter()
 	for _, node := range param.BagNodes {
 		override[node] = map[string]any{
 			"custom_recognition_param": iconrecognition.NewParams(
 				iconrecognition.WithGridType(iconrecognition.GridTypeTransfer),
 				iconrecognition.WithItemIDs(item.ItemID),
-				iconrecognition.WithItemRecheckFilters(filters.Normal.Any),
+				iconrecognition.WithItemRecheckFilters(iconrecognition.ItemFilter("Normal:*")),
 				iconrecognition.WithDeduplicate(true),
 			),
 		}

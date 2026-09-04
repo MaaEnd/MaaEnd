@@ -10,7 +10,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "StashBackpackManualSetupBagSearch"
+            "StashBackpackManualStoreItem"
         ]
     },
     "StashBackpackManualCategoryPlant": {
@@ -24,7 +24,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "StashBackpackManualSetupBagSearch"
+            "StashBackpackManualStoreItem"
         ]
     },
     "StashBackpackManualCategoryProduct": {
@@ -38,7 +38,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "StashBackpackManualSetupBagSearch"
+            "StashBackpackManualStoreItem"
         ]
     },
     "StashBackpackManualCategoryDoodad": {
@@ -52,7 +52,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "StashBackpackManualSetupBagSearch"
+            "StashBackpackManualStoreItem"
         ]
     },
     "StashBackpackManualCategoryNurturance": {
@@ -66,7 +66,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "StashBackpackManualSetupBagSearch"
+            "StashBackpackManualStoreItem"
         ]
     },
     "StashBackpackManualCategoryUsable": {
@@ -80,7 +80,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "StashBackpackManualSetupBagSearch"
+            "StashBackpackManualStoreItem"
         ]
     },
     "StashBackpackManualCategoryProducer": {
@@ -94,7 +94,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "StashBackpackManualSetupBagSearch"
+            "StashBackpackManualStoreItem"
         ]
     },
     "StashBackpackManualCategoryPortableDevice": {
@@ -108,7 +108,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "StashBackpackManualSetupBagSearch"
+            "StashBackpackManualStoreItem"
         ]
     }
 }

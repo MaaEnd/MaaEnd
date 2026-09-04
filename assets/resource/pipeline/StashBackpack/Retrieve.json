@@ -25,7 +25,7 @@
         "action": "Custom",
         "custom_action": "StashBackpackWarningAction",
         "custom_action_param": {
-            "reason": "missing_full_snapshot"
+            "reason": "missing_retrieve_snapshot"
         },
         "post_delay": 0,
         "rate_limit": 0
@@ -94,36 +94,14 @@
     "RetrieveBackpackCaptureStart": {
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "PipelineOverrideAction",
+        "custom_action": "StashBackpackSnapshotAction",
         "custom_action_param": {
-            "patch": {
-                "StashBackpackSnapshotBegin": {
-                    "custom_action_param": {
-                        "operation": "begin_snapshot",
-                        "snapshot": "temporary"
-                    }
-                },
-                "StashBackpackSnapshotPage": {
-                    "custom_action_param": {
-                        "operation": "append_snapshot_page",
-                        "snapshot": "temporary"
-                    }
-                },
-                "StashBackpackSnapshotNextPage": {
-                    "custom_action_param": {
-                        "operation": "append_snapshot_page",
-                        "snapshot": "temporary"
-                    }
-                }
-            }
-        },
-        "anchor": {
-            "StashBackpackAfterSnapshot": "RetrieveBackpackStoreNewSubTask"
+            "snapshot": "temporary"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "StashBackpackSnapshotBegin"
+            "RetrieveBackpackStoreNewSubTask"
         ]
     },
     "RetrieveBackpackStoreNewSubTask": {
@@ -150,7 +128,30 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "RetrieveBackpackStoreNewLoop"
+            "RetrieveBackpackStoreNewSetupBagBatch"
+        ]
+    },
+    "RetrieveBackpackStoreNewSetupBagBatch": {
+        "desc": "逐页批量存放取回前检测到的新物品",
+        "pre_delay": 0,
+        "anchor": {
+            "StashBackpackAfterBagBatchItemFound": "RetrieveBackpackStoreNewItem",
+            "StashBackpackAfterBagBatchFinished": "RetrieveBackpackStoreNewFinished",
+            "StashBackpackAfterBagBatchBottomReached": "RetrieveBackpackStoreNewConsumeMissing"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackPrepareBagBatch"
+        ]
+    },
+    "RetrieveBackpackStoreNewFinished": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "RetrieveBackpackCaptureCurrent",
+            "RetrieveBackpackReuseTemporary"
         ]
     },
     "RetrieveBackpackStoreNewLoop": {
@@ -194,13 +195,19 @@
     "RetrieveBackpackStoreNewItem": {
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "StashBackpackShiftClickAction",
-        "target": "StashBackpackFindCurrentItemInBag",
+        "custom_action": "AutoShiftClickAction",
+        "target": "StashBackpackBagPageItem",
+        "target_offset": [
+            26,
+            25,
+            -52,
+            -50
+        ],
         "post_wait_freezes": 200,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "RetrieveBackpackStoreNewVerifyStored"
+            "RetrieveBackpackStoreNewConsumeStored"
         ]
     },
     "RetrieveBackpackStoreNewVerifyStored": {
@@ -228,14 +235,14 @@
         "action": "Custom",
         "custom_action": "StashBackpackStateAction",
         "custom_action_param": {
-            "operation": "consume_target",
+            "operation": "mark_bag_item_clicked",
             "reason": "retrieve_new_item_stored",
             "changes_snapshot": true
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "RetrieveBackpackStoreNewLoop"
+            "StashBackpackBagBatchLoop"
         ]
     },
     "RetrieveBackpackStoreNewConsumeMissing": {
@@ -243,13 +250,13 @@
         "action": "Custom",
         "custom_action": "StashBackpackStateAction",
         "custom_action_param": {
-            "operation": "consume_target",
+            "operation": "discard_bag_targets",
             "reason": "retrieve_new_item_not_found"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "RetrieveBackpackStoreNewLoop"
+            "RetrieveBackpackStoreNewFinished"
         ]
     },
     "RetrieveBackpackCaptureCurrent": {
@@ -258,36 +265,14 @@
         "custom_recognition": "StashBackpackSnapshotChangedRecognition",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "PipelineOverrideAction",
+        "custom_action": "StashBackpackSnapshotAction",
         "custom_action_param": {
-            "patch": {
-                "StashBackpackSnapshotBegin": {
-                    "custom_action_param": {
-                        "operation": "begin_snapshot",
-                        "snapshot": "retrieve_current"
-                    }
-                },
-                "StashBackpackSnapshotPage": {
-                    "custom_action_param": {
-                        "operation": "append_snapshot_page",
-                        "snapshot": "retrieve_current"
-                    }
-                },
-                "StashBackpackSnapshotNextPage": {
-                    "custom_action_param": {
-                        "operation": "append_snapshot_page",
-                        "snapshot": "retrieve_current"
-                    }
-                }
-            }
-        },
-        "anchor": {
-            "StashBackpackAfterSnapshot": "RetrieveBackpackPrepareMissingItems"
+            "snapshot": "retrieve_current"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "StashBackpackSnapshotBegin"
+            "RetrieveBackpackPrepareMissingItems"
         ]
     },
     "RetrieveBackpackReuseTemporary": {

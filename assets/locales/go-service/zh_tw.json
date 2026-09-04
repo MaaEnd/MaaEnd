@@ -221,5 +221,6 @@
     "ims.item_current": "目前 %s：%d",
     "stashbackpack.warning.duplicate_full": "<span style=\"color: red; font-weight: bold;\">同一任務佇列中已經完成過「存放背包」，為避免覆蓋後續任務所需的快照，已跳過本次重複任務。</span>",
     "stashbackpack.warning.missing_full_snapshot": "<span style=\"color: red; font-weight: bold;\">未偵測到前置的「存放背包」任務，無法判斷哪些物品是本次新獲得的，已跳過存放。請將「存放背包」新增到任務佇列開頭。</span>",
+    "stashbackpack.warning.missing_retrieve_snapshot": "<span style=\"color: red; font-weight: bold;\">未偵測到完整的「存放背包」快照，無法判斷應取回哪些物品，已跳過取回。請確認「存放背包」任務已在目前任務佇列中成功完成。</span>",
     "stashbackpack.warning.unsupported_platform": "<span style=\"color: red; font-weight: bold;\">目前平台暫不支援「存放新獲得物品」，已自動跳過，不影響目前任務繼續執行。</span>"
 }

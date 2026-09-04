@@ -36,9 +36,33 @@ type restoreState struct {
 	Ready     bool
 }
 
+type bagPageMatch struct {
+	ItemID       string   `json:"item_id"`
+	CategoryType string   `json:"category_type"`
+	Row          int      `json:"row"`
+	Column       int      `json:"column"`
+	CellBox      maa.Rect `json:"cell_box"`
+}
+
+type bagClickedTarget struct {
+	Item            snapshotItem
+	Reason          string
+	ChangesSnapshot bool
+}
+
+type bagPageState struct {
+	Matches           []bagPageMatch
+	Selected          *snapshotItem
+	BaselineCounts    map[string]int
+	Clicked           []bagClickedTarget
+	PageIndex         int
+	RecognitionFailed bool
+}
+
 type sessionState struct {
 	Snapshots       map[string]snapshotData
 	Targets         []snapshotItem
+	BagPage         bagPageState
 	Restore         restoreState
 	SnapshotChanged bool
 	FullComplete    bool
@@ -134,6 +158,30 @@ func (s *stateStore) appendSnapshotPage(name string, page []snapshotItemWithPosi
 	existing.Items = reindexSnapshot(existing.Items, existing.ColumnCount)
 	s.session.Snapshots[name] = existing
 	return len(existing.Items), nil
+}
+
+// replaceSnapshotPages 先在锁外构造完整快照，再一次性替换目标，避免扫描失败留下半成品。
+func (s *stateStore) replaceSnapshotPages(name string, pages [][]snapshotItemWithPosition) (int, error) {
+	if name == "" {
+		return 0, fmt.Errorf("snapshot name is empty")
+	}
+
+	replacement := snapshotData{Pages: make([][]snapshotItemWithPosition, 0, len(pages))}
+	for _, page := range pages {
+		normalizedPage, pageColumns := sortSnapshotPage(page)
+		if replacement.ColumnCount == 0 {
+			replacement.ColumnCount = pageColumns
+		}
+		replacement.Pages = append(replacement.Pages, clonePositionedItems(page))
+		replacement.Items = mergeOrderedPages(replacement.Items, normalizedPage)
+	}
+	replacement.Items = reindexSnapshot(replacement.Items, replacement.ColumnCount)
+
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.session.Snapshots[name] = replacement
+	s.session.SnapshotChanged = false
+	return len(replacement.Items), nil
 }
 
 func (s *stateStore) prepareRestore(snapshotName string) error {
@@ -242,6 +290,7 @@ func (s *stateStore) prepareSnapshotTargets(snapshotName string, categories []st
 	}
 	targets := filterCategories(snapshot.Items, categories)
 	s.session.Targets = append([]snapshotItem(nil), targets...)
+	s.session.BagPage = bagPageState{}
 	return append([]snapshotItem(nil), targets...), nil
 }
 
@@ -258,12 +307,16 @@ func (s *stateStore) prepareDifferenceTargets(minuendName, subtrahendName string
 	}
 	targets := filterCategories(orderedDifference(minuend.Items, subtrahend.Items), categories)
 	s.session.Targets = append([]snapshotItem(nil), targets...)
+	s.session.BagPage = bagPageState{}
 	return append([]snapshotItem(nil), targets...), nil
 }
 
 func (s *stateStore) currentTarget() (snapshotItem, bool) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	if s.session.BagPage.Selected != nil {
+		return *s.session.BagPage.Selected, true
+	}
 	if len(s.session.Targets) == 0 {
 		return snapshotItem{}, false
 	}
@@ -273,12 +326,190 @@ func (s *stateStore) currentTarget() (snapshotItem, bool) {
 func (s *stateStore) consumeTarget() (snapshotItem, bool) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	if s.session.BagPage.Selected != nil {
+		selected := *s.session.BagPage.Selected
+		s.session.BagPage.Selected = nil
+		for index, item := range s.session.Targets {
+			if item.ItemID != selected.ItemID || item.CategoryType != selected.CategoryType {
+				continue
+			}
+			s.session.Targets = append(s.session.Targets[:index], s.session.Targets[index+1:]...)
+			return selected, true
+		}
+		return snapshotItem{}, false
+	}
 	if len(s.session.Targets) == 0 {
 		return snapshotItem{}, false
 	}
 	item := s.session.Targets[0]
 	s.session.Targets = s.session.Targets[1:]
 	return item, true
+}
+
+func (s *stateStore) bagRecognitionItemIDs() []string {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	ids := make([]string, 0, len(s.session.Targets)+len(s.session.BagPage.Clicked))
+	seen := make(map[string]struct{}, cap(ids))
+	for _, item := range s.session.Targets {
+		if item.ItemID == "" {
+			continue
+		}
+		if _, ok := seen[item.ItemID]; ok {
+			continue
+		}
+		seen[item.ItemID] = struct{}{}
+		ids = append(ids, item.ItemID)
+	}
+	for _, clicked := range s.session.BagPage.Clicked {
+		if clicked.Item.ItemID == "" {
+			continue
+		}
+		if _, ok := seen[clicked.Item.ItemID]; ok {
+			continue
+		}
+		seen[clicked.Item.ItemID] = struct{}{}
+		ids = append(ids, clicked.Item.ItemID)
+	}
+	return ids
+}
+
+func (s *stateStore) nextBagPageMatch() (bagPageMatch, bool) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	for len(s.session.BagPage.Matches) > 0 {
+		match := s.session.BagPage.Matches[0]
+		s.session.BagPage.Matches = s.session.BagPage.Matches[1:]
+		for _, target := range s.session.Targets {
+			if target.ItemID != match.ItemID {
+				continue
+			}
+			targetCopy := target
+			s.session.BagPage.Selected = &targetCopy
+			return match, true
+		}
+	}
+	return bagPageMatch{}, false
+}
+
+// updateBagPageMatches 用本页复扫结果核销已点击目标，再缓存尚未处理的格子。
+func (s *stateStore) updateBagPageMatches(matches []bagPageMatch) (confirmed, failed []bagClickedTarget) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	s.session.BagPage.RecognitionFailed = false
+	currentCounts := make(map[string]int)
+	for _, match := range matches {
+		currentCounts[match.ItemID]++
+	}
+	if len(s.session.BagPage.Clicked) > 0 {
+		movedCounts := make(map[string]int)
+		for itemID, baseline := range s.session.BagPage.BaselineCounts {
+			if moved := baseline - currentCounts[itemID]; moved > 0 {
+				movedCounts[itemID] = moved
+			}
+		}
+		for _, clicked := range s.session.BagPage.Clicked {
+			if movedCounts[clicked.Item.ItemID] > 0 {
+				movedCounts[clicked.Item.ItemID]--
+				confirmed = append(confirmed, clicked)
+				if clicked.ChangesSnapshot {
+					s.session.SnapshotChanged = true
+				}
+				continue
+			}
+			failed = append(failed, clicked)
+			s.session.Targets = append(s.session.Targets, clicked.Item)
+		}
+		s.session.BagPage.Clicked = nil
+		sort.SliceStable(s.session.Targets, func(i, j int) bool {
+			if s.session.Targets[i].Row != s.session.Targets[j].Row {
+				return s.session.Targets[i].Row < s.session.Targets[j].Row
+			}
+			return s.session.Targets[i].Column < s.session.Targets[j].Column
+		})
+	}
+
+	s.session.BagPage.BaselineCounts = currentCounts
+	s.session.BagPage.Matches = nil
+	s.session.BagPage.Selected = nil
+	remainingCounts := make(map[string]int)
+	for _, target := range s.session.Targets {
+		remainingCounts[target.ItemID]++
+	}
+	for _, match := range matches {
+		if remainingCounts[match.ItemID] == 0 {
+			continue
+		}
+		remainingCounts[match.ItemID]--
+		s.session.BagPage.Matches = append(s.session.BagPage.Matches, match)
+	}
+	return confirmed, failed
+}
+
+func (s *stateStore) markBagPageRecognitionFailed() {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.session.BagPage.RecognitionFailed = true
+}
+
+func (s *stateStore) bagPageRecognitionFailed() bool {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return s.session.BagPage.RecognitionFailed
+}
+
+func (s *stateStore) markSelectedBagTargetClicked(reason string, changesSnapshot bool) (snapshotItem, bool) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.session.BagPage.Selected == nil {
+		return snapshotItem{}, false
+	}
+	selected := *s.session.BagPage.Selected
+	s.session.BagPage.Selected = nil
+	for index, target := range s.session.Targets {
+		if target.ItemID != selected.ItemID || target.CategoryType != selected.CategoryType {
+			continue
+		}
+		s.session.Targets = append(s.session.Targets[:index], s.session.Targets[index+1:]...)
+		s.session.BagPage.Clicked = append(s.session.BagPage.Clicked, bagClickedTarget{
+			Item:            target,
+			Reason:          reason,
+			ChangesSnapshot: changesSnapshot,
+		})
+		return target, true
+	}
+	return snapshotItem{}, false
+}
+
+func (s *stateStore) advanceBagPage() error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if len(s.session.BagPage.Clicked) > 0 {
+		return fmt.Errorf("bag page contains unverified clicked targets")
+	}
+	s.session.BagPage.PageIndex++
+	s.session.BagPage.Matches = nil
+	s.session.BagPage.Selected = nil
+	s.session.BagPage.BaselineCounts = nil
+	s.session.BagPage.RecognitionFailed = false
+	return nil
+}
+
+func (s *stateStore) bagTargetsExhausted() bool {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return len(s.session.Targets) == 0 && len(s.session.BagPage.Clicked) == 0 &&
+		len(s.session.BagPage.Matches) == 0 && s.session.BagPage.Selected == nil
+}
+
+func (s *stateStore) discardRemainingBagTargets() []snapshotItem {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	discarded := append([]snapshotItem(nil), s.session.Targets...)
+	s.session.Targets = nil
+	s.session.BagPage = bagPageState{PageIndex: s.session.BagPage.PageIndex}
+	return discarded
 }
 
 func (s *stateStore) snapshot(name string) ([]snapshotItem, bool) {

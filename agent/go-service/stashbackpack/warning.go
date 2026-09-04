@@ -11,9 +11,10 @@ import (
 )
 
 const (
-	warningDuplicateFull       = "duplicate_full"
-	warningMissingFullSnapshot = "missing_full_snapshot"
-	warningUnsupportedPlatform = "unsupported_platform"
+	warningDuplicateFull           = "duplicate_full"
+	warningMissingFullSnapshot     = "missing_full_snapshot"
+	warningMissingRetrieveSnapshot = "missing_retrieve_snapshot"
+	warningUnsupportedPlatform     = "unsupported_platform"
 )
 
 type warningActionParam struct {
@@ -50,6 +51,8 @@ func warningMessageKey(raw string) (string, error) {
 		return "stashbackpack.warning.duplicate_full", nil
 	case warningMissingFullSnapshot:
 		return "stashbackpack.warning.missing_full_snapshot", nil
+	case warningMissingRetrieveSnapshot:
+		return "stashbackpack.warning.missing_retrieve_snapshot", nil
 	case warningUnsupportedPlatform:
 		return "stashbackpack.warning.unsupported_platform", nil
 	default:
