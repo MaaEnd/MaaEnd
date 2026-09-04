@@ -2,7 +2,7 @@
     "GiftOperatorBranchGift": {
         "desc": "分支1：可以赠送礼物",
         "recognition": {
-            "type": "OCR",
+            "type": "TemplateMatch",
             "param": {
                 "roi": [
                     900,
@@ -10,11 +10,10 @@
                     350,
                     318
                 ],
-                "expected": [
-                    "赠送礼物",
-                    "贈送禮物",
-                    "(?i)Offering\\s*Gifts",
-                    "プレゼントを贈る"
+                "template": [
+                    "GiftOperator/GiftOperatorGiftButton.png",
+                    "GiftOperator/GiftOperatorGiftFullButton.png",
+                    "GiftOperator/GiftFullOperatorGiftButton.png"
                 ]
             }
         },
@@ -381,36 +380,38 @@
             }
         },
         "next": [
+            "GiftOperatorGiftFull",
             "GiftOperatorClickGift"
-            //"GiftOperatorClickGiftFull"
         ]
     },
-    "GiftOperatorClickGiftFull": {
+    "GiftOperatorGiftFull": {
         "desc": "赠送已满",
         "recognition": {
             "type": "OCR",
             "param": {
                 "roi": [
-                    971,
-                    540,
-                    309,
-                    180
+                    1035,
+                    375,
+                    222,
+                    130
                 ],
                 "expected": [
-                    "无法赠送",
-                    "無法贈送",
-                    "Cannot Gift",
-                    "贈れません",
-                    "증정 불가"
+                    "明天",
+                    "tomorrow",
+                    "明日",
+                    "내일"
                 ]
             }
         },
         "next": [
             "GiftOperatorGiftFullLeave"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Starting": "$task.GiftOperator.focus.gift_full"
+        }
     },
     "GiftOperatorGiftFullLeave": {
-        "desc": "赠送已满离开",
+        "desc": "赠送已满点右上角叉离开送礼界面",
         "recognition": {
             "type": "And",
             "param": {
@@ -423,9 +424,52 @@
             "type": "Click"
         },
         "next": [
-            "InWorld",
-            "[JumpBack]GiftOperatorLeave"
+            "GiftOperatorGiftFullLeaveDialog"
         ]
+    },
+    "GiftOperatorGiftFullLeaveDialog": {
+        "desc": "赠送已满离开送礼界面后跳过对话，准备重试",
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "roi": [
+                    616,
+                    679,
+                    48,
+                    40
+                ],
+                "template": [
+                    "RealTimeTask/AutoSkipNext2.png"
+                ]
+            }
+        },
+        "action": {
+            "type": "Click"
+        },
+        "next": [
+            "GiftOperatorGiftFullLeaveDialog",
+            "GiftOperatorGiftFullRetry",
+            "GiftOperatorGiftFullFail"
+        ]
+    },
+    "GiftOperatorGiftFullRetry": {
+        "desc": "赠送已满离开送礼界面后跳过对话，准备重试",
+        "max_hit": 5,
+        "action": "DoNothing",
+        "next": [
+            "GiftOperatorEntry"
+        ]
+    },
+    "GiftOperatorGiftFullFail": {
+        "desc": "重试三次也只能找到送满的干员，正常失败",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "FalseAction", // 已经确定是没找到，不是 Bug 不需要大爆炸
+        "post_delay": 0,
+        "rate_limit": 0,
+        "focus": {
+            "Node.Action.Starting": "$task.GiftOperator.focus.gift_full_fail"
+        }
     },
     "GiftOperatorReceiveDialog": {
         "desc": "领取成功后跳过对话，回到对话流程。",
@@ -461,7 +505,9 @@
             "[JumpBack]GiftOperatorMoveAhead",
             "GiftOperatorSkipDialog",
             "GiftOperatorBranchGift",
-            "GiftOperatorLeave"
+            "GiftOperatorLeave",
+            "GiftOperatorMoveRetry",
+            "GiftOperatorMoveFail"
         ]
     },
     "GiftOperatorSkipDialog": {
