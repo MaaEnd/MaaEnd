@@ -232,6 +232,7 @@ func recognizeSnapshotPage(
 	params := iconrecognition.NewParams(
 		iconrecognition.WithGridType(iconrecognition.GridTypeTransfer),
 		iconrecognition.WithItemFilters(iconrecognition.StorageFilter().Normal.Any),
+		iconrecognition.WithDebug(true),
 	)
 	detail, err := ctx.RunRecognitionDirect(
 		maa.RecognitionTypeCustom,
