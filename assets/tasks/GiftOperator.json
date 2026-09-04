@@ -863,7 +863,7 @@
                     }
                 },
                 {
-                    "name": "Jue",
+                    "name": "Arcane",
                     "label": "$operator.Arcane",
                     "pipeline_override": {
                         "GiftOperatorContacSortOrder": {
@@ -918,6 +918,36 @@
                                 "Liino",
                                 "リーノ",
                                 "리노"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Typhoeus",
+                    "label": "$operator.Typhoeus",
+                    "pipeline_override": {
+                        "GiftOperatorContacSortOrder": {
+                            "enabled": false
+                        },
+                        "GiftOperatorContacSortBy": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectOp1": {
+                            "enabled": false
+                        },
+                        "GiftOperatorSelectSpecifiedOp": {
+                            "enabled": true,
+                            "template": [
+                                "GiftOperator/Operators/Typhoeus.png"
+                            ]
+                        },
+                        "GiftOperatorName": {
+                            "expected": [
+                                "提弗洛斯",
+                                "提弗洛斯",
+                                "Typhoeus",
+                                "ティフォロス",
+                                "티프로스"
                             ]
                         }
                     }
