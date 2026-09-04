@@ -15,7 +15,7 @@
             ],
             "option": [
                 "AutoEssenceSchedule",
-                "AutoEssenceChooseLocation",
+                "AutoEssenceMenu",
                 "AutoEssenceObtainMode",
                 "AutoEssenceRepeatCount",
                 // "AutoEssenceChooseLocationMode",
@@ -236,6 +236,1029 @@
                     "pipeline_override": {
                         "GotoTriggerPointSetAnchor_WLNorthWulingExclusionZone": {
                             "enabled": true
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoEssenceMenu": {
+            "type": "select",
+            "label": "$option.AutoEssenceMenu.label",
+            "description": "$option.AutoEssenceMenu.description",
+            "default_case": "Location",
+            "cases": [
+                {
+                    "name": "Location",
+                    "label": "$option.AutoEssenceMenu.cases.Location.label",
+                    "option": [
+                        "AutoEssenceChooseLocation"
+                    ]
+                },
+                {
+                    "name": "Target",
+                    "label": "$option.AutoEssenceMenu.cases.Target.label",
+                    "description": "$option.AutoEssenceMenu.cases.Target.description",
+                    "option": [
+                        "AutoEssenceWeaponTypeSword",
+                        "AutoEssenceWeaponTypeClaymore",
+                        "AutoEssenceWeaponTypePistol",
+                        "AutoEssenceWeaponTypeWand",
+                        "AutoEssenceWeaponTypeLance"
+                    ]
+                }
+            ]
+        },
+        "AutoEssenceWeaponTypeWand": {
+            "type": "switch",
+            "label": "$option.AutoEssenceWeaponTypeWand.label",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "AutoEssenceWeaponsWand"
+                    ]
+                },
+                {
+                    "name": "No"
+                }
+            ]
+        },
+        "AutoEssenceWeaponsWand": {
+            "type": "checkbox",
+            "label": "$option.AutoEssenceSelectWeapons.label",
+            "default_case": [
+                "wpn_funnel_0008",
+                "wpn_funnel_0013",
+                "wpn_funnel_0015",
+                "wpn_funnel_0018",
+                "wpn_funnel_0010",
+                "wpn_funnel_0011",
+                "wpn_funnel_0016",
+                "wpn_funnel_0017",
+                "wpn_funnel_0009",
+                "wpn_funnel_0006"
+            ],
+            "cases": [
+                {
+                    "name": "wpn_funnel_0008",
+                    "label": "$weapon.wpn_funnel_0008",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_funnel_0008": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_funnel_0013",
+                    "label": "$weapon.wpn_funnel_0013",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_funnel_0013": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_funnel_0015",
+                    "label": "$weapon.wpn_funnel_0015",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_funnel_0015": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_funnel_0018",
+                    "label": "$weapon.wpn_funnel_0018",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_funnel_0018": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_funnel_0010",
+                    "label": "$weapon.wpn_funnel_0010",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_funnel_0010": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_funnel_0011",
+                    "label": "$weapon.wpn_funnel_0011",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_funnel_0011": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_funnel_0016",
+                    "label": "$weapon.wpn_funnel_0016",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_funnel_0016": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_funnel_0017",
+                    "label": "$weapon.wpn_funnel_0017",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_funnel_0017": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_funnel_0009",
+                    "label": "$weapon.wpn_funnel_0009",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_funnel_0009": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_funnel_0006",
+                    "label": "$weapon.wpn_funnel_0006",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_funnel_0006": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_funnel_0012",
+                    "label": "$weapon.wpn_funnel_0012",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_funnel_0012": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_funnel_0005",
+                    "label": "$weapon.wpn_funnel_0005",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_funnel_0005": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_funnel_0004",
+                    "label": "$weapon.wpn_funnel_0004",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_funnel_0004": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_funnel_0007",
+                    "label": "$weapon.wpn_funnel_0007",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_funnel_0007": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_funnel_0014",
+                    "label": "$weapon.wpn_funnel_0014",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_funnel_0014": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_funnel_0001",
+                    "label": "$weapon.wpn_funnel_0001",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_funnel_0001": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_funnel_0003",
+                    "label": "$weapon.wpn_funnel_0003",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_funnel_0003": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_funnel_0002",
+                    "label": "$weapon.wpn_funnel_0002",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_funnel_0002": true
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoEssenceWeaponTypeSword": {
+            "type": "switch",
+            "label": "$option.AutoEssenceWeaponTypeSword.label",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "AutoEssenceWeaponsSword"
+                    ]
+                },
+                {
+                    "name": "No"
+                }
+            ]
+        },
+        "AutoEssenceWeaponsSword": {
+            "type": "checkbox",
+            "label": "$option.AutoEssenceSelectWeapons.label",
+            "default_case": [
+                "wpn_sword_0010",
+                "wpn_sword_0014",
+                "wpn_sword_0016",
+                "wpn_sword_0011",
+                "wpn_sword_0017",
+                "wpn_sword_0021",
+                "wpn_sword_0022",
+                "wpn_sword_0012",
+                "wpn_sword_0006",
+                "wpn_sword_0013",
+                "wpn_sword_0026"
+            ],
+            "cases": [
+                {
+                    "name": "wpn_sword_0010",
+                    "label": "$weapon.wpn_sword_0010",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_sword_0010": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_sword_0014",
+                    "label": "$weapon.wpn_sword_0014",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_sword_0014": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_sword_0016",
+                    "label": "$weapon.wpn_sword_0016",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_sword_0016": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_sword_0011",
+                    "label": "$weapon.wpn_sword_0011",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_sword_0011": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_sword_0017",
+                    "label": "$weapon.wpn_sword_0017",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_sword_0017": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_sword_0021",
+                    "label": "$weapon.wpn_sword_0021",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_sword_0021": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_sword_0022",
+                    "label": "$weapon.wpn_sword_0022",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_sword_0022": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_sword_0012",
+                    "label": "$weapon.wpn_sword_0012",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_sword_0012": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_sword_0006",
+                    "label": "$weapon.wpn_sword_0006",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_sword_0006": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_sword_0013",
+                    "label": "$weapon.wpn_sword_0013",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_sword_0013": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_sword_0026",
+                    "label": "$weapon.wpn_sword_0026",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_sword_0026": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_sword_0005",
+                    "label": "$weapon.wpn_sword_0005",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_sword_0005": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_sword_0007",
+                    "label": "$weapon.wpn_sword_0007",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_sword_0007": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_sword_0018",
+                    "label": "$weapon.wpn_sword_0018",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_sword_0018": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_sword_0015",
+                    "label": "$weapon.wpn_sword_0015",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_sword_0015": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_sword_0020",
+                    "label": "$weapon.wpn_sword_0020",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_sword_0020": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_sword_0019",
+                    "label": "$weapon.wpn_sword_0019",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_sword_0019": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_sword_0009",
+                    "label": "$weapon.wpn_sword_0009",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_sword_0009": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_sword_0008",
+                    "label": "$weapon.wpn_sword_0008",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_sword_0008": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_sword_0003",
+                    "label": "$weapon.wpn_sword_0003",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_sword_0003": true
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoEssenceWeaponTypeLance": {
+            "type": "switch",
+            "label": "$option.AutoEssenceWeaponTypeLance.label",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "AutoEssenceWeaponsLance"
+                    ]
+                },
+                {
+                    "name": "No"
+                }
+            ]
+        },
+        "AutoEssenceWeaponsLance": {
+            "type": "checkbox",
+            "label": "$option.AutoEssenceSelectWeapons.label",
+            "default_case": [
+                "wpn_lance_0007",
+                "wpn_lance_0015",
+                "wpn_lance_0012",
+                "wpn_lance_0016",
+                "wpn_lance_0010",
+                "wpn_lance_0011"
+            ],
+            "cases": [
+                {
+                    "name": "wpn_lance_0007",
+                    "label": "$weapon.wpn_lance_0007",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_lance_0007": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_lance_0015",
+                    "label": "$weapon.wpn_lance_0015",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_lance_0015": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_lance_0012",
+                    "label": "$weapon.wpn_lance_0012",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_lance_0012": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_lance_0016",
+                    "label": "$weapon.wpn_lance_0016",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_lance_0016": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_lance_0010",
+                    "label": "$weapon.wpn_lance_0010",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_lance_0010": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_lance_0011",
+                    "label": "$weapon.wpn_lance_0011",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_lance_0011": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_lance_0004",
+                    "label": "$weapon.wpn_lance_0004",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_lance_0004": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_lance_0006",
+                    "label": "$weapon.wpn_lance_0006",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_lance_0006": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_lance_0013",
+                    "label": "$weapon.wpn_lance_0013",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_lance_0013": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_lance_0008",
+                    "label": "$weapon.wpn_lance_0008",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_lance_0008": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_lance_0003",
+                    "label": "$weapon.wpn_lance_0003",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_lance_0003": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_lance_0009",
+                    "label": "$weapon.wpn_lance_0009",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_lance_0009": true
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoEssenceWeaponTypeClaymore": {
+            "type": "switch",
+            "label": "$option.AutoEssenceWeaponTypeClaymore.label",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "AutoEssenceWeaponsClaymore"
+                    ]
+                },
+                {
+                    "name": "No"
+                }
+            ]
+        },
+        "AutoEssenceWeaponsClaymore": {
+            "type": "checkbox",
+            "label": "$option.AutoEssenceSelectWeapons.label",
+            "default_case": [
+                "wpn_claym_0017",
+                "wpn_claym_0007",
+                "wpn_claym_0004",
+                "wpn_claym_0013",
+                "wpn_claym_0016",
+                "wpn_claym_0008",
+                "wpn_claym_0006"
+            ],
+            "cases": [
+                {
+                    "name": "wpn_claym_0017",
+                    "label": "$weapon.wpn_claym_0017",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_claym_0017": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_claym_0007",
+                    "label": "$weapon.wpn_claym_0007",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_claym_0007": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_claym_0004",
+                    "label": "$weapon.wpn_claym_0004",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_claym_0004": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_claym_0013",
+                    "label": "$weapon.wpn_claym_0013",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_claym_0013": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_claym_0016",
+                    "label": "$weapon.wpn_claym_0016",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_claym_0016": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_claym_0008",
+                    "label": "$weapon.wpn_claym_0008",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_claym_0008": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_claym_0006",
+                    "label": "$weapon.wpn_claym_0006",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_claym_0006": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_claym_0014",
+                    "label": "$weapon.wpn_claym_0014",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_claym_0014": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_claym_0011",
+                    "label": "$weapon.wpn_claym_0011",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_claym_0011": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_claym_0012",
+                    "label": "$weapon.wpn_claym_0012",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_claym_0012": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_claym_0015",
+                    "label": "$weapon.wpn_claym_0015",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_claym_0015": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_claym_0009",
+                    "label": "$weapon.wpn_claym_0009",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_claym_0009": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_claym_0003",
+                    "label": "$weapon.wpn_claym_0003",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_claym_0003": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_claym_0010",
+                    "label": "$weapon.wpn_claym_0010",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_claym_0010": true
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoEssenceWeaponTypePistol": {
+            "type": "switch",
+            "label": "$option.AutoEssenceWeaponTypePistol.label",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "AutoEssenceWeaponsPistol"
+                    ]
+                },
+                {
+                    "name": "No"
+                }
+            ]
+        },
+        "AutoEssenceWeaponsPistol": {
+            "type": "checkbox",
+            "label": "$option.AutoEssenceSelectWeapons.label",
+            "default_case": [
+                "wpn_pistol_0005",
+                "wpn_pistol_0011",
+                "wpn_pistol_0009",
+                "wpn_pistol_0007",
+                "wpn_pistol_0008",
+                "wpn_pistol_0010"
+            ],
+            "cases": [
+                {
+                    "name": "wpn_pistol_0005",
+                    "label": "$weapon.wpn_pistol_0005",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_pistol_0005": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_pistol_0011",
+                    "label": "$weapon.wpn_pistol_0011",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_pistol_0011": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_pistol_0009",
+                    "label": "$weapon.wpn_pistol_0009",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_pistol_0009": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_pistol_0007",
+                    "label": "$weapon.wpn_pistol_0007",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_pistol_0007": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_pistol_0008",
+                    "label": "$weapon.wpn_pistol_0008",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_pistol_0008": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_pistol_0010",
+                    "label": "$weapon.wpn_pistol_0010",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_pistol_0010": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_pistol_0004",
+                    "label": "$weapon.wpn_pistol_0004",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_pistol_0004": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_pistol_0006",
+                    "label": "$weapon.wpn_pistol_0006",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_pistol_0006": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_pistol_0012",
+                    "label": "$weapon.wpn_pistol_0012",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_pistol_0012": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_pistol_0002",
+                    "label": "$weapon.wpn_pistol_0002",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_pistol_0002": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_pistol_0003",
+                    "label": "$weapon.wpn_pistol_0003",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_pistol_0003": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_pistol_0001",
+                    "label": "$weapon.wpn_pistol_0001",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_pistol_0001": true
+                            }
                         }
                     }
                 }
