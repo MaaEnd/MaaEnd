@@ -85,6 +85,7 @@ func (r *BagPageRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg
 				iconrecognition.WithItemIDs(itemIDs...),
 				iconrecognition.WithItemRecheckFilters(iconrecognition.ItemFilter("Normal:*")),
 				iconrecognition.WithDeduplicate(false),
+				iconrecognition.WithDebug(true),
 			),
 		},
 		arg.Img,
@@ -206,6 +207,7 @@ func buildFinderOverride(item snapshotItem, param nextItemParam) map[string]any 
 				iconrecognition.WithItemIDs(item.ItemID),
 				iconrecognition.WithItemRecheckFilters(iconrecognition.ItemFilter("Normal:*")),
 				iconrecognition.WithDeduplicate(true),
+				iconrecognition.WithDebug(true),
 			),
 		}
 	}
@@ -217,6 +219,7 @@ func buildFinderOverride(item snapshotItem, param nextItemParam) map[string]any 
 				iconrecognition.WithItemIDs(item.ItemID),
 				iconrecognition.WithItemRecheckFilters(repoFilter),
 				iconrecognition.WithDeduplicate(true),
+				iconrecognition.WithDebug(true),
 			),
 		}
 	}
@@ -271,6 +274,7 @@ func (r *RetrievedItemRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognit
 				iconrecognition.WithItemFilters(filter),
 				iconrecognition.WithItemRecheckFilters(filter),
 				iconrecognition.WithDeduplicate(false),
+				iconrecognition.WithDebug(true),
 			),
 		},
 		arg.Img,

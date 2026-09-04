@@ -337,7 +337,7 @@
         "pre_delay": 0,
         "anchor": {
             "StashBackpackAfterBagBatchItemFound": "StashBackpackManualDispatchCategory",
-            "StashBackpackAfterBagBatchFinished": "StashBackpackCaptureWorking",
+            "StashBackpackAfterBagBatchFinished": "EmptyNode",
             "StashBackpackAfterBagBatchBottomReached": "StashBackpackManualConsumeMissing"
         },
         "post_delay": 0,
@@ -463,7 +463,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "StashBackpackCaptureWorking"
+            "EmptyNode"
         ]
     },
     "StashBackpackManualConsumeFiltered": {

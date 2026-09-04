@@ -22,6 +22,7 @@ func TestBuildFinderOverrideUsesTypedItemAndCategoryFilters(t *testing.T) {
 				iconrecognition.WithItemIDs("item_test"),
 				iconrecognition.WithItemRecheckFilters(filters.Normal.Any),
 				iconrecognition.WithDeduplicate(true),
+				iconrecognition.WithDebug(true),
 			),
 		},
 		"RepoFinder": map[string]any{
@@ -30,6 +31,7 @@ func TestBuildFinderOverrideUsesTypedItemAndCategoryFilters(t *testing.T) {
 				iconrecognition.WithItemIDs("item_test"),
 				iconrecognition.WithItemRecheckFilters(filters.Normal.Producer),
 				iconrecognition.WithDeduplicate(true),
+				iconrecognition.WithDebug(true),
 			),
 		},
 	}
