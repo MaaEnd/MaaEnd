@@ -49,7 +49,7 @@ If you run into any issues, feel free to open an [ISSUE](https://github.com/MaaE
 - 🎁 **Operator gift delivery**: Automatically heads to the contact desk, gives a gift to an operator, and collects the return gift if available.
 - 🔫 **Armory upgrades & production**: Weapon upgrades, gear crafting, simple crafting, and batch simple crafting all help cut down repetitive progression work. 💪
 - 💰 **Auto trading/reselling**: Combines stockpiling with flexible-demand goods selling, helping you watch profit margins and manage vouchers more easily. 💸
-- 🛒 **Sell Products**: Automatically exchanges products at each outpost into vouchers so you can skip the repetitive clicks.
+- 🛒 **Outpost Trading**: Automatically exchanges products at each outpost into vouchers so you can skip the repetitive clicks.
 - 🚚 **Delivery jobs**: Supports full accept-and-forward flows, accept-only mode, and pack-only mode, with per-region toggles.
 - 🌆 **Commission snatching**: Automatically grabs commissions from the list and can continue with depot-node routing when configured.
 - 💳 **Credit shop purchasing**: Auto-buy credit shop items with support for priorities, discounts, reserve thresholds, and credit-gain linkage.

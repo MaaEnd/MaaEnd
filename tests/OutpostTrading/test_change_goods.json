@@ -1,6 +1,6 @@
 {
     "configs": {
-        "name": "一键售卖产品，测试更换货品",
+        "name": "一键据点交易，测试更换货品",
         "resource": "官服",
         "controller": [
             "Win32",
@@ -11,16 +11,16 @@
         {
             "image": "四号谷地_地区建设_据点_难民暂居处.png",
             "hits": [
-                "SellProductChangeGoods"
+                "OutpostTradingChangeGoods"
             ]
         },
         {
             "image": "四号谷地_地区建设_据点_选择交易货品.png",
             "hits": [
-                "SellProductCheckSelectGoodsText",
-                "SellProductSelectNewGoodConfirm",
+                "OutpostTradingCheckSelectGoodsText",
+                "OutpostTradingSelectNewGoodConfirm",
                 {
-                    "node": "SellProductCheckGoodsCellAnchor",
+                    "node": "OutpostTradingCheckGoodsCellAnchor",
                     "box": {
                         "Win32": [
                             238,
@@ -41,10 +41,10 @@
         {
             "image": "武陵_地区建设_据点_选择交易货品.png",
             "hits": [
-                "SellProductCheckSelectGoodsText",
-                "SellProductSelectNewGoodConfirm",
+                "OutpostTradingCheckSelectGoodsText",
+                "OutpostTradingSelectNewGoodConfirm",
                 {
-                    "node": "SellProductCheckGoodsCellAnchor",
+                    "node": "OutpostTradingCheckGoodsCellAnchor",
                     "box": {
                         "Win32": [
                             238,

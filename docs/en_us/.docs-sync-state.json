@@ -147,10 +147,10 @@
             "target_path": "docs/en_us/developers/tasks/gift-operator-maintain.md",
             "source_sha256": "d3daa3ac6884e97769a3aa19009dc22a6a204502b012fe990123545cafc18789"
         },
-        "docs/zh_cn/developers/tasks/sell-product-maintain.md": {
-            "source_path": "docs/zh_cn/developers/tasks/sell-product-maintain.md",
-            "relative_path": "developers/tasks/sell-product-maintain.md",
-            "target_path": "docs/en_us/developers/tasks/sell-product-maintain.md",
+        "docs/zh_cn/developers/tasks/outpost-trading-maintain.md": {
+            "source_path": "docs/zh_cn/developers/tasks/outpost-trading-maintain.md",
+            "relative_path": "developers/tasks/outpost-trading-maintain.md",
+            "target_path": "docs/en_us/developers/tasks/outpost-trading-maintain.md",
             "source_sha256": "7dd7ec13108ebb02bd6752b3707f5f243befe511e084f81c61dec4a8e567052a"
         },
         "docs/zh_cn/developers/tools-and-debug.md": {

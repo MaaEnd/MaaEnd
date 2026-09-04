@@ -18,7 +18,7 @@
         "generate:AutoDelivery": "pnpm fetch:zmdmap && node tools/pipeline-generate/AutoDelivery/sync-routes.mjs && node tools/pipeline-generate/AutoDelivery/sync-catalog.mjs && node tools/pipeline-generate/run-all.mjs AutoDelivery",
         "generate:DeliveryJobs": "pnpm generate:AutoDelivery && node tools/pipeline-generate/DeliveryJobs/sync-locales.mjs && node tools/pipeline-generate/DeliveryJobs/prepare.mjs && node tools/pipeline-generate/run-all.mjs DeliveryJobs",
         "generate:EnvironmentMonitoring": "pnpm fetch:zmdmap && node tools/pipeline-generate/EnvironmentMonitoring/generator/sync-routes.mjs && node tools/pipeline-generate/run-all.mjs EnvironmentMonitoring",
-        "generate:SellProduct": "pnpm fetch:zmdmap && node tools/pipeline-generate/SellProduct/sync-locales.mjs && node tools/pipeline-generate/SellProduct/selection-data.mjs && node tools/pipeline-generate/run-all.mjs SellProduct"
+        "generate:OutpostTrading": "pnpm fetch:zmdmap && node tools/pipeline-generate/OutpostTrading/sync-locales.mjs && node tools/pipeline-generate/OutpostTrading/selection-data.mjs && node tools/pipeline-generate/run-all.mjs OutpostTrading"
     },
     "devDependencies": {
         "@joebao/maa-pipeline-generate": "^1.3.0",

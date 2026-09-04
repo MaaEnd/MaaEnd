@@ -1,6 +1,6 @@
 {
     "configs": {
-        "name": "一键售卖产品，测试售卖",
+        "name": "一键据点交易，测试售卖",
         "resource": "官服",
         "controller": [
             "Win32"
@@ -10,7 +10,7 @@
         {
             "image": "武陵_地区建设_据点交易超出上限.png",
             "hits": [
-                "SellProductAidQuotaExceededStop"
+                "OutpostTradingAidQuotaExceededStop"
             ]
         }
     ]

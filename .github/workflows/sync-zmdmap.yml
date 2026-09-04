@@ -43,7 +43,7 @@ jobs:
           pnpm generate:AutoDelivery
           pnpm generate:DeliveryJobs
           pnpm generate:EnvironmentMonitoring
-          pnpm generate:SellProduct
+          pnpm generate:OutpostTrading
 
       - name: Get version info
         id: version
@@ -73,7 +73,7 @@ jobs:
             - AutoDelivery
             - DeliveryJobs
             - EnvironmentMonitoring
-            - SellProduct
+            - OutpostTrading
 
             **Version Information:**
             - Version: ${{ steps.version.outputs.version }}

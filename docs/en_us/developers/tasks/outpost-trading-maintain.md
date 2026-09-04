@@ -1,55 +1,55 @@
-# Developer Manual - SellProduct
+# Developer Manual - OutpostTrading
 
-`SellProduct` automatically sells products at the regions/outposts selected by the user. The task follows "Pipeline owns flow, Go owns algorithms": Pipeline (`assets/resource/pipeline/SellProduct*.json`) handles screen recognition and clicking; the Go service (`agent/go-service/sellproduct/`) owns selection strategy, reserve rules, operator planning, and caching.
+`OutpostTrading` automatically sells products at the regions/outposts selected by the user. The task follows "Pipeline owns flow, Go owns algorithms": Pipeline (`assets/resource/pipeline/OutpostTrading*.json`) handles screen recognition and clicking; the Go service (`agent/go-service/outposttrading/`) owns selection strategy, reserve rules, operator planning, and caching.
 
 ## At a Glance
 
-- **Entry**: the `SellProduct` task in `assets/tasks/SellProduct.json` → Pipeline entry `SellProductSchedule` (weekday-gated).
+- **Entry**: the `SellProduct` task in `assets/tasks/OutpostTrading.json` → Pipeline entry `OutpostTradingSchedule` (weekday-gated). The task name and every option name are persistence keys in `config/gui.json`, so they deliberately keep the legacy `SellProduct*` spelling; only directories, files and node names moved to `OutpostTrading`.
 - **Responsibility split**: Go has only two business packages — `goods/` (item selection, reserve, out-of-stock, priority lists) and `operator/` (operator recognition, assignment planning, cache), independent of each other; top-level `runtime.go` combines both to print the per-outpost plan.
-- **Do not hand-edit generated artifacts**: `assets/data/SellProduct/selection_data.json`, `assets/tasks/SellProduct.json`, `pipeline/SellProduct/{OperatorSession.json, Loop.json, {Region}/}` (both Win32 and ADB packs). Always edit the model/templates/projections under `tools/pipeline-generate/SellProduct/` and regenerate.
-- **Two kinds of state**: the out-of-stock set, tried items, and satisfied reserves are **task-scoped session state** — never persisted, cleared on the next task init. The only persisted state is `debug/record/SellProductCache.json` (operator snapshot + outpost prosperity state, isolated per hashed UID).
+- **Do not hand-edit generated artifacts**: `assets/data/OutpostTrading/selection_data.json`, `assets/tasks/OutpostTrading.json`, `pipeline/OutpostTrading/{OperatorSession.json, Loop.json, {Region}/}` (both Win32 and ADB packs). Always edit the model/templates/projections under `tools/pipeline-generate/OutpostTrading/` and regenerate.
+- **Two kinds of state**: the out-of-stock set, tried items, and satisfied reserves are **task-scoped session state** — never persisted, cleared on the next task init. The only persisted state is `debug/record/OutpostTradingCache.json` (operator snapshot + outpost prosperity state, isolated per hashed UID).
 
 ## Flow Overview
 
 ```text
-SellProductSchedule ──weekday hit──> SellProductMain
-  └─ SellProductEnterRegionalDevelopment   SceneManager: enter Regional Development
-  └─ SellProductCaptureUid                 capture hashed UID (account-scoped cache)
-  └─ SellProductPrepareSession             SubTask running 4 init stages in order (reset before configure):
+OutpostTradingSchedule ──weekday hit──> OutpostTradingMain
+  └─ OutpostTradingEnterRegionalDevelopment   SceneManager: enter Regional Development
+  └─ OutpostTradingCaptureUid                 capture hashed UID (account-scoped cache)
+  └─ OutpostTradingPrepareSession             SubTask running 4 init stages in order (reset before configure):
   │    ├─ InitializeReserveSession → RegisterReserveRule1..6   reset and register reserve rules (empty slots no-op)
   │    ├─ InitializeOperatorSession → RegisterLocation × 6     reset operator session and register enabled outposts
   │    ├─ ConfigurePrioritySession                             priority master switch / strict mode
   │    └─ ConfigureSelectionStrategy                           selection strategy (rarity/price/stock)
-  └─ SellProductLoop                       newest region first: Wuling → Valley IV → SellProductTaskEnd
+  └─ OutpostTradingLoop                       newest region first: Wuling → Valley IV → OutpostTradingTaskEnd
 
-Per region (SellProduct{Region}Sell)
+Per region (OutpostTrading{Region}Sell)
   ├─ SceneManager enters the region's outpost management (SubTask)
   ├─ {Region}InitializePrioritySession → RegisterPriorityItem1..6   switch region priority list
   ├─ {Region}PrepareOperatorCache → ScanOperatorList     full operator scan when no snapshot
-  └─ [JumpBack] run the region's outposts in fixed order → back to SellProductLoop
+  └─ [JumpBack] run the region's outposts in fixed order → back to OutpostTradingLoop
 
-Per outpost (SellProduct{LocationId}Sell)
+Per outpost (OutpostTrading{LocationId}Sell)
   ├─ bind outpost anchors (ZeroMoneyHandler / SelectPriorityItem / CommitPriorityItem
   │    / MarkOutOfStock / BetterSliding / before & after OperatorTarget)
   ├─ detect whether outpost prosperity is maxed → ReportLocationPlan (print the outpost plan)
-  ├─ SetOperatorAnchors → SellProductSellMain
+  ├─ SetOperatorAnchors → OutpostTradingSellMain
   │    ├─ BeforeSellOperator → [Anchor]…Target   pre-sell: switch to the planned selling operator
-  │    ├─ SellProductSellLoop                    shared selling loop (below)
+  │    ├─ OutpostTradingSellLoop                 shared selling loop (below)
   │    └─ AfterSellOperator → [Anchor]…Target    post-sell: assign production operators per global plan
   └─ return to the region node for the next outpost
 
-SellProductSellLoop (unlimited rounds; vouchers checked first each round)
-  ├─ [Anchor]ZeroMoneyHandler     vouchers exhausted → SellProductSellLoopEnd (post-sell)
-  ├─ [Anchor]CurrentGoodsReady    current goods match the current selection rules → adopt → SellProductAtSell
-  └─ SellProductChangeGoods       click "Switch Goods" → ResetGoodsSelection → ChangeGoodsRelay
+OutpostTradingSellLoop (unlimited rounds; vouchers checked first each round)
+  ├─ [Anchor]ZeroMoneyHandler     vouchers exhausted → OutpostTradingSellLoopEnd (post-sell)
+  ├─ [Anchor]CurrentGoodsReady    current goods match the current selection rules → adopt → OutpostTradingAtSell
+  └─ OutpostTradingChangeGoods    click "Switch Goods" → ResetGoodsSelection → ChangeGoodsRelay
        ├─ [Anchor]SelectPriorityItem → SelectNewGoodConfirm → [Anchor]CommitPriorityItem
-       │    → SellProductAtSell: re-check vouchers → out of stock → [Anchor]MarkOutOfStock
+       │    → OutpostTradingAtSell: re-check vouchers → out of stock → [Anchor]MarkOutOfStock
        │      → "select goods" prompt → retry switching once → [Anchor]BetterSliding
        │        applies the reserve rule → trade/skip
        └─ [Anchor]PriorityItemsExhausted → CloseGoodsAfterExhausted → SellLoopEnd
 ```
 
-Task-level termination: if outpost management is locked, SceneManager cannot enter and the task stops; the "exceeds stock bill reserves" dialog is handled by `SellProductAidQuotaExceededStop`, which stops the task without auto-confirming.
+Task-level termination: if outpost management is locked, SceneManager cannot enter and the task stops; the "exceeds stock bill reserves" dialog is handled by `OutpostTradingAidQuotaExceededStop`, which stops the task without auto-confirming.
 
 > [!IMPORTANT]
 >
@@ -65,7 +65,7 @@ Task-level termination: if outpost management is locked, SceneManager cannot ent
 | Price | unit price desc → rarity desc → stable order | same as above |
 | Stock | local stock desc → unit price → rarity → stable order | requires recognized stock and the user's minimum unit price |
 
-### Selection Recognition (`SellProductPriorityItem` custom recognizer)
+### Selection Recognition (`OutpostTradingPriorityItem` custom recognizer)
 
 - Scans only the first page; never scrolls the list for low-tier items on page two.
 - Anchors complete cells with the detail-icon template, then OCRs item names; the name/stock/click offset regions are passed by the Win32 and ADB Pipelines via `stock_*_offset` — Go hardcodes no platform coordinates.
@@ -74,7 +74,7 @@ Task-level termination: if outpost management is locked, SceneManager cannot ent
 - A selection is only "pending"; `commit` marks it tried only after the selling screen is recognized again — failed clicks or single-frame OCR flicker never skip a high-priority item.
 - When every candidate is unusable, two consecutive stable recognitions of the same set → `PriorityItemsExhausted`, closing the list and ending this outpost. Empty OCR results never count as "nothing left".
 
-### Current Goods Adoption (`SellProductCurrentGoods` custom recognizer)
+### Current Goods Adoption (`OutpostTradingCurrentGoods` custom recognizer)
 
 - Recognizes the currently selected goods icon in the outpost selling screen via IconRecognition `single_roi`, with candidates limited to the outpost's sellable items; the Win32 and ADB Pipelines pass `[1177,450,54,54]` and `[1151,393,66,66]` through `roi`, so Go hardcodes no platform coordinates.
 - Rarity and price strategies reuse the normal selection rules. The current item is adopted only when it is exactly the next candidate after preferred slots, tried/out-of-stock state, and reserve rules are applied; otherwise the flow falls back to "Switch Goods" and scans the list.
@@ -122,7 +122,7 @@ If the candidate is assigned elsewhere, a confirmation dialog appears: source ou
 
 Selling operator not found / scan failure → stop the task (never trade with the wrong operator); restore operator unavailable → log a skip, finish the outpost, and continue.
 
-### Operator Cache (`debug/record/SellProductCache.json`)
+### Operator Cache (`debug/record/OutpostTradingCache.json`)
 
 - Account partitions keyed by CaptureUID's 16-char lowercase hex salted hash (`unknown` when not captured); keys are never re-normalized, avoiding collisions.
 - `operators` is a full-list snapshot of `updated_at` + `ids` (missing fields = never scanned; empty array = scanned, nothing relevant); `locations` stores each outpost's prosperity-maxed state. Both use stable IDs from `selection_data.json` — no Chinese names, independent of client language.
@@ -140,50 +140,50 @@ Selling operator not found / scan failure → stop the task (never trade with th
 
 ## Generator and Maintenance
 
-The generator lives in `tools/pipeline-generate/SellProduct/`. The zmdmap data CI uses `data/scripts/sell_product_data.py` to extract and publish `tools/pipeline-generate/data/sell_product.json` from TableCfg. This compact game data keeps only outposts, sellable items, outpost features, and operator matches; MaaEnd downloads it through `fetch-data.mjs`. `model.mjs` centrally defines outposts, regions, and i18n keys, and each `*-data.mjs` is the minimal data projection for its template.
+The generator lives in `tools/pipeline-generate/OutpostTrading/`. The zmdmap data CI uses `data/scripts/sell_product_data.py` to extract and publish `tools/pipeline-generate/data/sell_product.json` from TableCfg. This compact game data keeps only outposts, sellable items, outpost features, and operator matches; MaaEnd downloads it through `fetch-data.mjs`. `model.mjs` centrally defines outposts, regions, and i18n keys, and each `*-data.mjs` is the minimal data projection for its template.
 
 | Maintenance entry | Generated artifact |
 | ------------------------------- | ----------------------------------------------------------------- |
-| `pipeline(-adb)-template.jsonc` | `pipeline/SellProduct/{Region}/{Location}.json` (Win32/ADB packs) |
-| `sell-template.jsonc` | `pipeline/SellProduct/{Region}/SellProduct{Region}.json` |
-| `loop-template.jsonc` | `pipeline/SellProduct/Loop.json` |
-| `session-template.jsonc` | `pipeline/SellProduct/OperatorSession.json` |
-| `task-template.jsonc` | `assets/tasks/SellProduct.json` |
+| `pipeline(-adb)-template.jsonc` | `pipeline/OutpostTrading/{Region}/{Location}.json` (Win32/ADB packs) |
+| `sell-template.jsonc` | `pipeline/OutpostTrading/{Region}/OutpostTrading{Region}.json` |
+| `loop-template.jsonc` | `pipeline/OutpostTrading/Loop.json` |
+| `session-template.jsonc` | `pipeline/OutpostTrading/OperatorSession.json` |
+| `task-template.jsonc` | `assets/tasks/OutpostTrading.json` |
 | `sync-locales.mjs` | five-language locale keys for outposts/operators/items |
-| `selection-data.mjs` | `assets/data/SellProduct/selection_data.json` |
+| `selection-data.mjs` | `assets/data/OutpostTrading/selection_data.json` |
 
 Hand-maintained (untouched by the generator):
 
-- `pipeline/SellProduct.json`: task entry and init chain;
-- `SellProduct/SellCore.json`, `ChangeGoods.json`: shared selling loop and goods selection;
-- `SellProduct/OperatorScan.json`: operator cache scanning;
-- `SellProduct/ReserveSession.json`: reserve-rule session;
-- all Go code under `agent/go-service/sellproduct/`: `goods/` (items, with the three pure strategies in `strategy/`), `operator/` (operators), `internal/selectiondata/` (shared deployment-data loading/validation), `internal/ocrmatch/` (shared strict OCR matching), `runtime.go` (the combined `SellProductLocationPlan` output), and `register.go` (component registration).
+- `pipeline/OutpostTrading.json`: task entry and init chain;
+- `OutpostTrading/SellCore.json`, `ChangeGoods.json`: shared selling loop and goods selection;
+- `OutpostTrading/OperatorScan.json`: operator cache scanning;
+- `OutpostTrading/ReserveSession.json`: reserve-rule session;
+- all Go code under `agent/go-service/outposttrading/`: `goods/` (items, with the three pure strategies in `strategy/`), `operator/` (operators), `internal/selectiondata/` (shared deployment-data loading/validation), `internal/ocrmatch/` (shared strict OCR matching), `runtime.go` (the combined `OutpostTradingLocationPlan` output), and `register.go` (component registration).
 
 ```shell
 # sync the zmdmap compact game data and regenerate everything
-pnpm generate:SellProduct
+pnpm generate:OutpostTrading
 
 # only sync the zmdmap compact game data
 pnpm fetch:zmdmap
 
 # render from the generated data only
-node tools/pipeline-generate/SellProduct/sync-locales.mjs
-node tools/pipeline-generate/SellProduct/selection-data.mjs
-node tools/pipeline-generate/run-all.mjs SellProduct
+node tools/pipeline-generate/OutpostTrading/sync-locales.mjs
+node tools/pipeline-generate/OutpostTrading/selection-data.mjs
+node tools/pipeline-generate/run-all.mjs OutpostTrading
 ```
 
 Maintenance notes:
 
 - New items usually only require syncing the zmdmap compact game data; `sync-locales.mjs` fills missing five-language `item.*` keys (reusing existing keys with the same Chinese name). Event-item exclusions live in `selection-data.mjs`; clean them up once the source data removes the event items and regenerate.
 - After adding an outpost, check the generated region `next` lists, SceneManager entries, and both Win32/ADB artifacts.
-- When adding a region, manually create its subfolder under `SellProduct/` in both resource packs before generating (the generator only creates `outputDir`).
+- When adding a region, manually create its subfolder under `OutpostTrading/` in both resource packs before generating (the generator only creates `outputDir`).
 - Reserve rules: item cases pass `item_id` via `attach`; quantity inputs pass integers via `custom_action_param.quantity`.
 
 Before submitting, run at least:
 
 ```shell
-node --test tools/pipeline-generate/SellProduct/data.test.mjs tools/pipeline-generate/SellProduct/selection-data.test.mjs tools/pipeline-generate/SellProduct/sync-locales.test.mjs
+node --test tools/pipeline-generate/OutpostTrading/data.test.mjs tools/pipeline-generate/OutpostTrading/selection-data.test.mjs tools/pipeline-generate/OutpostTrading/sync-locales.test.mjs
 pnpm check
 pnpm test
 git diff --check

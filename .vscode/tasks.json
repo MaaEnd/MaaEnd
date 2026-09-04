@@ -70,9 +70,9 @@
             "group": "build"
         },
         {
-            "label": "Generate: SellProduct",
+            "label": "Generate: OutpostTrading",
             "type": "shell",
-            "command": "pnpm generate:SellProduct",
+            "command": "pnpm generate:OutpostTrading",
             "runOptions": {
                 "instanceLimit": 1
             },
