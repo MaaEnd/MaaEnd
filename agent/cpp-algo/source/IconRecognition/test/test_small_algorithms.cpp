@@ -969,6 +969,66 @@ void TestTransferGridRejectsBroadOvercapacityPhase()
     Check(std::abs(hints.front().x_starts.front() - kFormalPhaseX) <= 1, "transfer hint must preserve the five-column formal phase");
 }
 
+void TestTransferEmptyGridFitsOneCompleteLattice()
+{
+    constexpr int kCellSize = 64;
+    constexpr int kPitch = 69;
+    constexpr int kColumns = 5;
+    constexpr int kRows = 4;
+    constexpr int kPhaseX = 33;
+    constexpr int kPhaseY = 7;
+    const cv::Rect roi(0, 0, 398, 291);
+    cv::Mat image(roi.size(), CV_8UC3, cv::Scalar(30, 30, 30));
+    for (int row = 0; row < kRows; ++row) {
+        for (int column = 0; column < kColumns; ++column) {
+            const cv::Rect cell(kPhaseX + column * kPitch, kPhaseY + row * kPitch, kCellSize, kCellSize);
+            image(cell).setTo(cv::Scalar(38, 38, 38));
+            cv::rectangle(image, cell, cv::Scalar(105, 105, 105), 2, cv::LINE_8);
+        }
+    }
+
+    const auto grid = iconrecognition::detail::DetectGrid(image, iconrecognition::GridType::Transfer, roi);
+    Check(grid.grids.size() == 1, "empty transfer panel must produce one grid");
+    Check(grid.grids.front().columns == kColumns && grid.grids.front().rows == kRows, "empty transfer cells must form one 5x4 lattice");
+    Check(
+        std::abs(grid.grids.front().cells.front().cell_box.x - kPhaseX) <= 1
+            && std::abs(grid.grids.front().cells.front().cell_box.y - kPhaseY) <= 1,
+        "empty transfer lattice must use the measured outer borders");
+}
+
+void TestTransferEmptyGridSkipsCroppedTopRowAndKeepsWeakColumn()
+{
+    constexpr int kCellSize = 64;
+    constexpr int kPitch = 69;
+    constexpr int kColumns = 5;
+    constexpr int kPhaseX = 33;
+    constexpr int kPhaseY = -22;
+    const cv::Rect roi(0, 0, 398, 291);
+    cv::Mat image(roi.size(), CV_8UC3, cv::Scalar(30, 30, 30));
+    for (int row = 0; row < 5; ++row) {
+        for (int column = 0; column < kColumns; ++column) {
+            const cv::Rect cell(kPhaseX + column * kPitch, kPhaseY + row * kPitch, kCellSize, kCellSize);
+            const cv::Rect visible = cell & roi;
+            if (visible.empty()) {
+                continue;
+            }
+            image(visible).setTo(cv::Scalar(38, 38, 38));
+            const cv::Scalar border = column + 1 == kColumns ? cv::Scalar(75, 75, 75) : cv::Scalar(105, 105, 105);
+            cv::rectangle(image, cell, border, 2, cv::LINE_8);
+        }
+    }
+
+    const auto grid = iconrecognition::detail::DetectGrid(image, iconrecognition::GridType::Transfer, roi);
+    Check(grid.grids.size() == 1, "cropped empty transfer panel must produce one grid");
+    Check(
+        grid.grids.front().columns == kColumns && grid.grids.front().rows == 3,
+        "one lattice fit must retain five columns and three full rows");
+    Check(
+        std::abs(grid.grids.front().cells.front().cell_box.x - kPhaseX) <= 1
+            && std::abs(grid.grids.front().cells.front().cell_box.y - (kPhaseY + kPitch)) <= 1,
+        "cropped residual row must not become the first formal transfer row");
+}
+
 void TestPortStoragerWideRoiUsesStablePanelPartitions()
 {
     const auto win32 = iconrecognition::detail::PartitionPortStoragerRegions(cv::Size(880, 350));
@@ -1787,6 +1847,8 @@ int main()
         TestTransferRegionPartitionKeepsUndetectedOuterColumns();
         TestTransferGridDetectsSparseVisiblePhase();
         TestTransferGridRejectsBroadOvercapacityPhase();
+        TestTransferEmptyGridFitsOneCompleteLattice();
+        TestTransferEmptyGridSkipsCroppedTopRowAndKeepsWeakColumn();
         TestPortStoragerWideRoiUsesStablePanelPartitions();
         TestCreditTradeGridUsesDimCardStructures();
         TestCreditTradeGridUsesSixColumnsWhenRoiCannotContainSeven();

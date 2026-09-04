@@ -4,13 +4,21 @@
             "storageKind": "Normal",
             "categoryType": "Product",
             "ids": [
+                // 息壤玉葫芦
                 "item_activity_xiranite_enr_hulu",
+                // 息壤葫芦
                 "item_activity_xiranite_hulu",
+                // 实验玉铜发散器
                 "item_activity_xiranite_enr_tool",
+                // 实验重息壤零件
                 "item_activity_xiranite_enr_cmpt",
+                // 实验重息壤瓶
                 "item_activity_xiranite_enr_bottle",
+                // 实验重息壤瓶
                 "item_fbottle_xiranenr_grass_2",
+                // 实验息壤零件
                 "item_activity_xiranite_cmpt",
+                // 实验息壤瓶
                 "item_activity_xiranite_bottle"
             ]
         },
@@ -18,14 +26,24 @@
             "storageKind": "Normal",
             "categoryType": "Producer",
             "ids": [
+                // 彩虹
                 "item_port_rainbow_1",
+                // 显梦
                 "item_port_dream_bubble_1",
+                // 安玛的关切
                 "item_port_crystal_ball_1",
+                // 炽热宴会
                 "item_port_barbecue_1",
+                // 模拟锦草田块
                 "item_port_soil_grass_fast_1",
+                // 模拟芽针田块
                 "item_port_soil_grass_fast_2",
+                // 模拟琼叶参田块
                 "item_port_soil_sp_fast_3",
-                "item_port_soil_sp_fast_4"
+                // 模拟金石稻田块
+                "item_port_soil_sp_fast_4",
+                // 系统滑索，300米，不可获得
+                "item_port_travel_pole_nop_1"
             ]
         }
     ]

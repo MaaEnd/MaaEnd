@@ -6234,17 +6234,6 @@
         "sortId1": -101,
         "sortId2": 14
     },
-    "item_port_travel_pole_nop_1": {
-        "name": "滑索架",
-        "category": "生产工具",
-        "storageKind": "Normal",
-        "categoryType": "Producer",
-        "rarity": 2,
-        "iconId": "item_port_travel_pole_1",
-        "fluidIconId": "",
-        "sortId1": -101,
-        "sortId2": 13
-    },
     "item_port_udpipe_loader_1": {
         "name": "暗管入口",
         "category": "生产工具",
