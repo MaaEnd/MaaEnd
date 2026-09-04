@@ -1227,6 +1227,23 @@
                             }
                         }
                     }
+                },
+                {
+                    "name": "SearToastedLiver",
+                    "label": "$option.CreditShoppingItems.cases.SearToastedLiver.label",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "sear_toasted_liver": [
+                                    "香焗兽肝",
+                                    "香焗獸肝",
+                                    "Sear-Toasted Liver",
+                                    "レバーの塩蒸し焼き",
+                                    "향신료로 구운 비스트의 간"
+                                ]
+                            }
+                        }
+                    }
                 }
             ]
         },
@@ -1400,6 +1417,24 @@
                     }
                 },
                 "AutoStockStapleGoodsRuinPurgerRemedyExcludeValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingFoodAndBuffLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsSearToastedLiverValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingFoodAndBuffLimit} > {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsSearToastedLiverExcludeValidate": {
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
@@ -1763,6 +1798,40 @@
                             }
                         }
                     }
+                },
+                {
+                    "name": "MyrkwoodBerryPreserve",
+                    "label": "$option.CreditShoppingItems.cases.MyrkwoodBerryPreserve.label",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "myrkwood_berry_preserve": [
+                                    "黑森林浆果酱",
+                                    "黑森林漿果醬",
+                                    "Myrkwood Berry Preserve",
+                                    "「黒き森」のベリージャム",
+                                    "검은 숲의 베리잼"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "MiracleCake",
+                    "label": "$option.CreditShoppingItems.cases.MiracleCake.label",
+                    "pipeline_override": {
+                        "AutoStockInStapleItemName": {
+                            "attach": {
+                                "miracle_cake": [
+                                    "奇迹蛋糕",
+                                    "奇蹟蛋糕",
+                                    "Miracle Cake",
+                                    "ミラクルケーキ",
+                                    "기적의 케이크"
+                                ]
+                            }
+                        }
+                    }
                 }
             ]
         },
@@ -1936,6 +2005,42 @@
                     }
                 },
                 "AutoStockStapleGoodsSwingingGentlemanClassicalAlbumExcludeValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingGiftLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsMyrkwoodBerryPreserveValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingGiftLimit} > {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsMyrkwoodBerryPreserveExcludeValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingGiftLimit} <= {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsMiracleCakeValidate": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{WulingGiftLimit} > {AutoStockStapleGoodsCountValidate}"
+                            }
+                        }
+                    }
+                },
+                "AutoStockStapleGoodsMiracleCakeExcludeValidate": {
                     "recognition": {
                         "param": {
                             "custom_recognition_param": {
