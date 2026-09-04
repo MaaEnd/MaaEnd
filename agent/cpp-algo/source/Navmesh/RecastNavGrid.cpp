@@ -873,12 +873,14 @@ std::optional<std::vector<CellPt>> CostAstar(
     const EdgeBits* banned,
     const double* bnp,
     const EdgeBits* forbidden,
-    double* out_cost)
+    double* out_cost,
+    const JumpEdges* jumps)
 {
     const int64_t ny = mask.ny, nx = mask.nx;
     if (!mask.at(s.y, s.x) || !mask.at(g.y, g.x)) {
         return std::nullopt;
     }
+    const bool hj = jumps != nullptr && !jumps->empty();
     Grid<double> dist(nx, ny, std::numeric_limits<double>::infinity());
     Grid<int64_t> prev(nx, ny, -1);
     dist.at(s.y, s.x) = 0.0;
@@ -923,6 +925,24 @@ std::optional<std::vector<CellPt>> CostAstar(
                 dist.at(b, a) = nd;
                 prev.at(b, a) = y * nx + x;
                 pq.emplace(nd + std::hypot(static_cast<double>(g.x - a), static_cast<double>(g.y - b)), a, b);
+            }
+        }
+        if (hj) {
+            // 跳边: 仅检查对端格是否在掩膜内, 不计单价与禁行边
+            const int64_t cu = y * nx + x;
+            auto [ji, jn] = jumps->from(cu);
+            for (; ji < jn; ++ji) {
+                const JumpEdges::Edge& je = jumps->e[ji];
+                const int64_t a = je.dst % nx, b = je.dst / nx;
+                if (!mask.at(b, a)) {
+                    continue;
+                }
+                const double nd = d0 + static_cast<double>(je.cost);
+                if (nd < dist.at(b, a) - 1e-12) {
+                    dist.at(b, a) = nd;
+                    prev.at(b, a) = cu;
+                    pq.emplace(nd + std::hypot(static_cast<double>(g.x - a), static_cast<double>(g.y - b)), a, b);
+                }
             }
         }
     }
@@ -1003,11 +1023,15 @@ std::optional<std::vector<int64_t>> SpanAstar(
     const EdgeBits* forbidden,
     const Visibility* vis,
     std::vector<int64_t>* corners,
-    double* out_cost)
+    double* out_cost,
+    const JumpEdges* jumps)
 {
     if (s < 0 || ok[static_cast<size_t>(s)] == 0 || gset.empty()) {
         return std::nullopt;
     }
+    const bool hj = jumps != nullptr && !jumps->empty();
+    // u 是否经跳边到达: 弦与视线均按地面计算, 跳边不参与
+    const auto byJump = [&](int64_t p, int64_t u) { return hj && p >= 0 && jumps->has(p, u); };
     const int64_t nx = ok2.nx, ny = ok2.ny;
     const int64_t gc = st.sp_cell[static_cast<size_t>(gset.front())];
     const int64_t gxx = gc % nx, gyy = gc / nx;
@@ -1092,7 +1116,7 @@ std::optional<std::vector<int64_t>> SpanAstar(
                 continue;
             }
             const int64_t p = prev[static_cast<size_t>(u)];
-            if (p >= 0
+            if (p >= 0 && !byJump(p, u)
                 && !vis->ok(
                     vis->at(st.sp_cell[static_cast<size_t>(p)]),
                     vis->at(cu),
@@ -1109,6 +1133,9 @@ std::optional<std::vector<int64_t>> SpanAstar(
         }
         const float hu = st.sp_h[static_cast<size_t>(u)];
         const float m0 = mult.v(static_cast<size_t>(cu));
+        // 父节点确定后不再变化, 是否经跳边到达在每次弹出时只查询一次; 放入邻格循环会使二分次数增至八倍
+        const int64_t pu = vis != nullptr ? prev[static_cast<size_t>(u)] : -1;
+        const bool pj = byJump(pu, u);
         for (const auto& d : kNb8) {
             const int64_t a = x + d.dx, b = y + d.dy;
             if (a < 0 || a >= nx || b < 0 || b >= ny) {
@@ -1142,17 +1169,14 @@ std::optional<std::vector<int64_t>> SpanAstar(
             // 转头挑窄道。两端都在实心区才许走弦, 整段是否落在实心区由弹出时的视线判据兜底。
             int64_t np = u;
             double ndp = nd;
-            if (vis != nullptr) {
-                const int64_t p = prev[static_cast<size_t>(u)];
-                if (p >= 0 && mult.v(static_cast<size_t>(cv)) <= 1.0F) {
-                    const int64_t cp = st.sp_cell[static_cast<size_t>(p)];
-                    if (mult.v(static_cast<size_t>(cp)) <= 1.0F) {
-                        const double cd =
-                            dist[static_cast<size_t>(p)] + std::hypot(static_cast<double>(a - cp % nx), static_cast<double>(b - cp / nx));
-                        if (cd < ndp - 1e-12) {
-                            np = p;
-                            ndp = cd;
-                        }
+            if (pu >= 0 && !pj && mult.v(static_cast<size_t>(cv)) <= 1.0F) {
+                const int64_t cp = st.sp_cell[static_cast<size_t>(pu)];
+                if (mult.v(static_cast<size_t>(cp)) <= 1.0F) {
+                    const double cd =
+                        dist[static_cast<size_t>(pu)] + std::hypot(static_cast<double>(a - cp % nx), static_cast<double>(b - cp / nx));
+                    if (cd < ndp - 1e-12) {
+                        np = pu;
+                        ndp = cd;
                     }
                 }
             }
@@ -1170,6 +1194,24 @@ std::optional<std::vector<int64_t>> SpanAstar(
                     dist[static_cast<size_t>(v)] = ndp;
                     prev[static_cast<size_t>(v)] = static_cast<int32_t>(np);
                     pq.emplace(ndp + std::hypot(static_cast<double>(gxx - a), static_cast<double>(gyy - b)), v);
+                }
+            }
+        }
+        if (hj) {
+            // 跳边: 对端 span 可用且对端格在掩膜内即可松弛, 父指针直接指向 u
+            auto [ji, jn] = jumps->from(u);
+            for (; ji < jn; ++ji) {
+                const JumpEdges::Edge& je = jumps->e[ji];
+                const int64_t v = je.dst;
+                const int64_t cv = st.sp_cell[static_cast<size_t>(v)];
+                if (ok[static_cast<size_t>(v)] == 0 || ok2.v[static_cast<size_t>(cv)] == 0) {
+                    continue;
+                }
+                const double nd = d0 + static_cast<double>(je.cost);
+                if (nd < dist[static_cast<size_t>(v)] - 1e-12) {
+                    dist[static_cast<size_t>(v)] = nd;
+                    prev[static_cast<size_t>(v)] = static_cast<int32_t>(u);
+                    pq.emplace(nd + std::hypot(static_cast<double>(gxx - cv % nx), static_cast<double>(gyy - cv / nx)), v);
                 }
             }
         }
@@ -1196,6 +1238,11 @@ std::optional<std::vector<int64_t>> SpanAstar(
     const std::vector<int64_t> corn = out;
     out.assign(1, corn.front());
     for (size_t i = 1; i < corn.size(); ++i) {
+        // 跳边两端之间没有地面, 不铺设中间格
+        if (byJump(corn[i - 1], corn[i])) {
+            out.push_back(corn[i]);
+            continue;
+        }
         const int64_t ca = st.sp_cell[static_cast<size_t>(corn[i - 1])];
         const int64_t cb = st.sp_cell[static_cast<size_t>(corn[i])];
         const int64_t axx = ca % nx, ayy = ca / nx, bxx = cb % nx, byy = cb / nx;

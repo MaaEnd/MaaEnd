@@ -61,6 +61,8 @@ inline constexpr double kClrNarrow = 1.0;
 inline constexpr double kChordFrac = 0.8;
 // 中脊上的突变抬升每次记一笔, 单位是格步价。连续缓坡不计, 只有必须迈上去的那种算。
 inline constexpr double kStepTax = 6.0;
+// 离网连接端点接入舒适通道允许的最大格数。缝口紧邻实心区, 距离过远时该链本身已构成一段路线。
+inline constexpr int32_t kLinkChainCells = 64;
 // 终线取直的拐角余量 px: 挡线按 kClrPref 加这一笔算, 弦贴角切过去时的净空即是这个和。
 inline constexpr double kGeoMargin = 0.0;
 // 拐点朝净空更高一侧能挪的最大位移 px。上界给到半格宽以内, 越界那些拐角就不是余量问题了。
@@ -275,6 +277,47 @@ struct EdgeBits
     bool empty() const { return !any; }
 };
 
+// 跳边表: 预烘离网连接筛进窗口后的有向边, 两端不必相邻, 走它不看 RiseOk、立面与禁行边。
+// 同一张结构既存格级(源是格号)也存 span 级(源是 span 下标)。按源升序, from(s) 给出源为 s 的一段。
+struct JumpEdges
+{
+    struct Edge
+    {
+        int64_t src = 0;
+        int64_t dst = 0;
+        float cost = 0.0F; // 格单位, ≥ 两端欧氏格距, 启发式与"累计代价 ≥ 路径格长"因此仍然成立
+    };
+
+    std::vector<Edge> e;
+
+    bool empty() const { return e.empty(); }
+
+    void add(int64_t src, int64_t dst, float cost) { e.push_back({ src, dst, cost }); }
+
+    void finish()
+    {
+        std::stable_sort(e.begin(), e.end(), [](const Edge& a, const Edge& b) { return a.src < b.src; });
+    }
+
+    std::pair<size_t, size_t> from(int64_t src) const
+    {
+        const auto lo = std::lower_bound(e.begin(), e.end(), src, [](const Edge& a, int64_t s) { return a.src < s; });
+        const auto hi = std::upper_bound(e.begin(), e.end(), src, [](int64_t s, const Edge& a) { return s < a.src; });
+        return { static_cast<size_t>(lo - e.begin()), static_cast<size_t>(hi - e.begin()) };
+    }
+
+    bool has(int64_t src, int64_t dst) const
+    {
+        auto [i, n] = from(src);
+        for (; i < n; ++i) {
+            if (e[i].dst == dst) {
+                return true;
+            }
+        }
+        return false;
+    }
+};
+
 struct StepBarrier
 {
     EdgeBits steps;
@@ -316,7 +359,8 @@ std::optional<std::vector<CellPt>> CostAstar(
     const EdgeBits* banned,
     const double* bnp,
     const EdgeBits* forbidden = nullptr,
-    double* out_cost = nullptr);
+    double* out_cost = nullptr,
+    const JumpEdges* jumps = nullptr);
 
 class Visibility;
 
@@ -324,6 +368,7 @@ class Visibility;
 // 于是路径由父链上的直线段构成, 紧绷这件事在搜索里完成, 不再靠事后拉直。
 // 返回值恒为逐格路径, 拓扑判据按格读。corners 非空则另交出父链本身, 那才是几何要走的折线。
 // out_cost 非空则交出终点的累计代价; 单价恒 ≥1, 它就是路径格长的上界, 小窗验收拿它判搜索有没有碰边。
+// jumps 非空则另按 span 级跳边松弛: 跳边不做弦的祖父、不验视线, 铺回格时也不插值。
 std::optional<std::vector<int64_t>> SpanAstar(
     const SpanTable& st,
     const std::vector<uint8_t>& ok,
@@ -336,7 +381,8 @@ std::optional<std::vector<int64_t>> SpanAstar(
     const EdgeBits* forbidden = nullptr,
     const Visibility* vis = nullptr,
     std::vector<int64_t>* corners = nullptr,
-    double* out_cost = nullptr);
+    double* out_cost = nullptr,
+    const JumpEdges* jumps = nullptr);
 
 Mask MedialAxis(const Grid<float>& dist, double lam);
 
