@@ -867,7 +867,7 @@
     "option.BatchAddFriends.inputs.UidList.description": "Separate multiple UIDs with spaces or '、'; leave empty to add strangers.",
     "option.BatchAddFriends.inputs.MaxCount.label": "Max add count",
     "option.BatchAddFriends.inputs.MaxCount.description": "Stop after reaching the count.",
-    "task.SellProduct.label": "🛒 Sell Products",
+    "task.SellProduct.label": "🛒 Outpost Trading",
     "task.SellProduct.description": "Enable regions or outposts to automatically sell first-page goods for procurement vouchers.\nOptionally choose Rarity, Unit Price, or Stock Priority, and configure priority goods, reserve quantities, and automatic operator switching.",
     "task.SellProduct.regionToggleDescription": "Controls whether selling runs in this region.",
     "task.SellProduct.TaskEnd": "🏁 Sell task completed",

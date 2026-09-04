@@ -530,7 +530,7 @@
     "task.ClaimSimulationRewards.error_not_found": "模擬空間が見つかりません。手動で切り替えてください。",
     "task.ClaimSimulationRewards.success_finished": "模擬空間報酬の受取が完了しました。",
     "option.ClaimSimulationArea.label": "エリア",
-    "task.SellProduct.label": "🛒 製品販売",
+    "task.SellProduct.label": "🛒 拠点取引",
     "task.SellProduct.description": "販売する地域または拠点を有効にすると、1ページ目の商品を自動販売して調達券に交換します。\nレア度・単価・在庫優先を選択でき、優先商品、確保数、オペレーターの自動切り替えも設定できます。",
     "task.SellProduct.regionToggleDescription": "この地域で販売タスクを実行するかどうかを設定します。",
     "task.SellProduct.OperatorAutoSwitch": "オペレーター自動切り替えを有効化",

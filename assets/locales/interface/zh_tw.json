@@ -534,7 +534,7 @@
     "task.ClaimSimulationRewards.error_not_found": "未檢測到[模擬空間]介面，請手動切換",
     "task.ClaimSimulationRewards.success_finished": "模擬空間獎勵領取完畢",
     "option.ClaimSimulationArea.label": "地區",
-    "task.SellProduct.label": "🛒售賣產品",
+    "task.SellProduct.label": "🛒據點交易",
     "task.SellProduct.description": "啟用需要販售的地區或據點，即可自動販售第一頁貨品並兌換調度券。\n可選擇稀有度、單價或庫存優先，並設定優先物品、保留數量與自動切換幹員。",
     "task.SellProduct.regionToggleDescription": "控制此地區是否執行販售任務。",
     "task.SellProduct.TaskEnd": "🏁 售賣任務已完成",
