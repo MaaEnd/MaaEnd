@@ -1,104 +1,15 @@
 {
-    "StashBackpackSnapshotResetBoundaries": {
-        "desc": "开始真实快照前重置背包滚动边界",
+    "__StashBackpackSnapshotPrepareRecognitionStep": {
+        "desc": "识别背包前将鼠标移至左上角并等待物品网格稳定",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "PipelineOverrideAction",
-        "custom_action_param": {
-            "patch": {
-                "StashBackpackSnapshotTopReached": {
-                    "attach": {
-                        "ready": false
-                    }
-                },
-                "StashBackpackSnapshotBottomReached": {
-                    "attach": {
-                        "ready": false
-                    }
-                }
-            }
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "StashBackpackSnapshotResetScrollHitCount"
-        ]
-    },
-    "StashBackpackSnapshotResetScrollHitCount": {
-        "desc": "每次真实快照前清理背包滚动节点命中计数",
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "ClearHitCount",
-        "custom_action_param": {
-            "nodes": [
-                "StashBackpackSnapshotScrollUpward",
-                "StashBackpackSnapshotScrollDownward"
-            ],
-            "strict": true
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "StashBackpackSnapshotScrollToTop"
-        ]
-    },
-    "StashBackpackSnapshotScrollToTop": {
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "StashBackpackSnapshotTopReached",
-            "[JumpBack]StashBackpackSnapshotScrollUpward"
-        ]
-    },
-    "StashBackpackSnapshotTopReached": {
-        "recognition": "Custom",
-        "custom_recognition": "ScrollbarCompleteRecognition",
-        "custom_recognition_param": {
-            "position_tolerance": 2
-        },
-        "roi": [
-            1119,
-            220,
-            5,
-            255
+        "action": "TouchMove",
+        "target": [
+            0,
+            0,
+            1,
+            1
         ],
-        "pre_delay": 0,
-        "anchor": {
-            "MouseMoveResetAnchor": "MouseMoveReset"
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "[JumpBack][Anchor]MouseMoveResetAnchor",
-            "StashBackpackSnapshotPage",
-            "StashBackpackSnapshotBottomReached"
-        ],
-        "attach": {
-            "ready": false
-        }
-    },
-    "StashBackpackSnapshotPage": {
-        "desc": "识别当前背包页并合并进有序快照",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "IconRecognition",
-                "custom_recognition_param": {
-                    "grid_type": "transfer",
-                    "item_filters": [
-                        "Normal:*"
-                    ]
-                },
-                "roi": [
-                    739,
-                    202,
-                    398,
-                    291
-                ]
-            }
-        },
-        "pre_wait_freezes": {
+        "post_wait_freezes": {
             "time": 400,
             "timeout": 3000,
             "target": [
@@ -108,97 +19,11 @@
                 291
             ]
         },
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "StashBackpackStateAction",
-        "custom_action_param": {
-            "operation": "append_snapshot_page",
-            "snapshot": "s0"
-        },
         "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "StashBackpackSnapshotBottomReached",
-            "StashBackpackSnapshotScrollDownward"
-        ]
+        "rate_limit": 0
     },
-    "StashBackpackSnapshotAfterScroll": {
-        "desc": "滚动后先确认列表是否实际移动，避免重复记录末页",
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "StashBackpackSnapshotBottomReached",
-            "StashBackpackSnapshotNextPage"
-        ]
-    },
-    "StashBackpackSnapshotNextPage": {
-        "desc": "识别滚动后的背包页并合并进有序快照",
-        "recognition": {
-            "type": "Custom",
-            "param": {
-                "custom_recognition": "IconRecognition",
-                "custom_recognition_param": {
-                    "grid_type": "transfer",
-                    "item_filters": [
-                        "Normal:*"
-                    ]
-                },
-                "roi": [
-                    739,
-                    202,
-                    398,
-                    291
-                ]
-            }
-        },
-        "pre_wait_freezes": {
-            "time": 400,
-            "timeout": 3000,
-            "target": [
-                739,
-                202,
-                398,
-                291
-            ]
-        },
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "StashBackpackStateAction",
-        "custom_action_param": {
-            "operation": "append_snapshot_page",
-            "snapshot": "s0"
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "StashBackpackSnapshotScrollDownward"
-        ]
-    },
-    "StashBackpackSnapshotBottomReached": {
-        "recognition": "Custom",
-        "custom_recognition": "ScrollbarCompleteRecognition",
-        "custom_recognition_param": {
-            "position_tolerance": 2
-        },
-        "roi": [
-            1119,
-            220,
-            5,
-            255
-        ],
-        "pre_delay": 0,
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "[Anchor]StashBackpackAfterSnapshot"
-        ],
-        "attach": {
-            "ready": false
-        }
-    },
-    "StashBackpackSnapshotScrollDownward": {
-        "max_hit": 20,
+    "__StashBackpackSnapshotScrollDownwardStep": {
+        "desc": "完整快照期间向下滚动背包一次",
         "pre_delay": 0,
         "action": "Scroll",
         "target": [
@@ -206,28 +31,11 @@
             350
         ],
         "dy": -180,
-        "anchor": {
-            "MouseMoveResetAnchor": "MouseMoveReset"
-        },
-        "post_wait_freezes": {
-            "time": 400,
-            "timeout": 3000,
-            "target": [
-                739,
-                202,
-                398,
-                291
-            ]
-        },
         "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "[JumpBack][Anchor]MouseMoveResetAnchor",
-            "StashBackpackSnapshotAfterScroll"
-        ]
+        "rate_limit": 0
     },
-    "StashBackpackSnapshotScrollUpward": {
-        "max_hit": 20,
+    "__StashBackpackSnapshotScrollUpwardStep": {
+        "desc": "完整快照前向上滚动背包一次",
         "pre_delay": 0,
         "action": "Scroll",
         "target": [
@@ -235,16 +43,6 @@
             350
         ],
         "dy": 180,
-        "post_wait_freezes": {
-            "time": 400,
-            "timeout": 3000,
-            "target": [
-                739,
-                202,
-                398,
-                291
-            ]
-        },
         "post_delay": 0,
         "rate_limit": 0
     }

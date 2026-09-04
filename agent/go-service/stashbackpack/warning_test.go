@@ -10,6 +10,7 @@ func TestWarningMessageKey(t *testing.T) {
 	}{
 		{reason: warningDuplicateFull, want: "stashbackpack.warning.duplicate_full"},
 		{reason: warningMissingFullSnapshot, want: "stashbackpack.warning.missing_full_snapshot"},
+		{reason: warningMissingRetrieveSnapshot, want: "stashbackpack.warning.missing_retrieve_snapshot"},
 		{reason: warningUnsupportedPlatform, want: "stashbackpack.warning.unsupported_platform"},
 	} {
 		raw := `{"reason":"` + testCase.reason + `"}`

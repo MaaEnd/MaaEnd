@@ -5,21 +5,21 @@ import (
 	"fmt"
 
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/autoalt"
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/pkg/iconrecognition"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
 
 const (
 	operationReset             = "reset"
-	operationBeginSnapshot     = "begin_snapshot"
-	operationAppendSnapshot    = "append_snapshot_page"
 	operationCopySnapshot      = "copy_snapshot"
 	operationCompleteFull      = "complete_full"
 	operationPrepareSnapshot   = "prepare_snapshot"
 	operationPrepareDifference = "prepare_difference"
 	operationPrepareRestore    = "prepare_restore"
+	operationAdvanceBagPage    = "advance_bag_page"
 	operationAdvanceRestore    = "advance_restore_page"
+	operationMarkBagClicked    = "mark_bag_item_clicked"
+	operationDiscardBagTargets = "discard_bag_targets"
 	operationConsumeTarget     = "consume_target"
 	operationSetDepot          = "set_depot"
 
@@ -61,10 +61,6 @@ func (a *StateAction) Run(_ *maa.Context, arg *maa.CustomActionArg) bool {
 	switch param.Operation {
 	case operationReset:
 		globalState.reset()
-	case operationBeginSnapshot:
-		err = globalState.beginSnapshot(param.Snapshot)
-	case operationAppendSnapshot:
-		err = appendRecognitionPage(arg, param)
 	case operationCopySnapshot:
 		err = globalState.copySnapshot(param.SourceSnapshot, param.Snapshot)
 	case operationCompleteFull:
@@ -86,8 +82,31 @@ func (a *StateAction) Run(_ *maa.Context, arg *maa.CustomActionArg) bool {
 		}
 	case operationPrepareRestore:
 		err = globalState.prepareRestore(param.Snapshot)
+	case operationAdvanceBagPage:
+		err = globalState.advanceBagPage()
 	case operationAdvanceRestore:
 		err = globalState.advanceRestorePage()
+	case operationMarkBagClicked:
+		var item snapshotItem
+		var ok bool
+		item, ok = globalState.markSelectedBagTargetClicked(param.Reason, param.ChangesSnapshot)
+		if !ok {
+			err = fmt.Errorf("no selected bag target")
+		}
+		if err == nil {
+			log.Info().Str("component", componentName).Str("item_id", item.ItemID).
+				Str("category_type", item.CategoryType).Msg("queued clicked backpack item for page-level verification")
+		}
+	case operationDiscardBagTargets:
+		discarded := globalState.discardRemainingBagTargets()
+		for _, item := range discarded {
+			event := log.Warn().Str("component", componentName).
+				Str("item_id", item.ItemID).Str("category_type", item.CategoryType)
+			if param.Reason != "" {
+				event = event.Str("reason", param.Reason)
+			}
+			event.Msg("discarded backpack target after reaching the bottom")
+		}
 	case operationConsumeTarget:
 		var item snapshotItem
 		var ok bool
@@ -159,32 +178,4 @@ func (a *ShiftClickAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		return false
 	}
 	return (&autoalt.AutoShiftClickAction{}).Run(ctx, &clickArg)
-}
-
-func appendRecognitionPage(arg *maa.CustomActionArg, param stateActionParam) error {
-	parsed, _, err := iconrecognition.ParseRecognitionDetail(arg.RecognitionDetail)
-	if err != nil {
-		return fmt.Errorf("parse snapshot page: %w", err)
-	}
-	positioned := make([]snapshotItemWithPosition, 0, len(parsed.Matches))
-	for _, match := range parsed.Matches {
-		row := match.CellBox.Y()
-		column := match.CellBox.X()
-		if match.Row != nil {
-			row = *match.Row
-		}
-		if match.Column != nil {
-			column = *match.Column
-		}
-		positioned = append(positioned, snapshotItemWithPosition{
-			ItemID: match.ItemID, CategoryType: match.CategoryType, Row: row, Column: column, CellBox: match.CellBox,
-		})
-	}
-	total, err := globalState.appendSnapshotPage(param.Snapshot, positioned)
-	if err != nil {
-		return err
-	}
-	log.Info().Str("component", componentName).Str("snapshot", param.Snapshot).
-		Int("page_count", len(positioned)).Int("snapshot_count", total).Msg("appended backpack snapshot page")
-	return nil
 }

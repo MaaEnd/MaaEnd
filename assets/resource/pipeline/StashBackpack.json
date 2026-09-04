@@ -129,53 +129,17 @@
         ]
     },
     "StashBackpackCaptureInitial": {
-        "desc": "配置一键存放后的真实快照",
+        "desc": "建立一键存放后的完整背包快照",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "PipelineOverrideAction",
+        "custom_action": "StashBackpackSnapshotAction",
         "custom_action_param": {
-            "patch": {
-                "StashBackpackSnapshotBegin": {
-                    "custom_action_param": {
-                        "operation": "begin_snapshot",
-                        "snapshot": "s0"
-                    }
-                },
-                "StashBackpackSnapshotPage": {
-                    "custom_action_param": {
-                        "operation": "append_snapshot_page",
-                        "snapshot": "s0"
-                    }
-                },
-                "StashBackpackSnapshotNextPage": {
-                    "custom_action_param": {
-                        "operation": "append_snapshot_page",
-                        "snapshot": "s0"
-                    }
-                }
-            }
-        },
-        "anchor": {
-            "StashBackpackAfterSnapshot": "StashBackpackWorkflow"
-        },
-        "post_delay": 0,
-        "rate_limit": 0,
-        "next": [
-            "StashBackpackSnapshotBegin"
-        ]
-    },
-    "StashBackpackSnapshotBegin": {
-        "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "StashBackpackStateAction",
-        "custom_action_param": {
-            "operation": "begin_snapshot",
             "snapshot": "s0"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "StashBackpackSnapshotResetBoundaries"
+            "StashBackpackWorkflow"
         ]
     },
     "StashBackpackWorkflow": {
@@ -365,7 +329,21 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "StashBackpackManualLoop"
+            "StashBackpackManualSetupBagBatch"
+        ]
+    },
+    "StashBackpackManualSetupBagBatch": {
+        "desc": "按快照目标一次回顶并逐页批量存放",
+        "pre_delay": 0,
+        "anchor": {
+            "StashBackpackAfterBagBatchItemFound": "StashBackpackManualDispatchCategory",
+            "StashBackpackAfterBagBatchFinished": "StashBackpackCaptureWorking",
+            "StashBackpackAfterBagBatchBottomReached": "StashBackpackManualConsumeMissing"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackPrepareBagBatch"
         ]
     },
     "StashBackpackManualLoop": {
@@ -425,13 +403,19 @@
         "desc": "Win32使用Shift+Click将当前背包物品移入仓库",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "StashBackpackShiftClickAction",
-        "target": "StashBackpackFindCurrentItemInBag",
+        "custom_action": "AutoShiftClickAction",
+        "target": "StashBackpackBagPageItem",
+        "target_offset": [
+            26,
+            25,
+            -52,
+            -50
+        ],
         "post_wait_freezes": 200,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "StashBackpackManualVerifyStored"
+            "StashBackpackManualConsumeStored"
         ]
     },
     "StashBackpackManualVerifyStored": {
@@ -459,13 +443,13 @@
         "action": "Custom",
         "custom_action": "StashBackpackStateAction",
         "custom_action_param": {
-            "operation": "consume_target",
+            "operation": "mark_bag_item_clicked",
             "reason": "manual_item_stored"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "StashBackpackManualLoop"
+            "StashBackpackBagBatchLoop"
         ]
     },
     "StashBackpackManualConsumeMissing": {
@@ -473,13 +457,13 @@
         "action": "Custom",
         "custom_action": "StashBackpackStateAction",
         "custom_action_param": {
-            "operation": "consume_target",
+            "operation": "discard_bag_targets",
             "reason": "item_not_found"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "StashBackpackManualLoop"
+            "StashBackpackCaptureWorking"
         ]
     },
     "StashBackpackManualConsumeFiltered": {
@@ -493,43 +477,21 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "StashBackpackManualLoop"
+            "StashBackpackBagBatchLoop"
         ]
     },
     "StashBackpackCaptureWorking": {
-        "desc": "配置基础存放完成后的真实快照",
+        "desc": "建立基础存放完成后的完整背包快照",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "PipelineOverrideAction",
+        "custom_action": "StashBackpackSnapshotAction",
         "custom_action_param": {
-            "patch": {
-                "StashBackpackSnapshotBegin": {
-                    "custom_action_param": {
-                        "operation": "begin_snapshot",
-                        "snapshot": "working"
-                    }
-                },
-                "StashBackpackSnapshotPage": {
-                    "custom_action_param": {
-                        "operation": "append_snapshot_page",
-                        "snapshot": "working"
-                    }
-                },
-                "StashBackpackSnapshotNextPage": {
-                    "custom_action_param": {
-                        "operation": "append_snapshot_page",
-                        "snapshot": "working"
-                    }
-                }
-            }
-        },
-        "anchor": {
-            "StashBackpackAfterSnapshot": "StashBackpackReplenishSubTask"
+            "snapshot": "working"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "StashBackpackSnapshotBegin"
+            "StashBackpackReplenishSubTask"
         ]
     },
     "StashBackpackReplenishSubTask": {
@@ -848,36 +810,14 @@
     "StoreNewItemsWithStashBackpackCaptureTemporary": {
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "PipelineOverrideAction",
+        "custom_action": "StashBackpackSnapshotAction",
         "custom_action_param": {
-            "patch": {
-                "StashBackpackSnapshotBegin": {
-                    "custom_action_param": {
-                        "operation": "begin_snapshot",
-                        "snapshot": "temporary"
-                    }
-                },
-                "StashBackpackSnapshotPage": {
-                    "custom_action_param": {
-                        "operation": "append_snapshot_page",
-                        "snapshot": "temporary"
-                    }
-                },
-                "StashBackpackSnapshotNextPage": {
-                    "custom_action_param": {
-                        "operation": "append_snapshot_page",
-                        "snapshot": "temporary"
-                    }
-                }
-            }
-        },
-        "anchor": {
-            "StashBackpackAfterSnapshot": "StoreNewItemsWithStashBackpackPrepareDifference"
+            "snapshot": "temporary"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "StashBackpackSnapshotBegin"
+            "StoreNewItemsWithStashBackpackPrepareDifference"
         ]
     },
     "StoreNewItemsWithStashBackpackPrepareDifference": {
@@ -892,7 +832,21 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "StoreNewItemsWithStashBackpackLoop"
+            "StoreNewItemsWithStashBackpackSetupBagBatch"
+        ]
+    },
+    "StoreNewItemsWithStashBackpackSetupBagBatch": {
+        "desc": "逐页批量存放相对 S1 新增的物品",
+        "pre_delay": 0,
+        "anchor": {
+            "StashBackpackAfterBagBatchItemFound": "StoreNewItemsWithStashBackpackStoreItem",
+            "StashBackpackAfterBagBatchFinished": "EmptyNode",
+            "StashBackpackAfterBagBatchBottomReached": "StoreNewItemsWithStashBackpackConsumeMissing"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackPrepareBagBatch"
         ]
     },
     "StoreNewItemsWithStashBackpackLoop": {
@@ -935,13 +889,19 @@
     "StoreNewItemsWithStashBackpackStoreItem": {
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "StashBackpackShiftClickAction",
-        "target": "StashBackpackFindCurrentItemInBag",
+        "custom_action": "AutoShiftClickAction",
+        "target": "StashBackpackBagPageItem",
+        "target_offset": [
+            26,
+            25,
+            -52,
+            -50
+        ],
         "post_wait_freezes": 200,
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "StoreNewItemsWithStashBackpackVerifyStored"
+            "StoreNewItemsWithStashBackpackConsumeStored"
         ]
     },
     "StoreNewItemsWithStashBackpackVerifyStored": {
@@ -969,13 +929,13 @@
         "action": "Custom",
         "custom_action": "StashBackpackStateAction",
         "custom_action_param": {
-            "operation": "consume_target",
+            "operation": "mark_bag_item_clicked",
             "reason": "new_item_stored"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "StoreNewItemsWithStashBackpackLoop"
+            "StashBackpackBagBatchLoop"
         ]
     },
     "StoreNewItemsWithStashBackpackConsumeMissing": {
@@ -983,13 +943,13 @@
         "action": "Custom",
         "custom_action": "StashBackpackStateAction",
         "custom_action_param": {
-            "operation": "consume_target",
+            "operation": "discard_bag_targets",
             "reason": "new_item_not_found"
         },
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "StoreNewItemsWithStashBackpackLoop"
+            "EmptyNode"
         ]
     }
 }
