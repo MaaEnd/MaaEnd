@@ -7048,6 +7048,28 @@
                     }
                 },
                 {
+                    "name": "item_slwood_1_hshog_1_1",
+                    "label": "$iconRecognition.name.item_slwood_1_hshog_1_1",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority1": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_slwood_1_hshog_1_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "item_wgslime_1_hsmob_1_grass_2_1",
                     "label": "$iconRecognition.name.item_wgslime_1_hsmob_1_grass_2_1",
                     "pipeline_override": {
@@ -12351,6 +12373,28 @@
                                 "grid_type": "shipment",
                                 "item_ids": [
                                     "item_erhound_1_agmelee_1_moss_1_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_slwood_1_hshog_1_1",
+                    "label": "$iconRecognition.name.item_slwood_1_hshog_1_1",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority2": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_slwood_1_hshog_1_1"
                                 ],
                                 "item_recheck_filters": [
                                     "Normal:Usable"
@@ -17674,6 +17718,28 @@
                     }
                 },
                 {
+                    "name": "item_slwood_1_hshog_1_1",
+                    "label": "$iconRecognition.name.item_slwood_1_hshog_1_1",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority3": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_slwood_1_hshog_1_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "item_wgslime_1_hsmob_1_grass_2_1",
                     "label": "$iconRecognition.name.item_wgslime_1_hsmob_1_grass_2_1",
                     "pipeline_override": {
@@ -22977,6 +23043,28 @@
                                 "grid_type": "shipment",
                                 "item_ids": [
                                     "item_erhound_1_agmelee_1_moss_1_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_slwood_1_hshog_1_1",
+                    "label": "$iconRecognition.name.item_slwood_1_hshog_1_1",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillValleyIVPriority4": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillValleyIVPriority4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_slwood_1_hshog_1_1"
                                 ],
                                 "item_recheck_filters": [
                                     "Normal:Usable"
@@ -28323,6 +28411,28 @@
                     }
                 },
                 {
+                    "name": "item_slwood_1_hshog_1_1",
+                    "label": "$iconRecognition.name.item_slwood_1_hshog_1_1",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority1": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority1": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_slwood_1_hshog_1_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "item_wgslime_1_hsmob_1_grass_2_1",
                     "label": "$iconRecognition.name.item_wgslime_1_hsmob_1_grass_2_1",
                     "pipeline_override": {
@@ -33626,6 +33736,28 @@
                                 "grid_type": "shipment",
                                 "item_ids": [
                                     "item_erhound_1_agmelee_1_moss_1_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_slwood_1_hshog_1_1",
+                    "label": "$iconRecognition.name.item_slwood_1_hshog_1_1",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority2": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority2": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_slwood_1_hshog_1_1"
                                 ],
                                 "item_recheck_filters": [
                                     "Normal:Usable"
@@ -38949,6 +39081,28 @@
                     }
                 },
                 {
+                    "name": "item_slwood_1_hshog_1_1",
+                    "label": "$iconRecognition.name.item_slwood_1_hshog_1_1",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority3": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority3": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_slwood_1_hshog_1_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
                     "name": "item_wgslime_1_hsmob_1_grass_2_1",
                     "label": "$iconRecognition.name.item_wgslime_1_hsmob_1_grass_2_1",
                     "pipeline_override": {
@@ -44252,6 +44406,28 @@
                                 "grid_type": "shipment",
                                 "item_ids": [
                                     "item_erhound_1_agmelee_1_moss_1_1"
+                                ],
+                                "item_recheck_filters": [
+                                    "Normal:Usable"
+                                ],
+                                "deduplicate": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "item_slwood_1_hshog_1_1",
+                    "label": "$iconRecognition.name.item_slwood_1_hshog_1_1",
+                    "pipeline_override": {
+                        "DeliveryJobsStartFillWulingPriority4": {
+                            "enabled": true
+                        },
+                        "DeliveryJobsSelectItemToFillWulingPriority4": {
+                            "enabled": true,
+                            "custom_recognition_param": {
+                                "grid_type": "shipment",
+                                "item_ids": [
+                                    "item_slwood_1_hshog_1_1"
                                 ],
                                 "item_recheck_filters": [
                                     "Normal:Usable"
