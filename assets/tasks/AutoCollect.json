@@ -17,6 +17,7 @@
                 "AutoCollectSchedule",
                 "AutoCollectRoutes",
                 "AutoCollectCommonRoutes",
+                "AutoCollectMode",
                 "AutoCollectStashBackpackSubTask"
             ],
             "group": [
@@ -116,6 +117,934 @@
                     }
                 }
             ]
+        },
+        "AutoCollectMode": {
+            "type": "select",
+            "controller": [
+                "Linux-Gamescope",
+                "Linux-ScreenCast",
+                "Linux-Wlroots",
+                "Win32-Front"
+            ],
+            "label": "$option.AutoCollectMode.label",
+            "description": "$option.AutoCollectMode.description",
+            "default_case": "Always",
+            "cases": [
+                {
+                    "name": "Always",
+                    "label": "$option.AutoCollectMode.case.Always.label"
+                },
+                {
+                    "name": "TargetInventory",
+                    "label": "$option.AutoCollectMode.case.TargetInventory.label",
+                    "pipeline_override": {
+                        "AutoCollectInventoryResetSnapshot": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute1Sub": {
+                            "enabled": false
+                        },
+                        "AutoCollectRoute1SubGated": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute1SubSkipped": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute2Sub": {
+                            "enabled": false
+                        },
+                        "AutoCollectRoute2SubGated": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute2SubSkipped": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute3Sub": {
+                            "enabled": false
+                        },
+                        "AutoCollectRoute3SubGated": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute3SubSkipped": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute4Sub": {
+                            "enabled": false
+                        },
+                        "AutoCollectRoute4SubGated": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute4SubSkipped": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute5Sub": {
+                            "enabled": false
+                        },
+                        "AutoCollectRoute5SubGated": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute5SubSkipped": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute6Sub": {
+                            "enabled": false
+                        },
+                        "AutoCollectRoute6SubGated": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute6SubSkipped": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute7Sub": {
+                            "enabled": false
+                        },
+                        "AutoCollectRoute7SubGated": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute7SubSkipped": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute8Sub": {
+                            "enabled": false
+                        },
+                        "AutoCollectRoute8SubGated": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute8SubSkipped": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute9Sub": {
+                            "enabled": false
+                        },
+                        "AutoCollectRoute9SubGated": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute9SubSkipped": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute10Sub": {
+                            "enabled": false
+                        },
+                        "AutoCollectRoute10SubGated": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute10SubSkipped": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute11Sub": {
+                            "enabled": false
+                        },
+                        "AutoCollectRoute11SubGated": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute11SubSkipped": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute12Sub": {
+                            "enabled": false
+                        },
+                        "AutoCollectRoute12SubGated": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute12SubSkipped": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute13Sub": {
+                            "enabled": false
+                        },
+                        "AutoCollectRoute13SubGated": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute13SubSkipped": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute14Sub": {
+                            "enabled": false
+                        },
+                        "AutoCollectRoute14SubGated": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute14SubSkipped": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute15Sub": {
+                            "enabled": false
+                        },
+                        "AutoCollectRoute15SubGated": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute15SubSkipped": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute16Sub": {
+                            "enabled": false
+                        },
+                        "AutoCollectRoute16SubGated": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute16SubSkipped": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute17Sub": {
+                            "enabled": false
+                        },
+                        "AutoCollectRoute17SubGated": {
+                            "enabled": true
+                        },
+                        "AutoCollectRoute17SubSkipped": {
+                            "enabled": true
+                        },
+                        "AutoCollectCommonRoute1Sub": {
+                            "enabled": false
+                        },
+                        "AutoCollectCommonRoute1SubGated": {
+                            "enabled": true
+                        },
+                        "AutoCollectCommonRoute1SubSkipped": {
+                            "enabled": true
+                        },
+                        "AutoCollectCommonRoute2Sub": {
+                            "enabled": false
+                        },
+                        "AutoCollectCommonRoute2SubGated": {
+                            "enabled": true
+                        },
+                        "AutoCollectCommonRoute2SubSkipped": {
+                            "enabled": true
+                        },
+                        "AutoCollectCommonRoute3Sub": {
+                            "enabled": false
+                        },
+                        "AutoCollectCommonRoute3SubGated": {
+                            "enabled": true
+                        },
+                        "AutoCollectCommonRoute3SubSkipped": {
+                            "enabled": true
+                        },
+                        "AutoCollectCommonRoute4Sub": {
+                            "enabled": false
+                        },
+                        "AutoCollectCommonRoute4SubGated": {
+                            "enabled": true
+                        },
+                        "AutoCollectCommonRoute4SubSkipped": {
+                            "enabled": true
+                        },
+                        "AutoCollectCommonRoute5Sub": {
+                            "enabled": false
+                        },
+                        "AutoCollectCommonRoute5SubGated": {
+                            "enabled": true
+                        },
+                        "AutoCollectCommonRoute5SubSkipped": {
+                            "enabled": true
+                        },
+                        "AutoCollectCommonRoute6Sub": {
+                            "enabled": false
+                        },
+                        "AutoCollectCommonRoute6SubGated": {
+                            "enabled": true
+                        },
+                        "AutoCollectCommonRoute6SubSkipped": {
+                            "enabled": true
+                        },
+                        "AutoCollectCommonRoute7Sub": {
+                            "enabled": false
+                        },
+                        "AutoCollectCommonRoute7SubGated": {
+                            "enabled": true
+                        },
+                        "AutoCollectCommonRoute7SubSkipped": {
+                            "enabled": true
+                        },
+                        "AutoCollectCommonRoute8Sub": {
+                            "enabled": false
+                        },
+                        "AutoCollectCommonRoute8SubGated": {
+                            "enabled": true
+                        },
+                        "AutoCollectCommonRoute8SubSkipped": {
+                            "enabled": true
+                        }
+                    },
+                    "option": [
+                        "AutoCollectTargetInventory"
+                    ]
+                }
+            ]
+        },
+        "AutoCollectTargetInventory": {
+            "type": "input",
+            "controller": [
+                "Linux-Gamescope",
+                "Linux-ScreenCast",
+                "Linux-Wlroots",
+                "Win32-Front"
+            ],
+            "label": "$option.AutoCollectTargetInventory.label",
+            "description": "$option.AutoCollectTargetInventory.description",
+            "inputs": [
+                {
+                    "name": "AutoCollectLimit_Route1",
+                    "label": "$iconRecognition.name.item_plant_crylplant_2_1",
+                    "pipeline_type": "int",
+                    "default": "252",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.AutoCollectTargetInventory.pattern_msg"
+                },
+                {
+                    "name": "AutoCollectLimit_Route2",
+                    "label": "$iconRecognition.name.item_plant_crylplant_2_2",
+                    "pipeline_type": "int",
+                    "default": "252",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.AutoCollectTargetInventory.pattern_msg"
+                },
+                {
+                    "name": "AutoCollectLimit_Route3",
+                    "label": "$iconRecognition.name.item_plant_crylplant_1_3",
+                    "pipeline_type": "int",
+                    "default": "64",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.AutoCollectTargetInventory.pattern_msg"
+                },
+                {
+                    "name": "AutoCollectLimit_Route4",
+                    "label": "$iconRecognition.name.item_plant_crylplant_1_2",
+                    "pipeline_type": "int",
+                    "default": "64",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.AutoCollectTargetInventory.pattern_msg"
+                },
+                {
+                    "name": "AutoCollectLimit_Route5",
+                    "label": "$iconRecognition.name.item_plant_spcstone_1_1",
+                    "pipeline_type": "int",
+                    "default": "12",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.AutoCollectTargetInventory.pattern_msg"
+                },
+                {
+                    "name": "AutoCollectLimit_Route6",
+                    "label": "$iconRecognition.name.item_plant_mushroom_1_1",
+                    "pipeline_type": "int",
+                    "default": "12",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.AutoCollectTargetInventory.pattern_msg"
+                },
+                {
+                    "name": "AutoCollectLimit_Route7Bloodcap",
+                    "label": "$iconRecognition.name.item_plant_mushroom_2_1",
+                    "pipeline_type": "int",
+                    "default": "32",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.AutoCollectTargetInventory.pattern_msg"
+                },
+                {
+                    "name": "AutoCollectLimit_Route7Wulingstone",
+                    "label": "$iconRecognition.name.item_plant_spcstone_2_2",
+                    "pipeline_type": "int",
+                    "default": "32",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.AutoCollectTargetInventory.pattern_msg"
+                },
+                {
+                    "name": "AutoCollectLimit_Route8",
+                    "label": "$iconRecognition.name.item_plant_mushroom_2_2",
+                    "pipeline_type": "int",
+                    "default": "32",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.AutoCollectTargetInventory.pattern_msg"
+                },
+                {
+                    "name": "AutoCollectLimit_Route9",
+                    "label": "$iconRecognition.name.item_plant_spcstone_2_1",
+                    "pipeline_type": "int",
+                    "default": "32",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.AutoCollectTargetInventory.pattern_msg"
+                },
+                {
+                    "name": "AutoCollectLimit_Route10",
+                    "label": "$iconRecognition.name.item_plant_mushroom_1_3",
+                    "pipeline_type": "int",
+                    "default": "20",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.AutoCollectTargetInventory.pattern_msg"
+                },
+                {
+                    "name": "AutoCollectLimit_Route11",
+                    "label": "$iconRecognition.name.item_plant_spcstone_1_3",
+                    "pipeline_type": "int",
+                    "default": "20",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.AutoCollectTargetInventory.pattern_msg"
+                },
+                {
+                    "name": "AutoCollectLimit_Route12",
+                    "label": "$iconRecognition.name.item_plant_mushroom_1_2",
+                    "pipeline_type": "int",
+                    "default": "20",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.AutoCollectTargetInventory.pattern_msg"
+                },
+                {
+                    "name": "AutoCollectLimit_Route13",
+                    "label": "$iconRecognition.name.item_plant_spcstone_1_2",
+                    "pipeline_type": "int",
+                    "default": "20",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.AutoCollectTargetInventory.pattern_msg"
+                },
+                {
+                    "name": "AutoCollectLimit_Route14",
+                    "label": "$iconRecognition.name.item_plant_crylplant_1_1",
+                    "pipeline_type": "int",
+                    "default": "48",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.AutoCollectTargetInventory.pattern_msg"
+                },
+                {
+                    "name": "AutoCollectLimit_Route15",
+                    "label": "$iconRecognition.name.item_plant_crylplant_2_3",
+                    "pipeline_type": "int",
+                    "default": "252",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.AutoCollectTargetInventory.pattern_msg"
+                },
+                {
+                    "name": "AutoCollectLimit_Route16",
+                    "label": "$iconRecognition.name.item_plant_spcstone_2_3",
+                    "pipeline_type": "int",
+                    "default": "32",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.AutoCollectTargetInventory.pattern_msg"
+                },
+                {
+                    "name": "AutoCollectLimit_Route17",
+                    "label": "$iconRecognition.name.item_plant_mushroom_2_3",
+                    "pipeline_type": "int",
+                    "default": "32",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.AutoCollectTargetInventory.pattern_msg"
+                },
+                {
+                    "name": "AutoCollectLimit_CommonRoute1",
+                    "label": "$iconRecognition.name.item_plant_moss_spc_1",
+                    "pipeline_type": "int",
+                    "default": "0",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.AutoCollectTargetInventory.pattern_msg"
+                },
+                {
+                    "name": "AutoCollectLimit_CommonRoute2",
+                    "label": "$iconRecognition.name.item_plant_moss_spc_2",
+                    "pipeline_type": "int",
+                    "default": "0",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.AutoCollectTargetInventory.pattern_msg"
+                },
+                {
+                    "name": "AutoCollectLimit_CommonRoute3",
+                    "label": "$iconRecognition.name.item_plant_tundra_insect_2",
+                    "pipeline_type": "int",
+                    "default": "0",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.AutoCollectTargetInventory.pattern_msg"
+                },
+                {
+                    "name": "AutoCollectLimit_CommonRoute4",
+                    "label": "$iconRecognition.name.item_plant_tundra_insect_1",
+                    "pipeline_type": "int",
+                    "default": "0",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.AutoCollectTargetInventory.pattern_msg"
+                },
+                {
+                    "name": "AutoCollectLimit_CommonRoute5",
+                    "label": "$iconRecognition.name.item_plant_grass_spc_1",
+                    "pipeline_type": "int",
+                    "default": "0",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.AutoCollectTargetInventory.pattern_msg"
+                },
+                {
+                    "name": "AutoCollectLimit_CommonRoute6",
+                    "label": "$iconRecognition.name.item_plant_sp_3",
+                    "pipeline_type": "int",
+                    "default": "0",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.AutoCollectTargetInventory.pattern_msg"
+                },
+                {
+                    "name": "AutoCollectLimit_CommonRoute7",
+                    "label": "$iconRecognition.name.item_plant_grass_spc_2",
+                    "pipeline_type": "int",
+                    "default": "0",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.AutoCollectTargetInventory.pattern_msg"
+                },
+                {
+                    "name": "AutoCollectLimit_CommonRoute8",
+                    "label": "$iconRecognition.name.item_plant_sp_4",
+                    "pipeline_type": "int",
+                    "default": "0",
+                    "verify": "^\\d+$",
+                    "pattern_msg": "$option.AutoCollectTargetInventory.pattern_msg"
+                }
+            ],
+            "pipeline_override": {
+                "AutoCollectRoute1SubGated": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{AutoCollectLimit_Route1}==0 || {item_plant_crylplant_2_1}<{AutoCollectLimit_Route1}"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectRoute1SubSkipped": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "!({AutoCollectLimit_Route1}==0 || {item_plant_crylplant_2_1}<{AutoCollectLimit_Route1})"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectRoute2SubGated": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{AutoCollectLimit_Route2}==0 || {item_plant_crylplant_2_2}<{AutoCollectLimit_Route2}"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectRoute2SubSkipped": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "!({AutoCollectLimit_Route2}==0 || {item_plant_crylplant_2_2}<{AutoCollectLimit_Route2})"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectRoute3SubGated": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{AutoCollectLimit_Route3}==0 || {item_plant_crylplant_1_3}<{AutoCollectLimit_Route3}"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectRoute3SubSkipped": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "!({AutoCollectLimit_Route3}==0 || {item_plant_crylplant_1_3}<{AutoCollectLimit_Route3})"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectRoute4SubGated": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{AutoCollectLimit_Route4}==0 || {item_plant_crylplant_1_2}<{AutoCollectLimit_Route4}"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectRoute4SubSkipped": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "!({AutoCollectLimit_Route4}==0 || {item_plant_crylplant_1_2}<{AutoCollectLimit_Route4})"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectRoute5SubGated": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{AutoCollectLimit_Route5}==0 || {item_plant_spcstone_1_1}<{AutoCollectLimit_Route5}"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectRoute5SubSkipped": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "!({AutoCollectLimit_Route5}==0 || {item_plant_spcstone_1_1}<{AutoCollectLimit_Route5})"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectRoute6SubGated": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{AutoCollectLimit_Route6}==0 || {item_plant_mushroom_1_1}<{AutoCollectLimit_Route6}"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectRoute6SubSkipped": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "!({AutoCollectLimit_Route6}==0 || {item_plant_mushroom_1_1}<{AutoCollectLimit_Route6})"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectRoute7SubGated": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "({AutoCollectLimit_Route7Bloodcap}==0 && {AutoCollectLimit_Route7Wulingstone}==0) || ({AutoCollectLimit_Route7Bloodcap}>0 && {item_plant_mushroom_2_1}<{AutoCollectLimit_Route7Bloodcap}) || ({AutoCollectLimit_Route7Wulingstone}>0 && {item_plant_spcstone_2_2}<{AutoCollectLimit_Route7Wulingstone})"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectRoute7SubSkipped": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "!(({AutoCollectLimit_Route7Bloodcap}==0 && {AutoCollectLimit_Route7Wulingstone}==0) || ({AutoCollectLimit_Route7Bloodcap}>0 && {item_plant_mushroom_2_1}<{AutoCollectLimit_Route7Bloodcap}) || ({AutoCollectLimit_Route7Wulingstone}>0 && {item_plant_spcstone_2_2}<{AutoCollectLimit_Route7Wulingstone}))"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectRoute8SubGated": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{AutoCollectLimit_Route8}==0 || {item_plant_mushroom_2_2}<{AutoCollectLimit_Route8}"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectRoute8SubSkipped": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "!({AutoCollectLimit_Route8}==0 || {item_plant_mushroom_2_2}<{AutoCollectLimit_Route8})"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectRoute9SubGated": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{AutoCollectLimit_Route9}==0 || {item_plant_spcstone_2_1}<{AutoCollectLimit_Route9}"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectRoute9SubSkipped": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "!({AutoCollectLimit_Route9}==0 || {item_plant_spcstone_2_1}<{AutoCollectLimit_Route9})"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectRoute10SubGated": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{AutoCollectLimit_Route10}==0 || {item_plant_mushroom_1_3}<{AutoCollectLimit_Route10}"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectRoute10SubSkipped": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "!({AutoCollectLimit_Route10}==0 || {item_plant_mushroom_1_3}<{AutoCollectLimit_Route10})"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectRoute11SubGated": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{AutoCollectLimit_Route11}==0 || {item_plant_spcstone_1_3}<{AutoCollectLimit_Route11}"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectRoute11SubSkipped": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "!({AutoCollectLimit_Route11}==0 || {item_plant_spcstone_1_3}<{AutoCollectLimit_Route11})"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectRoute12SubGated": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{AutoCollectLimit_Route12}==0 || {item_plant_mushroom_1_2}<{AutoCollectLimit_Route12}"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectRoute12SubSkipped": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "!({AutoCollectLimit_Route12}==0 || {item_plant_mushroom_1_2}<{AutoCollectLimit_Route12})"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectRoute13SubGated": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{AutoCollectLimit_Route13}==0 || {item_plant_spcstone_1_2}<{AutoCollectLimit_Route13}"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectRoute13SubSkipped": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "!({AutoCollectLimit_Route13}==0 || {item_plant_spcstone_1_2}<{AutoCollectLimit_Route13})"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectRoute14SubGated": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{AutoCollectLimit_Route14}==0 || {item_plant_crylplant_1_1}<{AutoCollectLimit_Route14}"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectRoute14SubSkipped": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "!({AutoCollectLimit_Route14}==0 || {item_plant_crylplant_1_1}<{AutoCollectLimit_Route14})"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectRoute15SubGated": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{AutoCollectLimit_Route15}==0 || {item_plant_crylplant_2_3}<{AutoCollectLimit_Route15}"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectRoute15SubSkipped": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "!({AutoCollectLimit_Route15}==0 || {item_plant_crylplant_2_3}<{AutoCollectLimit_Route15})"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectRoute16SubGated": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{AutoCollectLimit_Route16}==0 || {item_plant_spcstone_2_3}<{AutoCollectLimit_Route16}"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectRoute16SubSkipped": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "!({AutoCollectLimit_Route16}==0 || {item_plant_spcstone_2_3}<{AutoCollectLimit_Route16})"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectRoute17SubGated": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{AutoCollectLimit_Route17}==0 || {item_plant_mushroom_2_3}<{AutoCollectLimit_Route17}"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectRoute17SubSkipped": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "!({AutoCollectLimit_Route17}==0 || {item_plant_mushroom_2_3}<{AutoCollectLimit_Route17})"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectCommonRoute1SubGated": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{AutoCollectLimit_CommonRoute1}==0 || {item_plant_moss_spc_1}<{AutoCollectLimit_CommonRoute1}"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectCommonRoute1SubSkipped": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "!({AutoCollectLimit_CommonRoute1}==0 || {item_plant_moss_spc_1}<{AutoCollectLimit_CommonRoute1})"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectCommonRoute2SubGated": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{AutoCollectLimit_CommonRoute2}==0 || {item_plant_moss_spc_2}<{AutoCollectLimit_CommonRoute2}"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectCommonRoute2SubSkipped": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "!({AutoCollectLimit_CommonRoute2}==0 || {item_plant_moss_spc_2}<{AutoCollectLimit_CommonRoute2})"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectCommonRoute3SubGated": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{AutoCollectLimit_CommonRoute3}==0 || {item_plant_tundra_insect_2}<{AutoCollectLimit_CommonRoute3}"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectCommonRoute3SubSkipped": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "!({AutoCollectLimit_CommonRoute3}==0 || {item_plant_tundra_insect_2}<{AutoCollectLimit_CommonRoute3})"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectCommonRoute4SubGated": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{AutoCollectLimit_CommonRoute4}==0 || {item_plant_tundra_insect_1}<{AutoCollectLimit_CommonRoute4}"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectCommonRoute4SubSkipped": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "!({AutoCollectLimit_CommonRoute4}==0 || {item_plant_tundra_insect_1}<{AutoCollectLimit_CommonRoute4})"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectCommonRoute5SubGated": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{AutoCollectLimit_CommonRoute5}==0 || {item_plant_grass_spc_1}<{AutoCollectLimit_CommonRoute5}"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectCommonRoute5SubSkipped": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "!({AutoCollectLimit_CommonRoute5}==0 || {item_plant_grass_spc_1}<{AutoCollectLimit_CommonRoute5})"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectCommonRoute6SubGated": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{AutoCollectLimit_CommonRoute6}==0 || {item_plant_sp_3}<{AutoCollectLimit_CommonRoute6}"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectCommonRoute6SubSkipped": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "!({AutoCollectLimit_CommonRoute6}==0 || {item_plant_sp_3}<{AutoCollectLimit_CommonRoute6})"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectCommonRoute7SubGated": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{AutoCollectLimit_CommonRoute7}==0 || {item_plant_grass_spc_2}<{AutoCollectLimit_CommonRoute7}"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectCommonRoute7SubSkipped": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "!({AutoCollectLimit_CommonRoute7}==0 || {item_plant_grass_spc_2}<{AutoCollectLimit_CommonRoute7})"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectCommonRoute8SubGated": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "{AutoCollectLimit_CommonRoute8}==0 || {item_plant_sp_4}<{AutoCollectLimit_CommonRoute8}"
+                            }
+                        }
+                    }
+                },
+                "AutoCollectCommonRoute8SubSkipped": {
+                    "recognition": {
+                        "param": {
+                            "custom_recognition_param": {
+                                "expression": "!({AutoCollectLimit_CommonRoute8}==0 || {item_plant_sp_4}<{AutoCollectLimit_CommonRoute8})"
+                            }
+                        }
+                    }
+                }
+            }
         },
         "AutoCollectStashBackpackSubTask": {
             "type": "switch",

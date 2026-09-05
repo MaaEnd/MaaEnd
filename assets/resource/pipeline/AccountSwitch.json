@@ -390,7 +390,7 @@
         ]
     },
     "__AccountSwitchResetImsFirstScan": {
-        "desc": "清空 IMS 首次库存扫描标记：重新打开各地区 Begin，关闭商店 Completed，切号后会再次真正扫库",
+        "desc": "清空 IMS 首次库存扫描标记：重新打开各地区 Begin，关闭各完成标记，切号后会再次真正扫库",
         "recognition": "DirectHit",
         "pre_delay": 0,
         "action": {
@@ -402,6 +402,12 @@
                     "patch": {
                         "SyncItemDataBegin": {
                             "enabled": true
+                        },
+                        "SyncDepotItemDataBegin": {
+                            "enabled": true
+                        },
+                        "SyncDepotItemDataCompleted": {
+                            "enabled": false
                         },
                         "SyncShopItemDataBegin": {
                             "enabled": true
