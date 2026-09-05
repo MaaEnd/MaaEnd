@@ -1350,6 +1350,8 @@
     "task.AutoStockStaple.option.AutoStockBuyCulturalGoodsWuling.description": "購買武陵人文物產類物資",
     "task.AutoStockStaple.option.AutoStockUseDiscountsWuling.label": "僅購買折扣",
     "task.AutoStockStaple.option.AutoStockUseDiscountsWuling.description": "開啟後只購買存在折扣的物資",
+    "task.AutoStockStaple.option.AutoStockStapleAutoStashBackpack.label": "背包已滿時自動存放背包",
+    "task.AutoStockStaple.option.AutoStockStapleAutoStashBackpack.description": "購買過程中背包已滿時，自動呼叫存放背包任務整理背包後繼續購買",
     "task.AutoStockStaple.option.AutoStockBuyDailyGoodsValleyIVEngravingPermitLimit.label": "日用消耗-谷地刻寫券數量上限",
     "task.AutoStockStaple.option.AutoStockBuyDailyGoodsValleyIVEngravingPermitLimit.description": "單獨限制：谷地刻寫券數量達到該值後停止購買",
     "task.AutoStockStaple.option.AutoStockBuyDailyGoodsValleyIVEngravingPermitLimit.inputs.ValleyEngravingPermitLimit.label": "谷地刻寫券上限",

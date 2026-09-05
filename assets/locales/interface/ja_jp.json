@@ -1350,6 +1350,8 @@
     "task.AutoStockStaple.option.AutoStockBuyCulturalGoodsWuling.description": "武陵の文化産品カテゴリ物資を購入",
     "task.AutoStockStaple.option.AutoStockUseDiscountsWuling.label": "割引品のみ購入",
     "task.AutoStockStaple.option.AutoStockUseDiscountsWuling.description": "有効時、割引のある物資のみ購入します",
+    "task.AutoStockStaple.option.AutoStockStapleAutoStashBackpack.label": "バッグが満杯になったら自動でバッグを収納",
+    "task.AutoStockStaple.option.AutoStockStapleAutoStashBackpack.description": "購入中にバッグが満杯になった場合、バッグ収納タスクを自動実行してから購入を続行します",
     "task.AutoStockStaple.option.AutoStockBuyDailyGoodsValleyIVEngravingPermitLimit.label": "日用品-谷地刻写券の上限数",
     "task.AutoStockStaple.option.AutoStockBuyDailyGoodsValleyIVEngravingPermitLimit.description": "個別制限：谷地刻写券の所持数がこの値に達したら購入を停止します",
     "task.AutoStockStaple.option.AutoStockBuyDailyGoodsValleyIVEngravingPermitLimit.inputs.ValleyEngravingPermitLimit.label": "谷地刻写券の上限",

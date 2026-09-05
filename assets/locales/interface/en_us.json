@@ -1350,6 +1350,8 @@
     "task.AutoStockStaple.option.AutoStockBuyCulturalGoodsWuling.description": "Purchase Wuling cultural goods supplies",
     "task.AutoStockStaple.option.AutoStockUseDiscountsWuling.label": "Discount-only purchase",
     "task.AutoStockStaple.option.AutoStockUseDiscountsWuling.description": "When enabled, only purchases discounted supplies",
+    "task.AutoStockStaple.option.AutoStockStapleAutoStashBackpack.label": "Auto stash backpack when it is full",
+    "task.AutoStockStaple.option.AutoStockStapleAutoStashBackpack.description": "When the backpack is full during purchase, automatically run the stash backpack task and continue purchasing",
     "task.AutoStockStaple.option.AutoStockBuyDailyGoodsValleyIVEngravingPermitLimit.label": "Daily goods - Valley Engraving Permit quantity limit",
     "task.AutoStockStaple.option.AutoStockBuyDailyGoodsValleyIVEngravingPermitLimit.description": "Individual limit: stop buying Valley Engraving Permit once this value is reached.",
     "task.AutoStockStaple.option.AutoStockBuyDailyGoodsValleyIVEngravingPermitLimit.inputs.ValleyEngravingPermitLimit.label": "Valley Engraving Permit limit",

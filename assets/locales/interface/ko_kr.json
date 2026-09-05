@@ -1350,6 +1350,8 @@
     "task.AutoStockStaple.option.AutoStockBuyCulturalGoodsWuling.description": "무릉 인문 물산 물자 구매",
     "task.AutoStockStaple.option.AutoStockUseDiscountsWuling.label": "할인 상품만 구매",
     "task.AutoStockStaple.option.AutoStockUseDiscountsWuling.description": "활성화 시 할인된 물자만 구매합니다",
+    "task.AutoStockStaple.option.AutoStockStapleAutoStashBackpack.label": "가방이 가득 차면 자동으로 가방 정리",
+    "task.AutoStockStaple.option.AutoStockStapleAutoStashBackpack.description": "구매 중 가방이 가득 차면 가방 정리 작업을 자동으로 실행한 후 구매를 계속합니다",
     "task.AutoStockStaple.option.AutoStockBuyDailyGoodsValleyIVEngravingPermitLimit.label": "생활 소모품-협곡 각인권 수량 상한",
     "task.AutoStockStaple.option.AutoStockBuyDailyGoodsValleyIVEngravingPermitLimit.description": "개별 제한: 협곡 각인권 수량이 이 값에 도달하면 구매를 중지합니다",
     "task.AutoStockStaple.option.AutoStockBuyDailyGoodsValleyIVEngravingPermitLimit.inputs.ValleyEngravingPermitLimit.label": "협곡 각인권 상한",

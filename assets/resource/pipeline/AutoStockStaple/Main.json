@@ -2,6 +2,18 @@
     "AutoStockStapleSchedule": {
         "desc": "稳定需求物资执行周期",
         "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "ClearHitCount",
+                "custom_action_param": {
+                    "nodes": [
+                        "AutoStockStapleBagFullHandlerValleyIV",
+                        "AutoStockStapleBagFullHandlerWuling"
+                    ]
+                }
+            }
+        },
         "post_delay": 0,
         "next": [
             "AutoStockStapleScheduleEnabled",
