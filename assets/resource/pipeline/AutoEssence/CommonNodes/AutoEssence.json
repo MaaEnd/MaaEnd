@@ -86,7 +86,12 @@
         ],
         "on_error": [
             "AutoEssenceSetupLocationFailed"
-        ]
+        ],
+        "attach": {
+            "menu_mode": "random",
+            "location_id": "",
+            "slot2_id": 0
+        }
     },
     "AutoEssenceSetupLocationFailed": {
         "desc": "抽取淤积点失败（通常是因为所有淤积点均未启用），此时结束任务",

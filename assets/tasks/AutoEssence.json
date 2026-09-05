@@ -245,13 +245,29 @@
             "type": "select",
             "label": "$option.AutoEssenceMenu.label",
             "description": "$option.AutoEssenceMenu.description",
-            "default_case": "Location",
+            "default_case": "Random",
             "cases": [
+                {
+                    "name": "Random",
+                    "label": "$option.AutoEssenceMenu.cases.Random.label",
+                    "description": "$option.AutoEssenceMenu.cases.Random.description",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "menu_mode": "random"
+                            }
+                        }
+                    },
+                    "option": [
+                        "AutoEssenceChooseLocation"
+                    ]
+                },
                 {
                     "name": "Location",
                     "label": "$option.AutoEssenceMenu.cases.Location.label",
+                    "description": "$option.AutoEssenceMenu.cases.Location.description",
                     "option": [
-                        "AutoEssenceChooseLocation"
+                        "AutoEssenceSelectLocation"
                     ]
                 },
                 {
@@ -1916,6 +1932,2402 @@
                         "EssenceFilterAfterBattleInit": {
                             "attach": {
                                 "discard_unmatched": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoEssenceSelectLocation": {
+            "type": "select",
+            "label": "$option.AutoEssenceSelectLocation.label",
+            "description": "$option.AutoEssenceSelectLocation.description",
+            "default_case": "VFTheHub",
+            "cases": [
+                {
+                    "name": "VFTheHub",
+                    "label": "$global.region.TheHub",
+                    "pipeline_override": {
+                        "GotoTriggerPointSetAnchor_VFTheHub": {
+                            "enabled": true
+                        },
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "menu_mode": "location",
+                                "location_id": "VFTheHub"
+                            }
+                        }
+                    },
+                    "option": [
+                        "AutoEssenceLocationSlot1",
+                        "AutoEssenceLocationBonus_VFTheHub"
+                    ]
+                },
+                {
+                    "name": "VFOriginiumSciencePark",
+                    "label": "$global.region.OriginiumSciencePark",
+                    "pipeline_override": {
+                        "GotoTriggerPointSetAnchor_VFOriginiumSciencePark": {
+                            "enabled": true
+                        },
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "menu_mode": "location",
+                                "location_id": "VFOriginiumSciencePark"
+                            }
+                        }
+                    },
+                    "option": [
+                        "AutoEssenceLocationSlot1",
+                        "AutoEssenceLocationBonus_VFOriginiumSciencePark"
+                    ]
+                },
+                {
+                    "name": "VFOriginLodespring",
+                    "label": "$global.region.OriginLodespring",
+                    "pipeline_override": {
+                        "GotoTriggerPointSetAnchor_VFOriginLodespring": {
+                            "enabled": true
+                        },
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "menu_mode": "location",
+                                "location_id": "VFOriginLodespring"
+                            }
+                        }
+                    },
+                    "option": [
+                        "AutoEssenceLocationSlot1",
+                        "AutoEssenceLocationBonus_VFOriginLodespring"
+                    ]
+                },
+                {
+                    "name": "VFPowerPlateau",
+                    "label": "$global.region.PowerPlateau",
+                    "pipeline_override": {
+                        "GotoTriggerPointSetAnchor_VFPowerPlateau": {
+                            "enabled": true
+                        },
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "menu_mode": "location",
+                                "location_id": "VFPowerPlateau"
+                            }
+                        }
+                    },
+                    "option": [
+                        "AutoEssenceLocationSlot1",
+                        "AutoEssenceLocationBonus_VFPowerPlateau"
+                    ]
+                },
+                {
+                    "name": "WLWulingCity",
+                    "label": "$global.region.WulingCity",
+                    "pipeline_override": {
+                        "GotoTriggerPointSetAnchor_WLWulingCity": {
+                            "enabled": true
+                        },
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "menu_mode": "location",
+                                "location_id": "WLWulingCity"
+                            }
+                        }
+                    },
+                    "option": [
+                        "AutoEssenceLocationSlot1",
+                        "AutoEssenceLocationBonus_WLWulingCity"
+                    ]
+                },
+                {
+                    "name": "WLQingboStockade",
+                    "label": "$global.region.QingboStockade",
+                    "pipeline_override": {
+                        "GotoTriggerPointSetAnchor_WLQingboStockade": {
+                            "enabled": true
+                        },
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "menu_mode": "location",
+                                "location_id": "WLQingboStockade"
+                            }
+                        }
+                    },
+                    "option": [
+                        "AutoEssenceLocationSlot1",
+                        "AutoEssenceLocationBonus_WLQingboStockade"
+                    ]
+                },
+                {
+                    "name": "WLMarkerStone",
+                    "label": "$global.region.MarkerStone",
+                    "pipeline_override": {
+                        "GotoTriggerPointSetAnchor_WLMarkerStone": {
+                            "enabled": true
+                        },
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "menu_mode": "location",
+                                "location_id": "WLMarkerStone"
+                            }
+                        }
+                    },
+                    "option": [
+                        "AutoEssenceLocationSlot1",
+                        "AutoEssenceLocationBonus_WLMarkerStone"
+                    ]
+                },
+                {
+                    "name": "WLTestArea",
+                    "label": "$global.region.TestArea",
+                    "pipeline_override": {
+                        "GotoTriggerPointSetAnchor_WLTestArea": {
+                            "enabled": true
+                        },
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "menu_mode": "location",
+                                "location_id": "WLTestArea"
+                            }
+                        }
+                    },
+                    "option": [
+                        "AutoEssenceLocationSlot1",
+                        "AutoEssenceLocationBonus_WLTestArea"
+                    ]
+                },
+                {
+                    "name": "WLSwordVaultDale",
+                    "label": "$global.region.SwordVaultDale",
+                    "pipeline_override": {
+                        "GotoTriggerPointSetAnchor_WLSwordVaultDale": {
+                            "enabled": true
+                        },
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "menu_mode": "location",
+                                "location_id": "WLSwordVaultDale"
+                            }
+                        }
+                    },
+                    "option": [
+                        "AutoEssenceLocationSlot1",
+                        "AutoEssenceLocationBonus_WLSwordVaultDale"
+                    ]
+                },
+                {
+                    "name": "WLYinglungPass",
+                    "label": "$global.region.YinglungPass",
+                    "pipeline_override": {
+                        "GotoTriggerPointSetAnchor_WLYinglungPass": {
+                            "enabled": true
+                        },
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "menu_mode": "location",
+                                "location_id": "WLYinglungPass"
+                            }
+                        }
+                    },
+                    "option": [
+                        "AutoEssenceLocationSlot1",
+                        "AutoEssenceLocationBonus_WLYinglungPass"
+                    ]
+                },
+                {
+                    "name": "WLNorthWulingExclusionZone",
+                    "label": "$global.region.NorthWulingExclusionZone",
+                    "pipeline_override": {
+                        "GotoTriggerPointSetAnchor_WLNorthWulingExclusionZone": {
+                            "enabled": true
+                        },
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "menu_mode": "location",
+                                "location_id": "WLNorthWulingExclusionZone"
+                            }
+                        }
+                    },
+                    "option": [
+                        "AutoEssenceLocationSlot1",
+                        "AutoEssenceLocationBonus_WLNorthWulingExclusionZone"
+                    ]
+                }
+            ]
+        },
+        "AutoEssenceLocationSlot1": {
+            "type": "checkbox",
+            "label": "$option.AutoEssenceLocationSlot1.label",
+            "description": "$option.AutoEssenceLocationSlot1.description",
+            "default_case": [
+                "s1_2",
+                "s1_3",
+                "s1_4"
+            ],
+            "cases": [
+                {
+                    "name": "s1_1",
+                    "label": "$option.AutoEssenceSkill.s1_1",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "s1_1": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s1_2",
+                    "label": "$option.AutoEssenceSkill.s1_2",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "s1_2": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s1_3",
+                    "label": "$option.AutoEssenceSkill.s1_3",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "s1_3": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s1_4",
+                    "label": "$option.AutoEssenceSkill.s1_4",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "s1_4": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s1_5",
+                    "label": "$option.AutoEssenceSkill.s1_5",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "s1_5": true
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoEssenceLocationBonus_VFTheHub": {
+            "type": "select",
+            "label": "$option.AutoEssenceLocationBonus.label",
+            "description": "$option.AutoEssenceLocationBonus.description",
+            "default_case": "s2_2",
+            "cases": [
+                {
+                    "name": "s2_2",
+                    "label": "$option.AutoEssenceSkill.s2_2",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 2,
+                                "s2_1": false,
+                                "s2_2": true,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_7",
+                    "label": "$option.AutoEssenceSkill.s2_7",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 7,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": true,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_10",
+                    "label": "$option.AutoEssenceSkill.s2_10",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 10,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": true,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_1",
+                    "label": "$option.AutoEssenceSkill.s2_1",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 1,
+                                "s2_1": true,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_12",
+                    "label": "$option.AutoEssenceSkill.s2_12",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 12,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_6",
+                    "label": "$option.AutoEssenceSkill.s2_6",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 6,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": true,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_11",
+                    "label": "$option.AutoEssenceSkill.s2_11",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 11,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": true,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_5",
+                    "label": "$option.AutoEssenceSkill.s2_5",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 5,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": true,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoEssenceLocationBonus_VFOriginiumSciencePark": {
+            "type": "select",
+            "label": "$option.AutoEssenceLocationBonus.label",
+            "description": "$option.AutoEssenceLocationBonus.description",
+            "default_case": "s2_2",
+            "cases": [
+                {
+                    "name": "s2_2",
+                    "label": "$option.AutoEssenceSkill.s2_2",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 2,
+                                "s2_1": false,
+                                "s2_2": true,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_8",
+                    "label": "$option.AutoEssenceSkill.s2_8",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 8,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": true,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_10",
+                    "label": "$option.AutoEssenceSkill.s2_10",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 10,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": true,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_1",
+                    "label": "$option.AutoEssenceSkill.s2_1",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 1,
+                                "s2_1": true,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_12",
+                    "label": "$option.AutoEssenceSkill.s2_12",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 12,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_3",
+                    "label": "$option.AutoEssenceSkill.s2_3",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 3,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": true,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_11",
+                    "label": "$option.AutoEssenceSkill.s2_11",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 11,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": true,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_5",
+                    "label": "$option.AutoEssenceSkill.s2_5",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 5,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": true,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoEssenceLocationBonus_VFOriginLodespring": {
+            "type": "select",
+            "label": "$option.AutoEssenceLocationBonus.label",
+            "description": "$option.AutoEssenceLocationBonus.description",
+            "default_case": "s2_9",
+            "cases": [
+                {
+                    "name": "s2_9",
+                    "label": "$option.AutoEssenceSkill.s2_9",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 9,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": true,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_8",
+                    "label": "$option.AutoEssenceSkill.s2_8",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 8,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": true,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_7",
+                    "label": "$option.AutoEssenceSkill.s2_7",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 7,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": true,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_1",
+                    "label": "$option.AutoEssenceSkill.s2_1",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 1,
+                                "s2_1": true,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_12",
+                    "label": "$option.AutoEssenceSkill.s2_12",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 12,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_3",
+                    "label": "$option.AutoEssenceSkill.s2_3",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 3,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": true,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_6",
+                    "label": "$option.AutoEssenceSkill.s2_6",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 6,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": true,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_4",
+                    "label": "$option.AutoEssenceSkill.s2_4",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 4,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": true,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoEssenceLocationBonus_VFPowerPlateau": {
+            "type": "select",
+            "label": "$option.AutoEssenceLocationBonus.label",
+            "description": "$option.AutoEssenceLocationBonus.description",
+            "default_case": "s2_2",
+            "cases": [
+                {
+                    "name": "s2_2",
+                    "label": "$option.AutoEssenceSkill.s2_2",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 2,
+                                "s2_1": false,
+                                "s2_2": true,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_9",
+                    "label": "$option.AutoEssenceSkill.s2_9",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 9,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": true,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_8",
+                    "label": "$option.AutoEssenceSkill.s2_8",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 8,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": true,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_7",
+                    "label": "$option.AutoEssenceSkill.s2_7",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 7,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": true,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_12",
+                    "label": "$option.AutoEssenceSkill.s2_12",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 12,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_3",
+                    "label": "$option.AutoEssenceSkill.s2_3",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 3,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": true,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_6",
+                    "label": "$option.AutoEssenceSkill.s2_6",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 6,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": true,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_4",
+                    "label": "$option.AutoEssenceSkill.s2_4",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 4,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": true,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoEssenceLocationBonus_WLWulingCity": {
+            "type": "select",
+            "label": "$option.AutoEssenceLocationBonus.label",
+            "description": "$option.AutoEssenceLocationBonus.description",
+            "default_case": "s2_2",
+            "cases": [
+                {
+                    "name": "s2_2",
+                    "label": "$option.AutoEssenceSkill.s2_2",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 2,
+                                "s2_1": false,
+                                "s2_2": true,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_9",
+                    "label": "$option.AutoEssenceSkill.s2_9",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 9,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": true,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_10",
+                    "label": "$option.AutoEssenceSkill.s2_10",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 10,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": true,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_1",
+                    "label": "$option.AutoEssenceSkill.s2_1",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 1,
+                                "s2_1": true,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_3",
+                    "label": "$option.AutoEssenceSkill.s2_3",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 3,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": true,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_11",
+                    "label": "$option.AutoEssenceSkill.s2_11",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 11,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": true,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_5",
+                    "label": "$option.AutoEssenceSkill.s2_5",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 5,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": true,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_4",
+                    "label": "$option.AutoEssenceSkill.s2_4",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 4,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": true,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoEssenceLocationBonus_WLQingboStockade": {
+            "type": "select",
+            "label": "$option.AutoEssenceLocationBonus.label",
+            "description": "$option.AutoEssenceLocationBonus.description",
+            "default_case": "s2_9",
+            "cases": [
+                {
+                    "name": "s2_9",
+                    "label": "$option.AutoEssenceSkill.s2_9",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 9,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": true,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_8",
+                    "label": "$option.AutoEssenceSkill.s2_8",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 8,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": true,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_10",
+                    "label": "$option.AutoEssenceSkill.s2_10",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 10,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": true,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_1",
+                    "label": "$option.AutoEssenceSkill.s2_1",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 1,
+                                "s2_1": true,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_6",
+                    "label": "$option.AutoEssenceSkill.s2_6",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 6,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": true,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_11",
+                    "label": "$option.AutoEssenceSkill.s2_11",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 11,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": true,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_5",
+                    "label": "$option.AutoEssenceSkill.s2_5",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 5,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": true,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_4",
+                    "label": "$option.AutoEssenceSkill.s2_4",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 4,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": true,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoEssenceLocationBonus_WLMarkerStone": {
+            "type": "select",
+            "label": "$option.AutoEssenceLocationBonus.label",
+            "description": "$option.AutoEssenceLocationBonus.description",
+            "default_case": "s2_2",
+            "cases": [
+                {
+                    "name": "s2_2",
+                    "label": "$option.AutoEssenceSkill.s2_2",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 2,
+                                "s2_1": false,
+                                "s2_2": true,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_8",
+                    "label": "$option.AutoEssenceSkill.s2_8",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 8,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": true,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_7",
+                    "label": "$option.AutoEssenceSkill.s2_7",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 7,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": true,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_10",
+                    "label": "$option.AutoEssenceSkill.s2_10",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 10,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": true,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_12",
+                    "label": "$option.AutoEssenceSkill.s2_12",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 12,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_3",
+                    "label": "$option.AutoEssenceSkill.s2_3",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 3,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": true,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_11",
+                    "label": "$option.AutoEssenceSkill.s2_11",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 11,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": true,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_5",
+                    "label": "$option.AutoEssenceSkill.s2_5",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 5,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": true,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoEssenceLocationBonus_WLTestArea": {
+            "type": "select",
+            "label": "$option.AutoEssenceLocationBonus.label",
+            "description": "$option.AutoEssenceLocationBonus.description",
+            "default_case": "s2_9",
+            "cases": [
+                {
+                    "name": "s2_9",
+                    "label": "$option.AutoEssenceSkill.s2_9",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 9,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": true,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_7",
+                    "label": "$option.AutoEssenceSkill.s2_7",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 7,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": true,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_10",
+                    "label": "$option.AutoEssenceSkill.s2_10",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 10,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": true,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_1",
+                    "label": "$option.AutoEssenceSkill.s2_1",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 1,
+                                "s2_1": true,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_12",
+                    "label": "$option.AutoEssenceSkill.s2_12",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 12,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_6",
+                    "label": "$option.AutoEssenceSkill.s2_6",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 6,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": true,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_11",
+                    "label": "$option.AutoEssenceSkill.s2_11",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 11,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": true,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_4",
+                    "label": "$option.AutoEssenceSkill.s2_4",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 4,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": true,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoEssenceLocationBonus_WLSwordVaultDale": {
+            "type": "select",
+            "label": "$option.AutoEssenceLocationBonus.label",
+            "description": "$option.AutoEssenceLocationBonus.description",
+            "default_case": "s2_2",
+            "cases": [
+                {
+                    "name": "s2_2",
+                    "label": "$option.AutoEssenceSkill.s2_2",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 2,
+                                "s2_1": false,
+                                "s2_2": true,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_9",
+                    "label": "$option.AutoEssenceSkill.s2_9",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 9,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": true,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_8",
+                    "label": "$option.AutoEssenceSkill.s2_8",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 8,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": true,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_7",
+                    "label": "$option.AutoEssenceSkill.s2_7",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 7,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": true,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_1",
+                    "label": "$option.AutoEssenceSkill.s2_1",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 1,
+                                "s2_1": true,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_12",
+                    "label": "$option.AutoEssenceSkill.s2_12",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 12,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_6",
+                    "label": "$option.AutoEssenceSkill.s2_6",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 6,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": true,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_4",
+                    "label": "$option.AutoEssenceSkill.s2_4",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 4,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": true,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoEssenceLocationBonus_WLYinglungPass": {
+            "type": "select",
+            "label": "$option.AutoEssenceLocationBonus.label",
+            "description": "$option.AutoEssenceLocationBonus.description",
+            "default_case": "s2_2",
+            "cases": [
+                {
+                    "name": "s2_2",
+                    "label": "$option.AutoEssenceSkill.s2_2",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 2,
+                                "s2_1": false,
+                                "s2_2": true,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_8",
+                    "label": "$option.AutoEssenceSkill.s2_8",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 8,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": true,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_10",
+                    "label": "$option.AutoEssenceSkill.s2_10",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 10,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": true,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_1",
+                    "label": "$option.AutoEssenceSkill.s2_1",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 1,
+                                "s2_1": true,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_12",
+                    "label": "$option.AutoEssenceSkill.s2_12",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 12,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_3",
+                    "label": "$option.AutoEssenceSkill.s2_3",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 3,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": true,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_6",
+                    "label": "$option.AutoEssenceSkill.s2_6",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 6,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": true,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_5",
+                    "label": "$option.AutoEssenceSkill.s2_5",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 5,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": true,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoEssenceLocationBonus_WLNorthWulingExclusionZone": {
+            "type": "select",
+            "label": "$option.AutoEssenceLocationBonus.label",
+            "description": "$option.AutoEssenceLocationBonus.description",
+            "default_case": "s2_9",
+            "cases": [
+                {
+                    "name": "s2_9",
+                    "label": "$option.AutoEssenceSkill.s2_9",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 9,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": true,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_8",
+                    "label": "$option.AutoEssenceSkill.s2_8",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 8,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": true,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_7",
+                    "label": "$option.AutoEssenceSkill.s2_7",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 7,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": true,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_12",
+                    "label": "$option.AutoEssenceSkill.s2_12",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 12,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_3",
+                    "label": "$option.AutoEssenceSkill.s2_3",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 3,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": true,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_6",
+                    "label": "$option.AutoEssenceSkill.s2_6",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 6,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": false,
+                                "s2_6": true,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_5",
+                    "label": "$option.AutoEssenceSkill.s2_5",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 5,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": false,
+                                "s2_5": true,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_4",
+                    "label": "$option.AutoEssenceSkill.s2_4",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot2_id": 4,
+                                "s2_1": false,
+                                "s2_2": false,
+                                "s2_3": false,
+                                "s2_4": true,
+                                "s2_5": false,
+                                "s2_6": false,
+                                "s2_7": false,
+                                "s2_8": false,
+                                "s2_9": false,
+                                "s2_10": false,
+                                "s2_11": false,
+                                "s2_12": false
                             }
                         }
                     }
