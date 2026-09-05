@@ -83,7 +83,7 @@ Task-level termination: if outpost management is locked, SceneManager cannot ent
 
 ### Priority Selling (master switch, off by default, decoupled from region toggles)
 
-- Expands "sell only preferred products" plus a per-region toggle with 6 slots (listing only items sellable in that region).
+- Expands "sell only preferred goods" plus a per-region toggle with 6 slots (listing only items sellable in that region).
 - Entering a region switches that region's priority list; slots are tried 1→6; duplicated items keep only the earliest slot.
 - Strict mode (only preferred) applies only to regions whose priority config is also enabled: those regions sell only explicitly configured items, while other regions keep selling per the selected strategy; an enabled region with no applicable item ends normally after two stable empty-candidate confirmations.
 

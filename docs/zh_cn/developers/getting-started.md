@@ -344,7 +344,7 @@ Pipeline 跑通后，补齐配套：
 ```json
 {
     "task.OutpostTrading.label": "🛒据点交易",
-    "task.OutpostTrading.description": "使用产品在各个据点兑换对应调度券\n您可以在任务选项中启用或停用特定地区的销售功能。"
+    "task.OutpostTrading.description": "使用货品在各个据点兑换对应调度券\n您可以在任务选项中启用或停用特定地区的销售功能。"
 }
 ```
 

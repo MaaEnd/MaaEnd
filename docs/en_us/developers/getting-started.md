@@ -344,7 +344,7 @@ Add translation keys for the task name and description in `assets/locales/interf
 ```json
 {
     "task.OutpostTrading.label": "🛒 Outpost Trading",
-    "task.OutpostTrading.description": "Use products to redeem corresponding dispatch vouchers at various outposts.\nYou can enable or disable sales functions for specific regions in the task options."
+    "task.OutpostTrading.description": "Use goods to redeem corresponding stock bills at various outposts.\nYou can enable or disable sales functions for specific regions in the task options."
 }
 ```
 
