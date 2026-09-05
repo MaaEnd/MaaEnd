@@ -160,7 +160,12 @@
         "expected": [
             "武陵城",
             "试验园区",
-            "實驗園區"
+            "實驗園區",
+            "Wuling City",
+            "実験区域",
+            "Test Area",
+            "무릉성",
+            "실험 구역"
         ],
         "order_by": "Vertical"
     },
@@ -174,7 +179,11 @@
             410
         ],
         "expected": [
-            "接取运送委托"
+            "接取运送委托",
+            "接取運送委託",
+            "配達依頼を受ける",
+            "Accept Delivery Job",
+            "운송 의뢰 수령"
         ],
         "order_by": "Vertical"
     },
@@ -188,7 +197,10 @@
             410
         ],
         "expected": [
-            "查看位置"
+            "查看位置",
+            "位置確認",
+            "Check Location",
+            "위치 보기"
         ],
         "order_by": "Vertical"
     },

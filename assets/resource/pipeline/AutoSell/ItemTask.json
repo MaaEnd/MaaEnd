@@ -631,7 +631,7 @@
         "desc": "识别目标item的文本区域",
         "recognition": "OCR",
         "roi": "AutoSellStockRedistributionItemNameRecRecognition",
-        "expected": "锚点",
+        "expected": ["锚点", "錨點"],
         "only_rec": true
     }
 }

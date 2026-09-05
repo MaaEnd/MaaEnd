@@ -58,7 +58,9 @@
                     "pipeline_override": {
                         "__SeizeDeliveryJobsRecoOrigin": {
                             "expected": [
-                                "武陵城"
+                                "武陵城",
+                                "Wuling City",
+                                "무릉성"
                             ]
                         }
                     }
@@ -73,7 +75,10 @@
                         "__SeizeDeliveryJobsRecoOrigin": {
                             "expected": [
                                 "试验园区",
-                                "實驗園區"
+                                "實驗園區",
+                                "実験区域",
+                                "Test Area",
+                                "실험 구역"
                             ]
                         }
                     }
@@ -89,7 +94,12 @@
                             "expected": [
                                 "武陵城",
                                 "试验园区",
-                                "實驗園區"
+                                "實驗園區",
+                                "Wuling City",
+                                "実験区域",
+                                "Test Area",
+                                "무릉성",
+                                "실험 구역"
                             ]
                         }
                     }
