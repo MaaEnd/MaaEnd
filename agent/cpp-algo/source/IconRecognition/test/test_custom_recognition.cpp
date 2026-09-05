@@ -184,8 +184,8 @@ struct SingleRoiFixture
 
 SingleRoiFixture MakeSingleRoiFixture(std::string_view icon_id = "item_copper_ore", int rarity = 1)
 {
-    const auto template_path =
-        get_exe_dir() / ".." / "resource" / "image" / "IconRecognition" / std::to_string(rarity) / (std::string(icon_id) + ".png");
+    const auto template_path = get_exe_dir() / ".." / "resource" / "image" / "IconRecognition" / std::to_string(rarity)
+                               / (std::string(icon_id) + ".png");
     const iconrecognition::detail::TemplateRecord record { .item_id = std::string(icon_id) };
     const auto prepared = iconrecognition::detail::PrepareStandardTemplate(
         record,
@@ -670,7 +670,8 @@ void TestRegionRestrictedFallbackRunsOnlyAfterNormalRejection()
     Require(alias_result.matched && alias_result.matches.size() == 1, "exact alias request must recognize one item");
     Require(alias_result.matches.front().item.item_id == "restricted_alias", "exact alias request must return its requested id");
     Require(
-        alias_result.matches.front().item.aliases.size() == 1 && alias_result.matches.front().item.aliases.front().item_id == "restricted",
+        alias_result.matches.front().item.aliases.size() == 1
+            && alias_result.matches.front().item.aliases.front().item_id == "restricted",
         "exact alias request must retain the other shared-icon item as an alias");
 
     const auto disabled_fixture = MakeRegionRestrictedFixture("generated-region-restricted-disabled", true);
@@ -760,6 +761,24 @@ void TestTransferSkipsEmptyCellsBeforeMatching()
     }
     Require(all_empty.diagnostics->performance->matcher.score_calls == 0, "all-empty recognition must execute zero template scores");
     Require(all_empty.diagnostics->performance->rarity_classification_ms == 0.0, "all-empty recognition must skip rarity classification");
+
+    // 首列粗定位误差不能随间距累积到末列，否则空格边框会被当成物品纹理。
+    empty.setTo(cv::Scalar(30, 30, 30));
+    for (int row = 0; row < 4; ++row) {
+        for (int column = 0; column < 5; ++column) {
+            const cv::Rect cell(193 + column * 69, 212 + row * 69, 64, 64);
+            empty(cell).setTo(cv::Scalar(38, 38, 38));
+            cv::rectangle(empty, cell, cv::Scalar(105, 105, 105), 2, cv::LINE_8);
+        }
+    }
+    request.roi = cv::Rect(160, 205, 398, 286);
+    const auto fitted_empty = recognizer.recognize(empty, request);
+    Require(fitted_empty.error_code == "no_match" && fitted_empty.matches.empty(), "fitted empty lattice must not produce matches");
+    Require(fitted_empty.diagnostics && fitted_empty.diagnostics->cells.size() == 20, "fitted empty lattice must retain all 20 cells");
+    for (const auto& cell : fitted_empty.diagnostics->cells) {
+        Require(cell.template_matching_skipped, "fitted empty lattice must skip every cell");
+    }
+    Require(fitted_empty.diagnostics->performance->matcher.score_calls == 0, "fitted empty lattice must execute zero template scores");
 }
 
 void TestTransferUnknownTextureStillMatches()

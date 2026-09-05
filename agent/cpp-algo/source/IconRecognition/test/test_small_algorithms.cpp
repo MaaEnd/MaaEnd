@@ -158,7 +158,9 @@ void TestCandidateSelectionDeduplicatesCompositeIconIdentity()
         "candidate selection must deduplicate by iconId and fluidIconId after filtering");
     Check(selected.front().record.aliases.size() == 1, "shared composite icon must retain one alias");
     Check(selected.front().record.aliases.front().item_id == "alias", "shared composite icon alias id mismatch");
-    Check(selected.front().record.aliases.front().name_key == "iconRecognition.name.alias", "shared composite icon alias name mismatch");
+    Check(
+        selected.front().record.aliases.front().name_key == "iconRecognition.name.alias",
+        "shared composite icon alias name mismatch");
 
     const auto recheck = iconrecognition::detail::SelectCandidateTemplates(all, candidates, { "Normal:*" }, false);
     Check(recheck.size() == 2, "recheck candidate selection must use the same icon identity deduplication");
@@ -195,7 +197,8 @@ void TestCandidateSelectionExactIdRetainsFilteredAliases()
     const auto alias_requested = iconrecognition::detail::SelectCandidateTemplates(all, candidates, { "ValuableDepot:*" });
     Check(alias_requested.front().record.item_id == "base_alias", "requesting the alias id must make it the representative");
     Check(
-        alias_requested.front().record.aliases.size() == 2 && alias_requested.front().record.aliases.front().item_id == "additional_alias"
+        alias_requested.front().record.aliases.size() == 2
+            && alias_requested.front().record.aliases.front().item_id == "additional_alias"
             && alias_requested.front().record.aliases.back().item_id == "requested",
         "requesting either shared-icon id must return the other filtered ids as aliases");
 }
@@ -335,7 +338,9 @@ void TestValuablesPortraitDetectionDoesNotDependOnTemplateMask()
 {
     cv::Mat slot = cv::Mat::zeros(96, 96, CV_8UC3);
     cv::circle(slot, cv::Point(81, 15), 18, cv::Scalar(255, 255, 255), 2, cv::LINE_AA);
-    Check(iconrecognition::detail::HasValuablesWeaponPortrait(slot), "valuables portrait detection must depend only on the slot image");
+    Check(
+        iconrecognition::detail::HasValuablesWeaponPortrait(slot),
+        "valuables portrait detection must depend only on the slot image");
 
     slot.setTo(cv::Scalar(0, 0, 0));
     Check(
@@ -1120,31 +1125,54 @@ void TestTransferBottomVisibilityIsGridSpecific()
     }
 }
 
-void TestTransferEmptyGridFitsOneCompleteLattice()
+void CheckTransferEmptyGridLattice(int pitch, cv::Point origin, const cv::Rect& roi = cv::Rect(160, 205, 398, 286))
 {
     constexpr int kCellSize = 64;
-    constexpr int kPitch = 69;
     constexpr int kColumns = 5;
     constexpr int kRows = 4;
-    constexpr int kPhaseX = 193;
-    constexpr int kPhaseY = 212;
-    const cv::Rect roi(160, 205, 398, 286);
     cv::Mat image(720, 1280, CV_8UC3, cv::Scalar(30, 30, 30));
     for (int row = 0; row < kRows; ++row) {
         for (int column = 0; column < kColumns; ++column) {
-            const cv::Rect cell(kPhaseX + column * kPitch, kPhaseY + row * kPitch, kCellSize, kCellSize);
+            const cv::Rect cell(origin.x + column * pitch, origin.y + row * pitch, kCellSize, kCellSize);
             image(cell).setTo(cv::Scalar(38, 38, 38));
             cv::rectangle(image, cell, cv::Scalar(105, 105, 105), 2, cv::LINE_8);
         }
     }
 
-    const auto grid = iconrecognition::detail::DetectGrid(image, iconrecognition::GridType::Transfer, roi);
+    const auto grid = iconrecognition::detail::DetectGrid(image, iconrecognition::GridType::Transfer, roi, 1.0);
     Check(grid.grids.size() == 1, "empty transfer panel must produce one grid");
-    Check(grid.grids.front().columns == kColumns && grid.grids.front().rows == kRows, "empty transfer cells must form one 5x4 lattice");
     Check(
-        std::abs(grid.grids.front().cells.front().cell_box.x - kPhaseX) <= 1
-            && std::abs(grid.grids.front().cells.front().cell_box.y - kPhaseY) <= 1,
-        "empty transfer lattice must use the measured outer borders");
+        grid.grids.front().columns == kColumns && grid.grids.front().rows == kRows,
+        "empty transfer cells must form one 5x4 lattice: origin=" + std::to_string(origin.x) + "," + std::to_string(origin.y)
+            + " rows=" + std::to_string(grid.grids.front().rows) + " columns=" + std::to_string(grid.grids.front().columns));
+    const auto& cells = grid.grids.front().cells;
+    Check(cells.size() == kColumns * kRows, "empty transfer lattice must retain every cell");
+    for (int row = 0; row < kRows; ++row) {
+        for (int column = 0; column < kColumns; ++column) {
+            const auto& box = cells[row * kColumns + column].cell_box;
+            const std::string location = " row=" + std::to_string(row) + " column=" + std::to_string(column)
+                                         + " origin=" + std::to_string(origin.x) + "," + std::to_string(origin.y)
+                                         + " actual=" + std::to_string(box.x) + "," + std::to_string(box.y);
+            // LINE_8 的 2px 描边向矩形外扩 1px，按实际外沿而非描边中心检查定位误差。
+            Check(
+                std::abs(box.x - (origin.x - 1 + column * pitch)) <= 1 && std::abs(box.y - (origin.y - 1 + row * pitch)) <= 1,
+                "empty transfer lattice must use measured borders for every cell" + location);
+            const auto texture = iconrecognition::detail::ForegroundTextureScore(image, box, iconrecognition::GridType::Transfer);
+            Check(
+                texture && *texture < iconrecognition::detail::kDefaultLowTextureThreshold,
+                "empty cell must not sample its border" + location);
+        }
+    }
+}
+
+void TestTransferEmptyGridFitsOneCompleteLattice()
+{
+    CheckTransferEmptyGridLattice(69, cv::Point(193, 212));
+    CheckTransferEmptyGridLattice(68, cv::Point(195, 215));
+    CheckTransferEmptyGridLattice(70, cv::Point(191, 211));
+    // 首边两侧不可完整测量、末格恰好贴住 ROI，以及顶行少量遮挡时仍须保留全部格子。
+    CheckTransferEmptyGridLattice(69, cv::Point(771, 216), cv::Rect(770, 209, 341, 277));
+    CheckTransferEmptyGridLattice(69, cv::Point(771, 206), cv::Rect(770, 209, 341, 277));
 }
 
 void TestTransferEmptyGridSkipsCroppedTopRowAndKeepsWeakColumn()
@@ -1178,6 +1206,34 @@ void TestTransferEmptyGridSkipsCroppedTopRowAndKeepsWeakColumn()
         std::abs(grid.grids.front().cells.front().cell_box.x - kPhaseX) <= 1
             && std::abs(grid.grids.front().cells.front().cell_box.y - (kPhaseY + kPitch)) <= 1,
         "cropped residual row must not become the first formal transfer row");
+    for (const auto& cell : grid.grids.front().cells) {
+        Check(
+            std::abs(cell.cell_box.x - (kPhaseX + cell.column * kPitch)) <= 1
+                && std::abs(cell.cell_box.y - (kPhaseY + (cell.row + 1) * kPitch)) <= 1,
+            "weak-column fixture must use measured borders for every cell");
+        const auto texture = iconrecognition::detail::ForegroundTextureScore(image, cell.cell_box, iconrecognition::GridType::Transfer);
+        Check(texture && *texture < iconrecognition::detail::kDefaultLowTextureThreshold, "weak-column empty cells must stay low-texture");
+    }
+}
+
+void TestTransferEmptyGridDiagnosticsSkipUnexecutedRarity()
+{
+    // 首条边框两侧均可见，覆盖全空结构门控成功而跳过稀有度扫描的路径。
+    cv::Mat image(720, 1280, CV_8UC3, cv::Scalar(30, 30, 30));
+    for (int row = 0; row < 3; ++row) {
+        for (int column = 0; column < 4; ++column) {
+            const cv::Rect cell(780 + column * 69, 220 + row * 69, 64, 64);
+            image(cell).setTo(cv::Scalar(38, 38, 38));
+            cv::rectangle(image, cell, cv::Scalar(105, 105, 105), 2, cv::LINE_8);
+        }
+    }
+    const auto grid = iconrecognition::detail::DetectGrid(image, iconrecognition::GridType::Transfer, cv::Rect(770, 209, 341, 277), 1.0);
+    Check(grid.grids.size() == 1 && grid.grids.front().selection_diagnostics, "empty grid must retain selection diagnostics");
+    const auto& diagnostics = *grid.grids.front().selection_diagnostics;
+    Check(
+        diagnostics.fallback_reason == "empty-grid-structure",
+        "empty grid must identify its structural path: " + diagnostics.fallback_reason);
+    Check(diagnostics.rejected_reasons.empty(), "skipped rarity scans must not report rejected rarity evidence");
 }
 
 void TestPortStoragerWideRoiUsesStablePanelPartitions()
@@ -2061,6 +2117,7 @@ int main()
         TestTransferGridRejectsBroadOvercapacityPhase();
         TestTransferEmptyGridFitsOneCompleteLattice();
         TestTransferEmptyGridSkipsCroppedTopRowAndKeepsWeakColumn();
+        TestTransferEmptyGridDiagnosticsSkipUnexecutedRarity();
         TestPortStoragerWideRoiUsesStablePanelPartitions();
         TestCreditTradeGridUsesDimCardStructures();
         TestCreditTradeGridUsesSixColumnsWhenRoiCannotContainSeven();

@@ -902,9 +902,9 @@ public:
                                     catalog_.loadRegionUnavailable(candidate.cell_box.width));
                             }
                         }
-                        const auto expected = std::ranges::find_if(selected, [&](const auto& templ) {
-                            return templ.record.item_id == candidate.item.item_id;
-                        });
+                        const auto expected = std::ranges::find_if(
+                            selected,
+                            [&](const auto& templ) { return templ.record.item_id == candidate.item.item_id; });
                         if (expected == selected.end()) {
                             throw std::runtime_error("selected template missing for recheck item: " + candidate.item.item_id);
                         }

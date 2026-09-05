@@ -1465,38 +1465,33 @@ std::vector<int> FormalAxisStarts(double seed, double pitch, int begin, int end,
 
 std::vector<int> RefineBoundaryAxis(
     const std::vector<int>& starts,
-    const std::vector<int>& structural_starts,
     const std::vector<float>& signed_boundary,
     double pitch,
     int offset,
     int begin,
     int end,
     int cell_size,
-    int expected_count,
-    bool preserve_existing)
+    int expected_count)
 {
-    if (starts.empty() || structural_starts.empty() || expected_count <= 0) {
+    if (starts.empty() || expected_count <= 0) {
         return {};
     }
     const int grid_gap = std::max(0, cvRound(pitch - cell_size));
-    const int first_local = starts.front() - offset;
-    if (first_local - grid_gap < 0 || first_local + grid_gap >= static_cast<int>(signed_boundary.size())) {
-        return {};
-    }
-    const int search_radius = grid_gap + std::abs(starts.front() - structural_starts.front());
-    const auto center = PairedBoundaryCenter(signed_boundary, starts.front(), offset, search_radius);
-    if (!center) {
-        return {};
-    }
-    if (preserve_existing) {
-        std::vector<int> refined = starts;
-        const int shift = *center - starts.front();
-        for (int& start : refined) {
-            start += shift;
+    std::vector<double> phases;
+    for (std::size_t index = 0; index < starts.size(); ++index) {
+        const int local = starts[index] - offset;
+        if (local - grid_gap < 0 || local + grid_gap >= static_cast<int>(signed_boundary.size())) {
+            continue;
         }
-        return refined;
+        if (const auto center = PairedBoundaryCenter(signed_boundary, starts[index], offset, grid_gap)) {
+            phases.push_back(*center - index * pitch);
+        }
     }
-    return FormalAxisStarts(*center, pitch, begin, end, cell_size, expected_count);
+    if (phases.empty()) {
+        return {};
+    }
+    // 面板裁边可能截断首格，使用其余完整边框的共同起点，不因首边不可测而放弃整条轴。
+    return FormalAxisStarts(Median(phases), pitch, begin, end, cell_size, expected_count);
 }
 
 struct TransferEmptyGridFit
@@ -1522,6 +1517,13 @@ std::optional<TransferEmptyGridFit> FitTransferEmptyGrid(
         return std::nullopt;
     }
     std::optional<TransferEmptyGridFit> best;
+    // 响应矩阵需要格子外侧的梯度采样，尺寸比完整格子的合法起点范围少 1px；贴边时使用最近的有效响应。
+    const auto structure_support = [&](int x, int y) {
+        if (x < 0 || y < 0 || x > cell_score.cols || y > cell_score.rows) {
+            return 0.0;
+        }
+        return static_cast<double>(cell_score.at<float>(std::min(y, cell_score.rows - 1), std::min(x, cell_score.cols - 1)));
+    };
     const auto is_better = [](const TransferEmptyGridFit& left, const TransferEmptyGridFit& right) {
         const auto cell_count = [](const TransferEmptyGridFit& fit) {
             return fit.x_starts.size() * fit.y_starts.size();
@@ -1543,21 +1545,20 @@ std::optional<TransferEmptyGridFit> FitTransferEmptyGrid(
     const int first_vertical_shift = -phase_period / 2;
     const int last_vertical_shift = first_vertical_shift + phase_period - 1;
     const int minimum_rows = ProfileFor(GridType::Transfer).min_rows;
-    auto x_starts = FormalAxisStarts(
+    // 与最终布局共用顶部可见率，保留仅被渐变区遮住少量像素的首行。
+    const int minimum_y = hint.region.y - cvFloor((1.0 - profile.minimum_top_visibility) * profile.cell_size);
+    const auto x_starts = FormalAxisStarts(
         x_seed_starts.front(),
         pitch,
         hint.region.x,
         hint.region.x + hint.region.width,
         profile.cell_size,
         std::numeric_limits<int>::max());
-    if (x_starts.size() == x_seed_starts.size()) {
-        x_starts = x_seed_starts;
-    }
     for (int y_shift = first_vertical_shift; y_shift <= last_vertical_shift; ++y_shift) {
         const auto y_starts = FormalAxisStarts(
             hint.y_starts.front() + y_shift,
             pitch,
-            hint.region.y,
+            minimum_y,
             hint.region.y + hint.region.height,
             profile.cell_size,
             profile.maximum_rows);
@@ -1569,16 +1570,9 @@ std::optional<TransferEmptyGridFit> FitTransferEmptyGrid(
         double total = 0.0;
         for (int y : y_starts) {
             for (int x : x_starts) {
-                if (x < 0 || y < 0 || x >= cell_score.cols || y >= cell_score.rows) {
-                    supports.clear();
-                    break;
-                }
-                const double support = cell_score.at<float>(y, x);
+                const double support = structure_support(x, y);
                 supports.push_back(support);
                 total += support;
-            }
-            if (supports.empty()) {
-                break;
             }
         }
         if (supports.empty()) {
@@ -1600,10 +1594,7 @@ std::optional<TransferEmptyGridFit> FitTransferEmptyGrid(
     double baseline_total = 0.0;
     for (int y : baseline_y_starts) {
         for (int x : x_seed_starts) {
-            if (x < 0 || y < 0 || x >= cell_score.cols || y >= cell_score.rows) {
-                return std::nullopt;
-            }
-            const double support = cell_score.at<float>(y, x);
+            const double support = structure_support(x, y);
             baseline_supports.push_back(support);
             baseline_total += support;
         }
@@ -1625,12 +1616,9 @@ std::optional<TransferEmptyGridFit> FitTransferEmptyGrid(
     // 正负梯度双边缘的中心对应格框外边界；整条轴的共同 phase 可容忍个别弱边，无需固定像素补偿。
     const std::size_t column_count = best->x_starts.size();
     const std::size_t row_count = best->y_starts.size();
-    const bool preserve_x = column_count == baseline.x_starts.size();
-    const bool preserve_y = row_count == baseline.y_starts.size();
-    const auto& x_refinement_starts = preserve_x ? baseline.x_starts : best->x_starts;
-    const auto& y_refinement_starts = preserve_y ? baseline.y_starts : best->y_starts;
+    // 行列数量相同不代表旧坐标准确；两轴均由同一拟合间距重新生成，避免粗定位误差累积到末格。
+    // 恢复粗定位曾观测到的末列，但不因细化后多出空白空间而外推未观测的新列。
     best->x_starts = RefineBoundaryAxis(
-        x_refinement_starts,
         best->x_starts,
         signed_x,
         best->pitch,
@@ -1638,20 +1626,17 @@ std::optional<TransferEmptyGridFit> FitTransferEmptyGrid(
         hint.region.x,
         hint.region.x + hint.region.width,
         profile.cell_size,
-        static_cast<int>(column_count),
-        preserve_x);
+        static_cast<int>(std::max(best->x_starts.size(), x_seed_starts.size())));
     best->y_starts = RefineBoundaryAxis(
-        y_refinement_starts,
         best->y_starts,
         signed_y,
         best->pitch,
         hint.region.y,
-        hint.region.y,
+        minimum_y,
         hint.region.y + hint.region.height,
         profile.cell_size,
-        static_cast<int>(row_count),
-        preserve_y);
-    if (best->x_starts.size() != column_count || best->y_starts.size() != row_count) {
+        static_cast<int>(row_count));
+    if (best->x_starts.size() < column_count || best->y_starts.size() != row_count) {
         return std::nullopt;
     }
     return best;
@@ -1814,9 +1799,6 @@ GridLayout BuildTransferLayout(
     const StructureMaps maps = BuildStructureMaps(image(absolute_region), profile.cell_size);
     const auto boundary_x = RobustProjection(maps.vertical, true);
     const auto boundary_y = RobustProjection(maps.horizontal, false);
-    const auto signed_x = AggregateSigned(maps.signed_x, true);
-    const auto signed_y = AggregateSigned(maps.signed_y, false);
-    const cv::Mat cell_score = BuildTransferCellScore(image(roi), profile.cell_size);
     const int column_count = static_cast<int>(hint.x_starts.size());
     const auto refined_x = RefineFirstBoundary(hint.x_starts, boundary_x, hint.region.x, profile.cell_size);
     const auto x_fit = FitTransferAxis(
@@ -1832,6 +1814,7 @@ GridLayout BuildTransferLayout(
     if (!x_fit) {
         return {};
     }
+    const cv::Mat cell_score = BuildTransferCellScore(image(roi), profile.cell_size);
     std::vector<int> local_x = x_fit->starts;
     std::vector<int> local_y;
     const auto build_structural_y = [&]() {
@@ -1865,7 +1848,29 @@ GridLayout BuildTransferLayout(
     if (transfer) {
         // 全空面板先用规则边框和低纹理门控确认；命中后跳过两套稀有度扫描，非空面板仍走原路径。
         structural_y = build_structural_y();
-        const auto empty_grid = FitTransferEmptyGrid(hint, local_x, *structural_y, x_fit->pitch, profile, cell_score, signed_x, signed_y);
+        const auto signed_x = AggregateSigned(maps.signed_x, true);
+        const auto signed_y = AggregateSigned(maps.signed_y, false);
+        // 空网格用连续边框重新拟合起点和间距，不能把粗轴的最小二乘误差当成固定 pitch。
+        const auto empty_x_fit = FitTransferAxis(
+            local_x,
+            boundary_x,
+            hint.region.x,
+            profile.cell_size,
+            { static_cast<double>(profile.pitch_min), static_cast<double>(profile.pitch_max) },
+            profile.observed_pitch_tolerance,
+            column_count,
+            true,
+            true);
+        const auto empty_grid = empty_x_fit ? FitTransferEmptyGrid(
+                                    hint,
+                                    empty_x_fit->starts,
+                                    *structural_y,
+                                    empty_x_fit->pitch,
+                                    profile,
+                                    cell_score,
+                                    signed_x,
+                                    signed_y)
+                                            : std::nullopt;
         empty_grid_selected =
             empty_grid
             && IsTransferEmptyGridCandidate(image, roi, empty_grid->x_starts, empty_grid->y_starts, profile.cell_size, texture_context);
@@ -1930,7 +1935,7 @@ GridLayout BuildTransferLayout(
             rejected_reasons.emplace_back("trusted-candidate-lacks-structure");
         }
     }
-    else {
+    else if (!empty_grid_selected) {
         rejected_reasons.emplace_back("no-trusted-chromatic-strip");
     }
     const double legacy_candidate_score = kLegacyStructureWeight * legacy_structure + kLegacyRarityWeight * legacy_rarity;
@@ -2046,7 +2051,9 @@ GridLayout BuildTransferLayout(
         .residual_trend = std::max(std::abs(final_x_axis->residual_trend), std::abs(final_y_axis->residual_trend)),
         .trusted_rarity_cells = trusted_fit ? trusted_fit->rarity_counts : std::array<int, 6> {},
         .fallback_used = !trusted_selected,
-        .fallback_reason = trusted_selected ? "" : "legacy-structure-without-conflicting-trusted-rarity",
+        .fallback_reason = trusted_selected      ? ""
+                           : empty_grid_selected ? "empty-grid-structure"
+                                                 : "legacy-structure-without-conflicting-trusted-rarity",
         .rejected_reasons = std::move(rejected_reasons),
     };
     return layout;
