@@ -36,5 +36,23 @@
                 "duration": 50
             }
         }
+    },
+    "GiftOperatorMoveBackward": {
+        "desc": "向后走一步（ADB 虚拟摇杆下推），一般都是走过了，先转身退一步试试",
+        "action": {
+            "type": "Swipe",
+            "param": {
+                "begin": [
+                    195,
+                    551
+                ],
+                "end": [
+                    195,
+                    566
+                ],
+                "end_hold": 100,
+                "duration": 50
+            }
+        }
     }
 }
