@@ -85,33 +85,20 @@ func matchesAnyPattern(t *testing.T, patterns []string, text string) bool {
 }
 
 func TestBuildLocationEngraveOverride(t *testing.T) {
-	selection := engraveSelection{
+	selection := baseEngraveSelection{
 		base1: skillEntry{CN: "力量", TC: "力量", EN: "Strength", JP: "筋力", KR: "힘"},
 		base2: skillEntry{CN: "意志", TC: "意志", EN: "Will", JP: "意志", KR: "의지"},
 		base3: skillEntry{CN: "敏捷", TC: "敏捷", EN: "Agility", JP: "敏捷", KR: "민첩"},
-		bonus: skillEntry{CN: "攻击", TC: "攻擊", EN: "ATK", JP: "攻撃力", KR: "공격력"},
 	}
 
 	override := buildLocationEngraveOverride(selection)
-	if len(override) != 6 {
-		t.Fatalf("expected 6 node overrides, got %d", len(override))
+	if len(override) != 1 {
+		t.Fatalf("expected 1 node override, got %d", len(override))
 	}
 
 	cond1 := expectedFromOverride(t, override, nodeEngraveCondition1OCR)
 	if !matchesAnyPattern(t, cond1, "Strength/Will/Agility") {
 		t.Fatalf("condition1 cross-locale regex missing in %#v", cond1)
-	}
-
-	cond2 := expectedFromOverride(t, override, nodeEngraveCondition2OCR)
-	for _, expected := range []string{"攻击", "攻擊", "ATK", "攻撃力", "공격력"} {
-		if !containsString(cond2, expected) {
-			t.Fatalf("condition2 missing locale text %q in %#v", expected, cond2)
-		}
-	}
-
-	bonusNode := expectedFromOverride(t, override, nodeSelectEngraveBonusCondition)
-	if !containsString(bonusNode, "ATK") {
-		t.Fatalf("bonus expected missing EN text in %#v", bonusNode)
 	}
 }
 

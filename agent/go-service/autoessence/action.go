@@ -14,8 +14,8 @@ type applyLocationEngraveParam struct {
 	SourceNode string `json:"source_node,omitempty"`
 }
 
-// ApplyLocationEngraveOverrideAction reads AutoEssenceSetupLocation attach in location mode
-// and overrides pre-engrave OCR nodes with the selected base/bonus attribute texts.
+// ApplyLocationEngraveOverrideAction reads AutoEssenceLocationOptionsCheck attach in location mode
+// and overrides condition 1 OCR with the combined three base attribute patterns.
 type ApplyLocationEngraveOverrideAction struct{}
 
 var _ maa.CustomActionRunner = &ApplyLocationEngraveOverrideAction{}
@@ -30,7 +30,7 @@ func (a *ApplyLocationEngraveOverrideAction) Run(ctx *maa.Context, arg *maa.Cust
 		return false
 	}
 
-	sourceNode := nodeSetupLocation
+	sourceNode := nodeLocationOptionsCheck
 	if strings.TrimSpace(arg.CustomActionParam) != "" {
 		var param applyLocationEngraveParam
 		if err := json.Unmarshal([]byte(arg.CustomActionParam), &param); err != nil {
@@ -46,7 +46,7 @@ func (a *ApplyLocationEngraveOverrideAction) Run(ctx *maa.Context, arg *maa.Cust
 		}
 	}
 
-	attach, attachRaw, err := getSetupLocationAttach(ctx, sourceNode)
+	attach, attachRaw, err := getLocationOptionsAttach(ctx, sourceNode)
 	if err != nil {
 		return false
 	}
@@ -57,17 +57,6 @@ func (a *ApplyLocationEngraveOverrideAction) Run(ctx *maa.Context, arg *maa.Cust
 			Msg("skip engrave override because menu mode is not location")
 		return true
 	}
-	if err := validateLocationModeAttach(attachRaw, attach); err != nil {
-		return stopTaskWithInvalidOptions(ctx, err)
-	}
-	if err := attach.validateForEngraveOverride(attachRaw); err != nil {
-		log.Error().
-			Err(err).
-			Str("component", componentName).
-			Str("location_id", attach.LocationID).
-			Msg("location mode attach is incomplete for engrave override")
-		return stopTaskWithInvalidOptions(ctx, err)
-	}
 
 	catalog, err := loadSkillCatalog()
 	if err != nil {
@@ -75,13 +64,13 @@ func (a *ApplyLocationEngraveOverrideAction) Run(ctx *maa.Context, arg *maa.Cust
 		return false
 	}
 
-	selection, err := buildEngraveSelection(catalog, attachRaw, attach)
+	selection, err := buildBaseEngraveSelection(catalog, attachRaw)
 	if err != nil {
 		log.Error().
 			Err(err).
 			Str("component", componentName).
 			Str("location_id", attach.LocationID).
-			Msg("failed to resolve engrave selection from attach")
+			Msg("failed to resolve base engrave selection from attach")
 		return false
 	}
 
@@ -91,7 +80,7 @@ func (a *ApplyLocationEngraveOverrideAction) Run(ctx *maa.Context, arg *maa.Cust
 			Err(err).
 			Str("component", componentName).
 			Interface("override", override).
-			Msg("failed to override pre-engrave OCR nodes")
+			Msg("failed to override condition 1 OCR node")
 		return false
 	}
 
@@ -100,10 +89,8 @@ func (a *ApplyLocationEngraveOverrideAction) Run(ctx *maa.Context, arg *maa.Cust
 		Str("component", componentName).
 		Str("location_id", attach.LocationID).
 		Ints("base_attribute_ids", baseIDs).
-		Int("slot2_id", attach.Slot2ID).
 		Strs("condition1_expected", combinedBaseExpectedPatterns([3]skillEntry{selection.base1, selection.base2, selection.base3})).
-		Strs("condition2_expected", skillExpectedTexts(selection.bonus)).
-		Msg("applied location mode pre-engrave OCR overrides")
+		Msg("applied location mode condition 1 OCR override")
 
 	return true
 }

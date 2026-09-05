@@ -42,6 +42,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
+            "AutoEssenceLocationOptionsCheck",
             "AutoEssenceApplyLocationEngraveOverride",
             // 在 SetupLocation 节点的 max_hit 未耗尽时，先经过该节点进行初始化步骤
             "AutoEssenceSetupLocation",
@@ -52,8 +53,32 @@
             "Node.Action.Starting": "▶️**准备开始本次基质刷取**"
         }
     },
+    "AutoEssenceLocationOptionsCheck": {
+        "desc": "地区模式：校验任务选项 attach（基础属性 3 项、附加 1 项）；非地区模式直接通过",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoEssenceLocationOptionsCheckAction"
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEssenceApplyLocationEngraveOverride"
+        ],
+        "on_error": [
+            "AutoEssenceLocationEngraveOptionsInvalid"
+        ],
+        "attach": {
+            "menu_mode": "random",
+            "location_id": "",
+            "slot2_id": 0
+        }
+    },
     "AutoEssenceApplyLocationEngraveOverride": {
-        "desc": "地区模式：覆写预刻写 OCR 节点；next 由任务选项按地区覆盖为对应 SetAnchor，随机模式走 SetupLocation 抽取",
+        "desc": "地区模式：合并覆写预刻写条件 1（三基础属性）；附加属性与属性选择 OCR 由任务选项 attach + InitEngraveOptionOCR 初始化",
         "max_hit": 1,
         "pre_delay": 0,
         "action": {
@@ -61,7 +86,7 @@
             "param": {
                 "custom_action": "AutoEssenceApplyLocationEngraveOverrideAction",
                 "custom_action_param": {
-                    "source_node": "AutoEssenceSetupLocation"
+                    "source_node": "AutoEssenceLocationOptionsCheck"
                 }
             }
         },
@@ -70,10 +95,33 @@
         "next": [
             "AutoEssenceSetupLocation",
             "AutoEssenceDispatcher"
-        ],
-        "on_error": [
-            "AutoEssenceLocationEngraveOptionsInvalid"
         ]
+    },
+    "AutoEssenceInitEngraveOptionOCR": {
+        "desc": "地区模式：根据任务选项 attach 初始化附加属性与属性选择 OCR 白名单",
+        "max_hit": 1,
+        "recognition": {
+            "type": "DirectHit",
+            "param": {}
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AttachToExpectedRegexAction",
+                "custom_action_param": {
+                    "targets": [
+                        "AutoEssenceEngraveCondition2OCR",
+                        "AutoEssenceSelectEngraveBaseCondition1",
+                        "AutoEssenceSelectEngraveBaseCondition2",
+                        "AutoEssenceSelectEngraveBaseCondition3",
+                        "AutoEssenceSelectEngraveBonusCondition"
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
     },
     "AutoEssenceLocationEngraveOptionsInvalid": {
         "desc": "地区模式属性选项无效（例如基础属性勾选超过 3 项），结束任务",
@@ -426,15 +474,14 @@
         }
     },
     "AutoEssenceEngraveCondition2OCR": {
-        "desc": "预刻写条件 2 文字（占位）",
+        "desc": "预刻写条件 2 文字（由任务选项 attach 初始化）",
         "recognition": {
             "type": "OCR",
             "param": {
                 "roi": "__AutoEssenceEngraveConditionHighlightColor",
                 "expected": [
-                    // 占位：待补充完整属性文本
                     // @i18n-skip
-                    "PLACEHOLDER_CONDITION_2"
+                    "a^"
                 ]
             }
         }
@@ -563,9 +610,8 @@
                     540
                 ],
                 "expected": [
-                    // 占位：待补充完整基础属性 1 文本
                     // @i18n-skip
-                    "PLACEHOLDER_CONDITION_1_BASE"
+                    "a^"
                 ]
             }
         },
@@ -591,9 +637,8 @@
                     540
                 ],
                 "expected": [
-                    // 占位：待补充完整基础属性 2 文本
                     // @i18n-skip
-                    "PLACEHOLDER_CONDITION_2_BASE"
+                    "a^"
                 ]
             }
         },
@@ -619,9 +664,8 @@
                     540
                 ],
                 "expected": [
-                    // 占位：待补充完整基础属性 3 文本
                     // @i18n-skip
-                    "PLACEHOLDER_CONDITION_3_BASE"
+                    "a^"
                 ]
             }
         },
@@ -647,9 +691,8 @@
                     540
                 ],
                 "expected": [
-                    // 占位：待补充完整附加属性文本
                     // @i18n-skip
-                    "PLACEHOLDER_CONDITION_BONUS"
+                    "a^"
                 ]
             }
         },

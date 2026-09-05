@@ -2396,11 +2396,5 @@
     "option.AutoEssenceLocationSlot1.label": "기본 속성",
     "option.AutoEssenceLocationSlot1.description": "기본 속성 3개 선택 (주요 능력치 / 힘 / 의지 / 민첩 / 지능)",
     "option.AutoEssenceLocationBonus.label": "부가 속성",
-    "option.AutoEssenceLocationBonus.description": "이 지역에서 사용 가능한 부가 속성 1개 선택",
-    "option.AutoEssenceLocationSlot1_1.label": "기본 속성 1",
-    "option.AutoEssenceLocationSlot1_1.description": "첫 번째 기본 속성 (주요 능력치 / 힘 / 의지 / 민첩 / 지능)",
-    "option.AutoEssenceLocationSlot1_2.label": "기본 속성 2",
-    "option.AutoEssenceLocationSlot1_2.description": "두 번째 기본 속성 (주요 능력치 / 힘 / 의지 / 민첩 / 지능)",
-    "option.AutoEssenceLocationSlot1_3.label": "기본 속성 3",
-    "option.AutoEssenceLocationSlot1_3.description": "세 번째 기본 속성 (주요 능력치 / 힘 / 의지 / 민첩 / 지능)"
+    "option.AutoEssenceLocationBonus.description": "이 지역에서 사용 가능한 부가 속성 1개 선택"
 }

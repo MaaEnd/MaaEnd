@@ -2396,11 +2396,5 @@
     "option.AutoEssenceLocationSlot1.label": "基礎屬性",
     "option.AutoEssenceLocationSlot1.description": "選擇 3 項基礎屬性（主能力 / 力量 / 意志 / 敏捷 / 智識）",
     "option.AutoEssenceLocationBonus.label": "附加屬性",
-    "option.AutoEssenceLocationBonus.description": "選擇 1 項該地區可用的附加屬性",
-    "option.AutoEssenceLocationSlot1_1.label": "基礎屬性 1",
-    "option.AutoEssenceLocationSlot1_1.description": "第 1 項基礎屬性（主能力 / 力量 / 意志 / 敏捷 / 智識）",
-    "option.AutoEssenceLocationSlot1_2.label": "基礎屬性 2",
-    "option.AutoEssenceLocationSlot1_2.description": "第 2 項基礎屬性（主能力 / 力量 / 意志 / 敏捷 / 智識）",
-    "option.AutoEssenceLocationSlot1_3.label": "基礎屬性 3",
-    "option.AutoEssenceLocationSlot1_3.description": "第 3 項基礎屬性（主能力 / 力量 / 意志 / 敏捷 / 智識）"
+    "option.AutoEssenceLocationBonus.description": "選擇 1 項該地區可用的附加屬性"
 }

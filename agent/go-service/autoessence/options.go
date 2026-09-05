@@ -16,25 +16,24 @@ import (
 const maxBaseAttributeSelections = 3
 
 var (
-	errTooManyBaseCheckboxSelections  = fmt.Errorf("more than %d base attribute checkboxes selected", maxBaseAttributeSelections)
-	errTooFewBaseCheckboxSelections   = fmt.Errorf("fewer than %d base attribute checkboxes selected", maxBaseAttributeSelections)
-	errTooManyBonusCheckboxSelections = fmt.Errorf("more than 1 bonus attribute checkbox selected")
+	errTooManyBaseCheckboxSelections = fmt.Errorf("more than %d base attribute checkboxes selected", maxBaseAttributeSelections)
+	errTooFewBaseCheckboxSelections  = fmt.Errorf("fewer than %d base attribute checkboxes selected", maxBaseAttributeSelections)
 )
 
-type setupLocationAttach struct {
+type locationOptionsAttach struct {
 	MenuMode   string `json:"menu_mode"`
 	LocationID string `json:"location_id"`
 	Slot2ID    int    `json:"slot2_id"`
 }
 
-func getSetupLocationAttach(ctx *maa.Context, nodeName string) (*setupLocationAttach, map[string]any, error) {
+func getLocationOptionsAttach(ctx *maa.Context, nodeName string) (*locationOptionsAttach, map[string]any, error) {
 	raw, err := ctx.GetNodeJSON(nodeName)
 	if err != nil {
 		log.Error().
 			Err(err).
 			Str("component", componentName).
 			Str("node", nodeName).
-			Msg("failed to get setup location node json")
+			Msg("failed to get location options node json")
 		return nil, nil, err
 	}
 
@@ -46,7 +45,7 @@ func getSetupLocationAttach(ctx *maa.Context, nodeName string) (*setupLocationAt
 			Err(err).
 			Str("component", componentName).
 			Str("node", nodeName).
-			Msg("failed to unmarshal setup location attach")
+			Msg("failed to unmarshal location options attach")
 		return nil, nil, err
 	}
 
@@ -60,38 +59,24 @@ func getSetupLocationAttach(ctx *maa.Context, nodeName string) (*setupLocationAt
 		return nil, nil, err
 	}
 
-	var attach setupLocationAttach
+	var attach locationOptionsAttach
 	if err := json.Unmarshal(attachBytes, &attach); err != nil {
 		log.Error().
 			Err(err).
 			Str("component", componentName).
 			Str("node", nodeName).
-			Msg("failed to unmarshal setup location attach fields")
+			Msg("failed to unmarshal location options attach fields")
 		return nil, nil, err
 	}
 
 	return &attach, attachRaw, nil
 }
 
-func (a *setupLocationAttach) isLocationMode() bool {
+func (a *locationOptionsAttach) isLocationMode() bool {
 	return strings.TrimSpace(a.MenuMode) == menuModeLocation
 }
 
-func (a *setupLocationAttach) validateForEngraveOverride(raw map[string]any) error {
-	baseIDs, err := collectSelectedBaseAttributeIDs(raw)
-	if err != nil {
-		return err
-	}
-	if len(baseIDs) != maxBaseAttributeSelections {
-		return fmt.Errorf("expected %d base attributes, got %d", maxBaseAttributeSelections, len(baseIDs))
-	}
-	if a.Slot2ID <= 0 {
-		return fmt.Errorf("slot2 bonus attribute id is missing")
-	}
-	return nil
-}
-
-func validateLocationModeAttach(raw map[string]any, attach *setupLocationAttach) error {
+func validateLocationOptionsAttach(raw map[string]any, attach *locationOptionsAttach) error {
 	if raw == nil {
 		raw = map[string]any{}
 	}
@@ -104,9 +89,18 @@ func validateLocationModeAttach(raw map[string]any, attach *setupLocationAttach)
 		return errTooFewBaseCheckboxSelections
 	}
 
-	bonusCheckboxCount := countTrueAttachWithPrefix(raw, "s2_")
-	if bonusCheckboxCount > 1 {
-		return errTooManyBonusCheckboxSelections
+	baseIDs, err := collectSelectedBaseAttributeIDs(raw)
+	if err != nil {
+		return err
+	}
+	if len(baseIDs) != maxBaseAttributeSelections {
+		return fmt.Errorf("expected %d base attributes, got %d", maxBaseAttributeSelections, len(baseIDs))
+	}
+	if attach.Slot2ID <= 0 {
+		return fmt.Errorf("slot2 bonus attribute id is missing")
+	}
+	if strings.TrimSpace(attach.LocationID) == "" {
+		return fmt.Errorf("location_id is missing")
 	}
 
 	return nil

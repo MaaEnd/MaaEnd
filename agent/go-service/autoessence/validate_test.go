@@ -2,7 +2,7 @@ package autoessence
 
 import "testing"
 
-func TestValidateLocationModeAttachTooManyBaseCheckbox(t *testing.T) {
+func TestValidateLocationOptionsAttachTooManyBaseCheckbox(t *testing.T) {
 	raw := map[string]any{
 		"menu_mode": "location",
 		"s1_1":      true,
@@ -10,73 +10,55 @@ func TestValidateLocationModeAttachTooManyBaseCheckbox(t *testing.T) {
 		"s1_3":      true,
 		"s1_4":      true,
 		"slot2_id":  2,
+		"location_id": "VFTheHub",
 	}
-	attach := &setupLocationAttach{
-		MenuMode: "location",
-		Slot2ID:  2,
+	attach := &locationOptionsAttach{
+		MenuMode:   "location",
+		LocationID: "VFTheHub",
+		Slot2ID:    2,
 	}
 
-	if err := validateLocationModeAttach(raw, attach); err == nil {
+	if err := validateLocationOptionsAttach(raw, attach); err == nil {
 		t.Fatal("expected validation error for more than 3 base checkboxes")
 	}
 }
 
-func TestValidateLocationModeAttachTooFewBaseCheckbox(t *testing.T) {
+func TestValidateLocationOptionsAttachTooFewBaseCheckbox(t *testing.T) {
 	raw := map[string]any{
-		"menu_mode": "location",
-		"s1_2":      true,
-		"s1_3":      true,
-		"slot2_id":  2,
+		"menu_mode":   "location",
+		"s1_2":        true,
+		"s1_3":        true,
+		"slot2_id":    2,
+		"location_id": "VFTheHub",
 	}
-	attach := &setupLocationAttach{
-		MenuMode: "location",
-		Slot2ID:  2,
+	attach := &locationOptionsAttach{
+		MenuMode:   "location",
+		LocationID: "VFTheHub",
+		Slot2ID:    2,
 	}
 
-	if err := validateLocationModeAttach(raw, attach); err == nil {
+	if err := validateLocationOptionsAttach(raw, attach); err == nil {
 		t.Fatal("expected validation error for fewer than 3 base checkboxes")
 	}
 }
 
-func TestValidateLocationModeAttachExactlyThreeSelections(t *testing.T) {
+func TestValidateLocationOptionsAttachExactlyThreeSelections(t *testing.T) {
 	raw := map[string]any{
-		"menu_mode": "location",
-		"s1_2":      true,
-		"s1_3":      true,
-		"s1_4":      true,
-		"slot2_id":  2,
-		"s2_2":      true,
+		"menu_mode":   "location",
+		"s1_2":        true,
+		"s1_3":        true,
+		"s1_4":        true,
+		"slot2_id":    2,
+		"location_id": "VFTheHub",
 	}
-	attach := &setupLocationAttach{
-		MenuMode: "location",
-		Slot2ID:  2,
+	attach := &locationOptionsAttach{
+		MenuMode:   "location",
+		LocationID: "VFTheHub",
+		Slot2ID:    2,
 	}
 
-	if err := validateLocationModeAttach(raw, attach); err != nil {
+	if err := validateLocationOptionsAttach(raw, attach); err != nil {
 		t.Fatalf("expected valid attach, got %v", err)
-	}
-	if err := attach.validateForEngraveOverride(raw); err != nil {
-		t.Fatalf("expected valid engrave attach, got %v", err)
-	}
-}
-
-func TestValidateLocationModeAttachTooManyBonusCheckbox(t *testing.T) {
-	raw := map[string]any{
-		"menu_mode": "location",
-		"s1_2":      true,
-		"s1_3":      true,
-		"s1_4":      true,
-		"slot2_id":  2,
-		"s2_1":      true,
-		"s2_2":      true,
-	}
-	attach := &setupLocationAttach{
-		MenuMode: "location",
-		Slot2ID:  2,
-	}
-
-	if err := validateLocationModeAttach(raw, attach); err == nil {
-		t.Fatal("expected validation error for more than 1 bonus checkbox")
 	}
 }
 
@@ -99,15 +81,12 @@ func TestCollectSelectedBaseAttributeIDs(t *testing.T) {
 	}
 }
 
-func TestBuildEngraveSelectionFromCheckboxAttach(t *testing.T) {
+func TestBuildBaseEngraveSelectionFromCheckboxAttach(t *testing.T) {
 	catalog := &skillCatalog{
 		slot1ByID: map[int]skillEntry{
 			2: {ID: 2, CN: "力量"},
 			3: {ID: 3, CN: "意志"},
 			4: {ID: 4, CN: "敏捷"},
-		},
-		slot2ByID: map[int]skillEntry{
-			2: {ID: 2, CN: "攻击"},
 		},
 	}
 	raw := map[string]any{
@@ -115,16 +94,12 @@ func TestBuildEngraveSelectionFromCheckboxAttach(t *testing.T) {
 		"s1_3": true,
 		"s1_4": true,
 	}
-	attach := &setupLocationAttach{Slot2ID: 2}
 
-	selection, err := buildEngraveSelection(catalog, raw, attach)
+	selection, err := buildBaseEngraveSelection(catalog, raw)
 	if err != nil {
-		t.Fatalf("buildEngraveSelection failed: %v", err)
+		t.Fatalf("buildBaseEngraveSelection failed: %v", err)
 	}
 	if selection.base1.CN != "力量" || selection.base2.CN != "意志" || selection.base3.CN != "敏捷" {
 		t.Fatalf("unexpected base selection: %#v", selection)
-	}
-	if selection.bonus.CN != "攻击" {
-		t.Fatalf("unexpected bonus selection: %#v", selection.bonus)
 	}
 }
