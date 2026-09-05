@@ -1,8 +1,6 @@
 package autoessence
 
-import (
-	"fmt"
-)
+import "fmt"
 
 type engraveSelection struct {
 	base1 skillEntry
@@ -11,18 +9,26 @@ type engraveSelection struct {
 	bonus skillEntry
 }
 
-func buildEngraveSelection(catalog *skillCatalog, attach *setupLocationAttach) (engraveSelection, error) {
-	base1, err := catalog.slot1Entry(attach.Slot1_1ID)
+func buildEngraveSelection(catalog *skillCatalog, raw map[string]any, attach *setupLocationAttach) (engraveSelection, error) {
+	baseIDs, err := collectSelectedBaseAttributeIDs(raw)
 	if err != nil {
-		return engraveSelection{}, fmt.Errorf("slot1_1_id: %w", err)
+		return engraveSelection{}, err
 	}
-	base2, err := catalog.slot1Entry(attach.Slot1_2ID)
-	if err != nil {
-		return engraveSelection{}, fmt.Errorf("slot1_2_id: %w", err)
+	if len(baseIDs) != maxBaseAttributeSelections {
+		return engraveSelection{}, fmt.Errorf("expected %d base attributes, got %d", maxBaseAttributeSelections, len(baseIDs))
 	}
-	base3, err := catalog.slot1Entry(attach.Slot1_3ID)
+
+	base1, err := catalog.slot1Entry(baseIDs[0])
 	if err != nil {
-		return engraveSelection{}, fmt.Errorf("slot1_3_id: %w", err)
+		return engraveSelection{}, fmt.Errorf("s1_%d: %w", baseIDs[0], err)
+	}
+	base2, err := catalog.slot1Entry(baseIDs[1])
+	if err != nil {
+		return engraveSelection{}, fmt.Errorf("s1_%d: %w", baseIDs[1], err)
+	}
+	base3, err := catalog.slot1Entry(baseIDs[2])
+	if err != nil {
+		return engraveSelection{}, fmt.Errorf("s1_%d: %w", baseIDs[2], err)
 	}
 	bonus, err := catalog.slot2Entry(attach.Slot2ID)
 	if err != nil {

@@ -60,7 +60,7 @@ func (a *ApplyLocationEngraveOverrideAction) Run(ctx *maa.Context, arg *maa.Cust
 	if err := validateLocationModeAttach(attachRaw, attach); err != nil {
 		return stopTaskWithInvalidOptions(ctx, err)
 	}
-	if err := attach.validateForEngraveOverride(); err != nil {
+	if err := attach.validateForEngraveOverride(attachRaw); err != nil {
 		log.Error().
 			Err(err).
 			Str("component", componentName).
@@ -75,7 +75,7 @@ func (a *ApplyLocationEngraveOverrideAction) Run(ctx *maa.Context, arg *maa.Cust
 		return false
 	}
 
-	selection, err := buildEngraveSelection(catalog, attach)
+	selection, err := buildEngraveSelection(catalog, attachRaw, attach)
 	if err != nil {
 		log.Error().
 			Err(err).
@@ -95,12 +95,11 @@ func (a *ApplyLocationEngraveOverrideAction) Run(ctx *maa.Context, arg *maa.Cust
 		return false
 	}
 
+	baseIDs, _ := collectSelectedBaseAttributeIDs(attachRaw)
 	log.Info().
 		Str("component", componentName).
 		Str("location_id", attach.LocationID).
-		Int("slot1_1_id", attach.Slot1_1ID).
-		Int("slot1_2_id", attach.Slot1_2ID).
-		Int("slot1_3_id", attach.Slot1_3ID).
+		Ints("base_attribute_ids", baseIDs).
 		Int("slot2_id", attach.Slot2ID).
 		Strs("condition1_expected", combinedBaseExpectedPatterns([3]skillEntry{selection.base1, selection.base2, selection.base3})).
 		Strs("condition2_expected", skillExpectedTexts(selection.bonus)).

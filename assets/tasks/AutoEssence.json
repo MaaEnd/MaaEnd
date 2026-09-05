@@ -1794,9 +1794,7 @@
                         }
                     },
                     "option": [
-                        "AutoEssenceLocationSlot1_1",
-                        "AutoEssenceLocationSlot1_2",
-                        "AutoEssenceLocationSlot1_3",
+                        "AutoEssenceLocationSlot1",
                         "AutoEssenceLocationBonus_VFTheHub"
                     ]
                 },
@@ -1815,9 +1813,7 @@
                         }
                     },
                     "option": [
-                        "AutoEssenceLocationSlot1_1",
-                        "AutoEssenceLocationSlot1_2",
-                        "AutoEssenceLocationSlot1_3",
+                        "AutoEssenceLocationSlot1",
                         "AutoEssenceLocationBonus_VFOriginiumSciencePark"
                     ]
                 },
@@ -1836,9 +1832,7 @@
                         }
                     },
                     "option": [
-                        "AutoEssenceLocationSlot1_1",
-                        "AutoEssenceLocationSlot1_2",
-                        "AutoEssenceLocationSlot1_3",
+                        "AutoEssenceLocationSlot1",
                         "AutoEssenceLocationBonus_VFOriginLodespring"
                     ]
                 },
@@ -1857,9 +1851,7 @@
                         }
                     },
                     "option": [
-                        "AutoEssenceLocationSlot1_1",
-                        "AutoEssenceLocationSlot1_2",
-                        "AutoEssenceLocationSlot1_3",
+                        "AutoEssenceLocationSlot1",
                         "AutoEssenceLocationBonus_VFPowerPlateau"
                     ]
                 },
@@ -1878,9 +1870,7 @@
                         }
                     },
                     "option": [
-                        "AutoEssenceLocationSlot1_1",
-                        "AutoEssenceLocationSlot1_2",
-                        "AutoEssenceLocationSlot1_3",
+                        "AutoEssenceLocationSlot1",
                         "AutoEssenceLocationBonus_WLWulingCity"
                     ]
                 },
@@ -1899,9 +1889,7 @@
                         }
                     },
                     "option": [
-                        "AutoEssenceLocationSlot1_1",
-                        "AutoEssenceLocationSlot1_2",
-                        "AutoEssenceLocationSlot1_3",
+                        "AutoEssenceLocationSlot1",
                         "AutoEssenceLocationBonus_WLQingboStockade"
                     ]
                 },
@@ -1920,9 +1908,7 @@
                         }
                     },
                     "option": [
-                        "AutoEssenceLocationSlot1_1",
-                        "AutoEssenceLocationSlot1_2",
-                        "AutoEssenceLocationSlot1_3",
+                        "AutoEssenceLocationSlot1",
                         "AutoEssenceLocationBonus_WLMarkerStone"
                     ]
                 },
@@ -1941,9 +1927,7 @@
                         }
                     },
                     "option": [
-                        "AutoEssenceLocationSlot1_1",
-                        "AutoEssenceLocationSlot1_2",
-                        "AutoEssenceLocationSlot1_3",
+                        "AutoEssenceLocationSlot1",
                         "AutoEssenceLocationBonus_WLTestArea"
                     ]
                 },
@@ -1962,9 +1946,7 @@
                         }
                     },
                     "option": [
-                        "AutoEssenceLocationSlot1_1",
-                        "AutoEssenceLocationSlot1_2",
-                        "AutoEssenceLocationSlot1_3",
+                        "AutoEssenceLocationSlot1",
                         "AutoEssenceLocationBonus_WLSwordVaultDale"
                     ]
                 },
@@ -1983,9 +1965,7 @@
                         }
                     },
                     "option": [
-                        "AutoEssenceLocationSlot1_1",
-                        "AutoEssenceLocationSlot1_2",
-                        "AutoEssenceLocationSlot1_3",
+                        "AutoEssenceLocationSlot1",
                         "AutoEssenceLocationBonus_WLYinglungPass"
                     ]
                 },
@@ -2004,19 +1984,21 @@
                         }
                     },
                     "option": [
-                        "AutoEssenceLocationSlot1_1",
-                        "AutoEssenceLocationSlot1_2",
-                        "AutoEssenceLocationSlot1_3",
+                        "AutoEssenceLocationSlot1",
                         "AutoEssenceLocationBonus_WLNorthWulingExclusionZone"
                     ]
                 }
             ]
         },
-        "AutoEssenceLocationSlot1_1": {
-            "type": "select",
-            "label": "$option.AutoEssenceLocationSlot1_1.label",
-            "description": "$option.AutoEssenceLocationSlot1_1.description",
-            "default_case": "s1_2",
+        "AutoEssenceLocationSlot1": {
+            "type": "checkbox",
+            "label": "$option.AutoEssenceLocationSlot1.label",
+            "description": "$option.AutoEssenceLocationSlot1.description",
+            "default_case": [
+                "s1_2",
+                "s1_3",
+                "s1_4"
+            ],
             "cases": [
                 {
                     "name": "s1_1",
@@ -2024,7 +2006,7 @@
                     "pipeline_override": {
                         "AutoEssenceSetupLocation": {
                             "attach": {
-                                "slot1_1_id": 1
+                                "s1_1": true
                             }
                         }
                     }
@@ -2035,7 +2017,7 @@
                     "pipeline_override": {
                         "AutoEssenceSetupLocation": {
                             "attach": {
-                                "slot1_1_id": 2
+                                "s1_2": true
                             }
                         }
                     }
@@ -2046,7 +2028,7 @@
                     "pipeline_override": {
                         "AutoEssenceSetupLocation": {
                             "attach": {
-                                "slot1_1_id": 3
+                                "s1_3": true
                             }
                         }
                     }
@@ -2057,7 +2039,7 @@
                     "pipeline_override": {
                         "AutoEssenceSetupLocation": {
                             "attach": {
-                                "slot1_1_id": 4
+                                "s1_4": true
                             }
                         }
                     }
@@ -2068,133 +2050,7 @@
                     "pipeline_override": {
                         "AutoEssenceSetupLocation": {
                             "attach": {
-                                "slot1_1_id": 5
-                            }
-                        }
-                    }
-                }
-            ]
-        },
-        "AutoEssenceLocationSlot1_2": {
-            "type": "select",
-            "label": "$option.AutoEssenceLocationSlot1_2.label",
-            "description": "$option.AutoEssenceLocationSlot1_2.description",
-            "default_case": "s1_3",
-            "cases": [
-                {
-                    "name": "s1_1",
-                    "label": "$option.AutoEssenceSkill.s1_1",
-                    "pipeline_override": {
-                        "AutoEssenceSetupLocation": {
-                            "attach": {
-                                "slot1_2_id": 1
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "s1_2",
-                    "label": "$option.AutoEssenceSkill.s1_2",
-                    "pipeline_override": {
-                        "AutoEssenceSetupLocation": {
-                            "attach": {
-                                "slot1_2_id": 2
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "s1_3",
-                    "label": "$option.AutoEssenceSkill.s1_3",
-                    "pipeline_override": {
-                        "AutoEssenceSetupLocation": {
-                            "attach": {
-                                "slot1_2_id": 3
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "s1_4",
-                    "label": "$option.AutoEssenceSkill.s1_4",
-                    "pipeline_override": {
-                        "AutoEssenceSetupLocation": {
-                            "attach": {
-                                "slot1_2_id": 4
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "s1_5",
-                    "label": "$option.AutoEssenceSkill.s1_5",
-                    "pipeline_override": {
-                        "AutoEssenceSetupLocation": {
-                            "attach": {
-                                "slot1_2_id": 5
-                            }
-                        }
-                    }
-                }
-            ]
-        },
-        "AutoEssenceLocationSlot1_3": {
-            "type": "select",
-            "label": "$option.AutoEssenceLocationSlot1_3.label",
-            "description": "$option.AutoEssenceLocationSlot1_3.description",
-            "default_case": "s1_4",
-            "cases": [
-                {
-                    "name": "s1_1",
-                    "label": "$option.AutoEssenceSkill.s1_1",
-                    "pipeline_override": {
-                        "AutoEssenceSetupLocation": {
-                            "attach": {
-                                "slot1_3_id": 1
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "s1_2",
-                    "label": "$option.AutoEssenceSkill.s1_2",
-                    "pipeline_override": {
-                        "AutoEssenceSetupLocation": {
-                            "attach": {
-                                "slot1_3_id": 2
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "s1_3",
-                    "label": "$option.AutoEssenceSkill.s1_3",
-                    "pipeline_override": {
-                        "AutoEssenceSetupLocation": {
-                            "attach": {
-                                "slot1_3_id": 3
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "s1_4",
-                    "label": "$option.AutoEssenceSkill.s1_4",
-                    "pipeline_override": {
-                        "AutoEssenceSetupLocation": {
-                            "attach": {
-                                "slot1_3_id": 4
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "s1_5",
-                    "label": "$option.AutoEssenceSkill.s1_5",
-                    "pipeline_override": {
-                        "AutoEssenceSetupLocation": {
-                            "attach": {
-                                "slot1_3_id": 5
+                                "s1_5": true
                             }
                         }
                     }

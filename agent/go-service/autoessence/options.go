@@ -3,6 +3,7 @@ package autoessence
 import (
 	"encoding/json"
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -16,16 +17,13 @@ const maxBaseAttributeSelections = 3
 
 var (
 	errTooManyBaseCheckboxSelections  = fmt.Errorf("more than %d base attribute checkboxes selected", maxBaseAttributeSelections)
-	errTooManyBaseAttributeIDs        = fmt.Errorf("more than %d distinct base attributes selected", maxBaseAttributeSelections)
+	errTooFewBaseCheckboxSelections   = fmt.Errorf("fewer than %d base attribute checkboxes selected", maxBaseAttributeSelections)
 	errTooManyBonusCheckboxSelections = fmt.Errorf("more than 1 bonus attribute checkbox selected")
 )
 
 type setupLocationAttach struct {
 	MenuMode   string `json:"menu_mode"`
 	LocationID string `json:"location_id"`
-	Slot1_1ID  int    `json:"slot1_1_id"`
-	Slot1_2ID  int    `json:"slot1_2_id"`
-	Slot1_3ID  int    `json:"slot1_3_id"`
 	Slot2ID    int    `json:"slot2_id"`
 }
 
@@ -79,9 +77,13 @@ func (a *setupLocationAttach) isLocationMode() bool {
 	return strings.TrimSpace(a.MenuMode) == menuModeLocation
 }
 
-func (a *setupLocationAttach) validateForEngraveOverride() error {
-	if a.Slot1_1ID <= 0 || a.Slot1_2ID <= 0 || a.Slot1_3ID <= 0 {
-		return fmt.Errorf("slot1 base attribute ids are incomplete")
+func (a *setupLocationAttach) validateForEngraveOverride(raw map[string]any) error {
+	baseIDs, err := collectSelectedBaseAttributeIDs(raw)
+	if err != nil {
+		return err
+	}
+	if len(baseIDs) != maxBaseAttributeSelections {
+		return fmt.Errorf("expected %d base attributes, got %d", maxBaseAttributeSelections, len(baseIDs))
 	}
 	if a.Slot2ID <= 0 {
 		return fmt.Errorf("slot2 bonus attribute id is missing")
@@ -98,15 +100,13 @@ func validateLocationModeAttach(raw map[string]any, attach *setupLocationAttach)
 	if baseCheckboxCount > maxBaseAttributeSelections {
 		return errTooManyBaseCheckboxSelections
 	}
+	if baseCheckboxCount < maxBaseAttributeSelections {
+		return errTooFewBaseCheckboxSelections
+	}
 
 	bonusCheckboxCount := countTrueAttachWithPrefix(raw, "s2_")
 	if bonusCheckboxCount > 1 {
 		return errTooManyBonusCheckboxSelections
-	}
-
-	selectedBaseIDs := collectSelectedBaseAttributeIDs(raw, attach)
-	if len(selectedBaseIDs) > maxBaseAttributeSelections {
-		return errTooManyBaseAttributeIDs
 	}
 
 	return nil
@@ -125,16 +125,12 @@ func countTrueAttachWithPrefix(raw map[string]any, prefix string) int {
 	return count
 }
 
-func collectSelectedBaseAttributeIDs(raw map[string]any, attach *setupLocationAttach) map[int]struct{} {
-	selected := make(map[int]struct{})
-	if attach != nil {
-		for _, id := range []int{attach.Slot1_1ID, attach.Slot1_2ID, attach.Slot1_3ID} {
-			if id > 0 {
-				selected[id] = struct{}{}
-			}
-		}
+func collectSelectedBaseAttributeIDs(raw map[string]any) ([]int, error) {
+	if raw == nil {
+		return nil, errTooFewBaseCheckboxSelections
 	}
 
+	selected := make([]int, 0, maxBaseAttributeSelections)
 	for key, value := range raw {
 		if !strings.HasPrefix(key, "s1_") || !attachBoolTrue(value) {
 			continue
@@ -144,10 +140,11 @@ func collectSelectedBaseAttributeIDs(raw map[string]any, attach *setupLocationAt
 		if err != nil || id <= 0 {
 			continue
 		}
-		selected[id] = struct{}{}
+		selected = append(selected, id)
 	}
 
-	return selected
+	sort.Ints(selected)
+	return selected, nil
 }
 
 func attachBoolTrue(value any) bool {
