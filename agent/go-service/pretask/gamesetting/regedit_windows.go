@@ -35,8 +35,6 @@ const (
 	valuePrefixScreenmanagerResolutionWindowWidth  = `Screenmanager Resolution Window Width_h`
 	valuePrefixScreenmanagerWindowPositionX        = `Screenmanager Window Position X_h`
 	valuePrefixScreenmanagerWindowPositionY        = `Screenmanager Window Position Y_h`
-	valuePrefixControllerCameraSpeedX              = `controller_camera_speed_x_h`
-	valuePrefixControllerCameraSpeedY              = `controller_camera_speed_y_h`
 	valuePrefixLanguageTextChange                  = `language_text_change_h`
 	valuePrefixVideoCustomQuality                  = `video_custom_quality_h`
 	valuePrefixVideoFrameRate8                     = `video_frame_rate_8_h`
@@ -108,24 +106,6 @@ func GetScreenmanagerWindowPositionY() (uint32, error) {
 
 func SetScreenmanagerWindowPositionY(value uint32) error {
 	return setDWord(valuePrefixScreenmanagerWindowPositionY, value)
-}
-
-// SetControllerCameraSpeedX writes Endfield's horizontal camera sensitivity.
-func SetControllerCameraSpeedX(value int) error {
-	dword, err := cameraSensitivityDWORD(value)
-	if err != nil {
-		return err
-	}
-	return setDWord(valuePrefixControllerCameraSpeedX, dword)
-}
-
-// SetControllerCameraSpeedY writes Endfield's vertical camera sensitivity.
-func SetControllerCameraSpeedY(value int) error {
-	dword, err := cameraSensitivityDWORD(value)
-	if err != nil {
-		return err
-	}
-	return setDWord(valuePrefixControllerCameraSpeedY, dword)
 }
 
 // GetLanguageTextChange reads Endfield's text language.

@@ -25,8 +25,6 @@ type closeGameSettingParam struct {
 	ResolutionHeight       json.RawMessage `json:"ResolutionHeight,omitempty"`
 	GraphicsQuality        int             `json:"GraphicsQuality"`
 	FrameRate              int             `json:"FrameRate"`
-	CameraSensitivityX     *int            `json:"CameraSensitivityX,omitempty"`
-	CameraSensitivityY     *int            `json:"CameraSensitivityY,omitempty"`
 	AutoHDR                string          `json:"AutoHDR,omitempty"`
 }
 
@@ -92,8 +90,6 @@ func loadAttach(ctx *maa.Context, nodeName string) closeGameSettingParam {
 	if wrapper.Attach.FrameRate != 0 {
 		params.FrameRate = wrapper.Attach.FrameRate
 	}
-	params.CameraSensitivityX = wrapper.Attach.CameraSensitivityX
-	params.CameraSensitivityY = wrapper.Attach.CameraSensitivityY
 	if wrapper.Attach.AutoHDR != "" {
 		params.AutoHDR = wrapper.Attach.AutoHDR
 	}
@@ -124,27 +120,6 @@ func (a *CloseGameAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 			Str("fallback", defaultResolution).
 			Msg("CloseGameAction: incomplete or invalid resolution attach, keeping default")
 		return false
-	}
-
-	cameraSensitivities := []struct {
-		axis  string
-		value *int
-	}{
-		{"x", params.CameraSensitivityX},
-		{"y", params.CameraSensitivityY},
-	}
-	for _, setting := range cameraSensitivities {
-		if setting.value == nil {
-			continue
-		}
-		if err := gamesetting.ValidateCameraSensitivity(*setting.value); err != nil {
-			log.Error().
-				Err(err).
-				Str("axis", setting.axis).
-				Int("camera_sensitivity", *setting.value).
-				Msg("CloseGameAction: invalid camera sensitivity")
-			return false
-		}
 	}
 
 	procs, err := process.Processes()
@@ -206,57 +181,19 @@ func (a *CloseGameAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		log.Info().Int("frame_rate", params.FrameRate).Msg("CloseGameAction: applied frame rate")
 	}
 
-	cameraSensitivityApplied := true
-	if params.CameraSensitivityX != nil {
-		if err := gamesetting.SetControllerCameraSpeedX(*params.CameraSensitivityX); err != nil {
-			log.Error().
-				Err(err).
-				Int("camera_sensitivity_x", *params.CameraSensitivityX).
-				Msg("CloseGameAction: failed to set horizontal camera sensitivity")
-			cameraSensitivityApplied = false
-		} else {
-			log.Info().
-				Int("camera_sensitivity_x", *params.CameraSensitivityX).
-				Msg("CloseGameAction: applied horizontal camera sensitivity")
-		}
-	}
-
-	if params.CameraSensitivityY != nil {
-		if err := gamesetting.SetControllerCameraSpeedY(*params.CameraSensitivityY); err != nil {
-			log.Error().
-				Err(err).
-				Int("camera_sensitivity_y", *params.CameraSensitivityY).
-				Msg("CloseGameAction: failed to set vertical camera sensitivity")
-			cameraSensitivityApplied = false
-		} else {
-			log.Info().
-				Int("camera_sensitivity_y", *params.CameraSensitivityY).
-				Msg("CloseGameAction: applied vertical camera sensitivity")
-		}
-	}
-	if !cameraSensitivityApplied {
-		return false
-	}
-
 	if err := gamesetting.ApplyAutoHDR(params.AutoHDR); err != nil {
 		log.Error().Err(err).Str("auto_hdr", params.AutoHDR).Msg("CloseGameAction: failed to apply Auto HDR")
 		return false
 	}
 
-	resultLog := log.Info().
+	log.Info().
 		Str("region", params.GameSettingRegion).
 		Str("display_type", params.GameSettingDisplayType).
 		Str("resolution", resolution).
 		Int("graphics_quality", params.GraphicsQuality).
 		Int("frame_rate", params.FrameRate).
-		Str("auto_hdr", params.AutoHDR)
-	if params.CameraSensitivityX != nil {
-		resultLog.Int("camera_sensitivity_x", *params.CameraSensitivityX)
-	}
-	if params.CameraSensitivityY != nil {
-		resultLog.Int("camera_sensitivity_y", *params.CameraSensitivityY)
-	}
-	resultLog.Msg("CloseGameAction: applied game settings")
+		Str("auto_hdr", params.AutoHDR).
+		Msg("CloseGameAction: applied game settings")
 
 	return true
 }

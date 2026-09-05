@@ -17,8 +17,6 @@
             "GameSettingDisplayType",
             "GameSettingGraphicsQuality",
             "GameSettingFrameRate",
-            "GameSettingCameraSensitivityX",
-            "GameSettingCameraSensitivityY",
             "GameSettingAutoHDR"
         ]
     },
@@ -193,86 +191,6 @@
                 {
                     "name": "Fps120",
                     "label": "$option.GameSettingFrameRate.cases.Fps120.label"
-                }
-            ]
-        },
-        "GameSettingCameraSensitivityX": {
-            "label": "$option.GameSettingCameraSensitivityX.label",
-            "type": "select",
-            "default_case": "0",
-            "cases": [
-                {
-                    "name": "-5"
-                },
-                {
-                    "name": "-4"
-                },
-                {
-                    "name": "-3"
-                },
-                {
-                    "name": "-2"
-                },
-                {
-                    "name": "-1"
-                },
-                {
-                    "name": "0"
-                },
-                {
-                    "name": "1"
-                },
-                {
-                    "name": "2"
-                },
-                {
-                    "name": "3"
-                },
-                {
-                    "name": "4"
-                },
-                {
-                    "name": "5"
-                }
-            ]
-        },
-        "GameSettingCameraSensitivityY": {
-            "label": "$option.GameSettingCameraSensitivityY.label",
-            "type": "select",
-            "default_case": "0",
-            "cases": [
-                {
-                    "name": "-5"
-                },
-                {
-                    "name": "-4"
-                },
-                {
-                    "name": "-3"
-                },
-                {
-                    "name": "-2"
-                },
-                {
-                    "name": "-1"
-                },
-                {
-                    "name": "0"
-                },
-                {
-                    "name": "1"
-                },
-                {
-                    "name": "2"
-                },
-                {
-                    "name": "3"
-                },
-                {
-                    "name": "4"
-                },
-                {
-                    "name": "5"
                 }
             ]
         },
