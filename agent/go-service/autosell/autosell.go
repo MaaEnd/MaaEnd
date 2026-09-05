@@ -233,7 +233,7 @@ var (
 		// 「天师龙泡泡」与「天师桩机芯」共用「天师」前缀，分别用「天师龙/天师桩」区分，避免 FindText 串货。
 		{"天师龙", "天師龍", "Chubby Lung Tianshi", "천사"},
 		{"天师桩", "天師樁"}, // 新物资，暂无 EN/JP/KR 资料
-		{"息壤净", "息壤淨", "Xiranite Filter", "息壌浄水", "정수"},
+		{"息壤净", "息壤淨", "Xiranite Filter", "息壌浄", "식양 정수"},
 		{"息壤色", "Xiran-Hue", "息壌色", "식양색을"},
 		{"息壤桥", "息壤橋", "息壌橋", "Xiranite Bridge", "식양 다리"},
 		{"清波", "Qingbo", "청파"},
@@ -244,7 +244,7 @@ var (
 	}
 	massivePriceKeywordGroups = [][]string{
 		{"源石", "Originium", "작은 오리지늄"},
-		{"警戒", "Vigilant", "警戒者", "경계자"},
+		{"警戒", "Vigilant", "경계자"},
 		{"硬脑", "硬頭殼", "Hard Noggin", "石頭", "단단한"},
 		{"边角", "碎料", "Scrap", "端材", "재활용"},
 	}
