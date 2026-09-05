@@ -42,6 +42,7 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
+            "AutoEssenceApplyLocationEngraveOverride",
             // 在 SetupLocation 节点的 max_hit 未耗尽时，先经过该节点进行初始化步骤
             "AutoEssenceSetupLocation",
             // 如果 SetupLocation 节点的 max_hit 已耗尽，则会直接进入交互分发
@@ -49,6 +50,32 @@
         ],
         "focus": {
             "Node.Action.Starting": "▶️**准备开始本次基质刷取**"
+        }
+    },
+    "AutoEssenceApplyLocationEngraveOverride": {
+        "desc": "地区模式：根据任务选项覆写预刻写 OCR 节点",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoEssenceApplyLocationEngraveOverrideAction",
+                "custom_action_param": {
+                    "source_node": "AutoEssenceSetupLocation"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "on_error": [
+            "AutoEssenceLocationEngraveOptionsInvalid"
+        ]
+    },
+    "AutoEssenceLocationEngraveOptionsInvalid": {
+        "desc": "地区模式属性选项无效（例如基础属性勾选超过 3 项），结束任务",
+        "action": "StopTask",
+        "focus": {
+            "Node.Action.Starting": "🤔**地区模式属性选项无效**\n基础属性只能选择 3 项，请返回任务设置调整后重试~"
         }
     },
     "AutoEssenceSetupLocation": {

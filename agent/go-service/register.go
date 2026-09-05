@@ -5,6 +5,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/aerosalvage"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autodelivery"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autoecofarm"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/autoessence"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autofight"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autosell"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/autostockpile"
@@ -94,6 +95,7 @@ func registerAll() {
 	dijiangrewards.Register()
 	batchaddfriends.Register()
 	autoecofarm.Register()
+	autoessence.Register()
 	autodelivery.Register()
 	autofight.Register()
 	scenemanager.Register()
