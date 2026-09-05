@@ -117,11 +117,6 @@
         "attach": {
             "menu_mode": "random",
             "location_id": "",
-            "s1_1": false,
-            "s1_2": true,
-            "s1_3": true,
-            "s1_4": true,
-            "s1_5": false,
             "slot2_id": 0
         }
     },

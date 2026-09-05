@@ -266,6 +266,17 @@
                     "name": "Location",
                     "label": "$option.AutoEssenceMenu.cases.Location.label",
                     "description": "$option.AutoEssenceMenu.cases.Location.description",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "s1_1": false,
+                                "s1_2": false,
+                                "s1_3": false,
+                                "s1_4": false,
+                                "s1_5": false
+                            }
+                        }
+                    },
                     "option": [
                         "AutoEssenceSelectLocation"
                     ]
