@@ -5,11 +5,16 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import time
+from datetime import datetime, timezone
+from email.utils import parsedate_to_datetime
 from pathlib import Path
 from typing import Any
 from urllib.parse import quote, urlencode
 from urllib.request import Request, urlopen
+
+import json5
 
 
 VERSION_API = "https://api.zmdmap.com/api/v1/endfield/version"
@@ -31,18 +36,18 @@ def _url(url: str) -> str:
     return f"{url}{sep}{urlencode({'source': 'MaaEnd', 't': time.time_ns() // 1_000_000})}"
 
 
-def _download_json(url: str) -> Any | None:
+def _download_json(url: str) -> tuple[Any, str]:
     try:
         request = Request(_url(url), headers={"User-Agent": "MaaEnd/EssenceFilter"})
         with urlopen(request, timeout=60) as response:
-            return json.loads(response.read())
+            return json.loads(response.read()), response.headers.get("Last-Modified", "")
     except (OSError, ValueError) as error:
         print(f"[EssenceFilter] 跳过无效数据 {url}: {error}")
-        return None
+        return None, ""
 
 
 def _latest_version() -> str | None:
-    payload = _download_json(VERSION_API)
+    payload, _ = _download_json(VERSION_API)
     try:
         version = payload["data"]["list"][0]["version"]
     except (KeyError, IndexError, TypeError):
@@ -70,21 +75,31 @@ def _valid_weapons(data: Any) -> bool:
     )
 
 
-def _download_sources(version: str) -> dict[str, Any] | None:
+def _download_sources(version: str) -> tuple[dict[str, Any], datetime | None] | None:
     validators = {
         "energy_point_gems.json": _valid_energy_points,
         "weapons.json": _valid_weapons,
     }
     result: dict[str, Any] = {}
+    last_modified: list[str] = []
     for filename, validator in validators.items():
         # output_maaend 使用查询参数 ?ver=<version> 指定数据版本（与 fetch-data.mjs 一致）。
         url = f"{DATA_BASE_URL}/{filename}?ver={quote(version, safe='')}"
-        data = _download_json(url)
+        data, modified = _download_json(url)
         if not validator(data):
             print(f"[EssenceFilter] 跳过同步：{filename} 为空或结构无效")
             return None
         result[filename] = data
-    return result
+        last_modified.append(modified)
+    try:
+        modified_at = max(
+            parsedate_to_datetime(value).astimezone(timezone.utc)
+            for value in last_modified
+        )
+    except ValueError:
+        print("[EssenceFilter] Last-Modified 缺失或无效，保留原数据日期")
+        modified_at = None
+    return result, modified_at
 
 
 def _write_json(path: Path, data: Any) -> None:
@@ -106,9 +121,13 @@ def main() -> int:
         return 1 if args.check_version else 0
 
     print(f"[EssenceFilter] 检查 zmdmap {version}")
-    sources = _download_sources(version)
-    if sources is None:
+    downloaded = _download_sources(version)
+    if downloaded is None:
         return 1 if args.check_version else 0
+    sources, modified_at = downloaded
+    data_version = modified_at.strftime("%Y-%m-%d %H:%M:%S UTC") if modified_at else ""
+    if data_version:
+        print(f"[EssenceFilter] 上游 Last-Modified: {data_version}")
     if args.check_version:
         print(f"[EssenceFilter] zmdmap {version} 数据有效")
         return 0
@@ -118,13 +137,24 @@ def main() -> int:
         for filename, path in TARGETS.items()
         if json.loads(path.read_text(encoding="utf-8")) != sources[filename]
     ]
-    if not changed:
-        print("[EssenceFilter] 本地数据已是最新")
-        return 0
+    version_changed = False
+    if data_version:
+        config = json5.loads(
+            (DATA_DIR / "matcher_config.json").read_text(encoding="utf-8-sig")
+        )
+        version_changed = config.get("data_version") != data_version
 
     for filename in changed:
         _write_json(TARGETS[filename], sources[filename])
         print(f"[EssenceFilter] 已更新 {TARGETS[filename].relative_to(REPO_ROOT)}")
+
+    # 时间随本轮源数据传给生成步骤，全部生成成功后才写入 matcher_config。
+    if github_output := os.environ.get("GITHUB_OUTPUT"):
+        with Path(github_output).open("a", encoding="utf-8") as output:
+            output.write(f"updated={str(bool(changed) or version_changed).lower()}\n")
+            output.write(f"data_version={data_version}\n")
+    if not changed and not version_changed:
+        print("[EssenceFilter] 本地数据已是最新")
     return 0
 
 

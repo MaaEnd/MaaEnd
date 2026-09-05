@@ -5,6 +5,12 @@
 从 zmdmap 当前版本下载 `energy_point_gems.json` 与 `weapons.json`，校验两份数据后分别写入
 `assets/data/EssenceFilter/energy_point_gems.json` 与 `weapons_output.json`。任一请求失败、返回非 JSON、空数据或结构无效时，整次同步不修改本地文件。
 
+两份文件下载成功后，取本次下载响应中较新的 `Last-Modified`，格式为 `YYYY-MM-DD HH:MM:SS UTC`。
+脚本向 `GITHUB_OUTPUT` 输出 `updated`（源数据或日期是否变化）和 `data_version`；CI 在 `skill_pools.json`、
+`locations.json` 都生成成功后，才将该时间写入 `matcher_config.json`，随后创建包含五份数据文件的同步 PR。
+任一文件的该响应头缺失或无效时保留原日期，不使用本机时间补值。源数据内容未变化时也会同步该时间。
+请求 URL 中的 `t` 仍使用本机时间，仅用于绕过缓存。
+
 ```bash
 uv run tools/essence_filter/sync_zmdmap.py
 ```
@@ -38,11 +44,13 @@ uv run tools/essence_filter/extract_skill_pools.py
 - 从每个武器的 `skills.CN` 按位置归入 slot：`[0]` → slot1，`[1]` → slot2（若长度为 3）或 slot3（若长度为 2），`[2]` → slot3。
 - 技能名取「基名」：按 `·`、`・`、`:`、`：`、`[` 分割，取第一段（如 `力量提升·小` → `力量提升`，`Strength Boost [S]` → `Strength Boost`）。
 - 五语从同武器的 skills.CN/TC/EN/JP/KR 同位置提取基名。
-- 每 slot 用 set 去重后按排序赋 id 1..n。
+- 每 slot 去重后保留已有 `(slot, cn)` 的 id；新增词条从该 slot 的最大 id 加一分配，最后按 id 排序。
 
 ## build_locations.py
 
 从 `energy_point_gems.json` 解析地点词条并映射到 `skill_pools.json`，生成 `locations.json`。
+通过 `--data-version` 接收本轮同步得到的时间，在生成成功后更新数据日期；未提供时保留原日期。
+`--time` 参数已移除，不再使用本机当天日期。
 
 ### 用法
 
@@ -58,6 +66,7 @@ uv run tools/essence_filter/build_locations.py
 | `--skill-pools` | `assets/data/EssenceFilter/skill_pools.json` | 当前技能池 |
 | `--output` / `-o` | `assets/data/EssenceFilter/locations.json` | 输出 locations |
 | `--debug` | 关闭 | 打印未匹配项以便排查 |
+| `--data-version` | 不更新 | 本轮同步得到的 Last-Modified，格式为 `YYYY-MM-DD HH:MM:SS UTC` |
 
 ### 解析规则
 

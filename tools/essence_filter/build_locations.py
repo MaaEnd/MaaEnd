@@ -14,7 +14,6 @@ import argparse
 import json
 import sys
 import unicodedata
-from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List
 
@@ -68,20 +67,17 @@ def _slot2_chinese_stem(chinese: str) -> str:
     return _norm_key(s)
 
 
-def _update_data_version(config_path: Path) -> None:
-    """将 matcher_config 的 data_version 更新为当天日期（d/m/yyyy）。"""
+def _update_data_version(config_path: Path, data_version: str) -> None:
+    """在生成成功后写入本轮源数据的 Last-Modified 时间。"""
     if not config_path.exists():
         return
     with config_path.open("r", encoding="utf-8-sig") as f:
         data = json5.load(f)
     if not isinstance(data, dict):
         return
-
-    now = datetime.now()
-    new_version = f"{now.day}/{now.month}/{now.year}"
-    if data.get("data_version") == new_version:
+    if data.get("data_version") == data_version:
         return  # 无变化不重写，避免用 json.dump 抹掉手写注释
-    data["data_version"] = new_version
+    data["data_version"] = data_version
     with config_path.open("w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=4)
         f.write("\n")
@@ -99,9 +95,8 @@ def main() -> int:
     parser.add_argument("-o", "--output", type=Path, default=root / DEFAULT_OUTPUT)
     parser.add_argument("--debug", action="store_true", help="打印映射与未匹配的键")
     parser.add_argument(
-        "--time",
-        action="store_true",
-        help="写入 matcher_config.json 的 data_version 为当天日期",
+        "--data-version",
+        help="本轮同步得到的 Last-Modified（UTC）；未提供或为空时保留原数据日期",
     )
     args = parser.parse_args()
 
@@ -197,8 +192,8 @@ def main() -> int:
     with args.output.open("w", encoding="utf-8") as f:
         json.dump(out_locations, f, ensure_ascii=False, indent=4)
 
-    if args.time:
-        _update_data_version(root / DEFAULT_MATCHER_CONFIG)
+    if args.data_version:
+        _update_data_version(root / DEFAULT_MATCHER_CONFIG, args.data_version)
 
     print(f"Wrote {len(out_locations)} locations to {args.output}")
     return 0

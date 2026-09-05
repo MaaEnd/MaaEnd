@@ -101,23 +101,20 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Install dependencies
+        run: python3 -m pip install json5
+
       - name: Sync EssenceFilter source data
         id: sync
-        run: |
-          python3 -u tools/essence_filter/sync_zmdmap.py
-          if git diff --quiet -- \
-            assets/data/EssenceFilter/energy_point_gems.json \
-            assets/data/EssenceFilter/weapons_output.json; then
-            echo "updated=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "updated=true" >> "$GITHUB_OUTPUT"
-          fi
+        run: python3 -u tools/essence_filter/sync_zmdmap.py
 
       - name: Generate EssenceFilter data
         if: steps.sync.outputs.updated == 'true'
+        env:
+          DATA_VERSION: ${{ steps.sync.outputs.data_version }}
         run: |
           python3 -u tools/essence_filter/extract_skill_pools.py
-          python3 -u tools/essence_filter/build_locations.py --time
+          python3 -u tools/essence_filter/build_locations.py --data-version "$DATA_VERSION"
 
       - name: Create Pull Request
         if: steps.sync.outputs.updated == 'true'
