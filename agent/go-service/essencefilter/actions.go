@@ -87,10 +87,6 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 	matchOpts := matchOptsFromPipeline(opts)
 	st.TargetSkillCombinations = engine.BuildTargets(matchOpts)
 	st.MatchedCombinationSummary = make(map[string]*matchapi.SkillCombinationSummary)
-	if arg != nil && arg.CurrentTaskName == "EssenceFilterInit" {
-		st.PersistInventorySnapshot = true
-		resetInventorySnapshot()
-	}
 	currentRun = st
 	reportInitSelection(ctx, weaponRarity, essenceTypes)
 
@@ -234,9 +230,6 @@ func (a *EssenceFilterFinishAction) Run(ctx *maa.Context, arg *maa.CustomActionA
 		reportColoredByKey(ctx, "#11cf00", "focus.finish.summary", st.MatchedCount)
 		reportFinishExtRuleStats(ctx, st)
 		reportFinishArtifacts(ctx, st)
-		if st.PersistInventorySnapshot {
-			saveInventorySnapshot(st)
-		}
 	}
 	currentRun = nil
 	return true

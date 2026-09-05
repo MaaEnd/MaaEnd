@@ -18,9 +18,6 @@ type RunState struct {
 	TargetSkillCombinations   []matchapi.SkillCombination
 	MatchedCombinationSummary map[string]*matchapi.SkillCombinationSummary
 
-	// PersistInventorySnapshot is true only for the inventory EssenceFilter task.
-	PersistInventorySnapshot bool
-
 	// Current item's three skills cache
 	CurrentSkills      [3]string
 	CurrentSkillLevels [3]int
