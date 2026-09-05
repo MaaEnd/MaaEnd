@@ -1440,6 +1440,8 @@
     "option.TrialOfSwordmancyOverflow.cases.None.label": "No overflow",
     "option.TrialOfSwordmancyOverflow.cases.Once.label": "Accept at most 1 overflow",
     "option.TrialOfSwordmancyOverflow.cases.Twice.label": "Accept at most 2 overflows",
+    "option.TrialOfSwordmancyOverflowStop.label": "Pause on overflow for manual battle",
+    "option.TrialOfSwordmancyOverflowStop.description": "When enabled, an overflowed round will <b>keep the current hand and end the trial task</b>, waiting to be cleared manually\nNon-overflowed rounds still battle automatically\n<b style='font-size:1.0em;color:#f0903a'>Until this round is settled, subsequent reward rounds cannot proceed — remember to finish it in time</b>",
     "option.TrialOfSwordmancyAutoFight.label": "Enable auto-battle",
     "option.TrialOfSwordmancyAutoFight.description": "When enabled, MaaEnd fights battles automatically\n\nNo overflow + auto-battle, can be included in full-auto dailies",
     "option.TrialOfSwordmancyReturnToWorld.label": "Return to open world after drawing cards",
