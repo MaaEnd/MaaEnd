@@ -1797,6 +1797,12 @@
                         "GotoTriggerPointSetAnchor_VFTheHub": {
                             "enabled": true
                         },
+                        "AutoEssenceApplyLocationEngraveOverride": {
+                            "next": [
+                                "GotoTriggerPointSetAnchor_VFTheHub",
+                                "AutoEssenceDispatcher"
+                            ]
+                        },
                         "AutoEssenceSetupLocation": {
                             "attach": {
                                 "menu_mode": "location",
@@ -1815,6 +1821,12 @@
                     "pipeline_override": {
                         "GotoTriggerPointSetAnchor_VFOriginiumSciencePark": {
                             "enabled": true
+                        },
+                        "AutoEssenceApplyLocationEngraveOverride": {
+                            "next": [
+                                "GotoTriggerPointSetAnchor_VFOriginiumSciencePark",
+                                "AutoEssenceDispatcher"
+                            ]
                         },
                         "AutoEssenceSetupLocation": {
                             "attach": {
@@ -1835,6 +1847,12 @@
                         "GotoTriggerPointSetAnchor_VFOriginLodespring": {
                             "enabled": true
                         },
+                        "AutoEssenceApplyLocationEngraveOverride": {
+                            "next": [
+                                "GotoTriggerPointSetAnchor_VFOriginLodespring",
+                                "AutoEssenceDispatcher"
+                            ]
+                        },
                         "AutoEssenceSetupLocation": {
                             "attach": {
                                 "menu_mode": "location",
@@ -1853,6 +1871,12 @@
                     "pipeline_override": {
                         "GotoTriggerPointSetAnchor_VFPowerPlateau": {
                             "enabled": true
+                        },
+                        "AutoEssenceApplyLocationEngraveOverride": {
+                            "next": [
+                                "GotoTriggerPointSetAnchor_VFPowerPlateau",
+                                "AutoEssenceDispatcher"
+                            ]
                         },
                         "AutoEssenceSetupLocation": {
                             "attach": {
@@ -1873,6 +1897,12 @@
                         "GotoTriggerPointSetAnchor_WLWulingCity": {
                             "enabled": true
                         },
+                        "AutoEssenceApplyLocationEngraveOverride": {
+                            "next": [
+                                "GotoTriggerPointSetAnchor_WLWulingCity",
+                                "AutoEssenceDispatcher"
+                            ]
+                        },
                         "AutoEssenceSetupLocation": {
                             "attach": {
                                 "menu_mode": "location",
@@ -1891,6 +1921,12 @@
                     "pipeline_override": {
                         "GotoTriggerPointSetAnchor_WLQingboStockade": {
                             "enabled": true
+                        },
+                        "AutoEssenceApplyLocationEngraveOverride": {
+                            "next": [
+                                "GotoTriggerPointSetAnchor_WLQingboStockade",
+                                "AutoEssenceDispatcher"
+                            ]
                         },
                         "AutoEssenceSetupLocation": {
                             "attach": {
@@ -1911,6 +1947,12 @@
                         "GotoTriggerPointSetAnchor_WLMarkerStone": {
                             "enabled": true
                         },
+                        "AutoEssenceApplyLocationEngraveOverride": {
+                            "next": [
+                                "GotoTriggerPointSetAnchor_WLMarkerStone",
+                                "AutoEssenceDispatcher"
+                            ]
+                        },
                         "AutoEssenceSetupLocation": {
                             "attach": {
                                 "menu_mode": "location",
@@ -1929,6 +1971,12 @@
                     "pipeline_override": {
                         "GotoTriggerPointSetAnchor_WLTestArea": {
                             "enabled": true
+                        },
+                        "AutoEssenceApplyLocationEngraveOverride": {
+                            "next": [
+                                "GotoTriggerPointSetAnchor_WLTestArea",
+                                "AutoEssenceDispatcher"
+                            ]
                         },
                         "AutoEssenceSetupLocation": {
                             "attach": {
@@ -1949,6 +1997,12 @@
                         "GotoTriggerPointSetAnchor_WLSwordVaultDale": {
                             "enabled": true
                         },
+                        "AutoEssenceApplyLocationEngraveOverride": {
+                            "next": [
+                                "GotoTriggerPointSetAnchor_WLSwordVaultDale",
+                                "AutoEssenceDispatcher"
+                            ]
+                        },
                         "AutoEssenceSetupLocation": {
                             "attach": {
                                 "menu_mode": "location",
@@ -1968,6 +2022,12 @@
                         "GotoTriggerPointSetAnchor_WLYinglungPass": {
                             "enabled": true
                         },
+                        "AutoEssenceApplyLocationEngraveOverride": {
+                            "next": [
+                                "GotoTriggerPointSetAnchor_WLYinglungPass",
+                                "AutoEssenceDispatcher"
+                            ]
+                        },
                         "AutoEssenceSetupLocation": {
                             "attach": {
                                 "menu_mode": "location",
@@ -1986,6 +2046,12 @@
                     "pipeline_override": {
                         "GotoTriggerPointSetAnchor_WLNorthWulingExclusionZone": {
                             "enabled": true
+                        },
+                        "AutoEssenceApplyLocationEngraveOverride": {
+                            "next": [
+                                "GotoTriggerPointSetAnchor_WLNorthWulingExclusionZone",
+                                "AutoEssenceDispatcher"
+                            ]
                         },
                         "AutoEssenceSetupLocation": {
                             "attach": {
