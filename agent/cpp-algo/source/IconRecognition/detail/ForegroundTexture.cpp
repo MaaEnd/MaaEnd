@@ -6,6 +6,8 @@ namespace iconrecognition::detail
 namespace
 {
 
+// Transfer 在输入截图上四边各裁 4px；Win32/ADB 空格扫描用于标定，减小可保留更多图标，也更易混入边框和面板 UI。
+constexpr int kTransferContentInset = 4;
 // 纹理检测区域排除 cell 左侧边框的像素数；调大可避开边框，也会减少有效图标区域。
 constexpr int kContentInsetLeft = 6;
 // 纹理检测区域排除 cell 顶部边框的像素数；调大可避开顶边装饰，也会减少有效区域。
@@ -54,11 +56,12 @@ std::optional<double> ForegroundTextureScore(const cv::Mat& image, const cv::Rec
     if (grid_type != GridType::Transfer && grid_type != GridType::PortStorager) {
         return std::nullopt;
     }
-    const cv::Rect content(
-        region.x + kContentInsetLeft,
-        region.y + kContentInsetTop,
-        region.width - kContentInsetLeft - kContentInsetRight,
-        region.height - kContentInsetTop - kContentInsetBottom);
+    const bool transfer = grid_type == GridType::Transfer;
+    const int left = transfer ? kTransferContentInset : kContentInsetLeft;
+    const int top = transfer ? kTransferContentInset : kContentInsetTop;
+    const int right = transfer ? kTransferContentInset : kContentInsetRight;
+    const int bottom = transfer ? kTransferContentInset : kContentInsetBottom;
+    const cv::Rect content(region.x + left, region.y + top, region.width - left - right, region.height - top - bottom);
     return LaplacianVariance(image, content);
 }
 

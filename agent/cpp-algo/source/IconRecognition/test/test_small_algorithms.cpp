@@ -376,6 +376,26 @@ void TestForegroundTextureUsesNativeLargerCell()
     Check(*score > 10.0, "native larger cell texture fixture must remain above the low-texture threshold");
 }
 
+void TestForegroundTextureInsetsStayGridSpecific()
+{
+    // 非均匀纹理让裁剪边界的任一变化都影响分数，同时覆盖 64px 和 80px 原生格子。
+    for (const int size : { 64, 80 }) {
+        cv::Mat image(size, size, CV_8UC3);
+        cv::RNG random(0);
+        random.fill(image, cv::RNG::UNIFORM, 0, 256);
+        const cv::Rect cell(0, 0, size, size);
+        const auto transfer = iconrecognition::detail::ForegroundTextureScore(image, cell, iconrecognition::GridType::Transfer);
+        const auto port = iconrecognition::detail::ForegroundTextureScore(image, cell, iconrecognition::GridType::PortStorager);
+        Check(
+            transfer == iconrecognition::detail::LaplacianVariance(image, cv::Rect(4, 4, size - 8, size - 8)),
+            "transfer texture must inset all four sides by four pixels");
+        Check(
+            port == iconrecognition::detail::LaplacianVariance(image, cv::Rect(6, 6, size - 12, size - 14)),
+            "port storager texture must retain its existing insets");
+    }
+    Check(iconrecognition::detail::kDefaultLowTextureThreshold == 10.0, "default low-texture threshold must remain ten");
+}
+
 void TestStructureFeatureModuleContract()
 {
     cv::Mat image = cv::Mat::zeros(96, 96, CV_8UC3);
@@ -1824,6 +1844,7 @@ int main()
         TestValuablesPortraitDetectionDoesNotDependOnTemplateMask();
         TestForegroundTextureUsesContentInsets();
         TestForegroundTextureUsesNativeLargerCell();
+        TestForegroundTextureInsetsStayGridSpecific();
         TestStructureFeatureModuleContract();
         TestGridGeometryModuleContract();
         TestGridScaleEstimateSelectsCalibratedProfiles();

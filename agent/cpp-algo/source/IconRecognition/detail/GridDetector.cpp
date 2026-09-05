@@ -1795,7 +1795,6 @@ GridLayout BuildTransferLayout(const cv::Mat& image, const cv::Rect& roi, const 
     const auto signed_y = AggregateSigned(maps.signed_y, false);
     const cv::Mat cell_score = BuildTransferCellScore(image(roi), profile.cell_size);
     const int column_count = static_cast<int>(hint.x_starts.size());
-    const auto trusted_fit = FitTrustedRarityGrid(image(roi), hint.region, profile);
     const auto refined_x = RefineFirstBoundary(hint.x_starts, boundary_x, hint.region.x, profile.cell_size);
     const auto x_fit = FitTransferAxis(
         refined_x,
@@ -1812,23 +1811,12 @@ GridLayout BuildTransferLayout(const cv::Mat& image, const cv::Rect& roi, const 
     }
     std::vector<int> local_x = x_fit->starts;
     std::vector<int> local_y;
-    const auto rarity_fit = FitRarityGrid(image(roi), local_x, hint.y_starts, profile);
-    const bool reliable_rarity_fit = rarity_fit.has_value()
-                                     && (!transfer || rarity_fit->supporting_strong_cells >= kMinimumReliableRarityCells
-                                         || rarity_fit->supporting_chromatic_cells >= kMinimumReliableRarityCells);
-    if (reliable_rarity_fit) {
-        local_x = rarity_fit->x_starts;
-        const int count = std::min(profile.maximum_rows, std::max(static_cast<int>(hint.y_starts.size()), rarity_fit->supporting_rows));
-        for (int row = 0; row < count; ++row) {
-            local_y.push_back(rarity_fit->origin + row * rarity_fit->pitch);
-        }
-    }
-    else {
+    const auto build_structural_y = [&]() {
         auto structural_y = transfer ? RefineStructuralPhase(hint.y_starts, boundary_y, hint.region.y, profile.cell_size) : hint.y_starts;
         auto refined_y = structural_y != hint.y_starts
                              ? structural_y
                              : RefinePortY(hint.y_starts, boundary_y, hint.region.y, column_count, profile.cell_size);
-        local_y = CompleteAxis(
+        auto result = CompleteAxis(
             refined_y,
             profile.maximum_rows,
             transfer ? std::optional<int>(static_cast<int>(std::floor(x_fit->pitch + 0.5))) : std::nullopt,
@@ -1838,8 +1826,8 @@ GridLayout BuildTransferLayout(const cv::Mat& image, const cv::Rect& roi, const 
             profile.observed_pitch_tolerance,
             column_count == 4 || column_count == 7);
         if (transfer && column_count >= 7) {
-            local_y = RefineStructuralPhase(
-                local_y,
+            result = RefineStructuralPhase(
+                result,
                 boundary_y,
                 hint.region.y,
                 profile.cell_size,
@@ -1847,14 +1835,43 @@ GridLayout BuildTransferLayout(const cv::Mat& image, const cv::Rect& roi, const 
                 kWideTransferPhaseMinimumGain,
                 true);
         }
-        if (transfer) {
-            const auto empty_grid = FitTransferEmptyGrid(hint, local_x, local_y, x_fit->pitch, profile, cell_score, signed_x, signed_y);
-            const bool empty_grid_candidate =
-                empty_grid && IsTransferEmptyGridCandidate(image, roi, empty_grid->x_starts, empty_grid->y_starts, profile.cell_size);
-            if (empty_grid_candidate) {
-                local_x = empty_grid->x_starts;
-                local_y = empty_grid->y_starts;
+        return result;
+    };
+    std::optional<std::vector<int>> structural_y;
+    bool empty_grid_selected = false;
+    if (transfer) {
+        // 全空面板先用规则边框和低纹理门控确认；命中后跳过两套稀有度扫描，非空面板仍走原路径。
+        structural_y = build_structural_y();
+        const auto empty_grid = FitTransferEmptyGrid(hint, local_x, *structural_y, x_fit->pitch, profile, cell_score, signed_x, signed_y);
+        empty_grid_selected =
+            empty_grid && IsTransferEmptyGridCandidate(image, roi, empty_grid->x_starts, empty_grid->y_starts, profile.cell_size);
+        if (empty_grid_selected) {
+            local_x = empty_grid->x_starts;
+            local_y = empty_grid->y_starts;
+        }
+    }
+    std::optional<TrustedRarityGridFit> trusted_fit;
+    std::optional<RarityGridFit> rarity_fit;
+    bool reliable_rarity_fit = false;
+    if (!empty_grid_selected) {
+        trusted_fit = FitTrustedRarityGrid(image(roi), hint.region, profile);
+        rarity_fit = FitRarityGrid(image(roi), local_x, hint.y_starts, profile);
+        reliable_rarity_fit = rarity_fit.has_value()
+                              && (!transfer || rarity_fit->supporting_strong_cells >= kMinimumReliableRarityCells
+                                  || rarity_fit->supporting_chromatic_cells >= kMinimumReliableRarityCells);
+        if (reliable_rarity_fit) {
+            local_x = rarity_fit->x_starts;
+            const int count =
+                std::min(profile.maximum_rows, std::max(static_cast<int>(hint.y_starts.size()), rarity_fit->supporting_rows));
+            for (int row = 0; row < count; ++row) {
+                local_y.push_back(rarity_fit->origin + row * rarity_fit->pitch);
             }
+        }
+        else {
+            if (!structural_y) {
+                structural_y = build_structural_y();
+            }
+            local_y = std::move(*structural_y);
         }
     }
     if (local_x.empty() || local_y.empty()) {
