@@ -821,6 +821,8 @@
     "option.GameSettingRegion.label": "サーバー",
     "option.GameSettingRegion.cases.CN.label": "中国サーバー",
     "option.GameSettingRegion.cases.Global.label": "グローバルサーバー",
+    "option.GameSettingLanguage.label": "ゲーム言語",
+    "option.GameSettingLanguage.cases.Unchanged.label": "変更しない",
     "option.GameSettingDisplayType.label": "表示モード",
     "option.GameSettingDisplayType.cases.Window.label": "ウィンドウ",
     "option.GameSettingDisplayType.cases.Fullscreen.label": "全画面",

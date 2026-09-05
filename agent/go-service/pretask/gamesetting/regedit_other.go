@@ -76,6 +76,16 @@ func SetControllerCameraSpeedY(_ int) error {
 	return ErrUnsupported
 }
 
+// GetLanguageTextChange is unavailable on non-Windows platforms.
+func GetLanguageTextChange() (uint32, error) {
+	return 0, ErrUnsupported
+}
+
+// SetLanguageTextChange is unavailable on non-Windows platforms.
+func SetLanguageTextChange(_ uint32) error {
+	return ErrUnsupported
+}
+
 func GetVideoCustomQuality() (uint32, error) {
 	return 0, ErrUnsupported
 }

@@ -955,6 +955,8 @@
     "option.GameSettingRegion.label": "區服",
     "option.GameSettingRegion.cases.CN.label": "國服",
     "option.GameSettingRegion.cases.Global.label": "國際服",
+    "option.GameSettingLanguage.label": "遊戲語言",
+    "option.GameSettingLanguage.cases.Unchanged.label": "不修改",
     "option.GameSettingDisplayType.label": "顯示模式",
     "option.GameSettingDisplayType.cases.Window.label": "視窗",
     "option.GameSettingDisplayType.cases.Fullscreen.label": "全螢幕",

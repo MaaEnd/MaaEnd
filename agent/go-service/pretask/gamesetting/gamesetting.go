@@ -27,6 +27,7 @@ const (
 
 type gameSettingOptions struct {
 	Region             string `json:"GameSettingRegion"`
+	Language           string `json:"GameSettingLanguage"`
 	DisplayType        string `json:"GameSettingDisplayType"`
 	Resolution         string `json:"GameSettingResolution"`
 	GraphicsQuality    string `json:"GameSettingGraphicsQuality"`
@@ -68,6 +69,16 @@ func Run(args []string) bool {
 		return false
 	}
 
+	textLanguage, changeTextLanguage, err := mapTextLanguage(opts.Language)
+	if err != nil {
+		log.Error().
+			Err(err).
+			Str("component", "gamesetting").
+			Str("language", opts.Language).
+			Msg("invalid game language")
+		return false
+	}
+
 	if isGameRunning() {
 		log.Error().
 			Str("component", "gamesetting").
@@ -78,6 +89,7 @@ func Run(args []string) bool {
 	log.Info().
 		Str("component", "gamesetting").
 		Str("region", opts.Region).
+		Str("language", opts.Language).
 		Str("display_type", opts.DisplayType).
 		Str("resolution", opts.Resolution).
 		Str("graphics_quality", opts.GraphicsQuality).
@@ -89,6 +101,24 @@ func Run(args []string) bool {
 
 	if !Apply(opts.Region, opts.DisplayType, opts.Resolution) {
 		return false
+	}
+
+	// Apply 已按区服选定注册表路径，此处才能写入语言项。
+	if changeTextLanguage {
+		if err := SetLanguageTextChange(textLanguage); err != nil {
+			log.Error().
+				Err(err).
+				Str("component", "gamesetting").
+				Str("language", opts.Language).
+				Uint32("language_value", textLanguage).
+				Msg("failed to set game language")
+			return false
+		}
+		log.Info().
+			Str("component", "gamesetting").
+			Str("language", opts.Language).
+			Uint32("language_value", textLanguage).
+			Msg("applied game language")
 	}
 
 	if quality, ok, err := mapGraphicsQuality(opts.GraphicsQuality); err != nil {
@@ -182,6 +212,7 @@ func Run(args []string) bool {
 func parseGameSettingOptions(args []string) (gameSettingOptions, error) {
 	opts := gameSettingOptions{
 		Region:             regionCN,
+		Language:           optionUnchanged,
 		DisplayType:        displayTypeWindow,
 		Resolution:         defaultResolution,
 		GraphicsQuality:    optionUnchanged,
@@ -204,6 +235,9 @@ func parseGameSettingOptions(args []string) (gameSettingOptions, error) {
 	}
 	if opts.Region == "" {
 		opts.Region = regionCN
+	}
+	if opts.Language == "" {
+		opts.Language = optionUnchanged
 	}
 	if opts.DisplayType == "" {
 		opts.DisplayType = displayTypeWindow
@@ -258,6 +292,45 @@ func cameraSensitivityDWORD(value int) (uint32, error) {
 		return 0, err
 	}
 	return uint32(int32(value)), nil
+}
+
+// mapTextLanguage 把游戏语言选项映射为 language_text_change 的 DWORD 值。
+// 第二个返回值为 false 表示保持游戏当前语言，用于区分「不修改」与简体中文的数值 0。
+func mapTextLanguage(name string) (uint32, bool, error) {
+	switch strings.TrimSpace(name) {
+	case "", optionUnchanged:
+		return 0, false, nil
+	case "CN":
+		return 0, true, nil
+	case "EN":
+		return 1, true, nil
+	case "JP":
+		return 2, true, nil
+	case "KR":
+		return 3, true, nil
+	case "TC":
+		return 4, true, nil
+	case "MX":
+		return 5, true, nil
+	case "BR":
+		return 6, true, nil
+	case "FR":
+		return 7, true, nil
+	case "DE":
+		return 8, true, nil
+	case "RU":
+		return 9, true, nil
+	case "IT":
+		return 10, true, nil
+	case "ID":
+		return 11, true, nil
+	case "TH":
+		return 12, true, nil
+	case "VN":
+		return 13, true, nil
+	default:
+		return 0, false, fmt.Errorf("gamesetting: unknown game language %q", name)
+	}
 }
 
 func mapGraphicsQuality(name string) (uint32, bool, error) {

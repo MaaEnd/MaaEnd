@@ -357,6 +357,8 @@
     "option.GameSettingRegion.label": "Region",
     "option.GameSettingRegion.cases.CN.label": "CN Server",
     "option.GameSettingRegion.cases.Global.label": "Global Server",
+    "option.GameSettingLanguage.label": "Game Language",
+    "option.GameSettingLanguage.cases.Unchanged.label": "Do not change",
     "option.GameSettingDisplayType.label": "Display Mode",
     "option.GameSettingDisplayType.cases.Window.label": "Windowed",
     "option.GameSettingDisplayType.cases.Fullscreen.label": "Fullscreen",

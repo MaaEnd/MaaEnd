@@ -37,6 +37,7 @@ const (
 	valuePrefixScreenmanagerWindowPositionY        = `Screenmanager Window Position Y_h`
 	valuePrefixControllerCameraSpeedX              = `controller_camera_speed_x_h`
 	valuePrefixControllerCameraSpeedY              = `controller_camera_speed_y_h`
+	valuePrefixLanguageTextChange                  = `language_text_change_h`
 	valuePrefixVideoCustomQuality                  = `video_custom_quality_h`
 	valuePrefixVideoFrameRate8                     = `video_frame_rate_8_h`
 	valuePrefixVideoFullScreen                     = `video_full_screen_h`
@@ -125,6 +126,17 @@ func SetControllerCameraSpeedY(value int) error {
 		return err
 	}
 	return setDWord(valuePrefixControllerCameraSpeedY, dword)
+}
+
+// GetLanguageTextChange reads Endfield's text language.
+func GetLanguageTextChange() (uint32, error) {
+	return getDWord(valuePrefixLanguageTextChange)
+}
+
+// SetLanguageTextChange writes Endfield's text language.
+// 语音语言存放在独立的注册表项，不受此项影响。
+func SetLanguageTextChange(value uint32) error {
+	return setDWord(valuePrefixLanguageTextChange, value)
 }
 
 func GetVideoCustomQuality() (uint32, error) {

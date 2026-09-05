@@ -846,6 +846,8 @@
     "option.GameSettingRegion.label": "서버",
     "option.GameSettingRegion.cases.CN.label": "중국 서버",
     "option.GameSettingRegion.cases.Global.label": "글로벌 서버",
+    "option.GameSettingLanguage.label": "게임 언어",
+    "option.GameSettingLanguage.cases.Unchanged.label": "변경 안 함",
     "option.GameSettingDisplayType.label": "표시 모드",
     "option.GameSettingDisplayType.cases.Window.label": "창 모드",
     "option.GameSettingDisplayType.cases.Fullscreen.label": "전체 화면",
