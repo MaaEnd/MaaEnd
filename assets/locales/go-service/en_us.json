@@ -1,4 +1,7 @@
 {
+    "essencefilter.inventory.started": "Scanning flawless essences, including locked ones. Discarded essences are skipped without OCR. All supported 4- to 6-star weapons are matched; marks are not changed.",
+    "essencefilter.inventory.saved": "Essence inventory exported to %s: %d groups, %d essences.",
+    "essencefilter.inventory.failed": "Essence inventory was not updated. Any existing file is unchanged. See the logs for the failure reason.",
     "visitfriends.friend_missing": "Friend is missing: %s",
     "visitfriends.clue_exchange": "Clue Exchange",
     "visitfriends.control_nexus_assist": "Control Nexus Assist",

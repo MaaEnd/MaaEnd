@@ -1,4 +1,6 @@
 {
+    "option.ExportInventory.label": "기질 보유 현황 내보내기",
+    "option.ExportInventory.description": "폐기 표시가 없는 무결 기질을 잠금 상태와 관계없이 스캔하여 EssenceInventory.json으로 내보냅니다. 폐기 표시된 기질은 OCR 없이 건너뜁니다. 지원되는 모든 4~6성 무기와 매칭하며 표시는 변경하지 않습니다. 활성화하면 게임 언어를 제외한 다른 필터 옵션이 숨겨집니다. 비활성화하면 기존 필터 옵션이 다시 표시됩니다.",
     "global.region.ValleyIV": "제4 계곡 (Valley IV)",
     "global.region.TheHub": "허브 구역",
     "global.region.Wuling": "무릉 (Wuling)",

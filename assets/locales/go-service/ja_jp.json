@@ -1,4 +1,7 @@
 {
+    "essencefilter.inventory.started": "ロック済みも含む無瑕基質をスキャンします。破棄マーク付きの基質は OCR を行わずスキップします。対応するすべての星4～6武器と照合し、マークは変更しません。",
+    "essencefilter.inventory.saved": "基質の所持数を %s に出力しました：%d グループ、基質 %d 個。",
+    "essencefilter.inventory.failed": "基質の所持数は更新されませんでした。既存のファイルは変更されていません。失敗の原因はログをご確認ください。",
     "visitfriends.friend_missing": "フレンドに %s がありません",
     "visitfriends.clue_exchange": "手がかり交換",
     "visitfriends.control_nexus_assist": "制御中枢支援",

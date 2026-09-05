@@ -29,12 +29,13 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 	log.Info().Str("component", "EssenceFilter").Msg("init start")
 
 	// EssenceFilterAfterBattleInit：每次战利品流程都会进入；仅首次做下方完整初始化，之后每次只做 afterBattleInitResetPerLoot。
-	if arg != nil && arg.CurrentTaskName == "EssenceFilterAfterBattleInit" {
-		if st := currentRun; st != nil && st.MatchEngine != nil {
+	if arg.CurrentTaskName == "EssenceFilterAfterBattleInit" {
+		if st := currentRun; st != nil && st.TaskID == arg.TaskID {
 			afterBattleInitResetPerLoot(st)
 			return true
 		}
 	}
+	currentRun = nil
 
 	engine, opts, err := loadMatchEngine(ctx, arg.CurrentTaskName)
 	if err != nil {
@@ -42,6 +43,7 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 		reportFocusByKey(ctx, "focus.error.load_engine_failed", err.Error())
 		return false
 	}
+	*opts = inventoryPreset(*opts)
 	inputLocale := engine.Locale()
 
 	log.Info().Str("component", "EssenceFilter").Str("input_language", inputLocale).Msg("match engine ready")
@@ -79,7 +81,7 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 		essenceMode = EssenceModePureOnly
 	}
 
-	st := &RunState{}
+	st := &RunState{TaskID: arg.TaskID}
 	st.PipelineOpts = *opts
 	st.MatchEngine = engine
 	st.EssenceMode = essenceMode
@@ -88,6 +90,13 @@ func (a *EssenceFilterInitAction) Run(ctx *maa.Context, arg *maa.CustomActionArg
 	st.TargetSkillCombinations = engine.BuildTargets(matchOpts)
 	st.MatchedCombinationSummary = make(map[string]*matchapi.SkillCombinationSummary)
 	currentRun = st
+	if opts.ExportInventory {
+		st.Inventory = &inventoryState{groups: make(map[[3]int]*inventoryCounts)}
+		if err := ctx.OverridePipeline(inventoryGridOverride()); err != nil {
+			return inventoryFailed(err)
+		}
+		reportSimpleByKey(ctx, "inventory.started")
+	}
 	reportInitSelection(ctx, weaponRarity, essenceTypes)
 
 	names := make([]string, 0, len(st.TargetSkillCombinations))
@@ -210,6 +219,14 @@ func (a *EssenceFilterSkillDecisionAction) Run(ctx *maa.Context, arg *maa.Custom
 		reportFocusByKey(ctx, "focus.error.no_match_engine")
 		return false
 	}
+	if st.Inventory != nil {
+		match, err := st.MatchEngine.MatchInventoryOCR(ocr)
+		if err != nil {
+			return inventoryFailed(err)
+		}
+		st.Inventory.record(match)
+		return true
+	}
 	return runUnifiedSkillDecision(ctx, arg, st, st.MatchEngine, ocr, decisionNextNodes{
 		Lock:    "EssenceFilterLockItem",
 		Discard: "EssenceFilterDiscardItem",
@@ -225,7 +242,14 @@ type EssenceFilterFinishAction struct{}
 func (a *EssenceFilterFinishAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	log.Info().Str("component", "EssenceFilter").Msg("finish")
 	st := currentRun
-	if st != nil {
+	if st == nil {
+		return true
+	}
+	if st.Inventory != nil {
+		if !finishInventory(ctx, st) {
+			return false
+		}
+	} else {
 		log.Info().Str("component", "EssenceFilter").Int("matched_total", st.MatchedCount).Msg("locked items")
 		reportColoredByKey(ctx, "#11cf00", "focus.finish.summary", st.MatchedCount)
 		reportFinishExtRuleStats(ctx, st)

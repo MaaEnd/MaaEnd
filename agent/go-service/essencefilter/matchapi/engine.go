@@ -2,6 +2,7 @@ package matchapi
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"strings"
 	"sync"
@@ -251,6 +252,46 @@ func (e *Engine) MatchOCR(ocr OCRInput, opts EssenceFilterOptions) (*MatchResult
 		ShouldLock:    false,
 		ShouldDiscard: opts.DiscardUnmatched,
 	}, nil
+}
+
+// MatchInventoryOCR matches against all supported four- to six-star weapons.
+// A resolved but incompatible essence returns (nil, nil); unresolved skills or
+// invalid levels return an error. No filtering or lock/discard rules are applied.
+func (e *Engine) MatchInventoryOCR(ocr OCRInput) (*InventoryMatch, error) {
+	e.ensureSlotIndices()
+	var result InventoryMatch
+	var used [3]bool
+	for i, text := range ocr.Skills {
+		slot, ok := e.assignSlotForOCRText(text)
+		if !ok {
+			return nil, fmt.Errorf("cannot resolve skill at position %d: %q", i+1, text)
+		}
+		id, _ := e.matchSkillIDEnhanced(slot, text)
+		maxLevel := 6
+		if slot == 3 {
+			maxLevel = 3
+		}
+		if ocr.Levels[i] < 1 || ocr.Levels[i] > maxLevel {
+			return nil, fmt.Errorf("invalid level %d for skill pool %d", ocr.Levels[i], slot)
+		}
+		used[slot-1] = true
+		result.SkillIDs[slot-1] = id
+		result.Levels[slot-1] = ocr.Levels[i]
+	}
+	// Multiple skills from the same pool are valid inventory, but cannot match
+	// a weapon's three distinct pools. Validate every skill before skipping them.
+	if used != [3]bool{true, true, true} {
+		return nil, nil
+	}
+	targets := e.BuildTargets(EssenceFilterOptions{
+		Rarity4Weapon: true, Rarity5Weapon: true, Rarity6Weapon: true,
+	})
+	match, ok := matchSkillIDs(result.SkillIDs, targets)
+	if !ok {
+		return nil, nil
+	}
+	result.Weapons = match.Weapons
+	return &result, nil
 }
 
 // reorderByPoolAssignmentIfPossible reorders OCR skills/levels into slot1/2/3 order

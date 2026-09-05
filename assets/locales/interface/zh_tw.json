@@ -1,4 +1,6 @@
 {
+    "option.ExportInventory.label": "輸出基質庫存",
+    "option.ExportInventory.description": "開啟後盤點未標記棄置的無暇基質，包括已鎖定的基質，並輸出 EssenceInventory.json。棄置項直接跳過，不呼叫 OCR。匹配全部四至六星武器，不修改標記；開啟時隱藏其他篩選選項，僅保留遊戲語言；關閉後重新顯示原篩選選項。",
     "global.region.ValleyIV": "四號谷地",
     "global.region.TheHub": "樞紐區",
     "global.region.Wuling": "武陵",

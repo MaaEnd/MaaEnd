@@ -23,6 +23,8 @@ type EssenceFilterOptions struct {
 	DiscardUnmatched bool `json:"discard_unmatched"`
 	// 筛选结束后推荐预刻写方案（枚举最优方案并输出到日志）；开启时会同时写入工作目录 ./EssencePlan.html（每次覆盖）
 	ExportCalculatorScript bool `json:"export_calculator_script"`
+	// ExportInventory selects the read-only flawless inventory preset.
+	ExportInventory bool `json:"export_inventory"`
 	// InputLanguage is game/OCR language for skill matching: CN|TC|EN|JP|KR (default CN).
 	InputLanguage string `json:"input_language"`
 }

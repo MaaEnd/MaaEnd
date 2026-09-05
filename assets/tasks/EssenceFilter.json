@@ -7,11 +7,7 @@
             "description": "$task.EssenceFilter.description",
             "option": [
                 "SelectInputLanguage",
-                "SelectWeaponRarity",
-                "SelectEssence",
-                "SelectExtraRules",
-                "SkipThumbLock",
-                "SkipThumbDiscard"
+                "ExportInventory"
             ],
             "controller": [
                 "ADB",
@@ -29,6 +25,55 @@
         }
     ],
     "option": {
+        "ExportInventory": {
+            "type": "switch",
+            "label": "$option.ExportInventory.label",
+            "description": "$option.ExportInventory.description",
+            "default_case": "No",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "pipeline_override": {
+                        "EssenceFilterInit": {
+                            "attach": {
+                                "export_inventory": true
+                            }
+                        },
+                        "EssenceFilterCheckItemOCRFallback": {
+                            "action": "StopTask"
+                        },
+                        "EssenceGridClickPending": {
+                            "on_error": [
+                                "EssenceFilterCheckItemOCRFallback"
+                            ]
+                        },
+                        "EssenceFilterMainFailed": {
+                            "action": "StopTask"
+                        },
+                        "EssenceFilterNavigateToInventory": {
+                            "action": "StopTask"
+                        }
+                    }
+                },
+                {
+                    "name": "No",
+                    "option": [
+                        "SelectWeaponRarity",
+                        "SelectEssence",
+                        "SelectExtraRules",
+                        "SkipThumbLock",
+                        "SkipThumbDiscard"
+                    ],
+                    "pipeline_override": {
+                        "EssenceFilterInit": {
+                            "attach": {
+                                "export_inventory": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
         "SelectInputLanguage": {
             "type": "select",
             "label": "$option.SelectInputLanguage.label",

@@ -1,4 +1,6 @@
 {
+    "option.ExportInventory.label": "基質の所持数を出力",
+    "option.ExportInventory.description": "破棄マークのない無瑕基質を、ロック済みも含めてスキャンし、EssenceInventory.json に出力します。破棄マーク付きの基質は OCR を行わずスキップします。対応するすべての星4～6武器と照合し、マークは変更しません。有効時はゲーム言語以外の絞り込み設定を非表示にします。無効にすると元の絞り込み設定が再表示されます。",
     "global.region.ValleyIV": "第4谷地 (Valley IV)",
     "global.region.TheHub": "ハブ地区",
     "global.region.Wuling": "武陵 (Wuling)",

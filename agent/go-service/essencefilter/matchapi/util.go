@@ -54,11 +54,11 @@ func normalizeForMatchEN(text string) string {
 func normalizeForMatchJP(text string) string {
 	var b strings.Builder
 	for _, r := range text {
-		if unicode.Is(unicode.Han, r) ||
+		if unicode.Is(unicode.Han, r) || unicode.Is(unicode.Latin, r) || // HP / UP are part of Japanese skill names.
 			(r >= 0x3040 && r <= 0x309F) || // Hiragana
 			(r >= 0x30A0 && r <= 0x30FF) || // Katakana
 			(r >= 0xFF66 && r <= 0xFF9F) { // Halfwidth Katakana
-			b.WriteRune(r)
+			b.WriteRune(unicode.ToUpper(r))
 		}
 	}
 	return b.String()

@@ -1,4 +1,7 @@
 {
+    "essencefilter.inventory.started": "開始盤點無暇基質：已鎖定的照常掃描，已標記棄置的直接跳過；匹配全部四至六星武器，不修改標記。",
+    "essencefilter.inventory.saved": "基質庫存已匯出至 %s，共 %d 組、%d 份基質。",
+    "essencefilter.inventory.failed": "本次基質庫存未更新，既有檔案保持不變。請查看日誌了解失敗原因。",
     "visitfriends.friend_missing": "該好友缺少 %s",
     "visitfriends.clue_exchange": "線索交換",
     "visitfriends.control_nexus_assist": "總控中樞助力",

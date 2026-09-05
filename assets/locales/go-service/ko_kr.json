@@ -1,4 +1,7 @@
 {
+    "essencefilter.inventory.started": "잠금 상태와 관계없이 무결 기질을 스캔합니다. 폐기 표시된 기질은 OCR 없이 건너뜁니다. 지원되는 모든 4~6성 무기와 매칭하며 표시는 변경하지 않습니다.",
+    "essencefilter.inventory.saved": "기질 보유 현황을 %s에 내보냈습니다: %d개 그룹, 기질 %d개.",
+    "essencefilter.inventory.failed": "기질 보유 현황이 업데이트되지 않았습니다. 기존 파일은 변경되지 않았습니다. 실패 원인은 로그를 확인해 주세요.",
     "visitfriends.friend_missing": "해당 친구에게 %s가 없습니다",
     "visitfriends.clue_exchange": "단서 교환",
     "visitfriends.control_nexus_assist": "컨트롤 넥서스 지원",

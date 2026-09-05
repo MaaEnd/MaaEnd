@@ -1,4 +1,7 @@
 {
+    "essencefilter.inventory.started": "开始盘点无暇基质：已锁定的照常扫描，已标记弃置的直接跳过；匹配全部四至六星武器，不修改标记。",
+    "essencefilter.inventory.saved": "基质库存已导出至 %s，共 %d 组、%d 份基质。",
+    "essencefilter.inventory.failed": "本次基质库存未更新，已有文件保持不变。请查看日志了解失败原因。",
     "visitfriends.friend_missing": "该好友缺少 %s",
     "visitfriends.clue_exchange": "线索交换",
     "visitfriends.control_nexus_assist": "总控中枢助力",
