@@ -480,39 +480,6 @@
                             }
                         }
                     }
-                },
-                {
-                    "name": "wpn_funnel_0001",
-                    "label": "$weapon.wpn_funnel_0001",
-                    "pipeline_override": {
-                        "AutoEssenceMain": {
-                            "attach": {
-                                "wpn_funnel_0001": true
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "wpn_funnel_0003",
-                    "label": "$weapon.wpn_funnel_0003",
-                    "pipeline_override": {
-                        "AutoEssenceMain": {
-                            "attach": {
-                                "wpn_funnel_0003": true
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "wpn_funnel_0002",
-                    "label": "$weapon.wpn_funnel_0002",
-                    "pipeline_override": {
-                        "AutoEssenceMain": {
-                            "attach": {
-                                "wpn_funnel_0002": true
-                            }
-                        }
-                    }
                 }
             ]
         },
@@ -735,39 +702,6 @@
                             }
                         }
                     }
-                },
-                {
-                    "name": "wpn_sword_0009",
-                    "label": "$weapon.wpn_sword_0009",
-                    "pipeline_override": {
-                        "AutoEssenceMain": {
-                            "attach": {
-                                "wpn_sword_0009": true
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "wpn_sword_0008",
-                    "label": "$weapon.wpn_sword_0008",
-                    "pipeline_override": {
-                        "AutoEssenceMain": {
-                            "attach": {
-                                "wpn_sword_0008": true
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "wpn_sword_0003",
-                    "label": "$weapon.wpn_sword_0003",
-                    "pipeline_override": {
-                        "AutoEssenceMain": {
-                            "attach": {
-                                "wpn_sword_0003": true
-                            }
-                        }
-                    }
                 }
             ]
         },
@@ -894,39 +828,6 @@
                         "AutoEssenceMain": {
                             "attach": {
                                 "wpn_lance_0013": true
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "wpn_lance_0008",
-                    "label": "$weapon.wpn_lance_0008",
-                    "pipeline_override": {
-                        "AutoEssenceMain": {
-                            "attach": {
-                                "wpn_lance_0008": true
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "wpn_lance_0003",
-                    "label": "$weapon.wpn_lance_0003",
-                    "pipeline_override": {
-                        "AutoEssenceMain": {
-                            "attach": {
-                                "wpn_lance_0003": true
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "wpn_lance_0009",
-                    "label": "$weapon.wpn_lance_0009",
-                    "pipeline_override": {
-                        "AutoEssenceMain": {
-                            "attach": {
-                                "wpn_lance_0009": true
                             }
                         }
                     }
@@ -1082,39 +983,6 @@
                             }
                         }
                     }
-                },
-                {
-                    "name": "wpn_claym_0009",
-                    "label": "$weapon.wpn_claym_0009",
-                    "pipeline_override": {
-                        "AutoEssenceMain": {
-                            "attach": {
-                                "wpn_claym_0009": true
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "wpn_claym_0003",
-                    "label": "$weapon.wpn_claym_0003",
-                    "pipeline_override": {
-                        "AutoEssenceMain": {
-                            "attach": {
-                                "wpn_claym_0003": true
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "wpn_claym_0010",
-                    "label": "$weapon.wpn_claym_0010",
-                    "pipeline_override": {
-                        "AutoEssenceMain": {
-                            "attach": {
-                                "wpn_claym_0010": true
-                            }
-                        }
-                    }
                 }
             ]
         },
@@ -1241,39 +1109,6 @@
                         "AutoEssenceMain": {
                             "attach": {
                                 "wpn_pistol_0012": true
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "wpn_pistol_0002",
-                    "label": "$weapon.wpn_pistol_0002",
-                    "pipeline_override": {
-                        "AutoEssenceMain": {
-                            "attach": {
-                                "wpn_pistol_0002": true
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "wpn_pistol_0003",
-                    "label": "$weapon.wpn_pistol_0003",
-                    "pipeline_override": {
-                        "AutoEssenceMain": {
-                            "attach": {
-                                "wpn_pistol_0003": true
-                            }
-                        }
-                    }
-                },
-                {
-                    "name": "wpn_pistol_0001",
-                    "label": "$weapon.wpn_pistol_0001",
-                    "pipeline_override": {
-                        "AutoEssenceMain": {
-                            "attach": {
-                                "wpn_pistol_0001": true
                             }
                         }
                     }
@@ -1959,7 +1794,9 @@
                         }
                     },
                     "option": [
-                        "AutoEssenceLocationSlot1",
+                        "AutoEssenceLocationSlot1_1",
+                        "AutoEssenceLocationSlot1_2",
+                        "AutoEssenceLocationSlot1_3",
                         "AutoEssenceLocationBonus_VFTheHub"
                     ]
                 },
@@ -1978,7 +1815,9 @@
                         }
                     },
                     "option": [
-                        "AutoEssenceLocationSlot1",
+                        "AutoEssenceLocationSlot1_1",
+                        "AutoEssenceLocationSlot1_2",
+                        "AutoEssenceLocationSlot1_3",
                         "AutoEssenceLocationBonus_VFOriginiumSciencePark"
                     ]
                 },
@@ -1997,7 +1836,9 @@
                         }
                     },
                     "option": [
-                        "AutoEssenceLocationSlot1",
+                        "AutoEssenceLocationSlot1_1",
+                        "AutoEssenceLocationSlot1_2",
+                        "AutoEssenceLocationSlot1_3",
                         "AutoEssenceLocationBonus_VFOriginLodespring"
                     ]
                 },
@@ -2016,7 +1857,9 @@
                         }
                     },
                     "option": [
-                        "AutoEssenceLocationSlot1",
+                        "AutoEssenceLocationSlot1_1",
+                        "AutoEssenceLocationSlot1_2",
+                        "AutoEssenceLocationSlot1_3",
                         "AutoEssenceLocationBonus_VFPowerPlateau"
                     ]
                 },
@@ -2035,7 +1878,9 @@
                         }
                     },
                     "option": [
-                        "AutoEssenceLocationSlot1",
+                        "AutoEssenceLocationSlot1_1",
+                        "AutoEssenceLocationSlot1_2",
+                        "AutoEssenceLocationSlot1_3",
                         "AutoEssenceLocationBonus_WLWulingCity"
                     ]
                 },
@@ -2054,7 +1899,9 @@
                         }
                     },
                     "option": [
-                        "AutoEssenceLocationSlot1",
+                        "AutoEssenceLocationSlot1_1",
+                        "AutoEssenceLocationSlot1_2",
+                        "AutoEssenceLocationSlot1_3",
                         "AutoEssenceLocationBonus_WLQingboStockade"
                     ]
                 },
@@ -2073,7 +1920,9 @@
                         }
                     },
                     "option": [
-                        "AutoEssenceLocationSlot1",
+                        "AutoEssenceLocationSlot1_1",
+                        "AutoEssenceLocationSlot1_2",
+                        "AutoEssenceLocationSlot1_3",
                         "AutoEssenceLocationBonus_WLMarkerStone"
                     ]
                 },
@@ -2092,7 +1941,9 @@
                         }
                     },
                     "option": [
-                        "AutoEssenceLocationSlot1",
+                        "AutoEssenceLocationSlot1_1",
+                        "AutoEssenceLocationSlot1_2",
+                        "AutoEssenceLocationSlot1_3",
                         "AutoEssenceLocationBonus_WLTestArea"
                     ]
                 },
@@ -2111,7 +1962,9 @@
                         }
                     },
                     "option": [
-                        "AutoEssenceLocationSlot1",
+                        "AutoEssenceLocationSlot1_1",
+                        "AutoEssenceLocationSlot1_2",
+                        "AutoEssenceLocationSlot1_3",
                         "AutoEssenceLocationBonus_WLSwordVaultDale"
                     ]
                 },
@@ -2130,7 +1983,9 @@
                         }
                     },
                     "option": [
-                        "AutoEssenceLocationSlot1",
+                        "AutoEssenceLocationSlot1_1",
+                        "AutoEssenceLocationSlot1_2",
+                        "AutoEssenceLocationSlot1_3",
                         "AutoEssenceLocationBonus_WLYinglungPass"
                     ]
                 },
@@ -2149,21 +2004,19 @@
                         }
                     },
                     "option": [
-                        "AutoEssenceLocationSlot1",
+                        "AutoEssenceLocationSlot1_1",
+                        "AutoEssenceLocationSlot1_2",
+                        "AutoEssenceLocationSlot1_3",
                         "AutoEssenceLocationBonus_WLNorthWulingExclusionZone"
                     ]
                 }
             ]
         },
-        "AutoEssenceLocationSlot1": {
-            "type": "checkbox",
-            "label": "$option.AutoEssenceLocationSlot1.label",
-            "description": "$option.AutoEssenceLocationSlot1.description",
-            "default_case": [
-                "s1_2",
-                "s1_3",
-                "s1_4"
-            ],
+        "AutoEssenceLocationSlot1_1": {
+            "type": "select",
+            "label": "$option.AutoEssenceLocationSlot1_1.label",
+            "description": "$option.AutoEssenceLocationSlot1_1.description",
+            "default_case": "s1_2",
             "cases": [
                 {
                     "name": "s1_1",
@@ -2171,7 +2024,7 @@
                     "pipeline_override": {
                         "AutoEssenceSetupLocation": {
                             "attach": {
-                                "s1_1": true
+                                "slot1_1_id": 1
                             }
                         }
                     }
@@ -2182,7 +2035,7 @@
                     "pipeline_override": {
                         "AutoEssenceSetupLocation": {
                             "attach": {
-                                "s1_2": true
+                                "slot1_1_id": 2
                             }
                         }
                     }
@@ -2193,7 +2046,7 @@
                     "pipeline_override": {
                         "AutoEssenceSetupLocation": {
                             "attach": {
-                                "s1_3": true
+                                "slot1_1_id": 3
                             }
                         }
                     }
@@ -2204,7 +2057,7 @@
                     "pipeline_override": {
                         "AutoEssenceSetupLocation": {
                             "attach": {
-                                "s1_4": true
+                                "slot1_1_id": 4
                             }
                         }
                     }
@@ -2215,7 +2068,133 @@
                     "pipeline_override": {
                         "AutoEssenceSetupLocation": {
                             "attach": {
-                                "s1_5": true
+                                "slot1_1_id": 5
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoEssenceLocationSlot1_2": {
+            "type": "select",
+            "label": "$option.AutoEssenceLocationSlot1_2.label",
+            "description": "$option.AutoEssenceLocationSlot1_2.description",
+            "default_case": "s1_3",
+            "cases": [
+                {
+                    "name": "s1_1",
+                    "label": "$option.AutoEssenceSkill.s1_1",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot1_2_id": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s1_2",
+                    "label": "$option.AutoEssenceSkill.s1_2",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot1_2_id": 2
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s1_3",
+                    "label": "$option.AutoEssenceSkill.s1_3",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot1_2_id": 3
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s1_4",
+                    "label": "$option.AutoEssenceSkill.s1_4",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot1_2_id": 4
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s1_5",
+                    "label": "$option.AutoEssenceSkill.s1_5",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot1_2_id": 5
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoEssenceLocationSlot1_3": {
+            "type": "select",
+            "label": "$option.AutoEssenceLocationSlot1_3.label",
+            "description": "$option.AutoEssenceLocationSlot1_3.description",
+            "default_case": "s1_4",
+            "cases": [
+                {
+                    "name": "s1_1",
+                    "label": "$option.AutoEssenceSkill.s1_1",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot1_3_id": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s1_2",
+                    "label": "$option.AutoEssenceSkill.s1_2",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot1_3_id": 2
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s1_3",
+                    "label": "$option.AutoEssenceSkill.s1_3",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot1_3_id": 3
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s1_4",
+                    "label": "$option.AutoEssenceSkill.s1_4",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot1_3_id": 4
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s1_5",
+                    "label": "$option.AutoEssenceSkill.s1_5",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "slot1_3_id": 5
                             }
                         }
                     }

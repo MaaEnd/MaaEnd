@@ -90,6 +90,9 @@
         "attach": {
             "menu_mode": "random",
             "location_id": "",
+            "slot1_1_id": 2,
+            "slot1_2_id": 3,
+            "slot1_3_id": 4,
             "slot2_id": 0
         }
     },

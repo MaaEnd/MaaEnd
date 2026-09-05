@@ -2396,5 +2396,11 @@
     "option.AutoEssenceLocationSlot1.label": "基本属性",
     "option.AutoEssenceLocationSlot1.description": "基本属性を3つ選択（主能力 / 筋力 / 意志 / 敏捷 / 知性）",
     "option.AutoEssenceLocationBonus.label": "ボーナス属性",
-    "option.AutoEssenceLocationBonus.description": "この地域で利用可能なボーナス属性を1つ選択"
+    "option.AutoEssenceLocationBonus.description": "この地域で利用可能なボーナス属性を1つ選択",
+    "option.AutoEssenceLocationSlot1_1.label": "基本属性 1",
+    "option.AutoEssenceLocationSlot1_1.description": "1つ目の基本属性（主能力 / 筋力 / 意志 / 敏捷 / 知性）",
+    "option.AutoEssenceLocationSlot1_2.label": "基本属性 2",
+    "option.AutoEssenceLocationSlot1_2.description": "2つ目の基本属性（主能力 / 筋力 / 意志 / 敏捷 / 知性）",
+    "option.AutoEssenceLocationSlot1_3.label": "基本属性 3",
+    "option.AutoEssenceLocationSlot1_3.description": "3つ目の基本属性（主能力 / 筋力 / 意志 / 敏捷 / 知性）"
 }

@@ -2396,5 +2396,11 @@
     "option.AutoEssenceLocationSlot1.label": "基础属性",
     "option.AutoEssenceLocationSlot1.description": "选择 3 项基础属性（主能力 / 力量 / 意志 / 敏捷 / 智识）",
     "option.AutoEssenceLocationBonus.label": "附加属性",
-    "option.AutoEssenceLocationBonus.description": "选择 1 项该地区可用的附加属性"
+    "option.AutoEssenceLocationBonus.description": "选择 1 项该地区可用的附加属性",
+    "option.AutoEssenceLocationSlot1_1.label": "基础属性 1",
+    "option.AutoEssenceLocationSlot1_1.description": "第 1 项基础属性（主能力 / 力量 / 意志 / 敏捷 / 智识）",
+    "option.AutoEssenceLocationSlot1_2.label": "基础属性 2",
+    "option.AutoEssenceLocationSlot1_2.description": "第 2 项基础属性（主能力 / 力量 / 意志 / 敏捷 / 智识）",
+    "option.AutoEssenceLocationSlot1_3.label": "基础属性 3",
+    "option.AutoEssenceLocationSlot1_3.description": "第 3 项基础属性（主能力 / 力量 / 意志 / 敏捷 / 智识）"
 }

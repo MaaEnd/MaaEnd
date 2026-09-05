@@ -2396,5 +2396,11 @@
     "option.AutoEssenceLocationSlot1.label": "Base attributes",
     "option.AutoEssenceLocationSlot1.description": "Select 3 base attributes (Main / Strength / Will / Agility / Intellect)",
     "option.AutoEssenceLocationBonus.label": "Bonus attribute",
-    "option.AutoEssenceLocationBonus.description": "Select 1 bonus attribute available at this region"
+    "option.AutoEssenceLocationBonus.description": "Select 1 bonus attribute available at this region",
+    "option.AutoEssenceLocationSlot1_1.label": "Base attribute 1",
+    "option.AutoEssenceLocationSlot1_1.description": "1st base attribute (Main / Strength / Will / Agility / Intellect)",
+    "option.AutoEssenceLocationSlot1_2.label": "Base attribute 2",
+    "option.AutoEssenceLocationSlot1_2.description": "2nd base attribute (Main / Strength / Will / Agility / Intellect)",
+    "option.AutoEssenceLocationSlot1_3.label": "Base attribute 3",
+    "option.AutoEssenceLocationSlot1_3.description": "3rd base attribute (Main / Strength / Will / Agility / Intellect)"
 }
