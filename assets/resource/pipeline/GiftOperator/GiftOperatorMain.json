@@ -137,6 +137,7 @@
                 "GiftOperatorMoveLocation1Move",
                 "GiftOperatorGoAheadContact",
                 "GiftOperatorClickContact",
+                "GiftOperatorSwipe",
                 "GiftOperatorBack"
             ]
         },

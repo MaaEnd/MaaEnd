@@ -14,7 +14,8 @@
                     "GiftOperator/GiftOperatorGiftButton.png",
                     "GiftOperator/GiftOperatorGiftFullButton.png",
                     "GiftOperator/GiftFullOperatorGiftButton.png"
-                ]
+                ],
+                "threshold": 0.9
             }
         },
         "action": {
@@ -187,7 +188,7 @@
         }
     },
     "GiftOperatorGiftDialog": {
-        "desc": "赠送后跳过对话。",
+        "desc": "赠送后跳过对话；赠送已满离开送礼界面后跳过对话。",
         "recognition": {
             "type": "TemplateMatch",
             "param": {
@@ -396,7 +397,7 @@
                     130
                 ],
                 "expected": [
-                    // @i18n-skip
+                    // @i18n-skip 请明天再来吧
                     "明天",
                     "tomorrow",
                     "明日",
@@ -424,37 +425,36 @@
         "action": {
             "type": "Click"
         },
+        "post_wait_freezes": {
+            "time": 200,
+            "timeout": 3000
+        },
         "next": [
-            "GiftOperatorGiftFullLeaveDialog"
+            "[JumpBack]GiftOperatorGiftDialog",
+            "[JumpBack]GiftOperatorLeave",
+            "GiftOperatorGiftFullBackInWorld"
         ]
     },
-    "GiftOperatorGiftFullLeaveDialog": {
-        "desc": "赠送已满离开送礼界面后跳过对话，准备重试",
+    "GiftOperatorGiftFullBackInWorld": {
+        "desc": "确认对话结束已返回帝江号大世界",
         "recognition": {
-            "type": "TemplateMatch",
+            "type": "And",
             "param": {
-                "roi": [
-                    616,
-                    679,
-                    48,
-                    40
-                ],
-                "template": [
-                    "RealTimeTask/AutoSkipNext2.png"
+                "all_of": [
+                    "InDijiangWorld"
                 ]
             }
         },
-        "action": {
-            "type": "Click"
-        },
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
         "next": [
-            "GiftOperatorGiftFullLeaveDialog",
             "GiftOperatorGiftFullRetry",
             "GiftOperatorGiftFullFail"
         ]
     },
     "GiftOperatorGiftFullRetry": {
-        "desc": "赠送已满离开送礼界面后跳过对话，准备重试",
+        "desc": "赠送已满重试入口",
         "max_hit": 5,
         "pre_delay": 0,
         "action": "DoNothing",
@@ -467,8 +467,7 @@
     "GiftOperatorGiftFullFail": {
         "desc": "重试五次也只能找到送满的干员，正常失败",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "FalseAction", // 已经确定是没找到，不是 Bug 不需要大爆炸
+        "action": "StopTask", // 已经确定是都送满了，不是 Bug 不需要报错
         "post_delay": 0,
         "rate_limit": 0,
         "focus": {
