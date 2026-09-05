@@ -172,6 +172,26 @@ void TestDebugCaptureFailureIsBestEffort()
     std::filesystem::remove(root);
 }
 
+void TestSkippedCellDoesNotInventMatchingDiagnostics()
+{
+    const iconrecognition::detail::CellRecognitionDiagnostics cell {
+        .cell_box = cv::Rect(10, 20, 64, 64),
+        .rejected_reason = "low-foreground-texture",
+        .foreground_texture = 1.5,
+        .row = 0,
+        .column = 2,
+        .template_matching_skipped = true,
+    };
+    const auto object = cell.to_json().as_object();
+    Require(object.at("template_matching_skipped").as_boolean(), "skipped matching must be explicit");
+    Require(object.at("foreground_texture").as_double() == 1.5, "empty rejection must retain its measured texture");
+    Require(object.at("candidate_count").as_integer() == 0, "skipped matching must evaluate no candidates");
+    Require(object.at("row").as_integer() == 0 && object.at("column").as_integer() == 2, "skipped cells must retain grid coordinates");
+    for (const auto* key : { "candidate_box", "best_candidate_id", "baseline_score", "score", "best_phase", "rarity", "mask_kind" }) {
+        Require(!object.contains(key), std::string("unexecuted matching must not serialize ") + key);
+    }
+}
+
 } // namespace
 
 int main()
@@ -179,6 +199,7 @@ int main()
     try {
         TestDebugCaptureKeepsSynchronizedGroups();
         TestDebugCaptureFailureIsBestEffort();
+        TestSkippedCellDoesNotInventMatchingDiagnostics();
         std::cout << "IconRecognition debug capture tests passed\n";
         return 0;
     }

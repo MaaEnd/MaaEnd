@@ -397,7 +397,7 @@ CellEvaluation EvaluateCellTemplates(
     double threshold,
     double subpixel_threshold,
     detail::RecognitionPerformanceDiagnostics* performance,
-    const std::optional<cv::Rect>& texture_roi)
+    const std::optional<double>& transfer_foreground_texture)
 {
     CellEvaluation result;
     const auto active_started = performance ? PerformanceClock::now() : PerformanceClock::time_point {};
@@ -423,13 +423,16 @@ CellEvaluation EvaluateCellTemplates(
         std::max(1, cvRound(kGridSearchRadius * grid_scale)),
         performance);
 
-    const auto texture_started = performance ? PerformanceClock::now() : PerformanceClock::time_point {};
-    result.foreground_texture =
-        single_roi ? std::optional<double> {} : detail::ForegroundTextureScore(image, cell_box, grid_type, texture_roi);
-    const bool low_texture = result.foreground_texture && *result.foreground_texture < detail::kDefaultLowTextureThreshold;
-    if (performance) {
-        performance->foreground_texture_ms += ElapsedMilliseconds(texture_started);
+    // Transfer 已在逐格入口测量；未知值也直接复用，不能把区域不足重新解释为空格。
+    result.foreground_texture = transfer_foreground_texture;
+    if (grid_type != GridType::Transfer) {
+        const auto texture_started = performance ? PerformanceClock::now() : PerformanceClock::time_point {};
+        result.foreground_texture = single_roi ? std::optional<double> {} : detail::ForegroundTextureScore(image, cell_box, grid_type);
+        if (performance) {
+            performance->foreground_texture_ms += ElapsedMilliseconds(texture_started);
+        }
     }
+    const bool low_texture = result.foreground_texture && *result.foreground_texture < detail::kDefaultLowTextureThreshold;
 
     if (detail::ShouldAttemptEdgeOcclusionRecovery(
             grid_type,
@@ -744,6 +747,26 @@ public:
                 request.recognize_region_unavailable && SupportsRegionUnavailableRecognition(request.grid_type);
             std::optional<std::vector<detail::PreparedTemplate>> region_unavailable_selected;
             for (const auto& cell : cells) {
+                std::optional<double> transfer_foreground_texture;
+                if (request.grid_type == GridType::Transfer) {
+                    const auto texture_started = performance ? PerformanceClock::now() : PerformanceClock::time_point {};
+                    transfer_foreground_texture = detail::ForegroundTextureScore(image, cell.cell_box, request.grid_type, cell.texture_roi);
+                    if (performance) {
+                        performance->foreground_texture_ms += ElapsedMilliseconds(texture_started);
+                    }
+                    // 判空不依赖候选模板；混合背包中的空格也跳过稀有度分类、匹配和地区禁用后备。
+                    if (transfer_foreground_texture && *transfer_foreground_texture < detail::kDefaultLowTextureThreshold) {
+                        result.diagnostics->cells.push_back(detail::CellRecognitionDiagnostics {
+                            .cell_box = cell.cell_box,
+                            .rejected_reason = "low-foreground-texture",
+                            .foreground_texture = transfer_foreground_texture,
+                            .row = cell.row,
+                            .column = cell.column,
+                            .template_matching_skipped = true,
+                        });
+                        continue;
+                    }
+                }
                 const cv::Rect slot = single_roi ? cell.cell_box : SlotFor(request.grid_type, cell, grid_scale);
                 const auto rarity_started = performance ? PerformanceClock::now() : PerformanceClock::time_point {};
                 const auto rarity = single_roi ? detail::RarityResult {} : detail::ClassifyRarity(image, slot, grid_scale);
@@ -762,7 +785,7 @@ public:
                     request.threshold,
                     request.subpixel_threshold,
                     performance_ptr,
-                    cell.texture_roi);
+                    transfer_foreground_texture);
                 bool region_unavailable_fallback_used = false;
                 if (!evaluation.accepted && region_unavailable_enabled && has_region_restricted_candidates) {
                     if (!region_unavailable_selected) {
@@ -786,7 +809,7 @@ public:
                             request.threshold,
                             request.subpixel_threshold,
                             performance_ptr,
-                            cell.texture_roi);
+                            transfer_foreground_texture);
                         if (fallback.accepted) {
                             evaluation = std::move(fallback);
                             region_unavailable_fallback_used = true;

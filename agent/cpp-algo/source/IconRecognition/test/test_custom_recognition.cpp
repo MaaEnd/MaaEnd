@@ -16,6 +16,7 @@
 #include "IconRecognitionRecognition.h"
 #include "IconRecognizer.h"
 #include "detail/DisabledIcon.h"
+#include "detail/RarityClassifier.h"
 #include "detail/RecognitionDiagnostics.h"
 #include "detail/TemplateTypes.h"
 
@@ -707,6 +708,101 @@ void TestRegionRestrictedFallbackRunsOnlyAfterNormalRejection()
     Require(!unsupported_grid_result.matched, "unsupported grid types must not use region-restricted fallback");
 }
 
+void TestTransferSkipsEmptyCellsBeforeMatching()
+{
+    const auto fixture = MakeRegionRestrictedFixture("generated-empty-precheck", true);
+    iconrecognition::IconRecognizer recognizer(fixture.data_root);
+    Require(recognizer.initialize(), "empty precheck recognizer must initialize");
+    iconrecognition::RecognitionRequest request;
+    request.grid_type = iconrecognition::GridType::Transfer;
+    request.roi = fixture.roi;
+    request.grid_scale_hint = 1.0;
+    request.candidates.item_ids = { "restricted" };
+    request.candidates.item_filters = { "Normal:Ore" };
+    request.debug = true;
+
+    const auto normal = recognizer.recognize(fixture.normal_pixels, request);
+    Require(normal.matches.size() == 1 && normal.diagnostics, "mixed grid must retain its one item");
+    std::size_t skipped = 0;
+    for (const auto& cell : normal.diagnostics->cells) {
+        if (cell.template_matching_skipped) {
+            ++skipped;
+            Require(cell.candidate_count == 0 && cell.best_candidate_id.empty(), "empty cells must not rank candidates");
+            Require(cell.rejected_reason == "low-foreground-texture", "skipped cells must preserve the empty rejection reason");
+        }
+    }
+    Require(skipped > 0 && skipped + 1 == normal.diagnostics->cells.size(), "every empty cell in a mixed grid must skip matching");
+    request.recognize_region_unavailable = true;
+    const auto enabled = recognizer.recognize(fixture.normal_pixels, request);
+    Require(enabled.matches.size() == 1 && enabled.diagnostics, "enabling disabled fallback must preserve the mixed result");
+    Require(
+        enabled.diagnostics->performance->matcher.score_calls == normal.diagnostics->performance->matcher.score_calls,
+        "empty cells must not trigger extra region-unavailable scoring");
+
+    // 右侧固定间距的独立方格用于隔离判空前置；全空时即使开启地区禁用后备也不能运行模板评分。
+    cv::Mat empty(720, 1280, CV_8UC3, cv::Scalar(30, 30, 30));
+    for (int row = 0; row < 4; ++row) {
+        for (int column = 0; column < 5; ++column) {
+            const cv::Rect cell(771 + column * 69, 216 + row * 69, 64, 64);
+            empty(cell).setTo(cv::Scalar(38, 38, 38));
+            cv::rectangle(empty, cell, cv::Scalar(105, 105, 105), 2, cv::LINE_8);
+        }
+    }
+    request.roi = cv::Rect(770, 209, 341, 277);
+    const auto all_empty = recognizer.recognize(empty, request);
+    Require(
+        all_empty.error_code == "no_match" && all_empty.matches.empty(),
+        "all-empty panel must succeed without item matches: " + all_empty.error_code
+            + " matches=" + std::to_string(all_empty.matches.size()));
+    Require(all_empty.diagnostics && !all_empty.diagnostics->cells.empty(), "all-empty panel must still locate cells");
+    for (const auto& cell : all_empty.diagnostics->cells) {
+        Require(cell.template_matching_skipped, "all-empty panel must skip every cell: " + cell.to_json().dumps());
+    }
+    Require(all_empty.diagnostics->performance->matcher.score_calls == 0, "all-empty recognition must execute zero template scores");
+    Require(all_empty.diagnostics->performance->rarity_classification_ms == 0.0, "all-empty recognition must skip rarity classification");
+}
+
+void TestTransferUnknownTextureStillMatches()
+{
+    const cv::Vec3f prototype = iconrecognition::detail::RarityLabPrototypes().at(2);
+    cv::Mat lab(1, 1, CV_8UC3, cv::Scalar(prototype[0], prototype[1], prototype[2]));
+    cv::Mat bgr;
+    cv::cvtColor(lab, bgr, cv::COLOR_Lab2BGR);
+    const cv::Scalar band = bgr.at<cv::Vec3b>(0, 0);
+    cv::Mat image(720, 1280, CV_8UC3, cv::Scalar(30, 30, 30));
+    for (int row = 0; row < 4; ++row) {
+        for (int column = 0; column < 4; ++column) {
+            const cv::Rect cell(170 + column * 69, 242 + row * 69, 64, 64);
+            image(cell).setTo(cv::Scalar(60, 60, 60));
+            cv::rectangle(image, cell, cv::Scalar(100, 100, 100), 1);
+            for (int y = 8; y < 56; y += 4) {
+                image(cv::Rect(cell.x + 8, cell.y + y, 48, 1)).setTo(cv::Scalar(180, 180, 180));
+            }
+            image(cv::Rect(cell.x, cell.y + 61, 64, 3)).setTo(band);
+        }
+    }
+    iconrecognition::IconRecognizer recognizer(get_exe_dir() / ".." / "data" / "IconRecognition");
+    Require(recognizer.initialize(), "unknown texture recognizer must initialize");
+    iconrecognition::RecognitionRequest request;
+    request.grid_type = iconrecognition::GridType::Transfer;
+    request.roi = cv::Rect(160, 205, 300, 286);
+    request.grid_scale_hint = 1.0;
+    request.candidates.item_ids = { "item_copper_ore" };
+    request.candidates.item_filters = { "Normal:Ore" };
+    const auto result = recognizer.recognize(image, request);
+    Require(
+        (result.error_code.empty() || result.error_code == "no_match") && result.diagnostics,
+        "partial-row fixture must locate a grid: " + result.error_code);
+    std::size_t unknown = 0;
+    for (const auto& cell : result.diagnostics->cells) {
+        if (!cell.foreground_texture) {
+            ++unknown;
+            Require(!cell.template_matching_skipped && cell.candidate_count > 0, "insufficient texture must still run template matching");
+        }
+    }
+    Require(unknown > 0, "fixture must exercise insufficient trusted content in the bottom row: " + result.diagnostics->to_json().dumps());
+}
+
 void TestRegionRestrictedPreloadHonorsEnabledRequest()
 {
     const auto fixture = MakeRegionRestrictedFixture("generated-region-restricted-preload", true);
@@ -907,6 +1003,8 @@ int main()
         TestItemRecheckFiltersIgnoreAdditionalFilterMatches();
         TestRecognizerPreservesInternalDiagnostics();
         TestRegionRestrictedFallbackRunsOnlyAfterNormalRejection();
+        TestTransferSkipsEmptyCellsBeforeMatching();
+        TestTransferUnknownTextureStillMatches();
         TestRegionRestrictedPreloadHonorsEnabledRequest();
         TestGridDiagnosticsSerializeSelectionEvidence();
         TestRecognizerPreloadsEveryRequestedTemplateSize();
