@@ -74,7 +74,7 @@ struct SemanticState
     NaviPosition zipline_mount_pos {};
     ZiplineTarget zipline_landing {};
     int zipline_landing_hits = 0;
-    // 起滑按了几次。按下去没滑走多半是俯仰没对上, 抬头角是开环发的, 只能换一档再按; 试满就退索
+    // 起滑按了几次。按下去没滑走多半是俯仰没对上, 抬头角是开环发的, 只能换一档再按; 试满就换路
     int zipline_launch_attempts = 0;
     // 上索后先把镜头拉到俯仰上限, 再记住从这个固定基准发出的目标角；连续滑索沿用它按增量补
     double zipline_pitch_deg = 0.0;
@@ -88,7 +88,7 @@ struct SemanticState
     bool zipline_settle_relocated = false;
     // 这一次上索是行进预筛叫停的, 人可能还差几步。此时认不出提示只说明预筛看错了, 不该丢链
     bool zipline_prompt_probe = false;
-    // 人是不是站在架子上。链首上索时置位, 链尾下索或中途退索时清掉。站着时不能直接走路,
+    // 人是不是站在架子上。链首上索时置位, 链尾下索或重规划决定走路时清掉。站着时不能直接走路,
     // 得先右键离开架子, 否则移动指令被架子上的选点状态吃掉
     bool zipline_mounted = false;
     std::string held_zone_candidate;
@@ -328,8 +328,9 @@ struct ZiplineApproachState
     }
 };
 
-// 退索恢复必须重新取得位置所有权。滑行中的快速位移和小地图遮挡可能让最后一帧落在远处的相似
+// 滑索失败恢复必须重新取得位置所有权。滑行中的快速位移和小地图遮挡可能让最后一帧落在远处的相似
 // 纹理上；ResetTracking 之后用贴近 navmesh 的连续新定位重新确认，再允许状态机规划接回剩余路线。
+// 起滑耗尽时人明确还在架子上，先保留 mounted 状态重规划；新路线不能从脚下直接起滑时才下索。
 struct ZiplineRecoveryState
 {
     std::chrono::steady_clock::time_point started_at {};
@@ -337,14 +338,16 @@ struct ZiplineRecoveryState
     int32_t stable_hits = 0;
     int32_t rejected_fixes = 0;
     bool pending = false;
+    bool replan_while_mounted = false;
 
-    void Begin(const std::chrono::steady_clock::time_point& now)
+    void Begin(const std::chrono::steady_clock::time_point& now, bool keep_mounted = false)
     {
         started_at = now;
         stable_pos = {};
         stable_hits = 0;
         rejected_fixes = 0;
         pending = true;
+        replan_while_mounted = keep_mounted;
     }
 
     void Reset()
@@ -354,6 +357,7 @@ struct ZiplineRecoveryState
         stable_hits = 0;
         rejected_fixes = 0;
         pending = false;
+        replan_while_mounted = false;
     }
 };
 

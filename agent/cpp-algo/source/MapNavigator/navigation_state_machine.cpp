@@ -786,6 +786,32 @@ bool NavigationStateMachine::HandleZiplineRecoveryReplan()
 
     StopMotion();
     const auto now = std::chrono::steady_clock::now();
+    if (recovery.replan_while_mounted && runtime_state_.semantic.zipline_mounted) {
+        const bool replanned = TryReplanRemainingAuthoredRoute("zipline_recovery_reexpand_mounted");
+        const bool continues_mounted = replanned && canContinueMountedZipline();
+        LogInfo << "Zipline recovery replanned from the occupied tower." << VAR(replanned) << VAR(continues_mounted)
+                << VAR(session_->current_node_idx()) << VAR(session_->current_path().size());
+        if (continues_mounted) {
+            recovery.Reset();
+            SelectPhaseForCurrentWaypoint("zipline_recovery_mounted");
+            return true;
+        }
+
+        semantic_nodes::DismountZipline(BuildSemanticContext(
+            action_wrapper_,
+            position_provider_,
+            session_,
+            motion_controller_,
+            action_executor_,
+            position_,
+            &runtime_state_,
+            maa_context_));
+        // 下索后才需要重新取得步行位置所有权；若上面的重展开成功，稳定后会直接接入那条新路线。
+        recovery.Begin(now);
+        runtime_state_.dynamic_replan_requested = true;
+        return true;
+    }
+
     const int64_t elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - recovery.started_at).count();
     if (elapsed_ms >= kZiplineRecoveryTimeoutMs) {
         return FailNavigation(
@@ -857,6 +883,19 @@ bool NavigationStateMachine::HandleZiplineRecoveryReplan()
     recovery.Reset();
     SelectPhaseForCurrentWaypoint("zipline_recovery");
     return true;
+}
+
+bool NavigationStateMachine::canContinueMountedZipline() const
+{
+    if (!runtime_state_.semantic.zipline_mounted || !session_->HasCurrentWaypoint()) {
+        return false;
+    }
+    const Waypoint& waypoint = session_->CurrentWaypoint();
+    if (waypoint.action != ActionType::ZIPLINE || !waypoint.HasPosition() || !waypoint.zipline_target) {
+        return false;
+    }
+    const double distance = std::hypot(waypoint.x - position_->x, waypoint.y - position_->y);
+    return distance <= ArrivalBandForStartupBypass(waypoint);
 }
 
 // 全局规划替换掉的作者提示点在这里找回来: 按当前进度点上记的组首下标切出剩余作者路线, 带着
