@@ -510,7 +510,7 @@
             "GiftOperatorSkipDialog",
             "GiftOperatorBranchGift",
             "GiftOperatorLeave",
-            "GiftOperatorMoveRetry",
+            // "GiftOperatorMoveRetry",
             "GiftOperatorMoveFail"
         ]
     },

@@ -27,7 +27,7 @@
         "post_delay": 0,
         "next": [
             "GiftOperatorClickContact", // 理论上这样写可以优化掉后面很多兜底逻辑，但是写不动了，就先当是已经到地方了就别再寻路的意思吧
-            "GiftOperatorInDijiang1",
+            // "GiftOperatorInDijiang1",
             "GiftOperatorInDijiang0",
             "[JumpBack]GiftOperatorGoToDijiang"
         ]

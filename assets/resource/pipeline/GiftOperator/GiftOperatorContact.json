@@ -466,13 +466,13 @@
                 121
             ]
         },
-        "timeout": 3000, // 移动惯性有可能正好点击时走出范围，正常三秒够后退确认了，没进联络界面就快点进 on_error 重试
+        // "timeout": 5000, // 移动惯性有可能正好点击时走出范围，正常五秒够后退确认了，没进联络界面就快点进 on_error 重试
         "next": [
             "GiftOperatorCheckContact"
-        ],
-        "on_error": [
-            "GiftOperatorMoveBackward"
         ]
+        // "on_error": [
+        //     "GiftOperatorMoveBackward"
+        // ]
     },
     "GiftOperatorConfirmSelect": {
         "desc": "点击确认按钮呼唤干员",
@@ -491,7 +491,7 @@
         "next": [
             "GiftOperatorWaitChat",
             "[JumpBack]GiftOperatorMoveAhead",
-            "GiftOperatorMoveRetry",
+            // "GiftOperatorMoveRetry",
             "GiftOperatorMoveFail"
         ]
     },

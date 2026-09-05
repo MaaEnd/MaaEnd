@@ -384,14 +384,14 @@
                 }
             }
         },
-        "timeout": 3000, // 移动惯性有可能走出范围，正常三秒够后退识别了，没识别到就快点进 on_error 重试
+        // "timeout": 5000, // 移动惯性有可能正好点击时走出范围，正常五秒够后退确认了，没进联络界面就快点进 on_error 重试
         "next": [
             "GiftOperatorClickContact"
             //"[JumpBack]GiftOperatorGoAheadContact"
         ],
-        "on_error": [
-            "GiftOperatorMoveBackward"
-        ],
+        // "on_error": [
+        //     "GiftOperatorMoveBackward"
+        // ],
         "focus": {
             "Node.Action.Succeeded": {
                 "trace": true
@@ -409,7 +409,7 @@
                 "key": 83
             }
         },
-        "timeout": 3000,
+        "timeout": 5000,
         "next": [
             "GiftOperatorClickContact"
         ],
@@ -506,13 +506,13 @@
                 }
             }
         },
-        "timeout": 3000, // 移动惯性有可能走出范围，正常三秒够后退识别了，没识别到就快点进 on_error 重试
+        // "timeout": 5000, // 移动惯性有可能正好点击时走出范围，正常五秒够后退确认了，没进联络界面就快点进 on_error 重试
         "next": [
             "GiftOperatorClickContact"
         ],
-        "on_error": [
-            "GiftOperatorMoveBackward"
-        ],
+        // "on_error": [
+        //     "GiftOperatorMoveBackward"
+        // ],
         "focus": {
             "Node.Action.Succeeded": {
                 "trace": true
