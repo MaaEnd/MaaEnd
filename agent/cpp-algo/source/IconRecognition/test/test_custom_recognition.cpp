@@ -168,7 +168,10 @@ constexpr int kSyntheticRoiY = 5;
 constexpr int kSyntheticRoiSize = 54;
 constexpr int kSyntheticAlphaThreshold = 230;
 constexpr int kTransferSyntheticWidth = 420;
-constexpr int kTransferSyntheticHeight = 320;
+constexpr int kTransferSyntheticHeight = 270;
+// Transfer 入口使用 720p 面板 profile，合成内容放在左侧可信区域内。
+constexpr int kTransferSyntheticX = 180;
+constexpr int kTransferSyntheticY = 220;
 constexpr int kTransferSyntheticPitch = 69;
 constexpr int kTransferSyntheticCellSize = 64;
 
@@ -197,7 +200,7 @@ SingleRoiFixture MakeSingleRoiFixture(std::string_view icon_id = "item_copper_or
 struct RecheckDeduplicateFixture
 {
     cv::Mat pixels;
-    cv::Rect roi { 0, 0, kTransferSyntheticWidth, kTransferSyntheticHeight };
+    cv::Rect roi { kTransferSyntheticX, kTransferSyntheticY, kTransferSyntheticWidth, kTransferSyntheticHeight };
 };
 
 struct RegionRestrictedFixture
@@ -238,8 +241,8 @@ RegionRestrictedFixture MakeRegionRestrictedFixture(std::string_view fixture_nam
     const auto normal =
         iconrecognition::detail::PrepareStandardTemplate(record, source, kTransferSyntheticCellSize, kSyntheticAlphaThreshold);
     const auto disabled = iconrecognition::detail::BuildRegionUnavailableTemplate(normal, dark_band, white_mark, kSyntheticAlphaThreshold);
-    const cv::Rect roi { 0, 0, kTransferSyntheticWidth, kTransferSyntheticHeight };
-    const cv::Point cell_origin { 2, 2 };
+    const cv::Rect roi { kTransferSyntheticX, kTransferSyntheticY, kTransferSyntheticWidth, kTransferSyntheticHeight };
+    const cv::Point cell_origin = roi.tl() + cv::Point(2, 2);
     cv::Mat grid_background = cv::Mat::zeros(roi.size(), CV_8UC3);
     for (int x = 0; x < roi.width; x += kTransferSyntheticPitch) {
         grid_background.colRange(x, std::min(x + 2, roi.width)).setTo(cv::Scalar(245, 245, 245));
@@ -247,11 +250,11 @@ RegionRestrictedFixture MakeRegionRestrictedFixture(std::string_view fixture_nam
     for (int y = 0; y < roi.height; y += kTransferSyntheticPitch) {
         grid_background.rowRange(y, std::min(y + 2, roi.height)).setTo(cv::Scalar(245, 245, 245));
     }
-    const cv::Size canvas_size = roi.size();
+    const cv::Size canvas_size(1280, 720);
     cv::Mat normal_pixels = cv::Mat::zeros(canvas_size, CV_8UC3);
     cv::Mat disabled_pixels = cv::Mat::zeros(canvas_size, CV_8UC3);
-    grid_background.copyTo(normal_pixels);
-    grid_background.copyTo(disabled_pixels);
+    grid_background.copyTo(normal_pixels(roi));
+    grid_background.copyTo(disabled_pixels(roi));
     normal.image.copyTo(normal_pixels(cv::Rect(cell_origin, normal.image.size())));
     disabled.image.copyTo(disabled_pixels(cv::Rect(cell_origin, disabled.image.size())));
     return { data_root, std::move(normal_pixels), std::move(disabled_pixels), roi };
@@ -277,7 +280,9 @@ RecheckDeduplicateFixture MakeRecheckDeduplicateFixture()
     for (const cv::Point origin : { cv::Point { 2, 2 }, cv::Point { 71, 2 } }) {
         prepared.image.copyTo(pixels(cv::Rect(origin.x, origin.y, kTransferSyntheticCellSize, kTransferSyntheticCellSize)));
     }
-    return { std::move(pixels) };
+    RecheckDeduplicateFixture fixture { cv::Mat(720, 1280, CV_8UC3, cv::Scalar(18, 18, 18)) };
+    pixels.copyTo(fixture.pixels(fixture.roi));
+    return fixture;
 }
 
 RecheckDeduplicateFixture MakeRecheckAdditionalFilterFixture()
@@ -290,7 +295,7 @@ RecheckDeduplicateFixture MakeRecheckAdditionalFilterFixture()
         iconrecognition::detail::DecodeBgra(template_path),
         kTransferSyntheticCellSize,
         kSyntheticAlphaThreshold);
-    prepared.image.copyTo(fixture.pixels(cv::Rect(71, 2, kTransferSyntheticCellSize, kTransferSyntheticCellSize)));
+    prepared.image.copyTo(fixture.pixels(cv::Rect(fixture.roi.tl() + cv::Point(71, 2), prepared.image.size())));
     return fixture;
 }
 
@@ -697,7 +702,7 @@ void TestRegionRestrictedFallbackRunsOnlyAfterNormalRejection()
 
     // 地区禁用后备不应随着开关误应用到交易、奖励或单 ROI 等其他界面。
     request.grid_type = iconrecognition::GridType::SingleRoi;
-    request.roi = cv::Rect { 2, 2, kTransferSyntheticCellSize, kTransferSyntheticCellSize };
+    request.roi = cv::Rect(disabled_fixture.roi.tl() + cv::Point(2, 2), cv::Size(kTransferSyntheticCellSize, kTransferSyntheticCellSize));
     const auto unsupported_grid_result = disabled_recognizer.recognize(disabled_fixture.disabled_pixels, request);
     Require(!unsupported_grid_result.matched, "unsupported grid types must not use region-restricted fallback");
 }

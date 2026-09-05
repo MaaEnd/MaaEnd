@@ -24,6 +24,28 @@ namespace
 constexpr double kEpsilon = 1e-8;
 // 双侧网格的公共 64px cell、68..70px pitch 和可见性默认值。
 constexpr TransferGridProfile kBaseTransferProfile {};
+
+struct TransferPanelBounds
+{
+    int left;
+    int top;
+    int right;
+    int bottom;
+    int trusted_top;
+    int trusted_bottom;
+};
+
+// 1280x720 Transfer 原图人工审核的左右面板边界；右/下端点不包含在裁剪区内。
+// 外边界保留渐变中的格框证据，trusted 上下界排除渐变与面板 UI；向内收缩会减少可用内容。
+constexpr std::array<TransferPanelBounds, 2> kWin32TransferPanelBounds {
+    TransferPanelBounds { .left = 160, .top = 205, .right = 707, .bottom = 491, .trusted_top = 219, .trusted_bottom = 478 },
+    TransferPanelBounds { .left = 770, .top = 209, .right = 1111, .bottom = 486, .trusted_top = 215, .trusted_bottom = 481 },
+};
+// ADB（240 dpi）的独立标定，不能由 Win32 坐标乘网格比例得到；坐标仍为 1280x720 原图像素。
+constexpr std::array<TransferPanelBounds, 2> kAdbTransferPanelBounds {
+    TransferPanelBounds { .left = 41, .top = 166, .right = 724, .bottom = 523, .trusted_top = 182, .trusted_bottom = 507 },
+    TransferPanelBounds { .left = 803, .top = 171, .right = 1229, .bottom = 517, .trusted_top = 179, .trusted_bottom = 511 },
+};
 // 粗发现阶段允许的 pitch 范围；扩大可召回畸变网格，也会增加候选和误检。
 constexpr std::pair<int, int> kTransferDiscoveryPitchRange { 66, 74 };
 // 粗发现候选至少包含的列数；调高减少局部误检，调低可召回窄面板。
@@ -642,19 +664,41 @@ GridProfile ProfileFor(GridType type)
     throw std::invalid_argument("unknown grid type");
 }
 
+std::array<TransferPanelRegion, 2> TransferPanelRegionsFor(double grid_scale, const cv::Rect& roi)
+{
+    if (grid_scale != kWin32ControllerGridScale && grid_scale != kAdbControllerGridScale) {
+        throw std::invalid_argument("unsupported Transfer panel profile");
+    }
+    const auto& bounds = grid_scale == kAdbControllerGridScale ? kAdbTransferPanelBounds : kWin32TransferPanelBounds;
+    std::array<TransferPanelRegion, 2> regions;
+    for (std::size_t index = 0; index < bounds.size(); ++index) {
+        const auto& panel = bounds[index];
+        regions[index] = {
+            .search_roi = roi & cv::Rect(panel.left, panel.top, panel.right - panel.left, panel.bottom - panel.top),
+            .texture_roi =
+                roi & cv::Rect(panel.left, panel.trusted_top, panel.right - panel.left, panel.trusted_bottom - panel.trusted_top),
+        };
+    }
+    return regions;
+}
+
 TransferGridProfile TransferProfileFor(TransferGridVariant variant)
 {
-    // 背包左侧允许 85% 顶部可见率，兼容 ROI 从首行中部开始的截图。
+    // Transfer 外可见区已排除面板外壳；顶部至少保留 75% 格框，调低可召回更多滚动残行，也增加不完整格子的误检风险。
     constexpr TransferGridProfile kTransferLeft {
         .rarity_anchor_offset = 64,
-        .minimum_top_visibility = 0.85,
+        .minimum_top_visibility = 0.75,
+        // 人工标定的外边界内至少保留 65% 格高；召回底部残行，低于此比例仍拒绝严重遮挡的格子。
+        .minimum_bottom_visibility = 0.65,
     };
     // 背包右侧固定 69px pitch，避免五列短轴被物品纹理拉偏 1px。
     constexpr TransferGridProfile kTransferRight {
         .pitch_min = 69,
         .pitch_max = 69,
         .rarity_anchor_offset = 64,
-        .minimum_top_visibility = 0.85,
+        .minimum_top_visibility = 0.75,
+        // 与左侧使用相同的底部残行可见率；不改变 Port 和其他网格的默认值。
+        .minimum_bottom_visibility = 0.65,
     };
     // 便捷存取站左侧要求 90% 顶部可见率，减少标题区或遮挡造成的伪首行。
     constexpr TransferGridProfile kPortLeft {

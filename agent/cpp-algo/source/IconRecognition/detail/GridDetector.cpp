@@ -25,6 +25,15 @@ namespace iconrecognition::detail
 namespace
 {
 
+struct TransferTextureContext
+{
+    const cv::Mat& source_image;
+    cv::Rect texture_roi;
+    double source_grid_scale;
+};
+
+cv::Rect ScaleRectToSource(const cv::Rect& rect, double scale, const cv::Size& bounds);
+
 // 响应、分母和归一化的近零阈值，仅用于数值稳定性。
 constexpr double kEpsilon = 1e-8;
 // 信用交易界面允许的最大列数；Win32 为七列，ADB 为六列，实际列数由卡片证据决定。
@@ -1653,7 +1662,8 @@ bool IsTransferEmptyGridCandidate(
     const cv::Rect& roi,
     const std::vector<int>& x_starts,
     const std::vector<int>& y_starts,
-    int cell_size)
+    int cell_size,
+    const TransferTextureContext* texture_context)
 {
     const cv::Rect image_bounds(0, 0, image.cols, image.rows);
     int checked_cells = 0;
@@ -1664,7 +1674,14 @@ bool IsTransferEmptyGridCandidate(
                 continue;
             }
             ++checked_cells;
-            if (!IsLowTexture(image, cell, GridType::Transfer)) {
+            // ADB 的几何在归一化图上拟合，判空仍读取原图，保持前后两处的 4px 裁剪及阈值一致。
+            const auto score = texture_context ? ForegroundTextureScore(
+                                   texture_context->source_image,
+                                   ScaleRectToSource(cell, texture_context->source_grid_scale, texture_context->source_image.size()),
+                                   GridType::Transfer,
+                                   texture_context->texture_roi)
+                                               : ForegroundTextureScore(image, cell, GridType::Transfer);
+            if (!score || *score >= kDefaultLowTextureThreshold) {
                 return false;
             }
         }
@@ -1778,7 +1795,13 @@ std::vector<int> DropPortRows(
     return y_starts;
 }
 
-GridLayout BuildTransferLayout(const cv::Mat& image, const cv::Rect& roi, const TransferGridHint& hint, int grid_index, GridType type)
+GridLayout BuildTransferLayout(
+    const cv::Mat& image,
+    const cv::Rect& roi,
+    const TransferGridHint& hint,
+    int grid_index,
+    GridType type,
+    const TransferTextureContext* texture_context)
 {
     const bool transfer = type == GridType::Transfer;
     const int absolute_center = roi.x + hint.rect.x + hint.rect.width / 2;
@@ -1844,7 +1867,8 @@ GridLayout BuildTransferLayout(const cv::Mat& image, const cv::Rect& roi, const 
         structural_y = build_structural_y();
         const auto empty_grid = FitTransferEmptyGrid(hint, local_x, *structural_y, x_fit->pitch, profile, cell_score, signed_x, signed_y);
         empty_grid_selected =
-            empty_grid && IsTransferEmptyGridCandidate(image, roi, empty_grid->x_starts, empty_grid->y_starts, profile.cell_size);
+            empty_grid
+            && IsTransferEmptyGridCandidate(image, roi, empty_grid->x_starts, empty_grid->y_starts, profile.cell_size, texture_context);
         if (empty_grid_selected) {
             local_x = empty_grid->x_starts;
             local_y = empty_grid->y_starts;
@@ -1861,10 +1885,14 @@ GridLayout BuildTransferLayout(const cv::Mat& image, const cv::Rect& roi, const 
                                   || rarity_fit->supporting_chromatic_cells >= kMinimumReliableRarityCells);
         if (reliable_rarity_fit) {
             local_x = rarity_fit->x_starts;
-            const int count =
-                std::min(profile.maximum_rows, std::max(static_cast<int>(hint.y_starts.size()), rarity_fit->supporting_rows));
+            // Transfer 用支持行的实际范围补足粗网格；仅增加总行数会把顶部缺行错补到下面。
+            // Port 保持原有从粗起点向下生成的策略。
+            const int first_row = transfer ? std::min(0, rarity_fit->first_supported_row) : 0;
+            const int last_row = transfer ? std::max(static_cast<int>(hint.y_starts.size()) - 1, rarity_fit->last_supported_row)
+                                         : std::max(static_cast<int>(hint.y_starts.size()), rarity_fit->supporting_rows) - 1;
+            const int count = std::min(profile.maximum_rows, last_row - first_row + 1);
             for (int row = 0; row < count; ++row) {
-                local_y.push_back(rarity_fit->origin + row * rarity_fit->pitch);
+                local_y.push_back(rarity_fit->origin + (first_row + row) * rarity_fit->pitch);
             }
         }
         else {
@@ -2298,7 +2326,12 @@ void RefineScaledTransferDetection(const cv::Mat& image, const cv::Rect& roi, do
     }
 }
 
-GridDetection DetectGridNormalized(const cv::Mat& image, GridType type, const cv::Rect& roi, double source_grid_scale)
+GridDetection DetectGridNormalized(
+    const cv::Mat& image,
+    GridType type,
+    const cv::Rect& roi,
+    double source_grid_scale,
+    const TransferTextureContext* texture_context = nullptr)
 {
     GridDetection result {
         .type = type,
@@ -2316,7 +2349,7 @@ GridDetection DetectGridNormalized(const cv::Mat& image, GridType type, const cv
     else if (type == GridType::Transfer || type == GridType::PortStorager) {
         const auto hints = DiscoverTransferGridHints(image(roi), type == GridType::Transfer);
         for (int index = 0; index < static_cast<int>(hints.size()); ++index) {
-            Append(result, BuildTransferLayout(image, roi, hints[index], index, type));
+            Append(result, BuildTransferLayout(image, roi, hints[index], index, type, texture_context));
         }
     }
     else {
@@ -2356,6 +2389,44 @@ GridDetection DetectGrid(const cv::Mat& image, GridType type, const cv::Rect& ro
         };
     }
     const double resolved_scale = *estimated_scale;
+    if (type == GridType::Transfer) {
+        GridDetection result { .type = type, .roi = roi, .grid_scale = resolved_scale };
+        const auto panels = TransferPanelRegionsFor(resolved_scale, roi);
+        cv::Mat analysis_image = image;
+        if (resolved_scale != kWin32ControllerGridScale) {
+            cv::resize(
+                image,
+                analysis_image,
+                cv::Size(std::max(1, cvRound(image.cols / resolved_scale)), std::max(1, cvRound(image.rows / resolved_scale))),
+                0.0,
+                0.0,
+                cv::INTER_AREA);
+        }
+        for (const auto& panel : panels) {
+            if (panel.search_roi.empty()) {
+                continue;
+            }
+            const cv::Rect analysis_roi = ScaleRectForGridAnalysis(panel.search_roi, 1.0 / resolved_scale, analysis_image.size());
+            const TransferTextureContext texture_context { image, panel.texture_roi, resolved_scale };
+            auto detection = DetectGridNormalized(analysis_image, type, analysis_roi, resolved_scale, &texture_context);
+            if (resolved_scale != kWin32ControllerGridScale) {
+                ScaleDetectionToSource(detection, resolved_scale, image.size());
+                RefineScaledTransferDetection(image, panel.search_roi, resolved_scale, detection);
+            }
+            for (auto& layout : detection.grids) {
+                layout.grid_index = static_cast<int>(result.grids.size());
+                for (auto& cell : layout.cells) {
+                    cell.grid_index = layout.grid_index;
+                    cell.texture_roi = panel.texture_roi;
+                }
+                Append(result, std::move(layout));
+            }
+        }
+        if (result.cells.empty()) {
+            result.failure_message = "Transfer panel intersection contains no formal cells";
+        }
+        return result;
+    }
     if (resolved_scale == kWin32ControllerGridScale) {
         return DetectGridNormalized(image, type, roi, resolved_scale);
     }

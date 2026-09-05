@@ -23,7 +23,11 @@
 
 两种 profile 都只提供定位策略所需的先验，不是公开协议。调用方不能根据这些字段自行计算 ROI 或格子坐标。
 
-`GridDetector` 复用 Win32 标准 profile 与 ADB 240 dpi 放大 profile，调用方不能指定比例。Custom 入口按运行时 `type` 将 `Win32`、`Linux`、`MacOS` 暂映射到标准 profile，将 `Adb`、`PlayCover` 暂映射到 ADB profile；CloudADB 的运行时 `type` 是 `Adb`。除 Win32/Adb 外，这些映射暂没有独立截图数据验证，后续可按实际画面调整；其他情况从 ROI 图像推断。ADB 画面会临时归一化到标准逻辑密度，再使用上述定位 profile。检测结果在返回前统一映射为原图坐标，临时归一化图不会进入图标匹配阶段。profile 判断只读取调用方 ROI，不推导或修改 ROI；证据不足时直接失败。公开参数与失败行为见[开发者使用指南](/docs/zh_cn/developers/components/icon-recognition.md)。
+`GridDetector` 复用 Win32 标准 profile 与 ADB 240 dpi 放大 profile，调用方不能指定比例。Custom 入口按运行时 `type` 将 `Win32`、`Linux`、`MacOS` 暂映射到标准 profile，将 `Adb`、`PlayCover` 暂映射到 ADB profile；CloudADB 的运行时 `type` 是 `Adb`。除 Win32/Adb 外，这些映射暂没有独立截图数据验证，后续可按实际画面调整；其他情况从 ROI 图像推断。ADB 画面会临时归一化到标准逻辑密度，再使用上述定位 profile。检测结果在返回前统一映射为原图坐标，临时归一化图不会进入图标匹配阶段。profile 判断只读取调用方 ROI，不向外扩展；证据不足时直接失败。公开参数与失败行为见[开发者使用指南](/docs/zh_cn/developers/components/icon-recognition.md)。
+
+仅 `Transfer` 在选定控制器后，通过 `TransferPanelRegionsFor()` 将调用方 ROI 分别与左右面板的标定边界求交。外可见区域用于网格搜索，保留上下渐变带中的边框；内可信区域仅用于纹理判空。两侧独立处理，不用包含中间 UI 的外接矩形代替。标定采用原图半开矩形坐标，ADB 使用独立标定而非缩放 Win32 坐标。其他类型（包括 `PortStorager`）不使用此边界。
+
+完整 `cell_box` 不因纹理区域收缩而改变。前置全空门控与后置逐格判空均在原图上先内缩完整格框，再与可信区域求交，不对交集重复内缩、不用填黑制造人工边缘。剩余内容不足时返回未知并保留模板匹配路径。粗候选发现中的纹理覆盖仍只是局部排序证据，不代表最终判空结论。
 
 ## 各类网格的维护入口
 
@@ -42,10 +46,13 @@
 
 双侧网格同时接受大 ROI 和单侧 ROI。`PartitionTransferRegions()` 负责把输入范围转换成候选区域；`DiscoverTransferGridHints()` 从结构响应中召回可能的面板；`GridAnchors` 和 `RegularLattice` 再用结构及颜色条观测确定最终横纵轴。
 
+`FitRarityGrid()` 同时保留粗网格参考起点、色带支持行数和支持行索引范围。`Transfer` 以粗网格与支持行范围的并集生成行，顶部新找到的色带对应负行索引，不能只增加行数再从旧起点向下生成。支持行数也不能替代跨度，因为中间可能有空行或被遮挡的色带。`PortStorager` 保持原有行生成策略。
+
 维护时需要保持以下边界：
 
 - 大 ROI 可以发现两个独立面板，单侧 ROI 不能凭先验扩展到另一侧；
 - 颜色条只能修正有直接证据支持的相位，不能从少量颜色像素生成整片网格；
+- 颜色条触及 ROI 下边界时，其真实下边缘未知，不能用裁剪线作为定位锚点；完整色带和残行补全仍走原有规则；
 - 结构候选与颜色条候选冲突时，选择依据必须进入网格级诊断；
 - 被 ROI 裁切或被界面元素遮挡的格子只能在可见结构范围内补足；
 - 最终坐标由统一规则网格投影，不能逐格累积间距。

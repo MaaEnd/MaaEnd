@@ -396,7 +396,8 @@ CellEvaluation EvaluateCellTemplates(
     double grid_scale,
     double threshold,
     double subpixel_threshold,
-    detail::RecognitionPerformanceDiagnostics* performance)
+    detail::RecognitionPerformanceDiagnostics* performance,
+    const std::optional<cv::Rect>& texture_roi)
 {
     CellEvaluation result;
     const auto active_started = performance ? PerformanceClock::now() : PerformanceClock::time_point {};
@@ -423,8 +424,9 @@ CellEvaluation EvaluateCellTemplates(
         performance);
 
     const auto texture_started = performance ? PerformanceClock::now() : PerformanceClock::time_point {};
-    result.foreground_texture = single_roi ? std::optional<double> {} : detail::ForegroundTextureScore(image, cell_box, grid_type);
-    const bool low_texture = !single_roi && detail::IsLowTexture(image, cell_box, grid_type);
+    result.foreground_texture =
+        single_roi ? std::optional<double> {} : detail::ForegroundTextureScore(image, cell_box, grid_type, texture_roi);
+    const bool low_texture = result.foreground_texture && *result.foreground_texture < detail::kDefaultLowTextureThreshold;
     if (performance) {
         performance->foreground_texture_ms += ElapsedMilliseconds(texture_started);
     }
@@ -759,7 +761,8 @@ public:
                     grid_scale,
                     request.threshold,
                     request.subpixel_threshold,
-                    performance_ptr);
+                    performance_ptr,
+                    cell.texture_roi);
                 bool region_unavailable_fallback_used = false;
                 if (!evaluation.accepted && region_unavailable_enabled && has_region_restricted_candidates) {
                     if (!region_unavailable_selected) {
@@ -782,7 +785,8 @@ public:
                             grid_scale,
                             request.threshold,
                             request.subpixel_threshold,
-                            performance_ptr);
+                            performance_ptr,
+                            cell.texture_roi);
                         if (fallback.accepted) {
                             evaluation = std::move(fallback);
                             region_unavailable_fallback_used = true;
