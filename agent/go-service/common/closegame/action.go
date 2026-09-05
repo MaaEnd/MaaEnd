@@ -20,6 +20,7 @@ var _ maa.CustomActionRunner = &CloseGameAction{}
 type closeGameSettingParam struct {
 	ApplyGameSetting       bool            `json:"ApplyGameSetting,omitempty"`
 	GameSettingRegion      string          `json:"GameSettingRegion,omitempty"`
+	GameSettingLanguage    string          `json:"GameSettingLanguage,omitempty"`
 	GameSettingDisplayType string          `json:"GameSettingDisplayType,omitempty"`
 	ResolutionWidth        json.RawMessage `json:"ResolutionWidth,omitempty"`
 	ResolutionHeight       json.RawMessage `json:"ResolutionHeight,omitempty"`
@@ -52,6 +53,7 @@ func parseUint32FromRaw(raw json.RawMessage) (uint32, bool) {
 func loadAttach(ctx *maa.Context, nodeName string) closeGameSettingParam {
 	params := closeGameSettingParam{
 		GameSettingRegion:      "CN",
+		GameSettingLanguage:    "Unchanged",
 		GameSettingDisplayType: "Window",
 		GraphicsQuality:        -1,
 		FrameRate:              -1,
@@ -76,6 +78,10 @@ func loadAttach(ctx *maa.Context, nodeName string) closeGameSettingParam {
 	}
 	if wrapper.Attach.GameSettingRegion != "" {
 		params.GameSettingRegion = wrapper.Attach.GameSettingRegion
+	}
+	// 语言用 case 名传递而非数值：简体中文对应 0，用整数会与「未提供」混淆
+	if wrapper.Attach.GameSettingLanguage != "" {
+		params.GameSettingLanguage = wrapper.Attach.GameSettingLanguage
 	}
 	if wrapper.Attach.GameSettingDisplayType != "" {
 		params.GameSettingDisplayType = wrapper.Attach.GameSettingDisplayType
@@ -165,6 +171,13 @@ func (a *CloseGameAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		return false
 	}
 
+	// Apply 已按区服选定注册表路径，此处才能写入语言项。
+	// 游戏此时已退出，写入的语言会在下次启动游戏时生效。
+	if err := gamesetting.ApplyTextLanguage(params.GameSettingLanguage); err != nil {
+		log.Error().Err(err).Str("language", params.GameSettingLanguage).Msg("CloseGameAction: failed to apply game language")
+		return false
+	}
+
 	if params.GraphicsQuality > 0 {
 		if err := gamesetting.SetVideoQualityMain(uint32(params.GraphicsQuality)); err != nil {
 			log.Error().Err(err).Int("graphics_quality", params.GraphicsQuality).Msg("CloseGameAction: failed to set graphics quality")
@@ -188,6 +201,7 @@ func (a *CloseGameAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 
 	log.Info().
 		Str("region", params.GameSettingRegion).
+		Str("language", params.GameSettingLanguage).
 		Str("display_type", params.GameSettingDisplayType).
 		Str("resolution", resolution).
 		Int("graphics_quality", params.GraphicsQuality).

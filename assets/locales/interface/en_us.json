@@ -949,6 +949,7 @@
     "task.CloseGamePC.label": "❌ Close Game (PC)",
     "task.CloseGamePC.description": "Closes the game process. If this task is added, you do not need the Kill Process task to end Endfield.exe.",
     "option.CloseGamePCApplyGameSetting.label": "Apply game settings after close",
+    "option.CloseGamePCGameSettingLanguage.description": "Takes effect the next time the game launches. Use this to restore your usual language after a run.",
     "option.CloseGamePCGameSettingResolution.label": "Resolution",
     "option.CloseGamePCGameSettingResolutionWidth.label": "Width",
     "option.CloseGamePCGameSettingResolutionHeight.label": "Height",

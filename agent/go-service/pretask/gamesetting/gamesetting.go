@@ -44,8 +44,7 @@ func Run(args []string) bool {
 		return false
 	}
 
-	textLanguage, changeTextLanguage, err := mapTextLanguage(opts.Language)
-	if err != nil {
+	if _, _, err := mapTextLanguage(opts.Language); err != nil {
 		log.Error().
 			Err(err).
 			Str("component", "gamesetting").
@@ -77,21 +76,13 @@ func Run(args []string) bool {
 	}
 
 	// Apply 已按区服选定注册表路径，此处才能写入语言项。
-	if changeTextLanguage {
-		if err := SetLanguageTextChange(textLanguage); err != nil {
-			log.Error().
-				Err(err).
-				Str("component", "gamesetting").
-				Str("language", opts.Language).
-				Uint32("language_value", textLanguage).
-				Msg("failed to set game language")
-			return false
-		}
-		log.Info().
+	if err := ApplyTextLanguage(opts.Language); err != nil {
+		log.Error().
+			Err(err).
 			Str("component", "gamesetting").
 			Str("language", opts.Language).
-			Uint32("language_value", textLanguage).
-			Msg("applied game language")
+			Msg("failed to set game language")
+		return false
 	}
 
 	if quality, ok, err := mapGraphicsQuality(opts.GraphicsQuality); err != nil {
@@ -194,6 +185,27 @@ func parseGameSettingOptions(args []string) (gameSettingOptions, error) {
 		opts.AutoHDR = optionUnchanged
 	}
 	return opts, nil
+}
+
+// ApplyTextLanguage 按选项写入游戏文本语言：Unchanged 或空值不修改，非法值返回错误。
+// 供 CloseGamePC 等「游戏已关闭」的入口调用；调用前需先由 Apply 选定区服注册表路径。
+func ApplyTextLanguage(name string) error {
+	value, ok, err := mapTextLanguage(name)
+	if err != nil {
+		return err
+	}
+	if !ok {
+		return nil
+	}
+	if err := SetLanguageTextChange(value); err != nil {
+		return err
+	}
+	log.Info().
+		Str("component", "gamesetting").
+		Str("language", strings.TrimSpace(name)).
+		Uint32("language_value", value).
+		Msg("applied game language")
+	return nil
 }
 
 // mapTextLanguage 把游戏语言选项映射为 language_text_change 的 DWORD 值。

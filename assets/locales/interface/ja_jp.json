@@ -610,6 +610,7 @@
     "task.CloseGamePC.label": "❌ ゲーム終了（PC）",
     "task.CloseGamePC.description": "ゲームプロセスを終了します。本タスクを追加した場合、「プロセス終了」タスクで Endfield.exe を終了する必要はありません。",
     "option.CloseGamePCApplyGameSetting.label": "終了後にゲーム設定を適用",
+    "option.CloseGamePCGameSettingLanguage.description": "次回のゲーム起動時に反映されます。タスク終了後に普段使う言語へ戻す用途向けです。",
     "option.CloseGamePCGameSettingResolution.label": "解像度",
     "option.CloseGamePCGameSettingResolutionWidth.label": "幅",
     "option.CloseGamePCGameSettingResolutionHeight.label": "高さ",
