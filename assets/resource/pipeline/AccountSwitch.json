@@ -282,9 +282,9 @@
                 "roi": "__AccountSwitchClickDropdown",
                 "roi_offset": [
                     -15,
-                    -15,
+                    -20,
                     60,
-                    30
+                    40
                 ],
                 "expected": [
                     // @i18n-skip
@@ -310,9 +310,9 @@
                 "roi": "__AccountSwitchClickDropdown",
                 "roi_offset": [
                     -15,
-                    -15,
+                    -20,
                     60,
-                    30
+                    40
                 ],
                 "expected": [
                     // @i18n-skip
