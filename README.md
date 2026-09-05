@@ -90,6 +90,10 @@ Powered by [MaaFramework](https://github.com/MaaXYZ/MaaFramework) & [MXU](https:
 
 有你们的贡献，MaaEnd 才能变得越来越好~ ❤️
 
+## 🙏 致谢
+
+感谢 [zmdmap](https://zmdmap.com/) 为 MaaEnd 提供的信息支持。
+
 ## 💬 加入社区
 
 来和大家一起玩耍吧！

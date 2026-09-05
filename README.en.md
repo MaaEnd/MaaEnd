@@ -78,6 +78,10 @@ Huge thanks to all contributors who helped build MaaEnd! 🎉 You are all awesom
 
 With your support, MaaEnd continues to grow and improve. ❤️
 
+## 🙏 Acknowledgments
+
+Thanks to [zmdmap](https://zmdmap.com/) for providing information support to MaaEnd.
+
 ## 💬 Community
 
 Come hang out and chat with everyone:
