@@ -60,8 +60,15 @@
         },
         "pre_delay": 0,
         "action": {
-            "type": "Click",
+            "type": "Custom",
             "param": {
+                "custom_action": "RepeatUntilFoundAction",
+                "custom_action_param": {
+                    "action": "Click",
+                    "wait_nodes": [
+                        "AutoStockStapleQuantityControl"
+                    ]
+                },
                 "target_offset": [
                     -45,
                     85,
@@ -74,7 +81,10 @@
         "rate_limit": 0,
         "next": [
             "AutoStockStapleQuantityControl"
-        ]
+        ],
+        "focus": {
+            "Node.Action.Failed": "$task.AutoStockStaple.focus.quantity_control.purchase_page_failed"
+        }
     },
     "AutoStockSwipeWuling": {
         "desc": "向下滑动寻找商品，直到找到商品或到达底部",
