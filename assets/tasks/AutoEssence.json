@@ -15,7 +15,7 @@
             ],
             "option": [
                 "AutoEssenceSchedule",
-                "AutoEssenceChooseLocation",
+                "AutoEssenceMenu",
                 "AutoEssenceObtainMode",
                 "AutoEssenceRepeatCount",
                 // "AutoEssenceChooseLocationMode",
@@ -246,6 +246,891 @@
                     "pipeline_override": {
                         "GotoTriggerPointSetAnchor_WLSnowyForest": {
                             "enabled": true
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoEssenceMenu": {
+            "type": "select",
+            "label": "$option.AutoEssenceMenu.label",
+            "description": "$option.AutoEssenceMenu.description",
+            "default_case": "Random",
+            "cases": [
+                {
+                    "name": "Random",
+                    "label": "$option.AutoEssenceMenu.cases.Random.label",
+                    "description": "$option.AutoEssenceMenu.cases.Random.description",
+                    "pipeline_override": {
+                        "AutoEssenceSetupLocation": {
+                            "attach": {
+                                "menu_mode": "random"
+                            }
+                        }
+                    },
+                    "option": [
+                        "AutoEssenceChooseLocation"
+                    ]
+                },
+                {
+                    "name": "Location",
+                    "label": "$option.AutoEssenceMenu.cases.Location.label",
+                    "description": "$option.AutoEssenceMenu.cases.Location.description",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "s1_1": false,
+                                "s1_2": false,
+                                "s1_3": false,
+                                "s1_4": false,
+                                "s1_5": false
+                            }
+                        }
+                    },
+                    "option": [
+                        "AutoEssenceSelectLocation"
+                    ]
+                },
+                {
+                    "name": "Target",
+                    "label": "$option.AutoEssenceMenu.cases.Target.label",
+                    "description": "$option.AutoEssenceMenu.cases.Target.description",
+                    "option": [
+                        "AutoEssenceWeaponTypeSword",
+                        "AutoEssenceWeaponTypeClaymore",
+                        "AutoEssenceWeaponTypePistol",
+                        "AutoEssenceWeaponTypeWand",
+                        "AutoEssenceWeaponTypeLance"
+                    ]
+                }
+            ]
+        },
+        "AutoEssenceWeaponTypeWand": {
+            "type": "switch",
+            "label": "$option.AutoEssenceWeaponTypeWand.label",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "AutoEssenceWeaponsWand"
+                    ]
+                },
+                {
+                    "name": "No"
+                }
+            ]
+        },
+        "AutoEssenceWeaponsWand": {
+            "type": "checkbox",
+            "label": "$option.AutoEssenceSelectWeapons.label",
+            "default_case": [
+                "wpn_funnel_0008",
+                "wpn_funnel_0013",
+                "wpn_funnel_0015",
+                "wpn_funnel_0018",
+                "wpn_funnel_0010",
+                "wpn_funnel_0011",
+                "wpn_funnel_0016",
+                "wpn_funnel_0017",
+                "wpn_funnel_0009",
+                "wpn_funnel_0006"
+            ],
+            "cases": [
+                {
+                    "name": "wpn_funnel_0008",
+                    "label": "$weapon.wpn_funnel_0008",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_funnel_0008": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_funnel_0013",
+                    "label": "$weapon.wpn_funnel_0013",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_funnel_0013": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_funnel_0015",
+                    "label": "$weapon.wpn_funnel_0015",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_funnel_0015": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_funnel_0018",
+                    "label": "$weapon.wpn_funnel_0018",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_funnel_0018": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_funnel_0010",
+                    "label": "$weapon.wpn_funnel_0010",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_funnel_0010": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_funnel_0011",
+                    "label": "$weapon.wpn_funnel_0011",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_funnel_0011": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_funnel_0016",
+                    "label": "$weapon.wpn_funnel_0016",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_funnel_0016": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_funnel_0017",
+                    "label": "$weapon.wpn_funnel_0017",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_funnel_0017": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_funnel_0009",
+                    "label": "$weapon.wpn_funnel_0009",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_funnel_0009": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_funnel_0006",
+                    "label": "$weapon.wpn_funnel_0006",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_funnel_0006": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_funnel_0012",
+                    "label": "$weapon.wpn_funnel_0012",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_funnel_0012": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_funnel_0005",
+                    "label": "$weapon.wpn_funnel_0005",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_funnel_0005": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_funnel_0004",
+                    "label": "$weapon.wpn_funnel_0004",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_funnel_0004": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_funnel_0007",
+                    "label": "$weapon.wpn_funnel_0007",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_funnel_0007": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_funnel_0014",
+                    "label": "$weapon.wpn_funnel_0014",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_funnel_0014": true
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoEssenceWeaponTypeSword": {
+            "type": "switch",
+            "label": "$option.AutoEssenceWeaponTypeSword.label",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "AutoEssenceWeaponsSword"
+                    ]
+                },
+                {
+                    "name": "No"
+                }
+            ]
+        },
+        "AutoEssenceWeaponsSword": {
+            "type": "checkbox",
+            "label": "$option.AutoEssenceSelectWeapons.label",
+            "default_case": [
+                "wpn_sword_0010",
+                "wpn_sword_0014",
+                "wpn_sword_0016",
+                "wpn_sword_0011",
+                "wpn_sword_0017",
+                "wpn_sword_0021",
+                "wpn_sword_0022",
+                "wpn_sword_0012",
+                "wpn_sword_0006",
+                "wpn_sword_0013",
+                "wpn_sword_0026"
+            ],
+            "cases": [
+                {
+                    "name": "wpn_sword_0010",
+                    "label": "$weapon.wpn_sword_0010",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_sword_0010": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_sword_0014",
+                    "label": "$weapon.wpn_sword_0014",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_sword_0014": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_sword_0016",
+                    "label": "$weapon.wpn_sword_0016",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_sword_0016": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_sword_0011",
+                    "label": "$weapon.wpn_sword_0011",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_sword_0011": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_sword_0017",
+                    "label": "$weapon.wpn_sword_0017",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_sword_0017": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_sword_0021",
+                    "label": "$weapon.wpn_sword_0021",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_sword_0021": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_sword_0022",
+                    "label": "$weapon.wpn_sword_0022",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_sword_0022": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_sword_0012",
+                    "label": "$weapon.wpn_sword_0012",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_sword_0012": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_sword_0006",
+                    "label": "$weapon.wpn_sword_0006",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_sword_0006": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_sword_0013",
+                    "label": "$weapon.wpn_sword_0013",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_sword_0013": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_sword_0026",
+                    "label": "$weapon.wpn_sword_0026",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_sword_0026": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_sword_0005",
+                    "label": "$weapon.wpn_sword_0005",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_sword_0005": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_sword_0007",
+                    "label": "$weapon.wpn_sword_0007",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_sword_0007": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_sword_0018",
+                    "label": "$weapon.wpn_sword_0018",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_sword_0018": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_sword_0015",
+                    "label": "$weapon.wpn_sword_0015",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_sword_0015": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_sword_0020",
+                    "label": "$weapon.wpn_sword_0020",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_sword_0020": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_sword_0019",
+                    "label": "$weapon.wpn_sword_0019",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_sword_0019": true
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoEssenceWeaponTypeLance": {
+            "type": "switch",
+            "label": "$option.AutoEssenceWeaponTypeLance.label",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "AutoEssenceWeaponsLance"
+                    ]
+                },
+                {
+                    "name": "No"
+                }
+            ]
+        },
+        "AutoEssenceWeaponsLance": {
+            "type": "checkbox",
+            "label": "$option.AutoEssenceSelectWeapons.label",
+            "default_case": [
+                "wpn_lance_0007",
+                "wpn_lance_0015",
+                "wpn_lance_0012",
+                "wpn_lance_0016",
+                "wpn_lance_0010",
+                "wpn_lance_0011"
+            ],
+            "cases": [
+                {
+                    "name": "wpn_lance_0007",
+                    "label": "$weapon.wpn_lance_0007",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_lance_0007": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_lance_0015",
+                    "label": "$weapon.wpn_lance_0015",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_lance_0015": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_lance_0012",
+                    "label": "$weapon.wpn_lance_0012",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_lance_0012": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_lance_0016",
+                    "label": "$weapon.wpn_lance_0016",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_lance_0016": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_lance_0010",
+                    "label": "$weapon.wpn_lance_0010",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_lance_0010": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_lance_0011",
+                    "label": "$weapon.wpn_lance_0011",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_lance_0011": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_lance_0004",
+                    "label": "$weapon.wpn_lance_0004",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_lance_0004": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_lance_0006",
+                    "label": "$weapon.wpn_lance_0006",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_lance_0006": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_lance_0013",
+                    "label": "$weapon.wpn_lance_0013",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_lance_0013": true
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoEssenceWeaponTypeClaymore": {
+            "type": "switch",
+            "label": "$option.AutoEssenceWeaponTypeClaymore.label",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "AutoEssenceWeaponsClaymore"
+                    ]
+                },
+                {
+                    "name": "No"
+                }
+            ]
+        },
+        "AutoEssenceWeaponsClaymore": {
+            "type": "checkbox",
+            "label": "$option.AutoEssenceSelectWeapons.label",
+            "default_case": [
+                "wpn_claym_0017",
+                "wpn_claym_0007",
+                "wpn_claym_0004",
+                "wpn_claym_0013",
+                "wpn_claym_0016",
+                "wpn_claym_0008",
+                "wpn_claym_0006"
+            ],
+            "cases": [
+                {
+                    "name": "wpn_claym_0017",
+                    "label": "$weapon.wpn_claym_0017",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_claym_0017": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_claym_0007",
+                    "label": "$weapon.wpn_claym_0007",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_claym_0007": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_claym_0004",
+                    "label": "$weapon.wpn_claym_0004",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_claym_0004": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_claym_0013",
+                    "label": "$weapon.wpn_claym_0013",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_claym_0013": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_claym_0016",
+                    "label": "$weapon.wpn_claym_0016",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_claym_0016": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_claym_0008",
+                    "label": "$weapon.wpn_claym_0008",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_claym_0008": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_claym_0006",
+                    "label": "$weapon.wpn_claym_0006",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_claym_0006": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_claym_0014",
+                    "label": "$weapon.wpn_claym_0014",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_claym_0014": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_claym_0011",
+                    "label": "$weapon.wpn_claym_0011",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_claym_0011": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_claym_0012",
+                    "label": "$weapon.wpn_claym_0012",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_claym_0012": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_claym_0015",
+                    "label": "$weapon.wpn_claym_0015",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_claym_0015": true
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoEssenceWeaponTypePistol": {
+            "type": "switch",
+            "label": "$option.AutoEssenceWeaponTypePistol.label",
+            "default_case": "Yes",
+            "cases": [
+                {
+                    "name": "Yes",
+                    "option": [
+                        "AutoEssenceWeaponsPistol"
+                    ]
+                },
+                {
+                    "name": "No"
+                }
+            ]
+        },
+        "AutoEssenceWeaponsPistol": {
+            "type": "checkbox",
+            "label": "$option.AutoEssenceSelectWeapons.label",
+            "default_case": [
+                "wpn_pistol_0005",
+                "wpn_pistol_0011",
+                "wpn_pistol_0009",
+                "wpn_pistol_0007",
+                "wpn_pistol_0008",
+                "wpn_pistol_0010"
+            ],
+            "cases": [
+                {
+                    "name": "wpn_pistol_0005",
+                    "label": "$weapon.wpn_pistol_0005",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_pistol_0005": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_pistol_0011",
+                    "label": "$weapon.wpn_pistol_0011",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_pistol_0011": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_pistol_0009",
+                    "label": "$weapon.wpn_pistol_0009",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_pistol_0009": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_pistol_0007",
+                    "label": "$weapon.wpn_pistol_0007",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_pistol_0007": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_pistol_0008",
+                    "label": "$weapon.wpn_pistol_0008",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_pistol_0008": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_pistol_0010",
+                    "label": "$weapon.wpn_pistol_0010",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_pistol_0010": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_pistol_0004",
+                    "label": "$weapon.wpn_pistol_0004",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_pistol_0004": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_pistol_0006",
+                    "label": "$weapon.wpn_pistol_0006",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_pistol_0006": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "wpn_pistol_0012",
+                    "label": "$weapon.wpn_pistol_0012",
+                    "pipeline_override": {
+                        "AutoEssenceMain": {
+                            "attach": {
+                                "wpn_pistol_0012": true
+                            }
                         }
                     }
                 }
@@ -903,6 +1788,3350 @@
                         "EssenceFilterAfterBattleInit": {
                             "attach": {
                                 "discard_unmatched": false
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoEssenceSelectLocation": {
+            "type": "select",
+            "label": "$option.AutoEssenceSelectLocation.label",
+            "description": "$option.AutoEssenceSelectLocation.description",
+            "default_case": "VFTheHub",
+            "cases": [
+                {
+                    "name": "VFTheHub",
+                    "label": "$global.region.TheHub",
+                    "pipeline_override": {
+                        "GotoTriggerPointSetAnchor_VFTheHub": {
+                            "enabled": true
+                        },
+                        "AutoEssenceApplyLocationEngraveOverride": {
+                            "next": [
+                                "AutoEssenceInitEngraveOptionOCR",
+                                "GotoTriggerPointSetAnchor_VFTheHub",
+                                "AutoEssenceDispatcher"
+                            ]
+                        },
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "menu_mode": "location",
+                                "location_id": "VFTheHub"
+                            }
+                        }
+                    },
+                    "option": [
+                        "AutoEssenceLocationSlot1",
+                        "AutoEssenceLocationBonus_VFTheHub"
+                    ]
+                },
+                {
+                    "name": "VFOriginiumSciencePark",
+                    "label": "$global.region.OriginiumSciencePark",
+                    "pipeline_override": {
+                        "GotoTriggerPointSetAnchor_VFOriginiumSciencePark": {
+                            "enabled": true
+                        },
+                        "AutoEssenceApplyLocationEngraveOverride": {
+                            "next": [
+                                "AutoEssenceInitEngraveOptionOCR",
+                                "GotoTriggerPointSetAnchor_VFOriginiumSciencePark",
+                                "AutoEssenceDispatcher"
+                            ]
+                        },
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "menu_mode": "location",
+                                "location_id": "VFOriginiumSciencePark"
+                            }
+                        }
+                    },
+                    "option": [
+                        "AutoEssenceLocationSlot1",
+                        "AutoEssenceLocationBonus_VFOriginiumSciencePark"
+                    ]
+                },
+                {
+                    "name": "VFOriginLodespring",
+                    "label": "$global.region.OriginLodespring",
+                    "pipeline_override": {
+                        "GotoTriggerPointSetAnchor_VFOriginLodespring": {
+                            "enabled": true
+                        },
+                        "AutoEssenceApplyLocationEngraveOverride": {
+                            "next": [
+                                "AutoEssenceInitEngraveOptionOCR",
+                                "GotoTriggerPointSetAnchor_VFOriginLodespring",
+                                "AutoEssenceDispatcher"
+                            ]
+                        },
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "menu_mode": "location",
+                                "location_id": "VFOriginLodespring"
+                            }
+                        }
+                    },
+                    "option": [
+                        "AutoEssenceLocationSlot1",
+                        "AutoEssenceLocationBonus_VFOriginLodespring"
+                    ]
+                },
+                {
+                    "name": "VFPowerPlateau",
+                    "label": "$global.region.PowerPlateau",
+                    "pipeline_override": {
+                        "GotoTriggerPointSetAnchor_VFPowerPlateau": {
+                            "enabled": true
+                        },
+                        "AutoEssenceApplyLocationEngraveOverride": {
+                            "next": [
+                                "AutoEssenceInitEngraveOptionOCR",
+                                "GotoTriggerPointSetAnchor_VFPowerPlateau",
+                                "AutoEssenceDispatcher"
+                            ]
+                        },
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "menu_mode": "location",
+                                "location_id": "VFPowerPlateau"
+                            }
+                        }
+                    },
+                    "option": [
+                        "AutoEssenceLocationSlot1",
+                        "AutoEssenceLocationBonus_VFPowerPlateau"
+                    ]
+                },
+                {
+                    "name": "WLWulingCity",
+                    "label": "$global.region.WulingCity",
+                    "pipeline_override": {
+                        "GotoTriggerPointSetAnchor_WLWulingCity": {
+                            "enabled": true
+                        },
+                        "AutoEssenceApplyLocationEngraveOverride": {
+                            "next": [
+                                "AutoEssenceInitEngraveOptionOCR",
+                                "GotoTriggerPointSetAnchor_WLWulingCity",
+                                "AutoEssenceDispatcher"
+                            ]
+                        },
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "menu_mode": "location",
+                                "location_id": "WLWulingCity"
+                            }
+                        }
+                    },
+                    "option": [
+                        "AutoEssenceLocationSlot1",
+                        "AutoEssenceLocationBonus_WLWulingCity"
+                    ]
+                },
+                {
+                    "name": "WLQingboStockade",
+                    "label": "$global.region.QingboStockade",
+                    "pipeline_override": {
+                        "GotoTriggerPointSetAnchor_WLQingboStockade": {
+                            "enabled": true
+                        },
+                        "AutoEssenceApplyLocationEngraveOverride": {
+                            "next": [
+                                "AutoEssenceInitEngraveOptionOCR",
+                                "GotoTriggerPointSetAnchor_WLQingboStockade",
+                                "AutoEssenceDispatcher"
+                            ]
+                        },
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "menu_mode": "location",
+                                "location_id": "WLQingboStockade"
+                            }
+                        }
+                    },
+                    "option": [
+                        "AutoEssenceLocationSlot1",
+                        "AutoEssenceLocationBonus_WLQingboStockade"
+                    ]
+                },
+                {
+                    "name": "WLMarkerStone",
+                    "label": "$global.region.MarkerStone",
+                    "pipeline_override": {
+                        "GotoTriggerPointSetAnchor_WLMarkerStone": {
+                            "enabled": true
+                        },
+                        "AutoEssenceApplyLocationEngraveOverride": {
+                            "next": [
+                                "AutoEssenceInitEngraveOptionOCR",
+                                "GotoTriggerPointSetAnchor_WLMarkerStone",
+                                "AutoEssenceDispatcher"
+                            ]
+                        },
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "menu_mode": "location",
+                                "location_id": "WLMarkerStone"
+                            }
+                        }
+                    },
+                    "option": [
+                        "AutoEssenceLocationSlot1",
+                        "AutoEssenceLocationBonus_WLMarkerStone"
+                    ]
+                },
+                {
+                    "name": "WLTestArea",
+                    "label": "$global.region.TestArea",
+                    "pipeline_override": {
+                        "GotoTriggerPointSetAnchor_WLTestArea": {
+                            "enabled": true
+                        },
+                        "AutoEssenceApplyLocationEngraveOverride": {
+                            "next": [
+                                "AutoEssenceInitEngraveOptionOCR",
+                                "GotoTriggerPointSetAnchor_WLTestArea",
+                                "AutoEssenceDispatcher"
+                            ]
+                        },
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "menu_mode": "location",
+                                "location_id": "WLTestArea"
+                            }
+                        }
+                    },
+                    "option": [
+                        "AutoEssenceLocationSlot1",
+                        "AutoEssenceLocationBonus_WLTestArea"
+                    ]
+                },
+                {
+                    "name": "WLSwordVaultDale",
+                    "label": "$global.region.SwordVaultDale",
+                    "pipeline_override": {
+                        "GotoTriggerPointSetAnchor_WLSwordVaultDale": {
+                            "enabled": true
+                        },
+                        "AutoEssenceApplyLocationEngraveOverride": {
+                            "next": [
+                                "AutoEssenceInitEngraveOptionOCR",
+                                "GotoTriggerPointSetAnchor_WLSwordVaultDale",
+                                "AutoEssenceDispatcher"
+                            ]
+                        },
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "menu_mode": "location",
+                                "location_id": "WLSwordVaultDale"
+                            }
+                        }
+                    },
+                    "option": [
+                        "AutoEssenceLocationSlot1",
+                        "AutoEssenceLocationBonus_WLSwordVaultDale"
+                    ]
+                },
+                {
+                    "name": "WLYinglungPass",
+                    "label": "$global.region.YinglungPass",
+                    "pipeline_override": {
+                        "GotoTriggerPointSetAnchor_WLYinglungPass": {
+                            "enabled": true
+                        },
+                        "AutoEssenceApplyLocationEngraveOverride": {
+                            "next": [
+                                "AutoEssenceInitEngraveOptionOCR",
+                                "GotoTriggerPointSetAnchor_WLYinglungPass",
+                                "AutoEssenceDispatcher"
+                            ]
+                        },
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "menu_mode": "location",
+                                "location_id": "WLYinglungPass"
+                            }
+                        }
+                    },
+                    "option": [
+                        "AutoEssenceLocationSlot1",
+                        "AutoEssenceLocationBonus_WLYinglungPass"
+                    ]
+                },
+                {
+                    "name": "WLNorthWulingExclusionZone",
+                    "label": "$global.region.NorthWulingExclusionZone",
+                    "pipeline_override": {
+                        "GotoTriggerPointSetAnchor_WLNorthWulingExclusionZone": {
+                            "enabled": true
+                        },
+                        "AutoEssenceApplyLocationEngraveOverride": {
+                            "next": [
+                                "AutoEssenceInitEngraveOptionOCR",
+                                "GotoTriggerPointSetAnchor_WLNorthWulingExclusionZone",
+                                "AutoEssenceDispatcher"
+                            ]
+                        },
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "menu_mode": "location",
+                                "location_id": "WLNorthWulingExclusionZone"
+                            }
+                        }
+                    },
+                    "option": [
+                        "AutoEssenceLocationSlot1",
+                        "AutoEssenceLocationBonus_WLNorthWulingExclusionZone"
+                    ]
+                }
+            ]
+        },
+        "AutoEssenceLocationSlot1": {
+            "type": "checkbox",
+            "label": "$option.AutoEssenceLocationSlot1.label",
+            "description": "$option.AutoEssenceLocationSlot1.description",
+            "default_case": [
+                "s1_2",
+                "s1_3",
+                "s1_4"
+            ],
+            "cases": [
+                {
+                    "name": "s1_1",
+                    "label": "$option.AutoEssenceSkill.s1_1",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "s1_1": true
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBaseCondition1": {
+                            "attach": {
+                                "s1_1": [
+                                    "主能力",
+                                    "Main Attribute",
+                                    "メイン能力",
+                                    "주요 능력치"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBaseCondition2": {
+                            "attach": {
+                                "s1_1": [
+                                    "主能力",
+                                    "Main Attribute",
+                                    "メイン能力",
+                                    "주요 능력치"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBaseCondition3": {
+                            "attach": {
+                                "s1_1": [
+                                    "主能力",
+                                    "Main Attribute",
+                                    "メイン能力",
+                                    "주요 능력치"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s1_2",
+                    "label": "$option.AutoEssenceSkill.s1_2",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "s1_2": true
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBaseCondition1": {
+                            "attach": {
+                                "s1_2": [
+                                    "力量",
+                                    "Strength",
+                                    "筋力",
+                                    "힘"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBaseCondition2": {
+                            "attach": {
+                                "s1_2": [
+                                    "力量",
+                                    "Strength",
+                                    "筋力",
+                                    "힘"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBaseCondition3": {
+                            "attach": {
+                                "s1_2": [
+                                    "力量",
+                                    "Strength",
+                                    "筋力",
+                                    "힘"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s1_3",
+                    "label": "$option.AutoEssenceSkill.s1_3",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "s1_3": true
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBaseCondition1": {
+                            "attach": {
+                                "s1_3": [
+                                    "意志",
+                                    "Will",
+                                    "의지"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBaseCondition2": {
+                            "attach": {
+                                "s1_3": [
+                                    "意志",
+                                    "Will",
+                                    "의지"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBaseCondition3": {
+                            "attach": {
+                                "s1_3": [
+                                    "意志",
+                                    "Will",
+                                    "의지"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s1_4",
+                    "label": "$option.AutoEssenceSkill.s1_4",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "s1_4": true
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBaseCondition1": {
+                            "attach": {
+                                "s1_4": [
+                                    "敏捷",
+                                    "Agility",
+                                    "민첩"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBaseCondition2": {
+                            "attach": {
+                                "s1_4": [
+                                    "敏捷",
+                                    "Agility",
+                                    "민첩"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBaseCondition3": {
+                            "attach": {
+                                "s1_4": [
+                                    "敏捷",
+                                    "Agility",
+                                    "민첩"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s1_5",
+                    "label": "$option.AutoEssenceSkill.s1_5",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "s1_5": true
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBaseCondition1": {
+                            "attach": {
+                                "s1_5": [
+                                    "智识",
+                                    "Intellect",
+                                    "智識",
+                                    "知性",
+                                    "지능"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBaseCondition2": {
+                            "attach": {
+                                "s1_5": [
+                                    "智识",
+                                    "Intellect",
+                                    "智識",
+                                    "知性",
+                                    "지능"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBaseCondition3": {
+                            "attach": {
+                                "s1_5": [
+                                    "智识",
+                                    "Intellect",
+                                    "智識",
+                                    "知性",
+                                    "지능"
+                                ]
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoEssenceLocationBonus_VFTheHub": {
+            "type": "select",
+            "label": "$option.AutoEssenceLocationBonus.label",
+            "description": "$option.AutoEssenceLocationBonus.description",
+            "default_case": "s2_2",
+            "cases": [
+                {
+                    "name": "s2_2",
+                    "label": "$option.AutoEssenceSkill.s2_2",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 2
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_2": [
+                                    "攻击",
+                                    "ATK",
+                                    "攻擊",
+                                    "攻撃力",
+                                    "공격력"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_2": [
+                                    "攻击",
+                                    "ATK",
+                                    "攻擊",
+                                    "攻撃力",
+                                    "공격력"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_7",
+                    "label": "$option.AutoEssenceSkill.s2_7",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 7
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_7": [
+                                    "灼热",
+                                    "Heat",
+                                    "灼熱",
+                                    "열기"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_7": [
+                                    "灼热",
+                                    "Heat",
+                                    "灼熱",
+                                    "열기"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_10",
+                    "label": "$option.AutoEssenceSkill.s2_10",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 10
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_10": [
+                                    "电磁",
+                                    "Electric",
+                                    "電磁",
+                                    "전기"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_10": [
+                                    "电磁",
+                                    "Electric",
+                                    "電磁",
+                                    "전기"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_1",
+                    "label": "$option.AutoEssenceSkill.s2_1",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 1
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_1": [
+                                    "寒冷",
+                                    "Cryo",
+                                    "냉기"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_1": [
+                                    "寒冷",
+                                    "Cryo",
+                                    "냉기"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_12",
+                    "label": "$option.AutoEssenceSkill.s2_12",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 12
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_12": [
+                                    "自然",
+                                    "Nature",
+                                    "자연"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_12": [
+                                    "自然",
+                                    "Nature",
+                                    "자연"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_6",
+                    "label": "$option.AutoEssenceSkill.s2_6",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 6
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_6": [
+                                    "源石技艺强度",
+                                    "Arts Intensity",
+                                    "源石技藝強度",
+                                    "アーツ強度",
+                                    "오리지늄 아츠"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_6": [
+                                    "源石技艺强度",
+                                    "Arts Intensity",
+                                    "源石技藝強度",
+                                    "アーツ強度",
+                                    "오리지늄 아츠"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_11",
+                    "label": "$option.AutoEssenceSkill.s2_11",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 11
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_11": [
+                                    "终结技充能",
+                                    "Ultimate Gain",
+                                    "終結技蓄能",
+                                    "必殺技",
+                                    "궁극기 충전"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_11": [
+                                    "终结技充能",
+                                    "Ultimate Gain",
+                                    "終結技蓄能",
+                                    "必殺技",
+                                    "궁극기 충전"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_5",
+                    "label": "$option.AutoEssenceSkill.s2_5",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 5
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_5": [
+                                    "法术",
+                                    "Arts",
+                                    "法術",
+                                    "アーツ",
+                                    "아츠"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_5": [
+                                    "法术",
+                                    "Arts",
+                                    "法術",
+                                    "アーツ",
+                                    "아츠"
+                                ]
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoEssenceLocationBonus_VFOriginiumSciencePark": {
+            "type": "select",
+            "label": "$option.AutoEssenceLocationBonus.label",
+            "description": "$option.AutoEssenceLocationBonus.description",
+            "default_case": "s2_2",
+            "cases": [
+                {
+                    "name": "s2_2",
+                    "label": "$option.AutoEssenceSkill.s2_2",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 2
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_2": [
+                                    "攻击",
+                                    "ATK",
+                                    "攻擊",
+                                    "攻撃力",
+                                    "공격력"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_2": [
+                                    "攻击",
+                                    "ATK",
+                                    "攻擊",
+                                    "攻撃力",
+                                    "공격력"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_8",
+                    "label": "$option.AutoEssenceSkill.s2_8",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 8
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_8": [
+                                    "物理",
+                                    "Physical",
+                                    "물리"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_8": [
+                                    "物理",
+                                    "Physical",
+                                    "물리"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_10",
+                    "label": "$option.AutoEssenceSkill.s2_10",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 10
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_10": [
+                                    "电磁",
+                                    "Electric",
+                                    "電磁",
+                                    "전기"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_10": [
+                                    "电磁",
+                                    "Electric",
+                                    "電磁",
+                                    "전기"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_1",
+                    "label": "$option.AutoEssenceSkill.s2_1",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 1
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_1": [
+                                    "寒冷",
+                                    "Cryo",
+                                    "냉기"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_1": [
+                                    "寒冷",
+                                    "Cryo",
+                                    "냉기"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_12",
+                    "label": "$option.AutoEssenceSkill.s2_12",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 12
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_12": [
+                                    "自然",
+                                    "Nature",
+                                    "자연"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_12": [
+                                    "自然",
+                                    "Nature",
+                                    "자연"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_3",
+                    "label": "$option.AutoEssenceSkill.s2_3",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 3
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_3": [
+                                    "暴击率",
+                                    "Critical Rate",
+                                    "暴擊率",
+                                    "会心率",
+                                    "치명타 확률"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_3": [
+                                    "暴击率",
+                                    "Critical Rate",
+                                    "暴擊率",
+                                    "会心率",
+                                    "치명타 확률"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_11",
+                    "label": "$option.AutoEssenceSkill.s2_11",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 11
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_11": [
+                                    "终结技充能",
+                                    "Ultimate Gain",
+                                    "終結技蓄能",
+                                    "必殺技",
+                                    "궁극기 충전"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_11": [
+                                    "终结技充能",
+                                    "Ultimate Gain",
+                                    "終結技蓄能",
+                                    "必殺技",
+                                    "궁극기 충전"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_5",
+                    "label": "$option.AutoEssenceSkill.s2_5",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 5
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_5": [
+                                    "法术",
+                                    "Arts",
+                                    "法術",
+                                    "アーツ",
+                                    "아츠"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_5": [
+                                    "法术",
+                                    "Arts",
+                                    "法術",
+                                    "アーツ",
+                                    "아츠"
+                                ]
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoEssenceLocationBonus_VFOriginLodespring": {
+            "type": "select",
+            "label": "$option.AutoEssenceLocationBonus.label",
+            "description": "$option.AutoEssenceLocationBonus.description",
+            "default_case": "s2_9",
+            "cases": [
+                {
+                    "name": "s2_9",
+                    "label": "$option.AutoEssenceSkill.s2_9",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 9
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_9": [
+                                    "生命",
+                                    "HP",
+                                    "생명력"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_9": [
+                                    "生命",
+                                    "HP",
+                                    "생명력"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_8",
+                    "label": "$option.AutoEssenceSkill.s2_8",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 8
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_8": [
+                                    "物理",
+                                    "Physical",
+                                    "물리"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_8": [
+                                    "物理",
+                                    "Physical",
+                                    "물리"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_7",
+                    "label": "$option.AutoEssenceSkill.s2_7",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 7
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_7": [
+                                    "灼热",
+                                    "Heat",
+                                    "灼熱",
+                                    "열기"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_7": [
+                                    "灼热",
+                                    "Heat",
+                                    "灼熱",
+                                    "열기"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_1",
+                    "label": "$option.AutoEssenceSkill.s2_1",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 1
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_1": [
+                                    "寒冷",
+                                    "Cryo",
+                                    "냉기"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_1": [
+                                    "寒冷",
+                                    "Cryo",
+                                    "냉기"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_12",
+                    "label": "$option.AutoEssenceSkill.s2_12",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 12
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_12": [
+                                    "自然",
+                                    "Nature",
+                                    "자연"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_12": [
+                                    "自然",
+                                    "Nature",
+                                    "자연"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_3",
+                    "label": "$option.AutoEssenceSkill.s2_3",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 3
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_3": [
+                                    "暴击率",
+                                    "Critical Rate",
+                                    "暴擊率",
+                                    "会心率",
+                                    "치명타 확률"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_3": [
+                                    "暴击率",
+                                    "Critical Rate",
+                                    "暴擊率",
+                                    "会心率",
+                                    "치명타 확률"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_6",
+                    "label": "$option.AutoEssenceSkill.s2_6",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 6
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_6": [
+                                    "源石技艺强度",
+                                    "Arts Intensity",
+                                    "源石技藝強度",
+                                    "アーツ強度",
+                                    "오리지늄 아츠"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_6": [
+                                    "源石技艺强度",
+                                    "Arts Intensity",
+                                    "源石技藝強度",
+                                    "アーツ強度",
+                                    "오리지늄 아츠"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_4",
+                    "label": "$option.AutoEssenceSkill.s2_4",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 4
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_4": [
+                                    "治疗",
+                                    "Treatment",
+                                    "治療",
+                                    "回復",
+                                    "치유"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_4": [
+                                    "治疗",
+                                    "Treatment",
+                                    "治療",
+                                    "回復",
+                                    "치유"
+                                ]
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoEssenceLocationBonus_VFPowerPlateau": {
+            "type": "select",
+            "label": "$option.AutoEssenceLocationBonus.label",
+            "description": "$option.AutoEssenceLocationBonus.description",
+            "default_case": "s2_2",
+            "cases": [
+                {
+                    "name": "s2_2",
+                    "label": "$option.AutoEssenceSkill.s2_2",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 2
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_2": [
+                                    "攻击",
+                                    "ATK",
+                                    "攻擊",
+                                    "攻撃力",
+                                    "공격력"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_2": [
+                                    "攻击",
+                                    "ATK",
+                                    "攻擊",
+                                    "攻撃力",
+                                    "공격력"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_9",
+                    "label": "$option.AutoEssenceSkill.s2_9",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 9
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_9": [
+                                    "生命",
+                                    "HP",
+                                    "생명력"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_9": [
+                                    "生命",
+                                    "HP",
+                                    "생명력"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_8",
+                    "label": "$option.AutoEssenceSkill.s2_8",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 8
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_8": [
+                                    "物理",
+                                    "Physical",
+                                    "물리"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_8": [
+                                    "物理",
+                                    "Physical",
+                                    "물리"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_7",
+                    "label": "$option.AutoEssenceSkill.s2_7",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 7
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_7": [
+                                    "灼热",
+                                    "Heat",
+                                    "灼熱",
+                                    "열기"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_7": [
+                                    "灼热",
+                                    "Heat",
+                                    "灼熱",
+                                    "열기"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_12",
+                    "label": "$option.AutoEssenceSkill.s2_12",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 12
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_12": [
+                                    "自然",
+                                    "Nature",
+                                    "자연"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_12": [
+                                    "自然",
+                                    "Nature",
+                                    "자연"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_3",
+                    "label": "$option.AutoEssenceSkill.s2_3",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 3
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_3": [
+                                    "暴击率",
+                                    "Critical Rate",
+                                    "暴擊率",
+                                    "会心率",
+                                    "치명타 확률"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_3": [
+                                    "暴击率",
+                                    "Critical Rate",
+                                    "暴擊率",
+                                    "会心率",
+                                    "치명타 확률"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_6",
+                    "label": "$option.AutoEssenceSkill.s2_6",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 6
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_6": [
+                                    "源石技艺强度",
+                                    "Arts Intensity",
+                                    "源石技藝強度",
+                                    "アーツ強度",
+                                    "오리지늄 아츠"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_6": [
+                                    "源石技艺强度",
+                                    "Arts Intensity",
+                                    "源石技藝強度",
+                                    "アーツ強度",
+                                    "오리지늄 아츠"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_4",
+                    "label": "$option.AutoEssenceSkill.s2_4",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 4
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_4": [
+                                    "治疗",
+                                    "Treatment",
+                                    "治療",
+                                    "回復",
+                                    "치유"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_4": [
+                                    "治疗",
+                                    "Treatment",
+                                    "治療",
+                                    "回復",
+                                    "치유"
+                                ]
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoEssenceLocationBonus_WLWulingCity": {
+            "type": "select",
+            "label": "$option.AutoEssenceLocationBonus.label",
+            "description": "$option.AutoEssenceLocationBonus.description",
+            "default_case": "s2_2",
+            "cases": [
+                {
+                    "name": "s2_2",
+                    "label": "$option.AutoEssenceSkill.s2_2",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 2
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_2": [
+                                    "攻击",
+                                    "ATK",
+                                    "攻擊",
+                                    "攻撃力",
+                                    "공격력"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_2": [
+                                    "攻击",
+                                    "ATK",
+                                    "攻擊",
+                                    "攻撃力",
+                                    "공격력"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_9",
+                    "label": "$option.AutoEssenceSkill.s2_9",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 9
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_9": [
+                                    "生命",
+                                    "HP",
+                                    "생명력"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_9": [
+                                    "生命",
+                                    "HP",
+                                    "생명력"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_10",
+                    "label": "$option.AutoEssenceSkill.s2_10",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 10
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_10": [
+                                    "电磁",
+                                    "Electric",
+                                    "電磁",
+                                    "전기"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_10": [
+                                    "电磁",
+                                    "Electric",
+                                    "電磁",
+                                    "전기"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_1",
+                    "label": "$option.AutoEssenceSkill.s2_1",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 1
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_1": [
+                                    "寒冷",
+                                    "Cryo",
+                                    "냉기"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_1": [
+                                    "寒冷",
+                                    "Cryo",
+                                    "냉기"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_3",
+                    "label": "$option.AutoEssenceSkill.s2_3",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 3
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_3": [
+                                    "暴击率",
+                                    "Critical Rate",
+                                    "暴擊率",
+                                    "会心率",
+                                    "치명타 확률"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_3": [
+                                    "暴击率",
+                                    "Critical Rate",
+                                    "暴擊率",
+                                    "会心率",
+                                    "치명타 확률"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_11",
+                    "label": "$option.AutoEssenceSkill.s2_11",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 11
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_11": [
+                                    "终结技充能",
+                                    "Ultimate Gain",
+                                    "終結技蓄能",
+                                    "必殺技",
+                                    "궁극기 충전"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_11": [
+                                    "终结技充能",
+                                    "Ultimate Gain",
+                                    "終結技蓄能",
+                                    "必殺技",
+                                    "궁극기 충전"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_5",
+                    "label": "$option.AutoEssenceSkill.s2_5",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 5
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_5": [
+                                    "法术",
+                                    "Arts",
+                                    "法術",
+                                    "アーツ",
+                                    "아츠"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_5": [
+                                    "法术",
+                                    "Arts",
+                                    "法術",
+                                    "アーツ",
+                                    "아츠"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_4",
+                    "label": "$option.AutoEssenceSkill.s2_4",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 4
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_4": [
+                                    "治疗",
+                                    "Treatment",
+                                    "治療",
+                                    "回復",
+                                    "치유"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_4": [
+                                    "治疗",
+                                    "Treatment",
+                                    "治療",
+                                    "回復",
+                                    "치유"
+                                ]
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoEssenceLocationBonus_WLQingboStockade": {
+            "type": "select",
+            "label": "$option.AutoEssenceLocationBonus.label",
+            "description": "$option.AutoEssenceLocationBonus.description",
+            "default_case": "s2_9",
+            "cases": [
+                {
+                    "name": "s2_9",
+                    "label": "$option.AutoEssenceSkill.s2_9",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 9
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_9": [
+                                    "生命",
+                                    "HP",
+                                    "생명력"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_9": [
+                                    "生命",
+                                    "HP",
+                                    "생명력"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_8",
+                    "label": "$option.AutoEssenceSkill.s2_8",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 8
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_8": [
+                                    "物理",
+                                    "Physical",
+                                    "물리"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_8": [
+                                    "物理",
+                                    "Physical",
+                                    "물리"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_10",
+                    "label": "$option.AutoEssenceSkill.s2_10",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 10
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_10": [
+                                    "电磁",
+                                    "Electric",
+                                    "電磁",
+                                    "전기"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_10": [
+                                    "电磁",
+                                    "Electric",
+                                    "電磁",
+                                    "전기"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_1",
+                    "label": "$option.AutoEssenceSkill.s2_1",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 1
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_1": [
+                                    "寒冷",
+                                    "Cryo",
+                                    "냉기"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_1": [
+                                    "寒冷",
+                                    "Cryo",
+                                    "냉기"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_6",
+                    "label": "$option.AutoEssenceSkill.s2_6",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 6
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_6": [
+                                    "源石技艺强度",
+                                    "Arts Intensity",
+                                    "源石技藝強度",
+                                    "アーツ強度",
+                                    "오리지늄 아츠"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_6": [
+                                    "源石技艺强度",
+                                    "Arts Intensity",
+                                    "源石技藝強度",
+                                    "アーツ強度",
+                                    "오리지늄 아츠"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_11",
+                    "label": "$option.AutoEssenceSkill.s2_11",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 11
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_11": [
+                                    "终结技充能",
+                                    "Ultimate Gain",
+                                    "終結技蓄能",
+                                    "必殺技",
+                                    "궁극기 충전"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_11": [
+                                    "终结技充能",
+                                    "Ultimate Gain",
+                                    "終結技蓄能",
+                                    "必殺技",
+                                    "궁극기 충전"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_5",
+                    "label": "$option.AutoEssenceSkill.s2_5",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 5
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_5": [
+                                    "法术",
+                                    "Arts",
+                                    "法術",
+                                    "アーツ",
+                                    "아츠"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_5": [
+                                    "法术",
+                                    "Arts",
+                                    "法術",
+                                    "アーツ",
+                                    "아츠"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_4",
+                    "label": "$option.AutoEssenceSkill.s2_4",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 4
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_4": [
+                                    "治疗",
+                                    "Treatment",
+                                    "治療",
+                                    "回復",
+                                    "치유"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_4": [
+                                    "治疗",
+                                    "Treatment",
+                                    "治療",
+                                    "回復",
+                                    "치유"
+                                ]
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoEssenceLocationBonus_WLMarkerStone": {
+            "type": "select",
+            "label": "$option.AutoEssenceLocationBonus.label",
+            "description": "$option.AutoEssenceLocationBonus.description",
+            "default_case": "s2_2",
+            "cases": [
+                {
+                    "name": "s2_2",
+                    "label": "$option.AutoEssenceSkill.s2_2",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 2
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_2": [
+                                    "攻击",
+                                    "ATK",
+                                    "攻擊",
+                                    "攻撃力",
+                                    "공격력"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_2": [
+                                    "攻击",
+                                    "ATK",
+                                    "攻擊",
+                                    "攻撃力",
+                                    "공격력"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_8",
+                    "label": "$option.AutoEssenceSkill.s2_8",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 8
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_8": [
+                                    "物理",
+                                    "Physical",
+                                    "물리"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_8": [
+                                    "物理",
+                                    "Physical",
+                                    "물리"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_7",
+                    "label": "$option.AutoEssenceSkill.s2_7",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 7
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_7": [
+                                    "灼热",
+                                    "Heat",
+                                    "灼熱",
+                                    "열기"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_7": [
+                                    "灼热",
+                                    "Heat",
+                                    "灼熱",
+                                    "열기"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_10",
+                    "label": "$option.AutoEssenceSkill.s2_10",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 10
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_10": [
+                                    "电磁",
+                                    "Electric",
+                                    "電磁",
+                                    "전기"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_10": [
+                                    "电磁",
+                                    "Electric",
+                                    "電磁",
+                                    "전기"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_12",
+                    "label": "$option.AutoEssenceSkill.s2_12",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 12
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_12": [
+                                    "自然",
+                                    "Nature",
+                                    "자연"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_12": [
+                                    "自然",
+                                    "Nature",
+                                    "자연"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_3",
+                    "label": "$option.AutoEssenceSkill.s2_3",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 3
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_3": [
+                                    "暴击率",
+                                    "Critical Rate",
+                                    "暴擊率",
+                                    "会心率",
+                                    "치명타 확률"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_3": [
+                                    "暴击率",
+                                    "Critical Rate",
+                                    "暴擊率",
+                                    "会心率",
+                                    "치명타 확률"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_11",
+                    "label": "$option.AutoEssenceSkill.s2_11",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 11
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_11": [
+                                    "终结技充能",
+                                    "Ultimate Gain",
+                                    "終結技蓄能",
+                                    "必殺技",
+                                    "궁극기 충전"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_11": [
+                                    "终结技充能",
+                                    "Ultimate Gain",
+                                    "終結技蓄能",
+                                    "必殺技",
+                                    "궁극기 충전"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_5",
+                    "label": "$option.AutoEssenceSkill.s2_5",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 5
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_5": [
+                                    "法术",
+                                    "Arts",
+                                    "法術",
+                                    "アーツ",
+                                    "아츠"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_5": [
+                                    "法术",
+                                    "Arts",
+                                    "法術",
+                                    "アーツ",
+                                    "아츠"
+                                ]
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoEssenceLocationBonus_WLTestArea": {
+            "type": "select",
+            "label": "$option.AutoEssenceLocationBonus.label",
+            "description": "$option.AutoEssenceLocationBonus.description",
+            "default_case": "s2_9",
+            "cases": [
+                {
+                    "name": "s2_9",
+                    "label": "$option.AutoEssenceSkill.s2_9",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 9
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_9": [
+                                    "生命",
+                                    "HP",
+                                    "생명력"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_9": [
+                                    "生命",
+                                    "HP",
+                                    "생명력"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_7",
+                    "label": "$option.AutoEssenceSkill.s2_7",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 7
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_7": [
+                                    "灼热",
+                                    "Heat",
+                                    "灼熱",
+                                    "열기"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_7": [
+                                    "灼热",
+                                    "Heat",
+                                    "灼熱",
+                                    "열기"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_10",
+                    "label": "$option.AutoEssenceSkill.s2_10",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 10
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_10": [
+                                    "电磁",
+                                    "Electric",
+                                    "電磁",
+                                    "전기"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_10": [
+                                    "电磁",
+                                    "Electric",
+                                    "電磁",
+                                    "전기"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_1",
+                    "label": "$option.AutoEssenceSkill.s2_1",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 1
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_1": [
+                                    "寒冷",
+                                    "Cryo",
+                                    "냉기"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_1": [
+                                    "寒冷",
+                                    "Cryo",
+                                    "냉기"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_12",
+                    "label": "$option.AutoEssenceSkill.s2_12",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 12
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_12": [
+                                    "自然",
+                                    "Nature",
+                                    "자연"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_12": [
+                                    "自然",
+                                    "Nature",
+                                    "자연"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_6",
+                    "label": "$option.AutoEssenceSkill.s2_6",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 6
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_6": [
+                                    "源石技艺强度",
+                                    "Arts Intensity",
+                                    "源石技藝強度",
+                                    "アーツ強度",
+                                    "오리지늄 아츠"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_6": [
+                                    "源石技艺强度",
+                                    "Arts Intensity",
+                                    "源石技藝強度",
+                                    "アーツ強度",
+                                    "오리지늄 아츠"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_11",
+                    "label": "$option.AutoEssenceSkill.s2_11",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 11
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_11": [
+                                    "终结技充能",
+                                    "Ultimate Gain",
+                                    "終結技蓄能",
+                                    "必殺技",
+                                    "궁극기 충전"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_11": [
+                                    "终结技充能",
+                                    "Ultimate Gain",
+                                    "終結技蓄能",
+                                    "必殺技",
+                                    "궁극기 충전"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_4",
+                    "label": "$option.AutoEssenceSkill.s2_4",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 4
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_4": [
+                                    "治疗",
+                                    "Treatment",
+                                    "治療",
+                                    "回復",
+                                    "치유"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_4": [
+                                    "治疗",
+                                    "Treatment",
+                                    "治療",
+                                    "回復",
+                                    "치유"
+                                ]
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoEssenceLocationBonus_WLSwordVaultDale": {
+            "type": "select",
+            "label": "$option.AutoEssenceLocationBonus.label",
+            "description": "$option.AutoEssenceLocationBonus.description",
+            "default_case": "s2_2",
+            "cases": [
+                {
+                    "name": "s2_2",
+                    "label": "$option.AutoEssenceSkill.s2_2",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 2
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_2": [
+                                    "攻击",
+                                    "ATK",
+                                    "攻擊",
+                                    "攻撃力",
+                                    "공격력"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_2": [
+                                    "攻击",
+                                    "ATK",
+                                    "攻擊",
+                                    "攻撃力",
+                                    "공격력"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_9",
+                    "label": "$option.AutoEssenceSkill.s2_9",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 9
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_9": [
+                                    "生命",
+                                    "HP",
+                                    "생명력"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_9": [
+                                    "生命",
+                                    "HP",
+                                    "생명력"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_8",
+                    "label": "$option.AutoEssenceSkill.s2_8",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 8
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_8": [
+                                    "物理",
+                                    "Physical",
+                                    "물리"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_8": [
+                                    "物理",
+                                    "Physical",
+                                    "물리"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_7",
+                    "label": "$option.AutoEssenceSkill.s2_7",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 7
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_7": [
+                                    "灼热",
+                                    "Heat",
+                                    "灼熱",
+                                    "열기"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_7": [
+                                    "灼热",
+                                    "Heat",
+                                    "灼熱",
+                                    "열기"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_1",
+                    "label": "$option.AutoEssenceSkill.s2_1",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 1
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_1": [
+                                    "寒冷",
+                                    "Cryo",
+                                    "냉기"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_1": [
+                                    "寒冷",
+                                    "Cryo",
+                                    "냉기"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_12",
+                    "label": "$option.AutoEssenceSkill.s2_12",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 12
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_12": [
+                                    "自然",
+                                    "Nature",
+                                    "자연"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_12": [
+                                    "自然",
+                                    "Nature",
+                                    "자연"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_6",
+                    "label": "$option.AutoEssenceSkill.s2_6",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 6
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_6": [
+                                    "源石技艺强度",
+                                    "Arts Intensity",
+                                    "源石技藝強度",
+                                    "アーツ強度",
+                                    "오리지늄 아츠"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_6": [
+                                    "源石技艺强度",
+                                    "Arts Intensity",
+                                    "源石技藝強度",
+                                    "アーツ強度",
+                                    "오리지늄 아츠"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_4",
+                    "label": "$option.AutoEssenceSkill.s2_4",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 4
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_4": [
+                                    "治疗",
+                                    "Treatment",
+                                    "治療",
+                                    "回復",
+                                    "치유"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_4": [
+                                    "治疗",
+                                    "Treatment",
+                                    "治療",
+                                    "回復",
+                                    "치유"
+                                ]
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoEssenceLocationBonus_WLYinglungPass": {
+            "type": "select",
+            "label": "$option.AutoEssenceLocationBonus.label",
+            "description": "$option.AutoEssenceLocationBonus.description",
+            "default_case": "s2_2",
+            "cases": [
+                {
+                    "name": "s2_2",
+                    "label": "$option.AutoEssenceSkill.s2_2",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 2
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_2": [
+                                    "攻击",
+                                    "ATK",
+                                    "攻擊",
+                                    "攻撃力",
+                                    "공격력"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_2": [
+                                    "攻击",
+                                    "ATK",
+                                    "攻擊",
+                                    "攻撃力",
+                                    "공격력"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_8",
+                    "label": "$option.AutoEssenceSkill.s2_8",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 8
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_8": [
+                                    "物理",
+                                    "Physical",
+                                    "물리"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_8": [
+                                    "物理",
+                                    "Physical",
+                                    "물리"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_10",
+                    "label": "$option.AutoEssenceSkill.s2_10",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 10
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_10": [
+                                    "电磁",
+                                    "Electric",
+                                    "電磁",
+                                    "전기"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_10": [
+                                    "电磁",
+                                    "Electric",
+                                    "電磁",
+                                    "전기"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_1",
+                    "label": "$option.AutoEssenceSkill.s2_1",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 1
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_1": [
+                                    "寒冷",
+                                    "Cryo",
+                                    "냉기"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_1": [
+                                    "寒冷",
+                                    "Cryo",
+                                    "냉기"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_12",
+                    "label": "$option.AutoEssenceSkill.s2_12",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 12
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_12": [
+                                    "自然",
+                                    "Nature",
+                                    "자연"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_12": [
+                                    "自然",
+                                    "Nature",
+                                    "자연"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_3",
+                    "label": "$option.AutoEssenceSkill.s2_3",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 3
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_3": [
+                                    "暴击率",
+                                    "Critical Rate",
+                                    "暴擊率",
+                                    "会心率",
+                                    "치명타 확률"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_3": [
+                                    "暴击率",
+                                    "Critical Rate",
+                                    "暴擊率",
+                                    "会心率",
+                                    "치명타 확률"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_6",
+                    "label": "$option.AutoEssenceSkill.s2_6",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 6
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_6": [
+                                    "源石技艺强度",
+                                    "Arts Intensity",
+                                    "源石技藝強度",
+                                    "アーツ強度",
+                                    "오리지늄 아츠"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_6": [
+                                    "源石技艺强度",
+                                    "Arts Intensity",
+                                    "源石技藝強度",
+                                    "アーツ強度",
+                                    "오리지늄 아츠"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_5",
+                    "label": "$option.AutoEssenceSkill.s2_5",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 5
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_5": [
+                                    "法术",
+                                    "Arts",
+                                    "法術",
+                                    "アーツ",
+                                    "아츠"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_5": [
+                                    "法术",
+                                    "Arts",
+                                    "法術",
+                                    "アーツ",
+                                    "아츠"
+                                ]
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "AutoEssenceLocationBonus_WLNorthWulingExclusionZone": {
+            "type": "select",
+            "label": "$option.AutoEssenceLocationBonus.label",
+            "description": "$option.AutoEssenceLocationBonus.description",
+            "default_case": "s2_9",
+            "cases": [
+                {
+                    "name": "s2_9",
+                    "label": "$option.AutoEssenceSkill.s2_9",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 9
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_9": [
+                                    "生命",
+                                    "HP",
+                                    "생명력"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_9": [
+                                    "生命",
+                                    "HP",
+                                    "생명력"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_8",
+                    "label": "$option.AutoEssenceSkill.s2_8",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 8
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_8": [
+                                    "物理",
+                                    "Physical",
+                                    "물리"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_8": [
+                                    "物理",
+                                    "Physical",
+                                    "물리"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_7",
+                    "label": "$option.AutoEssenceSkill.s2_7",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 7
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_7": [
+                                    "灼热",
+                                    "Heat",
+                                    "灼熱",
+                                    "열기"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_7": [
+                                    "灼热",
+                                    "Heat",
+                                    "灼熱",
+                                    "열기"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_12",
+                    "label": "$option.AutoEssenceSkill.s2_12",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 12
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_12": [
+                                    "自然",
+                                    "Nature",
+                                    "자연"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_12": [
+                                    "自然",
+                                    "Nature",
+                                    "자연"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_3",
+                    "label": "$option.AutoEssenceSkill.s2_3",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 3
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_3": [
+                                    "暴击率",
+                                    "Critical Rate",
+                                    "暴擊率",
+                                    "会心率",
+                                    "치명타 확률"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_3": [
+                                    "暴击率",
+                                    "Critical Rate",
+                                    "暴擊率",
+                                    "会心率",
+                                    "치명타 확률"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_6",
+                    "label": "$option.AutoEssenceSkill.s2_6",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 6
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_6": [
+                                    "源石技艺强度",
+                                    "Arts Intensity",
+                                    "源石技藝強度",
+                                    "アーツ強度",
+                                    "오리지늄 아츠"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_6": [
+                                    "源石技艺强度",
+                                    "Arts Intensity",
+                                    "源石技藝強度",
+                                    "アーツ強度",
+                                    "오리지늄 아츠"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_5",
+                    "label": "$option.AutoEssenceSkill.s2_5",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 5
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_5": [
+                                    "法术",
+                                    "Arts",
+                                    "法術",
+                                    "アーツ",
+                                    "아츠"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_5": [
+                                    "法术",
+                                    "Arts",
+                                    "法術",
+                                    "アーツ",
+                                    "아츠"
+                                ]
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "s2_4",
+                    "label": "$option.AutoEssenceSkill.s2_4",
+                    "pipeline_override": {
+                        "AutoEssenceLocationOptionsCheck": {
+                            "attach": {
+                                "slot2_id": 4
+                            }
+                        },
+                        "AutoEssenceEngraveCondition2OCR": {
+                            "attach": {
+                                "s2_4": [
+                                    "治疗",
+                                    "Treatment",
+                                    "治療",
+                                    "回復",
+                                    "치유"
+                                ]
+                            }
+                        },
+                        "AutoEssenceSelectEngraveBonusCondition": {
+                            "attach": {
+                                "s2_4": [
+                                    "治疗",
+                                    "Treatment",
+                                    "治療",
+                                    "回復",
+                                    "치유"
+                                ]
                             }
                         }
                     }

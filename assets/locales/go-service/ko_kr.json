@@ -213,5 +213,6 @@
     "ims.add_item_found": "%s 획득 ×%d",
     "ims.expression_ok": "식 성립: %s",
     "ims.expression_short": "식 불성립: %s",
-    "ims.item_current": "현재 %s: %d"
+    "ims.item_current": "현재 %s: %d",
+    "autoessence.invalid_location_options": "🤔**지역 모드 속성 옵션이 올바르지 않습니다**\n기본 속성은 3개만 선택할 수 있습니다. 작업 설정을 조정한 뒤 다시 시도해 주세요~"
 }

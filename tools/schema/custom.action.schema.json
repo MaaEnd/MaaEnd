@@ -16,6 +16,8 @@
                 "AutoFightMainAction",
                 "AutoDeliveryResolveDepotAction",
                 "AutoDeliveryResolveDestinationAction",
+                "AutoEssenceApplyLocationEngraveOverrideAction",
+                "AutoEssenceLocationOptionsCheckAction",
                 "AutoSellItemExecuteItemTaskAction",
                 "AutoStockStapleQuantityControlAction",
                 "AutoStockpile.CaptureUid",

@@ -42,6 +42,8 @@
         "pre_delay": 0,
         "post_delay": 0,
         "next": [
+            "AutoEssenceLocationOptionsCheck",
+            "AutoEssenceApplyLocationEngraveOverride",
             // 在 SetupLocation 节点的 max_hit 未耗尽时，先经过该节点进行初始化步骤
             "AutoEssenceSetupLocation",
             // 如果 SetupLocation 节点的 max_hit 已耗尽，则会直接进入交互分发
@@ -49,6 +51,83 @@
         ],
         "focus": {
             "Node.Action.Starting": "▶️**准备开始本次基质刷取**"
+        }
+    },
+    "AutoEssenceLocationOptionsCheck": {
+        "desc": "地区模式：校验任务选项 attach（基础属性 3 项、附加 1 项）；非地区模式直接通过",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoEssenceLocationOptionsCheckAction"
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEssenceApplyLocationEngraveOverride"
+        ],
+        "on_error": [
+            "AutoEssenceLocationEngraveOptionsInvalid"
+        ],
+        "attach": {
+            "menu_mode": "random",
+            "location_id": "",
+            "slot2_id": 0
+        }
+    },
+    "AutoEssenceApplyLocationEngraveOverride": {
+        "desc": "地区模式：合并覆写预刻写条件 1（三基础属性）；附加属性与属性选择 OCR 由任务选项 attach + InitEngraveOptionOCR 初始化",
+        "max_hit": 1,
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AutoEssenceApplyLocationEngraveOverrideAction",
+                "custom_action_param": {
+                    "source_node": "AutoEssenceLocationOptionsCheck"
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEssenceSetupLocation",
+            "AutoEssenceDispatcher"
+        ]
+    },
+    "AutoEssenceInitEngraveOptionOCR": {
+        "desc": "地区模式：根据任务选项 attach 初始化附加属性与属性选择 OCR 白名单",
+        "max_hit": 1,
+        "recognition": {
+            "type": "DirectHit",
+            "param": {}
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "AttachToExpectedRegexAction",
+                "custom_action_param": {
+                    "targets": [
+                        "AutoEssenceEngraveCondition2OCR",
+                        "AutoEssenceSelectEngraveBaseCondition1",
+                        "AutoEssenceSelectEngraveBaseCondition2",
+                        "AutoEssenceSelectEngraveBaseCondition3",
+                        "AutoEssenceSelectEngraveBonusCondition"
+                    ]
+                }
+            }
+        },
+        "post_delay": 0,
+        "rate_limit": 0
+    },
+    "AutoEssenceLocationEngraveOptionsInvalid": {
+        "desc": "地区模式属性选项无效（例如基础属性勾选超过 3 项），结束任务",
+        "action": "StopTask",
+        "focus": {
+            "Node.Action.Starting": "🤔**地区模式属性选项无效**\n基础属性只能选择 3 项，请返回任务设置调整后重试~"
         }
     },
     "AutoEssenceSetupLocation": {
@@ -87,7 +166,12 @@
         ],
         "on_error": [
             "AutoEssenceSetupLocationFailed"
-        ]
+        ],
+        "attach": {
+            "menu_mode": "random",
+            "location_id": "",
+            "slot2_id": 0
+        }
     },
     "AutoEssenceSetupLocationFailed": {
         "desc": "抽取淤积点失败（通常是因为所有淤积点均未启用），此时结束任务",
@@ -285,7 +369,362 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "AutoEssenceAdjustEngraveConditions"
+        ]
+    },
+    "AutoEssenceAdjustEngraveConditions": {
+        "desc": "检查基质预刻写条件（DirectHit 无条件命中，默认开启）",
+        "recognition": {
+            "type": "DirectHit",
+            "param": {}
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEssenceEngraveConditionsMatched",
+            "AutoEssenceEngraveConditionsAdjust"
+        ]
+    },
+    "AutoEssenceEngraveConditionsMatched": {
+        "desc": "识别预刻写条件正确",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "AutoEssenceEngraveCondition1Matched",
+                    "AutoEssenceEngraveCondition2Matched"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
             "AutoEssenceClickEssenceStartButton"
+        ],
+        "focus": {
+            "Node.Recognition.Succeeded": "✅预刻写条件正确"
+        }
+    },
+    "__AutoEssenceEngraveConditionHighlightColor": {
+        "desc": "预刻写条件高亮颜色（通用）",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    823,
+                    557,
+                    400,
+                    66
+                ],
+                "method": 40,
+                "lower": [
+                    37,
+                    166,
+                    194
+                ],
+                "upper": [
+                    38,
+                    174,
+                    217
+                ],
+                "connected": false,
+                "count": 100
+            }
+        }
+    },
+    "AutoEssenceEngraveCondition1Matched": {
+        "desc": "预刻写条件 1：高亮颜色 + 对应文字",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__AutoEssenceEngraveConditionHighlightColor",
+                    "AutoEssenceEngraveCondition1OCR"
+                ]
+            }
+        }
+    },
+    "AutoEssenceEngraveCondition1OCR": {
+        "desc": "预刻写条件 1 文字（占位）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "__AutoEssenceEngraveConditionHighlightColor",
+                "expected": [
+                    // 占位：待补充完整属性文本
+                    // @i18n-skip
+                    "PLACEHOLDER_CONDITION_1"
+                ]
+            }
+        }
+    },
+    "AutoEssenceEngraveCondition2Matched": {
+        "desc": "预刻写条件 2：高亮颜色 + 对应文字",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "__AutoEssenceEngraveConditionHighlightColor",
+                    "AutoEssenceEngraveCondition2OCR"
+                ]
+            }
+        }
+    },
+    "AutoEssenceEngraveCondition2OCR": {
+        "desc": "预刻写条件 2 文字（由任务选项 attach 初始化）",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": "__AutoEssenceEngraveConditionHighlightColor",
+                "expected": [
+                    // @i18n-skip
+                    "a^"
+                ]
+            }
+        }
+    },
+    "AutoEssenceEngraveConditionsAdjust": {
+        "desc": "识别预刻写条件错误，开始调整条件",
+        "recognition": {
+            "type": "DirectHit",
+            "param": {}
+        },
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEssenceFindAttributeSelection"
+        ],
+        "focus": {
+            "Node.Action.Starting": "⚙️正在调整预刻写条件"
+        }
+    },
+    "AutoEssenceFindAttributeSelection": {
+        "desc": "OCR 识别属性选择按钮并点击",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    1047,
+                    469,
+                    233,
+                    138
+                ],
+                "expected": [
+                    "属性选择"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "[JumpBack]AutoEssenceClickGrayAttributeOption",
+            "AutoEssenceNoGrayAttributeOption"
+        ]
+    },
+    "AutoEssenceClickGrayAttributeOption": {
+        "desc": "识别灰色属性选项并点击取消选择",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    43,
+                    125,
+                    904,
+                    540
+                ],
+                "method": 40,
+                "lower": [
+                    0,
+                    0,
+                    40
+                ],
+                "upper": [
+                    0,
+                    0,
+                    50
+                ],
+                "connected": true,
+                "count": 200
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 500,
+        "rate_limit": 0
+    },
+    "AutoEssenceNoGrayAttributeOption": {
+        "desc": "已无灰色属性选项，开始后续操作",
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "roi": [
+                    43,
+                    125,
+                    904,
+                    540
+                ],
+                "method": 40,
+                "lower": [
+                    0,
+                    0,
+                    40
+                ],
+                "upper": [
+                    0,
+                    0,
+                    50
+                ],
+                "connected": true,
+                "count": 200
+            }
+        },
+        "inverse": true,
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEssenceSelectEngraveBaseCondition1"
+        ]
+    },
+    "AutoEssenceSelectEngraveBaseCondition1": {
+        "desc": "选择预刻写条件 1 基础属性",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    43,
+                    125,
+                    904,
+                    540
+                ],
+                "expected": [
+                    // @i18n-skip
+                    "a^"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEssenceSelectEngraveBaseCondition2"
+        ]
+    },
+    "AutoEssenceSelectEngraveBaseCondition2": {
+        "desc": "选择预刻写条件 2 基础属性",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    43,
+                    125,
+                    904,
+                    540
+                ],
+                "expected": [
+                    // @i18n-skip
+                    "a^"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEssenceSelectEngraveBaseCondition3"
+        ]
+    },
+    "AutoEssenceSelectEngraveBaseCondition3": {
+        "desc": "选择预刻写条件 3 基础属性",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    43,
+                    125,
+                    904,
+                    540
+                ],
+                "expected": [
+                    // @i18n-skip
+                    "a^"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEssenceSelectEngraveBonusCondition"
+        ]
+    },
+    "AutoEssenceSelectEngraveBonusCondition": {
+        "desc": "选择预刻写附加属性",
+        "recognition": {
+            "type": "OCR",
+            "param": {
+                "roi": [
+                    43,
+                    125,
+                    904,
+                    540
+                ],
+                "expected": [
+                    // @i18n-skip
+                    "a^"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEssenceConfirmEngraveSelection"
+        ]
+    },
+    "AutoEssenceConfirmEngraveSelection": {
+        "desc": "识别并点击确认选择按钮",
+        "recognition": {
+            "type": "And",
+            "param": {
+                "all_of": [
+                    "YellowConfirmButtonType2"
+                ]
+            }
+        },
+        "pre_delay": 0,
+        "action": {
+            "type": "Click"
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "AutoEssenceEngraveConditionsMatched"
         ]
     },
     "AutoEssenceClickEssenceStartButton": {

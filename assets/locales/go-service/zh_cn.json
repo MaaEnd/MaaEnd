@@ -215,5 +215,6 @@
     "ims.add_item_found": "获得 %s ×%d",
     "ims.expression_ok": "表达式成立：%s",
     "ims.expression_short": "表达式不成立：%s",
-    "ims.item_current": "当前 %s：%d"
+    "ims.item_current": "当前 %s：%d",
+    "autoessence.invalid_location_options": "🤔**地区模式属性选项无效**\n基础属性只能选择 3 项，请返回任务设置调整后重试~"
 }
