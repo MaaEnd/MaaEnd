@@ -13,6 +13,7 @@
 #include <tuple>
 #include <vector>
 
+#include "ForegroundTexture.h"
 #include "GridAnchors.h"
 #include "GridFeatures.h"
 #include "GridGeometry.h"
@@ -23,6 +24,15 @@ namespace iconrecognition::detail
 {
 namespace
 {
+
+struct TransferTextureContext
+{
+    const cv::Mat& source_image;
+    cv::Rect texture_roi;
+    double source_grid_scale;
+};
+
+cv::Rect ScaleRectToSource(const cv::Rect& rect, double scale, const cv::Size& bounds);
 
 // 响应、分母和归一化的近零阈值，仅用于数值稳定性。
 constexpr double kEpsilon = 1e-8;
@@ -1395,6 +1405,275 @@ double CellSupport(const cv::Mat& score, int x, int y)
     return maximum;
 }
 
+std::optional<int> PairedBoundaryCenter(const std::vector<float>& signed_boundary, int position, int offset, int search_radius)
+{
+    if (signed_boundary.empty() || search_radius < 0) {
+        return std::nullopt;
+    }
+    const int local_position = position - offset;
+    const int left = std::max(0, local_position - search_radius);
+    const int right = std::min(static_cast<int>(signed_boundary.size()) - 1, local_position + search_radius);
+    if (right < left) {
+        return std::nullopt;
+    }
+
+    double positive_weight = 0.0;
+    double negative_weight = 0.0;
+    double positive_moment = 0.0;
+    double negative_moment = 0.0;
+    for (int index = left; index <= right; ++index) {
+        const double value = signed_boundary[index];
+        if (value > 0.0) {
+            positive_weight += value;
+            positive_moment += index * value;
+        }
+        else {
+            const double weight = -value;
+            negative_weight += weight;
+            negative_moment += index * weight;
+        }
+    }
+    if (positive_weight <= kEpsilon || negative_weight <= kEpsilon) {
+        return std::nullopt;
+    }
+    const double positive_center = positive_moment / positive_weight;
+    const double negative_center = negative_moment / negative_weight;
+    return cvRound(offset + 0.5 * (positive_center + negative_center));
+}
+
+std::vector<int> FormalAxisStarts(double seed, double pitch, int begin, int end, int cell_size, int maximum_count)
+{
+    if (pitch <= 0 || cell_size <= 0 || end - begin < cell_size || maximum_count <= 0) {
+        return {};
+    }
+    while (seed - pitch >= begin) {
+        seed -= pitch;
+    }
+    while (seed < begin) {
+        seed += pitch;
+    }
+    std::vector<int> starts;
+    for (int index = 0; static_cast<int>(starts.size()) < maximum_count; ++index) {
+        const int value = cvRound(seed + index * pitch);
+        if (value + cell_size > end) {
+            break;
+        }
+        starts.push_back(value);
+    }
+    return starts;
+}
+
+std::vector<int> RefineBoundaryAxis(
+    const std::vector<int>& starts,
+    const std::vector<float>& signed_boundary,
+    double pitch,
+    int offset,
+    int begin,
+    int end,
+    int cell_size,
+    int expected_count)
+{
+    if (starts.empty() || expected_count <= 0) {
+        return {};
+    }
+    const int grid_gap = std::max(0, cvRound(pitch - cell_size));
+    std::vector<double> phases;
+    for (std::size_t index = 0; index < starts.size(); ++index) {
+        const int local = starts[index] - offset;
+        if (local - grid_gap < 0 || local + grid_gap >= static_cast<int>(signed_boundary.size())) {
+            continue;
+        }
+        if (const auto center = PairedBoundaryCenter(signed_boundary, starts[index], offset, grid_gap)) {
+            phases.push_back(*center - index * pitch);
+        }
+    }
+    if (phases.empty()) {
+        return {};
+    }
+    // 面板裁边可能截断首格，使用其余完整边框的共同起点，不因首边不可测而放弃整条轴。
+    return FormalAxisStarts(Median(phases), pitch, begin, end, cell_size, expected_count);
+}
+
+struct TransferEmptyGridFit
+{
+    std::vector<int> x_starts;
+    std::vector<int> y_starts;
+    double pitch = 0.0;
+    double median_support = 0.0;
+    double mean_support = 0.0;
+};
+
+std::optional<TransferEmptyGridFit> FitTransferEmptyGrid(
+    const TransferGridHint& hint,
+    const std::vector<int>& x_seed_starts,
+    const std::vector<int>& baseline_y_starts,
+    double pitch,
+    const TransferGridProfile& profile,
+    const cv::Mat& cell_score,
+    const std::vector<float>& signed_x,
+    const std::vector<float>& signed_y)
+{
+    if (x_seed_starts.empty() || baseline_y_starts.empty() || hint.y_starts.empty() || cell_score.empty() || pitch <= 0.0) {
+        return std::nullopt;
+    }
+    std::optional<TransferEmptyGridFit> best;
+    // 响应矩阵需要格子外侧的梯度采样，尺寸比完整格子的合法起点范围少 1px；贴边时使用最近的有效响应。
+    const auto structure_support = [&](int x, int y) {
+        if (x < 0 || y < 0 || x > cell_score.cols || y > cell_score.rows) {
+            return 0.0;
+        }
+        return static_cast<double>(cell_score.at<float>(std::min(y, cell_score.rows - 1), std::min(x, cell_score.cols - 1)));
+    };
+    const auto is_better = [](const TransferEmptyGridFit& left, const TransferEmptyGridFit& right) {
+        const auto cell_count = [](const TransferEmptyGridFit& fit) {
+            return fit.x_starts.size() * fit.y_starts.size();
+        };
+        return std::tuple {
+            left.median_support * std::sqrt(static_cast<double>(cell_count(left))),
+            left.median_support,
+            cell_count(left),
+            left.mean_support,
+        } > std::tuple {
+            right.median_support * std::sqrt(static_cast<double>(cell_count(right))),
+            right.median_support,
+            cell_count(right),
+            right.mean_support,
+        };
+    };
+    // 纵向覆盖一个完整周期，允许候选跳过顶部只剩局部边缘的残行。
+    const int phase_period = std::max(1, cvRound(pitch));
+    const int first_vertical_shift = -phase_period / 2;
+    const int last_vertical_shift = first_vertical_shift + phase_period - 1;
+    const int minimum_rows = ProfileFor(GridType::Transfer).min_rows;
+    // 与最终布局共用顶部可见率，保留仅被渐变区遮住少量像素的首行。
+    const int minimum_y = hint.region.y - cvFloor((1.0 - profile.minimum_top_visibility) * profile.cell_size);
+    const auto x_starts = FormalAxisStarts(
+        x_seed_starts.front(),
+        pitch,
+        hint.region.x,
+        hint.region.x + hint.region.width,
+        profile.cell_size,
+        std::numeric_limits<int>::max());
+    for (int y_shift = first_vertical_shift; y_shift <= last_vertical_shift; ++y_shift) {
+        const auto y_starts = FormalAxisStarts(
+            hint.y_starts.front() + y_shift,
+            pitch,
+            minimum_y,
+            hint.region.y + hint.region.height,
+            profile.cell_size,
+            profile.maximum_rows);
+        if (static_cast<int>(y_starts.size()) < minimum_rows) {
+            continue;
+        }
+        std::vector<double> supports;
+        supports.reserve(x_starts.size() * y_starts.size());
+        double total = 0.0;
+        for (int y : y_starts) {
+            for (int x : x_starts) {
+                const double support = structure_support(x, y);
+                supports.push_back(support);
+                total += support;
+            }
+        }
+        if (supports.empty()) {
+            continue;
+        }
+        TransferEmptyGridFit candidate {
+            .x_starts = x_starts,
+            .y_starts = y_starts,
+            .pitch = pitch,
+            .median_support = Median(supports),
+            .mean_support = total / supports.size(),
+        };
+        if (!best || is_better(candidate, *best)) {
+            best = std::move(candidate);
+        }
+    }
+    std::vector<double> baseline_supports;
+    baseline_supports.reserve(x_seed_starts.size() * baseline_y_starts.size());
+    double baseline_total = 0.0;
+    for (int y : baseline_y_starts) {
+        for (int x : x_seed_starts) {
+            const double support = structure_support(x, y);
+            baseline_supports.push_back(support);
+            baseline_total += support;
+        }
+    }
+    const TransferEmptyGridFit baseline {
+        .x_starts = x_seed_starts,
+        .y_starts = baseline_y_starts,
+        .pitch = pitch,
+        .median_support = Median(baseline_supports),
+        .mean_support = baseline_total / baseline_supports.size(),
+    };
+    const bool equivalent_lattice = best && best->x_starts.size() == baseline.x_starts.size()
+                                    && best->y_starts.size() == baseline.y_starts.size() && !is_better(*best, baseline)
+                                    && !is_better(baseline, *best);
+    if (!best || best->median_support <= kEpsilon || (!is_better(*best, baseline) && !equivalent_lattice)) {
+        return std::nullopt;
+    }
+
+    // 正负梯度双边缘的中心对应格框外边界；整条轴的共同 phase 可容忍个别弱边，无需固定像素补偿。
+    const std::size_t column_count = best->x_starts.size();
+    const std::size_t row_count = best->y_starts.size();
+    // 行列数量相同不代表旧坐标准确；两轴均由同一拟合间距重新生成，避免粗定位误差累积到末格。
+    // 恢复粗定位曾观测到的末列，但不因细化后多出空白空间而外推未观测的新列。
+    best->x_starts = RefineBoundaryAxis(
+        best->x_starts,
+        signed_x,
+        best->pitch,
+        hint.region.x,
+        hint.region.x,
+        hint.region.x + hint.region.width,
+        profile.cell_size,
+        static_cast<int>(std::max(best->x_starts.size(), x_seed_starts.size())));
+    best->y_starts = RefineBoundaryAxis(
+        best->y_starts,
+        signed_y,
+        best->pitch,
+        hint.region.y,
+        minimum_y,
+        hint.region.y + hint.region.height,
+        profile.cell_size,
+        static_cast<int>(row_count));
+    if (best->x_starts.size() < column_count || best->y_starts.size() != row_count) {
+        return std::nullopt;
+    }
+    return best;
+}
+
+bool IsTransferEmptyGridCandidate(
+    const cv::Mat& image,
+    const cv::Rect& roi,
+    const std::vector<int>& x_starts,
+    const std::vector<int>& y_starts,
+    int cell_size,
+    const TransferTextureContext* texture_context)
+{
+    const cv::Rect image_bounds(0, 0, image.cols, image.rows);
+    int checked_cells = 0;
+    for (int y : y_starts) {
+        for (int x : x_starts) {
+            const cv::Rect cell(roi.x + x, roi.y + y, cell_size, cell_size);
+            if (!IsFormal(cell, roi) || (cell & image_bounds) != cell) {
+                continue;
+            }
+            ++checked_cells;
+            // ADB 的几何在归一化图上拟合，判空仍读取原图，保持前后两处的 4px 裁剪及阈值一致。
+            const auto score = texture_context ? ForegroundTextureScore(
+                                   texture_context->source_image,
+                                   ScaleRectToSource(cell, texture_context->source_grid_scale, texture_context->source_image.size()),
+                                   GridType::Transfer,
+                                   texture_context->texture_roi)
+                                               : ForegroundTextureScore(image, cell, GridType::Transfer);
+            if (!score || *score >= kDefaultLowTextureThreshold) {
+                return false;
+            }
+        }
+    }
+    return checked_cells > 0;
+}
+
 int AlignedTrustedStrips(
     const TrustedRarityGridFit& fit,
     const std::vector<int>& x_starts,
@@ -1501,7 +1780,13 @@ std::vector<int> DropPortRows(
     return y_starts;
 }
 
-GridLayout BuildTransferLayout(const cv::Mat& image, const cv::Rect& roi, const TransferGridHint& hint, int grid_index, GridType type)
+GridLayout BuildTransferLayout(
+    const cv::Mat& image,
+    const cv::Rect& roi,
+    const TransferGridHint& hint,
+    int grid_index,
+    GridType type,
+    const TransferTextureContext* texture_context)
 {
     const bool transfer = type == GridType::Transfer;
     const int absolute_center = roi.x + hint.rect.x + hint.rect.width / 2;
@@ -1515,7 +1800,6 @@ GridLayout BuildTransferLayout(const cv::Mat& image, const cv::Rect& roi, const 
     const auto boundary_x = RobustProjection(maps.vertical, true);
     const auto boundary_y = RobustProjection(maps.horizontal, false);
     const int column_count = static_cast<int>(hint.x_starts.size());
-    const auto trusted_fit = FitTrustedRarityGrid(image(roi), hint.region, profile);
     const auto refined_x = RefineFirstBoundary(hint.x_starts, boundary_x, hint.region.x, profile.cell_size);
     const auto x_fit = FitTransferAxis(
         refined_x,
@@ -1530,25 +1814,15 @@ GridLayout BuildTransferLayout(const cv::Mat& image, const cv::Rect& roi, const 
     if (!x_fit) {
         return {};
     }
+    const cv::Mat cell_score = BuildTransferCellScore(image(roi), profile.cell_size);
     std::vector<int> local_x = x_fit->starts;
     std::vector<int> local_y;
-    const auto rarity_fit = FitRarityGrid(image(roi), local_x, hint.y_starts, profile);
-    const bool reliable_rarity_fit = rarity_fit.has_value()
-                                     && (!transfer || rarity_fit->supporting_strong_cells >= kMinimumReliableRarityCells
-                                         || rarity_fit->supporting_chromatic_cells >= kMinimumReliableRarityCells);
-    if (reliable_rarity_fit) {
-        local_x = rarity_fit->x_starts;
-        const int count = std::min(profile.maximum_rows, std::max(static_cast<int>(hint.y_starts.size()), rarity_fit->supporting_rows));
-        for (int row = 0; row < count; ++row) {
-            local_y.push_back(rarity_fit->origin + row * rarity_fit->pitch);
-        }
-    }
-    else {
+    const auto build_structural_y = [&]() {
         auto structural_y = transfer ? RefineStructuralPhase(hint.y_starts, boundary_y, hint.region.y, profile.cell_size) : hint.y_starts;
         auto refined_y = structural_y != hint.y_starts
                              ? structural_y
                              : RefinePortY(hint.y_starts, boundary_y, hint.region.y, column_count, profile.cell_size);
-        local_y = CompleteAxis(
+        auto result = CompleteAxis(
             refined_y,
             profile.maximum_rows,
             transfer ? std::optional<int>(static_cast<int>(std::floor(x_fit->pitch + 0.5))) : std::nullopt,
@@ -1558,8 +1832,8 @@ GridLayout BuildTransferLayout(const cv::Mat& image, const cv::Rect& roi, const 
             profile.observed_pitch_tolerance,
             column_count == 4 || column_count == 7);
         if (transfer && column_count >= 7) {
-            local_y = RefineStructuralPhase(
-                local_y,
+            result = RefineStructuralPhase(
+                result,
                 boundary_y,
                 hint.region.y,
                 profile.cell_size,
@@ -1567,11 +1841,75 @@ GridLayout BuildTransferLayout(const cv::Mat& image, const cv::Rect& roi, const 
                 kWideTransferPhaseMinimumGain,
                 true);
         }
+        return result;
+    };
+    std::optional<std::vector<int>> structural_y;
+    bool empty_grid_selected = false;
+    if (transfer) {
+        // 全空面板先用规则边框和低纹理门控确认；命中后跳过两套稀有度扫描，非空面板仍走原路径。
+        structural_y = build_structural_y();
+        const auto signed_x = AggregateSigned(maps.signed_x, true);
+        const auto signed_y = AggregateSigned(maps.signed_y, false);
+        // 空网格用连续边框重新拟合起点和间距，不能把粗轴的最小二乘误差当成固定 pitch。
+        const auto empty_x_fit = FitTransferAxis(
+            local_x,
+            boundary_x,
+            hint.region.x,
+            profile.cell_size,
+            { static_cast<double>(profile.pitch_min), static_cast<double>(profile.pitch_max) },
+            profile.observed_pitch_tolerance,
+            column_count,
+            true,
+            true);
+        const auto empty_grid = empty_x_fit ? FitTransferEmptyGrid(
+                                    hint,
+                                    empty_x_fit->starts,
+                                    *structural_y,
+                                    empty_x_fit->pitch,
+                                    profile,
+                                    cell_score,
+                                    signed_x,
+                                    signed_y)
+                                            : std::nullopt;
+        empty_grid_selected =
+            empty_grid
+            && IsTransferEmptyGridCandidate(image, roi, empty_grid->x_starts, empty_grid->y_starts, profile.cell_size, texture_context);
+        if (empty_grid_selected) {
+            local_x = empty_grid->x_starts;
+            local_y = empty_grid->y_starts;
+        }
+    }
+    std::optional<TrustedRarityGridFit> trusted_fit;
+    std::optional<RarityGridFit> rarity_fit;
+    bool reliable_rarity_fit = false;
+    if (!empty_grid_selected) {
+        trusted_fit = FitTrustedRarityGrid(image(roi), hint.region, profile);
+        rarity_fit = FitRarityGrid(image(roi), local_x, hint.y_starts, profile);
+        reliable_rarity_fit = rarity_fit.has_value()
+                              && (!transfer || rarity_fit->supporting_strong_cells >= kMinimumReliableRarityCells
+                                  || rarity_fit->supporting_chromatic_cells >= kMinimumReliableRarityCells);
+        if (reliable_rarity_fit) {
+            local_x = rarity_fit->x_starts;
+            // Transfer 用支持行的实际范围补足粗网格；仅增加总行数会把顶部缺行错补到下面。
+            // Port 保持原有从粗起点向下生成的策略。
+            const int first_row = transfer ? std::min(0, rarity_fit->first_supported_row) : 0;
+            const int last_row = transfer ? std::max(static_cast<int>(hint.y_starts.size()) - 1, rarity_fit->last_supported_row)
+                                         : std::max(static_cast<int>(hint.y_starts.size()), rarity_fit->supporting_rows) - 1;
+            const int count = std::min(profile.maximum_rows, last_row - first_row + 1);
+            for (int row = 0; row < count; ++row) {
+                local_y.push_back(rarity_fit->origin + (first_row + row) * rarity_fit->pitch);
+            }
+        }
+        else {
+            if (!structural_y) {
+                structural_y = build_structural_y();
+            }
+            local_y = std::move(*structural_y);
+        }
     }
     if (local_x.empty() || local_y.empty()) {
         return {};
     }
-    const cv::Mat cell_score = BuildTransferCellScore(image(roi), profile.cell_size);
     bool trusted_selected = false;
     double trusted_candidate_score = 0.0;
     const double legacy_structure = NormalizedStructureSupport(cell_score, local_x, local_y);
@@ -1597,7 +1935,7 @@ GridLayout BuildTransferLayout(const cv::Mat& image, const cv::Rect& roi, const 
             rejected_reasons.emplace_back("trusted-candidate-lacks-structure");
         }
     }
-    else {
+    else if (!empty_grid_selected) {
         rejected_reasons.emplace_back("no-trusted-chromatic-strip");
     }
     const double legacy_candidate_score = kLegacyStructureWeight * legacy_structure + kLegacyRarityWeight * legacy_rarity;
@@ -1713,7 +2051,9 @@ GridLayout BuildTransferLayout(const cv::Mat& image, const cv::Rect& roi, const 
         .residual_trend = std::max(std::abs(final_x_axis->residual_trend), std::abs(final_y_axis->residual_trend)),
         .trusted_rarity_cells = trusted_fit ? trusted_fit->rarity_counts : std::array<int, 6> {},
         .fallback_used = !trusted_selected,
-        .fallback_reason = trusted_selected ? "" : "legacy-structure-without-conflicting-trusted-rarity",
+        .fallback_reason = trusted_selected      ? ""
+                           : empty_grid_selected ? "empty-grid-structure"
+                                                 : "legacy-structure-without-conflicting-trusted-rarity",
         .rejected_reasons = std::move(rejected_reasons),
     };
     return layout;
@@ -1993,7 +2333,12 @@ void RefineScaledTransferDetection(const cv::Mat& image, const cv::Rect& roi, do
     }
 }
 
-GridDetection DetectGridNormalized(const cv::Mat& image, GridType type, const cv::Rect& roi, double source_grid_scale)
+GridDetection DetectGridNormalized(
+    const cv::Mat& image,
+    GridType type,
+    const cv::Rect& roi,
+    double source_grid_scale,
+    const TransferTextureContext* texture_context = nullptr)
 {
     GridDetection result {
         .type = type,
@@ -2011,7 +2356,7 @@ GridDetection DetectGridNormalized(const cv::Mat& image, GridType type, const cv
     else if (type == GridType::Transfer || type == GridType::PortStorager) {
         const auto hints = DiscoverTransferGridHints(image(roi), type == GridType::Transfer);
         for (int index = 0; index < static_cast<int>(hints.size()); ++index) {
-            Append(result, BuildTransferLayout(image, roi, hints[index], index, type));
+            Append(result, BuildTransferLayout(image, roi, hints[index], index, type, texture_context));
         }
     }
     else {
@@ -2051,6 +2396,44 @@ GridDetection DetectGrid(const cv::Mat& image, GridType type, const cv::Rect& ro
         };
     }
     const double resolved_scale = *estimated_scale;
+    if (type == GridType::Transfer) {
+        GridDetection result { .type = type, .roi = roi, .grid_scale = resolved_scale };
+        const auto panels = TransferPanelRegionsFor(resolved_scale, roi);
+        cv::Mat analysis_image = image;
+        if (resolved_scale != kWin32ControllerGridScale) {
+            cv::resize(
+                image,
+                analysis_image,
+                cv::Size(std::max(1, cvRound(image.cols / resolved_scale)), std::max(1, cvRound(image.rows / resolved_scale))),
+                0.0,
+                0.0,
+                cv::INTER_AREA);
+        }
+        for (const auto& panel : panels) {
+            if (panel.search_roi.empty()) {
+                continue;
+            }
+            const cv::Rect analysis_roi = ScaleRectForGridAnalysis(panel.search_roi, 1.0 / resolved_scale, analysis_image.size());
+            const TransferTextureContext texture_context { image, panel.texture_roi, resolved_scale };
+            auto detection = DetectGridNormalized(analysis_image, type, analysis_roi, resolved_scale, &texture_context);
+            if (resolved_scale != kWin32ControllerGridScale) {
+                ScaleDetectionToSource(detection, resolved_scale, image.size());
+                RefineScaledTransferDetection(image, panel.search_roi, resolved_scale, detection);
+            }
+            for (auto& layout : detection.grids) {
+                layout.grid_index = static_cast<int>(result.grids.size());
+                for (auto& cell : layout.cells) {
+                    cell.grid_index = layout.grid_index;
+                    cell.texture_roi = panel.texture_roi;
+                }
+                Append(result, std::move(layout));
+            }
+        }
+        if (result.cells.empty()) {
+            result.failure_message = "Transfer panel intersection contains no formal cells";
+        }
+        return result;
+    }
     if (resolved_scale == kWin32ControllerGridScale) {
         return DetectGridNormalized(image, type, roi, resolved_scale);
     }

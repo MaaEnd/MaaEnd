@@ -78,7 +78,7 @@ void DrawDiagnostics(cv::Mat& annotated, const RecognitionResult& result)
         if (cell.candidate_box.area() > 0) {
             cv::rectangle(annotated, cell.candidate_box, cv::Scalar(255, 128, 0), 1);
         }
-        std::string label = cell.best_candidate_id + " " + std::to_string(cell.score);
+        std::string label = cell.template_matching_skipped ? "empty" : cell.best_candidate_id + " " + std::to_string(cell.score);
         if (cell.row && cell.column) {
             label += " r" + std::to_string(*cell.row) + "c" + std::to_string(*cell.column);
         }

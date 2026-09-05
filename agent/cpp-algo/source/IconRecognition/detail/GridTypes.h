@@ -16,6 +16,8 @@ struct GridCell
     int row = 0;
     int column = 0;
     cv::Rect cell_box;
+    // 仅 Transfer 使用原图可信内容区判空；不改变完整 cell_box，其他类型不设置此字段。
+    std::optional<cv::Rect> texture_roi;
 };
 
 struct GridSelectionDiagnostics

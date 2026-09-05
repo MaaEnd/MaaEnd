@@ -17,6 +17,8 @@ from urllib.error import HTTPError
 from urllib.parse import parse_qsl, quote, urlencode, urlsplit, urlunsplit
 from urllib.request import Request, urlopen
 
+import json5
+
 from fixed_items import FIXED_ITEMS
 
 from text import clean_text, validate_identifier
@@ -174,7 +176,7 @@ def load_item_blacklist(
     path: str | Path = DEFAULT_BLACKLIST_PATH,
 ) -> tuple[ItemBlacklistRule, ...]:
     source_path = Path(path)
-    payload = json.loads(source_path.read_text(encoding="utf-8-sig"))
+    payload = json5.loads(source_path.read_text(encoding="utf-8-sig"))
     if not isinstance(payload, Mapping):
         raise ValueError(f"黑名单顶层必须是对象: {source_path}")
     raw_rules = payload.get("rules")

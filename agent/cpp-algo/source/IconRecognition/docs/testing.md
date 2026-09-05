@@ -96,6 +96,8 @@ python tools/icon_recognition/expected.py `
 
 生成器按图片替换旧 case，因此更新后的 CSV 可与新增图片一起复制回对应数据集。
 
+CSV 中的预期 `item_id` 可匹配实际主 ID 或 `aliases`；每格只计一次，各物品格数及总格数仍严格校验，不检查格内堆叠数量。
+
 `quick` 是干净 checkout 可运行的快速门禁，覆盖类型、参数契约、single ROI、MaaFramework 包装、算法小测试、debug capture，以及 Win32/ADB 每种界面的真实图片回归。quick 固定开启当前地区不可用物品后备，以覆盖子模块基线中的地区禁用物品；这不会改变识别接口默认关闭该选项的行为。典型图由 `dataset-manifest.psd1` 统一维护：
 
 | 界面 | Win32 | ADB |

@@ -16,6 +16,7 @@
 #include "IconRecognitionRecognition.h"
 #include "IconRecognizer.h"
 #include "detail/DisabledIcon.h"
+#include "detail/RarityClassifier.h"
 #include "detail/RecognitionDiagnostics.h"
 #include "detail/TemplateTypes.h"
 
@@ -168,7 +169,10 @@ constexpr int kSyntheticRoiY = 5;
 constexpr int kSyntheticRoiSize = 54;
 constexpr int kSyntheticAlphaThreshold = 230;
 constexpr int kTransferSyntheticWidth = 420;
-constexpr int kTransferSyntheticHeight = 320;
+constexpr int kTransferSyntheticHeight = 270;
+// Transfer 入口使用 720p 面板 profile，合成内容放在左侧可信区域内。
+constexpr int kTransferSyntheticX = 180;
+constexpr int kTransferSyntheticY = 220;
 constexpr int kTransferSyntheticPitch = 69;
 constexpr int kTransferSyntheticCellSize = 64;
 
@@ -180,8 +184,8 @@ struct SingleRoiFixture
 
 SingleRoiFixture MakeSingleRoiFixture(std::string_view icon_id = "item_copper_ore", int rarity = 1)
 {
-    const auto template_path =
-        get_exe_dir() / ".." / "resource" / "image" / "IconRecognition" / std::to_string(rarity) / (std::string(icon_id) + ".png");
+    const auto template_path = get_exe_dir() / ".." / "resource" / "image" / "IconRecognition" / std::to_string(rarity)
+                               / (std::string(icon_id) + ".png");
     const iconrecognition::detail::TemplateRecord record { .item_id = std::string(icon_id) };
     const auto prepared = iconrecognition::detail::PrepareStandardTemplate(
         record,
@@ -197,7 +201,7 @@ SingleRoiFixture MakeSingleRoiFixture(std::string_view icon_id = "item_copper_or
 struct RecheckDeduplicateFixture
 {
     cv::Mat pixels;
-    cv::Rect roi { 0, 0, kTransferSyntheticWidth, kTransferSyntheticHeight };
+    cv::Rect roi { kTransferSyntheticX, kTransferSyntheticY, kTransferSyntheticWidth, kTransferSyntheticHeight };
 };
 
 struct RegionRestrictedFixture
@@ -238,8 +242,8 @@ RegionRestrictedFixture MakeRegionRestrictedFixture(std::string_view fixture_nam
     const auto normal =
         iconrecognition::detail::PrepareStandardTemplate(record, source, kTransferSyntheticCellSize, kSyntheticAlphaThreshold);
     const auto disabled = iconrecognition::detail::BuildRegionUnavailableTemplate(normal, dark_band, white_mark, kSyntheticAlphaThreshold);
-    const cv::Rect roi { 0, 0, kTransferSyntheticWidth, kTransferSyntheticHeight };
-    const cv::Point cell_origin { 2, 2 };
+    const cv::Rect roi { kTransferSyntheticX, kTransferSyntheticY, kTransferSyntheticWidth, kTransferSyntheticHeight };
+    const cv::Point cell_origin = roi.tl() + cv::Point(2, 2);
     cv::Mat grid_background = cv::Mat::zeros(roi.size(), CV_8UC3);
     for (int x = 0; x < roi.width; x += kTransferSyntheticPitch) {
         grid_background.colRange(x, std::min(x + 2, roi.width)).setTo(cv::Scalar(245, 245, 245));
@@ -247,11 +251,11 @@ RegionRestrictedFixture MakeRegionRestrictedFixture(std::string_view fixture_nam
     for (int y = 0; y < roi.height; y += kTransferSyntheticPitch) {
         grid_background.rowRange(y, std::min(y + 2, roi.height)).setTo(cv::Scalar(245, 245, 245));
     }
-    const cv::Size canvas_size = roi.size();
+    const cv::Size canvas_size(1280, 720);
     cv::Mat normal_pixels = cv::Mat::zeros(canvas_size, CV_8UC3);
     cv::Mat disabled_pixels = cv::Mat::zeros(canvas_size, CV_8UC3);
-    grid_background.copyTo(normal_pixels);
-    grid_background.copyTo(disabled_pixels);
+    grid_background.copyTo(normal_pixels(roi));
+    grid_background.copyTo(disabled_pixels(roi));
     normal.image.copyTo(normal_pixels(cv::Rect(cell_origin, normal.image.size())));
     disabled.image.copyTo(disabled_pixels(cv::Rect(cell_origin, disabled.image.size())));
     return { data_root, std::move(normal_pixels), std::move(disabled_pixels), roi };
@@ -277,7 +281,9 @@ RecheckDeduplicateFixture MakeRecheckDeduplicateFixture()
     for (const cv::Point origin : { cv::Point { 2, 2 }, cv::Point { 71, 2 } }) {
         prepared.image.copyTo(pixels(cv::Rect(origin.x, origin.y, kTransferSyntheticCellSize, kTransferSyntheticCellSize)));
     }
-    return { std::move(pixels) };
+    RecheckDeduplicateFixture fixture { cv::Mat(720, 1280, CV_8UC3, cv::Scalar(18, 18, 18)) };
+    pixels.copyTo(fixture.pixels(fixture.roi));
+    return fixture;
 }
 
 RecheckDeduplicateFixture MakeRecheckAdditionalFilterFixture()
@@ -290,7 +296,7 @@ RecheckDeduplicateFixture MakeRecheckAdditionalFilterFixture()
         iconrecognition::detail::DecodeBgra(template_path),
         kTransferSyntheticCellSize,
         kSyntheticAlphaThreshold);
-    prepared.image.copyTo(fixture.pixels(cv::Rect(71, 2, kTransferSyntheticCellSize, kTransferSyntheticCellSize)));
+    prepared.image.copyTo(fixture.pixels(cv::Rect(fixture.roi.tl() + cv::Point(71, 2), prepared.image.size())));
     return fixture;
 }
 
@@ -664,7 +670,8 @@ void TestRegionRestrictedFallbackRunsOnlyAfterNormalRejection()
     Require(alias_result.matched && alias_result.matches.size() == 1, "exact alias request must recognize one item");
     Require(alias_result.matches.front().item.item_id == "restricted_alias", "exact alias request must return its requested id");
     Require(
-        alias_result.matches.front().item.aliases.size() == 1 && alias_result.matches.front().item.aliases.front().item_id == "restricted",
+        alias_result.matches.front().item.aliases.size() == 1
+            && alias_result.matches.front().item.aliases.front().item_id == "restricted",
         "exact alias request must retain the other shared-icon item as an alias");
 
     const auto disabled_fixture = MakeRegionRestrictedFixture("generated-region-restricted-disabled", true);
@@ -697,9 +704,122 @@ void TestRegionRestrictedFallbackRunsOnlyAfterNormalRejection()
 
     // 地区禁用后备不应随着开关误应用到交易、奖励或单 ROI 等其他界面。
     request.grid_type = iconrecognition::GridType::SingleRoi;
-    request.roi = cv::Rect { 2, 2, kTransferSyntheticCellSize, kTransferSyntheticCellSize };
+    request.roi = cv::Rect(disabled_fixture.roi.tl() + cv::Point(2, 2), cv::Size(kTransferSyntheticCellSize, kTransferSyntheticCellSize));
     const auto unsupported_grid_result = disabled_recognizer.recognize(disabled_fixture.disabled_pixels, request);
     Require(!unsupported_grid_result.matched, "unsupported grid types must not use region-restricted fallback");
+}
+
+void TestTransferSkipsEmptyCellsBeforeMatching()
+{
+    const auto fixture = MakeRegionRestrictedFixture("generated-empty-precheck", true);
+    iconrecognition::IconRecognizer recognizer(fixture.data_root);
+    Require(recognizer.initialize(), "empty precheck recognizer must initialize");
+    iconrecognition::RecognitionRequest request;
+    request.grid_type = iconrecognition::GridType::Transfer;
+    request.roi = fixture.roi;
+    request.grid_scale_hint = 1.0;
+    request.candidates.item_ids = { "restricted" };
+    request.candidates.item_filters = { "Normal:Ore" };
+    request.debug = true;
+
+    const auto normal = recognizer.recognize(fixture.normal_pixels, request);
+    Require(normal.matches.size() == 1 && normal.diagnostics, "mixed grid must retain its one item");
+    std::size_t skipped = 0;
+    for (const auto& cell : normal.diagnostics->cells) {
+        if (cell.template_matching_skipped) {
+            ++skipped;
+            Require(cell.candidate_count == 0 && cell.best_candidate_id.empty(), "empty cells must not rank candidates");
+            Require(cell.rejected_reason == "low-foreground-texture", "skipped cells must preserve the empty rejection reason");
+        }
+    }
+    Require(skipped > 0 && skipped + 1 == normal.diagnostics->cells.size(), "every empty cell in a mixed grid must skip matching");
+    request.recognize_region_unavailable = true;
+    const auto enabled = recognizer.recognize(fixture.normal_pixels, request);
+    Require(enabled.matches.size() == 1 && enabled.diagnostics, "enabling disabled fallback must preserve the mixed result");
+    Require(
+        enabled.diagnostics->performance->matcher.score_calls == normal.diagnostics->performance->matcher.score_calls,
+        "empty cells must not trigger extra region-unavailable scoring");
+
+    // 右侧固定间距的独立方格用于隔离判空前置；全空时即使开启地区禁用后备也不能运行模板评分。
+    cv::Mat empty(720, 1280, CV_8UC3, cv::Scalar(30, 30, 30));
+    for (int row = 0; row < 4; ++row) {
+        for (int column = 0; column < 5; ++column) {
+            const cv::Rect cell(771 + column * 69, 216 + row * 69, 64, 64);
+            empty(cell).setTo(cv::Scalar(38, 38, 38));
+            cv::rectangle(empty, cell, cv::Scalar(105, 105, 105), 2, cv::LINE_8);
+        }
+    }
+    request.roi = cv::Rect(770, 209, 341, 277);
+    const auto all_empty = recognizer.recognize(empty, request);
+    Require(
+        all_empty.error_code == "no_match" && all_empty.matches.empty(),
+        "all-empty panel must succeed without item matches: " + all_empty.error_code
+            + " matches=" + std::to_string(all_empty.matches.size()));
+    Require(all_empty.diagnostics && !all_empty.diagnostics->cells.empty(), "all-empty panel must still locate cells");
+    for (const auto& cell : all_empty.diagnostics->cells) {
+        Require(cell.template_matching_skipped, "all-empty panel must skip every cell: " + cell.to_json().dumps());
+    }
+    Require(all_empty.diagnostics->performance->matcher.score_calls == 0, "all-empty recognition must execute zero template scores");
+    Require(all_empty.diagnostics->performance->rarity_classification_ms == 0.0, "all-empty recognition must skip rarity classification");
+
+    // 首列粗定位误差不能随间距累积到末列，否则空格边框会被当成物品纹理。
+    empty.setTo(cv::Scalar(30, 30, 30));
+    for (int row = 0; row < 4; ++row) {
+        for (int column = 0; column < 5; ++column) {
+            const cv::Rect cell(193 + column * 69, 212 + row * 69, 64, 64);
+            empty(cell).setTo(cv::Scalar(38, 38, 38));
+            cv::rectangle(empty, cell, cv::Scalar(105, 105, 105), 2, cv::LINE_8);
+        }
+    }
+    request.roi = cv::Rect(160, 205, 398, 286);
+    const auto fitted_empty = recognizer.recognize(empty, request);
+    Require(fitted_empty.error_code == "no_match" && fitted_empty.matches.empty(), "fitted empty lattice must not produce matches");
+    Require(fitted_empty.diagnostics && fitted_empty.diagnostics->cells.size() == 20, "fitted empty lattice must retain all 20 cells");
+    for (const auto& cell : fitted_empty.diagnostics->cells) {
+        Require(cell.template_matching_skipped, "fitted empty lattice must skip every cell");
+    }
+    Require(fitted_empty.diagnostics->performance->matcher.score_calls == 0, "fitted empty lattice must execute zero template scores");
+}
+
+void TestTransferUnknownTextureStillMatches()
+{
+    const cv::Vec3f prototype = iconrecognition::detail::RarityLabPrototypes().at(2);
+    cv::Mat lab(1, 1, CV_8UC3, cv::Scalar(prototype[0], prototype[1], prototype[2]));
+    cv::Mat bgr;
+    cv::cvtColor(lab, bgr, cv::COLOR_Lab2BGR);
+    const cv::Scalar band = bgr.at<cv::Vec3b>(0, 0);
+    cv::Mat image(720, 1280, CV_8UC3, cv::Scalar(30, 30, 30));
+    for (int row = 0; row < 4; ++row) {
+        for (int column = 0; column < 4; ++column) {
+            const cv::Rect cell(170 + column * 69, 242 + row * 69, 64, 64);
+            image(cell).setTo(cv::Scalar(60, 60, 60));
+            cv::rectangle(image, cell, cv::Scalar(100, 100, 100), 1);
+            for (int y = 8; y < 56; y += 4) {
+                image(cv::Rect(cell.x + 8, cell.y + y, 48, 1)).setTo(cv::Scalar(180, 180, 180));
+            }
+            image(cv::Rect(cell.x, cell.y + 61, 64, 3)).setTo(band);
+        }
+    }
+    iconrecognition::IconRecognizer recognizer(get_exe_dir() / ".." / "data" / "IconRecognition");
+    Require(recognizer.initialize(), "unknown texture recognizer must initialize");
+    iconrecognition::RecognitionRequest request;
+    request.grid_type = iconrecognition::GridType::Transfer;
+    request.roi = cv::Rect(160, 205, 300, 286);
+    request.grid_scale_hint = 1.0;
+    request.candidates.item_ids = { "item_copper_ore" };
+    request.candidates.item_filters = { "Normal:Ore" };
+    const auto result = recognizer.recognize(image, request);
+    Require(
+        (result.error_code.empty() || result.error_code == "no_match") && result.diagnostics,
+        "partial-row fixture must locate a grid: " + result.error_code);
+    std::size_t unknown = 0;
+    for (const auto& cell : result.diagnostics->cells) {
+        if (!cell.foreground_texture) {
+            ++unknown;
+            Require(!cell.template_matching_skipped && cell.candidate_count > 0, "insufficient texture must still run template matching");
+        }
+    }
+    Require(unknown > 0, "fixture must exercise insufficient trusted content in the bottom row: " + result.diagnostics->to_json().dumps());
 }
 
 void TestRegionRestrictedPreloadHonorsEnabledRequest()
@@ -902,6 +1022,8 @@ int main()
         TestItemRecheckFiltersIgnoreAdditionalFilterMatches();
         TestRecognizerPreservesInternalDiagnostics();
         TestRegionRestrictedFallbackRunsOnlyAfterNormalRejection();
+        TestTransferSkipsEmptyCellsBeforeMatching();
+        TestTransferUnknownTextureStillMatches();
         TestRegionRestrictedPreloadHonorsEnabledRequest();
         TestGridDiagnosticsSerializeSelectionEvidence();
         TestRecognizerPreloadsEveryRequestedTemplateSize();

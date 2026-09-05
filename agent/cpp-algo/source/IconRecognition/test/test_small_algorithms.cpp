@@ -158,7 +158,9 @@ void TestCandidateSelectionDeduplicatesCompositeIconIdentity()
         "candidate selection must deduplicate by iconId and fluidIconId after filtering");
     Check(selected.front().record.aliases.size() == 1, "shared composite icon must retain one alias");
     Check(selected.front().record.aliases.front().item_id == "alias", "shared composite icon alias id mismatch");
-    Check(selected.front().record.aliases.front().name_key == "iconRecognition.name.alias", "shared composite icon alias name mismatch");
+    Check(
+        selected.front().record.aliases.front().name_key == "iconRecognition.name.alias",
+        "shared composite icon alias name mismatch");
 
     const auto recheck = iconrecognition::detail::SelectCandidateTemplates(all, candidates, { "Normal:*" }, false);
     Check(recheck.size() == 2, "recheck candidate selection must use the same icon identity deduplication");
@@ -195,7 +197,8 @@ void TestCandidateSelectionExactIdRetainsFilteredAliases()
     const auto alias_requested = iconrecognition::detail::SelectCandidateTemplates(all, candidates, { "ValuableDepot:*" });
     Check(alias_requested.front().record.item_id == "base_alias", "requesting the alias id must make it the representative");
     Check(
-        alias_requested.front().record.aliases.size() == 2 && alias_requested.front().record.aliases.front().item_id == "additional_alias"
+        alias_requested.front().record.aliases.size() == 2
+            && alias_requested.front().record.aliases.front().item_id == "additional_alias"
             && alias_requested.front().record.aliases.back().item_id == "requested",
         "requesting either shared-icon id must return the other filtered ids as aliases");
 }
@@ -335,7 +338,9 @@ void TestValuablesPortraitDetectionDoesNotDependOnTemplateMask()
 {
     cv::Mat slot = cv::Mat::zeros(96, 96, CV_8UC3);
     cv::circle(slot, cv::Point(81, 15), 18, cv::Scalar(255, 255, 255), 2, cv::LINE_AA);
-    Check(iconrecognition::detail::HasValuablesWeaponPortrait(slot), "valuables portrait detection must depend only on the slot image");
+    Check(
+        iconrecognition::detail::HasValuablesWeaponPortrait(slot),
+        "valuables portrait detection must depend only on the slot image");
 
     slot.setTo(cv::Scalar(0, 0, 0));
     Check(
@@ -374,6 +379,84 @@ void TestForegroundTextureUsesNativeLargerCell()
     const auto score = iconrecognition::detail::ForegroundTextureScore(image, cv::Rect(0, 0, 80, 80), iconrecognition::GridType::Transfer);
     Check(score.has_value(), "native larger cells must use the existing texture calculation");
     Check(*score > 10.0, "native larger cell texture fixture must remain above the low-texture threshold");
+}
+
+void TestForegroundTextureInsetsStayGridSpecific()
+{
+    // 非均匀纹理让裁剪边界的任一变化都影响分数，同时覆盖 64px 和 80px 原生格子。
+    for (const int size : { 64, 80 }) {
+        cv::Mat image(size, size, CV_8UC3);
+        cv::RNG random(0);
+        random.fill(image, cv::RNG::UNIFORM, 0, 256);
+        const cv::Rect cell(0, 0, size, size);
+        const auto transfer = iconrecognition::detail::ForegroundTextureScore(image, cell, iconrecognition::GridType::Transfer);
+        const auto port = iconrecognition::detail::ForegroundTextureScore(image, cell, iconrecognition::GridType::PortStorager);
+        Check(
+            transfer == iconrecognition::detail::LaplacianVariance(image, cv::Rect(4, 4, size - 8, size - 8)),
+            "transfer texture must inset all four sides by four pixels");
+        Check(
+            port == iconrecognition::detail::LaplacianVariance(image, cv::Rect(6, 6, size - 12, size - 14)),
+            "port storager texture must retain its existing insets");
+    }
+    Check(iconrecognition::detail::kDefaultLowTextureThreshold == 10.0, "default low-texture threshold must remain ten");
+}
+
+void TestTransferPanelIntersections()
+{
+    using namespace iconrecognition::detail;
+    const cv::Rect full(0, 0, 1280, 720);
+    const auto win32 = TransferPanelRegionsFor(kWin32ControllerGridScale, full);
+    Check(win32[0].search_roi == cv::Rect(160, 205, 547, 286), "Win32 left outer bounds must match the reviewed panel");
+    Check(win32[1].texture_roi == cv::Rect(770, 215, 341, 266), "Win32 right trusted bounds must exclude the fade");
+    const auto adb = TransferPanelRegionsFor(kAdbControllerGridScale, full);
+    Check(adb[0].texture_roi == cv::Rect(41, 182, 683, 325), "ADB left bounds must use the native controller profile");
+    Check(adb[1].search_roi == cv::Rect(803, 171, 426, 346), "ADB right outer bounds must retain the bottom partial row");
+    const cv::Rect restricted(820, 230, 300, 200);
+    const auto single = TransferPanelRegionsFor(kAdbControllerGridScale, restricted);
+    Check(single[0].search_roi.empty() && single[0].texture_roi.empty(), "right-only ROI must not create a left panel");
+    Check(single[1].search_roi == restricted && single[1].texture_roi == restricted, "profile must never expand the caller ROI");
+    const auto gap = TransferPanelRegionsFor(kWin32ControllerGridScale, cv::Rect(710, 220, 50, 200));
+    Check(gap[0].search_roi.empty() && gap[1].search_roi.empty(), "the gap between panels must not become a search region");
+}
+
+void TestTransferTextureClipsUiWithoutRecroppingCell()
+{
+    using namespace iconrecognition::detail;
+    const cv::Rect cell(1149, 453, 80, 80);
+    const auto panels = TransferPanelRegionsFor(kAdbControllerGridScale, cv::Rect(0, 0, 1280, 720));
+    const cv::Rect trusted = panels[1].texture_roi;
+    cv::Mat image(720, 1280, CV_8UC3, cv::Scalar(30, 30, 30));
+    cv::RNG random(0);
+    random.fill(image(cv::Rect(1149, 517, 80, 16)), cv::RNG::UNIFORM, 0, 256);
+    Check(!IsLowTexture(image, cell, iconrecognition::GridType::Transfer), "the fixture must expose the old bottom UI contamination");
+    Check(
+        IsLowTexture(image, cell, iconrecognition::GridType::Transfer, kDefaultLowTextureThreshold, trusted),
+        "UI outside the trusted panel must not prevent empty detection");
+    // 紧贴可信下界的物品纹理必须保留，不能在求交后的新边界再内缩一次。
+    random.fill(image(cv::Rect(1153, 507, 72, 4)), cv::RNG::UNIFORM, 0, 256);
+    const auto score = ForegroundTextureScore(image, cell, iconrecognition::GridType::Transfer, trusted);
+    Check(score == LaplacianVariance(image, cv::Rect(1153, 457, 72, 54)), "native ADB texture must intersect after four-pixel cell insets");
+    Check(score && *score > kDefaultLowTextureThreshold, "visible item texture in the partial row must not be rejected");
+    Check(
+        !ForegroundTextureScore(image, cell, iconrecognition::GridType::Transfer, cv::Rect()).has_value(),
+        "invisible content must remain unknown");
+    Check(
+        !IsLowTexture(image, cell, iconrecognition::GridType::Transfer, kDefaultLowTextureThreshold, cv::Rect(1153, 457, 72, 4)),
+        "a narrow visible fragment must not prove the cell empty");
+    Check(
+        ForegroundTextureScore(image, cell, iconrecognition::GridType::PortStorager, trusted)
+            == ForegroundTextureScore(image, cell, iconrecognition::GridType::PortStorager),
+        "Transfer bounds must not affect PortStorager texture");
+    for (const auto type : { iconrecognition::GridType::Trade,
+                             iconrecognition::GridType::Valuables,
+                             iconrecognition::GridType::Shipment,
+                             iconrecognition::GridType::CreditTrade,
+                             iconrecognition::GridType::Rewards,
+                             iconrecognition::GridType::SingleRoi }) {
+        Check(
+            !ForegroundTextureScore(image, cell, type, trusted),
+            "Transfer bounds must not enable texture rejection for other grid types");
+    }
 }
 
 void TestStructureFeatureModuleContract()
@@ -444,12 +527,15 @@ void TestGridScaleEstimateSelectsCalibratedProfiles()
 void TestGridDetectorMapsNormalizedCellsBackToSourceImage()
 {
     constexpr double kGridScale = 1.25;
-    const cv::Rect roi(0, 0, 420, 320);
-    const cv::Mat image = BuildSyntheticGrid(86, 80);
+    // 保留原测试的左侧 profile；整数归一化平移不改变规则边框的采样相位。
+    const cv::Rect roi(60, 190, 420, 320);
+    cv::Mat image(720, 1280, CV_8UC3, cv::Scalar(18, 18, 18));
+    BuildSyntheticGrid(86, 80).copyTo(image(roi));
     const auto grid = iconrecognition::detail::DetectGrid(image, iconrecognition::GridType::Transfer, roi);
 
     Check(std::abs(grid.grid_scale - kGridScale) <= 1e-6, "grid detection must expose the resolved source scale");
     Check(!grid.cells.empty(), "scaled synthetic grid must contain detected cells");
+    Check(grid.cells.front().texture_roi == cv::Rect(60, 190, 420, 317), "ADB cell texture bounds must remain in source coordinates");
     Check(
         std::ranges::all_of(grid.cells, [](const auto& cell) { return cell.cell_box.size() == cv::Size(80, 80); }),
         "normalized 64px cells must be mapped back to 80px source-image cells");
@@ -849,7 +935,8 @@ void TestTransferGridDetectsSparseVisiblePhase()
     constexpr int kBackgroundPhaseX = 36;
     constexpr int kPhaseY = 15;
     constexpr int kTargetColumn = 1;
-    const cv::Rect target_box(kVisiblePhaseX + kTargetColumn * kPitch, kPhaseY, kCellSize, kCellSize);
+    const cv::Rect roi(770, 209, 330, 291);
+    const cv::Rect target_box(roi.x + kVisiblePhaseX + kTargetColumn * kPitch, roi.y + kPhaseY, kCellSize, kCellSize);
     cv::Mat image(291, 330, CV_8UC3, cv::Scalar(24, 24, 24));
 
     const auto draw_cell = [&](int x, int y, const cv::Scalar& border) {
@@ -876,8 +963,10 @@ void TestTransferGridDetectsSparseVisiblePhase()
         }
     }
 
-    const auto grid =
-        iconrecognition::detail::DetectGrid(image, iconrecognition::GridType::Transfer, cv::Rect(0, 0, image.cols, image.rows), 1.0);
+    cv::Mat source(720, 1280, CV_8UC3, cv::Scalar(24, 24, 24));
+    image.copyTo(source(roi));
+    image = source;
+    const auto grid = iconrecognition::detail::DetectGrid(image, iconrecognition::GridType::Transfer, roi, 1.0);
     const auto target_cell = std::ranges::find_if(grid.cells, [&](const auto& cell) {
         return std::abs(cell.cell_box.x - target_box.x) <= 1 && std::abs(cell.cell_box.y - target_box.y) <= 2;
     });
@@ -907,7 +996,7 @@ void TestTransferGridDetectsSparseVisiblePhase()
     Check(recognizer.initialize(), "sparse transfer recognizer must initialize");
     iconrecognition::RecognitionRequest request;
     request.grid_type = iconrecognition::GridType::Transfer;
-    request.roi = cv::Rect(0, 0, image.cols, image.rows);
+    request.roi = roi;
     request.candidates.item_ids = { "item_iron_ore" };
     request.candidates.item_filters = { "Normal:Ore" };
     request.candidates.item_recheck_filters = { "Normal:Ore" };
@@ -967,6 +1056,184 @@ void TestTransferGridRejectsBroadOvercapacityPhase()
     Check(hints.size() == 1, "single transfer panel must produce one grid hint");
     Check(hints.front().x_starts.size() == kFormalColumns, "broad search must not add a column that cannot fit the formal pitch");
     Check(std::abs(hints.front().x_starts.front() - kFormalPhaseX) <= 1, "transfer hint must preserve the five-column formal phase");
+}
+
+void TestTransferRarityGridKeepsVisibleTopRow()
+{
+    constexpr int kCellSize = 64;
+    constexpr int kPitch = 69;
+    constexpr int kColumns = 4;
+    constexpr int kRows = 4;
+    const cv::Rect roi(770, 209, 300, 277);
+    const cv::Point origin(780, 195);
+    cv::Mat image(720, 1280, CV_8UC3, cv::Scalar(30, 30, 30));
+    for (int row = 0; row < kRows; ++row) {
+        for (int column = 0; column < kColumns; ++column) {
+            const cv::Rect cell(origin.x + column * kPitch, origin.y + row * kPitch, kCellSize, kCellSize);
+            image(cell).setTo(cv::Scalar(60, 60, 60));
+            cv::rectangle(image, cell, cv::Scalar(100, 100, 100), 1);
+            // 内容区必须非空，确保本测试进入稀有度拟合而非前置全空路径。
+            for (int y = 8; y < kCellSize - 8; y += 4) {
+                image(cv::Rect(cell.x + 8, cell.y + y, kCellSize - 16, 1)).setTo(cv::Scalar(180, 180, 180));
+            }
+            image(cv::Rect(cell.x, cell.y + kCellSize - 3, kCellSize, 3)).setTo(RarityBgr(3));
+        }
+    }
+    // 顶行只有 50/64 可见，但色带完整；从上方恢复的行必须生成在上方。
+    const auto grid = iconrecognition::detail::DetectGrid(image, iconrecognition::GridType::Transfer, roi, 1.0);
+    Check(grid.grids.size() == 1, "rarity transfer must form one panel");
+    const auto& layout = grid.grids.front();
+    Check(
+        layout.rows == kRows && layout.columns == kColumns,
+        "rarity transfer must retain the visible top row; rows=" + std::to_string(layout.rows)
+            + " columns=" + std::to_string(layout.columns) + " first=" + std::to_string(layout.cells.front().cell_box.x) + ","
+            + std::to_string(layout.cells.front().cell_box.y));
+    Check(layout.cells.front().cell_box.y == origin.y, "rarity transfer must generate the top row at the rarity anchor");
+}
+
+void TestTransferBottomVisibilityIsGridSpecific()
+{
+    using namespace iconrecognition::detail;
+    Check(TransferProfileFor(TransferGridVariant::TransferLeft).minimum_bottom_visibility == 0.65, "transfer left bottom visibility");
+    Check(TransferProfileFor(TransferGridVariant::TransferRight).minimum_bottom_visibility == 0.65, "transfer right bottom visibility");
+    Check(TransferProfileFor(TransferGridVariant::PortStoragerLeft).minimum_bottom_visibility == 0.70, "port left visibility unchanged");
+    Check(TransferProfileFor(TransferGridVariant::PortStoragerRight).minimum_bottom_visibility == 0.80, "port right visibility unchanged");
+
+    constexpr int kCellSize = 64;
+    constexpr int kPitch = 69;
+    constexpr int kColumns = 4;
+    constexpr int kRows = 4;
+    const cv::Point origin(780, 237);
+    cv::Mat image(720, 1280, CV_8UC3, cv::Scalar(30, 30, 30));
+    for (int row = 0; row < kRows; ++row) {
+        for (int column = 0; column < kColumns; ++column) {
+            const cv::Rect cell(origin.x + column * kPitch, origin.y + row * kPitch, kCellSize, kCellSize);
+            image(cell).setTo(cv::Scalar(60, 60, 60));
+            cv::rectangle(image, cell, cv::Scalar(100, 100, 100), 1);
+            for (int y = 8; y < kCellSize - 8; y += 4) {
+                image(cv::Rect(cell.x + 8, cell.y + y, kCellSize - 16, 1)).setTo(cv::Scalar(180, 180, 180));
+            }
+            image(cv::Rect(cell.x, cell.y + kCellSize - 3, kCellSize, 3)).setTo(RarityBgr(3));
+        }
+    }
+    // 底行从 y=444 开始：42/64 超过 65%，41/64 则不足；两次只改变调用方 ROI 下界。
+    for (int visible_height : { 42, 41 }) {
+        const cv::Rect roi(770, 209, 300, 444 + visible_height - 209);
+        const auto grid = DetectGrid(image, iconrecognition::GridType::Transfer, roi, 1.0);
+        Check(grid.grids.size() == 1, "bottom visibility fixture must form one panel");
+        Check(grid.grids.front().rows == (visible_height == 42 ? 4 : 3), "transfer bottom row must obey the 65% boundary");
+    }
+}
+
+void CheckTransferEmptyGridLattice(int pitch, cv::Point origin, const cv::Rect& roi = cv::Rect(160, 205, 398, 286))
+{
+    constexpr int kCellSize = 64;
+    constexpr int kColumns = 5;
+    constexpr int kRows = 4;
+    cv::Mat image(720, 1280, CV_8UC3, cv::Scalar(30, 30, 30));
+    for (int row = 0; row < kRows; ++row) {
+        for (int column = 0; column < kColumns; ++column) {
+            const cv::Rect cell(origin.x + column * pitch, origin.y + row * pitch, kCellSize, kCellSize);
+            image(cell).setTo(cv::Scalar(38, 38, 38));
+            cv::rectangle(image, cell, cv::Scalar(105, 105, 105), 2, cv::LINE_8);
+        }
+    }
+
+    const auto grid = iconrecognition::detail::DetectGrid(image, iconrecognition::GridType::Transfer, roi, 1.0);
+    Check(grid.grids.size() == 1, "empty transfer panel must produce one grid");
+    Check(
+        grid.grids.front().columns == kColumns && grid.grids.front().rows == kRows,
+        "empty transfer cells must form one 5x4 lattice: origin=" + std::to_string(origin.x) + "," + std::to_string(origin.y)
+            + " rows=" + std::to_string(grid.grids.front().rows) + " columns=" + std::to_string(grid.grids.front().columns));
+    const auto& cells = grid.grids.front().cells;
+    Check(cells.size() == kColumns * kRows, "empty transfer lattice must retain every cell");
+    for (int row = 0; row < kRows; ++row) {
+        for (int column = 0; column < kColumns; ++column) {
+            const auto& box = cells[row * kColumns + column].cell_box;
+            const std::string location = " row=" + std::to_string(row) + " column=" + std::to_string(column)
+                                         + " origin=" + std::to_string(origin.x) + "," + std::to_string(origin.y)
+                                         + " actual=" + std::to_string(box.x) + "," + std::to_string(box.y);
+            // LINE_8 的 2px 描边向矩形外扩 1px，按实际外沿而非描边中心检查定位误差。
+            Check(
+                std::abs(box.x - (origin.x - 1 + column * pitch)) <= 1 && std::abs(box.y - (origin.y - 1 + row * pitch)) <= 1,
+                "empty transfer lattice must use measured borders for every cell" + location);
+            const auto texture = iconrecognition::detail::ForegroundTextureScore(image, box, iconrecognition::GridType::Transfer);
+            Check(
+                texture && *texture < iconrecognition::detail::kDefaultLowTextureThreshold,
+                "empty cell must not sample its border" + location);
+        }
+    }
+}
+
+void TestTransferEmptyGridFitsOneCompleteLattice()
+{
+    CheckTransferEmptyGridLattice(69, cv::Point(193, 212));
+    CheckTransferEmptyGridLattice(68, cv::Point(195, 215));
+    CheckTransferEmptyGridLattice(70, cv::Point(191, 211));
+    // 首边两侧不可完整测量、末格恰好贴住 ROI，以及顶行少量遮挡时仍须保留全部格子。
+    CheckTransferEmptyGridLattice(69, cv::Point(771, 216), cv::Rect(770, 209, 341, 277));
+    CheckTransferEmptyGridLattice(69, cv::Point(771, 206), cv::Rect(770, 209, 341, 277));
+}
+
+void TestTransferEmptyGridSkipsCroppedTopRowAndKeepsWeakColumn()
+{
+    constexpr int kCellSize = 64;
+    constexpr int kPitch = 69;
+    constexpr int kColumns = 5;
+    constexpr int kPhaseX = 193;
+    constexpr int kPhaseY = 183;
+    const cv::Rect roi(160, 205, 398, 286);
+    cv::Mat image(720, 1280, CV_8UC3, cv::Scalar(30, 30, 30));
+    for (int row = 0; row < 5; ++row) {
+        for (int column = 0; column < kColumns; ++column) {
+            const cv::Rect cell(kPhaseX + column * kPitch, kPhaseY + row * kPitch, kCellSize, kCellSize);
+            const cv::Rect visible = cell & roi;
+            if (visible.empty()) {
+                continue;
+            }
+            image(visible).setTo(cv::Scalar(38, 38, 38));
+            const cv::Scalar border = column + 1 == kColumns ? cv::Scalar(75, 75, 75) : cv::Scalar(105, 105, 105);
+            cv::rectangle(image, cell, border, 2, cv::LINE_8);
+        }
+    }
+
+    const auto grid = iconrecognition::detail::DetectGrid(image, iconrecognition::GridType::Transfer, roi);
+    Check(grid.grids.size() == 1, "cropped empty transfer panel must produce one grid");
+    Check(
+        grid.grids.front().columns == kColumns && grid.grids.front().rows == 3,
+        "one lattice fit must retain five columns and three full rows");
+    Check(
+        std::abs(grid.grids.front().cells.front().cell_box.x - kPhaseX) <= 1
+            && std::abs(grid.grids.front().cells.front().cell_box.y - (kPhaseY + kPitch)) <= 1,
+        "cropped residual row must not become the first formal transfer row");
+    for (const auto& cell : grid.grids.front().cells) {
+        Check(
+            std::abs(cell.cell_box.x - (kPhaseX + cell.column * kPitch)) <= 1
+                && std::abs(cell.cell_box.y - (kPhaseY + (cell.row + 1) * kPitch)) <= 1,
+            "weak-column fixture must use measured borders for every cell");
+        const auto texture = iconrecognition::detail::ForegroundTextureScore(image, cell.cell_box, iconrecognition::GridType::Transfer);
+        Check(texture && *texture < iconrecognition::detail::kDefaultLowTextureThreshold, "weak-column empty cells must stay low-texture");
+    }
+}
+
+void TestTransferEmptyGridDiagnosticsSkipUnexecutedRarity()
+{
+    // 首条边框两侧均可见，覆盖全空结构门控成功而跳过稀有度扫描的路径。
+    cv::Mat image(720, 1280, CV_8UC3, cv::Scalar(30, 30, 30));
+    for (int row = 0; row < 3; ++row) {
+        for (int column = 0; column < 4; ++column) {
+            const cv::Rect cell(780 + column * 69, 220 + row * 69, 64, 64);
+            image(cell).setTo(cv::Scalar(38, 38, 38));
+            cv::rectangle(image, cell, cv::Scalar(105, 105, 105), 2, cv::LINE_8);
+        }
+    }
+    const auto grid = iconrecognition::detail::DetectGrid(image, iconrecognition::GridType::Transfer, cv::Rect(770, 209, 341, 277), 1.0);
+    Check(grid.grids.size() == 1 && grid.grids.front().selection_diagnostics, "empty grid must retain selection diagnostics");
+    const auto& diagnostics = *grid.grids.front().selection_diagnostics;
+    Check(
+        diagnostics.fallback_reason == "empty-grid-structure",
+        "empty grid must identify its structural path: " + diagnostics.fallback_reason);
+    Check(diagnostics.rejected_reasons.empty(), "skipped rarity scans must not report rejected rarity evidence");
 }
 
 void TestPortStoragerWideRoiUsesStablePanelPartitions()
@@ -1084,6 +1351,62 @@ void TestRarityBandsRecoverGridFromGlobalEvidence()
     Check(fit->pitch_x == 69 && fit->pitch == 69, "global rarity evidence must preserve the regular pitch");
     Check(fit->supporting_rows == 3, "obscured final row must be completed from the regular lattice");
     Check(fit->supporting_cells == 13, "partially empty rows must preserve their available cell evidence");
+}
+
+void TestRarityFitPreservesSupportedRowRange()
+{
+    using namespace iconrecognition::detail;
+    const auto profile = TransferProfileFor(TransferGridVariant::TransferRight);
+    const std::vector<int> x_starts { 10, 79, 148 };
+    const std::vector<int> actual_y { -14, 55, 124, 193 };
+    for (bool missing_middle : { false, true }) {
+        cv::Mat image(270, 230, CV_8UC3, cv::Scalar(25, 25, 25));
+        for (int row = 0; row < static_cast<int>(actual_y.size()); ++row) {
+            if (missing_middle && row == 1) {
+                continue;
+            }
+            for (int x : x_starts) {
+                image(cv::Rect(x, actual_y[row] + 61, 64, 3)).setTo(RarityBgr(3));
+            }
+        }
+        for (bool coarse_has_top : { false, true }) {
+            const std::vector<int> coarse_y = coarse_has_top ? actual_y : std::vector<int> { 55, 124, 193 };
+            const auto fit = FitRarityGrid(image, x_starts, coarse_y, profile);
+            Check(fit.has_value(), "visible rarity rows must form a fit");
+            Check(fit->origin == coarse_y.front(), "rarity origin must retain the coarse reference for existing callers");
+            Check(fit->first_supported_row == (coarse_has_top ? 0 : -1), "top recovery must retain a negative row index");
+            Check(fit->last_supported_row == (coarse_has_top ? 3 : 2), "the last supported row must not move when recovering the top");
+            Check(fit->supporting_rows == (missing_middle ? 3 : 4), "support count must remain distinct from row span");
+            Check(fit->last_supported_row - fit->first_supported_row + 1 == 4, "a missing middle band must not shrink the fitted span");
+        }
+    }
+}
+
+void TestRarityFitRejectsClippedBandEndpoint()
+{
+    using namespace iconrecognition::detail;
+    const auto profile = TransferProfileFor(TransferGridVariant::TransferLeft);
+    const std::vector<int> x_starts { 0, 69, 138, 207, 276, 345, 414, 483 };
+    const std::vector<int> coarse_y { 12, 81, 150, 219 };
+    for (int rarity = 1; rarity <= 6; ++rarity) {
+        cv::Mat image(287, 547, CV_8UC3, cv::Scalar(25, 25, 25));
+        for (int row = 0; row < 3; ++row) {
+            for (int x : x_starts) {
+                image(cv::Rect(x, coarse_y[row] + 61, 64, 3)).setTo(RarityBgr(3));
+            }
+        }
+        // 底部色块延伸到裁剪线，不能把 ROI 高度 286 当作真实色带下边缘，拉偏 69px 周期。
+        image(cv::Rect(0, 280, 547, 7)).setTo(RarityBgr(rarity));
+        const auto clipped = FitRarityGrid(image.rowRange(0, 286), x_starts, coarse_y, profile);
+        Check(clipped && clipped->origin == 12 && clipped->pitch == 69, "clipped rarity endpoint must not move the fitted lattice");
+        Check(clipped->supporting_rows == 3, "a clipped band must not count as an observed fourth row");
+
+        // 下方背景可见时，下边缘才是已知位置；完整的灰色和有色色带都应保留。
+        image.rowRange(283, 287).setTo(cv::Scalar(25, 25, 25));
+        const auto complete = FitRarityGrid(image.rowRange(0, 284), x_starts, coarse_y, profile);
+        Check(complete && complete->origin == 12 && complete->pitch == 69, "complete bottom band must preserve the lattice");
+        Check(complete->supporting_rows == 4, "a complete bottom band must remain valid evidence");
+    }
 }
 
 void TestRarityUsesBottomEdgeRows()
@@ -1764,9 +2087,14 @@ int main()
         TestValuablesPortraitDetectionDoesNotDependOnTemplateMask();
         TestForegroundTextureUsesContentInsets();
         TestForegroundTextureUsesNativeLargerCell();
+        TestForegroundTextureInsetsStayGridSpecific();
+        TestTransferPanelIntersections();
+        TestTransferTextureClipsUiWithoutRecroppingCell();
         TestStructureFeatureModuleContract();
         TestGridGeometryModuleContract();
         TestGridScaleEstimateSelectsCalibratedProfiles();
+        TestTransferRarityGridKeepsVisibleTopRow();
+        TestTransferBottomVisibilityIsGridSpecific();
         TestGridDetectorMapsNormalizedCellsBackToSourceImage();
         TestRewardsGridScaleSelectsCardProfileInsideCallerRoi();
         TestRewardsGridScaleIgnoresBrightBackgroundWithoutRarityBand();
@@ -1787,6 +2115,9 @@ int main()
         TestTransferRegionPartitionKeepsUndetectedOuterColumns();
         TestTransferGridDetectsSparseVisiblePhase();
         TestTransferGridRejectsBroadOvercapacityPhase();
+        TestTransferEmptyGridFitsOneCompleteLattice();
+        TestTransferEmptyGridSkipsCroppedTopRowAndKeepsWeakColumn();
+        TestTransferEmptyGridDiagnosticsSkipUnexecutedRarity();
         TestPortStoragerWideRoiUsesStablePanelPartitions();
         TestCreditTradeGridUsesDimCardStructures();
         TestCreditTradeGridUsesSixColumnsWhenRoiCannotContainSeven();
@@ -1799,6 +2130,8 @@ int main()
         TestRegularLatticeUsesObservedPitchTolerance();
         TestRegularLatticeRejectsAccumulatingResiduals();
         TestRarityBandsRecoverGridFromGlobalEvidence();
+        TestRarityFitPreservesSupportedRowRange();
+        TestRarityFitRejectsClippedBandEndpoint();
         TestRarityUsesBottomEdgeRows();
         TestRarityCandidatePassesAreDisjointAndComplete();
         TestMatcherSearchRadiusIsExplicit();

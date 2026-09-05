@@ -143,7 +143,8 @@ std::vector<RarityBand> DetectRarityBands(const cv::Mat& lab, const std::vector<
                     return std::tie(left.mean_coverage, left.y) < std::tie(right.mean_coverage, right.y);
                 });
             const int bottom = candidates[peak_end - 1].y + 1;
-            if (HasFormalVerticalExtent(bottom - profile.rarity_anchor_offset, lab.rows, profile)) {
+            // 贴住 ROI 下边界的色带没有可观测的结束位置，不能把裁剪线当成格子的下边缘锚点。
+            if (bottom < lab.rows && HasFormalVerticalExtent(bottom - profile.rarity_anchor_offset, lab.rows, profile)) {
                 bands.push_back({
                     candidates[peak_begin].y,
                     bottom,
@@ -176,6 +177,8 @@ struct VerticalBandFit
     int origin = 0;
     int pitch = 0;
     int supporting_rows = 0;
+    int first_supported_row = 0;
+    int last_supported_row = 0;
     int supporting_cells = 0;
     int supporting_strong_cells = 0;
     int supporting_chromatic_cells = 0;
@@ -247,7 +250,8 @@ std::optional<VerticalBandFit> FitVerticalBands(
                 const int observed = item.first.bottom - profile.rarity_anchor_offset;
                 residual_sum += std::abs(phase_origin + index * pitch - observed);
             }
-            const int origin = phase_origin + cvRound(static_cast<double>(coarse_y_starts.front() - phase_origin) / pitch) * pitch;
+            const int origin_index = cvRound(static_cast<double>(coarse_y_starts.front() - phase_origin) / pitch);
+            const int origin = phase_origin + origin_index * pitch;
             const int origin_residual = std::abs(origin - coarse_y_starts.front());
             const double mean_coverage = coverage_sum / slots.size();
             const Rank rank {
@@ -260,6 +264,8 @@ std::optional<VerticalBandFit> FitVerticalBands(
                     .origin = origin,
                     .pitch = pitch,
                     .supporting_rows = static_cast<int>(slots.size()),
+                    .first_supported_row = slots.begin()->first - origin_index,
+                    .last_supported_row = slots.rbegin()->first - origin_index,
                     .supporting_cells = supporting_cells,
                     .supporting_strong_cells = supporting_strong_cells,
                     .supporting_chromatic_cells = supporting_chromatic_cells,
@@ -442,6 +448,8 @@ std::optional<RarityGridFit> FitRarityGrid(
                 .pitch_x = pitch_x,
                 .pitch = vertical->pitch,
                 .supporting_rows = vertical->supporting_rows,
+                .first_supported_row = vertical->first_supported_row,
+                .last_supported_row = vertical->last_supported_row,
                 .supporting_cells = vertical->supporting_cells,
                 .supporting_strong_cells = vertical->supporting_strong_cells,
                 .supporting_chromatic_cells = vertical->supporting_chromatic_cells,
