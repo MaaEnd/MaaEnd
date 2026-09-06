@@ -39,6 +39,8 @@ No required parameters. Optional parameters (`custom_recognition_param`):
 | `mapName` | (On success) The localized zone name, e.g., `map01_lv001` |
 | `x` / `y` | (On success) Global pixel coordinates |
 | `rot` | (On success) Orientation yaw angle, 0°–360°, north as zero |
+| `camRot` | (On success) Camera orientation, 0°–360°, north as zero. Output by a dedicated camera-orientation model, unrelated to `rot` (the character orientation) |
+| `camRotConf` | (On success) Confidence of the camera orientation |
 | `locConf` | Confidence score of this hit, for reference when tuning parameters |
 | `latencyMs` | Time consumed by this calculation (milliseconds) |
 
@@ -113,6 +115,8 @@ There are no optional parameters. The assertion always forces a global search an
 | `zoneId` | The target zone name required by this assertion |
 | `x` / `y` | (On success) Global pixel coordinates returned by the locator |
 | `rot` | (On success) Orientation yaw angle |
+| `camRot` | (On success) Camera orientation |
+| `camRotConf` | (On success) Confidence of the camera orientation |
 | `locConf` | Confidence score of this hit |
 | `latencyMs` | Time consumed by this calculation (milliseconds) |
 | `target` | Echoes the `[x, y, w, h]` rectangle used for this assertion |
