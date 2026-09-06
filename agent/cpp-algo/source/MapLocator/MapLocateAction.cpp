@@ -45,9 +45,21 @@ struct LocateOutput
     double y = 0.0;
     double rot = 0.0;
     double locConf = 0.0;
+    double camRot = 0.0;
+    double camRotConf = 0.0;
     int latencyMs = 0;
 
-    MEO_JSONIZATION(status, message, MEO_OPT mapName, MEO_OPT x, MEO_OPT y, MEO_OPT rot, MEO_OPT locConf, MEO_OPT latencyMs)
+    MEO_JSONIZATION(
+        status,
+        message,
+        MEO_OPT mapName,
+        MEO_OPT x,
+        MEO_OPT y,
+        MEO_OPT rot,
+        MEO_OPT locConf,
+        MEO_OPT camRot,
+        MEO_OPT camRotConf,
+        MEO_OPT latencyMs)
 };
 
 struct MapLocateAssertLocationParam
@@ -72,6 +84,8 @@ struct MapLocateAssertLocationOutput
     double y = 0.0;
     double rot = 0.0;
     double locConf = 0.0;
+    double camRot = 0.0;
+    double camRotConf = 0.0;
     int latencyMs = 0;
     std::vector<double> target;
 
@@ -85,6 +99,8 @@ struct MapLocateAssertLocationOutput
         MEO_OPT y,
         MEO_OPT rot,
         MEO_OPT locConf,
+        MEO_OPT camRot,
+        MEO_OPT camRotConf,
         MEO_OPT latencyMs,
         MEO_OPT target)
 };
@@ -141,6 +157,10 @@ LocateOutput BuildLocateOutput(const LocateResult& result)
     output.rot = pos.angle;
     output.locConf = pos.score;
     output.latencyMs = static_cast<int>(pos.latencyMs);
+    if (result.camRot.has_value()) {
+        output.camRot = result.camRot->rot;
+        output.camRotConf = result.camRot->confidence;
+    }
     return output;
 }
 
@@ -163,6 +183,10 @@ MapLocateAssertLocationOutput BuildAssertLocationOutput(const LocateResult& resu
     output.rot = pos.angle;
     output.locConf = pos.score;
     output.latencyMs = static_cast<int>(pos.latencyMs);
+    if (result.camRot.has_value()) {
+        output.camRot = result.camRot->rot;
+        output.camRotConf = result.camRot->confidence;
+    }
     return output;
 }
 
@@ -340,16 +364,22 @@ std::shared_ptr<MapLocator> getOrInitLocator()
         fs::path exeDir = getExeDir();
         fs::path mapRoot = exeDir / ".." / "resource" / "image" / "MapLocator";
         fs::path yoloModel = exeDir / ".." / "resource" / "model" / "map" / "cls.onnx";
+        fs::path cameraOrientationModel = exeDir / ".." / "resource" / "model" / "map" / "cameraorientation.onnx";
 
         std::string mapRootStr = MAA_NS::path_to_utf8_string(fs::absolute(mapRoot));
         std::string yoloModelStr = fs::exists(yoloModel) ? MAA_NS::path_to_utf8_string(fs::absolute(yoloModel)) : "";
+        std::string cameraOrientationModelStr =
+            fs::exists(cameraOrientationModel) ? MAA_NS::path_to_utf8_string(fs::absolute(cameraOrientationModel)) : "";
 
         LogInfo << "Auto-init: mapRoot=" << mapRootStr;
         LogInfo << "Auto-init: yoloModel=" << (yoloModelStr.empty() ? "(not found)" : yoloModelStr);
+        LogInfo << "Auto-init: cameraOrientationModel="
+                << (cameraOrientationModelStr.empty() ? "(not found)" : cameraOrientationModelStr);
 
         MapLocatorConfig cfg;
         cfg.mapResourceDir = mapRootStr;
         cfg.yoloModelPath = yoloModelStr;
+        cfg.cameraOrientationModelPath = cameraOrientationModelStr;
         const unsigned hardwareThreads = std::thread::hardware_concurrency();
         cfg.yoloThreads = (hardwareThreads >= 8) ? 4 : ((hardwareThreads >= 4) ? 2 : 1);
 
