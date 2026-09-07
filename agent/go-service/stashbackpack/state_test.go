@@ -1,9 +1,150 @@
 package stashbackpack
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 )
+
+func TestBagStoreAttemptsStopAfterThreeClicks(t *testing.T) {
+	for successAttempt := 0; successAttempt <= 3; successAttempt++ {
+		t.Run(fmt.Sprintf("success_attempt_%d", successAttempt), func(t *testing.T) {
+			t.Parallel()
+			store := newStateStore()
+			store.session.Targets = []snapshotItem{testItem("tool", "Producer")}
+			page := []bagPageMatch{{ItemID: "tool", CategoryType: "Producer"}}
+			store.updateBagPageMatches(page)
+			for attempt := 1; attempt <= 3; attempt++ {
+				if _, ok := store.nextBagPageMatch(); !ok {
+					t.Fatalf("attempt %d has no target", attempt)
+				}
+				if _, ok := store.markSelectedBagTargetClicked("test", true); !ok {
+					t.Fatalf("attempt %d did not record click", attempt)
+				}
+				observed := page
+				if attempt == successAttempt {
+					observed = nil
+				}
+				confirmed, retry, skipped := store.updateBagPageMatches(observed)
+				switch {
+				case attempt == successAttempt:
+					if len(confirmed) != 1 || len(retry) != 0 || len(skipped) != 0 ||
+						confirmed[0].Attempts != attempt || !store.snapshotChanged() {
+						t.Fatalf("successful attempt %d was not confirmed: %v / %v / %v", attempt, confirmed, retry, skipped)
+					}
+				case attempt < 3:
+					if len(confirmed) != 0 || len(retry) != 1 || len(skipped) != 0 ||
+						retry[0].Attempts != attempt || store.bagTargetsExhausted() || store.snapshotChanged() {
+						t.Fatalf("failed attempt %d was not queued for retry: %v / %v / %v", attempt, confirmed, retry, skipped)
+					}
+					continue
+				default:
+					if len(confirmed) != 0 || len(retry) != 0 || len(skipped) != 1 ||
+						skipped[0].Attempts != 3 || store.snapshotChanged() {
+						t.Fatalf("third failed attempt was not skipped: %v / %v / %v", confirmed, retry, skipped)
+					}
+				}
+				if !store.bagTargetsExhausted() || len(store.bagRecognitionItemIDs()) != 0 ||
+					len(store.session.BagPage.ClickAttempts) != 0 {
+					t.Fatal("completed target retained pending work")
+				}
+				if _, ok := store.nextBagPageMatch(); ok {
+					t.Fatal("completed target can still be clicked")
+				}
+				return
+			}
+		})
+	}
+}
+
+func TestBagStoreAttemptsArePerTargetAndContinueAfterSkipping(t *testing.T) {
+	t.Parallel()
+	store := newStateStore()
+	store.session.Targets = []snapshotItem{
+		{ItemID: "tool", CategoryType: "Producer", Row: 0, Column: 0},
+		{ItemID: "tool", CategoryType: "Producer", Row: 0, Column: 1},
+		{ItemID: "ore", CategoryType: "Ore", Row: 1, Column: 0},
+	}
+	page := []bagPageMatch{
+		{ItemID: "tool", CategoryType: "Producer", Row: 0, Column: 0},
+		{ItemID: "tool", CategoryType: "Producer", Row: 0, Column: 1},
+	}
+	store.updateBagPageMatches(page)
+	for attempt := 1; attempt <= 3; attempt++ {
+		for targetIndex := 0; targetIndex < 2; targetIndex++ {
+			if _, ok := store.nextBagPageMatch(); !ok {
+				t.Fatalf("attempt %d, target %d is missing", attempt, targetIndex)
+			}
+			if _, ok := store.markSelectedBagTargetClicked("test", true); !ok {
+				t.Fatal("failed to record click")
+			}
+		}
+		confirmed, retry, skipped := store.updateBagPageMatches(page)
+		if len(confirmed) != 0 {
+			t.Fatal("unchanged items were confirmed")
+		}
+		if attempt < 3 {
+			if len(retry) != 2 || len(skipped) != 0 || retry[0].Attempts != attempt || retry[1].Attempts != attempt {
+				t.Fatalf("same-ID targets shared attempt counts: %v / %v", retry, skipped)
+			}
+		} else if len(retry) != 0 || len(skipped) != 2 || skipped[0].Attempts != 3 || skipped[1].Attempts != 3 {
+			t.Fatalf("targets were not skipped after three clicks each: %v / %v", retry, skipped)
+		}
+	}
+	if store.snapshotChanged() || store.bagTargetsExhausted() || store.bagPageRecognitionFailed() {
+		t.Fatal("skipped items changed the snapshot, exhausted later targets, or failed the page")
+	}
+	if err := store.advanceBagPage(); err != nil {
+		t.Fatal(err)
+	}
+	store.updateBagPageMatches([]bagPageMatch{{ItemID: "ore", CategoryType: "Ore"}})
+	if match, ok := store.nextBagPageMatch(); !ok || match.ItemID != "ore" {
+		t.Fatal("later target cannot continue after skipping")
+	}
+	if _, ok := store.markSelectedBagTargetClicked("test", true); !ok {
+		t.Fatal("failed to record later target click")
+	}
+	confirmed, retry, skipped := store.updateBagPageMatches(nil)
+	if len(confirmed) != 1 || confirmed[0].Attempts != 1 || len(retry) != 0 || len(skipped) != 0 ||
+		!store.snapshotChanged() || !store.bagTargetsExhausted() {
+		t.Fatal("later target did not complete independently")
+	}
+}
+
+func TestBagStoreAttemptsResetWhenPreparingTargets(t *testing.T) {
+	for _, difference := range []bool{false, true} {
+		t.Run(fmt.Sprintf("difference_%t", difference), func(t *testing.T) {
+			t.Parallel()
+			store := newStateStore()
+			item := testItem("tool", "Producer")
+			store.session.Snapshots["items"] = snapshotData{Items: []snapshotItem{item}}
+			store.session.Snapshots["empty"] = snapshotData{}
+			for batch := 0; batch < 2; batch++ {
+				var err error
+				if difference {
+					_, err = store.prepareDifferenceTargets("items", "empty", nil)
+				} else {
+					_, err = store.prepareSnapshotTargets("items", nil)
+				}
+				if err != nil {
+					t.Fatal(err)
+				}
+				page := []bagPageMatch{{ItemID: "tool", CategoryType: "Producer"}}
+				store.updateBagPageMatches(page)
+				if _, ok := store.nextBagPageMatch(); !ok {
+					t.Fatal("new batch has no target")
+				}
+				if _, ok := store.markSelectedBagTargetClicked("test", true); !ok {
+					t.Fatal("failed to record click")
+				}
+				confirmed, retry, skipped := store.updateBagPageMatches(page)
+				if len(confirmed) != 0 || len(retry) != 1 || len(skipped) != 0 || retry[0].Attempts != 1 {
+					t.Fatalf("batch %d inherited previous attempt counts", batch)
+				}
+			}
+		})
+	}
+}
 
 func testItem(id, category string) snapshotItem {
 	return snapshotItem{ItemID: id, CategoryType: category}

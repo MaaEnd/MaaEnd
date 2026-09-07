@@ -19,6 +19,7 @@
                 "AutoEssenceLoadInventoryAction",
                 "AutoEssenceTargetPlanAction",
                 "AutoSellItemExecuteItemTaskAction",
+                "AutoShiftClickAction",
                 "AutoStockStapleQuantityControlAction",
                 "AutoStockpile.CaptureUid",
                 "AutoStockpile.ReconcileDecision",
