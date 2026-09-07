@@ -47,7 +47,7 @@ type StateAction struct{}
 var _ maa.CustomActionRunner = &StateAction{}
 
 // Run applies one state operation. UI navigation and item movement remain in Pipeline.
-func (a *StateAction) Run(_ *maa.Context, arg *maa.CustomActionArg) bool {
+func (a *StateAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 	if arg == nil {
 		log.Error().Str("component", componentName).Msg("state action received nil arg")
 		return false
@@ -60,7 +60,36 @@ func (a *StateAction) Run(_ *maa.Context, arg *maa.CustomActionArg) bool {
 	var err error
 	switch param.Operation {
 	case operationReset:
-		globalState.reset()
+		if ctx == nil {
+			err = fmt.Errorf("context is nil")
+			break
+		}
+		quickNode, nodeErr := ctx.GetNode("StashBackpackStashQuick")
+		if nodeErr != nil {
+			err = nodeErr
+			break
+		}
+		usableNode, nodeErr := ctx.GetNode("StashBackpackManualCategoryUsable")
+		if nodeErr != nil {
+			err = nodeErr
+			break
+		}
+		manualNode, nodeErr := ctx.GetNode("StashBackpackManualSubTask")
+		if nodeErr != nil {
+			err = nodeErr
+			break
+		}
+		// 总开关关闭时，隐藏分类中保留的勾选不应阻止补充；互斥以最终配置为准。
+		if (manualNode.Enabled == nil || *manualNode.Enabled) &&
+			(usableNode.Enabled == nil || *usableNode.Enabled) {
+			err = ctx.OverridePipeline(map[string]any{
+				"StashBackpackPrepareReplenishTargets": map[string]any{"enabled": false},
+			})
+			if err != nil {
+				break
+			}
+		}
+		globalState.resetForStash(quickNode.Enabled == nil || *quickNode.Enabled)
 	case operationCopySnapshot:
 		err = globalState.copySnapshot(param.SourceSnapshot, param.Snapshot)
 	case operationCompleteFull:

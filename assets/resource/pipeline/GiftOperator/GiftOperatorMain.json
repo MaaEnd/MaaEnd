@@ -2,13 +2,6 @@
     "GiftOperatorMain": {
         "desc": "赠送干员礼物 - 调用入口节点",
         "pre_delay": 0,
-        "action": "Custom",
-        "custom_action": "SubTask",
-        "custom_action_param": {
-            "sub": [
-                "StashBackpackSubTask"
-            ]
-        },
         "post_delay": 0,
         "next": [
             "GiftOperatorEntry"
