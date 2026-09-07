@@ -67,6 +67,7 @@ type sessionState struct {
 	SnapshotChanged bool
 	FullComplete    bool
 	Depot           string
+	QuickStash      bool
 }
 
 type stateStore struct {
@@ -85,9 +86,21 @@ func newSessionState() sessionState {
 var globalState = newStateStore()
 
 func (s *stateStore) reset() {
+	s.resetForStash(false)
+}
+
+// resetForStash 记录本次存放的一键存放设置，供后续任务的独立 Context 复用。
+func (s *stateStore) resetForStash(quickStash bool) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.session = newSessionState()
+	s.session.QuickStash = quickStash
+}
+
+func (s *stateStore) quickStashEnabled() bool {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return s.session.FullComplete && s.session.QuickStash
 }
 
 func (s *stateStore) beginSnapshot(name string) error {

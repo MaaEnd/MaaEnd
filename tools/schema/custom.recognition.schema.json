@@ -51,6 +51,7 @@
                 "StashBackpackFullCompleteRecognition",
                 "StashBackpackNextItemRecognition",
                 "StashBackpackPlatformSupportedRecognition",
+                "StashBackpackQuickStashEnabledRecognition",
                 "StashBackpackRetrievedItemRecognition",
                 "StashBackpackSnapshotChangedRecognition",
                 "StashBackpackTargetCategoryRecognition",

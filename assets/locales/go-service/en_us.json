@@ -220,8 +220,8 @@
     "ims.expression_ok": "expression matched: %s",
     "ims.expression_short": "expression not matched: %s",
     "ims.item_current": "Current %s: %d",
-    "stashbackpack.warning.duplicate_full": "<span style=\"color: red; font-weight: bold;\">Stash Backpack has already completed in this task queue. This duplicate run was skipped to preserve the snapshots required by later tasks.</span>",
-    "stashbackpack.warning.missing_full_snapshot": "<span style=\"color: red; font-weight: bold;\">No preceding Stash Backpack task was detected, so newly acquired items cannot be determined and stashing was skipped. Add Stash Backpack to the beginning of the task queue.</span>",
-    "stashbackpack.warning.missing_retrieve_snapshot": "<span style=\"color: red; font-weight: bold;\">Complete Stash Backpack snapshots were not found, so the items to retrieve cannot be determined and retrieval was skipped. Ensure Stash Backpack completes successfully earlier in the current task queue.</span>",
+    "stashbackpack.warning.duplicate_full": "<span style=\"color: red; font-weight: bold;\">“Store in Depot” already completed in this queue. Duplicate storage was skipped to preserve the original item record for retrieval.</span>",
+    "stashbackpack.warning.missing_full_snapshot": "<span style=\"color: red; font-weight: bold;\">Initial storage has not completed, so new items cannot be identified. Automatic storage was skipped. Add “Backpack Storage” at the start of the queue and complete “Store in Depot” first.</span>",
+    "stashbackpack.warning.missing_retrieve_snapshot": "<span style=\"color: red; font-weight: bold;\">No complete item record is available for this run. Retrieval was skipped. Complete “Backpack Storage → Store in Depot” earlier in the same queue.</span>",
     "stashbackpack.warning.unsupported_platform": "<span style=\"color: red; font-weight: bold;\">Stashing newly acquired items is not supported on the current platform and was skipped. The current task will continue.</span>"
 }

@@ -18,4 +18,5 @@ func Register() {
 	maa.AgentServerRegisterCustomRecognition("StashBackpackFullCompleteRecognition", &FullCompleteRecognition{})
 	maa.AgentServerRegisterCustomRecognition("StashBackpackPlatformSupportedRecognition", &PlatformSupportedRecognition{})
 	maa.AgentServerRegisterCustomRecognition("StashBackpackSnapshotChangedRecognition", &SnapshotChangedRecognition{})
+	maa.AgentServerRegisterCustomRecognition("StashBackpackQuickStashEnabledRecognition", &QuickStashEnabledRecognition{})
 }
