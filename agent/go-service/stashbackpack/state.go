@@ -15,6 +15,9 @@ const (
 	snapshotT     = "temporary"
 	depotValleyIV = "ValleyIV"
 	depotWuling   = "Wuling"
+
+	// bagStoreMaxAttempts 包含首次点击；每个快照目标尝试耗尽后跳过，避免无进展循环。
+	bagStoreMaxAttempts = 3
 )
 
 type snapshotItem struct {
@@ -48,13 +51,16 @@ type bagClickedTarget struct {
 	Item            snapshotItem
 	Reason          string
 	ChangesSnapshot bool
+	Attempts        int
 }
 
 type bagPageState struct {
-	Matches           []bagPageMatch
-	Selected          *snapshotItem
-	BaselineCounts    map[string]int
-	Clicked           []bagClickedTarget
+	Matches        []bagPageMatch
+	Selected       *snapshotItem
+	BaselineCounts map[string]int
+	Clicked        []bagClickedTarget
+	// 用快照逻辑位置区分同 ID 的多个目标，计数仅保留在本轮存放中。
+	ClickAttempts     map[snapshotItem]int
 	PageIndex         int
 	RecognitionFailed bool
 }
@@ -406,7 +412,7 @@ func (s *stateStore) nextBagPageMatch() (bagPageMatch, bool) {
 }
 
 // updateBagPageMatches 用本页复扫结果核销已点击目标，再缓存尚未处理的格子。
-func (s *stateStore) updateBagPageMatches(matches []bagPageMatch) (confirmed, failed []bagClickedTarget) {
+func (s *stateStore) updateBagPageMatches(matches []bagPageMatch) (confirmed, failed, skipped []bagClickedTarget) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -426,9 +432,15 @@ func (s *stateStore) updateBagPageMatches(matches []bagPageMatch) (confirmed, fa
 			if movedCounts[clicked.Item.ItemID] > 0 {
 				movedCounts[clicked.Item.ItemID]--
 				confirmed = append(confirmed, clicked)
+				delete(s.session.BagPage.ClickAttempts, clicked.Item)
 				if clicked.ChangesSnapshot {
 					s.session.SnapshotChanged = true
 				}
+				continue
+			}
+			if clicked.Attempts >= bagStoreMaxAttempts {
+				skipped = append(skipped, clicked)
+				delete(s.session.BagPage.ClickAttempts, clicked.Item)
 				continue
 			}
 			failed = append(failed, clicked)
@@ -457,7 +469,7 @@ func (s *stateStore) updateBagPageMatches(matches []bagPageMatch) (confirmed, fa
 		remainingCounts[match.ItemID]--
 		s.session.BagPage.Matches = append(s.session.BagPage.Matches, match)
 	}
-	return confirmed, failed
+	return confirmed, failed, skipped
 }
 
 func (s *stateStore) markBagPageRecognitionFailed() {
@@ -485,10 +497,15 @@ func (s *stateStore) markSelectedBagTargetClicked(reason string, changesSnapshot
 			continue
 		}
 		s.session.Targets = append(s.session.Targets[:index], s.session.Targets[index+1:]...)
+		if s.session.BagPage.ClickAttempts == nil {
+			s.session.BagPage.ClickAttempts = make(map[snapshotItem]int)
+		}
+		s.session.BagPage.ClickAttempts[target]++
 		s.session.BagPage.Clicked = append(s.session.BagPage.Clicked, bagClickedTarget{
 			Item:            target,
 			Reason:          reason,
 			ChangesSnapshot: changesSnapshot,
+			Attempts:        s.session.BagPage.ClickAttempts[target],
 		})
 		return target, true
 	}
