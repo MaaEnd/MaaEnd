@@ -1,4 +1,13 @@
 {
+    "StashBackpackEntry": {
+        "desc": "背包存取共用 UI 入口，操作单选只切换本任务的执行入口",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackMain"
+        ]
+    },
     "StoreNewItemsWithStashBackpackSubTask": {
         "desc": "宿主任务入口：存放相对完整任务 S1 快照新增的物品",
         "pre_delay": 0,
@@ -792,7 +801,7 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
-            "StoreNewItemsWithStashBackpackCaptureTemporary"
+            "StoreNewItemsWithStashBackpackQuickBeforeSnapshot"
         ]
     },
     "StoreNewItemsWithStashBackpackInWuling": {
@@ -804,7 +813,64 @@
         "post_delay": 0,
         "rate_limit": 0,
         "next": [
+            "StoreNewItemsWithStashBackpackQuickBeforeSnapshot"
+        ]
+    },
+    "StoreNewItemsWithStashBackpackQuickBeforeSnapshot": {
+        "desc": "沿用本批次存放设置，一键存放后再识别仍在背包中的新增物品",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "StoreNewItemsWithStashBackpackQuickSubTask"
+            ]
+        },
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
             "StoreNewItemsWithStashBackpackCaptureTemporary"
+        ]
+    },
+    "StoreNewItemsWithStashBackpackQuickSubTask": {
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StoreNewItemsWithStashBackpackQuickEnabled",
+            "EmptyNode"
+        ]
+    },
+    "StoreNewItemsWithStashBackpackQuickEnabled": {
+        "recognition": "Custom",
+        "custom_recognition": "StashBackpackQuickStashEnabledRecognition",
+        "pre_delay": 0,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StoreNewItemsWithStashBackpackQuick"
+        ]
+    },
+    "StoreNewItemsWithStashBackpackQuick": {
+        "desc": "嵌入任务在新增物品快照前执行一键存放",
+        "recognition": "TemplateMatch",
+        "roi": [
+            871,
+            472,
+            162,
+            125
+        ],
+        "template": [
+            "StashBackpack/QuickStash.png"
+        ],
+        "order_by": "Score",
+        "pre_delay": 0,
+        "action": "Click",
+        "post_wait_freezes": 200,
+        "post_delay": 0,
+        "rate_limit": 0,
+        "next": [
+            "StashBackpackQuickVerified"
         ]
     },
     "StoreNewItemsWithStashBackpackCaptureTemporary": {
