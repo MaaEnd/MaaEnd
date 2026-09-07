@@ -139,7 +139,7 @@ func (r *BagPageRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg
 		return matches[i].Column < matches[j].Column
 	})
 
-	confirmed, failed := globalState.updateBagPageMatches(matches)
+	confirmed, failed, skipped := globalState.updateBagPageMatches(matches)
 	for _, clicked := range confirmed {
 		event := log.Info().Str("component", componentName).
 			Str("item_id", clicked.Item.ItemID).Str("category_type", clicked.Item.CategoryType)
@@ -151,10 +151,19 @@ func (r *BagPageRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg
 	for _, clicked := range failed {
 		log.Warn().Str("component", componentName).Str("item_id", clicked.Item.ItemID).
 			Str("category_type", clicked.Item.CategoryType).
-			Msg("backpack item count did not decrease after Shift+Click; queued the item again")
+			Int("attempt_count", clicked.Attempts).Int("max_attempts", bagStoreMaxAttempts).
+			Msg("backpack item count did not decrease after Shift+Click; queued the item for retry")
+	}
+	for _, clicked := range skipped {
+		log.Warn().Str("component", componentName).Str("item_id", clicked.Item.ItemID).
+			Str("category_type", clicked.Item.CategoryType).
+			Int("row", clicked.Item.Row).Int("column", clicked.Item.Column).
+			Int("attempt_count", clicked.Attempts).Int("max_attempts", bagStoreMaxAttempts).
+			Msg("backpack item count did not decrease after Shift+Click; attempt limit reached, skipped target")
 	}
 	log.Info().Str("component", componentName).Int("item_id_count", len(itemIDs)).
 		Int("match_count", len(matches)).Int("confirmed_count", len(confirmed)).Int("retry_count", len(failed)).
+		Int("skipped_count", len(skipped)).
 		Msg("recognized remaining backpack targets on current page")
 
 	match, ok := globalState.nextBagPageMatch()
