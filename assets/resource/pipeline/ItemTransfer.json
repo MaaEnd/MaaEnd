@@ -798,7 +798,7 @@
     },
     "ItemTransferTransferForwardToBag": {
         "action": "Custom",
-        "custom_action": "AutoCtrlClickAction",
+        "custom_action": "InventoryTransferAllAction",
         "target": "ItemTransferFindForwardItemInRepo",
         "target_offset": [
             26,
@@ -822,7 +822,7 @@
     },
     "ItemTransferTransferReturnToBag": {
         "action": "Custom",
-        "custom_action": "AutoCtrlClickAction",
+        "custom_action": "InventoryTransferAllAction",
         "target": "ItemTransferFindReturnItemInRepo",
         "target_offset": [
             26,
@@ -1177,7 +1177,7 @@
     },
     "ItemTransferTransferForwardToRepo": {
         "action": "Custom",
-        "custom_action": "AutoCtrlClickAction",
+        "custom_action": "InventoryTransferAllAction",
         "target": "ItemTransferFindForwardItemInBag",
         "target_offset": [
             26,
@@ -1201,7 +1201,7 @@
     },
     "ItemTransferTransferReturnToRepo": {
         "action": "Custom",
-        "custom_action": "AutoCtrlClickAction",
+        "custom_action": "InventoryTransferAllAction",
         "target": "ItemTransferFindReturnItemInBag",
         "target_offset": [
             26,
@@ -1615,7 +1615,7 @@
     },
     "ItemTransferTransferToRepoReturn": {
         "action": "Custom",
-        "custom_action": "AutoCtrlClickAction",
+        "custom_action": "InventoryTransferAllAction",
         "target": "ItemTransferFindItemInBagReturn",
         "target_offset": [
             26,

@@ -124,6 +124,25 @@
                 }
             }
         },
+        {
+            "if": {
+                "properties": {
+                    "custom_action": { "const": "InventoryTransferTouchAction" }
+                },
+                "required": ["custom_action"]
+            },
+            "then": {
+                "properties": {
+                    "custom_action_param": {
+                        "type": "object",
+                        "properties": {"mode": {"enum": ["all", "stack", "half"]}},
+                        "required": ["mode"],
+                        "additionalProperties": false
+                    }
+                },
+                "required": ["custom_action_param"]
+            }
+        },
 		{
 			"if": {
 				"properties": {
