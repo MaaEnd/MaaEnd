@@ -6,7 +6,6 @@ import maa "github.com/MaaXYZ/maa-framework-go/v4"
 func Register() {
 	maa.AgentServerRegisterCustomAction("StashBackpackSnapshotAction", &SnapshotAction{})
 	maa.AgentServerRegisterCustomAction("StashBackpackStateAction", &StateAction{})
-	maa.AgentServerRegisterCustomAction("StashBackpackShiftClickAction", &ShiftClickAction{})
 	maa.AgentServerRegisterCustomAction("StashBackpackWarningAction", &WarningAction{})
 	maa.AgentServerRegisterCustomRecognition("StashBackpackDepotRecognition", &DepotRecognition{})
 	maa.AgentServerRegisterCustomRecognition("StashBackpackBagPageRecognition", &BagPageRecognition{})

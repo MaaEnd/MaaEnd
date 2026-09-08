@@ -195,7 +195,7 @@
     "RetrieveBackpackStoreNewItem": {
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "AutoShiftClickAction",
+        "custom_action": "InventoryTransferStackAction",
         "target": "StashBackpackBagPageItem",
         "target_offset": [
             26,
@@ -381,7 +381,7 @@
         "desc": "从仓库取回当前缺少物品",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "AutoShiftClickAction",
+        "custom_action": "InventoryTransferStackAction",
         "target": "StashBackpackFindCurrentItemInRepo",
         "target_offset": [
             26,
