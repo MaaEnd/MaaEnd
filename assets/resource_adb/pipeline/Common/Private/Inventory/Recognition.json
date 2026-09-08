@@ -1,0 +1,74 @@
+{
+    "__InventoryTransferStackButtonLeft": {
+        "recognition": "TemplateMatch",
+        "roi": [
+            150,
+            175,
+            100,
+            370
+        ],
+        "template": "Common/Inventory/TransferStack.png",
+        "method": 5,
+        "threshold": 0.85
+    },
+    "__InventoryTransferStackButtonRight": {
+        "recognition": "TemplateMatch",
+        "roi": [
+            1030,
+            175,
+            100,
+            370
+        ],
+        "template": "Common/Inventory/TransferStack.png",
+        "method": 5,
+        "threshold": 0.85
+    },
+    "__InventoryTransferAllButtonLeft": {
+        "recognition": "TemplateMatch",
+        "roi": [
+            150,
+            175,
+            100,
+            370
+        ],
+        "template": "Common/Inventory/TransferAll.png",
+        "method": 5,
+        "threshold": 0.85
+    },
+    "__InventoryTransferAllButtonRight": {
+        "recognition": "TemplateMatch",
+        "roi": [
+            1030,
+            175,
+            100,
+            370
+        ],
+        "template": "Common/Inventory/TransferAll.png",
+        "method": 5,
+        "threshold": 0.85
+    },
+    "__InventoryTransferHalfButtonLeft": {
+        "recognition": "TemplateMatch",
+        "roi": [
+            150,
+            175,
+            100,
+            370
+        ],
+        "template": "Common/Inventory/TransferHalf.png",
+        "method": 5,
+        "threshold": 0.85
+    },
+    "__InventoryTransferHalfButtonRight": {
+        "recognition": "TemplateMatch",
+        "roi": [
+            1030,
+            175,
+            100,
+            370
+        ],
+        "template": "Common/Inventory/TransferHalf.png",
+        "method": 5,
+        "threshold": 0.85
+    }
+}

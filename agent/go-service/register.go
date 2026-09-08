@@ -25,6 +25,7 @@ import (
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/failurecollector"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/falseaction"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/focusocr"
+	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/inventory"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/listcomplete"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/pipelineoverride"
 	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/poststop"
@@ -78,6 +79,7 @@ func registerAll() {
 	expendable.Register()
 	attachregex.Register()
 	autoalt.Register()
+	inventory.Register()
 	camerascan.Register()
 	charactercontroller.Register()
 	falseaction.Register()

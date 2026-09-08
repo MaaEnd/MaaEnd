@@ -742,6 +742,54 @@
             }
         }
     },
+    "__InventoryTransferAllBeginAction": {
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 59
+            }
+        }
+    },
+    "__InventoryTransferAllEndAction": {
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 59
+            }
+        }
+    },
+    "__InventoryTransferHalfBeginAction": {
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 58
+            }
+        }
+    },
+    "__InventoryTransferHalfEndAction": {
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 58
+            }
+        }
+    },
+    "__InventoryTransferStackBeginAction": {
+        "action": {
+            "type": "KeyDown",
+            "param": {
+                "key": 56
+            }
+        }
+    },
+    "__InventoryTransferStackEndAction": {
+        "action": {
+            "type": "KeyUp",
+            "param": {
+                "key": 56
+            }
+        }
+    },
     "__MapNavigatorObstacleDevice_CancelMove": {
         "action": {
             "type": "ClickKey",

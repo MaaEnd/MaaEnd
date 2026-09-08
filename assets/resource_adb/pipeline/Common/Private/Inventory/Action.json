@@ -1,0 +1,63 @@
+{
+    // 触点生命周期由共享点击节点中的完整 Go 手势负责，外层不产生或释放输入。
+    "__InventoryTransferAllBeginAction": {
+        "desc": "ADB 全部转移准备",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0
+    },
+    "__InventoryTransferClickAction": {
+        "desc": "转移模式由公共 Go 动作传入；内部节点默认转移一组",
+        "pre_delay": 0,
+        "action": "Custom",
+        "custom_action": "InventoryTransferTouchAction",
+        "custom_action_param": {"mode": "stack"},
+        "post_delay": 0
+    },
+    "__InventoryTransferAllEndAction": {
+        "desc": "触点已由 Go 手势清理；禁止继承桌面端 KeyUp",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0
+    },
+    "__InventoryTransferStackBeginAction": {
+        "desc": "ADB 转移一组准备",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0
+    },
+    "__InventoryTransferStackEndAction": {
+        "desc": "触点已由 Go 手势清理；禁止继承桌面端 KeyUp",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0
+    },
+    "__InventoryTransferHalfBeginAction": {
+        "desc": "ADB 转移一半准备",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0
+    },
+    "__InventoryTransferHalfEndAction": {
+        "desc": "触点已由 Go 手势清理；禁止继承桌面端 KeyUp",
+        "pre_delay": 0,
+        "action": "DoNothing",
+        "post_delay": 0
+    },
+    "__InventoryTransferSourceTouchDown": {
+        "desc": "持续按住已识别的源物品，直至操作菜单点击完成",
+        "pre_delay": 0,
+        "action": "TouchDown",
+        "contact": 0,
+        "pressure": 1,
+        "post_delay": 0
+    },
+    "__InventoryTransferButtonTouchDown": {
+        "desc": "源物品触点保持期间，用第二触点按下菜单按钮",
+        "pre_delay": 0,
+        "action": "TouchDown",
+        "contact": 1,
+        "pressure": 1,
+        "post_delay": 0
+    }
+}

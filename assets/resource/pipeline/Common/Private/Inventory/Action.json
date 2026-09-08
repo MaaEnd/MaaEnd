@@ -1,0 +1,51 @@
+{
+    "__InventoryTransferAllBeginAction": {
+        "desc": "全部转移：按下 Ctrl",
+        "pre_delay": 0,
+        "action": "KeyDown",
+        "key": 17,
+        "post_delay": 0
+    },
+    "__InventoryTransferClickAction": {
+        "desc": "共用转移点击：点击已识别的目标物品",
+        // 保留原修饰键点击的输入时序，SeizeInput 在低性能设备上立即点击可能丢失输入。
+        "pre_delay": 400,
+        "action": "Click",
+        "post_delay": 100
+    },
+    "__InventoryTransferAllEndAction": {
+        "desc": "全部转移：释放 Ctrl",
+        "pre_delay": 0,
+        "action": "KeyUp",
+        "key": 17,
+        "post_delay": 0
+    },
+    "__InventoryTransferStackBeginAction": {
+        "desc": "转移一组：按下 Shift",
+        "pre_delay": 0,
+        "action": "KeyDown",
+        "key": 16,
+        "post_delay": 0
+    },
+    "__InventoryTransferStackEndAction": {
+        "desc": "转移一组：释放 Shift",
+        "pre_delay": 0,
+        "action": "KeyUp",
+        "key": 16,
+        "post_delay": 0
+    },
+    "__InventoryTransferHalfBeginAction": {
+        "desc": "转移一半：按下 Alt",
+        "pre_delay": 0,
+        "action": "KeyDown",
+        "key": 18,
+        "post_delay": 0
+    },
+    "__InventoryTransferHalfEndAction": {
+        "desc": "转移一半：释放 Alt",
+        "pre_delay": 0,
+        "action": "KeyUp",
+        "key": 18,
+        "post_delay": 0
+    }
+}
