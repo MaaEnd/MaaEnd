@@ -229,6 +229,12 @@ Action 节点用于执行自定义动作。常见写法如下：
 
 目标位置由 Pipeline 节点的 `box` 决定，可使用外层 `target` / `target_offset` 调整。
 
+### Inventory 物品转移动作
+
+`common/inventory` 提供 `InventoryTransferAllAction`（全部转移）、`InventoryTransferStackAction`（一组）和 `InventoryTransferHalfAction`（一半），供背包、仓库等任务复用。
+
+无自定义参数，通过外层 `target` / `target_offset` 指定源物品格。接口约束、平台支持及实现说明统一维护在 [Inventory 文档](../../../agent/go-service/common/inventory/README.md)。
+
 ### AutoAltSwipeAction
 
 `AutoAltSwipeAction` 实现位于 `agent/go-service/common/autoalt`，用于执行 Alt + 滑动操作。先按下 Alt 键，再执行滑动，最后松开 Alt 键。
@@ -569,6 +575,9 @@ Pipeline 布局与 `ListCompleteRecognition` 相同：将本识别放在滚动�
 | 按星期几门控后续节点 | `ScheduleRecognition` |
 | 在指定位置 Alt + 点击 | `AutoAltClickAction` |
 | 在指定位置 Ctrl + 点击 | `AutoCtrlClickAction` |
+| 全部转移指定物品 | `InventoryTransferAllAction` |
+| 转移指定物品的一组 | `InventoryTransferStackAction` |
+| 转移指定物品的一半 | `InventoryTransferHalfAction` |
 | Alt + 滑动 | `AutoAltSwipeAction` |
 
 所有 Custom 的 Go 代码实现在 `agent/go-service/` 下，Pipeline 作者不需要关心，照文档参数写 JSON 就行。

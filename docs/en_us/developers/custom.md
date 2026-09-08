@@ -227,6 +227,12 @@ The default target position is determined by the `box` of the Pipeline node.
 
 The target position is determined by the Pipeline node's `box` and can be adjusted with the outer `target` / `target_offset` fields.
 
+### Inventory Transfer Actions
+
+`common/inventory` provides `InventoryTransferAllAction` (all), `InventoryTransferStackAction` (one stack), and `InventoryTransferHalfAction` (half) for backpack, storage, and related tasks.
+
+No custom parameters are required. Use the outer `target` / `target_offset` to specify the source slot. The shared contract, platform support, and implementation details are maintained in the [Inventory documentation](../../../agent/go-service/common/inventory/README.md) (Chinese).
+
 ### AutoAltSwipeAction
 
 The `AutoAltSwipeAction` implementation is located in `agent/go-service/common/autoalt`. It performs an Alt + Swipe operation. It first presses the Alt key, executes the swipe, and then releases the Alt key.
@@ -567,6 +573,9 @@ When writing a Pipeline, the built-in `TemplateMatch` / `OCR` / `Click` / `Swipe
 | Gate subsequent nodes by day of week | `ScheduleRecognition` |
 | Alt + Click at specified position | `AutoAltClickAction` |
 | Ctrl + Click at specified position | `AutoCtrlClickAction` |
+| Transfer all of the selected item | `InventoryTransferAllAction` |
+| Transfer one stack of the selected item | `InventoryTransferStackAction` |
+| Transfer half of the selected item | `InventoryTransferHalfAction` |
 | Alt + Swipe | `AutoAltSwipeAction` |
 
 All Custom Go code implementations are located under `agent/go-service/`. Pipeline authors do not need to concern themselves with this; just write the JSON according to the documentation parameters.

@@ -44,14 +44,14 @@ class ItemTransferGeneratorTest(unittest.TestCase):
             ),
         )
 
-    def test_ctrl_click_uses_common_cross_platform_action(self) -> None:
+    def test_transfer_uses_common_inventory_action(self) -> None:
         repo_root = Path(__file__).resolve().parents[3]
         pipeline = json5.loads(
             (repo_root / "assets/resource/pipeline/ItemTransfer.json").read_text(
                 encoding="utf-8"
             )
         )
-        ctrl_click_nodes = (
+        transfer_nodes = (
             "ItemTransferTransferForwardToBag",
             "ItemTransferTransferReturnToBag",
             "ItemTransferTransferForwardToRepo",
@@ -59,10 +59,10 @@ class ItemTransferGeneratorTest(unittest.TestCase):
             "ItemTransferTransferToRepoReturn",
         )
 
-        for node_name in ctrl_click_nodes:
+        for node_name in transfer_nodes:
             self.assertEqual(
                 pipeline[node_name]["custom_action"],
-                "AutoCtrlClickAction",
+                "InventoryTransferAllAction",
             )
 
     def test_ctrl_click_pipeline_nodes_generate_macos_key_mapping(self) -> None:
@@ -112,6 +112,65 @@ class ItemTransferGeneratorTest(unittest.TestCase):
 
         self.assertIn("AutoCtrlClickAction", custom_actions)
         self.assertNotIn("ItemTransferCtrlClickAction", custom_actions)
+
+    def test_inventory_transfer_platform_contract(self) -> None:
+        repo_root = Path(__file__).resolve().parents[3]
+
+        def read_json(relative_path: str) -> dict:
+            return json5.loads((repo_root / relative_path).read_text(encoding="utf-8"))
+
+        desktop = read_json("assets/resource/pipeline/Common/Private/Inventory/Action.json")
+        adb = read_json("assets/resource_adb/pipeline/Common/Private/Inventory/Action.json")
+        macos = read_json("assets/resource_macos/pipeline/MacOSKeyMap.json")
+        schema = read_json("tools/schema/custom.action.schema.json")
+        register = (repo_root / "agent/go-service/common/inventory/register.go").read_text(
+            encoding="utf-8"
+        )
+        for mode, win_key, mac_key in (("All", 17, 59), ("Stack", 16, 56), ("Half", 18, 58)):
+            with self.subTest(mode=mode):
+                action = f"InventoryTransfer{mode}Action"
+                self.assertIn(action, schema["properties"]["custom_action"]["enum"])
+                self.assertIn(f'"{action}"', register)
+                prefix = f"__InventoryTransfer{mode}"
+                for stage, action_type in (("Begin", "KeyDown"), ("End", "KeyUp")):
+                    node = f"{prefix}{stage}Action"
+                    self.assertEqual(desktop[node]["action"], action_type)
+                    self.assertEqual(desktop[node]["key"], win_key)
+                    self.assertEqual(macos[node]["action"]["param"]["key"], mac_key)
+                self.assertNotIn(f"{prefix}ExecuteAction", desktop)
+                self.assertNotIn(f"{prefix}ExecuteAction", adb)
+                # 完整手势负责触点清理，外层不能继承桌面端的按键动作。
+                self.assertEqual(adb[f"{prefix}BeginAction"]["action"], "DoNothing")
+                self.assertEqual(adb[f"{prefix}EndAction"]["action"], "DoNothing")
+
+        click_node = "__InventoryTransferClickAction"
+        self.assertEqual(
+            [name for name, node in desktop.items() if node.get("action") == "Click"],
+            [click_node],
+        )
+        self.assertEqual(desktop[click_node]["pre_delay"], 400)
+        self.assertEqual(desktop[click_node]["post_delay"], 100)
+        execute = adb[click_node]
+        self.assertEqual(execute["action"], "Custom")
+        self.assertEqual(execute["custom_action"], "InventoryTransferTouchAction")
+        self.assertEqual(execute["custom_action_param"], {"mode": "stack"})
+        self.assertEqual(execute["pre_delay"], 0)
+        self.assertEqual(execute["post_delay"], 0)
+
+        for node, contact in (("__InventoryTransferSourceTouchDown", 0), ("__InventoryTransferButtonTouchDown", 1)):
+            self.assertEqual(adb[node]["action"], "TouchDown")
+            self.assertEqual(adb[node]["contact"], contact)
+            self.assertEqual(adb[node]["pressure"], 1)
+        recognition = read_json("assets/resource_adb/pipeline/Common/Private/Inventory/Recognition.json")
+        for mode in ("All", "Stack", "Half"):
+            for side, x in (("Left", 150), ("Right", 1030)):
+                node = recognition[f"__InventoryTransfer{mode}Button{side}"]
+                self.assertEqual(node["recognition"], "TemplateMatch")
+                self.assertEqual(node["roi"], [x, 175, 100, 370])
+                self.assertEqual(node["method"], 5)
+                self.assertEqual(node["threshold"], 0.85)
+                self.assertEqual(node["template"], f"Common/Inventory/Transfer{mode}.png")
+                self.assertTrue((repo_root / "assets/resource_adb/image" / node["template"]).is_file())
 
     def test_select_transfer_items_filters_categories_and_ore_allowlist(self) -> None:
         catalog = {
