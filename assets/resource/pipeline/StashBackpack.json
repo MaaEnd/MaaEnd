@@ -409,10 +409,10 @@
         ]
     },
     "StashBackpackManualStoreItem": {
-        "desc": "Win32使用Shift+Click将当前背包物品移入仓库",
+        "desc": "调用公共一组转移动作，将当前背包物品移入仓库",
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "AutoShiftClickAction",
+        "custom_action": "InventoryTransferStackAction",
         "target": "StashBackpackBagPageItem",
         "target_offset": [
             26,
@@ -955,7 +955,7 @@
     "StoreNewItemsWithStashBackpackStoreItem": {
         "pre_delay": 0,
         "action": "Custom",
-        "custom_action": "AutoShiftClickAction",
+        "custom_action": "InventoryTransferStackAction",
         "target": "StashBackpackBagPageItem",
         "target_offset": [
             26,

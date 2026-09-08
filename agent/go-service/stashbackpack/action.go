@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/MaaXYZ/MaaEnd/agent/go-service/common/autoalt"
 	maa "github.com/MaaXYZ/maa-framework-go/v4"
 	"github.com/rs/zerolog/log"
 )
@@ -22,12 +21,7 @@ const (
 	operationDiscardBagTargets = "discard_bag_targets"
 	operationConsumeTarget     = "consume_target"
 	operationSetDepot          = "set_depot"
-
-	verifySourceItemNode = "StashBackpackVerifySourceItem"
 )
-
-// 720p 物品格点击区域向中心收缩，避免点击到格子边缘。
-var shiftClickTargetOffset = maa.Rect{26, 25, -52, -50}
 
 type stateActionParam struct {
 	Operation       string   `json:"operation"`
@@ -169,42 +163,4 @@ func (a *StateAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
 		return false
 	}
 	return true
-}
-
-// ShiftClickAction records the source cell for local verification, then transfers the item with Shift+Click.
-type ShiftClickAction struct{}
-
-var _ maa.CustomActionRunner = &ShiftClickAction{}
-
-// Run patches the source-cell verifier before clicking the center of the recognized item cell.
-func (a *ShiftClickAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool {
-	if ctx == nil || arg == nil {
-		log.Error().Str("component", componentName).Msg("shift click action received nil context or arg")
-		return false
-	}
-	if arg.Box[2] <= 0 || arg.Box[3] <= 0 {
-		log.Error().Str("component", componentName).Interface("box", arg.Box).Msg("shift click source box is invalid")
-		return false
-	}
-	if err := ctx.OverridePipeline(map[string]any{
-		verifySourceItemNode: map[string]any{
-			"roi": []int{arg.Box[0], arg.Box[1], arg.Box[2], arg.Box[3]},
-		},
-	}); err != nil {
-		log.Error().Err(err).Str("component", componentName).Msg("failed to configure source item verifier")
-		return false
-	}
-
-	clickArg := *arg
-	clickArg.Box = maa.Rect{
-		arg.Box[0] + shiftClickTargetOffset[0],
-		arg.Box[1] + shiftClickTargetOffset[1],
-		arg.Box[2] + shiftClickTargetOffset[2],
-		arg.Box[3] + shiftClickTargetOffset[3],
-	}
-	if clickArg.Box[2] <= 0 || clickArg.Box[3] <= 0 {
-		log.Error().Str("component", componentName).Interface("box", clickArg.Box).Msg("shift click target box is invalid")
-		return false
-	}
-	return (&autoalt.AutoShiftClickAction{}).Run(ctx, &clickArg)
 }
