@@ -157,6 +157,20 @@ class ItemTransferGeneratorTest(unittest.TestCase):
         self.assertEqual(execute["pre_delay"], 0)
         self.assertEqual(execute["post_delay"], 0)
 
+        # feat 分支的背包流程也必须接入公共动作，避免只迁移库存转移而漏掉旧 Shift 调用。
+        stash = read_json("assets/resource/pipeline/StashBackpack.json")
+        retrieve = read_json("assets/resource/pipeline/StashBackpack/Retrieve.json")
+        for pipeline, name, target in (
+            (stash, "StashBackpackManualStoreItem", "StashBackpackBagPageItem"),
+            (stash, "StoreNewItemsWithStashBackpackStoreItem", "StashBackpackBagPageItem"),
+            (retrieve, "RetrieveBackpackStoreNewItem", "StashBackpackBagPageItem"),
+            (retrieve, "RetrieveBackpackMoveItemToBag", "StashBackpackFindCurrentItemInRepo"),
+        ):
+            with self.subTest(node=name):
+                self.assertEqual(pipeline[name]["custom_action"], "InventoryTransferStackAction")
+                self.assertEqual(pipeline[name]["target"], target)
+                self.assertEqual(pipeline[name]["target_offset"], [26, 25, -52, -50])
+
         for node, contact in (("__InventoryTransferSourceTouchDown", 0), ("__InventoryTransferButtonTouchDown", 1)):
             self.assertEqual(adb[node]["action"], "TouchDown")
             self.assertEqual(adb[node]["contact"], contact)
