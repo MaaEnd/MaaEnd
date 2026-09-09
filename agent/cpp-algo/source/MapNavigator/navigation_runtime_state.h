@@ -338,6 +338,8 @@ struct NavigationRuntimeState
     RiverFallRecoveryState river_fall;
     LateralBypassState bypass;
     SteeringRateState steering_rate;
+    // 预对齐失败后的重试冷却
+    std::chrono::steady_clock::time_point pre_align_retry_after {};
     OffRouteWedgeState offroute;
     CrossTierEscapeState cross_tier_escape;
     // 顶层且不进任何一个 Reset: 它数的正是重规划本身, 跟着重规划清零就永远数不满。换了上索点
@@ -380,6 +382,7 @@ struct NavigationRuntimeState
         river_fall.Reset();
         bypass.Reset();
         steering_rate.Reset();
+        pre_align_retry_after = {};
         offroute.Reset();
         cross_tier_escape.Reset();
         zipline_approach.Reset();
