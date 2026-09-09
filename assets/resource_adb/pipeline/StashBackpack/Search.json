@@ -1,0 +1,264 @@
+{
+    "StashBackpackBagCurrentBottomReached": {
+        "custom_recognition_param": {"position_tolerance": 2},
+        "roi": [
+            1240,
+            180,
+            5,
+            326
+        ]
+    },
+    "StashBackpackBagFallbackTopReached": {
+        "custom_recognition_param": {"position_tolerance": 2},
+        "roi": [
+            1240,
+            180,
+            5,
+            326
+        ]
+    },
+    "StashBackpackBagFallbackBottomReached": {
+        "custom_recognition_param": {"position_tolerance": 2},
+        "roi": [
+            1240,
+            180,
+            5,
+            326
+        ]
+    },
+    "StashBackpackFindCurrentItemInBag": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    780,
+                    160,
+                    470,
+                    370
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "target": [
+                780,
+                160,
+                470,
+                370
+            ]
+        }
+    },
+    "StashBackpackBagSearchScrollDownward": {
+        "post_wait_freezes": {
+            "target": [
+                780,
+                160,
+                470,
+                370
+            ]
+        }
+    },
+    "StashBackpackBagSearchScrollUpward": {
+        "post_wait_freezes": {
+            "target": [
+                780,
+                160,
+                470,
+                370
+            ]
+        }
+    },
+    "StashBackpackRepoCurrentBottomReached": {
+        "custom_recognition_param": {"position_tolerance": 2},
+        "roi": [
+            733,
+            180,
+            5,
+            326
+        ]
+    },
+    "StashBackpackRepoFallbackTopReached": {
+        "custom_recognition_param": {"position_tolerance": 2},
+        "roi": [
+            733,
+            180,
+            5,
+            326
+        ]
+    },
+    "StashBackpackRepoFallbackBottomReached": {
+        "custom_recognition_param": {"position_tolerance": 2},
+        "roi": [
+            733,
+            180,
+            5,
+            326
+        ]
+    },
+    "StashBackpackFindCurrentItemInRepo": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    30,
+                    160,
+                    710,
+                    370
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "target": [
+                30,
+                160,
+                710,
+                370
+            ]
+        }
+    },
+    "StashBackpackRepoSearchScrollDownward": {
+        "post_wait_freezes": {
+            "target": [
+                30,
+                160,
+                710,
+                370
+            ]
+        }
+    },
+    "StashBackpackRepoSearchScrollUpward": {
+        "post_wait_freezes": {
+            "target": [
+                30,
+                160,
+                710,
+                370
+            ]
+        }
+    },
+    "StashBackpackVerifySourceItem": {
+        "recognition": {
+            "param": {
+                "roi": [
+                    780,
+                    160,
+                    470,
+                    370
+                ]
+            }
+        },
+        "pre_wait_freezes": {
+            "target": [
+                780,
+                160,
+                470,
+                370
+            ]
+        }
+    },
+    "StashBackpackRestoreTopReached": {
+        "custom_recognition_param": {"position_tolerance": 2},
+        "roi": [
+            1240,
+            180,
+            5,
+            326
+        ]
+    },
+    "StashBackpackRestoreScrollUpward": {
+        "post_wait_freezes": {
+            "target": [
+                780,
+                160,
+                470,
+                370
+            ]
+        }
+    },
+    "StashBackpackRetrievedItemFound": {
+        "roi": [
+            780,
+            160,
+            470,
+            370
+        ],
+        "pre_wait_freezes": {
+            "target": [
+                780,
+                160,
+                470,
+                370
+            ]
+        }
+    },
+    "StashBackpackRetrievedItemBottomReached": {
+        "custom_recognition_param": {"position_tolerance": 2},
+        "roi": [
+            1240,
+            180,
+            5,
+            326
+        ]
+    },
+    "StashBackpackRetrievedItemScrollDownward": {
+        "post_wait_freezes": {
+            "target": [
+                780,
+                160,
+                470,
+                370
+            ]
+        }
+    },
+    "StashBackpackBagBatchTopReached": {
+        "custom_recognition_param": {"position_tolerance": 2},
+        "roi": [
+            1240,
+            180,
+            5,
+            326
+        ]
+    },
+    "StashBackpackBagPageItem": {
+        "roi": [
+            780,
+            160,
+            470,
+            370
+        ],
+        "pre_wait_freezes": {
+            "target": [
+                780,
+                160,
+                470,
+                370
+            ]
+        }
+    },
+    "StashBackpackBagBatchBottomReached": {
+        "custom_recognition_param": {"position_tolerance": 2},
+        "roi": [
+            1240,
+            180,
+            5,
+            326
+        ]
+    },
+    "StashBackpackBagBatchScrollDownward": {
+        "post_wait_freezes": {
+            "target": [
+                780,
+                160,
+                470,
+                370
+            ]
+        }
+    },
+    "StashBackpackBagBatchScrollUpward": {
+        "post_wait_freezes": {
+            "target": [
+                780,
+                160,
+                470,
+                370
+            ]
+        }
+    }
+}
