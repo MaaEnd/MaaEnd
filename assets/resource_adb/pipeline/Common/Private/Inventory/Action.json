@@ -52,6 +52,14 @@
         "pressure": 1,
         "post_delay": 0
     },
+    "__InventoryDragTouchMove": {
+        "desc": "保持源物品触点，将物品拖到调用方指定的已识别目标格；由 Go 保证释放",
+        "pre_delay": 0,
+        "action": "TouchMove",
+        "contact": 0,
+        "pressure": 1,
+        "post_delay": 0
+    },
     "__InventoryTransferButtonTouchDown": {
         "desc": "源物品触点保持期间，用第二触点按下菜单按钮",
         "pre_delay": 0,

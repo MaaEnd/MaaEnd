@@ -5,7 +5,9 @@
             "label": "$task.StashBackpack.label",
             "entry": "StashBackpackEntry",
             "controller": [
-                "Win32-Front"
+                "Win32-Front",
+                "ADB",
+                "CloudADB"
             ],
             "group": [
                 "backpack"
