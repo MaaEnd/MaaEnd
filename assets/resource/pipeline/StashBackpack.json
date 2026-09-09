@@ -597,7 +597,7 @@
         ]
     },
     "StashBackpackReplenishDragItem": {
-        "desc": "Win32直接将仓库物品拖到背包同物品格；ADB后续在平台覆盖中增加长按",
+        "desc": "将仓库物品拖到背包同物品格补充堆叠；ADB 覆盖为先长按再拖动",
         "pre_delay": 0,
         "action": "Swipe",
         "begin": "StashBackpackFindCurrentItemInRepo",

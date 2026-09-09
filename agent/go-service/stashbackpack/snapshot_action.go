@@ -14,12 +14,11 @@ import (
 const (
 	snapshotActionName = "StashBackpackSnapshotAction"
 
-	snapshotPrepareRecognitionNode = "__StashBackpackSnapshotPrepareRecognitionStep"
-	snapshotScrollUpwardNode       = "__StashBackpackSnapshotScrollUpwardStep"
-	snapshotScrollDownwardNode     = "__StashBackpackSnapshotScrollDownwardStep"
-	scrollbarRecognitionName       = "ScrollbarRecognition"
-	emptyGridDetectionErrorCode    = "grid_detection_failed"
-	emptyGridDetectionErrorMessage = "grid ROI contains no formal cells"
+	snapshotPrepareRecognitionNode   = "__StashBackpackSnapshotPrepareRecognitionStep"
+	snapshotScrollUpwardNode         = "InventoryBagScrollUpward"
+	snapshotScrollDownwardNode       = "InventoryBagScrollDownward"
+	snapshotItemRecognitionNode      = "__StashBackpackSnapshotItemRecognition"
+	snapshotScrollbarRecognitionNode = "__StashBackpackSnapshotScrollbarRecognition"
 
 	// snapshotMaxScrollCount 沿用原 Pipeline 的滚动上限，防止滚动条异常时无限扫描。
 	snapshotMaxScrollCount = 20
@@ -28,13 +27,6 @@ const (
 	snapshotScrollbarTolerance = 2
 	// snapshotMissingScrollbarConfirmations 要求连续缺失两次才按不可滚动列表处理，避免单帧漏识别。
 	snapshotMissingScrollbarConfirmations = 2
-)
-
-var (
-	// snapshotItemROI 是 1280x720 基准下背包物品网格的识别区域。
-	snapshotItemROI = maa.Rect{739, 202, 398, 291}
-	// snapshotScrollbarROI 是 1280x720 基准下背包滚动条滑块的搜索区域。
-	snapshotScrollbarROI = maa.Rect{1119, 220, 5, 255}
 )
 
 type snapshotActionParam struct {
@@ -112,7 +104,7 @@ func captureSnapshotPages(ctx *maa.Context) ([][]snapshotItemWithPosition, error
 			return nil, fmt.Errorf("task is stopping")
 		}
 
-		page, err := recognizeSnapshotPage(ctx, currentImage, currentScrollbar != nil)
+		page, err := recognizeSnapshotPage(ctx, currentImage)
 		if err != nil {
 			return nil, fmt.Errorf("recognize page %d: %w", len(pages)+1, err)
 		}
@@ -227,22 +219,9 @@ func prepareSnapshotImage(
 func recognizeSnapshotPage(
 	ctx *maa.Context,
 	img image.Image,
-	backpackScrollbarVisible bool,
 ) ([]snapshotItemWithPosition, error) {
-	params := iconrecognition.NewParams(
-		iconrecognition.WithGridType(iconrecognition.GridTypeTransfer),
-		iconrecognition.WithItemFilters(iconrecognition.StorageFilter().Normal.Any),
-		iconrecognition.WithDebug(true),
-	)
-	detail, err := ctx.RunRecognitionDirect(
-		maa.RecognitionTypeCustom,
-		&maa.CustomRecognitionParam{
-			ROI:                    maa.NewTargetRect(snapshotItemROI),
-			CustomRecognition:      iconrecognition.CustomRecognitionName,
-			CustomRecognitionParam: params,
-		},
-		img,
-	)
+	// 仅执行识别，不运行节点流程；ROI 由各平台资源覆盖，避免 Go 固定桌面坐标。
+	detail, err := ctx.RunRecognition(snapshotItemRecognitionNode, img)
 	if err != nil {
 		return nil, fmt.Errorf("run IconRecognition: %w", err)
 	}
@@ -254,15 +233,7 @@ func recognizeSnapshotPage(
 		if parsed.Error.Code == iconrecognition.ErrorCodeNoMatch {
 			return []snapshotItemWithPosition{}, nil
 		}
-		// 当前截图中滚动条仍可识别时，网格不存在正式格子表示背包本页已经完全清空。
-		// 仅兼容 IconRecognition 的精确空网格错误，其他定位失败仍向上返回。
-		if backpackScrollbarVisible &&
-			parsed.Error.Code == emptyGridDetectionErrorCode &&
-			parsed.Error.Message == emptyGridDetectionErrorMessage {
-			log.Warn().Str("component", snapshotActionName).
-				Msg("treated empty backpack grid detection as an empty snapshot page")
-			return []snapshotItemWithPosition{}, nil
-		}
+		// 正常空网格返回 no_match；滚动条存在不能证明网格定位失败就是空页。
 		return nil, fmt.Errorf("IconRecognition %s: %s", parsed.Error.Code, parsed.Error.Message)
 	}
 	if !parsed.Matched {
@@ -294,14 +265,7 @@ func recognizeSnapshotScrollbar(
 	ctx *maa.Context,
 	img image.Image,
 ) (*snapshotScrollbarPosition, error) {
-	detail, err := ctx.RunRecognitionDirect(
-		maa.RecognitionTypeCustom,
-		&maa.CustomRecognitionParam{
-			ROI:               maa.NewTargetRect(snapshotScrollbarROI),
-			CustomRecognition: scrollbarRecognitionName,
-		},
-		img,
-	)
+	detail, err := ctx.RunRecognition(snapshotScrollbarRecognitionNode, img)
 	if err != nil {
 		return nil, fmt.Errorf("run scrollbar recognition: %w", err)
 	}

@@ -1,0 +1,34 @@
+{
+    "__StashBackpackSnapshotPrepareRecognitionStep": {
+        "desc": "ADB 无鼠标悬停，只等待背包网格稳定",
+        "action": "DoNothing",
+        "post_wait_freezes": {
+            "target": [
+                780,
+                160,
+                470,
+                370
+            ]
+        }
+    },
+    "__StashBackpackSnapshotItemRecognition": {
+        "roi": [
+            780,
+            160,
+            470,
+            370
+        ]
+    },
+    "__StashBackpackSnapshotScrollbarRecognition": {
+        "roi": [
+            1240,
+            180,
+            5,
+            326
+        ]
+    },
+    "StashBackpackMouseMoveReset": {
+        "action": "DoNothing",
+        "post_delay": 0
+    }
+}

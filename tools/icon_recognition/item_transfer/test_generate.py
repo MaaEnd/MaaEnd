@@ -186,6 +186,65 @@ class ItemTransferGeneratorTest(unittest.TestCase):
                 self.assertEqual(node["template"], f"Common/Inventory/Transfer{mode}.png")
                 self.assertTrue((repo_root / "assets/resource_adb/image" / node["template"]).is_file())
 
+    def test_stash_backpack_adb_scroll_overrides(self) -> None:
+        repo_root = Path(__file__).resolve().parents[3]
+
+        def read_json(path: str) -> dict:
+            return json5.loads((repo_root / path).read_text(encoding="utf-8"))
+
+        desktop = read_json("assets/resource/pipeline/Common/Private/Inventory/Scroll.json")
+        adb = read_json("assets/resource_adb/pipeline/Common/Private/Inventory/Scroll.json")
+        expected = {
+            f"Inventory{side}Scroll{direction}"
+            for side in ("Bag", "Repo") for direction in ("Upward", "Downward")
+        }
+        self.assertEqual(set(desktop), expected)
+        self.assertEqual(set(adb), expected)
+        for name, source in desktop.items():
+            with self.subTest(node=name):
+                self.assertEqual(source["action"], "Scroll")
+                override = adb[name]
+                self.assertEqual(override["action"], "Swipe")
+                self.assertNotIn("next", source)
+                begin, end = override["begin"], override["end"]
+                self.assertEqual(begin[0], end[0])
+                self.assertGreater((end[1] - begin[1]) * source["dy"], 0)
+                self.assertLess(abs(end[1] - begin[1]), 342)
+
+        search = read_json("assets/resource/pipeline/StashBackpack/Search.json")
+        overrides = read_json("assets/resource_adb/pipeline/StashBackpack/Search.json")
+        for name, node in search.items():
+            with self.subTest(node=name):
+                self.assertNotEqual(node.get("action"), "Scroll")
+                if node.get("custom_action") == "SubTask":
+                    self.assertEqual(len(node["custom_action_param"]["sub"]), 1)
+                    self.assertIn(node["custom_action_param"]["sub"][0], expected)
+                # 平台覆盖不能丢掉翻页计数、边界状态、退出分支和命中上限。
+                self.assertLessEqual(set(overrides.get(name, {})), {
+                    "roi", "recognition", "custom_recognition_param", "pre_wait_freezes", "post_wait_freezes",
+                })
+
+        snapshot = read_json("assets/resource/pipeline/StashBackpack/Snapshot.json")
+        self.assertEqual(
+            snapshot["__StashBackpackSnapshotItemRecognition"]["custom_recognition_param"],
+            {"grid_type": "transfer", "item_filters": ["Normal:*"], "debug": True},
+        )
+        snapshot_adb = read_json("assets/resource_adb/pipeline/StashBackpack/Snapshot.json")
+        for name in ("__StashBackpackSnapshotPrepareRecognitionStep", "StashBackpackMouseMoveReset"):
+            self.assertEqual(snapshot_adb[name]["action"], "DoNothing")
+        self.assertEqual(
+            snapshot_adb["__StashBackpackSnapshotScrollbarRecognition"]["roi"],
+            overrides["StashBackpackBagBatchBottomReached"]["roi"],
+        )
+        task = read_json("assets/tasks/StashBackpack.json")
+        self.assertEqual(task["task"][0]["controller"], ["Win32-Front", "ADB", "CloudADB"])
+        replenish = read_json("assets/resource_adb/pipeline/StashBackpack.json")["StashBackpackReplenishDragItem"]
+        self.assertEqual(replenish["custom_action"], "InventoryDragTouchAction")
+        self.assertEqual(replenish["target"], "StashBackpackFindCurrentItemInRepo")
+        self.assertEqual(replenish["custom_action_param"]["end"], "StashBackpackFindCurrentItemInBag")
+        self.assertEqual(snapshot_adb["__StashBackpackSnapshotItemRecognition"]["roi"], [780, 160, 470, 370])
+        self.assertEqual(overrides["StashBackpackFindCurrentItemInRepo"]["recognition"]["param"]["roi"], [30, 160, 710, 370])
+
     def test_select_transfer_items_filters_categories_and_ore_allowlist(self) -> None:
         catalog = {
             "item_copper_ore": make_item("Ore", -80, 1),

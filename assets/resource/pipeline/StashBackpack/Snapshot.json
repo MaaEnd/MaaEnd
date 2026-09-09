@@ -22,28 +22,51 @@
         "post_delay": 0,
         "rate_limit": 0
     },
-    "__StashBackpackSnapshotScrollDownwardStep": {
-        "desc": "完整快照期间向下滚动背包一次",
-        "pre_delay": 0,
-        "action": "Scroll",
-        "target": [
-            837,
-            350
+    "__StashBackpackSnapshotItemRecognition": {
+        "desc": "由 Go 在当前截图上直接识别整页；平台通过 ROI 覆盖适配布局",
+        "recognition": "Custom",
+        "custom_recognition": "IconRecognition",
+        "custom_recognition_param": {
+            "grid_type": "transfer",
+            "item_filters": ["Normal:*"],
+            "debug": true
+        },
+        "roi": [
+            739,
+            202,
+            398,
+            291
         ],
-        "dy": -180,
+        "pre_delay": 0,
         "post_delay": 0,
         "rate_limit": 0
     },
-    "__StashBackpackSnapshotScrollUpwardStep": {
-        "desc": "完整快照前向上滚动背包一次",
-        "pre_delay": 0,
-        "action": "Scroll",
-        "target": [
-            837,
-            350
+    "__StashBackpackSnapshotScrollbarRecognition": {
+        "desc": "由 Go 读取滑块位置，ROI 与平台布局一致",
+        "recognition": "Custom",
+        "custom_recognition": "ScrollbarRecognition",
+        "roi": [
+            1119,
+            220,
+            5,
+            255
         ],
-        "dy": 180,
+        "pre_delay": 0,
         "post_delay": 0,
+        "rate_limit": 0
+    },
+    "StashBackpackMouseMoveReset": {
+        "desc": "背包搜索前重置鼠标；独立节点便于 ADB 关闭鼠标操作而不影响其他任务",
+        "pre_delay": 0,
+        "action": "TouchMove",
+        "target": [
+            0,
+            0,
+            1,
+            1
+        ],
+        "anchor": {"MouseMoveResetAnchor": "__MouseMoveResetCompleted"},
+        "post_delay": 200,
         "rate_limit": 0
     }
 }

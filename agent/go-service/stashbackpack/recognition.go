@@ -105,9 +105,7 @@ func (r *BagPageRecognition) Run(ctx *maa.Context, arg *maa.CustomRecognitionArg
 
 	matches := make([]bagPageMatch, 0, len(parsed.Matches))
 	if parsed.Error != nil {
-		if parsed.Error.Code != iconrecognition.ErrorCodeNoMatch &&
-			!(parsed.Error.Code == iconrecognition.ErrorCodeGridDetectionFailed &&
-				parsed.Error.Message == emptyGridDetectionErrorMessage) {
+		if parsed.Error.Code != iconrecognition.ErrorCodeNoMatch {
 			globalState.markBagPageRecognitionFailed()
 			log.Error().Str("component", componentName).Str("error_code", string(parsed.Error.Code)).
 				Str("error_message", parsed.Error.Message).Msg("backpack page recognition failed")
@@ -352,12 +350,12 @@ func (r *FullCompleteRecognition) Run(_ *maa.Context, arg *maa.CustomRecognition
 	return &maa.CustomRecognitionResult{Box: arg.Roi}, true
 }
 
-// PlatformSupportedRecognition matches when modifier-click storage is supported by the current controller.
+// PlatformSupportedRecognition matches when storage is supported by the current controller.
 type PlatformSupportedRecognition struct{}
 
 var _ maa.CustomRecognitionRunner = &PlatformSupportedRecognition{}
 
-// Run currently limits the workflow to the Win32 controller implementation.
+// Run keeps embedded stashing on the same supported platforms as the standalone task.
 func (r *PlatformSupportedRecognition) Run(_ *maa.Context, arg *maa.CustomRecognitionArg) (*maa.CustomRecognitionResult, bool) {
 	if arg == nil || !isSupportedControllerType(pienv.ControllerType()) {
 		return nil, false
@@ -366,7 +364,12 @@ func (r *PlatformSupportedRecognition) Run(_ *maa.Context, arg *maa.CustomRecogn
 }
 
 func isSupportedControllerType(controllerType string) bool {
-	return strings.EqualFold(strings.TrimSpace(controllerType), "Win32")
+	switch strings.ToLower(strings.TrimSpace(controllerType)) {
+	case "win32", "adb":
+		return true
+	default:
+		return false
+	}
 }
 
 // SnapshotChangedRecognition matches after the current physical snapshot has been changed by a successful item move.

@@ -8,4 +8,5 @@ func Register() {
 	maa.AgentServerRegisterCustomAction("InventoryTransferStackAction", &TransferStackAction{})
 	maa.AgentServerRegisterCustomAction("InventoryTransferHalfAction", &TransferHalfAction{})
 	maa.AgentServerRegisterCustomAction("InventoryTransferTouchAction", &TouchTransferAction{})
+	maa.AgentServerRegisterCustomAction("InventoryDragTouchAction", &DragTouchAction{})
 }

@@ -49,7 +49,7 @@
     "StashBackpackBagSearchFromCurrent": {
         "pre_delay": 0,
         "anchor": {
-            "MouseMoveResetAnchor": "MouseMoveReset"
+            "MouseMoveResetAnchor": "StashBackpackMouseMoveReset"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -116,7 +116,7 @@
     "StashBackpackBagFallbackScan": {
         "pre_delay": 0,
         "anchor": {
-            "MouseMoveResetAnchor": "MouseMoveReset"
+            "MouseMoveResetAnchor": "StashBackpackMouseMoveReset"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -185,14 +185,15 @@
     "StashBackpackBagSearchScrollDownward": {
         "max_hit": 40,
         "pre_delay": 0,
-        "action": "Scroll",
-        "target": [
-            837,
-            350
-        ],
-        "dy": -180,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "InventoryBagScrollDownward"
+            ]
+        },
         "anchor": {
-            "MouseMoveResetAnchor": "MouseMoveReset"
+            "MouseMoveResetAnchor": "StashBackpackMouseMoveReset"
         },
         "post_wait_freezes": {
             "time": 400,
@@ -210,14 +211,15 @@
     "StashBackpackBagSearchScrollUpward": {
         "max_hit": 20,
         "pre_delay": 0,
-        "action": "Scroll",
-        "target": [
-            837,
-            350
-        ],
-        "dy": 180,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "InventoryBagScrollUpward"
+            ]
+        },
         "anchor": {
-            "MouseMoveResetAnchor": "MouseMoveReset"
+            "MouseMoveResetAnchor": "StashBackpackMouseMoveReset"
         },
         "post_wait_freezes": {
             "time": 400,
@@ -282,7 +284,7 @@
     "StashBackpackRepoSearchFromCurrent": {
         "pre_delay": 0,
         "anchor": {
-            "MouseMoveResetAnchor": "MouseMoveReset"
+            "MouseMoveResetAnchor": "StashBackpackMouseMoveReset"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -349,7 +351,7 @@
     "StashBackpackRepoFallbackScan": {
         "pre_delay": 0,
         "anchor": {
-            "MouseMoveResetAnchor": "MouseMoveReset"
+            "MouseMoveResetAnchor": "StashBackpackMouseMoveReset"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -418,14 +420,15 @@
     "StashBackpackRepoSearchScrollDownward": {
         "max_hit": 40,
         "pre_delay": 0,
-        "action": "Scroll",
-        "target": [
-            640,
-            350
-        ],
-        "dy": -180,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "InventoryRepoScrollDownward"
+            ]
+        },
         "anchor": {
-            "MouseMoveResetAnchor": "MouseMoveReset"
+            "MouseMoveResetAnchor": "StashBackpackMouseMoveReset"
         },
         "post_wait_freezes": {
             "time": 400,
@@ -443,14 +446,15 @@
     "StashBackpackRepoSearchScrollUpward": {
         "max_hit": 20,
         "pre_delay": 0,
-        "action": "Scroll",
-        "target": [
-            640,
-            350
-        ],
-        "dy": 180,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "InventoryRepoScrollUpward"
+            ]
+        },
         "anchor": {
-            "MouseMoveResetAnchor": "MouseMoveReset"
+            "MouseMoveResetAnchor": "StashBackpackMouseMoveReset"
         },
         "post_wait_freezes": {
             "time": 400,
@@ -468,7 +472,7 @@
     "StashBackpackVerifySourceItemMoved": {
         "pre_delay": 0,
         "anchor": {
-            "MouseMoveResetAnchor": "MouseMoveReset"
+            "MouseMoveResetAnchor": "StashBackpackMouseMoveReset"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -570,7 +574,7 @@
         ],
         "pre_delay": 0,
         "anchor": {
-            "MouseMoveResetAnchor": "MouseMoveReset"
+            "MouseMoveResetAnchor": "StashBackpackMouseMoveReset"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -585,14 +589,15 @@
     "StashBackpackRestoreScrollUpward": {
         "max_hit": 20,
         "pre_delay": 0,
-        "action": "Scroll",
-        "target": [
-            837,
-            350
-        ],
-        "dy": 180,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "InventoryBagScrollUpward"
+            ]
+        },
         "anchor": {
-            "MouseMoveResetAnchor": "MouseMoveReset"
+            "MouseMoveResetAnchor": "StashBackpackMouseMoveReset"
         },
         "post_wait_freezes": {
             "time": 400,
@@ -646,7 +651,7 @@
     "StashBackpackRetrievedItemSearch": {
         "pre_delay": 0,
         "anchor": {
-            "MouseMoveResetAnchor": "MouseMoveReset"
+            "MouseMoveResetAnchor": "StashBackpackMouseMoveReset"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -708,14 +713,15 @@
     "StashBackpackRetrievedItemScrollDownward": {
         "max_hit": 20,
         "pre_delay": 0,
-        "action": "Scroll",
-        "target": [
-            837,
-            350
-        ],
-        "dy": -180,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "InventoryBagScrollDownward"
+            ]
+        },
         "anchor": {
-            "MouseMoveResetAnchor": "MouseMoveReset"
+            "MouseMoveResetAnchor": "StashBackpackMouseMoveReset"
         },
         "post_wait_freezes": {
             "time": 400,
@@ -819,7 +825,7 @@
     "StashBackpackBagBatchLoop": {
         "pre_delay": 0,
         "anchor": {
-            "MouseMoveResetAnchor": "MouseMoveReset"
+            "MouseMoveResetAnchor": "StashBackpackMouseMoveReset"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -902,14 +908,15 @@
     "StashBackpackBagBatchScrollDownward": {
         "max_hit": 20,
         "pre_delay": 0,
-        "action": "Scroll",
-        "target": [
-            837,
-            350
-        ],
-        "dy": -180,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "InventoryBagScrollDownward"
+            ]
+        },
         "anchor": {
-            "MouseMoveResetAnchor": "MouseMoveReset"
+            "MouseMoveResetAnchor": "StashBackpackMouseMoveReset"
         },
         "post_wait_freezes": {
             "time": 400,
@@ -943,14 +950,15 @@
     "StashBackpackBagBatchScrollUpward": {
         "max_hit": 20,
         "pre_delay": 0,
-        "action": "Scroll",
-        "target": [
-            837,
-            350
-        ],
-        "dy": 180,
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "InventoryBagScrollUpward"
+            ]
+        },
         "anchor": {
-            "MouseMoveResetAnchor": "MouseMoveReset"
+            "MouseMoveResetAnchor": "StashBackpackMouseMoveReset"
         },
         "post_wait_freezes": {
             "time": 400,

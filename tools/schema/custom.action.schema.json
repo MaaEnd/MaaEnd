@@ -23,6 +23,7 @@
                 "AutoStockpile.CaptureUid",
                 "AutoStockpile.ReconcileDecision",
                 "AutoStockpile.SelectItem",
+                "InventoryDragTouchAction",
                 "InventoryTransferAllAction",
                 "InventoryTransferHalfAction",
                 "InventoryTransferStackAction",
@@ -103,6 +104,31 @@
         }
     },
 	"allOf": [
+        {
+            "if": {
+                "properties": {"custom_action": {"const": "InventoryDragTouchAction"}},
+                "required": ["custom_action"]
+            },
+            "then": {
+                "properties": {
+                    "custom_action_param": {
+                        "type": "object",
+                        "properties": {
+                            "end": {"type": "string", "minLength": 1, "description": "已识别目标格的节点名"},
+                            "end_offset": {
+                                "type": "array",
+                                "items": {"type": "integer"},
+                                "minItems": 4,
+                                "maxItems": 4
+                            }
+                        },
+                        "required": ["end"],
+                        "additionalProperties": false
+                    }
+                },
+                "required": ["custom_action_param"]
+            }
+        },
         {
             "if": {
                 "properties": {"custom_action": {"const": "InventoryTransferTouchAction"}},

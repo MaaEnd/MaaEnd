@@ -100,7 +100,10 @@ func TestSupportedControllerType(t *testing.T) {
 	}{
 		{controllerType: "Win32", want: true},
 		{controllerType: " win32 ", want: true},
-		{controllerType: "Adb", want: false},
+		{controllerType: "Adb", want: true},
+		{controllerType: " ADB ", want: true},
+		{controllerType: "MacOS", want: false},
+		{controllerType: "PlayCover", want: false},
 		{controllerType: "", want: false},
 	} {
 		if got := isSupportedControllerType(testCase.controllerType); got != testCase.want {

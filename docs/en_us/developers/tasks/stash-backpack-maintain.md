@@ -1,12 +1,13 @@
 # Development Manual - Stash and Retrieve Backpack Maintenance
 
 This document describes the state lifecycle and maintenance boundaries of `StashBackpack`, `RetrieveBackpack`, and embedded stashing.
-This documentation was last updated on September 8, 2026.
+This documentation was last updated on September 9, 2026.
 
 ## Supported Scope
 
-- Stashing and retrieval are options of one task, currently limited to `Win32-Front`. Embedded stashing also retains its Win32 gate.
-- Both use `InventoryTransferStackAction`, which performs `Shift + Click` on desktop. The common action provides an ADB gesture, but backpack navigation, recognition, and scrolling still require ADB adaptation. See the [Inventory contract](../../../../agent/go-service/common/inventory/README.md) for platform and cleanup details.
+- Stashing and retrieval are options of one task, available for `Win32-Front`, `ADB`, and `CloudADB`. Embedded stashing shares the same operations and allows Win32 / Adb controllers as well.
+- Both use `InventoryTransferStackAction`. ADB overrides cover item and scrollbar ROIs, the quick-stash region, and preparation before recognition; navigation and categories reuse existing SceneManager support. Four common nodes define upward and downward scrolling for the repository and backpack. Replenishment holds the source item before dragging it onto the matching backpack stack. See the [Inventory contract](../../../../agent/go-service/common/inventory/README.md).
+- ADB is open for testing and has not passed device acceptance. Validate inertia and page overlap, hold-to-drag replenishment, recognition after menu closure, consecutive transfers, and cancellation cleanup. CloudADB also needs multitouch validation. Static screenshot checks do not establish workflow stability.
 - Pipeline owns business flow, navigation, category switching, and item movement. Go Service encapsulates complete snapshot scans and maintains difference queues and page verification state.
 
 ## File Layout
@@ -50,7 +51,7 @@ The difference is multiset subtraction that preserves the `S0` grid order. Repea
 
 `StoreNewItemsWithStashBackpackSubTask` is called by AutoCollect, AutoEcoFarm, and GiftOperator after they acquire items:
 
-1. Confirm that the controller is Win32 and that the current batch has a complete `S0/S1` pair. Otherwise, print a red warning and exit successfully without affecting the host task.
+1. Confirm that the controller is Win32 or Adb and that the current batch has a complete `S0/S1` pair. Otherwise, print a red warning and exit successfully without affecting the host task.
 2. Enter the batch's selected Depot, optionally quick-stash using the original setting, then capture `T` and prepare `T - S1`. Never overwrite `S0/S1`.
 3. Return to the top once before batch stashing. Recognize all remaining target IDs on the current page and transfer them in grid order. After processing the cached page results, recognize again and confirm success by decreased cell counts. Each target gets at most three total attempts, including the first; skip exhausted targets. Finish immediately when the queue is empty, otherwise continue downward.
 4. MXU stops the Agent process after all top-level tasks in a batch finish. Process-local Go state is therefore batch-scoped, and top-level tasks in the same batch share the complete snapshots.

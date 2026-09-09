@@ -12,6 +12,8 @@
 
 三个动作均无 `custom_action_param`。调用方通过外层 `target` / `target_offset` 指定已识别的源物品格；动作使用 Pipeline 已解析的目标框，不再次缩小目标范围。
 
+`InventoryDragTouchAction` 是触屏端的低层补充动作：长按源格，等待操作菜单确认长按已生效，再保持同一触点拖到调用方指定的目标格。它不属于 Ctrl/Shift/Alt 三种数量转移，也不负责物品识别或数量判断；当前由存放背包的“补充可用道具”流程调用。
+
 前置条件是调用方已进入支持物品转移的界面，并完成目标物品识别。动作不负责导航、仓库切换、物品扫描、分页或快照维护。
 
 **返回成功仅表示输入过程成功，不等于物品转移已完成。** 调用方仍须识别操作后的物品状态，再决定是否更新快照或继续任务。
@@ -54,6 +56,12 @@ ADB 的开始和收尾节点为 `DoNothing`，共享点击节点覆盖为内部 
 内部触屏动作使用 `mode: all / stack / half` 选择图标；任务应调用上述三个无参数公共动作，不直接使用内部入口。无需传入背包或仓库方向。
 
 CloudADB 和 PlayCover 继承 ADB 资源，但其控制器的多指支持、完整转移手势和取消清理仍需实机验证；截图匹配通过不代表设备交互已验证。
+
+## 公共滚动节点
+
+`pipeline/Common/Private/Inventory/Scroll.json` 提供 `InventoryBagScrollUpward`、`InventoryBagScrollDownward`、`InventoryRepoScrollUpward`、`InventoryRepoScrollDownward` 四个无后续流程的节点。可由 `SubTask` 或 Go 的 `RunTask` 调用，分别滚动背包或仓库一次；不需要新增 Go 注册。
+
+桌面端使用滚轮，ADB 覆盖为沿列间隙的触摸滑动。调用方负责等待网格稳定、滚动条边界识别、页计数与停止条件，避免不同阶段各自复制手势坐标。快照、搜索和验证必须使用同一组手势，保持页面划分一致。
 
 ## 验证
 
