@@ -61,7 +61,20 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		return false
 	}
 
-	goodsCount := len(result.Data.Goods)
+	if shouldStopTask(result.AbortReason) {
+		return stopTaskWithFocus(ctx, result.AbortReason, nil)
+	}
+	if shouldRouteSkip(result.AbortReason) {
+		return routeSkipWithAbortReason(ctx, arg.CurrentTaskName, result.AbortReason, nil, i18n.T("autostockpile.recognition_early_end"))
+	}
+
+	// 所有非 None 的 abort 原因均已在上面的路由中返回（Fatal 走 stopTaskWithFocus，
+	// Warn/Skip 走 routeSkipWithAbortReason，二者携带的都是 Data == nil）。因此到达此处时
+	// Validate() 的不变式已确立：AbortReason == None 且 Data != nil，可安全解引用。
+	// 注意：解引用必须留在两条路由之后，否则 QuotaZeroSkip（Current == 0 的日常路径）
+	// 会在此处 panic。
+	data := result.Data
+	goodsCount := len(data.Goods)
 
 	log.Info().
 		Str("component", "autostockpile").
@@ -70,14 +83,6 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 		Int("goods_count", goodsCount).
 		Msg("recognition result parsed")
 
-	if shouldStopTask(result.AbortReason) {
-		return stopTaskWithFocus(ctx, result.AbortReason, nil)
-	}
-	if shouldRouteSkip(result.AbortReason) {
-		return routeSkipWithAbortReason(ctx, arg.CurrentTaskName, result.AbortReason, nil, i18n.T("autostockpile.recognition_early_end"))
-	}
-
-	data := result.Data
 	region, err := resolveGoodsRegionFromActionArg(arg)
 	if err != nil {
 		return stopTaskWithFocus(ctx, AbortReasonRegionResolveFailedFatal, err)
