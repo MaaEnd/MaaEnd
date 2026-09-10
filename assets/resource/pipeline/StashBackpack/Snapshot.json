@@ -2,13 +2,13 @@
     "__StashBackpackSnapshotPrepareRecognitionStep": {
         "desc": "识别背包前将鼠标移至左上角并等待物品网格稳定",
         "pre_delay": 0,
-        "action": "TouchMove",
-        "target": [
-            0,
-            0,
-            1,
-            1
-        ],
+        "action": "Custom",
+        "custom_action": "SubTask",
+        "custom_action_param": {
+            "sub": [
+                "MouseMoveReset"
+            ]
+        },
         "post_wait_freezes": {
             "time": 400,
             "timeout": 3000,
@@ -53,20 +53,6 @@
         ],
         "pre_delay": 0,
         "post_delay": 0,
-        "rate_limit": 0
-    },
-    "StashBackpackMouseMoveReset": {
-        "desc": "背包搜索前重置鼠标；独立节点便于 ADB 关闭鼠标操作而不影响其他任务",
-        "pre_delay": 0,
-        "action": "TouchMove",
-        "target": [
-            0,
-            0,
-            1,
-            1
-        ],
-        "anchor": {"MouseMoveResetAnchor": "__MouseMoveResetCompleted"},
-        "post_delay": 200,
         "rate_limit": 0
     }
 }

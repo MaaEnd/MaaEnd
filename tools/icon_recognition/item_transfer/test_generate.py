@@ -216,6 +216,8 @@ class ItemTransferGeneratorTest(unittest.TestCase):
         for name, node in search.items():
             with self.subTest(node=name):
                 self.assertNotEqual(node.get("action"), "Scroll")
+                if "MouseMoveResetAnchor" in node.get("anchor", {}):
+                    self.assertEqual(node["anchor"]["MouseMoveResetAnchor"], "MouseMoveReset")
                 if node.get("custom_action") == "SubTask":
                     self.assertEqual(len(node["custom_action_param"]["sub"]), 1)
                     self.assertIn(node["custom_action_param"]["sub"][0], expected)
@@ -225,13 +227,17 @@ class ItemTransferGeneratorTest(unittest.TestCase):
                 })
 
         snapshot = read_json("assets/resource/pipeline/StashBackpack/Snapshot.json")
+        prepare = snapshot["__StashBackpackSnapshotPrepareRecognitionStep"]
+        self.assertEqual(prepare["custom_action"], "SubTask")
+        self.assertEqual(prepare["custom_action_param"]["sub"], ["MouseMoveReset"])
+        self.assertNotIn("StashBackpackMouseMoveReset", snapshot)
         self.assertEqual(
             snapshot["__StashBackpackSnapshotItemRecognition"]["custom_recognition_param"],
             {"grid_type": "transfer", "item_filters": ["Normal:*"], "debug": True},
         )
         snapshot_adb = read_json("assets/resource_adb/pipeline/StashBackpack/Snapshot.json")
-        for name in ("__StashBackpackSnapshotPrepareRecognitionStep", "StashBackpackMouseMoveReset"):
-            self.assertEqual(snapshot_adb[name]["action"], "DoNothing")
+        self.assertEqual(snapshot_adb["__StashBackpackSnapshotPrepareRecognitionStep"]["action"], "DoNothing")
+        self.assertNotIn("StashBackpackMouseMoveReset", snapshot_adb)
         self.assertEqual(
             snapshot_adb["__StashBackpackSnapshotScrollbarRecognition"]["roi"],
             overrides["StashBackpackBagBatchBottomReached"]["roi"],

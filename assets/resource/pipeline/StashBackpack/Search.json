@@ -49,7 +49,7 @@
     "StashBackpackBagSearchFromCurrent": {
         "pre_delay": 0,
         "anchor": {
-            "MouseMoveResetAnchor": "StashBackpackMouseMoveReset"
+            "MouseMoveResetAnchor": "MouseMoveReset"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -116,7 +116,7 @@
     "StashBackpackBagFallbackScan": {
         "pre_delay": 0,
         "anchor": {
-            "MouseMoveResetAnchor": "StashBackpackMouseMoveReset"
+            "MouseMoveResetAnchor": "MouseMoveReset"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -193,7 +193,7 @@
             ]
         },
         "anchor": {
-            "MouseMoveResetAnchor": "StashBackpackMouseMoveReset"
+            "MouseMoveResetAnchor": "MouseMoveReset"
         },
         "post_wait_freezes": {
             "time": 400,
@@ -219,7 +219,7 @@
             ]
         },
         "anchor": {
-            "MouseMoveResetAnchor": "StashBackpackMouseMoveReset"
+            "MouseMoveResetAnchor": "MouseMoveReset"
         },
         "post_wait_freezes": {
             "time": 400,
@@ -284,7 +284,7 @@
     "StashBackpackRepoSearchFromCurrent": {
         "pre_delay": 0,
         "anchor": {
-            "MouseMoveResetAnchor": "StashBackpackMouseMoveReset"
+            "MouseMoveResetAnchor": "MouseMoveReset"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -351,7 +351,7 @@
     "StashBackpackRepoFallbackScan": {
         "pre_delay": 0,
         "anchor": {
-            "MouseMoveResetAnchor": "StashBackpackMouseMoveReset"
+            "MouseMoveResetAnchor": "MouseMoveReset"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -428,7 +428,7 @@
             ]
         },
         "anchor": {
-            "MouseMoveResetAnchor": "StashBackpackMouseMoveReset"
+            "MouseMoveResetAnchor": "MouseMoveReset"
         },
         "post_wait_freezes": {
             "time": 400,
@@ -454,7 +454,7 @@
             ]
         },
         "anchor": {
-            "MouseMoveResetAnchor": "StashBackpackMouseMoveReset"
+            "MouseMoveResetAnchor": "MouseMoveReset"
         },
         "post_wait_freezes": {
             "time": 400,
@@ -472,7 +472,7 @@
     "StashBackpackVerifySourceItemMoved": {
         "pre_delay": 0,
         "anchor": {
-            "MouseMoveResetAnchor": "StashBackpackMouseMoveReset"
+            "MouseMoveResetAnchor": "MouseMoveReset"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -574,7 +574,7 @@
         ],
         "pre_delay": 0,
         "anchor": {
-            "MouseMoveResetAnchor": "StashBackpackMouseMoveReset"
+            "MouseMoveResetAnchor": "MouseMoveReset"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -597,7 +597,7 @@
             ]
         },
         "anchor": {
-            "MouseMoveResetAnchor": "StashBackpackMouseMoveReset"
+            "MouseMoveResetAnchor": "MouseMoveReset"
         },
         "post_wait_freezes": {
             "time": 400,
@@ -651,7 +651,7 @@
     "StashBackpackRetrievedItemSearch": {
         "pre_delay": 0,
         "anchor": {
-            "MouseMoveResetAnchor": "StashBackpackMouseMoveReset"
+            "MouseMoveResetAnchor": "MouseMoveReset"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -721,7 +721,7 @@
             ]
         },
         "anchor": {
-            "MouseMoveResetAnchor": "StashBackpackMouseMoveReset"
+            "MouseMoveResetAnchor": "MouseMoveReset"
         },
         "post_wait_freezes": {
             "time": 400,
@@ -825,7 +825,7 @@
     "StashBackpackBagBatchLoop": {
         "pre_delay": 0,
         "anchor": {
-            "MouseMoveResetAnchor": "StashBackpackMouseMoveReset"
+            "MouseMoveResetAnchor": "MouseMoveReset"
         },
         "post_delay": 0,
         "rate_limit": 0,
@@ -916,7 +916,7 @@
             ]
         },
         "anchor": {
-            "MouseMoveResetAnchor": "StashBackpackMouseMoveReset"
+            "MouseMoveResetAnchor": "MouseMoveReset"
         },
         "post_wait_freezes": {
             "time": 400,
@@ -958,7 +958,7 @@
             ]
         },
         "anchor": {
-            "MouseMoveResetAnchor": "StashBackpackMouseMoveReset"
+            "MouseMoveResetAnchor": "MouseMoveReset"
         },
         "post_wait_freezes": {
             "time": 400,
