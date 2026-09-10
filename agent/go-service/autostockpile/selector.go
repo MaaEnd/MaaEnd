@@ -109,14 +109,16 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 
 	serverNow := time.Now()
 	serverDate, serverWeekday := serverDateInfo(serverNow, serverLocation)
-	if err := storeDailyGoodsPrices(attach.AllowDataUpload, serverNow, serverLocation, region, captureuid.GetCachedUID(captureuid.OutputTypeHashed), *data); err != nil {
-		log.Warn().
-			Err(err).
-			Str("component", "autostockpile").
-			Str("server_date", serverDate).
-			Int("weekday", serverWeekday).
-			Str("region", region).
-			Msg("failed to store daily goods prices")
+	if attach.AllowDataUpload {
+		if err := storeDailyGoodsPrices(serverNow, serverLocation, region, captureuid.GetCachedUID(captureuid.OutputTypeHashed), *data); err != nil {
+			log.Warn().
+				Err(err).
+				Str("component", "autostockpile").
+				Str("server_date", serverDate).
+				Int("weekday", serverWeekday).
+				Str("region", region).
+				Msg("failed to store daily goods prices")
+		}
 	}
 
 	cfg, err := buildSelectionConfig(region, serverLocation, applyWeekdayAdjustment)

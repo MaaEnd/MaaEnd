@@ -42,11 +42,9 @@ func maaWeekday(weekday time.Weekday) int {
 	return int(weekday)
 }
 
-func storeDailyGoodsPrices(enabled bool, now time.Time, loc *time.Location, region string, uid string, data RecognitionData) error {
-	if !enabled {
-		return nil
-	}
-
+// storeDailyGoodsPrices 落盘当日商品价格记录。
+// 是否允许落盘由调用方判定（见 AutoStockpileAttach.AllowDataUpload）。
+func storeDailyGoodsPrices(now time.Time, loc *time.Location, region string, uid string, data RecognitionData) error {
 	if uid == "" {
 		uid = "unknown"
 	}
