@@ -76,6 +76,11 @@ func resolveGoodsRegionFromCustomActionParam(raw any) (string, error) {
 	return region, nil
 }
 
+// normalizeCustomActionParam 将 custom_action_param 统一为 map。
+// 两条来源的类型不同，不可删任一分支：
+//   - 任务节点路径（resolveGoodsRegionFromTaskNode）：SDK 已把 JSON 对象解析为 map[string]any；
+//   - 动作回调路径（resolveGoodsRegionFromActionArg）：SDK 以原始 JSON 文本传入
+//     CustomActionArg.CustomActionParam（Go string），必须先反序列化。
 func normalizeCustomActionParam(raw any) (map[string]any, error) {
 	switch value := raw.(type) {
 	case map[string]any:
