@@ -175,6 +175,8 @@ class ItemTransferGeneratorTest(unittest.TestCase):
             self.assertEqual(adb[node]["action"], "TouchDown")
             self.assertEqual(adb[node]["contact"], contact)
             self.assertEqual(adb[node]["pressure"], 1)
+        self.assertEqual(adb["__InventoryTransferSourceTouchDown"]["post_delay"], 0)
+        self.assertEqual(adb["__InventoryTransferButtonTouchDown"]["post_delay"], 100)
         recognition = read_json("assets/resource_adb/pipeline/Common/Private/Inventory/Recognition.json")
         for mode in ("All", "Stack", "Half"):
             for side, x in (("Left", 150), ("Right", 1030)):
@@ -206,10 +208,14 @@ class ItemTransferGeneratorTest(unittest.TestCase):
                 override = adb[name]
                 self.assertEqual(override["action"], "Swipe")
                 self.assertNotIn("next", source)
-                begin, end = override["begin"], override["end"]
-                self.assertEqual(begin[0], end[0])
-                self.assertGreater((end[1] - begin[1]) * source["dy"], 0)
-                self.assertLess(abs(end[1] - begin[1]), 342)
+                begin, ends = override["begin"], override["end"]
+                self.assertEqual(len(ends), 2)
+                vertical_end, brake_end = ends
+                self.assertEqual(begin[0], vertical_end[0])
+                self.assertGreater((vertical_end[1] - begin[1]) * source["dy"], 0)
+                self.assertLess(abs(vertical_end[1] - begin[1]), 342)
+                self.assertEqual(brake_end, [vertical_end[0] + 50, vertical_end[1]])
+                self.assertEqual(override["end_hold"], 200)
 
         search = read_json("assets/resource/pipeline/StashBackpack/Search.json")
         overrides = read_json("assets/resource_adb/pipeline/StashBackpack/Search.json")
