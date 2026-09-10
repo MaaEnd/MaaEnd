@@ -128,7 +128,7 @@ func (a *SelectItemAction) Run(ctx *maa.Context, arg *maa.CustomActionArg) bool 
 	if bypassThresholdFilter {
 		log.Info().
 			Str("component", "autostockpile").
-			Bool("overflow_allow", result.hasOverflow()).
+			Bool("overflow_allow", bypassThresholdFilter).
 			Msg("allow all goods mode enabled")
 	}
 
