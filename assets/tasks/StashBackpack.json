@@ -78,7 +78,14 @@
         "StashBackpackManualCategories": {
             "type": "checkbox",
             "label": "$option.StashBackpackManualCategories.label",
-            "default_case": [],
+            "default_case": [
+                "Ore",
+                "Plant",
+                "Product",
+                "Doodad",
+                "Nurturance",
+                "Producer"
+            ],
             "cases": [
                 {
                     "name": "Ore",
