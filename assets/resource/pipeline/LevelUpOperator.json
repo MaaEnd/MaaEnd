@@ -371,7 +371,8 @@
                     100
                 ],
                 "template": [
-                    "LevelUpOperator/OperatorSelected.png"
+                    "LevelUpOperator/OperatorSelected.png",
+                    "LevelUpOperator/OperatorSelected2.png"
                 ],
                 "green_mask": true
             }
@@ -451,7 +452,11 @@
             }
         },
         "post_wait_freezes": 100,
+        "anchor": {
+            "MouseMoveResetAnchor": "MouseMoveReset"
+        },
         "next": [
+            "[JumpBack][Anchor]MouseMoveResetAnchor",
             "LevelUpOperatorClearSwipeLeftHitCount"
         ]
     },
